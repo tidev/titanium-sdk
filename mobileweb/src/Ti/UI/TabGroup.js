@@ -9,10 +9,11 @@ define("Ti/UI/TabGroup", ["Ti/_/declare", "Ti/_/UI/SuperView"], function(declare
 		removeTab: function(x,y) {
 			console.debug('Method "Titanium.UI.TabGroup#.removeTab" is not implemented yet.');
 		},
+		
+		_defaultWidth: "100%",
+		_defaultHeight: "100%",
 
 		properties: {
-			_defaultWidth: "100%",
-			_defaultHeight: "100%",
 			activeTab: {
 				get: function(value) {
 					// TODO

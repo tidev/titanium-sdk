@@ -59,26 +59,26 @@ define("Ti/UI/ImageView",
 			}
 		},
 
+		_defaultWidth: "auto",
+		_defaultHeight: "auto",
+		_contentWidth: {
+			get: function(value) {
+				return this.imageDisplay.width;
+			},
+			set: function(value) {
+				return this.imageDisplay.width;
+			}
+		},
+		_contentHeight: {
+			get: function(value) {
+				return this.imageDisplay.height;
+			},
+			set: function(value) {
+				return this.imageDisplay.height;
+			}
+		},
+		
 		properties: {
-			_defaultWidth: "auto",
-			_defaultHeight: "auto",
-			_contentWidth: {
-				get: function(value) {
-					return this.imageDisplay.width;
-				},
-				set: function(value) {
-					return this.imageDisplay.width;
-				}
-			},
-			
-			_contentHeight: {
-				get: function(value) {
-					return this.imageDisplay.height;
-				},
-				set: function(value) {
-					return this.imageDisplay.height;
-				}
-			},
 			animating: false,
 			canScale: {
 				set: function(value, oldValue){

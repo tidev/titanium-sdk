@@ -11,10 +11,11 @@ define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style"], functio
 		scrollTo: function(x,y) {
 			console.debug('Method "Titanium.UI.ScrollView#.scrollTo" is not implemented yet.');
 		},
+		
+		_defaultWidth: "100%",
+		_defaultHeight: "100%",
 
 		properties: {
-			_defaultWidth: "100%",
-			_defaultHeight: "100%",
 			canCancelEvents: {
 				get: function(value) {
 					// TODO

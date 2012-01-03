@@ -29,29 +29,27 @@ define("Ti/UI/TextArea", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/
 		hasText: function() {
 			return (this.textArea.value !== "");
 		},
-
-		properties: {
-            _defaultWidth: "auto",
-            _defaultHeight: "auto",
 		
-			_contentWidth: {
-				get: function(value) {
-					return this.textArea.clientWidth;
-				},
-				set: function(value) {
-					return this.textArea.clientWidth;
-				}
+        _defaultWidth: "auto",
+        _defaultHeight: "auto",
+		_contentWidth: {
+			get: function(value) {
+				return this.textArea.clientWidth;
 			},
-			
-			_contentHeight: {
-				get: function(value) {
-					return this.textArea.clientHeight;
-				},
-				set: function(value) {
-					return this.textArea.clientHeight;
-				}
+			set: function(value) {
+				return this.textArea.clientWidth;
+			}
+		},
+		_contentHeight: {
+			get: function(value) {
+				return this.textArea.clientHeight;
 			},
-            
+			set: function(value) {
+				return this.textArea.clientHeight;
+			}
+		},
+
+		properties: {            
 			hintText: {
 				set: function(value) {
 					this.textArea.placeholder = value;

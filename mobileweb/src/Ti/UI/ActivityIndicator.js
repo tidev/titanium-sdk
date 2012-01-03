@@ -10,9 +10,10 @@ define("Ti/UI/ActivityIndicator", ["Ti/_/declare", "Ti/_/UI/Element"], function(
 			console.debug('Method "Titanium.UI.ActivityIndicator#.hide" is not implemented yet.');
 		},
 		
+		_defaultWidth: "auto",
+		_defaultHeight: "auto",
+		
 		properties: {
-			_defaultWidth: "auto",
-			_defaultHeight: "auto",
 			color: {
 				get: function(value) {
 					// TODO

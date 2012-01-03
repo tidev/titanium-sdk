@@ -2,9 +2,10 @@ define("Ti/UI/TableViewSection", ["Ti/_/declare", "Ti/_/UI/Widget"], function(de
 
 	return declare("Ti.UI.TableViewSection", Widget, {
 
+		_defaultHeight: "auto",
+		_defaultWidth: "auto",
+			
 		properties: {
-			_defaultHeight: "auto",
-			_defaultWidth: "auto",
 			footerTitle: {
 				get: function(value) {
 					// TODO

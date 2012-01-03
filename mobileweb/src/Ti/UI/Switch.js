@@ -14,29 +14,27 @@ define("Ti/UI/Switch", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css"
 			this._switch.type = "checkbox";
 			this.domNode.appendChild(this._switch);
 		},
+		
+		_defaultWidth: "auto",
+        _defaultHeight: "auto",
+		_contentWidth: {
+			get: function(value) {
+				return this._switch.clientWidth;
+			},
+			set: function(value) {
+				return this._switch.clientWidth;
+			}
+		},
+		_contentHeight: {
+			get: function(value) {
+				return this.textArea.clientHeight;
+			},
+			set: function(value) {
+				return this.textArea.clientHeight;
+			}
+		},
 
 		properties: {
-			_defaultWidth: "auto",
-            _defaultHeight: "auto",
-		
-			_contentWidth: {
-				get: function(value) {
-					return this._switch.clientWidth;
-				},
-				set: function(value) {
-					return this._switch.clientWidth;
-				}
-			},
-			
-			_contentHeight: {
-				get: function(value) {
-					return this.textArea.clientHeight;
-				},
-				set: function(value) {
-					return this.textArea.clientHeight;
-				}
-			},
-            
             title: {
 				get: function(value) {
 					// TODO

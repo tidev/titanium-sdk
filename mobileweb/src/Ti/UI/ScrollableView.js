@@ -161,10 +161,11 @@ define("Ti/UI/ScrollableView",
 				}));
 			}
 		},
+		
+		_defaultWidth: "100%",
+		_defaultHeight: "100%",
 
 		properties: {
-			_defaultWidth: "100%",
-			_defaultHeight: "100%",
 			currentPage: {
 				get: function() {
 					return this._currentPage;
