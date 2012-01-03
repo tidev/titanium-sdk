@@ -341,7 +341,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	private void setDataSource()
 	{
 		try {
-			if (Build.VERSION.SDK_INT < TiC.API_LEVEL_ICE_CREAM_SANDWICH &&
+			if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB &&
 					("http".equals(mUri.getScheme()) || "https".equals(mUri.getScheme()))) {
 				// Media player doesn't handle redirects, try to follow them
 				// here. (Redirects work fine without this in ICS.)
