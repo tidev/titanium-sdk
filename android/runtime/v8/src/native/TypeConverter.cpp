@@ -325,7 +325,20 @@ jintArray TypeConverter::jsArrayToJavaIntArray(v8::Handle<v8::Array> jsArray)
 
 v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(jintArray javaIntArray)
 {
-	return javaDoubleArrayToJsNumberArray((jdoubleArray) javaIntArray);
+	JNIEnv *env = JNIScope::getEnv();
+	if (env == NULL) {
+		return v8::Handle<v8::Array>();
+	}
+
+	int arrayLength = env->GetArrayLength(javaIntArray);
+	v8::Handle<v8::Array> jsArray = v8::Array::New(arrayLength);
+
+	jint *arrayElements = env->GetIntArrayElements(javaIntArray, 0);
+	for (int i = 0; i < arrayLength; i++) {
+		jsArray->Set((uint32_t) i, v8::Integer::New(arrayElements[i]));
+	}
+
+	return jsArray;
 }
 
 jlongArray TypeConverter::jsArrayToJavaLongArray(v8::Handle<v8::Array> jsArray)
