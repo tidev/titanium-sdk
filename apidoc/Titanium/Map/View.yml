@@ -186,3 +186,15 @@ properties:
   - name: userLocation
     summary: boolean to indicate if the map should show the user's current device location as a pin on the map
     type: Boolean
+  - name: latitudeDelta
+    summary: The amount of north-to-south distance (measured in degrees) displayed on the map.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "1.9.0"
+  - name: longitudeDelta
+    summary: The amount of east-to-west distance (measured in degrees) displayed on the map.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "1.9.0"

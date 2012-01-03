@@ -103,10 +103,10 @@ properties:
     type: String
 
   - name: backButtonTitleImage
-    summary: URL to an image to show as the back button.
+    summary: The image to show as the back button.
         This is only valid when the window is a child of a tab.
     platforms: [iphone, ipad]
-    type: String
+    type: [String, Titanium.Blob]
 
   - name: barColor
     summary: Background color for the nav bar, specified as a hex color or color name.

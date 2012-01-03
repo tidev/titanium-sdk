@@ -569,8 +569,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
     
 	if (request!=nil)
 	{
-        NSString* header = [TiUtils caseCorrect:args];
-		return [[request responseHeaders] objectForKey:header];
+        return [TiUtils getResponseHeader:args fromHeaders:[request responseHeaders]];
 	}
 	return nil;
 }
