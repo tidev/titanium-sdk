@@ -112,7 +112,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 	// activity getter (account for scenario when heavy weight window's activity is not created yet) 
 	var activityProxyGetter = function () {
-		if (this.currentState == this.state.opened || this.currentState == this.state.opening) {
+		if (this.currentState == this.state.opened) {
 			return this.window._internalActivity;
 		}
 
@@ -196,10 +196,6 @@ exports.bootstrapWindow = function(Titanium) {
 			kroll.extend(this._properties, this.propertyCache);
 		}
 
-		if (this.cachedActivityProxy) {
-			this._properties['activity'] = this.cachedActivityProxy;
-		}
-
 		var needsOpen = false;
 		if (this.isActivity) {
 			this.window = new ActivityWindow(this._properties);
@@ -262,7 +258,7 @@ exports.bootstrapWindow = function(Titanium) {
 		if ("url" in this._properties) {
 			this.loadUrl();
 		}
-		
+
 		// Add event listeners and update the source of events after the window opens
 		for (var event in this._events) { 
 			var listeners = this.listeners(event); 
@@ -276,6 +272,10 @@ exports.bootstrapWindow = function(Titanium) {
 			self.view = null;
 			self.currentState = self.state.closed;
 		});
+		
+		if (this.cachedActivityProxy) {
+			this.window._internalActivity.extend(this.cachedActivityProxy);
+		}
 
 		this.currentState = this.state.opened;
 		this.fireEvent("open");

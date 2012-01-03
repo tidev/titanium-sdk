@@ -51,6 +51,16 @@ public class TabProxy extends TiViewProxy
 		return null;
 	}
 
+	@Override
+	public void handleCreationDict(KrollDict options)
+	{
+		super.handleCreationDict(options);
+		Object window = options.get(TiC.PROPERTY_WINDOW);
+		if (window instanceof TiWindowProxy) {
+			setWindow((TiWindowProxy) window);
+		}
+	}
+
 	@Kroll.method @Kroll.setProperty
 	public void setWindow(TiWindowProxy window)
 	{
