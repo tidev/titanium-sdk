@@ -75,11 +75,11 @@ define("Ti/UI/Switch", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css"
 			
             value: {
 				get: function(value) {
-					return this.switch.value;
+					return this._switch.value;
 				},
 				set: function(value) {
-					this.switch.value = value ? true : false
-					return this.switch.value;
+					this._switch.value = value ? true : false
+					return this._switch.value;
 				}
 			}
 		}
