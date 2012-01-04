@@ -342,11 +342,11 @@ properties:
     permission: read-only
   - name: MEDIA_TYPE_PHOTO
     summary: Media type constant for photo media.
-    type: Number
+    type: String
     permission: read-only
   - name: MEDIA_TYPE_VIDEO
     summary: Media type constant for video media.
-    type: Number
+    type: String
     permission: read-only
   - name: MUSIC_MEDIA_TYPE_ALL
     summary: Music library media containing any type of content.
@@ -1009,18 +1009,35 @@ properties:
     type: Titanium.UI.2DMatrix
     default: identity matrix
   - name: inPopOver
-    summary: Show the camera or photo gallery in a popover.
+    summary: Show the camera in a popover.
+    description: |
+        Use `inPopOver: true` on iPad to display the camera view in a popover.
+
+        Note that the photo gallery is always displayed in a popover, and this property is 
+        ignored if specified.
     type: Boolean
     default: false
     platforms: [ipad]
   - name: popoverView 
-    summary: View to position the camera or photogallery popover on top of (ignored when `inPopOver` is `false`).
+    summary: View to position the camera or photo gallery popover on top of.
+    description: |
+        For `showCamera`, this property is only used if the camera is displayed in a 
+        popover (`inPopOver` is `true`).
+
+        The photo gallery is always displayed in a popover on iPad.
     type: Titanium.UI.View
+    platforms: [ipad]
   - name: arrowDirection
-    summary: Controls the type of arrow and position of the popover (ignored when `inPopOver` is `false`).
+    summary: Controls the type of arrow and position of the popover.
     description: |
         Specify one of the `POPOVER_ARROW_DIRECTION` constants from <Titanium.UI.iPad>.
+
+        For `showCamera`, this property is only used if the camera is displayed in a 
+        popover (`inPopOver` is `true`).
+
+        The photo gallery is always displayed in a popover on iPad.
     type: Number
+    platforms: [ipad]
 
 ---
 name: CameraMediaItemType
