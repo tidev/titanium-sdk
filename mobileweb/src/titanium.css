@@ -33,36 +33,36 @@ body {
 	position: absolute;
 }
 
-.TiVideoPlayer {
+.TiMediaVideoPlayer {
 	position: relative;
 }
 
-.TiVideoPlayer video {
+.TiMediaVideoPlayer video {
 	left: 0;
 	position: absolute;
 	top: 0;
 }
 
-.TiVideoPlayer.scaling-none {
+.TiMediaVideoPlayer.TiScalingNone {
 	overflow: hidden;
 }
 
-.TiVideoPlayer.scaling-aspect-fit video {
+.TiMediaVideoPlayer.TiScalingAspectFit video {
 	height: 100%;
 	max-height: 100%;
 	max-width: 100%;
 	width: 100%;
 }
 
-.TiVideoPlayer video.fullscreen {
+.TiMediaVideoPlayer video.fullscreen {
 	background-color: #000;
 	position: fixed;
 }
 
-.TiVideoPlayer video:-webkit-full-screen {
+.TiMediaVideoPlayer video:-webkit-full-screen {
 	max-height: 100%;
 }
 
-.TiVideoPlayer video:-moz-full-screen {
+.TiMediaVideoPlayer video:-moz-full-screen {
 	max-height: 100%;
 }

@@ -68,16 +68,17 @@ class Compiler(object):
 				'Ti/Locale.js',
 				'Ti/Map.js',
 				'Ti/Media.js',
-				'Ti/Media/VideoPlayer.js',
 				'Ti/Network.js',
 				'Ti/Network/HTTPClient.js',
 				'Ti/Platform.js',
 				'Ti/Platform/DisplayCaps.js',
 				'Ti/UI.js',
+				'Ti/Gesture.js',
 				'Ti/XML.js',
 				
 				# View classes
 				'Ti/UI/View.js',
+				'Ti/Media/VideoPlayer.js',
 				'Ti/UI/TableViewRow.js',
 				
 				# SuperView classes
@@ -267,9 +268,12 @@ class Compiler(object):
 		titanium_css = ''
 		
 		try:
-			os.makedirs(os.path.join(self.build_dir, 'Ti'))
+			shutil.rmtree(os.path.join(self.build_dir, 'Ti'))
 		except:
 			pass
+		
+		print "Copying %s to %s" % (os.path.join(src_dir, 'Ti'), self.build_dir)
+		shutil.copytree(os.path.join(src_dir, 'Ti'), os.path.join(self.build_dir, 'Ti'))
 		
 		for api in self.defines:
 			api_file = os.path.join(src_dir,api)

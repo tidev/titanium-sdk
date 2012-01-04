@@ -14,8 +14,7 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 	
 	return declare("Ti.UI.Button", FontWidget, {
 		
-		constructor: function(args) {
-			
+		constructor: function() {
 			set(this.domNode, "backgroundSize","100% 100%");
 			set(this.domNode, "backgroundRepeat","no-repeat");
 			
@@ -27,22 +26,24 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 			set(this.button,"height","100%");
 			
 			this.contentContainer = dom.create("div", {
-				className: css.clean("TiUIButtonContentContainer")
+				className: "TiUIButtonContentContainer"
 			});
 			this.button.appendChild(this.contentContainer)
 			set(this.contentContainer, "display", "-webkit-box");
-			set(this.contentContainer, "display", "-moz-box");
-			set(this.contentContainer, "boxOrient", "horizontal");
-			set(this.contentContainer, "boxPack", "center");
-			set(this.contentContainer, "boxAlign", "center");
+			set(this.contentContainer, {
+				display: "-moz-box",
+				boxOrient: "horizontal",
+				boxPack: "center",
+				boxAlign: "center"
+			});
 			
 			this.buttonImage = dom.create("img", {
-				className: css.clean("TiUIButtonImage")
+				className: "TiUIButtonImage"
 			});
 			this.contentContainer.appendChild(this.buttonImage);
 			
 			this.buttonTitle = dom.create("div", {
-				className: css.clean("TiUIButtonTitle")
+				className: "TiUIButtonTitle"
 			});
 			this.contentContainer.appendChild(this.buttonTitle);
 			this._addStyleableDomNode(this.buttonTitle);

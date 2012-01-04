@@ -129,7 +129,7 @@
 		//
 		// returns:
 		//		Boolean
-		return !is(it,"Undefined");
+		return !is(it, "Undefined");
 	}
 
 	function isEmpty(it) {
@@ -240,20 +240,59 @@
 	 * Event handling
 	 *****************************************************************************/
 
-	function on(target, type, listener) {
+	function on(target, type, context, listener) {
 		// summary:
 		//		Connects a listener to an event on the specified target.
+		//
+		// target: Object|DomNode
+		//		The target to add the event listener to.
+		//
+		// type: String
+		//		The event to listen for.
+		//
+		// context: Object|Function
+		//		When listener is defined, the context is the scope in which the listener
+		//		is executed.
+		//
+		// listener: Function?|String?
+		//		Optional. When present, the context is used as the scope.
+		//
+		// example:
+		//		Attaching to a click event:
+		//		|	on(myButton, "click", function() {
+		//		|		alert("Howdy!");
+		//		|	});
+		//
+		// example:
+		//		Attaching to a click event within a declared class method:
+		//		|	...
+		//		|	constructor: function() {
+		//		|		require.on(myButton, "click", this, "onButtonClick");
+		//		|	},
+		//		|	onButtonClick: function() {
+		//		|		alert("Howdy from " + this.declaredClass + "!");
+		//		|	}
+		//		|	...
+		//
+		// example:
+		//		Attaching to a click event with an anonymous function in a declared class:
+		//		|	...
+		//		|	constructor: function() {
+		//		|		require.on(myButton, "click", this, function() {
+		//		|			alert("Howdy from " + this.declaredClass + "!");
+		//		|		});
+		//		|	}
+		//		|	...
 
-		if (type.call) {
-			// event handler function
-			return type.call(target, listener);
-		}
+		var cb = is(listener, "Function") ? function() {
+			return listener.apply(context, arguments);
+		} : is(listener, "String") ? function() {
+			return context[listener].apply(context, arguments);
+		} : context;
 
-		// TODO: fix touch events?
-
-		target.addEventListener(type, listener, false);
+		target.addEventListener(type, cb, false);
 		return function() {
-			target.removeEventListener(type, listener, false);
+			target.removeEventListener(type, cb, false);
 		};
 	}
 
@@ -1083,7 +1122,8 @@ require.cache({
 			 * <http://dojotoolkit.org>
 			 */
 
-			var is = require.is;
+			var is = require.is,
+				mix = require.mix;
 
 			// C3 Method Resolution Order (see http://www.python.org/download/releases/2.3/mro/)
 			function c3mro(bases, className) {
@@ -1164,7 +1204,7 @@ require.cache({
 			}
 
 			function makeConstructor(bases, ctorSpecial) {
-				return function(){
+				return function() {
 					var a = arguments,
 						args = a,
 						a0 = a[0],
@@ -1204,11 +1244,7 @@ require.cache({
 					}
 
 					// 3) mixin args if any
-					if (is(a0, "Object")) {
-						for (p in a0) {
-							a0.hasOwnProperty(p) && (this[p] = a0[p]);
-						}
-					}
+					is(a0, "Object") && mix(this, a0);
 
 					// 4) continue the original ritual: call the postscript
 					f = this.postscript;
@@ -1249,7 +1285,6 @@ require.cache({
 				var bases = [definition.constructor],
 					ctor,
 					i,
-					mix = require.mix,
 					mixins = 1,
 					proto = {},
 					superclassType = is(superclass),
@@ -1764,6 +1799,26 @@ require.cache({
 		define(["Ti/_", "Ti/_/string"], function(_, string) {
 			var vp = require.config.vendorPrefixes.dom;
 
+			function set(node, name, value) {
+				var i = 0,
+					x,
+					uc;
+				if (arguments.length > 2) {
+					while (i < vp.length) {
+						x = vp[i++];
+						x += x ? uc || (uc = string.capitalize(name)) : name;
+						if (x in node.style) {
+							return node.style[x] = value;
+						}
+					}
+				} else {
+					for (x in name) {
+						set(node, x, name[x]);
+					}
+				}
+				return node;
+			}
+
 			return {
 				url: function(url) {
 					return !url ? "" : /^url\(/.test(url) ? url : "url(" + _.getAbsolutePath(url) + ")";
@@ -1779,25 +1834,7 @@ require.cache({
 					return node.style[name];
 				},
 
-				set: function(node, name, value) {
-					var i = 0,
-						x,
-						uc;
-					if (arguments.length > 2) {
-						while (i < vp.length) {
-							x = vp[i++];
-							x += x ? uc || (uc = string.capitalize(name)) : name;
-							if (x in node.style) {
-								return node.style[x] = value;
-							}
-						}
-					} else {
-						for (x in name) {
-							this.set(node, x, name[x]);
-						}
-					}
-					return node;
-				}
+				set: set
 			};
 		});
 	}

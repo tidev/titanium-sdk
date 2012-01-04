@@ -1,31 +1,30 @@
 define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/style"], function(dom, Evented, lang, style) {
 	
-	var undef,
-		isDef = require.isDef;
+	var isDef = require.isDef;
 
 	return lang.setObject("Ti.UI", Evented, {
-		
+
 		_addWindow: function(win) {
 			this._validateContainer();
 			this._container.add(win);
 		},
-		
+
 		_removeWindow: function(win) {
 			this._validateContainer();
 			this._container.remove(win);
 		},
-		
+
 		_doFullLayout: function() {
 			if (!this._layoutInProgress) {
 				this._layoutInProgress = true;
 				setTimeout(lang.hitch(this, function(){
 					this._validateContainer();
-					this._container.doLayout(0,0,document.body.clientWidth,document.body.clientHeight,true,true);
+					this._container.doLayout(0, 0, document.body.clientWidth, document.body.clientHeight, true, true);
 					this._layoutInProgress = false;
-				}),25);
+				}), 25);
 			}
 		},
-		
+
 		_validateContainer: function() {
 			if (!isDef(this._container)) {
 				this._layoutInProgress = false;
@@ -35,7 +34,7 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/style"], functio
 				document.body.appendChild(this._container.domNode);
 			}
 		},
-		
+
 		properties: {
 			backgroundColor: {
 				set: function(value) {

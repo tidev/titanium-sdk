@@ -1,20 +1,20 @@
 define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style"], function(declare, View, style) {
-	
-	var set = style.set;
 
 	return declare("Ti.UI.ScrollView", View, {
 		
 		constructor: function(args) {
-			set(this.domNode,"overflow","scroll");
+			style.set(this.domNode, "overflow", "scroll");
 		},
 		
 		scrollTo: function(x,y) {
-			console.debug('Method "Titanium.UI.ScrollView#.scrollTo" is not implemented yet.');
+			x !== null && (this.domNode.scrollLeft = parseInt(x));
+			y !== null && (this.domNode.scrollTop = parseInt(y));
 		},
 
+		_defaultWidth: "100%",
+		_defaultHeight: "100%",
+
 		properties: {
-			_defaultWidth: "100%",
-			_defaultHeight: "100%",
 			canCancelEvents: {
 				get: function(value) {
 					// TODO

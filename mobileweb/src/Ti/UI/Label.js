@@ -18,7 +18,7 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/c
 			set(this.textAlignerDiv, "boxPack", "center");
 			set(this.textAlignerDiv, "width", "100%");
 			set(this.textAlignerDiv, "height", "100%");
-			set(this.textAlignerDiv,"overflow","hidden");
+			set(this.textAlignerDiv, "overflow", "hidden");
 			
 			// Create the container div. This gets floated by the flexbox
 			this.textContainerDiv = dom.create("div", {

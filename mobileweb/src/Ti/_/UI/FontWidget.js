@@ -29,7 +29,7 @@ define("Ti/_/UI/FontWidget", ["Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/UI
 		properties: {
 			font: {
 				set: function(value) {
-					for(var domNode in this._styleableDomNodes) {
+					for (var domNode in this._styleableDomNodes) {
 						this._setFont(value,this._styleableDomNodes[domNode]);
 					}
 					return value;
