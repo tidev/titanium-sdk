@@ -22,7 +22,9 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiBaseWindowProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -180,7 +182,16 @@ public class TabGroupProxy extends TiWindowProxy
 				Log.w(LCAT, "Could not add tab because tab activity no longer exists");
 			}
 		}
-		Drawable icon = TiDrawableReference.fromObject(getActivity(), tab.getProperty(TiC.PROPERTY_ICON)).getDrawable();
+		Object iconProperty = tab.getProperty(TiC.PROPERTY_ICON);
+		Drawable icon;
+		if (iconProperty instanceof String) {
+			TiUrl iconUrl = new TiUrl((String) iconProperty);
+			TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
+			icon = tfh.loadDrawable(iconUrl.resolve(), false);
+		} else {
+			icon = TiDrawableReference.fromObject(getActivity(), tab.getProperty(TiC.PROPERTY_ICON)).getDrawable();
+		}
+
 		String tag = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TAG));
 		String title = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TITLE));
 		if (title == null) {
