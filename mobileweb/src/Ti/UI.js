@@ -30,7 +30,7 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/style"], functio
 			
 			// Get the event bubble
 			var controlList = [];
-			this._calculateMouseEventBubble(x,y,this._container,controlList);
+			this._calculateMouseEventBubble(x, y, 0, 0, this._container, controlList);
 			
 			// Call the event handlers
 			for (var i = controlList.length - 1; i >= 0; i--) {
@@ -41,29 +41,48 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/style"], functio
 			}
 		},
 		
-		_calculateMouseEventBubble: function(x, y, currentControl, controlList) {
+		_calculateMouseEventBubble: function(x, y, xOffset, yOffset, currentControl, controlList) {
 			
-			// Check if this control intersects with the coordinates
-			if (currentControl.touchEnabled && 
-				currentControl._measuredLeft <= x && currentControl._measuredLeft + currentControl._measuredWidth >= x && 
-				currentControl._measuredTop <= y && currentControl._measuredTop + currentControl._measuredHeight >= y) {
+			// Check if any of the control's children intersets with the coordinates
+			var children = currentControl.children;
+			if (children && children.length > 0) {
+				var frontChild,
+					frontChildZIndex,
+					frontLeftEdge,
+					frontTopEdge;
+				for (var i = 0; i < children.length; i++) {
 					
-				// Add the control to the list
-				controlList.push(currentControl);
-			
-				// Check if any of the controls children intersets with the coordinates
-				var children = currentControl.children;
-				if (children && children.length > 0) {
-					var frontChildControl = children[0];
-					var frontZIndex = isDef(frontChildControl.zIndex) ? frontChildControl.zIndex : 0;
-					for (var i = 1; i < children.length; i++) {
-						var currentZIndex = isDef(children[i].zIndex) ? children[i].zIndex : 0;
-						if (currentZIndex >= frontZIndex && children[i].touchEnabled) {
-							frontChildControl = children[i];
-							frontZIndex = currentZIndex;
+					// Check if this child intersects with the click area
+					var child = children[i];
+						leftEdge = xOffset + child._measuredLeft,
+						rightEdge = leftEdge + child._measuredWidth,
+						topEdge = yOffset + child._measuredTop,
+						bottomEdge = topEdge + child._measuredHeight;
+					if (child.touchEnabled && leftEdge <= x && rightEdge >= x && topEdge <= y && bottomEdge >= y) {
+						
+						// Check if this child is in front of the previous best guess
+						var childZIndex = isDef(child.zIndex) ? child.zIndex : 0,
+							childIsFront = false;
+						if(frontChild) {
+							if (childZIndex >= frontChildZIndex) {
+								childIsFront = true;
+							}	
+						} else {
+							childIsFront = true;
+						}
+						
+						// If it is, set it as the current best guess
+						if (childIsFront) {
+							frontChild = child;
+							frontChildZIndex = childZIndex;
+							frontLeftEdge = leftEdge;
+							frontTopEdge = topEdge;
 						}
 					}
-					this._calculateMouseEventBubble(x,y,frontChildControl,controlList);
+				}
+				if (frontChild) {
+					controlList.push(frontChild);
+					this._calculateMouseEventBubble(x, y, frontLeftEdge, frontTopEdge, frontChild, controlList);
 				}
 			}
 		},

@@ -116,7 +116,8 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/c
 					return value;
 				},
 				value: false
-			}
+			},
+			touchEnabled: false // Override the default value
 		}
 
 	});

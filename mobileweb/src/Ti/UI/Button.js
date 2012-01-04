@@ -132,17 +132,6 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 				},
 				value: true
 			},
-			"font-family": {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Button#.font-family" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Button#.font-family" is not implemented yet.');
-					return value;
-				}
-			},
 			image: {
 				set: function(value) {
 					this.buttonImage.src = value;
@@ -187,18 +176,6 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 					console.debug('Property "Titanium.UI.Button#.titleid" is not implemented yet.');
 					return value;
 				}
-			},
-			touchEnabled: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Button#.touchEnabled" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Button#.touchEnabled" is not implemented yet.');
-					return value;
-				},
-				value: true
 			}
 		}
 
