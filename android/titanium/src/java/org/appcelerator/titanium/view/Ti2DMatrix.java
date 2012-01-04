@@ -160,9 +160,16 @@ public class Ti2DMatrix extends KrollProxy
 	@Kroll.method
 	public Ti2DMatrix multiply(Ti2DMatrix other)
 	{
-		Ti2DMatrix newMatrix = new Ti2DMatrix(this, Operation.TYPE_MULTIPLY);
-		newMatrix.op.multiplyWith = other;
+		Ti2DMatrix newMatrix = new Ti2DMatrix(other, Operation.TYPE_MULTIPLY);
+		newMatrix.op.multiplyWith = this;
 		return newMatrix;
+	}
+	
+	@Kroll.method
+	public String finalValuesAfterInterpolation (int width, int height)
+	{
+		Matrix m = interpolate(1f, width, height, 0.5f, 0.5f);
+		return m.toString();
 	}
 
 	public Matrix interpolate(float interpolatedTime, int childWidth, int childHeight, float anchorX, float anchorY)

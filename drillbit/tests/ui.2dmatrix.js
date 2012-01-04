@@ -18,6 +18,10 @@ describe("Ti.UI.2DMatrix tests", {
 		var matrix2 = Ti.UI.create2DMatrix();
 		valueOf(matrix1.multiply(matrix2)).shouldBeObject();
 		valueOf(matrix1.multiply(matrix1)).shouldBeObject();
+		matrix1 = matrix1.rotate(90);
+		matrix2 = matrix2.scale(2,1);
+		var matrix3 = matrix1.multiply(matrix2);
+		valueOf(matrix3.finalValuesAfterInterpolation(50,100)).shouldBe("Matrix{[0.0, -2.0, 150.0][1.0, 0.0, 25.0][0.0, 0.0, 1.0]}");
 	},
 	
 	testRotate: function() {
