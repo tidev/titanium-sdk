@@ -26,6 +26,48 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/style"], functio
 			}
 		},
 		
+		_handleClickEvent: function(x, y, type) {
+			
+			// Get the event bubble
+			var controlList = [];
+			this._calculateMouseEventBubble(x,y,this._container,controlList);
+			
+			// Call the event handlers
+			for (var i = controlList.length - 1; i >= 0; i--) {
+				controlList[i].fireEvent(type, {
+					x: x,
+					y: y
+				});
+			}
+		},
+		
+		_calculateMouseEventBubble: function(x, y, currentControl, controlList) {
+			
+			// Check if this control intersects with the coordinates
+			if (currentControl.touchEnabled && 
+				currentControl._measuredLeft <= x && currentControl._measuredLeft + currentControl._measuredWidth >= x && 
+				currentControl._measuredTop <= y && currentControl._measuredTop + currentControl._measuredHeight >= y) {
+					
+				// Add the control to the list
+				controlList.push(currentControl);
+			
+				// Check if any of the controls children intersets with the coordinates
+				var children = currentControl.children;
+				if (children && children.length > 0) {
+					var frontChildControl = children[0];
+					var frontZIndex = isDef(frontChildControl.zIndex) ? frontChildControl.zIndex : 0;
+					for (var i = 1; i < children.length; i++) {
+						var currentZIndex = isDef(children[i].zIndex) ? children[i].zIndex : 0;
+						if (currentZIndex >= frontZIndex && children[i].touchEnabled) {
+							frontChildControl = children[i];
+							frontZIndex = currentZIndex;
+						}
+					}
+					this._calculateMouseEventBubble(x,y,frontChildControl,controlList);
+				}
+			}
+		},
+		
 		_validateContainer: function() {
 			if (!isDef(this._container)) {
 				this._layoutInProgress = false;
@@ -33,6 +75,14 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/style"], functio
 				this._container.left = 0;
 				this._container.top = 0;
 				document.body.appendChild(this._container.domNode);
+				
+				document.addEventListener("click", lang.hitch(this, function(e){
+					this._handleClickEvent(e.clientX, e.clientY, "click");
+				}));
+					
+				document.addEventListener("dblclick", lang.hitch(this, function(e){
+					this._handleClickEvent(e.clientX, e.clientY, "dblclick");
+				}));
 			}
 		},
 		
