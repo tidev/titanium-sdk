@@ -6,7 +6,9 @@ since: "0.1"
 createable: false
 methods:
   - name: close
-    summary: close the database and release resources from memory. once closed, this instance is no longer valid and must no longer be used.
+    summary: |
+      close the database and release resources from memory. once closed,
+      this instance is no longer valid and must no longer be used.
   - name: execute
     summary: execute a SQL statement against the database and returns a ResultSet
     returns:
@@ -16,13 +18,24 @@ methods:
         summary: the SQL to execute
         type: String
       - name: vararg
-        summary: one or more optional variable arguments passed to this function or an array of objects to be replaced in the query using `?` substitution.
+        summary: |
+          one or more optional variable arguments passed to this function or an
+          array of objects to be replaced in the query using `?` substitution.
         type: Array<Object>
         optional: true
   - name: remove
     summary: |
-        remove the database files for this instance from disk. WARNING: this is a destructive operation and cannot be reversed. All data in the database will be lost upon calling this function. Use with caution.
+        remove the database files for this instance from disk. WARNING: this is
+        a destructive operation and cannot be reversed. All data in the database
+        will be lost upon calling this function. Use with caution.
 properties:
+  - name: file
+    summary: |
+      the <Titanium.Filesystem.File> object of this database file. May only be
+      used for setting file properties.
+    type: Object
+    platforms: [iphone,ipad]
+    permission: read-only
   - name: lastInsertRowId
     summary: the last row identifier by the last INSERT query
     type: Number
