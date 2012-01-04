@@ -35,20 +35,6 @@ define("Ti/_/UI/Element",
 
 			// TODO: mixin JSS rules (http://jira.appcelerator.org/browse/TIMOB-6780)
 
-			on(this.domNode, "click", lang.hitch(this, function(evt) {
-				this.fireEvent("click", {
-					x: evt.pageX,
-					y: evt.pageY
-				});
-			}));
-
-			on(this.domNode, "dblclick", lang.hitch(this, function(evt) {
-				this.fireEvent('dblclick', {
-					x: evt.pageX,
-					y: evt.pageY
-				});
-			}));
-
 			on(this.domNode, "focus", lang.hitch(this, function() {
 				var tmp, node = this.domNode;
 
@@ -302,33 +288,33 @@ define("Ti/_/UI/Element",
 				callback && callback();
 			}
 		},
+		
+		_contentWidth: {
+			get: function(value) {
+				return this.domNode.clientWidth;
+			},
+			set: function(value) {
+				return this.domNode.clientWidth;
+			}
+		},
+		
+		_contentHeight: {
+			get: function(value) {
+				return this.domNode.clientHeight;
+			},
+			set: function(value) {
+				return this.domNode.clientHeight;
+			}
+		},
+		
+		_measuredLeft: 0,
+		_measuredTop: 0,
+		_measuredRightPadding: 0,
+		_measuredBottomPadding: 0,
+		_measuredWidth: 0,
+		_measuredHeight: 0,
 
 		properties: {
-		
-			_contentWidth: {
-				get: function(value) {
-					return this.domNode.clientWidth;
-				},
-				set: function(value) {
-					return this.domNode.clientWidth;
-				}
-			},
-			
-			_contentHeight: {
-				get: function(value) {
-					return this.domNode.clientHeight;
-				},
-				set: function(value) {
-					return this.domNode.clientHeight;
-				}
-			},
-			
-			_measuredLeft: 0,
-			_measuredTop: 0,
-			_measuredRightPadding: 0,
-			_measuredBottomPadding: 0,
-			_measuredWidth: 0,
-			_measuredHeight: 0,
 			
 			// Properties that are handled by the element
 			backgroundColor: {
@@ -428,6 +414,8 @@ define("Ti/_/UI/Element",
 					return value;
 				}
 			},
+			
+			touchEnabled: true,
 			
 			// Properties that are handled by the layout manager
 			bottom: {

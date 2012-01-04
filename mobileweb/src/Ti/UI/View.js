@@ -40,10 +40,11 @@ define("Ti/UI/View",
 			}
 			Element.prototype.destroy.apply(this, arguments);
 		},
+	
+		_defaultWidth: "100%",
+		_defaultHeight: "100%",
 
 		properties: {
-			_defaultWidth: "100%",
-			_defaultHeight: "100%",
 			layout: {
 				set: function(value) {
 					var match = value.toLowerCase().match(/^(horizontal|vertical)$/),

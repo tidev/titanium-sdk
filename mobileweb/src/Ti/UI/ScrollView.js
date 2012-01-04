@@ -10,6 +10,9 @@ define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style"], functio
 			x !== null && (this.domNode.scrollLeft = parseInt(x));
 			y !== null && (this.domNode.scrollTop = parseInt(y));
 		},
+		
+		_defaultWidth: "100%",
+		_defaultHeight: "100%",
 
 		_defaultWidth: "100%",
 		_defaultHeight: "100%",

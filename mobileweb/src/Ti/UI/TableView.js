@@ -55,9 +55,10 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 			View.prototype.doLayout.apply(this,arguments);
 		},
 		
+		_defaultWidth: "100%",
+		_defaultHeight: "100%",
+		
 		properties: {
-			_defaultWidth: "100%",
-			_defaultHeight: "100%",
 			data: {
 				set: function(value,oldValue) {
 					if (is(value,'Array')) {

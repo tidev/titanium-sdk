@@ -38,11 +38,12 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 			this.extraView = Ti.UI.createView({width: "auto"});
 			this.rightView.add(this.extraView);
 		},
+		
+		_defaultHeight: "auto",
+		_defaultWidth: "100%",
+		_tableRowHeight: undef,
 
 		properties: {
-			_defaultHeight: "auto",
-			_defaultWidth: "100%",
-			_tableRowHeight: undef,
 			hasCheck: {
 				get: function(value) {
 					// TODO

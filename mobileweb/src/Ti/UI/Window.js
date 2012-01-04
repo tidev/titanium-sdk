@@ -3,6 +3,9 @@ define("Ti/UI/Window", ["Ti/_/declare", "Ti/Gesture", "Ti/_/UI/SuperView", "Ti/U
 	var undef;
 
 	return declare("Ti.UI.Window", SuperView, {
+	
+		_defaultWidth: "100%",
+		_defaultHeight: "100%",
 
 		properties: {
 			orientation: {
