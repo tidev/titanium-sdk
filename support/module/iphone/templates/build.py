@@ -7,6 +7,11 @@ import os, sys, glob, string
 import zipfile
 from datetime import date
 
+try:
+	import json
+except:
+	import simplejson as json
+
 cwd = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 os.chdir(cwd)
 required_module_keys = ['name','version','moduleid','description','copyright','license','copyright','platform','minsdk']
@@ -74,7 +79,13 @@ def compile_js(manifest,config):
 	from compiler import Compiler
 	
 	path = os.path.basename(js_file)
-	metadata = Compiler.make_function_from_file(path,js_file)
+	compiler = Compiler(cwd, manifest['moduleid'], manifest['name'], 'commonjs')
+	metadata = compiler.make_function_from_file(path,js_file)
+	
+	exports = open('metadata.json','w')
+	json.dump({'exports':compiler.exports }, exports)
+	exports.close()
+
 	method = metadata['method']
 	eq = path.replace('.','_')
 	method = '  return %s;' % method
@@ -186,6 +197,9 @@ def package_module(manifest,mf,config):
 		  zip_dir(zf,dn,'%s/%s' % (modulepath,dn),['README'])
 	zf.write('LICENSE','%s/LICENSE' % modulepath)
 	zf.write('module.xcconfig','%s/module.xcconfig' % modulepath)
+	exports_file = 'metadata.json'
+	if os.path.exists(exports_file):
+		zf.write(exports_file, '%s/%s' % (modulepath, exports_file))
 	zf.close()
 	
 
