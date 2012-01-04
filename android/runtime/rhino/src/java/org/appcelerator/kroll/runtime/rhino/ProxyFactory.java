@@ -9,12 +9,11 @@ package org.appcelerator.kroll.runtime.rhino;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollProxySupport;
+import org.appcelerator.kroll.common.Log;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-
-import android.util.Log;
 
 /**
  * A factory for Rhino proxy objects
@@ -55,7 +54,28 @@ public class ProxyFactory
 
 				if (exports != null) {
 					Object ids[] = exports.getIds();
-					constructor = (Function) ScriptableObject.getProperty(exports, (String) ids[0]);
+					/*
+					String targetProxyClassName = "";
+					for (int i = 0; i < ids.length; i++) {
+						if (((String) ids[i]).equals(proxyClassName)) {
+							targetProxyClassName = proxyClassName;
+						}
+					}
+
+					constructor = (Function) ScriptableObject.getProperty(exports, targetProxyClassName);
+					*/
+
+					// not sure if we would ever see a valid exports object returned with no ids but
+					// better safe than sorry
+					int lastIdIndex = ids.length;
+					if (lastIdIndex > 0) {
+						lastIdIndex--;
+					}
+
+					// ....or just do this.  last element should be the "real" proxy (versus base
+					// type) but leaving the above commented out and in place for the time being 
+					// in case we need to revert to a more direct mechanism
+					constructor = (Function) ScriptableObject.getProperty(exports, (String)(ids[lastIdIndex]));
 
 				} else {
 					Log.e(TAG, "Failed to find prototype class for " + proxyClassName);
