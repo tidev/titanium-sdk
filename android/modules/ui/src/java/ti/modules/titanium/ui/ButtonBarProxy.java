@@ -11,8 +11,6 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.TiUIButton;
-
 import android.app.Activity;
 
 /**
