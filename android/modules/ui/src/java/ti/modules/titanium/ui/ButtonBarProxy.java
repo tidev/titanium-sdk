@@ -18,7 +18,7 @@ import android.app.Activity;
  */
 @Deprecated
 @Kroll.proxy(creatableInModule=UIModule.class)
-  public class ButtonBarProxy extends TiViewProxy
+public class ButtonBarProxy extends TiViewProxy
 {
 	public ButtonBarProxy()
 	{
