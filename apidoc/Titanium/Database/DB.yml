@@ -1,47 +1,49 @@
 ---
 name: Titanium.Database.DB
-summary: The Database instance returned by <Titanium.Database.open> or <Titanium.Database.install>.
+summary: The `Database` instance returned by <Titanium.Database.open> or <Titanium.Database.install>.
 extends: Titanium.Proxy
 since: "0.1"
 createable: false
 methods:
   - name: close
     summary: |
-      close the database and release resources from memory. once closed,
-      this instance is no longer valid and must no longer be used.
+      Closes the database and releases resources from memory. Once closed, this
+      instance is no longer valid and should not be used.
   - name: execute
-    summary: execute a SQL statement against the database and returns a ResultSet
+    summary: Executes a SQL statement against the database and returns a `ResultSet`.
     returns:
-        type: Object
+        type: Titanium.Database.ResultSet
     parameters:
       - name: sql
         summary: the SQL to execute
         type: String
       - name: vararg
         summary: |
-          one or more optional variable arguments passed to this function or an
+          One or more optional variable arguments passed to this function or an
           array of objects to be replaced in the query using `?` substitution.
         type: Array<Object>
         optional: true
   - name: remove
+    platforms: [android]
     summary: |
-        remove the database files for this instance from disk. WARNING: this is
+        Removes the database files for this instance from disk. WARNING: this is
         a destructive operation and cannot be reversed. All data in the database
-        will be lost upon calling this function. Use with caution.
+        will be lost; use with caution.
 properties:
   - name: file
     summary: |
-      the <Titanium.Filesystem.File> object of this database file. May only be
-      used for setting file properties.
-    type: Object
+      A `File` object representing the file where this database is stored. Must
+      only be used for setting file properties.
+    type: Titanium.Filesystem.File
     platforms: [iphone,ipad]
+    since: "1.9"
     permission: read-only
   - name: lastInsertRowId
-    summary: the last row identifier by the last INSERT query
+    summary: The identifier of the last populated row.
     type: Number
   - name: name
-    summary: the name of the database
+    summary: The name of the database.
     type: String
   - name: rowsAffected
-    summary: the number of rows affected by the last query
+    summary: The number of rows affected by the last query.
     type: Number
