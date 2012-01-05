@@ -225,12 +225,12 @@ define("Ti/Media/VideoPlayer", ["Ti/_/declare", "Ti/Media", "Ti/UI/View"], funct
 						reason: Media.VIDEO_FINISH_REASON_PLAYBACK_ERROR
 					});
 				}),
-				on(video, "abort", this, "complete"),
-				on(video, "ended", this, "complete"),
-				on(video, "stalled", this, "stalled"),
-				on(video, "waiting", this, "stalled"),
-				on(video, "mozfullscreenchange", this, "fullscreenChange"),
-				on(video, "webkitfullscreenchange", this, "fullscreenChange")
+				on(video, "abort", this, "_complete"),
+				on(video, "ended", this, "_complete"),
+				on(video, "stalled", this, "_stalled"),
+				on(video, "waiting", this, "_stalled"),
+				on(video, "mozfullscreenchange", this, "_fullscreenChange"),
+				on(video, "webkitfullscreenchange", this, "_fullscreenChange")
 			];
 
 			this.domNode.appendChild(video);

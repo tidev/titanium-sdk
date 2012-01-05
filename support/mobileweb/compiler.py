@@ -294,7 +294,7 @@ class Compiler(object):
 					# TODO: it would be nice to detect if we *need* to add a ;
 					titanium_js += '%s;\n' % self.load_api(api_file, api)
 				elif api_file.find('.css') != -1:
-					titanium_css +='%s\n\n' % self.load_api(api_file, api)
+					titanium_css += '%s\n\n' % self.load_api(api_file, api)
 				else:
 					target_file = os.path.abspath(os.path.join(self.build_dir,'titanium', api))
 					try:
@@ -330,9 +330,23 @@ class Compiler(object):
 		o = codecs.open(os.path.join(ti_dir,'titanium.js'),'w',encoding='utf-8')
 		o.write(HEADER + titanium_js + FOOTER)
 		o.close()
-
+		
+		# detect any fonts and add font face rules to the css file
+		resource_dir = os.path.join(project_dir, 'Resources')
+		fonts = {}
+		for dirname, dirnames, filenames in os.walk(resource_dir):
+			for filename in filenames:
+				fname, ext = os.path.splitext(filename)
+				ext = ext.lower()
+				if ext == '.otf' or ext == '.woff':
+					if not fname in fonts:
+						fonts[fname] = []
+					fonts[fname].append(os.path.join(dirname, filename)[len(resource_dir):])
+		for font in fonts:
+			titanium_css += "@font-face{font-family:%s;src:url(%s);}\n" % (font, "),url(".join(fonts[font]))
+		
 		o = codecs.open(os.path.join(ti_dir,'titanium.css'), 'w', encoding='utf-8')
-		o.write(HEADER + titanium_css + FOOTER)
+		o.write(HEADER + titanium_css + 'end' + FOOTER)
 		o.close()
 
 		try:
