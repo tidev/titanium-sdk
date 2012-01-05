@@ -44,7 +44,7 @@ define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI/View"], function
 				// TODO: if args, then do animation on close
 				this._opened = 0;
 				Ti.UI._removeWindow(this);
-				window.history.go(-1);
+				window.history.pushState && window.history.go(-1);
 				Ti.UI._doFullLayout();
 				this.fireEvent("blur", { source: this.domNode });
 			}
