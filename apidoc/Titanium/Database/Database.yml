@@ -20,7 +20,7 @@ methods:
       <Titanium.Database.open> is preferred, although it may still be useful
       for application prototyping.
 
-      Care must be taken to [close](Titanium.Database.close) the database
+      Care must be taken to [close](Titanium.Database.DB.close) the database
       after use.
     returns:
         type: Titanium.Database.DB
@@ -117,7 +117,7 @@ methods:
       the [Resources](Titanium.Filesystem.resourcesDirectory) directory, will
       cause an exception.
 
-      Care must be taken to [close](Titanium.Database.close) the database
+      Care must be taken to [close](Titanium.Database.DB.close) the database
       after use.
     returns:
         type: Titanium.Database.DB
