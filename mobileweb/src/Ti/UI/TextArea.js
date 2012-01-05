@@ -33,10 +33,10 @@ define("Ti/UI/TextArea", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/
         _defaultWidth: "auto",
         _defaultHeight: "auto",
 		_getContentWidth: function() {
-			return this.textArea.clientWidth;
+			return this._measureText(this.value, this.textArea).width;
 		},
 		_getContentHeight: function() {
-			return this.textArea.clientHeight;
+			return this._measureText(this.value, this.textArea).height;
 		},
 
 		properties: {            

@@ -2,6 +2,8 @@ define("Ti/_/UI/FontWidget", ["Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/UI
 		
 	var set = style.set,
 		isDef = require.isDef,
+		computeSize = dom.computeSize,
+		unitize = dom.unitize,
 		undef;
 
 	return declare("Ti._.UI.FontWidget", Widget, {
@@ -24,6 +26,25 @@ define("Ti/_/UI/FontWidget", ["Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/UI
 		_removeStyleableDomNode: function(styleableDomNode) {
 			var index = this._styleableDomNodes.indexOf(styleableDomNode);
 			index != -1 && this._styleableDomNodes.splice(index,1);
+		},
+		
+		_measureText: function(text, domNode) {
+			
+			var textRuler = document.getElementById("textRuler");
+			textRuler.innerHTML = text;
+		
+			var computedStyle = window.getComputedStyle(domNode);
+			this._setFont({
+				fontFamily: (this.font && this.font.fontFamily) ? this.font.fontFamily : computedStyle.fontFamily,
+				fontSize: (this.font && this.font.fontSize) ? this.font.fontSize : computedStyle.fontSize,
+				fontStyle: (this.font && this.font.fontStyle) ? this.font.fontStyle : computedStyle.fontStyle,
+				fontWeight: (this.font && this.font.fontWeight) ? this.font.fontWeight : computedStyle.fontWeight,
+			},textRuler);
+		
+			console.debug("Measured " + textRuler.clientWidth + "x" + textRuler.clientHeight);
+			
+			// Return the computed style
+			return {width: textRuler.clientWidth, height: textRuler.clientHeight};
 		},
 		
 		properties: {

@@ -1,6 +1,6 @@
 define("Ti/UI/ScrollableView", 
-	["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], 
-	function(declare, Widget, lang, dom, css, style) {
+	["Ti/_/declare", "Ti/_/UI/View", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], 
+	function(declare, View, lang, dom, css, style) {
 
 	var set = style.set,
 		is = require.is,
@@ -8,7 +8,7 @@ define("Ti/UI/ScrollableView",
 		unitize = dom.unitize,
 		undef;
 
-	return declare("Ti.UI.ScrollableView", Widget, {
+	return declare("Ti.UI.ScrollableView", View, {
 		
 		constructor: function(args){
 			

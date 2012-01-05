@@ -94,8 +94,12 @@ define("Ti/_/UI/Element",
 				if (isDef(left)) {
 					right = undef;
 				} else if (isDef(centerX)){
-					left = centerX - width / 2;
-					right = undef;
+					if (width === "auto") {
+						left = "calculateAuto";
+					} else {
+						left = centerX - width / 2;
+						right = undef;
+					}
 				} else if (isDef(right)) {
 					// Do nothing
 				} else {
@@ -129,8 +133,12 @@ define("Ti/_/UI/Element",
 				if (isDef(top)) {
 					bottom = undef;
 				} else if (isDef(centerY)){
-					top = centerY - height / 2;
-					bottom = undef;
+					if(height === "auto") {
+						top = "calculateAuto";
+					} else {
+						top = centerY - height / 2;
+						bottom = undef;
+					}
 				} else if (isDef(bottom)) {
 					// Do nothing
 				} else {

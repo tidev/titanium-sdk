@@ -12,6 +12,13 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 		return false;
 	}
 	
+	// Measure the size of an empty button to determine the extra padding
+	var buttonRuler = document.createElement("button");
+	document.body.appendChild(buttonRuler);
+	var buttonHorizontalPadding = buttonRuler.clientWidth,
+		buttonVerticalPadding = buttonRuler.clientHeight;
+	document.body.removeChild(buttonRuler);
+	
 	return declare("Ti.UI.Button", FontWidget, {
 		
 		constructor: function() {
@@ -45,6 +52,7 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 			this.buttonTitle = dom.create("div", {
 				className: "TiUIButtonTitle"
 			});
+			set(this.buttonTitle,"whiteSpace","nowrap");
 			this.contentContainer.appendChild(this.buttonTitle);
 			this._addStyleableDomNode(this.buttonTitle);
 		},
@@ -52,10 +60,10 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 		_defaultWidth: "auto",
 		_defaultHeight: "auto",
 		_getContentWidth: function() {
-			return this.contentContainer.clientWidth;
+			return this.buttonImage.width + this._measureText(this.title, this.buttonTitle).width + buttonHorizontalPadding;
 		},
 		_getContentHeight: function() {
-			return this.contentContainer.clientHeight;
+			return this.buttonImage.height + this._measureText(this.title, this.buttonTitle).height + buttonVerticalPadding;
 		},
 	
 		properties: {			
@@ -154,6 +162,7 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 			title: {
 				set: function(value) {
 					this.buttonTitle.innerHTML = value;
+					Ti.UI._doFullLayout();
 					return value;
 				}
 			},

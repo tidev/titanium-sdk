@@ -32,10 +32,10 @@ define("Ti/UI/TextField", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti
         _defaultWidth: "auto",
         _defaultHeight: "auto",
 		_getContentWidth: function() {
-			return this.textField.clientWidth;
+			return this._measureText(this.value, this.textField).width;
 		},
 		_getContentHeight: function() {
-			return this.textField.clientHeight;
+			return this._measureText(this.value, this.textField).height;
 		},
 
 		properties: {

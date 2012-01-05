@@ -40,10 +40,10 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/c
 
 		_defaultHeight: "auto",
 		_getContentWidth: function() {
-			return this.textContainerDiv.clientWidth;
+			return this._measureText(this.text, this.textContainerDiv).width;
 		},
 		_getContentHeight: function() {
-			return this.textContainerDiv.clientHeight;
+			return this._measureText(this.text, this.textContainerDiv).height;
 		},
 
 		properties: {
@@ -79,6 +79,7 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/c
 			text: {
 				set: function(value) {
 					this.textContainerDiv.innerHTML = value;
+					Ti.UI._doFullLayout();
 					return value;
 				}
 			},
