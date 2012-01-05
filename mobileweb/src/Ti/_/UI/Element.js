@@ -237,6 +237,10 @@ define("Ti/_/UI/Element",
 		_getContentOffset: function(){
 			return {x: 0, y: 0};
 		},
+		
+		_handleMouseEvent: function(type, e) {
+			this.fireEvent(type, e);
+		},
 
 		show: function() {
 			this.visible = true;

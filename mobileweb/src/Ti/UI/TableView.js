@@ -61,6 +61,20 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 			return {x: this.domNode.scrollLeft, y: this.domNode.scrollTop};
 		},
 		
+		_handleMouseEvent: function(type, e, controlList) {
+			var locationInList = controlList.indexOf(this);
+			
+			// Find the row that was clicked, if it exists
+			if (controlList[locationInList + 1] == this.rows && isDef(controlList[locationInList + 2])) {
+				var row = controlList[locationInList + 2];
+				e.row = row;
+				e.rowData = row;
+				e.index = this.rows.children.indexOf(row);
+				e.searchMode = false;
+			} 
+			this.fireEvent(type, e);
+		},
+		
 		properties: {
 			data: {
 				set: function(value,oldValue) {

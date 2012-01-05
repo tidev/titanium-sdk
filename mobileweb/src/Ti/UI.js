@@ -33,10 +33,7 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/style"], functio
 			
 			// Call the event handlers
 			for (var i = controlList.length - 1; i >= 0; i--) {
-				controlList[i].fireEvent(type, {
-					x: x,
-					y: y
-				});
+				controlList[i]._handleMouseEvent(type, {x: x, y: y}, controlList);
 			}
 		},
 
