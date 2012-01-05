@@ -189,7 +189,7 @@ public class TabGroupProxy extends TiWindowProxy
 			TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
 			icon = tfh.loadDrawable(iconUrl.resolve(), false);
 		} else {
-			icon = TiDrawableReference.fromObject(getActivity(), tab.getProperty(TiC.PROPERTY_ICON)).getDrawable();
+			icon = TiDrawableReference.fromObject(getActivity(), iconProperty).getDrawable();
 		}
 
 		String tag = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TAG));
