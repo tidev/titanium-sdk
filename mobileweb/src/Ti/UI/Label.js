@@ -6,35 +6,40 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/c
 	return declare("Ti.UI.Label", FontWidget, {
 		
 		constructor: function() {
-			
 			// Create the aligner div. This sets up a flexbox to float the text to the middle
 			this.textAlignerDiv = dom.create("div", {
 				className: css.clean("TiUILabelTextAligner")
-			});
-			this.domNode.appendChild(this.textAlignerDiv);
+			}, this.domNode);
+
 			set(this.textAlignerDiv, "display", "-webkit-box");
-			set(this.textAlignerDiv, "display", "-moz-box");
-			set(this.textAlignerDiv, "boxOrient", "vertical");
-			set(this.textAlignerDiv, "boxPack", "center");
-			set(this.textAlignerDiv, "width", "100%");
-			set(this.textAlignerDiv, "height", "100%");
-			set(this.textAlignerDiv, "overflow", "hidden");
-			
+			set(this.textAlignerDiv, {
+				display: "-moz-box",
+				boxOrient: "vertical",
+				boxPack: "center",
+				width: "100%",
+				height: "100%",
+				overflow: "hidden"
+			});
+
 			// Create the container div. This gets floated by the flexbox
 			this.textContainerDiv = dom.create("div", {
-				className: css.clean("TiUILabelTextContainer")
-			});
-			this.textAlignerDiv.appendChild(this.textContainerDiv);
-			set(this.textContainerDiv,"userSelect","none");
+				className: css.clean("TiUILabelTextContainer"),
+				style: {
+					userSelect: "none"
+				}
+			}, this.textAlignerDiv);
+
 			this._addStyleableDomNode(this.textContainerDiv);
 		},
 
 		toImage: function(callback) {
 			// TODO
 		},
-		
+
 		_defaultWidth: "auto",
+
 		_defaultHeight: "auto",
+
 		_contentWidth: {
 			get: function(value) {
 				return this.textContainerDiv.clientWidth;
@@ -43,6 +48,7 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/c
 				return this.textContainerDiv.clientWidth;
 			}
 		},
+
 		_contentHeight: {
 			get: function(value) {
 				return this.textContainerDiv.clientHeight;
@@ -51,7 +57,7 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/c
 				return this.textContainerDiv.clientHeight;
 			}
 		},
-		
+
 		properties: {
 			color: {
 				set: function(value) {
