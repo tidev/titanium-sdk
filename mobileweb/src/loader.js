@@ -1521,6 +1521,7 @@ require.cache({
 							case "pt": return processIN(value / 72);
 							case "pc": return processIN(value / 864);
 							case "px": return value;
+							case "dp": return value;
 						}
 					}
 				}

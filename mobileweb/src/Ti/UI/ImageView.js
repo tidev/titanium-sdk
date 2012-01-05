@@ -42,10 +42,10 @@ define("Ti/UI/ImageView",
 		},
 		
 		doLayout: function() {
-			Widget.prototype.doLayout.apply(this);
+			Widget.prototype.doLayout.apply(this,arguments);
 			if (this.canScale) {
 				var controlRatio = this._measuredWidth / this._measuredHeight,
-					imageRatio = this._contentWidth / this._contentHeight;
+					imageRatio = this._getContentWidth() / this._getContentHeight();
 				if (controlRatio > imageRatio) {
 					set(this.imageDisplay,"width","auto");
 					set(this.imageDisplay,"height","100%");
@@ -61,21 +61,11 @@ define("Ti/UI/ImageView",
 
 		_defaultWidth: "auto",
 		_defaultHeight: "auto",
-		_contentWidth: {
-			get: function(value) {
-				return this.imageDisplay.width;
-			},
-			set: function(value) {
-				return this.imageDisplay.width;
-			}
+		_getContentWidth: function() {
+			return this.imageDisplay.width;
 		},
-		_contentHeight: {
-			get: function(value) {
-				return this.imageDisplay.height;
-			},
-			set: function(value) {
-				return this.imageDisplay.height;
-			}
+		_getContentHeight: function() {
+			return this.imageDisplay.height;
 		},
 		
 		properties: {

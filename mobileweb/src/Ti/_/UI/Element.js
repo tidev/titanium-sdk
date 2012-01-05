@@ -188,8 +188,8 @@ define("Ti/_/UI/Element",
 				width == "auto" && (width = computedSize.width);
 				height == "auto" && (height = computedSize.height);
 			} else {
-				width == "auto" && (width = this._contentWidth);
-				height == "auto" && (height = this._contentHeight);
+				width == "auto" && (width = this._getContentWidth());
+				height == "auto" && (height = this._getContentHeight());
 			}
 			
 			// Set the default top/left if need be
@@ -210,6 +210,11 @@ define("Ti/_/UI/Element",
 			this._measuredBottomPadding = is(originalBottom,"Number") ? originalBottom: 0;
 			this._measuredWidth = width;
 			this._measuredHeight = height;
+			
+			if(!is(this._measuredLeft,"Number") || !is(this._measuredTop,"Number") || !is(this._measuredRightPadding,"Number")
+				 || !is(this._measuredBottomPadding,"Number") || !is(this._measuredWidth,"Number") || !is(this._measuredHeight,"Number")) {
+			 	throw "Invalid layout";
+			 }
 					
 			// Set the position, size and z-index
 			isDef(left) && set(this.domNode, "left", unitize(left));
@@ -289,22 +294,12 @@ define("Ti/_/UI/Element",
 			}
 		},
 		
-		_contentWidth: {
-			get: function(value) {
-				return this.domNode.clientWidth;
-			},
-			set: function(value) {
-				return this.domNode.clientWidth;
-			}
+		_getContentWidth: function() {
+			return this.domNode.clientWidth;
 		},
 		
-		_contentHeight: {
-			get: function(value) {
-				return this.domNode.clientHeight;
-			},
-			set: function(value) {
-				return this.domNode.clientHeight;
-			}
+		_getContentHeight: function() {
+			return this.domNode.clientHeight;
 		},
 		
 		_measuredLeft: 0,

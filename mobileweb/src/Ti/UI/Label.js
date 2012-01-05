@@ -35,21 +35,11 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/c
 		
 		_defaultWidth: "auto",
 		_defaultHeight: "auto",
-		_contentWidth: {
-			get: function(value) {
-				return this.textContainerDiv.clientWidth;
-			},
-			set: function(value) {
-				return this.textContainerDiv.clientWidth;
-			}
+		_getContentWidth: function() {
+			return this.textContainerDiv.clientWidth;
 		},
-		_contentHeight: {
-			get: function(value) {
-				return this.textContainerDiv.clientHeight;
-			},
-			set: function(value) {
-				return this.textContainerDiv.clientHeight;
-			}
+		_getContentHeight: function() {
+			return this.textContainerDiv.clientHeight;
 		},
 		
 		properties: {

@@ -65,7 +65,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 						
 						// Remove the old children
 						for(var i in oldValue) {
-							this.remove(oldValue[i]);
+							this.rows.remove(oldValue[i]);
 						}
 						
 						// Convert any object literals to TableViewRow instances, and update TableViewRow instances with row info

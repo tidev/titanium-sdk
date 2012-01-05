@@ -48,21 +48,11 @@ define("Ti/UI/WebView", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css
 		
 		_defaultWidth: "100%",
 		_defaultHeight: "100%",
-		_contentWidth: {
-			get: function(value) {
-				return this._iframe.clientWidth;
-			},
-			set: function(value) {
-				return this._iframe.clientWidth;
-			}
+		_getContentWidth: function() {
+			return this._iframe.clientWidth;
 		},
-		_contentHeight: {
-			get: function(value) {
-				return this._iframe.clientHeight;
-			},
-			set: function(value) {
-				return this._iframe.clientHeight;
-			}
+		_getContentHeight: function() {
+			return this._iframe.clientHeight;
 		},
 		
 		properties: {

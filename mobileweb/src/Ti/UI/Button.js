@@ -51,21 +51,11 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 
 		_defaultWidth: "auto",
 		_defaultHeight: "auto",
-		_contentWidth: {
-			get: function(value) {
-				return this.contentContainer.clientWidth;
-			},
-			set: function(value) {
-				return this.contentContainer.clientWidth;
-			}
+		_getContentWidth: function() {
+			return this.contentContainer.clientWidth;
 		},
-		_contentHeight: {
-			get: function(value) {
-				return this.contentContainer.clientHeight;
-			},
-			set: function(value) {
-				return this.contentContainer.clientHeight;
-			}
+		_getContentHeight: function() {
+			return this.contentContainer.clientHeight;
 		},
 	
 		properties: {			
