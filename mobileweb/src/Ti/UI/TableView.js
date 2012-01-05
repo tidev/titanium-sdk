@@ -57,6 +57,9 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 		
 		_defaultWidth: "100%",
 		_defaultHeight: "100%",
+		_getContentOffset: function(){
+			return {x: this.domNode.scrollLeft, y: this.domNode.scrollTop};
+		},
 		
 		properties: {
 			data: {

@@ -13,6 +13,9 @@ define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style"], functio
 		
 		_defaultWidth: "100%",
 		_defaultHeight: "100%",
+		_getContentOffset: function(){
+			return this.contentOffset;
+		},
 
 		properties: {
 			canCancelEvents: {
@@ -29,36 +32,29 @@ define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style"], functio
 			
 			contentHeight: {
 				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ScrollView#.contentHeight" is not implemented yet.');
-					return value;
+					return this.height;
 				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.ScrollView#.contentHeight" is not implemented yet.');
+					this.height = value;
 					return value;
 				}
 			},
 			
 			contentOffset: {
 				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ScrollView#.contentOffset" is not implemented yet.');
-					return value;
+					return {x: this.domNode.scrollLeft, y: this.domNode.scrollTop}
 				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.ScrollView#.contentOffset" is not implemented yet.');
-					return value;
+					return {x: this.domNode.scrollLeft, y: this.domNode.scrollTop};
 				}
 			},
 			
 			contentWidth: {
 				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ScrollView#.contentWidth" is not implemented yet.');
-					return value;
+					return this.width;
 				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.ScrollView#.contentWidth" is not implemented yet.');
+					this.width = value;
 					return value;
 				}
 			},

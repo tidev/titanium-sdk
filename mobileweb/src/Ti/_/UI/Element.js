@@ -231,6 +231,12 @@ define("Ti/_/UI/Element",
 			isDef(height) && set(this.domNode, "height", unitize(height));
 			set(this.domNode, "zIndex", is(this.zIndex,"Number") ? this.zIndex : 0);
 		},
+		
+		// This method returns the offset of the content relative to the parent's location. 
+		// This is useful for controls like ScrollView that can move the children around relative to itself.
+		_getContentOffset: function(){
+			return {x: 0, y: 0};
+		},
 
 		show: function() {
 			this.visible = true;

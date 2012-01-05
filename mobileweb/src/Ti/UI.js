@@ -49,6 +49,11 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/style"], functio
 					frontChildZIndex,
 					frontLeftEdge,
 					frontTopEdge;
+				
+				// Update the offset to reflect any scrolling in the control
+				xOffset -= currentControl._getContentOffset().x;
+				yOffset -= currentControl._getContentOffset().y;
+					
 				for (var i = 0; i < children.length; i++) {
 					
 					// Check if this child intersects with the click area

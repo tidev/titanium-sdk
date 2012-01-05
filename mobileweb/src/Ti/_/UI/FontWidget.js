@@ -40,8 +40,6 @@ define("Ti/_/UI/FontWidget", ["Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/UI
 				fontStyle: (this.font && this.font.fontStyle) ? this.font.fontStyle : computedStyle.fontStyle,
 				fontWeight: (this.font && this.font.fontWeight) ? this.font.fontWeight : computedStyle.fontWeight,
 			},textRuler);
-		
-			console.debug("Measured " + textRuler.clientWidth + "x" + textRuler.clientHeight);
 			
 			// Return the computed style
 			return {width: textRuler.clientWidth, height: textRuler.clientHeight};
