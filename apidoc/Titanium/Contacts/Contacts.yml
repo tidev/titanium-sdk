@@ -1,6 +1,6 @@
 ---
 name: Titanium.Contacts
-summary: The top level Contacts module.  The Contacts module is used accessing the device Address Book.  (Read-only on Android.)
+summary: The top level Contacts module.  The Contacts module is used accessing the device Address Book.  (Read-only on Android).
 extends: Titanium.Module
 since: "0.8"
 platforms: [android, iphone, ipad]
@@ -114,5 +114,5 @@ properties:
     type: Number
     permission: read-only
 description: Contacts on Android are currently only read-only, so methods such as `createPerson`, `removePerson`, etc., are not supported.
-    
+
     <Titanium.Contacts.Person> objects which have been removed from the database are invalidated after a save operation, whether from creating a new contact or explicitly calling <Titanium.Contacts.save()>.  Using them may result in unpredictable behavior, including crashes.

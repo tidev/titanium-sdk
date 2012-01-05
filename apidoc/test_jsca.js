@@ -2,16 +2,16 @@
 /**
 * Copyright (c) 2011 Appcelerator, Inc. All Rights Reserved.
 * Licensed under the Apache Public License (version 2)
-* 
+*
 * Requires node.js.
-* 
-* Quasi-unit test for generating the "jsca" output of 
+*
+* Quasi-unit test for generating the "jsca" output of
 * apidoc's docgen.py.
-* 
-* Usage: 
+*
+* Usage:
 *			node test_jsca.js
 *
-* (make sure this script is in the same folder as docgen.py when you run it.)
+* (make sure this script is in the same folder as docgen.py when you run it)
 *
 **/
 
@@ -190,7 +190,7 @@ function test_type(the_type) {
 		}
 		assert.ok(matched, "Unknown type spec: " + the_type);
 	}
-}	
+}
 
 function test_functions(functions) {
 	assert.ok(isArray(functions) && functions.length, 'functions should be a non-empty array');
@@ -306,7 +306,7 @@ function test_types(types) {
 						}
 						assert.ok(onefunc.returnTypes, 'Expected ' + onefuncname + ' to have a return type');
 						assert.ok(onefunc.returnTypes.length > 0, 'Expected ' + onefuncname + ' to have a return type');
-						assert.ok(onefunc.returnTypes[0].type === full_name, 'Expected return type of ' + 
+						assert.ok(onefunc.returnTypes[0].type === full_name, 'Expected return type of ' +
 								  onefuncname + ' to be ' + full_name + ' but it is ' + onefunc.returnTypes[0].type);
 					}
 				}

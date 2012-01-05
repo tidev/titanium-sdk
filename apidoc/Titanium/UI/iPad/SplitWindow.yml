@@ -1,22 +1,22 @@
 ---
 name: Titanium.UI.iPad.SplitWindow
 summary: |
-    A SplitWindow is a window that manages the presentation of two side-by-side view 
-    controllers. 
+    A SplitWindow is a window that manages the presentation of two side-by-side view
+    controllers.
 description: |
-    You use this class to implement a master-detail interface, in which the 
-    left-side view presents a list of items and the right-side presents details of the 
-    selected item. The SplitView is for use exclusively on iPad devices. 
+    You use this class to implement a master-detail interface, in which the
+    left-side view presents a list of items and the right-side presents details of the
+    selected item. The SplitView is for use exclusively on iPad devices.
 
-    By default, the SplitView shows both master and detail views in landscape orientation. 
-    When the device switches into portrait orientation, the detail view occupies the entire 
-    screen. The user can click a button to bring up the master view as floating, "popover" 
-    view. (To show the master view in both orientations, set `showMasterInPortrait` to `true`.)
-   
-    Use the <Titanium.UI.iPad.createSplitWindow> method to create a SplitWindow. The 
-    `masterView` and `detailView` properties are required in the constructor of the 
+    By default, the SplitView shows both master and detail views in landscape orientation.
+    When the device switches into portrait orientation, the detail view occupies the entire
+    screen. The user can click a button to bring up the master view as floating, "popover"
+    view. (To show the master view in both orientations, set `showMasterInPortrait` to `true`).
+
+    Use the <Titanium.UI.iPad.createSplitWindow> method to create a SplitWindow. The
+    `masterView` and `detailView` properties are required in the constructor of the
     SplitWindow and cannot be changed once set.
-    
+
     The SplitWindow inherits its methods and properties from <Titanium.UI.Window>.
 
     The SplitWindow is a top-level window and cannot be contained within another window or view.
@@ -47,7 +47,7 @@ properties:
     type: Titanium.UI.View
     availability: creation
   - name: showMasterInPortrait
-    summary: Whether or not to show the master view in portrait orientation. 
+    summary: Whether or not to show the master view in portrait orientation.
     type: Boolean
     default: false
     since: 1.7.2
@@ -55,18 +55,18 @@ examples:
   - title: Split Window Example
     example: |
         This is an example of a Split Window.
-        
+
             var win = Ti.UI.createWindow();
-            
+
             var nav = Ti.UI.iPhone.createNavigationGroup({
                window: win
             });
-            
+
             var splitwin = Ti.UI.iPad.createSplitWindow({
             	detailView:nav,
             	masterView:masterView
             });
-            
+
             splitwin.addEventListener('visible',function(e)
             {
             	if (e.view == 'detail')
@@ -79,7 +79,7 @@ examples:
             		win.leftNavButton = null;
             	}
             });
-            
+
             splitwin.open();
-        
-        
+
+

@@ -6,7 +6,7 @@
 	<th>Type</th>
 	% endif
 	<th>Summary</th>
-</tr> 
+</tr>
 % for item in item_list:
     % if item.name not in ("Titanium.Proxy", "Titanium.Module"):
 	<% row_class = " ".join(["in_" + p["name"].lower() for p in item.platforms]) %>
@@ -41,10 +41,10 @@
 						if summary.startswith("<p>"):
 							summary = '%s<span class="deprecation_warning">Deprecated</span>&nbsp;%s' % (summary[:3],summary[3:])
 					%>
-				% endif			
+				% endif
 				${summary}
 				% if len(item.platforms) < platform_count:
-					<span class="platform_warning">(${platform_names} only.)</span>
+					<span class="platform_warning">(${platform_names} only)</span>
 				% endif
 				% if item.permission is not None:
 					<span class="permission_warning">${item.permission}</span>
