@@ -11,10 +11,16 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.widget.TiUIButton;
+
 import android.app.Activity;
 
+/**
+ * This class is @deprecated. Any usage will crash application.
+ */
+@Deprecated
 @Kroll.proxy(creatableInModule=UIModule.class)
-public class ButtonBarProxy extends TiViewProxy
+  public class ButtonBarProxy extends TiViewProxy
 {
 	public ButtonBarProxy()
 	{
