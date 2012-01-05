@@ -2,11 +2,11 @@ define("Ti/UI/AlertDialog", ["Ti/_/declare", "Ti/_/Evented"], function(declare, 
 
 	return declare("Ti.UI.AlertDialog", Evented, {
 		show: function() {
-			console.debug('Method "Titanium.UI.AlertDialog#.show" is not implemented yet.');
+			alert(this.message);
 		},
 
 		hide: function() {
-			console.debug('Method "Titanium.UI.AlertDialog#.hide" is not implemented yet.');
+			// Do nothing since alert() is blocking.
 		},
 		
 		properties: {
@@ -35,17 +35,7 @@ define("Ti/UI/AlertDialog", ["Ti/_/declare", "Ti/_/Evented"], function(declare, 
 				}
 			},
 			
-			message: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.AlertDialog#.message" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.AlertDialog#.message" is not implemented yet.');
-					return value;
-				}
-			},
+			message: "",
 			
 			messageid: {
 				get: function(value) {
