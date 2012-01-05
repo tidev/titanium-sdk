@@ -22,10 +22,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiBaseWindowProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.util.TiUrl;
-import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUITabGroup;
@@ -183,14 +180,7 @@ public class TabGroupProxy extends TiWindowProxy
 			}
 		}
 		Object iconProperty = tab.getProperty(TiC.PROPERTY_ICON);
-		Drawable icon;
-		if (iconProperty instanceof String) {
-			TiUrl iconUrl = new TiUrl((String) iconProperty);
-			TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
-			icon = tfh.loadDrawable(iconUrl.resolve(), false);
-		} else {
-			icon = TiDrawableReference.fromObject(getActivity(), iconProperty).getDrawable();
-		}
+		Drawable icon = TiUIHelper.getResourceDrawable(iconProperty);
 
 		String tag = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TAG));
 		String title = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TITLE));
