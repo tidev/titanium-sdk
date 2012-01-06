@@ -16,6 +16,7 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 			}
 			setTimeout(function() {
 				window.scrollTo(0, 1);
+				window.scrollTo(0, 0);
 				Ti.UI._doFullLayout();
 			}, x);
 		}
