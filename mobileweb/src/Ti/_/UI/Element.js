@@ -75,15 +75,36 @@ define("Ti/_/UI/Element",
 		
 		doLayout: function(originX,originY,parentWidth,parentHeight,centerHDefault,centerVDefault) {
 			
+			var dimensions = this._computeDimensions(originX,originY,parentWidth,parentHeight,centerHDefault,centerVDefault,
+				this.left,this.top,this.right,this.bottom,this.center && this.center.X,this.center && this.center.Y,this.width,this.height);
+			
+			this._measuredLeft = dimensions.left;
+			this._measuredTop = dimensions.top;
+			this._measuredRightPadding = dimensions.rightPadding;
+			this._measuredBottomPadding = dimensions.bottomPadding;
+			this._measuredWidth = dimensions.width;
+			this._measuredHeight = dimensions.height;
+					
+			// Set the position, size and z-index
+			isDef(this._measuredLeft) && set(this.domNode, "left", unitize(this._measuredLeft));
+			isDef(this._measuredTop) && set(this.domNode, "top", unitize(this._measuredTop));
+			isDef(this._measuredWidth) && set(this.domNode, "width", unitize(this._measuredWidth));
+			isDef(this._measuredHeight) && set(this.domNode, "height", unitize(this._measuredHeight));
+			set(this.domNode, "zIndex", is(this.zIndex,"Number") ? this.zIndex : 0);
+		},
+		
+		_computeDimensions: function(originX,originY,parentWidth,parentHeight,centerHDefault,centerVDefault,
+			left,top,originalRight,originalBottom,centerX,centerY,width,height) {
+			
 			// Compute as many sizes as possible, should be everything except auto
-			var left = computeSize(this.left,parentWidth),
-				top = computeSize(this.top,parentHeight),
-				originalRight = computeSize(this.right,parentWidth),
-				originalBottom = computeSize(this.bottom,parentHeight),
-				centerX = isDef(this.center) ? computeSize(this.center.X,parentWidth) : undef,
-				centerY = isDef(this.center) ? computeSize(this.center.Y,parentHeight) : undef,
-				width = computeSize(this.width,parentWidth),
-				height = computeSize(this.height,parentHeight);
+			left = computeSize(left,parentWidth),
+			top = computeSize(top,parentHeight),
+			originalRight = computeSize(originalRight,parentWidth),
+			originalBottom = computeSize(originalBottom,parentHeight),
+			centerX = isDef(centerX) ? computeSize(centerX,parentWidth) : undef,
+			centerY = isDef(centerY) ? computeSize(centerY,parentHeight) : undef,
+			width = computeSize(width,parentWidth),
+			height = computeSize(height,parentHeight);
 			
 			// For our purposes, auto is the same as undefined for position values.
 			left == "auto" && (left = undef);
@@ -220,24 +241,17 @@ define("Ti/_/UI/Element",
 			left += originX;
 			top += originY;
 			
-			this._measuredLeft = left;
-			this._measuredTop = top;
-			this._measuredRightPadding = is(originalRight,"Number") ? originalRight: 0;
-			this._measuredBottomPadding = is(originalBottom,"Number") ? originalBottom: 0;
-			this._measuredWidth = width;
-			this._measuredHeight = height;
-			
 			if(!is(this._measuredLeft,"Number") || !is(this._measuredTop,"Number") || !is(this._measuredRightPadding,"Number")
 				 || !is(this._measuredBottomPadding,"Number") || !is(this._measuredWidth,"Number") || !is(this._measuredHeight,"Number")) {
 			 	throw "Invalid layout";
-			 }
-					
-			// Set the position, size and z-index
-			isDef(left) && set(this.domNode, "left", unitize(left));
-			isDef(top) && set(this.domNode, "top", unitize(top));
-			isDef(width) && set(this.domNode, "width", unitize(width));
-			isDef(height) && set(this.domNode, "height", unitize(height));
-			set(this.domNode, "zIndex", is(this.zIndex,"Number") ? this.zIndex : 0);
+			}
+			
+			return {left: left,
+				top:top,
+				rightPadding: is(originalRight,"Number") ? originalRight: 0,
+				bottomPadding: is(originalBottom,"Number") ? originalBottom: 0,
+				width: width,
+				height: height};
 		},
 		
 		// This method returns the offset of the content relative to the parent's location. 

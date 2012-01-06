@@ -18,7 +18,7 @@ define("Ti/UI/ImageView",
 			set(this.contentContainer, "boxOrient", "horizontal");
 			set(this.contentContainer, "boxPack", "center");
 			set(this.contentContainer, "boxAlign", "center");
-			this.domNode.appendChild(contentContainer);
+			this.domNode.appendChild(this.contentContainer);
 			
 			this.imageDisplay = dom.create("img", {
 				className: css.clean("TiUIImageViewDisplay")
