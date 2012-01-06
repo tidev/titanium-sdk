@@ -8,22 +8,22 @@ define("Ti/UI/ImageView",
 		
 		constructor: function() {
 			
-			var container = dom.create("div", {
+			this.contentContainer = dom.create("div", {
 				className: css.clean("TiUIImageViewAligner")
 			});
-			set(container, "width", "100%");
-			set(container, "height", "100%");
-			set(container, "display", "-webkit-box");
-			set(container, "display", "-moz-box");
-			set(container, "boxOrient", "horizontal");
-			set(container, "boxPack", "center");
-			set(container, "boxAlign", "center");
-			this.domNode.appendChild(container);
+			set(this.contentContainer, "width", "100%");
+			set(this.contentContainer, "height", "100%");
+			set(this.contentContainer, "display", "-webkit-box");
+			set(this.contentContainer, "display", "-moz-box");
+			set(this.contentContainer, "boxOrient", "horizontal");
+			set(this.contentContainer, "boxPack", "center");
+			set(this.contentContainer, "boxAlign", "center");
+			this.domNode.appendChild(contentContainer);
 			
 			this.imageDisplay = dom.create("img", {
 				className: css.clean("TiUIImageViewDisplay")
 			});
-			container.appendChild(this.imageDisplay);
+			this.contentContainer.appendChild(this.imageDisplay);
 			set(this.imageDisplay, "width", "100%");
 			set(this.imageDisplay, "height", "100%");
 		},
@@ -66,6 +66,12 @@ define("Ti/UI/ImageView",
 		},
 		_getContentHeight: function() {
 			return this.imageDisplay.height;
+		},
+		_setTouchEnabled: function(value) {
+			FontWidget.prototype._setTouchEnabled.apply(this,arguments);
+			var cssVal = value ? "auto" : "none";
+			this.contentContainer && set(this.contentContainer,"pointerEvents", cssVal);
+			this.imageDisplay && set(this.imageDisplay,"pointerEvents", cssVal);
 		},
 		
 		properties: {

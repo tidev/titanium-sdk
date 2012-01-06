@@ -65,6 +65,14 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 		_getContentHeight: function() {
 			return this.buttonImage.height + this._measureText(this.title, this.buttonTitle).height + buttonVerticalPadding;
 		},
+		_setTouchEnabled: function(value) {
+			FontWidget.prototype._setTouchEnabled.apply(this,arguments);
+			var cssVal = value ? "auto" : "none";
+			this.button && set(this.button,"pointerEvents", cssVal);
+			this.contentContainer && set(this.contentContainer,"pointerEvents", cssVal);
+			this.buttonImage && set(this.buttonImage,"pointerEvents", cssVal);
+			this.buttonTitle && set(this.buttonTitle,"pointerEvents", cssVal);
+		},
 	
 		properties: {			
 			backgroundColor: {

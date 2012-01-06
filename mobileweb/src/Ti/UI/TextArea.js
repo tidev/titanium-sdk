@@ -38,6 +38,10 @@ define("Ti/UI/TextArea", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/
 		_getContentHeight: function() {
 			return this._measureText(this.value, this.textArea).height;
 		},
+		_setTouchEnabled: function(value) {
+			FontWidget.prototype._setTouchEnabled.apply(this,arguments);
+			this.slider && set(this.textArea,"pointerEvents", value ? "auto" : "none");
+		},
 
 		properties: {            
 			hintText: {

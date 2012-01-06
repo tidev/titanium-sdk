@@ -23,9 +23,12 @@ define("Ti/UI/Slider", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css"
 		_getContentWidth: function() {
 			return this.slider.clientWidth;
 		},
-		
 		_getContentHeight: function() {
 			return this.slider.clientHeight;
+		},
+		_setTouchEnabled: function(value) {
+			FontWidget.prototype._setTouchEnabled.apply(this,arguments);
+			this.slider && set(this.slider,"pointerEvents", value ? "auto" : "none");
 		},
 
 		properties: {
