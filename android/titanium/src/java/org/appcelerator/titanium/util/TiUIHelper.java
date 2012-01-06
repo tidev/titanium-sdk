@@ -35,6 +35,7 @@ import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy.PostOpenListener;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
+import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -763,6 +764,21 @@ public class TiUIHelper
 	public static Drawable getResourceDrawable(int res_id)
 	{
 		return TiApplication.getInstance().getResources().getDrawable(res_id);
+	}
+
+	public static Drawable getResourceDrawable(Object path)
+	{
+		Drawable d;
+
+		if (path instanceof String) {
+			TiUrl imageUrl = new TiUrl((String) path);
+			TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
+			d = tfh.loadDrawable(imageUrl.resolve(), false);
+		} else {
+			d = TiDrawableReference.fromObject(TiApplication.getInstance().getCurrentActivity(), path).getDrawable();
+		}
+
+		return d;
 	}
 
 	public static void overridePendingTransition(Activity activity) 
