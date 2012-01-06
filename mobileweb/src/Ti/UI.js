@@ -1,6 +1,10 @@
 define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/style"], function(dom, Evented, lang, style) {
 	
 	var isDef = require.isDef;
+	
+	document.body.addEventListener('touchmove', function(e) {
+		e.preventDefault();
+	}, false);
 
 	return lang.setObject("Ti.UI", Evented, {
 
@@ -172,7 +176,11 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/style"], functio
 			TEXT_AUTOCAPITALIZATION_WORDS: 1,
 			TEXT_VERTICAL_ALIGNMENT_BOTTOM: 2,
 			TEXT_VERTICAL_ALIGNMENT_CENTER: 1,
-			TEXT_VERTICAL_ALIGNMENT_TOP: 3
+			TEXT_VERTICAL_ALIGNMENT_TOP: 3,
+			ANIMATION_CURVE_EASE_IN: 1,
+			ANIMATION_CURVE_EASE_IN_OUT: 2,
+			ANIMATION_CURVE_EASE_OUT: 3,
+			ANIMATION_CURVE_LINEAR: 4
 		},
 
 		create2DMatrix: function(args) {

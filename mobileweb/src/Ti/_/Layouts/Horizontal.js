@@ -12,7 +12,7 @@ define("Ti/_/Layouts/Horizontal", ["Ti/_/Layouts/Base", "Ti/_/declare"], functio
 				var computedParameters = element.children[i].doLayout(currentLeft,0,width,height,false,false);
 				
 				// Update the size of the component
-				currentLeft += child._measuredWidth + child._measuredLeft + child._measuredRightPadding;
+				currentLeft = child._measuredWidth + child._measuredLeft + child._measuredRightPadding;
 				var bottomMostEdge = child._measuredHeight + child._measuredTop + child._measuredBottomPadding;
 				currentLeft > computedSize.width && (computedSize.width = currentLeft);
 				bottomMostEdge > computedSize.height && (computedSize.height = bottomMostEdge);
