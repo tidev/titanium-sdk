@@ -29,6 +29,13 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/style"], functio
 			}
 		},
 
+		_doForcedFullLayout: function() {
+			this._validateContainer();
+			this._container.doLayout(0, 0, document.body.clientWidth, document.body.clientHeight, true, true);
+			this._layoutInProgress = false;
+			
+		},
+
 		_handleClickEvent: function(x, y, type) {
 			
 			// Get the event bubble

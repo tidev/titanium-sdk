@@ -120,7 +120,9 @@ define("Ti/UI/ScrollableView",
 				var animationView = Ti.UI.createView({
 					width: unitize(viewsToScroll.length * width),
 					height: "100%",
-					layout: "absolute"
+					layout: "absolute",
+					left: initialPosition,
+					top: 0
 				});
 	
 				// Attach the child views, each contained in their own div so we can mess with positioning w/o touching the views
@@ -140,14 +142,17 @@ define("Ti/UI/ScrollableView",
 				// Set the initial position
 				animationView.left = unitize(initialPosition);
 				this._setContent(animationView);
+				
+				// We have to force a non-delayed layout right now
+				Ti.UI._doForcedFullLayout();
 	
 				// Set the start time
 				var duration = 300 + 0.2 * width, // Calculate a weighted duration so that larger views take longer to scroll.
 					distance = (viewsToScroll.length - 1) * width;
 					
 				animationView.animate({
-					duration: 300 + 0.2 * width, // Calculate a weighted duration so that larger views take longer to scroll.
-					left: initialPosition + scrollingDirection * (viewsToScroll.length - 1) * width,
+					duration: duration,
+					left: initialPosition + scrollingDirection * distance,
 					curve: Ti.UI.ANIMATION_CURVE_EASE_IN_OUT
 				},lang.hitch(this,function(){
 					clearInterval(this._interval);
