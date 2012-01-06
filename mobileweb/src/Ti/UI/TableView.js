@@ -61,7 +61,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 			return {x: this.domNode.scrollLeft, y: this.domNode.scrollTop};
 		},
 		
-		_handleMouseEvent: function(type, e, controlList) {
+		_handleMouseEvent: function(type, e) {
 			var locationInList = controlList.indexOf(this);
 			
 			// Find the row that was clicked, if it exists

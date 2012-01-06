@@ -34,6 +34,14 @@ define("Ti/_/UI/Element",
 			});
 
 			// TODO: mixin JSS rules (http://jira.appcelerator.org/browse/TIMOB-6780)
+			
+			on(this.domNode, "click", lang.hitch(this,function(e){
+				this._handleMouseEvent("click",{x: e.clientX, y: e.clientY});
+			}));
+			
+			on(this.domNode, "dblclick", lang.hitch(this,function(e){
+				this._handleMouseEvent("dblclick",{x: e.clientX, y: e.clientY});
+			}));
 
 			on(this.domNode, "focus", lang.hitch(this, function() {
 				var tmp, node = this.domNode;
@@ -320,6 +328,15 @@ define("Ti/_/UI/Element",
 			return this.domNode.clientHeight;
 		},
 		
+		_setTouchEnabled: function(value) {
+			set(this.domNode,"pointerEvents", value ? "auto" : "none");
+			if(!value) {
+				for (var i in this.children) {
+					this.children[i]._setTouchEnabled(value);
+				}
+			}
+		},
+		
 		_measuredLeft: 0,
 		_measuredTop: 0,
 		_measuredRightPadding: 0,
@@ -428,7 +445,13 @@ define("Ti/_/UI/Element",
 				}
 			},
 			
-			touchEnabled: true,
+			touchEnabled: {
+				set: function(value) {
+					this._setTouchEnabled(value);
+					return value;
+				},
+				value: true
+			},
 			
 			// Properties that are handled by the layout manager
 			bottom: {
