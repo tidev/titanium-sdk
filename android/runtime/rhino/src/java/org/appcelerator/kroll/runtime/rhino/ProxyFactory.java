@@ -65,17 +65,16 @@ public class ProxyFactory
 					constructor = (Function) ScriptableObject.getProperty(exports, targetProxyClassName);
 					*/
 
-					// not sure if we would ever see a valid exports object returned with no ids but
-					// better safe than sorry
-					int lastIdIndex = ids.length;
-					if (lastIdIndex > 0) {
-						lastIdIndex--;
-					}
+					if (ids.length > 0) {
+						// ....or just do this.  last element should be the "real" proxy (versus base
+						// type) but leaving the above commented out and in place for the time being 
+						// in case we need to revert to a more direct mechanism
+						constructor = (Function) ScriptableObject.getProperty(exports, (String)(ids[ids.length - 1]));
 
-					// ....or just do this.  last element should be the "real" proxy (versus base
-					// type) but leaving the above commented out and in place for the time being 
-					// in case we need to revert to a more direct mechanism
-					constructor = (Function) ScriptableObject.getProperty(exports, (String)(ids[lastIdIndex]));
+					} else {
+						Log.e(TAG, "Failed to find prototype class constructor for " + proxyClassName);
+						return null;
+					}
 
 				} else {
 					Log.e(TAG, "Failed to find prototype class for " + proxyClassName);
