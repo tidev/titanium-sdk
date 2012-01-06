@@ -62,18 +62,16 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 		},
 		
 		_handleMouseEvent: function(type, e) {
-			var locationInList = controlList.indexOf(this);
-			
-			// Find the row that was clicked, if it exists
-			if (controlList[locationInList + 1] == this.rows && isDef(controlList[locationInList + 2])) {
-				var row = controlList[locationInList + 2];
-				e.row = row;
-				e.rowData = row;
-				e.index = this.rows.children.indexOf(row);
-				e.searchMode = false;
-			} 
-			this.fireEvent(type, e);
+			e.row = this._tableViewRowClicked;
+			e.rowData = this._tableViewRowClicked;
+			e.index = this.rows.children.indexOf(this._tableViewRowClicked);
+			e.section = this._tableViewSectionClicked;
+			e.searchMode = false;
+			View.prototype._handleMouseEvent.apply(this,arguments);
 		},
+		
+		_tableViewRowClicked: null,
+		_tableViewSectionClicked: null,
 		
 		properties: {
 			data: {
