@@ -1,6 +1,6 @@
 ---
 name: Titanium.UI.EmailDialog
-summary: The Email Dialog is created by <Titanium.UI.createEmailDialog> and allows you to send in 
+summary: The Email Dialog is created by <Titanium.UI.createEmailDialog> and allows you to send in
     application emails on behalf of the application user.
 extends: Titanium.Proxy
 since: "0.8"
@@ -27,7 +27,7 @@ events:
     properties:
       - name: result
         summary: |
-                result status either as SENT, SAVED, CANCELLED or FAILED. (Note: Android result will be SENT even if user discards or saves the message.  SAVED and CANCELLED are not supported on Android.)
+                result status either as SENT, SAVED, CANCELLED or FAILED. (Note: Android result will be SENT even if user discards or saves the message.  SAVED and CANCELLED are not supported on Android).
       - name: success
         summary: boolean to indicate if the email was successfully sent
       - name: error
@@ -62,7 +62,7 @@ properties:
     type: Array<Object>
   - name: html
     summary: |
-        boolean to indicate whether the email messageBody should be sent as HTML content type. defaults to false. (Android note: you should not use html messages in 1.6: after that is okay.)
+        boolean to indicate whether the email messageBody should be sent as HTML content type. defaults to false. (Android note: you should not use html messages in 1.6: after that is okay).
     type: Boolean
   - name: messageBody
     summary: the email message body
@@ -73,13 +73,13 @@ properties:
   - name: toRecipients
     summary: array of email recipients
     type: Array<Object>
-    
+
 examples:
   - title: Simple Email Dialog with Attachment
     example: |
-        
+
         In this example, we send an email with a file attachment.
-        
+
             var emailDialog = Titanium.UI.createEmailDialog()
             emailDialog.subject = "Hello from Titanium";
             emailDialog.toRecipients = ['foo@yahoo.com'];
@@ -87,5 +87,5 @@ examples:
             var f = Ti.Filesystem.getFile('cricket.wav');
             emailDialog.addAttachment(f);
             emailDialog.open();
-        
-        
+
+

@@ -1,26 +1,26 @@
 ---
 name: Titanium.Facebook
 summary: |
-    The top level Facebook module.  
+    The top level Facebook module.
 description: |
-    The Facebook module is used for connecting your application with 
-    Facebook through the [Facebook Graph API](http://developers.facebook.com/docs/reference/api/) 
-    (see `requestWithGraphPath`) or the deprecated 
+    The Facebook module is used for connecting your application with
+    Facebook through the [Facebook Graph API](http://developers.facebook.com/docs/reference/api/)
+    (see `requestWithGraphPath`) or the deprecated
     [Facebook REST API](http://developers.facebook.com/docs/reference/rest/) (see `request`).
-    Due to how the facebook login process works on iOS, your app will need to have the following 
+    Due to how the facebook login process works on iOS, your app will need to have the following
     in your tiapp.xml if you target those platforms:
-    
+
     <property name="ti.facebook.appid">your_app_id_here</property>
-    
-    You must still set Ti.Facebook.appid within your app itself to use the facebook module.  
-    This property is used only for configuring your app to interface with the facebook 
+
+    You must still set Ti.Facebook.appid within your app itself to use the facebook module.
+    This property is used only for configuring your app to interface with the facebook
     login process.
 
     #### Previous Versions
-    Titanium Mobile SDK 1.6.0 marked a significant change for this module.  Older versions of 
-    the module were not compatible with the new Graph API.  Applications written for the 
-    pre-1.6.0 version of this module will **not** work with the 1.6.0 and higher versions.  
-    Nor is the code shown in the examples here backwards-compatible with pre-1.6.0 Titanium 
+    Titanium Mobile SDK 1.6.0 marked a significant change for this module.  Older versions of
+    the module were not compatible with the new Graph API.  Applications written for the
+    pre-1.6.0 version of this module will **not** work with the 1.6.0 and higher versions.
+    Nor is the code shown in the examples here backwards-compatible with pre-1.6.0 Titanium
     Mobile SDK.
 extends: Titanium.Module
 since: "0.8"
@@ -39,7 +39,7 @@ methods:
         type: Object
       - name: callback
         summary: |
-            A callback for when dialog is completed/cancelled.  The callback should accept a single argument which will be filled with a dictionary object concerning call results: items in the dictionary can be "success" (boolean), "error" (string with the error message), "cancelled" (set to true if user cancelled) and "result" (the data returned by Facebook.)
+            A callback for when dialog is completed/cancelled.  The callback should accept a single argument which will be filled with a dictionary object concerning call results: items in the dictionary can be "success" (boolean), "error" (string with the error message), "cancelled" (set to true if user cancelled) and "result" (the data returned by Facebook).
         type: Callback<Object>
   - name: logout
     summary: Clear the OAuth `accessToken` and logout the user.
@@ -54,10 +54,10 @@ methods:
         type: Object
       - name: callback
         summary: |
-            A callback for when call is completed.  The callback should accept a single argument which will be filled with a dictionary object concerning call results: items in the dictionary can be "success" (boolean), "error" (string with the error message), "method" (the REST method call you specified), "result" (the data returned by Facebook.)
+            A callback for when call is completed.  The callback should accept a single argument which will be filled with a dictionary object concerning call results: items in the dictionary can be "success" (boolean), "error" (string with the error message), "method" (the REST method call you specified), "result" (the data returned by Facebook).
         type: Callback<Object>
   - name: requestWithGraphPath
-    summary: Make a [Facebook Graph API](http://developers.facebook.com/docs/reference/api/) request.  If the request requires user authorization, be sure user is already logged-in and your app is authorized.  (You can check `loggedIn` for that.)
+    summary: Make a [Facebook Graph API](http://developers.facebook.com/docs/reference/api/) request.  If the request requires user authorization, be sure user is already logged-in and your app is authorized.  (You can check `loggedIn` for that).
     parameters:
       - name: path
         summary: The graph API path to request.  For example, "me" requests [information about the logged-in user](http://developers.facebook.com/docs/reference/api/user/).
@@ -70,7 +70,7 @@ methods:
         type: String
       - name: callback
         summary: |
-            A callback for when call is completed.  The callback should accept a single argument which will be filled with a dictionary object concerning call results: items in the dictionary can be "success" (boolean), "error" (string with the error message), "path" (the graph call path you specified), "result" (the JSON returned by Facebook.)
+            A callback for when call is completed.  The callback should accept a single argument which will be filled with a dictionary object concerning call results: items in the dictionary can be "success" (boolean), "error" (string with the error message), "path" (the graph call path you specified), "result" (the JSON returned by Facebook).
         type: Callback<Object>
 events:
   - name: login
@@ -113,9 +113,9 @@ properties:
 examples:
   - title: Authorize
     example: |
-        
+
         Shows official Facebook dialog for logging in the user and prompting the user to approve your requested permissions.  Listen for the module's "login" event to determine success/failure.
-        
+
             Titanium.Facebook.appid = '[YOUR APPID]';
             Titanium.Facebook.permissions = ['publish_stream']; // Permissions your app needs
             Titanium.Facebook.addEventListener('login', function(e) {
@@ -128,26 +128,26 @@ examples:
             	}
             });
             Titanium.Facebook.authorize();
-        
-        
+
+
   - title: Logout
     example: |
-        
+
         Logout the user and forget the authorization token.  Listen for the module's "logout" event to determine when logout is finished.
-        
+
             Titanium.Facebook.addEventListener('logout', function(e) {
             	alert('Logged out');
             });
             Titanium.Facebook.logout();
-        
-        
+
+
   - title: Authorize/Logout via the special LoginButton
     example: |
-        
+
         We've provided the Facebook-themed LoginButton which updates its state automatically depending on whether the user is logged-in or not.  I.e., when the user is logged-in, then the button will show "Logout", and vice-versa.
-        
+
         Note that you don't need to set a click listener or anything else on the button.  It "just works".  To listen for the actual login and logout events (which are part of the Titanium Facebook module and not specific to the login button), add listeners at the module level as in the example below.
-        
+
             // Don't forget to set your appid and requested permissions, else the login button
             // won't be effective.
             Titanium.Facebook.appid = '[your appid]';
@@ -160,18 +160,18 @@ examples:
             Titanium.Facebook.addEventListener('logout', function(e) {
             	alert('Logged out');
             });
-            
+
             // add the button.  Note that it doesn't need a click event or anything.
             Titanium.UI.currentWindow.add(Titanium.Facebook.createLoginButton({ top: 50, style: 'wide' }));
-        
+
         The `style:'wide'` shows a wide version of the button that displays "Connect with Facebook" instead of just "Connect".
-        
-        
+
+
   - title: Simple Graph API call
     example: |
-        
-        This example makes a call to the "me" graph path and displays the results, which will be JSON from Facebook.  It assumes the user is already logged-in (you can check this with <Titanium.Facebook.loggedIn>.)
-        
+
+        This example makes a call to the "me" graph path and displays the results, which will be JSON from Facebook.  It assumes the user is already logged-in (you can check this with <Titanium.Facebook.loggedIn>).
+
             Titanium.Facebook.requestWithGraphPath('me', {}, 'GET', function(e) {
             	if (e.success) {
             		alert(e.result);
@@ -181,20 +181,20 @@ examples:
             		alert('Unknown response');
             	}
             });
-        
-        
+
+
   - title: Create an Event with Graph API
     example: |
-        
+
         This example uses the Graph API to [create an event](http://developers.facebook.com/docs/reference/api/event/) in the logged-on user's Facebook account.  This requires the "create_event" permission.
-        
+
             // First make sure this permission exists
             Titanium.Facebook.permissions = ['create_event'];
             Titanium.Facebook.authorize();
-            
+
             // ...
             // ...
-            
+
             // Now create the event after you've confirmed authorize() was successful.
             var starttime = new Date(2011, 4, 31, 17, 0);
             var endtime = new Date(2011, 4, 31, 19, 0);
@@ -217,20 +217,20 @@ examples:
             		}
             	}
             });
-        
-        
+
+
   - title: Set user's Facebook status with Graph API
     example: |
-        
+
         Use the Graph API to set the [user's Facebook status](http://developers.facebook.com/docs/reference/api/status/).  Requires the "publish_stream" permissions.
-        
+
             // First make sure this permission exists
             Titanium.Facebook.permissions = ['publish_stream'];
             Titanium.Facebook.authorize();
-            
+
             // ...
             // ...
-            
+
             // Now create the status message after you've confirmed that authorize() succeeded
             Titanium.Facebook.requestWithGraphPath('me/feed', {message: "Trying out FB Graph API and it's fun!"}, "POST", function(e) {
             	if (e.success) {
@@ -243,20 +243,20 @@ examples:
             		}
             	}
             });
-        
-        
+
+
   - title: Post a photo using the Graph API
     example: |
-        
+
         This example [posts a photo to the user's account](http://developers.facebook.com/docs/reference/api/photo/) using the Graph API.  Another example below shows how to do this with the REST API, if desired.  This requires the "publish_stream" permission.
-        
+
             // First make sure this permission exists
             Titanium.Facebook.permissions = ['publish_stream'];
             Titanium.Facebook.authorize();
-            
+
             // ...
             // ...
-            
+
             // Now post the photo after you've confirmed that authorize() succeeded
             var f = Ti.Filesystem.getFile('pumpkin.jpg');
             var blob = f.read();
@@ -275,20 +275,20 @@ examples:
             		}
             	}
             });
-        
-        
+
+
   - title: Post a photo using the REST API
     example: |
-        
+
         This example [posts a photo to the user's account](http://developers.facebook.com/docs/reference/rest/photos.upload/) using the REST API.  Another example above shows how to do this with the Graph API.  This requires the "publish_stream" permission.
-        
+
             // First make sure this permission exists
             Titanium.Facebook.permissions = ['publish_stream'];
             Titanium.Facebook.authorize();
-            
+
             // ...
             // ...
-            
+
             // Now post the photo after you've confirmed that authorize() succeeded
             var f = Ti.Filesystem.getFile('pumpkin.jpg');
             var blob = f.read();
@@ -307,13 +307,13 @@ examples:
             		}
             	}
             });
-        
-        
+
+
   - title: Show the Facebook Feed Dialog
     example: |
-        
+
         This example shows how to display the [official Facebook dialog](http://developers.facebook.com/docs/reference/dialogs/feed/) for making a post to the user's feed.  In this example, we'll prefill some of the feed fields by passing a data dictionary to the dialog() method; this is not required.
-        
+
             var data = {
             	link: "http://www.appcelerator.com",
             	name: "Appcelerator Titanium Mobile",
@@ -335,5 +335,5 @@ examples:
             		}
             	}
             });
-        
-        
+
+

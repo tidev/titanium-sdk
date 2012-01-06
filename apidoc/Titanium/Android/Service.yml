@@ -14,12 +14,12 @@ events:
     summary: For Javascript-based Services which you create, `pause` fires after each time the Javascript code executes.  `resume` and `pause` happen in pairs, with `resume` firing just before your Javascript service code executes, and `pause` just after.
     properties:
       - name: iteration
-        summary: incrementing integer indicating which iteration of an interval-based Service is pausing.  For example, if you have an interval-based Service running every 10 seconds, iteration 3 would occur at about 30 seconds after you start the instance (assuming your service code runs quickly.)
+        summary: incrementing integer indicating which iteration of an interval-based Service is pausing.  For example, if you have an interval-based Service running every 10 seconds, iteration 3 would occur at about 30 seconds after you start the instance (assuming your service code runs quickly).
   - name: resume
     summary: For Javascript-based Services which you create, `resume` fires each time the Javascript code executes.  For example, if your Service runs on an interval of 10000 (10 seconds), you would expect to see `resume` fired every 10 seconds, just as the Javascript service code you wrote is about to execute.
     properties:
       - name: iteration
-        summary: incrementing integer indicating which iteration of an interval-based Service is resuming.  For example, if you have an interval-based Service running every 10 seconds, iteration 3 would occur at about 30 seconds after you start the instance (assuming your service code runs quickly.)
+        summary: incrementing integer indicating which iteration of an interval-based Service is resuming.  For example, if you have an interval-based Service running every 10 seconds, iteration 3 would occur at about 30 seconds after you start the instance (assuming your service code runs quickly).
   - name: start
     summary: Fired when the bound Service instance starts.  Bound service instances are created via <Titanium.Android.createService>.
   - name: stop
@@ -36,32 +36,32 @@ properties:
 examples:
   - title: Hello World Service
     example: |
-        
+
         Your service code in its own Javascript file.  It reads the <Titanium.Android.Intent> which created it, to see what it should say besides "Hello World".
-        
+
         File: myservice.js:
-        
+
             var service = Titanium.Android.currentService;
             var intent = service.intent;
             var message = intent.getStringExtra("message_to_echo");
             Titanium.API.info("Hello World!  I am a Service.  I have this to say: " + message);
-        
+
         Register the service in tiapp.xml:
-        
+
             <android xmlns:android="http://schemas.android.com/apk/res/android">
                 <services>
                     <service url="myservice.js" type="interval"/>
                 </services>
             </android>
-        
+
         Code in "regular" Titanium file to launch the service and listen for pause/resume events.  Code also stops the service after its code runs 3 times.
-        
+
             var intent = Titanium.Android.createServiceIntent( { url: 'myservice.js' } );
             // Service should run its code every 2 seconds.
             intent.putExtra('interval', 2000);
             // A message that the service should 'echo'
             intent.putExtra('message_to_echo', 'Titanium rocks!');
-            
+
             var service = Titanium.Android.createService(intent);
             service.addEventListener('resume', function(e) {
                 Titanium.API.info('Service code resumes, iteration ' + e.iteration);
@@ -74,9 +74,9 @@ examples:
                 }
             });
             service.start();
-        
+
         Console Output:
-        
+
             [INFO] [29,1942] Service code resumes, iteration 1
             [INFO] [70,2029] Hello World! I am a Service. I have this to say: Titanium rocks!
             [INFO] [3,2070] Service code pauses, iteration 1
@@ -87,5 +87,5 @@ examples:
             [INFO] [27,5961] Hello World! I am a Service. I have this to say: Titanium rocks!
             [INFO] [16,5980] Service code pauses, iteration 3
             [INFO] [1,5981] Service code has run 3 times, will now stop it.
-        
-    
+
+

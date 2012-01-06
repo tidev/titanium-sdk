@@ -135,7 +135,7 @@ properties:
     description: |
         A fullscreen window occupies all of the screen space, hiding elements
         such as the iOS nav bar or the Android status bar. Must be specified
-        at creation time or in the `options` dictionary passed to the 
+        at creation time or in the `options` dictionary passed to the
         [Window.open](Titanium.UI.Window.open) method.
     platforms: [android, iphone, ipad]
     type: Boolean
@@ -154,7 +154,7 @@ properties:
         a translucent window cannot appear above the status bar.  I.e., even though
         you set `fullscreen:true`, the status bar will still be visible *if* it was visible
         in the previous window.  `navBarHidden` and `modal` do work fine together, however.
-        
+
         iOS note: modal windows should not support orientation modes that the
         window they are opened over do not support. Doing otherwise *may* cause
         bad visual/redraw behavior after the modal is dismissed, due to how
@@ -172,12 +172,12 @@ properties:
   - name: opacity
     summary: The opacity from 0.0-1.0.
     description: |
-        iOS Notes: For modal windows that cover the previous window, the previous window is 
-        removed from the render stack after the modal window finishes opening. If the 
-        modal window is semi-transparent, the underlying window will be visible during the 
-        transition animation, but disappear as soon as the animation is completed. (In general 
-        all modal windows cover the previous window, except for iPad modal windows using the 
-        Page sheet or Form sheet style.)
+        iOS Notes: For modal windows that cover the previous window, the previous window is
+        removed from the render stack after the modal window finishes opening. If the
+        modal window is semi-transparent, the underlying window will be visible during the
+        transition animation, but disappear as soon as the animation is completed. (In general
+        all modal windows cover the previous window, except for iPad modal windows using the
+        Page sheet or Form sheet style).
 
         Android Notes: If you set any of `windowSoftInputMode`, `fullscreen`, or `navBarHidden`,
         *and* you wish to use the `opacity` property at any time during the window's lifetime,
@@ -278,7 +278,7 @@ properties:
 
   - name: tabBarHidden
     summary: |
-        Boolean value indicating if the tab bar should be hidden. 
+        Boolean value indicating if the tab bar should be hidden.
     description: |
         `tabBarHidden` must be set **before** opening the window.
 
@@ -344,7 +344,7 @@ properties:
         [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE),
         or [SOFT_INPUT_ADJUST_UNSPECIFIED](Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED).
 
-        For more information see the Android API Reference: 
+        For more information see the Android API Reference:
         [Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
     platforms: [android]
     type: Number
@@ -355,7 +355,7 @@ properties:
         The property is ignored on a Titanium "lightweight" Window. Use one of the
         <Ti.UI.Android>.PIXEL_FORMAT constants to set the format.
 
-        For more information on pixel formats, see 
+        For more information on pixel formats, see
         [Android SDK Window.setFormat](http://developer.android.com/reference/android/view/Window.html#setFormat(int))
     platforms: [android]
     type: Number
@@ -363,19 +363,19 @@ properties:
 
 description: |
     A window is a top-level container which can contain other views. Windows can
-    be *opened* and *closed*.  Opening a window causes the window and its child 
-    views to be added to the application's render stack, on top of any previously opened 
+    be *opened* and *closed*.  Opening a window causes the window and its child
+    views to be added to the application's render stack, on top of any previously opened
     windows. Closing a window removes the window and its children from the render stack.
 
     Windows *contain* other views, but in general they are not *contained* inside
     other views. There are a few specialized top-level views that manage windows,
     including:
-    
+
     * [NavigationGroup](Titanium.UI.iPhone.NavigationGroup)
     * [SplitWindow](Titanium.UI.iPad.SplitWindow)
-    * [TabGroup](Titanium.UI.TabGroup). 
+    * [TabGroup](Titanium.UI.TabGroup).
 
-    By default, windows occupy the entire screen except for the navigation bar, 
+    By default, windows occupy the entire screen except for the navigation bar,
     status bar, and in the case of windows contained in tab groups, the tab bar.
     To take up the entire screen, covering any other UI, specify `fullscreen:true`
     when creating the window.
@@ -527,9 +527,9 @@ description: |
     modal windows. In addition to full-screen modal windows, the iPad supports "Page sheet"
     and "Form sheet" style windows:
 
-    * **Page sheet** style windows have a fixed width, equal to the width of the screen 
+    * **Page sheet** style windows have a fixed width, equal to the width of the screen
       in portait mode, and a height equal to the *current* height of the screen. This means
-      that in portrait mode, the window covers the entire screen. In landscape mode, 
+      that in portrait mode, the window covers the entire screen. In landscape mode,
       the window is centered on the screen horizontally.
 
     * **Form sheet** style windows are smaller than the screen size, and centered on the screen.
@@ -551,15 +551,15 @@ description: |
 
     In Android, Titanium windows can be heavyweight or lightweight:
 
-    - A *heavyweight* window is associated with a new Android 
-      [Activity](Titanium.Android.Activity). Creating a heavyweight window always 
+    - A *heavyweight* window is associated with a new Android
+      [Activity](Titanium.Android.Activity). Creating a heavyweight window always
       creates a new JavaScript context.
 
-    - A *lightweight* window is a fullscreen view, and runs in the same Android Activity 
-      as the code that created it. Creating a lightweight window creates a new 
+    - A *lightweight* window is a fullscreen view, and runs in the same Android Activity
+      as the code that created it. Creating a lightweight window creates a new
       JavaScript context if it was created with the 'url' property set.
 
-    The [createWindow](Titanium.UI.createWindow) call creates a heavyweight window 
+    The [createWindow](Titanium.UI.createWindow) call creates a heavyweight window
     if any of the following properties are true on creation:
 
     * `fullscreen`
@@ -567,7 +567,7 @@ description: |
     * `modal`
     * `windowSoftInputMode`
 
-    A heavyweight window is always created when you open a new window from inside a 
+    A heavyweight window is always created when you open a new window from inside a
     [TabGroup](Titanium.UI.TabGroup).
 
     #### Android "root" Windows

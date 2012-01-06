@@ -44,20 +44,20 @@ methods:
                     Ti.include('some_module.js');
                 };
                 loadModule();
-        
 
-        -   The included filename is interpreted *local to the current file*. For 
-        example, suppose `a.js` includes `dir/b.js.` If `b.js` includes another file, 
+
+        -   The included filename is interpreted *local to the current file*. For
+        example, suppose `a.js` includes `dir/b.js.` If `b.js` includes another file,
         `c.js`, this is interpreted as `dir/c.js`.
 
-        -   Calling `include` from an event handler does not work consistently across 
+        -   Calling `include` from an event handler does not work consistently across
         platforms.
 
         -   Calling `include` on a non-existent file causes a runtime error.
         See also [CommonJS Require](Global.require).
     parameters:
       - name: name
-        summary: Filename(s) to include. 
+        summary: Filename(s) to include.
         type: String
 
   - name: createBuffer
@@ -73,18 +73,18 @@ methods:
     examples:
       - title: Create a buffer with 1K bytes
         example: |
-            
+
                 var buffer = Ti.createBuffer({ length: 1024 });
       - title: Create a buffer with string
         example: |
             Create a buffer with the string "hello world" encoded in UTF-8
-            
+
                 var buffer = Ti.createBuffer({ value: "hello world" });
       - title: Create a buffer with encoded float
         example: |
-            Create a buffer with the encoded value of the double-precision floating point 
+            Create a buffer with the encoded value of the double-precision floating point
             number 1.234567 in Big Endian (network) byte order
-            
+
                 var buffer = Ti.createBuffer({ value: 1.234567, type: Ti.Codec.TYPE_DOUBLE, byteOrder: Ti.Codec.BIG_ENDIAN });
 
 
@@ -97,7 +97,7 @@ platforms: [android, iphone, ipad]
 properties:
   - name: value
     type: [String, Number]
-    summary: An initial value which will be encoded and placed in the buffer. If value is a Number, type must also be set. (this is simply a convenient way of calling <Titanium.Codec.encodeString> or <Titanium.Codec.encodeNumber> and placing the encoded value in the returned buffer.)
+    summary: An initial value which will be encoded and placed in the buffer. If value is a Number, type must also be set. (this is simply a convenient way of calling <Titanium.Codec.encodeString> or <Titanium.Codec.encodeNumber> and placing the encoded value in the returned buffer).
     optional: true
   - name: length
     type: Number

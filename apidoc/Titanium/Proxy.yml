@@ -15,15 +15,15 @@ methods:
   - name: removeEventListener
     summary: Removes the specified callback as an event listener for the named event.
     description: |
-        Multiple listeners can be registered for the same event, so the 
-        `callback` parameter is used to determine which listener to remove. 
-        
+        Multiple listeners can be registered for the same event, so the
+        `callback` parameter is used to determine which listener to remove.
+
         When adding a listener, you must save a reference to the callback function
         in order to remove the listener later:
 
-            var listener = function() { Ti.API.info("Event listener called.); }
+            var listener = function() { Ti.API.info("Event listener called"); }
             window.addEventListener('click', listener);
-            
+
         To remove the listener, pass in a reference to the callback function:
 
             window.removeEventListener('click', listener);
