@@ -7,7 +7,7 @@
 
 import os, sys, uuid, subprocess, shutil, signal, string, traceback, imp, filecmp, inspect
 import platform, time, re, run, glob, codecs, hashlib, datetime, plistlib
-from compiler import Compiler
+from compiler import Compiler, softlink_for_simulator
 from projector import Projector
 from xml.dom.minidom import parseString
 from xml.etree.ElementTree import ElementTree
@@ -946,6 +946,8 @@ def main(args):
 				# attempt to compile to get it correct for the first time.
 				compiler = Compiler(project_dir,appid,name,deploytype,xcode_build,devicefamily,iphone_version,True)
 			else:
+				if simulator:
+					softlink_for_simulator(project_dir,app_dir)
 				contents="TI_VERSION=%s\n"% sdk_version
 				contents+="TI_SDK_DIR=%s\n" % template_dir.replace(sdk_version,'$(TI_VERSION)')
 				contents+="TI_APPID=%s\n" % appid

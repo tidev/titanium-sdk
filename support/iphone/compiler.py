@@ -12,6 +12,7 @@ sys.path.append(os.path.join(template_dir,'../'))
 from tiapp import *
 import jspacker 
 from csspacker import CSSPacker
+import traceback
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn','CVS','android','iphone'];
@@ -134,7 +135,42 @@ def parse_xcconfig(xcconfig, moduleId, variables):
 	new_xcconfig += '\n'
 	
 	return new_xcconfig
-		
+
+def softlink_resources(source,target,use_ignoreDirs=True):
+	if not os.path.exists(target):
+		os.makedirs(target)
+	for file in os.listdir(source):
+		if (use_ignoreDirs and (file in ignoreDirs)) or (file in ignoreFiles):
+			continue
+		from_ = os.path.join(source, file)
+		to_ = os.path.join(target, file)
+		if os.path.isdir(from_):
+			print "[DEBUG] creating: %s" % (to_)
+			softlink_resources(from_,to_,False)
+		else:
+			print "[DEBUG] linking: %s to %s" % (from_,to_)
+			if os.path.exists(to_):
+				if os.path.islink(to_):
+					os.remove(to_)
+					os.symlink(from_, to_)
+			else:
+				os.symlink(from_, to_)
+
+def softlink_for_simulator(project_dir,app_dir):
+	resources_dir = os.path.join(project_dir,'Resources')
+	iphone_resources_dir = os.path.join(resources_dir,'iphone')
+	iphone_platform_dir = os.path.join(project_dir,'platform','iphone')
+	softlink_resources(resources_dir,app_dir)
+	if(os.path.exists(iphone_resources_dir)):
+		softlink_resources(iphone_resources_dir,app_dir)
+	dest_mod_dir = os.path.join(app_dir,'modules')
+	src_mod_dir = os.path.join(project_dir,'modules')
+	if(os.path.exists(src_mod_dir)):
+		softlink_resources(src_mod_dir,dest_mod_dir)
+		src_mod_iphone_dir = os.path.join(src_mod_dir,'iphone')
+		if(os.path.exists(src_mod_iphone_dir)):
+			softlink_resources(os.path.join(project_dir,'modules','iphone'),dest_mod_dir)
+
 #
 # TODO/FIXME
 #
@@ -344,16 +380,7 @@ class Compiler(object):
 			print "[INFO] Skipping JS compile, running from simulator"
 		
 		if deploytype=='development':
-			self.softlink_resources(resources_dir,app_dir)
-			if(os.path.exists(iphone_resources_dir)):
-				self.softlink_resources(iphone_resources_dir,app_dir)
-			dest_mod_dir = os.path.join(app_dir,'modules')
-			src_mod_dir = os.path.join(project_dir,'modules')
-			if(os.path.exists(src_mod_dir)):
-				self.softlink_resources(src_mod_dir,dest_mod_dir)
-				src_mod_iphone_dir = os.path.join(src_mod_dir,'iphone')
-				if(os.path.exists(src_mod_iphone_dir)):
-					self.softlink_resources(os.path.join(project_dir,'modules','iphone'),dest_mod_dir)
+			softlink_for_simulator(project_dir,app_dir)
 	
 	def add_symbol(self,api):
 		print "[DEBUG] detected symbol: %s" % api
@@ -455,27 +482,7 @@ class Compiler(object):
 		data = data.translate(None, '\r\n')
 		method = "@\"%s\"" % data
 		return {'method':method,'path':path}
-	
-	def softlink_resources(self,source,target,use_ignoreDirs=True):
-		if not os.path.exists(target):
-			os.makedirs(target)
-		for file in os.listdir(source):
-			if (use_ignoreDirs and (file in ignoreDirs)) or (file in ignoreFiles):
-				continue
-			from_ = os.path.join(source, file)
-			to_ = os.path.join(target, file)
-			if os.path.isdir(from_):
-				print "[DEBUG] creating: %s" % (to_)
-				self.softlink_resources(from_,to_,False)
-			else:
-				print "[DEBUG] linking: %s to %s" % (from_,to_)
-				if os.path.exists(to_):
-					if os.path.islink(to_):
-						os.remove(to_)
-						os.symlink(from_, to_)
-				else:
-					os.symlink(from_, to_)
-	
+		
 	def copy_resources(self,sources,target,write_routing=True,module_js=[]):
 		
 		if write_routing:
