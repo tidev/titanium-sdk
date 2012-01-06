@@ -166,10 +166,12 @@ public class Ti2DMatrix extends KrollProxy
 	}
 	
 	@Kroll.method
-	public String finalValuesAfterInterpolation (int width, int height)
+	public float[] finalValuesAfterInterpolation (int width, int height)
 	{
 		Matrix m = interpolate(1f, width, height, 0.5f, 0.5f);
-		return m.toString();
+		float[] result = new float[9];
+		m.getValues(result);
+		return result;
 	}
 
 	public Matrix interpolate(float interpolatedTime, int childWidth, int childHeight, float anchorX, float anchorY)

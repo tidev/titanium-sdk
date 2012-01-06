@@ -22,7 +22,16 @@ describe("Ti.UI.2DMatrix tests", {
 			matrix1 = matrix1.rotate(90);
 			matrix2 = matrix2.scale(2,1);
 			var matrix3 = matrix1.multiply(matrix2);
-			valueOf(matrix3.finalValuesAfterInterpolation(50,100)).shouldBe("Matrix{[0.0, -2.0, 150.0][1.0, 0.0, 25.0][0.0, 0.0, 1.0]}");
+			var values = matrix3.finalValuesAfterInterpolation(50,100);
+			valueOf(values[0]).shouldBe(0.0);
+			valueOf(values[1]).shouldBe(-2.0);
+			valueOf(values[2]).shouldBe(150.0);
+			valueOf(values[3]).shouldBe(1.0);
+			valueOf(values[4]).shouldBe(0.0);
+			valueOf(values[5]).shouldBe(25.0);
+			valueOf(values[6]).shouldBe(0.0);
+			valueOf(values[7]).shouldBe(0.0);
+			valueOf(values[8]).shouldBe(1.0);
 		}
 	},	
 	
