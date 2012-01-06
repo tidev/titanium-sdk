@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
@@ -33,6 +34,7 @@ public class ButtonBarProxy extends TiViewProxy
 	@Override
 	public TiUIView createView(Activity activity)
 	{
+		Log.w("ButtonBarProxy", "ButtonBar is deprecated. Any usage of this will result in an application crash");
 		return null;
 	}
 
