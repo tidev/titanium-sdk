@@ -228,8 +228,8 @@ exports.bootstrapWindow = function(Titanium) {
 
 		} else {
 			this.postOpen();
-			this.fireEvent("focus");
 			this.fireEvent("open");
+			this.fireEvent("focus");
 		}
 	}
 
