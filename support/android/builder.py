@@ -417,7 +417,7 @@ class Builder(object):
 			'-port',
 			'5560',
 			'-sdcard',
-			self.sdcard,
+			self.get_sdcard_path(),
 			'-logcat',
 			'*:d,*',
 			'-no-boot-anim',
@@ -472,6 +472,12 @@ class Builder(object):
 		
 	def is_app_installed(self):
 		return self.check_file_exists('/data/app/%s*.apk' % self.app_id)
+	
+	def get_sdcard_path(self):
+		# We need to surround the sd card path in quotes for windows to account for spaces in path
+		if platform.system() == "Windows":
+			return '"' + self.sdcard + '"'
+		return self.sdcard
 
 	def are_resources_installed(self):
 		return self.check_file_exists(self.sdcard_resources+'/app.js')

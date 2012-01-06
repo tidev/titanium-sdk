@@ -221,5 +221,5 @@ typedef enum {
 
 +(NSString*)uniqueIdentifier;
 
-+(NSString*)caseCorrect:(NSString*)str;
++(NSString*)getResponseHeader:(NSString*)header fromHeaders:(NSDictionary*)responseHeaders;
 @end

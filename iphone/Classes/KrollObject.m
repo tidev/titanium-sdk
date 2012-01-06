@@ -257,11 +257,11 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 		}
 		return TiObjectMake(jsContext,KrollMethodClassRef,obj);
 	}
-	else if ([obj isKindOfClass:[KrollFunction class]])
+	else if ([obj isKindOfClass:[KrollWrapper class]])
 	{
-		if ([KrollBridge krollBridgeExists:[(KrollFunction *)obj remoteBridge]])
+		if ([KrollBridge krollBridgeExists:[(KrollWrapper *)obj bridge]])
 		{
-			return [(KrollFunction *)obj remoteFunction];
+			return [(KrollWrapper *)obj jsobject];
 		}
 		//Otherwise, this flows to null.
 	}
@@ -420,10 +420,9 @@ TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiString
 		id result = [o valueForKey:name];
 		TiObjectRef cachedObject = [o objectForTiString:prop context:jsContext];
 
-			//TODO: This is kind of an ugly hack and needs revisiting.
-		if ([result isKindOfClass:[KrollFunction class]])
+		if ([result isKindOfClass:[KrollWrapper class]])
 		{
-			if (![KrollBridge krollBridgeExists:[(KrollFunction *)result remoteBridge]])
+			if (![KrollBridge krollBridgeExists:[(KrollWrapper *)result bridge]])
 			{
 				//This remote object no longer exists.
 				[o deleteKey:name];
@@ -431,7 +430,7 @@ TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiString
 			}
 			else
 			{
-				TiObjectRef remoteFunction = [(KrollFunction *)result remoteFunction];
+				TiObjectRef remoteFunction = [(KrollWrapper *)result jsobject];
 				if ((cachedObject != NULL) && (cachedObject != remoteFunction))
 				{
 					[o forgetObjectForTiString:prop context:jsContext];	//Clean up the old property.
@@ -980,6 +979,13 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 					c = ((cIMP)methodFunction)(target,selector);
 					return [NSNumber numberWithChar:c];
 				}
+                else if ([attributes hasPrefix:@"TQ,"])
+                {
+                    unsigned long long ull;
+                    typedef unsigned long long (*ullIMP)(id, SEL, ...);
+                    ull = ((ullIMP)methodFunction)(target,selector);
+                    return [NSNumber numberWithUnsignedLongLong:ull];
+                }
 				else 
 				{
 					// let it fall through and return undefined

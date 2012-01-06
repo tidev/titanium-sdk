@@ -1016,11 +1016,11 @@ DEFINE_EXCEPTIONS
 {
 	if([value isKindOfClass:[KrollCallback class]]){
 		[self setCallback:value forKey:key];
-		//As a wrapper, we hold onto a krollFunction tuple so that other contexts
+		//As a wrapper, we hold onto a KrollWrapper tuple so that other contexts
 		//may access the function.
-		KrollFunction * newValue = [[[KrollFunction alloc] init] autorelease];
-		[newValue setRemoteBridge:(KrollBridge*)[[(KrollCallback*)value context] delegate]];
-		[newValue setRemoteFunction:[(KrollCallback*)value function]];
+		KrollWrapper * newValue = [[[KrollWrapper alloc] init] autorelease];
+		[newValue setBridge:(KrollBridge*)[[(KrollCallback*)value context] delegate]];
+		[newValue setJsobject:[(KrollCallback*)value function]];
 		value = newValue;
 	}
 

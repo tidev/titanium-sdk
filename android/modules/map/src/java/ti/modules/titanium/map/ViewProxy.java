@@ -72,16 +72,16 @@ public class ViewProxy extends TiViewProxy
 	}
 
 	@Override
-	protected void initActivity(Activity activity)
-	{
-		super.initActivity(activity);
-
-		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
-	}
-
-	@Override
 	public TiUIView createView(Activity activity)
 	{
+		// for HW windows, we often don't have the correct activity available until this point
+		// so set the passed in activity on the proxy for future use
+		if (activity != getActivity()) {
+			setActivity(activity);
+		}
+
+		((TiBaseActivity)activity).addOnLifecycleEventListener(this);
+
 		destroyed = false;
 		if (lam == null) {
 			/*
@@ -176,6 +176,30 @@ public class ViewProxy extends TiViewProxy
 	public void addAnnotation(AnnotationProxy annotation)
 	{
 		annotations.add(annotation);
+		if(mapView != null) {
+			mapView.updateAnnotations();
+		}
+	}
+
+	@Kroll.method
+	public void addAnnotations(Object annotations)
+	{
+		if (!(annotations.getClass().isArray())) {
+			Log.e(LCAT, "argument to addAnnotation must be an array");
+
+			return;
+		}
+
+		Object[] annotationArray = (Object[])annotations;
+		for (int i = 0; i < annotationArray.length; i++) {
+			if (annotationArray[i] instanceof AnnotationProxy) {
+				this.annotations.add((AnnotationProxy) annotationArray[i]);
+
+			} else {
+				Log.e(LCAT, "unable to add annotation, not a AnnotationProxy");
+			}
+		}
+
 		if(mapView != null) {
 			mapView.updateAnnotations();
 		}
@@ -331,22 +355,26 @@ public class ViewProxy extends TiViewProxy
 		mapWindow = null;
 	}
 
-	public void onPause(Activity activity) {
+	public void onPause(Activity activity)
+	{
 		if (lam != null) {
 			lam.dispatchPause(false);
 		}
 	}
 
-	public void onResume(Activity activity) {
+	public void onResume(Activity activity)
+	{
 		if (lam != null) {
 			lam.dispatchResume();
 		}
 	}
 
-	public void onStart(Activity activity) {
+	public void onStart(Activity activity)
+	{
 	}
 
-	public void onStop(Activity activity) {
+	public void onStop(Activity activity)
+	{
 		if (lam != null) {
 			lam.dispatchStop();
 		}

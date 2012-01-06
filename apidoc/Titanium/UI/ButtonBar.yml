@@ -9,7 +9,12 @@ properties:
     summary: the selected index
     type: Number
   - name: labels
-    summary: the array of labels for the button bar. each object should have the properties `title`, `image`, `width` and `enabled`.
+    summary: The array of labels for the button bar. 
+    detail: |
+        Each object should have the following properties:
+        `title`, `image`, `width` and `enabled`. `image` may
+        either be a path to an image file, or a <Titanium.Blob>
+        representing an image.
     type: Array<Object>
   - name: style
     summary: the style of the button bar

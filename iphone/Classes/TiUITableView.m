@@ -720,18 +720,23 @@
 	}
 
 	if ([searchController searchResultsTableView] != nil) {
-        [self updateSearchResultIndexes];
+		[self updateSearchResultIndexes];
         
-        // Because -[UITableView reloadData] queues on the main runloop, we need to sync the search
-        // table reload to the same method. The only time we reloadData, though, is when setting the
-        // data, so toggle a flag to indicate what the search should do.
-        if (reloadSearch) {
-            [[searchController searchResultsTableView] reloadData];
-        }
-        else {
-            [[searchController searchResultsTableView] reloadSections:[NSIndexSet indexSetWithIndex:0]
+		// Because -[UITableView reloadData] queues on the main runloop, we need to sync the search
+		// table reload to the same method. The only time we reloadData, though, is when setting the
+		// data, so toggle a flag to indicate what the search should do.
+		if (reloadSearch) {
+			[[searchController searchResultsTableView] reloadData];
+		}
+		else {
+			[[searchController searchResultsTableView] reloadSections:[NSIndexSet indexSetWithIndex:0]
                                                      withRowAnimation:UITableViewRowAnimationFade];
-        }
+		}
+		//On data reload if the search screen is inactive,
+		//make sure that the searchHidden flag is honored
+		if (![searchController isActive]) {
+			[self hideSearchScreen:nil];
+		}
 	}
 }
 
@@ -1900,7 +1905,7 @@ if(ourTableView != tableview)	\
 
 - (CGFloat)tableView:(UITableView *)ourTableView heightForHeaderInSection:(NSInteger)section
 {
-	RETURN_IF_SEARCH_TABLE_VIEW(ourTableView.sectionHeaderHeight);
+	RETURN_IF_SEARCH_TABLE_VIEW(0.0);
 	TiUITableViewSectionProxy *sectionProxy = nil;
 	TiUIView *view = [self sectionView:section forLocation:@"headerView" section:&sectionProxy];
 	TiViewProxy *viewProxy = (TiViewProxy *)[view proxy];
@@ -1947,7 +1952,7 @@ if(ourTableView != tableview)	\
 
 - (CGFloat)tableView:(UITableView *)ourTableView heightForFooterInSection:(NSInteger)section
 {
-	RETURN_IF_SEARCH_TABLE_VIEW(ourTableView.sectionFooterHeight);
+	RETURN_IF_SEARCH_TABLE_VIEW(0.0);
 	TiUITableViewSectionProxy *sectionProxy = nil;
 	TiUIView *view = [self sectionView:section forLocation:@"footerView" section:&sectionProxy];
 	TiViewProxy *viewProxy = (TiViewProxy *)[view proxy];

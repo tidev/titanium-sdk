@@ -48,7 +48,7 @@ describe("Ti.Media tests", {
 		if (!isAndroid) valueOf(player.state).shouldBeNumber();
 		valueOf(player.paused).shouldBeBoolean();
 		if (!isAndroid) valueOf(player.waiting).shouldBeBoolean();
-		if (!isAndroid) valueOf(player.bufferSize).shouldBeInteger();
+		if (!isAndroid) valueOf(player.bufferSize).shouldBeNumber();
 		
 	},
 	videoPlayerAPIs: function() {

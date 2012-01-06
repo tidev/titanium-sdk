@@ -401,5 +401,21 @@ describe("Ti.Filesystem tests", {
 		valueOf(blob.length).shouldBe(0);
 		valueOf(blob.text).shouldBe("");
 		valueOf(blob.toString()).shouldBe("");
+	},
+	
+	fileSize:function() {
+		
+		// For now, all we can do is make sure the size is not 0
+		// without dumping a file of an exact size
+		
+		// NOTE: Android might be failing this right now; I only
+		// found a getSize() op in their code.
+		
+		var testFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, "file.txt");
+		valueOf(testFile).shouldNotBeNull();
+		valueOf(testFile.size).shouldNotBe(0);
+
+		var blob = testFile.read();
+		valueOf(blob.length).shouldNotBe(0);
 	}
 });

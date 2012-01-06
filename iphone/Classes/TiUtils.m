@@ -772,7 +772,14 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 +(UIImage *)image:(id)object proxy:(TiProxy*)proxy
 {
-	return [[ImageLoader sharedLoader] loadImmediateImage:[self toURL:object proxy:proxy]];
+    if ([object isKindOfClass:[TiBlob class]]) {
+        return [(TiBlob*)object image];
+    }
+    else if ([object isKindOfClass:[NSString class]]) {
+        return [[ImageLoader sharedLoader] loadImmediateImage:[self toURL:object proxy:proxy]];
+    }
+    
+    return nil;
 }
 
 
@@ -1646,28 +1653,31 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return uid;
 }
 
-// In pre-iOS 5, it looks like response headers were mangled to be case-correct
-// (i.e. WWW-Authenticate became Www-Authenticate). So we have to perform
-// our own case correction to get the RIGHT header back.
+// In pre-iOS 5, it looks like response headers were case-mangled.
+// (i.e. WWW-Authenticate became Www-Authenticate). So we have to take this
+// mangling into mind; headers such as FooBar-XYZ may also have been mangled
+// to be case-correct. We can't be certain.
 //
-// Note that we assume that Apple mangles all 'xxx-xxx' headers like this.
+// This means we need to follow the RFC2616 implied MUST that headers are case-insensitive.
 
-+(NSString*)caseCorrect:(NSString *)str
++(NSString*)getResponseHeader:(NSString *)header fromHeaders:(NSDictionary *)responseHeaders
 {
-    if (![TiUtils isIOS5OrGreater]) {
-        if ([str rangeOfString:@"-"].location != NSNotFound) {
-            NSArray* substrings = [str componentsSeparatedByString:@"-"];
-            NSMutableString* header = [NSMutableString stringWithString:[[substrings objectAtIndex:0] capitalizedString]];
-            for (int i=1; i < [substrings count]; i++) {
-                NSString* substr = [substrings objectAtIndex:i];
-                [(NSMutableString*)header appendFormat:@"-%@",[substr capitalizedString]];
-            }
-            
-            return header;
-        }
+    // Do a direct comparison first, and then iterate through the headers if we have to.
+    // This makes things faster in almost all scenarios, and ALWAYS so under iOS 5 unless
+    // the developer is also taking advantage of RFC2616's header spec.
+    __block NSString* responseHeader = [responseHeaders valueForKey:header];
+    if (responseHeader != nil) {
+        return responseHeader;
     }
     
-    return str;
+    [responseHeaders enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL* stop) {
+        if ([key localizedCaseInsensitiveCompare:header] == NSOrderedSame) {
+            *stop = YES;
+            responseHeader = obj;
+        }
+    }];
+    
+    return responseHeader;
 }
 
 @end
