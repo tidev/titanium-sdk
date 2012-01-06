@@ -564,7 +564,7 @@ public class TableViewProxy extends TiViewProxy
 		} else if (msg.what == MSG_DELETE_ROW) {
 			AsyncResult result = (AsyncResult) msg.obj;
 			try {
-				handleDeleteRow(msg.arg1);
+				handleDeleteRow((Integer) result.getArg());
 				result.setResult(null);
 			} catch (IllegalStateException e) {
 				result.setResult(e);
