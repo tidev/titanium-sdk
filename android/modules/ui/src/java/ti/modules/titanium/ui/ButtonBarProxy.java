@@ -34,7 +34,7 @@ public class ButtonBarProxy extends TiViewProxy
 	@Override
 	public TiUIView createView(Activity activity)
 	{
-		Log.w("ButtonBarProxy", "ButtonBar is deprecated. Any usage of this will result in an application crash");
+		Log.w("ButtonBarProxy", "Ti.UI.createButtonBar() is deprecated starting 1.8.1 and will be removed in 1.9.0. Any usage of this will result in an application crash");
 		return null;
 	}
 
