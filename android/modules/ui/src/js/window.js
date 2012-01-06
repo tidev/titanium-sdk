@@ -282,9 +282,8 @@ exports.bootstrapWindow = function(Titanium) {
 		this.fireEvent("focus");
 		
 		// If there is any child added when the window state is opening, handle it here.
+		// For HW window, the correct activity is not available until this point.
 		// This resolves the issue caused by calling window.open() before calling window.add(view), eg TIMOB-6519.
-		// window.open() is an asynchronous call, the correct activity is not created until the window state is
-		// set as opened. 
 		this.addPostOpenChildren();
 	}
 
@@ -360,21 +359,21 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.add = function(view) {
 		if (this.view) {
 		
-			// When the window is already opened, add the child to this.view directly
+			// If the window is already opened, add the child to this.view directly
 			// and push the child to the array this._children
 			if (this.currentState == this.state.opened) {
 				this.view.add(view);
 				this._children.push(view);
 			}
 			
-			// When the window state is opening, push the child to the array this._postOpenChildren.
+			// If the window state is opening, push the child to the array this._postOpenChildren.
 			// The children in this array will be added to this.view in postOpen().
 			else { // this.currentState == this.state.opening
 				this._postOpenChildren.push(view);
 			}
 		}
 		
-		// When the window state is not opening or opened, push the child to the array this._children.
+		// If the window state is not opening or opened, push the child to the array this._children.
 		// By the time the window opens, the children in this array will be added to this.view.
 		else {
 			this._children.push(view);
