@@ -417,5 +417,38 @@ describe("Ti.Filesystem tests", {
 
 		var blob = testFile.read();
 		valueOf(blob.length).shouldNotBe(0);
+	},
+	
+	mimeType:function() {
+	
+		var files = ['test.xml','test.txt','test.js','test.htm','test.html','test.svg','test.svgz','test.png','test.jpg','test.jpeg','test.gif','test.wav','test.mp4','test.mov','test.mpeg','test.m4v'];
+	
+		//Use common suffix when more than 1 mimeType is associated with an extension.
+		//Otherwise use full mimeType for comparison
+		var extensions = ['xml','text/plain','javascript','text/html','text/html','image/svg+xml','image/svg+xml','image/png','image/jpeg','image/jpeg','image/gif','wav','mp4','video/quicktime','mpeg','video/x-m4v'];
+	
+		var i=0;
+
+		for (i=0;i<files.length;i++)
+		{
+			var filename = files[i];
+			var testExt = extensions[i];
+			var file1 = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,filename);
+			if(file1.exists() == false)
+			{
+				file1.createFile();
+			}
+			valueOf(file1).shouldNotBeNull();
+
+			var blob1 = file1.read();
+			valueOf(blob1).shouldNotBeNull();
+			var mimeType = blob1.mimeType;
+			
+			var result = ( (mimeType.length >= testExt.length) && (mimeType.substr(mimeType.length - testExt.length) == testExt) );
+			
+			Ti.API.info(filename+" "+mimeType+" "+testExt);
+			valueOf(result).shouldBeTrue();
+	
+		}
 	}
 });
