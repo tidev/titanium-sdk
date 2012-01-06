@@ -74,8 +74,13 @@ define("Ti/_/UI/Element",
 		
 		doLayout: function(originX,originY,parentWidth,parentHeight,centerHDefault,centerVDefault) {
 			
-			var dimensions = this._computeDimensions(originX,originY,parentWidth,parentHeight,centerHDefault,centerVDefault,
-				this.left,this.top,this.right,this.bottom,this.center && this.center.X,this.center && this.center.Y,this.width,this.height);
+			this._originX = originX;
+			this._originY = originY;
+			this._centerHDefault = centerHDefault;
+			this._centerVDefault = centerVDefault;
+			
+			var dimensions = this._computeDimensions(parentWidth, parentHeight, this.left,this.top,this.right,this.bottom,
+				isDef(this.center) ? this.center.x : undef,isDef(this.center) ? this.center.y : undef,this.width,this.height);
 			
 			this._measuredLeft = dimensions.left;
 			this._measuredTop = dimensions.top;
@@ -92,8 +97,7 @@ define("Ti/_/UI/Element",
 			set(this.domNode, "zIndex", is(this.zIndex,"Number") ? this.zIndex : 0);
 		},
 		
-		_computeDimensions: function(originX,originY,parentWidth,parentHeight,centerHDefault,centerVDefault,
-			left,top,originalRight,originalBottom,centerX,centerY,width,height) {
+		_computeDimensions: function(parentWidth,parentHeight,left,top,originalRight,originalBottom,centerX,centerY,width,height) {
 			
 			// Compute as many sizes as possible, should be everything except auto
 			left = computeSize(left,parentWidth),
@@ -230,15 +234,15 @@ define("Ti/_/UI/Element",
 			
 			// Set the default top/left if need be
 			if (left == "calculateAuto") {
-				left = centerHDefault ? computeSize("50%",parentWidth) - (is(width,"Number") ? width : 0) / 2 : 0;
+				left = this._centerHDefault ? computeSize("50%",parentWidth) - (is(width,"Number") ? width : 0) / 2 : 0;
 			}
 			if (top == "calculateAuto") {
-				top = centerVDefault ? computeSize("50%",parentHeight) - (is(height,"Number") ? height : 0) / 2 : 0;
+				top = this._centerVDefault ? computeSize("50%",parentHeight) - (is(height,"Number") ? height : 0) / 2 : 0;
 			}
 			
 			// Apply the origin
-			left += originX;
-			top += originY;
+			left += this._originX;
+			top += this._originY;
 			
 			if(!is(this._measuredLeft,"Number") || !is(this._measuredTop,"Number") || !is(this._measuredRightPadding,"Number")
 				 || !is(this._measuredBottomPadding,"Number") || !is(this._measuredWidth,"Number") || !is(this._measuredHeight,"Number")) {
@@ -284,12 +288,24 @@ define("Ti/_/UI/Element",
 					style.set(this.domNode, "display", anim.visible !== undef && !anim.visible ? "none" : "");
 
 					// Set the position and size properties
-					require.each(["top", "bottom", "left", "right", "height", "width"], lang.hitch(this, function(p) {
-						anim[p] !== undef && style.set(this.domNode, p, unitize(anim[p]));
-					}));
+					var dimensions = this._computeDimensions(
+						this._parent ? this._parent._measuredWidth : "auto", 
+						this._parent ? this._parent._measuredHeight : "auto", 
+						isDef(anim.left) ? anim.left : this.left,
+						isDef(anim.top) ? anim.top : this.top,
+						isDef(anim.right) ? anim.right : this.right,
+						isDef(anim.bottom) ? anim.bottom : this.bottom,
+						isDef(anim.center) ? anim.center.x : isDef(this.center) ? this.center.x : undef,
+						isDef(anim.center) ? anim.center.y : isDef(this.center) ? this.center.y : undef,
+						isDef(anim.width) ? anim.width : this.width,
+						isDef(anim.height) ? anim.height : this.height);
+					style.set(this.domNode, "left", unitize(dimensions.left));
+					style.set(this.domNode, "top", unitize(dimensions.top));
+					style.set(this.domNode, "width", unitize(dimensions.width));
+					style.set(this.domNode, "height", unitize(dimensions.height));
 
 					// Set the z-order
-					anim.zIndex !== undef && style.set(this.domNode, "zIndex", anim.zIndex);
+					!isDef(anim.zIndex) && style.set(this.domNode, "zIndex", anim.zIndex);
 
 					// Set the transform properties
 					if (anim.transform) {
@@ -299,6 +315,7 @@ define("Ti/_/UI/Element",
 
 					style.set(this.domNode, "transform", transform);
 				});
+			Ti.UI._doForcedFullLayout();
 
 			switch (anim.curve) {
 				case Ti.UI.ANIMATION_CURVE_LINEAR: curve = "linear"; break;
@@ -309,13 +326,6 @@ define("Ti/_/UI/Element",
 
 			anim.duration = anim.duration || 0;
 			anim.delay = anim.delay || 0;
-
-			// Determine which coordinates are valid and combine with previous coordinates where appropriate.
-			if (anim.center) {
-				anim.left = anim.center.x - this.domNode.offsetWidth / 2;
-				anim.top = anim.center.y - this.domNode.offsetHeight / 2;
-			}
-
 			anim.transform && style.set("transform", "");
 
 			if (anim.duration > 0) {
