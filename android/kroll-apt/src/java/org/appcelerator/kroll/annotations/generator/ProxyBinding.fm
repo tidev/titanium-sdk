@@ -355,6 +355,22 @@
 		"javaToRhinoConverter":"javaLongArrayToJsArray",
 		"defaultValue": "null"
 	},
+	"float[]":{
+		"jsType":"Array",
+		"jsHandleCast":"Array",
+		"jsToJavaConverter":"jsArrayToJavaFloatArray",
+		"javaToJsConverter":"javaArrayToJsArray",
+		"jvalue":"l", "signature":"[F",
+		"javaCallMethodType":"Object",
+		"javaReturnType":"jfloatArray",
+		"javaValidation":true,
+		"javaDeleteLocalRef":true,
+		"rhinoType":"Scriptable",
+		"rhinoJsCast":true,
+		"rhinoToJavaConverter":"jsArrayToJavaFloatArray",
+		"javaToRhinoConverter":"javaFloatArrayToJsArray",
+		"defaultValue": "null"
+	},
 	"long":{
 		"jsType":"Number",
 		"jsToJavaConverter":"jsNumberToJavaLong",
