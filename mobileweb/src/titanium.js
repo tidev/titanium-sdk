@@ -475,7 +475,6 @@
 	ready(function() {
 		body.style.margin = 0;
 		body.style.padding = 0;
-		global.scrollTo(0, 1);
 
 		if (cfg.analytics) {
 			// enroll event
