@@ -1483,13 +1483,12 @@ require.cache({
 				unitize: function(x) {
 					return isNaN(x-0) || x-0 != x ? x : x + "px"; // note: must be != and not !==
 				},
+
 				computeSize: function(x,totalLength) {
 					if (!require.is(x,"Number") && !require.is(x,"String")) {
 						return;
 					}
-					if (x == "auto") {
-						return x;
-					} else if(require.is(x,"Number")) {
+					if (x === "auto" || require.is(x,"Number")) {
 						return x;
 					} else {
 						var value = parseFloat(x),
