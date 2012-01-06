@@ -1,10 +1,31 @@
-define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/style"], function(dom, Evented, lang, style) {
+define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style"], function(dom, Evented, lang, ready, style) {
 	
-	var isDef = require.isDef;
-	
+	var isDef = require.isDef,
+		isIOS = /(iPhone|iPad)/.test(navigator.userAgent);
+
 	document.body.addEventListener('touchmove', function(e) {
 		e.preventDefault();
 	}, false);
+
+	function hideAddressBar() {
+		var x = 0;
+		if (isIOS && !window.location.hash) {
+			if (document.height <= window.outerHeight + 10) {
+				document.body.style.height = (window.outerHeight + 60) + "px";
+				x = 50;
+			}
+			setTimeout(function() {
+				window.scrollTo(0, 1);
+				window.scrollTo(0, 0);
+				Ti.UI._doFullLayout();
+			}, x);
+		}
+	}
+
+	if (isIOS) {
+		ready(hideAddressBar);
+		window.addEventListener("orientationchange", hideAddressBar);
+	}
 
 	return lang.setObject("Ti.UI", Evented, {
 
