@@ -1,20 +1,20 @@
 ---
 name: Titanium.Filesystem.File
-summary: A file or directory in the device's storage.
+summary: Object representing a file or directory in the device's persistent storage.
 description: |
-    Use the <Titanium.Filesystem.getFile> method to get a handle to a `File` object.  
-    The file does not need to exist before `getFile` is called. If the file doesn't exist,
-    writing to the file creates it implicitly. Use the [exists](Titanium.Filesystem.File.exists) 
-    method to test whether the file exists.
+    Use the <Titanium.Filesystem.getFile> method to get a handle to a `File` object.
+    The associated file does not need to exist before `getFile` is called. If the
+    file doesn't exist, writing to the file creates it implicitly. Use the
+    [exists](Titanium.Filesystem.File.exists) method to test whether the file exists.
 
-    A file object can represent an ordinary file, a directory or a symbolic link. 
+    A file object can represent an ordinary file, a directory or a symbolic link.
     Use [createDirectory](Titanium.Filesystem.File.createDirectory) to create a directory.
-    Use the [getDirectoryListing](Titanium.Filesystem.File.getDirectoryListing) method to 
+    Use the [getDirectoryListing](Titanium.Filesystem.File.getDirectoryListing) method to
     retrieve a list of the directory's contents.
 
     The `File` object doesn't provide methods for random access into the file.
-    The `read` method reads the file's entire contents into a `Blob` object. 
-    The `write` method can either overwrite the entire file or append to an 
+    The `read` method reads the file's entire contents into a `Blob` object.
+    The `write` method can either overwrite the entire file or append to an
     existing file. 
 
     For random access to a file, such as accessing a small portion of a larger file, 
@@ -38,7 +38,8 @@ examples:
     example: |
         Data files shipped with the application are stored in the resources directory.
 
-        In this example, we read string data from a text file.
+        This example reads string data from a text file.
+
             // resourcesDirectory is actually the default location, so the first 
             // argument could be omitted here.
             file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, "textfile.txt");
@@ -52,10 +53,10 @@ examples:
         Files that the application writes to need to be stored outside of the 
         resources directory, since that directory is read-only.
 
-        In this example, we create a subdirectory to store downloaded images.
-        We assume the existence of two variables, myImageID, a string containing
-        some kind of ID for the downloaded image, and myImageData, a `Blob` containing
-        JPEG image data.
+        This example creates a subdirectory to store downloaded images.
+        The example assumes that two variables are defined elsewhere in the code:
+        myImageID, a string containing some kind of ID for the downloaded image, 
+        and myImageData, a `Blob` containing JPEG image data.
 
             var imageDir = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory,            
                 'downloaded_images');
@@ -74,7 +75,7 @@ examples:
             imageDir = null;
 methods:
   - name: append
-    summary: Appends data to this file.
+    summary: Appends data to the file identified by this file object.
     description: |
         Data to append can be specified as a String, `Blob`, or `File`.
 
@@ -90,7 +91,7 @@ methods:
         type: Boolean.
     platforms: [iphone,ipad]
   - name: copy
-    summary: Copies the file to a new path.
+    summary: Copies the file identified by this file object to a new path.
     description: Returns `true` if the copy succeeds.
     parameters: 
       - name: destinationPath
@@ -100,13 +101,13 @@ methods:
         type: Boolean
     platforms: [android]
   - name: createDirectory
-    summary: Creates a directory at the path for the file object.
+    summary: Creates a directory at the path identified by this file object.
     description: |
         Returns `true` if the directory was created successfully.
     returns:
         type: Boolean
   - name: createFile
-    summary: Creates a file at the path for this file object.
+    summary: Creates a file at the path identified by this file object.
     description: |
         Note that if you write to a file that doesn't exist, the file is created automatically,
         so it is not necessary to call this method unless you want to explicitly create the file
@@ -117,13 +118,14 @@ methods:
         type: Boolean
     platforms: [iphone,ipad]
   - name: createTimestamp
-    summary: Returns the file creation timestamp for this file.
+    summary: Returns the creation timestamp for the file identified by this file object.
     returns:
         type: Number
   - name: deleteDirectory
-    summary: Deletes the directory identified by this `File` object.
+    summary: Deletes the directory identified by this file object.
     description: |
-        Returns `true` if the operation was successful.
+        Returns `true` if the operation was successful. Does nothing if the file
+        object does not identify a directory.
     returns:
         type: Boolean
     parameters:
@@ -133,21 +135,23 @@ methods:
         optional: true
         default: false
   - name: deleteFile
-    summary: Deletes this file.
+    summary: Deletes the file identified by this file object.
     description: |
         Returns `true` if the operation was successful.
     returns:
         type: Boolean
   - name: exists
-    summary: Returns `true` if this file or directory exists on the device.
+    summary: Returns `true` if the file or directory identified by this file object exists on the device.
     returns:
         type: Boolean
   - name: extension
-    summary: Returns the file extension.
+    summary: Returns the extension for the file identified by this file object.
     returns:
         type: String
   - name: getDirectoryListing
-    summary: Returns a directory listing of this file object, or `null` if this object is not a directory.
+    summary: |
+        Returns a listing of the directory identified by this file object, or `null`
+        if this object doesn't identify a directory.
     returns: 
         type: Array<String>
   - name: isDirectory
@@ -165,15 +169,18 @@ methods:
     returns:
         type: Number
   - name: move
-    summary: Moves this file to another path.
+    summary: Moves the file identified by this file object to another path.
     returns:
         type: Boolean
     parameters:
       - name: newpath
-        summary: New location for this file.
+        summary: New location for the file.
         type: String
   - name: open
-    summary: Opens this file as a `FileStream` object for random access.
+    summary: Opens the file identified by this file object for random access. 
+    description: |
+        The `FileStream` object returned by this call can be used to read from, write to, or 
+        append to the file, depending on what mode the file is opened in.
     parameters: 
       - name: mode
         summary: |
@@ -182,26 +189,29 @@ methods:
     returns:
         type: Titanium.Filesystem.FileStream
   - name: read
-    summary: Returns the contents of this file as a `Blob`.
+    summary: Returns the contents of the file identified by this file object as a `Blob`.
     returns:
         type: Titanium.Blob
   - name: rename
-    summary: Renames this file.
+    summary: Renames the file identified by this file object.
     returns:
         type: Boolean
     parameters:
       - name: newname
-        summary: New name for this file.
+        summary: New name for the file.
         type: String
   - name: spaceAvailable
-    summary: Returns the amount of free space available on the device this file is stored on, in bytes.
+    summary: Returns the amount of free space available on the device where the file
+        identified by this file object is stored.
+    description: |
+        Free space is returned in bytes.
     returns:
         type: Number
   - name: write
-    summary: Writes the specified data to this file.
+    summary: Writes the specified data to the file identified by this file object.
     description: |
         If the `append` parameter is `false` or not specified, any existing data in 
-        this file is overwritten. 
+        the file is overwritten. 
         
         If `append` is `true`, the specified data is appended to the end of the file.
     returns:
@@ -211,7 +221,7 @@ methods:
         summary: Data to write, as a String, `Blob` or `File` object.
         type: [String, Titanium.Filesystem.File, Titanium.Blob]
       - name: append
-        summary: Append the data to the end of the file.
+        summary: If `true`, append the data to the end of the file.
         type: Boolean
         optional: true
         default: false
@@ -240,18 +250,18 @@ properties:
     type: String
     permission: read-only
   - name: parent
-    summary: The file's parent directory as a `File` object.
+    summary: A `File` object representing the parent directory of the file identified by this object.
     type: Titanium.Filesystem.File
     permission: read-only
     platforms: [android]
   - name: readonly
     summary: |
-        `true` if the file is read-only.
+        `true` if the file identified by this object is read-only.
     type: Boolean
     permission: read-only
     platforms: [android]
   - name: size
-    summary: The file's size, in bytes.
+    summary: Size, in bytes, of the file identified by this object.
     type: Number
     permission: read-only
     platforms: [android]
@@ -266,19 +276,19 @@ properties:
         versions 5.0.1 and later, but is safe to set on earlier versions.
         
         Note that setting this property to `false` will also prevent the
-        file from being backed up to iTunes.
+        file identified by this object from being backed up to iTunes.
     default: true
     type: Boolean
     platforms: [iphone,ipad]
     since: "1.8.0"
   - name: symbolicLink
     summary: |
-        `true` if the file is a symbolic link.
+        `true` if the file identified by this object is a symbolic link.
     type: Boolean
     permission: read-only
   - name: writable
     summary: |
-        `true` if the file is writable.
+        `true` if the file identified by this object is writable.
     description: |
         In Titanium Mobile 1.8.0.1 and earlier, a deprecation warning may be printed for 
         this property on iOS. This is incorrect; `writeable` should be deprecated and the
