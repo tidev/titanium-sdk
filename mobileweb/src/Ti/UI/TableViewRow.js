@@ -42,6 +42,10 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 		_defaultHeight: "auto",
 		_defaultWidth: "100%",
 		_tableRowHeight: undef,
+		_handleMouseEvent: function(type, e) {
+			this.parent && this.parent.parent && (this.parent.parent._tableViewRowClicked = this);
+			View.prototype._handleMouseEvent.apply(this,arguments);
+		},
 
 		properties: {
 			hasCheck: {

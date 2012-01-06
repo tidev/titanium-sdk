@@ -56,69 +56,6 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 			
 		},
 
-		_handleClickEvent: function(x, y, type) {
-			
-			// Get the event bubble
-			var controlList = [];
-			this._calculateMouseEventBubble(x, y, 0, 0, this._container, controlList);
-			
-			// Call the event handlers
-			for (var i = controlList.length - 1; i >= 0; i--) {
-				controlList[i]._handleMouseEvent(type, {x: x, y: y}, controlList);
-			}
-		},
-
-		_calculateMouseEventBubble: function(x, y, xOffset, yOffset, currentControl, controlList) {
-			
-			// Check if any of the control's children intersets with the coordinates
-			var children = currentControl.children;
-			if (children && children.length > 0) {
-				var frontChild,
-					frontChildZIndex,
-					frontLeftEdge,
-					frontTopEdge;
-				
-				// Update the offset to reflect any scrolling in the control
-				xOffset -= currentControl._getContentOffset().x;
-				yOffset -= currentControl._getContentOffset().y;
-					
-				for (var i = 0; i < children.length; i++) {
-					
-					// Check if this child intersects with the click area
-					var child = children[i];
-						leftEdge = xOffset + child._measuredLeft,
-						rightEdge = leftEdge + child._measuredWidth,
-						topEdge = yOffset + child._measuredTop,
-						bottomEdge = topEdge + child._measuredHeight;
-					if (child.touchEnabled && leftEdge <= x && rightEdge >= x && topEdge <= y && bottomEdge >= y) {
-						
-						// Check if this child is in front of the previous best guess
-						var childZIndex = isDef(child.zIndex) ? child.zIndex : 0,
-							childIsFront = false;
-						if(frontChild) {
-							if (childZIndex >= frontChildZIndex) {
-								childIsFront = true;
-							}	
-						} else {
-							childIsFront = true;
-						}
-						
-						// If it is, set it as the current best guess
-						if (childIsFront) {
-							frontChild = child;
-							frontChildZIndex = childZIndex;
-							frontLeftEdge = leftEdge;
-							frontTopEdge = topEdge;
-						}
-					}
-				}
-				if (frontChild) {
-					controlList.push(frontChild);
-					this._calculateMouseEventBubble(x, y, frontLeftEdge, frontTopEdge, frontChild, controlList);
-				}
-			}
-		},
-
 		_validateContainer: function() {
 			if (!isDef(this._container)) {
 				this._layoutInProgress = false;
@@ -126,14 +63,6 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 				this._container.left = 0;
 				this._container.top = 0;
 				document.body.appendChild(this._container.domNode);
-				
-				document.addEventListener("click", lang.hitch(this, function(e){
-					this._handleClickEvent(e.clientX, e.clientY, "click");
-				}));
-					
-				document.addEventListener("dblclick", lang.hitch(this, function(e){
-					this._handleClickEvent(e.clientX, e.clientY, "dblclick");
-				}));
 			}
 		},
 

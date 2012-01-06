@@ -6,6 +6,9 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/c
 	return declare("Ti.UI.Label", FontWidget, {
 		
 		constructor: function() {
+			
+			this.touchEnabled = false;
+			
 			// Create the aligner div. This sets up a flexbox to float the text to the middle
 			this.textAlignerDiv = dom.create("div", {
 				className: css.clean("TiUILabelTextAligner")
@@ -44,6 +47,12 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/c
 		},
 		_getContentHeight: function() {
 			return this._measureText(this.text, this.textContainerDiv).height;
+		},
+		_setTouchEnabled: function(value) {
+			FontWidget.prototype._setTouchEnabled.apply(this,arguments);
+			var cssVal = value ? "auto" : "none"
+			this.textAlignerDiv && set(this.textAlignerDiv,"pointerEvents", cssVal);
+			this.textContainerDiv && set(this.textContainerDiv,"pointerEvents", cssVal);
 		},
 
 		properties: {
@@ -111,8 +120,7 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/c
 					return value;
 				},
 				value: false
-			},
-			touchEnabled: false // Override the default value
+			}
 		}
 
 	});
