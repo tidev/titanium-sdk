@@ -92,6 +92,8 @@ public:
 private:
 	// utility methods
 	static v8::Handle<v8::Array> javaDoubleArrayToJsNumberArray(jdoubleArray javaDoubleArray);
+	static v8::Handle<v8::Array> javaLongArrayToJsNumberArray(jlongArray javaLongArray);
+	static v8::Handle<v8::Array> javaFloatArrayToJsNumberArray(jfloatArray javaFloatArray);
 
 };
 }
