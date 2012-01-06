@@ -22,7 +22,6 @@ define("Ti/_/UI/Element",
 
 		domType: null,
 		domNode: null,
-		parent: null,
 
 		constructor: function() {
 			var bgSelPrevColor,

@@ -4,7 +4,7 @@ define("Ti/UI/View",
 
 	return declare("Ti.UI.View", Element, {
 
-		parent: null,
+		_parent: null,
 
 		constructor: function() {
 			this.children = [];
@@ -13,7 +13,7 @@ define("Ti/UI/View",
 		},
 
 		add: function(view) {
-			view.parent = this;
+			view._parent = this;
 			this.children.push(view);
 			this.containerNode.appendChild(view.domNode);
 			Ti.UI._doFullLayout();
