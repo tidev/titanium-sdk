@@ -225,6 +225,12 @@ public class TiSound
 	{
 		try {
 			if (mp != null) {
+				// make sure we actually stop (and thus shutdown any download in the background)
+				// if we are currently in a playing or paused state.  don't call stop directly as
+				// we don't need to update state or firing events back in this case
+				if (mp.isPlaying() || isPaused()) {
+					mp.stop();
+				}
 
 				mp.setOnCompletionListener(null);
 				mp.setOnErrorListener(null);
