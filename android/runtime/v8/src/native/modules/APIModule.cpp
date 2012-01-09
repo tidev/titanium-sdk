@@ -165,7 +165,6 @@ void APIModule::logInternal(int logLevel, const char *messageTag, const char *me
 	}
 }
 
-
 Handle<Value> APIModule::log(const Arguments& args)
 {
 	String::Utf8Value level(args[0]);
@@ -188,7 +187,19 @@ Handle<Value> APIModule::log(const Arguments& args)
 	} else if (strcasecmp(*level, "FATAL") == 0) {
 		APIModule::logInternal(LOG_LEVEL_FATAL, LCAT, *message);
 	} else {
-		APIModule::logInternal(LOG_LEVEL_INFO, LCAT, *message);
+		int size = strlen(*level) + strlen(*message) + 4;
+		
+		char *fmessage = new char[size];
+		fmessage[0] = '[';
+		fmessage[1] = '\0';
+		fmessage[size] = '\0';
+		char end[3] = {']',' ','\0'};
+		strcat(fmessage, *level); 
+		strcat(fmessage, end);
+		strcat(fmessage, *message);
+		
+		APIModule:logInternal(LOG_LEVEL_INFO, LCAT, fmessage);
+		delete fmessage;
 	}
 
 	return Undefined();
