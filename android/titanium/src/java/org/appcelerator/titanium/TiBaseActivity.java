@@ -16,6 +16,7 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -57,6 +58,7 @@ public abstract class TiBaseActivity extends Activity
 	protected TiCompositeLayout layout;
 	protected TiActivitySupportHelper supportHelper;
 	protected TiWindowProxy window;
+	protected TiViewProxy view;
 	protected ActivityProxy activityProxy;
 	protected boolean mustFireInitialFocus;
 	protected TiWeakList<ConfigurationChangedListener> configChangedListeners = new TiWeakList<ConfigurationChangedListener>();
@@ -106,6 +108,10 @@ public abstract class TiBaseActivity extends Activity
 	{
 		this.window = proxy;
 		updateTitle();
+	}
+	public void setViewProxy(TiViewProxy proxy)
+	{
+		this.view = proxy;
 	}
 
 	public ActivityProxy getActivityProxy()
@@ -427,7 +433,13 @@ public abstract class TiBaseActivity extends Activity
 	public boolean dispatchKeyEvent(KeyEvent event) 
 	{
 		boolean handled = false;
-
+		TiViewProxy window;
+		if (this.window != null) {
+			window = this.window;
+		} else {
+			window = this.view;
+		}
+		
 		if (window == null) {
 			return super.dispatchKeyEvent(event);
 		}

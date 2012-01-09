@@ -7,6 +7,8 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
@@ -31,6 +33,11 @@ public class ViewProxy extends TiViewProxy
 	public TiUIView createView(Activity activity)
 	{
 		TiUIView view = new TiView(this);
+		if (activity != null) {
+			((TiBaseActivity)activity).setViewProxy(this);
+		} else {
+			Log.w("ViewProxy", "Activity is null");
+		}
 		view.getLayoutParams().autoFillsHeight = true;
 		view.getLayoutParams().autoFillsWidth = true;
 		return view;
