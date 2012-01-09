@@ -5,6 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+extern const NSString * htmlMimeType;
+extern const NSString * textMimeType;
+extern const NSString * jpegMimeType;
 extern const NSString * svgMimeType;
 
 
