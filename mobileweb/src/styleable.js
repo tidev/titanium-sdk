@@ -10,7 +10,7 @@ Ti._5.Styleable = function(obj, args) {
 		domNode = obj.dom,
 		domStyle = domNode.style,
 		ui = Ti.UI,
-		px = Ti._5.px,
+		unitize = require("Ti/_/dom").unitize,
 		vendorPrefixes = require.config.vendorPrefixes,
 		curTransform,
 		_backgroundColor,
@@ -35,13 +35,13 @@ Ti._5.Styleable = function(obj, args) {
 	obj.addEventListener || oParentNamespace.EventDriven(obj);
 
 	function cssUrl(url) {
-		return /^url\(/.test(url) ? url : "url(" + Ti._5.getAbsolutePath(url) + ")";
+		return /^url\(/.test(url) ? url : require("Ti/_/style").url(url);
 	}
 
 	function font(val) {
 		val = val || {};
 		require.each(["fontVariant", "fontStyle", "fontWeight", "fontSize", "fontFamily"], function(f) {
-			val[f] = f in val ? domStyle[f] = (f === "fontSize" ? px(val[f]) : val[f]) : domStyle[f];
+			val[f] = f in val ? domStyle[f] = (f === "fontSize" ? unitize(val[f]) : val[f]) : domStyle[f];
 		});
 		return val;
 	}
@@ -131,7 +131,7 @@ Ti._5.Styleable = function(obj, args) {
 				return domStyle.borderRadius || "";
 			},
 			set: function(val) {
-				domStyle.borderRadius = px(val);
+				domStyle.borderRadius = unitize(val);
 			}
 		},
 		borderWidth: {
@@ -139,7 +139,7 @@ Ti._5.Styleable = function(obj, args) {
 				return domStyle.borderWidth;
 			},
 			set: function(val) {
-				domStyle.borderWidth = val = px(val);
+				domStyle.borderWidth = val = unitize(val);
 				domStyle.borderColor || (domStyle.borderColor = "black");
 				domStyle.borderStyle = "solid";
 			}
@@ -309,7 +309,7 @@ Ti._5.Styleable = function(obj, args) {
 
 				// Set the position and size properties
 				require.each(["top", "bottom", "left", "right", "height", "width"], function(p) {
-					anim[p] !== undef && (domStyle[p] = px(anim[p]));
+					anim[p] !== undef && (domStyle[p] = unitize(anim[p]));
 				});
 
 				// Set the z-order

@@ -1,26 +1,20 @@
-(function(api){
-	Ti._5.EventDriven(api);
-	delete api.removeEventListener;
+define("Ti", ["Ti/_/Evented"], function(Evented) {
 
 	var ver = require.config.ti.version;
 
-	require.mix(api, {
+	return require.mix(Ti, Evented, {
 		version: ver,
 		buildDate: "__TIMESTAMP__",
 		buildHash: "__GITHASH__",
-		userAgent: "Appcelerator Titanium/" + ver + " (" + navigator.userAgent + ")"
+		userAgent: "Appcelerator Titanium/" + ver + " (" + navigator.userAgent + ")",
+
+		include: function(files) {
+			var i = 0;
+			typeof files === "array" || (files = [].concat(Array.prototype.slice.call(arguments, 0)));
+			for (; i < files.length; i++) {
+				require("Ti/_/include!" + files[i]);
+			}
+		}
 	});
 
-	// Methods
-	api.createBlob = function(){
-		console.debug('Method "Titanium.createBlob" is not implemented yet.');
-	};
-
-	api.include = function(files){
-		var i = 0;
-		typeof files === "array" || (files = [].concat(Array.prototype.slice.call(arguments, 0)));
-		for (; i < files.length; i++) {
-			require("include!" + files[i]);
-		}
-	};
-})(Ti);
+});

@@ -11,19 +11,14 @@
 	var cfg = require.config,
 		is = require.is,
 		each = require.is,
-		on = require.on,
 		Ti = {
 			_5: {}
 		},
 		doc = document,
 		body = doc.body,
 		undef,
-		ready,
-		readyStates = { "loaded": 1, "complete": 1 },
-		isReady = !!readyStates[doc.readyState],
-		readyQ = [],
-		capitalize,
-		getAbsolutePath,
+		ready = require("Ti/_/ready"),
+		createUUID = require("Ti/_").uuid,
 		sessionId,
 		analyticsStorageName = "ti:analyticsEvents",
 		localeData = {},
@@ -213,50 +208,10 @@
 	Ti.parse = JSON.parse;
 	Ti.stringify = JSON.stringify;
 
-	if (!isReady) {
-		function detectReady(evt) {
-			if (isReady || (evt && evt.type == "readystatechange" && !readyStates[doc.readyState])) {
-				return;
-			}
-			while (readyQ.length) {
-				(readyQ.shift())();
-			}
-			isReady = 1;
-		}
-
-		readyQ.concat([
-			on(doc, "DOMContentLoaded", detectReady),
-			on(global, "load", detectReady)
-		]);
-
-		if ("onreadystatechange" in doc) {
-			readyQ.push(on(doc, "readystatechange", detectReady));
-		} else {
-			function poller() {
-				readyStates[doc.readyState] ? detectReady() : setTimeout(poller, 30);
-			}
-			poller();
-		}
-	}
-
-	ready = Ti._5.ready = function(context, callback) {
-		var fn = callback ? function(){ callback.call(context); } : context;
-		if (isReady) {
-			fn();
-		} else {
-			readyQ.push(fn);
-		}
-	};
-
-	on(global, "beforeunload", function() {
+	require.on(global, "beforeunload", function() {
 		Ti.App.fireEvent("close");
 		Ti._5.addAnalyticsEvent("ti.end", "ti.end");
 	});
-
-	capitalize = Ti._5.capitalize = function(s) {
-		s = s || "";
-		return s.substring(0, 1).toUpperCase() + s.substring(1)
-	};
 
 	Ti._5.prop = function(obj, property, value, descriptor) {
 		if (require.is(property, "Object")) {
@@ -265,7 +220,7 @@
 			}
 		} else {
 			var skipSet,
-				capitalizedName = capitalize(property);
+				capitalizedName = require("Ti/_/string").capitalize(property);
 
 			// if we only have 3 args, so need to check if it's a default value or a descriptor
 			if (arguments.length === 3 && require.is(value, "Object") && (value.get || value.set)) {
@@ -325,32 +280,6 @@
 		return parent;
 	};
 
-	getAbsolutePath = Ti._5.getAbsolutePath = function(path) {
-		/^app\:\/\//.test(path) && (path = path.substring(6));
-		/^\//.test(path) && (path = path.substring(1));
-		return /^\/\//.test(path) || path.indexOf("://") > 0 ? path : location.pathname.replace(/(.*)\/.*/, "$1") + "/" + path;
-	};
-
-	Ti._5.px = function(val){
-		return val + (typeof val == "number" ? "px" : "");
-	};
-
-	createUUID = Ti._5.createUUID = function(){
-		/*!
-		Math.uuid.js (v1.4)
-		http://www.broofa.com
-		mailto:robert@broofa.com
-
-		Copyright (c) 2010 Robert Kieffer
-		Dual licensed under the MIT and GPL licenses.
-		*/
-		// RFC4122v4 solution:
-		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-			var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-			return v.toString(16);
-		}).toUpperCase();
-	};
-
 	sessionId = "sessionStorage" in global && sessionStorage.getItem("mobileweb_sessionId");
 	sessionId || sessionStorage.setItem("mobileweb_sessionId", sessionId = createUUID());
 
@@ -395,7 +324,7 @@
 		};
 
 		storage.push({
-			eventId: Ti._5.createUUID(),
+			eventId: createUUID(),
 			eventType: eventType,
 			eventEvent: eventEvent,
 			eventTimestamp: ts,
@@ -546,7 +475,6 @@
 	ready(function() {
 		body.style.margin = 0;
 		body.style.padding = 0;
-		global.scrollTo(0, 1);
 
 		if (cfg.analytics) {
 			// enroll event
@@ -581,15 +509,6 @@
 			// try to sent previously sent analytics events on app load
 			Ti._5.sendAnalytics();
 		}
-
-		var n = Ti._5.containerDiv = doc.createElement('div'),
-			ns = n.style;
-		n.id = "TiContainer";
-		ns.width = "100%";
-		ns.height = "100%";
-		ns.overflow = "hidden";
-		ns.position = "absolute"; // Absolute so that any children that are absolute positioned will respect this DIVs height and width.
-		body.appendChild(n);
 
 		// load app.js when ti and dom is ready
 		ready(function() {
