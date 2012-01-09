@@ -13,9 +13,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 
-/**
- * This class is @deprecated. Any usage will crash application.
- */
+
 @Kroll.proxy(creatableInModule=UIModule.class)
 public class ButtonBarProxy extends TiViewProxy
 {
