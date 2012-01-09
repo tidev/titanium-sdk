@@ -40,11 +40,31 @@ def loadBindings():
 			if os.path.exists(jsonPath):
 				bindingPaths.append(jsonPath)
 
+	def mergeModules(source, dest):
+		for k in source.keys():
+			if k not in dest:
+				dest[k] = source[k]
+			else:
+				origEntry = dest[k]
+				newEntry = source[k]
+
+				if "apiName" in newEntry and "apiName" not in origEntry:
+					origEntry["apiName"] = newEntry["apiName"]
+
+				for listName in ("childModules", "createProxies"):
+					if listName in newEntry and listName not in origEntry:
+						origEntry[listName] = newEntry[listName]
+					elif listName in newEntry:
+						origIds = [c["id"] for c in origEntry[listName]]
+						newMembers = [c for c in newEntry[listName] if c["id"] not in origIds]
+						if newMembers:
+							origEntry[listName].extend(newMembers)
+
 	for bindingPath in bindingPaths:
 		moduleName = os.path.basename(bindingPath).replace(".json", "")
 		binding = json.load(open(bindingPath))
 		bindings["proxies"].update(binding["proxies"])
-		bindings["modules"].update(binding["modules"])
+		mergeModules(binding["modules"], bindings["modules"])
 
 	return bindings
 
