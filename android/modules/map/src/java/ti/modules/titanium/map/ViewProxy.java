@@ -72,16 +72,16 @@ public class ViewProxy extends TiViewProxy
 	}
 
 	@Override
-	protected void initActivity(Activity activity)
-	{
-		super.initActivity(activity);
-
-		((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
-	}
-
-	@Override
 	public TiUIView createView(Activity activity)
 	{
+		// for HW windows, we often don't have the correct activity available until this point
+		// so set the passed in activity on the proxy for future use
+		if (activity != getActivity()) {
+			setActivity(activity);
+		}
+
+		((TiBaseActivity)activity).addOnLifecycleEventListener(this);
+
 		destroyed = false;
 		if (lam == null) {
 			/*
@@ -355,22 +355,26 @@ public class ViewProxy extends TiViewProxy
 		mapWindow = null;
 	}
 
-	public void onPause(Activity activity) {
+	public void onPause(Activity activity)
+	{
 		if (lam != null) {
 			lam.dispatchPause(false);
 		}
 	}
 
-	public void onResume(Activity activity) {
+	public void onResume(Activity activity)
+	{
 		if (lam != null) {
 			lam.dispatchResume();
 		}
 	}
 
-	public void onStart(Activity activity) {
+	public void onStart(Activity activity)
+	{
 	}
 
-	public void onStop(Activity activity) {
+	public void onStop(Activity activity)
+	{
 		if (lam != null) {
 			lam.dispatchStop();
 		}
