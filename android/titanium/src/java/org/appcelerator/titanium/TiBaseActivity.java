@@ -109,6 +109,7 @@ public abstract class TiBaseActivity extends Activity
 		this.window = proxy;
 		updateTitle();
 	}
+	
 	public void setViewProxy(TiViewProxy proxy)
 	{
 		this.view = proxy;
@@ -433,6 +434,7 @@ public abstract class TiBaseActivity extends Activity
 	public boolean dispatchKeyEvent(KeyEvent event) 
 	{
 		boolean handled = false;
+		
 		TiViewProxy window;
 		if (this.window != null) {
 			window = this.window;
