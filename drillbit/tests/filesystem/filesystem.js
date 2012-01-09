@@ -421,11 +421,11 @@ describe("Ti.Filesystem tests", {
 	
 	mimeType:function() {
 	
-		var files = ['test.xml','test.txt','test.js','test.htm','test.html','test.svg','test.svgz','test.png','test.jpg','test.jpeg','test.gif','test.wav','test.mp4','test.mov','test.mpeg','test.m4v'];
+		var files = ['test.css','test.xml','test.txt','test.js','test.htm','test.html','test.svg','test.svgz','test.png','test.jpg','test.jpeg','test.gif','test.wav','test.mp4','test.mov','test.mpeg','test.m4v'];
 	
 		//Use common suffix when more than 1 mimeType is associated with an extension.
 		//Otherwise use full mimeType for comparison
-		var extensions = ['xml','text/plain','javascript','text/html','text/html','image/svg+xml','image/svg+xml','image/png','image/jpeg','image/jpeg','image/gif','wav','mp4','video/quicktime','mpeg','video/x-m4v'];
+		var extensions = ['css','xml','text/plain','javascript','text/html','text/html','image/svg+xml','image/svg+xml','image/png','image/jpeg','image/jpeg','image/gif','wav','mp4','video/quicktime','mpeg','video/x-m4v'];
 	
 		var i=0;
 
