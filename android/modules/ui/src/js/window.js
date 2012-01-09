@@ -228,6 +228,8 @@ exports.bootstrapWindow = function(Titanium) {
 
 		} else {
 			this.postOpen();
+			this.fireEvent("open");
+			this.fireEvent("focus");
 		}
 	}
 
@@ -278,8 +280,6 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 
 		this.currentState = this.state.opened;
-		this.fireEvent("open");
-		this.fireEvent("focus");
 		
 		// If there is any child added when the window state is opening, handle it here.
 		// For HW window, the correct activity is not available until this point.
