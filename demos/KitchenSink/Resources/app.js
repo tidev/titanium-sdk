@@ -89,7 +89,7 @@ tabGroup.addEventListener('open',function()
 tabGroup.setActiveTab(1);
 // open tab group with a transition animation
 tabGroup.open({
-	transition:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
+	transition: Titanium.UI.iPhone && Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
 });
 
 // setTimeout(function()
@@ -256,7 +256,7 @@ function showIndicator()
 
 	// loading indicator
 	actInd = Titanium.UI.createActivityIndicator({
-		style:Titanium.UI.iPhone.ActivityIndicatorStyle.BIG,
+		style:Titanium.UI.iPhone && Titanium.UI.iPhone.ActivityIndicatorStyle.BIG,
 		height:30,
 		width:30
 	});
