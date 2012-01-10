@@ -578,7 +578,7 @@ public class TiDrawableReference
 			sb.append("Details of returned bitmap: .getWidth()=" + b.getWidth());
 			sb.append("; getHeight()=" + b.getHeight());
 			sb.append("; getDensity()=" + b.getDensity());
-			Log.e(LCAT, sb.toString());
+			Log.d(LCAT, sb.toString());
 		}
 		return b;
 	}
