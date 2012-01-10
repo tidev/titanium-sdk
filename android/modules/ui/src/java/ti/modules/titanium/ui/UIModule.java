@@ -17,7 +17,6 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.view.TiDrawableReference;
 
 import android.app.Activity;
 import android.content.res.Resources;
@@ -168,8 +167,8 @@ public class UIModule extends KrollModule implements Handler.Callback
 				return;
 			}
 			// TODO - current activity should work just fine in this instance - verify?
-			TiDrawableReference drawableRef = TiDrawableReference.fromObject(TiApplication.getInstance().getCurrentActivity(), image);
-			Drawable d = drawableRef.getDrawable();
+			Drawable d = TiUIHelper.getResourceDrawable(image);
+
 			if (d != null) {
 				w.setBackgroundDrawable(d);
 			}
