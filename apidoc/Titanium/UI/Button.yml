@@ -49,7 +49,7 @@ description: |
     * <Titanium.UI.iPad.SplitWindow>. The `toolbar` array can contain system buttons.
     * <Titanium.UI.TextField>. The `keyboardToolbar` array can contain system buttons.
     * <Titanium.UI.TextArea>. The `keyboardToolbar` array can contain system buttons.
-    * <Titanium.UI.Window>. The `leftNavButton` and `rightNavButton` properties refer to 
+    * <Titanium.UI.Window>. The `leftNavButton` and `rightNavButton` properties can refer to 
       system buttons and the `toolbar` array can contain system buttons.
     
     Use the constants in <Titanium.UI.iPhone.SystemButton> 
