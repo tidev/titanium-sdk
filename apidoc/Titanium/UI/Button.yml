@@ -40,8 +40,19 @@ description: |
     partially or wholly transparent for the background color or background gradient to be visible.
 
     The `systemButton` property lets you create a predefined system-defined button, 
-    such as the **Camera** or **Add** buttons. Use the constants in 
-    <Titanium.UI.iPhone.SystemButton> 
+    such as the **Camera** or **Add** buttons, for use in toolbars and nav bars.
+    Specifically, system buttons may be used in the following locations:
+
+    * <Titanium.UI.iOS.Toolbar>. The `items` array can contain system buttons.
+    * <Titanium.UI.iPad.Popover>. The `leftNavButton` and `rightNavButton` properties can
+      refer to system buttons
+    * <Titanium.UI.iPad.SplitWindow>. The `toolbar` array can contain system buttons.
+    * <Titanium.UI.TextField>. The `keyboardToolbar` array can contain system buttons.
+    * <Titanium.UI.TextArea>. The `keyboardToolbar` array can contain system buttons.
+    * <Titanium.UI.Window>. The `leftNavButton` and `rightNavButton` properties refer to 
+      system buttons and the `toolbar` array can contain system buttons.
+    
+    Use the constants in <Titanium.UI.iPhone.SystemButton> 
     to specify a button type. The size, style and decoration of system buttons is set
     automatically, so you can create a button by setting only the `systemButton` property.
 
@@ -141,6 +152,7 @@ properties:
         [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
     type: [Number,String]
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
+    platforms: [android]
 examples:
   - title: Simple Button Example
     example: |
