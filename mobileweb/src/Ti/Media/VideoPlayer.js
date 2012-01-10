@@ -107,7 +107,7 @@ define("Ti/Media/VideoPlayer", ["Ti/_/declare", "Ti/Media", "Ti/UI/View"], funct
 		_set: function(type, state) {
 			var evt = {};
 			evt[type] = this.constants[type] = state;
-			this.fireEvent(type, evt);
+			this.fireEvent(type === "loadState" ? type.toLowerCase() : type, evt);
 		},
 
 		_complete: function(evt) {
