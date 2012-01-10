@@ -17,6 +17,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiProperties;
@@ -188,11 +189,22 @@ public class TiMapView extends TiUIView
 				//prefer pinImage to pincolor.
 				if (p.hasProperty(TiC.PROPERTY_IMAGE) || p.hasProperty(TiC.PROPERTY_PIN_IMAGE))
 				{
-					String imagePath = TiConvert.toString(p.getProperty(TiC.PROPERTY_IMAGE));
-					if (imagePath == null) {
-						imagePath = TiConvert.toString(p.getProperty(TiC.PROPERTY_PIN_IMAGE));
+					Object imageProperty = p.getProperty(TiC.PROPERTY_IMAGE);
+					Object imagePinProperty = p.getProperty(TiC.PROPERTY_PIN_IMAGE);
+					Drawable marker;
+					if (imageProperty instanceof TiBlob) {
+						marker = makeMarker((TiBlob) imageProperty);
+						if (marker == null) {
+							marker = makeMarker(TiConvert.toString(imagePinProperty));
+						}
+					} else {
+						String imagePath = TiConvert.toString(imageProperty);
+						if (imagePath == null) {
+							imagePath = TiConvert.toString(imagePinProperty);
+						}
+						marker = makeMarker(imagePath);
 					}
-					Drawable marker = makeMarker(imagePath);
+
 					boundCenterBottom(marker);
 					item.setMarker(marker);
 				} else if (p.hasProperty(TiC.PROPERTY_PINCOLOR)) {
@@ -759,6 +771,13 @@ public class TiMapView extends TiUIView
 			Log.e(LCAT, "Error creating drawable from path: " + pinImage.toString(), e);
 		}
 		return null;
+	}
+
+	private Drawable makeMarker(TiBlob pinImage)
+	{
+		Drawable d = new BitmapDrawable(TiUIHelper.createBitmap(pinImage.getInputStream()));
+		d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+		return d;
 	}
 
 	private double scaleFromGoogle(int value)
