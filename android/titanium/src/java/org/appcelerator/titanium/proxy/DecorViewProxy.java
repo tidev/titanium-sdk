@@ -139,9 +139,17 @@ public class DecorViewProxy extends TiViewProxy
 			{
 				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
 			}
+			else if (hasPortraitReverse)
+			{
+				activityOrientationMode = 9;
+			}
 			else if (hasLandscape)
 			{
 				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+			}
+			else if (hasLandscapeReverse)
+			{
+				activityOrientationMode = 8;
 			}
 
 			Activity activity = getActivity();
