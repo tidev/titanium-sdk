@@ -52,15 +52,11 @@
 	return NUMBOOL(NO);
 }
 
--(id)writeable
-{
-	return NUMBOOL(NO);
-}
+// writeable redirects (with warning) to writable at superclass TiFileSystemProxy
 
 -(id)writable
 {
-	NSLog(@"[WARN] The File.writable method is deprecated and should no longer be used. Use writeable instead.");
-	return [self writeable];
+	return NUMBOOL(NO);
 }
 
 
