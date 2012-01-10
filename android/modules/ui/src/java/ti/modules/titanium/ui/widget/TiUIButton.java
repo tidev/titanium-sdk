@@ -59,13 +59,13 @@ public class TiUIButton extends TiUIView
 					TiBaseFile file = TiFileFactory.createTitaniumFile(new String[] { url }, false);
 					bitmap = TiUIHelper.createBitmap(file.getInputStream());
 
-					btn.setBackgroundDrawable(new BitmapDrawable(bitmap));
+					btn.setBackgroundDrawable(new BitmapDrawable(btn.getResources(), bitmap));
 				} catch (IOException e) {
 					Log.e(LCAT, "Error setting button image", e);
 				}
 			} else if (value instanceof TiBlob) {
 				bitmap = TiUIHelper.createBitmap(((TiBlob) value).getInputStream());
-				btn.setBackgroundDrawable(new BitmapDrawable(bitmap));
+				btn.setBackgroundDrawable(new BitmapDrawable(btn.getResources(), bitmap));
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {

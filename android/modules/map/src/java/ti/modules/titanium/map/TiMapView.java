@@ -190,19 +190,14 @@ public class TiMapView extends TiUIView
 				if (p.hasProperty(TiC.PROPERTY_IMAGE) || p.hasProperty(TiC.PROPERTY_PIN_IMAGE))
 				{
 					Object imageProperty = p.getProperty(TiC.PROPERTY_IMAGE);
-					Object imagePinProperty = p.getProperty(TiC.PROPERTY_PIN_IMAGE);
 					Drawable marker;
 					if (imageProperty instanceof TiBlob) {
 						marker = makeMarker((TiBlob) imageProperty);
-						if (marker == null) {
-							marker = makeMarker(TiConvert.toString(imagePinProperty));
-						}
 					} else {
-						String imagePath = TiConvert.toString(imageProperty);
-						if (imagePath == null) {
-							imagePath = TiConvert.toString(imagePinProperty);
-						}
-						marker = makeMarker(imagePath);
+						marker = makeMarker(TiConvert.toString(imageProperty));
+					}
+					if (marker == null) {
+						marker = makeMarker(TiConvert.toString(p.getProperty(TiC.PROPERTY_PIN_IMAGE)));
 					}
 
 					boundCenterBottom(marker);
@@ -761,21 +756,28 @@ public class TiMapView extends TiUIView
 
 	private Drawable makeMarker(String pinImage)
 	{
-		String url = proxy.resolveUrl(null, pinImage);
-		TiBaseFile file = TiFileFactory.createTitaniumFile(new String[] { url }, false);
-		try {
-			Drawable d = new BitmapDrawable(TiUIHelper.createBitmap(file.getInputStream()));
-			d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
-			return d;
-		} catch (IOException e) {
-			Log.e(LCAT, "Error creating drawable from path: " + pinImage.toString(), e);
+		if (pinImage != null) {
+			String url = proxy.resolveUrl(null, pinImage);
+			TiBaseFile file = TiFileFactory.createTitaniumFile(new String[] { url }, false);
+			try {
+				Drawable d = new BitmapDrawable(mapWindow.getContext().getResources(), TiUIHelper.createBitmap(file
+					.getInputStream()));
+				d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+				return d;
+			} catch (IOException e) {
+				Log.e(LCAT, "Error creating drawable from path: " + pinImage.toString(), e);
+			}
 		}
 		return null;
 	}
 
 	private Drawable makeMarker(TiBlob pinImage)
 	{
-		Drawable d = new BitmapDrawable(TiUIHelper.createBitmap(pinImage.getInputStream()));
+		if (pinImage == null) {
+			return null;
+		}
+		Drawable d = new BitmapDrawable(mapWindow.getContext().getResources(), TiUIHelper.createBitmap(pinImage
+			.getInputStream()));
 		d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
 		return d;
 	}
