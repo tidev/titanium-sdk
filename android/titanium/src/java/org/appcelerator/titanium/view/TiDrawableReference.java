@@ -550,7 +550,7 @@ public class TiDrawableReference
 
 					// If anyDensity=false, meaning Android is automatically scaling
 					// pixel dimensions, need to do that here as well, because Bitmap width/height
-					// calculations to _not_ do that automatically.
+					// calculations do _not_ do that automatically.
 					if (anyDensityFalse && displayMetrics.density != 1f) {
 						destWidth = (int) (destWidth * displayMetrics.density + 0.5f); // 0.5 is to force round up of dimension. Casting to int drops decimals.
 						destHeight = (int) (destHeight * displayMetrics.density + 0.5f);
