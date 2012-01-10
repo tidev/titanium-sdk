@@ -58,8 +58,14 @@ public class Proxy extends EventEmitter
 			// Initialize the prototype inheritance chain
 			if (proxyProto.getPrototype() == null) {
 				Class<? extends Proxy> parentProto = proxyProto.getParent();
-				Function parentCtor = init(context, exports, parentProto.getName(), parentProto);
-				ProxyFactory.addProxyConstructor(parentProto.getName().replace("Prototype", ""), parentCtor);
+
+				// strip off the Prototype string for the parent as this was resulting in 
+				// inconsistent names in the binding list for proxies that extended other
+				// custom proxies
+				String parentProtoName = parentProto.getName().replace("Prototype", "");
+
+				Function parentCtor = init(context, exports, parentProtoName, parentProto);
+				ProxyFactory.addProxyConstructor(parentProtoName, parentCtor);
 			}
 
 			proxyProto.setParentScope(scope);
