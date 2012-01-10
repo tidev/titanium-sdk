@@ -23,6 +23,10 @@ module_defaults = {
 }
 module_license_default = "TODO: place your license here and we'll include it in the module distribution"
 
+def find_sdk(config):
+	sdk = config['TITANIUM_SDK']
+	return os.path.expandvars(os.path.expanduser(sdk))
+
 def replace_vars(config,token):
 	idx = token.find('$(')
 	while idx != -1:
@@ -53,7 +57,7 @@ def generate_doc(config):
 	if not os.path.exists(docdir):
 		print "Couldn't find documentation file at: %s" % docdir
 		return None
-	sdk = config['TITANIUM_SDK']
+	sdk = find_sdk(config)
 	support_dir = os.path.join(sdk,'module','support')
 	sys.path.append(support_dir)
 	try:
@@ -73,7 +77,7 @@ def compile_js(manifest,config):
 	js_file = os.path.join(cwd,'assets','__MODULE_ID__.js')
 	if not os.path.exists(js_file): return
 	
-	sdk = config['TITANIUM_SDK']
+	sdk = find_sdk(config)
 	iphone_dir = os.path.join(sdk,'iphone')
 	sys.path.insert(0,iphone_dir)
 	from compiler import Compiler
