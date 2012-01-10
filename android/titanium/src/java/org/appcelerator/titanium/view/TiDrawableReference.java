@@ -535,7 +535,8 @@ public class TiDrawableReference
 
 				// Set the bitmap density to match the view density before scaling, so that scaling
 				// algorithm takes destination density into account.
-				DisplayMetrics displayMetrics = TiDimension.getDisplayMetrics(parent);
+				DisplayMetrics displayMetrics = new DisplayMetrics();
+				displayMetrics.setToDefaults();
 				bTemp.setDensity(displayMetrics.densityDpi);
 
 				if (bTemp.getNinePatchChunk() != null) {

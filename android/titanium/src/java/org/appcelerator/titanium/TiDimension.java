@@ -158,7 +158,7 @@ public class TiDimension
 		return -1;
 	}
 
-	public static DisplayMetrics getDisplayMetrics(View parent)
+	protected static DisplayMetrics getDisplayMetrics(View parent)
 	{
 		if (metrics == null) {
 			WindowManager windowManager = (WindowManager) parent.getContext().getSystemService(Context.WINDOW_SERVICE);
