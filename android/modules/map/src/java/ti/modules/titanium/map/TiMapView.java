@@ -196,12 +196,16 @@ public class TiMapView extends TiUIView
 					} else {
 						marker = makeMarker(TiConvert.toString(imageProperty));
 					}
+
+					// Default to PIN_IMAGE if we were unable to make a marker from IMAGE
 					if (marker == null) {
 						marker = makeMarker(TiConvert.toString(p.getProperty(TiC.PROPERTY_PIN_IMAGE)));
 					}
 
-					boundCenterBottom(marker);
-					item.setMarker(marker);
+					if (marker != null) {
+						boundCenterBottom(marker);
+						item.setMarker(marker);
+					}
 				} else if (p.hasProperty(TiC.PROPERTY_PINCOLOR)) {
 					Object value = p.getProperty(TiC.PROPERTY_PINCOLOR);
 					
