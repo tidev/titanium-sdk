@@ -89,12 +89,12 @@ public class TiUIText extends TiUIView
 		 */
 		@Override
 		public boolean onCheckIsTextEditor () {
-			if (proxy.hasProperty("softKeyboardOnFocus") == true
+			if (proxy.hasProperty("softKeyboardOnFocus")
 					&& TiConvert.toInt(proxy.getProperty("softKeyboardOnFocus")) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
 					return false;
 			}
-			if (proxy.hasProperty(TiC.PROPERTY_EDITABLE) == true
-					&& TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_EDITABLE)) == false) {
+			if (proxy.hasProperty(TiC.PROPERTY_EDITABLE)
+					&& !(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_EDITABLE)))) {
 				return false;
 			}
 			return true;
@@ -245,7 +245,8 @@ public class TiUIText extends TiUIView
 	{
 		super.focus();
 		if (nativeView != null) {
-			if (proxy.hasProperty(TiC.PROPERTY_EDITABLE) && TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_EDITABLE)) == false) {
+			if (proxy.hasProperty(TiC.PROPERTY_EDITABLE) 
+					&& !(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_EDITABLE)))) {
 				TiUIHelper.showSoftKeyboard(nativeView, false);
 			}
 			else {
