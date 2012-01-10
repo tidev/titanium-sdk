@@ -18,6 +18,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.content.Context;
 import android.graphics.Rect;
 import android.text.Editable;
 import android.text.InputType;
@@ -32,7 +33,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -74,7 +74,32 @@ public class TiUIText extends TiUIView
 
 	private boolean field;
 
-	protected EditText tv;
+	protected TiEditText tv;
+	
+	public class TiEditText extends EditText 
+	{
+		public TiEditText(Context context) 
+		{
+			super(context);
+		}
+		
+		/** 
+		 * Check whether the called view is a text editor, in which case it would make sense to 
+		 * automatically display a soft input window for it.
+		 */
+		@Override
+		public boolean onCheckIsTextEditor () {
+			if (proxy.hasProperty("softKeyboardOnFocus") == true
+					&& TiConvert.toInt(proxy.getProperty("softKeyboardOnFocus")) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
+					return false;
+			}
+			if (proxy.hasProperty(TiC.PROPERTY_EDITABLE) == true
+					&& TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_EDITABLE)) == false) {
+				return false;
+			}
+			return true;
+		}
+	}
 
 	public TiUIText(TiViewProxy proxy, boolean field)
 	{
@@ -83,7 +108,7 @@ public class TiUIText extends TiUIView
 			Log.d(LCAT, "Creating a text field");
 		}
 		this.field = field;
-		tv = new EditText(getProxy().getActivity());
+		tv = new TiEditText(getProxy().getActivity());
 		if (field) {
 			tv.setSingleLine();
 			tv.setMaxLines(1);
@@ -218,16 +243,15 @@ public class TiUIText extends TiUIView
 	@Override
 	public void focus()
 	{
+		super.focus();
 		if (nativeView != null) {
-			Object editable = proxy.getProperty(TiC.PROPERTY_EDITABLE);
-			if (editable == null || ((Boolean)editable).booleanValue() == true) {
-				InputMethodManager imm = getIMM();
-				if (imm != null) {
-					imm.showSoftInput(nativeView, 0);
-				}
+			if (proxy.hasProperty(TiC.PROPERTY_EDITABLE) && TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_EDITABLE)) == false) {
+				TiUIHelper.showSoftKeyboard(nativeView, false);
+			}
+			else {
+				TiUIHelper.requestSoftInputChange(proxy, nativeView);
 			}
 		}
-		super.focus();
 	}
 
 	@Override
