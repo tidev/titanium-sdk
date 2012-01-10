@@ -4,10 +4,8 @@
 #
 import os, re, sys, optparse
 
-try:
-	import json
-except:
-	import simplejson as json
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),"../..", "android")))
+import simplejson as json
 
 Kroll_DEFAULT = "org.appcelerator.kroll.annotations.Kroll.DEFAULT"
 
