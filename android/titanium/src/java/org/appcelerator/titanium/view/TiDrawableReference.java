@@ -458,15 +458,6 @@ public class TiDrawableReference
 	{
 		int srcWidth, srcHeight, destWidth, destHeight;
 
-		if (parent == null) {
-			Activity activity = softActivity.get();
-			if (activity != null && activity.getWindow() != null) {
-				parent = activity.getWindow().getDecorView();
-			}
-		}
-
-		DisplayMetrics displayMetrics = TiDimension.getDisplayMetrics(parent);
-
 		Bounds bounds = peekBounds();
 		srcWidth = bounds.width;
 		srcHeight = bounds.height;
@@ -474,6 +465,13 @@ public class TiDrawableReference
 		if (srcWidth <= 0 || srcHeight <= 0) {
 			Log.w(LCAT, "Bitmap bounds could not be determined. If bitmap is loaded, it won't be scaled.");
 			return getBitmap(); // fallback
+		}
+
+		if (parent == null) {
+			Activity activity = softActivity.get();
+			if (activity != null && activity.getWindow() != null) {
+				parent = activity.getWindow().getDecorView();
+			}
 		}
 
 		Bounds destBounds = calcDestSize(srcWidth, srcHeight, destWidthDimension, destHeightDimension, parent);
@@ -537,6 +535,7 @@ public class TiDrawableReference
 
 				// Set the bitmap density to match the view density before scaling, so that scaling
 				// algorithm takes destination density into account.
+				DisplayMetrics displayMetrics = TiDimension.getDisplayMetrics(parent);
 				bTemp.setDensity(displayMetrics.densityDpi);
 
 				if (bTemp.getNinePatchChunk() != null) {
