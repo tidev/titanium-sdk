@@ -3,7 +3,7 @@ Ti._5.Positionable = function(obj, args) {
 
 	var domNode = obj.dom,
 		domStyle = domNode.style,
-		px = Ti._5.px,
+		unitize = require("Ti/_/dom").unitize,
 		_top,
 		_bottom,
 		_left,
@@ -20,7 +20,7 @@ Ti._5.Positionable = function(obj, args) {
 			},
 			set: function(val) {
 				domStyle.bottom && (domStyle.bottom = "");
-				domStyle.top = _top = px(val);
+				domStyle.top = _top = unitize(val);
 			}
 		},
 		bottom: {
@@ -29,7 +29,7 @@ Ti._5.Positionable = function(obj, args) {
 			},
 			set: function(val) {
 				domStyle.top && (domStyle.top = "");
-				domStyle.bottom = _bottom = px(val);
+				domStyle.bottom = _bottom = unitize(val);
 			}
 		},
 		left: {
@@ -38,7 +38,7 @@ Ti._5.Positionable = function(obj, args) {
 			},
 			set: function(val) {
 				domStyle.right && (domStyle.right = "");
-				domStyle.left = _left = px(val);
+				domStyle.left = _left = unitize(val);
 			}
 		},
 		right: {
@@ -47,7 +47,7 @@ Ti._5.Positionable = function(obj, args) {
 			},
 			set: function(val) {
 				domStyle.left && (domStyle.left = "");
-				domStyle.right = _right = px(val);
+				domStyle.right = _right = unitize(val);
 			}
 		},
 		width: {
@@ -55,7 +55,7 @@ Ti._5.Positionable = function(obj, args) {
 				return _width;
 			},
 			set: function(val) {
-				domStyle.width = _width = px(val);
+				domStyle.width = _width = unitize(val);
 			}
 		},
 		height: {
@@ -63,7 +63,7 @@ Ti._5.Positionable = function(obj, args) {
 				return _height;
 			},
 			set: function(val) {
-				domStyle.height = _height = px(val);
+				domStyle.height = _height = unitize(val);
 			}
 		},
 		center: {
@@ -103,17 +103,17 @@ Ti._5.Positionable = function(obj, args) {
 		}
 	});
 
-	obj.addEventListener("html5_added", function(){
+	obj.addEventListener("ti:added", function(){
 		// reset coordinates when element is added somewhere
 		obj.center = _center;
 	});
 
-	obj.addEventListener("html5_shown", function(){
+	obj.addEventListener("ti:shown", function(){
 		// reset coordinates when element is added somewhere
 		obj.center = _center;
 	});
 
-	obj.addEventListener("html5_child_rendered", function(){
+	obj.addEventListener("ti:child_rendered", function(){
 		// reset coordinates when element is added somewhere
 		obj.center = _center;
 	});

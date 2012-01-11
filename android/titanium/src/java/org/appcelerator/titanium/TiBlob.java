@@ -20,6 +20,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.util.KrollStreamHelper;
 import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TitaniumBlob;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 
 import android.graphics.Bitmap;
@@ -139,7 +140,13 @@ public class TiBlob extends KrollProxy
 	{
 		switch (type) {
 			case TYPE_FILE:
-				return (int) ((TiBaseFile)data).size();
+				long fileSize;
+				if (data instanceof TitaniumBlob) {
+					fileSize = ((TitaniumBlob) data).getFile().length();
+				} else {
+					fileSize = ((TiBaseFile) data).size();
+				}
+				return (int) fileSize;
 			case TYPE_DATA:
 			case TYPE_IMAGE:
 				return ((byte[])data).length;
