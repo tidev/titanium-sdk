@@ -368,7 +368,7 @@ exports.bootstrapWindow = function(Titanium) {
 			
 			// If the window state is opening, push the child to the array this._postOpenChildren.
 			// The children in this array will be added to this.view in postOpen().
-			else { // this.currentState == this.state.opening
+			else if (this.currentState == this.state.opening) {
 				this._postOpenChildren.push(view);
 			}
 		}
