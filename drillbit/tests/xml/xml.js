@@ -1279,8 +1279,14 @@ describe("Ti.XML tests", {
 		var existAttr = elements.item(1).setAttributeNode(existAttributeNode);
 		valueOf(elements.item(1).getAttribute("rating")).shouldBe("tasty");
 		valueOf(existAttr.value).shouldBe("taste good");
+		valueOf(newAttributeNode).shouldBe(existAttr);
+		if (Ti.Platform.osname != "android") { //Fails on Android TIMOB-6534
+			valueOf(function() {
+				elements.item(1).setAttributeNode(newAttributeNode);
+			}).shouldNotThrowException();
+		}
 		valueOf(function() {
-			elements.item(1).setAttributeNode(newAttributeNode);
+			elements.item(2).setAttributeNode(newAttributeNode);
 		}).shouldThrowException();
 		var newAttributeWrong = xml2.createAttribute("testing");
 		newAttributeWrong.value = "exception";
@@ -1363,8 +1369,14 @@ describe("Ti.XML tests", {
 		var existAttrNS = elementsNS2.item(2).setAttributeNodeNS(existAttributeNodeNS);
 		valueOf(elementsNS2.item(2).getAttributeNS(namespace2, "color")).shouldBe("pink");
 		valueOf(existAttrNS.value).shouldBe("blue");
+		valueOf(newAttributeNodeNS).shouldBe(existAttrNS);
+		if (Ti.Platform.osname != "android") { //Fails on Android TIMOB-6534
+			valueOf(function() {
+				elementsNS.item(1).setAttributeNode(newAttributeNodeNS);
+			}).shouldNotThrowException();
+		}
 		valueOf(function() {
-			elementsNS.item(1).setAttributeNode(newAttributeNodeNS);
+			elementsNS.item(2).setAttributeNode(newAttributeNodeNS);
 		}).shouldThrowException();
 		
 		var newAttributeNSWrong = xml2.createAttributeNS(namespace2, "toy:color");

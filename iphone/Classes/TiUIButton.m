@@ -12,6 +12,7 @@
 #import "TiUtils.h"
 #import "ImageLoader.h"
 #import "TiButtonUtil.h"
+#import "TiUIView.h"
 
 const UIControlEvents highlightingTouches = UIControlEventTouchDown|UIControlEventTouchDragEnter;
 const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIControlEventTouchDragExit|UIControlEventTouchUpInside;
@@ -185,19 +186,19 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 		// if the layout is undefined or auto, we need to take the size of the image
 		//TODO: Refactor. This will cause problems if there's multiple setImages called,
 		//Since we change the values of the proxy.
-		LayoutConstraint *layout = [(TiViewProxy *)[self proxy] layoutProperties];
+		LayoutConstraint *layoutProperties = [(TiViewProxy *)[self proxy] layoutProperties];
 		BOOL reposition = NO;
 		
-		if (TiDimensionIsUndefined(layout->width) || TiDimensionIsAuto(layout->width))
+		if (TiDimensionIsUndefined(layoutProperties->width) || TiDimensionIsAuto(layoutProperties->width))
 		{
-			layout->width.value = image.size.width;
-			layout->width.type = TiDimensionTypePixels;
+			layoutProperties->width.value = image.size.width;
+			layoutProperties->width.type = TiDimensionTypePixels;
 			reposition = YES;
 		}
-		if (TiDimensionIsUndefined(layout->height) || TiDimensionIsAuto(layout->height))
+		if (TiDimensionIsUndefined(layoutProperties->height) || TiDimensionIsAuto(layoutProperties->height))
 		{
-			layout->height.value = image.size.height;
-			layout->height.type = TiDimensionTypePixels;
+			layoutProperties->height.value = image.size.height;
+			layoutProperties->height.type = TiDimensionTypePixels;
 		}
 		if (reposition)
 		{

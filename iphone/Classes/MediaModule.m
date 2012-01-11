@@ -195,7 +195,7 @@ static NSDictionary* TI_filterableItemProperties;
 	TiApp * tiApp = [TiApp app];
 	if ([TiUtils isIPad]==NO)
 	{
-		[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait];
+		[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait duration:[[tiApp controller] suggestedRotationDuration]];
 	}
 	[tiApp showModalController:picker_ animated:animatedPicker];
 }
@@ -205,7 +205,7 @@ static NSDictionary* TI_filterableItemProperties;
 	TiApp * tiApp = [TiApp app];
 	if ([TiUtils isIPad]==NO)
 	{
-		[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait];
+		[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait duration:[[tiApp controller] suggestedRotationDuration]];
 		[tiApp showModalController:picker_ animated:animatedPicker];
 	}
 	else
@@ -435,6 +435,9 @@ static NSDictionary* TI_filterableItemProperties;
 		NSDictionary* event = [NSDictionary dictionaryWithObject:path forKey:@"path"];
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,successCallback,nil]];					
 	}
+    
+    // This object was retained for use in this callback; release it.
+    [saveCallbacks release]; 
 }
 
 #pragma mark Public APIs
@@ -447,15 +450,23 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,MediaModuleErrorNoMusicPlayer);
 
 
 // >=3.2 dependent value; this one isn't deprecated
--(NSNumber*)VIDEO_CONTROL_DEFAULT
+MAKE_SYSTEM_PROP(VIDEO_CONTROL_DEFAULT, MPMovieControlStyleDefault);
+
+// Deprecated old-school video control modes, mapped to the new values
+-(NSNumber*)VIDEO_CONTROL_VOLUME_ONLY
 {
-	return NUMINT(MPMovieControlStyleDefault);
+    DEPRECATED_REPLACED(@"Ti.Media.VIDEO_CONTROL_VOLUME_ONLY", @"1.8.0", @"1.9.0", @"Ti.Media.VIDEO_CONTROL_EMBEDDED");
+    return [self VIDEO_CONTROL_EMBEDDED];
 }
 
-// these have been deprecated in 3.2 but we need them for older devices
-MAKE_SYSTEM_PROP(VIDEO_CONTROL_VOLUME_ONLY,MPMovieControlModeVolumeOnly);
-MAKE_SYSTEM_PROP(VIDEO_CONTROL_HIDDEN,MPMovieControlModeHidden);
- 
+-(NSNumber*)VIDEO_CONTROL_HIDDEN
+{
+    // This constant is still available in a non-deprecated manner in Android for 1.8; we should keep it around
+    // until there's a parity discussion.
+    // TODO: Does this need to be deprecated? For now, return the right value.
+    return [self VIDEO_CONTROL_NONE];
+}
+
 MAKE_SYSTEM_PROP(VIDEO_SCALING_NONE,MPMovieScalingModeNone);
 MAKE_SYSTEM_PROP(VIDEO_SCALING_ASPECT_FIT,MPMovieScalingModeAspectFit);
 MAKE_SYSTEM_PROP(VIDEO_SCALING_ASPECT_FILL,MPMovieScalingModeAspectFill);
@@ -750,7 +761,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	}
 	
 	TiApp * tiApp = [TiApp app];
-	[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait];
+	[[tiApp controller] manuallyRotateToOrientation:UIInterfaceOrientationPortrait duration:[[tiApp controller] suggestedRotationDuration]];
 	[tiApp showModalController:editor animated:animated];
 }
 
@@ -826,17 +837,9 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	ENSURE_SINGLE_ARG(arg,KrollCallback);
 
     // Create a graphics context with the target size
-    // On iOS 4 and later, use UIGraphicsBeginImageContextWithOptions to take the scale into consideration
-    // On iOS prior to 4, fall back to use UIGraphicsBeginImageContext
-
-    float systemVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
 
  	CGSize imageSize = [[UIScreen mainScreen] bounds].size;
-
- 	if (systemVersion >= 4.0f)
-		UIGraphicsBeginImageContextWithOptions(imageSize, NO, 0);
-	else
-		UIGraphicsBeginImageContext(imageSize);
+	UIGraphicsBeginImageContextWithOptions(imageSize, NO, 0);
 
 	CGContextRef context = UIGraphicsGetCurrentContext();
 
@@ -870,6 +873,21 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
     UIGraphicsEndImageContext();
 
+	UIInterfaceOrientation windowOrientation = [[TiApp controller] windowOrientation];
+	switch (windowOrientation) {
+		case UIInterfaceOrientationPortraitUpsideDown:
+			image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationDown];
+			break;
+		case UIInterfaceOrientationLandscapeLeft:
+			image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationRight];
+			break;
+		case UIInterfaceOrientationLandscapeRight:
+			image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationLeft];
+			break;
+		default:
+			break;
+	}
+	
 	TiBlob *blob = [[[TiBlob alloc] initWithImage:image] autorelease];
 	NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"media"];
 	[self _fireEventToListener:@"screenshot" withObject:event listener:arg thisObject:nil];
@@ -904,9 +922,40 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 		}
 		else if ([mime hasPrefix:@"video/"])
 		{
-			NSString * tempFilePath = [blob path];
-			if (tempFilePath == nil) return;
-			UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, self, @selector(saveCompletedForVideo:error:contextInfo:), [saveCallbacks retain]);
+            NSString* filePath;
+            switch ([blob type]) {
+                case TiBlobTypeFile: {
+                    filePath = [blob path];
+                    break;
+                }
+                case TiBlobTypeData: {
+                    // In this case, we need to write the blob data to a /tmp file and then load it.
+                    NSArray* typeinfo = [mime componentsSeparatedByString:@"/"];
+                    TiFile* tempFile = [TiUtils createTempFile:[typeinfo objectAtIndex:1]];
+                    filePath = [tempFile path];
+                    
+                    NSError* error = nil;
+                    [blob writeTo:filePath error:&error];
+                    
+                    if (error != nil) {
+                        NSDictionary* event = [NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"problem writing to temporary file %@: %@", filePath, [error localizedDescription]]
+                                                                          forKey:@"error"];
+                        [self dispatchCallback:[NSArray arrayWithObjects:@"error",event,[saveCallbacks valueForKey:@"error"],nil]];
+                        return;
+                    }
+                    
+                    // Have to keep the temp file from being deleted when we leave scope, so add it to the userinfo so it can be cleaned up there
+                    [saveCallbacks setValue:tempFile forKey:@"tempFile"];
+                    break;
+                }
+                default: {
+                    NSDictionary* event = [NSDictionary dictionaryWithObject:@"invalid media format: MIME type was video/, but data is image"
+                                                                      forKey:@"error"];
+                    [self dispatchCallback:[NSArray arrayWithObjects:@"error",event,[saveCallbacks valueForKey:@"error"],nil]];
+                    return;
+                }
+            }
+			UISaveVideoAtPathToSavedPhotosAlbum(filePath, self, @selector(saveCompletedForVideo:error:contextInfo:), [saveCallbacks retain]);
 		}
 	}
 	else if ([image isKindOfClass:[TiFile class]])

@@ -1,47 +1,46 @@
 ---
 name: Titanium.UI.Switch
-description: A Switch is created by the method <Titanium.UI.createSwitch>.
+summary: A Switch is created by the method <Titanium.UI.createSwitch>.
 extends: Titanium.UI.View
 since: "0.8"
 events:
   - name: change
-    description: fired when the switch value is changed
+    summary: fired when the switch value is changed
     properties:
       - name: value
-        description: the new value of the switch
+        summary: the new value of the switch
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
 properties:
   - name: enabled
-    description: boolean for the state of the switch
+    summary: boolean for the state of the switch
     type: Boolean
   - name: style
-    description: one of <Ti.UI.Android.SWITCH_STYLE_CHECKBOX> or <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON> (default).
+    summary: one of <Ti.UI.Android.SWITCH_STYLE_CHECKBOX> or <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON> (default).
     type: Number
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: title
-    description: text to display with checkbox. Used if style is <Ti.UI.Android.SWITCH_STYLE_CHECKBOX>
+    summary: text to display with checkbox. Used if style is <Ti.UI.Android.SWITCH_STYLE_CHECKBOX>
     type: String
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: titleOff
-    description: text to display when value is `false`. used if style is <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
+    summary: text to display when value is `false`. used if style is <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
     type: String
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: titleOn
-    description: text to display when value is `true`. used if style is <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
+    summary: text to display when value is `true`. used if style is <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
     type: String
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: value
-    description: boolean value of the switch where true is the switch is `on` and false the switch if `off`
+    summary: boolean value of the switch where true is the switch is `on` and false the switch if `off`
     type: Boolean
-notes: |
     
 examples:
   - title: Simple Switch Example

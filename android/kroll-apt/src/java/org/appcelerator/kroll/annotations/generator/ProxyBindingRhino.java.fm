@@ -1,0 +1,520 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+package ${packageName};
+
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.IdFunctionObject;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Undefined;
+
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollInvocation;
+import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollProxySupport;
+import org.appcelerator.kroll.KrollRuntime;
+
+import org.appcelerator.kroll.common.TiConfig;
+
+import org.appcelerator.kroll.runtime.rhino.KrollBindings;
+import org.appcelerator.kroll.runtime.rhino.Proxy;
+import org.appcelerator.kroll.runtime.rhino.ProxyFactory;
+import org.appcelerator.kroll.runtime.rhino.RhinoRuntime;
+import org.appcelerator.kroll.runtime.rhino.TypeConverter;
+import org.appcelerator.kroll.common.Log;
+
+import java.util.HashMap;
+
+import ${packageName}.${proxyClassName};
+
+<#assign superProxy = "Proxy">
+<#if superProxyClassName??>
+import ${superPackageName}.${superProxyClassName}Prototype;
+<#assign superProxy = superProxyClassName + "Prototype">
+</#if>
+
+<#import "ProxyBinding.fm" as Proxy>
+
+<#assign className = Proxy.className(proxyClassName)>
+
+public class ${className}Prototype extends ${superProxy}
+{
+	// GENERATE_SUID
+
+	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "${className}Prototype";
+	private static final String CLASS_TAG = "${className}";
+	<#assign protoVar = className?substring(0, 1)?lower_case + className?substring(1) + "Prototype">
+	private static ${className}Prototype ${protoVar};
+
+<@Proxy.listApiTree ; isFirst, name, className, hasNext>
+	<#if isFirst>
+	// Lazy loaded child APIs
+	</#if>
+	private Object API_${name} = null;
+</@Proxy.listApiTree>
+
+	public static ${className}Prototype getProxyPrototype()
+	{
+		return ${protoVar};
+	}
+
+	public static void dispose()
+	{
+		${protoVar} = null;
+	}
+
+	public ${className}Prototype()
+	{
+		if (${protoVar} == null && getClass().equals(${className}Prototype.class)) {
+			${protoVar} = this;
+		}
+
+		<#if isModule>
+		isModule = true;
+		</#if>
+		<@Proxy.listConstants ; isFirst, name, constant>
+
+		<#if (constant.value)??>
+			<#if constant.type = "java.lang.String">
+			putConst("${name}", this, "${constant.value}");
+			<#else>
+			putConst("${name}", this, ${constant.value?c});
+			</#if>
+		<#else>
+			putConst("${name}", this, ${className}.${constant.name});
+		</#if>
+
+		</@Proxy.listConstants>
+	}
+
+	public Scriptable getPrototype()
+	{
+		if (this == ${protoVar}) {
+			return ${superProxy}.getProxyPrototype();
+		}
+		return ${protoVar};
+	}
+
+	protected Class<? extends Proxy> getParent()
+	{
+		return ${superProxy}.class;
+	}
+
+	protected KrollProxySupport createProxy(String creationUrl, Object[] args)
+	{
+		<#if (useTiContext!false)>
+		return KrollProxy.createDeprecatedProxy(${className}.class, getRhinoObject(), args, creationUrl);
+		<#else>
+		return KrollProxy.createProxy(${className}.class, getRhinoObject(), args, creationUrl);
+		</#if> 
+	}
+
+	// Methods
+	<@Proxy.listMethods ; isFirst, name, method>
+	<#assign info = Proxy.getTypeInfo(method.returnType)>
+	<#assign returnType = info.rhinoType!method.returnType>
+	<#if returnType != "void">
+		<#assign returnType = "Object">
+	</#if>
+<#t>
+	public ${returnType} ${method.apiName}(Context context, Scriptable thisObj, Object[] args)
+	{
+		if (DBG) {
+			Log.d(TAG, "${method.apiName}()");
+		}
+
+		try {
+		${className} proxy = (${className}) ((Proxy) thisObj).getProxy();
+		<#if method.args?size &gt; 0>
+		<@Proxy.verifyAndConvertJavaArguments method.args method/>
+		</#if>
+
+			<@Proxy.callJavaMethod method.args, name, method.hasInvocation, method.returnType,
+				"proxy" ; hasResult, resultVar>
+	
+			<#if hasResult>
+			return ${resultVar};
+			</#if>
+
+			</@Proxy.callJavaMethod>
+		} catch (Throwable throwable) {
+			Context.throwAsScriptRuntimeEx(throwable);
+			<#if returnType != "void">return Undefined.instance;</#if>
+		}
+	}
+
+	</@Proxy.listMethods>
+
+	// Dynamic properties
+	<@Proxy.listDynamicProperties ; isFirst, name, property, getSignature, setSignature>
+	<#if property.get>
+	<#assign info = Proxy.getTypeInfo(property.getReturnType)>
+	public ${info.rhinoType} getter_${name}()
+	{
+		if (DBG) {
+			Log.d(TAG, "get ${name}");
+		}
+
+		${className} proxy = (${className}) getProxy();
+		Scriptable thisObj = this;
+		<@Proxy.callJavaMethod property.getMethodArgs, property.getMethodName, property.getHasInvocation,
+			property.getReturnType, "proxy" ; hasResult, resultVar>
+		return ${resultVar};
+		</@Proxy.callJavaMethod>
+	}
+	</#if>
+<#t>
+	<#if property.set>
+	public void setter_${name}(Object value)
+	{
+		if (DBG) {
+			Log.d(TAG, "set ${name}");
+		}
+
+		${className} proxy = (${className}) getProxy();
+		Scriptable thisObj = this;
+		<#assign info = Proxy.getTypeInfo(property.setMethodArgs[0].type)>
+<#t>
+		<@Proxy.verifyAndConvertJavaArgument expr="value" index=0 info=info type=property.setMethodArgs[0].type logOnly=true isOptional=false/>
+<#t>
+		<@Proxy.callJavaMethod property.setMethodArgs, property.setMethodName, property.setHasInvocation,
+			"void", "proxy" ; hasResult, resultVar>
+		</@Proxy.callJavaMethod> 
+		//proxy.setProperty("${name}", value); // Commenting out for parity with V8 (don't retain from a custom setter)
+	}
+	</#if> 
+	</@Proxy.listDynamicProperties>
+
+// #string_id_map#
+
+	// Prototype IDs
+	private static final int
+		<#assign start = 2>
+		Id_constructor = 1
+		<#t><#if methods?? || Proxy.hasCreateProxies() || proxyAttrs.propertyAccessors?size &gt; 0>,</#if>
+		// Property IDs
+		<@Proxy.listPropertyAccessors ; isFirst, name, getter, setter, hasNext>
+		Id_${getter} = ${start},
+		Id_${setter} = ${start + 1}<#if hasNext || methods?? || Proxy.hasCreateProxies()>,</#if>
+		<#assign start = start + 2>
+		</@Proxy.listPropertyAccessors>
+		// Method IDs
+		<@Proxy.listMethods ; isFirst, name, method, signature, hasNext>
+		Id_${method.apiName} = ${start}<#if hasNext || Proxy.hasCreateProxies()>,</#if>
+		<#t><#assign start = start + 1>
+		</@Proxy.listMethods>
+<#t>
+		<@Proxy.listCreateProxies ; isFirst, createProxy, hasNext>
+		Id_create${createProxy.name} = ${start}<#if hasNext>,</#if>
+		<#assign start = start + 1>
+		</@Proxy.listCreateProxies>;
+		
+
+	public static final int MAX_PROTOTYPE_ID = ${start - 1};
+
+	protected int getMaxPrototypeId()
+	{
+		return MAX_PROTOTYPE_ID;
+	}
+
+	@Override
+	protected int findPrototypeId(String s)
+	{
+		int id = 0;
+// #generated#
+// #/generated#
+		return id;
+	}
+
+// #/string_id_map#
+
+	@Override
+	protected void initPrototypeId(int id)
+	{
+		String name;
+		int arity;
+		switch (id) {
+			case Id_constructor:
+				arity = 0;
+				name = "constructor";
+				break;
+		<@Proxy.listPropertyAccessors ; isFirst, name, getter, setter>
+			case Id_${getter}:
+				arity = 0;
+				name = "${getter}";
+				break;
+			case Id_${setter}:
+				arity = 1;
+				name = "${setter}";
+				break;
+		</@Proxy.listPropertyAccessors>
+		<@Proxy.listMethods ; isFirst, name, method>
+			case Id_${method.apiName}:
+			<#assign arity = method.args?size>
+			<#if method.hasInvocation>
+				<#assign arity = arity - 1>
+			</#if>
+				arity = ${arity};
+				name = "${method.apiName}";
+				break;
+		</@Proxy.listMethods>
+		<@Proxy.listCreateProxies ; isFirst, createProxy, hasNext>
+			case Id_create${createProxy.name}:
+				arity = 1;
+				name = "create${createProxy.name}";
+				break;
+		</@Proxy.listCreateProxies>
+			default:
+				super.initPrototypeId(id);
+				return;
+		}
+		initPrototypeMethod(CLASS_TAG, id, name, arity);
+	}
+
+	@Override
+	public Object execIdCall(IdFunctionObject f,
+		Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+	{
+		if (!f.hasTag(CLASS_TAG)) {
+			return super.execIdCall(f, cx, scope, thisObj, args);
+		}
+
+		while (thisObj != null && !(thisObj instanceof ${className}Prototype)) {
+			thisObj = thisObj.getPrototype();
+		}
+
+		${className}Prototype proxy = (${className}Prototype) thisObj;
+		int id = f.methodId();
+		switch (id) {
+			case Id_constructor:
+				return jsConstructor(scope, args);
+		<@Proxy.listPropertyAccessors ; isFirst, name, getter, setter>
+			case Id_${getter}:
+				return proxy.getProperty("${name}");
+			case Id_${setter}:
+				proxy.setProperty("${name}", args[0]);
+				proxy.onPropertyChanged("${name}", args[0]);
+				return Undefined.instance;
+		</@Proxy.listPropertyAccessors>
+		<@Proxy.listMethods ; isFirst, name, method>
+			case Id_${method.apiName}:
+				<#assign hasReturn = (method.returnType != "void")> 
+				<#if hasReturn>return</#if> ${method.apiName}(cx, thisObj, args);
+				<#if !hasReturn>return Undefined.instance;</#if>
+		</@Proxy.listMethods>
+		<@Proxy.listCreateProxies ; isFirst, createProxy, hasNext>
+			case Id_create${createProxy.name}:
+				return ProxyFactory.createRhinoProxy(cx, scope,
+					"${createProxy.proxyClassName}", args);
+		</@Proxy.listCreateProxies>
+			default:
+				throw new IllegalArgumentException(String.valueOf(id));
+		}
+	}
+
+	<#if interceptor??>
+	@Override
+	public Object get(String name, Scriptable start)
+	{
+		${className} proxy = (${className}) getProxy();
+		Object result = proxy.${interceptor.name}(name);
+
+		if (result != null && result instanceof Number) {
+			int value = ((Number) result).intValue();
+			if (value == KrollRuntime.DONT_INTERCEPT) {
+				return super.get(name, start);
+			}
+		}
+
+		return TypeConverter.javaObjectToJsObject(result, start);
+	}
+	</#if>
+
+	<#assign start = 0>
+	<#assign hasInstanceIds = dynamicProperties?? || proxyAttrs.propertyAccessors?size &gt; 0>
+	<#if hasInstanceIds || Proxy.hasApiTree()>
+
+// #string_id_map#
+
+	<#assign start = 1>
+	// Instance IDs
+	<#if superProxyClassName??>
+	private static final int ISTART = 0;
+	</#if>
+<#t>
+		<@Proxy.listDynamicProperties ; isFirst, name, property, getSignature, setSignature>
+		<#if isFirst>
+	// Dynamic property IDs
+	private static final int
+		<#else>
+		<#t>,
+		</#if>
+		Id_${name} = ${start}
+		<#assign start = start + 1>
+		</@Proxy.listDynamicProperties>;
+
+		<@Proxy.listPropertyAccessors ; isFirst, name, getter, setter>
+		<#if isFirst>
+	// Property accessor IDs
+	private static final int
+		<#else>
+		<#t>,
+		</#if>
+		Id_${name} = ${start}
+		<#assign start = start + 1>
+		</@Proxy.listPropertyAccessors>;
+
+		<@Proxy.listApiTree ; isFirst, name, className, hasNext>
+		<#if isFirst>
+	// Child APIs
+	private static final int
+		<#else>
+		<#t>,
+		</#if>
+		Id_${name} = ${start}
+		<#assign start = start + 1>
+		</@Proxy.listApiTree>;
+	</#if>
+
+	public static final int MAX_INSTANCE_ID = ${start - 1};
+
+	<#if hasInstanceIds || Proxy.hasApiTree()>
+	@Override
+	protected int getMaxInstanceId()
+	{
+		return MAX_INSTANCE_ID;
+	}
+
+	@Override
+	protected int findInstanceIdInfo(String s)
+	{
+		int id = 0;
+// #generated#
+// #/generated#
+		if (id == 0) {
+			return id;
+		}
+		return instanceIdInfo(PERMANENT, id);
+	}
+
+// #/string_id_map#
+
+	@Override
+	protected String getInstanceIdName(int id)
+	{
+		switch (id) {
+		<@Proxy.listDynamicProperties ; isFirst, name, property, getSignature, setSignature>
+			case Id_${name}:
+				return "${name}"; 
+		</@Proxy.listDynamicProperties>
+		<@Proxy.listPropertyAccessors ; isFirst, name, getter, setter>
+			case Id_${name}:
+				return "${name}";
+		</@Proxy.listPropertyAccessors>
+		<@Proxy.listApiTree ; isFirst, name, className, hasNext>
+			case Id_${name}:
+				return "${name}";
+		</@Proxy.listApiTree>
+			default:
+				throw new IllegalArgumentException(String.valueOf(id));
+		}
+	}
+
+	@Override
+	protected Object getInstanceIdValue(int id, Scriptable start)
+	{
+		${className}Prototype proxy = this;
+		while (start != null && !(start instanceof ${className}Prototype)) {
+			start = start.getPrototype();
+		}
+
+		if (start instanceof ${className}Prototype) {
+			proxy = (${className}Prototype) start;
+		}
+
+		switch (id) {
+		<@Proxy.listDynamicProperties ; isFirst, name, property, getSignature, setSignature>
+			case Id_${name}:
+			<#if property.get>
+				return proxy.getter_${name}();
+			<#else>
+				return proxy.getProperty("${name}");
+			</#if> 
+		</@Proxy.listDynamicProperties>
+		<@Proxy.listPropertyAccessors ; isFirst, name, getter, setter>
+			case Id_${name}:
+				return proxy.getProperty("${name}");
+		</@Proxy.listPropertyAccessors>
+		<@Proxy.listApiTree ; isFirst, name, className, hasNext>
+			case Id_${name}:
+				if (proxy.API_${name} == null) {
+					Context context = Context.getCurrentContext();
+					Scriptable scope = RhinoRuntime.getGlobalScope();
+
+					proxy.API_${name} = KrollBindings.getProxyBinding(context, scope,
+						"${className}", ${className}Prototype.class); 
+				}
+				return proxy.API_${name};
+		</@Proxy.listApiTree>
+			default:
+				throw new IllegalArgumentException(String.valueOf(id));
+		}
+	}
+
+	@Override
+	protected void setInstanceIdValue(int id, Scriptable start, Object value)
+	{
+		Scriptable original = start;
+		${className}Prototype proxy = this;
+		while (start != null && !(start instanceof ${className}Prototype)) {
+			start = start.getPrototype();
+		}
+
+		if (start instanceof ${className}Prototype) {
+			proxy = (${className}Prototype) start;
+		}
+
+		switch (id) {
+		<@Proxy.listDynamicProperties ; isFirst, name, property, getSignature, setSignature>
+			case Id_${name}:
+			<#if property.set>
+				proxy.setter_${name}(value);
+			<#else>
+				proxy.setProperty("${name}", value);
+				proxy.onPropertyChanged("${name}", value);
+			</#if>
+				break; 
+		</@Proxy.listDynamicProperties>
+		<@Proxy.listPropertyAccessors ; isFirst, name, getter, setter>
+			case Id_${name}:
+				proxy.setProperty("${name}", value);
+				proxy.onPropertyChanged("${name}", value);
+				break;
+		</@Proxy.listPropertyAccessors>
+		<@Proxy.listApiTree ; isFirst, name, className, hasNext>
+			case Id_${name}:
+				if (value instanceof Proxy) {
+					proxy.API_${name} = value;
+				} else {
+					defineProperty(original, "${name}", value, 0);
+				}
+				break;
+		</@Proxy.listApiTree>
+			default:
+				throw new IllegalArgumentException(String.valueOf(id));
+		}
+	}
+	</#if>
+
+	@Override
+	public String getClassName()
+	{
+		return CLASS_TAG;
+	}
+}

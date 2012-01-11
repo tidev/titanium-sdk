@@ -1,0 +1,66 @@
+.HTML5_TableView {
+	overflow: auto;
+}
+
+.HTML5_TableViewRow {
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+	vertical-align: middle;
+	position: relative;
+	overflow: hidden;
+}
+
+.HTML5_TableViewRow span {
+	padding-left: 10px;
+}
+
+.HTML5_TableViewRow .leftImage, .HTML5_TableViewRow .rightImage {
+	height: 100%;
+	display: table;
+}
+
+.HTML5_TableViewRow .leftImage {
+	float: left;
+}
+
+.HTML5_TableViewRow .rightImage {
+	float: right;
+}
+
+.HTML5_TableViewRow .leftImage>div,
+.HTML5_TableViewRow .rightImage>div {
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.HTML5_TableViewRow.hasRightImage .hasCheck,
+.HTML5_TableViewRow.hasRightImage .hasChild,
+.HTML5_TableViewRow.hasRightImage .hasDetail {
+	display: none;
+}
+
+.HTML5_TableViewRow .hasCheck,
+.HTML5_TableViewRow .hasChild,
+.HTML5_TableViewRow .hasDetail {
+	height: 100%;
+	width: 30px;
+	position: absolute;
+	top: 0;
+	right: 10px;
+	background-position: center right;
+	background-repeat: no-repeat;
+}
+.HTML5_TableViewRow .hasCheck{
+	background-image: url('images/hasCheck.png');
+}
+
+.HTML5_TableViewRow .hasChild {
+	background-image: url('images/hasChild.png');
+}
+
+.HTML5_TableViewRow .hasDetail {
+	background-image: url('images/hasDetail.png');
+}

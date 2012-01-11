@@ -40,12 +40,7 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 	
 	for (TiViewProxy *thisProxy in localLayoutArray)
 	{
-		if ([thisProxy viewAttached]) {
-			[thisProxy layoutChildrenIfNeeded];
-		}
-		else {
-			[thisProxy refreshView:nil];
-		}
+        [TiLayoutQueue layoutProxy:thisProxy];
 	}
 		
 	RELEASE_TO_NIL(localLayoutArray);
@@ -57,6 +52,16 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 +(void)initialize
 {
 	pthread_mutex_init(&layoutMutex, NULL);
+}
+
++(void)layoutProxy:(TiViewProxy*)thisProxy
+{
+    if ([thisProxy viewAttached]) {
+        [thisProxy layoutChildrenIfNeeded];
+    }
+    else {
+        [thisProxy refreshView:nil];
+    }
 }
 
 +(void)addViewProxy:(TiViewProxy*)newViewProxy

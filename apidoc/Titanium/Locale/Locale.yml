@@ -1,67 +1,74 @@
 ---
 name: Titanium.Locale
-description: The top level Locale module.  The Locale module works with localization files to which are generated during compilation into the operating system specific localization formats. The Locale module provides locale-specific strings which can be referenced at runtime.  Additionally, the module contains a few methods and properties for querying device locale information.
+summary: The top level Locale module.  
+description: |
+    The `Locale` module works with localization files to which are generated during compilation 
+    into the operating system specific localization formats. The `Locale` module provides 
+    locale-specific strings which can be referenced at runtime.  Additionally, the module 
+    contains a few methods and properties for querying device locale information.
+
+    The macro `L` can be used as an alias for the <Titanium.Locale.getString> method.
 extends: Titanium.Module
 since: "1.5"
+platforms: [android, iphone, ipad]
 methods:
   - name: formatTelephoneNumber
-    description: format a telephone number according to the current locale.
+    summary: format a telephone number according to the current locale.
     returns:
         type: String
     parameters:
       - name: number
-        description: the phone number to format
+        summary: the phone number to format
         type: String
   - name: getCurrencyCode
-    description: return a currency code for a given locale.
+    summary: return a currency code for a given locale.
     platforms: [android]
     returns:
         type: String
     parameters:
       - name: locale
-        description: the locale for which you want to the currency code, e.g. getCurrencyCode('en-US') -> 'USD'
+        summary: the locale for which you want to the currency code, e.g. getCurrencyCode('en-US') -> 'USD'
         type: String
   - name: getCurrencySymbol
-    description: return a currency symbol for the given currency code.
+    summary: return a currency symbol for the given currency code.
     platforms: [android]
     returns:
         type: String
     parameters:
       - name: currencyCode
-        description: the currency for which you want the symbol, e.g. getCurrencySymbol('USD') -> '$'
+        summary: the currency for which you want the symbol, e.g. getCurrencySymbol('USD') -> '$'
         type: String
   - name: getLocaleCurrencySymbol
-    description: return a currency symbol for the given locale.
+    summary: return a currency symbol for the given locale.
     platforms: [android]
     returns:
         type: String
     parameters:
       - name: locale
-        description: the locale whose currency symbol you want, e.g. getLocaleCurrencySymbol('en-US') -> '$'
+        summary: the locale whose currency symbol you want, e.g. getLocaleCurrencySymbol('en-US') -> '$'
         type: String
   - name: getString
-    description: return a localization string
+    summary: return a localization string
     returns:
         type: String
     parameters:
       - name: key
-        description: the key to use when mapping into the localization file
+        summary: the key to use when mapping into the localization file
         type: String
       - name: hint
-        description: the text to use if no key found in the localization file
+        summary: the text to use if no key found in the localization file
         type: String
         optional: true
 properties:
   - name: currentCountry
-    description: return the current (default) ISO 2-letter country code for the device.
+    summary: return the current (default) ISO 2-letter country code for the device.
     type: String
   - name: currentLanguage
-    description: return the current language for the device based on the user's settings
+    summary: return the current language for the device based on the user's settings
     type: String
     permission: read-only
   - name: currentLocale
-    description: return the current locale string for the device based on the user's settings (e.g., en-US).
+    summary: return the current locale string for the device based on the user's settings (e.g., en-US).
     platforms: [android]
     type: String
     permission: read-only
-notes: The macro `L` can also be used which aliases the method <Titanium.Locale.getString>.

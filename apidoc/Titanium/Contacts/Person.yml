@@ -1,94 +1,95 @@
 ---
 name: Titanium.Contacts.Person
-description: An object which represents a person in the contacts database.
+summary: An object which represents a person in the contacts database.
 extends: Titanium.Proxy
 since: "0.8"
+platforms: [android, iphone, ipad]
 properties:
   - name: url
-    description: |
+    summary: |
         URLs of webpages associated with the person.  Multi-value, valid labels are: `home`, `work`, `other`, `homepage`.  Values are strings.
     type: Object
     platforms: [iphone, ipad]
   - name: address
-    description: |
+    summary: |
         The addresses for the person.  Multi-value, valid labels are: `home`, `work`, `other`.  Values are dictionaries.
     type: Object
   - name: birthday
-    description: The birthday of the person.  Single value, format is "yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000"
+    summary: The birthday of the person.  Single value, format is "yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000"
     type: String
   - name: created
-    description: The date the person was created in the database.  Single value, format is "yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000", read-only
+    summary: The date the person was created in the database.  Single value, format is "yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000", read-only
     type: String
   - name: date
-    description: |
+    summary: |
         Dates associated with the person.  Multi-value, valid labels are: `anniversary`.  Values are strings of format "yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000"
     type: Object
   - name: department
-    description: The department of the person.  Single value
+    summary: The department of the person.  Single value
     type: String
   - name: email
-    description: |
+    summary: |
         The email addresses for the person.  Multi-value, valid labels are: `home`, `work`, `other`.  Values are strings.
     type: Object
   - name: firstName
-    description: The first name of the person.  Single value
+    summary: The first name of the person.  Single value
     type: String
   - name: firstPhonetic
-    description: The phonetic first name of the person.  Single value
+    summary: The phonetic first name of the person.  Single value
     type: String
   - name: fullName
-    description: The localized full name of the person.  Single value, read-only
+    summary: The localized full name of the person.  Single value, read-only
     type: String
   - name: image
-    description: A blob object representing the image for the person.  Set to `null` to remove the image.  Single value
+    summary: A blob object representing the image for the person.  Set to `null` to remove the image.  Single value
     type: Object
   - name: instantMessage
-    description: |
+    summary: |
         The instant messenger names for the person.  Multi-value, valid labels are: `aim`, `icq`, `jabber`, `msn`, `yahoo`.  Values are dictionaries.
     type: Object
   - name: jobTitle
-    description: The job title of the person.  Single value
+    summary: The job title of the person.  Single value
     type: String
   - name: kind
-    description: The kind of person.  Single value, one of <Titanium.Contacts.CONTACTS_KIND_PERSON> or <Titanium.Contacts.CONTACTS_KIND_ORGANIZATION>
+    summary: The kind of person.  Single value, one of <Titanium.Contacts.CONTACTS_KIND_PERSON> or <Titanium.Contacts.CONTACTS_KIND_ORGANIZATION>
     type: Number
   - name: lastName
-    description: The last name of the person.  Single value
+    summary: The last name of the person.  Single value
     type: String
   - name: lastPhonetic
-    description: The phonetic last name of the person.  Single value
+    summary: The phonetic last name of the person.  Single value
     type: String
   - name: middleName
-    description: The middle name of the person.  Single value
+    summary: The middle name of the person.  Single value
     type: String
   - name: middlePhonetic
-    description: The phonetic middle name of the person.  Single value
+    summary: The phonetic middle name of the person.  Single value
     type: String
   - name: modified
-    description: The most recent date the person was modified.  Single value, format is "yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000", read-only
+    summary: The most recent date the person was modified.  Single value, format is "yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000", read-only
     type: String
   - name: nickname
-    description: The nickname of the person.  Single value
+    summary: The nickname of the person.  Single value
     type: String
   - name: note
-    description: Notes for the person.  Single value
+    summary: Notes for the person.  Single value
     type: String
   - name: organization
-    description: The organization the person belongs to.  Single value
+    summary: The organization the person belongs to.  Single value
     type: String
   - name: phone
-    description: |
+    summary: |
         The phone numbers for the person.  Multi-value, valid labels are: `home`, `work`, `other`, `mobile`, `pager`, `workFax`, `homeFax`, `main`, `iPhone`.  Values are strings.
     type: Object
   - name: prefix
-    description: The prefix for the person.  Single value
+    summary: The prefix for the person.  Single value
     type: String
   - name: relatedNames
-    description: |
+    summary: |
         The names of people the person is related to.  Multi-value, valid labels are: `mother`, `father`, `parent`, `sister`, `brother`, `child`, `friend`, `spouse`, `partner`, `manager`, `assistant`.  Values are strings.
     type: Object
   - name: suffix
-    description: The suffix for the person.  Single value
+    summary: The suffix for the person.  Single value
     type: String
-notes: |
+description: |
     There are two kinds of properties: single value and multivalue.  Single value properties are returned as a direct value, while mutlivalue properties are returned as dictionary objects with keys which represent labels of the property, with values that are arrays of all values in the property which correspond to that label (e.g. {"home" : [address1, address2]})

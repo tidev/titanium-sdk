@@ -1,167 +1,167 @@
 ---
 name: Titanium.UI.iOS
-description: The Apple iOS specific UI capabilities.  All properties, methods and events in this namespace will only work on the Apple iOS related devices.
+summary: The Apple iOS specific UI capabilities.  All properties, methods and events in this namespace will only work on the Apple iOS related devices.
 extends: Titanium.Module
 since: "1.4"
 platforms: [iphone, ipad]
 properties:
   - name: ANIMATION_CURVE_EASE_IN
-    description: animation curve constant
+    summary: animation curve constant
     type: Number
     permission: read-only
   - name: ANIMATION_CURVE_EASE_IN_OUT
-    description: animation curve constant
+    summary: animation curve constant
     type: Number
     permission: read-only
   - name: ANIMATION_CURVE_EASE_OUT
-    description: animation curve constant
+    summary: animation curve constant
     type: Number
     permission: read-only
   - name: ANIMATION_CURVE_LINEAR
-    description: animation curve constant
+    summary: animation curve constant
     type: Number
     permission: read-only
   - name: AUTODETECT_ADDRESS
-    description: text autodetection constant (iOS 4.0+)
+    summary: text autodetection constant (iOS 4.0+)
     platforms: [iphone, ipad]
     osver: {ios: {min: "4.0"}}
     permission: read-only
     type: Number
   - name: AUTODETECT_ALL
-    description: text autodetection constant (iOS)
+    summary: text autodetection constant (iOS)
     platforms: [iphone, ipad]
     type: Number
     permission: read-only
   - name: AUTODETECT_CALENDAR
-    description: text autodetection constant (iOS 4.0+)
+    summary: text autodetection constant (iOS 4.0+)
     platforms: [iphone, ipad]
     osver: {ios: {min: "4.0"}}
     type: Number
     permission: read-only
   - name: AUTODETECT_LINK
-    description: text autodetection constant (iOS)
+    summary: text autodetection constant (iOS)
     platforms: [iphone, ipad]
     type: Number
     permission: read-only
   - name: AUTODETECT_NONE
-    description: text autodetection constant (iOS)
+    summary: text autodetection constant (iOS)
     platforms: [iphone, ipad]
     type: Number
     permission: read-only
   - name: AUTODETECT_PHONE
-    description: text autodetection constant (iOS)
+    summary: text autodetection constant (iOS)
     platforms: [iphone, ipad]
     type: Number
     permission: read-only
   - name: BLEND_MODE_CLEAR
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_COLOR
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_COLOR_BURN
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_COLOR_DODGE
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_COPY
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_DARKEN
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_DESTINATION_ATOP
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_DESTINATION_IN
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_DESTINATION_OUT
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_DESTINATION_OVER
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_DIFFERENCE
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_EXCLUSION
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_HARD_LIGHT
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_HUE
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_LIGHTEN
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_LUMINOSITY
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_MULTIPLY
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_NORMAL
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_OVERLAY
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_PLUS_DARKER
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_PLUS_LIGHTER
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_SATURATION
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_SCREEN
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_SOFT_LIGHT
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_SOURCE_ATOP
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_SOURCE_IN
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_SOURCE_OUT
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only
   - name: BLEND_MODE_XOR
-    description: image mode constant
+    summary: image mode constant
     type: Number
     permission: read-only

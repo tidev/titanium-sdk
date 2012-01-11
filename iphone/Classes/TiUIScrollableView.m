@@ -257,6 +257,7 @@
 {
     lastPage = [self currentPage];
     [super setFrame:frame_];
+	[self setCurrentPage_:[NSNumber numberWithInt:lastPage]];
 }
 
 -(void)setBounds:(CGRect)bounds_
@@ -414,7 +415,7 @@
 
 -(void)manageRotation
 {
-    if ([scrollview isDecelerating]) {
+    if ([scrollview isDecelerating] || [scrollview isDragging]) {
         rotatedWhileScrolling = YES;
     }
 }

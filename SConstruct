@@ -17,6 +17,7 @@ sys.path.append(path.join(cwd,"support","android"))
 import titanium_version, ant
 from androidsdk import AndroidSDK
 version = titanium_version.version
+module_apiversion = titanium_version.module_apiversion
 
 # allow it to be overriden on command line or in env
 if os.environ.has_key('PRODUCT_VERSION'):
@@ -69,9 +70,8 @@ if clean and os.path.exists('iphone/iphone/build'):
 
 # TEMP until android is merged
 build_type = 'full'
-build_dirs = ['iphone', 'android']
+build_dirs = ['iphone', 'android', 'mobileweb']
 force_iphone = False
-
 if ARGUMENTS.get('iphone',0):
 	build_type='iphone'
 	build_dirs=['iphone']
@@ -83,6 +83,10 @@ if ARGUMENTS.get('android',0):
 if ARGUMENTS.get('ipad',0):
 	build_type='ipad'
 	build_dirs=['ipad']
+
+if ARGUMENTS.get('mobileweb',0):
+	build_type='mobileweb'
+	build_dirs=['mobileweb']
 
 if ARGUMENTS.get('force_iphone',0):
 	force_iphone = True
@@ -96,13 +100,17 @@ if build_type in ['full', 'android'] and not only_package:
 	d = os.getcwd()
 	os.chdir('android')
 	try:
-		sdk = AndroidSDK(ARGUMENTS.get("android_sdk", None), 7)
-		targets = ["full.build", "build.titanium.javadoc"]
+		sdk = AndroidSDK(ARGUMENTS.get("android_sdk", None), 8)
+		# TODO re-enable javadoc targets = ["full.build", "build.titanium.javadoc"]
+		targets = ["full.build"]
 		if clean: targets = ["clean"]
 		elif "ant_targets" in ARGUMENTS: targets = ARGUMENTS["ant_targets"].split(",")
-			
+
+		javah_path = os.path.join(os.path.dirname(ant.get_java()), "javah")
+
 		ant.build(targets=targets, properties={"build.version": version, "build.githash": githash,
-			"android.sdk": sdk.get_android_sdk(), "android.platform": sdk.get_platform_dir(), "google.apis": sdk.get_google_apis_dir()})
+			"android.sdk": sdk.get_android_sdk(), "android.platform": sdk.get_platform_dir(), "google.apis": sdk.get_google_apis_dir(),
+			"ndk.build.args": "JAVAH=%s" % javah_path })
 	finally:
 		os.chdir(d)
 
@@ -126,6 +134,15 @@ if build_type in ['full', 'iphone', 'ipad'] and not only_package \
 	finally:
 		os.chdir(d)
 
+if build_type in ['full', 'mobileweb'] and not only_package:
+	d = os.getcwd()
+	os.chdir('mobileweb')
+	try:
+		if clean: build_type = "clean"
+		# nothing to do... yet
+	finally:
+		os.chdir(d)
+
 def install_mobilesdk(version_tag):
 	if (platform.system() == "Darwin"):
 		os_names = { "Windows":"win32", "Linux":"linux", "Darwin":"osx" }
@@ -139,13 +156,16 @@ def package_sdk(target, source, env):
 	android = build_type in ['full', 'android']
 	iphone = build_type in ['full', 'iphone']
 	ipad = build_type in ['full', 'ipad']
+	mobileweb = build_type in ['full', 'mobileweb']
 	package_all = ARGUMENTS.get('package_all', 0)
 	version_tag = ARGUMENTS.get('version_tag', version)
+	build_jsca = int(ARGUMENTS.get('build_jsca', 1))
 	print "Packaging MobileSDK (%s)..." % version_tag
+	packager = package.Packager(build_jsca=build_jsca)
 	if package_all:
-		package.Packager().build_all_platforms(os.path.abspath('dist'), version, android, iphone, ipad, version_tag)
+		packager.build_all_platforms(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, version_tag)
 	else:
-		package.Packager().build(os.path.abspath('dist'), version, android, iphone, ipad, version_tag)
+		packager.build(os.path.abspath('dist'), version, module_apiversion, android, iphone, ipad, mobileweb, version_tag)
 	if install and not clean:
 		install_mobilesdk(version_tag)
 

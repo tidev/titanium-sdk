@@ -97,7 +97,6 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 -(BOOL)_isChildOfTab;
 -(void)_associateTab:(UIViewController*)controller_ navBar:(UINavigationController*)navbar_ tab:(TiProxy<TiTab>*)tab_;
 -(void)prepareForNavView:(UINavigationController*)navController_;
--(void)ignoringRotationToOrientation:(UIInterfaceOrientation)orientation;
 
 @property(nonatomic,readwrite,retain)	UIViewController *controller;
 @property(nonatomic,readwrite,retain)	UINavigationController *navController;

@@ -15,6 +15,7 @@
 #import "TiViewProxy.h"
 #import "TiUITableViewProxy.h"
 #import "TiApp.h"
+#import "TiLayoutQueue.h"
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
 
@@ -28,7 +29,7 @@
 -(id)initWithStyle:(UITableViewCellStyle)style_ reuseIdentifier:(NSString *)reuseIdentifier_ row:(TiUITableViewRowProxy *)row_
 {
 	if (self = [super initWithStyle:style_ reuseIdentifier:reuseIdentifier_]) {
-		proxy = row_;
+		proxy = [row_ retain];
 		[proxy setCallbackCell:self];
 		self.exclusiveTouch = YES;
 	}
@@ -40,6 +41,7 @@
 {
     [proxy setCallbackCell:nil];
     
+    RELEASE_TO_NIL(proxy);
 	RELEASE_TO_NIL(gradientLayer);
 	RELEASE_TO_NIL(backgroundGradient);
 	RELEASE_TO_NIL(selectedBackgroundGradient);
@@ -55,7 +57,8 @@
     if ([proxy callbackCell] == self) {
         [proxy setCallbackCell:nil];
     }
-    proxy = proxy_;
+    [proxy release];
+    proxy = [proxy_ retain];
 }
 
 -(CGSize)computeCellSize
@@ -78,10 +81,7 @@
 
 -(void)prepareForReuse
 {
-    // If we're reusing a cell, it obviously isn't attached to a proxy.
-    [proxy setCallbackCell:nil];
-    proxy = nil;
-    
+	[self setProxy:nil];
 	[super prepareForReuse];
 	
 	// TODO: HACK: In the case of abnormally large table view cells, we have to reset the size.
@@ -134,6 +134,10 @@
 {
 	[super layoutSubviews];
 	[gradientLayer setFrame:[self bounds]];
+    
+    // In order to avoid ugly visual behavior, whenever a cell is laid out, we MUST relayout the
+    // row concurrently.
+    [TiLayoutQueue layoutProxy:proxy];
 }
 
 -(BOOL) selectedOrHighlighted
@@ -165,7 +169,14 @@
 	[gradientLayer setGradient:currentGradient];
 	if([gradientLayer superlayer] != ourLayer)
 	{
-		[ourLayer insertSublayer:gradientLayer below:[[self contentView] layer]];
+        CALayer* contentLayer = [[self contentView] layer];
+		[ourLayer insertSublayer:gradientLayer below:contentLayer];
+        
+        // If we're working with a row that just has a label drawn on it, we need to
+        // set the background color of the label explicitly
+        if ([[self textLabel] text] != nil) {
+            [[self textLabel] setBackgroundColor:[UIColor clearColor]];
+        }
 	}
 	[gradientLayer setNeedsDisplay];
 }
@@ -326,7 +337,10 @@
 		tableview.delegate = self;
 		tableview.dataSource = self;
 		tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-		
+		if (TiDimensionIsPixels(rowHeight))
+		{
+			[tableview setRowHeight:rowHeight.value];
+		}		
 		[self setBackgroundColor:[TiUtils colorValue:[[self proxy] valueForKey:@"backgroundColor"]] onTable:tableview];
 		
 		[self updateSearchView];
@@ -362,20 +376,22 @@
 -(void)reloadDataFromCount:(int)oldCount toCount:(int)newCount animation:(UITableViewRowAnimation)animation
 {
 	UITableView *table = [self tableView];
-	
-	if ((animation == UITableViewRowAnimationNone) && ![tableview isEditing])
-	{
-		if([NSThread isMainThread])
-		{
-			[tableview reloadData];
-		}
-		else
-		{
-			[tableview performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
-		}
-		return;
-	}
-
+    
+    // Apple kindly forces animations whenever we're inserting/deleting in a no-animation
+    // way, meaning that we have to explicitly reload the whole visible table to get
+    // the "right" behavior.
+    if (animation == UITableViewRowAnimationNone) {
+        if (![NSThread isMainThread]) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [table reloadData];
+            });
+        }
+        else {
+            [table reloadData];            
+        }
+        return;
+    }
+    
 	//Table views hate having 0 sections, so we have to act like it has at least 1.
 	oldCount = MAX(1,oldCount);
 	newCount = MAX(1,newCount);
@@ -383,7 +399,7 @@
 	int commonality = MIN(oldCount,newCount);
 	oldCount -= commonality;
 	newCount -= commonality;
-	
+    
 	[tableview beginUpdates];
 	if (commonality > 0)
 	{
@@ -421,6 +437,13 @@
 		}
 	}
 	
+    // Make sure that before we update the section count, the table has been created;
+    // this prevents consistency errors on loading the initial dataset when it contains
+    // more than one section.
+    if (tableview == nil) {
+        [self tableView];
+    }
+    
 	[ourProxy setSections:data];
 
 	int newCount = 0;	//Since we're iterating anyways, we might as well not get count.
@@ -531,6 +554,7 @@
 	ENSURE_UI_THREAD(dispatchAction,action);
 	
 	NSMutableArray * sections = [(TiUITableViewProxy *)[self proxy] sections];
+    BOOL reloadSearch = NO;
 	switch (action.type)
 	{
 		case TiUITableViewActionRowReload:
@@ -674,6 +698,7 @@
 		case TiUITableViewActionSetData:
 		{
 			[self replaceData:action.obj animation:action.animation];
+            reloadSearch = YES;
 			break;
 		}
 		case TiUITableViewActionAppendRow:
@@ -695,9 +720,18 @@
 	}
 
 	if ([searchController searchResultsTableView] != nil) {
-		[self updateSearchResultIndexes];
-		[[searchController searchResultsTableView] reloadSections:[NSIndexSet indexSetWithIndex:0]
-					   withRowAnimation:UITableViewRowAnimationFade];		
+        [self updateSearchResultIndexes];
+        
+        // Because -[UITableView reloadData] queues on the main runloop, we need to sync the search
+        // table reload to the same method. The only time we reloadData, though, is when setting the
+        // data, so toggle a flag to indicate what the search should do.
+        if (reloadSearch) {
+            [[searchController searchResultsTableView] reloadData];
+        }
+        else {
+            [[searchController searchResultsTableView] reloadSections:[NSIndexSet indexSetWithIndex:0]
+                                                     withRowAnimation:UITableViewRowAnimationFade];
+        }
 	}
 }
 
@@ -1359,9 +1393,17 @@
 	}
     
 	int sectionCount = [self numberOfSectionsInTableView:tableview]-1;
-	[self reloadDataFromCount:sectionCount toCount:sectionCount animation:UITableViewRowAnimationNone];
-	// HACK - Should just reload section indexes when reloadSelectionIndexTitles functions properly.
-    //[[self tableView] reloadSectionIndexTitles];  THIS DOESN'T WORK.
+
+    // Instead of calling back through our mechanism to reload specific sections, because the entire index of the table
+    // has been regenerated, we can assume it's okay to just reload the whole dataset.
+    if ([NSThread isMainThread]) {
+        [[self tableView] reloadData];
+    }
+    else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[self tableView] reloadData];
+        });
+    }
 }
 
 -(void)setFilterCaseInsensitive_:(id)caseBool
@@ -1522,14 +1564,6 @@ if(ourTableView != tableview)	\
         // Have to reset the proxy on the cell, and the row's callback cell, as it may have been cleared in reuse operations (or reassigned)
         [(TiUITableViewCell*)cell setProxy:row];
         [row setCallbackCell:(TiUITableViewCell*)cell];
-        
-		/*
-		 * Old-school style:
-		// in the case of a reuse, we need to tell the row proxy to update the data
-		// in the re-used cell with this proxy's contents
-		[row renderTableViewCell:cell];
-		 *
-		 */
 	}
 	[row initializeTableViewCell:cell];
 	
@@ -1871,7 +1905,6 @@ if(ourTableView != tableview)	\
 	TiUIView *view = [self sectionView:section forLocation:@"headerView" section:&sectionProxy];
 	TiViewProxy *viewProxy = (TiViewProxy *)[view proxy];
 	CGFloat size = 0;
-	BOOL hasTitle = NO;
 	if (viewProxy!=nil)
 	{
 		LayoutConstraint *viewLayout = [viewProxy layoutProperties];
@@ -1888,15 +1921,26 @@ if(ourTableView != tableview)	\
 				break;
 		}
 	}
+    /*
+     * This behavior is slightly more complex between iOS 4 and iOS 5 than you might believe, and Apple's
+     * documentation is once again misleading. It states that in iOS 4 this value was "ignored if
+     * -[delegate tableView:viewForHeaderInSection:] returned nil" but apparently a non-nil value for
+     * -[delegate tableView:titleForHeaderInSection:] is considered a valid value for height handling as well,
+     * provided it is NOT the empty string.
+     * 
+     * So for parity with iOS 4, iOS 5 must similarly treat the empty string header as a 'nil' value and
+     * return a 0.0 height that is overridden by the system.
+     */
 	else if ([sectionProxy headerTitle]!=nil)
 	{
-		hasTitle = YES;
+        if ([TiUtils isIOS5OrGreater] && [[sectionProxy headerTitle] isEqualToString:@""]) {
+            return size;
+        }
 		size+=[tableview sectionHeaderHeight];
-	}
-	
-	if (hasTitle && size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT)
-	{
-		size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+        
+        if (size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT) {
+            size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;            
+        }
 	}
 	return size;
 }
@@ -2040,14 +2084,6 @@ if(ourTableView != tableview)	\
 
 #pragma mark Search Display Controller Delegates
 
-- (void) searchDisplayController:(UISearchDisplayController *)controller willShowSearchResultsTableView:(UITableView *)tableView
-{
-    // Carry over (relevant) display properties from our table to the search table, for consistency.  Note that
-    // we MAY NOT be able to get the correct row height min/max.
-    [tableView setBackgroundColor:[[self tableView] backgroundColor]];
-    [tableView setSeparatorStyle:[[self tableView] separatorStyle]];
-    [tableView setSeparatorColor:[[self tableView] separatorColor]];
-}
 
 - (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
 {

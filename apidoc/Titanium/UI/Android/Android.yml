@@ -1,165 +1,165 @@
 ---
 name: Titanium.UI.Android
-description: The Android specific UI capabilities. All properties, methods and events in this namespace will only work on Android related devices.
+summary: The Android specific UI capabilities. All properties, methods and events in this namespace will only work on Android related devices.
 extends: Titanium.Module
 since: "1.0"
 platforms: [android]
 methods:
   - name: hideSoftKeyboard
-    description: |
+    summary: |
         request that the soft keyboard hide. Note: It is not currently possible in the native Android API to detect that the keyboard is already visible. Note: It is not possible to globally show the keyboard at this point.
   - name: openPreferences
-    description: open Android native preferences UI activity. You need to place your preferences.xml file in the platform/android/res/xml/ folder of your project. Documentation on the file format may be found in the [Android documentation](http://developer.android.com/resources/samples/ApiDemos/res/xml/preferences.html)
+    summary: open Android native preferences UI activity. You need to place your preferences.xml file in the platform/android/res/xml/ folder of your project. Documentation on the file format may be found in the [Android documentation](http://developer.android.com/resources/samples/ApiDemos/res/xml/preferences.html)
 properties:
   - name: LINKIFY_ALL
-    description: Auto link all supported types.
+    summary: Auto link all supported types.
     type: Number
     permission: read-only
   - name: LINKIFY_EMAIL_ADDRESSES
-    description: Auto link email addresses.
+    summary: Auto link email addresses.
     type: Number
     permission: read-only
   - name: LINKIFY_MAP_ADDRESSES
-    description: Auto link physical addresses.
+    summary: Auto link physical addresses.
     type: Number
     permission: read-only
   - name: LINKIFY_MAP_LINKS
-    description: Convert all street addresses to clickable links
+    summary: Convert all street addresses to clickable links
     type: Number
     permission: read-only
   - name: LINKIFY_PHONE_NUMBERS
-    description: Auto link phone numbers.
+    summary: Auto link phone numbers.
     type: Number
     permission: read-only
   - name: LINKIFY_WEB_URLS
-    description: Auto link web urls.
+    summary: Auto link web urls.
     type: Number
     permission: read-only
   - name: PIXEL_FORMAT_A_8
-    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
     type: Number
     permission: read-only
     since: "1.8.0"
   - name: PIXEL_FORMAT_LA_88
-    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
     type: Number
     permission: read-only
     since: "1.8.0"
   - name: PIXEL_FORMAT_L_8
-    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
     type: Number
     permission: read-only
     since: "1.8.0"
   - name: PIXEL_FORMAT_OPAQUE
-    description: System chooses an opaque format (no alpha bits required) [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: System chooses an opaque format (no alpha bits required) [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
     type: Number
     permission: read-only
     since: "1.8.0"
   - name: PIXEL_FORMAT_RGBA_4444
-    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
     type: Number
     permission: read-only
     since: "1.8.0"
   - name: PIXEL_FORMAT_RGBA_5551
-    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
     type: Number
     permission: read-only
     since: "1.8.0"
   - name: PIXEL_FORMAT_RGBA_8888
-    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
     type: Number
     permission: read-only
     since: "1.8.0"
   - name: PIXEL_FORMAT_RGBX_8888
-    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
     type: Number
     permission: read-only
     since: "1.8.0"
   - name: PIXEL_FORMAT_RGB_332
-    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
     type: Number
     permission: read-only
     since: "1.8.0"
   - name: PIXEL_FORMAT_RGB_565
-    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
     type: Number
     permission: read-only
     since: "1.8.0"
   - name: PIXEL_FORMAT_RGB_888
-    description: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: See [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
     type: Number
     permission: read-only
     since: "1.8.0"
   - name: PIXEL_FORMAT_TRANSLUCENT
-    description: System chooses a format that supports translucency (many alpha bits). [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: System chooses a format that supports translucency (many alpha bits). [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
     type: Number
     permission: read-only
     since: "1.8.0"
   - name: PIXEL_FORMAT_TRANSPARENT
-    description: System chooses a format that supports transparency (at least 1 alpha bit). [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: System chooses a format that supports transparency (at least 1 alpha bit). [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
     type: Number
     permission: read-only
     since: "1.8.0"
   - name: PIXEL_FORMAT_UNKNOWN
-    description: Allow the Window to select the format. [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
+    summary: Allow the Window to select the format. [Android Documentation for PixelFormat](http://developer.android.com/reference/android/graphics/PixelFormat.html)
     type: Number
     permission: read-only
     since: "1.8.0"
   - name: SOFT_INPUT_ADJUST_PAN
-    description: Pan contents when soft keyboard is visible. Use on Activity ("heavy weight window") to suggest how the virtual keyboard should treat the window contents. Must be specified in creation options.
+    summary: Pan contents when soft keyboard is visible. Use on Activity ("heavy weight window") to suggest how the virtual keyboard should treat the window contents. Must be specified in creation options.
     type: Number
     permission: read-only
   - name: SOFT_INPUT_ADJUST_RESIZE
-    description: Resize contents when soft keyboard is visible. Use on Activity ("heavy weight window") to suggest how the virtual keyboard should treat the window contents. Must be specified in creation options.
+    summary: Resize contents when soft keyboard is visible. Use on Activity ("heavy weight window") to suggest how the virtual keyboard should treat the window contents. Must be specified in creation options.
     type: Number
     permission: read-only
   - name: SOFT_INPUT_ADJUST_UNSPECIFIED
-    description: (default) If set in the AndroidManifest.xml use that setting. Otherwise, let the keyboard decided. Must be specified in creation options.
+    summary: (default) If set in the AndroidManifest.xml use that setting. Otherwise, let the keyboard decided. Must be specified in creation options.
     type: Number
     permission: read-only
   - name: SOFT_INPUT_STATE_HIDDEN
-    description: Attempt to hide the soft keyboard when control receives keyboard focus.
+    summary: Attempt to hide the soft keyboard when control receives keyboard focus.
     type: Number
     permission: read-only
   - name: SOFT_INPUT_STATE_UNSPECIFIED
-    description: Use OS default behavior for keyboard focus.
+    summary: Use OS default behavior for keyboard focus.
     type: Number
     permission: read-only
   - name: SOFT_INPUT_STATE_VISIBLE
-    description: Attempt to show the soft keyboard when control receives keyboard focus.
+    summary: Attempt to show the soft keyboard when control receives keyboard focus.
     type: Number
     permission: read-only
   - name: SOFT_KEYBOARD_DEFAULT_ON_FOCUS
-    description: Use Android default soft keyboard handling. Same as not specifying a value.
+    summary: Use Android default soft keyboard handling. Same as not specifying a value.
     type: Number
     permission: read-only
   - name: SOFT_KEYBOARD_HIDE_ON_FOCUS
-    description: |
+    summary: |
         Request hide soft keyboard on focus. Note: OS can override request.
     type: Number
     permission: read-only
   - name: SOFT_KEYBOARD_SHOW_ON_FOCUS
-    description: |
+    summary: |
         Request show soft keyboard on focus. Note: OS can override request.
     type: Number
     permission: read-only
   - name: SWITCH_STYLE_CHECKBOX
-    description: Display Switch as an Android Checkbox
+    summary: Display Switch as an Android Checkbox
     type: Number
     permission: read-only
   - name: SWITCH_STYLE_TOGGLEBUTTON
-    description: Display Switch as an Android Toggle Button (default)
+    summary: Display Switch as an Android Toggle Button (default)
     type: Number
     permission: read-only
   - name: WEBVIEW_PLUGINS_OFF
-    description: Disable plugins in <Titanium.UI.WebView>.
+    summary: Disable plugins in <Titanium.UI.WebView>.
     type: Number
     permission: read-only
   - name: WEBVIEW_PLUGINS_ON
-    description: Enable plugins in <Titanium.UI.WebView>.
+    summary: Enable plugins in <Titanium.UI.WebView>.
     type: Number
     permission: read-only
-  - name: WEBVIEW_PLUGINS_OFF
-    description: Display a placeholder and only load plugins when user selects placeholder.
+  - name: WEBVIEW_PLUGINS_ON_DEMAND
+    summary: Display a placeholder and only load plugins when user selects placeholder.
     type: Number
     permission: read-only
