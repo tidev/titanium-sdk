@@ -17,6 +17,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiProperties;
@@ -105,17 +106,20 @@ public class TiMapView extends TiUIView
 		private int lastLatitudeSpan;
 		private int lastLongitudeSpan;
 
-		public LocalMapView(Context context, String apiKey) {
+		public LocalMapView(Context context, String apiKey)
+		{
 			super(context, apiKey);
 			scrollEnabled = false;
 		}
 
-		public void setScrollable(boolean enable) {
+		public void setScrollable(boolean enable)
+		{
 			scrollEnabled = enable;
 		}
 
 		@Override
-		public boolean dispatchTouchEvent(MotionEvent ev) {
+		public boolean dispatchTouchEvent(MotionEvent ev)
+		{
 			if (!scrollEnabled && ev.getAction() == MotionEvent.ACTION_MOVE) {
 				return true;
 			}
@@ -123,7 +127,8 @@ public class TiMapView extends TiUIView
 		}
 
 		@Override
-		public boolean dispatchTrackballEvent(MotionEvent ev) {
+		public boolean dispatchTrackballEvent(MotionEvent ev)
+		{
 			if (!scrollEnabled && ev.getAction() == MotionEvent.ACTION_MOVE) {
 				return true;
 			}
@@ -131,7 +136,8 @@ public class TiMapView extends TiUIView
 		}
 
 		@Override
-		public void computeScroll() {
+		public void computeScroll()
+		{
 			super.computeScroll();
 			GeoPoint center = getMapCenter();
 			if (lastLatitude != center.getLatitudeE6() || lastLongitude != center.getLongitudeE6() ||
@@ -183,13 +189,23 @@ public class TiMapView extends TiUIView
 				//prefer pinImage to pincolor.
 				if (p.hasProperty(TiC.PROPERTY_IMAGE) || p.hasProperty(TiC.PROPERTY_PIN_IMAGE))
 				{
-					String imagePath = TiConvert.toString(p.getProperty(TiC.PROPERTY_IMAGE));
-					if (imagePath == null) {
-						imagePath = TiConvert.toString(p.getProperty(TiC.PROPERTY_PIN_IMAGE));
+					Object imageProperty = p.getProperty(TiC.PROPERTY_IMAGE);
+					Drawable marker;
+					if (imageProperty instanceof TiBlob) {
+						marker = makeMarker((TiBlob) imageProperty);
+					} else {
+						marker = makeMarker(TiConvert.toString(imageProperty));
 					}
-					Drawable marker = makeMarker(imagePath);
-					boundCenterBottom(marker);
-					item.setMarker(marker);
+
+					// Default to PIN_IMAGE if we were unable to make a marker from IMAGE
+					if (marker == null) {
+						marker = makeMarker(TiConvert.toString(p.getProperty(TiC.PROPERTY_PIN_IMAGE)));
+					}
+
+					if (marker != null) {
+						boundCenterBottom(marker);
+						item.setMarker(marker);
+					}
 				} else if (p.hasProperty(TiC.PROPERTY_PINCOLOR)) {
 					Object value = p.getProperty(TiC.PROPERTY_PINCOLOR);
 					
@@ -267,7 +283,8 @@ public class TiMapView extends TiUIView
 		}
 	}
 
-	public static class SelectedAnnotation {
+	public static class SelectedAnnotation
+	{
 		String title;
 		boolean animate;
 		boolean center;
@@ -327,7 +344,8 @@ public class TiMapView extends TiUIView
 		TiMapActivity ma = (TiMapActivity) mapWindow.getContext();
 
 		ma.setLifecycleListener(new OnLifecycleEvent() {
-			public void onPause(Activity activity) {
+			public void onPause(Activity activity)
+			{
 				if (myLocation != null) {
 					if (DBG) {
 						Log.d(LCAT, "onPause: Disabling My Location");
@@ -335,7 +353,8 @@ public class TiMapView extends TiUIView
 					myLocation.disableMyLocation();
 				}
 			}
-			public void onResume(Activity activity) {
+			public void onResume(Activity activity)
+			{
 				if (myLocation != null && userLocation) {
 					if (DBG) {
 						Log.d(LCAT, "onResume: Enabling My Location");
@@ -381,11 +400,13 @@ public class TiMapView extends TiUIView
 		});
 	}
 
-	private LocalMapView getView() {
+	private LocalMapView getView()
+	{
 		return view;
 	}
 
-	public boolean handleMessage(Message msg) {
+	public boolean handleMessage(Message msg)
+	{
 		switch(msg.what) {
 			case MSG_SET_LOCATION : {
 				doSetLocation((KrollDict) msg.obj);
@@ -441,14 +462,16 @@ public class TiMapView extends TiUIView
 		return false;
 	}
 
-	private void hideAnnotation() {
+	private void hideAnnotation()
+	{
 		if (view != null && itemView != null) {
 			view.removeView(itemView);
 			itemView.clearLastIndex();
 		}
 	}
 
-	private void showAnnotation(int index, TiOverlayItem item) {
+	private void showAnnotation(int index, TiOverlayItem item)
+	{
 		if (view != null && itemView != null && item != null) {
 			itemView.setItem(index, item);
 			//Make sure the annotation is always on top of the marker
@@ -461,18 +484,21 @@ public class TiMapView extends TiUIView
 		}
 	}
 
-	public void updateAnnotations() {
+	public void updateAnnotations()
+	{
 		handler.obtainMessage(MSG_UPDATE_ANNOTATIONS).sendToTarget();
 	}
 
-	public void doUpdateAnnotations() {
+	public void doUpdateAnnotations()
+	{
 		if (itemView != null && view != null && view.indexOfChild(itemView) != -1 ) {
 			hideAnnotation();
 		}
 		doSetAnnotations(annotations);
 	}
 
-	public void onTap(int index) {
+	public void onTap(int index)
+	{
 		if (overlay != null) {
 			synchronized(overlay) {
 				TiOverlayItem item = overlay.getItem(index);
@@ -492,7 +518,8 @@ public class TiMapView extends TiUIView
 	}
 
 	@Override
-	public void processProperties(KrollDict d) {
+	public void processProperties(KrollDict d)
+	{
 		LocalMapView view = getView();
 		if (d.containsKey(TiC.PROPERTY_MAP_TYPE)) {
 			doSetMapType(TiConvert.toInt(d, TiC.PROPERTY_MAP_TYPE));
@@ -528,7 +555,8 @@ public class TiMapView extends TiUIView
 	}
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+	{
 		if (key.equals(TiC.PROPERTY_LOCATION)) {
 			if (newValue != null) {
 				if (newValue instanceof AnnotationProxy) {
@@ -552,7 +580,8 @@ public class TiMapView extends TiUIView
 		}
 	}
 
-	public void doSetLocation(HashMap<String, Object> location) {
+	public void doSetLocation(HashMap<String, Object> location)
+	{
 		LocalMapView view = getView();
 		if (location.containsKey(TiC.PROPERTY_LONGITUDE) && location.containsKey(TiC.PROPERTY_LATITUDE)) {
 			GeoPoint gp = new GeoPoint(scaleToGoogle(TiConvert.toDouble(location, TiC.PROPERTY_LATITUDE)), scaleToGoogle(TiConvert.toDouble(location, TiC.PROPERTY_LONGITUDE)));
@@ -573,7 +602,8 @@ public class TiMapView extends TiUIView
 		}
 	}
 
-	public void doSetMapType(int type) {
+	public void doSetMapType(int type)
+	{
 		if (view != null) {
 			switch(type) {
 			case MAP_VIEW_STANDARD :
@@ -712,7 +742,8 @@ public class TiMapView extends TiUIView
 		}
 	}
 
-	public void changeZoomLevel(int delta) {
+	public void changeZoomLevel(int delta)
+	{
 		handler.obtainMessage(MSG_CHANGE_ZOOM, delta, 0).sendToTarget();
 	}
 
@@ -729,22 +760,41 @@ public class TiMapView extends TiUIView
 
 	private Drawable makeMarker(String pinImage)
 	{
-		String url = proxy.resolveUrl(null, pinImage);
-		TiBaseFile file = TiFileFactory.createTitaniumFile(new String[] { url }, false);
-		try {
-			Drawable d = new BitmapDrawable(TiUIHelper.createBitmap(file.getInputStream()));
-			d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
-			return d;
-		} catch (IOException e) {
-			Log.e(LCAT, "Error creating drawable from path: " + pinImage.toString(), e);
+		if (pinImage != null) {
+			String url = proxy.resolveUrl(null, pinImage);
+			TiBaseFile file = TiFileFactory.createTitaniumFile(new String[] { url }, false);
+			try {
+				Drawable d = new BitmapDrawable(mapWindow.getContext().getResources(), TiUIHelper.createBitmap(file
+					.getInputStream()));
+				d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+				return d;
+			} catch (IOException e) {
+				Log.e(LCAT, "Error creating drawable from path: " + pinImage.toString(), e);
+			}
 		}
 		return null;
 	}
-	private double scaleFromGoogle(int value) {
+
+	private Drawable makeMarker(TiBlob pinImage)
+	{
+		if (pinImage == null) {
+			return null;
+		}
+		Drawable d = new BitmapDrawable(mapWindow.getContext().getResources(), TiUIHelper.createBitmap(pinImage
+			.getInputStream()));
+		d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+		return d;
+	}
+
+	private double scaleFromGoogle(int value)
+	{
 		return (double)value / 1000000.0;
 	}
 
-	private int scaleToGoogle(double value) {
+	private int scaleToGoogle(double value)
+	{
 		return (int)(value * 1000000);
 	}
 }
+
+
