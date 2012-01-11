@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 45;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -68,7 +68,6 @@
 		24CA8960111161050084E2DE /* ASIHTTPRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8917111161050084E2DE /* ASIHTTPRequest.m */; };
 		24CA8961111161050084E2DE /* ASIInputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891A111161050084E2DE /* ASIInputStream.m */; };
 		24CA8962111161050084E2DE /* ASINetworkQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891C111161050084E2DE /* ASINetworkQueue.m */; };
-		24CA8963111161050084E2DE /* ASINSStringAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891E111161050084E2DE /* ASINSStringAdditions.m */; };
 		24CA8967111161050084E2DE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8926111161050084E2DE /* Reachability.m */; };
 		24CA8968111161050084E2DE /* AudioStreamer.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8929111161050084E2DE /* AudioStreamer.m */; };
 		24CA8969111161050084E2DE /* Base64Transcoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 24CA892A111161050084E2DE /* Base64Transcoder.c */; };
@@ -234,7 +233,6 @@
 		24D8E3C6119B9D8A00F8CAA6 /* ASIInputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891A111161050084E2DE /* ASIInputStream.m */; };
 		24D8E3C7119B9D8A00F8CAA6 /* ASINetworkQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891C111161050084E2DE /* ASINetworkQueue.m */; };
 		24D8E3C8119B9D8A00F8CAA6 /* TiUITextWidgetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829011264FD000A6B66C /* TiUITextWidgetProxy.m */; };
-		24D8E3C9119B9D8A00F8CAA6 /* ASINSStringAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891E111161050084E2DE /* ASINSStringAdditions.m */; };
 		24D8E3CA119B9D8A00F8CAA6 /* TiUITableViewSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */; };
 		24D8E3CB119B9D8A00F8CAA6 /* TiUITableViewStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC9691126632700639DF4 /* TiUITableViewStyleProxy.m */; };
 		24D8E3CC119B9D8A00F8CAA6 /* TiUITableViewSeparatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ECB2411267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m */; };
@@ -594,7 +592,6 @@
 		DABB36AC12E8CB280026A6EA /* ASIInputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891A111161050084E2DE /* ASIInputStream.m */; };
 		DABB36AD12E8CB280026A6EA /* ASINetworkQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891C111161050084E2DE /* ASINetworkQueue.m */; };
 		DABB36AE12E8CB280026A6EA /* TiUITextWidgetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829011264FD000A6B66C /* TiUITextWidgetProxy.m */; };
-		DABB36AF12E8CB280026A6EA /* ASINSStringAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA891E111161050084E2DE /* ASINSStringAdditions.m */; };
 		DABB36B012E8CB280026A6EA /* TiUITableViewSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */; };
 		DABB36B112E8CB280026A6EA /* TiUITableViewStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC9691126632700639DF4 /* TiUITableViewStyleProxy.m */; };
 		DABB36B212E8CB280026A6EA /* TiUITableViewSeparatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ECB2411267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m */; };
@@ -875,6 +872,15 @@
 		DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
 		DAE541E413577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
 		DAE541E513577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
+		EF03EFF313E3665100BD4FF7 /* ASIDataCompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = EF03EFF013E3665100BD4FF7 /* ASIDataCompressor.m */; };
+		EF03EFF413E3665100BD4FF7 /* ASIDataCompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = EF03EFF013E3665100BD4FF7 /* ASIDataCompressor.m */; };
+		EF03EFF513E3665100BD4FF7 /* ASIDataCompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = EF03EFF013E3665100BD4FF7 /* ASIDataCompressor.m */; };
+		EF03EFF613E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = EF03EFF213E3665100BD4FF7 /* ASIDataDecompressor.m */; };
+		EF03EFF713E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = EF03EFF213E3665100BD4FF7 /* ASIDataDecompressor.m */; };
+		EF03EFF813E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */ = {isa = PBXBuildFile; fileRef = EF03EFF213E3665100BD4FF7 /* ASIDataDecompressor.m */; };
+		EF8339D313E3643C001F2A97 /* ASIDownloadCache.m in Sources */ = {isa = PBXBuildFile; fileRef = EF8339D213E3643C001F2A97 /* ASIDownloadCache.m */; };
+		EF8339D413E3643C001F2A97 /* ASIDownloadCache.m in Sources */ = {isa = PBXBuildFile; fileRef = EF8339D213E3643C001F2A97 /* ASIDownloadCache.m */; };
+		EF8339D513E3643C001F2A97 /* ASIDownloadCache.m in Sources */ = {isa = PBXBuildFile; fileRef = EF8339D213E3643C001F2A97 /* ASIDownloadCache.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -974,8 +980,6 @@
 		24CA891A111161050084E2DE /* ASIInputStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIInputStream.m; sourceTree = "<group>"; };
 		24CA891B111161050084E2DE /* ASINetworkQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASINetworkQueue.h; sourceTree = "<group>"; };
 		24CA891C111161050084E2DE /* ASINetworkQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASINetworkQueue.m; sourceTree = "<group>"; };
-		24CA891D111161050084E2DE /* ASINSStringAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASINSStringAdditions.h; sourceTree = "<group>"; };
-		24CA891E111161050084E2DE /* ASINSStringAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASINSStringAdditions.m; sourceTree = "<group>"; };
 		24CA8925111161050084E2DE /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
 		24CA8926111161050084E2DE /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		24CA8928111161050084E2DE /* AudioStreamer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioStreamer.h; sourceTree = "<group>"; };
@@ -1479,6 +1483,13 @@
 		DADD76E813CCF4FF00CD03AC /* MGSplitView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MGSplitView.m; sourceTree = "<group>"; };
 		DAE541E113577BEC00A65123 /* TiDataStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDataStream.h; sourceTree = "<group>"; };
 		DAE541E213577BEC00A65123 /* TiDataStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDataStream.m; sourceTree = "<group>"; };
+		EF03EFEF13E3665100BD4FF7 /* ASIDataCompressor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIDataCompressor.h; sourceTree = "<group>"; };
+		EF03EFF013E3665100BD4FF7 /* ASIDataCompressor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIDataCompressor.m; sourceTree = "<group>"; };
+		EF03EFF113E3665100BD4FF7 /* ASIDataDecompressor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIDataDecompressor.h; sourceTree = "<group>"; };
+		EF03EFF213E3665100BD4FF7 /* ASIDataDecompressor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIDataDecompressor.m; sourceTree = "<group>"; };
+		EF8339D113E3643C001F2A97 /* ASIDownloadCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIDownloadCache.h; sourceTree = "<group>"; };
+		EF8339D213E3643C001F2A97 /* ASIDownloadCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIDownloadCache.m; sourceTree = "<group>"; };
+		EF8339D713E364A0001F2A97 /* ASICacheDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASICacheDelegate.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1702,6 +1713,13 @@
 		24CA8911111161050084E2DE /* ASI */ = {
 			isa = PBXGroup;
 			children = (
+				EF03EFEF13E3665100BD4FF7 /* ASIDataCompressor.h */,
+				EF03EFF013E3665100BD4FF7 /* ASIDataCompressor.m */,
+				EF03EFF113E3665100BD4FF7 /* ASIDataDecompressor.h */,
+				EF03EFF213E3665100BD4FF7 /* ASIDataDecompressor.m */,
+				EF8339D713E364A0001F2A97 /* ASICacheDelegate.h */,
+				EF8339D113E3643C001F2A97 /* ASIDownloadCache.h */,
+				EF8339D213E3643C001F2A97 /* ASIDownloadCache.m */,
 				247FC32811CD5B6B00F97C4E /* ASIHTTPRequestDelegate.h */,
 				247FC32911CD5B6B00F97C4E /* ASIProgressDelegate.h */,
 				24CA8912111161050084E2DE /* ASIAuthenticationDialog.h */,
@@ -1715,8 +1733,6 @@
 				24CA891A111161050084E2DE /* ASIInputStream.m */,
 				24CA891B111161050084E2DE /* ASINetworkQueue.h */,
 				24CA891C111161050084E2DE /* ASINetworkQueue.m */,
-				24CA891D111161050084E2DE /* ASINSStringAdditions.h */,
-				24CA891E111161050084E2DE /* ASINSStringAdditions.m */,
 				24CA8925111161050084E2DE /* Reachability.h */,
 				24CA8926111161050084E2DE /* Reachability.m */,
 			);
@@ -2926,7 +2942,7 @@
 				LastUpgradeCheck = 0420;
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Titanium" */;
-			compatibilityVersion = "Xcode 3.1";
+			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
@@ -3085,7 +3101,6 @@
 				24CA8961111161050084E2DE /* ASIInputStream.m in Sources */,
 				24CA8962111161050084E2DE /* ASINetworkQueue.m in Sources */,
 				243ECCBE112698AA00639DF4 /* TiUITextWidgetProxy.m in Sources */,
-				24CA8963111161050084E2DE /* ASINSStringAdditions.m in Sources */,
 				243ECCAA1126981C00639DF4 /* TiUITableViewSectionProxy.m in Sources */,
 				243ECCAB1126981C00639DF4 /* TiUITableViewStyleProxy.m in Sources */,
 				243ECCAC1126981C00639DF4 /* TiUITableViewSeparatorStyleProxy.m in Sources */,
@@ -3334,6 +3349,11 @@
 				4D3033A3136239B30034640F /* TiFilesystemFileStreamProxy.m in Sources */,
 				DADD76E913CCF4FF00CD03AC /* MGSplitView.m in Sources */,
 				2B1F65771431031E006C5D37 /* ApplicationDefaults.m in Sources */,
+				2B301A8513DA2E290046529F /* TiUIiOS3DMatrix.m in Sources */,
+				EF8339D313E3643C001F2A97 /* ASIDownloadCache.m in Sources */,
+				EF03EFF313E3665100BD4FF7 /* ASIDataCompressor.m in Sources */,
+				EF03EFF613E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */,
+
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3355,7 +3375,6 @@
 				24D8E3C6119B9D8A00F8CAA6 /* ASIInputStream.m in Sources */,
 				24D8E3C7119B9D8A00F8CAA6 /* ASINetworkQueue.m in Sources */,
 				24D8E3C8119B9D8A00F8CAA6 /* TiUITextWidgetProxy.m in Sources */,
-				24D8E3C9119B9D8A00F8CAA6 /* ASINSStringAdditions.m in Sources */,
 				24D8E3CA119B9D8A00F8CAA6 /* TiUITableViewSectionProxy.m in Sources */,
 				24D8E3CB119B9D8A00F8CAA6 /* TiUITableViewStyleProxy.m in Sources */,
 				24D8E3CC119B9D8A00F8CAA6 /* TiUITableViewSeparatorStyleProxy.m in Sources */,
@@ -3604,6 +3623,10 @@
 				B415067A136745E20084074A /* TiFilesystemFileStreamProxy.m in Sources */,
 				DADD76EA13CCF4FF00CD03AC /* MGSplitView.m in Sources */,
 				2B1F65781431031E006C5D37 /* ApplicationDefaults.m in Sources */,
+				2B301A8613DA2E290046529F /* TiUIiOS3DMatrix.m in Sources */,
+				EF8339D413E3643C001F2A97 /* ASIDownloadCache.m in Sources */,
+				EF03EFF413E3665100BD4FF7 /* ASIDataCompressor.m in Sources */,
+				EF03EFF713E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3625,7 +3648,6 @@
 				DABB36AC12E8CB280026A6EA /* ASIInputStream.m in Sources */,
 				DABB36AD12E8CB280026A6EA /* ASINetworkQueue.m in Sources */,
 				DABB36AE12E8CB280026A6EA /* TiUITextWidgetProxy.m in Sources */,
-				DABB36AF12E8CB280026A6EA /* ASINSStringAdditions.m in Sources */,
 				DABB36B012E8CB280026A6EA /* TiUITableViewSectionProxy.m in Sources */,
 				DABB36B112E8CB280026A6EA /* TiUITableViewStyleProxy.m in Sources */,
 				DABB36B212E8CB280026A6EA /* TiUITableViewSeparatorStyleProxy.m in Sources */,
@@ -3874,6 +3896,10 @@
 				B415067D136745FE0084074A /* TiFilesystemFileStreamProxy.m in Sources */,
 				DADD76EB13CCF4FF00CD03AC /* MGSplitView.m in Sources */,
 				2B1F65791431031E006C5D37 /* ApplicationDefaults.m in Sources */,
+				2B301A8713DA2E290046529F /* TiUIiOS3DMatrix.m in Sources */,
+				EF8339D513E3643C001F2A97 /* ASIDownloadCache.m in Sources */,
+				EF03EFF513E3665100BD4FF7 /* ASIDataCompressor.m in Sources */,
+				EF03EFF813E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

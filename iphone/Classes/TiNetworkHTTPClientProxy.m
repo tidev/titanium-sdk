@@ -16,6 +16,7 @@
 #import "TiDOMDocumentProxy.h"
 #import "Mimetypes.h"
 #import "TiFile.h"
+#import "ASIDownloadCache.h"
 
 int CaselessCompare(const char * firstString, const char * secondString, int size)
 {
@@ -335,6 +336,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	}
 	
 	request = [[ASIFormDataRequest requestWithURL:url] retain];	
+    [request setDownloadCache:[ASIDownloadCache sharedCache]];
 	[request setDelegate:self];
     if (timeout) {
         NSTimeInterval timeoutVal = [timeout doubleValue] / 1000;
@@ -370,8 +372,8 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	[request setShouldUseRFC2616RedirectBehaviour:YES];
 	BOOL keepAlive = [TiUtils boolValue:[self valueForKey:@"enableKeepAlive"] def:YES];
 	[request setShouldAttemptPersistentConnection:keepAlive];
-	[request setShouldRedirect:YES];
-	[request setShouldPerformCallbacksOnMainThread:NO];
+	//handled in send, as now optional
+	//[request setShouldRedirect:YES];
 	[self _fireReadyStateChange:NetworkClientStateOpened failed:NO];
 	[self _fireReadyStateChange:NetworkClientStateHeaders failed:NO];
 }
