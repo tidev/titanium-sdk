@@ -72,7 +72,7 @@ properties:
     description: |
         This is a writable directory that can be used to store applications-specific files. 
 
-        On iOS, this directory specifically designated for user documents, and a
+        On iOS, this directory is specifically designated for user documents, and a
         separate directory,
         [applicationSupportDirectory](Titanium.Filesystem.applicationSupportDirectory) is
         used for other application data.
@@ -114,7 +114,12 @@ properties:
         This directory may not be subject to as many memory limitations as the
         `applicationDataDirectory`, which is stored in the device's internal storage.
         Note, however, that the user may remove or replace the removable storage device
-        without warning, so the application must be prepared to handle this case gracefully.
+        without warning, so the application must be prepared to handle this case gracefully. 
+        
+        The application should check
+        [isExternalStoragePresent](Titanium.Filesystem.isExternalStoragePresent) before
+        accessing this location. 
+        
     type: String
     permission: read-only
     platforms: [android]
