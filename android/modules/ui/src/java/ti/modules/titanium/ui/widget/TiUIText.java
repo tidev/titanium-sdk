@@ -89,8 +89,8 @@ public class TiUIText extends TiUIView
 		 */
 		@Override
 		public boolean onCheckIsTextEditor () {
-			if (proxy.hasProperty("softKeyboardOnFocus")
-					&& TiConvert.toInt(proxy.getProperty("softKeyboardOnFocus")) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
+			if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)
+					&& TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
 					return false;
 			}
 			if (proxy.hasProperty(TiC.PROPERTY_EDITABLE)
