@@ -75,8 +75,8 @@ properties:
         Also sets the background image for the other button states (disabled, focused, selected), 
         unless they've been specified explicitly.
 
-        The special value 'transparent' can be used to designate no background image (for example,
-        when you want the button's background color or gradient to show).
+        On iOS, the special value 'transparent' can be used to designate no background image 
+        (for example, when you want the button's background color or gradient to show).
     type: String
   - name: backgroundDisabledImage
     summary: |
@@ -113,9 +113,14 @@ properties:
     summary: Font to use for the button text.
     type: Font
   - name: image
-    summary: Image to display on the button to the left of the title, specified as a local
+    summary: Image to display on the button, specified as a local
         path, URL or (on iOS only) a `Blob`.
-    description: Support for using <Titanium.Blob> for this property is only available on iOS.
+    description: |
+        On iOS, the image is displayed to the left of the title. 
+        
+        On Android, this property is identical to `backgroundImage`.
+
+        Support for using <Titanium.Blob> for this property is only available on iOS.
     type: [String, Titanium.Blob]
   - name: selectedColor
     summary: Button text color used to indicate the selected state.
