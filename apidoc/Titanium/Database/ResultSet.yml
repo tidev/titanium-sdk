@@ -1,19 +1,21 @@
 ---
 name: Titanium.Database.ResultSet
-summary: The ResultSet instance returned by invoking a database SQL `execute`.
+summary: The ResultSet instance returned by invoking <Titanium.Database.DB.execute>.
 extends: Titanium.Proxy
 since: "0.1"
 createable: false
 methods:
   - name: close
-    summary: close the result set and release resources. once closed, this result set must no longer be used
+    summary: |
+        Closes the result set and release resources. Once closed, this result set 
+        must no longer be used.
   - name: field
-    summary: retrieve a row value by field index
+    summary: Retrieves a row value by field index.
     returns:
         type: Object
     parameters:
       - name: index
-        summary: column index (which is zero based)
+        summary: A zero-based column index.
         type: Number
       - name: type
         summary: |
@@ -21,12 +23,12 @@ methods:
         type: Number
         optional: true
   - name: fieldByName
-    summary: retrieve a row value by field name
+    summary: Retrieves a row value by field name.
     returns:
         type: Object
     parameters:
       - name: name
-        summary: column name from SQL query
+        summary: A column name from the SQL query.
         type: String
       - name: type
         summary: |
@@ -34,31 +36,63 @@ methods:
         type: Number
         optional: true
   - name: fieldCount
-    summary: return the number of columns in the result set
+    summary: Returns the number of columns in the result set.
     returns:
         type: Number
   - name: fieldName
-    summary: return the field name for field index
+    summary: Returns the field name for field index.
     returns:
         type: String
     parameters:
       - name: index
-        summary: field name column index (which is zero based)
+        summary: A zero-based field name column index.
         type: Number
   - name: isValidRow
-    summary: return true if the row is a valid row
+    summary: Returns whether this row is valid.
     returns:
         type: Boolean
   - name: next
-    summary: iterate to the next row in the result set.
+    summary: Iterates to the next row in the result set.
     returns:
         type: Boolean
         summary: |
-            If the next operation goes past the final row, this returns false.  Else true.
+            This returns `true` until the operation goes past the final row.
 properties:
   - name: rowCount
-    summary: the number of rows in the result set
+    summary: The number of rows in the result set.
     type: Number
   - name: validRow
-    summary: returns true if the current row is still valid
+    summary: Indicates whether the current row is valid.
     type: Boolean
+examples:
+  - title:
+    example: |
+        The following code will install a database and execute SQL statements that 
+        will create a table, insert data into it, query the table and iterate through 
+        the returned <Titanium.Database.ResultSet>.
+
+            var db = Ti.Database.install('mydb1', 'mydb1Installed');
+            db.execute('DELETE FROM people');
+            db.execute('CREATE TABLE IF NOT EXISTS people (name TEXT, phone_number TEXT, city TEXT)');
+
+            var thisName = 'Arthur';
+            var thisPhoneNo = '1-617-000-0000';
+            var thisCity = 'Mountain View';
+            db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', thisName, thisPhoneNo, thisCity);
+
+            var personArray = ['Paul','020 7000 0000', 'London'];
+            db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', personArray);
+
+            var rows = db.execute('SELECT rowid,name,phone_number,city FROM people');
+            db.close();
+
+            while (rows.isValidRow())
+            {
+              Ti.API.info('Person ---> ROWID: ' + rows.fieldByName('rowid') + ', name:' + rows.field(1) + ', phone_number: ' + rows.fieldByName('phone_number') + ', city: ' + rows.field(3));
+              rows.next();
+            }
+            rows.close();
+        
+        Note that the above `SELECT` query contains the [rowid](http://www.sqlite.org/lang_createtable.html#rowid)
+        field, which contains an SQLite-specific unique identifier for each row.
+      
