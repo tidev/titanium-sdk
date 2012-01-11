@@ -227,6 +227,7 @@ const static CGFloat kReflectionFraction = 0.85;
 
 - (void)setBounds:(CGRect)newSize {
 	[super setBounds:newSize];
+	scrollView.contentSize = CGSizeMake(numberOfImages * COVER_SPACING + self.bounds.size.width, self.bounds.size.height);
 	[self updateLayout];
 }
 
