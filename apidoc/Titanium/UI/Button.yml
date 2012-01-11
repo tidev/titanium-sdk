@@ -39,6 +39,9 @@ description: |
     overriding any background color or gradient. In addition, the `backgroundImage` must be 
     partially or wholly transparent for the background color or background gradient to be visible.
 
+    In order for a background gradient to show through, the `backgroundColor` may need to be
+    set to 'transparent'.
+
     The `systemButton` property lets you create a predefined system-defined button, 
     such as the **Camera** or **Add** buttons, for use in toolbars and nav bars.
     Specifically, system buttons may be used in the following locations:
@@ -74,9 +77,6 @@ properties:
     description: |
         Also sets the background image for the other button states (disabled, focused, selected), 
         unless they've been specified explicitly.
-
-        On iOS, the special value 'transparent' can be used to designate no background image 
-        (for example, when you want the button's background color or gradient to show).
     type: String
   - name: backgroundDisabledImage
     summary: |
