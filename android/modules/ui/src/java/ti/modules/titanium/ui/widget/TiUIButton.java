@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -51,16 +52,20 @@ public class TiUIButton extends TiUIView
 		Button btn = (Button)getNativeView();
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
 			Object value = d.get(TiC.PROPERTY_IMAGE);
+			Bitmap bitmap;
 			if (value instanceof String) {
 				try {
 					String url = getProxy().resolveUrl(null, (String) value);
 					TiBaseFile file = TiFileFactory.createTitaniumFile(new String[] { url }, false);
-					Bitmap bitmap = TiUIHelper.createBitmap(file.getInputStream());
+					bitmap = TiUIHelper.createBitmap(file.getInputStream());
 
-					btn.setBackgroundDrawable(new BitmapDrawable(bitmap));
+					btn.setBackgroundDrawable(new BitmapDrawable(btn.getResources(), bitmap));
 				} catch (IOException e) {
 					Log.e(LCAT, "Error setting button image", e);
 				}
+			} else if (value instanceof TiBlob) {
+				bitmap = TiUIHelper.createBitmap(((TiBlob) value).getInputStream());
+				btn.setBackgroundDrawable(new BitmapDrawable(btn.getResources(), bitmap));
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
