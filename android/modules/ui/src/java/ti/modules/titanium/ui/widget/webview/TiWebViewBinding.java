@@ -129,7 +129,6 @@ public class TiWebViewBinding
 		}
 		return null;
 	}
-		
 
 	@SuppressWarnings("unused")
 	private class TiReturn
