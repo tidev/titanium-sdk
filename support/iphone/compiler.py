@@ -402,7 +402,7 @@ class Compiler(object):
 		else:
 			print "[INFO] Skipping JS compile, running from simulator"
 		
-		if deploytype=='development':
+		if self.deploytype=='development':
 			softlink_for_simulator(self.project_dir,app_dir)
 	
 	def load_metadata(self, file):
