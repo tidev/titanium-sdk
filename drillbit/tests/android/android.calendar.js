@@ -18,9 +18,9 @@ describe("Ti.Android.Calendar tests", {
 		valueOf(Ti.Android.Calendar.VISIBILITY_DEFAULT).shouldBeNumber();
 		valueOf(Ti.Android.Calendar.VISIBILITY_PRIVATE).shouldBeNumber();
 		valueOf(Ti.Android.Calendar.VISIBILITY_PUBLIC).shouldBeNumber();
-		valueOf(Ti.Android.Calendar.allAlerts).shouldBeObject();
-		valueOf(Ti.Android.Calendar.allCalendars).shouldBeObject();
-		valueOf(Ti.Android.Calendar.selectableCalendars).shouldBeObject();		
+		valueOf(Ti.Android.Calendar.allAlerts).shouldBeArray();
+		valueOf(Ti.Android.Calendar.allCalendars).shouldBeArray();
+		valueOf(Ti.Android.Calendar.selectableCalendars).shouldBeArray();		
 	},
 	
 	options: {
