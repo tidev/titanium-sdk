@@ -262,6 +262,8 @@ def validateMethod(typeTracker, method):
 				return
 			if 'type' not in oneReturn:
 				tracker.trackError('Required property "type" missing in "returns": %s' % returns)
+			if not isinstance(oneReturn["type"], basestring):
+				tracker.trackError('"type" value of returns element must be a string.' % oneReturn["type"])
 
 
 	if 'parameters' in method:
