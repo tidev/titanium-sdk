@@ -20,6 +20,10 @@ properties:
     summary: the number of rows in the section
     type: Number
     permission: read-only
+  - name: rows
+    summary: Array of rows in the section.
+    type: Array<Titanium.UI.TableViewRow>
+    permission: read-only
 examples:
   - title: Simple Table View Section Example
     example: |

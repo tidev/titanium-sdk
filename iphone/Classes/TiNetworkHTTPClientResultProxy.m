@@ -122,8 +122,7 @@
     
 	id result = [delegate getResponseHeader:args];
 	if (result == nil) {
-        NSString* header = [TiUtils caseCorrect:args];
-		result = [responseHeaders objectForKey:header];
+        return [TiUtils getResponseHeader:args fromHeaders:responseHeaders];
 	}
 	return result;
 }

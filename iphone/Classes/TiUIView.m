@@ -807,6 +807,13 @@ DEFINE_EXCEPTIONS
 // hacks to get around it.
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
 {
+	int count = [[event touchesForView:self] count];
+	
+	if (count == 0) {
+		//The touch events are not for this view. Propagate and return
+		[super touchesBegan:touches withEvent:event];
+		return;
+	}
 	UITouch *touch = [touches anyObject];
 	
 	if (handlesSwipes)
@@ -818,8 +825,6 @@ DEFINE_EXCEPTIONS
 	{
 		// cancel any pending handleSingleTap messages 
 		[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(handleSingleTap) object:nil];
-		
-		int count = [[event touchesForView:self] count];
 		
 		// update our touch state
 		if (count > 1)
@@ -864,6 +869,14 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event 
 {
+	int count = [[event touchesForView:self] count];
+	
+	if (count == 0) {
+		//The touch events are not for this view. Propagate and return
+		[super touchesMoved:touches withEvent:event];
+		return;
+	}
+	
 	UITouch *touch = [touches anyObject];
 	if (handlesTouches)
 	{
@@ -906,6 +919,14 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
 {
+	int count = [[event touchesForView:self] count];
+	
+	if (count == 0) {
+		//The touch events are not for this view. Propagate and return
+		[super touchesEnded:touches withEvent:event];
+		return;
+	}
+	
 	if (handlesTaps)
 	{
 		BOOL allTouchesEnded = ([touches count] == [[event touchesForView:self] count]);
@@ -1010,6 +1031,14 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event 
 {
+	int count = [[event touchesForView:self] count];
+	
+	if (count == 0) {
+		//The touch events are not for this view. Propagate and return
+		[super touchesCancelled:touches withEvent:event];
+		return;
+	}
+	
 	if (handlesTaps)
 	{
 		twoFingerTapIsPossible = YES;

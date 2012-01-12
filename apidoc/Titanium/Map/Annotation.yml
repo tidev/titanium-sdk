@@ -9,8 +9,8 @@ properties:
     summary: boolean to indicate whether the pin should animate when dropped
     type: Boolean
   - name: image
-    summary: image for the pin instead of default image.
-    type: String
+    summary: The image for the pin instead of the default image.
+    type: [String, Titanium.Blob]
   - name: leftButton
     summary: the left button image on the annotation. must either be a button type constant or url
     type: [Number,String]

@@ -340,6 +340,17 @@
 	return region_;
 }
 
+-(CLLocationDegrees) longitudeDelta
+{
+	return region.span.longitudeDelta;
+}
+
+-(CLLocationDegrees) latitudeDelta
+{
+	return region.span.latitudeDelta;
+}
+
+
 #pragma mark Public APIs
 
 -(void)setMapType_:(id)value

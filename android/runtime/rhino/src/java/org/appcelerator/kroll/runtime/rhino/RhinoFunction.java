@@ -41,23 +41,24 @@ public class RhinoFunction implements KrollFunction, Handler.Callback
 		handler = new Handler(TiMessenger.getRuntimeMessenger().getLooper(), this);
 	}
 
-	public void call(KrollObject krollObject, HashMap args)
+	public Object call(KrollObject krollObject, HashMap args)
 	{
-		call(krollObject, new Object[] { args });
+		return call(krollObject, new Object[] { args });
 	}
 
-	public void call(KrollObject krollObject, Object[] args)
+	public Object call(KrollObject krollObject, Object[] args)
 	{
 		if (KrollRuntime.getInstance().isRuntimeThread())
 		{
-			callSync(krollObject, args);
+			return callSync(krollObject, args);
 
 		} else {
-			TiMessenger.sendBlockingRuntimeMessage(handler.obtainMessage(MSG_CALL_SYNC), new FunctionArgs(krollObject, args));
+			return TiMessenger.sendBlockingRuntimeMessage(handler.obtainMessage(MSG_CALL_SYNC), new FunctionArgs(
+				krollObject, args));
 		}
 	}
 
-	public void callSync(KrollObject krollObject, Object[] args)
+	public Object callSync(KrollObject krollObject, Object[] args)
 	{
 		RhinoObject rhinoObject = (RhinoObject) krollObject;
 		Scriptable nativeObject = (Scriptable) rhinoObject.getNativeObject();
@@ -80,11 +81,13 @@ public class RhinoFunction implements KrollFunction, Handler.Callback
 				useWith = true;
 			}
 
-			function.call(context, scope, nativeObject, args);
+			Object result = function.call(context, scope, nativeObject, args);
 
 			if (useWith) {
 				KrollWith.leaveWith();
 			}
+			
+			return TypeConverter.jsObjectToJavaObject(result, nativeObject);
 
 		} catch (Exception e) {
 			if (e instanceof RhinoException) {
@@ -97,6 +100,7 @@ public class RhinoFunction implements KrollFunction, Handler.Callback
 		} finally {
 			Context.exit();
 		}
+		return null;
 	}
 
 	public void callAsync(KrollObject krollObject, HashMap args)
@@ -125,8 +129,7 @@ public class RhinoFunction implements KrollFunction, Handler.Callback
 			case MSG_CALL_SYNC: {
 				AsyncResult asyncResult = ((AsyncResult) message.obj);
 				FunctionArgs functionArgs = (FunctionArgs) asyncResult.getArg();
-				callSync(functionArgs.krollObject, functionArgs.args);
-				asyncResult.setResult(null);
+				asyncResult.setResult(callSync(functionArgs.krollObject, functionArgs.args));
 
 				return true;
 			}

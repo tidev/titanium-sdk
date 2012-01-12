@@ -32,8 +32,8 @@ properties:
     summary: a boolean to indicate if this item can be deleted when it edit mode
     type: Boolean
   - name: image
-    summary: the URL to the image
-    type: String
+    summary: The image for the item.
+    type: [String, Titanium.Blob]
   - name: selectedImage
-    summary: the URL to the image to display when the item is depressed (clicked)
-    type: String
+    summary: The image to display when the item is depressed (clicked)
+    type: [String, Titanium.Blob]
