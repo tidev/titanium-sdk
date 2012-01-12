@@ -150,7 +150,7 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 			//when no selectedstate background image is specified 
 			//or selectedstate background image is same as main backgroundImage
 			
-			id test = hasBackgroundForStateNormal?backgroundImage:backgroundImageD;
+			id test = hasBackgroundForStateNormal ? backgroundImage : backgroundImageD;
 			if (!hasBackgroundForStateSelected || [test isEqual:backgroundImageS] )
 			{
 				button.showsTouchWhenHighlighted = YES;
