@@ -16,7 +16,10 @@ describe("Ti.Filesystem tests", {
 		if (file.exists()) {
 			file.deleteFile();
 		}
+		//TODO: What is the writability of a file that does not exist? The spec is silent on this.
+		//Arguments can be made either way (True, we can write, false, no file exists)
 		file.write(TEXT);
+		valueOf(file.writable).shouldBeTrue();
 		// nullify and re-create to test
 		file = null;
 		file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, FILENAME);
@@ -70,6 +73,8 @@ describe("Ti.Filesystem tests", {
 		var f;
 		var blob;
 		valueOf(function(){f = Ti.Filesystem.getFile('./file.txt');}).shouldNotThrowException();
+		//Resource files are readonly, but only on device, not simulator. As such, we can't test
+		//the use case of where writable should be false.
 		valueOf(function(){blob = f.read();}).shouldNotThrowException();
 		var text;
 		valueOf(function(){text = blob.text;}).shouldNotThrowException();
