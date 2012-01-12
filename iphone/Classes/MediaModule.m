@@ -424,10 +424,11 @@ static NSDictionary* TI_filterableItemProperties;
 		[picker setShowsCameraControls:[TiUtils boolValue:@"showControls" properties:args def:YES]];
 		
 		// allow an overlay view
-		cameraView = [[args objectForKey:@"overlay"] retain];
-		if (cameraView!=nil)
+		TiViewProxy *cameraViewProxy = [args objectForKey:@"overlay"];
+		if (cameraViewProxy!=nil)
 		{
-			ENSURE_TYPE(cameraView,TiViewProxy);
+			ENSURE_TYPE(cameraViewProxy,TiViewProxy);
+            cameraView = [cameraViewProxy retain];
 			UIView *view = [cameraView view];
 			if (editable)
 			{
