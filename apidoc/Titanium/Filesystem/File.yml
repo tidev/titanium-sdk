@@ -176,7 +176,8 @@ methods:
         on Android is a getter for the `parent` property, so it returns a `File` object
         rather than a String.
     returns:
-        type: [String,Titanium.Filesystem.File]
+      - type: String
+      - type: Titanium.Filesystem.File
   - name: isDirectory
     summary: Returns `true` if this file object represents a directory. 
     returns:
