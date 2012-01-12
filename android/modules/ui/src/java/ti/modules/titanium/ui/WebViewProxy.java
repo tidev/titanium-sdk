@@ -67,7 +67,7 @@ public class WebViewProxy extends ViewProxy
 	public String getHtml()
 	{
 		if (!hasProperty(TiC.PROPERTY_HTML)) {
-			return "";
+			return getWebView().getJSValue("document.documentElement.outerHTML");
 		}
 		return (String) getProperty(TiC.PROPERTY_HTML);
 	}
@@ -141,29 +141,33 @@ public class WebViewProxy extends ViewProxy
 		}
 		return false;
 	}
-	
+
 	@Kroll.method
-	public void goBack() {
+	public void goBack()
+	{
 		getMainHandler().sendEmptyMessage(MSG_GO_BACK);
-		//getUIHandler().sendEmptyMessage(MSG_GO_BACK);
+		// getUIHandler().sendEmptyMessage(MSG_GO_BACK);
 	}
 
 	@Kroll.method
-	public void goForward() {
+	public void goForward()
+	{
 		getMainHandler().sendEmptyMessage(MSG_GO_FORWARD);
-		//getUIHandler().sendEmptyMessage(MSG_GO_FORWARD);
+		// getUIHandler().sendEmptyMessage(MSG_GO_FORWARD);
 	}
 
 	@Kroll.method
-	public void reload() {
+	public void reload()
+	{
 		getMainHandler().sendEmptyMessage(MSG_RELOAD);
-		//getUIHandler().sendEmptyMessage(MSG_RELOAD);
+		// getUIHandler().sendEmptyMessage(MSG_RELOAD);
 	}
 
 	@Kroll.method
-	public void stopLoading() {
+	public void stopLoading()
+	{
 		getMainHandler().sendEmptyMessage(MSG_STOP_LOADING);
-		//getUIHandler().sendEmptyMessage(MSG_STOP_LOADING);
+		// getUIHandler().sendEmptyMessage(MSG_STOP_LOADING);
 	}
 
 	@Kroll.method @Kroll.getProperty
