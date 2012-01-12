@@ -46,13 +46,17 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
     BOOL changedInteraction;
 	BOOL handlesTouches;
 	BOOL handlesTaps;
-	CGPoint tapLocation;         // Needed to record location of single tap, which will only be registered after delayed perform.
-	BOOL multipleTouches;        // YES if a touch event contains more than one touch; reset when all fingers are lifted.
-	BOOL twoFingerTapIsPossible; // Set to NO when 2-finger tap can be ruled out (e.g. 3rd finger down, fingers touch down too far apart, etc).	
-	CGPoint touchLocation;		 // Need for swipe detection
 	BOOL handlesSwipes;
 	UIView *touchDelegate;		 // used for touch delegate forwarding
 	BOOL animating;
+	
+	UITapGestureRecognizer*			singleTapRecognizer;
+	UITapGestureRecognizer*			doubleTapRecognizer;
+	UITapGestureRecognizer*			twoFingerTapRecognizer;
+	UIPinchGestureRecognizer*		pinchRecognizer;
+	UISwipeGestureRecognizer*		leftSwipeRecognizer;
+	UISwipeGestureRecognizer*		rightSwipeRecognizer;
+	UILongPressGestureRecognizer*	longPressRecognizer;
 	
 	//Resizing handling
 	CGSize oldSize;
@@ -69,6 +73,14 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 @property(nonatomic,readonly)			id transformMatrix;
 @property(nonatomic,readwrite,retain) id backgroundImage;
 @property(nonatomic,readonly) BOOL touchEnabled;
+
+@property(nonatomic,readonly)	UITapGestureRecognizer*			singleTapRecognizer;
+@property(nonatomic,readonly)	UITapGestureRecognizer*			doubleTapRecognizer;
+@property(nonatomic,readonly)	UITapGestureRecognizer*			twoFingerTapRecognizer;
+@property(nonatomic,readonly)	UIPinchGestureRecognizer*		pinchRecognizer;
+@property(nonatomic,readonly)	UISwipeGestureRecognizer*		leftSwipeRecognizer;
+@property(nonatomic,readonly)	UISwipeGestureRecognizer*		rightSwipeRecognizer;
+@property(nonatomic,readonly)	UILongPressGestureRecognizer*	longPressRecognizer;
 
 -(CALayer *)backgroundImageLayer;
 
