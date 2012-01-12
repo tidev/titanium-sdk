@@ -167,14 +167,14 @@ def softlink_for_simulator(project_dir,app_dir):
 	iphone_platform_dir = os.path.join(project_dir,'platform','iphone')
 	softlink_resources(resources_dir,app_dir)
 	if(os.path.exists(iphone_resources_dir)):
-		softlink_resources(iphone_resources_dir,app_dir)
+		softlink_resources(iphone_resources_dir,app_dir,False)
 	dest_mod_dir = os.path.join(app_dir,'modules')
 	src_mod_dir = os.path.join(project_dir,'modules')
 	if(os.path.exists(src_mod_dir)):
 		softlink_resources(src_mod_dir,dest_mod_dir)
 		src_mod_iphone_dir = os.path.join(src_mod_dir,'iphone')
 		if(os.path.exists(src_mod_iphone_dir)):
-			softlink_resources(os.path.join(project_dir,'modules','iphone'),dest_mod_dir)
+			softlink_resources(os.path.join(project_dir,'modules','iphone'),dest_mod_dir,False)
 
 #
 # TODO/FIXME
