@@ -291,6 +291,9 @@ static NSDictionary* TI_filterableItemProperties;
 
 -(void)closeModalPicker:(UIViewController*)picker_
 {
+    if (cameraView != nil) {
+        [cameraView windowWillClose];
+    }
 	if (popover)
 	{
 		[(UIPopoverController*)popover dismissPopoverAnimated:animatedPicker];
@@ -300,6 +303,10 @@ static NSDictionary* TI_filterableItemProperties;
 	{
 		[[TiApp app] hideModalController:picker_ animated:animatedPicker];
 	}
+    if (cameraView != nil) {
+        [cameraView windowDidClose];
+        RELEASE_TO_NIL(cameraView);
+    }
 }
 
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
@@ -417,7 +424,7 @@ static NSDictionary* TI_filterableItemProperties;
 		[picker setShowsCameraControls:[TiUtils boolValue:@"showControls" properties:args def:YES]];
 		
 		// allow an overlay view
-		cameraView = [args objectForKey:@"overlay"]; 
+		cameraView = [[args objectForKey:@"overlay"] retain];
 		if (cameraView!=nil)
 		{
 			ENSURE_TYPE(cameraView,TiViewProxy);
@@ -1083,6 +1090,9 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	ENSURE_UI_THREAD(hideCamera,args);
 	if (picker!=nil)
 	{
+        if (cameraView != nil) {
+            [cameraView windowWillClose];
+        }
 		if (popover != nil) {
 			[popover dismissPopoverAnimated:animatedPicker];
 			RELEASE_TO_NIL(popover);
@@ -1092,15 +1102,12 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 			[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
 		}
 		else {
-            if (cameraView != nil) {
-                [cameraView windowWillClose];
-            }
 			[[TiApp app] hideModalController:picker animated:animatedPicker];
-            if (cameraView != nil) {
-                [cameraView windowDidClose];
-                RELEASE_TO_NIL(cameraView);
-            }
 		}
+        if (cameraView != nil) {
+            [cameraView windowDidClose];
+            RELEASE_TO_NIL(cameraView);
+        }
 		[self destroyPicker];
 	}
 }
