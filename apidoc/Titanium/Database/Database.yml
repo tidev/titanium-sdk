@@ -10,17 +10,30 @@ methods:
     summary: Installs an SQLite database to device's internal storage.
     description: |
       Copies an SQLite database file to the device's internal storage (only) and
-      creates a persistent name that is available for the lifetime of the app.
+      creates a persistent name that is available for the lifetime of the app. 
+      On Android, if the source file does not exist, an empty database is created.
 
       Returns a reference to the opened database. If the destination file already
       exists, behaves as <Titanium.Database.open>.
 
       This method is primarily used for iOS.
-
-      As there is often minimal internal storage available on Android, this method
+      
+      With Android, as there is often minimal internal storage available, `install`
       may only be appropriate for small databases or for prototyping. When database
-      files are stored on external storage (for example, SD Card), a combination of
-      <Titanium.Filesystem> and <Titanium.Database.open> is preferred.
+      files are to be stored on external storage (for example, SD Card), a combination of
+      <Titanium.Filesystem> and <Titanium.Database.open> is required.
+
+      With Titanium 1.8.0.1 on iOS, the default database location changed in accordance
+      with Apple's guidelines. If a database file already exists in the old
+      location, `install` will automatically move it to the new location
+      rather than copying the file from the path provided in the first
+      argument.
+
+      Files stored in the `Private Documents` directory on iOS5 will be
+      automatically backed up to iCloud and removed from the device in low
+      storage situations. See [How do I prevent files from being backed up to iCloud and iTunes?](https://developer.apple.com/library/ios/#qa/qa1719/_index.html) 
+      for details. To prevent this for database files, use the <Titanium.Database.DB.file> 
+      object with the <Titanium.Filesystem.File.setRemoteBackup> method. 
 
       Always [close](Titanium.Database.DB.close) the database after use.
     returns:
@@ -29,9 +42,9 @@ methods:
       - name: path
         summary: |
           Path and filename of the database file to copy to internal storage.
-          File location is relative to the script's context in the
-          <Titanium.Filesystem.resourcesDirectory> directory, unless an absolute
-          path is provided.
+          File location is relative to the script's context unless an absolute
+          path, such as one constructed with a <Titanium.Filesystem> 
+          constant, is used.
         type: String
       - name: dbName
         summary: |
@@ -41,7 +54,7 @@ methods:
     examples:
     - title: Install a Database (iOS)
       example: |
-        A database, with a file name of `mydb1` and located in the same directory as the
+        A database, with a filename of `mydb1` and located in the same directory as the
         the running script, is installed.
 
             var db1 = Ti.Database.install('mydb1', 'mydb1Installed');
@@ -49,37 +62,24 @@ methods:
         The file is copied to the default database location with a file
         extension of `sql`.
 
-        With Titanium 1.8.0.1+, the default location changed in accordance
-        with Apple's guidelines. If a database file already exists in the old
-        location, `install` will automatically move it to the new location
-        rather than copying the file from the path provided in the first
-        argument. Use a combination of <Titanium.Filesystem> and
-        <Titanium.Database.open>, if this is not the desired behavior.
-
-        The default database locations are as follows.
-
         **On simulator**
 
-        * `/Users/user_name/Library/Application Support/iPhone Simulator/ios_version/Applications/apple_app_id/Library/Private Documents/mydb1Installed.sql` (Titanium 1.8.0.1+)
-        * `/Users/user_name/Library/Application Support/iPhone Simulator/ios_version/Applications/apple_app_id/Library/Application Support/database/mydb1Installed.sql` (Other Titanium versions)
+        * `/Users/user_name/Library/Application Support/iPhone Simulator/ios_version/Applications/apple_app_id/Library/Private Documents/mydb1Installed.sql` (Titanium 1.8.0.1)
+        * `/Users/user_name/Library/Application Support/iPhone Simulator/ios_version/Applications/apple_app_id/Library/Application Support/database/mydb1Installed.sql` (earlier versions)
 
         **On device**
 
-        * `/Applications/apple_app_id/Library/Private Documents/mydb1Installed.sql` (Titanium 1.8.0.1+)
-        * `/Applications/apple_app_id/Library/Application Support/database/mydb1Installed.sql` (Other Titanium versions)
+        * `/Applications/apple_app_id/Library/Private Documents/mydb1Installed.sql` (Titanium 1.8.0.1)
+        * `/Applications/apple_app_id/Library/Application Support/database/mydb1Installed.sql` (earlier versions)
 
-        Files stored in the `Private Documents` directory on iOS5 will be
-        automatically backed up to iCloud and removed from the device in low
-        storage situations. To prevent this for database files, use the <Titanium.Database.DB.file> object
-        with the <Titanium.Filesystem.File.setRemoteBackup> method, as follows
+        To prevent the database file being automatically backed up to iCloud, use `setRemoteBackup`.
 
             db1.file.setRemoteBackup(false);
 
-        See (see [How do I prevent files from being backed up to iCloud and iTunes?](https://developer.apple.com/library/ios/#qa/qa1719/_index.html)
-        for more details).
+
     - title: Install a Database to Internal Storage (Android)
       example: |
-        A database, with a file name of `mydb1` and located in the same directory as the
+        A database, with a filename of `mydb1` and located in the same directory as the
         the running script, is installed.
 
             var db1 = Ti.Database.install('mydb1', 'mydb1Installed');
@@ -91,7 +91,7 @@ methods:
     - title: Install a Database to External Storage (Android)
       example: |
         The device is checked for the presence of external storage and a
-        database, with a file name of `mydb2` and located in the same directory as the
+        database, with a filename of `mydb2` and located in the same directory as the
         the running script, is installed.
 
             if (Ti.Platform.name === 'android' && Ti.Filesystem.isExternalStoragePresent()) {
@@ -110,19 +110,19 @@ methods:
       not exist, creates an empty database file and returns a reference to this
       opened database.
 
-      Opening a database file at a read-only location, such as the
-      [Resources](Titanium.Filesystem.resourcesDirectory) directory, will
-      cause an exception.
+      With Titanium 1.8.0.1 on iOS, the default database location changed in accordance
+      with Apple's guidelines. If a database file already exists in the old
+      location, `open` will automatically move it to the new location.
 
-      Care must be taken to [close](Titanium.Database.DB.close) the database
-      after use.
+      Always [close](Titanium.Database.DB.close) the database after use.
     returns:
         type: Titanium.Database.DB
     parameters:
       - name: dbName
         summary: |
-          Either the dbname previously passed to <Titanium.Database.install>,
-          or absolute path (may use <Titanium.Filesystem> constants).
+          The dbname previously passed to <Titanium.Database.install>. On Android, 
+          an absolute path to the file, including one that is constructed with a 
+          <Titanium.Filesystem> constant, may be used.
         type: String
     examples:
     - title: Open a Database from Internal Storage (iOS)
@@ -133,17 +133,17 @@ methods:
             var db = Ti.Database.open('mydb1Installed');
 
         A file extension of `sql` is added, and the file is opened from the
-        following default database location.
-
+        following location.
+        
         On simulator
 
-        * `/Users/<user name>/Library/Application Support/iPhone Simulator/<iOS version>/Applications/<apple app id>/Library/Private Documents/mydb1Installed.sql` (Titanium 1.8.0.1+)
-        * `/Users/<user name>/Library/Application Support/iPhone Simulator/<iOS version>/Applications/<apple app id>/Library/Application Support/database/mydb1Installed.sql` (Other Titanium versions)
+        * `/Users/<user name>/Library/Application Support/iPhone Simulator/<iOS version>/Applications/<apple app id>/Library/Private Documents/mydb1Installed.sql` (Titanium 1.8.0.1)
+        * `/Users/<user name>/Library/Application Support/iPhone Simulator/<iOS version>/Applications/<apple app id>/Library/Application Support/database/mydb1Installed.sql` (earlier versions)
 
         On device
 
-        * `/Applications/<apple app id>/Library/Private Documents/mydb1Installed.sql` (Titanium 1.8.0.1+)
-        * `/Applications/<apple app id>/Library/Application Support/database/mydb1Installed.sql` (Other Titanium versions)
+        * `/Applications/<apple app id>/Library/Private Documents/mydb1Installed.sql` (Titanium 1.8.0.1)
+        * `/Applications/<apple app id>/Library/Application Support/database/mydb1Installed.sql` (earlier versions)
     - title: Open a Database on Internal Storage (Android)
       example: |
         A database, with a persistant name of `mydb1Installed` and located in the
@@ -152,12 +152,12 @@ methods:
           var db1 = Ti.Database.open('mydb1Installed');
 
         Unlike on iOS, no file extension is added. The file is opened in
-        the following default database location.
+        the following location.
 
         * `file:///data/data/appID/databases/mydb1Installed`
     - title: Open a Database on External Storage (Android)
       example: |
-        A database, with a file name of `mydb2Installed` and located at the
+        A database, with a filename of `mydb2Installed` and located at the
         absolute path provided, is opened.
 
             if (Ti.Platform.name === 'android' && Ti.Filesystem.isExternalStoragePresent()) {
@@ -165,7 +165,7 @@ methods:
             }
 
         Unlike on iOS, no file extension is added. The file is copied to the
-        absolute path provided.
+        absolute path, as follows.
 
         * `file:///sdcard/path/to/mydb2Installed`
 properties:
