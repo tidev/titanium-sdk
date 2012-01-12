@@ -137,6 +137,13 @@ static NSThread *networkThread = nil;
 
 static NSOperationQueue *sharedQueue = nil;
 
+// SPT - See the following Apple technical note for why we need to define these
+// http://developer.apple.com/library/ios/#technotes/tn2287/_index.html#//apple_ref/doc/uid/DTS40011309
+
+static NSString* ASI_TLS_VERSION_1_0 = @"kCFStreamSocketSecurityLevelTLSv1_0SSLv3";
+static NSString* ASI_TLS_VERSION_1_1 = @"kCFStreamSocketSecurityLevelTLSv1_1SSLv3";
+static NSString* ASI_TLS_VERSION_1_2 = @"kCFStreamSocketSecurityLevelTLSv1_2SSLv3";
+
 // Private stuff
 @interface ASIHTTPRequest ()
 
@@ -477,7 +484,14 @@ static NSOperationQueue *sharedQueue = nil;
 	if (!requestHeaders) {
 		[self setRequestHeaders:[NSMutableDictionary dictionaryWithCapacity:1]];
 	}
-	[requestHeaders setObject:value forKey:header];
+	if (value == nil)
+	{
+		[requestHeaders removeObjectForKey:header];
+	}
+	else
+	{
+		[requestHeaders setObject:value forKey:header];
+	}
 }
 
 // This function will be called either just before a request starts, or when postLength is needed, whichever comes first
@@ -1221,6 +1235,24 @@ static NSOperationQueue *sharedQueue = nil;
 			}
             [sslProperties setObject:certificates forKey:(NSString *)kCFStreamSSLCertificates];
         }
+        
+        if (tlsVersion) {
+            NSString* sslVersion = nil;
+            switch (tlsVersion) {
+                case TLS_VERSION_1_0:
+                    sslVersion = ASI_TLS_VERSION_1_0;
+                    break;
+                case TLS_VERSION_1_1:
+                    sslVersion = ASI_TLS_VERSION_1_1;
+                    break;
+                case TLS_VERSION_1_2:
+                    sslVersion = ASI_TLS_VERSION_1_2;
+                    break;
+            }
+            if (sslVersion != nil) {
+                [sslProperties setObject:sslVersion forKey:(NSString*)kCFStreamSSLLevel];
+            }
+        }
 
         CFReadStreamSetProperty((CFReadStreamRef)[self readStream], kCFStreamPropertySSLSettings, sslProperties);
     }
@@ -1337,7 +1369,15 @@ static NSOperationQueue *sharedQueue = nil;
 		}
 		[[self connectionInfo] setObject:[self requestID] forKey:@"request"];		
 		[[self connectionInfo] setObject:[self readStream] forKey:@"stream"];
-		CFReadStreamSetProperty((CFReadStreamRef)[self readStream],  kCFStreamPropertyHTTPAttemptPersistentConnection, kCFBooleanTrue);
+        
+        // SPT: This feature has a behavior change in iOS 5.0 - it turns out that the system likes to clean up these
+        // types of connections at different times now, or simply not persist them "appropriately" in some other fashion.
+        //
+        // Note that this could also be an ASI issue, due to how the persistent connection pool is managed... but because of how
+        // it's cleaned up with the start of each new request (possibly what introduces this problem in the first place), this
+        // "simple" fix should not be introducing any issues until we can replace ASI.
+        
+//		CFReadStreamSetProperty((CFReadStreamRef)[self readStream],  kCFStreamPropertyHTTPAttemptPersistentConnection, kCFBooleanTrue);
 		
 		#if DEBUG_PERSISTENT_CONNECTIONS
 		NSLog(@"[CONNECTION] Request #%@ will use connection #%i",[self requestID],[[[self connectionInfo] objectForKey:@"id"] intValue]);
@@ -1619,6 +1659,7 @@ static NSOperationQueue *sharedQueue = nil;
 	[headRequest setTimeOutSeconds:[self timeOutSeconds]];
 	[headRequest setUseHTTPVersionOne:[self useHTTPVersionOne]];
 	[headRequest setValidatesSecureCertificate:[self validatesSecureCertificate]];
+    [headRequest setTlsVersion:[self tlsVersion]];
     [headRequest setClientCertificateIdentity:clientCertificateIdentity];
 	[headRequest setClientCertificates:[[clientCertificates copy] autorelease]];
 	[headRequest setPACurl:[self PACurl]];
@@ -4078,6 +4119,7 @@ static NSOperationQueue *sharedQueue = nil;
 	[newRequest setUseHTTPVersionOne:[self useHTTPVersionOne]];
 	[newRequest setShouldRedirect:[self shouldRedirect]];
 	[newRequest setValidatesSecureCertificate:[self validatesSecureCertificate]];
+    [newRequest setTlsVersion:[self tlsVersion]];
     [newRequest setClientCertificateIdentity:clientCertificateIdentity];
 	[newRequest setClientCertificates:[[clientCertificates copy] autorelease]];
 	[newRequest setPACurl:[self PACurl]];
@@ -5078,4 +5120,5 @@ static NSOperationQueue *sharedQueue = nil;
 @synthesize PACFileData;
 
 @synthesize isSynchronous;
+@synthesize tlsVersion;
 @end

@@ -1,7 +1,7 @@
 ---
 name: Titanium.BufferStream
 extends: Titanium.IOStream
-description: Wrapper around `Titanium.Buffer` that implements the `Titanium.IOStream` interface
+summary: Wrapper around `Titanium.Buffer` that implements the `Titanium.IOStream` interface
 since: "1.7"
 createable: false
-
+platforms: [android, iphone, ipad]

@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2011 Appcelerator, Inc. All Rights Reserved.
 # Licensed under the Apache Public License (version 2)
-import os, sys, re
+import os, sys, re, codecs
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(this_dir, "..")))
@@ -49,19 +49,18 @@ template_lookup = TemplateLookup(directories=[template_dir])
 
 def generate(raw_apis, annotated_apis, options):
 	log_level = TiLogger.INFO
-	if options.verbose:
+	if not options is None and options.verbose:
 		log_level = TiLogger.TRACE
 	global all_annotated_apis, log
 	all_annotated_apis = annotated_apis
 	log = TiLogger(None, level=log_level, output_stream=sys.stderr)
-	if not hasattr(options, "output") or options.output is None or len(options.output) == 0:
-		log.error("'output' option not provided")
-		sys.exit(1)
-	if not hasattr(options, "version") or options.version is None or len(options.version) == 0:
+	if options is not None and (not hasattr(options, "output") or options.output is None or len(options.output) == 0):
+		log.warn("'output' option not provided")
+	if options is not None and (not hasattr(options, "version") or options.version is None or len(options.version) == 0):
 		log.error("'version' option not provided")
 		sys.exit(1)
 			
-	if not os.path.exists(options.output):
+	if options is not None and not os.path.exists(options.output):
 		os.makedirs(options.output)
 
 	# Add html-specific annotations. Do it twice because the
@@ -79,80 +78,83 @@ def generate(raw_apis, annotated_apis, options):
 			annotate(api)
 
 	# Write the output files
-	log.info("Creating html files in %s" % options.output)
-	for name in annotated_apis:
-		one_type = annotated_apis[name]
-		log.trace("Producing html output for %s" % name)
-		render_template(one_type, options)
-		if hasattr(one_type, "methods"):
-			for m in one_type.methods:
-				log.trace("Producing html output for %s.%s" % (name, m.name))
-				render_template(m, options)
+	if options is not None:
+		log.info("Creating html files in %s" % options.output)
+		for name in annotated_apis:
+			one_type = annotated_apis[name]
+			log.trace("Producing html output for %s" % name)
+			render_template(one_type, options)
+			member_types = ("methods", "properties", "events")
+			for mt in member_types:
+				if hasattr(one_type, mt):
+					for m in getattr(one_type, mt):
+						log.trace("Producing html output for %s.%s" % (name, m.name))
+						render_template(m, options)
 
-	# Create the special .json files that the webserver uses.
-	log.info("Creating json files for server")
-	stats = {
-		'modules':0,
-		'objects':0,
-		'properties':0,
-		'methods':0
-	}
-	search_json = []
-	module_names = []
-	for api in all_annotated_apis.values():
-		if api.name in not_real_titanium_types or not api.name.startswith("Titanium"):
-			continue
-		search_item = {"filename": api.name,
-				"type": "module" if api.typestr == "module" else "object",
-				"content": content_for_search_index(api)}
-		search_json.append(search_item)
-		if api.typestr == "module":
-			module_names.append(api.name)
-			stats["modules"] += 1
-			toc = {}
-			toc["methods"] = [m.name for m in api.methods]
-			toc["objects"] = [p.name.split(".")[-1] for p in api.member_proxies]
-			toc["properties"] = [p.name for p in api.properties]
-			for l in toc.values():
-				l.sort()
-			json_to_file(toc, os.path.join(options.output, "toc_%s.json" % api.name))
+		# Create the special .json files that the webserver uses.
+		log.info("Creating json files for server")
+		stats = {
+			'modules':0,
+			'objects':0,
+			'properties':0,
+			'methods':0
+		}
+		search_json = []
+		module_names = []
+		for api in all_annotated_apis.values():
+			if api.name in not_real_titanium_types or not api.name.startswith("Titanium"):
+				continue
+			search_item = {"filename": api.name,
+					"type": "module" if api.typestr == "module" else "object",
+					"content": content_for_search_index(api)}
+			search_json.append(search_item)
+			if api.typestr == "module":
+				module_names.append(api.name)
+				stats["modules"] += 1
+				toc = {}
+				toc["methods"] = [m.name for m in api.methods]
+				toc["objects"] = [p.name.split(".")[-1] for p in api.member_proxies]
+				toc["properties"] = [p.name for p in api.properties]
+				for l in toc.values():
+					l.sort()
+				json_to_file(toc, os.path.join(options.output, "toc_%s.json" % api.name))
+			else:
+				stats["objects"] += 1
+			stats["methods"] += len(api.methods)
+			stats["properties"] += len(api.properties)
+		module_names.sort()
+		json_to_file(module_names, os.path.join(options.output, "toc.json"))
+		json_to_file(search_json, os.path.join(options.output, "search.json"))
+		json_to_file(stats, os.path.join(options.output, "stats.json"))
+		# Generate an index.html, mostly for developers who run docgen and want
+		# to see a table of modules.
+		index_template = template_lookup.get_template("index.html")
+		index_output = index_template.render(config=options, data=all_annotated_apis)
+		index_file = open(os.path.join(options.output, "index.html"), "w")
+		index_file.write(index_output)
+		index_file.close()
+		log.info("An index.html file has been written to %s and contains links to all modules." % os.path.abspath(options.output))
+
+		changelog_mdoc = os.path.abspath(os.path.join(this_dir, "..", "Titanium", "CHANGELOG", "%s.mdoc" % options.version))
+		if not os.path.exists(changelog_mdoc):
+			log.warn("%s wasn't found, skipping changelog.html generation." % changelog_mdoc)
 		else:
-			stats["objects"] += 1
-		stats["methods"] += len(api.methods)
-		stats["properties"] += len(api.properties)
-	module_names.sort()
-	json_to_file(module_names, os.path.join(options.output, "toc.json"))
-	json_to_file(search_json, os.path.join(options.output, "search.json"))
-	json_to_file(stats, os.path.join(options.output, "stats.json"))
-	# Generate an index.html, mostly for developers who run docgen and want
-	# to see a table of modules.
-	index_template = template_lookup.get_template("index.html")
-	index_output = index_template.render(config=options, data=all_annotated_apis)
-	index_file = open(os.path.join(options.output, "index.html"), "w")
-	index_file.write(index_output)
-	index_file.close()
-	log.info("An index.html file has been written to %s and contains links to all modules." % os.path.abspath(options.output))
-
-	changelog_mdoc = os.path.abspath(os.path.join(this_dir, "..", "Titanium", "CHANGELOG", "%s.mdoc" % options.version))
-	if not os.path.exists(changelog_mdoc):
-		log.warn("%s wasn't found, skipping changelog.html generation." % changelog_mdoc)
-	else:
-		changelog = open(changelog_mdoc).read()
-		out = open(os.path.join(options.output, "changelog.html"), "w+")
-		out.write(markdown.markdown(changelog))
-		out.close()
+			changelog = codecs.open(changelog_mdoc, "r", "utf8").read()
+			out = codecs.open(os.path.join(options.output, "changelog.html"), "w+", "utf8")
+			out.write(markdown.markdown(changelog))
+			out.close()
 
 def content_for_search_index(annotated_obj):
 	contents = []
 	contents.append(annotated_obj.name)
 	contents.append(" ".join(annotated_obj.name.split('.')))
-	contents.append(annotated_obj.description_html)
+	contents.append(annotated_obj.summary_html)
 	contents.extend([e.name for e in annotated_obj.events])
 	contents.extend([m.name for m in annotated_obj.methods])
 	contents.extend([p.name for p in annotated_obj.properties])
 	contents.extend([e["title"] for e in annotated_obj.examples_html])
-	if len(annotated_obj.notes_html) > 0:
-		contents.append(annotated_obj.notes_html)
+	if len(annotated_obj.description_html) > 0:
+		contents.append(annotated_obj.description_html)
 	return strip_tags(" ".join(contents))
 
 def json_to_file(obj, filename):
@@ -162,15 +164,15 @@ def json_to_file(obj, filename):
 
 # Annotations specific to this output format
 def annotate(annotated_obj):
+	annotated_obj.summary_html = ""
 	annotated_obj.description_html = ""
-	annotated_obj.notes_html = ""
 	annotated_obj.examples_html = []
 	annotated_obj.inherited_from_obj = None
+	if dict_has_non_empty_member(annotated_obj.api_obj, "summary"):
+		summary = annotated_obj.api_obj["summary"]
+		annotated_obj.summary_html = markdown_to_html(summary, obj=annotated_obj)
 	if dict_has_non_empty_member(annotated_obj.api_obj, "description"):
-		desc = annotated_obj.api_obj["description"]
-		annotated_obj.description_html = markdown_to_html(desc, obj=annotated_obj)
-	if dict_has_non_empty_member(annotated_obj.api_obj, "notes"):
-		annotated_obj.notes_html = markdown_to_html(annotated_obj.api_obj["notes"], obj=annotated_obj)
+		annotated_obj.description_html = markdown_to_html(annotated_obj.api_obj["description"], obj=annotated_obj)
 	if dict_has_non_empty_member(annotated_obj.api_obj, "examples"):
 		for example in annotated_obj.api_obj["examples"]:
 			one_example = {"title": "", "example": ""}
@@ -195,25 +197,42 @@ def annotate(annotated_obj):
 		if dict_has_non_empty_member(annotated_obj.api_obj, "returns"):
 			annotated_obj.return_type_html = data_type_to_html(annotated_obj.api_obj["returns"])
 		annotated_obj.template_html = "method"
-		annotated_obj.filename_html = "%s.%s-%s" % (annotated_obj.parent.name, annotated_obj.name, "method")
+		annotated_obj.filename_html = clean_for_filename("%s.%s-%s" % (annotated_obj.parent.name, annotated_obj.name, "method"))
 	if annotated_obj.typestr in ("proxy", "module"):
 		annotated_obj.template_html = "proxy"
 	if annotated_obj.typestr == "module":
-		annotated_obj.filename_html = "%s-module" % annotated_obj.name
+		annotated_obj.filename_html = clean_for_filename("%s-module" % annotated_obj.name)
 	if annotated_obj.typestr == "proxy":
-		annotated_obj.filename_html = "%s-object" % annotated_obj.name
+		annotated_obj.filename_html = clean_for_filename("%s-object" % annotated_obj.name)
+	if annotated_obj.typestr == "property":
+		annotated_obj.filename_html = clean_for_filename("%s.%s-%s" % (annotated_obj.parent.name, annotated_obj.name, "property"))
+		annotated_obj.template_html = "property"
+		if annotated_obj.default is not None:
+			annotated_obj.default_html = markdown_to_html(str(annotated_obj.default))
+	# Override for "property" that is an event callback property
+	if annotated_obj.typestr == "property" and annotated_obj.parent.typestr == "event":
+		annotated_obj.filename_html = clean_for_filename("%s.%s.%s-%s" % (annotated_obj.parent.parent.name, annotated_obj.parent.name, annotated_obj.name, "callback-property"))
+		annotated_obj.template_html = "property"
+	if annotated_obj.typestr == "parameter":
+		annotated_obj.filename_html = clean_for_filename("%s.%s-param" % (annotated_obj.parent.filename_html, annotated_obj.name))
+		annotated_obj.template_html = "property"
+		if annotated_obj.default is not None:
+			annotated_obj.default_html = markdown_to_html(str(annotated_obj.default))
+	if annotated_obj.typestr == "event":
+		annotated_obj.filename_html = clean_for_filename("%s.%s-%s" % (annotated_obj.parent.name, annotated_obj.name, "event"))
+		annotated_obj.template_html = "event"
 	if hasattr(annotated_obj, "inherited_from") and len(annotated_obj.inherited_from) > 0:
 		if annotated_obj.inherited_from in all_annotated_apis:
 			annotated_obj.inherited_from_obj = all_annotated_apis[annotated_obj.inherited_from]
 	for list_type in ("methods", "properties", "events", "parameters"):
 		annotate_member_list(annotated_obj, list_type)
-	if hasattr(annotated_obj, "methods"):
-		set_overloaded_method_filenames(annotated_obj)
 
 def annotate_member_list(annotated_obj, member_list_name):
 	if hasattr(annotated_obj, member_list_name) and len(getattr(annotated_obj, member_list_name)) > 0:
 		for m in getattr(annotated_obj, member_list_name):
 			annotate(m)
+		if member_list_name == "methods":
+			set_overloaded_method_filenames(annotated_obj)
 
 def set_overloaded_method_filenames(obj):
 	filenames = []
@@ -223,8 +242,14 @@ def set_overloaded_method_filenames(obj):
 		while test_filename in filenames:
 			test_filename = "%s-%s" % (m.filename_html, counter)
 			counter += 1
+		changed = (m.filename_html != test_filename)
 		m.filename_html = test_filename
 		filenames.append(test_filename)
+		if changed:
+			# Change parameter filenames too
+			if m.parameters:
+				for p in m.parameters:
+					p.filename_html = clean_for_filename("%s.%s-param" % (m.filename_html, p.name))
 
 def render_template(annotated_obj, options):
 	global files_written
@@ -277,46 +302,60 @@ def load_file_markdown(file_specifier, obj):
 	else:
 		return open(filename, "r").read()
 
-def anchor_for_object_or_method(obj_specifier, text=None, language="markdown"):
+def anchor_for_object_or_member(obj_specifier, text=None, language="markdown", suppress_code_formatting=False):
 	if language == "markdown":
-		label = text or ("`%s`" % obj_specifier)
+		if not suppress_code_formatting:
+			label = text or ("`%s`" % obj_specifier)
+		else:
+			label = text or obj_specifier
 		template = "[%s](#)" % label
 	else:
-		label = text or ("<code>%s</code>" % obj_specifier)
+		if not suppress_code_formatting:
+			label = text or ("<code>%s</code>" % obj_specifier)
+		else:
+			label = text or (obj_specifier)
 		template = '<a href="#">%s</a>' % label
 	if obj_specifier in all_annotated_apis:
 		obj = all_annotated_apis[obj_specifier]
 		if hasattr(obj, "filename_html"):
-			return template.replace("#", "%s.html" % obj.filename_html), True
+			return (template.replace("#", "%s.html" % obj.filename_html), True)
 	else:
-		# Maybe a method
+		# Maybe a method, property or event
 		parts = obj_specifier.split(".")
 		if len(parts) > 0:
 			parent = ".".join(parts[:-1])
-			method_name = parts[-1]
+			member_name = parts[-1]
 			if parent in all_annotated_apis:
 				obj = all_annotated_apis[parent]
-				if hasattr(obj, "methods"):
-					for m in obj.methods:
-						if m.name == method_name and hasattr(m, "filename_html"):
-							return template.replace("#", "%s.html" % m.filename_html), True
-	# Didn't find it. At least send it back styled like code.
+				list_names = ("methods", "properties", "events")
+				for list_name in list_names:
+					if hasattr(obj, list_name) and type(getattr(obj, list_name)) == list:
+						for m in getattr(obj, list_name):
+							if m.name == member_name and hasattr(m, "filename_html"):
+								return (template.replace("#", "%s.html" % m.filename_html), True)
+	# Didn't find it. At least send it back styled like code (unless that's suppressed).
 	if language == "markdown":
-		return "`%s`" % obj_specifier, False
+		if not suppress_code_formatting:
+			return "`%s`" % obj_specifier, False
+		else:
+			return obj_specifier, False
 	else:
-		return "<code>%s</code>" % obj_specifier, False
+		if not suppress_code_formatting:
+			return "<code>%s</code>" % obj_specifier, False
+		else:
+			return obj_specifier, False
 
 def replace_with_link(full_string, link_info):
 	s = full_string
 	obj_specifier = link_info
 	if obj_specifier.startswith("<"):
 		obj_specifier = obj_specifier[1:-1]
-		anchor, found_type = anchor_for_object_or_method(obj_specifier)
+		anchor, found_type = anchor_for_object_or_member(obj_specifier)
 		if found_type:
 			return s.replace(link_info, anchor)
 		else:
 			# if it at least looks like a Titanium type (but perhaps one
-			# that is not documented), return the styled result from anchor_for_object_or_method.
+			# that is not documented), return the styled result from anchor_for_object_or_member.
 			if obj_specifier.startswith("Ti") and "." in obj_specifier and not " " in obj_specifier:
 				return s.replace(link_info, anchor)
 
@@ -324,7 +363,7 @@ def replace_with_link(full_string, link_info):
 	prog = re.compile(pattern)
 	match = prog.match(link_info)
 	if match:
-		anchor, found_type = anchor_for_object_or_method(match.groups()[1], text=match.groups()[0])
+		anchor, found_type = anchor_for_object_or_member(match.groups()[1], text=match.groups()[0])
 		if found_type:
 			return s.replace(link_info, anchor)
 	# fallback
@@ -353,7 +392,7 @@ def markdown_to_html(s, obj=None):
 def data_type_to_html(type_spec):
 	result = ""
 	type_specs = []
-	pattern = r"(Dictionary|Array|Callback)\<([^\>]+)\>"
+	pattern = r"(Dictionary|Array|Callback)(\<.+\>)"
 	link_placeholder = "||link here||"
 	if hasattr(type_spec, "append"):
 		type_specs = type_spec
@@ -367,21 +406,45 @@ def data_type_to_html(type_spec):
 		one_type = one_type.strip()
 		one_type_html = one_type
 		if one_type in all_annotated_apis:
-			one_type_html, found_type = anchor_for_object_or_method(one_type, language="html")
+			one_type_html, found_type = anchor_for_object_or_member(one_type, language="html")
 		elif "." in one_type and ".".join(one_type.split(".")[:-1]) in all_annotated_apis:
-			one_type_html, found_type = anchor_for_object_or_method(one_type, language="html")
+			one_type_html, found_type = anchor_for_object_or_member(one_type, language="html")
 		else:
+			one_type_html = ""
+			parts = []
 			match = re.match(pattern, one_type)
-			if match is None or match.groups() is None or len(match.groups()) != 2:
-				one_type_html = one_type_html.replace("<", "&lt;").replace(">", "&gt;")
+			if match is None:
+				parts.append(one_type)
 			else:
-				raw_type = match.groups()[1]
-				type_link, found_type = anchor_for_object_or_method(raw_type, language="html")
-				one_type_html = one_type_html.replace("<%s>" % raw_type, link_placeholder)
-				one_type_html = one_type_html.replace("<", "&lt;").replace(">", "&gt;")
-				one_type_html = one_type_html.replace(link_placeholder, "<%s>" % type_link)
+				while match is not None and match.groups() is not None and len(match.groups()) == 2:
+					parts.append(match.groups()[0])
+					new_search = match.groups()[1][1:-1]
+					match = re.match(pattern, new_search)
+					if match is None:
+						parts.append(new_search)
+
+			for i in range(0, len(parts)):
+				p = parts[i]
+				html_link, found = anchor_for_object_or_member(p, language="html")
+
+				# We don't make it look code-like if it's just String or Object,
+				# or if it's Array/Dictionary/Callback
+				if (not found and i==0) or (p in ("Array", "Callback", "Dictionary")):
+					html_link = html_link.replace("<code>", "").replace("</code>", "")
+
+				one_type_html += html_link
+
+				if i != len(parts) - 1:
+					one_type_html += "&lt;"
+
+			if len(parts) > 1:
+				one_type_html += ("&gt;" * (len(parts) - 1))
+
 		if len(result) > 0:
 			result += " or "
 		result += one_type_html
+
 	return result
 
+def clean_for_filename(s):
+	return s.replace(":", "-").replace("/", "-")

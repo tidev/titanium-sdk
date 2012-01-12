@@ -225,7 +225,7 @@
 	}
 	else {
 		[pendingAnnotationSelection release];
-		pendingAnnotationSelection = [annotation retain];
+		pendingAnnotationSelection = (TiMapAnnotationProxy*)[annotation retain];
 	}
 }
 
@@ -339,6 +339,17 @@
 	region_.span = span;
 	return region_;
 }
+
+-(CLLocationDegrees) longitudeDelta
+{
+	return region.span.longitudeDelta;
+}
+
+-(CLLocationDegrees) latitudeDelta
+{
+	return region.span.latitudeDelta;
+}
+
 
 #pragma mark Public APIs
 

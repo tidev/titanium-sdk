@@ -1,383 +1,499 @@
 ---
 name: Titanium.UI.Window
-description: The Window is an empty drawing surface or container. The Window is created by the method <Titanium.UI.createWindow>. Unlike [Views](Titanium.UI.View-object), Windows can be opened and closed and can have special display properties such as `fullscreen` or `modal`.
+summary: The Window is an empty drawing surface or container.
 extends: Titanium.UI.View
 since: "0.9"
 
 methods:
   - name: close
-    description: close the window
+    summary: Closes the window.
     parameters:
       - name: options
-        description: close the window with optional animation or display properties
+        summary: Optional animation or display properties to use when closing the window.
         type: Object
         optional: true
+  - name: hideTabBar
+    summary: Hides the tab bar. Must be called before opening the window.
+    description: |
+        To hide the tab bar when opening a window as a child of a tab, call
+        `hideTabBar` or set `tabBarHidden` to `true` **before** opening the window.
+
+        If the window is not a child of a tab, this method has no effect.
+    platforms: [iphone,ipad]
   - name: open
-    description: open the window
+    summary: Opens the window.
     parameters:
       - name: options
-        description: open the window with optional animation or display properties
+        summary: Optional animation or display properties to use when opening the window.
         type: Object
         optional: true
 events:
   - name: android:back
     platforms: [android]
-    description: fired when the back button is released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-        
+    summary: Fired when the Back button is released.
+    description: |
+        Setting a listener disables the default key handling for the Back button.
+        To restore default behavior, remove the listener. It is recommended that you only
+        have one handler per heavyweight window.
+
   - name: android:camera
-    description: fired when the camera button is released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window
+    summary: Fired when the Camera button is released.
+    description: |
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener. It is recommended that you only have one
+        handler per heavyweight window.
     platforms: [android]
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-        
+
   - name: android:focus
-    description: fired when the camera button is half-pressed then released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window
+    summary: Fired when the Camera button is half-pressed then released.
+    description: |
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener. It is recommended that you only have one
+        handler per heavyweight window.
     platforms: [android]
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-        
+
   - name: android:search
-    description: fired when the search button is released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window
+    summary: Fired when the Search button is released.
+    description: |
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener. It is recommended that you only have
+        one handler per heavyweight window.
     platforms: [android]
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-        
+
   - name: android:voldown
-    description: fired when the volume down button is released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window
+    summary: Fired when the volume down button is released.
+    description: |
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener. It is recommended that you only have one
+        handler per heavyweight window.
     platforms: [android]
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-        
+
   - name: android:volup
-    description: fired when the volume up button is released. Setting a listener is interpreted as the handler for that button. To restore default behavior, remove the listener. It is recommended that you only have one handler per heavyweight window
+    summary: Fired when the volume up button is released.
+    description: |
+        Setting a listener disables the default key handling for this button. To restore
+        default behavior, remove the listener. It is recommended that you only have one
+        handler per heavyweight window.
     platforms: [android]
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-        
+
   - name: blur
-    description: fired when the window loses focus
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-        
+    summary: Fired when the window loses focus.
+
   - name: close
-    description: fired when the window is closed
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-        
+    summary: Fired when the window is closed.
+
   - name: focus
-    description: fired when the window gains focus
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
-        
+    summary: Fired when the window gains focus.
+
   - name: open
-    description: fired when the window is opened
-    properties:
-      - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-      - name: x
-        description: the x point of the event in receiving view coordiantes
+    summary: Fired when the window is opened.
 
 
 properties:
   - name: activity
-    description: |
-      For heavyweight windows, this property contains a reference to the Android Activity object associated with this window.
+    summary: |
+      For heavyweight windows, this property contains a reference to the
+      Android Activity object associated with this window.
     platforms: [android]
     type: Titanium.Android.Activity
-    
+
   - name: backButtonTitle
-    description: title for the back button. This is only valid when the window is a child of a tab.
+    summary: Title for the back button. This is only valid when the window is a child of a tab.
     platforms: [iphone, ipad]
     type: String
-    
+
   - name: backButtonTitleImage
-    description: url to an image to show as the back button.This is only valid when the window is a child of a tab.
+    summary: The image to show as the back button.
+        This is only valid when the window is a child of a tab.
     platforms: [iphone, ipad]
-    type: String
-    
+    type: [String, Titanium.Blob]
+
   - name: barColor
-    description: web named color or hex value for the color of the nav bar.
+    summary: Background color for the nav bar, specified as a hex color or color name.
     platforms: [iphone, ipad]
     type: String
-    
+
   - name: barImage
-    description: url to a local image to place as the background of the nav bar.
+    summary: Background image for the nav bar, specified as a URL to a local image.
     platforms: [iphone, ipad]
     type: String
-    
+
   - name: exitOnClose
-    description: Boolean indicates if the application should exit when the Android back button is pressed while the window is being shown.  You can only set this as a createWindow({...}) option.  Setting it after window creation will no effect.
+    summary: |
+        Boolean value indicating if the application should exit when the Android
+        Back button is pressed while the window is being shown.
+    description:  |
+        You can only set this as a createWindow({...}) option.  Setting it after
+        window creation has no effect.
     platforms: [android]
     default: false
     type: Boolean
-    
+    availability: creation
+
   - name: fullscreen
-    description: boolean indicates if the window is fullscreen (no device chrome)
+    summary: Boolean value indicating if the window is fullscreen.
+    description: |
+        A fullscreen window occupies all of the screen space, hiding elements
+        such as the iOS nav bar or the Android status bar. Must be specified
+        at creation time or in the `options` dictionary passed to the 
+        [Window.open](Titanium.UI.Window.open) method.
+    platforms: [android, iphone, ipad]
     type: Boolean
-    
+    default: false
+
   - name: leftNavButton
-    description: view to show in the left nav bar area.
+    summary: View to show in the left nav bar area.
     platforms: [iphone, ipad]
-    type: Object
-    
+    type: Titanium.UI.View
+
   - name: modal
+    summary: Boolean to indicate if the window should be opened modal in front of other windows.
     description: |
-        boolean to indicate if the window should be opened modal in front of other windows.  Android note: the
-        combination of `fullscreen:true` and `modal:true` will not work as expected.  Android modal windows are translucent,
-        and, in Android, the contents of a translucent window cannot appear above the status bar.  I.e., even though
-        you say `fullscreen:true`, the status bar will still be visible *if* it was visible in the previous window.  `navBarHidden` and
-        `modal` do work fine together, however.
-    type: Boolean
-    default: false
-    
-  - name: navBarHidden
-    description: for modal windows, hide the nav bar (true) or show the nav bar (false, default).
-    default: false
-    type: Boolean
-    
-  - name: opacity
-    description: |
-        The opacity from 0.0-1.0.  Android Notes: If you set any of `windowSoftInputMode`, `fullscreen`, or `navBarHidden`, *and* you wish to use the `opacity` property at any time during the window's lifetime, be sure to set an `opacity` value before opening the window.  You can later change that value -- and you can set it to 1 for full opacity if you wish -- but the important thing is that you set it to a value before opening the window if you will want to set it at any time during the window's lifetime.  The technical reason for this is that if the opacity property is present (i.e., has been set to something) and a new Android Activity will be created for the window, then a translucent theme will be used for the Activity.  Window transparency (opacity values below 1) will only work in Android if the Activity's theme is translucent, and we will only use a translucent theme for an Activity if you set an opacity property before opening the window.  Additionally, do not use `opacity` and `fullscreen: true` together, because translucent themes in Android cannot hide the status bar.  Finally, if you do set the `opacity` property, be sure to also set a `backgroundImage` or `backgroundColor` property as well, unless you want the window to be completely transparent.
-    type: Number
-    
-  - name: orientationModes
-    description: |
-        Array of orientation mode constants defined in <Titanium.UI>.  On Android, orientation modes that can be set are dependant on the Android SDK level of the device itself.  It should be noted that, the definition of portrait or 
-        landscape mode can vary based on the physical orientation of the device.  For example, on some devices <Titanium.UI.LANDSCAPE_LEFT> represents the top of the device being at the 270 degree position but other devices 
-        may (based on camera position for example) treat this position as <Titanium.UI.LANDSCAPE_RIGHT>.  In general, applications for Android that need to be aware of orientation should try and limit their orientation logic to handling 
-        either portrait or landscape rather than worrying about the reverse modes.  This approach will allow the orientation modes to adopt a more natural feel for the specific device.
+        Android note: the combination of `fullscreen:true` and `modal:true` will not work as
+        expected.  Android modal windows are translucent, and, in Android, the contents of
+        a translucent window cannot appear above the status bar.  I.e., even though
+        you set `fullscreen:true`, the status bar will still be visible *if* it was visible
+        in the previous window.  `navBarHidden` and `modal` do work fine together, however.
         
-        The following list breaks down the orientation behavior on Android:
-        1) (<Titanium.UI.PORTRAIT> OR <Titanium.UI.UPSIDE_PORTRAIT>) AND (<Titanium.UI.LANDSCAPE_LEFT> OR <Titanium.UI.LANDSCAPE_RIGHT>) - Enables full sensor which lets the operating system control the orientation of the screen based on the sensor inside the device.
-        2) <Titanium.UI.PORTRAIT> OR <Titanium.UI.UPSIDE_PORTRAIT> - Enables sensor portrait mode on Android 2.3 and above.  Sensor portrait mode on Android means the screen will shift between both portrait modes according to the sensor inside the device.  If the Android version is less than 2.3, then normal portrait mode is locked.
-        3) <Titanium.UI.LANDSCAPE_LEFT> OR <Titanium.UI.LANDSCAPE_RIGHT> - Enables sensor landscape mode on Android 2.3 and above.  Sensor landscape mode on Android means the screen will shift between both landscape modes according to the sensor inside the device.  If the Android version is less than 2.3, then normal landscape mode is locked.
-        4) <Titanium.UI.PORTRAIT> - Locks screen orientation to portrait mode
-        5) <Titanium.UI.LANDSCAPE> - Locks screen orientation to landscape mode
-        6) empty array - resets the orientation to default sensor control
+        iOS note: modal windows should not support orientation modes that the
+        window they are opened over do not support. Doing otherwise *may* cause
+        bad visual/redraw behavior after the modal is dismissed, due to how
+        iOS manages modal transitions.
+    platforms: [android, iphone, ipad]
+    type: Boolean
+    default: false
+
+  - name: navBarHidden
+    summary: For modal windows, hide the nav bar (`true`) or show the nav bar (`false`).
+    platforms: [android, iphone, ipad]
+    default: false
+    type: Boolean
+
+  - name: opacity
+    summary: The opacity from 0.0-1.0.
+    description: |
+        iOS Notes: For modal windows that cover the previous window, the previous window is 
+        removed from the render stack after the modal window finishes opening. If the 
+        modal window is semi-transparent, the underlying window will be visible during the 
+        transition animation, but disappear as soon as the animation is completed. (In general 
+        all modal windows cover the previous window, except for iPad modal windows using the 
+        Page sheet or Form sheet style.)
+
+        Android Notes: If you set any of `windowSoftInputMode`, `fullscreen`, or `navBarHidden`,
+        *and* you wish to use the `opacity` property at any time during the window's lifetime,
+        be sure to set an `opacity` value **before** opening the window.  You can later change that
+        value -- and you can set it to 1 for full opacity if you wish -- but the important thing
+        is that you set it to a value before opening the window if you will want to set it at
+        any time during the window's lifetime.
+
+        The technical reason for this is that if the opacity property is present (i.e., has
+        been set to something) and a new Android Activity is created for the window,
+        then a translucent theme will be used for the Activity.  Window transparency (opacity
+        values below 1) will only work in Android if the Activity's theme is translucent, and
+        Titanium only uses a translucent theme for an Activity if you set an opacity property
+        before opening the window.  Additionally, do not use `opacity` and `fullscreen: true`
+        together, because translucent themes in Android cannot hide the status bar.  Finally,
+        if you do set the `opacity` property, be sure to also set a `backgroundImage` or
+        `backgroundColor` property as well, unless you want the window to be completely
+        transparent.
+    platforms: [android, iphone, ipad, mobileweb]
+    type: Number
+
+  - name: orientationModes
+    summary: |
+        Array of supported orientation modes, specified using the orientation
+        constants defined in <Titanium.UI>.
+    description: |
+        To restrict this window to a certain set of orientations, specify one or more
+        of the orientation constants [LANDSCAPE_LEFT](Titanium.UI.LANDSCAPE_LEFT),
+        [LANDSCAPE_RIGHT](Titanium.UI.LANDSCAPE_RIGHT), [PORTAIT](Titanium.UI.PORTAIT),
+        [UPSIDE_PORTRAIT](Titanium.UI.UPSIDE_PORTRAIT).
+
+        `orientationModes` must be set **before** opening the window.
+
+        #### Android Orientation Modes
+
+        On Android, orientation behavior is dependent on the Android SDK level
+        of the device itself. Devices running Android 2.3 and above support "sensor portait
+        mode" and "sensor landscape mode," in these modes, the device is locked into
+        either a portrait or landscape orientation, but can switch between the normal and reverse
+        orientations (for example, between PORTRAIT and UPSIDE_PORTRAIT).
+
+        In addition, the definition of portrait or
+        landscape mode can vary based on the physical design of the device. For example,
+        on some devices <Titanium.UI.LANDSCAPE_LEFT> represents the top of the device being at
+        the 270 degree position but other devices may (based on camera position for example)
+        treat this position as <Titanium.UI.LANDSCAPE_RIGHT>. In general, applications for
+        Android that need to be aware of orientation should try and limit their orientation
+        logic to handling either portrait or landscape rather than worrying about the reverse
+        modes. This approach will allow the orientation modes to adopt a more natural feel for
+        the specific device.
+
+        The following list breaks down the orientation behavior on Android based on the contents
+        of the `orientationModes` array:
+
+        1.  Empty array. Enables orientation to be fully controlled by the device sensor.
+
+        2.  Array includes one or both portrait modes **and** one or both landscape modes.
+            Enables full sensor control (identical to an empty array).
+
+        3.  Array contains PORTRAIT **and** UPSIDE_PORTRAIT. On Android 2.3 and above,
+            enables sensor portrait mode. This means the screen will shift between
+            both portrait modes according to the sensor inside the device.
+
+            On Android versions below 2.3, locks screen orientation in normal portrait mode.
+
+        4.  Array contains LANDSCAPE_LEFT **and** LANDSCAPE_RIGHT. On Android 2.3 and above,
+            enables sensor landscape mode. This means the screen will shift between both
+            landscape modes according to the sensor inside the device.
+
+            On Android versions below 2.3, locks screen orientation in normal landscape mode.
+
+        5.  Array contains **only** [PORTRAIT](Titanium.UI.PORTRAIT). Locks screen orientation
+            to normal portrait mode.
+
+        6.  Array contains **only** [LANDSCAPE_LEFT](Titanium.UI.LANDSCAPE_LEFT). Locks screen
+            orientation to normal landscape mode.
+
+        Note that specifying either [UPSIDE_PORTRAIT](Titanium.UI.UPSIDE_PORTRAIT) or
+        [LANDSCAPE_RIGHT](Titanium.UI.LANDSCAPE_RIGHT) alone has undefined results on Android.
+
+    platforms: [android, iphone, ipad]
     type: Array<Number>
-    
+    default: empty array
+
   - name: orientation
-    description: Current orientation of the window.  Value will be one of the orientation constants defined in <Titanium.UI>.
+    summary: Current orientation of the window.
+    description: |
+        Value will be one of the orientation constants defined in <Titanium.UI>. See
+        the discussion of the [orientationModes](Titanium.UI.Window.orientationModes)
+        property for more information.
+    platforms: [android, iphone, ipad]
     type: Number
 
   - name: rightNavButton
-    description: view to show in the right nav bar area.
+    summary: View to show in the right nav bar area.
     platforms: [iphone, ipad]
     type: Titanium.UI.View
-    
+
   - name: tabBarHidden
-    description: boolean to indicate if the tab bar should be hidden. this is only valid when the window is a child of a tab.
+    summary: |
+        Boolean value indicating if the tab bar should be hidden. 
+    description: |
+        `tabBarHidden` must be set **before** opening the window.
+
+        This property is only valid when the window is the child of a tab.
+    platforms: [iphone,ipad]
     type: Boolean
-    
+
   - name: title
-    description: title of the window.
+    summary: Title of the window.
     type: String
-    
+
   - name: titleControl
-    description: view to show in the title area.
+    summary: View to show in the title area of the nav bar.
     platforms: [iphone, ipad]
     type: Titanium.UI.View
-    
+
   - name: titleImage
-    description: url to a image that show in the title area.
+    summary: Image to show in the title area of the nav bar, specified as a local file path or URL.
     platforms: [iphone, ipad]
     type: String
-    
+
   - name: titlePrompt
-    description: title prompt for the window.
+    summary: Title prompt for the window.
     type: String
-    
+
   - name: titleid
-    description: the key in the locale file to use for the title property
+    summary: Key identifying a string from the locale file to use for the window title.
+    description: Only one of `title` or `titleid` should be specified.
     type: String
-    
+
   - name: titlepromptid
-    description: the key in the locale file to use for the titlePrompt property
+    summary: Key identifying a string from the locale file to use for the window title prompt.
+    description: Only one of `titlePrompt` or `titlepromptid` should be specified.
     type: String
-    
+
   - name: toolbar
-    description: array of button objects to show in the toolbar of the window. This is only valid when the window is a child of a tab.
+    summary: |
+        Array of button objects to show in the window's toolbar. This is only valid when
+        the window is the child of a tab.
     platforms: [iphone, ipad]
     type: Array<Object>
-    
+
   - name: translucent
-    description: boolean to indicate if the nav bar is translucent.
+    summary: Boolean value indicating if the nav bar is translucent.
     platforms: [iphone, ipad]
     type: Boolean
-    
+
   - name: url
-    description: url to a JavaScript file with the windows instructions. this window will create a new JavaScript sub-context that will run in its own thread and global variable space.
-    type: String
-    
-  - name: windowSoftInputMode
+    summary: Local URL to a JavaScript file with the windows instructions.
     description: |
-        One of <Ti.UI.Android.SOFT_INPUT_ADJUST_PAN>, <Ti.UI.Android.SOFT_INPUT_ADJUST_RESIZE>, or <Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED>. Note: MUST be passed in the creation options. (Android Only) [Android Doc: Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int))
+        This window will create a new JavaScript sub-context that will run
+        in its own thread and global variable space. See the "Sub-contexts" section
+        in the main description for [Window](Titanium.UI.Window).
+    type: String
+    availability: creation
+
+  - name: windowSoftInputMode
+    summary: |
+        Determines how the window is treated when a soft input method (such as a
+        virtual keyboard) is displayed.
+    description: |
+        Specify one of [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN),
+        [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE),
+        or [SOFT_INPUT_ADJUST_UNSPECIFIED](Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED).
+
+        For more information see the Android API Reference: 
+        [Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
     platforms: [android]
     type: Number
+    availability: creation
   - name: windowPixelFormat
+    summary: Set the pixel format for the Activity's Window.
     description: |
-        Set the pixel format for the Activity's Window. The property is ignored on a Titanium "lightweight" Window. Use one of the <Ti.UI.Android>.PIXEL_FORMAT constants to set the format. 
-        See [Android SDK Window.setFormat](http://developer.android.com/reference/android/view/Window.html#setFormat(int))
+        The property is ignored on a Titanium "lightweight" Window. Use one of the
+        <Ti.UI.Android>.PIXEL_FORMAT constants to set the format.
+
+        For more information on pixel formats, see 
+        [Android SDK Window.setFormat](http://developer.android.com/reference/android/view/Window.html#setFormat(int))
     platforms: [android]
     type: Number
     since: "1.8.0"
 
-notes: |
-    ### Sub-contexts
+description: |
+    A window is a top-level container which can contain other views. Windows can
+    be *opened* and *closed*.  Opening a window causes the window and its child 
+    views to be added to the application's render stack, on top of any previously opened 
+    windows. Closing a window removes the window and its children from the render stack.
+
+    Windows *contain* other views, but in general they are not *contained* inside
+    other views. There are a few specialized top-level views that manage windows,
+    including:
     
-    Windows can be loaded from another Javascript file by specifying the property `url` and reference a file relative to your application `Resources` folder.  It's important to note that Titanium will refuse to load Javascript files from a remote URL. Loading remote Javascript from a URL and providing it with the full capabilities of the Titanium API would be very dangerous. 
-    
-    When you Window is loaded from a separate Javascript file, the code will be executed in a separate Javascript context (called a "sub-context") than your `app.js` global context.  It will also execute in its own separate thread.  
-    
-    The special property <Titanium.UI.currentWindow> is available inside a sub-context that points to the Javascript instance by reference in the global context.  
-    
-    
-    ### Passing Data
-    
-    By default, sub-context variables cannot access Javascript references in the global context.  However, the global context can allow its sub-contexts the ability to have access to properties and functions in the global context by reference assignment.  An example best illustrates how to do this.
-    
-    In `app.js`, you could define a function and a property.
-    
-        var a = 1;
-        function b()
-        {
-        	return "hello";
-        }
-    
+    * [NavigationGroup](Titanium.UI.iPhone.NavigationGroup)
+    * [SplitWindow](Titanium.UI.iPad.SplitWindow)
+    * [TabGroup](Titanium.UI.TabGroup). 
+
+    By default, windows occupy the entire screen except for the navigation bar, 
+    status bar, and in the case of windows contained in tab groups, the tab bar.
+    To take up the entire screen, covering any other UI, specify `fullscreen:true`
+    when creating the window.
+
+    Use the <Titanium.UI.createWindow> method to create a window.
+
+    #### Sub-contexts
+
+    Windows can be loaded from another JavaScript file by specifying the property `url`,
+    referencing a file relative to your application `Resources` folder.  It's important
+    to note that Titanium will refuse to load JavaScript files from a remote URL. Loading
+    remote JavaScript from a URL and providing it with the full capabilities of the Titanium
+    API would be very dangerous.
+
+    When your Window is loaded from a separate JavaScript file, the code will be executed in
+    a separate JavaScript context (called a "sub-context") than your `app.js` global context.
+    It will also execute in its own separate thread.
+
+    On Android, a new context is also created when you create a heavyweight window. See the
+    section, "Android Heavyweight and Lightweight Windows" for more information.
+
+    The special property <Titanium.UI.currentWindow> is available inside a sub-context that
+    points to the JavaScript instance by reference in the global context.
+
+
+    #### Passing Data Between Contexts
+
+    By default, sub-context variables cannot access JavaScript references in the global context.
+    There are two ways to pass data between the global context and the sub-context:
+
+    - Shared references
+    - Events
+
+    **Note that in both cases, you cannot pass functions between contexts, only serializable data.**
+    *Serializable data* includes any JavaScript primitive or simple object composed
+    of JavaScript primitives.
+
+    ##### Passing Data with Shared References
+
+    You can allow a sub-context access to
+    properties in the global context by reference assignment.  An example best illustrates
+    how to do this.
+
+    In `app.js`, you could define a property:
+
+        var message = "Hi world!";
+
     Now, you can create a new Window - let's call it `foo.js` - in your `app.js`.
-    
+
         var w = Titanium.UI.createWindow({
         	url:'foo.js'
         });
-    
-    To _give_ your new window access to both `a` and `b`, you would need to assign them to the 
-    new window reference `w`.
-    
-        w.a = a;
-        w.b = b;
-    
-    Of course, you could give them a different name than their original names.  However, what name you give them in your `app.js` is how you will reference them in `foo.js`.  Now, let's look at the code for `foo.js`.
-    
-        alert("b() = "+Titanium.UI.currentWindow.b());
-    
-    In the above code, the `foo.js` will execute the function `b` in the global context and return the result.  Since `b` is a reference (vs. a copy by value), any changes made to these Javascript references will be immediately available in all sub-contexts.
-    
-    ### Events
-    
-    If you'd like to send events to a window from the global context and vice versa, you could use the built-in event mechanism.  For example, you could define a custom event called `foo`. The window could listen for this event and then respond with some action.  For example, in your sub-context you might define:
-    
+
+    To _give_ your new window access to `message`, you would need to assign it to a
+    property on the new window reference, `w`.
+
+        w.alertMessage = message;
+
+    This creates a new `alertMessage` property on the new window that holds a reference to the
+    `message` property in the global context.  Now, let's look at the code for `foo.js`.
+
+        alert(Titanium.UI.currentWindow.alertMessage);
+
+    In the above code, the `foo.js` will show an alert containing the text from the `message`
+    property in the global context.
+
+    ##### Passing Data with Events
+
+    If you'd like to send events to a window from the global context and vice versa, you could
+    use the built-in event mechanism.  For example, you could define a custom event called `foo`.
+    The window could listen for this event and then respond with some action. For example, in
+    your sub-context you might define:
+
         Titanium.UI.currentWindow.addEventListener('foo',function(e)
         {
         	Titanium.API.info("foo event received = "+JSON.stringify(e));
         });
-    
+
     You could now fire the event from `app.js` like this:
-    
+
         var window = Titanium.UI.createWindow({
         	url:'bar.js'
         });
         window.open();
         window.fireEvent('foo',{a:'b'});
-    
+
     It's worth noting two important limitations of the example above:
-    
-    * You must open the window before you can send events to it. You also may have to fire the event after a specified amount of time if you intend to immediately send data to the window.  This is because windows are opened asynchronously and on a separate thread than the caller thread.
-    * You can only send JSON-serializable data in a fireEvent.  If you attempt to send objects that have function references, they will be null.
-    
-    
-    ### Animations
-    
-    Windows can be animated like any normal [View](Titanium.UI.View).  To transition between 2 windows, you can use the `transition` property on an animation.  For example, to flip right-to-left between two windows, you could do the following:
-    
+
+    * You must open the window before you can send events to it. You also may have to fire
+      the event after a specified amount of time if you intend to immediately send data to
+      the window. This is because windows are opened asynchronously and on a separate thread
+      than the caller thread.
+
+    * You can only send JSON-serializable data in `fireEvent`. If you attempt to send objects
+      that have function references, they will be null.
+
+
+    #### Animations
+
+    Windows can be animated like any normal [View](Titanium.UI.View).  To transition between
+    2 windows, you can use the `transition` property on an animation.  For example, to flip
+    right-to-left between two windows, you could do the following:
+
         var window2 = Titanium.UI.createWindow({url:'foo.js'});
         var t = Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT;
         window1.animate({view:window2,transition:t});
-    
+
     In the above example, the `window2` view will be animated from the right-to-left over `window1`.
-    
-    Windows can be opened or closed with animation.  In the example below, we create a window that will open from small to large with a bounce effect.  This is done by applying a transformation at initialization time that scales the original size of the window to 0.  When the window is opened, a new 2D transformation is applied that will scale the window size from 0 to 110% of it's original size and then, after 1/20th of a second, will scale it back to it's original size at 100%. This gives the bounce effect during animation. 
-    
+
+    Windows can be opened or closed with animation.  In the example below, we create a window
+    that will open from small to large with a bounce effect.  This is done by applying a
+    transformation at initialization time that scales the original size of the window to 0.
+    When the window is opened, a new 2D transformation is applied that will scale the window
+    size from 0 to 110% of it's original size and then, after 1/20th of a second, will scale it
+    back to it's original size at 100%. This gives the bounce effect during animation.
+
         var t = Titanium.UI.create2DMatrix().scale(0);
-        
+
         // create a window with the initial transform scaled to 0
         var w = Titanium.UI.createWindow({
         	backgroundColor:'#336699',
@@ -389,14 +505,14 @@ notes: |
         	opacity:0.92,
         	transform:t
         });
-        
+
         // create first transform to go beyond normal size
         var t1 = Titanium.UI.create2DMatrix().scale(1.1);
-        
+
         var a = Titanium.UI.createAnimation();
         a.transform = t1;
         a.duration = 200;
-        
+
         // when this animation completes, scale to normal size
         a.addEventListener('complete', function()
         {
@@ -404,30 +520,67 @@ notes: |
         	var t2 = Titanium.UI.create2DMatrix();
         	w.animate({transform:t2, duration:200});
         });
-    
-    ### iPad Modal Windows
-    
-    For iPad, iPhone SDK 3.2 and Titanium 1.2 introduced several new ways of presenting modal windows.  
-    
-    The example below is a modal window.
-    
+
+    #### iPad Modal Windows
+
+    For iPad, iPhone SDK 3.2 and Titanium 1.2 introduced several new ways of presenting
+    modal windows. In addition to full-screen modal windows, the iPad supports "Page sheet"
+    and "Form sheet" style windows:
+
+    * **Page sheet** style windows have a fixed width, equal to the width of the screen 
+      in portait mode, and a height equal to the *current* height of the screen. This means
+      that in portrait mode, the window covers the entire screen. In landscape mode, 
+      the window is centered on the screen horizontally.
+
+    * **Form sheet** style windows are smaller than the screen size, and centered on the screen.
+
+    The example below is a modal window using the Form sheet style:
+
     ![modal](http://img.skitch.com/20100406-bqb3f8pb6e4ger7wkcdcw5mbar.png)
-    
+
     You can create this type of modal window on iPad with the following code snippet:
-    
+
         var window = Titanium.UI.createWindow();
         window.open({
         	modal:true,
         	modalTransitionStyle: Ti.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,
         	modalStyle: Ti.UI.iPhone.MODAL_PRESENTATION_FORMSHEET
         })
-    
-    ### Android "root" Windows
-    
-    In Android, you may wish to specify that a window which you create (such as the first window) should be considered the root window and that the application should exit when the back button is pressed from that window.  This is particularly useful if your application is not using a Tab Group and therefore the splash screen window is appearing whenever you press the back button from your lowest window on the stack.
-    
-    To indicate that a particular window should cause an application to exit when the back button is pressed, pass `exitOnClose: true` as one of the creation arguments, as shown here:
-    
+
+    #### Android Heavyweight and Lightweight Windows
+
+    In Android, Titanium windows can be heavyweight or lightweight:
+
+    - A *heavyweight* window is associated with a new Android 
+      [Activity](Titanium.Android.Activity). Creating a heavyweight window always 
+      creates a new JavaScript context.
+
+    - A *lightweight* window is a fullscreen view, and runs in the same Android Activity 
+      as the code that created it. Creating a lightweight window creates a new 
+      JavaScript context if it was created with the 'url' property set.
+
+    The [createWindow](Titanium.UI.createWindow) call creates a heavyweight window 
+    if any of the following properties are true on creation:
+
+    * `fullscreen`
+    * `navBarHidden`
+    * `modal`
+    * `windowSoftInputMode`
+
+    A heavyweight window is always created when you open a new window from inside a 
+    [TabGroup](Titanium.UI.TabGroup).
+
+    #### Android "root" Windows
+
+    In Android, you may wish to specify that a window which you create (such as the first
+    window) should be considered the root window and that the application should exit when
+    the back button is pressed from that window.  This is particularly useful if your application
+    is not using a Tab Group and therefore the splash screen window is appearing whenever you
+    press the back button from your lowest window on the stack.
+
+    To indicate that a particular window should cause an application to exit when the back
+    button is pressed, pass `exitOnClose: true` as one of the creation arguments, as shown here:
+
         var win = Titanium.UI.createWindow({
         	title: 'My Root Window',
         	exitOnClose: true
@@ -438,10 +591,10 @@ examples:
   - title: Full Screen Window example
     example: |
         Create a fullscreen window with a red background.
-        
+
             var window = Titanium.UI.createWindow({
                backgroundColor:'red'
             });
             window.open({fullscreen:true});
-        
+
 

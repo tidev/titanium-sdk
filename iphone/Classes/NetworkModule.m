@@ -12,6 +12,7 @@
 #import "SBJSON.h"
 #import "TiBlob.h"
 #import "TiNetworkSocketProxy.h"
+#import "ASIHTTPRequest.h"
 
 NSString* const INADDR_ANY_token = @"INADDR_ANY";
 
@@ -189,6 +190,9 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 			return @"LAN";
 		case TiNetworkConnectionStateMobile:
 			return @"MOBILE";
+		default: {
+			break;
+		}
 	}
 	return @"UNKNOWN";
 }
@@ -207,6 +211,10 @@ MAKE_SYSTEM_PROP(NETWORK_UNKNOWN,TiNetworkConnectionStateUnknown);
 MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_BADGE,1);
 MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_ALERT,2);
 MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
+
+MAKE_SYSTEM_PROP(TLS_VERSION_1_0, TLS_VERSION_1_0);
+MAKE_SYSTEM_PROP(TLS_VERSION_1_1, TLS_VERSION_1_1);
+MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 
 #pragma mark Push Notifications 
 

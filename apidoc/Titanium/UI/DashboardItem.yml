@@ -1,39 +1,39 @@
 ---
 name: Titanium.UI.DashboardItem
-description: An item that represents a visual icon in the <Titanium.UI.DashboardView>. The Dashboard Item is created by the method <Titanium.UI.createDashboardItem>.
+summary: An item that represents a visual icon in the <Titanium.UI.DashboardView>. The Dashboard Item is created by the method <Titanium.UI.createDashboardItem>.
 extends: Titanium.Proxy
 since: "1.2"
 platforms: [iphone, ipad]
 events:
   - name: click
-    description: fired when a <Titanium.UI.DashboardItem> is clicked
+    summary: fired when a <Titanium.UI.DashboardItem> is clicked
     properties:
       - name: location
-        description: the location object with the properties `x` and `y` of where in the parent view the click was
+        summary: the location object with the properties `x` and `y` of where in the parent view the click was
       - name: item
-        description: the <Titanium.UI.DashboardItem> that was clicked
+        summary: the <Titanium.UI.DashboardItem> that was clicked
   - name: delete
-    description: fired when a  <Titanium.UI.DashboardItem> is deleted during editings
+    summary: fired when a  <Titanium.UI.DashboardItem> is deleted during editings
     properties:
       - name: item
-        description: the <Titanium.UI.DashboardItem> that was deleted
+        summary: the <Titanium.UI.DashboardItem> that was deleted
   - name: move
-    description: fired when a  <Titanium.UI.DashboardItem> is moved during editing
+    summary: fired when a  <Titanium.UI.DashboardItem> is moved during editing
     properties:
       - name: items
-        description: the pending data array in the new order (uncommitted)
+        summary: the pending data array in the new order (uncommitted)
       - name: item
-        description: the <Titanium.UI.DashboardItem> that was moved
+        summary: the <Titanium.UI.DashboardItem> that was moved
 properties:
   - name: badge
-    description: the badge value or `0` to remove the badge
+    summary: the badge value or `0` to remove the badge
     type: Number
   - name: canDelete
-    description: a boolean to indicate if this item can be deleted when it edit mode
+    summary: a boolean to indicate if this item can be deleted when it edit mode
     type: Boolean
   - name: image
-    description: the URL to the image
-    type: String
+    summary: The image for the item.
+    type: [String, Titanium.Blob]
   - name: selectedImage
-    description: the URL to the image to display when the item is depressed (clicked)
-    type: String
+    summary: The image to display when the item is depressed (clicked)
+    type: [String, Titanium.Blob]

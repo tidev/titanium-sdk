@@ -1,20 +1,25 @@
 ---
 name: Titanium.UI.ButtonBar
-description: A Button Bar is created by the method <Titanium.UI.createButtonBar>.
+summary: A Button Bar is created by the method <Titanium.UI.createButtonBar>.
 extends: Titanium.UI.View
 since: "0.8"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, mobileweb]
 properties:
   - name: index
-    description: the selected index
+    summary: the selected index
     type: Number
   - name: labels
-    description: the array of labels for the button bar. each object should have the properties `title`, `image`, `width` and `enabled`.
+    summary: The array of labels for the button bar. 
+    detail: |
+        Each object should have the following properties:
+        `title`, `image`, `width` and `enabled`. `image` may
+        either be a path to an image file, or a <Titanium.Blob>
+        representing an image.
     type: Array<Object>
   - name: style
-    description: the style of the button bar
+    summary: the style of the button bar
     type: Number
-notes: |
+description: |
     For iPhone, the style constants are available in the constants defined in <Titanium.UI.iPhone.SystemButtonStyle>.
 examples:
   - title: Simple 3 button button bar

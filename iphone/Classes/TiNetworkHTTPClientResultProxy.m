@@ -106,22 +106,23 @@
 -(TiDOMDocumentProxy*)responseXML
 {
 	NSString* responseText = [self valueForKey:@"responseText"];
-	if (responseText!=nil)
+	if (![responseText isEqual:(id)[NSNull null]])
 	{
 		TiDOMDocumentProxy *dom = [[[TiDOMDocumentProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 		[dom parseString:responseText];
 		return dom;
 	}
-	return nil;
+	return (id)[NSNull null];
 }
 
+// See comment in TiNetworkHTTPClientProxy about case-correction pre-iOS 5
 -(id)getResponseHeader:(id)args
 {
+    ENSURE_SINGLE_ARG(args, NSString);
+    
 	id result = [delegate getResponseHeader:args];
 	if (result == nil) {
-		id key = [args objectAtIndex:0];
-		ENSURE_TYPE(key,NSString);
-		result = [responseHeaders objectForKey:key];
+        return [TiUtils getResponseHeader:args fromHeaders:responseHeaders];
 	}
 	return result;
 }

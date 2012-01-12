@@ -1,315 +1,680 @@
 ---
 name: Titanium.UI.View
-description: The View is an empty drawing surface or container. The View is created by the method <Titanium.UI.createView>.
+summary: An empty drawing surface or container created by the method <Titanium.UI.createView>.
+description: |
+    The `View` is the base type for all UI widgets in Titanium.
+
+    
+    #### Units and Coordinates
+    
+    Sizes and coordinates are specified using platform-specific units. 
+
+    The default unit on Android is pixels, but users can specify other units, including 
+    pixels (px), points (pt), device-independent pixels (dp or dip), millimeters (mm) or 
+    inches (in). For example, '16pt' is interpreted as 16 points. Points on Android always 
+    refers to the typographical unit of 1/72 of an inch.
+    
+    Android's density-independent pixels (DIPs) maintain a consistent visual size independent 
+    of the display's density. One DIP corresponds to one pixel on a medium density display 
+    (160 DPI).
+    
+    iOS accepts sizes in Apple "points," where one "point" corresponds to one pixel on 
+    non-Retina displays, and two pixels on Retina displays. This unit is rougly equivalent
+    to the Android density-independent pixel, and shouldn't be confused with the typographical
+    unit. 
+    
+    Any unit specifier appended to a size or coordinate value on iOS is ignored: for example, 
+    '16in' is interpreted as 16 Apple "points", as is '16px' or '16mm'. 
+
+    Font sizes on iOS are treated differently than other sizes: font sizes are always 
+    specified in typographical points.
+    
+    Mobile Web accepts all of the standard web units, including 
+    pixels (px), ems (em), points (pt), picas (pc), millimeters (mm) or inches (in). The 
+    default unit is pixels. Note that in Mobile Web, the interpretation of these units 
+    is browser-dependent.
+
+    Some [View](Titanium.UI.View) size fields, such as `height` and `width` accept the 
+    special value `'auto'` to specify that the value should be calculated based on the 
+    view's contents. Sizes and positions can also be specified as a percentage of the 
+    parent, for example, '50%'.
+    
+    #### Size and Position
+    
+    Titanium views are positioned using the `left`, `right`, `top,` `bottom` and `center` 
+    properties, and sized using the `width` and `height` properties. These are
+    input properties, set by the user to specify layout, and not modified by the 
+    system to indicate actual calculated positions and sizes. 
+    
+    How these properties are interpreted depends on the value of the view's `layout` 
+    property. See the description of the [layout](Titanium.UI.View.layout) property 
+    for details.
+    
+    The [size](Titanium.UI.View.size) field is an output field that supplies the *calculated* 
+    size of the view. The `size` field is a dictionary with two properties, `width` and `height`.
+
 extends: Titanium.Proxy
 since: "0.9"
 methods:
   - name: add
-    description: add a child to the view hierarchy
+    summary: Adds a child to this view's hierarchy.
+    description: |
+        There are certain top-level containers that are not intended to be added 
+        as the children of other views. These top-level containers include 
+        [Window](Titanium.UI.Window), [SplitWindow](Titanium.UI.iPad.SplitWindow),
+        and [TabGroup](Titanium.UI.TabGroup).  Other types of views must be added 
+        to a top-level container in order to be displayed on screen.
+
+        The special containers [NavigationGroup](Titanium.UI.iPhone.NavigationGroup), 
+        [SplitWindow](Titanium.UI.iPad.SplitWindow), [Tab](Titanium.UI.Tab), and 
+        [TabGroup](Titanium.UI.TabGroup)
+        manage windows. These managed windows may be referred to as *children* of the 
+        container, but they are not added using the `add` method.
+        
+        Note that although a `NavigationGroup`
+        manages windows, it is not itself top-level container.  It must be added to a 
+        `Window` in order to be displayed. 
+        
+        `Tab` is another kind of special container: it is not itself a top-level container, 
+        but can only be used within a `TabGroup`. You cannot `add` a `Tab` to an arbitrary
+        container.
     parameters:
       - name: view
-        description: the view to add to this views hiearchy
+        summary: View to add to this view's hierarchy
         type: Titanium.UI.View
   - name: animate
-    description: animate the view
+    summary: Animates this view.
+    description: |
+        Note that if you use `animate` to move a view, the view's actual *position*
+        is changed, but its layout properties, such as `top`, `left`, `center` and 
+        so on are not changed--these reflect the original values set by the user, not
+        the actual position of the view.
+        
+        In this release, the view's actual position is not available to the application. 
+        This feature will be added to a future release.
+
+        If you need one or more of the layout  properties to be updated after animation,
+        you can update them in the callback after animation is complete. For example:
+
+            var newTop = view1.top - 100;
+            view1.animate({ top: newTop, duration: 500 }, function () {
+                view.top = newTop; 
+            });
     parameters:
       - name: obj
-        description: either a dictionary of animation properties or an Animation object
-        type: Object
+        summary: |
+            Either a dictionary of animation properties or an 
+            [Animation](Titanium.UI.Animation) object.
+        type: [Titanium.UI.Animation,Dictionary<Titanium.UI.Animation>]
       - name: callback
-        description: function to be invoked upon completion of the animation
+        summary: Function to be invoked upon completion of the animation.
         type: Callback<Object>
   - name: hide
-    description: hide the view
+    summary: Hides this view.
   - name: remove
-    description: remove a previously add view from the view hiearchy
+    summary: Removes a child view from this view's hierarchy.
     parameters:
       - name: view
-        description: the view to remove from this views hiearchy
+        summary: View to remove from this view's hierarchy.
         type: Titanium.UI.View
   - name: show
-    description: make the view visible
+    summary: Makes this view visible.
   - name: toImage
-    description: return a Blob image of the rendered view
+    summary: Returns an image of the rendered view, as a Blob.
+    platforms: [android, iphone, ipad]
     returns:
-        type: Object
+        type: Titanium.Blob
     parameters:
       - name: f
-        description: function to be invoked upon completion. if non-null, this method will be performed asynchronously. if null, it will be performed immediately
+        summary: | 
+            Function to be invoked upon completion. If non-null, this method will be 
+            performed asynchronously. If null, it will be performed immediately.
         type: Callback<Object>
         optional: true
   - name: convertPointToView
-    description: translates a point from the receiver's view coordinate system to another view's coordinate system. If both views
-        are connected in the native view hierarchies, will return the converted point in the form of an object with x and y properties.
-        If either view is not in the view hierarchy, a null is returned. Keep in mind that views may be removed from the view hierarchy
-        if their window is blurred or if the view is offscreen (such as in some situations with <Titanium.UI.ScrollableView>).
-        If this view is a <Titanium.UI.ScrollView>, the view's x and y offsets are subtracted from the return value.
+    summary: |
+        Translates a point from this view's coordinate system to another 
+        view's coordinate system.
+    description: |
+        If both views are connected in the native view hierarchies, returns the 
+        point, converted to `destinationView`'s coordinate system.
+
+        Returns `null` if either view is not in the view hierarchy.
+        Keep in mind that views may be removed from the view hierarchy if their window 
+        is blurred or if the view is offscreen (such as in some situations with 
+        <Titanium.UI.ScrollableView>).
+
+        If this view is a <Titanium.UI.ScrollView>, the view's x and y offsets are 
+        subtracted from the return value.
+    platforms: [android, iphone, ipad]
     returns:
         type: Point
     parameters:
       - name: point
-        description: an object with properties of x and y describing a point within the receiver's coordinate system. If this argument is missing an x or y property, or the properties can not be converted into numbers, an exception will be raised.
+        summary: |
+            A point in this view's coordinate system.  
+            If this argument is missing an `x` or `y` property, or the properties can not 
+            be converted into numbers, an exception will be raised.
         type: Point
       - name: destinationView
-        description: the view whose coordinate system to which the point will be converted. If this argument is not a view, an exception will be raised.
+        summary: |
+            View that specifies the destination coordinate system to convert to.
+            If this argument is not a view, an exception will be raised.
         type: Titanium.UI.View
 events:
   - name: click
-    description: fired when the device detects a click (longer than touch) against the view
+    summary: Fired when the device detects a click against the view.
+    description: |
+        There is a subtle difference between singletap and click events.
+
+        A singletap event is generated when the user taps the screen briefly
+        without moving their finger. This gesture will also generate a click event.
+
+        However, a click event can also be generated when the user touches, 
+        moves their finger, and then removes it from the screen.
+
+        On Android, a click event can also be generated by a trackball click.
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event, in the `source` view's coordinates.
+        type: Number
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: |
+            Dictionary with properties `x` and `y` describing the location 
+            of the event in screen coordinates.
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordinates
+        type: Number
+        summary: X coordinate of the event, in the `source` view's coordinates.
   - name: dblclick
-    description: fired when the device detects a double click against the view
+    summary: Fired when the device detects a double click against the view.
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event, in the `source` view's coordinates.
+        type: Number
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: |
+            Dictionary with properties `x` and `y` describing the location 
+            of the event in screen coordinates.
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordinates
+        type: Number
+        summary: X coordinate of the event, in the `source` view's coordinates.
   - name: doubletap
-    description: fired when the device detects a double tap against the view
+    summary: Fired when the device detects a double tap against the view.
+    platforms: [android, iphone, ipad]
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event, in the `source` view's coordinates.
+        type: Number
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: |
+            Dictionary with properties `x` and `y` describing the location 
+            of the event in screen coordinates.
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordinates
+        summary: X coordinate of the event, in the `source` view's coordinates.
+        type: Number
   - name: longclick
-    description: fired when the device detects a long click, which is a touch-and-hold or,
+    summary: Fired when the device detects a long click.
+    description: |
+        A long click is generated by the user touching and holding on a touchscreen or,
         in the case of a trackball, holding down the button.  The event occurs before the
         finger/button is lifted up again.  If you have a longclick listener then the click
-        event will not occur when you lift the finger/button after a longpress.
+        event will not occur when you lift the finger/button after a long click.
     platforms: [android]
   - name: longpress
-    description: fired when the device detects a long press, which is a touch-and-hold with
-        the finger.  The event occurs before the finger is lifted again.  Both a longpress
-        and a longclick can occur together.  The differences are that longclick can occur also
-        with the trackball whereas longpress is a touch-only event, and longpress includes
-        x and y coordinates.
+    summary: Fired when the device detects a long press.
+    description: |
+        A long press is generated by the user touching and holding on a touchscreen.
+        The event occurs before the finger is lifted again.  Both a `longpress`
+        and a `longclick` can occur together.  The differences are that `longclick` 
+        can be generated with the trackball whereas `longpress` is a touch-only event, 
+        and `longpress` includes `x` and `y` coordinates.
+    properties:
+      - name: y
+        summary: Y coordinate of the event, in the `source` view's coordinates.
+        type: Number
+      - name: x
+        summary: X coordinate of the event, in the `source` view's coordinates.
+        type: Number
+    platforms: [android, iphone, ipad]
   - name: pinch
-    description: fired when the device detects a pinch, which is a touch and expand or contract 
+    summary: Fired when the device detects a pinch gesture.
+    description: |
+        A pinch is a touch and expand or contract 
         with two fingers.  The event occurs continuously until a finger is lifted again.  
-        Returns an event with 'velocity' and 'scale' properties.
     properties:
       - name: scale
-        description: The scale factor relative to the points of the two touches in screen coordinates.
+        summary: The scale factor relative to the points of the two touches in screen coordinates.
         type: Number
       - name: velocity
-        description: The velocity of the pinch in scale factor per second.
+        summary: The velocity of the pinch in scale factor per second.
         type: Number
+    platforms: [iphone,ipad]
+    since: "1.8.0"
   - name: singletap
-    description: fired when the device detects a single tap against the view
+    summary: Fired when the device detects a single tap against the view.
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event, in the `source` view's coordinates.
+        type: Number
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: |
+            Dictionary with properties `x` and `y` describing the location 
+            of the event in screen coordinates.
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordinates
+        summary: X coordinate of the event, in the `source` view's coordinates.
+        type: Number
   - name: swipe
-    description: fired when the device detects a swipe (left or right) against the view
+    summary: Fired when the device detects a swipe gesture (left or right) against the view.
+    platforms: [iphone,ipad,mobileweb]
     properties:
       - name: direction
-        description: direction of the swipe - either left or right
+        summary: Direction of the swipe--either 'left' or 'right'.
+        type: String
       - name: y
-        description: the y point of the event, in receiving view coordinates
-      - name: x
-        description: the x point of the event in receiving view coordinates
+        summary: Y coordinate of the event's endpoint, in the `source` view's coordinates.
+        type: Number
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: |
+            Dictionary with properties `x` and `y` describing the location 
+            of the event's endpoint in screen coordinates.
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
+      - name: x
+        summary: X coordinate of the event's endpoint, in the `source` view's coordinates.
+        type: Number
   - name: touchcancel
-    description: fired when a touch event is interrupted by the device. this happens in circumenstances such as an incoming call to allow the UI to clean up state.
+    summary: Fired when a touch event is interrupted by the device.
+    description: |
+        A touchcancel can happen in circumstances such as an incoming call to allow the 
+        UI to clean up state.
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event, in the `source` view's coordinates.
+        type: Number
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: |
+            Dictionary with properties `x` and `y` describing the location 
+            of the event in screen coordinates.
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordinates
+        summary: X coordinate of the event, in the `source` view's coordinates.
+        type: Number
   - name: touchend
-    description: fired when a touch event is completed
+    summary: Fired when a touch event is completed.
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event, in the `source` view's coordinates.
+        type: Number
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: |
+            Dictionary with properties `x` and `y` describing the location 
+            of the event in screen coordinates.
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordinates
+        summary: X coordinate of the event, in the `source` view's coordinates.
+        type: Number
   - name: touchmove
-    description: fired as soon as the device detects movement of a touch.  Event coordinates are always relative to the view in which the initial touch occurred
+    summary: Fired as soon as the device detects movement of a touch.
+    description: |
+        Event coordinates are always relative to the view in which the initial touch occurred
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event, in the `source` view's coordinates.
+        type: Number
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: |
+            Dictionary with properties `x` and `y` describing the location 
+            of the event in screen coordinates.
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordinates
+        summary: X coordinate of the event, in the `source` view's coordinates.
+        type: Number
   - name: touchstart
-    description: fired as soon as the device detects a gesture
+    summary: Fired as soon as the device detects a touch gesture.
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event, in the `source` view's coordinates.
+        type: Number
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: |
+            Dictionary with properties `x` and `y` describing the location 
+            of the event in screen coordinates.
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordinates
+        summary: X coordinate of the event, in the `source` view's coordinates.
+        type: Number
   - name: twofingertap
-    description: fired when the device detects a two-finger tap against the view
+    summary: Fired when the device detects a two-finger tap against the view.
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event, in the `source` view's coordinates.
+        type: Number
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: |
+            Dictionary with properties `x` and `y` describing the location 
+            of the event in screen coordinates.
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordinates
+        summary: X coordinate of the event, in the `source` view's coordinates.
+        type: Number
 properties:
   - name: anchorPoint
-    description: a dictionary with properties x and y to indicate the anchor point value. anchor specifies the position by which animation should occur. center is 0.5, 0.5
-    type: Object
+    summary: Anchor point where animation should occur, relative to the view's boundaries. 
+    description: |
+        Anchor point is specified as a fraction of the view's size. So 
+        (0.5,0.5) represents the view's center and (1, 1) is the view's bottom-right 
+        corner.
+    platforms: [iphone, ipad]
+    type: Point
   - name: animatedCenterPoint
-    description: object with x and y properties of where the view is during animation
-    type: Object
+    summary: Current position of the view during an animation.
+    platforms: [android, iphone, ipad]
+    type: Point
     permission: read-only
   - name: backgroundColor
-    description: the background color of the view
+    summary: Background color of the view.
     type: String
   - name: backgroundDisabledColor
-    description: the disabled background color of the view.
+    summary: Disabled background color of the view.
     platforms: [android]
     type: String
   - name: backgroundDisabledImage
-    description: the disabled background image url of the view.
+    summary: Disabled background image for the view, specified as a local file path or URL.
     platforms: [android]
     type: String
   - name: backgroundFocusedColor
-    description: the focused background color of the view. focusable must be true for normal views.
+    summary: Focused background color of the view.
+    description: For normal views, the focused color is only used if `focusable` is `true`.
     platforms: [android]
     type: String
   - name: backgroundFocusedImage
-    description: the focused background image url of the view. focusable must be true for normal views.
+    summary: Focused background image for the view, specified as a local file path or URL.
+    description: For normal views, the focused background is only used if `focusable` is `true`.
     platforms: [android]
     type: String
   - name: backgroundGradient
+    summary: A background gradient for the view.
+    type: Gradient
+    platforms: [iphone,ipad,mobileweb]
     description: |
-        a background gradient for the view with the properties: type,startPoint,endPoint,startRadius,endRadius,backfillStart,backfillEnd,colors.
-    type: Object
+        A gradient can be defined as either linear or radial. A linear gradient
+        varies continuously along a line between the `startPoint` and `endPoint`.
+        A radial gradient is interpolated between two circles, defined by `startPoint`
+        and `startRadius` and `endPoint` and `endRadius` respectively.
+
+        The start and end points and radius values can be defined in device units,
+        in the view's coordinates, or as percentages of the view's size. Thus, if
+        a view is 60 x 60, the center point of the view can be specified as:
+
+            { x: 30, y: 30 }
+        Or:
+            { x: '50%', y: '50%' }
+
+        When specifying multiple colors, you can specify an *offset* value for
+        each color, defining how far into the gradient it takes effect. For example,
+        the following color array specifies a gradient that goes from red to blue back to red:
+
+            colors: [ { color: 'red', offset: 0.0}, { color: 'blue', offset: 0.25 }, { color: 'red', offset: 1.0 } ]
+    examples:
+      - title: Linear and Radial Gradients
+        example: |
+            The following code excerpt creates two views, one with a linear gradient and one with
+            a radial gradient.
+
+                var win1 = Titanium.UI.createWindow({
+                    title:'Tab 1',
+                    backgroundColor:'#fff',
+                    layout: 'vertical'
+                });
+
+                var radialGradient = Ti.UI.createView({
+                    top: 10,
+                    width: 100,
+                    height: 100,
+                    backgroundGradient: {
+                        type: 'radial',
+                        startPoint: { x: 50, y: 50 },
+                        endPoint: { x: 50, y: 50 },
+                        colors: [ 'red', 'blue'],
+                        startRadius: '90%',
+                        endRadius: 0,
+                        backfillStart: true
+                    }
+                });
+                var linearGradient = Ti.UI.createView({
+                    top: 10,
+                    width: 100,
+                    height: 100,
+                    backgroundGradient: {
+                        type: 'linear',
+                        startPoint: { x: '0%', y: '50%' },
+                        endPoint: { x: '100%', y: '50%' },
+                        colors: [ { color: 'red', offset: 0.0}, { color: 'blue', offset: 0.25 }, { color: 'red', offset: 1.0 } ],
+                    }
+                });
+                win1.add(radialGradient);
+                win1.add(linearGradient);
+                win1.open();
   - name: backgroundImage
-    description: the background image url of the view
+    summary: Background image for the view, specified as a local file path or URL.
     type: String
   - name: backgroundLeftCap
-    description: End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the left end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The right end cap is therefore computed by adding the size of the left end cap and the middle portion together and then subtracting that value from the width of the image
+    summary: Size of the left end cap.
+    description: |
+        End caps specify the portion of an image that should not be resized when an 
+        image is stretched. This technique is used to implement buttons and other 
+        resizable image-based interface elements. When a button with end caps is resized, 
+        the resizing occurs only in the middle of the button, in the region between the end 
+        caps. The end caps themselves keep their original size and appearance. This property 
+        specifies the size of the left end cap. The middle (stretchable) portion is assumed to 
+        be 1 pixel wide. The right end cap is therefore computed by adding the size of the left 
+        end cap and the middle portion together and then subtracting that value from the width 
+        of the image
     type: Number
     platforms: [iphone, ipad]
   - name: backgroundSelectedColor
-    description: the selected background color of the view. focusable must be true for normal views.
-    platforms: [android]
+    summary: Selected background color of the view.
+    description: focusable must be true for normal views.
+    platforms: [android, mobileweb]
     type: String
   - name: backgroundSelectedImage
-    description: the selected background image url of the view. focusable must be true for normal views.
-    platforms: [android]
+    summary: Selected background image url for the view, specified as a local file path or URL.
+    description: For normal views, the selected background is only used if `focusable` is `true`.
+    platforms: [android, mobileweb]
     type: String
   - name: backgroundTopCap
-    description: End caps specify the portion of an image that should not be resized when an image is stretched. This technique is used to implement buttons and other resizable image-based interface elements. When a button with end caps is resized, the resizing occurs only in the middle of the button, in the region between the end caps. The end caps themselves keep their original size and appearance. This property specifies the size of the top end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap and the middle portion together and then subtracting that value from the height of the image
+    summary: Size of the top end cap.
+    description: |
+        End caps specify the portion of an image that should not be resized when an image 
+        is stretched. This technique is used to implement buttons and other resizable 
+        image-based interface elements. When a button with end caps is resized, the resizing 
+        occurs only in the middle of the button, in the region between the end caps. The end 
+        caps themselves keep their original size and appearance. This property specifies the 
+        size of the top end cap. The middle (stretchable) portion is assumed to be 1 pixel wide. 
+        The bottom end cap is therefore computed by adding the size of the top end cap and the
+        middle portion together and then subtracting that value from the height of the image.
     type: Number
     platforms: [iphone, ipad]
   - name: borderColor
-    description: the border color of the view
+    summary: Border color of the view.
     type: String
   - name: borderRadius
-    description: the border radius of the view
+    summary: Border radius of the view.
     type: Number
   - name: borderWidth
-    description: the border width of the view
+    summary: Border width of the view.
     type: Number
   - name: bottom
-    description: property for the view bottom position. This position is relative to the view's parent. Can be either a float value or a dimension string ie 'auto' (default).
+    summary: View's bottom position, in platform-specific units.
+    description: |
+        This position is relative to the view's parent. Exact interpretation depends on the 
+        parent view's [layout](Titanium.UI.View.layout) property. Can be either a float value or 
+        a dimension string (for example, '50%' or 'auto').
+
+        This is an input property for specifying where the view should be positioned, and does not
+        represent the view's calculated position.
     type: [Number,String]
   - name: center
-    description: a dictionary with properties x and y to indicate the center of the views position relative to the parent view
-    type: Object
-  - name: focusable
+    summary: View's center position, in the parent view's coordinates. 
     description: |
-        Set true if you want a view to be focusable when navigating with the trackball or D-Pad. Default: false. (Android Only)
+        This is an input property for specifying where the view should be positioned, and does not
+        represent the view's calculated position.
+    type: Point
+  - name: children
+    summary: Array of this view's child views.
+    type: Array<Titanium.UI.View>
+    permission: read-only
+  - name: focusable
+    summary: Whether view should be focusable while navigating with the trackball.
     platforms: [android]
     default: false
     type: Boolean
   - name: height
-    description: property for the view height. Can be either a float value or a dimension string ie 'auto' (default).
+    summary: View height, in platform-specific units.
+    description: |
+        Can be either a float value or a dimension string (for example, '50%' or 'auto').
+
+        This is an input property for specifying the view should be laid out. To determine
+        the view's calculated size as laid out, see the [size](Titanium.UI.View.size) property.
     type: [Number,String]
   - name: left
-    description: property for the view left position. This position is relative to the view's parent. Can be either a float value or a dimension string ie 'auto' (default).
+    summary: View's left position, in platform-specific units.
+    description: |
+        This position is relative to the view's parent. Exact interpretation depends on the 
+        parent view's [layout](Titanium.UI.View.layout) property. Can be either a float value or 
+        a dimension string (for example, '50%' or 'auto').
+
+        This is an input property for specifying where the view should be positioned, and does not
+        represent the view's calculated position.
     type: [Number,String]
+  - name: layout
+    type: String
+    summary: |
+        Specifies how the view positions its children. 
+        One of: 'absolute', 'vertical', or 'horizontal'.
+    description: |
+        There are three layout options:
+
+        *   `absolute`. Default layout. A child view's `top`, `bottom`, `left`, and `right` 
+            properties are interpreted as absolute values in the parent's coordinate space.
+
+            If the child includes a `top` value and **not** a `bottom` value, the child is 
+            positioned `top` units from the top of the parent's bounding box, and its height
+            is set based on its `height` property.
+
+            If the child includes a `bottom` value and **not** a `top` value, the child is 
+            positioned `bottom` units from the bottom of the parent's bounding box. Its height
+            is set based on its `height` property.
+
+            If the child includes both `top` and `bottom` values, the behavior is 
+            platform-specific.
+             
+            Similar calculations are used for `left` and `right`. 
+
+            You can also position a child by setting its `center` property to a <Point>.
+
+            If no position is set explicitly, children are centered. For example, if a 
+            child specifies a `top` of 20 and does not specify any other position properties,
+            the child is positioned 20 units from the parent's top, and centered horizontally.
+
+         *  `vertical`. Children are laid out vertically from top to bottom. The first child 
+            is laid out `top` units from its parent's bounding box. Each subsequent child is 
+            laid out below the previous child. The space between children is equal to the 
+            upper child's `bottom` value plus the lower child's `top` value.
+
+            Each child is positioned horizontally as for the absolute layout mode.
+
+         *  `horizontal`. Like vertical layout, except children are laid out horizontally
+            from left to right, using the `left` and `right` values to determine spacing.
+
+            Each child is positioned vertically as in the absolute layout mode.
+    default: absolute layout
   - name: opacity
-    description: the opacity from 0.0-1.0
+    summary: Opacity of this view, from 0.0 (transparent) to 1.0 (opaque).
     type: Number
+    default: 1.0 (opaque)
   - name: right
-    description: property for the view right position. This position is relative to the view's parent. Can be either a float value or a dimension string ie 'auto' (default).
+    summary: View's right position, in platform-specific units.
+    description: |
+        This position is relative to the view's parent. Exact interpretation depends on the 
+        parent view's [layout](Titanium.UI.View.layout) property. Can be either a float value or 
+        a dimension string (for example, '50%' or 'auto').
+
+        This is an input property for specifying where the view should be positioned, and does not
+        represent the view's calculated position.
     type: [Number,String]
   - name: size
-    description: the size of the view as a dictionary of width and height properties
+    summary: Size of the view as a dictionary of width and height properties.
     type: Object
   - name: softKeyboardOnFocus
-    description: One of <Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS>, <Titanium.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS>, or <Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS>.
+    summary: Determines keyboard behavior when this view is focused.
+    description: |
+        One of <Titanium.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS>, 
+        <Titanium.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS>, or 
+        <Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS>.
     type: Number
     platforms: [android]
   - name: top
-    description: property for the view top position. This position is relative to the view's parent. Can be either a float value or a dimension string ie 'auto' (default).
+    summary: The view's top position.
+    description: |
+        This position is relative to the view's parent. Exact interpretation depends on the 
+        parent view's [layout](Titanium.UI.View.layout) property. Can be either a float value or 
+        a dimension string (for example, '50%' or 'auto').
+
+        This is an input property for specifying where the view should be positioned, and does not
+        represent the view's calculated position.
     type: [Number,String]
   - name: touchEnabled
-    description: a boolean indicating if the view should receive touch events (true, default) or forward them to peers (false)
-    default: false
+    summary: Whether view should receive touch events.
+    description: If false, will forward the events to peers.
+    default: true
     type: Boolean
   - name: transform
-    description: the transformation matrix to apply to the view
-    type: Object
+    summary: Transformation matrix to apply to the view.
+    platforms: [android, iphone, ipad]
+    type: [ Titanium.UI.2DMatrix, Titanium.UI.iOS.3DMatrix ]
   - name: visible
-    description: a boolean of the visibility of the view
+    summary: Boolean value indicating whether the view is visible.
     type: Boolean
   - name: width
-    description: property for the view width. Can be either a float value or a dimension string ie 'auto' (default).
+    summary: View's width, in platform-specific units.
+    description: |
+        Can be either a float value or a dimension string (for example, '50%' or 'auto').
+
+        This is an input property for specifying the view should be laid out. To determine
+        the view's calculated size as laid out, see the [size](Titanium.UI.View.size) property.
     type: [Number,String]
   - name: zIndex
-    description: the z index position relative to other sibling views
+    summary: Z index position relative to other sibling views.
     type: Number
   - name: keepScreenOn
-    description: when `true` the screen will not power down. Note, enabling this feature will use more power thereby adversely affecting run time when on battery.
+    summary: Whether to keep the device screen on.
+    description: |
+        When `true` the screen will not power down. Note: enabling this feature will use more 
+        power, thereby adversely affecting run time when on battery.
     type: Boolean
     platforms: [android]
 examples:
@@ -328,12 +693,58 @@ examples:
         
 ---
 name: Point
-description: A pair of coordinates used to describe the location of a <Titanium.UI.View>
+summary: A pair of coordinates used to describe the location of a <Titanium.UI.View>.
 since: "1.8.0"
+platforms: [android, iphone, ipad]
 properties:
   - name: x
     type: Number
-    description: The x-axis coordinate of this point
+    summary: The x-axis coordinate of this point.
   - name: y
     type: Number
-    description: The y-axis coordinate of this point
+    summary: The y-axis coordinate of this point.
+---
+name: Gradient
+summary: A simple object defining a color gradient.
+since: "1.8.0"
+platforms: [iphone, ipad]
+properties:
+  - name: type
+    summary: Type of gradient, either 'linear' or 'radial'.
+    type: String
+    default: linear
+  - name: startPoint
+    summary: Start point for the gradient.
+    type: Point
+  - name: endPoint
+    summary: End point for the gradient.
+    type: Point
+  - name: startRadius
+    summary: For a radial gradient, the radius at the `startPoint`.
+    type: Number
+  - name: endRadius
+    summary: For a radial gradient, the radius at the `endPoint`.
+    type: Number
+  - name: colors
+    summary: An array of colors.
+    type: [ Array<String>, Array<GradientColorRef> ]
+  - name: backfillStart
+    summary: Set to `true` to continue filling with the starting color beyond the `startPoint`.
+    type: Boolean
+    default: false
+  - name: backfillEnd
+    summary: Set to `true` to continue filling with the final color beyond the `endPoint`.
+    type: Boolean
+    default: false
+
+---
+name: GradientColorRef
+summary: A simple object consisting of a color and an offset.
+properties:
+  - name: color
+    summary: Color value at this point in the gradient.
+    type: String
+  - name: offset
+    summary: Offset of this color in the gradient, from 0 (start) to 1 (end).
+    type: Number
+    

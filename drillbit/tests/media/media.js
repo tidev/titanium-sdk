@@ -48,7 +48,7 @@ describe("Ti.Media tests", {
 		if (!isAndroid) valueOf(player.state).shouldBeNumber();
 		valueOf(player.paused).shouldBeBoolean();
 		if (!isAndroid) valueOf(player.waiting).shouldBeBoolean();
-		if (!isAndroid) valueOf(player.bufferSize).shouldBeInteger();
+		if (!isAndroid) valueOf(player.bufferSize).shouldBeNumber();
 		
 	},
 	videoPlayerAPIs: function() {
@@ -59,7 +59,8 @@ describe("Ti.Media tests", {
 		valueOf(player).shouldNotBeNull();
 		valueOf(player.add).shouldBeFunction();
 		valueOf(player.pause).shouldBeFunction();
-		valueOf(player.start).shouldBeFunction();
+		valueOf(player.play).shouldBeFunction(); // this is the documented way to start playback.
+		valueOf(player.start).shouldBeFunction(); // backwards compat.
 		valueOf(player.stop).shouldBeFunction();
 		if (!isAndroid) valueOf(player.setUrl).shouldBeFunction();
 		valueOf(player.hide).shouldBeFunction();

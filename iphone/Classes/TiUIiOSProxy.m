@@ -10,27 +10,38 @@
 
 #ifdef USE_TI_UIIOS
  
-	#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+#ifdef USE_TI_UIIOSADVIEW
+	#import "TiUIiOSAdViewProxy.h"
+    #import <iAd/iAd.h>
+#endif
 
-		#ifdef USE_TI_UIIOSADVIEW
-			#import "TiUIiOSAdViewProxy.h"
-		#endif
-
-	#endif
-	#ifdef USE_TI_UIIOS3DMATRIX
-		#import "TiUIiOS3DMatrix.h"
-	#endif
-	#ifdef USE_TI_UIIOSCOVERFLOWVIEW
-		#import "TiUIiOSCoverFlowViewProxy.h"
-	#endif
-	#ifdef USE_TI_UIIOSTOOLBAR
-		#import "TiUIiOSToolbarProxy.h"
-	#endif
-
+#ifdef USE_TI_UIIOS3DMATRIX
+	#import "TiUIiOS3DMatrix.h"
+#endif
+#ifdef USE_TI_UIIOSCOVERFLOWVIEW
+	#import "TiUIiOSCoverFlowViewProxy.h"
+#endif
+#ifdef USE_TI_UIIOSTOOLBAR
+	#import "TiUIiOSToolbarProxy.h"
+#endif
+#ifdef USE_TI_UIIOSTABBEDBAR
+	#import "TiUIiOSTabbedBarProxy.h"
+#endif
 @implementation TiUIiOSProxy
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 #ifdef USE_TI_UIIOSADVIEW
+
+
+
+-(NSString*)AD_SIZE_PORTRAIT 
+{
+    return [TiUIiOSAdViewProxy portraitSize];
+}
+
+-(NSString*)AD_SIZE_LANDSCAPE 
+{
+    return [TiUIiOSAdViewProxy landscapeSize];
+}
 
 -(id)createAdView:(id)args
 {
@@ -38,7 +49,7 @@
 }
 
 #endif
-#endif
+
 #ifdef USE_TI_UIIOS3DMATRIX
 -(id)create3DMatrix:(id)args
 {
@@ -62,6 +73,56 @@
 {
 	return [[[TiUIiOSToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
+#endif
+
+#ifdef USE_TI_UIIOSTABBEDBAR
+-(id)createTabbedBar:(id)args
+{
+    return [[[TiUIiOSTabbedBarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+#ifdef USE_TI_UIIOS
+MAKE_SYSTEM_PROP(ANIMATION_CURVE_EASE_IN_OUT,UIViewAnimationCurveEaseInOut);
+MAKE_SYSTEM_PROP(ANIMATION_CURVE_EASE_IN,UIViewAnimationCurveEaseIn);
+MAKE_SYSTEM_PROP(ANIMATION_CURVE_EASE_OUT,UIViewAnimationCurveEaseOut);
+MAKE_SYSTEM_PROP(ANIMATION_CURVE_LINEAR,UIViewAnimationCurveLinear);
+
+MAKE_SYSTEM_PROP(BLEND_MODE_NORMAL,kCGBlendModeNormal);
+MAKE_SYSTEM_PROP(BLEND_MODE_MULTIPLY,kCGBlendModeMultiply);
+MAKE_SYSTEM_PROP(BLEND_MODE_SCREEN,kCGBlendModeScreen);
+MAKE_SYSTEM_PROP(BLEND_MODE_OVERLAY,kCGBlendModeOverlay);
+MAKE_SYSTEM_PROP(BLEND_MODE_DARKEN,kCGBlendModeDarken);
+MAKE_SYSTEM_PROP(BLEND_MODE_LIGHTEN,kCGBlendModeLighten);
+MAKE_SYSTEM_PROP(BLEND_MODE_COLOR_DODGE,kCGBlendModeColorDodge);
+MAKE_SYSTEM_PROP(BLEND_MODE_COLOR_BURN,kCGBlendModeColorBurn);
+MAKE_SYSTEM_PROP(BLEND_MODE_SOFT_LIGHT,kCGBlendModeSoftLight);
+MAKE_SYSTEM_PROP(BLEND_MODE_HARD_LIGHT,kCGBlendModeHardLight);
+MAKE_SYSTEM_PROP(BLEND_MODE_DIFFERENCE,kCGBlendModeDifference);
+MAKE_SYSTEM_PROP(BLEND_MODE_EXCLUSION,kCGBlendModeExclusion);
+MAKE_SYSTEM_PROP(BLEND_MODE_HUE,kCGBlendModeHue);
+MAKE_SYSTEM_PROP(BLEND_MODE_SATURATION,kCGBlendModeSaturation);
+MAKE_SYSTEM_PROP(BLEND_MODE_COLOR,kCGBlendModeColor);
+MAKE_SYSTEM_PROP(BLEND_MODE_LUMINOSITY,kCGBlendModeLuminosity);
+MAKE_SYSTEM_PROP(BLEND_MODE_CLEAR,kCGBlendModeClear);
+MAKE_SYSTEM_PROP(BLEND_MODE_COPY,kCGBlendModeCopy);
+MAKE_SYSTEM_PROP(BLEND_MODE_SOURCE_IN,kCGBlendModeSourceIn);
+MAKE_SYSTEM_PROP(BLEND_MODE_SOURCE_OUT,kCGBlendModeSourceOut);
+MAKE_SYSTEM_PROP(BLEND_MODE_SOURCE_ATOP,kCGBlendModeSourceAtop);
+MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_OVER,kCGBlendModeDestinationOver);
+MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_IN,kCGBlendModeDestinationIn);
+MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_OUT,kCGBlendModeDestinationOut);
+MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_ATOP,kCGBlendModeDestinationAtop);
+MAKE_SYSTEM_PROP(BLEND_MODE_XOR,kCGBlendModeXOR);
+MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_DARKER,kCGBlendModePlusDarker);
+MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_LIGHTER,kCGBlendModePlusLighter);
+
+MAKE_SYSTEM_PROP(AUTODETECT_NONE,UIDataDetectorTypeNone);
+MAKE_SYSTEM_PROP(AUTODETECT_ALL,UIDataDetectorTypeAll);
+MAKE_SYSTEM_PROP(AUTODETECT_PHONE,UIDataDetectorTypePhoneNumber);
+MAKE_SYSTEM_PROP(AUTODETECT_LINK,UIDataDetectorTypeLink);
+MAKE_SYSTEM_PROP(AUTODETECT_ADDRESS,UIDataDetectorTypeAddress);
+MAKE_SYSTEM_PROP(AUTODETECT_CALENDAR,UIDataDetectorTypeCalendarEvent);
+
 #endif
 @end
 

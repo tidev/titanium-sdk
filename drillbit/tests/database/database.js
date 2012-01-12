@@ -302,7 +302,6 @@ describe("Ti.Database tests", {
 				
 				// WARNING: On iOS, the following functions throw an uncaught exception - 
 				
-				if (isAndroid) {
 					valueOf(function() {
 						resultSet.fieldByName('val', Ti.Database.FIELD_TYPE_INT);
 					}).shouldThrowException();
@@ -326,9 +325,6 @@ describe("Ti.Database tests", {
 					valueOf(function() {
 						resultSet.field(2, Ti.Database.FIELD_TYPE_INT);
 					}).shouldThrowException();
-				} else {
-					fail("iOS does not yet handle exceptions in DB.");
-				}
 
 			  ++counter;
 
@@ -347,7 +343,6 @@ describe("Ti.Database tests", {
 	},
 	testDatabaseExceptions : function() {
 		var isAndroid = (Ti.Platform.osname === 'android');
-		if (isAndroid) {
 			valueOf( function() { Ti.Database.open("fred://\\"); }).shouldThrowException();
 			var db = null;
 			try {
@@ -387,8 +382,5 @@ describe("Ti.Database tests", {
 				db.remove();
 				}
 			}
-		} else {
-			 fail("iOS does not yet handle exceptions in DB.");
-		}
 	}
 });

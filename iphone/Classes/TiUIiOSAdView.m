@@ -8,8 +8,6 @@
 #import "TiUIiOSAdView.h"
 #import "TiUtils.h"
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-
 #ifdef USE_TI_UIIOSADVIEW
 
 extern NSString * const TI_APPLICATION_ANALYTICS;
@@ -56,15 +54,9 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 	}
 }
 
--(NSString*)size
+-(void)setAdSize:(NSString*)sizeName
 {
-	return [self adview].currentContentSizeIdentifier;
-}
-
--(void)setSize:(id)arg
-{
-	ENSURE_SINGLE_ARG(arg,NSString);
-	[self adview].currentContentSizeIdentifier = arg;
+    [self adview].currentContentSizeIdentifier = sizeName;
 }
 
 #pragma mark Public APIs
@@ -131,7 +123,5 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 
 @end
 
-
-#endif
 
 #endif

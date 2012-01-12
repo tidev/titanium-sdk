@@ -1,89 +1,89 @@
 ---
 name: Titanium.Android.Calendar
-description: The Android.Calendar module provides proxies and methods for accessing the native Android calendar functionality.
+summary: The Android.Calendar module provides proxies and methods for accessing the native Android calendar functionality.
 extends: Titanium.Module
 platforms: [android]
 since: "1.5"
 createable: false
 methods:
   - name: getCalendarById
-    description: Returns the <Titanium.Android.Calendar.Calendar> object specified by the given integer id.
+    summary: Returns the <Titanium.Android.Calendar.Calendar> object specified by the given integer id.
     returns:
         type: Titanium.Android.Calendar.Calendar
     parameters:
       - name: id
-        description: The system id of the calendar to be retrieved.
+        summary: The system id of the calendar to be retrieved.
         type: Number
 properties:
   - name: METHOD_ALERT
-    description: constant for the <Titanium.Android.Calendar.Reminder> method property.
+    summary: constant for the <Titanium.Android.Calendar.Reminder> method property.
     type: Number
     permission: read-only
   - name: METHOD_DEFAULT
-    description: constant for the <Titanium.Android.Calendar.Reminder> method property.
+    summary: constant for the <Titanium.Android.Calendar.Reminder> method property.
     type: Number
     permission: read-only
   - name: METHOD_EMAIL
-    description: constant for the <Titanium.Android.Calendar.Reminder> method property.
+    summary: constant for the <Titanium.Android.Calendar.Reminder> method property.
     type: Number
     permission: read-only
   - name: METHOD_SMS
-    description: constant for the <Titanium.Android.Calendar.Reminder> method property.
+    summary: constant for the <Titanium.Android.Calendar.Reminder> method property.
     type: Number
     permission: read-only
   - name: STATE_DISMISSED
-    description: constant for the <Titanium.Android.Calendar.Alert> state property.
+    summary: constant for the <Titanium.Android.Calendar.Alert> state property.
     type: Number
     permission: read-only
   - name: STATE_FIRED
-    description: constant for the <Titanium.Android.Calendar.Alert> state property.
+    summary: constant for the <Titanium.Android.Calendar.Alert> state property.
     type: Number
     permission: read-only
   - name: STATE_SCHEDULED
-    description: constant for the <Titanium.Android.Calendar.Alert> state property.
+    summary: constant for the <Titanium.Android.Calendar.Alert> state property.
     type: Number
     permission: read-only
   - name: STATUS_CANCELED
-    description: constant for the <Titanium.Android.Calendar.Event> status property.
+    summary: constant for the <Titanium.Android.Calendar.Event> status property.
     type: Number
     permission: read-only
   - name: STATUS_CONFIRMED
-    description: constant for the <Titanium.Android.Calendar.Event> status property.
+    summary: constant for the <Titanium.Android.Calendar.Event> status property.
     type: Number
     permission: read-only
   - name: STATUS_TENTATIVE
-    description: constant for the <Titanium.Android.Calendar.Event> status property.
+    summary: constant for the <Titanium.Android.Calendar.Event> status property.
     type: Number
     permission: read-only
   - name: VISIBILITY_CONFIDENTIAL
-    description: constant for the <Titanium.Android.Calendar.Event> visibility property.
+    summary: constant for the <Titanium.Android.Calendar.Event> visibility property.
     type: Number
     permission: read-only
   - name: VISIBILITY_DEFAULT
-    description: constant for the <Titanium.Android.Calendar.Event> visibility property.
+    summary: constant for the <Titanium.Android.Calendar.Event> visibility property.
     type: Number
     permission: read-only
   - name: VISIBILITY_PRIVATE
-    description: constant for the <Titanium.Android.Calendar.Event> visibility property.
+    summary: constant for the <Titanium.Android.Calendar.Event> visibility property.
     type: Number
     permission: read-only
   - name: VISIBILITY_PUBLIC
-    description: constant for the <Titanium.Android.Calendar.Event> visibility property.
+    summary: constant for the <Titanium.Android.Calendar.Event> visibility property.
     type: Number
     permission: read-only
   - name: allAlerts
-    description: Array of <Titanium.Android.Calendar.Alert> objects representing all alerts.
+    summary: Array of <Titanium.Android.Calendar.Alert> objects representing all alerts.
     type: Array<Titanium.Android.Calendar.Alert>
     permission: read-only
   - name: allCalendars
-    description: Array of <Titanium.Android.Calendar.Calendar> objects representing all the calendars known to the native calendar app.
+    summary: Array of <Titanium.Android.Calendar.Calendar> objects representing all the calendars known to the native calendar app.
     type: Array<Titanium.Android.Calendar.Calendar>
     permission: read-only
   - name: selectableCalendars
-    description: Array of <Titanium.Android.Calendar.Calendar> objects representing calendars selected within the native calendar app. This may be a subset of allCalendars; for example, the native calendar application may know -- via your Gooogle account -- about calendars that you have access to but have not selected to be displayed in the native calendar app.
+    summary: Array of <Titanium.Android.Calendar.Calendar> objects representing calendars selected within the native calendar app. This may be a subset of allCalendars; for example, the native calendar application may know -- via your Gooogle account -- about calendars that you have access to but have not selected to be displayed in the native calendar app.
     type: Array<Titanium.Android.Calendar.Calendar>
     permission: read-only
-notes: The API supports retrieving information about existing events and creating new events.  However, modifying or deleting existing events is not yet supported.  Additionally, recurring events are not yet supported.
+description: The API supports retrieving information about existing events and creating new events.  However, modifying or deleting existing events is not yet supported.  Additionally, recurring events are not yet supported.
 examples:
   - title: All Calendars vs Selectable Calendars
     example: |

@@ -30,11 +30,6 @@ NSArray* bufferKeySequence = nil;
     [super dealloc];
 }
 
--(void)setByteOrder:(CFByteOrder)byteOrder_
-{
-    byteOrder = [[NSNumber numberWithInt:byteOrder_] retain];
-}
-
 -(NSArray *)keySequence
 {
 	if (bufferKeySequence == nil)
@@ -65,9 +60,22 @@ NSArray* bufferKeySequence = nil;
     sourceOffset = (hasSourceOffset) ? sourceOffset : 0;
     sourceLength = (hasSourceLength) ? sourceLength : [[source data] length];
     
+    
+    if (hasSourceOffset && !hasSourceLength) {
+        [self throwException:@"TiArgsException"
+                   subreason:@"Ti.Buffer.append(buf,offset,length) requires three arguments"
+                    location:CODELOCATION];
+    }
+    
     if (sourceOffset >= [[source data] length]) {
         [self throwException:@"TiBoundsException"
-                   subreason:[NSString stringWithFormat:@"Source offset %d is past source bounds (length %d)",sourceOffset,[[source data] length]]
+                   subreason:[NSString stringWithFormat:@"Source offset %d is past source bounds (length %u)",sourceOffset,[[source data] length]]
+                    location:CODELOCATION];
+    }
+    
+    if (sourceLength > [[source data] length]) {
+        [self throwException:@"TiBoundsException"
+                   subreason:[NSString stringWithFormat:@"Source length %d is longer than source (length %u)", sourceLength,[[source data] length]]
                     location:CODELOCATION];
     }
     
@@ -99,14 +107,24 @@ NSArray* bufferKeySequence = nil;
     sourceOffset = (hasSourceOffset) ? sourceOffset : 0;
     sourceLength = (hasSourceLength) ? sourceLength : [[source data] length];
     
+    if (hasSourceOffset && !hasSourceLength) {
+        [self throwException:@"TiArgsException"
+                   subreason:@"Ti.Buffer.insert(buf,offset,sourceOffset,sourceLength) requires three arguments"
+                    location:CODELOCATION];
+    }
     if (offset >= [data length]) {
         [self throwException:@"TiBoundsException"
-                   subreason:[NSString stringWithFormat:@"Offset %d is past buffer bounds (length %d)",offset,[data length]]
+                   subreason:[NSString stringWithFormat:@"Offset %d is past buffer bounds (length %u)",offset,[data length]]
                     location:CODELOCATION];
     }
     if (sourceOffset >= [[source data] length]) {
         [self throwException:@"TiBoundsException"
-                   subreason:[NSString stringWithFormat:@"Source offset %d is past source bounds (length %d)",sourceOffset,[[source data] length]]
+                   subreason:[NSString stringWithFormat:@"Source offset %d is past source bounds (length %u)",sourceOffset,[[source data] length]]
+                    location:CODELOCATION];
+    }
+    if (sourceLength > [[source data] length]) {
+        [self throwException:@"TiBoundsException"
+                   subreason:[NSString stringWithFormat:@"Source length %d is longer than source (length %u)", sourceLength,[[source data] length]]
                     location:CODELOCATION];
     }
     
@@ -152,7 +170,7 @@ NSArray* bufferKeySequence = nil;
     
     if (offset >= [data length]) {
         [self throwException:@"TiBoundsException"
-                   subreason:[NSString stringWithFormat:@"Offset %d is past buffer bounds (length %d)",offset,[data length]]
+                   subreason:[NSString stringWithFormat:@"Offset %d is past buffer bounds (length %u)",offset,[data length]]
                     location:CODELOCATION];
     }
     if (sourceOffset >= [[sourceBuffer data] length]) {
@@ -196,6 +214,11 @@ NSArray* bufferKeySequence = nil;
                    subreason:[NSString stringWithFormat:@"Offset %d extends past data length %u", offsetVal, [data length]]
                     location:CODELOCATION];
     }
+    if (lengthVal > [data length]) {
+        [self throwException:@"TiBoundsException"
+                   subreason:[NSString stringWithFormat:@"Length %d is longer than data (length %u)", lengthVal,[data length]]
+                    location:CODELOCATION];
+    }
     
     // TODO: What do we do if offset+length goes past the end of the buffer?
     // For now, do the sensible thing... only go up to the end.
@@ -235,6 +258,11 @@ NSArray* bufferKeySequence = nil;
     if (offsetVal > [data length]) {
         [self throwException:@"TiBoundsException"
                    subreason:[NSString stringWithFormat:@"Offset %d extends past data length %u", offsetVal, [data length]]
+                    location:CODELOCATION];
+    }
+    if (lengthVal > [data length]) {
+        [self throwException:@"TiBoundsException"
+                   subreason:[NSString stringWithFormat:@"Length %d is longer than data (length %u)", lengthVal, [data length]]
                     location:CODELOCATION];
     }
     

@@ -11,7 +11,7 @@
 #import "SBJSON.h"
 #import "ListenerEntry.h"
 #import "TiApp.h"
-#if defined(USE_TI_APPIOS) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+#if defined(USE_TI_APPIOS)
 #import "TiAppiOSProxy.h"
 #endif
 
@@ -169,7 +169,7 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(int)garbageCollect:(NSArray*)args
 {
-	KrollBridge * ourBridge = [self executionContext];
+	KrollBridge * ourBridge = (KrollBridge *)[self executionContext];
 	return [ourBridge forceGarbageCollectNow];
 }
 

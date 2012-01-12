@@ -7,22 +7,18 @@
 #import "TiBase.h"
 #import "TiUIViewProxy.h"
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-
 #ifdef USE_TI_UIIOSADVIEW
 
 
 @interface TiUIiOSAdViewProxy : TiUIViewProxy {
 
-@private
-
 }
 
-@property(nonatomic,assign,readonly) NSString *SIZE_320x50;
-@property(nonatomic,assign,readonly) NSString *SIZE_480x32;
+// Need these for sanity checking and constants, so they
+// must be class-available rather than instance-available
++(NSString*)portraitSize;
++(NSString*)landscapeSize;
 
 @end
-
-#endif
 
 #endif

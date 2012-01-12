@@ -91,6 +91,19 @@ def main(args):
 		resources_dir = os.path.join(build_dir, 'Resources')
 		
 		shutil.copytree(project_resources,resources_dir)
+
+		# Migrate platform/iphone contents into Resources.
+		info("Migrating platform/iphone to Resources...")
+		project_platform = os.path.join(project_dir,'platform','iphone')
+		
+		if os.path.isdir(project_platform):
+			contents = os.listdir(project_platform)
+			for file in contents:
+				path = os.path.join(project_platform,file)
+				if os.path.isdir(path):
+					shutil.copytree(path, os.path.join(resources_dir,file))
+				else:
+					shutil.copy(path, os.path.join(resources_dir,file))
 		
 		# Migrate tiapp.xml
 		info("Migrating tiapp.xml...")
@@ -115,7 +128,8 @@ def main(args):
 		
 		# Run the compiler to autogenerate .m files
 		info("Copying classes, creating generated .m files...")
-		compiler = Compiler(project_dir,app_id,app_name,'export',False,None,None,silent=True)
+		compiler = Compiler(project_dir,app_id,app_name,'export')
+		compiler.compileProject(silent=True)
 		
 		#... But we still have to nuke the stuff that gets built that we don't want
 		# to bundle.
@@ -152,6 +166,16 @@ def main(args):
 				shutil.copy(os.path.join(module_path, module_name), lib_dir)
 				module[1] = os.path.join(lib_dir, module_name)
 				
+			info("Copying module metadata...")
+			metadata_dir = os.path.join(build_dir, 'metadata')
+			for module in modules:
+				module_metadata = os.path.join(module.path,'metadata.json')
+				if os.path.exists(module_metadata):
+					if not os.path.exists(metadata_dir):
+						os.makedirs(metadata_dir)
+					target = os.path.join(metadata_dir, "%s.json" % module.manifest.moduleid)
+					shutil.copyfile(module_metadata, target)
+			
 			# Note: The module link information has to be added to
 			# the xcodeproj after it's created.
 			# We also have to mod the module_search_path to reference
@@ -163,7 +187,7 @@ def main(args):
 				name = module[0]
 				newpath = os.path.join('lib',name)
 				local_modules.append([name, newpath])
-			link_modules(local_modules, app_name, build_dir, relative=True)		
+			link_modules(local_modules, app_name, build_dir, relative=True)	
 		
 		# Copy libraries
 		info("Copying libraries...")
@@ -188,6 +212,7 @@ def main(args):
 		shutil.copy(os.path.join(sdk_dir,'iphone','run.py'),iphone_script_dir)
 		shutil.copy(os.path.join(sdk_dir,'iphone','csspacker.py'),iphone_script_dir)
 		shutil.copy(os.path.join(sdk_dir,'iphone','jspacker.py'),iphone_script_dir)
+		shutil.copy(os.path.join(sdk_dir,'iphone','titanium_prep'),iphone_script_dir)
 		
 		# Add compilation to the build script in project
 		info("Modifying pre-compile stage...")

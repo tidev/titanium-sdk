@@ -1,70 +1,74 @@
 ---
 name: Titanium.UI.AlertDialog
-description: The Alert Dialog is created by <Titanium.UI.createAlertDialog> and allows you to show a modal application dialog.
+summary: The Alert Dialog is created by <Titanium.UI.createAlertDialog> and allows you to show a modal application dialog.
 extends: Titanium.Proxy
 since: "0.8"
 
 events:
   - name: click
-    description: fired when a button in the dialog is clicked
+    summary: fired when a button in the dialog is clicked
     properties:
       - name: cancel
         type: Boolean
-        description: boolean to indicate if the cancel button was pressed
+        summary: boolean to indicate if the cancel button was pressed
       - name: index
         type: Number
-        description: the button index that was pressed
+        summary: the button index that was pressed
 
 methods:
   - name: show
-    description: shows the alert dialog and blocks the background view like a modal window
+    summary: shows the alert dialog and blocks the background view like a modal window
 
   - name: hide
-    description: hides the alert dialog and unblocks the background view
+    summary: hides the alert dialog and unblocks the background view
 
 properties:
   - name: buttonNames
-    description: array of button names as strings
+    summary: array of button names as strings
     type: Array<Object>
 
   - name: cancel
-    description: an index to indicate which button should be the cancel button
+    summary: an index to indicate which button should be the cancel button
     type: Number
 
   - name: message
-    description: the message of the dialog
+    summary: the message of the dialog
     type: String
 
   - name: messageid
-    description: the key in the locale file to use for the message property
+    summary: the key in the locale file to use for the message property
     type: String
     accessors: false
 
   - name: title
-    description: the title of the dialog
+    summary: the title of the dialog
     type: String
 
   - name: titleid
-    description: the key in the locale file to use for the title property
+    summary: the key in the locale file to use for the title property
     type: String
     accessors: false
+    platforms: [android, iphone, ipad]
 
   - name: ok
-    description: Text for the OK button.  Useful for when you only want one button and therefore don't want to
+    summary: Text for the OK button.  Useful for when you only want one button and therefore don't want to
         use the `buttonNames` property.  If you do use `buttonNames`, this property will be ignored.
     type: String
+    platforms: [android, iphone, ipad]
 
   - name: okid
-    description: the key in the locale file to use for the `ok` property.  Note that if you use the `buttonNames`
+    summary: the key in the locale file to use for the `ok` property.  Note that if you use the `buttonNames`
         property to set the button titles, this will be ignored.
     type: String
     accessors: false
+    platforms: [android, iphone, ipad]
 
   - name: androidView
-    description: Titanium view that should be loaded inside the alert dialog
+    summary: Titanium view that should be loaded inside the alert dialog
     type: Titanium.UI.View
+    platforms: [android, iphone, ipad]
 
-notes: |
+description: |
     the global method `alert` is aliased to this object and can be invoked with a single message. For example:
     
         alert("this is a message");
