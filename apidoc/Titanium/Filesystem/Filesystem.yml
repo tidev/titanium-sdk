@@ -28,15 +28,18 @@ methods:
         as a path component. All of the arguments are joined together using the
         platform-specific path separator to make the final path.
 
-        If a relative path is passed, the full path will be relative to the 
-        application resource folder. For example:
+        If a relative path is passed, the full path should be interpreted relative
+        to the current file. For example, if the file `Resources/login/login.js` 
+        contains the following code:
         
             var icon = Titanium.Filesystem.getFile('icon.png');
 
-        Is equivalent to:
+        The path is interpreted as `Resources/login/icon.png`. 
 
-            var icon = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 
-                                                   'icon.png');
+        On iOS, all relative paths are currently interpreted as relative to the
+        `Resources` directory, **not** to the current context. This is a known issue
+        that will be addressed in a future release.
+
     returns:
         type: Titanium.Filesystem.File
     parameters:
@@ -118,7 +121,9 @@ properties:
         
         The application should check
         [isExternalStoragePresent](Titanium.Filesystem.isExternalStoragePresent) before
-        accessing this location. 
+        accessing this location. The application should also handle any exceptions generated 
+        if the storage device is unmounted during use, or if the files stored on external 
+        storage are not available.
         
     type: String
     permission: read-only
