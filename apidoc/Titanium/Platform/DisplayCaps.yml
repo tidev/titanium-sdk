@@ -11,7 +11,7 @@ description: |
 
     On Android, these values are device-specific.
 
-    Note that he `displayCaps` property begins with a lowercase letter,
+    Note that the `displayCaps` property begins with a lowercase letter,
     which is in contrast to the `DisplayCaps` object that it returns.
 extends: Titanium.Proxy
 since: "0.8"
