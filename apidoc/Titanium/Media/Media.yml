@@ -52,7 +52,7 @@ methods:
     parameters:
       - name: options
         summary: Photo gallery options as described in <CameraOptionsType>.
-        type: CameraOptionsType
+        type: PhotoGalleryOptionsType
   - name: saveToPhotoGallery
     summary: Saves media to the device's photo gallery / camera roll.
     description: |
@@ -62,12 +62,11 @@ methods:
         Media can be passed as either a `Blob` object or a `File` object. If the `media` argument
         is not one of these types, an error is generated.
 
-        #### iOS Notes
         Note that when passing a file (or a blob created from a file), the file name must 
         have the appropriate extension for the data--for example, `image.jpg` or `video1.mov` work,
         but `video1.tmp` does not. Currently, the `.mp4` extension is not supported, but MP4
         files may be imported by saving them with the `.mov` extension.
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad]
     parameters:
       - name: media
         summary: Media to save to the camera roll or media gallery. 
@@ -83,6 +82,9 @@ methods:
     description: |
         By default, the native camera controls are displayed. To add your own camera controls,
         you can add an overlay view by setting the `overlay` property on the `options` argument.
+
+        #### iOS Platform Notes
+
         To suppress the default controls, set `showControls` and `autohide` to `false`.
 
         If the `showControls` option is `false`, you must control the camera explicitly, using
@@ -136,28 +138,45 @@ methods:
       - name: callback
         summary: Function to call upon capture. 
         type: Callback<Object>
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad]
   - name: vibrate
     summary: Makes the device vibrate.
+    description: |
+        On Android, a `pattern` argument can be provided to specify a vibration pattern.
+
+        The `pattern` is an array of Number values.  Each number in the array is 
+        interpreted as a duration in milliseconds. The first number is the *delay* 
+        before the pattern starts, and the remaining numbers are interpreted as 
+        alternating periods of on and off times. For example, the following pattern:
+
+        [ 0, 500, 100, 500, 100, 500 ] 
+
+        Would cause the vibration to start immediately (delay = 0), and perform three
+        long vibrations (500 ms) separated by short pauses (100ms). 
+    parameters: 
+      - name: pattern
+        summary: Array of values identifying a vibrate pattern (only used on Android).
+        optional: true
+        type: Array<Number>
     platforms: [iphone, ipad, android]
 events:
   - name: linechange
     summary: Fired when an audio line type change is detected.
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad]
   - name: recordinginput
     summary: Fired when the availablity of recording input changes.
     properties:
       - name: available
         summary: Indicates whether the recording device is available.
         type: Boolean
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad]
   - name: volume
     summary: Fired when the volume output changes.
     properties:
       - name: volume
         summary: New volume level in dB.
         type: Number
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad]
 properties:
   - name: AUDIO_FILEFORMAT_3GP2
     summary: Audio file format 3GPP2.
@@ -570,37 +589,37 @@ properties:
     summary: Video playback ended normally.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_FINISH_REASON_PLAYBACK_ERROR
     summary: Video playback ended abnormally.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_FINISH_REASON_USER_EXITED
     summary: Video playback ended by user action (such as clicking the `Done` button).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_LOAD_STATE_PLAYABLE
     summary: Current media is playable.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_LOAD_STATE_PLAYTHROUGH_OK
     summary: Playback will be automatically started in this state when `autoplay` is true.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_LOAD_STATE_STALLED
     summary: Playback will be automatically paused in this state, if started.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_LOAD_STATE_UNKNOWN
     summary: Current load state is not known.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_MEDIA_TYPE_AUDIO
     summary: A audio type of media in the movie returned by <Titanium.Media.VideoPlayer> `mediaTypes` property.
     type: Number
@@ -620,32 +639,32 @@ properties:
     summary: Video playback has been interrupted.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_PLAYBACK_STATE_PAUSED
     summary: Video playback is paused.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_PLAYBACK_STATE_PLAYING
     summary: Video is being played.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD
     summary: Video playback is rewinding.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_PLAYBACK_STATE_SEEKING_FORWARD
     summary: Video playback is seeking forward.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_PLAYBACK_STATE_STOPPED
     summary: Video playback is stopped.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_REPEAT_MODE_NONE
     summary: Constant for disabling repeat on video playback.
     type: Number
@@ -951,13 +970,10 @@ properties:
 # Camera options pseudo-type
 ---
 name: CameraOptionsType
-summary: Simple object for specifying options to [showCamera](Titanium.Media.showCamera) and [openPhotoGallery](Titanium.Media.openPhotoGallery).
-description: |
-    Note that some properties are specific to `showCamera` and are ignored if passed to
-    `openPhotoGallery`.
+summary: Simple object for specifying options to [showCamera](Titanium.Media.showCamera).
 properties:
   - name: success 
-    summary: Function to call when the camera or photogallery is closed after a successful capture/selection.
+    summary: Function to call when the camera is closed after a successful capture/selection.
     type: Callback<CameraMediaItemType>
   - name: error 
     summary: Function to call upon receiving an error.
@@ -969,35 +985,41 @@ properties:
     summary: Specifies if the camera should be hidden automatically after the media capture is completed.
     type: Boolean
     default: true
+    platforms: [iphone, ipad]
   - name: animated 
     summary: Specifies if the dialog should be animated upon showing and hiding.
     type: Boolean
     default: true
+    platforms: [iphone, ipad]
   - name: saveToPhotoGallery
     summary: Specifies if the media should be saved to the photo gallery upon successful capture.
     type: Boolean
   - name: allowEditing
     summary: Specifies if the media should be editable after capture/selection.
     type: Boolean
+    platforms: [iphone, ipad]
   - name: mediaTypes 
     summary: |
         Array of media type constants to allow: `MEDIA_TYPE_PHOTO` or `MEDIA_TYPE_VIDEO`.
     type: Array<String>
     default: Both photo and video allowed.
+    platforms: [iphone, ipad]
   - name: videoMaximumDuration
-    summary: Maximum duration (in milliseconds) to allow video capture before completing. Only used by `showCamera`.
+    summary: Maximum duration (in milliseconds) to allow video capture before completing.
     type: Number
+    platforms: [iphone, ipad]
   - name: videoQuality 
-    summary: Constant to indicate the video quality during capture. Only used by `showCamera`.
+    summary: Constant to indicate the video quality during capture. 
     type: Number
   - name: showControls 
     summary: Indicates if the built-in camera or photogallery UI controls should be displayed.
     type: Boolean
     default: true
+    platforms: [iphone, ipad]
   - name: overlay 
     summary: View to added as an overlay to the camera or photogallery UI (on top).
     description: |
-        The overlay view is usually used in conjunction with `showControls: false`.
+        On iOS, the overlay view is usually used in conjunction with `showControls: false`.
         The `transform` property can be used to scale and position the camera preview inside
         the overlay view.
     type: Titanium.UI.View
@@ -1008,23 +1030,19 @@ properties:
         Can be used to size and position the camera or photogallery view behind an overlay view. 
     type: Titanium.UI.2DMatrix
     default: identity matrix
+    platforms: [iphone, ipad]
   - name: inPopOver
     summary: Show the camera in a popover.
     description: |
         Use `inPopOver: true` on iPad to display the camera view in a popover.
-
-        Note that the photo gallery is always displayed in a popover, and this property is 
-        ignored if specified.
     type: Boolean
     default: false
     platforms: [ipad]
   - name: popoverView 
     summary: View to position the camera or photo gallery popover on top of.
     description: |
-        For `showCamera`, this property is only used if the camera is displayed in a 
+        This property is only used if the camera is displayed in a 
         popover (`inPopOver` is `true`).
-
-        The photo gallery is always displayed in a popover on iPad.
     type: Titanium.UI.View
     platforms: [ipad]
   - name: arrowDirection
@@ -1032,10 +1050,81 @@ properties:
     description: |
         Specify one of the `POPOVER_ARROW_DIRECTION` constants from <Titanium.UI.iPad>.
 
-        For `showCamera`, this property is only used if the camera is displayed in a 
+        This property is only used if the camera is displayed in a 
         popover (`inPopOver` is `true`).
+    type: Number
+    platforms: [ipad]
 
-        The photo gallery is always displayed in a popover on iPad.
+# Photo Gallery options pseudo-type. Much like the camera one.
+---
+name: PhotoGalleryOptionsType
+summary: |
+    Simple object for specifying options to 
+    [openPhotoGallery](Titanium.Media.openPhotoGallery).
+properties:
+  - name: success 
+    summary: Function to call when the photogallery is closed after a successful selection.
+    type: Callback<CameraMediaItemType>
+  - name: error 
+    summary: Function to call upon receiving an error.
+    type: Callback<Object>
+  - name: cancel 
+    summary: Function to call if the user presses the cancel button.
+    type: Callback<Object>
+  - name: autohide 
+    summary: Specifies if the photo gallery should be hidden automatically after the media
+        selection is completed.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+  - name: animated 
+    summary: Specifies if the dialog should be animated upon showing and hiding.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+  - name: saveToPhotoGallery
+    summary: Specifies if the media should be saved to the photo gallery upon successful capture.
+    type: Boolean
+    platforms: [iphone, ipad]
+  - name: allowEditing
+    summary: Specifies if the media should be editable after capture/selection.
+    type: Boolean
+    platforms: [iphone, ipad]
+  - name: mediaTypes 
+    summary: |
+        Array of media type constants to allow: `MEDIA_TYPE_PHOTO` or `MEDIA_TYPE_VIDEO`.
+    type: Array<String>
+    default: Both photo and video allowed.
+    platforms: [iphone, ipad]
+  - name: showControls 
+    summary: Indicates if the built-in camera or photogallery UI controls should be displayed.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+  - name: overlay 
+    summary: View to added as an overlay to the photogallery UI (on top).
+    description: |
+        The overlay view is usually used in conjunction with `showControls: false`.
+        The `transform` property can be used to scale and position the camera preview inside
+        the overlay view.
+    type: Titanium.UI.View
+    default: no overlay view
+    platforms: [iphone, ipad]
+  - name: transform
+    summary: Transformation matrix to apply to the camera or photogallery view.
+    description: |
+        Can be used to size and position the camera or photogallery view behind an overlay view. 
+    type: Titanium.UI.2DMatrix
+    default: identity matrix
+    platforms: [iphone, ipad]
+  - name: popoverView 
+    summary: View to position the photo gallery popover on top of.
+    type: Titanium.UI.View
+    platforms: [ipad]
+  - name: arrowDirection
+    summary: Controls the type of arrow and position of the popover.
+    description: |
+        Specify one of the `POPOVER_ARROW_DIRECTION` constants from <Titanium.UI.iPad>.
     type: Number
     platforms: [ipad]
 
