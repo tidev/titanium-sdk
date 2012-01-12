@@ -161,6 +161,10 @@ public class TiPlatformHelper
 	public static String getName() {
 		return "android";
 	}
+	
+	public static String getOS() {
+		return "Android";
+	}
 
 	public static int getProcessorCount() {
 		return Runtime.getRuntime().availableProcessors();
