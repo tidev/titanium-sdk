@@ -85,6 +85,10 @@ methods:
   - name: animate
     summary: Animates this view.
     description: |
+        The [Animation](Titanium.UI.Animation) object or dictionary passed to this
+        method defines the end state for the animation, the duration of the animation,
+        and a few other properties.
+
         Note that if you use `animate` to move a view, the view's actual *position*
         is changed, but its layout properties, such as `top`, `left`, `center` and 
         so on are not changed--these reflect the original values set by the user, not
