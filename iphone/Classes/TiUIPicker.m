@@ -303,14 +303,18 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
 	TiUIPickerColumnProxy *proxy = [[self columns] objectAtIndex:component];
 	TiUIPickerRowProxy *rowproxy = [proxy rowAt:row];
+	CGRect frame = CGRectMake(0.0, 0.0, [self pickerView:pickerView widthForComponent:component]-20, [self pickerView:pickerView rowHeightForComponent:component]);
 	NSString *title = [rowproxy valueForKey:@"title"];
 	if (title!=nil)
 	{
-		UILabel *pickerLabel = (UILabel *)view;
+		UILabel *pickerLabel = nil;
+		
+		if ([view isMemberOfClass:[UILabel class]]) {
+			pickerLabel = (UILabel*)view;
+		}
 		
 		if (pickerLabel == nil) 
 		{
-			CGRect frame = CGRectMake(0.0, 0.0, [self pickerView:pickerView widthForComponent:component]-20, [self pickerView:pickerView rowHeightForComponent:component]);
 			pickerLabel = [[[UILabel alloc] initWithFrame:frame] autorelease];
 			[pickerLabel setTextAlignment:UITextAlignmentLeft];
 			[pickerLabel setBackgroundColor:[UIColor clearColor]];
@@ -324,7 +328,13 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	}
 	else 
 	{
-		return [rowproxy view];
+		UIView* returnView = [rowproxy view];
+		UIView* wrapperView = [[[UIView alloc] initWithFrame:frame]autorelease];
+		[wrapperView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
+		[wrapperView setBackgroundColor:[UIColor clearColor]];
+		returnView.frame = wrapperView.bounds;
+		[wrapperView addSubview:returnView];
+		return wrapperView;
 	}
 }
 
