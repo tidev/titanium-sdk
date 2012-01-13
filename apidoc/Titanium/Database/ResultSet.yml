@@ -28,7 +28,7 @@ methods:
         type: Object
     parameters:
       - name: name
-        summary: A column name from the SQL query.
+        summary: A column name or alias from the SQL query.
         type: String
       - name: type
         summary: |
