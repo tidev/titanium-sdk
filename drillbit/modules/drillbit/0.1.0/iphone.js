@@ -40,6 +40,7 @@ iPhoneSimulator.prototype.fillTestTemplateData = function(data) {
 }
 
 iPhoneSimulator.prototype.fillTiAppData = function(data) {
+	data.androidRuntime = "none";
 }
 
 iPhoneSimulator.prototype.pushTestJS = function(testScript) {
