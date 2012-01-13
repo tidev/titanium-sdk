@@ -255,9 +255,16 @@ properties:
         6.  Array contains **only** [LANDSCAPE_LEFT](Titanium.UI.LANDSCAPE_LEFT). Locks screen
             orientation to normal landscape mode.
 
-        Note that specifying either [UPSIDE_PORTRAIT](Titanium.UI.UPSIDE_PORTRAIT) or
-        [LANDSCAPE_RIGHT](Titanium.UI.LANDSCAPE_RIGHT) alone has undefined results on Android.
+        7.  Array contains **only** [UPSIDE_PORTRAIT](Titanium.UI.UPSIDE_PORTRAIT). On
+            Android 2.3 and above, locks screen in reverse portrait mode. 
 
+            On Android versions below 2.3, results are undefined.
+
+        8.  Array contains **only**  [LANDSCAPE_RIGHT](Titanium.UI.LANDSCAPE_RIGHT). On
+            Android 2.3 and above, locks screen in reverse landscape mode. 
+
+            On Android versions below 2.3, results are undefined.
+        
     platforms: [android, iphone, ipad]
     type: Array<Number>
     default: empty array
