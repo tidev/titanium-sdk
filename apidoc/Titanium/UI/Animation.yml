@@ -6,7 +6,7 @@ description: |
     most basic, an animation object represents a single-phase animation with an 
     end state and a duration. 
     
-    When `animate` is called on a [View](Titanium.UI.View),
+    When [animate](Titanium.UI.View.animate) is called on a [View](Titanium.UI.View),
     the view is animated from its current state to the state described by the 
     animation object. The properties that can be animated include the view's 
     position, size, colors, transformation matrix and opacity. 
@@ -20,7 +20,7 @@ description: |
 
     Note that when you animate a view's size or position, the actual layout properties
     (such as `top`, `left`, `width`, `height`) are not changed by the animation.
-    See <Titanium.UI.View.animate> for more information.
+    See the description of the [animate](Titanium.UI.View.animate) method for more information.
 
     #### iOS Platform Notes
 
