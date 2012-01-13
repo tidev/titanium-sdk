@@ -1115,27 +1115,16 @@ properties:
     type: Titanium.Blob
   - name: mediaType
     summary: The type of media, either `MEDIA_TYPE_PHOTO` or `MEDIA_TYPE_VIDEO` defined in <Titanium.Media>.
-    type: Number
+    type: String
   - name: cropRect
     summary: Simple object defining the user's selected crop rectangle, or `null` if the user has not edited the photo.
     type: CropRectType
-  - name: x
-    summary: X coordinate of the media's upper-left corner, uncropped.
-    type: Number
-  - name: y
-    summary: Y coordinate of the media's upper-left corner, uncropped.
-    type: Number
-  - name: width
-    summary: Width of the media, in pixels.
-    type: Number
-  - name: height
-    summary: Height of the media, in pixels.
-    type: Number
 
 # Arguably we might need a global Rect pseudotype. For now, define locally
 ---
 name: CropRectType
 summary: Simple object for describing the crop rectangle for an image.
+properties: 
   - name: x
     summary: X coordinate of the crop rectangle's upper-left corner.
     type: Number
