@@ -120,6 +120,7 @@ public class KrollBindings
 			Scriptable exports = context.newObject(scope);
 			Proxy.init(context, exports, name, externalBindingClass);
 			bindingCache.put(name, exports);
+
 			return exports;
 		}
 
