@@ -128,7 +128,8 @@ def main(args):
 		
 		# Run the compiler to autogenerate .m files
 		info("Copying classes, creating generated .m files...")
-		compiler = Compiler(project_dir,app_id,app_name,'export',False,None,None,silent=True)
+		compiler = Compiler(project_dir,app_id,app_name,'export')
+		compiler.compileProject(silent=True)
 		
 		#... But we still have to nuke the stuff that gets built that we don't want
 		# to bundle.
@@ -165,6 +166,16 @@ def main(args):
 				shutil.copy(os.path.join(module_path, module_name), lib_dir)
 				module[1] = os.path.join(lib_dir, module_name)
 				
+			info("Copying module metadata...")
+			metadata_dir = os.path.join(build_dir, 'metadata')
+			for module in modules:
+				module_metadata = os.path.join(module.path,'metadata.json')
+				if os.path.exists(module_metadata):
+					if not os.path.exists(metadata_dir):
+						os.makedirs(metadata_dir)
+					target = os.path.join(metadata_dir, "%s.json" % module.manifest.moduleid)
+					shutil.copyfile(module_metadata, target)
+			
 			# Note: The module link information has to be added to
 			# the xcodeproj after it's created.
 			# We also have to mod the module_search_path to reference
@@ -176,7 +187,7 @@ def main(args):
 				name = module[0]
 				newpath = os.path.join('lib',name)
 				local_modules.append([name, newpath])
-			link_modules(local_modules, app_name, build_dir, relative=True)		
+			link_modules(local_modules, app_name, build_dir, relative=True)	
 		
 		# Copy libraries
 		info("Copying libraries...")

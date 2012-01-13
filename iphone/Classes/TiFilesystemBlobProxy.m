@@ -54,13 +54,15 @@
 
 -(id)writeable
 {
-	return NUMBOOL(NO);
+	// Note: Despite previous incarnations claiming writeable is the proper API,
+	// writable is the correct spelling.
+	DEPRECATED_REPLACED(@"Filesystem.FileProxy.writeable",@"1.8.1",@"1.9.0",@"writable");
+	return [self writable];
 }
 
 -(id)writable
 {
-	NSLog(@"[WARN] The File.writable method is deprecated and should no longer be used. Use writeable instead.");
-	return [self writeable];
+	return NUMBOOL(NO);
 }
 
 
