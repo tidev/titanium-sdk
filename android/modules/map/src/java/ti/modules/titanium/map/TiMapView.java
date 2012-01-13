@@ -17,6 +17,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiProperties;
@@ -188,13 +189,23 @@ public class TiMapView extends TiUIView
 				//prefer pinImage to pincolor.
 				if (p.hasProperty(TiC.PROPERTY_IMAGE) || p.hasProperty(TiC.PROPERTY_PIN_IMAGE))
 				{
-					String imagePath = TiConvert.toString(p.getProperty(TiC.PROPERTY_IMAGE));
-					if (imagePath == null) {
-						imagePath = TiConvert.toString(p.getProperty(TiC.PROPERTY_PIN_IMAGE));
+					Object imageProperty = p.getProperty(TiC.PROPERTY_IMAGE);
+					Drawable marker;
+					if (imageProperty instanceof TiBlob) {
+						marker = makeMarker((TiBlob) imageProperty);
+					} else {
+						marker = makeMarker(TiConvert.toString(imageProperty));
 					}
-					Drawable marker = makeMarker(imagePath);
-					boundCenterBottom(marker);
-					item.setMarker(marker);
+
+					// Default to PIN_IMAGE if we were unable to make a marker from IMAGE
+					if (marker == null) {
+						marker = makeMarker(TiConvert.toString(p.getProperty(TiC.PROPERTY_PIN_IMAGE)));
+					}
+
+					if (marker != null) {
+						boundCenterBottom(marker);
+						item.setMarker(marker);
+					}
 				} else if (p.hasProperty(TiC.PROPERTY_PINCOLOR)) {
 					Object value = p.getProperty(TiC.PROPERTY_PINCOLOR);
 					
@@ -749,16 +760,30 @@ public class TiMapView extends TiUIView
 
 	private Drawable makeMarker(String pinImage)
 	{
-		String url = proxy.resolveUrl(null, pinImage);
-		TiBaseFile file = TiFileFactory.createTitaniumFile(new String[] { url }, false);
-		try {
-			Drawable d = new BitmapDrawable(TiUIHelper.createBitmap(file.getInputStream()));
-			d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
-			return d;
-		} catch (IOException e) {
-			Log.e(LCAT, "Error creating drawable from path: " + pinImage.toString(), e);
+		if (pinImage != null) {
+			String url = proxy.resolveUrl(null, pinImage);
+			TiBaseFile file = TiFileFactory.createTitaniumFile(new String[] { url }, false);
+			try {
+				Drawable d = new BitmapDrawable(mapWindow.getContext().getResources(), TiUIHelper.createBitmap(file
+					.getInputStream()));
+				d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+				return d;
+			} catch (IOException e) {
+				Log.e(LCAT, "Error creating drawable from path: " + pinImage.toString(), e);
+			}
 		}
 		return null;
+	}
+
+	private Drawable makeMarker(TiBlob pinImage)
+	{
+		if (pinImage == null) {
+			return null;
+		}
+		Drawable d = new BitmapDrawable(mapWindow.getContext().getResources(), TiUIHelper.createBitmap(pinImage
+			.getInputStream()));
+		d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+		return d;
 	}
 
 	private double scaleFromGoogle(int value)
