@@ -117,8 +117,13 @@ properties:
     summary: Value of the `top` property at the end of the animation.
     type: Number
   - name: transform
-    summary: Value of the `transform` property at the end of the animation.
-    type: Object
+    summary: Animate the view from its current tranform to the specified transform.
+    description: |
+        Over the course of the animation, the view interpolates from its 
+        current transform to the specified transform.
+
+        3D transforms are only supported on iOS.
+    type: [Titanium.UI.2DMatrix, Titanium.UI.iOS.3DMatrix]
   - name: transition
     summary: Transition type to use during a transition animation.
     description: |
