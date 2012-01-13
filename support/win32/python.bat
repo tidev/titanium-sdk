@@ -5,7 +5,7 @@ call "%~dp0findpython.bat"
 
 if ()==(%pythonPath%) goto NoPython
 
-"%pythonPath%" "%~dp0titanium.py" %*
+"%pythonPath%" %*
 goto Exit
 
 :NoPython
