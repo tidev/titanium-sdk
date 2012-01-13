@@ -51,7 +51,7 @@ methods:
     platforms: [iphone, ipad, android]
     parameters:
       - name: options
-        summary: Photo gallery options as described in <CameraOptionsType>.
+        summary: Photo gallery options as described in <PhotoGalleryOptionsType>.
         type: PhotoGalleryOptionsType
   - name: saveToPhotoGallery
     summary: Saves media to the device's photo gallery / camera roll.
@@ -994,10 +994,12 @@ properties:
   - name: saveToPhotoGallery
     summary: Specifies if the media should be saved to the photo gallery upon successful capture.
     type: Boolean
+    default: false
   - name: allowEditing
     summary: Specifies if the media should be editable after capture/selection.
     type: Boolean
     platforms: [iphone, ipad]
+    default: false
   - name: mediaTypes 
     summary: |
         Array of media type constants to allow: `MEDIA_TYPE_PHOTO` or `MEDIA_TYPE_VIDEO`.
@@ -1011,13 +1013,14 @@ properties:
   - name: videoQuality 
     summary: Constant to indicate the video quality during capture. 
     type: Number
+    platforms: [iphone, ipad]
   - name: showControls 
-    summary: Indicates if the built-in camera or photogallery UI controls should be displayed.
+    summary: Indicates if the built-in camera controls should be displayed.
     type: Boolean
     default: true
     platforms: [iphone, ipad]
   - name: overlay 
-    summary: View to added as an overlay to the camera or photogallery UI (on top).
+    summary: View to added as an overlay to the camera UI (on top).
     description: |
         On iOS, the overlay view is usually used in conjunction with `showControls: false`.
         The `transform` property can be used to scale and position the camera preview inside
@@ -1082,10 +1085,6 @@ properties:
     type: Boolean
     default: true
     platforms: [iphone, ipad]
-  - name: saveToPhotoGallery
-    summary: Specifies if the media should be saved to the photo gallery upon successful capture.
-    type: Boolean
-    platforms: [iphone, ipad]
   - name: allowEditing
     summary: Specifies if the media should be editable after capture/selection.
     type: Boolean
@@ -1095,27 +1094,6 @@ properties:
         Array of media type constants to allow: `MEDIA_TYPE_PHOTO` or `MEDIA_TYPE_VIDEO`.
     type: Array<String>
     default: Both photo and video allowed.
-    platforms: [iphone, ipad]
-  - name: showControls 
-    summary: Indicates if the built-in camera or photogallery UI controls should be displayed.
-    type: Boolean
-    default: true
-    platforms: [iphone, ipad]
-  - name: overlay 
-    summary: View to added as an overlay to the photogallery UI (on top).
-    description: |
-        The overlay view is usually used in conjunction with `showControls: false`.
-        The `transform` property can be used to scale and position the camera preview inside
-        the overlay view.
-    type: Titanium.UI.View
-    default: no overlay view
-    platforms: [iphone, ipad]
-  - name: transform
-    summary: Transformation matrix to apply to the camera or photogallery view.
-    description: |
-        Can be used to size and position the camera or photogallery view behind an overlay view. 
-    type: Titanium.UI.2DMatrix
-    default: identity matrix
     platforms: [iphone, ipad]
   - name: popoverView 
     summary: View to position the photo gallery popover on top of.
@@ -1140,7 +1118,7 @@ properties:
     type: Number
   - name: cropRect
     summary: Simple object defining the user's selected crop rectangle, or `null` if the user has not edited the photo.
-    type: Rect
+    type: CropRectType
   - name: x
     summary: X coordinate of the media's upper-left corner, uncropped.
     type: Number
@@ -1152,4 +1130,21 @@ properties:
     type: Number
   - name: height
     summary: Height of the media, in pixels.
+    type: Number
+
+# Arguably we might need a global Rect pseudotype. For now, define locally
+---
+name: CropRectType
+summary: Simple object for describing the crop rectangle for an image.
+  - name: x
+    summary: X coordinate of the crop rectangle's upper-left corner.
+    type: Number
+  - name: y
+    summary: Y coordinate of the crop rectangle's upper-left corner.
+    type: Number
+  - name: width
+    summary: Width of the crop rectangle, in pixels.
+    type: Number
+  - name: height
+    summary: Height of the crop rectangle, in pixels.
     type: Number
