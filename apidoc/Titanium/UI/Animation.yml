@@ -81,7 +81,7 @@ properties:
     summary: Animation curve or easing function to apply to the animation.
     description: |
         Specify one of the `ANIMATION_CURVE` constants from
-        <Titanium.UI.iPhone.AnimationStyle>.
+        <Titanium.UI.iOS>.
     type: Number
     platforms: [iphone, ipad]
   - name: delay
@@ -159,7 +159,7 @@ examples:
                view.animate(animation);
             };
             animation.addEventListener('complete',animationHandler);
-            view.animate(animation
+            view.animate(animation);
 
   - title: Animation Using Matrix Transforms
     example: |
