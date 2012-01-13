@@ -4,6 +4,7 @@ define("Ti/Network/HTTPClient", ["Ti/_/Evented"], function(Evented) {
 	
 		var undef,
 			obj = this,
+			enc = encodeURIComponent,
 			is = require.is,
 			on = require.on,
 			xhr = new XMLHttpRequest,
@@ -21,7 +22,26 @@ define("Ti/Network/HTTPClient", ["Ti/_/Evented"], function(Evented) {
 		function fireStateChange() {
 			is(obj.onreadystatechange, "Function") && obj.onreadystatechange.call(obj);
 		}
-	
+
+		function serialize(obj) {
+			var pairs = [],
+				prop,
+				value,
+				prefix;
+
+			for (prop in obj) {
+				if (obj.hasOwnProperty(prop)) {
+					prefix = enc(prop) + "=";
+					lang.isArray(value = obj[prop]) || (value = [value]);
+					require.each(value, function(v) {
+						pairs.push(prefix + enc(v));
+					});
+				}
+			}
+
+			return pairs.join("&");
+		}
+
 		xhr.onreadystatechange = function() {
 			switch (xhr.readyState) {
 				case 0: _readyState = UNSENT; break;
@@ -121,7 +141,7 @@ define("Ti/Network/HTTPClient", ["Ti/_/Evented"], function(Evented) {
 		obj.send = function(args){
 			_completed = false;
 			try {
-				xhr.send(args || null);
+				xhr.send(is(args, "Object") ? serialize(args) : args || null);
 				clearTimeout(timeoutTimer);
 				obj.timeout && (timeoutTimer = setTimeout(function() {
 					if (obj.connected) {
