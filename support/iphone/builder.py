@@ -608,7 +608,8 @@ def main(args):
 		#Ensure the localization files are copied in the application directory
 		out_dir = os.path.join(os.environ['TARGET_BUILD_DIR'],os.environ['CONTENTS_FOLDER_PATH'])
 		localecompiler.LocaleCompiler(name,project_dir,devicefamily,deploytype,out_dir).compile()
-		compiler = Compiler(project_dir,appid,name,deploytype,xcode_build,devicefamily,iphone_version)
+		compiler = Compiler(project_dir,appid,name,deploytype)
+		compiler.compileProject(xcode_build,devicefamily,iphone_version)
 		script_ok = True
 		sys.exit(0)
 	else:
@@ -944,7 +945,8 @@ def main(args):
 				create_info_plist(ti, template_dir, project_dir, infoplist)
 				# since compiler will generate the module dependencies, we need to 
 				# attempt to compile to get it correct for the first time.
-				compiler = Compiler(project_dir,appid,name,deploytype,xcode_build,devicefamily,iphone_version,True)
+				compiler = Compiler(project_dir,appid,name,deploytype)
+				compiler.compileProject(xcode_build,devicefamily,iphone_version,True)
 			else:
 				contents="TI_VERSION=%s\n"% sdk_version
 				contents+="TI_SDK_DIR=%s\n" % template_dir.replace(sdk_version,'$(TI_VERSION)')
