@@ -11,6 +11,7 @@
 #include <string.h>
 #include <signal.h>
 #include <unistd.h>
+#include <stdarg.h>
 
 #include "AndroidUtil.h"
 
@@ -147,6 +148,7 @@ static void debugLog(int logLevel, const char* message)
 
 void APIModule::logInternal(int logLevel, const char *messageTag, const char *message)
 {
+
 	if (V8Runtime::debuggerEnabled) {
 		debugLog(logLevel, message);
 		return;
@@ -190,15 +192,9 @@ Handle<Value> APIModule::log(const Arguments& args)
 		int size = strlen(*level) + strlen(*message) + 4;
 		
 		char *fmessage = new char[size];
-		fmessage[0] = '[';
-		fmessage[1] = '\0';
-		fmessage[size] = '\0';
-		char end[3] = {']',' ','\0'};
-		strcat(fmessage, *level); 
-		strcat(fmessage, end);
-		strcat(fmessage, *message);
-		
-		APIModule:logInternal(LOG_LEVEL_INFO, LCAT, fmessage);
+		sprintf(fmessage, "[%s] %s", *level, *message);
+
+		APIModule::logInternal(LOG_LEVEL_INFO, LCAT, fmessage);
 		delete fmessage;
 	}
 
