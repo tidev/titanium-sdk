@@ -143,11 +143,11 @@ properties:
     type: String
     permission: read-only
   - name: ostype
-    summary: The Operating System architecture. For example, 32 bit.
+    summary: The Operating System architecture. On Android, this is `32bit`.
     type: String
     permission: read-only
   - name: processorCount
-    summary: The number of the system's processors.
+    summary: The number of processing cores.
     type: Number
     permission: read-only
   - name: runtime
@@ -163,6 +163,6 @@ properties:
     type: String
     permission: read-only
   - name: version
-    summary: The system's platform version.
+    summary: The system's OS version.
     type: String
     permission: read-only
