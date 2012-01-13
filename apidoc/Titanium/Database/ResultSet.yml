@@ -10,9 +10,12 @@ methods:
         Closes the result set and release resources. Once closed, this result set 
         must no longer be used.
   - name: field
-    summary: Retrieves a row value by field index.
+    summary:  |
+        Retrieves the value for the specified field in this row, 
+        and casts it to the specified type (String, integer, float or double.)
     returns:
-        type: Object
+      - type: String
+      - type: Number
     parameters:
       - name: index
         summary: A zero-based column index.
@@ -23,12 +26,15 @@ methods:
         type: Number
         optional: true
   - name: fieldByName
-    summary: Retrieves a row value by field name.
+    summary: |
+        Retrieves the value for the specified field in this row, 
+        and casts it to the specified type (String, integer, float or double.)
     returns:
-        type: Object
+      - type: String
+      - type: Number
     parameters:
       - name: name
-        summary: A column name or alias from the SQL query.
+        summary: A column name or alias used in the SQL query.
         type: String
       - name: type
         summary: |
@@ -52,11 +58,11 @@ methods:
     returns:
         type: Boolean
   - name: next
-    summary: Iterates to the next row in the result set.
+    summary: |
+        Advances to the next row in the result set and returns `true` if one exists, 
+        or `false` otherwise.
     returns:
         type: Boolean
-        summary: |
-            This returns `true` until the operation goes past the final row.
 properties:
   - name: rowCount
     summary: The number of rows in the result set.
@@ -71,10 +77,10 @@ examples:
         will create a table, insert data into it, query the table and iterate through 
         the returned <Titanium.Database.ResultSet>.
 
-            var db = Ti.Database.install('mydb1', 'mydb1Installed');
-            db.execute('DELETE FROM people');
+            var db = Ti.Database.open('mydb1Installed');
             db.execute('CREATE TABLE IF NOT EXISTS people (name TEXT, phone_number TEXT, city TEXT)');
-
+            db.execute('DELETE FROM people');
+            
             var thisName = 'Arthur';
             var thisPhoneNo = '1-617-000-0000';
             var thisCity = 'Mountain View';
