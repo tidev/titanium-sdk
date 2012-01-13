@@ -11,6 +11,9 @@ deprecated:
     since: "1.8.0"
     removed: "1.9.0"
 platforms: [iphone, ipad]
+excludes: {
+   events: [ "dblclick", "doubletap", "longclick", "longpress", "pinch", "singletap", "swipe", "touchcancel", "touchend", "touchmove", "touchstart", "twofingertap" ]
+}
 methods:
   - name: setImage
     summary: Changes the image for a specified index.
@@ -35,8 +38,19 @@ events:
     properties:
       - name: index
         summary: Index of the image that is now visible.
+        type: Number
       - name: previous
         summary: Index of the previously-visible image.
+        type: Number
+  - name: click
+    summary: Fired when the user clicks on the view.
+    properties:
+      - name: index
+        summary: Index of the image that is now visible.
+        type: Number
+      - name: previous
+        summary: Index of the previously-visible image.
+        type: Number
 properties:
   - name: images
     summary: Array of images to display in the view.
