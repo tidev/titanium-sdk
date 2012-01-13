@@ -1,26 +1,59 @@
 ---
 name: Titanium.UI.ButtonBar
-summary: A Button Bar is created by the method <Titanium.UI.createButtonBar>.
+summary: An iOS button bar component.
+description: |
+    The button bar is a set of buttons joined into a single control. Each button in a
+    button bar can have a text label or an icon, but not both. 
+
+    The [TabbedBar](Titanium.UI.iOS.TabbedBar) control is a button bar where the 
+    last selected button mantains a pressed or selected state. The following discussion
+    applies to both button bar and tabbed bar.
+    
+    The buttons share a common style, defined by the `style` property. This can be 
+    set to one of the constants defined in 
+    [Titanium.UI.iPhone.SystemButtonStyle](Titanium.UI.iPhone.SystemButtonStyle):
+
+    * `PLAIN`. Default style for `ButtonBar` and `TabbedBar`.
+    * `BORDERED`. Creates a bar like the `PLAIN` bar, but with a heavier border.
+    * `BAR`. Creates a more compact bar with
+            translucent buttons that allow the bar's background color to show through.
+
+    If you want the background color or background gradient of the button bar itself 
+    to show through, the style must be set to <Titanium.UI.iPhone.SystemButtonStyle.BAR>.
+
+    Note that you cannot style individual buttons in a button bar. If you want to give a
+    distinct visual style to individual buttons, to use an icon and text on the same button,
+    or to use a button-bar type component on a platform other than iOS, you can use a set 
+    of individual [Button](Titanium.UI.Button) controls wrapped in a
+    [View](Titanium.UI.View) to create the appearance of a button bar.
+
+    Use the <Titanium.UI.createButtonBar> method to create a button bar.
 extends: Titanium.UI.View
 since: "0.8"
-platforms: [iphone, ipad, mobileweb]
+platforms: [iphone, ipad]
 properties:
   - name: index
-    summary: the selected index
+    summary: Index of the currently selected button.
     type: Number
   - name: labels
-    summary: The array of labels for the button bar. 
-    detail: |
-        Each object should have the following properties:
-        `title`, `image`, `width` and `enabled`. `image` may
-        either be a path to an image file, or a <Titanium.Blob>
-        representing an image.
-    type: Array<Object>
+    summary: Array of labels for the button bar. 
+    description: |
+        The labels can be specified either using an array of strings, in which case
+        each string defines the title for a button, or using an array of simple
+        dictionary objects, <BarItemType>, which can specify title, image, width and
+        enabled state for each button.
+    type: [Array<String>, Array<BarItemType>]
   - name: style
-    summary: the style of the button bar
+    summary: Style of the button bar.
+    description: |
+        Specify one of the constants defined in
+        [Titanium.UI.iPhone.SystemButtonStyle](Titanium.UI.iPhone.SystemButtonStyle),
+        either `PLAIN`, `BORDERED`, or `BAR`.
+
+        The `BAR` style specifies a more compact style and allows the bar's background
+        color or gradient to show through.
     type: Number
-description: |
-    For iPhone, the style constants are available in the constants defined in <Titanium.UI.iPhone.SystemButtonStyle>.
+    default: Titanium.UI.iPhone.SystemButtonStyle.PLAIN
 examples:
   - title: Simple 3 button button bar
     example: |

@@ -2,23 +2,39 @@
 name: Titanium.UI.iOS.TabbedBar
 summary: A button bar that maintains a selected state.
 description: |
-    A Tabbed Bar is created by the method <Titanium.UI.iOS.createTabbedBar>. The 
-    difference between the Tabbed Bar and the Button Bar is that the tabbed bar visually 
+    A tabbed bar is a button bar that
     maintains a state (visually distinguished as a pressed or selected look).
+    It is closely related to the `ButtonBar` control. See the description of 
+    [ButtonBar](Titanium.UI.ButtonBar) for information on styling tabbed bars and buttons
+    bars.
+
+    Use the <Titanium.UI.iOS.createTabbedBar> method to create a Tabbed Bar.
 extends: Titanium.UI.View
 platforms: [iphone, ipad]
 since: "0.8"
 properties:
   - name: index
-    summary: the selected index
+    summary: Index of the currently selected button.
     type: Number
   - name: labels
-    summary: the array of labels for the tabbed bar. each object should have the properties `title`, `image`, `width` and `enabled`.
-    type: Array<Object>
+    summary: Array of labels for the tabbed bar. 
+    description: |
+        The labels can be specified either using an array of strings, in which case
+        each string defines the title for a button, or using an array of simple
+        dictionary objects, <BarItemType>, which can specify title, image, width and 
+        enabled state for each button.
+    type: [Array<String>, Array<BarItemType>]
   - name: style
     summary: Style of the tabbed bar.
-    description: Specify one of the constants defined in [Titanium.UI.iPhone.SystemButtonStyle](Titanium.UI.iPhone.SystemButtonStyle).
+    description: |
+        Specify one of the constants defined in 
+        [Titanium.UI.iPhone.SystemButtonStyle](Titanium.UI.iPhone.SystemButtonStyle),
+        either `PLAIN`, `BORDERED`, or `BAR`.
+
+        The `BAR` style specifies a more compact style and allows the bar's background
+        color or gradient to show through.
     type: Number
+    default: Titanium.UI.iPhone.SystemButtonStyle.PLAIN
 examples:
   - title: Simple Tabbed Bar with 3 items
     example: |
@@ -33,4 +49,20 @@ examples:
             });
             win.add(bb1);
         
-        
+---
+name: BarItemType
+summary: Object describing a button bar or tabbed bar item.
+properties:
+  - name: title
+    summary: Button title.
+    type: String
+  - name: image
+    summary: Button icon, to display in place of the title.
+    type: [String, Titanium.Blob, Titanium.File]
+  - name: width
+    summary: Width for this button. 
+    type: Number
+  - name: enabled
+    summary: Whether the button is enabled initially.
+    type: Boolean
+    default: true
