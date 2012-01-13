@@ -627,11 +627,12 @@
 		}, _t.refModule, _t.sync);
 	};
 
-	function getResourceDef(name, refModule, deps, rawDef, dontCache) {
+	function getResourceDef(name, refModule, deps, rawDef, dontCache, overrideCache) {
 		// summary:
 		//		Creates a new resource definition or returns an existing one from cache.
 
-		var module = new ResourceDef(name, refModule, deps, rawDef);
+		var module = new ResourceDef(name, refModule, deps, rawDef),
+			moduleName = module.name;
 
 		if (name in module.cjs) {
 			module.def = module[name];
@@ -639,7 +640,7 @@
 			return module;
 		}
 
-		return dontCache ? module : (module.name ? modules[module.name] || (modules[module.name] = module) : module);
+		return dontCache || !moduleName ? module : (!modules[moduleName] || overrideCache ? (modules[moduleName] = module) | modules[moduleName]);
 	}
 
 	function processDefQ(module) {
@@ -887,7 +888,7 @@
 				});
 		}
 
-		module = getResourceDef(name, 0, deps, rawDef);
+		module = getResourceDef(name, 0, deps, rawDef, 0, 1);
 
 		// if not waiting for this module to be loaded, then the define() call was
 		// possibly inline or deferred, so try fulfill dependencies, and define the
