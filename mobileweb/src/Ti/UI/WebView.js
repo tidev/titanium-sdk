@@ -55,7 +55,7 @@ define("Ti/UI/WebView", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css
 			return this._iframe.clientHeight;
 		},
 		_setTouchEnabled: function(value) {
-			FontWidget.prototype._setTouchEnabled.apply(this,arguments);
+			Widget.prototype._setTouchEnabled.apply(this,arguments);
 			this.slider && set(this._iframe,"pointerEvents", value ? "auto" : "none");
 		},
 		
