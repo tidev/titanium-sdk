@@ -11,6 +11,7 @@
 #import "TiMediaAudioSession.h"
 #import "MediaPlayer/MediaPlayer.h"
 #import "TiMediaMusicPlayer.h"
+#import "TiViewProxy.h"
 
 @interface MediaModule : TiModule
 <
@@ -39,6 +40,7 @@
 	KrollCallback *pickerCancelCallback;
 	
 	id popover;
+    TiViewProxy* cameraView;
 	
 	UIVideoEditorController *editor;
 	KrollCallback *editorSuccessCallback;
