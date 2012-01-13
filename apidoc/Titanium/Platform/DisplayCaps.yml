@@ -4,13 +4,11 @@ summary: |
     The Display Caps object returned by the <Titanium.Platform.displayCaps> property.
 description: |
     On iPhone, the `density` property will return `high` for retina devices and
-    `medium` otherwise, the `dpi` property will return `160`.
+    `medium` otherwise, and the `dpi` property `320` and `160` otherwise.
 
     On iPad, the `density` property will return `medium` and the `dpi` property
     will return `130`.
-
-    On Android, these values are device-specific.
-
+    
     Note that the `displayCaps` property begins with a lowercase letter,
     which is in contrast to the `DisplayCaps` object that it returns.
 extends: Titanium.Proxy

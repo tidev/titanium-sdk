@@ -27,7 +27,7 @@ methods:
     parameters:
       - name: url
         summary: The url to open.
-        type: String
+        type: Boolean
   - name: is24HourTimeFormat
     summary: |
         Returns whether the system settings are configured to show times in
@@ -74,7 +74,8 @@ properties:
     type: String
     permission: read-only
   - name: availableMemory
-    summary: The system's unused memory in bytes.
+    summary: |
+        The system's unused memory, measured in megabytes on iOS and bytes on Android.
     type: Number
     permission: read-only
   - name: batteryLevel
@@ -157,7 +158,8 @@ properties:
     type: String
     permission: read-only
   - name: username
-    summary: The system's username, if set.
+    summary: |
+      The system name, if set. On iOS, this can be found in Settings > General > About > Name.
     type: String
     permission: read-only
   - name: version
