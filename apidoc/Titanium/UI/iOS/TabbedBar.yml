@@ -52,12 +52,18 @@ examples:
 ---
 name: BarItemType
 summary: Object describing a button bar or tabbed bar item.
+description: |
+    A button bar or tabbed bar item can have an image or a title, but not both.
+    Buttons with images and buttons with text can be mixed in the same bar, however.
+    
+    If both `image` and `title` properties are specified for a given item, the 
+    `image` property takes precedence and the `title` property is ignored.
 properties:
   - name: title
-    summary: Button title.
+    summary: Button title, used if no `image` is specified.
     type: String
   - name: image
-    summary: Button icon, to display in place of the title.
+    summary: Button icon. If specified, takes precedence over `title`.
     type: [String, Titanium.Blob, Titanium.File]
   - name: width
     summary: Width for this button. 
