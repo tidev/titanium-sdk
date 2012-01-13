@@ -49,19 +49,20 @@ properties:
     type: String
     platforms: [android]
   - name: titleOff
-    summary: Text to display when a toggle button-style switch is set to `false`. 
+    summary: Text to display when a toggle button-style switch is toggled on.
     description: |
         Used if style is <Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
     type: String
     platforms: [android]
   - name: titleOn
-    summary: Text to display when a toggle button-style switch is set to `true`.
+    summary: Text to display when a toggle button-style switch is toggled off.
     description: |
         Used if style is <Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
     type: String
     platforms: [android]
   - name: value
-    summary: boolean value of the switch where true is the switch is `on` and false the switch if `off`
+    summary: Current switch value, `true` if the switch is on, and `false` if switch is
+        off.
     type: Boolean
   - name: verticalAlign
     summary: |
