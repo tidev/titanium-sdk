@@ -45,9 +45,8 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 			return callSync(krollObject, args);
 
 		} else {
-			AsyncResult result = (AsyncResult) TiMessenger.sendBlockingRuntimeMessage(handler.obtainMessage(MSG_CALL_SYNC),
-				new FunctionArgs(krollObject, args));
-			return result.getResult();
+			return TiMessenger.sendBlockingRuntimeMessage(handler.obtainMessage(MSG_CALL_SYNC), new FunctionArgs(
+				krollObject, args));
 		}
 	}
 
@@ -77,8 +76,7 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 			case MSG_CALL_SYNC: {
 				AsyncResult asyncResult = ((AsyncResult) message.obj);
 				FunctionArgs functionArgs = (FunctionArgs) asyncResult.getArg();
-				callSync(functionArgs.krollObject, functionArgs.args);
-				asyncResult.setResult(null);
+				asyncResult.setResult(callSync(functionArgs.krollObject, functionArgs.args));
 
 				return true;
 			}
