@@ -23,11 +23,13 @@ methods:
         type: String
   - name: openURL
     summary: |
-        Opens this URL using the system's default application for the protocol.
+        Opens this URL using the system's default application for its protocol.
+    returns:
+        type: Boolean
     parameters:
       - name: url
         summary: The url to open.
-        type: Boolean
+        type: String
   - name: is24HourTimeFormat
     summary: |
         Returns whether the system settings are configured to show times in
