@@ -1,10 +1,15 @@
 ---
-name: Titanium.UI.iOS.CoverFlowView
-summary: The cover flow View is container for showing  animated, three dimensional images in a nice UI. 
+name: Titanium.UI.CoverFlowView
+summary: Use <Titanium.UI.iOS.CoverFlowView> instead.
 description: |
-    Use the <Titanium.UI.iOS.createCoverFlowView> method to create a cover flow view.
+    This iOS-specific API has been moved to <Titanium.UI.iOS.CoverFlowView>.
+
+    Use the <Titanium.UI.createCoverFlowView> method to create a cover flow view.
 extends: Titanium.UI.View
 since: "0.8"
+deprecated:
+    since: "1.8.0"
+    removed: "1.9.0"
 platforms: [iphone, ipad]
 methods:
   - name: setImage
@@ -46,28 +51,9 @@ examples:
         
         Create a simple cover flow view.
         
-            var view = Titanium.UI.iOS.createCoverFlowView({
+            var view = Titanium.UI.createCoverFlowView({
             	images:['a.png','b.png','c.png'],
             	backgroundColor:'#000'
             });
             window.add(view);
         
----
-name: CoverFlowImageType
-summary: Simple object for defining a single image in a cover flow view.
-description: |
-    If supplied, the `width` and `height` values must be exact values,
-    not `'auto'`.
-
-    If the size specified is different from the size of the image, the 
-    image is cropped and/or scaled to fit the specified size.
-properties:
-  - name: image
-    summary: Image to use, as a local file URL, `Blob`, or `File`.
-    type: [String, Titanium.Blob, Titanium.Filesystem.File]
-  - name: width
-    summary: Display width for the image, in Apple points. 
-    type: Number
-  - name: height
-    summary: Display height of the image, in Apple points.
-    type: Number
