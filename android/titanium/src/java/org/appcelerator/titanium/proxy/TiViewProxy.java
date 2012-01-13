@@ -168,7 +168,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	protected String getBaseUrlForStylesheet()
 	{
-		String baseUrl = getCreationUrl().baseUrl;
+		String baseUrl = getCreationUrl().resolve();
 		if (baseUrl == null || baseUrl.equals("app://")) {
 			baseUrl = "app://app.js";
 		}
