@@ -1643,12 +1643,11 @@ require.cache({
 								d.__values__ || (d.__values__ = {});
 								for (i in src[p]) {
 									(function(property, externalDest, internalDest, valueDest, /* setter/getter, getter, or value */ descriptor, capitalizedName, writable) {
-										var getter,
-											setter;
+										var o = is(descriptor, "Object"),
+											getter = o && is(descriptor.get, "Function") && descriptor.get,
+											setter = o && is(descriptor.set, "Function") && descriptor.set;
 
-										if (is(descriptor, "Object") && ((getter = is(descriptor.get, "Function")) || (setter = is(descriptor.set, "Function")))) {
-											getter && (getter = descriptor.get);
-											setter && (setter = descriptor.set);
+										if (o && (getter || setter)) {
 											valueDest[property] = descriptor.value;
 										} else if (is(descriptor, "Function")) {
 											getter = descriptor;
