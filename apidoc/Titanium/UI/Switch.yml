@@ -47,7 +47,7 @@ properties:
   - name: title
     summary: text to display with checkbox. Used if style is <Ti.UI.Android.SWITCH_STYLE_CHECKBOX>
     type: String
-    platforms: [android, mobileweb]
+    platforms: [android]
   - name: titleOff
     summary: Text to display when a toggle button-style switch is set to `false`. 
     description: |
