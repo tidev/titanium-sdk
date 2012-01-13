@@ -11,7 +11,6 @@
 #include <string.h>
 #include <signal.h>
 #include <unistd.h>
-#include <stdarg.h>
 
 #include "AndroidUtil.h"
 
