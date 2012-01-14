@@ -1,17 +1,17 @@
 ---
 name: Titanium.Database.ResultSet
-summary: The ResultSet instance returned by invoking <Titanium.Database.DB.execute>.
+summary: The ResultSet instance returned by <Titanium.Database.DB.execute>.
 extends: Titanium.Proxy
 since: "0.1"
 createable: false
 methods:
   - name: close
     summary: |
-        Closes the result set and release resources. Once closed, this result set 
+        Closes this result set and release resources. Once closed, the result set 
         must no longer be used.
   - name: field
     summary:  |
-        Retrieves the value for the specified field in this row, 
+        Retrieves the value for the specified field in the current row, 
         and casts it to the specified type (String, integer, float or double.)
     returns:
       - type: String
@@ -27,7 +27,7 @@ methods:
         optional: true
   - name: fieldByName
     summary: |
-        Retrieves the value for the specified field in this row, 
+        Retrieves the value for the specified field in the current row, 
         and casts it to the specified type (String, integer, float or double.)
     returns:
       - type: String
@@ -42,19 +42,19 @@ methods:
         type: Number
         optional: true
   - name: fieldCount
-    summary: Returns the number of columns in the result set.
+    summary: Returns the number of columns in this result set.
     returns:
         type: Number
   - name: fieldName
-    summary: Returns the field name for field index.
+    summary: Returns the field name for the specified field index.
     returns:
         type: String
     parameters:
       - name: index
-        summary: A zero-based field name column index.
+        summary: A zero-based column index for the field.
         type: Number
   - name: isValidRow
-    summary: Returns whether this row is valid.
+    summary: Returns whether the current row is valid.
     returns:
         type: Boolean
   - name: next
@@ -65,17 +65,18 @@ methods:
         type: Boolean
 properties:
   - name: rowCount
-    summary: The number of rows in the result set.
+    summary: The number of rows in this result set.
     type: Number
   - name: validRow
     summary: Indicates whether the current row is valid.
     type: Boolean
+    platforms: [android]
 examples:
-  - title:
+  - title: Using ResultSet
     example: |
         The following code will install a database and execute SQL statements that 
         will create a table, insert data into it, query the table and iterate through 
-        the returned <Titanium.Database.ResultSet>.
+        the returned ResultSet.
 
             var db = Ti.Database.open('mydb1Installed');
             db.execute('CREATE TABLE IF NOT EXISTS people (name TEXT, phone_number TEXT, city TEXT)');
