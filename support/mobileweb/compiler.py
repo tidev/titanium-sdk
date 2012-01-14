@@ -16,7 +16,7 @@ from tiapp import *
 import jspacker 
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
-ignoreDirs = ['.git','.svn','_svn','CVS','android','iphone'];
+ignoreDirs = ['.git','.svn','_svn','CVS'];
 
 year = datetime.datetime.now().year
 

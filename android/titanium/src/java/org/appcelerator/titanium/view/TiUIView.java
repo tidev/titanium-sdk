@@ -590,10 +590,7 @@ public abstract class TiUIView
 	public void blur()
 	{
 		if (nativeView != null) {
-			InputMethodManager imm = getIMM();
-			if (imm != null) {
-				imm.hideSoftInputFromWindow(nativeView.getWindowToken(), 0);
-			}
+			TiUIHelper.showSoftKeyboard(nativeView, false);
 			nativeView.clearFocus();
 		}
 	}

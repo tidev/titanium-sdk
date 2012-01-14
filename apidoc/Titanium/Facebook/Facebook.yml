@@ -10,7 +10,7 @@ description: |
     Due to how the facebook login process works on iOS, your app will need to have the following 
     in your tiapp.xml if you target those platforms:
     
-    <property name="ti.facebook.appid">your_app_id_here</property>
+        <property name="ti.facebook.appid">your_facebook_app_id_here</property>
     
     You must still set Ti.Facebook.appid within your app itself to use the facebook module.  
     This property is used only for configuring your app to interface with the facebook 

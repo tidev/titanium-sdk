@@ -112,6 +112,31 @@
 	NSFileManager *fm = [NSFileManager defaultManager];
 	NSURL *url = [TiUtils toURL:path proxy:self];
 	path = [url path];
+	
+#if TARGET_IPHONE_SIMULATOR
+	//TIMOB-6081. Resources are right now symbolic links when running in simulator) so the copy method
+	//of filemanager just creates a link to the original resource.
+	//Resolve the symbolic link if running in simulator
+	NSError *pathError = nil;
+	NSDictionary *attributes = [fm attributesOfItemAtPath:path error:&pathError];
+	if (pathError != nil) 
+	{
+		[self throwException:@"Could not retrieve attributes" subreason:[pathError description] location:CODELOCATION];
+	}
+	NSString *fileType = [attributes valueForKey:NSFileType];
+	if ([fileType isEqual:NSFileTypeSymbolicLink])
+	{
+		pathError = nil;
+		path = [fm destinationOfSymbolicLinkAtPath:path error:&pathError];
+		
+		if (pathError != nil) 
+		{
+			[self throwException:@"Could not resolve symbolic link" subreason:[pathError description] location:CODELOCATION];
+		}		
+	}
+	
+#endif
+	
 	BOOL exists = [fm fileExistsAtPath:path isDirectory:&isDirectory];
 	if (!exists)
 	{

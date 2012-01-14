@@ -1,461 +1,569 @@
 ---
 name: Titanium.Media
-summary: The top level Media module.  The Media module is used accessing the device's media related  functionality such as playing audio or recording video.
+summary: The top level Media module.  
+description: |
+    The Media module is used accessing the device's media related  functionality such 
+    as playing audio or recording video.
 extends: Titanium.Module
 since: "0.1"
 platforms: [android, iphone, ipad]
 methods:
   - name: beep
-    summary: play a device beep notification
+    summary: Plays a device beep notification.
     platforms: [iphone, ipad]
   - name: hideCamera
-    summary: hide the device camera UI. this must be called after calling `showCamera` and only when `autohide` is set to false. this method will cause the media capture device be hidden.
+    summary: Hides the device camera UI. 
+    description: |
+        Must be called after calling `showCamera` and only when `autohide` is set to `false`. 
+        This method causes the media capture UI to be hidden.
     platforms: [iphone, ipad]
   - name: hideMusicLibrary
-    summary: hide the music library.  This must be called after calling `showMusicLibrary` and only when `autohide` is set to false.
+    summary: Hides the music library.  
+    description: |
+        Must be called after calling `showMusicLibrary` and only when `autohide` is 
+        set to `false`.
     platforms: [iphone, ipad]
   - name: isMediaTypeSupported
-    summary: return boolean to indicate if the media type is supported
+    summary: Returns `true` if the source supports the specified media type.
+    description: |
+        You can query whether a given media type is supported by the device's
+        camera (`source` == 'camera') or photo library (`source` == 'photo').  
+
+        An additional value, `photogallery` can be  used to query the media 
+        supported by the device's camera roll or saved image album, which is a 
+        subset of the iOS photo library. However, when calling 
+        [openPhotoGallery](Titanium.Media.openPhotoGallery) on iOS, the entire 
+        library is displayed, and there is currently no way to restrict the 
+        gallery to show only the camera roll/saved images album. 
     returns:
         type: Boolean
     parameters:
-      - name: media
-        summary: media type as a string of either `camera`, `photo` or `photogallery`.
+      - name: source
+        summary: |
+            Media source specified as a string: `camera` for Camera or `photo` for Photo Library.
         type: String
       - name: type
-        summary: the type of media to check
+        summary: Media type to check, either `MEDIA_TYPE_PHOTO` or `MEDIA_TYPE_VIDEO`.
         type: String
     platforms: [iphone, ipad]
   - name: openPhotoGallery
-    summary: open the photo gallery picker
+    summary: Opens the photo gallery image picker.
     platforms: [iphone, ipad, android]
     parameters:
       - name: options
-        summary: |
-            pass a dictionary with the following supported keys: `success` a function that will be called when the camera is completed, `error` a function that will be called upon receiving an error, `cancel` a function that will be called if the user presses the cancel button, `autohide` boolean if the camera should auto hide after the media capture is completed (defaults to true), `animated` boolean if the dialog should be animated (defaults to true) upon showing and hiding, `saveToPhotoGallery` boolean if the media should be saved to the photo gallery upon successful capture, `allowEditing` boolean if the media should be editable after capture in the UI interface, `mediaTypes` an array of media type constants supported by the capture device UI, `showControls` boolean to indicate if the built-in UI controls should be displayed, `overlay` view which is added as an overlay to the UI (on top), `transform` an transformation matrix that applies to the UI transform. For iPad, `popoverView` can be provided to position the photo gallery popover a specific view and `arrowDirection` can be provided to control the type of arrow and position of the gallery.
-        type: Object
+        summary: Photo gallery options as described in <PhotoGalleryOptionsType>.
+        type: PhotoGalleryOptionsType
   - name: saveToPhotoGallery
-    summary: save media to photo gallery / camera roll
-    platforms: [iphone, ipad, android]
+    summary: Saves media to the device's photo gallery / camera roll.
+    description: |
+        This operation is asynchronous. The caller can supply callbacks to be triggered when the
+        save operation completes.
+
+        Media can be passed as either a `Blob` object or a `File` object. If the `media` argument
+        is not one of these types, an error is generated.
+
+        Note that when passing a file (or a blob created from a file), the file name must 
+        have the appropriate extension for the data--for example, `image.jpg` or `video1.mov` work,
+        but `video1.tmp` does not. Currently, the `.mp4` extension is not supported, but MP4
+        files may be imported by saving them with the `.mov` extension.
+    platforms: [iphone, ipad]
     parameters:
       - name: media
-        summary: save the media passed to the cameras photo roll/media gallery. must be one of Blob object or File object or an error will be generated.
-        type: Object
+        summary: Media to save to the camera roll or media gallery. 
+        type: [Titanium.Blob, Titanium.Filesystem.File]
       - name: callbacks
         summary: |
-            pass a dictionary with the following supported keys: `success` a function that will be called when the save succeeds, and `error` a function that will be called upon anreceiving an error
+            Pass a dictionary with the following supported keys: `success` a function that 
+            will be called when the save succeeds, and `error` a function that will be 
+            called upon receiving an error.
         type: Object
   - name: showCamera
-    summary: show the camera
+    summary: Shows the camera.
+    description: |
+        By default, the native camera controls are displayed. To add your own camera controls,
+        you can add an overlay view by setting the `overlay` property on the `options` argument.
+
+        #### iOS Platform Notes
+
+        To suppress the default controls, set `showControls` and `autohide` to `false`.
+
+        If the `showControls` option is `false`, you must control the camera explicitly, using
+        the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.UI.hideCamera) 
+        methods.
     platforms: [iphone, ipad, android]
     parameters:
       - name: options
-        summary: |
-            pass a dictionary with the following supported keys: `success` a function that will be called when the camera is completed, `error` a function that will be called upon receiving an error, `cancel` a function that will be called if the user presses the cancel button, `autohide` boolean if the camera should auto hide after the media capture is completed (defaults to true), `animated` boolean if the dialog should be animated (defaults to true) upon showing and hiding, `saveToPhotoGallery` boolean if the media should be saved to the photo gallery upon successful capture, `allowEditing` boolean if the media should be editable after capture in the UI interface, `mediaTypes` an array of media type constants supported by the capture device UI, `videoMaximumDuration` float duration on how long in milliseconds to allow capture before completing, `videoQuality` constant to indicate the video quality during capture, `showControls` boolean to indicate if the built-in UI controls should be displayed, `overlay` view which is added as an overlay to the camera UI (on top), `transform` an transformation matrix that applies to the camera UI transform.For iPad, `inPopOver` (boolean defaults to false) can be provided to show the camera in a popover , `popoverView` can be provided to position the camera popover a specific view (ignored when inPopOver is false), `arrowDirection` can be provided to control the type of arrow and position of the camera (ignored when inPopOver is false).
-        type: Object
+        summary: A dictionary of camera options as described in <CameraOptionsType>.
+        type: CameraOptionsType
   - name: showMusicLibrary
-    summary: show the music library.
+    summary: Shows the music library and allows the user to select one or more tracks.
+    description: |
+        If `autohide` is set to `false`, you must hide the library explicitly using 
+        [hideMusicLibrary](Titanium.Media.hideMusicLibrary).
     platforms: [iphone, ipad]
     parameters:
       - name: options
-        summary: |
-            pass a dictionary with the following supported keys: `success` a function that will be called when the camera is completed, `error` a function that will be called upon receiving an error, `cancel` a function that will be called if the user presses the cancel button, `autohide` boolean if the library listing should auto hide after selection is completed (defaults to true), `animated` boolean if the dialog should be animated (defaults to true) upon showing and hiding, `mediaTypes` an array of media type constants defining selectable media (see MUSIC_MEDIA_TYPE_* properties below) as either an array or a bitwise-or single value, `allowMultipleSelections` boolean whether or not more than one media selection is allowed
-        type: Object
+        summary: A dictionary of options as described in <MusicLibraryOptionsType>.
+        type: MusicLibraryOptionsType
   - name: queryMusicLibrary
-    summary: run a search for music library items matching the specified search predicates.
+    summary: Searches the music library for items matching the specified search predicates.
     platforms: [iphone, ipad]
     parameters:
       - name: query
         summary: The query object to extract information from.
-        type: Dictionary<MediaQueryType>
+        type: MediaQueryType
     returns:
         type: Array<MediaItemType>
   - name: startMicrophoneMonitor
-    summary: start the monitoring of microphone sound level
+    summary: Starts monitoring the microphone sound level.
     platforms: [iphone, ipad]
   - name: stopMicrophoneMonitor
-    summary: stop the monitoring of microphone sound level
+    summary: Stops monitoring the microphone sound level.
     platforms: [iphone, ipad]
   - name: takePicture
-    summary: use the device camera to capture a photo. this must be called after calling `showCamera` and only when `autohide` is set to false. this method will cause the media capture device to capture a photo and call the `success` callback.
+    summary: Uses the device camera to capture a photo. 
+    description: |
+        Must be called after calling `showCamera` and only when `autohide` is set to `false`. 
+
+        This method causes the media capture device to capture a photo and call the 
+        `success` callback.
     platforms: [iphone, ipad, android]
   - name: takeScreenshot
-    summary: take a screen shot of the visible UI on the device
+    summary: Takes a screen shot of the visible UI on the device
+    description: |
+       This method is asynchronous. The screenshot is returned in the callback argument.
+       The callback argument's `media` property contains the screenshot image as a 
+       [Blob](Titanium.Blob) object.
     parameters:
       - name: callback
-        summary: function that will be called upon capture. the event property `media` will contain an image Blob object of the screenshot
+        summary: Function to call upon capture. 
         type: Callback<Object>
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad]
   - name: vibrate
-    summary: play a device vibration
+    summary: Makes the device vibrate.
+    description: |
+        On Android, a `pattern` argument can be provided to specify a vibration pattern.
+
+        The `pattern` is an array of Number values.  Each number in the array is 
+        interpreted as a duration in milliseconds. The first number is the *delay* 
+        before the pattern starts, and the remaining numbers are interpreted as 
+        alternating periods of on and off times. For example, the following pattern:
+
+        [ 0, 500, 100, 500, 100, 500 ] 
+
+        Would cause the vibration to start immediately (delay = 0), and perform three
+        long vibrations (500 ms) separated by short pauses (100ms). 
+    parameters: 
+      - name: pattern
+        summary: Array of values identifying a vibrate pattern (only used on Android).
+        optional: true
+        type: Array<Number>
     platforms: [iphone, ipad, android]
 events:
   - name: linechange
-    summary: fired when a audio line type change is detected
-    platforms: [iphone, ipad, android]
+    summary: Fired when an audio line type change is detected.
+    platforms: [iphone, ipad]
   - name: recordinginput
-    summary: fired when availablity of recording input changes
+    summary: Fired when the availablity of recording input changes.
     properties:
       - name: available
-        summary: bool indicating availability of recording device
-    platforms: [iphone, ipad, android]
+        summary: Indicates whether the recording device is available.
+        type: Boolean
+    platforms: [iphone, ipad]
   - name: volume
-    summary: fired when the volume output changes
+    summary: Fired when the volume output changes.
     properties:
       - name: volume
-        summary: float of the new volume in dB
-    platforms: [iphone, ipad, android]
+        summary: New volume level in dB.
+        type: Number
+    platforms: [iphone, ipad]
 properties:
   - name: AUDIO_FILEFORMAT_3GP2
-    summary: audio file format 3GPP-2
+    summary: Audio file format 3GPP2.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FILEFORMAT_3GPP
-    summary: audio file format 3GPP
+    summary: Audio file format 3GPP.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FILEFORMAT_AIFF
-    summary: audio file format AIFF
+    summary: Audio file format Audio Interchange File Format (AIFF).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FILEFORMAT_AMR
-    summary: audio file format AMR
+    summary: Audio file format Adaptive Multi-Rate (AMR).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FILEFORMAT_CAF
-    summary: audio file format Apple Compressed Audio Format (CAF)
+    summary: Audio file format Apple Compressed Audio Format (CAF)
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FILEFORMAT_MP3
-    summary: audio file format MP3
+    summary: Audio file format MP3.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FILEFORMAT_MP4
-    summary: audio file format MP4
+    summary: Audio file format MP4.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FILEFORMAT_MP4A
-    summary: audio file format MP4A
+    summary: Audio file format MP4A.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FILEFORMAT_WAVE
-    summary: audio file format WAVE
+    summary: Audio file format WAVE.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FORMAT_AAC
-    summary: audio format MPEG4 AAC encoding
+    summary: Audio format MPEG4 AAC encoding.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FORMAT_ALAW
-    summary: audio format 8-bit aLaw encoding
+    summary: Audio format 8-bit aLaw encoding.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FORMAT_APPLE_LOSSLESS
-    summary: audio format apple lossless encoding
+    summary: Audio format Apple lossless encoding.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FORMAT_ILBC
-    summary: audio format iLBC encoding
+    summary: Audio format iLBC encoding.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FORMAT_IMA4
-    summary: audio format Apple IMA4 encoding
+    summary: Audio format Apple IMA4 encoding.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FORMAT_LINEAR_PCM
-    summary: audio format Linear 16-bit, PCM encoding
+    summary: Audio format 16-bit, linear PCM encoding.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FORMAT_ULAW
-    summary: audio format 8-bit muLaw encoding
+    summary: Audio format 8-bit muLaw encoding.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_HEADPHONES
-    summary: constant for line type headphones
+    summary: Line-type constant for headphones.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_HEADPHONES_AND_MIC
-    summary: constant line type headphones and microphone
+    summary: Line-type constant for headphones and microphone.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_HEADSET_INOUT
-    summary: constant line type headset in/out
+    summary: Line-type constant for headset in/out.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_LINEOUT
-    summary: constant line type line out
+    summary: Line-type constant for line-out.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_MICROPHONE
-    summary: constant line type microphone
+    summary: Line-type constant for microphone.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_MUTED
-    summary: constant line type muted switch is on
+    summary: Line-type constant indicated mute switch is on.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_RECEIVER_AND_MIC
-    summary: constant line type receiver and microphone
+    summary: Line-type constant indicating receiver and microphone.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_SESSION_MODE_AMBIENT
-    summary: For long-duration sounds such as rain, car engine noise, and so on. It is also for 'play along' style applications, such a virtual piano that a user plays over iPod audio.
+    summary: For long-duration sounds such as rain, car engine noise, and so on. 
+    description: |
+        Also used for for 'play along' style applications, such a virtual piano that a 
+        user plays over iPod audio.
+        
+        See also: [AUDIO_SESSION_MODE_SOLO_AMBIENT](Titanium.Media.AUDIO_SESSION_MODE_SOLO_AMBIENT).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_SESSION_MODE_PLAYBACK
-    summary: For playing recorded music or other sounds that are central to the successful use of your application. When using this mode, your application audio continues with the Ring/Silent switch set to silent or when the screen locks. This property normally disallows iPod audio to mix with application audio
+    summary: Session mode for playing recorded music or other sounds that are central to the successful use of your application. 
+    description: |
+        When using this mode, your application audio continues with the Ring/Silent switch set 
+        to silent or when the screen locks. This property normally disallows mixing iPod audio 
+        with application audio.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_SESSION_MODE_PLAY_AND_RECORD
-    summary: Allows recording (input) and playback (output) of audio, such as for a VOIP (voice over IP) application. This category is appropriate for simultaneous recording and playback, and also for applications that record and play back but not simultaneously. If you want to ensure that sounds such as Messages alerts do not play while your application is recording, use  <Titanium.Media.AUDIO_SESSION_MODE_RECORD> instead. This category normally disallows iPod audio to mix with application audio.
+    summary: Session mode for recording (input) and playback (output) of audio, such as for a VOIP (voice over IP) application. 
+    description: |
+        This category is appropriate for simultaneous recording and playback, and also for 
+        applications that record and play back but not simultaneously. If you want to ensure 
+        that sounds such as Messages alerts do not play while your application is recording, 
+        use  <Titanium.Media.AUDIO_SESSION_MODE_RECORD> instead. This category normally 
+        disallows mixing iPod audio with application audio.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_SESSION_MODE_RECORD
-    summary: For recording audio; it silences playback audio.
+    summary: Session mode for recording audio; it silences playback audio.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_SESSION_MODE_SOLO_AMBIENT
-    summary: The solo ambient sound category is for long-duration sounds such as rain, car engine noise, and so on. When you use this category, audio from built-in applications, such as the iPod, is silenced. Your audio is silenced when the Ring/Silent switch is set to `silent` or when the screen locks.
+    summary: Session mode for long-duration sounds such as rain, car engine noise, and so on. 
+    description: |
+        When you use this category, audio from built-in applications, such as the iPod, 
+        is silenced. Your audio is silenced when the Ring/Silent switch is set to `silent` 
+        or when the screen locks.
+
+        To use long-duration sounds without silencing built-in applications, 
+        see [AUDIO_SESSION_MODE_AMBIENT](Titanium.Media.AUDIO_SESSION_MODE_AMBIENT).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_SPEAKER
-    summary: constant line type speaker
+    summary: Line-type constant for speaker output.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_UNAVAILABLE
-    summary: constant line type unavailable
+    summary: Line-type constant indicating that audio is unavailable.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_UNKNOWN
-    summary: constant line type unknown or not determined
+    summary: Line-type constant indicating that line-type is unknown or not determined.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: DEVICE_BUSY
-    summary: constant for media device busy error
+    summary: Constant for media device busy error.
     type: Number
     permission: read-only
   - name: MEDIA_TYPE_PHOTO
-    summary: media type constant to signify photo
-    type: Number
+    summary: Media type constant for photo media.
+    type: String
     permission: read-only
   - name: MEDIA_TYPE_VIDEO
-    summary: media type constant to signify video
-    type: Number
+    summary: Media type constant for video media.
+    type: String
     permission: read-only
   - name: MUSIC_MEDIA_TYPE_ALL
-    summary: media containing any content
+    summary: Music library media containing any type of content.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_MEDIA_TYPE_ANY_AUDIO
-    summary: media containing any audio content
+    summary: Music library media containing any type of audio content.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_MEDIA_TYPE_AUDIOBOOK
-    summary: media containing audiobook content
+    summary: Music library media containing audiobook content.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_MEDIA_TYPE_MUSIC
-    summary: media containing music content
+    summary: Music library media containing music content.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_MEDIA_TYPE_PODCAST
-    summary: media containing podcast content
+    summary: Music library media containing podcast content.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_MEDIA_GROUP_TITLE
-    summary: The constant for grouping query results by title
+    summary: Constant for grouping query results by title.
     value: 0
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_MEDIA_GROUP_ALBUM
-    summary: The constant for grouping query results by album
+    summary: Constant for grouping query results by album.
     value: 1
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_MEDIA_GROUP_ARTIST
-    summary: The constant for grouping query results by artist
+    summary: Constant for grouping query results by artist.
     platforms: [iphone, ipad]
     value: 2
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_MEDIA_GROUP_ALBUM_ARTIST
-    summary: The constant for grouping query results by album artist  
+    summary: Constant for grouping query results by album and artist.
     value: 3
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_MEDIA_GROUP_COMPOSER
-    summary: The constant for grouping query results by composer  
+    summary: Constant for grouping query results by composer.
     value: 4
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_MEDIA_GROUP_GENRE
-    summary: The constant for grouping query results by genre  
+    summary: Constant for grouping query results by genre.
     value: 5
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_MEDIA_GROUP_PLAYLIST
-    summary: The constant for grouping query results by playlist  
+    summary: Constant for grouping query results by playlist.
     value: 6
     type: Number    
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_MEDIA_GROUP_PODCAST_TITLE
     platforms: [iphone, ipad]
-    summary: The constant for grouping query results by podcast title  
+    summary: Constant for grouping query results by podcast title.
     value: 7
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_PLAYER_REPEAT_ALL
-    summary: constant for repeating all setting
+    summary: Constant for "Repeat All" setting.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_PLAYER_REPEAT_DEFAULT
-    summary: constant for user default repeat setting
+    summary: Constant for user's default repeat setting.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_PLAYER_REPEAT_NONE
-    summary: constant for no repeat setting
+    summary: Constant for "No Repeat" setting.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_PLAYER_REPEAT_ONE
-    summary: constant for repeating one item setting
+    summary: Constant for "Repeat one item" setting.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_PLAYER_SHUFFLE_ALBUMS
-    summary: constant for shuffling complete albums setting
+    summary: Constant for shuffling complete albums setting.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_PLAYER_SHUFFLE_DEFAULT
-    summary: constant for user default shuffle setting
+    summary: Constant for user's default shuffle setting.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_PLAYER_SHUFFLE_NONE
-    summary: constant for no shuffle setting
+    summary: Constant for "no shuffle" setting.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_PLAYER_SHUFFLE_SONGS
-    summary: constant for shuffling songs setting
+    summary: Constant for shuffling songs setting.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_PLAYER_STATE_INTERRUPTED
-    summary: constant for interrupted state
+    summary: Constant for interrupted state.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_PLAYER_STATE_PAUSED
-    summary: constant for paused state
+    summary: Constant for paused state.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_PLAYER_STATE_PLAYING
-    summary: constant for playing state
+    summary: Constant for playing state.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_PLAYER_STATE_SEEK_BACKWARD
-    summary: constant for backward seek state
+    summary: Constant for backward seek state.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_PLAYER_STATE_SKEEK_FORWARD
-    summary: constant for forward seek state
+    summary: Constant for forward seek state.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: MUSIC_PLAYER_STATE_STOPPED
-    summary: constant for stopped state
+    summary: Constant for stopped state.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: NO_CAMERA
-    summary: constant for media no camera error
+    summary: Constant for media no camera error.
     type: Number
     permission: read-only
   - name: NO_VIDEO
-    summary: constant for media no video error
+    summary: Constant for media no video error.
     type: Number
     permission: read-only
   - name: QUALITY_HIGH
-    summary: media type constant to use high-quality video recording. Recorded files are suitable for on-device playback and for wired transfer to the Desktop using Image Capture; they are likely to be too large for transfer using Wi-Fi.
+    summary: Media type constant for high-quality video recording. 
+    description: |
+        Recorded files are suitable for on-device playback and for wired transfer to the 
+        Desktop using Image Capture; they are likely to be too large for transfer using Wi-Fi.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: QUALITY_LOW
-    summary: media type constant to use use low-quality video recording. Recorded files can usually be transferred over the cellular network.
+    summary: Media type constant for low-quality video recording. 
+    description: |
+        Recorded files can usually be transferred over the cellular network.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: QUALITY_MEDIUM
-    summary: media type constant to use medium-quality video recording. Recorded files can usually be transferred using Wi-Fi. This is the default video quality setting.
+    summary: Media type constant for medium-quality video recording. 
+    description: |
+        Recorded files can usually be transferred using Wi-Fi. This is the default video 
+        quality setting.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: UNKNOWN_ERROR
-    summary: constant for unknown media error
+    summary: Constant for unknown media error.
     type: Number
     permission: read-only
   - name: VIDEO_CONTROL_DEFAULT
-    summary: constant for video controls default
+    summary: Constant for default video controls.
     type: Number
     permission: read-only
   - name: VIDEO_CONTROL_EMBEDDED
-    summary: Controls for an embedded view. Used in conjunction with movieControlStyle property of <Titanium.Media.VideoPlayer> in iPhone 3.2+
+    summary: Constant for video controls for an embedded view. 
+    description: 
+        Used in conjunction with the `movieControlStyle` property of <Titanium.Media.VideoPlayer> 
+        in iPhone 3.2+.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
   - name: VIDEO_CONTROL_FULLSCREEN
-    summary: Controls for fullscreen. Used in conjunction with movieControlStyle property of <Titanium.Media.VideoPlayer> in iPhone 3.2+
+    summary: Constant for fullscreen video controls. 
+    description: |
+        Used in conjunction with the `movieControlStyle` property of <Titanium.Media.VideoPlayer> 
+        in iPhone 3.2+.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
@@ -465,52 +573,55 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad]
   - name: VIDEO_CONTROL_NONE
-    summary: No controls. Used in conjunction with movieControlStyle property of <Titanium.Media.VideoPlayer> in iPhone 3.2+
+    summary: Constant for no video controls. 
+    description: |
+        Used in conjunction with the `movieControlStyle` property of 
+        <Titanium.Media.VideoPlayer> in iPhone 3.2+.
     type: Number
     permission: read-only
   - name: VIDEO_CONTROL_VOLUME_ONLY
-    summary: constant for video controls volume only
+    summary: Constant for video controls volume only.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
     deprecated: {since: "1.8.0", removed: "1.9.0"}
   - name: VIDEO_FINISH_REASON_PLAYBACK_ENDED
-    summary: the video playback ended normally
+    summary: Video playback ended normally.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_FINISH_REASON_PLAYBACK_ERROR
-    summary: the video playback ended abnormally
+    summary: Video playback ended abnormally.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_FINISH_REASON_USER_EXITED
-    summary: the video playback ended by user action (such as clicking the `Done` button)
+    summary: Video playback ended by user action (such as clicking the `Done` button).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_LOAD_STATE_PLAYABLE
-    summary: the current media is playable
+    summary: Current media is playable.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_LOAD_STATE_PLAYTHROUGH_OK
-    summary: playback will be automatically started in this state when `autoplay` is true
+    summary: Playback will be automatically started in this state when `autoplay` is true.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_LOAD_STATE_STALLED
-    summary: playback will be automatically paused in this state, if started
+    summary: Playback will be automatically paused in this state, if started.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_LOAD_STATE_UNKNOWN
-    summary: the current load state is not known
+    summary: Current load state is not known.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_MEDIA_TYPE_AUDIO
-    summary: A audio type of media in the movie returned by <Titanium.Media.VideoPlayer> `mediaTypes` property
+    summary: A audio type of media in the movie returned by <Titanium.Media.VideoPlayer> `mediaTypes` property.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -520,146 +631,222 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   - name: VIDEO_MEDIA_TYPE_VIDEO
-    summary: A video type of media in the movie returned by <Titanium.Media.VideoPlayer> `mediaTypes` property
+    summary: A video type of media in the movie returned by <Titanium.Media.VideoPlayer> `mediaTypes` property.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: VIDEO_PLAYBACK_STATE_INTERRUPTED
-    summary: playback has been interrupted
+    summary: Video playback has been interrupted.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_PLAYBACK_STATE_PAUSED
-    summary: playback is paused
+    summary: Video playback is paused.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_PLAYBACK_STATE_PLAYING
-    summary: playback is playing
+    summary: Video is being played.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD
-    summary: playback is rewinding
+    summary: Video playback is rewinding.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_PLAYBACK_STATE_SEEKING_FORWARD
-    summary: playback is seeking forward
+    summary: Video playback is seeking forward.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_PLAYBACK_STATE_STOPPED
-    summary: playback has stopped
+    summary: Video playback is stopped.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: VIDEO_REPEAT_MODE_NONE
-    summary: constant for repeating no videos (IE, the one video will NOT repeat) during playback
+    summary: Constant for disabling repeat on video playback.
     type: Number
     permission: read-only
     platforms: [iphone, ipad, mobileweb]
   - name: VIDEO_REPEAT_MODE_ONE
-    summary: constant for repeating one video (IE, the one video will repeat constantly) during playback
+    summary: Constant for repeating one video (i.e., the one video will repeat constantly) during playback.
     type: Number
     permission: read-only
     platforms: [iphone, ipad, mobileweb]
   - name: VIDEO_SCALING_ASPECT_FILL
-    summary: constant for video aspect where the movie will be scaled until the movie fills the entire screen. Content at the edges of the larger of the two dimensions is clipped so that the other dimension fits the screen exactly. The aspect ratio of the movie is preserved.
+    summary: Scale video to fill the screen, clipping edges if necessary.
+    description: |
+        Video is scaled until the video fills the entire screen. Content at the edges 
+        of the larger of the two dimensions is clipped so that the other dimension fits the 
+        screen exactly. The aspect ratio of the movie is preserved.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
   - name: VIDEO_SCALING_ASPECT_FIT
-    summary: constant for video aspect fit where the movie will be scaled until one dimension fits on the screen exactly. In the other dimension, the region between the edge of the movie and the edge of the screen is filled with a black bar. The aspect ratio of the movie is preserved.
+    summary: Scale video to fit the screen, letterboxing if necessary.
+    description: |
+        Video is scaled until the larger dimension fits on the screen exactly. In the 
+        other dimension, the region between the edge of the movie and the edge of the screen 
+        is filled with a black bar. The aspect ratio of the movie is preserved.
     type: Number
     permission: read-only
   - name: VIDEO_SCALING_MODE_FILL
-    summary: constant for video aspect where the movie will be scaled until both dimensions fit the screen exactly. The aspect ratio of the movie is not preserved.
+    summary: Video is scaled until both dimensions fit the screen exactly, stretching if necessary.
+    description: |
+        The aspect ratio of the video is not preserved.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
   - name: VIDEO_SCALING_NONE
-    summary: constant for video scaling where the scaling is turn off. The movie will not be scaled.
+    summary: Video scaling is disabled.
     type: Number
     permission: read-only
   - name: VIDEO_SOURCE_TYPE_FILE
-    summary: the video source type is a file. Related to the `sourceType` property of <Titanium.Media.VideoPlayer>
+    summary: Video source type is a file. 
+    description: Related to the `sourceType` property of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: VIDEO_SOURCE_TYPE_STREAMING
-    summary: the video source type is a remote stream. Related to the `sourceType` property of <Titanium.Media.VideoPlayer>
+    summary: Video source type is a remote stream. 
+    description: Related to the `sourceType` property of <Titanium.Media.VideoPlayer>
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: VIDEO_SOURCE_TYPE_UNKNOWN
-    summary: the video source type is unknown. Related to the `sourceType` property of <Titanium.Media.VideoPlayer>
+    summary: Video source type is unknown. 
+    description: Related to the `sourceType` property of <Titanium.Media.VideoPlayer>
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: VIDEO_TIME_OPTION_EXACT
-    summary: use the exact time
+    summary: Use the exact time.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: VIDEO_TIME_OPTION_NEAREST_KEYFRAME
-    summary: use the closest keyframe in the time
+    summary: Use the closest keyframe in the time.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: appMusicPlayer
-    summary: an instance of <Titanium.Media.MusicPlayer> representing the app-specific music player.
-    type: Object
+    summary: An instance of <Titanium.Media.MusicPlayer> representing the app-specific music player.
+    type: Titanium.Media.MusicPlayer
     platforms: [iphone, ipad]
+    permission: read-only
   - name: audioLineType
-    summary: returns the line type constant for the current line type
+    summary: Returns the line type constant for the current line type.
     type: Number
     platforms: [iphone, ipad]
+    permission: read-only
   - name: audioPlaying
-    summary: returns true if the device is playing audio
+    summary: Returns `true` if the device is playing audio.
     type: Boolean
     platforms: [iphone, ipad]
+    permission: read-only
   - name: audioSessionMode
-    summary: a constant for the audio session mode to be used. Must be set while the audio session is inactive (no sounds are playing, no listeners for audio properties on the Media module, but the iPod may be active).
+    summary: A constant for the audio session mode to be used.
+    description: |
+        Set to one of the `AUDIO_SESSION` constants defined in <Titanium.Media>.
+
+        Must be set while the audio session is inactive (no sounds are playing, no listeners 
+        for audio properties on the Media module, but the iPod may be active).
     type: Number
     platforms: [iphone, ipad]
   - name: availableCameraMediaTypes
-    summary: return an array of media type constants supported for the camera
+    summary: Array of media type constants supported for the camera.
     type: Array<Object>
     platforms: [iphone, ipad]
   - name: availablePhotoGalleryMediaTypes
-    summary: return an array of media type constants supported for saving to the photo gallery
+    summary: Array of media type constants supported for saving to the device's camera roll or saved images album.
     type: Array<Object>
     platforms: [iphone, ipad]
   - name: availablePhotoMediaTypes
-    summary: return an array of media type constants supported for the photo
+    summary: Array of media type constants supported for the photo library.
     type: Array<Object>
     platforms: [iphone, ipad]
   - name: averageMicrophonePower
-    summary: return the current average microphone level in dB or -1 if microphone monitoring is disabled
+    summary: Current average microphone level in dB or -1 if microphone monitoring is disabled.
+    description: |
+        See [startMicrophoneMonitor](Titanium.Media.startMicrophoneMonitor), 
+        [stopMicrophoneMonitor](Titanium.Media.stopMicrophoneMonitor).
     type: Number
     platforms: [iphone, ipad]
   - name: canRecord
-    summary: returns true if the device has recording input device available
+    summary: |
+        `true` if the device has a recording input device available.
     type: Boolean
     platforms: [iphone, ipad]
+    permission: read-only
   - name: isCameraSupported
-    summary: returns true if the device has camera support
+    summary: |
+        `true` if the device has camera support.
     type: Boolean
     platforms: [iphone, ipad]
+    permission: read-only
   - name: peakMicrophonePower
-    summary: return the current microphone level peak power in dB or -1 if microphone monitoring is disabled
+    summary: Current microphone level peak power in dB or -1 if microphone monitoring is disabled.
+    description: |
+        See [startMicrophoneMonitor](Titanium.Media.startMicrophoneMonitor), 
+        [stopMicrophoneMonitor](Titanium.Media.stopMicrophoneMonitor).
     type: Number
     platforms: [iphone, ipad]
+    permission: read-only
   - name: systemMusicPlayer
-    summary: an instance of <Titanium.Media.MusicPlayer> representing the system-wide music player.
-    type: Object
+    summary: An instance of <Titanium.Media.MusicPlayer> representing the system-wide music player.
+    type: Titanium.Media.MusicPlayer
     platforms: [iphone, ipad]
+    permission: read-only
   - name: volume
-    summary: the current volume of the playback device
+    summary: Current volume of the playback device.
     type: Number
     platforms: [iphone, ipad]
+    permission: read-only
 
+# Pseudo-type for showMusicLibrary argument
+---
+name: MusicLibraryOptionsType
+summary: Simple object for specifying options to [showMusicLibrary](Titanium.Media.showMusicLibrary).
+platforms: [iphone, ipad]
+properties:
+  - name: success
+    summary: Function to call when the music library selection is made.
+    type: Callback<Object>
+  - name:  error 
+    summary: Function to call upon receiving an error. 
+    type: Callback<Object>
+  - name: cancel
+    summary: Function to call if the user presses the cancel button.
+    type: Callback<Object>
+  - name: autohide
+    summary: Specifies that the library should be hidden automatically after media selection is completed.
+    type: Boolean
+    default: true
+  - name: animated 
+    summary: boolean if the dialog should be animated (defaults to true) upon showing and hiding
+    type: Boolean
+    default: true
+  - name: mediaTypes
+    summary: An array of media type constants defining selectable media.
+    description: |
+        Specify one or more of the see `MUSIC_MEDIA_TYPE` constants from <Titanium.Media>. To
+        specify multiple types, either pass an array of values, or pass a 
+        single value that represents the bitwise-OR of the desired media types. For example,
+        the following values are equivalent:
+
+            mediaTypes: [Titanium.Media.MUSIC_MEDIA_TYPE_MUSIC, Titanium.Media.MUSIC_MEDIA_TYPE_PODCAST] 
+
+        Or:
+
+            mediaTypes: Titanium.Media.MUSIC_MEDIA_TYPE_MUSIC|Titanium.Media.MUSIC_MEDIA_TYPE_PODCAST
+    type: [Number, Array<Number>]
+    default: All available types.
+  - name: allowMultipleSelections 
+    summary: Set to `true` to allow the user to select multiple items from the library.
+    type: Boolean
+    default: false
 # Pseudo-type for queryMediaLibrary argument
 ---
 name: MediaQueryType
@@ -676,29 +863,29 @@ properties:
   - name: mediaType
     summary: The media type to filter on. Value should be one of the
         `MUSIC_MEDIA_TYPE_` constants on <Titanium.Media>.
-    type: [Dictionary<MediaQueryInfoType>, Number]
+    type: [MediaQueryInfoType, Number]
   - name: title
     summary: The title to filter on. Value should be a String.
-    type: [Dictionary<MediaQueryInfoType>, String]
+    type: [MediaQueryInfoType, String]
   - name: albumTitle
     summary: The album title to filter on. Value should be a String.
-    type: [Dictionary<MediaQueryInfoType>, String]
+    type: [MediaQueryInfoType, String]
   - name: artist
     summary: The artist to filter on. Value should be a String.
-    type: [Dictionary<MediaQueryInfoType>, String]
+    type: [MediaQueryInfoType, String]
   - name: albumArtist
     summary: The album artist to filter on. Value should be a String.
-    type: [Dictionary<MediaQueryInfoType>, String]
+    type: [MediaQueryInfoType, String]
   - name: genre
     summary: The genre to filter on. Value should be a String.
-    type: [Dictionary<MediaQueryInfoType>, String]
+    type: [MediaQueryInfoType, String]
   - name: composer
     summary: The composer to filter on. Value should be a String.
-    type: [Dictionary<MediaQueryInfoType>, String]
+    type: [MediaQueryInfoType, String]
   - name: isCompilation
     summary: Filter by whether or not the item is a compilation.
         Value should be a Boolean.
-    type: [Dictionary<MediaQueryInfoType>, Boolean]
+    type: [MediaQueryInfoType, Boolean]
     
 # Pseudo-type for query arguments
 ---
@@ -779,4 +966,174 @@ properties:
     type: Number
   - name: rating
     summary: The user rating.
+    type: Number
+# Camera options pseudo-type
+---
+name: CameraOptionsType
+summary: Simple object for specifying options to [showCamera](Titanium.Media.showCamera).
+properties:
+  - name: success 
+    summary: Function to call when the camera is closed after a successful capture/selection.
+    type: Callback<CameraMediaItemType>
+  - name: error 
+    summary: Function to call upon receiving an error.
+    type: Callback<Object>
+  - name: cancel 
+    summary: Function to call if the user presses the cancel button.
+    type: Callback<Object>
+  - name: autohide 
+    summary: Specifies if the camera should be hidden automatically after the media capture is completed.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+  - name: animated 
+    summary: Specifies if the dialog should be animated upon showing and hiding.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+  - name: saveToPhotoGallery
+    summary: Specifies if the media should be saved to the photo gallery upon successful capture.
+    type: Boolean
+    default: false
+  - name: allowEditing
+    summary: Specifies if the media should be editable after capture/selection.
+    type: Boolean
+    platforms: [iphone, ipad]
+    default: false
+  - name: mediaTypes 
+    summary: |
+        Array of media type constants to allow: `MEDIA_TYPE_PHOTO` or `MEDIA_TYPE_VIDEO`.
+    type: Array<String>
+    default: Both photo and video allowed.
+    platforms: [iphone, ipad]
+  - name: videoMaximumDuration
+    summary: Maximum duration (in milliseconds) to allow video capture before completing.
+    type: Number
+    platforms: [iphone, ipad]
+  - name: videoQuality 
+    summary: Constant to indicate the video quality during capture. 
+    type: Number
+    platforms: [iphone, ipad]
+  - name: showControls 
+    summary: Indicates if the built-in camera controls should be displayed.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+  - name: overlay 
+    summary: View to added as an overlay to the camera UI (on top).
+    description: |
+        On iOS, the overlay view is usually used in conjunction with `showControls: false`.
+        The `transform` property can be used to scale and position the camera preview inside
+        the overlay view.
+    type: Titanium.UI.View
+    default: no overlay view
+  - name: transform
+    summary: Transformation matrix to apply to the camera or photogallery view.
+    description: |
+        Can be used to size and position the camera or photogallery view behind an overlay view. 
+    type: Titanium.UI.2DMatrix
+    default: identity matrix
+    platforms: [iphone, ipad]
+  - name: inPopOver
+    summary: Show the camera in a popover.
+    description: |
+        Use `inPopOver: true` on iPad to display the camera view in a popover.
+    type: Boolean
+    default: false
+    platforms: [ipad]
+  - name: popoverView 
+    summary: View to position the camera or photo gallery popover on top of.
+    description: |
+        This property is only used if the camera is displayed in a 
+        popover (`inPopOver` is `true`).
+    type: Titanium.UI.View
+    platforms: [ipad]
+  - name: arrowDirection
+    summary: Controls the type of arrow and position of the popover.
+    description: |
+        Specify one of the `POPOVER_ARROW_DIRECTION` constants from <Titanium.UI.iPad>.
+
+        This property is only used if the camera is displayed in a 
+        popover (`inPopOver` is `true`).
+    type: Number
+    platforms: [ipad]
+
+# Photo Gallery options pseudo-type. Much like the camera one.
+---
+name: PhotoGalleryOptionsType
+summary: |
+    Simple object for specifying options to 
+    [openPhotoGallery](Titanium.Media.openPhotoGallery).
+properties:
+  - name: success 
+    summary: Function to call when the photogallery is closed after a successful selection.
+    type: Callback<CameraMediaItemType>
+  - name: error 
+    summary: Function to call upon receiving an error.
+    type: Callback<Object>
+  - name: cancel 
+    summary: Function to call if the user presses the cancel button.
+    type: Callback<Object>
+  - name: autohide 
+    summary: Specifies if the photo gallery should be hidden automatically after the media
+        selection is completed.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+  - name: animated 
+    summary: Specifies if the dialog should be animated upon showing and hiding.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+  - name: allowEditing
+    summary: Specifies if the media should be editable after capture/selection.
+    type: Boolean
+    platforms: [iphone, ipad]
+  - name: mediaTypes 
+    summary: |
+        Array of media type constants to allow: `MEDIA_TYPE_PHOTO` or `MEDIA_TYPE_VIDEO`.
+    type: Array<String>
+    default: Both photo and video allowed.
+    platforms: [iphone, ipad]
+  - name: popoverView 
+    summary: View to position the photo gallery popover on top of.
+    type: Titanium.UI.View
+    platforms: [ipad]
+  - name: arrowDirection
+    summary: Controls the type of arrow and position of the popover.
+    description: |
+        Specify one of the `POPOVER_ARROW_DIRECTION` constants from <Titanium.UI.iPad>.
+    type: Number
+    platforms: [ipad]
+
+---
+name: CameraMediaItemType
+summary: A media object from the camera or photo gallery.
+properties:
+  - name: media
+    summary: The media object, as a [Blob](Titanium.Blob).
+    type: Titanium.Blob
+  - name: mediaType
+    summary: The type of media, either `MEDIA_TYPE_PHOTO` or `MEDIA_TYPE_VIDEO` defined in <Titanium.Media>.
+    type: String
+  - name: cropRect
+    summary: Simple object defining the user's selected crop rectangle, or `null` if the user has not edited the photo.
+    type: CropRectType
+
+# Arguably we might need a global Rect pseudotype. For now, define locally
+---
+name: CropRectType
+summary: Simple object for describing the crop rectangle for an image.
+properties: 
+  - name: x
+    summary: X coordinate of the crop rectangle's upper-left corner.
+    type: Number
+  - name: y
+    summary: Y coordinate of the crop rectangle's upper-left corner.
+    type: Number
+  - name: width
+    summary: Width of the crop rectangle, in pixels.
+    type: Number
+  - name: height
+    summary: Height of the crop rectangle, in pixels.
     type: Number
