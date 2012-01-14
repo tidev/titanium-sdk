@@ -21,7 +21,8 @@ import android.content.Context;
 
 @Kroll.proxy(creatableInModule=AndroidModule.class, propertyAccessors = {
 	TiC.PROPERTY_FLAGS,
-	TiC.PROPERTY_INTENT
+	TiC.PROPERTY_INTENT,
+	TiC.PROPERTY_UPDATE_CURRENT_INTENT
 })
 public class PendingIntentProxy extends KrollProxy 
 {
@@ -29,6 +30,7 @@ public class PendingIntentProxy extends KrollProxy
 	protected PendingIntent pendingIntent;
 	protected IntentProxy intent;
 	protected Context pendingIntentContext;
+	protected boolean updateCurrentIntent = true;
 	protected int flags;
 
 	public PendingIntentProxy()
@@ -88,8 +90,15 @@ public class PendingIntentProxy extends KrollProxy
 		if (dict.containsKey(TiC.PROPERTY_INTENT)) {
 			intent = (IntentProxy) dict.get(TiC.PROPERTY_INTENT);
 		}
+		if (dict.containsKey(TiC.PROPERTY_UPDATE_CURRENT_INTENT)) {
+			updateCurrentIntent = TiConvert.toBoolean(dict.get(TiC.PROPERTY_UPDATE_CURRENT_INTENT));
+		}
 		if (dict.containsKey(TiC.PROPERTY_FLAGS)) {
 			flags = dict.getInt(TiC.PROPERTY_FLAGS);
+		}
+		//Since only 1 flag can be set, if user specify a flag, use it, otherwise, use default flag
+		if (flags == 0 && updateCurrentIntent) {
+			flags = PendingIntent.FLAG_UPDATE_CURRENT;
 		}
 		super.handleCreationDict(dict);
 	}
