@@ -158,8 +158,19 @@ public class TiPlatformHelper
 		return TiApplication.getInstance().getAppInfo();
 	}
 
+	/**
+	 * The name of platform means the SDK family of Ti.mobile ('iphone' vs. 'android').
+	 * The naming has a historical legacy.
+	 */
 	public static String getName() {
 		return "android";
+	}
+	
+	/**
+	 * The name of OS is to indicate (potential future) forks of the OS.
+	 */
+	public static String getOS() {
+		return "Android";
 	}
 
 	public static int getProcessorCount() {

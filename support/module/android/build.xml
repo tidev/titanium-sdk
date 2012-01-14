@@ -100,7 +100,7 @@
 		<property name="bootstrap.py" location="${ti.module.support.dir}/android/bootstrap.py"/>
 		<property name="js2c.py" location="${ti.module.support.dir}/android/js2c.py"/>
 
-		<exec executable="${bootstrap.py}">
+		<python file="${bootstrap.py}">
 			<!-- js runtime -->
 			<arg value="v8"/>
 			<!-- module id -->
@@ -111,7 +111,7 @@
 			<arg value="${genjson}/org/appcelerator/titanium/bindings/${manifest.name}.json"/>
 			<!-- output dir -->
 			<arg value="${gen}"/>
-		</exec>
+		</python>
 	</target>
 
 	<target name="generate.bindings" depends="generate.rhino.bindings,generate.v8.bindings">
@@ -190,7 +190,9 @@
 
 	<target name="ndk.build">
 		<check.ndk/>
-		<property name="ndk.build" location="${ndk.path}/ndk-build"/>
+		<condition property="ndk.build" value="${ndk.path}/ndk-build.cmd" else="${ndk.path}/ndk-build">
+			<os family="windows"/>
+		</condition>
 
 		<mkdir dir="${genjni}"/>
 		<property name="module.generated.dir"
@@ -227,6 +229,7 @@
 			<arg value="TI_MOBILE_SDK=${mobilesdk.dir}"/>
 			<arg value="NDK_PROJECT_PATH=${gen}"/>
 			<arg value="NDK_APPLICATION_MK=${gen}/Application.mk"/>
+			<arg value="PYTHON=${python.exec}"/>
 			<arg value="V=${ndk.verbose}"/>
 		</exec>
 
@@ -325,7 +328,23 @@
 			</exec>
 		</sequential>
 	</macrodef>
-	
+
+	<property name="python.bat" location="${titanium.platform}/../python.bat"/>
+	<condition property="python.exec" value="${python.bat}" else="python">
+		<os family="windows"/>
+	</condition>
+
+	<macrodef name="python">
+		<attribute name="file"/>
+		<element name="args" implicit="true" optional="true"/>
+		<sequential>
+			<exec executable="${python.exec}" dir="${basedir}">
+				<arg value="@{file}"/>
+				<args/>
+			</exec>
+		</sequential>
+	</macrodef>
+
 	<target name="run.emulator" depends="clean,dist" description="Run the android emulator">
 		<titanium command="emulator"/>
 	</target>

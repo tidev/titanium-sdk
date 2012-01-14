@@ -26,7 +26,15 @@ define("Ti/Media/VideoPlayer", ["Ti/_/declare", "Ti/Media", "Ti/UI/View"], funct
 
 		properties: {
 			autoplay: false,
-			repeatMode: Media.VIDEO_REPEAT_MODE_NONE,
+			currentPlaybackTime: {
+				get: function() {
+					return this._video ? this._video.currentTime * 1000 : 0;
+				},
+				set: function(value) {
+					this._video && (this._video.currentTime = (value / 1000) | 0);
+					return value;
+				}
+			},
 			fullscreen: {
 				// TODO: Add check for Firefox <http://www.thecssninja.com/javascript/fullscreen>
 				value: (function(s) {
@@ -63,6 +71,14 @@ define("Ti/Media/VideoPlayer", ["Ti/_/declare", "Ti/Media", "Ti/UI/View"], funct
 					return value;
 				}
 			},
+			mediaControlStyle: {
+				value: Media.VIDEO_CONTROL_DEFAULT,
+				set: function(value) {
+					this._video && (this._video.controls = value === Media.VIDEO_CONTROL_DEFAULT);
+					return value;
+				}
+			},
+			repeatMode: Media.VIDEO_REPEAT_MODE_NONE,
 			scalingMode: {
 				set: function(value) {
 					var n = this.domNode,
@@ -83,13 +99,6 @@ define("Ti/Media/VideoPlayer", ["Ti/_/declare", "Ti/Media", "Ti/UI/View"], funct
 					this._createVideo();
 					return value;
 				}
-			},
-			mediaControlStyle: {
-				value: Media.VIDEO_CONTROL_DEFAULT,
-				set: function(value) {
-					this._video.controls = value === Media.VIDEO_CONTROL_DEFAULT;
-					return value;
-				}
 			}
 		},
 
@@ -97,7 +106,6 @@ define("Ti/Media/VideoPlayer", ["Ti/_/declare", "Ti/Media", "Ti/UI/View"], funct
 			playbackState: Media.VIDEO_PLAYBACK_STATE_STOPPED,
 			playing: false,
 			initialPlaybackTime: 0,
-			currentPlaybackTime: 0,
 			endPlaybackTime: 0,
 			playableDuration: 0,
 			loadState: Media.VIDEO_LOAD_STATE_UNKNOWN,
@@ -107,7 +115,7 @@ define("Ti/Media/VideoPlayer", ["Ti/_/declare", "Ti/Media", "Ti/UI/View"], funct
 		_set: function(type, state) {
 			var evt = {};
 			evt[type] = this.constants[type] = state;
-			this.fireEvent(type, evt);
+			this.fireEvent(type === "loadState" ? type.toLowerCase() : type, evt);
 		},
 
 		_complete: function(evt) {
@@ -135,7 +143,7 @@ define("Ti/Media/VideoPlayer", ["Ti/_/declare", "Ti/Media", "Ti/UI/View"], funct
 		},
 
 		_durationChange: function() {
-			var d = this.duration,
+			var d = this._video.duration * 1000,
 				c = this.constants;
 			if (d !== Infinity) {
 				this.duration || this.fireEvent("durationAvailable", {
@@ -202,7 +210,7 @@ define("Ti/Media/VideoPlayer", ["Ti/_/declare", "Ti/Media", "Ti/UI/View"], funct
 				on(video, "loadedmetadata", this, "_metaDataLoaded"),
 				on(video, "durationchange", this, "_durationChange"),
 				on(video, "timeupdate", this, function() {
-					this.constants.currentPlaybackTime = Math.round(this.currentTime);
+					this.constants.currentPlaybackTime = this._video.currentTime * 1000;
 					this._currentState === STOPPING && this.pause();
 				}),
 				on(video, "error", this, function() {
