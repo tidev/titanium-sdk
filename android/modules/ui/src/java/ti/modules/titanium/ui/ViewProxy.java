@@ -33,11 +33,6 @@ public class ViewProxy extends TiViewProxy
 	public TiUIView createView(Activity activity)
 	{
 		TiUIView view = new TiView(this);
-		if (activity != null) {
-			((TiBaseActivity)activity).setViewProxy(this);
-		} else {
-			Log.w("ViewProxy", "Activity is null");
-		}
 		view.getLayoutParams().autoFillsHeight = true;
 		view.getLayoutParams().autoFillsWidth = true;
 		return view;
