@@ -26,15 +26,14 @@ define("Ti/Network/HTTPClient", ["Ti/_/Evented"], function(Evented) {
 		function serialize(obj) {
 			var pairs = [],
 				prop,
-				value,
-				prefix;
+				value;
 
 			for (prop in obj) {
 				if (obj.hasOwnProperty(prop)) {
-					prefix = enc(prop) + "=";
-					lang.isArray(value = obj[prop]) || (value = [value]);
+					is(value = obj[prop], "Array") || (value = [value]);
+					prop = enc(prop) + "=";
 					require.each(value, function(v) {
-						pairs.push(prefix + enc(v));
+						pairs.push(prop + enc(v));
 					});
 				}
 			}
@@ -141,7 +140,9 @@ define("Ti/Network/HTTPClient", ["Ti/_/Evented"], function(Evented) {
 		obj.send = function(args){
 			_completed = false;
 			try {
-				xhr.send(is(args, "Object") ? serialize(args) : args || null);
+				args = is(args, "Object") ? serialize(args) : args;
+				args && xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+				xhr.send(args);
 				clearTimeout(timeoutTimer);
 				obj.timeout && (timeoutTimer = setTimeout(function() {
 					if (obj.connected) {
