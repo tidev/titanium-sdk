@@ -73,6 +73,9 @@ properties:
     summary: Is the text area enabled?
     type: Boolean
     default: true
+  - name: font
+    summary: Font to use for text.
+    type: Font
   - name: keyboardToolbar
     summary: Array of toolbar button objects to be used when the keyboard is displayed.
     type: Array<Object>

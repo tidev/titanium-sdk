@@ -68,7 +68,7 @@ define("Ti/UI/ImageView",
 			return this.imageDisplay.height;
 		},
 		_setTouchEnabled: function(value) {
-			FontWidget.prototype._setTouchEnabled.apply(this,arguments);
+			Widget.prototype._setTouchEnabled.apply(this,arguments);
 			var cssVal = value ? "auto" : "none";
 			this.contentContainer && set(this.contentContainer,"pointerEvents", cssVal);
 			this.imageDisplay && set(this.imageDisplay,"pointerEvents", cssVal);
