@@ -313,6 +313,7 @@ define("Ti/_/UI/Element",
 					style.set(this.domNode, "top", unitize(dimensions.top));
 					style.set(this.domNode, "width", unitize(dimensions.width));
 					style.set(this.domNode, "height", unitize(dimensions.height));
+					style.set(this.domNode, "borderWidth", unitize(dimensions.borderWidth));
 
 					// Set the z-order
 					!isDef(anim.zIndex) && style.set(this.domNode, "zIndex", anim.zIndex);
