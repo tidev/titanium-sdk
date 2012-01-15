@@ -88,6 +88,7 @@ define("Ti/_/UI/Element",
 			this._measuredBottomPadding = dimensions.bottomPadding;
 			this._measuredWidth = dimensions.width;
 			this._measuredHeight = dimensions.height;
+			this._measuredBorderWidth = dimensions.borderWidth;
 					
 			// Set the position, size and z-index
 			isDef(this._measuredLeft) && set(this.domNode, "left", unitize(this._measuredLeft));
@@ -247,8 +248,8 @@ define("Ti/_/UI/Element",
 			// Apply the origin and border width
 			left += this._originX;
 			top += this._originY;
-			var rightPadding = is(originalRight,"Number") ? originalRight + borderWidth : borderWidth,
-				bottomPadding = is(originalBottom,"Number") ? originalBottom + borderWidth : borderWidth;
+			var rightPadding = is(originalRight,"Number") ? originalRight : 0,
+				bottomPadding = is(originalBottom,"Number") ? originalBottom : 0;
 			
 			if(!is(left,"Number") || !is(top,"Number") || !is(rightPadding,"Number")
 				 || !is(bottomPadding,"Number") || !is(width,"Number") || !is(height,"Number")) {
@@ -261,7 +262,8 @@ define("Ti/_/UI/Element",
 				rightPadding: rightPadding,
 				bottomPadding: bottomPadding,
 				width: width,
-				height: height};
+				height: height,
+				borderWidth: borderWidth};
 		},
 		
 		// This method returns the offset of the content relative to the parent's location. 
