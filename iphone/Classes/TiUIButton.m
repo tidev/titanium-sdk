@@ -282,6 +282,17 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 	}
 }
 
+-(void)setTileBackground_:(id)value
+{
+    if (value != nil) {
+        UIColor* color = [UIColor colorWithPatternImage:[self loadImage:value]];
+        [[self button] setBackgroundColor:color];
+    }
+    else {
+        [[self button] setBackgroundColor:nil];
+    }
+}
+
 -(void)setFont_:(id)font
 {
 	if (font!=nil)

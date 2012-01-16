@@ -485,6 +485,20 @@ properties:
   - name: backgroundImage
     summary: Background image for the view, specified as a local file path or URL.
     type: String
+  - name: tileBackground
+    summary: Image to tile over the background of the view, as a local file path or URL.
+    description: |
+        This creates a repeating image over the background of the view. Note
+        that this cannot be combined with `backgroundImage` as
+        `backgroundColor` can be; in addition, if set, `backgroundImage`
+        takes precedence over this setting.
+        
+        Due to how this property is managed by the system, the alpha channels
+        of the image may not be used correctly and you should not expect
+        the background to be transparent in any way. Alpha channels will be
+        rendered as black.
+    type: String
+    platforms: [iphone, ipad]
   - name: backgroundLeftCap
     summary: Size of the left end cap.
     description: |

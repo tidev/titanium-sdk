@@ -392,6 +392,45 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+-(UIImage*)loadBackgroundImage:(id)image
+{
+    UIImage* resultImage = nil;
+    if ([image isKindOfClass:[UIImage class]]) {
+        resultImage = image;
+    }
+    else if ([image isKindOfClass:[NSString class]]) {
+        NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
+        resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL];
+        if (resultImage==nil && [image isEqualToString:@"Default.png"])
+        {
+            // special case where we're asking for Default.png and it's in Bundle not path
+            resultImage = [UIImage imageNamed:image];
+        }
+        if((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp))
+        {
+            resultImage = [UIImageResize resizedImage:[resultImage size] 
+                                 interpolationQuality:kCGInterpolationNone 
+                                                image:resultImage 
+                                                hires:NO];
+        }
+    }
+    else if ([image isKindOfClass:[TiBlob class]]) {
+        resultImage = [image image];
+    }
+    return resultImage;
+}
+
+-(void)setTileBackground_:(id)image
+{
+    UIImage* tileImage = [self loadBackgroundImage:image];
+    if (tileImage != nil) {
+        [super setBackgroundColor:[UIColor colorWithPatternImage:tileImage]];
+    }
+    else { // No documented behavior for when [UIColor colorWithPatternImage:] takes nil
+        [super setBackgroundColor:nil];
+    }
+}
+
 -(void)setOpacity_:(id)opacity
 {
 	self.alpha = [TiUtils floatValue:opacity];
@@ -404,24 +443,15 @@ DEFINE_EXCEPTIONS
 
 -(void)setBackgroundImage_:(id)image
 {
-	NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
-	UIImage *resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL];
-	if (resultImage==nil && [image isEqualToString:@"Default.png"])
-	{
-		// special case where we're asking for Default.png and it's in Bundle not path
-		resultImage = [UIImage imageNamed:image];
-	}
-	if((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp))
-	{
-		resultImage = [UIImageResize resizedImage:[resultImage size] 
-							 interpolationQuality:kCGInterpolationNone image:resultImage hires:NO];
-	}
-
+    UIImage* resultImage = [self loadBackgroundImage:image];
+    
 	[self backgroundImageLayer].contents = (id)resultImage.CGImage;
 	[self backgroundImageLayer].contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [resultImage size]);
 	self.clipsToBounds = image!=nil;
     self.backgroundImage = image;
 }
+
+
 
 -(void)setBackgroundLeftCap_:(id)value
 {
