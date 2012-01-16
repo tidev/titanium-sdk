@@ -53,7 +53,7 @@ description: |
 
 extends: Titanium.Proxy
 since: "0.9"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 events:
   - name: complete
     summary: Fired when the animation completes.
@@ -66,7 +66,7 @@ properties:
   - name: backgroundColor
     summary: Value of the `backgroundColor` property at the end of the animation.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: bottom
     summary: Value of the `bottom` property at the end of the animation.
     type: Number
@@ -76,14 +76,14 @@ properties:
   - name: color
     summary: Value of the `color` property at the end of the animation.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: curve
     summary: Animation curve or easing function to apply to the animation.
     description: |
         Specify one of the `ANIMATION_CURVE` constants from
         <Titanium.UI.iOS>.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: delay
     summary: Delay, in milliseconds before starting the animation.
     type: Number
@@ -133,14 +133,14 @@ properties:
   - name: visible
     summary: Value of the `visible` property at the end of the animation.
     type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: width
     summary: Value of the `width` property at the end of the animation.
     type: Number
   - name: zIndex
     summary: Value of the `zIndex` property at the end of the animation.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     
 examples:
   - title: Simple Animation Applied to a View
