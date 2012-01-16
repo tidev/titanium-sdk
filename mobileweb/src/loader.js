@@ -1604,7 +1604,7 @@ require.cache({
 
 			function hitchArgs(scope, method) {
 				var pre = toArray(arguments, 2);
-					named = require.is(method, "String");
+					named = is(method, "String");
 				return function() {
 					var s = scope || global,
 						f = named ? s[method] : method;
@@ -1613,6 +1613,10 @@ require.cache({
 			}
 
 			return {
+				val: function(originalValue, defaultValue) {
+					return is(originalValue, "Undefined") ? defaultValue : originalValue;
+				},
+
 				hitch: function(scope, method) {
 					if (arguments.length > 2) {
 						return hitchArgs.apply(global, arguments);
@@ -1621,7 +1625,7 @@ require.cache({
 						method = scope;
 						scope = null;
 					}
-					if (require.is(method, "String")) {
+					if (is(method, "String")) {
 						scope = scope || global;
 						if (!scope[method]) {
 							throw(['hitch: scope["', method, '"] is null (scope="', scope, '")'].join(''));
