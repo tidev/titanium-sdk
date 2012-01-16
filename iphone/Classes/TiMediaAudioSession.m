@@ -117,7 +117,7 @@ void TiAudioSessionInputAvailableCallback(void* inUserData, AudioSessionProperty
         AudioSessionRemovePropertyListenerWithUserData(kAudioSessionProperty_CurrentHardwareOutputVolume,TiAudioSessionAudioVolumeCallback,self);
         //deregister from input availability changes
         AudioSessionRemovePropertyListenerWithUserData(kAudioSessionProperty_AudioInputAvailable,TiAudioSessionInputAvailableCallback,self);
-		AudioSessionSetActive(false);
+        AudioSessionSetActive(false);
     }
     RELEASE_TO_NIL(lock);
     [super dealloc];
@@ -318,7 +318,7 @@ void TiAudioSessionInputAvailableCallback(void* inUserData, AudioSessionProperty
         AudioSessionRemovePropertyListenerWithUserData(kAudioSessionProperty_CurrentHardwareOutputVolume,TiAudioSessionAudioVolumeCallback,self);
         //deregister from input availability changes
         AudioSessionRemovePropertyListenerWithUserData(kAudioSessionProperty_AudioInputAvailable,TiAudioSessionInputAvailableCallback,self);
-		AudioSessionSetActive(false);
+        AudioSessionSetActive(false);
 	}
 #ifdef DEBUG	
 	NSAssert(count >= 0, @"stopAudioSession called too many times");
