@@ -82,7 +82,7 @@ define("Ti/_/UI/Element",
 			this._centerVDefault = centerVDefault;
 			
 			var dimensions = this._computeDimensions(parentWidth, parentHeight, this.left,this.top,this.right,this.bottom,
-				isDef(this.center) ? this.center.x : undef,isDef(this.center) ? this.center.y : undef,this.width,this.height);
+				isDef(this.center) ? this.center.x : undef,isDef(this.center) ? this.center.y : undef,this.width,this.height,this.borderWidth);
 			
 			this._measuredLeft = dimensions.left;
 			this._measuredTop = dimensions.top;
@@ -90,6 +90,7 @@ define("Ti/_/UI/Element",
 			this._measuredBottomPadding = dimensions.bottomPadding;
 			this._measuredWidth = dimensions.width;
 			this._measuredHeight = dimensions.height;
+			this._measuredBorderWidth = dimensions.borderWidth;
 					
 			// Set the position, size and z-index
 			isDef(this._measuredLeft) && set(this.domNode, "left", unitize(this._measuredLeft));
@@ -99,7 +100,7 @@ define("Ti/_/UI/Element",
 			set(this.domNode, "zIndex", is(this.zIndex,"Number") ? this.zIndex : 0);
 		},
 		
-		_computeDimensions: function(parentWidth,parentHeight,left,top,originalRight,originalBottom,centerX,centerY,width,height) {
+		_computeDimensions: function(parentWidth,parentHeight,left,top,originalRight,originalBottom,centerX,centerY,width,height,borderWidth) {
 			
 			// Compute as many sizes as possible, should be everything except auto
 			left = computeSize(left,parentWidth),
@@ -205,6 +206,8 @@ define("Ti/_/UI/Element",
 			}
 			
 			// Calculate the width/left properties if width is NOT auto
+			var borderWidth = computeSize(borderWidth);
+			borderWidth = is(borderWidth,"Number") ? borderWidth: 0;
 			if (width != "auto") {
 				if (isDef(right)) {
 					if (isDef(left)) {
@@ -213,6 +216,7 @@ define("Ti/_/UI/Element",
 						left = right - width;
 					}
 				}
+				width -= borderWidth * 2;
 			}
 			if (height != "auto") {
 				if (isDef(bottom)) {
@@ -222,6 +226,7 @@ define("Ti/_/UI/Element",
 						top = bottom - height;
 					}
 				}
+				height -= borderWidth * 2;
 			}
 			
 			// TODO change this once we re-architect the inheritence so that widgets don't have add/remove/layouts
@@ -242,21 +247,25 @@ define("Ti/_/UI/Element",
 				top = this._centerVDefault ? computeSize("50%",parentHeight) - (is(height,"Number") ? height : 0) / 2 : 0;
 			}
 			
-			// Apply the origin
+			// Apply the origin and border width
 			left += this._originX;
 			top += this._originY;
+			var rightPadding = is(originalRight,"Number") ? originalRight : 0,
+				bottomPadding = is(originalBottom,"Number") ? originalBottom : 0;
 			
-			if(!is(this._measuredLeft,"Number") || !is(this._measuredTop,"Number") || !is(this._measuredRightPadding,"Number")
-				 || !is(this._measuredBottomPadding,"Number") || !is(this._measuredWidth,"Number") || !is(this._measuredHeight,"Number")) {
+			if(!is(left,"Number") || !is(top,"Number") || !is(rightPadding,"Number")
+				 || !is(bottomPadding,"Number") || !is(width,"Number") || !is(height,"Number")) {
 			 	throw "Invalid layout";
 			}
 			
-			return {left: left,
+			return {
+				left: left,
 				top:top,
-				rightPadding: is(originalRight,"Number") ? originalRight: 0,
-				bottomPadding: is(originalBottom,"Number") ? originalBottom: 0,
+				rightPadding: rightPadding,
+				bottomPadding: bottomPadding,
 				width: width,
-				height: height};
+				height: height,
+				borderWidth: borderWidth};
 		},
 		
 		// This method returns the offset of the content relative to the parent's location. 
@@ -301,14 +310,16 @@ define("Ti/_/UI/Element",
 						isDef(anim.center) ? anim.center.x : isDef(this.center) ? this.center.x : undef,
 						isDef(anim.center) ? anim.center.y : isDef(this.center) ? this.center.y : undef,
 						val(anim.width, this.width),
-						val(anim.height, this.height)
+						val(anim.height, this.height),
+						val(anim.borderWidth, this.borderWidth)
 					);
 
 					style.set(this.domNode, {
 						left: unitize(dimensions.left),
 						top: unitize(dimensions.top),
 						width: unitize(dimensions.width),
-						height: unitize(dimensions.height)
+						height: unitize(dimensions.height),
+						borderWidth: unitize(dimensions.borderWidth)
 					});
 
 					// Set the z-order
