@@ -96,10 +96,12 @@ public class PendingIntentProxy extends KrollProxy
 		if (dict.containsKey(TiC.PROPERTY_FLAGS)) {
 			flags = dict.getInt(TiC.PROPERTY_FLAGS);
 		}
-		//Since only 1 flag can be set, if user specifies a flag, use it, otherwise, use default flag
-		if (flags == 0 && updateCurrentIntent) {
-			flags = PendingIntent.FLAG_UPDATE_CURRENT;
-		}
+		
+		//add FLAG_UPDATE_CURRENT if updateCurrentIntent is true
+		if (updateCurrentIntent) {
+			flags =  flags | PendingIntent.FLAG_UPDATE_CURRENT;
+		} 
+		
 		super.handleCreationDict(dict);
 	}
 
