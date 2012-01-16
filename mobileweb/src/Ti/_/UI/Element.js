@@ -33,16 +33,11 @@ define("Ti/_/UI/Element",
 			this.domNode = dom.create(this.domType || "div", {
 				className: "TiUIElement " + css.clean(this.declaredClass)
 			});
+			
+			// Handle click/touch/gestures
+			this._gestureRecognizer = new Ti._.Gestures.GestureRecognizer(this);
 
 			// TODO: mixin JSS rules (http://jira.appcelerator.org/browse/TIMOB-6780)
-			
-			on(this.domNode, "click", lang.hitch(this,function(e){
-				this._handleMouseEvent("click",{x: e.clientX, y: e.clientY});
-			}));
-			
-			on(this.domNode, "dblclick", lang.hitch(this,function(e){
-				this._handleMouseEvent("dblclick",{x: e.clientX, y: e.clientY});
-			}));
 
 			on(this.domNode, "focus", lang.hitch(this, function() {
 				var tmp, node = this.domNode;
@@ -274,7 +269,7 @@ define("Ti/_/UI/Element",
 			return {x: 0, y: 0};
 		},
 		
-		_handleMouseEvent: function(type, e) {
+		_handleTouchEvent: function(type, e) {
 			this.fireEvent(type, e);
 		},
 

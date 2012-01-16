@@ -61,13 +61,17 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 			return {x: this.domNode.scrollLeft, y: this.domNode.scrollTop};
 		},
 		
-		_handleMouseEvent: function(type, e) {
-			e.row = this._tableViewRowClicked;
-			e.rowData = this._tableViewRowClicked;
-			e.index = this.rows.children.indexOf(this._tableViewRowClicked);
-			e.section = this._tableViewSectionClicked;
-			e.searchMode = false;
-			View.prototype._handleMouseEvent.apply(this,arguments);
+		_handleTouchEvent: function(type, e) {
+			if (type === "click") {
+				e.row = this._tableViewRowClicked;
+				e.rowData = this._tableViewRowClicked;
+				e.index = this.rows.children.indexOf(this._tableViewRowClicked);
+				e.section = this._tableViewSectionClicked;
+				e.searchMode = false;
+				View.prototype._handleMouseEvent.apply(this,arguments);
+			} else {
+				View.prototype._handleTouchEvent.apple(this,arguments);
+			}
 		},
 		
 		_tableViewRowClicked: null,
