@@ -588,6 +588,79 @@
 	return nil;
 }
 
+// iOS 4.0+ only
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+
+- (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)annotationView didChangeDragState:(MKAnnotationViewDragState)newState fromOldState:(MKAnnotationViewDragState)oldState
+{
+	[self firePinChangeDragState:annotationView newState:newState fromOldState:oldState];
+}
+
+- (NSString*) annotationViewDragStateToString:(MKAnnotationViewDragState)state
+{
+	switch(state)
+	{
+		case MKAnnotationViewDragStateStarting:
+			return @"starting";
+		case MKAnnotationViewDragStateDragging:
+			return @"dragging";
+		case MKAnnotationViewDragStateCanceling:
+			return @"canceling";
+		case MKAnnotationViewDragStateEnding:
+			return @"ending";
+	}
+	return @"none";
+}
+
+#pragma mark Event generation
+
+- (void)firePinChangeDragState:(MKAnnotationView *) pinview newState:(MKAnnotationViewDragState)newState fromOldState:(MKAnnotationViewDragState)oldState 
+{
+	TiMapAnnotationProxy *viewProxy = [self proxyForAnnotation:pinview];
+	if (viewProxy == nil)
+	{
+		return;
+	}
+
+	TiProxy * ourProxy = [self proxy];
+	BOOL parentWants = [ourProxy _hasListeners:@"pinchangedragstate"];
+	BOOL viewWants = [viewProxy _hasListeners:@"pinchangedragstate"];
+	if(!parentWants && !viewWants)
+	{
+		return;
+	}
+
+	id title = [viewProxy title];
+	if (title == nil)
+	{
+		title = [NSNull null];
+	}
+
+	NSNumber * indexNumber = NUMINT([pinview tag]);
+	NSString * newStateValue = [self annotationViewDragStateToString:newState];
+	NSString * oldStateValue = [self annotationViewDragStateToString:oldState];
+
+	NSDictionary * event = [NSDictionary dictionaryWithObjectsAndKeys:
+							viewProxy,@"annotation",
+							ourProxy,@"map",
+							title,@"title",
+							indexNumber,@"index",
+							newStateValue,@"newState",
+							oldStateValue,@"oldState",
+							nil];
+
+	if (parentWants)
+	{
+		[ourProxy fireEvent:@"pinchangedragstate" withObject:event];
+	}
+	if (viewWants)
+	{
+		[viewProxy fireEvent:@"pinchangedragstate" withObject:event];
+	}
+}
+
+#endif
+
 - (void)mapView:(MKMapView *)mapView didSelectAnnotationView:(MKAnnotationView *)view{
 	if ([view conformsToProtocol:@protocol(TiMapAnnotation)])
 	{
@@ -672,6 +745,12 @@
 			pinview.pinColor = [ann pinColor];
 			pinview.animatesDrop = [ann animatesDrop] && ![(TiMapAnnotationProxy *)annotation placed];
 			annView.calloutOffset = CGPointMake(-5, 5);
+		}
+		BOOL draggable = [TiUtils boolValue: [ann valueForUndefinedKey:@"draggable"]];
+		// check if MapKit supports pin dragging
+		if (draggable && [[MKAnnotationView class] instancesRespondToSelector:NSSelectorFromString(@"isDraggable")])
+		{
+			[annView performSelector:NSSelectorFromString(@"setDraggable:") withObject:[NSNumber numberWithBool:YES]];
 		}
 		annView.canShowCallout = YES;
 		annView.enabled = YES;
