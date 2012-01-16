@@ -27,6 +27,7 @@ import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
+import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -168,9 +169,12 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	protected String getBaseUrlForStylesheet()
 	{
-		String baseUrl = getCreationUrl().resolve();
-		if (baseUrl == null || baseUrl.equals("app://")) {
+		TiUrl creationUrl = getCreationUrl();
+		String baseUrl = creationUrl.baseUrl;
+		if (baseUrl == null || (baseUrl.equals("app://") && creationUrl.url.equals(""))) {
 			baseUrl = "app://app.js";
+		} else {
+			baseUrl = creationUrl.resolve();
 		}
 		
 		int idx = baseUrl.lastIndexOf("/");
