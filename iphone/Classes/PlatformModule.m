@@ -90,7 +90,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 			model = [@"Simulator" retain];
 			arch = @"i386";
 		}
-        // detect simulator for x86_64
+		// detect simulator for x86_64
 		else if (!strcmp(u.machine, "x86_64")) 
 		{
 			model = [@"Simulator" retain];
