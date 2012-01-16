@@ -22,6 +22,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConvert;
@@ -70,6 +71,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	private static final int MSG_GETSIZE = MSG_FIRST_ID + 110;
 	private static final int MSG_GETCENTER = MSG_FIRST_ID + 111;
 
+
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	protected ArrayList<TiViewProxy> children;
@@ -79,7 +81,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	protected Object pendingAnimationLock;
 	protected TiAnimationBuilder pendingAnimation;
 	private KrollDict langConversionTable;
-
+	private boolean isDecorView = false;
+	
 	public TiViewProxy()
 	{
 		langConversionTable = getLangConversionTable();
@@ -429,7 +432,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 		return (TiUIView) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEW), 0);
 	}
-
+	
 	protected TiUIView handleGetView()
 	{
 		if (view == null) {
@@ -437,7 +440,15 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				Log.d(LCAT, "getView: " + getClass().getSimpleName());
 			}
 
-			view = createView(getActivity());
+			Activity activity = getActivity();
+			view = createView(activity);
+			if (isDecorView) {
+				if (activity != null) {
+					((TiBaseActivity)activity).setViewProxy(view.getProxy());
+				} else {
+					Log.w(LCAT, "Activity is null");
+				}
+			}
 			realizeViews(view);
 			view.registerForTouch();
 		}
@@ -517,7 +528,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		child.parent = new WeakReference<TiViewProxy>(this);
 		if (view != null) {
 			child.setActivity(getActivity());
+			if (this instanceof DecorViewProxy) {
+				child.isDecorView = true;
+			}
 			TiUIView cv = child.getOrCreateView();
+			
 			view.add(cv);
 		}
 	}

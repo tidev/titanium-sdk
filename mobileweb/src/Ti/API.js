@@ -4,7 +4,7 @@ define("Ti/API", ["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 
 	require.each(["debug", "error", "info", "log", "warn"], function(fn) {
 		api[fn] = function(msg) {
-			console[fn]("[" + fn.toUpperCase() + "] " + msg);
+			console[fn]("[" + fn.toUpperCase() + "]", msg);
 		};
 	});
 
