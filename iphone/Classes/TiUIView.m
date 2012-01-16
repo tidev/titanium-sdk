@@ -392,37 +392,9 @@ DEFINE_EXCEPTIONS
 	}
 }
 
--(UIImage*)loadBackgroundImage:(id)image
-{
-    UIImage* resultImage = nil;
-    if ([image isKindOfClass:[UIImage class]]) {
-        resultImage = image;
-    }
-    else if ([image isKindOfClass:[NSString class]]) {
-        NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
-        resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL];
-        if (resultImage==nil && [image isEqualToString:@"Default.png"])
-        {
-            // special case where we're asking for Default.png and it's in Bundle not path
-            resultImage = [UIImage imageNamed:image];
-        }
-        if((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp))
-        {
-            resultImage = [UIImageResize resizedImage:[resultImage size] 
-                                 interpolationQuality:kCGInterpolationNone 
-                                                image:resultImage 
-                                                hires:NO];
-        }
-    }
-    else if ([image isKindOfClass:[TiBlob class]]) {
-        resultImage = [image image];
-    }
-    return resultImage;
-}
-
 -(void)setTileBackground_:(id)image
 {
-    UIImage* tileImage = [self loadBackgroundImage:image];
+    UIImage* tileImage = [TiUtils loadBackgroundImage:image forProxy:proxy];
     if (tileImage != nil) {
         [super setBackgroundColor:[UIColor colorWithPatternImage:tileImage]];
     }
@@ -443,7 +415,7 @@ DEFINE_EXCEPTIONS
 
 -(void)setBackgroundImage_:(id)image
 {
-    UIImage* resultImage = [self loadBackgroundImage:image];
+    UIImage* resultImage = [TiUtils loadBackgroundImage:image forProxy:proxy];
     
 	[self backgroundImageLayer].contents = (id)resultImage.CGImage;
 	[self backgroundImageLayer].contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [resultImage size]);

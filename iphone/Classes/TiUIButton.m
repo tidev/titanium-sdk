@@ -285,7 +285,7 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 -(void)setTileBackground_:(id)value
 {
     if (value != nil) {
-        UIColor* color = [UIColor colorWithPatternImage:[self loadImage:value]];
+        UIColor* color = [UIColor colorWithPatternImage:[TiUtils loadBackgroundImage:value forProxy:[self proxy]]];
         [[self button] setBackgroundColor:color];
     }
     else {
