@@ -7,6 +7,7 @@ var win = Titanium.UI.currentWindow;
 //TODO: USE OBJECT
 var sound = Titanium.Media.createSound();
 sound.url='../cricket.wav'; // For testing #1913
+sound.preload = true;
 
 //
 // PLAY
