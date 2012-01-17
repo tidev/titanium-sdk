@@ -1900,7 +1900,7 @@ if(ourTableView != tableview)	\
 
 - (CGFloat)tableView:(UITableView *)ourTableView heightForHeaderInSection:(NSInteger)section
 {
-	RETURN_IF_SEARCH_TABLE_VIEW(ourTableView.sectionHeaderHeight);
+	RETURN_IF_SEARCH_TABLE_VIEW(0.0);
 	TiUITableViewSectionProxy *sectionProxy = nil;
 	TiUIView *view = [self sectionView:section forLocation:@"headerView" section:&sectionProxy];
 	TiViewProxy *viewProxy = (TiViewProxy *)[view proxy];
@@ -1947,7 +1947,7 @@ if(ourTableView != tableview)	\
 
 - (CGFloat)tableView:(UITableView *)ourTableView heightForFooterInSection:(NSInteger)section
 {
-	RETURN_IF_SEARCH_TABLE_VIEW(ourTableView.sectionFooterHeight);
+	RETURN_IF_SEARCH_TABLE_VIEW(0.0);
 	TiUITableViewSectionProxy *sectionProxy = nil;
 	TiUIView *view = [self sectionView:section forLocation:@"footerView" section:&sectionProxy];
 	TiViewProxy *viewProxy = (TiViewProxy *)[view proxy];
