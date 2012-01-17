@@ -779,14 +779,6 @@ DEFINE_EXCEPTIONS
 
 -(void)recognizedTap:(UITapGestureRecognizer*)recognizer
 {
-	NSString* tapType = @"singletap";
-	if ([recognizer numberOfTouchesRequired] == 2) {
-		tapType = @"twofingertap";
-	}
-	else if ([recognizer numberOfTapsRequired] == 2) {
-		tapType = @"doubletap";		
-	}
-
 	CGPoint tapPoint = [recognizer locationInView:self];
 	NSMutableDictionary *event;
 
@@ -800,7 +792,23 @@ DEFINE_EXCEPTIONS
 	event = [TiUtils pointToDictionary:tapPoint];
 #endif	//GLOBALPOINT
 	
-	[proxy fireEvent:tapType withObject:event];
+	if ([recognizer numberOfTouchesRequired] == 2) {
+		[proxy fireEvent:@"twofingertap" withObject:event];
+	}
+	else if ([recognizer numberOfTapsRequired] == 2) {
+		//Because double-tap suppresses touchStart and double-click, we must do this:
+		if ([proxy _hasListeners:@"touchstart"])
+		{
+			[proxy fireEvent:@"touchstart" withObject:event propagate:YES];
+		}
+		if ([proxy _hasListeners:@"dblclick"]) {
+			[proxy fireEvent:@"dblclick" withObject:event propagate:YES];
+		}
+		[proxy fireEvent:@"doubletap" withObject:event];
+	}
+	else {
+		[proxy fireEvent:@"singletap" withObject:event];		
+	}
 
 #ifdef GLOBALPOINT
 	[event release];
