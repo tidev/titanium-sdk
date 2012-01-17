@@ -37,7 +37,7 @@ methods:
         type: Number
   - name: setContentOffset
     summary: |
-        Sets the value of [contentOffset](Titanium.UI.ScrollView.contentOffset) propery.
+        Sets the value of [contentOffset](Titanium.UI.ScrollView.contentOffset) property.
         
         In iOS there is an additional parameter animated that can be set to true/false to turn ON/OFF the animation while changing the 
         contents Offset.
