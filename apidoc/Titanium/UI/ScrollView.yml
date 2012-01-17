@@ -35,6 +35,20 @@ methods:
       - name: y
         summary: the y point within the view
         type: Number
+  - name: setContentOffset
+    summary: |
+        Sets the value of [contentOffset](Titanium.UI.ScrollView.contentOffset) property.
+        
+        In iOS there is an additional parameter animated that can be set to true/false to turn ON/OFF the animation while changing the 
+        contents Offset.
+    parameters:
+      - name: contentOffset
+        summary: New value for the property
+        type: Object
+      - name: animated
+        summary: Whether this content area change should be animated.
+        type: Boolean
+        default: true
 events:
   - name: scale
     summary: fired when the zoom scale factor changes
