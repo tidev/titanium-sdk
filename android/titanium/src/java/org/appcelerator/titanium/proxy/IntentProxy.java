@@ -8,6 +8,8 @@ package org.appcelerator.titanium.proxy;
 
 import java.util.Arrays;
 import java.util.List;
+import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -17,10 +19,12 @@ import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.TiBlob;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.content.ContentResolver;
 
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_ACTION,
@@ -266,6 +270,29 @@ public class IntentProxy extends KrollProxy
 	{
 		return intent.getDoubleExtra(name, defaultValue);
 	}
+    
+    @Kroll.method
+    public TiBlob getBlobExtra(String name)
+    {
+        try {
+            Uri uri = (Uri) intent.getExtras().getParcelable(name);
+            InputStream is = TiApplication.getInstance().getCurrentActivity().getContentResolver().openInputStream(uri);            
+            
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            int len;
+            int size = 4096;
+            byte[] buf = new byte[size];
+            while ((len = is.read(buf, 0, size)) != -1) {
+                bos.write(buf, 0, len);
+            }
+            buf = bos.toByteArray();
+            
+            return TiBlob.blobFromData(buf);
+        } catch (Exception e) {
+            android.util.Log.e("IntentProxy", "getBlobExtra(): " + e.getMessage());
+            return null;
+        }
+    }
 
 	@Kroll.method @Kroll.getProperty
 	public String getData()
