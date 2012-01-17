@@ -34,6 +34,20 @@ body {
 	position: absolute;
 }
 
+.TiUITab {
+	background-color: silver;
+	border: solid 1px black;
+}
+.TiUITab:active {
+	background-color: gray;
+}
+.TiUITab.TiActiveTab {
+	background-color: white;
+}
+.TiUITab.TiActiveTab:active {
+	background-color: gray;
+}
+
 .TiMediaVideoPlayer {
 	position: relative;
 }

@@ -24,7 +24,7 @@ define("Ti/UI/Switch", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css"
 			return this.textArea.clientHeight;
 		},
 		_setTouchEnabled: function(value) {
-			FontWidget.prototype._setTouchEnabled.apply(this,arguments);
+			Widget.prototype._setTouchEnabled.apply(this,arguments);
 			this.slider && set(this._switch,"pointerEvents", value ? "auto" : "none");
 		},
 

@@ -627,11 +627,12 @@
 		}, _t.refModule, _t.sync);
 	};
 
-	function getResourceDef(name, refModule, deps, rawDef, dontCache) {
+	function getResourceDef(name, refModule, deps, rawDef, dontCache, overrideCache) {
 		// summary:
 		//		Creates a new resource definition or returns an existing one from cache.
 
-		var module = new ResourceDef(name, refModule, deps, rawDef);
+		var module = new ResourceDef(name, refModule, deps, rawDef),
+			moduleName = module.name;
 
 		if (name in module.cjs) {
 			module.def = module[name];
@@ -639,7 +640,7 @@
 			return module;
 		}
 
-		return dontCache ? module : (module.name ? modules[module.name] || (modules[module.name] = module) : module);
+		return dontCache || !moduleName ? module : (!modules[moduleName] || overrideCache ? (modules[moduleName] = module) : modules[moduleName]);
 	}
 
 	function processDefQ(module) {
@@ -887,7 +888,7 @@
 				});
 		}
 
-		module = getResourceDef(name, 0, deps, rawDef);
+		module = getResourceDef(name, 0, deps, rawDef, 0, 1);
 
 		// if not waiting for this module to be loaded, then the define() call was
 		// possibly inline or deferred, so try fulfill dependencies, and define the
@@ -1603,7 +1604,7 @@ require.cache({
 
 			function hitchArgs(scope, method) {
 				var pre = toArray(arguments, 2);
-					named = require.is(method, "String");
+					named = is(method, "String");
 				return function() {
 					var s = scope || global,
 						f = named ? s[method] : method;
@@ -1612,6 +1613,10 @@ require.cache({
 			}
 
 			return {
+				val: function(originalValue, defaultValue) {
+					return is(originalValue, "Undefined") ? defaultValue : originalValue;
+				},
+
 				hitch: function(scope, method) {
 					if (arguments.length > 2) {
 						return hitchArgs.apply(global, arguments);
@@ -1620,7 +1625,7 @@ require.cache({
 						method = scope;
 						scope = null;
 					}
-					if (require.is(method, "String")) {
+					if (is(method, "String")) {
 						scope = scope || global;
 						if (!scope[method]) {
 							throw(['hitch: scope["', method, '"] is null (scope="', scope, '")'].join(''));
@@ -1643,12 +1648,11 @@ require.cache({
 								d.__values__ || (d.__values__ = {});
 								for (i in src[p]) {
 									(function(property, externalDest, internalDest, valueDest, /* setter/getter, getter, or value */ descriptor, capitalizedName, writable) {
-										var getter,
-											setter;
+										var o = is(descriptor, "Object"),
+											getter = o && is(descriptor.get, "Function") && descriptor.get,
+											setter = o && is(descriptor.set, "Function") && descriptor.set;
 
-										if (is(descriptor, "Object") && ((getter = is(descriptor.get, "Function")) || (setter = is(descriptor.set, "Function")))) {
-											getter && (getter = descriptor.get);
-											setter && (setter = descriptor.set);
+										if (o && (getter || setter)) {
 											valueDest[property] = descriptor.value;
 										} else if (is(descriptor, "Function")) {
 											getter = descriptor;
