@@ -227,15 +227,20 @@ v8::Handle<v8::Value> * TypeConverter::javaObjectArrayToJsArguments(jobjectArray
 	return jsArguments;
 }
 
-jarray TypeConverter::jsArrayToJavaArray(v8::Handle<v8::Array> jsArray)
+jarray TypeConverter::jsArrayToJavaArray(v8::Local<v8::Value> jsValue)
 {
 	JNIEnv *env = JNIScope::getEnv();
-	if (env == NULL) {
+	if (env == NULL || jsValue->IsNull()) {
 		return NULL;
 	}
-
+	
+	v8::Handle<v8::Array> jsArray = v8::Handle<v8::Array>::Cast(jsValue);
 	int arrayLength = jsArray->Length();
 	jobjectArray javaArray = env->NewObjectArray(arrayLength, JNIUtil::objectClass, NULL);
+	if (javaArray == NULL) {
+		LOGE(TAG, "unable to create new jobjectArray");
+		return NULL;
+	}
 
 	for (int i = 0; i < arrayLength; i++) {
 		v8::Local<v8::Value> element = jsArray->Get(i);
@@ -477,7 +482,7 @@ jobject TypeConverter::jsValueToJavaObject(v8::Local<v8::Value> jsValue, bool *i
 
 	} else if (jsValue->IsArray()) {
 		*isNew = true;
-		return TypeConverter::jsArrayToJavaArray(v8::Handle<v8::Array>::Cast(jsValue));
+		return TypeConverter::jsArrayToJavaArray(jsValue);
 
 	} else if (jsValue->IsFunction()) {
 		*isNew = true;

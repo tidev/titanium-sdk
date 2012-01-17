@@ -282,8 +282,7 @@
 		"defaultValue": "null"
 	},
 	"java.lang.Object[]":{
-		"jsType":"Array",
-		"jsHandleCast":"Array",
+		"jsType":"Value",
 		"jsToJavaConverter":"jsArrayToJavaArray",
 		"javaToJsConverter":"javaArrayToJsArray",
 		"jvalue":"l", "signature":"[Ljava/lang/Object;",
@@ -295,6 +294,7 @@
 		"rhinoJsCast":true,
 		"rhinoToJavaConverter":"jsArrayToJavaObjectArray",
 		"javaToRhinoConverter":"javaObjectArrayToJsArray",
+		"typeValidation":false,
 		"defaultValue": "null"
 	},
 	"int[]":{
