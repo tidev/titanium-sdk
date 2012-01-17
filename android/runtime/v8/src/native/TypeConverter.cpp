@@ -234,6 +234,10 @@ jarray TypeConverter::jsArrayToJavaArray(v8::Local<v8::Value> jsValue)
 		return NULL;
 	}
 	
+	if (!jsValue->IsArray()) {
+		LOGE(TAG, "jsValue is not type Array");
+		return NULL;
+	}
 	v8::Handle<v8::Array> jsArray = v8::Handle<v8::Array>::Cast(jsValue);
 	int arrayLength = jsArray->Length();
 	jobjectArray javaArray = env->NewObjectArray(arrayLength, JNIUtil::objectClass, NULL);
