@@ -9,8 +9,9 @@ methods:
     summary: |
         Closes this result set and release resources. Once closed, the result set 
         must no longer be used.
+    
   - name: field
-    summary:  |
+    summary: |
         Retrieves the value for the specified field in the current row, 
         and casts it to the specified type (String, integer, float or double.)
     returns:
@@ -25,6 +26,7 @@ methods:
             One of (<Titanium.Database.FIELD_TYPE_STRING> | <Titanium.Database.FIELD_TYPE_INT> | <Titanium.Database.FIELD_TYPE_FLOAT> | <Titanium.Database.FIELD_TYPE_DOUBLE>)
         type: Number
         optional: true
+    
   - name: fieldByName
     summary: |
         Retrieves the value for the specified field in the current row, 
@@ -41,10 +43,12 @@ methods:
             One of (<Titanium.Database.FIELD_TYPE_STRING> | <Titanium.Database.FIELD_TYPE_INT> | <Titanium.Database.FIELD_TYPE_FLOAT> | <Titanium.Database.FIELD_TYPE_DOUBLE>)
         type: Number
         optional: true
+    
   - name: fieldCount
     summary: Returns the number of columns in this result set.
     returns:
         type: Number
+    
   - name: fieldName
     summary: Returns the field name for the specified field index.
     returns:
@@ -53,10 +57,13 @@ methods:
       - name: index
         summary: A zero-based column index for the field.
         type: Number
+    
   - name: isValidRow
     summary: Returns whether the current row is valid.
+    platform: [iphone, ipad]
     returns:
         type: Boolean
+    
   - name: next
     summary: |
         Advances to the next row in the result set and returns `true` if one exists, 
@@ -68,9 +75,10 @@ properties:
     summary: The number of rows in this result set.
     type: Number
   - name: validRow
+    
     summary: Indicates whether the current row is valid.
     type: Boolean
-    platforms: [android]
+    platforms: [iphone,ipad]
 examples:
   - title: Using ResultSet
     example: |
