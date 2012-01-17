@@ -1,8 +1,19 @@
-define("Ti/_/Gesture/Click", ["Ti/_/declare"], function(declare) {
+define("Ti/_/Gesture/Touch", ["Ti/_/declare"], function(declare) {
 
-	return declare("Ti._.Gestures.Click", null, {
+	return declare("Ti._.Gestures.Touch", null, {
 		
 		processTouchEvent: function(eventType, e){
+			var results = [];
+			for (var i in e.changedTouches) {
+				results.push({
+					x: e.changedTouches[i].clientX,
+					y: e.changedTouches[i].clientY
+				});
+			}
+			return {
+				type: eventType,
+				results: results
+			}
 		}
 
 	});

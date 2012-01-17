@@ -9,6 +9,7 @@ define("Ti/_/Gesture/GestureRecognizer", ["Ti/_/declare","Ti/_/lang"], function(
 			this.element = element;
 			
 			var gestureRecognizers = [
+				(new Ti._.Gestures.Touch()),
 				(new Ti._.Gestures.Click()),
 				(new Ti._.Gestures.DoubleClick())
 			];
@@ -16,7 +17,12 @@ define("Ti/_/Gesture/GestureRecognizer", ["Ti/_/declare","Ti/_/lang"], function(
 			function processTouchEvent(eventType,e) {
 				for (var i in gestureRecognizers) {
 					var recognizerResult = gestureRecognizers[i].processTouchEvent(eventType,e);
-					recognizerResult && (element._handleTouchEvent(recognizerResult.type,recognizerResult.result));
+					if (recognizerResult) {
+						var type = recognizerResult.type;
+						for (var i in recognizerResult.results) {
+							element._handleTouchEvent(type,recognizerResult.results[i]);
+						}
+					}
 				}
 			}
 			
