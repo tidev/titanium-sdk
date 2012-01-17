@@ -20,8 +20,17 @@
 
 -(void)setNodes:(NSArray*)nodes_
 {
+    if (nodes != nil) {
+        for (TiDOMNodeProxy *node in nodes) {
+            [self forgetProxy:node];
+        }
+    }
 	RELEASE_TO_NIL(nodes);
 	nodes = [nodes_ retain];
+    for (TiDOMNodeProxy *node in nodes) {
+        [[self pageContext] registerProxy:node];
+        [self rememberProxy:node];
+    }
 }
 
 -(id)item:(id)args
