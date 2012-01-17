@@ -42,8 +42,8 @@ public class TiUrl
 
 	public TiUrl(String baseUrl, String url)
 	{
-		this.baseUrl = baseUrl;
-		this.url = url;
+		this.baseUrl = (baseUrl == null) ? TiC.URL_APP_PREFIX : baseUrl;
+		this.url = (url == null) ? "" : url;
 	}
 
 	public String getNormalizedUrl()
