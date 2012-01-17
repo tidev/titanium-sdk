@@ -11,7 +11,7 @@ define("Ti/_/Gesture/Touch", ["Ti/_/declare"], function(declare) {
 				});
 			}
 			return {
-				type: eventType,
+				types: [eventType],
 				results: results
 			}
 		}

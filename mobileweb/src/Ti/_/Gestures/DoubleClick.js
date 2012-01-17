@@ -24,7 +24,7 @@ define("Ti/_/Gesture/DoubleClick", ["Ti/_/declare"], function(declare) {
 					this._firstClickTime = null;
 					if (elapsedTime < 250 && Math.abs(this._firstClickLocation.x - x) < 25 && Math.abs(this._firstClickLocation.y - y) < 25) {
 						return {
-							type: "dblclick",
+							types: ["dblclick","doubletap"],
 							results: [{
 								x: x,
 								y: y
