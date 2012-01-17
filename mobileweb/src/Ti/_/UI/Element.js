@@ -8,6 +8,7 @@ define("Ti/_/UI/Element",
 		on = require.on,
 		set = style.set,
 		isDef = require.isDef,
+		val = lang.val,
 		is = require.is,
 		transitionEvents = {
 			webkit: "webkitTransitionEnd",
@@ -16,7 +17,8 @@ define("Ti/_/UI/Element",
 			presto: "oTransitionEnd"
 		},
 		transitionEnd = transitionEvents[browser.runtime] || "transitionEnd",
-		curTransform;
+		curTransform,
+		curves = ["ease", "ease-in", "ease-in-out", "ease-out", "linear"];
 
 	return declare("Ti._.UI.Element", Evented, {
 
@@ -287,7 +289,8 @@ define("Ti/_/UI/Element",
 		},
 
 		animate: function(anim, callback) {
-			var curve = "ease",
+			var anim = anim || {},
+				curve = curves[anim.curve] || "ease",
 				fn = lang.hitch(this, function() {
 					var transform = "";
 
@@ -300,20 +303,24 @@ define("Ti/_/UI/Element",
 					var dimensions = this._computeDimensions(
 						this._parent ? this._parent._measuredWidth : "auto", 
 						this._parent ? this._parent._measuredHeight : "auto", 
-						isDef(anim.left) ? anim.left : this.left,
-						isDef(anim.top) ? anim.top : this.top,
-						isDef(anim.right) ? anim.right : this.right,
-						isDef(anim.bottom) ? anim.bottom : this.bottom,
+						val(anim.left, this.left),
+						val(anim.top, this.top),
+						val(anim.right, this.right),
+						val(anim.bottom, this.bottom),
 						isDef(anim.center) ? anim.center.x : isDef(this.center) ? this.center.x : undef,
 						isDef(anim.center) ? anim.center.y : isDef(this.center) ? this.center.y : undef,
-						isDef(anim.width) ? anim.width : this.width,
-						isDef(anim.height) ? anim.height : this.height,
-						isDef(anim.borderWidth) ? anim.borderWidth : this.borderWidth);
-					style.set(this.domNode, "left", unitize(dimensions.left));
-					style.set(this.domNode, "top", unitize(dimensions.top));
-					style.set(this.domNode, "width", unitize(dimensions.width));
-					style.set(this.domNode, "height", unitize(dimensions.height));
-					style.set(this.domNode, "borderWidth", unitize(dimensions.borderWidth));
+						val(anim.width, this.width),
+						val(anim.height, this.height),
+						val(anim.borderWidth, this.borderWidth)
+					);
+
+					style.set(this.domNode, {
+						left: unitize(dimensions.left),
+						top: unitize(dimensions.top),
+						width: unitize(dimensions.width),
+						height: unitize(dimensions.height),
+						borderWidth: unitize(dimensions.borderWidth)
+					});
 
 					// Set the z-order
 					!isDef(anim.zIndex) && style.set(this.domNode, "zIndex", anim.zIndex);
@@ -325,32 +332,30 @@ define("Ti/_/UI/Element",
 					}
 
 					style.set(this.domNode, "transform", transform);
-				});
+				}),
+				done = function() {
+					is(anim.complete, "Function") && anim.complete();
+					is(callback, "Function") && callback();
+				};
 			Ti.UI._doForcedFullLayout();
-
-			switch (anim.curve) {
-				case Ti.UI.ANIMATION_CURVE_LINEAR: curve = "linear"; break;
-				case Ti.UI.ANIMATION_CURVE_EASE_IN: curve = "ease-in"; break;
-				case Ti.UI.ANIMATION_CURVE_EASE_OUT: curve = "ease-out"; break
-				case Ti.UI.ANIMATION_CURVE_EASE_IN_OUT: curve = "ease-in-out";
-			}
 
 			anim.duration = anim.duration || 0;
 			anim.delay = anim.delay || 0;
 			anim.transform && style.set("transform", "");
+			anim.start && anim.start();
 
 			if (anim.duration > 0) {
 				// Create the transition, must be set before setting the other properties
 				style.set(this.domNode, "transition", "all " + anim.duration + "ms " + curve + (anim.delay ? " " + anim.delay + "ms" : ""));
-				callback && on.once(window, transitionEnd, lang.hitch(this, function(e) {
+				on.once(window, transitionEnd, lang.hitch(this, function(e) {
 					// Clear the transform so future modifications in these areas are not animated
 					style.set(this.domNode, "transition", "");
-					callback();
+					done();
 				}));
 				setTimeout(fn, 0);
 			} else {
 				fn();
-				callback && callback();
+				done();
 			}
 		},
 		
