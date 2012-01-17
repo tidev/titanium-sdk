@@ -98,6 +98,18 @@ description:  |
     However, in cases where the control is in a common namespace and support
     additional features, we continue to place that functionality directly on the
     object.
+    
+    #### Events
+    
+    Event listeners must be defined before their respective events are likely to 
+    be fired, otherwise they are not guaranteed to be called. The open and focus 
+    [Window](Titanium.UI.Window-object.html) event listeners, for instance, must 
+    be defined before the window is opened.
+
+    Evaluating events as late as possible while bearing the above consideration 
+    in mind, however, can significantly improve application responsiveness. For 
+    example, an event listener for a click event may be defined after the parent 
+    window has been opened.
 extends: Titanium.Module
 since: "0.4"
 properties:
