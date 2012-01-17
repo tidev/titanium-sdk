@@ -35,7 +35,98 @@ define("Ti/_/UI/Element",
 			});
 			
 			// Handle click/touch/gestures
-			this._gestureRecognizer = new Ti._.Gestures.GestureRecognizer(this);
+			this._gestureRecognizers = {
+				Pinch: (new Ti._.Gestures.Pinch()),
+				Swipe: (new Ti._.Gestures.Swipe()),
+				TwoFingerTap: (new Ti._.Gestures.TwoFingerTap()),
+				DoubleTap: (new Ti._.Gestures.DoubleTap()),
+				LongPress: (new Ti._.Gestures.LongPress()),
+				SingleTap: (new Ti._.Gestures.SingleTap()),
+				Touch: (new Ti._.Gestures.Touch())
+			};
+			var recognizers = this._gestureRecognizers;
+			// Each event requires a slightly different precedence of execution, which is why we have these separate lists
+			var touchStartRecognizers = [
+				recognizers.Pinch,
+				recognizers.Swipe,
+				recognizers.TwoFingerTap,
+				recognizers.DoubleTap,
+				recognizers.LongPress,
+				recognizers.SingleTap,
+				recognizers.Touch];
+			var touchMoveRecognizers = [
+				recognizers.Pinch,
+				recognizers.Swipe,
+				recognizers.TwoFingerTap,
+				recognizers.DoubleTap,
+				recognizers.LongPress,
+				recognizers.SingleTap,
+				recognizers.Touch];
+			var touchEndRecognizers = [
+				recognizers.Pinch,
+				recognizers.Swipe,
+				recognizers.TwoFingerTap,
+				recognizers.DoubleTap,
+				recognizers.LongPress,
+				recognizers.SingleTap,
+				recognizers.Touch];
+			var touchCancelRecognizers = [
+				recognizers.Pinch,
+				recognizers.Swipe,
+				recognizers.TwoFingerTap,
+				recognizers.DoubleTap,
+				recognizers.LongPress,
+				recognizers.SingleTap,
+				recognizers.Touch];
+			
+			
+			var self = this;
+			function processTouchEvent(eventType,e,self,gestureRecognizers) {
+					for (var i in gestureRecognizers) {
+						gestureRecognizers[i]["process" + eventType](e,self);
+					}
+					for (var i in gestureRecognizers) {
+						gestureRecognizers[i]["finalize" + eventType]();
+					}
+			}
+			if ("ontouchstart" in document.body) {
+				on(this.domNode,"touchstart",function(e){
+					processTouchEvent("TouchStartEvent",e,self,touchStartRecognizers);
+				});
+				on(this.domNode,"touchmove",function(e){
+					processTouchEvent("TouchMoveEvent",e,self,touchMoveRecognizers);
+				});
+				on(this.domNode,"touchend",function(e){
+					processTouchEvent("TouchEndEvent",e,self,touchEndRecognizers);
+				});
+				on(this.domNode,"touchcancel",function(e){
+					processTouchEvent("TouchCancelEvent",e,self,touchCancelRecognizers);
+				});
+			} else {
+				
+				function touchify(e) {
+					return {
+						touches: [],
+					    targetTouches: [],
+					    changedTouches: [e],
+					    altKey: e.altKey,
+					    metaKey: e.metaKey,
+					    ctrlKey: e.ctrlKey,
+					    shiftKey: e.shiftKey
+					};
+				}
+				
+				// Fall back to using the traditional mouse events
+				on(this.domNode,"mousedown",function(e){
+					processTouchEvent("TouchStartEvent",touchify(e),self,touchStartRecognizers);
+				});
+				on(this.domNode,"mousemove",function(e){
+					processTouchEvent("TouchMoveEvent",touchify(e),self,touchMoveRecognizers);
+				});
+				on(this.domNode,"mouseup",function(e){
+					processTouchEvent("TouchEndEvent",touchify(e),self,touchEndRecognizers);
+				});
+			}
 
 			// TODO: mixin JSS rules (http://jira.appcelerator.org/browse/TIMOB-6780)
 
@@ -267,6 +358,20 @@ define("Ti/_/UI/Element",
 		// This is useful for controls like ScrollView that can move the children around relative to itself.
 		_getContentOffset: function(){
 			return {x: 0, y: 0};
+		},
+		
+		_gestureRecognizers: [],
+		
+		_isGestureBlocked: function(gesture) {
+			for (var recognizer in this._gestureRecognizers) {
+				var blockedGestures = this._gestureRecognizers[recognizer].blocking;
+				for (var blockedGesture in blockedGestures) {
+					if (gesture === blockedGestures[blockedGesture]) {
+						return true;
+					}
+				}
+			}
+			return false;
 		},
 		
 		_handleTouchEvent: function(type, e) {
