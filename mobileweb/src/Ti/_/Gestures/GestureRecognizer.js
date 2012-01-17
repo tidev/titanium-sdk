@@ -11,7 +11,13 @@ define("Ti/_/Gesture/GestureRecognizer", ["Ti/_/declare","Ti/_/lang"], function(
 			var gestureRecognizers = [
 				(new Ti._.Gestures.Touch()),
 				(new Ti._.Gestures.Click()),
-				(new Ti._.Gestures.DoubleClick())
+				(new Ti._.Gestures.SingleTap()),
+				(new Ti._.Gestures.DoubleClick()),
+				(new Ti._.Gestures.DoubleTap()),
+				(new Ti._.Gestures.LongPress()),
+				(new Ti._.Gestures.Pinch()),
+				(new Ti._.Gestures.Swipe()),
+				(new Ti._.Gestures.TwoFingerTap())
 			];
 			
 			function processTouchEvent(eventType,e) {

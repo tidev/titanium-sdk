@@ -51,6 +51,16 @@ class Compiler(object):
 				'Ti/_/Layouts/Horizontal.js',
 				'Ti/_/Layouts/Vertical.js',
 				'Ti/_/Layouts.js',
+				'Ti/_/Gestures/GestureRecognizer.js',
+				'Ti/_/Gestures/Touch.js',
+				'Ti/_/Gestures/Click.js',
+				'Ti/_/Gestures/DoubleClick.js',
+				'Ti/_/Gestures/DoubleTap.js',
+				'Ti/_/Gestures/LongPress.js',
+				'Ti/_/Gestures/Pinch.js',
+				'Ti/_/Gestures/SingleTap.js',
+				'Ti/_/Gestures/Swipe.js',
+				'Ti/_/Gestures/TwoFingerTap.js',
 				
 				# core classes
 				'Ti/ti.js',
