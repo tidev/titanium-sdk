@@ -105,6 +105,7 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[button setFrame:bounds];
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 -(void)clicked:(id)sender event:(UIEvent*)event
@@ -280,17 +281,6 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 		TiColor *color = [TiUtils colorValue:value];
 		[[self button] setBackgroundColor:[color _color]];
 	}
-}
-
--(void)setTileBackground_:(id)value
-{
-    if (value != nil) {
-        UIColor* color = [UIColor colorWithPatternImage:[TiUtils loadBackgroundImage:value forProxy:[self proxy]]];
-        [[self button] setBackgroundColor:color];
-    }
-    else {
-        [[self button] setBackgroundColor:nil];
-    }
 }
 
 -(void)setFont_:(id)font

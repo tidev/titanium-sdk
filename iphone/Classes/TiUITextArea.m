@@ -70,11 +70,6 @@
 	[[self textWidgetView] setBackgroundColor:[Webcolor webColorNamed:color]];
 }
 
--(void)setTileBackground_:(id)bg
-{
-    [[self textWidgetView] setBackgroundColor:[UIColor colorWithPatternImage:[TiUtils loadBackgroundImage:bg forProxy:[self proxy]]]];
-}
-
 #pragma mark Public Method
 
 -(BOOL)hasText

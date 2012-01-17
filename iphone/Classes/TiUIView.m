@@ -150,6 +150,10 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 #define HORIZ_SWIPE_DRAG_MIN	12
 #define VERT_SWIPE_DRAG_MAX		4
 
+@interface TiUIView(Private)
+-(void)renderRepeatedBackground:(id)image;
+@end
+
 @implementation TiUIView
 
 DEFINE_EXCEPTIONS
@@ -290,7 +294,9 @@ DEFINE_EXCEPTIONS
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	// for subclasses to do crap
+    if (backgroundRepeat) {
+        [self renderRepeatedBackground:backgroundImage];
+    }
 }
 
 
@@ -395,12 +401,7 @@ DEFINE_EXCEPTIONS
 -(void)setTileBackground_:(id)image
 {
     UIImage* tileImage = [TiUtils loadBackgroundImage:image forProxy:proxy];
-    if (tileImage != nil) {
-        [super setBackgroundColor:[UIColor colorWithPatternImage:tileImage]];
-    }
-    else { // No documented behavior for when [UIColor colorWithPatternImage:] takes nil
-        [super setBackgroundColor:nil];
-    }
+
 }
 
 -(void)setOpacity_:(id)opacity
@@ -413,16 +414,80 @@ DEFINE_EXCEPTIONS
 	return [self layer];
 }
 
--(void)setBackgroundImage_:(id)image
+// You might wonder why we don't just use the native feature of -[UIColor colorWithPatternImage:].
+// Here's why:
+// * It doesn't properly handle alpha channels
+// * You can't combine background tesselations with background colors
+// * By making the background-repeat flag a boolean swap, we would have to cache, check, and uncache
+//   background colors everywhere - and this starts getting really complicated for some views
+//   (on the off chance somebody wants to swap tesselation AND has a background color they want to replace it with).
+
+-(void)renderRepeatedBackground:(id)image
 {
-    UIImage* resultImage = [TiUtils loadBackgroundImage:image forProxy:proxy];
+    if (![NSThread isMainThread]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self renderRepeatedBackground:image];
+        });
+        return;
+    }
     
-	[self backgroundImageLayer].contents = (id)resultImage.CGImage;
-	[self backgroundImageLayer].contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [resultImage size]);
-	self.clipsToBounds = image!=nil;
-    self.backgroundImage = image;
+    UIImage* bgImage = [TiUtils loadBackgroundImage:image forProxy:proxy];
+    if (bgImage == nil) {
+        [self backgroundImageLayer].contents = nil;
+        return;
+    }
+    
+    // Due to coordinate system shenanagins (there are multiple translations between the UIKit coordinate system
+    // and the CG coordinate system happening here) we have to manually flip the background image to render
+    // before passing it to the tiling system (via passing it through another UIGraphics context; this orients the
+    // image in the "correct" way for the second pass).
+    //
+    // Note that this means passes through two different graphics contexts. They can be nested, but that makes the code
+    // even uglier.
+    //
+    // NOTE: Doing this begins the image tesselation starting at the upper-left, which is considered the 'origin' for all
+    // drawing operations on iOS (and presumably Android). By removing this code and instead blitting the [bgImage CGImage]
+    // directly into the graphics context, it tesselates from the lower-left.
+    
+    UIGraphicsBeginImageContextWithOptions(bgImage.size, NO, bgImage.scale);
+    CGContextRef imageContext = UIGraphicsGetCurrentContext();
+    CGContextDrawImage(imageContext, CGRectMake(0, 0, bgImage.size.width * bgImage.scale, bgImage.size.height * bgImage.scale), [bgImage CGImage]);
+    UIImage* translatedImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, bgImage.scale);
+    CGContextRef background = UIGraphicsGetCurrentContext();
+    CGRect imageRect = CGRectMake(0, 0, bgImage.size.width * bgImage.scale, bgImage.size.height * bgImage.scale);
+    CGContextDrawTiledImage(background, imageRect, [translatedImage CGImage]);
+    UIImage* renderedBg = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    [self backgroundImageLayer].contents = (id)renderedBg.CGImage;
 }
 
+-(void)setBackgroundImage_:(id)image
+{
+    UIImage* bgImage = [TiUtils loadBackgroundImage:image forProxy:proxy];
+    
+    if (backgroundRepeat) {
+        [self renderRepeatedBackground:bgImage];
+    }
+    else {
+        [self backgroundImageLayer].contents = (id)bgImage.CGImage;
+        if (bgImage != nil) {
+            [self backgroundImageLayer].contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [bgImage size]);
+        }
+    }
+    
+    self.clipsToBounds = bgImage!=nil;
+    self.backgroundImage = bgImage;
+}
+
+-(void)setBackgroundRepeat_:(id)repeat
+{
+    backgroundRepeat = [TiUtils boolValue:repeat def:NO];
+    [self setBackgroundImage_:backgroundImage];
+}
 
 
 -(void)setBackgroundLeftCap_:(id)value
