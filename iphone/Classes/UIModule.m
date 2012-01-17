@@ -305,7 +305,7 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 #ifdef USE_TI_UI3DMATRIX
  -(id)create3DMatrix:(id)args
 {
-    DEPRECATED_REPLACED(@"UI.create3DMatrix()", @"1.8.0", @"1.9.0", @"Titanium.UI.iOS.create3DMatrix()");
+    DEPRECATED_REPLACED(@"UI.create3DMatrix()", @"1.8.0", @"1.9.0", @"Ti.UI.iOS.create3DMatrix()");
     if (args==nil || [args count] == 0)
 	{
 	    return [[[TiUIiOS3DMatrix alloc] init] autorelease];
@@ -331,7 +331,7 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 #ifdef USE_TI_UICOVERFLOWVIEW
 -(id)createCoverFlowView:(id)args
 {
-	DEPRECATED_REPLACED(@"UI.createCoverFlowView()",@"1.8.0",@"1.9.0",@"Titanium.UI.iOS.createCoverFlowView()");
+	DEPRECATED_REPLACED(@"UI.createCoverFlowView()",@"1.8.0",@"1.9.0",@"Ti.UI.iOS.createCoverFlowView()");
 	return [[[TiUIiOSCoverFlowViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
@@ -339,7 +339,7 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 #ifdef USE_TI_UITOOLBAR
 -(id)createToolbar:(id)args
 {
-	DEPRECATED_REPLACED(@"UI.createToolBar()",@"1.8.0",@"1.9.0",@"Titanium.UI.iOS.createToolbar()");
+	DEPRECATED_REPLACED(@"UI.createToolBar()",@"1.8.0",@"1.9.0",@"Ti.UI.iOS.createToolbar()");
 	return [[[TiUIiOSToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
@@ -347,7 +347,7 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 #ifdef USE_TI_UITABBEDBAR
 -(id)createTabbedBar:(id)args
 {
-    DEPRECATED_REPLACED(@"UI.createTabbedBar()", @"1.8.0", @"1.9.0",@"Titanium.UI.iOS.createTabbedBar()");
+    DEPRECATED_REPLACED(@"UI.createTabbedBar()", @"1.8.0", @"1.9.0",@"Ti.UI.iOS.createTabbedBar()");
     return [[[TiUIiOSTabbedBarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
