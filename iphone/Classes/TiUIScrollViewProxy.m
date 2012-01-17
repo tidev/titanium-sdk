@@ -82,8 +82,9 @@
     TiThreadPerformOnMainThread( ^{
         CGPoint newOffset = [TiUtils pointValue:value];
         BOOL animated;
-        if ([properties objectForKey:@"animated"] != nil ) {
-            animated = [TiUtils boolValue:[properties objectForKey:@"animated"]];
+        id animated_ = [properties objectForKey:@"animated"];
+        if (animated_ != nil ) {
+            animated = [TiUtils boolValue:animated_];
         }
         else{
             animated = [(TiUIScrollView *)[self view] scrollView] != nil;
