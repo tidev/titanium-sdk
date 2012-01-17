@@ -77,6 +77,21 @@
 	[offset release];
 }
 
+-(void) setContentOffset:(id)value withObject:(id)properties
+{
+    TiThreadPerformOnMainThread( ^{
+        CGPoint newOffset = [TiUtils pointValue:value];
+        BOOL animated;
+        if ([properties objectForKey:@"animated"] != nil ) {
+            animated = [TiUtils boolValue:[properties objectForKey:@"animated"]];
+        }
+        else{
+            animated = [(TiUIScrollView *)[self view] scrollView] != nil;
+        }
+        [[(TiUIScrollView *)[self view] scrollView] setContentOffset:newOffset animated:animated];
+    },YES);
+}
+
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView_               // scrolling has ended
 {
 	if ([self _hasListeners:@"scrollEnd"])
