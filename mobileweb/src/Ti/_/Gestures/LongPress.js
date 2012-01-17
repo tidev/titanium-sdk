@@ -6,23 +6,24 @@ define("Ti/_/Gesture/LongPress", ["Ti/_/declare", "Ti/_/lang"], function(declare
 		
 		blocking: [],
 		
-		_ended: false,
+		_timer: null,
+		
+		// This is the amount of time that must elapse before the tap is considered a long press
+		_timeThreshold: 500,
 		
 		processTouchStartEvent: function(e, element){
 			if (e.touches.length == 0 && e.changedTouches.length == 1) {
-				this._ended = false;
-				setTimeout(lang.hitch(this,function(){
-					if (!this._ended) {
-						if (!element._isGestureBlocked(this.name)) {
-							this.blocking.push("singletap");
-							this.blocking.push("doubletap");
-							lang.hitch(element,element._handleTouchEvent("longpress",{
-								x: e.changedTouches[0].clientX,
-								y: e.changedTouches[0].clientY
-							}));
-						}
+				clearTimeout(this._timer);
+				this._timer = setTimeout(lang.hitch(this,function(){
+					if (!element._isGestureBlocked(this.name)) {
+						this.blocking.push("singletap");
+						this.blocking.push("doubletap");
+						lang.hitch(element,element._handleTouchEvent("longpress",{
+							x: e.changedTouches[0].clientX,
+							y: e.changedTouches[0].clientY
+						}));
 					}
-				}),1250);
+				}),this._timeThreshold);
 			}
 		},
 		finalizeTouchStartEvent: function(){
@@ -30,7 +31,7 @@ define("Ti/_/Gesture/LongPress", ["Ti/_/declare", "Ti/_/lang"], function(declare
 		
 		processTouchEndEvent: function(e, element){
 			if (e.touches.length == 0 && e.changedTouches.length == 1) {
-				this._ended = true;
+				clearTimeout(this._timer);
 			}
 		},
 		finalizeTouchEndEvent: function(){
@@ -43,7 +44,7 @@ define("Ti/_/Gesture/LongPress", ["Ti/_/declare", "Ti/_/lang"], function(declare
 		},
 		
 		processTouchCancelEvent: function(e, element){
-			this._ended = true;
+			clearTimeout(this._timer);
 		},
 		finalizeTouchCancelEvent: function(){
 		}
