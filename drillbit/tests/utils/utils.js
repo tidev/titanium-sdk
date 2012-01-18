@@ -43,7 +43,12 @@ describe("Ti.Utils tests", {
 		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'decodedFile.txt');
 		var contents = f.read();
 		valueOf(Ti.Utils.md5HexDigest(contents)).shouldBe('86bd3c0247976528f3b7559d38cfb405');
+    },
+    nullArrayTest: function() {
+    	valueOf(Ti.Utils.arrayTest(null,null,null,null)).shouldBeTrue();
+    	valueOf(Ti.Utils.arrayTest([],[],[],[])).shouldBeTrue();
     }
+    
 
 });
 
