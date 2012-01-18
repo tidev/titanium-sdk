@@ -274,6 +274,7 @@
 		[scrollview setContentOffset:CGPointMake(lastPage*visibleBounds.size.width,0)];
         [self manageCache:[self currentPage]];
 	}
+    [super frameSizeChanged:frame bounds:visibleBounds];
 }
 
 #pragma mark Public APIs

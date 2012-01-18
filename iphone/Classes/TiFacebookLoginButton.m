@@ -24,6 +24,7 @@
 		[button sizeToFit];
 		[self recenterButton];
 	}
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 -(FacebookModule*)module
