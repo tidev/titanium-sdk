@@ -48,6 +48,7 @@ methods:
         type: Object
       - name: animated
         summary: Whether this content area change should be animated.
+        optional: true
         type: contentOffsetOption
 events:
   - name: scale
