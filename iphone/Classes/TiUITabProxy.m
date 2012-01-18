@@ -243,7 +243,7 @@
 	// TODO: Slap patch.  Views, when opening/added, should check parent visibility (and parent/parent visibility, if possible)
 	[window parentWillShow];
 
-	TiThreadPerformOnMainThread(^(){
+	TiThreadPerformOnMainThread(^{
 		[self openOnUIThread:args];
 	}, YES);
 }
