@@ -7,6 +7,7 @@ define("Ti/_/Gesture/Swipe", ["Ti/_/declare", "Ti/_/lang"], function(declare,lan
 		blocking: [],
 		
 		_touchStartLocation: null,
+		_distanceThresholdPassed: false,
 		
 		// This specifies the minimum distance that a finger must travel before it is considered a swipe
 		_distanceThreshold: 25,
@@ -17,6 +18,13 @@ define("Ti/_/Gesture/Swipe", ["Ti/_/declare", "Ti/_/lang"], function(declare,lan
 		_isAngleOK: function(x,y) {
 			var xDiff = Math.abs(this._touchStartLocation.x - x),
 				yDiff = Math.abs(this._touchStartLocation.y - y);
+				
+			// If the distance is small, then the angle is way restrictive, so we ignore it
+			if (Math.sqrt(Math.pow(this._touchStartLocation.x - x,2) + 
+					Math.pow(this._touchStartLocation.y - y,2)) <= this._distanceThreshold) {
+				return true;
+			}
+				
 			if (xDiff === 0 || yDiff === 0) {
 				return true;
 			} else if (xDiff > yDiff) {
@@ -37,12 +45,16 @@ define("Ti/_/Gesture/Swipe", ["Ti/_/declare", "Ti/_/lang"], function(declare,lan
 		},
 		
 		_isDistanceOK: function(x,y) {
-			return Math.sqrt(Math.pow(this._touchStartLocation.x - x,2) + 
-				Math.pow(this._touchStartLocation.y - y,2)) > this._distanceThreshold;
+			
+			!this._distanceThresholdPassed && (this._distanceThresholdPassed = (Math.sqrt(Math.pow(this._touchStartLocation.x - x,2) + 
+				Math.pow(this._touchStartLocation.y - y,2)) > this._distanceThreshold));
+			
+			return this._distanceThresholdPassed;
 		},
 		
 		processTouchStartEvent: function(e, element){
-			if (e.touches.length == 0 && e.changedTouches.length == 1) {
+			if (e.touches.length == 1 && e.changedTouches.length == 1) {
+				this._distanceThresholdPassed = false;
 				this._touchStartLocation = {
 					x: e.changedTouches[0].clientX,
 					y: e.changedTouches[0].clientY
@@ -59,7 +71,7 @@ define("Ti/_/Gesture/Swipe", ["Ti/_/declare", "Ti/_/lang"], function(declare,lan
 		},
 		
 		processTouchMoveEvent: function(e, element){
-			if (e.touches.length == 0 && e.changedTouches.length == 1) {
+			if (e.touches.length == 1 && e.changedTouches.length == 1) {
 				var x = e.changedTouches[0].clientX,
 					y = e.changedTouches[0].clientY;
 				if (this._touchStartLocation) {

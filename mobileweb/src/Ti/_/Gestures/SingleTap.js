@@ -12,7 +12,7 @@ define("Ti/_/Gesture/SingleTap", ["Ti/_/declare", "Ti/_/lang"], function(declare
 		_driftThreshold: 25,
 		
 		processTouchStartEvent: function(e, element){
-			if (e.touches.length == 0 && e.changedTouches.length == 1) {
+			if (e.touches.length == 1 && e.changedTouches.length == 1) {
 				this._touchStartLocation = {
 					x: e.changedTouches[0].clientX,
 					y: e.changedTouches[0].clientY
