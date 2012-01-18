@@ -513,6 +513,16 @@ public class TiMapView extends TiUIView
 				} else {
 					Toast.makeText(proxy.getActivity(), "No information for location", Toast.LENGTH_SHORT).show();
 				}
+
+				HashMap<String, Object> data = new HashMap<String, Object>();
+				data.put(TiC.PROPERTY_TITLE, item.getTitle());
+				data.put(TiC.PROPERTY_SUBTITLE, item.getSnippet());
+				data.put(TiC.PROPERTY_LATITUDE, scaleFromGoogle(item.getPoint().getLatitudeE6()));
+				data.put(TiC.PROPERTY_LONGITUDE, scaleFromGoogle(item.getPoint().getLongitudeE6()));
+				data.put(TiC.PROPERTY_ANNOTATION, item.getProxy());
+				data.put(TiC.EVENT_PROPERTY_CLICKSOURCE, "pin"); // verify pin works from a parity standpoint
+
+				item.getProxy().fireEvent("customEvent", data);
 			}
 		}
 	}
