@@ -90,6 +90,22 @@ describe("Ti.Media tests", {
 		},
 		timeout: 5000,
 		timeoutError: "Timed out waiting for sound to play."
+	}),
+	screenshot: asyncTest({
+		start: function() {
+			callback = this.async(function(e) {
+				valueOf(e).shouldBeObject();
+				valueOf(e.media).shouldBeObject();
+				valueOf(e.media.mimeType).shouldBeString();
+				valueOf(e.media.mimeType.substr(0, 5)).shouldBe("image");
+			});
+			valueOf(function() {
+				Titanium.Media.takeScreenshot(callback);
+			}).shouldNotThrowException();
+		},
+		timeout: 2000,
+		timeoutError: "Timed out waiting for takeScreenshot"
 	})
+
 	// TODO: Need a player streaming test for validating some of those features
 })
