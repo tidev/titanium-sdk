@@ -24,7 +24,7 @@ methods:
         type: Object
     parameters:
       - name: angle
-        summary: The angle, in degrees, by which to rotate the matrix. A positive value specifies counterclockwise rotation and a negative value specifies clockwise rotation.
+        summary: The angle, in degrees, by which to rotate the matrix in polar coordinate system, normally in range [-180,180). Within that range a positive value specifies clockwise rotation and a negative value specifies counterclockwise rotation. The matrix rotation is solely math calculation and does not imply any animation.
         type: Number
   - name: scale
     summary: Returns a matrix constructed by scaling an existing matrix
