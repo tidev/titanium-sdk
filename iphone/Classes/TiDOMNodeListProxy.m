@@ -14,7 +14,7 @@
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(nodes);
+	[self setNodes:nil];
 	[super dealloc];
 }
 
@@ -26,6 +26,9 @@
         }
     }
 	RELEASE_TO_NIL(nodes);
+    if (nodes_ == nil) {
+        return;
+    }
 	nodes = [nodes_ retain];
     for (TiDOMNodeProxy *node in nodes) {
         [[self pageContext] registerProxy:node];
