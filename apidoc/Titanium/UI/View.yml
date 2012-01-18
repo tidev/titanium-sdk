@@ -19,7 +19,7 @@ description: |
     (160 DPI).
     
     iOS accepts sizes in Apple "points," where one "point" corresponds to one pixel on 
-    non-Retina displays, and two pixels on Retina displays. This unit is rougly equivalent
+    non-Retina displays, and two pixels on Retina displays. This unit is roughly equivalent
     to the Android density-independent pixel, and shouldn't be confused with the typographical
     unit. 
     
@@ -679,7 +679,7 @@ properties:
     summary: |
         Rendered size of the view as a dictionary of width and height properties.
     description: |
-        The correct values will only be avaiable when rendering is fully complete.
+        The correct values will only be available when rendering is fully complete.
     type: Object
     permission: read-only
     
