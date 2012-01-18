@@ -53,8 +53,8 @@ define("Ti/_/Gesture/TwoFingerTap", ["Ti/_/declare", "Ti/_/lang"], function(decl
 					y: y
 				},
 				{
-					x: x,
-					y: y
+					x: e.changedTouches[1].clientX,
+					y: e.changedTouches[1].clientY
 				}];
 				
 			// Something else, means it's not a two finger tap
@@ -111,6 +111,7 @@ define("Ti/_/Gesture/TwoFingerTap", ["Ti/_/declare", "Ti/_/lang"], function(decl
 							y: (this._touchStartLocation[0].y + this._touchStartLocation[1].y) / 2
 						}));
 					}
+					this._touchStartLocation = null;
 				}
 				
 			// Something else, means it's not a two finger tap
@@ -130,6 +131,7 @@ define("Ti/_/Gesture/TwoFingerTap", ["Ti/_/declare", "Ti/_/lang"], function(decl
 		},
 		
 		processTouchCancelEvent: function(e, element){
+			this._touchStartLocation = null;
 		},
 		finalizeTouchCancelEvent: function(){
 		}

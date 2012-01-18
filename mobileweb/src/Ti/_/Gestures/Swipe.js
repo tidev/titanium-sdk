@@ -67,7 +67,8 @@ define("Ti/_/Gesture/Swipe", ["Ti/_/declare", "Ti/_/lang"], function(declare,lan
 		},
 		
 		processTouchEndEvent: function(e, element){
-			this.processTouchMoveEvent(e,element);
+			this.processTouchMoveEvent(e, element);
+			this._touchStartLocation = null;
 		},
 		finalizeTouchEndEvent: function(){
 		},
@@ -99,6 +100,7 @@ define("Ti/_/Gesture/Swipe", ["Ti/_/declare", "Ti/_/lang"], function(declare,lan
 		},
 		
 		processTouchCancelEvent: function(e, element){
+			this._touchStartLocation = null;
 		},
 		finalizeTouchCancelEvent: function(){
 		}

@@ -47,7 +47,7 @@ define("Ti/_/Gesture/LongPress", ["Ti/_/declare", "Ti/_/lang"], function(declare
 		},
 		
 		processTouchMoveEvent: function(e, element){
-			if (Math.abs(this._touchStartLocation.x - e.changedTouches[0].clientX) > this._driftThreshold || 
+			if (!this._touchStartLocation || Math.abs(this._touchStartLocation.x - e.changedTouches[0].clientX) > this._driftThreshold || 
 					Math.abs(this._touchStartLocation.y - e.changedTouches[0].clientY) > this._driftThreshold) {
 				clearTimeout(this._timer);
 			}
