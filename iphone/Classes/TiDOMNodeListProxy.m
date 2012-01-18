@@ -14,15 +14,20 @@
 
 -(void)dealloc
 {
-	[self setNodes:nil];
+	[nodes release];
 	[super dealloc];
 }
 
 -(void)setNodes:(NSArray*)nodes_
 {
+    if (nodes == nodes_) {
+        return;
+    }
     if (nodes != nil) {
         for (TiDOMNodeProxy *node in nodes) {
-            [self forgetProxy:node];
+            if (![nodes_ containsObject:node]) {
+                [self forgetProxy:node];
+            }
         }
     }
 	RELEASE_TO_NIL(nodes);
