@@ -23,17 +23,12 @@
     if (nodes == nodes_) {
         return;
     }
-    if (nodes != nil) {
-        for (TiDOMNodeProxy *node in nodes) {
-            if (![nodes_ containsObject:node]) {
-                [self forgetProxy:node];
-            }
+    for (TiDOMNodeProxy *node in nodes) {
+        if (![nodes_ containsObject:node]) {
+            [self forgetProxy:node];
         }
     }
-	RELEASE_TO_NIL(nodes);
-    if (nodes_ == nil) {
-        return;
-    }
+	[nodes release];
 	nodes = [nodes_ retain];
     for (TiDOMNodeProxy *node in nodes) {
         [[self pageContext] registerProxy:node];
