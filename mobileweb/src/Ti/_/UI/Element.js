@@ -105,22 +105,18 @@ define("Ti/_/UI/Element",
 			}
 			if ("ontouchstart" in document.body) {
 				on(this.domNode,"touchstart",function(e){
-					console.debug("start: " + e.touches.length + "," + e.changedTouches.length);
 					processTouchEvent("TouchStartEvent",e,self,touchStartRecognizers);
 					e.preventDefault();
 				});
 				on(this.domNode,"touchmove",function(e){
-					console.debug("move: " + e.touches.length + "," + e.changedTouches.length);
 					processTouchEvent("TouchMoveEvent",e,self,touchMoveRecognizers);
 					e.preventDefault();
 				});
 				on(this.domNode,"touchend",function(e){
-					console.debug("end: " + e.touches.length + "," + e.changedTouches.length);
 					processTouchEvent("TouchEndEvent",e,self,touchEndRecognizers);
 					e.preventDefault();
 				});
 				on(this.domNode,"touchcancel",function(e){
-					console.debug("cancel: " + e.touches.length + "," + e.changedTouches.length);
 					processTouchEvent("TouchCancelEvent",e,self,touchCancelRecognizers);
 					e.preventDefault();
 				});

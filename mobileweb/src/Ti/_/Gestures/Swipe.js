@@ -59,6 +59,8 @@ define("Ti/_/Gesture/Swipe", ["Ti/_/declare", "Ti/_/lang"], function(declare,lan
 					x: e.changedTouches[0].clientX,
 					y: e.changedTouches[0].clientY
 				}
+			} else {
+				this._touchStartLocation = null;
 			}
 		},
 		finalizeTouchStartEvent: function(){
