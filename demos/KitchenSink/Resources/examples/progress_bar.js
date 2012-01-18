@@ -34,8 +34,6 @@ b.addEventListener('click', function()
 			ind2.hide();
 			ind3.hide();
 			ind4.hide();
-			win.setToolbar(null,{animated:true});
-			win.setTitleControl(null);
 			win.setTitle('Progress Bar');
 			return;
 		}
