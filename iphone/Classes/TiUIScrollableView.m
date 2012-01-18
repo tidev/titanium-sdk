@@ -320,7 +320,7 @@
 		}
 	}
 	
-    if ((scrollview!=nil) && ([scrollview subviews]>0)) {
+    if ((scrollview!=nil) && ([[scrollview subviews] count]>0)) {
         //No need to readd. Just set up the correct frame bounds
         [self refreshScrollView:[self bounds] readd:NO];
     }
@@ -335,7 +335,7 @@
 		pageControlHeight = 20.0;
 	}
     
-    if (showPageControl && (scrollview!=nil) && ([scrollview subviews]>0)) {
+    if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count]>0)) {
         //No need to readd. Just set up the correct frame bounds
         [self refreshScrollView:[self bounds] readd:NO];
     }
@@ -353,7 +353,7 @@
     if (val != nil) {
         RELEASE_TO_NIL(pageControlBackgroundColor);
         pageControlBackgroundColor = [[val _color] retain];
-        if (showPageControl && (scrollview!=nil) && ([scrollview subviews]>0)) {
+        if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count]>0)) {
             [[self pagecontrol] setBackgroundColor:pageControlBackgroundColor];
         }
     }
