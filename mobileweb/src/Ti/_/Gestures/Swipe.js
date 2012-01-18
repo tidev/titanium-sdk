@@ -6,17 +6,80 @@ define("Ti/_/Gesture/Swipe", ["Ti/_/declare", "Ti/_/lang"], function(declare,lan
 		
 		blocking: [],
 		
+		_touchStartLocation: null,
+		
+		// This specifies the minimum distance that a finger must travel before it is considered a swipe
+		_distanceThreshold: 25,
+		
+		// The masimum angle, in radians, from the axis a swipe is allowed to travel before it is no longer considered a swipe
+		_angleThreshold: Math.PI/12, // 15 degrees
+		
+		_isAngleOK: function(x,y) {
+			var xDiff = Math.abs(this._touchStartLocation.x - x),
+				yDiff = Math.abs(this._touchStartLocation.y - y);
+			if (xDiff === 0 || yDiff === 0) {
+				return true;
+			} else if (xDiff > yDiff) {
+				return Math.atan(yDiff/xDiff) < this._angleThreshold;
+			} else {
+				return Math.atan(xDiff/yDiff) < this._angleThreshold;
+			}
+		},
+		
+		_getDirection: function(x,y) {
+			var xDiff = Math.abs(this._touchStartLocation.x - x),
+				yDiff = Math.abs(this._touchStartLocation.y - y);
+			if (xDiff > yDiff) {
+				return this._touchStartLocation.x - x > 0 ? "left" : "right";
+			} else {
+				return this._touchStartLocation.y - y > 0 ? "down" : "up";
+			}
+		},
+		
+		_isDistanceOK: function(x,y) {
+			return Math.sqrt(Math.pow(this._touchStartLocation.x - x,2) + 
+				Math.pow(this._touchStartLocation.y - y,2)) > this._distanceThreshold;
+		},
+		
 		processTouchStartEvent: function(e, element){
+			if (e.touches.length == 0 && e.changedTouches.length == 1) {
+				this._touchStartLocation = {
+					x: e.changedTouches[0].clientX,
+					y: e.changedTouches[0].clientY
+				}
+			}
 		},
 		finalizeTouchStartEvent: function(){
 		},
 		
 		processTouchEndEvent: function(e, element){
+			this.processTouchMoveEvent(e,element);
 		},
 		finalizeTouchEndEvent: function(){
 		},
 		
 		processTouchMoveEvent: function(e, element){
+			if (e.touches.length == 0 && e.changedTouches.length == 1) {
+				var x = e.changedTouches[0].clientX,
+					y = e.changedTouches[0].clientY;
+				if (this._touchStartLocation) {
+					if (!this._isAngleOK(x,y)) {
+						this._touchStartLocation = null;
+					} else {
+						if (!element._isGestureBlocked(this.name) && this._isDistanceOK(x,y)) {
+							var direction = this._getDirection(x,y);
+							// Right now only left and right are supported
+							if (direction === "left" || direction === "right") {
+								lang.hitch(element,element._handleTouchEvent(this.name,{
+									x: x,
+									y: y,
+									direction: direction
+								}));
+							}
+						}
+					}
+				}
+			}
 		},
 		finalizeTouchMoveEvent: function(){
 		},

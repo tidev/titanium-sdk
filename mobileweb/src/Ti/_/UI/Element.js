@@ -42,7 +42,10 @@ define("Ti/_/UI/Element",
 				DoubleTap: (new Ti._.Gestures.DoubleTap()),
 				LongPress: (new Ti._.Gestures.LongPress()),
 				SingleTap: (new Ti._.Gestures.SingleTap()),
-				Touch: (new Ti._.Gestures.Touch())
+				TouchStart: (new Ti._.Gestures.TouchStart()),
+				TouchEnd: (new Ti._.Gestures.TouchEnd()),
+				TouchMove: (new Ti._.Gestures.TouchMove()),
+				TouchCancel: (new Ti._.Gestures.TouchCancel())
 			};
 			var recognizers = this._gestureRecognizers;
 			// Each event requires a slightly different precedence of execution, which is why we have these separate lists
@@ -53,7 +56,10 @@ define("Ti/_/UI/Element",
 				recognizers.DoubleTap,
 				recognizers.LongPress,
 				recognizers.SingleTap,
-				recognizers.Touch];
+				recognizers.TouchStart,
+				recognizers.TouchEnd,
+				recognizers.TouchMove,
+				recognizers.TouchCancel];
 			var touchMoveRecognizers = [
 				recognizers.Pinch,
 				recognizers.Swipe,
@@ -61,7 +67,10 @@ define("Ti/_/UI/Element",
 				recognizers.DoubleTap,
 				recognizers.LongPress,
 				recognizers.SingleTap,
-				recognizers.Touch];
+				recognizers.TouchStart,
+				recognizers.TouchEnd,
+				recognizers.TouchMove,
+				recognizers.TouchCancel];
 			var touchEndRecognizers = [
 				recognizers.Pinch,
 				recognizers.Swipe,
@@ -69,7 +78,10 @@ define("Ti/_/UI/Element",
 				recognizers.DoubleTap,
 				recognizers.LongPress,
 				recognizers.SingleTap,
-				recognizers.Touch];
+				recognizers.TouchStart,
+				recognizers.TouchEnd,
+				recognizers.TouchMove,
+				recognizers.TouchCancel];
 			var touchCancelRecognizers = [
 				recognizers.Pinch,
 				recognizers.Swipe,
@@ -77,8 +89,10 @@ define("Ti/_/UI/Element",
 				recognizers.DoubleTap,
 				recognizers.LongPress,
 				recognizers.SingleTap,
-				recognizers.Touch];
-			
+				recognizers.TouchStart,
+				recognizers.TouchEnd,
+				recognizers.TouchMove,
+				recognizers.TouchCancel];
 			
 			var self = this;
 			function processTouchEvent(eventType,e,self,gestureRecognizers) {
@@ -117,13 +131,18 @@ define("Ti/_/UI/Element",
 				}
 				
 				// Fall back to using the traditional mouse events
+				var mousePressed = false;
 				on(this.domNode,"mousedown",function(e){
+					mousePressed = true;
 					processTouchEvent("TouchStartEvent",touchify(e),self,touchStartRecognizers);
 				});
 				on(this.domNode,"mousemove",function(e){
-					processTouchEvent("TouchMoveEvent",touchify(e),self,touchMoveRecognizers);
+					if (mousePressed) {
+						processTouchEvent("TouchMoveEvent",touchify(e),self,touchMoveRecognizers);
+					}
 				});
 				on(this.domNode,"mouseup",function(e){
+					mousePressed = false;
 					processTouchEvent("TouchEndEvent",touchify(e),self,touchEndRecognizers);
 				});
 			}
