@@ -95,6 +95,7 @@ DEFINE_EXCEPTIONS
 			[TiUtils setView:child positionRect:bounds];
 		}
 	}
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 -(void)timerFired:(id)arg
