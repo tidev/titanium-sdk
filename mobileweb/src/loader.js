@@ -1124,7 +1124,8 @@ require.cache({
 			 */
 
 			var is = require.is,
-				mix = require.mix;
+				mix = require.mix,
+				classCounters = {};
 
 			// C3 Method Resolution Order (see http://www.python.org/download/releases/2.3/mro/)
 			function c3mro(bases, className) {
@@ -1211,7 +1212,8 @@ require.cache({
 						a0 = a[0],
 						f, i, m, p,
 						l = bases.length,
-						preArgs;
+						preArgs,
+						dc = this.declaredClass;
 
 					// 1) call two types of the preamble
 					if (ctorSpecial && (a0 && a0.preamble || this.preamble)) {
@@ -1243,6 +1245,9 @@ require.cache({
 						}
 						is(f, "Function") && f.apply(this, preArgs ? preArgs[i] : a);
 					}
+
+					classCounters[dc] || (classCounters[dc] = 0);
+					this.widgetId = dc + ":" + (classCounters[dc]++);
 
 					// 3) mixin args if any
 					is(a0, "Object") && mix(this, a0);
@@ -1471,10 +1476,14 @@ require.cache({
 					return node;
 				},
 
+				detach: function(node) {
+					return node.parentNode && node.parentNode.removeChild(node);
+				},
+
 				destroy: function(node) {
 					try {
 						var destroyContainer = node.ownerDocument.createElement("div");
-						destroyContainer.appendChild(node.parentNode ? node.parentNode.removeChild(node) : node);
+						destroyContainer.appendChild(this.detach(node) || node);
 						destroyContainer.innerHTML = "";
 					} catch(e) {
 						/* squelch */
@@ -1526,6 +1535,14 @@ require.cache({
 					}
 				}
 			};
+		});
+	},
+	"Ti/_/event": function() {
+		define({
+			stop: function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+			}
 		});
 	},
 	"Ti/_/include": function() {
@@ -1812,7 +1829,8 @@ require.cache({
 						x = vp[i++];
 						x += x ? uc || (uc = string.capitalize(name)) : name;
 						if (x in node.style) {
-							return node.style[x] = value;
+							require.each(require.is(value, "Array") ? value : [value], function(v) { node.style[x] = v; });
+							return value;
 						}
 					}
 				} else {
