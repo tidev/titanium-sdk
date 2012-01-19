@@ -47,52 +47,13 @@ define("Ti/_/UI/Element",
 				TouchMove: (new Ti._.Gestures.TouchMove()),
 				TouchCancel: (new Ti._.Gestures.TouchCancel())
 			};
-			var recognizers = this._gestureRecognizers;
-			// Each event requires a slightly different precedence of execution, which is why we have these separate lists
-			var touchStartRecognizers = [
-				recognizers.Pinch,
-				recognizers.Swipe,
-				recognizers.TwoFingerTap,
-				recognizers.DoubleTap,
-				recognizers.LongPress,
-				recognizers.SingleTap,
-				recognizers.TouchStart,
-				recognizers.TouchEnd,
-				recognizers.TouchMove,
-				recognizers.TouchCancel];
-			var touchMoveRecognizers = [
-				recognizers.Pinch,
-				recognizers.Swipe,
-				recognizers.TwoFingerTap,
-				recognizers.DoubleTap,
-				recognizers.LongPress,
-				recognizers.SingleTap,
-				recognizers.TouchStart,
-				recognizers.TouchEnd,
-				recognizers.TouchMove,
-				recognizers.TouchCancel];
-			var touchEndRecognizers = [
-				recognizers.Pinch,
-				recognizers.Swipe,
-				recognizers.TwoFingerTap,
-				recognizers.DoubleTap,
-				recognizers.LongPress,
-				recognizers.SingleTap,
-				recognizers.TouchStart,
-				recognizers.TouchEnd,
-				recognizers.TouchMove,
-				recognizers.TouchCancel];
-			var touchCancelRecognizers = [
-				recognizers.Pinch,
-				recognizers.Swipe,
-				recognizers.TwoFingerTap,
-				recognizers.DoubleTap,
-				recognizers.LongPress,
-				recognizers.SingleTap,
-				recognizers.TouchStart,
-				recognizers.TouchEnd,
-				recognizers.TouchMove,
-				recognizers.TouchCancel];
+			var recognizers = this._gestureRecognizers,
+			// Each event could require a slightly different precedence of execution, which is why we have these separate lists.
+			// For now they are the same, but I suspect they will be different once the android-iphone parity is determined.
+				touchStartRecognizers = recognizers,
+				touchMoveRecognizers = recognizers,
+				touchEndRecognizers = recognizers,
+				touchCancelRecognizers = recognizers;
 			
 			var self = this;
 			function processTouchEvent(eventType,e,self,gestureRecognizers) {
@@ -107,18 +68,25 @@ define("Ti/_/UI/Element",
 				on(this.domNode,"touchstart",function(e){
 					processTouchEvent("TouchStartEvent",e,self,touchStartRecognizers);
 					e.preventDefault();
-				});
-				on(this.domNode,"touchmove",function(e){
-					processTouchEvent("TouchMoveEvent",e,self,touchMoveRecognizers);
-					e.preventDefault();
-				});
-				on(this.domNode,"touchend",function(e){
-					processTouchEvent("TouchEndEvent",e,self,touchEndRecognizers);
-					e.preventDefault();
-				});
-				on(this.domNode,"touchcancel",function(e){
-					processTouchEvent("TouchCancelEvent",e,self,touchCancelRecognizers);
-					e.preventDefault();
+					
+					var moveDisconnect = on(window,"touchmove",function(e){
+						processTouchEvent("TouchMoveEvent",e,self,touchMoveRecognizers);
+						e.preventDefault();
+					});
+					var endDisconnect = on(window,"touchend",function(e){
+						processTouchEvent("TouchEndEvent",e,self,touchEndRecognizers);
+						e.preventDefault();
+						moveDisconnect();
+						cancelDisconnect();
+						endDisconnect();
+					});
+					var cancelDisconnect = on(window,"touchcancel",function(e){
+						processTouchEvent("TouchCancelEvent",e,self,touchCancelRecognizers);
+						e.preventDefault();
+						moveDisconnect();
+						cancelDisconnect();
+						endDisconnect();
+					});
 				});
 			} else {
 				
@@ -135,31 +103,35 @@ define("Ti/_/UI/Element",
 					    ctrlKey: e.ctrlKey,
 					    shiftKey: e.shiftKey
 					},self,touchStartRecognizers);
-				});
-				on(this.domNode,"mousemove",function(e){
-					if (mousePressed) {
-						processTouchEvent("TouchMoveEvent",{
-						touches: [e],
-					    targetTouches: [],
-					    changedTouches: [e],
-					    altKey: e.altKey,
-					    metaKey: e.metaKey,
-					    ctrlKey: e.ctrlKey,
-					    shiftKey: e.shiftKey
-					},self,touchMoveRecognizers);
-					}
-				});
-				on(this.domNode,"mouseup",function(e){
-					mousePressed = false;
-					processTouchEvent("TouchEndEvent",{
-						touches: [],
-					    targetTouches: [],
-					    changedTouches: [e],
-					    altKey: e.altKey,
-					    metaKey: e.metaKey,
-					    ctrlKey: e.ctrlKey,
-					    shiftKey: e.shiftKey
-					},self,touchEndRecognizers);
+					
+					var moveDisconnect = on(window,"mousemove",function(e){
+						if (mousePressed) {
+							processTouchEvent("TouchMoveEvent",{
+								touches: [e],
+							    targetTouches: [],
+							    changedTouches: [e],
+							    altKey: e.altKey,
+							    metaKey: e.metaKey,
+							    ctrlKey: e.ctrlKey,
+							    shiftKey: e.shiftKey
+							},self,touchMoveRecognizers);
+						}
+					});
+					
+					var endDisconnect = on(window,"mouseup",function(e){
+						mousePressed = false;
+						processTouchEvent("TouchEndEvent",{
+							touches: [],
+						    targetTouches: [],
+						    changedTouches: [e],
+						    altKey: e.altKey,
+						    metaKey: e.metaKey,
+						    ctrlKey: e.ctrlKey,
+						    shiftKey: e.shiftKey
+						},self,touchEndRecognizers);
+						moveDisconnect();
+						endDisconnect();
+					});
 				});
 			}
 

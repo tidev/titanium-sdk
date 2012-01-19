@@ -21,13 +21,29 @@ define("Ti/UI/ScrollableView",
 			var initialPosition,
 				animationView,
 				swipeInitialized = false,
-				viewsToScroll;
+				viewsToScroll,
+				touchEndHandled;
+			// This touch end handles the case where a swipe was started, but turned out not to be a swipe
+			this.addEventListener("touchend",function(e) {
+				if (!touchEndHandled && swipeInitialized) {
+					var width = this._measuredWidth,
+						destinationLeft = viewsToScroll.indexOf(this.views[this.currentPage]) * -width;
+					animationView.animate({
+						duration: (300 + 0.2 * width) / (width - Math.abs(e._distance)) * 10,
+						left: destinationLeft,
+						curve: Ti.UI.ANIMATION_CURVE_EASE_OUT
+					},lang.hitch(this,function(){
+						this._setContent(this.views[this.currentPage]);
+					}));
+				}
+			})
 			this.addEventListener("swipe",function(e){
 				
 				// If we haven't started swiping yet, start swiping,
 				var width = this._measuredWidth;
 				if (!swipeInitialized) {
 					swipeInitialized = true;
+					touchEndHandled = false;
 					
 					// Create the list of views that can be scrolled, the ones immediately to the left and right of the current view
 					initialPosition = 0;
@@ -80,6 +96,7 @@ define("Ti/UI/ScrollableView",
 				// If the swipe is finished, we animate to the final position
 				if (e._finishedSwiping) {
 					swipeInitialized = false;
+					touchEndHandled = true;
 					
 					// Find out which view we are animating to
 					var destinationIndex = this.currentPage,
