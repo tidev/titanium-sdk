@@ -1,11 +1,27 @@
 define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI/View"], function(declare, dom, View) {
 	
 	var windows = [],
-		activeWindow;
+		stack = [],
+		stackIdx = -1,
+		activeWindow,
+		history = window.history || {},
+		ps = history.pushState;
 
-	require.on(window, "popstate", function(evt) {
-		var win;
-		evt && evt.state && evt.state.screenIndex !== null && (win = windows[evt.state.windowIdx]) && win.open({ isBack:1 });
+	ps && require.on(window, "popstate", function(evt) {
+		var i,
+			n = stackIdx + 1,
+			win;
+		if (evt && evt.state && (i = evt.state.windowIdx) !== null) {
+			win = windows[i];
+			if (n < stack.length && stack[n]._windowIdx === i) {
+				// forward
+				history.pushState({ windowIdx:i }, "", "");
+			} else {
+				// back
+				activeWindow.close();
+				win.fireEvent("focus");
+			}
+		}
 	});
 
 	require.on(window, "resize", function() {
@@ -23,19 +39,36 @@ define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI/View"], function
 		},
 
 		destroy: function() {
+			this.close();
 			windows[this._windowIdx] = null;
 			View.prototype.destroy.apply(this, arguments);
 		},
 
 		open: function(args) {
+			var i,
+				n = stackIdx + 1,
+				len = stack.length - n;
+
 			if (!this._opened) {
 				// TODO: if args, then do animation on open
 				this._opened = 1;
 				this.show();
 				Ti.UI._addWindow(this);
-				(args && args.isBack) || (window.history.pushState && window.history.pushState({ windowIdx: this._windowIdx }, "", ""));
+
+				activeWindow && activeWindow.fireEvent("blur");
+				ps && history[activeWindow ? "pushState" : "replaceState"]({ windowIdx: this._windowIdx }, "", "");
+				if (len > 0) {
+					for (i = len - 1; i >= n; i--) {
+						stack[i].close({ skipHistory:true });
+					}
+					stack.splice(n, len);
+				}
+				stackIdx++;
+				stack.push(activeWindow = this);
+
+				this.fireEvent("open");
+				this.fireEvent("focus");
 			}
-			activeWindow = this;
 		},
 
 		close: function(args) {
@@ -43,9 +76,11 @@ define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI/View"], function
 				// TODO: if args, then do animation on close
 				this._opened = 0;
 				Ti.UI._removeWindow(this);
-				window.history.pushState && window.history.go(-1);
+				(!args || !args.skipHistory) && window.history.go(-1);
+				stackIdx--;
 				Ti.UI._doFullLayout();
-				this.fireEvent("blur", { source: this.domNode });
+				this.fireEvent("blur");
+				this.fireEvent("close");
 			}
 		},
 
