@@ -52,7 +52,10 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	return result;
 }
 
-
+@interface TiWindowProxy(Private)
+-(void)openOnUIThread:(NSArray*)args;
+-(void)closeOnUIThread:(NSArray*)args;
+@end
 
 @implementation TiWindowProxy
 @synthesize navController, controller;
@@ -391,7 +394,9 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		}
 		opening = YES;
 	}
-	[self performSelectorOnMainThread:@selector(openOnUIThread:) withObject:args waitUntilDone:YES];
+    TiThreadPerformOnMainThread(^{
+        [self openOnUIThread:args];
+    }, YES);
 }
 
 -(void)openOnUIThread:(NSArray*)args
@@ -521,11 +526,32 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 
 -(void)close:(id)args
 {
+    // There's the following very odd case we need to handle:
+    // * Context A is opening a window for Context B
+    // * Context B, in its JS evaluation, fires an event which
+    //   is caught by the window's event listener in Context A - and requests
+    //   that the window close
+    // 
+    // Note that the JS evaluation doesn't occur until -[TiWindowProxy openOnUIThread:]
+    // is called, so it's safe to queue on the main thread and block until
+    // completion. This also doesn't guarantee the window isn't (briefly) displayed,
+    // because in between the open and close there may be a rendering pass (depends
+    // entirely on the instruction being executed in -[TiWindowProxy openOnUIThread:]
+    // when this is called).
+    
+    if (opening) {
+        TiThreadPerformOnMainThread(^{
+            [self close:args];
+        }, YES);
+        return;
+    }
+    
 	// closing more than once does nothing
 	if (opened==NO)
 	{
 		return;
 	}
+    
 	if ([self _isChildOfTab]) 
 	{
 		if (![args isKindOfClass:[NSArray class]] ||
@@ -551,7 +577,9 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		[self rememberProxy:closeAnimation];
 	}
 
-	[self performSelectorOnMainThread:@selector(closeOnUIThread:) withObject:args waitUntilDone:YES];
+    TiThreadPerformOnMainThread(^{
+        [self closeOnUIThread:args];
+    }, YES);
 }
 
 -(void)closeOnUIThread:(id)args
