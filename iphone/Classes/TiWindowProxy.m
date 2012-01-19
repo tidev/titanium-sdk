@@ -182,6 +182,14 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		{
 			[rootView addSubview:aview];
 			[rootView sendSubviewToBack:aview];
+            
+            // TODO: We probably need to handle resizing/relayout of non-TiUIViews
+            // here as well... and need to rethink why we do this anyway.
+            if ([aview isKindOfClass:[TiUIView class]]) {
+                TiUIView* tiview = (TiUIView*)aview;
+                LayoutConstraint* layoutProps = [(TiViewProxy*)[tiview proxy] layoutProperties];
+                ApplyConstraintToViewWithBounds(layoutProps, tiview, rootView.bounds);
+            }
 		}
 		RELEASE_TO_NIL(reattachWindows);
 	}
