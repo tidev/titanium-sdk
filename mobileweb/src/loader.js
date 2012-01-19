@@ -1215,6 +1215,9 @@ require.cache({
 						preArgs,
 						dc = this.declaredClass;
 
+					classCounters[dc] || (classCounters[dc] = 0);
+					this.widgetId = dc + ":" + (classCounters[dc]++);
+
 					// 1) call two types of the preamble
 					if (ctorSpecial && (a0 && a0.preamble || this.preamble)) {
 						// full blown ritual
@@ -1245,9 +1248,6 @@ require.cache({
 						}
 						is(f, "Function") && f.apply(this, preArgs ? preArgs[i] : a);
 					}
-
-					classCounters[dc] || (classCounters[dc] = 0);
-					this.widgetId = dc + ":" + (classCounters[dc]++);
 
 					// 3) mixin args if any
 					is(a0, "Object") && mix(this, a0);
