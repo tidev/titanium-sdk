@@ -52,6 +52,11 @@
 	return NUMBOOL(NO);
 }
 
+-(id)writable
+{
+	return NUMBOOL(NO);
+}
+
 -(id)writeable
 {
 	// Note: Despite previous incarnations claiming writeable is the proper API,
@@ -59,12 +64,6 @@
 	DEPRECATED_REPLACED(@"Filesystem.FileProxy.writeable",@"1.8.1",@"1.9.0",@"writable");
 	return [self writable];
 }
-
--(id)writable
-{
-	return NUMBOOL(NO);
-}
-
 
 #define FILENOOP(name) \
 -(id)name\

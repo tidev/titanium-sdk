@@ -130,6 +130,7 @@
 {
 	//Treat this as a size change
 	[(TiViewProxy *)[self proxy] willChangeSize];
+    [super frameSizeChanged:frame bounds:visibleBounds];
 }
 
 -(void)setContentWidth_:(id)value
