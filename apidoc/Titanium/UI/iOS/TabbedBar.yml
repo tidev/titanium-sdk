@@ -74,7 +74,7 @@ properties:
     type: String
   - name: image
     summary: Button icon. If specified, takes precedence over `title`.
-    type: [String, Titanium.Blob, Titanium.File]
+    type: [String, Titanium.Blob, Titanium.Filesystem.File]
   - name: width
     summary: Width for this button. 
     type: Number
