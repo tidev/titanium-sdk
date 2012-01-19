@@ -292,7 +292,8 @@ define("Ti/_/UI/Element",
 			var anim = anim || {},
 				curve = curves[anim.curve] || "ease",
 				fn = lang.hitch(this, function() {
-					var transform = "";
+					var transform = val(anim.transform, this.transform),
+						transformCss = "";
 
 					// Set the color and opacity properties
 					anim.backgroundColor !== undef && (obj.backgroundColor = anim.backgroundColor);
@@ -326,12 +327,12 @@ define("Ti/_/UI/Element",
 					!isDef(anim.zIndex) && style.set(this.domNode, "zIndex", anim.zIndex);
 
 					// Set the transform properties
-					if (anim.transform) {
-						curTransform = curTransform ? curTransform.multiply(anim.transform) : anim.transform;
-						transform = curTransform.toCSS();
+					if (transform) {
+						curTransform = curTransform ? curTransform.multiply(transform) : transform;
+						transformCss = curTransform.toCSS();
 					}
 
-					style.set(this.domNode, "transform", transform);
+					style.set(this.domNode, "transform", transformCss);
 				}),
 				done = function() {
 					is(anim.complete, "Function") && anim.complete();
@@ -491,7 +492,9 @@ define("Ti/_/UI/Element",
 				},
 				value: true
 			},
-			
+
+			transform: undef,
+
 			// Properties that are handled by the layout manager
 			bottom: {
 				set: function(value) {
