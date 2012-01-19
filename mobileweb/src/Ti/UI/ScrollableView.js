@@ -16,8 +16,102 @@ define("Ti/UI/ScrollableView",
 			
 			// State variables
 			this._viewToRemoveAfterScroll = -1;
-			this._interval = null
 			this._currentPage = 0;
+			
+			var initialPosition,
+				animationView,
+				swipeInitialized = false,
+				viewsToScroll;
+			this.addEventListener("swipe",function(e){
+				
+				// If we haven't started swiping yet, start swiping,
+				var width = this._measuredWidth;
+				if (!swipeInitialized) {
+					swipeInitialized = true;
+					
+					// Create the list of views that can be scrolled, the ones immediately to the left and right of the current view
+					initialPosition = 0;
+					viewsToScroll = [];
+					if (this.currentPage > 0) {
+						viewsToScroll.push(this.views[this.currentPage - 1]);
+						initialPosition = -width;
+					}
+					viewsToScroll.push(this.views[this.currentPage]);
+					if (this.currentPage < this.views.length - 1) {
+						viewsToScroll.push(this.views[this.currentPage + 1]);
+					}
+					
+					// Create the animation div
+					animationView = Ti.UI.createView({
+						width: unitize(viewsToScroll.length * width),
+						height: "100%",
+						layout: "absolute",
+						left: initialPosition,
+						top: 0
+					});
+		
+					// Attach the child views, each contained in their own div so we can mess with positioning w/o touching the views
+					for (var i = 0; i < viewsToScroll.length; i++) {
+						var viewContainer = Ti.UI.createView({
+							left: unitize(i * width),
+							top: 0,
+							width: unitize(width),
+							height: "100%",
+							layout: "horizontal" // Do a horizontal to force the child to (0,0) without overwriting the original position values
+						});
+						set(viewContainer.domNode,"overflow","hidden");
+						viewContainer.add(viewsToScroll[i]);
+						animationView.add(viewContainer);
+					}
+					
+					// Set the initial position
+					animationView.left = unitize(initialPosition);
+					this._setContent(animationView);
+					
+					// We have to force a non-delayed layout right now
+					Ti.UI._doForcedFullLayout();
+				}
+				
+				// Update the position of the animation div
+				var newPosition = initialPosition + e._distance;
+				newPosition = newPosition < 0 ? newPosition > -animationView._measuredWidth + width ? newPosition :-animationView._measuredWidth + width : 0;
+				animationView.domNode.style.left = unitize(newPosition);
+				
+				// If the swipe is finished, we animate to the final position
+				if (e._finishedSwiping) {
+					swipeInitialized = false;
+					
+					// Find out which view we are animating to
+					var destinationIndex = this.currentPage,
+						animationLeft = initialPosition;
+					if (e._distance > width / 2 && this._currentPage > 0) {
+						destinationIndex = this._currentPage - 1;
+						animationLeft = 0;
+					} else if (e._distance < -width / 2 && this._currentPage < this.views.length - 1) {
+						destinationIndex = this._currentPage + 1;
+						if (viewsToScroll.length === 3) {
+							animationLeft = -2 * width;
+						} else {
+							animationLeft = -width;
+						}
+					}
+					
+					// Check if the user attempted to scroll past the edge, in which case we directly reset the view instead of animation
+					if (newPosition == 0 || newPosition == -animationView._measuredWidth + width) {
+						this._setContent(this.views[destinationIndex]);
+					} else {
+						// Animate the view and set the final view
+						animationView.animate({
+							duration: (300 + 0.2 * width) / (width - Math.abs(e._distance)) * 10,
+							left: animationLeft,
+							curve: Ti.UI.ANIMATION_CURVE_EASE_OUT
+						},lang.hitch(this,function(){
+							this._setContent(this.views[destinationIndex]);
+							this._currentPage = destinationIndex;
+						}));
+					}
+				}
+			});
 		},
 		
 		addView: function(view){
@@ -96,11 +190,9 @@ define("Ti/UI/ScrollableView",
 			if (!this.container.domNode.offsetWidth) {
 				this._setContent(this.views[viewIndex]);
 			} else {
-				// Stop the previous timer if it is running (i.e. we are in the middle of an animation)
-				this._interval && clearInterval(this._interval);
-	
+				
 				// Calculate the views to be scrolled
-				var width = this.container.domNode.offsetWidth,
+				var width = this._measuredWidth,
 					viewsToScroll = [],
 					scrollingDirection = -1,
 					initialPosition = 0;
@@ -155,8 +247,6 @@ define("Ti/UI/ScrollableView",
 					left: initialPosition + scrollingDirection * distance,
 					curve: Ti.UI.ANIMATION_CURVE_EASE_IN_OUT
 				},lang.hitch(this,function(){
-					clearInterval(this._interval);
-					this._interval = null;
 					this._setContent(this.views[viewIndex]);
 					this._currentPage = viewIndex;
 					if (this._viewToRemoveAfterScroll != -1) {
