@@ -58,9 +58,10 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 	CGSize oldSize;
     
 	// Image capping/backgrounds
-  id backgroundImage;
-  TiDimension leftCap;
-  TiDimension topCap;
+    id backgroundImage;
+    BOOL backgroundRepeat;
+    TiDimension leftCap;
+    TiDimension topCap;
 }
 -(BOOL)animating;
 
