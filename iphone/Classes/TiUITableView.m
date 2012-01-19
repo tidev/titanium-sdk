@@ -734,7 +734,7 @@
 		}
 		//On data reload if the search screen is inactive,
 		//make sure that the searchHidden flag is honored
-		if (![searchController isActive]) {
+		if (![searchController isActive] && searchHidden) {
 			[self hideSearchScreen:nil];
 		}
 	}
