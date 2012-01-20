@@ -1,4 +1,4 @@
-define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, View, dom, css, style) {
+define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang"], function(declare, View, dom, css, style, lang) {
 
 	var set = style.set,
 		is = require.is,
@@ -22,6 +22,19 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 			this.add(this.header);
 			this.add(this.rows);
 			this.add(this.footer);
+			
+			// Handle scrolling
+			var previousTouchLocation;
+			this.addEventListener("touchstart",function(e) {
+				previousTouchLocation = e.y;
+			});
+			this.addEventListener("touchend",function(e) {
+				previousTouchLocation = null;
+			});
+			this.addEventListener("touchmove",lang.hitch(this,function(e) {
+				this.domNode.scrollTop += previousTouchLocation - e.y;
+				previousTouchLocation = e.y;
+			}));
 		},
 
 		appendRow: function(row, properties) {
@@ -55,7 +68,6 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 			View.prototype.doLayout.apply(this,arguments);
 		},
 		
-		_preventDefaultTouch: false,
 		_defaultWidth: "100%",
 		_defaultHeight: "100%",
 		_getContentOffset: function(){
@@ -70,7 +82,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 				e.section = this._tableViewSectionClicked;
 				e.searchMode = false;
 			}
-			View.prototype._handleMouseEvent.apply(this,arguments);
+			View.prototype._handleTouchEvent.apply(this,arguments);
 		},
 		
 		_tableViewRowClicked: null,

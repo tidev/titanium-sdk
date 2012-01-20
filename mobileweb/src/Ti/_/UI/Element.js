@@ -28,8 +28,6 @@ define("Ti/_/UI/Element",
 
 		domType: null,
 		domNode: null,
-		
-		_preventDefaultTouch: true,
 
 		constructor: function() {
 			var bgSelPrevColor,
@@ -63,7 +61,8 @@ define("Ti/_/UI/Element",
 			
 			var self = this;
 			function processTouchEvent(eventType,e,self,gestureRecognizers) {
-				this._preventDefaultTouch && e.preventDefault();
+				e.preventDefault && e.preventDefault();
+				e.changedTouches[0] && e.changedTouches[0].preventDefault && e.changedTouches[0].preventDefault();
 				for (var i in gestureRecognizers) {
 					gestureRecognizers[i]["process" + eventType](e,self);
 				}
