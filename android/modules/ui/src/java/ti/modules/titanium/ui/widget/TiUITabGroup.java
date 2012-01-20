@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.util.ArrayList;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -18,6 +20,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 import ti.modules.titanium.ui.TiTabActivity;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,12 +33,14 @@ public class TiUITabGroup extends TiUIView
 {
 	private static final String LCAT = "TiUITabGroup";
 	private static final boolean DBG = TiConfig.LOGD;
+	private static final int DEFAULT_TAB_BACKGROUND_COLOR = Color.GRAY;
 
 	private TabHost tabHost;
 	private boolean addingTab;
 
 	private String lastTabId;
 	private KrollDict tabChangeEventData;
+	private ArrayList<Integer> tabBackgroundColors;
 
 	public TiUITabGroup(TiViewProxy proxy, TiTabActivity activity)
 	{
@@ -95,6 +100,13 @@ public class TiUITabGroup extends TiUIView
 				}
 			});
 		}
+		if (proxy.hasProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
+			tabHost.getTabWidget().getChildAt(tabCount - 1)
+				.setBackgroundColor(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR)));
+		}
+
+		// Cache the background color of the tab that we add, so we can re-use it in onTabChanged()
+
 	}
 
 	public void setActiveTab(int index)
@@ -121,7 +133,7 @@ public class TiUITabGroup extends TiUIView
 		// ignore focus change for tab group.
 		// we can simply fire focus/blur from onTabChanged (to avoid chicken/egg event problems)
 	}
-	
+
 	@Override
 	public void onTabChanged(String id)
 	{
@@ -130,7 +142,7 @@ public class TiUITabGroup extends TiUIView
 			Log.d(LCAT,"Tab change from " + lastTabId + " to " + id);
 		}
 
-		proxy.setProperty(TiC.PROPERTY_ACTIVE_TAB, tabGroupProxy.getTabList().get (tabHost.getCurrentTab()));
+		proxy.setProperty(TiC.PROPERTY_ACTIVE_TAB, tabGroupProxy.getTabList().get(tabHost.getCurrentTab()));
 
 		if (!addingTab) {
 			if (tabChangeEventData != null) {
@@ -140,6 +152,17 @@ public class TiUITabGroup extends TiUIView
 			tabChangeEventData = tabGroupProxy.buildFocusEvent(id, lastTabId);
 			proxy.fireEvent(TiC.EVENT_FOCUS, tabChangeEventData);
 		}
+
+		for (int i = 0; i < tabHost.getTabWidget().getChildCount(); i++) {
+			if (proxy.hasProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
+				tabHost.getTabWidget().getChildAt(i)
+					.setBackgroundColor(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR)));
+			} else {
+				tabHost.getTabWidget().getChildAt(i).setBackgroundColor(DEFAULT_TAB_BACKGROUND_COLOR);
+			}
+		}
+
+		tabHost.getTabWidget().getChildAt(tabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#0000FF")); // selected
 		
 		lastTabId = id;
 	}
