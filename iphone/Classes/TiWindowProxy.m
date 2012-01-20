@@ -55,8 +55,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 
 
 @implementation TiWindowProxy
-@synthesize navController, controller;
-@synthesize opening;
+@synthesize navController, controller, opening;
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
@@ -96,6 +95,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 }
 
 -(void) dealloc {
+    
 	RELEASE_TO_NIL(navController);
 	[self releaseController];
 	
@@ -106,13 +106,11 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 {
 	[self releaseController];
 
-	RELEASE_TO_NIL(tab);
-	RELEASE_TO_NIL(reattachWindows);
-	RELEASE_TO_NIL(closeView);
-
-
-	RELEASE_TO_NIL(openAnimation);
-	RELEASE_TO_NIL(closeAnimation);
+    [tab release];
+    [closeView release];
+    [animatedOver release];
+    [openAnimation release];
+    [closeAnimation release];
 	
 	[super _destroy];
 }
@@ -174,25 +172,17 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	{
 		[self fireFocus:YES];
 	}
-
-	if (reattachWindows!=nil)
-	{
-		UIView *rootView = [[TiApp app] controller].view;
-		for (UIView *aview in reattachWindows)
-		{
-			[rootView addSubview:aview];
-			[rootView sendSubviewToBack:aview];
-            
-            // TODO: We probably need to handle resizing/relayout of non-TiUIViews
-            // here as well... and need to rethink why we do this anyway.
-            if ([aview isKindOfClass:[TiUIView class]]) {
-                TiUIView* tiview = (TiUIView*)aview;
-                LayoutConstraint* layoutProps = [(TiViewProxy*)[tiview proxy] layoutProperties];
-                ApplyConstraintToViewWithBounds(layoutProps, tiview, rootView.bounds);
-            }
-		}
-		RELEASE_TO_NIL(reattachWindows);
-	}
+    
+    if (animatedOver != nil) {
+        UIView* rootView = [[[TiApp app] controller] view];
+        [rootView insertSubview:animatedOver belowSubview:[self view]];
+        if ([animatedOver isKindOfClass:[TiUIView class]]) {
+            TiUIView* tiview = (TiUIView*)animatedOver;
+            LayoutConstraint* layoutProps = [(TiViewProxy*)[tiview proxy] layoutProperties];
+            ApplyConstraintToViewWithBounds(layoutProps, tiview, rootView.bounds);
+        }
+        RELEASE_TO_NIL(animatedOver);
+    }
 }
 
 -(void)windowReady
@@ -624,23 +614,8 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 				UIView *rootView = [[TiApp app] controller].view;
 				transitionAnimation = [[closeAnimation transition] intValue];
 				startingTransitionAnimation = [[rootView subviews] count]<=1 && modalFlag==NO;
-				if (!startingTransitionAnimation)
-				{
-					RELEASE_TO_NIL(reattachWindows);
-					if ([[rootView subviews] count] > 0)
-					{
-						reattachWindows = [[NSMutableArray array] retain];
-						for (UIView *aview in [rootView subviews])
-						{
-							if (aview!=[self view])
-							{
-								[reattachWindows addObject:aview];
-								[aview removeFromSuperview];
-							}
-						}
-					}
-				}
 			}
+            
 			closeAnimation.delegate = self;
 			// we need to hold a reference during close
 			closeView = [myview retain];
@@ -788,33 +763,23 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		}
 		else
 		{
-			RELEASE_TO_NIL(reattachWindows);
-			if ([[rootView subviews] count] > 0)
-			{
-				reattachWindows = [[NSMutableArray array] retain];
-				for (UIView *aview in [rootView subviews])
-				{
-					if (aview!=[self view])
-					{
-						[reattachWindows addObject:aview];
-						[aview removeFromSuperview];
-					}
-				}
-			}
+            RELEASE_TO_NIL(animatedOver);
+            NSArray* subviews = [rootView subviews];
+            if ([subviews count] > 0) {
+                // We should be attached to the top level view at this point (the window is "ready") so
+                // this is OK to do.
+                NSUInteger index = [subviews indexOfObject:[self view]];
+                if (index != NSNotFound && index != 0) {
+                    animatedOver = [[subviews objectAtIndex:index-1] retain];
+                    [animatedOver removeFromSuperview];
+                }
+            }
 		}
 		[self attachViewToTopLevelWindow];
 	}
 	else 
 	{
-		if (reattachWindows!=nil)
-		{
-			for (UIView *aview in reattachWindows)
-			{
-				[rootView addSubview:aview];
-			}
-			RELEASE_TO_NIL(reattachWindows);
-			[self detachView];
-		}
+        [self detachView];
 	}
 
 	return NO;
