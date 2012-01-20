@@ -633,6 +633,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(void)dealloc
 {
+    [callback release];
 	[type release];
 	[thisObject release];
 	[callbackObject release];
