@@ -1,6 +1,10 @@
 define("Ti/_/UI/Element",
-	["Ti/_/browser", "Ti/_/css", "Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/style", "Ti/_/Evented"],
-	function(browser, css, declare, dom, lang, style, Evented) {
+	["Ti/_/browser", "Ti/_/css", "Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/style", "Ti/_/Evented",
+	"Ti/_/Gestures/DoubleTap","Ti/_/Gestures/LongPress","Ti/_/Gestures/Pinch","Ti/_/Gestures/SingleTap",
+	"Ti/_/Gestures/Swipe","Ti/_/Gestures/TouchCancel","Ti/_/Gestures/TouchEnd","Ti/_/Gestures/TouchMove",
+	"Ti/_/Gestures/TouchStart","Ti/_/Gestures/TwoFingerTap"],
+	function(browser, css, declare, dom, lang, style, Evented,
+		DoubleTap, LongPress, Pinch, SingleTap, Swipe, TouchCancel, TouchEnd, TouchMove, TouchStart, TwoFingerTap) {
 
 	var undef,
 		unitize = dom.unitize,
@@ -33,16 +37,107 @@ define("Ti/_/UI/Element",
 			this.domNode = dom.create(this.domType || "div", {
 				className: "TiUIElement " + css.clean(this.declaredClass)
 			});
+			
+			// Handle click/touch/gestures
+			this._gestureRecognizers = {
+				Pinch: (new Pinch()),
+				Swipe: (new Swipe()),
+				TwoFingerTap: (new TwoFingerTap()),
+				DoubleTap: (new DoubleTap()),
+				LongPress: (new LongPress()),
+				SingleTap: (new SingleTap()),
+				TouchStart: (new TouchStart()),
+				TouchEnd: (new TouchEnd()),
+				TouchMove: (new TouchMove()),
+				TouchCancel: (new TouchCancel())
+			};
+			var recognizers = this._gestureRecognizers,
+			// Each event could require a slightly different precedence of execution, which is why we have these separate lists.
+			// For now they are the same, but I suspect they will be different once the android-iphone parity is determined.
+				touchStartRecognizers = recognizers,
+				touchMoveRecognizers = recognizers,
+				touchEndRecognizers = recognizers,
+				touchCancelRecognizers = recognizers;
+			
+			var self = this;
+			function processTouchEvent(eventType,e,self,gestureRecognizers) {
+				e.preventDefault && e.preventDefault();
+				e.changedTouches[0] && e.changedTouches[0].preventDefault && e.changedTouches[0].preventDefault();
+				for (var i in gestureRecognizers) {
+					gestureRecognizers[i]["process" + eventType](e,self);
+				}
+				for (var i in gestureRecognizers) {
+					gestureRecognizers[i]["finalize" + eventType]();
+				}
+			}
+			if ("ontouchstart" in document.body) {
+				on(this.domNode,"touchstart",function(e){
+					processTouchEvent("TouchStartEvent",e,self,touchStartRecognizers);
+					
+					var moveDisconnect = on(window,"touchmove",function(e){
+						processTouchEvent("TouchMoveEvent",e,self,touchMoveRecognizers);
+					});
+					var endDisconnect = on(window,"touchend",function(e){
+						processTouchEvent("TouchEndEvent",e,self,touchEndRecognizers);
+						moveDisconnect();
+						cancelDisconnect();
+						endDisconnect();
+					});
+					var cancelDisconnect = on(window,"touchcancel",function(e){
+						processTouchEvent("TouchCancelEvent",e,self,touchCancelRecognizers);
+						moveDisconnect();
+						cancelDisconnect();
+						endDisconnect();
+					});
+				});
+			} else {
+				
+				// Fall back to using the traditional mouse events
+				var mousePressed = false;
+				on(this.domNode,"mousedown",function(e){
+					mousePressed = true;
+					processTouchEvent("TouchStartEvent",{
+						touches: [e],
+					    targetTouches: [],
+					    changedTouches: [e],
+					    altKey: e.altKey,
+					    metaKey: e.metaKey,
+					    ctrlKey: e.ctrlKey,
+					    shiftKey: e.shiftKey
+					},self,touchStartRecognizers);
+					
+					var moveDisconnect = on(window,"mousemove",function(e){
+						if (mousePressed) {
+							processTouchEvent("TouchMoveEvent",{
+								touches: [e],
+							    targetTouches: [],
+							    changedTouches: [e],
+							    altKey: e.altKey,
+							    metaKey: e.metaKey,
+							    ctrlKey: e.ctrlKey,
+							    shiftKey: e.shiftKey
+							},self,touchMoveRecognizers);
+						}
+					});
+					
+					var endDisconnect = on(window,"mouseup",function(e){
+						mousePressed = false;
+						processTouchEvent("TouchEndEvent",{
+							touches: [],
+						    targetTouches: [],
+						    changedTouches: [e],
+						    altKey: e.altKey,
+						    metaKey: e.metaKey,
+						    ctrlKey: e.ctrlKey,
+						    shiftKey: e.shiftKey
+						},self,touchEndRecognizers);
+						moveDisconnect();
+						endDisconnect();
+					});
+				});
+			}
 
 			// TODO: mixin JSS rules (http://jira.appcelerator.org/browse/TIMOB-6780)
-			
-			on(this.domNode, "click", lang.hitch(this,function(e){
-				this._handleMouseEvent("click",{x: e.clientX, y: e.clientY});
-			}));
-			
-			on(this.domNode, "dblclick", lang.hitch(this,function(e){
-				this._handleMouseEvent("dblclick",{x: e.clientX, y: e.clientY});
-			}));
 
 			on(this.domNode, "focus", lang.hitch(this, function() {
 				var tmp, node = this.domNode;
@@ -274,7 +369,21 @@ define("Ti/_/UI/Element",
 			return {x: 0, y: 0};
 		},
 		
-		_handleMouseEvent: function(type, e) {
+		_gestureRecognizers: [],
+		
+		_isGestureBlocked: function(gesture) {
+			for (var recognizer in this._gestureRecognizers) {
+				var blockedGestures = this._gestureRecognizers[recognizer].blocking;
+				for (var blockedGesture in blockedGestures) {
+					if (gesture === blockedGestures[blockedGesture]) {
+						return true;
+					}
+				}
+			}
+			return false;
+		},
+		
+		_handleTouchEvent: function(type, e) {
 			this.fireEvent(type, e);
 		},
 
