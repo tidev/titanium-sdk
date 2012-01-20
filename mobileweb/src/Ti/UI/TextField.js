@@ -17,7 +17,7 @@ define("Ti/UI/TextField",
 
 			this._initTextBox();
 			this._keyboardType();
-			this.borderStyle = this.borderStyle;
+			this.borderStyle = UI.INPUT_BORDERSTYLE_NONE;
 
 			require.on(f, "focus", this, function() {
 				this.clearOnEdit && (f.value = "");
@@ -66,7 +66,6 @@ define("Ti/UI/TextField",
 
 		properties: {
 			borderStyle: {
-				value: UI.INPUT_BORDERSTYLE_NONE,
 				set: function(value, oldValue) {
 					var n = this.domNode,
 						s = "TiUITextFieldBorderStyle";
