@@ -47,9 +47,9 @@ properties:
         [TEXT_AUTOCAPITALIZATION_SENTENCES](Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES), or 
         [TEXT_AUTOCAPITALIZATION_ALL](Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL).
 
-        For Mobile Web, TEXT_AUTOCAPITALIZATION_WORDS is unsupported.
+        For Mobile Web, `TEXT_AUTOCAPITALIZATION_WORDS` is unsupported.
     type: Number
-  - autocorrect
+  - name: autocorrect
     summary: If true, allows the input field to autocorrect misspelled words.
     type: Boolean
   - name: borderStyle
@@ -147,12 +147,12 @@ properties:
     description: |
         Specify one of the `RETURNKEY` constants from <Titanium.UI>.
 
-        Mobile Web iOS supports [RETURNKEY_DEFAULT](Titanium.UI.RETURNKEY_DEFAULT),
+        Mobile Web on iOS devices supports [RETURNKEY_DEFAULT](Titanium.UI.RETURNKEY_DEFAULT),
         [RETURNKEY_GO](Titanium.UI.RETURNKEY_GO), [RETURNKEY_GOOGLE](Titanium.UI.RETURNKEY_GOOGLE),
         [RETURNKEY_SEARCH](Titanium.UI.RETURNKEY_SEARCH), and [RETURNKEY_YAHOO](Titanium.UI.RETURNKEY_YAHOO).
-        RETURNKEY_GOOGLE, RETURNKEY_SEARCH, and RETURNKEY_YAHOO all display the word "Search".
+        `RETURNKEY_GOOGLE`, `RETURNKEY_SEARCH`, and `RETURNKEY_YAHOO` all display the word "Search".
 
-        Mobile Web Android will only display "Go" regardless of which `RETURNKEY` type is used.
+        Mobile Web on Android devices will only display "Go" regardless of which `RETURNKEY` type is used.
     type: Number
     default: the platform's default return key
   - name: rightButton
