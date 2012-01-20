@@ -551,7 +551,11 @@ autoreverseLayout.a = TiDimensionUndefined; \
 		}
 		if (perform)
 		{
+            // NOTE: This results in a behavior change from previous versions, where interaction
+            // with animations was allowed. In particular, with the new block system, animations can
+            // be concurrent or interrupted, as opposed to being synchronous.
             
+            // TODO: We need to investigate this more as part of the larger move to blocks.
             [UIView transitionWithView:transitionView
                               duration:[self animationDuration]
                                options:[transition unsignedIntegerValue]
