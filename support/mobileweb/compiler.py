@@ -45,6 +45,7 @@ class Compiler(object):
 				
 				# base classes
 				'Ti/_/Evented.js',
+				'Ti/_/Gestures/GestureRecognizer.js',
 				'Ti/_/Gestures/DoubleTap.js',
 				'Ti/_/Gestures/LongPress.js',
 				'Ti/_/Gestures/Pinch.js',

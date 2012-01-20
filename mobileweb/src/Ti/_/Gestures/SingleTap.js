@@ -1,10 +1,8 @@
-define("Ti/_/Gestures/SingleTap", ["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
+define("Ti/_/Gestures/SingleTap", ["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function(declare,lang,GestureRecognizer) {
 
-	return declare("Ti._.Gestures.SingleTap", null, {
+	return declare("Ti._.Gestures.SingleTap", GestureRecognizer, {
 		
 		name: "singletap",
-		
-		blocking: [],
 		
 		_touchStartLocation: null,
 		
@@ -18,8 +16,6 @@ define("Ti/_/Gestures/SingleTap", ["Ti/_/declare", "Ti/_/lang"], function(declar
 					y: e.changedTouches[0].clientY
 				}
 			}
-		},
-		finalizeTouchStartEvent: function(){
 		},
 		
 		processTouchEndEvent: function(e, element){
@@ -40,18 +36,9 @@ define("Ti/_/Gestures/SingleTap", ["Ti/_/declare", "Ti/_/lang"], function(declar
 				}
 			}
 		},
-		finalizeTouchEndEvent: function(){
-		},
-		
-		processTouchMoveEvent: function(e, element){
-		},
-		finalizeTouchMoveEvent: function(){
-		},
 		
 		processTouchCancelEvent: function(e, element){
 			this._touchStartLocation = null;
-		},
-		finalizeTouchCancelEvent: function(){
 		}
 
 	});

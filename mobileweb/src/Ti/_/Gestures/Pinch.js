@@ -1,10 +1,8 @@
-define("Ti/_/Gestures/Pinch", ["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
+define("Ti/_/Gestures/Pinch", ["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function(declare,lang,GestureRecognizer) {
 
-	return declare("Ti._.Gestures.Pinch", null, {
+	return declare("Ti._.Gestures.Pinch", GestureRecognizer, {
 		
 		name: "pinch",
-		
-		blocking: [],
 		
 		_touchStartLocation: null,
 		_touchEndLocation: null,
@@ -68,14 +66,10 @@ define("Ti/_/Gestures/Pinch", ["Ti/_/declare", "Ti/_/lang"], function(declare,la
 				this._touchStartLocation = null;
 			}
 		},
-		finalizeTouchStartEvent: function(){
-		},
 		
 		processTouchEndEvent: function(e, element){
 			this.processTouchMoveEvent(e, element);
 			this._touchStartLocation = null;
-		},
-		finalizeTouchEndEvent: function(){
 		},
 		
 		processTouchMoveEvent: function(e, element){
@@ -97,13 +91,9 @@ define("Ti/_/Gestures/Pinch", ["Ti/_/declare", "Ti/_/lang"], function(declare,la
 				}
 			}
 		},
-		finalizeTouchMoveEvent: function(){
-		},
 		
 		processTouchCancelEvent: function(e, element){
 			this._touchStartLocation = null;
-		},
-		finalizeTouchCancelEvent: function(){
 		}
 		
 	});

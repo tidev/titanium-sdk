@@ -1,20 +1,8 @@
-define("Ti/_/Gestures/TouchMove", ["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
+define("Ti/_/Gestures/TouchMove", ["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function(declare,lang,GestureRecognizer) {
 
-	return declare("Ti._.Gestures.TouchMove", null, {
+	return declare("Ti._.Gestures.TouchMove", GestureRecognizer, {
 		
 		name: "touchmove",
-		
-		blocking: [],
-		
-		processTouchStartEvent: function(e, element){
-		},
-		finalizeTouchStartEvent: function(){
-		},
-		
-		processTouchEndEvent: function(e, element){
-		},
-		finalizeTouchEndEvent: function(){
-		},
 		
 		processTouchMoveEvent: function(e, element){
 			if (!element._isGestureBlocked(this.name)) {
@@ -25,13 +13,6 @@ define("Ti/_/Gestures/TouchMove", ["Ti/_/declare", "Ti/_/lang"], function(declar
 					}));
 				}
 			}
-		},
-		finalizeTouchMoveEvent: function(){
-		},
-		
-		processTouchCancelEvent: function(e, element){
-		},
-		finalizeTouchCancelEvent: function(){
 		}
 
 	});

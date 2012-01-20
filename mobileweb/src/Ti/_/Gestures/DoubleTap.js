@@ -1,10 +1,8 @@
-define("Ti/_/Gestures/DoubleTap", ["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
+define("Ti/_/Gestures/DoubleTap", ["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function(declare,lang,GestureRecognizer) {
 
-	return declare("Ti._.Gestures.DoubleTap", null, {
+	return declare("Ti._.Gestures.DoubleTap", GestureRecognizer, {
 		
 		name: "doubletap",
-		
-		blocking: [],
 		
 		_firstTapTime: null,
 		_firstTapLocation: null,
@@ -21,11 +19,6 @@ define("Ti/_/Gestures/DoubleTap", ["Ti/_/declare", "Ti/_/lang"], function(declar
 				x: x,
 				y: y
 			}
-		},
-		
-		processTouchStartEvent: function(e, element){
-		},
-		finalizeTouchStartEvent: function(){
 		},
 		
 		processTouchEndEvent: function(e, element){
@@ -61,15 +54,8 @@ define("Ti/_/Gestures/DoubleTap", ["Ti/_/declare", "Ti/_/lang"], function(declar
 			this.blocking = [];
 		},
 		
-		processTouchMoveEvent: function(e, element){
-		},
-		finalizeTouchMoveEvent: function(){
-		},
-		
 		processTouchCancelEvent: function(e, element){
 			this._firstTapTime = null;
-		},
-		finalizeTouchCancelEvent: function(){
 		}
 
 	});

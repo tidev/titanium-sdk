@@ -1,10 +1,8 @@
-define("Ti/_/Gestures/LongPress", ["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
+define("Ti/_/Gestures/LongPress", ["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function(declare,lang,GestureRecognizer) {
 
-	return declare("Ti._.Gestures.LongPress", null, {
+	return declare("Ti._.Gestures.LongPress", GestureRecognizer, {
 		
 		name: "longpress",
-		
-		blocking: [],
 		
 		_timer: null,
 		_touchStartLocation: null,
@@ -34,8 +32,6 @@ define("Ti/_/Gestures/LongPress", ["Ti/_/declare", "Ti/_/lang"], function(declar
 				}),this._timeThreshold);
 			}
 		},
-		finalizeTouchStartEvent: function(){
-		},
 		
 		processTouchEndEvent: function(e, element){
 			if (e.touches.length == 0 && e.changedTouches.length == 1) {
@@ -52,13 +48,9 @@ define("Ti/_/Gestures/LongPress", ["Ti/_/declare", "Ti/_/lang"], function(declar
 				clearTimeout(this._timer);
 			}
 		},
-		finalizeTouchMoveEvent: function(){
-		},
 		
 		processTouchCancelEvent: function(e, element){
 			clearTimeout(this._timer);
-		},
-		finalizeTouchCancelEvent: function(){
 		}
 		
 	});

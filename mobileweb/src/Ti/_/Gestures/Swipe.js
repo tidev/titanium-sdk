@@ -1,10 +1,8 @@
-define("Ti/_/Gestures/Swipe", ["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
+define("Ti/_/Gestures/Swipe", ["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function(declare,lang,GestureRecognizer) {
 
-	return declare("Ti._.Gestures.Swipe", null, {
+	return declare("Ti._.Gestures.Swipe", GestureRecognizer, {
 		
 		name: "swipe",
-		
-		blocking: [],
 		
 		_touchStartLocation: null,
 		_distanceThresholdPassed: false,
@@ -26,8 +24,6 @@ define("Ti/_/Gestures/Swipe", ["Ti/_/declare", "Ti/_/lang"], function(declare,la
 				this._touchStartLocation = null;
 			}
 		},
-		finalizeTouchStartEvent: function(){
-		},
 		
 		processTouchEndEvent: function(e, element){
 			if (e.touches.length == 0 && e.changedTouches.length == 1) {
@@ -35,21 +31,15 @@ define("Ti/_/Gestures/Swipe", ["Ti/_/declare", "Ti/_/lang"], function(declare,la
 			}
 			this._touchStartLocation = null;
 		},
-		finalizeTouchEndEvent: function(){
-		},
 		
 		processTouchMoveEvent: function(e, element){
 			if (e.touches.length == 1 && e.changedTouches.length == 1) {
 				this._processSwipeEvent(e,element,false);
 			}
 		},
-		finalizeTouchMoveEvent: function(){
-		},
 		
 		processTouchCancelEvent: function(e, element){
 			this._touchStartLocation = null;
-		},
-		finalizeTouchCancelEvent: function(){
 		},
 		
 		_processSwipeEvent: function(e,element,finishedSwiping) {

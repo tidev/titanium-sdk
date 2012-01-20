@@ -1,10 +1,8 @@
-define("Ti/_/Gestures/TwoFingerTap", ["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
+define("Ti/_/Gestures/TwoFingerTap", ["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function(declare,lang,GestureRecognizer) {
 
-	return declare("Ti._.Gestures.TwoFingerTap", null, {
+	return declare("Ti._.Gestures.TwoFingerTap", GestureRecognizer, {
 		
 		name: "twofingertap",
-		
-		blocking: [],
 		
 		_touchStartLocation: null,
 		_touchEndLocation: null,
@@ -25,6 +23,7 @@ define("Ti/_/Gestures/TwoFingerTap", ["Ti/_/declare", "Ti/_/lang"], function(dec
 				y = e.changedTouches[0].clientY,
 				touchesLength = e.touches.length,
 				changedTouchesLength = e.changedTouches.length;
+			element.backgroundColor == "yellow" && console.debug("Two Finger Tap" + touchesLength + "," + changedTouchesLength);
 			
 			// First finger down of the two, given a slight difference in contact time
 			if (touchesLength == 1 && changedTouchesLength == 1) {
@@ -62,10 +61,9 @@ define("Ti/_/Gestures/TwoFingerTap", ["Ti/_/declare", "Ti/_/lang"], function(dec
 				this._touchStartLocation = null;
 			}
 		},
-		finalizeTouchStartEvent: function(){
-		},
 		
 		processTouchEndEvent: function(e, element){
+			element.backgroundColor == "yellow" && console.debug("Two Finger Tap end" + e.touches.length + "," + e.changedTouches.length);
 			
 			var x = e.changedTouches[0].clientX,
 				y = e.changedTouches[0].clientY,
@@ -125,15 +123,8 @@ define("Ti/_/Gestures/TwoFingerTap", ["Ti/_/declare", "Ti/_/lang"], function(dec
 			this.blocking = [];
 		},
 		
-		processTouchMoveEvent: function(e, element){
-		},
-		finalizeTouchMoveEvent: function(){
-		},
-		
 		processTouchCancelEvent: function(e, element){
 			this._touchStartLocation = null;
-		},
-		finalizeTouchCancelEvent: function(){
 		}
 		
 	});
