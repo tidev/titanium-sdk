@@ -49,7 +49,7 @@ describe("Ti.Utils tests", {
 			valueOf(Ti.Utils.arrayTest(null,null,null,null)).shouldBeTrue();
 			valueOf(Ti.Utils.arrayTest([],[],[],[])).shouldBeTrue();
 		}
-	}
+    }
     
 
 });
