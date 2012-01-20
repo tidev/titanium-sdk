@@ -84,11 +84,14 @@ events:
 
   - name: focus
     summary: Fired when the window gains focus.
-
+    description: |
+      The listener for this event must be defined before this window 
+      is opened.
   - name: open
     summary: Fired when the window is opened.
-
-
+    description: |
+      The listener for this event must be defined before this window 
+      is opened.
 properties:
   - name: activity
     summary: |
