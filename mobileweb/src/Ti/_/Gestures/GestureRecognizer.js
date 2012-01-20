@@ -2,7 +2,11 @@ define("Ti/_/Gestures/GestureRecognizer", ["Ti/_/declare", "Ti/_/lang"], functio
 
 	return declare("Ti._.Gestures.GestureRecognizer", null, {
 		
-		blocking: [],
+		blocking: null,
+		
+		constructor: function() {
+			this.blocking = [];
+		},
 		
 		processTouchStartEvent: function(e, element){
 		},
