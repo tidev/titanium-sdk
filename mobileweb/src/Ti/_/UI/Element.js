@@ -1,6 +1,10 @@
 define("Ti/_/UI/Element",
-	["Ti/_/browser", "Ti/_/css", "Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/style", "Ti/_/Evented"],
-	function(browser, css, declare, dom, lang, style, Evented) {
+	["Ti/_/browser", "Ti/_/css", "Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/style", "Ti/_/Evented",
+	"Ti/_/Gestures/DoubleTap","Ti/_/Gestures/LongPress","Ti/_/Gestures/Pinch","Ti/_/Gestures/SingleTap",
+	"Ti/_/Gestures/Swipe","Ti/_/Gestures/TouchCancel","Ti/_/Gestures/TouchEnd","Ti/_/Gestures/TouchMove",
+	"Ti/_/Gestures/TouchStart","Ti/_/Gestures/TwoFingerTap"],
+	function(browser, css, declare, dom, lang, style, Evented,
+		DoubleTap, LongPress, Pinch, SingleTap, Swipe, TouchCancel, TouchEnd, TouchMove, TouchStart, TwoFingerTap) {
 
 	var undef,
 		unitize = dom.unitize,
@@ -36,16 +40,16 @@ define("Ti/_/UI/Element",
 			
 			// Handle click/touch/gestures
 			this._gestureRecognizers = {
-				Pinch: (new Ti._.Gestures.Pinch()),
-				Swipe: (new Ti._.Gestures.Swipe()),
-				TwoFingerTap: (new Ti._.Gestures.TwoFingerTap()),
-				DoubleTap: (new Ti._.Gestures.DoubleTap()),
-				LongPress: (new Ti._.Gestures.LongPress()),
-				SingleTap: (new Ti._.Gestures.SingleTap()),
-				TouchStart: (new Ti._.Gestures.TouchStart()),
-				TouchEnd: (new Ti._.Gestures.TouchEnd()),
-				TouchMove: (new Ti._.Gestures.TouchMove()),
-				TouchCancel: (new Ti._.Gestures.TouchCancel())
+				Pinch: (new Pinch()),
+				Swipe: (new Swipe()),
+				TwoFingerTap: (new TwoFingerTap()),
+				DoubleTap: (new DoubleTap()),
+				LongPress: (new LongPress()),
+				SingleTap: (new SingleTap()),
+				TouchStart: (new TouchStart()),
+				TouchEnd: (new TouchEnd()),
+				TouchMove: (new TouchMove()),
+				TouchCancel: (new TouchCancel())
 			};
 			var recognizers = this._gestureRecognizers,
 			// Each event could require a slightly different precedence of execution, which is why we have these separate lists.

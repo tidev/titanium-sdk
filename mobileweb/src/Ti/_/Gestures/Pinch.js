@@ -1,4 +1,4 @@
-define("Ti/_/Gesture/Pinch", ["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
+define("Ti/_/Gestures/Pinch", ["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
 
 	return declare("Ti._.Gestures.Pinch", null, {
 		

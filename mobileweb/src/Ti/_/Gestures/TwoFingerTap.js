@@ -1,4 +1,4 @@
-define("Ti/_/Gesture/TwoFingerTap", ["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
+define("Ti/_/Gestures/TwoFingerTap", ["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
 
 	return declare("Ti._.Gestures.TwoFingerTap", null, {
 		

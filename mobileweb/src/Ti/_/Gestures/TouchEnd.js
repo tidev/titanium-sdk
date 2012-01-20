@@ -1,4 +1,4 @@
-define("Ti/_/Gesture/TouchEnd", ["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
+define("Ti/_/Gestures/TouchEnd", ["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
 
 	return declare("Ti._.Gestures.TouchEnd", null, {
 		

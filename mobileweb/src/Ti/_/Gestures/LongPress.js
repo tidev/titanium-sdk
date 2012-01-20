@@ -1,4 +1,4 @@
-define("Ti/_/Gesture/LongPress", ["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
+define("Ti/_/Gestures/LongPress", ["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
 
 	return declare("Ti._.Gestures.LongPress", null, {
 		
