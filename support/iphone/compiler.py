@@ -161,6 +161,16 @@ def softlink_resources(source,target,use_ignoreDirs=True):
 			else:
 				os.symlink(from_, to_)
 
+def clear_application_routing(classes_dir):
+	impf = open(os.path.join(classes_dir,'ApplicationRouting.m'),'w+')
+	impf.write(HEADER)
+	impf.write(IMPL_HEADER)
+	impf.write("+ (NSData*) resolveAppAsset:(NSString*)path;\n{\n")
+	impf.write("     return nil;\n")
+	impf.write('}\n')
+	impf.write(FOOTER)
+	impf.close()
+
 def softlink_for_simulator(project_dir,app_dir):
 	resources_dir = os.path.join(project_dir,'Resources')
 	iphone_resources_dir = os.path.join(resources_dir,'iphone')
@@ -175,6 +185,8 @@ def softlink_for_simulator(project_dir,app_dir):
 		src_mod_iphone_dir = os.path.join(src_mod_dir,'iphone')
 		if(os.path.exists(src_mod_iphone_dir)):
 			softlink_resources(os.path.join(project_dir,'modules','iphone'),dest_mod_dir,False)
+	iphone_classes_dir = os.path.join(project_dir,'build','iphone','Classes')
+	clear_application_routing(iphone_classes_dir)
 
 #
 # TODO/FIXME
