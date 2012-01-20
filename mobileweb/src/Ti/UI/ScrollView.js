@@ -11,6 +11,7 @@ define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style"], functio
 			y !== null && (this.domNode.scrollTop = parseInt(y));
 		},
 		
+		_preventDefaultTouch: false,
 		_defaultWidth: "100%",
 		_defaultHeight: "100%",
 		_getContentOffset: function(){

@@ -46,6 +46,7 @@ define("Ti/UI/WebView", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css
 			console.debug('Method "Titanium.UI.WebView#.stopLoading" is not implemented yet.');
 		},
 		
+		_preventDefaultTouch: false,
 		_defaultWidth: "100%",
 		_defaultHeight: "100%",
 		_getContentWidth: function() {

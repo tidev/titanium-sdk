@@ -28,6 +28,8 @@ define("Ti/_/UI/Element",
 
 		domType: null,
 		domNode: null,
+		
+		_preventDefaultTouch: true,
 
 		constructor: function() {
 			var bgSelPrevColor,
@@ -61,32 +63,29 @@ define("Ti/_/UI/Element",
 			
 			var self = this;
 			function processTouchEvent(eventType,e,self,gestureRecognizers) {
-					for (var i in gestureRecognizers) {
-						gestureRecognizers[i]["process" + eventType](e,self);
-					}
-					for (var i in gestureRecognizers) {
-						gestureRecognizers[i]["finalize" + eventType]();
-					}
+				this._preventDefaultTouch && e.preventDefault();
+				for (var i in gestureRecognizers) {
+					gestureRecognizers[i]["process" + eventType](e,self);
+				}
+				for (var i in gestureRecognizers) {
+					gestureRecognizers[i]["finalize" + eventType]();
+				}
 			}
 			if ("ontouchstart" in document.body) {
 				on(this.domNode,"touchstart",function(e){
 					processTouchEvent("TouchStartEvent",e,self,touchStartRecognizers);
-					e.preventDefault();
 					
 					var moveDisconnect = on(window,"touchmove",function(e){
 						processTouchEvent("TouchMoveEvent",e,self,touchMoveRecognizers);
-						e.preventDefault();
 					});
 					var endDisconnect = on(window,"touchend",function(e){
 						processTouchEvent("TouchEndEvent",e,self,touchEndRecognizers);
-						e.preventDefault();
 						moveDisconnect();
 						cancelDisconnect();
 						endDisconnect();
 					});
 					var cancelDisconnect = on(window,"touchcancel",function(e){
 						processTouchEvent("TouchCancelEvent",e,self,touchCancelRecognizers);
-						e.preventDefault();
 						moveDisconnect();
 						cancelDisconnect();
 						endDisconnect();
