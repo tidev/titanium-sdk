@@ -191,7 +191,7 @@ Handle<Value> APIModule::log(const Arguments& args)
 		int size = strlen(*level) + strlen(*message) + 4;
 		
 		char *fmessage = new char[size];
-		sprintf(fmessage, "[%s] %s", *level, *message);
+		snprintf(fmessage, size, "[%s] %s", *level, *message);
 
 		APIModule::logInternal(LOG_LEVEL_INFO, LCAT, fmessage);
 		delete fmessage;
