@@ -30,10 +30,46 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 			});
 			this.addEventListener("touchend",function(e) {
 				previousTouchLocation = null;
+				
+				// Create the scroll event
+				this.fireEvent("scrollEnd",{
+					contentOffset: {x: 0, y: this.domNode.scrollTop},
+					contentSize: {width: this.rows._measuredWidth, height: this.rows._measuredHeight},
+					size: {width: this._measuredWidth, height: this._measuredHeight},
+					x: e.x,
+					y: e.y
+				})
 			});
 			this.addEventListener("touchmove",lang.hitch(this,function(e) {
 				this.domNode.scrollTop += previousTouchLocation - e.y;
 				previousTouchLocation = e.y;
+				
+				// Calculate the visible items
+				var firstVisibleItem,
+					visibleItemCount = 1,
+					scrollTop = this.domNode.scrollTop;
+				for(var i = 0; i < this.data.length; i++) {
+					var row = this.data[i];
+					if (firstVisibleItem) {
+						if (row._measuredTop - scrollTop < this._measuredHeight) {
+							visibleItemCount++;
+						}
+					} else if (row._measuredTop <= scrollTop && row._measuredTop + row._measuredHeight > scrollTop) {
+						firstVisibleItem = row;
+					}
+				}
+				
+				// Create the scroll event
+				this.fireEvent("scroll",{
+					contentOffset: {x: 0, y: this.domNode.scrollTop},
+					contentSize: {width: this.rows._measuredWidth, height: this.rows._measuredHeight},
+					firstVisibleItem: firstVisibleItem,
+					size: {width: this._measuredWidth, height: this._measuredHeight},
+					totalItemCount: this.data.length,
+					visibleItemCount: visibleItemCount,
+					x: e.x,
+					y: e.y
+				})
 			}));
 		},
 
