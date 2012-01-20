@@ -352,7 +352,7 @@ DEFINE_EXCEPTIONS
 		[UIView commitAnimations];
 		
 		placeholderLoading = NO;
-		[self fireLoadEventWithState:@"url"];
+		[self fireLoadEventWithState:@"image"];
 	}
 }
 
@@ -465,7 +465,7 @@ DEFINE_EXCEPTIONS
 			autoHeight = fullSize.height;
 			
 			[self imageView].image = image;
-			[self fireLoadEventWithState:@"url"];
+			[self fireLoadEventWithState:@"image"];
 		}
 		else 
 		{
@@ -696,7 +696,7 @@ DEFINE_EXCEPTIONS
 	
 	if (currentImage!=image)
 	{
-		[self fireLoadEventWithState:@"url"];
+		[self fireLoadEventWithState:@"image"];
 	}
 }
 
