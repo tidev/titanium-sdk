@@ -10,6 +10,15 @@ define("Ti/UI/ScrollableView",
 
 	return declare("Ti.UI.ScrollableView", Widget, {
 		
+		// This sets the minimum velocity that determines whether a swipe was a flick or a drag
+		_velocityThreshold: 0.4,
+		
+		// This determines the minimum distance scale (i.e. width divided by this value) before a flick requests a page turn
+		_minimumFlickDistanceScaleFactor: 15,
+		
+		// This determines the minimum distance scale (i.e. width divided by this value) before a drag requests a page turn
+		_minimumDragDistanceScaleFactor: 2,
+		
 		constructor: function(args){
 			
 			this._setContent();
@@ -22,7 +31,8 @@ define("Ti/UI/ScrollableView",
 				animationView,
 				swipeInitialized = false,
 				viewsToScroll,
-				touchEndHandled;
+				touchEndHandled,
+				startTime;
 			// This touch end handles the case where a swipe was started, but turned out not to be a swipe
 			this.addEventListener("touchend",function(e) {
 				if (!touchEndHandled && swipeInitialized) {
@@ -44,6 +54,7 @@ define("Ti/UI/ScrollableView",
 				if (!swipeInitialized) {
 					swipeInitialized = true;
 					touchEndHandled = false;
+					startTime = (new Date()).getTime();
 					
 					// Create the list of views that can be scrolled, the ones immediately to the left and right of the current view
 					initialPosition = 0;
@@ -98,13 +109,18 @@ define("Ti/UI/ScrollableView",
 					swipeInitialized = false;
 					touchEndHandled = true;
 					
+					// Determine whether this was a flick or a drag
+					var velocity = Math.abs((e._distance) / ((new Date()).getTime() - startTime));
+					var scaleFactor = velocity > this._velocityThreshold ? 
+						this._minimumFlickDistanceScaleFactor : this._minimumDragDistanceScaleFactor
+					
 					// Find out which view we are animating to
 					var destinationIndex = this.currentPage,
 						animationLeft = initialPosition;
-					if (e._distance > width / 2 && this._currentPage > 0) {
+					if (e._distance > width / scaleFactor && this._currentPage > 0) {
 						destinationIndex = this._currentPage - 1;
 						animationLeft = 0;
-					} else if (e._distance < -width / 2 && this._currentPage < this.views.length - 1) {
+					} else if (e._distance < -width / scaleFactor && this._currentPage < this.views.length - 1) {
 						destinationIndex = this._currentPage + 1;
 						if (viewsToScroll.length === 3) {
 							animationLeft = -2 * width;
