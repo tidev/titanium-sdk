@@ -263,31 +263,38 @@ properties:
     type: Number
     
   - name: disableBounce
-    summary: Determines whether view bouncing effect is disabled. Defaults to `false`.
-    platforms: [iphone, ipad]
+    summary: Determines whether view bouncing effect is disabled.
     type: Boolean
+    default: false
+    platforms: [iphone, ipad]
+
     
   - name: pagingControlColor
     summary: |
-        Color of the paging control, in color word or hex format. Defaults to 
-        `black` (`#000000`).
+        Color of the paging control, in 
+        [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) 
+        name or hex format.
     type: String
+    default: black
     platforms: [iphone,ipad]
     
   - name: pagingControlHeight
-    summary: Height of the paging control, in pixels. Defaults to 20.
+    summary: Height of the paging control, in pixels.
     type: Number
+    default: 20
     platforms: [iphone,ipad]
     
   - name: showPagingControl
-    summary: Determines whether the paging control is visible. Defaults to `true`.
+    summary: Determines whether the paging control is visible.
     type: Boolean
+    default: true
     
   - name: pagingControlTimeout
     summary: |
         Number of milliseconds to wait before hiding the paging control. Less 
-        than or equal to 0 disables timeout keeping controls displayed.
+        than or equal to 0 disables timeout, keeping controls displayed.
     type: Number
+    default: 3000
     platforms: [android]
     availability: creation
     
