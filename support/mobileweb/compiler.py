@@ -16,7 +16,7 @@ from tiapp import *
 import jspacker 
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
-ignoreDirs = ['.git','.svn','_svn','CVS','android','iphone'];
+ignoreDirs = ['.git','.svn','_svn','CVS'];
 
 year = datetime.datetime.now().year
 
@@ -93,6 +93,7 @@ class Compiler(object):
 				'Ti/UI/2DMatrix.js',
 				'Ti/UI/ActivityIndicator.js',
 				'Ti/UI/AlertDialog.js',
+				'Ti/UI/Animation.js',
 				'Ti/UI/Button.js',
 				'Ti/UI/ImageView.js',
 				'Ti/UI/Label.js',

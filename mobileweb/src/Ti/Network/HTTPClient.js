@@ -4,6 +4,7 @@ define("Ti/Network/HTTPClient", ["Ti/_/Evented"], function(Evented) {
 	
 		var undef,
 			obj = this,
+			enc = encodeURIComponent,
 			is = require.is,
 			on = require.on,
 			xhr = new XMLHttpRequest,
@@ -21,7 +22,25 @@ define("Ti/Network/HTTPClient", ["Ti/_/Evented"], function(Evented) {
 		function fireStateChange() {
 			is(obj.onreadystatechange, "Function") && obj.onreadystatechange.call(obj);
 		}
-	
+
+		function serialize(obj) {
+			var pairs = [],
+				prop,
+				value;
+
+			for (prop in obj) {
+				if (obj.hasOwnProperty(prop)) {
+					is(value = obj[prop], "Array") || (value = [value]);
+					prop = enc(prop) + "=";
+					require.each(value, function(v) {
+						pairs.push(prop + enc(v));
+					});
+				}
+			}
+
+			return pairs.join("&");
+		}
+
 		xhr.onreadystatechange = function() {
 			switch (xhr.readyState) {
 				case 0: _readyState = UNSENT; break;
@@ -121,7 +140,9 @@ define("Ti/Network/HTTPClient", ["Ti/_/Evented"], function(Evented) {
 		obj.send = function(args){
 			_completed = false;
 			try {
-				xhr.send(args || null);
+				args = is(args, "Object") ? serialize(args) : args;
+				args && xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+				xhr.send(args);
 				clearTimeout(timeoutTimer);
 				obj.timeout && (timeoutTimer = setTimeout(function() {
 					if (obj.connected) {

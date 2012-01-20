@@ -35,6 +35,21 @@ methods:
       - name: y
         summary: the y point within the view
         type: Number
+  - name: setContentOffset
+    summary: Sets the value of [contentOffset](Titanium.UI.ScrollView.contentOffset) property.
+    description: |
+        In iOS, there is an additional parameter `animated` that can be used to enable or
+        disable the animation while scrolling the contents offset. For example:
+                 
+                 setContentOffset({x:50,y:100},{animated:true})
+    parameters:
+      - name: contentOffset
+        summary: New value for the property
+        type: Object
+      - name: animated
+        summary: Whether this content area change should be animated.
+        optional: true
+        type: contentOffsetOption
 events:
   - name: scale
     summary: fired when the zoom scale factor changes
@@ -149,4 +164,13 @@ examples:
             scrollView.add(view);
             Titanium.UI.currentWindow.add(scrollView);
         
+---
+name: contentOffsetOption
+summary: Optional parameter for [setContentOffset](Titanium.UI.ScrollView.setContentOffset) method.
+since: 1.8.1
+platforms: [iphone, ipad]
+properties:
+  - name: animated
+    summary: Boolean to indicate whether the scrollview's content area change is animated.
+    type: Boolean
         

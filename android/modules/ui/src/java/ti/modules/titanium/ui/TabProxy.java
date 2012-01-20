@@ -65,6 +65,12 @@ public class TabProxy extends TiViewProxy
 	public void setWindow(TiWindowProxy window)
 	{
 		this.win = window;
+
+		// don't call setProperty cause the property is already set on the JS
+		// object and thus we don't need to cross back over the bridge, we just
+		// need to set it on the internal properties map of the proxy
+		properties.put(TiC.PROPERTY_WINDOW, window);
+
 		if (window == null) {
 			return;
 		}

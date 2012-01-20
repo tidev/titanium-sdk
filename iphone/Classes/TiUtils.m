@@ -1680,4 +1680,32 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return responseHeader;
 }
 
++(UIImage*)loadBackgroundImage:(id)image forProxy:(TiProxy*)proxy
+{
+    UIImage* resultImage = nil;
+    if ([image isKindOfClass:[UIImage class]]) {
+        resultImage = image;
+    }
+    else if ([image isKindOfClass:[NSString class]]) {
+        NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
+        resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL];
+        if (resultImage==nil && [image isEqualToString:@"Default.png"])
+        {
+            // special case where we're asking for Default.png and it's in Bundle not path
+            resultImage = [UIImage imageNamed:image];
+        }
+        if((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp))
+        {
+            resultImage = [UIImageResize resizedImage:[resultImage size] 
+                                 interpolationQuality:kCGInterpolationNone 
+                                                image:resultImage 
+                                                hires:NO];
+        }
+    }
+    else if ([image isKindOfClass:[TiBlob class]]) {
+        resultImage = [image image];
+    }
+    return resultImage;
+}
+
 @end

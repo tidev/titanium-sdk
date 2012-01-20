@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -29,6 +29,7 @@ import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -36,6 +37,7 @@ import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiIntentWrapper;
+import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.media.android.AndroidModule.MediaScannerClient;
 import android.app.Activity;
@@ -51,6 +53,7 @@ import android.net.Uri;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
+import android.view.Window;
 
 @Kroll.module @ContextSpecific
 public class MediaModule extends KrollModule
@@ -577,22 +580,24 @@ public class MediaModule extends KrollModule
 		return d;
 	}
 
-	/* TODO @Kroll.method
-	public void previewImage(KrollInvocation invocation, KrollDict options)
+	@Kroll.method
+	public void previewImage(KrollDict options)
 	{
-		if (DBG) {
-			Log.d(LCAT, "previewImage");
+		Activity activity = TiApplication.getAppCurrentActivity();
+		if (activity == null) {
+			Log.w(LCAT, "Unable to get current activity for previewImage.");
+			return;
 		}
 
-		V8Callback successCallback = null;
-		V8Callback errorCallback = null;
+		KrollFunction successCallback = null;
+		KrollFunction errorCallback = null;
 		TiBlob image = null;
 
 		if (options.containsKey("success")) {
-			successCallback = (V8Callback) options.get("success");
+			successCallback = (KrollFunction) options.get("success");
 		}
 		if (options.containsKey("error")) {
-			errorCallback = (V8Callback) options.get("error");
+			errorCallback = (KrollFunction) options.get("error");
 		}
 		if (options.containsKey("image")) {
 			image = (TiBlob) options.get("image");
@@ -600,37 +605,42 @@ public class MediaModule extends KrollModule
 
 		if (image == null) {
 			if (errorCallback != null) {
-				errorCallback.callAsync(createErrorResponse(UNKNOWN_ERROR, "Missing image property"));
+				errorCallback.callAsync(getKrollObject(), createErrorResponse(UNKNOWN_ERROR, "Missing image property"));
 			}
 		}
 
 		TiBaseFile f = (TiBaseFile) image.getData();
 
-		final V8Callback fSuccessCallback = successCallback;
-		final V8Callback fErrorCallback = errorCallback;
+		final KrollFunction fSuccessCallback = successCallback;
+		final KrollFunction fErrorCallback = errorCallback;
 
 		if (DBG) {
 			Log.d(LCAT, "openPhotoGallery called");
 		}
 
-		Activity activity = invocation.getTiContext().getActivity();
 		TiActivitySupport activitySupport = (TiActivitySupport) activity;
 
-		TiIntentWrapper previewIntent = new TiIntentWrapper(new Intent());
-		previewIntent.getIntent().setAction(Intent.ACTION_VIEW);
-		previewIntent.getIntent().setType(image.getMimeType());
-		previewIntent.getIntent().setData(Uri.parse(f.nativePath()));
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+		TiIntentWrapper previewIntent = new TiIntentWrapper(intent);
+		String mimeType = image.getMimeType();
+
+		if (mimeType != null && mimeType.length() > 0) {
+			intent.setDataAndType(Uri.parse(f.nativePath()), mimeType);
+		} else {
+			intent.setData(Uri.parse(f.nativePath()));
+		}
+
 		previewIntent.setWindowId(TiIntentWrapper.createActivityName("PREVIEW"));
 
 		final int code = activitySupport.getUniqueResultCode();
-		 activitySupport.launchActivityForResult(previewIntent.getIntent(), code,
+		 activitySupport.launchActivityForResult(intent, code,
 			new TiActivityResultHandler() {
 
 				public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 				{
 					Log.e(LCAT, "OnResult called: " + resultCode);
 					if (fSuccessCallback != null) {
-						fSuccessCallback.callAsync();
+						fSuccessCallback.callAsync(getKrollObject(), new Object[0]);
 					}
 				}
 
@@ -639,16 +649,23 @@ public class MediaModule extends KrollModule
 					String msg = "Gallery problem: " + e.getMessage();
 					Log.e(LCAT, msg, e);
 					if (fErrorCallback != null) {
-						fErrorCallback.callAsync(createErrorResponse(UNKNOWN_ERROR, msg));
+						fErrorCallback.callAsync(getKrollObject(), createErrorResponse(UNKNOWN_ERROR, msg));
 					}
 				}
 			});
 	}
 
 	@Kroll.method
-	public void takeScreenshot(V8Callback callback)
+	public void takeScreenshot(KrollFunction callback)
 	{
-		Activity a = getTiContext().getActivity();
+		Activity a = TiApplication.getAppCurrentActivity();
+
+		if (a == null) {
+			Log.w(LCAT, "Could not get current activity for takeScreenshot.");
+			callback.callAsync(getKrollObject(), new Object[] { null });
+			return;
+		}
+
 		while (a.getParent() != null) {
 			a = a.getParent();
 		}
@@ -659,11 +676,11 @@ public class MediaModule extends KrollModule
 			w = w.getContainer();
 		}
 
-		KrollDict image = TiUIHelper.viewToImage(getTiContext(), null, w.getDecorView());
-		if (callback != null && image != null) {
-			callback.callAsync(new Object[] { image });
+		KrollDict image = TiUIHelper.viewToImage(null, w.getDecorView());
+		if (callback != null) {
+			callback.callAsync(getKrollObject(), new Object[] { image });
 		}
-	}*/
+	}
 
 	@Kroll.method
 	public void takePicture()
