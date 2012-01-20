@@ -750,38 +750,48 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 -(BOOL)animationShouldTransition:(id)sender
 {
 	UIView *rootView = [[TiApp app] controller].view;
-	[UIView setAnimationTransition:transitionAnimation
-						   forView:rootView
-							 cache:NO];
-	
-	if (opening)
-	{
-		if (startingTransitionAnimation)
-		{
-			startingTransitionAnimation=NO;
-			[[TiApp controller] dismissDefaultImageView];
-		}
-		else
-		{
-            RELEASE_TO_NIL(animatedOver);
-            NSArray* subviews = [rootView subviews];
-            if ([subviews count] > 0) {
-                // We should be attached to the top level view at this point (the window is "ready") so
-                // this is OK to do.
-                NSUInteger index = [subviews indexOfObject:[self view]];
-                if (index != NSNotFound && index != 0) {
-                    animatedOver = [[subviews objectAtIndex:index-1] retain];
-                    [animatedOver removeFromSuperview];
+    
+    void (^animation)(void) = ^{
+        if (opening)
+        {
+            if (startingTransitionAnimation)
+            {
+                startingTransitionAnimation=NO;
+                [[TiApp controller] dismissDefaultImageView];
+            }
+            else
+            {
+                RELEASE_TO_NIL(animatedOver);
+                NSArray* subviews = [rootView subviews];
+                if ([subviews count] > 0) {
+                    // We should be attached to the top level view at this point (the window is "ready") so
+                    // this is OK to do.
+                    NSUInteger index = [subviews indexOfObject:[self view]];
+                    if (index != NSNotFound && index != 0) {
+                        animatedOver = [[subviews objectAtIndex:index-1] retain];
+                        [animatedOver removeFromSuperview];
+                    }
                 }
             }
-		}
-		[self attachViewToTopLevelWindow];
-	}
-	else 
-	{
-        [self detachView];
-	}
-
+            [self attachViewToTopLevelWindow];
+        }
+        else 
+        {
+            [self detachView];
+        }
+    };
+    
+    [UIView transitionWithView:rootView
+                      duration:[(TiAnimation*)sender animationDuration]
+                       options:transitionAnimation
+                    animations:animation
+                    completion:^(BOOL finished) {
+                        [sender animationCompleted:[NSString stringWithFormat:@"%X",(void *)rootView] 
+                                          finished:[NSNumber numberWithBool:finished] 
+                                           context:sender];
+                    }
+     ];
+    
 	return NO;
 }
 
@@ -807,7 +817,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 
 -(void)animationDidComplete:(id)sender
 {
-	[self forgetProxy:sender];
+//	[self forgetProxy:sender];
 	if (opening)
 	{
 		[self windowDidOpen];
