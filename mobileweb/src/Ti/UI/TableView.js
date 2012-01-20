@@ -63,16 +63,14 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 		},
 		
 		_handleTouchEvent: function(type, e) {
-			if (type === "click") {
+			if (type === "click" || type === "singletap") {
 				e.row = this._tableViewRowClicked;
 				e.rowData = this._tableViewRowClicked;
 				e.index = this.rows.children.indexOf(this._tableViewRowClicked);
 				e.section = this._tableViewSectionClicked;
 				e.searchMode = false;
-				View.prototype._handleMouseEvent.apply(this,arguments);
-			} else {
-				View.prototype._handleTouchEvent.apple(this,arguments);
 			}
+			View.prototype._handleMouseEvent.apply(this,arguments);
 		},
 		
 		_tableViewRowClicked: null,
