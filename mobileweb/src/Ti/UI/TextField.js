@@ -1,127 +1,110 @@
-define("Ti/UI/TextField", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, FontWidget, dom, css, style) {
+define("Ti/UI/TextField",
+	["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", "Ti/_/style", "Ti/UI"],
+	function(declare, TextBox, css, dom, lang, style, UI) {
 
-	var set = style.set,
-        undef;
+	var borderStyles = ["None", "Line", "Bezel", "Rounded"];
 
-	return declare("Ti.UI.TextField", FontWidget, {
+	return declare("Ti.UI.TextField", TextBox, {
 
 		constructor: function(args) {
-			this.textField = dom.create("input", {
-				className: css.clean("TiUITextFieldField"),
+			var f = this._field = dom.create("input", {
+				autocomplete: "off",
+				style: {
+					width: "100%",
+					height: "100%"
+				}
+			}, this.domNode);
+
+			this._initTextBox();
+			this._keyboardType();
+			this.borderStyle = UI.INPUT_BORDERSTYLE_NONE;
+
+			require.on(f, "focus", this, function() {
+				this.clearOnEdit && (f.value = "");
 			});
-			this.domNode.appendChild(this.textField);
-			this._addStyleableDomNode(this.textField);
-			set(this.textField,"backgroundColor","transparent");
-			set(this.textField,"borderStyle","none");
-			set(this.textField,"width","100%");
-			set(this.textField,"height","100%");
 		},
-		
-		blur: function() {
-			this.textField.blur();
-		},
-		
-		focus: function() {
-			this.textField.focus();
-		},
-		
-		hasText: function() {
-			return (this.textField.value !== "");
-		},
-	
+
         _defaultWidth: "auto",
+
         _defaultHeight: "auto",
+
 		_getContentWidth: function() {
-			return this._measureText(this.value, this.textField).width;
+			return this._measureText(this.value, this._field).width;
 		},
+
 		_getContentHeight: function() {
-			return this._measureText(this.value, this.textField).height;
+			return this._measureText(this.value, this._field).height;
 		},
+
 		_setTouchEnabled: function(value) {
-			FontWidget.prototype._setTouchEnabled.apply(this,arguments);
-			this.slider && set(this.textField,"pointerEvents", value ? "auto" : "none");
+			this.slider && style.set(this._field, "pointerEvents", value ? "auto" : "none");
+		},
+
+		_keyboardType: function(args) {
+			var t = "text",
+				args = args || {};
+			if (lang.val(args.pm, this.passwordMask)) {
+				t = "password";
+			} else {
+				switch (lang.val(args.kt, this.keyboardType)) {
+					case UI.KEYBOARD_EMAIL:
+						t = "email";
+						break;
+					case UI.KEYBOARD_NUMBER_PAD:
+						t = "number";
+						break;
+					case UI.KEYBOARD_PHONE_PAD:
+						t = "tel";
+						break;
+					case UI.KEYBOARD_URL:
+						t = "url";
+						break;
+				}
+			}
+			this._field.type = t;
 		},
 
 		properties: {
+			borderStyle: {
+				set: function(value, oldValue) {
+					var n = this.domNode,
+						s = "TiUITextFieldBorderStyle";
+					if (value !== oldValue) {
+						css.remove(n, s + borderStyles[oldValue]);
+						css.add(n, s + borderStyles[value]);
+					}
+					return value;
+				}
+			},
+
+			clearOnEdit: false,
+
 			hintText: {
 				set: function(value) {
-					this.textField.placeholder = value;
+					this._field.placeholder = value;
 					return value;
 				}
 			},
-			
-			value: {
-				get: function() { return this.textField.value; },
+
+			keyboardType: {
 				set: function(value) {
-					this.textField.value = value;
+					this._keyboardType({ kt:value });
 					return value;
 				}
 			},
-			
-			editable: {
-				get: function(value) {
-					return this.textField.readonly;
-				},
+
+			maxLength: {
 				set: function(value) {
-					this.textField.readonly = value ? true : false;
-					return this.textField.readonly;
-				}
-			},
-			
-			paddingLeft: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.TextField#.paddingLeft" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TextField#.paddingLeft" is not implemented yet.');
+					value = value|0;
+					this._field.maxlength = value > 0 ? value : "";
 					return value;
 				}
 			},
-			
-			paddingRight: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.TextField#.paddingRight" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TextField#.paddingRight" is not implemented yet.');
-					return value;
-				}
-			},
-			
+
 			passwordMask: {
-				get: function(value) {
-					return (this.textField.type === "password");
-				},
+				value: false,
 				set: function(value) {
-					this.textField.type = value ? "password" : "text";
-					return (value);
-				}
-			},
-			
-			textAlign: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.TextField#.textAlign" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TextField#.textAlign" is not implemented yet.');
-					return value;
-				}
-			},
-			
-			verticalAlign: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.TextField#.verticalAlign" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TextField#.verticalAlign" is not implemented yet.');
+					this._keyboardType({ pm:value });
 					return value;
 				}
 			}

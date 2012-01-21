@@ -413,22 +413,18 @@ properties:
     permission: read-only
   - name: INPUT_BUTTONMODE_ALWAYS
     summary: Always show buttons on the input field.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BUTTONMODE_NEVER
     summary: Never show buttons on the input field.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BUTTONMODE_ONBLUR
     summary: Show buttons on the input field when it loses focus.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BUTTONMODE_ONFOCUS
     summary: Show buttons on the input field when it gains focus.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_APPEARANCE_ALERT
@@ -443,17 +439,20 @@ properties:
     permission: read-only
   - name: KEYBOARD_ASCII
     summary: Use an ASCII keyboard.
-    platforms: [android, iphone, ipad]
+    description: |
+        Note: on MobileWeb, `KEYBOARD_ASCII` is the same as `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
   - name: KEYBOARD_DEFAULT
     summary: Use the default keyboard.
-    platforms: [android, iphone, ipad]
+    description: |
+        Note: on MobileWeb, `KEYBOARD_DEFAULT` is the same as `KEYBOARD_ASCII`.
     type: Number
     permission: read-only
   - name: KEYBOARD_EMAIL
     summary: Use a keyboard suitable for composing email.
-    platforms: [android, iphone, ipad]
+    description: |
+        Note: on MobileWeb, if you enable `passwordType`, the `keyboardType` value will be overridden with `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
   - name: KEYBOARD_NAMEPHONE_PAD
@@ -468,17 +467,20 @@ properties:
     permission: read-only
   - name: KEYBOARD_NUMBER_PAD
     summary: Use a keyboard with a number pad only.
-    platforms: [android, iphone, ipad]
+    description: |
+        Note: on MobileWeb, if you enable `passwordType`, the `keyboardType` value will be overridden with `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
   - name: KEYBOARD_PHONE_PAD
     summary: Use a keyboard with a phone-style number pad.
-    platforms: [android, iphone, ipad]
+    description: |
+        Note: on MobileWeb, if you enable `passwordType`, the `keyboardType` value will be overridden with `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
   - name: KEYBOARD_URL
     summary: Use an keyboard optimized for entering URLs.
-    platforms: [android, iphone, ipad]
+    description: |
+        Note: on MobileWeb, if you enable `passwordType`, the `keyboardType` value will be overridden with `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
   - name: LANDSCAPE_LEFT
@@ -536,7 +538,9 @@ properties:
     permission: read-only
   - name: RETURNKEY_DEFAULT
     summary: Use the default return key on the virtual keyboard.
-    platforms: [android, iphone, ipad]
+    description: |
+        In Mobile Web, the default return key label depends on the mobile browser. For Mobile Web
+        on iOS devices, the default label is "return"; on Android devices it is "Go".
     type: Number
     permission: read-only
   - name: RETURNKEY_DONE
@@ -551,12 +555,13 @@ properties:
     permission: read-only
   - name: RETURNKEY_GO
     summary: Set the return key text to "Go".
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_GOOGLE
     summary: Set the return key text to "Google".
-    platforms: [android, iphone, ipad]
+    description: |
+        In Mobile Web, the default return key label depends on the mobile browser. For Mobile Web
+        on iOS devices, the default label is "return"; on Android devices it is "Go".
     type: Number
     permission: read-only
   - name: RETURNKEY_JOIN
@@ -576,7 +581,9 @@ properties:
     permission: read-only
   - name: RETURNKEY_SEARCH
     summary: Set the return key text to "Search".
-    platforms: [android, iphone, ipad]
+    description: |
+        In Mobile Web, the default return key label depends on the mobile browser. For Mobile Web
+        on iOS devices, the default label is "return"; on Android devices it is "Go".
     type: Number
     permission: read-only
   - name: RETURNKEY_SEND
@@ -586,7 +593,9 @@ properties:
     permission: read-only
   - name: RETURNKEY_YAHOO
     summary: Set the return key text to "Yahoo".
-    platforms: [android, iphone, ipad]
+    description: |
+        In Mobile Web, the default return key label depends on the mobile browser. For Mobile Web
+        on iOS devices, the default label is "return"; on Android devices it is "Go".
     type: Number
     permission: read-only
   - name: TEXT_ALIGNMENT_CENTER
@@ -606,21 +615,20 @@ properties:
     permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_ALL
     summary: Auto-capitalize all text in the input field.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_NONE
     summary: Do not auto-capitalize.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_SENTENCES
     summary: Use sentence-style auto-capitalization in the input field.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_WORDS
     summary: Auto-capitalize the first letter of each word in the input field.
+    description: |
+        Mobile Web does not support this because it would interfere with the native capitalization of the mobile browser.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
