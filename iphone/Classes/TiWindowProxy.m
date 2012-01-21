@@ -539,6 +539,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
     
     if (opening) {
         TiThreadPerformOnMainThread(^{
+            opening = NO; // Preemptively clear 'opening' so we don't hit this block again
             [self close:args];
         }, YES);
         return;
