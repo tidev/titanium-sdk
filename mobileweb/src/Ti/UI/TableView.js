@@ -1,4 +1,4 @@
-define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, View, dom, css, style) {
+define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang"], function(declare, View, dom, css, style, lang) {
 
 	var set = style.set,
 		is = require.is,
@@ -22,6 +22,19 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 			this.add(this.header);
 			this.add(this.rows);
 			this.add(this.footer);
+			
+			// Handle scrolling
+			var previousTouchLocation;
+			this.addEventListener("touchstart",function(e) {
+				previousTouchLocation = e.y;
+			});
+			this.addEventListener("touchend",function(e) {
+				previousTouchLocation = null;
+			});
+			this.addEventListener("touchmove",lang.hitch(this,function(e) {
+				this.domNode.scrollTop += previousTouchLocation - e.y;
+				previousTouchLocation = e.y;
+			}));
 		},
 
 		appendRow: function(row, properties) {
@@ -61,13 +74,15 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 			return {x: this.domNode.scrollLeft, y: this.domNode.scrollTop};
 		},
 		
-		_handleMouseEvent: function(type, e) {
-			e.row = this._tableViewRowClicked;
-			e.rowData = this._tableViewRowClicked;
-			e.index = this.rows.children.indexOf(this._tableViewRowClicked);
-			e.section = this._tableViewSectionClicked;
-			e.searchMode = false;
-			View.prototype._handleMouseEvent.apply(this,arguments);
+		_handleTouchEvent: function(type, e) {
+			if (type === "click" || type === "singletap") {
+				e.row = this._tableViewRowClicked;
+				e.rowData = this._tableViewRowClicked;
+				e.index = this.rows.children.indexOf(this._tableViewRowClicked);
+				e.section = this._tableViewSectionClicked;
+				e.searchMode = false;
+			}
+			View.prototype._handleTouchEvent.apply(this,arguments);
 		},
 		
 		_tableViewRowClicked: null,
