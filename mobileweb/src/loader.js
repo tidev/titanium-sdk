@@ -1547,8 +1547,10 @@ require.cache({
 	"Ti/_/event": function() {
 		define({
 			stop: function(e) {
-				e.preventDefault();
-				e.stopPropagation();
+				if (e) {
+					e.preventDefault && e.preventDefault();
+					e.stopPropagation && e.stopPropagation();
+				}
 			},
 			off: function(handles) {
 				require.each(require.is(handles, "Array") ? handles : [handles], function(h) {
@@ -1625,6 +1627,7 @@ require.cache({
 			 */
 
 			var global = this,
+				hitch,
 				is = require.is;
 
 			function toArray(obj, offset) {
@@ -1646,7 +1649,7 @@ require.cache({
 					return is(originalValue, "Undefined") ? defaultValue : originalValue;
 				},
 
-				hitch: function(scope, method) {
+				hitch: hitch = function(scope, method) {
 					if (arguments.length > 2) {
 						return hitchArgs.apply(global, arguments);
 					}
@@ -1679,9 +1682,11 @@ require.cache({
 									(function(property, externalDest, internalDest, valueDest, /* setter/getter, getter, or value */ descriptor, capitalizedName, writable) {
 										var o = is(descriptor, "Object"),
 											getter = o && is(descriptor.get, "Function") && descriptor.get,
-											setter = o && is(descriptor.set, "Function") && descriptor.set;
+											setter = o && is(descriptor.set, "Function") && descriptor.set,
+											pt = o && is(descriptor.post),
+											post = pt === "Function" ? descriptor.post : pt === "String" ? hitch(externalDest, descriptor.post) : 0;
 
-										if (o && (getter || setter)) {
+										if (o && (getter || setter || post)) {
 											valueDest[property] = descriptor.value;
 										} else if (is(descriptor, "Function")) {
 											getter = descriptor;
@@ -1695,7 +1700,9 @@ require.cache({
 												return getter ? getter.call(externalDest, valueDest[property]) : valueDest[property];
 											},
 											set: function(v) {
-												valueDest[property] = setter ? setter.call(externalDest, v, valueDest[property]) : v;
+												var args = [v, valueDest[property]];
+												args[0] = valueDest[property] = setter ? setter.apply(externalDest, args) : v;
+												post && post.apply(externalDest, args);
 											},
 											configurable: true,
 											enumerable: true

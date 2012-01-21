@@ -1,16 +1,16 @@
 define("Ti/_/UI/Element",
-	["Ti/_/browser", "Ti/_/css", "Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/style", "Ti/_/Evented",
+	["Ti/_/browser", "Ti/_/css", "Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/Evented",
 	"Ti/_/Gestures/DoubleTap","Ti/_/Gestures/LongPress","Ti/_/Gestures/Pinch","Ti/_/Gestures/SingleTap",
 	"Ti/_/Gestures/Swipe","Ti/_/Gestures/TouchCancel","Ti/_/Gestures/TouchEnd","Ti/_/Gestures/TouchMove",
 	"Ti/_/Gestures/TouchStart","Ti/_/Gestures/TwoFingerTap"],
-	function(browser, css, declare, dom, lang, style, Evented,
+	function(browser, css, declare, dom, event, lang, style, Evented,
 		DoubleTap, LongPress, Pinch, SingleTap, Swipe, TouchCancel, TouchEnd, TouchMove, TouchStart, TwoFingerTap) {
 
 	var undef,
 		unitize = dom.unitize,
 		computeSize = dom.computeSize,
 		on = require.on,
-		set = style.set,
+		setStyle = style.set,
 		isDef = require.isDef,
 		val = lang.val,
 		is = require.is,
@@ -30,119 +30,84 @@ define("Ti/_/UI/Element",
 		domNode: null,
 
 		constructor: function() {
-			this._setFocusNode(this.domNode = dom.create(this.domType || "div", {
-				className: "TiUIElement " + css.clean(this.declaredClass),
-				"data-widget-id": this.widgetId
-			}));
+			var self = this,
 
-			// Handle click/touch/gestures
-			this._gestureRecognizers = {
-				Pinch: (new Pinch()),
-				Swipe: (new Swipe()),
-				TwoFingerTap: (new TwoFingerTap()),
-				DoubleTap: (new DoubleTap()),
-				LongPress: (new LongPress()),
-				SingleTap: (new SingleTap()),
-				TouchStart: (new TouchStart()),
-				TouchEnd: (new TouchEnd()),
-				TouchMove: (new TouchMove()),
-				TouchCancel: (new TouchCancel())
-			};
-			var recognizers = this._gestureRecognizers,
-			// Each event could require a slightly different precedence of execution, which is why we have these separate lists.
-			// For now they are the same, but I suspect they will be different once the android-iphone parity is determined.
-				touchStartRecognizers = recognizers,
-				touchMoveRecognizers = recognizers,
-				touchEndRecognizers = recognizers,
-				touchCancelRecognizers = recognizers;
-			
-			var self = this;
-			function processTouchEvent(eventType,e,self,gestureRecognizers) {
-				e.preventDefault && e.preventDefault();
-				e.changedTouches[0] && e.changedTouches[0].preventDefault && e.changedTouches[0].preventDefault();
-				for (var i in gestureRecognizers) {
-					gestureRecognizers[i]["process" + eventType](e,self);
+				node = this.domNode = this._setFocusNode(dom.create(this.domType || "div", {
+					className: "TiUIElement " + css.clean(this.declaredClass),
+					"data-widget-id": this.widgetId
+				})),
+
+				// Handle click/touch/gestures
+				recognizers = this._gestureRecognizers = {
+					Pinch: new Pinch,
+					Swipe: new Swipe,
+					TwoFingerTap: new TwoFingerTap,
+					DoubleTap: new DoubleTap,
+					LongPress: new LongPress,
+					SingleTap: new SingleTap,
+					TouchStart: new TouchStart,
+					TouchEnd: new TouchEnd,
+					TouchMove: new TouchMove,
+					TouchCancel: new TouchCancel
+				},
+
+				// Each event could require a slightly different precedence of execution, which is why we have these separate lists.
+				// For now they are the same, but I suspect they will be different once the android-iphone parity is determined.
+				touchRecognizers = {
+					Start: recognizers,
+					Move: recognizers,
+					End: recognizers,
+					Cancel: recognizers
+				},
+
+				useTouch = "ontouchstart" in window,
+				bg = lang.hitch(this, "_doBackground");
+
+			function processTouchEvent(eventType, evt) {
+				var i,
+					gestureRecognizers = touchRecognizers[eventType],
+					eventType = "Touch" + eventType + "Event",
+					touches = evt.changedTouches;
+				event.stop(evt);
+				touches && event.stop(touches[0]);
+				useTouch || require.mix(evt, {
+					touches: evt.type === "mouseup" ? [] : [evt],
+					targetTouches: [],
+				    changedTouches: [evt]
+				});
+				for (i in gestureRecognizers) {
+					gestureRecognizers[i]["process" + eventType](evt, self);
 				}
-				for (var i in gestureRecognizers) {
+				for (i in gestureRecognizers) {
 					gestureRecognizers[i]["finalize" + eventType]();
 				}
 			}
-			if ("ontouchstart" in document.body) {
-				on(this.domNode,"touchstart",function(e){
-					processTouchEvent("TouchStartEvent",e,self,touchStartRecognizers);
-					
-					var moveDisconnect = on(window,"touchmove",function(e){
-						processTouchEvent("TouchMoveEvent",e,self,touchMoveRecognizers);
-					});
-					var endDisconnect = on(window,"touchend",function(e){
-						processTouchEvent("TouchEndEvent",e,self,touchEndRecognizers);
-						moveDisconnect();
-						cancelDisconnect();
-						endDisconnect();
-					});
-					var cancelDisconnect = on(window,"touchcancel",function(e){
-						processTouchEvent("TouchCancelEvent",e,self,touchCancelRecognizers);
-						moveDisconnect();
-						cancelDisconnect();
-						endDisconnect();
-					});
-				});
-			} else {
-				
-				// Fall back to using the traditional mouse events
-				var mousePressed = false;
-				on(this.domNode,"mousedown",function(e){
-					mousePressed = true;
-					processTouchEvent("TouchStartEvent",{
-						touches: [e],
-					    targetTouches: [],
-					    changedTouches: [e],
-					    altKey: e.altKey,
-					    metaKey: e.metaKey,
-					    ctrlKey: e.ctrlKey,
-					    shiftKey: e.shiftKey
-					},self,touchStartRecognizers);
-					
-					var moveDisconnect = on(window,"mousemove",function(e){
-						if (mousePressed) {
-							processTouchEvent("TouchMoveEvent",{
-								touches: [e],
-							    targetTouches: [],
-							    changedTouches: [e],
-							    altKey: e.altKey,
-							    metaKey: e.metaKey,
-							    ctrlKey: e.ctrlKey,
-							    shiftKey: e.shiftKey
-							},self,touchMoveRecognizers);
-						}
-					});
-					
-					var endDisconnect = on(window,"mouseup",function(e){
-						mousePressed = false;
-						processTouchEvent("TouchEndEvent",{
-							touches: [],
-						    targetTouches: [],
-						    changedTouches: [e],
-						    altKey: e.altKey,
-						    metaKey: e.metaKey,
-						    ctrlKey: e.ctrlKey,
-						    shiftKey: e.shiftKey
-						},self,touchEndRecognizers);
-						moveDisconnect();
-						endDisconnect();
-					});
-				});
-			}
+
+			this._touching = false;
+
+			on(this.domNode, useTouch ? "touchstart" : "mousedown", function(evt){
+				var handles = [
+					on(window, useTouch ? "touchmove" : "mousemove", function(evt){
+						(useTouch || self._touching) && processTouchEvent("Move", evt);
+					}),
+					on(window, useTouch ? "touchend" : "mouseup", function(evt){
+						self._touching = false;
+						processTouchEvent("End", evt);
+						event.off(handles);
+					}),
+					useTouch && on(window, "touchcancel", function(evt){
+						processTouchEvent("Cancel", evt);
+						event.off(handles);
+					})
+				];
+				self._touching = true;
+				processTouchEvent("Start", evt);
+			});
+
+			this.addEventListener("touchstart", bg);
+			this.addEventListener("touchend", bg);
 
 			// TODO: mixin JSS rules (http://jira.appcelerator.org/browse/TIMOB-6780)
-
-			on(this.domNode, "click", lang.hitch(this,function(e){
-				this._handleMouseEvent("click", { x: e.clientX, y: e.clientY });
-			}));
-
-			on(this.domNode, "dblclick", lang.hitch(this,function(e){
-				this._handleMouseEvent("dblclick", { x: e.clientX, y: e.clientY });
-			}));
 		},
 
 		destroy: function() {
@@ -151,15 +116,14 @@ define("Ti/_/UI/Element",
 		},
 
 		doLayout: function(originX,originY,parentWidth,parentHeight,centerHDefault,centerVDefault) {
-			
 			this._originX = originX;
 			this._originY = originY;
 			this._centerHDefault = centerHDefault;
 			this._centerVDefault = centerVDefault;
-			
+
 			var dimensions = this._computeDimensions(parentWidth, parentHeight, this.left,this.top,this.right,this.bottom,
-				isDef(this.center) ? this.center.x : undef,isDef(this.center) ? this.center.y : undef,this.width,this.height,this.borderWidth);
-			
+				isDef(this.center) ? this.center.x : undef, isDef(this.center) ? this.center.y : undef,this.width,this.height,this.borderWidth);
+
 			this._measuredLeft = dimensions.left;
 			this._measuredTop = dimensions.top;
 			this._measuredRightPadding = dimensions.rightPadding;
@@ -167,17 +131,16 @@ define("Ti/_/UI/Element",
 			this._measuredWidth = dimensions.width;
 			this._measuredHeight = dimensions.height;
 			this._measuredBorderWidth = dimensions.borderWidth;
-					
+
 			// Set the position, size and z-index
-			isDef(this._measuredLeft) && set(this.domNode, "left", unitize(this._measuredLeft));
-			isDef(this._measuredTop) && set(this.domNode, "top", unitize(this._measuredTop));
-			isDef(this._measuredWidth) && set(this.domNode, "width", unitize(this._measuredWidth));
-			isDef(this._measuredHeight) && set(this.domNode, "height", unitize(this._measuredHeight));
-			set(this.domNode, "zIndex", is(this.zIndex,"Number") ? this.zIndex : 0);
+			isDef(this._measuredLeft) && setStyle(this.domNode, "left", unitize(this._measuredLeft));
+			isDef(this._measuredTop) && setStyle(this.domNode, "top", unitize(this._measuredTop));
+			isDef(this._measuredWidth) && setStyle(this.domNode, "width", unitize(this._measuredWidth));
+			isDef(this._measuredHeight) && setStyle(this.domNode, "height", unitize(this._measuredHeight));
+			setStyle(this.domNode, "zIndex", is(this.zIndex,"Number") ? this.zIndex : 0);
 		},
-		
+
 		_computeDimensions: function(parentWidth,parentHeight,left,top,originalRight,originalBottom,centerX,centerY,width,height,borderWidth) {
-			
 			// Compute as many sizes as possible, should be everything except auto
 			left = computeSize(left,parentWidth),
 			top = computeSize(top,parentHeight),
@@ -187,7 +150,7 @@ define("Ti/_/UI/Element",
 			centerY = isDef(centerY) ? computeSize(centerY,parentHeight) : undef,
 			width = computeSize(width,parentWidth),
 			height = computeSize(height,parentHeight);
-			
+
 			// For our purposes, auto is the same as undefined for position values.
 			left == "auto" && (left = undef);
 			top == "auto" && (top = undef);
@@ -195,11 +158,11 @@ define("Ti/_/UI/Element",
 			originalBottom == "auto" && (bottom = undef);
 			centerX == "auto" && (centerX = undef);
 			centerY == "auto" && (centerY = undef);
-			
+
 			// Convert right/bottom coordinates to be with respect to (0,0)
 			var right = isDef(originalRight) ? (parentWidth - originalRight) : undef,
 				bottom = isDef(originalBottom) ? (parentHeight - originalBottom) : undef;
-			
+
 			// Unfortunately css precidence doesn't match the titanium, so we have to handle precedence and default setting ourselves
 			if (isDef(width)) {
 				if (isDef(left)) {
@@ -341,7 +304,8 @@ define("Ti/_/UI/Element",
 				bottomPadding: bottomPadding,
 				width: width,
 				height: height,
-				borderWidth: borderWidth};
+				borderWidth: borderWidth
+			};
 		},
 		
 		// This method returns the offset of the content relative to the parent's location. 
@@ -349,8 +313,6 @@ define("Ti/_/UI/Element",
 		_getContentOffset: function(){
 			return {x: 0, y: 0};
 		},
-		
-		_gestureRecognizers: [],
 		
 		_isGestureBlocked: function(gesture) {
 			for (var recognizer in this._gestureRecognizers) {
@@ -365,22 +327,23 @@ define("Ti/_/UI/Element",
 		},
 		
 		_handleTouchEvent: function(type, e) {
-			this.fireEvent(type, e);
+			this.enabled && this.fireEvent(type, e);
 		},
 
 		_doBackground: function(evt) {
 			var evt = evt || {},
+				m = (evt.type || "").match(/mouse(over|out)/),
 				node = this._focus.node,
 				bc = this.backgroundColor,
 				bi = this.backgroundImage;
 
-			// are we touching?
-			if (0) {
+			if (this._touching) {
 				bc = this.backgroundSelectedColor || bc;
 				bi = this.backgroundSelectedImage || bi;
 			}
 
-			if (this.focusable && evt.type === "focus") {
+			m && (this._over = m[1] === "over");
+			if (!this._touching && this.focusable && this._over) {
 				bc = this.backgroundFocusedColor || bc;
 				bi = this.backgroundFocusedImage || bi;
 			}
@@ -390,20 +353,24 @@ define("Ti/_/UI/Element",
 				bi = this.backgroundDisabledImage || bi;
 			}
 
-			style.set(node, "backgroundColor", bc);
-			style.set(node, "backgroundImage", style.url(bi));
+			setStyle(node, {
+				backgroundColor: bc,
+				backgroundImage: style.url(bi)
+			});
 		},
 
 		_setFocusNode: function(node) {
 			var f = this._focus = this._focus || {};
+
 			if (f.node !== node) {
 				f.node && event.off(f.evts);
 				f.node = node;
-				f.evts = [
-					on(node, "focus", this, "_doBackground"),
-					on(node, "blur", this, "_doBackground")
-				];
+				f.evts = ["focus", "blur", "mouseover", "mouseout", "mousemove"].map(function(e) {
+					return on(node, e, this, "_doBackground");
+				}, this);
 			}
+
+			return node;
 		},
 
 		show: function() {
@@ -425,8 +392,8 @@ define("Ti/_/UI/Element",
 
 					// Set the color and opacity properties
 					anim.backgroundColor !== undef && (obj.backgroundColor = anim.backgroundColor);
-					anim.opacity !== undef && style.set(this.domNode, "opacity", anim.opacity);
-					style.set(this.domNode, "display", anim.visible !== undef && !anim.visible ? "none" : "");
+					anim.opacity !== undef && setStyle(this.domNode, "opacity", anim.opacity);
+					setStyle(this.domNode, "display", anim.visible !== undef && !anim.visible ? "none" : "");
 
 					// Set the position and size properties
 					var dimensions = this._computeDimensions(
@@ -443,7 +410,7 @@ define("Ti/_/UI/Element",
 						val(anim.borderWidth, this.borderWidth)
 					);
 
-					style.set(this.domNode, {
+					setStyle(this.domNode, {
 						left: unitize(dimensions.left),
 						top: unitize(dimensions.top),
 						width: unitize(dimensions.width),
@@ -452,7 +419,7 @@ define("Ti/_/UI/Element",
 					});
 
 					// Set the z-order
-					!isDef(anim.zIndex) && style.set(this.domNode, "zIndex", anim.zIndex);
+					!isDef(anim.zIndex) && setStyle(this.domNode, "zIndex", anim.zIndex);
 
 					// Set the transform properties
 					if (transform) {
@@ -460,25 +427,26 @@ define("Ti/_/UI/Element",
 						transformCss = curTransform.toCSS();
 					}
 
-					style.set(this.domNode, "transform", transformCss);
+					setStyle(this.domNode, "transform", transformCss);
 				}),
 				done = function() {
 					is(anim.complete, "Function") && anim.complete();
 					is(callback, "Function") && callback();
 				};
+
 			Ti.UI._doForcedFullLayout();
 
 			anim.duration = anim.duration || 0;
 			anim.delay = anim.delay || 0;
-			anim.transform && style.set("transform", "");
+			anim.transform && setStyle("transform", "");
 			anim.start && anim.start();
 
 			if (anim.duration > 0) {
 				// Create the transition, must be set before setting the other properties
-				style.set(this.domNode, "transition", "all " + anim.duration + "ms " + curve + (anim.delay ? " " + anim.delay + "ms" : ""));
+				setStyle(this.domNode, "transition", "all " + anim.duration + "ms " + curve + (anim.delay ? " " + anim.delay + "ms" : ""));
 				on.once(window, transitionEnd, lang.hitch(this, function(e) {
 					// Clear the transform so future modifications in these areas are not animated
-					style.set(this.domNode, "transition", "");
+					setStyle(this.domNode, "transition", "");
 					done();
 				}));
 				setTimeout(fn, 0);
@@ -487,24 +455,24 @@ define("Ti/_/UI/Element",
 				done();
 			}
 		},
-		
+
 		_getContentWidth: function() {
 			return this.domNode.clientWidth;
 		},
-		
+
 		_getContentHeight: function() {
 			return this.domNode.clientHeight;
 		},
-		
+
 		_setTouchEnabled: function(value) {
-			set(this.domNode,"pointerEvents", value ? "auto" : "none");
-			if(!value) {
+			setStyle(this.domNode, "pointerEvents", value ? "auto" : "none");
+			if (!value) {
 				for (var i in this.children) {
 					this.children[i]._setTouchEnabled(value);
 				}
 			}
 		},
-		
+
 		_measuredLeft: 0,
 		_measuredTop: 0,
 		_measuredRightPadding: 0,
@@ -513,17 +481,21 @@ define("Ti/_/UI/Element",
 		_measuredHeight: 0,
 
 		properties: {
-			
-			// Properties that are handled by the element
 			backgroundColor: {
-				set: function(value) {
-					return style.set(this.domNode, "backgroundColor", value);
-				}
+				post: "_doBackground"
 			},
-			backgroundDisabledColor: undef,
-			backgroundDisabledImage: undef,
-			backgroundFocusedColor: undef,
-			backgroundFocusedImage: undef,
+			backgroundDisabledColor: {
+				post: "_doBackground"
+			},
+			backgroundDisabledImage: {
+				post: "_doBackground"
+			},
+			backgroundFocusedColor: {
+				post: "_doBackground"
+			},
+			backgroundFocusedImage: {
+				post: "_doBackground"
+			},
 			backgroundGradient: {
 				set: function(value) {
 					var value = value || {},
@@ -544,7 +516,7 @@ define("Ti/_/UI/Element",
 						start && end && output.push(unitize(start) + " " + unitize(end));
 						output.push("ellipse closest-side");
 					} else {
-						style.set(this.domNode, "backgroundImage", "none");
+						setStyle(this.domNode, "backgroundImage", "none");
 						return;
 					}
 
@@ -555,49 +527,68 @@ define("Ti/_/UI/Element",
 					output = type + "-gradient(" + output.join(",") + ")";
 
 					require.each(vendorPrefixes.css, function(p) {
-						style.set(this.domNode, "backgroundImage", p + output);
+						setStyle(this.domNode, "backgroundImage", p + output);
 					});
 
 					return value;
 				}
 			},
+
 			backgroundImage: {
-				set: function(value) {
-					return style.set(this.domNode, "backgroundImage", value ? style.url(value) : "");
-				}
+				post: "_doBackground"
 			},
-			backgroundSelectedColor: undef,
-			backgroundSelectedImage: undef,
+
+			backgroundSelectedColor: {
+				post: "_doBackground"
+			},
+
+			backgroundSelectedImage: {
+				post: "_doBackground"
+			},
+
 			borderColor: {
 				set: function(value) {
-					if (style.set(this.domNode, "borderColor", value)) {
+					if (setStyle(this.domNode, "borderColor", value)) {
 						this.borderWidth | 0 || (this.borderWidth = 1);
-						style.set(this.domNode, "borderStyle", "solid");
+						setStyle(this.domNode, "borderStyle", "solid");
 					} else {
 						this.borderWidth = 0;
 					}
 					return value;
 				}
 			},
+
 			borderRadius: {
 				set: function(value) {
-					style.set(this.domNode, "borderRadius", unitize(value));
+					setStyle(this.domNode, "borderRadius", unitize(value));
 					return value;
 				}
 			},
+
 			borderWidth: {
 				set: function(value) {
-					style.set(this.domNode, "borderWidth", unitize(value));
-					this.borderColor || style.set(this.domNode, "borderColor", "black");
-					style.set(this.domNode, "borderStyle", "solid");
+					setStyle(this.domNode, "borderWidth", unitize(value));
+					this.borderColor || setStyle(this.domNode, "borderColor", "black");
+					setStyle(this.domNode, "borderStyle", "solid");
 					return value;
 				}
 			},
+
 			color: {
 				set: function(value) {
-					return style.set(this.domNode, "color", value);
+					return setStyle(this.domNode, "color", value);
 				}
 			},
+
+			enabled: {
+				post: "_doBackground",
+				set: function(value) {
+					this._focus.node.disabled = !value;
+					return value;
+				},
+				value: true
+			},
+
 			focusable: {
 				value: false,
 				set: function(value) {
@@ -605,16 +596,18 @@ define("Ti/_/UI/Element",
 					return value;
 				}
 			},
+
 			opacity: {
 				set: function(value) {
 					return this.domNode.style.opacity = value;
 				}
 			},
+
 			visible: {
 				set: function(value, orig) {
 					if (value !== orig) {
 						!value && (this._lastDisplay = style.get(this.domNode, "display"));
-						style.set(this.domNode, "display", !!value ? this._lastDisplay || "" : "none");
+						setStyle(this.domNode, "display", !!value ? this._lastDisplay || "" : "none");
 						!!value && Ti.UI._doFullLayout();
 					}
 					return value;
