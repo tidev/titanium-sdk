@@ -1084,7 +1084,6 @@ DEFINE_EXCEPTIONS
 		return;
     }
 	if ([event isEqualToString:@"twofingertap"]) {
-		self.multipleTouchEnabled = YES;
 		[[self twoFingerTapRecognizer] setEnabled:YES];
 		return;
     }
@@ -1128,7 +1127,6 @@ DEFINE_EXCEPTIONS
 		return;
     }
 	if ([event isEqualToString:@"twofingertap"]) {
-		self.multipleTouchEnabled = YES;
 		[twoFingerTapRecognizer setEnabled:NO];
 		return;
     }
