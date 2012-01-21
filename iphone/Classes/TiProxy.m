@@ -397,7 +397,8 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	RELEASE_TO_NIL(baseURL);
 	RELEASE_TO_NIL(krollDescription);
     if ((void*)modelDelegate != self) {
-        RELEASE_TO_NIL(modelDelegate);
+        TiThreadPerformOnMainThread(^{[modelDelegate release];}, YES);
+        modelDelegate = nil;
     }
 	pageContext=nil;
 	pageKrollObject = nil;
