@@ -31,7 +31,8 @@ define("Ti/_/UI/Element",
 				bgFocusPrevColor;
 
 			this.domNode = dom.create(this.domType || "div", {
-				className: "TiUIElement " + css.clean(this.declaredClass)
+				className: "TiUIElement " + css.clean(this.declaredClass),
+				"data-widget-id": this.widgetId
 			});
 
 			// TODO: mixin JSS rules (http://jira.appcelerator.org/browse/TIMOB-6780)
