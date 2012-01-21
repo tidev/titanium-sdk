@@ -77,7 +77,7 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 		properties: {			
 			backgroundColor: {
 				set: function(value) {
-					set(this.button,"color",value);
+					set(this.button,"backgroundColor",value);
 					return value;
 				}
 			},

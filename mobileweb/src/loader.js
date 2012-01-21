@@ -1432,44 +1432,51 @@ require.cache({
 					frameborder: "frameBorder",
 					rowspan: "rowSpan",
 					valuetype: "valueType"
+				},
+				attr = {
+					add: function(node, name, value) {
+						if (arguments.length === 2) {
+							// the object form of setter: the 2nd argument is a dictionary
+							for (var x in name) {
+								attr.add(node, x, name[x]);
+							}
+							return node;
+						}
+
+						var lc = name.toLowerCase(),
+							propName = names[lc] || name,
+							forceProp = forcePropNames[propName],
+							attrId, h;
+
+						if (propName === "style" && !require.is(value, "String")) {
+							return style.set(node, value);
+						}
+
+						if (forceProp || is(value, "Boolean") || is(value, "Function")) {
+							node[name] = value;
+							return node;
+						}
+
+						// node's attribute
+						node.setAttribute(attrNames[lc] || name, value);
+						return node;
+					},
+					remove: function(node, name) {
+						node.removeAttribute(name);
+						return node;
+					}
 				};
 
 			return {
 				create: function(tag, attrs, refNode, pos) {
 					var doc = refNode ? refNode.ownerDocument : document;
 					is(tag, "String") && (tag = doc.createElement(tag));
-					attrs && this.attr(tag, attrs);
+					attrs && attr.add(tag, attrs);
 					refNode && this.place(tag, refNode, pos);
 					return tag;
 				},
 
-				attr: function(node, name, value) {
-					if (arguments.length === 2) {
-						// the object form of setter: the 2nd argument is a dictionary
-						for (var x in name) {
-							this.attr(node, x, name[x]);
-						}
-						return node;
-					}
-
-					var lc = name.toLowerCase(),
-						propName = names[lc] || name,
-						forceProp = forcePropNames[propName],
-						attrId, h;
-
-					if (propName === "style" && !require.is(value, "String")) {
-						return style.set(node, value);
-					}
-
-					if (forceProp || is(value, "Boolean") || is(value, "Function")) {
-						node[name] = value;
-						return node;
-					}
-
-					// node's attribute
-					node.setAttribute(attrNames[lc] || name, value);
-					return node;
-				},
+				attr: attr,
 
 				place: function(node, refNode, pos) {
 					refNode.appendChild(node);
@@ -1542,6 +1549,11 @@ require.cache({
 			stop: function(e) {
 				e.preventDefault();
 				e.stopPropagation();
+			},
+			off: function(handles) {
+				require.each(require.is(handles, "Array") ? handles : [handles], function(h) {
+					h && h();
+				});
 			}
 		});
 	},

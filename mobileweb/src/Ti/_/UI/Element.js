@@ -30,10 +30,10 @@ define("Ti/_/UI/Element",
 				bgSelPrevImage,
 				bgFocusPrevColor;
 
-			this.domNode = dom.create(this.domType || "div", {
+			this._setFocusNode(this.domNode = dom.create(this.domType || "div", {
 				className: "TiUIElement " + css.clean(this.declaredClass),
 				"data-widget-id": this.widgetId
-			});
+			}));
 
 			// TODO: mixin JSS rules (http://jira.appcelerator.org/browse/TIMOB-6780)
 			
@@ -279,6 +279,25 @@ define("Ti/_/UI/Element",
 			this.fireEvent(type, e);
 		},
 
+		_setBackground: function(focused) {
+		},
+
+		_setFocusNode: function(node) {
+			var f = this._focus = this._focus || {};
+			if (f.node !== node) {
+				f.node && event.off(f.evts);
+				f.node = node;
+				f.evts = [
+					on(node, "focus", this, function() {
+						this._setBackground(1);
+					}),
+					on(node, "blur", this, function() {
+						this._setBackground();
+					})
+				];
+			}
+		},
+
 		show: function() {
 			this.visible = true;
 			//this.fireEvent("ti:shown");
@@ -393,6 +412,8 @@ define("Ti/_/UI/Element",
 					return style.set(this.domNode, "backgroundColor", value);
 				}
 			},
+			backgroundDisabledColor: undef,
+			backgroundDisabledImage: undef,
 			backgroundFocusedColor: undef,
 			backgroundFocusedImage: undef,
 			backgroundGradient: {
@@ -469,7 +490,13 @@ define("Ti/_/UI/Element",
 					return style.set(this.domNode, "color", value);
 				}
 			},
-			focusable: undef,
+			focusable: {
+				value: false,
+				set: function(value) {
+					dom.attr[value ? "add" : "remove"](this._focus.node, "tabindex", 0);
+					return value;
+				}
+			},
 			opacity: {
 				set: function(value) {
 					return this.domNode.style.opacity = value;
@@ -485,7 +512,7 @@ define("Ti/_/UI/Element",
 					return value;
 				}
 			},
-			
+
 			touchEnabled: {
 				set: function(value) {
 					this._setTouchEnabled(value);
