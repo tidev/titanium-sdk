@@ -26,8 +26,8 @@ define("Ti/UI/View",
 				this.add(view);
 			} else {
 				view._parent = this;
+				this.containerNode.insertBefore(view.domNode,this.children[index].domNode);
 				this.children.splice(index,0,view);
-				this.containerNode.insertBefore(view,this.children[index].domNode);
 				Ti.UI._doFullLayout();
 			}
 		},

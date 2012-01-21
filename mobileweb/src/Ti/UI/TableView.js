@@ -17,12 +17,13 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 			// Use horizontal layouts so that the default location is always (0,0)
 			this.header = Ti.UI.createView({height: 'auto', layout: 'horizontal'});
 			this.rows = Ti.UI.createView({height: 'auto', layout: 'vertical'});
-			this.rows.add(Ti.UI.createView({height: "1px", width: "100%", backgroundColor: this.separatorColor}));
 			this.footer = Ti.UI.createView({height: 'auto', layout: 'horizontal'});
 			
 			this.add(this.header);
 			this.add(this.rows);
 			this.add(this.footer);
+			
+			this.data = [];
 			
 			// Handle scrolling
 			var previousTouchLocation;
@@ -75,24 +76,45 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 		},
 		
 		_createSeparator: function() {
-			
+			return Ti.UI.createView({
+				height: 1,
+				width: "100%",
+				backgroundColor: this.separatorColor
+			})
 		},
 
-		appendRow: function(row, properties) {
-			this.insertRowAfter(this.data.length - 1,row,properties);
+		appendRow: function(value) {
+			this.insertRowBefore(this.data.length, value);
 		},
-		deleteRow: function(row, properties) {
+		
+		deleteRow: function(value) {
 			console.debug('Property "Titanium.UI.TableView#.deleteRow" is not implemented yet.');
 		},
-		insertRowAfter: function(index, row, properties) {
-			data.splice(index + 1,0,row);
+		
+		insertRowAfter: function(index, value) {
+			this.insertRowBefore(index + 1, value);
 		},
-		insertRowBefore: function(index, row, properties) {
-			data.splice(index,0,row);
-			this.rows._insertAt(Ti.UI)
-			this.rows._insertAt(row, index);
+		
+		insertRowBefore: function(index, value) {
+			if (is(value,"Array")) {
+				for (var i in value) {
+					this._insertHelper(value[i], index);
+				}
+			} else {
+				this._insertHelper(value, index);
+			}
 		},
-		updateRow: function(row, properties) {
+		
+		_insertHelper: function(view, index) {
+			if (!isDef(view.declaredClass) || view.declaredClass != "Ti.UI.TableViewRow") {
+				view = Ti.UI.createTableViewRow(view);
+			}
+			data.splice(index,0,view);
+			this.rows.add(view);
+			this.rows.add(this._createSeparator());
+		},
+		
+		updateRow: function(row) {
 			console.debug('Property "Titanium.UI.TableView#.updateRow" is not implemented yet.');
 		},
 		
@@ -148,9 +170,13 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 							}
 						}
 						
+						// Add the first separator
+						this.rows.add(this._createSeparator());
+						
 						// Add the new children
 						for (var i in value) {
-							this.rows
+							this.rows.add(value[i]);
+							this.rows.add(this._createSeparator());
 						}
 						
 						// Relayout the screen
