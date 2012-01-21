@@ -146,9 +146,11 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 	[scrollView setContentOffset:offsetPoint animated:YES];
 }
 
-#define DOUBLE_TAP_DELAY		0.35
-#define HORIZ_SWIPE_DRAG_MIN	12
-#define VERT_SWIPE_DRAG_MAX		4
+NSArray* listenerArray = nil;
+
+@interface TiUIView ()
+-(void)sanitycheckListeners;
+@end
 
 @implementation TiUIView
 
@@ -270,6 +272,7 @@ DEFINE_EXCEPTIONS
 {
 	proxy = p;
 	[proxy setModelDelegate:self];
+	[self sanitycheckListeners];
 }
 
 -(UIImage*)loadImage:(id)image 
@@ -1158,6 +1161,19 @@ DEFINE_EXCEPTIONS
 	if (count == 0)
 	{
 		[self handleListenerRemovedWithEvent:event];
+	}
+}
+
+-(void)sanitycheckListeners	//TODO: This can be optimized and unwound later.
+{
+	if(listenerArray == nil){
+		listenerArray = [[NSArray alloc] initWithObjects: @"singletap",
+						 @"doubletap",@"twofingertap",@"swipe",@"pinch",@"longpress",nil];
+	}
+	for (NSString * eventName in listenerArray) {
+		if ([proxy _hasListeners:eventName]) {
+			[self handleListenerAddedWithEvent:eventName];
+		}
 	}
 }
 
