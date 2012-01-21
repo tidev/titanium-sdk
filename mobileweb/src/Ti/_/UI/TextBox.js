@@ -91,16 +91,14 @@ define("Ti/_/UI/TextBox",
 			returnKeyType: {
 				value: UI.RETURNKEY_DEFAULT,
 				set: function(value) {
-					var title = "";
-					if (value === UI.RETURNKEY_DEFAULT) {
-						dom.place(this._field, this.domNode);
-						dom.detach(this._form);
-					} else {
-						dom.place(this._form, this.domNode);
-						dom.place(this._field, this._form);
+					var title = "",
+						dest = this.domNode;
+					if (value !== UI.RETURNKEY_DEFAULT) {
+						deset = this._form;
 						[4,8,10].indexOf(value) !== -1 && (title = "Search");
 					}
 					this._field.title = title;
+					dom.place(this._field, dest);
 					return value;
 				}
 			},

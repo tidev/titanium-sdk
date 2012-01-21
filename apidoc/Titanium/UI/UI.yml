@@ -98,6 +98,18 @@ description:  |
     However, in cases where the control is in a common namespace and support
     additional features, we continue to place that functionality directly on the
     object.
+    
+    #### Events
+    
+    Event listeners must be defined before their respective events are likely to 
+    be fired, otherwise they are not guaranteed to be called. The open and focus 
+    [Window](Titanium.UI.Window-object.html) event listeners, for instance, must 
+    be defined before the window is opened.
+
+    Evaluating events as late as possible while bearing the above consideration 
+    in mind, however, can significantly improve application responsiveness. For 
+    example, an event listener for a click event may be defined after the parent 
+    window has been opened.
 extends: Titanium.Module
 since: "0.4"
 properties:
@@ -428,19 +440,19 @@ properties:
   - name: KEYBOARD_ASCII
     summary: Use an ASCII keyboard.
     description: |
-        Note: on MobileWeb, KEYBOARD_ASCII is the same as KEYBOARD_DEFAULT.
+        Note: on MobileWeb, `KEYBOARD_ASCII` is the same as `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
   - name: KEYBOARD_DEFAULT
     summary: Use the default keyboard.
     description: |
-        Note: on MobileWeb, KEYBOARD_DEFAULT is the same as KEYBOARD_ASCII.
+        Note: on MobileWeb, `KEYBOARD_DEFAULT` is the same as `KEYBOARD_ASCII`.
     type: Number
     permission: read-only
   - name: KEYBOARD_EMAIL
     summary: Use a keyboard suitable for composing email.
     description: |
-        Note: on MobileWeb, if you enable `passwordType`, the `keyboardType` value will be overridden with KEYBOARD_DEFAULT.
+        Note: on MobileWeb, if you enable `passwordType`, the `keyboardType` value will be overridden with `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
   - name: KEYBOARD_NAMEPHONE_PAD
@@ -456,19 +468,19 @@ properties:
   - name: KEYBOARD_NUMBER_PAD
     summary: Use a keyboard with a number pad only.
     description: |
-        Note: on MobileWeb, if you enable `passwordType`, the `keyboardType` value will be overridden with KEYBOARD_DEFAULT.
+        Note: on MobileWeb, if you enable `passwordType`, the `keyboardType` value will be overridden with `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
   - name: KEYBOARD_PHONE_PAD
     summary: Use a keyboard with a phone-style number pad.
     description: |
-        Note: on MobileWeb, if you enable `passwordType`, the `keyboardType` value will be overridden with KEYBOARD_DEFAULT.
+        Note: on MobileWeb, if you enable `passwordType`, the `keyboardType` value will be overridden with `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
   - name: KEYBOARD_URL
     summary: Use an keyboard optimized for entering URLs.
     description: |
-        Note: on MobileWeb, if you enable `passwordType`, the `keyboardType` value will be overridden with KEYBOARD_DEFAULT.
+        Note: on MobileWeb, if you enable `passwordType`, the `keyboardType` value will be overridden with `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
   - name: LANDSCAPE_LEFT
@@ -526,8 +538,9 @@ properties:
     permission: read-only
   - name: RETURNKEY_DEFAULT
     summary: Use the default return key on the virtual keyboard.
-    description |
-        In Mobile Web, the return key label on iOS is "return" and on Android is "Go".
+    description: |
+        In Mobile Web, the default return key label depends on the mobile browser. For Mobile Web
+        on iOS devices, the default label is "return"; on Android devices it is "Go".
     type: Number
     permission: read-only
   - name: RETURNKEY_DONE
@@ -546,8 +559,9 @@ properties:
     permission: read-only
   - name: RETURNKEY_GOOGLE
     summary: Set the return key text to "Google".
-    description |
-        In Mobile Web, the return key label on iOS is "Search" and on Android is "Go".
+    description: |
+        In Mobile Web, the default return key label depends on the mobile browser. For Mobile Web
+        on iOS devices, the default label is "return"; on Android devices it is "Go".
     type: Number
     permission: read-only
   - name: RETURNKEY_JOIN
@@ -567,8 +581,9 @@ properties:
     permission: read-only
   - name: RETURNKEY_SEARCH
     summary: Set the return key text to "Search".
-    description |
-        In Mobile Web, the return key label on iOS is "Search" and on Android is "Go".
+    description: |
+        In Mobile Web, the default return key label depends on the mobile browser. For Mobile Web
+        on iOS devices, the default label is "return"; on Android devices it is "Go".
     type: Number
     permission: read-only
   - name: RETURNKEY_SEND
@@ -578,8 +593,9 @@ properties:
     permission: read-only
   - name: RETURNKEY_YAHOO
     summary: Set the return key text to "Yahoo".
-    description |
-        In Mobile Web, the return key label on iOS is "Search" and on Android is "Go".
+    description: |
+        In Mobile Web, the default return key label depends on the mobile browser. For Mobile Web
+        on iOS devices, the default label is "return"; on Android devices it is "Go".
     type: Number
     permission: read-only
   - name: TEXT_ALIGNMENT_CENTER
@@ -611,7 +627,7 @@ properties:
     permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_WORDS
     summary: Auto-capitalize the first letter of each word in the input field.
-    description |
+    description: |
         Mobile Web does not support this because it would interfere with the native capitalization of the mobile browser.
     platforms: [android, iphone, ipad]
     type: Number

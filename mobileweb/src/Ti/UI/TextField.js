@@ -1,6 +1,8 @@
 define("Ti/UI/TextField",
-	["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/dom", "Ti/_/lang", "Ti/_/style", "Ti/UI"],
-	function(declare, TextBox, dom, lang, style, UI) {
+	["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", "Ti/_/style", "Ti/UI"],
+	function(declare, TextBox, css, dom, lang, style, UI) {
+
+	var borderStyles = ["None", "Line", "Bezel", "Rounded"];
 
 	return declare("Ti.UI.TextField", TextBox, {
 
@@ -8,8 +10,6 @@ define("Ti/UI/TextField",
 			var f = this._field = dom.create("input", {
 				autocomplete: "off",
 				style: {
-					background: "transparent",
-					border: 0,
 					width: "100%",
 					height: "100%"
 				}
@@ -17,6 +17,7 @@ define("Ti/UI/TextField",
 
 			this._initTextBox();
 			this._keyboardType();
+			this.borderStyle = UI.INPUT_BORDERSTYLE_NONE;
 
 			require.on(f, "focus", this, function() {
 				this.clearOnEdit && (f.value = "");
@@ -64,6 +65,18 @@ define("Ti/UI/TextField",
 		},
 
 		properties: {
+			borderStyle: {
+				set: function(value, oldValue) {
+					var n = this.domNode,
+						s = "TiUITextFieldBorderStyle";
+					if (value !== oldValue) {
+						css.remove(n, s + borderStyles[oldValue]);
+						css.add(n, s + borderStyles[value]);
+					}
+					return value;
+				}
+			},
+
 			clearOnEdit: false,
 
 			hintText: {

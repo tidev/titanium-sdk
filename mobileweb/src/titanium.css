@@ -142,3 +142,17 @@ textarea {
 .TiMediaVideoPlayer video:-moz-full-screen {
 	max-height: 100%;
 }
+
+.TiUITextFieldBorderStyleNone input,
+.TiUITextFieldBorderStyleLine input {
+	background: transparent;
+	border: 0;
+}
+
+.TiUITextFieldBorderStyleLine {
+	border: solid 1px #000;
+}
+
+.TiUITextFieldBorderStyleRounded input {
+	border-radius: 5px;
+}
