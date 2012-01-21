@@ -17,6 +17,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 			// Use horizontal layouts so that the default location is always (0,0)
 			this.header = Ti.UI.createView({height: 'auto', layout: 'horizontal'});
 			this.rows = Ti.UI.createView({height: 'auto', layout: 'vertical'});
+			this.rows.add(Ti.UI.createView({height: "1px", width: "100%", backgroundColor: this.separatorColor}));
 			this.footer = Ti.UI.createView({height: 'auto', layout: 'horizontal'});
 			
 			this.add(this.header);
@@ -72,18 +73,24 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 				})
 			}));
 		},
+		
+		_createSeparator: function() {
+			
+		},
 
 		appendRow: function(row, properties) {
-			console.debug('Property "Titanium.UI.TableView#.appendRow" is not implemented yet.');
+			this.insertRowAfter(this.data.length - 1,row,properties);
 		},
 		deleteRow: function(row, properties) {
 			console.debug('Property "Titanium.UI.TableView#.deleteRow" is not implemented yet.');
 		},
 		insertRowAfter: function(index, row, properties) {
-			console.debug('Property "Titanium.UI.TableView#.insertRowAfter" is not implemented yet.');
+			data.splice(index + 1,0,row);
 		},
 		insertRowBefore: function(index, row, properties) {
-			console.debug('Property "Titanium.UI.TableView#.insertRowBefore" is not implemented yet.');
+			data.splice(index,0,row);
+			this.rows._insertAt(Ti.UI)
+			this.rows._insertAt(row, index);
 		},
 		updateRow: function(row, properties) {
 			console.debug('Property "Titanium.UI.TableView#.updateRow" is not implemented yet.');
@@ -126,12 +133,12 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 		
 		properties: {
 			data: {
-				set: function(value,oldValue) {
+				set: function(value) {
 					if (is(value,'Array')) {
 						
-						// Remove the old children
-						for(var i in oldValue) {
-							this.rows.remove(oldValue[i]);
+						// Remove all of the previous children
+						for(var i in this.rows.children) {
+							this.rows.remove(this.rows.children[i]);
 						}
 						
 						// Convert any object literals to TableViewRow instances, and update TableViewRow instances with row info
@@ -143,8 +150,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 						
 						// Add the new children
 						for (var i in value) {
-							this.rows.add(value[i]);
-							this.rows.add(Ti.UI.createView({height: "1px", width: "100%", backgroundColor: this.separatorColor}));
+							this.rows
 						}
 						
 						// Relayout the screen
