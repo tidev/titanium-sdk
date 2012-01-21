@@ -962,59 +962,7 @@ DEFINE_EXCEPTIONS
 
 - (void)replaceValue:(id)value forKey:(NSString*)key notification:(BOOL)notify
 {
-	// used for replacing a value and controlling model delegate notifications
-	if (value==nil)
-	{
-		if (!notify && (dynprops == nil)) {
-			//Don't bother to create a dictionary if it's
-			//going to be a waste.
-			return;
-		}
-		value = [NSNull null];
-	}
-	id current = nil;
-	if (!ignoreValueChanged)
-	{
-		pthread_rwlock_wrlock(&dynpropsLock);
-		if (dynprops==nil)
-		{
-			dynprops = [[NSMutableDictionary alloc] init];
-		}
-		else
-		{
-			// hold it for this invocation since set may cause it to be deleted
-			current = [dynprops objectForKey:key];
-			if (current!=nil)
-			{
-				current = [[current retain] autorelease];
-			}
-		}
-		if ((current!=value)&&![current isEqual:value])
-		{
-			[dynprops setValue:value forKey:key];
-		}
-		pthread_rwlock_unlock(&dynpropsLock);
-	}
-	
-	if (notify && self.modelDelegate!=nil)
-	{
-		[self.modelDelegate propertyChanged:key oldValue:current newValue:value proxy:self];
-	}
-}
-
-- (void) deleteKey:(NSString*)key
-{
-	pthread_rwlock_wrlock(&dynpropsLock);
-	if (dynprops!=nil)
-	{
-		[dynprops removeObjectForKey:key];
-	}
-	pthread_rwlock_unlock(&dynpropsLock);
-}
-
-- (void) setValue:(id)value forUndefinedKey: (NSString *) key
-{
-	if([value isKindOfClass:[KrollCallback class]]){
+    if([value isKindOfClass:[KrollCallback class]]){
 		[self setCallback:value forKey:key];
 		//As a wrapper, we hold onto a KrollWrapper tuple so that other contexts
 		//may access the function.
@@ -1023,7 +971,7 @@ DEFINE_EXCEPTIONS
 		[newValue setJsobject:[(KrollCallback*)value function]];
 		value = newValue;
 	}
-
+    
 	id current = nil;
 	pthread_rwlock_wrlock(&dynpropsLock);
 	if (dynprops!=nil)
@@ -1039,7 +987,7 @@ DEFINE_EXCEPTIONS
 	{
 		dynprops = [[NSMutableDictionary alloc] init];
 	}
-
+    
 	id propvalue = value;
 	
 	if (value == nil)
@@ -1050,7 +998,7 @@ DEFINE_EXCEPTIONS
 	{
 		value = nil;
 	}
-		
+    
 	// notify our delegate
 	if (current!=value)
 	{
@@ -1060,7 +1008,7 @@ DEFINE_EXCEPTIONS
         }
 		[dynprops setValue:propvalue forKey:key];
 		pthread_rwlock_unlock(&dynpropsLock);
-		if (self.modelDelegate!=nil)
+		if (self.modelDelegate!=nil && notify)
 		{
 			[[(NSObject*)self.modelDelegate retain] autorelease];
 			[self.modelDelegate propertyChanged:key oldValue:current newValue:value proxy:self];
@@ -1071,6 +1019,22 @@ DEFINE_EXCEPTIONS
 		return; // so we don't unlock twice
 	}
 	pthread_rwlock_unlock(&dynpropsLock);
+}
+
+// TODO: Shouldn't we be forgetting proxies and unprotecting callbacks and such here?
+- (void) deleteKey:(NSString*)key
+{
+	pthread_rwlock_wrlock(&dynpropsLock);
+	if (dynprops!=nil)
+	{
+		[dynprops removeObjectForKey:key];
+	}
+	pthread_rwlock_unlock(&dynpropsLock);
+}
+
+- (void) setValue:(id)value forUndefinedKey: (NSString *) key
+{
+    [self replaceValue:value forKey:key notification:YES];
 }
 
 -(NSDictionary*)allProperties

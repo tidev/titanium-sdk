@@ -35,7 +35,8 @@ define("Ti/_/UI/Element",
 				bgFocusPrevColor;
 
 			this.domNode = dom.create(this.domType || "div", {
-				className: "TiUIElement " + css.clean(this.declaredClass)
+				className: "TiUIElement " + css.clean(this.declaredClass),
+				"data-widget-id": this.widgetId
 			});
 			
 			// Handle click/touch/gestures

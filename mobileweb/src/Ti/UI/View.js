@@ -41,7 +41,7 @@ define("Ti/UI/View",
 					break;
 				}
 			}
-			dom.destroy(view.domNode);
+			dom.detach(view.domNode);
 			Ti.UI._doFullLayout();
 		},
 		
