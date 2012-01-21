@@ -49,6 +49,7 @@
 	TiProxy		*transform;
 	NSNumber	*transition;
 	TiViewProxy	*view;
+    TiViewProxy *animatedViewProxy;
 
 	// this is a temporary function passed in
 	ListenerEntry *callback;
