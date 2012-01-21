@@ -154,6 +154,7 @@ self.p = v;\
 	RELEASE_TO_NIL(autoreverseView);
 	RELEASE_TO_NIL(transformMatrix);
 	RELEASE_TO_NIL(animatedView);
+    [animatedViewProxy release];
 	[super dealloc];
 }
 
@@ -237,6 +238,10 @@ self.p = v;\
 #endif
 	
 	TiAnimation* animation = (TiAnimation*)context;
+	if ([(id)animation.animatedView isKindOfClass:[TiUIView class]]) {
+		TiUIView *v = (TiUIView*)animation.animatedView;
+		animatedViewProxy = [(TiViewProxy*)v.proxy retain];
+	}
 	if (animation.delegate!=nil && [animation.delegate respondsToSelector:@selector(animationDidStart:)])
 	{
 		[animation.delegate performSelector:@selector(animationDidStart:) withObject:animation];
@@ -299,10 +304,8 @@ if (!TiDimensionIsUndefined(autoreverseLayout.a)) {\
 	}
 	
 	// tell our view that we're done
-	if ([(id)animation.animatedView isKindOfClass:[TiUIView class]])
-	{
-		TiUIView *v = (TiUIView*)animation.animatedView;
-		[(TiViewProxy*)v.proxy animationCompleted:animation];
+	if (animatedViewProxy != nil) {
+		[animatedViewProxy animationCompleted:animation];
 	}
 	
 	if (animation.delegate!=nil && [animation.delegate respondsToSelector:@selector(animationDidComplete:)])
@@ -310,6 +313,7 @@ if (!TiDimensionIsUndefined(autoreverseLayout.a)) {\
 		[animation.delegate animationDidComplete:animation];
 	}	
 	
+    RELEASE_TO_NIL(animatedViewProxy);
 	RELEASE_TO_NIL(animation.animatedView);
 	[animation release];
 }
