@@ -26,47 +26,19 @@ define("Ti/_/UI/Element",
 		domNode: null,
 
 		constructor: function() {
-			var bgSelPrevColor,
-				bgSelPrevImage,
-				bgFocusPrevColor;
-
 			this._setFocusNode(this.domNode = dom.create(this.domType || "div", {
 				className: "TiUIElement " + css.clean(this.declaredClass),
 				"data-widget-id": this.widgetId
 			}));
 
 			// TODO: mixin JSS rules (http://jira.appcelerator.org/browse/TIMOB-6780)
-			
+
 			on(this.domNode, "click", lang.hitch(this,function(e){
-				this._handleMouseEvent("click",{x: e.clientX, y: e.clientY});
+				this._handleMouseEvent("click", { x: e.clientX, y: e.clientY });
 			}));
-			
+
 			on(this.domNode, "dblclick", lang.hitch(this,function(e){
-				this._handleMouseEvent("dblclick",{x: e.clientX, y: e.clientY});
-			}));
-
-			on(this.domNode, "focus", lang.hitch(this, function() {
-				var tmp, node = this.domNode;
-
-				this._origBg = style.get(node, ["backgroundColor", "backgroundImage"]);
-
-				(tmp = this.backgroundSelectedColor) && style.set(node, "backgroundColor", tmp);
-				(tmp = this.backgroundSelectedImage) && style.set(node, "backgroundImage", style.url(tmp));
-
-				if (this.focusable) {
-					(tmp = this.backgroundFocusedColor) && style.set(node, "backgroundColor", tmp);
-					(tmp = this.backgroundFocusedImage) && style.set(node, "backgroundImage", style.url(tmp));
-				}
-			}));
-
-			on(this.domNode, "blur", lang.hitch(this, function() {
-				var bg = (this._origBg || []).concat([0, 0]);
-
-				this.focusable && this.backgroundSelectedColor && (bg[0] = this.backgroundSelectedColor);
-				bg[0] && style.set(this.domNode, "backgroundColor", bg[0]);
-
-				this.focusable && this.backgroundSelectedImage && (bg[1] = this.backgroundSelectedImage);
-				bg[1] && style.set(this.domNode, "backgroundImage", style.url(bg[1]));
+				this._handleMouseEvent("dblclick", { x: e.clientX, y: e.clientY });
 			}));
 		},
 
@@ -74,7 +46,7 @@ define("Ti/_/UI/Element",
 			dom.destroy(this.domNode);
 			this.domNode = null;
 		},
-		
+
 		doLayout: function(originX,originY,parentWidth,parentHeight,centerHDefault,centerVDefault) {
 			
 			this._originX = originX;
@@ -279,7 +251,30 @@ define("Ti/_/UI/Element",
 			this.fireEvent(type, e);
 		},
 
-		_setBackground: function(focused) {
+		_doBackground: function(evt) {
+			var evt = evt || {},
+				node = this._focus.node,
+				bc = this.backgroundColor,
+				bi = this.backgroundImage;
+
+			// are we touching?
+			if (0) {
+				bc = this.backgroundSelectedColor || bc;
+				bi = this.backgroundSelectedImage || bi;
+			}
+
+			if (this.focusable && evt.type === "focus") {
+				bc = this.backgroundFocusedColor || bc;
+				bi = this.backgroundFocusedImage || bi;
+			}
+
+			if (!this.enabled) {
+				bc = this.backgroundDisabledColor || bc;
+				bi = this.backgroundDisabledImage || bi;
+			}
+
+			style.set(node, "backgroundColor", bc);
+			style.set(node, "backgroundImage", style.url(bi));
 		},
 
 		_setFocusNode: function(node) {
@@ -288,12 +283,8 @@ define("Ti/_/UI/Element",
 				f.node && event.off(f.evts);
 				f.node = node;
 				f.evts = [
-					on(node, "focus", this, function() {
-						this._setBackground(1);
-					}),
-					on(node, "blur", this, function() {
-						this._setBackground();
-					})
+					on(node, "focus", this, "_doBackground"),
+					on(node, "blur", this, "_doBackground")
 				];
 			}
 		},
