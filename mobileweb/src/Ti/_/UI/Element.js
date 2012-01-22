@@ -21,7 +21,6 @@ define("Ti/_/UI/Element",
 			presto: "oTransitionEnd"
 		},
 		transitionEnd = transitionEvents[browser.runtime] || "transitionEnd",
-		curTransform,
 		curves = ["ease", "ease-in", "ease-in-out", "ease-out", "linear"];
 
 	return declare("Ti._.UI.Element", Evented, {
@@ -402,7 +401,7 @@ define("Ti/_/UI/Element",
 			var anim = anim || {},
 				curve = curves[anim.curve] || "ease",
 				fn = lang.hitch(this, function() {
-					var transform = "";
+					var transformCss = "";
 
 					// Set the color and opacity properties
 					anim.backgroundColor !== undef && (obj.backgroundColor = anim.backgroundColor);
@@ -437,16 +436,17 @@ define("Ti/_/UI/Element",
 
 					// Set the transform properties
 					if (anim.transform) {
-						curTransform = curTransform ? curTransform.multiply(anim.transform) : anim.transform;
-						transform = curTransform.toCSS();
+						this._curTransform = this._curTransform ? this._curTransform.multiply(anim.transform) : anim.transform;
+						transformCss = this._curTransform.toCSS();
 					}
 
-					style.set(this.domNode, "transform", transform);
+					style.set(this.domNode, "transform", transformCss);
 				}),
 				done = function() {
 					is(anim.complete, "Function") && anim.complete();
 					is(callback, "Function") && callback();
 				};
+
 			Ti.UI._doForcedFullLayout();
 
 			anim.duration = anim.duration || 0;
@@ -601,7 +601,14 @@ define("Ti/_/UI/Element",
 				},
 				value: true
 			},
-			
+
+			transform: {
+				set: function(value) {
+					style.set(this.domNode, "transform", value.toCSS());
+					return this._curTransform = value;
+				}
+			},
+
 			// Properties that are handled by the layout manager
 			bottom: {
 				set: function(value) {
