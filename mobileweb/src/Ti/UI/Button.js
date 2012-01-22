@@ -15,11 +15,6 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 		domType: "button",
 
 		constructor: function() {
-			setStyle(this.domNode, {
-				backgroundSize: "100% 100%",
-				backgroundRepeat: "no-repeat"
-			});
-
 			this.contentContainer = dom.create("div", {
 				className: "TiUIButtonContentContainer",
 				style: {

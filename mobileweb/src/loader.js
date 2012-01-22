@@ -466,6 +466,7 @@
 			cached = defCache[_t.name],
 			fireCallbacks = function() {
 				each(_t.callbacks, function(c) { c(_t); });
+				_t.callbacks = [];
 			},
 			onLoad = function(rawDef) {
 				_t.loaded = 1;
@@ -495,7 +496,7 @@
 		callback && _t.callbacks.push(callback);
 
 		// if we don't have a url, then I suppose we're loaded
-		if (!_t.url) {
+		if (_t.executed || !_t.url) {
 			_t.loaded = 1;
 			fireCallbacks();
 			return;
@@ -635,12 +636,12 @@
 			moduleName = module.name;
 
 		if (name in module.cjs) {
-			module.def = module[name];
+			module.def = module.cjs[name];
 			module.loaded = module.executed = 1;
 			return module;
 		}
 
-		return dontCache || !moduleName ? module : (!modules[moduleName] || overrideCache ? (modules[moduleName] = module) : modules[moduleName]);
+		return dontCache || !moduleName ? module : (!modules[moduleName] || !modules[moduleName].executed || overrideCache ? (modules[moduleName] = module) : modules[moduleName]);
 	}
 
 	function processDefQ(module) {
@@ -716,7 +717,7 @@
 		}
 
 		for (i = 0, l = count = deps.length; i < l; i++) {
-			deps[i] && (function(idx, name) {
+			deps[i] && (function(idx) {
 				getResourceDef(deps[idx], refModule).load(!!sync, function(m) {
 					m.execute(function() {
 						deps[idx] = m.def;
@@ -726,7 +727,7 @@
 						}
 					});
 				});
-			}(i, deps[i]));
+			}(i));
 		}
 
 		count === 0 && success && success(deps);
@@ -1047,27 +1048,40 @@
 
 require.cache({
 	"Ti/_": function() {
-		define({
-			getAbsolutePath: function(path) {
-				/^app\:\/\//.test(path) && (path = path.substring(6));
-				/^\//.test(path) && (path = path.substring(1));
-				return /^\/\//.test(path) || path.indexOf("://") > 0 ? path : location.pathname.replace(/(.*)\/.*/, "$1") + "/" + path;
-			},
-			uuid: function() {
-				/**
-				 * Math.uuid.js (v1.4)
-				 * Copyright (c) 2010 Robert Kieffer
-				 * Dual licensed under the MIT and GPL licenses.
-				 * <http://www.broofa.com>
-				 * mailto:robert@broofa.com
-				 */
-				// RFC4122v4 solution:
-				return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-					var r = Math.random() * 16 | 0,
-						v = c == 'x' ? r : (r & 0x3 | 0x8);
-					return v.toString(16);
-				}).toUpperCase();
-			}
+		define(function() {
+			// Pre-calculate the screen DPI
+			var body = document.body,
+				measureDiv = document.createElement('div'),
+				dpi;
+			measureDiv.style.width = "1in";
+			measureDiv.style.visibility = "hidden";
+			body.appendChild(measureDiv);
+			dpi = parseInt(measureDiv.clientWidth);
+			body.removeChild(measureDiv);
+
+			return {
+				dpi: dpi,
+				getAbsolutePath: function(path) {
+					/^app\:\/\//.test(path) && (path = path.substring(6));
+					/^\//.test(path) && (path = path.substring(1));
+					return /^\/\//.test(path) || path.indexOf("://") > 0 ? path : location.pathname.replace(/(.*)\/.*/, "$1") + "/" + path;
+				},
+				uuid: function() {
+					/**
+					 * Math.uuid.js (v1.4)
+					 * Copyright (c) 2010 Robert Kieffer
+					 * Dual licensed under the MIT and GPL licenses.
+					 * <http://www.broofa.com>
+					 * mailto:robert@broofa.com
+					 */
+					// RFC4122v4 solution:
+					return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+						var r = Math.random() * 16 | 0,
+							v = c == 'x' ? r : (r & 0x3 | 0x8);
+						return v.toString(16);
+					}).toUpperCase();
+				}
+			};
 		});
 	},
 	"Ti/_/browser": function() {
@@ -1397,7 +1411,7 @@ require.cache({
 		});
 	},
 	"Ti/_/dom": function() {
-		define(["Ti/_/style"], function(style) {
+		define(["Ti/_", "Ti/_/style"], function(_, style) {
 			/**
 			 * create(), attr(), place(), & remove() functionality based on code from Dojo Toolkit.
 			 *
@@ -1501,45 +1515,46 @@ require.cache({
 					return isNaN(x-0) || x-0 != x ? x : x + "px"; // note: must be != and not !==
 				},
 
-				computeSize: function(x,totalLength) {
-					if (!require.is(x,"Number") && !require.is(x,"String")) {
-						return;
+				computeSize: function(x, totalLength, convertAutoToUndef) {
+					var undef,
+						type = require.is(x);
+
+					if (type === "String") {
+						if (x === "auto") {
+							convertAutoToUndef && (x = undef);
+						} else {
+							var value = parseFloat(x),
+								units = x.substring((value + "").length);
+
+							switch(units) {
+								case "%":
+									if(totalLength == "auto") {
+										return "auto";
+									} else if (!require.is(totalLength,"Number")) {
+										console.error("Could not compute percentage size/position of element.");
+										return;
+									} 
+									return value / 100 * totalLength;
+								case "mm":
+									value *= 10;
+								case "cm":
+									return value * 0.0393700787 * _.dpi;
+								case "pc":
+									dpi /= 12;
+								case "pt":
+									dpi /= 72;
+								case "in":
+									return value * _.dpi;
+								case "px":
+								case "dp":
+									return value;
+							}
+						}
+					} else if (type !== "Number") {
+						x = undef;
 					}
-					if (x === "auto" || require.is(x,"Number")) {
-						return x;
-					} else {
-						var value = parseFloat(x),
-							units = x.substring((value + "").length),
-							dpi = Ti.Platform.DisplayCaps.dpi,
-							undef;
-						
-						function processMM(x) {
-							// Convert mm to in for this calculation
-							return x * 0.03937007874015748 * dpi;
-						}
-						
-						function processIN(x) {
-							return x * dpi;
-						}
-						
-						switch(units) {
-							case "%":
-								if(totalLength == "auto") {
-									return "auto";
-								} else if (!require.is(totalLength,"Number")) {
-									console.error("Could not compute percentage size/position of element.");
-									return;
-								} 
-								return value / 100 * totalLength;
-							case "mm": return processMM(value);
-							case "cm": return processMM(value * 10);
-							case "in": return processIN(value);
-							case "pt": return processIN(value / 72);
-							case "pc": return processIN(value / 864);
-							case "px": return value;
-							case "dp": return value;
-						}
-					}
+
+					return x;
 				}
 			};
 		});

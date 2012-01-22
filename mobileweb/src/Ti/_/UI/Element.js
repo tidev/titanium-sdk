@@ -1,9 +1,9 @@
 define("Ti/_/UI/Element",
 	["Ti/_/browser", "Ti/_/css", "Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/Evented",
-	"Ti/_/Gestures/DoubleTap","Ti/_/Gestures/LongPress","Ti/_/Gestures/Pinch","Ti/_/Gestures/SingleTap",
+	"Ti/UI", "Ti/_/Gestures/DoubleTap","Ti/_/Gestures/LongPress","Ti/_/Gestures/Pinch","Ti/_/Gestures/SingleTap",
 	"Ti/_/Gestures/Swipe","Ti/_/Gestures/TouchCancel","Ti/_/Gestures/TouchEnd","Ti/_/Gestures/TouchMove",
 	"Ti/_/Gestures/TouchStart","Ti/_/Gestures/TwoFingerTap"],
-	function(browser, css, declare, dom, event, lang, style, Evented,
+	function(browser, css, declare, dom, event, lang, style, Evented, UI,
 		DoubleTap, LongPress, Pinch, SingleTap, Swipe, TouchCancel, TouchEnd, TouchMove, TouchStart, TwoFingerTap) {
 
 	var undef,
@@ -21,7 +21,15 @@ define("Ti/_/UI/Element",
 			presto: "oTransitionEnd"
 		},
 		transitionEnd = transitionEvents[browser.runtime] || "transitionEnd",
-		curves = ["ease", "ease-in", "ease-in-out", "ease-out", "linear"];
+		curves = ["ease", "ease-in", "ease-in-out", "ease-out", "linear"],
+		postDoBackground = {
+			post: "_doBackground"
+		},
+		postLayoutProp = {
+			post: function() {
+				UI._doFullLayout();
+			}
+		};
 
 	return declare("Ti._.UI.Element", Evented, {
 
@@ -72,7 +80,7 @@ define("Ti/_/UI/Element",
 				useTouch || require.mix(evt, {
 					touches: evt.type === "mouseup" ? [] : [evt],
 					targetTouches: [],
-				    changedTouches: [evt]
+					changedTouches: [evt]
 				});
 				for (i in gestureRecognizers) {
 					gestureRecognizers[i]["process" + eventType](evt, self);
@@ -114,14 +122,26 @@ define("Ti/_/UI/Element",
 			this.domNode = null;
 		},
 
-		doLayout: function(originX,originY,parentWidth,parentHeight,centerHDefault,centerVDefault) {
+		doLayout: function(originX, originY, parentWidth, parentHeight, centerHDefault, centerVDefault) {
+			var dimensions = this._computeDimensions(
+					parentWidth,
+					parentHeight,
+					this.left,
+					this.top,
+					this.right,
+					this.bottom,
+					this.center && this.center.x,
+					this.center && this.center.y,
+					this.width,
+					this.height,
+					this.borderWidth
+				),
+				s;
+
 			this._originX = originX;
 			this._originY = originY;
 			this._centerHDefault = centerHDefault;
 			this._centerVDefault = centerVDefault;
-
-			var dimensions = this._computeDimensions(parentWidth, parentHeight, this.left,this.top,this.right,this.bottom,
-				isDef(this.center) ? this.center.x : undef, isDef(this.center) ? this.center.y : undef,this.width,this.height,this.borderWidth);
 
 			this._measuredLeft = dimensions.left;
 			this._measuredTop = dimensions.top;
@@ -132,31 +152,30 @@ define("Ti/_/UI/Element",
 			this._measuredBorderWidth = dimensions.borderWidth;
 
 			// Set the position, size and z-index
-			isDef(this._measuredLeft) && setStyle(this.domNode, "left", unitize(this._measuredLeft));
-			isDef(this._measuredTop) && setStyle(this.domNode, "top", unitize(this._measuredTop));
-			isDef(this._measuredWidth) && setStyle(this.domNode, "width", unitize(this._measuredWidth));
-			isDef(this._measuredHeight) && setStyle(this.domNode, "height", unitize(this._measuredHeight));
-			setStyle(this.domNode, "zIndex", is(this.zIndex,"Number") ? this.zIndex : 0);
+			s = {
+				zIndex: this.zIndex | 0
+			};
+			isDef(this._measuredLeft) && (s.left = unitize(this._measuredLeft));
+			isDef(this._measuredTop) && (s.top = unitize(this._measuredTop));
+			isDef(this._measuredWidth) && (s.width = unitize(this._measuredWidth));
+			isDef(this._measuredHeight) && (s.height = unitize(this._measuredHeight));
+			setStyle(this.domNode, s);
 		},
 
-		_computeDimensions: function(parentWidth,parentHeight,left,top,originalRight,originalBottom,centerX,centerY,width,height,borderWidth) {
+		_computeDimensions: function(parentWidth, parentHeight, left, top, originalRight, originalBottom, centerX, centerY, width, height, borderWidth) {
 			// Compute as many sizes as possible, should be everything except auto
-			left = computeSize(left,parentWidth),
-			top = computeSize(top,parentHeight),
-			originalRight = computeSize(originalRight,parentWidth),
-			originalBottom = computeSize(originalBottom,parentHeight),
-			centerX = isDef(centerX) ? computeSize(centerX,parentWidth) : undef,
-			centerY = isDef(centerY) ? computeSize(centerY,parentHeight) : undef,
-			width = computeSize(width,parentWidth),
-			height = computeSize(height,parentHeight);
+			left = computeSize(left, parentWidth, 1);
+			top = computeSize(top, parentHeight, 1);
+			originalRight = computeSize(originalRight, parentWidth);
+			originalBottom = computeSize(originalBottom, parentHeight);
+			centerX = centerX && computeSize(centerX, parentWidth, 1);
+			centerY = centerY && computeSize(centerY, parentHeight, 1);
+			width = computeSize(width, parentWidth);
+			height = computeSize(height, parentHeight);
 
 			// For our purposes, auto is the same as undefined for position values.
-			left == "auto" && (left = undef);
-			top == "auto" && (top = undef);
-			originalRight == "auto" && (right = undef);
-			originalBottom == "auto" && (bottom = undef);
-			centerX == "auto" && (centerX = undef);
-			centerY == "auto" && (centerY = undef);
+			originalRight === "auto" && (right = undef);
+			originalBottom === "auto" && (bottom = undef);
 
 			// Convert right/bottom coordinates to be with respect to (0,0)
 			var right = isDef(originalRight) ? (parentWidth - originalRight) : undef,
@@ -242,7 +261,7 @@ define("Ti/_/UI/Element",
 					}
 				}
 			}
-			
+
 			// Calculate the width/left properties if width is NOT auto
 			var borderWidth = computeSize(borderWidth);
 			borderWidth = is(borderWidth,"Number") ? borderWidth: 0;
@@ -266,7 +285,7 @@ define("Ti/_/UI/Element",
 				}
 				height -= borderWidth * 2;
 			}
-			
+
 			// TODO change this once we re-architect the inheritence so that widgets don't have add/remove/layouts
 			if (this.children.length > 0) {
 				var computedSize = this._layout.doLayout(this,width,height);
@@ -276,7 +295,7 @@ define("Ti/_/UI/Element",
 				width == "auto" && (width = this._getContentWidth());
 				height == "auto" && (height = this._getContentHeight());
 			}
-			
+
 			// Set the default top/left if need be
 			if (left == "calculateAuto") {
 				left = this._centerHDefault ? computeSize("50%",parentWidth) - (is(width,"Number") ? width : 0) / 2 : 0;
@@ -284,18 +303,18 @@ define("Ti/_/UI/Element",
 			if (top == "calculateAuto") {
 				top = this._centerVDefault ? computeSize("50%",parentHeight) - (is(height,"Number") ? height : 0) / 2 : 0;
 			}
-			
+
 			// Apply the origin and border width
 			left += this._originX;
 			top += this._originY;
 			var rightPadding = is(originalRight,"Number") ? originalRight : 0,
 				bottomPadding = is(originalBottom,"Number") ? originalBottom : 0;
-			
+
 			if(!is(left,"Number") || !is(top,"Number") || !is(rightPadding,"Number")
 				 || !is(bottomPadding,"Number") || !is(width,"Number") || !is(height,"Number")) {
 			 	throw "Invalid layout";
 			}
-			
+
 			return {
 				left: left,
 				top:top,
@@ -306,13 +325,13 @@ define("Ti/_/UI/Element",
 				borderWidth: borderWidth
 			};
 		},
-		
+
 		// This method returns the offset of the content relative to the parent's location. 
 		// This is useful for controls like ScrollView that can move the children around relative to itself.
 		_getContentOffset: function(){
 			return {x: 0, y: 0};
 		},
-		
+
 		_isGestureBlocked: function(gesture) {
 			for (var recognizer in this._gestureRecognizers) {
 				var blockedGestures = this._gestureRecognizers[recognizer].blocking;
@@ -324,7 +343,7 @@ define("Ti/_/UI/Element",
 			}
 			return false;
 		},
-		
+
 		_handleTouchEvent: function(type, e) {
 			this.enabled && this.fireEvent(type, e);
 		},
@@ -333,8 +352,8 @@ define("Ti/_/UI/Element",
 			var evt = evt || {},
 				m = (evt.type || "").match(/mouse(over|out)/),
 				node = this._focus.node,
-				bc = this.backgroundColor,
-				bi = this.backgroundImage;
+				bi = this.backgroundImage,
+				bc = this.backgroundColor || (bi ? "transparent" : "");
 
 			if (this._touching) {
 				bc = this.backgroundSelectedColor || bc;
@@ -432,7 +451,7 @@ define("Ti/_/UI/Element",
 					is(callback, "Function") && callback();
 				};
 
-			Ti.UI._doForcedFullLayout();
+			UI._doForcedFullLayout();
 
 			anim.duration = anim.duration || 0;
 			anim.delay = anim.delay || 0;
@@ -479,21 +498,16 @@ define("Ti/_/UI/Element",
 		_measuredHeight: 0,
 
 		properties: {
-			backgroundColor: {
-				post: "_doBackground"
-			},
-			backgroundDisabledColor: {
-				post: "_doBackground"
-			},
-			backgroundDisabledImage: {
-				post: "_doBackground"
-			},
-			backgroundFocusedColor: {
-				post: "_doBackground"
-			},
-			backgroundFocusedImage: {
-				post: "_doBackground"
-			},
+			backgroundColor: postDoBackground,
+
+			backgroundDisabledColor: postDoBackground,
+
+			backgroundDisabledImage: postDoBackground,
+
+			backgroundFocusedColor: postDoBackground,
+
+			backgroundFocusedImage: postDoBackground,
+
 			backgroundGradient: {
 				set: function(value) {
 					var value = value || {},
@@ -532,17 +546,11 @@ define("Ti/_/UI/Element",
 				}
 			},
 
-			backgroundImage: {
-				post: "_doBackground"
-			},
+			backgroundImage: postDoBackground,
 
-			backgroundSelectedColor: {
-				post: "_doBackground"
-			},
+			backgroundSelectedColor: postDoBackground,
 
-			backgroundSelectedImage: {
-				post: "_doBackground"
-			},
+			backgroundSelectedImage: postDoBackground,
 
 			borderColor: {
 				set: function(value) {
@@ -565,12 +573,19 @@ define("Ti/_/UI/Element",
 
 			borderWidth: {
 				set: function(value) {
-					setStyle(this.domNode, "borderWidth", unitize(value));
-					this.borderColor || setStyle(this.domNode, "borderColor", "black");
-					setStyle(this.domNode, "borderStyle", "solid");
+					var s = {
+						borderWidth: unitize(value),
+						borderStyle: "solid"
+					};
+					this.borderColor || (s.borderColor = "black");
+					setStyle(this.domNode, s);
 					return value;
 				}
 			},
+
+			bottom: postLayoutProp,
+
+			center: postLayoutProp,
 
 			color: {
 				set: function(value) {
@@ -595,9 +610,13 @@ define("Ti/_/UI/Element",
 				}
 			},
 
+			height: postLayoutProp,
+
+			left: postLayoutProp,
+
 			opacity: {
 				set: function(value) {
-					return this.domNode.style.opacity = value;
+					return setStyle(this.domNode, "opacity", value);
 				}
 			},
 
@@ -606,8 +625,17 @@ define("Ti/_/UI/Element",
 					if (value !== orig) {
 						!value && (this._lastDisplay = style.get(this.domNode, "display"));
 						setStyle(this.domNode, "display", !!value ? this._lastDisplay || "" : "none");
-						!!value && Ti.UI._doFullLayout();
+						!!value && UI._doFullLayout();
 					}
+					return value;
+				}
+			},
+
+			right: postLayoutProp,
+
+			size: {
+				set: function(value) {
+					console.debug('Property "Titanium._.UI.Element#.size" is not implemented yet.');
 					return value;
 				}
 			},
@@ -620,76 +648,18 @@ define("Ti/_/UI/Element",
 				value: true
 			},
 
+			top: postLayoutProp,
+
 			transform: {
 				set: function(value) {
-					style.set(this.domNode, "transform", value.toCSS());
+					setStyle(this.domNode, "transform", value.toCSS());
 					return this._curTransform = value;
 				}
 			},
 
-			// Properties that are handled by the layout manager
-			bottom: {
-				set: function(value) {
-					Ti.UI._doFullLayout();
-					return value;
-				}
-			},
-			
-			center: {
-				set: function(value) {
-					Ti.UI._doFullLayout();
-					return value;
-				}
-			},
-			
-			height: {
-				set: function(value) {
-					Ti.UI._doFullLayout();
-					return value;
-				}
-			},
-			
-			left: {
-				set: function(value) {
-					Ti.UI._doFullLayout();
-					return value;
-				}
-			},
-			
-			right: {
-				set: function(value) {
-					Ti.UI._doFullLayout();
-					return value;
-				}
-			},
-			
-			top: {
-				set: function(value) {
-					Ti.UI._doFullLayout();
-					return value;
-				}
-			},
-			
-			width: {
-				set: function(value) {
-					Ti.UI._doFullLayout();
-					return value;
-				}
-			},
-			
-			zIndex: {
-				set: function(value) {
-					Ti.UI._doFullLayout();
-					return value;
-				}
-			},
-			
-			size: {
-				set: function(value) {
-					console.debug('Property "Titanium._.UI.Element#.size" is not implemented yet.');
-					return value;
-				}
-			}
+			width: postLayoutProp,
+
+			zIndex: postLayoutProp
 		}
 
 	});
