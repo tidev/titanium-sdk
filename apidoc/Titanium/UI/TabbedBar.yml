@@ -17,6 +17,16 @@ since: "0.8"
 deprecated:
         since: "1.8.0"
 extends: Titanium.UI.View
+excludes: { events: [ 'touchstart', 'touchmove', 'touchend', 'touchcancel', 'dblclick',
+'doubletap', 'longclick', 'singletap', 'swipe', 'twofingertap' ]
+    }
+events: 
+  - name: click
+    summary: Fired when a button is clicked.
+    properties: 
+      - name: index
+        summary: Index of the clicked button. 
+        type: Number
 properties:
   - name: index
     summary: Index of the currently selected button.
