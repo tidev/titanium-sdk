@@ -483,7 +483,7 @@ jobject TypeConverter::jsValueToJavaObject(v8::Local<v8::Value> jsValue, bool *i
 
 	} else if (jsValue->IsArray()) {
 		*isNew = true;
-		return TypeConverter::jsArrayToJavaArray(jsValue);
+		return TypeConverter::jsArrayToJavaArray(v8::Handle<v8::Array>::Cast(jsValue));
 
 	} else if (jsValue->IsFunction()) {
 		*isNew = true;
