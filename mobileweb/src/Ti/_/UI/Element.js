@@ -75,8 +75,8 @@ define("Ti/_/UI/Element",
 					gestureRecognizers = touchRecognizers[eventType],
 					eventType = "Touch" + eventType + "Event",
 					touches = evt.changedTouches;
-				event.stop(evt);
-				touches && event.stop(touches[0]);
+				evt.preventDefault && evt.preventDefault();
+				touches && touches[0].preventDefault && touches[0].preventDefault();
 				useTouch || require.mix(evt, {
 					touches: evt.type === "mouseup" ? [] : [evt],
 					targetTouches: [],
