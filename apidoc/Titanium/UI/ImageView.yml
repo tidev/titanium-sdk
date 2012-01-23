@@ -1,12 +1,11 @@
 ---
 name: Titanium.UI.ImageView
 summary: |
-    The Image View is created using the <Titanium.UI.createImageView> method, 
-    to display a single image or series of animated images. 
+    The Image View is created using the <Titanium.UI.createImageView> method, to display a single 
+    image or series of animated images. 
 description: |
-    Specifying either a `width` or `height` property for this view will scale 
-    its image(s) with original aspect ratios maintained, up to the maximum 
-    limit of its parent view.
+    Specifying either a `width` or `height` property for this view will scale its image(s) with 
+    original aspect ratios maintained, up to the maximum limit of its parent view.
 extends: Titanium.UI.View
 since: "0.9"
 
@@ -35,14 +34,12 @@ events:
         
   - name: load
     summary: |
-        Fired when either the initial image and/or all of the images in an 
-        animation are loaded.
+        Fired when either the initial image and/or all of the images in an animation are loaded.
     properties:
       - name: state
         summary: |
-            Set to either `image`, when the image defined in the 
-            [image](Titanium.UI.ImageView.image) property is loaded, or `images`, 
-            when the series of images defined in the 
+            Set to either `image`, when the image defined in the [image](Titanium.UI.ImageView.image) 
+            property is loaded, or `images`, when the series of images defined in the 
             [images](Titanium.UI.ImageView.images) property are loaded.
     
   - name: start
@@ -57,18 +54,23 @@ events:
       - name: image
         summary: URL of the image that failed to load.
 
+  - name: pause
+    summary: Fired when the animation pauses.
+    platforms: [iphone, ipad]
+    properties:
+      - name: image
+        summary: URL of the image that failed to load.
 properties:
   - name: animating
     summary: |
         Indicates whether animation is running.
     type: Boolean
-    default: true
+    default: true (Android), false (iPhone, iPad)
     permission: read-only
     
   - name: canScale
     summary: |
-        Allow the user to scale the image (using pinch-zoom or the optional 
-        zoom controls).
+        Allow the user to scale the image (using pinch-zoom or the optional zoom controls).
     description: See also [enableZoomControls](Titanium.UI.ImageView.enableZoomControls).
     type: Boolean
     default: false
@@ -94,8 +96,7 @@ properties:
   - name: enableZoomControls
     summary: Show zoom controls when the user touches the image view.
     description: |
-        Zoom controls are only displayed if [canScale](Titanium.UI.ImageView.canScale) 
-        is `true`.
+        Zoom controls are only displayed if [canScale](Titanium.UI.ImageView.canScale) is `true`.
     type: Boolean
     default: true
     platforms: [android]
@@ -106,18 +107,17 @@ properties:
         Set to `true` to prevent scaling of 2x-resolution remote images for Retina 
         displays.
     description: |
-        Causes images to display at 50%, where one pixel of the graphic maps to 
-        one physical pixel on-screen. This functionality is automatically 
-        determined for local images via their filenames, and thus this property 
-        is only applicable to remote images.
+        Causes images to display at 50%, where one pixel of the graphic maps to one physical pixel 
+        on-screen. This functionality is automatically determined for local images via their 
+        filenames, and thus this property is only applicable to remote images.
     type: Boolean
     default: false
     platforms: [iphone, ipad, mobileweb]
     
   - name: image
     summary: | 
-        Image to display, defined using a local filesystem path, a `File` object, 
-        a remote URL, or a `Blob` object containing image data.
+        Image to display, defined using a local filesystem path, a `File` object, a remote URL, 
+        or a `Blob` object containing image data.
     type: [ String, Titanium.Blob, Titanium.Filesystem.File ]
 
   - name: images
@@ -137,6 +137,7 @@ properties:
         Prevent the default image from being displayed while loading a remote image.
     type: Boolean
     default: false
+    platforms: [iphone, ipad]
     
   - name: repeatCount
     summary: Number of times to repeat the image animation.
