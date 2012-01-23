@@ -87,6 +87,9 @@ class Compiler(object):
 				'Ti/Gesture.js',
 				'Ti/XML.js',
 				
+				# UI Constants
+				'Ti/UI/MobileWeb/TableViewSeparatorStyle.js',
+				
 				# View classes
 				'Ti/UI/View.js',
 				'Ti/Media/VideoPlayer.js',

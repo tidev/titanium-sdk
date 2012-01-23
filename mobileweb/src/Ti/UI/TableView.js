@@ -1,4 +1,5 @@
-define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang"], function(declare, View, dom, css, style, lang) {
+define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb/TableViewSeparatorStyle"], 
+	function(declare, View, dom, css, style, lang, TableViewSeparatorStyle) {
 
 	var set = style.set,
 		is = require.is,
@@ -76,11 +77,33 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 		},
 		
 		_createSeparator: function() {
-			return Ti.UI.createView({
-				height: 1,
-				width: "100%",
-				backgroundColor: this.separatorColor
-			})
+			if (this.separatorStyle === TableViewSeparatorStyle.SINGLE_LINE) {
+				return Ti.UI.createView({
+					height: 1,
+					width: "100%",
+					backgroundColor: this.separatorColor
+				});
+			} else {
+				return Ti.UI.createView({
+					height: 0,
+					width: "100%",
+					backgroundColor: "transparent"
+				});
+			}
+		},
+		
+		_updateSeparators: function(color,style) {
+			var children = this.rows.children;
+			for (var i = 0; i < children.length; i += 2) {
+				var child = children[i];
+				if (style === TableViewSeparatorStyle.SINGLE_LINE) {
+					child.height = 1;
+					child.backgroundColor = color;
+				} else {
+					child.height = 0;
+					child.backgroundColor = "transparent";
+				}
+			}
 		},
 
 		appendRow: function(value) {
@@ -93,9 +116,14 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 				return;
 			}
 			
-			var view = this.data.splice(index,1);
-			this.rows.remove(view[0]);
-			this.rows.remove(view[0]._separator);
+			var view = this.data.splice(index,1),
+				rows = this.rows;
+			rows.remove(view[0]);
+			rows.remove(view[0]._separator);
+			
+			if (this.data.length === 0) {
+				rows.remove(rows.children[0]);
+			}
 		},
 		
 		insertRowAfter: function(index, value) {
@@ -121,8 +149,14 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 		
 		_insertHelper: function(view, index) {
 			
-			if (index < 0 || index > this.data.length) {
+			var rows = this.rows,
+				data = this.data;
+			if (index < 0 || index > data.length) {
 				return;
+			}
+			
+			if (data.length === 0) {
+				rows.add(this._createSeparator());
 			}
 			
 			if (!isDef(view.declaredClass) || view.declaredClass != "Ti.UI.TableViewRow") {
@@ -130,14 +164,14 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 			}
 			
 			view._separator = this._createSeparator();
-			if (index == this.data.length) {
-				this.data.push(view);
-				this.rows.add(view);
-				this.rows.add(view._separator);
+			if (index == data.length) {
+				data.push(view);
+				rows.add(view);
+				rows.add(view._separator);
 			} else {
-				this.data.splice(index,0,view);
-				this.rows._insertAt(view,2 * index + 1);
-				this.rows._insertAt(view._separator,2 * index + 2);
+				data.splice(index,0,view);
+				rows._insertAt(view,2 * index + 1);
+				rows._insertAt(view._separator,2 * index + 2);
 			}
 		},
 		
@@ -269,17 +303,22 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 			minRowHeight: "0%",
 			rowHeight: "50px",
 			separatorColor: {
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TableView#.separatorColor" is not implemented yet.');
+				set: function(value, oldValue) {
+					if (value !== oldValue) {
+						this._updateSeparators(value,this.separatorStyle);
+					}
 					return value;
 				},
 				value: "lightGrey"
 			},
 			separatorStyle: {
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TableView#.separatorStyle" is not implemented yet.');
+				set: function(value, oldValue) {
+					if (value !== oldValue) {
+						this._updateSeparators(this.separatorColor,value);
+					}
 					return value;
-				}
+				},
+				value: TableViewSeparatorStyle.SINGLE_LINE
 			}
 		}
 
