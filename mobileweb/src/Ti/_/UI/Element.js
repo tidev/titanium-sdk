@@ -123,6 +123,11 @@ define("Ti/_/UI/Element",
 		},
 
 		doLayout: function(originX, originY, parentWidth, parentHeight, centerHDefault, centerVDefault) {
+			this._originX = originX;
+			this._originY = originY;
+			this._centerHDefault = centerHDefault;
+			this._centerVDefault = centerVDefault;
+
 			var dimensions = this._computeDimensions(
 					parentWidth,
 					parentHeight,
@@ -138,11 +143,6 @@ define("Ti/_/UI/Element",
 				),
 				s;
 
-			this._originX = originX;
-			this._originY = originY;
-			this._centerHDefault = centerHDefault;
-			this._centerVDefault = centerVDefault;
-
 			this._measuredLeft = dimensions.left;
 			this._measuredTop = dimensions.top;
 			this._measuredRightPadding = dimensions.rightPadding;
@@ -152,14 +152,14 @@ define("Ti/_/UI/Element",
 			this._measuredBorderWidth = dimensions.borderWidth;
 
 			// Set the position, size and z-index
-			s = {
+			styles = {
 				zIndex: this.zIndex | 0
 			};
-			isDef(this._measuredLeft) && (s.left = unitize(this._measuredLeft));
-			isDef(this._measuredTop) && (s.top = unitize(this._measuredTop));
-			isDef(this._measuredWidth) && (s.width = unitize(this._measuredWidth));
-			isDef(this._measuredHeight) && (s.height = unitize(this._measuredHeight));
-			setStyle(this.domNode, s);
+			isDef(this._measuredLeft) && (styles.left = unitize(this._measuredLeft));
+			isDef(this._measuredTop) && (styles.top = unitize(this._measuredTop));
+			isDef(this._measuredWidth) && (styles.width = unitize(this._measuredWidth));
+			isDef(this._measuredHeight) && (styles.height = unitize(this._measuredHeight));
+			setStyle(this.domNode, styles);
 		},
 
 		_computeDimensions: function(parentWidth, parentHeight, left, top, originalRight, originalBottom, centerX, centerY, width, height, borderWidth) {
