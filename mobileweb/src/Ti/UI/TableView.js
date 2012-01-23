@@ -3,8 +3,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 
 	var set = style.set,
 		is = require.is,
-		isDef = require.isDef,
-		undef;
+		isDef = require.isDef;
 
 	return declare("Ti.UI.TableView", View, {
 		
@@ -41,7 +40,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 					size: {width: this._measuredWidth, height: this._measuredHeight},
 					x: e.x,
 					y: e.y
-				})
+				});
 			});
 			this.addEventListener("touchmove",lang.hitch(this,function(e) {
 				this.domNode.scrollTop += previousTouchLocation - e.y;
@@ -72,24 +71,17 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 					visibleItemCount: visibleItemCount,
 					x: e.x,
 					y: e.y
-				})
+				});
 			}));
 		},
 		
 		_createSeparator: function() {
-			if (this.separatorStyle === TableViewSeparatorStyle.SINGLE_LINE) {
-				return Ti.UI.createView({
-					height: 1,
-					width: "100%",
-					backgroundColor: this.separatorColor
-				});
-			} else {
-				return Ti.UI.createView({
-					height: 0,
-					width: "100%",
-					backgroundColor: "transparent"
-				});
-			}
+			var showSeparator = this.separatorStyle === TableViewSeparatorStyle.SINGLE_LINE;
+			return Ti.UI.createView({
+				height: showSeparator ? 1 : 0,
+				width: "100%",
+				backgroundColor: showSeparator ? this.separatorColor : "transparent"
+			});
 		},
 		
 		_updateSeparators: function(color,style) {
