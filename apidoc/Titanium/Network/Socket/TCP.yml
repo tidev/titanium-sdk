@@ -1,12 +1,74 @@
 ---
 name: Titanium.Network.Socket.TCP
-type: Titanium.IOStream
 summary: TCP socket that implements the `Titanium.IOStream` interface.  
 description: |
-    Use the `Titanium.Network.Socket.createTCP` method to create a TCP socket.
-extends: Titanium.Proxy
+    Most socket operations are asynchronous. When you create a socket, you can define
+    callback funtions to receive the results of API calls, as well as to handle incoming
+    data.
+
+    For example, for a client-side socket, you you define 
+    [connected](Titanium.Network.Socket.TCP.connected) and
+    [error](Titanium.Network.Socket.TCP.error) callback functions.
+
+    To connect to a remote host, call the socket's
+    [connect](Titanium.Network.Socket.TCP.connect) method. If the socket connects
+    successfully, your `connected` callback is invoked, and you can send and receive data
+    on the socket. If the socket connection fails, your `error` callback is invoked. 
+
+    After a socket is connected, you can access it like any other <Titanium.IOStream>.
+    Note that the socket's `read` and `write` methods may block, so in most cases
+    you should use the asynchronous [read](Titanium.Stream.read), [write](Titanium.Stream.write) 
+    and [pump](Titanium.Stream.pump) methods provided by the <Titanium.Stream> module,
+    rather than using the socket object's `read` and `write` methods directly.
+    
+    A familiarity with the basics of BSD socket programming is a prerequisite to using 
+    sockets with Titanium.
+
+    Use the <Titanium.Network.Socket.createTCP> method to create a TCP socket.
+extends: Titanium.IOStream
 since: "1.7"
 platforms: [android, iphone, ipad]
+examples: |
+  - title: Simple Socket IO using Stream.pump
+    example: |
+        The following example uses the [pump](Titanium.Stream.pump) method from the <Titanium.Stream> 
+        module to read data from a socket. The `pump` method registers a callback that is 
+        called repeatedly to process incoming data from the socket.
+
+            var socket = Ti.Network.Socket.createTCP({
+                host: 'blog.example.com', port: 80,
+                connected: function (e) {
+                    Ti.API.info('Socket opened!');
+                    Ti.Stream.pump(e.socket, readCallback, 1024, true);
+                    Ti.Stream.write(socket, Ti.createBuffer({
+                        value: 'GET http://blog.example.com/index.html HTTP/1.1\r\n\r\n'
+                    }), writeCallback);
+                },
+                    error: function (e) {
+                    Ti.API.info('Error (' + e.errorCode + '): ' + e.error);
+                },
+                closed: function (e) {
+                    Ti.API.info('Socket closed!');
+                }
+            });
+            socket.connect();
+            
+            function writeCallback(e) {
+                Ti.API.info('Successfully wrote to socket.');
+            }
+            
+            function readCallback(e) {
+                try {
+                    if(e.buffer) {
+                        var received = e.buffer.toString();
+                        Ti.API.info('Received: ' + received);
+                    } else {
+                        Ti.API.error('Error: read callback called with no buffer!');
+                    }
+                } catch (ex) {
+                    Ti.API.error(ex);
+                }
+            }
 
 properties:
   - name: host
