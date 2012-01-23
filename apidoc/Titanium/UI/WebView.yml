@@ -20,7 +20,7 @@ methods:
         optional: true
         type: String
       - name: mimeType
-        summary: The MIME type of the content
+        summary: The MIME type of the content (default is `text/html`)
         optional: true
         type: String
   - name: canGoBack

@@ -50,14 +50,23 @@ var tableview = Titanium.UI.createTableView({
 tableview.addEventListener('click', function(e)
 {
 	var rowdata = e.rowData;
-	var w = Ti.UI.createWindow();
+	var webview = null;
+	var w = Ti.UI.createWindow({
+		activity : {
+			onCreateOptionsMenu : function(e) {
+				var menuItem = e.menu.add({ title : 'Reload' });
+				menuItem.addEventListener('click', function(e) {
+					webview.reload();
+				});
+			}
+		}
+	});
 	w.orientationModes = [
 		Titanium.UI.PORTRAIT,
 		Titanium.UI.LANDSCAPE_LEFT,
 		Titanium.UI.LANDSCAPE_RIGHT
 	];
 
-	var webview = null;
 	if (rowdata.auto === true)
 	{
 		webview = Ti.UI.createWebView({height:'auto',width:'auto'});
@@ -66,6 +75,17 @@ tableview.addEventListener('click', function(e)
 	{
 		webview = Ti.UI.createWebView();
 	}
+	if (Ti.Platform.osname === 'iphone') {
+		var reloadButton = Titanium.UI.createButton({
+			title:'Reload',
+			style:Titanium.UI.iPhone.SystemButtonStyle.PLAIN
+		});
+		reloadButton.addEventListener('click',function() {
+			webview.reload();
+		});
+		w.setRightNavButton(reloadButton);
+	}
+
 	//	webview.addEventListener('singletap', function(e)
 	//	{
 	//		alert('singletap');

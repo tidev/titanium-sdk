@@ -36,7 +36,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 
  
 @implementation TiUIWebView
-@synthesize reloadData;
+@synthesize reloadData, reloadDataProperties;
 
 -(void)dealloc
 {
@@ -60,6 +60,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	RELEASE_TO_NIL(spinner);
 	RELEASE_TO_NIL(basicCredentials);
 	RELEASE_TO_NIL(reloadData);
+	RELEASE_TO_NIL(reloadDataProperties);
 	[super dealloc];
 }
 
@@ -265,7 +266,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	}
 	if (reloadData != nil)
 	{
-		[self performSelector:reloadMethod withObject:reloadData];
+		[self performSelector:reloadMethod withObject:reloadData withObject:reloadDataProperties];
 		return;
 	}
 	[webview reload];
@@ -338,7 +339,8 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
     NSString *mimeType = [TiUtils stringValue:@"mimeType" properties:property def:@"text/html"];
 	ignoreNextRequest = YES;
 	[self setReloadData:content];
-	reloadMethod = @selector(setHtml_:);
+	[self setReloadDataProperties:property];
+	reloadMethod = @selector(setHtml_:withObject:);
 	[self loadHTML:content encoding:NSUTF8StringEncoding textEncodingName:@"utf-8" mimeType:mimeType baseURL:baseURL];
 }
 
@@ -346,6 +348,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 {
 	ignoreNextRequest = YES;
 	[self setReloadData:args];
+	[self setReloadDataProperties:nil];
 	reloadMethod = @selector(setData_:);
 	RELEASE_TO_NIL(url);
 	ENSURE_SINGLE_ARG(args,NSObject);
@@ -409,6 +412,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 {
 	ignoreNextRequest = YES;
 	[self setReloadData:args];
+	[self setReloadDataProperties:nil];
 	reloadMethod = @selector(setUrl_:);
 
 	RELEASE_TO_NIL(url);
@@ -653,6 +657,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 		else
 		{
 			[self setReloadData:[newUrl absoluteString]];
+			[self setReloadDataProperties:nil];
 			reloadMethod = @selector(setUrl_:);
 		}
 		return YES;
