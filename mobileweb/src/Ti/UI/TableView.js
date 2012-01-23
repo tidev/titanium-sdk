@@ -87,18 +87,32 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 			this.insertRowBefore(this.data.length, value);
 		},
 		
-		deleteRow: function(value) {
-			console.debug('Property "Titanium.UI.TableView#.deleteRow" is not implemented yet.');
+		deleteRow: function(index) {
+			
+			if (index < 0 || index > this.data.length) {
+				return;
+			}
+			
+			var view = this.data.splice(index,1);
+			this.rows.remove(view[0]);
+			this.rows.remove(view[0]._separator);
 		},
 		
 		insertRowAfter: function(index, value) {
-			this.insertRowBefore(index + 1, value);
+			index++;
+			if (is(value,"Array")) {
+				for (var i = 0; i < value.length; i++) {
+					this._insertHelper(value[i], index++);
+				}
+			} else {
+				this._insertHelper(value, index);
+			}
 		},
 		
 		insertRowBefore: function(index, value) {
 			if (is(value,"Array")) {
-				for (var i in value) {
-					this._insertHelper(value[i], index);
+				for (var i = 0; i < value.length; i++) {
+					this._insertHelper(value[i], index++);
 				}
 			} else {
 				this._insertHelper(value, index);
@@ -106,16 +120,33 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 		},
 		
 		_insertHelper: function(view, index) {
+			
+			if (index < 0 || index > this.data.length) {
+				return;
+			}
+			
 			if (!isDef(view.declaredClass) || view.declaredClass != "Ti.UI.TableViewRow") {
 				view = Ti.UI.createTableViewRow(view);
 			}
-			data.splice(index,0,view);
-			this.rows.add(view);
-			this.rows.add(this._createSeparator());
+			
+			view._separator = this._createSeparator();
+			if (index == this.data.length) {
+				this.data.push(view);
+				this.rows.add(view);
+				this.rows.add(view._separator);
+			} else {
+				this.data.splice(index,0,view);
+				this.rows._insertAt(view,2 * index + 1);
+				this.rows._insertAt(view._separator,2 * index + 2);
+			}
 		},
 		
-		updateRow: function(row) {
-			console.debug('Property "Titanium.UI.TableView#.updateRow" is not implemented yet.');
+		updateRow: function(index, row) {
+			if (index < 0 || index >= this.data.length) {
+				return;
+			}
+			this.deleteRow(index);
+			this.insertRowBefore(index,row);
 		},
 		
 		doLayout: function() {
@@ -176,7 +207,8 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 						// Add the new children
 						for (var i in value) {
 							this.rows.add(value[i]);
-							this.rows.add(this._createSeparator());
+							value[i]._separator = this._createSeparator();
+							this.rows.add(value[i]._separator);
 						}
 						
 						// Relayout the screen
