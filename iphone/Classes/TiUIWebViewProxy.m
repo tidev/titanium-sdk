@@ -98,6 +98,11 @@ USE_VIEW_FOR_AUTO_WIDTH
 	[[self view] performSelectorOnMainThread:@selector(reload:) withObject:args waitUntilDone:NO];
 }
 
+-(void)setHtml:(NSString*)content withObject:(id)property
+{
+    [(TiUIWebView *)[self view] setHtml_:content withObject:property];
+}
+
 -(id)canGoBack:(id)args
 {
 	if ([self viewAttached])

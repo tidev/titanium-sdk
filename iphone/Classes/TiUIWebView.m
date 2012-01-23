@@ -331,12 +331,15 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	[[self webview] setDataDetectorTypes:result];
 }
 
--(void)setHtml_:(NSString*)content
+-(void)setHtml_:(NSString*)content withObject:(id)property
 {
+    NSString *baseURLString = [TiUtils stringValue:@"baseURL" properties:property];
+    NSURL *baseURL = baseURLString == nil ? nil : [NSURL URLWithString:baseURLString];
+    NSString *mimeType = [TiUtils stringValue:@"mimeType" properties:property def:@"text/html"];
 	ignoreNextRequest = YES;
 	[self setReloadData:content];
 	reloadMethod = @selector(setHtml_:);
-	[self loadHTML:content encoding:NSUTF8StringEncoding textEncodingName:@"utf-8" mimeType:@"text/html" baseURL:nil];
+	[self loadHTML:content encoding:NSUTF8StringEncoding textEncodingName:@"utf-8" mimeType:mimeType baseURL:baseURL];
 }
 
 -(void)setData_:(id)args

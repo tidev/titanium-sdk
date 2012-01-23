@@ -4,6 +4,25 @@ summary: The Web View allows you to open an HTML5 based view which can load eith
 extends: Titanium.UI.View
 since: "0.8"
 methods:
+  - name: setHtml
+    summary: Sets the value of [html](Titanium.UI.WebView.html) property.
+    description: |
+      In iOS, there are additional parameters `baseURL` and `mimeType` that can be used to configure
+      the WebView main content presentation. For example:
+              
+              setHtml('<html><body>Hello,<a href="/documentation">Titanium</a>!</body></html>',{baseURL:'http://developer.appcelerator.com/'})
+    parameters:
+      - name: html
+        summary: New value for the property
+        type: Object
+      - name: baseURL
+        summary: The base URL for the content
+        optional: true
+        type: String
+      - name: mimeType
+        summary: The MIME type of the content
+        optional: true
+        type: String
   - name: canGoBack
     summary: returns true if the webview can go back in history
     returns:

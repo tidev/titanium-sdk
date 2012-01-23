@@ -35,7 +35,7 @@
 
 -(void)canGoBack:(NSMutableArray*)result;
 -(void)canGoForward:(NSMutableArray*)result;
-
+-(void)setHtml_:(NSString*)content withObject:(id)property;
 
 @end
 
