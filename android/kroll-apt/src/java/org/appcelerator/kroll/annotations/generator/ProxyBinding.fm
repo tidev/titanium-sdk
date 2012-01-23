@@ -249,7 +249,8 @@
 		"defaultValue": "null"
 	},
 	"java.lang.String[]":{
-		"jsType":"Value",
+		"jsType":"Array",
+		"jsHandleCast":"Array",
 		"jsToJavaConverter":"jsArrayToJavaArray",
 		"javaToJsConverter":"javaArrayToJsArray",
 		"jvalue":"l", "signature":"[Ljava/lang/String;",
@@ -261,7 +262,6 @@
 		"rhinoJsCast":true,
 		"rhinoToJavaConverter":"jsArrayToJavaStringArray",
 		"javaToRhinoConverter":"javaStringArrayToJsArray",
-		"typeValidation":false,
 		"defaultValue": "null"
 	},
 	"java.lang.Object":{
@@ -282,7 +282,8 @@
 		"defaultValue": "null"
 	},
 	"java.lang.Object[]":{
-		"jsType":"Value",
+		"jsType":"Array",
+		"jsHandleCast":"Array",
 		"jsToJavaConverter":"jsArrayToJavaArray",
 		"javaToJsConverter":"javaArrayToJsArray",
 		"jvalue":"l", "signature":"[Ljava/lang/Object;",
@@ -294,11 +295,11 @@
 		"rhinoJsCast":true,
 		"rhinoToJavaConverter":"jsArrayToJavaObjectArray",
 		"javaToRhinoConverter":"javaObjectArrayToJsArray",
-		"typeValidation":false,
 		"defaultValue": "null"
 	},
 	"int[]":{
-		"jsType":"Value",
+		"jsType":"Array",
+		"jsHandleCast":"Array",
 		"jsToJavaConverter":"jsArrayToJavaIntArray",
 		"javaToJsConverter":"javaArrayToJsArray",
 		"jvalue":"l", "signature":"[I",
@@ -310,7 +311,6 @@
 		"rhinoJsCast":true,
 		"rhinoToJavaConverter":"jsArrayToJavaIntArray",
 		"javaToRhinoConverter":"javaIntArrayToJsArray",
-		"typeValidation":false,
 		"defaultValue": "null"
 	},
 	"int":{
@@ -340,7 +340,8 @@
 		"defaultValue": "-1"
 	},
 	"long[]":{
-		"jsType":"Value",
+		"jsType":"Array",
+		"jsHandleCast":"Array",
 		"jsToJavaConverter":"jsArrayToJavaLongArray",
 		"javaToJsConverter":"javaArrayToJsArray",
 		"jvalue":"l", "signature":"[J",
@@ -352,11 +353,11 @@
 		"rhinoJsCast":true,
 		"rhinoToJavaConverter":"jsArrayToJavaLongArray",
 		"javaToRhinoConverter":"javaLongArrayToJsArray",
-		"typeValidation":false,
 		"defaultValue": "null"
 	},
 	"float[]":{
-		"jsType":"Value",
+		"jsType":"Array",
+		"jsHandleCast":"Array",
 		"jsToJavaConverter":"jsArrayToJavaFloatArray",
 		"javaToJsConverter":"javaArrayToJsArray",
 		"jvalue":"l", "signature":"[F",
@@ -368,7 +369,6 @@
 		"rhinoJsCast":true,
 		"rhinoToJavaConverter":"jsArrayToJavaFloatArray",
 		"javaToRhinoConverter":"javaFloatArrayToJsArray",
-		"typeValidation":false,
 		"defaultValue": "null"
 	},
 	"long":{
