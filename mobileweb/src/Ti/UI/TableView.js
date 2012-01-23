@@ -112,7 +112,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 		
 		deleteRow: function(index) {
 			
-			if (index < 0 || index > this.data.length) {
+			if (index < 0 || index >= this.data.length) {
 				return;
 			}
 			
