@@ -1299,7 +1299,7 @@ def main(args):
 					def handler(signum, frame):
 						global script_ok
 						print "[INFO] Simulator is exiting"
-						sys.stdout.flush()
+						
 						if not log == None:
 							try:
 								os.system("kill -2 %s" % str(log.pid))
