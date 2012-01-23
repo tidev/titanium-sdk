@@ -10,7 +10,8 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 			this.leftView = Ti.UI.createView({
 				left: 0,
 				top: 0,
-				width: "auto",
+				width: "auto", 
+				height: "100%",
 				layout: "horizontal"
 			}),
 			set(this.leftView.domNode,"boxAlign","center");
@@ -19,24 +20,17 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 			this.leftImageView = Ti.UI.createImageView();
 			this.leftView.add(this.leftImageView); 
 			
-			this.titleLabel = Ti.UI.createLabel({width: "auto"});
+			this.titleLabel = Ti.UI.createLabel({width: "auto", height: "100%"});
 			this.leftView.add(this.titleLabel);
 			
 			this.rightView = Ti.UI.createView({
 				right: 0,
 				top: 0,
-				width: "auto",
+				width: "auto", 
+				height: "100%",
 				layout: "horizontal"
-			}),
-			set(this.rightView.domNode,"boxAlign","center");
+			});
 			this.add(this.rightView);
-			
-			this.rightImageView = Ti.UI.createImageView();
-			this.rightView.add(this.rightImageView);
-			
-			// Holds detail, child, or check
-			this.extraView = Ti.UI.createView({width: "auto"});
-			this.rightView.add(this.extraView);
 		},
 		
 		_defaultHeight: "auto",
@@ -47,6 +41,10 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 				this._parent && this._parent._parent && (this._parent._parent._tableViewRowClicked = this);
 			}
 			View.prototype._handleTouchEvent.apply(this,arguments);
+		},
+		
+		doLayout: function(){
+			View.prototype.doLayout.apply(this,arguments);
 		},
 
 		properties: {
@@ -90,8 +88,15 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 				}
 			},
 			rightImage: {
-				set: function(value) {
-					this.rightImageView.image = value;
+				set: function(value, oldValue) {
+					if (value !== oldValue) {
+						for (var i in this.rightView.children) {
+							this.rightView.remove(this.rightView.children[i]);
+						}
+						this.rightView.add(Ti.UI.createImageView({
+							image: value
+						}));
+					}
 					return value;
 				}
 			},

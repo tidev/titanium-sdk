@@ -263,7 +263,9 @@ define("Ti/_/UI/Element",
 			}
 
 			// Calculate the width/left properties if width is NOT auto
-			var borderWidth = computeSize(borderWidth);
+			var borderWidth = computeSize(borderWidth),
+				calculateWidthAfterAuto = false,
+				calculateHeightAfterAuto = false;
 			borderWidth = is(borderWidth,"Number") ? borderWidth: 0;
 			if (width != "auto") {
 				if (isDef(right)) {
@@ -274,6 +276,8 @@ define("Ti/_/UI/Element",
 					}
 				}
 				width -= borderWidth * 2;
+			} else if(isDef(right)) {
+				calculateWidthAfterAuto = true;
 			}
 			if (height != "auto") {
 				if (isDef(bottom)) {
@@ -284,6 +288,8 @@ define("Ti/_/UI/Element",
 					}
 				}
 				height -= borderWidth * 2;
+			} else if(isDef(bottom)) {
+				calculateHeightAfterAuto = true;
 			}
 
 			// TODO change this once we re-architect the inheritence so that widgets don't have add/remove/layouts
@@ -294,6 +300,27 @@ define("Ti/_/UI/Element",
 			} else {
 				width == "auto" && (width = this._getContentWidth());
 				height == "auto" && (height = this._getContentHeight());
+			}
+			
+			if (calculateWidthAfterAuto) {
+				if (isDef(right)) {
+					if (isDef(left)) {
+						width = right - left;
+					} else {
+						left = right - width;
+					}
+				}
+				width -= borderWidth * 2;
+			}
+			if (calculateHeightAfterAuto) {
+				if (isDef(bottom)) {
+					if (isDef(top)) {
+						height = bottom - top;
+					} else {
+						top = bottom - height;
+					}
+				}
+				height -= borderWidth * 2;
 			}
 
 			// Set the default top/left if need be
