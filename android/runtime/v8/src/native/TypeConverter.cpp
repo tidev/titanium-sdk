@@ -227,18 +227,13 @@ v8::Handle<v8::Value> * TypeConverter::javaObjectArrayToJsArguments(jobjectArray
 	return jsArguments;
 }
 
-jarray TypeConverter::jsArrayToJavaArray(v8::Local<v8::Value> jsValue)
+jarray TypeConverter::jsArrayToJavaArray(v8::Handle<v8::Array> jsArray)
 {
 	JNIEnv *env = JNIScope::getEnv();
-	if (env == NULL || jsValue->IsNull()) {
+	if (env == NULL) {
 		return NULL;
 	}
 	
-	if (!jsValue->IsArray()) {
-		LOGE(TAG, "jsValue is not type Array");
-		return NULL;
-	}
-	v8::Handle<v8::Array> jsArray = v8::Handle<v8::Array>::Cast(jsValue);
 	int arrayLength = jsArray->Length();
 	jobjectArray javaArray = env->NewObjectArray(arrayLength, JNIUtil::objectClass, NULL);
 	if (javaArray == NULL) {
@@ -308,20 +303,12 @@ v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(jshortArray javaShortArr
 	return javaDoubleArrayToJsNumberArray((jdoubleArray) javaShortArray);
 }
 
-jintArray TypeConverter::jsArrayToJavaIntArray(v8::Local<v8::Value> jsValue)
+jintArray TypeConverter::jsArrayToJavaIntArray(v8::Handle<v8::Array> jsArray)
 {
 	JNIEnv *env = JNIScope::getEnv();
-	if (env == NULL || jsValue->IsNull()) {
+	if (env == NULL) {
 		return NULL;
 	}
-
-	if (!jsValue->IsArray()) {
-		LOGE(TAG, "jsValue is not type Array");
-		return NULL;
-	}
-    
-	v8::Handle<v8::Array> jsArray = v8::Handle<v8::Array>::Cast(jsValue);
-    
 
 	int arrayLength = jsArray->Length();
 	jintArray javaIntArray = env->NewIntArray(arrayLength);
@@ -358,20 +345,14 @@ v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(jintArray javaIntArray)
 	return jsArray;
 }
 
-jlongArray TypeConverter::jsArrayToJavaLongArray(v8::Local<v8::Value> jsValue)
+jlongArray TypeConverter::jsArrayToJavaLongArray(v8::Handle<v8::Array> jsArray)
 {
 	JNIEnv *env = JNIScope::getEnv();
-	if (env == NULL || jsValue->IsNull()) {
+	if (env == NULL) {
 		return NULL;
 	}
     
-	if (!jsValue->IsArray()) {
-		LOGE(TAG, "jsValue is not type Array");
-		return NULL;
-	}
-    
-	v8::Handle<v8::Array> jsArray = v8::Handle<v8::Array>::Cast(jsValue);
-    
+	 
 	int arrayLength = jsArray->Length();
 	jlongArray javaLongArray = env->NewLongArray(arrayLength);
 	if (javaLongArray == NULL) {
@@ -389,20 +370,14 @@ jlongArray TypeConverter::jsArrayToJavaLongArray(v8::Local<v8::Value> jsValue)
 	return javaLongArray;
 }
 
-jfloatArray TypeConverter::jsArrayToJavaFloatArray(v8::Local<v8::Value> jsValue)
+jfloatArray TypeConverter::jsArrayToJavaFloatArray(v8::Handle<v8::Array> jsArray)
 {
 	JNIEnv *env = JNIScope::getEnv();
-	if (env == NULL || jsValue->IsNull()) {
+	if (env == NULL) {
 		return NULL;
 	}
     
-    if (!jsValue->IsArray()) {
-		LOGE(TAG, "jsValue is not type Array");
-		return NULL;
-	}
-	
-    v8::Handle<v8::Array> jsArray = v8::Handle<v8::Array>::Cast(jsValue);
-    
+  
 	int arrayLength = jsArray->Length();
 	jfloatArray javaFloatArray = env->NewFloatArray(arrayLength);
 	if (javaFloatArray == NULL) {
