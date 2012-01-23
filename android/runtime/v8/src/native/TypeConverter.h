@@ -62,15 +62,15 @@ public:
 	static v8::Handle<v8::Value> * javaObjectArrayToJsArguments(jobjectArray javaObjectArray, int *length);
 
 	// array convert methods
-	static jarray jsArrayToJavaArray(v8::Handle<v8::Array>);
+	static jarray jsArrayToJavaArray(v8::Local<v8::Value> jsValue);
 	static v8::Handle<v8::Array> javaArrayToJsArray(jbooleanArray javaBooleanArray);
 	static jshortArray jsArrayToJavaShortArray(v8::Handle<v8::Array> jsArray);
 	static v8::Handle<v8::Array> javaArrayToJsArray(jshortArray javaShortArray);
-	static jintArray jsArrayToJavaIntArray(v8::Handle<v8::Array> jsArray);
+	static jintArray jsArrayToJavaIntArray(v8::Local<v8::Value> jsValue);
 	static v8::Handle<v8::Array> javaArrayToJsArray(jintArray javaIntArray);
-	static jlongArray jsArrayToJavaLongArray(v8::Handle<v8::Array> jsArray);
+	static jlongArray jsArrayToJavaLongArray(v8::Local<v8::Value> jsValue);
 	static v8::Handle<v8::Array> javaArrayToJsArray(jlongArray javaLongArray);
-	static jfloatArray jsArrayToJavaFloatArray(v8::Handle<v8::Array> jsArray);
+	static jfloatArray jsArrayToJavaFloatArray(v8::Local<v8::Value> jsValue);
 	static v8::Handle<v8::Array> javaArrayToJsArray(jfloatArray javaFloatArray);
 	static jdoubleArray jsArrayToJavaDoubleArray(v8::Handle<v8::Array> jsArray);
 	static v8::Handle<v8::Array> javaArrayToJsArray(jdoubleArray javaDoubleArray);
@@ -92,6 +92,8 @@ public:
 private:
 	// utility methods
 	static v8::Handle<v8::Array> javaDoubleArrayToJsNumberArray(jdoubleArray javaDoubleArray);
+	static v8::Handle<v8::Array> javaLongArrayToJsNumberArray(jlongArray javaLongArray);
+	static v8::Handle<v8::Array> javaFloatArrayToJsNumberArray(jfloatArray javaFloatArray);
 
 };
 }

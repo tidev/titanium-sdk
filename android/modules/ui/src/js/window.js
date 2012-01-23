@@ -112,7 +112,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 	// activity getter (account for scenario when heavy weight window's activity is not created yet) 
 	var activityProxyGetter = function () {
-		if (this.currentState == this.state.opened || this.currentState == this.state.opening) {
+		if (this.currentState == this.state.opened) {
 			return this.window._internalActivity;
 		}
 
@@ -196,10 +196,6 @@ exports.bootstrapWindow = function(Titanium) {
 			kroll.extend(this._properties, this.propertyCache);
 		}
 
-		if (this.cachedActivityProxy) {
-			this._properties['activity'] = this.cachedActivityProxy;
-		}
-
 		var needsOpen = false;
 		if (this.isActivity) {
 			this.window = new ActivityWindow(this._properties);
@@ -232,6 +228,8 @@ exports.bootstrapWindow = function(Titanium) {
 
 		} else {
 			this.postOpen();
+			this.fireEvent("open");
+			this.fireEvent("focus");
 		}
 	}
 
@@ -262,7 +260,7 @@ exports.bootstrapWindow = function(Titanium) {
 		if ("url" in this._properties) {
 			this.loadUrl();
 		}
-		
+
 		// Add event listeners and update the source of events after the window opens
 		for (var event in this._events) { 
 			var listeners = this.listeners(event); 
@@ -276,10 +274,17 @@ exports.bootstrapWindow = function(Titanium) {
 			self.view = null;
 			self.currentState = self.state.closed;
 		});
+		
+		if (this.cachedActivityProxy) {
+			this.window._internalActivity.extend(this.cachedActivityProxy);
+		}
 
 		this.currentState = this.state.opened;
-		this.fireEvent("open");
-		this.fireEvent("focus");
+		
+		// If there is any child added when the window state is opening, handle it here.
+		// For HW window, the correct activity is not available until this point.
+		// This resolves the issue caused by calling window.open() before calling window.add(view), eg TIMOB-6519.
+		this.addPostOpenChildren();
 	}
 
 	Window.prototype.runWindowUrl = function(scopeVars) {
@@ -353,14 +358,26 @@ exports.bootstrapWindow = function(Titanium) {
 
 	Window.prototype.add = function(view) {
 		if (this.view) {
-			this.view.add(view);
+		
+			// If the window is already opened, add the child to this.view directly
+			// and push the child to the array this._children
+			if (this.currentState == this.state.opened) {
+				this.view.add(view);
+				this._children.push(view);
+			}
+			
+			// If the window state is opening, push the child to the array this._postOpenChildren.
+			// The children in this array will be added to this.view in postOpen().
+			else if (this.currentState == this.state.opening) {
+				this._postOpenChildren.push(view);
+			}
 		}
-
-		var children = this._children;
-		if (!children) {
-			children = this._children = [];
+		
+		// If the window state is not opening or opened, push the child to the array this._children.
+		// By the time the window opens, the children in this array will be added to this.view.
+		else {
+			this._children.push(view);
 		}
-		children.push(view);
 	}
 
 	Window.prototype.addChildren = function() {
@@ -374,6 +391,22 @@ exports.bootstrapWindow = function(Titanium) {
 
 		// don't delete the children once finished in case the window
 		// needs to be opened again
+	}
+	
+	Window.prototype.addPostOpenChildren = function() {
+		if (this._postOpenChildren) {
+			var length = this._postOpenChildren.length;
+			
+			// Add all the postOpenChildren to this.view and push them to the array this._children.
+			for (var i = 0; i < length; i++) {
+				var postOpenChild = this._postOpenChildren[i];
+				this.view.add(postOpenChild);
+				this._children.push(postOpenChild);
+			}
+			
+			// Clear this._postOpenChildren because all the children in this array are now in this._children.
+			this._postOpenChildren.length = 0;
+		}
 	}
 
 	Window.prototype.remove = function(view) {
@@ -470,6 +503,8 @@ exports.bootstrapWindow = function(Titanium) {
 		window._sourceUrl = scopeVars.sourceUrl;
 		window._currentActivity = scopeVars.currentActivity; // don't think we are using this, remove?
 		window._module = scopeVars.module;
+		window._children = [];
+		window._postOpenChildren = [];
 
 		return window;
 	}

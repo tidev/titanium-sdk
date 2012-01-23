@@ -34,7 +34,7 @@
 				isBack = false;
 			} else {
 				// leave record in History object
-				window.history.pushState({ screenIndex: idx }, "", "");
+				window.history.pushState && window.history.pushState({ screenIndex: idx }, "", "");
 			}
 			obj.fireEvent('screen_open');
 		};

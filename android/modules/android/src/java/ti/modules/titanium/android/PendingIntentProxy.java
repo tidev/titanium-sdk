@@ -10,6 +10,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.IntentProxy;
@@ -20,7 +21,8 @@ import android.content.Context;
 
 @Kroll.proxy(creatableInModule=AndroidModule.class, propertyAccessors = {
 	TiC.PROPERTY_FLAGS,
-	TiC.PROPERTY_INTENT
+	TiC.PROPERTY_INTENT,
+	TiC.PROPERTY_UPDATE_CURRENT_INTENT
 })
 public class PendingIntentProxy extends KrollProxy 
 {
@@ -28,6 +30,7 @@ public class PendingIntentProxy extends KrollProxy
 	protected PendingIntent pendingIntent;
 	protected IntentProxy intent;
 	protected Context pendingIntentContext;
+	protected boolean updateCurrentIntent = true;
 	protected int flags;
 
 	public PendingIntentProxy()
@@ -53,15 +56,13 @@ public class PendingIntentProxy extends KrollProxy
 		super.handleCreationArgs(createdInModule, args);
 
 		pendingIntentContext = getActivity();
-		//pendingIntentContext = this.context.getActivity();
-		/*
-		if (context == null) {
-			pendingIntentContext = this.context.getRootActivity();
+		if (pendingIntentContext == null) {
+			pendingIntentContext = TiApplication.getAppCurrentActivity();
 		}
-		if (context == null) {
-			pendingIntentContext = TiApplication.getInstance().getApplicationContext();
+		if (pendingIntentContext == null) {
+			pendingIntentContext = TiApplication.getInstance();
 		}
-		*/
+
 		if (pendingIntentContext == null || intent == null) {
 			throw new IllegalStateException("Creation arguments must contain intent");
 		}
@@ -89,9 +90,18 @@ public class PendingIntentProxy extends KrollProxy
 		if (dict.containsKey(TiC.PROPERTY_INTENT)) {
 			intent = (IntentProxy) dict.get(TiC.PROPERTY_INTENT);
 		}
+		if (dict.containsKey(TiC.PROPERTY_UPDATE_CURRENT_INTENT)) {
+			updateCurrentIntent = TiConvert.toBoolean(dict.get(TiC.PROPERTY_UPDATE_CURRENT_INTENT));
+		}
 		if (dict.containsKey(TiC.PROPERTY_FLAGS)) {
 			flags = dict.getInt(TiC.PROPERTY_FLAGS);
 		}
+		
+		//add FLAG_UPDATE_CURRENT if updateCurrentIntent is true
+		if (updateCurrentIntent) {
+			flags =  flags | PendingIntent.FLAG_UPDATE_CURRENT;
+		} 
+		
 		super.handleCreationDict(dict);
 	}
 

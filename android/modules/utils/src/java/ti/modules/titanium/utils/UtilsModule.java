@@ -99,6 +99,11 @@ public class UtilsModule extends KrollModule
 	}
 
 	@Kroll.method
+	public boolean arrayTest(float[] a, long[] b, int[] c, String[] d) 
+	{
+		return true;
+	}
+	@Kroll.method
 	public String sha256(Object obj)
 	{
 		String data = convertToString(obj);

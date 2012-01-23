@@ -1,42 +1,57 @@
 ---
 name: Titanium.UI.iOS.CoverFlowView
-summary: The Cover Flow view is container for showing  animated, three dimensional images in a nice UI. The Cover Flow view is created by the method <Titanium.UI.iOS.createCoverFlowView>.
+summary: The cover flow View is container for showing  animated, three dimensional images in a nice UI. 
+description: |
+    Use the <Titanium.UI.iOS.createCoverFlowView> method to create a cover flow view.
 extends: Titanium.UI.View
 since: "0.8"
 platforms: [iphone, ipad]
+excludes: {
+   events: [ "dblclick", "doubletap", "longclick", "longpress", "pinch", "singletap", "swipe", "touchcancel", "touchend", "touchmove", "touchstart", "twofingertap" ]
+}
 methods:
   - name: setImage
-    summary: change an image for a index
+    summary: Changes the image for a specified index.
+    description: |
+        To specify a size for the image, you may pass the image as a simple dictionary, as
+        defined in <CoverFlowImageType>.  If you specify a size, the size must be exact,
+        not 'auto' or a percentage size.
+
+        If the image is passed as a `File` object or file path, the filename is checked.
+        If the filename includes the '@2x' string used to identify high-resolution images
+        for the Retina display, the image is treated accordingly.
     parameters:
       - name: index
-        summary: index to change
+        summary: Index to add the image at.
         type: Number
       - name: image
-        summary: the image to set the index to. May be a TiBlob, TiFile, URL, or dictionary with 'image' (may be any of TiBlob, TiFile, URL), 'width', 'height' keys.  'auto' is not allowed, only exact sizes (although a size may be omitted to keep the image at that size).  If passed as a TiFile or URL, will perform a check for '@2x' on Retina displays
-        type: Object
+        summary: Image to add at this index.
+        type: [String,Titanium.Blob,Titanium.File,CoverFlowImageType]
 events:
   - name: change
-    summary: fired when the user changes the image using a gesture
+    summary: Fired when the user changes the image using a gesture.
     properties:
       - name: index
-        summary: the index of the image that is now visible
-      - name: y
-        summary: the y point of the event, in receiving view coordinates
-      - name: x
-        summary: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
+        summary: Index of the image that is now visible.
+        type: Number
       - name: previous
-        summary: the previous index of the image that was visible
+        summary: Index of the previously-visible image.
+        type: Number
+  - name: click
+    summary: Fired when the user clicks on the view.
+    properties:
+      - name: index
+        summary: Index of the image that is now visible.
+        type: Number
+      - name: previous
+        summary: Index of the previously-visible image.
+        type: Number
 properties:
   - name: images
-    summary: array of images to display in the view
-    type: Array<Object>
+    summary: Array of images to display in the view.
+    type: [Array<String>,Array<Titanium.Blob>,Array<Titanium.File>,Array<CoverFlowImageType>]
   - name: selected
-    summary: index to make selected
+    summary: Index to make selected.
     type: Number
     
 examples:
@@ -51,4 +66,22 @@ examples:
             });
             window.add(view);
         
-        
+---
+name: CoverFlowImageType
+summary: Simple object for defining a single image in a cover flow view.
+description: |
+    If supplied, the `width` and `height` values must be exact values,
+    not `'auto'`.
+
+    If the size specified is different from the size of the image, the 
+    image is cropped and/or scaled to fit the specified size.
+properties:
+  - name: image
+    summary: Image to use, as a local file URL, `Blob`, or `File`.
+    type: [String, Titanium.Blob, Titanium.Filesystem.File]
+  - name: width
+    summary: Display width for the image, in Apple points. 
+    type: Number
+  - name: height
+    summary: Display height of the image, in Apple points.
+    type: Number

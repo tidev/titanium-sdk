@@ -19,9 +19,11 @@ import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
 
@@ -213,6 +215,41 @@ public class KrollBindingGenerator
 	}
 
 	@SuppressWarnings("unchecked")
+	private void mergeModules(Map<String, Object> source)
+	{
+		Set<String> newKeys = source.keySet();
+		for (String key : newKeys) {
+			Object newEntry = source.get(key);
+			if (!modules.containsKey(key)) {
+				modules.put(key, newEntry);
+			} else {
+				Object origEntry = modules.get(key);
+				if (!(origEntry instanceof Map) || !(newEntry instanceof Map)) {
+					// That would be odd indeed.
+					continue;
+				}
+
+				Map<Object, Object> newEntryMap = (Map<Object, Object>) newEntry;
+				Map<Object, Object> origEntryMap = (Map<Object, Object>) origEntry;
+
+				if (newEntryMap.containsKey("apiName") && !origEntryMap.containsKey("apiName")) {
+					origEntryMap.put("apiName", newEntryMap.get("apiName"));
+				}
+
+				String[] listNames = {"childModules", "createProxies"};
+				for (String listName : listNames) {
+					if (newEntryMap.containsKey(listName)) {
+						JSONArray list = (JSONArray) newEntryMap.get(listName);
+						for (int i = 0; i < list.size(); i++) {
+							jsonUtils.appendUniqueObject(origEntryMap, listName, "id", (Map<Object, Object>) list.get(i));
+						}
+					}
+				}
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
 	protected void loadBindings(String jsonPath)
 		throws ParseException, IOException
 	{
@@ -225,7 +262,7 @@ public class KrollBindingGenerator
 		Map<String, Object> modules = jsonUtils.getStringMap(properties, "modules");
 
 		this.proxies.putAll(proxies);
-		this.modules.putAll(modules);
+		mergeModules(modules);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -267,7 +304,6 @@ public class KrollBindingGenerator
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	protected void generateBindings()
 		throws ParseException, IOException
 	{

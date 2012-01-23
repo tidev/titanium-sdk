@@ -20,7 +20,7 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	[textWidgetView sizeToFit];
+	[[self textWidgetView] sizeToFit];
 	[super frameSizeChanged:frame bounds:bounds];
 }
 

@@ -17,7 +17,7 @@
  * <https://github.com/unscriptable/curl>
  */
 
-(function (global) {
+(function(global) {
 
 	"use strict";
 
@@ -111,8 +111,25 @@
 
 	function is(it, type) {
 		// summary:
-		//		Tests if anything is a specific type.
-		return ({}).toString.call(it).indexOf('[object ' + type) === 0;
+		//		Tests if "it" is a specific "type". If type is omitted, then
+		//		it will return the type.
+		//
+		// returns:
+		//		Boolean if type is passed in
+		//		String of type if type is not passed in
+		var t = it === undefined ? "" : ({}).toString.call(it),
+			m = t.match(/^\[object (.+)\]$/),
+			v = m ? m[1] : "Undefined";
+		return type ? type === v : v;
+	}
+	
+	function isDef(it) {
+		// summary:
+		//		Helper function that tests if "it" is defined
+		//
+		// returns:
+		//		Boolean
+		return !is(it, "Undefined");
 	}
 
 	function isEmpty(it) {
@@ -197,7 +214,7 @@
 		return hasCache[name];
 	}
 
-	has.add = function (name, test, now, force){
+	has.add = function(name, test, now, force){
 		// summary:
 		//		Adds a feature test.
 		//
@@ -223,25 +240,64 @@
 	 * Event handling
 	 *****************************************************************************/
 
-	function on(target, type, listener) {
+	function on(target, type, context, listener) {
 		// summary:
 		//		Connects a listener to an event on the specified target.
+		//
+		// target: Object|DomNode
+		//		The target to add the event listener to.
+		//
+		// type: String
+		//		The event to listen for.
+		//
+		// context: Object|Function
+		//		When listener is defined, the context is the scope in which the listener
+		//		is executed.
+		//
+		// listener: Function?|String?
+		//		Optional. When present, the context is used as the scope.
+		//
+		// example:
+		//		Attaching to a click event:
+		//		|	on(myButton, "click", function() {
+		//		|		alert("Howdy!");
+		//		|	});
+		//
+		// example:
+		//		Attaching to a click event within a declared class method:
+		//		|	...
+		//		|	constructor: function() {
+		//		|		require.on(myButton, "click", this, "onButtonClick");
+		//		|	},
+		//		|	onButtonClick: function() {
+		//		|		alert("Howdy from " + this.declaredClass + "!");
+		//		|	}
+		//		|	...
+		//
+		// example:
+		//		Attaching to a click event with an anonymous function in a declared class:
+		//		|	...
+		//		|	constructor: function() {
+		//		|		require.on(myButton, "click", this, function() {
+		//		|			alert("Howdy from " + this.declaredClass + "!");
+		//		|		});
+		//		|	}
+		//		|	...
 
-		if (type.call) {
-			// event handler function
-			return type.call(target, listener);
-		}
+		var cb = is(listener, "Function") ? function() {
+			return listener.apply(context, arguments);
+		} : is(listener, "String") ? function() {
+			return context[listener].apply(context, arguments);
+		} : context;
 
-		// TODO: fix touch events?
-
-		target.addEventListener(type, listener, false);
-		return function () {
-			target.removeEventListener(type, listener, false);
+		target.addEventListener(type, cb, false);
+		return function() {
+			target.removeEventListener(type, cb, false);
 		};
 	}
 
-	on.once = function (target, type, listener) {
-		var h = on(target, type, function () {
+	on.once = function(target, type, listener) {
+		var h = on(target, type, function() {
 			h && h(); // do the disconnect
 			return listener.apply(this, arguments);
 		});
@@ -374,7 +430,7 @@
 			args[2] = _t;
 			return req.apply(null, args);
 		}
-		scopedRequire.toUrl = function () {
+		scopedRequire.toUrl = function() {
 			var args = Array.prototype.slice.call(arguments, 0);
 			_t.plugin === null && (args[1] = _t);
 			return toUrl.apply(null, args);
@@ -392,7 +448,7 @@
 		};
 	}
 
-	ResourceDef.prototype.load = function (sync, callback) {
+	ResourceDef.prototype.load = function(sync, callback) {
 		// summary:
 		//		Retreives a remote script and inject it either by XHR (sync) or attaching
 		//		a script tag to the DOM (async).
@@ -408,10 +464,10 @@
 			disconnector,
 			_t = this,
 			cached = defCache[_t.name],
-			fireCallbacks = function () {
-				each(_t.callbacks, function (c) { c(_t); });
+			fireCallbacks = function() {
+				each(_t.callbacks, function(c) { c(_t); });
 			},
-			onLoad = function (rawDef) {
+			onLoad = function(rawDef) {
 				_t.loaded = 1;
 				if (_t.rawDef = rawDef) {
 					if (is(rawDef, "String")) {
@@ -476,7 +532,7 @@
 			x.charset = "utf-8";
 			x.async = true;
 
-			disconnector = on(x, "load", function (e) {
+			disconnector = on(x, "load", function(e) {
 				e = e || global.event;
 				var node = e.target || e.srcElement;
 				if (e.type === "load" || /complete|loaded/.test(node.readyState)) {
@@ -493,7 +549,7 @@
 		}
 	};
 
-	ResourceDef.prototype.execute = function (callback) {
+	ResourceDef.prototype.execute = function(callback) {
 		// summary:
 		//		Executes the resource's rawDef which defines the module.
 		//
@@ -508,12 +564,12 @@
 		}
 
 		// first need to make sure we have all the deps loaded
-		fetch(_t.deps, function (deps) {
+		fetch(_t.deps, function(deps) {
 			var i,
 				p,
 				r = _t.rawDef,
 				q = defQ.slice(0), // backup the defQ
-				finish = function () {
+				finish = function() {
 					_t.executed = 1;
 					callback && callback();
 				};
@@ -530,7 +586,7 @@
 						: is(r, "Function")
 							? r.apply(null, deps)
 							: is(r, "Object")
-								? (function (obj, vars) {
+								? (function(obj, vars) {
 										for (var i in vars){
 											this[i] = vars[i];
 										}
@@ -559,23 +615,24 @@
 				}
 
 				// if the plugin has a load function, then invoke it!
-				p.load && p.load(_t.pluginArgs, _t.cjs.require, function (v) {
+				p.load && p.load(_t.pluginArgs, _t.cjs.require, function(v) {
 					_t.def = v;
 					finish();
 				}, _t.pluginCfg);
 			}
 
 			finish();
-		}, function (ex) {
+		}, function(ex) {
 			throw ex;
 		}, _t.refModule, _t.sync);
 	};
 
-	function getResourceDef(name, refModule, deps, rawDef, dontCache) {
+	function getResourceDef(name, refModule, deps, rawDef, dontCache, overrideCache) {
 		// summary:
 		//		Creates a new resource definition or returns an existing one from cache.
 
-		var module = new ResourceDef(name, refModule, deps, rawDef);
+		var module = new ResourceDef(name, refModule, deps, rawDef),
+			moduleName = module.name;
 
 		if (name in module.cjs) {
 			module.def = module[name];
@@ -583,7 +640,7 @@
 			return module;
 		}
 
-		return dontCache ? module : (module.name ? modules[module.name] || (modules[module.name] = module) : module);
+		return dontCache || !moduleName ? module : (!modules[moduleName] || overrideCache ? (modules[moduleName] = module) : modules[moduleName]);
 	}
 
 	function processDefQ(module) {
@@ -659,9 +716,9 @@
 		}
 
 		for (i = 0, l = count = deps.length; i < l; i++) {
-			deps[i] && (function (idx, name) {
-				getResourceDef(deps[idx], refModule).load(!!sync, function (m) {
-					m.execute(function () {
+			deps[i] && (function(idx, name) {
+				getResourceDef(deps[idx], refModule).load(!!sync, function(m) {
+					m.execute(function() {
 						deps[idx] = m.def;
 						if (--count === 0) {
 							success && success(deps);
@@ -707,7 +764,7 @@
 		//		is immediately defined.
 		//
 		//		|	define({
-		//		|		sq: function (x) { return x * x; }
+		//		|		sq: function(x) { return x * x; }
 		//		|	});
 		//
 		// example:
@@ -721,9 +778,9 @@
 		//		passed in passed require, exports, and module arguments, then immediately
 		//		evaluated.
 		//
-		//		|	define(function (require, exports, module) {
+		//		|	define(function(require, exports, module) {
 		//		|		return {
-		//		|			sq: function (x) { return x * x; }
+		//		|			sq: function(x) { return x * x; }
 		//		|		};
 		//		|	});
 		//
@@ -733,7 +790,7 @@
 		//		Since no deps, the module definition is immediately defined.
 		//
 		//		|	define("arithmetic", {
-		//		|		sq: function (x) { return x * x; }
+		//		|		sq: function(x) { return x * x; }
 		//		|	});
 		//
 		// example:
@@ -743,9 +800,9 @@
 		//		passed in passed require, exports, and module arguments, then immediately
 		//		evaluated.
 		//
-		//		|	define("arithmetic", function (require, exports, module) {
+		//		|	define("arithmetic", function(require, exports, module) {
 		//		|		return {
-		//		|			sq: function (x) { return x * x; }
+		//		|			sq: function(x) { return x * x; }
 		//		|		};
 		//		|	});
 		//
@@ -761,7 +818,7 @@
 		//		function wrapper around the module definition.
 		//
 		//		|	define(["dep1", "dep2"], {
-		//		|		sq: function (x) { return x * x; }
+		//		|		sq: function(x) { return x * x; }
 		//		|	});
 		//
 		// example:
@@ -775,9 +832,9 @@
 		//		dependencies, then once the dependencies are loaded, it will evaluate
 		//		the rawDef function.
 		//
-		//		|	define(["dep1", "dep2"], function (dep1, dep2) {
+		//		|	define(["dep1", "dep2"], function(dep1, dep2) {
 		//		|		return {
-		//		|			sq: function (x) { return x * x; }
+		//		|			sq: function(x) { return x * x; }
 		//		|		};
 		//		|	});
 		//
@@ -797,9 +854,9 @@
 		//		After the two dependencies are loaded, the loader will evaluate the
 		//		function rawDef.
 		//
-		//		|	define("arithmetic", ["dep1", "dep2"], function (dep1, dep2) {
+		//		|	define("arithmetic", ["dep1", "dep2"], function(dep1, dep2) {
 		//		|		return {
-		//		|			sq: function (x) { return x * x; }
+		//		|			sq: function(x) { return x * x; }
 		//		|		};
 		//		|	});
 
@@ -826,12 +883,12 @@
 			// them to the dependencies so that they can be loaded and passed in.
 			rawDef.toString()
 				.replace(commentRegExp, "")
-				.replace(cjsRequireRegExp, function (match, dep) {
+				.replace(cjsRequireRegExp, function(match, dep) {
 					deps.push(dep);
 				});
 		}
 
-		module = getResourceDef(name, 0, deps, rawDef);
+		module = getResourceDef(name, 0, deps, rawDef, 0, 1);
 
 		// if not waiting for this module to be loaded, then the define() call was
 		// possibly inline or deferred, so try fulfill dependencies, and define the
@@ -853,7 +910,8 @@
 
 	// set the "amd" property and advertise supported features
 	def.amd = {
-		plugins: true
+		plugins: true,
+		vendor: "titanium"
 	};
 
 	function toUrl(name, refModule) {
@@ -868,7 +926,7 @@
 		//
 		// example:
 		//		Returns the URL for a HTML template file.
-		//		|	define(function (require) {
+		//		|	define(function(require) {
 		//		|		var templatePath = require.toUrl("./templates/example.html");
 		//		|	});
 
@@ -909,13 +967,13 @@
 		//
 		// example:
 		//		Asynchronous call.
-		//		|	require(["arithmetic", "convert"], function (arithmetic, convert) {
+		//		|	require(["arithmetic", "convert"], function(arithmetic, convert) {
 		//		|		convert(arithmetic.sq(10), "fahrenheit", "celsius"); // returns 37.777
 		//		|	});
 
-		return fetch(deps, function (deps) {
+		return fetch(deps, function(deps) {
 			callback && callback.apply(null, deps);
-		}, function (ex) {
+		}, function(ex) {
 			throw ex;
 		}, refModule) || req;
 	}
@@ -927,6 +985,7 @@
 		evaluate: evaluate,
 		has: has,
 		is: is,
+		isDef: isDef,
 		mix: mix,
 		on: on
 	});
@@ -952,12 +1011,12 @@
 		// example:
 		//		This shows what build system would generate. You should not need to do this.
 		//		|	require.cache({
-		//		|		"arithmetic": function () {
-		//		|			define(["dep1", "dep2"], function (dep1, dep2) {
-		//		|				var api = { sq: function (x) { return x * x; } };
+		//		|		"arithmetic": function() {
+		//		|			define(["dep1", "dep2"], function(dep1, dep2) {
+		//		|				var api = { sq: function(x) { return x * x; } };
 		//		|			});
 		//		|		},
-		//		|		"my/favorite": function () {
+		//		|		"my/favorite": function() {
 		//		|			define({
 		//		|				color: "red",
 		//		|				food: "pizza"
@@ -987,22 +1046,521 @@
 }(window));
 
 require.cache({
-	"include": function () {
-		define(function () {
+	"Ti/_": function() {
+		define({
+			getAbsolutePath: function(path) {
+				/^app\:\/\//.test(path) && (path = path.substring(6));
+				/^\//.test(path) && (path = path.substring(1));
+				return /^\/\//.test(path) || path.indexOf("://") > 0 ? path : location.pathname.replace(/(.*)\/.*/, "$1") + "/" + path;
+			},
+			uuid: function() {
+				/**
+				 * Math.uuid.js (v1.4)
+				 * Copyright (c) 2010 Robert Kieffer
+				 * Dual licensed under the MIT and GPL licenses.
+				 * <http://www.broofa.com>
+				 * mailto:robert@broofa.com
+				 */
+				// RFC4122v4 solution:
+				return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+					var r = Math.random() * 16 | 0,
+						v = c == 'x' ? r : (r & 0x3 | 0x8);
+					return v.toString(16);
+				}).toUpperCase();
+			}
+		});
+	},
+	"Ti/_/browser": function() {
+		define(function() {
+			var match = navigator.userAgent.toLowerCase().match(/(webkit|gecko|trident|presto)/);
+			return {
+				runtime: match ? match[0] : "unknown"
+			};
+		});
+	},
+	"Ti/_/css": function() {
+		define(["Ti/_/string"], function(string) {
+			function processClass(node, cls, adding) {
+				var i = 0, p,
+					cn = " " + node.className + " ",
+					cls = require.is(cls, "Array") ? cls : cls.split(" ");
+
+				for (; i < cls.length; i++) {
+					p = cn.indexOf(" " + cls[i] + " ");
+					if (adding && p === -1) {
+						cn += cls[i] + " ";
+					} else if (!adding && p !== -1) {
+						cn = cn.substring(0, p) + cn.substring(p + cls[i].length + 1);
+					}
+				}
+
+				node.className = string.trim(cn);
+			}
+
+			return {
+				add: function(node, cls) {
+					processClass(node, cls, 1);
+				},
+
+				remove: function(node, cls) {
+					processClass(node, cls);
+				},
+
+				clean: function(cls) {
+					return cls.replace(/[^A-Za-z0-9\-]/g, "");
+				}
+			};
+		});
+	},
+	"Ti/_/declare": function() {
+		define(["Ti/_/lang"], function(lang) {
+			/**
+			 * declare() functionality based on code from Dojo Toolkit.
+			 *
+			 * Dojo Toolkit
+			 * Copyright (c) 2005-2011, The Dojo Foundation
+			 * New BSD License
+			 * <http://dojotoolkit.org>
+			 */
+
+			var is = require.is,
+				mix = require.mix,
+				classCounters = {};
+
+			// C3 Method Resolution Order (see http://www.python.org/download/releases/2.3/mro/)
+			function c3mro(bases, className) {
+				var result = [],
+					roots = [ {cls: 0, refs: []} ],
+					nameMap = {},
+					clsCount = 1,
+					l = bases.length,
+					i = 0,
+					j, lin, base, top, proto, rec, name, refs;
+
+				// build a list of bases naming them if needed
+				for (; i < l; ++i) {
+					base = bases[i];
+					if (!base) {
+						throw new Error('Unknown base class for "' + className + '" [' + i + ']');
+					} else if(!is(base, "Function")) {
+						throw new Error('Base class not a function for "' + className + '" [' + i + ']');
+					}
+					lin = base._meta ? base._meta.bases : [base];
+					top = 0;
+					// add bases to the name map
+					for (j = lin.length - 1; j >= 0; --j) {
+						proto = lin[j].prototype;
+						proto.hasOwnProperty("declaredClass") || (proto.declaredClass = "uniqName_" + (counter++));
+						name = proto.declaredClass;
+						if (!nameMap.hasOwnProperty(name)) {
+							nameMap[name] = {count: 0, refs: [], cls: lin[j]};
+							++clsCount;
+						}
+						rec = nameMap[name];
+						if (top && top !== rec) {
+							rec.refs.push(top);
+							++top.count;
+						}
+						top = rec;
+					}
+					++top.count;
+					roots[0].refs.push(top);
+				}
+
+				// remove classes without external references recursively
+				while (roots.length) {
+					top = roots.pop();
+					result.push(top.cls);
+					--clsCount;
+					// optimization: follow a single-linked chain
+					while (refs = top.refs, refs.length == 1) {
+						top = refs[0];
+						if (!top || --top.count) {
+							// branch or end of chain => do not end to roots
+							top = 0;
+							break;
+						}
+						result.push(top.cls);
+						--clsCount;
+					}
+					if (top) {
+						// branch
+						for (i = 0, l = refs.length; i < l; ++i) {
+							top = refs[i];
+							--top.count || roots.push(top);
+						}
+					}
+				}
+
+				if (clsCount) {
+					throw new Error('Can\'t build consistent linearization for ' + className + '"');
+				}
+
+				// calculate the superclass offset
+				base = bases[0];
+				result[0] = base ?
+					base._meta && base === result[result.length - base._meta.bases.length] ?
+						base._meta.bases.length : 1 : 0;
+
+				return result;
+			}
+
+			function makeConstructor(bases, ctorSpecial) {
+				return function() {
+					var a = arguments,
+						args = a,
+						a0 = a[0],
+						f, i, m, p,
+						l = bases.length,
+						preArgs,
+						dc = this.declaredClass;
+
+					classCounters[dc] || (classCounters[dc] = 0);
+					this.widgetId = dc + ":" + (classCounters[dc]++);
+
+					// 1) call two types of the preamble
+					if (ctorSpecial && (a0 && a0.preamble || this.preamble)) {
+						// full blown ritual
+						preArgs = new Array(bases.length);
+						// prepare parameters
+						preArgs[0] = a;
+						for (i = 0;;) {
+							// process the preamble of the 1st argument
+							(a0 = a[0]) && (f = a0.preamble) && (a = f.apply(this, a) || a);
+							// process the preamble of this class
+							f = bases[i].prototype;
+							f = f.hasOwnProperty("preamble") && f.preamble;
+							f && (a = f.apply(this, a) || a);
+							if (++i === l) {
+								break;
+							}
+							preArgs[i] = a;
+						}
+					}
+
+					// 2) call all non-trivial constructors using prepared arguments
+					for (i = l - 1; i >= 0; --i) {
+						f = bases[i];
+						m = f._meta;
+						if (m) {
+							f = m.ctor;
+							lang.mixProps(this, m.hidden);
+						}
+						is(f, "Function") && f.apply(this, preArgs ? preArgs[i] : a);
+					}
+
+					// 3) mixin args if any
+					is(a0, "Object") && mix(this, a0);
+
+					// 4) continue the original ritual: call the postscript
+					f = this.postscript;
+					f && f.apply(this, args);
+				};
+			}
+
+			function mixClass(dest, src) {
+				for (var p in src) {
+					if (src.hasOwnProperty(p) && !/^(constructor|properties|constants|__values__)$/.test(p)) {
+						is(src[p], "Function") && (src[p].nom = name);
+						dest[p] = src[p];
+					}
+				}
+				return dest;
+			}
+
+			function declare(className, superclass, definition) {
+				// summary:
+				//		Creates an instantiable class object.
+				//
+				// className: String?
+				//		Optional. The name of the class.
+				//
+				// superclass: null | Object | Array
+				//		The base class or classes to extend.
+				//
+				// definition: Object
+				//		The definition of the class.
+
+				if (!is(className, "String")) {
+					definition = superclass;
+					superclass = className;
+					className = "";
+				}
+				definition = definition || {};
+
+				var bases = [definition.constructor],
+					ctor,
+					i,
+					mixins = 1,
+					proto = {},
+					superclassType = is(superclass),
+					t;
+
+				// build the array of bases
+				if (superclassType === "Array") {
+					bases = c3mro(superclass, className);
+					superclass = bases[mixins = bases.length - bases[0]];
+				} else if (superclassType === "Function") {
+					t = superclass._meta;
+					bases = bases.concat(t ? t.bases : superclass);
+				} else if (superclassType === "Object") {
+					ctor = new Function;
+					mix(ctor.prototype, superclass);
+					bases[0] = superclass = ctor;
+				} else {
+					superclass = 0;
+				}
+
+				// build the prototype chain
+				if (superclass) {
+					for (i = mixins - 1;; --i) {
+						ctor = new Function;
+						ctor.prototype = superclass.prototype;
+						proto = new ctor;
+
+						// stop if nothing to add (the last base)
+						if (!i) {
+							break;
+						}
+
+						// mix in properties
+						t = bases[i];
+						(t._meta ? mixClass : mix)(proto, t.prototype);
+
+						// chain in new constructor
+						ctor = new Function;
+						ctor.superclass = superclass;
+						ctor.prototype = proto;
+						superclass = proto.constructor = ctor;
+					}
+				}
+
+				// add all properties except constructor, properties, and constants
+				mixClass(proto, definition);
+
+				// if the definition is not an object, then we want to use its constructor
+				t = definition.constructor;
+				if (t !== Object.prototype.constructor) {
+					t.nom = "constructor";
+					proto.constructor = t;
+				}
+
+				// build the constructor and add meta information to the constructor
+				mix(bases[0] = ctor = makeConstructor(bases, t), {
+					_meta: {
+						bases: bases,
+						hidden: definition,
+						ctor: definition.constructor
+					},
+					superclass: superclass && superclass.prototype,
+					extend: function(src) {
+						mixClass(this.prototype, src);
+						return this;
+					},
+					prototype: proto
+				});
+
+				// now mix in just the properties and constants
+				//lang.mixProps(proto, definition);
+
+				// add "standard" methods to the prototype
+				mix(proto, {
+					constructor: ctor,
+					// TODO: need a nice way of accessing the super method without using arguments.callee
+					// getInherited: function(name, args) {
+					//	return is(name, "String") ? this.inherited(name, args, true) : this.inherited(name, true);
+					// },
+					// inherited: inherited,
+					isInstanceOf: function(cls) {
+						var bases = this.constructor._meta.bases,
+							i = 0,
+							l = bases.length;
+						for (; i < l; ++i) {
+							if (bases[i] === cls) {
+								return true;
+							}
+						}
+						return this instanceof cls;
+					}
+				});
+
+				// add name if specified
+				if (className) {
+					proto.declaredClass = className;
+					lang.setObject(className, ctor);
+				}
+
+				return ctor;
+			}
+
+			return declare;
+		});
+	},
+	"Ti/_/dom": function() {
+		define(["Ti/_/style"], function(style) {
+			/**
+			 * create(), attr(), place(), & remove() functionality based on code from Dojo Toolkit.
+			 *
+			 * Dojo Toolkit
+			 * Copyright (c) 2005-2011, The Dojo Foundation
+			 * New BSD License
+			 * <http://dojotoolkit.org>
+			 */
+
+			var is = require.is,
+				forcePropNames = {
+					innerHTML:	1,
+					className:	1,
+					value:		1
+				},
+				attrNames = {
+					// original attribute names
+					classname: "class",
+					htmlfor: "for",
+					// for IE
+					tabindex: "tabIndex",
+					readonly: "readOnly"
+				},
+				names = {
+					// properties renamed to avoid clashes with reserved words
+					"class": "className",
+					"for": "htmlFor",
+					// properties written as camelCase
+					tabindex: "tabIndex",
+					readonly: "readOnly",
+					colspan: "colSpan",
+					frameborder: "frameBorder",
+					rowspan: "rowSpan",
+					valuetype: "valueType"
+				};
+
+			return {
+				create: function(tag, attrs, refNode, pos) {
+					var doc = refNode ? refNode.ownerDocument : document;
+					is(tag, "String") && (tag = doc.createElement(tag));
+					attrs && this.attr(tag, attrs);
+					refNode && this.place(tag, refNode, pos);
+					return tag;
+				},
+
+				attr: function(node, name, value) {
+					if (arguments.length === 2) {
+						// the object form of setter: the 2nd argument is a dictionary
+						for (var x in name) {
+							this.attr(node, x, name[x]);
+						}
+						return node;
+					}
+
+					var lc = name.toLowerCase(),
+						propName = names[lc] || name,
+						forceProp = forcePropNames[propName],
+						attrId, h;
+
+					if (propName === "style" && !require.is(value, "String")) {
+						return style.set(node, value);
+					}
+
+					if (forceProp || is(value, "Boolean") || is(value, "Function")) {
+						node[name] = value;
+						return node;
+					}
+
+					// node's attribute
+					node.setAttribute(attrNames[lc] || name, value);
+					return node;
+				},
+
+				place: function(node, refNode, pos) {
+					refNode.appendChild(node);
+					return node;
+				},
+
+				detach: function(node) {
+					return node.parentNode && node.parentNode.removeChild(node);
+				},
+
+				destroy: function(node) {
+					try {
+						var destroyContainer = node.ownerDocument.createElement("div");
+						destroyContainer.appendChild(this.detach(node) || node);
+						destroyContainer.innerHTML = "";
+					} catch(e) {
+						/* squelch */
+					}
+				},
+
+				unitize: function(x) {
+					return isNaN(x-0) || x-0 != x ? x : x + "px"; // note: must be != and not !==
+				},
+
+				computeSize: function(x,totalLength) {
+					if (!require.is(x,"Number") && !require.is(x,"String")) {
+						return;
+					}
+					if (x === "auto" || require.is(x,"Number")) {
+						return x;
+					} else {
+						var value = parseFloat(x),
+							units = x.substring((value + "").length),
+							dpi = Ti.Platform.DisplayCaps.dpi,
+							undef;
+						
+						function processMM(x) {
+							// Convert mm to in for this calculation
+							return x * 0.03937007874015748 * dpi;
+						}
+						
+						function processIN(x) {
+							return x * dpi;
+						}
+						
+						switch(units) {
+							case "%":
+								if(totalLength == "auto") {
+									return "auto";
+								} else if (!require.is(totalLength,"Number")) {
+									console.error("Could not compute percentage size/position of element.");
+									return;
+								} 
+								return value / 100 * totalLength;
+							case "mm": return processMM(value);
+							case "cm": return processMM(value * 10);
+							case "in": return processIN(value);
+							case "pt": return processIN(value / 72);
+							case "pc": return processIN(value / 864);
+							case "px": return value;
+							case "dp": return value;
+						}
+					}
+				}
+			};
+		});
+	},
+	"Ti/_/event": function() {
+		define({
+			stop: function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+			}
+		});
+	},
+	"Ti/_/include": function() {
+		define(function() {
 			var cache = {},
 				stack = [];
 
 			return {
 				dynamic: true, // prevent the loader from caching the result
 
-				normalize: function (name, normalize) {
+				normalize: function(name, normalize) {
 					var parts = name.split("!"),
 						url = parts[0];
 					parts.shift();
 					return (/^\./.test(url) ? normalize(url) : url) + (parts.length ? "!" + parts.join("!") : "");
 				},
 
-				load: function (name, require, onLoad, config) {
+				load: function(name, require, onLoad, config) {
 					var c,
 						x,
 						parts = name.split("!"),
@@ -1040,6 +1598,265 @@ require.cache({
 
 					onLoad(c);
 				}
+			};
+		});
+	},
+	"Ti/_/lang": function() {
+		define(["Ti/_/string"], function(string) {
+			/**
+			 * hitch() and setObject() functionality based on code from Dojo Toolkit.
+			 *
+			 * Dojo Toolkit
+			 * Copyright (c) 2005-2011, The Dojo Foundation
+			 * New BSD License
+			 * <http://dojotoolkit.org>
+			 */
+
+			var global = this,
+				is = require.is;
+
+			function toArray(obj, offset) {
+				return [].concat(Array.prototype.slice.call(obj, offset||0));
+			}
+
+			function hitchArgs(scope, method) {
+				var pre = toArray(arguments, 2);
+					named = is(method, "String");
+				return function() {
+					var s = scope || global,
+						f = named ? s[method] : method;
+					return f && f.apply(s, pre.concat(toArray(arguments)));
+				};
+			}
+
+			return {
+				val: function(originalValue, defaultValue) {
+					return is(originalValue, "Undefined") ? defaultValue : originalValue;
+				},
+
+				hitch: function(scope, method) {
+					if (arguments.length > 2) {
+						return hitchArgs.apply(global, arguments);
+					}
+					if (!method) {
+						method = scope;
+						scope = null;
+					}
+					if (is(method, "String")) {
+						scope = scope || global;
+						if (!scope[method]) {
+							throw(['hitch: scope["', method, '"] is null (scope="', scope, '")'].join(''));
+						}
+						return function() {
+							return scope[method].apply(scope, arguments || []);
+						};
+					}
+					return !scope ? method : function() {
+						return method.apply(scope, arguments || []);
+					};
+				},
+
+				mixProps: function(dest, src, everything) {
+					var d, i, p, v, special = { properties: 1, constants: 0 };
+					for (p in src) {
+						if (src.hasOwnProperty(p) && !/^(constructor|__values__)$/.test(p)) {
+							if (p in special) {
+								d = dest[p] || (dest[p] = {});
+								d.__values__ || (d.__values__ = {});
+								for (i in src[p]) {
+									(function(property, externalDest, internalDest, valueDest, /* setter/getter, getter, or value */ descriptor, capitalizedName, writable) {
+										var o = is(descriptor, "Object"),
+											getter = o && is(descriptor.get, "Function") && descriptor.get,
+											setter = o && is(descriptor.set, "Function") && descriptor.set;
+
+										if (o && (getter || setter)) {
+											valueDest[property] = descriptor.value;
+										} else if (is(descriptor, "Function")) {
+											getter = descriptor;
+										} else {
+											valueDest[property] = descriptor;
+										}
+
+										// first set the internal private interface
+										Object.defineProperty(internalDest, property, {
+											get: function() {
+												return getter ? getter.call(externalDest, valueDest[property]) : valueDest[property];
+											},
+											set: function(v) {
+												valueDest[property] = setter ? setter.call(externalDest, v, valueDest[property]) : v;
+											},
+											configurable: true,
+											enumerable: true
+										});
+
+										// this is the public interface
+										Object.defineProperty(dest, property, {
+											get: function() {
+												return internalDest[property];
+											},
+											set: function(v) {
+												if (!writable) {
+													throw new Error('Property "' + property + '" is read only');
+												}
+												internalDest[property] = v;
+											},
+											configurable: true,
+											enumerable: true
+										});
+
+										if (require.has("declare-property-methods") && (writable || property.toUpperCase() !== property)) {
+											externalDest["get" + capitalizedName] = function() { return internalDest[property]; };
+											writable && (externalDest["set" + capitalizedName] = function(v) { return internalDest[property] = v; });
+										}
+									}(i, dest, d, d.__values__, src[p][i], string.capitalize(i), special[p]));
+								}
+							} else if (everything) {
+								dest[p] = src[p];
+							}
+						}
+					}
+					return dest;
+				},
+
+				setObject: function(name) {
+					var parts = name.split("."),
+						q = parts.pop(),
+						obj = window,
+						i = 0,
+						p = parts[i++],
+						value = {};
+
+					if (p) {
+						do {
+							obj = p in obj ? obj[p] : (obj[p] = {});
+						} while (obj && (p = parts[i++]));
+					}
+
+					if (!obj || !q) {
+						return undefined;
+					}
+
+					// need to mix args into values
+					for (i = 1; i < arguments.length; i++) {
+						is(arguments[i], "Object") ? this.mixProps(value, arguments[i], 1) : (value = arguments[i]);
+					}
+
+					return obj[q] = value;
+				}
+			};
+		});
+	},
+	"Ti/_/ready": function() {
+		define(function() {
+			/**
+			 * ready() functionality based on code from Dojo Toolkit.
+			 *
+			 * Dojo Toolkit
+			 * Copyright (c) 2005-2011, The Dojo Foundation
+			 * New BSD License
+			 * <http://dojotoolkit.org>
+			 */
+
+			var doc = document,
+				readyStates = { "loaded": 1, "complete": 1 },
+				isReady = !!readyStates[doc.readyState],
+				readyQ = [];
+
+			if (!isReady) {
+				function detectReady(evt) {
+					if (isReady || (evt && evt.type == "readystatechange" && !readyStates[doc.readyState])) {
+						return;
+					}
+					while (readyQ.length) {
+						(readyQ.shift())();
+					}
+					isReady = 1;
+				}
+
+				readyQ.concat([
+					require.on(doc, "DOMContentLoaded", detectReady),
+					require.on(window, "load", detectReady)
+				]);
+
+				if ("onreadystatechange" in doc) {
+					readyQ.push(require.on(doc, "readystatechange", detectReady));
+				} else {
+					function poller() {
+						readyStates[doc.readyState] ? detectReady() : setTimeout(poller, 30);
+					}
+					poller();
+				}
+			}
+
+			function ready(context, callback) {
+				var fn = callback ? function(){ callback.call(context); } : context;
+				if (isReady) {
+					fn();
+				} else {
+					readyQ.push(fn);
+				}
+			}
+
+			ready.load = function(name, require, onLoad) {
+				ready(onLoad);
+			};
+
+			return ready;
+		});
+	},
+	"Ti/_/string": function() {
+		define({
+			capitalize: function(s) {
+				s = s || "";
+				return s.substring(0, 1).toUpperCase() + s.substring(1);
+			},
+
+			trim: String.prototype.trim ?
+				function(str){ return str.trim(); } :
+				function(str){ return str.replace(/^\s\s*/, '').replace(/\s\s*$/, ''); }
+		});
+	},
+	"Ti/_/style": function() {
+		define(["Ti/_", "Ti/_/string"], function(_, string) {
+			var vp = require.config.vendorPrefixes.dom;
+
+			function set(node, name, value) {
+				var i = 0,
+					x,
+					uc;
+				if (arguments.length > 2) {
+					while (i < vp.length) {
+						x = vp[i++];
+						x += x ? uc || (uc = string.capitalize(name)) : name;
+						if (x in node.style) {
+							require.each(require.is(value, "Array") ? value : [value], function(v) { node.style[x] = v; });
+							return value;
+						}
+					}
+				} else {
+					for (x in name) {
+						set(node, x, name[x]);
+					}
+				}
+				return node;
+			}
+
+			return {
+				url: function(url) {
+					return !url ? "" : /^url\(/.test(url) ? url : "url(" + _.getAbsolutePath(url) + ")";
+				},
+
+				get: function(node, name) {
+					if (require.is(name, "Array")) {
+						for (var i = 0; i < name.length; i++) {
+							name[i] = node.style[name[i]];
+						}
+						return name;
+					}
+					return node.style[name];
+				},
+
+				set: set
 			};
 		});
 	}

@@ -84,11 +84,14 @@ events:
 
   - name: focus
     summary: Fired when the window gains focus.
-
+    description: |
+      The listener for this event must be defined before this window 
+      is opened.
   - name: open
     summary: Fired when the window is opened.
-
-
+    description: |
+      The listener for this event must be defined before this window 
+      is opened.
 properties:
   - name: activity
     summary: |
@@ -103,10 +106,10 @@ properties:
     type: String
 
   - name: backButtonTitleImage
-    summary: URL to an image to show as the back button.
+    summary: The image to show as the back button.
         This is only valid when the window is a child of a tab.
     platforms: [iphone, ipad]
-    type: String
+    type: [String, Titanium.Blob]
 
   - name: barColor
     summary: Background color for the nav bar, specified as a hex color or color name.
@@ -196,7 +199,7 @@ properties:
         if you do set the `opacity` property, be sure to also set a `backgroundImage` or
         `backgroundColor` property as well, unless you want the window to be completely
         transparent.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
     type: Number
 
   - name: orientationModes
@@ -255,9 +258,16 @@ properties:
         6.  Array contains **only** [LANDSCAPE_LEFT](Titanium.UI.LANDSCAPE_LEFT). Locks screen
             orientation to normal landscape mode.
 
-        Note that specifying either [UPSIDE_PORTRAIT](Titanium.UI.UPSIDE_PORTRAIT) or
-        [LANDSCAPE_RIGHT](Titanium.UI.LANDSCAPE_RIGHT) alone has undefined results on Android.
+        7.  Array contains **only** [UPSIDE_PORTRAIT](Titanium.UI.UPSIDE_PORTRAIT). On
+            Android 2.3 and above, locks screen in reverse portrait mode. 
 
+            On Android versions below 2.3, results are undefined.
+
+        8.  Array contains **only**  [LANDSCAPE_RIGHT](Titanium.UI.LANDSCAPE_RIGHT). On
+            Android 2.3 and above, locks screen in reverse landscape mode. 
+
+            On Android versions below 2.3, results are undefined.
+        
     platforms: [android, iphone, ipad]
     type: Array<Number>
     default: empty array

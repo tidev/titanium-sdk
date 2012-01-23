@@ -105,6 +105,7 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[button setFrame:bounds];
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 -(void)clicked:(id)sender event:(UIEvent*)event
@@ -146,6 +147,15 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 		if (style==UIButtonTypeCustom)
 		{
 			[button setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
+			//Enable Touch Highlight with Custom Button Type 
+			//when no selectedstate background image is specified 
+			//or selectedstate background image is same as main backgroundImage
+			
+			id test = hasBackgroundForStateNormal ? backgroundImage : backgroundImageD;
+			if (!hasBackgroundForStateSelected || [test isEqual:backgroundImageS] )
+			{
+				button.showsTouchWhenHighlighted = YES;
+			}
 		}
 		[button addTarget:self action:@selector(clicked:event:) forControlEvents:UIControlEventTouchUpInside];
 		[button addTarget:self action:@selector(highlightOn:) forControlEvents:highlightingTouches];
@@ -231,9 +241,9 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
     if(!hasBackgroundForStateDisabled)
         [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateDisabled];
     if(!hasBackgroundForStateFocused)
-        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
-    if(!hasBackgroundForStateSelected)
         [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateSelected];
+    if(!hasBackgroundForStateSelected)
+        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
     
 }
 
@@ -249,9 +259,9 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
         self.backgroundImage = value;
     }
     if(!hasBackgroundForStateFocused)
-        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
-    if(!hasBackgroundForStateSelected)
         [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateSelected];
+    if(!hasBackgroundForStateSelected)
+        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
 }
 
 -(void)setBackgroundFocusedImage_:(id)value

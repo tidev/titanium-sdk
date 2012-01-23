@@ -14,24 +14,22 @@ Ti._5.Touchable = function(obj, args) {
 		if (!obj.touchEnabled) {
 			return true;
 		}
-		
+
+		_startPoint = _endPoint = { x:xCoord, y:yCoord };
+
 		var touches = evt.touches ? evt.touches : [evt],
 			xCoord = touches[0].pageX,
 			yCoord = touches[0].pageY,
 			oevt = {
-				globalPoint: { x:xCoord, y:yCoord },
 				x: xCoord,
 				y: yCoord
 			};
 
-		_startPoint = oevt.globalPoint;
 		_startPoint.source = evt.target;
-		_endPoint = oevt.globalPoint;
 		obj.fireEvent("touchstart", oevt);
 
 		if (touches.length > 1) {
 			obj.fireEvent("twofingertap",  {
-				globalPoint: { x:xCoord, y:yCoord },
 				x: xCoord,
 				y: yCoord
 			});
@@ -47,12 +45,11 @@ Ti._5.Touchable = function(obj, args) {
 			xCoord = touches[0].pageX,
 			yCoord = touches[0].pageY,
 			oevt = {
-				globalPoint: { x:xCoord, y:yCoord },
 				x: xCoord,
 				y: yCoord
 			};
 
-		_endPoint = oevt.globalPoint;
+		_endPoint = { x:xCoord, y:yCoord };
 		obj.fireEvent("touchmove", oevt);
 	});
 
@@ -64,7 +61,6 @@ Ti._5.Touchable = function(obj, args) {
 		_endPoint || (_endPoint = { x: evt.pageX, y: evt.pageY });
 
 		var oevt = {
-			globalPoint: { x:_endPoint.x, y:_endPoint.y },
 			x: _endPoint.x,
 			y: _endPoint.y
 		};
@@ -83,7 +79,6 @@ Ti._5.Touchable = function(obj, args) {
 		}
 
 		obj.fireEvent("touchcancel", {
-			globalPoint: { x:evt.pageX, y:evt.pageY },
 			x: evt.pageX,
 			y: evt.pageY
 		});
@@ -95,7 +90,6 @@ Ti._5.Touchable = function(obj, args) {
 		}
 
 		var oevt = {
-			globalPoint: { x:evt.pageX, y:evt.pageY },
 			x: evt.pageX,
 			y: evt.pageY
 		};

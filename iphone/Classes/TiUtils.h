@@ -221,5 +221,7 @@ typedef enum {
 
 +(NSString*)uniqueIdentifier;
 
-+(NSString*)caseCorrect:(NSString*)str;
++(NSString*)getResponseHeader:(NSString*)header fromHeaders:(NSDictionary*)responseHeaders;
+
++(UIImage*)loadBackgroundImage:(id)image forProxy:(TiProxy*)proxy;
 @end

@@ -48,7 +48,7 @@ describe("Ti.Media tests", {
 		if (!isAndroid) valueOf(player.state).shouldBeNumber();
 		valueOf(player.paused).shouldBeBoolean();
 		if (!isAndroid) valueOf(player.waiting).shouldBeBoolean();
-		if (!isAndroid) valueOf(player.bufferSize).shouldBeInteger();
+		if (!isAndroid) valueOf(player.bufferSize).shouldBeNumber();
 		
 	},
 	videoPlayerAPIs: function() {
@@ -90,6 +90,22 @@ describe("Ti.Media tests", {
 		},
 		timeout: 5000,
 		timeoutError: "Timed out waiting for sound to play."
+	}),
+	screenshot: asyncTest({
+		start: function() {
+			callback = this.async(function(e) {
+				valueOf(e).shouldBeObject();
+				valueOf(e.media).shouldBeObject();
+				valueOf(e.media.mimeType).shouldBeString();
+				valueOf(e.media.mimeType.substr(0, 5)).shouldBe("image");
+			});
+			valueOf(function() {
+				Titanium.Media.takeScreenshot(callback);
+			}).shouldNotThrowException();
+		},
+		timeout: 2000,
+		timeoutError: "Timed out waiting for takeScreenshot"
 	})
+
 	// TODO: Need a player streaming test for validating some of those features
 })

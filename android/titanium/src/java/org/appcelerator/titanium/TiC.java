@@ -9,6 +9,8 @@ package org.appcelerator.titanium;
 // Global Titanium constants- Try to keep these sorted alphabetically
 public class TiC
 {
+	public static final int API_LEVEL_HONEYCOMB = 11;
+	public static final int API_LEVEL_ICE_CREAM_SANDWICH = 14;
 	public static final String ERROR_PROPERTY_CODE = "code";
 	public static final String ERROR_PROPERTY_ERRORCODE = "errorcode";
 	public static final String ERROR_PROPERTY_MESSAGE = "message";
@@ -325,6 +327,7 @@ public class TiC
 	public static final String PROPERTY_TRANSFORM = "transform";
 	public static final String PROPERTY_TRUE_HEADING = "trueHeading";
 	public static final String PROPERTY_TYPE = "type";
+	public static final String PROPERTY_UPDATE_CURRENT_INTENT = "updateCurrentIntent";
 	public static final String PROPERTY_URI = "uri";
 	public static final String PROPERTY_URL = "url";
 	public static final String PROPERTY_USER_LOCATION = "userLocation";

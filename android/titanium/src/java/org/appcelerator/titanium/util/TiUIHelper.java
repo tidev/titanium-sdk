@@ -35,6 +35,7 @@ import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy.PostOpenListener;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
+import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -765,6 +766,21 @@ public class TiUIHelper
 		return TiApplication.getInstance().getResources().getDrawable(res_id);
 	}
 
+	public static Drawable getResourceDrawable(Object path)
+	{
+		Drawable d;
+
+		if (path instanceof String) {
+			TiUrl imageUrl = new TiUrl((String) path);
+			TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
+			d = tfh.loadDrawable(imageUrl.resolve(), false);
+		} else {
+			d = TiDrawableReference.fromObject(TiApplication.getInstance().getCurrentActivity(), path).getDrawable();
+		}
+
+		return d;
+	}
+
 	public static void overridePendingTransition(Activity activity) 
 	{
 		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT) {
@@ -819,8 +835,8 @@ public class TiUIHelper
 	{
 		int focusState = TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS;
 		
-		if (proxy.hasProperty("softKeyboardOnFocus")) {
-			focusState = TiConvert.toInt(proxy.getProperty("softKeyboardOnFocus"));
+		if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
+			focusState = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS));
 		}
 
 		if (focusState > TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS) {

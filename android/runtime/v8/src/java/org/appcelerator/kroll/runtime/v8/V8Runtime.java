@@ -50,8 +50,6 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 			System.loadLibrary("kroll-v8");
 			libLoaded = true;
 		}
-
-
 		
 		boolean DBG = true;
 		String deployType = getKrollApplication().getDeployType();
@@ -64,7 +62,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		if (deployData.isDebuggerEnabled()) {
 			dispatchDebugMessages();
 		}
-
+		
 		loadExternalModules();
 	}
 

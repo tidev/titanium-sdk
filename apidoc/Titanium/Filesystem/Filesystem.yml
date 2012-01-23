@@ -1,65 +1,163 @@
 ---
 name: Titanium.Filesystem
-summary: The top level Filesystem module.  The Filesystem module is used for reading and saving files and 
-    directories on the device.
+summary: The top level filesystem module, used to access files and directories on the device.
 extends: Titanium.Module
 since: "0.1"
 platforms: [android, iphone, ipad]
 methods:
   - name: createTempDirectory
-    summary: create temp file and return a <Titanium.Filesystem.File>
+    summary: Creates a temporary directory and returns a [File](Titanium.Filesystem.File) object representing the new directory.
     returns:
         type: Titanium.Filesystem.File
   - name: createTempFile
-    summary: create a temp file and return a <Titanium.Filesystem.File>
+    summary: Creates a temporary file and returns a [File](Titanium.Filesystem.File)
+        object representing the new file.
     returns:
         type: Titanium.Filesystem.File
   - name: getFile
-    summary: return a fully formed file path as a <Titanium.Filesystem.File> object
+    summary: Returns a `File` object representing the file identified by the path
+        arguments.
+    description: |
+        Note that `getFile` does not create a file if one does not exist at the specified
+        path. It returns a new `File` object referring to the specified file path. The 
+        application can create a file at that path by calling 
+        [write](Titanium.Filesystem.File.write) or create a directory by calling
+        [createDirectory](Titanium.Filesystem.File.createDirectory) on the `File` object.
+
+        This method takes a variable number of arguments, where each argument is treated
+        as a path component. All of the arguments are joined together using the
+        platform-specific path separator to make the final path.
+
+        If a relative path is passed, the full path should be interpreted relative
+        to the current file. For example, if the file `Resources/login/login.js` 
+        contains the following code:
+        
+            var icon = Titanium.Filesystem.getFile('icon.png');
+
+        The path is interpreted as `Resources/login/icon.png`. 
+
+        On iOS, all relative paths are currently interpreted as relative to the
+        `Resources` directory, **not** to the current context. This is a known issue
+        that will be addressed in a future release.
+
     returns:
         type: Titanium.Filesystem.File
     parameters:
       - name: path
-        summary: one or more path arguments to form the full path joined together with the platform specific path separator. if a relative path is passed, the full path will be relative to the application resource folder.
+        summary: One or more path components. Path arguments are joined together using 
+            the platform specific path separator to form the full path.
         type: String
   - name: isExternalStoragePresent
-    summary: returns true if the android device supports external storage such as an SD card. Returns false on iOS.
+    summary: Returns `true` if the device supports external storage *and* the external storage
+        device is mounted.
+    description: |
+        Returns `true` on Android if an external storage device, such as an SD card, is
+        available for reading and writing.
+
+        Returns `false` on iOS.
     returns:
         type: Boolean
 properties:
   - name: MODE_APPEND
-    summary: constant for append mode for file operations
+    summary: Constant for append mode for file operations.
     type: Number
     permission: read-only
   - name: MODE_READ
-    summary: constant for read mode for file operations
+    summary: Constant for read mode for file operations.
     type: Number
     permission: read-only
   - name: MODE_WRITE
-    summary: constant for write mode for file operations
+    summary: Constant for write mode for file operations.
     type: Number
     permission: read-only
   - name: applicationDataDirectory
-    summary: constant where your application data directory is located. this directory should be used to place applications-specific files. on iPhone, this directory is also backed up.
+    summary: Path to the application's data directory.
+    description: |
+        This is a writable directory that can be used to store applications-specific files. 
+
+        On iOS, this directory is specifically designated for user documents, and a
+        separate directory,
+        [applicationSupportDirectory](Titanium.Filesystem.applicationSupportDirectory) is
+        used for other application data.
+        
+        On iOS, files in this directory are backed up unless the
+        [remoteBackup](Titanium.Filesystem.File.remoteBackup) flag is set to false.
+
+        On Android, files in this directory cannot be accessed by other applications, so 
+        it should not be used for files that must be used by another application 
+        (for example, a video file that will be passed to the system's video player application).
+        These files should be stored in the
+        [externalStorageDirectory](Titanium.Filesystem.externalStorageDirectory).
     type: String
     permission: read-only
   - name: applicationDirectory
-    summary: constant where your application is located
+    summary: Path to the iOS application directory.
     type: String
     permission: read-only
+    platforms: [iphone, ipad]
+  - name: applicationSupportDirectory
+    summary: Path to the application support directory.
+    description: |
+        This is a writable directory used on iOS for application files that are *not* 
+        user documents--including settings files, caches, and so on.
+        
+        On iOS, files in this directory are backed up unless the
+        [remoteBackup](Titanium.Filesystem.File.remoteBackup) flag is set to false.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+  - name: externalStorageDirectory
+    summary: Path to a directory on removable storage, such as SD card.
+    description: |
+        This directory can be used for storing arbitrary data. It is read/write and files
+        in this directory can be passed to other applications, such as video
+        players--which is not possible with the 
+        [applicationDataDirectory](Titanium.Filesystem.applicationDataDirectory).
+
+        This directory may not be subject to as many memory limitations as the
+        `applicationDataDirectory`, which is stored in the device's internal storage.
+        Note, however, that the user may remove or replace the removable storage device
+        without warning, so the application must be prepared to handle this case gracefully. 
+        
+        The application should check
+        [isExternalStoragePresent](Titanium.Filesystem.isExternalStoragePresent) before
+        accessing this location. The application should also handle any exceptions generated 
+        if the storage device is unmounted during use, or if the files stored on external 
+        storage are not available.
+        
+    type: String
+    permission: read-only
+    platforms: [android]
   - name: lineEnding
-    summary: platform specific line ending constant
+    summary: Platform-specific line ending constant.
     type: String
     permission: read-only
   - name: resourcesDirectory
-    summary: constant where your application resources are located
+    summary: Path to the application's resource directory.
+    description: |
+        This directory is read-only. If you need to modify any files in this directory,
+        they must first be copied to another directory, such as  
+        [applicationDataDirectory](Titanium.Filesystem.applicationDataDirectory) or
+        [tempDirectory](Titanium.Filesystem.tempDirectory). 
+        
+        On iOS, 
+        writable files can also be placed in the 
+        [applicationSupportDirectory](Titanium.Filesystem.applicationSupportDirectory).
+        On Android, writable files can also be placed in the 
+        [externalStorageDirectory](Titanium.Filesystem.externalStorageDirectory).
+
+        Note that when running on the simulator, the resources directory may be writable,
+        but it is not writable on device.
     type: String
     permission: read-only
   - name: separator
-    summary: path separator constant
+    summary: Platform-specific path separator constant.
     type: String
     permission: read-only
   - name: tempDirectory
-    summary: constant where your application can place temporary files
+    summary: Path for the application's temporary directory. 
+    description: |
+        This directory can be used for storing temporary files. Files in this directory
+        may not persist when the application is shut down and restarted.
     type: String
     permission: read-only

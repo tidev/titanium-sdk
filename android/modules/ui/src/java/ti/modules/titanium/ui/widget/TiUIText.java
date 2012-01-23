@@ -18,6 +18,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.content.Context;
 import android.graphics.Rect;
 import android.text.Editable;
 import android.text.InputType;
@@ -73,7 +74,32 @@ public class TiUIText extends TiUIView
 
 	private boolean field;
 
-	protected EditText tv;
+	protected TiEditText tv;
+	
+	public class TiEditText extends EditText 
+	{
+		public TiEditText(Context context) 
+		{
+			super(context);
+		}
+		
+		/** 
+		 * Check whether the called view is a text editor, in which case it would make sense to 
+		 * automatically display a soft input window for it.
+		 */
+		@Override
+		public boolean onCheckIsTextEditor () {
+			if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)
+					&& TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
+					return false;
+			}
+			if (proxy.hasProperty(TiC.PROPERTY_EDITABLE)
+					&& !(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_EDITABLE)))) {
+				return false;
+			}
+			return true;
+		}
+	}
 
 	public TiUIText(TiViewProxy proxy, boolean field)
 	{
@@ -82,7 +108,7 @@ public class TiUIText extends TiUIView
 			Log.d(LCAT, "Creating a text field");
 		}
 		this.field = field;
-		tv = new EditText(getProxy().getActivity());
+		tv = new TiEditText(getProxy().getActivity());
 		if (field) {
 			tv.setSingleLine();
 			tv.setMaxLines(1);
@@ -213,7 +239,21 @@ public class TiUIText extends TiUIView
 		proxy.setProperty(TiC.PROPERTY_VALUE, value);
 		proxy.fireEvent(TiC.EVENT_CHANGE, data);
 	}
-
+	
+	@Override
+	public void focus()
+	{
+		super.focus();
+		if (nativeView != null) {
+			if (proxy.hasProperty(TiC.PROPERTY_EDITABLE) 
+					&& !(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_EDITABLE)))) {
+				TiUIHelper.showSoftKeyboard(nativeView, false);
+			}
+			else {
+				TiUIHelper.requestSoftInputChange(proxy, nativeView);
+			}
+		}
+	}
 
 	@Override
 	public void onFocusChange(View v, boolean hasFocus)

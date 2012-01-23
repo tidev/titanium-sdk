@@ -707,62 +707,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 +(NSURL*)toURL:(NSString *)object proxy:(TiProxy*)proxy
 {
-	return [self toURL:object relativeToURL:[proxy _baseURL]];
-//	NSURL *url = nil;
-//	
-//	if ([object isKindOfClass:[NSString class]])
-//	{
-//		if ([object hasPrefix:@"/"])
-//		{
-//			return [TiUtils checkFor2XImage:[NSURL fileURLWithPath:object]];
-//		}
-//		if ([object hasPrefix:@"sms:"] || 
-//			[object hasPrefix:@"tel:"] ||
-//			[object hasPrefix:@"mailto:"])
-//		{
-//			return [NSURL URLWithString:object];
-//		}
-//		
-//		// don't bother if we don't at least have a path and it's not remote
-//		///TODO: This looks ugly and klugy.
-//		NSString *urlString = [TiUtils stringValue:object];
-//		if ([urlString hasPrefix:@"http"])
-//		{
-//			NSRange range = [urlString rangeOfString:@"/" options:0 range:NSMakeRange(7, [urlString length]-7)];
-//			if (range.location!=NSNotFound)
-//			{
-//				NSString *firstPortion = [urlString substringToIndex:range.location];
-//				NSString *pathPortion = [urlString substringFromIndex:range.location];
-//				CFStringRef escapedPath = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-//						(CFStringRef)pathPortion, charactersToNotEscape,charactersThatNeedEscaping,
-//						kCFStringEncodingUTF8);
-//				urlString = [firstPortion stringByAppendingString:(NSString *)escapedPath];
-//				if(escapedPath != NULL)
-//				{
-//					CFRelease(escapedPath);
-//				}
-//			}
-//		}
-//		
-//		url = [NSURL URLWithString:urlString relativeToURL:[proxy _baseURL]];
-//		
-//		if (url==nil)
-//		{
-//			//encoding problem - fail fast and make sure we re-escape
-//			NSRange range = [object rangeOfString:@"?"];
-//			if (range.location != NSNotFound)
-//			{
-//				NSString *qs = [TiUtils encodeURIParameters:[object substringFromIndex:range.location+1]];
-//				NSString *newurl = [NSString stringWithFormat:@"%@?%@",[object substringToIndex:range.location],qs];
-//				return [TiUtils checkFor2XImage:[NSURL URLWithString:newurl]];
-//			}
-//		}
-//	}
-//	else if ([object isKindOfClass:[NSURL class]])
-//	{
-//		return [TiUtils checkFor2XImage:[NSURL URLWithString:[(NSURL *)object absoluteString] relativeToURL:[proxy _baseURL]]];
-//	}
-//	return [TiUtils checkFor2XImage:url];			  
+	return [self toURL:object relativeToURL:[proxy _baseURL]];  
 }
 
 +(UIImage *)stretchableImage:(id)object proxy:(TiProxy*)proxy
@@ -772,7 +717,14 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 +(UIImage *)image:(id)object proxy:(TiProxy*)proxy
 {
-	return [[ImageLoader sharedLoader] loadImmediateImage:[self toURL:object proxy:proxy]];
+    if ([object isKindOfClass:[TiBlob class]]) {
+        return [(TiBlob*)object image];
+    }
+    else if ([object isKindOfClass:[NSString class]]) {
+        return [[ImageLoader sharedLoader] loadImmediateImage:[self toURL:object proxy:proxy]];
+    }
+    
+    return nil;
 }
 
 
@@ -1646,28 +1598,59 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return uid;
 }
 
-// In pre-iOS 5, it looks like response headers were mangled to be case-correct
-// (i.e. WWW-Authenticate became Www-Authenticate). So we have to perform
-// our own case correction to get the RIGHT header back.
+// In pre-iOS 5, it looks like response headers were case-mangled.
+// (i.e. WWW-Authenticate became Www-Authenticate). So we have to take this
+// mangling into mind; headers such as FooBar-XYZ may also have been mangled
+// to be case-correct. We can't be certain.
 //
-// Note that we assume that Apple mangles all 'xxx-xxx' headers like this.
+// This means we need to follow the RFC2616 implied MUST that headers are case-insensitive.
 
-+(NSString*)caseCorrect:(NSString *)str
++(NSString*)getResponseHeader:(NSString *)header fromHeaders:(NSDictionary *)responseHeaders
 {
-    if (![TiUtils isIOS5OrGreater]) {
-        if ([str rangeOfString:@"-"].location != NSNotFound) {
-            NSArray* substrings = [str componentsSeparatedByString:@"-"];
-            NSMutableString* header = [NSMutableString stringWithString:[[substrings objectAtIndex:0] capitalizedString]];
-            for (int i=1; i < [substrings count]; i++) {
-                NSString* substr = [substrings objectAtIndex:i];
-                [(NSMutableString*)header appendFormat:@"-%@",[substr capitalizedString]];
-            }
-            
-            return header;
-        }
+    // Do a direct comparison first, and then iterate through the headers if we have to.
+    // This makes things faster in almost all scenarios, and ALWAYS so under iOS 5 unless
+    // the developer is also taking advantage of RFC2616's header spec.
+    __block NSString* responseHeader = [responseHeaders valueForKey:header];
+    if (responseHeader != nil) {
+        return responseHeader;
     }
     
-    return str;
+    [responseHeaders enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL* stop) {
+        if ([key localizedCaseInsensitiveCompare:header] == NSOrderedSame) {
+            *stop = YES;
+            responseHeader = obj;
+        }
+    }];
+    
+    return responseHeader;
+}
+
++(UIImage*)loadBackgroundImage:(id)image forProxy:(TiProxy*)proxy
+{
+    UIImage* resultImage = nil;
+    if ([image isKindOfClass:[UIImage class]]) {
+        resultImage = image;
+    }
+    else if ([image isKindOfClass:[NSString class]]) {
+        NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
+        resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL];
+        if (resultImage==nil && [image isEqualToString:@"Default.png"])
+        {
+            // special case where we're asking for Default.png and it's in Bundle not path
+            resultImage = [UIImage imageNamed:image];
+        }
+        if((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp))
+        {
+            resultImage = [UIImageResize resizedImage:[resultImage size] 
+                                 interpolationQuality:kCGInterpolationNone 
+                                                image:resultImage 
+                                                hires:NO];
+        }
+    }
+    else if ([image isKindOfClass:[TiBlob class]]) {
+        resultImage = [image image];
+    }
+    return resultImage;
 }
 
 @end
