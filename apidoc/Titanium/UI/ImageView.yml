@@ -1,11 +1,13 @@
 ---
 name: Titanium.UI.ImageView
 summary: |
-    The Image View is created using the <Titanium.UI.createImageView> method, to display a single 
-    image or series of animated images. 
+    A view to display a single image or series of animated images. 
 description: |
+
+    Use the <Titanium.UI.createImageView> method to create an Image View.
+    
     Specifying either a `width` or `height` property for this view will scale its image(s) with 
-    original aspect ratios maintained, up to the maximum limit of its parent view.
+    the aspect ratio maintained, up to a maximum size that does not exceed its parent view.
 extends: Titanium.UI.View
 since: "0.9"
 
