@@ -45,6 +45,7 @@ class Compiler(object):
 				
 				# base classes
 				'Ti/_/Evented.js',
+				'Ti/UI.js',
 				'Ti/_/Gestures/GestureRecognizer.js',
 				'Ti/_/Gestures/DoubleTap.js',
 				'Ti/_/Gestures/LongPress.js',
@@ -83,7 +84,6 @@ class Compiler(object):
 				'Ti/Network/HTTPClient.js',
 				'Ti/Platform.js',
 				'Ti/Platform/DisplayCaps.js',
-				'Ti/UI.js',
 				'Ti/Gesture.js',
 				'Ti/XML.js',
 				
