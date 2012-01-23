@@ -676,7 +676,6 @@ properties:
     type: Boolean
   - name: transform
     summary: Transformation matrix to apply to the view.
-    platforms: [android, iphone, ipad]
     type: [ Titanium.UI.2DMatrix, Titanium.UI.iOS.3DMatrix ]
   - name: visible
     summary: Boolean value indicating whether the view is visible.
