@@ -11,7 +11,7 @@ define("Ti/_/UI/TextBox",
 			var field = this._field,
 				form = this._form = dom.create("form", null, this.domNode);
 
-			this._addStyleableDomNode(field);
+			this._addStyleableDomNode(this._setFocusNode(field));
 
 			require.on(field, "keydown", this, function(e) {
 				if (this.editable) {
@@ -79,14 +79,6 @@ define("Ti/_/UI/TextBox",
 			},
 
 			editable: true,
-
-			enabled: {
-				value: true,
-				set: function(value) {
-					this._field.disabled = !value;
-					return value;
-				}
-			},
 
 			returnKeyType: {
 				value: UI.RETURNKEY_DEFAULT,
