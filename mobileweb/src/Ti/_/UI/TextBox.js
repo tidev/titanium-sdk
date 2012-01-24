@@ -5,6 +5,8 @@ define("Ti/_/UI/TextBox",
 	return declare("Ti._.UI.TextBox", FontWidget, {
 
 		_field: null,
+		
+		_preventDefaultTouchEvent: false,
 
 		_initTextBox: function() {
 			// wire up events

@@ -75,8 +75,12 @@ define("Ti/_/UI/Element",
 					gestureRecognizers = touchRecognizers[eventType],
 					eventType = "Touch" + eventType + "Event",
 					touches = evt.changedTouches;
-				evt.preventDefault && evt.preventDefault();
-				touches && touches[0].preventDefault && touches[0].preventDefault();
+				if (this._preventDefaultTouchEvent) {
+					this._preventDefaultTouchEvent && evt.preventDefault && evt.preventDefault();
+					for (i in touches) {
+						touches[i].preventDefault && touches[i].preventDefault();
+					}
+				}
 				useTouch || require.mix(evt, {
 					touches: evt.type === "mouseup" ? [] : [evt],
 					targetTouches: [],
@@ -358,6 +362,8 @@ define("Ti/_/UI/Element",
 		_getContentOffset: function(){
 			return {x: 0, y: 0};
 		},
+		
+		_preventDefaultTouchEvent: true,
 
 		_isGestureBlocked: function(gesture) {
 			for (var recognizer in this._gestureRecognizers) {
