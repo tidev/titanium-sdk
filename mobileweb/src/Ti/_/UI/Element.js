@@ -355,8 +355,8 @@ define("Ti/_/UI/Element",
 			var evt = evt || {},
 				m = (evt.type || "").match(/mouse(over|out)/),
 				node = this._focus.node,
-				bi = this.backgroundImage,
-				bc = this.backgroundColor || (bi ? "transparent" : "");
+				bi = this.backgroundImage || "none",
+				bc = this.backgroundColor;
 
 			if (this._touching) {
 				bc = this.backgroundSelectedColor || bc;
@@ -375,7 +375,7 @@ define("Ti/_/UI/Element",
 			}
 
 			setStyle(node, {
-				backgroundColor: bc,
+				backgroundColor: bc || (bi && bi !== "none" ? "transparent" : ""),
 				backgroundImage: style.url(bi)
 			});
 		},
@@ -384,11 +384,26 @@ define("Ti/_/UI/Element",
 			var f = this._focus = this._focus || {};
 
 			if (f.node !== node) {
-				f.node && event.off(f.evts);
+				if (f.node) {
+					event.off(f.evts);
+					event.off(f.evtsMore);
+				}
 				f.node = node;
-				f.evts = ["focus", "blur", "mouseover", "mouseout", "mousemove"].map(function(e) {
-					return on(node, e, this, "_doBackground");
-				}, this);
+				f.evts = [
+					on(node, "focus", this, "_doBackground"),
+					on(node, "blur", this, "_doBackground") /*,
+					on(node, "mouseover", this, function() {
+						this._doBackground();
+						f.evtsMore = [
+							on(node, "mousemove", this, "_doBackground"),
+							on(node, "mouseout", this, function() {
+								this._doBackground();
+								event.off(f.evtsMore);
+								f.evtsMore = [];
+							})
+						];
+					})*/
+				];
 			}
 
 			return node;

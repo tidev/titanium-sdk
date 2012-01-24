@@ -18,7 +18,7 @@ define("Ti/UI/View",
 			this.containerNode.appendChild(view.domNode);
 			Ti.UI._doFullLayout();
 		},
-		
+
 		_insertAt: function(view,index) {
 			if (index > this.children.length || index < 0) {
 				return;
@@ -44,7 +44,7 @@ define("Ti/UI/View",
 			dom.detach(view.domNode);
 			Ti.UI._doFullLayout();
 		},
-		
+
 		destroy: function() {
 			if (!this._destroyed) {
 				var i = 0,
@@ -57,7 +57,7 @@ define("Ti/UI/View",
 				Element.prototype.destroy.apply(this, arguments);
 			}
 		},
-	
+
 		_defaultWidth: "100%",
 		_defaultHeight: "100%",
 

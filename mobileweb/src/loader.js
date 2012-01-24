@@ -1879,7 +1879,7 @@ require.cache({
 
 			return {
 				url: function(url) {
-					return !url ? "" : /^url\(/.test(url) ? url : "url(" + _.getAbsolutePath(url) + ")";
+					return !url || url === "none" ? "" : /^url\(/.test(url) ? url : "url(" + _.getAbsolutePath(url) + ")";
 				},
 
 				get: function(node, name) {
