@@ -40,9 +40,10 @@ events:
     properties:
       - name: state
         summary: |
-            Set to either `image`, when the image defined in the [image](Titanium.UI.ImageView.image) 
-            property is loaded, or `images`, when the series of images defined in the 
-            [images](Titanium.UI.ImageView.images) property are loaded.
+            Set to `image` on Android and `url` on iOS when the image defined in the 
+            [image](Titanium.UI.ImageView.image) property is loaded. Set to `images`, when the series 
+            of images defined in the [images](Titanium.UI.ImageView.images) property are loaded.
+        type: String
     
   - name: start
     summary: Fired when the animation starts.
@@ -59,15 +60,12 @@ events:
   - name: pause
     summary: Fired when the animation pauses.
     platforms: [iphone, ipad]
-    properties:
-      - name: image
-        summary: URL of the image that failed to load.
 properties:
   - name: animating
     summary: |
         Indicates whether animation is running.
     type: Boolean
-    default: true (Android), false (iPhone, iPad)
+    default: false on creation, true on load (Android), false (iPhone, iPad)
     permission: read-only
     
   - name: canScale
@@ -92,8 +90,14 @@ properties:
     
   - name: duration
     summary: Amount of time in milliseconds to animate one cycle.
+    description: |
+        On Android, if any images are assigned to the `images` property when the animation is 
+        started, duration will be set to the number of images multiplied by 33ms. If no images 
+        are assigned, duration will be set to 100ms.
+        
+        On iOS, the default is 30ms.
     type: Number
-    default: 30ms
+    default: See description (Android), 30 (iPhone, iPad)
     
   - name: enableZoomControls
     summary: Show zoom controls when the user touches the image view.
