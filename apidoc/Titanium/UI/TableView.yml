@@ -130,7 +130,7 @@ methods:
         On Mobile Web, the `top` value is interpreted as a pixel offset between the top of the top
         row of data and the top of the table view. So a `top` value of 0 scrolls the list to
         the top. A positive value scrolls it down. Values outside the scrollable range are clipped
-        so that negative numbers scrolls the list to the top, and large positive values scrolls the
+        so that negative numbers scroll the list to the top, and large positive values scroll the
         list to the bottom.
 
         On iOS, specify a <TableViewAnimationProperties> object with `animated` set to `false` to 
