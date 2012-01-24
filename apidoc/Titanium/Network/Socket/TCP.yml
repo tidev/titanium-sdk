@@ -28,7 +28,7 @@ description: |
 extends: Titanium.IOStream
 since: "1.7"
 platforms: [android, iphone, ipad]
-examples: |
+examples:
   - title: Simple Socket IO using Stream.pump
     example: |
         The following example uses the [pump](Titanium.Stream.pump) method from the <Titanium.Stream> 
@@ -69,6 +69,35 @@ examples: |
                     Ti.API.error(ex);
                 }
             }
+
+  - title: Listening Socket
+    example: |
+        This example shows how to set up a socket to listen on a port for incoming connections.
+        When an incoming connection is accepted, the `accepted` callback is invoked. The callback
+        argument includes a new socket object representing the incoming connection.
+            //Create a socket and listen for incoming connections
+            var listenSocket = Ti.Network.Socket.createTCP({
+                port: 40404,
+                accepted: function(e) {
+                    // This where you would usually store the newly-connected socket, e.inbound 
+                    // so it can be used for read / write operations elsewhere in the app.
+                    // In this case, we simply close it.
+                    Ti.API.info("Listening socket <" + e.socket + "> accepted incoming connection <" + 
+                                e.inbound + ">");
+                    e.inbound.close(); // close the accepted socket
+            
+                },
+                error: function(e) {
+                    Ti.API.error("Socket <" + e.socket + "> encountered error when listening");
+                    Ti.API.error(" error code <" + e.errorCode + ">");
+                    Ti.API.error(" error description <" + e.error + ">");
+                }
+            });
+            listenSocket.listen(); // only starts listening for connections, does not accept them
+            
+            // Tells socket to accept the next inbound connection. listenSocket.accepted gets 
+            // called when a connection is accepted via accept()
+            listenSocket.accept();
 
 properties:
   - name: host
