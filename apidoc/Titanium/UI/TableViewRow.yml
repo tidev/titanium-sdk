@@ -42,8 +42,8 @@ description: |
     On Mobile Web, these properties are used to relatively position the row, treating
     the `TableView` as if it were a horizontal layout.
 
-    Also, note that the selected text color, `selectedColor`, can only be set on iOS. On
-    Android, the text color does not change when the row is selected.
+    Also, note that the selected text color, `selectedColor`, can only be set on iOS and 
+    Mobile Web. On Android, the text color does not change when the row is selected.
 
 extends: Titanium.UI.View
 since: "0.9"
