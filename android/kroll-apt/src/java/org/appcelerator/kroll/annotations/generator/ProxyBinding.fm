@@ -489,7 +489,7 @@ fails, a JS exception is returned.
 ---------------------------------------------------------------->
 <#macro verifyAndConvertArgument expr index info logOnly isOptional>
 	<#if !isOptional && info.typeValidation!true>
-	if (!${expr}->Is${info.jsType}()) {
+	if (!${expr}->Is${info.jsType}() && !${expr}->IsNull()) {
 		const char *error = "Invalid value, expected type ${info.jsType}.";
 		LOGE(TAG, error);
 		<#if !(logOnly!false)>
@@ -516,20 +516,35 @@ fails, a JS exception is returned.
 	<#if info.jsType == "Value">
 		<#local type = "Local<Value>">
 		<#local valueExpr = expr>
+		<#local nullCheck = 0>
 	<#elseif info.jsType == "Number">
 		<#local type = "Local<Number>">
 		<#local valueExpr = expr + "->ToNumber()">
 		<#local stringExpr = expr + "->ToString()">
 		<#local postAssignmentCheck = "titanium::V8Util::isNaN(" + current_arg + ")">
+		<#local nullCheck = 0>
 	<#elseif info?keys?seq_contains("jsHandleCast")>
 		<#local type = "Local<" + info.jsType + ">">
 		<#local valueExpr = "Local<" + info.jsType + ">::Cast(" + expr + ")">
+		<#local emptyExpr = "v8::Array::New()">
+		<#local nullCheck = 1>
 	<#else>
 		<#local type = "Local<" + info.jsType + ">">
 		<#local valueExpr = expr + "->To" + info.jsType + "()">
+		<#local nullCheck = 0>
 	</#if>
+	
 <#t>
-	${type} ${current_arg} = ${valueExpr};
+	${type} ${current_arg};
+	<#if nullCheck == 1>
+	if (!${expr}->IsNull()) {
+		${current_arg} = ${valueExpr};
+	} else {
+		${current_arg} = ${emptyExpr};
+	}
+	<#else>
+	${current_arg} = ${valueExpr};
+	</#if>
 	
 	<#if info.jsType == "Number">
 		if (${postAssignmentCheck} || ${stringExpr}->Length() == 0) {
