@@ -46,33 +46,43 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 				this.domNode.scrollTop += previousTouchLocation - e.y;
 				previousTouchLocation = e.y;
 				
-				// Calculate the visible items
-				var firstVisibleItem,
-					visibleItemCount = 1,
-					scrollTop = this.domNode.scrollTop;
-				for(var i = 0; i < this.data.length; i++) {
-					var row = this.data[i];
-					if (firstVisibleItem) {
-						if (row._measuredTop - scrollTop < this._measuredHeight) {
-							visibleItemCount++;
-						}
-					} else if (row._measuredTop <= scrollTop && row._measuredTop + row._measuredHeight > scrollTop) {
-						firstVisibleItem = row;
-					}
-				}
-				
-				// Create the scroll event
-				this.fireEvent("scroll",{
-					contentOffset: {x: 0, y: this.domNode.scrollTop},
-					contentSize: {width: this.rows._measuredWidth, height: this.rows._measuredHeight},
-					firstVisibleItem: firstVisibleItem,
-					size: {width: this._measuredWidth, height: this._measuredHeight},
-					totalItemCount: this.data.length,
-					visibleItemCount: visibleItemCount,
-					x: e.x,
-					y: e.y
-				});
+				this._fireScrollEvent(e.x,e.y);
 			}));
+			
+			require.on(this.domNode,"scroll",lang.hitch(this,function(e){
+				if (!this._touching) {
+					this._fireScrollEvent();
+				}
+			}));
+		},
+		
+		_fireScrollEvent: function(x,y) {
+			// Calculate the visible items
+			var firstVisibleItem,
+				visibleItemCount = 1,
+				scrollTop = this.domNode.scrollTop;
+			for(var i = 0; i < this.data.length; i++) {
+				var row = this.data[i];
+				if (firstVisibleItem) {
+					if (row._measuredTop - scrollTop < this._measuredHeight) {
+						visibleItemCount++;
+					}
+				} else if (row._measuredTop <= scrollTop && row._measuredTop + row._measuredHeight > scrollTop) {
+					firstVisibleItem = row;
+				}
+			}
+			
+			// Create the scroll event
+			this.fireEvent("scroll",{
+				contentOffset: {x: 0, y: this.domNode.scrollTop},
+				contentSize: {width: this.rows._measuredWidth, height: this.rows._measuredHeight},
+				firstVisibleItem: firstVisibleItem,
+				size: {width: this._measuredWidth, height: this._measuredHeight},
+				totalItemCount: this.data.length,
+				visibleItemCount: visibleItemCount,
+				x: x,
+				y: y
+			});
 		},
 		
 		_createSeparator: function() {
@@ -173,6 +183,17 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 			}
 			this.deleteRow(index);
 			this.insertRowBefore(index,row);
+		},
+		
+		scrollToIndex: function(index) {
+			var control = this.data[index];
+			if (control) {
+				this.domNode.scrollTop = control._measuredTop;
+			}
+		},
+		
+		scrollToTop: function(top) {
+			this.domNode.scrollTop = top;
 		},
 		
 		doLayout: function() {
