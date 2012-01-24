@@ -107,9 +107,13 @@ define("Ti/_/UI/TextBox",
 			},
 
 			value: {
+				get: function() {
+					return this._field.value;
+				},
 				set: function(value) {
 					return this._capitalize(this._field.value = value);
-				}
+				},
+				value: ""
 			}
 		}
 

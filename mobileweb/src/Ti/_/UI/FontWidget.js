@@ -30,7 +30,7 @@ define("Ti/_/UI/FontWidget", ["Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/UI
 
 		_measureText: function(text, domNode) {
 			var textRuler = document.getElementById("textRuler");
-			textRuler.innerHTML = text;
+			textRuler.innerHTML = text === "" ? "\u00C4y" : text;
 
 			var computedStyle = window.getComputedStyle(domNode);
 			this._setFont({
@@ -41,7 +41,7 @@ define("Ti/_/UI/FontWidget", ["Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/UI
 			},textRuler);
 
 			// Return the computed style
-			return {width: textRuler.clientWidth, height: textRuler.clientHeight};
+			return {width: text === "" ? 0 : textRuler.clientWidth, height: textRuler.clientHeight};
 		},
 
 		properties: {
