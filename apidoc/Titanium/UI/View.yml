@@ -600,9 +600,8 @@ properties:
     description: |
         Can be either a float value or a dimension string (for example, '50%' or 'auto').
 
-        This is an input property for specifying the view height dimension. To 
-        determine the view's size once rendered, see the 
-        [size](Titanium.UI.View.size) property.
+        This is an input property for specifying the view's height dimension. To determine the view's 
+        size once rendered, see the [size](Titanium.UI.View.size) property.
     type: [Number,String]
     
   - name: left
@@ -723,7 +722,7 @@ properties:
     description: |
         Can be either a float value or a dimension string (for example, '50%' or 'auto').
 
-        This is an input property for specifying the view width dimension. To 
+        This is an input property for specifying the view's width dimension. To 
         determine the view's size once rendered, see the 
         [size](Titanium.UI.View.size) property.
     type: [Number,String]
