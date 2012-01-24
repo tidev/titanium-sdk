@@ -95,6 +95,12 @@ textarea {
 	position: absolute;
 }
 
+.TiUIButton {
+	background-size: "100% 100%";
+	background-repeat: "no-repeat";
+	border: 0;
+}
+
 .TiUITab {
 	background-color: silver;
 	border: solid 1px black;

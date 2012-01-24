@@ -44,11 +44,19 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nati
 		TypeConverter::javaObjectArrayToJsArguments(functionArguments, &length);
 
 	// call into the JS function with the provided argument
+	TryCatch tryCatch;
 	v8::Local<v8::Value> object = jsFunction->Call(thisObject, length, jsFunctionArguments);
 
 	// make sure to delete the arguments since the arguments array is built on the heap
 	if (jsFunctionArguments) {
 		delete jsFunctionArguments;
+	}
+
+	if (tryCatch.HasCaught()) {
+		V8Util::openJSErrorDialog(tryCatch);
+		V8Util::reportException(tryCatch);
+
+		return NULL;
 	}
 	
 	bool isNew;
