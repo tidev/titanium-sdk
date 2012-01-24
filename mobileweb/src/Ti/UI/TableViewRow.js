@@ -1,7 +1,11 @@
 define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, View, dom, css, style) {
 
 	var set = style.set,
-		undef;
+		undef,
+		isDef = require.isDef,
+		checkImage = "theme/titanium/UI/TableViewRow/check.png",
+		childImage = "theme/titanium/UI/TableViewRow/child.png",
+		detailImage = "theme/titanium/UI/TableViewRow/detail.png";
 
 	return declare("Ti.UI.TableViewRow", View, {
 		
@@ -23,14 +27,13 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 			this.titleLabel = Ti.UI.createLabel({width: "auto", height: "100%"});
 			this.leftView.add(this.titleLabel);
 			
-			this.rightView = Ti.UI.createView({
+			this.rightImageView = Ti.UI.createImageView({
 				right: 0,
 				top: 0,
 				width: "auto", 
-				height: "100%",
-				layout: "horizontal"
+				height: "100%"
 			});
-			this.add(this.rightView);
+			this.add(this.rightImageView);
 		},
 		
 		_defaultHeight: "auto",
@@ -49,35 +52,26 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 
 		properties: {
 			hasCheck: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.TableViewRow#.hasCheck" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TableViewRow#.hasCheck" is not implemented yet.');
+				set: function(value, oldValue) {
+					if (value !== oldValue && !isDef(this.rightImage) && !this.hasChild) {
+						this.rightImageView.image = value ? checkImage : undef;
+					}
 					return value;
 				}
 			},
 			hasChild: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.TableViewRow#.hasChild" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TableViewRow#.hasChild" is not implemented yet.');
+				set: function(value, oldValue) {
+					if (value !== oldValue && !isDef(this.rightImage)) {
+						this.rightImageView.image = value ? childImage : undef;
+					}
 					return value;
 				}
 			},
 			hasDetail: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.TableViewRow#.hasDetail" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TableViewRow#.hasDetail" is not implemented yet.');
+				set: function(value, oldValue) {
+					if (value !== oldValue && !isDef(this.rightImage) && !this.hasChild && !this.hasCheck) {
+						this.rightImageView.image = value ? detailImage : undef;
+					}
 					return value;
 				}
 			},
@@ -90,12 +84,7 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 			rightImage: {
 				set: function(value, oldValue) {
 					if (value !== oldValue) {
-						for (var i in this.rightView.children) {
-							this.rightView.remove(this.rightView.children[i]);
-						}
-						this.rightView.add(Ti.UI.createImageView({
-							image: value
-						}));
+						this.rightImageView.image = value;
 					}
 					return value;
 				}

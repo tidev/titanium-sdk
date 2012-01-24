@@ -185,6 +185,17 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css",
 			this.insertRowBefore(index,row);
 		},
 		
+		scrollToIndex: function(index) {
+			var control = this.data[index];
+			if (control) {
+				this.domNode.scrollTop = control._measuredTop;
+			}
+		},
+		
+		scrollToTop: function(top) {
+			this.domNode.scrollTop = top;
+		},
+		
 		doLayout: function() {
 			
 			// Update the row height info
