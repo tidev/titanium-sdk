@@ -513,25 +513,22 @@ fails, a JS exception is returned.
 	</#if>
 <#t>
 	<#local current_arg = "arg_" + index>
+	<#local nullCheck = 0>
 	<#if info.jsType == "Value">
 		<#local type = "Local<Value>">
 		<#local valueExpr = expr>
-		<#local nullCheck = 0>
 	<#elseif info.jsType == "Number">
 		<#local type = "Local<Number>">
 		<#local valueExpr = expr + "->ToNumber()">
 		<#local stringExpr = expr + "->ToString()">
 		<#local postAssignmentCheck = "titanium::V8Util::isNaN(" + current_arg + ")">
-		<#local nullCheck = 0>
 	<#elseif info?keys?seq_contains("jsHandleCast")>
 		<#local type = "Local<" + info.jsType + ">">
 		<#local valueExpr = "Local<" + info.jsType + ">::Cast(" + expr + ")">
-		<#local emptyExpr = "v8::Array::New()">
 		<#local nullCheck = 1>
 	<#else>
 		<#local type = "Local<" + info.jsType + ">">
 		<#local valueExpr = expr + "->To" + info.jsType + "()">
-		<#local nullCheck = 0>
 	</#if>
 	
 <#t>
