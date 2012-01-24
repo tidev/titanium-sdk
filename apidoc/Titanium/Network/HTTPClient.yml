@@ -66,7 +66,7 @@ methods:
 
         If you pass a serializable JavaScript object, it is automatically
         turned into form-encoded POST data. You can also send an arbitrary 
-        string or binary data (in the form of a Titanium.Blob).
+        string or binary data (in the form of a <Titanium.Blob>).
 
         On iOS, you can specify a synchronous request when you call `open` 
         by passing `false` for the `async` parameter. In the case of a synchronous
@@ -147,21 +147,26 @@ properties:
   - name: connected
     summary: boolean to indicate that the response was successful
     type: Boolean
+    permission: read-only
   - name: connectionType
-    summary: the connection type, normally either `GET` or `POST`.
+    summary: Connection type, normally either `GET` or `POST`.
     type: String
+    permission: read-only
   - name: enableKeepAlive
     summary: Determines whether the client should attempt to keep a persistent connection.
     type: Boolean
     default: false
     platforms: [iphone, ipad]
   - name: file
-    summary: file to download contents to.  Can only be set after calling open.
+    summary: |
+        File to download contents to.  Can only be set **after** calling
+        [open](Titanium.Network.HTTPClient.open).
     type: String
     platforms: [iphone, ipad]
   - name: location
-    summary: the absolute URL of the request
+    summary: Absolute URL of the request.
     type: String
+    permission: read-only
   - name: ondatastream
     summary: Function to be called at regular intervals as the request data is being received. 
     description: |
@@ -189,7 +194,8 @@ properties:
 
     type: Callback<Object>
   - name: onreadystatechange
-    summary: Function to be called for each readyState change.
+    summary: Function to be called for each
+        [readyState](Titanium.Network.HTTPClient.readyState) change.
     type: Callback<Object>
     description: |
         Must be set before calling `open`. 
@@ -223,8 +229,9 @@ properties:
         
         The `onreadystatechange` callback is invoked each time the ready state changes.
     type: Number
+    permission: read-only
   - name: responseData
-    summary: Response data as a Blob object.
+    summary: Response data as a `Blob` object.
     type: Titanium.Blob
     permission: read-only
   - name: responseText
