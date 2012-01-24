@@ -1000,7 +1000,7 @@ DEFINE_EXCEPTIONS
 		value = nil;
 	}
     
-    BOOL newValue = (current != value || ![current isEqual:value]);
+    BOOL newValue = (current != value && ![current isEqual:value]);
     
     // We need to stage this out; the problem at hand is that some values
     // we might store as properties (such as NSArray) use isEqual: as a
