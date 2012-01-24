@@ -9,6 +9,9 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 
 	return declare("Ti.UI.TableViewRow", View, {
 		
+		// The number of pixels 1 indention equals
+		_indentionScale: 10,
+		
 		constructor: function(args) {
 			
 			this.leftView = Ti.UI.createView({
@@ -49,27 +52,21 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 		doLayout: function(){
 			View.prototype.doLayout.apply(this,arguments);
 		},
+		
+		_doBackground: function(evt) {
+			if (this._touching) {
+				this.titleLabel.color = this.selectedColor;
+			} else {
+				this.titleLabel.color = this.color;
+			}
+			View.prototype._doBackground.apply(this,arguments);
+		},
 
 		properties: {
-			className: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.TableViewRow#.className" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TableViewRow#.className" is not implemented yet.');
-					return value;
-				}
-			},
+			className: undef,
 			color: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.TableViewRow#.color" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.TableViewRow#.color" is not implemented yet.');
+					this.titleLabel.color = value;
 					return value;
 				}
 			},
@@ -98,15 +95,11 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 				}
 			},
 			indentionLevel: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.TableViewRow#.indentionLevel" is not implemented yet.');
+				set: function(value) {
+					this.leftView.left = value * this._indentionScale;
 					return value;
 				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TableViewRow#.indentionLevel" is not implemented yet.');
-					return value;
-				}
+				value: 0
 			},
 			leftImage: {
 				set: function(value) {
@@ -122,6 +115,7 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 					return value;
 				}
 			},
+			selectedColor: undef,
 			title: {
 				set: function(value) {
 					this.titleLabel.text = value;

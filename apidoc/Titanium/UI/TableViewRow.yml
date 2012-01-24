@@ -60,6 +60,8 @@ properties:
 
         For example, if some rows include images and some rows do not, you would have two class
         names, one for image rows and one for plain rows.
+        
+        This property exists on Mobile Web, but is ignored.
     type: String
   - name: color
     summary: Default text color of the row when not selected.
