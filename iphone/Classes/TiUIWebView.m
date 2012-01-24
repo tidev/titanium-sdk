@@ -640,6 +640,13 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 {
 	NSURL * newUrl = [request URL];
 	NSString * scheme = [[newUrl scheme] lowercaseString];
+	
+	if ([self.proxy _hasListeners:@"request"])
+	{
+		NSDictionary *event = [NSDictionary dictionaryWithObject:[newUrl absoluteString] forKey:@"url"];
+		[self.proxy fireEvent:@"request" withObject:event];
+	}
+	
 	if ([scheme hasPrefix:@"http"] || [scheme hasPrefix:@"app"] || [scheme hasPrefix:@"file"] || [scheme hasPrefix:@"ftp"])
 	{
 		NSLog(@"New scheme: %@",request);

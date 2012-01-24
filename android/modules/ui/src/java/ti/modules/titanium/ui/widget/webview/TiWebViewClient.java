@@ -70,6 +70,11 @@ public class TiWebViewClient extends WebViewClient
 
 	@Override
 	public boolean shouldOverrideUrlLoading(final WebView view, String url) {
+		//Fire a request event on the WebView
+		KrollDict data = new KrollDict();
+		data.put("url", url);
+		webView.getProxy().fireEvent("request", data);
+		
 		if (DBG) {
 			Log.d(LCAT, "url=" + url);
 		}
