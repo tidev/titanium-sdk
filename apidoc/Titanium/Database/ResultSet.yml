@@ -7,8 +7,8 @@ createable: false
 methods:
   - name: close
     summary: |
-        Closes this result set and release resources. Once closed, the result set 
-        must no longer be used.
+        Closes this result set and release resources. Once closed, the result set must no longer 
+        be used.
     
   - name: field
     summary: |
@@ -60,9 +60,9 @@ methods:
     
   - name: isValidRow
     summary: Returns whether the current row is valid.
-    platform: [iphone, ipad]
     returns:
         type: Boolean
+    platforms: [iphone,ipad]
     
   - name: next
     summary: |
@@ -74,17 +74,16 @@ properties:
   - name: rowCount
     summary: The number of rows in this result set.
     type: Number
-  - name: validRow
     
+  - name: validRow
     summary: Indicates whether the current row is valid.
     type: Boolean
     platforms: [iphone,ipad]
 examples:
   - title: Using ResultSet
     example: |
-        The following code will install a database and execute SQL statements that 
-        will create a table, insert data into it, query the table and iterate through 
-        the returned ResultSet.
+        The following code will install a database and execute SQL statements that will create a 
+        table, insert data into it, query the table and iterate through the returned ResultSet.
 
             var db = Ti.Database.open('mydb1Installed');
             db.execute('CREATE TABLE IF NOT EXISTS people (name TEXT, phone_number TEXT, city TEXT)');
