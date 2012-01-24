@@ -51,6 +51,28 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 		},
 
 		properties: {
+			className: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.TableViewRow#.className" is not implemented yet.');
+					return value;
+				},
+				set: function(value) {
+					console.debug('Property "Titanium.UI.TableViewRow#.className" is not implemented yet.');
+					return value;
+				}
+			},
+			color: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.TableViewRow#.color" is not implemented yet.');
+					return value;
+				},
+				set: function(value) {
+					console.debug('Property "Titanium.UI.TableViewRow#.color" is not implemented yet.');
+					return value;
+				}
+			},
 			hasCheck: {
 				set: function(value, oldValue) {
 					if (value !== oldValue && !isDef(this.rightImage) && !this.hasChild) {
@@ -75,6 +97,17 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 					return value;
 				}
 			},
+			indentionLevel: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.TableViewRow#.indentionLevel" is not implemented yet.');
+					return value;
+				},
+				set: function(value) {
+					console.debug('Property "Titanium.UI.TableViewRow#.indentionLevel" is not implemented yet.');
+					return value;
+				}
+			},
 			leftImage: {
 				set: function(value) {
 					this.leftImageView.image = value;
@@ -92,6 +125,14 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 			title: {
 				set: function(value) {
 					this.titleLabel.text = value;
+					return value;
+				}
+			},
+			
+			// Pass through to the label
+			font: {
+				set: function(value) {
+					this.titleLabel.font = value;
 					return value;
 				}
 			}
