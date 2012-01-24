@@ -116,6 +116,7 @@ static NSDictionary* TI_filterableItemProperties;
 	RELEASE_TO_NIL(systemMusicPlayer);
 	RELEASE_TO_NIL(appMusicPlayer);
 	RELEASE_TO_NIL(popoverView);
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[super dealloc];
 }
 

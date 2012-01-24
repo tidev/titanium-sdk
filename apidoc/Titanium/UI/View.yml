@@ -512,7 +512,26 @@ properties:
   - name: backgroundImage
     summary: Background image for the view, specified as a local file path or URL.
     type: String
-    
+
+  - name: backgroundRepeat
+    summary: Toggle for whether or not to tile a background across a view.
+    description: |
+        Setting this to `true` makes the set `backgroundImage` repeat across
+        the view as a series of tiles. The tiling is begins in the upper-left
+        corner, where the upper-left corner of the background image is rendered.
+        The image is then tiled to fill the available space of the view.
+        
+        Note that setting this to `true` may incur performance penalties for
+        large views or background images, as the tiling must be redone
+        whenever a view is resized.
+        
+        The following views do not currently support tiled backgrounds:
+        * <Titanium.UI.Button>
+        * <Titanium.UI.TextField>
+        * <Titanium.UI.Label>
+    type: Boolean
+    platforms: [iphone, ipad]
+
   - name: backgroundLeftCap
     summary: Size of the left end cap.
     description: |
@@ -710,7 +729,6 @@ properties:
     
   - name: transform
     summary: Transformation matrix to apply to the view.
-    platforms: [android, iphone, ipad]
     type: [ Titanium.UI.2DMatrix, Titanium.UI.iOS.3DMatrix ]
     
   - name: visible
