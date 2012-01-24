@@ -1,9 +1,10 @@
 define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style"], function(dom, Evented, lang, ready, style) {
 	
-	var isDef = require.isDef,
+	var body = document.body,
+		isDef = require.isDef,
 		isIOS = /(iPhone|iPad)/.test(navigator.userAgent);
 
-	document.body.addEventListener('touchmove', function(e) {
+	body.addEventListener('touchmove', function(e) {
 		e.preventDefault();
 	}, false);
 
@@ -11,7 +12,7 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 		var x = 0;
 		if (isIOS && !window.location.hash) {
 			if (document.height <= window.outerHeight + 10) {
-				document.body.style.height = (window.outerHeight + 60) + "px";
+				body.style.height = (window.outerHeight + 60) + "px";
 				x = 50;
 			}
 			setTimeout(function() {
@@ -44,7 +45,7 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 				this._layoutInProgress = true;
 				setTimeout(lang.hitch(this, function(){
 					this._validateContainer();
-					this._container.doLayout(0, 0, document.body.clientWidth, document.body.clientHeight, true, true);
+					this._container.doLayout(0, 0, body.clientWidth, body.clientHeight, true, true);
 					this._layoutInProgress = false;
 				}), 25);
 			}
@@ -52,7 +53,7 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 
 		_doForcedFullLayout: function() {
 			this._validateContainer();
-			this._container.doLayout(0, 0, document.body.clientWidth, document.body.clientHeight, true, true);
+			this._container.doLayout(0, 0, body.clientWidth, body.clientHeight, true, true);
 			this._layoutInProgress = false;
 			
 		},
@@ -60,22 +61,23 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 		_validateContainer: function() {
 			if (!isDef(this._container)) {
 				this._layoutInProgress = false;
-				this._container = Ti.UI.createView();
-				this._container.left = 0;
-				this._container.top = 0;
-				document.body.appendChild(this._container.domNode);
+				this._container = Ti.UI.createView({
+					left: 0,
+					top: 0
+				});
+				body.appendChild(this._container.domNode);
 			}
 		},
 
 		properties: {
 			backgroundColor: {
 				set: function(value) {
-					return style.set(document.body, "backgroundColor", value);
+					return style.set(body, "backgroundColor", value);
 				}
 			},
 			backgroundImage: {
 				set: function(value) {
-					return style.set(document.body, "backgroundImage", value ? style.url(value) : "");
+					return style.set(body, "backgroundImage", value ? style.url(value) : "");
 				}
 			}
 		},
@@ -88,10 +90,10 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 			UPSIDE_PORTRAIT: 4,
 			LANDSCAPE_LEFT: 5,
 			LANDSCAPE_RIGHT: 6,
-			INPUT_BORDERSTYLE_BEZEL: 3,
-			INPUT_BORDERSTYLE_LINE: 1,
 			INPUT_BORDERSTYLE_NONE: 0,
-			INPUT_BORDERSTYLE_ROUNDED: 2,
+			INPUT_BORDERSTYLE_LINE: 1,
+			INPUT_BORDERSTYLE_BEZEL: 2,
+			INPUT_BORDERSTYLE_ROUNDED: 3,
 			INPUT_BUTTONMODE_ALWAYS: 1,
 			INPUT_BUTTONMODE_NEVER: 0,
 			INPUT_BUTTONMODE_ONBLUR: 0,
@@ -113,17 +115,17 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 			PICKER_TYPE_DATE_AND_TIME: 3,
 			PICKER_TYPE_PLAIN: 4,
 			PICKER_TYPE_TIME: 5,
-			RETURNKEY_DEFAULT: 0,
-			RETURNKEY_DONE: 1,
-			RETURNKEY_EMERGENCY_CALL: 2,
-			RETURNKEY_GO: 3,
-			RETURNKEY_GOOGLE: 4,
-			RETURNKEY_JOIN: 5,
-			RETURNKEY_NEXT: 6,
-			RETURNKEY_ROUTE: 7,
-			RETURNKEY_SEARCH: 8,
-			RETURNKEY_SEND: 9,
-			RETURNKEY_YAHOO: 10,
+			RETURNKEY_DEFAULT: 0, // return
+			RETURNKEY_DONE: 1, // Done
+			RETURNKEY_EMERGENCY_CALL: 2, // Emergency Call
+			RETURNKEY_GO: 3, // Go
+			RETURNKEY_GOOGLE: 4, // Search
+			RETURNKEY_JOIN: 5, // Join
+			RETURNKEY_NEXT: 6, // Next
+			RETURNKEY_ROUTE: 7, // Route
+			RETURNKEY_SEARCH: 8, // Search
+			RETURNKEY_SEND: 9, // Send
+			RETURNKEY_YAHOO: 10, // Search
 			TEXT_ALIGNMENT_CENTER: 1,
 			TEXT_ALIGNMENT_RIGHT: 2,
 			TEXT_ALIGNMENT_LEFT: 3,
