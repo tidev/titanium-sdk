@@ -6,8 +6,6 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import java.util.ArrayList;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -20,7 +18,6 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 import ti.modules.titanium.ui.TiTabActivity;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -33,14 +30,13 @@ public class TiUITabGroup extends TiUIView
 {
 	private static final String LCAT = "TiUITabGroup";
 	private static final boolean DBG = TiConfig.LOGD;
-	private static final int DEFAULT_TAB_BACKGROUND_COLOR = Color.GRAY;
+	private static final int DEFAULT_TAB_BACKGROUND_COLOR = TiConvert.toColor("#ff1a1a1a");
 
 	private TabHost tabHost;
 	private boolean addingTab;
 
 	private String lastTabId;
 	private KrollDict tabChangeEventData;
-	private ArrayList<Integer> tabBackgroundColors;
 
 	public TiUITabGroup(TiViewProxy proxy, TiTabActivity activity)
 	{
@@ -58,7 +54,7 @@ public class TiUITabGroup extends TiUIView
 		if (bgColor != null) {
 			tabHost.setBackgroundColor(TiConvert.toColor(bgColor.toString()));
 		} else {
-			tabHost.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor("#ff1a1a1a")));
+			tabHost.setBackgroundDrawable(new ColorDrawable(DEFAULT_TAB_BACKGROUND_COLOR));
 		}
 
 		setNativeView(tabHost);
@@ -102,10 +98,8 @@ public class TiUITabGroup extends TiUIView
 		}
 		if (proxy.hasProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
 			tabHost.getTabWidget().getChildAt(tabCount - 1)
-				.setBackgroundColor(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR)));
+				.setBackgroundColor(TiConvert.toColor(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString()));
 		}
-
-		// Cache the background color of the tab that we add, so we can re-use it in onTabChanged()
 
 	}
 
@@ -153,18 +147,37 @@ public class TiUITabGroup extends TiUIView
 			proxy.fireEvent(TiC.EVENT_FOCUS, tabChangeEventData);
 		}
 
-		for (int i = 0; i < tabHost.getTabWidget().getChildCount(); i++) {
-			if (proxy.hasProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
+		if (proxy.hasProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
+
+			// If we have tabsBackgroundColor set, apply that color to all the tabs when it's changed
+			for (int i = 0; i < tabHost.getTabWidget().getChildCount(); i++) {
 				tabHost.getTabWidget().getChildAt(i)
-					.setBackgroundColor(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR)));
-			} else {
+					.setBackgroundColor(TiConvert.toColor(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR).toString()));
+			}
+
+			// If we have tabsBackgroundSelectedColor set, apply that color to the current tab
+			if (proxy.hasProperty(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR)) {
+				updateSelectedBackgroundColor();
+			}
+
+		} else if (proxy.hasProperty(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR)) {
+
+			// If we only have tabsBackgroundSelectedColor set, apply the default background color to all the tabs, then
+			// apply that color to the current tab
+			for (int i = 0; i < tabHost.getTabWidget().getChildCount(); i++) {
 				tabHost.getTabWidget().getChildAt(i).setBackgroundColor(DEFAULT_TAB_BACKGROUND_COLOR);
 			}
+			updateSelectedBackgroundColor();
+
 		}
 
-		tabHost.getTabWidget().getChildAt(tabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#0000FF")); // selected
-		
 		lastTabId = id;
+	}
+
+	private void updateSelectedBackgroundColor()
+	{
+		int selectedBGColor = TiConvert.toColor(proxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR).toString());
+		tabHost.getTabWidget().getChildAt(tabHost.getCurrentTab()).setBackgroundColor(selectedBGColor);
 	}
 
 	public void changeActiveTab(Object t)
@@ -192,6 +205,11 @@ public class TiUITabGroup extends TiUIView
 				Log.w(LCAT, "Attempt to set active tab using a non-supported argument. Ignoring");
 			}
 		}
+
+		if (proxy.hasProperty(TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR)) {
+			updateSelectedBackgroundColor();
+		}
+
 	}
 
 	public int getActiveTab()
