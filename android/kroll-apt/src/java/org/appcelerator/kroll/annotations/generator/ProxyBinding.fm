@@ -539,8 +539,6 @@ fails, a JS exception is returned.
 	<#if nullCheck == 1>
 	if (!${expr}->IsNull()) {
 		${current_arg} = ${valueExpr};
-	} else {
-		${current_arg} = ${emptyExpr};
 	}
 	<#else>
 	${current_arg} = ${valueExpr};
@@ -556,8 +554,12 @@ fails, a JS exception is returned.
 		}
 	</#if>
 <#t>
-	jArguments[${index}].${info.jvalue} =
-		titanium::TypeConverter::${info.jsToJavaConverter}(arg_${index}<#if checkNew>, &isNew_${index}</#if>);
+	if (!${expr}->IsNull()) {
+		jArguments[${index}].${info.jvalue} =
+			titanium::TypeConverter::${info.jsToJavaConverter}(arg_${index}<#if checkNew>, &isNew_${index}</#if>);
+	} else {
+		jArguments[${index}].${info.jvalue} = NULL;
+	}
 <#t>
 	<#if isOptional>
 	}
