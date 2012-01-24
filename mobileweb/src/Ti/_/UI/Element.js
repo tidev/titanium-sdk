@@ -118,8 +118,11 @@ define("Ti/_/UI/Element",
 		},
 
 		destroy: function() {
-			dom.destroy(this.domNode);
-			this.domNode = null;
+			if (this.domNode) {
+				dom.destroy(this.domNode);
+				this.domNode = null;
+			}
+			this._destroyed = 1;
 		},
 
 		doLayout: function(originX, originY, parentWidth, parentHeight, centerHDefault, centerVDefault) {
@@ -141,7 +144,7 @@ define("Ti/_/UI/Element",
 					this.height,
 					this.borderWidth
 				),
-				s;
+				styles;
 
 			this._measuredLeft = dimensions.left;
 			this._measuredTop = dimensions.top;
@@ -287,7 +290,7 @@ define("Ti/_/UI/Element",
 			}
 
 			// TODO change this once we re-architect the inheritence so that widgets don't have add/remove/layouts
-			if (this.children.length > 0) {
+			if (this.children && this.children.length > 0) {
 				var computedSize = this._layout.doLayout(this,width,height);
 				width == "auto" && (width = computedSize.width);
 				height == "auto" && (height = computedSize.height);
@@ -462,9 +465,11 @@ define("Ti/_/UI/Element",
 				// Create the transition, must be set before setting the other properties
 				setStyle(this.domNode, "transition", "all " + anim.duration + "ms " + curve + (anim.delay ? " " + anim.delay + "ms" : ""));
 				on.once(window, transitionEnd, lang.hitch(this, function(e) {
-					// Clear the transform so future modifications in these areas are not animated
-					setStyle(this.domNode, "transition", "");
-					done();
+					if (!this._destroyed) {
+						// Clear the transform so future modifications in these areas are not animated
+						setStyle(this.domNode, "transition", "");
+						done();
+					}
 				}));
 				setTimeout(fn, 0);
 			} else {

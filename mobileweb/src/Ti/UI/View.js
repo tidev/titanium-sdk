@@ -46,12 +46,16 @@ define("Ti/UI/View",
 		},
 		
 		destroy: function() {
-			var i = 0,
-				l = this.children.length;
-			for (; i < l; i++) {
-				this.children[i].destroy();
+			if (!this._destroyed) {
+				var i = 0,
+					l = this.children.length;
+				for (; i < l; i++) {
+					this.children[i].destroy();
+					this.children[i] = null;
+				}
+				this.children = null;
+				Element.prototype.destroy.apply(this, arguments);
 			}
-			Element.prototype.destroy.apply(this, arguments);
 		},
 	
 		_defaultWidth: "100%",
