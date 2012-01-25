@@ -45,6 +45,18 @@ class Compiler(object):
 				
 				# base classes
 				'Ti/_/Evented.js',
+				'Ti/UI.js',
+				'Ti/_/Gestures/GestureRecognizer.js',
+				'Ti/_/Gestures/DoubleTap.js',
+				'Ti/_/Gestures/LongPress.js',
+				'Ti/_/Gestures/Pinch.js',
+				'Ti/_/Gestures/SingleTap.js',
+				'Ti/_/Gestures/Swipe.js',
+				'Ti/_/Gestures/TouchStart.js',
+				'Ti/_/Gestures/TouchMove.js',
+				'Ti/_/Gestures/TouchEnd.js',
+				'Ti/_/Gestures/TouchCancel.js',
+				'Ti/_/Gestures/TwoFingerTap.js',
 				'Ti/_/UI/Element.js',
 				'Ti/_/Layouts/Base.js',
 				'Ti/_/Layouts/Absolute.js',
@@ -72,9 +84,11 @@ class Compiler(object):
 				'Ti/Network/HTTPClient.js',
 				'Ti/Platform.js',
 				'Ti/Platform/DisplayCaps.js',
-				'Ti/UI.js',
 				'Ti/Gesture.js',
 				'Ti/XML.js',
+				
+				# UI Constants
+				'Ti/UI/MobileWeb/TableViewSeparatorStyle.js',
 				
 				# View classes
 				'Ti/UI/View.js',
@@ -90,6 +104,7 @@ class Compiler(object):
 				# Widget classes
 				'Ti/_/UI/Widget.js',
 				'Ti/_/UI/FontWidget.js',
+				'Ti/_/UI/TextBox.js',
 				'Ti/UI/2DMatrix.js',
 				'Ti/UI/ActivityIndicator.js',
 				'Ti/UI/AlertDialog.js',
