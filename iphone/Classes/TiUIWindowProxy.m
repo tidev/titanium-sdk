@@ -339,7 +339,7 @@
 	[self replaceValue:[self sanitizeURL:value] forKey:@"barImage" notification:NO];
 	if (controller!=nil)
 	{
-		[self performSelectorOnMainThread:@selector(updateBarImage) withObject:nil waitUntilDone:NO];
+		[self performSelectorOnMainThread:@selector(updateBarImage) withObject:nil waitUntilDone:[NSThread isMainThread]];
 	}
 }
 
