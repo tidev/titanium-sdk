@@ -1060,9 +1060,10 @@
 		[self performSelector:@selector(hideSearchScreen:) withObject:sender afterDelay:0.1];
 		return;
 	}
-	
-	[[searchField view] resignFirstResponder];
-	[self makeRootViewFirstResponder];
+    if ([[searchField view] isFirstResponder]) {
+        [[searchField view] resignFirstResponder];
+        [self makeRootViewFirstResponder];
+    }
 	[self.proxy replaceValue:NUMBOOL(YES) forKey:@"searchHidden" notification:NO];
 	[searchController setActive:NO animated:YES];
 	
