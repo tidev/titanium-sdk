@@ -244,6 +244,7 @@ properties:
         Setting `allowBackground` to `true` allows the audio to continue playing, for
         example, if the application is in the background.
     type: Boolean
+    default: false
     availability: creation
     platforms: [android]
   - name: bitRate
