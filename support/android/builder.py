@@ -1294,6 +1294,7 @@ class Builder(object):
 		(out, err, javac_process) = run.run(javac_command, ignore_error=True, return_error=True, return_process=True)
 		os.remove(src_list_filename)
 		if javac_process.returncode != 0:
+			warn("Do not use java keywords for project app id")
 			error("Error(s) compiling generated Java code")
 			error(str(err))
 			sys.exit(1)
