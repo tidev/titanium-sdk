@@ -334,10 +334,6 @@ exports.bootstrapWindow = function(Titanium) {
 
 		if (this.isActivity) {
 			var self = this;
-			this.window.on("close", function () {
-				self.fireEvent("close");
-			});
-
 			this.window.close(options);
 			this.currentState = this.state.closed;
 
