@@ -533,10 +533,6 @@ public class TiSound
 		} else {
 			setVolume(0.5f);
 		}
-
-		if (d.containsKey(TiC.PROPERTY_TIME)) {
-			setTime(TiConvert.toInt(d, TiC.PROPERTY_TIME));
-		}
 	}
 
 	@Override
