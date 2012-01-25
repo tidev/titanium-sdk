@@ -148,7 +148,7 @@ methods:
   - name: getUrl
     summary: Returns the value of the [url](Titanium.Media.AudioPlayer.url) property.
     description: |
-        This method is not exposed on Android. As a workaround, access the `url` property directly:
+        This method is not exposed on Android. Access the `url` property directly instead:
 
             currentURL = myAudioPlayer.url;
     returns:
