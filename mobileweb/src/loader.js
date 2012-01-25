@@ -1858,18 +1858,20 @@ require.cache({
 				var i = 0,
 					x,
 					uc;
-				if (arguments.length > 2) {
-					while (i < vp.length) {
-						x = vp[i++];
-						x += x ? uc || (uc = string.capitalize(name)) : name;
-						if (x in node.style) {
-							require.each(require.is(value, "Array") ? value : [value], function(v) { node.style[x] = v; });
-							return value;
+				if (node) {
+					if (arguments.length > 2) {
+						while (i < vp.length) {
+							x = vp[i++];
+							x += x ? uc || (uc = string.capitalize(name)) : name;
+							if (x in node.style) {
+								require.each(require.is(value, "Array") ? value : [value], function(v) { node.style[x] = v; });
+								return value;
+							}
 						}
-					}
-				} else {
-					for (x in name) {
-						set(node, x, name[x]);
+					} else {
+						for (x in name) {
+							set(node, x, name[x]);
+						}
 					}
 				}
 				return node;
@@ -1877,7 +1879,7 @@ require.cache({
 
 			return {
 				url: function(url) {
-					return !url ? "" : /^url\(/.test(url) ? url : "url(" + _.getAbsolutePath(url) + ")";
+					return !url || url === "none" ? "" : /^url\(/.test(url) ? url : "url(" + _.getAbsolutePath(url) + ")";
 				},
 
 				get: function(node, name) {
