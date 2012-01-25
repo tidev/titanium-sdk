@@ -68,6 +68,19 @@ public class TiUIScrollableView extends TiUIView
 	{
 		ViewPager pager = new ViewPager(context);
 		pager.setAdapter(adapter);
+		pager.setOnTouchListener(new View.OnTouchListener()
+		{
+			@Override
+			public boolean onTouch(View v, MotionEvent e)
+			{
+				switch (e.getAction()) {
+				case MotionEvent.ACTION_MOVE: 
+					((ScrollableViewProxy)proxy).fireTouchMove(e.getX(), e.getY());
+					break;
+				}
+				return true;
+			}
+		});
 		pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener()
 		{
 			@Override
