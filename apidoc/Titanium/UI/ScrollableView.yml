@@ -15,13 +15,12 @@ description: |
     In a previous Titanium version for iOS, the `maxZoomScale` and `minZoomScale` properties were 
     removed for performance and parity reasons. As they still remain in <Titanium.UI.ScrollView>, 
     the equivalent functionality may be obtained by adding a ScrollView to ScrollableView. See the 
-    "Simple Scrollable View with 2 Zoombable Images" example for a demonstration.
+    "Simple Scrollable View with 2 Zoomable Images" example for a demonstration.
 
 extends: Titanium.UI.View
 since: "0.8"
 platforms: [android, iphone, ipad]
 excludes: { events: [ 'dblclick', 'longclick', 'swipe', 'twofingertap' ] }
-
 
 methods:
   - name: addView
@@ -352,7 +351,7 @@ examples:
             win.add(scrollableView);
             win.open();
             
-  - title: Simple Scrollable View with 2 Zoombable Images
+  - title: Simple Scrollable View with 2 Zoomable Images
     example: |
         Create two scroll views, each containing an image view, and place them in a scrollable view.
 
