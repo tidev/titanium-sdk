@@ -4,6 +4,13 @@ define("Ti/UI/TableViewSection", ["Ti/_/declare", "Ti/_/UI/Widget"], function(de
 
 		_defaultHeight: "auto",
 		_defaultWidth: "auto",
+		
+		_handleTouchEvent: function(type, e) {
+			if (type === "click" || type === "singletap") {
+				this._parent && this._parent._parent && (this._parent._parent._tableViewSectionClicked = this);
+			}
+			View.prototype._handleTouchEvent.apply(this,arguments);
+		},
 			
 		properties: {
 			footerTitle: {

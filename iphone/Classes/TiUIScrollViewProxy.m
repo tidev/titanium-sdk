@@ -76,6 +76,12 @@
 	[self replaceValue:offset forKey:@"contentOffset" notification:YES];
 	[offset release];
 }
+-(void) setContentOffset:(id)value withObject:(id)animated
+{
+    TiThreadPerformOnMainThread(^{
+        [(TiUIScrollView *)[self view] setContentOffset_:value withObject:animated];
+    }, YES);
+}
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView_               // scrolling has ended
 {

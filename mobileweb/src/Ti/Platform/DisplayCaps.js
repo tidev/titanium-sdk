@@ -1,38 +1,28 @@
-define("Ti/Platform/DisplayCaps", ["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
-	
-	// Pre-calculate the screen DPI
-	var body = document.body,
-		measureDiv = document.createElement('div');
-	measureDiv.style.width = "1in";
-	measureDiv.style.visibility = "hidden";
-	body.appendChild(measureDiv);
-	var dpi = parseInt(measureDiv.clientWidth);
-	body.removeChild(measureDiv);
-	
-	var ua = navigator.userAgent.toLowerCase(),
-		api = lang.setObject("Ti.Platform.DisplayCaps", Evented, {
+define("Ti/Platform/DisplayCaps", ["Ti/_", "Ti/_/Evented", "Ti/_/lang"], function(_, Evented, lang) {
 
-			constants: {
-				density: function(){
-					switch (ua) {
-						case "iphone":
-							return "medium";
-						case "ipad":
-							return "medium";
-						default:
-							return "";
-					}
-				},
+	var ua = navigator.userAgent.toLowerCase();
 
-				dpi: dpi,
+	return Ti.Platform.displayCaps = lang.setObject("Ti.Platform.DisplayCaps", Evented, {
 
-				platformHeight: window.innerHeight,
+		constants: {
+			density: function(){
+				switch (ua) {
+					case "iphone":
+						return "medium";
+					case "ipad":
+						return "medium";
+					default:
+						return "";
+				}
+			},
 
-				platformWidth: window.innerWidth
-			}
-	
-		});
+			dpi: _.dpi,
 
-	return Ti.Platform.displayCaps = api;
+			platformHeight: window.innerHeight,
+
+			platformWidth: window.innerWidth
+		}
+
+	});
 
 });

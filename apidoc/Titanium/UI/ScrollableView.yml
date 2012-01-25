@@ -6,11 +6,17 @@ summary: |
 description: |
     Use the <Titanium.UI.createScrollableView> method to create a scrollable view.
 
-    Scrollable View supports a visual paging control that may be enabled to indicate on-screen that 
+    ScrollableView supports a visual paging control that may be enabled to indicate on-screen that 
     a view is visible.
     
     Only the `scroll` event exists on Android. To support those that are missing, event listeners 
     may be added to its child views.
+    
+    In a previous Titanium version for iOS, the `maxZoomScale` and `minZoomScale` properties were 
+    removed for performance and parity reasons. As they still remain in <Titanium.UI.ScrollView>, 
+    the equivalent functionality may be obtained by adding a ScrollView to ScrollableView. See the 
+    "Simple Scrollable View with 2 Zoombable Images" example for a demonstration.
+
 extends: Titanium.UI.View
 since: "0.8"
 platforms: [android, iphone, ipad]
@@ -345,3 +351,31 @@ examples:
 
             win.add(scrollableView);
             win.open();
+            
+  - title: Simple Scrollable View with 2 Zoombable Images
+    example: |
+        Create two scroll views, each containing an image view, and place them in a scrollable view.
+
+            var img1 = Ti.UI.createImageView({
+                image:'http://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/' +
+                'Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/' +
+                '402px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg'
+            });
+            var img1Wrapper = Ti.UI.createScrollView({
+                maxZoomScale:4.0,
+            });
+            img1Wrapper.add(img1);
+
+            var img2 = Ti.UI.createImageView({
+                image:'http://www.nasa.gov/images/content/' + 
+                '616903main_rover_comparison1600_1600-1200.jpg'
+            });
+            var img2Wrapper = Ti.UI.createScrollView({
+                maxZoomScale:4.0,
+            });
+            img2Wrapper.add(img2);
+            var photosView = Ti.UI.createScrollableView({
+                showPagingControl:true,
+                views:[img1Wrapper,img2Wrapper]
+            });
+            win.add(photosView);
