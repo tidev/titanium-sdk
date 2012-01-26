@@ -62,7 +62,6 @@ methods:
     summary: Returns whether the current row is valid.
     returns:
         type: Boolean
-    platforms: [iphone,ipad]
     
   - name: next
     summary: |
