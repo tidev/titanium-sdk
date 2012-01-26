@@ -200,7 +200,7 @@ def to_jsca_type(api):
 			"since": to_jsca_since(api.platforms)
 			}
 	# TIMOB-7169. If it's a proxy (non-module) and it has no "class properties",
-	# mark it as internal.  This is avoids it being displayed in Code Assist.
+	# mark it as internal.  This avoids it being displayed in Code Assist.
 	if api.typestr == "proxy":
 		can_hide = True
 		for p in result["properties"]:
