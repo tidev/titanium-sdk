@@ -588,7 +588,12 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 			env->DeleteLocalRef(krollObject);
 
 			if (v8ObjectPointer != 0) {
-				return Persistent<Object>((Object *) v8ObjectPointer);
+				Persistent<Object> v8Object = Persistent<Object>((Object *) v8ObjectPointer);
+				JavaObject *jo = NativeObject::Unwrap<JavaObject>(v8Object);
+				if (jo->isDetached()) {
+					jo->attach(javaObject);
+				}
+				return v8Object;
 			}
 		}
 

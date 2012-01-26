@@ -87,7 +87,8 @@ Handle<Object> ProxyFactory::createV8Proxy(jclass javaClass, jobject javaProxy)
 	Local<Object> v8Proxy = creator->NewInstance(1, &external);
 
 	// set the pointer back on the java proxy
-	jlong ptr = (jlong) *Persistent<Object>::New(v8Proxy);
+	Proxy* proxy = NativeObject::Unwrap<Proxy>(v8Proxy);
+	jlong ptr = (jlong) *(proxy->handle_);
 
 	jobject javaV8Object = env->NewObject(JNIUtil::v8ObjectClass,
 		JNIUtil::v8ObjectInitMethod, ptr);
@@ -119,7 +120,8 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	// Create a persistent handle to the V8 proxy
 	// and cast it to a pointer. The Java proxy needs
 	// a reference to the V8 proxy for later use.
-	jlong pv8Proxy = (jlong) *Persistent<Object>::New(v8Proxy);
+	Proxy* proxy = NativeObject::Unwrap<Proxy>(v8Proxy);
+	jlong pv8Proxy = (jlong) *(proxy->handle_);
 
 	// We also pass the creation URL of the proxy so we can track relative URLs
 	Handle<Value> sourceUrl = args.Callee()->GetScriptOrigin().ResourceName();
