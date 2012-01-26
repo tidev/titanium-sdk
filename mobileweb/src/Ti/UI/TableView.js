@@ -187,7 +187,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 		_remove: function(index) {
 			var location = this._calculateLocation(index);
 			if (location) {
-				location.section._remove(location.localIndex);
+				location.section._removeAt(location.localIndex);
 			}
 		},
 

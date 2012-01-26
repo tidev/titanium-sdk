@@ -113,9 +113,10 @@ define("Ti/UI/TableViewSection", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style"
 		},
 		
 		_removeAt: function(index) {
-			if (index < 0 || index > this.rowCount) {
+			if (index < 0 || index >= this.rowCount) {
 				return;
-			}	
+			}
+			this._rows.children[2 * index + 1]._tableViewSection = null;
 			this._rows.remove(this._rows.children[2 * index + 1]);
 			this._rows.remove(this._rows.children[2 * index + 1]);
 			
@@ -132,7 +133,6 @@ define("Ti/UI/TableViewSection", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style"
 			}
 			
 			this._removeAt(index);
-			view._tableViewSection = null;
 		},
 		
 		doLayout: function() {

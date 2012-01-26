@@ -300,13 +300,13 @@ define("Ti/_/UI/Element",
 			}
 
 			// TODO change this once we re-architect the inheritence so that widgets don't have add/remove/layouts
-			if (this.children && this.children.length > 0) {
+			if (this._getContentWidth) {
+				width == "auto" && (width = this._getContentWidth());
+				height == "auto" && (height = this._getContentHeight());
+			} else {
 				var computedSize = this._layout.doLayout(this,width,height);
 				width == "auto" && (width = computedSize.width);
 				height == "auto" && (height = computedSize.height);
-			} else {
-				width == "auto" && (width = this._getContentWidth());
-				height == "auto" && (height = this._getContentHeight());
 			}
 			
 			if (calculateWidthAfterAuto) {
@@ -524,14 +524,6 @@ define("Ti/_/UI/Element",
 				fn();
 				done();
 			}
-		},
-
-		_getContentWidth: function() {
-			return this.domNode.clientWidth;
-		},
-
-		_getContentHeight: function() {
-			return this.domNode.clientHeight;
 		},
 
 		_setTouchEnabled: function(value) {
