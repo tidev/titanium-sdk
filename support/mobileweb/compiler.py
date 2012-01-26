@@ -430,8 +430,8 @@ class Compiler(object):
 		o.write(i18n_content)
 		o.close()
 		
-		# Copy the theme
-		shutil.copytree(os.path.join(template_dir,'theme'),os.path.join(self.build_dir,'theme'))
+		# Copy the themes
+		shutil.copytree(os.path.join(template_dir,'themes'),os.path.join(self.build_dir,'themes'))
 		
 		
 		print "[INFO] Compiled %d files for %s" % (self.count,ti.properties['name'])
