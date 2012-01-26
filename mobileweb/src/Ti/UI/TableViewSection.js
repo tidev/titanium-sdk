@@ -84,6 +84,7 @@ define("Ti/UI/TableViewSection", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style"
 			
 			this._rows._insertAt(value, 2 * index + 1);
 			this._rows._insertAt(this._createSeparator(), 2 * index + 2);
+			value._tableViewSection = this;
 			this.rowCount++;
 		},
 		
@@ -131,6 +132,7 @@ define("Ti/UI/TableViewSection", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style"
 			}
 			
 			this._removeAt(index);
+			view._tableViewSection = null;
 		},
 		
 		doLayout: function() {
