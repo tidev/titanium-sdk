@@ -35,7 +35,6 @@ define("Ti/Platform", ["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang"], fun
 			batteryLevel: null,
 			batteryMonitoring: null,
 			batteryState: this.BATTERY_STATE_UNKNOWN,
-			id: id,
 			isBrowser: true,
 			locale: navigator.language,
 			macaddress: null,

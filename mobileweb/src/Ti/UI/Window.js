@@ -16,6 +16,26 @@ define("Ti/UI/Window", ["Ti/_/declare", "Ti/Gesture", "Ti/_/UI/SuperView", "Ti/U
 			}
 		},
 
+		open: function(args) {
+			if (this.modal) {
+				UI._addWindow(this._modalWin = UI.createView({
+					backgroundColor: UI.backgroundColor,
+					backgroundImage: UI.backgroundImage
+				})).show();
+			}
+			SuperView.prototype.open.apply(this, args);
+			this.setWindowTitle(this.title);
+		},
+
+		close: function(args) {
+			var mw = this._modalWin;
+			if (mw) {
+				UI._removeWindow(mw).destroy();
+				this._modalWin = null;
+			}
+			SuperView.prototype.close.apply(this, args);
+		},
+
 		constants: {
 			url: undef
 		},
@@ -45,11 +65,6 @@ define("Ti/UI/Window", ["Ti/_/declare", "Ti/Gesture", "Ti/_/UI/SuperView", "Ti/U
 					return value;
 				}
 			}
-		},
-
-		open: function(args) {
-			SuperView.prototype.open.apply(this, args);
-			this.setWindowTitle(this.title);
 		}
 
 	});

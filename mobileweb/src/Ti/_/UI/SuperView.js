@@ -3,21 +3,16 @@ define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI", "Ti/UI/View"],
 	var stack = [],
 		sessId = Math.random(),
 		hist = window.history || {},
-		ps = hist.pushState,
-		skip = { skipHistory: 1 };
+		ps = hist.pushState;
 
 	ps && require.on(window, "popstate", function(evt) {
 		var n = stack.length,
 			win = n && stack[n-1],
 			widgetId;
 
-		if (evt && evt.state && evt.state.sessId === sessId && (widgetId = evt.state.id) && n > 1) {
-			if (stack[n-2].widgetId !== widgetId) {
-				// forward
-				history.pushState(evt.state, "", "");
-			} else {
-				// back
-				win.close(skip);
+		if (evt && evt.state && evt.state.sessId === sessId && (widgetId = evt.state.id)) {
+			if (n > 1 && stack[n-2].widgetId === widgetId) {
+				win.close();
 				UI._setWindow(win = stack[stack.length-1]);
 				win.fireEvent("focus", win._state);
 			}
@@ -31,7 +26,7 @@ define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI", "Ti/UI/View"],
 	return declare("Ti._.UI.SuperView", View, {
 
 		destroy: function() {
-			this.close(skip);
+			this.close();
 			View.prototype.destroy.apply(this, arguments);
 		},
 
@@ -41,8 +36,7 @@ define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI", "Ti/UI/View"],
 
 			if (!this._opened) {
 				this._opened = 1;
-				this.show();
-				UI._addWindow(this);
+				UI._addWindow(this, 1).show();
 
 				active && active.fireEvent("blur", active._state);
 				ps && history[active ? "pushState" : "replaceState"]({ id: this.widgetId, sessId: sessId }, "", "");
@@ -62,8 +56,6 @@ define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI", "Ti/UI/View"],
 				this._stackIdx !== null && this._stackIdx < stack.length && stack.splice(this._stackIdx, 1);
 				this._stackIdx = null;
 				UI._setWindow(stack[stack.length-1]);
-
-				(!args || !args.skipHistory) && window.history.go(-1);
 
 				UI._doFullLayout();
 

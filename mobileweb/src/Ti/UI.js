@@ -37,9 +37,10 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 
 	return lang.setObject("Ti.UI", Evented, {
 
-		_addWindow: function(win) {
+		_addWindow: function(win, set) {
 			this._container.add(win);
-			this._setWindow(win);
+			set && this._setWindow(win);
+			return win;
 		},
 
 		_setWindow: function(win) {
@@ -48,6 +49,7 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 
 		_removeWindow: function(win) {
 			this._container.remove(win);
+			return win;
 		},
 
 		_doFullLayout: function() {

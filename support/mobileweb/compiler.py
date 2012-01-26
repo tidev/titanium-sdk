@@ -6,6 +6,13 @@
 
 import os, sys, re, shutil, time, base64, sgmllib, codecs, xml, datetime
 
+try:
+	import Image
+except:
+	print "\nERROR: Unabled to import module \"Image\"\n"
+	print "Run `sudo easy_install pil` to install the 'Image' module or download from http://www.pythonware.com/products/pil/\n"
+	sys.exit(1)
+
 # Add the Android support dir, since mako is located there, and import mako
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),"..", "android")))
 import mako.template
@@ -310,14 +317,15 @@ class Compiler(object):
 					# open(target_file,'wb').write(open(api_file,'rb').read())
 		
 		# copy the favicon
-		favicon_file = os.path.join(self.build_dir, 'favicon.ico')
 		icon_file = os.path.join(self.resources_dir, ti.properties['icon'])
-		if os.path.exists(icon_file) and icon_file.find('.png') != -1:
-			shutil.copy(icon_file, favicon_file)
+		fname, ext = os.path.splitext(icon_file)
+		ext = ext.lower()
+		if os.path.exists(icon_file) and (ext == '.png' or ext == '.jpg' or ext == '.gif'):
+			self.build_icons(icon_file)
 		else:
 			icon_file = os.path.join(self.resources_dir, 'mobileweb', 'appicon.png')
 			if os.path.exists(icon_file):
-				shutil.copy(icon_file, favicon_file)
+				self.build_icons(icon_file)
 		
 		if len(ti.app_properties):
 			titanium_js += '(function(p){'
@@ -429,8 +437,19 @@ class Compiler(object):
 #		o.write(i18n_content)
 #		o.close()
 		print "[INFO] Compiled %d files for %s" % (self.count,ti.properties['name'])
+	
+	def build_icon(self, src, filename, size):
+		img = Image.open(src)
+		resized = img.resize((size, size), Image.ANTIALIAS)
+		resized.save(os.path.join(self.build_dir, filename), 'png')
 		
-		
+	def build_icons(self, src):
+		self.build_icon(src, 'favicon.ico', 16)
+		self.build_icon(src, 'apple-touch-icon-precomposed.png', 57)
+		self.build_icon(src, 'apple-touch-icon-57x57-precomposed.png', 57)
+		self.build_icon(src, 'apple-touch-icon-72x72-precomposed.png', 72)
+		self.build_icon(src, 'apple-touch-icon-114x114-precomposed.png', 114)
+	
 	def load_api(self,file, api=""):
 		file_contents = codecs.open(file, 'r', 'utf-8').read()
 		if not self.debug and file.find('.js') != -1:
