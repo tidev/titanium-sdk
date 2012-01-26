@@ -93,7 +93,7 @@ properties:
     since: "1.7.0"
     
   - name: defaultImage
-    summary: Local URI of the default image to display while loading a remote image.
+    summary: Local path to the default image to display while loading a remote image.
     type: String
     
   - name: duration
