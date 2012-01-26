@@ -1,52 +1,116 @@
 ---
 name: Titanium.UI.2DMatrix
 summary: The 2D Matrix is an object for holding values for an affine transformation matrix.
-description: The 2DMatrix is created by <Titanium.UI.create2DMatrix>. A 2D matrix is used to rotate, scale, translate, or skew the objects in a two-dimensional space. A 2D matrix is represented by a 3 by 3 matrix. Because the third column is always (0,0,1), the data structure contains values for only the first two columns.
+description: |
+    A 2D matrix is used to rotate, scale, translate, or skew the objects in a two-dimensional space. 
+    A 2D affine transformation can be  represented by a 3 by 3 matrix:
 
-    You create an `identity matrix` by creating a 2D Matrix with an empty constructor.
+    <table>
+    <tr><td><i>a</i></td><td><i>b</i></td><td>0</td></tr>
+    <tr><td><i>c</i></td><td><i>d</i></td><td>0</td></tr>
+    <tr><td><i>tx</i></td><td><i>ty</i></td><td>1</td></tr>
+    </table>
+
+    The third column is constant (0,0,1). 
+
+    Use the <Titanium.UI.create2DMatrix> method to create a new 2D matrix.
+
+    On iOS, the matrix terms, `a`, `b`, `c`, `d`, `tx`, and `ty`, are available as
+    properties. You can create an initialized matrix by setting the matrix terms in 
+    the `create2DMatrix` method. If no terms are specified, `create2DMatrix` returns an 
+    identity matrix.
+    
+    On Android, the matrix terms are not available as properties, and `create2DMatrix`
+    always returns an identity matrix.
+
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [android, iphone, ipad]
 methods:
   - name: invert
-    summary: Returns a matrix constructed by inverting an existing matrix
-  - name: multiply
-    summary: Returns a matrix constructed by combining two existing matrix.
+    summary: Returns a matrix constructed by inverting this matrix.
     returns:
-        type: Object
+        type: Titanium.UI.2DMatrix
+  - name: multiply
+    summary: Returns a matrix constructed by combining two existing matrices.
+    description: |
+        This argument, `t2` is concatenated to the matrix instance against which the function is invoked.  
+        The resulting matrix is the result of multiplying this matrix by `t2`. You might 
+        perform several multiplications in order to create a single matrix that contains the cumulative 
+        effects of several transformations. 
+        
+        Note that matrix operations are not commutative -- the order in which you concatenate matrices 
+        is important. That is, the result of multiplying matrix `t1` by matrix `t2` does not necessarily 
+        equal the result of multiplying matrix `t2` by matrix `t1`.
+    returns:
+        type: Titanium.UI.2DMatrix
     parameters:
       - name: t2
-        summary: The second matrix. This matrix is concatenated to the matrix instance against which the function is invoked.  The result of this function is the first matrix multiplied by the second matrix. You might perform several multiplications in order to create a single matrix that contains the cumulative effects of several transformations. Note that matrix operations are not commutative - the order in which you concatenate matrices is important. That is, the result of multiplying matrix t1 by matrix t2 does not necessarily equal the result of multiplying matrix t2 by matrix t1.
-        type: Object
+        summary: The second matrix. 
+        type: Titanium.UI.2DMatrix
   - name: rotate
-    summary: Returns a matrix constructed by rotating an existing matrix
+    summary: Returns a matrix constructed by rotating this matrix.
+    description: |
+        A positive value specifies counter-clockwise rotation and a negative value 
+        specifies clockwise rotation.
+
+        Note that the resulting  matrix only expresses the final transformation, not the 
+        direction of the rotation. For example, the matrix produced by `m1.rotate(-10)`
+        is identical to the matrix produced by `m1.rotate(350)` and `m1.rotate(710)`.
+
+        Note that if you specify a rotation matrix as the `transform` property of an
+        animation, the animation animates the view from its current rotation to the 
+        rotation represented by the matrix by its shortest path. So to rotate a view 
+        in a complete circle, the easiest method is to chain together three animations,
+        rotating 120 degrees each time.
+
+        On Android, there is a second `rotate` method that takes two arguments, which can
+        be used to specify rotations for animation.
     returns:
-        type: Object
+        type: Titanium.UI.2DMatrix
     parameters:
       - name: angle
-        summary: The angle, in degrees, by which to rotate the matrix. A positive value specifies counterclockwise rotation and a negative value specifies clockwise rotation.
+        summary: Angle, in degrees, by which to rotate the matrix. 
         type: Number
-  - name: scale
-    summary: Returns a matrix constructed by scaling an existing matrix
+  - name: rotate
+    summary: |
+        Returns a matrix constructed by rotating this matrix from one angle to
+        another.
+    description: |
+        This method returns a matrix that expresses a rotation from a given angle to
+        another angle. This is an Android-specific method used for creating rotation 
+        animations.
     returns:
-        type: Object
+        type: Titanium.UI.2DMatrix
+    parameters:
+      - name: fromAngle
+        summary: Starting angle for rotation.
+        type: Number
+      - name: toAngle
+        summary: Ending angle for rotation.
+        type: Number
+    platforms: [android]
+  - name: scale
+    summary: Returns a matrix constructed by applying a scale transform to this matrix.
+    returns:
+        type: Titanium.UI.2DMatrix
     parameters:
       - name: sx
-        summary: The value by which to scale x values of the matrix
+        summary: Horizontal scaling factor.
         type: Number
       - name: sy
-        summary: The value by which to scale y values of the matrix
+        summary: Vertical scaling factor.
         type: Number
   - name: translate
-    summary: Returns a matrix constructed by translating an existing matrix
+    summary: Returns a matrix constructed by applying a translation transform to this matrix.
     returns:
-        type: Object
+        type: Titanium.UI.2DMatrix
     parameters:
       - name: tx
-        summary: The value by which to move x values with the matrix
+        summary: Horizontal component of the translation.
         type: Number
       - name: ty
-        summary: The value by which to move y values with the matrix
+        summary: Vertical component of the translation.
         type: Number
 properties:
   - name: a
