@@ -25,29 +25,29 @@ excludes: { events: [ 'dblclick', 'longclick', 'swipe', 'twofingertap' ] }
 methods:
   - name: addView
     summary: Adds a new view to this Scrollable View.
-    platforms: [android]
     parameters:
       - name: view
         summary: The view to add.
         type: Object
 
   - name: moveNext
-    platforms: [android]
     summary: |
         Sets the current page to the next consecutive view in <Titanium.UI.ScrollableView.views>.
-
-  - name: movePrevious
     platforms: [android]
+    
+  - name: movePrevious
     summary: |
         Sets the current page to the previous consecutive view in <Titanium.UI.ScrollableView.views>.
-
+    platforms: [android]
+    
   - name: removeView
-    summary: Removes an existing view from this Scrollable View.
+    summary: |
+        Removes an existing view from this Scrollable View. Does nothing if view proivded does 
+        not exist.
     parameters:
       - name: view
         summary: |
-            An integer index (iPhone, iPad) or a <Titanium.UI.View> object (Android) of the view 
-            to remove.
+            A <Titanium.UI.View> object or integer index (iPhone, iPad only) of a view to remove.
         type: [Number, Object]
     
   - name: scrollToView
@@ -149,27 +149,9 @@ events:
         summary: Index of the current view of <Titanium.UI.ScrollableView.views>.
         type: Number
         
-      - name: x
-        summary: X coordinate of the event from the `source` view.
-        type: Number
-        platforms: [iphone, ipad]
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view.
-        type: Number
-        platforms: [iphone, ipad]
-        
-      - name: globalPoint
-        summary: |
-            Dictionary with properties `x` and `y` describing the location of the event in screen 
-            coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-        
       - name: view
         summary: The current view.
-        type: <Titanium.UI.View>
+        type: Object
     
   - name: singletap
     summary: Fired when the device detects a single tap against this view.
