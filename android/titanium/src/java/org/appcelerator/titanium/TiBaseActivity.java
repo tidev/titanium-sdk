@@ -655,7 +655,10 @@ public abstract class TiBaseActivity extends Activity
 		updateTitle();
 		
 		if (window != null) {
-			window.fireEvent(TiC.EVENT_FOCUS, null);
+			//we dont need to fire focus if its a tab, b/c onTabChanged in TiUITabGroup will do that for us
+			if (!(this instanceof TiActivity && ((TiActivity)this).isTab())) {
+				window.fireEvent(TiC.EVENT_FOCUS, null);
+			}
 
 		} else {
 			mustFireInitialFocus = true;

@@ -32,7 +32,6 @@ public class TiUITabGroup extends TiUIView
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private TabHost tabHost;
-	private boolean addingTab;
 
 	private String lastTabId;
 	private KrollDict tabChangeEventData;
@@ -67,9 +66,7 @@ public class TiUITabGroup extends TiUIView
 
 	public void addTab(TabSpec tab, final TabProxy tabProxy)
 	{
-		addingTab = true;
 		tabHost.addTab(tab);
-		addingTab = false;
 		if (tabHost.getVisibility() == View.GONE) {
 			boolean visibilityPerProxy = true; // default
 			if (proxy.hasProperty(TiC.PROPERTY_VISIBLE)) {
@@ -130,16 +127,21 @@ public class TiUITabGroup extends TiUIView
 			Log.d(LCAT,"Tab change from " + lastTabId + " to " + id);
 		}
 
-		proxy.setProperty(TiC.PROPERTY_ACTIVE_TAB, tabGroupProxy.getTabList().get (tabHost.getCurrentTab()));
+		TabProxy currentTab = tabGroupProxy.getTabList().get (tabHost.getCurrentTab());
+		proxy.setProperty(TiC.PROPERTY_ACTIVE_TAB, currentTab);
 
-		if (!addingTab) {
-			if (tabChangeEventData != null) {
-				proxy.fireEvent(TiC.EVENT_BLUR, tabChangeEventData);
-			}
-			
-			tabChangeEventData = tabGroupProxy.buildFocusEvent(id, lastTabId);
-			proxy.fireEvent(TiC.EVENT_FOCUS, tabChangeEventData);
+		if (tabChangeEventData != null) {
+			//fire blur on current tab as well as its window
+			currentTab.fireEvent(TiC.EVENT_BLUR, tabChangeEventData);
+			currentTab.getWindow().fireEvent(TiC.EVENT_BLUR, null);
 		}
+			
+		tabChangeEventData = tabGroupProxy.buildFocusEvent(id, lastTabId);
+		//fire focus on current tab as well as its window
+		currentTab.fireEvent(TiC.EVENT_FOCUS, tabChangeEventData);
+		currentTab.getWindow().fireEvent(TiC.EVENT_FOCUS, null);
+			
+		
 		
 		lastTabId = id;
 	}
