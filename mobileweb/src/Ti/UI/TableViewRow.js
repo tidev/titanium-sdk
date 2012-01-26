@@ -3,9 +3,10 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 	var set = style.set,
 		undef,
 		isDef = require.isDef,
-		checkImage = "theme/titanium/UI/TableViewRow/check.png",
-		childImage = "theme/titanium/UI/TableViewRow/child.png",
-		detailImage = "theme/titanium/UI/TableViewRow/detail.png";
+		imagePrefix = "themes/titanium/UI/TableViewRow/"
+		checkImage = imagePrefix + "check.png",
+		childImage = imagePrefix + "child.png",
+		detailImage = imagePrefix + "detail.png";
 
 	return declare("Ti.UI.TableViewRow", View, {
 		
