@@ -40,7 +40,7 @@ methods:
         type: String
   - name: stopLoading
     summary: stop loading a currently loading page
-    note: For Mobile Web, due to browser permissions, this will issue a stop on all windows include the parent and all other webviews.
+    note: For Mobile Web, due to browser permissions, this will issue a stop on all windows including the parent and all other webviews.
 events:
   - name: beforeload
     summary: fired before the webview starts loading its content
