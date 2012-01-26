@@ -81,6 +81,7 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
+import org.appcelerator.titanium.io.TiResourceFile;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 
@@ -877,14 +878,23 @@ public class TiHTTPClient
 	public int addTitaniumFileAsPostData(String name, Object value)
 	{
 		try {
-			if (value instanceof TiBaseFile) {
+			// TiResourceFile cannot use the FileBody approach directly, because it requires
+			// a java File object, which you can't get from packaged resources. So
+			// TiResourceFile uses the approach we use for blobs, which is write out the
+			// contents to a temp file, then use that for the FileBody.
+			if (value instanceof TiBaseFile && !(value instanceof TiResourceFile)) {
 				TiBaseFile baseFile = (TiBaseFile) value;
 				FileBody body = new FileBody(baseFile.getNativeFile(), TiMimeTypeHelper.getMimeType(baseFile.nativePath()));
 				parts.put(name, body);
 				return (int)baseFile.getNativeFile().length();
 
-			} else if (value instanceof TiBlob) {
-				TiBlob blob = (TiBlob) value;
+			} else if (value instanceof TiBlob || value instanceof TiResourceFile) {
+				TiBlob blob;
+				if (value instanceof TiBlob) {
+					blob = (TiBlob) value;
+				} else {
+					blob = ((TiResourceFile) value).read();
+				}
 				String mimeType = blob.getMimeType();
 				File tmpFile = File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
 				FileOutputStream fos = new FileOutputStream(tmpFile);
