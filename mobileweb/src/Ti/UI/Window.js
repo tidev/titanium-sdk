@@ -72,14 +72,6 @@ define("Ti/UI/Window", ["Ti/_/declare", "Ti/Gesture", "Ti/_/UI/SuperView", "Ti/U
 		open: function() {
 			SuperView.prototype.open.apply(this);
 			this.setWindowTitle(this.title);
-			this.fireEvent("open", { source: null });
-			this.fireEvent("focus", { source: this.domNode });
-		},
-
-		close: function() {
-			SuperView.prototype.close.apply(this, arguments);
-			this.fireEvent("blur", { source: this.domNode });
-			this.fireEvent("close", { source: null });
 		}
 
 	});

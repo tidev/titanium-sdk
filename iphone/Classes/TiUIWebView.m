@@ -143,6 +143,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
+    [super frameSizeChanged:frame bounds:bounds];
 	if (webview!=nil)
 	{
 		[TiUtils setView:webview positionRect:bounds];

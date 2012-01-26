@@ -466,6 +466,7 @@
 			cached = defCache[_t.name],
 			fireCallbacks = function() {
 				each(_t.callbacks, function(c) { c(_t); });
+				_t.callbacks = [];
 			},
 			onLoad = function(rawDef) {
 				_t.loaded = 1;
@@ -495,7 +496,7 @@
 		callback && _t.callbacks.push(callback);
 
 		// if we don't have a url, then I suppose we're loaded
-		if (!_t.url) {
+		if (_t.executed || !_t.url) {
 			_t.loaded = 1;
 			fireCallbacks();
 			return;
@@ -635,12 +636,12 @@
 			moduleName = module.name;
 
 		if (name in module.cjs) {
-			module.def = module[name];
+			module.def = module.cjs[name];
 			module.loaded = module.executed = 1;
 			return module;
 		}
 
-		return dontCache || !moduleName ? module : (!modules[moduleName] || overrideCache ? (modules[moduleName] = module) : modules[moduleName]);
+		return dontCache || !moduleName ? module : (!modules[moduleName] || !modules[moduleName].executed || overrideCache ? (modules[moduleName] = module) : modules[moduleName]);
 	}
 
 	function processDefQ(module) {
@@ -716,7 +717,7 @@
 		}
 
 		for (i = 0, l = count = deps.length; i < l; i++) {
-			deps[i] && (function(idx, name) {
+			deps[i] && (function(idx) {
 				getResourceDef(deps[idx], refModule).load(!!sync, function(m) {
 					m.execute(function() {
 						deps[idx] = m.def;
@@ -726,7 +727,7 @@
 						}
 					});
 				});
-			}(i, deps[i]));
+			}(i));
 		}
 
 		count === 0 && success && success(deps);
@@ -1047,27 +1048,40 @@
 
 require.cache({
 	"Ti/_": function() {
-		define({
-			getAbsolutePath: function(path) {
-				/^app\:\/\//.test(path) && (path = path.substring(6));
-				/^\//.test(path) && (path = path.substring(1));
-				return /^\/\//.test(path) || path.indexOf("://") > 0 ? path : location.pathname.replace(/(.*)\/.*/, "$1") + "/" + path;
-			},
-			uuid: function() {
-				/**
-				 * Math.uuid.js (v1.4)
-				 * Copyright (c) 2010 Robert Kieffer
-				 * Dual licensed under the MIT and GPL licenses.
-				 * <http://www.broofa.com>
-				 * mailto:robert@broofa.com
-				 */
-				// RFC4122v4 solution:
-				return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-					var r = Math.random() * 16 | 0,
-						v = c == 'x' ? r : (r & 0x3 | 0x8);
-					return v.toString(16);
-				}).toUpperCase();
-			}
+		define(function() {
+			// Pre-calculate the screen DPI
+			var body = document.body,
+				measureDiv = document.createElement('div'),
+				dpi;
+			measureDiv.style.width = "1in";
+			measureDiv.style.visibility = "hidden";
+			body.appendChild(measureDiv);
+			dpi = parseInt(measureDiv.clientWidth);
+			body.removeChild(measureDiv);
+
+			return {
+				dpi: dpi,
+				getAbsolutePath: function(path) {
+					/^app\:\/\//.test(path) && (path = path.substring(6));
+					/^\//.test(path) && (path = path.substring(1));
+					return /^\/\//.test(path) || path.indexOf("://") > 0 ? path : location.pathname.replace(/(.*)\/.*/, "$1") + "/" + path;
+				},
+				uuid: function() {
+					/**
+					 * Math.uuid.js (v1.4)
+					 * Copyright (c) 2010 Robert Kieffer
+					 * Dual licensed under the MIT and GPL licenses.
+					 * <http://www.broofa.com>
+					 * mailto:robert@broofa.com
+					 */
+					// RFC4122v4 solution:
+					return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+						var r = Math.random() * 16 | 0,
+							v = c == 'x' ? r : (r & 0x3 | 0x8);
+						return v.toString(16);
+					}).toUpperCase();
+				}
+			};
 		});
 	},
 	"Ti/_/browser": function() {
@@ -1124,7 +1138,8 @@ require.cache({
 			 */
 
 			var is = require.is,
-				mix = require.mix;
+				mix = require.mix,
+				classCounters = {};
 
 			// C3 Method Resolution Order (see http://www.python.org/download/releases/2.3/mro/)
 			function c3mro(bases, className) {
@@ -1211,7 +1226,11 @@ require.cache({
 						a0 = a[0],
 						f, i, m, p,
 						l = bases.length,
-						preArgs;
+						preArgs,
+						dc = this.declaredClass;
+
+					classCounters[dc] || (classCounters[dc] = 0);
+					this.widgetId = dc + ":" + (classCounters[dc]++);
 
 					// 1) call two types of the preamble
 					if (ctorSpecial && (a0 && a0.preamble || this.preamble)) {
@@ -1392,7 +1411,7 @@ require.cache({
 		});
 	},
 	"Ti/_/dom": function() {
-		define(["Ti/_/style"], function(style) {
+		define(["Ti/_", "Ti/_/style"], function(_, style) {
 			/**
 			 * create(), attr(), place(), & remove() functionality based on code from Dojo Toolkit.
 			 *
@@ -1427,54 +1446,65 @@ require.cache({
 					frameborder: "frameBorder",
 					rowspan: "rowSpan",
 					valuetype: "valueType"
+				},
+				attr = {
+					add: function(node, name, value) {
+						if (arguments.length === 2) {
+							// the object form of setter: the 2nd argument is a dictionary
+							for (var x in name) {
+								attr.add(node, x, name[x]);
+							}
+							return node;
+						}
+
+						var lc = name.toLowerCase(),
+							propName = names[lc] || name,
+							forceProp = forcePropNames[propName],
+							attrId, h;
+
+						if (propName === "style" && !require.is(value, "String")) {
+							return style.set(node, value);
+						}
+
+						if (forceProp || is(value, "Boolean") || is(value, "Function")) {
+							node[name] = value;
+							return node;
+						}
+
+						// node's attribute
+						node.setAttribute(attrNames[lc] || name, value);
+						return node;
+					},
+					remove: function(node, name) {
+						node.removeAttribute(name);
+						return node;
+					}
 				};
 
 			return {
 				create: function(tag, attrs, refNode, pos) {
 					var doc = refNode ? refNode.ownerDocument : document;
 					is(tag, "String") && (tag = doc.createElement(tag));
-					attrs && this.attr(tag, attrs);
+					attrs && attr.add(tag, attrs);
 					refNode && this.place(tag, refNode, pos);
 					return tag;
 				},
 
-				attr: function(node, name, value) {
-					if (arguments.length === 2) {
-						// the object form of setter: the 2nd argument is a dictionary
-						for (var x in name) {
-							this.attr(node, x, name[x]);
-						}
-						return node;
-					}
-
-					var lc = name.toLowerCase(),
-						propName = names[lc] || name,
-						forceProp = forcePropNames[propName],
-						attrId, h;
-
-					if (propName === "style" && !require.is(value, "String")) {
-						return style.set(node, value);
-					}
-
-					if (forceProp || is(value, "Boolean") || is(value, "Function")) {
-						node[name] = value;
-						return node;
-					}
-
-					// node's attribute
-					node.setAttribute(attrNames[lc] || name, value);
-					return node;
-				},
+				attr: attr,
 
 				place: function(node, refNode, pos) {
 					refNode.appendChild(node);
 					return node;
 				},
 
+				detach: function(node) {
+					return node.parentNode && node.parentNode.removeChild(node);
+				},
+
 				destroy: function(node) {
 					try {
 						var destroyContainer = node.ownerDocument.createElement("div");
-						destroyContainer.appendChild(node.parentNode ? node.parentNode.removeChild(node) : node);
+						destroyContainer.appendChild(this.detach(node) || node);
 						destroyContainer.innerHTML = "";
 					} catch(e) {
 						/* squelch */
@@ -1485,47 +1515,63 @@ require.cache({
 					return isNaN(x-0) || x-0 != x ? x : x + "px"; // note: must be != and not !==
 				},
 
-				computeSize: function(x,totalLength) {
-					if (!require.is(x,"Number") && !require.is(x,"String")) {
-						return;
+				computeSize: function(x, totalLength, convertAutoToUndef) {
+					var undef,
+						type = require.is(x);
+
+					if (type === "String") {
+						if (x === "auto") {
+							convertAutoToUndef && (x = undef);
+						} else {
+							var value = parseFloat(x),
+								units = x.substring((value + "").length);
+
+							switch(units) {
+								case "%":
+									if(totalLength == "auto") {
+										return "auto";
+									} else if (!require.is(totalLength,"Number")) {
+										console.error("Could not compute percentage size/position of element.");
+										return;
+									} 
+									return value / 100 * totalLength;
+								case "mm":
+									value *= 10;
+								case "cm":
+									return value * 0.0393700787 * _.dpi;
+								case "pc":
+									dpi /= 12;
+								case "pt":
+									dpi /= 72;
+								case "in":
+									return value * _.dpi;
+								case "px":
+								case "dp":
+									return value;
+							}
+						}
+					} else if (type !== "Number") {
+						x = undef;
 					}
-					if (x === "auto" || require.is(x,"Number")) {
-						return x;
-					} else {
-						var value = parseFloat(x),
-							units = x.substring((value + "").length),
-							dpi = Ti.Platform.DisplayCaps.dpi,
-							undef;
-						
-						function processMM(x) {
-							// Convert mm to in for this calculation
-							return x * 0.03937007874015748 * dpi;
-						}
-						
-						function processIN(x) {
-							return x * dpi;
-						}
-						
-						switch(units) {
-							case "%":
-								if(totalLength == "auto") {
-									return "auto";
-								} else if (!require.is(totalLength,"Number")) {
-									console.error("Could not compute percentage size/position of element.");
-									return;
-								} 
-								return value / 100 * totalLength;
-							case "mm": return processMM(value);
-							case "cm": return processMM(value * 10);
-							case "in": return processIN(value);
-							case "pt": return processIN(value / 72);
-							case "pc": return processIN(value / 864);
-							case "px": return value;
-							case "dp": return value;
-						}
-					}
+
+					return x;
 				}
 			};
+		});
+	},
+	"Ti/_/event": function() {
+		define({
+			stop: function(e) {
+				if (e) {
+					e.preventDefault && e.preventDefault();
+					e.stopPropagation && e.stopPropagation();
+				}
+			},
+			off: function(handles) {
+				require.each(require.is(handles, "Array") ? handles : [handles], function(h) {
+					h && h();
+				});
+			}
 		});
 	},
 	"Ti/_/include": function() {
@@ -1596,6 +1642,7 @@ require.cache({
 			 */
 
 			var global = this,
+				hitch,
 				is = require.is;
 
 			function toArray(obj, offset) {
@@ -1604,7 +1651,7 @@ require.cache({
 
 			function hitchArgs(scope, method) {
 				var pre = toArray(arguments, 2);
-					named = require.is(method, "String");
+					named = is(method, "String");
 				return function() {
 					var s = scope || global,
 						f = named ? s[method] : method;
@@ -1613,7 +1660,11 @@ require.cache({
 			}
 
 			return {
-				hitch: function(scope, method) {
+				val: function(originalValue, defaultValue) {
+					return is(originalValue, "Undefined") ? defaultValue : originalValue;
+				},
+
+				hitch: hitch = function(scope, method) {
 					if (arguments.length > 2) {
 						return hitchArgs.apply(global, arguments);
 					}
@@ -1621,7 +1672,7 @@ require.cache({
 						method = scope;
 						scope = null;
 					}
-					if (require.is(method, "String")) {
+					if (is(method, "String")) {
 						scope = scope || global;
 						if (!scope[method]) {
 							throw(['hitch: scope["', method, '"] is null (scope="', scope, '")'].join(''));
@@ -1646,9 +1697,11 @@ require.cache({
 									(function(property, externalDest, internalDest, valueDest, /* setter/getter, getter, or value */ descriptor, capitalizedName, writable) {
 										var o = is(descriptor, "Object"),
 											getter = o && is(descriptor.get, "Function") && descriptor.get,
-											setter = o && is(descriptor.set, "Function") && descriptor.set;
+											setter = o && is(descriptor.set, "Function") && descriptor.set,
+											pt = o && is(descriptor.post),
+											post = pt === "Function" ? descriptor.post : pt === "String" ? hitch(externalDest, descriptor.post) : 0;
 
-										if (o && (getter || setter)) {
+										if (o && (getter || setter || post)) {
 											valueDest[property] = descriptor.value;
 										} else if (is(descriptor, "Function")) {
 											getter = descriptor;
@@ -1662,7 +1715,9 @@ require.cache({
 												return getter ? getter.call(externalDest, valueDest[property]) : valueDest[property];
 											},
 											set: function(v) {
-												valueDest[property] = setter ? setter.call(externalDest, v, valueDest[property]) : v;
+												var args = [v, valueDest[property]];
+												args[0] = valueDest[property] = setter ? setter.apply(externalDest, args) : v;
+												post && post.apply(externalDest, args);
 											},
 											configurable: true,
 											enumerable: true
@@ -1803,17 +1858,20 @@ require.cache({
 				var i = 0,
 					x,
 					uc;
-				if (arguments.length > 2) {
-					while (i < vp.length) {
-						x = vp[i++];
-						x += x ? uc || (uc = string.capitalize(name)) : name;
-						if (x in node.style) {
-							return node.style[x] = value;
+				if (node) {
+					if (arguments.length > 2) {
+						while (i < vp.length) {
+							x = vp[i++];
+							x += x ? uc || (uc = string.capitalize(name)) : name;
+							if (x in node.style) {
+								require.each(require.is(value, "Array") ? value : [value], function(v) { node.style[x] = v; });
+								return value;
+							}
 						}
-					}
-				} else {
-					for (x in name) {
-						set(node, x, name[x]);
+					} else {
+						for (x in name) {
+							set(node, x, name[x]);
+						}
 					}
 				}
 				return node;
@@ -1821,7 +1879,7 @@ require.cache({
 
 			return {
 				url: function(url) {
-					return !url ? "" : /^url\(/.test(url) ? url : "url(" + _.getAbsolutePath(url) + ")";
+					return !url || url === "none" ? "" : /^url\(/.test(url) ? url : "url(" + _.getAbsolutePath(url) + ")";
 				},
 
 				get: function(node, name) {

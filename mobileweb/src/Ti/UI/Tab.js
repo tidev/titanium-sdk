@@ -1,49 +1,76 @@
-define("Ti/UI/Tab", ["Ti/_/declare", "Ti/_/UI/SuperView"], function(declare, SuperView) {
+define("Ti/UI/Tab", ["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, lang, View, dom, css, style) {
 
-	var undef;
+	var set = style.set,
+		undef;
 
-	return declare("Ti.UI.Tab", SuperView, {
+	return declare("Ti.UI.Tab", View, {
 
-		_defaultWidth: "100%",
-		_defaultHeight: "100%",
-		
+		constructor: function(args) {
+			this._windows = [];
+
+			this._contentContainer = dom.create("div", {
+				className: "TiUIButtonContentContainer",
+				style: {
+					width: "100%",
+					height: "100%",
+					display: ["-webkit-box", "-moz-box"],
+					boxOrient: "horizontal",
+					boxPack: "center",
+					boxAlign: "center"
+				}
+			}, this.domNode);
+
+			this._tabIcon = dom.create("img", {
+				className: "TiUIButtonImage"
+			}, this._contentContainer);
+
+			this._tabTitle = dom.create("div", {
+				className: "TiUIButtonTitle",
+				style: {
+					whiteSpace: "nowrap"
+				}
+			}, this._contentContainer);
+
+			require.on(this.domNode, "click", this, function(e) {
+				this._tabGroup && this._tabGroup.setActiveTab(this);
+			});
+		},
+
+		open: function(win, args) {
+			win = win || this.window;
+			this._windows.push(win);
+			win.open(args);
+		},
+
+		close: function(args) {
+			var win = this._windows.pop();
+			win && win.close(args);
+		},
+
+		_defaultWidth: "auto",
+		_defaultHeight: "auto",
+		_tabGroup: null,
+		_tabWidth: "100%",
+
 		properties: {
 			active: {
 				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Tab#.active" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Tab#.active" is not implemented yet.');
-					return value;
+					return this._tabGroup && this._tabGroup.activeTab === this;
 				}
 			},
-			
+
 			icon: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Tab#.icon" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Tab#.icon" is not implemented yet.');
-					return value;
+					return this._tabIcon.src = value;
 				}
 			},
-			
+
 			title: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Tab#.title" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Tab#.title" is not implemented yet.');
-					return value;
+					return this._tabTitle.innerHTML = value;
 				}
 			},
-			
+
 			titleid: {
 				get: function(value) {
 					// TODO
@@ -55,15 +82,24 @@ define("Ti/UI/Tab", ["Ti/_/declare", "Ti/_/UI/SuperView"], function(declare, Sup
 					return value;
 				}
 			},
-			
-			"window": {
+
+			// Override width and height
+			width: function(value) {
+				return this._tabWidth;
+			},
+
+			// Override width and height
+			height: function(value) {
+				return "100%";
+			},
+
+			window: {
 				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Tab#.window" is not implemented yet.');
-					return value;
+					var w = this._windows;
+					return value ? value : w.length ? w[0] : null;
 				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Tab#.window" is not implemented yet.');
+					this._windows.unshift(value);
 					return value;
 				}
 			}

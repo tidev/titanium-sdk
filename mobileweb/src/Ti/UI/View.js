@@ -19,6 +19,19 @@ define("Ti/UI/View",
 			Ti.UI._doFullLayout();
 		},
 
+		_insertAt: function(view,index) {
+			if (index > this.children.length || index < 0) {
+				return;
+			} else if (index === this.children.length) {
+				this.add(view);
+			} else {
+				view._parent = this;
+				this.containerNode.insertBefore(view.domNode,this.children[index].domNode);
+				this.children.splice(index,0,view);
+				Ti.UI._doFullLayout();
+			}
+		},
+
 		remove: function(view) {
 			var i = 0,
 				l = this.children.length;
@@ -28,19 +41,23 @@ define("Ti/UI/View",
 					break;
 				}
 			}
-			dom.destroy(view.domNode);
+			dom.detach(view.domNode);
 			Ti.UI._doFullLayout();
 		},
-		
+
 		destroy: function() {
-			var i = 0,
-				l = this.children.length;
-			for (; i < l; i++) {
-				this.children[i].destroy();
+			if (!this._destroyed) {
+				var i = 0,
+					l = this.children.length;
+				for (; i < l; i++) {
+					this.children[i].destroy();
+					this.children[i] = null;
+				}
+				this.children = null;
+				Element.prototype.destroy.apply(this, arguments);
 			}
-			Element.prototype.destroy.apply(this, arguments);
 		},
-	
+
 		_defaultWidth: "100%",
 		_defaultHeight: "100%",
 

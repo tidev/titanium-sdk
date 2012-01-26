@@ -95,6 +95,7 @@ DEFINE_EXCEPTIONS
 			[TiUtils setView:child positionRect:bounds];
 		}
 	}
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 -(void)timerFired:(id)arg
@@ -481,6 +482,7 @@ DEFINE_EXCEPTIONS
 		// we use a separate container view so we can both have an image
 		// and a set of images
 		container = [[UIView alloc] initWithFrame:self.bounds];
+		container.userInteractionEnabled = NO;
 		[self addSubview:container];
 	}
 	return container;

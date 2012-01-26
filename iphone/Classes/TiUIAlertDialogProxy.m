@@ -15,6 +15,13 @@ static BOOL alertShowing = NO;
 
 -(void)_destroy
 {
+    if (alert != nil) {
+        [alertCondition lock];
+        alertShowing = NO;
+        [alertCondition broadcast];
+        [alertCondition unlock];
+    }
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 	RELEASE_TO_NIL(alert);
 	[super _destroy];
 }
