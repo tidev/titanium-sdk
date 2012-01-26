@@ -72,6 +72,7 @@ def dequote(s):
 
 # force kill the simulator if running
 def kill_simulator():
+	run.run(['/usr/bin/killall',"ios-sim"],True)
 	run.run(['/usr/bin/killall',"iPhone Simulator"],True)
 
 def write_project_property(f,prop,val):
@@ -1298,7 +1299,7 @@ def main(args):
 					def handler(signum, frame):
 						global script_ok
 						print "[INFO] Simulator is exiting"
-						sys.stdout.flush()
+						
 						if not log == None:
 							try:
 								os.system("kill -2 %s" % str(log.pid))
