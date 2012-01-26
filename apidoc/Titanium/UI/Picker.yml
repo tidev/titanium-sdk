@@ -19,14 +19,56 @@ methods:
         summary: An array of rows, a single row or a column.
         type: [Array<Titanium.UI.PickerRow>, Titanium.UI.PickerRow, Titanium.UI.PickerColumn]
     
+  - name: addDefault
+    summary: Insert summary here
+    platforms: [iphone, ipad]
+
+  - name: addPickerColumn
+    summary: |
+        Adds a column to this picker, created from the provided dictionary of `PickerColumn` 
+        properties.
+    parameters:
+      - name: dictObj
+        summary: Dictionary of <Titanium.UI.PickerColumn> properties.
+        type: Dictionary
+    platforms: [iphone, ipad]
+
+  - name: addPickerRow
+    summary: |
+        Adds a row to this picker, created from the provided dictionary of `PickerRow` 
+        properties.
+    parameters:
+      - name: dictObj
+        summary: Dictionary of <Titanium.UI.PickerRow> properties.
+        type: Dictionary
+    platforms: [iphone, ipad]
+
+  - name: addRowOfColumns
+    summary: Insert summary here
+    platforms: [iphone, ipad]
+
+  - name: addRowOfDicts
+    summary: Insert summary here
+    platforms: [iphone, ipad]
+
+  - name: columnAt
+    summary: Returns column at specified index.
+    parameters:
+      - name: index
+        summary: Index of column.
+        type: Number
+    returns: 
+      - type: Titanium.UI.PickerColumn
+    platforms: [iphone, ipad]
+
   - name: getSelectedRow
-    summary: Gets the selected row for a column, or `null` if none exist.
-    returns:
-      type: Titanium.UI.PickerRow
+    summary: Gets the selected row for a column, or `null` if none exists.
     parameters:
       - name: index
         summary: A column index.
         type: Number
+    returns: 
+      - type: Titanium.UI.PickerRow
     
   - name: reloadColumn
     summary: Repopulates values for a column.
@@ -55,12 +97,22 @@ methods:
 
   - name: showDatePickerDialog
     summary: Shows Date picker as modal dialog.
+    description: See "Date Picker using showDatePickerDialog()" for an example.
     parameters:
       - name: dictObj
         summary: Dictionary object of `Titanium.UI.Picker` properties and a `callback` property.
         type: Object
     platforms: [android]
-        
+
+  - name: showTimePickerDialog
+    summary: Shows Time picker as modal dialog.
+    description: See "Date Picker using showDatePickerDialog()" for a similar example.
+    parameters:
+      - name: dictObj
+        summary: Dictionary object of `Titanium.UI.Picker` properties and a `callback` property.
+        type: Object
+    platforms: [android]
+
 events:
   - name: change
     summary: Fired when the value of any column's row is changed.

@@ -10,7 +10,7 @@ since: "0.9"
 platforms: [android, iphone, ipad]
 methods:
   - name: addRow
-    summary: Adda a row to this column.
+    summary: Adds a row to this column.
     parameters:
       - name: row
         summary: A row to add.
