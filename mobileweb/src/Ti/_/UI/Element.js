@@ -332,10 +332,10 @@ define("Ti/_/UI/Element",
 
 			// Set the default top/left if need be
 			if (left == "calculateAuto") {
-				left = this._centerHDefault ? computeSize("50%",parentWidth) - (is(width,"Number") ? width : 0) / 2 : 0;
+				left = this._centerHDefault && parentWidth !== "auto" ? computeSize("50%",parentWidth) - (is(width,"Number") ? width : 0) / 2 : 0;
 			}
 			if (top == "calculateAuto") {
-				top = this._centerVDefault ? computeSize("50%",parentHeight) - (is(height,"Number") ? height : 0) / 2 : 0;
+				top = this._centerVDefault && parentHeight !== "auto" ? computeSize("50%",parentHeight) - (is(height,"Number") ? height : 0) / 2 : 0;
 			}
 
 			// Apply the origin and border width
