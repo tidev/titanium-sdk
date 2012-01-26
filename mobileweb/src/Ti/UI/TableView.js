@@ -15,9 +15,9 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 			set(this.domNode,"overflow-y","auto");
 			
 			// Use horizontal layouts so that the default location is always (0,0)
-			this.add(this._header = Ti.UI.createView({height: 'auto', layout: 'horizontal'}));
+			this.add(this._header = Ti.UI.createView({height: 'auto', layout: 'vertical'}));
 			this.add(this._sections = Ti.UI.createView({height: 'auto', layout: 'vertical'}));
-			this.add(this._footer = Ti.UI.createView({height: 'auto', layout: 'horizontal'}));
+			this.add(this._footer = Ti.UI.createView({height: 'auto', layout: 'vertical'}));
 			
 			// Initializing to [] will also create the default section.
 			this.data = [];
@@ -59,7 +59,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 				visibleItemCount = 0,
 				scrollTop = this.domNode.scrollTop,
 				sections = this._sections.children;
-			for(var i = 0; i < sections.length; i++) {
+			for(var i = 0; i < sections.length; i+= 2) {
 				
 				// Check if the section is visible
 				var section = sections[i],
@@ -95,8 +95,48 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 			});
 		},
 		
+		_defaultWidth: "100%",
+		_defaultHeight: "100%",
+		_getContentOffset: function(){
+			return {x: this.domNode.scrollLeft, y: this.domNode.scrollTop};
+		},
+		
+		_handleTouchEvent: function(type, e) {
+			if (type === "click" || type === "singletap") {
+				e.row = this._tableViewRowClicked;
+				e.rowData = this._tableViewRowClicked;
+				e.index = this.rows.children.indexOf(this._tableViewRowClicked);
+				e.section = this._tableViewSectionClicked;
+				e.searchMode = false;
+			}
+			View.prototype._handleTouchEvent.apply(this,arguments);
+		},
+		
+		_tableViewRowClicked: null,
+		_tableViewSectionClicked: null,
+		
+		_createSeparator: function() {
+			return Ti.UI.createView({
+				height: 1,
+				width: "100%",
+				backgroundColor: "white"
+			});
+		},
+		
+		_createDecorationLabel: function(text) {
+			return Ti.UI.createLabel({
+				text: text, 
+				backgroundColor: this.separatorColor,
+				color: "white",
+				width: "100%",
+				height: "auto",
+				left: 0,
+				font: {fontSize: 22}
+			});
+		},
+		
 		_refreshSections: function() {
-			for (var i in this._sections.children) {
+			for (var i = 0; i < this._sections.children.length; i += 2) {
 				this._sections.children[i]._refreshRows();
 			}
 			Ti.UI._doFullLayout();
@@ -105,7 +145,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 		_calculateLocation: function(index) {
 			var currentOffset = 0,
 				section;
-			for(var i = 0; i < this._sections.children.length; i++) {
+			for(var i = 0; i < this._sections.children.length; i += 2) {
 				section = this._sections.children[i];
 				currentOffset += section.rowCount;
 				if (index < currentOffset) {
@@ -128,7 +168,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 		_insert: function(value, index) {
 			var location = this._calculateLocation(index);
 			if (location) {
-				location.section._insert(value,location.localIndex);
+				location.section.add(value,location.localIndex);
 			}
 			this._refreshSections();
 		},
@@ -141,7 +181,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 		},
 
 		appendRow: function(value) {
-			this._currentSection._insert(value);
+			this._currentSection.add(value);
 			this._refreshSections();
 		},
 		
@@ -150,16 +190,16 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 		},
 		
 		insertRowAfter: function(index, value) {
-			this._insert(value, index + 1);
+			this.add(value, index + 1);
 		},
 		
 		insertRowBefore: function(index, value) {
-			this._insert(value, index);
+			this.add(value, index);
 		},
 		
 		updateRow: function(index, row) {
 			this._remove(index);
-			this._insert(value, index);
+			this.add(value, index);
 		},
 		
 		scrollToIndex: function(index) {
@@ -173,35 +213,13 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 			this.domNode.scrollTop = top;
 		},
 		
-		_defaultWidth: "100%",
-		_defaultHeight: "100%",
-		_getContentOffset: function(){
-			return {x: this.domNode.scrollLeft, y: this.domNode.scrollTop};
-		},
-		
-		_handleTouchEvent: function(type, e) {
-			if (type === "click" || type === "singletap") {
-				e.row = this._tableViewRowClicked;
-				e.rowData = this._tableViewRowClicked;
-				e.index = this.rows.children.indexOf(this._tableViewRowClicked);
-				e.section = this._tableViewSectionClicked;
-				e.searchMode = false;
-			}
-			View.prototype._handleTouchEvent.apply(this,arguments);
-		},
-		
-		_tableViewRowClicked: null,
-		_tableViewSectionClicked: null,
-		
 		properties: {
 			data: {
 				set: function(value) {
 					if (is(value,'Array')) {
 						
 						// Remove all of the previous sections
-						for(var i in this._sections.children) {
-							this._sections.remove(this._sections.children[i]);
-						}
+						this._sections._removeAllChildren();
 						
 						// Convert any object literals to TableViewRow instances, and update TableViewRow instances with row info
 						for (var i in value) {
@@ -210,19 +228,21 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 							}
 						}
 			
-						// Create the default section
-						this._currentSection = Ti.UI.createTableViewSection({_tableView: this});
-						this._currentSection.findme = "findme";
-						this._sections.add(this._currentSection);
-						
 						// Add each element
 						for (var i = 0; i < value.length; i++) {
 							if (value[i].declaredClass === "Ti.UI.TableViewRow") {
-								this._currentSection._insert(value[i]);
+								// Check if the first item is a row, meaning we need a default section
+								if (i === 0) {
+									this._currentSection = Ti.UI.createTableViewSection({_tableView: this});
+									this._sections.add(this._currentSection);
+									this._sections.add(this._createSeparator());
+								}
+								this._currentSection.add(value[i]);
 							} else if (value[i].declaredClass === "Ti.UI.TableViewSection") {
 								this._currentSection = value[i];
 								this._currentSection._tableView = this;
 								this._sections.add(this._currentSection);
+								this._sections.add(this._createSeparator());
 							}
 						}
 						this._refreshSections();
@@ -237,9 +257,8 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 			footerTitle: {
 				set: function(value, oldValue) {
 					if (oldValue != value) {
-						this._footerTitleControl && this._footer.remove(this._footerTitleControl);
-						this._footer.add(this._footerTitleControl = Ti.UI.createLabel({text: value}));
-						Ti.UI._doFullLayout();
+						this._footer._removeAllChildren();
+						this._footer.add(this._createDecorationLabel(value));
 					}
 					return value;
 				}
@@ -247,9 +266,8 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 			footerView: {
 				set: function(value, oldValue) {
 					if (oldValue != value) {
-						this._footerTitleControl && this._footer.remove(this._footerTitleControl);
-						this._footer.add(this._footerTitleControl = value);
-						Ti.UI._doFullLayout();
+						this._footer._removeAllChildren();
+						this._footer.add(value);
 					}
 					return value;
 				}
@@ -257,9 +275,9 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 			headerTitle: {
 				set: function(value, oldValue) {
 					if (oldValue != value) {
-						this._headerTitleControl && this._header.remove(this._headerTitleControl);
-						this._header.add(this._headerTitleControl = Ti.UI.createLabel({text: value}));
-						Ti.UI._doFullLayout();
+						this._header._removeAllChildren();
+						this._header.add(this._createDecorationLabel(value));
+						this._header.add(this._createSeparator());
 					}
 					return value;
 				}
@@ -267,9 +285,8 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 			headerView: {
 				set: function(value, oldValue) {
 					if (oldValue != value) {
-						this._headerTitleControl && this._header.remove(this._headerTitleControl);
-						this._header.add(this._headerTitleControl = value);
-						Ti.UI._doFullLayout();
+						this._header._removeAllChildren();
+						this._header.add(value);
 					}
 					return value;
 				}

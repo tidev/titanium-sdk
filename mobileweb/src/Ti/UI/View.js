@@ -44,6 +44,13 @@ define("Ti/UI/View",
 			dom.detach(view.domNode);
 			Ti.UI._doFullLayout();
 		},
+		
+		_removeAllChildren: function(view) {
+			var children = this.children;
+			for(var i in children) {
+				this.remove(children[i]);
+			}
+		},
 
 		destroy: function() {
 			if (!this._destroyed) {

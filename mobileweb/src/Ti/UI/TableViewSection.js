@@ -11,9 +11,9 @@ define("Ti/UI/TableViewSection", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style"
 			
 			this._indexedContent = [];
 			
-			Widget.prototype.add.call(this,this._header = Ti.UI.createView({height: 'auto'}));
+			Widget.prototype.add.call(this,this._header = Ti.UI.createView({height: 'auto', layout: 'vertical'}));
 			Widget.prototype.add.call(this,this._rows = Ti.UI.createView({height: 'auto', layout: 'vertical'}));
-			Widget.prototype.add.call(this,this._footer = Ti.UI.createView({height: 'auto'}));
+			Widget.prototype.add.call(this,this._footer = Ti.UI.createView({height: 'auto', layout: 'vertical'}));
 			
 			// Create the parts out of Ti controls so we can make use of the layout system
 			this.layout = 'vertical';
@@ -37,6 +37,18 @@ define("Ti/UI/TableViewSection", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style"
 				height: showSeparator ? 1 : 0,
 				width: "100%",
 				backgroundColor: showSeparator ? this._tableView.separatorColor : "transparent"
+			});
+		},
+		
+		_createDecorationLabel: function(text) {
+			return Ti.UI.createLabel({
+				text: text, 
+				backgroundColor: this._tableView ? this._tableView.separatorColor : "lightGrey",
+				color: "white",
+				width: "100%",
+				height: "auto",
+				left: 0,
+				font: {fontSize: 18}
 			});
 		},
 		
@@ -129,17 +141,9 @@ define("Ti/UI/TableViewSection", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style"
 			footerTitle: {
 				set: function(value, oldValue) {
 					if (oldValue != value) {
-						this._footerTitleControl && this._footer.remove(this._footerTitleControl);
-						this._footer.add(this._footerTitleControl = Ti.UI.createLabel({
-							text: value, 
-							backgroundColor: this._tableView ? this._tableView.separatorColor : "lightGrey",
-							color: "white",
-							width: "100%",
-							height: "auto",
-							left: 0,
-							right: 0
-							}));
-						Ti.UI._doFullLayout();
+						this._footer._removeAllChildren();
+						this._footer.add(this._createDecorationLabel(value));
+						this._footer.add(this._createSeparator());
 					}
 					return value;
 				}
@@ -147,9 +151,8 @@ define("Ti/UI/TableViewSection", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style"
 			footerView: {
 				set: function(value, oldValue) {
 					if (oldValue != value) {
-						this._footerTitleControl && this._footer.remove(this._footerTitleControl);
-						this._footer.add(this._footerTitleControl = value);
-						Ti.UI._doFullLayout();
+						this._footer._removeAllChildren();
+						this._footer.add(value);
 					}
 					return value;
 				}
@@ -157,17 +160,9 @@ define("Ti/UI/TableViewSection", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style"
 			headerTitle: {
 				set: function(value, oldValue) {
 					if (oldValue != value) {
-						this._headerTitleControl && this._header.remove(this._headerTitleControl);
-						this._header.add(this._headerTitleControl = Ti.UI.createLabel({
-							text: value, 
-							backgroundColor: this._tableView ? this._tableView.separatorColor : "lightGrey",
-							color: "white",
-							width: "100%",
-							height: "auto",
-							left: 0,
-							right: 0
-							}));
-						Ti.UI._doFullLayout();
+						this._header._removeAllChildren();
+						this._header.add(this._createDecorationLabel(value));
+						this._header.add(this._createSeparator());
 					}
 					return value;
 				}
@@ -175,9 +170,8 @@ define("Ti/UI/TableViewSection", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style"
 			headerView: {
 				set: function(value, oldValue) {
 					if (oldValue != value) {
-						this._headerTitleControl && this._header.remove(this._headerTitleControl);
-						this._header.add(this._headerTitleControl = value);
-						Ti.UI._doFullLayout();
+						this._header._removeAllChildren();
+						this._header.add(value);
 					}
 					return value;
 				}

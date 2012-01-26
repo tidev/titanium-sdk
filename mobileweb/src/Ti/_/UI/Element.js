@@ -591,7 +591,7 @@ define("Ti/_/UI/Element",
 
 					output = type + "-gradient(" + output.join(",") + ")";
 
-					require.each(vendorPrefixes.css, function(p) {
+					require.each(require.config.vendorPrefixes.css, function(p) {
 						setStyle(this.domNode, "backgroundImage", p + output);
 					});
 
