@@ -13,7 +13,7 @@ methods:
   - name: field
     summary: |
         Retrieves the value for the specified field in the current row, 
-        and casts it to the specified type (String, integer, float or double.)
+        and casts it to the specified type (String, Integer, Float or Double.)
     returns:
       - type: String
       - type: Number
