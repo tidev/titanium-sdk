@@ -5,6 +5,8 @@ define("Ti/_/UI/TextBox",
 	return declare("Ti._.UI.TextBox", FontWidget, {
 
 		_field: null,
+		
+		_preventDefaultTouchEvent: false,
 
 		_initTextBox: function() {
 			// wire up events
@@ -105,9 +107,13 @@ define("Ti/_/UI/TextBox",
 			},
 
 			value: {
+				get: function() {
+					return this._field.value;
+				},
 				set: function(value) {
 					return this._capitalize(this._field.value = value);
-				}
+				},
+				value: ""
 			}
 		}
 

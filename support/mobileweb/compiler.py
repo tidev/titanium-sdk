@@ -429,6 +429,11 @@ class Compiler(object):
 		o = codecs.open(i18n_file,'w', encoding='utf-8')
 		o.write(i18n_content)
 		o.close()
+		
+		# Copy the themes
+		shutil.copytree(os.path.join(template_dir,'themes'),os.path.join(self.build_dir,'themes'))
+		
+		
 		print "[INFO] Compiled %d files for %s" % (self.count,ti.properties['name'])
 		
 		
