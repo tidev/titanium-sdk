@@ -83,6 +83,13 @@ static NSArray* imageKeySequence;
 	[iv pause];
 }
 
+-(void)resume:(id)args
+{
+	ENSURE_UI_THREAD(resume,args);
+	TiUIImageView *iv= (TiUIImageView*)[self view];
+	[iv resume];
+}
+
 -(void)viewWillDetach
 {
 	[self stop:nil];
