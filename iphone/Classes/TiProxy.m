@@ -989,37 +989,40 @@ DEFINE_EXCEPTIONS
 		dynprops = [[NSMutableDictionary alloc] init];
 	}
     
-	id propvalue = value;
-	
-	if (value == nil)
-	{
-		propvalue = [NSNull null];
-	}
-	else if (value == [NSNull null])
-	{
-		value = nil;
-	}
+    // TODO: Clarify internal difference between nil/NSNull
+    // (which represent different JS values, but possibly consistent internal behavior)
     
-	// notify our delegate
-	if (current!=value)
-	{
+    id propvalue = (value == nil) ? [NSNull null] : value;
+    
+    BOOL newValue = (current != propvalue && ![current isEqual:propvalue]);
+    
+    // We need to stage this out; the problem at hand is that some values
+    // we might store as properties (such as NSArray) use isEqual: as a
+    // strict address/hash comparison. So the notification must always
+    // occur, and it's up to the delegate to make sense of it (for now).
+    
+    if (newValue) {
         // Remember any proxies set on us so they don't get GC'd
         if ([propvalue isKindOfClass:[TiProxy class]]) {
             [self rememberProxy:propvalue];
         }
 		[dynprops setValue:propvalue forKey:key];
-		pthread_rwlock_unlock(&dynpropsLock);
-		if (self.modelDelegate!=nil && notify)
-		{
-			[[(NSObject*)self.modelDelegate retain] autorelease];
-			[self.modelDelegate propertyChanged:key oldValue:current newValue:value proxy:self];
-		}
-        if ([current isKindOfClass:[TiProxy class]]) {
-            [self forgetProxy:current];
-        }
-		return; // so we don't unlock twice
-	}
+    }
 	pthread_rwlock_unlock(&dynpropsLock);
+    
+    if (self.modelDelegate!=nil && notify)
+    {
+        [[(NSObject*)self.modelDelegate retain] autorelease];
+        [self.modelDelegate propertyChanged:key 
+                                   oldValue:current 
+                                   newValue:propvalue
+                                      proxy:self];
+    }
+    
+    // Forget any old proxies so that they get cleaned up
+    if (newValue && [current isKindOfClass:[TiProxy class]]) {
+        [self forgetProxy:current];
+    }
 }
 
 // TODO: Shouldn't we be forgetting proxies and unprotecting callbacks and such here?

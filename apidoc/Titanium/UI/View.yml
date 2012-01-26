@@ -19,7 +19,7 @@ description: |
     (160 DPI).
     
     iOS accepts sizes in Apple "points," where one "point" corresponds to one pixel on 
-    non-Retina displays, and two pixels on Retina displays. This unit is rougly equivalent
+    non-Retina displays, and two pixels on Retina displays. This unit is roughly equivalent
     to the Android density-independent pixel, and shouldn't be confused with the typographical
     unit. 
     
@@ -50,8 +50,10 @@ description: |
     property. See the description of the [layout](Titanium.UI.View.layout) property 
     for details.
     
-    The [size](Titanium.UI.View.size) field is an output field that supplies the *calculated* 
-    size of the view. The `size` field is a dictionary with two properties, `width` and `height`.
+    The [size](Titanium.UI.View.size) property is a read-only dictionary with 
+    two properties, `width` and `height`. It provides the *rendered* size of the 
+    view, and thus is only available once both it and its ancestors have been 
+    fully drawn.
 
 extends: Titanium.Proxy
 since: "0.9"
@@ -82,6 +84,7 @@ methods:
       - name: view
         summary: View to add to this view's hierarchy
         type: Titanium.UI.View
+        
   - name: animate
     summary: Animates this view.
     description: |
@@ -113,16 +116,20 @@ methods:
       - name: callback
         summary: Function to be invoked upon completion of the animation.
         type: Callback<Object>
+    
   - name: hide
     summary: Hides this view.
+    
   - name: remove
     summary: Removes a child view from this view's hierarchy.
     parameters:
       - name: view
         summary: View to remove from this view's hierarchy.
         type: Titanium.UI.View
+    
   - name: show
     summary: Makes this view visible.
+    
   - name: toImage
     summary: Returns an image of the rendered view, as a Blob.
     platforms: [android, iphone, ipad]
@@ -165,6 +172,7 @@ methods:
             View that specifies the destination coordinate system to convert to.
             If this argument is not a view, an exception will be raised.
         type: Titanium.UI.View
+
 events:
   - name: click
     summary: Fired when the device detects a click against the view.
@@ -192,6 +200,7 @@ events:
       - name: x
         type: Number
         summary: X coordinate of the event, in the `source` view's coordinates.
+    
   - name: dblclick
     summary: Fired when the device detects a double click against the view.
     properties:
@@ -208,6 +217,7 @@ events:
       - name: x
         type: Number
         summary: X coordinate of the event, in the `source` view's coordinates.
+    
   - name: doubletap
     summary: Fired when the device detects a double tap against the view.
     platforms: [android, iphone, ipad]
@@ -225,6 +235,7 @@ events:
       - name: x
         summary: X coordinate of the event, in the `source` view's coordinates.
         type: Number
+    
   - name: longclick
     summary: Fired when the device detects a long click.
     description: |
@@ -233,6 +244,7 @@ events:
         finger/button is lifted up again.  If you have a longclick listener then the click
         event will not occur when you lift the finger/button after a long click.
     platforms: [android]
+    
   - name: longpress
     summary: Fired when the device detects a long press.
     description: |
@@ -249,6 +261,7 @@ events:
         summary: X coordinate of the event, in the `source` view's coordinates.
         type: Number
     platforms: [android, iphone, ipad]
+    
   - name: pinch
     summary: Fired when the device detects a pinch gesture.
     description: |
@@ -263,6 +276,7 @@ events:
         type: Number
     platforms: [iphone,ipad]
     since: "1.8.0"
+    
   - name: singletap
     summary: Fired when the device detects a single tap against the view.
     properties:
@@ -279,6 +293,7 @@ events:
       - name: x
         summary: X coordinate of the event, in the `source` view's coordinates.
         type: Number
+    
   - name: swipe
     summary: Fired when the device detects a swipe gesture (left or right) against the view.
     platforms: [iphone,ipad,mobileweb]
@@ -299,6 +314,7 @@ events:
       - name: x
         summary: X coordinate of the event's endpoint, in the `source` view's coordinates.
         type: Number
+    
   - name: touchcancel
     summary: Fired when a touch event is interrupted by the device.
     description: |
@@ -318,6 +334,7 @@ events:
       - name: x
         summary: X coordinate of the event, in the `source` view's coordinates.
         type: Number
+    
   - name: touchend
     summary: Fired when a touch event is completed.
     properties:
@@ -334,6 +351,7 @@ events:
       - name: x
         summary: X coordinate of the event, in the `source` view's coordinates.
         type: Number
+    
   - name: touchmove
     summary: Fired as soon as the device detects movement of a touch.
     description: |
@@ -352,6 +370,7 @@ events:
       - name: x
         summary: X coordinate of the event, in the `source` view's coordinates.
         type: Number
+    
   - name: touchstart
     summary: Fired as soon as the device detects a touch gesture.
     properties:
@@ -368,6 +387,7 @@ events:
       - name: x
         summary: X coordinate of the event, in the `source` view's coordinates.
         type: Number
+    
   - name: twofingertap
     summary: Fired when the device detects a two-finger tap against the view.
     properties:
@@ -393,32 +413,39 @@ properties:
         corner.
     platforms: [iphone, ipad]
     type: Point
+    
   - name: animatedCenterPoint
     summary: Current position of the view during an animation.
     platforms: [android, iphone, ipad]
     type: Point
     permission: read-only
+    
   - name: backgroundColor
     summary: Background color of the view.
     type: String
+    
   - name: backgroundDisabledColor
     summary: Disabled background color of the view.
     platforms: [android]
     type: String
+    
   - name: backgroundDisabledImage
     summary: Disabled background image for the view, specified as a local file path or URL.
     platforms: [android]
     type: String
+    
   - name: backgroundFocusedColor
     summary: Focused background color of the view.
     description: For normal views, the focused color is only used if `focusable` is `true`.
     platforms: [android]
     type: String
+    
   - name: backgroundFocusedImage
     summary: Focused background image for the view, specified as a local file path or URL.
     description: For normal views, the focused background is only used if `focusable` is `true`.
     platforms: [android]
     type: String
+    
   - name: backgroundGradient
     summary: A background gradient for the view.
     type: Gradient
@@ -485,6 +512,7 @@ properties:
   - name: backgroundImage
     summary: Background image for the view, specified as a local file path or URL.
     type: String
+
   - name: backgroundRepeat
     summary: Toggle for whether or not to tile a background across a view.
     description: |
@@ -503,6 +531,7 @@ properties:
         * <Titanium.UI.Label>
     type: Boolean
     platforms: [iphone, ipad]
+
   - name: backgroundLeftCap
     summary: Size of the left end cap.
     description: |
@@ -517,16 +546,19 @@ properties:
         of the image
     type: Number
     platforms: [iphone, ipad]
+    
   - name: backgroundSelectedColor
     summary: Selected background color of the view.
     description: focusable must be true for normal views.
     platforms: [android, mobileweb]
     type: String
+    
   - name: backgroundSelectedImage
     summary: Selected background image url for the view, specified as a local file path or URL.
     description: For normal views, the selected background is only used if `focusable` is `true`.
     platforms: [android, mobileweb]
     type: String
+    
   - name: backgroundTopCap
     summary: Size of the top end cap.
     description: |
@@ -540,15 +572,19 @@ properties:
         middle portion together and then subtracting that value from the height of the image.
     type: Number
     platforms: [iphone, ipad]
+    
   - name: borderColor
     summary: Border color of the view.
     type: String
+    
   - name: borderRadius
     summary: Border radius of the view.
     type: Number
+    
   - name: borderWidth
     summary: Border width of the view.
     type: Number
+    
   - name: bottom
     summary: View's bottom position, in platform-specific units.
     description: |
@@ -559,29 +595,34 @@ properties:
         This is an input property for specifying where the view should be positioned, and does not
         represent the view's calculated position.
     type: [Number,String]
+    
   - name: center
     summary: View's center position, in the parent view's coordinates. 
     description: |
         This is an input property for specifying where the view should be positioned, and does not
         represent the view's calculated position.
     type: Point
+    
   - name: children
     summary: Array of this view's child views.
     type: Array<Titanium.UI.View>
     permission: read-only
+    
   - name: focusable
     summary: Whether view should be focusable while navigating with the trackball.
     platforms: [android]
     default: false
     type: Boolean
+    
   - name: height
     summary: View height, in platform-specific units.
     description: |
         Can be either a float value or a dimension string (for example, '50%' or 'auto').
 
-        This is an input property for specifying the view should be laid out. To determine
-        the view's calculated size as laid out, see the [size](Titanium.UI.View.size) property.
+        This is an input property for specifying the view's height dimension. To determine the view's 
+        size once rendered, see the [size](Titanium.UI.View.size) property.
     type: [Number,String]
+    
   - name: left
     summary: View's left position, in platform-specific units.
     description: |
@@ -592,6 +633,7 @@ properties:
         This is an input property for specifying where the view should be positioned, and does not
         represent the view's calculated position.
     type: [Number,String]
+    
   - name: layout
     type: String
     summary: |
@@ -634,10 +676,12 @@ properties:
 
             Each child is positioned vertically as in the absolute layout mode.
     default: absolute layout
+    
   - name: opacity
     summary: Opacity of this view, from 0.0 (transparent) to 1.0 (opaque).
     type: Number
     default: 1.0 (opaque)
+    
   - name: right
     summary: View's right position, in platform-specific units.
     description: |
@@ -648,9 +692,15 @@ properties:
         This is an input property for specifying where the view should be positioned, and does not
         represent the view's calculated position.
     type: [Number,String]
+    
   - name: size
-    summary: Size of the view as a dictionary of width and height properties.
+    summary: |
+        Rendered size of the view as a dictionary of width and height properties.
+    description: |
+        The correct values will only be available when rendering is fully complete.
     type: Object
+    permission: read-only
+    
   - name: softKeyboardOnFocus
     summary: Determines keyboard behavior when this view is focused.
     description: |
@@ -659,6 +709,7 @@ properties:
         <Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS>.
     type: Number
     platforms: [android]
+    
   - name: top
     summary: The view's top position.
     description: |
@@ -669,30 +720,37 @@ properties:
         This is an input property for specifying where the view should be positioned, and does not
         represent the view's calculated position.
     type: [Number,String]
+    
   - name: touchEnabled
     summary: Whether view should receive touch events.
     description: If false, will forward the events to peers.
     default: true
     type: Boolean
+    
   - name: transform
     summary: Transformation matrix to apply to the view.
     description: |
         Android and Mobile Web only support 2DMatrix transforms.
     type: [ Titanium.UI.2DMatrix, Titanium.UI.iOS.3DMatrix ]
+    
   - name: visible
     summary: Boolean value indicating whether the view is visible.
     type: Boolean
+    
   - name: width
     summary: View's width, in platform-specific units.
     description: |
         Can be either a float value or a dimension string (for example, '50%' or 'auto').
 
-        This is an input property for specifying the view should be laid out. To determine
-        the view's calculated size as laid out, see the [size](Titanium.UI.View.size) property.
+        This is an input property for specifying the view's width dimension. To 
+        determine the view's size once rendered, see the 
+        [size](Titanium.UI.View.size) property.
     type: [Number,String]
+    
   - name: zIndex
     summary: Z index position relative to other sibling views.
     type: Number
+    
   - name: keepScreenOn
     summary: Whether to keep the device screen on.
     description: |
@@ -700,6 +758,7 @@ properties:
         power, thereby adversely affecting run time when on battery.
     type: Boolean
     platforms: [android]
+    
 examples:
   - title: Round View Example
     example: |
