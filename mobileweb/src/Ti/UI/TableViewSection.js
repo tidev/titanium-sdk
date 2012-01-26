@@ -43,7 +43,7 @@ define("Ti/UI/TableViewSection", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style"
 		_createDecorationLabel: function(text) {
 			return Ti.UI.createLabel({
 				text: text, 
-				backgroundColor: this._tableView ? this._tableView.separatorColor : "lightGrey",
+				backgroundColor: "darkGrey",
 				color: "white",
 				width: "100%",
 				height: "auto",

@@ -122,6 +122,7 @@ define("Ti/_/UI/Element",
 		},
 
 		destroy: function() {
+			this.parent && this.parent.remove(this);
 			if (this.domNode) {
 				dom.destroy(this.domNode);
 				this.domNode = null;
@@ -170,6 +171,7 @@ define("Ti/_/UI/Element",
 		},
 
 		_computeDimensions: function(parentWidth, parentHeight, left, top, originalRight, originalBottom, centerX, centerY, width, height, borderWidth) {
+			
 			// Compute as many sizes as possible, should be everything except auto
 			left = computeSize(left, parentWidth, 1);
 			top = computeSize(top, parentHeight, 1);

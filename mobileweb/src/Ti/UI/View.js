@@ -47,8 +47,8 @@ define("Ti/UI/View",
 		
 		_removeAllChildren: function(view) {
 			var children = this.children;
-			for(var i in children) {
-				this.remove(children[i]);
+			while(children.length > 0) {
+				this.remove(children[0]);
 			}
 		},
 

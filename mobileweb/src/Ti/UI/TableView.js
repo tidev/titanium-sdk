@@ -19,7 +19,6 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 			this.add(this._sections = Ti.UI.createView({height: 'auto', layout: 'vertical'}));
 			this.add(this._footer = Ti.UI.createView({height: 'auto', layout: 'vertical'}));
 			
-			// Initializing to [] will also create the default section.
 			this.data = [];
 			
 			// Handle scrolling
@@ -137,7 +136,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 		_createDecorationLabel: function(text) {
 			return Ti.UI.createLabel({
 				text: text, 
-				backgroundColor: this.separatorColor,
+				backgroundColor: "darkGrey",
 				color: "white",
 				width: "100%",
 				height: "auto",
@@ -238,21 +237,25 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 								value[i] = Ti.UI.createTableViewRow(value[i]);
 							}
 						}
+						
+						// If there is no data, we still need to create a default section
+						if (value.length == 0) {
+							this._sections.add(this._currentSection = Ti.UI.createTableViewSection({_tableView: this}));
+							this._sections.add(this._createSeparator());
+						}
 			
 						// Add each element
 						for (var i = 0; i < value.length; i++) {
 							if (value[i].declaredClass === "Ti.UI.TableViewRow") {
 								// Check if the first item is a row, meaning we need a default section
 								if (i === 0) {
-									this._currentSection = Ti.UI.createTableViewSection({_tableView: this});
-									this._sections.add(this._currentSection);
+									this._sections.add(this._currentSection = Ti.UI.createTableViewSection({_tableView: this}));
 									this._sections.add(this._createSeparator());
 								}
 								this._currentSection.add(value[i]);
 							} else if (value[i].declaredClass === "Ti.UI.TableViewSection") {
-								this._currentSection = value[i];
-								this._currentSection._tableView = this;
-								this._sections.add(this._currentSection);
+								value[i]._tableView = this;
+								this._sections.add(this._currentSection = value[i]);
 								this._sections.add(this._createSeparator());
 							}
 						}
