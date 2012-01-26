@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2010-2011 Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2010-2012 Appcelerator, Inc. All Rights Reserved.
 # Licensed under the Apache Public License (version 2)
 #
 # parse out Titanium API documentation templates into a 
