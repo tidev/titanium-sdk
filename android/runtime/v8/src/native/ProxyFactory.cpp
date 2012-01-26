@@ -84,7 +84,13 @@ Handle<Object> ProxyFactory::createV8Proxy(jclass javaClass, jobject javaProxy)
 	}
 
 	Local<Value> external = External::New(javaProxy);
+	TryCatch tryCatch;
 	Local<Object> v8Proxy = creator->NewInstance(1, &external);
+	if (tryCatch.HasCaught()) {
+		LOGE(TAG, "Exception thrown while creating V8 proxy.");
+		V8Util::reportException(tryCatch);
+		return Handle<Object>();
+	}
 
 	// set the pointer back on the java proxy
 	Proxy* proxy = NativeObject::Unwrap<Proxy>(v8Proxy);
