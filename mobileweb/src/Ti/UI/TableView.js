@@ -200,16 +200,16 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 		},
 		
 		insertRowAfter: function(index, value) {
-			this.add(value, index + 1);
+			this._insert(value, index + 1);
 		},
 		
 		insertRowBefore: function(index, value) {
-			this.add(value, index);
+			this._insert(value, index);
 		},
 		
 		updateRow: function(index, row) {
 			this._remove(index);
-			this.add(value, index);
+			this._insert(row, index);
 		},
 		
 		scrollToIndex: function(index) {
