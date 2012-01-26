@@ -512,7 +512,7 @@
 
 		// load app.js when ti and dom is ready
 		ready(function() {
-			require(["app.js"]);
+			require([cfg.main || "app.js"]);
 		});
 	});
 

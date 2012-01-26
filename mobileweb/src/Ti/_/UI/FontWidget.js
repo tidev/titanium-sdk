@@ -1,10 +1,18 @@
-define("Ti/_/UI/FontWidget", ["Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/UI/Widget"], function(declare, style, dom, Widget) {
-		
-	var set = style.set,
-		isDef = require.isDef,
-		computeSize = dom.computeSize,
-		unitize = dom.unitize,
-		undef;
+define("Ti/_/UI/FontWidget", ["Ti/_/declare", "Ti/_/dom", "Ti/_/ready", "Ti/_/style", "Ti/_/UI/Widget"], function(declare, dom, ready, style, Widget) {
+
+	var textRuler;
+
+	ready(function() {
+		textRuler = dom.create("p", {
+			style: {
+				position: "absolute",
+				top: "-1000em",
+				left: 0,
+				height: "auto",
+				width: "auto"
+			}
+		}, document.body);
+	});
 
 	return declare("Ti._.UI.FontWidget", Widget, {
 
@@ -13,10 +21,8 @@ define("Ti/_/UI/FontWidget", ["Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/UI
 		},
 
 		_setFont: function(font,domNode) {
-			isDef(font.fontFamily) && set(domNode, "fontFamily", font.fontFamily);
-			isDef(font.fontSize) && set(domNode, "fontSize", dom.unitize(font.fontSize));
-			isDef(font.fontStyle) && set(domNode, "fontStyle", font.fontStyle);
-			isDef(font.fontWeight) && set(domNode, "fontWeight", font.fontWeight);
+			require.isDef(font.fontSize) && (font.fontSize = dom.unitize(font.fontSize));
+			style.set(domNode, font);
 		},
 
 		_addStyleableDomNode: function(styleableDomNode) {
@@ -29,19 +35,20 @@ define("Ti/_/UI/FontWidget", ["Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/UI
 		},
 
 		_measureText: function(text, domNode) {
-			var textRuler = document.getElementById("textRuler");
+			var computedStyle = window.getComputedStyle(domNode),
+				font = this.font || {};
+
 			textRuler.innerHTML = text;
 
-			var computedStyle = window.getComputedStyle(domNode);
 			this._setFont({
-				fontFamily: (this.font && this.font.fontFamily) ? this.font.fontFamily : computedStyle.fontFamily,
-				fontSize: (this.font && this.font.fontSize) ? this.font.fontSize : computedStyle.fontSize,
-				fontStyle: (this.font && this.font.fontStyle) ? this.font.fontStyle : computedStyle.fontStyle,
-				fontWeight: (this.font && this.font.fontWeight) ? this.font.fontWeight : computedStyle.fontWeight,
-			},textRuler);
+				fontFamily: font.fontFamily || computedStyle.fontFamily,
+				fontSize: font.fontSize || computedStyle.fontSize,
+				fontStyle: font.fontStyle || computedStyle.fontStyle,
+				fontWeight: font.fontWeight || computedStyle.fontWeight
+			}, textRuler);
 
 			// Return the computed style
-			return {width: textRuler.clientWidth, height: textRuler.clientHeight};
+			return { width: textRuler.clientWidth, height: textRuler.clientHeight };
 		},
 
 		properties: {
