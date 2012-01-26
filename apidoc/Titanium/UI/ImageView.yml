@@ -13,19 +13,27 @@ since: "0.9"
 
 methods:
   - name: pause
-    summary: Pauses a running animation.
-    platforms: [android, iphone, ipad]
+    summary: |
+        Pauses a running animation. Use `resume` method on Android and `start` method on iOS 
+        to continue.
+    descrption:  This method only works if multiple images are specified.
+    
+  - name: resume
+    summary: Resumes an animation from a `pause` state.
+    descrption:  This method only works if multiple images are specified.
+    platforms: [android]
+    
   - name: start
     summary: |
-        Starts the image animation. This method only works if multiple images 
-        are specified.
-    platforms: [android, iphone, ipad]
+        Starts the image animation. On Android, also resets `index` to the first image.
+    descrption:  This method only works if multiple images are specified.
+    
   - name: stop
-    summary: Stops a running animation and resets `index` to the first image.
-    platforms: [android, iphone, ipad]
+    summary: Stops a running animation. On iOS, also resets `index` to the first image.
+    descrption:  This method only works if multiple images are specified.
+    
   - name: toBlob
     summary: Returns the image as a Blob object.
-    platforms: [android, iphone, ipad]
 
 events:
   - name: change
@@ -85,7 +93,7 @@ properties:
     since: "1.7.0"
     
   - name: defaultImage
-    summary: URL of the default image to display while loading a remote image.
+    summary: Local URI of the default image to display while loading a remote image.
     type: String
     
   - name: duration
@@ -140,7 +148,8 @@ properties:
 
   - name: preventDefaultImage
     summary: |
-        Prevent the default image from being displayed while loading a remote image.
+        Prevent the default image from being displayed while loading a remote image. This property 
+        is ignored when the `defaultImage` property is set.
     type: Boolean
     default: false
     platforms: [iphone, ipad]
