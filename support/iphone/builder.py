@@ -1285,7 +1285,9 @@ def main(args):
 				if command == 'simulator':
 					# first make sure it's not running
 					kill_simulator()
-
+					#Give the kill command time to finish
+					time.sleep(2)
+					
 					# sometimes the simulator doesn't remove old log files
 					# in which case we get our logging jacked - we need to remove
 					# them before running the simulator
