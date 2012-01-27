@@ -298,7 +298,7 @@
 	CGRect barFrame = [ourNB bounds];
 	UIImage * newImage = [TiUtils toImage:[self valueForUndefinedKey:@"barImage"]
                                     proxy:self size:barFrame.size];
-    if ([TiUtils isIOS5OrGreater]) {
+    if ([ourNB respondsToSelector:@selector(setBackgroundImage:forBarMetrics:)]) {
         [ourNB setBackgroundImage:newImage forBarMetrics:UIBarMetricsDefault];
     } else {
         if (newImage == nil) {
