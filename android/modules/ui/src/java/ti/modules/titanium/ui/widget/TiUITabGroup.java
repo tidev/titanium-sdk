@@ -138,7 +138,7 @@ public class TiUITabGroup extends TiUIView
 		proxy.setProperty(TiC.PROPERTY_ACTIVE_TAB, currentTab);
 
 		if (tabChangeEventData != null) {
-			//fire blur on current tab as well as its window
+			//fire blur on previous tab as well as its window
 			if (previousTab != null)
 			previousTab.fireEvent(TiC.EVENT_BLUR, tabChangeEventData);
 			previousTab.getWindow().fireEvent(TiC.EVENT_BLUR, null);
