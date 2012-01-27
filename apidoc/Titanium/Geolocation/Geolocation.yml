@@ -190,7 +190,7 @@ properties:
         ios:
             min: "4.2"
   - name: locationServicesEnabled
-    summary: Indicates if the user has enabled or disable location services for the device (not the application).
+    summary: Indicates if the user has enabled or disabled location services for the device (not the application).
     description: |
         This method returns `true` if *any* location provider is enabled.
 
