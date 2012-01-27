@@ -112,6 +112,16 @@ description:  |
     window has been opened.
 extends: Titanium.Module
 since: "0.4"
+methods:
+  - name: create2DMatrix
+    summary: Creates are returns an instance of <Titanium.UI.2DMatrix>.
+    parameters:
+      - name: parameters
+        summary: |
+            A dictionary object specifying the initial transformation of the object.
+        type: MatrixCreationDict
+    returns:
+        type: Titanium.UI.2DMatrix
 properties:
   - name: ANIMATION_CURVE_EASE_IN
     summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
