@@ -120,6 +120,7 @@ methods:
         summary: |
             A dictionary object specifying the initial transformation of the object.
         type: MatrixCreationDict
+        optional: true
     returns:
         type: Titanium.UI.2DMatrix
 properties:
