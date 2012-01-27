@@ -20,6 +20,11 @@
 
 #define IMAGEVIEW_DEBUG 0
 
+@interface TiUIImageView()
+-(void)startTimerWithEvent:(NSString *)eventName;
+-(void)stopTimerWithEvent:(NSString *)eventName;
+@end
+
 @implementation TiUIImageView
 
 #pragma mark Internal
@@ -150,14 +155,9 @@ DEFINE_EXCEPTIONS
 	if (repeatCount > 0 && ((reverse==NO && nextIndex == loadTotal) || (reverse && nextIndex==0)))
 	{
 		iterations++;
-		if (iterations == repeatCount)
-		{
-			[timer invalidate];
-			RELEASE_TO_NIL(timer);
-			if ([self.proxy _hasListeners:@"stop"])
-			{
-				[self.proxy fireEvent:@"stop" withObject:nil];
-			}
+		if (iterations == repeatCount) {
+            stopped = YES;
+            [self stopTimerWithEvent:@"stop"];
 		}
 	}
 }
