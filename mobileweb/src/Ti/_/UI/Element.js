@@ -122,6 +122,7 @@ define("Ti/_/UI/Element",
 		},
 
 		destroy: function() {
+			this.parent && this.parent.remove(this);
 			if (this.domNode) {
 				dom.destroy(this.domNode);
 				this.domNode = null;
@@ -170,6 +171,7 @@ define("Ti/_/UI/Element",
 		},
 
 		_computeDimensions: function(parentWidth, parentHeight, left, top, originalRight, originalBottom, centerX, centerY, width, height, borderWidth) {
+			
 			// Compute as many sizes as possible, should be everything except auto
 			left = computeSize(left, parentWidth, 1);
 			top = computeSize(top, parentHeight, 1);
@@ -300,13 +302,13 @@ define("Ti/_/UI/Element",
 			}
 
 			// TODO change this once we re-architect the inheritence so that widgets don't have add/remove/layouts
-			if (this.children && this.children.length > 0) {
+			if (this._getContentWidth) {
+				width == "auto" && (width = this._getContentWidth());
+				height == "auto" && (height = this._getContentHeight());
+			} else {
 				var computedSize = this._layout.doLayout(this,width,height);
 				width == "auto" && (width = computedSize.width);
 				height == "auto" && (height = computedSize.height);
-			} else {
-				width == "auto" && (width = this._getContentWidth());
-				height == "auto" && (height = this._getContentHeight());
 			}
 			
 			if (calculateWidthAfterAuto) {
@@ -332,10 +334,10 @@ define("Ti/_/UI/Element",
 
 			// Set the default top/left if need be
 			if (left == "calculateAuto") {
-				left = this._centerHDefault ? computeSize("50%",parentWidth) - (is(width,"Number") ? width : 0) / 2 : 0;
+				left = this._centerHDefault && parentWidth !== "auto" ? computeSize("50%",parentWidth) - (is(width,"Number") ? width : 0) / 2 : 0;
 			}
 			if (top == "calculateAuto") {
-				top = this._centerVDefault ? computeSize("50%",parentHeight) - (is(height,"Number") ? height : 0) / 2 : 0;
+				top = this._centerVDefault && parentHeight !== "auto" ? computeSize("50%",parentHeight) - (is(height,"Number") ? height : 0) / 2 : 0;
 			}
 
 			// Apply the origin and border width
@@ -526,14 +528,6 @@ define("Ti/_/UI/Element",
 			}
 		},
 
-		_getContentWidth: function() {
-			return this.domNode.clientWidth;
-		},
-
-		_getContentHeight: function() {
-			return this.domNode.clientHeight;
-		},
-
 		_setTouchEnabled: function(value) {
 			setStyle(this.domNode, "pointerEvents", value ? "auto" : "none");
 			if (!value) {
@@ -591,7 +585,7 @@ define("Ti/_/UI/Element",
 
 					output = type + "-gradient(" + output.join(",") + ")";
 
-					require.each(vendorPrefixes.css, function(p) {
+					require.each(require.config.vendorPrefixes.css, function(p) {
 						setStyle(this.domNode, "backgroundImage", p + output);
 					});
 

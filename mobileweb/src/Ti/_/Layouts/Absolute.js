@@ -4,7 +4,7 @@ define("Ti/_/Layouts/Absolute", ["Ti/_/Layouts/Base", "Ti/_/declare"], function(
 
 		doLayout: function(element, width, height) {
 			var computedSize = {width: 0, height: 0};
-			for(var i = 0; i < element.children.length; i++) {
+			for(var i in element.children) {
 				
 				// Layout the child
 				var child = element.children[i];
