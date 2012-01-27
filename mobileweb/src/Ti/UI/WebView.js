@@ -134,6 +134,14 @@ define("Ti/UI/WebView",
 
 		_defaultHeight: "100%",
 
+		_getContentHeight: function() {
+			return this._iframe ? this._iframe.clientHeight : 0;
+		},
+
+		_getContentWidth: function() {
+			return this._iframe ? this._iframe.clientWidth : 0;
+		},
+
 		_setContent: function(value) {
 			try {
 				this.properties.__values__.url = "";
