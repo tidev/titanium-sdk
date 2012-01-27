@@ -79,7 +79,7 @@ define("Ti/UI/ImageView",
 			canScale: {
 				set: function(value, oldValue){
 					if (value !== oldValue) {
-						Ti.UI._doFullLayout();
+						this._hasAutoDimensions() && Ti.UI._doFullLayout();
 					}
 					return value;
 				},
@@ -95,7 +95,7 @@ define("Ti/UI/ImageView",
 						this.imageDisplay.src = value;
 						
 						// Force a layout to take the image size into account
-						Ti.UI._doFullLayout();
+						this._hasAutoDimensions() && Ti.UI._doFullLayout();
 					}));
 					tempImage.src = value;
 					return value;

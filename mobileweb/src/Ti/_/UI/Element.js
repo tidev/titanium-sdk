@@ -361,6 +361,11 @@ define("Ti/_/UI/Element",
 				borderWidth: borderWidth
 			};
 		},
+		
+		_hasAutoDimensions: function() {
+			return (this.width === "auto" || (!isDef(this.width) && this._defaultWidth === "auto")) || 
+				(this.height === "auto" || (!isDef(this.height) && this._defaultHeight === "auto"));
+		},
 
 		// This method returns the offset of the content relative to the parent's location. 
 		// This is useful for controls like ScrollView that can move the children around relative to itself.
