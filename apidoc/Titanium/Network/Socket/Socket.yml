@@ -18,7 +18,7 @@ properties:
     permission: read-only
   - name: LISTENING
     type: Number
-    summary: State value representing socket that is listening for connections.
+    summary: State value representing a socket that is listening for connections.
     permission: read-only
   - name: CLOSED
     type: Number
@@ -26,7 +26,7 @@ properties:
     permission: read-only
   - name: ERROR
     type: Number
-    summary: State value representing a socket error.
+    summary: State value indicating an error has occurred on the socket.
     permission: read-only
 
 methods:
@@ -36,7 +36,7 @@ methods:
         summary: New TCP socket.
     summary: Returns a new TCP socket object.
     description: |
-         Takes an object containing properties list defined in `Titanium.Network.Socket.TCP`.  
+         Takes a dictionary containing properties defined in <Titanium.Network.Socket.TCP>.  
          Some properties are only needed based on whether the socket will be a connecting 
          (client) socket or a listening (server) socket.
     parameters:

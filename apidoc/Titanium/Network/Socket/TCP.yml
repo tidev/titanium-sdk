@@ -21,7 +21,7 @@ description: |
     and [pump](Titanium.Stream.pump) methods provided by the <Titanium.Stream> module,
     rather than using the socket object's `read` and `write` methods directly.
     
-    A familiarity with the basics of BSD socket programming is a prerequisite to using 
+    A familiarity with the basics of BSD socket programming is a recommended before using 
     sockets with Titanium.
 
     Use the <Titanium.Network.Socket.createTCP> method to create a TCP socket.
@@ -106,6 +106,7 @@ properties:
         Only invoked following a successful [connect](Titanium.Network.Socket.TCP.connect)
         call.
 
+        Can only be modified when this socket is in the [INITIALIZED](Titanium.Network.Socket.INITIALIZED) state. 
   - name: error
     type: Callback<ErrorCallbackArgs>
     summary: Callback to be fired when the socket enters the [ERROR](Titanium.Network.Socket.ERROR) state.
@@ -134,16 +135,21 @@ methods:
         or [LISTENING](Titanium.Network.Socket.LISTENING) state. 
         Throws an exception if a valid host and port has not been set on this socket. 
         
-        Nonblocking; connection attempts are asynchronous
+        Nonblocking; connection attempts are asynchronous.
 
   - name: listen
     summary: Attempts to start listening on the socket's host/port. 
     description: |
         The `listen` call will attempt to listen on the specified host and/or port 
-        property for the socket if they are set. This function blocks execution and 
-        throws an exception on error (and sets the socket state to [ERROR](Titanium.Network.Socket.ERROR)) but does not 
+        property for the socket if they are set. 
+        
+        Nonblocking; an event is generated once the 
+
+        This function blocks execution and throws an exception on error 
+        (and sets the socket state to [ERROR](Titanium.Network.Socket.ERROR)) but does not 
         fire the error callback in this event. Throws exception if the socket is in a 
-        [LISTENING](Titanium.Network.Socket.LISTENING) or [CONNECTED](Titanium.Network.Socket.CONNECTED) state
+        [LISTENING](Titanium.Network.Socket.LISTENING) or
+        [CONNECTED](Titanium.Network.Socket.CONNECTED) state.
 
   - name: accept
     summary: Tells a [LISTENING](Titanium.Network.Socket.LISTENING) socket to accept a connection request at the top of a listener's request queue when one becomes available. 
