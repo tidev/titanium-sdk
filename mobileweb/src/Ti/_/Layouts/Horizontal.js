@@ -5,7 +5,7 @@ define("Ti/_/Layouts/Horizontal", ["Ti/_/Layouts/Base", "Ti/_/declare"], functio
 		doLayout: function(element, width, height) {
 			var computedSize = {width: 0, height: 0},
 				currentLeft = 0;
-			for(var i = 0; i < element.children.length; i++) {
+			for(var i in element.children) {
 				
 				// Layout the child
 				var child = element.children[i];
