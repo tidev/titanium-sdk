@@ -100,7 +100,9 @@ USE_VIEW_FOR_AUTO_WIDTH
 
 -(void)setHtml:(NSString*)content withObject:(id)property
 {
-    [(TiUIWebView *)[self view] setHtml_:content withObject:property];
+    TiThreadPerformOnMainThread(^{
+        [(TiUIWebView *)[self view] setHtml_:content withObject:property];
+    }, YES);
 }
 
 -(id)canGoBack:(id)args
