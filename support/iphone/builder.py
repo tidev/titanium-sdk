@@ -1119,8 +1119,15 @@ def main(args):
 				# since we need to make them live in the bundle in simulator
 				if len(custom_fonts)>0:
 					for f in custom_fonts:
-						print "[INFO] Detected custom font: %s" % os.path.basename(f)
-						shutil.copy(f,app_dir)
+						font = os.path.basename(f)
+						app_font_path = os.path.join(app_dir, font)
+						print "[INFO] Detected custom font: %s" % font
+						if os.path.exists(app_font_path):
+							os.remove(app_font_path)
+						try:
+							shutil.copy(f,app_dir)
+						except shutil.Error, e:
+							print "[WARN] Not copying %s: %s" % (font, e)
 
 				# dump out project file info
 				if command not in ['simulator', 'build']:
