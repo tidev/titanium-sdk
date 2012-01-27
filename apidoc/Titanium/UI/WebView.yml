@@ -34,7 +34,7 @@ methods:
   - name: goForward
     summary: go forward one entry in history to the page before the current page
     description: |
-        For Mobile Web, you can only go forward for same domain pages. If you set the initial `url` to a remote page, the back function will not work.
+        For Mobile Web, you can only go forward for same domain pages. If you set the initial `url` to a remote page, the forward function will not work.
   - name: reload
     summary: reload the current webpage
     description: |
