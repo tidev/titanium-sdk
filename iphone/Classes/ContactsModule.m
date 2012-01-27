@@ -31,11 +31,7 @@
 
 -(void)releaseAddressBook
 {
-	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(releaseAddressBook) withObject:nil waitUntilDone:YES];
-		return;
-	}
-	CFRelease(addressBook);
+	TiThreadPerformOnMainThread(^{CFRelease(addressBook);}, YES);
 }
 
 -(void)startup
@@ -46,7 +42,7 @@
     
     // Force address book creation so that our properties are properly initialized - they aren't
     // defined until the address book is loaded, for some reason.
-    [self performSelectorOnMainThread:@selector(addressBook) withObject:nil waitUntilDone:YES];
+	TiThreadPerformOnMainThread(^{[self addressBook];}, YES);
 }
 
 -(void)dealloc
@@ -190,7 +186,7 @@
 	ENSURE_SINGLE_ARG(arg, NSString)
 	
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(getPeopleWithName:) withObject:arg waitUntilDone:YES];
+		TiThreadPerformOnMainThread(^{[self getPeopleWithName:arg];}, YES);
 		return [returnCache objectForKey:@"peopleWithName"];
 	}
 	

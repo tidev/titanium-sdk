@@ -85,7 +85,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 -(void)releaseController
 {
 	[(TiViewController *)controller setProxy:nil];
-	[controller performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
+	TiThreadReleaseOnMainThread(controller, NO);
 	controller = nil;
 }
 

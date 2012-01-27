@@ -91,10 +91,28 @@ BOOL TiExceptionIsSafeOnMainThread = NO;
 void TiExceptionThrowWithNameAndReason(NSString * exceptionName, NSString * message)
 {
 	NSLog(@"[ERROR] %@",message);
-	if (TiExceptionIsSafeOnMainThread || ([NSThread isMainThread]==NO)) {
+	if (TiExceptionIsSafeOnMainThread || ![NSThread isMainThread]) {
 		@throw [NSException exceptionWithName:exceptionName reason:message userInfo:nil];
 	}	
 }
+
+void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish)
+{
+	if (releasedObject == nil) {
+		return;
+	}
+	if ([NSThread isMainThread]) {
+		[releasedObject release];
+	}
+	else
+	{
+		TiThreadPerformOnMainThread(^{[releasedObject release];}, waitForFinish);
+	}
+}
+
+
+NSMutableArray * TiThreadBlockQueue = nil;
+OSSpinLock TiThreadSpinLock = OS_SPINLOCK_INIT;
 
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 {
@@ -113,25 +131,105 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 		}
 		TiExceptionIsSafeOnMainThread = exceptionsWereSafe;
 	};
+	void (^wrapperBlockCopy)() = [wrapperBlock copy];
 	
+	
+	int isEmpty;
+	OSSpinLockLock(&TiThreadSpinLock);
+		isEmpty = [TiThreadBlockQueue count] <= 0;
+		if (!alreadyOnMainThread || !waitForFinish) {
+			if (TiThreadBlockQueue == nil)
+			{
+				TiThreadBlockQueue = [[NSMutableArray alloc] initWithObjects:wrapperBlockCopy, nil];
+			}
+			else
+			{
+				[TiThreadBlockQueue addObject:wrapperBlockCopy];
+			}
+		}
+	OSSpinLockUnlock(&TiThreadSpinLock);
+	
+	if (alreadyOnMainThread) {
+		// In order to maintain serial consistency, we have to stand in line
+		BOOL finished = TiThreadProcessPendingMainThreadBlocks(0.1, YES, nil);
+		if(waitForFinish)
+		{
+			//More or less. If things took too long, we cut.
+			wrapperBlockCopy();
+		}
+		[wrapperBlockCopy release];
+		if (caughtException != nil) {
+			[caughtException autorelease];
+			NSLog(@"[ERROR] %@",[caughtException reason]);
+			if (TiExceptionIsSafeOnMainThread) {
+				@throw caughtException;
+			}
+		}
+		return;
+	}
+/*
+ *	TODO: Research means to ensure deadlocks will never happen.
+ */
+	dispatch_block_t dispatchedMainBlock = (dispatch_block_t)^(){
+		TiThreadProcessPendingMainThreadBlocks(10.0, YES, nil);
+	};
 	if (waitForFinish)
 	{
-		if (alreadyOnMainThread)
-		{
-			wrapperBlock();
-		}
-		else
-		{
-			dispatch_sync(dispatch_get_main_queue(), (dispatch_block_t)wrapperBlock);
-		}
+		dispatch_sync(dispatch_get_main_queue(), (dispatch_block_t)dispatchedMainBlock);
 	}
 	else
 	{
-		dispatch_async(dispatch_get_main_queue(), (dispatch_block_t)wrapperBlock);
+		dispatch_async(dispatch_get_main_queue(), (dispatch_block_t)dispatchedMainBlock);
 	}
 	
+	[wrapperBlockCopy release];
 	if (caughtException != nil) {
 		[caughtException autorelease];
 		[caughtException raise];
 	}
+}
+
+BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhenEmpty, void (^continueCallback)(BOOL *) )
+{
+	NSTimeInterval doneTime = [NSDate timeIntervalSinceReferenceDate] + timeout;
+	BOOL shouldContinue = YES;
+	BOOL isEmpty = NO;
+	do {
+		void (^thisAction)(void) = nil;
+		
+		OSSpinLockLock(&TiThreadSpinLock);
+			isEmpty = [TiThreadBlockQueue count] <= 0;
+			if (!isEmpty) {
+				thisAction = [[TiThreadBlockQueue objectAtIndex:0] retain];
+				[TiThreadBlockQueue removeObjectAtIndex:0];
+			}
+		OSSpinLockUnlock(&TiThreadSpinLock);
+		
+		if (thisAction != nil) {
+			NSAutoreleasePool * smallPool = [[NSAutoreleasePool alloc] init];
+			thisAction();
+			[thisAction release];
+			[smallPool release];
+		}
+		//It's entirely possible that the action itself caused more entries.
+		OSSpinLockLock(&TiThreadSpinLock);
+			isEmpty = [TiThreadBlockQueue count] <= 0;
+		OSSpinLockUnlock(&TiThreadSpinLock);
+
+		shouldContinue = !(doneWhenEmpty && isEmpty) &&
+				([NSDate timeIntervalSinceReferenceDate] >= doneTime);
+		
+		if (continueCallback != NULL) { //continueCallback can override anything.
+			continueCallback(&shouldContinue);
+		}
+		if (shouldContinue && isEmpty) {
+			/*
+			 *	If we're told to loop despite there being nothing to loop, it
+			 *	is likely we're waiting for the background thread to request
+			 *	something. In this case, we should briefly sleep.
+			 */
+			[NSThread sleepForTimeInterval:0.01];
+		}
+	} while (shouldContinue);
+	return isEmpty;
 }

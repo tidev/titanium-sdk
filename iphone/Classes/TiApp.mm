@@ -319,6 +319,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	//This will send out the 'close' message.
 	[theNotificationCenter postNotificationName:kTiWillShutdownNotification object:self];
 	
+	TiThreadProcessPendingMainThreadBlocks(0.1, NO, nil);
 	NSCondition *condition = [[NSCondition alloc] init];
 
 #ifdef USE_TI_UIWEBVIEW
@@ -342,7 +343,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 	//This will shut down the modules.
 	[theNotificationCenter postNotificationName:kTiShutdownNotification object:self];
-	
+	TiThreadProcessPendingMainThreadBlocks(0.1, NO, nil);
+
 	RELEASE_TO_NIL(condition);
 	RELEASE_TO_NIL(kjsBridge);
 #ifdef USE_TI_UIWEBVIEW 
@@ -369,7 +371,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	
 	// suspend any image loading
 	[[ImageLoader sharedLoader] suspend];
-	
+	TiThreadProcessPendingMainThreadBlocks(0.1, NO, nil);
 	[kjsBridge gc];
 	
 #ifdef USE_TI_UIWEBVIEW

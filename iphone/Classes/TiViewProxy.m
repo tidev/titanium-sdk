@@ -105,7 +105,7 @@
 		[self rememberProxy:arg];
 		if (windowOpened)
 		{
-			[self performSelectorOnMainThread:@selector(add:) withObject:arg waitUntilDone:NO];
+			TiThreadPerformOnMainThread(^{[self add:arg];}, NO);
 			return;
 		}
 		pthread_rwlock_wrlock(&childrenLock);
@@ -1092,7 +1092,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		}
 		else
 		{
-			[barButtonItem performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
+			TiThreadReleaseOnMainThread(barButtonItem, NO);
 			barButtonItem = nil;
 		}
 	}
@@ -1106,7 +1106,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		else
 		{
 			view.proxy = nil;
-			[view performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
+			TiThreadReleaseOnMainThread(view, NO);
 			view = nil;
 		}
 	}

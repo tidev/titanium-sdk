@@ -7,14 +7,13 @@
 
 #import <Foundation/Foundation.h>
 
-
-#define WAIT_UNTIL_DONE_ON_UI_THREAD	NO
-
 #define ENSURE_UI_THREAD_1_ARG(x)	\
 if (![NSThread isMainThread]) { \
-[self performSelectorOnMainThread:_cmd withObject:x waitUntilDone:WAIT_UNTIL_DONE_ON_UI_THREAD modes:[NSArray arrayWithObject:NSRunLoopCommonModes]]; \
-return; \
+	SEL callback = _cmd;\
+	TiThreadPerformOnMainThread(^{[self performSelector:callback withObject:x];}, NO);\
+	return; \
 } \
+
 
 #define ENSURE_UI_THREAD_0_ARGS		ENSURE_UI_THREAD_1_ARG(nil)
 
@@ -25,19 +24,17 @@ return; \
 
 #define ENSURE_UI_THREAD(x,y) \
 if (![NSThread isMainThread]) { \
-[self performSelectorOnMainThread:@selector(x:) withObject:y waitUntilDone:WAIT_UNTIL_DONE_ON_UI_THREAD modes:[NSArray arrayWithObject:NSRunLoopCommonModes]]; \
+	TiThreadPerformOnMainThread(^{[self x:y];},NO); \
 return; \
 } \
 
-#define ENSURE_UI_THREAD_WITH_OBJS(x,...)	\
-if (![NSThread isMainThread]) { \
-id o = [NSArray arrayWithObjects:@"" #x, ##__VA_ARGS__, nil];\
-[self performSelectorOnMainThread:@selector(_dispatchWithObjectOnUIThread:) withObject:o waitUntilDone:WAIT_UNTIL_DONE_ON_UI_THREAD]; \
-return; \
-} \
-
+//TODO: Now that we have TiThreadPerform, we should optimize this out.
 #define ENSURE_UI_THREAD_WITH_OBJ(x,y,z) \
-ENSURE_UI_THREAD_WITH_OBJS(x,NULL_IF_NIL(y),NULL_IF_NIL(z))
+if (![NSThread isMainThread]) { \
+id o = [NSArray arrayWithObjects:@"" #x, NULL_IF_NIL(y),NULL_IF_NIL(z), nil];\
+TiThreadPerformOnMainThread(^{[self _dispatchWithObjectOnUIThread:o];},NO); \
+return; \
+} \
 
 #define BEGIN_UI_THREAD_PROTECTED_VALUE(method,type) \
 -(id)_sync_##method:(NSMutableArray*)array_\
@@ -54,9 +51,9 @@ return result;\
 {\
 if (![NSThread isMainThread])\
 {\
-NSMutableArray *array = [NSMutableArray array];\
-[self performSelectorOnMainThread:@selector(_sync_##method:) withObject:array waitUntilDone:YES];\
-return [array objectAtIndex:0];\
+__block id result=nil;\
+TiThreadPerformOnMainThread(^{result=[self _sync_##method:nil];},YES); \
+return result;\
 }\
 return [self _sync_##method:nil];\
 \

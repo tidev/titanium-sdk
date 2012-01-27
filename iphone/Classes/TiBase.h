@@ -531,7 +531,58 @@ extern NSString * const kTiLocalNotification;
 #endif
 
 #include "TiThreading.h"
+
+void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish);
+	
+/*
+ *	TiThreadPerformOnMainThread should replace all Titanium instances of
+ *	performSelectorOnMainThread, ESPECIALLY if wait is to be yes. That way,
+ *	exceptional-case main thread activities can process them outside of the
+ *	standard event loop.
+ */
+
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish);
+
+/*	
+ *	Blocks sent to TiThreadPerformOnMainThread will be processed on the main
+ *	thread. Most of the time, this is done using dispatch_async or
+ *	dispatch_sync onto the main queue as needed. However, there are some cases
+ *	where the main thread is busy inside a method and needs to process these
+ *	blocks without waiting for the method to complete. The most common example
+ *	is during app suspension, where any JS file waiting on the main thread
+ *	would not complete in time to get the 'pause' event.
+ *
+ *	In those instances, the method on the main thread may call
+ *	TiThreadProcessPendingMainThreadBlocks to process while waiting.
+ *
+ *	This function takes three arguments:
+ *	The maximum time duration to wait, called timeout.
+ *		The processing stops after this time has passed.
+ *	A boolean to stop when the queue is empty.
+ *		The processing stops if this boolean is YES and the queue is empty.
+ *	A block that takes a pointer to a bool. This block may be NULL.
+ *		The processing stops if the bool specified by the pointer is set NO.
+ *
+ *	The function works processes blocks already queued up by
+ *	TiThreadPerformOnMainThread thusly:
+ *
+ *	1.	doneTime = currentTime() + timeout.
+ *	2.	Attempt to process a block first before checking to stop.
+ *	3.	continue = currentTime < doneTime.
+ *	4.	If (continue && doneWhenEmpty) continue = [queue count] > 0
+ *	5.	If continueCallback is not nil, call continueCallback(&continue)
+ *		It is the block's responsibility to not allow for an infinite loop.
+ *	6.	If (continue && ([queue count] == 0)) sleep briefly to allow background
+ *		tasks to queue up blocks.
+ *	7.	If (continue) go back to step 2.
+ *
+ *	Possible future use cases will have wrappers to make this function easier
+ *	to use, even to have a non-deadlocking.
+ *
+ *	Returns: Whether or not the queue was empty upon return.
+ */
+
+BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhenEmpty, void (^continueCallback)(BOOL *) );
 
 #include "TiPublicAPI.h"
 
