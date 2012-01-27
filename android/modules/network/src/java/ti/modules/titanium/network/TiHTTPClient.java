@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -211,10 +211,10 @@ public class TiHTTPClient
 
 				if (DBG) {
 					try {
-						Log.w(LCAT, "Entity Type: " + response.getEntity().getClass());
-						Log.w(LCAT, "Entity Content Type: " + response.getEntity().getContentType().getValue());
-						Log.w(LCAT, "Entity isChunked: " + response.getEntity().isChunked());
-						Log.w(LCAT, "Entity isStreaming: " + response.getEntity().isStreaming());
+						Log.d(LCAT, "Entity Type: " + response.getEntity().getClass());
+						Log.d(LCAT, "Entity Content Type: " + response.getEntity().getContentType().getValue());
+						Log.d(LCAT, "Entity isChunked: " + response.getEntity().isChunked());
+						Log.d(LCAT, "Entity isStreaming: " + response.getEntity().isStreaming());
 					} catch (Throwable t) {
 						// Ignore
 					}
@@ -502,6 +502,12 @@ public class TiHTTPClient
 		{
 			// TODO - implement converter method for array to hashmap?
 			cb.callAsync(proxy.getKrollObject(), args);
+		} else {
+			// It's particularly interesting if an error wants to be reported
+			// but no one is listening, so log that.
+			if (ON_ERROR.equals(name)) {
+				Log.w(LCAT, "No onerror callback specified; it would be called if it were.");
+			}
 		}
 	}
 
@@ -521,7 +527,9 @@ public class TiHTTPClient
 	
 	public void setReadyState(int readyState)
 	{
-		Log.d(LCAT, "Setting ready state to " + readyState);
+		if (DBG) {
+			Log.d(LCAT, "Setting ready state to " + readyState);
+		}
 		this.readyState = readyState;
 
 		fireCallback(ON_READY_STATE_CHANGE);
@@ -1050,13 +1058,7 @@ public class TiHTTPClient
 				if (DBG) {
 					Log.d(LCAT, "send()");
 				}
-				/*
-				Header[] h = request.getAllHeaders();
-				for(int i=0; i < h.length; i++) {
-					Header hdr = h[i];
-					//Log.e(LCAT, "HEADER: " + hdr.toString());
-				}
-				 */
+
 				handler = new LocalResponseHandler(TiHTTPClient.this);
 
 				// lazy get client each time in case the validatesSecureCertificate() changes
@@ -1084,7 +1086,9 @@ public class TiHTTPClient
 					if (parts.size() > 0 && needMultipart) {
 						mpe = new MultipartEntity();
 						for(String name : parts.keySet()) {
-							Log.d(LCAT, "adding part " + name + ", part type: " + parts.get(name).getMimeType() + ", len: " + parts.get(name).getContentLength());
+							if (DBG) {
+								Log.d(LCAT, "adding part " + name + ", part type: " + parts.get(name).getMimeType() + ", len: " + parts.get(name).getContentLength());
+							}
 							mpe.addPart(name, parts.get(name));
 						}
 
@@ -1103,7 +1107,6 @@ public class TiHTTPClient
 						}
 
 						HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest) request;
-						Log.d(LCAT, "totalLength="+totalLength);
 
 						ProgressEntity progressEntity = new ProgressEntity(mpe, new ProgressListener() {
 							public void progress(int progress) {
@@ -1146,7 +1149,9 @@ public class TiHTTPClient
 				}
 
 				if(result != null) {
-					Log.d(LCAT, "Have result back from request len=" + result.length());
+					if (DBG) {
+						Log.d(LCAT, "Have result back from request len=" + result.length());
+					}
 				}
 				connected = false;
 				setResponseText(result);
@@ -1154,7 +1159,9 @@ public class TiHTTPClient
 
 			} catch(Throwable t) {
 				if (client != null) {
-					Log.d(LCAT, "clearing the expired and idle connections");
+					if (DBG) {
+						Log.d(LCAT, "clearing the expired and idle connections");
+					}
 					client.getConnectionManager().closeExpiredConnections();
 					client.getConnectionManager().closeIdleConnections(0, TimeUnit.NANOSECONDS);
 
