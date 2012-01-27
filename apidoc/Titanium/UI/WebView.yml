@@ -6,14 +6,20 @@ since: "0.8"
 methods:
   - name: canGoBack
     summary: returns true if the webview can go back in history
+    description: |
+        For Mobile Web, returns true if `url` is set.
     returns:
         type: Boolean
   - name: canGoForward
     summary: returns true if the webview can go forward in history
+    description: |
+        For Mobile Web, returns true if `url` is set.
     returns:
         type: Boolean
   - name: evalJS
     summary: invoke JavaScript inside the context of the webview and optionally, return a result
+    description: |
+        For Mobile Web, you can only execute JavaScript when the contents are on the same domain.
     returns:
         type: String
     parameters:
@@ -22,12 +28,22 @@ methods:
         type: String
   - name: goBack
     summary: go back one entry in history to the previous page
+    description: |
+        For Mobile Web, you can only go back for same domain pages. If you set the initial `url` to a remote page, the back function will not work.
+        If you load a local page, then the user navigates away to a remote page, you cannot go back.
   - name: goForward
     summary: go forward one entry in history to the page before the current page
+    description: |
+        For Mobile Web, you can only go forward for same domain pages. If you set the initial `url` to a remote page, the back function will not work.
   - name: reload
     summary: reload the current webpage
+    description: |
+        For Mobile Web, when you reload, the last visited same domain page or the original `url` is the page that is reloaded.
+        You may need to simply reset the `url` property to reinitialize the WebView's iframe. Reloading the WebView will reset
+        the history.
   - name: repaint
     summary: force the webview to repaint its contents
+    platforms: [iphone, ipad]
   - name: setBasicAuthentication
     summary: set the basic authentication for the webview instance to be used on subsequent url requests
     platforms: [android, iphone, ipad]
@@ -41,31 +57,46 @@ methods:
   - name: stopLoading
     summary: stop loading a currently loading page
     description: |
-        For Mobile Web, due to browser permissions, this will issue a stop on all windows including the parent and all other webviews.
+        For Mobile Web, due to browser permissions, this will issue a stop on all windows including the parent and all other WebViews.
+        Generally, this feature does not work reliably and instead you may choose to set the `hardStop` argument to true.
+    parameters:
+      - name: hardStop
+        summary: Forces the WebView to destroy the iframe (Mobile Web only)
+        type: Boolean
 events:
   - name: beforeload
     summary: fired before the webview starts loading its content
+    description: |
+        For Mobile Web, if you pass the `url` into the constructor, you must attach the event listener before
+        adding the WebView to its parent, otherwise the event will fire before you have a chance to add the event
+        listener.
+        
+        This event does not fire when navigating remote web pages.
     properties:
       - name: url
         summary: the url of the web document
       - name: y
         summary: the y point of the event, in receiving view coordinates
+        platforms: [iphone, ipad, android]
       - name: x
         summary: the x point of the event in receiving view coordiantes
+        platforms: [iphone, ipad, android]
       - name: globalPoint
         summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: error
-    summary: fired when the webview cannot load the content
+    summary: Fired when the webview cannot load the content. For Mobile Web, generally this event will NOT fire, even for 404, 500, and invalid URLs.
     properties:
       - name: url
         summary: the url of the web document
       - name: y
         summary: the y point of the event, in receiving view coordinates
+        platforms: [iphone, ipad, android]
       - name: x
         summary: the x point of the event in receiving view coordiantes
+        platforms: [iphone, ipad, android]
       - name: message
         summary: the error message
       - name: globalPoint
@@ -77,11 +108,13 @@ events:
     summary: fired when the webview is loaded
     properties:
       - name: url
-        summary: the url of the web document
+        summary: The url of the web document. For Mobile Web, this `url` is generally accurate when loading same domain pages and remote pages that you explicitly set using the `url` property. If you navigate a remote page, then this `url` is set to the initial remote page's URL.
       - name: y
         summary: the y point of the event, in receiving view coordinates
+        platforms: [iphone, ipad, android]
       - name: x
         summary: the x point of the event in receiving view coordiantes
+        platforms: [iphone, ipad, android]
       - name: globalPoint
         summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
@@ -101,10 +134,13 @@ events:
 properties:
   - name: data
     summary: a data blob or file that is used to load the web document
-    platforms: [android, iphone, ipad]
+    description: |
+        For Mobile Web, setting new content will reset the `url` and the WebView's history.
     type: Object
   - name: html
     summary: the html content of the web document
+    description: |
+        For Mobile Web, setting new content will reset the `url` and the WebView's history.
     type: String
   - name: loading
     summary: boolean indicating if the webview is loading content

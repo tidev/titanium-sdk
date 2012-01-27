@@ -287,42 +287,21 @@
 		if (!cfg.analytics) {
 			return;
 		}
+
 		// store event
 		var storage = localStorage.getItem(analyticsStorageName);
-		if(storage == null){
-			storage = [];
-		} else {
-			storage = JSON.parse(storage);
-		}
-		var now = new Date();
-		var ts = "yyyy-MM-dd'T'HH:mm:ss.SSSZ".replace(/\w+/g, function(str){
-			switch(str){
-				case "yyyy":
-					return now.getFullYear();
-				case "MM":
-					return now.getMonth() + 1;
-				case "dd":
-					return now.getDate();
-				case "HH":
-					return now.getHours();
-				case "mm":
-					return now.getMinutes();
-				case "ss":
-					return now.getSeconds();
-				case "SSSZ":
-					var tz = now.getTimezoneOffset();
-					var atz = Math.abs(tz);
-					tz = (tz < 0 ? "-" : "+") + (atz < 100 ? "00" : (atz < 1000 ? "0" : "")) + atz;
-					return now.getMilliseconds() + tz;
-				default:
-					return str;
-			}
-		});
-		var formatZeros = function(v, n){
-			var d = (v+'').length;
-			return (d < n ? (new Array(++n - d)).join("0") : "") + v;
-		};
+			now = new Date(),
+			tz = now.getTimezoneOffset(),
+			atz = Math.abs(tz),
+			m = now.getMonth() + 1,
+			d = now.getDate(),
+			ts = now.getFullYear() + "-" + (m < 10 ? "0" + m : m) + "-" + (d < 10 ? "0" + d : d) + "T" + now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds() + "." + now.getMilliseconds() + (tz < 0 ? "-" : "+") + (atz < 100 ? "00" : (atz < 1000 ? "0" : "")) + atz,
+			formatZeros = function(v, n){
+				var d = (v+'').length;
+				return (d < n ? (new Array(++n - d)).join("0") : "") + v;
+			};
 
+		storage = storage ? JSON.parse(storage) : [];
 		storage.push({
 			eventId: createUUID(),
 			eventType: eventType,

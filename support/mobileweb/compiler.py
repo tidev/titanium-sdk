@@ -51,6 +51,8 @@ class Compiler(object):
 				'eventdriven.js',
 				
 				# base classes
+				"Ti/_/include.js",
+				"Ti/_/text.js",
 				'Ti/_/Evented.js',
 				'Ti/UI.js',
 				'Ti/_/Gestures/GestureRecognizer.js',

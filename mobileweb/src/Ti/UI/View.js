@@ -13,10 +13,14 @@ define("Ti/UI/View",
 		},
 
 		add: function(view) {
-			view._parent = this;
+			view._setParent(this);
 			this.children.push(view);
 			this.containerNode.appendChild(view.domNode);
 			Ti.UI._doFullLayout();
+		},
+
+		_setParent: function(view) {
+			this._parent = view;
 		},
 
 		_insertAt: function(view,index) {
@@ -37,7 +41,8 @@ define("Ti/UI/View",
 				l = this.children.length;
 			for (; i < l; i++) {
 				if (this.children[i] === view) {
-					this.children.splice(i, 1);
+					l = this.children.splice(i, 1);
+					l[0]._setParent();
 					break;
 				}
 			}
@@ -59,6 +64,7 @@ define("Ti/UI/View",
 		},
 
 		_defaultWidth: "100%",
+
 		_defaultHeight: "100%",
 
 		properties: {
