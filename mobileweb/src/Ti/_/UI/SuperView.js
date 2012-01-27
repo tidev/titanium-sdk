@@ -1,4 +1,4 @@
-define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI", "Ti/UI/View"], function(declare, dom, UI, View) {
+define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], function(declare, dom, lang, UI, View) {
 
 	var stack = [],
 		sessId = Math.random(),
@@ -24,6 +24,12 @@ define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI", "Ti/UI/View"],
 	});
 
 	return declare("Ti._.UI.SuperView", View, {
+
+		constructor: function() {
+			this.addEventListener("focus", lang.hitch(this, function() {
+				this.setWindowTitle(this.title);
+			}));
+		},
 
 		destroy: function() {
 			this.close();
