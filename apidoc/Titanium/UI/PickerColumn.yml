@@ -31,3 +31,4 @@ properties:
   - name: rows
     summary: Array of rows.
     type: Array<Titanium.UI.PickerRow>
+    permission: read-only

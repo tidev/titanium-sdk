@@ -7,7 +7,7 @@ description: |
     
     On Android, the `useSpinner` property must be enabled to support multiple columns.
     
-    Views added to picker rows is only supported on iOS.
+    Adding views to picker rows is only supported on iOS.
 extends: Titanium.Proxy
 since: "0.8"
 platforms: [android, iphone, ipad]
@@ -16,50 +16,8 @@ methods:
     summary: Adds rows or columns to the picker.
     parameters:
       - name: data
-        summary: An array of rows, a single row or a column.
-        type: [Array<Titanium.UI.PickerRow>, Titanium.UI.PickerRow, Titanium.UI.PickerColumn]
-    
-  - name: addDefault
-    summary: Insert summary here
-    platforms: [iphone, ipad]
-
-  - name: addPickerColumn
-    summary: |
-        Adds a column to this picker, created from the provided dictionary of `PickerColumn` 
-        properties.
-    parameters:
-      - name: dictObj
-        summary: Dictionary of <Titanium.UI.PickerColumn> properties.
-        type: Dictionary
-    platforms: [iphone, ipad]
-
-  - name: addPickerRow
-    summary: |
-        Adds a row to this picker, created from the provided dictionary of `PickerRow` 
-        properties.
-    parameters:
-      - name: dictObj
-        summary: Dictionary of <Titanium.UI.PickerRow> properties.
-        type: Dictionary
-    platforms: [iphone, ipad]
-
-  - name: addRowOfColumns
-    summary: Insert summary here
-    platforms: [iphone, ipad]
-
-  - name: addRowOfDicts
-    summary: Insert summary here
-    platforms: [iphone, ipad]
-
-  - name: columnAt
-    summary: Returns column at specified index.
-    parameters:
-      - name: index
-        summary: Index of column.
-        type: Number
-    returns: 
-      - type: Titanium.UI.PickerColumn
-    platforms: [iphone, ipad]
+        summary: An array of rows, a single row, an array of columns or a single column.
+        type: [Array<Titanium.UI.PickerRow>, Titanium.UI.PickerRow, Array<Titanium.UI.PickerColumn>, Titanium.UI.PickerColumn]
 
   - name: getSelectedRow
     summary: Gets the selected row for a column, or `null` if none exists.
@@ -80,7 +38,7 @@ methods:
     
   - name: setSelectedRow
     summary: Selects a column's row.
-    description: May only be used after this picker is rendered.
+    description: On iOS, this method must be called after the picker is rendered.
     parameters:
       - name: column
         summary: A column index.
@@ -91,7 +49,9 @@ methods:
         type: Number
         
       - name: animated
-        summary: Determines whether the selection should be animated.
+        summary: |
+            Determines whether the selection should be animated. This property will only be 
+            effective if the picker is already rendered. (iPhone, iPad only)
         type: Boolean
         default: true
 
@@ -118,15 +78,15 @@ events:
     summary: Fired when the value of any column's row is changed.
     properties:
       - name: columnIndex
-        summary: Selected column index.
+        summary: Selected column index. On iOS, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> pickers.
         type: Number
         
       - name: rowIndex
-        summary: Selected row index.
+        summary: Selected row index. On iOS, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> pickers.
         type: Number
         
       - name: column
-        summary: The column object.
+        summary: The column object. On iOS, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> pickers.
         type: Titanium.UI.PickerColumn
         
       - name: value
@@ -134,7 +94,7 @@ events:
         type: String
         
       - name: row
-        summary: The row object.
+        summary: The row object. On iOS, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> pickers.
         type: Titanium.UI.PickerRow
         
       - name: selectedValue
@@ -169,7 +129,6 @@ properties:
         (12-hour format.)
     type: Boolean
     default: true (Android native spinner enabled), false (otherwise)
-    default: false
     platforms: [android]
     
   - name: locale
