@@ -4,7 +4,7 @@ summary: |
     A view to display a single image or series of animated images. 
 description: |
 
-    Use the <Titanium.UI.createImageView> method to create an Image View.
+    Use the <Titanium.UI.createImageView> method to create an `ImageView`.
     
     Specifying either a `width` or `height` property for this view will scale its image(s) with 
     the aspect ratio maintained, up to a maximum size that does not exceed its parent view.
@@ -137,7 +137,7 @@ properties:
   - name: images
     summary: | 
         Array of images to animate, defined using local filesystem paths, `File` objects, 
-        remote URLs, or `Blob` objects containing image data.
+        remote URLs (Android only), or `Blob` objects containing image data.
     type: [ Array<String>, Array<Titanium.Blob>, Array<Titanium.Filesystem.File> ]
     
   - name: paused
