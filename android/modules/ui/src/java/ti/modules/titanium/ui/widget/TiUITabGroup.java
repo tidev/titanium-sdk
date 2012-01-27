@@ -34,6 +34,7 @@ public class TiUITabGroup extends TiUIView
 	private TabHost tabHost;
 
 	private String lastTabId;
+	private int previousTabID = -1;
 	private KrollDict tabChangeEventData;
 
 	public TiUITabGroup(TiViewProxy proxy, TiTabActivity activity)
@@ -127,13 +128,20 @@ public class TiUITabGroup extends TiUIView
 			Log.d(LCAT,"Tab change from " + lastTabId + " to " + id);
 		}
 
-		TabProxy currentTab = tabGroupProxy.getTabList().get (tabHost.getCurrentTab());
+		int currentTabID = tabHost.getCurrentTab();
+		TabProxy currentTab = tabGroupProxy.getTabList().get (currentTabID);
+		TabProxy previousTab = null;
+		if (previousTabID != -1) {
+			previousTab = tabGroupProxy.getTabList().get(previousTabID);
+		}
+		previousTabID = currentTabID;
 		proxy.setProperty(TiC.PROPERTY_ACTIVE_TAB, currentTab);
 
 		if (tabChangeEventData != null) {
 			//fire blur on current tab as well as its window
-			currentTab.fireEvent(TiC.EVENT_BLUR, tabChangeEventData);
-			currentTab.getWindow().fireEvent(TiC.EVENT_BLUR, null);
+			if (previousTab != null)
+			previousTab.fireEvent(TiC.EVENT_BLUR, tabChangeEventData);
+			previousTab.getWindow().fireEvent(TiC.EVENT_BLUR, null);
 		}
 			
 		tabChangeEventData = tabGroupProxy.buildFocusEvent(id, lastTabId);
