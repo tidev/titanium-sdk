@@ -24,7 +24,6 @@ define("Ti/UI/Window", ["Ti/_/declare", "Ti/Gesture", "Ti/_/UI/SuperView", "Ti/U
 				})).show();
 			}
 			SuperView.prototype.open.apply(this, args);
-			this.setWindowTitle(this.title);
 		},
 
 		close: function(args) {
