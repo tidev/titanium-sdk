@@ -1264,7 +1264,12 @@ require.cache({
 					}
 
 					// 3) mixin args if any
-					is(a0, "Object") && mix(this, a0);
+					if (is(a0, "Object")) {
+						f = this.constants;
+						for (i in a0) {
+							a0.hasOwnProperty(i) && ((f && i in f ? f.__values__ : this)[i] = a0[i]);
+						}
+					}
 
 					// 4) continue the original ritual: call the postscript
 					f = this.postscript;
@@ -1660,10 +1665,6 @@ require.cache({
 			}
 
 			return {
-				val: function(originalValue, defaultValue) {
-					return is(originalValue, "Undefined") ? defaultValue : originalValue;
-				},
-
 				hitch: hitch = function(scope, method) {
 					if (arguments.length > 2) {
 						return hitchArgs.apply(global, arguments);
@@ -1776,12 +1777,18 @@ require.cache({
 					}
 
 					return obj[q] = value;
+				},
+
+				toArray: toArray,
+
+				val: function(originalValue, defaultValue) {
+					return is(originalValue, "Undefined") ? defaultValue : originalValue;
 				}
 			};
 		});
 	},
 	"Ti/_/ready": function() {
-		define(function() {
+		define(["Ti/_/lang"], function(lang) {
 			/**
 			 * ready() functionality based on code from Dojo Toolkit.
 			 *
@@ -1822,12 +1829,20 @@ require.cache({
 				}
 			}
 
-			function ready(context, callback) {
-				var fn = callback ? function(){ callback.call(context); } : context;
+			function ready(priority, context, callback) {
+				var fn, i, l;
+				if (!require.is(priority, "Number")) {
+					callback = context;
+					context = priority;
+					priority = 1000;
+				}
+				fn = callback ? function(){ callback.call(context); } : context;
 				if (isReady) {
 					fn();
 				} else {
-					readyQ.push(fn);
+					fn.priority = priority;
+					for (i = 0, l = readyQ.length; i < l && priority >= readyQ[i].priority; i++) {}
+					readyQ.splice(i, 0, fn);
 				}
 			}
 
@@ -1858,18 +1873,20 @@ require.cache({
 				var i = 0,
 					x,
 					uc;
-				if (arguments.length > 2) {
-					while (i < vp.length) {
-						x = vp[i++];
-						x += x ? uc || (uc = string.capitalize(name)) : name;
-						if (x in node.style) {
-							require.each(require.is(value, "Array") ? value : [value], function(v) { node.style[x] = v; });
-							return value;
+				if (node) {
+					if (arguments.length > 2) {
+						while (i < vp.length) {
+							x = vp[i++];
+							x += x ? uc || (uc = string.capitalize(name)) : name;
+							if (x in node.style) {
+								require.each(require.is(value, "Array") ? value : [value], function(v) { node.style[x] = v; });
+								return value;
+							}
 						}
-					}
-				} else {
-					for (x in name) {
-						set(node, x, name[x]);
+					} else {
+						for (x in name) {
+							set(node, x, name[x]);
+						}
 					}
 				}
 				return node;
@@ -1877,7 +1894,7 @@ require.cache({
 
 			return {
 				url: function(url) {
-					return !url ? "" : /^url\(/.test(url) ? url : "url(" + _.getAbsolutePath(url) + ")";
+					return !url || url === "none" ? "" : /^url\(/.test(url) ? url : "url(" + _.getAbsolutePath(url) + ")";
 				},
 
 				get: function(node, name) {

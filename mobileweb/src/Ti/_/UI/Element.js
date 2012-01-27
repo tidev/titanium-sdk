@@ -75,8 +75,12 @@ define("Ti/_/UI/Element",
 					gestureRecognizers = touchRecognizers[eventType],
 					eventType = "Touch" + eventType + "Event",
 					touches = evt.changedTouches;
-				evt.preventDefault && evt.preventDefault();
-				touches && touches[0].preventDefault && touches[0].preventDefault();
+				if (this._preventDefaultTouchEvent) {
+					this._preventDefaultTouchEvent && evt.preventDefault && evt.preventDefault();
+					for (i in touches) {
+						touches[i].preventDefault && touches[i].preventDefault();
+					}
+				}
 				useTouch || require.mix(evt, {
 					touches: evt.type === "mouseup" ? [] : [evt],
 					targetTouches: [],
@@ -118,8 +122,11 @@ define("Ti/_/UI/Element",
 		},
 
 		destroy: function() {
-			dom.destroy(this.domNode);
-			this.domNode = null;
+			if (this.domNode) {
+				dom.destroy(this.domNode);
+				this.domNode = null;
+			}
+			this._destroyed = 1;
 		},
 
 		doLayout: function(originX, originY, parentWidth, parentHeight, centerHDefault, centerVDefault) {
@@ -141,7 +148,7 @@ define("Ti/_/UI/Element",
 					this.height,
 					this.borderWidth
 				),
-				s;
+				styles;
 
 			this._measuredLeft = dimensions.left;
 			this._measuredTop = dimensions.top;
@@ -263,7 +270,9 @@ define("Ti/_/UI/Element",
 			}
 
 			// Calculate the width/left properties if width is NOT auto
-			var borderWidth = computeSize(borderWidth);
+			var borderWidth = computeSize(borderWidth),
+				calculateWidthAfterAuto = false,
+				calculateHeightAfterAuto = false;
 			borderWidth = is(borderWidth,"Number") ? borderWidth: 0;
 			if (width != "auto") {
 				if (isDef(right)) {
@@ -274,6 +283,8 @@ define("Ti/_/UI/Element",
 					}
 				}
 				width -= borderWidth * 2;
+			} else if(isDef(right)) {
+				calculateWidthAfterAuto = true;
 			}
 			if (height != "auto") {
 				if (isDef(bottom)) {
@@ -284,16 +295,39 @@ define("Ti/_/UI/Element",
 					}
 				}
 				height -= borderWidth * 2;
+			} else if(isDef(bottom)) {
+				calculateHeightAfterAuto = true;
 			}
 
 			// TODO change this once we re-architect the inheritence so that widgets don't have add/remove/layouts
-			if (this.children.length > 0) {
+			if (this.children && this.children.length > 0) {
 				var computedSize = this._layout.doLayout(this,width,height);
 				width == "auto" && (width = computedSize.width);
 				height == "auto" && (height = computedSize.height);
 			} else {
 				width == "auto" && (width = this._getContentWidth());
 				height == "auto" && (height = this._getContentHeight());
+			}
+			
+			if (calculateWidthAfterAuto) {
+				if (isDef(right)) {
+					if (isDef(left)) {
+						width = right - left;
+					} else {
+						left = right - width;
+					}
+				}
+				width -= borderWidth * 2;
+			}
+			if (calculateHeightAfterAuto) {
+				if (isDef(bottom)) {
+					if (isDef(top)) {
+						height = bottom - top;
+					} else {
+						top = bottom - height;
+					}
+				}
+				height -= borderWidth * 2;
 			}
 
 			// Set the default top/left if need be
@@ -331,6 +365,8 @@ define("Ti/_/UI/Element",
 		_getContentOffset: function(){
 			return {x: 0, y: 0};
 		},
+		
+		_preventDefaultTouchEvent: true,
 
 		_isGestureBlocked: function(gesture) {
 			for (var recognizer in this._gestureRecognizers) {
@@ -352,8 +388,8 @@ define("Ti/_/UI/Element",
 			var evt = evt || {},
 				m = (evt.type || "").match(/mouse(over|out)/),
 				node = this._focus.node,
-				bi = this.backgroundImage,
-				bc = this.backgroundColor || (bi ? "transparent" : "");
+				bi = this.backgroundImage || "none",
+				bc = this.backgroundColor;
 
 			if (this._touching) {
 				bc = this.backgroundSelectedColor || bc;
@@ -372,7 +408,7 @@ define("Ti/_/UI/Element",
 			}
 
 			setStyle(node, {
-				backgroundColor: bc,
+				backgroundColor: bc || (bi && bi !== "none" ? "transparent" : ""),
 				backgroundImage: style.url(bi)
 			});
 		},
@@ -381,11 +417,26 @@ define("Ti/_/UI/Element",
 			var f = this._focus = this._focus || {};
 
 			if (f.node !== node) {
-				f.node && event.off(f.evts);
+				if (f.node) {
+					event.off(f.evts);
+					event.off(f.evtsMore);
+				}
 				f.node = node;
-				f.evts = ["focus", "blur", "mouseover", "mouseout", "mousemove"].map(function(e) {
-					return on(node, e, this, "_doBackground");
-				}, this);
+				f.evts = [
+					on(node, "focus", this, "_doBackground"),
+					on(node, "blur", this, "_doBackground") /*,
+					on(node, "mouseover", this, function() {
+						this._doBackground();
+						f.evtsMore = [
+							on(node, "mousemove", this, "_doBackground"),
+							on(node, "mouseout", this, function() {
+								this._doBackground();
+								event.off(f.evtsMore);
+								f.evtsMore = [];
+							})
+						];
+					})*/
+				];
 			}
 
 			return node;
@@ -462,9 +513,11 @@ define("Ti/_/UI/Element",
 				// Create the transition, must be set before setting the other properties
 				setStyle(this.domNode, "transition", "all " + anim.duration + "ms " + curve + (anim.delay ? " " + anim.delay + "ms" : ""));
 				on.once(window, transitionEnd, lang.hitch(this, function(e) {
-					// Clear the transform so future modifications in these areas are not animated
-					setStyle(this.domNode, "transition", "");
-					done();
+					if (!this._destroyed) {
+						// Clear the transform so future modifications in these areas are not animated
+						setStyle(this.domNode, "transition", "");
+						done();
+					}
 				}));
 				setTimeout(fn, 0);
 			} else {
