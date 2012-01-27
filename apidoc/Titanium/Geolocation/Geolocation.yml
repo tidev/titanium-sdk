@@ -190,7 +190,13 @@ properties:
         ios:
             min: "4.2"
   - name: locationServicesEnabled
-    summary: returns true if the user has enabled or disable location services for the device (not the application).
+    summary: Indicates if the user has enabled or disable location services for the device (not the application).
+    description: |
+        This method returns `true` if *any* location provider is enabled.
+
+        On Android OS 2.2 and above, there is a new,  "passive" location provider that is enabled
+        at all times, even when the user disables both the GPS and Network location providers.
+        Therefore, this method always returns `true` on these devices.
     type: Boolean
     permission: read-only
   - name: preferredProvider
