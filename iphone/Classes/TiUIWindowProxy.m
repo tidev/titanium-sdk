@@ -297,41 +297,26 @@
 	UINavigationBar * ourNB = [[controller navigationController] navigationBar];
 	CGRect barFrame = [ourNB bounds];
 	UIImage * newImage = [TiUtils toImage:[self valueForUndefinedKey:@"barImage"]
-			proxy:self size:barFrame.size];
-
-	if (newImage == nil)
-	{
-		[barImageView removeFromSuperview];
-		RELEASE_TO_NIL(barImageView);
-		return;
-	}
-	
-	if (barImageView == nil)
-	{
-		barImageView = [[UIImageView alloc]initWithImage:newImage];
-	}
-	else
-	{
-		[barImageView setImage:newImage];
-	}
-	
-	[barImageView setFrame:barFrame];
-	
-	int barImageViewIndex = 0;
-	if ([ourNB respondsToSelector:@selector(setBackgroundImage:forBarMetrics:)]) {
-	/*
-	 *	While iOS 5 has methods for setting the background Image, using it requires
-	 *	linking to that SDK (the mentioned bar metrics is an enumeration) which,
-	 *	while iOS 5 is behind the NDA, isn't an option.
-	 *	TODO: Update when iOS 5 is not NDAed for something more elegant.
-	 */
-		barImageViewIndex = 1;
-	}
-	
-	if ([[ourNB subviews] indexOfObject:barImageView] != barImageViewIndex)
-	{
-		[ourNB insertSubview:barImageView atIndex:barImageViewIndex];
-	}
+                                    proxy:self size:barFrame.size];
+    if ([TiUtils isIOS5OrGreater]) {
+        [ourNB setBackgroundImage:newImage forBarMetrics:UIBarMetricsDefault];
+    } else {
+        if (newImage == nil) {
+            [barImageView removeFromSuperview];
+            RELEASE_TO_NIL(barImageView);
+            return;
+        }
+        if (barImageView == nil) {
+            barImageView = [[UIImageView alloc]initWithImage:newImage];
+        } else {
+            [barImageView setImage:newImage];
+        }
+        [barImageView setFrame:barFrame];
+        int barImageViewIndex = 0;
+        if ([[ourNB subviews] indexOfObject:barImageView] != barImageViewIndex) {
+            [ourNB insertSubview:barImageView atIndex:barImageViewIndex];
+        }
+    }
 }
 
 -(void)setBarImage:(id)value
@@ -505,6 +490,7 @@
 	}
 	[[parentController navigationItem] setBackBarButtonItem:backButton];
 	[backButton release];
+    [self updateBarImage];
 }
 
 -(void)setBackButtonTitle:(id)proxy
@@ -568,6 +554,7 @@
 	}
 
 	[ourNavItem setTitleView:newTitleView];
+    [self updateBarImage];
 }
 
 
