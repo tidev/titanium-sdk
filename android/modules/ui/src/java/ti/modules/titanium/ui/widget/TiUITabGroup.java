@@ -34,8 +34,6 @@ public class TiUITabGroup extends TiUIView
 	private TabHost tabHost;
 
 	private String lastTabId;
-	private int numTabNeededToAdd = 0;
-	private boolean addingTab = true;
 	private int previousTabID = -1;
 	private KrollDict tabChangeEventData;
 
@@ -69,7 +67,6 @@ public class TiUITabGroup extends TiUIView
 
 	public void addTab(TabSpec tab, final TabProxy tabProxy)
 	{
-		numTabNeededToAdd++;
 		tabHost.addTab(tab);
 		if (tabHost.getVisibility() == View.GONE) {
 			boolean visibilityPerProxy = true; // default
@@ -136,32 +133,27 @@ public class TiUITabGroup extends TiUIView
 		TabProxy currentTab = tabGroupProxy.getTabList().get (currentTabID);
 		proxy.setProperty(TiC.PROPERTY_ACTIVE_TAB, currentTab);
 
-		if (!addingTab) {
+		
 
-			if (previousTabID != -1) {
-				previousTab = tabGroupProxy.getTabList().get(previousTabID);
-			}
+		if (previousTabID != -1) {
+			previousTab = tabGroupProxy.getTabList().get(previousTabID);
+		}
 
-			if (tabChangeEventData != null) {
-				//fire blur on previous tab as well as its window
-				if (previousTab != null) {
-					previousTab.fireEvent(TiC.EVENT_BLUR, tabChangeEventData);
-					previousTab.getWindow().fireEvent(TiC.EVENT_BLUR, null);
-				}
-			}
-
-			tabChangeEventData = tabGroupProxy.buildFocusEvent(id, lastTabId);
-			//fire focus on current tab as well as its window
-			currentTab.fireEvent(TiC.EVENT_FOCUS, tabChangeEventData);
-			currentTab.getWindow().fireEvent(TiC.EVENT_FOCUS, null);
-
-
-		} else {
-			numTabNeededToAdd--;
-			if (numTabNeededToAdd == 0) {
-				addingTab = false;
+		if (tabChangeEventData != null) {
+			//fire blur on previous tab as well as its window
+			if (previousTab != null) {
+				previousTab.fireEvent(TiC.EVENT_BLUR, tabChangeEventData);
+				previousTab.getWindow().fireEvent(TiC.EVENT_BLUR, null);
 			}
 		}
+
+		tabChangeEventData = tabGroupProxy.buildFocusEvent(id, lastTabId);
+		//fire focus on current tab as well as its window
+		currentTab.fireEvent(TiC.EVENT_FOCUS, tabChangeEventData);
+		currentTab.getWindow().fireEvent(TiC.EVENT_FOCUS, null);
+
+
+		
 		lastTabId = id;
 		previousTabID = currentTabID;
 

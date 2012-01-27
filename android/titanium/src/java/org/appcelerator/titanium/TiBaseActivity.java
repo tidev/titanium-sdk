@@ -655,7 +655,9 @@ public abstract class TiBaseActivity extends Activity
 		updateTitle();
 		
 		if (window != null) {
-			window.fireEvent(TiC.EVENT_FOCUS, null);
+			if (!(this instanceof TiActivity && ((TiActivity)this).isTab())) {
+				window.fireEvent(TiC.EVENT_FOCUS, null);
+			}
 			
 
 		} else {
@@ -726,6 +728,9 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onRestart");
 		}
 
+		if (this instanceof TiActivity && ((TiActivity)this).isTab()) {
+			window.fireEvent("focus", null);
+		}
 		if (activityProxy != null) {
 			// we only want to set the current activity for good in the resume state but we need it right now.
 			// save off the existing current activity, set ourselves to be the new current activity temporarily 
