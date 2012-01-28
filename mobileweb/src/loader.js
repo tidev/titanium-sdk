@@ -1534,7 +1534,7 @@ require.cache({
 							switch(units) {
 								case "%":
 									if(totalLength == "auto") {
-										return "auto";
+										convertAutoToUndef ? undef : "auto";
 									} else if (!require.is(totalLength,"Number")) {
 										console.error("Could not compute percentage size/position of element.");
 										return;

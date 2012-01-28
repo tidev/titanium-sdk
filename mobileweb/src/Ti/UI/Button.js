@@ -97,7 +97,7 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 			title: {
 				set: function(value) {
 					this.buttonTitle.innerHTML = value;
-					this._hasAutoDimensions() && Ti.UI._doFullLayout();
+					this._hasAutoDimensions() && this._triggerParentLayout();
 					return value;
 				}
 			},

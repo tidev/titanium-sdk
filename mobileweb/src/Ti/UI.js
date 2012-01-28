@@ -18,7 +18,7 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 			setTimeout(function() {
 				window.scrollTo(0, 1);
 				window.scrollTo(0, 0);
-				Ti.UI._doFullLayout();
+				Ti.UI._recalculateLayout();
 			}, x);
 		}
 	}
@@ -33,7 +33,14 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 			left: 0,
 			top: 0
 		})).domNode);
+		Ti.UI._recalculateLayout();
 	});
+
+	require.on(window, "resize", function() {
+		Ti.UI._recalculateLayout();
+	});
+	
+	var layouts = 0;
 
 	return lang.setObject("Ti.UI", Evented, {
 
@@ -51,20 +58,40 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 			this._container.remove(win);
 			return win;
 		},
-
-		_doFullLayout: function() {
-			if (!this._layoutInProgress) {
-				this._layoutInProgress = true;
-				setTimeout(lang.hitch(this, function(){
-					this._container.doLayout(0, 0, body.clientWidth, body.clientHeight, true, true);
-					this._layoutInProgress = false;
-				}), 25);
+		
+		_triggerLayout: function(force) {
+			if (force) {
+				console.debug("Doing new forced layout " + layouts++);
+				clearTimeout(this._layoutTimer);
+				this._layoutMarkedNodes(this._container);
+				this._layoutInProgress = false;
+			} else {
+				if (!this._layoutInProgress) {
+					this._layoutInProgress = true;
+					this._layoutTimer = setTimeout(lang.hitch(this, function(){
+						console.debug("Doing new layout " + layouts++);
+						this._layoutMarkedNodes(this._container);
+						this._layoutInProgress = false;
+						this._layoutTimer = null;
+					}), 25);
+				}
 			}
 		},
-
-		_doForcedFullLayout: function() {
-			this._container.doLayout(0, 0, body.clientWidth, body.clientHeight, true, true);
-			this._layoutInProgress = false;
+		
+		_layoutMarkedNodes: function(node) {
+			if (node._markedForLayout) {
+				node._layout && node._layout._doLayout(node, node._measuredWidth, node._measuredHeight);
+			} else {
+				for (var i in node.children) {
+					this._layoutMarkedNodes(node.children[i]);
+				}
+			}
+		},
+		
+		_recalculateLayout: function() {
+			this._container.width = window.innerWidth;
+			this._container.height = window.innerHeight;
+			this._container._doLayout(0, 0, window.innerWidth, window.innerHeight, true, true);
 		},
 
 		properties: {

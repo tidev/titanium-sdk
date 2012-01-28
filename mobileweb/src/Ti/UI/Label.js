@@ -88,7 +88,7 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/c
 			html: {
 				set: function(value) {
 					this.textContainerDiv.innerHTML = value;
-					this._hasAutoDimensions() && Ti.UI._doFullLayout();
+					this._hasAutoDimensions() && this._triggerParentLayout();
 					return value;
 				}
 			},
@@ -107,7 +107,7 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/c
 			text: {
 				set: function(value) {
 					this.textContainerDiv.innerHTML = value;
-					this._hasAutoDimensions() && Ti.UI._doFullLayout();
+					this._hasAutoDimensions() && this._triggerParentLayout();
 					return value;
 				}
 			},

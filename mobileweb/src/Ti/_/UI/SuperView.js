@@ -19,10 +19,6 @@ define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI", "Ti/UI/View"],
 		}
 	});
 
-	require.on(window, "resize", function() {
-		UI._doFullLayout();
-	});
-
 	return declare("Ti._.UI.SuperView", View, {
 
 		destroy: function() {
@@ -56,8 +52,6 @@ define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI", "Ti/UI/View"],
 				this._stackIdx !== null && this._stackIdx < stack.length && stack.splice(this._stackIdx, 1);
 				this._stackIdx = null;
 				UI._setWindow(stack[stack.length-1]);
-
-				UI._doFullLayout();
 
 				this.fireEvent("blur", this._state);
 				this.fireEvent("close");
