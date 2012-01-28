@@ -1,91 +1,77 @@
-define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/UI/View"], function(declare, dom, View) {
-	
-	var windows = [],
-		stack = [],
-		stackIdx = -1,
-		activeWindow,
-		history = window.history || {},
-		ps = history.pushState;
+define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], function(declare, dom, lang, UI, View) {
+
+	var stack = [],
+		sessId = Math.random(),
+		hist = window.history || {},
+		ps = hist.pushState;
 
 	ps && require.on(window, "popstate", function(evt) {
-		var i,
-			n = stackIdx + 1,
-			win;
-		if (evt && evt.state && (i = evt.state.windowIdx) !== null) {
-			win = windows[i];
-			if (n < stack.length && stack[n]._windowIdx === i) {
-				// forward
-				history.pushState({ windowIdx:i }, "", "");
-			} else {
-				// back
-				activeWindow.close();
-				win.fireEvent("focus");
+		var n = stack.length,
+			win = n && stack[n-1],
+			widgetId;
+
+		if (evt && evt.state && evt.state.sessId === sessId && (widgetId = evt.state.id)) {
+			if (n > 1 && stack[n-2].widgetId === widgetId) {
+				win.close();
+				UI._setWindow(win = stack[stack.length-1]);
+				win.fireEvent("focus", win._state);
 			}
 		}
 	});
 
 	require.on(window, "resize", function() {
-		Ti.UI._doFullLayout();
+		UI._doFullLayout();
 	});
 
 	return declare("Ti._.UI.SuperView", View, {
 
-		_windowIdx: null,
-		_opened: 0,
-
 		constructor: function() {
-			this._windowIdx = windows.length;
-			windows.push(this);
+			this.addEventListener("focus", lang.hitch(this, function() {
+				this.setWindowTitle(this.title);
+			}));
 		},
 
 		destroy: function() {
 			this.close();
-			windows[this._windowIdx] = null;
 			View.prototype.destroy.apply(this, arguments);
 		},
 
 		open: function(args) {
-			var i,
-				n = stackIdx + 1,
-				len = stack.length - n;
+			var len = stack.length,
+				active = len && stack[len-1];
 
 			if (!this._opened) {
-				// TODO: if args, then do animation on open
 				this._opened = 1;
-				this.show();
-				Ti.UI._addWindow(this);
+				UI._addWindow(this, 1).show();
 
-				activeWindow && activeWindow.fireEvent("blur");
-				ps && history[activeWindow ? "pushState" : "replaceState"]({ windowIdx: this._windowIdx }, "", "");
-				if (len > 0) {
-					for (i = len - 1; i >= n; i--) {
-						stack[i].close({ skipHistory:true });
-					}
-					stack.splice(n, len);
-				}
-				stackIdx++;
-				stack.push(activeWindow = this);
+				active && active.fireEvent("blur", active._state);
+				ps && history[active ? "pushState" : "replaceState"]({ id: this.widgetId, sessId: sessId }, "", "");
+				stack.push(this);
+				this._stackIdx = len;
 
 				this.fireEvent("open");
-				this.fireEvent("focus");
+				this.fireEvent("focus", this._state);
 			}
 		},
 
 		close: function(args) {
 			if (this._opened) {
-				// TODO: if args, then do animation on close
 				this._opened = 0;
-				Ti.UI._removeWindow(this);
-				(!args || !args.skipHistory) && window.history.go(-1);
-				stackIdx--;
-				Ti.UI._doFullLayout();
-				this.fireEvent("blur");
+				UI._removeWindow(this);
+
+				this._stackIdx !== null && this._stackIdx < stack.length && stack.splice(this._stackIdx, 1);
+				this._stackIdx = null;
+				UI._setWindow(stack[stack.length-1]);
+
+				UI._doFullLayout();
+
+				this.fireEvent("blur", this._state);
 				this.fireEvent("close");
 			}
 		},
 
 		setWindowTitle: function(title) {
-			activeWindow === this && (document.title = title || require.config.project.name);
+			stack[stack.length-1] === this && (document.title = title || require.config.project.name);
 			return title;
 		}
 
