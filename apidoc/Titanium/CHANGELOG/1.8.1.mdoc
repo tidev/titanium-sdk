@@ -1,0 +1,87 @@
+Titanium Mobile 1.8.1 - 1/31/2012
+==================================
+
+Titanium Mobile Release 1.8.1 is a patch set release that includes fixes
+for known issues in Release 1.8.0.1, as well as stability and parity
+improvements.
+
+Please see the updated [Titanium Mobile Reference Documentation for 1.8.1](/apidoc/mobile/1.8.1). 
+
+[Full list of Issues that were addressed in 1.8.1](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12454)
+
+
+Significant Changes In Titanium Mobile
+--------------------------------------
+
+- As of Release 1.8.0.1, Xcode 3.2.6 is no longer supported. This was documented in
+  the [Titanium Compatibility
+  Matrix](https://wiki.appcelerator.org/display/guides/Titanium+Compatibility+Matrix),
+  but mistakenly omitted from the release notes.
+
+
+Known Issues
+------------
+
+The following are known issues in Release 1.8.1: 
+
+- Android: TableViewRow memory leak. [TIMOB-4367](http://jira.appcelerator.org/browse/TIMOB-4367)
+- Android: Memory leaks leading to application crash. [TIMOB-7126](http://jira.appcelerator.org/browse/TIMOB-7126)
+- Android: Memory leak for proxies that have no references. [TIMOB-7409](http://jira.appcelerator.org/browse/TIMOB-7409)
+
+
+
+Android Changes
+---------------
+
+This release includes no new features. A few notable fixes are listed below.
+
+*Bug Fixes:*
+
+- Your Bug Here
+
+For a complete list of Android fixes in this release, see: [Fixed Android Issues in JIRA](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12455).
+
+
+iOS Changes
+-----------
+
+This release includes no new features. A few notable fixes are listed below.
+
+*Bug Fixes:*
+
+- Two fixes to HTTP header handling:
+    - A regression in 1.8.0.1 that caused an exception to be thrown when setting a request
+      header to `null`. [TIMOB-6828](http://jira.appcelerator.org/browse/TIMOB-6828)
+    - The `getResponseHeader` method incorrectly used a case-sensitive match on response header names.
+      [TIMOB-6832](http://jira.appcelerator.org/browse/TIMOB-6832)
+
+For a complete list of iOS fixes in this release, see: [Fixed iOS Issues in JIRA](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12456).
+
+Mobile Web Changes
+------------------
+
+This release includes a significant increase in feature coverage on Mobile Web. A few 
+notable fixes are listed below.
+
+*Bug Fixes:*
+
+- Your Bug Here
+
+For a complete list of Mobile Web fixes in this release, see: [Fixed Mobile Web Issues in JIRA](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12457).
+
+
+
+Documentation Changes
+--------------
+
+This release includes a number of documentation fixes.
+
+- The API Reference now supports hiding inherited members and standard property accessors.
+
+- Improved API documentation for a number of commonly-used modules and objects, including
+  many fixes in the `Titanium.Filesystem`, `Titanium.Database`, and `Titanium.Network` 
+  modules, and updates to the `Button`, `ButtonBar`, `TabbedBar`, `Picker` and `ImageView`
+  documentation.
+
+
+[Fixed Documentation Issues in JIRA](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12458)
