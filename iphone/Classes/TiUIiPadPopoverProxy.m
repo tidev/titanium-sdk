@@ -176,7 +176,7 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 	[super setWidth:value];
 	if (popoverController != nil)
 	{
-		[self performSelectorOnMainThread:@selector(updateContentSize) withObject:nil waitUntilDone:NO];
+		TiThreadPerformOnMainThread(^{[self updateContentSize];}, NO);
 	}
 }
 
@@ -185,7 +185,7 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 	[super setHeight:value];
 	if (popoverController != nil)
 	{
-		[self performSelectorOnMainThread:@selector(updateContentSize) withObject:nil waitUntilDone:NO];
+		TiThreadPerformOnMainThread(^{[self updateContentSize];}, NO);
 	}
 }
 

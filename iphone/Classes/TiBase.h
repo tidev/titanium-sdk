@@ -533,7 +533,8 @@ extern NSString * const kTiLocalNotification;
 #include "TiThreading.h"
 
 void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish);
-	
+void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish);
+
 /*
  *	TiThreadPerformOnMainThread should replace all Titanium instances of
  *	performSelectorOnMainThread, ESPECIALLY if wait is to be yes. That way,

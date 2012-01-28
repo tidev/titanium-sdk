@@ -220,8 +220,9 @@ static NSDictionary* multiValueLabels;
 -(NSString*)fullName
 {
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(fullName) withObject:nil waitUntilDone:YES];
-		return [returnCache objectForKey:@"fullName"];
+		__block id result;
+		TiThreadPerformOnMainThread(^{result = [[self fullName] retain];}, YES);
+		return [result autorelease];
 	}
 	
 	CFStringRef name = ABRecordCopyCompositeName([self record]);
@@ -269,8 +270,9 @@ static NSDictionary* multiValueLabels;
 -(TiBlob*)image
 {
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(image) withObject:nil waitUntilDone:YES];
-		return [returnCache objectForKey:@"image"];
+		__block id result;
+		TiThreadPerformOnMainThread(^{result = [[self image] retain];}, YES);
+		return [result autorelease];
 	}
 	CFDataRef imageData = ABPersonCopyImageData([self record]);
 	if (imageData != NULL)

@@ -171,11 +171,13 @@
 		}
 		else
 		{
-			[childView performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:NO];
-			if (layoutNeedsRearranging)
-			{
-				[self performSelectorOnMainThread:@selector(relayout) withObject:nil waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
-			}
+			TiThreadPerformOnMainThread(^{
+				[childView removeFromSuperview];
+				if (layoutNeedsRearranging)
+				{
+					[self layoutChildren:NO];
+				}
+			}, NO);
 		}
 	}
 	//Yes, we're being really lazy about letting this go. This is intentional.
@@ -202,20 +204,17 @@
 {
 	TiAnimation * newAnimation = [TiAnimation animationFromArg:arg context:[self executionContext] create:NO];
 	[self rememberProxy:newAnimation];
-	[self performSelectorOnMainThread:@selector(animateOnUIThread:) withObject:newAnimation waitUntilDone:NO];
-}
-
--(void)animateOnUIThread:(TiAnimation *)newAnimation
-{
-	[parent contentsWillChange];
-	if ([view superview]==nil)
-	{
-		VerboseLog(@"Entering animation without a superview Parent is %@, props are %@",parent,dynprops);
-		[parent childWillResize:self];
-	}
-	[self windowWillOpen]; // we need to manually attach the window if you're animating
-	[parent layoutChildrenIfNeeded];
-	[[self view] animate:newAnimation];
+	TiThreadPerformOnMainThread(^{
+		[parent contentsWillChange];
+		if ([view superview]==nil)
+		{
+			VerboseLog(@"Entering animation without a superview Parent is %@, props are %@",parent,dynprops);
+			[parent childWillResize:self];
+		}
+		[self windowWillOpen]; // we need to manually attach the window if you're animating
+		[parent layoutChildrenIfNeeded];
+		[[self view] animate:newAnimation];
+	}, NO);
 }
 
 -(void)setAnimation:(id)arg
@@ -1205,11 +1204,6 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	[[self view] animationCompleted];
 }
 
--(void)makeViewPerformAction:(TiAction *)action
-{
-	[[self view] performSelector:[action selector] withObject:[action arg]];
-}
-
 -(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait
 {
 	BOOL isAttached = [self viewAttached];
@@ -1227,13 +1221,13 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 	if(isAttached)
 	{
-		[[self view] performSelectorOnMainThread:selector withObject:object waitUntilDone:wait];
+		TiThreadPerformOnMainThread(^{[[self view] performSelector:selector withObject:object];}, wait);
 		return;
 	}
 
-	TiAction * ourAction = [[TiAction alloc] initWithTarget:nil selector:selector arg:object];
-	[self performSelectorOnMainThread:@selector(makeViewPerformAction:) withObject:ourAction waitUntilDone:wait];
-	[ourAction release];
+	TiThreadPerformOnMainThread(^{
+		[[self view] performSelector:selector withObject:object];
+	}, wait);
 }
 
 #pragma mark Listener Management
@@ -1769,7 +1763,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	else 
 	{
 		VerboseLog(@"[INFO] Reposition was called by a background thread in %@.",self);
-		[self performSelectorOnMainThread:@selector(reposition) withObject:nil waitUntilDone:NO];
+		TiThreadPerformOnMainThread(^{[self reposition];}, NO);
 	}
 
 }

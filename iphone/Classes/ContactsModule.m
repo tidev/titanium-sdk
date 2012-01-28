@@ -212,8 +212,9 @@
 -(NSArray*)getAllPeople:(id)unused
 {
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(getAllPeople:) withObject:unused waitUntilDone:YES];
-		return [returnCache objectForKey:@"allPeople"];
+		__block id result = nil;
+		TiThreadPerformOnMainThread(^{result = [[self getAllPeople:unused] retain];}, YES);
+		return [result autorelease];
 	}
 	
 	CFArrayRef peopleRefs = ABAddressBookCopyArrayOfAllPeople([self addressBook]);
@@ -238,8 +239,9 @@
 -(NSArray*)getAllGroups:(id)unused
 {
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(getAllGroups:) withObject:unused waitUntilDone:YES];
-		return [returnCache objectForKey:@"allGroups"];
+		__block id result = nil;
+		TiThreadPerformOnMainThread(^{result = [[self getAllGroups:unused] retain];}, YES);
+		return [result autorelease];
 	}
 	
 	CFArrayRef groupRefs = ABAddressBookCopyArrayOfAllGroups([self addressBook]);
@@ -266,8 +268,9 @@
     ENSURE_SINGLE_ARG_OR_NIL(arg, NSDictionary)
     
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(createPerson:) withObject:arg waitUntilDone:YES];
-		return [returnCache objectForKey:@"newPerson"];
+		__block id result = nil;
+		TiThreadPerformOnMainThread(^{result = [[self createPerson:arg] retain];}, YES);
+		return [result autorelease];
 	}
 	
 	if (ABAddressBookHasUnsavedChanges([self addressBook])) {
@@ -317,8 +320,9 @@
     ENSURE_SINGLE_ARG_OR_NIL(arg, NSDictionary)
     
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(createGroup:) withObject:arg waitUntilDone:YES];
-		return [returnCache objectForKey:@"newGroup"];
+		__block id result = nil;
+		TiThreadPerformOnMainThread(^{result = [[self createGroup:arg] retain];}, YES);
+		return [result autorelease];
 	}
 	
 	if (ABAddressBookHasUnsavedChanges([self addressBook])) {

@@ -204,7 +204,7 @@ DEFINE_EXCEPTIONS
 	}
 	else 
 	{
-		[super performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:YES];
+		TiThreadPerformOnMainThread(^{[super removeFromSuperview];}, YES);
 	}
 }
 

@@ -1306,7 +1306,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	TiObjectDeleteProperty(context, globalRef, prop, NULL);	//TODO: This still needed?
 	TiStringRelease(prop);
 
-	[self performSelectorOnMainThread:@selector(unregisterForNotifications) withObject:nil waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[self unregisterForNotifications];}, NO);
 	[self forceGarbageCollectNow];
 	// cause the global context to be released and all objects internally to be finalized
 	TiGlobalContextRelease(context);

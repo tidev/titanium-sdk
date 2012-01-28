@@ -72,7 +72,7 @@
 		if (![args containsObject:oldViewProxy])
 		{
 			[oldViewProxy setParent:nil];
-			[oldViewProxy performSelectorOnMainThread:@selector(detachView) withObject:nil waitUntilDone:NO];
+			TiThreadPerformOnMainThread(^{[oldViewProxy detachView];}, NO);
 			[self forgetProxy:oldViewProxy];			
 		}
 	}
@@ -141,7 +141,7 @@
 		return;
 	}
 
-	[doomedView performSelectorOnMainThread:@selector(detachView) withObject:nil waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[doomedView detachView];}, NO);
 	[self forgetProxy:doomedView];
 	[viewProxies removeObject:doomedView];
 	[self unlockViews];	

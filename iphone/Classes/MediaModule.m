@@ -1230,8 +1230,9 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 {
 	if (systemMusicPlayer == nil) {
 		if (![NSThread isMainThread]) {
-			[self performSelectorOnMainThread:@selector(systemMusicPlayer) withObject:nil waitUntilDone:YES];
-			return systemMusicPlayer;
+			__block id result;
+			TiThreadPerformOnMainThread(^{result = [self systemMusicPlayer];}, YES);
+			return result;
 		}
 		systemMusicPlayer = [[TiMediaMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController iPodMusicPlayer]];
 	}
@@ -1242,7 +1243,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 {
 	if (appMusicPlayer == nil) {
 		if (![NSThread isMainThread]) {
-			[self performSelectorOnMainThread:@selector(appMusicPlayer) withObject:nil waitUntilDone:YES];
+			__block id result;
+			TiThreadPerformOnMainThread(^{result = [self appMusicPlayer];}, YES);
 			return appMusicPlayer;
 		}
 		appMusicPlayer = [[TiMediaMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController applicationMusicPlayer]];

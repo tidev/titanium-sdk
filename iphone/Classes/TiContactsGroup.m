@@ -52,8 +52,9 @@
 -(NSString*)name
 {
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(name) withObject:nil waitUntilDone:YES];
-		return [returnCache objectForKey:@"name"];
+		__block id result;
+		TiThreadPerformOnMainThread(^{result = [[self name] retain];}, YES);
+		return [result autorelease];
 	}
 	
 	CFStringRef nameRef = ABRecordCopyValue([self record], kABGroupNameProperty);

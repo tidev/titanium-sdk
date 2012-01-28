@@ -400,7 +400,7 @@ NSArray* moviePlayerKeys = nil;
 	
 	if (restart)
 	{ 
-		[self performSelectorOnMainThread:@selector(play:) withObject:nil waitUntilDone:NO];
+		TiThreadPerformOnMainThread(^{[self play:nil];}, NO);
 	}
 }
 
@@ -478,7 +478,7 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)cancelAllThumbnailImageRequests:(id)value
 {
-	[[self player] performSelectorOnMainThread:@selector(cancelAllThumbnailImageRequests) withObject:nil waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[[self player] cancelAllThumbnailImageRequests];}, NO);
 }
 
 -(void)requestThumbnailImagesAtTimes:(id)args
@@ -580,7 +580,7 @@ NSArray* moviePlayerKeys = nil;
 -(NSNumber*)fullscreen
 {
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(fullscreen) withObject:nil waitUntilDone:YES];
+		TiThreadPerformOnMainThread(^{[self fullscreen];}, YES);
 		return [returnCache valueForKey:@"fullscreen"];
 	}
 	

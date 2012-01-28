@@ -232,7 +232,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	{
 		NSLog(@"[DEBUG] application booted in %f ms", ([NSDate timeIntervalSinceReferenceDate]-started) * 1000);
 		fflush(stderr);
-		[self performSelectorOnMainThread:@selector(validator) withObject:nil waitUntilDone:YES];
+		TiThreadPerformOnMainThread(^{[self validator];}, YES);
 	}
 }
 

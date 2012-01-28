@@ -110,6 +110,20 @@ void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish)
 	}
 }
 
+void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish)
+{
+	if (view == nil) {
+		return;
+	}
+	if ([NSThread isMainThread]) {
+		[view removeFromSuperview];
+	}
+	else
+	{
+		TiThreadPerformOnMainThread(^{[view removeFromSuperview];}, waitForFinish);
+	}
+}
+
 
 NSMutableArray * TiThreadBlockQueue = nil;
 OSSpinLock TiThreadSpinLock = OS_SPINLOCK_INIT;

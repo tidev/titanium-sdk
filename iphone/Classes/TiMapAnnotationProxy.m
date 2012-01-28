@@ -80,7 +80,7 @@
 
 		if (invokeMethod)
 		{
-			[self performSelectorOnMainThread:@selector(refreshAfterDelay) withObject:nil waitUntilDone:NO];
+			TiThreadPerformOnMainThread(^{[self refreshAfterDelay];}, NO);
 		}
 	}
 }
