@@ -119,7 +119,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeRelease
 	if (refPointer) {
 		Persistent<Object> handle((Object *)refPointer);
 		JavaObject *javaObject = NativeObject::Unwrap<JavaObject>(handle);
-		if (javaObject->isDetached()) {
+		if (javaObject && javaObject->isDetached()) {
 			delete javaObject;
 		}
 	}
