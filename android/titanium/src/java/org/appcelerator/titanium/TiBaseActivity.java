@@ -7,6 +7,7 @@
 package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollRuntime;
@@ -30,6 +31,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
@@ -68,6 +70,7 @@ public abstract class TiBaseActivity extends Activity
 	protected int msgActivityCreatedId = -1;
 	protected int msgId = -1;
 	protected static int previousOrientation = -1;
+	public ArrayList<Dialog> mDialogs = new ArrayList<Dialog>();
 
 	public TiWindowProxy lwWindow;
 
@@ -781,6 +784,7 @@ public abstract class TiBaseActivity extends Activity
 
 		fireOnDestroy();
 
+		
 		if (layout != null) {
 			Log.e(TAG, "Layout cleanup.");
 			layout.removeAllViews();
@@ -833,6 +837,15 @@ public abstract class TiBaseActivity extends Activity
 
 		boolean animate = getIntentBoolean(TiC.PROPERTY_ANIMATE, true);
 
+		//clean up dialogs when activity is finished
+		while (mDialogs.size() > 0) {
+			if (mDialogs.get(0).isShowing()) {
+				mDialogs.get(0).dismiss();
+				mDialogs.remove(0);
+
+			}
+		}
+		mDialogs = null;
 		if (shouldFinishRootActivity()) {
 			TiApplication app = getTiApp();
 			if (app != null) {
