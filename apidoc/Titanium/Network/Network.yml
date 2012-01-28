@@ -179,6 +179,9 @@ properties:
         A [networkType](Titanium.Network.networkType) value indicating that the device is
         communicating over a local-area network.
     description: |
+        This network type is only used by the Mobile Web platform, when the application
+        is running in a desktop browser attached to a LAN.
+
         This constant is also a possible value for the `networkType` property of the 
         [change](Titanium.Network.change) event.
     type: Number
@@ -324,16 +327,19 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+    since: "1.8.0.1"
   - name: TLS_VERSION_1_1
     summary: Constant value specifying TLS version 1.1 for SSL.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+    since: "1.8.0.1"
   - name: TLS_VERSION_1_2
     summary: Constant value specifying TLS version 1.2 for SSL.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+    since: "1.8.0.1"
   - name: networkType
     summary: Network type value as a constant.
     description: |
