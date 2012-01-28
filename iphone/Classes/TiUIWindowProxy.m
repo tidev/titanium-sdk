@@ -362,8 +362,9 @@
 			if (proxy!=nil)
 			{
 				// add the new one
-				[controller.navigationItem setRightBarButtonItem:[proxy barButtonItem] animated:NO];
-				[self updateBarImage];
+                BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
+                [controller.navigationItem setRightBarButtonItem:[proxy barButtonItem] animated:animated];
+                [self updateBarImage];
 			}
 			else 
 			{
@@ -408,8 +409,9 @@
 			if (proxy!=nil)
 			{
 				// add the new one
-				[controller.navigationItem setLeftBarButtonItem:[proxy barButtonItem] animated:NO];
-				[self updateBarImage];
+                BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
+                [controller.navigationItem setLeftBarButtonItem:[proxy barButtonItem] animated:animated];
+                [self updateBarImage];
 			}
 			else 
 			{
