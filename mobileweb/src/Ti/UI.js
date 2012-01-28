@@ -39,8 +39,6 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 	require.on(window, "resize", function() {
 		Ti.UI._recalculateLayout();
 	});
-	
-	var layouts = 0;
 
 	return lang.setObject("Ti.UI", Evented, {
 
@@ -61,7 +59,6 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 		
 		_triggerLayout: function(force) {
 			if (force) {
-				console.debug("Doing new forced layout " + layouts++);
 				clearTimeout(this._layoutTimer);
 				this._layoutMarkedNodes(this._container);
 				this._layoutInProgress = false;
@@ -69,7 +66,6 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 				if (!this._layoutInProgress) {
 					this._layoutInProgress = true;
 					this._layoutTimer = setTimeout(lang.hitch(this, function(){
-						console.debug("Doing new layout " + layouts++);
 						this._layoutMarkedNodes(this._container);
 						this._layoutInProgress = false;
 						this._layoutTimer = null;
