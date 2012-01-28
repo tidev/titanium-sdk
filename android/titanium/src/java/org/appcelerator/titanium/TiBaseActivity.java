@@ -602,6 +602,18 @@ public abstract class TiBaseActivity extends Activity
 		TiApplication.updateActivityTransitionState(true);
 		getTiApp().setCurrentActivity(this, null);
 
+		if (this.isFinishing()) {
+			//clean up dialogs when activity is finished
+			while (mDialogs.size() > 0) {
+				if (mDialogs.get(0).isShowing()) {
+					mDialogs.get(0).dismiss();
+					mDialogs.remove(0);
+
+				}
+			}
+			mDialogs = null;
+		}
+
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_PAUSE, null);
 		}
@@ -837,15 +849,7 @@ public abstract class TiBaseActivity extends Activity
 
 		boolean animate = getIntentBoolean(TiC.PROPERTY_ANIMATE, true);
 
-		//clean up dialogs when activity is finished
-		while (mDialogs.size() > 0) {
-			if (mDialogs.get(0).isShowing()) {
-				mDialogs.get(0).dismiss();
-				mDialogs.remove(0);
-
-			}
-		}
-		mDialogs = null;
+		
 		if (shouldFinishRootActivity()) {
 			TiApplication app = getTiApp();
 			if (app != null) {
