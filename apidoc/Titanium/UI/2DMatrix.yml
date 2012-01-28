@@ -124,7 +124,7 @@ methods:
         create a scaling animation from one scale factor to another scale factor. 
 
         The resulting object cannot be expressed as an affine transform, but can be used with the 
-        <Titanium.UI.Animation.transform> property to specify a rotation animation.
+        <Titanium.UI.Animation.transform> property to specify a scaling animation.
     returns:
         type: Titanium.UI.2DMatrix
     parameters:
