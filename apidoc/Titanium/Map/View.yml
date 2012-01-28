@@ -16,24 +16,27 @@ since: "0.8"
 platforms: [android, iphone, ipad]
 methods:
   - name: addAnnotation
-    summary: add a new annotation to the map
+    summary: Adds a new annotation to the map.
     parameters:
       - name: annotation
-        summary: either a dictionary of properties for the annotation or a <Titanium.Map.Annotation> instance.
+        summary: Either a dictionary of properties for the annotation or a <Titanium.Map.Annotation> instance.
         type: [Dictionary<Titanium.Map.Annotation>, Titanium.Map.Annotation]
   - name: addAnnotations
-    summary: add one or more new annotation to the map
+    summary: Add one or more new annotation to the map.
     parameters:
       - name: annotations
-        summary: an array of either a dictionary of properties for the annotation or a [Titanium.Map.Annotation](Titanium.Map.Annotation) instance.
+        summary: |
+            Array of [Annotation](Titanium.Map.Annotation) objects, or an array of
+            dictionaries describing of properties for the annotation.
         type: [Array<Titanium.Map.Annotation>, Array<Dictionary<Titanium.Map.Annotation>>]
   - name: addRoute
-    summary: add a route. currently only supported on iphone
+    summary: Adds a route. currently only supported on iphone
     parameters:
       - name: route
         summary: |
             dictionary with the properties: `name` route name, `points` dictionary of values with longitude and latitude keys, `color` for the line color and `width` for the line width.
         type: Object
+    platforms: [iphone, ipad]
   - name: deselectAnnotation
     summary: cause the annotation to be deselected (hidden).
     parameters:
