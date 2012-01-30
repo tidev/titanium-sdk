@@ -64,6 +64,7 @@ public class MediaModule extends KrollModule
 
 	private static final long[] DEFAULT_VIBRATE_PATTERN = { 100L, 250L };
 	private static final String PHOTO_DCIM_CAMERA = "/sdcard/dcim/Camera";
+	private static final String FEATURE_CAMERA_FRONT = "android.hardware.camera.front"; // Needed until api 9 is our minimum supported.
 
 	@Kroll.constant public static final int UNKNOWN_ERROR = 0;
 	@Kroll.constant public static final int DEVICE_BUSY = 1;
@@ -708,7 +709,8 @@ public class MediaModule extends KrollModule
 			Log.w(LCAT, "Could not retrieve PackageManager instance, returning false for isCameraSupported.");
 		}
 
-		return pm.hasSystemFeature(PackageManager.FEATURE_CAMERA);
+		return pm.hasSystemFeature(PackageManager.FEATURE_CAMERA) ||
+				pm.hasSystemFeature(FEATURE_CAMERA_FRONT);
 	}
 }
 
