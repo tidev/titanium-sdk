@@ -41,6 +41,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.media.android.AndroidModule.MediaScannerClient;
 import android.app.Activity;
+import android.app.Application;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -691,6 +692,23 @@ public class MediaModule extends KrollModule
 		} else {
 			Log.e(LCAT, "camera preview is not open, unable to take photo");
 		}
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public boolean getIsCameraSupported()
+	{
+		Application application = TiApplication.getInstance();
+		if (application == null) {
+			Log.w(LCAT, "Could not retrieve application instance, returning false for isCameraSupported.");
+			return false;
+		}
+
+		PackageManager pm = application.getPackageManager();
+		if (pm == null) {
+			Log.w(LCAT, "Could not retrieve PackageManager instance, returning false for isCameraSupported.");
+		}
+
+		return pm.hasSystemFeature(PackageManager.FEATURE_CAMERA);
 	}
 }
 
