@@ -188,6 +188,7 @@ def to_jsca_type(api):
 	log.trace("Converting %s to jsca" % api.name)
 	result = {
 			"name": clean_namespace(api.name),
+			"isInternal": False,
 			"description": "" if "summary" not in api.api_obj else to_jsca_description(api.api_obj["summary"]),
 			"deprecated": api.deprecated is not None and len(api.deprecated) > 0,
 			"examples": to_jsca_examples(api),
@@ -198,6 +199,15 @@ def to_jsca_type(api):
 			"userAgents": to_jsca_userAgents(api.platforms),
 			"since": to_jsca_since(api.platforms)
 			}
+	# TIMOB-7169. If it's a proxy (non-module) and it has no "class properties",
+	# mark it as internal.  This avoids it being displayed in Code Assist.
+	if api.typestr == "proxy":
+		can_hide = True
+		for p in result["properties"]:
+			if p["isClassProperty"]:
+				can_hide = False
+				break
+		result["isInternal"] = can_hide
 	return to_ordered_dict(result, ('name',))
 
 def generate(raw_apis, annotated_apis, options):

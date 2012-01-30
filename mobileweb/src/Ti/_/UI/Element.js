@@ -27,7 +27,7 @@ define("Ti/_/UI/Element",
 		},
 		postLayoutProp = {
 			post: function() {
-				UI._doFullLayout();
+				this._parent && this._parent._triggerLayout();
 			}
 		};
 
@@ -75,8 +75,12 @@ define("Ti/_/UI/Element",
 					gestureRecognizers = touchRecognizers[eventType],
 					eventType = "Touch" + eventType + "Event",
 					touches = evt.changedTouches;
-				evt.preventDefault && evt.preventDefault();
-				touches && touches[0].preventDefault && touches[0].preventDefault();
+				if (this._preventDefaultTouchEvent) {
+					this._preventDefaultTouchEvent && evt.preventDefault && evt.preventDefault();
+					for (i in touches) {
+						touches[i].preventDefault && touches[i].preventDefault();
+					}
+				}
 				useTouch || require.mix(evt, {
 					touches: evt.type === "mouseup" ? [] : [evt],
 					targetTouches: [],
@@ -118,14 +122,57 @@ define("Ti/_/UI/Element",
 		},
 
 		destroy: function() {
+			this.parent && this.parent.remove(this);
 			if (this.domNode) {
 				dom.destroy(this.domNode);
 				this.domNode = null;
 			}
 			this._destroyed = 1;
 		},
+		
+		_markedForLayout: false,
+		
+		_triggerLayout: function(force) {
+			
+			if (this._markedForLayout) {
+				return;
+			}
+			
+			// If this element is not attached to an active window, skip the calculation
+			var isAttachedToActiveWin = false,
+				node = this;
+			while(node) {
+				if (node === Ti.UI._container) {
+					isAttachedToActiveWin = true;
+					break;
+				}
+				node = node._parent;
+			}
+			if (!isAttachedToActiveWin) {
+				return;
+			}
+			
+			// Find the top most node that needs to be layed out.
+			var rootLayoutNode = this;
+			while(rootLayoutNode._parent != null && rootLayoutNode._hasAutoDimensions()) {
+				rootLayoutNode = rootLayoutNode._parent;
+			}
+			rootLayoutNode._markedForLayout = true;
+			
+			// Let the UI know that a layout needs to be performed.
+			Ti.UI._triggerLayout(force);
+		},
+		
+		_triggerParentLayout: function() {
+			this._parent && this._parent._triggerLayout();
+		},
+		
+		_hasAutoDimensions: function() {
+			return (this.width === "auto" || (!isDef(this.width) && this._defaultWidth === "auto")) || 
+				(this.height === "auto" || (!isDef(this.height) && this._defaultHeight === "auto"));
+		},
 
-		doLayout: function(originX, originY, parentWidth, parentHeight, centerHDefault, centerVDefault) {
+		_doLayout: function(originX, originY, parentWidth, parentHeight, centerHDefault, centerVDefault) {
 			this._originX = originX;
 			this._originY = originY;
 			this._centerHDefault = centerHDefault;
@@ -153,6 +200,8 @@ define("Ti/_/UI/Element",
 			this._measuredWidth = dimensions.width;
 			this._measuredHeight = dimensions.height;
 			this._measuredBorderWidth = dimensions.borderWidth;
+			
+			this._markedForLayout = false;
 
 			// Set the position, size and z-index
 			styles = {
@@ -166,6 +215,7 @@ define("Ti/_/UI/Element",
 		},
 
 		_computeDimensions: function(parentWidth, parentHeight, left, top, originalRight, originalBottom, centerX, centerY, width, height, borderWidth) {
+			
 			// Compute as many sizes as possible, should be everything except auto
 			left = computeSize(left, parentWidth, 1);
 			top = computeSize(top, parentHeight, 1);
@@ -266,7 +316,9 @@ define("Ti/_/UI/Element",
 			}
 
 			// Calculate the width/left properties if width is NOT auto
-			var borderWidth = computeSize(borderWidth);
+			var borderWidth = computeSize(borderWidth),
+				calculateWidthAfterAuto = false,
+				calculateHeightAfterAuto = false;
 			borderWidth = is(borderWidth,"Number") ? borderWidth: 0;
 			if (width != "auto") {
 				if (isDef(right)) {
@@ -277,6 +329,8 @@ define("Ti/_/UI/Element",
 					}
 				}
 				width -= borderWidth * 2;
+			} else if(isDef(right)) {
+				calculateWidthAfterAuto = true;
 			}
 			if (height != "auto") {
 				if (isDef(bottom)) {
@@ -287,24 +341,47 @@ define("Ti/_/UI/Element",
 					}
 				}
 				height -= borderWidth * 2;
+			} else if(isDef(bottom)) {
+				calculateHeightAfterAuto = true;
 			}
 
 			// TODO change this once we re-architect the inheritence so that widgets don't have add/remove/layouts
-			if (this.children && this.children.length > 0) {
-				var computedSize = this._layout.doLayout(this,width,height);
-				width == "auto" && (width = computedSize.width);
-				height == "auto" && (height = computedSize.height);
-			} else {
+			if (this._getContentWidth) {
 				width == "auto" && (width = this._getContentWidth());
 				height == "auto" && (height = this._getContentHeight());
+			} else {
+				var computedSize = this._layout._doLayout(this,width,height);
+				width == "auto" && (width = computedSize.width);
+				height == "auto" && (height = computedSize.height);
+			}
+			
+			if (calculateWidthAfterAuto) {
+				if (isDef(right)) {
+					if (isDef(left)) {
+						width = right - left;
+					} else {
+						left = right - width;
+					}
+				}
+				width -= borderWidth * 2;
+			}
+			if (calculateHeightAfterAuto) {
+				if (isDef(bottom)) {
+					if (isDef(top)) {
+						height = bottom - top;
+					} else {
+						top = bottom - height;
+					}
+				}
+				height -= borderWidth * 2;
 			}
 
 			// Set the default top/left if need be
 			if (left == "calculateAuto") {
-				left = this._centerHDefault ? computeSize("50%",parentWidth) - (is(width,"Number") ? width : 0) / 2 : 0;
+				left = this._centerHDefault && parentWidth !== "auto" ? computeSize("50%",parentWidth) - (is(width,"Number") ? width : 0) / 2 : 0;
 			}
 			if (top == "calculateAuto") {
-				top = this._centerVDefault ? computeSize("50%",parentHeight) - (is(height,"Number") ? height : 0) / 2 : 0;
+				top = this._centerVDefault && parentHeight !== "auto" ? computeSize("50%",parentHeight) - (is(height,"Number") ? height : 0) / 2 : 0;
 			}
 
 			// Apply the origin and border width
@@ -334,6 +411,8 @@ define("Ti/_/UI/Element",
 		_getContentOffset: function(){
 			return {x: 0, y: 0};
 		},
+		
+		_preventDefaultTouchEvent: true,
 
 		_isGestureBlocked: function(gesture) {
 			for (var recognizer in this._gestureRecognizers) {
@@ -469,8 +548,6 @@ define("Ti/_/UI/Element",
 					is(callback, "Function") && callback();
 				};
 
-			UI._doForcedFullLayout();
-
 			anim.duration = anim.duration || 0;
 			anim.delay = anim.delay || 0;
 			anim.transform && setStyle("transform", "");
@@ -491,14 +568,6 @@ define("Ti/_/UI/Element",
 				fn();
 				done();
 			}
-		},
-
-		_getContentWidth: function() {
-			return this.domNode.clientWidth;
-		},
-
-		_getContentHeight: function() {
-			return this.domNode.clientHeight;
 		},
 
 		_setTouchEnabled: function(value) {
@@ -558,7 +627,7 @@ define("Ti/_/UI/Element",
 
 					output = type + "-gradient(" + output.join(",") + ")";
 
-					require.each(vendorPrefixes.css, function(p) {
+					require.each(require.config.vendorPrefixes.css, function(p) {
 						setStyle(this.domNode, "backgroundImage", p + output);
 					});
 
@@ -645,7 +714,7 @@ define("Ti/_/UI/Element",
 					if (value !== orig) {
 						!value && (this._lastDisplay = style.get(this.domNode, "display"));
 						setStyle(this.domNode, "display", !!value ? this._lastDisplay || "" : "none");
-						!!value && UI._doFullLayout();
+						!!value && this._triggerLayout();
 					}
 					return value;
 				}
