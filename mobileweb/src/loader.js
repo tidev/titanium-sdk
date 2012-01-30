@@ -1060,6 +1060,11 @@ require.cache({
 			body.removeChild(measureDiv);
 
 			return {
+				assert: function(test, msg) {
+					if (!test) {
+						throw new Error(msg);
+					}
+				},
 				dpi: dpi,
 				getAbsolutePath: function(path) {
 					/^app\:\/\//.test(path) && (path = path.substring(6));
@@ -1534,7 +1539,7 @@ require.cache({
 							switch(units) {
 								case "%":
 									if(totalLength == "auto") {
-										return "auto";
+										convertAutoToUndef ? undef : "auto";
 									} else if (!require.is(totalLength,"Number")) {
 										console.error("Could not compute percentage size/position of element.");
 										return;

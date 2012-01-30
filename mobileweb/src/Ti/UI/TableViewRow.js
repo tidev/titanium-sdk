@@ -51,8 +51,8 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 			View.prototype._handleTouchEvent.apply(this,arguments);
 		},
 		
-		doLayout: function(){
-			View.prototype.doLayout.apply(this,arguments);
+		_doLayout: function(){
+			View.prototype._doLayout.apply(this,arguments);
 		},
 		
 		_doBackground: function(evt) {

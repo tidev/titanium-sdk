@@ -149,7 +149,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 			for (var i = 0; i < this._sections.children.length; i += 2) {
 				this._sections.children[i]._refreshRows();
 			}
-			Ti.UI._doFullLayout();
+			this._triggerLayout();
 		},
 		
 		_calculateLocation: function(index) {

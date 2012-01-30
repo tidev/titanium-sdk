@@ -49,10 +49,15 @@ class Compiler(object):
 		self.defines = [
 				# these MUST be ordered correctly!
 				'eventdriven.js',
-				
-				# base classes
+
+				# building blocks
+				'Ti/_/String.js',
+
+				# AMD plugins
 				"Ti/_/include.js",
 				"Ti/_/text.js",
+
+				# base classes
 				'Ti/_/Evented.js',
 				'Ti/UI.js',
 				'Ti/_/Gestures/GestureRecognizer.js',
