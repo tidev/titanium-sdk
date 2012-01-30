@@ -134,10 +134,6 @@ define("Ti/UI/TableViewSection", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style"
 			
 			this._removeAt(index);
 		},
-		
-		doLayout: function() {
-			Widget.prototype.doLayout.apply(this,arguments);
-		},
 					
 		properties: {
 			footerTitle: {

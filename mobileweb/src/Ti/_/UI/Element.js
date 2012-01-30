@@ -27,7 +27,7 @@ define("Ti/_/UI/Element",
 		},
 		postLayoutProp = {
 			post: function() {
-				UI._doFullLayout();
+				this._parent && this._parent._triggerLayout();
 			}
 		};
 
@@ -129,8 +129,50 @@ define("Ti/_/UI/Element",
 			}
 			this._destroyed = 1;
 		},
+		
+		_markedForLayout: false,
+		
+		_triggerLayout: function(force) {
+			
+			if (this._markedForLayout) {
+				return;
+			}
+			
+			// If this element is not attached to an active window, skip the calculation
+			var isAttachedToActiveWin = false,
+				node = this;
+			while(node) {
+				if (node === Ti.UI._container) {
+					isAttachedToActiveWin = true;
+					break;
+				}
+				node = node._parent;
+			}
+			if (!isAttachedToActiveWin) {
+				return;
+			}
+			
+			// Find the top most node that needs to be layed out.
+			var rootLayoutNode = this;
+			while(rootLayoutNode._parent != null && rootLayoutNode._hasAutoDimensions()) {
+				rootLayoutNode = rootLayoutNode._parent;
+			}
+			rootLayoutNode._markedForLayout = true;
+			
+			// Let the UI know that a layout needs to be performed.
+			Ti.UI._triggerLayout(force);
+		},
+		
+		_triggerParentLayout: function() {
+			this._parent && this._parent._triggerLayout();
+		},
+		
+		_hasAutoDimensions: function() {
+			return (this.width === "auto" || (!isDef(this.width) && this._defaultWidth === "auto")) || 
+				(this.height === "auto" || (!isDef(this.height) && this._defaultHeight === "auto"));
+		},
 
-		doLayout: function(originX, originY, parentWidth, parentHeight, centerHDefault, centerVDefault) {
+		_doLayout: function(originX, originY, parentWidth, parentHeight, centerHDefault, centerVDefault) {
 			this._originX = originX;
 			this._originY = originY;
 			this._centerHDefault = centerHDefault;
@@ -158,6 +200,8 @@ define("Ti/_/UI/Element",
 			this._measuredWidth = dimensions.width;
 			this._measuredHeight = dimensions.height;
 			this._measuredBorderWidth = dimensions.borderWidth;
+			
+			this._markedForLayout = false;
 
 			// Set the position, size and z-index
 			styles = {
@@ -306,7 +350,7 @@ define("Ti/_/UI/Element",
 				width == "auto" && (width = this._getContentWidth());
 				height == "auto" && (height = this._getContentHeight());
 			} else {
-				var computedSize = this._layout.doLayout(this,width,height);
+				var computedSize = this._layout._doLayout(this,width,height);
 				width == "auto" && (width = computedSize.width);
 				height == "auto" && (height = computedSize.height);
 			}
@@ -504,8 +548,6 @@ define("Ti/_/UI/Element",
 					is(callback, "Function") && callback();
 				};
 
-			UI._doForcedFullLayout();
-
 			anim.duration = anim.duration || 0;
 			anim.delay = anim.delay || 0;
 			anim.transform && setStyle("transform", "");
@@ -672,7 +714,7 @@ define("Ti/_/UI/Element",
 					if (value !== orig) {
 						!value && (this._lastDisplay = style.get(this.domNode, "display"));
 						setStyle(this.domNode, "display", !!value ? this._lastDisplay || "" : "none");
-						!!value && UI._doFullLayout();
+						!!value && this._triggerLayout();
 					}
 					return value;
 				}
