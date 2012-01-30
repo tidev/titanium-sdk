@@ -37,7 +37,9 @@ This release includes no new features. A few notable fixes are listed below.
 
 *Bug Fixes:*
 
-- Your Bug Here
+- V8: Enable 3rd party module build for Windows. [TIMOB-6685](http://jira.appcelerator.org/browse/TIMOB-6685)
+- UI - heavyweight window open event fired twice. [TIMOB-6816](http://jira.appcelerator.org/browse/TIMOB-6816)
+- MapView not updating regions. [TIMOB-2104](http://jira.appcelerator.org/browse/TIMOB-2104)`
 
 For a complete list of Android fixes in this release, see: [Fixed Android Issues in JIRA](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12455).
 
@@ -49,6 +51,12 @@ This release includes no new features. A few notable fixes are listed below.
 
 *Bug Fixes:*
 
+- Database migration fixes. [TIMOB-6756](http://jira.appcelerator.org/browse/TIMOB-6756)
+- Databases not symlinked on install. [TIMOB-6081](http://jira.appcelerator.org/browse/TIMOB-6081)
+- Native JS modules detected by compiler. [TIMOB-5815](http://jira.appcelerator.org/browse/TIMOB-5815) 
+  This fix corrects an issue where Titanium APIs used by native JavaScript modules were not linked 
+  in to the final application. To take advantage of this fix, native JavaScript modules must be 
+  patched and rebuilt. 
 - Two fixes to HTTP header handling:
     - A regression in 1.8.0.1 that caused an exception to be thrown when setting a request
       header to `null`. [TIMOB-6828](http://jira.appcelerator.org/browse/TIMOB-6828)
@@ -83,5 +91,19 @@ This release includes a number of documentation fixes.
   modules, and updates to the `Button`, `ButtonBar`, `TabbedBar`, `Picker` and `ImageView`
   documentation.
 
-
 [Fixed Documentation Issues in JIRA](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12458)
+
+
+
+Updating Native JavaScript Modules for iOS
+------------------------------------------
+
+To take advantage of module fixes for native JavaScript modules, you must update
+your module's  `build.py` file and rebuild your module. Note that new modules created
+with release 1.8.1 do not need to be patched.
+
+1. Download the `build.py` patch file from: https://gist.github.com/1586163
+
+
+patching for existing modules; 
+note that modules DO need to be rebuilt/redistributed to take advantage of this - we may need a blog post)
