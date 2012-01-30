@@ -93,7 +93,14 @@ void TiAudioSessionAudioRouteChangeCallback(void *inUserData, AudioSessionProper
 			break;
 		}
 	}
-	[event setObject:[dict objectForKey:@"OutputDeviceDidChange_OldRoute"] forKey:@"oldRoute"];
+    id oldRouteObject = [dict objectForKey:@"OutputDeviceDidChange_OldRoute"];
+    if (oldRouteObject == nil) {
+        [event setObject:[NSNull null] forKey:@"oldRoute"];
+    }
+    else {
+        [event setObject:oldRouteObject forKey:@"oldRoute"];
+    }
+	
 	[event setObject:reason forKey:@"reason"];
 	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiMediaAudioSessionRouteChange object:session userInfo:event];
