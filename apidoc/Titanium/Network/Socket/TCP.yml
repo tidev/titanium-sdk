@@ -79,9 +79,7 @@ examples:
         using the loopback address. 
             // Hostname to listen on/connect to. Here we use the loopback
             // address. iOS also supports Ti.Network.address (the address of
-            // the WiFi interface) and Ti.Network.INADDR_ANY (any interface).
-            // Note that applications listening on INADDR_ANY may be rejected from
-            // the App Store.
+            // the WiFi interface).
             // Android supports only the loopback address.
             var hostname = '127.0.0.1';
             
