@@ -1,101 +1,105 @@
 ---
 name: Titanium.Android.Calendar.Event
-description: An object which represents a single event in an Android calendar.
+summary: An object which represents a single event in an Android calendar.
 extends: Titanium.Proxy
 platforms: [android]
 since: "1.5"
 createable: false
 methods:
   - name: createAlert
-    description: create an alert for this event.  Pass a dictionary object containing attributes corresponding to properties of <Titanium.Android.Calendar.Alert>.  Returns the created alert.
+    summary: create an alert for this event.  Pass a dictionary object containing attributes corresponding to properties of <Titanium.Android.Calendar.Alert>.  Returns the created alert.
     returns:
         type: Titanium.Android.Calendar.Alert
     parameters:
       - name: data
-        description: Properties for the new alert, corresponding to properties of <Titanium.Android.Calendar.Alert>.
+        summary: Properties for the new alert, corresponding to properties of <Titanium.Android.Calendar.Alert>.
         type: Dictionary<Titanium.Android.Calendar.Alert>
   - name: createReminder
-    description: create a reminder for this event.  Pass a dictionary object containing attributes corresponding to properties of <Titanium.Android.Calendar.Reminder>.  Returns the created Reminder.
+    summary: create a reminder for this event.  Pass a dictionary object containing attributes corresponding to properties of <Titanium.Android.Calendar.Reminder>.  Returns the created Reminder.
     returns:
         type: Titanium.Android.Calendar.Reminder
     parameters:
       - name: data
-        description: Properties for the new reminder, corresponding to properties of <Titanium.Android.Calendar.Reminder>.
+        summary: Properties for the new reminder, corresponding to properties of <Titanium.Android.Calendar.Reminder>.
         type: Dictionary<Titanium.Android.Calendar.Reminder>
   - name: getExtendedProperty
-    description: Returns the value of the given extended property key string.
+    summary: Returns the value of the given extended property key string.
     returns:
         type: String
     parameters:
       - name: name
-        description: The name of the extended property whose value should be returned.
+        summary: The name of the extended property whose value should be returned.
         type: String
   - name: setExtendedProperty
-    description: Set the value of the named extended property.
+    summary: Set the value of the named extended property.
     parameters:
       - name: name
-        description: The name of the extended property whose value should be set.
+        summary: The name of the extended property whose value should be set.
         type: String
       - name: value
-        description: The value to which to set the named extended property.
+        summary: The value to which to set the named extended property.
         type: String
 properties:
   - name: alerts
-    description: An array of <Titanium.Android.Calendar.Alert> objects which are the alerts - if any - for this event.
+    summary: An array of <Titanium.Android.Calendar.Alert> objects which are the alerts - if any - for this event.
     type: Array<Titanium.Android.Calendar.Alert>
     permission: read-only
   - name: allDay
-    description: Whether the event is all day.
+    summary: Whether the event is all day.
     type: Boolean
     permission: read-only
   - name: begin
-    description: The date/time at which the event begins.
+    summary: The date/time at which the event begins.
     type: Date
     permission: read-only
   - name: description
-    description: The event description.
+    summary: The event description.
     type: String
     permission: read-only
   - name: end
-    description: The date/time at which the event ends.
+    summary: The date/time at which the event ends.
     type: Date
     permission: read-only
   - name: extendedProperties
-    description: An object containing extended properties of the event.
+    summary: An object containing extended properties of the event.
     type: Object
     permission: read-only
   - name: hasAlarm
-    description: Whether an alarm is scheduled for the event.
+    summary: Whether an alarm is scheduled for the event.
     type: Boolean
     permission: read-only
   - name: hasExtendedProperties
-    description: 
+    summary: 
     type: Boolean
     permission: read-only
   - name: id
-    description: The id of the event.
+    summary: The id of the event.
     type: String
     permission: read-only
   - name: location
-    description: The event location.
+    summary: The event location.
     type: String
     permission: read-only
   - name: reminders
-    description: An array of <Titanium.Android.Calendar.Reminder> objects which are the reminders - if any - for this event.
+    summary: An array of <Titanium.Android.Calendar.Reminder> objects which are the reminders - if any - for this event.
     type: Array<Titanium.Android.Calendar.Reminder>
     permission: read-only
   - name: status
-    description: The status of the event.  Possible values are the STATUS constants in <Titanium.Android.Calendar>.
+    summary: The status of the event.  Possible values are the STATUS constants in <Titanium.Android.Calendar>.
     type: Number
     permission: read-only
   - name: title
-    description: The title string for the event.
+    summary: The title string for the event.
     type: String
     permission: read-only
   - name: visibility
-    description: The event's visibility.  Possible values are the VISIBILITY constants in <Titanium.Android.Calendar>.
+    summary: The event's visibility.  Possible values are the VISIBILITY constants in <Titanium.Android.Calendar>.
     type: Number
     permission: read-only
-notes: The API supports retrieving information about existing events and creating new events.  However, modifying or deleting existing events is not yet supported.  Additionally, recurring events are not yet supported.
+description: |
+    The API supports retrieving information about existing events and creating new events.  
+    However, modifying or deleting existing events is not yet supported. Additionally, 
+    recurring events are not yet supported.
     
-    See <Titanium.Android.Calendar> for examples of retrieving event information and creating events.
+    See <Titanium.Android.Calendar> for examples of retrieving event information and 
+    creating events.

@@ -7,7 +7,7 @@
 
 import os, sys, uuid, subprocess, shutil, signal, string, traceback, imp, filecmp, inspect
 import platform, time, re, run, glob, codecs, hashlib, datetime, plistlib
-from compiler import Compiler
+from compiler import Compiler, softlink_for_simulator
 from projector import Projector
 from xml.dom.minidom import parseString
 from xml.etree.ElementTree import ElementTree
@@ -72,6 +72,7 @@ def dequote(s):
 
 # force kill the simulator if running
 def kill_simulator():
+	run.run(['/usr/bin/killall',"ios-sim"],True)
 	run.run(['/usr/bin/killall',"iPhone Simulator"],True)
 
 def write_project_property(f,prop,val):
@@ -343,11 +344,15 @@ def distribute_xc4(name, icon, log):
 	project_info_plist = plistlib.readPlist(os.path.join(archive_bundle,'Info.xml.plist'))
 	appbundle = "Applications/%s.app" % name
 	# NOTE: We chop off the end '.' of 'CFBundleVersion' to provide the 'short' version
+	version = project_info_plist['CFBundleVersion']
+	app_version_ = version.split('.')
+	if(len(app_version_) > 3):
+		version = app_version_[0]+'.'+app_version_[1]+'.'+app_version_[2]	
 	archive_info = {
 		'ApplicationProperties' : {
 			'ApplicationPath' : appbundle,
 			'CFBundleIdentifier' : project_info_plist['CFBundleIdentifier'],
-			'CFBundleShortVersionString' : project_info_plist['CFBundleVersion'].rsplit('.',1)[0],
+			'CFBundleShortVersionString' : version,
 			'IconPaths' : [os.path.join(appbundle,icon), os.path.join(appbundle,icon)]
 		},
 		'ArchiveVersion' : float(1),
@@ -601,7 +606,11 @@ def main(args):
 			else:
 				# non-simulator + release build indicates package for distribution
 				deploytype = 'production'
-		compiler = Compiler(project_dir,appid,name,deploytype,xcode_build,devicefamily,iphone_version)
+		#Ensure the localization files are copied in the application directory
+		out_dir = os.path.join(os.environ['TARGET_BUILD_DIR'],os.environ['CONTENTS_FOLDER_PATH'])
+		localecompiler.LocaleCompiler(name,project_dir,devicefamily,deploytype,out_dir).compile()
+		compiler = Compiler(project_dir,appid,name,deploytype)
+		compiler.compileProject(xcode_build,devicefamily,iphone_version)
 		script_ok = True
 		sys.exit(0)
 	else:
@@ -617,7 +626,7 @@ def main(args):
 			else:
 				iphone_version = dequote(args[3].decode("utf-8"))
 			project_dir = os.path.expanduser(dequote(args[2].decode("utf-8")))
-			iphonesim = os.path.abspath(os.path.join(template_dir,'iphonesim'))
+			iphonesim = os.path.abspath(os.path.join(template_dir,'ios-sim'))
 			iphone_dir = os.path.abspath(os.path.join(project_dir,'build','iphone'))
 			tiapp_xml = os.path.join(project_dir,'tiapp.xml')
 			ti = TiAppXML(tiapp_xml)
@@ -626,7 +635,7 @@ def main(args):
 			command = 'simulator' # switch it so that the rest of the stuff works
 		else:
 			iphone_version = dequote(args[2].decode("utf-8"))
-			iphonesim = os.path.abspath(os.path.join(template_dir,'iphonesim'))
+			iphonesim = os.path.abspath(os.path.join(template_dir,'ios-sim'))
 			project_dir = os.path.expanduser(dequote(args[3].decode("utf-8")))
 			appid = dequote(args[4].decode("utf-8"))
 			name = dequote(args[5].decode("utf-8"))
@@ -841,6 +850,11 @@ def main(args):
 				ird = os.path.join(project_dir,'Resources','iphone')
 				if os.path.exists(ird): 
 					module_asset_dirs.append([ird,app_dir])
+					
+				# We also need to copy over the contents of 'platform/iphone'
+				platform_iphone = os.path.join(project_dir,'platform','iphone')
+				if os.path.exists(platform_iphone):
+					module_asset_dirs.append([platform_iphone,app_dir])
 				
 				for ext in ('ttf','otf'):
 					for f in glob.glob('%s/*.%s' % (os.path.join(project_dir,'Resources'),ext)):
@@ -851,7 +865,8 @@ def main(args):
 				version = ti.properties['version']
 				# we want to make sure in debug mode the version always changes
 				version = "%s.%d" % (version,time.time())
-				ti.properties['version']=version
+				if (deploytype != 'production'):
+					ti.properties['version']=version
 				pp = os.path.expanduser("~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % appuuid)
 				provisioning_profile = read_provisioning_profile(pp,o)
 	
@@ -931,8 +946,11 @@ def main(args):
 				create_info_plist(ti, template_dir, project_dir, infoplist)
 				# since compiler will generate the module dependencies, we need to 
 				# attempt to compile to get it correct for the first time.
-				compiler = Compiler(project_dir,appid,name,deploytype,xcode_build,devicefamily,iphone_version,True)
+				compiler = Compiler(project_dir,appid,name,deploytype)
+				compiler.compileProject(xcode_build,devicefamily,iphone_version,True)
 			else:
+				if simulator:
+					softlink_for_simulator(project_dir,app_dir)
 				contents="TI_VERSION=%s\n"% sdk_version
 				contents+="TI_SDK_DIR=%s\n" % template_dir.replace(sdk_version,'$(TI_VERSION)')
 				contents+="TI_APPID=%s\n" % appid
@@ -1073,10 +1091,10 @@ def main(args):
 			try:		
 				os.chdir(iphone_dir)
 
-				# we always target backwards to 3.1 even when we use a later
+				# we always target backwards to 4.0 even when we use a later
 				# version iOS SDK. this ensures our code will run on old devices
 				# no matter which SDK we compile with
-				deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.1"
+				deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=4.0"
 				device_target = 'TARGETED_DEVICE_FAMILY=1'  # this is non-sensical, but you can't pass empty string
 
 				# clean means we need to nuke the build 
@@ -1101,8 +1119,15 @@ def main(args):
 				# since we need to make them live in the bundle in simulator
 				if len(custom_fonts)>0:
 					for f in custom_fonts:
-						print "[INFO] Detected custom font: %s" % os.path.basename(f)
-						shutil.copy(f,app_dir)
+						font = os.path.basename(f)
+						app_font_path = os.path.join(app_dir, font)
+						print "[INFO] Detected custom font: %s" % font
+						if os.path.exists(app_font_path):
+							os.remove(app_font_path)
+						try:
+							shutil.copy(f,app_dir)
+						except shutil.Error, e:
+							print "[WARN] Not copying %s: %s" % (font, e)
 
 				# dump out project file info
 				if command not in ['simulator', 'build']:
@@ -1123,9 +1148,6 @@ def main(args):
 					# Meet the minimum requirements for ipad when necessary
 					if devicefamily == 'ipad' or devicefamily == 'universal':
 						device_target="TARGETED_DEVICE_FAMILY=2"
-						# iPad requires at a minimum 3.2 (not 3.1 default)
-						if devicefamily == 'ipad':
-							deploy_target = "IPHONEOS_DEPLOYMENT_TARGET=3.2"
 						# NOTE: this is very important to run on device -- i dunno why
 						# xcode warns that 3.2 needs only armv7, but if we don't pass in 
 						# armv6 we get crashes on device
@@ -1270,7 +1292,9 @@ def main(args):
 				if command == 'simulator':
 					# first make sure it's not running
 					kill_simulator()
-
+					#Give the kill command time to finish
+					time.sleep(2)
+					
 					# sometimes the simulator doesn't remove old log files
 					# in which case we get our logging jacked - we need to remove
 					# them before running the simulator
@@ -1284,7 +1308,7 @@ def main(args):
 					def handler(signum, frame):
 						global script_ok
 						print "[INFO] Simulator is exiting"
-						sys.stdout.flush()
+						
 						if not log == None:
 							try:
 								os.system("kill -2 %s" % str(log.pid))
@@ -1320,10 +1344,20 @@ def main(args):
 					os.putenv('DYLD_FRAMEWORK_PATH', iphoneprivateframeworkspath)
 
 					# launch the simulator
+					
+					# Awkard arg handling; we need to take 'retina' to be a device type,
+					# even though it's really not (it's a combination of device type and configuration).
+					# So we translate it into two args:
+					if simtype == 'retina':
+						# Manually overrule retina type if we're an ipad
+						if devicefamily == 'ipad':
+							simtype = 'ipad'
+						else:
+							simtype = 'iphone --retina'
 					if devicefamily==None:
-						sim = subprocess.Popen("\"%s\" launch \"%s\" %s iphone" % (iphonesim,app_dir,iphone_version),shell=True)
+						sim = subprocess.Popen("\"%s\" launch \"%s\" --sdk %s" % (iphonesim,app_dir,iphone_version),shell=True,cwd=template_dir)
 					else:
-						sim = subprocess.Popen("\"%s\" launch \"%s\" %s %s" % (iphonesim,app_dir,iphone_version,simtype),shell=True)
+						sim = subprocess.Popen("\"%s\" launch \"%s\" --sdk %s --family %s" % (iphonesim,app_dir,iphone_version,simtype),shell=True,cwd=template_dir)
 
 					# activate the simulator window - we use a OSA script to 
 					# cause the simulator window to come into the foreground (otherwise

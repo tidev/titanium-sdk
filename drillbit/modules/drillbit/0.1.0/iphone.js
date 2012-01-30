@@ -36,6 +36,13 @@ iPhoneSimulator.prototype.run = function(readLineCb) {
 	this.readLineCb = readLineCb;
 };
 
+iPhoneSimulator.prototype.fillTestTemplateData = function(data) {
+}
+
+iPhoneSimulator.prototype.fillTiAppData = function(data) {
+	data.androidRuntime = "none";
+}
+
 iPhoneSimulator.prototype.pushTestJS = function(testScript) {
 	this.testJSFile.write(testScript);
 };

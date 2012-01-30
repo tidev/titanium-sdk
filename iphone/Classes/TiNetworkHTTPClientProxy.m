@@ -142,7 +142,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 {
 	if (request!=nil && connected)
 	{
-		[request cancel];
+		[request clearDelegatesAndCancel];
 	}
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(request);
@@ -190,7 +190,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		NSData *data = [request responseData];
 		if (data==nil || [data length]==0) 
 		{
-			return nil;
+			return (id)[NSNull null];
 		}
 		[[data retain] autorelease];
 		NSString * result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:[request responseEncoding]] autorelease];
@@ -200,26 +200,26 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 			// with in a _special_ way
 			NSStringEncoding encoding = ExtractEncodingFromData(data);
 			result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:encoding] autorelease];
-			if (result!=nil)
-			{
-				return result;
-			}
+			
 		}
-		return result;
+		if (result!=nil)
+		{
+			return result;
+		}
 	}
-	return nil;
+	return (id)[NSNull null];
 }
 
 -(TiProxy*)responseXML
 {
 	NSString *responseText = [self responseText];
-	if (responseText!=nil)
+	if (responseText != nil && (![responseText isEqual:(id)[NSNull null]]))
 	{
 		TiDOMDocumentProxy *dom = [[[TiDOMDocumentProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 		[dom parseString:responseText];
 		return dom;
 	}
-	return nil;
+	return (id)[NSNull null];
 }
 
 -(TiBlob*)responseData
@@ -229,7 +229,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		NSString *contentType = [[request responseHeaders] objectForKey:@"Content-Type"];
 		return [[[TiBlob alloc] initWithData:[request responseData] mimetype:contentType] autorelease];
 	}
-	return nil;
+	return (id)[NSNull null];
 }
 
 -(NSString*)connectionType
@@ -333,7 +333,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	{
 		connected = NO;
 		[[TiApp app] stopNetwork];
-		[request cancel];
+		[request clearDelegatesAndCancel];
 		[self forgetSelf];
 	}
 }
@@ -534,9 +534,12 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	
 	// should it automatically redirect
 	[request setShouldRedirect:[autoRedirect boolValue]];
-
+	
 	// allow self-signed certs (NO) or required valid SSL (YES)    
 	[request setValidatesSecureCertificate:[validatesSecureCertificate boolValue]];
+    
+    // set the TLS version if needed
+    [request setTlsVersion:[TiUtils intValue:[self valueForUndefinedKey:@"tlsVersion"]]];
 	
 	if (async)
 	{
@@ -550,13 +553,23 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	}
 }
 
+// Checked with Apache project to see if this is a known bug for them; it's
+// not, so this must be a client-side issue with Apple.
+//
+// Turns out Apple has a bug where they seem to case-correct headers;
+// this turns WWW-Authenticate into Www-Authenticate. We don't have complete
+// information on how response headers are mangled, but assume that
+// they are all case-corrected like this.
+//
+// This occurs in iOS 4 only.
+
 -(id)getResponseHeader:(id)args
 {
+    ENSURE_SINGLE_ARG(args, NSString);
+    
 	if (request!=nil)
 	{
-		id key = [args objectAtIndex:0];
-		ENSURE_TYPE(key,NSString);
-		return [[request responseHeaders] objectForKey:key];
+        return [TiUtils getResponseHeader:args fromHeaders:[request responseHeaders]];
 	}
 	return nil;
 }
@@ -622,6 +635,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	if (hasOndatastream)
 	{
 		CGFloat progress = (CGFloat)((CGFloat)downloadProgress/(CGFloat)downloadLength);
+		progress = progress == INFINITY ? 1.0 : progress;
 		TiNetworkHTTPClientResultProxy *thisPointer = [[TiNetworkHTTPClientResultProxy alloc] initWithDelegate:self];
 		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithFloat:progress],@"progress",@"datastream",@"type",nil];
 		[self fireCallback:@"ondatastream" withArg:event withSource:thisPointer];

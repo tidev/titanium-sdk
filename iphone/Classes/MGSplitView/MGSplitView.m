@@ -6,6 +6,7 @@
  */
 
 #import "MGSplitView.h"
+#import "TiApp.h"
 #ifdef USE_TI_UIIPADSPLITWINDOW
 
 @implementation MGSplitView
@@ -32,13 +33,13 @@
     singleLayout = YES;
 }
 
-// Ugly hack to force the controller's layout method to be called whenever an initial
+// Force the controller's layout method to be called whenever an initial
 // layout request is made. We have to rely on the controller's layout method to properly
 // set the 'layingOut' flag, as well... dangerous, and fragile.
 -(void)layoutSubviews
 {
     if (!layingOut && !singleLayout) {
-        [controller layoutSubviewsForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation] withAnimation:YES];
+        [controller layoutSubviewsForInterfaceOrientation:[[[TiApp app] controller] windowOrientation]  withAnimation:YES];
     }
     else {
         [super layoutSubviews];

@@ -151,19 +151,35 @@ describe("Kroll tests",
 			backgroundImage:'foo.jpg',
 			custom:'sup'
 		});
-		
-		i = 0;
-		for (var y in b) {
-			valueOf(y in oc(Object.keys(b))).shouldBeTrue();
-			valueOf(y).shouldBe(Object.keys(b)[i]);
-			results[b[y]] = y;
-			i++;
+
+		var bKeys = Object.keys(b);
+		for (i = 0; i < bKeys.length; i++) {
+			var key = bKeys[i];
+			valueOf(key in b).shouldBeTrue();
+			results[b[key]] = key;
 		}
-		valueOf(i).shouldBe(Object.keys(b).length);
+
+		valueOf(i).shouldBe(bKeys.length);
 		// Only check the values we explicitly set; other values
 		// retrieved are gravy
 		valueOf(results['xyz']).shouldBe('title');
 		valueOf(results['foo.jpg']).shouldBe('backgroundImage');
 		valueOf(results['sup']).shouldBe('custom');
+	},
+	
+	//TIMOB-5240
+	optionalParam: function() {
+		function getList(name, value) {
+			return Titanium.App.Properties.getList(name, value);
+		}
+		valueOf(function() {
+			getList("key", "value");
+		}).shouldNotThrowException();
+		valueOf(function() {
+			getList("key");
+		}).shouldNotThrowException();
+		//TIMOB-5276
+		valueOf(getList("key")).shouldBeNull();
+		
 	}
 });

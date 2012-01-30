@@ -44,3 +44,15 @@ def build(script='build.xml', targets=None, properties={}, basedir=None):
 	ret = subprocess.Popen(ant_cmd, shell=False, cwd=basedir).wait()
 	if ret:
 		sys.exit(ret)
+
+# a simplified .properties file parser
+def read_properties(file):
+	properties = {}
+	for line in file.read().splitlines():
+		line = line.strip()
+		if len(line) > 0 and line[0] == '#': continue
+		if len(line) == 0 or '=' not in line: continue
+
+		key, value = line.split('=', 1)
+		properties[key.strip()] = value.strip().replace('\\\\', '\\')
+	return properties

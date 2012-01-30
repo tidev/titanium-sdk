@@ -1,57 +1,65 @@
 ---
 name: Titanium.UI.iOS.AdView
-description: The AdView is a view for display Apple iAds. The View is created by the method <Titanium.UI.iOS.createAdView>.
+summary: The AdView is a view for display Apple iAds. The View is created by the method <Titanium.UI.iOS.createAdView>.
 extends: Titanium.UI.View
 since: "1.4"
 platforms: ["iphone", "ipad"]
 methods:
   - name: cancelAction
-    description: A banner view action can cover your application's user interface. However, your application continues to run, and receives events normally. If your application receives an event that requires the user's attention, it can programmatically cancel the action and uncover its interface by calling cancelAction. Canceling actions frequently can cause a loss of revenue for your application.
+    summary: A banner view action can cover your application's user interface. However, your application continues to run, and receives events normally. If your application receives an event that requires the user's attention, it can programmatically cancel the action and uncover its interface by calling cancelAction. Canceling actions frequently can cause a loss of revenue for your application.
 events:
   - name: action
-    description: called when a banner action is performed
+    summary: called when a banner action is performed
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
   - name: error
-    description: called when a banner could not be loaded
+    summary: called when a banner could not be loaded
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
       - name: message
-        description: the error message
+        summary: the error message
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: load
-    description: called when a banner is loaded and displayed
+    summary: called when a banner is loaded and displayed
     properties:
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
 properties:
-  - name: SIZE_320x50
-    description: constant for 320x50 ad sizes
+  - name: adSize
+    summary: The size of the advertisement when minimized.
+    description: |
+        Apple only allows setting ads as specific sizes, meaning that
+        traditional view sizing does not affect ads. Ads always
+        display in full-screen mode when a user clicks on them. 
+        Should be set to either [AD_SIZE_PORTRAIT](Titanium.UI.iOS.AD_SIZE_PORTRAIT)
+        or [AD_SIZE_LANDSCAPE](Titanium.UI.iOS.AD_SIZE_LANDSCAPE). Attempting
+        to set this property to any other value will cause an exception.
+        
+        Users are still allowed to set the view's [width](Titanium.UI.View.width)
+        and [height](Titanium.UI.View.height), but this does not affect the size
+        of the ad itself. It is recommended that the `auto` value is used for
+        these properties instead, to compute the view's size from the adSize.
     type: String
-    permission: read-only
-  - name: SIZE_480x32
-    description: constant for 480x32 ad sizes
-    type: String
-    permission: read-only
+    since: "1.9.0"

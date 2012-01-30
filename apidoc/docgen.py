@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2010-2011 Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2010-2012 Appcelerator, Inc. All Rights Reserved.
 # Licensed under the Apache Public License (version 2)
 #
 # parse out Titanium API documentation templates into a 
 # format that can be used by other documentation generators
 # such as PDF, etc.
-
 import os, sys, traceback
 import re, optparse
 import generators
@@ -30,15 +29,16 @@ from mako.template import Template
 
 # TiLogger is also in support/android
 from tilogger import *
-log = None
+log = TiLogger(None)
 
 # We package the python markdown module already in /support/module/support/markdown.
 module_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "module", "support"))
 sys.path.append(module_support_dir)
 import markdown
 
-DEFAULT_PLATFORMS = ["android", "iphone", "ipad"]
+DEFAULT_PLATFORMS = ["android", "iphone", "ipad", "mobileweb"]
 DEFAULT_SINCE = "0.8"
+DEFAULT_MOBILEWEB_SINCE = "1.8"
 apis = {} # raw conversion from yaml
 annotated_apis = {} # made friendlier for templates, etc.
 current_api = None
@@ -80,6 +80,8 @@ def pretty_platform_name(name):
 		return "Blackberry"
 	if name.lower() == "android":
 		return "Android"
+	if name.lower() == "mobileweb":
+		return "Mobile Web"
 
 def combine_platforms_and_since(annotated_obj):
 	obj = annotated_obj.api_obj
@@ -114,11 +116,18 @@ def combine_platforms_and_since(annotated_obj):
 		one_platform = {"name": name, "pretty_name": pretty_platform_name(name)}
 		if not since_is_dict:
 			one_platform["since"] = since
+			if one_platform["name"] == "mobileweb":
+				if len(since) >= 3:
+					if float(since[0:3]) < float(DEFAULT_MOBILEWEB_SINCE[0:3]):
+						one_platform["since"] = DEFAULT_MOBILEWEB_SINCE
 		else:
 			if name in since:
 				one_platform["since"] = since[name]
 			else:
-				one_platform["since"] = DEFAULT_SINCE
+				if one_platform["name"] == "mobileweb":
+					one_platform["since"] = DEFAULT_MOBILEWEB_SINCE
+				else:
+					one_platform["since"] = DEFAULT_SINCE
 		result.append(one_platform)
 
 	return result
@@ -225,21 +234,59 @@ class AnnotatedApi(object):
 			self.deprecated = api_obj["deprecated"]
 		else:
 			self.deprecated = None
+		if "permission" in api_obj:
+			self.permission = api_obj["permission"]
+		else:
+			self.permission = None
+		if "availability" in api_obj:
+			self.availability = api_obj["availability"]
+		else:
+			self.availability = None
+		if "default" in api_obj:
+			self.default = api_obj["default"]
+		else:
+			self.default = None
+		if "optional" in api_obj:
+			self.optional = api_obj["optional"]
+		else:
+			self.optional = None
 
 	@lazyproperty
 	def platforms(self):
 		return combine_platforms_and_since(self)
 
 class AnnotatedProxy(AnnotatedApi):
+	__create_getter_template = None
+	__create_setter_template = None
+
 	def __init__(self, api_obj):
 		AnnotatedApi.__init__(self, api_obj)
 		self.typestr = "proxy"
+
+	@classmethod
+	def render_getter_method(cls, getter_template_obj):
+		if cls.__create_getter_template is None:
+			template_text = open(os.path.join(this_dir, "templates", "property_getter.yml.mako"), "r").read()
+			cls.__create_getter_template = Template(template_text)
+		rendered = cls.__create_getter_template.render(data=getter_template_obj)
+		return rendered
+
+	@classmethod
+	def render_setter_method(cls, setter_template_obj):
+		if cls.__create_setter_template is None:
+			template_text = open(os.path.join(this_dir, "templates", "property_setter.yml.mako"), "r").read()
+			cls.__create_setter_template = Template(template_text)
+		rendered = cls.__create_setter_template.render(data=setter_template_obj)
+		return rendered
 
 	def build_method_list(self):
 		methods = []
 		if dict_has_non_empty_member(self.api_obj, "methods"):
 			methods = [AnnotatedMethod(m, self) for m in self.api_obj["methods"]]
-		self.append_inherited_methods(methods)
+		# Not for "pseudo-types"
+		if is_titanium_proxy(self.api_obj):
+			self.append_setters_getters(methods)
+			self.append_inherited_methods(methods)
 		return sorted(methods, key=lambda item: item.name)
 
 	@lazyproperty
@@ -262,6 +309,59 @@ class AnnotatedProxy(AnnotatedApi):
 		self.append_inherited_events(events)
 		return sorted(events, key=lambda item: item.name)
 
+	def append_setters_getters(self, methods):
+		def since_for_yaml(since):
+			if isinstance(since, basestring):
+				new_since = '"%s"' % since
+			elif isinstance(since, dict):
+				new_since = {}
+				for k in since.keys():
+					new_since[k] = '"%s"' % since[k]
+			return new_since
+
+		existing_method_names = [m.name for m in methods]
+		for p in self.properties:
+			if p.name.upper() == p.name:
+				continue # no constants
+			getter_ok = True
+			setter_ok = True
+			if p.permission == "read-only" or p.availability == "creation":
+				setter_ok = False
+			if p.permission == "write-only":
+				getter_ok = False
+			if "accessors" in p.api_obj and not p.api_obj["accessors"]:
+				getter_ok = setter_ok = False
+			if getter_ok:
+				if dict_has_non_empty_member(p.api_obj, "type"):
+					data_type = p.api_obj["type"]
+					returns_array = []
+					if isinstance(data_type, list):
+						for t in data_type:
+							returns_array.append({"type": t})
+					else:
+						returns_array.append({"type": data_type})
+					p.api_obj["returns_for_getter_template"] = returns_array
+				if dict_has_non_empty_member(p.api_obj, "since"):
+					p.api_obj["since_for_getter_template"] = since_for_yaml(p.api_obj["since"])
+				generated_method = yaml.load(AnnotatedProxy.render_getter_method(p))
+				annotated_method = AnnotatedMethod(generated_method, self)
+				annotated_method.getter_for = p
+				annotated_method.inherited_from = p.inherited_from
+				if annotated_method.name not in existing_method_names:
+					methods.append(annotated_method)
+			if setter_ok:
+				if dict_has_non_empty_member(p.api_obj, "since"):
+					if getter_ok and dict_has_non_empty_member(p.api_obj, "since_for_getter_template"):
+						p.api_obj["since_for_setter_template"] = p.api_obj["since_for_getter_template"]
+					else:
+						p.api_obj["since_for_setter_template"] = since_for_yaml(p.api_obj["since"])
+				generated_method = yaml.load(AnnotatedProxy.render_setter_method(p))
+				annotated_method = AnnotatedMethod(generated_method, self)
+				annotated_method.setter_for = p
+				annotated_method.inherited_from = p.inherited_from
+				if annotated_method.name not in existing_method_names:
+					methods.append(annotated_method)
+
 	def append_inherited_attributes(self, att_list, att_list_name):
 		if not "extends" in self.api_obj:
 			return
@@ -269,12 +369,16 @@ class AnnotatedProxy(AnnotatedApi):
 		class_type = {"properties": AnnotatedProperty, "methods": AnnotatedMethod,
 				"events": AnnotatedEvent}[att_list_name]
 		existing_names = [item.name for item in att_list]
+		excluded_names = []
+		if "excludes" in self.api_obj and att_list_name in self.api_obj["excludes"]:
+			excluded_names = self.api_obj["excludes"][att_list_name]
+
 		while (super_type_name is not None and len(super_type_name) > 0
 				and super_type_name in apis):
 			super_type = apis[super_type_name]
 			if dict_has_non_empty_member(super_type, att_list_name):
 				for new_item in super_type[att_list_name]:
-					if new_item["name"] in existing_names:
+					if new_item["name"] in existing_names or new_item["name"] in excluded_names:
 						continue
 					new_instance = class_type(new_item, self)
 					new_instance.inherited_from = super_type_name

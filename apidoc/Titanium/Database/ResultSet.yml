@@ -1,64 +1,144 @@
 ---
 name: Titanium.Database.ResultSet
-description: The ResultSet instance returned by invoking a database SQL `execute`.
+summary: The ResultSet instance returned by <Titanium.Database.DB.execute>.
 extends: Titanium.Proxy
 since: "0.1"
 createable: false
 methods:
   - name: close
-    description: close the result set and release resources. once closed, this result set must no longer be used
+    summary: |
+        Closes this result set and release resources. Once closed, the result set must no longer 
+        be used.
+    
   - name: field
-    description: retrieve a row value by field index
+    summary: |
+        Retrieves the value for the specified field in the current row, 
+        and casts it to the specified type (String, Integer, Float or Double.)
+    description: |
+        All of the numeric types (Integer, Float or Double) are returned as JavaScript Number objects.  
+
+        If no `type` parameter is specified, the returned data type depends on the data in the column.  
+
+        * If the data in the column is TEXT, the data is returned as a String.
+        * If the data in the column is any kind of number, the data is returned as a Number.
+        * If the data in the column is a BLOB, the data is returned as a <Titanium.Blob> object.  
+
+        When a `type` is specified and the data cannot be converted to the specified type, an 
+        exception is thrown.  
+
+        Returns null if the value in the table is NULL.
     returns:
-        type: Object
+      - type: String
+      - type: Number
+      - type: Titanium.Blob
     parameters:
       - name: index
-        description: column index (which is zero based)
+        summary: A zero-based column index.
         type: Number
+        
       - name: type
-        description: |
-            One of (<Titanium.Database.FIELD_TYPE_STRING> | <Titanium.Database.FIELD_TYPE_INT> | <Titanium.Database.FIELD_TYPE_FLOAT> | <Titanium.Database.FIELD_TYPE_DOUBLE>)
+        summary: |
+            One of (<Titanium.Database.FIELD_TYPE_STRING> | <Titanium.Database.FIELD_TYPE_INT> | 
+            <Titanium.Database.FIELD_TYPE_FLOAT> | <Titanium.Database.FIELD_TYPE_DOUBLE>)
         type: Number
         optional: true
+    
   - name: fieldByName
-    description: retrieve a row value by field name
+    summary: |
+        Retrieves the value for the specified field in the current row, 
+        and casts it to the specified type (String, Integer, Float or Double.)
+    description: |
+        All of the numeric types (Integer, Float or Double) are returned as JavaScript Number objects.  
+
+        If no `type` parameter is specified, the returned data type depends on the data in the column.  
+
+        * If the data in the column is TEXT, the data is returned as a String.
+        * If the data in the column is any kind of number, the data is returned as a Number.
+        * If the data in the column is a BLOB, the data is returned as a <Titanium.Blob> object.  
+
+        When a `type` is specified and the data cannot be converted to the specified type, an 
+        exception is thrown.  
+
+        Returns null if the value in the table is NULL.        
     returns:
-        type: Object
+      - type: String
+      - type: Number
+      - type: Titanium.Blob
     parameters:
       - name: name
-        description: column name from SQL query
+        summary: A column name or alias used in the SQL query.
         type: String
       - name: type
-        description: |
-            One of (<Titanium.Database.FIELD_TYPE_STRING> | <Titanium.Database.FIELD_TYPE_INT> | <Titanium.Database.FIELD_TYPE_FLOAT> | <Titanium.Database.FIELD_TYPE_DOUBLE>)
+        summary: |
+            One of (<Titanium.Database.FIELD_TYPE_STRING> | <Titanium.Database.FIELD_TYPE_INT> | 
+            <Titanium.Database.FIELD_TYPE_FLOAT> | <Titanium.Database.FIELD_TYPE_DOUBLE>)
         type: Number
         optional: true
+    
   - name: fieldCount
-    description: return the number of columns in the result set
+    summary: Returns the number of columns in this result set.
     returns:
         type: Number
+    
   - name: fieldName
-    description: return the field name for field index
+    summary: Returns the field name for the specified field index.
     returns:
         type: String
     parameters:
       - name: index
-        description: field name column index (which is zero based)
+        summary: A zero-based column index for the field.
         type: Number
+    
   - name: isValidRow
-    description: return true if the row is a valid row
+    summary: Returns whether the current row is valid.
     returns:
         type: Boolean
+    
   - name: next
-    description: iterate to the next row in the result set.
+    summary: |
+        Advances to the next row in the result set and returns `true` if one exists, 
+        or `false` otherwise.
     returns:
         type: Boolean
-        description: |
-            If the next operation goes past the final row, this returns false.  Else true.
 properties:
   - name: rowCount
-    description: the number of rows in the result set
+    summary: The number of rows in this result set.
     type: Number
+    permission: read-only
+    
   - name: validRow
-    description: returns true if the current row is still valid
+    summary: Indicates whether the current row is valid.
     type: Boolean
+    permission: read-only
+    platforms: [iphone,ipad]
+examples:
+  - title: Using ResultSet
+    example: |
+        The following code will install a database and execute SQL statements that will create a 
+        table, insert data into it, query the table and iterate through the returned ResultSet.
+
+            var db = Ti.Database.open('mydb1Installed');
+            db.execute('CREATE TABLE IF NOT EXISTS people (name TEXT, phone_number TEXT, city TEXT)');
+            db.execute('DELETE FROM people');
+            
+            var thisName = 'Arthur';
+            var thisPhoneNo = '1-617-000-0000';
+            var thisCity = 'Mountain View';
+            db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', thisName, thisPhoneNo, thisCity);
+
+            var personArray = ['Paul','020 7000 0000', 'London'];
+            db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', personArray);
+
+            var rows = db.execute('SELECT rowid,name,phone_number,city FROM people');
+            db.close();
+
+            while (rows.isValidRow())
+            {
+              Ti.API.info('Person ---> ROWID: ' + rows.fieldByName('rowid') + ', name:' + rows.field(1) + ', phone_number: ' + rows.fieldByName('phone_number') + ', city: ' + rows.field(3));
+              rows.next();
+            }
+            rows.close();
+        
+        Note that the above `SELECT` query contains the [rowid](http://www.sqlite.org/lang_createtable.html#rowid)
+        field, which contains an SQLite-specific unique identifier for each row.
+      

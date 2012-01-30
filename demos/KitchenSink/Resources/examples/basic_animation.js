@@ -127,7 +127,7 @@ function thirdAnimation()
 // animate the center point object
 function fourthAnimation()
 {
-	circle.animate({center:{x:100,y:100},curve:Ti.UI.ANIMATION_CURVE_EASE_IN_OUT,duration:1000}, function()
+	circle.animate({center:{x:100,y:100},curve:Ti.UI.iOS.ANIMATION_CURVE_EASE_IN_OUT,duration:1000}, function()
 	{
 		circle.animate({center:{x:0,y:200},duration:1000}, function()
 		{

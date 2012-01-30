@@ -186,7 +186,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 //To load application Defaults 
 - (void) loadUserDefaults
 {
-	[[NSUserDefaults standardUserDefaults] setPersistentDomain:[NSDictionary dictionary] forName:[[NSBundle mainBundle] bundleIdentifier]];
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	NSDictionary *appDefaults = [[NSDictionary alloc] initWithDictionary:[ApplicationDefaults copyDefaults]];
 	if(appDefaults)
@@ -219,12 +218,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	kjsBridge = [[KrollBridge alloc] initWithHost:self];
 	
 	[kjsBridge boot:self url:nil preload:nil];
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-	if ([TiUtils isIOS4OrGreater])
-	{
-		[[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
-	}
-#endif
+	[[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
 }
 
 - (void)validator
@@ -397,7 +391,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	[TiUtils queueAnalytics:@"ti.background" name:@"ti.background" data:nil];
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	
 	if (backgroundServices==nil)
 	{
@@ -423,16 +416,17 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         // Do the work associated with the task.
 		[tiapp beginBackgrounding];
     });
-#endif	
 	
 }
 
 -(void)applicationWillEnterForeground:(UIApplication *)application
 {
+    [sessionId release];
+    sessionId = [[TiUtils createUUID] retain];
+    
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
 	
 	[TiUtils queueAnalytics:@"ti.foreground" name:@"ti.foreground" data:nil];
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	
 	if (backgroundServices==nil)
 	{
@@ -440,8 +434,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	}
 	
 	[self endBackgrounding];
-	
-#endif
 
 }
 
@@ -570,9 +562,13 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 -(void)hideModalController:(UIViewController*)modalController animated:(BOOL)animated
 {
 	UIViewController *navController = [modalController parentViewController];
-	if (navController==nil)
+
+	//	As of iOS 5, Apple is phasing out the modal concept in exchange for
+	//	'presenting', making all non-Ti modal view controllers claim to have
+	//	no parent view controller.
+	if (navController==nil && [modalController respondsToSelector:@selector(presentingViewController)])
 	{
-//		navController = [controller currentNavController];
+		navController = [modalController presentingViewController];
 	}
 	[controller windowClosed:modalController];
 	if (navController!=nil)
@@ -602,10 +598,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     if ([self debugMode]) {
         TiDebuggerStop();
     }
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 	RELEASE_TO_NIL(backgroundServices);
 	RELEASE_TO_NIL(localNotification);
-#endif	
 	[super dealloc];
 }
 
@@ -637,8 +631,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	return kjsBridge;
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-
 #pragma mark Backgrounding
 
 -(void)beginBackgrounding
@@ -662,7 +654,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		[proxy performSelector:@selector(endBackground)];
 		[runningServices removeObject:proxy];
 	}
-	
+
+	[self checkBackgroundServices];
 	RELEASE_TO_NIL(runningServices);
 }
 
@@ -684,7 +677,11 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	{
 		backgroundServices = [[NSMutableArray alloc] initWithCapacity:1];
 	}
-	[backgroundServices addObject:proxy];
+	
+	//Only add if it isn't already added
+	if (![backgroundServices containsObject:proxy]) {
+		[backgroundServices addObject:proxy];
+	}
 }
 
 -(void)checkBackgroundServices
@@ -706,16 +703,14 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 -(void)unregisterBackgroundService:(TiProxy*)proxy
 {
 	[backgroundServices removeObject:proxy];
+	[runningServices removeObject:proxy];
 	[self checkBackgroundServices];
 }
 
 -(void)stopBackgroundService:(TiProxy *)proxy
 {
 	[runningServices removeObject:proxy];
-	[backgroundServices removeObject:proxy];
 	[self checkBackgroundServices];
 }
-
-#endif
 
 @end

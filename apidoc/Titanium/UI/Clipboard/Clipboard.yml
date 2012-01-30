@@ -1,47 +1,47 @@
 ---
 name: Titanium.UI.Clipboard
-description: A module used for accessing clipboard data.
+summary: A module used for accessing clipboard data.
 extends: Titanium.Module
 since: "1.5"
 methods:
   - name: clearData
-    description: Clear data of the given mime-type from the clipboard. If no mime-type is given, clear all data from the clipboard.
+    summary: Clear data of the given mime-type from the clipboard. If no mime-type is given, clear all data from the clipboard.
     parameters:
       - name: type
-        description: (optional) The mime-type of the data to clear.
+        summary: (optional) The mime-type of the data to clear.
         type: String
   - name: clearText
-    description: Clear the text portion of the clipboard.
+    summary: Clear the text portion of the clipboard.
   - name: getData
-    description: Get the data on the clipboard from the portion which contains data of the given mime-type.
+    summary: Get the data on the clipboard from the portion which contains data of the given mime-type.
     parameters:
       - name: type
-        description: The mime-type of the data to get.
+        summary: The mime-type of the data to get.
         type: String
   - name: getText
-    description: Get the current text on the clipboard.
+    summary: Get the current text on the clipboard.
   - name: hasData
-    description: Return true if there is any content of the given mime-type on the clipboard.
+    summary: Return true if there is any content of the given mime-type on the clipboard.
     parameters:
       - name: type
-        description: (optional) The mime-type of the data to check.
+        summary: (optional) The mime-type of the data to check.
         type: String
   - name: hasText
-    description: Return true if there is any content in the text portion of the clipboard.
+    summary: Return true if there is any content in the text portion of the clipboard.
   - name: setData
-    description: Set the data on the clipboard given a mime-type and the new data. This method will set data on the appropriate portion of the clipboard for the given mime-type.
+    summary: Set the data on the clipboard given a mime-type and the new data. This method will set data on the appropriate portion of the clipboard for the given mime-type.
     parameters:
       - name: type
-        description: The mime-type of the data to set.
+        summary: The mime-type of the data to set.
         type: String
       - name: data
-        description: The new clipboard text.
+        summary: The new clipboard text.
         type: Object
   - name: setText
-    description: Set the text on the clipboard. This will overwrite the current contents of the clipboard.
+    summary: Set the text on the clipboard. This will overwrite the current contents of the clipboard.
     parameters:
       - name: text
-        description: The new clipboard text. If the text is an empty string
+        summary: The new clipboard text. If the text is an empty string
         type: String
 examples:
   - title: Copying text to the clipboard

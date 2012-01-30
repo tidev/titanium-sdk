@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	${ti_header}
+
+	<title>${project_name | h,trim}</title>
+	<meta name="description" content="${app_description | h,trim}">
+	<meta name="author" content="${app_publisher | h,trim}">
+	<meta name="generator" content="${ti_generator | h,trim}">
+
+	<meta name="HandheldFriendly" content="True">
+	<meta name="MobileOptimized" content="320">
+	<meta http-equiv="cleartype" content="on">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="${ti_statusbar_style | h,trim}">
+
+	<link rel="apple-touch-icon-precomposed" sizes="114x114" href="apple-touch-icon-114x114-precomposedn.png">
+	<link rel="apple-touch-icon-precomposed" sizes="72x72" href="apple-touch-icon-72x72-precomposed.png">
+	<link rel="apple-touch-icon-precomposed" href="apple-touch-icon-precomposed.png">
+
+	<link rel="apple-touch-startup-image" href="mobileweb/Default-Landscape.jpg" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape)">
+	<link rel="apple-touch-startup-image" href="mobileweb/Default-Portrait.jpg" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait)">
+	<link rel="apple-touch-startup-image" href="mobileweb/Default.jpg" media="screen and (max-device-width: 320px)">
+
+	<style>
+	${ti_css}
+	</style>
+</head>
+<body>
+	<script>
+	${ti_js}
+	</script>
+</body>
+</html>

@@ -1,112 +1,171 @@
 ---
 name: Titanium.UI.WebView
-description: The Web View allows you to open an HTML5 based view which can load either local or remote content. The content can be any valid web content such as HTML, PDF, SVG or other WebKit supported content types. The Web View is created by the method <Titanium.UI.createWebView>.
+summary: The Web View allows you to open an HTML5 based view which can load either local or remote content. The content can be any valid web content such as HTML, PDF, SVG or other WebKit supported content types. The Web View is created by the method <Titanium.UI.createWebView>.
 extends: Titanium.UI.View
 since: "0.8"
 methods:
+  - name: setHtml
+    summary: Sets the value of [html](Titanium.UI.WebView.html) property.
+    description: |
+      In iOS, there are additional parameters `baseURL` and `mimeType` that can be used to configure
+      the WebView main content presentation. For example:
+              
+              setHtml('<html><body>Hello,<a href="/documentation">Titanium</a>!</body></html>',{baseURL:'http://developer.appcelerator.com/'})
+    parameters:
+      - name: html
+        summary: New value for the property
+        type: Object
+      - name: baseURL
+        summary: The base URL for the content
+        optional: true
+        type: String
+      - name: mimeType
+        summary: The MIME type of the content (default is `text/html`)
+        optional: true
+        type: String
   - name: canGoBack
-    description: returns true if the webview can go back in history
+    summary: returns true if the webview can go back in history
+    description: |
+        For Mobile Web, returns true if `url` is set.
     returns:
         type: Boolean
   - name: canGoForward
-    description: returns true if the webview can go forward in history
+    summary: returns true if the webview can go forward in history
+    description: |
+        For Mobile Web, returns true if `url` is set.
     returns:
         type: Boolean
   - name: evalJS
-    description: invoke JavaScript inside the context of the webview and optionally, return a result
+    summary: invoke JavaScript inside the context of the webview and optionally, return a result
+    description: |
+        For Mobile Web, you can only execute JavaScript when the contents are on the same domain.
     returns:
         type: String
     parameters:
       - name: content
-        description: JavaScript code as a string. The code will be evaluated inside the webview context.
+        summary: JavaScript code as a string. The code will be evaluated inside the webview context.
         type: String
   - name: goBack
-    description: go back one entry in history to the previous page
+    summary: go back one entry in history to the previous page
+    description: |
+        For Mobile Web, you can only go back for same domain pages. If you set the initial `url` to a remote page, the back function will not work.
+        If you load a local page, then the user navigates away to a remote page, you cannot go back.
   - name: goForward
-    description: go forward one entry in history to the page before the current page
+    summary: go forward one entry in history to the page before the current page
+    description: |
+        For Mobile Web, you can only go forward for same domain pages. If you set the initial `url` to a remote page, the forward function will not work.
   - name: reload
-    description: reload the current webpage
+    summary: reload the current webpage
+    description: |
+        For Mobile Web, when you reload, the last visited same domain page or the original `url` is the page that is reloaded.
+        You may need to simply reset the `url` property to reinitialize the WebView's iframe. Reloading the WebView will reset
+        the history.
   - name: repaint
-    description: force the webview to repaint its contents
+    summary: force the webview to repaint its contents
+    platforms: [iphone, ipad]
   - name: setBasicAuthentication
-    description: set the basic authentication for the webview instance to be used on subsequent url requests
+    summary: set the basic authentication for the webview instance to be used on subsequent url requests
+    platforms: [android, iphone, ipad]
     parameters:
       - name: username
-        description: the username
+        summary: the username
         type: String
       - name: password
-        description: the password
+        summary: the password
         type: String
   - name: stopLoading
-    description: stop loading a currently loading page
+    summary: stop loading a currently loading page
+    description: |
+        For Mobile Web, due to browser permissions, this will issue a stop on all windows including the parent and all other WebViews.
+        Generally, this feature does not work reliably and instead you may choose to set the `hardStop` argument to true.
+    parameters:
+      - name: hardStop
+        summary: Forces the WebView to destroy the iframe (Mobile Web only)
+        type: Boolean
 events:
   - name: beforeload
-    description: fired before the webview starts loading its content
+    summary: fired before the webview starts loading its content
+    description: |
+        For Mobile Web, if you pass the `url` into the constructor, you must attach the event listener before
+        adding the WebView to its parent, otherwise the event will fire before you have a chance to add the event
+        listener.
+        
+        This event does not fire when navigating remote web pages.
     properties:
       - name: url
-        description: the url of the web document
+        summary: the url of the web document
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
+        platforms: [iphone, ipad, android]
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
+        platforms: [iphone, ipad, android]
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: error
-    description: fired when the webview cannot load the content
+    summary: Fired when the webview cannot load the content. For Mobile Web, generally this event will NOT fire, even for 404, 500, and invalid URLs.
     properties:
       - name: url
-        description: the url of the web document
+        summary: the url of the web document
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
+        platforms: [iphone, ipad, android]
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
+        platforms: [iphone, ipad, android]
       - name: message
-        description: the error message
+        summary: the error message
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: load
-    description: fired when the webview is loaded
+    summary: fired when the webview is loaded
     properties:
       - name: url
-        description: the url of the web document
+        summary: The url of the web document. For Mobile Web, this `url` is generally accurate when loading same domain pages and remote pages that you explicitly set using the `url` property. If you navigate a remote page, then this `url` is set to the initial remote page's URL.
       - name: y
-        description: the y point of the event, in receiving view coordinates
+        summary: the y point of the event, in receiving view coordinates
+        platforms: [iphone, ipad, android]
       - name: x
-        description: the x point of the event in receiving view coordiantes
+        summary: the x point of the event in receiving view coordiantes
+        platforms: [iphone, ipad, android]
       - name: globalPoint
-        description: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
   - name: pause
-    description: Pause native webview plugins. Add a `pause` handler to your <Titanium.UI.Android.Activity> and invoke
+    summary: Pause native webview plugins. Add a `pause` handler to your <Titanium.UI.Android.Activity> and invoke
         this method to pause native plugins. This is important with Flash content as it will continue in the background
         unless this method is invoked.
     since: "1.8.0"
     platforms: [android]
   - name: resume
-    description: Resume native webview plugins. Add a `resume` handler to your <Titanium.UI.Android.Activity> and invoke
+    summary: Resume native webview plugins. Add a `resume` handler to your <Titanium.UI.Android.Activity> and invoke
         this method to resume native plugins.
     since: "1.8.0"
     platforms: [android]
 properties:
   - name: data
-    description: a data blob or file that is used to load the web document
+    summary: a data blob or file that is used to load the web document
+    description: |
+        For Mobile Web, setting new content will reset the `url` and the WebView's history.
     type: Object
   - name: html
-    description: the html content of the web document
+    summary: the html content of the web document
+    description: |
+        For Mobile Web, setting new content will reset the `url` and the WebView's history.
     type: String
   - name: loading
-    description: boolean indicating if the webview is loading content
+    summary: boolean indicating if the webview is loading content
     type: Boolean
   - name: pluginState
-    description: set how plugins are processed. Accepts one of <Titanium.UI.Android.WEBVIEW_PLUGINS_OFF>, <Titanium.UI.Android.WEBVIEW_PLUGINS_ON>, or <Titanium.UI.Android.WEBVIEW_PLUGINS_ON_DEMAND>.
+    summary: set how plugins are processed. Accepts one of <Titanium.UI.Android.WEBVIEW_PLUGINS_OFF>, <Titanium.UI.Android.WEBVIEW_PLUGINS_ON>, or <Titanium.UI.Android.WEBVIEW_PLUGINS_ON_DEMAND>.
         See Android documentation for [WebSettings.PluginState](http://developer.android.com/reference/android/webkit/WebSettings.PluginState.html). Only
         works on Android devices at API Level 8 or greater.
     type: Number
@@ -114,18 +173,19 @@ properties:
     since: "1.8.0"
     default: <Titanium.UI.Android.WEBVIEW_PLUGINS_OFF>
   - name: enableZoomControls
-    description: sets whether the zoom controls are enabled
+    summary: sets whether the zoom controls are enabled
     type: Boolean
     platforms: [android]
     since: "1.8.0"
     default: true
   - name: scalesPageToFit
-    description: whether the webview should scale it's contents or not
+    summary: whether the webview should scale it's contents or not
+    platforms: [android, iphone, ipad]
     type: Boolean
   - name: url
-    description: the url to the web document. this property will change as the content of the webview changes (such as from internal hyperlinks, etc)
+    summary: the url to the web document. this property will change as the content of the webview changes (such as from internal hyperlinks, etc)
     type: String
-notes: |
+description: |
     Creating webviews are more expensive than creating pure native views because of the requirement to
     load the HTML browser into memory.
     

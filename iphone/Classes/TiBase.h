@@ -18,14 +18,6 @@ extern "C" {
 #define MEMORY_DEBUG 0
 #define VIEW_DEBUG 0
 
-#ifndef __IPHONE_3_2
-#define __IPHONE_3_2 30200
-#endif
-
-#ifndef __IPHONE_4_0
-#define __IPHONE_4_0 40000
-#endif
-
 #ifndef __IPHONE_4_1
 #define __IPHONE_4_1 40100
 #endif
@@ -152,7 +144,7 @@ if (out && ![out isKindOfClass:[type class]]) { \
 
 #define COERCE_TO_INT(out,in) \
 if (![in respondsToSelector:@selector(intValue)]) {\
-[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"cannot coerce type %@ to int",[in type]] location:CODELOCATION]; \
+[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"cannot coerce type %@ to int",[in class]] location:CODELOCATION]; \
 }\
 out = [in intValue]; \
 
@@ -232,7 +224,7 @@ if (IS_NULL_OR_NIL(x))	\
 }	\
 else if (![x isKindOfClass:t])	\
 { \
-	[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@ or nil, was: %@",[x class],t] location:CODELOCATION]; \
+	[self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@ or nil, was: %@",t, [x class]] location:CODELOCATION]; \
 }\
 
 #define ENSURE_TYPE_OR_NIL(x,t) ENSURE_CLASS_OR_NIL(x,[t class])
@@ -313,6 +305,20 @@ void TiExceptionThrowWithNameAndReason(NSString * exceptionName, NSString * mess
 #define MAKE_SYSTEM_PROP(name,map) \
 -(NSNumber*)name \
 {\
+return [NSNumber numberWithInt:map];\
+}\
+
+#define MAKE_SYSTEM_PROP_DEPRECATED(name,map,api,in,removed,newapi) \
+-(NSNumber*)name \
+{\
+DEPRECATED_REPLACED(api,in,removed,newapi)\
+return [NSNumber numberWithInt:map];\
+}\
+
+#define MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(name,map,api,in,removed) \
+-(NSNumber*)name \
+{\
+DEPRECATED(api,in,removed)\
 return [NSNumber numberWithInt:map];\
 }\
 
@@ -514,9 +520,7 @@ extern NSString * const kTiRemoteDeviceUUIDNotification;
 extern NSString * const kTiGestureShakeNotification;
 extern NSString * const kTiRemoteControlNotification;
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 extern NSString * const kTiLocalNotification;
-#endif
 
 #ifndef ASI_AUTOUPDATE_NETWORK_INDICATOR
 	#define ASI_AUTOUPDATE_NETWORK_INDICATOR 0

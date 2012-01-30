@@ -57,6 +57,14 @@ DEFINE_EXCEPTIONS
 	return -1;
 }
 
+-(void)layoutSubviews
+{
+	[super layoutSubviews];
+	UIView *view = [self tabController].view;
+	[view setTransform:CGAffineTransformIdentity];
+	[view setFrame:[self bounds]];
+}
+
 #pragma mark Dispatching focus change
 
 - (void)handleWillShowTab:(TiUITabProxy *)newFocus
@@ -161,7 +169,7 @@ DEFINE_EXCEPTIONS
 			[self setEditButton:navigationController];
 		}
 		// However, under iOS4, we have to manage the appearance/disappearance of the edit button ourselves.
-		else if ([TiUtils isIOS4OrGreater]) {
+		else {
 			[self removeEditButton:navigationController];
 		}
 	}
@@ -384,7 +392,7 @@ DEFINE_EXCEPTIONS
 -(void)open:(id)args
 {
 	UIView *view = [self tabController].view;
-	[TiUtils setView:view positionRect:[self bounds]];
+	[view setFrame:[self bounds]];
 	[self addSubview:view];
 
 	// on an open, make sure we send the focus event to initial tab

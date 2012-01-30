@@ -1,6 +1,50 @@
 ---
 name: Titanium.UI.TableViewRow
-description: A TableView row object created by the method <Titanium.UI.createTableViewRow>.
+summary: An individual row for a [TableView](Titanium.UI.TableView). 
+description: |
+    Use the <Titanium.UI.createTableViewRow> method to create a table view row.
+
+    A table view row represents a single item in a `TableView`. The row's contents can be 
+    as simple as a single line of text, or the row can be a completely customized with
+    its own child views.
+
+    A basic table view row includes properties for setting:
+
+    * Row title--the text displayed on the row.
+    * Optional images on the left and right sides of the row.
+    * Optional system decorations, such as checkboxes.
+
+    You can also set the usual view properties, such as background color and 
+    background image.
+
+    If you want a custom layout for your view, such as multiple lines of text,
+    different fonts, or additional images or controls, you can add child views
+    to the row. In this case, you should not specify a `title` for the row.
+
+    Make sure you set the `className` on each row instance if using more than one type 
+    of row layout. You can use the same value for each instance of a row where the 
+    layout is the same - even if the value of the elements inside the row have different 
+    values. For example, if the text is the only thing different between two cells but 
+    the layout is the same, both row instances should have the same value for `className`.
+    
+    You can listen for table row events on all rows by adding an event listener to the 
+    table view instance.  Events automatically propagate to parent views.
+
+    #### Platform Implementation Notes
+
+    The `top`, `left` and other positional parameters are not used for their usual
+    purposes, because the table view row is automatically positioned by its parent.
+    
+    On Android, these properties are used to position the content (title) inside the row. 
+    For example, setting `top` to 20 moves the title down from the top of the row. 
+    On iOS, these values have no effect.
+    
+    On Mobile Web, these properties are used to relatively position the row, treating
+    the `TableView` as if it were a horizontal layout.
+
+    Also, note that the selected text color, `selectedColor`, can only be set on iOS and 
+    Mobile Web. On Android, the text color does not change when the row is selected.
+
 extends: Titanium.UI.View
 since: "0.9"
 excludes:
@@ -9,55 +53,101 @@ excludes:
     events: []
 properties:
   - name: className
-    description: the class name of the table. each table view cell must have a unique class name if the cell layout is different. however, use the same name for rows that have the same structural layout (even if the content is different) to provide maximum rendering performance.
+    summary: Class name for the row. 
+    description: |
+        A class name represents a unique row layout. 
+        
+        A table view row must have a unique class name if the row layout is unique. However, 
+        use the same name for rows that have the same structural layout (even if the content is 
+        different) to provide maximum rendering performance.
+
+        For example, if some rows include images and some rows do not, you would have two class
+        names, one for image rows and one for plain rows.
+        
+        This property exists on Mobile Web, but is ignored.
     type: String
   - name: color
-    description: default color of the row when not selected
+    summary: Default text color of the row when not selected.
+    description: |
+        On Android, `selectedColor` is not supported, so the text is always displayed
+        in this color.
     type: String
   - name: editable
-    description: whether or not the row can be deleted
+    summary: Whether or not this row can be deleted when the table is in edit mode.
     type: Boolean
     platforms: [iphone, ipad]
+    default: true
+  - name: font
+    summary: Font to use for the row title.
+    description: |
+        If the table uses different fonts on different rows, the font properites may become 
+        associated with the wrong row as the table scrolls. This is a known issue.
+
+        Because this property is Android-only, adding a [Label](Titanium.UI.Label) to a 
+        table view row is a more portable and versatile alternative to using this property.
+    type: Font
+    default: System default font.
+    platforms: [android]
   - name: hasCheck
-    description: render a system provided check mark in the right image area of the row cell
+    summary: Render a system provided check mark in the right image area of the row.
     type: Boolean
+    default: false
   - name: hasChild
-    description: render a system provided right arrow in the right image area of the row cell
+    summary: Render a system provided arrow in the right image area of the row.
+    description: |
+        The `hasChild` flag is used to indicate to the user that clicking on the row 
+        displays more detailed information. On iOS, this is specifically used when 
+        clicking on the row navigates to the next table view in a heirarchy of table views.
     type: Boolean
+    default: false
   - name: hasDetail
-    description: render a system provided blue indicator icon in the right image area of the row cell
+    summary: Render a system provided detail disclosure button in the right image area of the row.
+    description: |
+        The `hasDetail` flag is used to indicate to the user that more details are
+        available on the row. Specifically on iOS the detail disclosure button indicates
+        that clicking on the row results in a detail view of that item. 
+
+        The `detail` property in the click event is set to `true` if the click occurred on
+        the detail button itself, `false` if the click occurs anywhere else in the row.
+        
+        For rows that have `hasDetail` set to false, the `detail` flag is always `false`.
     type: Boolean
+    default: false
+    platforms: [iphone,ipad]
   - name: indentionLevel
-    description: the indention level for the cell (defaults to 0)
+    summary: Indention level for the row.
+    description: |
+        Indentation values greater than 0 indent the row text.
     type: Number
-  - name: layout
-    description: the layout algorithm to use for the layout. either absolute (default) or vertical.
-    type: String
+    default: 0
+    platforms: [iphone, ipad]
   - name: leftImage
-    description: image url to render in the left image area of the row cell
+    summary: Image to render in the left image area of the row, specified as a local path or URL.
     type: String
   - name: rightImage
-    description: image url to render in the right image area of the row cell
+    summary: Image to render in the right image area of the row, specified as a local path or URL.
     type: String
   - name: selectedBackgroundColor
-    description: the background color to render when the row cell is selected
+    summary: Background color to render when the row is selected.
     type: String
   - name: selectedBackgroundImage
-    description: the background image to render when the row cell is selected
+    summary: Background image to render when the row is selected.
     type: String
   - name: selectedColor
-    description: color of the row during selection
+    summary: Color of the row text when the row is selected.
     type: String
+    platforms: [iphone,ipad]
   - name: selectionStyle
-    description: a selection style constant to control the selection color. For iPhone, use the constants from Titanium.UI.iPhone.TableViewCellSelectionStyle
+    summary: Selection style constant to control the selection color. 
+    description: |
+        Specify one of the constants from <Titanium.UI.iPhone.TableViewCellSelectionStyle>.
     type: Number
+    platforms: [iphone,ipad]
   - name: title
-    description: the title cell value. do not specify if using views as children of the row
+    summary: Text to display on the row. 
+    description: |
+        Do not specify if using views as children of the row.
     type: String
-notes: |
-    Make sure you set the tableClass on each row instance if using more than one type of row layout. You can use the same value for each instance of a row where the layout is the same - even if the value of the elements inside the row have different values.  For example, if the text is the only thing different between two cells but the layout is the same, both row instances should have the same value for tableClass.
-    
-    You can listen for table row events on all rows by adding an event listener to the table view instance.  Events automatically propagate to parent views.
 examples:
   - title: Simple Table View Row example
     example: |

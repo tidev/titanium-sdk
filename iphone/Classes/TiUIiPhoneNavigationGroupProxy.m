@@ -111,7 +111,7 @@
 {
 	WARN_IF_BACKGROUND_THREAD;
 	if ([self viewAttached]) {
-		[[self view] close];
+		[(TiUIiPhoneNavigationGroup*)[self view] close];
 	}
 	[super windowDidClose];
 }

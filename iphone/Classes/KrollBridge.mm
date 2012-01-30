@@ -14,7 +14,7 @@
 #import "TiApp.h"
 #import "ApplicationMods.h"
 #import <libkern/OSAtomic.h>
-
+#import "KrollContext.h"
 #import "TiDebugger.h"
 
 #ifdef KROLL_COVERAGE
@@ -22,6 +22,12 @@
 #endif
 
 extern BOOL const TI_APPLICATION_ANALYTICS;
+
+NSString * TitaniumModuleRequireFormat = @"(function(exports){"
+		"var __OXP=exports;var module={'exports':exports};%@;\n"
+		"if(module.exports !== __OXP){return module.exports;}"
+		"return exports;})({})";
+
 
 @implementation TitaniumObject
 
@@ -200,6 +206,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 #if KROLLBRIDGE_MEMORY_DEBUG==1
 		NSLog(@"INIT: %@",self);
 #endif		
+		modules = [[NSMutableDictionary alloc] init];
 		proxyLock = OS_SPINLOCK_INIT;
 		OSSpinLockLock(&krollBridgeRegistryLock);
 		CFSetAddValue(krollBridgeRegistry, self);
@@ -284,6 +291,14 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	{
 		CFRelease(oldProxies);
 	}
+
+	for (NSString * thisModuleKey in modules) {
+		id thisModule = [modules objectForKey:thisModuleKey];
+		if ([thisModule respondsToSelector:@selector(unprotectJsobject)]) {
+			[thisModule unprotectJsobject];
+		}
+	}
+	RELEASE_TO_NIL(modules);
 }
 
 -(void)dealloc
@@ -296,7 +311,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	RELEASE_TO_NIL(preload);
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(titanium);
-	RELEASE_TO_NIL(modules);
 	OSSpinLockLock(&krollBridgeRegistryLock);
 	CFSetRemoveValue(krollBridgeRegistry, self);
 	OSSpinLockUnlock(&krollBridgeRegistryLock);
@@ -359,6 +373,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 - (void)evalFileOnThread:(NSString*)path context:(KrollContext*)context_ 
 {
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    
 	NSError *error = nil;
 	TiValueRef exception = NULL;
 	
@@ -446,6 +462,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	
 	TiStringRelease(jsCode);
 	TiStringRelease(jsURL);
+    
+    [pool release];
 }
 
 - (void)evalFile:(NSString*)path callback:(id)callback selector:(SEL)selector
@@ -483,17 +501,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 			 eventObject:obj thisObject:sourceObject];
 	[context enqueue:newEvent];
 	[newEvent release];
-}
-
--(void)injectPatches
-{
-	// called to inject any Titanium patches in JS before a context is loaded... nice for 
-	// setting up backwards compat type APIs
-	
-	NSMutableString *js = [[NSMutableString alloc] init];
-	[js appendString:@"function alert(msg) { Ti.UI.createAlertDialog({title:'Alert',message:msg}).show(); };"];
-	[self evalJSWithoutResult:js];
-	[js release];
 }
 
 -(void)shutdown:(NSCondition*)condition
@@ -537,6 +544,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 -(void)didStartNewContext:(KrollContext*)kroll
 {
 	// create Titanium global object
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    
 	NSString *basePath = (url==nil) ? [TiHost resourcePath] : [[[url path] stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"."];
 	titanium = [[TitaniumObject alloc] initWithContext:kroll host:host context:self baseURL:[NSURL fileURLWithPath:basePath]];
 	
@@ -571,16 +580,16 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 				[ti setStaticValue:ko forKey:key purgable:NO];
 			}
 		}
-		[self injectPatches];
 		[self evalFile:[url path] callback:self selector:@selector(booted)];	
 	}
 	else 
 	{
 		// now load the app.js file and get started
 		NSURL *startURL = [host startURL];
-		[self injectPatches];
 		[self evalFile:[startURL absoluteString] callback:self selector:@selector(booted)];
 	}
+    
+    [pool release];
 }
 
 -(void)willStopNewContext:(KrollContext*)kroll
@@ -611,7 +620,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	RELEASE_TO_NIL(titanium);
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(preload);
-	RELEASE_TO_NIL(modules);
 	[self autorelease]; // Safe to release now that the context is done
 }
 
@@ -697,21 +705,35 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 -(id)loadCommonJSModule:(NSString*)code withPath:(NSString*)path
 {
-	NSString *js = [[NSString alloc] initWithFormat:
-					@"(function(exports){%@;return exports;})({})",code];
-	
-	NSDictionary *result = [self evalJSAndWait:js];
+	NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat,code];
+
+	/* This most likely should be integrated with normal code flow, but to
+	 * minimize impact until a in-depth reconsideration of KrollContext can be
+	 * done, we should have as little footprint 
+	 */
+	KrollEval *eval = [[KrollEval alloc] initWithCode:js];
+	TiValueRef exception = NULL;
+	TiValueRef resultRef = [eval jsInvokeInContext:context exception:&exception];
 	[js release];
-	TiProxy *proxy = [[TiProxy alloc] _initWithPageContext:self];
-	for (id key in result)
-	{
-		[proxy setValue:[result objectForKey:key] forUndefinedKey:key];
+	[eval release];
+	
+	if (exception != NULL) {
+		id excm = [KrollObject toID:context value:exception];
+		NSLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
+		fflush(stderr);
+		@throw excm;
 	}
+	/*
+	 *	In order to work around the underlying issue of TIMOB-2392, we must
+	 *	use KrollWrapper as a JS wrapper instead of converting it to a proxy
+	 */
+
+	KrollWrapper * result = [[KrollWrapper alloc] init];
+	[result setBridge:self];
+	[result setJsobject:(TiObjectRef)resultRef];
+	[result protectJsobject];
 	
-	// register it
-	[modules setObject:proxy forKey:path];
-	
-	return [proxy autorelease];
+	return [result autorelease];
 }
 
 -(NSString*)pathToModuleClassName:(NSString*)path
@@ -745,27 +767,31 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		}
 	}
 	
-	// now see if this is a plus module that we need to dynamically
-	// load and create
-	NSString *moduleClassName = [self pathToModuleClassName:path];
-	id moduleClass = NSClassFromString(moduleClassName);
-	if (moduleClass!=nil)
-	{
-		module = [[moduleClass alloc] _initWithPageContext:self];
-		// we might have a module that's simply a JS native module wrapper
-		// in which case we simply load it and don't register our native module
-		if ([module isJSModule])
+	//If it's a relative path or has folder path bits, it cannot
+	//be a class name.
+	if (![path hasPrefix:@"."] && ([path rangeOfString:@"/"].location == NSNotFound)) {
+		// now see if this is a plus module that we need to dynamically
+		// load and create
+		NSString *moduleClassName = [self pathToModuleClassName:path];
+		id moduleClass = NSClassFromString(moduleClassName);
+		if (moduleClass!=nil)
 		{
-			data = [module moduleJS];
+			module = [[moduleClass alloc] _initWithPageContext:self];
+			// we might have a module that's simply a JS native module wrapper
+			// in which case we simply load it and don't register our native module
+			if ([module isJSModule])
+			{
+				data = [module moduleJS];
+			}
+			else
+			{
+				[module setHost:host];
+				[module _setName:moduleClassName];
+				// register it
+				[modules setObject:module forKey:path];
+			}
+			[module autorelease];
 		}
-		else
-		{
-			[module setHost:host];
-			[module _setName:moduleClassName];
-			// register it
-			[modules setObject:module forKey:path];
-		}
-		[module autorelease];
 	}
 	
 	if (data==nil)
@@ -789,12 +815,20 @@ CFMutableSetRef	krollBridgeRegistry = nil;
             TiDebuggerBeginScript([self krollContext],urlCString);
         }
         
-		module = [self loadCommonJSModule:[[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease] withPath:path];
-        
+		NSString * dataContents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+		module = [self loadCommonJSModule:dataContents withPath:path];
+        [dataContents release];
+		
         if ([[self host] debugMode]) {
             TiDebuggerEndScript([self krollContext]);
         }
         
+		if (![module respondsToSelector:@selector(replaceValue:forKey:notification:)]) {
+			@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"Module \"%@\" failed to leave a valid exports object",path] userInfo:nil];
+		}
+		
+		// register it
+		[modules setObject:module forKey:path];
 		if (filepath!=nil && module!=nil)
 		{
 			// uri is optional but we point it to where we loaded it

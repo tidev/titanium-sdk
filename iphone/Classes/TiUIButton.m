@@ -12,6 +12,7 @@
 #import "TiUtils.h"
 #import "ImageLoader.h"
 #import "TiButtonUtil.h"
+#import "TiUIView.h"
 
 const UIControlEvents highlightingTouches = UIControlEventTouchDown|UIControlEventTouchDragEnter;
 const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIControlEventTouchDragExit|UIControlEventTouchUpInside;
@@ -104,6 +105,7 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[button setFrame:bounds];
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 -(void)clicked:(id)sender event:(UIEvent*)event
@@ -125,7 +127,18 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 	if (button==nil)
 	{
 		id backgroundImage = [self.proxy valueForKey:@"backgroundImage"];
-		UIButtonType defaultType = backgroundImage!=nil ? UIButtonTypeCustom : UIButtonTypeRoundedRect;
+        id backgroundImageS = [self.proxy valueForKey:@"backgroundSelectedImage"];
+        id backgroundImageD = [self.proxy valueForKey:@"backgroundDisabledImage"];
+        id backgroundImageF = [self.proxy valueForKey:@"backgroundFocusedImage"];
+        
+        hasBackgroundForStateNormal = backgroundImage  != nil ? YES :NO;
+        hasBackgroundForStateDisabled = backgroundImageD != nil ? YES :NO;
+        hasBackgroundForStateSelected = backgroundImageS != nil ? YES :NO;
+        hasBackgroundForStateFocused = backgroundImageF != nil ? YES :NO;
+        
+        BOOL hasImage = hasBackgroundForStateDisabled||hasBackgroundForStateNormal;
+		
+        UIButtonType defaultType = (hasImage==YES) ? UIButtonTypeCustom : UIButtonTypeRoundedRect;
 		style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:defaultType];
 		UIView *btn = [TiButtonUtil buttonWithType:style];
 		button = (UIButton*)[btn retain];
@@ -134,12 +147,20 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 		if (style==UIButtonTypeCustom)
 		{
 			[button setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
+			//Enable Touch Highlight with Custom Button Type 
+			//when no selectedstate background image is specified 
+			//or selectedstate background image is same as main backgroundImage
+			
+			id test = hasBackgroundForStateNormal ? backgroundImage : backgroundImageD;
+			if (!hasBackgroundForStateSelected || [test isEqual:backgroundImageS] )
+			{
+				button.showsTouchWhenHighlighted = YES;
+			}
 		}
 		[button addTarget:self action:@selector(clicked:event:) forControlEvents:UIControlEventTouchUpInside];
 		[button addTarget:self action:@selector(highlightOn:) forControlEvents:highlightingTouches];
 		[button addTarget:self action:@selector(highlightOff:) forControlEvents:unHighlightingTouches];
 		button.exclusiveTouch = YES;
-
 	}
 	return button;
 }
@@ -175,19 +196,19 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 		// if the layout is undefined or auto, we need to take the size of the image
 		//TODO: Refactor. This will cause problems if there's multiple setImages called,
 		//Since we change the values of the proxy.
-		LayoutConstraint *layout = [(TiViewProxy *)[self proxy] layoutProperties];
+		LayoutConstraint *layoutProperties = [(TiViewProxy *)[self proxy] layoutProperties];
 		BOOL reposition = NO;
 		
-		if (TiDimensionIsUndefined(layout->width) || TiDimensionIsAuto(layout->width))
+		if (TiDimensionIsUndefined(layoutProperties->width) || TiDimensionIsAuto(layoutProperties->width))
 		{
-			layout->width.value = image.size.width;
-			layout->width.type = TiDimensionTypePixels;
+			layoutProperties->width.value = image.size.width;
+			layoutProperties->width.type = TiDimensionTypePixels;
 			reposition = YES;
 		}
-		if (TiDimensionIsUndefined(layout->height) || TiDimensionIsAuto(layout->height))
+		if (TiDimensionIsUndefined(layoutProperties->height) || TiDimensionIsAuto(layoutProperties->height))
 		{
-			layout->height.value = image.size.height;
-			layout->height.type = TiDimensionTypePixels;
+			layoutProperties->height.value = image.size.height;
+			layoutProperties->height.type = TiDimensionTypePixels;
 		}
 		if (reposition)
 		{
@@ -214,16 +235,43 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 {
 	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateNormal];
     self.backgroundImage = value;
-}
-
--(void)setBackgroundSelectedImage_:(id)value
-{
-	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
+    
+    //Match android behavior. Setting a background image sets it for all states unless overridden
+    //TIMOB-5803
+    if(!hasBackgroundForStateDisabled)
+        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateDisabled];
+    if(!hasBackgroundForStateFocused)
+        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateSelected];
+    if(!hasBackgroundForStateSelected)
+        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
+    
 }
 
 -(void)setBackgroundDisabledImage_:(id)value
 {
 	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateDisabled];
+    
+    //Match android behavior. Setting a background image for disabled only sets it for all states unless overridden
+    //TIMOB-5803
+    if(!hasBackgroundForStateNormal)
+    {
+        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateNormal];
+        self.backgroundImage = value;
+    }
+    if(!hasBackgroundForStateFocused)
+        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateSelected];
+    if(!hasBackgroundForStateSelected)
+        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
+}
+
+-(void)setBackgroundFocusedImage_:(id)value
+{
+	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateSelected];
+}
+
+-(void)setBackgroundSelectedImage_:(id)value
+{
+	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
 }
 
 -(void)setBackgroundColor_:(id)value

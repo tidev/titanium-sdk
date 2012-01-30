@@ -1,125 +1,170 @@
 ---
 name: Titanium.Platform
-description: The top level Platform module.  The Platform module is used accessing the device's platform
-    related functionality.
+summary: |
+  The top-level Platform module.  The Platform module is used to access the
+  device's platform-related functionality.
 extends: Titanium.Module
 since: "0.1"
 methods:
   - name: canOpenURL
-    description: returns whether or not a system URL can be opened.
-    platforms: [iphone, ipad]
+    summary: |
+      Returns whether the system is configured with a default application to handle
+      this URL's protocol.
+    returns:
+        type: Boolean
+    platforms: [iphone, ipad, mobileweb]
     parameters:
       - name: url
-        description: the url to check
+        summary: The url to check.
         type: String
   - name: createUUID
-    description: create a globally unique identifier
+    summary: Creates a globally-unique identifier.
     returns:
         type: String
   - name: openURL
-    description: open a URL in the system default manner
-    parameters:
-      - name: url
-        description: the url to open
-        type: String
-  - name: is24HourTimeFormat
-    description: Whether device settings are set to show times in 24-hour format.
+    summary: |
+        Opens this URL using the system's default application for its protocol.
     returns:
         type: Boolean
+    parameters:
+      - name: url
+        summary: The url to open.
+        type: String
+  - name: is24HourTimeFormat
+    summary: |
+        Returns whether the system settings are configured to show times in
+        24-hour format.
+    returns:
+        type: Boolean
+    platforms: [android, iphone, ipad]
 events:
   - name: battery
-    description: fired when the battery state changes.  the battery state changes are only tracked on iPhone/iPad at 5% increments.
+    summary: |
+        Fired when the battery state changes. This is measured in 5% increments
+        on iPhone/iPad.
     properties:
       - name: state
-        description: the new battery state
+        summary: The battery state.
       - name: level
-        description: the new battery level
+        summary: The battery level.
+    platforms: [android, iphone, ipad]
 properties:
   - name: BATTERY_STATE_CHARGING
-    description: the device is plugged in and currently being charged
+    summary: |
+        Constant to indicate that the system is plugged in and currently being
+        charged.
     type: Number
     permission: read-only
   - name: BATTERY_STATE_FULL
-    description: the battery is fully charged
+    summary: Constant to indicate that the battery is fully charged.
     type: Number
     permission: read-only
   - name: BATTERY_STATE_UNKNOWN
-    description: the battery state is unknown or not monitoring is not enabled
+    summary: Constant to indicate that the battery state is not known or monitoring is disabled.
     type: Number
     permission: read-only
   - name: BATTERY_STATE_UNPLUGGED
-    description: the device is unplugged
+    summary: Constant to indicate that the system is unplugged.
     type: Number
     permission: read-only
   - name: address
-    description: the ip address that the device reports (only applicable on WIFI network)
+    summary: The system's WIFI IP address. No other network types are supported.
     type: String
     permission: read-only
   - name: architecture
-    description: the processor architecture that the device reports
+    summary: The system's processor architecture.
     type: String
     permission: read-only
   - name: availableMemory
-    description: return the amount of memory available on the device in bytes
+    summary: |
+        The system's unused memory, measured in megabytes on iOS and bytes on Android.
     type: Number
     permission: read-only
   - name: batteryLevel
-    description: the current device battery level. this property is only accessible if `batteryMonitoring` is enabled. on iPhone, this level only changes at 5% intervals.
+    summary: |
+        The battery level in percent, accessible only when `batteryMonitoring` is enabled.
+        This is measured in 5% increments on iPhone/iPad.
     type: Number
     permission: read-only
   - name: batteryMonitoring
-    description: boolean to indicate if battery monitoring is enabled
+    summary: Indicates whether battery monitoring is enabled.
     type: Boolean
     permission: read-only
   - name: batteryState
-    description: constant that represents the state of the battery. this property is only accessible if `batteryMonitoring` is enabled
+    summary: |
+        Constant to indicate the state of the battery, accessible only when
+        `batteryMonitoring` is enabled.
+    description: |
+        Returns one of the following constants from <Titanium.Platform>:  
+        `BATTERY_STATE_CHARGING`,  
+        `BATTERY_STATE_FULL`,  
+        `BATTERY_STATE_UNKNOWN`  
+        or `BATTERY_STATE_UNPLUGGED`.
     type: Number
     permission: read-only
   - name: displayCaps
-    description: return the DisplayCaps object for platform
+    summary: |
+        Returns the DisplayCaps object.
+    description: |
+        Note that he `displayCaps` property begins with a lowercase letter, 
+        which is in contrast to the `DisplayCaps` object that it returns.
     type: Titanium.Platform.DisplayCaps
     permission: read-only
   - name: id
-    description: the unique id of the device
+    summary: The system's globally-unique ID (UUID).
     type: String
     permission: read-only
+    deprecated:
+        since: "1.8.0"
   - name: locale
-    description: the primary language of the device that the user has enabled
+    summary: The system's default language.
     type: String
     permission: read-only
   - name: macaddress
-    description: this property will return a unique identifier for the device
+    summary: The system's network interface mac address.
     type: String
     permission: read-only
   - name: model
-    description: the model of the phone that the device reports
+    summary: The model of the device.
     type: String
     permission: read-only
+    platforms: [android, iphone, ipad]
   - name: name
-    description: the name of the platform returned by the device
+    summary: The name of the platform.
     type: String
     permission: read-only
   - name: netmask
-    description: the network mask that the device reports (only applicable on WIFI network)
+    summary: The system's WIFI network mask. No other network types are supported.
     type: String
     permission: read-only
   - name: osname
-    description: the shortname of the operating system. for example, on an iPhone, will return `iphone`, iPad will return `ipad` and Android will return `android`.
+    summary: |
+        The short name of the system's Operating System. For example, iPhone
+        will return `iphone`, iPad will return `ipad`, Android will return `android`
+        and Mobile Web will return `mobileweb`.
     type: String
     permission: read-only
   - name: ostype
-    description: the OS architecture, such as 32 bit
+    summary: The Operating System architecture. On Android, this is `32bit`.
     type: String
     permission: read-only
   - name: processorCount
-    description: the number of processors the device reports
+    summary: The number of processing cores.
     type: Number
     permission: read-only
+  - name: runtime
+    summary: The short name of the JavaScript runtime in use.
+    description: |
+      On iOS this returns "javascriptcore", on Android either "v8" or "rhino".
+      On Mobile Web the return value depends on the browser that is being used.
+    type: String
+    permission: read-only
   - name: username
-    description: the username of the device, if set
+    summary: |
+      The system name, if set. On iOS, this can be found in Settings > General > About > Name.
     type: String
     permission: read-only
   - name: version
-    description: the version of the platform returned by the device
+    summary: The system's OS version.
     type: String
     permission: read-only

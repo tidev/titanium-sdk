@@ -13,6 +13,7 @@
 #import "TiComplexValue.h"
 #import "TiApp.h"
 #import "TiTabController.h"
+#import "TiLayoutQueue.h"
 
 // this is how long we should wait on the new JS context to be loaded
 // holding the UI thread before we return during an window open. we 
@@ -104,9 +105,15 @@
 
 @implementation TiUIWindowProxy
 
+-(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+	[TiLayoutQueue addViewProxy:self];
+}
+
 -(void)_destroy
 {
-    if (![self closing]) {
+    if (![self closing] && [[self opened] boolValue]) {
         [self performSelectorOnMainThread:@selector(close:) withObject:nil waitUntilDone:YES];
     }
     
@@ -290,41 +297,29 @@
 	UINavigationBar * ourNB = [[controller navigationController] navigationBar];
 	CGRect barFrame = [ourNB bounds];
 	UIImage * newImage = [TiUtils toImage:[self valueForUndefinedKey:@"barImage"]
-			proxy:self size:barFrame.size];
-
-	if (newImage == nil)
-	{
-		[barImageView removeFromSuperview];
-		RELEASE_TO_NIL(barImageView);
-		return;
-	}
-	
-	if (barImageView == nil)
-	{
-		barImageView = [[UIImageView alloc]initWithImage:newImage];
-	}
-	else
-	{
-		[barImageView setImage:newImage];
-	}
-	
-	[barImageView setFrame:barFrame];
-	
-	int barImageViewIndex = 0;
-	if ([ourNB respondsToSelector:@selector(setBackgroundImage:forBarMetrics:)]) {
-	/*
-	 *	While iOS 5 has methods for setting the background Image, using it requires
-	 *	linking to that SDK (the mentioned bar metrics is an enumeration) which,
-	 *	while iOS 5 is behind the NDA, isn't an option.
-	 *	TODO: Update when iOS 5 is not NDAed for something more elegant.
-	 */
-		barImageViewIndex = 1;
-	}
-	
-	if ([[ourNB subviews] indexOfObject:barImageView] != barImageViewIndex)
-	{
-		[ourNB insertSubview:barImageView atIndex:barImageViewIndex];
-	}
+                                    proxy:self size:barFrame.size];
+    
+    if (newImage == nil) {
+        [barImageView removeFromSuperview];
+        RELEASE_TO_NIL(barImageView);
+        return;
+    }
+    if (barImageView == nil) {
+        barImageView = [[UIImageView alloc]initWithImage:newImage];
+    } else {
+        [barImageView setImage:newImage];
+    }
+    [barImageView setFrame:barFrame];
+    int barImageViewIndex = 0;
+    if ([ourNB respondsToSelector:@selector(setBackgroundImage:forBarMetrics:)]) {
+        //We should ideally be using the setBackgroundImage:forBarMetrics:
+        //method. Revisit after 1.8.1 release
+        barImageViewIndex = 1;
+    }
+    if ([[ourNB subviews] indexOfObject:barImageView] != barImageViewIndex) {
+        [ourNB insertSubview:barImageView atIndex:barImageViewIndex];
+    }
+    
 }
 
 -(void)setBarImage:(id)value
@@ -332,7 +327,7 @@
 	[self replaceValue:[self sanitizeURL:value] forKey:@"barImage" notification:NO];
 	if (controller!=nil)
 	{
-		[self performSelectorOnMainThread:@selector(updateBarImage) withObject:nil waitUntilDone:NO];
+		[self performSelectorOnMainThread:@selector(updateBarImage) withObject:nil waitUntilDone:[NSThread isMainThread]];
 	}
 }
 
@@ -367,14 +362,15 @@
 			UIBarButtonItem *item = controller.navigationItem.rightBarButtonItem;
 			if ([item respondsToSelector:@selector(proxy)])
 			{
-				[(TiViewProxy*)[item proxy] removeBarButtonView];
+				TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
+				[p removeBarButtonView];
 			}
 			if (proxy!=nil)
 			{
 				// add the new one
-				BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-				[controller.navigationItem setRightBarButtonItem:[proxy barButtonItem] animated:animated];
-				[self updateBarImage];
+                BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
+                [controller.navigationItem setRightBarButtonItem:[proxy barButtonItem] animated:animated];
+                [self updateBarImage];
 			}
 			else 
 			{
@@ -413,15 +409,16 @@
 			UIBarButtonItem *item = controller.navigationItem.leftBarButtonItem;
 			if ([item respondsToSelector:@selector(proxy)])
 			{
-				[(TiViewProxy*)[item proxy] removeBarButtonView];
+				TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
+				[p removeBarButtonView];
 			}
 			controller.navigationItem.leftBarButtonItem = nil;			
 			if (proxy!=nil)
 			{
 				// add the new one
-				BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-				[controller.navigationItem setLeftBarButtonItem:[proxy barButtonItem] animated:animated];
-				[self updateBarImage];
+                BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
+                [controller.navigationItem setLeftBarButtonItem:[proxy barButtonItem] animated:animated];
+                [self updateBarImage];
 			}
 			else 
 			{
@@ -498,6 +495,7 @@
 	}
 	[[parentController navigationItem] setBackBarButtonItem:backButton];
 	[backButton release];
+    [self updateBarImage];
 }
 
 -(void)setBackButtonTitle:(id)proxy
@@ -561,6 +559,7 @@
 	}
 
 	[ourNavItem setTitleView:newTitleView];
+    [self updateBarImage];
 }
 
 
@@ -609,70 +608,68 @@
 
 -(void)setToolbar:(id)items withObject:(id)properties
 {
-	ENSURE_UI_THREAD_WITH_OBJ(setToolbar,items,properties);
-    if (properties == nil) {
+	ENSURE_TYPE_OR_NIL(items,NSArray);
+	if (properties == nil)
+	{
         properties = [self valueForKey:@"toolbarSettings"];
     }
-    else {
+    else 
+	{
         [self setValue:properties forKey:@"toolbarSettings"];
     }
-    
-	if (controller!=nil)
+	NSArray * oldarray = [self valueForUndefinedKey:@"toolbar"];
+	if((id)oldarray == [NSNull null])
 	{
-		ENSURE_TYPE_OR_NIL(items,NSArray);
-		[self replaceValue:items forKey:@"toolbar" notification:NO];
-		
-		// detatch the current ones
-		NSArray *existing = [controller toolbarItems];
-		UINavigationController * ourNC = [controller navigationController];
-		if (existing!=nil)
+		oldarray = nil;
+	}
+	for(TiViewProxy * oldProxy in oldarray)
+	{
+		if(![items containsObject:oldProxy])
 		{
-			for (id current in existing)
+			[self forgetProxy:oldProxy];
+		}
+	}
+	for (TiViewProxy *proxy in items)
+	{
+		[self rememberProxy:proxy];
+	}
+	[self replaceValue:items forKey:@"toolbar" notification:NO];
+	TiThreadPerformOnMainThread( ^{
+		if (controller!=nil)
+		{
+			NSArray *existing = [controller toolbarItems];
+			UINavigationController * ourNC = [controller navigationController];
+			if (existing!=nil)
 			{
-				if ([current respondsToSelector:@selector(proxy)])
+				for (id current in existing)
 				{
-					[(TiViewProxy*)[current proxy] removeBarButtonView];
+					if ([current respondsToSelector:@selector(proxy)])
+					{
+						TiViewProxy* p = (TiViewProxy*)[current performSelector:@selector(proxy)];
+						[p removeBarButtonView];
+					}
 				}
 			}
-		}
-		BOOL translucent = [TiUtils boolValue:@"translucent" properties:properties def:NO];
-		if (items!=nil && [items count] > 0)
-		{
-			NSMutableArray *array = [[NSMutableArray alloc] initWithCapacity:[items count]];
+			NSMutableArray * array = [[NSMutableArray alloc] initWithObjects:nil];
 			for (TiViewProxy *proxy in items)
 			{
-				if ([proxy supportsNavBarPositioning])
+				if([proxy supportsNavBarPositioning])
 				{
-					// detach existing one
 					UIBarButtonItem *item = [proxy barButtonItem];
 					[array addObject:item];
 				}
-				else
-				{
-					NSString *msg = [NSString stringWithFormat:@"%@ doesn't support positioning on the nav bar",proxy];
-					THROW_INVALID_ARG(msg);
-				}
 			}
-			BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
+			hasToolbar = (array != nil && [array count] > 0) ? YES : NO ;
+			BOOL translucent = [TiUtils boolValue:@"translucent" properties:properties def:NO];
+			BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:hasToolbar];
 			[controller setToolbarItems:array animated:animated];
-			[ourNC setToolbarHidden:NO animated:animated];
+			[ourNC setToolbarHidden:(hasToolbar == NO ? YES : NO) animated:animated];
 			[ourNC.toolbar setTranslucent:translucent];
 			[array release];
-			hasToolbar=YES;
+			
 		}
-		else
-		{
-			BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
-			[controller setToolbarItems:nil animated:animated];
-			[ourNC setToolbarHidden:YES animated:animated];
-			[ourNC.toolbar setTranslucent:translucent];
-			hasToolbar=NO;
-		}
-	}
-	else
-	{
-		[self replaceValue:[[[TiComplexValue alloc] initWithValue:items properties:properties] autorelease] forKey:@"toolbar" notification:NO];
-	}
+	},YES);
+	
 }
 
 
@@ -786,13 +783,15 @@ else{\
         UIBarButtonItem *item = controller.navigationItem.leftBarButtonItem;
         if ([item respondsToSelector:@selector(proxy)])
         {
-            [(TiViewProxy*)[item proxy] removeBarButtonView];
+			TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
+            [p removeBarButtonView];
         }
         
         item = controller.navigationItem.rightBarButtonItem;
         if ([item respondsToSelector:@selector(proxy)]) 
         {
-            [(TiViewProxy*)[item proxy] removeBarButtonView];
+			TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
+            [p removeBarButtonView];
         }
     }
 }

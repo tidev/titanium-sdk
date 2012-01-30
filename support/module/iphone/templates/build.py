@@ -7,6 +7,11 @@ import os, sys, glob, string
 import zipfile
 from datetime import date
 
+try:
+	import json
+except:
+	import simplejson as json
+
 cwd = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 os.chdir(cwd)
 required_module_keys = ['name','version','moduleid','description','copyright','license','copyright','platform','minsdk']
@@ -17,6 +22,10 @@ module_defaults = {
 	'copyright' : 'Copyright (c) %s by Your Company' % str(date.today().year),
 }
 module_license_default = "TODO: place your license here and we'll include it in the module distribution"
+
+def find_sdk(config):
+	sdk = config['TITANIUM_SDK']
+	return os.path.expandvars(os.path.expanduser(sdk))
 
 def replace_vars(config,token):
 	idx = token.find('$(')
@@ -48,10 +57,13 @@ def generate_doc(config):
 	if not os.path.exists(docdir):
 		print "Couldn't find documentation file at: %s" % docdir
 		return None
-	sdk = config['TITANIUM_SDK']
+	sdk = find_sdk(config)
 	support_dir = os.path.join(sdk,'module','support')
 	sys.path.append(support_dir)
-	import markdown
+	try:
+		import markdown2 as markdown
+	except ImportError:
+		import markdown
 	documentation = []
 	for file in os.listdir(docdir):
 		if file in ignoreFiles or os.path.isdir(os.path.join(docdir, file)):
@@ -65,13 +77,19 @@ def compile_js(manifest,config):
 	js_file = os.path.join(cwd,'assets','__MODULE_ID__.js')
 	if not os.path.exists(js_file): return
 	
-	sdk = config['TITANIUM_SDK']
+	sdk = find_sdk(config)
 	iphone_dir = os.path.join(sdk,'iphone')
 	sys.path.insert(0,iphone_dir)
 	from compiler import Compiler
 	
 	path = os.path.basename(js_file)
-	metadata = Compiler.make_function_from_file(path,js_file)
+	compiler = Compiler(cwd, manifest['moduleid'], manifest['name'], 'commonjs')
+	metadata = compiler.make_function_from_file(path,js_file)
+	
+	exports = open('metadata.json','w')
+	json.dump({'exports':compiler.exports }, exports)
+	exports.close()
+
 	method = metadata['method']
 	eq = path.replace('.','_')
 	method = '  return %s;' % method
@@ -183,6 +201,9 @@ def package_module(manifest,mf,config):
 		  zip_dir(zf,dn,'%s/%s' % (modulepath,dn),['README'])
 	zf.write('LICENSE','%s/LICENSE' % modulepath)
 	zf.write('module.xcconfig','%s/module.xcconfig' % modulepath)
+	exports_file = 'metadata.json'
+	if os.path.exists(exports_file):
+		zf.write(exports_file, '%s/%s' % (modulepath, exports_file))
 	zf.close()
 	
 

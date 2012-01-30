@@ -84,11 +84,17 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 		{
 			model = [[NSString stringWithFormat:@"%@ 2",themodel] retain];
 		}
-		// detect simulator
+		// detect simulator for i386
 		else if (!strcmp(u.machine, "i386")) 
 		{
 			model = [@"Simulator" retain];
 			arch = @"i386";
+		}
+		// detect simulator for x86_64
+		else if (!strcmp(u.machine, "x86_64")) 
+		{
+			model = [@"Simulator" retain];
+			arch = @"x86_64";
 		}
 		else 
 		{
@@ -181,6 +187,11 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 
 #pragma mark Public APIs
 
+-(NSString*)runtime
+{
+	return @"javascriptcore";
+}
+
 -(NSString*)locale
 {
 	// this will return the locale that the user has set the phone in
@@ -192,6 +203,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 
 -(id)id
 {
+	NSLog(@"[WARN] Ti%@.Platform.id DEPRECATED in 1.8.0", @"tanium");
 	return macaddress;
 }
 

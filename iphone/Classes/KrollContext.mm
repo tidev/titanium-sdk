@@ -15,6 +15,8 @@
 #include <pthread.h>
 #import "TiDebugger.h"
 
+#import "TiUIAlertDialogProxy.h"
+
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
 #endif
@@ -246,6 +248,28 @@ static TiValueRef LCallback (TiContextRef jsContext, TiObjectRef jsFunction, TiO
 	}
 }	
 
+static TiValueRef AlertCallback (TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
+                                 const TiValueRef args[], TiValueRef* exception)
+{
+#ifdef KROLL_COVERAGE
+    [KrollCoverageObject incrementTopLevelFunctionCall:TOP_LEVEL name:@"alert"];
+#endif
+    
+    if (argCount < 1) {
+        return ThrowException(jsContext, @"invalid number of arguments", exception);
+    }
+    
+    KrollContext* ctx = GetKrollContext(jsContext);
+    NSString* message = [KrollObject toID:ctx value:args[0]];
+    
+    TiUIAlertDialogProxy* alert = [[[TiUIAlertDialogProxy alloc] _initWithPageContext:(id<TiEvaluator>)[ctx delegate] args:nil] autorelease];
+    [alert setValue:@"Alert" forKey:@"title"];
+    [alert setValue:message forKey:@"message"];
+    [alert show:nil];
+    
+    return TiValueMakeUndefined(jsContext);
+}
+
 static TiValueRef StringFormatCallback (TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
 							 const TiValueRef args[], TiValueRef* exception)
 {
@@ -372,19 +396,7 @@ static TiValueRef StringFormatDateCallback (TiContextRef jsContext, TiObjectRef 
 	
 	@try 
 	{
-		NSString* result;
-		// Only available in iOS4+
-		if ([TiUtils isIOS4OrGreater]) {
-			result = [NSDateFormatter localizedStringFromDate:date dateStyle:style timeStyle:NSDateFormatterNoStyle];
-		}
-		else {
-			NSLocale* locale = [NSLocale currentLocale];
-			NSDateFormatter* formatter = [[[NSDateFormatter alloc] init] autorelease];
-			[formatter setLocale:locale];
-			[formatter setDateStyle:style];
-			[formatter setTimeStyle:NSDateFormatterNoStyle];
-			result = [formatter stringFromDate:date];
-		}
+		NSString* result = [NSDateFormatter localizedStringFromDate:date dateStyle:style timeStyle:NSDateFormatterNoStyle];
 		TiValueRef value = [KrollObject toValue:ctx value:result];
 		return value;
 	}
@@ -429,18 +441,7 @@ static TiValueRef StringFormatTimeCallback (TiContextRef jsContext, TiObjectRef 
 	
 	@try 
 	{
-		NSString* result;
-		if ([TiUtils isIOS4OrGreater]) {
-			result = [NSDateFormatter localizedStringFromDate:date dateStyle:NSDateFormatterNoStyle timeStyle:style];
-		}
-		else {
-			NSLocale* locale = [NSLocale currentLocale];
-			NSDateFormatter* formatter = [[[NSDateFormatter alloc] init] autorelease];
-			[formatter setLocale:locale];
-			[formatter setDateStyle:NSDateFormatterNoStyle];
-			[formatter setTimeStyle:style];
-			result = [formatter stringFromDate:date];
-		}
+		NSString* result = [NSDateFormatter localizedStringFromDate:date dateStyle:NSDateFormatterNoStyle timeStyle:style];
 		TiValueRef value = [KrollObject toValue:ctx value:result];
 		return value;
 	}
@@ -467,16 +468,7 @@ static TiValueRef StringFormatCurrencyCallback (TiContextRef jsContext, TiObject
 	
 	@try 
 	{
-		NSString* result;
-		if ([TiUtils isIOS4OrGreater]) {
-			result = [NSNumberFormatter localizedStringFromNumber:number numberStyle:NSNumberFormatterCurrencyStyle];
-		}
-		else {
-			NSNumberFormatter* formatter = [[[NSNumberFormatter alloc] init] autorelease];
-			NSLocale* locale = [NSLocale currentLocale];
-			[formatter setNumberStyle:NSNumberFormatterCurrencyStyle];
-			result = [formatter stringFromNumber:number];
-		}
+		NSString* result = [NSNumberFormatter localizedStringFromNumber:number numberStyle:NSNumberFormatterCurrencyStyle];
 		TiValueRef value = [KrollObject toValue:ctx value:result];
 		return value;
 	}
@@ -571,14 +563,22 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	[super dealloc];
 }
 
--(void)invoke:(KrollContext*)context
+-(TiValueRef) jsInvokeInContext: (KrollContext*)context exception: (TiValueRef *)exceptionPointer
 {
 	TiStringRef js = TiStringCreateWithCFString((CFStringRef) code);
 	TiObjectRef global = TiContextGetGlobalObject([context context]);
 	
-	TiValueRef exception = NULL;
+	TiValueRef result = TiEvalScript([context context], js, global, NULL, 1, exceptionPointer);
+		
+	TiStringRelease(js);
 	
-	TiEvalScript([context context], js, global, NULL, 1, &exception);
+	return result;
+}
+
+-(void)invoke:(KrollContext*)context
+{
+	TiValueRef exception = NULL;
+	[self jsInvokeInContext:context exception:&exception];
 
 	if (exception!=NULL)
 	{
@@ -586,30 +586,20 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		NSLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
 		fflush(stderr);
 	}
-	
-	TiStringRelease(js);
 }
 
 -(id)invokeWithResult:(KrollContext*)context
 {
-	TiStringRef js = TiStringCreateWithCFString((CFStringRef) code);
-	TiObjectRef global = TiContextGetGlobalObject([context context]);
-	
 	TiValueRef exception = NULL;
-	
-	TiValueRef result = TiEvalScript([context context], js, global, NULL, 1, &exception);
+	TiValueRef result = [self jsInvokeInContext:context exception:&exception];
 	
 	if (exception!=NULL)
 	{
 		id excm = [KrollObject toID:context value:exception];
 		NSLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
 		fflush(stderr);
-		TiStringRelease(js);
-		throw excm;
+		@throw excm;
 	}
-	
-	TiStringRelease(js);
-	
 	return [KrollObject toID:context value:result];
 }
 
@@ -643,6 +633,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(void)dealloc
 {
+    [callback release];
 	[type release];
 	[thisObject release];
 	[callbackObject release];
@@ -1039,6 +1030,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	[self bindCallback:@"clearInterval" callback:&ClearTimerCallback];
 	[self bindCallback:@"require" callback:&CommonJSRequireCallback];
 	[self bindCallback:@"L" callback:&LCallback];
+    [self bindCallback:@"alert" callback:&AlertCallback];
 
 	prop = TiStringCreateWithUTF8CString("String");
 	

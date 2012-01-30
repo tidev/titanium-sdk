@@ -1,65 +1,80 @@
 ---
 name: Titanium.UI.Label
-description: A Label is created by the method <Titanium.UI.createLabel>.
+summary: A text label, with optional background image. 
+description: Use the <Titanium.UI.createLabel> method to create a label. 
 extends: Titanium.UI.View
 since: "0.8"
 properties:
   - name: autoLink
-    description: One of Ti.UI.Android.LINKIFY constants. Automatically create clickable links for the specified type. (Android Only)
+    summary: Automatically convert certain text items in the label to clickable links. 
+    description: Specify which types of items are converted by setting `autoLink` to one 
+        of the <Titanium.UI.Android> `LINKIFY` constants.
     type: Number
     platforms: [android]
   - name: backgroundPaddingBottom
-    description: the number of pixels to extend the background image past the label on the bottom
+    summary: Number of pixels to extend the background image past the label on the bottom.
     type: Number
+    platforms: [iphone,ipad]
   - name: backgroundPaddingLeft
-    description: the number of pixels to extend the background image past the label on the left
+    summary: Number of pixels to extend the background image past the label on the left.
     type: Number
+    platforms: [iphone,ipad]
   - name: backgroundPaddingRight
-    description: the number of pixels to extend the background image past the label on the right
+    summary: Number of pixels to extend the background image past the label on the right.
     type: Number
+    platforms: [iphone,ipad]
   - name: backgroundPaddingTop
-    description: the number of pixels to extend the background image past the label on the top
+    summary: Number of pixels to extend the background image past the label on the top.
     type: Number
+    platforms: [iphone,ipad]
   - name: color
-    description: the color of the label
+    summary: Color of the label text.
     type: String
   - name: ellipsize
-    description: Turn on/off the addition of ellipses at the end of the label if the text is too large to fit. (Android Only, default false)
+    summary: Turn on/off the addition of ellipses at the end of the label if the text is too large to fit.
     type: Boolean
     default: false
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: font
-    description: the label font object properties
-    type: Object
+    summary: Font to use for the label text.
+    type: Font
   - name: highlightedColor
-    description: the color of the label when in the highlighted state
+    summary: Color of the label when in the highlighted state. 
+    description: Used when the label is part of a view that can be highlighted, such as a <Titanium.UI.TableViewRow>.
     type: String
+    platforms: [iphone, ipad]
   - name: html
-    description: simple html formatting. (Android Only)
-    platforms: [android]
+    summary: Simple HTML formatting.
+    platforms: [android, mobileweb]
     type: String
   - name: minimumFontSize
-    description: the minimum size of the font when the font is sized based on the contents.  Enables font scaling to fit and forces the label content to be limited to a single line
+    summary: Minimum font size when the font is sized based on the contents. 
+    description: Enables font scaling to fit and forces the label content to be limited to a single line.
     type: Number
+    platforms: [iphone, ipad]
   - name: shadowColor
-    description: the text shadow color
+    summary: Text shadow color.
     type: String
+    platforms: [iphone,ipad,mobileweb]
   - name: shadowOffset
-    description: the shadow offset as a dictionary with the properties `x` and `y`
+    summary: Shadow offset as a dictionary with the properties `x` and `y`.
     type: Object
+    platforms: [iphone,ipad,mobileweb]
   - name: text
-    description: the text of the label
+    summary: Label text.
     type: String
   - name: textAlign
-    description: the alignment constant or string value such as `left`, `center` or `right`
+    summary: |
+        Text alignment, specified using one of the <Titanium.UI> text alignment constants: [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
     type: [String,Number]
   - name: textid
-    description: the key in the locale file to use for the text property
+    summary: Key identifying a string from the locale file to use for the label text. 
+    description: Only one of `text` or `textid` should be specified.
     type: String
   - name: wordWrap
-    description: Turn on/off word wrapping in the label. (Android Only - default true)
+    summary: Enable or disable word wrapping in the label.
     type: Boolean
-    platforms: [android]
+    platforms: [android, mobileweb]
     default: true
 examples:
   - title: Basic Label

@@ -6,12 +6,13 @@ var win = Titanium.UI.currentWindow;
 // automagically
 var needUpdate = false;
 Titanium.Platform.batteryMonitoring = true;
+var batteryEventListener;
 
 win.addEventListener('close',function()
 {
 	// turn it off, no need to waste the battery
 	Titanium.Platform.batteryMonitoring = false;
-	Titanium.Platform.removeEventListener('battery');
+	Titanium.Platform.removeEventListener('battery', batteryEventListener);
 });
 
 function batteryStateToString(state)
@@ -267,7 +268,7 @@ b.addEventListener('click', function()
 //
 // BATTERY STATE CHANGE EVENT
 //
-Titanium.Platform.addEventListener('battery', function(e)
+batteryEventListener = function(e)
 {
 	if (needUpdate) {
 		l11.text = 'battery state:' + batteryStateToString(e.state);
@@ -278,10 +279,12 @@ Titanium.Platform.addEventListener('battery', function(e)
 		var message = 'Battery Notification\n\nLevel: ' + e.level + ', State: '+batteryStateToString(e.state);
 		Titanium.UI.createAlertDialog({title:'Platform', message:message}).show();
 	}
-});
+};
+Titanium.Platform.addEventListener('battery', batteryEventListener);
 
 Titanium.API.info("Current Phone Locale is "+Titanium.Platform.locale);
 Titanium.API.info("OS name is " + Titanium.Platform.osname);
+Titanium.API.info("Runtime: " + Titanium.Platform.runtime);
 
 if (Titanium.Platform.osname == 'iphone' || Titanium.Platform.osname == 'ipad') {
 	Titanium.API.info("Data network: " + Titanium.Platform.dataAddress);

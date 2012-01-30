@@ -80,6 +80,7 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[TiUtils setView:[self map] positionRect:bounds];
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 -(TiMapAnnotationProxy*)annotationFromArg:(id)arg
@@ -225,7 +226,7 @@
 	}
 	else {
 		[pendingAnnotationSelection release];
-		pendingAnnotationSelection = [annotation retain];
+		pendingAnnotationSelection = (TiMapAnnotationProxy*)[annotation retain];
 	}
 }
 
@@ -339,6 +340,17 @@
 	region_.span = span;
 	return region_;
 }
+
+-(CLLocationDegrees) longitudeDelta
+{
+	return region.span.longitudeDelta;
+}
+
+-(CLLocationDegrees) latitudeDelta
+{
+	return region.span.latitudeDelta;
+}
+
 
 #pragma mark Public APIs
 

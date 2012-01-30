@@ -80,8 +80,10 @@
 	RELEASE_TO_NIL(appid);
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	NSString *uid_ = [defaults objectForKey:@"FBUserId"];
+	appid = [[defaults stringForKey:@"FBAppId"] copy];
+	facebook = [[Facebook alloc] initWithAppId:appid urlSchemeSuffix:nil andDelegate:self];
+
 	VerboseLog(@"[DEBUG] facebook _restore, uid = %@",uid_);
-	facebook = [[Facebook alloc] init];
 	if (uid_) 
 	{
 		NSDate* expirationDate = [defaults objectForKey:@"FBSessionExpires"];
@@ -91,7 +93,6 @@
 			facebook.accessToken = [defaults stringForKey:@"FBAccessToken"];
 			facebook.expirationDate = expirationDate;
 			loggedIn = YES;
-			appid = [[defaults stringForKey:@"FBAppId"] copy];
 			[self performSelector:@selector(fbDidLogin)];
 		}
 	}
@@ -318,6 +319,7 @@
 {
 	RELEASE_TO_NIL(appid);
 	appid = [arg copy];
+	[facebook setAppId:appid];
 }
 
 /**
@@ -394,7 +396,8 @@
 	[self _unsave];
 	
 	NSArray *permissions_ = permissions == nil ? [NSArray array] : permissions;
-	[facebook authorize:appid permissions:permissions_ forceDialog:forceDialogAuth delegate:self];
+	[facebook setForceDialog:forceDialogAuth];
+	[facebook authorize:permissions_];
 }
 
 /**
@@ -633,6 +636,9 @@
 		}
 	}
 }
+
+MAKE_SYSTEM_PROP(BUTTON_STYLE_NORMAL,FB_LOGIN_BUTTON_NORMAL);
+MAKE_SYSTEM_PROP(BUTTON_STYLE_WIDE,FB_LOGIN_BUTTON_WIDE);
 
 @end
 #endif

@@ -1,43 +1,75 @@
 ---
 name: Titanium
-description: The top level Titanium module.
+summary: The top level Titanium module.
+description: |
+    Titanium provides a number of built-in JavaScript objects that are not part
+    of the Titanium namespace, including JSON parsing, String formatting,
+    timers, and the CommonJS `require` function. See [Global APIs](Global) for
+    details.
+
 since: "0.1"
-platforms: [android, iphone, ipad]
 extends: Titanium.Module
 
 properties:
   - name: userAgent
     type: String
-    description: the user-agent string used by Titanium
+    summary: User-agent string used by Titanium.
   - name: version
     type: Number
-    description: the version of Titanium that is executing
+    summary: Version of Titanium that is executing.
     permission: read-only
   - name: buildDate
     type: String
-    description: The date of the Titanium build
+    summary: Date of the Titanium build.
     permission: read-only
   - name: buildHash
     type: String
-    description: The git hash of the Titanium build
+    summary: Git hash of the Titanium build.
     permission: read-only
 methods:
   - name: include
-    description: a filename to include as if the Javascript code was written in place.  This is similar to a C `#include` function.
+    summary: Includes JavaScript code from one or more files.
+    description: |
+        The `include` method has several interesting quirks:
+
+        -   The included JavaScript is interpreted in the current root execution
+        context -- that is, either `app.js` or in the root context of a window
+        opened with the `url` property. For example, in the following code
+        snippet, the included code in `some_module.js` has access to
+        `globalVar`, but *not* to the local variable, `localVar`:
+
+                var globalVar = {};
+                function loadModule() {
+                    var localVar = "A local value.";
+                    Ti.include('some_module.js');
+                };
+                loadModule();
+        
+
+        -   The included filename is interpreted *local to the current file*. For 
+        example, suppose `a.js` includes `dir/b.js.` If `b.js` includes another file, 
+        `c.js`, this is interpreted as `dir/c.js`.
+
+        -   Calling `include` from an event handler does not work consistently across 
+        platforms.
+
+        -   Calling `include` on a non-existent file causes a runtime error.
+        See also [CommonJS Require](Global.require).
     parameters:
       - name: name
-        description:  filename to include
+        summary: Filename(s) to include. 
         type: String
 
   - name: createBuffer
-    description: creates a new buffer based on the params
+    summary: Creates a new buffer based on the params.
     parameters:
       - name: params
-        description: creation arguments
+        summary: creation arguments
         type: CreateBufferArgs
     returns:
         type: Titanium.Buffer
-        description: The new buffer.
+        summary: The new buffer.
+    platforms: [android, iphone, ipad]
     examples:
       - title: Create a buffer with 1K bytes
         example: |
@@ -50,69 +82,36 @@ methods:
                 var buffer = Ti.createBuffer({ value: "hello world" });
       - title: Create a buffer with encoded float
         example: |
-            Create a buffer with the encoded value of the double-precision floating point number 1.234567 in Big Endian (network) byte order
+            Create a buffer with the encoded value of the double-precision floating point 
+            number 1.234567 in Big Endian (network) byte order
             
                 var buffer = Ti.createBuffer({ value: 1.234567, type: Ti.Codec.TYPE_DOUBLE, byteOrder: Ti.Codec.BIG_ENDIAN });
-
-notes: |
-    Titanium provides a number of built-in objects in the Javascript that are not part of the Titanium namespace.  Specifically, the following are available.
-
-    #### JSON
-
-    Titanium has a built-in JSON parser with two main functions: `parse` and `stringify`.  `JSON.parse` will safely evaluate a string encoded as Javascript into a Javascript object.  `JSON.stringify` will encode a Javascript object into a string.
-
-    #### Timers
-
-    Titanium has built-in support for one-shot and repeating timers with two main functions: `setTimeout` and `setInterval`.  `setTimeout` takes 2 arguments: function and timeout in milliseconds after which the function should be executed and returns a timer handle that can be used to cancel a pending timer with `clearTimeout`.  `setInterval` takes 2 arguments: function and timeout in milliseconds for how often the function should be executed until cancelled and returns a timer handle that can be used to cancel a timer with `clearInterval`.
-
-    #### Alert
-
-    Titanium has a built-in convenience function `alert` which can be used as a shortcut to <Titanium.UI.createAlertDialog> for creating a message box.  Note that unlike a web browser-based version of `alert`, the method is asynchronous. However, only one alert dialog will be visible and modal at a time.
-
-    #### Locale
-
-    The macro `L` can also be used which aliases the method <Titanium.Locale.getString>.
-
-    #### String formatting
-
-    The following are built-in functions available on the `String` class which are Titanium specific and will aid in formatting strings into a locale-specific string.
-
-    `String.format`: format a generic string using the [IEEE printf specification](http://www.opengroup.org/onlinepubs/009695399/functions/printf.html).
-
-    `String.formatDate`: format a date into a locale specific date format. Optionally pass a second argument (string) as either "short" (default), "medium" or "long" for controlling the date format.
-
-    `String.formatTime`: format a date into a locale specific time format.
-
-    `String.formatDecimal`: format a number into a locale specific decimal format.
-
-    `String.formatCurrency`: format a number into a locale specific currency format.
-
-
 
 
 ---
 name: CreateBufferArgs
-description: Arguments to be passed to createBuffer
+summary: Arguments to be passed to createBuffer
 since: "1.7"
+platforms: [android, iphone, ipad]
 
 properties:
   - name: value
     type: [String, Number]
-    description: An initial value which will be encoded and placed in the buffer. If value is a Number, type must also be set. (this is simply a convenient way of calling <Titanium.Codec.encodeString> or <Titanium.Codec.encodeNumber> and placing the encoded value in the returned buffer.)
+    summary: An initial value which will be encoded and placed in the buffer. If value is a Number, type must also be set. (this is simply a convenient way of calling <Titanium.Codec.encodeString> or <Titanium.Codec.encodeNumber> and placing the encoded value in the returned buffer.)
     optional: true
   - name: length
     type: Number
-    description: The length of the buffer.
+    summary: The length of the buffer.
     optional: true
     default: 0, unless `value` is specified, in which case the length of the encoded data is used.
   - name: type
     type: String
-    description: The type of data encoding to use with `value`.
+    summary: The type of data encoding to use with `value`.
     optional: true
     default: <Titanium.Codec.CHARSET_UTF8> if `value` is a String, If `value` is a Number, this argument is required
   - name: byteOrder
     type: Number
-    description: The byte order of this buffer.
+    summary: The byte order of this buffer.
     optional: true
     default: The OS native byte order is used by default. See <Titanium.Codec.getNativeByteOrder>
 

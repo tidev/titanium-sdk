@@ -1,110 +1,297 @@
 ---
 name: Titanium.Media.AudioPlayer
-description: The AudioPlayer object is returned by <Titanium.Media.createAudioPlayer> and is used for streaming audio to the device and low-level control of the audio playback.
+summary: |
+    An audio player object used for streaming audio to the device, and low-level control of the audio playback.
+description: |
+    On Android, when you are done playing a given audio file, you must call the 
+    [release](Titanium.Media.AudioPlayer.release) method to stop buffering audio data and 
+    release associated system resources.
+
+    On iOS, you can control how the audio stream interacts with other system sounds
+    by setting <Titanium.Media.audioSessionMode>.
+
+    Use the <Titanium.Media.createAudioPlayer> method to create an audio player.
 extends: Titanium.Proxy
 since: "0.9"
+platforms: [android, iphone, ipad]
+examples: 
+  - title: Audio Streaming
+    example: |
+        The following example demonstrates using the `AudioPlayer` object to stream audio.
+
+            var win = Titanium.UI.createWindow({  
+                title:'Audio Test',
+                backgroundColor:'#fff',
+                layout: 'vertical'
+            });
+            
+            var startStopButton = Titanium.UI.createButton({
+                title:'Start/Stop Streaming',
+                top:10,
+                width:200,
+                height:40
+            });
+            
+            var pauseResumeButton = Titanium.UI.createButton({
+                title:'Pause/Resume Streaming',
+                top:10,
+                width:200,
+                height:40,
+                enabled:false
+            });
+            
+            win.add(startStopButton);
+            win.add(pauseResumeButton);
+            
+            // allowBackground: true on Android allows the 
+            // player to keep playing when the app is in the 
+            // background.
+            var audioPlayer = Ti.Media.createAudioPlayer({ 
+                url: 'www.example.com/podcast.mp3',
+                allowBackground: true
+            });           
+                
+            startStopButton.addEventListener('click',function() {
+                // When paused, playing returns false.
+                // If both are false, playback is stopped.
+                if (audioPlayer.playing || audioPlayer.paused)
+                {
+                    audioPlayer.stop();
+                    pauseResumeButton.enabled = false;
+                    if (Ti.Platform.name === 'android')
+                    { 
+                        audioPlayer.release();
+                    }   
+                }
+                else
+                {
+                    audioPlayer.start();
+                    pauseResumeButton.enabled = true;
+                }
+            });
+            
+            pauseResumeButton.addEventListener('click', function() {
+                if (audioPlayer.paused) {
+                    audioPlayer.start();
+                }
+                else {
+                    audioPlayer.pause();
+                }
+            });
+            
+            audioPlayer.addEventListener('progress',function(e) {
+                Ti.API.info('Time Played: ' + Math.round(e.progress) + ' milliseconds');
+            });
+            
+            audioPlayer.addEventListener('change',function(e)
+            {
+                Ti.API.info('State: ' + e.description + ' (' + e.state + ')');
+            });
+            
+            win.addEventListener('close',function() {
+                audioPlayer.stop();
+                if (Ti.Platform.osname === 'android')
+                { 
+                    audioPlayer.release();
+                }
+            });
+
+            win.open();
+
 methods:
+  - name: getPaused
+    summary: Returns the value of the [paused](Titanium.Media.AudioPlayer.paused) property.
+    returns: 
+        type: Boolean
+    platforms: [iphone, ipad]
+  - name: isPaused
+    summary: Returns the value of the [paused](Titanium.Media.AudioPlayer.paused) property.
+    returns: 
+        type: Boolean
+    platforms: [android]
+  - name: getPlaying
+    summary: Returns the value of the [playing](Titanium.Media.AudioPlayer.playing) property.
+    returns: 
+        type: Boolean
+    platforms: [iphone, ipad]
+  - name: isPlaying
+    summary: Returns the value of the [playing](Titanium.Media.AudioPlayer.playing) property.
+    returns: 
+        type: Boolean
+    platforms: [android]
   - name: pause
-    description: pause playback
+    summary: Pauses audio playback.
+    description: |
+        On iOS, the `pause` call operates as a toggle. If the stream is already paused,
+        calling `pause` again resumes playing the stream.
+
+        On Android, the `pause` call does nothing if the stream is already paused.
+
+        On both platforms, calling [start](Titanium.Media.AudioPlayer.start) on a paused
+        stream resumes play.
+  - name: play
+    summary: Starts or resumes audio playback.
+    description: |
+        This method is identical to [start](Titanium.Media.AudioPlayer.start).
+    platforms: [android]
   - name: setPaused
-    description: control the playback of the audio
+    summary: Sets the value of the [paused](Titanium.Media.AudioPlayer.paused) property.
+    description: |
+        On iOS, this method can be used to pause and unpause playback. For portability,
+        it is preferable to use the [pause](Titanium.Media.AudioPlayer.pause) and 
+        [start](Titanium.Media.AudioPlayer.start) methods instead.
     parameters:
       - name: paused
-        description: pass true to pause the current playback temporarily, false to unpause it
+        summary: Pass `true` to pause the current playback temporarily, `false` to unpause it.
         type: Boolean
-  - name: setUrl
-    description: change the url of the audio playback
-    parameters:
-      - name: url
-        description: the new url
-        type: String
-  - name: start
-    description: start playback
-  - name: stateDescription
-    description: convert a state into a textual description suitable for display
+    platforms: [iphone, ipad]
+  - name: getUrl
+    summary: Returns the value of the [url](Titanium.Media.AudioPlayer.url) property.
+    description: |
+        This method is not exposed on Android. Access the `url` property directly instead:
+
+            currentURL = myAudioPlayer.url;
     returns:
         type: String
+    platforms: [iphone, ipad]
+  - name: release
+    summary: Stops buffering audio data and releases audio resources.
+    description: |
+        On Android, this method should be called when you are done streaming a given
+        audio object, to release underlying resources, including buffered data.
+    platforms: [android]
+  - name: setUrl
+    summary: Sets the value of the [url](Titanium.Media.AudioPlayer.url) property.
+    parameters:
+      - name: url
+        summary: URL to stream audio from.
+        type: String
+  - name: start
+    summary: Starts or resumes audio playback.
+  - name: stateDescription
+    summary: |
+        Converts a [state](Titanium.Media.AudioPlayer.state) value into a text description
+        suitable for display.
+    parameters: 
+      - name: state
+        summary: State value to convert.
+        type: Number
+    returns:
+        type: String
+    platforms: [iphone, ipad]
   - name: stop
-    description: stop playback
+    summary: Stops audio playback.
 events:
   - name: change
-    description: fired when the state of the playback changes
+    summary: Fired when the state of the playback changes.
+    description: |
+        This event can be generated by programmatic events, such as pausing or stopping the audio,
+        and also by external events, such as the current state of network buffering.
     properties:
       - name: state
-        description: current state of playback
+        summary: |
+            Current state of playback, specified using one of the `STATE` constants defined on this object.
+        type: Number
       - name: description
-        description: textual description of the state of playback
+        summary: Text description of the state of playback.
   - name: progress
-    description: fired once per second with the current progress during playback
+    summary: Fired once per second with the current progress during playback.
     properties:
       - name: progress
-        description: current progress value
+        summary: Current progress, in milliseconds.
 properties:
   - name: STATE_BUFFERING
-    description: current playback is in the buffering from the network state
+    summary: Audio data is being buffered from the network.
     type: Number
     permission: read-only
   - name: STATE_INITIALIZED
-    description: current playback is in the initialization state
+    summary: Audio playback is being initialized.
     type: Number
     permission: read-only
   - name: STATE_PAUSED
-    description: current playback is in the paused state
+    summary: Playback is paused.
     type: Number
     permission: read-only
   - name: STATE_PLAYING
-    description: current playback is in the playing state
+    summary: Audio playback is active.
     type: Number
     permission: read-only
   - name: STATE_STARTING
-    description: current playback is in the starting playback state
+    summary: Audio playback is starting.
     type: Number
     permission: read-only
   - name: STATE_STOPPED
-    description: current playback is in the stopped state
+    summary: Audio playback is stopped.
     type: Number
     permission: read-only
   - name: STATE_STOPPING
-    description: current playback is in the stopping state
+    summary: Audio playback is stopping.
     type: Number
     permission: read-only
   - name: STATE_WAITING_FOR_DATA
-    description: current playback is in the waiting for audio data from the network state
+    summary: Player is waiting for audio data from the network.
     type: Number
     permission: read-only
   - name: STATE_WAITING_FOR_QUEUE
-    description: current playback is in the waiting for audio data to fill the queue state
+    summary: Player is waiting for audio data to fill the queue.
     type: Number
     permission: read-only
   - name: allowBackground
-    description: boolean to indicate if audio should continue playing even if Activity is paused
+    summary: |
+        Boolean to indicate if audio should continue playing even if the associated
+        Android [Activity](Titanium.Android.Activity) is paused.
+    description: |
+        Setting `allowBackground` to `true` allows the audio to continue playing, for
+        example, if the application is in the background.
     type: Boolean
+    default: false
+    availability: creation
     platforms: [android]
   - name: bitRate
-    description: bit rate of the current playback stream
+    summary: Bit rate of the current playback stream.
     type: Number
+    platforms: [iphone, ipad]
   - name: idle
-    description: returns boolean indicating if the playback is idle
+    summary: Boolean indicating if the player is idle.
+    description: |
+        `true` if the player is in the initialized state: that is, not playing, paused, 
+        or waiting for data.
     type: Boolean
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: paused
-    description: returns boolean indicating if the playback is paused
+    summary: Boolean indicating if audio playback is paused.
     type: Boolean
   - name: playing
-    description: returns boolean indicating if the playback is streaming audio
+    summary: Boolean indicating if audio is currently playing.
+    description: |
+        Returns `false` if playback is stopped or paused.
     type: Boolean
+    permission: read-only
   - name: progress
-    description: returns the current playback progress. Will return zero if sampleRate has not yet been detected
+    summary: Current playback progress, in milliseconds. 
+    description: |
+        Returns zero if `bitRate` has not yet been detected.
     type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: state
-    description: returns int for the current state of playback
+    summary: Current state of playback, specified using one of the `STATE` constants defined on this object.
     type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: url
-    description: returns the url for the current playback
+    summary: URL for the audio stream.
     type: String
   - name: waiting
-    description: returns boolean indicating if the playback is waiting for audio data from the network
+    summary: Boolean indicating if the playback is waiting for audio data from the network.
+    description: |
+        This property is `true` if the player is in any of the waiting states, including
+        buffering, starting, waiting for data, and waiting for queue.
     type: Boolean
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: bufferSize
-    description: the size of the buffer used for streaming, in bytes
+    summary: Size of the buffer used for streaming, in bytes.
     type: Number
     platforms: [iphone, ipad]

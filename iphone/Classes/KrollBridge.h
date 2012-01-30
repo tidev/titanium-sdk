@@ -33,6 +33,7 @@
 -(TiModule*)moduleNamed:(NSString*)name context:(id<TiEvaluator>)context;
 @end
 
+extern NSString * TitaniumModuleRequireFormat;
 
 @interface KrollBridge : Bridge<TiEvaluator,KrollDelegate> {
 @private

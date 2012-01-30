@@ -9,6 +9,7 @@
 #import "TiUIiPhoneNavigationGroup.h"
 #import "TiUtils.h"
 #import "TiWindowProxy.h"
+#import "TiUIiPhoneNavigationGroupProxy.h"
 
 @implementation TiUIiPhoneNavigationGroup
 
@@ -67,6 +68,7 @@
 	{
 		[TiUtils setView:controller.view positionRect:bounds];
 	}
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 #pragma mark Public APIs
@@ -147,8 +149,8 @@
 	{
 		if (visibleProxy != nil && visibleProxy!=root && opening==NO)
 		{
-			//TODO: This is a hideous hack, but NavGroup needs rewriting anyways
-			[[self proxy] close:[NSArray arrayWithObject:visibleProxy]];
+			//TODO: This is an expedient fix, but NavGroup needs rewriting anyways
+			[(TiUIiPhoneNavigationGroupProxy*)[self proxy] close:[NSArray arrayWithObject:visibleProxy]];
 		}
 		[self setVisibleProxy:newWindow];
 	}

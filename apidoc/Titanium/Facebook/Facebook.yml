@@ -1,102 +1,115 @@
 ---
 name: Titanium.Facebook
+summary: |
+    The top level Facebook module.  
 description: |
-    The top level Facebook module.  The Facebook module is used for connecting your application with 
-    Facebook through the [Facebook Graph API](http://developers.facebook.com/docs/reference/api/) (see `requestWithGraphPath`) or the deprecated [Facebook REST API](http://developers.facebook.com/docs/reference/rest/) (see `request`).
-    Due to how the facebook login process works on iOS, your app will need to have the following in your tiapp.xml if you target those platforms:
+    The Facebook module is used for connecting your application with 
+    Facebook through the [Facebook Graph API](http://developers.facebook.com/docs/reference/api/) 
+    (see `requestWithGraphPath`) or the deprecated 
+    [Facebook REST API](http://developers.facebook.com/docs/reference/rest/) (see `request`).
+    Due to how the facebook login process works on iOS, your app will need to have the following 
+    in your tiapp.xml if you target those platforms:
     
-    <property name="ti.facebook.appid">your_app_id_here</property>
+        <property name="ti.facebook.appid">your_facebook_app_id_here</property>
     
-    You must still set Ti.Facebook.appid within your app itself to use the facebook module.  This property is used only for configuring your app to interface with the facebook login process.
+    You must still set Ti.Facebook.appid within your app itself to use the facebook module.  
+    This property is used only for configuring your app to interface with the facebook 
+    login process.
+
+    #### Previous Versions
+    Titanium Mobile SDK 1.6.0 marked a significant change for this module.  Older versions of 
+    the module were not compatible with the new Graph API.  Applications written for the 
+    pre-1.6.0 version of this module will **not** work with the 1.6.0 and higher versions.  
+    Nor is the code shown in the examples here backwards-compatible with pre-1.6.0 Titanium 
+    Mobile SDK.
 extends: Titanium.Module
 since: "0.8"
+platforms: [android, iphone, ipad]
 methods:
   - name: authorize
-    description: Login the user (if not already logged in) and authorize your application.  Be sure to set your desired `permissions` and your `appid` before calling this.
+    summary: Login the user (if not already logged in) and authorize your application.  Be sure to set your desired `permissions` and your `appid` before calling this.
   - name: dialog
-    description: Open a supported Facebook [dialog](http://developers.facebook.com/docs/reference/dialogs/).  "feed" is just about the only useful one.
+    summary: Open a supported Facebook [dialog](http://developers.facebook.com/docs/reference/dialogs/).  "feed" is just about the only useful one.
     parameters:
       - name: action
-        description: Specifies which dialog to show, such as "feed".
+        summary: Specifies which dialog to show, such as "feed".
         type: String
       - name: params
-        description: A dictionary object for pre-filling some of the dialog's fields.  See example.
+        summary: A dictionary object for pre-filling some of the dialog's fields.  See example.
         type: Object
       - name: callback
-        description: |
+        summary: |
             A callback for when dialog is completed/cancelled.  The callback should accept a single argument which will be filled with a dictionary object concerning call results: items in the dictionary can be "success" (boolean), "error" (string with the error message), "cancelled" (set to true if user cancelled) and "result" (the data returned by Facebook.)
         type: Callback<Object>
   - name: logout
-    description: Clear the OAuth `accessToken` and logout the user.
+    summary: Clear the OAuth `accessToken` and logout the user.
   - name: request
-    description: Make a request to the deprecated [Facebook REST API](http://developers.facebook.com/docs/reference/rest/).
+    summary: Make a request to the deprecated [Facebook REST API](http://developers.facebook.com/docs/reference/rest/).
     parameters:
       - name: method
-        description: The REST API method to call.
+        summary: The REST API method to call.
         type: String
       - name: params
-        description: A dictionary object for setting parameters required by the call, if any.  See examples.
+        summary: A dictionary object for setting parameters required by the call, if any.  See examples.
         type: Object
       - name: callback
-        description: |
+        summary: |
             A callback for when call is completed.  The callback should accept a single argument which will be filled with a dictionary object concerning call results: items in the dictionary can be "success" (boolean), "error" (string with the error message), "method" (the REST method call you specified), "result" (the data returned by Facebook.)
         type: Callback<Object>
   - name: requestWithGraphPath
-    description: Make a [Facebook Graph API](http://developers.facebook.com/docs/reference/api/) request.  If the request requires user authorization, be sure user is already logged-in and your app is authorized.  (You can check `loggedIn` for that.)
+    summary: Make a [Facebook Graph API](http://developers.facebook.com/docs/reference/api/) request.  If the request requires user authorization, be sure user is already logged-in and your app is authorized.  (You can check `loggedIn` for that.)
     parameters:
       - name: path
-        description: The graph API path to request.  For example, "me" requests [information about the logged-in user](http://developers.facebook.com/docs/reference/api/user/).
+        summary: The graph API path to request.  For example, "me" requests [information about the logged-in user](http://developers.facebook.com/docs/reference/api/user/).
         type: String
       - name: params
-        description: A dictionary object for setting parameters required by the call, if any.  See examples.
+        summary: A dictionary object for setting parameters required by the call, if any.  See examples.
         type: Object
       - name: httpMethod
-        description: The http method (GET/POST/DELETE) to use for the call.
+        summary: The http method (GET/POST/DELETE) to use for the call.
         type: String
       - name: callback
-        description: |
+        summary: |
             A callback for when call is completed.  The callback should accept a single argument which will be filled with a dictionary object concerning call results: items in the dictionary can be "success" (boolean), "error" (string with the error message), "path" (the graph call path you specified), "result" (the JSON returned by Facebook.)
         type: Callback<Object>
 events:
   - name: login
-    description: fired at session login
+    summary: fired at session login
     properties:
       - name: uid
-        description: the user id returned by Facebook if the login was successful.
+        summary: the user id returned by Facebook if the login was successful.
       - name: success
-        description: true if the login was successful
+        summary: true if the login was successful
       - name: data
-        description: data returned by Facebook when we query for the uid (using graph path "me") after successful login.  Data is in JSON format.  Includes information such as user name, locale and gender.
+        summary: data returned by Facebook when we query for the uid (using graph path "me") after successful login.  Data is in JSON format.  Includes information such as user name, locale and gender.
       - name: error
-        description: error message if success was false
+        summary: error message if success was false
       - name: cancelled
-        description: true if the user cancelled the request by closing the dialog
+        summary: true if the user cancelled the request by closing the dialog
   - name: logout
-    description: fired at session logout
+    summary: fired at session logout
 properties:
   - name: accessToken
-    description: OAuth token set after a successful `authorize`.
+    summary: OAuth token set after a successful `authorize`.
     type: String
   - name: appid
-    description: your Facebook application id.  You need to set this for anything to work.
+    summary: your Facebook application id.  You need to set this for anything to work.
     type: String
   - name: expirationDate
-    description: Time at which the `accessToken` expires.
+    summary: Time at which the `accessToken` expires.
     type: Date
   - name: forceDialogAuth
-    description: Set to false to enable "Single-Sign-On" in cases where the official Facebook app is on the device.  Default is true, meaning the traditional, dialog-based authentication is used rather than Single-Sign-On.  See [Facebook Mobile Guide](http://developers.facebook.com/docs/guides/mobile) for details of their Single-Sign-On schem.
+    summary: Set to false to enable "Single-Sign-On" in cases where the official Facebook app is on the device.  Default is true, meaning the traditional, dialog-based authentication is used rather than Single-Sign-On.  See [Facebook Mobile Guide](http://developers.facebook.com/docs/guides/mobile) for details of their Single-Sign-On schem.
     type: Boolean
   - name: loggedIn
-    description: returns true if the user has logged in
+    summary: returns true if the user has logged in
     type: Boolean
   - name: permissions
-    description: set/return an array of permissions to request for your app.  Be sure the permissions you want are set before calling `authorize`.
+    summary: set/return an array of permissions to request for your app.  Be sure the permissions you want are set before calling `authorize`.
     type: Object
   - name: uid
-    description: the unique user id returned from Facebook.
+    summary: the unique user id returned from Facebook.
     type: String
-notes: |
-    Titanium Mobile SDK 1.6.0 marked a significant change for this module.  Older versions of the module were not compatible with the new Graph API.  Applications written for the pre-1.6.0 version of this module will **not** work with the 1.6.0 and higher versions.  Nor is the code shown in the examples here backwards-compatible with pre-1.6.0 Titanium Mobile SDK.
 examples:
   - title: Authorize
     example: |
@@ -190,7 +203,7 @@ examples:
             var data = {
             	start_time: JSON.stringify(starttime), // API expects a JSON stringified date
             	end_time: JSON.stringify(endtime),
-            	description: description,
+            	summary: description,
             	name: title
             };
             Titanium.Facebook.requestWithGraphPath('me/events', data, 'POST', function(e) {

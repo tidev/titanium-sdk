@@ -1,0 +1,24 @@
+{
+	"name": "Titanium Mobile Web",
+	"description": "The mobile web platform for rapidly developing applications",
+	"version": "1.9.0",
+	"keywords": ["Titanium", "Ti", "mobile", "JavaScript"],
+	"licenses": [
+		 {
+			 "type": "Apache License v2",
+			 "url": "https://github.com/appcelerator/titanium_mobile/blob/master/LICENSE"
+		 }
+	],
+	"repositories": [
+		{
+			"type": "git", 
+			"url": "https://github.com/appcelerator/titanium_mobile.git",
+			"path": "packages/Ti"
+		}
+	],
+	"homepage": "http://www.appcelerator.com/",
+	"directories": {
+		"lib": "."
+	},
+	"main": "ti"
+}

@@ -44,10 +44,10 @@ def clean_namespace(ns_in):
 			return part
 	return ".".join([clean_part(s) for s in ns_in.split(".") ])
 
-def to_jsca_description(desc):
-	if desc is None:
+def to_jsca_description(summary):
+	if summary is None:
 		return ""
-	return markdown_to_html(desc)
+	return markdown_to_html(summary)
 
 def to_jsca_example(example):
 	return {
@@ -89,7 +89,7 @@ def to_jsca_type_name(type_info):
 def to_jsca_property(prop, for_event=False):
 	result = {
 			"name": prop.name,
-			"description": to_jsca_description(prop.api_obj["description"]),
+			"description": "" if "summary" not in prop.api_obj else to_jsca_description(prop.api_obj["summary"]),
 			"type": "" if "type" not in prop.api_obj else to_jsca_type_name(prop.api_obj["type"])
 			}
 	if not for_event:
@@ -112,7 +112,7 @@ def to_jsca_return_types(return_types):
 		orig_types = [orig_types]
 	return [{
 		"type": to_jsca_type_name(t["type"]),
-		"description": "" if "description" not in t else to_jsca_description(t["description"])
+		"description": "" if "summary" not in t else to_jsca_description(t["summary"])
 		} for t in orig_types]
 
 def to_jsca_method_parameter(p):
@@ -126,7 +126,7 @@ def to_jsca_method_parameter(p):
 					data_type = to_jsca_type_name(method_return_type)
 	result = {
 			"name": p.name,
-			"description": to_jsca_description(p.api_obj["description"]),
+			"description": "" if "summary" not in p.api_obj else to_jsca_description(p.api_obj["summary"]),
 			"type": data_type,
 			"usage": "optional" if "optional" in p.api_obj and p.api_obj["optional"] else "required"
 			}
@@ -136,7 +136,7 @@ def to_jsca_function(method):
 	log.trace("%s.%s" % (method.parent.name, method.name))
 	result = {
 			"name": method.name,
-			"description": "" if "description" not in method.api_obj else to_jsca_description(method.api_obj["description"])
+			"description": "" if "summary" not in method.api_obj else to_jsca_description(method.api_obj["summary"])
 			}
 	if dict_has_non_empty_member(method.api_obj, "returns") and method.api_obj["returns"] != "void":
 		result["returnTypes"] = to_jsca_return_types(method.api_obj["returns"])
@@ -160,7 +160,7 @@ def to_jsca_functions(methods):
 def to_jsca_event(event):
 	return to_ordered_dict({
 			"name": event.name,
-			"description": "" if "description" not in event.api_obj else to_jsca_description(event.api_obj["description"]),
+			"description": "" if "summary" not in event.api_obj else to_jsca_description(event.api_obj["summary"]),
 			"properties": to_jsca_properties(event.properties, for_event=True)
 			}, ("name",))
 
@@ -168,8 +168,8 @@ def to_jsca_events(events):
 	return [to_jsca_event(event) for event in events]
 
 def to_jsca_remarks(api):
-	if dict_has_non_empty_member(api.api_obj, "notes"):
-		return [markdown_to_html(api.api_obj["notes"])]
+	if dict_has_non_empty_member(api.api_obj, "description"):
+		return [markdown_to_html(api.api_obj["description"])]
 	else:
 		return []
 
@@ -188,7 +188,8 @@ def to_jsca_type(api):
 	log.trace("Converting %s to jsca" % api.name)
 	result = {
 			"name": clean_namespace(api.name),
-			"description": to_jsca_description(api.api_obj["description"]),
+			"isInternal": False,
+			"description": "" if "summary" not in api.api_obj else to_jsca_description(api.api_obj["summary"]),
 			"deprecated": api.deprecated is not None and len(api.deprecated) > 0,
 			"examples": to_jsca_examples(api),
 			"properties": to_jsca_properties(api.properties),
@@ -198,6 +199,15 @@ def to_jsca_type(api):
 			"userAgents": to_jsca_userAgents(api.platforms),
 			"since": to_jsca_since(api.platforms)
 			}
+	# TIMOB-7169. If it's a proxy (non-module) and it has no "class properties",
+	# mark it as internal.  This avoids it being displayed in Code Assist.
+	if api.typestr == "proxy":
+		can_hide = True
+		for p in result["properties"]:
+			if p["isClassProperty"]:
+				can_hide = False
+				break
+		result["isInternal"] = can_hide
 	return to_ordered_dict(result, ('name',))
 
 def generate(raw_apis, annotated_apis, options):
@@ -219,11 +229,22 @@ def generate(raw_apis, annotated_apis, options):
 
 	if options.stdout:
 		json.dump(result, sys.stdout, sort_keys=False, indent=4)
-	if options.output is not None and len(options.output) > 0:
-		if not os.path.exists(options.output):
-			os.makedirs(options.output)
-		out_path = os.path.join(options.output, "api.jsca")
-		f = open(out_path, "w")
-		json.dump(result, f, sort_keys=False, indent=4)
-		f.close()
-
+	else:
+		output_folder = None
+		if options.output:
+			output_folder = options.output
+		else:
+			dist_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "dist"))
+			if os.path.exists(dist_dir):
+				output_folder = os.path.join(dist_dir, "apidoc")
+				if not os.path.exists(output_folder):
+					os.mkdir(output_folder)
+		if not output_folder:
+			log.warn("No output folder specified and dist path does not exist.  Forcing output to stdout.")
+			json.dump(result, sys.stdout, sort_keys=False, indent=4)
+		else:
+			output_file = os.path.join(output_folder, "api.jsca")
+			f = open(output_file, "w")
+			json.dump(result, f, sort_keys=False, indent=4)
+			f.close()
+			log.info("%s written" % output_file)

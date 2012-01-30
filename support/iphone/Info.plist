@@ -10,16 +10,6 @@
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
 	<string>__APPICON__.png</string>
-	<key>CFBundleIconFiles</key>
-	<array>
-		<string>__APPICON__.png</string>
-		<string>__APPICON__@2x.png</string>
-		<string>__APPICON__-72.png</string>
-		<string>iTunesArtwork.png</string>
-		<string>__APPICON__-Small-50.png</string>
-		<string>__APPICON__-Small.png</string>
-		<string>__APPICON__-Small@2x.png</string>
-	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

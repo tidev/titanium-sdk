@@ -15,6 +15,13 @@ static BOOL alertShowing = NO;
 
 -(void)_destroy
 {
+    if (alert != nil) {
+        [alertCondition lock];
+        alertShowing = NO;
+        [alertCondition broadcast];
+        [alertCondition unlock];
+    }
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 	RELEASE_TO_NIL(alert);
 	[super _destroy];
 }
@@ -28,6 +35,21 @@ static BOOL alertShowing = NO;
 			nil];
 }
 
+-(void) cleanup
+{
+	if(alert != nil)
+	{
+		[alertCondition lock];
+		alertShowing = NO;
+		[alertCondition broadcast];
+		[alertCondition unlock];
+		[self forgetSelf];
+		[self autorelease];
+		RELEASE_TO_NIL(alert);
+		[[NSNotificationCenter defaultCenter] removeObserver:self];
+	}
+}
+
 -(void)hide:(id)args
 {
 	ENSURE_UI_THREAD_1_ARG(args);
@@ -35,9 +57,14 @@ static BOOL alertShowing = NO;
 	
 	if (alert!=nil)
 	{
+		//On IOS5 sometimes the delegate does not get called when hide is called soon after show
+		//So we do the cleanup here itself
+		
+		//Remove ourselves as the delegate. This ensures didDismissWithButtonIndex is not called on dismissWithClickedButtonIndex
+		[alert setDelegate:nil];
 		BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 		[alert dismissWithClickedButtonIndex:[alert cancelButtonIndex] animated:animated];
-		RELEASE_TO_NIL(alert);
+		[self cleanup];
 	}
 }
 
@@ -52,6 +79,7 @@ static BOOL alertShowing = NO;
 	if ([NSThread isMainThread]==NO)
 	{
 		[self rememberSelf];
+		
 		[alertCondition lock];
 		if (alertShowing)
 		{
@@ -59,7 +87,6 @@ static BOOL alertShowing = NO;
 		}
 		alertShowing = YES;
 		[alertCondition unlock];
-		
 		// alert show should block the JS thread like the browser
 		[self performSelectorOnMainThread:@selector(show:) withObject:args waitUntilDone:YES];
 	}
@@ -106,14 +133,7 @@ static BOOL alertShowing = NO;
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
-	[alertCondition lock];
-	alertShowing = NO;
-	[alertCondition broadcast];
-	[alertCondition unlock];
-	[self forgetSelf];
-	[self autorelease];
-	RELEASE_TO_NIL(alert);
-	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	[self cleanup];
 }
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex

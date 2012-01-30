@@ -11,7 +11,6 @@
 #import "TiUtils.h"
 #import "Webcolor.h"
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_2
 
 @implementation TiMediaVideoPlayer
 
@@ -119,10 +118,9 @@
 {
 	self.frame = CGRectIntegral(self.frame);
 	[TiUtils setView:[controller view] positionRect:bounds];
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 @end
-
-#endif
 
 #endif
