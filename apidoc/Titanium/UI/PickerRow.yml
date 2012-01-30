@@ -23,6 +23,7 @@ properties:
   - name: fontSize
     summary: Font size for displaying item text. Ignored when using a custom view.
     type: Number
+    platforms: [iphone, ipad]
     
   - name: title
     summary: Item text.

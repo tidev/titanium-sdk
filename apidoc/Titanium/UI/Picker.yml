@@ -34,7 +34,7 @@ methods:
       - name: column
         summary: Column to repopulate.
         type: Titanium.UI.PickerColumn
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
     
   - name: setSelectedRow
     summary: Selects a column's row.
@@ -50,11 +50,28 @@ methods:
         
       - name: animated
         summary: |
-            Determines whether the selection should be animated. This property will only be 
-            effective if the picker is already rendered. (iPhone, iPad only)
+            Determines whether the selection should be animated. On iOS, only effective if the 
+            picker is already rendered. (iPhone, iPad-only)
+        type: Boolean
+        default: true
+        optional: true
+
+  - name: setValue
+    summary: Sets the Date/Time value property. Only applicable to Date pickers.
+    platforms: [iphone, ipad]
+    parameters:
+      - name: date
+        summary: A Javascript `Date` object.
+        type: Object
+        
+      - name: suppressEvent
+        summary: Determines whether a `change` event is fired.
         type: Boolean
         default: true
 
+    returns: 
+      - type: Titanium.UI.PickerRow
+    
   - name: showDatePickerDialog
     summary: Shows Date picker as modal dialog.
     description: See "Date Picker using showDatePickerDialog()" for an example.
@@ -78,29 +95,38 @@ events:
     summary: Fired when the value of any column's row is changed.
     properties:
       - name: columnIndex
-        summary: Selected column index. On iOS, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> pickers.
+        summary: |
+            Selected column index. On iOS, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
+            picker types.
         type: Number
         
       - name: rowIndex
-        summary: Selected row index. On iOS, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> pickers.
+        summary: |
+            Selected row index. On iOS, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
+            picker types.
         type: Number
         
       - name: column
-        summary: The column object. On iOS, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> pickers.
+        summary: |
+            The column object. On iOS, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
+            picker types.
         type: Titanium.UI.PickerColumn
         
       - name: value
-        summary: The selected value. Applicable to date/time pickers only.
+        summary: |
+            The selected value. Applicable to date/time pickers only. This property is read-only 
+            on Android.
         type: String
         
       - name: row
-        summary: The row object. On iOS, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> pickers.
+        summary: |
+            The row object. On iOS, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> picker types.
         type: Titanium.UI.PickerRow
         
       - name: selectedValue
         summary: |
             Array of selected values, one element per column in the picker. Applicable to 
-            plain picker only.
+            <Titanium.UI.PICKER_TYPE_PLAIN> picker types.
         type: Array<String>
 properties:
   - name: columns
@@ -108,7 +134,9 @@ properties:
     type: Array<Object>
     
   - name: countDownDuration
-    summary: Duration in milliseconds used for countdown timer pickers.
+    summary: Duration in milliseconds used for a Countdown Timer picker.
+    desription: |
+        Applicable to <Titanium.UI.PICKER_TYPE_COUNT_DOWN_TIMER> picker types.
     type: Number
     platforms: [iphone, ipad]
     
@@ -124,6 +152,7 @@ properties:
         
         For backward compatibility, the default value of this property depends on the style of 
         picker in use.  
+        
         For a spinner picker (when `useSpinner` is `true`), this defaults to `true` (24-hour format.)  
         For a native picker (when `useSpinner` is either un-set or `false`), this defaults to `false` 
         (12-hour format.)
@@ -162,7 +191,7 @@ properties:
     
   - name: minuteInterval
     summary: |
-        Interval in minutes displayed when one of the Time types of picker is in use.
+        Interval in minutes displayed when one of the Time types of pickers is in use.
     description: |
         Applicable to <Titanium.UI.PICKER_TYPE_TIME> and <Titanium.UI.PICKER_TYPE_DATE_AND_TIME> 
         picker types.

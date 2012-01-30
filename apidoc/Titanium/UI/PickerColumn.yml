@@ -29,6 +29,8 @@ properties:
     permission: read-only
     
   - name: rows
-    summary: Array of rows.
+    summary: |
+        Array of rows. While this property is currently writable on Android, changing its 
+        value is strongly discouraged.
     type: Array<Titanium.UI.PickerRow>
     permission: read-only
