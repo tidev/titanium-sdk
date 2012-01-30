@@ -201,6 +201,8 @@
 	// print the Titanium version *after* the console shim
 	console.info("[INFO] Appcelerator Titanium " + cfg.ti.version + " Mobile Web");
 
+	require.has.add("opera", typeof opera === "undefined" || opera.toString() != "[object Opera]");
+
 	// make sure we have some vendor prefixes defined
 	cfg.vendorPrefixes || (cfg.vendorPrefixes = ["", "Moz", "Webkit", "O", "ms"]);
 
