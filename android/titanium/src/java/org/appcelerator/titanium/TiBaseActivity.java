@@ -70,7 +70,7 @@ public abstract class TiBaseActivity extends Activity
 	protected int msgActivityCreatedId = -1;
 	protected int msgId = -1;
 	protected static int previousOrientation = -1;
-	public ArrayList<Dialog> mDialogs = new ArrayList<Dialog>();
+	private ArrayList<Dialog> dialogs = new ArrayList<Dialog>();
 
 	public TiWindowProxy lwWindow;
 
@@ -123,6 +123,15 @@ public abstract class TiBaseActivity extends Activity
 		return activityProxy;
 	}
 
+	public void addDialog(Dialog d) 
+	{
+		dialogs.add(d);
+	}
+	
+	public void removeDialog(Dialog d) 
+	{
+		dialogs.remove(d);
+	}
 	public void setActivityProxy(ActivityProxy proxy)
 	{
 		this.activityProxy = proxy;
@@ -604,14 +613,14 @@ public abstract class TiBaseActivity extends Activity
 
 		if (this.isFinishing()) {
 			//clean up dialogs when activity is finished
-			while (mDialogs.size() > 0) {
-				if (mDialogs.get(0).isShowing()) {
-					mDialogs.get(0).dismiss();
-					mDialogs.remove(0);
-
+			while (dialogs.size() > 0) {
+				Dialog dialog = dialogs.get(0);
+				if (dialog.isShowing()) {
+					dialog.dismiss();
 				}
+				removeDialog(dialog);
 			}
-			mDialogs = null;
+			dialogs = null;
 		}
 
 		if (activityProxy != null) {
