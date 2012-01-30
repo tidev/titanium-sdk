@@ -6,7 +6,7 @@ description: |
     callback funtions to receive the results of API calls, as well as to handle incoming
     data.
 
-    For example, for a client-side socket, you you define 
+    For example, for a client-side socket, you define 
     [connected](Titanium.Network.Socket.TCP.connected) and
     [error](Titanium.Network.Socket.TCP.error) callback functions.
 
@@ -235,33 +235,40 @@ methods:
     summary: Attempts to start listening on the socket's host/port. 
     description: |
         The `listen` call will attempt to listen on the specified host and/or port 
-        property for the socket if they are set. 
+        property for the socket if they are set.  
         
-        Nonblocking; an event is generated once the 
+        Nonblocking; may return before the socket is fully open and listening.
 
-        This function blocks execution and throws an exception on error 
-        (and sets the socket state to [ERROR](Titanium.Network.Socket.ERROR)) but does not 
-        fire the error callback in this event. Throws exception if the socket is in a 
-        [LISTENING](Titanium.Network.Socket.LISTENING) or
-        [CONNECTED](Titanium.Network.Socket.CONNECTED) state.
+        If the socket is already in a [LISTENING](Titanium.Network.Socket.LISTENING) or
+        [CONNECTED](Titanium.Network.Socket.CONNECTED) state, `listen` throws an exception
+        and sets the socket state to [ERROR](Titanium.Network.Socket.ERROR), but does 
+        **not** fire the error callback.
+
+        Any error encountered after the socket starts listening results in the error
+        callback being fired.
 
   - name: accept
     summary: Tells a [LISTENING](Titanium.Network.Socket.LISTENING) socket to accept a connection request at the top of a listener's request queue when one becomes available. 
     description: |
-        Takes an argument, a box object which assigns callbacks to the created socket. 
+        Nonblocking; if there are no connections in the queue, sets a flag so that 
+        the socket accepts the next incoming connection immediately. 
+        
+        Takes an argument, an <AcceptDict> object which assigns options to the new
+        connection.  If the socket is already flagged to accept the next connection, 
+        the existing accept options will be updated to use the newly specified `options` 
+        object. 
+
+        The `accepted` callback is called when a new connection is accepted as a result of 
+        calling `accept`. The callback argument holds a reference to a new socket,
+        representing the accepted connection.
 
         Note that the connected callback is **not** called on the newly created socket.     
         This is because the socket is created in the 
         [CONNECTED](Titanium.Network.Socket.CONNECTED) state, so it never transitions
         to the `CONNECTED` state.
 
-        The `accepted` callback is called when a new connection is accepted as a result of 
-        calling `accept`.  If the socket is already flagged to accept the next connection, 
-        the existing accept options will be updated to use the newly specified `options` object. 
-        
-        Throws an exception if the socket is not in a 
+        Throws an exception if called on a socket that is not in a 
         [LISTENING](Titanium.Network.Socket.LISTENING) state.
-
     parameters:
       - name: options
         summary: Options to be set on next accepted socket.
@@ -271,7 +278,7 @@ methods:
     summary: Closes a socket. 
     description: |
         Throws exception if the socket is not in a [CONNECTED](Titanium.Network.Socket.CONNECTED) 
-        or [LISTENING](Titanium.Network.Socket.LISTENING) state. Blocking
+        or [LISTENING](Titanium.Network.Socket.LISTENING) state. Blocking.
 
 ---
 name: ConnectedCallbackArgs
@@ -334,7 +341,7 @@ since: "1.7"
 properties:
   - name: timeout
     type: Number
-    summary: Timeout, in milliseconds, for `connect` and all `write` operations. 
+    summary: Timeout, in milliseconds, for all `write` operations. 
     description: |
         Can only be modified when this socket is in the 
         [INITIALIZED](Titanium.Network.Socket.INITIALIZED) state. 

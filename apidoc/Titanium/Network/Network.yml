@@ -340,6 +340,10 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
     since: "1.8.0.1"
+  - name: address
+    summary: The IP address of the device's WiFi network interface.
+    type: String
+    platform: [iphone,ipad]
   - name: networkType
     summary: Network type value as a constant.
     description: |
