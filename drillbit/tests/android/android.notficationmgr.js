@@ -1,4 +1,4 @@
-describe("Ti.Android.NotificationManager tests", {
+describe("Ti.Android.NotificationMgr", {
 	
 	moduleReachable: function() {
 		// Just tests if the module is even reachable, by referencing its constants
