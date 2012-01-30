@@ -735,7 +735,7 @@
 		//On data reload if the search screen is inactive,
 		//make sure that the searchHidden flag is honored
 		if (![searchController isActive] && searchHidden) {
-			[self hideSearchScreen:self];
+			[self hideSearchScreen:nil];
 		}
 	}
 }
@@ -845,15 +845,15 @@
 
 	CGPoint globalPoint = [thisCell convertPoint:point toView:nil];
 	[eventObject setObject:[TiUtils pointToDictionary:globalPoint] forKey:@"globalPoint"];
-
-	if ([target _hasListeners:name])
-	{
-		[target fireEvent:name withObject:eventObject];
-	}	
 	
 	if (viaSearch) {
 		[self hideSearchScreen:nil];
 	}
+    
+    if ([target _hasListeners:name])
+	{
+		[target fireEvent:name withObject:eventObject];
+	}	
 }
 
 #pragma mark Overloaded view handling
@@ -974,7 +974,7 @@
 	{
 		if (searchField!=nil && searchHiddenSet)
 		{
-			[self performSelector:@selector(hideSearchScreen:) withObject:self];
+			[self performSelector:@selector(hideSearchScreen:) withObject:nil];
 		}
 	}
 	else 
@@ -1060,27 +1060,20 @@
 		[self performSelector:@selector(hideSearchScreen:) withObject:sender afterDelay:0.1];
 		return;
 	}
+    
     if ([[searchField view] isFirstResponder]) {
         [[searchField view] resignFirstResponder];
         [self makeRootViewFirstResponder];
     }
+    
+    //searchHidden = YES;
 	[self.proxy replaceValue:NUMBOOL(YES) forKey:@"searchHidden" notification:NO];
-	[searchController setActive:NO animated:YES];
-	
-	[tableview reloadRowsAtIndexPaths:[tableview indexPathsForVisibleRows] withRowAnimation:UITableViewRowAnimationNone];
+	[searchController setActive:NO animated:[searchController isActive]];
 
-	if (sender==nil)
-	{
-		[UIView beginAnimations:@"searchy" context:nil];
-	}
-	if (searchHidden)
-	{
-		[tableview setContentOffset:CGPointMake(0,MAX(TI_NAVBAR_HEIGHT,searchField.view.frame.size.height)) animated:NO];
-	}
-	if (sender==nil)
-	{
-		[UIView commitAnimations];
-	}
+    if (searchHidden) {
+        [tableview setContentOffset:CGPointMake(0,MAX(TI_NAVBAR_HEIGHT,searchField.view.frame.size.height)) animated:YES];
+    }
+	[tableview reloadRowsAtIndexPaths:[tableview indexPathsForVisibleRows] withRowAnimation:UITableViewRowAnimationNone];
 }
 
 -(void)scrollToTop:(NSInteger)top animated:(BOOL)animated
