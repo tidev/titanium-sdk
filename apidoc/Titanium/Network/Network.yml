@@ -1,57 +1,80 @@
 ---
 name: Titanium.Network
-summary: The top level Network module.  The Network module is used accessing Networking related functionality, including [Titanium.Network.Socket](Titanium.Network.Socket)
+summary: The top level network module.  
+description: |
+    The `Network` module is used to access networking related functionality.
+
+    For TCP sockets, see <Titanium.Network.Socket.TCP>.
+
+    The legacy <Titanium.Network.TCPSocket> object is still required
+    by the [BonjourBrowser](Titanium.Network.BonjourBrowser) and
+    [BonjourService](Titanium.Network.BonjourService) objects.
+
+    For all other socket needs, use <Titanium.Network.Socket.TCP>.
+    
 extends: Titanium.Module
 since: "0.1"
 methods:
   - name: addConnectivityListener
-    summary: adds a connectivity listener to listen for network changes. This method has been deprecated in favor of listening for a `change` event.
+    summary: Use the [change](Titanium.Network.change) event to monitor connectivity changes.
+    description: |
+        This legacy method adds a connectivity listener to listen for network changes.
     deprecated:
         since: "1.7.0"
+        removed: "1.9.0"
     parameters:
       - name: callback
-        summary: callback function to invoke upon network connectivity changes
+        summary: Callback function to invoke upon network connectivity changes.
         type: Callback<Object>
     platforms: [iphone, ipad]
   - name: createBonjourBrowser
-    summary: create and return an instance of <Titanium.Network.BonjourBrowser>
+    summary: Creates and returns a `BonjourBrowser` object.
     platforms: [iphone, ipad]
     returns:
         type: Titanium.Network.BonjourBrowser
     parameters:
       - name: serviceType
-        summary: service to search for, must include the protocol type suffix (._tcp)
+        summary: Service to search for, must include the protocol type suffix (._tcp).
         type: String
       - name: domain
-        summary: the Bonjour service domain to conduct the search in.  Default value is 'local.'
-        default: local.
+        summary: Bonjour service domain to conduct the search in. 
+        default: |
+            `local.` (The trailing period is intentional.)
         type: String
       - name: parameters
         optional: true
-        summary: A dictionary object of properties defined in <Titanium.Network.BonjourBrowser>
+        summary: |
+            A dictionary object of properties defined in <Titanium.Network.BonjourBrowser>.
         type: Dictionary<Titanium.Network.BonjourBrowser>
   - name: createBonjourService
-    summary: create and return an instance of <Titanium.Network.BonjourService>
+    summary: Creates and returns a `BonjourService` object.
     platforms: [iphone, ipad]
     returns:
         type: Titanium.Network.BonjourService
     parameters:
       - name: name
-        summary: the name of the service.  Must be a unique identifier for this service type and domain.
+        summary: Name of the service. Must be a unique identifier for this service type and domain.
         type: String
       - name: type
-        summary: the type of service.  Must include the protocol identifier (._tcp)
+        summary: Type of service.  Must include the protocol identifier (._tcp).
         type: String
       - name: domain
-        summary: the domain to publish the service in.  Default value is 'local.'
-        default: local.
+        summary: Domain to publish the service in.
+        default: |
+            `local.` (The trailing period is intentional.)
         type: String
       - name: parameters
-        summary: A dictionary object with properties defined in <Titanium.Network.BonjourService>
+        summary: |
+            Dictionary object of properties defined in <Titanium.Network.BonjourService>.
         optional: true
         type: Dictionary<Titanium.Network.BonjourService>
   - name: createTCPSocket
-    summary: create and return an instance of <Titanium.Network.TCPSocket>
+    summary: Use <Titanium.Network.Socket.createTCP> instead.
+    description: |
+        Legacy method to create and return an instance of <Titanium.Network.TCPSocket>.
+
+        Note that `TCPSocket` is still used with the Bonjour services. For other uses,
+        see <Titanium.Network.Socket.TCP>.
     platforms: [iphone, ipad, mobileweb]
     deprecated:
         since: "1.7.0"
@@ -59,190 +82,374 @@ methods:
         type: Titanium.Network.TCPSocket
     parameters:
       - name: hostName
-        summary: the host name to connect to/listen on
+        summary: Host name to connect to/listen on.
         type: String
       - name: port
-        summary: the port for the socket
+        summary: Port for the socket.
         type: Number
       - name: mode
-        summary: the socket's mode; one of <Titanium.Network.READ_MODE>, <Titanium.Network.WRITE_MODE>, <Titanium.Network.READ_WRITE_MODE>
+        summary: |
+            Socket's mode; one of <Titanium.Network.READ_MODE>, <Titanium.Network.WRITE_MODE>, 
+            <Titanium.Network.READ_WRITE_MODE>.
         type: Number
       - name: parameters
-        summary: A dictionary object with properties defined in <Titanium.Network.TCPSocket>
-        type: Object
+        summary: |
+            Dictionary object with properties defined in <Titanium.Network.TCPSocket>.
+        type: Dictionary<Titanium.Network.TCPSocket>
   - name: decodeURIComponent
-    summary: decode a URI component part using URI encoding
+    summary: Returns a decoded version of a URI encoded value.
     returns:
         type: String
     parameters:
       - name: value
-        summary: input value to be decoded
+        summary: URI encoded input value to be decoded.
         type: String
   - name: encodeURIComponent
-    summary: encode a URI component part using URI encoding
+    summary: Returns a URI encoded version of the specified URI component.
+    description: |
+        On iOS, this also escapes the following characters, which are allowed in a 
+        URL but may not be allowed or desirable inside a path component:
+
+            !*'();:@+$,/?%#[]=&
+
     returns:
         type: String
     parameters:
       - name: value
-        summary: input value to be encoded
+        summary: Input value to be encoded.
         type: String
   - name: registerForPushNotifications
-    summary: register for push notifications with the Apple Push Notification Service.
+    summary: Registers for push notifications with the Apple Push Notification Service.
+    description: |
+        This method should be called at application startup.
     platforms: [iphone, ipad]
     parameters:
       - name: config
-        summary: |
-            dictionary of the following: `types` is an array of type constants that the application would like to receive, `success` is a callback function that is called when the push registration is successfully completed, `error` is a callback function that is called when an error is received during registration and `callback` is a callback function that is invoked upon receiving a new push notification. This method should be called at application startup.
-        type: Object
+        summary: Dictionary specifying push-notification related options. 
+        type: PushNotificationConfig
   - name: removeConnectivityListener
-    summary: removes a connectivity listener. This method has been deprecated in favor of listening for a `change` event.
+    summary: Use the [change](Titanium.Network.change) event to monitor connectivity changes.
+    description: |
+        This legacy method removes a connectivity listener.
     deprecated:
         since: "1.7.0"
+        removed: "1.9.0"
     parameters:
       - name: callback
-        summary: callback function to remove
+        summary: Callback function to remove.
         type: Callback<Object>
     platforms: [iphone, ipad]
+  - name: unregisterForPushNotifications
+    summary: Unregisters the application for push notifications.
+    description: |
+        Per Apple's documentation, it is rarely necessary to call this method. See:
+        [unregisterForRemoteNotifications in the UIApplication Class
+        Reference](http://developer.apple.com/library/IOs/#documentation/UIKit/Reference/UIApplication_Class/Reference/Reference.html#//apple_ref/occ/instm/UIApplication/unregisterForRemoteNotifications) 
+
+        For example, calling this method would be required if a new version of 
+        your application no longer supports push notifications.
 events:
   - name: change
-    summary: fired upon a network connectivity change
+    summary: Fired when network connectivity changes.
     properties:
       - name: networkTypeName
-        summary: the new network type as a string
+        summary: New network type as a string.
+        type: String
       - name: online
-        summary: boolean to indicate if the network is online
+        summary: Boolean to indicate if the device is online.
+        type: Boolean
       - name: networkType
-        summary: the new network type
+        summary: |
+            New network type, one of the `NETWORK` constants defined in <Titanium.Network>.
+        type: Number
+      - name: reason
+        summary: Human-readable text describing the reason for the change.
+        type: String
+        platforms: [android]
 properties:
   - name: INADDR_ANY
-    summary: constant value representing the ability for sockets to listen on any locally available network device
+    summary: |
+        Special hostname value for listening sockets, representing all
+        locally available network interfaces.
     type: String
     permission: read-only
     platforms: [iphone, ipad, mobileweb]
+    deprecated:
+        since: "1.7.0"
   - name: NETWORK_LAN
-    summary: constant value to indicate that the network is LAN
+    summary: |
+        A [networkType](Titanium.Network.networkType) value indicating that the device is
+        communicating over a local-area network.
+    description: |
+        This network type is only used by the Mobile Web platform, when the application
+        is running in a desktop browser attached to a LAN.
+
+        This constant is also a possible value for the `networkType` property of the 
+        [change](Titanium.Network.change) event.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
   - name: NETWORK_MOBILE
-    summary: constant value to indicate that the network is MOBILE
+    summary: |
+        A [networkType](Titanium.Network.networkType) value indicating that the device is
+        communicating over a mobile network.
+    description: |
+        This constant is also a possible value for the `networkType` property of the 
+        [change](Titanium.Network.change) event.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
   - name: NETWORK_NONE
-    summary: constant value to indicate that the network is not available
+    summary: |
+        A [networkType](Titanium.Network.networkType) value indicating that no 
+        network is available.
+    description: |
+        This constant is also a possible value for the `networkType` property of the 
+        [change](Titanium.Network.change) event.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
   - name: NETWORK_UNKNOWN
-    summary: constant value to indicate that the network is not known
+    summary: |
+        A [networkType](Titanium.Network.networkType) value indicating that the  
+        current network type is unknown.
+    description: |
+        This constant is also a possible value for the `networkType` property of the 
+        [change](Titanium.Network.change) event.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
   - name: NETWORK_WIFI
-    summary: constant value to indicate that the network is WIFI
+    summary: |
+        A [networkType](Titanium.Network.networkType) value indicating that the  
+        device is communicating over a WiFi network.
+    description: |
+        This constant is also a possible value for the `networkType` property of the 
+        [change](Titanium.Network.change) event.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
   - name: NOTIFICATION_TYPE_ALERT
-    summary: constant value for the push notification alert type
-    platforms: [iphone, ipad, mobileweb]
+    summary: Constant value for an Alert style push notification.
+    platforms: [iphone, ipad]
     permission: read-only
     type: Number
   - name: NOTIFICATION_TYPE_BADGE
-    summary: constant value for the push notification badge type
+    summary: Constant value for a Badge style push notification.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
   - name: NOTIFICATION_TYPE_SOUND
-    summary: constant value for the push notification sound type
+    summary: Constant value for a Sound style push notification.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
   - name: READ_MODE
-    summary: constant value specifying read-only mode for sockets
+    summary: Constant value specifying read-only mode for sockets.
+    description: Used with the deprecated <Titanium.Network.TCPSocket> only.
     type: Number
     permission: read-only
     platforms: [iphone, ipad, mobileweb]
+    deprecated: 
+        since: "1.7.0"
   - name: READ_WRITE_MODE
-    summary: constant value specifying read-write mode for sockets
+    summary: Constant value specifying read-write mode for sockets.
+    description: Used with the deprecated <Titanium.Network.TCPSocket> only.
     type: Number
     permission: read-only
     platforms: [iphone, ipad, mobileweb]
+    deprecated: 
+        since: "1.7.0"
   - name: SOCKET_CLOSED
-    summary: constant value representing a socket in the CLOSED state
+    summary: Constant value representing a socket in the CLOSED state.
+    description: |
+        Used with the deprecated <Titanium.Network.TCPSocket> only.
+
+        See <Titanium.Network.Socket> for constants used with
+        <Titanium.Network.Socket.TCP> sockets.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+    deprecated: 
+        since: "1.7.0"
   - name: SOCKET_CONNECTED
-    summary: constant value representing a socket in the CONNECTED state
+    summary: Constant value representing a socket in the CONNECTED state.
+    description: |
+        Used with the deprecated <Titanium.Network.TCPSocket> only.
+
+        See <Titanium.Network.Socket> for constants used with
+        <Titanium.Network.Socket.TCP> sockets.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+    deprecated: 
+        since: "1.7.0"
   - name: SOCKET_ERROR
-    summary: constant value representing a socket in the ERROR state
+    summary: Constant value representing a socket in the ERROR state.
+    description: |
+        Used with the deprecated <Titanium.Network.TCPSocket> only.
+
+        See <Titanium.Network.Socket> for constants used with
+        <Titanium.Network.Socket.TCP> sockets.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+    deprecated: 
+        since: "1.7.0"
   - name: SOCKET_INITIALIZED
-    summary: constant value representing a socket in the INITIALIZED state
+    summary: Constant value representing a socket in the INITIALIZED state.
+    description: |
+        Used with the deprecated <Titanium.Network.TCPSocket> only.
+
+        See <Titanium.Network.Socket> for constants used with
+        <Titanium.Network.Socket.TCP> sockets.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+    deprecated: 
+        since: "1.7.0"
   - name: SOCKET_LISTENING
-    summary: constant value representing a socket in the LISTENING state
+    summary: Constant value representing a socket in the LISTENING state.
+    description: |
+        Used with the deprecated <Titanium.Network.TCPSocket> only.
+
+        See <Titanium.Network.Socket> for constants used with
+        <Titanium.Network.Socket.TCP> sockets.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+    deprecated: 
+        since: "1.7.0"
   - name: WRITE_MODE
-    summary: constant value specifying write-only mode for sockets
+    summary: Constant value specifying write-only mode for sockets.
+    description: |
+        Used with the deprecated <Titanium.Network.TCPSocket> only.
     type: Number
     permission: read-only
     platforms: [iphone, ipad, mobileweb]
+    deprecated: 
+        since: "1.7.0"
   - name: TLS_VERSION_1_0
-    summary: constant value specifying TLS version 1.0 for SSL
+    summary: Constant value specifying TLS version 1.0 for SSL.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+    since: "1.8.0.1"
   - name: TLS_VERSION_1_1
-    summary: constant value specifying TLS version 1.1 for SSL
+    summary: Constant value specifying TLS version 1.1 for SSL.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+    since: "1.8.0.1"
   - name: TLS_VERSION_1_2
-    summary: constant value specifying TLS version 1.2 for SSL
+    summary: Constant value specifying TLS version 1.2 for SSL.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+    since: "1.8.0.1"
+  - name: address
+    summary: The IP address of the device's WiFi network interface.
+    type: String
+    platform: [iphone,ipad]
   - name: networkType
-    summary: the network type value as a constant.
+    summary: Network type value as a constant.
+    description: |
+        One of the `NETWORK` constants defined in <Titanium.Network>.
     type: Number
     permission: read-only
   - name: networkTypeName
-    summary: the network type name constant. Returns one of `NONE`, `WIFI`, `LAN` or `MOBILE`.
+    summary: Network type as a String. Returns one of `NONE`, `WIFI`, `LAN`, `MOBILE`, or `UNKNOWN`.
     type: String
     permission: read-only
   - name: online
-    summary: boolean value that indicates if the network is reachable to the Internet either via WIFI or Carrier network
+    summary: Boolean value indicating if the device can reach the Internet.
+    description: |
+        The `online` property is `true` if the device can currently reach the Internet
+        using either WiFi, mobile network or LAN.
     type: Boolean
     permission: read-only
   - name: remoteDeviceUUID
-    summary: the remote device UUID if the device was registered with the Apple Push Notification Service or null if not set.
+    summary: |
+        Remote device UUID if the device is registered with the Apple Push Notification
+        Service, or null if it is not registered.
     platforms: [iphone, ipad]
     type: String
+    permission: read-only
   - name: remoteNotificationTypes
-    summary: returns an array of network type constants enabled for the application.
+    summary: Array of push notification type constants enabled for the application.
     platforms: [iphone, ipad]
-    type: Array<Object>
+    type: Array<Number>
+    permission: read-only
   - name: remoteNotificationsEnabled
-    summary: returns true if remote notifications have been enabled.
+    summary: |
+        Indicates whether push  notifications have been enabled using 
+        [registerForPushNotifications](Titanium.Network.registerForPushNotifications).
     platforms: [iphone, ipad]
     type: Boolean
+    permission: read-only
   - name: httpURLFormatter
     summary: User-defined function that is called everytime HTTPClient connects to a remote resource. 
     description: |
-        The URL to connect to is passed in as the only function argument, and the function is expected to return a URL. 
-        The function should return null if an error occurs, which will cancel the HTTP request. This function allows URLs 
-        to be formatted for use with the application's proxy to get around cross domain issues.
+        The URL to connect to is passed in as the only function argument, and the function 
+        is expected to return a URL. The function should return `null` if an error occurs, 
+        which will cancel the HTTP request. 
+        
+        This function allows URLs to be formatted for use with the application's proxy to 
+        get around cross domain issues.
     type: Callback<String>
     platforms: [mobileweb]
+
+---
+name: PushNotificationConfig
+summary: |
+    Simple object for specifying push notification options to
+    [registerForPushNotifications](Titanium.Network.registerForPushNotifications).
+properties:
+  - name: types 
+    summary: Array of `NOTIFICATION_TYPE` constants that the application would like to receive.
+    type: Array<Number> 
+  - name: success 
+    summary: |
+        Callback function called when the push registration is successfully completed.
+    type: Callback<PushNotificationSuccessArg>
+  - name: error
+    summary: |
+        Callback function called when an error occurs during registration.
+    type: Callback<PushNotificationErrorArg>
+  - name: callback
+    summary: Callback function invoked upon receiving a new push notification. 
+    type: Callback<PushNotificationData>
+
+---
+name: PushNotificationSuccessArg
+summary: |
+    A simple object passed to the 
+    [registerForPushNotifications](Titanium.Network.registerForPushNotifications) success callback.
+properties: 
+  - name: type
+    summary: The value of this string is always "remote".
+    type: String
+  - name: deviceToken 
+    summary: The device token which this device was registered for.
+    type: String
+
+---
+name: PushNotificationErrorArg
+summary: |
+    A simple object passed to the 
+    [registerForPushNotifications](Titanium.Network.registerForPushNotifications) error callback.
+properties: 
+  - name: type
+    summary: The value of this string is always "remote".
+    type: String
+  - name: error 
+    summary: Description of the error.
+    type: String
+
+---
+name: PushNotificationData
+summary: A simple object representing a push notification.
+properties: 
+  - name: data
+    summary: The `userinfo` dictionary passed to the Apple Push Notification Service.
+    description: |
+        For more information, see the following item in the iOS Developer Library:
+
+        [application:didReceiveRemoteNotification in the UIApplicationDelegate Protocol
+        Reference](http://developer.apple.com/library/ios/#DOCUMENTATION/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/occ/intfm/UIApplicationDelegate/application:didReceiveRemoteNotification:)
+    type: Dictionary
