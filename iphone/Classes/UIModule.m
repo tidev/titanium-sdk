@@ -339,7 +339,7 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 #ifdef USE_TI_UITOOLBAR
 -(id)createToolbar:(id)args
 {
-	DEPRECATED_REPLACED(@"UI.createToolBar()",@"1.8.0",@"1.9.0",@"Ti.UI.iOS.createToolBar()");
+	DEPRECATED_REPLACED(@"UI.createToolBar()",@"1.8.0",@"1.9.0",@"Ti.UI.iOS.createToolbar()");
 	return [[[TiUIiOSToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif

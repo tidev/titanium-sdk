@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2010-2011 Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2010-2012 Appcelerator, Inc. All Rights Reserved.
 # Licensed under the Apache Public License (version 2)
 #
 # parse out Titanium API documentation templates into a 
@@ -283,8 +283,10 @@ class AnnotatedProxy(AnnotatedApi):
 		methods = []
 		if dict_has_non_empty_member(self.api_obj, "methods"):
 			methods = [AnnotatedMethod(m, self) for m in self.api_obj["methods"]]
-		self.append_setters_getters(methods)
-		self.append_inherited_methods(methods)
+		# Not for "pseudo-types"
+		if is_titanium_proxy(self.api_obj):
+			self.append_setters_getters(methods)
+			self.append_inherited_methods(methods)
 		return sorted(methods, key=lambda item: item.name)
 
 	@lazyproperty

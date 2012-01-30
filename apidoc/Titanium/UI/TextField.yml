@@ -14,25 +14,21 @@ methods:
 events:
   - name: blur
     summary: Fired when the field loses focus.
-    platforms: [android, iphone, ipad]
     properties:
       - name: value
         summary: Value of the field at the time of the event.
   - name: change
     summary: Fired when the field value changes.
-    platforms: [android, iphone, ipad]
     properties:
       - name: value
         summary: New value of the field.
   - name: focus
     summary: Fired when the field gains focus.
-    platforms: [android, iphone, ipad]
     properties:
       - name: value
         summary: Value of the field at the time of the event.
   - name: return
     summary: Fired when the return key is pressed on the keyboard.
-    platforms: [android, iphone, ipad]
 properties:
   - name: appearance
     summary: Determines the appearance of the keyboard displayed when this field is focused.
@@ -50,7 +46,12 @@ properties:
         [TEXT_AUTOCAPITALIZATION_WORDS](Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS), 
         [TEXT_AUTOCAPITALIZATION_SENTENCES](Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES), or 
         [TEXT_AUTOCAPITALIZATION_ALL](Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL).
+
+        For Mobile Web, `TEXT_AUTOCAPITALIZATION_WORDS` is unsupported.
     type: Number
+  - name: autocorrect
+    summary: If true, allows the input field to autocorrect misspelled words.
+    type: Boolean
   - name: borderStyle
     summary: Border style for the field. 
     description: Specify one of the `INPUT_BORDERSTYLE` constants defined in [Titanium.UI](Titanium.UI.INPUT_BORDERSTYLE_BEZEL).
@@ -64,7 +65,7 @@ properties:
         [INPUT_BUTTONMODE_ONBLUR](Titanium.UI.INPUT_BUTTONMODE_ONBLUR), or 
         [INPUT_BUTTONMODE_ONFOCUS](Titanium.UI.INPUT_BUTTONMODE_ONFOCUS).
     type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
   - name: clearOnEdit
     summary: Should the value of the field be cleared when the user starts editing?
     type: Boolean
@@ -76,6 +77,9 @@ properties:
     summary: Is the field enabled?
     type: Boolean
     default: true
+  - name: font
+    summary: Font to use for text.
+    type: Font
   - name: hintText
     summary: Hint text to display when the field is unfocused.
     type: String
@@ -98,7 +102,6 @@ properties:
         When asking for a specific kind of input, such as a phone number or email 
         address, you should always specify the appropriate keyboard type.
     type: Number
-    platforms: [android,iphone,ipad]
     default: the platform's default keyboard
   - name: leftButton
     summary: Left button view. Using an object other than a [Button](Titanium.UI.Button) may have unpredictable results.
@@ -125,12 +128,17 @@ properties:
   - name: paddingLeft
     summary: Left padding of the text field.
     type: Number
+    platforms: [iphone, ipad]
   - name: paddingRight
     summary: Right padding of the text field.
     type: Number
+    platforms: [iphone, ipad]
   - name: passwordMask
     summary: Set to `true` to hide entered characters. 
     description: |
+        On Mobile Web, if you set a `keyboardType` and enable the `passwordMask`, the `passwordMask` will always take
+        precedence and the default keyboard will be used.
+
         Note: on iOS, `passwordMask` *must* be specified when the text field is created.
     type: Boolean
     default: false
@@ -138,8 +146,14 @@ properties:
     summary: Specifies the text to display on the keyboard **Return** key when this field is focused.
     description: |
         Specify one of the `RETURNKEY` constants from <Titanium.UI>.
+
+        Mobile Web on iOS devices supports [RETURNKEY_DEFAULT](Titanium.UI.RETURNKEY_DEFAULT),
+        [RETURNKEY_GO](Titanium.UI.RETURNKEY_GO), [RETURNKEY_GOOGLE](Titanium.UI.RETURNKEY_GOOGLE),
+        [RETURNKEY_SEARCH](Titanium.UI.RETURNKEY_SEARCH), and [RETURNKEY_YAHOO](Titanium.UI.RETURNKEY_YAHOO).
+        `RETURNKEY_GOOGLE`, `RETURNKEY_SEARCH`, and `RETURNKEY_YAHOO` all display the word "Search".
+
+        Mobile Web on Android devices will only display "Go" regardless of which `RETURNKEY` type is used.
     type: Number
-    platforms: [android,iphone,ipad]
     default: the platform's default return key
   - name: rightButton
     summary: Right button view. 
@@ -164,6 +178,7 @@ properties:
   - name: suppressReturn
     summary: Should the return key should be suppressed during entry?
     type: Boolean
+    platforms: [iphone,ipad,mobileweb]
   - name: textAlign
     summary: |
         Text alignment, specified using one of the <Titanium.UI> text alignment constants: [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
@@ -181,6 +196,7 @@ properties:
         [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
     type: [Number,String]
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
+    platforms: [iphone, ipad, android]
   - name: maxLength
     summary: Maximum length of text field input. 
     description: Any attempt to input text beyond this length (including pasting a string 
@@ -188,7 +204,7 @@ properties:
         indicates unlimited length.
     default: -1
     type: Number
-    platforms: [iphone]
+    platforms: [iphone, mobileweb]
 examples:
   - title: Basic Text Field with rounded border
     example: |

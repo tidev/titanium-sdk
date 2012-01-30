@@ -130,6 +130,7 @@
 {
 	//Treat this as a size change
 	[(TiViewProxy *)[self proxy] willChangeSize];
+    [super frameSizeChanged:frame bounds:visibleBounds];
 }
 
 -(void)setContentWidth_:(id)value
@@ -174,10 +175,10 @@
 	[[self scrollView] setAlwaysBounceVertical:[TiUtils boolValue:value]];
 }
 
--(void)setContentOffset_:(id)value
+-(void)setContentOffset_:(id)value withObject:(id)property
 {
-	CGPoint newOffset = [TiUtils pointValue:value];
-	BOOL animated = scrollView != nil;
+    CGPoint newOffset = [TiUtils pointValue:value];
+	BOOL animated = [TiUtils boolValue:@"animated" properties:property def:(scrollView !=nil)];
 	[[self scrollView] setContentOffset:newOffset animated:animated];
 }
 

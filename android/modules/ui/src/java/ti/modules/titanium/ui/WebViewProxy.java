@@ -1,12 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
@@ -25,6 +26,7 @@ import android.os.Message;
 public class WebViewProxy extends ViewProxy
 	implements Handler.Callback
 {
+	private static final String TAG = "WebViewProxy";
 	private static final int MSG_FIRST_ID = ViewProxy.MSG_LAST_ID + 1;
 
 	private static final int MSG_GO_BACK = MSG_FIRST_ID + 101;
@@ -54,20 +56,32 @@ public class WebViewProxy extends ViewProxy
 		return webView;
 	}
 
-	public TiUIWebView getWebView() {
+	public TiUIWebView getWebView()
+	{
 		return (TiUIWebView) getOrCreateView();
 	}
 
 	@Kroll.method
-	public Object evalJS(String code) {
-		return getWebView().getJSValue(code);
+	public Object evalJS(String code)
+	{
+		// If the view doesn't even exist yet,
+		// or if it once did exist but doesn't anymore
+		// (like if the proxy was removed from a parent),
+		// we absolutely should not try to get a JS value
+		// from it.
+		TiUIWebView view = (TiUIWebView) peekView();
+		if (view == null) {
+			Log.w(TAG, "WebView not available, returning null for evalJS result.");
+			return null;
+		}
+		return view.getJSValue(code);
 	}
 
 	@Kroll.method @Kroll.getProperty
 	public String getHtml()
 	{
 		if (!hasProperty(TiC.PROPERTY_HTML)) {
-			return "";
+			return getWebView().getJSValue("document.documentElement.outerHTML");
 		}
 		return (String) getProperty(TiC.PROPERTY_HTML);
 	}
@@ -141,29 +155,29 @@ public class WebViewProxy extends ViewProxy
 		}
 		return false;
 	}
-	
+
 	@Kroll.method
-	public void goBack() {
+	public void goBack()
+	{
 		getMainHandler().sendEmptyMessage(MSG_GO_BACK);
-		//getUIHandler().sendEmptyMessage(MSG_GO_BACK);
 	}
 
 	@Kroll.method
-	public void goForward() {
+	public void goForward()
+	{
 		getMainHandler().sendEmptyMessage(MSG_GO_FORWARD);
-		//getUIHandler().sendEmptyMessage(MSG_GO_FORWARD);
 	}
 
 	@Kroll.method
-	public void reload() {
+	public void reload()
+	{
 		getMainHandler().sendEmptyMessage(MSG_RELOAD);
-		//getUIHandler().sendEmptyMessage(MSG_RELOAD);
 	}
 
 	@Kroll.method
-	public void stopLoading() {
+	public void stopLoading()
+	{
 		getMainHandler().sendEmptyMessage(MSG_STOP_LOADING);
-		//getUIHandler().sendEmptyMessage(MSG_STOP_LOADING);
 	}
 
 	@Kroll.method @Kroll.getProperty

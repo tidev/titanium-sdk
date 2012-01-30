@@ -1,46 +1,79 @@
 ---
 name: Titanium.UI.Switch
-summary: A Switch is created by the method <Titanium.UI.createSwitch>.
+summary: An on/off switch control.
+description: |
+    On Android, a switch can have text associated with it, and appears as either a 
+    checkbox or toggle button.
+
+    On iOS, the switch appears as an iOS on/off switch and doesn't have any text
+    associated with it. 
+
+    Use the <Titanium.UI.createSwitch> method to create a switch.
 extends: Titanium.UI.View
 since: "0.8"
 events:
   - name: change
-    summary: fired when the switch value is changed
+    summary: Fired when the switch value changes.
     properties:
       - name: value
-        summary: the new value of the switch
-      - name: y
-        summary: the y point of the event, in receiving view coordinates
-      - name: x
-        summary: the x point of the event in receiving view coordiantes
-      - name: globalPoint
-        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
+        summary: New value of the switch.
+        type: Boolean
 properties:
+  - name: color
+    summary: Color to use for switch text.
+    type: String
+    platforms: [android]
   - name: enabled
-    summary: boolean for the state of the switch
+    summary: Set to `true` to enable the switch, `false` to disable the switch.
     type: Boolean
+  - name: font
+    summary: Font to use for the switch text.
+    type: Font
+    platforms: [android]
   - name: style
-    summary: one of <Ti.UI.Android.SWITCH_STYLE_CHECKBOX> or <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON> (default).
+    summary: Style of the switch, either checkbox or toggle button.
+    description: |
+        Specify one of <Titanium.UI.Android.SWITCH_STYLE_CHECKBOX> or 
+        <Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>.
     type: Number
-    platforms: [android, mobileweb]
+    platforms: [android]
+    default: Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON
+  - name: textAlign
+    summary: |
+        Text alignment, specified using one of the <Titanium.UI> text alignment constants: [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
+    type: [String,Number]
+    default: <Titanium.UI.TEXT_ALIGNMENT_CENTER>
+    platforms: [android]
   - name: title
     summary: text to display with checkbox. Used if style is <Ti.UI.Android.SWITCH_STYLE_CHECKBOX>
     type: String
-    platforms: [android, mobileweb]
+    platforms: [android]
   - name: titleOff
-    summary: text to display when value is `false`. used if style is <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
+    summary: Text to display when a toggle button-style switch is toggled on.
+    description: |
+        Used if style is <Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
     type: String
-    platforms: [android, mobileweb]
+    platforms: [android]
   - name: titleOn
-    summary: text to display when value is `true`. used if style is <Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
+    summary: Text to display when a toggle button-style switch is toggled off.
+    description: |
+        Used if style is <Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
     type: String
-    platforms: [android, mobileweb]
+    platforms: [android]
   - name: value
-    summary: boolean value of the switch where true is the switch is `on` and false the switch if `off`
+    summary: Current switch value, `true` if the switch is on, and `false` if switch is
+        off.
     type: Boolean
+  - name: verticalAlign
+    summary: |
+        Vertical alignment for the text field, specified using one of the 
+        vertical alignment constants from <Titanium.UI>: 
+        [TEXT_VERTICAL_ALIGNMENT_BOTTOM](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM), 
+        [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER), or 
+        [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
+    type: [Number,String]
+    default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
+    platforms: [android]
     
 examples:
   - title: Simple Switch Example

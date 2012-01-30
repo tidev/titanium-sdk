@@ -98,6 +98,7 @@ static NSDictionary* TI_filterableItemProperties;
 -(void)destroyPicker
 {
 	RELEASE_TO_NIL(popover);
+    RELEASE_TO_NIL(cameraView);
 	RELEASE_TO_NIL(editor);
 	RELEASE_TO_NIL(editorSuccessCallback);
 	RELEASE_TO_NIL(editorErrorCallback);
@@ -115,6 +116,7 @@ static NSDictionary* TI_filterableItemProperties;
 	RELEASE_TO_NIL(systemMusicPlayer);
 	RELEASE_TO_NIL(appMusicPlayer);
 	RELEASE_TO_NIL(popoverView);
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[super dealloc];
 }
 
@@ -290,6 +292,9 @@ static NSDictionary* TI_filterableItemProperties;
 
 -(void)closeModalPicker:(UIViewController*)picker_
 {
+    if (cameraView != nil) {
+        [cameraView windowWillClose];
+    }
 	if (popover)
 	{
 		[(UIPopoverController*)popover dismissPopoverAnimated:animatedPicker];
@@ -299,6 +304,10 @@ static NSDictionary* TI_filterableItemProperties;
 	{
 		[[TiApp app] hideModalController:picker_ animated:animatedPicker];
 	}
+    if (cameraView != nil) {
+        [cameraView windowDidClose];
+        RELEASE_TO_NIL(cameraView);
+    }
 }
 
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
@@ -416,10 +425,11 @@ static NSDictionary* TI_filterableItemProperties;
 		[picker setShowsCameraControls:[TiUtils boolValue:@"showControls" properties:args def:YES]];
 		
 		// allow an overlay view
-		TiViewProxy *cameraView = [args objectForKey:@"overlay"]; 
-		if (cameraView!=nil)
+		TiViewProxy *cameraViewProxy = [args objectForKey:@"overlay"];
+		if (cameraViewProxy!=nil)
 		{
-			ENSURE_TYPE(cameraView,TiViewProxy);
+			ENSURE_TYPE(cameraViewProxy,TiViewProxy);
+            cameraView = [cameraViewProxy retain];
 			UIView *view = [cameraView view];
 			if (editable)
 			{
@@ -429,7 +439,9 @@ static NSDictionary* TI_filterableItemProperties;
 			}
 			[TiUtils setView:view positionRect:[picker view].bounds];
 			[cameraView layoutChildren:NO];
+            [cameraView windowWillOpen];
 			[picker setCameraOverlayView:view];
+            [cameraView windowDidOpen];
 			[picker setWantsFullScreenLayout:YES];
 		}
 		
@@ -1080,6 +1092,9 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	ENSURE_UI_THREAD(hideCamera,args);
 	if (picker!=nil)
 	{
+        if (cameraView != nil) {
+            [cameraView windowWillClose];
+        }
 		if (popover != nil) {
 			[popover dismissPopoverAnimated:animatedPicker];
 			RELEASE_TO_NIL(popover);
@@ -1091,6 +1106,10 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 		else {
 			[[TiApp app] hideModalController:picker animated:animatedPicker];
 		}
+        if (cameraView != nil) {
+            [cameraView windowDidClose];
+            RELEASE_TO_NIL(cameraView);
+        }
 		[self destroyPicker];
 	}
 }

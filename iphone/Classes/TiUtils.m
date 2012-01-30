@@ -707,62 +707,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 +(NSURL*)toURL:(NSString *)object proxy:(TiProxy*)proxy
 {
-	return [self toURL:object relativeToURL:[proxy _baseURL]];
-//	NSURL *url = nil;
-//	
-//	if ([object isKindOfClass:[NSString class]])
-//	{
-//		if ([object hasPrefix:@"/"])
-//		{
-//			return [TiUtils checkFor2XImage:[NSURL fileURLWithPath:object]];
-//		}
-//		if ([object hasPrefix:@"sms:"] || 
-//			[object hasPrefix:@"tel:"] ||
-//			[object hasPrefix:@"mailto:"])
-//		{
-//			return [NSURL URLWithString:object];
-//		}
-//		
-//		// don't bother if we don't at least have a path and it's not remote
-//		///TODO: This looks ugly and klugy.
-//		NSString *urlString = [TiUtils stringValue:object];
-//		if ([urlString hasPrefix:@"http"])
-//		{
-//			NSRange range = [urlString rangeOfString:@"/" options:0 range:NSMakeRange(7, [urlString length]-7)];
-//			if (range.location!=NSNotFound)
-//			{
-//				NSString *firstPortion = [urlString substringToIndex:range.location];
-//				NSString *pathPortion = [urlString substringFromIndex:range.location];
-//				CFStringRef escapedPath = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-//						(CFStringRef)pathPortion, charactersToNotEscape,charactersThatNeedEscaping,
-//						kCFStringEncodingUTF8);
-//				urlString = [firstPortion stringByAppendingString:(NSString *)escapedPath];
-//				if(escapedPath != NULL)
-//				{
-//					CFRelease(escapedPath);
-//				}
-//			}
-//		}
-//		
-//		url = [NSURL URLWithString:urlString relativeToURL:[proxy _baseURL]];
-//		
-//		if (url==nil)
-//		{
-//			//encoding problem - fail fast and make sure we re-escape
-//			NSRange range = [object rangeOfString:@"?"];
-//			if (range.location != NSNotFound)
-//			{
-//				NSString *qs = [TiUtils encodeURIParameters:[object substringFromIndex:range.location+1]];
-//				NSString *newurl = [NSString stringWithFormat:@"%@?%@",[object substringToIndex:range.location],qs];
-//				return [TiUtils checkFor2XImage:[NSURL URLWithString:newurl]];
-//			}
-//		}
-//	}
-//	else if ([object isKindOfClass:[NSURL class]])
-//	{
-//		return [TiUtils checkFor2XImage:[NSURL URLWithString:[(NSURL *)object absoluteString] relativeToURL:[proxy _baseURL]]];
-//	}
-//	return [TiUtils checkFor2XImage:url];			  
+	return [self toURL:object relativeToURL:[proxy _baseURL]];  
 }
 
 +(UIImage *)stretchableImage:(id)object proxy:(TiProxy*)proxy
@@ -1678,6 +1623,34 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     }];
     
     return responseHeader;
+}
+
++(UIImage*)loadBackgroundImage:(id)image forProxy:(TiProxy*)proxy
+{
+    UIImage* resultImage = nil;
+    if ([image isKindOfClass:[UIImage class]]) {
+        resultImage = image;
+    }
+    else if ([image isKindOfClass:[NSString class]]) {
+        NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
+        resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL];
+        if (resultImage==nil && [image isEqualToString:@"Default.png"])
+        {
+            // special case where we're asking for Default.png and it's in Bundle not path
+            resultImage = [UIImage imageNamed:image];
+        }
+        if((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp))
+        {
+            resultImage = [UIImageResize resizedImage:[resultImage size] 
+                                 interpolationQuality:kCGInterpolationNone 
+                                                image:resultImage 
+                                                hires:NO];
+        }
+    }
+    else if ([image isKindOfClass:[TiBlob class]]) {
+        resultImage = [image image];
+    }
+    return resultImage;
 }
 
 @end

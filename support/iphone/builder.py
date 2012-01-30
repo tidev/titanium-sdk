@@ -7,7 +7,7 @@
 
 import os, sys, uuid, subprocess, shutil, signal, string, traceback, imp, filecmp, inspect
 import platform, time, re, run, glob, codecs, hashlib, datetime, plistlib
-from compiler import Compiler
+from compiler import Compiler, softlink_for_simulator
 from projector import Projector
 from xml.dom.minidom import parseString
 from xml.etree.ElementTree import ElementTree
@@ -72,6 +72,7 @@ def dequote(s):
 
 # force kill the simulator if running
 def kill_simulator():
+	run.run(['/usr/bin/killall',"ios-sim"],True)
 	run.run(['/usr/bin/killall',"iPhone Simulator"],True)
 
 def write_project_property(f,prop,val):
@@ -608,7 +609,8 @@ def main(args):
 		#Ensure the localization files are copied in the application directory
 		out_dir = os.path.join(os.environ['TARGET_BUILD_DIR'],os.environ['CONTENTS_FOLDER_PATH'])
 		localecompiler.LocaleCompiler(name,project_dir,devicefamily,deploytype,out_dir).compile()
-		compiler = Compiler(project_dir,appid,name,deploytype,xcode_build,devicefamily,iphone_version)
+		compiler = Compiler(project_dir,appid,name,deploytype)
+		compiler.compileProject(xcode_build,devicefamily,iphone_version)
 		script_ok = True
 		sys.exit(0)
 	else:
@@ -944,8 +946,11 @@ def main(args):
 				create_info_plist(ti, template_dir, project_dir, infoplist)
 				# since compiler will generate the module dependencies, we need to 
 				# attempt to compile to get it correct for the first time.
-				compiler = Compiler(project_dir,appid,name,deploytype,xcode_build,devicefamily,iphone_version,True)
+				compiler = Compiler(project_dir,appid,name,deploytype)
+				compiler.compileProject(xcode_build,devicefamily,iphone_version,True)
 			else:
+				if simulator:
+					softlink_for_simulator(project_dir,app_dir)
 				contents="TI_VERSION=%s\n"% sdk_version
 				contents+="TI_SDK_DIR=%s\n" % template_dir.replace(sdk_version,'$(TI_VERSION)')
 				contents+="TI_APPID=%s\n" % appid
@@ -1114,8 +1119,15 @@ def main(args):
 				# since we need to make them live in the bundle in simulator
 				if len(custom_fonts)>0:
 					for f in custom_fonts:
-						print "[INFO] Detected custom font: %s" % os.path.basename(f)
-						shutil.copy(f,app_dir)
+						font = os.path.basename(f)
+						app_font_path = os.path.join(app_dir, font)
+						print "[INFO] Detected custom font: %s" % font
+						if os.path.exists(app_font_path):
+							os.remove(app_font_path)
+						try:
+							shutil.copy(f,app_dir)
+						except shutil.Error, e:
+							print "[WARN] Not copying %s: %s" % (font, e)
 
 				# dump out project file info
 				if command not in ['simulator', 'build']:
@@ -1280,7 +1292,9 @@ def main(args):
 				if command == 'simulator':
 					# first make sure it's not running
 					kill_simulator()
-
+					#Give the kill command time to finish
+					time.sleep(2)
+					
 					# sometimes the simulator doesn't remove old log files
 					# in which case we get our logging jacked - we need to remove
 					# them before running the simulator
@@ -1294,7 +1308,7 @@ def main(args):
 					def handler(signum, frame):
 						global script_ok
 						print "[INFO] Simulator is exiting"
-						sys.stdout.flush()
+						
 						if not log == None:
 							try:
 								os.system("kill -2 %s" % str(log.pid))

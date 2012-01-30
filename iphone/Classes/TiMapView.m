@@ -80,6 +80,7 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[TiUtils setView:[self map] positionRect:bounds];
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 -(TiMapAnnotationProxy*)annotationFromArg:(id)arg

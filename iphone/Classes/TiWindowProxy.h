@@ -59,12 +59,11 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 	BOOL closing;
 	BOOL startingTransitionAnimation;
 	int transitionAnimation;
-
-
+    
+    UIView* animatedOver;
 	TiAnimation * openAnimation;
 	TiAnimation * closeAnimation;
 	
-	NSMutableArray *reattachWindows;
 	UIView *closeView;
 	UIViewController *tempController;
 
