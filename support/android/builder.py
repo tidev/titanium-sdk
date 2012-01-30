@@ -52,6 +52,20 @@ uncompressed_types = [
 	".amr", ".awb", ".wma", ".wmv"
 ]
 
+# Java keywords to reference in case app id contains java keyword
+java_keywords = [
+	"abstract",	"continue",	"for", "new", "switch",
+	"assert", "default", "goto", "package", "synchronized",
+	"boolean", "do", "if", "private", "this",
+	"break", "double", "implements", "protected", "throw",
+	"byte", "else", "import", "public", "throws",
+	"case", "enum", "instanceof", "return", "transient",
+	"catch", "extends", "int", "short", "try",
+	"char", "final", "interface", "static", "void",
+	"class", "finally", "long",	"strictfp", "volatile",
+	"const", "float", "native",	"super", "while"
+]
+
 
 MIN_API_LEVEL = 8
 
@@ -620,6 +634,13 @@ class Builder(object):
 			self.project_deltas = self.project_deltafy.scan()
 			# rescan tiapp.xml so it doesn't show up as created next time around 
 			self.project_deltafy.scan_single_file(self.project_tiappxml)
+			
+		if self.tiapp_changed:
+			for root, dirs, files in os.walk(self.project_gen_dir, topdown=False):
+				for name in files:
+					os.remove(os.path.join(root, name))
+				for name in dirs:
+					os.rmdir(os.path.join(root, name))
 			
 		def strip_slash(s):
 			if s[0:1]=='/' or s[0:1]=='\\': return s[1:]
@@ -1294,7 +1315,13 @@ class Builder(object):
 		(out, err, javac_process) = run.run(javac_command, ignore_error=True, return_error=True, return_process=True)
 		os.remove(src_list_filename)
 		if javac_process.returncode != 0:
-			warn("Do not use java keywords for project app id")
+			key_word = ''
+			for key in java_keywords:
+				if err.find(key + '.') > 0:
+					key_word = key
+					break
+			if key_word != '':
+				warn("Do not use java keywords for project app id, such as " + key_word)
 			error("Error(s) compiling generated Java code")
 			error(str(err))
 			sys.exit(1)
