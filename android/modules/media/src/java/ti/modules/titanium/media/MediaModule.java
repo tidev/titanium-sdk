@@ -41,6 +41,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.media.android.AndroidModule.MediaScannerClient;
 import android.app.Activity;
+import android.app.Application;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -63,6 +64,7 @@ public class MediaModule extends KrollModule
 
 	private static final long[] DEFAULT_VIBRATE_PATTERN = { 100L, 250L };
 	private static final String PHOTO_DCIM_CAMERA = "/sdcard/dcim/Camera";
+	private static final String FEATURE_CAMERA_FRONT = "android.hardware.camera.front"; // Needed until api 9 is our minimum supported.
 
 	@Kroll.constant public static final int UNKNOWN_ERROR = 0;
 	@Kroll.constant public static final int DEVICE_BUSY = 1;
@@ -691,6 +693,24 @@ public class MediaModule extends KrollModule
 		} else {
 			Log.e(LCAT, "camera preview is not open, unable to take photo");
 		}
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public boolean getIsCameraSupported()
+	{
+		Application application = TiApplication.getInstance();
+		if (application == null) {
+			Log.w(LCAT, "Could not retrieve application instance, returning false for isCameraSupported.");
+			return false;
+		}
+
+		PackageManager pm = application.getPackageManager();
+		if (pm == null) {
+			Log.w(LCAT, "Could not retrieve PackageManager instance, returning false for isCameraSupported.");
+		}
+
+		return pm.hasSystemFeature(PackageManager.FEATURE_CAMERA) ||
+				pm.hasSystemFeature(FEATURE_CAMERA_FRONT);
 	}
 }
 
