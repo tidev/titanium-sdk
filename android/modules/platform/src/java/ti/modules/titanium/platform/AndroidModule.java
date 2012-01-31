@@ -15,8 +15,4 @@ public class AndroidModule extends PlatformModule{
 		super();
 	}
 	
-	public AndroidModule(TiContext tiContext)
-	{
-		this();
-	}
 }
