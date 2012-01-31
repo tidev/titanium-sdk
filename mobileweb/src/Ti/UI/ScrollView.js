@@ -53,6 +53,28 @@ define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/la
 					y: contentContainer.domNode.scrollTop / (this._contentMeasurer._measuredHeight - this._measuredHeight),
 				});
 			}));
+			var self = this;
+			this.domNode.addEventListener("mousewheel",function(e) {
+				self._startScrollBars({
+					x: contentContainer.domNode.scrollLeft / (self._contentMeasurer._measuredWidth - self._measuredWidth),
+					y: contentContainer.domNode.scrollTop / (self._contentMeasurer._measuredHeight - self._measuredHeight),
+				},
+				{
+					x: contentContainer._measuredWidth / (self._contentMeasurer._measuredWidth),
+					y: contentContainer._measuredHeight / (self._contentMeasurer._measuredHeight),
+				});
+				setTimeout(function(){
+					contentContainer.domNode.scrollLeft -= e.wheelDeltaX;
+					contentContainer.domNode.scrollTop -= e.wheelDeltaY;
+					self._updateScrollBars({
+						x: (contentContainer.domNode.scrollLeft - e.wheelDeltaX) / (self._contentMeasurer._measuredWidth - self._measuredWidth),
+						y: (contentContainer.domNode.scrollTop - e.wheelDeltaY) / (self._contentMeasurer._measuredHeight - self._measuredHeight),
+					});
+					setTimeout(function(){
+						self._endScrollBars();
+					},10);
+				},10);
+			});
 		},
 		
 		scrollTo: function(x,y) {
