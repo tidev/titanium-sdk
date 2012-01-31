@@ -213,6 +213,16 @@ class Builder(object):
 		self.debugger_port = -1
 		self.fastdev_port = -1
 		self.fastdev = False
+		
+		# don't build if a java keyword in the app id would cause the build to fail
+		key_word = ''
+		for key in java_keywords:
+			if self.app_id.find(key) >= 0:
+				key_word = key
+				break
+		if key_word != '':
+			error("Do not use java keywords for project app id, such as " + key_word)
+			sys.exit(1)
 
 		temp_tiapp = TiAppXML(self.project_tiappxml)
 		if temp_tiapp and temp_tiapp.android and 'tool-api-level' in temp_tiapp.android:
@@ -1315,13 +1325,6 @@ class Builder(object):
 		(out, err, javac_process) = run.run(javac_command, ignore_error=True, return_error=True, return_process=True)
 		os.remove(src_list_filename)
 		if javac_process.returncode != 0:
-			key_word = ''
-			for key in java_keywords:
-				if err.find(key + '.') > 0:
-					key_word = key
-					break
-			if key_word != '':
-				warn("Do not use java keywords for project app id, such as " + key_word)
 			error("Error(s) compiling generated Java code")
 			error(str(err))
 			sys.exit(1)
