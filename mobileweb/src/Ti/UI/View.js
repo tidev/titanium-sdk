@@ -75,7 +75,7 @@ define("Ti/UI/View",
 				style: {
 					position: 'absolute',
 					zIndex: 0x7FFFFFFF, // Max (32-bit) z-index
-					border: "3px solid lightGrey",
+					border: "3px solid #555",
 					borderRadius: "3px",
 					height: "0px",
 					bottom: "0px",
@@ -84,13 +84,18 @@ define("Ti/UI/View",
 			}, this.domNode);
 		},
 		
+		_destroyHorizontalScrollBar: function() {
+			this._cancelPreviousAnimation();
+			dom.destroy(this._horizontalScrollBar);
+		},
+		
 		_createVerticalScrollBar: function() {
 			var scrollBar = this._verticalScrollBar = dom.create("div", {
 				className: "TiUIScrollBar",
 				style: {
 					position: 'absolute',
 					zIndex: 0x7FFFFFFF, // Max (32-bit) z-index
-					border: "3px solid lightGrey",
+					border: "3px solid #555",
 					borderRadius: "3px",
 					width: "0px",
 					right: "0px",
@@ -99,7 +104,24 @@ define("Ti/UI/View",
 			}, this.domNode);
 		},
 		
+		_destroyVerticalScrollBar: function() {
+			this._cancelPreviousAnimation();
+			dom.destroy(this._verticalScrollBar);
+		},
+		
+		_cancelPreviousAnimation: function() {
+			if (this._scrollingEnabled) {
+				set(this._horizontalScrollBar,"transition","");
+				set(this._verticalScrollBar,"transition","");
+				clearTimeout(this._horizontalScrollBarTimer);
+				clearTimeout(this._verticalScrollBarTimer);
+			}
+		},
+		
 		_startScrollBars: function(normalizedScrollPosition, visibleAreaRatio) {
+			
+			this._cancelPreviousAnimation();
+			this._scrollingEnabled = true;
 			
 			if (this._horizontalScrollBar) {
 				var startingX = normalizedScrollPosition.x,
@@ -109,7 +131,7 @@ define("Ti/UI/View",
 				this._horizontalScrollBarWidth = (measuredWidth - 6) * visibleAreaRatio.x;
 				this._horizontalScrollBarWidth < 10 && (this._horizontalScrollBarWidth = 10);
 				set(this._horizontalScrollBar, {
-					opacity: 1,
+					opacity: 0.5,
 					left: unitize(startingX * (measuredWidth - this._horizontalScrollBarWidth - 6)),
 					width: unitize(this._horizontalScrollBarWidth)
 				});
@@ -123,7 +145,7 @@ define("Ti/UI/View",
 				this._verticalScrollBarHeight = (measuredHeight - 6) * visibleAreaRatio.y;
 				this._verticalScrollBarHeight < 10 && (this._verticalScrollBarHeight = 10);
 				set(this._verticalScrollBar, {
-					opacity: 1,
+					opacity: 0.5,
 					top: unitize(startingY * (measuredHeight - this._verticalScrollBarHeight - 6)),
 					height: unitize(this._verticalScrollBarHeight)
 				});
@@ -149,15 +171,17 @@ define("Ti/UI/View",
 		},
 		
 		_endScrollBars: function() {
+			var self = this;
 			if (this._horizontalScrollBar) {
 				var horizontalScrollBar = this._horizontalScrollBar;
 				if (horizontalScrollBar) {
 					set(horizontalScrollBar,"transition","all 1s ease-in-out");
 					setTimeout(function(){
 						set(horizontalScrollBar,"opacity",0);
-						setTimeout(function(){
+						self._horizontalScrollBarTimer = setTimeout(function(){
+							self._scrollingEnabled = false;
 							set(horizontalScrollBar,"transition","");
-						},1000);
+						},500);
 					},0);
 				}
 			}
@@ -168,9 +192,10 @@ define("Ti/UI/View",
 					set(verticalScrollBar,"transition","all 1s ease-in-out");
 					setTimeout(function(){
 						set(verticalScrollBar,"opacity",0);
-						setTimeout(function(){
+						self._verticalScrollBarTimer = setTimeout(function(){
+							self._scrollingEnabled = false;
 							set(verticalScrollBar,"transition","");
-						},1000);
+						},500);
 					},0);
 				}
 			}
