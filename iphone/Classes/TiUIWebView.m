@@ -257,7 +257,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	return url;
 }
 
-- (void)reload:(id)args
+- (void)reload;
 {
 	if (webview == nil)
 	{
@@ -271,47 +271,34 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	[webview reload];
 }
 
-- (void)stopLoading:(id)args
+- (void)stopLoading
 {
-	if (webview!=nil)
-	{
-		[webview stopLoading];
-	}
+	[webview stopLoading];
 }
 
-- (void)goBack:(id)args
+- (void)goBack
 {
-	if (webview!=nil)
-	{
-		[webview goBack];
-	}
+	[webview goBack];
 }
 
-- (void)goForward:(id)args
+- (void)goForward
 {
-	if (webview!=nil)
-	{
-		[webview goForward];
-	}
+	[webview goForward];
 }
 
--(id)loading
+-(BOOL)isLoading
 {
-	if (webview!=nil)
-	{
-		return NUMBOOL([webview isLoading]);
-	}
-	return NUMBOOL(NO);
+	return [webview isLoading];
 }
 
--(void)canGoBack:(NSMutableArray*)arg
+-(BOOL)canGoBack
 {
-	[arg addObject:NUMBOOL([webview canGoBack])];
+	return [webview canGoBack];
 }
 
--(void)canGoForward:(NSMutableArray*)arg
+-(BOOL)canGoForward
 {
-	[arg addObject:NUMBOOL([webview canGoForward])];
+	return [webview canGoForward];
 }
 
 -(void)setBackgroundColor_:(id)color
@@ -413,10 +400,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	
 	url = [[TiUtils toURL:args proxy:(TiProxy*)self.proxy] retain];
 
-	if (webview!=nil)
-	{
-		[self stopLoading:nil];
-	}
+	[self stopLoading];
 	
 	if ([self isURLRemote])
 	{
@@ -580,35 +564,9 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	free(base64Result);
 }
 
-
-
--(void)evalJS:(NSArray*)args
+-(NSString*)stringByEvaluatingJavaScriptFromString:(NSString *)code
 {
-	NSString *code = [args objectAtIndex:0];
-	NSString* result = [[self webview] stringByEvaluatingJavaScriptFromString:code];
-	// write the result into our blob
-	if ([args count] > 1 && result!=nil)
-	{
-		TiBlob *blob = [args objectAtIndex:1];
-		[blob setData:[result dataUsingEncoding:NSUTF8StringEncoding]];
-	}
-}
-
--(void)_evalJSOnThread:(NSArray*)args
-{
-	// this happens from evalJSAndWait to put us on the main thread
-	NSString *code = [args objectAtIndex:0];
-	NSMutableString *result = [args objectAtIndex:1];
-	NSString *r = [[self webview] stringByEvaluatingJavaScriptFromString:code];
-	[result appendString:r];
-}
-
--(id)evalJSAndWait:(NSString *)code
-{
-	NSMutableString *result = [NSMutableString string];
-	NSArray *args = [NSArray arrayWithObjects:code,result,nil];
-	[self performSelectorOnMainThread:@selector(_evalJSOnThread:) withObject:args waitUntilDone:YES];
-	return result;
+	return [[self webview] stringByEvaluatingJavaScriptFromString:code];
 }
 
 // Webview appears to have an interesting quirk where the web content is always scaled/sized to just barely
@@ -745,7 +703,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 		NSDictionary *event = (NSDictionary*)obj;
 		NSString *name = [event objectForKey:@"type"];
 		NSString *js = [NSString stringWithFormat:@"Ti.App._dispatchEvent('%@',%@,%@);",name,listener,[SBJSON stringify:event]];
-		[webview performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:js waitUntilDone:NO];
+		[webview stringByEvaluatingJavaScriptFromString:js];
 	}
 }
 

@@ -87,8 +87,9 @@
 -(NSArray*)members:(id)unused
 {
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(members:) withObject:unused waitUntilDone:YES];
-		return [returnCache objectForKey:@"members"];
+		__block id result;
+		TiThreadPerformOnMainThread(^{result = [[self members:unused] retain];}, YES);
+		return [result autorelease];
 	}
 	
 	CFArrayRef arrayRef = ABGroupCopyArrayOfAllMembers([self record]);
@@ -114,8 +115,9 @@
 {
 	ENSURE_SINGLE_ARG(value,NSNumber)
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(sortedMembers:) withObject:value waitUntilDone:YES];
-		return [returnCache objectForKey:@"members"];
+		__block id result;
+		TiThreadPerformOnMainThread(^{result = [[self sortedMembers:value] retain];}, YES);
+		return [result autorelease];
 	}
 
 	int sortType = [value intValue];

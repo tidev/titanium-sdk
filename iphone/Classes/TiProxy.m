@@ -77,7 +77,7 @@ void DoProxyDelegateChangedValuesWithProxy(UIView<TiProxyDelegate> * target, NSS
 				key = [NSString stringWithFormat:@"set%@%@_", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
 			}
 			NSArray *arg = [NSArray arrayWithObjects:key,firstarg,secondarg,target,nil];
-			[proxy performSelectorOnMainThread:@selector(_dispatchWithObjectOnUIThread:) withObject:arg waitUntilDone:YES];
+			TiThreadPerformOnMainThread(^{[proxy _dispatchWithObjectOnUIThread:arg];}, YES);
 		}
 		return;
 	}
@@ -85,14 +85,7 @@ void DoProxyDelegateChangedValuesWithProxy(UIView<TiProxyDelegate> * target, NSS
 	sel = SetterForKrollProperty(key);
 	if ([target respondsToSelector:sel])
 	{
-		if ([NSThread isMainThread])
-		{
-			[target performSelector:sel withObject:newValue];
-		}
-		else
-		{
-			[target performSelectorOnMainThread:sel withObject:newValue waitUntilDone:YES modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
-		}
+		TiThreadPerformOnMainThread(^{[target performSelector:sel withObject:newValue];}, YES);
 	}
 }
 
@@ -118,7 +111,7 @@ void DoProxyDispatchToSecondaryArg(UIView<TiProxyDelegate> * target, SEL sel, NS
 			key = [NSString stringWithFormat:@"set%@%@_", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
 		}
 		NSArray *arg = [NSArray arrayWithObjects:key,firstarg,secondarg,target,nil];
-		[proxy performSelectorOnMainThread:@selector(_dispatchWithObjectOnUIThread:) withObject:arg waitUntilDone:YES];
+		TiThreadPerformOnMainThread(^{[proxy _dispatchWithObjectOnUIThread:arg];}, YES);
 	}
 }
 
@@ -153,8 +146,7 @@ void DoProxyDelegateReadKeyFromProxy(UIView<TiProxyDelegate> * target, NSString 
 	}
 	else
 	{
-		[target performSelectorOnMainThread:sel withObject:value
-				waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+		TiThreadPerformOnMainThread(^{[target performSelector:sel withObject:value];}, NO);
 	}
 }
 
@@ -1079,6 +1071,7 @@ DEFINE_EXCEPTIONS
  
 #pragma mark Dispatching Helper
 
+//TODO: Now that we have TiThreadPerform, we should optimize this out.
 -(void)_dispatchWithObjectOnUIThread:(NSArray*)args
 {
 	//NOTE: this is called by ENSURE_UI_THREAD_WITH_OBJ and will always be on UI thread when we get here

@@ -262,7 +262,7 @@ NSArray* moviePlayerKeys = nil;
 -(void)setScalingMode:(NSNumber *)value
 {
 	if (movie != nil) {
-		[self performSelectorOnMainThread:@selector(updateScalingMode:) withObject:value waitUntilDone:NO];
+		TiThreadPerformOnMainThread(^{[self updateScalingMode:value];}, NO);
 	}
 	else {
 		[loadProperties setValue:value forKey:@"scalingMode"];
@@ -493,21 +493,15 @@ NSArray* moviePlayerKeys = nil;
 	[[self player] requestThumbnailImagesAtTimes:array timeOption:[option intValue]];
 }
 
--(void)generateThumbnail:(id)args
+-(TiBlob*)thumbnailImageAtTime:(id)args
 {
 	NSNumber *time = [args objectAtIndex:0];
 	NSNumber *options = [args objectAtIndex:1];
-	TiBlob *blob = [args objectAtIndex:2];
-	UIImage *image = [[self player] thumbnailImageAtTime:[time doubleValue] timeOption:[options intValue]];
-	[blob setImage:image];
-}
-
--(TiBlob*)thumbnailImageAtTime:(id)args
-{
-	NSMutableArray *array = [NSMutableArray arrayWithArray:args];
 	TiBlob *blob = [[[TiBlob alloc] init] autorelease];
-	[array addObject:blob];
-	[self performSelectorOnMainThread:@selector(generateThumbnail:) withObject:array waitUntilDone:YES];
+	TiThreadPerformOnMainThread(^{
+		UIImage *image = [[self player] thumbnailImageAtTime:[time doubleValue] timeOption:[options intValue]];
+		[blob setImage:image];
+	}, YES);
 	return blob;
 }
 
@@ -522,7 +516,7 @@ NSArray* moviePlayerKeys = nil;
 		UIView *background = [[self player] backgroundView];
 		if (background!=nil)
 		{
-			[background performSelectorOnMainThread:@selector(setBackgroundColor:) withObject:[backgroundColor _color] waitUntilDone:NO];
+			TiThreadPerformOnMainThread(^{[background setBackgroundColor:[backgroundColor _color]];}, NO);
 			return;
 		}
 	}

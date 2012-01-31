@@ -312,10 +312,22 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	{
 		return nil;
 	}
-	NSMutableDictionary * result = [NSMutableDictionary dictionary];
-	[self performSelectorOnMainThread:@selector(getAnimatedCenterPoint:) withObject:result waitUntilDone:YES];
-
-	return result;
+	__block CGPoint result;
+	TiThreadPerformOnMainThread(^{
+		UIView * ourView = view;
+		CALayer * ourLayer = [ourView layer];
+		CALayer * animatedLayer = [ourLayer presentationLayer];
+	
+		if (animatedLayer !=nil) {
+			result = [animatedLayer position];
+		}
+		else {
+			result = [ourLayer position];
+		}
+	}, YES);
+	//TODO: Should this be a TiPoint? If so, the accessor fetcher might try to
+	//hold onto the point, which is undesired.
+	return [NSDictionary dictionaryWithObjectsAndKeys:NUMFLOAT(result.x),@"x",NUMFLOAT(result.y),@"y", nil];
 }
 
 -(void)setBackgroundGradient:(id)arg
@@ -331,7 +343,37 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	// we spin on the UI thread and have him convert and then add back to the blob
 	// if you pass a callback function, we'll run the render asynchronously, if you
 	// don't, we'll do it synchronously
-	[self performSelectorOnMainThread:@selector(addImageToBlob:) withObject:[NSArray arrayWithObjects:blob,callback,nil] waitUntilDone:callback==nil ? YES : NO];
+	TiThreadPerformOnMainThread(^{
+		[self windowWillOpen];
+		TiUIView *myview = [self view];
+		CGSize size = myview.bounds.size;
+		if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
+		{
+			CGFloat width = [self autoWidthForWidth:1000];
+			CGFloat height = [self autoHeightForWidth:width];
+			if (width > 0 && height > 0)
+			{
+				size = CGSizeMake(width, height);
+			}
+			if (CGSizeEqualToSize(size, CGSizeZero) || width==0 || height == 0)
+			{
+				size = [UIScreen mainScreen].bounds.size;
+			}
+			CGRect rect = CGRectMake(0, 0, size.width, size.height);
+			[TiUtils setView:myview positionRect:rect];
+		}
+		UIGraphicsBeginImageContext(size);
+		[myview.layer renderInContext:UIGraphicsGetCurrentContext()];
+		UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+		[blob setImage:image];
+		UIGraphicsEndImageContext();
+		if (callback != nil)
+		{
+			NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"blob"];
+			[self _fireEventToListener:@"blob" withObject:event listener:callback thisObject:nil];
+		}
+	}, (callback==nil));
+	
 	return blob;
 }
 
@@ -1142,60 +1184,6 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		[self detachView];
 	}*/
 	[super didReceiveMemoryWarning:notification];
-}
-
--(void)getAnimatedCenterPoint:(NSMutableDictionary *)resultDict
-{
-	UIView * ourView = view;
-	CALayer * ourLayer = [ourView layer];
-	CALayer * animatedLayer = [ourLayer presentationLayer];
-	
-	CGPoint result;
-	if (animatedLayer !=nil)
-	{
-		result = [animatedLayer position];
-	}
-	else
-	{
-		result = [ourLayer position];
-	}
-
-	[resultDict setObject:NUMFLOAT(result.x) forKey:@"x"];
-	[resultDict setObject:NUMFLOAT(result.y) forKey:@"y"];
-}
-
--(void)addImageToBlob:(NSArray*)args
-{
-	TiBlob *blob = [args objectAtIndex:0];
-	[self windowWillOpen];
-	TiUIView *myview = [self view];
-	CGSize size = myview.bounds.size;
-	if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
-	{
-		CGFloat width = [self autoWidthForWidth:1000];
-		CGFloat height = [self autoHeightForWidth:width];
-		if (width > 0 && height > 0)
-		{
-			size = CGSizeMake(width, height);
-		}
-		if (CGSizeEqualToSize(size, CGSizeZero) || width==0 || height == 0)
-		{
-			size = [UIScreen mainScreen].bounds.size;
-		}
-		CGRect rect = CGRectMake(0, 0, size.width, size.height);
-		[TiUtils setView:myview positionRect:rect];
-	}
-	UIGraphicsBeginImageContext(size);
-	[myview.layer renderInContext:UIGraphicsGetCurrentContext()];
-	UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-	[blob setImage:image];
-	UIGraphicsEndImageContext();
-	if ([args count] > 1)
-	{
-		KrollCallback *callback = [args objectAtIndex:1];
-		NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"blob"];
-		[self _fireEventToListener:@"blob" withObject:event listener:callback thisObject:nil];
-	}
 }
 
 -(void)animationCompleted:(TiAnimation*)animation

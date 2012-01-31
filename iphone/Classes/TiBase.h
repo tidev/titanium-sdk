@@ -532,9 +532,6 @@ extern NSString * const kTiLocalNotification;
 
 #include "TiThreading.h"
 
-void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish);
-void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish);
-
 /*
  *	TiThreadPerformOnMainThread should replace all Titanium instances of
  *	performSelectorOnMainThread, ESPECIALLY if wait is to be yes. That way,
@@ -543,6 +540,17 @@ void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish);
  */
 
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish);
+
+/*
+ *	The one mixed blessing about blocks is that they retain+autorelease the
+ *	stack variables, and inside a method, that includes self. During a dealloc,
+ *	this may be dangerous. In order to make life easier for everyone, two
+ *	convenience functions are provided. By being a function, it removes self
+ *	from being a stack variable. It also has some optimizations.
+ */
+	
+void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish);
+void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish);
 
 /*	
  *	Blocks sent to TiThreadPerformOnMainThread will be processed on the main

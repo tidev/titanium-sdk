@@ -46,9 +46,9 @@
 - (NSString*)evalJS:(id)code
 {
 	ENSURE_SINGLE_ARG(code,NSString);
-	TiBlob *result = [[[TiBlob alloc] _initWithPageContext:[self executionContext]] autorelease];
-	[[self view] performSelectorOnMainThread:@selector(evalJS:) withObject:[NSArray arrayWithObjects:code,result,nil] waitUntilDone:YES];
-	return [result text];
+	__block id result;
+	TiThreadPerformOnMainThread(^{result=[(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code];}, YES);
+	return result;
 }
 
 USE_VIEW_FOR_AUTO_HEIGHT
@@ -76,35 +76,31 @@ USE_VIEW_FOR_AUTO_WIDTH
 
 -(void)goBack:(id)args
 {
-//Todo: We should probably replace this with using USE_VIEW_FOR_UI_METHOD, but it ain't broke currently.
-	[[self view] performSelectorOnMainThread:@selector(goBack:) withObject:args waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[(TiUIWebView*)[self view] goBack];}, NO);
 }
 
 -(void)goForward:(id)args
 {
-//Todo: We should probably replace this with using USE_VIEW_FOR_UI_METHOD, but it ain't broke currently.
-	[[self view] performSelectorOnMainThread:@selector(goForward:) withObject:args waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[(TiUIWebView*)[self view] goForward];}, NO);
 }
 
 -(void)stopLoading:(id)args
 {
-//Todo: We should probably replace this with using USE_VIEW_FOR_UI_METHOD, but it ain't broke currently.
-	[[self view] performSelectorOnMainThread:@selector(stopLoading:) withObject:args waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[(TiUIWebView*)[self view] stopLoading];}, NO);
 }
 
 -(void)reload:(id)args
 {
-//Todo: We should probably replace this with using USE_VIEW_FOR_UI_METHOD, but it ain't broke currently.
-	[[self view] performSelectorOnMainThread:@selector(reload:) withObject:args waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[(TiUIWebView*)[self view] reload];}, NO);
 }
 
 -(id)canGoBack:(id)args
 {
 	if ([self viewAttached])
 	{
-		NSMutableArray *result = [NSMutableArray array];
-		[[self view] performSelectorOnMainThread:@selector(canGoBack:) withObject:result waitUntilDone:YES];
-		return [result objectAtIndex:0];
+		__block BOOL result;
+		TiThreadPerformOnMainThread(^{result = [(TiUIWebView*)[self view] canGoBack];}, YES);
+		return NUMBOOL(result);
 	}
 	return NUMBOOL(NO);
 }
@@ -113,16 +109,16 @@ USE_VIEW_FOR_AUTO_WIDTH
 {
 	if ([self viewAttached])
 	{
-		NSMutableArray *result = [NSMutableArray array];
-		[[self view] performSelectorOnMainThread:@selector(canGoForward:) withObject:result waitUntilDone:YES];
-		return [result objectAtIndex:0];
+		__block BOOL result;
+		TiThreadPerformOnMainThread(^{result = [(TiUIWebView*)[self view] canGoForward];}, YES);
+		return NUMBOOL(result);
 	}
 	return NUMBOOL(NO);
 }
 
 -(void)setBasicAuthentication:(NSArray*)args
 {
-	[[self view] performSelectorOnMainThread:@selector(setBasicAuthentication:) withObject:args waitUntilDone:NO];
+	[self makeViewPerformSelector:@selector(setBasicAuthentication:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
 -(void)repaint:(id)unused
@@ -175,17 +171,21 @@ USE_VIEW_FOR_AUTO_WIDTH
 
 - (void)evalFile:(NSString*)file
 {
-	[[self view] performSelectorOnMainThread:@selector(evalFile:) withObject:file waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[(TiUIWebView*)[self view] evalFile:file];}, NO);
 }
 
 - (id)evalJSAndWait:(NSString*)code
 {
-	return [(TiUIWebView*)[self view] evalJSAndWait:code];
+	__block id result;
+	TiThreadPerformOnMainThread(^{result=[(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code];}, YES);
+	return result;
 }
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_
 {
-	[(TiUIWebView*)[self view] fireEvent:listener withObject:obj remove:yn thisObject:thisObject_];
+	TiThreadPerformOnMainThread(^{
+		[(TiUIWebView*)[self view] fireEvent:listener withObject:obj remove:yn thisObject:thisObject_];
+	}, NO);
 }
 
 - (id)preloadForKey:(id)key name:(id)name

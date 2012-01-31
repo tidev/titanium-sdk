@@ -286,12 +286,12 @@ NSArray * tableKeySequence;
 
 -(void)selectRow:(id)args
 {
-	[[self view] performSelectorOnMainThread:@selector(selectRow:) withObject:args waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[(TiUITableView*)[self view] selectRow:args];}, NO);
 }
 
 -(void)deselectRow:(id)args
 {
-	[[self view] performSelectorOnMainThread:@selector(deselectRow:) withObject:args waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[(TiUITableView*)[self view] deselectRow:args];}, NO);
 }
 
 -(void)scrollToIndex:(id)args

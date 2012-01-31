@@ -234,59 +234,6 @@ DEFINE_EXCEPTIONS
 	return newImage;
 }
 
--(void)setImageOnUIThread:(NSArray*)args
-{
-	UIImage *theimage = [self scaleImageIfRequired:[args objectAtIndex:0]];
-	NSNumber *pos = [args objectAtIndex:1];
-	int position = [TiUtils intValue:pos];
-	
-	UIView *view = [[container subviews] objectAtIndex:position];
-	UIImageView *newImageView = [[UIImageView alloc] initWithImage:theimage];
-	
-	// remove the spinner now that we've loaded our image
-	UIView *spinner = [[view subviews] count] > 0 ? [[view subviews] objectAtIndex:0] : nil;
-	if (spinner!=nil && [spinner isKindOfClass:[UIActivityIndicatorView class]])
-	{
-		[spinner removeFromSuperview];
-	}
-	
-	[view addSubview:newImageView];
-	[newImageView release];
-	view.hidden = YES;
-	
-#if IMAGEVIEW_DEBUG	== 1
-	UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 50, 20)];
-	label.text = [NSString stringWithFormat:@"%d",position];
-	label.font = [UIFont boldSystemFontOfSize:28];
-	label.textColor = [UIColor redColor];
-	label.backgroundColor = [UIColor clearColor];
-	[view addSubview:label];
-	[view bringSubviewToFront:label];
-	[label release];
-#endif	
-	
-	loadCount++;
-	if (loadCount==loadTotal)
-	{
-		[self fireLoadEventWithState:@"images"];
-	}
-	
-	if (ready)
-	{
-		//NOTE: for now i'm just making sure you have at least one frame loaded before starting the timer
-		//but in the future we may want to be more sophisticated
-		int min = 1;  
-		readyCount++;
-		if (readyCount >= min)
-		{
-			readyCount = 0;
-			ready = NO;
-			
-			[self startTimer];
-		}
-	}
-}
-
 -(void)animationCompleted:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context
 {
 	for (UIView *view in [self subviews])
@@ -365,7 +312,9 @@ DEFINE_EXCEPTIONS
 	autoWidth = fullSize.width;
 	
 	image = [self scaleImageIfRequired:image];
-	[self performSelectorOnMainThread:@selector(setURLImageOnUIThread:) withObject:image waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+	TiThreadPerformOnMainThread(^{
+		[self setURLImageOnUIThread:image];
+	}, NO);
 }
 
 -(void)loadImageInBackground:(NSNumber*)pos
@@ -377,16 +326,61 @@ DEFINE_EXCEPTIONS
 	{
 		theimage = [[ImageLoader sharedLoader] loadRemote:theurl];
 	}
-	if (theimage!=nil)
-	{
-		[self performSelectorOnMainThread:@selector(setImageOnUIThread:)
-				withObject:[NSArray arrayWithObjects:theimage,pos,nil]
-				waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
-	}
-	else 
+	if (theimage==nil)
 	{
 		NSLog(@"[ERROR] couldn't load imageview image: %@ at position: %d",theurl,position);
+		return;
 	}
+
+	theimage = [self scaleImageIfRequired:theimage];
+
+	TiThreadPerformOnMainThread(^{
+		UIView *view = [[container subviews] objectAtIndex:position];
+		UIImageView *newImageView = [[UIImageView alloc] initWithImage:theimage];
+		
+		// remove the spinner now that we've loaded our image
+		UIView *spinner = [[view subviews] count] > 0 ? [[view subviews] objectAtIndex:0] : nil;
+		if (spinner!=nil && [spinner isKindOfClass:[UIActivityIndicatorView class]])
+		{
+			[spinner removeFromSuperview];
+		}
+		
+		[view addSubview:newImageView];
+		[newImageView release];
+		view.hidden = YES;
+		
+#if IMAGEVIEW_DEBUG	== 1
+		UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 50, 20)];
+		label.text = [NSString stringWithFormat:@"%d",position];
+		label.font = [UIFont boldSystemFontOfSize:28];
+		label.textColor = [UIColor redColor];
+		label.backgroundColor = [UIColor clearColor];
+		[view addSubview:label];
+		[view bringSubviewToFront:label];
+		[label release];
+#endif	
+		
+		loadCount++;
+		if (loadCount==loadTotal)
+		{
+			[self fireLoadEventWithState:@"images"];
+		}
+		
+		if (ready)
+		{
+			//NOTE: for now i'm just making sure you have at least one frame loaded before starting the timer
+			//but in the future we may want to be more sophisticated
+			int min = 1;  
+			readyCount++;
+			if (readyCount >= min)
+			{
+				readyCount = 0;
+				ready = NO;
+				
+				[self startTimer];
+			}
+		}
+	}, NO);		
 }
 
 -(void)removeAllImagesFromContainer
@@ -791,7 +785,9 @@ DEFINE_EXCEPTIONS
 	{
 		image = [self scaleImageIfRequired:image];
 	}
-	[self performSelectorOnMainThread:@selector(setURLImageOnUIThread:) withObject:image waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+	TiThreadPerformOnMainThread(^{
+		[self setURLImageOnUIThread:image];
+	}, NO);
 }
 
 -(void)imageLoadFailed:(ImageLoaderRequest*)request error:(NSError*)error

@@ -145,14 +145,13 @@
 	[self forgetProxy:doomedView];
 	[viewProxies removeObject:doomedView];
 	[self unlockViews];	
-
-	[[self view] performSelectorOnMainThread:@selector(removeView:) withObject:args waitUntilDone:NO];
+	[self makeViewPerformSelector:@selector(removeView:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
 -(void)scrollToView:(id)args
 {	//TODO: Refactor this properly.
 	ENSURE_SINGLE_ARG(args,NSObject);
-	[[self view] performSelectorOnMainThread:@selector(scrollToView:) withObject:args waitUntilDone:NO];
+	[self makeViewPerformSelector:@selector(scrollToView:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
 -(void)childWillResize:(TiViewProxy *)child

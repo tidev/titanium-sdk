@@ -312,10 +312,7 @@
 	
 	[backgroundColor release];
 	backgroundColor = [newColor retain];
-	
-	[self performSelectorOnMainThread:@selector(updateBackground) withObject:nil
-						waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
-	//The runloopcommonmodes ensures that it'll happen even during tracking.
+	TiThreadPerformOnMainThread(^{[self updateBackground];}, NO);
 }
 
 -(void)setBackgroundImage:(UIImage *)newImage
@@ -327,10 +324,7 @@
 	
 	[backgroundImage release];
 	backgroundImage = [newImage retain];
-	
-	[self performSelectorOnMainThread:@selector(updateBackground) withObject:nil
-						waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
-	//The runloopcommonmodes ensures that it'll happen even during tracking.
+	TiThreadPerformOnMainThread(^{[self updateBackground];}, NO);
 }
 
 -(void)updateBackground

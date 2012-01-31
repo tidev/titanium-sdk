@@ -734,7 +734,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:self 
 																		 animation:nil 
 																			  type:TiUITableViewActionRowReload] autorelease];
-		[self performSelectorOnMainThread:@selector(updateRow:) withObject:action waitUntilDone:NO];
+		TiThreadPerformOnMainThread(^{[self updateRow:action];}, NO);
 	}
 }
 
@@ -839,18 +839,14 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 {
 	TiGradient * newGradient = [TiGradient gradientFromObject:arg proxy:self];
 	[self replaceValue:newGradient forKey:@"backgroundGradient" notification:NO];
-	
-	[callbackCell performSelectorOnMainThread:@selector(setBackgroundGradient_:)
-			withObject:newGradient waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[callbackCell setBackgroundGradient_:newGradient];}, NO);
 }
 
 -(void)setSelectedBackgroundGradient:(id)arg
 {
 	TiGradient * newGradient = [TiGradient gradientFromObject:arg proxy:self];
 	[self replaceValue:newGradient forKey:@"selectedBackgroundGradient" notification:NO];
-	
-	[callbackCell performSelectorOnMainThread:@selector(setSelectedBackgroundGradient_:)
-			withObject:newGradient waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[callbackCell setSelectedBackgroundGradient_:newGradient];}, NO);
 }
 
 

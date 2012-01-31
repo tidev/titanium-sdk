@@ -299,9 +299,9 @@ static NSDictionary* multiValueLabels;
 -(id)valueForUndefinedKey:(NSString *)key
 {
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(valueForUndefinedKey:) withObject:key waitUntilDone:YES];
-        id result = [returnCache objectForKey:key];
-		return ([result isKindOfClass:[NSNull class]] ? nil : result);
+		__block id result;
+		TiThreadPerformOnMainThread(^{result = [[self valueForUndefinedKey:key] retain];}, YES);
+		return [result autorelease];
 	}
 	
 	id property = nil;
@@ -344,11 +344,13 @@ static NSDictionary* multiValueLabels;
 	}
 }
 
--(void)setValueImpl:(NSArray*)pair
+-(void)setValue:(id)value forUndefinedKey:(NSString*)key
 {
-	id value = [pair objectAtIndex:0];
-	NSString* key = [pair objectAtIndex:1];
-	
+	if (![NSThread isMainThread]) {
+		TiThreadPerformOnMainThread(^{[self setValue:value forUndefinedKey:key];}, YES);
+		return;
+	}
+
 	id property = nil;
 	// Single-value property
 	if (property = [[TiContactsPerson contactProperties] valueForKey:key]) {
@@ -386,15 +388,6 @@ static NSDictionary* multiValueLabels;
 	else {
 		[super setValue:value forUndefinedKey:key];
 	}
-}
-
--(void)setValue:(id)value forUndefinedKey:(NSString*)key
-{
-	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(setValueImpl:) withObject:[NSArray arrayWithObjects:value,key,nil] waitUntilDone:YES];
-		return;
-	}
-	[self setValueImpl:[NSArray arrayWithObjects:value,key,nil]];
 }
 
 @end

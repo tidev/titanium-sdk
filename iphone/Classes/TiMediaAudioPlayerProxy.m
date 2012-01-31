@@ -182,7 +182,7 @@ PLAYER_PROP_DOUBLE(state,state);
 -(void)setUrl:(id)args
 {
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(setUrl:) withObject:args waitUntilDone:YES];
+		TiThreadPerformOnMainThread(^{[self setUrl:args];}, YES);
 		return;
 	}
 	RELEASE_TO_NIL(url);
@@ -204,7 +204,7 @@ PLAYER_PROP_DOUBLE(state,state);
 -(void)start:(id)args
 {
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(start:) withObject:args waitUntilDone:YES];
+		TiThreadPerformOnMainThread(^{[self start:args];}, YES);
 		return;
 	}
 	// indicate we're going to start playing
@@ -223,7 +223,7 @@ PLAYER_PROP_DOUBLE(state,state);
 -(void)stop:(id)args
 {
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(stop:) withObject:args waitUntilDone:YES];
+		TiThreadPerformOnMainThread(^{[self stop:args];}, YES);
 		return;
 	}
 	if (player!=nil)
@@ -239,7 +239,7 @@ PLAYER_PROP_DOUBLE(state,state);
 -(void)pause:(id)args
 {
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(pause:) withObject:args waitUntilDone:YES];
+		TiThreadPerformOnMainThread(^{[self pause:args];}, YES);
 		return;
 	}
 	if (player!=nil)
