@@ -241,6 +241,7 @@
 {
 	if (self = [super init])
 	{
+        animateHide = YES;
 		filterCaseInsensitive = YES; // defaults to true on search
 		searchString = @"";
 	}
@@ -719,7 +720,7 @@
         }
 	}
 
-	if ([searchController searchResultsTableView] != nil) {
+	if ([searchController isActive]) {
 		[self updateSearchResultIndexes];
         
 		// Because -[UITableView reloadData] queues on the main runloop, we need to sync the search
@@ -732,12 +733,11 @@
 			[[searchController searchResultsTableView] reloadSections:[NSIndexSet indexSetWithIndex:0]
                                                      withRowAnimation:UITableViewRowAnimationFade];
 		}
-		//On data reload if the search screen is inactive,
-		//make sure that the searchHidden flag is honored
-		if (![searchController isActive] && searchHidden) {
-			[self hideSearchScreen:nil];
-		}
 	}
+    else if (searchHidden) {
+        animateHide = NO;
+        [self hideSearchScreen:nil];
+    }
 }
 
 -(UIView*)titleViewForText:(NSString*)text footer:(BOOL)footer
@@ -974,6 +974,7 @@
 	{
 		if (searchField!=nil && searchHiddenSet)
 		{
+            animateHide = NO;
 			[self performSelector:@selector(hideSearchScreen:) withObject:nil];
 		}
 	}
@@ -1051,7 +1052,7 @@
 
 #pragma mark Searchbar-related IBActions
 
-- (IBAction) hideSearchScreen: (id) sender
+-(void)hideSearchScreen:(id)sender
 {
 	// check to make sure we're not in the middle of a layout, in which case we 
 	// want to try later or we'll get weird drawing animation issues
@@ -1066,14 +1067,28 @@
         [self makeRootViewFirstResponder];
     }
     
-    //searchHidden = YES;
 	[self.proxy replaceValue:NUMBOOL(YES) forKey:@"searchHidden" notification:NO];
 	[searchController setActive:NO animated:[searchController isActive]];
 
     if (searchHidden) {
-        [tableview setContentOffset:CGPointMake(0,MAX(TI_NAVBAR_HEIGHT,searchField.view.frame.size.height)) animated:YES];
+        NSUInteger visibleCount = [[tableview indexPathsForVisibleRows] count];
+        
+        // Try to avoid multiple redraws of the search bar, by checking to see if
+        // we're in the middle of an animation via the current content offset.
+        
+        CGPoint offset = CGPointMake(0,MAX(TI_NAVBAR_HEIGHT, searchField.view.frame.size.height));
+        if ([tableview contentOffset].y < offset.y) {
+            [tableview setContentOffset:offset animated:animateHide];
+        }
+        
+        // Only perform a reload if the visible rows changed.
+        NSArray* visibleRows = [tableview indexPathsForVisibleRows];
+        if ([visibleRows count] != visibleCount) {
+            [tableview reloadRowsAtIndexPaths:visibleRows withRowAnimation:UITableViewRowAnimationNone];
+        }
     }
-	[tableview reloadRowsAtIndexPaths:[tableview indexPathsForVisibleRows] withRowAnimation:UITableViewRowAnimationNone];
+
+    animateHide = YES;
 }
 
 -(void)scrollToTop:(NSInteger)top animated:(BOOL)animated
@@ -1343,6 +1358,7 @@
 -(void)setSearchHidden_:(id)hide
 {
 	searchHiddenSet = YES;
+    [self.proxy replaceValue:hide forKey:@"searchHidden" notification:NO];
 	
 	if ([TiUtils boolValue:hide])
 	{
@@ -2042,7 +2058,6 @@ if(ourTableView != tableview)	\
 		}
 	}
 }
-
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView 
 {

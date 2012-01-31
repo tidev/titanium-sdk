@@ -45,6 +45,8 @@
 	BOOL moving;
 	BOOL editing;
 	BOOL searchHidden;
+    BOOL animateHide;
+    BOOL isHiding;
 	BOOL editable;
 	BOOL moveable;
 	BOOL initiallyDisplayed;
