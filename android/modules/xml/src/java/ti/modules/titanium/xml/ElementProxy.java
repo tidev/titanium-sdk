@@ -160,22 +160,61 @@ public class ElementProxy extends NodeProxy {
 	public AttrProxy setAttributeNode(AttrProxy newAttr)
 		throws DOMException
 	{
+		// The node name of newAttr
+		String newAttrName = newAttr.getNodeName();
+		
+		// The existed attribute with the node name of newAttr in this element.
+		// If there is no existed attribute, it's set as null.
+		AttrProxy existedAttr = this.getAttributeNode(newAttrName);
+		
+		// Per spec, replacing an attribute node by itself has no effect.
+		if (existedAttr != null && existedAttr.getAttr() == newAttr.getAttr()) {
+			return null;
+		}
+		
 		// Per spec, setAttributeNode returns null if an attribute
 		// with the same name did NOT already exist.  If it did, it
 		// returns the replaced attribute.
-		Attr replacedAttr = element.setAttributeNode(newAttr.getAttr());
-		if (replacedAttr != null) {
-			return getProxy(replacedAttr);
-		} else {
-			return null;
+		
+		// A workaround for a harmony bug, TIMOB-6534.
+		// First, remove the already existed attribute if there is one, 
+		// so that it's no longer attached to this element.
+		// Then, call the native setAttributeNode function so it will raise 
+		// DOMEexception if there is anything wrong with newAttr.
+		// Finally, return the existed attribute which we removed.
+		if (existedAttr != null) {
+			this.removeAttributeNode(existedAttr);
 		}
+		
+		element.setAttributeNode(newAttr.getAttr());
+		
+		return existedAttr;
 	}
 
 	@Kroll.method
 	public AttrProxy setAttributeNodeNS(AttrProxy newAttr)
 		throws DOMException
 	{
-		return getProxy(element.setAttributeNodeNS(newAttr.getAttr()));
+		String newAttrName = newAttr.getNodeName();
+		AttrProxy existedAttr = this.getAttributeNode(newAttrName);
+		
+		// Per spec, replacing an attribute node by itself has no effect.
+		if (existedAttr != null && existedAttr.getAttr() == newAttr.getAttr()) {
+			return null;
+		}
+		
+		// Per spec, setAttributeNode returns null if an attribute
+		// with the same name did NOT already exist.  If it did, it
+		// returns the replaced attribute.
+		
+		// A workaround for a harmony bug, TIMOB-6534.
+		if (existedAttr != null) {
+			this.removeAttributeNode(existedAttr);
+		}
+				
+		element.setAttributeNodeNS(newAttr.getAttr());
+		
+		return existedAttr;
 	}
 
 	@Kroll.method
