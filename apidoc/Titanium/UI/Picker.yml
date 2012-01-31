@@ -77,7 +77,10 @@ methods:
     description: See "Date Picker using showDatePickerDialog()" for an example.
     parameters:
       - name: dictObj
-        summary: Dictionary object of `Titanium.UI.Picker` properties and a `callback` property.
+        summary: |
+            Dictionary object with a subset of `Titanium.UI.Picker` properties 
+            and a callback defined. Acceptable object properties are 
+            `callback`, `format24`, `okButtonTitle`, `title` and `value`.
         type: Object
     platforms: [android]
 
@@ -86,7 +89,10 @@ methods:
     description: See "Date Picker using showDatePickerDialog()" for a similar example.
     parameters:
       - name: dictObj
-        summary: Dictionary object of `Titanium.UI.Picker` properties and a `callback` property.
+        summary: |
+            Dictionary object with a subset of `Titanium.UI.Picker` properties 
+            and a callback defined. Acceptable object properties are 
+            `callback`, `format24`, `okButtonTitle`, `title` and `value`.
         type: Object
     platforms: [android]
 
@@ -135,7 +141,7 @@ properties:
     
   - name: countDownDuration
     summary: Duration in milliseconds used for a Countdown Timer picker.
-    desription: |
+    description: |
         Applicable to <Titanium.UI.PICKER_TYPE_COUNT_DOWN_TIMER> picker types.
     type: Number
     platforms: [iphone, ipad]
@@ -143,7 +149,7 @@ properties:
   - name: format24
     summary: |
         Determines whether the Time pickers display in 24-hour or 12-hour clock format.
-    desription: |
+    description: |
         Applicable to <Titanium.UI.PICKER_TYPE_TIME> and <Titanium.UI.PICKER_TYPE_DATE_AND_TIME> 
         picker types.
         
@@ -156,6 +162,9 @@ properties:
         For a spinner picker (when `useSpinner` is `true`), this defaults to `true` (24-hour format.)  
         For a native picker (when `useSpinner` is either un-set or `false`), this defaults to `false` 
         (12-hour format.)
+        
+        The value of this property may be modified even after a picker is rendered and the UI will be 
+        updated accordingly.
     type: Boolean
     default: true (Android native spinner enabled), false (otherwise)
     platforms: [android]
