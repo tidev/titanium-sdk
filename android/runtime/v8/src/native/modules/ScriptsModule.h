@@ -17,29 +17,25 @@ class ScriptsModule
 public:
 	static void Initialize(v8::Handle<v8::Object> target);
 	static void Dispose();
-
-	static v8::Handle<v8::Object> WrapContext(v8::Persistent<v8::Context> context);
 };
 
 class WrappedContext: NativeObject
 {
 public:
+	WrappedContext(v8::Persistent<v8::Context> context);
+
 	static void Initialize(v8::Handle<v8::Object> target);
-	static v8::Handle<v8::Value> New(const v8::Arguments& args);
+
+	// Unwrap a context from the given global proxy object.
+	static WrappedContext* Unwrap(v8::Handle<v8::Object> global);
 
 	v8::Persistent<v8::Context> GetV8Context();
 	v8::Persistent<v8::Function> GetInitCallback();
 	void SetInitCallback(v8::Persistent<v8::Function> initCallback);
 
-	static v8::Local<v8::Object> NewInstance();
-	static v8::Handle<v8::Object> WrapContext(v8::Persistent<v8::Context> context);
-
-	static v8::Persistent<v8::FunctionTemplate> constructor_template;
+	static v8::Persistent<v8::ObjectTemplate> global_template;
 
 protected:
-
-	WrappedContext();
-	WrappedContext(v8::Persistent<v8::Context> context);
 	virtual ~WrappedContext();
 
 	v8::Persistent<v8::Context> context_;
