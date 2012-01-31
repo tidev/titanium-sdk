@@ -241,7 +241,6 @@
 {
 	if (self = [super init])
 	{
-        animateHide = YES;
 		filterCaseInsensitive = YES; // defaults to true on search
 		searchString = @"";
 	}
@@ -735,7 +734,6 @@
 		}
 	}
     else if (searchHidden) {
-        animateHide = NO;
         [self hideSearchScreen:nil];
     }
 }
@@ -847,6 +845,7 @@
 	[eventObject setObject:[TiUtils pointToDictionary:globalPoint] forKey:@"globalPoint"];
 	
 	if (viaSearch) {
+        animateHide = YES;
 		[self hideSearchScreen:nil];
 	}
     
@@ -972,9 +971,8 @@
 {
 	if (searchHidden)
 	{
-		if (searchField!=nil && searchHiddenSet)
+		if (searchField!=nil)
 		{
-            animateHide = NO;
 			[self performSelector:@selector(hideSearchScreen:) withObject:nil];
 		}
 	}
@@ -1067,7 +1065,6 @@
         [self makeRootViewFirstResponder];
     }
     
-	[self.proxy replaceValue:NUMBOOL(YES) forKey:@"searchHidden" notification:NO];
 	[searchController setActive:NO animated:[searchController isActive]];
 
     if (searchHidden) {
@@ -1179,6 +1176,7 @@
 {
 	// called when cancel button pressed
 	[searchBar setText:nil];
+    animateHide = YES;
 	[self hideSearchScreen:nil];
 }
 
@@ -1317,23 +1315,17 @@
 		
 		[self updateSearchView];
 
-		if (searchHiddenSet==NO)
-		{
-			return;
-		}
-		
 		if (searchHidden)
 		{
+            // This seems like inconsistent behavior, as much of our 'search hide' logic works out to
+            
+            animateHide = YES;
 			[self hideSearchScreen:nil];
 			return;
 		}
-		searchHidden = NO;
-		[self.proxy replaceValue:NUMBOOL(NO) forKey:@"searchHidden" notification:NO];
 	}
 	else 
 	{
-		searchHidden = YES;
-		[self.proxy replaceValue:NUMBOOL(NO) forKey:@"searchHidden" notification:NO];
 		[self updateSearchView];
 	}
 }
@@ -1343,28 +1335,14 @@
 	[[self tableView] setShowsVerticalScrollIndicator:[TiUtils boolValue:value]];
 }
 
--(void)configurationSet
-{
-	[super configurationSet];
-	
-	if ([self.proxy valueForUndefinedKey:@"searchHidden"]==nil && 
-		[self.proxy valueForUndefinedKey:@"search"]==nil)
-	{
-		searchHidden = YES;
-		[self.proxy replaceValue:NUMBOOL(YES) forKey:@"searchHidden" notification:NO];
-	}
-}
-
 -(void)setSearchHidden_:(id)hide
 {
-	searchHiddenSet = YES;
-    [self.proxy replaceValue:hide forKey:@"searchHidden" notification:NO];
-	
 	if ([TiUtils boolValue:hide])
 	{
 		searchHidden=YES;
 		if (searchField)
 		{
+            animateHide = YES;
 			[self hideSearchScreen:nil];
 		}
 	}
@@ -2103,6 +2081,7 @@ if(ourTableView != tableview)	\
 
 - (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
 {
+    animateHide = YES;
 	[self hideSearchScreen:nil];
 }
 

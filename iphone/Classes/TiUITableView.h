@@ -67,7 +67,6 @@
 	id	lastFocusedView; //DOES NOT RETAIN.	
 	UITableViewController *tableController;
 	UISearchDisplayController *searchController;
-	BOOL searchHiddenSet;
 	NSInteger frameChanges;
 }
 
