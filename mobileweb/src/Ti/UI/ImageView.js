@@ -41,8 +41,8 @@ define("Ti/UI/ImageView",
 			console.debug('Method "Titanium.UI.ImageView#.toBlob" is not implemented yet.');
 		},
 		
-		doLayout: function() {
-			Widget.prototype.doLayout.apply(this,arguments);
+		_doLayout: function() {
+			Widget.prototype._doLayout.apply(this,arguments);
 			if (this.canScale) {
 				var controlRatio = this._measuredWidth / this._measuredHeight,
 					imageRatio = this._getContentWidth() / this._getContentHeight();
@@ -79,7 +79,7 @@ define("Ti/UI/ImageView",
 			canScale: {
 				set: function(value, oldValue){
 					if (value !== oldValue) {
-						Ti.UI._doFullLayout();
+						this._hasAutoDimensions() && this._triggerLayout();
 					}
 					return value;
 				},
@@ -95,7 +95,7 @@ define("Ti/UI/ImageView",
 						this.imageDisplay.src = value;
 						
 						// Force a layout to take the image size into account
-						Ti.UI._doFullLayout();
+						this._hasAutoDimensions() && this._triggerLayout();
 					}));
 					tempImage.src = value;
 					return value;

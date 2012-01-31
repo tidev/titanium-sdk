@@ -112,6 +112,17 @@ description:  |
     window has been opened.
 extends: Titanium.Module
 since: "0.4"
+methods:
+  - name: create2DMatrix
+    summary: Creates are returns an instance of <Titanium.UI.2DMatrix>.
+    parameters:
+      - name: parameters
+        summary: |
+            A dictionary object specifying the initial transformation of the object.
+        type: MatrixCreationDict
+        optional: true
+    returns:
+        type: Titanium.UI.2DMatrix
 properties:
   - name: ANIMATION_CURVE_EASE_IN
     summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
@@ -649,12 +660,10 @@ properties:
     permission: read-only
   - name: UNKNOWN
     summary: Orientation constant representing an unknown orientation.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: UPSIDE_PORTRAIT
     summary: Orientation constant for inverted portait orientation.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: backgroundColor
@@ -662,7 +671,6 @@ properties:
     description: |
         The default background color may also show through if you use semi-transparent 
         windows.
-    platforms: [android, iphone, ipad]
     type: String
     permission: read-only
   - name: backgroundImage
@@ -670,7 +678,6 @@ properties:
     description: |
         The default background image may also show through if you use semi-transparent 
         windows.
-    platforms: [android, iphone, ipad]
     type: String
   - name: currentTab
     summary: The currently active tab, if a tab group is open.
@@ -679,7 +686,6 @@ properties:
     type: Titanium.UI.Tab
   - name: currentWindow
     summary: The active window associated with the executing JavaScript context.
-    platforms: [android, iphone, ipad]
     type: Titanium.UI.Window
     permission: read-only
   - name: orientation

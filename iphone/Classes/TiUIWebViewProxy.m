@@ -94,6 +94,13 @@ USE_VIEW_FOR_AUTO_WIDTH
 	TiThreadPerformOnMainThread(^{[(TiUIWebView*)[self view] reload];}, NO);
 }
 
+-(void)setHtml:(NSString*)content withObject:(id)property
+{
+    TiThreadPerformOnMainThread(^{
+        [(TiUIWebView *)[self view] setHtml_:content withObject:property];
+    }, YES);
+}
+
 -(id)canGoBack:(id)args
 {
 	if ([self viewAttached])

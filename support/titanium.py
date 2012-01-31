@@ -49,6 +49,8 @@ def detect_platforms(dir):
 		platforms.append('iphone')
 	if os.path.exists(os.path.join(dir,'android')):
 		platforms.append('android')
+	if os.path.exists(os.path.join(dir,'mobileweb')):
+		platforms.append('mobileweb')
 	return platforms
 	
 def check_valid_project(dir,cwd):
@@ -150,11 +152,30 @@ def create_android_module(project_dir, osname, args):
 	else:
 		die("Aborting")
 
+def create_mobileweb_project(project_dir, osname, args):
+	script = os.path.join(template_dir, 'project.py')
+	name = get_required(args, 'name')
+	validate_project_name(name)
+	appid = get_required(args, 'id')
+	android_sdk = get_android_sdk(args)
+	args = [script, name, appid, project_dir, osname]
+	retcode = fork(args, True)
+	if retcode == 0:
+		print "Created %s application project" % osname
+		return os.path.join(project_dir, name)
+	else:
+		die("Aborting")
+
+def create_mobileweb_module(project_dir, osname, args):
+	die("Mobile Web modules are not supported yet")
+
 def create_mobile_project(osname, project_dir, args):
 	if is_ios(osname):
 		return create_iphone_project(project_dir, osname, args)
 	elif osname == 'android':
 		return create_android_project(project_dir, osname, args)
+	elif osname == 'mobileweb':
+		return create_mobileweb_project(project_dir, osname, args)
 	else:
 		die("Unknown platform: %s" % osname)
 
@@ -163,6 +184,8 @@ def create_module_project(osname, project_dir, args):
 		return create_iphone_module(project_dir, osname, args)
 	elif osname == 'android':
 		return create_android_module(project_dir, osname, args)
+	elif osname == 'mobileweb':
+		return create_mobileweb_module(project_dir, osname, args)
 	else:
 		die("Unknown platform: %s" % osname)
 
@@ -377,7 +400,7 @@ def help(args=[],suppress_banner=False):
 		if cmd == 'create':
 			print "Usage: %s create [--platform=p] [--type=t] [--dir=d] [--name=n] [--id=i] [--ver=v]" % os.path.basename(sys.argv[0])
 			print 
-			print "  --platform=p1,p2    	platform: iphone, ipad, android, blackberry, etc."
+			print "  --platform=p1,p2    	platform: iphone, ipad, android, mobileweb, blackberry, etc."
 			print "  --type=t            	type of project: project, module, plugin"
 			print "  --dir=d             	directory to create the new project"
 			print "  --name=n            	project name"
