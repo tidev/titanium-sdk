@@ -80,40 +80,56 @@ properties:
 examples:
   - title: Simple menu create
     example: |
+        Create an Android menu that displays a menu item named "Item 1", which logs a debug message 
+        when clicked.
         
-            activity.onCreateOptionsMenu = function(e) {
-                var menu = e.menu;
-                var menuItem = menu.add({ title: "Item 1" });
-                menuItem.setIcon("item1.png");
-                menuItem.addEventListener("click", function(e) {
-                    Ti.API.debug("I was clicked");
-                });
+            var win = Ti.UI.createWindow({
+              fullscreen: true
+            });
+
+            var activity = win.activity;
+
+            activity.onCreateOptionsMenu = function(e){
+              var menu = e.menu;
+              var menuItem = menu.add({ title: "Item 1" });
+              menuItem.setIcon("item1.png");
+              menuItem.addEventListener("click", function(e) {
+                Ti.API.debug("I was clicked");
+              });
             };
+
+            win.open();
     
   - title: Dynamic menu create
     example: |
+        Create an Android menu that displays a menu item named "Login" or "Logout", depending on the 
+        value of a `loggedIn` Boolean variable. Click on the item to toggle the variable's value.
         
-            var win = Ti.UI.createWindow({ fullscreen: true });
-            
+            var win = Ti.UI.createWindow({
+              fullscreen: true
+            });
             var LOGIN = 1, LOGOUT = 2;
             var loggedIn = false;
-            activity.onCreateOptionsMenu = function(e) {
-                var menu = e.menu;
-                var login = menu.add({ title: "Login", itemId: LOGIN });
-                login.setIcon("login.png");
-                login.addEventListener("click", function(e) {
-                    loggedIn = true;
-                });
-                var logout = menu.add({ title: "Logout", itemId: LOGOUT });
-                logout.setIcon("logout.png");
-                logout.addEventListener("click", function(e) {
-                    loggedIn = false;
-                });
+
+            var activity = win.activity;
+
+            activity.onCreateOptionsMenu = function(e){
+              var menu = e.menu;
+              var login = menu.add({ title: "Login", itemId: LOGIN });
+              login.setIcon("login.png");
+              login.addEventListener("click", function(e) {
+                loggedIn = true;
+              });
+              var logout = menu.add({ title: "Logout", itemId: LOGOUT });
+              logout.setIcon("logout.png");
+              logout.addEventListener("click", function(e) {
+                loggedIn = false;
+              });
             };
-            
+
             activity.onPrepareOptionsMenu = function(e) {
-                var menu = e.menu;
-                menu.findItem(LOGIN).setVisible(!loggedIn);
-                menu.findItem(LOGOUT).setVisible(loggedIn);
+              var menu = e.menu;
+              menu.findItem(LOGIN).setVisible(!loggedIn);
+              menu.findItem(LOGOUT).setVisible(loggedIn);
             };
             win.open();
