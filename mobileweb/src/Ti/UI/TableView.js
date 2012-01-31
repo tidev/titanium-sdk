@@ -29,16 +29,21 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 			
 			this._createVerticalScrollBar();
 			
+			var self = this;
+			function getContentHeight() {
+				return self._header._measuredHeight + self._sections._measuredHeight + self._footer._measuredHeight;
+			}
+			
 			// Handle scrolling
 			var previousTouchLocation;
 			this.addEventListener("touchstart",function(e) {
 				previousTouchLocation = e.y;
 				
 				this._startScrollBars({
-					y: contentContainer.domNode.scrollTop / (this._header._measuredHeight + this._sections._measuredHeight + this._footer._measuredHeight - this._measuredHeight),
+					y: contentContainer.domNode.scrollTop / (getContentHeight() - this._measuredHeight),
 				},
 				{
-					y: contentContainer._measuredHeight / (this._header._measuredHeight + this._sections._measuredHeight + this._footer._measuredHeight),
+					y: contentContainer._measuredHeight / (getContentHeight()),
 				});
 			});
 			this.addEventListener("touchend",function(e) {
@@ -60,11 +65,29 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 				previousTouchLocation = e.y;
 				
 				this._updateScrollBars({
-					y: contentContainer.domNode.scrollTop / (this._header._measuredHeight + this._sections._measuredHeight + this._footer._measuredHeight - this._measuredHeight),
+					y: contentContainer.domNode.scrollTop / (getContentHeight() - this._measuredHeight),
 				});
 				
 				this._fireScrollEvent(e.x,e.y);
 			}));
+			this.domNode.addEventListener("mousewheel",function(e) {
+				self._startScrollBars({
+					y: contentContainer.domNode.scrollTop / (getContentHeight() - self._measuredHeight),
+				},
+				{
+					y: contentContainer._measuredHeight / (getContentHeight()),
+				});
+				setTimeout(function(){
+					contentContainer.domNode.scrollLeft -= e.wheelDeltaX;
+					contentContainer.domNode.scrollTop -= e.wheelDeltaY;
+					self._updateScrollBars({
+						y: (contentContainer.domNode.scrollTop - e.wheelDeltaY) / (getContentHeight() - self._measuredHeight),
+					});
+					setTimeout(function(){
+						self._endScrollBars();
+					},10);
+				},10);
+			});
 			
 			require.on(contentContainer.domNode,"scroll",lang.hitch(this,function(e){
 				if (!this._touching) {
