@@ -123,6 +123,7 @@ define("Ti/UI/View",
 			this._cancelPreviousAnimation();
 			this._scrollingEnabled = true;
 			
+			this._isScrollBarActive = false;
 			if (this._horizontalScrollBar && visibleAreaRatio.x < 1 && visibleAreaRatio.x > 0) {
 				var startingX = normalizedScrollPosition.x,
 					measuredWidth = this._measuredWidth;
@@ -135,6 +136,7 @@ define("Ti/UI/View",
 					left: unitize(startingX * (measuredWidth - this._horizontalScrollBarWidth - 6)),
 					width: unitize(this._horizontalScrollBarWidth)
 				});
+				this._isScrollBarActive = true;
 			}
 			
 			if (this._verticalScrollBar && visibleAreaRatio.y < 1 && visibleAreaRatio.y > 0) {
@@ -149,10 +151,15 @@ define("Ti/UI/View",
 					top: unitize(startingY * (measuredHeight - this._verticalScrollBarHeight - 6)),
 					height: unitize(this._verticalScrollBarHeight)
 				});
+				this._isScrollBarActive = true;
 			}
 		},
 		
 		_updateScrollBars: function(normalizedScrollPosition) {
+			if (!this._isScrollBarActive) {
+				return;
+			}
+			
 			if (this._horizontalScrollBar) {
 				var newX = normalizedScrollPosition.x,
 					measuredWidth = this._measuredWidth;
@@ -171,6 +178,10 @@ define("Ti/UI/View",
 		},
 		
 		_endScrollBars: function() {
+			if (!this._isScrollBarActive) {
+				return;
+			}
+			
 			var self = this;
 			if (this._horizontalScrollBar) {
 				var horizontalScrollBar = this._horizontalScrollBar;
