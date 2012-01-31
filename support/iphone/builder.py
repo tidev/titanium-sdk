@@ -644,6 +644,14 @@ def main(args):
 			
 		app_name = make_app_name(name)
 		iphone_dir = os.path.abspath(os.path.join(project_dir,'build','iphone'))
+		
+		# We need to create the iphone dir if necessary, now that
+		# the tiapp.xml allows build target selection
+		if not os.path.isdir(iphone_dir):
+			if os.path.exists(iphone_dir):
+				os.remove(iphone_dir)
+			os.makedirs(iphone_dir)
+		
 		project_xcconfig = os.path.join(iphone_dir,'project.xcconfig')
 		target = 'Release'
 		ostype = 'os'
