@@ -130,7 +130,7 @@ public class TiUITabGroup extends TiUIView
 
 		TabProxy previousTab = null;
 		int currentTabID = tabHost.getCurrentTab();
-		TabProxy currentTab = tabGroupProxy.getTabList().get (currentTabID);
+		TabProxy currentTab = tabGroupProxy.getTabList().get(currentTabID);
 		proxy.setProperty(TiC.PROPERTY_ACTIVE_TAB, currentTab);
 
 		
