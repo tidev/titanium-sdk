@@ -110,7 +110,7 @@ define("Ti/UI/View",
 		},
 		
 		_cancelPreviousAnimation: function() {
-			if (this._scrollingEnabled) {
+			if (this._isScrollBarActive) {
 				set(this._horizontalScrollBar,"transition","");
 				set(this._verticalScrollBar,"transition","");
 				clearTimeout(this._horizontalScrollBarTimer);
@@ -121,9 +121,7 @@ define("Ti/UI/View",
 		_startScrollBars: function(normalizedScrollPosition, visibleAreaRatio) {
 			
 			this._cancelPreviousAnimation();
-			this._scrollingEnabled = true;
 			
-			this._isScrollBarActive = false;
 			if (this._horizontalScrollBar && visibleAreaRatio.x < 1 && visibleAreaRatio.x > 0) {
 				var startingX = normalizedScrollPosition.x,
 					measuredWidth = this._measuredWidth;
@@ -190,7 +188,7 @@ define("Ti/UI/View",
 					setTimeout(function(){
 						set(horizontalScrollBar,"opacity",0);
 						self._horizontalScrollBarTimer = setTimeout(function(){
-							self._scrollingEnabled = false;
+							self._isScrollBarActive = false;
 							set(horizontalScrollBar,"transition","");
 						},500);
 					},0);
@@ -204,7 +202,7 @@ define("Ti/UI/View",
 					setTimeout(function(){
 						set(verticalScrollBar,"opacity",0);
 						self._verticalScrollBarTimer = setTimeout(function(){
-							self._scrollingEnabled = false;
+							self._isScrollBarActive = false;
 							set(verticalScrollBar,"transition","");
 						},500);
 					},0);

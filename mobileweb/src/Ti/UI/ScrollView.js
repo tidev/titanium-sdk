@@ -25,8 +25,6 @@ define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/la
 			this._createHorizontalScrollBar();
 			this._createVerticalScrollBar();
 			
-			// TODO events: scroll, dragStart, dragEnd
-			
 			// Handle scrolling
 			var previousTouchLocation;
 			this.addEventListener("touchstart",function(e) {
