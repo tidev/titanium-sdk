@@ -117,27 +117,31 @@ define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/la
 			},
 			
 			showHorizontalScrollIndicator: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ScrollView#.showHorizontalScrollIndicator" is not implemented yet.');
+				set: function(value, oldValue) {
+					if (value !== oldValue) {
+						if (value) {
+							this._createHorizontalScrollBar();
+						} else {
+							this._destroyHorizontalScrollBar();
+						}
+					}
 					return value;
 				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.ScrollView#.showHorizontalScrollIndicator" is not implemented yet.');
-					return value;
-				}
+				value: true
 			},
 			
 			showVerticalScrollIndicator: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ScrollView#.showVerticalScrollIndicator" is not implemented yet.');
+				set: function(value, oldValue) {
+					if (value !== oldValue) {
+						if (value) {
+							this._createVerticalScrollBar();
+						} else {
+							this._destroyVerticalScrollBar();
+						}
+					}
 					return value;
 				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.ScrollView#.showVerticalScrollIndicator" is not implemented yet.');
-					return value;
-				}
+				value: true
 			}
 		}
 
