@@ -123,7 +123,7 @@ define("Ti/UI/View",
 			this._cancelPreviousAnimation();
 			this._scrollingEnabled = true;
 			
-			if (this._horizontalScrollBar) {
+			if (this._horizontalScrollBar && visibleAreaRatio.x < 1 && visibleAreaRatio.x > 0) {
 				var startingX = normalizedScrollPosition.x,
 					measuredWidth = this._measuredWidth;
 				startingX < 0 && (startingX = 0);
@@ -137,7 +137,7 @@ define("Ti/UI/View",
 				});
 			}
 			
-			if (this._verticalScrollBar) {
+			if (this._verticalScrollBar && visibleAreaRatio.y < 1 && visibleAreaRatio.y > 0) {
 				var startingY = normalizedScrollPosition.y,
 					measuredHeight = this._measuredHeight;
 				startingY < 0 && (startingY = 0);

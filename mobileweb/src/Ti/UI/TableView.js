@@ -9,7 +9,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 		
 		constructor: function(args) {
 			
-			// Create the parts out of Ti controls so we can make use of the layout system
+			// Content must go in a separate container so the scrollbar can exist outside of it
 			var contentContainer = this._contentContainer = Ti.UI.createView({
 				width: "100%",
 				height: "100%",
@@ -18,8 +18,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 				layout: 'vertical'
 			});
 			this.add(contentContainer);
-			set(contentContainer.domNode,"overflowX","hidden");
-			set(contentContainer.domNode,"overflowY","hidden");
+			set(contentContainer.domNode,"overflow","hidden");
 			
 			// Use horizontal layouts so that the default location is always (0,0)
 			contentContainer.add(this._header = Ti.UI.createView({height: 'auto', layout: 'vertical'}));
@@ -31,27 +30,21 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 			this._createVerticalScrollBar();
 			
 			// Handle scrolling
-			var previousTouchLocation,
-				contentRatio;
+			var previousTouchLocation;
 			this.addEventListener("touchstart",function(e) {
 				previousTouchLocation = e.y;
 				
-				contentRatio = contentContainer._measuredHeight / (this._header._measuredHeight + this._sections._measuredHeight + this._footer._measuredHeight)
-				if (contentRatio < 1) {
-					this._startScrollBars({
-						y: contentContainer.domNode.scrollTop / (this._header._measuredHeight + this._sections._measuredHeight + this._footer._measuredHeight - this._measuredHeight),
-					},
-					{
-						y: contentRatio,
-					});
-				}
+				this._startScrollBars({
+					y: contentContainer.domNode.scrollTop / (this._header._measuredHeight + this._sections._measuredHeight + this._footer._measuredHeight - this._measuredHeight),
+				},
+				{
+					y: contentContainer._measuredHeight / (this._header._measuredHeight + this._sections._measuredHeight + this._footer._measuredHeight),
+				});
 			});
 			this.addEventListener("touchend",function(e) {
 				previousTouchLocation = null;
 				
-				if (contentRatio < 1) {
-					this._endScrollBars();
-				}
+				this._endScrollBars();
 				
 				// Create the scroll event
 				this.fireEvent("scrollEnd",{
@@ -66,11 +59,9 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 				contentContainer.domNode.scrollTop += previousTouchLocation - e.y;
 				previousTouchLocation = e.y;
 				
-				if (contentRatio < 1) {
-					this._updateScrollBars({
-						y: contentContainer.domNode.scrollTop / (this._header._measuredHeight + this._sections._measuredHeight + this._footer._measuredHeight - this._measuredHeight),
-					});
-				}
+				this._updateScrollBars({
+					y: contentContainer.domNode.scrollTop / (this._header._measuredHeight + this._sections._measuredHeight + this._footer._measuredHeight - this._measuredHeight),
+				});
 				
 				this._fireScrollEvent(e.x,e.y);
 			}));
