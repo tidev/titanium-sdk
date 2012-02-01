@@ -25,7 +25,7 @@ define("Ti/UI/ScrollableView",
 			
 			// State variables
 			this._viewToRemoveAfterScroll = -1;
-			this._currentPage = 0;
+			this._currentPage = -1;
 			
 			var initialPosition,
 				animationView,
@@ -93,10 +93,7 @@ define("Ti/UI/ScrollableView",
 					
 					// Set the initial position
 					animationView.left = unitize(initialPosition);
-					this._setContent(animationView);
-					
-					// We have to force a non-delayed layout right now so that the new animation view is in place before the animation starts
-					this._triggerLayout(true);
+					this._setContent(animationView, true);
 				}
 				
 				// Update the position of the animation div
@@ -135,11 +132,19 @@ define("Ti/UI/ScrollableView",
 					} else {
 						// Animate the view and set the final view
 						animationView.animate({
-							duration: (300 + 0.2 * width) / (width - Math.abs(e._distance)) * 10,
+							duration: 200 + (0.2 * width) / (width - Math.abs(e._distance)) * 10,
 							left: animationLeft,
 							curve: Ti.UI.ANIMATION_CURVE_EASE_OUT
 						},lang.hitch(this,function(){
-							this._setContent(this.views[destinationIndex]);
+							this._setContent(this.views[destinationIndex], true);
+							
+							this._currentPage !== destinationIndex && this.fireEvent("scroll",{
+								currentPage: destinationIndex,
+								view: this.views[destinationIndex],
+								x: e.x,
+								y: e.y
+							});
+							
 							this._currentPage = destinationIndex;
 						}));
 					}
@@ -153,7 +158,10 @@ define("Ti/UI/ScrollableView",
 				this.views.push(view);
 	
 				// Check if any children have been added yet, and if not load this view
-				this.views.length == 1 && this.scrollToView(0);
+				if (this.views.length == 1) {
+					this._currentPage = 0;
+					this._setContent(view);
+				}
 			}
 		},
 		
@@ -185,28 +193,30 @@ define("Ti/UI/ScrollableView",
 	
 			// Update the current view if necessary
 			if (viewIndex < this.currentPage){
-				this.currentPage--;
+				this._currentPage--;
 			}
 		},
 		
-		_setContent: function(view) {
-			
-			// Remove and garbage collect the old container
-			this.container && this.remove(this.container);
-			this.container = null;
+		_setContent: function(view, forceUpdate) {
 			
 			// Create the new container
-			this.container = Ti.UI.createView({
+			var newContainer = Ti.UI.createView({
 				left: 0,
 				top: 0,
 				width: "100%",
 				height: "100%"
 			});
-			set(this.container.domNode,"overflow","hidden");
-			this.add(this.container);
+			set(newContainer.domNode,"overflow","hidden");
+			this.add(newContainer);
 			
 			// Add the view to the container
-			view && this.container.add(view);
+			view && newContainer.add(view);
+			
+			forceUpdate && this._triggerLayout(true);
+			
+			// Remove and garbage collect the old container
+			this.container && this.remove(this.container);
+			this.container = newContainer;
 		},
 		
 		scrollToView: function(view) {
@@ -266,10 +276,7 @@ define("Ti/UI/ScrollableView",
 				
 				// Set the initial position
 				animationView.left = unitize(initialPosition);
-				this._setContent(animationView);
-				
-				// We have to force a non-delayed layout right now so that the new animation view is in place before the animation starts
-				this._triggerLayout(true);
+				this._setContent(animationView, true);
 	
 				// Set the start time
 				var duration = 300 + 0.2 * width, // Calculate a weighted duration so that larger views take longer to scroll.
@@ -280,12 +287,16 @@ define("Ti/UI/ScrollableView",
 					left: initialPosition + scrollingDirection * distance,
 					curve: Ti.UI.ANIMATION_CURVE_EASE_IN_OUT
 				},lang.hitch(this,function(){
-					this._setContent(this.views[viewIndex]);
+					this._setContent(this.views[viewIndex], true);
 					this._currentPage = viewIndex;
 					if (this._viewToRemoveAfterScroll != -1) {
 						this._removeViewFromList(this._viewToRemoveAfterScroll);
 						this._viewToRemoveAfterScroll = -1;
 					}
+					this.fireEvent("scroll",{
+						currentPage: viewIndex,
+						view: this.views[viewIndex]
+					});
 				}));
 			}
 		},
