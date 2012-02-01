@@ -313,7 +313,11 @@ public class TiSound
 				position = duration;
 			}
 
-			mp.seekTo(position);
+			try {
+				mp.seekTo(position);
+			} catch (IllegalStateException e) {
+				Log.w(LCAT, "Error while preparing audio after stop(). Ignoring.");
+			}
 		}
 
 		proxy.setProperty(TiC.PROPERTY_TIME, position);
