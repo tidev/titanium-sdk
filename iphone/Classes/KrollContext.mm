@@ -1249,7 +1249,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		[lock lock];
 		int queue_count = [queue count];
 		[lock unlock];
-		if (queue_count == 0)
+		if ((queue_count == 0) && !suspended)
 		{
 			// wait only 10 seconds and then loop, this will allow us to garbage
 			// collect every so often

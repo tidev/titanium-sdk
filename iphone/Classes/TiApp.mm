@@ -312,14 +312,19 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     return YES;
 }
 
+-(void)waitForKrollProcessing
+{
+	NSDate* deadline = [[NSDate alloc] initWithTimeIntervalSinceNow:[[UIApplication sharedApplication] backgroundTimeRemaining]-1.0];
+	[[NSRunLoop mainRunLoop] runUntilDate:deadline];
+	[deadline release];
+}
+
 - (void)applicationWillTerminate:(UIApplication *)application
 {
 	NSNotificationCenter * theNotificationCenter = [NSNotificationCenter defaultCenter];
 
 	//This will send out the 'close' message.
 	[theNotificationCenter postNotificationName:kTiWillShutdownNotification object:self];
-	
-	TiThreadProcessPendingMainThreadBlocks(0.1, NO, nil);
 	NSCondition *condition = [[NSCondition alloc] init];
 
 #ifdef USE_TI_UIWEBVIEW
@@ -343,7 +348,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 	//This will shut down the modules.
 	[theNotificationCenter postNotificationName:kTiShutdownNotification object:self];
-	TiThreadProcessPendingMainThreadBlocks(0.1, NO, nil);
+	[self waitForKrollProcessing];
 
 	RELEASE_TO_NIL(condition);
 	RELEASE_TO_NIL(kjsBridge);
@@ -371,12 +376,12 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	
 	// suspend any image loading
 	[[ImageLoader sharedLoader] suspend];
-	TiThreadProcessPendingMainThreadBlocks(0.1, NO, nil);
 	[kjsBridge gc];
 	
 #ifdef USE_TI_UIWEBVIEW
 	[xhrBridge gc];
 #endif 
+	[self waitForKrollProcessing];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
@@ -418,7 +423,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         // Do the work associated with the task.
 		[tiapp beginBackgrounding];
     });
-	
+	[self waitForKrollProcessing];
 }
 
 -(void)applicationWillEnterForeground:(UIApplication *)application

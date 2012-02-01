@@ -767,6 +767,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 -(void)viewWillAppear:(BOOL)animated
 {
 	[self parentWillShow];
+	TiThreadProcessPendingMainThreadBlocks(0.1, YES, nil);
 }
 
 - (void)viewDidDisappear:(BOOL)animated

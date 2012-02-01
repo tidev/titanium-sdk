@@ -131,6 +131,11 @@ OSSpinLock TiThreadSpinLock = OS_SPINLOCK_INIT;
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 {
 	BOOL alreadyOnMainThread = [NSThread isMainThread];
+	BOOL usesWaitSemaphore = waitForFinish && !alreadyOnMainThread;
+	__block dispatch_semaphore_t waitSemaphore;
+	if (usesWaitSemaphore) {
+		waitSemaphore = dispatch_semaphore_create(0);
+	}
 	__block NSException * caughtException = nil;
 	void (^wrapperBlock)() = ^{
 		BOOL exceptionsWereSafe = TiExceptionIsSafeOnMainThread;
@@ -144,6 +149,9 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 			}
 		}
 		TiExceptionIsSafeOnMainThread = exceptionsWereSafe;
+		if (usesWaitSemaphore) {
+			dispatch_semaphore_signal(waitSemaphore);
+		}
 	};
 	void (^wrapperBlockCopy)() = [wrapperBlock copy];
 	
@@ -181,21 +189,23 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 		}
 		return;
 	}
-/*
- *	TODO: Research means to ensure deadlocks will never happen.
- */
+
 	dispatch_block_t dispatchedMainBlock = (dispatch_block_t)^(){
 		TiThreadProcessPendingMainThreadBlocks(10.0, YES, nil);
 	};
+	dispatch_async(dispatch_get_main_queue(), (dispatch_block_t)dispatchedMainBlock);
 	if (waitForFinish)
 	{
-		dispatch_sync(dispatch_get_main_queue(), (dispatch_block_t)dispatchedMainBlock);
+		BOOL waiting;
+		do {
+			dispatch_time_t oneSecond = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC);
+			waiting = dispatch_semaphore_wait(waitSemaphore, oneSecond);
+			if (waiting) {
+				NSLog(@"[WARN] Timing out waiting on main thread. Possibly a deadlock? %@",CODELOCATION);
+			}
+		} while (waiting);
+		dispatch_release(waitSemaphore);
 	}
-	else
-	{
-		dispatch_async(dispatch_get_main_queue(), (dispatch_block_t)dispatchedMainBlock);
-	}
-	
 	[wrapperBlockCopy release];
 	if (caughtException != nil) {
 		[caughtException autorelease];
@@ -242,7 +252,6 @@ BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhe
 			 *	is likely we're waiting for the background thread to request
 			 *	something. In this case, we should briefly sleep.
 			 */
-			[NSThread sleepForTimeInterval:0.01];
 		}
 	} while (shouldContinue);
 	return isEmpty;
