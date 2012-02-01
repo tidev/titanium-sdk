@@ -128,7 +128,7 @@ define("Ti/UI/ScrollableView",
 					
 					// Check if the user attempted to scroll past the edge, in which case we directly reset the view instead of animation
 					if (newPosition == 0 || newPosition == -animationView._measuredWidth + width) {
-						this._setContent(this.views[destinationIndex]);
+						this._setContent(this.views[destinationIndex], true);
 					} else {
 						// Animate the view and set the final view
 						animationView.animate({

@@ -214,6 +214,11 @@ define("Ti/_/UI/Element",
 			isDef(this._measuredWidth) && (styles.width = unitize(this._measuredWidth));
 			isDef(this._measuredHeight) && (styles.height = unitize(this._measuredHeight));
 			setStyle(this.domNode, styles);
+			
+			// Run the post-layout animation, if needed
+			if (this._doAnimationAfterLayout) {
+				this._doAnimation();
+			}
 		},
 
 		_computeDimensions: function(parentWidth, parentHeight, left, top, originalRight, originalBottom, centerX, centerY, width, height, borderWidth) {
@@ -497,7 +502,20 @@ define("Ti/_/UI/Element",
 		},
 
 		animate: function(anim, callback) {
-			var anim = anim || {},
+			this._animationData = anim;
+			this._animationCallback = callback;
+			
+			if (Ti.UI._layoutInProgress) {
+				this._doAnimationAfterLayout = true;
+			} else {
+				this._doAnimation();
+			}
+		},
+		
+		_doAnimation: function() {
+			
+			var anim = this._animationData || {},
+				callback = this._animationCallback;
 				curve = curves[anim.curve] || "ease",
 				fn = lang.hitch(this, function() {
 					var transformCss = "";
