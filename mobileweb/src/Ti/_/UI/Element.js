@@ -226,10 +226,6 @@ define("Ti/_/UI/Element",
 			width = computeSize(width, parentWidth);
 			height = computeSize(height, parentHeight);
 
-			// For our purposes, auto is the same as undefined for position values.
-			originalRight === "auto" && (right = undef);
-			originalBottom === "auto" && (bottom = undef);
-
 			// Convert right/bottom coordinates to be with respect to (0,0)
 			var right = isDef(originalRight) ? (parentWidth - originalRight) : undef,
 				bottom = isDef(originalBottom) ? (parentHeight - originalBottom) : undef;
@@ -350,7 +346,7 @@ define("Ti/_/UI/Element",
 				width == "auto" && (width = this._getContentWidth());
 				height == "auto" && (height = this._getContentHeight());
 			} else {
-				var computedSize = this._layout._doLayout(this,width,height);
+				var computedSize = this._layout._doLayout(this,is(width,"Number") ? width : parentWidth,is(height,"Number") ? height : parentHeight);
 				width == "auto" && (width = computedSize.width);
 				height == "auto" && (height = computedSize.height);
 			}

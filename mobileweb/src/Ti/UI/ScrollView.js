@@ -109,6 +109,11 @@ define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/la
 			return this.contentOffset;
 		},
 		
+		_doLayout: function() {
+			this._contentMeasurer.layout = this.layout;
+			View.prototype._doLayout.apply(this,arguments);
+		},
+		
 		add: function(view) {
 			this._contentMeasurer.add(view);
 		},
