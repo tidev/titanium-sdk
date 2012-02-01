@@ -45,6 +45,7 @@
 	BOOL moving;
 	BOOL editing;
 	BOOL searchHidden;
+    BOOL hideOnSearch; // For backcompat, default 'true'
     BOOL animateHide;
 	BOOL editable;
 	BOOL moveable;

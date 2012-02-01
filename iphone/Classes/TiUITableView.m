@@ -241,6 +241,7 @@
 {
 	if (self = [super init])
 	{
+        hideOnSearch = YES; // Legacy behavior
 		filterCaseInsensitive = YES; // defaults to true on search
 		searchString = @"";
 	}
@@ -732,7 +733,7 @@
 			[[searchController searchResultsTableView] reloadSections:[NSIndexSet indexSetWithIndex:0]
                                                      withRowAnimation:UITableViewRowAnimationFade];
 		}
-	}
+    }
     else if (searchHidden) {
         [self hideSearchScreen:nil];
     }
@@ -786,7 +787,12 @@
 	return [(TiUITableViewProxy *)[self proxy] indexForIndexPath:path];
 }
 
-- (void)triggerActionForIndexPath:(NSIndexPath *)indexPath fromPath:(NSIndexPath*)fromPath tableView:(UITableView*)ourTableView wasAccessory: (BOOL)accessoryTapped search:(BOOL)viaSearch name:(NSString*)name
+- (void)triggerActionForIndexPath:(NSIndexPath *)indexPath 
+                         fromPath:(NSIndexPath*)fromPath 
+                        tableView:(UITableView*)ourTableView 
+                     wasAccessory:(BOOL)accessoryTapped 
+                           search:(BOOL)viaSearch 
+                             name:(NSString*)name
 {
 	NSIndexPath* index = indexPath;
 	if (viaSearch) {
@@ -844,15 +850,18 @@
 	CGPoint globalPoint = [thisCell convertPoint:point toView:nil];
 	[eventObject setObject:[TiUtils pointToDictionary:globalPoint] forKey:@"globalPoint"];
 	
-	if (viaSearch) {
-        animateHide = YES;
-		[self hideSearchScreen:nil];
-	}
+    // Hiding the search screen after a search should not be something we do automatically;
+    // see the behavior of, say, Contacts. If users want to hide search, they can do so
+    // in an event callback.
     
     if ([target _hasListeners:name])
 	{
 		[target fireEvent:name withObject:eventObject];
 	}	
+    
+    if (viaSearch && hideOnSearch) {
+        [self hideSearchScreen:nil];
+    }
 }
 
 #pragma mark Overloaded view handling
@@ -973,7 +982,8 @@
 	{
 		if (searchField!=nil)
 		{
-			[self performSelector:@selector(hideSearchScreen:) withObject:nil];
+            animateHide = YES;
+            [self hideSearchScreen:nil];
 		}
 	}
 	else 
@@ -1067,25 +1077,29 @@
     
 	[searchController setActive:NO animated:[searchController isActive]];
 
+    // NOTE: Because of how tableview row reloads are scheduled, we always need to do this
+    // because of where the hide might be triggered from.
+    
+    NSArray* visibleRows = [tableview indexPathsForVisibleRows];
+    [tableview reloadRowsAtIndexPaths:visibleRows withRowAnimation:UITableViewRowAnimationNone];
+    
+    // We only want to scroll if the following conditions are met:
+    // 1. The search bar is not already hidden
+    // 2. The top row of the first section (and hence searchbar) are visible (or there are no rows)
+    // 3. The current offset is smaller than the new offset (otherwise the search is already hidden)
+    
     if (searchHidden) {
-        NSUInteger visibleCount = [[tableview indexPathsForVisibleRows] count];
-        
-        // Try to avoid multiple redraws of the search bar, by checking to see if
-        // we're in the middle of an animation via the current content offset.
-        
         CGPoint offset = CGPointMake(0,MAX(TI_NAVBAR_HEIGHT, searchField.view.frame.size.height));
-        if ([tableview contentOffset].y < offset.y) {
+        if (([visibleRows count] == 0) ||
+            ([tableview contentOffset].y < offset.y && [visibleRows containsObject:[NSIndexPath indexPathForRow:0 inSection:0]]))
+        {
             [tableview setContentOffset:offset animated:animateHide];
         }
-        
-        // Only perform a reload if the visible rows changed.
-        NSArray* visibleRows = [tableview indexPathsForVisibleRows];
-        if ([visibleRows count] != visibleCount) {
-            [tableview reloadRowsAtIndexPaths:visibleRows withRowAnimation:UITableViewRowAnimationNone];
-        }
     }
+    NSLog(@"Hide offset: %f", [tableview contentOffset].y);
 
-    animateHide = YES;
+    // Reset the animation hide flag to its default value
+    animateHide = NO;
 }
 
 -(void)scrollToTop:(NSInteger)top animated:(BOOL)animated
@@ -1176,8 +1190,6 @@
 {
 	// called when cancel button pressed
 	[searchBar setText:nil];
-    animateHide = YES;
-	[self hideSearchScreen:nil];
 }
 
 #pragma mark Section Header / Footer
@@ -1339,7 +1351,7 @@
 {
 	if ([TiUtils boolValue:hide])
 	{
-		searchHidden=YES;
+		searchHidden = YES;
 		if (searchField)
 		{
             animateHide = YES;
@@ -1348,12 +1360,17 @@
 	}
 	else 
 	{
-		searchHidden=NO;
+		searchHidden = NO;
 		if (searchField)
 		{
 			[self showSearchScreen:nil];
 		}
 	}
+}
+
+-(void)setHideOnSearch_:(id)yn
+{
+    hideOnSearch = [TiUtils boolValue:yn def:YES];
 }
 
 - (void)setFilterAttribute_:(id)newFilterAttribute
@@ -2024,6 +2041,7 @@ if(ourTableView != tableview)	\
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {	
+    NSLog(@"Scroll offset: %f", [scrollView contentOffset].y);
 	if (scrollView.isDragging || scrollView.isDecelerating) 
 	{
 		if ([self.proxy _hasListeners:@"scroll"])
@@ -2034,7 +2052,7 @@ if(ourTableView != tableview)	\
 			[event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
 			[self.proxy fireEvent:@"scroll" withObject:event];
 		}
-	}
+    }
 }
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView 
