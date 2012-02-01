@@ -7,7 +7,7 @@
  * <http://dojotoolkit.org>
  */
 
-define("Ti/_/String", ["Ti/_", "Ti/_/lang"], function(_, lang) {
+define("Ti/_/string", ["Ti/_", "Ti/_/lang"], function(_, lang) {
 
 	var assert = _.assert,
 		has = require.has,
@@ -347,5 +347,16 @@ define("Ti/_/String", ["Ti/_", "Ti/_/lang"], function(_, lang) {
 
 		return str;
 	};
+
+	return {
+		capitalize: function(s) {
+			s = s || "";
+			return s.substring(0, 1).toUpperCase() + s.substring(1);
+		},
+
+		trim: String.prototype.trim ?
+			function(str){ return str.trim(); } :
+			function(str){ return str.replace(/^\s\s*/, '').replace(/\s\s*$/, ''); }
+	}
 
 });

@@ -49,7 +49,16 @@ class Compiler(object):
 				'eventdriven.js',
 
 				# building blocks
-				'Ti/_/String.js',
+				"Ti/_",
+				'Ti/_/browser.js',
+				'Ti/_/css.js',
+				'Ti/_/declare.js',
+				'Ti/_/dom.js',
+				'Ti/_/event.js',
+				'Ti/_/lang.js',
+				'Ti/_/ready.js',
+				'Ti/_/string.js',
+				'Ti/_/style.js',
 
 				# AMD plugins
 				"Ti/_/include.js",
