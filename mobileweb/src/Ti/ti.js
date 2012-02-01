@@ -6,7 +6,7 @@ define("Ti", ["Ti/_/Evented"], function(Evented) {
 		version: ver,
 		buildDate: "__TIMESTAMP__",
 		buildHash: "__GITHASH__",
-		userAgent: "Appcelerator Titanium/" + ver + " (" + navigator.userAgent + ")",
+		userAgent: "Appcelerator Titanium/" + ver + " (" + navigator.userAgent + ")!",
 
 		include: function(files) {
 			var i = 0;
