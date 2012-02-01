@@ -397,6 +397,8 @@ properties:
         Many standard applications (such as Contacts) have a behavior
         equivalent to `false` for this value, but the default is `true`
         for legacy reasons.
+        
+        The Android platform behaves as though this value were `false`.
     type: Boolean
     default: true
     platforms: [iphone, ipad]

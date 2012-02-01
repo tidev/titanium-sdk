@@ -1096,8 +1096,6 @@
             [tableview setContentOffset:offset animated:animateHide];
         }
     }
-    NSLog(@"Hide offset: %f", [tableview contentOffset].y);
-
     // Reset the animation hide flag to its default value
     animateHide = NO;
 }
@@ -2041,7 +2039,6 @@ if(ourTableView != tableview)	\
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {	
-    NSLog(@"Scroll offset: %f", [scrollView contentOffset].y);
 	if (scrollView.isDragging || scrollView.isDecelerating) 
 	{
 		if ([self.proxy _hasListeners:@"scroll"])
