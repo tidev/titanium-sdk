@@ -66,6 +66,11 @@
 	return button_view;
 }
 
+-(void)refreshAfterDelay
+{
+	[self performSelector:@selector(refreshIfNeeded) withObject:nil afterDelay:0.1];
+}
+
 -(void)setNeedsRefreshingWithSelection: (BOOL)shouldReselect
 {
 	if (delegate == nil)
@@ -83,11 +88,6 @@
 			TiThreadPerformOnMainThread(^{[self refreshAfterDelay];}, NO);
 		}
 	}
-}
-
--(void)refreshAfterDelay
-{
-	[self performSelector:@selector(refreshIfNeeded) withObject:nil afterDelay:0.1];
 }
 
 -(void)refreshIfNeeded

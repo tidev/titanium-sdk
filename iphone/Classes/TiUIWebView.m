@@ -699,8 +699,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	}
 	
 	NSString *code = [NSString stringWithContentsOfURL:url_ encoding:NSUTF8StringEncoding error:nil];
-	
-	[self evalJS:[NSArray arrayWithObject:code]];
+	[self stringByEvaluatingJavaScriptFromString:code];
 }
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_
