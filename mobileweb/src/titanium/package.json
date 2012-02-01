@@ -18,7 +18,7 @@
 	],
 	"homepage": "http://www.appcelerator.com/",
 	"directories": {
-		"lib": "."
+		"lib": "./lib"
 	},
-	"main": "Ti"
+	"main": "./main"
 }
