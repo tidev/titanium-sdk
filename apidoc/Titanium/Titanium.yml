@@ -9,8 +9,8 @@ description: |
     #### Titanium Namespace
     
     The complete Titanium API is accessible from the `Titanium` namespace but, for convenience and 
-    brevity, alias `Ti` is also provided. As the `Titanium` namespace is functionally-identical to 
-    its `Ti` alias, it is always recommended to use `Ti` in your code.
+    brevity, the alias `Ti` is also provided. As the `Titanium` namespace is functionally-identical 
+    to its `Ti` alias, it is always recommended to use `Ti` in your code.
     
     For example, the following pairs of Titanium calls behave exactly the same.
     
