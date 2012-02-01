@@ -44,9 +44,7 @@ class Compiler(object):
 	def __init__(self,project_dir,deploytype):
 		self.project_dir = project_dir
 
-#		self.modules = []
-
-		self.defines = [
+		self.dependencies = [
 				# these MUST be ordered correctly!
 				'eventdriven.js',
 
@@ -141,10 +139,6 @@ class Compiler(object):
 				'titanium.css'
 			]
 		
-#		self.css_defines = []
-#		self.ti_includes = {}
-#		self.api_map = {}
-		
 		self.build_dir = os.path.join(self.project_dir,'build','mobileweb')
 		
 		self.resources_dir = os.path.join(self.project_dir,'Resources')
@@ -163,35 +157,14 @@ class Compiler(object):
 			os.makedirs(self.build_dir)
 		except:
 			pass
-			
-		# load up our API map
-#		map_props = open(os.path.join(src_dir,'map.prop')).read()
-#		for line in map_props.split("\n"):
-#			if line[0:1] == '#' or line[0:1]=='': continue
-#			key,value = line.split("=")
-#			self.api_map[key.strip()]=value.strip().split()
-
+		
 		tiapp_xml = os.path.join(project_dir,'tiapp.xml')
 		ti = TiAppXML(tiapp_xml)
 		sdk_version = os.path.basename(os.path.abspath(os.path.join(template_dir,'../')))
 
 		self.project_name = ti.properties['name']
 		self.appid = ti.properties['id']
-
-# temporarily already being forced, will need to re-enable
-#		if ti.properties['analytics']:
-#			self.defines.append("Ti.Platform/platform.js")
-
-#		def compile_js(from_,to_):
-#			try:
-#				js = Compiler.make_function_from_file(from_,self)
-#				o = codecs.open(to_,'w',encoding='utf-8')
-#				o.write(js)
-#				o.close()
-#				self.count+=1
-#			except:
-#				pass
-
+		
 		source = self.resources_dir
 		target = self.build_dir
 
@@ -217,6 +190,7 @@ class Compiler(object):
 				#else:
 				shutil.copy(from_,to_)
 		
+		# TODO: need to add all Ti+ modules to the "packages" config option
 		titanium_js = mako.template.Template("<%!\n\
 	def jsQuoteEscapeFilter(str):\n\
 		return str.replace(\"\\\"\",\"\\\\\\\"\")\n\
@@ -280,9 +254,9 @@ class Compiler(object):
 						if ddir != 'src':
 							fname = ddir + "/" + fname
 						try:
-							self.defines.index(fname)
+							self.dependencies.index(fname)
 						except:
-							self.defines.append(fname)
+							self.dependencies.append(fname)
 		
 		titanium_css = ''
 		
@@ -294,13 +268,14 @@ class Compiler(object):
 		print "Copying %s to %s" % (os.path.join(src_dir, 'Ti'), self.build_dir)
 		shutil.copytree(os.path.join(src_dir, 'Ti'), os.path.join(self.build_dir, 'Ti'))
 		
-		for api in self.defines:
+		# append together all dependencies
+		for api in self.dependencies:
 			api_file = os.path.join(src_dir,api)
 			if not os.path.exists(api_file):
-				print "[ERROR] couldn't find file: %s" % api_file
+				print "[ERROR] Couldn't find file: %s" % api_file
 				sys.exit(1)
 			else:
-				print "[DEBUG] found: %s" % api_file
+#				print "[DEBUG] Found: %s" % api_file
 				
 				dest = os.path.join(self.build_dir, api)
 				try:
@@ -315,13 +290,38 @@ class Compiler(object):
 				elif api_file.find('.css') != -1:
 					titanium_css += '%s\n\n' % self.load_api(api_file, api)
 				else:
-					target_file = os.path.abspath(os.path.join(self.build_dir,'titanium', api))
-					try:
-						os.makedirs(os.path.dirname(target_file))
-					except:
-						pass
-					shutil.copy(api_file, target_file)
-					# open(target_file,'wb').write(open(api_file,'rb').read())
+					print 'WARNING: Dependency "%s" is not a JavaScript or CSS file, skipping' % api_file
+					#target_file = os.path.abspath(os.path.join(self.build_dir,'titanium', api))
+					#try:
+					#	os.makedirs(os.path.dirname(target_file))
+					#except:
+					#	pass
+					#shutil.copy(api_file, target_file)
+		
+		# process Ti+ modules
+		modules_dir = os.path.abspath(os.path.join(template_dir,'../../../../modules/mobileweb'))
+		for module in ti.properties['modules']:
+			if module['platform'] == 'mobileweb':
+				module_dir = os.path.join(modules_dir, module['id'], module['version'])
+				if os.path.exists(module_dir):
+					# TODO: read in the package.json to figure out the correct "main" file
+					
+					main_file = os.path.join(module_dir, module['id'] + ".js")
+					
+					# TODO: need to combine ALL Ti+ module .js files into the titanium.js, not just the main file
+					
+					if os.path.exists(main_file):
+						titanium_js += '%s;\n' % self.load_api(main_file)
+					else:
+						print "[ERROR] Ti+ module missing main file: %s, version %s" % (module['id'], module['version'])
+					
+					# TODO: need to combine ALL Ti+ module .css files into the titanium.css
+										
+					# copy entire folder to self.build_dir
+					print "Copying Ti+ module %s to %s" % (module_dir, os.path.join(self.build_dir, module['id']))
+					shutil.copytree(module_dir, os.path.join(self.build_dir, module['id']))
+				else:
+					print "[ERROR] Couldn't find Ti+ module: %s, version %s" % (module['id'], module['version'])
 		
 		# copy the favicon
 		icon_file = os.path.join(self.resources_dir, ti.properties['icon'])
@@ -350,12 +350,6 @@ class Compiler(object):
 					titanium_js += 'p.setString("' + name + '","' + str(prop['value']).replace('"', '\\"') + '");'
 			
 			titanium_js += '}(Ti.App.Properties));'
-		
-#		ti_dir = os.path.join(self.build_dir,'titanium')
-#		try:
-#			os.makedirs(ti_dir)
-#		except:
-#			pass
 		
 #		o = codecs.open(os.path.join(ti_dir,'titanium.js'),'w',encoding='utf-8')
 #		o.write(HEADER + titanium_js + FOOTER)
@@ -418,32 +412,6 @@ class Compiler(object):
 		o = codecs.open(index_file,'w',encoding='utf-8')
 		o.write(main_template)
 		o.close()
-
-		# write localization data
-
-#		i18n_content = "Titanium._5.setLocaleData("
-#		def xml2json(collector, node):
-#			collector[node.attributes.items()[0][1]] = node.firstChild.nodeValue
-#			return collector
-#
-#		lang_arr = {}
-#		for root, dirs, files in os.walk(os.path.join(self.project_dir,'i18n')):
-#			for file in files:
-#				if file != 'strings.xml':
-#					continue
-#				lang = os.path.split(root)[1]
-#				lang_arr[lang] = {}
-#				lang_file = codecs.open(os.path.join(root, file), 'r', 'utf-8').read().encode("utf-8")
-#				dom = xml.dom.minidom.parseString(lang_file)
-#				strings = dom.getElementsByTagName("string")
-#				reduce(xml2json, strings, lang_arr[lang])
-#		i18n_content += json.dumps(lang_arr)
-#
-#		i18n_content += ");";
-#		i18n_file = os.path.join(self.build_dir,'titanium', 'i18n.js')
-#		o = codecs.open(i18n_file,'w', encoding='utf-8')
-#		o.write(i18n_content)
-#		o.close()
 		
 		# Copy the themes
 		shutil.copytree(os.path.join(template_dir,'themes'),os.path.join(self.build_dir,'themes'))
@@ -471,99 +439,3 @@ class Compiler(object):
 			return re.sub(r'(url\s*\([\'"]?)', r'\1' + os.path.split(api)[0] + '/', file_contents)
 		else:
 			return file_contents
-		
-#	def add_symbol(self,api):
-#		print "[DEBUG] detected symbol: %s" % api
-#		curtoken = ''
-#		tokens = api.split(".")
-#		if len(tokens) > 1:
-#			try:
-#				self.modules.index(tokens[0])
-#			except:
-#				self.modules.append(tokens[0])
-#			
-#		if self.api_map.has_key(api):
-#			for file in self.api_map[api]:
-#				if len(tokens) > 1:
-#					fn = "Ti.%s/%s" % (tokens[0],file)
-#				else:
-#					fn = "Ti/%s" % file
-#				try:
-#					self.defines.index(fn)
-#				except:
-#					self.defines.append(fn)
-#		else:
-#			print "[WARN] couldn't find API: %s" % api
-#			#sys.exit(1)
-
-#	def extract_tokens(self,sym,line):
-#		# sloppy joe parsing coooode
-#		# could be prettier and faster but it works and rather reliable
-#		c = 0
-#		tokens = []
-#		search = sym + "."
-#		size = len(search)
-#		while True:
-#			i = line.find(search,c)
-#			if i < 0:
-#				break
-#			found = False
-#			buf = ''
-#			x = 0
-#			for n in line[i+size:]:
-#				# look for a terminal - this could probably be easier
-#				if n in ['(',')','{','}','=',',',' ',':','!','[',']','+','*','/','~','^','%','\n','\t','\r']:
-#					found = True
-#					break
-#				buf+=n
-#				x+=1
-#			tokens.append(buf)
-#			if found:
-#				c = i + x + 1
-#				continue
-#			break
-#		return tokens	
-
-#	def expand_ti_includes(self,line,filename):
-#		'''idx = line.find('Ti.include')
-#		if idx!=-1:
-#			srcs = line[idx+11:-1]
-#			for srcQ in srcs.split(','):
-#				# remove leading and trailing slashes and spaces
-#				src = re.sub(r'\s*([\"\'])([^\1]*)\1[\w\W]*$', r'\2', srcQ, 0, re.M)
-#
-#				# replace dir separator with platform specific
-#				# if first char is / - consider it as absolute to resources dir
-#				if src[0] == '/':
-#					src_path = os.path.join(self.resources_dir,src[1:len(src)])
-#				else:
-#					src_path = os.path.join(os.path.dirname(filename),src)
-#				# normalize path to match all dir separators
-#				src_path = os.path.normpath(src_path)
-#
-#				if not os.path.exists(src_path):
-#					print "[ERROR] Cannot find include file at: %s" % src_path
-#					sys.exit(1)
-#				source = Compiler.make_function_from_file(src_path,self)
-#				self.ti_includes[src] = source'''
-
-#	def compile_js(self,file_contents,fn):
-#		contents = ""
-#		for line in file_contents.split(';'):
-#			self.expand_ti_includes(line,fn)
-#			if line == None or line=='' or line == '\n': continue
-#			for sym in self.extract_tokens('Ti',line):
-#				self.add_symbol(sym)
-#			contents+='%s;' % line
-#		return contents
-	
-#	@classmethod
-#	def make_function_from_file(cls,file,instance=None):
-#		f = os.path.expanduser(file)
-#		file_contents = codecs.open(f, 'r', 'utf-8').read()
-#		if not instance or not instance.debug:
-#			file_contents = jspacker.jsmin(file_contents)
-#		file_contents = file_contents.replace('Titanium.','Ti.')
-#		if instance:
-#			file_contents = instance.compile_js(file_contents, f)
-#		return file_contents
