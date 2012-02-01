@@ -279,14 +279,6 @@ events:
     summary: Fired when the device detects a double tap against this view.
     platforms: [iphone, ipad]
     properties:
-      - name: globalPoint
-        summary: |
-            Dictionary with properties `x` and `y` describing the location of the event in screen 
-            coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-
       - name: x
         summary: X coordinate of the event from the `source` view.
         type: Number
@@ -364,7 +356,7 @@ events:
 
   - name: scroll
     summary: Fired when the table view is scrolled.
-    [android, iphone, ipad, mobileweb]
+    platofrms: [android, iphone, ipad, mobileweb]
     properties:
       - name: firstVisibleItem
         summary: Row index of the topmost visible row in the view.
