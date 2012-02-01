@@ -22,6 +22,19 @@
 	[super _initWithProperties:properties];
 }
 
+-(TiPoint *) contentOffset{
+    if([self viewAttached]){
+        TiThreadPerformOnMainThread(^{
+                   contentOffset = [[TiPoint alloc] initWithPoint:CGPointMake(
+                                        [(TiUIScrollView *)[self view] scrollView].contentOffset.x,
+                                        [(TiUIScrollView *)[self view] scrollView].contentOffset.y)] ; 
+          }, YES);
+    }
+    else{
+        contentOffset = [[TiPoint alloc] initWithPoint:CGPointMake(0,0)];
+    }
+    return [contentOffset autorelease];
+}
 
 -(void)contentsWillChange
 {
@@ -73,7 +86,7 @@
 			[TiUtils floatValue:[args objectAtIndex:0]],
 			[TiUtils floatValue:[args objectAtIndex:1]])];
 
-	[self replaceValue:offset forKey:@"contentOffset" notification:YES];
+	[self setContentOffset:offset withObject:Nil];
 	[offset release];
 }
 -(void) setContentOffset:(id)value withObject:(id)animated
@@ -94,10 +107,6 @@
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
 	CGPoint offset = [scrollView contentOffset];
-	TiPoint * offsetPoint = [[TiPoint alloc] initWithPoint:offset];
-	[self replaceValue:offsetPoint forKey:@"contentOffset" notification:NO];
-	[offsetPoint release];
-
 	if ([self _hasListeners:@"scroll"])
 	{
 		[self fireEvent:@"scroll" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
