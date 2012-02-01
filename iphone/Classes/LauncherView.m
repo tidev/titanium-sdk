@@ -71,6 +71,17 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
     if ((self = [super initWithFrame:frame])) 
 	{
 		self.columnCount = kLauncherViewDefaultColumnCount;
+
+      // on iPad, default to 4 columns and 5 rows.
+      // on iPhone, default to 3 columns and 3 rows.
+      if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+         self.columnCount = 4;
+         self.rowCount = 5;
+      } else {
+         self.columnCount = 3;
+         self.rowCount = 3;
+      }
+
 		self.rowCount = 0;
 		self.currentPageIndex = 0;
         self.editable = YES;
@@ -142,15 +153,6 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	NSMutableArray* page = [NSMutableArray array];
 	[pages addObject:page];
 	return page;
-}
-
-- (NSInteger)rowCount 
-{
-	if (!rowCount) 
-	{
-		rowCount = floor(self.frame.size.height / [self rowHeight]);
-	}
-	return rowCount;
 }
 
 - (NSInteger)currentPageIndex 
@@ -648,6 +650,9 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	[UIView setAnimationDelegate:self];
 	[UIView setAnimationDidStopSelector:@selector(endEditingAnimationDidStop:finished:context:)];
 	
+   /* Removing this as it appears to break the X buttons; they will
+    * sometimes be invisible when edit mode is activated
+
 	for (NSArray* buttonPage in buttons) 
 	{
 		for (LauncherButton* button in buttonPage) 
@@ -656,6 +661,8 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 			button.closeButton.alpha = 0;
 		}
 	}
+
+   */
 	
 	[UIView commitAnimations];
 	
