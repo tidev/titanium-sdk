@@ -1458,11 +1458,11 @@ require.cache({
 					valuetype: "valueType"
 				},
 				attr = {
-					add: function(node, name, value) {
+					set: function(node, name, value) {
 						if (arguments.length === 2) {
 							// the object form of setter: the 2nd argument is a dictionary
 							for (var x in name) {
-								attr.add(node, x, name[x]);
+								attr.set(node, x, name[x]);
 							}
 							return node;
 						}
@@ -1495,7 +1495,7 @@ require.cache({
 				create: function(tag, attrs, refNode, pos) {
 					var doc = refNode ? refNode.ownerDocument : document;
 					is(tag, "String") && (tag = doc.createElement(tag));
-					attrs && attr.add(tag, attrs);
+					attrs && attr.set(tag, attrs);
 					refNode && this.place(tag, refNode, pos);
 					return tag;
 				},
@@ -1729,6 +1729,24 @@ require.cache({
 				},
 
 				toArray: toArray,
+
+				urlEncode: function(obj) {
+					var pairs = [],
+						prop,
+						value;
+
+					for (prop in obj) {
+						if (obj.hasOwnProperty(prop)) {
+							is(value = obj[prop], "Array") || (value = [value]);
+							prop = enc(prop) + "=";
+							require.each(value, function(v) {
+								pairs.push(prop + enc(v));
+							});
+						}
+					}
+
+					return pairs.join("&");
+				},
 
 				val: function(originalValue, defaultValue) {
 					return is(originalValue, "Undefined") ? defaultValue : originalValue;
