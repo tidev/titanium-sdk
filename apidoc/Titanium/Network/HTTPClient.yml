@@ -36,6 +36,7 @@ methods:
     summary: Cancels a pending request.
   - name: clearCookies
     summary: Clears any cookies stored for this host.
+    platforms: [android, iphone, ipad]
   - name: getResponseHeader
     summary: Returns the value of the specified response header.
     returns:
@@ -144,6 +145,7 @@ properties:
     summary: Set to `false` to disable automatic handling of HTTP redirects.
     type: Boolean
     default: true
+    platforms: [android, iphone, ipad]
   - name: connected
     summary: boolean to indicate that the response was successful
     type: Boolean
@@ -262,6 +264,7 @@ properties:
         Note that on iOS, this value is always `false` by default. This is a known issue.
     type: Boolean
     default: False when running in the simulator or on device in testing mode, and true if built for release in distribution mode.
+    platforms: [android, iphone, ipad]
   - name: tlsVersion
     summary: Sets the TLS version to use for handshakes. 
     description: |
