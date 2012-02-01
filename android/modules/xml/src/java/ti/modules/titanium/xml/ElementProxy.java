@@ -8,7 +8,6 @@ package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
@@ -180,13 +179,21 @@ public class ElementProxy extends NodeProxy {
 		// First, remove the already existed attribute if there is one, 
 		// so that it's no longer attached to this element.
 		// Then, call the native setAttributeNode function so it will raise 
-		// DOMEexception if there is anything wrong with newAttr.
+		// DOMEexception if there is anything wrong with newAttr. If raising
+		// any exception, add the removed attribute back to this element.
 		// Finally, return the existed attribute which we removed.
 		if (existedAttr != null) {
 			this.removeAttributeNode(existedAttr);
 		}
 		
-		element.setAttributeNode(newAttr.getAttr());
+		try {
+			element.setAttributeNode(newAttr.getAttr());
+		} catch (DOMException e) {
+			if (existedAttr != null) {
+				element.setAttributeNode(existedAttr.getAttr());
+			}
+			throw e;
+		}
 		
 		return existedAttr;
 	}
@@ -196,7 +203,8 @@ public class ElementProxy extends NodeProxy {
 		throws DOMException
 	{
 		String newAttrName = newAttr.getNodeName();
-		AttrProxy existedAttr = this.getAttributeNode(newAttrName);
+		String newAttrNamespaceURI = newAttr.getNamespaceURI();
+		AttrProxy existedAttr = this.getAttributeNodeNS(newAttrNamespaceURI, newAttrName);
 		
 		// Per spec, replacing an attribute node by itself has no effect.
 		if (existedAttr != null && existedAttr.getAttr() == newAttr.getAttr()) {
@@ -211,8 +219,15 @@ public class ElementProxy extends NodeProxy {
 		if (existedAttr != null) {
 			this.removeAttributeNode(existedAttr);
 		}
-				
-		element.setAttributeNodeNS(newAttr.getAttr());
+		
+		try {
+			element.setAttributeNodeNS(newAttr.getAttr());
+		} catch (DOMException e) {
+			if (existedAttr != null) {
+				element.setAttributeNodeNS(existedAttr.getAttr());
+			}
+			throw e;
+		}
 		
 		return existedAttr;
 	}
