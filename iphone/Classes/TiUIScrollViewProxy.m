@@ -33,7 +33,7 @@
         else{
             contentOffset = [[TiPoint alloc] initWithPoint:CGPointMake(0,0)];
         }
-    }, NO);
+    }, YES);
     return [contentOffset autorelease];
 }
 
