@@ -136,7 +136,7 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 
 -(NSInteger)rowHeight
 {
-	return MAX(33,(scrollView.frame.size.height /3));
+	return MAX(33,(scrollView.frame.size.height / [self rowCount]));
 }
 
 - (NSMutableArray*)pageWithFreeSpace:(NSInteger)pageIndex 
