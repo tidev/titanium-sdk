@@ -36,7 +36,7 @@ define("Ti/_/UI/Element",
 		domType: null,
 		domNode: null,
 
-		constructor: function() {
+		constructor: function(args) {
 			var self = this,
 
 				node = this.domNode = this._setFocusNode(dom.create(this.domType || "div", {
@@ -69,6 +69,8 @@ define("Ti/_/UI/Element",
 
 				useTouch = "ontouchstart" in window,
 				bg = lang.hitch(this, "_doBackground");
+
+			require.has("devmode") && args && args._debug && dom.attr.set(node, "data-debug", args._debug);
 
 			function processTouchEvent(eventType, evt) {
 				var i,

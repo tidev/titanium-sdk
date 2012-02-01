@@ -176,8 +176,8 @@
 
 -(void)cancelLocalNotification:(id)args
 {
-	ENSURE_UI_THREAD(cancelLocalNotification,args);
 	ENSURE_SINGLE_ARG(args,NSObject);
+	ENSURE_UI_THREAD(cancelLocalNotification,args);
 	NSInteger theid = [TiUtils intValue:args];
 	NSArray *notifications = [[UIApplication sharedApplication] scheduledLocalNotifications];
 	if (notifications!=nil)
