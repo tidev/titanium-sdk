@@ -17,6 +17,7 @@
 		doc = document,
 		body = doc.body,
 		undef,
+		odp = Object.defineProperty,
 		ready = require("Ti/_/ready"),
 		createUUID = require("Ti/_").uuid,
 		sessionId,
@@ -26,9 +27,9 @@
 		analyticsLastSent = null;
 
 	// Object.defineProperty() shim
-	if (!Object.defineProperty || !(function (obj) {
+	if (!odp || !(function (obj) {
 			try {
-				Object.defineProperty(obj, "x", {});
+				odp(obj, "x", {});
 				return obj.hasOwnProperty("x");
 			} catch (e) { }
 		}({}))) {
@@ -201,6 +202,7 @@
 	// print the Titanium version *after* the console shim
 	console.info("[INFO] Appcelerator Titanium " + cfg.ti.version + " Mobile Web");
 
+	require.has.add("devmode", cfg.deployType === "development");
 	require.has.add("opera", typeof opera === "undefined" || opera.toString() != "[object Opera]");
 
 	// make sure we have some vendor prefixes defined
