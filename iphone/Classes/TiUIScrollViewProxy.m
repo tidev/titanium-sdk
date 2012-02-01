@@ -23,17 +23,16 @@
 }
 
 -(TiPoint *) contentOffset{
-    
-    TiThreadPerformOnMainThread(^{
-        if ([(TiUIScrollView*)[self view] scrollView] != nil) {
-            contentOffset = [[TiPoint alloc] initWithPoint:CGPointMake(
-                                    [(TiUIScrollView *)[self view] scrollView].contentOffset.x,
-                                    [(TiUIScrollView *)[self view] scrollView].contentOffset.y)] ; 
-        }
-        else{
-            contentOffset = [[TiPoint alloc] initWithPoint:CGPointMake(0,0)];
-        }
-    }, YES);
+    if([self viewAttached]){
+        TiThreadPerformOnMainThread(^{
+                   contentOffset = [[TiPoint alloc] initWithPoint:CGPointMake(
+                                        [(TiUIScrollView *)[self view] scrollView].contentOffset.x,
+                                        [(TiUIScrollView *)[self view] scrollView].contentOffset.y)] ; 
+          }, YES);
+    }
+    else{
+        contentOffset = [[TiPoint alloc] initWithPoint:CGPointMake(0,0)];
+    }
     return [contentOffset autorelease];
 }
 
