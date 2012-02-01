@@ -356,7 +356,7 @@ events:
 
   - name: scroll
     summary: Fired when the table view is scrolled.
-    platofrms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
     properties:
       - name: firstVisibleItem
         summary: Row index of the topmost visible row in the view.
