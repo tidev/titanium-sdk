@@ -6,6 +6,13 @@
 
 import os, sys, re, shutil, time, base64, sgmllib, codecs, xml, datetime
 
+try:
+	import Image
+except:
+	print "\nERROR: Unabled to import module \"Image\"\n"
+	print "Run `sudo easy_install pil` to install the 'Image' module or download from http://www.pythonware.com/products/pil/\n"
+	sys.exit(1)
+
 # Add the Android support dir, since mako is located there, and import mako
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),"..", "android")))
 import mako.template
@@ -42,7 +49,14 @@ class Compiler(object):
 		self.defines = [
 				# these MUST be ordered correctly!
 				'eventdriven.js',
-				
+
+				# building blocks
+				'Ti/_/String.js',
+
+				# AMD plugins
+				"Ti/_/include.js",
+				"Ti/_/text.js",
+
 				# base classes
 				'Ti/_/Evented.js',
 				'Ti/UI.js',
@@ -116,26 +130,15 @@ class Compiler(object):
 				'Ti/UI/ScrollView.js',
 				'Ti/UI/Slider.js',
 				'Ti/UI/Switch.js',
-				'Ti/UI/TableView.js',
 				'Ti/UI/TableViewSection.js',
+				'Ti/UI/TableView.js',
 				'Ti/UI/TextArea.js',
 				'Ti/UI/TextField.js',
 				'Ti/UI/WebView.js',
 				'Ti/Utils.js',
 				
 				# resources
-				'titanium.css',
-
-				# everything below will eventually go away :)
-				#'screen.js',
-				#'interactable.js',
-				#'clickable.js',
-				#'styleable.js',
-				#'touchable.js',
-				#'positionable.js',
-				#'domview.js',
-				#'Ti.App/properties.js',
-				#'Ti.Locale/locale.js',
+				'titanium.css'
 			]
 		
 #		self.css_defines = []
@@ -320,6 +323,17 @@ class Compiler(object):
 					shutil.copy(api_file, target_file)
 					# open(target_file,'wb').write(open(api_file,'rb').read())
 		
+		# copy the favicon
+		icon_file = os.path.join(self.resources_dir, ti.properties['icon'])
+		fname, ext = os.path.splitext(icon_file)
+		ext = ext.lower()
+		if os.path.exists(icon_file) and (ext == '.png' or ext == '.jpg' or ext == '.gif'):
+			self.build_icons(icon_file)
+		else:
+			icon_file = os.path.join(self.resources_dir, 'mobileweb', 'appicon.png')
+			if os.path.exists(icon_file):
+				self.build_icons(icon_file)
+		
 		if len(ti.app_properties):
 			titanium_js += '(function(p){'
 			
@@ -337,15 +351,15 @@ class Compiler(object):
 			
 			titanium_js += '}(Ti.App.Properties));'
 		
-		ti_dir = os.path.join(self.build_dir,'titanium')
-		try:
-			os.makedirs(ti_dir)
-		except:
-			pass
+#		ti_dir = os.path.join(self.build_dir,'titanium')
+#		try:
+#			os.makedirs(ti_dir)
+#		except:
+#			pass
 		
-		o = codecs.open(os.path.join(ti_dir,'titanium.js'),'w',encoding='utf-8')
-		o.write(HEADER + titanium_js + FOOTER)
-		o.close()
+#		o = codecs.open(os.path.join(ti_dir,'titanium.js'),'w',encoding='utf-8')
+#		o.write(HEADER + titanium_js + FOOTER)
+#		o.close()
 		
 		# detect any fonts and add font face rules to the css file
 		resource_dir = os.path.join(project_dir, 'Resources')
@@ -361,9 +375,9 @@ class Compiler(object):
 		for font in fonts:
 			titanium_css += "@font-face{font-family:%s;src:url(%s);}\n" % (font, "),url(".join(fonts[font]))
 		
-		o = codecs.open(os.path.join(ti_dir,'titanium.css'), 'w', encoding='utf-8')
-		o.write(HEADER + titanium_css + 'end' + FOOTER)
-		o.close()
+#		o = codecs.open(os.path.join(ti_dir,'titanium.css'), 'w', encoding='utf-8')
+#		o.write(HEADER + titanium_css + 'end' + FOOTER)
+#		o.close()
 
 		try:
 			status_bar_style = ti.properties['statusbar-style']
@@ -406,37 +420,48 @@ class Compiler(object):
 		o.close()
 
 		# write localization data
-		i18n_content = "Titanium._5.setLocaleData("
-		def xml2json(collector, node):
-			collector[node.attributes.items()[0][1]] = node.firstChild.nodeValue
-			return collector
 
-		lang_arr = {}
-		for root, dirs, files in os.walk(os.path.join(self.project_dir,'i18n')):
-			for file in files:
-				if file != 'strings.xml':
-					continue
-				lang = os.path.split(root)[1]
-				lang_arr[lang] = {}
-				lang_file = codecs.open(os.path.join(root, file), 'r', 'utf-8').read().encode("utf-8")
-				dom = xml.dom.minidom.parseString(lang_file)
-				strings = dom.getElementsByTagName("string")
-				reduce(xml2json, strings, lang_arr[lang])
-		i18n_content += json.dumps(lang_arr)
-
-		i18n_content += ");";
-		i18n_file = os.path.join(self.build_dir,'titanium', 'i18n.js')
-		o = codecs.open(i18n_file,'w', encoding='utf-8')
-		o.write(i18n_content)
-		o.close()
+#		i18n_content = "Titanium._5.setLocaleData("
+#		def xml2json(collector, node):
+#			collector[node.attributes.items()[0][1]] = node.firstChild.nodeValue
+#			return collector
+#
+#		lang_arr = {}
+#		for root, dirs, files in os.walk(os.path.join(self.project_dir,'i18n')):
+#			for file in files:
+#				if file != 'strings.xml':
+#					continue
+#				lang = os.path.split(root)[1]
+#				lang_arr[lang] = {}
+#				lang_file = codecs.open(os.path.join(root, file), 'r', 'utf-8').read().encode("utf-8")
+#				dom = xml.dom.minidom.parseString(lang_file)
+#				strings = dom.getElementsByTagName("string")
+#				reduce(xml2json, strings, lang_arr[lang])
+#		i18n_content += json.dumps(lang_arr)
+#
+#		i18n_content += ");";
+#		i18n_file = os.path.join(self.build_dir,'titanium', 'i18n.js')
+#		o = codecs.open(i18n_file,'w', encoding='utf-8')
+#		o.write(i18n_content)
+#		o.close()
 		
 		# Copy the themes
 		shutil.copytree(os.path.join(template_dir,'themes'),os.path.join(self.build_dir,'themes'))
 		
-		
 		print "[INFO] Compiled %d files for %s" % (self.count,ti.properties['name'])
+	
+	def build_icon(self, src, filename, size):
+		img = Image.open(src)
+		resized = img.resize((size, size), Image.ANTIALIAS)
+		resized.save(os.path.join(self.build_dir, filename), 'png')
 		
-		
+	def build_icons(self, src):
+		self.build_icon(src, 'favicon.ico', 16)
+		self.build_icon(src, 'apple-touch-icon-precomposed.png', 57)
+		self.build_icon(src, 'apple-touch-icon-57x57-precomposed.png', 57)
+		self.build_icon(src, 'apple-touch-icon-72x72-precomposed.png', 72)
+		self.build_icon(src, 'apple-touch-icon-114x114-precomposed.png', 114)
+	
 	def load_api(self,file, api=""):
 		file_contents = codecs.open(file, 'r', 'utf-8').read()
 		if not self.debug and file.find('.js') != -1:

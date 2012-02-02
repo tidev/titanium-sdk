@@ -43,15 +43,16 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 		_defaultHeight: "auto",
 		_defaultWidth: "100%",
 		_tableRowHeight: undef,
+		_tableViewSection: null,
 		_handleTouchEvent: function(type, e) {
 			if (type === "click" || type === "singletap") {
-				this._parent && this._parent._parent && (this._parent._parent._tableViewRowClicked = this);
+				this._tableViewSection && this._tableViewSection._tableView && (this._tableViewSection._tableView._tableViewRowClicked = this);
 			}
 			View.prototype._handleTouchEvent.apply(this,arguments);
 		},
 		
-		doLayout: function(){
-			View.prototype.doLayout.apply(this,arguments);
+		_doLayout: function(){
+			View.prototype._doLayout.apply(this,arguments);
 		},
 		
 		_doBackground: function(evt) {

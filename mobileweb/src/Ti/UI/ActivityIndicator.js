@@ -13,6 +13,14 @@ define("Ti/UI/ActivityIndicator", ["Ti/_/declare", "Ti/_/UI/Element"], function(
 		_defaultWidth: "auto",
 		_defaultHeight: "auto",
 		
+		_getContentWidth: function() {
+			console.debug('Property "Titanium.UI.ActivityIndicator#._getContentWidth" is not implemented yet.');
+		},
+
+		_getContentHeight: function() {
+			console.debug('Property "Titanium.UI.ActivityIndicator#._getContentHeight" is not implemented yet.');
+		},
+		
 		properties: {
 			color: {
 				get: function(value) {

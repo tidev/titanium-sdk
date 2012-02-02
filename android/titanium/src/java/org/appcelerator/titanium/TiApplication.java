@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -213,7 +213,9 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			return activity;
 		}
 
-		Log.w(LCAT, "activity stack is emtpy, unable to get current activity");
+		if (DBG) {
+			Log.d(LCAT, "activity stack is empty, unable to get current activity");
+		}
 		return null;
 	}
 	

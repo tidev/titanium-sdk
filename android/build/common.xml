@@ -63,6 +63,16 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<property name="android.ndk" value="${env.ANDROID_NDK}"/>
 
 	<if>
+		<isset property="env.TI_DEBUG"/>
+		<then>
+			<property name="ti.debug" value="${env.TI_DEBUG}"/>
+		</then>
+		<else>
+			<property name="ti.debug" value="0"/>
+		</else>
+	</if>
+
+	<if>
 		<isset property="env.ANDROID_PLATFORM"/>
 		<then>
 			<property name="android.sdk" location="${env.ANDROID_PLATFORM}/../.."/>
@@ -377,7 +387,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<property name="ndk.build.args" value=""/>
 		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
 			<env key="ANDROID_NDK" file="${android.ndk}"/>
-			<arg value="TI_DEBUG=0"/>
+			<arg value="TI_DEBUG=${ti.debug}"/>
 			<arg line="${ndk.build.args}"/>
 		</exec>
 		<copy todir="${dist.dir}">
