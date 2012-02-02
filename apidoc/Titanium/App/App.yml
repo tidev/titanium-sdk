@@ -2,119 +2,136 @@
 name: Titanium.App
 summary: The top level App module. The App module is mainly used for accessing information about the application at runtime.
 description: |
-    The `App` module exposes a number of properties set in the `tiapp.xml` file. 
-    Three of these properties, the application name, ID, and URL, must be specified in the 
-    new project wizard when you create an application. 
+    The `App` module exposes a number of properties set in the `tiapp.xml` file.  
     
-    Most values can be changed by editing the `tiapp.xml` file after creating the project.
-    However, the GUID property is automatically generated and should not be changed.
+    Three of these properties, the application name, ID, and URL, must be specified when the 
+    application is created.  
+    
+    While most values may be changed by editing the `tiapp.xml` file after creating the project, 
+    the GUID is automatically generated and should not be changed.
 
 extends: Titanium.Module
 since: "0.1"
+
 methods:
   - name: getArguments
-    summary: Return the arguments passed to the application on startup as a dictionary.
+    summary: Returns the arguments passed to the application on startup.
     platforms: [iphone, ipad]
     returns:
         type: Dictionary
+
 events:
   - name: proximity
-    summary: Fired when the iPhone proximity sensor changes state.
+    summary: Fired when the proximity sensor changes state.
     description: |
-        The iOS proximity sensor detects whether the device is being held up 
-        to the user's ear, and shuts down the display.
+        The proximity sensor detects whether the device is being held up to the user's ear, 
+        and shuts down the display.
 
-        If [proximityDetection](Titanium.App.proximityDetection) is `true`,
-        events are generated whenever the proximity sensor changes state.
+        Proximity events are only fired when [proximityDetection](Titanium.App.proximityDetection) 
+        is `true`.
     properties:
       - name: state
         summary: Proximity state value.
     platforms: [iphone, ipad]
+    
   - name: resume
-    summary: Fired when an iOS application will enter the foreground due to iOS 4's multitasking.
+    summary: Fired when the application enters the foreground on a multitasked system.
     description: |
-        This does not include pauses due to notifications or calls. See
-        [applicationWillEnterForeground](http://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplication_Class/Reference/Reference.html#//apple_ref/doc/uid/TP40006728-CH3-SW108) for
-        the exact behavior that triggers this event.
-    platforms: [iphone, ipad]
-  - name: resumed
-    summary: Fired when an iOS application will return to being the focus. 
-    description: |
-        This includes not
-        only the events that trigger the `resume` event, but also pauses due to notifications 
-        or calls. See
-        [applicationDidBecomeActive](http://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW10) for
-        the exact behavior that triggers this event.
-    platforms: [iphone, ipad]
-  - name: pause
-    summary: Fired when an iOS application will stop being the focus. 
-    description: |
-        This includes not only the user leaving the application, 
-        but also pauses due to notifications or calls. See [applicationWillResignActive](http://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW10) 
-        for the exact behavior that triggers this event.
+        Note that this event does not fire for pauses resulting from notifications or incoming phonecalls.  
         
-        Note that making calls to functions which modify the UI during this
-        event may cause execution **up to** the UI call before the suspension,
-        but then execute the **remainder** of the callback after the application is
-        resumed (but before the `resume` event is triggered).
+        For iOS, see [applicationWillEnterForeground](http://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplication_Class/Reference/Reference.html#//apple_ref/doc/uid/TP40006728-CH3-SW108) 
+        for the exact behavior that triggers this event.  
     platforms: [iphone, ipad]
+    
+  - name: resumed
+    summary: Fired when the application returns to focus.
+    description: |
+        This event fires when the application enters the foreground with the `resume` event or 
+        returns to focus after notifications and incoming phonecalls.  
+        
+        For iOS, see [applicationDidBecomeActive](http://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW10) 
+        for the exact behavior that triggers this event.  
+    platforms: [iphone, ipad]
+    
+  - name: pause
+    summary: Fired when the application ceases being the focus. 
+    description: |
+        This event fires when the user leaves the application or it is paused due to notifications 
+        and incoming phonecalls.  
+        
+        For iOS, see [applicationWillResignActive](http://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW10) 
+        for the exact behavior that triggers this event.  
+        
+        Note that calls to functions that modify the UI during this event may be partially executed, 
+        **up to** the UI call before the suspension. If this happens, the **remainder** of the code 
+        will be executed after the application is resumed, but before the `resume` event is triggered.
+    platforms: [iphone, ipad]
+    
 properties:
   - name: copyright
-    summary: Application's copyright statement, from `tiapp.xml`.
+    summary: Application copyright statement, from `tiapp.xml`.
     type: String
     permission: read-only
+    
   - name: description
-    summary: Application's description, from `tiapp.xml`.
+    summary: Application description, from `tiapp.xml`.
     type: String
     permission: read-only
+    
   - name: guid
-    summary: Application's globally unique id, from `tiapp.xml`
-    description: This value is system generated and consistent through all versions.
+    summary: Application globally-unique ID, from `tiapp.xml`.
+    description: This value is system-generated and consistent through all versions.
     type: String
     permission: read-only
+    
   - name: id
-    summary: Application's app ID, from `tiapp.xml`. 
+    summary: Application ID, from `tiapp.xml`. 
     description: |
-        The application ID is a required property you must specify when creating a new project.
+        The application ID is a required property that must be specified when creating a new project.
     type: String
     permission: read-only
+    
   - name: idleTimerDisabled
-    summary: Controls whether the phone screen will be locked on idle time. 
+    summary: Determines whether the screen is locked when the device is idle. 
     description: Set to `true` to disable the timer.
     type: Boolean
     platforms: [iphone, ipad]
+    
   - name: name
-    summary: Application's name, from `tiapp.xml`.
+    summary: Application name, from `tiapp.xml`.
     type: String
     permission: read-only
+    
   - name: proximityDetection
-    summary: Boolean to indicate whether proximity detection is enabled. 
+    summary: Determines whether proximity detection is enabled. 
     description: |
-        Set to `true` to receive `proximity` events.
-
-        See the [proximity](Titanium.App.proxmity) event for more information.
+        Set to `true` to receive <Titanium.App.proximity> events.
     type: Boolean
-    platforms: [iphone, ipad]
     default: false
-  - name: proximityState
-    summary: State of the device's proximity sensor. 
-    description: |
-        Set to `true` if the proximity sensor is close to the user.
-        
-        If the `proximityDetection` is false, the value of this property is undefined.
-
-        See the [proximity](Titanium.App.proxmity) event for more information.
-    type: Boolean
     platforms: [iphone, ipad]
+    
+  - name: proximityState
+    summary: |
+        Indicates the state of the device's proximity sensor, according to the 
+        <Titanium.App.proximity> event.
+    description: |
+        This property is `true` when the proximity sensor is close to the user.  
+        
+        When <Titanium.App.proximityDetection> is disabled, the value of this property is undefined.
+    type: Boolean
     permission: read-only
+    platforms: [iphone, ipad]
+    
   - name: publisher
-    summary: Application's publisher, from `tiapp.xml`.
+    summary: Application publisher, from `tiapp.xml`.
     type: String
     permission: read-only
+    
   - name: url
     summary: Application URL, from `tiapp.xml`.
     type: String
     permission: read-only
+    
   - name: version
     summary: Application version, from `tiapp.xml`.
     type: String
