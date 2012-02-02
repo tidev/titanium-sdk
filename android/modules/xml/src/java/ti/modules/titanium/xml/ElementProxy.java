@@ -204,7 +204,15 @@ public class ElementProxy extends NodeProxy {
 	{
 		String newAttrName = newAttr.getNodeName();
 		String newAttrNamespaceURI = newAttr.getNamespaceURI();
-		AttrProxy existedAttr = this.getAttributeNodeNS(newAttrNamespaceURI, newAttrName);
+		String newAttrLocalName = newAttr.getLocalName();
+		AttrProxy existedAttr = null;
+		
+		try {
+			existedAttr = this.getAttributeNodeNS(newAttrNamespaceURI, newAttrLocalName);
+		} catch (DOMException e) {
+			// If the Document does not support XML Namespaces
+			existedAttr = this.getAttributeNode(newAttrName);
+		}
 		
 		// Per spec, replacing an attribute node by itself has no effect.
 		if (existedAttr != null && existedAttr.getAttr() == newAttr.getAttr()) {
