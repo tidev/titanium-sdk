@@ -213,10 +213,8 @@
 -(void)setImage:(UIImage *)image_
 {
 	RELEASE_TO_NIL(image);
-    RELEASE_TO_NIL(mimetype);
-	type = TiBlobTypeImage;
 	image = [image_ retain];
-    mimetype = [@"image/jpeg" retain];
+    [self setMimeType:@"image/jpeg" type:TiBlobTypeImage];
 }
 
 -(NSString*)path
