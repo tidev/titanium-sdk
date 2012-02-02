@@ -20,6 +20,11 @@
 
 #define IMAGEVIEW_DEBUG 0
 
+@interface TiUIImageView()
+-(void)startTimerWithEvent:(NSString *)eventName;
+-(void)stopTimerWithEvent:(NSString *)eventName;
+@end
+
 @implementation TiUIImageView
 
 #pragma mark Internal
@@ -95,13 +100,12 @@ DEFINE_EXCEPTIONS
 			[TiUtils setView:child positionRect:bounds];
 		}
 	}
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 -(void)timerFired:(id)arg
 {
-	// if paused, just ignore this timer loop until restared/stoped
-	if (paused||stopped)
-	{
+	if (stopped) {
 		return;
 	}
 	
@@ -151,14 +155,9 @@ DEFINE_EXCEPTIONS
 	if (repeatCount > 0 && ((reverse==NO && nextIndex == loadTotal) || (reverse && nextIndex==0)))
 	{
 		iterations++;
-		if (iterations == repeatCount)
-		{
-			[timer invalidate];
-			RELEASE_TO_NIL(timer);
-			if ([self.proxy _hasListeners:@"stop"])
-			{
-				[self.proxy fireEvent:@"stop" withObject:nil];
-			}
+		if (iterations == repeatCount) {
+            stopped = YES;
+            [self stopTimerWithEvent:@"stop"];
 		}
 	}
 }
@@ -180,7 +179,7 @@ DEFINE_EXCEPTIONS
 	[[OperationQueue sharedQueue] queue:@selector(loadImageInBackground:) target:self arg:[NSNumber numberWithInt:index_] after:nil on:nil ui:NO];
 }
 
--(void)startTimer
+-(void)startTimerWithEvent:(NSString *)eventName
 {
 	RELEASE_TO_NIL(timer);
 	if (stopped)
@@ -188,9 +187,23 @@ DEFINE_EXCEPTIONS
 		return;
 	}
 	timer = [[NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(timerFired:) userInfo:nil repeats:YES] retain]; 
-	if ([self.proxy _hasListeners:@"start"])
+	if ([self.proxy _hasListeners:eventName])
 	{
-		[self.proxy fireEvent:@"start" withObject:nil];
+		[self.proxy fireEvent:eventName withObject:nil];
+	}
+}
+
+-(void)stopTimerWithEvent:(NSString *)eventName
+{
+    if (!stopped) {
+        return;
+    }
+	if (timer != nil) {
+		[timer invalidate];
+		RELEASE_TO_NIL(timer);
+		if ([self.proxy _hasListeners:eventName]) {
+			[self.proxy fireEvent:eventName withObject:nil];
+		}
 	}
 }
 
@@ -281,7 +294,7 @@ DEFINE_EXCEPTIONS
 			readyCount = 0;
 			ready = NO;
 			
-			[self startTimer];
+			[self startTimerWithEvent:@"start"];
 		}
 	}
 }
@@ -481,6 +494,7 @@ DEFINE_EXCEPTIONS
 		// we use a separate container view so we can both have an image
 		// and a set of images
 		container = [[UIView alloc] initWithFrame:self.bounds];
+		container.userInteractionEnabled = NO;
 		[self addSubview:container];
 	}
 	return container;
@@ -551,16 +565,7 @@ DEFINE_EXCEPTIONS
 -(void)stop
 {
 	stopped = YES;
-	if (timer!=nil)
-	{
-		[timer invalidate];
-		RELEASE_TO_NIL(timer);
-		if ([self.proxy _hasListeners:@"stop"])
-		{
-			[self.proxy fireEvent:@"stop" withObject:nil];
-		}
-	}
-	paused = NO;
+    [self stopTimerWithEvent:@"stop"];
 	ready = NO;
 	index = -1;
 	[self.proxy replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
@@ -579,7 +584,6 @@ DEFINE_EXCEPTIONS
 		interval = (1.0/30.0)*(30.0/loadTotal);
 	}
 	
-	paused = NO;
 	[self.proxy replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
 	
 	if (iterations<0)
@@ -610,20 +614,25 @@ DEFINE_EXCEPTIONS
 		{
 			readyCount = 0;
 			ready = NO;
-			[self startTimer];
+			[self startTimerWithEvent:@"start"];
 		}
 	}
 }
 
 -(void)pause
 {
-	paused = YES;
+	stopped = YES;
 	[self.proxy replaceValue:NUMBOOL(YES) forKey:@"paused" notification:NO];
 	[self.proxy replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
-	if ([self.proxy _hasListeners:@"pause"])
-	{
-		[self.proxy fireEvent:@"pause" withObject:nil];
-	}
+    [self stopTimerWithEvent:@"pause"];
+}
+
+-(void)resume
+{
+	stopped = NO;
+	[self.proxy replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
+	[self.proxy replaceValue:NUMBOOL(YES) forKey:@"animating" notification:NO];
+    [self startTimerWithEvent:@"resume"];
 }
 
 -(void)setWidth_:(id)width_

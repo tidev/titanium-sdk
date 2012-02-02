@@ -116,6 +116,7 @@ static NSDictionary* TI_filterableItemProperties;
 	RELEASE_TO_NIL(systemMusicPlayer);
 	RELEASE_TO_NIL(appMusicPlayer);
 	RELEASE_TO_NIL(popoverView);
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[super dealloc];
 }
 
@@ -737,8 +738,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 -(void)setCameraFlashMode:(id)args
 {
 	// Return nothing	
-	ENSURE_UI_THREAD(setCameraFlashMode,args);
 	ENSURE_SINGLE_ARG(args,NSNumber);
+	ENSURE_UI_THREAD(setCameraFlashMode,args);
 	
 	if (picker!=nil)
 	{
@@ -748,9 +749,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(void)switchCamera:(id)args
 {
-	// Return nothing	
-	ENSURE_UI_THREAD(switchCamera,args);
 	ENSURE_SINGLE_ARG(args,NSNumber);
+	ENSURE_UI_THREAD(switchCamera,args);
 	
 	// must have a picker, doh
 	if (picker==nil)
@@ -784,8 +784,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(void)startVideoEditing:(id)args
 {	
-	ENSURE_UI_THREAD(startVideoEditing,args);
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	ENSURE_UI_THREAD(startVideoEditing,args);
 
 	RELEASE_TO_NIL(editor); 
 	
@@ -841,8 +841,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(void)stopVideoEditing:(id)args
 {	
-	ENSURE_UI_THREAD(stopVideoEditing,args);
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	ENSURE_UI_THREAD(stopVideoEditing,args);
 	
 	if (editor!=nil)
 	{
@@ -893,22 +893,22 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(void)showCamera:(id)args
 {
-	ENSURE_UI_THREAD(showCamera,args);
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	ENSURE_UI_THREAD(showCamera,args);
 	[self showPicker:args isCamera:YES];
 }
 
 -(void)openPhotoGallery:(id)args
 {
-	ENSURE_UI_THREAD(openPhotoGallery,args);
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	ENSURE_UI_THREAD(openPhotoGallery,args);
 	[self showPicker:args isCamera:NO];
 }	
 
 -(void)takeScreenshot:(id)arg
 {
-	ENSURE_UI_THREAD(takeScreenshot,arg);
 	ENSURE_SINGLE_ARG(arg,KrollCallback);
+	ENSURE_UI_THREAD(takeScreenshot,arg);
 
     // Create a graphics context with the target size
 
@@ -1116,8 +1116,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(void)openMusicLibrary:(id)args
 {	
-	ENSURE_UI_THREAD(openMusicLibrary,args);
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	ENSURE_UI_THREAD(openMusicLibrary,args);
 
 	if (musicPicker != nil) {
 		[self sendPickerError:MediaModuleErrorBusy];

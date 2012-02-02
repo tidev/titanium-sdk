@@ -50,6 +50,7 @@
 			[launcher recreateButtons];
 		}
 	}
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 -(void)setEditable_:(id)args

@@ -22,6 +22,9 @@ exports.bootstrapWindow = function(Titanium) {
 	var ActivityWindow = UI.ActivityWindow;
 	var Proxy = Titanium.Proxy;
 	var TiWindow = Titanium.TiWindow;
+
+	// A collection of windows we need to keep alive.
+	var windows = [];
 		
 	Window.prototype.isActivity = false;
 
@@ -163,6 +166,8 @@ exports.bootstrapWindow = function(Titanium) {
 	Object.defineProperty(Window.prototype, "windowPixelFormat", { get: windowPixelFormatGetter, set: windowPixelFormatSetter});
 
 	Window.prototype.open = function(options) {
+		var self = this;
+
 		// if the window is not closed, do not open
 		if (this.currentState != this.state.closed) {
 			if (kroll.DBG) {
@@ -172,6 +177,17 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 		this.currentState = this.state.opening;
+
+		// Keep the window alive until it gets closed.
+		windows.push(this);
+		this.on('close', function () {
+			var index = windows.indexOf(self);
+			if (index >= 0) {
+				windows.splice(index, index);
+			} else {
+				kroll.log(TAG, "Unable to release window reference.");
+			}
+		});
 		
 		if (!options) {
 			options = {};
@@ -219,7 +235,6 @@ exports.bootstrapWindow = function(Titanium) {
 		this.addChildren();
 
 		if (needsOpen) {
-			var self = this;
 			this.window.on("windowCreated", function () {
 				self.postOpen();
 			});
@@ -334,10 +349,6 @@ exports.bootstrapWindow = function(Titanium) {
 
 		if (this.isActivity) {
 			var self = this;
-			this.window.on("close", function () {
-				self.fireEvent("close");
-			});
-
 			this.window.close(options);
 			this.currentState = this.state.closed;
 

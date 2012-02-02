@@ -2,14 +2,14 @@ define("Ti/_/Layouts/Vertical", ["Ti/_/Layouts/Base", "Ti/_/declare"], function(
 
 	return declare("Ti._.Layouts.Vertical", Base, {
 
-		doLayout: function(element, width, height) {
+		_doLayout: function(element, width, height) {
 			var computedSize = {width: 0, height: 0},
 				currentTop = 0;
-			for(var i = 0; i < element.children.length; i++) {
+			for(var i in element.children) {
 				
 				// Layout the child
 				var child = element.children[i];
-				child.doLayout(0,currentTop,width,height,true,false);
+				child._doLayout(0,currentTop,width,height,true,false);
 				
 				// Update the size of the component
 				var rightMostEdge = child._measuredWidth + child._measuredLeft + 2 * child._measuredBorderWidth + child._measuredRightPadding;

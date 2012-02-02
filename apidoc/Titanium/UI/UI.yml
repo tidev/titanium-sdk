@@ -98,8 +98,31 @@ description:  |
     However, in cases where the control is in a common namespace and support
     additional features, we continue to place that functionality directly on the
     object.
+    
+    #### Events
+    
+    Event listeners must be defined before their respective events are likely to 
+    be fired, otherwise they are not guaranteed to be called. The open and focus 
+    [Window](Titanium.UI.Window-object.html) event listeners, for instance, must 
+    be defined before the window is opened.
+
+    Evaluating events as late as possible while bearing the above consideration 
+    in mind, however, can significantly improve application responsiveness. For 
+    example, an event listener for a click event may be defined after the parent 
+    window has been opened.
 extends: Titanium.Module
 since: "0.4"
+methods:
+  - name: create2DMatrix
+    summary: Creates are returns an instance of <Titanium.UI.2DMatrix>.
+    parameters:
+      - name: parameters
+        summary: |
+            A dictionary object specifying the initial transformation of the object.
+        type: MatrixCreationDict
+        optional: true
+    returns:
+        type: Titanium.UI.2DMatrix
 properties:
   - name: ANIMATION_CURVE_EASE_IN
     summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
@@ -401,22 +424,18 @@ properties:
     permission: read-only
   - name: INPUT_BUTTONMODE_ALWAYS
     summary: Always show buttons on the input field.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BUTTONMODE_NEVER
     summary: Never show buttons on the input field.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BUTTONMODE_ONBLUR
     summary: Show buttons on the input field when it loses focus.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BUTTONMODE_ONFOCUS
     summary: Show buttons on the input field when it gains focus.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: KEYBOARD_APPEARANCE_ALERT
@@ -431,17 +450,20 @@ properties:
     permission: read-only
   - name: KEYBOARD_ASCII
     summary: Use an ASCII keyboard.
-    platforms: [android, iphone, ipad]
+    description: |
+        Note: on MobileWeb, `KEYBOARD_ASCII` is the same as `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
   - name: KEYBOARD_DEFAULT
     summary: Use the default keyboard.
-    platforms: [android, iphone, ipad]
+    description: |
+        Note: on MobileWeb, `KEYBOARD_DEFAULT` is the same as `KEYBOARD_ASCII`.
     type: Number
     permission: read-only
   - name: KEYBOARD_EMAIL
     summary: Use a keyboard suitable for composing email.
-    platforms: [android, iphone, ipad]
+    description: |
+        Note: on MobileWeb, if you enable `passwordType`, the `keyboardType` value will be overridden with `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
   - name: KEYBOARD_NAMEPHONE_PAD
@@ -456,17 +478,20 @@ properties:
     permission: read-only
   - name: KEYBOARD_NUMBER_PAD
     summary: Use a keyboard with a number pad only.
-    platforms: [android, iphone, ipad]
+    description: |
+        Note: on MobileWeb, if you enable `passwordType`, the `keyboardType` value will be overridden with `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
   - name: KEYBOARD_PHONE_PAD
     summary: Use a keyboard with a phone-style number pad.
-    platforms: [android, iphone, ipad]
+    description: |
+        Note: on MobileWeb, if you enable `passwordType`, the `keyboardType` value will be overridden with `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
   - name: KEYBOARD_URL
     summary: Use an keyboard optimized for entering URLs.
-    platforms: [android, iphone, ipad]
+    description: |
+        Note: on MobileWeb, if you enable `passwordType`, the `keyboardType` value will be overridden with `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
   - name: LANDSCAPE_LEFT
@@ -524,7 +549,9 @@ properties:
     permission: read-only
   - name: RETURNKEY_DEFAULT
     summary: Use the default return key on the virtual keyboard.
-    platforms: [android, iphone, ipad]
+    description: |
+        In Mobile Web, the default return key label depends on the mobile browser. For Mobile Web
+        on iOS devices, the default label is "return"; on Android devices it is "Go".
     type: Number
     permission: read-only
   - name: RETURNKEY_DONE
@@ -539,12 +566,13 @@ properties:
     permission: read-only
   - name: RETURNKEY_GO
     summary: Set the return key text to "Go".
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_GOOGLE
     summary: Set the return key text to "Google".
-    platforms: [android, iphone, ipad]
+    description: |
+        In Mobile Web, the default return key label depends on the mobile browser. For Mobile Web
+        on iOS devices, the default label is "return"; on Android devices it is "Go".
     type: Number
     permission: read-only
   - name: RETURNKEY_JOIN
@@ -564,7 +592,9 @@ properties:
     permission: read-only
   - name: RETURNKEY_SEARCH
     summary: Set the return key text to "Search".
-    platforms: [android, iphone, ipad]
+    description: |
+        In Mobile Web, the default return key label depends on the mobile browser. For Mobile Web
+        on iOS devices, the default label is "return"; on Android devices it is "Go".
     type: Number
     permission: read-only
   - name: RETURNKEY_SEND
@@ -574,7 +604,9 @@ properties:
     permission: read-only
   - name: RETURNKEY_YAHOO
     summary: Set the return key text to "Yahoo".
-    platforms: [android, iphone, ipad]
+    description: |
+        In Mobile Web, the default return key label depends on the mobile browser. For Mobile Web
+        on iOS devices, the default label is "return"; on Android devices it is "Go".
     type: Number
     permission: read-only
   - name: TEXT_ALIGNMENT_CENTER
@@ -594,21 +626,20 @@ properties:
     permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_ALL
     summary: Auto-capitalize all text in the input field.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_NONE
     summary: Do not auto-capitalize.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_SENTENCES
     summary: Use sentence-style auto-capitalization in the input field.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_WORDS
     summary: Auto-capitalize the first letter of each word in the input field.
+    description: |
+        Mobile Web does not support this because it would interfere with the native capitalization of the mobile browser.
     platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
@@ -629,12 +660,10 @@ properties:
     permission: read-only
   - name: UNKNOWN
     summary: Orientation constant representing an unknown orientation.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: UPSIDE_PORTRAIT
     summary: Orientation constant for inverted portait orientation.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: backgroundColor
@@ -642,7 +671,6 @@ properties:
     description: |
         The default background color may also show through if you use semi-transparent 
         windows.
-    platforms: [android, iphone, ipad]
     type: String
     permission: read-only
   - name: backgroundImage
@@ -650,7 +678,6 @@ properties:
     description: |
         The default background image may also show through if you use semi-transparent 
         windows.
-    platforms: [android, iphone, ipad]
     type: String
   - name: currentTab
     summary: The currently active tab, if a tab group is open.
@@ -659,7 +686,6 @@ properties:
     type: Titanium.UI.Tab
   - name: currentWindow
     summary: The active window associated with the executing JavaScript context.
-    platforms: [android, iphone, ipad]
     type: Titanium.UI.Window
     permission: read-only
   - name: orientation

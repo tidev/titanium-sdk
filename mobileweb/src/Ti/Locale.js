@@ -42,12 +42,6 @@ define("Ti/Locale", ["Ti/_/Evented"], function(Evented) {
 	Object.defineProperty(window, "L", { value: Ti.Locale.getString, enumarable: true });
 	
 	(function(api){
-		// format a generic string using the [IEEE printf specification](http://www.opengroup.org/onlinepubs/009695399/functions/printf.html).
-		api.format = function(s) {
-			console.debug('Method "String.format" is not implemented yet.');
-			return [].concat(Array.prototype.slice.call(arguments, 0)).join(" ");
-		};
-	
 		// format a date into a locale specific date format. Optionally pass a second argument (string) as either "short" (default), "medium" or "long" for controlling the date format.
 		api.formatDate = function(dt, fmt) {
 			console.debug('Method "String.formatDate" is not implemented yet.');

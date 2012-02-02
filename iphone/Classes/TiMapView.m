@@ -80,6 +80,7 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[TiUtils setView:[self map] positionRect:bounds];
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 -(TiMapAnnotationProxy*)annotationFromArg:(id)arg
@@ -645,10 +646,7 @@
 		static NSString *identifier = @"timap";
 		MKAnnotationView *annView = nil;
 		
-		if (![ann needsRefreshingWithSelection])
-		{
-			annView = (MKAnnotationView*) [mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
-		}
+		annView = (MKAnnotationView*) [mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
 		if (annView==nil)
 		{
 			id imagePath = [ann valueForUndefinedKey:@"image"];

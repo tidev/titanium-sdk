@@ -1,115 +1,349 @@
 ---
 name: Titanium.Network.Socket.TCP
-type: Titanium.IOStream
-summary: TCP socket that implements the `Titanium.IOStream` interface.  Created by `Titanium.Network.Socket.createTCP`
-extends: Titanium.Proxy
+summary: TCP socket that implements the `Titanium.IOStream` interface.  
+description: |
+    Most socket operations are asynchronous. When you create a socket, you can define
+    callback funtions to receive the results of API calls, as well as to handle incoming
+    data.
+
+    For example, for a client-side socket, you define 
+    [connected](Titanium.Network.Socket.TCP.connected) and
+    [error](Titanium.Network.Socket.TCP.error) callback functions.
+
+    To connect to a remote host, call the socket's
+    [connect](Titanium.Network.Socket.TCP.connect) method. If the socket connects
+    successfully, your `connected` callback is invoked, and you can send and receive data
+    on the socket. If the socket connection fails, your `error` callback is invoked. 
+
+    After a socket is connected, you can access it like any other <Titanium.IOStream>.
+    Note that the socket's `read` and `write` methods may block, so in most cases
+    you should use the asynchronous [read](Titanium.Stream.read), [write](Titanium.Stream.write) 
+    and [pump](Titanium.Stream.pump) methods provided by the <Titanium.Stream> module,
+    rather than using the socket object's `read` and `write` methods directly.
+    
+    A familiarity with the basics of BSD socket programming is a recommended before using 
+    sockets with Titanium.
+
+    Use the <Titanium.Network.Socket.createTCP> method to create a TCP socket.
+extends: Titanium.IOStream
 since: "1.7"
 platforms: [android, iphone, ipad]
+examples:
+  - title: Simple Socket IO using Stream.pump
+    example: |
+        The following example uses the [pump](Titanium.Stream.pump) method from the <Titanium.Stream> 
+        module to read data from a socket. The `pump` method registers a callback that is 
+        called repeatedly to process incoming data from the socket.
+
+            var socket = Ti.Network.Socket.createTCP({
+                host: 'blog.example.com', port: 80,
+                connected: function (e) {
+                    Ti.API.info('Socket opened!');
+                    Ti.Stream.pump(e.socket, readCallback, 1024, true);
+                    Ti.Stream.write(socket, Ti.createBuffer({
+                        value: 'GET http://blog.example.com/index.html HTTP/1.1\r\n\r\n'
+                    }), writeCallback);
+                },
+                    error: function (e) {
+                    Ti.API.info('Error (' + e.errorCode + '): ' + e.error);
+                },
+            });
+            socket.connect();
+            
+            function writeCallback(e) {
+                Ti.API.info('Successfully wrote to socket.');
+            }
+            
+            function readCallback(e) {
+                if (e.bytesProcessed == -1)
+                {
+                    // Error / EOF on socket. Do any cleanup here.
+                    ...
+                }
+                try {
+                    if(e.buffer) {
+                        var received = e.buffer.toString();
+                        Ti.API.info('Received: ' + received);
+                    } else {
+                        Ti.API.error('Error: read callback called with no buffer!');
+                    }
+                } catch (ex) {
+                    Ti.API.error(ex);
+                }
+            }
+
+  - title: Listening Socket Example
+    example: |
+        The following sample shows a trivial example of using a listening 
+        socket. In this case, the application simply sends messages to itself,
+        using the loopback address. 
+            // Hostname to listen on/connect to. Here we use the loopback
+            // address. iOS also supports Ti.Network.address (the address of
+            // the WiFi interface).
+            // Android supports only the loopback address.
+            var hostname = '127.0.0.1';
+            
+            var clientSocket = Ti.Network.Socket.createTCP({
+                host : hostname,
+                port : 40404,
+                connected : function(e) {
+                    Ti.API.info('Client socket connected!');
+                    Ti.Stream.pump(e.socket, pumpCallback, 1024, true);
+                    e.socket.write(Ti.createBuffer({
+                        value : 'A message from a connecting socket.'
+                    }));
+                },
+                error : function(e) {
+                    Ti.API.info('Error (' + e.errorCode + '): ' + e.error);
+                }
+            });
+            
+            function writeCallback(e) {
+                Ti.API.info('Successfully wrote to socket.');
+            }
+            
+            function pumpCallback(e) {
+                // Has the remote socket closed its end?
+                if (e.bytesProcessed < 0) {
+                    Ti.API.info("Closing client socket.");
+                    clientSocket.close();
+                    return;
+                }
+                try {
+                    if(e.buffer) {
+                        var received = e.buffer.toString();
+                        Ti.API.info('Received: ' + received);
+                    } else {
+                        Ti.API.error('Error: read callback called with no buffer!');
+                    }
+                } catch (ex) {
+                    Ti.API.error(ex);
+                }
+            }
+            
+            //Create a socket and listen for incoming connections
+            var listenSocket = Ti.Network.Socket.createTCP({
+                host : hostname,
+                port : 40404,
+                accepted : function(e) {
+                    // This where you would usually store the newly-connected socket, e.inbound
+                    // so it can be used for read / write operations elsewhere in the app.
+                    // In this case, we simply send a message then close the socket.
+                    Ti.API.info("Listening socket <" + e.socket + "> accepted incoming connection <" + e.inbound + ">");
+                    e.inbound.write(Ti.createBuffer({
+                        value : 'You have been connected to a listening socket.\r\n'
+                    }));
+                    e.inbound.close();
+                    // close the accepted socket
+            
+                },
+                error : function(e) {
+                    Ti.API.error("Socket <" + e.socket + "> encountered error when listening");
+                    Ti.API.error(" error code <" + e.errorCode + ">");
+                    Ti.API.error(" error description <" + e.error + ">");
+                }
+            });
+            // Starts the socket listening for connections, does not accept them
+            listenSocket.listen();
+            Ti.API.info("Listening now...");
+            
+            // Tells socket to accept the next inbound connection. listenSocket.accepted gets
+            // called when a connection is accepted via accept()
+            Ti.API.info("Calling accept.");
+            listenSocket.accept({
+                timeout : 10000
+            });
+            
+            // Call connect after a short timeout to ensure the listening socket is ready to go.
+            Ti.API.info("Setting timer to connect.");
+            setTimeout(function(e)
+            {
+                Ti.API.info("Calling connect on client socket.");
+               clientSocket.connect();
+            }, 500);
+
 
 properties:
   - name: host
     type: String
-    summary: The host to connect to or listen on. Cannot be modified when not in the INITIALIZED state. Supports both IPv4 and IPv6
-
+    summary: The host to connect to or listen on. 
+    description: |
+        Can only be modified when this socket is in the [INITIALIZED](Titanium.Network.Socket.INITIALIZED) state. 
+        
+        Supports both IPv4 and IPv6 addresses.
   - name: port
     type: Number
-    summary: The port to connect to or listen on. Cannot be modified when not in the INITIALIZED state
+    summary: The port to connect to or listen on. 
+    description: |
+        Can only be modified when this socket is in the [INITIALIZED](Titanium.Network.Socket.INITIALIZED) state.
 
   - name: listenQueueSize
     type: Number
-    summary: Max number of pending incoming connections to be allowed when listen() is called. Any incoming connections received while the max number of pending connections has been reached will be rejected.
+    summary: Max number of pending incoming connections to be allowed when the socket is
+        in the [LISTENING](Titanium.Network.Socket.LISTENING) state.
+    description: |
+        Any incoming connections received while the max number of pending connections has 
+        been reached will be rejected.
 
   - name: timeout
     type: Number
-    summary: The timeout for connect() and all I/O write() operations. Cannot be modified when not in the INITIALIZED state
+    summary: Timeout, in milliseconds, for `connect` and all `write` operations. 
+    description: |
+        Can only be modified when this socket is in the [INITIALIZED](Titanium.Network.Socket.INITIALIZED) state. 
 
   - name: connected
     type: Callback<ConnectedCallbackArgs>
-    summary: The callback to be fired after the socket enters the "connected" state. Only invoked following a successful connect() call
+    summary: Callback to be fired when the socket enters the "connected" state. 
+    description: |
+        Only invoked following a successful [connect](Titanium.Network.Socket.TCP.connect)
+        call.
 
+        Can only be modified when this socket is in the [INITIALIZED](Titanium.Network.Socket.INITIALIZED) state. 
   - name: error
     type: Callback<ErrorCallbackArgs>
-    summary: The callback to be fired after the socket enters the ERROR state
+    summary: Callback to be fired when the socket enters the [ERROR](Titanium.Network.Socket.ERROR) state.
 
   - name: accepted
     type: Callback<AcceptedCallbackArgs>
-    summary: The callback to be fired when a listener accepts a connection
+    summary: Callback to be fired when a listener accepts a connection.
 
   - name: state
     type: Number
     permission: read-only
-    summary: current state of the socket
+    summary: Current state of the socket.
+    description: |
+        One of: [INITIALIZED](Titanium.Network.Socket.INITIALIZED), 
+        [CONNECTED](Titanium.Network.Socket.CONNECTED), 
+        [LISTENING](Titanium.Network.Socket.LISTENING), 
+        [CLOSED](Titanium.Network.Socket.CLOSED), or
+        [ERROR](Titanium.Network.Socket.ERROR).
 
 
 methods:
   - name: connect
-    summary: Attempts to connect the socket to its host/port. Throws exception if the socket is in a CONNECTED or LISTENING state. Throws exception if a valid host and port has not been set on the proxy. Nonblocking; connection attempts are asynchronous
+    summary: Attempts to connect the socket to its host/port. 
+    description: |
+        Throws an exception if the socket is in a [CONNECTED](Titanium.Network.Socket.CONNECTED) 
+        or [LISTENING](Titanium.Network.Socket.LISTENING) state. 
+        Throws an exception if a valid host and port has not been set on this socket. 
+        
+        Nonblocking; connection attempts are asynchronous.
 
   - name: listen
-    summary: Attempts to start listening on the socket's host/port. listen() call will attempt to listen on the specified host and/or port property for the socket if they are set. This function blocks execution and throws an exception on error (and sets the socket state to ERROR) but does not fire the error callback in this event. Throws exception if the socket is in a LISTENING or CONNECTED state
+    summary: Attempts to start listening on the socket's host/port. 
+    description: |
+        The `listen` call will attempt to listen on the specified host and/or port 
+        property for the socket if they are set.  
+        
+        Nonblocking; may return before the socket is fully open and listening.
+
+        If the socket is already in a [LISTENING](Titanium.Network.Socket.LISTENING) or
+        [CONNECTED](Titanium.Network.Socket.CONNECTED) state, `listen` throws an exception
+        and sets the socket state to [ERROR](Titanium.Network.Socket.ERROR), but does 
+        **not** fire the error callback.
+
+        Any error encountered after the socket starts listening results in the error
+        callback being fired.
 
   - name: accept
-    summary: Tells a LISTENING socket to accept a connection request at the top of a listener's request queue when one becomes available. Takes an argument, a box object which assigns callbacks to the created socket. Note that the connected callback is not called (the socket does not "transition to" the CONNECTED state - it's created in the CONNECTED state) on the newly created socket.  The accepted callback is called when a new connection is accepted as a result of calling accept().  If the socket is already flagged to accept the next connection, the existing accept options will be update to use the newly specified options object. Throws an exception if the socket is not in a LISTENING state
+    summary: Tells a [LISTENING](Titanium.Network.Socket.LISTENING) socket to accept a connection request at the top of a listener's request queue when one becomes available. 
+    description: |
+        Nonblocking; if there are no connections in the queue, sets a flag so that 
+        the socket accepts the next incoming connection immediately. 
+        
+        Takes an argument, an <AcceptDict> object which assigns options to the new
+        connection.  If the socket is already flagged to accept the next connection, 
+        the existing accept options will be updated to use the newly specified `options` 
+        object. 
+
+        The `accepted` callback is called when a new connection is accepted as a result of 
+        calling `accept`. The callback argument holds a reference to a new socket,
+        representing the accepted connection.
+
+        Note that the connected callback is **not** called on the newly created socket.     
+        This is because the socket is created in the 
+        [CONNECTED](Titanium.Network.Socket.CONNECTED) state, so it never transitions
+        to the `CONNECTED` state.
+
+        Throws an exception if called on a socket that is not in a 
+        [LISTENING](Titanium.Network.Socket.LISTENING) state.
     parameters:
       - name: options
-        summary: options that contain callbacks to be set on next accepted socket
-        type: Dictionary<AcceptDict>
+        summary: Options to be set on next accepted socket.
+        type: AcceptDict
 
   - name: close
-    summary: Closes a socket. Throws exception if the socket is not in a CONNECTED or LISTENING state. Blocking
+    summary: Closes a socket. 
+    description: |
+        Throws exception if the socket is not in a [CONNECTED](Titanium.Network.Socket.CONNECTED) 
+        or [LISTENING](Titanium.Network.Socket.LISTENING) state. Blocking.
 
 ---
 name: ConnectedCallbackArgs
-summary: The callback to be fired after the socket enters the "connected" state. Only invoked following a successful connect() call
+summary: Argument object passed to the [connected](Titanium.Network.Socket.TCP.connected) callback when the socket connects.
+description: |
+    Only invoked following a successful [connect](Titanium.Network.Socket.TCP.connect)
+    call.
 since: "1.7"
 
 properties:
   - name: socket
-    summary: Socket instance that has been connected
+    summary: Socket instance that has been connected.
     type: Titanium.Network.Socket.TCP
 
 ---
 name: ErrorCallbackArgs
-summary: The callback to be fired after the socket enters the ERROR state
+summary: Object passed to the error callback when the socket enters 
+    the [ERROR](Titanium.Network.Socket.ERROR) state.
 since: "1.7"
 
 properties:
   - name: socket
-    summary: Socket that experienced the error
+    summary: Socket that experienced the error.
     type: Titanium.Network.Socket.TCP
 
   - name: error
-    summary: A stringified description of the error
+    summary: A text description of the error.
     type: String
 
   - name: errorCode
-    summary: The error code of the error (potentially system-dependent)
+    summary: The error code of the error (potentially system-dependent).
     type: Number
 
 ---
 name: AcceptedCallbackArgs
-summary: The callback to be fired when a listener accepts a connection
+summary: |
+    Argument object passed to the [accepted](Titanium.Network.Socket.TCP.accepted)
+    callback when a listener accepts a connection.
 since: "1.7"
 
 properties:
   - name: socket
-    summary: Socket which received the connection
+    summary: Socket which received the connection.
     type: Titanium.Network.Socket.TCP
 
   - name: inbound
-    summary: Socket which represents the inbound connection; this should be considered a 'connected' socket and is created in the CONNECTED state
+    summary: Socket which represents the inbound connection.
+    description: |
+        This should be considered a 'connected' socket and is created in 
+        the [CONNECTED](Titanium.Network.Socket.CONNECTED) state.
     type: Titanium.Network.Socket.TCP
 
 ---
 name: AcceptDict
-summary: Options for <Titanium.Network.Socket.TCP.accept> that contain callbacks to be set on the next accepted socket.
+summary: Options object for the [accept](Titanium.Network.Socket.TCP.accept) method.
+description: |
+    Simple object that defines properties to be set on the next accepted socket.
 since: "1.7"
 
 properties:
   - name: timeout
     type: Number
-    summary: The timeout for connect() and all I/O write() operations. Cannot be modified when not in the INITIALIZED state
+    summary: Timeout, in milliseconds, for all `write` operations. 
+    description: |
+        Can only be modified when this socket is in the 
+        [INITIALIZED](Titanium.Network.Socket.INITIALIZED) state. 
 
   - name: error
     type: Callback<ErrorCallbackArgs>
-    summary: The callback to be fired after the socket enters the ERROR state
+    summary: Callback to be fired when the socket enters the [ERROR](Titanium.Network.Socket.ERROR) state.

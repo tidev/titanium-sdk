@@ -261,7 +261,7 @@ def zip_mobileweb(zf,basepath,version):
 		"__TIMESTAMP__":ts,
 		"__GITHASH__": githash
 	}
-	zip_dir(zf,os.path.join(top_dir,'mobileweb','src'),os.path.join(basepath,'mobileweb','src'),subs)
+	zip_dir(zf,os.path.join(top_dir,'mobileweb'),os.path.join(basepath,'mobileweb'),subs)
 
 def create_platform_zip(platform,dist_dir,osname,version,version_tag):
 	if not os.path.exists(dist_dir):

@@ -84,11 +84,14 @@ events:
 
   - name: focus
     summary: Fired when the window gains focus.
-
+    description: |
+      The listener for this event must be defined before this window 
+      is opened.
   - name: open
     summary: Fired when the window is opened.
-
-
+    description: |
+      The listener for this event must be defined before this window 
+      is opened.
 properties:
   - name: activity
     summary: |
@@ -159,7 +162,6 @@ properties:
         window they are opened over do not support. Doing otherwise *may* cause
         bad visual/redraw behavior after the modal is dismissed, due to how
         iOS manages modal transitions.
-    platforms: [android, iphone, ipad]
     type: Boolean
     default: false
 
@@ -196,7 +198,6 @@ properties:
         if you do set the `opacity` property, be sure to also set a `backgroundImage` or
         `backgroundColor` property as well, unless you want the window to be completely
         transparent.
-    platforms: [android, iphone, ipad, mobileweb]
     type: Number
 
   - name: orientationModes
@@ -275,7 +276,6 @@ properties:
         Value will be one of the orientation constants defined in <Titanium.UI>. See
         the discussion of the [orientationModes](Titanium.UI.Window.orientationModes)
         property for more information.
-    platforms: [android, iphone, ipad]
     type: Number
 
   - name: rightNavButton
@@ -309,6 +309,7 @@ properties:
 
   - name: titlePrompt
     summary: Title prompt for the window.
+    platforms: [iphone, ipad]
     type: String
 
   - name: titleid
@@ -319,6 +320,7 @@ properties:
   - name: titlepromptid
     summary: Key identifying a string from the locale file to use for the window title prompt.
     description: Only one of `titlePrompt` or `titlepromptid` should be specified.
+    platforms: [iphone, ipad]
     type: String
 
   - name: toolbar

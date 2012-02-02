@@ -93,7 +93,8 @@ void TiAudioSessionAudioRouteChangeCallback(void *inUserData, AudioSessionProper
 			break;
 		}
 	}
-	[event setObject:[dict objectForKey:@"OutputDeviceDidChange_OldRoute"] forKey:@"oldRoute"];
+    id oldRouteObject = [dict objectForKey:@"OutputDeviceDidChange_OldRoute"];
+    [event setObject:((oldRouteObject == nil) ? [NSNull null] : oldRouteObject) forKey:@"oldRoute"];
 	[event setObject:reason forKey:@"reason"];
 	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiMediaAudioSessionRouteChange object:session userInfo:event];
@@ -107,6 +108,26 @@ void TiAudioSessionInputAvailableCallback(void* inUserData, AudioSessionProperty
 }
 
 @implementation TiMediaAudioSession
+
+-(void)deactivateSession
+{
+    // deregister from audio route changes
+    AudioSessionRemovePropertyListenerWithUserData(kAudioSessionProperty_AudioRouteChange, TiAudioSessionAudioRouteChangeCallback, self);
+    //deregister from audio volume changes
+    AudioSessionRemovePropertyListenerWithUserData(kAudioSessionProperty_CurrentHardwareOutputVolume,TiAudioSessionAudioVolumeCallback,self);
+    //deregister from input availability changes
+    AudioSessionRemovePropertyListenerWithUserData(kAudioSessionProperty_AudioInputAvailable,TiAudioSessionInputAvailableCallback,self);
+    AudioSessionSetActive(false);
+}
+
+- (void)dealloc {
+    if ([self isActive]) {
+        NSLog(@"[WARN] AudioSession being deallocated is still active");
+        [self deactivateSession];
+    }
+    RELEASE_TO_NIL(lock);
+    [super dealloc];
+}
 
 -(id)init
 {
@@ -297,7 +318,7 @@ void TiAudioSessionInputAvailableCallback(void* inUserData, AudioSessionProperty
 	count--;
 	if (count == 0)
 	{
-		AudioSessionSetActive(false);
+        [self deactivateSession];
 	}
 #ifdef DEBUG	
 	NSAssert(count >= 0, @"stopAudioSession called too many times");

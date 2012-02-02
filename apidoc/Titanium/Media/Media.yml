@@ -53,6 +53,13 @@ methods:
       - name: options
         summary: Photo gallery options as described in <PhotoGalleryOptionsType>.
         type: PhotoGalleryOptionsType
+  - name: previewImage
+    summary: Displays the given image.
+    platforms: [android]
+    parameters:
+      - name: options
+        summary: Dictionary containing the image and callback functions.
+        type: Dictionary<PreviewImageOptions>
   - name: saveToPhotoGallery
     summary: Saves media to the device's photo gallery / camera roll.
     description: |
@@ -137,8 +144,8 @@ methods:
     parameters:
       - name: callback
         summary: Function to call upon capture. 
-        type: Callback<Object>
-    platforms: [iphone, ipad]
+        type: Callback<ScreenshotResult>
+    platforms: [iphone, ipad, android]
   - name: vibrate
     summary: Makes the device vibrate.
     description: |
@@ -784,7 +791,7 @@ properties:
     summary: |
         `true` if the device has camera support.
     type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
     permission: read-only
   - name: peakMicrophonePower
     summary: Current microphone level peak power in dB or -1 if microphone monitoring is disabled.
@@ -1137,3 +1144,42 @@ properties:
   - name: height
     summary: Height of the crop rectangle, in pixels.
     type: Number
+---
+name: PreviewImageOptions
+summary: Options passed to <Titanium.Media.previewImage>.
+platforms: [android]
+properties:
+  - name: image
+    summary: The image to preview. Must be a blob based on a file, such as from <Titanium.Filesystem.File.read>.
+    type: Titanium.Blob
+    accessors: false
+  - name: success
+    summary: Function to be called back if the preview succeeds. No info is passed.
+    type: Callback<Object>
+    accessors: false
+  - name: error
+    summary: Function called back if the preview fails. Check the `message` property of passed back parameter.
+    type: Callback<PreviewImageError>
+    accessors: false
+---
+name: PreviewImageError
+summary: The parameter passed to the `error` callback of <PreviewImageOptions>.
+platforms: [android]
+properties:
+  - name: message
+    summary: Description of the error.
+    type: String
+    accessors: false
+  - name: code
+    summary: Error code, if applicable. See <Titanium.Media> constants such as [DEVICE_BUSY](Titanium.Media.DEVICE_BUSY).
+    type: Number
+    accessors: false
+---
+name: ScreenshotResult
+summary: The parameter passed to the <Titanium.Media.takeScreenshot> callback.
+platforms: [iphone, ipad, android]
+properties:
+  - name: media
+    summary: The screenshot image.
+    type: Titanium.Blob
+    accessors: false

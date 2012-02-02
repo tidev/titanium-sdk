@@ -187,6 +187,11 @@
 
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
+    id activeTab = [tabGroup valueForKey:@"activeTab"];
+    if (activeTab == nil) {
+        //Make sure that the activeTab property is set
+        [self setActive:[NSNumber numberWithBool:YES]];
+    }
 	transitionIsAnimating = NO;
 	[self handleDidShowViewController:viewController];
 }
@@ -243,7 +248,7 @@
 	// TODO: Slap patch.  Views, when opening/added, should check parent visibility (and parent/parent visibility, if possible)
 	[window parentWillShow];
 
-	TiThreadPerformOnMainThread(^(){
+	TiThreadPerformOnMainThread(^{
 		[self openOnUIThread:args];
 	}, YES);
 }
