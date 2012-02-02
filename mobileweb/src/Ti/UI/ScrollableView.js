@@ -25,7 +25,6 @@ define("Ti/UI/ScrollableView",
 			
 			// State variables
 			this._viewToRemoveAfterScroll = -1;
-			this._currentPage = -1;
 			
 			var initialPosition,
 				animationView,
@@ -114,11 +113,11 @@ define("Ti/UI/ScrollableView",
 					// Find out which view we are animating to
 					var destinationIndex = this.currentPage,
 						animationLeft = initialPosition;
-					if (e._distance > width / scaleFactor && this._currentPage > 0) {
-						destinationIndex = this._currentPage - 1;
+					if (e._distance > width / scaleFactor && this.currentPage > 0) {
+						destinationIndex = this.currentPage - 1;
 						animationLeft = 0;
-					} else if (e._distance < -width / scaleFactor && this._currentPage < this.views.length - 1) {
-						destinationIndex = this._currentPage + 1;
+					} else if (e._distance < -width / scaleFactor && this.currentPage < this.views.length - 1) {
+						destinationIndex = this.currentPage + 1;
 						if (viewsToScroll.length === 3) {
 							animationLeft = -2 * width;
 						} else {
@@ -138,14 +137,14 @@ define("Ti/UI/ScrollableView",
 						},lang.hitch(this,function(){
 							this._setContent(this.views[destinationIndex], true);
 							
-							this._currentPage !== destinationIndex && this.fireEvent("scroll",{
+							this.currentPage !== destinationIndex && this.fireEvent("scroll",{
 								currentPage: destinationIndex,
 								view: this.views[destinationIndex],
 								x: e.x,
 								y: e.y
 							});
 							
-							this._currentPage = destinationIndex;
+							this.properties.__values__.currentPage = destinationIndex;
 						}));
 					}
 				}
@@ -159,7 +158,7 @@ define("Ti/UI/ScrollableView",
 	
 				// Check if any children have been added yet, and if not load this view
 				if (this.views.length == 1) {
-					this._currentPage = 0;
+					this.properties.__values__.currentPage = 0;
 					this._setContent(view);
 				}
 			}
@@ -193,7 +192,7 @@ define("Ti/UI/ScrollableView",
 	
 			// Update the current view if necessary
 			if (viewIndex < this.currentPage){
-				this._currentPage--;
+				this.properties.__values__.currentPage--;
 			}
 		},
 		
@@ -288,7 +287,7 @@ define("Ti/UI/ScrollableView",
 					curve: Ti.UI.ANIMATION_CURVE_EASE_IN_OUT
 				},lang.hitch(this,function(){
 					this._setContent(this.views[viewIndex], true);
-					this._currentPage = viewIndex;
+					this.properties.__values__.currentPage = viewIndex;
 					if (this._viewToRemoveAfterScroll != -1) {
 						this._removeViewFromList(this._viewToRemoveAfterScroll);
 						this._viewToRemoveAfterScroll = -1;
@@ -306,15 +305,12 @@ define("Ti/UI/ScrollableView",
 
 		properties: {
 			currentPage: {
-				get: function() {
-					return this._currentPage;
-				},
-				set: function(value) {
+				set: function(value, oldValue) {
 					if (value >= 0 && value < this.views.length) {
 						this.scrollToView(value);
+						return value;
 					}
-					this._currentPage = value;
-					return value;
+					return oldValue;
 				}
 			},
 			pagingControlColor: {

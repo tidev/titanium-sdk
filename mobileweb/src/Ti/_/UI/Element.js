@@ -217,6 +217,7 @@ define("Ti/_/UI/Element",
 			
 			// Run the post-layout animation, if needed
 			if (this._doAnimationAfterLayout) {
+				this._doAnimationAfterLayout = false;
 				this._doAnimation();
 			}
 		},
