@@ -52,7 +52,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 				this._endScrollBars();
 				
 				// Create the scroll event
-				this.fireEvent("scrollEnd",{
+				this._isScrollBarActive && this.fireEvent("scrollEnd",{
 					contentOffset: {x: 0, y: contentContainer.domNode.scrollTop + this._header._measuredHeight},
 					contentSize: {width: this._sections._measuredWidth, height: this._sections._measuredHeight},
 					size: {width: this._measuredWidth, height: this._measuredHeight},
@@ -126,7 +126,7 @@ define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lan
 			}
 			
 			// Create the scroll event
-			this.fireEvent("scroll",{
+			this._isScrollBarActive && this.fireEvent("scroll",{
 				contentOffset: {x: 0, y: this._contentContainer.scrollTop},
 				contentSize: {width: this._sections._measuredWidth, height: this._sections._measuredHeight},
 				firstVisibleItem: firstVisibleItem,

@@ -20,6 +20,7 @@ define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/la
 				left: 0,
 				top: 0
 			}));
+			style.set(this._contentMeasurer.domNode,"overflow","hidden");
 			
 			this._createHorizontalScrollBar();
 			this._createVerticalScrollBar();
@@ -37,16 +38,29 @@ define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/la
 					x: contentContainer._measuredWidth / (this._contentMeasurer._measuredWidth),
 					y: contentContainer._measuredHeight / (this._contentMeasurer._measuredHeight),
 				});
+				
+				this._isScrollBarActive && this.fireEvent("dragStart",{});
 			});
 			this.addEventListener("touchend",function(e) {
 				previousTouchLocation = null;
 				
 				this._endScrollBars();
+				
+				this._isScrollBarActive && this.fireEvent("dragEnd",{
+					decelerate: false
+				});
 			});
 			this.addEventListener("touchmove",lang.hitch(this,function(e) {
 				contentContainer.domNode.scrollLeft += previousTouchLocation.x - e.x;
 				contentContainer.domNode.scrollTop += previousTouchLocation.y - e.y;
 				previousTouchLocation = {x: e.x, y: e.y};
+				
+				// Create the scroll event
+				this._isScrollBarActive && this.fireEvent("scroll",{
+					x: e.x,
+					y: e.y,
+					dragging: true
+				});
 				
 				this._updateScrollBars({
 					x: contentContainer.domNode.scrollLeft / (this._contentMeasurer._measuredWidth - this._measuredWidth),
@@ -66,6 +80,13 @@ define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/la
 				setTimeout(function(){
 					contentContainer.domNode.scrollLeft -= e.wheelDeltaX;
 					contentContainer.domNode.scrollTop -= e.wheelDeltaY;
+					
+					// Create the scroll event
+					self._isScrollBarActive && self.fireEvent("scroll",{
+						x: e.wheelDeltaX,
+						y: e.wheelDeltaY,
+						dragging: false
+					});
 					self._updateScrollBars({
 						x: (contentContainer.domNode.scrollLeft - e.wheelDeltaX) / (self._contentMeasurer._measuredWidth - self._measuredWidth),
 						y: (contentContainer.domNode.scrollTop - e.wheelDeltaY) / (self._contentMeasurer._measuredHeight - self._measuredHeight),
@@ -102,18 +123,6 @@ define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/la
 		},
 
 		properties: {
-			canCancelEvents: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ScrollView#.canCancelEvents" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.ScrollView#.canCancelEvents" is not implemented yet.');
-					return value;
-				}
-			},
-			
 			contentHeight: {
 				get: function(value) {
 					return this._contentMeasurer.height;
@@ -126,10 +135,12 @@ define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/la
 			
 			contentOffset: {
 				get: function(value) {
-					return {x: this._contentContainer.scrollLeft, y: this._contentContainer.scrollTop}
+					return {x: this._contentContainer.domNode.scrollLeft, y: this._contentContainer.domNode.scrollTop}
 				},
 				set: function(value) {
-					return {x: this._contentContainer.scrollLeft, y: this._contentContainer.scrollTop};
+					this._contentContainer.domNode.scrollLeft = value.x;
+					this._contentContainer.domNode.scrollTop = value.y;
+					return value;
 				}
 			},
 			
