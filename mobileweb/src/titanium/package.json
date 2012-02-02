@@ -16,9 +16,14 @@
 			"path": "packages/Ti"
 		}
 	],
-	"homepage": "http://www.appcelerator.com/",
+	"homepage": "https://github.com/appcelerator/titanium_mobile.git",
 	"directories": {
 		"lib": "./lib"
 	},
-	"main": "./main"
+	"main": "./main",
+	"titanium": {
+		"timestamp": "__TIMESTAMP__",
+		"githash": "__GITHASH__",
+		"version": "__VERSION__"
+	}
 }

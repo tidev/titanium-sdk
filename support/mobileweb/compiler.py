@@ -4,23 +4,23 @@
 # Project Compiler
 #
 
-import os, sys, re, shutil, time, base64, sgmllib, codecs, xml, datetime
+import os, sys, time, datetime, simplejson, codecs, shutil
+from tiapp import *
+#re, base64, sgmllib, xml
 
-try:
-	import Image
-except:
-	print "\nERROR: Unabled to import module \"Image\"\n"
-	print "Run `sudo easy_install pil` to install the 'Image' module or download from http://www.pythonware.com/products/pil/\n"
-	sys.exit(1)
+#try:
+#	import Image
+#except:
+#	print "\nERROR: Unabled to import module \"Image\"\n"
+#	print "Run `sudo easy_install pil` to install the 'Image' module or download from http://www.pythonware.com/products/pil/\n"
+#	sys.exit(1)
 
 # Add the Android support dir, since mako is located there, and import mako
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),"..", "android")))
-import mako.template
-import simplejson as json
-
-template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-from tiapp import *
-import jspacker 
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'android')))
+#import mako.template
+#import simplejson as json
+#import tiapp
+#
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn','CVS'];
@@ -41,136 +41,212 @@ HEADER = """/**
 FOOTER = """"""
 
 class Compiler(object):
-	def __init__(self,project_dir,deploytype):
-		self.project_dir = project_dir
 
-		self.dependencies = [
-				# these MUST be ordered correctly!
-				'eventdriven.js',
-
-				# building blocks
-				"Ti/_",
-				'Ti/_/browser.js',
-				'Ti/_/css.js',
-				'Ti/_/declare.js',
-				'Ti/_/dom.js',
-				'Ti/_/event.js',
-				'Ti/_/lang.js',
-				'Ti/_/ready.js',
-				'Ti/_/string.js',
-				'Ti/_/style.js',
-
-				# AMD plugins
-				"Ti/_/include.js",
-				"Ti/_/text.js",
-
-				# base classes
-				'Ti/_/Evented.js',
-				'Ti/UI.js',
-				'Ti/_/Gestures/GestureRecognizer.js',
-				'Ti/_/Gestures/DoubleTap.js',
-				'Ti/_/Gestures/LongPress.js',
-				'Ti/_/Gestures/Pinch.js',
-				'Ti/_/Gestures/SingleTap.js',
-				'Ti/_/Gestures/Swipe.js',
-				'Ti/_/Gestures/TouchStart.js',
-				'Ti/_/Gestures/TouchMove.js',
-				'Ti/_/Gestures/TouchEnd.js',
-				'Ti/_/Gestures/TouchCancel.js',
-				'Ti/_/Gestures/TwoFingerTap.js',
-				'Ti/_/UI/Element.js',
-				'Ti/_/Layouts/Base.js',
-				'Ti/_/Layouts/Absolute.js',
-				'Ti/_/Layouts/Horizontal.js',
-				'Ti/_/Layouts/Vertical.js',
-				'Ti/_/Layouts.js',
-				
-				# core classes
-				'Ti/ti.js',
-				'Ti/Accelerometer.js',
-				'Ti/Analytics.js',
-				'Ti/API.js',
-				'Ti/App.js',
-				'Ti/App/Properties.js',
-				'Ti/Blob.js',
-				'Ti/Contacts.js',
-				'Ti/Database.js',
-				'Ti/Facebook.js',
-				'Ti/Filesystem.js',
-				'Ti/Geolocation.js',
-				'Ti/Locale.js',
-				'Ti/Map.js',
-				'Ti/Media.js',
-				'Ti/Network.js',
-				'Ti/Network/HTTPClient.js',
-				'Ti/Platform.js',
-				'Ti/Platform/DisplayCaps.js',
-				'Ti/Gesture.js',
-				'Ti/XML.js',
-				
-				# UI Constants
-				'Ti/UI/MobileWeb/TableViewSeparatorStyle.js',
-				
-				# View classes
-				'Ti/UI/View.js',
-				'Ti/Media/VideoPlayer.js',
-				'Ti/UI/TableViewRow.js',
-				
-				# SuperView classes
-				'Ti/_/UI/SuperView.js',
-				'Ti/UI/Tab.js',
-				'Ti/UI/TabGroup.js',
-				'Ti/UI/Window.js',
-				
-				# Widget classes
-				'Ti/_/UI/Widget.js',
-				'Ti/_/UI/FontWidget.js',
-				'Ti/_/UI/TextBox.js',
-				'Ti/UI/2DMatrix.js',
-				'Ti/UI/ActivityIndicator.js',
-				'Ti/UI/AlertDialog.js',
-				'Ti/UI/Animation.js',
-				'Ti/UI/Button.js',
-				'Ti/UI/ImageView.js',
-				'Ti/UI/Label.js',
-				'Ti/UI/ScrollableView.js',
-				'Ti/UI/ScrollView.js',
-				'Ti/UI/Slider.js',
-				'Ti/UI/Switch.js',
-				'Ti/UI/TableViewSection.js',
-				'Ti/UI/TableView.js',
-				'Ti/UI/TextArea.js',
-				'Ti/UI/TextField.js',
-				'Ti/UI/WebView.js',
-				'Ti/Utils.js',
-				
-				# resources
-				'titanium.css'
-			]
+	def __init__(self, project_path, deploytype):
 		
-		self.build_dir = os.path.join(self.project_dir,'build','mobileweb')
+		start_time = time.time()
+		dependencies = []
+		packages = {
+			'Ti': './Ti'
+		}
 		
-		self.resources_dir = os.path.join(self.project_dir,'Resources')
+		# initialize paths
+		self.sdk_path = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+		self.sdk_src_path = os.path.join(self.sdk_path, 'src')
+		self.modules_path = os.path.abspath(os.path.join(self.sdk_path, '../../../../modules/mobileweb'))
+		self.project_path = project_path
+		self.build_path = os.path.join(project_path, 'build', 'mobileweb')
+		self.resources_path = os.path.join(project_path, 'Resources')
+		
+		sdk_version = os.path.basename(os.path.abspath(os.path.join(self.sdk_path, '../')))
+		print '[INFO] Titanium Mobile Web Compiler v%s' % sdk_version
+		
+		# read the package.json
+		package_json_file = os.path.join(self.sdk_src_path, 'titanium', 'package.json')
+		if not os.path.exists(package_json_file):
+			print '[ERROR] Unable to open titanium package manifest "%s"' % package_json_file
+			sys.exit(1)
+		package_json = simplejson.load(codecs.open(package_json_file, 'r', 'utf-8'))
+		
+		# read the tiapp.xml
+		tiapp_xml = TiAppXML(os.path.join(self.project_path, 'tiapp.xml'))
+		print '[INFO] Compiling Mobile Web project "%s" [%s]' % (tiapp_xml.properties['name'], deploytype)
+		
+		# create the build directory
+		if os.path.exists(self.build_path):
+			shutil.rmtree(self.build_path, True)
+		try:
+			os.makedirs(self.build_path)
+		except:
+			pass
+		
+		# detect Ti+ modules
+		if len(tiapp_xml.properties['modules']):
+			print '[INFO] Locating Ti+ modules…'
+			for module in tiapp_xml.properties['modules']:
+				# TODO: check if platform is even defined!
+				if module['platform'] == 'mobileweb':
+					module_dir = os.path.join(self.modules_path, module['id'], module['version'])
+					if not os.path.exists(module_dir):
+						print '[ERROR] Unable to find Ti+ module "%s", v%s' % (module['id'], module['version'])
+						sys.exit(1)
+					
+					module_package_json_file = os.path.join(module_dir, 'package.json')
+					if not os.path.exists(module_package_json_file):
+						print '[ERROR] Ti+ module "%s" is invalid: missing package.json' % module['id']
+						sys.exit(1)
+					
+					module_package_json = simplejson.load(codecs.open(module_package_json_file, 'r', 'utf-8'))
+					main_file = module_package_json['main']
+					if not main_file.endswith('.js'):
+						main_file += '.js'
+					main_file_path = os.path.join(module_dir, main_file)
+					
+					if not os.path.exists(main_file_path):
+						print '[ERROR] Ti+ module "%s" is invalid: missing main "%s"' % (module['id'], main_file)
+						sys.exit(1)
+					
+					dependencies.append(main_file_path)
+					
+					packages[module['id']] = './' + module['id']
+					
+					print '[INFO] Bundling Ti+ module "%s"' % module['id']
+					
+					# TODO: need to combine ALL Ti+ module .js files into the titanium.js, not just the main file
+					
+					# TODO: need to combine ALL Ti+ module .css files into the titanium.css
+					
+					# copy entire module directory to build directory
+					shutil.copytree(module_dir, os.path.join(self.build_path, module['id']))
+		
+		# scan project for dependencies
+		print '[INFO] Scanning project for dependencies...'
+		# TODO: scan the entire project's source and identify all dependencies
+		dependencies += [
+			# these MUST be ordered correctly!
+			self.sdk_src_path + 'eventdriven.js',
+			
+			# building blocks
+			self.sdk_src_path + 'Ti/_',
+			self.sdk_src_path + 'Ti/_/browser.js',
+			self.sdk_src_path + 'Ti/_/css.js',
+			self.sdk_src_path + 'Ti/_/declare.js',
+			self.sdk_src_path + 'Ti/_/dom.js',
+			self.sdk_src_path + 'Ti/_/event.js',
+			self.sdk_src_path + 'Ti/_/lang.js',
+			self.sdk_src_path + 'Ti/_/ready.js',
+			self.sdk_src_path + 'Ti/_/string.js',
+			self.sdk_src_path + 'Ti/_/style.js',
+			
+			# AMD plugins
+			self.sdk_src_path + 'Ti/_/include.js',
+			self.sdk_src_path + 'Ti/_/text.js',
+			
+			# base classes
+			self.sdk_src_path + 'Ti/_/Evented.js',
+			self.sdk_src_path + 'Ti/UI.js',
+			self.sdk_src_path + 'Ti/_/Gestures/GestureRecognizer.js',
+			self.sdk_src_path + 'Ti/_/Gestures/DoubleTap.js',
+			self.sdk_src_path + 'Ti/_/Gestures/LongPress.js',
+			self.sdk_src_path + 'Ti/_/Gestures/Pinch.js',
+			self.sdk_src_path + 'Ti/_/Gestures/SingleTap.js',
+			self.sdk_src_path + 'Ti/_/Gestures/Swipe.js',
+			self.sdk_src_path + 'Ti/_/Gestures/TouchStart.js',
+			self.sdk_src_path + 'Ti/_/Gestures/TouchMove.js',
+			self.sdk_src_path + 'Ti/_/Gestures/TouchEnd.js',
+			self.sdk_src_path + 'Ti/_/Gestures/TouchCancel.js',
+			self.sdk_src_path + 'Ti/_/Gestures/TwoFingerTap.js',
+			self.sdk_src_path + 'Ti/_/UI/Element.js',
+			self.sdk_src_path + 'Ti/_/Layouts/Base.js',
+			self.sdk_src_path + 'Ti/_/Layouts/Absolute.js',
+			self.sdk_src_path + 'Ti/_/Layouts/Horizontal.js',
+			self.sdk_src_path + 'Ti/_/Layouts/Vertical.js',
+			self.sdk_src_path + 'Ti/_/Layouts.js',
+			
+			# core classes
+			self.sdk_src_path + 'Ti/ti.js',
+			self.sdk_src_path + 'Ti/Accelerometer.js',
+			self.sdk_src_path + 'Ti/Analytics.js',
+			self.sdk_src_path + 'Ti/API.js',
+			self.sdk_src_path + 'Ti/App.js',
+			self.sdk_src_path + 'Ti/App/Properties.js',
+			self.sdk_src_path + 'Ti/Blob.js',
+			self.sdk_src_path + 'Ti/Contacts.js',
+			self.sdk_src_path + 'Ti/Database.js',
+			self.sdk_src_path + 'Ti/Facebook.js',
+			self.sdk_src_path + 'Ti/Filesystem.js',
+			self.sdk_src_path + 'Ti/Geolocation.js',
+			self.sdk_src_path + 'Ti/Locale.js',
+			self.sdk_src_path + 'Ti/Map.js',
+			self.sdk_src_path + 'Ti/Media.js',
+			self.sdk_src_path + 'Ti/Network.js',
+			self.sdk_src_path + 'Ti/Network/HTTPClient.js',
+			self.sdk_src_path + 'Ti/Platform.js',
+			self.sdk_src_path + 'Ti/Platform/DisplayCaps.js',
+			self.sdk_src_path + 'Ti/Gesture.js',
+			self.sdk_src_path + 'Ti/XML.js',
+			
+			# UI constants
+			self.sdk_src_path + 'Ti/UI/MobileWeb/TableViewSeparatorStyle.js',
+			
+			# View classes
+			self.sdk_src_path + 'Ti/UI/View.js',
+			self.sdk_src_path + 'Ti/Media/VideoPlayer.js',
+			self.sdk_src_path + 'Ti/UI/TableViewRow.js',
+			
+			# SuperView classes
+			self.sdk_src_path + 'Ti/_/UI/SuperView.js',
+			self.sdk_src_path + 'Ti/UI/Tab.js',
+			self.sdk_src_path + 'Ti/UI/TabGroup.js',
+			self.sdk_src_path + 'Ti/UI/Window.js',
+			
+			# Widget classes
+			self.sdk_src_path + 'Ti/_/UI/Widget.js',
+			self.sdk_src_path + 'Ti/_/UI/FontWidget.js',
+			self.sdk_src_path + 'Ti/_/UI/TextBox.js',
+			self.sdk_src_path + 'Ti/UI/2DMatrix.js',
+			self.sdk_src_path + 'Ti/UI/ActivityIndicator.js',
+			self.sdk_src_path + 'Ti/UI/AlertDialog.js',
+			self.sdk_src_path + 'Ti/UI/Animation.js',
+			self.sdk_src_path + 'Ti/UI/Button.js',
+			self.sdk_src_path + 'Ti/UI/ImageView.js',
+			self.sdk_src_path + 'Ti/UI/Label.js',
+			self.sdk_src_path + 'Ti/UI/ScrollableView.js',
+			self.sdk_src_path + 'Ti/UI/ScrollView.js',
+			self.sdk_src_path + 'Ti/UI/Slider.js',
+			self.sdk_src_path + 'Ti/UI/Switch.js',
+			self.sdk_src_path + 'Ti/UI/TableViewSection.js',
+			self.sdk_src_path + 'Ti/UI/TableView.js',
+			self.sdk_src_path + 'Ti/UI/TextArea.js',
+			self.sdk_src_path + 'Ti/UI/TextField.js',
+			self.sdk_src_path + 'Ti/UI/WebView.js',
+			self.sdk_src_path + 'Ti/Utils.js'
+		]
+		
+		print '[INFO] Found %s dependenc%s' % (len(dependencies), 'y' if len(dependencies) == 1 else 'ies')
+		
+		# TODO: break up the dependencies into layers
+		
+		
+		print packages
+		
+		
+		
+		total_time = time.time() - start_time
+		total_seconds = int(round(total_time % 60))
+		print '[INFO] Finished in %s seconds' % total_seconds
+	
+	def crap(self):
+		
+		
 		self.debug = True # temporarily forcing debug (i.e. development) mode until jsmin is replaced
 		self.count = 0
 		
 		if deploytype == 'development' or deploytype == 'all':
 			self.debug = True
 
-		src_dir = os.path.join(template_dir,'src')
-
-		if os.path.exists(self.build_dir):
-			shutil.rmtree(self.build_dir, True)
-
-		try:
-			os.makedirs(self.build_dir)
-		except:
-			pass
 		
-		tiapp_xml = os.path.join(project_dir,'tiapp.xml')
-		ti = TiAppXML(tiapp_xml)
-		sdk_version = os.path.basename(os.path.abspath(os.path.join(template_dir,'../')))
-
+		
 		self.project_name = ti.properties['name']
 		self.appid = ti.properties['id']
 		
@@ -244,11 +320,11 @@ class Compiler(object):
 				app_copyright=ti.properties['copyright'],
 				app_guid=ti.properties['guid'],
 				ti_version=sdk_version
-			) + self.load_api(os.path.join(src_dir,"loader.js")) + self.load_api(os.path.join(src_dir,"titanium.js"))
+			) + self.load_api(os.path.join(self.sdk_src_path,"loader.js")) + self.load_api(os.path.join(self.sdk_src_path,"titanium.js"))
 		
 		if deploytype == 'all':
 			print "Deploy type is 'all' - all modules will be included into dist"
-			for root, dirs, files in os.walk(src_dir):
+			for root, dirs, files in os.walk(self.sdk_src_path):
 				for name in ignoreDirs:
 					if name in dirs:
 						dirs.remove(name)	# don't visit ignored directories
@@ -263,9 +339,9 @@ class Compiler(object):
 						if ddir != 'src':
 							fname = ddir + "/" + fname
 						try:
-							self.dependencies.index(fname)
+							dependencies.index(fname)
 						except:
-							self.dependencies.append(fname)
+							dependencies.append(fname)
 		
 		titanium_css = ''
 		
@@ -274,12 +350,12 @@ class Compiler(object):
 		except:
 			pass
 		
-		print "Copying %s to %s" % (os.path.join(src_dir, 'Ti'), self.build_dir)
-		shutil.copytree(os.path.join(src_dir, 'Ti'), os.path.join(self.build_dir, 'Ti'))
+		print "Copying %s to %s" % (os.path.join(self.sdk_src_path, 'Ti'), self.build_dir)
+		shutil.copytree(os.path.join(self.sdk_src_path, 'Ti'), os.path.join(self.build_dir, 'Ti'))
 		
 		# append together all dependencies
-		for api in self.dependencies:
-			api_file = os.path.join(src_dir,api)
+		for api in dependencies:
+			api_file = os.path.join(self.sdk_src_path,api)
 			if not os.path.exists(api_file):
 				print "[ERROR] Couldn't find file: %s" % api_file
 				sys.exit(1)
@@ -306,31 +382,6 @@ class Compiler(object):
 					#except:
 					#	pass
 					#shutil.copy(api_file, target_file)
-		
-		# process Ti+ modules
-		modules_dir = os.path.abspath(os.path.join(template_dir,'../../../../modules/mobileweb'))
-		for module in ti.properties['modules']:
-			if module['platform'] == 'mobileweb':
-				module_dir = os.path.join(modules_dir, module['id'], module['version'])
-				if os.path.exists(module_dir):
-					# TODO: read in the package.json to figure out the correct "main" file
-					
-					main_file = os.path.join(module_dir, module['id'] + ".js")
-					
-					# TODO: need to combine ALL Ti+ module .js files into the titanium.js, not just the main file
-					
-					if os.path.exists(main_file):
-						titanium_js += '%s;\n' % self.load_api(main_file)
-					else:
-						print "[ERROR] Ti+ module missing main file: %s, version %s" % (module['id'], module['version'])
-					
-					# TODO: need to combine ALL Ti+ module .css files into the titanium.css
-										
-					# copy entire folder to self.build_dir
-					print "Copying Ti+ module %s to %s" % (module_dir, os.path.join(self.build_dir, module['id']))
-					shutil.copytree(module_dir, os.path.join(self.build_dir, module['id']))
-				else:
-					print "[ERROR] Couldn't find Ti+ module: %s, version %s" % (module['id'], module['version'])
 		
 		# copy the favicon
 		icon_file = os.path.join(self.resources_dir, ti.properties['icon'])
@@ -396,7 +447,7 @@ class Compiler(object):
 		except:
 			status_bar_style = 'default'
 
-		main_template = codecs.open(os.path.join(src_dir,'index.html'), encoding='utf-8').read().encode("utf-8")
+		main_template = codecs.open(os.path.join(self.sdk_src_path,'index.html'), encoding='utf-8').read().encode("utf-8")
 		main_template = mako.template.Template(main_template).render(
 				ti_version=sdk_version,
 				ti_statusbar_style=status_bar_style,
@@ -423,7 +474,7 @@ class Compiler(object):
 		o.close()
 		
 		# Copy the themes
-		shutil.copytree(os.path.join(template_dir,'themes'),os.path.join(self.build_dir,'themes'))
+		shutil.copytree(os.path.join(sdk_dir,'themes'),os.path.join(self.build_dir,'themes'))
 		
 		print "[INFO] Compiled %d files for %s" % (self.count,ti.properties['name'])
 	

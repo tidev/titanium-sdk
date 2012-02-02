@@ -261,7 +261,25 @@ def zip_mobileweb(zf,basepath,version):
 		"__TIMESTAMP__":ts,
 		"__GITHASH__": githash
 	}
-	zip_dir(zf,os.path.join(top_dir,'mobileweb'),os.path.join(basepath,'mobileweb'),subs)
+	dir = os.path.join(top_dir, 'mobileweb')
+	
+	# for speed, mobileweb has its own zip logic
+	for root, dirs, files in os.walk(dir):
+		for name in ignoreDirs:
+			if name in dirs:
+				dirs.remove(name)
+		for file in files:
+			e = os.path.splitext(file)
+			if len(e)==2 and e[1] in ignoreExtensions: continue
+			from_ = os.path.join(root, file)
+			to_ = from_.replace(dir, os.path.join(basepath,'mobileweb'), 1)
+			if file == 'package.json':
+				c = open(from_).read()
+				for key in subs:
+					c = c.replace(key, subs[key])
+				zf.writestr(to_, c)
+			else:
+				zf.write(from_, to_)
 
 def create_platform_zip(platform,dist_dir,osname,version,version_tag):
 	if not os.path.exists(dist_dir):
