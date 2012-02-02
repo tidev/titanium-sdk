@@ -1,7 +1,8 @@
-define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, FontWidget, dom, css, style) {
+define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang"], function(declare, FontWidget, dom, css, style, lang) {
 
 	var set = style.set,
-		undef;
+		undef,
+		unitize = dom.unitize;
 
 	return declare("Ti.UI.Label", FontWidget, {
 		
@@ -28,31 +29,46 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/c
 			this.textContainerDiv = dom.create("div", {
 				className: css.clean("TiUILabelTextContainer"),
 				style: {
-					userSelect: "none"
+					textAlign: "left",
+					textOverflow: "ellipsis",
+					overflowX: "hidden",
+					width: "100%",
+					maxHeight: "100%",
+					userSelect: "none",
+					whiteSpace: "nowrap"
 				}
 			}, this.textAlignerDiv);
 
 			this._addStyleableDomNode(this.textContainerDiv);
 		},
 
-		toImage: function(callback) {
-			// TODO
-		},
-
 		_defaultWidth: "auto",
 
 		_defaultHeight: "auto",
+		
 		_getContentWidth: function() {
 			return this._measureText(this.text, this.textContainerDiv).width;
 		},
+		
 		_getContentHeight: function() {
 			return this._measureText(this.text, this.textContainerDiv).height;
 		},
+		
 		_setTouchEnabled: function(value) {
 			FontWidget.prototype._setTouchEnabled.apply(this,arguments);
 			var cssVal = value ? "auto" : "none"
-			this.textAlignerDiv && set(this.textAlignerDiv,"pointerEvents", cssVal);
-			this.textContainerDiv && set(this.textContainerDiv,"pointerEvents", cssVal);
+			set(this.textAlignerDiv,"pointerEvents", cssVal);
+			set(this.textContainerDiv,"pointerEvents", cssVal);
+		},
+		
+		_setTextShadow: function() {
+			var shadowColor = this.shadowColor && this.shadowColor !== "" ? this.shadowColor : undef;
+			if (this.shadowOffset || shadowColor) {
+				set(this.textContainerDiv,"textShadow",
+					(this.shadowOffset ? unitize(this.shadowOffset.x) + " " + unitize(this.shadowOffset.y) : "0px 0px") + " 0.1em " + lang.val(shadowColor,"black"));
+			} else {
+				set(this.textContainerDiv,"textShadow","");
+			}
 		},
 
 		properties: {
@@ -62,41 +78,51 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/c
 					return value;
 				}
 			},
-			highlightedColor: undef,
-			shadowColor: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Label#.shadowColor" is not implemented yet.');
+			ellipsize: {
+				set: function(value) {
+					set(this.textContainerDiv,"textOverflow", !!value ? "ellipsis" : "clip");
 					return value;
 				},
+				value: true
+			},
+			html: {
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Label#.shadowColor" is not implemented yet.');
+					this.textContainerDiv.innerHTML = value;
+					this._hasAutoDimensions() && this._triggerParentLayout();
+					return value;
+				}
+			},
+			shadowColor: {
+				post: function(value) {
+					this._setTextShadow();
 					return value;
 				}
 			},
 			shadowOffset: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Label#.shadowOffset" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Label#.shadowOffset" is not implemented yet.');
+				post: function(value) {
+					this._setTextShadow();
 					return value;
 				}
 			},
 			text: {
 				set: function(value) {
 					this.textContainerDiv.innerHTML = value;
-					Ti.UI._doFullLayout();
+					this._hasAutoDimensions() && this._triggerParentLayout();
 					return value;
 				}
 			},
 			textAlign: {
 				set: function(value) {
-					this.textContainerDiv.style.textAlign = value;
+					var cssValue = "";
+					switch(value) {
+						case Ti.UI.TEXT_ALIGNMENT_LEFT: cssValue = "left"; break;
+						case Ti.UI.TEXT_ALIGNMENT_CENTER: cssValue = "center"; break;
+						case Ti.UI.TEXT_ALIGNMENT_RIGHT: cssValue = "right"; break;
+					}
+					this.textContainerDiv.style.textAlign = cssValue;
 					return value;
-				}
+				},
+				value: Ti.UI.TEXT_ALIGNMENT_LEFT
 			},
 			textid: {
 				get: function(value) {
@@ -110,13 +136,8 @@ define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/c
 				}
 			},
 			wordWrap: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Label#.wordWrap" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Label#.wordWrap" is not implemented yet.');
+					set(this.textContainerDiv,"whiteSpace", !!value ? "normal" : "nowrap");
 					return value;
 				},
 				value: false

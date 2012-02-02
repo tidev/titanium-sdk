@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,20 +9,21 @@ package ti.modules.titanium.ui.widget.webview;
 
 import java.lang.ref.SoftReference;
 
-import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
 public class TiWebChromeClient extends WebChromeClient {
 
 	private static final String LCAT = "TiWebChromeClient";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String CONSOLE_TAG = LCAT + ".console";
 
 	private SoftReference<Activity> softActivity;
 	private boolean isWindow;
@@ -38,23 +39,22 @@ public class TiWebChromeClient extends WebChromeClient {
 		this.isWindow = isWindow;
 		this.showProgress = showProgress;
 	}
-	
-	/** TODO: this is at API level 8 - until then...
+
+
 	@Override
 	public boolean onConsoleMessage(ConsoleMessage message)
 	{
 		switch(message.messageLevel())
 		{
-			case ConsoleMessage.MessageLevel.DEBUG:
-				Log.d(LCAT,message.message+" ("+message.lineNumber()+":"+message.sourceId()+")");
+			case DEBUG:
+				Log.d(CONSOLE_TAG, message.message() + " ("+message.lineNumber()+":"+message.sourceId()+")");
 				break;
-			case ConsoleMessage.MessageLevel.INFO:
-				Log.i(LCAT,message.message+" ("+message.lineNumber()+":"+message.sourceId()+")");
+			default:
+				Log.i(CONSOLE_TAG, message.message() + " ("+message.lineNumber()+":"+message.sourceId()+")");
 				break;
 		}
 		return true;
 	}
-	*/
 
 	@Override
 	public void onProgressChanged(WebView view, final int newProgress)
@@ -90,5 +90,6 @@ public class TiWebChromeClient extends WebChromeClient {
 		
 		return true;
 	}
+	
 }
 

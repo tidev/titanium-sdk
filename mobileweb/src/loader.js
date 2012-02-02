@@ -1060,6 +1060,11 @@ require.cache({
 			body.removeChild(measureDiv);
 
 			return {
+				assert: function(test, msg) {
+					if (!test) {
+						throw new Error(msg);
+					}
+				},
 				dpi: dpi,
 				getAbsolutePath: function(path) {
 					/^app\:\/\//.test(path) && (path = path.substring(6));
@@ -1264,7 +1269,12 @@ require.cache({
 					}
 
 					// 3) mixin args if any
-					is(a0, "Object") && mix(this, a0);
+					if (is(a0, "Object")) {
+						f = this.constants;
+						for (i in a0) {
+							a0.hasOwnProperty(i) && ((f && i in f ? f.__values__ : this)[i] = a0[i]);
+						}
+					}
 
 					// 4) continue the original ritual: call the postscript
 					f = this.postscript;
@@ -1448,11 +1458,11 @@ require.cache({
 					valuetype: "valueType"
 				},
 				attr = {
-					add: function(node, name, value) {
+					set: function(node, name, value) {
 						if (arguments.length === 2) {
 							// the object form of setter: the 2nd argument is a dictionary
 							for (var x in name) {
-								attr.add(node, x, name[x]);
+								attr.set(node, x, name[x]);
 							}
 							return node;
 						}
@@ -1485,7 +1495,7 @@ require.cache({
 				create: function(tag, attrs, refNode, pos) {
 					var doc = refNode ? refNode.ownerDocument : document;
 					is(tag, "String") && (tag = doc.createElement(tag));
-					attrs && attr.add(tag, attrs);
+					attrs && attr.set(tag, attrs);
 					refNode && this.place(tag, refNode, pos);
 					return tag;
 				},
@@ -1529,7 +1539,7 @@ require.cache({
 							switch(units) {
 								case "%":
 									if(totalLength == "auto") {
-										return "auto";
+										convertAutoToUndef ? undef : "auto";
 									} else if (!require.is(totalLength,"Number")) {
 										console.error("Could not compute percentage size/position of element.");
 										return;
@@ -1574,62 +1584,6 @@ require.cache({
 			}
 		});
 	},
-	"Ti/_/include": function() {
-		define(function() {
-			var cache = {},
-				stack = [];
-
-			return {
-				dynamic: true, // prevent the loader from caching the result
-
-				normalize: function(name, normalize) {
-					var parts = name.split("!"),
-						url = parts[0];
-					parts.shift();
-					return (/^\./.test(url) ? normalize(url) : url) + (parts.length ? "!" + parts.join("!") : "");
-				},
-
-				load: function(name, require, onLoad, config) {
-					var c,
-						x,
-						parts = name.split("!"),
-						len = parts.length,
-						url,
-						sandbox;
-
-					if (sandbox = len > 1 && parts[0] === "sandbox") {
-						parts.shift();
-						name = parts.join("!");
-					}
-
-					url = require.toUrl(/^\//.test(name) ? name : "./" + name, stack.length ? { name: stack[stack.length-1] } : null);
-					c = cache[url] || require.cache(url);
-
-					if (!c) {
-						x = new XMLHttpRequest();
-						x.open("GET", url, false);
-						x.send(null);
-						if (x.status === 200) {
-							c = x.responseText;
-						} else {
-							throw new Error("Failed to load include \"" + url + "\": " + x.status);
-						}
-					}
-
-					stack.push(url);
-					try {
-						require.evaluate(cache[url] = c, 0, !sandbox);
-					} catch (e) {
-						throw e;
-					} finally {
-						stack.pop();
-					}
-
-					onLoad(c);
-				}
-			};
-		});
-	},
 	"Ti/_/lang": function() {
 		define(["Ti/_/string"], function(string) {
 			/**
@@ -1660,10 +1614,6 @@ require.cache({
 			}
 
 			return {
-				val: function(originalValue, defaultValue) {
-					return is(originalValue, "Undefined") ? defaultValue : originalValue;
-				},
-
 				hitch: hitch = function(scope, method) {
 					if (arguments.length > 2) {
 						return hitchArgs.apply(global, arguments);
@@ -1776,12 +1726,36 @@ require.cache({
 					}
 
 					return obj[q] = value;
+				},
+
+				toArray: toArray,
+
+				urlEncode: function(obj) {
+					var pairs = [],
+						prop,
+						value;
+
+					for (prop in obj) {
+						if (obj.hasOwnProperty(prop)) {
+							is(value = obj[prop], "Array") || (value = [value]);
+							prop = enc(prop) + "=";
+							require.each(value, function(v) {
+								pairs.push(prop + enc(v));
+							});
+						}
+					}
+
+					return pairs.join("&");
+				},
+
+				val: function(originalValue, defaultValue) {
+					return is(originalValue, "Undefined") ? defaultValue : originalValue;
 				}
 			};
 		});
 	},
 	"Ti/_/ready": function() {
-		define(function() {
+		define(["Ti/_/lang"], function(lang) {
 			/**
 			 * ready() functionality based on code from Dojo Toolkit.
 			 *
@@ -1822,12 +1796,20 @@ require.cache({
 				}
 			}
 
-			function ready(context, callback) {
-				var fn = callback ? function(){ callback.call(context); } : context;
+			function ready(priority, context, callback) {
+				var fn, i, l;
+				if (!require.is(priority, "Number")) {
+					callback = context;
+					context = priority;
+					priority = 1000;
+				}
+				fn = callback ? function(){ callback.call(context); } : context;
 				if (isReady) {
 					fn();
 				} else {
-					readyQ.push(fn);
+					fn.priority = priority;
+					for (i = 0, l = readyQ.length; i < l && priority >= readyQ[i].priority; i++) {}
+					readyQ.splice(i, 0, fn);
 				}
 			}
 

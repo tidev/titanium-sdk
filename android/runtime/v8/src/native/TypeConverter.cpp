@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -527,7 +527,9 @@ jobject TypeConverter::jsValueToJavaObject(v8::Local<v8::Value> jsValue, bool *i
 		}
 	}
 
-	LOGW(TAG, "jsValueToJavaObject returning null");
+	if (!jsValue->IsNull() && !jsValue->IsUndefined()) {
+		LOGW(TAG, "jsValueToJavaObject returning null.");
+	}
 	return NULL;
 }
 
@@ -588,7 +590,12 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 			env->DeleteLocalRef(krollObject);
 
 			if (v8ObjectPointer != 0) {
-				return Persistent<Object>((Object *) v8ObjectPointer);
+				Persistent<Object> v8Object = Persistent<Object>((Object *) v8ObjectPointer);
+				JavaObject *jo = NativeObject::Unwrap<JavaObject>(v8Object);
+				if (jo->isDetached()) {
+					jo->attach(javaObject);
+				}
+				return v8Object;
 			}
 		}
 

@@ -95,8 +95,8 @@ define("Ti/UI/ScrollableView",
 					animationView.left = unitize(initialPosition);
 					this._setContent(animationView);
 					
-					// We have to force a non-delayed layout right now
-					Ti.UI._doForcedFullLayout();
+					// We have to force a non-delayed layout right now so that the new animation view is in place before the animation starts
+					this._triggerLayout(true);
 				}
 				
 				// Update the position of the animation div
@@ -268,8 +268,8 @@ define("Ti/UI/ScrollableView",
 				animationView.left = unitize(initialPosition);
 				this._setContent(animationView);
 				
-				// We have to force a non-delayed layout right now
-				Ti.UI._doForcedFullLayout();
+				// We have to force a non-delayed layout right now so that the new animation view is in place before the animation starts
+				this._triggerLayout(true);
 	
 				// Set the start time
 				var duration = 300 + 0.2 * width, // Calculate a weighted duration so that larger views take longer to scroll.

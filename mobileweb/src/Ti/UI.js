@@ -18,7 +18,7 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 			setTimeout(function() {
 				window.scrollTo(0, 1);
 				window.scrollTo(0, 0);
-				Ti.UI._doFullLayout();
+				Ti.UI._recalculateLayout();
 			}, x);
 		}
 	}
@@ -28,45 +28,66 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 		window.addEventListener("orientationchange", hideAddressBar);
 	}
 
+	ready(10, function() {
+		body.appendChild((Ti.UI._container = Ti.UI.createView({
+			left: 0,
+			top: 0
+		})).domNode);
+		Ti.UI._recalculateLayout();
+	});
+
+	require.on(window, "resize", function() {
+		Ti.UI._recalculateLayout();
+	});
+
 	return lang.setObject("Ti.UI", Evented, {
 
-		_addWindow: function(win) {
-			this._validateContainer();
+		_addWindow: function(win, set) {
 			this._container.add(win);
+			set && this._setWindow(win);
+			return win;
+		},
+
+		_setWindow: function(win) {
+			this.constants.currentWindow = win;
 		},
 
 		_removeWindow: function(win) {
-			this._validateContainer();
 			this._container.remove(win);
+			return win;
 		},
-
-		_doFullLayout: function() {
-			if (!this._layoutInProgress) {
-				this._layoutInProgress = true;
-				setTimeout(lang.hitch(this, function(){
-					this._validateContainer();
-					this._container.doLayout(0, 0, body.clientWidth, body.clientHeight, true, true);
-					this._layoutInProgress = false;
-				}), 25);
-			}
-		},
-
-		_doForcedFullLayout: function() {
-			this._validateContainer();
-			this._container.doLayout(0, 0, body.clientWidth, body.clientHeight, true, true);
-			this._layoutInProgress = false;
-			
-		},
-
-		_validateContainer: function() {
-			if (!isDef(this._container)) {
+		
+		_triggerLayout: function(force) {
+			if (force) {
+				clearTimeout(this._layoutTimer);
+				this._layoutMarkedNodes(this._container);
 				this._layoutInProgress = false;
-				this._container = Ti.UI.createView({
-					left: 0,
-					top: 0
-				});
-				body.appendChild(this._container.domNode);
+			} else {
+				if (!this._layoutInProgress) {
+					this._layoutInProgress = true;
+					this._layoutTimer = setTimeout(lang.hitch(this, function(){
+						this._layoutMarkedNodes(this._container);
+						this._layoutInProgress = false;
+						this._layoutTimer = null;
+					}), 25);
+				}
 			}
+		},
+		
+		_layoutMarkedNodes: function(node) {
+			if (node._markedForLayout) {
+				node._layout && node._layout._doLayout(node, node._measuredWidth, node._measuredHeight);
+			} else {
+				for (var i in node.children) {
+					this._layoutMarkedNodes(node.children[i]);
+				}
+			}
+		},
+		
+		_recalculateLayout: function() {
+			this._container.width = window.innerWidth;
+			this._container.height = window.innerHeight;
+			this._container._doLayout(0, 0, window.innerWidth, window.innerHeight, true, true);
 		},
 
 		properties: {
@@ -79,10 +100,19 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 				set: function(value) {
 					return style.set(body, "backgroundImage", value ? style.url(value) : "");
 				}
+			},
+			currentTab: {
+				get: function() {
+					return (this.currentWindow || {}).activeTab;
+				},
+				set: function(value) {
+					return (this.currentWindow || {}).activeTab = value;
+				}
 			}
 		},
 
 		constants: {
+			currentWindow: undefined,
 			UNKNOWN: 0,
 			FACE_DOWN: 1,
 			FACE_UP: 2,

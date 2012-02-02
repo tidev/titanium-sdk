@@ -766,8 +766,8 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)add:(id)viewProxy
 {
-	ENSURE_UI_THREAD(add,viewProxy);
 	ENSURE_SINGLE_ARG(viewProxy,TiViewProxy);
+	ENSURE_UI_THREAD(add,viewProxy);
 	if (views==nil)
 	{
 		views = TiCreateNonRetainingArray();

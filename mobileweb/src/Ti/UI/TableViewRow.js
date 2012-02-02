@@ -1,16 +1,25 @@
 define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, View, dom, css, style) {
 
 	var set = style.set,
-		undef;
+		undef,
+		isDef = require.isDef,
+		imagePrefix = "themes/titanium/UI/TableViewRow/"
+		checkImage = imagePrefix + "check.png",
+		childImage = imagePrefix + "child.png",
+		detailImage = imagePrefix + "detail.png";
 
 	return declare("Ti.UI.TableViewRow", View, {
+		
+		// The number of pixels 1 indention equals
+		_indentionScale: 10,
 		
 		constructor: function(args) {
 			
 			this.leftView = Ti.UI.createView({
 				left: 0,
 				top: 0,
-				width: "auto",
+				width: "auto", 
+				height: "100%",
 				layout: "horizontal"
 			}),
 			set(this.leftView.domNode,"boxAlign","center");
@@ -19,69 +28,80 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 			this.leftImageView = Ti.UI.createImageView();
 			this.leftView.add(this.leftImageView); 
 			
-			this.titleLabel = Ti.UI.createLabel({width: "auto"});
+			this.titleLabel = Ti.UI.createLabel({width: "auto", height: "100%"});
 			this.leftView.add(this.titleLabel);
 			
-			this.rightView = Ti.UI.createView({
+			this.rightImageView = Ti.UI.createImageView({
 				right: 0,
 				top: 0,
-				width: "auto",
-				layout: "horizontal"
-			}),
-			set(this.rightView.domNode,"boxAlign","center");
-			this.add(this.rightView);
-			
-			this.rightImageView = Ti.UI.createImageView();
-			this.rightView.add(this.rightImageView);
-			
-			// Holds detail, child, or check
-			this.extraView = Ti.UI.createView({width: "auto"});
-			this.rightView.add(this.extraView);
+				width: "auto", 
+				height: "100%"
+			});
+			this.add(this.rightImageView);
 		},
 		
 		_defaultHeight: "auto",
 		_defaultWidth: "100%",
 		_tableRowHeight: undef,
+		_tableViewSection: null,
 		_handleTouchEvent: function(type, e) {
 			if (type === "click" || type === "singletap") {
-				this._parent && this._parent._parent && (this._parent._parent._tableViewRowClicked = this);
+				this._tableViewSection && this._tableViewSection._tableView && (this._tableViewSection._tableView._tableViewRowClicked = this);
 			}
 			View.prototype._handleTouchEvent.apply(this,arguments);
 		},
+		
+		_doLayout: function(){
+			View.prototype._doLayout.apply(this,arguments);
+		},
+		
+		_doBackground: function(evt) {
+			if (this._touching) {
+				this.titleLabel.color = this.selectedColor;
+			} else {
+				this.titleLabel.color = this.color;
+			}
+			View.prototype._doBackground.apply(this,arguments);
+		},
 
 		properties: {
-			hasCheck: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.TableViewRow#.hasCheck" is not implemented yet.');
-					return value;
-				},
+			className: undef,
+			color: {
 				set: function(value) {
-					console.debug('Property "Titanium.UI.TableViewRow#.hasCheck" is not implemented yet.');
+					this.titleLabel.color = value;
+					return value;
+				}
+			},
+			hasCheck: {
+				set: function(value, oldValue) {
+					if (value !== oldValue && !isDef(this.rightImage) && !this.hasChild) {
+						this.rightImageView.image = value ? checkImage : undef;
+					}
 					return value;
 				}
 			},
 			hasChild: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.TableViewRow#.hasChild" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TableViewRow#.hasChild" is not implemented yet.');
+				set: function(value, oldValue) {
+					if (value !== oldValue && !isDef(this.rightImage)) {
+						this.rightImageView.image = value ? childImage : undef;
+					}
 					return value;
 				}
 			},
 			hasDetail: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.TableViewRow#.hasDetail" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TableViewRow#.hasDetail" is not implemented yet.');
+				set: function(value, oldValue) {
+					if (value !== oldValue && !isDef(this.rightImage) && !this.hasChild && !this.hasCheck) {
+						this.rightImageView.image = value ? detailImage : undef;
+					}
 					return value;
 				}
+			},
+			indentionLevel: {
+				set: function(value) {
+					this.leftView.left = value * this._indentionScale;
+					return value;
+				},
+				value: 0
 			},
 			leftImage: {
 				set: function(value) {
@@ -90,47 +110,25 @@ define("Ti/UI/TableViewRow", ["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/cs
 				}
 			},
 			rightImage: {
-				set: function(value) {
-					this.rightImageView.image = value;
+				set: function(value, oldValue) {
+					if (value !== oldValue) {
+						this.rightImageView.image = value;
+					}
 					return value;
 				}
 			},
-			selectedBackgroundColor: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.TableViewRow#.selectedBackgroundColor" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TableViewRow#.selectedBackgroundColor" is not implemented yet.');
-					return value;
-				}
-			},
-			selectedBackgroundImage: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.TableViewRow#.selectedBackgroundImage" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TableViewRow#.selectedBackgroundImage" is not implemented yet.');
-					return value;
-				}
-			},
-			selectedColor: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.TableViewRow#.selectedColor" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TableViewRow#.selectedColor" is not implemented yet.');
-					return value;
-				}
-			},
+			selectedColor: undef,
 			title: {
 				set: function(value) {
 					this.titleLabel.text = value;
+					return value;
+				}
+			},
+			
+			// Pass through to the label
+			font: {
+				set: function(value) {
+					this.titleLabel.font = value;
 					return value;
 				}
 			}
