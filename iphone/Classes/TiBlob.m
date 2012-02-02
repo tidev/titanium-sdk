@@ -206,8 +206,8 @@
 -(void)setData:(NSData*)data_
 {
 	RELEASE_TO_NIL(data);
-	type = TiBlobTypeData;
 	data = [data_ retain];
+	type = TiBlobTypeData;
 }
 
 -(void)setImage:(UIImage *)image_
@@ -215,6 +215,7 @@
 	RELEASE_TO_NIL(image);
 	type = TiBlobTypeImage;
 	image = [image_ retain];
+	mimetype = [@"image/jpeg" retain];
 }
 
 -(NSString*)path
