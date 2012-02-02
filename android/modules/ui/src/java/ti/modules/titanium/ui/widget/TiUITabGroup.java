@@ -34,6 +34,7 @@ public class TiUITabGroup extends TiUIView
 	private TabHost tabHost;
 
 	private int previousTabID = -1;
+	private int currentTabID = 0;
 	private KrollDict tabChangeEventData;
 
 	public TiUITabGroup(TiViewProxy proxy, TiTabActivity activity)
@@ -104,8 +105,7 @@ public class TiUITabGroup extends TiUIView
 	protected KrollDict getFocusEventObject(boolean hasFocus)
 	{
 		if (tabChangeEventData == null) {
-			TabHost th = (TabHost) getNativeView();
-			return ((TabGroupProxy) proxy).buildFocusEvent(th.getCurrentTabTag(), previousTabID);
+			return ((TabGroupProxy) proxy).buildFocusEvent(currentTabID, previousTabID);
 		} else {
 			return tabChangeEventData;
 		}
@@ -124,7 +124,7 @@ public class TiUITabGroup extends TiUIView
 		TabGroupProxy tabGroupProxy = ((TabGroupProxy) proxy);
 
 		TabProxy previousTab = null;
-		int currentTabID = tabHost.getCurrentTab();
+		currentTabID = tabHost.getCurrentTab();
 		
 		if (DBG) {
 			Log.d(LCAT,"Tab change from " + previousTabID + " to " + currentTabID);
@@ -147,7 +147,7 @@ public class TiUITabGroup extends TiUIView
 			}
 		}
 
-		tabChangeEventData = tabGroupProxy.buildFocusEvent(id, previousTabID);
+		tabChangeEventData = tabGroupProxy.buildFocusEvent(currentTabID, previousTabID);
 		//fire focus on current tab as well as its window
 		currentTab.fireEvent(TiC.EVENT_FOCUS, tabChangeEventData);
 		currentTab.getWindow().fireEvent(TiC.EVENT_FOCUS, null);
