@@ -190,7 +190,7 @@ methods:
 events:
   - name: click
     summary: Fired when a table row is clicked by the user.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
     properties:
       - name: index
         summary: Row index.
@@ -221,20 +221,25 @@ events:
         summary: X coordinate of the event, in the `source` view's coordinates.
         type: Number
         
-      - name: globalPoint
-        summary: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
-        platforms: [iphone, ipad]
-        type: Point
-        deprecated:
-            since: "1.8.0"
-            
       - name: row
         summary: Table view row object.
         type: Titanium.UI.TableViewRow
 
+  - name: dblclick
+    summary: Fired when the device detects a double click against the view.
+    platforms: [iphone, ipad, mobileweb]
+    properties:
+      - name: y
+        summary: Y coordinate of the event, in the `source` view's coordinates.
+        type: Number
+        
+      - name: x
+        type: Number
+        summary: X coordinate of the event, in the `source` view's coordinates.
+
   - name: delete
     summary: Fired when a table row is deleted by the user.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: index
         summary: Row index.
@@ -263,13 +268,6 @@ events:
       - name: x
         summary: X coordinate of the event, in the `source` view's coordinates.
         type: Number
-        
-      - name: globalPoint
-        summary: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
-        platforms: [iphone, ipad]
-        type: Point
-        deprecated:
-            since: "1.8.0"
             
       - name: row
         summary: Table view row object.
@@ -295,7 +293,7 @@ events:
         finger/button is lifted up again.  If you have a longclick listener then the click
         event will not occur when you lift the finger/button after a long click.
     platforms: [android]
-
+    
   - name: longpress
     summary: Fired when the device detects a long press against this view.
     description: |
@@ -313,7 +311,7 @@ events:
 
   - name: move
     summary: Fired when a table row is moved by the user.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: index
         summary: Row index.
@@ -342,13 +340,6 @@ events:
       - name: x
         summary: X coordinate of the event, in the `source` view's coordinates.
         type: Number
-        
-      - name: globalPoint
-        summary: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
-        platforms: [iphone, ipad]
-        type: Point
-        deprecated:
-            since: "1.8.0"
             
       - name: row
         summary: Table view row object.
@@ -390,13 +381,6 @@ events:
         summary: Dictionary with `width` and `height` properties containing the size of the content (regardless of the display size in the case of scrolling).
         platforms: [iphone, ipad, mobileweb]
         type: Dictionary
-        
-      - name: globalPoint
-        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        type: Point
-        deprecated:
-            since: "1.8.0"
             
       - name: size
         summary: Dictionary with `width` and `height` properties containing the size of the visible table view
@@ -404,6 +388,7 @@ events:
         
   - name: scrollEnd
     summary: fired when the table view stops scrolling
+    platforms: [iphone,ipad, mobileweb]
     properties:
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
@@ -423,20 +408,25 @@ events:
         platforms: [iphone, ipad, mobileweb]
         type: Dictionary
         
-      - name: globalPoint
-        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        type: Point
-        deprecated:
-            since: "1.8.0"
-            
       - name: size
         summary: Dictionary with `width` and `height` properties containing the size of the visible table view.
         type: Dictionary
 
+  - name: singletap
+    platforms: [iphone, ipad, mobileweb]
+    summary: Fired when the device detects a single tap against the view.
+    properties:
+      - name: y
+        summary: Y coordinate of the event, in the `source` view's coordinates.
+        type: Number
+        
+      - name: x
+        summary: X coordinate of the event, in the `source` view's coordinates.
+        type: Number
+
   - name: swipe
     summary: Fired when the device detects a swipe gesture (left or right) against the view.
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: direction
         summary: Direction of the swipe--either 'left' or 'right'.
@@ -446,14 +436,6 @@ events:
         summary: Y coordinate of the event's endpoint, in the `source` view's coordinates.
         type: Number
         
-      - name: globalPoint
-        summary: |
-            Dictionary with properties `x` and `y` describing the location 
-            of the event's endpoint in screen coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-            
       - name: x
         summary: X coordinate of the event's endpoint, in the `source` view's coordinates.
         type: Number
@@ -463,16 +445,8 @@ events:
     description: |
         Generated in various circumstances, including an incoming call to allow the UI to clean 
         up state.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     properties:
-      - name: globalPoint
-        summary: |
-            Dictionary with properties `x` and `y` describing the location of the event in screen 
-            coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-
       - name: x
         summary: X coordinate of the event from the `source` view.
         type: Number
@@ -481,19 +455,10 @@ events:
         summary: Y coordinate of the event from the `source` view.
         type: Number
         
-    
   - name: touchend
     summary: Fired when a touch gesture is complete.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     properties:
-      - name: globalPoint
-        summary: |
-            Dictionary with properties `x` and `y` describing the location of the event in screen 
-            coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-
       - name: x
         summary: X coordinate of the event from the `source` view.
         type: Number
@@ -502,47 +467,28 @@ events:
         summary: Y coordinate of the event from the `source` view.
         type: Number
         
-    
-  - name: touchmove
-    summary: Fired when a touch gesture is moved.
-    description: |
-        Event coordinates are relative to the view for which the initial touch occurred.
-    platforms: [iphone, ipad]
-    properties:
-      - name: globalPoint
-        summary: |
-            Dictionary with properties `x` and `y` describing the location of the event in screen 
-            coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-
-      - name: x
-        summary: X coordinate of the event from the `source` view.
-        type: Number
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view.
-        type: Number
-    
   - name: touchstart
     summary: Fired as soon as the device detects a touch gesture against this view.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     properties:
-      - name: globalPoint
-        summary: |
-            Dictionary with properties `x` and `y` describing the location of the event in screen 
-            coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-
       - name: x
         summary: X coordinate of the event from the `source` view.
         type: Number
         
       - name: y
         summary: Y coordinate of the event from the `source` view.
+        type: Number
+
+  - name: twofingertap
+    summary: Fired when the device detects a two-finger tap against the view.
+    platforms: [iphone, ipad, mobileweb]
+    properties:
+      - name: y
+        summary: Y coordinate of the event, in the `source` view's coordinates.
+        type: Number
+            
+      - name: x
+        summary: X coordinate of the event, in the `source` view's coordinates.
         type: Number
 
 properties:
