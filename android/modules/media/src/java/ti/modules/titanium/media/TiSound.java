@@ -316,7 +316,7 @@ public class TiSound
 			try {
 				mp.seekTo(position);
 			} catch (IllegalStateException e) {
-				Log.w(LCAT, "Error while preparing audio after stop(). Ignoring.");
+				Log.w(LCAT, "Error calling seekTo() in an incorrect state. Ignoring.");
 			}
 		}
 
