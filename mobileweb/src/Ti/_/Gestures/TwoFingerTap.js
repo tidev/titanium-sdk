@@ -23,7 +23,6 @@ define("Ti/_/Gestures/TwoFingerTap", ["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures
 				y = e.changedTouches[0].clientY,
 				touchesLength = e.touches.length,
 				changedTouchesLength = e.changedTouches.length;
-			element.backgroundColor == "yellow" && console.debug("Two Finger Tap" + touchesLength + "," + changedTouchesLength);
 			
 			// First finger down of the two, given a slight difference in contact time
 			if (touchesLength == 1 && changedTouchesLength == 1) {
@@ -63,7 +62,6 @@ define("Ti/_/Gestures/TwoFingerTap", ["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures
 		},
 		
 		processTouchEndEvent: function(e, element){
-			element.backgroundColor == "yellow" && console.debug("Two Finger Tap end" + e.touches.length + "," + e.changedTouches.length);
 			
 			var x = e.changedTouches[0].clientX,
 				y = e.changedTouches[0].clientY,
