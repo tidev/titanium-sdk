@@ -36,8 +36,11 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<property name="kroll.common.project.dir" location="${ti.android.root}/runtime/common"/>
 	<property name="kroll.v8.project.dir" location="${ti.android.root}/runtime/v8"/>
 	<property name="kroll.rhino.project.dir" location="${ti.android.root}/runtime/rhino"/>
-	<property name="ndk.build" location="${kroll.v8.project.dir}/ndk-build.sh"/>
 	<property name="kroll.runtime" value="all"/>
+
+	<condition property="ndk.build" value="${kroll.v8.project.dir}/ndk-build.cmd" else="${kroll.v8.project.dir}/ndk-build.sh">
+		<os family="windows"/>
+	</condition>
 
 	<property name="modules.dir" location="${ti.android.root}/modules"/>
 	<property name="ui.module.dir" location="${modules.dir}/ui"/>
