@@ -143,20 +143,10 @@ public class TabGroupProxy extends TiWindowProxy
 
 	private void handleAddTab(TabProxy tab)
 	{
-		String tag = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TAG));
+		String tag = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TAG) );
 		if (tag == null) {
-			String title = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TITLE));
-			if (title == null) {
-				String icon = TiConvert.toString(tab.getProperty(TiC.PROPERTY_ICON));
-				if (icon == null) {
-					tag = tab.toString();
-				} else {
-					tag = icon;
-				}
-			} else {
-				tag = title;
-			}
-			
+			//since tag is used to create tabSpec, it must be unique, otherwise tabs with same tag will use same activity (Timob-7487)
+			tag = tab.toString();
 			tab.setProperty(TiC.PROPERTY_TAG, tag, false); // store in proxy
 		}
 
