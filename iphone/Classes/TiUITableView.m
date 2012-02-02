@@ -248,6 +248,14 @@
 	return self;
 }
 
+-(void)configurationSet
+{
+    [super configurationSet];
+    
+    [[self proxy] initializeProperty:@"searchHidden" defaultValue:NUMBOOL(NO)];
+    [[self proxy] initializeProperty:@"hideOnSearch" defaultValue:NUMBOOL(YES)];
+}
+
 -(void)dealloc
 {
 	if (searchField!=nil)
@@ -1093,7 +1101,20 @@
         if (([visibleRows count] == 0) ||
             ([tableview contentOffset].y < offset.y && [visibleRows containsObject:[NSIndexPath indexPathForRow:0 inSection:0]]))
         {
-            [tableview setContentOffset:offset animated:animateHide];
+            void (^hide)(void) = ^{
+                [tableview setContentOffset:offset animated:NO];
+            };
+            
+            // 0.2s was the default for UIView animation blocks pre-iOS 4, which is what was used here.
+            // Note that we have to invoke the animation subsystem directly rather than implicitly to avoid
+            // some undesirable redraw or multiple scroll behavior.
+            
+            if (animateHide) {
+                [UIView animateWithDuration:0.2 animations:hide];
+            }
+            else {
+                hide();
+            }
         }
     }
     // Reset the animation hide flag to its default value
