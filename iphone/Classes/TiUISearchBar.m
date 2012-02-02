@@ -72,8 +72,13 @@
 -(void)setShowCancel_:(id)value
 {
 	UISearchBar *search = [self searchBar];
-	[search setShowsCancelButton:[TiUtils boolValue:value]];
+	[search setShowsCancelButton:[TiUtils boolValue:value] animated:cancelAnimated];
 	[search sizeToFit];
+}
+
+-(void)setCancelAnimated_:(id)value
+{
+	cancelAnimated = [TiUtils boolValue:value def:NO];
 }
 
 -(void)setHintText_:(id)value

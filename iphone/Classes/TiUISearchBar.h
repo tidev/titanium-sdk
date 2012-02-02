@@ -20,6 +20,7 @@
 	UISearchBar *searchView;
 	CALayer * backgroundLayer;
 	id<UISearchBarDelegate> delegate;
+	BOOL cancelAnimated;
 }
 
 -(void)setDelegate:(id<UISearchBarDelegate>)delegate;
