@@ -38,11 +38,11 @@
 
 -(void)show:(id)args
 {
+	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
 	if (![NSThread isMainThread]) {
 		TiThreadPerformOnMainThread(^{[self show:args];}, YES);
 		return;
-	}
-	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	}	
 	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 
 	TiViewProxy* view = [args objectForKey:@"view"];

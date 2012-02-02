@@ -197,8 +197,8 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 
 -(void)setData:(id)args
 {
-	ENSURE_UI_THREAD(setData,args);
 	ENSURE_ARG_COUNT(args,2);
+	ENSURE_UI_THREAD(setData,args);
 	
 	NSString *mimeType = [TiUtils stringValue: [args objectAtIndex: 0]];
 	id data = [args objectAtIndex: 1];

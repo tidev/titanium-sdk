@@ -10,7 +10,9 @@
 
 @interface TiUIScrollViewProxy : TiViewProxy<UIScrollViewDelegate> 
 {
+    TiPoint * contentOffset;
 }
+-(void) setContentOffset:(id)value withObject:(id)animated;
 
 @end
 

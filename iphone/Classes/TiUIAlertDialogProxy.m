@@ -52,8 +52,8 @@ static BOOL alertShowing = NO;
 
 -(void)hide:(id)args
 {
-	ENSURE_UI_THREAD_1_ARG(args);
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	ENSURE_UI_THREAD_1_ARG(args);
 	
 	if (alert!=nil)
 	{
