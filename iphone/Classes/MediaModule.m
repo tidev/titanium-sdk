@@ -1344,14 +1344,14 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
                     [originalImage drawInRect:drawRect];
                     
                     // grab image
-                    UIImage* resultImage = UIGraphicsGetImageFromCurrentImageContext();
+                    resultImage = UIGraphicsGetImageFromCurrentImageContext();
                     
                     UIGraphicsEndImageContext();
                 }
             }
             
             if (resultImage == nil) {
-                resultImage = (editedImage != nil)?editedImage:originalImage;
+                resultImage = (editedImage != nil) ? editedImage : originalImage;
             }
             
 			media = [[[TiBlob alloc] initWithImage:resultImage] autorelease];
