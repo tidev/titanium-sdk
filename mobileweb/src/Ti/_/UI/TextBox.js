@@ -34,6 +34,20 @@ define("Ti/_/UI/TextBox",
 			require.on(field, "change", this, function() {
 				this.fireEvent("change");
 			});
+			var previousText = "";
+			require.on(field, "keyup", this, function(e) {
+				var value = this._field.value,
+					newData = false;
+				if (previousText.length != value.length) {
+					newData = true;
+				} else if(previousText != value) {
+					newData = true;
+				}
+				if (newData) {
+					this.fireEvent("change");
+					previousText = value;
+				}
+			});
 		},
 
 		_capitalize: function(ac, val) {
