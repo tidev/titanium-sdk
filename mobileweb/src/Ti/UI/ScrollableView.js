@@ -320,6 +320,10 @@ define("Ti/UI/ScrollableView",
 		},
 		
 		_showPagingControl: function() {
+			if (!this.showPagingControl) {
+				this._pagingControlContainer.opacity = 0;
+				return;
+			}
 			if (this._isPagingControlActive) {
 				return;
 			}
@@ -392,7 +396,8 @@ define("Ti/UI/ScrollableView",
 				set: function(value) {
 					this.pagingControlTimeout == 0 && this._hidePagingControl();
 					return value;
-				}
+				},
+				value: false
 			},
 			views: {
 				set: function(value, oldValue) {
