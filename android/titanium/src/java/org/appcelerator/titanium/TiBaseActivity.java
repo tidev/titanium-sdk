@@ -701,7 +701,10 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		if (window != null) {
-			window.fireEvent(TiC.EVENT_BLUR, null);
+			//we don't need to fire blur for tabs b/c we're not firing focus when we re-enter the app
+			if (!(this instanceof TiActivity && ((TiActivity)this).isTab())) {
+				window.fireEvent(TiC.EVENT_BLUR, null);
+			}
 		}
 
 		if (activityProxy != null) {
