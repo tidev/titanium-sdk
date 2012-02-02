@@ -152,11 +152,25 @@ define("Ti/UI/ScrollableView",
 						}
 					}
 					
+					var self = this;
+					function finalizeSwipe() {
+						self._contentContainer._removeAllChildren();
+						self._contentContainer.add(self.views[destinationIndex]);
+						self._triggerLayout(true);
+						
+						self.currentPage !== destinationIndex && self.fireEvent("scroll",{
+							currentPage: destinationIndex,
+							view: self.views[destinationIndex],
+							x: e.x,
+							y: e.y
+						});
+						
+						self.properties.__values__.currentPage = destinationIndex;
+					}
+					
 					// Check if the user attempted to scroll past the edge, in which case we directly reset the view instead of animation
 					if (newPosition == 0 || newPosition == -animationView._measuredWidth + width) {
-						this._contentContainer._removeAllChildren();
-						this._contentContainer.add(this.views[destinationIndex]);
-						this._triggerLayout(true);
+						finalizeSwipe();
 					} else {
 						// Animate the view and set the final view
 						this._updatePagingControl(destinationIndex);
@@ -165,18 +179,7 @@ define("Ti/UI/ScrollableView",
 							left: animationLeft,
 							curve: Ti.UI.ANIMATION_CURVE_EASE_OUT
 						},lang.hitch(this,function(){
-							this._contentContainer._removeAllChildren();
-							this._contentContainer.add(this.views[destinationIndex]);
-							this._triggerLayout(true);
-							
-							this.currentPage !== destinationIndex && this.fireEvent("scroll",{
-								currentPage: destinationIndex,
-								view: this.views[destinationIndex],
-								x: e.x,
-								y: e.y
-							});
-							
-							this.properties.__values__.currentPage = destinationIndex;
+							finalizeSwipe();
 						}));
 					}
 				}
