@@ -195,25 +195,32 @@ define("Ti/_/UI/Element",
 				),
 				styles;
 
-			this._measuredLeft = dimensions.left;
-			this._measuredTop = dimensions.top;
-			this._measuredRightPadding = dimensions.rightPadding;
-			this._measuredBottomPadding = dimensions.bottomPadding;
-			this._measuredWidth = dimensions.width;
-			this._measuredHeight = dimensions.height;
-			this._measuredBorderWidth = dimensions.borderWidth;
-			
-			this._markedForLayout = false;
-
-			// Set the position, size and z-index
+			// Set and store the dimensions
 			styles = {
 				zIndex: this.zIndex | 0
 			};
-			isDef(this._measuredLeft) && (styles.left = unitize(this._measuredLeft));
-			isDef(this._measuredTop) && (styles.top = unitize(this._measuredTop));
-			isDef(this._measuredWidth) && (styles.width = unitize(this._measuredWidth));
-			isDef(this._measuredHeight) && (styles.height = unitize(this._measuredHeight));
+			if (this._measuredLeft != dimensions.left) {
+				this._measuredLeft = dimensions.left;
+				isDef(this._measuredLeft) && (styles.left = unitize(this._measuredLeft));
+			}
+			if (this._measuredTop != dimensions.top) {
+				this._measuredTop = dimensions.top
+				isDef(this._measuredTop) && (styles.top = unitize(this._measuredTop));
+			}
+			if (this._measuredWidth != dimensions.width) {
+				this._measuredWidth = dimensions.width
+				isDef(this._measuredWidth) && (styles.width = unitize(this._measuredWidth));
+			}
+			if (this._measuredHeight != dimensions.height) {
+				this._measuredHeight = dimensions.height
+				isDef(this._measuredHeight) && (styles.height = unitize(this._measuredHeight));
+			}
+			this._measuredRightPadding = dimensions.rightPadding;
+			this._measuredBottomPadding = dimensions.bottomPadding;
+			this._measuredBorderWidth = dimensions.borderWidth;
 			setStyle(this.domNode, styles);
+			
+			this._markedForLayout = false;
 			
 			// Run the post-layout animation, if needed
 			if (this._doAnimationAfterLayout) {
@@ -559,11 +566,7 @@ define("Ti/_/UI/Element",
 					}
 
 					setStyle(this.domNode, "transform", transformCss);
-				}),
-				done = function() {
-					is(anim.complete, "Function") && anim.complete();
-					is(callback, "Function") && callback();
-				};
+				});
 
 			anim.duration = anim.duration || 0;
 			anim.delay = anim.delay || 0;
@@ -577,13 +580,15 @@ define("Ti/_/UI/Element",
 					if (!this._destroyed) {
 						// Clear the transform so future modifications in these areas are not animated
 						setStyle(this.domNode, "transition", "");
-						done();
+						is(anim.complete, "Function") && anim.complete();
+						is(callback, "Function") && callback();
 					}
 				}));
 				setTimeout(fn, 0);
 			} else {
 				fn();
-				done();
+				is(anim.complete, "Function") && anim.complete();
+				is(callback, "Function") && callback();
 			}
 		},
 

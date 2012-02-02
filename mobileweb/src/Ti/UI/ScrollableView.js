@@ -21,7 +21,31 @@ define("Ti/UI/ScrollableView",
 		
 		constructor: function(args){
 			
-			this._setContent();
+			// Create the content container
+			this._contentContainer = Ti.UI.createView({
+				left: 0,
+				top: 0,
+				width: "100%",
+				height: "100%"
+			});
+			set(this._contentContainer.domNode,"overflow","hidden");
+			this.add(this._contentContainer);
+			
+			// Create the paging control container
+			this.add(this._pagingControlContainer = Ti.UI.createView({
+				width: "100%",
+				height: 20,
+				bottom: 0,
+				backgroundColor: "black",
+				opacity: 0,
+				touchEnabled: false
+			}));
+			this._pagingControlContainer.add(this._pagingControlContentContainer = Ti.UI.createView({
+				width: "auto",
+				height: "100%",
+				top: 0,
+				touchEnabled: false
+			}));
 			
 			// State variables
 			this._viewToRemoveAfterScroll = -1;
@@ -42,7 +66,8 @@ define("Ti/UI/ScrollableView",
 						left: destinationLeft,
 						curve: Ti.UI.ANIMATION_CURVE_EASE_OUT
 					},lang.hitch(this,function(){
-						this._setContent(this.views[this.currentPage]);
+						this._contentContainer._removeAllChildren();
+						this._contentContainer.add(this.views[this.currentPage]);
 					}));
 				}
 			})
@@ -77,6 +102,7 @@ define("Ti/UI/ScrollableView",
 					});
 		
 					// Attach the child views, each contained in their own div so we can mess with positioning w/o touching the views
+					this._contentContainer._removeAllChildren();
 					for (var i = 0; i < viewsToScroll.length; i++) {
 						var viewContainer = Ti.UI.createView({
 							left: unitize(i * width),
@@ -92,7 +118,8 @@ define("Ti/UI/ScrollableView",
 					
 					// Set the initial position
 					animationView.left = unitize(initialPosition);
-					this._setContent(animationView, true);
+					this._contentContainer.add(animationView);
+					this._triggerLayout(true);
 				}
 				
 				// Update the position of the animation div
@@ -127,15 +154,20 @@ define("Ti/UI/ScrollableView",
 					
 					// Check if the user attempted to scroll past the edge, in which case we directly reset the view instead of animation
 					if (newPosition == 0 || newPosition == -animationView._measuredWidth + width) {
-						this._setContent(this.views[destinationIndex], true);
+						this._contentContainer._removeAllChildren();
+						this._contentContainer.add(this.views[destinationIndex]);
+						this._triggerLayout(true);
 					} else {
 						// Animate the view and set the final view
+						this._updatePagingControl(destinationIndex);
 						animationView.animate({
 							duration: 200 + (0.2 * width) / (width - Math.abs(e._distance)) * 10,
 							left: animationLeft,
 							curve: Ti.UI.ANIMATION_CURVE_EASE_OUT
 						},lang.hitch(this,function(){
-							this._setContent(this.views[destinationIndex], true);
+							this._contentContainer._removeAllChildren();
+							this._contentContainer.add(this.views[destinationIndex]);
+							this._triggerLayout(true);
 							
 							this.currentPage !== destinationIndex && this.fireEvent("scroll",{
 								currentPage: destinationIndex,
@@ -152,15 +184,16 @@ define("Ti/UI/ScrollableView",
 		},
 		
 		addView: function(view){
-			// Sanity check
 			if (view) {
 				this.views.push(view);
 	
 				// Check if any children have been added yet, and if not load this view
 				if (this.views.length == 1) {
 					this.properties.__values__.currentPage = 0;
-					this._setContent(view);
+					this._contentContainer._removeAllChildren();
+					this._contentContainer.add(view);
 				}
+				this._updatePagingControl(this.currentPage);
 			}
 		},
 		
@@ -175,7 +208,7 @@ define("Ti/UI/ScrollableView",
 			// Update the view if this view was currently visible
 			if (viewIndex == this.currentPage) {
 				if (this.views.length == 1) {
-					this._setContent();
+					this._contentContainer._removeAllChildren();
 					this._removeViewFromList(viewIndex);
 				} else {
 					this._viewToRemoveAfterScroll = viewIndex;
@@ -194,28 +227,8 @@ define("Ti/UI/ScrollableView",
 			if (viewIndex < this.currentPage){
 				this.properties.__values__.currentPage--;
 			}
-		},
-		
-		_setContent: function(view, forceUpdate) {
 			
-			// Create the new container
-			var newContainer = Ti.UI.createView({
-				left: 0,
-				top: 0,
-				width: "100%",
-				height: "100%"
-			});
-			set(newContainer.domNode,"overflow","hidden");
-			this.add(newContainer);
-			
-			// Add the view to the container
-			view && newContainer.add(view);
-			
-			forceUpdate && this._triggerLayout(true);
-			
-			// Remove and garbage collect the old container
-			this.container && this.remove(this.container);
-			this.container = newContainer;
+			this._updatePagingControl(this.currentPage);
 		},
 		
 		scrollToView: function(view) {
@@ -229,8 +242,9 @@ define("Ti/UI/ScrollableView",
 			// If the scrollableView hasn't been laid out yet, we can't do much since the scroll distance is unknown.
 			// At the same time, it doesn't matter since the user won't see it anyways. So we just append the new
 			// element and don't show the transition animation.
-			if (!this.container.domNode.offsetWidth) {
-				this._setContent(this.views[viewIndex]);
+			if (!this._contentContainer.domNode.offsetWidth) {
+				this._contentContainer._removeAllChildren();
+				this._contentContainer.add(this.views[viewIndex]);
 			} else {
 				
 				// Calculate the views to be scrolled
@@ -260,6 +274,7 @@ define("Ti/UI/ScrollableView",
 				});
 	
 				// Attach the child views, each contained in their own div so we can mess with positioning w/o touching the views
+				this._contentContainer._removeAllChildren();
 				for (var i = 0; i < viewsToScroll.length; i++) {
 					var viewContainer = Ti.UI.createView({
 						left: unitize(i * width),
@@ -275,18 +290,22 @@ define("Ti/UI/ScrollableView",
 				
 				// Set the initial position
 				animationView.left = unitize(initialPosition);
-				this._setContent(animationView, true);
+				this._contentContainer.add(animationView);
+				this._triggerLayout(true);
 	
 				// Set the start time
-				var duration = 300 + 0.2 * width, // Calculate a weighted duration so that larger views take longer to scroll.
+				var duration = 300 + 0.2 * (width), // Calculate a weighted duration so that larger views take longer to scroll.
 					distance = (viewsToScroll.length - 1) * width;
 					
+				this._updatePagingControl(viewIndex);
 				animationView.animate({
 					duration: duration,
 					left: initialPosition + scrollingDirection * distance,
 					curve: Ti.UI.ANIMATION_CURVE_EASE_IN_OUT
 				},lang.hitch(this,function(){
-					this._setContent(this.views[viewIndex], true);
+					this._contentContainer._removeAllChildren();
+					this._contentContainer.add(this.views[viewIndex]);
+					this._triggerLayout(true);
 					this.properties.__values__.currentPage = viewIndex;
 					if (this._viewToRemoveAfterScroll != -1) {
 						this._removeViewFromList(this._viewToRemoveAfterScroll);
@@ -298,6 +317,41 @@ define("Ti/UI/ScrollableView",
 					});
 				}));
 			}
+		},
+		
+		_showPagingControl: function() {
+			if (this._isPagingControlActive) {
+				return;
+			}
+			this._isPagingControlActive = true;
+			this._pagingControlContainer.animate({
+				duration: 250,
+				opacity: 0.75
+			});
+			this.pagingControlTimeout > 0 && setTimeout(lang.hitch(this,function() {
+				this._pagingControlContainer.animate({
+					duration: 750,
+					opacity: 0
+				});
+				this._isPagingControlActive = false;
+			}),this.pagingControlTimeout);
+		},
+		
+		_updatePagingControl: function(newIndex, hidePagingControl) {
+			this._pagingControlContentContainer._removeAllChildren();
+			var diameter = this.pagingControlHeight / 2;
+			for (var i = 0; i < this.views.length; i++) {
+				var indicator = Ti.UI.createView({
+					width: diameter,
+					height: diameter,
+					top: diameter / 2,
+					left: i * 2 * diameter,
+					backgroundColor: i === newIndex ? "white" : "grey"
+				});
+				set(indicator.domNode,"borderRadius",unitize(diameter / 2));
+				this._pagingControlContentContainer.add(indicator);
+			}
+			!hidePagingControl && this._showPagingControl();
 		},
 		
 		_defaultWidth: "100%",
@@ -314,50 +368,29 @@ define("Ti/UI/ScrollableView",
 				}
 			},
 			pagingControlColor: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ScrollableView#.pagingControlColor" is not implemented yet.');
+				set: function(value) {
+					this._pagingControlContainer.backgroundColor = value;
 					return value;
 				},
-				set: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ScrollableView#.pagingControlColor" is not implemented yet.');
-					return value;
-				}
+				value: "black"
 			},
 			pagingControlHeight: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ScrollableView#.pagingControlHeight" is not implemented yet.');
+				set: function(value) {
+					this._pagingControlContainer.height = value;
 					return value;
 				},
-				set: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ScrollableView#.pagingControlHeight" is not implemented yet.');
-					return value;
-				}
+				value: 20
 			},
 			pagingControlTimeout: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ScrollableView#.pagingControlTimeout" is not implemented yet.');
+				set: function(value) {
+					this.pagingControlTimeout == 0 && this._hidePagingControl();
 					return value;
 				},
-				set: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ScrollableView#.pagingControlTimeout" is not implemented yet.');
-					return value;
-				}
+				value: 1250
 			},
 			showPagingControl: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ScrollableView#.showPagingControl" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ScrollableView#.showPagingControl" is not implemented yet.');
+					this.pagingControlTimeout == 0 && this._hidePagingControl();
 					return value;
 				}
 			},
@@ -367,8 +400,15 @@ define("Ti/UI/ScrollableView",
 					if (!is(value,"Array")) {
 						return;
 					}
-					oldValue.length == 0 && value.length > 0 && this._setContent(value[0]);
+					if (oldValue.length == 0 && value.length > 0) {
+						this._contentContainer._removeAllChildren();
+						this._contentContainer.add(value[0]);
+					}
+					this.properties.__values__.currentPage = 0;
 					return value;
+				},
+				post: function() {
+					this._updatePagingControl(this.currentPage,true);
 				},
 				value: []
 			}
