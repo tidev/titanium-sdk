@@ -147,6 +147,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)yn;
 
 -(NSDictionary*)allProperties;
+-(void)initializeProperty:(NSString*)name defaultValue:(id)value;
 -(void)replaceValue:(id)value forKey:(NSString*)key notification:(BOOL)notify;
 -(void)deleteKey:(NSString*)key;
 
