@@ -343,10 +343,9 @@ public class TabGroupProxy extends TiWindowProxy
 		opened = false;
 	}
 
-	public KrollDict buildFocusEvent(String to, String from)
+	public KrollDict buildFocusEvent(String to, int fromIndex)
 	{
 		int toIndex = indexForId(to);
-		int fromIndex = indexForId(from);
 		return buildFocusEvent(toIndex, fromIndex);
 	}
 
