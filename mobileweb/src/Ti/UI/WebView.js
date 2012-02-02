@@ -30,9 +30,18 @@ define("Ti/UI/WebView",
 				this._destroy();
 				this._loading(1);
 
-				var iframe = this._iframe = dom.create("iframe", {
-						frameBorder: 0,
-						src: this.url,
+				var url = this.url,
+					match = this.url.match(/(https?)\:\/\/([^\:\/]*)(:?\d*)(.*)/),
+					loc = window.location,
+					isSameDomain = match && match[0] + ":" === loc.protocol && match[1] + match[2] === window.location.host,
+					iframe = this._iframe = dom.create("iframe", {
+						frameborder: 0,
+						marginwidth: 0,
+						marginheight: 0,
+						hspace: 0,
+						vspace: 0,
+						scrolling: this.showScrollbars ? "auto" : "no",
+						src: url,
 						style: {
 							width: "100%",
 							height: "100%"
@@ -41,8 +50,29 @@ define("Ti/UI/WebView",
 
 				this._iframeHandles = [
 					require.on(iframe, "load", this, function(evt) {
-						var url = iframe.contentWindow.location.href;
-						this.evalJS(bridge.replace("WEBVIEW_ID", this.widgetId + ":unload"));
+						var i = Math.max(isSameDomain | 0, 0),
+							cw = iframe.contentWindow,
+							prop,
+							url;
+
+						if (i !== -1) {
+							// we can always guarantee that the first load we'll know if it's the same domain
+							isSameDomain = -1;
+						} else {
+							// for every load after the first, we need to try which will throw security errors
+							for (prop in cw) {
+								i++;
+								break;
+							}
+						}
+
+						if (i > 0) {
+							url = cw.location.href;
+							this.evalJS(bridge.replace("WEBVIEW_ID", this.widgetId + ":unload"));
+						} else {
+							Ti.API.warn("Unable to inject WebView bridge into cross-domain URL, ignore browser security message");
+						}
+
 						this._loading();
 						this.fireEvent("load", {
 							url: url ? (this.properties.__values__.url = url) : this.url
@@ -165,6 +195,14 @@ define("Ti/UI/WebView",
 				set: function(value) {
 					return this._setContent(value);
 				}
+			},
+
+			showScrollbars: {
+				set: function(value) {
+					this._iframe && dom.attr.set(this._iframe, "scrolling", value ? "auto" : "no");
+					return value;
+				},
+				value: true
 			},
 
 			url: { 
