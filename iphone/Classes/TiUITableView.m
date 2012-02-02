@@ -253,7 +253,7 @@
     [super configurationSet];
     
     [[self proxy] initializeProperty:@"searchHidden" defaultValue:NUMBOOL(NO)];
-    [[self proxy] initializeProperty:@"hideOnSearch" defaultValue:NUMBOOL(YES)];
+    [[self proxy] initializeProperty:@"hideSearchOnSelection" defaultValue:NUMBOOL(YES)];
 }
 
 -(void)dealloc
