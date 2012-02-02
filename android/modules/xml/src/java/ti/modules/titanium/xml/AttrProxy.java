@@ -15,6 +15,7 @@ import org.w3c.dom.DOMException;
 public class AttrProxy extends NodeProxy {
 
 	private Attr attr;
+	
 	public AttrProxy(Attr attr) {
 		super(attr);
 		this.attr = attr;
