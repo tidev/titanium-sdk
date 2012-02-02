@@ -1083,7 +1083,17 @@
         [self makeRootViewFirstResponder];
     }
     
-	[searchController setActive:NO animated:[searchController isActive]];
+    // This logic here is contingent on search controller deactivation 
+    // (-[TiUITableView searchDisplayControllerDidEndSearch:]) triggering a hide;
+    // doing this ensures that:
+    // 
+    // * The hide when the search controller was active is animated
+    // * The animation only occurs once
+    
+    if ([searchController isActive]) {
+        [searchController setActive:NO animated:YES];
+        return;
+    }
 
     // NOTE: Because of how tableview row reloads are scheduled, we always need to do this
     // because of where the hide might be triggered from.
@@ -1092,9 +1102,8 @@
     [tableview reloadRowsAtIndexPaths:visibleRows withRowAnimation:UITableViewRowAnimationNone];
     
     // We only want to scroll if the following conditions are met:
-    // 1. The search bar is not already hidden
-    // 2. The top row of the first section (and hence searchbar) are visible (or there are no rows)
-    // 3. The current offset is smaller than the new offset (otherwise the search is already hidden)
+    // 1. The top row of the first section (and hence searchbar) are visible (or there are no rows)
+    // 2. The current offset is smaller than the new offset (otherwise the search is already hidden)
     
     if (searchHidden) {
         CGPoint offset = CGPointMake(0,MAX(TI_NAVBAR_HEIGHT, searchField.view.frame.size.height));
@@ -2118,7 +2127,7 @@ if(ourTableView != tableview)	\
 - (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
 {
     animateHide = YES;
-	[self hideSearchScreen:nil];
+    [self hideSearchScreen:nil];
 }
 
 @end
