@@ -388,7 +388,7 @@ properties:
   - name: footerTitle
     summary: Table view footer title.
     type: String
-  - name: hideOnSearch
+  - name: hideSearchOnSelection
     summary: Boolean to indicate whether or not the search field should hide on completion.
     description: |
         Once a row is clicked in a search result, if this value is `true`,

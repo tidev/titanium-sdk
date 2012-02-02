@@ -1396,7 +1396,7 @@
 	}
 }
 
--(void)setHideOnSearch_:(id)yn
+-(void)setHideSearchOnSelection_:(id)yn
 {
     hideOnSearch = [TiUtils boolValue:yn def:YES];
 }
