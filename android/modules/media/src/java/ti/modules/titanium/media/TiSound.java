@@ -383,6 +383,7 @@ public class TiSound
 					}
 					try {
 						mp.prepare();
+						mp.seekTo(0);
 					} catch (IOException e) {
 						Log.e(LCAT,"Error while preparing audio after stop(). Ignoring.");
 					} catch (IllegalStateException e) {
