@@ -169,11 +169,11 @@ define("Ti/UI/ScrollableView",
 					}
 					
 					// Check if the user attempted to scroll past the edge, in which case we directly reset the view instead of animation
+					this._updatePagingControl(destinationIndex);
 					if (newPosition == 0 || newPosition == -animationView._measuredWidth + width) {
 						finalizeSwipe();
 					} else {
 						// Animate the view and set the final view
-						this._updatePagingControl(destinationIndex);
 						animationView.animate({
 							duration: 200 + (0.2 * width) / (width - Math.abs(e._distance)) * 10,
 							left: animationLeft,
