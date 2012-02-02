@@ -172,6 +172,12 @@ properties:
     platforms: [android]
     since: "1.8.0"
     default: <Titanium.UI.Android.WEBVIEW_PLUGINS_OFF>
+  - name: showScrollbars
+    summary: If true, scrollbars will be displayed should the content be larger than the WebView.
+    type: Boolean
+    platforms: [mobileweb]
+    since: "1.9.0"
+    default: true
   - name: enableZoomControls
     summary: sets whether the zoom controls are enabled
     type: Boolean
