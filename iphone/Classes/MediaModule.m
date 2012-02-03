@@ -1324,12 +1324,40 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 		}
 		else
 		{
-			UIImage *image = (editedImage != nil)?editedImage:
-					[editingInfo objectForKey:UIImagePickerControllerOriginalImage];
-			media = [[[TiBlob alloc] initWithImage:image] autorelease];
+            UIImage *resultImage = nil;
+            UIImage *originalImage = [editingInfo objectForKey:UIImagePickerControllerOriginalImage];
+            if ( (editedImage != nil) && (ourRectValue != nil) && (originalImage != nil)) {
+                
+                CGRect ourRect = [ourRectValue CGRectValue];
+                
+                if ( (ourRect.size.width > editedImage.size.width) || (ourRect.size.height > editedImage.size.height) ){
+                    UIGraphicsBeginImageContext(ourRect.size);
+                    CGContextRef context = UIGraphicsGetCurrentContext();
+                    
+                    // translated rectangle for drawing sub image 
+                    CGRect drawRect = CGRectMake(-ourRect.origin.x, -ourRect.origin.y, originalImage.size.width, originalImage.size.height);
+                    
+                    // clip to the bounds of the image context
+                    CGContextClipToRect(context, CGRectMake(0, 0, ourRect.size.width, ourRect.size.height));
+                    
+                    // draw image
+                    [originalImage drawInRect:drawRect];
+                    
+                    // grab image
+                    resultImage = UIGraphicsGetImageFromCurrentImageContext();
+                    
+                    UIGraphicsEndImageContext();
+                }
+            }
+            
+            if (resultImage == nil) {
+                resultImage = (editedImage != nil) ? editedImage : originalImage;
+            }
+            
+			media = [[[TiBlob alloc] initWithImage:resultImage] autorelease];
 			if (saveToRoll)
 			{
-				UIImageWriteToSavedPhotosAlbum(image, nil, nil, NULL);
+				UIImageWriteToSavedPhotosAlbum(resultImage, nil, nil, NULL);
 			}
 		}
 	}
