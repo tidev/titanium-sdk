@@ -136,7 +136,7 @@ define("Ti/_/UI/Element",
 		
 		_triggerLayout: function(force) {
 			
-			if (this._markedForLayout) {
+			if (this._markedForLayout && !force) {
 				return;
 			}
 			
@@ -195,25 +195,38 @@ define("Ti/_/UI/Element",
 				),
 				styles;
 
-			this._measuredLeft = dimensions.left;
-			this._measuredTop = dimensions.top;
-			this._measuredRightPadding = dimensions.rightPadding;
-			this._measuredBottomPadding = dimensions.bottomPadding;
-			this._measuredWidth = dimensions.width;
-			this._measuredHeight = dimensions.height;
-			this._measuredBorderWidth = dimensions.borderWidth;
-			
-			this._markedForLayout = false;
-
-			// Set the position, size and z-index
+			// Set and store the dimensions
 			styles = {
 				zIndex: this.zIndex | 0
 			};
-			isDef(this._measuredLeft) && (styles.left = unitize(this._measuredLeft));
-			isDef(this._measuredTop) && (styles.top = unitize(this._measuredTop));
-			isDef(this._measuredWidth) && (styles.width = unitize(this._measuredWidth));
-			isDef(this._measuredHeight) && (styles.height = unitize(this._measuredHeight));
+			if (this._measuredLeft != dimensions.left) {
+				this._measuredLeft = dimensions.left;
+				isDef(this._measuredLeft) && (styles.left = unitize(this._measuredLeft));
+			}
+			if (this._measuredTop != dimensions.top) {
+				this._measuredTop = dimensions.top
+				isDef(this._measuredTop) && (styles.top = unitize(this._measuredTop));
+			}
+			if (this._measuredWidth != dimensions.width) {
+				this._measuredWidth = dimensions.width
+				isDef(this._measuredWidth) && (styles.width = unitize(this._measuredWidth));
+			}
+			if (this._measuredHeight != dimensions.height) {
+				this._measuredHeight = dimensions.height
+				isDef(this._measuredHeight) && (styles.height = unitize(this._measuredHeight));
+			}
+			this._measuredRightPadding = dimensions.rightPadding;
+			this._measuredBottomPadding = dimensions.bottomPadding;
+			this._measuredBorderWidth = dimensions.borderWidth;
 			setStyle(this.domNode, styles);
+			
+			this._markedForLayout = false;
+			
+			// Run the post-layout animation, if needed
+			if (this._doAnimationAfterLayout) {
+				this._doAnimationAfterLayout = false;
+				this._doAnimation();
+			}
 		},
 
 		_computeDimensions: function(parentWidth, parentHeight, left, top, originalRight, originalBottom, centerX, centerY, width, height, borderWidth) {
@@ -227,10 +240,6 @@ define("Ti/_/UI/Element",
 			centerY = centerY && computeSize(centerY, parentHeight, 1);
 			width = computeSize(width, parentWidth);
 			height = computeSize(height, parentHeight);
-
-			// For our purposes, auto is the same as undefined for position values.
-			originalRight === "auto" && (right = undef);
-			originalBottom === "auto" && (bottom = undef);
 
 			// Convert right/bottom coordinates to be with respect to (0,0)
 			var right = isDef(originalRight) ? (parentWidth - originalRight) : undef,
@@ -352,7 +361,7 @@ define("Ti/_/UI/Element",
 				width == "auto" && (width = this._getContentWidth());
 				height == "auto" && (height = this._getContentHeight());
 			} else {
-				var computedSize = this._layout._doLayout(this,width,height);
+				var computedSize = this._layout._doLayout(this,is(width,"Number") ? width : parentWidth,is(height,"Number") ? height : parentHeight);
 				width == "auto" && (width = computedSize.width);
 				height == "auto" && (height = computedSize.height);
 			}
@@ -380,10 +389,10 @@ define("Ti/_/UI/Element",
 
 			// Set the default top/left if need be
 			if (left == "calculateAuto") {
-				left = this._centerHDefault && parentWidth !== "auto" ? computeSize("50%",parentWidth) - (is(width,"Number") ? width : 0) / 2 : 0;
+				left = this._centerHDefault && parentWidth !== "auto" ? computeSize("50%",parentWidth) - (is(width,"Number") ? width + borderWidth * 2 : 0) / 2 : 0;
 			}
 			if (top == "calculateAuto") {
-				top = this._centerVDefault && parentHeight !== "auto" ? computeSize("50%",parentHeight) - (is(height,"Number") ? height : 0) / 2 : 0;
+				top = this._centerVDefault && parentHeight !== "auto" ? computeSize("50%",parentHeight) - (is(height,"Number") ? height + borderWidth * 2 : 0) / 2 : 0;
 			}
 
 			// Apply the origin and border width
@@ -501,7 +510,20 @@ define("Ti/_/UI/Element",
 		},
 
 		animate: function(anim, callback) {
-			var anim = anim || {},
+			this._animationData = anim;
+			this._animationCallback = callback;
+			
+			if (Ti.UI._layoutInProgress) {
+				this._doAnimationAfterLayout = true;
+			} else {
+				this._doAnimation();
+			}
+		},
+		
+		_doAnimation: function() {
+			
+			var anim = this._animationData || {},
+				callback = this._animationCallback;
 				curve = curves[anim.curve] || "ease",
 				fn = lang.hitch(this, function() {
 					var transformCss = "";
@@ -544,11 +566,7 @@ define("Ti/_/UI/Element",
 					}
 
 					setStyle(this.domNode, "transform", transformCss);
-				}),
-				done = function() {
-					is(anim.complete, "Function") && anim.complete();
-					is(callback, "Function") && callback();
-				};
+				});
 
 			anim.duration = anim.duration || 0;
 			anim.delay = anim.delay || 0;
@@ -562,13 +580,15 @@ define("Ti/_/UI/Element",
 					if (!this._destroyed) {
 						// Clear the transform so future modifications in these areas are not animated
 						setStyle(this.domNode, "transition", "");
-						done();
+						is(anim.complete, "Function") && anim.complete();
+						is(callback, "Function") && callback();
 					}
 				}));
 				setTimeout(fn, 0);
 			} else {
 				fn();
-				done();
+				is(anim.complete, "Function") && anim.complete();
+				is(callback, "Function") && callback();
 			}
 		},
 
