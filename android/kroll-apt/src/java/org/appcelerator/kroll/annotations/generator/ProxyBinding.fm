@@ -249,7 +249,8 @@
 		"defaultValue": "null"
 	},
 	"java.lang.String[]":{
-		"jsType":"Value",
+		"jsType":"Array",
+		"jsHandleCast":"Array",
 		"jsToJavaConverter":"jsArrayToJavaArray",
 		"javaToJsConverter":"javaArrayToJsArray",
 		"jvalue":"l", "signature":"[Ljava/lang/String;",
@@ -261,7 +262,6 @@
 		"rhinoJsCast":true,
 		"rhinoToJavaConverter":"jsArrayToJavaStringArray",
 		"javaToRhinoConverter":"javaStringArrayToJsArray",
-		"typeValidation":false,
 		"defaultValue": "null"
 	},
 	"java.lang.Object":{
@@ -282,7 +282,8 @@
 		"defaultValue": "null"
 	},
 	"java.lang.Object[]":{
-		"jsType":"Value",
+		"jsType":"Array",
+		"jsHandleCast":"Array",
 		"jsToJavaConverter":"jsArrayToJavaArray",
 		"javaToJsConverter":"javaArrayToJsArray",
 		"jvalue":"l", "signature":"[Ljava/lang/Object;",
@@ -294,11 +295,11 @@
 		"rhinoJsCast":true,
 		"rhinoToJavaConverter":"jsArrayToJavaObjectArray",
 		"javaToRhinoConverter":"javaObjectArrayToJsArray",
-		"typeValidation":false,
 		"defaultValue": "null"
 	},
 	"int[]":{
-		"jsType":"Value",
+		"jsType":"Array",
+		"jsHandleCast":"Array",
 		"jsToJavaConverter":"jsArrayToJavaIntArray",
 		"javaToJsConverter":"javaArrayToJsArray",
 		"jvalue":"l", "signature":"[I",
@@ -310,7 +311,6 @@
 		"rhinoJsCast":true,
 		"rhinoToJavaConverter":"jsArrayToJavaIntArray",
 		"javaToRhinoConverter":"javaIntArrayToJsArray",
-		"typeValidation":false,
 		"defaultValue": "null"
 	},
 	"int":{
@@ -340,7 +340,8 @@
 		"defaultValue": "-1"
 	},
 	"long[]":{
-		"jsType":"Value",
+		"jsType":"Array",
+		"jsHandleCast":"Array",
 		"jsToJavaConverter":"jsArrayToJavaLongArray",
 		"javaToJsConverter":"javaArrayToJsArray",
 		"jvalue":"l", "signature":"[J",
@@ -352,11 +353,11 @@
 		"rhinoJsCast":true,
 		"rhinoToJavaConverter":"jsArrayToJavaLongArray",
 		"javaToRhinoConverter":"javaLongArrayToJsArray",
-		"typeValidation":false,
 		"defaultValue": "null"
 	},
 	"float[]":{
-		"jsType":"Value",
+		"jsType":"Array",
+		"jsHandleCast":"Array",
 		"jsToJavaConverter":"jsArrayToJavaFloatArray",
 		"javaToJsConverter":"javaArrayToJsArray",
 		"jvalue":"l", "signature":"[F",
@@ -368,7 +369,6 @@
 		"rhinoJsCast":true,
 		"rhinoToJavaConverter":"jsArrayToJavaFloatArray",
 		"javaToRhinoConverter":"javaFloatArrayToJsArray",
-		"typeValidation":false,
 		"defaultValue": "null"
 	},
 	"long":{
@@ -489,7 +489,7 @@ fails, a JS exception is returned.
 ---------------------------------------------------------------->
 <#macro verifyAndConvertArgument expr index info logOnly isOptional>
 	<#if !isOptional && info.typeValidation!true>
-	if (!${expr}->Is${info.jsType}()) {
+	if (!${expr}->Is${info.jsType}() && !${expr}->IsNull()) {
 		const char *error = "Invalid value, expected type ${info.jsType}.";
 		LOGE(TAG, error);
 		<#if !(logOnly!false)>
@@ -520,7 +520,6 @@ fails, a JS exception is returned.
 		<#local type = "Local<Number>">
 		<#local valueExpr = expr + "->ToNumber()">
 		<#local stringExpr = expr + "->ToString()">
-		<#local postAssignmentCheck = "titanium::V8Util::isNaN(" + current_arg + ")">
 	<#elseif info?keys?seq_contains("jsHandleCast")>
 		<#local type = "Local<" + info.jsType + ">">
 		<#local valueExpr = "Local<" + info.jsType + ">::Cast(" + expr + ")">
@@ -528,11 +527,10 @@ fails, a JS exception is returned.
 		<#local type = "Local<" + info.jsType + ">">
 		<#local valueExpr = expr + "->To" + info.jsType + "()">
 	</#if>
-<#t>
-	${type} ${current_arg} = ${valueExpr};
 	
+<#t>
 	<#if info.jsType == "Number">
-		if (${postAssignmentCheck} || ${stringExpr}->Length() == 0) {
+		if (titanium::V8Util::isNaN(${expr}) || ${stringExpr}->Length() == 0) {
 			const char *error = "Invalid value, expected type ${info.jsType}.";
 			LOGE(TAG, error);
 			<#if !(logOnly!false)>
@@ -541,8 +539,13 @@ fails, a JS exception is returned.
 		}
 	</#if>
 <#t>
-	jArguments[${index}].${info.jvalue} =
-		titanium::TypeConverter::${info.jsToJavaConverter}(arg_${index}<#if checkNew>, &isNew_${index}</#if>);
+	if (!${expr}->IsNull()) {
+		${type} ${current_arg} = ${valueExpr};
+		jArguments[${index}].${info.jvalue} =
+			titanium::TypeConverter::${info.jsToJavaConverter}(${current_arg}<#if checkNew>, &isNew_${index}</#if>);
+	} else {
+		jArguments[${index}].${info.jvalue} = NULL;
+	}
 <#t>
 	<#if isOptional>
 	}

@@ -7,7 +7,41 @@ define("Ti/UI/Window", ["Ti/_/declare", "Ti/Gesture", "Ti/_/UI/SuperView", "Ti/U
 		_defaultWidth: "100%",
 		_defaultHeight: "100%",
 
+		postscript: function() {
+			if (this.url) {
+				var prevWindow = UI.currentWindow;
+				UI._setWindow(this);
+				require("Ti/_/include!sandbox!" + this.url);
+				UI._setWindow(prevWindow);
+			}
+		},
+
+		open: function(args) {
+			if (this.modal) {
+				UI._addWindow(this._modalWin = UI.createView({
+					backgroundColor: UI.backgroundColor,
+					backgroundImage: UI.backgroundImage
+				})).show();
+			}
+			SuperView.prototype.open.apply(this, args);
+		},
+
+		close: function(args) {
+			var mw = this._modalWin;
+			if (mw) {
+				UI._removeWindow(mw).destroy();
+				this._modalWin = null;
+			}
+			SuperView.prototype.close.apply(this, args);
+		},
+
+		constants: {
+			url: undef
+		},
+
 		properties: {
+			modal: undef,
+
 			orientation: {
 				get: function() {
 					return Gesture.orientation;
@@ -22,64 +56,14 @@ define("Ti/UI/Window", ["Ti/_/declare", "Ti/Gesture", "Ti/_/UI/SuperView", "Ti/U
 
 			titleid: {
 				get: function(value) {
-					// TODO
 					console.debug('Property "Titanium.UI.Window#.titleid" is not implemented yet.');
 					return value;
 				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.Window#.titleid" is not implemented yet.');
-					return value;
-				}
-			},
-
-			titlePrompt: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Window#.titlePrompt" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Window#.titlePrompt" is not implemented yet.');
-					return value;
-				}
-			},
-
-			titlepromptid: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Window#.titlepromptid" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Window#.titlepromptid" is not implemented yet.');
-					return value;
-				}
-			},
-
-			url: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Window#.url" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Window#.url" is not implemented yet.');
 					return value;
 				}
 			}
-		},
-
-		open: function() {
-			SuperView.prototype.open.apply(this);
-			this.setWindowTitle(this.title);
-			this.fireEvent("open", { source: null });
-			this.fireEvent("focus", { source: this.domNode });
-		},
-
-		close: function() {
-			SuperView.prototype.close.apply(this, arguments);
-			this.fireEvent("blur", { source: this.domNode });
-			this.fireEvent("close", { source: null });
 		}
 
 	});

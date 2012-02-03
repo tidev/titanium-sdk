@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -227,18 +227,13 @@ v8::Handle<v8::Value> * TypeConverter::javaObjectArrayToJsArguments(jobjectArray
 	return jsArguments;
 }
 
-jarray TypeConverter::jsArrayToJavaArray(v8::Local<v8::Value> jsValue)
+jarray TypeConverter::jsArrayToJavaArray(v8::Handle<v8::Array> jsArray)
 {
 	JNIEnv *env = JNIScope::getEnv();
-	if (env == NULL || jsValue->IsNull()) {
+	if (env == NULL) {
 		return NULL;
 	}
 	
-	if (!jsValue->IsArray()) {
-		LOGE(TAG, "jsValue is not type Array");
-		return NULL;
-	}
-	v8::Handle<v8::Array> jsArray = v8::Handle<v8::Array>::Cast(jsValue);
 	int arrayLength = jsArray->Length();
 	jobjectArray javaArray = env->NewObjectArray(arrayLength, JNIUtil::objectClass, NULL);
 	if (javaArray == NULL) {
@@ -308,20 +303,12 @@ v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(jshortArray javaShortArr
 	return javaDoubleArrayToJsNumberArray((jdoubleArray) javaShortArray);
 }
 
-jintArray TypeConverter::jsArrayToJavaIntArray(v8::Local<v8::Value> jsValue)
+jintArray TypeConverter::jsArrayToJavaIntArray(v8::Handle<v8::Array> jsArray)
 {
 	JNIEnv *env = JNIScope::getEnv();
-	if (env == NULL || jsValue->IsNull()) {
+	if (env == NULL) {
 		return NULL;
 	}
-
-	if (!jsValue->IsArray()) {
-		LOGE(TAG, "jsValue is not type Array");
-		return NULL;
-	}
-    
-	v8::Handle<v8::Array> jsArray = v8::Handle<v8::Array>::Cast(jsValue);
-    
 
 	int arrayLength = jsArray->Length();
 	jintArray javaIntArray = env->NewIntArray(arrayLength);
@@ -358,20 +345,14 @@ v8::Handle<v8::Array> TypeConverter::javaArrayToJsArray(jintArray javaIntArray)
 	return jsArray;
 }
 
-jlongArray TypeConverter::jsArrayToJavaLongArray(v8::Local<v8::Value> jsValue)
+jlongArray TypeConverter::jsArrayToJavaLongArray(v8::Handle<v8::Array> jsArray)
 {
 	JNIEnv *env = JNIScope::getEnv();
-	if (env == NULL || jsValue->IsNull()) {
+	if (env == NULL) {
 		return NULL;
 	}
     
-	if (!jsValue->IsArray()) {
-		LOGE(TAG, "jsValue is not type Array");
-		return NULL;
-	}
-    
-	v8::Handle<v8::Array> jsArray = v8::Handle<v8::Array>::Cast(jsValue);
-    
+	 
 	int arrayLength = jsArray->Length();
 	jlongArray javaLongArray = env->NewLongArray(arrayLength);
 	if (javaLongArray == NULL) {
@@ -389,20 +370,14 @@ jlongArray TypeConverter::jsArrayToJavaLongArray(v8::Local<v8::Value> jsValue)
 	return javaLongArray;
 }
 
-jfloatArray TypeConverter::jsArrayToJavaFloatArray(v8::Local<v8::Value> jsValue)
+jfloatArray TypeConverter::jsArrayToJavaFloatArray(v8::Handle<v8::Array> jsArray)
 {
 	JNIEnv *env = JNIScope::getEnv();
-	if (env == NULL || jsValue->IsNull()) {
+	if (env == NULL) {
 		return NULL;
 	}
     
-    if (!jsValue->IsArray()) {
-		LOGE(TAG, "jsValue is not type Array");
-		return NULL;
-	}
-	
-    v8::Handle<v8::Array> jsArray = v8::Handle<v8::Array>::Cast(jsValue);
-    
+  
 	int arrayLength = jsArray->Length();
 	jfloatArray javaFloatArray = env->NewFloatArray(arrayLength);
 	if (javaFloatArray == NULL) {
@@ -508,7 +483,7 @@ jobject TypeConverter::jsValueToJavaObject(v8::Local<v8::Value> jsValue, bool *i
 
 	} else if (jsValue->IsArray()) {
 		*isNew = true;
-		return TypeConverter::jsArrayToJavaArray(jsValue);
+		return TypeConverter::jsArrayToJavaArray(v8::Handle<v8::Array>::Cast(jsValue));
 
 	} else if (jsValue->IsFunction()) {
 		*isNew = true;
@@ -552,7 +527,9 @@ jobject TypeConverter::jsValueToJavaObject(v8::Local<v8::Value> jsValue, bool *i
 		}
 	}
 
-	LOGW(TAG, "jsValueToJavaObject returning null");
+	if (!jsValue->IsNull() && !jsValue->IsUndefined()) {
+		LOGW(TAG, "jsValueToJavaObject returning null.");
+	}
 	return NULL;
 }
 
@@ -613,7 +590,12 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 			env->DeleteLocalRef(krollObject);
 
 			if (v8ObjectPointer != 0) {
-				return Persistent<Object>((Object *) v8ObjectPointer);
+				Persistent<Object> v8Object = Persistent<Object>((Object *) v8ObjectPointer);
+				JavaObject *jo = NativeObject::Unwrap<JavaObject>(v8Object);
+				if (jo->isDetached()) {
+					jo->attach(javaObject);
+				}
+				return v8Object;
 			}
 		}
 

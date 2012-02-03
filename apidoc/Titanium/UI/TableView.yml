@@ -126,6 +126,12 @@ methods:
         row of data and the top of the table view. So a `top` value of 0 scrolls the list to
         the top. A positive value scrolls it down, and a negative value scrolls the list up
         above the first item.
+        
+        On Mobile Web, the `top` value is interpreted as a pixel offset between the top of the top
+        row of data and the top of the table view. So a `top` value of 0 scrolls the list to
+        the top. A positive value scrolls it down. Values outside the scrollable range are clipped
+        so that negative numbers scroll the list to the top, and large positive values scroll the
+        list to the bottom.
 
         On iOS, specify a <TableViewAnimationProperties> object with `animated` set to `false` to 
         disable the scrolling animation.
@@ -297,10 +303,8 @@ events:
       - name: y
         summary: Y coordinate of the event, in the `source` view's coordinates.
         type: Number
-        platforms: [android, iphone, ipad]
       - name: x
         summary: X coordinate of the event, in the `source` view's coordinates.
-        platforms: [android, iphone, ipad]
         type: Number
       - name: contentSize
         summary: Dictionary with `width` and `height` properties containing the size of the content (regardless of the display size in the case of scrolling).
@@ -324,11 +328,9 @@ events:
         type: Point
       - name: y
         summary: Y coordinate of the event, in the `source` view's coordinates.
-        platforms: [android, iphone, ipad]
         type: Number
       - name: x
         summary: X coordinate of the event, in `source` view's coordinates.
-        platforms: [android, iphone, ipad]
         type: Number
       - name: contentSize
         summary: Dictionary with `width` and `height` properties containing the size of the content (regardless of the display size in the case of scrolling).
@@ -386,6 +388,20 @@ properties:
   - name: footerTitle
     summary: Table view footer title.
     type: String
+  - name: hideSearchOnSelection
+    summary: Boolean to indicate whether or not the search field should hide on completion.
+    description: |
+        Once a row is clicked in a search result, if this value is `true`,
+        the search bar is hidden (if appropriate).
+        
+        Many standard applications (such as Contacts) have a behavior
+        equivalent to `false` for this value, but the default is `true`
+        for legacy reasons.
+        
+        The Android platform behaves as though this value were `false`.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
   - name: footerView
     summary: Table view footer as a view that will be rendered instead of a label.
     type: Titanium.UI.View
@@ -435,8 +451,11 @@ properties:
     type: String
     default: platform-specific default color
   - name: separatorStyle
-    summary: Separator style constant. For iOS specify one of the [TableViewSeparatorStyle](Titanium.UI.iPhone.TableViewSeparatorStyle) constants.
-    platforms: [iphone, ipad]
+    summary: Separator style constant. 
+    description: |
+        For iOS specify one of the [TableViewSeparatorStyle](Titanium.UI.iPhone.TableViewSeparatorStyle) constants.
+        For Mobile Web specify one of the [TableViewSeparatorStyle](Titanium.UI.MobileWeb.TableViewSeparatorStyle) constants.
+    platforms: [iphone, ipad, mobileweb]
     type: Number
   - name: showVerticalScrollIndicator
     summary: Whether table view displays vertical scroll indicator

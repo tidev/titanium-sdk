@@ -7,6 +7,7 @@
 package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollRuntime;
@@ -30,6 +31,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
@@ -68,6 +70,7 @@ public abstract class TiBaseActivity extends Activity
 	protected int msgActivityCreatedId = -1;
 	protected int msgId = -1;
 	protected static int previousOrientation = -1;
+	private ArrayList<Dialog> dialogs = new ArrayList<Dialog>();
 
 	public TiWindowProxy lwWindow;
 
@@ -120,6 +123,15 @@ public abstract class TiBaseActivity extends Activity
 		return activityProxy;
 	}
 
+	public void addDialog(Dialog d) 
+	{
+		dialogs.add(d);
+	}
+	
+	public void removeDialog(Dialog d) 
+	{
+		dialogs.remove(d);
+	}
 	public void setActivityProxy(ActivityProxy proxy)
 	{
 		this.activityProxy = proxy;
@@ -599,6 +611,18 @@ public abstract class TiBaseActivity extends Activity
 		TiApplication.updateActivityTransitionState(true);
 		getTiApp().setCurrentActivity(this, null);
 
+		if (this.isFinishing()) {
+			//clean up dialogs when activity is finished
+			while (dialogs.size() > 0) {
+				Dialog dialog = dialogs.get(0);
+				if (dialog.isShowing()) {
+					dialog.dismiss();
+				}
+				removeDialog(dialog);
+			}
+			dialogs = null;
+		}
+
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_PAUSE, null);
 		}
@@ -655,7 +679,11 @@ public abstract class TiBaseActivity extends Activity
 		updateTitle();
 		
 		if (window != null) {
-			window.fireEvent(TiC.EVENT_FOCUS, null);
+			//we don't need to fire focus event for Tab activities as this is being done in TiUITabGroup.onTabChanged()
+			if (!(this instanceof TiActivity && ((TiActivity)this).isTab())) {
+				window.fireEvent(TiC.EVENT_FOCUS, null);
+			}
+			
 
 		} else {
 			mustFireInitialFocus = true;
@@ -697,7 +725,10 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		if (window != null) {
-			window.fireEvent(TiC.EVENT_BLUR, null);
+			//we don't need to fire blur for tabs b/c we're not firing focus when we re-enter the app
+			if (!(this instanceof TiActivity && ((TiActivity)this).isTab())) {
+				window.fireEvent(TiC.EVENT_BLUR, null);
+			}
 		}
 
 		if (activityProxy != null) {
@@ -781,6 +812,7 @@ public abstract class TiBaseActivity extends Activity
 
 		fireOnDestroy();
 
+		
 		if (layout != null) {
 			Log.e(TAG, "Layout cleanup.");
 			layout.removeAllViews();
@@ -833,6 +865,7 @@ public abstract class TiBaseActivity extends Activity
 
 		boolean animate = getIntentBoolean(TiC.PROPERTY_ANIMATE, true);
 
+		
 		if (shouldFinishRootActivity()) {
 			TiApplication app = getTiApp();
 			if (app != null) {

@@ -49,6 +49,9 @@
 
 		<service android:name="org.appcelerator.titanium.analytics.TiAnalyticsService"
 			android:exported="false" />
+		<service
+			android:name="com.appcelerator.kitchensinknook.TestserviceService"
+		/>
 		
 
 	</application>
