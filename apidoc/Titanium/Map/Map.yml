@@ -5,14 +5,37 @@ extends: Titanium.Module
 since: "0.8"
 platforms: [android, iphone, ipad]
 properties:
+  - name: ANNOTATION_GREEN
+    summary: |
+        Color constant used to set a map annotation to green via the 
+        <Titanium.Map.Annotation.pincolor> property.
+    type: Number
+    permission: read-only
+    
+  - name: ANNOTATION_PURPLE
+    summary: |
+        Color constant used to set a map annotation to purple via the 
+        <Titanium.Map.Annotation.pincolor> property.
+    type: Number
+    permission: read-only
+    
+  - name: ANNOTATION_RED
+    summary: |
+        Color constant used to set a map annotation to red via the 
+        <Titanium.Map.Annotation.pincolor> property.
+    type: Number
+    permission: read-only
+    
   - name: HYBRID_TYPE
     summary: Displays a satellite image of the area with road and road name information layered on top.
     type: Number
     permission: read-only
+    
   - name: SATELLITE_TYPE
     summary: Displays satellite imagery of the area.
     type: Number
     permission: read-only
+    
   - name: STANDARD_TYPE
     summary: Displays a street map that shows the position of all roads and some road names.
     type: Number

@@ -72,6 +72,7 @@ def dequote(s):
 
 # force kill the simulator if running
 def kill_simulator():
+	run.run(['/usr/bin/killall',"ios-sim"],True)
 	run.run(['/usr/bin/killall',"iPhone Simulator"],True)
 
 def write_project_property(f,prop,val):
@@ -643,6 +644,14 @@ def main(args):
 			
 		app_name = make_app_name(name)
 		iphone_dir = os.path.abspath(os.path.join(project_dir,'build','iphone'))
+		
+		# We need to create the iphone dir if necessary, now that
+		# the tiapp.xml allows build target selection
+		if not os.path.isdir(iphone_dir):
+			if os.path.exists(iphone_dir):
+				os.remove(iphone_dir)
+			os.makedirs(iphone_dir)
+		
 		project_xcconfig = os.path.join(iphone_dir,'project.xcconfig')
 		target = 'Release'
 		ostype = 'os'
@@ -1118,8 +1127,15 @@ def main(args):
 				# since we need to make them live in the bundle in simulator
 				if len(custom_fonts)>0:
 					for f in custom_fonts:
-						print "[INFO] Detected custom font: %s" % os.path.basename(f)
-						shutil.copy(f,app_dir)
+						font = os.path.basename(f)
+						app_font_path = os.path.join(app_dir, font)
+						print "[INFO] Detected custom font: %s" % font
+						if os.path.exists(app_font_path):
+							os.remove(app_font_path)
+						try:
+							shutil.copy(f,app_dir)
+						except shutil.Error, e:
+							print "[WARN] Not copying %s: %s" % (font, e)
 
 				# dump out project file info
 				if command not in ['simulator', 'build']:
@@ -1284,7 +1300,9 @@ def main(args):
 				if command == 'simulator':
 					# first make sure it's not running
 					kill_simulator()
-
+					#Give the kill command time to finish
+					time.sleep(2)
+					
 					# sometimes the simulator doesn't remove old log files
 					# in which case we get our logging jacked - we need to remove
 					# them before running the simulator
@@ -1298,7 +1316,7 @@ def main(args):
 					def handler(signum, frame):
 						global script_ok
 						print "[INFO] Simulator is exiting"
-						sys.stdout.flush()
+						
 						if not log == None:
 							try:
 								os.system("kill -2 %s" % str(log.pid))

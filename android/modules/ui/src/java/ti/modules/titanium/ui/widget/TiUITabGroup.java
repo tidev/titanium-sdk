@@ -33,9 +33,9 @@ public class TiUITabGroup extends TiUIView
 	private static final int DEFAULT_TAB_BACKGROUND_COLOR = TiConvert.toColor("#ff1a1a1a");
 
 	private TabHost tabHost;
-	private boolean addingTab;
 
-	private String lastTabId;
+	private int previousTabID = -1;
+	private int currentTabID = 0;
 	private KrollDict tabChangeEventData;
 
 	public TiUITabGroup(TiViewProxy proxy, TiTabActivity activity)
@@ -58,7 +58,6 @@ public class TiUITabGroup extends TiUIView
 		}
 
 		setNativeView(tabHost);
-		lastTabId = null;
 	}
 
 	public TabSpec newTab(String id)
@@ -68,9 +67,7 @@ public class TiUITabGroup extends TiUIView
 
 	public void addTab(TabSpec tab, final TabProxy tabProxy)
 	{
-		addingTab = true;
 		tabHost.addTab(tab);
-		addingTab = false;
 		if (tabHost.getVisibility() == View.GONE) {
 			boolean visibilityPerProxy = true; // default
 			if (proxy.hasProperty(TiC.PROPERTY_VISIBLE)) {
@@ -114,8 +111,7 @@ public class TiUITabGroup extends TiUIView
 	protected KrollDict getFocusEventObject(boolean hasFocus)
 	{
 		if (tabChangeEventData == null) {
-			TabHost th = (TabHost) getNativeView();
-			return ((TabGroupProxy) proxy).buildFocusEvent(th.getCurrentTabTag(), lastTabId);
+			return ((TabGroupProxy) proxy).buildFocusEvent(currentTabID, previousTabID);
 		} else {
 			return tabChangeEventData;
 		}
@@ -132,19 +128,29 @@ public class TiUITabGroup extends TiUIView
 	public void onTabChanged(String id)
 	{
 		TabGroupProxy tabGroupProxy = ((TabGroupProxy) proxy);
+
+		TabProxy previousTab = null;
+		currentTabID = tabHost.getCurrentTab();
+		
 		if (DBG) {
-			Log.d(LCAT,"Tab change from " + lastTabId + " to " + id);
+			Log.d(LCAT,"Tab change from " + previousTabID + " to " + currentTabID);
 		}
+		
+		TabProxy currentTab = tabGroupProxy.getTabList().get(currentTabID);
+		proxy.setProperty(TiC.PROPERTY_ACTIVE_TAB, currentTab);
 
 		proxy.setProperty(TiC.PROPERTY_ACTIVE_TAB, tabGroupProxy.getTabList().get(tabHost.getCurrentTab()));
 
-		if (!addingTab) {
-			if (tabChangeEventData != null) {
-				proxy.fireEvent(TiC.EVENT_BLUR, tabChangeEventData);
+		if (previousTabID != -1) {
+			previousTab = tabGroupProxy.getTabList().get(previousTabID);
+		}
+
+		if (tabChangeEventData != null) {
+			//fire blur on previous tab as well as its window
+			if (previousTab != null) {
+				previousTab.fireEvent(TiC.EVENT_BLUR, tabChangeEventData);
+				previousTab.getWindow().fireEvent(TiC.EVENT_BLUR, null);
 			}
-			
-			tabChangeEventData = tabGroupProxy.buildFocusEvent(id, lastTabId);
-			proxy.fireEvent(TiC.EVENT_FOCUS, tabChangeEventData);
 		}
 
 		if (proxy.hasProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
@@ -172,6 +178,16 @@ public class TiUITabGroup extends TiUIView
 		}
 
 		lastTabId = id;
+
+		tabChangeEventData = tabGroupProxy.buildFocusEvent(currentTabID, previousTabID);
+		//fire focus on current tab as well as its window
+		currentTab.fireEvent(TiC.EVENT_FOCUS, tabChangeEventData);
+		currentTab.getWindow().fireEvent(TiC.EVENT_FOCUS, null);
+
+
+		
+		previousTabID = currentTabID;
+
 	}
 
 	private void updateSelectedBackgroundColor()

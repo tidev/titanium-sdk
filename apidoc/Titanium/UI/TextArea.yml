@@ -41,6 +41,7 @@ events:
     properties:
       - name: range
         summary: A range of text. The range is an object with the properties `location` and `length`.
+    platforms: [iphone, ipad]
 properties:
   - name: appearance
     summary: Determines the appearance of the keyboard displayed when this text area is focused.
@@ -107,6 +108,7 @@ properties:
   - name: suppressReturn
     summary: Should the return key be suppressed during entry?
     type: Boolean
+    platforms: [iphone,ipad,mobileweb]
   - name: textAlign
     summary: |
         Text alignment, specified using one of the <Titanium.UI> text alignment constants: [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).

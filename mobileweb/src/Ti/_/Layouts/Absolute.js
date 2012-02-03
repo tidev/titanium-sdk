@@ -2,13 +2,13 @@ define("Ti/_/Layouts/Absolute", ["Ti/_/Layouts/Base", "Ti/_/declare"], function(
 
 	return declare("Ti._.Layouts.Absolute", Base, {
 
-		doLayout: function(element, width, height) {
+		_doLayout: function(element, width, height) {
 			var computedSize = {width: 0, height: 0};
-			for(var i = 0; i < element.children.length; i++) {
+			for(var i in element.children) {
 				
 				// Layout the child
 				var child = element.children[i];
-				child.doLayout(0,0,width,height,true,true);
+				child._doLayout(0,0,width,height,true,true);
 				
 				// Update the size of the component
 				var rightMostEdge = child._measuredWidth + child._measuredLeft + 2 * child._measuredBorderWidth + child._measuredRightPadding;

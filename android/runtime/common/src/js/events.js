@@ -19,7 +19,7 @@
 //OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 //USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// Modifications Copyright 2011 Appcelerator, Inc.
+// Modifications Copyright 2011-2012 Appcelerator, Inc.
 
 var TAG = "EventEmitter";
 var EventEmitter = exports.EventEmitter = kroll.EventEmitter;
@@ -32,6 +32,13 @@ var isArray = Array.isArray;
 Object.defineProperty(EventEmitter.prototype, "callHandler", {
 	value: function(handler, type, data) {
 		//kroll.log(TAG, "calling event handler: type:" + type + ", data: " + data + ", handler: " + handler);
+		if (!handler || !(handler.call)) {
+			if (kroll.DBG) {
+				kroll.log(TAG, "handler for event '" + type + "' is " + (typeof handler) + " and cannot be called.");
+			}
+			return;
+		}
+
 		if (data instanceof Object) {
 			data.type = type;
 		} else if (!data) {
@@ -72,6 +79,13 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 		var handler = this._events[type];
 		if (!handler) {
 			//kroll.log(TAG, "no handler for " + type + ", not emitting");
+			return false;
+		}
+
+		if (!this.callHandler) {
+			if (kroll.DBG) {
+				kroll.log(TAG, "callHandler function not available for " + type);
+			}
 			return false;
 		}
 
@@ -118,7 +132,7 @@ Object.defineProperty(EventEmitter.prototype, "fireSyncEvent", {
 Object.defineProperty(EventEmitter.prototype, "addListener", {
 	value: function(type, listener) {
 		if ('function' !== typeof listener) {
-			throw new Error('addListener only takes instances of Function');
+			throw new Error('addListener only takes instances of Function. The listener for event "' + type + '" is "' + (typeof listener) + '"');
 		}
 
 		if (!this._events) {

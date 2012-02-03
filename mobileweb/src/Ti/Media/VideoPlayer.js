@@ -214,9 +214,6 @@ define("Ti/Media/VideoPlayer", ["Ti/_/declare", "Ti/Media", "Ti/UI/View"], funct
 					this._currentState === STOPPING && this.pause();
 				}),
 				on(video, "error", this, function() {
-					console.debug("ERROR EVENT");
-					console.debug(video);
-					console.debug(video.error);
 					var msg = "Unknown error";
 					switch (video.error.code) {
 						case 1: msg = "Aborted"; break;
