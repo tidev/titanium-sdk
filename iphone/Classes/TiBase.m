@@ -196,14 +196,12 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 	dispatch_async(dispatch_get_main_queue(), (dispatch_block_t)dispatchedMainBlock);
 	if (waitForFinish)
 	{
-		BOOL waiting;
-		do {
-			dispatch_time_t oneSecond = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC);
-			waiting = dispatch_semaphore_wait(waitSemaphore, oneSecond);
-			if (waiting) {
-				NSLog(@"[WARN] Timing out waiting on main thread. Possibly a deadlock? %@",CODELOCATION);
-			}
-		} while (waiting);
+		dispatch_time_t oneSecond = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC);
+		BOOL waiting = dispatch_semaphore_wait(waitSemaphore, oneSecond);
+		if (waiting) {
+			NSLog(@"[WARN] Timing out waiting on main thread. Possibly a deadlock? %@",CODELOCATION);
+			dispatch_semaphore_wait(waitSemaphore, DISPATCH_TIME_FOREVER);
+		}
 		dispatch_release(waitSemaphore);
 	}
 	[wrapperBlockCopy release];
@@ -241,7 +239,7 @@ BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhe
 		OSSpinLockUnlock(&TiThreadSpinLock);
 
 		shouldContinue = !(doneWhenEmpty && isEmpty) &&
-				([NSDate timeIntervalSinceReferenceDate] >= doneTime);
+				([NSDate timeIntervalSinceReferenceDate] < doneTime);
 		
 		if (continueCallback != NULL) { //continueCallback can override anything.
 			continueCallback(&shouldContinue);

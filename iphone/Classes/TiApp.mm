@@ -314,9 +314,14 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)waitForKrollProcessing
 {
-	NSDate* deadline = [[NSDate alloc] initWithTimeIntervalSinceNow:[[UIApplication sharedApplication] backgroundTimeRemaining]-1.0];
-	[[NSRunLoop mainRunLoop] runUntilDate:deadline];
-	[deadline release];
+	CGFloat timeLeft = [[UIApplication sharedApplication] backgroundTimeRemaining]-1.0;
+	if (timeLeft > 1.0) {
+		timeLeft = 1.0;
+	}
+	else if(timeLeft < 0.0) {
+		return;
+	}
+	TiThreadProcessPendingMainThreadBlocks(timeLeft, NO, nil);
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application

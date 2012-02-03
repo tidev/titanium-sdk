@@ -258,7 +258,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	return url;
 }
 
-- (void)reload;
+- (void)reload
 {
 	if (webview == nil)
 	{

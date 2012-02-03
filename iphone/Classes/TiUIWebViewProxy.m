@@ -47,8 +47,8 @@
 {
 	ENSURE_SINGLE_ARG(code,NSString);
 	__block id result;
-	TiThreadPerformOnMainThread(^{result=[(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code];}, YES);
-	return result;
+	TiThreadPerformOnMainThread(^{result=[[(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code] retain];}, YES);
+	return [result autorelease];
 }
 
 USE_VIEW_FOR_AUTO_HEIGHT
@@ -184,8 +184,8 @@ USE_VIEW_FOR_AUTO_WIDTH
 - (id)evalJSAndWait:(NSString*)code
 {
 	__block id result;
-	TiThreadPerformOnMainThread(^{result=[(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code];}, YES);
-	return result;
+	TiThreadPerformOnMainThread(^{result=[[(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code] retain];}, YES);
+	return [result autorelease];
 }
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_
