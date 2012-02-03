@@ -369,7 +369,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 				<!-- moduleId (Titanium for platform) -->
 				<arg value="titanium"/>
 				<!-- bindingsClassName (empty for platform) -->
-				<arg value=""/>
+				<arg value=" "/>
 				<fileset dir="${dist.json.dir}" includes="**/*.json"/>
 			</apply>
 		</sequential>
