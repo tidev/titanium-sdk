@@ -214,6 +214,15 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	return self;
 }
 
+-(void)initializeProperty:(NSString*)name defaultValue:(id)value
+{
+    pthread_rwlock_wrlock(&dynpropsLock);
+    if ([dynprops valueForKey:name] == nil) {
+        [dynprops setValue:((value == nil) ? [NSNull null] : value) forKey:name];
+    }
+    pthread_rwlock_unlock(&dynpropsLock);
+}
+
 +(BOOL)shouldRegisterOnInit
 {
 	return YES;
@@ -989,18 +998,12 @@ DEFINE_EXCEPTIONS
 		dynprops = [[NSMutableDictionary alloc] init];
 	}
     
-	id propvalue = value;
-	
-	if (value == nil)
-	{
-		propvalue = [NSNull null];
-	}
-	else if (value == [NSNull null])
-	{
-		value = nil;
-	}
+    // TODO: Clarify internal difference between nil/NSNull
+    // (which represent different JS values, but possibly consistent internal behavior)
     
-    BOOL newValue = (current != value && ![current isEqual:value]);
+    id propvalue = (value == nil) ? [NSNull null] : value;
+    
+    BOOL newValue = (current != propvalue && ![current isEqual:propvalue]);
     
     // We need to stage this out; the problem at hand is that some values
     // we might store as properties (such as NSArray) use isEqual: as a
@@ -1019,7 +1022,10 @@ DEFINE_EXCEPTIONS
     if (self.modelDelegate!=nil && notify)
     {
         [[(NSObject*)self.modelDelegate retain] autorelease];
-        [self.modelDelegate propertyChanged:key oldValue:current newValue:value proxy:self];
+        [self.modelDelegate propertyChanged:key 
+                                   oldValue:current 
+                                   newValue:propvalue
+                                      proxy:self];
     }
     
     // Forget any old proxies so that they get cleaned up

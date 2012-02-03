@@ -1,10 +1,12 @@
 define("Ti/_/UI/TextBox",
-	["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/style", "Ti/_/UI/FontWidget", "Ti/UI"],
-	function(declare, dom, event, style, FontWidget, UI) {
+	["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/style", "Ti/_/lang", "Ti/_/UI/FontWidget", "Ti/UI"],
+	function(declare, dom, event, style, lang, FontWidget, UI) {
 
 	return declare("Ti._.UI.TextBox", FontWidget, {
 
 		_field: null,
+		
+		_preventDefaultTouchEvent: false,
 
 		_initTextBox: function() {
 			// wire up events
@@ -29,8 +31,26 @@ define("Ti/_/UI/TextBox",
 			require.on(field, "keypress", this, function() {
 				this._capitalize();
 			});
-			require.on(field, "change", this, function() {
-				this.fireEvent("change");
+			
+			var updateInterval = null,
+				previousText = "";
+			require.on(field, "focus", this, function(){
+				updateInterval = setInterval(lang.hitch(this,function(){
+					var value = field.value,
+						newData = false;
+					if (previousText.length != value.length) {
+						newData = true;
+					} else if(previousText != value) {
+						newData = true;
+					}
+					if (newData) {
+						this.fireEvent("change");
+						previousText = value;
+					}
+				}),200);
+			});
+			require.on(field, "blur", this, function(){
+				clearInterval(updateInterval);
 			});
 		},
 
@@ -105,9 +125,13 @@ define("Ti/_/UI/TextBox",
 			},
 
 			value: {
+				get: function() {
+					return this._field.value;
+				},
 				set: function(value) {
 					return this._capitalize(this._field.value = value);
-				}
+				},
+				value: ""
 			}
 		}
 

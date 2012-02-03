@@ -187,6 +187,11 @@
 
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
+    id activeTab = [tabGroup valueForKey:@"activeTab"];
+    if (activeTab == nil) {
+        //Make sure that the activeTab property is set
+        [self setActive:[NSNumber numberWithBool:YES]];
+    }
 	transitionIsAnimating = NO;
 	[self handleDidShowViewController:viewController];
 }

@@ -211,7 +211,7 @@ properties:
         0 disables timeout, keeping controls displayed.
     type: Number
     default: 3000
-    platforms: [android]
+    platforms: [android, mobileweb]
     availability: creation
     
   - name: views

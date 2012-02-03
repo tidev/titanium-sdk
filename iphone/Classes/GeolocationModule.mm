@@ -484,8 +484,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)getCurrentHeading:(id)callback 
 {
-	ENSURE_UI_THREAD(getCurrentHeading,callback);
 	ENSURE_SINGLE_ARG(callback,KrollCallback);
+	ENSURE_UI_THREAD(getCurrentHeading,callback);
 	if (singleHeading==nil)
 	{
 		singleHeading = [[NSMutableArray alloc] initWithCapacity:1];
@@ -496,8 +496,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)getCurrentPosition:(id)callback
 {
-	ENSURE_UI_THREAD(getCurrentPosition,callback);
 	ENSURE_SINGLE_ARG(callback,KrollCallback);
+	ENSURE_UI_THREAD(getCurrentPosition,callback);
 	if (singleLocation==nil)
 	{
 		singleLocation = [[NSMutableArray alloc] initWithCapacity:1];

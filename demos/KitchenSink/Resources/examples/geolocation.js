@@ -494,12 +494,12 @@ if (Titanium.Platform.name == 'android')
 	});
 	Ti.Android.currentActivity.addEventListener('resume', function(e) {
 		Ti.API.info("resume event received");
-		if (!headingAdded) {
+		if (!headingAdded && headingCallback) {
 			Ti.API.info("adding heading callback on resume");
 			Titanium.Geolocation.addEventListener('heading', headingCallback);
 			headingAdded = true;
 		}
-		if (!locationAdded) {
+		if (!locationAdded && locationCallback) {
 			Ti.API.info("adding location callback on resume");
 			Titanium.Geolocation.addEventListener('location', locationCallback);
 			locationAdded = true;
