@@ -35,40 +35,48 @@ define("Ti/UI/View",
 				view._parent = this;
 				this.containerNode.insertBefore(view.domNode,this.children[index].domNode);
 				this.children.splice(index,0,view);
-			this._triggerLayout();
+				this._triggerLayout();
 			}
 		},
 
 		remove: function(view) {
-			var i = 0,
-				l = this.children.length;
-			for (; i < l; i++) {
-				if (this.children[i] === view) {
-					l = this.children.splice(i, 1);
-					l[0]._setParent();
-					break;
-				}
+			var p = this.children.indexOf(view);
+			if (p !== -1) {
+				this.children.splice(p, 1);
+				view._setParent();
+				dom.detach(view.domNode);
+				this._triggerLayout();
 			}
-			dom.detach(view.domNode);
-			this._triggerLayout();
 		},
-		
+
+		destroy: function() {
+			if (!this._destroyed) {
+				var c;
+				while (this.children.length) {
+					c = this.children.splice(0, 1);
+					c[0].destroy();
+				}
+				this._parent && this._parent.remove(this);
+				Element.prototype.destroy.apply(this, arguments);
+			}
+		},
+
 		_removeAllChildren: function(view) {
 			var children = this.children;
-			while(children.length > 0) {
+			while (children.length) {
 				this.remove(children[0]);
 			}
 			this._triggerLayout();
 		},
-		
+
 		_getScrollableContentWidth: function() {
 			return 600;
 		},
-		
+
 		_getScrollablePosition: function() {
 			return {x: 0, y: 0};
 		},
-		
+
 		_createHorizontalScrollBar: function() {
 			var scrollBar = this._horizontalScrollBar = dom.create("div", {
 				className: "TiUIScrollBar",
@@ -83,12 +91,12 @@ define("Ti/UI/View",
 				}
 			}, this.domNode);
 		},
-		
+
 		_destroyHorizontalScrollBar: function() {
 			this._cancelPreviousAnimation();
 			dom.destroy(this._horizontalScrollBar);
 		},
-		
+
 		_createVerticalScrollBar: function() {
 			var scrollBar = this._verticalScrollBar = dom.create("div", {
 				className: "TiUIScrollBar",
@@ -207,19 +215,6 @@ define("Ti/UI/View",
 						},500);
 					},0);
 				}
-			}
-		},
-
-		destroy: function() {
-			if (!this._destroyed) {
-				var i = 0,
-					l = this.children.length;
-				for (; i < l; i++) {
-					this.children[i].destroy();
-					this.children[i] = null;
-				}
-				this.children = null;
-				Element.prototype.destroy.apply(this, arguments);
 			}
 		},
 
