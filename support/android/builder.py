@@ -216,9 +216,10 @@ class Builder(object):
 		
 		# don't build if a java keyword in the app id would cause the build to fail
 		key_word = ''
-		for key in java_keywords:
-			if self.app_id.find(key) >= 0:
-				key_word = key
+		tok = self.app_id.split('.')
+		for token in tok:
+			if token in java_keywords:
+				key_word = token
 				break
 		if key_word != '':
 			error("Do not use java keywords for project app id, such as " + key_word)
