@@ -51,20 +51,22 @@ define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/la
 				});
 			});
 			this.addEventListener("touchmove",lang.hitch(this,function(e) {
+				var scrollLeft = contentContainer.domNode.scrollLeft,
+					scrollTop = contentContainer.domNode.scrollTop;
 				contentContainer.domNode.scrollLeft += previousTouchLocation.x - e.x;
 				contentContainer.domNode.scrollTop += previousTouchLocation.y - e.y;
 				previousTouchLocation = {x: e.x, y: e.y};
 				
 				// Create the scroll event
 				this._isScrollBarActive && this.fireEvent("scroll",{
-					x: e.x,
-					y: e.y,
+					x: scrollLeft,
+					y: scrollTop,
 					dragging: true
 				});
 				
 				this._updateScrollBars({
-					x: contentContainer.domNode.scrollLeft / (this._contentMeasurer._measuredWidth - this._measuredWidth),
-					y: contentContainer.domNode.scrollTop / (this._contentMeasurer._measuredHeight - this._measuredHeight),
+					x: scrollLeft / (this._contentMeasurer._measuredWidth - this._measuredWidth),
+					y: scrollTop / (this._contentMeasurer._measuredHeight - this._measuredHeight),
 				});
 			}));
 			var self = this;
@@ -83,8 +85,8 @@ define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/la
 					
 					// Create the scroll event
 					self._isScrollBarActive && self.fireEvent("scroll",{
-						x: e.wheelDeltaX,
-						y: e.wheelDeltaY,
+						x: contentContainer.domNode.scrollLeft,
+						y: contentContainer.domNode.scrollTop,
 						dragging: false
 					});
 					self._updateScrollBars({

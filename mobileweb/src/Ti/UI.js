@@ -81,6 +81,11 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 				for (var i in node.children) {
 					this._layoutMarkedNodes(node.children[i]);
 				}
+				// Run the post-layout animation, if needed
+				if (node._doAnimationAfterLayout) {
+					node._doAnimationAfterLayout = false;
+					node._doAnimation();
+				}
 			}
 		},
 		
