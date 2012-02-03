@@ -40,9 +40,7 @@ define("Ti/UI/View",
 		},
 
 		remove: function(view) {
-			var i = 0,
-				l = this.children.length,
-				p = this.children.indexOf(view);
+			var p = this.children.indexOf(view);
 			if (p !== -1) {
 				this.children.splice(p, 1);
 				view._setParent();
