@@ -541,7 +541,21 @@ properties:
   - name: footerTitle
     summary: Table view footer title.
     type: String
-    
+
+  - name: hideSearchOnSelection
+    summary: Boolean to indicate whether or not the search field should hide on completion.
+    description: |
+        Once a row is clicked in a search result, if this value is `true`, the search bar is hidden 
+        (if appropriate).
+        
+        Many standard applications (such as Contacts) have a behavior equivalent to `false` for this 
+        value, but the default is `true` for legacy reasons.
+        
+        The Android platform behaves as though this value were `false`.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+
   - name: footerView
     summary: Table view footer as a view that will be rendered instead of a label.
     type: Titanium.UI.View

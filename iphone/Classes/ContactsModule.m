@@ -108,8 +108,8 @@
 
 -(void)showContacts:(id)args
 {
-	ENSURE_UI_THREAD(showContacts, args);
 	ENSURE_SINGLE_ARG(args, NSDictionary)
+	ENSURE_UI_THREAD(showContacts, args);
 	
 	RELEASE_TO_NIL(cancelCallback)
 	RELEASE_TO_NIL(selectedPersonCallback)
@@ -310,8 +310,8 @@
 
 -(void)removePerson:(id)arg
 {
-	ENSURE_UI_THREAD(removePerson,arg)
 	ENSURE_SINGLE_ARG(arg,TiContactsPerson)
+	ENSURE_UI_THREAD(removePerson,arg)
 	
 	[self removeRecord:[arg record]];
 }
@@ -361,8 +361,8 @@
 
 -(void)removeGroup:(id)arg
 {
-	ENSURE_UI_THREAD(removePerson,arg)
 	ENSURE_SINGLE_ARG(arg,TiContactsGroup)
+	ENSURE_UI_THREAD(removePerson,arg)
 	
 	[self removeRecord:[arg record]];
 }
