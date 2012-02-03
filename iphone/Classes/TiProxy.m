@@ -206,6 +206,15 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	return self;
 }
 
+-(void)initializeProperty:(NSString*)name defaultValue:(id)value
+{
+    pthread_rwlock_wrlock(&dynpropsLock);
+    if ([dynprops valueForKey:name] == nil) {
+        [dynprops setValue:((value == nil) ? [NSNull null] : value) forKey:name];
+    }
+    pthread_rwlock_unlock(&dynpropsLock);
+}
+
 +(BOOL)shouldRegisterOnInit
 {
 	return YES;

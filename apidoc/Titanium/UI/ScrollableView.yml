@@ -63,7 +63,7 @@ properties:
     type: Boolean
   - name: pagingControlTimeout
     summary: number of milliseconds to wait before hiding the paging control. Less than or equal to 0 disables timeout keeping controls displayed.
-    platforms: [android]
+    platforms: [android, mobileweb]
     availability: creation
     type: Number
   - name: views
