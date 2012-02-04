@@ -147,6 +147,7 @@ static void debugLog(int logLevel, const char* message)
 
 void APIModule::logInternal(int logLevel, const char *messageTag, const char *message)
 {
+
 	if (V8Runtime::debuggerEnabled) {
 		debugLog(logLevel, message);
 		return;
@@ -164,7 +165,6 @@ void APIModule::logInternal(int logLevel, const char *messageTag, const char *me
 		LOG(ERROR, messageTag, message);
 	}
 }
-
 
 Handle<Value> APIModule::log(const Arguments& args)
 {
@@ -188,7 +188,13 @@ Handle<Value> APIModule::log(const Arguments& args)
 	} else if (strcasecmp(*level, "FATAL") == 0) {
 		APIModule::logInternal(LOG_LEVEL_FATAL, LCAT, *message);
 	} else {
-		APIModule::logInternal(LOG_LEVEL_INFO, LCAT, *message);
+		int size = strlen(*level) + strlen(*message) + 4;
+		
+		char *fmessage = new char[size];
+		snprintf(fmessage, size, "[%s] %s", *level, *message);
+
+		APIModule::logInternal(LOG_LEVEL_INFO, LCAT, fmessage);
+		delete fmessage;
 	}
 
 	return Undefined();

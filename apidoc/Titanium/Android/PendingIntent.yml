@@ -13,6 +13,10 @@ properties:
     summary: The intent data to pass to the Activity launched by this PendingIntent
     type: Titanium.Android.Intent
     availability: creation
+  - name: updateCurrentIntent
+    summary: If this property is true, flag <Titanium.Android.FLAG_UPDATE_CURRENT> will be appended to flags automatically. Default value is true.
+    type: Boolean
+    availability: creation
 description: |
     The type of Intent you choose will effect what kind of PendingIntent is created. Each type corresponds directly with a get method on Android's PendingIntent:
     

@@ -70,6 +70,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 			[(UIPickerView*)picker reloadAllComponents];
 		}
 	}
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 -(void)didFirePropertyChanges

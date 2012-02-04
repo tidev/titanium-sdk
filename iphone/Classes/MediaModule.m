@@ -116,6 +116,7 @@ static NSDictionary* TI_filterableItemProperties;
 	RELEASE_TO_NIL(systemMusicPlayer);
 	RELEASE_TO_NIL(appMusicPlayer);
 	RELEASE_TO_NIL(popoverView);
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[super dealloc];
 }
 
@@ -737,8 +738,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 -(void)setCameraFlashMode:(id)args
 {
 	// Return nothing	
-	ENSURE_UI_THREAD(setCameraFlashMode,args);
 	ENSURE_SINGLE_ARG(args,NSNumber);
+	ENSURE_UI_THREAD(setCameraFlashMode,args);
 	
 	if (picker!=nil)
 	{
@@ -748,9 +749,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(void)switchCamera:(id)args
 {
-	// Return nothing	
-	ENSURE_UI_THREAD(switchCamera,args);
 	ENSURE_SINGLE_ARG(args,NSNumber);
+	ENSURE_UI_THREAD(switchCamera,args);
 	
 	// must have a picker, doh
 	if (picker==nil)
@@ -784,8 +784,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(void)startVideoEditing:(id)args
 {	
-	ENSURE_UI_THREAD(startVideoEditing,args);
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	ENSURE_UI_THREAD(startVideoEditing,args);
 
 	RELEASE_TO_NIL(editor); 
 	
@@ -841,8 +841,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(void)stopVideoEditing:(id)args
 {	
-	ENSURE_UI_THREAD(stopVideoEditing,args);
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	ENSURE_UI_THREAD(stopVideoEditing,args);
 	
 	if (editor!=nil)
 	{
@@ -893,22 +893,22 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(void)showCamera:(id)args
 {
-	ENSURE_UI_THREAD(showCamera,args);
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	ENSURE_UI_THREAD(showCamera,args);
 	[self showPicker:args isCamera:YES];
 }
 
 -(void)openPhotoGallery:(id)args
 {
-	ENSURE_UI_THREAD(openPhotoGallery,args);
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	ENSURE_UI_THREAD(openPhotoGallery,args);
 	[self showPicker:args isCamera:NO];
 }	
 
 -(void)takeScreenshot:(id)arg
 {
-	ENSURE_UI_THREAD(takeScreenshot,arg);
 	ENSURE_SINGLE_ARG(arg,KrollCallback);
+	ENSURE_UI_THREAD(takeScreenshot,arg);
 
     // Create a graphics context with the target size
 
@@ -1116,8 +1116,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(void)openMusicLibrary:(id)args
 {	
-	ENSURE_UI_THREAD(openMusicLibrary,args);
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	ENSURE_UI_THREAD(openMusicLibrary,args);
 
 	if (musicPicker != nil) {
 		[self sendPickerError:MediaModuleErrorBusy];
@@ -1324,12 +1324,40 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 		}
 		else
 		{
-			UIImage *image = (editedImage != nil)?editedImage:
-					[editingInfo objectForKey:UIImagePickerControllerOriginalImage];
-			media = [[[TiBlob alloc] initWithImage:image] autorelease];
+            UIImage *resultImage = nil;
+            UIImage *originalImage = [editingInfo objectForKey:UIImagePickerControllerOriginalImage];
+            if ( (editedImage != nil) && (ourRectValue != nil) && (originalImage != nil)) {
+                
+                CGRect ourRect = [ourRectValue CGRectValue];
+                
+                if ( (ourRect.size.width > editedImage.size.width) || (ourRect.size.height > editedImage.size.height) ){
+                    UIGraphicsBeginImageContext(ourRect.size);
+                    CGContextRef context = UIGraphicsGetCurrentContext();
+                    
+                    // translated rectangle for drawing sub image 
+                    CGRect drawRect = CGRectMake(-ourRect.origin.x, -ourRect.origin.y, originalImage.size.width, originalImage.size.height);
+                    
+                    // clip to the bounds of the image context
+                    CGContextClipToRect(context, CGRectMake(0, 0, ourRect.size.width, ourRect.size.height));
+                    
+                    // draw image
+                    [originalImage drawInRect:drawRect];
+                    
+                    // grab image
+                    resultImage = UIGraphicsGetImageFromCurrentImageContext();
+                    
+                    UIGraphicsEndImageContext();
+                }
+            }
+            
+            if (resultImage == nil) {
+                resultImage = (editedImage != nil) ? editedImage : originalImage;
+            }
+            
+			media = [[[TiBlob alloc] initWithImage:resultImage] autorelease];
 			if (saveToRoll)
 			{
-				UIImageWriteToSavedPhotosAlbum(image, nil, nil, NULL);
+				UIImageWriteToSavedPhotosAlbum(resultImage, nil, nil, NULL);
 			}
 		}
 	}

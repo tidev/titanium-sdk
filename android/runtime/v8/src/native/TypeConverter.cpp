@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -233,9 +233,13 @@ jarray TypeConverter::jsArrayToJavaArray(v8::Handle<v8::Array> jsArray)
 	if (env == NULL) {
 		return NULL;
 	}
-
+	
 	int arrayLength = jsArray->Length();
 	jobjectArray javaArray = env->NewObjectArray(arrayLength, JNIUtil::objectClass, NULL);
+	if (javaArray == NULL) {
+		LOGE(TAG, "unable to create new jobjectArray");
+		return NULL;
+	}
 
 	for (int i = 0; i < arrayLength; i++) {
 		v8::Local<v8::Value> element = jsArray->Get(i);
@@ -347,7 +351,8 @@ jlongArray TypeConverter::jsArrayToJavaLongArray(v8::Handle<v8::Array> jsArray)
 	if (env == NULL) {
 		return NULL;
 	}
-
+    
+	 
 	int arrayLength = jsArray->Length();
 	jlongArray javaLongArray = env->NewLongArray(arrayLength);
 	if (javaLongArray == NULL) {
@@ -372,6 +377,7 @@ jfloatArray TypeConverter::jsArrayToJavaFloatArray(v8::Handle<v8::Array> jsArray
 		return NULL;
 	}
     
+  
 	int arrayLength = jsArray->Length();
 	jfloatArray javaFloatArray = env->NewFloatArray(arrayLength);
 	if (javaFloatArray == NULL) {
@@ -521,7 +527,9 @@ jobject TypeConverter::jsValueToJavaObject(v8::Local<v8::Value> jsValue, bool *i
 		}
 	}
 
-	LOGW(TAG, "jsValueToJavaObject returning null");
+	if (!jsValue->IsNull() && !jsValue->IsUndefined()) {
+		LOGW(TAG, "jsValueToJavaObject returning null.");
+	}
 	return NULL;
 }
 
@@ -582,7 +590,12 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 			env->DeleteLocalRef(krollObject);
 
 			if (v8ObjectPointer != 0) {
-				return Persistent<Object>((Object *) v8ObjectPointer);
+				Persistent<Object> v8Object = Persistent<Object>((Object *) v8ObjectPointer);
+				JavaObject *jo = NativeObject::Unwrap<JavaObject>(v8Object);
+				if (jo->isDetached()) {
+					jo->attach(javaObject);
+				}
+				return v8Object;
 			}
 		}
 

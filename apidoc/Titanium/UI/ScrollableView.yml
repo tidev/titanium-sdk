@@ -63,7 +63,7 @@ properties:
     type: Boolean
   - name: pagingControlTimeout
     summary: number of milliseconds to wait before hiding the paging control. Less than or equal to 0 disables timeout keeping controls displayed.
-    platforms: [android]
+    platforms: [android, mobileweb]
     availability: creation
     type: Number
   - name: views
@@ -82,5 +82,34 @@ examples:
             	showPagingControl:true
             });
             win.add(scrollView);
-        
-        
+  - title: Simple Scrollable View with 2 zoombable images
+    example: |
+        Create two scroll views, each containing an image view, and place them into a scrollable view.
+
+            var img1 = Ti.UI.createImageView({
+                image:'http://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/' +
+                'Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/' +
+                '402px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg'
+            });
+            var img1Wrapper = Ti.UI.createScrollView({
+                maxZoomScale:4.0,
+            });
+            img1Wrapper.add(img1);
+
+            var img2 = Ti.UI.createImageView({
+                image:'http://www.nasa.gov/images/content/' + 
+                '616903main_rover_comparison1600_1600-1200.jpg'
+            });
+            var img2Wrapper = Ti.UI.createScrollView({
+                maxZoomScale:4.0,
+            });
+            img2Wrapper.add(img2);
+            var photosView = Ti.UI.createScrollableView({
+                showPagingControl:true,
+                views:[img1Wrapper,img2Wrapper]
+            });
+            win.add(photosView);
+description: |
+    iOS Notes: In previous versions of ScrollableView, there were properties maxZoomScale and
+    minZoomScale. These were removed for performance and parity reasons. If you do need this
+    functionality, see the "Simple Scrollable View with 2 zoombable images" code example included.

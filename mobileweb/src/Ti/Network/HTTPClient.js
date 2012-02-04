@@ -1,164 +1,160 @@
-define("Ti/Network/HTTPClient", ["Ti/_/Evented"], function(Evented) {
+define("Ti/Network/HTTPClient", ["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"], function(_, declare, lang, Evented, Network) {
 
-	Ti._5.createClass("Ti.Network.HTTPClient", function(args){
-	
-		var undef,
-			obj = this,
-			enc = encodeURIComponent,
-			is = require.is,
-			on = require.on,
-			xhr = new XMLHttpRequest,
-			UNSENT = 0,
-			OPENED = 1,
-			HEADERS_RECEIVED = 2,
-			LOADING = 3,
-			DONE = 4,
-			_readyState = UNSENT, // unsent
-			_completed, // This completed stuff is a hack to get around a non-obvious bug.
-			timeoutTimer;
-		
-		Ti._5.EventDriven(obj);
-		
-		function fireStateChange() {
-			is(obj.onreadystatechange, "Function") && obj.onreadystatechange.call(obj);
-		}
+	var is = require.is,
+		on = require.on,
+		enc = encodeURIComponent,
+		undef;
 
-		function serialize(obj) {
-			var pairs = [],
-				prop,
-				value;
+	return declare("Ti.Network.HTTPClient", Evented, {
 
-			for (prop in obj) {
-				if (obj.hasOwnProperty(prop)) {
-					is(value = obj[prop], "Array") || (value = [value]);
-					prop = enc(prop) + "=";
-					require.each(value, function(v) {
-						pairs.push(prop + enc(v));
-					});
+		constructor: function() {
+			var xhr = this._xhr = new XMLHttpRequest;
+
+			on(xhr, "error", this, "_onError");
+			on(xhr.upload, "error", this, "_onError");
+
+			on(xhr, "progress", this, "_onProgress");
+			on(xhr.upload, "progress", this, "_onProgress");
+
+			xhr.onreadystatechange = lang.hitch(this, function() {
+				var c = this.constants;
+				switch (xhr.readyState) {
+					case 0: c.readyState = this.UNSENT; break;
+					case 1: c.readyState = this.OPENED; break;
+					case 2: c.readyState = this.LOADING; break;
+					case 3: c.readyState = this.HEADERS_RECEIVED; break;
+					case 4:
+						clearTimeout(this._timeoutTimer);
+						this._completed = 1;
+						c.readyState = this.DONE;
+						if (xhr.status == 200) {
+							c.responseText = c.responseData = xhr.responseText;
+							c.responseXML = xhr.responseXML;
+							is(this.onload, "Function") && this.onload.call(this);
+						} else {
+							xhr.status / 100 | 0 > 3 && this._onError();
+						}
 				}
-			}
+				this._fireStateChange();
+			});
+		},
 
-			return pairs.join("&");
-		}
-
-		xhr.onreadystatechange = function() {
-			switch (xhr.readyState) {
-				case 0: _readyState = UNSENT; break;
-				case 1: _readyState = OPENED; break;
-				case 2: _readyState = LOADING; break;
-				case 3: _readyState = HEADERS_RECEIVED; break;
-				case 4:
-					clearTimeout(timeoutTimer);
-					_completed = true;
-					_readyState = DONE;
-					if (xhr.status == 200) {
-						obj.responseText = xhr.responseText;
-						obj.responseXML = xhr.responseXML;
-						obj.responseData = xhr.responseHeader;
-						is(obj.onload, "Function") && obj.onload.call(obj);
-					} else {
-						xhr.status / 100 | 0 > 3 && onerror();
-					}
+		destroy: function() {
+			if (this._xhr) {
+				this._xhr.abort();
+				this._xhr = null;
 			}
-			fireStateChange();
-		};
-	
-		function onerror(error) {
-			obj.abort();
+		},
+
+		_onError: function(error) {
+			this.abort();
 			is(error, "Object") || (error = { message: error });
 			error.error || (error.error = error.message || xhr.status);
 			parseInt(error.error) || (error.error = "Can't reach host");
-			is(obj.onerror, "Function") && obj.onerror.call(obj, error);
-		}
-	
-		on(xhr, "error", onerror);
-		on(xhr.upload, "error", onerror);
-	
-		function onprogress(evt) {
+			is(this.onerror, "Function") && this.onerror.call(this, error);
+		},
+
+		_onProgress: function(evt) {
 			evt.progress = evt.lengthComputable ? evt.loaded / evt.total : false;
-			is(obj.onsendstream, "Function") && obj.onsendstream.call(obj, evt);
-		}
-	
-		on(xhr, "progress", onprogress);
-		on(xhr.upload, "progress", onprogress);
-	
-		// Properties
-		Ti._5.propReadOnly(obj, {
-			UNSENT: UNSENT,
-			OPENED: OPENED,
-			HEADERS_RECEIVED: HEADERS_RECEIVED,
-			LOADING: LOADING,
-			DONE: DONE,
-			connected: function() { return _readyState >= OPENED; },
-			readyState: function() { return _readyState; },
-			status: function() { return xhr.status; }
-		});
-	
-		Ti._5.prop(obj, {
-			connectionType: undef,
-			file: undef,
-			location: undef,
+			is(this.onsendstream, "Function") && this.onsendstream.call(this, evt);
+		},
+
+		abort: function() {
+			var c = this.constants;
+			c.responseText = c.responseXML = c.responseData = "";
+			this._completed = true;
+			clearTimeout(this._timeoutTimer);
+			this.connected && this._xhr.abort();
+			c.readyState = this.UNSENT;
+			this._fireStateChange();
+		},
+
+		_fireStateChange: function() {
+			is(this.onreadystatechange, "Function") && this.onreadystatechange.call(this);
+		},
+
+		getResponseHeader: function(name) {
+			return this._xhr.readyState > 1 ? this._xhr.getResponseHeader(name) : null;
+		},
+
+		open: function(method, url, async) {
+			var httpURLFormatter = Ti.Network.httpURLFormatter,
+				c = this.constants;
+			this.abort();
+			this._xhr.open(
+				c.connectionType = method,
+				c.location = _.getAbsolutePath(httpURLFormatter ? httpURLFormatter(url) : url),
+				!!async
+			);
+			this._xhr.setRequestHeader("UserAgent", Ti.userAgent);
+		},
+
+		send: function(args){
+			try {
+				var timeout = this.timeout | 0;
+				this._completed = false;
+				args = is(args, "Object") ? lang.urlEncode(args) : args;
+				args && this._xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+				this._xhr.send(args);
+				clearTimeout(this._timeoutTimer);
+				timeout && (this._timeoutTimer = setTimeout(lang.hitch(this, function() {
+					if (this.connected) {
+						this.abort();
+						!this._completed && this._onError("Request timed out");
+					}
+				}, timeout)));
+			} catch (ex) {}
+		},
+
+		setRequestHeader: function(name, value) {
+			this._xhr.setRequestHeader(name, value);
+		},
+
+		properties: {
 			ondatastream: undef,
 			onerror: undef,
 			onload: undef,
 			onreadystatechange: undef,
 			onsendstream: undef,
-			responseData: "",
-			responseText: "",
-			responseXML: "",
-			timeout: undef,
-			validatesSecureCertificate: false
-		});
-	
-		require.mix(obj, args);
-	
-		// Methods
-		obj.abort = function() {
-			obj.responseText = obj.responseXML = obj.responseData = "";
-			_completed = true;
-			clearTimeout(timeoutTimer);
-			obj.connected && xhr.abort();
-			_readyState = UNSENT;
-			fireStateChange();
-		};
-	
-		obj.getResponseHeader = function(name) {
-			return xhr.readyState === 2 ? xhr.getResponseHeader(name) : null;
-		};
-	
-		obj.open = function(method, url, async) {
-			var httpURLFormatter = Ti.Network.httpURLFormatter;
-			obj.abort();
-			xhr.open(
-				obj.connectionType = method,
-				obj.location = require("Ti/_").getAbsolutePath(httpURLFormatter ? httpURLFormatter(url) : url),
-				!!async
-			);
-			xhr.setRequestHeader("UserAgent", Ti.userAgent);
-		};
-	
-		obj.send = function(args){
-			_completed = false;
-			try {
-				args = is(args, "Object") ? serialize(args) : args;
-				args && xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-				xhr.send(args);
-				clearTimeout(timeoutTimer);
-				obj.timeout && (timeoutTimer = setTimeout(function() {
-					if (obj.connected) {
-						obj.abort();
-						!_completed && onerror("Request timed out");
-					}
-				}, obj.timeout));
-			} catch (error) {
-				onerror(error);
-			}
-		};
-	
-		obj.setRequestHeader = function(label,value) {
-			xhr.setRequestHeader(label,value);
-		};
-	});
+			timeout: undef
+		},
 
+		constants: {
+			DONE: 4,
+
+			HEADERS_RECEIVED: 2,
+
+			LOADING: 3,
+
+			OPENED: 1,
+
+			UNSENT: 1,
+
+			connected: function() {
+				return this.readyState >= this.OPENED;
+			},
+
+			connectionType: undef,
+
+			location: undef,
+
+			readyState: this.UNSENT,
+
+			responseData: undef,
+
+			responseText: undef,
+
+			responseXML: undef,
+
+			status: function() {
+				return this._xhr.status;
+			},
+
+			statusText: function() {
+				return this._xhr.statusText;
+			}
+		}
+
+	});
 
 });

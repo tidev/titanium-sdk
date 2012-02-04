@@ -1,9 +1,10 @@
 define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style"], function(dom, Evented, lang, ready, style) {
 	
-	var isDef = require.isDef,
+	var body = document.body,
+		isDef = require.isDef,
 		isIOS = /(iPhone|iPad)/.test(navigator.userAgent);
 
-	document.body.addEventListener('touchmove', function(e) {
+	body.addEventListener('touchmove', function(e) {
 		e.preventDefault();
 	}, false);
 
@@ -11,13 +12,13 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 		var x = 0;
 		if (isIOS && !window.location.hash) {
 			if (document.height <= window.outerHeight + 10) {
-				document.body.style.height = (window.outerHeight + 60) + "px";
+				body.style.height = (window.outerHeight + 60) + "px";
 				x = 50;
 			}
 			setTimeout(function() {
 				window.scrollTo(0, 1);
 				window.scrollTo(0, 0);
-				Ti.UI._doFullLayout();
+				Ti.UI._recalculateLayout();
 			}, x);
 		}
 	}
@@ -27,60 +28,97 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 		window.addEventListener("orientationchange", hideAddressBar);
 	}
 
+	ready(10, function() {
+		body.appendChild((Ti.UI._container = Ti.UI.createView({
+			left: 0,
+			top: 0
+		})).domNode);
+		style.set(Ti.UI._container.domNode,"overflow","hidden");
+		Ti.UI._recalculateLayout();
+	});
+
+	require.on(window, "resize", function() {
+		Ti.UI._recalculateLayout();
+	});
+
 	return lang.setObject("Ti.UI", Evented, {
 
-		_addWindow: function(win) {
-			this._validateContainer();
+		_addWindow: function(win, set) {
 			this._container.add(win);
+			set && this._setWindow(win);
+			return win;
+		},
+
+		_setWindow: function(win) {
+			this.constants.currentWindow = win;
 		},
 
 		_removeWindow: function(win) {
-			this._validateContainer();
 			this._container.remove(win);
+			return win;
 		},
-
-		_doFullLayout: function() {
-			if (!this._layoutInProgress) {
-				this._layoutInProgress = true;
-				setTimeout(lang.hitch(this, function(){
-					this._validateContainer();
-					this._container.doLayout(0, 0, document.body.clientWidth, document.body.clientHeight, true, true);
-					this._layoutInProgress = false;
-				}), 25);
-			}
-		},
-
-		_doForcedFullLayout: function() {
-			this._validateContainer();
-			this._container.doLayout(0, 0, document.body.clientWidth, document.body.clientHeight, true, true);
-			this._layoutInProgress = false;
-			
-		},
-
-		_validateContainer: function() {
-			if (!isDef(this._container)) {
+		
+		_triggerLayout: function(force) {
+			if (force) {
+				clearTimeout(this._layoutTimer);
+				this._layoutMarkedNodes(this._container);
 				this._layoutInProgress = false;
-				this._container = Ti.UI.createView();
-				this._container.left = 0;
-				this._container.top = 0;
-				document.body.appendChild(this._container.domNode);
+			} else {
+				if (!this._layoutInProgress) {
+					this._layoutInProgress = true;
+					this._layoutTimer = setTimeout(lang.hitch(this, function(){
+						this._layoutMarkedNodes(this._container);
+						this._layoutInProgress = false;
+						this._layoutTimer = null;
+					}), 25);
+				}
 			}
+		},
+		
+		_layoutMarkedNodes: function(node) {
+			if (node._markedForLayout) {
+				node._layout && node._layout._doLayout(node, node._measuredWidth, node._measuredHeight);
+			} else {
+				for (var i in node.children) {
+					this._layoutMarkedNodes(node.children[i]);
+				}
+				// Run the post-layout animation, if needed
+				if (node._doAnimationAfterLayout) {
+					node._doAnimationAfterLayout = false;
+					node._doAnimation();
+				}
+			}
+		},
+		
+		_recalculateLayout: function() {
+			this._container.width = window.innerWidth;
+			this._container.height = window.innerHeight;
+			this._container._doLayout(0, 0, window.innerWidth, window.innerHeight, true, true);
 		},
 
 		properties: {
 			backgroundColor: {
 				set: function(value) {
-					return style.set(document.body, "backgroundColor", value);
+					return style.set(body, "backgroundColor", value);
 				}
 			},
 			backgroundImage: {
 				set: function(value) {
-					return style.set(document.body, "backgroundImage", value ? style.url(value) : "");
+					return style.set(body, "backgroundImage", value ? style.url(value) : "");
+				}
+			},
+			currentTab: {
+				get: function() {
+					return (this.currentWindow || {}).activeTab;
+				},
+				set: function(value) {
+					return (this.currentWindow || {}).activeTab = value;
 				}
 			}
 		},
 
 		constants: {
+			currentWindow: undefined,
 			UNKNOWN: 0,
 			FACE_DOWN: 1,
 			FACE_UP: 2,
@@ -88,10 +126,10 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 			UPSIDE_PORTRAIT: 4,
 			LANDSCAPE_LEFT: 5,
 			LANDSCAPE_RIGHT: 6,
-			INPUT_BORDERSTYLE_BEZEL: 3,
-			INPUT_BORDERSTYLE_LINE: 1,
 			INPUT_BORDERSTYLE_NONE: 0,
-			INPUT_BORDERSTYLE_ROUNDED: 2,
+			INPUT_BORDERSTYLE_LINE: 1,
+			INPUT_BORDERSTYLE_BEZEL: 2,
+			INPUT_BORDERSTYLE_ROUNDED: 3,
 			INPUT_BUTTONMODE_ALWAYS: 1,
 			INPUT_BUTTONMODE_NEVER: 0,
 			INPUT_BUTTONMODE_ONBLUR: 0,
@@ -113,17 +151,17 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 			PICKER_TYPE_DATE_AND_TIME: 3,
 			PICKER_TYPE_PLAIN: 4,
 			PICKER_TYPE_TIME: 5,
-			RETURNKEY_DEFAULT: 0,
-			RETURNKEY_DONE: 1,
-			RETURNKEY_EMERGENCY_CALL: 2,
-			RETURNKEY_GO: 3,
-			RETURNKEY_GOOGLE: 4,
-			RETURNKEY_JOIN: 5,
-			RETURNKEY_NEXT: 6,
-			RETURNKEY_ROUTE: 7,
-			RETURNKEY_SEARCH: 8,
-			RETURNKEY_SEND: 9,
-			RETURNKEY_YAHOO: 10,
+			RETURNKEY_DEFAULT: 0, // return
+			RETURNKEY_DONE: 1, // Done
+			RETURNKEY_EMERGENCY_CALL: 2, // Emergency Call
+			RETURNKEY_GO: 3, // Go
+			RETURNKEY_GOOGLE: 4, // Search
+			RETURNKEY_JOIN: 5, // Join
+			RETURNKEY_NEXT: 6, // Next
+			RETURNKEY_ROUTE: 7, // Route
+			RETURNKEY_SEARCH: 8, // Search
+			RETURNKEY_SEND: 9, // Send
+			RETURNKEY_YAHOO: 10, // Search
 			TEXT_ALIGNMENT_CENTER: 1,
 			TEXT_ALIGNMENT_RIGHT: 2,
 			TEXT_ALIGNMENT_LEFT: 3,

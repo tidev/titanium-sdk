@@ -373,6 +373,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 - (void)evalFileOnThread:(NSString*)path context:(KrollContext*)context_ 
 {
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    
 	NSError *error = nil;
 	TiValueRef exception = NULL;
 	
@@ -460,6 +462,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	
 	TiStringRelease(jsCode);
 	TiStringRelease(jsURL);
+    
+    [pool release];
 }
 
 - (void)evalFile:(NSString*)path callback:(id)callback selector:(SEL)selector
@@ -540,6 +544,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 -(void)didStartNewContext:(KrollContext*)kroll
 {
 	// create Titanium global object
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    
 	NSString *basePath = (url==nil) ? [TiHost resourcePath] : [[[url path] stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"."];
 	titanium = [[TitaniumObject alloc] initWithContext:kroll host:host context:self baseURL:[NSURL fileURLWithPath:basePath]];
 	
@@ -582,6 +588,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		NSURL *startURL = [host startURL];
 		[self evalFile:[startURL absoluteString] callback:self selector:@selector(booted)];
 	}
+    
+    [pool release];
 }
 
 -(void)willStopNewContext:(KrollContext*)kroll

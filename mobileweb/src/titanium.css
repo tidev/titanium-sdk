@@ -1,18 +1,82 @@
+html,
+body,
+form {
+	height: 100%;
+	width: 100%;
+}
+
 html {
 	font-size: 100%;
-	height: 100%;
 	-webkit-text-size-adjust: 100%;
 	-ms-text-size-adjust: 100%;
-	width: 100%;
 }
 
 body {
 	display: block;
-	font-family: Helvetica, sans, sans-serif;
-	height: 100%;
 	margin: 0;
 	overflow: hidden;
-	width: 100%;
+	user-select: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+	font-family: Helvetica, sans, sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+	font-size: 100%;
+	margin: 0;
+	vertical-align: baseline;
+}
+
+button,
+input[type="button"], 
+input[type="reset"], 
+input[type="submit"] {
+	cursor: pointer;
+	-webkit-appearance: button;
+	*overflow: visible;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+	box-sizing: border-box;
+	padding: 0;
+}
+
+input[type="search"] {
+	-webkit-appearance: textfield;
+	-moz-box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	box-sizing: content-box;
+}
+
+input[type="search"]::-webkit-search-decoration {
+	-webkit-appearance: none;
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+	-webkit-appearance: none;
+}
+
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+	border: 0;
+	padding: 0;
+}
+
+textarea {
+	overflow: auto;
+	resize: none;
+	vertical-align: top;
 }
 
 .TiContainer {
@@ -34,6 +98,12 @@ body {
 	position: absolute;
 }
 
+.TiUIButton {
+	background-size: "100% 100%";
+	background-repeat: "no-repeat";
+	border: 0;
+}
+
 .TiUITab {
 	background-color: silver;
 	border: solid 1px black;
@@ -46,10 +116,6 @@ body {
 }
 .TiUITab.TiActiveTab:active {
 	background-color: gray;
-}
-
-.TiMediaVideoPlayer {
-	position: relative;
 }
 
 .TiMediaVideoPlayer video {
@@ -80,4 +146,18 @@ body {
 
 .TiMediaVideoPlayer video:-moz-full-screen {
 	max-height: 100%;
+}
+
+.TiUITextFieldBorderStyleNone input,
+.TiUITextFieldBorderStyleLine input {
+	background: transparent;
+	border: 0;
+}
+
+.TiUITextFieldBorderStyleLine {
+	border: solid 1px #000;
+}
+
+.TiUITextFieldBorderStyleRounded input {
+	border-radius: 5px;
 }

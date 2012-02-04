@@ -35,6 +35,21 @@ methods:
       - name: y
         summary: the y point within the view
         type: Number
+  - name: setContentOffset
+    summary: Sets the value of [contentOffset](Titanium.UI.ScrollView.contentOffset) property.
+    description: |
+        In iOS, there is an additional parameter `animated` that can be used to enable or
+        disable the animation while scrolling the contents offset. For example:
+                 
+                 setContentOffset({x:50,y:100},{animated:true})
+    parameters:
+      - name: contentOffset
+        summary: New value for the property
+        type: Object
+      - name: animated
+        summary: Whether this content area change should be animated.
+        optional: true
+        type: contentOffsetOption
 events:
   - name: scale
     summary: fired when the zoom scale factor changes
@@ -60,6 +75,7 @@ events:
         summary: the x point of the event in receiving view coordiantes
       - name: dragging
         summary: boolean to indicate if the scroll is based on a dragging gesture
+        platforms: [iphone, ipad, mobileweb]
       - name: globalPoint
         summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
@@ -67,12 +83,13 @@ events:
             since: "1.8.0"
       - name: decelerating
         summary: boolean to indicate if the scroll is decelerating
+        platforms: [iphone, ipad]
   - name: dragStart
     summary: fired when the scroll view is about to start scrolling the content.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: dragEnd
     summary: fired when when dragging ended in the scroll view.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: decelerate
         summary: boolean. YES if the scrolling movement will continue, but decelerate, after a touch-up gesture during a dragging operation. If the value is NO, scrolling stops immediately upon touch-up.    
@@ -80,7 +97,7 @@ properties:
   - name: canCancelEvents
     summary: boolean to indicate if the scroll view can cancel subview touches in order to scroll instead. Default of true
     type: Boolean
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
   - name: contentHeight
     summary: the height of the scrollable area
     type: Number
@@ -149,4 +166,13 @@ examples:
             scrollView.add(view);
             Titanium.UI.currentWindow.add(scrollView);
         
+---
+name: contentOffsetOption
+summary: Optional parameter for [setContentOffset](Titanium.UI.ScrollView.setContentOffset) method.
+since: 1.8.1
+platforms: [iphone, ipad]
+properties:
+  - name: animated
+    summary: Boolean to indicate whether the scrollview's content area change is animated.
+    type: Boolean
         
