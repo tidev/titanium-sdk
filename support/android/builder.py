@@ -596,7 +596,7 @@ class Builder(object):
 			for root, dirs, files in os.walk(topdir):
 				remove_ignored_dirs(dirs)
 				for d in dirs:
-					if d == "iphone":
+					if d == "iphone" or d == "mobileweb":
 						dirs.remove(d)
 				for filename in files:
 					if filename.startswith("_"):
@@ -653,7 +653,7 @@ class Builder(object):
 					dest = make_relative(path, resources_dir, self.assets_resources_dir)
 				# check to see if this is a compiled file and if so, don't copy
 				if dest in self.compiled_files: continue
-				if path.startswith(os.path.join(resources_dir, "iphone")) or path.startswith(os.path.join(resources_dir, "blackberry")):
+				if path.startswith(os.path.join(resources_dir, "iphone")) or path.startswith(os.path.join(resources_dir, "mobileweb")) or path.startswith(os.path.join(resources_dir, "blackberry")):
 					continue
 				parent = os.path.dirname(dest)
 				if not os.path.exists(parent):

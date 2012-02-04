@@ -190,7 +190,7 @@ def dump_resources_listing(rootdir,out):
 			total+=s
 			s = "[%.0f]" % s
 			p = p[len(rootdir)+1:]
-			if p.startswith('build/android'): continue
+			if p.startswith('build/android') or p.startswith('build/mobileweb'): continue
 			out.write("  %s %s\n" % (string.ljust(p,120),string.ljust(s,8)))
 	out.write("-" * 130)
 	out.write("\nTotal files: %.1f MB\n" % ((total/1024)/1024))

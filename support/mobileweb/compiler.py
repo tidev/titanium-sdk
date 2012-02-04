@@ -46,9 +46,11 @@ class Compiler(object):
 		
 		start_time = time.time()
 		dependencies = []
-		packages = {
-			'Ti': './Ti'
-		}
+		packages = [{
+			'name': 'Ti',
+			'location': './Ti',
+			'main': './Ti/titanium.js'
+		}]
 		
 		# initialize paths
 		self.sdk_path = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
@@ -108,7 +110,7 @@ class Compiler(object):
 					
 					dependencies.append(main_file_path)
 					
-					packages[module['id']] = './' + module['id']
+					packages.append({ module['id']: './' + module['id'] })
 					
 					print '[INFO] Bundling Ti+ module "%s"' % module['id']
 					
@@ -117,7 +119,7 @@ class Compiler(object):
 					# TODO: need to combine ALL Ti+ module .css files into the titanium.css
 					
 					# copy entire module directory to build directory
-					shutil.copytree(module_dir, os.path.join(self.build_path, module['id']))
+					shutil.copytree(module_dir, os.path.join(self.build_path, 'modules', module['id']))
 		
 		# scan project for dependencies
 		print '[INFO] Scanning project for dependencies...'
