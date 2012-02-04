@@ -42,7 +42,6 @@ input[type="button"],
 input[type="reset"], 
 input[type="submit"] {
 	cursor: pointer;
-	-webkit-appearance: button;
 	*overflow: visible;
 }
 
@@ -98,10 +97,52 @@ textarea {
 	position: absolute;
 }
 
-.TiUIButton {
-	background-size: "100% 100%";
-	background-repeat: "no-repeat";
-	border: 0;
+.TiUIButtonDefault {
+	background: -moz-linear-gradient(
+		top,
+		#fff 0%,
+		#fff 50%,
+		#bbb);
+	background: -webkit-gradient(
+		linear, left top, left bottom, 
+		from(#fff),
+		color-stop(0.50, #fff),
+		to(#bbb));
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	
+	-moz-box-shadow:
+		0px 1px 2px rgba(000,000,000,0.5),
+		inset 0px 0px 3px rgba(255,255,255,1);
+	-webkit-box-shadow:
+		0px 1px 2px rgba(000,000,000,0.5),
+		inset 0px 0px 3px rgba(255,255,255,1);
+}
+
+.TiUIButtonDefault:hover {
+	background: -moz-linear-gradient(
+		top,
+		#fff 0%,
+		#fff 50%,
+		#999);
+	background: -webkit-gradient(
+		linear, left top, left bottom, 
+		from(#fff),
+		color-stop(0.50, #fff),
+		to(#999));
+}
+
+.TiUIButtonDefault:active {background: -moz-linear-gradient(
+		top,
+		#bbb 0%,
+		#fff 50%,
+		#fff);
+	background: -webkit-gradient(
+		linear, left top, left bottom, 
+		from(#bbb),
+		color-stop(0.50, #fff),
+		to(#fff));
 }
 
 .TiUITab {
