@@ -3,7 +3,8 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 	var setStyle = style.set,
 		postDoBackground = {
 			post: "_updateLook"
-		};
+		},
+		undef;
 
 	return declare("Ti.UI.Button", FontWidget, {
 
@@ -16,24 +17,45 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 					display: ["-webkit-box", "-moz-box"],
 					boxOrient: "horizontal",
 					boxPack: "center",
-					boxAlign: "center"
+					boxAlign: "center",
+					pointerEvents: "none"
 				}
 			}, this.domNode);
 
 			this._buttonImage = dom.create("img", {
-				className: "TiUIButtonImage"
+				className: "TiUIButtonImage",
+				style: {
+					pointerEvents: "none"
+				}
 			}, this._contentContainer);
 
 			this._buttonTitle = dom.create("div", {
 				className: "TiUIButtonTitle",
 				style: {
-					whiteSpace: "nowrap"
+					whiteSpace: "nowrap",
+					pointerEvents: "none"
 				}
 			}, this._contentContainer);
 
 			this._addStyleableDomNode(this._buttonTitle);
 			
 			this._setDefaultLook();
+			
+			this.addEventListener("touchstart",function(){
+				if (this.selectedColor) {
+					setStyle(this._buttonTitle,"color",this.selectedColor);
+				}
+			});
+			this.addEventListener("touchend",function(){
+				if (this.selectedColor) {
+					setStyle(this._buttonTitle,"color",this.color || "black");
+				}
+			});
+			this.domNode.addEventListener("mouseout",lang.hitch(this,function(){
+				if (this.selectedColor) {
+					setStyle(this._buttonTitle,"color",this.color || "black");
+				}
+			}));
 		},
 
 		_defaultWidth: "auto",
@@ -104,6 +126,8 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 		},
 
 		properties: {
+			
+			// Override the default background info so we can hook into it
 			backgroundColor: postDoBackground,
 
 			backgroundDisabledColor: postDoBackground,
@@ -135,43 +159,16 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 					return value;
 				}
 			},
-			selectedColor: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Button#.selectedColor" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Button#.selectedColor" is not implemented yet.');
-					return value;
-				}
-			},
-			style: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Button#.style" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Button#.style" is not implemented yet.');
-					return value;
-				}
-			},
+			selectedColor: undef,
 			textAlign: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Button#.textAlign" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Button#.textAlign" is not implemented yet.');
-					/*var cssValue = "";
+					var cssValue = "";
 					switch(value) {
-						case Ti.UI.TEXT_ALIGNMENT_LEFT: cssValue = "left"; break;
+						case Ti.UI.TEXT_ALIGNMENT_LEFT: cssValue = "start"; break;
 						case Ti.UI.TEXT_ALIGNMENT_CENTER: cssValue = "center"; break;
-						case Ti.UI.TEXT_ALIGNMENT_RIGHT: cssValue = "right"; break;
+						case Ti.UI.TEXT_ALIGNMENT_RIGHT: cssValue = "end"; break;
 					}
-					this.textContainerDiv.style.textAlign = cssValue;*/
+					setStyle(this._contentContainer, "boxPack", cssValue);
 					return value;
 				}
 			},
