@@ -6,6 +6,8 @@
  */
 package org.appcelerator.titanium.view;
 
+import java.util.ArrayList;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -66,7 +68,9 @@ public class Ti2DMatrix extends KrollProxy
 	protected Ti2DMatrix(Ti2DMatrix prev, int opType)
 	{
 		if (prev != null) {
-			this.prev = prev;
+			// this.prev is unique, showing from which matrix this matrix is transformed
+			this.prev = prev; 
+			// prev.next can be overriden because pre matrix can be transformed to many different matrices
 			prev.next = this;
 		}
 		this.op = new Operation(opType);
@@ -177,13 +181,18 @@ public class Ti2DMatrix extends KrollProxy
 	public Matrix interpolate(float interpolatedTime, int childWidth, int childHeight, float anchorX, float anchorY)
 	{
 		Ti2DMatrix first = this;
+		ArrayList<Ti2DMatrix> preMatrixList = new ArrayList<Ti2DMatrix>();
+		
 		while (first.prev != null)
 		{
 			first = first.prev;
+			// It is safe to use prev matrix to trace back the transformation matrix list,
+			// since prev matrix is unique.
+			preMatrixList.add(0, first);
 		}
 
 		Matrix matrix = new Matrix();
-		for (Ti2DMatrix current = first; current != this; current = current.next) {
+		for (Ti2DMatrix current : preMatrixList) {
 			if (current.op != null) {
 				current.op.apply(interpolatedTime, matrix, childWidth, childHeight, anchorX, anchorY);
 			}
