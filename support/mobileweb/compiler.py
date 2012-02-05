@@ -45,12 +45,8 @@ class Compiler(object):
 	def __init__(self, project_path, deploytype):
 		
 		start_time = time.time()
+		packages = []
 		dependencies = []
-		packages = [{
-			'name': 'Ti',
-			'location': './Ti',
-			'main': './Ti/titanium.js'
-		}]
 		
 		# initialize paths
 		self.sdk_path = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
@@ -64,11 +60,18 @@ class Compiler(object):
 		print '[INFO] Titanium Mobile Web Compiler v%s' % sdk_version
 		
 		# read the package.json
-		package_json_file = os.path.join(self.sdk_src_path, 'titanium', 'package.json')
+		package_json_file = os.path.join(self.sdk_path, 'titanium', 'package.json')
 		if not os.path.exists(package_json_file):
 			print '[ERROR] Unable to open titanium package manifest "%s"' % package_json_file
 			sys.exit(1)
 		package_json = simplejson.load(codecs.open(package_json_file, 'r', 'utf-8'))
+		
+		# register the titanium package
+		packages.append({
+			'name': package_json['name'],
+			'location': './titanium',
+			'main': './' + self.compactPath('./titanium/' + package_json['main'] + '.js')
+		})
 		
 		# read the tiapp.xml
 		tiapp_xml = TiAppXML(os.path.join(self.project_path, 'tiapp.xml'))
@@ -110,7 +113,11 @@ class Compiler(object):
 					
 					dependencies.append(main_file_path)
 					
-					packages.append({ module['id']: './' + module['id'] })
+					packages.append({
+						'name': module['id'],
+						'location': './modules/' + module['id'],
+						'main': './' + self.compactPath('./modules/' + module['id'] + '/' + module_package_json['main'] + '.js')
+					})
 					
 					print '[INFO] Bundling Ti+ module "%s"' % module['id']
 					
@@ -126,7 +133,6 @@ class Compiler(object):
 		# TODO: scan the entire project's source and identify all dependencies
 		dependencies += [
 			# these MUST be ordered correctly!
-			self.sdk_src_path + 'eventdriven.js',
 			
 			# building blocks
 			self.sdk_src_path + 'Ti/_',
@@ -238,9 +244,21 @@ class Compiler(object):
 		total_seconds = int(round(total_time % 60))
 		print '[INFO] Finished in %s seconds' % total_seconds
 	
+	def compactPath(self, path):
+		result = []
+		path = path.replace('\\', '/').split('/');
+		while len(path):
+			segment = path[0]
+			path = path[1:]
+			if segment == '..' and len(result) and lastSegment != '..':
+				result.pop()
+				lastSegment = result[-1]
+			elif segment != '.':
+				lastSegment = segment
+				result.append(segment)
+		return '/'.join(result);
+	
 	def crap(self):
-		
-		
 		self.debug = True # temporarily forcing debug (i.e. development) mode until jsmin is replaced
 		self.count = 0
 		
