@@ -33,6 +33,7 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 			left: 0,
 			top: 0
 		})).domNode);
+		style.set(Ti.UI._container.domNode,"overflow","hidden");
 		Ti.UI._recalculateLayout();
 	});
 
