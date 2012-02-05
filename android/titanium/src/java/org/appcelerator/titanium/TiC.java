@@ -48,6 +48,7 @@ public class TiC
 	public static final String EVENT_PROPERTY_CLICKSOURCE = "clicksource";
 	public static final String EVENT_PROPERTY_CURRENT_PLAYBACK_TIME = "currentPlaybackTime";
 	public static final String EVENT_PROPERTY_DETAIL = "detail";
+    public static final String EVENT_PROPERTY_DIRECTION = "direction";
 	public static final String EVENT_PROPERTY_ERROR = "error";
 	public static final String EVENT_PROPERTY_INDEX = "index";
 	public static final String EVENT_PROPERTY_INTENT = "intent";
@@ -78,6 +79,7 @@ public class TiC
 	public static final String EVENT_SINGLE_TAP = "singletap";
 	public static final String EVENT_START = "start";
 	public static final String EVENT_STOP = "stop";
+    public static final String EVENT_SWIPE = "swipe";
 	public static final String EVENT_TOUCH_CANCEL = "touchcancel";
 	public static final String EVENT_TOUCH_END = "touchend";
 	public static final String EVENT_TOUCH_MOVE = "touchmove";

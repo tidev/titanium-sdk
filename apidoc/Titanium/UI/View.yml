@@ -295,11 +295,11 @@ events:
         type: Number
     
   - name: swipe
-    summary: Fired when the device detects a swipe gesture (left or right) against the view.
-    platforms: [iphone,ipad,mobileweb]
+    summary: Fired when the device detects a swipe gesture against the view.
+    platforms: [android,iphone,ipad,mobileweb]
     properties:
       - name: direction
-        summary: Direction of the swipe--either 'left' or 'right'.
+        summary: Direction of the swipe--either 'left' or 'right'. Android also supports 'up' and 'down'.
         type: String
       - name: y
         summary: Y coordinate of the event's endpoint, in the `source` view's coordinates.

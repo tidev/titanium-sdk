@@ -10,6 +10,7 @@ package org.appcelerator.titanium.view;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.Math;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -832,6 +833,25 @@ public abstract class TiUIView
 					}
 					return false;
 				}
+            
+                @Override
+                public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
+                {
+                    if (DBG){
+                        Log.d(LCAT, "SWIPE on " + proxy);
+                    }
+                    if (proxy.hasListeners(TiC.EVENT_SWIPE)) {
+                        KrollDict data = dictFromEvent(e2);
+                        if (Math.abs(velocityX) > Math.abs(velocityY)) {
+                            data.put(TiC.EVENT_PROPERTY_DIRECTION, velocityX > 0 ? "right" : "left");
+                        } else {
+                            data.put(TiC.EVENT_PROPERTY_DIRECTION, velocityY > 0 ? "down" : "up");
+                        }
+                        proxy.fireEvent(TiC.EVENT_SWIPE, data);
+                    }
+                    return false;
+                }
+            
 				@Override
 				public void onLongPress(MotionEvent e)
 				{
