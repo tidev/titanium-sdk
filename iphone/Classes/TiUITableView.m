@@ -867,8 +867,21 @@
 		[target fireEvent:name withObject:eventObject];
 	}	
     
-    if (viaSearch && hideOnSearch) {
-        [self hideSearchScreen:nil];
+    if (viaSearch) {
+        if (hideOnSearch) {
+            [self hideSearchScreen:nil];
+        }
+        else {
+            /*
+             TIMOB-7397. Observed that `searchBarTextDidBeginEditing` delegate 
+             method was being called on screen transition which was causing a 
+             visual glitch. Checking for isFirstResponder at this point always 
+             returns false. Calling blur here so that the UISearchBar resigns 
+             as first responder on main thread
+            */
+            [searchField performSelector:@selector(blur:) withObject:nil];
+        }
+        
     }
 }
 

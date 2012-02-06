@@ -75,6 +75,7 @@ events:
         summary: the x point of the event in receiving view coordiantes
       - name: dragging
         summary: boolean to indicate if the scroll is based on a dragging gesture
+        platforms: [iphone, ipad, mobileweb]
       - name: globalPoint
         summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
@@ -82,12 +83,13 @@ events:
             since: "1.8.0"
       - name: decelerating
         summary: boolean to indicate if the scroll is decelerating
+        platforms: [iphone, ipad]
   - name: dragStart
     summary: fired when the scroll view is about to start scrolling the content.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: dragEnd
     summary: fired when when dragging ended in the scroll view.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: decelerate
         summary: boolean. YES if the scrolling movement will continue, but decelerate, after a touch-up gesture during a dragging operation. If the value is NO, scrolling stops immediately upon touch-up.    
@@ -95,7 +97,7 @@ properties:
   - name: canCancelEvents
     summary: boolean to indicate if the scroll view can cancel subview touches in order to scroll instead. Default of true
     type: Boolean
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
   - name: contentHeight
     summary: the height of the scrollable area
     type: Number

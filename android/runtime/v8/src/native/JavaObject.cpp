@@ -108,7 +108,7 @@ void JavaObject::deleteGlobalRef()
 		// Clear from the global object list
 		if (objectMap) {
 			jobject longObject = env->NewObject(JNIUtil::longClass, JNIUtil::longInitMethod, (jlong) this);
-			env->CallObjectMethod(objectMap, JNIUtil::hashMapRemoveMethod, (jint) refIndex);
+			env->CallObjectMethod(objectMap, JNIUtil::hashMapRemoveMethod, longObject);
 			env->DeleteLocalRef(longObject);
 		}
 	}
