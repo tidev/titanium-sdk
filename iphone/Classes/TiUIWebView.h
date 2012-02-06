@@ -24,6 +24,8 @@
 	id reloadData;
     id reloadDataProperties;
 	SEL reloadMethod;
+    
+    BOOL willHandleTouches;
 }
 
 @property(nonatomic,readonly) id url;
