@@ -84,7 +84,7 @@ events:
         type: String
 
       - name: timezone
-        summary: Timezone of the date wehn the notification is configured to fire.
+        summary: Timezone of the date when the notification is configured to fire.
         type: String
         
       - name: userInfo
