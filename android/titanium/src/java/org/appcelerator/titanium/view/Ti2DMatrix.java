@@ -68,9 +68,9 @@ public class Ti2DMatrix extends KrollProxy
 	protected Ti2DMatrix(Ti2DMatrix prev, int opType)
 	{
 		if (prev != null) {
-			// this.prev is unique, showing from which matrix this matrix is transformed
-			this.prev = prev; 
-			// prev.next can be overriden because pre matrix can be transformed to many different matrices
+			// this.prev represents the previous matrix. This value does not change.
+			this.prev = prev;
+			// prev.next is not constant. Subsequent calls to Ti2DMatrix() will alter the value of prev.next.
 			prev.next = this;
 		}
 		this.op = new Operation(opType);
@@ -187,7 +187,7 @@ public class Ti2DMatrix extends KrollProxy
 		{
 			first = first.prev;
 			// It is safe to use prev matrix to trace back the transformation matrix list,
-			// since prev matrix is unique.
+			// since prev matrix is constant.
 			preMatrixList.add(0, first);
 		}
 
