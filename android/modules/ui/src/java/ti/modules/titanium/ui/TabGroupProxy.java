@@ -77,13 +77,23 @@ public class TabGroupProxy extends TiWindowProxy
 		switch (msg.what) {
 			case MSG_ADD_TAB : {
 				AsyncResult result = (AsyncResult) msg.obj;
-				handleAddTab((TabProxy) result.getArg());
+				Object arg = result.getArg();
+				if (arg instanceof TabProxy) {
+					handleAddTab((TabProxy) arg);
+				} else {
+					Log.e(LCAT, "Invalid type passed into addTab, was " + arg + " ,expected [TabProxy]");
+				}
 				result.setResult(null); // signal added
 				return true;
 			}
 			case MSG_REMOVE_TAB : {
 				AsyncResult result = (AsyncResult) msg.obj;
-				handleRemoveTab((TabProxy) result.getArg());
+				Object arg = result.getArg();
+				if (arg instanceof TabProxy) {
+					handleRemoveTab((TabProxy) arg);
+				} else {
+					Log.e(LCAT, "Invalid type passed into removeTab, was " + arg + " ,expected [TabProxy]");
+				}
 				result.setResult(null); // signal added
 				return true;
 			}
