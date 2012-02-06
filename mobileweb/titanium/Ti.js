@@ -1,11 +1,11 @@
 define("Ti", ["Ti/_/Evented"], function(Evented) {
 
-	var ver = require.config.ti.version;
+	var config = require.config.ti;
 
 	return require.mix(Ti, Evented, {
-		version: ver,
-		buildDate: "__TIMESTAMP__",
-		buildHash: "__GITHASH__",
+		version: config.version,
+		buildDate: config.buildDate,
+		buildHash: config.buildHash,
 		userAgent: "Appcelerator Titanium/" + ver + " (" + navigator.userAgent + ")!",
 
 		include: function(files) {

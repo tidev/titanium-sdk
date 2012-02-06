@@ -1,0 +1,27 @@
+# Resize - Image Resizer
+
+## Building
+
+    javac -cp imgscalr-lib-4.2.jar resize.java
+
+## Running
+
+Signature:
+
+    java -jar resize.jar <source> <dest> <width> [<height>]
+
+Example:
+
+    java -jar resize.jar appicon.png favicon.png 16 16
+
+## License
+
+Appcelerator Titanium Mobile
+Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+Licensed under the terms of the Apache Public License
+Please see the LICENSE included with this distribution for details.
+
+imgscalr - Java Image-Scaling Library
+Copyright 2011 The Buzz Media, LLC
+Apache License v2.0
+https://github.com/thebuzzmedia/imgscalr
