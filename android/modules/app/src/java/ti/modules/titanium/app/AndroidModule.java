@@ -1,6 +1,13 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package ti.modules.titanium.app;
 
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -13,8 +20,6 @@ import android.app.Activity;
 @Kroll.module(parentModule=AppModule.class)
 public class AndroidModule extends KrollModule
 {
-	private static final String TAG = "AndroidModule";
-
 	protected RProxy r;
 
 
@@ -41,6 +46,11 @@ public class AndroidModule extends KrollModule
 	@Kroll.method
 	public ActivityProxy getTopActivity()
 	{
+		if (KrollRuntime.getActivityRefCount() == 0) {
+			// No activity to wait for. This can be the case if, for example,
+			// the Application is being started for a Service, not an Activity.
+			return null;
+		}
 		try {
 			TiApplication.getInstance().rootActivityLatch.await();
 

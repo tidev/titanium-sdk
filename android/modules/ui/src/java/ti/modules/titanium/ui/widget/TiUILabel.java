@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -102,9 +102,6 @@ public class TiUILabel extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		if (DBG) {
-			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
-		}
 		TextView tv = (TextView) getNativeView();
 		if (key.equals(TiC.PROPERTY_HTML)) {
 			tv.setText(Html.fromHtml(TiConvert.toString(newValue)), TextView.BufferType.SPANNABLE);
