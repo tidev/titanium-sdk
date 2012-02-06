@@ -114,7 +114,8 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 		},
 
 		_getContentHeight: function() {
-			return this._buttonImage.height + this._measureText(this.title, this._buttonTitle).height + (this._hasDefaultLook ? 20 : 0);
+			var maxHeight = Math.max(this._buttonImage.height, this._measureText(this.title, this._buttonTitle).height);
+			return maxHeight + (this._hasDefaultLook ? 20 : 0);
 		},
 
 		_setTouchEnabled: function(value) {

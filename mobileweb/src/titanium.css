@@ -115,6 +115,7 @@ textarea {
 		color-stop(0.50, #fff),
 		to(#bbb));
 	border-radius: 10px;
+	padding: 0px 10px;
 	-moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
 	-moz-box-shadow:
