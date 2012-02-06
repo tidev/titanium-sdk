@@ -81,7 +81,7 @@ public class TabGroupProxy extends TiWindowProxy
 				if (arg instanceof TabProxy) {
 					handleAddTab((TabProxy) arg);
 				} else {
-					Log.e(LCAT, "Invalid type passed into addTab, was " + arg + " ,expected [TabProxy]");
+					Log.e(LCAT, "Invalid type passed into addTab, was " + arg + ", expected [TabProxy]");
 				}
 				result.setResult(null); // signal added
 				return true;
@@ -92,7 +92,7 @@ public class TabGroupProxy extends TiWindowProxy
 				if (arg instanceof TabProxy) {
 					handleRemoveTab((TabProxy) arg);
 				} else {
-					Log.e(LCAT, "Invalid type passed into removeTab, was " + arg + " ,expected [TabProxy]");
+					Log.e(LCAT, "Invalid type passed into removeTab, was " + arg + ", expected [TabProxy]");
 				}
 				result.setResult(null); // signal added
 				return true;
