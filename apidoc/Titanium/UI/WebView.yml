@@ -199,7 +199,7 @@ properties:
         No `touch` events will be generated when the user interacts with the webview itself.
     type: Boolean
     platforms: [iphone, ipad]
-    since: "1.8.2"
+    since: "1.9.0"
     default: true
 description: |
     Creating webviews are more expensive than creating pure native views because of the requirement to
