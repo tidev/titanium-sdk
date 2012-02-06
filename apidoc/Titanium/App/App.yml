@@ -37,9 +37,9 @@ events:
   - name: resume
     summary: Fired when the application enters the foreground on a multitasked system.
     description: |
-        Note that this event does not fire for pauses resulting from notifications or incoming phonecalls.  
+        Note that this event does not fire for pauses resulting from notifications or incoming phone calls.  
         
-        For iOS, see [applicationWillEnterForeground](http://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplication_Class/Reference/Reference.html#//apple_ref/doc/uid/TP40006728-CH3-SW108) 
+        See [applicationWillEnterForeground](http://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplication_Class/Reference/Reference.html#//apple_ref/doc/uid/TP40006728-CH3-SW108) 
         for the exact behavior that triggers this event.  
     platforms: [iphone, ipad]
     
@@ -47,9 +47,9 @@ events:
     summary: Fired when the application returns to focus.
     description: |
         This event fires when the application enters the foreground with the `resume` event or 
-        returns to focus after notifications and incoming phonecalls.  
+        returns to focus after notifications and incoming phone calls.  
         
-        For iOS, see [applicationDidBecomeActive](http://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW10) 
+        See [applicationDidBecomeActive](http://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW10) 
         for the exact behavior that triggers this event.  
     platforms: [iphone, ipad]
     
@@ -57,9 +57,9 @@ events:
     summary: Fired when the application ceases being the focus. 
     description: |
         This event fires when the user leaves the application or it is paused due to notifications 
-        and incoming phonecalls.  
+        and incoming phone calls.  
         
-        For iOS, see [applicationWillResignActive](http://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW10) 
+        See [applicationWillResignActive](http://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW10) 
         for the exact behavior that triggers this event.  
         
         Note that calls to functions that modify the UI during this event may be partially executed, 

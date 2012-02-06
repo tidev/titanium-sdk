@@ -3,12 +3,14 @@ name: Titanium.App.Properties
 summary: |
     The App Properties module is used for storing application-related data in property/value pairs 
     that persist beyond application sessions and device power cycles.
+description: |
+    
 extends: Titanium.Module
 since: "0.5"
 
 methods:
   - name: getBool
-    summary: Returns the value of a property as a boolean.
+    summary: Returns the value of a property as a boolean data type.
     returns:
         type: Boolean
     parameters:
@@ -22,8 +24,10 @@ methods:
         optional: true
         
   - name: getDouble
-    summary: Returns the value of a property as a double integer.
-    
+    summary: Returns the value of a property as a double (double-precision, floating point) data type.
+    description: |
+        This method must only be used to retrieve properties created with 
+        [setDouble](Titanium.App.Properties.setDouble).  
     returns:
         type: Number
     parameters:
@@ -38,8 +42,13 @@ methods:
         
   - name: getInt
     summary: |
-        Returns the value of a property as an integer, within the range 
-        `-2,147,483,648` to `2,147,483,647`.
+        Returns the value of a property as an integer data type.
+    description: |
+        This method must only be used to retrieve properties created with 
+        [setInt](Titanium.App.Properties.setInt).  
+        
+        Use [getDouble](Titanium.App.Properties.getDouble) and [setDouble](Titanium.App.Properties.setDouble) 
+        to store values outside the integer data type range of `-2,147,483,648` to `2,147,483,647`.
     returns:
         type: Number
     parameters:
@@ -53,7 +62,7 @@ methods:
         optional: true
         
   - name: getList
-    summary: Returns the value of a property as an array.
+    summary: Returns the value of a property as an array data type.
     returns:
         type: Array<Object>
     parameters:
@@ -67,7 +76,7 @@ methods:
         optional: true
         
   - name: getString
-    summary: Returns the value of a property as a string.
+    summary: Returns the value of a property as a string data type.
     returns:
         type: String
     parameters:
@@ -103,7 +112,8 @@ methods:
         
   - name: setBool
     summary: |
-        Sets the value of a property as a boolean. The property will be created if it does not exist.
+        Sets the value of a property as a boolean data type. The property will be created if it 
+        does not exist.
     parameters:
       - name: property
         summary: Name of property.
@@ -115,7 +125,8 @@ methods:
         
   - name: setDouble
     summary: |
-        Sets the value of a property as a double. The property will be created if it does not exist.
+        Sets the value of a property as a double (double-precision, floating point) data type. The 
+        property will be created if it does not exist.
     parameters:
       - name: property
         summary: Name of property.
@@ -127,7 +138,11 @@ methods:
         
   - name: setInt
     summary: |
-        Sets the value of a property as an integer. The property will be created if it does not exist.
+        Sets the value of a property as an integer data type. The property will be created if it 
+        does not exist.
+    description: |
+        Use [getDouble](Titanium.App.Properties.getDouble) and [setDouble](Titanium.App.Properties.setDouble) 
+        to store values outside the integer data type range of `-2,147,483,648` to `2,147,483,647`.
     parameters:
       - name: property
         summary: Name of property.
@@ -139,7 +154,8 @@ methods:
         
   - name: setList
     summary: |
-        Sets the value of a property as an array. The property will be created if it does not exist.
+        Sets the value of a property as an array data type. The property will be created if it 
+        does not exist.
     parameters:
       - name: property
         summary: Name of property.
@@ -151,7 +167,8 @@ methods:
         
   - name: setString
     summary: |
-        Sets the value of a property as a string. The property will be created if it does not exist.
+        Sets the value of a property as a string data type. The property will be created if it 
+        does not exist.
     parameters:
       - name: property
         summary: Name of property.

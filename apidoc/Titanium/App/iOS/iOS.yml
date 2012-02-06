@@ -1,22 +1,29 @@
 ---
 name: Titanium.App.iOS
-summary: The top level App iOS module.  The App iOS module is only available on iOS based devices.
+summary: |
+    The top-level App iOS module, available only for iOS devices.
 extends: Titanium.Module
-platforms: [iphone,ipad]
+platforms: [iphone, ipad]
 since: "1.5"
+
 methods:
   - name: cancelAllLocalNotifications
-    summary: cancel all scheduled local notifications
+    summary: Cancels all scheduled local notifications.
+    
   - name: cancelLocalNotification
-    summary: cancel a specific local notification
+    summary: Cancels a specific local notification.
+    
   - name: registerBackgroundService
-    summary: register a background service to run when the app is backgrounded
+    summary: Registers a background service to run when the app loses focus.
     returns:
         type: Object
     parameters:
       - name: params
-        summary: dictionary of key/values that are used to create the service. the `url` property should point to a local JavaScript url that will be executed when the app is backgrounded.
-        type: Object
+        summary: |
+            Parameters used to create the service. Must include a `url` property, to specify the 
+            local JavaScript file to execute when the app is backgrounded.
+        type: Dictionary
+        
   - name: scheduleLocalNotification
     summary: schedule a local notification
     returns:
@@ -24,9 +31,62 @@ methods:
     parameters:
       - name: params
         summary: |
-            dictionary of key/values that are used to create the notification. the `date` property is when the notification should fire, `repeat` is an optional property of one of: `weekly`, `daily`, `yearly,` `monthly`, `alertBody` is an optional property that is the body of the alert when the notification is displayed, `alertAction` is an optional property that represents the alert button text or the 'slide to unlock...' slider in place of unlock, `alertLaunchImage` is an optional property that specifies the launch image to display instead of Default.png when launching the application, `badge` is the optional badge value for the application, `sound` is the optional property to specify the sound to play when the notification is triggered and `userInfo` is the optional property which specifies data passed to the application upon launch when the notification is triggered.
-        type: Object
+            Dictionary object of parameters used to create the notification.  
+            Acceptable properties are  
+            `date`, Date object specifying the date and time when the notification should fire.  
+            `alertAction` (optional), alert button text or the 'slide to unlock...' slider in 
+            place of unlock.  
+            `alertBody` (optional), body of the alert when the notification is displayed.  
+            `alertLaunchImage` (optional), image to display instead of `Default.png` when launching 
+            the application.  
+            `badge` (optional), application badge value.  
+            `repeat` (optional), interval to repeat the notification. One of `weekly`, `daily`, 
+            `yearly,` `monthly`.  
+            `sound` (optional), sound file to play when the notification is triggered.  
+            `timezone` (optional), timezone of the date that is configured for the notification. 
+            If not configured, the system timezone is used.  
+            `userInfo` (optional), data passed to the application upon launch when the notification 
+            is triggered.
+        type: Dictionary
+        
 events:
   - name: notification
     summary: |
-        fired when a local notification is received by the app.  the following event properties are available: `date`, `timezone`, `alertBody`, `alertAction`, `alertLaunchImage`, `sound`, `bound`, `userInfo`.
+        Fired when a local notification is received by the app.
+    properties:
+      - name: bound
+        summary: is this a typo of sound?
+        
+      - name: alertAction
+        summary: |
+            Alert button text or the 'slide to unlock...' slider that is displayed in place of unlock.
+        type: String
+
+      - name: alertBody
+        summary: Body of the alert that is displayed.
+        type: String
+        
+      - name: alertLaunchImage
+        summary: |
+            Alert launch Image that is displayed.
+        type: String
+
+      - name: badge
+        summary: Application badge value that is displayed.
+        type: Number
+
+      - name: date
+        summary: Date and time when the notification is configured to fire.
+        type: Date
+
+      - name: sound
+        summary: Sound file that is played.
+        type: String
+
+      - name: timezone
+        summary: Timezone of the date wehn the notification is configured to fire.
+        type: String
+        
+      - name: userInfo
+        summary: Data that is passed to the application.
+        type: Dictionary
