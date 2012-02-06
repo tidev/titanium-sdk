@@ -249,6 +249,12 @@ DEFINE_EXCEPTIONS
 	handlesTaps = touchEventsSupported && [self proxyHasTapListener];
 	handlesTouches = touchEventsSupported && [self proxyHasTouchListener];
 	handlesSwipes = touchEventsSupported && [proxy _hasListeners:@"swipe"];
+
+    // If a user has not explicitly set whether or not the view interacts, base it on whether or
+    // not it handles events, and if not, set it to the interaction default.
+    if (!changedInteraction) {
+        self.userInteractionEnabled = (handlesTouches || handlesTaps || handlesSwipes) || [self interactionDefault];
+    }
 }
 
 -(void)initializeState
@@ -259,12 +265,6 @@ DEFINE_EXCEPTIONS
 	 
 	self.backgroundColor = [UIColor clearColor]; 
 	self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    
-    // If a user has not explicitly set whether or not the view interacts, base it on whether or
-    // not it handles events, and if not, set it to the interaction default.
-    if (!changedInteraction) {
-        self.userInteractionEnabled = (handlesTouches || handlesTaps || handlesSwipes) || [self interactionDefault];
-    }
 }
 
 -(void)configurationSet
@@ -1140,10 +1140,7 @@ DEFINE_EXCEPTIONS
 -(void)handleListenerAddedWithEvent:(NSString *)event
 {
 	ENSURE_UI_THREAD_1_ARG(event);
-	if ([self proxyHasTouchListener])
-	{
-		handlesTouches = YES;
-	}
+    [self updateTouchHandling];
 	
 	if ([event isEqualToString:@"singletap"]) {
 		[[self singleTapRecognizer] setEnabled:YES];
@@ -1177,17 +1174,8 @@ DEFINE_EXCEPTIONS
 	ENSURE_UI_THREAD_1_ARG(event);
 	// unfortunately on a remove, we have to check all of them
 	// since we might be removing one but we still have others
-	
-	if (handlesTouches && 
-		[self.proxy _hasListeners:@"touchstart"]==NO &&
-		[self.proxy _hasListeners:@"touchmove"]==NO &&
-		[self.proxy _hasListeners:@"touchcancel"]==NO &&
-		[self.proxy _hasListeners:@"touchend"]==NO &&
-		[self.proxy _hasListeners:@"click"]==NO &&
-		[self.proxy _hasListeners:@"dblclick"]==NO)
-	{
-		handlesTouches = NO;
-	}
+
+	[self updateTouchHandling];
 	if ([event isEqualToString:@"singletap"]) {
 		[singleTapRecognizer setEnabled:NO];
 		return;
