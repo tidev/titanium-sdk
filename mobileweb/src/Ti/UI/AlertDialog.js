@@ -7,14 +7,15 @@ define("Ti/UI/AlertDialog", ["Ti/_/declare", "Ti/_/Evented"], function(declare, 
 			
 			// Create the window and a background to dim the current view
 			var alertWindow = this._alertWindow = Ti.UI.createWindow();
-			alertWindow.add(Ti.UI.createView({
+			var dimmingView = Ti.UI.createView({
 				backgroundColor: "black",
-				opacity: 0.5,
+				opacity: 0,
 				left: 0,
 				top: 0,
 				right: 0,
 				bottom: 0
-			}));
+			});
+			alertWindow.add(dimmingView);
 			
 			// Create the alert dialog itself
 			var alertDialog = Ti.UI.createView({
@@ -22,7 +23,8 @@ define("Ti/UI/AlertDialog", ["Ti/_/declare", "Ti/_/Evented"], function(declare, 
 				height: "auto",
 				backgroundColor: "white",
 				layout: "vertical",
-				borderRadius: 3
+				borderRadius: 3,
+				opacity: 0
 			});
 			alertWindow.add(alertDialog);
 			
@@ -82,6 +84,19 @@ define("Ti/UI/AlertDialog", ["Ti/_/declare", "Ti/_/Evented"], function(declare, 
 			
 			// Show the alert dialog
 			alertWindow.open();
+			
+			// Animate the background after waiting for the first layout to occur
+			setTimeout(function(){
+				dimmingView.animate({
+					opacity: 0.5,
+					duration: 200
+				}, function(){
+					alertDialog.animate({
+						opacity: 1,
+						duration: 200
+					});
+				});
+			},30);
 		},
 
 		hide: function() {
@@ -100,7 +115,6 @@ define("Ti/UI/AlertDialog", ["Ti/_/declare", "Ti/_/Evented"], function(declare, 
 			
 			messageid: {
 				get: function(value) {
-					// TODO
 					console.debug('Property "Titanium.UI.AlertDialog#.messageid" is not implemented yet.');
 					return value;
 				},
@@ -114,7 +128,6 @@ define("Ti/UI/AlertDialog", ["Ti/_/declare", "Ti/_/Evented"], function(declare, 
 			
 			okid: {
 				get: function(value) {
-					// TODO
 					console.debug('Property "Titanium.UI.AlertDialog#.okid" is not implemented yet.');
 					return value;
 				},
@@ -128,7 +141,6 @@ define("Ti/UI/AlertDialog", ["Ti/_/declare", "Ti/_/Evented"], function(declare, 
 			
 			titleid: {
 				get: function(value) {
-					// TODO
 					console.debug('Property "Titanium.UI.AlertDialog#.titleid" is not implemented yet.');
 					return value;
 				},
