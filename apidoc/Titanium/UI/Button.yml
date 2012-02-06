@@ -12,13 +12,13 @@ description: |
 
     Use the <Titanium.UI.createButton> method to create a button. 
 
-    #### Android Platform Notes
+    #### Android and Mobile Web Platform Notes
 
-    Android uses default button images for the normal, focused, selected and disabled
+    Android and Mobile Web use default button images for the normal, focused, selected and disabled
     states. If you use a custom button image, you should specify versions for the focused
     and selected states (and the disabled state, if the button is ever disabled).
 
-    Android also supports setting the background color for each of the states. These are not
+    Android and Mobile Web also support setting the background color for each of the states. These are not
     supported on iOS.
 
     #### iOS Platform Notes
@@ -28,7 +28,7 @@ description: |
     The `style` property specifies the type of button decoration, and can be set to one 
     of the values described in <Titanium.UI.iPhone.SystemButtonStyle>. 
     
-    Unlike Android, iOS doesn't supply any default background images for buttons--
+    Unlike Android and Mobile Web, iOS doesn't supply any default background images for buttons--
     system button styles serve this purpose.
 
     Button style decorations are drawn above the background gradient and background color, 
@@ -116,7 +116,7 @@ properties:
     summary: Image to display on the button, specified as a local
         path, URL or (on iOS only) a `Blob`.
     description: |
-        On iOS, the image is displayed to the left of the title. 
+        On iOS and Mobile Web, the image is displayed to the left of the title. 
         
         On Android, this property is identical to `backgroundImage`.
 
@@ -125,7 +125,7 @@ properties:
   - name: selectedColor
     summary: Button text color used to indicate the selected state.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone,ipad,mobileweb]
   - name: style
     summary: Style constant for the button, as defined in <Titanium.UI.iPhone.SystemButtonStyles>.
     type: Number

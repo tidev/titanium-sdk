@@ -222,8 +222,8 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 			return new Ti.UI.Label(args);
 		},
 
-		createOptionDialog: function() {
-			console.debug('Method "Titanium.UI.createOptionDialog" is not implemented yet.');
+		createOptionDialog: function(args) {
+			return new Ti.UI.OptionDialog(args);
 		},
 
 		createPicker: function(args) {
