@@ -102,13 +102,18 @@
 
 -(void)updateOptionDialog:(NSNotification *)notification;
 {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateOptionDialogNow) object:nil];
+    NSTimeInterval delay = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
+    if (++accumulatedOrientationChanges > 1) {
+        delay *= MIN(accumulatedOrientationChanges, 4);
+    }
 	[actionSheet dismissWithClickedButtonIndex:-2 animated:animated];
-	[self performSelector:@selector(updateOptionDialogNow) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+	[self performSelector:@selector(updateOptionDialogNow) withObject:nil afterDelay:delay];
 }
 
 -(void)updateOptionDialogNow;
 {
-
+    accumulatedOrientationChanges = 0;
 	UIView *view = nil;
 	if (dialogView==nil)
 	{
