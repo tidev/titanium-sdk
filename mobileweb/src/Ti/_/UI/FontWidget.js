@@ -36,9 +36,10 @@ define("Ti/_/UI/FontWidget", ["Ti/_/declare", "Ti/_/dom", "Ti/_/ready", "Ti/_/st
 
 		_measureText: function(text, domNode) {
 			var computedStyle = window.getComputedStyle(domNode),
-				font = this.font || {};
+				font = this.font || {},
+				emptyText = !text || text === "";
 
-			textRuler.innerHTML = text === "" ? "\u00C4y" : text;
+			textRuler.innerHTML = emptyText ? "\u00C4y" : text;
 
 			this._setFont({
 				fontFamily: font.fontFamily || computedStyle.fontFamily,
@@ -48,7 +49,7 @@ define("Ti/_/UI/FontWidget", ["Ti/_/declare", "Ti/_/dom", "Ti/_/ready", "Ti/_/st
 			}, textRuler);
 
 			// Return the computed style
-			return { width: text === "" ? 0 : textRuler.clientWidth, height: textRuler.clientHeight };
+			return { width: emptyText ? 0 : textRuler.clientWidth, height: textRuler.clientHeight };
 		},
 
 		properties: {
