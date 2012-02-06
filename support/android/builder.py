@@ -215,15 +215,11 @@ class Builder(object):
 		self.fastdev = False
 		
 		# don't build if a java keyword in the app id would cause the build to fail
-		key_word = ''
 		tok = self.app_id.split('.')
 		for token in tok:
 			if token in java_keywords:
-				key_word = token
-				break
-		if key_word != '':
-			error("Do not use java keywords for project app id, such as " + key_word)
-			sys.exit(1)
+				error("Do not use java keywords for project app id, such as " + token)
+				sys.exit(1)
 
 		temp_tiapp = TiAppXML(self.project_tiappxml)
 		if temp_tiapp and temp_tiapp.android and 'tool-api-level' in temp_tiapp.android:
