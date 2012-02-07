@@ -37,14 +37,32 @@ define("Ti/UI/Tab", ["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/
 		},
 
 		open: function(win, args) {
+			
 			win = win || this.window;
 			this._windows.push(win);
+			win.activeTab = this;
+			
+			// Apply a background if one is not already set
+			if (!require.isDef(win.backgroundColor)) {
+				win.backgroundColor = "white";
+			}
+			
+			// Open the window and animate it in
+			var originalOpacity = require.isDef(win.opacity) ? win.opacity : 1;
+			win.opacity = 0;
 			win.open(args);
+			win.animate({opacity: originalOpacity, duration: 250}, function(){
+				win.opacity = originalOpacity;
+			});
 		},
 
 		close: function(args) {
 			var win = this._windows.pop();
-			win && win.close(args);
+			if(win) {
+				win.animate({opacity: 0, duration: 250}, function(){
+					win.close(args);
+				});
+			}
 		},
 
 		_defaultWidth: "auto",
