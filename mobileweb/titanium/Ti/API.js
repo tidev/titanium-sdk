@@ -1,4 +1,4 @@
-define("Ti/API", ["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
+define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 
 	var api = {};
 

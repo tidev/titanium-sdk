@@ -1,4 +1,4 @@
-define("Ti/_/Layouts",
+define(
 	["Ti/_/Layouts/Absolute", "Ti/_/Layouts/Horizontal", "Ti/_/Layouts/Vertical"],
 	function(Absolute, Horizontal, Vertical) {
 

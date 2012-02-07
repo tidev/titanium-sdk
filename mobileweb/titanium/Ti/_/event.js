@@ -1,4 +1,4 @@
-define("Ti/_/event", {
+define({
 	stop: function(e) {
 		if (e) {
 			e.preventDefault && e.preventDefault();

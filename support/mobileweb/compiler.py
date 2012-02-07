@@ -55,9 +55,9 @@ class Compiler(object):
 		self.packages.append({
 			'name': self.package_json['name'],
 			'location': './titanium',
-			'main': self.compact_path('titanium/' + self.package_json['main'])
+			'main': self.package_json['main']
 		})
-		self.dependencies += [self.compact_path('titanium/' + self.package_json['main'])]
+		# self.dependencies += [self.compact_path('titanium/' + self.package_json['main'])]
 		
 		# read the tiapp.xml
 		tiapp_xml = TiAppXML(os.path.join(self.project_path, 'tiapp.xml'))
@@ -174,6 +174,7 @@ class Compiler(object):
 			'Ti/UI/TableView',
 			'Ti/UI/TextArea',
 			'Ti/UI/TextField',
+			'Ti/_/text!Ti/_/UI/WebViewBridge.js',
 			'Ti/UI/WebView',
 			'Ti/Utils',
 			
@@ -262,13 +263,15 @@ class Compiler(object):
 		first = True
 		for x in self.dependencies:
 			dep = self.resolve(x)
+			if not len(dep):
+				continue
 			if not first:
 				ti_js.write(',')
 			first = False
 			filename = dep[1]
 			if not filename.endswith('.js'):
 				filename += '.js'
-			ti_js.write('"%s":function(){%s}' % (x, codecs.open(os.path.join(dep[0], filename), 'r', 'utf-8').read()))
+			ti_js.write('"%s":function(){\n%s\n}\n' % (x, codecs.open(os.path.join(dep[0], filename), 'r', 'utf-8').read()))
 		ti_js.write('});')
 		
 		# 4) write the ti.app.properties
@@ -341,7 +344,7 @@ class Compiler(object):
 						source = dest + '.uncompressed.js'
 						print '[INFO] Minifying %s' % dest
 						os.rename(dest, source)
-						p = subprocess.Popen('java -jar "%s" --compilation_level SIMPLE_OPTIMIZATIONS --js "%s" --js_output_file "%s"' % (os.path.join(self.sdk_path, 'closureCompiler', 'compiler.jar'), source, dest), shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+						p = subprocess.Popen('java -jar "%s" -Djava.awt.headless=true --compilation_level SIMPLE_OPTIMIZATIONS --js "%s" --js_output_file "%s"' % (os.path.join(self.sdk_path, 'closureCompiler', 'compiler.jar'), source, dest), shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
 						stdout, stderr = p.communicate()
 						if p.returncode != 0:
 							print '[ERROR] Failed to minify "%s"' % dest
@@ -392,6 +395,9 @@ class Compiler(object):
 		print '[INFO] Finished in %s seconds' % total_seconds
 	
 	def resolve(self, it):
+		it = it.split('!')[0]
+		if it.find(':') != -1:
+			return []
 		if it.startswith('/') or it.endswith('.js'):
 			return [self.build_path, it]
 		parts = it.split('/')
@@ -432,7 +438,7 @@ class Compiler(object):
 	
 	def build_icons(self, src):
 		print '[INFO] Resizing app icon "%s"' % src
-		s = 'java -cp "%s:%s" resize "%s"' % (os.path.join(self.sdk_path, 'imageResizer'), os.path.join(self.sdk_path, 'imageResizer', 'imgscalr-lib-4.2.jar'), src)
+		s = 'java -cp "%s:%s" -Djava.awt.headless=true resize "%s"' % (os.path.join(self.sdk_path, 'imageResizer'), os.path.join(self.sdk_path, 'imageResizer', 'imgscalr-lib-4.2.jar'), src)
 		s += ' "%s" %d %d' % (os.path.join(self.build_path, 'apple-touch-icon-precomposed.png'), 57, 57)
 		s += ' "%s" %d %d' % (os.path.join(self.build_path, 'apple-touch-icon-57x57-precomposed.png'), 57, 57)
 		s += ' "%s" %d %d' % (os.path.join(self.build_path, 'apple-touch-icon-72x72-precomposed.png'), 72, 72)

@@ -1,4 +1,4 @@
-define("Ti/_/text", function() {
+define(function() {
 	var cache = {};
 
 	return {

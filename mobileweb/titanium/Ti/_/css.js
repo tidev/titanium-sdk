@@ -1,4 +1,4 @@
-define("Ti/_/css", ["Ti/_/string"], function(string) {
+define(["Ti/_/string"], function(string) {
 	function processClass(node, cls, adding) {
 		var i = 0, p,
 			cn = " " + node.className + " ",

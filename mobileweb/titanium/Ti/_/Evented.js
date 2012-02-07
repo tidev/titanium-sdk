@@ -1,4 +1,4 @@
-define("Ti/_/Evented", function() {
+define(function() {
 
 	return {
 		listeners: null,

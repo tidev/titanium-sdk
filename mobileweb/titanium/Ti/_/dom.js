@@ -7,7 +7,7 @@
  * <http://dojotoolkit.org>
  */
 
-define("Ti/_/dom", ["Ti/_", "Ti/_/style"], function(_, style) {
+define(["Ti/_", "Ti/_/style"], function(_, style) {
 	var is = require.is,
 		forcePropNames = {
 			innerHTML:	1,

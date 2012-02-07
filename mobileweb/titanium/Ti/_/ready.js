@@ -7,7 +7,7 @@
  * <http://dojotoolkit.org>
  */
 
-define(["Ti/_/ready"], function(lang) {
+define(function(lang) {
 	var doc = document,
 		readyStates = { "loaded": 1, "complete": 1 },
 		isReady = !!readyStates[doc.readyState],

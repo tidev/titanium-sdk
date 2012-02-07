@@ -1,4 +1,4 @@
-define("Ti/Gesture", ["Ti/_/Evented", "Ti/_/lang", "Ti/UI"], function(Evented, lang, UI) {
+define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI"], function(Evented, lang, UI) {
 
 	var undef,
 		win = window,

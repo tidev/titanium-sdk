@@ -1,4 +1,4 @@
-define("Ti/_/UI/FontWidget", ["Ti/_/declare", "Ti/_/dom", "Ti/_/ready", "Ti/_/style", "Ti/_/UI/Widget"], function(declare, dom, ready, style, Widget) {
+define(["Ti/_/declare", "Ti/_/dom", "Ti/_/ready", "Ti/_/style", "Ti/_/UI/Widget"], function(declare, dom, ready, style, Widget) {
 
 	var textRuler;
 

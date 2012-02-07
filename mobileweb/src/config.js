@@ -12,7 +12,20 @@ var require = {
 	},
 	deployType: "${deploy_type | jsQuoteEscapeFilter}",
 	has: {
-		"declare-property-methods": true
+		"analytics-use-xhr": false,
+		"declare-property-methods": true,
+		"json-stringify": function(g) {
+	        return ("JSON" in window) && JSON.toString() == "[object Function]" && JSON.stringify({a:0}, function(k,v){return v||1;}) !== '{"a":1}'
+    	},
+		"object-defineproperty": function() {
+			return (function (odp, obj) {
+				try {
+					odp && odp(obj, "x", {});
+					return obj.hasOwnProperty("x");
+				} catch (e) {}
+			}(Object.defineProperty, {}));
+		},
+		"opera": typeof opera === "undefined" || opera.toString() != "[object Opera]",
 	},
 	packages: ${packages},
 	project: {

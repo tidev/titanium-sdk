@@ -7,7 +7,7 @@
  * <http://dojotoolkit.org>
  */
 
-define("Ti/_/lang", ["Ti/_/string"], function(string) {
+define(["Ti/_/string"], function(string) {
 	var global = this,
 		hitch,
 		is = require.is;

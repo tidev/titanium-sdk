@@ -1,4 +1,4 @@
-define("Ti/_/include", function() {
+define(function() {
 	var cache = {},
 		stack = [];
 

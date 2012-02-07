@@ -1,4 +1,4 @@
-define("Ti/_/UI/SuperView", ["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], function(declare, dom, lang, UI, View) {
+define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], function(declare, dom, lang, UI, View) {
 
 	var stack = [],
 		sessId = Math.random(),

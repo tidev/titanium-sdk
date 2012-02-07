@@ -7,7 +7,7 @@
  * <http://dojotoolkit.org>
  */
 
-define("Ti/_/string", ["Ti/_", "Ti/_/lang"], function(_, lang) {
+define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 
 	var assert = _.assert,
 		has = require.has,

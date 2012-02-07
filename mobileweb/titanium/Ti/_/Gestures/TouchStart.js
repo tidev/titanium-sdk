@@ -1,4 +1,4 @@
-define("Ti/_/Gestures/TouchStart", ["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function(declare,lang,GestureRecognizer) {
+define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function(declare,lang,GestureRecognizer) {
 
 	return declare("Ti._.Gestures.TouchStart", GestureRecognizer, {
 		

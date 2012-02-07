@@ -28,7 +28,7 @@ define("Ti/Locale", ["Ti/_/Evented"], function(Evented) {
 			console.debug('Method "Titanium.Locale.getLocaleCurrencySymbol" is not implemented yet.');
 		};
 		api.getString = function(str, hintText) {
-			var data = Ti._5.getLocaleData();
+			var data = {};
 			if(typeof data[api.currentLanguage] != 'undefined' && typeof data[api.currentLanguage][str] != 'undefined') {
 				return data[api.currentLanguage][str];
 			} else if (typeof hintText != 'undefined'){

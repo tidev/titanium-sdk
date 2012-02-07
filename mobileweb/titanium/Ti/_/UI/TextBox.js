@@ -1,4 +1,4 @@
-define("Ti/_/UI/TextBox",
+define(
 	["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/style", "Ti/_/lang", "Ti/_/UI/FontWidget", "Ti/UI"],
 	function(declare, dom, event, style, lang, FontWidget, UI) {
 

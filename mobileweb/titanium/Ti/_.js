@@ -1,4 +1,4 @@
-define("Ti/_", function() {
+define(function() {
 	// Pre-calculate the screen DPI
 	var body = document.body,
 		measureDiv = document.createElement('div'),

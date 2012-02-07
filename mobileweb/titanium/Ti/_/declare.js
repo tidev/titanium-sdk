@@ -1,13 +1,13 @@
-define("Ti/_/declare", ["Ti/_/lang"], function(lang) {
-	/**
-	 * declare() functionality based on code from Dojo Toolkit.
-	 *
-	 * Dojo Toolkit
-	 * Copyright (c) 2005-2011, The Dojo Foundation
-	 * New BSD License
-	 * <http://dojotoolkit.org>
-	 */
+/**
+ * declare() functionality based on code from Dojo Toolkit.
+ *
+ * Dojo Toolkit
+ * Copyright (c) 2005-2011, The Dojo Foundation
+ * New BSD License
+ * <http://dojotoolkit.org>
+ */
 
+define(["Ti/_/lang"], function(lang) {
 	var is = require.is,
 		mix = require.mix,
 		classCounters = {};

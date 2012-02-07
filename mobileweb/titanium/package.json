@@ -18,9 +18,9 @@
 	],
 	"homepage": "https://github.com/appcelerator/titanium_mobile.git",
 	"directories": {
-		"lib": "./lib"
+		"lib": "."
 	},
-	"main": "./main",
+	"main": "./Ti",
 	"titanium": {
 		"timestamp": "__TIMESTAMP__",
 		"githash": "__GITHASH__",

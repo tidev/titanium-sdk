@@ -31,6 +31,10 @@
 		commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
 		cjsRequireRegExp = /[^.]require\(\s*["']([^'"\s]+)["']\s*\)/g,
 		reservedModuleIdsRegExp = /exports|module/,
+		pluginRegExp = /^(.+?)\!(.*)$/,
+		notModuleRegExp = /(^\/)|(\:)|(\.js$)/,
+		relativeRegExp = /^\./,
+		packageNameRegExp = /([^\/]+)\/?(.*)/,
 
 		// the global config settings
 		cfg = global.require || {},
@@ -375,11 +379,17 @@
 		// refModule: Object?
 		//		A reference map used for resolving module URLs.
 
-		var match = name && name.match(/^(.+?)\!(.*)$/),
-			isRelative = /^\./.test(name),
+		var match = name && name.match(pluginRegExp),
+			isRelative = relativeRegExp.test(name),
+			notModule = notModuleRegExp.test(name),
 			exports = {},
 			pkg = null,
 			cjs,
+			i,
+			len,
+			m,
+			p,
+			url = baseUrl,
 			_t = this;
 
 		// name could be:
@@ -393,7 +403,7 @@
 		_t.plugin = null;
 		_t.callbacks = [];
 
-		if (!match && (/(^\/)|(\:)|(\.js$)/.test(name) || (isRelative && !refModule))) {
+		if (!match && (notModule || (isRelative && !refModule))) {
 			_t.url = name;
 		} else {
 			if (match) {
@@ -404,17 +414,28 @@
 			} else if (name) {
 				name = _t.name = compactPath((isRelative ? refModule.name + "/../" : "") + name);
 
-				if (/^\./.test(name)) {
+				if (relativeRegExp.test(name)) {
 					throw new Error("Irrational path \"" + name + "\"");
 				}
 
-				// TODO: if this is a package, then we need to transform the URL into the module's path
+				if (match = name.match(packageNameRegExp)) {
+					for (i = 0, len = cfg.packages.length, m = match[1]; i < len; i++) {
+						p = cfg.packages[i];
+						if (p.name === m) {
+							pkg = m;
+							/\/$/.test(i = p.location) || (i += '/');
+							url += compactPath(i + (match[2] ? name : p.main));
+							break;
+						}
+					}
+				} else if (!notModule) {
+					url += name;
+				}
+
 				// MUST set pkg to anything other than null, even if this module isn't in a package
-				pkg = "";
+				pkg || (pkg = "");
 
-				/(^\/)|(\:)/.test(name) || (name = baseUrl + name);
-
-				_t.url = name + ".js";
+				_t.url = url + ".js";
 			}
 		}
 
@@ -577,9 +598,6 @@
 
 			// need to wipe out the defQ
 			defQ = [];
-
-			// make sure we have ourself in the waiting queue
-			//waiting[_t.name] = _t;
 
 			_t.def = _t.def
 				||	(r && (is(r, "String")

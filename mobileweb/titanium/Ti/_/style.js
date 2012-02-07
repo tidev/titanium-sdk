@@ -1,4 +1,4 @@
-define("Ti/_/style", ["Ti/_", "Ti/_/string"], function(_, string) {
+define(["Ti/_", "Ti/_/string"], function(_, string) {
 	var vp = require.config.vendorPrefixes.dom;
 
 	function set(node, name, value) {
