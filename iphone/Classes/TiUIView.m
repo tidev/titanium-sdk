@@ -962,7 +962,7 @@ DEFINE_EXCEPTIONS
 
 - (BOOL)hasTouchableListener
 {
-	return (handlesSwipes|| handlesTaps || handlesTouches);
+	return handlesTouches;
 }
 
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
