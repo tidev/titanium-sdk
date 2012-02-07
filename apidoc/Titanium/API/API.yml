@@ -1,39 +1,61 @@
 ---
 name: Titanium.API
-summary: The top level API module.  The API module is mainly used for logging.
+summary: |
+    The top-level API module, containing methods to output messages to the system log.
 extends: Titanium.Module
 since: "0.1"
 methods:
   - name: debug
-    summary: function for logging debug messages
+    summary: Logs messages with a `debug` severity.
+    description: |
+        Debug-severity log messages are not supported by Titanium Studio. Use Xcode for iOS 
+        and `adb` for Android to view these messages.
     parameters:
       - name: message
-        summary: the message to log
+        summary: Message to log.
         type: String
+        
   - name: error
-    summary: function for logging error messages
+    summary: Logs messages with an `error` severity.
     parameters:
       - name: message
-        summary: the message to log
+        summary: Message to log.
         type: String
+        
   - name: info
-    summary: function for logging informational messages
+    summary: Logs messages with an `info` severity.
     parameters:
       - name: message
-        summary: the message to log
+        summary: Message to log.
         type: String
+        
   - name: log
-    summary: function for logging custom severity messages
+    summary: Logs messages with the specified severity.
+    description: |
+        Debug and trace-severity log messages are not supported by Titanium Studio. Use Xcode for iOS 
+        and `adb` for Android to view these messages.
     parameters:
       - name: level
-        summary: the log level
+        summary: Log level. One of `info`, `warn`, `error`, `debug` and `trace`
         type: String
+        
       - name: message
-        summary: the message to log
+        summary: Message to log.
         type: String
-  - name: warn
-    summary: function for logging warning messages
+        
+  - name: trace
+    summary: Logs messages with a `trace` severity.
+    description: |
+        Trace-severity log messages are not supported by Titanium Studio. Use Xcode for iOS 
+        and `adb` for Android to view these messages.
     parameters:
       - name: message
-        summary: the message to log
+        summary: Message to log.
+        type: String
+        
+  - name: warn
+    summary: Logs messages with a `warn` severity.
+    parameters:
+      - name: message
+        summary: Message to log.
         type: String
