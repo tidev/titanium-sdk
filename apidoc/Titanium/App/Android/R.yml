@@ -1,16 +1,20 @@
 ---
 name: Titanium.App.Android.R
 summary: |
-    The Titanium binding of [Application Resources](http://developer.android.com/guide/topics/resources/index.html), 
-    giving access to resources packaged with the application.  To access the system-wide Android `R`, 
-    use <Titanium.Android.R>.
+    The Titanium binding of the native Android `R` class, giving access to application resources.
+description: |
+    The properties and sub-properties of this object relate directly to the native application 
+    resources `R` class, and thus have the same syntax. For example, if the file 
+    `platform/android/res/drawable/icon.png` exists in the project, it can be accessed using its 
+    integer id, as follows.
+    
+        var resid = Titanium.App.Android.R.drawable.icon;
+
+    For more information about accessing application resources, see 
+    [http://developer.android.com/guide/topics/resources/accessing-resources.html]([http://developer.android.com/guide/topics/resources/accessing-resources.html]).  
+    To access system-wide resources, rather than application resources, use <Titanium.Android.R> 
+    instead.
 extends: Titanium.Proxy
 since: "1.5"
 platforms: [android]
 createable: false
-description: |
-    These properties and sub-properties are queried directly against the application `R` class, 
-    and should have the same syntax.  For example, if the file `platform/android/res/drawable/icon.png` 
-    exists in the project, it can be accessed using its integer id, as follows.
-    
-        var resid = Titanium.App.Android.R.drawable.icon;

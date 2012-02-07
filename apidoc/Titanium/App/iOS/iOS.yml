@@ -14,14 +14,14 @@ methods:
     summary: Cancels a specific local notification.
     
   - name: registerBackgroundService
-    summary: Registers a background service to run when the app loses focus.
+    summary: Registers a background service to run when the application is placed in the background.
     returns:
         type: Object
     parameters:
       - name: params
         summary: |
             Parameters used to create the service. Must include a `url` property, to specify the 
-            local JavaScript file to execute when the app is backgrounded.
+            local JavaScript file to execute when the application is placed in the background.
         type: Dictionary
         
   - name: scheduleLocalNotification
@@ -54,39 +54,63 @@ events:
     summary: |
         Fired when a local notification is received by the app.
     properties:
-      - name: bound
-        summary: is this a typo of sound?
-        
-      - name: alertAction
-        summary: |
-            Alert button text or the 'slide to unlock...' slider that is displayed in place of unlock.
-        type: String
+      - name: params
+        summary: Parameters used to create a notification.
+        type: NotificationParams
+---
+name: NotificationParams
+summary: Dictionary object of parameters used to create a notification using `scheduleLocalNotification`.
+since: "1.7"
+platforms: [iphone, ipad]
 
-      - name: alertBody
-        summary: Body of the alert that is displayed.
-        type: String
-        
-      - name: alertLaunchImage
-        summary: |
-            Alert launch Image that is displayed.
-        type: String
-
-      - name: badge
-        summary: Application badge value that is displayed.
-        type: Number
-
-      - name: date
-        summary: Date and time when the notification is configured to fire.
-        type: Date
-
-      - name: sound
-        summary: Sound file that is played.
-        type: String
-
-      - name: timezone
-        summary: Timezone of the date when the notification is configured to fire.
-        type: String
-        
-      - name: userInfo
-        summary: Data that is passed to the application.
-        type: Dictionary
+properties:
+  - name: date
+    summary: Date and time when the notification should fire.
+    type: Date
+    
+  - name: alertAction
+    summary: Alert button text or the 'slide to unlock...' slider in place of unlock.
+    type: String
+    optional: true
+    
+  - name: alertBody
+    summary: Alert message.
+    type: String
+    optional: true
+    
+  - name: alertLaunchImage
+    summary: Image to display instead of `Default.png` when launching the application.
+    type: String
+    optional: true
+    
+  - name: badge
+    summary: Application badge value.
+    type: Number
+    optional: true
+    
+  - name: repeat
+    summary: Interval to repeat the notification. One of `weekly`, `daily`, `yearly,` `monthly`.
+    type: String
+    optional: true
+    
+  - name: sound
+    summary: Sound file to play when triggered.
+    type: String
+    optional: true
+    
+  - name: timezone
+    summary: |
+        Timezone of the date that is configured for the notification. If not configured, the system 
+        timezone is used.
+    type: String
+    optional: true
+    
+  - name: userInfo
+    summary: Data passed to the application upon launch.
+    type: Dictionary
+    optional: true  
+  
+  
+  
+  
+  

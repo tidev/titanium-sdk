@@ -32,7 +32,7 @@ events:
     properties:
       - name: state
         summary: Proximity state value.
-    platforms: [iphone, ipad]
+    platforms: [iphone]
     
   - name: resume
     summary: Fired when the application enters the foreground on a multitasked system.

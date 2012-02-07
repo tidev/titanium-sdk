@@ -1,15 +1,16 @@
 ---
 name: Titanium.App.Android
-summary: |
-    A module used to access Android 
-    [Application Resources](http://developer.android.com/guide/topics/resources/index.html).
+summary: A module used to access Android application resources.
+description: |
+    For more information about application resources, see 
+    [http://developer.android.com/guide/topics/resources/index.html](http://developer.android.com/guide/topics/resources/index.html).
 extends: Titanium.Module
 since: "1.5"
 platforms: [android]
 
 properties:
   - name: R
-    summary: The `R` namespace for Application Resources.
+    summary: The `R` namespace for application resources.
     type: Titanium.App.Android.R
     permission: read-only
 
@@ -32,4 +33,4 @@ examples:
             var R = Ti.App.Android.R;
             
             var mystring = activity.getString(R.string.mystring);
-            Ti.API.debug("mystring="+mystring);
+            Ti.API.debug("mystring = " + mystring);
