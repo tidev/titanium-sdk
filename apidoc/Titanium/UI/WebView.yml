@@ -191,6 +191,16 @@ properties:
   - name: url
     summary: the url to the web document. this property will change as the content of the webview changes (such as from internal hyperlinks, etc)
     type: String
+  - name: willHandleTouches
+    summary: Explicitly specifies if this webview handles touches.
+    description: |
+        On the IOS platform, the webview will intercept `all` touch events if this webview or any of its parent views have touch listeners. This makes interaction with native webview components impossible.
+        Set this flag to `false` to disable the default behavior. Setting this property to `false` will allow the user to interact with the native webview and still honor any `touch` events sent to its parents. 
+        No `touch` events will be generated when the user interacts with the webview itself.
+    type: Boolean
+    platforms: [iphone, ipad]
+    since: "1.9.0"
+    default: true
 description: |
     Creating webviews are more expensive than creating pure native views because of the requirement to
     load the HTML browser into memory.
