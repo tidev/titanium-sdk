@@ -198,7 +198,7 @@ public class TiTabActivity extends TabActivity
 	@Override
 	protected void onDestroy()
 	{
-
+		TiApplication.removeFromActivityStack(this);
 		super.onDestroy();
 
 		if (!isFinishing())
