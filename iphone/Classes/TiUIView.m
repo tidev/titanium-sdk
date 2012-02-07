@@ -246,14 +246,17 @@ DEFINE_EXCEPTIONS
 -(void)updateTouchHandling
 {
 	BOOL touchEventsSupported = [self viewSupportsBaseTouchEvents];
-	handlesTaps = touchEventsSupported && [self proxyHasTapListener];
-	handlesTouches = touchEventsSupported && [self proxyHasTouchListener];
-	handlesSwipes = touchEventsSupported && [proxy _hasListeners:@"swipe"];
+	handlesTouches = touchEventsSupported && (
+                [self proxyHasTouchListener]
+                || [self proxyHasTapListener]
+                || [proxy _hasListeners:@"swipe"]
+                || [proxy _hasListeners:@"pinch"]
+                || [proxy _hasListeners:@"longpress"]);
 
     // If a user has not explicitly set whether or not the view interacts, base it on whether or
     // not it handles events, and if not, set it to the interaction default.
     if (!changedInteraction) {
-        self.userInteractionEnabled = (handlesTouches || handlesTaps || handlesSwipes) || [self interactionDefault];
+        self.userInteractionEnabled = handlesTouches || [self interactionDefault];
     }
 }
 
