@@ -1,6 +1,6 @@
 #
 # Appcelerator Titanium Mobile
-# Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
 # Licensed under the terms of the Apache Public License
 # Please see the LICENSE included with this distribution for details.
 #
@@ -9,6 +9,7 @@
 import os, sys, time, optparse, logging
 import urllib, simplejson, threading
 import SocketServer, socket, struct, codecs
+import platform, mimetypes
 
 # we use our compatibility code for python 2.5
 if sys.version_info < (2, 6):
@@ -28,6 +29,8 @@ server = None
 request_count = 0
 start_time = time.time()
 idle_thread = None
+is_windows = (platform.system() == 'Windows')
+utf8_codec = codecs.lookup("utf-8")
 
 def pack_int(i):
 	return struct.pack("!i", i)
@@ -54,7 +57,21 @@ def read_tokens(socket):
 		tokens.append(data)
 	return tokens
 
-utf8_codec = codecs.lookup("utf-8")
+def should_open_binary(path):
+	if not is_windows:
+		return False
+	p = path.lower()
+	(base, ext) = os.path.splitext(p)
+	if not ext:
+		return True
+	# Some quick exit possibilities.
+	if ext in (".js", ".jss", ".html", "xml", ".htm", ".txt"):
+		return False
+	(mime_type, encoding) = mimetypes.guess_type(p)
+	if mime_type and mime_type.startswith("text"):
+		return False
+	else:
+		return True
 
 """ A simple idle checker thread """
 class IdleThread(threading.Thread):
@@ -212,7 +229,10 @@ class FastDevHandler(SocketServer.BaseRequestHandler):
 		send_tokens(self.request, *tokens)
 
 	def send_file(self, path):
-		buffer = open(path, 'r').read()
+		mode = 'r'
+		if should_open_binary(path):
+			mode += 'b'
+		buffer = open(path, mode).read()
 		self.send_tokens(buffer)
 
 	def handle_kill_app(self):
