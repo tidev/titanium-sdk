@@ -23,6 +23,7 @@ define("Ti/UI/ImageView",
 			this.imageDisplay = dom.create("img", {
 				className: css.clean("TiUIImageViewDisplay")
 			});
+			this.imageDisplay.ondragstart = function() { return false; }; // Prevent images from being dragged
 			this.contentContainer.appendChild(this.imageDisplay);
 			set(this.imageDisplay, "width", "100%");
 			set(this.imageDisplay, "height", "100%");

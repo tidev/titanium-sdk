@@ -29,22 +29,5 @@ import org.appcelerator.titanium.view.TiAnimation;
 })
 
 public class AnimationProxy extends TiAnimation {
-
-	public AnimationProxy()
-	{
-		super();
-	}
-
-	public AnimationProxy(TiContext tiContext)
-	{
-		this();
-	}
-
-	public void handleCreationDict(org.appcelerator.kroll.KrollDict dict) {
-		super.handleCreationDict(dict);
-		
-		// Since transform is an object, KrollObject will not
-		// treat it as a dynamic property by default.
-		setProperty(TiC.PROPERTY_TRANSFORM, null);
-	}
+	
 }

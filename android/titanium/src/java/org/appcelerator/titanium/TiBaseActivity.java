@@ -679,7 +679,11 @@ public abstract class TiBaseActivity extends Activity
 		updateTitle();
 		
 		if (window != null) {
-			window.fireEvent(TiC.EVENT_FOCUS, null);
+			//we don't need to fire focus event for Tab activities as this is being done in TiUITabGroup.onTabChanged()
+			if (!(this instanceof TiActivity && ((TiActivity)this).isTab())) {
+				window.fireEvent(TiC.EVENT_FOCUS, null);
+			}
+			
 
 		} else {
 			mustFireInitialFocus = true;
@@ -721,7 +725,10 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		if (window != null) {
-			window.fireEvent(TiC.EVENT_BLUR, null);
+			//we don't need to fire blur for tabs b/c we're not firing focus when we re-enter the app
+			if (!(this instanceof TiActivity && ((TiActivity)this).isTab())) {
+				window.fireEvent(TiC.EVENT_BLUR, null);
+			}
 		}
 
 		if (activityProxy != null) {
@@ -782,7 +789,9 @@ public abstract class TiBaseActivity extends Activity
 			}
 		}
 
-		if (!isTabActivity()) {
+		boolean isTab = isTabActivity();
+		//When we close a tabgroup, we don't remove its children from the stack, so here we remove the children if the parent is finishing.
+		if (!isTab || (isTab && this.getParent().isFinishing())) {
 			TiApplication.removeFromActivityStack(this);
 		}
 

@@ -220,6 +220,12 @@
 	}
 	
 	int viewsCount = [[self proxy] viewCount];
+	/*
+	Reset readd here since refreshScrollView is called from
+	frameSizeChanged with readd false and the views might 
+	not yet have been added on first launch
+	*/
+	readd = ([[sv subviews] count] == 0);
 	
 	for (int c=0;c<viewsCount;c++)
 	{
@@ -275,7 +281,7 @@
 {
 	if (!CGRectIsEmpty(visibleBounds))
 	{
-		[self refreshScrollView:visibleBounds readd:YES];
+		[self refreshScrollView:visibleBounds readd:NO];
 		[scrollview setContentOffset:CGPointMake(lastPage*visibleBounds.size.width,0)];
         [self manageCache:[self currentPage]];
 	}

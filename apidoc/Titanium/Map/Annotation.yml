@@ -27,7 +27,9 @@ properties:
     platforms: [android]
     type: String
   - name: pincolor
-    summary: the pin color as one of <Titanium.Map.ANNOTATION_RED>, <Titanium.Map.ANNOTATION_GREEN> or <Titanium.Map.ANNOTATION_PURPLE>.
+    summary: |
+        the pin color as one of <Titanium.Map.ANNOTATION_GREEN>, <Titanium.Map.ANNOTATION_PURPLE> 
+        or <Titanium.Map.ANNOTATION_RED>.
     type: Number
   - name: rightButton
     summary: the right button image on the annotation. must either be a button type constant or url

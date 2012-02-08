@@ -33,6 +33,7 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 			left: 0,
 			top: 0
 		})).domNode);
+		style.set(Ti.UI._container.domNode,"overflow","hidden");
 		Ti.UI._recalculateLayout();
 	});
 
@@ -80,6 +81,11 @@ define("Ti/UI", ["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/st
 			} else {
 				for (var i in node.children) {
 					this._layoutMarkedNodes(node.children[i]);
+				}
+				// Run the post-layout animation, if needed
+				if (node._doAnimationAfterLayout) {
+					node._doAnimationAfterLayout = false;
+					node._doAnimation();
 				}
 			}
 		},

@@ -333,12 +333,6 @@ public class TabGroupProxy extends TiWindowProxy
 		opened = false;
 	}
 
-	public KrollDict buildFocusEvent(String to, String from)
-	{
-		int toIndex = indexForId(to);
-		int fromIndex = indexForId(from);
-		return buildFocusEvent(toIndex, fromIndex);
-	}
 
 	public KrollDict buildFocusEvent(int toIndex, int fromIndex)
 	{
@@ -362,21 +356,6 @@ public class TabGroupProxy extends TiWindowProxy
 		return e;
 	}
 
-	private int indexForId(String id)
-	{
-		int index = -1;
-
-		int i = 0;
-		for(TabProxy t : tabs) {
-			String tag = (String) t.getProperty(TiC.PROPERTY_TAG);
-			if (tag.equals(id)) {
-				index = i;
-				break;
-			}
-			i += 1;
-		}
-		return index;
-	}
 
 	private void fillIntent(Activity activity, Intent intent)
 	{

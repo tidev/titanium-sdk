@@ -28,9 +28,8 @@ define("Ti/Network/HTTPClient", ["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Even
 						this._completed = 1;
 						c.readyState = this.DONE;
 						if (xhr.status == 200) {
-							c.responseText = xhr.responseText;
+							c.responseText = c.responseData = xhr.responseText;
 							c.responseXML = xhr.responseXML;
-							c.responseData = xhr.responseHeader;
 							is(this.onload, "Function") && this.onload.call(this);
 						} else {
 							xhr.status / 100 | 0 > 3 && this._onError();
