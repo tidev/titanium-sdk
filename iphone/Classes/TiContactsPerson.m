@@ -41,14 +41,12 @@ static NSDictionary* multiValueLabels;
 		recordId = id_;
 		record = NULL;
 		module = module_;
-		returnCache = [[NSMutableDictionary alloc] init];
 	}
 	return self;
 }
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(returnCache)
 	[super dealloc];
 }
 
@@ -232,7 +230,6 @@ static NSDictionary* multiValueLabels;
 		CFRelease(name);
 	}
 	
-	[returnCache setObject:nameStr forKey:@"fullName"];
 	return nameStr;
 }
 
@@ -280,11 +277,9 @@ static NSDictionary* multiValueLabels;
 		TiBlob* imageBlob = [[[TiBlob alloc] initWithImage:[UIImage imageWithData:(NSData*)imageData]] autorelease];
 		CFRelease(imageData);
 		
-		[returnCache setObject:imageBlob forKey:@"image"];
 		return imageBlob;
 	}
 	else {
-		[returnCache setObject:[NSNull null] forKey:@"image"];
 		return nil;
 	}
 }
@@ -321,7 +316,6 @@ static NSDictionary* multiValueLabels;
 			CFRelease(CFresult);
 		}
 		
-		[returnCache setObject:result forKey:key];
 		return result;
 	}
 	// Multi-value property
@@ -333,13 +327,11 @@ static NSDictionary* multiValueLabels;
 			value = [self dictionaryFromMultiValue:multiVal defaultKey:key];
 			CFRelease(multiVal);
 		}
-		[returnCache setObject:value forKey:key];
 		return value;
 	}
 	// Something else
 	else {
 		id result = [super valueForUndefinedKey:key];
-		[returnCache setObject:(result == nil ? [NSNull null] : result) forKey:key];
 		return result;
 	}
 }

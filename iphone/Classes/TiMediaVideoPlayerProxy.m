@@ -38,7 +38,6 @@
 #define RETURN_FROM_LOAD_PROPERTIES(property,default) \
 {\
 	id temp = [loadProperties valueForKey:property];\
-	[returnCache setValue:(temp ? temp : default) forKey:@"" #property];\
 	return temp ? temp : default; \
 }
 
@@ -65,7 +64,6 @@ NSArray* moviePlayerKeys = nil;
 -(void)_initWithProperties:(NSDictionary *)properties
 {	
 	loadProperties = [[NSMutableDictionary alloc] init];
-	returnCache = [[NSMutableDictionary alloc] init];
 	playerLock = [[NSRecursiveLock alloc] init];
 	[super _initWithProperties:properties];
 }
@@ -85,7 +83,6 @@ NSArray* moviePlayerKeys = nil;
 	RELEASE_TO_NIL(movie);
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(loadProperties);
-	RELEASE_TO_NIL(returnCache);
 	RELEASE_TO_NIL(playerLock);
 	[super _destroy];
 }
@@ -574,13 +571,13 @@ NSArray* moviePlayerKeys = nil;
 -(NSNumber*)fullscreen
 {
 	if (![NSThread isMainThread]) {
-		TiThreadPerformOnMainThread(^{[self fullscreen];}, YES);
-		return [returnCache valueForKey:@"fullscreen"];
+		__block id result;
+		TiThreadPerformOnMainThread(^{result = [[self fullscreen] retain];}, YES);
+		return [result autorelease];
 	}
 	
 	if (movie != nil) {
 		NSNumber* result = NUMBOOL([[self player] isFullscreen]);
-		[returnCache setValue:result forKey:@"fullscreen"];
 		return result;
 	}
 	else {

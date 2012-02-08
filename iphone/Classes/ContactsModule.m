@@ -38,7 +38,6 @@
 {
 	[super startup];
 	addressBook = NULL;
-	returnCache = [[NSMutableDictionary alloc] init];
     
     // Force address book creation so that our properties are properly initialized - they aren't
     // defined until the address book is loaded, for some reason.
@@ -51,7 +50,6 @@
 	RELEASE_TO_NIL(cancelCallback)
 	RELEASE_TO_NIL(selectedPersonCallback)
 	RELEASE_TO_NIL(selectedPropertyCallback)
-	RELEASE_TO_NIL(returnCache);
 	
 	[self releaseAddressBook];
 	[super dealloc];
@@ -186,13 +184,13 @@
 	ENSURE_SINGLE_ARG(arg, NSString)
 	
 	if (![NSThread isMainThread]) {
-		TiThreadPerformOnMainThread(^{[self getPeopleWithName:arg];}, YES);
-		return [returnCache objectForKey:@"peopleWithName"];
+		__block id result;
+		TiThreadPerformOnMainThread(^{result = [[self getPeopleWithName:arg] retain];}, YES);
+		return [result autorelease];
 	}
 	
 	CFArrayRef peopleRefs = ABAddressBookCopyPeopleWithName([self addressBook], (CFStringRef)arg);
 	if (peopleRefs == NULL) {
-		[returnCache setObject:[NSNull null] forKey:@"peopleWithName"];
 		return nil;
 	}
 	CFIndex count = CFArrayGetCount(peopleRefs);
@@ -205,7 +203,6 @@
 	}	
 	CFRelease(peopleRefs);
 	
-	[returnCache setObject:people forKey:@"peopleWithName"];
 	return people;
 }
 
@@ -219,7 +216,6 @@
 	
 	CFArrayRef peopleRefs = ABAddressBookCopyArrayOfAllPeople([self addressBook]);
 	if (peopleRefs == NULL) {
-		[returnCache setObject:[NSNull null] forKey:@"allPeople"];
 		return nil;
 	}
 	CFIndex count = CFArrayGetCount(peopleRefs);
@@ -232,7 +228,6 @@
 	}	
 	CFRelease(peopleRefs);
 	
-	[returnCache setObject:people forKey:@"allPeople"];
 	return people;
 }
 
@@ -246,7 +241,6 @@
 	
 	CFArrayRef groupRefs = ABAddressBookCopyArrayOfAllGroups([self addressBook]);
 	if (groupRefs == NULL) {
-		[returnCache setObject:[NSNull null] forKey:@"allGroups"];
 		return nil;
 	}
 	CFIndex count = CFArrayGetCount(groupRefs);
@@ -259,7 +253,6 @@
 	}
 	CFRelease(groupRefs);
 	
-	[returnCache setObject:groups forKey:@"allGroups"];
 	return groups;
 }
 
@@ -303,7 +296,6 @@
         [self save:nil];
     }
     
-	[returnCache setObject:newPerson forKey:@"newPerson"];
 	return newPerson;
 }
 
@@ -355,7 +347,6 @@
         [self save:nil];
     }
     
-	[returnCache setObject:newGroup forKey:@"newGroup"];
 	return newGroup;
 }
 

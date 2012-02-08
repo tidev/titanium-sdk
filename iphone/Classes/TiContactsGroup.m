@@ -36,14 +36,12 @@
 		recordId = id_;
 		record = NULL;
 		module = module_;
-		returnCache = [[NSMutableDictionary alloc] init];
 	}
 	return self;
 }
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(returnCache)
 	[super dealloc];
 }
 
@@ -64,7 +62,6 @@
         CFRelease(nameRef);
     }
 	
-	[returnCache setObject:name forKey:@"name"];
 	return name;
 }
 
@@ -94,7 +91,6 @@
 	
 	CFArrayRef arrayRef = ABGroupCopyArrayOfAllMembers([self record]);
 	if (arrayRef == NULL) {
-		[returnCache setObject:[NSNull null] forKey:@"members"];
 		return nil;
 	}
 	CFIndex count = CFArrayGetCount(arrayRef);
@@ -107,7 +103,6 @@
 	}
 	CFRelease(arrayRef);
 	
-	[returnCache setObject:members forKey:@"members"];
 	return members;
 }
 
@@ -126,15 +121,14 @@
 		case kABPersonSortByLastName:
 			break;
 		default:
-			[returnCache setObject:[NSNull null] forKey:@"members"];
 			[self throwException:[NSString stringWithFormat:@"Invalid sort value: %d",sortType]
 					   subreason:nil
 						location:CODELOCATION];
+			return nil;
 	}
 	
 	CFArrayRef arrayRef = ABGroupCopyArrayOfAllMembersWithSortOrdering([self record], sortType);
 	if (arrayRef == NULL) {
-		[returnCache setObject:[NSNull null] forKey:@"members"];
 		return nil;
 	}
 	CFIndex count = CFArrayGetCount(arrayRef);
@@ -147,7 +141,6 @@
 	}
 	CFRelease(arrayRef);
 	
-	[returnCache setObject:members forKey:@"members"];
 	return members;
 }
 
