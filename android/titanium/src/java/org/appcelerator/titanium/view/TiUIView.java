@@ -460,16 +460,20 @@ public abstract class TiUIView
 
 	public void processProperties(KrollDict d)
 	{
+		boolean nativeViewNull = false;
+		if (nativeView == null) {
+			nativeViewNull = true;
+			Log.d(LCAT, "Nativeview is null");
+		}
 		if (d.containsKey(TiC.PROPERTY_LAYOUT)) {
 			String layout = TiConvert.toString(d, TiC.PROPERTY_LAYOUT);
 			if (nativeView instanceof TiCompositeLayout) {
 				((TiCompositeLayout)nativeView).setLayoutArrangement(layout);
 			}
 		}
-		if (TiConvert.fillLayout(d, layoutParams)) {
-			if (nativeView != null) {
-				nativeView.requestLayout();
-			}
+		if (TiConvert.fillLayout(d, layoutParams) && !nativeViewNull) {
+			nativeView.requestLayout();
+			
 		}
 
 		Integer bgColor = null;
@@ -478,24 +482,24 @@ public abstract class TiUIView
 		// Prefer image to color.
 		if (hasImage(d) || hasColorState(d) || hasBorder(d)) {
 			handleBackgroundImage(d);
-		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
+		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) && !nativeViewNull) {
 			bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
 			nativeView.setBackgroundColor(bgColor);
 		}
-		if (d.containsKey(TiC.PROPERTY_OPACITY)) {
-			if (nativeView != null) {
-				setOpacity(TiConvert.toFloat(d, TiC.PROPERTY_OPACITY));
-			}
+		if (d.containsKey(TiC.PROPERTY_OPACITY) && !nativeViewNull) {
+			setOpacity(TiConvert.toFloat(d, TiC.PROPERTY_OPACITY));
+			
 		}
 		
-		if (d.containsKey(TiC.PROPERTY_VISIBLE)) {
+		if (d.containsKey(TiC.PROPERTY_VISIBLE) && !nativeViewNull) {
 			nativeView.setVisibility(TiConvert.toBoolean(d, TiC.PROPERTY_VISIBLE) ? View.VISIBLE : View.INVISIBLE);
+			
 		}
-		if (d.containsKey(TiC.PROPERTY_ENABLED)) {
+		if (d.containsKey(TiC.PROPERTY_ENABLED) && !nativeViewNull) {
 			nativeView.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED));
 		}
 
-		if (d.containsKey(TiC.PROPERTY_FOCUSABLE)) {
+		if (d.containsKey(TiC.PROPERTY_FOCUSABLE) && !nativeViewNull) {
 			boolean focusable = TiConvert.toBoolean(d, TiC.PROPERTY_FOCUSABLE);
 			nativeView.setFocusable(focusable);
 			if (focusable) {
@@ -515,10 +519,9 @@ public abstract class TiUIView
 			}
 		}
 		
-		if (d.containsKey(TiC.PROPERTY_KEEP_SCREEN_ON)) {
-			if (nativeView != null) {
-				nativeView.setKeepScreenOn(TiConvert.toBoolean(d, TiC.PROPERTY_KEEP_SCREEN_ON));
-			}
+		if (d.containsKey(TiC.PROPERTY_KEEP_SCREEN_ON) && !nativeViewNull) {
+			nativeView.setKeepScreenOn(TiConvert.toBoolean(d, TiC.PROPERTY_KEEP_SCREEN_ON));
+			
 		}
 	}
 

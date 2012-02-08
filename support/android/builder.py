@@ -52,6 +52,20 @@ uncompressed_types = [
 	".amr", ".awb", ".wma", ".wmv"
 ]
 
+# Java keywords to reference in case app id contains java keyword
+java_keywords = [
+	"abstract",	"continue",	"for", "new", "switch",
+	"assert", "default", "goto", "package", "synchronized",
+	"boolean", "do", "if", "private", "this",
+	"break", "double", "implements", "protected", "throw",
+	"byte", "else", "import", "public", "throws",
+	"case", "enum", "instanceof", "return", "transient",
+	"catch", "extends", "int", "short", "try",
+	"char", "final", "interface", "static", "void",
+	"class", "finally", "long",	"strictfp", "volatile",
+	"const", "float", "native",	"super", "while"
+]
+
 
 MIN_API_LEVEL = 8
 
@@ -199,6 +213,13 @@ class Builder(object):
 		self.debugger_port = -1
 		self.fastdev_port = -1
 		self.fastdev = False
+		
+		# don't build if a java keyword in the app id would cause the build to fail
+		tok = self.app_id.split('.')
+		for token in tok:
+			if token in java_keywords:
+				error("Do not use java keywords for project app id, such as " + token)
+				sys.exit(1)
 
 		temp_tiapp = TiAppXML(self.project_tiappxml)
 		if temp_tiapp and temp_tiapp.android and 'tool-api-level' in temp_tiapp.android:
@@ -620,6 +641,13 @@ class Builder(object):
 			self.project_deltas = self.project_deltafy.scan()
 			# rescan tiapp.xml so it doesn't show up as created next time around 
 			self.project_deltafy.scan_single_file(self.project_tiappxml)
+			
+		if self.tiapp_changed:
+			for root, dirs, files in os.walk(self.project_gen_dir, topdown=False):
+				for name in files:
+					os.remove(os.path.join(root, name))
+				for name in dirs:
+					os.rmdir(os.path.join(root, name))
 			
 		def strip_slash(s):
 			if s[0:1]=='/' or s[0:1]=='\\': return s[1:]
@@ -1394,20 +1422,22 @@ class Builder(object):
 								debug("installing native lib: %s" % native_lib)
 								apk_zip.write(native_lib, path_in_zip)
 
-		# add any native libraries : libs/**/*.so -> lib/**/*.so
-		add_native_libs(os.path.join(self.project_dir, 'libs'))
+		if self.runtime == 'v8':
+			# add any native libraries : libs/**/*.so -> lib/**/*.so
+			add_native_libs(os.path.join(self.project_dir, 'libs'))
 
-		# add module native libraries
-		for module in self.modules:
-			add_native_libs(module.get_resource('libs'))
+			# add module native libraries
+			for module in self.modules:
+				add_native_libs(module.get_resource('libs'))
 
-		# add sdk runtime native libraries
-		sdk_native_libs = os.path.join(template_dir, 'native', 'libs')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libkroll-v8.so'), 'lib/armeabi/libkroll-v8.so')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libstlport_shared.so'), 'lib/armeabi/libstlport_shared.so')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libkroll-v8.so'), 'lib/armeabi-v7a/libkroll-v8.so')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libstlport_shared.so'), 'lib/armeabi-v7a/libstlport_shared.so')
-		self.apk_updated = True
+			# add sdk runtime native libraries
+			debug("installing native SDK libs")
+			sdk_native_libs = os.path.join(template_dir, 'native', 'libs')
+			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libkroll-v8.so'), 'lib/armeabi/libkroll-v8.so')
+			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libstlport_shared.so'), 'lib/armeabi/libstlport_shared.so')
+			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libkroll-v8.so'), 'lib/armeabi-v7a/libkroll-v8.so')
+			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libstlport_shared.so'), 'lib/armeabi-v7a/libstlport_shared.so')
+			self.apk_updated = True
 
 		apk_zip.close()
 		return unsigned_apk
