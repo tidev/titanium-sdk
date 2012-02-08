@@ -569,8 +569,7 @@ void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish);
  *		The processing stops after this time has passed.
  *	A boolean to stop when the queue is empty.
  *		The processing stops if this boolean is YES and the queue is empty.
- *	A block that takes a pointer to a bool. This block may be NULL.
- *		The processing stops if the bool specified by the pointer is set NO.
+ *	A function block to be designed/implemented at a later time. For now, use nil.
  *
  *	The function works processes blocks already queued up by
  *	TiThreadPerformOnMainThread thusly:
@@ -579,19 +578,18 @@ void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish);
  *	2.	Attempt to process a block first before checking to stop.
  *	3.	continue = currentTime < doneTime.
  *	4.	If (continue && doneWhenEmpty) continue = [queue count] > 0
- *	5.	If continueCallback is not nil, call continueCallback(&continue)
- *		It is the block's responsibility to not allow for an infinite loop.
- *	6.	If (continue && ([queue count] == 0)) sleep briefly to allow background
+ *	5.	If (continue && ([queue count] == 0)) sleep briefly to allow background
  *		tasks to queue up blocks.
- *	7.	If (continue) go back to step 2.
+ *	6.	If (continue) go back to step 2.
  *
  *	Possible future use cases will have wrappers to make this function easier
- *	to use, even to have a non-deadlocking.
+ *	to use, even to have a non-deadlocking means to fetch JS values from the
+ *	main thread (using the currently reserved/unused block call).
  *
  *	Returns: Whether or not the queue was empty upon return.
  */
 
-BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhenEmpty, void (^continueCallback)(BOOL *) );
+BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhenEmpty, void * reserved );
 
 	
 void TiThreadInitalize();

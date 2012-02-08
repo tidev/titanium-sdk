@@ -201,7 +201,9 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 		/*
 		 *	The reason we use a semaphore instead of simply calling the block sychronously
 		 *	is that it is possible that a previous dispatchedMainBlock (Or manual call of
-		 *	TiThreadProcessPendingMainThreadBlocks) processes the 
+		 *	TiThreadProcessPendingMainThreadBlocks) processes the wrapperBlockCopy we
+		 *	care about. In other words, sychronously waiting will lead to the thread
+		 *	blocking much longer than necessary, especially during the shutdown sequence.
 		 */
 		dispatch_time_t oneSecond = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC);
 		BOOL waiting = dispatch_semaphore_wait(waitSemaphore, oneSecond);
@@ -218,18 +220,16 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 	}
 }
 
-BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhenEmpty, void (^continueCallback)(BOOL *) )
+BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhenEmpty, void * reserved )
 {
 	struct timeval doneTime;
 	gettimeofday(&doneTime, NULL);
 	float timeoutSeconds = floorf(timeout);
+	doneTime.tv_sec += (int)timeoutSeconds;
 	doneTime.tv_usec += ((timeout - timeoutSeconds) * USEC_PER_SEC);
 	if (doneTime.tv_usec >= USEC_PER_SEC) {
 		doneTime.tv_usec -= USEC_PER_SEC;
-		doneTime.tv_sec += 1 + (int)timeoutSeconds;
-	}
-	else {
-		doneTime.tv_sec += (int)timeoutSeconds;
+		doneTime.tv_sec++;
 	}
 	
 	BOOL shouldContinue = YES;
@@ -262,9 +262,6 @@ BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhe
 				shouldContinue = timercmp(&nowTime, &doneTime, <);
 			}
 			
-			if (continueCallback != NULL) { //continueCallback can override anything.
-				continueCallback(&shouldContinue);
-			}
 			if (shouldContinue && isEmpty) {
 				struct timespec doneTimeSpec;
 				TIMEVAL_TO_TIMESPEC(&doneTime,&doneTimeSpec);

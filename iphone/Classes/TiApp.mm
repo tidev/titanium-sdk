@@ -320,6 +320,14 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 -(void)waitForKrollProcessing
 {
 	CGFloat timeLeft = [[UIApplication sharedApplication] backgroundTimeRemaining]-1.0;
+	/*
+	 *	In the extreme edge case of having come back to the app while
+	 *	it's still waiting for Kroll Processing, 
+	 *	backgroundTimeRemaining becomes undefined, and so we have
+	 *	to limit the time left to a sane number in that case.
+	 *	The other reason for the timeLeft limit is to not starve
+	 *	possible later calls for waitForKrollProcessing.
+	 */
 	if (timeLeft > 3.0) {
 		timeLeft = 3.0;
 	}
