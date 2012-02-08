@@ -1,4 +1,4 @@
-define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView"], function(declare, css, SuperView) {
+define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI"], function(declare, css, SuperView, UI) {
 
 	var is = require.is;
 
@@ -6,7 +6,7 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView"], function(declare, css,
 
 		constructor: function(args){
 			// Create the tab bar
-			this.add(this._tabBarContainer = Ti.UI.createView({
+			this.add(this._tabBarContainer = UI.createView({
 				width: "100%",
 				height: "10%",
 				layout: "horizontal",
@@ -15,7 +15,7 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView"], function(declare, css,
 			}));
 
 			// Create the tab window container
-			this.add(this._tabContentContainer = Ti.UI.createView({
+			this.add(this._tabContentContainer = UI.createView({
 				width: "100%",
 				height: "90%",
 				left: 0,

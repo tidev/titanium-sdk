@@ -1,4 +1,4 @@
-define("Ti/UI/AlertDialog", ["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
+define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI"], function(declare, Evented, UI) {
 
 	var undef;
 
@@ -6,8 +6,8 @@ define("Ti/UI/AlertDialog", ["Ti/_/declare", "Ti/_/Evented"], function(declare, 
 		show: function() {
 			
 			// Create the window and a background to dim the current view
-			var alertWindow = this._alertWindow = Ti.UI.createWindow();
-			var dimmingView = Ti.UI.createView({
+			var alertWindow = this._alertWindow = UI.createWindow();
+			var dimmingView = UI.createView({
 				backgroundColor: "black",
 				opacity: 0,
 				left: 0,
@@ -18,7 +18,7 @@ define("Ti/UI/AlertDialog", ["Ti/_/declare", "Ti/_/Evented"], function(declare, 
 			alertWindow.add(dimmingView);
 			
 			// Create the alert dialog itself
-			var alertDialog = Ti.UI.createView({
+			var alertDialog = UI.createView({
 				width: "50%",
 				height: "auto",
 				backgroundColor: "white",
@@ -29,29 +29,29 @@ define("Ti/UI/AlertDialog", ["Ti/_/declare", "Ti/_/Evented"], function(declare, 
 			alertWindow.add(alertDialog);
 			
 			// Add the title
-			alertDialog.add(Ti.UI.createLabel({
+			alertDialog.add(UI.createLabel({
 				text: this.title,
 				font: {fontWeight: "bold"},
 				left: 5,
 				right: 5,
 				top: 5,
 				height: "auto",
-				textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
+				textAlign: UI.TEXT_ALIGNMENT_CENTER
 			}));
 			
 			// Add the message
-			alertDialog.add(Ti.UI.createLabel({
+			alertDialog.add(UI.createLabel({
 				text: this.message,
 				left: 5,
 				right: 5,
 				top: 5,
 				height: "auto",
-				textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
+				textAlign: UI.TEXT_ALIGNMENT_CENTER
 			}));
 			
 			var self = this;
 			function addButton(title, index, bottom) {
-				var button = Ti.UI.createButton({
+				var button = UI.createButton({
 					left: 5,
 					right: 5,
 					top: 5,

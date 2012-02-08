@@ -119,7 +119,7 @@ define(
 
 			textAlign: {
 				set: function(value) {
-					style.set(this._field, "text-align", value === Ti.UI.TEXT_ALIGNMENT_RIGHT ? "right" : value === Ti.UI.TEXT_ALIGNMENT_CENTER ? "center" : "left");
+					style.set(this._field, "text-align", value === UI.TEXT_ALIGNMENT_RIGHT ? "right" : value === UI.TEXT_ALIGNMENT_CENTER ? "center" : "left");
 					return value;
 				}
 			},

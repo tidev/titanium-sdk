@@ -1,7 +1,7 @@
-define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, lang, View, dom, css, style) {
+define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style"],
+	function(declare, lang, View, dom, css, style) {
 
-	var set = style.set,
-		undef;
+	var set = style.set;
 
 	return declare("Ti.UI.Tab", View, {
 

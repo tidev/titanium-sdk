@@ -1,4 +1,5 @@
-define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, View, dom, css, style) {
+define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/UI"],
+	function(declare, View, dom, css, style, UI) {
 
 	var set = style.set,
 		undef,
@@ -15,7 +16,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], fun
 		
 		constructor: function(args) {
 			
-			this.leftView = Ti.UI.createView({
+			this.leftView = UI.createView({
 				left: 0,
 				top: 0,
 				width: "auto", 
@@ -25,13 +26,13 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], fun
 			set(this.leftView.domNode,"boxAlign","center");
 			this.add(this.leftView);
 			
-			this.leftImageView = Ti.UI.createImageView();
+			this.leftImageView = UI.createImageView();
 			this.leftView.add(this.leftImageView); 
 			
-			this.titleLabel = Ti.UI.createLabel({width: "auto", height: "100%"});
+			this.titleLabel = UI.createLabel({width: "auto", height: "100%"});
 			this.leftView.add(this.titleLabel);
 			
-			this.rightImageView = Ti.UI.createImageView({
+			this.rightImageView = UI.createImageView({
 				right: 0,
 				top: 0,
 				width: "auto", 

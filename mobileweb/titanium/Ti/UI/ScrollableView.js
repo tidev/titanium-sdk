@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], 
-	function(declare, Widget, lang, dom, css, style) {
+define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/UI"],
+	function(declare, Widget, lang, dom, css, style, UI) {
 
 	var set = style.set,
 		is = require.is,
@@ -21,7 +21,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 		constructor: function(args){
 			
 			// Create the content container
-			this._contentContainer = Ti.UI.createView({
+			this._contentContainer = UI.createView({
 				left: 0,
 				top: 0,
 				width: "100%",
@@ -31,7 +31,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 			this.add(this._contentContainer);
 			
 			// Create the paging control container
-			this.add(this._pagingControlContainer = Ti.UI.createView({
+			this.add(this._pagingControlContainer = UI.createView({
 				width: "100%",
 				height: 20,
 				bottom: 0,
@@ -39,7 +39,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 				opacity: 0,
 				touchEnabled: false
 			}));
-			this._pagingControlContainer.add(this._pagingControlContentContainer = Ti.UI.createView({
+			this._pagingControlContainer.add(this._pagingControlContentContainer = UI.createView({
 				width: "auto",
 				height: "100%",
 				top: 0,
@@ -63,7 +63,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 					animationView.animate({
 						duration: (300 + 0.2 * width) / (width - Math.abs(e._distance)) * 10,
 						left: destinationLeft,
-						curve: Ti.UI.ANIMATION_CURVE_EASE_OUT
+						curve: UI.ANIMATION_CURVE_EASE_OUT
 					},lang.hitch(this,function(){
 						this._contentContainer._removeAllChildren();
 						this._contentContainer.add(this.views[this.currentPage]);
@@ -92,7 +92,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 					}
 					
 					// Create the animation div
-					animationView = Ti.UI.createView({
+					animationView = UI.createView({
 						width: unitize(viewsToScroll.length * width),
 						height: "100%",
 						layout: "absolute",
@@ -103,7 +103,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 					// Attach the child views, each contained in their own div so we can mess with positioning w/o touching the views
 					this._contentContainer._removeAllChildren();
 					for (var i = 0; i < viewsToScroll.length; i++) {
-						var viewContainer = Ti.UI.createView({
+						var viewContainer = UI.createView({
 							left: unitize(i * width),
 							top: 0,
 							width: unitize(width),
@@ -176,7 +176,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 						animationView.animate({
 							duration: 200 + (0.2 * width) / (width - Math.abs(e._distance)) * 10,
 							left: animationLeft,
-							curve: Ti.UI.ANIMATION_CURVE_EASE_OUT
+							curve: UI.ANIMATION_CURVE_EASE_OUT
 						},lang.hitch(this,function(){
 							finalizeSwipe();
 						}));
@@ -267,7 +267,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 				}
 	
 				// Create the animation div
-				var animationView = Ti.UI.createView({
+				var animationView = UI.createView({
 					width: unitize(viewsToScroll.length * width),
 					height: "100%",
 					layout: "absolute",
@@ -278,7 +278,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 				// Attach the child views, each contained in their own div so we can mess with positioning w/o touching the views
 				this._contentContainer._removeAllChildren();
 				for (var i = 0; i < viewsToScroll.length; i++) {
-					var viewContainer = Ti.UI.createView({
+					var viewContainer = UI.createView({
 						left: unitize(i * width),
 						top: 0,
 						width: unitize(width),
@@ -303,7 +303,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 				animationView.animate({
 					duration: duration,
 					left: initialPosition + scrollingDirection * distance,
-					curve: Ti.UI.ANIMATION_CURVE_EASE_IN_OUT
+					curve: UI.ANIMATION_CURVE_EASE_IN_OUT
 				},lang.hitch(this,function(){
 					this._contentContainer._removeAllChildren();
 					this._contentContainer.add(this.views[viewIndex]);
@@ -347,7 +347,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 			this._pagingControlContentContainer._removeAllChildren();
 			var diameter = this.pagingControlHeight / 2;
 			for (var i = 0; i < this.views.length; i++) {
-				var indicator = Ti.UI.createView({
+				var indicator = UI.createView({
 					width: diameter,
 					height: diameter,
 					top: diameter / 2,

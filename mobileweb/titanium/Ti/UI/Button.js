@@ -1,4 +1,5 @@
-define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style", "Ti/_/lang"], function(declare, FontWidget, dom, style, lang) {
+define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
+	function(declare, FontWidget, dom, style, lang, UI) {
 
 	var setStyle = style.set,
 		postDoBackground = {
@@ -188,9 +189,9 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 				set: function(value) {
 					var cssValue = "";
 					switch(value) {
-						case Ti.UI.TEXT_ALIGNMENT_LEFT: cssValue = "start"; break;
-						case Ti.UI.TEXT_ALIGNMENT_CENTER: cssValue = "center"; break;
-						case Ti.UI.TEXT_ALIGNMENT_RIGHT: cssValue = "end"; break;
+						case UI.TEXT_ALIGNMENT_LEFT: cssValue = "start"; break;
+						case UI.TEXT_ALIGNMENT_CENTER: cssValue = "center"; break;
+						case UI.TEXT_ALIGNMENT_RIGHT: cssValue = "end"; break;
 					}
 					setStyle(this._contentContainer, "boxPack", cssValue);
 					return value;

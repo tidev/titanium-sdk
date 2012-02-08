@@ -144,7 +144,7 @@ define(
 			var isAttachedToActiveWin = false,
 				node = this;
 			while(node) {
-				if (node === Ti.UI._container) {
+				if (node === UI._container) {
 					isAttachedToActiveWin = true;
 					break;
 				}
@@ -162,7 +162,7 @@ define(
 			rootLayoutNode._markedForLayout = true;
 			
 			// Let the UI know that a layout needs to be performed.
-			Ti.UI._triggerLayout(force);
+			UI._triggerLayout(force);
 		},
 		
 		_triggerParentLayout: function() {
@@ -513,7 +513,7 @@ define(
 			this._animationData = anim;
 			this._animationCallback = callback;
 			
-			if (Ti.UI._layoutInProgress) {
+			if (UI._layoutInProgress) {
 				this._doAnimationAfterLayout = true;
 			} else {
 				this._doAnimation();

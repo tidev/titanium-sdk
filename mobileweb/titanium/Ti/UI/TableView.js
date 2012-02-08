@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb/TableViewSeparatorStyle"], 
-	function(declare, View, style, lang, TableViewSeparatorStyle) {
+define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb/TableViewSeparatorStyle", "Ti/UI"], 
+	function(declare, View, style, lang, TableViewSeparatorStyle, UI) {
 
 	var set = style.set,
 		is = require.is,
@@ -10,7 +10,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		constructor: function(args) {
 			
 			// Content must go in a separate container so the scrollbar can exist outside of it
-			var contentContainer = this._contentContainer = Ti.UI.createView({
+			var contentContainer = this._contentContainer = UI.createView({
 				width: "100%",
 				height: "100%",
 				left: 0,
@@ -21,9 +21,9 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			set(contentContainer.domNode,"overflow","hidden");
 			
 			// Use horizontal layouts so that the default location is always (0,0)
-			contentContainer.add(this._header = Ti.UI.createView({height: 'auto', layout: 'vertical'}));
-			contentContainer.add(this._sections = Ti.UI.createView({height: 'auto', layout: 'vertical'}));
-			contentContainer.add(this._footer = Ti.UI.createView({height: 'auto', layout: 'vertical'}));
+			contentContainer.add(this._header = UI.createView({height: 'auto', layout: 'vertical'}));
+			contentContainer.add(this._sections = UI.createView({height: 'auto', layout: 'vertical'}));
+			contentContainer.add(this._footer = UI.createView({height: 'auto', layout: 'vertical'}));
 			
 			this.data = [];
 			
@@ -170,7 +170,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		_tableViewSectionClicked: null,
 		
 		_createSeparator: function() {
-			return Ti.UI.createView({
+			return UI.createView({
 				height: 1,
 				width: "100%",
 				backgroundColor: "white"
@@ -178,7 +178,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		},
 		
 		_createDecorationLabel: function(text) {
-			return Ti.UI.createLabel({
+			return UI.createLabel({
 				text: text, 
 				backgroundColor: "darkGrey",
 				color: "white",
@@ -278,13 +278,13 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 						// Convert any object literals to TableViewRow instances, and update TableViewRow instances with row info
 						for (var i in value) {
 							if (!isDef(value[i].declaredClass) || (value[i].declaredClass != "Ti.UI.TableViewRow" && value[i].declaredClass != "Ti.UI.TableViewSection")) {
-								value[i] = Ti.UI.createTableViewRow(value[i]);
+								value[i] = UI.createTableViewRow(value[i]);
 							}
 						}
 						
 						// If there is no data, we still need to create a default section
 						if (value.length == 0) {
-							this._sections.add(this._currentSection = Ti.UI.createTableViewSection({_tableView: this}));
+							this._sections.add(this._currentSection = UI.createTableViewSection({_tableView: this}));
 							this._sections.add(this._createSeparator());
 						}
 			
@@ -293,7 +293,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 							if (value[i].declaredClass === "Ti.UI.TableViewRow") {
 								// Check if the first item is a row, meaning we need a default section
 								if (i === 0) {
-									this._sections.add(this._currentSection = Ti.UI.createTableViewSection({_tableView: this}));
+									this._sections.add(this._currentSection = UI.createTableViewSection({_tableView: this}));
 									this._sections.add(this._createSeparator());
 								}
 								this._currentSection.add(value[i]);

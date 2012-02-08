@@ -1,4 +1,4 @@
-define("Ti/UI/OptionDialog", ["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
+define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI"], function(declare, Evented, UI) {
 
 	var undef;
 
@@ -6,8 +6,8 @@ define("Ti/UI/OptionDialog", ["Ti/_/declare", "Ti/_/Evented"], function(declare,
 		show: function() {
 			
 			// Create the window and a background to dim the current view
-			var optionsWindow = this._optionsWindow = Ti.UI.createWindow();
-			var dimmingView = Ti.UI.createView({
+			var optionsWindow = this._optionsWindow = UI.createWindow();
+			var dimmingView = UI.createView({
 				backgroundColor: "black",
 				opacity: 0,
 				left: 0,
@@ -18,7 +18,7 @@ define("Ti/UI/OptionDialog", ["Ti/_/declare", "Ti/_/Evented"], function(declare,
 			optionsWindow.add(dimmingView);
 			
 			// Create the options dialog itself
-			var optionsDialog = Ti.UI.createView({
+			var optionsDialog = UI.createView({
 				width: "100%",
 				height: "auto",
 				bottom: 0,
@@ -29,19 +29,19 @@ define("Ti/UI/OptionDialog", ["Ti/_/declare", "Ti/_/Evented"], function(declare,
 			optionsWindow.add(optionsDialog);
 			
 			// Add the title
-			optionsDialog.add(Ti.UI.createLabel({
+			optionsDialog.add(UI.createLabel({
 				text: this.title,
 				font: {fontWeight: "bold"},
 				left: 5,
 				right: 5,
 				top: 5,
 				height: "auto",
-				textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
+				textAlign: UI.TEXT_ALIGNMENT_CENTER
 			}));
 			
 			var self = this;
 			function addButton(title, index, bottom) {
-				var button = Ti.UI.createButton({
+				var button = UI.createButton({
 					left: 5,
 					right: 5,
 					top: 5,

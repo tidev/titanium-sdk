@@ -1,10 +1,10 @@
-define("Ti/UI/Switch", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang"], function(declare, FontWidget, dom, css, style, lang) {
+define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
+	function(declare, FontWidget, dom, css, style, lang, UI) {
 
 	var setStyle = style.set,
 		postDoBackground = {
 			post: "_updateLook"
 		},
-        undef,
         unitize = dom.unitize;
 
 	return declare("Ti.UI.Switch", FontWidget, {
@@ -196,9 +196,9 @@ define("Ti/UI/Switch", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 				set: function(value) {
 					var cssValue = "";
 					switch(value) {
-						case Ti.UI.TEXT_VERTICAL_ALIGNMENT_TOP: cssValue = "start"; break;
-						case Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER: cssValue = "center"; break;
-						case Ti.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM: cssValue = "end"; break;
+						case UI.TEXT_VERTICAL_ALIGNMENT_TOP: cssValue = "start"; break;
+						case UI.TEXT_VERTICAL_ALIGNMENT_CENTER: cssValue = "center"; break;
+						case UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM: cssValue = "end"; break;
 					}
 					setStyle(this._titleContainer, "boxAlign", cssValue);
 					return value;
@@ -245,13 +245,13 @@ define("Ti/UI/Switch", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 				set: function(value) {
 					var cssValue = "";
 					switch(value) {
-						case Ti.UI.TEXT_VERTICAL_ALIGNMENT_TOP: cssValue = "start"; break;
-						case Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER: cssValue = "center"; break;
-						case Ti.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM: cssValue = "end"; break;
+						case UI.TEXT_VERTICAL_ALIGNMENT_TOP: cssValue = "start"; break;
+						case UI.TEXT_VERTICAL_ALIGNMENT_CENTER: cssValue = "center"; break;
+						case UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM: cssValue = "end"; break;
 					}
 					setStyle(this._titleContainer, "boxPack", cssValue);
 				},
-				value: Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
+				value: UI.TEXT_VERTICAL_ALIGNMENT_CENTER
 			},
 		}
 

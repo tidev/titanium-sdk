@@ -1,11 +1,12 @@
-define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang"], function(declare, View, style, lang) {
+define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
+	function(declare, View, style, lang, UI) {
 
 	return declare("Ti.UI.ScrollView", View, {
 		
 		constructor: function(args) {
 			
 			// Content must go in a separate container so the scrollbar can exist outside of it
-			var contentContainer = this._contentContainer = Ti.UI.createView({
+			var contentContainer = this._contentContainer = UI.createView({
 				width: "100%",
 				height: "100%",
 				left: 0,
@@ -14,7 +15,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang"], function(decla
 			View.prototype.add.call(this,contentContainer);
 			style.set(contentContainer.domNode,"overflow","hidden");
 			
-			contentContainer.add(this._contentMeasurer = Ti.UI.createView({
+			contentContainer.add(this._contentMeasurer = UI.createView({
 				width: "auto",
 				height: "auto",
 				left: 0,

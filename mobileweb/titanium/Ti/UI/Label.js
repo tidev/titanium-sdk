@@ -1,4 +1,5 @@
-define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang"], function(declare, FontWidget, dom, css, style, lang) {
+define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
+	function(declare, FontWidget, dom, css, style, lang, UI) {
 
 	var set = style.set,
 		undef,
@@ -115,14 +116,14 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				set: function(value) {
 					var cssValue = "";
 					switch(value) {
-						case Ti.UI.TEXT_ALIGNMENT_LEFT: cssValue = "left"; break;
-						case Ti.UI.TEXT_ALIGNMENT_CENTER: cssValue = "center"; break;
-						case Ti.UI.TEXT_ALIGNMENT_RIGHT: cssValue = "right"; break;
+						case UI.TEXT_ALIGNMENT_LEFT: cssValue = "left"; break;
+						case UI.TEXT_ALIGNMENT_CENTER: cssValue = "center"; break;
+						case UI.TEXT_ALIGNMENT_RIGHT: cssValue = "right"; break;
 					}
 					this.textContainerDiv.style.textAlign = cssValue;
 					return value;
 				},
-				value: Ti.UI.TEXT_ALIGNMENT_LEFT
+				value: UI.TEXT_ALIGNMENT_LEFT
 			},
 			textid: {
 				get: function(value) {

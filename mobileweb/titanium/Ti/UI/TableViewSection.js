@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/MobileWeb/TableViewSeparatorStyle"], 
-	function(declare, Widget, style, TableViewSeparatorStyle) {
+define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/MobileWeb/TableViewSeparatorStyle", "Ti/UI"], 
+	function(declare, Widget, style, TableViewSeparatorStyle, UI) {
 	
 	var is = require.is,
 		isDef = require.isDef,
@@ -11,9 +11,9 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/MobileWeb/TableVie
 			
 			this._indexedContent = [];
 			
-			Widget.prototype.add.call(this,this._header = Ti.UI.createView({height: 'auto', layout: 'vertical'}));
-			Widget.prototype.add.call(this,this._rows = Ti.UI.createView({height: 'auto', layout: 'vertical'}));
-			Widget.prototype.add.call(this,this._footer = Ti.UI.createView({height: 'auto', layout: 'vertical'}));
+			Widget.prototype.add.call(this,this._header = UI.createView({height: 'auto', layout: 'vertical'}));
+			Widget.prototype.add.call(this,this._rows = UI.createView({height: 'auto', layout: 'vertical'}));
+			Widget.prototype.add.call(this,this._footer = UI.createView({height: 'auto', layout: 'vertical'}));
 			
 			// Create the parts out of Ti controls so we can make use of the layout system
 			this.layout = 'vertical';
@@ -33,7 +33,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/MobileWeb/TableVie
 		
 		_createSeparator: function() {
 			var showSeparator = this._tableView && this._tableView.separatorStyle === TableViewSeparatorStyle.SINGLE_LINE;
-			return Ti.UI.createView({
+			return UI.createView({
 				height: showSeparator ? 1 : 0,
 				width: "100%",
 				backgroundColor: showSeparator ? this._tableView.separatorColor : "transparent"
@@ -41,7 +41,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/MobileWeb/TableVie
 		},
 		
 		_createDecorationLabel: function(text) {
-			return Ti.UI.createLabel({
+			return UI.createLabel({
 				text: text, 
 				backgroundColor: "darkGrey",
 				color: "white",
@@ -79,7 +79,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/MobileWeb/TableVie
 		
 		_insertHelper: function(value, index) {
 			if (!isDef(value.declaredClass) || value.declaredClass != "Ti.UI.TableViewRow") {
-				value = Ti.UI.createTableViewRow(value);
+				value = UI.createTableViewRow(value);
 			}
 			
 			this._rows._insertAt(value, 2 * index + 1);
