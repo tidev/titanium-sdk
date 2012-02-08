@@ -6,15 +6,15 @@ since: "0.8"
 platforms: [android, iphone, ipad]
 properties:
   - name: HYBRID_TYPE
-    summary: Displays a satellite image of the area with road and road name information layered on top.
+    summary: Used with [mapType](Titanium.Map.View.mapType) to display a satellite image of the area with road and road name information layered on top.
     type: Number
     permission: read-only
   - name: SATELLITE_TYPE
-    summary: Displays satellite imagery of the area.
+    summary: Used with [mapType](Titanium.Map.View.mapType) to display satellite imagery of the area.
     type: Number
     permission: read-only
   - name: STANDARD_TYPE
-    summary: Displays a street map that shows the position of all roads and some road names.
+    summary: Used with [mapType](Titanium.Map.View.mapType) to display a street map that shows the position of all roads and some road names.
     type: Number
     permission: read-only
     

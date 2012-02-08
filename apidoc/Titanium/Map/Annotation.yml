@@ -4,10 +4,13 @@ summary: An Annotation object that is created by the method <Titanium.Map.create
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [android, iphone, ipad]
+
 properties:
+
   - name: animate
-    summary: boolean to indicate whether the pin should animate when dropped
+    summary: Boolean to indicate whether the pin should animate when dropped
     type: Boolean
+
   - name: image
     summary: The image for the pin instead of the default image.
     type: [String, Titanium.Blob]
