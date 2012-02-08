@@ -4,7 +4,7 @@ summary: |
     The Dashboard View provides a view that supports the ability to have Springboard-like view of icons which 
     can be reordered by dragging and can contain multiple pages of icons in a scrollable view. 
     The Dashboard View is created by the method <Titanium.UI.createDashboardView>.
-    Dashboard View is only intended to be used in [POTRAIT](Titanium.UI.POTRAIT) orientation mode and with default icon layout of 3X3.
+    Dashboard View is only intended to be used in [PORTRAIT](Titanium.UI.PORTRAIT) orientation mode and with default icon layout of 3X3.
 extends: Titanium.UI.View
 since: "1.2"
 platforms: [iphone, ipad]
