@@ -126,6 +126,7 @@ class Compiler(object):
 				'Ti/UI/Button.js',
 				'Ti/UI/ImageView.js',
 				'Ti/UI/Label.js',
+				'Ti/UI/OptionDialog.js',
 				'Ti/UI/ScrollableView.js',
 				'Ti/UI/ScrollView.js',
 				'Ti/UI/Slider.js',
