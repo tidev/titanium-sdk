@@ -245,16 +245,19 @@
 	
 	if (badge || closeButton) 
 	{
-		if (badge) 
-		{
-			CGPoint point = CGPointMake(self.frame.size.width-badge.frame.size.width-(badge.frame.size.width*0.25),
-										floor(badge.frame.size.height*0.10));
-			badge.frame = CGRectMake(point.x, point.y, badge.frame.size.width, badge.frame.size.height);
+        CGFloat itemimageX = (self.bounds.size.width/2) - (item.image.size.width/2);
+        CGFloat itemimageY = (self.bounds.size.height/2) - (item.image.size.height/2);
+        
+        if (badge) 
+        {   
+            
+			CGPoint point = CGPointMake((itemimageX + item.image.size.width) - (badge.bounds.size.width - 6),itemimageY-6);
+			badge.frame = CGRectMake(point.x, point.y, badge.bounds.size.width, badge.bounds.size.height);
 		}
 		
 		if (closeButton) 
 		{
-			closeButton.frame = CGRectMake(4, 2, closeButton.frame.size.width, closeButton.frame.size.height);
+			closeButton.frame = CGRectMake(itemimageX-10,itemimageY-10, closeButton.frame.size.width, closeButton.frame.size.height);
 		}
 	}
 
