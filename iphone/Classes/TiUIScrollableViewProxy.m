@@ -15,7 +15,7 @@
 -(void)_initWithProperties:(NSDictionary *)properties
 {
     pthread_rwlock_init(&viewsLock, NULL);
-    [self replaceValue:NUMINT(0) forKey:@"currentPage" notification:NO];
+    [self initializeProperty:@"currentPage" defaultValue:NUMINT(0)];
     [self initializeProperty:@"pagingControlColor" defaultValue:@"black"];
     [self initializeProperty:@"pagingControlHeight" defaultValue:NUMINT(20)];
     [self initializeProperty:@"showPagingControl" defaultValue:NUMBOOL(NO)];
