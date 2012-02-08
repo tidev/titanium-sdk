@@ -3,7 +3,7 @@ name: Titanium.UI.OptionDialog
 summary: The Option Dialog is created by <Titanium.UI.createOptionDialog> and allows you to show a modal dialog of one or more options to the user.
 extends: Titanium.Proxy
 since: "0.8"
-platforms: [android, iphone, ipad]
+
 methods:
   - name: show
     summary: cause the dialog to become visible
