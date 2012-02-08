@@ -38,8 +38,9 @@
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
-	[self replaceValue:[NSArray arrayWithObject:NUMINT(UIDataDetectorTypePhoneNumber)] forKey:@"autoDetect" notification:NO];
-	[super _initWithProperties:properties];
+    [self replaceValue:[NSArray arrayWithObject:NUMINT(UIDataDetectorTypePhoneNumber)] forKey:@"autoDetect" notification:NO];
+    [self initializeProperty:@"willHandleTouches" defaultValue:NUMBOOL(YES)];
+    [super _initWithProperties:properties];
 }
 
 
