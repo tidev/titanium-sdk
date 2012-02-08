@@ -231,14 +231,6 @@ textarea {
 		to(#666));
 }
 
-.TiUISwitchIndicator {
-	padding: 4px 4px;
-	border-radius: 4px;
-	-moz-border-radius: 4px;
-	-webkit-border-radius: 4px;
-	border: 1px solid #888;
-}
-
 .TiUITab {
 	background-color: silver;
 	border: solid 1px black;

@@ -5,28 +5,37 @@ define("Ti/UI/Switch", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 			post: "_updateLook"
 		},
         undef,
-        unitize = dom.unitize,
-        minSwitchWidth = 40;
+        unitize = dom.unitize;
 
 	return declare("Ti.UI.Switch", FontWidget, {
 		
 		domType: "button",
 
 		constructor: function(args) {
+			
+			// This container holds the flex boxes used to position the elements
 			this._contentContainer = dom.create("div", {
 				className: "TiUIButtonContentContainer",
+				style: {display: ["-webkit-box", "-moz-box"],
+					boxOrient: "vertical",
+					boxPack: "center",
+					boxAlign: "stretch",
+					width: "100%",
+					height: "100%"
+				}
+			}, this.domNode)
+			
+			// Create the text box and a flex box to align it
+			this._titleContainer = dom.create("div", {
+				className: "TiUIButtonTextAligner",
 				style: {
 					display: ["-webkit-box", "-moz-box"],
 					boxOrient: "vertical",
 					boxPack: "center",
-					boxAlign: "stretch",
-					pointerEvents: "none",
-					width: "100%",
-					height: "100%",
-					padding: 0,
-					margin: 0
+					boxAlign: "center",
+					boxFlex: 1
 				}
-			}, this.domNode);
+			}, this._contentContainer);
 			this._switchTitle = dom.create("div", {
 				className: "TiUISwitchTitle",
 				style: {
@@ -34,15 +43,29 @@ define("Ti/UI/Switch", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 					pointerEvents: "none",
 					textAlign: "center"
 				}
-			}, this._contentContainer);
+			}, this._titleContainer);
 			this._addStyleableDomNode(this._switchTitle);
 
+			// Create the switch indicator and a flex box to contain it
+			this._indicatorContainer = dom.create("div", {
+				className: "TiUIButtonTextAligner",
+				style: {
+					display: ["-webkit-box", "-moz-box"],
+					boxPack: "center",
+					boxAlign: "center",
+					marginTop: "3px"
+				}
+			}, this._contentContainer);
 			this._switchIndicator = dom.create("div", {
 				className: "TiUISwitchIndicator",
 				style: {
-					pointerEvents: "none"
+					padding: "4px 4px",
+					borderRadius: "4px",
+					border: "1px solid #888",
+					pointerEvents: "none",
+					width: "40px"
 				}
-			}, this._contentContainer);
+			}, this._indicatorContainer);
 			this._switchIndicator.domNode += " TiUISwitchIndicator";
 			this._setDefaultLook();
 			this.domNode.addEventListener("click",lang.hitch(this,function(){
@@ -86,11 +109,14 @@ define("Ti/UI/Switch", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 		},
 
 		_getContentWidth: function() {
-			return Math.max(this._measureText(this._switchTitle.innerHTML, this._switchTitle).width, minSwitchWidth) + (this._hasDefaultLook ? 12 : 0);
+			return Math.max(this._measureText(this._switchTitle.innerHTML, this._switchTitle).width, this._switchIndicator.offsetWidth) + (this._hasDefaultLook ? 12 : 0);
 		},
 
 		_getContentHeight: function() {
-			return this._measureText(this._switchTitle.innerHTML, this._switchTitle).height + this._switchIndicator.offsetHeight + (this._hasDefaultLook ? 12 : 0);
+			return this._measureText(this._switchTitle.innerHTML, this._switchTitle).height + // Text height
+				this._switchIndicator.offsetHeight + // Indicator height
+				3 + // Padding between the indicator and text
+				(this._hasDefaultLook ? 12 : 0); // Border of the default style
 		},
 		
 		_defaultWidth: "auto",
@@ -129,11 +155,11 @@ define("Ti/UI/Switch", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 				set: function(value) {
 					var cssValue = "";
 					switch(value) {
-						case Ti.UI.TEXT_ALIGNMENT_LEFT: cssValue = "left"; break;
-						case Ti.UI.TEXT_ALIGNMENT_CENTER: cssValue = "center"; break;
-						case Ti.UI.TEXT_ALIGNMENT_RIGHT: cssValue = "right"; break;
+						case Ti.UI.TEXT_VERTICAL_ALIGNMENT_TOP: cssValue = "start"; break;
+						case Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER: cssValue = "center"; break;
+						case Ti.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM: cssValue = "end"; break;
 					}
-					setStyle(this._switchTitle, "textAlign", cssValue);
+					setStyle(this._titleContainer, "boxAlign", cssValue);
 					return value;
 				}
 			},
@@ -179,7 +205,7 @@ define("Ti/UI/Switch", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 						case Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER: cssValue = "center"; break;
 						case Ti.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM: cssValue = "end"; break;
 					}
-					setStyle(this._contentContainer, "boxPack", cssValue);
+					setStyle(this._titleContainer, "boxPack", cssValue);
 				},
 				value: Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
 			},
