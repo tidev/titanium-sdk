@@ -33,7 +33,10 @@ import android.os.Message;
 import android.os.Messenger;
 import android.widget.TabHost.TabSpec;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
+	TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR,
+	TiC.PROPERTY_TABS_BACKGROUND_COLOR
+})
 public class TabGroupProxy extends TiWindowProxy
 {
 	private static final String LCAT = "TabGroupProxy";
@@ -376,7 +379,6 @@ public class TabGroupProxy extends TiWindowProxy
 		}
 
 		Messenger messenger = new Messenger(getMainHandler());
-		//Messenger messenger = new Messenger(getUIHandler());
 		intent.putExtra(TiC.INTENT_PROPERTY_MESSENGER, messenger);
 		intent.putExtra(TiC.INTENT_PROPERTY_MSG_ID, MSG_FINISH_OPEN);
 	}
