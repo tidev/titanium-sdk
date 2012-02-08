@@ -6,7 +6,10 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
@@ -18,6 +21,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -33,6 +37,9 @@ public class TiUIScrollView extends TiUIView {
 	private static final String SHOW_HORIZONTAL_SCROLL_INDICATOR = "showHorizontalScrollIndicator";
 	private static final String LCAT = "TiUIScrollView";
 	private static final boolean DBG = TiConfig.LOGD;
+	private int offsetX = 0, offsetY = 0;
+	private boolean setInitialOffset = false;
+
 
 	private class TiScrollViewLayout extends TiCompositeLayout
 	{
@@ -236,6 +243,17 @@ public class TiUIScrollView extends TiUIView {
 		{
 			layout.addView(child, params);
 		}
+		
+		public void onDraw(Canvas canvas) 
+		{
+			super.onDraw(canvas);
+			//setting offset once when this view is visible
+			if (!setInitialOffset) {
+				scrollTo(offsetX, offsetY);
+				setInitialOffset = true;
+			}
+
+		}
 
 		@Override
 		protected void onScrollChanged(int l, int t, int oldl, int oldt)
@@ -245,6 +263,7 @@ public class TiUIScrollView extends TiUIView {
 			KrollDict data = new KrollDict();
 			data.put(TiC.EVENT_PROPERTY_X, l);
 			data.put(TiC.EVENT_PROPERTY_Y, t);
+			setContentOffset(l, t);
 			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
 		}
 
@@ -274,6 +293,7 @@ public class TiUIScrollView extends TiUIView {
 				ViewGroup.LayoutParams.FILL_PARENT);
 			layout.setLayoutParams(params);
 			super.addView(layout, params);
+			
 		}
 
 		@Override
@@ -281,6 +301,17 @@ public class TiUIScrollView extends TiUIView {
 				android.view.ViewGroup.LayoutParams params)
 		{
 			layout.addView(child, params);
+		}
+		
+		public void onDraw(Canvas canvas) 
+		{
+			super.onDraw(canvas);
+			//setting offset once this view is visible
+			if (!setInitialOffset) {
+				scrollTo(offsetX, offsetY);
+				setInitialOffset = true;
+			}
+
 		}
 
 		@Override
@@ -291,6 +322,7 @@ public class TiUIScrollView extends TiUIView {
 			KrollDict data = new KrollDict();
 			data.put(TiC.EVENT_PROPERTY_X, l);
 			data.put(TiC.EVENT_PROPERTY_Y, t);
+			setContentOffset(l, t);
 			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
 		}
 
@@ -311,6 +343,40 @@ public class TiUIScrollView extends TiUIView {
 		getLayoutParams().autoFillsWidth = true;
 	}
 
+	public void setContentOffset(int x , int y) 
+	{
+		KrollDict offset = new KrollDict();
+		offsetX = x; 
+		offsetY = y;
+		offset.put(TiC.EVENT_PROPERTY_X, offsetX);
+		offset.put(TiC.EVENT_PROPERTY_Y, offsetY);
+		getProxy().setProperty(TiC.PROPERTY_CONTENT_OFFSET, offset);
+	}
+	
+	public void setContentOffset(Object hashMap) 
+	{
+		if (hashMap instanceof HashMap) {
+			HashMap contentOffset = (HashMap)hashMap;
+			offsetX = TiConvert.toInt(contentOffset, TiC.PROPERTY_X);
+			offsetY = TiConvert.toInt(contentOffset, TiC.PROPERTY_Y);
+		} else {
+			Log.e(LCAT, "contentOffset must be an instance of HashMap");
+		}
+	}
+	
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) 
+	{
+		if (DBG) {
+			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
+		}
+		if (key.equals(TiC.PROPERTY_CONTENT_OFFSET)) {
+			setContentOffset(newValue);
+			scrollTo(offsetX, offsetY);
+		}
+		super.propertyChanged(key, oldValue, newValue, proxy);
+	}
+	
 	@Override
 	public void processProperties(KrollDict d)
 	{
@@ -327,6 +393,11 @@ public class TiUIScrollView extends TiUIView {
 		if (showHorizontalScrollBar && showVerticalScrollBar) {
 			Log.w(LCAT, "Both scroll bars cannot be shown. Defaulting to vertical shown");
 			showHorizontalScrollBar = false;
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_CONTENT_OFFSET)) {
+			Object offset = d.get(TiC.PROPERTY_CONTENT_OFFSET);
+			setContentOffset(offset);
 		}
 
 		int type = TYPE_VERTICAL;
@@ -387,9 +458,11 @@ public class TiUIScrollView extends TiUIView {
 				view = new TiVerticalScrollView(getProxy().getActivity(), arrangement);
 		}
 		setNativeView(view);
-
+	
+		
 		nativeView.setHorizontalScrollBarEnabled(showHorizontalScrollBar);
 		nativeView.setVerticalScrollBarEnabled(showVerticalScrollBar);
+		
 
 		super.processProperties(d);
 	}

@@ -148,6 +148,7 @@ public class TiC
 	public static final String PROPERTY_COORDS = "coords";
 	public static final String PROPERTY_CONTENT_HEIGHT = "contentHeight";
 	public static final String PROPERTY_CONTENT_INTENT = "contentIntent";
+	public static final String PROPERTY_CONTENT_OFFSET = "contentOffset";
 	public static final String PROPERTY_CONTENT_TEXT = "contentText";
 	public static final String PROPERTY_CONTENT_TITLE = "contentTitle";
 	public static final String PROPERTY_CONTENT_URL = "contentURL";
