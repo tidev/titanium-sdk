@@ -308,6 +308,8 @@ public class TiC
 	public static final String PROPERTY_SUBTITLE = "subtitle";
 	public static final String PROPERTY_SUCCESS = "success";
 	public static final String PROPERTY_TAB_OPEN = "tabOpen";
+	public static final String PROPERTY_TABS_BACKGROUND_COLOR = "tabsBackgroundColor";
+	public static final String PROPERTY_TABS_BACKGROUND_SELECTED_COLOR = "tabsBackgroundSelectedColor";
 	public static final String PROPERTY_TAG = "tag";
 	public static final String PROPERTY_TEXT = "text";
 	public static final String PROPERTY_TEXTID = "textid";

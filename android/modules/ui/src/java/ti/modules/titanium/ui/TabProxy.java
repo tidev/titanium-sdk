@@ -6,7 +6,12 @@
  */
 package ti.modules.titanium.ui;
 
+import java.util.List;
+
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollPropertyChange;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
@@ -20,9 +25,11 @@ import android.app.Activity;
 propertyAccessors = {
 	TiC.PROPERTY_TITLE,
 	TiC.PROPERTY_TITLEID,
-	TiC.PROPERTY_ICON
+	TiC.PROPERTY_ICON,
+	TiC.PROPERTY_BACKGROUND_COLOR,
+	TiC.PROPERTY_BACKGROUND_SELECTED_COLOR
 })
-public class TabProxy extends TiViewProxy
+public class TabProxy extends TiViewProxy implements KrollProxyListener
 {
 	private TiWindowProxy win;
 	private TabGroupProxy tabGroupProxy;
@@ -30,6 +37,7 @@ public class TabProxy extends TiViewProxy
 	public TabProxy()
 	{
 		super();
+		modelListener = this;
 	}
 
 	public TabProxy(TiContext tiContext)
@@ -105,5 +113,39 @@ public class TabProxy extends TiViewProxy
 			win.setTabGroupProxy(null);
 			win.releaseViews();
 		}
+	}
+
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void processProperties(KrollDict d)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy)
+	{
+		// We need to handle changes to the background color properties here
+	}
+
+	@Override
+	public void listenerAdded(String type, int count, KrollProxy proxy)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void listenerRemoved(String type, int count, KrollProxy proxy)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }
