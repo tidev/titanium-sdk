@@ -35,6 +35,7 @@
 		notModuleRegExp = /(^\/)|(\:)|(\.js$)/,
 		relativeRegExp = /^\./,
 		packageNameRegExp = /([^\/]+)\/?(.*)/,
+		urlRegExp = /^url\:(.+)/,
 
 		// the global config settings
 		cfg = global.require || {},
@@ -428,12 +429,13 @@
 							break;
 						}
 					}
-				} else if (!notModule) {
-					url += name;
 				}
 
 				// MUST set pkg to anything other than null, even if this module isn't in a package
-				pkg || (pkg = "");
+				if (!pkg || (!match && notModule)) {
+					pkg = "";
+					url += name;
+				}
 
 				_t.url = url + ".js";
 			}
@@ -686,6 +688,7 @@
 				modules[m.name] = module;
 				module.deps = m.deps;
 				module.rawDef = m.rawDef;
+				module.refModule = m.refModule;
 				module.execute();
 			} else {
 				modules[m.name] = m;
@@ -1042,12 +1045,12 @@
 		//		|			});
 		//		|		}
 		//		|	});
-		var p, m, re = /^url\:(.+)/;
+		var p, m;
 		if (is(subject, "String")) {
 			return defCache[subject];
 		} else {
 			for (p in subject) {
-				m = p.match(re);
+				m = p.match(urlRegExp);
 				if (m) {
 					defCache[toUrl(m[1])] = subject[p];
 				} else {

@@ -25,7 +25,7 @@ var require = {
 				} catch (e) {}
 			}(Object.defineProperty, {}));
 		},
-		"opera": typeof opera === "undefined" || opera.toString() != "[object Opera]",
+		"opera": typeof opera === "undefined" || opera.toString() != "[object Opera]"
 	},
 	packages: ${packages},
 	project: {

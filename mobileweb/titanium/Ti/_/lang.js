@@ -7,7 +7,7 @@
  * <http://dojotoolkit.org>
  */
 
-define(["Ti/_/string"], function(string) {
+define(function() {
 	var global = this,
 		hitch,
 		is = require.is;
@@ -105,7 +105,7 @@ define(["Ti/_/string"], function(string) {
 									externalDest["get" + capitalizedName] = function() { return internalDest[property]; };
 									writable && (externalDest["set" + capitalizedName] = function(v) { return internalDest[property] = v; });
 								}
-							}(i, dest, d, d.__values__, src[p][i], string.capitalize(i), special[p]));
+							}(i, dest, d, d.__values__, src[p][i], i.substring(0, 1).toUpperCase() + i.substring(1), special[p]));
 						}
 					} else if (everything) {
 						dest[p] = src[p];
@@ -120,8 +120,7 @@ define(["Ti/_/string"], function(string) {
 				q = parts.pop(),
 				obj = window,
 				i = 0,
-				p = parts[i++],
-				value = {};
+				p = parts[i++];
 
 			if (p) {
 				do {
@@ -130,15 +129,16 @@ define(["Ti/_/string"], function(string) {
 			}
 
 			if (!obj || !q) {
-				return undefined;
+				return;
 			}
+			q = q in obj ? obj[q] : (obj[q] = {});
 
 			// need to mix args into values
 			for (i = 1; i < arguments.length; i++) {
-				is(arguments[i], "Object") ? this.mixProps(value, arguments[i], 1) : (value = arguments[i]);
+				is(arguments[i], "Object") ? this.mixProps(q, arguments[i], 1) : (q = arguments[i]);
 			}
 
-			return obj[q] = value;
+			return q;
 		},
 
 		toArray: toArray,

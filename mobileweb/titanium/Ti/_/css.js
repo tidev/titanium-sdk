@@ -1,4 +1,4 @@
-define(["Ti/_/string"], function(string) {
+define(["Ti/_", "Ti/_/string"], function(_, string) {
 	function processClass(node, cls, adding) {
 		var i = 0, p,
 			cn = " " + node.className + " ",
@@ -16,7 +16,7 @@ define(["Ti/_/string"], function(string) {
 		node.className = string.trim(cn);
 	}
 
-	return {
+	return _.css = {
 		add: function(node, cls) {
 			processClass(node, cls, 1);
 		},

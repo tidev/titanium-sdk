@@ -1,4 +1,5 @@
-define("Ti/Network/HTTPClient", ["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"], function(_, declare, lang, Evented, Network) {
+define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
+	function(_, declare, lang, Evented, Network) {
 
 	var is = require.is,
 		on = require.on,

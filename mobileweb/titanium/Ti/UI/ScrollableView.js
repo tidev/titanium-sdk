@@ -1,5 +1,4 @@
-define("Ti/UI/ScrollableView", 
-	["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], 
+define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], 
 	function(declare, Widget, lang, dom, css, style) {
 
 	var set = style.set,

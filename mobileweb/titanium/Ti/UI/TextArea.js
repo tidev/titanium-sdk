@@ -1,5 +1,4 @@
-define("Ti/UI/TextArea",
-	["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/UI"],
+define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/UI"],
 	function(declare, TextBox, dom, css, style, UI) {
 
 	return declare("Ti.UI.TextArea", TextBox, {

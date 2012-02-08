@@ -1,4 +1,5 @@
-define("Ti/Media/VideoPlayer", ["Ti/_/declare", "Ti/Media", "Ti/UI/View"], function(declare, Media, View) {
+define(["Ti/_/declare", "Ti/Media", "Ti/UI/View"],
+	function(declare, Media, View) {
 
 	var on = require.on,
 		STOPPED = 0,

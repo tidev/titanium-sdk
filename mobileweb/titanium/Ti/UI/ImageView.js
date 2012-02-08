@@ -1,5 +1,4 @@
-define("Ti/UI/ImageView", 
-	["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang"], 
+define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang"], 
 	function(declare, Widget, dom, css, style, lang) {
 		
 	var set = style.set;

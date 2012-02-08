@@ -2,7 +2,7 @@ define(function() {
 	var cache = {};
 
 	return {
-		dynamic: true, // prevent the loader from caching the result
+		dynamic: false, // prevent the loader from caching the result
 
 		normalize: function(name, normalize) {
 			var parts = name.split("!"),
@@ -13,7 +13,7 @@ define(function() {
 
 		load: function(name, require, onLoad, config) {
 			var x,
-				url = require.toUrl(/^\//.test(name) ? name : "./" + name),
+				url = require.toUrl(name),
 				c = cache[url] || require.cache(url);
 
 			if (!c) {

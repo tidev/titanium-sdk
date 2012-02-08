@@ -1,4 +1,4 @@
-define("Ti/UI/ActivityIndicator", ["Ti/_/declare", "Ti/_/UI/Element"], function(declare, Element) {
+define(["Ti/_/declare", "Ti/_/UI/Element"], function(declare, Element) {
 
 	return declare("Ti.UI.ActivityIndicator", Element, {
 

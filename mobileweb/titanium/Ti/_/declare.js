@@ -7,7 +7,7 @@
  * <http://dojotoolkit.org>
  */
 
-define(["Ti/_/lang"], function(lang) {
+define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 	var is = require.is,
 		mix = require.mix,
 		classCounters = {};
@@ -283,5 +283,5 @@ define(["Ti/_/lang"], function(lang) {
 		return ctor;
 	}
 
-	return declare;
+	return _.declare = declare;
 });

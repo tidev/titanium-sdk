@@ -357,6 +357,6 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 		trim: String.prototype.trim ?
 			function(str){ return str.trim(); } :
 			function(str){ return str.replace(/^\s\s*/, '').replace(/\s\s*$/, ''); }
-	}
+	};
 
 });

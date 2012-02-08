@@ -1,4 +1,4 @@
-define("Ti/UI/TabGroup", ["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView"], function(declare, css, SuperView) {
+define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView"], function(declare, css, SuperView) {
 
 	var is = require.is;
 

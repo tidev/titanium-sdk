@@ -1,4 +1,4 @@
-define("Ti/UI/2DMatrix", ["Ti/_/declare", "Ti/_/Evented", "Ti/Platform", "Ti/UI"], function(declare, Evented, Platform, UI) {
+define(["Ti/_/declare", "Ti/_/Evented", "Ti/Platform", "Ti/UI"], function(declare, Evented, Platform, UI) {
 
 	var isFF = Platform.runtime === "gecko",
 		px = function(x) {

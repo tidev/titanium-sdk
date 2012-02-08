@@ -1,15 +1,16 @@
-define(function() {
+define(["Ti/_/lang"], function(lang) {
 	// Pre-calculate the screen DPI
 	var body = document.body,
 		measureDiv = document.createElement('div'),
 		dpi;
+
 	measureDiv.style.width = "1in";
 	measureDiv.style.visibility = "hidden";
 	body.appendChild(measureDiv);
 	dpi = parseInt(measureDiv.clientWidth);
 	body.removeChild(measureDiv);
 
-	return {
+	return lang.setObject("Ti._", {
 		assert: function(test, msg) {
 			if (!test) {
 				throw new Error(msg);
@@ -36,5 +37,5 @@ define(function() {
 				return v.toString(16);
 			}).toUpperCase();
 		}
-	};
+	});
 });

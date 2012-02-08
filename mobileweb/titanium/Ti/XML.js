@@ -1,4 +1,4 @@
-define("Ti/Utils", ["Ti/_/Evented"], function(Evented) {
+define("Ti/XML", ["Ti/_/Evented"], function(Evented) {
 
 	(function(api){
 		// Interfaces

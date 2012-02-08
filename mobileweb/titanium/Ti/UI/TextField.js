@@ -1,5 +1,4 @@
-define("Ti/UI/TextField",
-	["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", "Ti/_/style", "Ti/UI"],
+define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", "Ti/_/style", "Ti/UI"],
 	function(declare, TextBox, css, dom, lang, style, UI) {
 
 	var borderStyles = ["None", "Line", "Bezel", "Rounded"];

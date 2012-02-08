@@ -1,4 +1,4 @@
-define("Ti/UI/Animation", ["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
+define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
 
 	var undef;
 

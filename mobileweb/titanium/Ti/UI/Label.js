@@ -1,4 +1,4 @@
-define("Ti/UI/Label", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang"], function(declare, FontWidget, dom, css, style, lang) {
+define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang"], function(declare, FontWidget, dom, css, style, lang) {
 
 	var set = style.set,
 		undef,

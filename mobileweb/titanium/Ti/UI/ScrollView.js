@@ -1,4 +1,4 @@
-define("Ti/UI/ScrollView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang"], function(declare, View, style, lang) {
+define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang"], function(declare, View, style, lang) {
 
 	return declare("Ti.UI.ScrollView", View, {
 		

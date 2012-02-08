@@ -7,13 +7,15 @@
  * <https://github.com/kriskowal/es5-shim>
  */
 
-define(["Ti/_", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style"], function(_, analytics, App, Evented, lang, ready, style) {
+define(
+	["Ti/_", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/Platform", "Ti/_/include"],
+	function(_, analytics, App, Evented, lang, ready, style, Platform) {
 
 	var global = window,
 		cfg = require.config,
 		ver = cfg.ti.version,
 		is = require.is,
-		each = require.is,
+		each = require.each,
 		has = require.has,
 		undef,
 		Ti = lang.setObject("Ti", Evented, {
@@ -246,8 +248,8 @@ define(["Ti/_", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/lang", "Ti/_/r
 			analytics.add('ti.start', 'ti.start', {
 				tz: (new Date()).getTimezoneOffset(),
 				deploytype: cfg.deployType,
-				os: Ti.Platform.osname,
-				osver: Ti.Platform.ostype,
+				os: Platform.osname,
+				osver: Platform.ostype,
 				version: cfg.tiVersion,
 				un: null,
 				app_version: cfg.appVersion,
@@ -260,7 +262,7 @@ define(["Ti/_", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/lang", "Ti/_/r
 
 		// load app.js when ti and dom is ready
 		ready(function() {
-			require(["Ti/UI", cfg.main || "app.js"]);
+			require([cfg.main || "app.js"]);
 		});
 	});
 

@@ -1,4 +1,4 @@
-define("Ti/Media", ["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
+define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 
 	return lang.setObject("Ti.Media", Evented, {
 
@@ -57,7 +57,8 @@ define("Ti/Media", ["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 		},
 
 		createVideoPlayer: function(args) {
-			return new Ti.Media.VideoPlayer(args);
+			var VideoPlayer = require("Ti/Media/VideoPlayer");
+			return new VideoPlayer(args);
 		}
 
 	});

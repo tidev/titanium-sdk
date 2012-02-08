@@ -1,5 +1,4 @@
-define("Ti/UI/View",
-	["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string", "Ti/_/Layouts", "Ti/_/style"],
+define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string", "Ti/_/Layouts", "Ti/_/style"],
 	function(declare, dom, Element, lang, string, Layouts, style) {
 		
 	var unitize = dom.unitize,

@@ -4,9 +4,8 @@
 # Project Compiler
 #
 
-import os, sys, time, datetime, simplejson, codecs, shutil, subprocess, mako.template
+import os, sys, time, datetime, simplejson, codecs, shutil, subprocess, mako.template, re
 from tiapp import *
-#re, base64, sgmllib, xml
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn','CVS'];
@@ -27,12 +26,14 @@ HEADER = """/**
 class Compiler(object):
 
 	def __init__(self, project_path, deploytype):
-		
 		start_time = time.time()
-		self.packages = []
-		self.dependencies = []
-		
 		self.minify = deploytype == "production"
+		
+		self.packages = []
+		self.project_dependencies = [] # modules that the project uses
+		self.modules_map = {}          # all modules including deps => individual module deps
+		self.modules_to_cache = []     # all modules to be baked into require.cache()
+		self.modules_to_load = []      # all modules to be required at load time
 		
 		# initialize paths
 		self.sdk_path = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
@@ -48,6 +49,10 @@ class Compiler(object):
 		sdk_version = os.path.basename(os.path.abspath(os.path.join(self.sdk_path, '../')))
 		print '[INFO] Titanium Mobile Web Compiler v%s' % sdk_version
 		
+		if not os.path.exists(self.project_path):
+			print '[ERROR] Invalid project "%s"' % self.project_path
+			sys.exit(1)
+		
 		# read the package.json
 		self.load_package_json()
 		
@@ -57,7 +62,6 @@ class Compiler(object):
 			'location': './titanium',
 			'main': self.package_json['main']
 		})
-		# self.dependencies += [self.compact_path('titanium/' + self.package_json['main'])]
 		
 		# read the tiapp.xml
 		tiapp_xml = TiAppXML(os.path.join(self.project_path, 'tiapp.xml'))
@@ -76,110 +80,23 @@ class Compiler(object):
 		self.copy(self.ti_package_path, os.path.join(self.build_path, 'titanium'))
 		
 		# scan project for dependencies
-		print '[INFO] Scanning project for dependencies...'
-		# TODO: scan the entire project's source and identify all dependencies
-		self.dependencies += [
-			# these MUST be ordered correctly!
-			
-			# building blocks
-			'Ti',
-			'Ti/_',
-			'Ti/_/browser',
-			'Ti/_/css',
-			'Ti/_/declare',
-			'Ti/_/dom',
-			'Ti/_/event',
-			'Ti/_/lang',
-			'Ti/_/ready',
-			'Ti/_/string',
-			'Ti/_/style',
-			
-			# AMD plugins
-			'Ti/_/include',
-			'Ti/_/text',
-			
-			# base classes
-			'Ti/_/Evented',
-			'Ti/UI',
-			'Ti/_/Gestures/GestureRecognizer',
-			'Ti/_/Gestures/DoubleTap',
-			'Ti/_/Gestures/LongPress',
-			'Ti/_/Gestures/Pinch',
-			'Ti/_/Gestures/SingleTap',
-			'Ti/_/Gestures/Swipe',
-			'Ti/_/Gestures/TouchStart',
-			'Ti/_/Gestures/TouchMove',
-			'Ti/_/Gestures/TouchEnd',
-			'Ti/_/Gestures/TouchCancel',
-			'Ti/_/Gestures/TwoFingerTap',
-			'Ti/_/UI/Element',
-			'Ti/_/Layouts/Base',
-			'Ti/_/Layouts/Absolute',
-			'Ti/_/Layouts/Horizontal',
-			'Ti/_/Layouts/Vertical',
-			'Ti/_/Layouts',
-			
-			# core classes
-			'Ti/Accelerometer',
-			'Ti/Analytics',
-			'Ti/API',
-			'Ti/App',
-			'Ti/App/Properties',
-			'Ti/Blob',
-			'Ti/Contacts',
-			'Ti/Database',
-			'Ti/Facebook',
-			'Ti/Filesystem',
-			'Ti/Geolocation',
-			'Ti/Locale',
-			'Ti/Map',
-			'Ti/Media',
-			'Ti/Network',
-			'Ti/Network/HTTPClient',
-			'Ti/Platform',
-			'Ti/Platform/DisplayCaps',
-			'Ti/Gesture',
-			'Ti/XML',
-			
-			# UI constants
-			'Ti/UI/MobileWeb/TableViewSeparatorStyle',
-			
-			# View classes
-			'Ti/UI/View',
-			'Ti/Media/VideoPlayer',
-			'Ti/UI/TableViewRow',
-			
-			# SuperView classes
-			'Ti/_/UI/SuperView',
-			'Ti/UI/Tab',
-			'Ti/UI/TabGroup',
-			'Ti/UI/Window',
-			
-			# Widget classes
-			'Ti/_/UI/Widget',
-			'Ti/_/UI/FontWidget',
-			'Ti/_/UI/TextBox',
-			'Ti/UI/2DMatrix',
-			'Ti/UI/ActivityIndicator',
-			'Ti/UI/AlertDialog',
-			'Ti/UI/Animation',
-			'Ti/UI/Button',
-			'Ti/UI/ImageView',
-			'Ti/UI/Label',
-			'Ti/UI/ScrollableView',
-			'Ti/UI/ScrollView',
-			'Ti/UI/Slider',
-			'Ti/UI/Switch',
-			'Ti/UI/TableViewSection',
-			'Ti/UI/TableView',
-			'Ti/UI/TextArea',
-			'Ti/UI/TextField',
-			'Ti/_/text!Ti/_/UI/WebViewBridge.js',
-			'Ti/UI/WebView',
-			'Ti/Utils',
-			
-			'app.js'
-		]
+		self.find_project_dependencies()
+		
+		# scan all dependencies for distinct list of modules
+		self.find_modules_to_cache()
+		self.modules_to_cache.append('Ti/_/include')
+		
+		# find only the top most modules to be required
+		areDeps = {}
+		for module in self.modules_to_cache:
+			# check if module is a dependent of another module
+			for m in self.modules_map:
+				deps = self.modules_map[m]
+				if module in deps:
+					areDeps[module] = 1
+		for module in self.modules_map:
+			if not module in areDeps:
+				self.modules_to_load.append(module)
 		
 		# detect Ti+ modules
 		if len(tiapp_xml.properties['modules']):
@@ -208,7 +125,7 @@ class Compiler(object):
 						print '[ERROR] Ti+ module "%s" is invalid: missing main "%s"' % (module['id'], main_file + '.js')
 						sys.exit(1)
 					
-					self.dependencies.append(main_file)
+					self.project_dependencies.append(main_file)
 					
 					self.packages.append({
 						'name': module['id'],
@@ -225,7 +142,18 @@ class Compiler(object):
 					# copy entire module directory to build directory
 					shutil.copytree(module_dir, os.path.join(self.build_path, 'modules', module['id']))
 		
-		print '[INFO] Found %s dependenc%s' % (len(self.dependencies), 'y' if len(self.dependencies) == 1 else 'ies')
+		# detect circular dependencies
+		for module in self.modules_to_cache:
+			if module in self.modules_map:
+				mydeps = self.modules_map[module]
+				for dep in mydeps:
+					if dep in self.modules_map and module in self.modules_map[dep]:
+						print '[WARN] Circular dependency detected: %s dependent on %s' % (module, dep)
+		
+		print '[INFO] Found %s dependenc%s, %s package%s, %s module%s' % (
+			len(self.project_dependencies), 'y' if len(self.project_dependencies) == 1 else 'ies',
+			len(self.packages), '' if len(self.packages) == 1 else 's',
+			len(self.modules_to_cache), '' if len(self.project_dependencies) == 1 else 's')
 		
 		# TODO: break up the dependencies into layers
 		
@@ -261,18 +189,35 @@ class Compiler(object):
 		# 3) cache the dependencies
 		ti_js.write('require.cache({\n');
 		first = True
-		for x in self.dependencies:
+		for x in self.modules_to_cache:
 			dep = self.resolve(x)
 			if not len(dep):
 				continue
 			if not first:
-				ti_js.write(',')
+				ti_js.write(',\n')
 			first = False
 			filename = dep[1]
 			if not filename.endswith('.js'):
 				filename += '.js'
-			ti_js.write('"%s":function(){\n%s\n}\n' % (x, codecs.open(os.path.join(dep[0], filename), 'r', 'utf-8').read()))
-		ti_js.write('});')
+			if x.startswith('url:'):
+				filename = os.path.join(dep[0], filename)
+				source = filename + '.uncompressed.js'
+				if self.minify:
+					os.rename(filename, source)
+					p = subprocess.Popen('java -jar "%s" --compilation_level SIMPLE_OPTIMIZATIONS --js "%s" --js_output_file "%s"' % (os.path.join(self.sdk_path, 'closureCompiler', 'compiler.jar'), source, filename), shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+					stdout, stderr = p.communicate()
+					if p.returncode != 0:
+						print '[ERROR] Failed to minify "%s"' % filename
+						for line in stderr.split('\n'):
+							if len(line):
+								print '[ERROR]    %s' % line
+						print '[WARN] Leaving %s un-minified' % filename
+						os.remove(filename)
+						shutil.copy(source, filename)
+				ti_js.write('"%s":"%s"' % (x, codecs.open(filename, 'r', 'utf-8').read().strip().replace('\\', '\\\\').replace('\n', '\\\n').replace('\"', '\\\"')))
+			else:
+				ti_js.write('"%s":function(){\n%s\n}' % (x, codecs.open(os.path.join(dep[0], filename), 'r', 'utf-8').read()))
+		ti_js.write('});\n')
 		
 		# 4) write the ti.app.properties
 		if len(tiapp_xml.app_properties):
@@ -280,16 +225,20 @@ class Compiler(object):
 			for name in tiapp_xml.app_properties:
 				prop = tiapp_xml.app_properties[name]
 				if prop['type'] == 'bool':
-					s += 'p.setBool("' + name + '",' + prop['value'] + ');'
+					s += 'p.setBool("' + name + '",' + prop['value'] + ');\n'
 				elif prop['type'] == 'int':
-					s += 'p.setInt("' + name + '",' + prop['value'] + ');'
+					s += 'p.setInt("' + name + '",' + prop['value'] + ');\n'
 				elif prop['type'] == 'double':
-					s += 'p.setDouble("' + name + '",' + prop['value'] + ');'
+					s += 'p.setDouble("' + name + '",' + prop['value'] + ');\n'
 				else:
-					s += 'p.setString("' + name + '","' + str(prop['value']).replace('"', '\\"') + '");'
-			ti_js.write('require("Ti/App/Properties", function(p) {%s}' % s)
+					s += 'p.setString("' + name + '","' + str(prop['value']).replace('"', '\\"') + '");\n'
+			ti_js.write('require("Ti/App/Properties", function(p) {\n%s});\n' % s)
 		
-		# 5) close the titanium.js
+		# 5) write require() to load all Ti modules
+		self.modules_to_load.sort()
+		ti_js.write('require(%s);' % simplejson.dumps(self.modules_to_load))
+		
+		# 6) close the titanium.js
 		ti_js.close()
 		
 		# assemble the titanium.css file
@@ -330,6 +279,7 @@ class Compiler(object):
 		# close the titanium.css
 		ti_css.close()
 		
+		# minify all javascript, html, and css files
 		if self.minify:
 			for root, dirs, files in os.walk(self.build_path):
 				for name in ignoreDirs:
@@ -343,8 +293,10 @@ class Compiler(object):
 					if ext == '.js':
 						source = dest + '.uncompressed.js'
 						print '[INFO] Minifying %s' % dest
+						if os.path.exists(source):
+							os.remove(source)
 						os.rename(dest, source)
-						p = subprocess.Popen('java -jar "%s" -Djava.awt.headless=true --compilation_level SIMPLE_OPTIMIZATIONS --js "%s" --js_output_file "%s"' % (os.path.join(self.sdk_path, 'closureCompiler', 'compiler.jar'), source, dest), shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+						p = subprocess.Popen('java -jar "%s" --compilation_level SIMPLE_OPTIMIZATIONS --js "%s" --js_output_file "%s"' % (os.path.join(self.sdk_path, 'closureCompiler', 'compiler.jar'), source, dest), shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
 						stdout, stderr = p.communicate()
 						if p.returncode != 0:
 							print '[ERROR] Failed to minify "%s"' % dest
@@ -356,6 +308,8 @@ class Compiler(object):
 							shutil.copy(source, dest)
 					# elif ext == '.css':
 					#	TODO: minify css
+					# elif ext == '.html':
+					#	TODO: minify html
 		
 		# get status bar style
 		status_bar_style = tiapp_xml.properties['statusbar-style']
@@ -395,10 +349,18 @@ class Compiler(object):
 		print '[INFO] Finished in %s seconds' % total_seconds
 	
 	def resolve(self, it):
-		it = it.split('!')[0]
+		parts = it.split('!')
+		it = parts[-1]
+		if it.startswith('url:'):
+			it = it[4:]
+			parts = it.split('/')
+			for p in self.packages:
+				if p['name'] == parts[0]:
+					return [self.compact_path(os.path.join(self.build_path, p['location'])), it]
+			return [self.build_path, it]
 		if it.find(':') != -1:
 			return []
-		if it.startswith('/') or it.endswith('.js'):
+		if it.startswith('/') or (len(parts) == 1 and it.endswith('.js')):
 			return [self.build_path, it]
 		parts = it.split('/')
 		for p in self.packages:
@@ -437,7 +399,7 @@ class Compiler(object):
 		return '/'.join(result);
 	
 	def build_icons(self, src):
-		print '[INFO] Resizing app icon "%s"' % src
+		print '[INFO] Generating app icons...'
 		s = 'java -cp "%s:%s" -Djava.awt.headless=true resize "%s"' % (os.path.join(self.sdk_path, 'imageResizer'), os.path.join(self.sdk_path, 'imageResizer', 'imgscalr-lib-4.2.jar'), src)
 		s += ' "%s" %d %d' % (os.path.join(self.build_path, 'apple-touch-icon-precomposed.png'), 57, 57)
 		s += ' "%s" %d %d' % (os.path.join(self.build_path, 'apple-touch-icon-57x57-precomposed.png'), 57, 57)
@@ -451,3 +413,115 @@ class Compiler(object):
 			print '[ERROR] Unable to open titanium package manifest "%s"' % package_json_file
 			sys.exit(1)
 		self.package_json = simplejson.load(codecs.open(package_json_file, 'r', 'utf-8'))
+	
+	def find_project_dependencies(self):
+		print '[INFO] Scanning project for dependencies...'
+		
+		# TODO: using an AST, scan the entire project's source and identify all dependencies
+		self.project_dependencies += [
+			'Ti',
+			'Ti/UI',
+			'Ti/API',
+			'Ti/App',
+			'Ti/App/Properties',
+			'Ti/Facebook',
+			'Ti/Filesystem',
+			'Ti/Media',
+			'Ti/Media/VideoPlayer',
+			'Ti/Network',
+			'Ti/Network/HTTPClient',
+			'Ti/Platform',
+			'Ti/Platform/DisplayCaps',
+			'Ti/Gesture',
+			'Ti/XML',
+			'Ti/UI/View',
+			'Ti/Media/VideoPlayer',
+			'Ti/UI/TableViewRow',
+			'Ti/UI/Tab',
+			'Ti/UI/TabGroup',
+			'Ti/UI/Window',
+			'Ti/UI/2DMatrix',
+			'Ti/UI/ActivityIndicator',
+			'Ti/UI/AlertDialog',
+			'Ti/UI/Animation',
+			'Ti/UI/Button',
+			'Ti/UI/ImageView',
+			'Ti/UI/Label',
+			'Ti/UI/ScrollableView',
+			'Ti/UI/ScrollView',
+			'Ti/UI/Slider',
+			'Ti/UI/Switch',
+			'Ti/UI/TableViewSection',
+			'Ti/UI/TableView',
+			'Ti/UI/TextArea',
+			'Ti/UI/TextField',
+			'Ti/UI/WebView',
+			'Ti/Utils'
+		]
+	
+	def find_modules_to_cache(self):
+		print '[INFO] Searching for all required modules...'
+		
+		self.require_cache = {}
+		
+		for module in self.project_dependencies:
+			self.parse_module(module)
+		
+		self.modules_to_cache = []
+		for module in self.require_cache:
+			self.modules_to_cache.append(module)
+	
+	def parse_module(self, module):
+		if module in self.require_cache:
+			return
+		
+		parts = module.split('!')
+		
+		if len(parts) == 1:
+			self.require_cache[module] = 1
+		
+		dep = self.resolve(module)
+		if not len(dep):
+			return
+		
+		if len(parts) > 1:
+			self.require_cache['url:' + parts[1]] = 1
+		
+		filename = dep[1]
+		if not filename.endswith('.js'):
+			filename += '.js'
+		
+		source = codecs.open(os.path.join(dep[0], filename), 'r', 'utf-8').read()
+		pattern = re.compile('define\(\s*([\'\"][^\'\"]*[\'\"]\s*)?,?\s*(\[[^\]]+\])\s*?,?\s*(function|\{)')
+		results = pattern.search(source)
+		if results is None:
+			self.modules_map[module] = []
+		else:
+			groups = results.groups()
+			if groups is not None and len(groups):
+				if groups[1] is None:
+					self.modules_map[module] = []
+				else:
+					deps = simplejson.loads(groups[1])
+					self.modules_map[module] = deps
+					for dep in deps:
+						parts = dep.split('!')
+						if len(parts) == 1:
+							if dep.startswith('./'):
+								parts = module.split('/')
+								parts.pop()
+								parts.append(dep)
+								self.parse_module(self.compact_path('/'.join(parts)))
+							else:
+								self.parse_module(dep)
+						else:
+							self.modules_map[dep] = parts[0]
+							self.parse_module(parts[0])
+							if parts[0] == 'Ti/_/text':
+								if dep.startswith('./'):
+									parts = module.split('/')
+									parts.pop()
+									parts.append(dep)
+									self.parse_module(self.compact_path('/'.join(parts)))
+								else:
+									self.parse_module(dep)

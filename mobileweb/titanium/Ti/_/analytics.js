@@ -6,7 +6,8 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 		doc = document,
 		matches = doc.cookie.match(new RegExp("(?:^|; )" + midName + "=([^;]*)")),
 		mid = matches ? decodeURIComponent(matches[1]) : undefined,
-		analyticsEnabled = require.config.analytics,
+		cfg = require.config,
+		analyticsEnabled = cfg.analytics,
 		analyticsStorageName = "ti:analyticsEvents",
 		analyticsEventSeq = 1,
 		analyticsLastSent = null;
@@ -24,7 +25,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 
 	sessionId || sessionStorage.setItem("mobileweb_sessionId", sessionId = _.uuid());
 
-	return lang.setObject("Ti/_/analytics", {
+	return _.analytics = {
 
 		add: function(eventType, eventEvent, data, isUrgent) {
 			if (analyticsEnabled) {
@@ -167,6 +168,6 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 			}
 		}
 
-	});
+	};
 
 });

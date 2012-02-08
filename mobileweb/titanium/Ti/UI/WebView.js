@@ -1,5 +1,4 @@
-define("Ti/UI/WebView",
-	["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/text!Ti/_/UI/WebViewBridge.js"],
+define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/text!Ti/_/UI/WebViewBridge.js"],
 	function(declare, Widget, dom, event, lang, bridge) {
 
 	var on = require.on;

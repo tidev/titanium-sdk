@@ -1,4 +1,4 @@
-define("Ti/UI/TableViewSection", ["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/MobileWeb/TableViewSeparatorStyle"], 
+define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/MobileWeb/TableViewSeparatorStyle"], 
 	function(declare, Widget, style, TableViewSeparatorStyle) {
 	
 	var is = require.is,

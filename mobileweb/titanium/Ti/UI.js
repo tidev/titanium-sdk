@@ -1,12 +1,23 @@
-define(["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style"], function(dom, Evented, lang, ready, style) {
-	
+define(
+	["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style"],
+	function(dom, Evented, lang, ready, style) {
+
 	var body = document.body,
 		isDef = require.isDef,
-		isIOS = /(iPhone|iPad)/.test(navigator.userAgent);
+		isIOS = /(iPhone|iPad)/.test(navigator.userAgent),
+		modules = "2DMatrix,ActivityIndicator,AlertDialog,Animation,Button,ImageView,Label,ScrollableView,ScrollView,Slider,Switch,Tab,TabGroup,TableView,TableViewRow,TableViewSection,TextArea,TextField,View,WebView,Window",
+		creators = {};
 
 	body.addEventListener('touchmove', function(e) {
 		e.preventDefault();
 	}, false);
+
+	require.each(modules.split(','), function(name) {
+		creators['create' + name] = function(args) {
+			var m = require("Ti/UI/" + name);
+			return new m(args);
+		};
+	});
 
 	function hideAddressBar() {
 		var x = 0;
@@ -41,7 +52,7 @@ define(["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style"], fu
 		Ti.UI._recalculateLayout();
 	});
 
-	return lang.setObject("Ti.UI", Evented, {
+	return lang.setObject("Ti.UI", Evented, creators, {
 
 		_addWindow: function(win, set) {
 			this._container.add(win);
@@ -176,130 +187,6 @@ define(["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style"], fu
 			ANIMATION_CURVE_EASE_IN_OUT: 2,
 			ANIMATION_CURVE_EASE_OUT: 3,
 			ANIMATION_CURVE_LINEAR: 4
-		},
-
-		create2DMatrix: function(args) {
-			return new Ti.UI["2DMatrix"](args);
-		},
-
-		createActivityIndicator: function(args) {
-			return new Ti.UI.ActivityIndicator(args);
-		},
-
-		createAlertDialog: function(args) {
-			return new Ti.UI.AlertDialog(args);
-		},
-
-		createAnimation: function(args) {
-			return new Ti.UI.Animation(args);
-		},
-
-		createButton: function(args) {
-			return new Ti.UI.Button(args);
-		},
-
-		createButtonBar: function() {
-			console.debug('Method "Titanium.UI.createButtonBar" is not implemented yet.');
-		},
-
-		createDashboardItem: function() {
-			console.debug('Method "Titanium.UI.createDashboardItem" is not implemented yet.');
-		},
-
-		createDashboardView: function() {
-			console.debug('Method "Titanium.UI.createDashboardView" is not implemented yet.');
-		},
-
-		createEmailDialog: function() {
-			console.debug('Method "Titanium.UI.createEmailDialog" is not implemented yet.');
-		},
-
-		createImageView: function(args) {
-			return new Ti.UI.ImageView(args);
-		},
-
-		createLabel: function(args) {
-			return new Ti.UI.Label(args);
-		},
-
-		createOptionDialog: function() {
-			console.debug('Method "Titanium.UI.createOptionDialog" is not implemented yet.');
-		},
-
-		createPicker: function(args) {
-			return new Ti.UI.Picker(args);
-		},
-
-		createPickerColumn: function() {
-			console.debug('Method "Titanium.UI.createPickerColumn" is not implemented yet.');
-		},
-
-		createPickerRow: function(args) {
-			return new Ti.UI.PickerRow(args);
-		},
-
-		createProgressBar: function() {
-			console.debug('Method "Titanium.UI.createProgressBar" is not implemented yet.');
-		},
-
-		createScrollView: function(args) {
-			return new Ti.UI.ScrollView(args);
-		},
-
-		createScrollableView: function(args) {
-			return new Ti.UI.ScrollableView(args);
-		},
-
-		createSearchBar: function(args) {
-			return new Ti.UI.SearchBar(args);
-		},
-
-		createSlider: function(args) {
-			return new Ti.UI.Slider(args);
-		},
-
-		createSwitch: function(args) {
-			return new Ti.UI.Switch(args);
-		},
-
-		createTab: function(args) {
-			return new Ti.UI.Tab(args);
-		},
-
-		createTabGroup: function(args) {
-			return new Ti.UI.TabGroup(args);
-		},
-
-		createTableView: function(args) {
-			return new Ti.UI.TableView(args);
-		},
-
-		createTableViewRow: function(args) {
-			return new Ti.UI.TableViewRow(args);
-		},
-
-		createTableViewSection: function(args) {
-			return new Ti.UI.TableViewSection(args);
-		},
-
-		createTextArea: function(args) {
-			return new Ti.UI.TextArea(args);
-		},
-
-		createTextField: function(args) {
-			return new Ti.UI.TextField(args);
-		},
-
-		createView: function(args) {
-			return new Ti.UI.View(args);
-		},
-
-		createWebView: function(args) {
-			return new Ti.UI.WebView(args);
-		},
-
-		createWindow: function(args) {
-			return new Ti.UI.Window(args);
 		}
 
 	});

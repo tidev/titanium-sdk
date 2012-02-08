@@ -1,4 +1,4 @@
-define("Ti/UI/TableView", ["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb/TableViewSeparatorStyle"], 
+define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb/TableViewSeparatorStyle"], 
 	function(declare, View, style, lang, TableViewSeparatorStyle) {
 
 	var set = style.set,
