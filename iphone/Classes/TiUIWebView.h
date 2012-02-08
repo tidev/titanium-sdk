@@ -27,7 +27,6 @@
 }
 
 @property(nonatomic,readonly) id url;
-@property(nonatomic,readonly) id loading;
 @property(nonatomic,readwrite,retain) id reloadData;
 @property(nonatomic,readwrite,retain) id reloadDataProperties;
 

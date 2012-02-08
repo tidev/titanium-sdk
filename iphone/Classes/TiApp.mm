@@ -108,6 +108,11 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 @synthesize window, remoteNotificationDelegate, controller;
 
++(void)initialize
+{
+	TiThreadInitalize();
+}
+
 + (TiApp*)app
 {
 	return sharedApp;
@@ -315,8 +320,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 -(void)waitForKrollProcessing
 {
 	CGFloat timeLeft = [[UIApplication sharedApplication] backgroundTimeRemaining]-1.0;
-	if (timeLeft > 1.0) {
-		timeLeft = 1.0;
+	if (timeLeft > 3.0) {
+		timeLeft = 3.0;
 	}
 	else if(timeLeft < 0.0) {
 		return;

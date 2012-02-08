@@ -9,6 +9,8 @@
 #import "TiDebugger.h"
 
 #include <stdarg.h>
+#include <pthread.h>
+#include <sys/time.h>
 
 NSMutableArray* TiCreateNonRetainingArray() 
 {
@@ -93,7 +95,7 @@ void TiExceptionThrowWithNameAndReason(NSString * exceptionName, NSString * mess
 	NSLog(@"[ERROR] %@",message);
 	if (TiExceptionIsSafeOnMainThread || ![NSThread isMainThread]) {
 		@throw [NSException exceptionWithName:exceptionName reason:message userInfo:nil];
-	}	
+	}
 }
 
 void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish)
@@ -126,7 +128,15 @@ void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish)
 
 
 NSMutableArray * TiThreadBlockQueue = nil;
-OSSpinLock TiThreadSpinLock = OS_SPINLOCK_INIT;
+pthread_mutex_t TiThreadBlockMutex;
+pthread_cond_t TiThreadBlockCondition;
+
+void TiThreadInitalize()
+{
+	pthread_mutex_init(&TiThreadBlockMutex,NULL);
+    pthread_cond_init(&TiThreadBlockCondition, NULL);
+	TiThreadBlockQueue = [[NSMutableArray alloc] initWithCapacity:10];
+}
 
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 {
@@ -156,20 +166,12 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 	void (^wrapperBlockCopy)() = [wrapperBlock copy];
 	
 	
-	int isEmpty;
-	OSSpinLockLock(&TiThreadSpinLock);
-		isEmpty = [TiThreadBlockQueue count] <= 0;
+	pthread_mutex_lock(&TiThreadBlockMutex);
 		if (!alreadyOnMainThread || !waitForFinish) {
-			if (TiThreadBlockQueue == nil)
-			{
-				TiThreadBlockQueue = [[NSMutableArray alloc] initWithObjects:wrapperBlockCopy, nil];
-			}
-			else
-			{
-				[TiThreadBlockQueue addObject:wrapperBlockCopy];
-			}
+			[TiThreadBlockQueue addObject:wrapperBlockCopy];
 		}
-	OSSpinLockUnlock(&TiThreadSpinLock);
+    pthread_cond_signal(&TiThreadBlockCondition);
+    pthread_mutex_unlock(&TiThreadBlockMutex);
 	
 	if (alreadyOnMainThread) {
 		// In order to maintain serial consistency, we have to stand in line
@@ -196,6 +198,11 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 	dispatch_async(dispatch_get_main_queue(), (dispatch_block_t)dispatchedMainBlock);
 	if (waitForFinish)
 	{
+		/*
+		 *	The reason we use a semaphore instead of simply calling the block sychronously
+		 *	is that it is possible that a previous dispatchedMainBlock (Or manual call of
+		 *	TiThreadProcessPendingMainThreadBlocks) processes the 
+		 */
 		dispatch_time_t oneSecond = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC);
 		BOOL waiting = dispatch_semaphore_wait(waitSemaphore, oneSecond);
 		if (waiting) {
@@ -213,19 +220,30 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 
 BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhenEmpty, void (^continueCallback)(BOOL *) )
 {
-	NSTimeInterval doneTime = [NSDate timeIntervalSinceReferenceDate] + timeout;
+	struct timeval doneTime;
+	gettimeofday(&doneTime, NULL);
+	float timeoutSeconds = floorf(timeout);
+	doneTime.tv_usec += ((timeout - timeoutSeconds) * USEC_PER_SEC);
+	if (doneTime.tv_usec >= USEC_PER_SEC) {
+		doneTime.tv_usec -= USEC_PER_SEC;
+		doneTime.tv_sec += 1 + (int)timeoutSeconds;
+	}
+	else {
+		doneTime.tv_sec += (int)timeoutSeconds;
+	}
+	
 	BOOL shouldContinue = YES;
 	BOOL isEmpty = NO;
 	do {
 		void (^thisAction)(void) = nil;
 		
-		OSSpinLockLock(&TiThreadSpinLock);
+		pthread_mutex_lock(&TiThreadBlockMutex);
 			isEmpty = [TiThreadBlockQueue count] <= 0;
 			if (!isEmpty) {
 				thisAction = [[TiThreadBlockQueue objectAtIndex:0] retain];
 				[TiThreadBlockQueue removeObjectAtIndex:0];
 			}
-		OSSpinLockUnlock(&TiThreadSpinLock);
+		pthread_mutex_unlock(&TiThreadBlockMutex);
 		
 		if (thisAction != nil) {
 			NSAutoreleasePool * smallPool = [[NSAutoreleasePool alloc] init];
@@ -234,23 +252,31 @@ BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhe
 			[smallPool release];
 		}
 		//It's entirely possible that the action itself caused more entries.
-		OSSpinLockLock(&TiThreadSpinLock);
-			isEmpty = [TiThreadBlockQueue count] <= 0;
-		OSSpinLockUnlock(&TiThreadSpinLock);
 
-		shouldContinue = !(doneWhenEmpty && isEmpty) &&
-				([NSDate timeIntervalSinceReferenceDate] < doneTime);
-		
-		if (continueCallback != NULL) { //continueCallback can override anything.
-			continueCallback(&shouldContinue);
-		}
-		if (shouldContinue && isEmpty) {
-			/*
-			 *	If we're told to loop despite there being nothing to loop, it
-			 *	is likely we're waiting for the background thread to request
-			 *	something. In this case, we should briefly sleep.
-			 */
-		}
+		pthread_mutex_lock(&TiThreadBlockMutex);
+			isEmpty = [TiThreadBlockQueue count] <= 0;
+			shouldContinue = !(doneWhenEmpty && isEmpty);
+			if (shouldContinue) {
+				struct timeval nowTime;
+				gettimeofday(&nowTime, NULL);
+				shouldContinue = timercmp(&nowTime, &doneTime, <);
+			}
+			
+			if (continueCallback != NULL) { //continueCallback can override anything.
+				continueCallback(&shouldContinue);
+			}
+			if (shouldContinue && isEmpty) {
+				struct timespec doneTimeSpec;
+				TIMEVAL_TO_TIMESPEC(&doneTime,&doneTimeSpec);
+				/*
+				 *	If we're told to loop despite there being nothing to loop, it
+				 *	is likely we're waiting for the background thread to request
+				 *	something. In this case, we should briefly sleep.
+				 */
+				pthread_cond_timedwait(&TiThreadBlockCondition, &TiThreadBlockMutex, &doneTimeSpec);
+			}
+		pthread_mutex_unlock(&TiThreadBlockMutex);
+
 	} while (shouldContinue);
 	return isEmpty;
 }
