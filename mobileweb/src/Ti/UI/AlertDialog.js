@@ -60,6 +60,9 @@ define("Ti/UI/AlertDialog", ["Ti/_/declare", "Ti/_/Evented"], function(declare, 
 					title: title,
 					index: index
 				});
+				if (index === self.cancel) {
+					button.domNode.className += " TiUIButtonCancel";
+				}
 				alertDialog.add(button);
 				button.addEventListener("singletap",function(){
 					alertWindow.close();
