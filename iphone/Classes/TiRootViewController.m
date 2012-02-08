@@ -534,8 +534,10 @@
         if (windowOrientation != [[UIApplication sharedApplication] statusBarOrientation]) {
             [[UIApplication sharedApplication] setStatusBarOrientation:windowOrientation animated:NO];
         }
-		//Nothing to do here.
-		return;
+        if (TI_ORIENTATION_ALLOWED(allowedOrientations, orientationHistory[0])) {
+            //Nothing to do here.
+            return;
+        }
 	}
 	
 	[self manuallyRotateToOrientation:newOrientation duration:duration];

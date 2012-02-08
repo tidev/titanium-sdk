@@ -1422,20 +1422,22 @@ class Builder(object):
 								debug("installing native lib: %s" % native_lib)
 								apk_zip.write(native_lib, path_in_zip)
 
-		# add any native libraries : libs/**/*.so -> lib/**/*.so
-		add_native_libs(os.path.join(self.project_dir, 'libs'))
+		if self.runtime == 'v8':
+			# add any native libraries : libs/**/*.so -> lib/**/*.so
+			add_native_libs(os.path.join(self.project_dir, 'libs'))
 
-		# add module native libraries
-		for module in self.modules:
-			add_native_libs(module.get_resource('libs'))
+			# add module native libraries
+			for module in self.modules:
+				add_native_libs(module.get_resource('libs'))
 
-		# add sdk runtime native libraries
-		sdk_native_libs = os.path.join(template_dir, 'native', 'libs')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libkroll-v8.so'), 'lib/armeabi/libkroll-v8.so')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libstlport_shared.so'), 'lib/armeabi/libstlport_shared.so')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libkroll-v8.so'), 'lib/armeabi-v7a/libkroll-v8.so')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libstlport_shared.so'), 'lib/armeabi-v7a/libstlport_shared.so')
-		self.apk_updated = True
+			# add sdk runtime native libraries
+			debug("installing native SDK libs")
+			sdk_native_libs = os.path.join(template_dir, 'native', 'libs')
+			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libkroll-v8.so'), 'lib/armeabi/libkroll-v8.so')
+			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libstlport_shared.so'), 'lib/armeabi/libstlport_shared.so')
+			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libkroll-v8.so'), 'lib/armeabi-v7a/libkroll-v8.so')
+			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libstlport_shared.so'), 'lib/armeabi-v7a/libstlport_shared.so')
+			self.apk_updated = True
 
 		apk_zip.close()
 		return unsigned_apk
