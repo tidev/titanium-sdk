@@ -9,7 +9,7 @@ methods:
     summary: Logs messages with a `debug` severity.
     description: |
         Debug-severity log messages are not supported by Titanium Studio. Use Xcode for iOS 
-        and `adb` for Android to view these messages.
+        and `adb logcat` for Android to view these messages.
     parameters:
       - name: message
         summary: Message to log.
