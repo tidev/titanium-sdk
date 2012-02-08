@@ -5,7 +5,7 @@ define(
 	var body = document.body,
 		isDef = require.isDef,
 		isIOS = /(iPhone|iPad)/.test(navigator.userAgent),
-		modules = "2DMatrix,ActivityIndicator,AlertDialog,Animation,Button,ImageView,Label,ScrollableView,ScrollView,Slider,Switch,Tab,TabGroup,TableView,TableViewRow,TableViewSection,TextArea,TextField,View,WebView,Window",
+		modules = "2DMatrix,ActivityIndicator,AlertDialog,Animation,Button,ImageView,Label,OptionDialog,ScrollableView,ScrollView,Slider,Switch,Tab,TabGroup,TableView,TableViewRow,TableViewSection,TextArea,TextField,View,WebView,Window",
 		creators = {};
 
 	body.addEventListener('touchmove', function(e) {

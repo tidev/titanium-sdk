@@ -42,7 +42,6 @@ input[type="button"],
 input[type="reset"], 
 input[type="submit"] {
 	cursor: pointer;
-	-webkit-appearance: button;
 	*overflow: visible;
 }
 
@@ -99,9 +98,137 @@ textarea {
 }
 
 .TiUIButton {
-	background-size: "100% 100%";
-	background-repeat: "no-repeat";
+	padding: 0;
+	margin: 0;
 	border: 0;
+}
+
+.TiUIButtonDefault {
+	background: -moz-linear-gradient(
+		top,
+		#fff 0%,
+		#fff 50%,
+		#bbb);
+	background: -webkit-gradient(
+		linear, left top, left bottom, 
+		from(#fff),
+		color-stop(0.50, #fff),
+		to(#bbb));
+	border-radius: 10px;
+	padding: 0px 10px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	-moz-box-shadow:
+		0px 1px 2px rgba(000,000,000,0.5),
+		inset 0px 0px 3px rgba(255,255,255,1);
+	-webkit-box-shadow:
+		0px 1px 2px rgba(000,000,000,0.5),
+		inset 0px 0px 3px rgba(255,255,255,1);
+}
+
+.TiUIButtonDefault:hover {
+	background: -moz-linear-gradient(
+		top,
+		#fff 0%,
+		#fff 50%,
+		#999);
+	background: -webkit-gradient(
+		linear, left top, left bottom, 
+		from(#fff),
+		color-stop(0.50, #fff),
+		to(#999));
+}
+
+.TiUIButtonDefault:active {background: -moz-linear-gradient(
+		top,
+		#bbb 0%,
+		#fff 50%,
+		#fff);
+	background: -webkit-gradient(
+		linear, left top, left bottom, 
+		from(#bbb),
+		color-stop(0.50, #fff),
+		to(#fff));
+}
+
+.TiUIButtonDestructive {
+	background: -moz-linear-gradient(
+		top,
+		#f00 0%,
+		#f00 50%,
+		#a00);
+	background: -webkit-gradient(
+		linear, left top, left bottom, 
+		from(#f00),
+		color-stop(0.50, #f00),
+		to(#a00));
+	color: white;
+}
+
+.TiUIButtonDestructive:hover {
+	background: -moz-linear-gradient(
+		top,
+		#f00 0%,
+		#f00 50%,
+		#700);
+	background: -webkit-gradient(
+		linear, left top, left bottom, 
+		from(#f00),
+		color-stop(0.50, #f00),
+		to(#700));
+}
+
+.TiUIButtonDestructive:active {
+	background: -moz-linear-gradient(
+		top,
+		#a00 0%,
+		#f00 50%,
+		#f00);
+	background: -webkit-gradient(
+		linear, left top, left bottom, 
+		from(#b00),
+		color-stop(0.50, #f00),
+		to(#f00));
+}
+
+.TiUIButtonCancel {
+	background: -moz-linear-gradient(
+		top,
+		#666 0%,
+		#666 50%,
+		#333);
+	background: -webkit-gradient(
+		linear, left top, left bottom, 
+		from(#666),
+		color-stop(0.50, #666),
+		to(#333));
+	color: white;
+}
+
+.TiUIButtonCancel:hover {
+	background: -moz-linear-gradient(
+		top,
+		#666 0%,
+		#666 50%,
+		#222);
+	background: -webkit-gradient(
+		linear, left top, left bottom, 
+		from(#666),
+		color-stop(0.50, #666),
+		to(#222));
+}
+
+.TiUIButtonCancel:active {
+	background: -moz-linear-gradient(
+		top,
+		#333 0%,
+		#666 50%,
+		#666);
+	background: -webkit-gradient(
+		linear, left top, left bottom, 
+		from(#333),
+		color-stop(0.50, #666),
+		to(#666));
 }
 
 .TiUITab {

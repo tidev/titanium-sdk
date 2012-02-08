@@ -447,6 +447,7 @@ class Compiler(object):
 			'Ti/UI/Button',
 			'Ti/UI/ImageView',
 			'Ti/UI/Label',
+			'Ti/UI/OptionDialog',
 			'Ti/UI/ScrollableView',
 			'Ti/UI/ScrollView',
 			'Ti/UI/Slider',
