@@ -41,6 +41,21 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 			
 			this._setDefaultLook();
 			
+			// Add the enabled/disabled dimmer
+			this._disabledDimmer = dom.create("div", {
+				className: "TiUISwitchDisableDimmer",
+				style: {
+					pointerEvents: "none",
+					opacity: 0,
+					backgroundColor: "white",
+					width: "100%",
+					height: "100%",
+					position: "absolute",
+					top: 0,
+					left: 0
+				}
+			}, this.domNode);
+			
 			this.addEventListener("touchstart",function(){
 				if (this.selectedColor) {
 					setStyle(this._buttonTitle,"color",this.selectedColor);
@@ -61,22 +76,6 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 		_defaultWidth: "auto",
 
 		_defaultHeight: "auto",
-		
-		backgroundColor: postDoBackground,
-
-			backgroundDisabledColor: postDoBackground,
-
-			backgroundDisabledImage: postDoBackground,
-
-			backgroundFocusedColor: postDoBackground,
-
-			backgroundFocusedImage: postDoBackground,
-
-			backgroundImage: postDoBackground,
-
-			backgroundSelectedColor: postDoBackground,
-
-			backgroundSelectedImage: postDoBackground,
 		
 		_updateLook: function() {
 			if (this.backgroundColor || this.backgroundDisabledColor || this.backgroundDisabledImage || this.backgroundFocusedColor || 
@@ -106,6 +105,9 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 				this.domNode.className = className.substring(0,className.length - " TiUIButtonDefault".length);
 				this.borderWidth = this._previousBorderWidth;
 				this.borderColor = this._previousBorderColor;
+				setStyle(this._disabledDimmer,{
+					opacity: 0
+				});
 			}
 		},
 
@@ -151,6 +153,27 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 					return value;
 				}
 			},
+			
+			enabled: {
+				set: function(value, oldValue) {
+					
+					if (value !== oldValue) {
+						if (!value) {
+							this._hasDefaultLook && setStyle(this._disabledDimmer,{
+								opacity: 0.5
+							});
+						} else {
+							this._hasDefaultLook && setStyle(this._disabledDimmer,{
+								opacity: 0
+							});
+						}
+						this._setTouchEnabled(value);
+					}
+					return value;
+				},
+				value: true
+			},
+			
 			image: {
 				set: function(value) {
 					require.on(this._buttonImage, "load", lang.hitch(this, function () {
