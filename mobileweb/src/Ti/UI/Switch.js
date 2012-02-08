@@ -175,7 +175,7 @@ define("Ti/UI/Switch", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 					if (value !== oldValue) {
 						if (!value) {
 							this._oldValue = this.value;
-							this.value = false;
+							this.value && (this.value = false);
 							this._hasDefaultLook && setStyle(this._disabledDimmer,{
 								opacity: 0.5
 							});

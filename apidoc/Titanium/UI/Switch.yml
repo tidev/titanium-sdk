@@ -46,23 +46,23 @@ properties:
         Text alignment, specified using one of the <Titanium.UI> text alignment constants: [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
     type: [String,Numberstyle]
     default: <Titanium.UI.TEXT_ALIGNMENT_CENTER>
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: title
     summary: text to display with checkbox. Used if style is <Ti.UI.Android.SWITCH_STYLE_CHECKBOX>
     type: String
-    platforms: [androidstyle]
+    platforms: [android]
   - name: titleOff
     summary: Text to display when a toggle button-style switch is toggled on.
     description: |
         Used if style is <Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
     type: String
-    platforms: [androidstyle]
+    platforms: [android, mobileweb]
   - name: titleOn
     summary: Text to display when a toggle button-style switch is toggled off.
     description: |
         Used if style is <Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
     type: String
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: value
     summary: Current switch value, `true` if the switch is on, and `false` if switch is
         off.
@@ -76,7 +76,7 @@ properties:
         [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
     type: [Number,String]
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
-    platforms: [android]
+    platforms: [android, mobileweb]
     
 examples:
   - title: Simple Switch Example
