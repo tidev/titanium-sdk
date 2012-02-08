@@ -22,38 +22,38 @@ properties:
   - name: color
     summary: Color to use for switch text.
     type: String
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: enabled
     summary: Set to `true` to enable the switch, `false` to disable the switch.
     type: Boolean
   - name: font
     summary: Font to use for the switch text.
     type: Font
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: style
     summary: Style of the switch, either checkbox or toggle button.
     description: |
         Specify one of <Titanium.UI.Android.SWITCH_STYLE_CHECKBOX> or 
         <Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>.
     type: Number
-    platforms: [android]
+    platforms: [android, mobileweb]
     default: Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON
   - name: textAlign
     summary: |
         Text alignment, specified using one of the <Titanium.UI> text alignment constants: [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
-    type: [String,Number]
+    type: [String,Numberstyle]
     default: <Titanium.UI.TEXT_ALIGNMENT_CENTER>
     platforms: [android]
   - name: title
     summary: text to display with checkbox. Used if style is <Ti.UI.Android.SWITCH_STYLE_CHECKBOX>
     type: String
-    platforms: [android]
+    platforms: [androidstyle]
   - name: titleOff
     summary: Text to display when a toggle button-style switch is toggled on.
     description: |
         Used if style is <Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>
     type: String
-    platforms: [android]
+    platforms: [androidstyle]
   - name: titleOn
     summary: Text to display when a toggle button-style switch is toggled off.
     description: |

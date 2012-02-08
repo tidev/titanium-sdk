@@ -40,7 +40,6 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 			this._addStyleableDomNode(this._buttonTitle);
 			
 			this._setDefaultLook();
-			
 			this.addEventListener("touchstart",function(){
 				if (this.selectedColor) {
 					setStyle(this._buttonTitle,"color",this.selectedColor);
@@ -61,22 +60,6 @@ define("Ti/UI/Button", ["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/
 		_defaultWidth: "auto",
 
 		_defaultHeight: "auto",
-		
-		backgroundColor: postDoBackground,
-
-			backgroundDisabledColor: postDoBackground,
-
-			backgroundDisabledImage: postDoBackground,
-
-			backgroundFocusedColor: postDoBackground,
-
-			backgroundFocusedImage: postDoBackground,
-
-			backgroundImage: postDoBackground,
-
-			backgroundSelectedColor: postDoBackground,
-
-			backgroundSelectedImage: postDoBackground,
 		
 		_updateLook: function() {
 			if (this.backgroundColor || this.backgroundDisabledColor || this.backgroundDisabledImage || this.backgroundFocusedColor || 
