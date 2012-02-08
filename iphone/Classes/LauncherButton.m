@@ -245,8 +245,8 @@
 	
 	if (badge || closeButton) 
 	{
-		CGFloat itemimageX = (self.bounds.size.width/2) - (item.image.size.width/2);
-		CGFloat itemimageY = (self.bounds.size.height/2) - (item.image.size.height/2);
+        CGFloat itemimageX = (self.bounds.size.width/2) - (item.image.size.width/2);
+        CGFloat itemimageY = (self.bounds.size.height/2) - (item.image.size.height/2);
         if (badge) 
         {
             CGPoint point = CGPointMake((itemimageX + item.image.size.width) - (badge.bounds.size.width - 6),itemimageY-6);
