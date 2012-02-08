@@ -118,10 +118,6 @@ textarea {
 	background-color: gray;
 }
 
-.TiMediaVideoPlayer {
-	position: relative;
-}
-
 .TiMediaVideoPlayer video {
 	left: 0;
 	position: absolute;
