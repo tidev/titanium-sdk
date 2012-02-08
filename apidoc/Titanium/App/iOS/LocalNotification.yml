@@ -1,6 +1,15 @@
 ---
 name: Titanium.App.iOS.LocalNotification
-summary: The LocalNotification is created by <Titanium.App.iOS.scheduleLocalNotification>.
+summary: A local notification to alert the user of new or pending application information.
+description: |
+    A LocalNotification is created by <Titanium.App.iOS.scheduleLocalNotification>.  
+    
+    Local notifications are a way for an application that is not running in the foreground to let 
+    users know that it has information for them. When invoked, an alert dialog is displayed 
+    containing a "Close" button to dismiss or a customizable "View" button to bring the application 
+    into the foreground. Also, an application icon badge showing the number of pending notifications 
+    may be set and a sound may be generated.
+    
 extends: Titanium.Proxy
 since: "1.5"
 platforms: [iphone, ipad]

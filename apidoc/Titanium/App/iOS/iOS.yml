@@ -1,7 +1,15 @@
 ---
 name: Titanium.App.iOS
 summary: |
-    The top-level App iOS module, available only for iOS devices.
+    The top-level App iOS module, available only to iOS devices, that includes the facilities to 
+    create and manage local notifications and background services.
+description: |
+    Local notifications are a way for an application that is not running in the foreground to let 
+    users know that it has information for them. When invoked, an alert dialog is displayed 
+    containing a "Close" button to dismiss and a customizable "View" button to bring the application 
+    into the foreground. Also, they can be configured to set an application icon badge, to show the 
+    number of pending notifications, and to generate a sound.
+
 extends: Titanium.Module
 platforms: [iphone, ipad]
 since: "1.5"
@@ -11,12 +19,12 @@ methods:
     summary: Cancels all scheduled local notifications.
     
   - name: cancelLocalNotification
-    summary: Cancels a specific local notification.
+    summary: Cancels this local notification.
     
   - name: registerBackgroundService
-    summary: Registers a background service to run when the application is placed in the background.
+    summary: Registers a service to run when the application is placed in the background.
     returns:
-        type: Object
+        type: Titanium.App.iOS.BackgroundService
     parameters:
       - name: params
         summary: |
@@ -25,56 +33,69 @@ methods:
         type: Dictionary
         
   - name: scheduleLocalNotification
-    summary: schedule a local notification
+    summary: Schedule a local notification.
     returns:
-        type: Object
+        type: Titanium.App.iOS.LocalNotification
     parameters:
       - name: params
-        summary: |
-            Dictionary object of parameters used to create the notification.  
-            Acceptable properties are  
-            `date`, Date object specifying the date and time when the notification should fire.  
-            `alertAction` (optional), alert button text or the 'slide to unlock...' slider in 
-            place of unlock.  
-            `alertBody` (optional), body of the alert when the notification is displayed.  
-            `alertLaunchImage` (optional), image to display instead of `Default.png` when launching 
-            the application.  
-            `badge` (optional), application badge value.  
-            `repeat` (optional), interval to repeat the notification. One of `weekly`, `daily`, 
-            `yearly,` `monthly`.  
-            `sound` (optional), sound file to play when the notification is triggered.  
-            `timezone` (optional), timezone of the date that is configured for the notification. 
-            If not configured, the system timezone is used.  
-            `userInfo` (optional), data passed to the application upon launch when the notification 
-            is triggered.
-        type: Dictionary
+        summary: Parameters used to create a notification.
+        type: Dictionary<NotificationParams>
         
 events:
   - name: notification
-    summary: |
-        Fired when a local notification is received by the app.
+    summary: Fired when a local notification is received by the application.
     properties:
-      - name: params
-        summary: Parameters used to create a notification.
-        type: NotificationParams
+      - name: alertAction
+        summary: |
+            Alert button text ('View', by default) or slider text ('slide to unlock...', by default).
+        type: String
+
+      - name: alertBody
+        summary: Alert message.
+        type: String
+        
+      - name: alertLaunchImage
+        summary: Image displayed instead of `Default.png` when launching the application.
+        type: String
+
+      - name: badge
+        summary: Application badge value.
+        type: Number
+
+      - name: date
+        summary: Date and time when the notification was configured to fire.
+        type: Date
+
+      - name: sound
+        summary: Sound file configured to play when the notification was fired.
+        type: String
+
+      - name: timezone
+        summary: Timezone of the date when the notification was configured to fire.
+        type: String
+        
+      - name: userInfo
+        summary: Custom data object.
+        type: Dictionary
+
 ---
 name: NotificationParams
-summary: Dictionary object of parameters used to create a notification using `scheduleLocalNotification`.
+summary: |
+    Dictionary object of parameters used to create a notification using 
+    <Titanium.App.iOS.scheduleLocalNotification>.
 since: "1.7"
 platforms: [iphone, ipad]
 
 properties:
-  - name: date
-    summary: Date and time when the notification should fire.
-    type: Date
-    
   - name: alertAction
-    summary: Alert button text or the 'slide to unlock...' slider in place of unlock.
+    summary: |
+        Alert button text ('View', by default) or slider text ('slide to unlock...', by default) 
+        to display.
     type: String
     optional: true
     
   - name: alertBody
-    summary: Alert message.
+    summary: Alert message to display.
     type: String
     optional: true
     
@@ -87,6 +108,11 @@ properties:
     summary: Application badge value.
     type: Number
     optional: true
+
+  - name: date
+    summary: Date and time for the notification to occur.
+    type: Date
+    optional: true
     
   - name: repeat
     summary: Interval to repeat the notification. One of `weekly`, `daily`, `yearly,` `monthly`.
@@ -94,23 +120,17 @@ properties:
     optional: true
     
   - name: sound
-    summary: Sound file to play when triggered.
+    summary: Sound file to play when notification occurs.
     type: String
     optional: true
     
   - name: timezone
     summary: |
-        Timezone of the date that is configured for the notification. If not configured, the system 
-        timezone is used.
+        Timezone of the date configured for the notification. If not set, the system timezone is used.
     type: String
     optional: true
     
   - name: userInfo
-    summary: Data passed to the application upon launch.
+    summary: Data to pass to the application with the notification event.
     type: Dictionary
     optional: true  
-  
-  
-  
-  
-  

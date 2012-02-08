@@ -2,8 +2,8 @@
 name: Titanium.App.Android
 summary: A module used to access Android application resources.
 description: |
-    For more information about application resources, see 
-    [http://developer.android.com/guide/topics/resources/index.html](http://developer.android.com/guide/topics/resources/index.html).
+    For more information, refer to the official documentation on the Android Developer website about 
+    [application resources](http://developer.android.com/guide/topics/resources/index.html).
 extends: Titanium.Module
 since: "1.5"
 platforms: [android]
