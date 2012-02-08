@@ -7,6 +7,9 @@ description: |
 
     On iOS, the switch appears as an iOS on/off switch and doesn't have any text
     associated with it. 
+    
+    On Mobile Web, a switch always has text associated with it, and appears as a
+    toggle button, similar to Android.
 
     Use the <Titanium.UI.createSwitch> method to create a switch.
 extends: Titanium.UI.View
@@ -36,7 +39,7 @@ properties:
         Specify one of <Titanium.UI.Android.SWITCH_STYLE_CHECKBOX> or 
         <Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON>.
     type: Number
-    platforms: [android, mobileweb]
+    platforms: [android]
     default: Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON
   - name: textAlign
     summary: |
