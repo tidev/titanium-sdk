@@ -1,6 +1,41 @@
 ---
 name: Titanium.Map.Annotation
-summary: An Annotation object that is created by the method <Titanium.Map.createAnnotation>. This object gives you low level control over annotations that can be added to a Map View.
+summary: Represents a labeled point of interest on the map that the user can click on.
+description: |
+    The `Annotation` object gives you low-level control over annotations that can be added to 
+    [map view](Titanium.Map.View). 
+
+    An annotation can have a title, a subtitle, and two inset buttons or views on the left
+    and right side of the title. All of these items are optional.
+
+    The controls on the left and right side of the annotation can be specified in one of two
+    ways:
+
+    * To display an image, set the [leftButton](Titanium.Map.Annotation.leftButton) or 
+      [rightButton](Titanium.Map.Annotation.rightButton) property to an image URL. (On 
+      iOS, you can also use a [SystemButton](Titanium.UI.iPhone.SystemButton) constant 
+      to use one of the native system button icons.) 
+
+    * To add another type of view to the annotation, set the 
+      [leftView](Titanium.Map.Annotation.leftView) or 
+      [rightView](Titanium.Map.Annotation.rightView) property to a [View](Titanium.UI.View)
+      object.
+
+    `leftButton` and `leftView` are mutually exclusive, as are `rightButton` and
+    `rightView`. 
+
+    An annotation has two states: selected and deselected. A deselected annotation
+    is marked by a pin image. When the user selects the pin, the full annotation is 
+    displayed.
+
+    You can specify a custom image for the map pin by setting the
+    [image](Titanium.Map.Annotation.image) property. 
+
+    When the user clicks on an annotation, a `click` event is generated. You can add a
+    click event listener to a specific annotation, or add a click event listener to the 
+    map view to receive click events from all annotations on the map.
+
+    Use the <Titanium.Map.createAnnotation> method to create an annotation.
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [android, iphone, ipad]
@@ -8,44 +43,135 @@ platforms: [android, iphone, ipad]
 properties:
 
   - name: animate
-    summary: Boolean to indicate whether the pin should animate when dropped
+    summary: Boolean to indicate whether the pin should animate when dropped.
     type: Boolean
 
   - name: image
-    summary: The image for the pin instead of the default image.
+    summary: Image to use for the the pin.
+    description: |
+        The image can be specified using a local URL or an image `Blob`.
     type: [String, Titanium.Blob]
+    default: If not specified, a standard map pin image is used.
+
   - name: leftButton
-    summary: the left button image on the annotation. must either be a button type constant or url
+    summary: |
+        Left button image on the annotation, specified as an image URL or an iOS
+        button constant.
+    description: |
+        On iOS, you can specify a system button icon using one of the
+        [SystemButton](Titanium.UI.iPhone.SystemButton) constants:
+            
+            myAnnotation.leftButton = Titanium.UI.iPhone.systemButton.INFO_LIGHT;
+
+        Mutually exclusive with `leftView`.
     type: [Number,String]
+
   - name: leftView
-    summary: a left view that is displayed on the annotation
-    type: Object
+    summary: Left view that is displayed on the annotation.
+    description: |
+        Mutually exclusive with `leftButton`.
+    type: Titanium.UI.View
+
   - name: pinImage
     summary: Use <Titanium.Map.Annotation.image> property instead.
     deprecated:
         since: "1.4"
     platforms: [android]
     type: String
+
   - name: pincolor
     summary: |
-        the pin color as one of <Titanium.Map.ANNOTATION_GREEN>, <Titanium.Map.ANNOTATION_PURPLE> 
+        Pin color. Specify one of: <Titanium.Map.ANNOTATION_GREEN>, <Titanium.Map.ANNOTATION_PURPLE> 
         or <Titanium.Map.ANNOTATION_RED>.
+    description: |
+        Pin color is ignored if a custom pin image is specified using <Titanium.Map.Annotation.image>.
     type: Number
+
   - name: rightButton
-    summary: the right button image on the annotation. must either be a button type constant or url
+    summary: |
+        Right button image on the annotation, specified as an image URL or an iOS
+        button constant.
+    description: |
+        On iOS, you can specify a system button icon using one of the
+        [SystemButton](Titanium.UI.iPhone.SystemButton) constants.
+
+        Mutually exclusive with `rightView`.
     type: [Number,String]
+
   - name: rightView
-    summary: a right view that is displayed on the annotation
-    type: Object
+    summary: Right view that is displayed on the annotation.
+    description: |
+        Mutually exclusive with `rightButton`.
+    type: Titanium.UI.View
+
   - name: subtitle
-    summary: the secondary title of the annotation view
+    summary: Secondary title of the annotation view.
     type: String
+
   - name: subtitleid
-    summary: the key in the locale file to use for the subtitle property
+    summary: Key in the locale file to use for the subtitle property.
     type: String
+    platforms: [iphone, ipad]
+
   - name: title
-    summary: the primary title of the annotation view
+    summary: Primary title of the annotation view.
     type: String
+
   - name: titleid
-    summary: the key in the locale file to use for the title property
+    summary: Key in the locale file to use for the title property.
     type: String
+    platforms: [iphone, ipad]
+
+events:
+  - name: click
+    summary: |
+        Fired when the user selects, deselects, or clicks on this annotation.
+    description: |
+        It is fired in two circumstances:
+
+        - If the user clicks on an annotation.
+        - The user deselects an annotation.
+
+        On iOS, the user deselects an annotation by clicking in the map view outside of
+        the annotation. On Android, the  user deselects an annotation by clicking on the 
+        annotation pin.
+
+        The `click` event includes a value, `clicksource`, which describes the part of the 
+        annotation that was clicked. Note that the possible values for `clicksource` differ between
+        platforms.
+
+        On iOS, if the user clicks on the pin or annotation, the `clicksource` is one of: 
+        `pin`, `annotation`, `leftButton`, `rightButton`, `leftView`, `rightView`, 
+        `title`, or `subtitle`. If the user deselects the annotation by clicking elsewhere
+        in the map view, `clicksource` is `null`.
+
+        On Android, the `clicksource` can be one of `pin`, `leftButton`,
+        `rightButton`, `leftPane`, or `rightPane`. Because the user deselects an
+        annotation by clicking on the pin, `clicksource` is `pin` for both 
+        selection and deselection.
+
+        On Android, no event is generated when the user clicks on the title, subtitle, or
+        the background of the annotation.
+
+    properties:
+
+      - name: index
+        summary: |
+            Index of the annotation in the map view's [annotations](Titanium.Map.View.annotations) array.
+        type: Number
+
+      - name: title
+        summary: Title of the annotation.
+        type: String
+
+      - name: map
+        summary: The map view instance that this annotation belongs to.
+        type: Titanium.Map.View
+
+      - name: clicksource
+        summary: Source of the click event, such as `pin`, or `leftButton`.
+        type: String
+
+      - name: annotation
+        summary: Annotation source object.
+        type: Titanium.Map.Annotation

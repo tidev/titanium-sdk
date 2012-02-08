@@ -15,12 +15,24 @@ description: |
     You can add [Annotation](Titanium.Map.Annotation) objects to the map to mark points of
     interest. An annotation has two states: selected and deselected. A deselected annotation 
     is marked by a pin image. When selected, the full annotation is displayed, typically
-    including a label and one or more images.
+    including a title, an optional subtitle, and one or more images.
 
-    For Android, you will need to 
-    <a href="http://code.google.com/android/maps-api-signup.html">obtain a map key from Google</a> 
-    to use maps in your application. 
+    #### Android Platform Notes
+
+    For Android, you must obtain an Android Maps API key from Google before using maps in a production
+    application. You can sign up for the Maps API key on the Google Code web site:
+
+    * <a href="http://code.google.com/android/maps-api-signup.html">code.google.com/android/maps-api-signup.html</a> 
     
+    When you get a Maps API key, edit your `tiapp.xml` file and add your new key as the
+    value for the  `ti.android.google.map.api.key.production` property.
+
+    A development API key is included in the default `tiapp.xml` file. You can use this
+    key for development and testing as long as you are building your application with the 
+    default Titanium development keystore.
+
+    #### iOS Platform Notes
+
     On iOS, you cannot call any methods on a map view until it has been added to a view.
 
     In addition to annotations, iOS supports adding routes to a map view, using
@@ -114,12 +126,10 @@ methods:
     description: |
         Location is set using a simple dictionary object, described in <MapLocationType>.
         For example:
-            myMapView.setLocation({
-                latitude:37.337681,
-                longitude:-122.038193,
-                animate:true,
-                latitudeDelta:0.04,
-                longitudeDelta:0.04}
+
+             myMapView.setLocation({
+                latitude:37.337681, longitude:-122.038193, animate:true,
+                latitudeDelta:0.04, longitudeDelta:0.04});
     parameters:
       - name: location
         summary: |
@@ -127,17 +137,24 @@ methods:
         type: MapLocationType
 
   - name: setMapType
-    summary: set the type of map (satellite, hybrid, standard)
+    summary: Sets the type of map (satellite, hybrid, or standard).
     parameters:
       - name: mapType
-        summary: the map type constant of either <Titanium.Map.STANDARD_TYPE>, <Titanium.Map.SATELLITE_TYPE> or <Titanium.Map.HYBRID_TYPE>.
+        summary: |
+            Map type constant, either <Titanium.Map.STANDARD_TYPE>, <Titanium.Map.SATELLITE_TYPE> or 
+            <Titanium.Map.HYBRID_TYPE>.
         type: Number
 
   - name: zoom
-    summary: zoom in or out of the map
+    summary: Zooms in or out of the map.
+    description: |
+        Zooms in or out by specifying a relative zoom level. A positive value increases
+        the current zoom level and a negative value decreases the zoom level.
+         
+        Each increase in zoom level increases the magnification by a factor of two.
     parameters:
       - name: level
-        summary: zoom level (can be positive or negative)
+        summary: Relative zoom level (positive to zoom in, negative to zoom out).
         type: Number
 
 events:
@@ -159,6 +176,19 @@ events:
         The `click` event includes a value, `clicksource`, which describes the part of the 
         annotation that was clicked. Note that the possible values for `clicksource` differ between
         platforms.
+
+        On iOS, if the user clicks on the pin or annotation, the `clicksource` is one of: 
+        `pin`, `annotation`, `leftButton`, `rightButton`, `leftView`, `rightView`, 
+        `title`, or `subtitle`. If the user deselects the annotation by clicking elsewhere
+        in the map view, `clicksource` is `null`.
+
+        On Android, the `clicksource` can be one of `pin`, `leftButton`,
+        `rightButton`, `leftPane`, or `rightPane`. Because the user deselects an
+        annotation by clicking on the pin, `clicksource` is `pin` for both 
+        selection and deselection.
+
+        On Android, no event is generated when the user clicks on the title, subtitle, or
+        the background of the annotation.
     properties:
       - name: index
         summary: the annotation index.
@@ -166,18 +196,11 @@ events:
       - name: title
         summary: Title of the annotation.
         type: String
-      - name: subtitle
       - name: map
         summary: The map view instance.
         type: Titanium.Map.View
       - name: clicksource
         summary: Source of the click event, such as `pin`, or `leftButton`.
-        description: |
-            On iOS, the `clicksource` can be one of: `pin`, annotation`, `leftButton`,
-            `rightButton`, `leftView`, `rightView`, `title`, or `subtitle`.
-
-            On Android, the `clicksource` can be one of `pin`, `leftButton`,
-            `rightButton`, `leftPane`, or `rightPane`.
         type: String
       - name: annotation
         summary: Annotation source object.
