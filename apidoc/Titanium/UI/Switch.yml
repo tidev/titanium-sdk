@@ -44,7 +44,7 @@ properties:
   - name: textAlign
     summary: |
         Text alignment, specified using one of the <Titanium.UI> text alignment constants: [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
-    type: [String,Numberstyle]
+    type: [String,Number]
     default: <Titanium.UI.TEXT_ALIGNMENT_CENTER>
     platforms: [android, mobileweb]
   - name: title
