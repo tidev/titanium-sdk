@@ -789,7 +789,9 @@ public abstract class TiBaseActivity extends Activity
 			}
 		}
 
-		if (!isTabActivity()) {
+		boolean isTab = isTabActivity();
+		//When we close a tabgroup, we don't remove its children from the stack, so here we remove the children if the parent is finishing.
+		if (!isTab || (isTab && this.getParent().isFinishing())) {
 			TiApplication.removeFromActivityStack(this);
 		}
 

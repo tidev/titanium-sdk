@@ -80,7 +80,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	 */
 
 	UIView *view = [super hitTest:point withEvent:event];
-	if ([self hasTouchableListener])
+	if ( ([self hasTouchableListener]) && willHandleTouches )
 	{
 		UIView *superview = [view superview];
 		UIView *superduperview = [superview superview];
@@ -91,6 +91,11 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	}
 	
 	return view;
+}
+
+-(void)setWillHandleTouches_:(id)args
+{
+    willHandleTouches = [TiUtils boolValue:args def:YES];
 }
 
 
