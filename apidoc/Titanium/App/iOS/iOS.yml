@@ -59,7 +59,7 @@ events:
         type: String
 
       - name: badge
-        summary: Application badge value.
+        summary: Application badge value.           r
         type: Number
 
       - name: date
@@ -112,7 +112,6 @@ properties:
   - name: date
     summary: Date and time for the notification to occur.
     type: Date
-    optional: true
     
   - name: repeat
     summary: Interval to repeat the notification. One of `weekly`, `daily`, `yearly,` `monthly`.

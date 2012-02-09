@@ -184,7 +184,6 @@ examples:
         Store a string property.
         
             Ti.App.Properties.setString('givenName', 'Paul');
-            Ti.App.Properties.getString('givenName');
             Ti.API.info('The value of the givenName property is: ' + Ti.App.Properties.getString('givenName'));
             
   - title: Enumerate over saved properties
