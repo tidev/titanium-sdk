@@ -69,3 +69,145 @@ description: |
       application is suspended, typically to no more than 10 minutes.
 
     * The OS may terminate the background service at any point to reclaim resources.
+
+
+examples:
+  - title: Background Services Example (iOS 4.0+ only)
+    example: |
+        The following example invokes two background services when the application is no longer the 
+        focus.  
+        
+        The first logs a message every second a total of 10 times and then is stopped.  
+        
+        The second creates a file to store its run count and then, once it has been run 5 times, it 
+        is unregistered and is not invoked again.
+        
+        #### app.js
+            Ti.UI.setBackgroundColor('#000');
+
+            var win1 = Ti.UI.createWindow({  
+                title:'Background Services',
+                backgroundColor:'#fff'
+            });
+
+            // verify that system is iOS 4.0+, and thus supports background services
+            function isiOS4Plus(){
+              // add iphone specific tests
+              if (Ti.Platform.name == 'iPhone OS'){
+                var version = Ti.Platform.version.split(".");
+                var major = parseInt(version[0], 10);
+                if (major >= 4){
+                  return true;
+                }
+              }
+              return false;
+            }
+
+            if (isiOS4Plus() === false){
+              var label1 = Ti.UI.createLabel({
+                color:'#f00',
+                text:'Background Services not supported',
+                font:{fontSize:20,fontFamily:'Helvetica Neue'},
+                textAlign:'center',
+                width:'auto'
+              });
+
+              win1.add(label1);
+            } else {
+              var label1 = Ti.UI.createLabel({
+                color:'#0f0',
+                text:'Background services supported',
+                font:{fontSize:20,fontFamily:'Helvetica Neue'},
+                textAlign:'center',
+                width:'auto'
+              });
+              win1.add(label1);
+              var service = Ti.App.iOS.registerBackgroundService({url:'stopbg.js'});
+
+              var counter = 0;
+              var unregFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'unregFile.txt');
+
+              if (unregFile.exists()){
+                var blob = unregFile.read();
+                if(blob.length > 0){
+                  counter = parseInt(blob.text, 10);
+                }
+              }
+              if(counter > 4){
+                Ti.API.info('Will not register second service');
+              } else {
+                var service2 = Ti.App.iOS.registerBackgroundService({url:'unregbg.js'});
+              }
+              
+              Ti.API.info('*** Press home button to pause application and invoke background services ***');
+            }
+
+            win1.open();
+            
+        #### stopbg.js
+        
+            /*
+             * Simple service that prints a message once every second(appx)
+             * Stops after 10 messages
+             */
+
+            var counter = 0;
+            function simpleHelloFromBG(){
+              Ti.API.info('hello from stopbg service ' + counter);
+              counter = counter + 1;
+              
+              if (counter === 10){
+                Ti.API.info('Stopping Service');
+                Ti.App.currentService.stop();
+              }
+            }
+
+            // Execute the function every 1 seconds
+            var myRepeatTimer = setInterval(simpleHelloFromBG, 1000);
+
+            // Need a listener to stop here to clear timer
+            var listener = Ti.App.currentService.addEventListener('stop',function(){
+              Ti.API.info("background service is stopped");
+              // Clear the timer
+              clearInterval(myRepeatTimer);
+              
+            });
+
+        #### unregbg.js
+        
+            /*
+             * Simple service that updates a file on every run.
+             * Unregisters after 5 updates
+             */
+
+            var counter = 0;
+            var unregFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'unregFile.txt');
+
+            if (unregFile.exists()){
+              var blob = unregFile.read();
+              if(blob.length > 0){
+                counter = parseInt(blob.text, 10);
+              }
+            } else {
+              unregFile.createFile();
+            }
+
+            counter = counter + 1;
+
+            Ti.API.info('hello from unregbg service '+counter);
+
+            // Five messages printed. Go ahead and unregister.
+            if (counter > 4){
+              unregFile.write(counter.toString(),false);
+              Ti.App.currentService.unregister();
+              var finalNotif = Ti.App.iOS.scheduleLocalNotification({
+                alertBody:"UnregBG is unregistered and WILL NOT run again",
+                date:new Date(new Date().getTime() + 1000) // 1 second after being unregistered
+              });	
+            } else {
+              unregFile.write(counter.toString(),false);
+              var curNotif = Ti.App.iOS.scheduleLocalNotification({
+                alertBody:"UnregBG is registered but will run again",
+                date:new Date(new Date().getTime() + 1000) // 1 second after application no longer has focus
+              });	
+            }
