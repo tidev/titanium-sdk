@@ -245,16 +245,19 @@
 	
 	if (badge || closeButton) 
 	{
-        CGFloat itemimageX = (self.bounds.size.width/2) - (item.image.size.width/2);
-        CGFloat itemimageY = (self.bounds.size.height/2) - (item.image.size.height/2);
-        if (badge) 
+        if(self.bounds.size.width > 0 ||self.bounds.size.height > 0)
         {
-            CGPoint point = CGPointMake((itemimageX + item.image.size.width) - (badge.bounds.size.width - 6),itemimageY-6);
-            badge.frame = CGRectMake(point.x, point.y, badge.bounds.size.width, badge.bounds.size.height);
-        }
-        if (closeButton) 
-        {
-            closeButton.frame = CGRectMake(itemimageX-10,itemimageY-10, closeButton.frame.size.width, closeButton.frame.size.height);
+            CGFloat itemimageX = (self.bounds.size.width/2) - (item.image.size.width/2);
+            CGFloat itemimageY = (self.bounds.size.height/2) - (item.image.size.height/2);
+            if (badge) 
+            {
+                CGPoint point = CGPointMake((itemimageX + item.image.size.width) - (badge.bounds.size.width/2),itemimageY-(badge.bounds.size.height/5));
+                badge.frame = CGRectMake(point.x, point.y, badge.bounds.size.width, badge.bounds.size.height);
+            }
+            if (closeButton) 
+            {
+                closeButton.frame = CGRectMake(itemimageX-(closeButton.bounds.size.width/3),itemimageY-(closeButton.bounds.size.height/3), closeButton.bounds.size.width, closeButton.bounds.size.height);
+            }
         }
     }
 }
