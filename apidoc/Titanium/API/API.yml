@@ -32,7 +32,7 @@ methods:
       - name: level
         summary: |
             Log level. One of `info`, `warn`, `error`, `debug` and `trace`. If the value is not 
-            recognized, an info-level message prefixed with with the value is logged.
+            recognized, an info-level message prefixed with the value is logged.
         type: String
         
       - name: message
