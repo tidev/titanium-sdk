@@ -292,7 +292,9 @@ public class TiUIActivityWindow extends TiUIView
 		if (post) {
 			proxy.getMainHandler().post(new Runnable() {
 				public void run() {
-					windowActivity.getWindow().setBackgroundDrawable(drawable);
+					if (windowActivity != null) {
+						windowActivity.getWindow().setBackgroundDrawable(drawable);
+					}
 				}
 			});
 
