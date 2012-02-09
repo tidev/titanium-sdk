@@ -65,8 +65,10 @@ def should_open_binary(path):
 	if not ext:
 		return True
 	# Some quick exit possibilities.
-	if ext in (".js", ".jss", ".html", "xml", ".htm", ".txt"):
+	if ext in (".js", ".jss", ".html", ".xml", ".htm", ".txt", ".css", ".json"):
 		return False
+	if ext in (".gif", ".bmp", ".png", ".jpg", ".jpeg", ".db", ".mp3", ".mov", ".wav", ".mpg", ".mpeg", ".3gp", ".3gpp", ".m4a", ".mp4", ".flac", ".ogg"):
+		return True
 	(mime_type, encoding) = mimetypes.guess_type(p)
 	if mime_type and mime_type.startswith("text"):
 		return False
