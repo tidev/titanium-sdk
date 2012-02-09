@@ -174,13 +174,10 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					
 					if (value !== oldValue) {
 						if (!value) {
-							this._oldValue = this.value;
-							this.value && (this.value = false);
 							this._hasDefaultLook && setStyle(this._disabledDimmer,{
 								opacity: 0.5
 							});
 						} else {
-							this.value = this._oldValue;
 							this._hasDefaultLook && setStyle(this._disabledDimmer,{
 								opacity: 0
 							});
