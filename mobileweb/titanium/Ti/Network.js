@@ -18,7 +18,7 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 				READ_WRITE_MODE: 2,
 				WRITE_MODE: 1,
 				networkType: function() {
-					if (!_online) {
+					if (!online) {
 						return api.NETWORK_NONE;
 					}		
 					if (conn && conn.type == conn.WIFI) {
@@ -33,7 +33,7 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 					return api.NETWORK_UNKNOWN;
 				},
 				networkTypeName: function() {
-					if (!_online) {
+					if (!online) {
 						return "NONE";
 					}		
 					if (conn && conn.type == conn.WIFI) {
