@@ -148,13 +148,13 @@ NSString * TitaniumModuleRequireFormat = @"(function(exports){"
 	return nil;
 }
 
--(KrollObject*)addModule:(NSString*)name module:(TiModule*)module
+-(id)addModule:(NSString*)name module:(TiModule*)module
 {
 	// Have we received a JS Module?
 	if (![module respondsToSelector:@selector(unboundBridge:)])
 	{
 		[modules setObject:module forKey:name];
-		return (KrollObject*)module;
+		return module;
 	}
 	KrollObject *ko = [pageContext registerProxy:module];
 	if (ko == nil)
