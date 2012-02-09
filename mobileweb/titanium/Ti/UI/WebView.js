@@ -1,4 +1,3 @@
-debugger;
 define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/App", "Ti/API", "Ti/_/text!Ti/_/UI/WebViewBridge.js"],
 	function(declare, Widget, dom, event, lang, App, API, bridge) {
 
