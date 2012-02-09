@@ -245,7 +245,7 @@
 	
 	if (badge || closeButton) 
 	{
-        if(self.bounds.size.width > 0 ||self.bounds.size.height > 0)
+        if(self.bounds.size.width > 0 && self.bounds.size.height > 0)
         {
             CGFloat itemimageX = (self.bounds.size.width/2) - (item.image.size.width/2);
             CGFloat itemimageY = (self.bounds.size.height/2) - (item.image.size.height/2);
