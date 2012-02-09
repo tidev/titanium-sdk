@@ -67,7 +67,7 @@ events:
         type: Date
 
       - name: sound
-        summary: Sound file configured to play when the notification was fired.
+        summary: Path to the sound file configured to play when the notification was fired.
         type: String
 
       - name: timezone
@@ -119,7 +119,8 @@ properties:
     optional: true
     
   - name: sound
-    summary: Sound file to play when notification occurs.
+    summary: |
+        Path to the sound file to play when notification occurs, relative to the `Resources` folder.
     type: String
     optional: true
     
