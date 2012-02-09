@@ -33,11 +33,11 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
 				
 				this._startScrollBars({
 					x: contentContainer.domNode.scrollLeft / (this._contentMeasurer._measuredWidth - this._measuredWidth),
-					y: contentContainer.domNode.scrollTop / (this._contentMeasurer._measuredHeight - this._measuredHeight),
+					y: contentContainer.domNode.scrollTop / (this._contentMeasurer._measuredHeight - this._measuredHeight)
 				},
 				{
 					x: contentContainer._measuredWidth / (this._contentMeasurer._measuredWidth),
-					y: contentContainer._measuredHeight / (this._contentMeasurer._measuredHeight),
+					y: contentContainer._measuredHeight / (this._contentMeasurer._measuredHeight)
 				});
 				
 				this._isScrollBarActive && this.fireEvent("dragStart",{});
@@ -67,18 +67,18 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
 				
 				this._updateScrollBars({
 					x: scrollLeft / (this._contentMeasurer._measuredWidth - this._measuredWidth),
-					y: scrollTop / (this._contentMeasurer._measuredHeight - this._measuredHeight),
+					y: scrollTop / (this._contentMeasurer._measuredHeight - this._measuredHeight)
 				});
 			}));
 			var self = this;
 			this.domNode.addEventListener("mousewheel",function(e) {
 				self._startScrollBars({
 					x: contentContainer.domNode.scrollLeft / (self._contentMeasurer._measuredWidth - self._measuredWidth),
-					y: contentContainer.domNode.scrollTop / (self._contentMeasurer._measuredHeight - self._measuredHeight),
+					y: contentContainer.domNode.scrollTop / (self._contentMeasurer._measuredHeight - self._measuredHeight)
 				},
 				{
 					x: contentContainer._measuredWidth / (self._contentMeasurer._measuredWidth),
-					y: contentContainer._measuredHeight / (self._contentMeasurer._measuredHeight),
+					y: contentContainer._measuredHeight / (self._contentMeasurer._measuredHeight)
 				});
 				setTimeout(function(){
 					contentContainer.domNode.scrollLeft -= e.wheelDeltaX;
@@ -92,7 +92,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
 					});
 					self._updateScrollBars({
 						x: (contentContainer.domNode.scrollLeft - e.wheelDeltaX) / (self._contentMeasurer._measuredWidth - self._measuredWidth),
-						y: (contentContainer.domNode.scrollTop - e.wheelDeltaY) / (self._contentMeasurer._measuredHeight - self._measuredHeight),
+						y: (contentContainer.domNode.scrollTop - e.wheelDeltaY) / (self._contentMeasurer._measuredHeight - self._measuredHeight)
 					});
 					setTimeout(function(){
 						self._endScrollBars();

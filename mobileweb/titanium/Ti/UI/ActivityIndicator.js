@@ -68,7 +68,7 @@ define(["Ti/_/declare", "Ti/_/UI/Element"], function(declare, Element) {
 					console.debug('Property "Titanium.UI.ActivityIndicator#.messageid" is not implemented yet.');
 					return value;
 				}
-			},
+			}
 			
 		}
 

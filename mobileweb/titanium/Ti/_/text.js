@@ -2,7 +2,7 @@ define(function() {
 	var cache = {};
 
 	return {
-		dynamic: false, // prevent the loader from caching the result
+		dynamic: true, // prevent the loader from caching the result
 
 		normalize: function(name, normalize) {
 			var parts = name.split("!"),

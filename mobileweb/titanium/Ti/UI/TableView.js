@@ -40,10 +40,10 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				previousTouchLocation = e.y;
 				
 				this._startScrollBars({
-					y: contentContainer.domNode.scrollTop / (getContentHeight() - this._measuredHeight),
+					y: contentContainer.domNode.scrollTop / (getContentHeight() - this._measuredHeight)
 				},
 				{
-					y: contentContainer._measuredHeight / (getContentHeight()),
+					y: contentContainer._measuredHeight / (getContentHeight())
 				});
 			});
 			this.addEventListener("touchend",function(e) {
@@ -65,23 +65,23 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				previousTouchLocation = e.y;
 				
 				this._updateScrollBars({
-					y: contentContainer.domNode.scrollTop / (getContentHeight() - this._measuredHeight),
+					y: contentContainer.domNode.scrollTop / (getContentHeight() - this._measuredHeight)
 				});
 				
 				this._fireScrollEvent(e.x,e.y);
 			}));
 			this.domNode.addEventListener("mousewheel",function(e) {
 				self._startScrollBars({
-					y: contentContainer.domNode.scrollTop / (getContentHeight() - self._measuredHeight),
+					y: contentContainer.domNode.scrollTop / (getContentHeight() - self._measuredHeight)
 				},
 				{
-					y: contentContainer._measuredHeight / (getContentHeight()),
+					y: contentContainer._measuredHeight / (getContentHeight())
 				});
 				setTimeout(function(){
 					contentContainer.domNode.scrollLeft -= e.wheelDeltaX;
 					contentContainer.domNode.scrollTop -= e.wheelDeltaY;
 					self._updateScrollBars({
-						y: (contentContainer.domNode.scrollTop - e.wheelDeltaY) / (getContentHeight() - self._measuredHeight),
+						y: (contentContainer.domNode.scrollTop - e.wheelDeltaY) / (getContentHeight() - self._measuredHeight)
 					});
 					setTimeout(function(){
 						self._endScrollBars();

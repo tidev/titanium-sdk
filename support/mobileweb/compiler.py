@@ -40,13 +40,13 @@ class Compiler(object):
 		self.sdk_src_path = os.path.join(self.sdk_path, 'src')
 		self.themes_path = os.path.join(self.sdk_path, 'themes')
 		self.ti_package_path = os.path.join(self.sdk_path, 'titanium')
-		self.modules_path = os.path.abspath(os.path.join(self.sdk_path, '../../../../modules/mobileweb'))
+		self.modules_path = os.path.abspath(os.path.join(self.sdk_path, '..', '..', '..', '..', 'modules', 'mobileweb'))
 		self.project_path = project_path
 		self.build_path = os.path.join(project_path, 'build', 'mobileweb')
 		self.resources_path = os.path.join(project_path, 'Resources')
 		self.ti_js_file = os.path.join(self.build_path, 'titanium.js')
 		
-		sdk_version = os.path.basename(os.path.abspath(os.path.join(self.sdk_path, '../')))
+		sdk_version = os.path.basename(os.path.abspath(os.path.join(self.sdk_path, '..')))
 		print '[INFO] Titanium Mobile Web Compiler v%s' % sdk_version
 		
 		if not os.path.exists(self.project_path):
@@ -346,9 +346,8 @@ class Compiler(object):
 			if os.path.exists(icon_file):
 				self.build_icons(icon_file)
 		
-		total_time = time.time() - start_time
-		total_seconds = int(round(total_time % 60))
-		print '[INFO] Finished in %s seconds' % total_seconds
+		total_time = int(round(time.time() - start_time))
+		print '[INFO] Finished in %s seconds' % total_time
 	
 	def resolve(self, it):
 		parts = it.split('!')

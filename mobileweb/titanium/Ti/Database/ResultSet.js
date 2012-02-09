@@ -62,7 +62,7 @@ define("Ti/Database/ResultSet", ["Ti/_/Evented"], function(Evented) {
 			currentRow++;
 		};
 		obj.close = function() {
-			delete this;
+			//delete this;
 		}
 	});
 	

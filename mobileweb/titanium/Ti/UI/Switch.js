@@ -249,7 +249,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					setStyle(this._titleContainer, "boxPack", cssValue);
 				},
 				value: UI.TEXT_VERTICAL_ALIGNMENT_CENTER
-			},
+			}
+
 		}
 
 	});
