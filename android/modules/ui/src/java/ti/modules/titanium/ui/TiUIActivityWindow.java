@@ -292,6 +292,13 @@ public class TiUIActivityWindow extends TiUIView
 		if (post) {
 			proxy.getMainHandler().post(new Runnable() {
 				public void run() {
+					/*
+					 *This is a check to prevent a race condition- when user execute open, open, close on the window.
+					 *setActivityBackground is being called in KrollRuntime thread, which may cause a race condition: windowActivity
+					 *is set to null in the middle of closing process, while the 2nd call of open gets here. In the case of
+					 *"open, open, close, open", this would work b/c the assigning of windowActivity and setting it to null are both being done 
+					 *on the same thread.
+					 */
 					if (windowActivity != null) {
 						windowActivity.getWindow().setBackgroundDrawable(drawable);
 					}
