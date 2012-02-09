@@ -14,7 +14,7 @@ methods:
     parameters:
       - name: obj
         summary: Data to decode.
-        type: String
+        type: [String, Titanium.Blob]
         
   - name: base64encode
     summary: Returns the specified data encoded to Base64.
