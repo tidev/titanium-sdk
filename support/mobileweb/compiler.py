@@ -312,13 +312,15 @@ class Compiler(object):
 					#	TODO: minify html
 		
 		# get status bar style
-		status_bar_style = tiapp_xml.properties['statusbar-style']
-		if status_bar_style == 'opaque_black' or status_bar_style == 'opaque':
-			status_bar_style = 'black'
-		elif status_bar_style == 'translucent_black' or status_bar_style == 'transparent' or status_bar_style == 'translucent':
-			status_bar_style = 'black-translucent'
-		else:
-			status_bar_style = 'default'
+		status_bar_style = 'default'
+		if 'statusbar-style' in tiapp_xml.properties:
+			status_bar_style = tiapp_xml.properties['statusbar-style']
+			if status_bar_style == 'opaque_black' or status_bar_style == 'opaque':
+				status_bar_style = 'black'
+			elif status_bar_style == 'translucent_black' or status_bar_style == 'transparent' or status_bar_style == 'translucent':
+				status_bar_style = 'black-translucent'
+			else:
+				status_bar_style = 'default'
 		
 		# populate index.html
 		index_html_file = codecs.open(os.path.join(self.build_path, 'index.html'), 'w', encoding='utf-8')
