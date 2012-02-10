@@ -204,6 +204,7 @@ events:
       - name: subtitle
         summary: Subtitle of the annotation.
         type: String
+        platforms: [android]
         
       - name: map
         summary: The map view instance.
