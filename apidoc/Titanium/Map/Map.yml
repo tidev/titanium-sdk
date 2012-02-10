@@ -44,7 +44,14 @@ properties:
 examples:
   - title: Map Example
     example: |
-        This is a basic map example that uses a custom annotation on the map.
+        This is a basic map example that places a custom annotation on the map, and 
+        listens for click events on the annotation. 
+
+        In this example, a custom property (`myid`) is added to the annotation objct.
+        While adding custom members to a Titanium object is not generally recommended,
+        in this case it provides a mechanism for uniquely identifying an annotation. This
+        can be useful, for example, if the annotations are dynamically generated 
+        and it is not practical to identify them by title.
         
             var mountainView = Titanium.Map.createAnnotation({
             	latitude:37.390749,
@@ -54,7 +61,7 @@ examples:
             	pincolor:Titanium.Map.ANNOTATION_RED,
             	animate:true,
             	leftButton: '../images/appcelerator_small.png',
-            	myid:1 // CUSTOM ATTRIBUTE THAT IS PASSED INTO EVENT OBJECTS
+            	myid:1 // Custom property to uniquely identify this annotation.
             });
             
             var mapview = Titanium.Map.createView({
@@ -68,4 +75,17 @@ examples:
             });
             
             win.add(mapview);
+            // Handle click events on any annotations on this map.
+            mapview.addEventListener('click', function(evt) {
+
+                Ti.API.info("Annotation " + evt.title + " clicked, id: " + evt.annotation.myid);
+
+                // Check for all of the possible names that clicksouce
+                // can report for the left button/view.
+                if (evt.clicksource == 'leftButton' || evt.clicksource == 'leftPane' ||
+                    evt.clicksource == 'leftView') {
+                    Ti.API.info("Annotation " + evt.title + ", left button clicked.");
+                }
+            });
+
         

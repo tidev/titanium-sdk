@@ -31,9 +31,14 @@ description: |
     You can specify a custom image for the map pin by setting the
     [image](Titanium.Map.Annotation.image) property. 
 
-    When the user clicks on an annotation, a `click` event is generated. You can add a
-    click event listener to a specific annotation, or add a click event listener to the 
-    map view to receive click events from all annotations on the map.
+    When the user clicks on an annotation, a `click` event is generated. 
+    
+    On iOS, You can add a click event listener to a specific annotation, or add a 
+    click event listener to the map view to receive click events from all annotations 
+    on the map.
+
+    On Android, you must add the click event listener to the map view; the annotation
+    itself does not generate these events. 
 
     Use the <Titanium.Map.createAnnotation> method to create an annotation.
 extends: Titanium.Proxy
@@ -127,13 +132,17 @@ events:
     summary: |
         Fired when the user selects, deselects, or clicks on this annotation.
     description: |
-        It is fired in two circumstances:
+        This event is not currently supported on Android. Register for the 
+        [click](Titanium.Map.View.click) event on the map view to receive
+        events when any of the map's annotations are clicked.
+
+        This event is fired in two circumstances:
 
         - If the user clicks on an annotation.
         - The user deselects an annotation.
 
         On iOS, the user deselects an annotation by clicking in the map view outside of
-        the annotation. On Android, the  user deselects an annotation by clicking on the 
+        the annotation. On Android, the user deselects an annotation by clicking on the 
         annotation pin.
 
         The `click` event includes a value, `clicksource`, which describes the part of the 
@@ -145,13 +154,7 @@ events:
         `title`, or `subtitle`. If the user deselects the annotation by clicking elsewhere
         in the map view, `clicksource` is `null`.
 
-        On Android, the `clicksource` can be one of `pin`, `leftButton`,
-        `rightButton`, `leftPane`, or `rightPane`. Because the user deselects an
-        annotation by clicking on the pin, `clicksource` is `pin` for both 
-        selection and deselection.
-
-        On Android, no event is generated when the user clicks on the title, subtitle, or
-        the background of the annotation.
+    platforms: [iphone, ipad]
 
     properties:
 
