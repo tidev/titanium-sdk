@@ -514,11 +514,11 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	}
 }
 
--(void)removeTempController:(id)sender
+-(void)removeTempController
 {
 	//TEMP hack until split view is fixed
 	[tempController.view removeFromSuperview];
-	[[[[TiApp app] controller] view] removeFromSuperview];
+    [[self view] removeFromSuperview];
 	RELEASE_TO_NIL(tempController);
 }
 
@@ -588,17 +588,26 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	//TEMP hack until we can figure out split view issue
 	if (tempController!=nil)
 	{
-		BOOL animated = args!=nil && [args isKindOfClass:[NSDictionary class]] ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
-		[tempController dismissModalViewControllerAnimated:animated];
-		if (animated==NO)
-		{
-			[tempController.view removeFromSuperview];
-			RELEASE_TO_NIL(tempController);
-		}
-		else 
-		{
-			[self performSelector:@selector(removeTempController:) withObject:nil afterDelay:0.3];
-		}
+        if (modalFlag) {
+            BOOL animated = (args!=nil && [args isKindOfClass:[NSDictionary class]]) ? 
+                [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : 
+                YES;
+            
+            [tempController dismissModalViewControllerAnimated:animated];
+            
+            if (!animated)
+            {
+                [self removeTempController];
+            }
+            else 
+            {
+                [self performSelector:@selector(removeTempController) withObject:nil afterDelay:0.3];
+            }
+        }
+        else {
+            [self removeTempController];
+        }
+        
 		return;
 	}
 	else
