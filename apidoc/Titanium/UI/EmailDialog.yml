@@ -26,7 +26,7 @@ methods:
 events:
   - name: complete
     summary: fired when the email dialog has completed sending the email
-    description: On Mobile Web, `complete` fires immediately after calling open() and will always succeed.
+    description: On Mobile Web, the platform cannot determine if the message was sent or not. The complete call fires immediately after calling open(), and always reports success.
     properties:
       - name: result
         summary: |
