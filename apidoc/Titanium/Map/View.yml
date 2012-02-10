@@ -170,7 +170,7 @@ events:
         - The user deselects an annotation.
 
         On iOS, the user deselects an annotation by clicking in the map view outside of
-        the annotation. On Android, the  user deselects an annotation by clicking on the 
+        the annotation. On Android, the user deselects an annotation by clicking on the 
         annotation pin.
 
         The `click` event includes a value, `clicksource`, which describes the part of the 
