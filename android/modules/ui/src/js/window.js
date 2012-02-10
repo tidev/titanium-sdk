@@ -467,17 +467,6 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 	}
 	
-	// Add event listener to this.window and update the source of event to this.
-	Window.prototype.addWrappedListener = function(event, listener) {
-		var self = this;
-		self.view.addEventListener(event, function(e) {
-			if (e.source == self.view) {
-				e.source = self;
-			}
-			listener(e);
-		}, self);
-	}
-
 	Window.prototype.removeEventListener = function(event, listener) {
 		if (["open", "close"].indexOf(event) >= 0 || this.window == null) {
 			EventEmitter.prototype.removeEventListener.call(this, event, listener);

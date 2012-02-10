@@ -44,9 +44,9 @@ Object.defineProperty(EventEmitter.prototype, "callHandler", {
 		} else if (!data) {
 			data = { type: type };
 		}
-        if (data.source == handler.self) {
-				data.source = handler.self;
-        }
+		if (handler.self && (data.source == handler.self.view)) {
+			data.source = handler.self;
+		}
 		handler.listener.call(this, data);
 	},
 	enumerable: false
@@ -152,9 +152,10 @@ Object.defineProperty(EventEmitter.prototype, "addListener", {
 			id = 1;
 		}
 
-        var listenerWrapper = {};
-        listenerWrapper.listener = listener;
-        listenerWrapper.source = view;
+		var listenerWrapper = {};
+		listenerWrapper.listener = listener;
+		listenerWrapper.self = view;
+        
 		if (!this._events[type]) {
 			// Optimize the case of one listener. Don't need the extra array object.
 			this._events[type] = listenerWrapper;
@@ -249,7 +250,7 @@ Object.defineProperty(EventEmitter.prototype, "removeListener", {
 				delete this._events[type];
 			count = list.length;
 		} else if (list.listener === listener ||
-			(list.listener.listener && list.listenerlistener === listener) ||
+			(list.listener.listener && list.listener.listener === listener) ||
 			listener == 0)
 		{
 			delete this._events[type];
