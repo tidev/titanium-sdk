@@ -44,6 +44,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 				this._xhr.abort();
 				this._xhr = null;
 			}
+			Evented.destroy.apply(this, arguments);
 		},
 
 		_onError: function(error) {

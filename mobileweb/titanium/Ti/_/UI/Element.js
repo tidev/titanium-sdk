@@ -130,6 +130,7 @@ define(
 				this.domNode = null;
 			}
 			this._destroyed = 1;
+			Evented.destroy.apply(this, arguments);
 		},
 		
 		_markedForLayout: false,
