@@ -244,6 +244,16 @@ methods:
       - name: newname
         summary: New name for the file.
         type: String
+  - name: resolve
+    summary: Returns the fully-resolved native path associated with this file object.
+    description: |
+        The path returned by this method is a plain file path, nor a URL. It is suitable
+        for use in native modules that need to access the file using native APIs.
+
+        On Android, the return value of `resolve` is identical to the
+        [nativePath](Titanium.Filesystem.File.nativePath) property.
+    returns:
+        type: String
   - name: spaceAvailable
     summary: Returns the amount of free space available on the device where the file
         identified by this file object is stored.
@@ -290,7 +300,14 @@ properties:
     type: String
     permission: read-only
   - name: nativePath
-    summary: Returns the fully resolved native path.
+    summary: Native path associated with this file object.
+    description: |
+        On Android, the value of this property is a file path. Native modules
+        can use this path to access the file using native APIs.
+
+        On iOS, the value of this property is a URL, which is not suitable 
+        for native modules. Use the [resolve](Titanium.Filesystem.File.resolve) 
+        method to obtain a plain file path for use with native modules.
     type: String
     permission: read-only
   - name: parent
@@ -333,10 +350,6 @@ properties:
   - name: writable
     summary: |
         `true` if the file identified by this object is writable.
-    description: |
-        In Titanium Mobile 1.8.0.1 and earlier, a deprecation warning may be printed for 
-        this property on iOS. This is incorrect; `writeable` should be deprecated and the
-        `writable` property, which is supported on iOS and Android, should be used instead.
     type: Boolean
     permission: read-only
   - name: writeable
