@@ -507,6 +507,9 @@ public class TiTableView extends FrameLayout
 		// Layout is finished, re-enable focus events.
 		if (focusListener != null) {
 			focusedView.setOnFocusChangeListener(focusListener);
+			if (changed) {
+				focusListener.onFocusChange(focusedView, false);
+			}
 		}
 	}
 }
