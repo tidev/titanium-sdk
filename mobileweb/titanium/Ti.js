@@ -19,11 +19,16 @@ define(
 		has = require.has,
 		undef,
 		Ti = lang.setObject("Ti", Evented, {
-			version: ver,
-			buildDate: cfg.ti.buildDate,
-			buildHash: cfg.ti.buildHash,
-			userAgent: "Appcelerator Titanium/" + ver + " (" + navigator.userAgent + ")!",
-	
+			constants: {
+				buildDate: cfg.ti.buildDate,
+				buildHash: cfg.ti.buildHash,
+				version: ver
+			},
+
+			properties: {
+				userAgent: "Appcelerator Titanium/" + ver + " (" + navigator.userAgent + ")!"
+			},
+
 			include: function(files) {
 				typeof files === "array" || (files = [].concat(Array.prototype.slice.call(arguments, 0)));
 				each(files, function(f) {
