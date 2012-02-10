@@ -1660,8 +1660,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 		repositioning = YES;
 
-
-        CGSize referenceSize = (parent != nil) ? parent.view.bounds.size : sandboxBounds.size;
+        UIView *parentView = [parent parentViewForChild:self];
+        CGSize referenceSize = (parentView != nil) ? parentView.bounds.size : sandboxBounds.size;
 		sizeCache.size = SizeConstraintViewWithSizeAddingResizing(&layoutProperties,self, referenceSize, &autoresizeCache);
 
 		positionCache = PositionConstraintGivenSizeBoundsAddingResizing(&layoutProperties, sizeCache.size,
