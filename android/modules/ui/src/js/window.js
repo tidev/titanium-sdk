@@ -280,15 +280,15 @@ exports.bootstrapWindow = function(Titanium) {
 		for (var event in this._events) { 
 			var listeners = this.listeners(event); 
 		 	for (var i = 0; i < listeners.length; i++) { 
-		 		this.addWrappedListener(event, listeners[i]); 
+		 		this.view.addEventListener(event, function(e) {}, this); 
 		 	} 
 		}
 		var self = this;
-		this.addWrappedListener("closeFromActivity", function(e) {
+		this.view.addEventListener("closeFromActivity", function(e) {
 			self.window = null;
 			self.view = null;
 			self.currentState = self.state.closed;
-		});
+		}, this);
 		
 		if (this.cachedActivityProxy) {
 			this.window._internalActivity.extend(this.cachedActivityProxy);
@@ -463,7 +463,7 @@ exports.bootstrapWindow = function(Titanium) {
 			EventEmitter.prototype.addEventListener.call(this, event, listener);
 
 		} else {
-			this.addWrappedListener(event, listener); 
+			this.view.addEventListener(event, listener, this); 
 		}
 	}
 	

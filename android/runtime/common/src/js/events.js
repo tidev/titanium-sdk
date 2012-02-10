@@ -104,10 +104,10 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 
 		} else if (isArray(handler)) {
 			var args = Array.prototype.slice.call(arguments, 1);
-
 			var listeners = handler.slice();
+
 			for (var i = 0, l = listeners.length; i < l; i++) {
-				this.callHandler(listeners.listener[i], type, args[0]);
+				this.callHandler(listeners[i], type, args[0]);
 			}
 			return true;
 
@@ -224,7 +224,6 @@ Object.defineProperty(EventEmitter.prototype, "removeListener", {
 
 		var list = this._events[type];
 		var count = 0;
-
 		if (isArray(list)) {
 			var position = -1;
 			// Also support listener indexes / ids
@@ -255,7 +254,6 @@ Object.defineProperty(EventEmitter.prototype, "removeListener", {
 		{
 			delete this._events[type];
 		}
-
 		if (count == 0) {
 			this._hasListenersForEventType(type, false);
 		}
