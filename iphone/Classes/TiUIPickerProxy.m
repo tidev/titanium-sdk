@@ -110,8 +110,8 @@ NSArray* pickerKeySequence;
 	[self reloadColumn:column];
 	if ([TiUtils boolValue:[row valueForUndefinedKey:@"selected"] def:NO])
 	{
-		TiUIPicker *picker = [self picker];
-		[picker performSelectorOnMainThread:@selector(selectRow:) withObject:[NSArray arrayWithObjects:NUMINT(0),rowIndex,nil] waitUntilDone:NO];
+		TiThreadPerformOnMainThread(^{[[self picker] selectRow:
+				[NSArray arrayWithObjects:NUMINT(0),rowIndex,nil]];}, NO);
 	}
 }
 

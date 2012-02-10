@@ -86,6 +86,11 @@
 -(UITableView*)tableView;
 -(CGFloat)tableRowHeight:(CGFloat)height;
 
+#pragma Private
+-(void)selectRow:(id)args;
+-(void)deselectRow:(id)args;
+
+
 @end
 
 #endif

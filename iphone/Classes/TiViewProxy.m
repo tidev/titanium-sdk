@@ -105,7 +105,7 @@
 		[self rememberProxy:arg];
 		if (windowOpened)
 		{
-			[self performSelectorOnMainThread:@selector(add:) withObject:arg waitUntilDone:NO];
+			TiThreadPerformOnMainThread(^{[self add:arg];}, NO);
 			return;
 		}
 		pthread_rwlock_wrlock(&childrenLock);
@@ -171,11 +171,13 @@
 		}
 		else
 		{
-			[childView performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:NO];
-			if (layoutNeedsRearranging)
-			{
-				[self performSelectorOnMainThread:@selector(relayout) withObject:nil waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
-			}
+			TiThreadPerformOnMainThread(^{
+				[childView removeFromSuperview];
+				if (layoutNeedsRearranging)
+				{
+					[self layoutChildren:NO];
+				}
+			}, NO);
 		}
 	}
 	//Yes, we're being really lazy about letting this go. This is intentional.
@@ -202,20 +204,17 @@
 {
 	TiAnimation * newAnimation = [TiAnimation animationFromArg:arg context:[self executionContext] create:NO];
 	[self rememberProxy:newAnimation];
-	[self performSelectorOnMainThread:@selector(animateOnUIThread:) withObject:newAnimation waitUntilDone:NO];
-}
-
--(void)animateOnUIThread:(TiAnimation *)newAnimation
-{
-	[parent contentsWillChange];
-	if ([view superview]==nil)
-	{
-		VerboseLog(@"Entering animation without a superview Parent is %@, props are %@",parent,dynprops);
-		[parent childWillResize:self];
-	}
-	[self windowWillOpen]; // we need to manually attach the window if you're animating
-	[parent layoutChildrenIfNeeded];
-	[[self view] animate:newAnimation];
+	TiThreadPerformOnMainThread(^{
+		[parent contentsWillChange];
+		if ([view superview]==nil)
+		{
+			VerboseLog(@"Entering animation without a superview Parent is %@, props are %@",parent,dynprops);
+			[parent childWillResize:self];
+		}
+		[self windowWillOpen]; // we need to manually attach the window if you're animating
+		[parent layoutChildrenIfNeeded];
+		[[self view] animate:newAnimation];
+	}, NO);
 }
 
 -(void)setAnimation:(id)arg
@@ -313,10 +312,22 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	{
 		return nil;
 	}
-	NSMutableDictionary * result = [NSMutableDictionary dictionary];
-	[self performSelectorOnMainThread:@selector(getAnimatedCenterPoint:) withObject:result waitUntilDone:YES];
-
-	return result;
+	__block CGPoint result;
+	TiThreadPerformOnMainThread(^{
+		UIView * ourView = view;
+		CALayer * ourLayer = [ourView layer];
+		CALayer * animatedLayer = [ourLayer presentationLayer];
+	
+		if (animatedLayer !=nil) {
+			result = [animatedLayer position];
+		}
+		else {
+			result = [ourLayer position];
+		}
+	}, YES);
+	//TODO: Should this be a TiPoint? If so, the accessor fetcher might try to
+	//hold onto the point, which is undesired.
+	return [NSDictionary dictionaryWithObjectsAndKeys:NUMFLOAT(result.x),@"x",NUMFLOAT(result.y),@"y", nil];
 }
 
 -(void)setBackgroundGradient:(id)arg
@@ -332,7 +343,37 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	// we spin on the UI thread and have him convert and then add back to the blob
 	// if you pass a callback function, we'll run the render asynchronously, if you
 	// don't, we'll do it synchronously
-	[self performSelectorOnMainThread:@selector(addImageToBlob:) withObject:[NSArray arrayWithObjects:blob,callback,nil] waitUntilDone:callback==nil ? YES : NO];
+	TiThreadPerformOnMainThread(^{
+		[self windowWillOpen];
+		TiUIView *myview = [self view];
+		CGSize size = myview.bounds.size;
+		if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
+		{
+			CGFloat width = [self autoWidthForWidth:1000];
+			CGFloat height = [self autoHeightForWidth:width];
+			if (width > 0 && height > 0)
+			{
+				size = CGSizeMake(width, height);
+			}
+			if (CGSizeEqualToSize(size, CGSizeZero) || width==0 || height == 0)
+			{
+				size = [UIScreen mainScreen].bounds.size;
+			}
+			CGRect rect = CGRectMake(0, 0, size.width, size.height);
+			[TiUtils setView:myview positionRect:rect];
+		}
+		UIGraphicsBeginImageContext(size);
+		[myview.layer renderInContext:UIGraphicsGetCurrentContext()];
+		UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+		[blob setImage:image];
+		UIGraphicsEndImageContext();
+		if (callback != nil)
+		{
+			NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"blob"];
+			[self _fireEventToListener:@"blob" withObject:event listener:callback thisObject:nil];
+		}
+	}, (callback==nil));
+	
 	return blob;
 }
 
@@ -1094,7 +1135,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		}
 		else
 		{
-			[barButtonItem performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
+			TiThreadReleaseOnMainThread(barButtonItem, NO);
 			barButtonItem = nil;
 		}
 	}
@@ -1108,7 +1149,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		else
 		{
 			view.proxy = nil;
-			[view performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
+			TiThreadReleaseOnMainThread(view, NO);
 			view = nil;
 		}
 	}
@@ -1147,69 +1188,10 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	[super didReceiveMemoryWarning:notification];
 }
 
--(void)getAnimatedCenterPoint:(NSMutableDictionary *)resultDict
-{
-	UIView * ourView = view;
-	CALayer * ourLayer = [ourView layer];
-	CALayer * animatedLayer = [ourLayer presentationLayer];
-	
-	CGPoint result;
-	if (animatedLayer !=nil)
-	{
-		result = [animatedLayer position];
-	}
-	else
-	{
-		result = [ourLayer position];
-	}
-
-	[resultDict setObject:NUMFLOAT(result.x) forKey:@"x"];
-	[resultDict setObject:NUMFLOAT(result.y) forKey:@"y"];
-}
-
--(void)addImageToBlob:(NSArray*)args
-{
-	TiBlob *blob = [args objectAtIndex:0];
-	[self windowWillOpen];
-	TiUIView *myview = [self view];
-	CGSize size = myview.bounds.size;
-	if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
-	{
-		CGFloat width = [self autoWidthForWidth:1000];
-		CGFloat height = [self autoHeightForWidth:width];
-		if (width > 0 && height > 0)
-		{
-			size = CGSizeMake(width, height);
-		}
-		if (CGSizeEqualToSize(size, CGSizeZero) || width==0 || height == 0)
-		{
-			size = [UIScreen mainScreen].bounds.size;
-		}
-		CGRect rect = CGRectMake(0, 0, size.width, size.height);
-		[TiUtils setView:myview positionRect:rect];
-	}
-	UIGraphicsBeginImageContext(size);
-	[myview.layer renderInContext:UIGraphicsGetCurrentContext()];
-	UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-	[blob setImage:image];
-	UIGraphicsEndImageContext();
-	if ([args count] > 1)
-	{
-		KrollCallback *callback = [args objectAtIndex:1];
-		NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"blob"];
-		[self _fireEventToListener:@"blob" withObject:event listener:callback thisObject:nil];
-	}
-}
-
 -(void)animationCompleted:(TiAnimation*)animation
 {
 	[self forgetProxy:animation];
 	[[self view] animationCompleted];
-}
-
--(void)makeViewPerformAction:(TiAction *)action
-{
-	[[self view] performSelector:[action selector] withObject:[action arg]];
 }
 
 -(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait
@@ -1229,13 +1211,13 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 	if(isAttached)
 	{
-		[[self view] performSelectorOnMainThread:selector withObject:object waitUntilDone:wait];
+		TiThreadPerformOnMainThread(^{[[self view] performSelector:selector withObject:object];}, wait);
 		return;
 	}
 
-	TiAction * ourAction = [[TiAction alloc] initWithTarget:nil selector:selector arg:object];
-	[self performSelectorOnMainThread:@selector(makeViewPerformAction:) withObject:ourAction waitUntilDone:wait];
-	[ourAction release];
+	TiThreadPerformOnMainThread(^{
+		[[self view] performSelector:selector withObject:object];
+	}, wait);
 }
 
 #pragma mark Listener Management
@@ -1772,7 +1754,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	else 
 	{
 		VerboseLog(@"[INFO] Reposition was called by a background thread in %@.",self);
-		[self performSelectorOnMainThread:@selector(reposition) withObject:nil waitUntilDone:NO];
+		TiThreadPerformOnMainThread(^{[self reposition];}, NO);
 	}
 
 }
