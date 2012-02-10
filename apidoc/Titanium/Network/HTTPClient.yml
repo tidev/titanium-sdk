@@ -276,6 +276,23 @@ properties:
     type: Number
     since: "1.8.0"
     platforms: [iphone, ipad]
+  - name: cache
+    summary: Controls whether or not HTTP responses are cached.
+    description: |
+        By default, HTTP responses are not cached. If you cache HTTP responses,
+        when making a request to the same source multiple times, you may retrieve
+        the initial response rather than a new one - this is true even for
+        REST calls. Caching should only be enabled for HTTP requests which you
+        expect the result to remain consistent for.
+        
+        If this is `true`, respects the "no-cache", "no-store", and cache
+        expiration headers of the response.
+        
+        This propery must be set before `open` is called.
+    type: Boolean
+    since: "1.9.0"
+    default: false
+    platforms: [iphone, ipad]
 examples:
   - title: Simple GET Request
     example: |
