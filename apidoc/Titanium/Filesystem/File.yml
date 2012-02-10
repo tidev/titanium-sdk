@@ -247,7 +247,7 @@ methods:
   - name: resolve
     summary: Returns the fully-resolved native path associated with this file object.
     description: |
-        The path returned by this method is a plain file path, nor a URL. It is suitable
+        The path returned by this method is a plain file path, not a URL. It is suitable
         for use in native modules that need to access the file using native APIs.
 
         On Android, the return value of `resolve` is identical to the
