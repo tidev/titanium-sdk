@@ -486,4 +486,27 @@ public class TiTableView extends FrameLayout
 		viewModel = null;
 		itemClickListener = null;
 	}
+
+	@Override
+	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+		// To prevent undesired "focus" and "blur" events during layout caused
+		// by ListView temporarily taking focus, we will disable focus events until
+		// layout has finished.
+		OnFocusChangeListener focusListener = null;
+		View focusedView = listView.findFocus();
+		if (focusedView != null) {
+			OnFocusChangeListener listener = focusedView.getOnFocusChangeListener();
+			if (listener != null && listener instanceof TiUIView) {
+				focusedView.setOnFocusChangeListener(null);
+				focusListener = listener;
+			}
+		}
+
+		super.onLayout(changed, left, top, right, bottom);
+
+		// Layout is finished, re-enable focus events.
+		if (focusListener != null) {
+			focusedView.setOnFocusChangeListener(focusListener);
+		}
+	}
 }
