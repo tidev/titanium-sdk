@@ -475,7 +475,7 @@ exports.bootstrapWindow = function(Titanium) {
 				e.source = self;
 			}
 			listener(e);
-		});
+		}, self);
 	}
 
 	Window.prototype.removeEventListener = function(event, listener) {
