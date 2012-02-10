@@ -2,9 +2,10 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 	function(declare, dom, Element, lang, string, Layouts, style) {
 		
 	var unitize = dom.unitize,
-		set = style.set;
+		set = style.set,
+		View;
 
-	return declare("Ti.UI.View", Element, {
+	return View = declare("Ti.UI.View", Element, {
 
 		_parent: null,
 
@@ -55,7 +56,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 					c = this.children.splice(0, 1);
 					c[0].destroy();
 				}
-				this._parent && this._parent.remove(this);
+				this._parent && View.prototype.remove.call(this._parent, this);
 				Element.prototype.destroy.apply(this, arguments);
 			}
 		},
