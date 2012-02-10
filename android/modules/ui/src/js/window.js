@@ -280,7 +280,7 @@ exports.bootstrapWindow = function(Titanium) {
 		for (var event in this._events) { 
 			var listeners = this.listeners(event); 
 		 	for (var i = 0; i < listeners.length; i++) { 
-		 		this.view.addEventListener(event, function(e) {}, this); 
+		 		this.view.addEventListener(event, listeners[i].listener, this); 
 		 	} 
 		}
 		var self = this;
