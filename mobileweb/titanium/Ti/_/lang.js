@@ -144,7 +144,8 @@ define(function() {
 		toArray: toArray,
 
 		urlEncode: function(obj) {
-			var pairs = [],
+			var enc = encodeURIComponent,
+				pairs = [],
 				prop,
 				value;
 

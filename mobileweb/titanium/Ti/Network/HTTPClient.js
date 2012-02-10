@@ -3,7 +3,6 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 
 	var is = require.is,
 		on = require.on,
-		enc = encodeURIComponent,
 		undef;
 
 	return declare("Ti.Network.HTTPClient", Evented, {
