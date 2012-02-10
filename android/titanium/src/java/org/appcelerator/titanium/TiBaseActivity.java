@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -310,6 +310,15 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onCreate");
 		}
 
+		TiApplication tiApp = getTiApp();
+		if (tiApp.isRestartPending()) {
+			super.onCreate(savedInstanceState);
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
 		if (!isTabActivity()) {
 			TiApplication.addToActivityStack(this);
 		}
@@ -346,7 +355,6 @@ public abstract class TiBaseActivity extends Activity
 		// we only want to set the current activity for good in the resume state but we need it right now.
 		// save off the existing current activity, set ourselves to be the new current activity temporarily 
 		// so we don't run into problems when we give the proxy the event
-		TiApplication tiApp = getTiApp();
 		Activity tempCurrentActivity = tiApp.getCurrentActivity();
 		tiApp.setCurrentActivity(this, this);
 
@@ -599,6 +607,19 @@ public abstract class TiBaseActivity extends Activity
 		// TODO stub
 	}
 
+	private void releaseDialogs()
+	{
+		//clean up dialogs when activity is finishing
+		while (dialogs.size() > 0) {
+			Dialog dialog = dialogs.get(0);
+			if (dialog.isShowing()) {
+				dialog.dismiss();
+			}
+			removeDialog(dialog);
+		}
+		dialogs = null;
+	}
+
 	@Override
 	protected void onPause() 
 	{
@@ -607,20 +628,22 @@ public abstract class TiBaseActivity extends Activity
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onPause");
 		}
-		
+
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			releaseDialogs();
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
 		TiApplication.updateActivityTransitionState(true);
-		getTiApp().setCurrentActivity(this, null);
+		tiApp.setCurrentActivity(this, null);
 
 		if (this.isFinishing()) {
-			//clean up dialogs when activity is finished
-			while (dialogs.size() > 0) {
-				Dialog dialog = dialogs.get(0);
-				if (dialog.isShowing()) {
-					dialog.dismiss();
-				}
-				removeDialog(dialog);
-			}
-			dialogs = null;
+			releaseDialogs();
 		}
 
 		if (activityProxy != null) {
@@ -648,7 +671,15 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onResume");
 		}
 
-		getTiApp().setCurrentActivity(this, this);
+		TiApplication tiApp = getTiApp();
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
+		tiApp.setCurrentActivity(this, this);
 		TiApplication.updateActivityTransitionState(false);
 		
 		if (activityProxy != null) {
@@ -676,6 +707,15 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onStart");
 		}
 
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
 		updateTitle();
 		
 		if (window != null) {
@@ -693,7 +733,6 @@ public abstract class TiBaseActivity extends Activity
 			// we only want to set the current activity for good in the resume state but we need it right now.
 			// save off the existing current activity, set ourselves to be the new current activity temporarily 
 			// so we don't run into problems when we give the proxy the event
-			TiApplication tiApp = getTiApp();
 			Activity tempCurrentActivity = tiApp.getCurrentActivity();
 			tiApp.setCurrentActivity(this, this);
 
@@ -722,6 +761,13 @@ public abstract class TiBaseActivity extends Activity
 
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onStop");
+		}
+
+		if (getTiApp().isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
 		}
 
 		if (window != null) {
@@ -756,11 +802,19 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onRestart");
 		}
 
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
 		if (activityProxy != null) {
 			// we only want to set the current activity for good in the resume state but we need it right now.
 			// save off the existing current activity, set ourselves to be the new current activity temporarily 
 			// so we don't run into problems when we give the proxy the event
-			TiApplication tiApp = getTiApp();
 			Activity tempCurrentActivity = tiApp.getCurrentActivity();
 			tiApp.setCurrentActivity(this, this);
 
@@ -776,6 +830,16 @@ public abstract class TiBaseActivity extends Activity
 	{
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onDestroy");
+		}
+
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			super.onDestroy();
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
 		}
 
 		synchronized (lifecycleListeners.synchronizedList()) {
@@ -806,7 +870,7 @@ public abstract class TiBaseActivity extends Activity
 				getIntent().putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, true);
 			}
 
-			getTiApp().scheduleRestart(250);
+			tiApp.scheduleRestart(250);
 			finish();
 
 			return;

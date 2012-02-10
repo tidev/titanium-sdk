@@ -78,6 +78,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public static final String APPLICATION_PREFERENCES_NAME = "titanium";
 	public static final String PROPERTY_FASTDEV = "ti.android.fastdev";
 
+	private boolean restartPending = false;
 	private String baseUrl;
 	private String startUrl;
 	private HashMap<String, SoftReference<KrollProxy>> proxyMap;
@@ -171,6 +172,19 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public static void removeFromActivityStack(Activity activity)
 	{
 		activityStack.remove(activity);
+	}
+
+	public boolean activityStackHasLaunchActivity()
+	{
+		if (activityStack == null || activityStack.size() == 0) {
+			return false;
+		}
+		for (WeakReference<Activity> activityRef : activityStack) {
+			if (activityRef != null && activityRef.get() instanceof TiLaunchActivity) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	// This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
@@ -661,9 +675,15 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			Log.d(LCAT, "Here is call stack leading to restart. (NOTE: this is not a real exception, just a stack trace.) :");
 			(new Exception()).printStackTrace();
 		}
+		this.restartPending = true;
 		if (getRootActivity() != null) {
 			getRootActivity().restartActivity(delay);
 		}
+	}
+
+	public boolean isRestartPending()
+	{
+		return restartPending;
 	}
 
 	public TiTempFileHelper getTempFileHelper()

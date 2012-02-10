@@ -1,7 +1,14 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package ti.modules.titanium.app;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiContext;
@@ -41,19 +48,22 @@ public class AndroidModule extends KrollModule
 	@Kroll.method
 	public ActivityProxy getTopActivity()
 	{
-		try {
-			TiApplication.getInstance().rootActivityLatch.await();
-
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		Activity activity = TiApplication.getInstance().getCurrentActivity();
+		TiApplication tiApp = TiApplication.getInstance();
+		Activity activity = tiApp.getCurrentActivity();
 		if (activity == null || !(activity instanceof TiBaseActivity)) {
-			activity = TiApplication.getInstance().getRootActivity();
+			try {
+				tiApp.rootActivityLatch.await();
+				activity = tiApp.getRootActivity();
+			} catch (InterruptedException e) {
+				Log.e(TAG, "Interrupted awaiting rootActivityLatch");
+			}
 		}
 
-		return ((TiBaseActivity)activity).getActivityProxy();
+		if (activity instanceof TiBaseActivity) {
+			return ((TiBaseActivity)activity).getActivityProxy();
+		} else {
+			return null;
+		}
 	}
 }
 
