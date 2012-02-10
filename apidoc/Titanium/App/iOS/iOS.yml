@@ -19,8 +19,12 @@ methods:
     summary: Cancels all scheduled local notifications.
     
   - name: cancelLocalNotification
-    summary: Cancels this local notification.
-    
+    summary: Cancels a local notification.
+    parameters:
+      - name: id
+        summary: ID of the local notification to cancel.
+        type: Number
+
   - name: registerBackgroundService
     summary: Registers a service to run when the application is placed in the background.
     returns:

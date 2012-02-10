@@ -42,7 +42,7 @@ description: |
     * The OS may terminate the background service at any point to reclaim resources.
 
 examples:
-  - title: Background Services Example (iOS 4.0+ only)
+  - title: Background Services Example
     example: |
         Two background services are registered in the following application.
         
