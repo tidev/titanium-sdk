@@ -35,15 +35,6 @@
 		[nc addObserver:self selector:@selector(volumeDidChange:) name:MPMusicPlayerControllerVolumeDidChangeNotification object:player];
 		
 		[player beginGeneratingPlaybackNotifications];	
-
-		/*
-		if (![NSThread isMainThread]) {
-			[self performSelectorOnMainThread:@selector(initializePlayer) withObject:nil waitUntilDone:YES];
-		}
-		else {
-			[self initializePlayer];
-		}
-		 */
 	}
 	return self;
 }

@@ -21,7 +21,7 @@
 
 -(void)dealloc
 {	
-	[self performSelectorOnMainThread:@selector(unregisterForNotifications) withObject:nil waitUntilDone:YES];
+	TiThreadPerformOnMainThread(^{[self unregisterForNotifications];}, YES);
 	RELEASE_TO_NIL(host);
 	if (classNameLookup != NULL)
 	{
@@ -94,7 +94,7 @@
 		classNameLookup = CFDictionaryCreateMutable(kCFAllocatorDefault, 1, &kCFTypeDictionaryKeyCallBacks, NULL);
 		//We do not retain the Class, but simply assign them.
 	}
-	[self performSelectorOnMainThread:@selector(registerForNotifications) withObject:nil waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[self registerForNotifications];}, NO);
 }
 
 -(void)_configure

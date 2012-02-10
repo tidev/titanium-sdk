@@ -85,7 +85,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 -(void)releaseController
 {
 	[(TiViewController *)controller setProxy:nil];
-	[controller performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
+	TiThreadReleaseOnMainThread(controller, NO);
 	controller = nil;
 }
 
@@ -767,6 +767,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 -(void)viewWillAppear:(BOOL)animated
 {
 	[self parentWillShow];
+	TiThreadProcessPendingMainThreadBlocks(0.1, YES, nil);
 }
 
 - (void)viewDidDisappear:(BOOL)animated
@@ -876,7 +877,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		return;
 	}
 	orientationFlags = newFlags;
-	[parentOrientationController performSelectorOnMainThread:@selector(childOrientationControllerChangedFlags:) withObject:self waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[parentOrientationController childOrientationControllerChangedFlags:self];}, NO);
 }
 
 

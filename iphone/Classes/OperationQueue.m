@@ -61,16 +61,10 @@ OperationQueue *sharedQueue = nil;
 			{
 				NSMethodSignature * methodSignature2 = [afterTarget methodSignatureForSelector:after];
 				// if UI thread, just use perform
-				if ([methodSignature2 numberOfArguments]==3)
-				{
-					[afterTarget performSelectorOnMainThread:after withObject:result waitUntilDone:YES modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
-				}
-				else 
-				{
-					[afterTarget performSelectorOnMainThread:after withObject:nil waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
-				}
+				BOOL useResult = [methodSignature2 numberOfArguments]==3;
+				TiThreadPerformOnMainThread(^{[afterTarget performSelector:after withObject:useResult?result:nil];}, useResult);
 			}
-			else 
+			else
 			{
 				[afterTarget performSelector:after withObject:result];
 			}
