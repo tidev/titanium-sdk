@@ -531,7 +531,68 @@ extern NSString * const kTiLocalNotification;
 #endif
 
 #include "TiThreading.h"
+
+/*
+ *	TiThreadPerformOnMainThread should replace all Titanium instances of
+ *	performSelectorOnMainThread, ESPECIALLY if wait is to be yes. That way,
+ *	exceptional-case main thread activities can process them outside of the
+ *	standard event loop.
+ */
+
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish);
+
+/*
+ *	The one mixed blessing about blocks is that they retain+autorelease the
+ *	stack variables, and inside a method, that includes self. During a dealloc,
+ *	this may be dangerous. In order to make life easier for everyone, two
+ *	convenience functions are provided. By being a function, it removes self
+ *	from being a stack variable. It also has some optimizations.
+ */
+	
+void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish);
+void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish);
+
+/*	
+ *	Blocks sent to TiThreadPerformOnMainThread will be processed on the main
+ *	thread. Most of the time, this is done using dispatch_async or
+ *	dispatch_sync onto the main queue as needed. However, there are some cases
+ *	where the main thread is busy inside a method and needs to process these
+ *	blocks without waiting for the method to complete. The most common example
+ *	is during app suspension, where any JS file waiting on the main thread
+ *	would not complete in time to get the 'pause' event.
+ *
+ *	In those instances, the method on the main thread may call
+ *	TiThreadProcessPendingMainThreadBlocks to process while waiting.
+ *
+ *	This function takes three arguments:
+ *	The maximum time duration to wait, called timeout.
+ *		The processing stops after this time has passed.
+ *	A boolean to stop when the queue is empty.
+ *		The processing stops if this boolean is YES and the queue is empty.
+ *	A function block to be designed/implemented at a later time. For now, use nil.
+ *
+ *	The function works processes blocks already queued up by
+ *	TiThreadPerformOnMainThread thusly:
+ *
+ *	1.	doneTime = currentTime() + timeout.
+ *	2.	Attempt to process a block first before checking to stop.
+ *	3.	continue = currentTime < doneTime.
+ *	4.	If (continue && doneWhenEmpty) continue = [queue count] > 0
+ *	5.	If (continue && ([queue count] == 0)) sleep briefly to allow background
+ *		tasks to queue up blocks.
+ *	6.	If (continue) go back to step 2.
+ *
+ *	Possible future use cases will have wrappers to make this function easier
+ *	to use, even to have a non-deadlocking means to fetch JS values from the
+ *	main thread (using the currently reserved/unused block call).
+ *
+ *	Returns: Whether or not the queue was empty upon return.
+ */
+
+BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhenEmpty, void * reserved );
+
+	
+void TiThreadInitalize();
 
 #include "TiPublicAPI.h"
 

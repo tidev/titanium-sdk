@@ -275,6 +275,7 @@
 
 - (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
 {
+	TiThreadProcessPendingMainThreadBlocks(0.1, YES, nil);
 	[[viewControllerStack lastObject] viewWillAppear:animated];
 }
 
@@ -312,10 +313,7 @@
 	
 	[backgroundColor release];
 	backgroundColor = [newColor retain];
-	
-	[self performSelectorOnMainThread:@selector(updateBackground) withObject:nil
-						waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
-	//The runloopcommonmodes ensures that it'll happen even during tracking.
+	TiThreadPerformOnMainThread(^{[self updateBackground];}, NO);
 }
 
 -(void)setBackgroundImage:(UIImage *)newImage
@@ -327,10 +325,7 @@
 	
 	[backgroundImage release];
 	backgroundImage = [newImage retain];
-	
-	[self performSelectorOnMainThread:@selector(updateBackground) withObject:nil
-						waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
-	//The runloopcommonmodes ensures that it'll happen even during tracking.
+	TiThreadPerformOnMainThread(^{[self updateBackground];}, NO);
 }
 
 -(void)updateBackground

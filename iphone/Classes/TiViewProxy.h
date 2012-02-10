@@ -178,9 +178,6 @@ enum
 
 #pragma mark Callbacks
 
--(void)getAnimatedCenterPoint:(NSMutableDictionary *)resultDict;
--(void)addImageToBlob:(NSArray*)args;
-
 -(void)animationCompleted:(TiAnimation*)animation;
 -(void)makeViewPerformAction:(TiAction *)action;
 
@@ -236,15 +233,6 @@ enum
 -(resultType) methodname: (inputType)value	\
 {	\
 	return [[self view] methodname:value];	\
-}
-
-#define USE_VIEW_FOR_UI_METHOD(methodname)	\
--(void)methodname:(id)args	\
-{	\
-	if ([self viewAttached])	\
-	{	\
-		[[self view] performSelectorOnMainThread:@selector(methodname:) withObject:args waitUntilDone:NO];	\
-	}	\
 }
 
 #define USE_VIEW_FOR_VERIFY_WIDTH	USE_VIEW_FOR_METHOD(CGFloat,verifyWidth,CGFloat)
