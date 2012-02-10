@@ -35,7 +35,7 @@ events:
     platforms: [iphone]
     
   - name: resume
-    summary: Fired when the application enters the foreground on a multitasked system.
+    summary: Fired when the application transitions to the foreground of a multitasked system.
     description: |
         Note that this event does not fire for pauses resulting from notifications or incoming phone calls.  
         
@@ -44,7 +44,7 @@ events:
     platforms: [iphone, ipad]
     
   - name: resumed
-    summary: Fired when the application returns to focus.
+    summary: Fired when the application has returned to the foreground.
     description: |
         This event fires when the application enters the foreground with the `resume` event or 
         returns to focus after notifications and incoming phone calls.  
@@ -54,7 +54,7 @@ events:
     platforms: [iphone, ipad]
     
   - name: pause
-    summary: Fired when the application ceases being the focus. 
+    summary: Fired when the application transitions to the background. 
     description: |
         This event fires when the user leaves the application or it is paused due to notifications 
         and incoming phone calls.  
@@ -120,7 +120,7 @@ properties:
         When <Titanium.App.proximityDetection> is disabled, the value of this property is undefined.
     type: Boolean
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone]
     
   - name: publisher
     summary: Application publisher, from `tiapp.xml`.
