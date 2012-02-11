@@ -104,6 +104,11 @@
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateOptionDialogNow) object:nil];
     NSTimeInterval delay = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
+    UIInterfaceOrientation nextOrientation = [[notification.userInfo objectForKey:UIApplicationStatusBarOrientationUserInfoKey] intValue];
+    UIInterfaceOrientation currentOrientation = [UIApplication sharedApplication].statusBarOrientation;
+    if (UIInterfaceOrientationIsPortrait(currentOrientation) == UIInterfaceOrientationIsPortrait(nextOrientation)) {
+        ++accumulatedOrientationChanges; // double for a 180 degree orientation change
+    }
     if (++accumulatedOrientationChanges > 1) {
         delay *= MIN(accumulatedOrientationChanges, 4);
     }

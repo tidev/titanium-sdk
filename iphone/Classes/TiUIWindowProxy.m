@@ -114,11 +114,12 @@
 -(void)_destroy
 {
     if (![self closing] && [[self opened] boolValue]) {
-        [self performSelectorOnMainThread:@selector(close:) withObject:nil waitUntilDone:YES];
+        TiThreadPerformOnMainThread(^{[self close:nil];}, YES);
     }
     
-	[barImageView performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:NO];
-	RELEASE_TO_NIL(barImageView);
+	TiThreadRemoveFromSuperviewOnMainThread(barImageView, NO);
+	TiThreadReleaseOnMainThread(barImageView, NO);
+	barImageView = nil;
 	if (context!=nil)
 	{
 		[context shutdown:nil];
@@ -327,7 +328,7 @@
 	[self replaceValue:[self sanitizeURL:value] forKey:@"barImage" notification:NO];
 	if (controller!=nil)
 	{
-		[self performSelectorOnMainThread:@selector(updateBarImage) withObject:nil waitUntilDone:[NSThread isMainThread]];
+		TiThreadPerformOnMainThread(^{[self updateBarImage];}, [NSThread isMainThread]);
 	}
 }
 
@@ -558,8 +559,10 @@
 		}
 	}
 
-	[ourNavItem setTitleView:newTitleView];
-    [self updateBarImage];
+    if (oldView != newTitleView) {
+        [ourNavItem setTitleView:newTitleView];
+        [self updateBarImage];
+    }
 }
 
 

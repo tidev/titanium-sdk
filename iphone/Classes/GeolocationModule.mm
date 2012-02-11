@@ -379,8 +379,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	
 	if (startStop)
 	{
-		// must be on UI thread
-		[self performSelectorOnMainThread:@selector(startStopLocationManagerIfNeeded) withObject:nil waitUntilDone:NO];
+		TiThreadPerformOnMainThread(^{[self startStopLocationManagerIfNeeded];}, NO);
 	}
 }
 
@@ -408,7 +407,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	
 	if (check && ![self _hasListeners:@"heading"] && ![self _hasListeners:@"location"])
 	{
-		[self performSelectorOnMainThread:@selector(startStopLocationManagerIfNeeded) withObject:nil waitUntilDone:YES];
+		TiThreadPerformOnMainThread(^{[self startStopLocationManagerIfNeeded];}, YES);
 		[self shutdownLocationManager];
 		trackingLocation = NO;
 		trackingHeading = NO;
@@ -603,7 +602,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	trackingLocation = NO;
 	[lock unlock];
 	// must be on UI thread
-	[self performSelectorOnMainThread:@selector(startStopLocationManagerIfNeeded) withObject:nil waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[self startStopLocationManagerIfNeeded];}, NO);
 }
 
 MAKE_SYSTEM_PROP_DBL(ACCURACY_BEST,kCLLocationAccuracyBest);

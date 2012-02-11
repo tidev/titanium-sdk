@@ -1249,7 +1249,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		[lock lock];
 		int queue_count = [queue count];
 		[lock unlock];
-		if (queue_count == 0)
+		if ((queue_count == 0) && !suspended)
 		{
 			// wait only 10 seconds and then loop, this will allow us to garbage
 			// collect every so often
@@ -1306,7 +1306,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	TiObjectDeleteProperty(context, globalRef, prop, NULL);	//TODO: This still needed?
 	TiStringRelease(prop);
 
-	[self performSelectorOnMainThread:@selector(unregisterForNotifications) withObject:nil waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[self unregisterForNotifications];}, NO);
 	[self forceGarbageCollectNow];
 	// cause the global context to be released and all objects internally to be finalized
 	TiGlobalContextRelease(context);
