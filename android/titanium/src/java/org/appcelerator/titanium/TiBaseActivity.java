@@ -311,11 +311,20 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		TiApplication tiApp = getTiApp();
+
 		if (tiApp.isRestartPending()) {
 			super.onCreate(savedInstanceState);
 			if (!isFinishing()) {
 				finish();
 			}
+			return;
+		}
+
+		if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
+			Log.w(TAG, "Unsupported, out-of-order activity creation. Finishing.");
+			super.onCreate(savedInstanceState);
+			tiApp.scheduleRestart(250);
+			finish();
 			return;
 		}
 
@@ -994,6 +1003,35 @@ public abstract class TiBaseActivity extends Activity
 	public void activityOnCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+	}
+
+	/**
+	 * Called by the onCreate methods of TiBaseActivity and TiTabActivity (the latter does
+	 * not extend the former) to determine if an unsupported application re-launch appears to
+	 * be occurring. It's here simply as a convenience for both classes to use it without duplication.
+	 * @param activity The Activity getting the onCreate
+	 * @param savedInstanceState The argument passed to the onCreate. A non-null value is a "tell"
+	 * that the system is re-starting a killed application.
+	 */
+	public static boolean isUnsupportedReLaunch(Activity activity, Bundle savedInstanceState)
+	{
+		if (savedInstanceState != null && !(activity instanceof TiLaunchActivity) &&
+			!(TiApplication.getInstance().activityStackHasLaunchActivity())) {
+			/**
+			 * This state "looks like" the following has occurred:
+			 *
+			 * a) The app was running, but Android killed it off (such as, to save memory),
+			 * or a third-party task killer killed it.
+			 * b)  The app is now re-starting, and this activity -- which is *not*
+			 * a launch activity -- is being asked by Android to come into the foreground,
+			 * with none of our launch activities "behind" it.
+			 *
+			 * This is a situation we can't currently handle.  We count on a "normal" lifecycle
+			 * beginning with a launch activity.
+			 */
+			return true;
+		}
+		return false;
 	}
 }
 

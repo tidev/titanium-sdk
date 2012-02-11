@@ -48,11 +48,20 @@ public class TiTabActivity extends TabActivity
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		TiApplication tiApp = getTiApp();
+
 		if (tiApp.isRestartPending()) {
 			super.onCreate(savedInstanceState);
 			if (!isFinishing()) {
 				finish();
 			}
+			return;
+		}
+
+		if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
+			Log.w(LCAT, "Unsupported, out-of-order activity creation. Finishing.");
+			super.onCreate(savedInstanceState);
+			tiApp.scheduleRestart(250);
+			finish();
 			return;
 		}
 

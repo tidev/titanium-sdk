@@ -676,8 +676,9 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			(new Exception()).printStackTrace();
 		}
 		this.restartPending = true;
-		if (getRootActivity() != null) {
-			getRootActivity().restartActivity(delay);
+		TiRootActivity rootActivity = getRootActivity();
+		if (rootActivity != null) {
+			rootActivity.restartActivity(delay);
 		}
 	}
 
@@ -768,6 +769,24 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public void dispose()
 	{
 		TiActivityWindows.dispose();
+	}
+
+	/**
+	 * Our forced restarts (for conditions such as android bug 2373, TIMOB-1911 and TIMOB-7293)
+	 * don't create new processes or pass through TiApplication() (the ctor). We need to reset
+	 * some state to better mimic a complete application restart.
+	 */
+	public void beforeForcedRestart()
+	{
+		restartPending = false;
+		currentActivity = null;
+		TiApplication.isActivityTransition.set(false);
+		if (TiApplication.activityTransitionListeners != null) {
+			TiApplication.activityTransitionListeners.clear();
+		}
+		if (TiApplication.activityStack != null) {
+			TiApplication.activityTransitionListeners.clear();
+		}
 	}
 
 	public abstract void verifyCustomModules(TiRootActivity rootActivity);

@@ -39,6 +39,9 @@ public class TiActivity extends TiBaseActivity
 	protected void onResume()
 	{
 		super.onResume();
+		if (getTiApp().isRestartPending()) {
+			return;
+		}
 
 		if (isTab()) {
 			TiApplication.addToActivityStack(this);
@@ -49,6 +52,10 @@ public class TiActivity extends TiBaseActivity
 	protected void onPause()
 	{
 		super.onPause();
+
+		if (getTiApp().isRestartPending()) {
+			return;
+		}
 
 		if (isTab()) {
 			TiApplication.removeFromActivityStack(this);

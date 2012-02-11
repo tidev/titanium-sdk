@@ -31,21 +31,27 @@ public class TiRootActivity extends TiLaunchActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		TiApplication tiApp = getTiApp();
+
 		if (checkMissingLauncher(savedInstanceState)) {
 			// Android bug 2373 detected and we're going to restart.
 			return;
 		}
 
-		getTiApp().setCurrentActivity(this, this);
+		if (tiApp.isRestartPending() || TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
+			super.onCreate(savedInstanceState); // Will take care of scheduling restart and finishing.
+			return;
+		}
+
+		tiApp.setCurrentActivity(this, this);
 
 		Log.checkpoint(LCAT, "checkpoint, on root activity create, savedInstanceState: " + savedInstanceState);
 
-		TiApplication app = getTiApp();
-		app.setRootActivity(this);
+		tiApp.setRootActivity(this);
 
 		super.onCreate(savedInstanceState);
 
-		TiApplication.getInstance().verifyCustomModules(this);
+		tiApp.verifyCustomModules(this);
 	}
 
 	@Override
