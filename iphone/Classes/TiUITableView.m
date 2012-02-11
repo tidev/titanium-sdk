@@ -1079,7 +1079,7 @@
 		}
 		else
 		{
-			[tableview performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
+			TiThreadPerformOnMainThread(^{[tableview reloadData];}, NO);
 		}
 	}
 }
