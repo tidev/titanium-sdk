@@ -24,6 +24,17 @@ public class KrollAssetHelper
 	private static final String TAG = "TiAssetHelper";
 	private static WeakReference<AssetManager> manager;
 	private static String packageName, cacheDir;
+	private static AssetCrypt assetCrypt;
+
+	public interface AssetCrypt
+	{
+		String readAsset(String path);
+	}
+
+	public void setAssetCrypt(AssetCrypt assetCrypt)
+	{
+		KrollAssetHelper.assetCrypt = assetCrypt;
+	}
 
 	public static void init(Context context)
 	{
@@ -34,7 +45,6 @@ public class KrollAssetHelper
 
 	public static String readAsset(String path)
 	{
-
 		if (TiFastDev.isFastDevEnabled()) {
 			if (path != null && path.startsWith("Resources/")) {
 
@@ -43,6 +53,10 @@ public class KrollAssetHelper
 				InputStream stream = TiFastDev.getInstance().openInputStream(resourcePath);
 				return KrollStreamHelper.toString(stream);
 			}
+		}
+
+		if (assetCrypt != null) {
+			return assetCrypt.readAsset(path);
 		}
 
 		try {
