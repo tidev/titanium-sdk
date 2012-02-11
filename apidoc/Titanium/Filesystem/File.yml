@@ -247,10 +247,10 @@ methods:
   - name: resolve
     summary: Returns the fully-resolved native path associated with this file object.
     description: |
-        The path returned by this method is a plain file path, not a URL. It is suitable
+        On iOS, the path returned by this method is a plain file path, not a URL. It is suitable
         for use in native modules that need to access the file using native APIs.
 
-        On Android, the return value of `resolve` is identical to the
+        On Android, the return value of `resolve` is a `file://` URL, identical to the
         [nativePath](Titanium.Filesystem.File.nativePath) property.
     returns:
         type: String
@@ -300,13 +300,9 @@ properties:
     type: String
     permission: read-only
   - name: nativePath
-    summary: Native path associated with this file object.
+    summary: Native path associated with this file object, as a file URL.
     description: |
-        On Android, the value of this property is a file path. Native modules
-        can use this path to access the file using native APIs.
-
-        On iOS, the value of this property is a URL, which is not suitable 
-        for native modules. Use the [resolve](Titanium.Filesystem.File.resolve) 
+        On iOS, use the [resolve](Titanium.Filesystem.File.resolve) 
         method to obtain a plain file path for use with native modules.
     type: String
     permission: read-only
