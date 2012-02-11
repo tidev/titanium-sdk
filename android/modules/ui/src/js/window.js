@@ -267,9 +267,6 @@ exports.bootstrapWindow = function(Titanium) {
 		if (this.propertyCache) {
 			kroll.extend(this._properties, this.propertyCache);
 		}
-		
-		rememberWindowAndAddCloseListener(existingWindow);
-		
 		this.window = existingWindow;
 		this.view = this.window;
 		this.setWindowView(this.view);
