@@ -167,20 +167,21 @@ exports.bootstrapWindow = function(Titanium) {
 	
 	// Helper method to keep the window alive until it gets closed.
 	var rememberWindowAndAddCloseListener = function(value){
-		if (value != null){
-			var index = windows.indexOf(value);
-			if(index < 0){
-				windows.push(value);
-				var self = value;
-				value.on('close', function () {
-					var index = windows.indexOf(self);
-					if (index >= 0) {
-						windows.splice(index, index);
-					} else {
-						kroll.log(TAG, "Unable to release window reference.");
-					}
-				});
-			}
+		if (value == null){
+			return;
+		}
+		var index = windows.indexOf(value);
+		if(index < 0){
+			windows.push(value);
+			var self = value;
+			value.on('close', function () {
+				var index = windows.indexOf(self);
+				if (index >= 0) {
+					windows.splice(index, index);
+				} else {
+					kroll.log(TAG, "Unable to release window reference.");
+				}
+			});
 		}
 	}
 
@@ -529,8 +530,13 @@ exports.bootstrapWindow = function(Titanium) {
 		window._module = scopeVars.module;
 		window._children = [];
 		window._postOpenChildren = [];
+		var self = window;
+		window.on('addedToTab', function () {
+			rememberWindowAndAddCloseListener(self);
+		});
 
 		return window;
+		
 	}
 
 	return Window;
