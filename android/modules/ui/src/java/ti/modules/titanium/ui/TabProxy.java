@@ -77,6 +77,7 @@ public class TabProxy extends TiViewProxy
 
 		this.win.setTabProxy(this);
 		this.win.setTabGroupProxy(tabGroupProxy);
+		this.win.getKrollObject().setWindow(this.win);
 	}
 
 	@Kroll.method @Kroll.getProperty
