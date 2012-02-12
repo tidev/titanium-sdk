@@ -14,6 +14,7 @@ import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiColorHelper;
+import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
@@ -329,7 +330,10 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		if (tiApp != null) {
 			tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppEndEvent());
 		}
-
+		
+		// Create a new session ID for next session
+		TiPlatformHelper.resetSid();
+		
 		super.onDestroy();
 	}
 }
