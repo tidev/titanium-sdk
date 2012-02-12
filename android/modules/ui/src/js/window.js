@@ -280,15 +280,15 @@ exports.bootstrapWindow = function(Titanium) {
 		for (var event in this._events) { 
 			var listeners = this.listeners(event); 
 		 	for (var i = 0; i < listeners.length; i++) { 
-		 		this.addWrappedListener(event, listeners[i]); 
+		 		this.view.addEventListener(event, listeners[i].listener, this); 
 		 	} 
 		}
 		var self = this;
-		this.addWrappedListener("closeFromActivity", function(e) {
+		this.view.addEventListener("closeFromActivity", function(e) {
 			self.window = null;
 			self.view = null;
 			self.currentState = self.state.closed;
-		});
+		}, this);
 		
 		if (this.cachedActivityProxy) {
 			this.window._internalActivity.extend(this.cachedActivityProxy);
@@ -463,21 +463,10 @@ exports.bootstrapWindow = function(Titanium) {
 			EventEmitter.prototype.addEventListener.call(this, event, listener);
 
 		} else {
-			this.addWrappedListener(event, listener); 
+			this.view.addEventListener(event, listener, this); 
 		}
 	}
 	
-	// Add event listener to this.window and update the source of event to this.
-	Window.prototype.addWrappedListener = function(event, listener) {
-		var self = this;
-		self.view.addEventListener(event, function(e) {
-			if (e.source == self.view) {
-				e.source = self;
-			}
-			listener(e);
-		});
-	}
-
 	Window.prototype.removeEventListener = function(event, listener) {
 		if (["open", "close"].indexOf(event) >= 0 || this.window == null) {
 			EventEmitter.prototype.removeEventListener.call(this, event, listener);
