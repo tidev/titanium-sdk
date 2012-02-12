@@ -119,7 +119,8 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 // Titanium compatibility
 Object.defineProperty(EventEmitter.prototype, "fireEvent", {
 	value: EventEmitter.prototype.emit,
-	enumerable: false
+	enumerable: false,
+	writable: true
 });
 
 Object.defineProperty(EventEmitter.prototype, "fireSyncEvent", {
@@ -189,7 +190,8 @@ Object.defineProperty(EventEmitter.prototype, "on", {
 // Titanium compatibility
 Object.defineProperty(EventEmitter.prototype, "addEventListener", {
 	value: EventEmitter.prototype.addListener,
-	enumerable: false
+	enumerable: false,
+	writable: true
 });
 
 Object.defineProperty(EventEmitter.prototype, "once", {
@@ -262,7 +264,8 @@ Object.defineProperty(EventEmitter.prototype, "removeListener", {
 
 Object.defineProperty(EventEmitter.prototype, "removeEventListener", {
 	value: EventEmitter.prototype.removeListener,
-	enumerable: false
+	enumerable: false,
+	writable: true
 });
 
 Object.defineProperty(EventEmitter.prototype, "removeAllListeners", {
