@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -31,21 +31,27 @@ public class TiRootActivity extends TiLaunchActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		TiApplication tiApp = getTiApp();
+
 		if (checkMissingLauncher(savedInstanceState)) {
 			// Android bug 2373 detected and we're going to restart.
 			return;
 		}
 
-		getTiApp().setCurrentActivity(this, this);
+		if (tiApp.isRestartPending() || TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
+			super.onCreate(savedInstanceState); // Will take care of scheduling restart and finishing.
+			return;
+		}
+
+		tiApp.setCurrentActivity(this, this);
 
 		Log.checkpoint(LCAT, "checkpoint, on root activity create, savedInstanceState: " + savedInstanceState);
 
-		TiApplication app = getTiApp();
-		app.setRootActivity(this);
+		tiApp.setRootActivity(this);
 
 		super.onCreate(savedInstanceState);
 
-		TiApplication.getInstance().verifyCustomModules(this);
+		tiApp.verifyCustomModules(this);
 	}
 
 	@Override
