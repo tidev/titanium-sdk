@@ -164,6 +164,26 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.getWindowPixelFormat = windowPixelFormatGetter;
 	Window.prototype.setWindowPixelFormat = windowPixelFormatSetter;
 	Object.defineProperty(Window.prototype, "windowPixelFormat", { get: windowPixelFormatGetter, set: windowPixelFormatSetter});
+	
+	// Helper method to keep the window alive until it gets closed.
+	var rememberWindowAndAddCloseListener = function(value){
+		if (value == null){
+			return;
+		}
+		var index = windows.indexOf(value);
+		if(index < 0){
+			windows.push(value);
+			var self = value;
+			value.on('close', function () {
+				var index = windows.indexOf(self);
+				if (index >= 0) {
+					windows.splice(index, index);
+				} else {
+					kroll.log(TAG, "Unable to release window reference.");
+				}
+			});
+		}
+	}
 
 	Window.prototype.open = function(options) {
 		var self = this;
@@ -178,16 +198,8 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 		this.currentState = this.state.opening;
 
-		// Keep the window alive until it gets closed.
-		windows.push(this);
-		this.on('close', function () {
-			var index = windows.indexOf(self);
-			if (index >= 0) {
-				windows.splice(index, index);
-			} else {
-				kroll.log(TAG, "Unable to release window reference.");
-			}
-		});
+		rememberWindowAndAddCloseListener(this);
+		
 		
 		if (!options) {
 			options = {};
@@ -255,7 +267,6 @@ exports.bootstrapWindow = function(Titanium) {
 		if (this.propertyCache) {
 			kroll.extend(this._properties, this.propertyCache);
 		}
-
 		this.window = existingWindow;
 		this.view = this.window;
 		this.setWindowView(this.view);
@@ -505,8 +516,13 @@ exports.bootstrapWindow = function(Titanium) {
 		window._module = scopeVars.module;
 		window._children = [];
 		window._postOpenChildren = [];
+		var self = window;
+		window.on('addedToTab', function () {
+			rememberWindowAndAddCloseListener(self);
+		});
 
 		return window;
+		
 	}
 
 	return Window;
