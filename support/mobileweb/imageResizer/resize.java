@@ -7,12 +7,12 @@ import javax.imageio.ImageIO;
 public class resize {
 
 	private static void help() {
-		System.out.println("Titanium Image Resizer\n\nUsage:\n  java -jar resize.jar <source> <dest> <width> [<height>]");
+		System.out.println("Titanium Image Resizer\n\nUsage:\n  java -cp .:imgscalr-lib-4.2.jar -Djava.awt.headless=true resize <source> <dest> <width> [<height>]");
 		System.exit(1);
 	}
 	
 	private static void error(String message) {
-		System.out.println("Titanium Image Resizer\n\nError: " + message + "\n\nUsage:\n  java -jar resize.jar <source> <dest> <width> [<height>]");
+		System.out.println("Titanium Image Resizer\n\nError: " + message + "\n\nUsage:\n  java -cp .:imgscalr-lib-4.2.jar -Djava.awt.headless=true resize <source> <dest> <width> [<height>]");
 		System.exit(1);
 	}
 	
