@@ -679,8 +679,6 @@ class Builder(object):
 					if os.path.exists(path.replace(resources_dir, android_resources_dir, 1)):
 						continue
 					dest = make_relative(path, resources_dir, self.assets_resources_dir)
-				# check to see if this is a compiled file and if so, don't copy
-				if dest in self.compiled_files: continue
 				if path.startswith(os.path.join(resources_dir, "iphone")) or path.startswith(os.path.join(resources_dir, "mobileweb")) or path.startswith(os.path.join(resources_dir, "blackberry")):
 					continue
 				parent = os.path.dirname(dest)
@@ -1461,9 +1459,7 @@ class Builder(object):
 			non_js_assets = os.path.join(self.project_dir, 'bin', 'non-js-assets')
 			if not os.path.exists(non_js_assets):
 				os.mkdir(non_js_assets)
-			#TODO: Decide whether we need to add 'ignore_exts=[".js"]' back to the copy_all() method once we are able to package with rhino
-			# For now, we leave the js files in for v8 packaging
-			copy_all(self.assets_dir, non_js_assets)
+			copy_all(self.assets_dir, non_js_assets, ignore_exts['.js'])
 			pkg_assets_dir = non_js_assets
 
 		run.run([self.aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', pkg_assets_dir,
@@ -1811,6 +1807,13 @@ class Builder(object):
 				last_build_info = simplejson.loads(open(build_info_path, 'r').read())
 				built_all_modules = last_build_info["include_all_modules"]
 
+			if self.tiapp.has_app_property("ti.android.compilejs"):
+				if self.tiapp.to_bool(self.tiapp.get_app_property('ti.android.compilejs')):
+					compile_js = True
+			elif self.tiapp.has_app_property('ti.deploytype'):
+				if self.tiapp.get_app_property('ti.deploytype') == 'production':
+					compile_js = True
+
 			include_all_ti_modules = self.fastdev 
 			if (self.tiapp.has_app_property('ti.android.include_all_modules')):
 				if self.tiapp.to_bool(self.tiapp.get_app_property('ti.android.include_all_modules')):
@@ -1819,6 +1822,7 @@ class Builder(object):
 					self.force_rebuild or self.deploy_type == "production" or \
 					(self.fastdev and (not self.app_installed or not built_all_modules)) or \
 					(not self.fastdev and built_all_modules):
+				self.android.config['compile_js'] = compile_js
 				trace("Generating Java Classes")
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')),
 					True, project_dir = self.top_dir, include_all_ti_modules=include_all_ti_modules)
@@ -1830,12 +1834,23 @@ class Builder(object):
 
 			# compile resources
 			full_resource_dir = os.path.join(self.project_dir, self.assets_resources_dir)
-			compiler = Compiler(self.tiapp, full_resource_dir, self.java, self.classes_dir, self.project_dir, 
-					include_all_modules=include_all_ti_modules)
-			compiler.compile()
+			compiler = Compiler(self.tiapp,
+								full_resource_dir,
+								self.java,
+								self.classes_dir,
+								self.project_gen_dir,
+								self.project_dir, 
+								include_all_modules=include_all_ti_modules)
+			compiler.compile(compile_bytecode=compile_js)
 			self.compiled_files = compiler.compiled_files
 			self.android_jars = compiler.jar_libraries
 			self.merge_internal_module_resources()
+
+			# Delete compiled JavaScript files so they don't get packaged
+			# into the final APK.
+			for f in self.compiled_files:
+				debug("Deleting compiled file => %s" % f)
+				os.unlink(f)
 
 			if not os.path.exists(self.assets_dir):
 				os.makedirs(self.assets_dir)
