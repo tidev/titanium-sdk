@@ -78,6 +78,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public static final String APPLICATION_PREFERENCES_NAME = "titanium";
 	public static final String PROPERTY_FASTDEV = "ti.android.fastdev";
 
+	private boolean restartPending = false;
 	private String baseUrl;
 	private String startUrl;
 	private HashMap<String, SoftReference<KrollProxy>> proxyMap;
@@ -171,6 +172,19 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public static void removeFromActivityStack(Activity activity)
 	{
 		activityStack.remove(activity);
+	}
+
+	public boolean activityStackHasLaunchActivity()
+	{
+		if (activityStack == null || activityStack.size() == 0) {
+			return false;
+		}
+		for (WeakReference<Activity> activityRef : activityStack) {
+			if (activityRef != null && activityRef.get() instanceof TiLaunchActivity) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	// This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
@@ -661,9 +675,16 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			Log.d(LCAT, "Here is call stack leading to restart. (NOTE: this is not a real exception, just a stack trace.) :");
 			(new Exception()).printStackTrace();
 		}
-		if (getRootActivity() != null) {
-			getRootActivity().restartActivity(delay);
+		this.restartPending = true;
+		TiRootActivity rootActivity = getRootActivity();
+		if (rootActivity != null) {
+			rootActivity.restartActivity(delay);
 		}
+	}
+
+	public boolean isRestartPending()
+	{
+		return restartPending;
 	}
 
 	public TiTempFileHelper getTempFileHelper()
@@ -748,6 +769,24 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public void dispose()
 	{
 		TiActivityWindows.dispose();
+	}
+
+	/**
+	 * Our forced restarts (for conditions such as android bug 2373, TIMOB-1911 and TIMOB-7293)
+	 * don't create new processes or pass through TiApplication() (the ctor). We need to reset
+	 * some state to better mimic a complete application restart.
+	 */
+	public void beforeForcedRestart()
+	{
+		restartPending = false;
+		currentActivity = null;
+		TiApplication.isActivityTransition.set(false);
+		if (TiApplication.activityTransitionListeners != null) {
+			TiApplication.activityTransitionListeners.clear();
+		}
+		if (TiApplication.activityStack != null) {
+			TiApplication.activityTransitionListeners.clear();
+		}
 	}
 
 	public abstract void verifyCustomModules(TiRootActivity rootActivity);

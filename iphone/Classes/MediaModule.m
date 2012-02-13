@@ -1229,8 +1229,9 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 {
 	if (systemMusicPlayer == nil) {
 		if (![NSThread isMainThread]) {
-			[self performSelectorOnMainThread:@selector(systemMusicPlayer) withObject:nil waitUntilDone:YES];
-			return systemMusicPlayer;
+			__block id result;
+			TiThreadPerformOnMainThread(^{result = [self systemMusicPlayer];}, YES);
+			return result;
 		}
 		systemMusicPlayer = [[TiMediaMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController iPodMusicPlayer]];
 	}
@@ -1241,7 +1242,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 {
 	if (appMusicPlayer == nil) {
 		if (![NSThread isMainThread]) {
-			[self performSelectorOnMainThread:@selector(appMusicPlayer) withObject:nil waitUntilDone:YES];
+			__block id result;
+			TiThreadPerformOnMainThread(^{result = [self appMusicPlayer];}, YES);
 			return appMusicPlayer;
 		}
 		appMusicPlayer = [[TiMediaMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController applicationMusicPlayer]];
@@ -1324,12 +1326,40 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 		}
 		else
 		{
-			UIImage *image = (editedImage != nil)?editedImage:
-					[editingInfo objectForKey:UIImagePickerControllerOriginalImage];
-			media = [[[TiBlob alloc] initWithImage:image] autorelease];
+            UIImage *resultImage = nil;
+            UIImage *originalImage = [editingInfo objectForKey:UIImagePickerControllerOriginalImage];
+            if ( (editedImage != nil) && (ourRectValue != nil) && (originalImage != nil)) {
+                
+                CGRect ourRect = [ourRectValue CGRectValue];
+                
+                if ( (ourRect.size.width > editedImage.size.width) || (ourRect.size.height > editedImage.size.height) ){
+                    UIGraphicsBeginImageContext(ourRect.size);
+                    CGContextRef context = UIGraphicsGetCurrentContext();
+                    
+                    // translated rectangle for drawing sub image 
+                    CGRect drawRect = CGRectMake(-ourRect.origin.x, -ourRect.origin.y, originalImage.size.width, originalImage.size.height);
+                    
+                    // clip to the bounds of the image context
+                    CGContextClipToRect(context, CGRectMake(0, 0, ourRect.size.width, ourRect.size.height));
+                    
+                    // draw image
+                    [originalImage drawInRect:drawRect];
+                    
+                    // grab image
+                    resultImage = UIGraphicsGetImageFromCurrentImageContext();
+                    
+                    UIGraphicsEndImageContext();
+                }
+            }
+            
+            if (resultImage == nil) {
+                resultImage = (editedImage != nil) ? editedImage : originalImage;
+            }
+            
+			media = [[[TiBlob alloc] initWithImage:resultImage] autorelease];
 			if (saveToRoll)
 			{
-				UIImageWriteToSavedPhotosAlbum(image, nil, nil, NULL);
+				UIImageWriteToSavedPhotosAlbum(resultImage, nil, nil, NULL);
 			}
 		}
 	}

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -47,6 +47,24 @@ public class TiTabActivity extends TabActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			super.onCreate(savedInstanceState);
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
+		if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
+			Log.w(LCAT, "Unsupported, out-of-order activity creation. Finishing.");
+			super.onCreate(savedInstanceState);
+			tiApp.scheduleRestart(250);
+			finish();
+			return;
+		}
+
 		TiApplication.addToActivityStack(this);
 		KrollRuntime.incrementActivityRefCount();
 
@@ -185,22 +203,50 @@ public class TiTabActivity extends TabActivity
 	protected void onPause()
 	{
 		super.onPause();
-		((TiApplication) getApplication()).setCurrentActivity(this, null);
+
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
+		tiApp.setCurrentActivity(this, null);
 	}
 
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
-		((TiApplication) getApplication()).setCurrentActivity(this, this);
+
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
+		tiApp.setCurrentActivity(this, this);
 	}
 
 	@Override
 	protected void onDestroy()
 	{
 		TiApplication.removeFromActivityStack(this);
-
 		super.onDestroy();
+
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
 
 		if (!isFinishing())
 		{

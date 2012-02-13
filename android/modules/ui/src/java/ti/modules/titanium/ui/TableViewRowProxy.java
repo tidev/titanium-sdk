@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -55,6 +55,17 @@ public class TableViewRowProxy extends TiViewProxy
 	}
 
 	@Override
+	public void setActivity(Activity activity)
+	{
+		super.setActivity(activity);
+		if (controls != null) {
+			for (TiViewProxy control : controls) {
+				control.setActivity(activity);
+			}
+		}
+	}
+
+	@Override
 	public void handleCreationDict(KrollDict options)
 	{
 		super.handleCreationDict(options);
@@ -81,9 +92,9 @@ public class TableViewRowProxy extends TiViewProxy
 		return (controls != null && controls.size() > 0);
 	}
 	
-	@Override
+	@Override 
 	public TiViewProxy[] getChildren() {
-		if (children == null) {
+		if (controls == null) {
 			return new TiViewProxy[0];
 		}
 		return controls.toArray(new TiViewProxy[controls.size()]);

@@ -207,7 +207,7 @@ properties:
     description: |
         To restrict this window to a certain set of orientations, specify one or more
         of the orientation constants [LANDSCAPE_LEFT](Titanium.UI.LANDSCAPE_LEFT),
-        [LANDSCAPE_RIGHT](Titanium.UI.LANDSCAPE_RIGHT), [PORTAIT](Titanium.UI.PORTAIT),
+        [LANDSCAPE_RIGHT](Titanium.UI.LANDSCAPE_RIGHT), [PORTRAIT](Titanium.UI.PORTRAIT),
         [UPSIDE_PORTRAIT](Titanium.UI.UPSIDE_PORTRAIT).
 
         `orientationModes` must be set **before** opening the window.

@@ -1,9 +1,10 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
 package ${packageName};
 
 import org.mozilla.javascript.Context;
@@ -22,6 +23,7 @@ import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.TiConfig;
 
 import org.appcelerator.kroll.runtime.rhino.KrollBindings;
+import org.appcelerator.kroll.runtime.rhino.KrollGeneratedBindings;
 import org.appcelerator.kroll.runtime.rhino.Proxy;
 import org.appcelerator.kroll.runtime.rhino.ProxyFactory;
 import org.appcelerator.kroll.runtime.rhino.RhinoRuntime;
@@ -66,6 +68,9 @@ public class ${className}Prototype extends ${superProxy}
 
 	public static void dispose()
 	{
+		if (DBG) {
+			Log.d(TAG, "dispose()");
+		}
 		${protoVar} = null;
 	}
 
@@ -73,6 +78,8 @@ public class ${className}Prototype extends ${superProxy}
 	{
 		if (${protoVar} == null && getClass().equals(${className}Prototype.class)) {
 			${protoVar} = this;
+			<#-- Enables us later to only dispose() classes that were actually used. Helps avoid VFY warnings in Android. -->
+			KrollGeneratedBindings.registerUsedPrototypeClass(getClass());
 		}
 
 		<#if isModule>

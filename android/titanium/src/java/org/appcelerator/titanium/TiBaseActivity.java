@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -310,6 +310,24 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onCreate");
 		}
 
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			super.onCreate(savedInstanceState);
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
+		if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
+			Log.w(TAG, "Unsupported, out-of-order activity creation. Finishing.");
+			super.onCreate(savedInstanceState);
+			tiApp.scheduleRestart(250);
+			finish();
+			return;
+		}
+
 		if (!isTabActivity()) {
 			TiApplication.addToActivityStack(this);
 		}
@@ -346,7 +364,6 @@ public abstract class TiBaseActivity extends Activity
 		// we only want to set the current activity for good in the resume state but we need it right now.
 		// save off the existing current activity, set ourselves to be the new current activity temporarily 
 		// so we don't run into problems when we give the proxy the event
-		TiApplication tiApp = getTiApp();
 		Activity tempCurrentActivity = tiApp.getCurrentActivity();
 		tiApp.setCurrentActivity(this, this);
 
@@ -599,6 +616,19 @@ public abstract class TiBaseActivity extends Activity
 		// TODO stub
 	}
 
+	private void releaseDialogs()
+	{
+		//clean up dialogs when activity is finishing
+		while (dialogs.size() > 0) {
+			Dialog dialog = dialogs.get(0);
+			if (dialog.isShowing()) {
+				dialog.dismiss();
+			}
+			removeDialog(dialog);
+		}
+		dialogs = null;
+	}
+
 	@Override
 	protected void onPause() 
 	{
@@ -607,20 +637,22 @@ public abstract class TiBaseActivity extends Activity
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onPause");
 		}
-		
+
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			releaseDialogs();
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
 		TiApplication.updateActivityTransitionState(true);
-		getTiApp().setCurrentActivity(this, null);
+		tiApp.setCurrentActivity(this, null);
 
 		if (this.isFinishing()) {
-			//clean up dialogs when activity is finished
-			while (dialogs.size() > 0) {
-				Dialog dialog = dialogs.get(0);
-				if (dialog.isShowing()) {
-					dialog.dismiss();
-				}
-				removeDialog(dialog);
-			}
-			dialogs = null;
+			releaseDialogs();
 		}
 
 		if (activityProxy != null) {
@@ -648,7 +680,15 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onResume");
 		}
 
-		getTiApp().setCurrentActivity(this, this);
+		TiApplication tiApp = getTiApp();
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
+		tiApp.setCurrentActivity(this, this);
 		TiApplication.updateActivityTransitionState(false);
 		
 		if (activityProxy != null) {
@@ -676,10 +716,23 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onStart");
 		}
 
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
 		updateTitle();
 		
 		if (window != null) {
-			window.fireEvent(TiC.EVENT_FOCUS, null);
+			//we don't need to fire focus event for Tab activities as this is being done in TiUITabGroup.onTabChanged()
+			if (!(this instanceof TiActivity && ((TiActivity)this).isTab())) {
+				window.fireEvent(TiC.EVENT_FOCUS, null);
+			}
+			
 
 		} else {
 			mustFireInitialFocus = true;
@@ -689,7 +742,6 @@ public abstract class TiBaseActivity extends Activity
 			// we only want to set the current activity for good in the resume state but we need it right now.
 			// save off the existing current activity, set ourselves to be the new current activity temporarily 
 			// so we don't run into problems when we give the proxy the event
-			TiApplication tiApp = getTiApp();
 			Activity tempCurrentActivity = tiApp.getCurrentActivity();
 			tiApp.setCurrentActivity(this, this);
 
@@ -720,8 +772,18 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onStop");
 		}
 
+		if (getTiApp().isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
 		if (window != null) {
-			window.fireEvent(TiC.EVENT_BLUR, null);
+			//we don't need to fire blur for tabs b/c we're not firing focus when we re-enter the app
+			if (!(this instanceof TiActivity && ((TiActivity)this).isTab())) {
+				window.fireEvent(TiC.EVENT_BLUR, null);
+			}
 		}
 
 		if (activityProxy != null) {
@@ -749,11 +811,19 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onRestart");
 		}
 
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
 		if (activityProxy != null) {
 			// we only want to set the current activity for good in the resume state but we need it right now.
 			// save off the existing current activity, set ourselves to be the new current activity temporarily 
 			// so we don't run into problems when we give the proxy the event
-			TiApplication tiApp = getTiApp();
 			Activity tempCurrentActivity = tiApp.getCurrentActivity();
 			tiApp.setCurrentActivity(this, this);
 
@@ -771,6 +841,16 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onDestroy");
 		}
 
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			super.onDestroy();
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
 		synchronized (lifecycleListeners.synchronizedList()) {
 			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
 				try {
@@ -782,7 +862,9 @@ public abstract class TiBaseActivity extends Activity
 			}
 		}
 
-		if (!isTabActivity()) {
+		boolean isTab = isTabActivity();
+		//When we close a tabgroup, we don't remove its children from the stack, so here we remove the children if the parent is finishing.
+		if (!isTab || (isTab && this.getParent().isFinishing())) {
 			TiApplication.removeFromActivityStack(this);
 		}
 
@@ -797,7 +879,7 @@ public abstract class TiBaseActivity extends Activity
 				getIntent().putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, true);
 			}
 
-			getTiApp().scheduleRestart(250);
+			tiApp.scheduleRestart(250);
 			finish();
 
 			return;
@@ -921,6 +1003,35 @@ public abstract class TiBaseActivity extends Activity
 	public void activityOnCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+	}
+
+	/**
+	 * Called by the onCreate methods of TiBaseActivity and TiTabActivity (the latter does
+	 * not extend the former) to determine if an unsupported application re-launch appears to
+	 * be occurring. It's here simply as a convenience for both classes to use it without duplication.
+	 * @param activity The Activity getting the onCreate
+	 * @param savedInstanceState The argument passed to the onCreate. A non-null value is a "tell"
+	 * that the system is re-starting a killed application.
+	 */
+	public static boolean isUnsupportedReLaunch(Activity activity, Bundle savedInstanceState)
+	{
+		if (savedInstanceState != null && !(activity instanceof TiLaunchActivity) &&
+			!(TiApplication.getInstance().activityStackHasLaunchActivity())) {
+			/**
+			 * This state "looks like" the following has occurred:
+			 *
+			 * a) The app was running, but Android killed it off (such as, to save memory),
+			 * or a third-party task killer killed it.
+			 * b)  The app is now re-starting, and this activity -- which is *not*
+			 * a launch activity -- is being asked by Android to come into the foreground,
+			 * with none of our launch activities "behind" it.
+			 *
+			 * This is a situation we can't currently handle.  We count on a "normal" lifecycle
+			 * beginning with a launch activity.
+			 */
+			return true;
+		}
+		return false;
 	}
 }
 

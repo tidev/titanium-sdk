@@ -134,8 +134,10 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		if (mcStyle != null) {
 			mediaControlStyle = TiConvert.toInt(mcStyle);
 		} else if (mcModeDeprecated != null) {
+			Log.w(LCAT, "movieControlMode is deprecated.  Use mediaControlStyle instead.");
 			mediaControlStyle = TiConvert.toInt(mcModeDeprecated);
 		} else if (mcStyleDeprecated != null) {
+			Log.w(LCAT, "movieControlStyle is deprecated.  Use mediaControlStyle instead.");
 			mediaControlStyle = TiConvert.toInt(mcStyleDeprecated);
 		}
 
@@ -445,12 +447,14 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	@Kroll.getProperty @Kroll.method
 	public int getMovieControlStyle()
 	{
+		Log.w(LCAT, "movieControlStyle is deprecated.  Use mediaControlStyle instead.");
 		return getMediaControlStyle();
 	}
 
 	@Kroll.setProperty @Kroll.method
 	public void setMovieControlStyle(int style)
 	{
+		Log.w(LCAT, "movieControlStyle is deprecated.  Use mediaControlStyle instead.");
 		setMediaControlStyle(style);
 	}
 
