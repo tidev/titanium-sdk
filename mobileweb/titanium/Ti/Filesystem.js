@@ -10,6 +10,8 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 			lineEnding: "\n",
 			resourcesDirectory: "/",
 			separator: "/",
+			
+			// on iphone, tempDirectory = "file://localhost/var/folders/14/_wzcmsd17pn76bzvb5lsmzr40000gn/T/"
 			tempDirectory: "/tmp"
 		},
 
@@ -30,7 +32,7 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 			//
 		},
 
-		isExternalStoragePresent: function(args) {
+		isExternalStoragePresent: function(args) {
 			return false;
 		}
 
