@@ -47,9 +47,15 @@
 - (NSString*)evalJS:(id)code
 {
 	ENSURE_SINGLE_ARG(code,NSString);
-	__block id result;
-	TiThreadPerformOnMainThread(^{result=[[(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code] retain];}, YES);
-	return [result autorelease];
+    RELEASE_TO_NIL(evalResult);
+    if (![NSThread isMainThread]) {
+        [self performSelectorOnMainThread:@selector(evalJS:) withObject:code waitUntilDone:YES];
+    }
+    else {
+        evalResult = [[(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code] retain];
+    }
+    
+    return evalResult;
 }
 
 USE_VIEW_FOR_AUTO_HEIGHT
@@ -150,6 +156,7 @@ USE_VIEW_FOR_AUTO_WIDTH
 		[[self host] unregisterContext:(id<TiEvaluator>)self forToken:pageToken];
 		RELEASE_TO_NIL(pageToken);
 	}
+    RELEASE_TO_NIL(evalResult);
 	[super _destroy];
 }
 

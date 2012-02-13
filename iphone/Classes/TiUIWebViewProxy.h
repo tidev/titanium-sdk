@@ -12,6 +12,7 @@
 @interface TiUIWebViewProxy : TiViewProxy<TiEvaluator> {
 @private
 	NSString *pageToken;
+    NSString *evalResult;
 }
 -(void)setPageToken:(NSString*)pageToken;
 
