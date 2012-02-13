@@ -22,6 +22,7 @@ import android.app.Activity;
 public class AndroidModule extends KrollModule
 {
 	protected RProxy r;
+	private static final String TAG = "App.AndroidModule";
 
 
 	public AndroidModule()
