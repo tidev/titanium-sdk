@@ -1,7 +1,5 @@
-define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style"],
-	function(declare, lang, View, dom, css, style) {
-
-	var set = style.set;
+define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom"],
+	function(declare, lang, View, dom) {
 
 	return declare("Ti.UI.Tab", View, {
 
@@ -37,18 +35,15 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 		},
 
 		open: function(win, args) {
-			
 			win = win || this.window;
 			this._windows.push(win);
 			win.activeTab = this;
-			
+
 			// Apply a background if one is not already set
-			if (!require.isDef(win.backgroundColor)) {
-				win.backgroundColor = "white";
-			}
-			
+			lang.isDef(win.backgroundColor) || (win.backgroundColor = "white");
+
 			// Open the window and animate it in
-			var originalOpacity = require.isDef(win.opacity) ? win.opacity : 1;
+			var originalOpacity = lang.isDef(win.opacity) ? win.opacity : 1;
 			win.opacity = 0;
 			win.open(args);
 			win.animate({opacity: originalOpacity, duration: 250}, function(){
@@ -58,11 +53,9 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 
 		close: function(args) {
 			var win = this._windows.pop();
-			if(win) {
-				win.animate({opacity: 0, duration: 250}, function(){
-					win.close(args);
-				});
-			}
+			win && win.animate({opacity: 0, duration: 250}, function(){
+				win.close(args);
+			});
 		},
 
 		_defaultWidth: "auto",

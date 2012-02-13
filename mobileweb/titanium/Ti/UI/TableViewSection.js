@@ -1,22 +1,20 @@
-define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/MobileWeb/TableViewSeparatorStyle", "Ti/UI"], 
-	function(declare, Widget, style, TableViewSeparatorStyle, UI) {
+define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/MobileWeb/TableViewSeparatorStyle", "Ti/UI"], 
+	function(declare, lang, Widget, style, TableViewSeparatorStyle, UI) {
 	
 	var is = require.is,
-		isDef = require.isDef,
-		set = style.set;
+		setStyle = style.set;
 
 	return declare("Ti.UI.TableViewSection", Widget, {
 		
 		constructor: function(args) {
-			
 			this._indexedContent = [];
-			
-			Widget.prototype.add.call(this,this._header = UI.createView({height: 'auto', layout: 'vertical'}));
-			Widget.prototype.add.call(this,this._rows = UI.createView({height: 'auto', layout: 'vertical'}));
-			Widget.prototype.add.call(this,this._footer = UI.createView({height: 'auto', layout: 'vertical'}));
-			
+
+			require.each(["_header", "_rows", "_footer"], function(v) {
+				Widget.prototype.add.call(this, this[v] = UI.createView({ height: "auto", layout: "vertical" }));
+			});
+
 			// Create the parts out of Ti controls so we can make use of the layout system
-			this.layout = 'vertical';
+			this.layout = "vertical";
 		},
 
 		_defaultHeight: "auto",
@@ -60,8 +58,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/MobileWeb/TableVie
 				for (var i = 1; i < rows.length; i += 2) {
 					var row = rows[i];
 					row._defaultHeight = tableView.rowHeight;
-					set(row.domNode,'minHeight',tableView.minRowHeight);
-					set(row.domNode,'maxHeight',tableView.maxRowHeight);
+					setStyle(row.domNode, "minHeight", tableView.minRowHeight);
+					setStyle(row.domNode, "maxHeight", tableView.maxRowHeight);
 				}
 				
 				for (var i = 0; i < rows.length; i += 2) {
@@ -78,7 +76,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/MobileWeb/TableVie
 		},
 		
 		_insertHelper: function(value, index) {
-			if (!isDef(value.declaredClass) || value.declaredClass != "Ti.UI.TableViewRow") {
+			if (!lang.isDef(value.declaredClass) || value.declaredClass != "Ti.UI.TableViewRow") {
 				value = UI.createTableViewRow(value);
 			}
 			
@@ -92,7 +90,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/MobileWeb/TableVie
 			
 			var rows = this._rows.children,
 				rowCount = this.rowCount;
-			if (!isDef(index)) {
+			if (!lang.isDef(index)) {
 				index = rowCount;
 			}
 			if (index < 0 || index > rowCount) {

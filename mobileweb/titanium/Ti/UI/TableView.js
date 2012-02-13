@@ -3,7 +3,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 
 	var set = style.set,
 		is = require.is,
-		isDef = require.isDef;
+		isDef = lang.isDef;
 		
 	return declare("Ti.UI.TableView", View, {
 		
