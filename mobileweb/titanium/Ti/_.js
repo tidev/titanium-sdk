@@ -17,6 +17,9 @@ define(["Ti/_/lang"], function(lang) {
 			}
 		},
 		dpi: dpi,
+		escapeHtmlEntities: function(html) {
+			return (""+html).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+		},
 		getAbsolutePath: function(path) {
 			/^app\:\/\//.test(path) && (path = path.substring(6));
 			/^\//.test(path) && (path = path.substring(1));

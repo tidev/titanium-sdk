@@ -2,9 +2,10 @@
 name: Titanium.UI.EmailDialog
 summary: The Email Dialog is created by <Titanium.UI.createEmailDialog> and allows you to send in 
     application emails on behalf of the application user.
+description: On Mobile Web, the `to` addresses, `cc` addresses, `bcc` addresses, `subject`, and `body` are all appended together and formatted into a `mailto:` URL. This URL generally has a limit of around 2000 characters.
 extends: Titanium.Proxy
 since: "0.8"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 methods:
   - name: addAttachment
     summary: |
@@ -13,6 +14,7 @@ methods:
       - name: attachment
         summary: attachment object as either a Blob or File object
         type: Object
+    platforms: [android, iphone, ipad]
   - name: isSupported
     summary: return whether or not sending email is supported
   - name: open
@@ -24,6 +26,7 @@ methods:
 events:
   - name: complete
     summary: fired when the email dialog has completed sending the email
+    description: On Mobile Web, the platform cannot determine if the message was sent or not. The complete call fires immediately after calling open(), and always reports success.
     properties:
       - name: result
         summary: |
@@ -52,6 +55,7 @@ properties:
   - name: barColor
     summary: the bar color of the email dialog window when opened
     type: String
+    platforms: [android, iphone, ipad]
   - name: bccRecipients
     summary: |
         array of email BCC: recipients
@@ -63,6 +67,8 @@ properties:
   - name: html
     summary: |
         boolean to indicate whether the email messageBody should be sent as HTML content type. defaults to false. (Android note: you should not use html messages in 1.6: after that is okay.)
+    description: |
+        On Mobile Web, iPhone and iPad properly interpret HTML messages, however some e-mail clients, especially desktop clients, do not support HTML messages.
     type: Boolean
   - name: messageBody
     summary: the email message body

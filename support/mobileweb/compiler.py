@@ -4,7 +4,7 @@
 # Project Compiler
 #
 
-import os, sys, time, datetime, simplejson, codecs, shutil, subprocess, mako.template, re
+import os, sys, time, datetime, simplejson, codecs, shutil, subprocess, mako.template, re, math
 from tiapp import *
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
@@ -30,10 +30,11 @@ class Compiler(object):
 		self.minify = deploytype == "production"
 		
 		self.packages = []
-		self.project_dependencies = [] # modules that the project uses
-		self.modules_map = {}          # all modules including deps => individual module deps
-		self.modules_to_cache = []     # all modules to be baked into require.cache()
-		self.modules_to_load = []      # all modules to be required at load time
+		self.project_dependencies = []   # modules that the project uses
+		self.modules_map = {}            # all modules including deps => individual module deps
+		self.modules_to_cache = []       # all modules to be baked into require.cache()
+		self.modules_to_load = []        # all modules to be required at load time
+		self.tiplus_modules_to_load = [] # all modules to be required at load time
 		
 		# initialize paths
 		self.sdk_path = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
@@ -102,9 +103,7 @@ class Compiler(object):
 		if len(tiapp_xml.properties['modules']):
 			print '[INFO] Locating Ti+ modules…'
 			for module in tiapp_xml.properties['modules']:
-				# TODO: check if platform is even defined!
-				
-				if module['platform'] == 'mobileweb':
+				if module['platform'] == '' or module['platform'] == 'mobileweb':
 					module_dir = os.path.join(self.modules_path, module['id'], module['version'])
 					if not os.path.exists(module_dir):
 						print '[ERROR] Unable to find Ti+ module "%s", v%s' % (module['id'], module['version'])
@@ -125,15 +124,17 @@ class Compiler(object):
 						print '[ERROR] Ti+ module "%s" is invalid: missing main "%s"' % (module['id'], main_file + '.js')
 						sys.exit(1)
 					
+					print '[INFO] Bundling Ti+ module "%s"' % module['id']
+					
 					self.project_dependencies.append(main_file)
+					self.modules_to_cache.append(main_file)
+					self.tiplus_modules_to_load.append(module['id'])
 					
 					self.packages.append({
 						'name': module['id'],
 						'location': './modules/' + module['id'],
 						'main': main_file
 					})
-					
-					print '[INFO] Bundling Ti+ module "%s"' % module['id']
 					
 					# TODO: need to combine ALL Ti+ module .js files into the titanium.js, not just the main file
 					
@@ -236,6 +237,7 @@ class Compiler(object):
 		
 		# 5) write require() to load all Ti modules
 		self.modules_to_load.sort()
+		self.modules_to_load += self.tiplus_modules_to_load
 		ti_js.write('require(%s);' % simplejson.dumps(self.modules_to_load))
 		
 		# 6) close the titanium.js
@@ -299,10 +301,10 @@ class Compiler(object):
 						p = subprocess.Popen('java -jar "%s" --compilation_level SIMPLE_OPTIMIZATIONS --js "%s" --js_output_file "%s"' % (os.path.join(self.sdk_path, 'closureCompiler', 'compiler.jar'), source, dest), shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
 						stdout, stderr = p.communicate()
 						if p.returncode != 0:
-							print '[ERROR] Failed to minify "%s"' % dest
+							print '[WARN] Failed to minify "%s"' % dest
 							for line in stderr.split('\n'):
 								if len(line):
-									print '[ERROR]    %s' % line
+									print '[WARN]    %s' % line
 							print '[WARN] Leaving %s un-minified' % dest
 							os.remove(dest)
 							shutil.copy(source, dest)
@@ -346,8 +348,13 @@ class Compiler(object):
 			if os.path.exists(icon_file):
 				self.build_icons(icon_file)
 		
-		total_time = int(round(time.time() - start_time))
-		print '[INFO] Finished in %s seconds' % total_time
+		total_time = round(time.time() - start_time)
+		total_minutes = math.floor(total_time / 60)
+		total_seconds = total_time % 60
+		if total_minutes > 0:
+			print '[INFO] Finished in %s minutes %s seconds' % (int(total_minutes), int(total_seconds))
+		else:
+			print '[INFO] Finished in %s seconds' % int(total_time)
 	
 	def resolve(self, it):
 		parts = it.split('!')
@@ -446,6 +453,7 @@ class Compiler(object):
 			'Ti/UI/AlertDialog',
 			'Ti/UI/Animation',
 			'Ti/UI/Button',
+			'Ti/UI/EmailDialog',
 			'Ti/UI/ImageView',
 			'Ti/UI/Label',
 			'Ti/UI/OptionDialog',

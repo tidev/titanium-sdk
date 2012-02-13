@@ -21,12 +21,12 @@
 
 -(void)blur:(id)args
 {
-	[[self view] performSelectorOnMainThread:@selector(blur:) withObject:args waitUntilDone:NO];
+	[self makeViewPerformSelector:@selector(blur:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
 -(void)focus:(id)args
 {
-	[[self view] performSelectorOnMainThread:@selector(focus:) withObject:args waitUntilDone:NO];
+	[self makeViewPerformSelector:@selector(focus:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
 -(void)setDelegate:(id<UISearchBarDelegate>)delegate

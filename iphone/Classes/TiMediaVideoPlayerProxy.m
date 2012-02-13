@@ -38,7 +38,6 @@
 #define RETURN_FROM_LOAD_PROPERTIES(property,default) \
 {\
 	id temp = [loadProperties valueForKey:property];\
-	[returnCache setValue:(temp ? temp : default) forKey:@"" #property];\
 	return temp ? temp : default; \
 }
 
@@ -65,7 +64,6 @@ NSArray* moviePlayerKeys = nil;
 -(void)_initWithProperties:(NSDictionary *)properties
 {	
 	loadProperties = [[NSMutableDictionary alloc] init];
-	returnCache = [[NSMutableDictionary alloc] init];
 	playerLock = [[NSRecursiveLock alloc] init];
 	[super _initWithProperties:properties];
 }
@@ -85,7 +83,6 @@ NSArray* moviePlayerKeys = nil;
 	RELEASE_TO_NIL(movie);
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(loadProperties);
-	RELEASE_TO_NIL(returnCache);
 	RELEASE_TO_NIL(playerLock);
 	[super _destroy];
 }
@@ -262,7 +259,7 @@ NSArray* moviePlayerKeys = nil;
 -(void)setScalingMode:(NSNumber *)value
 {
 	if (movie != nil) {
-		[self performSelectorOnMainThread:@selector(updateScalingMode:) withObject:value waitUntilDone:NO];
+		TiThreadPerformOnMainThread(^{[self updateScalingMode:value];}, NO);
 	}
 	else {
 		[loadProperties setValue:value forKey:@"scalingMode"];
@@ -400,7 +397,7 @@ NSArray* moviePlayerKeys = nil;
 	
 	if (restart)
 	{ 
-		[self performSelectorOnMainThread:@selector(play:) withObject:nil waitUntilDone:NO];
+		TiThreadPerformOnMainThread(^{[self play:nil];}, NO);
 	}
 }
 
@@ -478,7 +475,7 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)cancelAllThumbnailImageRequests:(id)value
 {
-	[[self player] performSelectorOnMainThread:@selector(cancelAllThumbnailImageRequests) withObject:nil waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[[self player] cancelAllThumbnailImageRequests];}, NO);
 }
 
 -(void)requestThumbnailImagesAtTimes:(id)args
@@ -493,21 +490,15 @@ NSArray* moviePlayerKeys = nil;
 	[[self player] requestThumbnailImagesAtTimes:array timeOption:[option intValue]];
 }
 
--(void)generateThumbnail:(id)args
+-(TiBlob*)thumbnailImageAtTime:(id)args
 {
 	NSNumber *time = [args objectAtIndex:0];
 	NSNumber *options = [args objectAtIndex:1];
-	TiBlob *blob = [args objectAtIndex:2];
-	UIImage *image = [[self player] thumbnailImageAtTime:[time doubleValue] timeOption:[options intValue]];
-	[blob setImage:image];
-}
-
--(TiBlob*)thumbnailImageAtTime:(id)args
-{
-	NSMutableArray *array = [NSMutableArray arrayWithArray:args];
 	TiBlob *blob = [[[TiBlob alloc] init] autorelease];
-	[array addObject:blob];
-	[self performSelectorOnMainThread:@selector(generateThumbnail:) withObject:array waitUntilDone:YES];
+	TiThreadPerformOnMainThread(^{
+		UIImage *image = [[self player] thumbnailImageAtTime:[time doubleValue] timeOption:[options intValue]];
+		[blob setImage:image];
+	}, YES);
 	return blob;
 }
 
@@ -522,7 +513,7 @@ NSArray* moviePlayerKeys = nil;
 		UIView *background = [[self player] backgroundView];
 		if (background!=nil)
 		{
-			[background performSelectorOnMainThread:@selector(setBackgroundColor:) withObject:[backgroundColor _color] waitUntilDone:NO];
+			TiThreadPerformOnMainThread(^{[background setBackgroundColor:[backgroundColor _color]];}, NO);
 			return;
 		}
 	}
@@ -580,13 +571,13 @@ NSArray* moviePlayerKeys = nil;
 -(NSNumber*)fullscreen
 {
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(fullscreen) withObject:nil waitUntilDone:YES];
-		return [returnCache valueForKey:@"fullscreen"];
+		__block id result;
+		TiThreadPerformOnMainThread(^{result = [[self fullscreen] retain];}, YES);
+		return [result autorelease];
 	}
 	
 	if (movie != nil) {
 		NSNumber* result = NUMBOOL([[self player] isFullscreen]);
-		[returnCache setValue:result forKey:@"fullscreen"];
 		return result;
 	}
 	else {

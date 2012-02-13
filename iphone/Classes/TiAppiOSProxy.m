@@ -40,22 +40,6 @@
 	}
 }
 
--(void)_scheduleNotification:(NSArray*)arg
-{
-	UILocalNotification* localNotif = [arg objectAtIndex:0];
-	NSDate *date = [arg objectAtIndex:1];
-	
-	if (date!=nil)
-	{
-		[[UIApplication sharedApplication] scheduleLocalNotification:localNotif];
-	}
-	else
-	{
-		[[UIApplication sharedApplication] presentLocalNotificationNow:localNotif];
-	}
-	
-}
-
 #pragma mark Public
 
 -(id)registerBackgroundService:(id)args
@@ -159,7 +143,14 @@
 		localNotif.userInfo = userInfo;
 	}
 	
-	[self performSelectorOnMainThread:@selector(_scheduleNotification:) withObject:[NSArray arrayWithObjects:localNotif,date,nil] waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{
+		if (date!=nil) {
+			[[UIApplication sharedApplication] scheduleLocalNotification:localNotif];
+		}
+		else {
+			[[UIApplication sharedApplication] presentLocalNotificationNow:localNotif];
+		}
+	}, NO);
 	
 	TiAppiOSLocalNotificationProxy *lp = [[[TiAppiOSLocalNotificationProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 	lp.notification = localNotif;

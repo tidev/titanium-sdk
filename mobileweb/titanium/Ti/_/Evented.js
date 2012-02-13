@@ -1,7 +1,13 @@
 define(function() {
 
 	return {
-		listeners: null,
+		destroy: function() {
+			for (var i in this) {
+				if (this.hasOwnProperty(i)) {
+					delete this[i];
+				}
+			}
+		},
 
 		addEventListener: function(name, handler) {
 			this.listeners || (this.listeners = {});
