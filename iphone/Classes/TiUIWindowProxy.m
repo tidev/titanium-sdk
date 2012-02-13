@@ -740,7 +740,6 @@ else{\
 - (void)viewDidDisappear:(BOOL)animated;  // Called after the view was dismissed, covered or otherwise hidden. Default does nothing
 {
 	animating = NO;
-	[self updateTitleView];
 	[super viewDidDisappear:animated];
 }
 
