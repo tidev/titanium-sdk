@@ -34,7 +34,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/ready", "Ti/_/style", "Ti/_/UI/Widget"
 			index != -1 && this._styleableDomNodes.splice(index,1);
 		},
 
-		_measureText: function(text, domNode) {
+		_measureText: function(text, domNode, fixedWidth) {
 			var computedStyle = window.getComputedStyle(domNode),
 				font = this.font || {},
 				emptyText = !text || text === "";
@@ -47,6 +47,11 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/ready", "Ti/_/style", "Ti/_/UI/Widget"
 				fontStyle: font.fontStyle || computedStyle.fontStyle,
 				fontWeight: font.fontWeight || computedStyle.fontWeight
 			}, textRuler);
+			style.set(textRuler,{
+				whiteSpace: domNode.style.whiteSpace,
+				width: this.width === "auto" ? "auto" : dom.unitize(this._measuredWidth),
+				height: this.height === "auto" ? "auto" : dom.unitize(this._measuredHeight)
+			});
 
 			// Return the computed style
 			return { width: emptyText ? 0 : textRuler.clientWidth, height: textRuler.clientHeight };

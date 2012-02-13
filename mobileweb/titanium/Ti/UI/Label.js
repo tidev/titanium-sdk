@@ -9,8 +9,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		
 		constructor: function() {
 			
-			this.touchEnabled = false;
-			
 			// Create the aligner div. This sets up a flexbox to float the text to the middle
 			this.textAlignerDiv = dom.create("div", {
 				className: css.clean("TiUILabelTextAligner")
@@ -41,6 +39,9 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			}, this.textAlignerDiv);
 
 			this._addStyleableDomNode(this.textContainerDiv);
+			
+			this.touchEnabled = false;
+			this.wordWrap = true;
 		},
 
 		_defaultWidth: "auto",
@@ -140,8 +141,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				set: function(value) {
 					set(this.textContainerDiv,"whiteSpace", !!value ? "normal" : "nowrap");
 					return value;
-				},
-				value: false
+				}
 			}
 		}
 
