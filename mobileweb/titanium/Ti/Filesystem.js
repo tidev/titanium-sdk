@@ -1,39 +1,39 @@
-define("Ti/Filesystem", ["Ti/_/Evented"], function(Evented) {
+define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 
-	(function(api){
-		// Interfaces
-		Ti._5.EventDriven(api);
-	
-		// Properties
-		Ti._5.propReadOnly(api, {
+	lang.setObject("Ti.Filesystem", Evented, {
+
+		constants: {
 			MODE_APPEND: 1,
 			MODE_READ: 2,
 			MODE_WRITE: 3,
 			applicationDataDirectory: "/",
-			applicationDirectory: "/",
 			lineEnding: "\n",
 			resourcesDirectory: "/",
 			separator: "/",
-			tempDirectory: null
-		});
-	
-		// Methods
-		api.createFile = function(){
-			console.debug('Method "Titanium.Filesystem.createFile" is not implemented yet.');
-		};
-		api.createTempDirectory = function(){
-			console.debug('Method "Titanium.Filesystem.createTempDirectory" is not implemented yet.');
-		};
-		api.createTempFile = function(){
-			console.debug('Method "Titanium.Filesystem.createTempFile" is not implemented yet.');
-		};
-		api.getFile = function(){
-			console.debug('Method "Titanium.Filesystem.getFile" is not implemented yet.');
-			return new Ti.Filesystem.File;
-		};
-		api.isExternalStoragePresent = function(){
-			console.debug('Method "Titanium.Filesystem.isExternalStoragePresent" is not implemented yet.');
-		};
-	})(Ti._5.createClass('Ti.Filesystem'));
+			tempDirectory: "/tmp"
+		},
+
+		createFile: function(args){
+			var m = require("Ti/Filesystem/File");
+			return new m(args);
+		},
+
+		createTempDirectory: function(args) {
+			//
+		},
+
+		createTempFile: function(args) {
+			//
+		},
+
+		getFile: function(args) {
+			//
+		},
+
+		isExternalStoragePresent: function(args) {
+			return false;
+		}
+
+	});
 
 });
