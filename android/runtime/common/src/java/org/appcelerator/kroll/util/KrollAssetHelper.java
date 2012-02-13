@@ -31,7 +31,7 @@ public class KrollAssetHelper
 		String readAsset(String path);
 	}
 
-	public void setAssetCrypt(AssetCrypt assetCrypt)
+	public static void setAssetCrypt(AssetCrypt assetCrypt)
 	{
 		KrollAssetHelper.assetCrypt = assetCrypt;
 	}
@@ -45,10 +45,10 @@ public class KrollAssetHelper
 
 	public static String readAsset(String path)
 	{
+		String resourcePath = path.replace("Resources/", "");
+
 		if (TiFastDev.isFastDevEnabled()) {
 			if (path != null && path.startsWith("Resources/")) {
-
-				String resourcePath = path.replace("Resources/", "");
 				Log.d(TAG, "Fetching \"" + resourcePath + "\" with Fastdev...");
 				InputStream stream = TiFastDev.getInstance().openInputStream(resourcePath);
 				return KrollStreamHelper.toString(stream);
@@ -56,7 +56,10 @@ public class KrollAssetHelper
 		}
 
 		if (assetCrypt != null) {
-			return assetCrypt.readAsset(path);
+			String asset = assetCrypt.readAsset(resourcePath);
+			if (asset != null) {
+				return asset;
+			}
 		}
 
 		try {
