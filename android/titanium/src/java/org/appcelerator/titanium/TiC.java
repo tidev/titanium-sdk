@@ -14,6 +14,7 @@ public class TiC
 	public static final String ERROR_PROPERTY_CODE = "code";
 	public static final String ERROR_PROPERTY_ERRORCODE = "errorcode";
 	public static final String ERROR_PROPERTY_MESSAGE = "message";
+	public static final String EVENT_ADDED_TO_TAB = "addedToTab";
 	public static final String EVENT_ANDROID_BACK = "android:back";
 	public static final String EVENT_ANDROID_CAMERA = "android:camera";
 	public static final String EVENT_ANDROID_FOCUS = "android:focus";
