@@ -128,15 +128,6 @@
 		return type ? type === v : v;
 	}
 	
-	function isDef(it) {
-		// summary:
-		//		Helper function that tests if "it" is defined
-		//
-		// returns:
-		//		Boolean
-		return !is(it, "Undefined");
-	}
-
 	function isEmpty(it) {
 		// summary:
 		//		Checks if an object is empty.
@@ -642,9 +633,7 @@
 				}, _t.pluginCfg);
 			}
 
-			finish();
-		}, function(ex) {
-			throw ex;
+			(p && p.load) || finish();
 		}, _t.refModule, _t.sync);
 	};
 
@@ -699,7 +688,7 @@
 		delete waiting[module.name];
 	}
 
-	function fetch(deps, success, failure, refModule, sync) {
+	function fetch(deps, callback, refModule, sync) {
 		// summary:
 		//		Fetches all dependents and fires callback when finished or on error.
 		//
@@ -711,14 +700,10 @@
 		//		A string or array of module ids to load. If deps is a string, load()
 		//		returns the module's definition.
 		//
-		// success: Function?
+		// callback: Function?
 		//		A callback function fired once the loader successfully loads and evaluates
 		//		all dependent modules. The function is passed an ordered array of
 		//		dependent module definitions.
-		//
-		// failure: Function?
-		//		A callback function fired when the loader is unable to load a module. The
-		//		function is passed the exception.
 		//
 		// refModule: Object?
 		//		A reference map used for resolving module URLs.
@@ -743,7 +728,7 @@
 					m.execute(function() {
 						deps[idx] = m.def;
 						if (--count === 0) {
-							success && success(deps);
+							callback(deps);
 							count = -1; // prevent success from being called the 2nd time below
 						}
 					});
@@ -751,7 +736,7 @@
 			}(i));
 		}
 
-		count === 0 && success && success(deps);
+		count === 0 && callback(deps);
 		return s ? deps[0] : deps;
 	}
 
@@ -995,8 +980,6 @@
 
 		return fetch(deps, function(deps) {
 			callback && callback.apply(null, deps);
-		}, function(ex) {
-			throw ex;
 		}, refModule) || req;
 	}
 
@@ -1007,7 +990,6 @@
 		evaluate: evaluate,
 		has: has,
 		is: is,
-		isDef: isDef,
 		mix: mix,
 		on: on
 	});
