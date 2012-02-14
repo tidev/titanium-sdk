@@ -52,13 +52,14 @@
      does not work reliably for evalJS on 5.0 and above. See sample in TIMOB-7616 for fail case.
      */
     if (![NSThread isMainThread]) {
+        inKJSThread = YES;
         [self performSelectorOnMainThread:@selector(evalJS:) withObject:code waitUntilDone:YES];
-        return [evalResult autorelease];
+        inKJSThread = NO;
     }
     else {
         evalResult = [[(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code] retain];
-        return evalResult;
     }
+    return (inKJSThread ? evalResult : [evalResult autorelease]);
 }
 
 USE_VIEW_FOR_AUTO_HEIGHT
