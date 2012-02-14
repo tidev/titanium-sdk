@@ -279,14 +279,17 @@ properties:
   - name: cache
     summary: Controls whether or not HTTP responses are cached.
     description: |
-        By default, HTTP responses are not cached. If you cache HTTP responses,
-        when making a request to the same source multiple times, you may retrieve
-        the initial response rather than a new one - this is true even for
-        REST calls. Caching should only be enabled for HTTP requests which you
+        If `cache` is set to `true`, requests using this HTTP client will cache
+        their responses (respecting headers such as "no-cache", "no-store",
+        and cache expiry). In this case, repeated requests to the same URL may
+        retrieve the initial response rather than triggering a new request. The
+        cache is shared between all instances of `HTTPClient`.
+        
+        Caching should only be enabled for HTTP requests which you
         expect the result to remain consistent for.
         
-        If this is `true`, respects the "no-cache", "no-store", and cache
-        expiration headers of the response.
+        If `cache` is `false`, any request on this HTTP client will result
+        in a new HTTP request. 
         
         This propery must be set before `open` is called.
     type: Boolean
