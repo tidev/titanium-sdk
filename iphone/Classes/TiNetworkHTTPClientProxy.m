@@ -95,7 +95,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 @implementation TiNetworkHTTPClientProxy
 
-@synthesize timeout, validatesSecureCertificate, autoRedirect;
+@synthesize timeout, validatesSecureCertificate, autoRedirect, useCache;
 
 -(id)init
 {
@@ -104,6 +104,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		readyState = NetworkClientStateUnsent;
 		autoRedirect = [[NSNumber alloc] initWithBool:YES];
 		validatesSecureCertificate = [[NSNumber alloc] initWithBool:NO];
+		useCache = [[NSNumber alloc] initWithBool:YES];
 	}
 	return self;
 }
@@ -149,6 +150,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	RELEASE_TO_NIL(autoRedirect);
     RELEASE_TO_NIL(timeout);
     RELEASE_TO_NIL(validatesSecureCertificate);
+    RELEASE_TO_NIL(useCache);
 	[super _destroy];
 }
 
@@ -355,8 +357,11 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		async = YES;
 	}
 	
-	request = [[ASIFormDataRequest requestWithURL:url] retain];	
-    [request setDownloadCache:[ASIDownloadCache sharedCache]];
+	request = [[ASIFormDataRequest requestWithURL:url] retain];
+	if ([useCache boolValue])
+	{
+	    [request setDownloadCache:[ASIDownloadCache sharedCache]];
+	}
 	[request setDelegate:self];
     if (timeout) {
         NSTimeInterval timeoutVal = [timeout doubleValue] / 1000;

@@ -36,6 +36,7 @@ typedef enum {
 	NSNumber* validatesSecureCertificate;
     NSNumber* timeout;
     NSNumber* autoRedirect;
+    NSNumber* useCache;
 	
 	// callbacks are now in the JS object
 	BOOL hasOnload;
@@ -66,6 +67,7 @@ typedef enum {
 @property(nonatomic,retain,readwrite) NSNumber* validatesSecureCertificate;
 @property(nonatomic,retain,readwrite) NSNumber* timeout;
 @property(nonatomic,retain,readwrite) NSNumber* autoRedirect;
+@property(nonatomic,retain,readwrite) NSNumber* useCache;
 
 // constants
 @property(nonatomic,readonly) NSInteger UNSENT;
