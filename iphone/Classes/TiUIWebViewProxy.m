@@ -53,12 +53,13 @@
      */
     if (![NSThread isMainThread]) {
         [self performSelectorOnMainThread:@selector(evalJS:) withObject:code waitUntilDone:YES];
+        return [evalResult autorelease];
     }
     else {
         RELEASE_TO_NIL(evalResult);
         evalResult = [[(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code] retain];
+        return evalResult;
     }
-    return evalResult;
 }
 
 USE_VIEW_FOR_AUTO_HEIGHT
