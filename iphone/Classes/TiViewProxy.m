@@ -338,7 +338,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(TiBlob*)toImage:(id)args
 {
-	KrollCallback *callback = nil;
+    KrollCallback *callback = nil;
     BOOL honorScale = NO;
     
     NSObject *obj = nil;
@@ -377,7 +377,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 			CGRect rect = CGRectMake(0, 0, size.width, size.height);
 			[TiUtils setView:myview positionRect:rect];
 		}
-        UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], (honorScale?0.0:1.0));
+		UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], (honorScale ? 0.0 : 1.0));
 		[myview.layer renderInContext:UIGraphicsGetCurrentContext()];
 		UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
 		[blob setImage:image];
