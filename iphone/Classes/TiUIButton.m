@@ -14,19 +14,13 @@
 #import "TiButtonUtil.h"
 #import "TiUIView.h"
 
-const UIControlEvents highlightingTouches = UIControlEventTouchDown|UIControlEventTouchDragEnter;
-const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIControlEventTouchDragExit|UIControlEventTouchUpInside;
-
-
 @implementation TiUIButton
 
 #pragma mark Internal
 
 -(void)dealloc
 {
-	[button removeTarget:self action:@selector(clicked:event:) forControlEvents:UIControlEventTouchUpInside];
-	[button removeTarget:self action:@selector(highlightOn:) forControlEvents:highlightingTouches];
-	[button removeTarget:self action:@selector(highlightOff:) forControlEvents:unHighlightingTouches];
+	[button removeTarget:self action:@selector(controlAction:forEvent:) forControlEvents:UIControlEventAllTouchEvents];
 	RELEASE_TO_NIL(button);
 	[super dealloc];
 }
@@ -68,57 +62,51 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 	}
 }
 
--(void)handleControlEvents:(UIControlEvents)events
-{
-	eventAlreadyTriggered = YES;
-	if (events & highlightingTouches) {
-		[button setHighlighted:YES];
-		[self setHighlighting:YES];
-	}
-	else if (events & unHighlightingTouches) {
-		[button setHighlighted:NO];
-		[self setHighlighting:NO];
-	}
-	eventAlreadyTriggered = NO;
-	
-	[super handleControlEvents:events];
-}
-
--(IBAction)highlightOn:(id)sender
-{
-	[self setHighlighting:YES];
-	if (!eventAlreadyTriggered && [self.proxy _hasListeners:@"touchstart"])
-	{
-		[self.proxy fireEvent:@"touchstart" withObject:nil];
-	}
-}
-
--(IBAction)highlightOff:(id)sender
-{
-	[self setHighlighting:NO];
-	if (!eventAlreadyTriggered && [self.proxy _hasListeners:@"touchend"])
-	{
-		[self.proxy fireEvent:@"touchend" withObject:nil];
-	}
-}
-
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[button setFrame:bounds];
     [super frameSizeChanged:frame bounds:bounds];
 }
 
--(void)clicked:(id)sender event:(UIEvent*)event
+- (void)controlAction:(id)sender forEvent:(UIEvent *)event
 {
-	if ([self.proxy _hasListeners:@"click"])
-	{
-		// TODO: This is not cool.  It COULD be that any control with 'specialized' handling like buttons does not report the same information as TiUIViews!
-		// For now, let's just hack in some x and y...
-		UITouch* touch = [[event touchesForView:sender] anyObject];
-		NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:[touch locationInView:self]]];
-		[evt setValue:[TiUtils pointToDictionary:[touch locationInView:nil]] forKey:@"globalPoint"];
-		
-		[self.proxy fireEvent:@"click" withObject:evt];
+    UITouch *touch = [[event allTouches] anyObject];
+    NSString *fireEvent;
+    NSString * fireActionEvent = nil;
+    switch (touch.phase) {
+        case UITouchPhaseBegan:
+            if (touchStarted) {
+                return;
+            }
+            touchStarted = YES;
+            fireEvent = @"touchstart";
+            break;
+        case UITouchPhaseMoved:
+            fireEvent = @"touchmove";
+            break;
+        case UITouchPhaseEnded:
+            touchStarted = NO;
+            fireEvent = @"touchend";
+            if (button.highlighted) {
+                fireActionEvent = [touch tapCount] < 2 ? @"click" : @"dblclick";
+            }
+            break;
+        case UITouchPhaseCancelled:
+            touchStarted = NO;
+            fireEvent = @"touchcancel";
+            break;
+        default:
+            return;
+    }
+    // TODO: This is not cool.  It COULD be that any control with 'specialized' handling like buttons does not report the same information as TiUIViews!
+    // For now, let's just hack in some x and y...
+    NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:[touch locationInView:self]]];
+    [evt setValue:[TiUtils pointToDictionary:[touch locationInView:nil]] forKey:@"globalPoint"];
+    if ((fireActionEvent != nil) && [self.proxy _hasListeners:fireActionEvent]) {
+        [self.proxy fireEvent:fireActionEvent withObject:evt];
+    }
+	if ([self.proxy _hasListeners:fireEvent]) {
+		[self.proxy fireEvent:fireEvent withObject:evt];
 	}
 }
 
@@ -157,9 +145,7 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 				button.showsTouchWhenHighlighted = YES;
 			}
 		}
-		[button addTarget:self action:@selector(clicked:event:) forControlEvents:UIControlEventTouchUpInside];
-		[button addTarget:self action:@selector(highlightOn:) forControlEvents:highlightingTouches];
-		[button addTarget:self action:@selector(highlightOff:) forControlEvents:unHighlightingTouches];
+		[button addTarget:self action:@selector(controlAction:forEvent:) forControlEvents:UIControlEventAllTouchEvents];
 		button.exclusiveTouch = YES;
 	}
 	return button;
