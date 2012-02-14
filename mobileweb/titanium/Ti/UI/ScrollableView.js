@@ -1,25 +1,23 @@
-define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/UI"],
-	function(declare, Widget, lang, dom, css, style, UI) {
+define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style", "Ti/UI"],
+	function(declare, Widget, lang, dom, style, UI) {
 
-	var set = style.set,
+	var setStyle = style.set,
 		is = require.is,
-		isDef = require.isDef,
-		unitize = dom.unitize,
-		undef;
+		unitize = dom.unitize;
 
 	return declare("Ti.UI.ScrollableView", Widget, {
-		
+
 		// This sets the minimum velocity that determines whether a swipe was a flick or a drag
 		_velocityThreshold: 0.4,
-		
+
 		// This determines the minimum distance scale (i.e. width divided by this value) before a flick requests a page turn
 		_minimumFlickDistanceScaleFactor: 15,
-		
+
 		// This determines the minimum distance scale (i.e. width divided by this value) before a drag requests a page turn
 		_minimumDragDistanceScaleFactor: 2,
-		
+
 		constructor: function(args){
-			
+
 			// Create the content container
 			this._contentContainer = UI.createView({
 				left: 0,
@@ -27,9 +25,9 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 				width: "100%",
 				height: "100%"
 			});
-			set(this._contentContainer.domNode,"overflow","hidden");
+			setStyle(this._contentContainer.domNode, "overflow", "hidden");
 			this.add(this._contentContainer);
-			
+
 			// Create the paging control container
 			this.add(this._pagingControlContainer = UI.createView({
 				width: "100%",
@@ -39,24 +37,26 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 				opacity: 0,
 				touchEnabled: false
 			}));
+
 			this._pagingControlContainer.add(this._pagingControlContentContainer = UI.createView({
 				width: "auto",
 				height: "100%",
 				top: 0,
 				touchEnabled: false
 			}));
-			
+
 			// State variables
 			this._viewToRemoveAfterScroll = -1;
-			
+
 			var initialPosition,
 				animationView,
 				swipeInitialized = false,
 				viewsToScroll,
 				touchEndHandled,
 				startTime;
+
 			// This touch end handles the case where a swipe was started, but turned out not to be a swipe
-			this.addEventListener("touchend",function(e) {
+			this.addEventListener("touchend", function(e) {
 				if (!touchEndHandled && swipeInitialized) {
 					var width = this._measuredWidth,
 						destinationLeft = viewsToScroll.indexOf(this.views[this.currentPage]) * -width;
@@ -70,8 +70,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 					}));
 				}
 			})
-			this.addEventListener("swipe",function(e){
-				
+
+			this.addEventListener("swipe", function(e){
 				// If we haven't started swiping yet, start swiping,
 				var width = this._measuredWidth;
 				if (!swipeInitialized) {
@@ -110,7 +110,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 							height: "100%",
 							layout: "horizontal" // Do a horizontal to force the child to (0,0) without overwriting the original position values
 						});
-						set(viewContainer.domNode,"overflow","hidden");
+						setStyle(viewContainer.domNode,"overflow","hidden");
 						viewContainer.add(viewsToScroll[i]);
 						animationView.add(viewContainer);
 					}
@@ -184,7 +184,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 				}
 			});
 		},
-		
+
 		addView: function(view){
 			if (view) {
 				this.views.push(view);
@@ -198,7 +198,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 				this._updatePagingControl(this.currentPage);
 			}
 		},
-		
+
 		removeView: function(view) {
 			
 			// Get and validate the location of the view
@@ -220,7 +220,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 				this._removeViewFromList(viewIndex);
 			}
 		},
-		
+
 		_removeViewFromList: function(viewIndex) {
 			// Remove the view
 			this.views.splice(viewIndex,1);
@@ -232,7 +232,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 			
 			this._updatePagingControl(this.currentPage);
 		},
-		
+
 		scrollToView: function(view) {
 			var viewIndex = is(view,"Number") ? view : this.views.indexOf(view)
 			
@@ -285,7 +285,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 						height: "100%",
 						layout: "horizontal" // Do a horizontal to force the child to (0,0) without overwriting the original position values
 					});
-					set(viewContainer.domNode,"overflow","hidden");
+					setStyle(viewContainer.domNode,"overflow","hidden");
 					viewContainer.add(viewsToScroll[i]);
 					animationView.add(viewContainer);
 				}
@@ -320,7 +320,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 				}));
 			}
 		},
-		
+
 		_showPagingControl: function() {
 			if (!this.showPagingControl) {
 				this._pagingControlContainer.opacity = 0;
@@ -342,7 +342,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 				this._isPagingControlActive = false;
 			}),this.pagingControlTimeout);
 		},
-		
+
 		_updatePagingControl: function(newIndex, hidePagingControl) {
 			this._pagingControlContentContainer._removeAllChildren();
 			var diameter = this.pagingControlHeight / 2;
@@ -354,12 +354,12 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/css", "
 					left: i * 2 * diameter,
 					backgroundColor: i === newIndex ? "white" : "grey"
 				});
-				set(indicator.domNode,"borderRadius",unitize(diameter / 2));
+				setStyle(indicator.domNode,"borderRadius",unitize(diameter / 2));
 				this._pagingControlContentContainer.add(indicator);
 			}
 			!hidePagingControl && this._showPagingControl();
 		},
-		
+
 		_defaultWidth: "100%",
 		_defaultHeight: "100%",
 
