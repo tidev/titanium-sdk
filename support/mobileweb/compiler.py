@@ -283,36 +283,14 @@ class Compiler(object):
 		
 		# minify all javascript, html, and css files
 		if self.minify:
-			for root, dirs, files in os.walk(self.build_path):
-				for name in ignoreDirs:
-					if name in dirs:
-						dirs.remove(name)
-				for dest in files:
-					if dest in ignoreFiles or dest.startswith('._'):
-						continue
-					fname, ext = os.path.splitext(dest.lower())
-					dest = os.path.join(root, dest)
-					if ext == '.js':
-						source = dest + '.uncompressed.js'
-						print '[INFO] Minifying %s' % dest
-						if os.path.exists(source):
-							os.remove(source)
-						os.rename(dest, source)
-						p = subprocess.Popen('java -jar "%s" --compilation_level SIMPLE_OPTIMIZATIONS --js "%s" --js_output_file "%s"' % (os.path.join(self.sdk_path, 'closureCompiler', 'compiler.jar'), source, dest), shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-						stdout, stderr = p.communicate()
-						if p.returncode != 0:
-							print '[WARN] Failed to minify "%s"' % dest
-							for line in stderr.split('\n'):
-								if len(line):
-									print '[WARN]    %s' % line
-							print '[WARN] Leaving %s un-minified' % dest
-							os.remove(dest)
-							shutil.copy(source, dest)
-					# elif ext == '.css':
-					#	TODO: minify css
-					# elif ext == '.html':
-					#	TODO: minify html
-		
+			subprocess.call('java -cp "%s:%s" -Djava.awt.headless=true minify "%s"' % (os.path.join(self.sdk_path, 'minify'), os.path.join(self.sdk_path, 'closureCompiler', 'compiler.jar'), self.build_path), shell=True)
+			# elif ext == '.json':
+			#	TODO: minify json
+			# elif ext == '.css':
+			#	TODO: minify css
+			# elif ext == '.html':
+			#	TODO: minify html
+			
 		# get status bar style
 		status_bar_style = 'default'
 		if 'statusbar-style' in tiapp_xml.properties:
@@ -326,7 +304,7 @@ class Compiler(object):
 		
 		# populate index.html
 		index_html_file = codecs.open(os.path.join(self.build_path, 'index.html'), 'w', encoding='utf-8')
-		index_html_file.write(mako.template.Template(codecs.open(os.path.join(self.sdk_src_path, 'index.html'), 'r', 'utf-8').read()).render(
+		index_html_file.write(mako.template.Template(codecs.open(os.path.join(self.sdk_src_path, 'index.html'), 'r', 'utf-8').read().strip()).render(
 			ti_header=HTML_HEADER,
 			project_name=tiapp_xml.properties['name'],
 			app_description=tiapp_xml.properties['description'],
