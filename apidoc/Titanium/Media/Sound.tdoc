@@ -90,10 +90,6 @@ var player = Ti.Media.createSound({url:"sound.wav"});
 player.play();
 ~~~
 
-- notes
-
-You can pass the property `preload` in the constructor as an object property to cause the audio to be preloaded before `play` is invoked.  For larger audio files, this is recommended if you want the audio to begin immediately when invoking `play`.
-
 
 
 
