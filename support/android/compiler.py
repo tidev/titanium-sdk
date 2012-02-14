@@ -32,11 +32,12 @@ class ScriptProcessor(SGMLParser):
 					self.scripts.append(attr[1])
 
 class Compiler(object):
-	def __init__(self, tiapp, project_dir, java, classes_dir, root_dir, include_all_modules=False):
+	def __init__(self, tiapp, project_dir, java, classes_dir, gen_dir, root_dir, include_all_modules=False):
 		self.tiapp = tiapp
 		self.java = java
 		self.appname = tiapp.properties['name']
 		self.classes_dir = classes_dir
+		self.gen_dir = gen_dir
 		self.template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 		self.appid = tiapp.properties['id']
 		self.root_dir = root_dir
@@ -186,37 +187,23 @@ class Compiler(object):
 		os.rename(fullpath+'-compiled',fullpath)
 
 	def compile_into_bytecode(self, paths):
-		compile_js = False
-		# we only optimize for production deploy type or if it's forcefully overridden with ti.android.compilejs
-		if self.tiapp.has_app_property("ti.android.compilejs"):
-			if self.tiapp.to_bool(self.tiapp.get_app_property('ti.android.compilejs')):
-				print "[DEBUG] Found ti.android.compilejs=true, overriding default (this may take some time)"
-				sys.stdout.flush()
-				compile_js = True
-		elif self.tiapp.has_app_property('ti.deploytype'):
-			if self.tiapp.get_app_property('ti.deploytype') == 'production':
-				print "[DEBUG] Deploy type is production, turning on JS compilation"
-				sys.stdout.flush()
-				compile_js = True
-		
-		if not compile_js: return
-
 		for fullpath in paths:
 			# skip any JS found inside HTML <script>
 			if fullpath in self.html_scripts: continue
 			self.compile_javascript(fullpath)
+			self.compiled_files.append(fullpath)
+
+		# Pack JavaScript sources into an asset crypt.
+		jspacker.pack(self.project_dir, self.compiled_files, self.appid, self.gen_dir)
 		
 	def get_ext(self, path):
 		fp = os.path.splitext(path)
 		return fp[1][1:]
 		
-	def make_function_from_file(self, path, pack=True):
+	def make_function_from_file(self, path):
 		ext = self.get_ext(path)
 		path = os.path.expanduser(path)
 		file_contents = codecs.open(path,'r',encoding='utf-8').read()
-			
-		if pack: 
-			file_contents = self.pack(path, ext, file_contents)
 			
 		if ext == 'js':
 			# determine which modules this file is using
@@ -224,18 +211,6 @@ class Compiler(object):
 			
 		return file_contents
 		
-	def pack(self, path, ext, file_contents):
-		def jspack(c): return jspacker.jsmin(c)
-		def csspack(c): return CSSPacker(c).pack()
-		
-		packers = {'js': jspack, 'css': csspack }
-		if ext in packers:
-			file_contents = packers[ext](file_contents)
-			of = codecs.open(path,'w',encoding='utf-8')
-			of.write(file_contents)
-			of.close()
-		return file_contents
-	
 	def extra_source_inclusions(self,path):
 		content = codecs.open(path,'r',encoding='utf-8').read()
 		p = ScriptProcessor()
@@ -269,7 +244,7 @@ class Compiler(object):
 						self.extra_source_inclusions(fullpath)
 					if fp[1] == '.js':
 						relative = prefix[1:]
-						js_contents = self.make_function_from_file(fullpath, pack=False)
+						js_contents = self.make_function_from_file(fullpath)
 						if relative!='':
 							key = "%s_%s" % (relative,f)
 						else:
