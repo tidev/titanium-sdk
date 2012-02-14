@@ -1,9 +1,9 @@
-define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/UI"],
-	function(declare, View, dom, css, style, UI) {
+define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/UI"],
+	function(declare, lang, View, dom, css, style, UI) {
 
-	var set = style.set,
+	var setStyle = style.set,
 		undef,
-		isDef = require.isDef,
+		isDef = lang.isDef,
 		imagePrefix = "themes/titanium/UI/TableViewRow/"
 		checkImage = imagePrefix + "check.png",
 		childImage = imagePrefix + "child.png",
@@ -15,7 +15,6 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/
 		_indentionScale: 10,
 		
 		constructor: function(args) {
-			
 			this.leftView = UI.createView({
 				left: 0,
 				top: 0,
@@ -23,24 +22,24 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/
 				height: "100%",
 				layout: "horizontal"
 			}),
-			set(this.leftView.domNode,"boxAlign","center");
+
+			setStyle(this.leftView.domNode, "boxAlign", "center");
 			this.add(this.leftView);
-			
+
 			this.leftImageView = UI.createImageView();
 			this.leftView.add(this.leftImageView); 
-			
-			this.titleLabel = UI.createLabel({width: "auto", height: "100%"});
+
+			this.titleLabel = UI.createLabel({ width: "auto", height: "100%" });
 			this.leftView.add(this.titleLabel);
-			
-			this.rightImageView = UI.createImageView({
+
+			this.add(this.rightImageView = UI.createImageView({
 				right: 0,
 				top: 0,
 				width: "auto", 
 				height: "100%"
-			});
-			this.add(this.rightImageView);
+			}));
 		},
-		
+
 		_defaultHeight: "auto",
 		_defaultWidth: "100%",
 		_tableRowHeight: undef,
@@ -51,11 +50,11 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/
 			}
 			View.prototype._handleTouchEvent.apply(this,arguments);
 		},
-		
+
 		_doLayout: function(){
 			View.prototype._doLayout.apply(this,arguments);
 		},
-		
+
 		_doBackground: function(evt) {
 			if (this._touching) {
 				this.titleLabel.color = this.selectedColor;
