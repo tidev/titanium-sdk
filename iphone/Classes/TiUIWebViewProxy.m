@@ -52,12 +52,13 @@
      does not work reliably for evalJS on 5.0 and above. See sample in TIMOB-7616 for fail case.
      */
     if (![NSThread isMainThread]) {
-        [self performSelectorOnMainThread:@selector(evalJS:) withObject:code waitUntilDone:NO];
-        return nil;
+        [self performSelectorOnMainThread:@selector(evalJS:) withObject:code waitUntilDone:YES];
     }
     else {
-        return [(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code];
+        RELEASE_TO_NIL(evalResult);
+        evalResult = [[(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code] retain];
     }
+    return evalResult;
 }
 
 USE_VIEW_FOR_AUTO_HEIGHT
@@ -158,6 +159,7 @@ USE_VIEW_FOR_AUTO_WIDTH
 		[[self host] unregisterContext:(id<TiEvaluator>)self forToken:pageToken];
 		RELEASE_TO_NIL(pageToken);
 	}
+    RELEASE_TO_NIL(evalResult);
 	[super _destroy];
 }
 
