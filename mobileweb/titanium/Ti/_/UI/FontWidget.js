@@ -35,7 +35,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti
 			index != -1 && this._styleableDomNodes.splice(index,1);
 		},
 
-		_measureText: function(text, domNode, fixedWidth) {
+		_measureText: function(text, domNode) {
 			var computedStyle = window.getComputedStyle(domNode),
 				font = this.font || {},
 				emptyText = !text || text === "";
