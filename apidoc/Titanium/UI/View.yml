@@ -158,7 +158,7 @@ methods:
         optional: true
       - name: honorScaleFactor
         summary: | 
-            When set to true, the image is scaled basd on scale factor of main screen.
+            When set to true, the image is scaled based on scale factor of main screen.
             When set to false the image in the blob has the same dimensions for retina and non retina devices.
         type: Boolean
         optional: true
