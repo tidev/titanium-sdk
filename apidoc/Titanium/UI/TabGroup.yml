@@ -22,13 +22,13 @@ description: |
     On iOS, tabs can be removed, and the user may (optionally) 
     be allowed to reorder tabs.
 
-    On iOS, it is 
-    also possible to add tabs by updating the [tabs](Titanium.UI.TabGroup.tabs) property, 
-    and to switch active tabs by setting the [active](Titanium.UI.Tab.active) 
-    property on one of the tabs to `true`. Since these mechanisms are platform-specific,
-    it is recommended that you use `addTab` and `setActiveTab` instead.
+    On iOS and Mobile Web, it is also possible to add tabs by updating the 
+    [tabs](Titanium.UI.TabGroup.tabs) property, and to switch active tabs by setting 
+    the [active](Titanium.UI.Tab.active) property on one of the tabs to `true`. Since 
+    these mechanisms are platform-specific, it is recommended that you use `addTab` 
+    and `setActiveTab` instead.
     
-    If you use the iOS-specific mechanisms, it is possible to add multiple active tabs 
+    If you use the iOS/Mobile Web-specific mechanisms, it is possible to add multiple active tabs 
     to a tab group. In this case, the result of which tab is initially selected is 
     undefined.
 extends: Titanium.UI.View
@@ -123,3 +123,47 @@ properties:
     type: Number
     platforms: [android]
     availabilty: creation
+  - name: tabsBackgroundColor
+    summary: The default background color for tabs. If [backgroundColor](Titanium.UI.Tab.backgroundColor) is explicitly set on an individual tab, that value takes precidence.
+    type: String
+  - name: tabsBackgroundImage
+    summary: The default background image for tabs. If [backgroundImage](Titanium.UI.Tab.backgroundImage) is explicitly set on an individual tab, that value takes precidence.
+    type: String
+    since: "2.0"
+  - name: tabsBackgroundDisabledColor
+    summary: The default background disabled color for tabs. If [backgroundDisabledColor](Titanium.UI.Tab.backgroundDisabledColor) is explicitly set on an individual tab, that value takes precidence.
+    type: String
+    since: "2.0"
+  - name: tabsBackgroundDisabledImage
+    summary: The default background disabled image for tabs. If [backgroundDisabledImage](Titanium.UI.Tab.backgroundDisabledImage) is explicitly set on an individual tab, that value takes precidence.
+    type: String
+    since: "2.0"
+  - name: tabsBackgroundFocusedColor
+    summary: The default background focused color for tabs. If [backgroundFocusedColor](Titanium.UI.Tab.backgroundFocusedColor) is explicitly set on an individual tab, that value takes precidence.
+    type: String
+    since: "2.0"
+  - name: tabsBackgroundFocusedImage
+    summary: The default background focused image for tabs. If [backgroundFocusedImage](Titanium.UI.Tab.backgroundFocusedImage) is explicitly set on an individual tab, that value takes precidence.
+    type: String
+    since: "2.0"
+  - name: tabsBackgroundSelectedColor
+    summary: The default background selected color for tabs. If [backgroundSelectedColor](Titanium.UI.Tab.backgroundSelectedColor) is explicitly set on an individual tab, that value takes precidence.
+    type: String
+    since: "2.0"
+  - name: tabsBackgroundSelectedImage
+    summary: The default background selected image for tabs. If [backgroundSelectedImage](Titanium.UI.Tab.backgroundSelectedImage) is explicitly set on an individual tab, that value takes precidence.
+    type: String
+    since: "2.0"
+  - name: tabDividerColor
+    summary: The color of the divider between tabs
+    type: String
+    since: "2.0"
+    platforms: [android, mobileweb]
+  - name: tabDividerWidth
+    summary: The width of the divider between tabs.
+    description: |
+        This width is relative to the tabgroup's parent. Can be either a float value or 
+        a dimension string (for example, '50%' or 'auto').
+    type: [Number,String]
+    since: "2.0"
+    platforms: [android, mobileweb]
