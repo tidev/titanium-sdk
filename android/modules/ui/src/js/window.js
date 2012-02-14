@@ -233,7 +233,6 @@ exports.bootstrapWindow = function(Titanium) {
 		} else {
 			this.window = this.getActivityDecorView();
 			this.view = new UI.View(this._properties);
-			this.view.zIndex = Math.MAX_INT - 2;
 			this.window.add(this.view);
 		}
 

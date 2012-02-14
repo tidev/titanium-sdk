@@ -49,6 +49,10 @@ define(function() {
 			};
 		},
 
+		isDef: function(it) {
+			return !is(it, "Undefined");
+		},
+
 		mixProps: function(dest, src, everything) {
 			var d, i, p, v, special = { properties: 1, constants: 0 };
 			for (p in src) {

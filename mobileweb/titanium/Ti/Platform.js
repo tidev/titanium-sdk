@@ -1,10 +1,5 @@
 define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang"], function(_, browser, Evented, lang) {
 
-	var id = localStorage && localStorage.getItem("ti:titaniumPlatformId") ?
-			localStorage.getItem("ti:titaniumPlatformId") : _.uuid();
-
-	localStorage.setItem("ti:titaniumPlatformId", id);
-
 	return lang.setObject("Ti.Platform", Evented, {
 
 		createUUID: _.uuid,

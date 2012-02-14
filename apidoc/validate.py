@@ -27,9 +27,25 @@ except:
 
 
 VALID_PLATFORMS = ["android", "iphone", "ipad", "mobileweb"]
+VALID_KEYS = {
+		"type": ["name", "summary", "description", "createable", "platforms", "extends",
+			"excludes", "since", "deprecated", "osver", "examples", "methods", "properties",
+			"events"],
+		"method": ["name", "summary", "description", "returns", "platforms", "since",
+			"deprecated", "osver", "examples", "parameters"],
+		"parameter": ["name", "summary", "type", "optional", "default"],
+		"property": ["name", "summary", "description", "type", "platforms", "since",
+			"deprecated", "osver", "examples", "permission", "availability", "accessors",
+			"optional", "value", "default"],
+		"event": ["name", "summary", "description", "extends", "platforms", "since",
+			"deprecated", "osver", "properties"],
+		"eventprop": ["name", "summary", "type", "platforms", "deprecated"]
+		}
+
 types = {}
 errorTrackers = {}
 options = None
+
 
 def stringFrom(error):
 	if isinstance(error, basestring):
@@ -128,6 +144,18 @@ class ErrorTracker(object):
 				return True
 		return False
 
+def validateKeys(tracker, obj, objType):
+	validKeys = VALID_KEYS[objType]
+	if not isinstance(obj, dict):
+		return
+	if "name" in obj:
+		objName = obj["name"]
+	else:
+		objName = "object"
+	invalid = [k for k in obj.keys() if k not in validKeys]
+	if invalid:
+		tracker.trackError("Invalid key(s) in %s: %s" % (objName, invalid))
+
 def validateRequired(tracker, map, required):
 	for r in required:
 		if r not in map:
@@ -162,11 +190,6 @@ def validateIsBool(tracker, name, value):
 def validateIsOneOf(tracker, name, value, validValues):
 	if value not in validValues:
 		tracker.trackError('"%s" should be one of %s, but was %s' % (name, ", ".join(validValues), value))
-
-def validateAllowedKeys(tracker, name, actualKeys, allowedKeys):
-	for k in actualKeys:
-		if k not in allowedKeys:
-			tracker.trackError('"%s" should only contain %s, but "%s" is present' % (name, ", ".join(allowedKeys), k))
 
 def validateMarkdown(tracker, mdData, name):
 	try:
@@ -246,6 +269,7 @@ def validateCommon(tracker, map):
 
 def validateMethod(typeTracker, method):
 	tracker = ErrorTracker(method['name'], typeTracker)
+	validateKeys(tracker, method, "method")
 	validateRequired(tracker, method, ['name', 'summary'])
 	validateCommon(tracker, method)
 
@@ -271,15 +295,16 @@ def validateMethod(typeTracker, method):
 			tracker.trackError('"parameters" must be a list')
 		for param in method['parameters']:
 			pTracker = ErrorTracker(param['name'], tracker)
+			validateKeys(pTracker, param, "parameter")
 			validateRequired(pTracker, param, ['name', 'summary', 'type'])
 			validateCommon(pTracker, param)
-			validateAllowedKeys(pTracker, param['name'], param.keys(), ('name', 'type', 'summary', 'optional', 'default'))
 
 	if 'examples' in method:
 		validateExamples(tracker, method['examples'])
 
 def validateProperty(typeTracker, property):
 	tracker = ErrorTracker(property['name'], typeTracker)
+	validateKeys(tracker, property, "property")
 
 	validateRequired(tracker, property, ['name', 'summary', 'type'])
 	validateCommon(tracker, property)
@@ -298,6 +323,7 @@ def validateProperty(typeTracker, property):
 
 def validateEvent(typeTracker, event):
 	tracker = ErrorTracker(event['name'], typeTracker)
+	validateKeys(tracker, event, "event")
 	validateRequired(tracker, event, ['name', 'summary'])
 	validateCommon(tracker, event)
 	if 'properties' in event:
@@ -306,9 +332,9 @@ def validateEvent(typeTracker, event):
 			return
 		for p in event['properties']:
 			pTracker = ErrorTracker(p['name'], tracker)
+			validateKeys(pTracker, p, "eventprop")
 			validateRequired(pTracker, p, ['name', 'summary'])
 			validateCommon(pTracker, p)
-			validateAllowedKeys(pTracker, p['name'], p.keys(), ('name', 'summary', 'type', 'deprecated', 'platforms'))
 
 def validateExamples(tracker, examples):
 	if not isinstance(examples, list):
