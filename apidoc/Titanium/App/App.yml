@@ -85,7 +85,8 @@ properties:
     permission: read-only
   - name: deployType
     summary: Application build type, as determined by how it was packaged.
-    description: The valid deployment types are as follows: test, development, and production.
+    description: |
+        The valid deployment types are as follows: test, development, and production.
     type: String
     permission: read-only
   - name: sessionId
