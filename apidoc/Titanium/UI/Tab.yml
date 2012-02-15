@@ -51,8 +51,10 @@ description: |
     On Mobile Web, Tab windows can be closed using either
     [Tab.close](Titanium.UI.Tab.close) or [Window.close](Titanium.UI.Window.close).
 
-    On Mobile Web, if the root tab window *can* be closed. If the root tab window is closed, 
-    the contents of the next tab (or whatever is below the tab group) becomes visible.
+    On Mobile Web, the root tab window *can* be closed. If the root tab window is closed, 
+    the tab group's background color becomes visible where the window used to be. If 
+    the tab group doesn't have a background color set, whatever is underneath the tab
+    group becomes visible.
 extends: Titanium.UI.View
 since: "0.8"
 methods:
