@@ -23,8 +23,11 @@ description: |
     On iOS the tab controls are generally kept on screen to allow a user to navigate inside the app. 
     Tab controls are hidden when the user is performing a modal task (for example, 
     composing a message). In this case, the app should open the new window as modal and 
-    provide a button in the navigation bar to return to the previous screen. When closing
-    a tab window in iOS, you should always use the [Tab.close](Titanium.UI.Tab.close)
+    provide a button in the navigation bar to return to the previous screen. The tab
+    controls can also be hidden by opening the new window with
+    [tabBarHidden](Titanium.UI.Window.tabBarHidden) set to `true`.
+    
+    When closing a tab window in iOS, you should always use the [Tab.close](Titanium.UI.Tab.close)
     method to ensure that the tab group maintains its navigation state.
 
     #### Android Platform Implementation Notes
