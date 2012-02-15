@@ -25,8 +25,8 @@ except ImportError, e:
 coverageDir = os.path.dirname(os.path.abspath(__file__))
 drillbitDir = os.path.dirname(coverageDir)
 mobileDir = os.path.dirname(drillbitDir)
-supportAndroidDir = os.path.join(mobileDir, "support", "android")
-sys.path.append(supportAndroidDir)
+supportCommonDir = os.path.join(mobileDir, "support", "common")
+sys.path.append(supportCommonDir)
 
 from mako.template import Template
 from mako import exceptions

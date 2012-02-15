@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Appcelerator Titanium Mobile
-# Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
 # Licensed under the terms of the Apache Public License
 # Please see the LICENSE included with this distribution for details.
 #
@@ -11,7 +11,6 @@
 #
 import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib, imp, inspect
 import run, avd, prereq, zipfile, tempfile, fnmatch, codecs, traceback, simplejson
-from mako.template import Template
 from os.path import splitext
 from compiler import Compiler
 from os.path import join, splitext, split, exists
@@ -26,6 +25,7 @@ sys.path.append(top_support_dir)
 sys.path.append(os.path.join(top_support_dir, 'common'))
 sys.path.append(os.path.join(top_support_dir, 'module'))
 
+from mako.template import Template
 from tiapp import *
 from android import Android
 from androidsdk import AndroidSDK

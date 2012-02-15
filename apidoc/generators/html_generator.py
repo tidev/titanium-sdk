@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2011 Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2012 Appcelerator, Inc. All Rights Reserved.
 # Licensed under the Apache Public License (version 2)
 import os, sys, re, codecs
 
@@ -9,13 +9,15 @@ sys.path.append(os.path.abspath(os.path.join(this_dir, "..")))
 
 from common import dict_has_non_empty_member, strip_tags, not_real_titanium_types
 
-# We package mako already in support/android/mako.
-android_support_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "support", "android"))
-sys.path.append(android_support_dir)
+# We package mako already in support/common/mako.
+common_support_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "support", "common"))
+sys.path.append(common_support_dir)
 from mako.template import Template
 from mako.lookup import TemplateLookup
 
-# TiLogger is also in support/android
+# TiLogger is in support/android
+android_support_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "support", "android"))
+sys.path.append(android_support_dir)
 from tilogger import *
 log = None
 

@@ -22,12 +22,14 @@ except:
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
-# We package mako already in support/android/mako.
-android_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "android"))
-sys.path.append(android_support_dir)
+# We package mako already in support/common
+common_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "common"))
+sys.path.append(common_support_dir)
 from mako.template import Template
 
-# TiLogger is also in support/android
+# TiLogger is in support/android
+android_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "android"))
+sys.path.append(android_support_dir)
 from tilogger import *
 log = TiLogger(None)
 
