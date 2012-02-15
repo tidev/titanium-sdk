@@ -25,34 +25,39 @@ public class TiWebViewClient extends WebViewClient
 {
 	private static final String LCAT = "TiWVC";
 	private static final boolean DBG = TiConfig.LOGD;
+
 	private TiUIWebView webView;
 	private TiWebViewBinding binding;
-
-
 	private String username, password;
 
-	public TiWebViewClient(TiUIWebView tiWebView, WebView webView) {
+	public TiWebViewClient(TiUIWebView tiWebView, WebView webView)
+	{
 		super();
 		this.webView = tiWebView;
 		binding = new TiWebViewBinding(webView);
 	}
 
 	@Override
-	public void onPageFinished(WebView view, String url) {
+	public void onPageFinished(WebView view, String url)
+	{
 		super.onPageFinished(view, url);
+
 		webView.changeProxyUrl(url);
 		KrollDict data = new KrollDict();
 		data.put("url", url);
 		webView.getProxy().fireEvent("load", data);
 	}
 
-	public TiWebViewBinding getBinding() {
+	public TiWebViewBinding getBinding()
+	{
 		return binding;
 	}
 
 	@Override
-	public void onPageStarted(WebView view, String url, Bitmap favicon) {
+	public void onPageStarted(WebView view, String url, Bitmap favicon)
+	{
 		super.onPageStarted(view, url, favicon);
+
 		KrollDict data = new KrollDict();
 		data.put("url", url);
 		webView.getProxy().fireEvent("beforeload", data);
@@ -69,7 +74,8 @@ public class TiWebViewClient extends WebViewClient
 	}
 
 	@Override
-	public boolean shouldOverrideUrlLoading(final WebView view, String url) {
+	public boolean shouldOverrideUrlLoading(final WebView view, String url)
+	{
 		if (DBG) {
 			Log.d(LCAT, "url=" + url);
 		}
@@ -82,12 +88,12 @@ public class TiWebViewClient extends WebViewClient
 			Log.i(LCAT, "Launching dialer for " + url);
 			Intent dialer = Intent.createChooser(new Intent(Intent.ACTION_DIAL, Uri.parse(url)), "Choose Dialer");
 			webView.getProxy().getActivity().startActivity(dialer);
-	        return true;
+			return true;
 		} else if (url.startsWith(WebView.SCHEME_MAILTO)) {
 			Log.i(LCAT, "Launching mailer for " + url);
 			Intent mailer = Intent.createChooser(new Intent(Intent.ACTION_SENDTO, Uri.parse(url)), "Send Message");
 			webView.getProxy().getActivity().startActivity(mailer);
-	        return true;
+			return true;
 		} else if (url.startsWith(WebView.SCHEME_GEO)) {
 			Log.i(LCAT, "Launching app for " + url);
 			/*geo:latitude,longitude
@@ -107,8 +113,9 @@ public class TiWebViewClient extends WebViewClient
 			return super.shouldOverrideUrlLoading(view, url);
 		}
 	}
-	
-	private boolean shouldHandleMimeType(String mimeType, String url) {
+
+	private boolean shouldHandleMimeType(String mimeType, String url)
+	{
 		if (mimeType.startsWith("video/")) {
 			Intent intent = new Intent();
 			intent.setClass(webView.getProxy().getActivity(), TiVideoActivity.class);
@@ -120,17 +127,19 @@ public class TiWebViewClient extends WebViewClient
 		}
 		return false;
 	}
-	
+
 	@Override
 	public void onReceivedHttpAuthRequest(WebView view,
-			HttpAuthHandler handler, String host, String realm) {
+			HttpAuthHandler handler, String host, String realm)
+	{
 		
 		if (this.username != null && this.password != null) {
 			handler.proceed(this.username, this.password);
 		}
 	}
-	
-	public void setBasicAuthentication(String username, String password) {
+
+	public void setBasicAuthentication(String username, String password)
+	{
 		this.username = username;
 		this.password = password;
 	}
