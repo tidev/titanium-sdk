@@ -43,6 +43,7 @@ public class TiBackgroundDrawable extends StateListDrawable {
 	private int alpha = NOT_SET;
 	private Path path, borderPath;
 	private Paint paint;
+	private boolean isBorderDirty;
 
 	public TiBackgroundDrawable()
 	{
@@ -51,14 +52,22 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		outerRect = new RectF();
 		innerRect = new RectF();
 		paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		isBorderDirty = false;
 	}
 
 	@Override
 	public void draw(Canvas canvas) {
+		if (isBorderDirty) {
+			recalculateBorder();
+		}
 		if (border != null && (border.width > 0) && (Color.alpha(border.color) > 0)) {
 			int curPaintColor = paint.getColor();
 			paint.setColor(border.color);
-			canvas.drawPath(borderPath, paint);
+			try {
+				canvas.drawPath(borderPath, paint);
+			} catch (Exception e) {
+				Log.w(TAG, "Failed to draw border: " + e.getMessage());
+			}
 			paint.setColor(curPaintColor);
 		}
 
@@ -97,7 +106,6 @@ public class TiBackgroundDrawable extends StateListDrawable {
 	@Override
 	protected void onBoundsChange(Rect bounds) {
 		super.onBoundsChange(bounds);
-
 		outerRect.set(bounds);
 		float padding = 0;
 		if (border != null) {
@@ -107,7 +115,13 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		if (background != null) {
 			background.setBounds((int)innerRect.left, (int)innerRect.top, (int)innerRect.right, (int)innerRect.bottom);
 		}
-
+		recalculateBorder();
+	}
+	
+	private void recalculateBorder()
+	{
+		path = null;
+		borderPath = null;
 		if (border != null) {
 			if (border.radius > 0) {
 				path = new Path();
@@ -131,8 +145,8 @@ public class TiBackgroundDrawable extends StateListDrawable {
 					borderPath.setFillType(FillType.WINDING);
 				}
 			}
-			
 		}
+		isBorderDirty = false;
 	}
 
 	@Override
@@ -214,6 +228,8 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		private float radius = 0;
 		private float width = 0;
 		private int style = SOLID;
+		private TiBackgroundDrawable backgroungDrawable = null;
+		
 		public int getColor() {
 			return color;
 		}
@@ -225,23 +241,38 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		}
 		public void setRadius(float radius) {
 			this.radius = radius;
+			if (this.backgroungDrawable != null) {
+				this.backgroungDrawable.isBorderDirty = true;
+			}
 		}
 		public float getWidth() {
 			return width;
 		}
 		public void setWidth(float width) {
 			this.width = width;
+			if (this.backgroungDrawable != null) {
+				this.backgroungDrawable.isBorderDirty = true;
+			}
 		}
 		public int getStyle() {
 			return style;
 		}
 		public void setStyle(int style) {
 			this.style = style;
+			if (this.backgroungDrawable != null) {
+				this.backgroungDrawable.isBorderDirty = true;
+			}
 		}
 	}
 
 	public void setBorder(Border border) {
+		if (this.border != null) {
+			this.border.backgroungDrawable = null;
+		}
 		this.border = border;
+		if (this.border != null) {
+			this.border.backgroungDrawable = this;
+		}
 	}
 
 	public Border getBorder() {
