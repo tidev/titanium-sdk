@@ -240,6 +240,11 @@ public class TCPProxy extends KrollProxy implements TiStream
 			while(true) {
 				if(accepting) {
 					try {
+						Object timeoutProperty = getProperty("timeout");
+						if (timeoutProperty != null) {
+							int timeout = TiConvert.toInt(timeoutProperty);
+							serverSocket.setSoTimeout(timeout);
+						}
 						Socket acceptedSocket = serverSocket.accept();
 
 						TCPProxy acceptedTcpProxy = new TCPProxy();
