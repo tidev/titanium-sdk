@@ -109,10 +109,10 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		}
 
 		if (border != null) {
-			float radii[] = new float[8];
-			Arrays.fill(radii, border.radius);
 			if (border.radius > 0) {
 				path = new Path();
+				float radii[] = new float[8];
+				Arrays.fill(radii, border.radius);
 				path.addRoundRect(innerRect, radii, Direction.CW);
 				path.setFillType(FillType.EVEN_ODD);
 				
