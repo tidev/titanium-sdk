@@ -9,11 +9,12 @@ description: |
     in a tab group. The <Titanium.UI.currentTab> property provides a global reference to 
     the currently active tab. Use the <Titanium.UI.createTab> method to create a tab.
     
-    #### Platform Implementation Notes
     The behavior of tabs and tab groups follows the platform's native navigation style, 
     which varies significantly between platforms.
 
-    On iOS and Mobile Web, the tab maintains a stack of windows. Windows on top of the 
+    #### iOS Platform Implementation Notes
+
+    On iOS the tab maintains a stack of windows. Windows on top of the 
     stack can partially or totally obscure windows lower in the stack.  Calling 
     [open](Titanium.UI.Tab.open) opens a new window on top of the window stack. When a 
     window is closed, either by the user or by code, the window is removed from the stack, 
@@ -25,19 +26,33 @@ description: |
     provide a button in the navigation bar to return to the previous screen. When closing
     a tab window in iOS, you should always use the [Tab.close](Titanium.UI.Tab.close)
     method to ensure that the tab group maintains its navigation state.
-    
-    On Mobile Web, 
-    the tab controls are always hidden by the window and the user can use the browser's back 
-    button to close the window.
 
-    On Android, calling [open](Titanium.UI.Tab.open) opens a new, heavyweight window, which 
+    #### Android Platform Implementation Notes
+
+    On Android, the tab does not maintain a stack of windows. 
+    Calling [open](Titanium.UI.Tab.open) opens a new, heavyweight window, which 
     by default covers the tab group entirely. This seems quite different from the iOS model,
     but it is the standard model for Android applications. Users can use the **Back** button 
-    to close the window and return to the tab group.
+    to close the window and return to the tab group. 
 
-    In Android and Mobile Web, tab windows can be closed using either
-    [Tab.close](Titanium.UI.Tab.close) or [Window.close](Titanium.UI.Window.close).
+    On Android, tab windows can be closed using either
+    [Tab.close](Titanium.UI.Tab.close) or [Window.close](Titanium.UI.Window.close). Since 
+    no window stack is maintained, only a single window opened using
+    [Tab.open](Titanium.UI.Tab.open) can be closed using `Tab.close`.
+
+    As on iOS, the root tab window cannot be closed.
     
+    #### Mobile Web Platform Implementation Notes
+
+    On Mobile Web, the tab maintains a stack of windows, as on iOS. However,
+    the tab controls are always hidden by the window, and the user can use the browser's back 
+    button to close the window.
+
+    On Mobile Web, Tab windows can be closed using either
+    [Tab.close](Titanium.UI.Tab.close) or [Window.close](Titanium.UI.Window.close).
+
+    On Mobile Web, if the root tab window *can* be closed. If the root tab window is closed, 
+    the contents of the next tab (or whatever is below the tab group) becomes visible.
 extends: Titanium.UI.View
 since: "0.8"
 methods:
@@ -92,7 +107,7 @@ properties:
     summary: |
         `true` if this tab is active, `false` if it is not. 
     description: |
-         The tab can be activated by setting the property, but since this propery is 
+         The tab can be activated by setting the property, but since this property is 
          platform-specific, using [TabGroup.setActiveTab](Titanium.UI.TabGroup.setActiveTab) 
          is recommended instead.
     type: Boolean
