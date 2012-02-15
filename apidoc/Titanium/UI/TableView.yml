@@ -180,7 +180,7 @@ methods:
 events:
   - name: click
     summary: Fired when a table row is clicked by the user.
-    platform: [android, iphone, ipad]
+    platforms: [android, iphone, ipad]
     properties:
       - name: index
         summary: Row index.
@@ -215,7 +215,7 @@ events:
         type: Titanium.UI.TableViewRow
   - name: delete
     summary: Fired when a table row is deleted by the user.
-    platform: [iphone, ipad]
+    platforms: [iphone, ipad]
     properties:
       - name: index
         summary: Row index.
@@ -249,7 +249,7 @@ events:
         type: Titanium.UI.TableViewRow
   - name: move
     summary: Fired when a table row is moved by the user.
-    platform: [iphone, ipad]
+    platforms: [iphone, ipad]
     properties:
       - name: index
         summary: Row index.
