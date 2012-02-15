@@ -88,11 +88,11 @@ methods:
         type: Callback<ThumbnailResponse>
 
   - name: setBackgroundView
-    summary: A view for customization which is always displayed behind movie content.
+    summary: Sets the background view for customization which is always displayed behind movie content.
     description: |
-        To create a background behind the movie content on iOS, you must specify a 
+        To create a background behind the movie content on iOS, you can specify a 
         background view. On iOS, you can set the `backgroundColor` property directly on
-        the video player, but a background image or background gradient. For this kind
+        the video player, but not a background image or background gradient. For this kind
         of effect, specify a background view. 
         
         Note that the background view must be sized explicitly: percentage sizes do not work properly.
@@ -466,6 +466,7 @@ platforms: [iphone, ipad]
 ---
 name: MovieSize
 summary: Simple object used to describe the size of a movie.
+platforms: [iphone, ipad]
 properties:
   - name: width
     summary: Width of the movie.
