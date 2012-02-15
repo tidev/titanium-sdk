@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -90,6 +90,7 @@ public class TiC
 	public static final String INTENT_PROPERTY_MESSENGER = "messenger";
 	public static final String INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID = "msgActivityCreatedId";
 	public static final String INTENT_PROPERTY_MSG_ID = "messageId";
+	public static final String INTENT_PROPERTY_START_MODE = "startMode";
 	public static final String INTENT_PROPERTY_USE_ACTIVITY_WINDOW = "useActivityWindow";
 	public static final String INTENT_PROPERTY_WINDOW_ID = "windowId";
 	public static final String LAYOUT_HORIZONTAL = "horizontal";

@@ -15,7 +15,6 @@ import org.appcelerator.titanium.TiBaseService;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.ServiceProxy;
 
-import android.app.Service;
 import android.content.Intent;
 
 public class TiJSService extends TiBaseService
@@ -50,7 +49,8 @@ public class TiJSService extends TiBaseService
 		finalizeUrl(intent);
 		ServiceProxy proxy = createProxy(intent);
 		start(proxy);
-		return Service.START_REDELIVER_INTENT;
+
+		return intent.getIntExtra(TiC.INTENT_PROPERTY_START_MODE, AndroidModule.START_REDELIVER_INTENT);
 	}
 
 	protected void executeServiceCode(ServiceProxy proxy)
