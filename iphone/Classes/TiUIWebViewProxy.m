@@ -47,9 +47,19 @@
 - (NSString*)evalJS:(id)code
 {
 	ENSURE_SINGLE_ARG(code,NSString);
-	__block id result;
-	TiThreadPerformOnMainThread(^{result=[[(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code] retain];}, YES);
-	return [result autorelease];
+    /*
+     Using GCD either through dispatch_async/dispatch_sync or TiThreadPerformOnMainThread
+     does not work reliably for evalJS on 5.0 and above. See sample in TIMOB-7616 for fail case.
+     */
+    if (![NSThread isMainThread]) {
+        inKJSThread = YES;
+        [self performSelectorOnMainThread:@selector(evalJS:) withObject:code waitUntilDone:YES];
+        inKJSThread = NO;
+    }
+    else {
+        evalResult = [[(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code] retain];
+    }
+    return (inKJSThread ? evalResult : [evalResult autorelease]);
 }
 
 USE_VIEW_FOR_AUTO_HEIGHT
@@ -57,7 +67,7 @@ USE_VIEW_FOR_AUTO_WIDTH
 
 - (NSString*)html
 {
-	NSString *html = [self evalJS:@"document.documentElement.outerHTML"];
+	NSString *html = [self evalJSAndWait:@"document.documentElement.outerHTML"];
 	// strip out the ti injection - nobody wants that - and if 
 	// you're saving off the HTML, we don't want to save that off since 
 	// it's dynamically injected and can't be preserved
@@ -150,7 +160,7 @@ USE_VIEW_FOR_AUTO_WIDTH
 		[[self host] unregisterContext:(id<TiEvaluator>)self forToken:pageToken];
 		RELEASE_TO_NIL(pageToken);
 	}
-	[super _destroy];
+    [super _destroy];
 }
 
 -(void)setPageToken:(NSString*)pageToken_
