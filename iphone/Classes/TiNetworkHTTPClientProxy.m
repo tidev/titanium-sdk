@@ -108,6 +108,11 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	return self;
 }
 
+-(void)_configure
+{
+    [self initializeProperty:@"cache" defaultValue:NUMBOOL(NO)];
+}
+
 -(void)setOnload:(KrollCallback *)callback
 {
 	hasOnload = [callback isKindOfClass:[KrollCallback class]];
@@ -356,7 +361,12 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	}
 	
 	request = [[ASIFormDataRequest requestWithURL:url] retain];	
-    [request setDownloadCache:[ASIDownloadCache sharedCache]];
+    if ([TiUtils boolValue:[self valueForUndefinedKey:@"cache"] def:NO]) {
+        [request setDownloadCache:[ASIDownloadCache sharedCache]];
+    }
+    else {
+        [request setDownloadCache:nil];
+    }
 	[request setDelegate:self];
     if (timeout) {
         NSTimeInterval timeoutVal = [timeout doubleValue] / 1000;
