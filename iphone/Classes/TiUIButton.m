@@ -20,7 +20,7 @@
 
 -(void)dealloc
 {
-	[button removeTarget:self action:@selector(controlAction:forEvent:) forControlEvents:UIControlEventAllTouchEvents];
+	[button removeTarget:self action:NULL forControlEvents:UIControlEventAllTouchEvents];
 	RELEASE_TO_NIL(button);
 	[super dealloc];
 }
@@ -98,8 +98,7 @@
         default:
             return;
     }
-    // TODO: This is not cool.  It COULD be that any control with 'specialized' handling like buttons does not report the same information as TiUIViews!
-    // For now, let's just hack in some x and y...
+    [self setHighlighting:button.highlighted];
     NSMutableDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils pointToDictionary:[touch locationInView:self]]];
     if ((fireActionEvent != nil) && [self.proxy _hasListeners:fireActionEvent]) {
         [self.proxy fireEvent:fireActionEvent withObject:evt];
