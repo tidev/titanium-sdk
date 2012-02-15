@@ -67,6 +67,11 @@ enum AsyncSocketFlags
 - (void)endConnectTimeout;
 - (void)doConnectTimeout:(NSTimer *)timer;
 
+// Accepting
+- (void)startAcceptTimeout:(NSTimeInterval)timeout;
+- (void)endAcceptTimeout;
+- (void)doAcceptTimeout:(NSTimer *)timer;
+
 // Socket Implementation
 - (CFSocketRef)newAcceptSocketForAddress:(NSData *)addr autoaccept:(BOOL)autoaccept error:(NSError **)errPtr;
 - (BOOL)createSocketForAddress:(NSData *)remoteAddr error:(NSError **)errPtr;
@@ -98,6 +103,7 @@ enum AsyncSocketFlags
 - (NSError *)getStreamError;
 - (NSError *)getSocketError;
 - (NSError *)getConnectTimeoutError;
+- (NSError *)getAcceptTimeoutError;
 - (NSError *)getReadMaxedOutError;
 - (NSError *)getReadTimeoutError;
 - (NSError *)getWriteTimeoutError;
@@ -710,6 +716,7 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
 		theWriteStream = NULL;
 		
 		theConnectTimer = nil;
+    theAcceptTimer = nil;
 		
 		theReadQueue = [[NSMutableArray alloc] initWithCapacity:READQUEUE_CAPACITY];
 		theCurrentRead = nil;
@@ -1266,7 +1273,11 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
  * To automatically accept incoming connections, set autoaccept to YES (default)
  * To manually accept connections via BSD accept() and the onSocketHasConnectionToAccept, set autoaccept to NO
 **/
-- (BOOL)acceptOnInterface:(NSString *)interface port:(UInt16)port autoaccept:(BOOL)autoaccept error:(NSError **)errPtr 
+- (BOOL)acceptOnInterface:(NSString *)interface port:(UInt16)port autoaccept:(BOOL)autoaccept error:(NSError **)errPtr {
+  return [self acceptOnInterface:interface port:port autoaccept:autoaccept withTimeout:-1 error:errPtr];
+}
+
+- (BOOL)acceptOnInterface:(NSString *)interface port:(UInt16)port autoaccept:(BOOL)autoaccept withTimeout:(NSTimeInterval)timeout error:(NSError **)errPtr 
 {
 	if (theDelegate == NULL)
     {
@@ -1435,7 +1446,9 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
 		
 		//NSLog(@"theSocket6: %hu", [self localPortFromCFSocket6:theSocket6]);
 	}
-
+  
+  [self startAcceptTimeout:timeout];
+  
 	theFlags |= kDidStartDelegate;
 	return YES;
 	
@@ -1454,6 +1467,60 @@ Failed:
 		theSocket6 = NULL;
 	}
 	return NO;
+}
+
+- (void)startAcceptTimeout:(NSTimeInterval)timeout
+{
+	if(timeout >= 0.0)
+	{
+		theAcceptTimer = [NSTimer timerWithTimeInterval:timeout
+                                             target:self 
+                                           selector:@selector(doAcceptTimeout:)
+                                           userInfo:nil
+                                            repeats:NO];
+		[self runLoopAddTimer:theAcceptTimer];
+	}
+}
+
+- (void)endAcceptTimeout
+{
+	[theAcceptTimer invalidate];
+	theAcceptTimer = nil;
+}
+
+- (void)doAcceptTimeout:(NSTimer *)timer
+{
+#pragma unused(timer)
+	
+	[self endAcceptTimeout];
+  
+  BOOL disconnect = YES;
+	if (theFlags & kDidStartDelegate)
+	{
+		// Try to salvage what data we can.
+		[self recoverUnreadData];
+		
+		// Let the delegate know, so it can try to recover if it likes.
+		if ([theDelegate respondsToSelector:@selector(onSocket:shouldDisconnectWithError:)])
+		{
+			disconnect = [theDelegate onSocket:self 
+               shouldDisconnectWithError:[self getAcceptTimeoutError]];
+		}
+	}
+  if (disconnect) {
+    if(theSocket4 != NULL)
+    {
+      CFSocketInvalidate(theSocket4);
+      CFRelease(theSocket4);
+      theSocket4 = NULL;
+    }
+    if(theSocket6 != NULL)
+    {
+      CFSocketInvalidate(theSocket6);
+      CFRelease(theSocket6);
+      theSocket6 = NULL;
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1794,6 +1861,8 @@ Failed:
 {
 	if(newNativeSocket)
 	{
+    [self endAcceptTimeout];
+
 		// New socket inherits same delegate and run loop modes.
 		// Note: We use [self class] to support subclassing AsyncSocket.
 		AsyncSocket *newSocket = [[[[self class] alloc] initWithDelegate:theDelegate] autorelease];
@@ -2525,6 +2594,18 @@ Failed:
 	
 	return [NSError errorWithDomain:AsyncSocketErrorDomain code:AsyncSocketConnectTimeoutError userInfo:info];
 }
+
+- (NSError *)getAcceptTimeoutError
+{
+	NSString *errMsg = NSLocalizedStringWithDefaultValue(@"AsyncSocketAcceptTimeoutError",
+                                                       @"AsyncSocket", [NSBundle mainBundle],
+                                                       @"Attempt to accept timed out", nil);
+	
+	NSDictionary *info = [NSDictionary dictionaryWithObject:errMsg forKey:NSLocalizedDescriptionKey];
+	
+	return [NSError errorWithDomain:AsyncSocketErrorDomain code:AsyncSocketConnectTimeoutError userInfo:info];
+}
+
 
 /**
  * Returns a standard AsyncSocket maxed out error.

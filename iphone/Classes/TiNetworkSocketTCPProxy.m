@@ -176,11 +176,24 @@ static NSString* ARG_KEY = @"arg";
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     
     id port = [self valueForKey:@"port"]; // Can be string or int
-    
+    NSNumber* timeout = [self valueForKey:@"timeout"];
+  
     socket = [[AsyncSocket alloc] initWithDelegate:self];
         
     NSError* err = nil;
-    BOOL success = [socket acceptOnInterface:host port:[port intValue] autoaccept:NO error:&err];
+    BOOL success;
+    if (timeout) {
+      success = [socket acceptOnInterface:host 
+                                   port:[port intValue] 
+                             autoaccept:NO 
+                            withTimeout:[timeout doubleValue] / 1000
+                                  error:&err];
+    } else {
+      success = [socket acceptOnInterface:host 
+                                   port:[port intValue] 
+                             autoaccept:NO 
+                                  error:&err];    
+    }
     
     if (err || !success) {
         internalState = SOCKET_ERROR;
