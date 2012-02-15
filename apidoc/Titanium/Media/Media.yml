@@ -791,7 +791,7 @@ properties:
     summary: |
         `true` if the device has camera support.
     type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
     permission: read-only
   - name: peakMicrophonePower
     summary: Current microphone level peak power in dB or -1 if microphone monitoring is disabled.

@@ -117,9 +117,10 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeRelease
 	JNIScope jniScope(env);
 
 	if (refPointer) {
-		Persistent<Data> handle((Data *) refPointer);
-		if (!handle.IsEmpty() && !handle.IsNearDeath()) {
-			handle.Dispose();
+		Persistent<Object> handle((Object *)refPointer);
+		JavaObject *javaObject = NativeObject::Unwrap<JavaObject>(handle);
+		if (javaObject && javaObject->isDetached()) {
+			delete javaObject;
 		}
 	}
 }

@@ -40,7 +40,7 @@
 -(void)render
 {
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(render) withObject:nil waitUntilDone:NO];
+		TiThreadPerformOnMainThread(^{[self render];}, NO);
 		return;
 	}  	  
 	if (region.center.latitude!=0 && region.center.longitude!=0)
@@ -646,10 +646,7 @@
 		static NSString *identifier = @"timap";
 		MKAnnotationView *annView = nil;
 		
-		if (![ann needsRefreshingWithSelection])
-		{
-			annView = (MKAnnotationView*) [mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
-		}
+		annView = (MKAnnotationView*) [mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
 		if (annView==nil)
 		{
 			id imagePath = [ann valueForUndefinedKey:@"image"];

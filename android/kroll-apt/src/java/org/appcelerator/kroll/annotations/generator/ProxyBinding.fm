@@ -521,7 +521,6 @@ fails, a JS exception is returned.
 		<#local type = "Local<Number>">
 		<#local valueExpr = expr + "->ToNumber()">
 		<#local stringExpr = expr + "->ToString()">
-		<#local postAssignmentCheck = "titanium::V8Util::isNaN(" + current_arg + ")">
 	<#elseif info?keys?seq_contains("jsHandleCast")>
 		<#local type = "Local<" + info.jsType + ">">
 		<#local valueExpr = "Local<" + info.jsType + ">::Cast(" + expr + ")">
@@ -532,17 +531,8 @@ fails, a JS exception is returned.
 	</#if>
 	
 <#t>
-	${type} ${current_arg};
-	<#if nullCheck == 1>
-	if (!${expr}->IsNull()) {
-		${current_arg} = ${valueExpr};
-	}
-	<#else>
-	${current_arg} = ${valueExpr};
-	</#if>
-	
 	<#if info.jsType == "Number">
-		if (${postAssignmentCheck} || ${stringExpr}->Length() == 0) {
+		if (titanium::V8Util::isNaN(${expr}) || ${stringExpr}->Length() == 0) {
 			const char *error = "Invalid value, expected type ${info.jsType}.";
 			LOGE(TAG, error);
 			<#if !(logOnly!false)>
@@ -552,8 +542,9 @@ fails, a JS exception is returned.
 	</#if>
 <#t>
 	if (!${expr}->IsNull()) {
+		${type} ${current_arg} = ${valueExpr};
 		jArguments[${index}].${info.jvalue} =
-			titanium::TypeConverter::${info.jsToJavaConverter}(arg_${index}<#if checkNew>, &isNew_${index}</#if>);
+			titanium::TypeConverter::${info.jsToJavaConverter}(${current_arg}<#if checkNew>, &isNew_${index}</#if>);
 	} else {
 		jArguments[${index}].${info.jvalue} = NULL;
 	}

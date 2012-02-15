@@ -18,10 +18,11 @@ namespace titanium {
 class JavaObject : public EventEmitter
 {
 public:
-	// Creates a new V8 proxy for a Java object.
-	// This proxy keeps a reference to the Java object
-	// and provides a bridge between Dalvik and V8.
+	// Creates a new instance and attaching
+	// to the given Java object.
 	JavaObject(jobject javaObject);
+
+	// Delete this object once the Java object has been finalized.
 	virtual ~JavaObject();
 
 	static bool isJavaObject(v8::Handle<v8::Object> jsObject)
@@ -31,6 +32,22 @@ public:
 		}
 		return false;
 	}
+
+	// Wrap the given JavaScript object which provides
+	// bindings to this Java object.
+	void wrap(v8::Handle<v8::Object> jsObject);
+
+	// Attach to the given Java object. A reference
+	// to this object will be held until it is detached.
+	void attach(jobject javaObject);
+
+	// Unreference the Java object so it may be collected.
+	// Called automatically when the associated JavaScript object
+	// has no more references from user code.
+	void detach();
+
+	// Check if this instance is detached from a Java object.
+	bool isDetached();
 
 	// When useGlobalRefs is false, you MUST DeleteLocalRef()
 	// the returned jobject when you are done using it.

@@ -313,7 +313,11 @@ public class TiSound
 				position = duration;
 			}
 
-			mp.seekTo(position);
+			try {
+				mp.seekTo(position);
+			} catch (IllegalStateException e) {
+				Log.w(LCAT, "Error calling seekTo() in an incorrect state. Ignoring.");
+			}
 		}
 
 		proxy.setProperty(TiC.PROPERTY_TIME, position);
@@ -383,6 +387,7 @@ public class TiSound
 					}
 					try {
 						mp.prepare();
+						mp.seekTo(0);
 					} catch (IOException e) {
 						Log.e(LCAT,"Error while preparing audio after stop(). Ignoring.");
 					} catch (IllegalStateException e) {

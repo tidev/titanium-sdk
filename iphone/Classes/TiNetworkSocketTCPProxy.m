@@ -335,10 +335,10 @@ NSCondition* temp = [condition retain]; \
         [acceptArgs setValue:arg forKey:ARG_KEY];
         return;
     }
-    
-    ENSURE_SOCKET_THREAD(accept,arg);
+
     NSDictionary* args = nil;
     ENSURE_ARG_OR_NIL_AT_INDEX(args, arg, 0, NSDictionary);
+    ENSURE_SOCKET_THREAD(accept,arg);
     [acceptArgs setValue:arg forKey:ARG_KEY];
     
     CFSocketRef sock = [socket getCFSocket];

@@ -34,7 +34,7 @@ properties:
     summary: Turn on/off the addition of ellipses at the end of the label if the text is too large to fit.
     type: Boolean
     default: false
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: font
     summary: Font to use for the label text.
     type: Font
@@ -55,11 +55,11 @@ properties:
   - name: shadowColor
     summary: Text shadow color.
     type: String
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad,mobileweb]
   - name: shadowOffset
     summary: Shadow offset as a dictionary with the properties `x` and `y`.
     type: Object
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad,mobileweb]
   - name: text
     summary: Label text.
     type: String

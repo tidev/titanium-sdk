@@ -63,6 +63,11 @@ public class ScriptsModule extends ScriptableObject
 	private static Object runSource(Context context, Scriptable scope, String source, String path, boolean displayError)
 	{
 		KrollEvaluator evaluator = KrollRuntime.getInstance().getEvaluator();
+		// Rhino raises an assertion exception if source happens to be null,
+		// which can occur if an included file is empty, for example.
+		if (source == null) {
+			source = "";
+		}
 
 		try {
 			if (evaluator != null) {

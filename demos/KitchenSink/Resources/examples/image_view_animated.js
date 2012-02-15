@@ -94,7 +94,7 @@ var reverse = Titanium.UI.createButton({
 	height:30,
 	width:120,
 	font:{fontSize:13, fontFamily:'Helvetica Neue'},
-	top:90,
+	top:130,
 	left:10
 });
 reverse.addEventListener('click', function()
@@ -128,7 +128,7 @@ var pause = Titanium.UI.createButton({
 	width:120,
 	font:{fontSize:13, fontFamily:'Helvetica Neue'},
 	top:90,
-	right:10
+	left:10
 });
 pause.addEventListener('click', function()
 {
@@ -138,6 +138,24 @@ pause.addEventListener('click', function()
 	}
 });
 win.add(pause);
+
+// resume animation
+var resume = Titanium.UI.createButton({
+	title:'Resume Animation',
+	height:30,
+	width:120,
+	font:{fontSize:13, fontFamily:'Helvetica Neue'},
+	top:90,
+	right:10
+});
+resume.addEventListener('click', function()
+{
+	if (imageView.paused)
+	{
+		imageView.resume();
+	}
+});
+win.add(resume);
 
 // increase duration
 var durationUp = Titanium.UI.createButton({

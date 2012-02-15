@@ -595,6 +595,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		if (view != null) {
 			view.show();
+			setProperty(TiC.PROPERTY_VISIBLE, true);
 		}
 	}
 
@@ -618,6 +619,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				}
 			}
 			view.hide();
+			setProperty(TiC.PROPERTY_VISIBLE, false);
 		}
 	}
 

@@ -11,7 +11,7 @@ def run(args):
 def main(args):
 	argc = len(args)
 	if argc < 5 or args[1]=='--help':
-		print "Usage: %s <name> <id> <directory> [iphone,android] [android_sdk]" % os.path.basename(args[0])
+		print "Usage: %s <name> <id> <directory> [iphone,android,mobileweb] [android_sdk]" % os.path.basename(args[0])
 		sys.exit(1)
 
 	name = args[1].decode("utf-8")
@@ -21,11 +21,14 @@ def main(args):
 	android = False
 	android_sdk = None
 	sdk = None
+	mobileweb = False
 
-	if args[4] == 'iphone' or (argc > 5 and args[5] == 'iphone'):
+	if args[4] == 'iphone' or (argc > 5 and args[5] == 'iphone') or (argc > 6 and args[6] == 'iphone'):
 		iphone = True
-	if args[4] == 'android' or (argc > 5 and args[5] == 'android'):
+	if args[4] == 'android' or (argc > 5 and args[5] == 'android') or (argc > 6 and args[6] == 'android'):
 		android = True
+	if args[4] == 'mobileweb' or (argc > 5 and args[5] == 'mobileweb') or (argc > 6 and args[6] == 'mobileweb'):
+		mobileweb = True
 
 	if android:
 		sys.path.append(os.path.join(os.path.dirname(args[0]), "android"))
@@ -82,6 +85,12 @@ def main(args):
 		if not os.path.exists(android_resources): os.makedirs(android_resources)
 		android_gen = os.path.join(template_dir,'android','android.py')
 		run([sys.executable, android_gen, name, appid, directory, android_sdk])
+
+	if mobileweb:
+		mobileweb_resources = os.path.join(resources_dir,'mobileweb')
+		if not os.path.exists(mobileweb_resources): os.makedirs(mobileweb_resources)
+		mobileweb_gen = os.path.join(template_dir,'mobileweb','mobileweb.py')
+		run([sys.executable, mobileweb_gen, name, appid, directory])
 
 	# copy LICENSE and README
 	for file in ['LICENSE','README']:

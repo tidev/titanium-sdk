@@ -1,11 +1,32 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
 package org.appcelerator.kroll.runtime.rhino;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Collections;
+import org.appcelerator.kroll.common.Log;
+import java.lang.reflect.Method;
+
 
 public class KrollGeneratedBindings
 {
 	private static HashMap<String, GeneratedBinding> genBindings =
 		new HashMap<String, GeneratedBinding>();
+
+	<#-- Track the prototypes that are actually in use in the program, so
+	we can dispose just those. See TIMOB-7252 for why.-->
+	private static HashSet<Class<? extends Proxy>> usedPrototypeClasses =
+		new HashSet<Class<? extends Proxy>>();
+
+	private static final String DISPOSE = "dispose";
+	private static final String TAG = "KrollGeneratedBindings";
 
 	private static class GeneratedBinding
 	{
@@ -47,8 +68,25 @@ public class KrollGeneratedBindings
 
 	public static void dispose()
 	{
-		<#list bindings as binding>
-		${binding.class}Prototype.dispose();
-		</#list>
+		if (usedPrototypeClasses == null) {
+			return;
+		}
+		for (Class<? extends Proxy> cls : usedPrototypeClasses) {
+			if (cls == null) {
+				continue;
+			}
+			try {
+				Method disposeMethod = cls.getMethod(DISPOSE);
+				disposeMethod.invoke(null);
+			} catch(Exception e) {
+				Log.e(TAG, e.getClass().getSimpleName() + " disposing " + cls.getSimpleName() + ": " + e.getMessage());
+			}
+		}
+		usedPrototypeClasses.clear();
+	}
+
+	public static void registerUsedPrototypeClass(Class<? extends Proxy> cls)
+	{
+		usedPrototypeClasses.add(cls);
 	}
 }

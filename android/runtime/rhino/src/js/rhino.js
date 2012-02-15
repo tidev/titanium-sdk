@@ -31,7 +31,10 @@ function getSourceUrl(sourceUrl) {
 	var jarIndex = -1;
 
 	if ((jarIndex = tiUrl.indexOf(".jar:")) >= 0) {
-		tiUrl = "app://" + tiUrl.substring(jarIndex + 5) + ".js";
+		//This is temporarily changed to app://app.js to address TIMOB-7394
+
+		//tiUrl = "app://" + tiUrl.substring(jarIndex + 5) + ".js";
+		tiUrl = "app://app.js";
 	}
 	return tiUrl;
 }

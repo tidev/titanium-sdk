@@ -275,23 +275,14 @@ NSArray * tableKeySequence;
 
 #pragma mark Public APIs
 
--(void)setSearchHidden:(id)args
-{
-	// we implement here to force it regardless of the current state 
-	// since the user can manually change the search field by pulling 
-	// down the row
-	ENSURE_SINGLE_ARG(args,NSObject);
-	[self replaceValue:args forKey:@"searchHidden" notification:YES];
-}
-
 -(void)selectRow:(id)args
 {
-	[[self view] performSelectorOnMainThread:@selector(selectRow:) withObject:args waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[(TiUITableView*)[self view] selectRow:args];}, NO);
 }
 
 -(void)deselectRow:(id)args
 {
-	[[self view] performSelectorOnMainThread:@selector(deselectRow:) withObject:args waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[(TiUITableView*)[self view] deselectRow:args];}, NO);
 }
 
 -(void)scrollToIndex:(id)args

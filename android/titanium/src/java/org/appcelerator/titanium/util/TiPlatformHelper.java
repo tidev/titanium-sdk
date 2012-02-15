@@ -101,6 +101,11 @@ public class TiPlatformHelper
 		sessionId = createUUID();
 	}
 	
+	public static void resetSid()
+	{
+		sessionId = createUUID();
+	}
+	
 	public static synchronized void intializeDisplayMetrics(Activity activity) 
 	{	
 		if (!applicationDisplayInfoInitialized) {

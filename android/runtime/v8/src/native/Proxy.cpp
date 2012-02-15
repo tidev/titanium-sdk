@@ -316,6 +316,11 @@ Handle<Value> Proxy::proxyConstructor(const Arguments& args)
 	Handle<Function> constructor = Handle<Function>::Cast(prototype->Get(constructorSymbol));
 	jclass javaClass = (jclass) External::Unwrap(constructor->Get(javaClassSymbol));
 
+	JNIUtil::logClassName("Create proxy: %s", javaClass);
+
+	Proxy* proxy = new Proxy(NULL);
+	proxy->wrap(jsProxy);
+
 	// If ProxyFactory::createV8Proxy invoked us, unwrap
 	// the pre-created Java proxy it sent.
 	jobject javaProxy = ProxyFactory::unwrapJavaProxy(args);
@@ -324,11 +329,7 @@ Handle<Value> Proxy::proxyConstructor(const Arguments& args)
 		javaProxy = ProxyFactory::createJavaProxy(javaClass, jsProxy, args);
 		deleteRef = true;
 	}
-
-	JNIUtil::logClassName("Create proxy: %s", javaClass);
-
-	Proxy *proxy = new Proxy(javaProxy);
-	proxy->Wrap(jsProxy);
+	proxy->attach(javaProxy);
 
 	int length = args.Length();
 

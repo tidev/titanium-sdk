@@ -38,9 +38,12 @@ description: |
     On Android, these properties are used to position the content (title) inside the row. 
     For example, setting `top` to 20 moves the title down from the top of the row. 
     On iOS, these values have no effect.
+    
+    On Mobile Web, these properties are used to relatively position the row, treating
+    the `TableView` as if it were a horizontal layout.
 
-    Also, note that the selected text color, `selectedColor`, can only be set on iOS. On
-    Android, the text color does not change when the row is selected.
+    Also, note that the selected text color, `selectedColor`, can only be set on iOS and 
+    Mobile Web. On Android, the text color does not change when the row is selected.
 
 extends: Titanium.UI.View
 since: "0.9"
@@ -60,6 +63,8 @@ properties:
 
         For example, if some rows include images and some rows do not, you would have two class
         names, one for image rows and one for plain rows.
+        
+        This property exists on Mobile Web, but is ignored.
     type: String
   - name: color
     summary: Default text color of the row when not selected.

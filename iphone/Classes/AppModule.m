@@ -406,6 +406,16 @@ extern NSString * const TI_APPLICATION_GUID;
 	return TI_APPLICATION_GUID;
 }
 
+-(id)deployType
+{
+	return TI_APPLICATION_DEPLOYTYPE;
+}
+
+-(id)sessionId
+{
+	return [[TiApp app] sessionId];
+}
+
 #if defined(USE_TI_APPIOS)
 -(id)iOS
 {

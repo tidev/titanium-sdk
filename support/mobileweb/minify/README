@@ -1,0 +1,16 @@
+# Minify - Google Closure Wrapper
+
+## Building
+
+    javac -cp ../closureCompiler/compiler.jar minify.java
+
+## Running
+
+Signature:
+
+	java -cp .:../closureCompiler/compiler.jar -Djava.awt.headless=true minify <directory>
+
+Example:
+
+	java -cp .:../closureCompiler/compiler.jar -Djava.awt.headless=true minify /path/to/project/build/mobileweb
+

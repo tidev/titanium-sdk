@@ -190,7 +190,7 @@ def dump_resources_listing(rootdir,out):
 			total+=s
 			s = "[%.0f]" % s
 			p = p[len(rootdir)+1:]
-			if p.startswith('build/android'): continue
+			if p.startswith('build/android') or p.startswith('build/mobileweb'): continue
 			out.write("  %s %s\n" % (string.ljust(p,120),string.ljust(s,8)))
 	out.write("-" * 130)
 	out.write("\nTotal files: %.1f MB\n" % ((total/1024)/1024))
@@ -644,6 +644,14 @@ def main(args):
 			
 		app_name = make_app_name(name)
 		iphone_dir = os.path.abspath(os.path.join(project_dir,'build','iphone'))
+		
+		# We need to create the iphone dir if necessary, now that
+		# the tiapp.xml allows build target selection
+		if not os.path.isdir(iphone_dir):
+			if os.path.exists(iphone_dir):
+				os.remove(iphone_dir)
+			os.makedirs(iphone_dir)
+		
 		project_xcconfig = os.path.join(iphone_dir,'project.xcconfig')
 		target = 'Release'
 		ostype = 'os'

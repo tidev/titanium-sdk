@@ -59,6 +59,7 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nati
 		return NULL;
 	}
 
+	
 	bool isNew;
 	return TypeConverter::jsValueToJavaObject(object, &isNew);
 }

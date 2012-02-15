@@ -13,15 +13,17 @@ description: |
     The behavior of tabs and tab groups follows the platform's native navigation style, 
     which varies significantly between platforms.
 
-    On iOS, the tab maintains a stack of windows. Windows on top of the stack can partially 
-    or totally obscure windows lower in the stack.  Calling [open](Titanium.UI.Tab.open) 
-    opens a new window on top of the window stack. When a window is closed, either by the 
-    user or by code, the window is removed from the stack, making the previous window 
-    visible. The root tab window cannot be removed. On iOS the tab controls are generally 
-    kept on screen to allow a user to navigate inside the app. Tab controls are hidden 
-    when the user is performing a modal task (for example, composing a message). In this case,
-    the app should open the new window as modal and provide a button in the navigation 
-    bar to return to the previous screen.
+    On iOS and Mobile Web, the tab maintains a stack of windows. Windows on top of the 
+    stack can partially or totally obscure windows lower in the stack.  Calling 
+    [open](Titanium.UI.Tab.open) opens a new window on top of the window stack. When a 
+    window is closed, either by the user or by code, the window is removed from the stack, 
+    making the previous window visible. The root tab window cannot be removed. On iOS the 
+    tab controls are generally kept on screen to allow a user to navigate inside the app. 
+    Tab controls are hidden when the user is performing a modal task (for example, 
+    composing a message). In this case, the app should open the new window as modal and 
+    provide a button in the navigation bar to return to the previous screen. On Mobile Web, 
+    the tab controls are always hidden by the window and the user can use the browser's back 
+    button to close the window.
 
     On Android, calling [open](Titanium.UI.Tab.open) opens a new, heavyweight window, which 
     by default covers the tab group entirely. This seems quite different from the iOS model,
@@ -33,7 +35,7 @@ since: "0.8"
 methods:
   - name: open
     summary: Opens a new window.
-    description: On iOS, the new window is opened as the top window 
+    description: On iOS and Mobile Web, the new window is opened as the top window 
         in the tab's window stack. On Android, the new window is opened as a new, 
         heavyweight window, obscuring the tab group.
     parameters: 

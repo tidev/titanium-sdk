@@ -1,52 +1,156 @@
 ---
 name: Titanium.UI.2DMatrix
 summary: The 2D Matrix is an object for holding values for an affine transformation matrix.
-description: The 2DMatrix is created by <Titanium.UI.create2DMatrix>. A 2D matrix is used to rotate, scale, translate, or skew the objects in a two-dimensional space. A 2D matrix is represented by a 3 by 3 matrix. Because the third column is always (0,0,1), the data structure contains values for only the first two columns.
+description: |
+    A 2D matrix is used to rotate, scale, translate, or skew the objects in a two-dimensional space. 
+    A 2D affine transformation can be  represented by a 3 by 3 matrix:
 
-    You create an `identity matrix` by creating a 2D Matrix with an empty constructor.
+    <table>
+    <tr><td><i>a</i></td><td><i>b</i></td><td>0</td></tr>
+    <tr><td><i>c</i></td><td><i>d</i></td><td>0</td></tr>
+    <tr><td><i>tx</i></td><td><i>ty</i></td><td>1</td></tr>
+    </table>
+
+    The third column is constant (0,0,1). 
+
+    On iOS, the matrix terms, `a`, `b`, `c`, `d`, `tx`, and `ty`, are available as
+    properties. On Android, the matrix terms are not available as properties. 
+    
+    Use the <Titanium.UI.create2DMatrix> method to create a new 2D matrix. You can 
+    pass an optional <MatrixCreationDict> dictionary to the method to initialize the 
+    matrix. For example:
+
+    var m = Ti.UI.2DMatrix({ rotate: 45 });
+
+    Produces a new matrix with a 45 degree rotation.  If you pass no arguments, 
+    `create2DMatrix` returns an identity matrix.
+
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [android, iphone, ipad]
 methods:
   - name: invert
-    summary: Returns a matrix constructed by inverting an existing matrix
-  - name: multiply
-    summary: Returns a matrix constructed by combining two existing matrix.
+    summary: Returns a matrix constructed by inverting this matrix.
     returns:
-        type: Object
+        type: Titanium.UI.2DMatrix
+  - name: multiply
+    summary: Returns a matrix constructed by combining two existing matrices.
+    description: |
+        The argument, `t2` is concatenated to the matrix instance against which the function is invoked. The 
+        resulting matrix is the result of multiplying this matrix by `t2`. You might perform several 
+        multiplications in order to create a single matrix that contains the cumulative effects of 
+        several transformations. 
+        
+        Note that matrix operations are not commutative -- the order in which you concatenate matrices 
+        is important. That is, the result of multiplying matrix `t1` by matrix `t2` does not necessarily 
+        equal the result of multiplying matrix `t2` by matrix `t1`.
+    returns:
+        type: Titanium.UI.2DMatrix
     parameters:
       - name: t2
-        summary: The second matrix. This matrix is concatenated to the matrix instance against which the function is invoked.  The result of this function is the first matrix multiplied by the second matrix. You might perform several multiplications in order to create a single matrix that contains the cumulative effects of several transformations. Note that matrix operations are not commutative - the order in which you concatenate matrices is important. That is, the result of multiplying matrix t1 by matrix t2 does not necessarily equal the result of multiplying matrix t2 by matrix t1.
-        type: Object
+        summary: The second matrix. 
+        type: Titanium.UI.2DMatrix
   - name: rotate
-    summary: Returns a matrix constructed by rotating an existing matrix
+    summary: Returns a matrix constructed by rotating this matrix.
+    description: |
+        A positive value specifies clockwise rotation and a negative value 
+        specifies counter-clockwise rotation.  
+        
+        Note that the resulting  matrix only expresses the final transformation, not the 
+        direction of the rotation. For example, the matrix produced by `m1.rotate(-10)`
+        is identical to the matrix produced by `m1.rotate(350)` and `m1.rotate(710)`.
+
+        Note that if you specify a rotation matrix as the `transform` property of an
+        animation, the animation animates the view from its current rotation to the 
+        rotation represented by the matrix by its shortest path. So to rotate a view 
+        in a complete circle, the easiest method is to chain together three animations,
+        rotating 120 degrees each time.
+
+        For the purposes of animation, it should be noted that the rotation angle is 
+        normalized to the range -180 <= angle < 180. In other 
+        words, an angle of 180 degrees is normalized to -180. This makes no difference
+        except when determining which direction an animation rotates. 179 degrees rotates
+        rotate clockwise, but 180 degrees is normalized to -180, so rotates counter-clockwise.
+
+        On Android, there is a second `rotate` method that takes two arguments, which can
+        be used to specify rotations for animation.
     returns:
-        type: Object
+        type: Titanium.UI.2DMatrix
     parameters:
       - name: angle
-        summary: The angle, in degrees, by which to rotate the matrix. A positive value specifies counterclockwise rotation and a negative value specifies clockwise rotation.
+        summary: Angle, in degrees, by which to rotate the matrix. 
         type: Number
-  - name: scale
-    summary: Returns a matrix constructed by scaling an existing matrix
+  - name: rotate
+    summary: |
+        Returns a `2DMatrix` object that specifies a rotation animation from one angle to
+        another.
+    description: |
+        This is an Android-specific method used for creating rotation animations.
+
+        Angles are specified in degrees. Positive values represent clockwise rotation, and negative values
+        represent counter-clockwise rotation. Values are not normalized, so for example an 
+        angle of 720 degrees represents two complete clockwise revolutions.
+        
+        The resulting object cannot be expressed as an affine transform, but can be used with the 
+        <Titanium.UI.Animation.transform> property to specify a rotation animation.
     returns:
-        type: Object
+        type: Titanium.UI.2DMatrix
+    parameters:
+      - name: fromAngle
+        summary: Starting angle for rotation, in degrees.
+        type: Number
+      - name: toAngle
+        summary: Ending angle for rotation, in degrees.
+        type: Number
+    platforms: [android]
+  - name: scale
+    summary: Returns a matrix constructed by applying a scale transform to this matrix.
+    returns:
+        type: Titanium.UI.2DMatrix
     parameters:
       - name: sx
-        summary: The value by which to scale x values of the matrix
+        summary: Horizontal scaling factor.
         type: Number
       - name: sy
-        summary: The value by which to scale y values of the matrix
+        summary: Vertical scaling factor. If not supplied, scale by `sx` in both directions.
         type: Number
-  - name: translate
-    summary: Returns a matrix constructed by translating an existing matrix
+        optional: true
+        default: Same as horizontal scaling factor.
+  - name: scale
+    summary: |
+        Returns a `2DMatrix` object that specifies a scaling animation from one scale to another.
+    description: |
+        This Android-specific method returns a `2DMatrix` object that can be used to
+        create a scaling animation from one scale factor to another scale factor. 
+
+        The resulting object cannot be expressed as an affine transform, but can be used with the 
+        <Titanium.UI.Animation.transform> property to specify a scaling animation.
     returns:
-        type: Object
+        type: Titanium.UI.2DMatrix
+    parameters:
+      - name: fromX
+        summary: Starting horizontal scaling factor, at the beginning of an animation.
+        type: Number
+      - name: fromY
+        summary: Starting vertical scaling factor, at the beginning of an animation.
+        type: Number
+      - name: toX
+        summary: Ending horizontal scaling factor, at the end of an animation.
+        type: Number
+      - name: toY
+        summary: Ending vertical scaling factor, at the end of an animation.
+        type: Number
+    platforms: [android]
+  - name: translate
+    summary: Returns a matrix constructed by applying a translation transform to this matrix.
+    returns:
+        type: Titanium.UI.2DMatrix
     parameters:
       - name: tx
-        summary: The value by which to move x values with the matrix
+        summary: Horizontal component of the translation.
         type: Number
       - name: ty
-        summary: The value by which to move y values with the matrix
+        summary: Vertical component of the translation.
         type: Number
 properties:
   - name: a
@@ -73,3 +177,42 @@ properties:
     summary: The entry at position [3,2] in the matrix.
     type: Number
     platforms: [iphone, ipad]
+
+---
+name: MatrixCreationDict
+summary: Simple object passed to <Titanium.UI.create2DMatrix> to initialize a matrix.
+description: |
+    The matrix is initialized with the specified transforms.
+
+    On iOS, rotation is always performed first, regardless of the order the 
+    properties are specified in.
+
+    On Android, specifying both `scale` and `rotate` the same dictionary results
+    in an incorrect transformation.
+
+properties: 
+  - name: scale
+    summary: |
+        Scale the matrix by the specified scaling factor. The same scaling factor is used
+        for both horizontal and vertical scaling.
+    type: Number
+    optional: true
+    default: 1
+  - name: rotate
+    summary: |
+        Rotation angle, in degrees. See the [rotate](Titanium.UI.2DMatrix.rotate) method
+        for a discussion of rotation.
+    type: Number
+    optional: true
+    default: No rotation.
+  - name: anchorPoint
+    summary: |
+        Point to rotate around, specified as a dictionary object with `x` and `y`
+        properties, where { x: 0.5, y: 0.5 } represents the center of whatever is being
+        rotated.
+    type: Dictionary
+    optional: true
+    default: (0.5, 0.5) 
+    platforms: [android]
+
+    

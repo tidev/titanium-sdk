@@ -14,6 +14,7 @@ public class TiC
 	public static final String ERROR_PROPERTY_CODE = "code";
 	public static final String ERROR_PROPERTY_ERRORCODE = "errorcode";
 	public static final String ERROR_PROPERTY_MESSAGE = "message";
+	public static final String EVENT_ADDED_TO_TAB = "addedToTab";
 	public static final String EVENT_ANDROID_BACK = "android:back";
 	public static final String EVENT_ANDROID_CAMERA = "android:camera";
 	public static final String EVENT_ANDROID_FOCUS = "android:focus";
@@ -148,6 +149,7 @@ public class TiC
 	public static final String PROPERTY_COORDS = "coords";
 	public static final String PROPERTY_CONTENT_HEIGHT = "contentHeight";
 	public static final String PROPERTY_CONTENT_INTENT = "contentIntent";
+	public static final String PROPERTY_CONTENT_OFFSET = "contentOffset";
 	public static final String PROPERTY_CONTENT_TEXT = "contentText";
 	public static final String PROPERTY_CONTENT_TITLE = "contentTitle";
 	public static final String PROPERTY_CONTENT_URL = "contentURL";
