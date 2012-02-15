@@ -43,9 +43,13 @@
 	volume = 1.0;
 	resumeTime = 0;
 	
-    dispatch_async(dispatch_get_main_queue(), ^{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0		
+	if ([TiUtils isIOS4OrGreater])
+	{
+		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteControlEvent:) name:kTiRemoteControlNotification object:nil];
-    });
+	}
+#endif
 }
 
 -(void)_destroy
@@ -57,10 +61,13 @@
 		}
 		[player setDelegate:nil];
 	}
-    dispatch_sync(dispatch_get_main_queue(), ^{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0	
+	if ([TiUtils isIOS4OrGreater])
+	{
+		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] removeObserver:self];
-    });
-	
+	}
+#endif		
 	RELEASE_TO_NIL(player);
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(tempFile);
@@ -73,76 +80,68 @@
 -(void)play:(id)args
 {
     [self rememberSelf];
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        // indicate we're going to start playback
-        if (![[TiMediaAudioSession sharedSession] canPlayback]) {
-            [self throwException:@"Improper audio session mode for playback"
-                       subreason:[[NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]] description]
-                        location:CODELOCATION];
-        }
-        
-        if (player == nil || !([player isPlaying] || paused)) {
-            [[TiMediaAudioSession sharedSession] startAudioSession];
-        }
-        [[self player] play];
-        paused = NO;
-    });
+    // indicate we're going to start playback
+	if (![[TiMediaAudioSession sharedSession] canPlayback]) {
+		[self throwException:@"Improper audio session mode for playback"
+				   subreason:[[NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]] description]
+					location:CODELOCATION];
+	}
+	
+	if (player == nil || !([player isPlaying] || paused)) {
+		[[TiMediaAudioSession sharedSession] startAudioSession];
+	}
+	[[self player] play];
+	paused = NO;
 }
 
 -(void)stop:(id)args
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (player != nil) {
-            if ([player isPlaying] || paused) {
-                [player stop];
-                [player setCurrentTime:0];
-                [[TiMediaAudioSession sharedSession] stopAudioSession];
-            }
-        }
-        resumeTime = 0;
-        paused = NO;
-    });
+    if (player!=nil)
+	{
+		if ([player isPlaying] || paused) {
+			[player stop];
+			[player setCurrentTime:0];
+			[[TiMediaAudioSession sharedSession] stopAudioSession];
+		}
+	}
+	resumeTime = 0;
+	paused = NO;
 }
 
 -(void)pause:(id)args
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (player != nil) {
-            [player pause];
-            paused = YES;
-        }
-    });
-}
+	if (player!=nil)
+	{
+		[player pause];
+		paused = YES;
+	}}
 
 -(void)reset:(id)args
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (player != nil) {
-            if (!([player isPlaying] || paused)) {
-                [[TiMediaAudioSession sharedSession] startAudioSession];
-            }
-            
-            [player stop];
-            [player setCurrentTime:0];
-            [player play];
-        }
-        resumeTime = 0;
-        paused = NO;
-    });
+	if (player!=nil)
+	{
+		if (!([player isPlaying] || paused)) {
+			[[TiMediaAudioSession sharedSession] startAudioSession];
+		}
+		
+		[player stop];
+		[player setCurrentTime:0];
+		[player play];
+	}
+	resumeTime = 0;
+	paused = NO;
 }
 
 -(void)release:(id)args
 {
-    if (player != nil) {
-        resumeTime = 0;
-        paused = NO;
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            [player stop];
-            RELEASE_TO_NIL(player);
-        });
-    }
-    [self forgetSelf];
-    [self _destroy];
+	if (player!=nil)
+	{
+		resumeTime = 0;
+		paused = NO;
+		[player stop];
+		RELEASE_TO_NIL(player);
+	}
+	[self _destroy];
 }
 
 -(NSNumber*)volume
@@ -269,9 +268,8 @@
 	} else if ([url_ isKindOfClass:[TiFile class]]) {
 		url = [[NSURL fileURLWithPath:[(TiFile*)url_ path]] retain];
 	}
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        [self player];  // instantiate the player
-    });
+    [self player];  // instantiate the player
+    
 }
 
 // For backwards compatibility
