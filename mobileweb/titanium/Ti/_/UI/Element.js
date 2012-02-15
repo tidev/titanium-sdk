@@ -443,28 +443,44 @@ define(
 		_handleTouchEvent: function(type, e) {
 			this.enabled && this.fireEvent(type, e);
 		},
+		
+		_defaultBackgroundColor: undef,
+		
+		_defaultBackgroundImage: undef,
+		
+		_defaultBackgroundDisabledColor: undef,
+		
+		_defaultBackgroundDisabledImage: undef,
+		
+		_defaultBackgroundFocusedColor: undef,
+		
+		_defaultBackgroundFocusedImage: undef,
+		
+		_defaultBackgroundSelectedColor: undef,
+		
+		_defaultBackgroundSelectedImage: undef,
 
 		_doBackground: function(evt) {
 			var evt = evt || {},
 				m = (evt.type || "").match(/mouse(over|out)/),
 				node = this._focus.node,
-				bi = this.backgroundImage || "none",
-				bc = this.backgroundColor;
+				bi = this.backgroundImage || this._defaultBackgroundImage || "none",
+				bc = this.backgroundColor || this._defaultBackgroundColor;
 
-			if (this._touching) {
-				bc = this.backgroundSelectedColor || bc;
-				bi = this.backgroundSelectedImage || bi;
+			if (this._touching || this._selected) {
+				bc = this.backgroundSelectedColor || this._defaultBackgroundSelectedColor || bc;
+				bi = this.backgroundSelectedImage || this._defaultBackgroundSelectedImage || bi;
 			}
 
 			m && (this._over = m[1] === "over");
 			if (!this._touching && this.focusable && this._over) {
-				bc = this.backgroundFocusedColor || bc;
-				bi = this.backgroundFocusedImage || bi;
+				bc = this.backgroundFocusedColor || this._defaultBackgroundFocusedColor || bc;
+				bi = this.backgroundFocusedImage || this._defaultBackgroundFocusedImage || bi;
 			}
 
 			if (!this.enabled) {
-				bc = this.backgroundDisabledColor || bc;
-				bi = this.backgroundDisabledImage || bi;
+				bc = this.backgroundDisabledColor || this._defaultBackgroundDisabledColor || bc;
+				bi = this.backgroundDisabledImage || this._defaultBackgroundDisabledImage || bi;
 			}
 
 			setStyle(node, {
