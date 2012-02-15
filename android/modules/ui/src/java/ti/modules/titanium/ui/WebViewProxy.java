@@ -17,9 +17,11 @@ import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
+import android.webkit.WebView;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_DATA,
+	TiC.PROPERTY_ON_CREATE_WINDOW,
 	TiC.PROPERTY_SCALES_PAGE_TO_FIT,
 	TiC.PROPERTY_URL
 })
@@ -38,6 +40,8 @@ public class WebViewProxy extends ViewProxy
 	private static String fusername;
 	private static String fpassword;
 
+	private Message postCreateMessage;
+
 	public WebViewProxy()
 	{
 		super();
@@ -53,6 +57,16 @@ public class WebViewProxy extends ViewProxy
 	{
 		TiUIWebView webView = new TiUIWebView(this);
 		webView.focus();
+
+		if (postCreateMessage != null) {
+			WebView.WebViewTransport transport = (WebView.WebViewTransport) postCreateMessage.obj;
+			if (transport != null) {
+				transport.setWebView(webView.getWebView());
+			}
+			postCreateMessage.sendToTarget();
+			postCreateMessage = null;
+		}
+
 		return webView;
 	}
 
@@ -256,4 +270,8 @@ public class WebViewProxy extends ViewProxy
 		return fpassword;
 	}
 
+	public void setPostCreateMessage(Message postCreate)
+	{
+		this.postCreateMessage = postCreate;
+	}
 }
