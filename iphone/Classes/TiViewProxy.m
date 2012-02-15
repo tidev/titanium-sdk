@@ -338,7 +338,22 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(TiBlob*)toImage:(id)args
 {
-	KrollCallback *callback = [args count] > 0 ? [args objectAtIndex:0] : nil;
+    KrollCallback *callback = nil;
+    BOOL honorScale = NO;
+    
+    NSObject *obj = nil;
+    if( [args count] > 0) {
+        obj = [args objectAtIndex:0];
+        
+        if (obj == [NSNull null]) {
+            obj = nil;
+        }
+        
+        if( [args count] > 1) {
+            honorScale = [TiUtils boolValue:[args objectAtIndex:1] def:NO];
+        }
+    }
+    callback = (KrollCallback*)obj;
 	TiBlob *blob = [[[TiBlob alloc] init] autorelease];
 	// we spin on the UI thread and have him convert and then add back to the blob
 	// if you pass a callback function, we'll run the render asynchronously, if you
@@ -362,7 +377,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 			CGRect rect = CGRectMake(0, 0, size.width, size.height);
 			[TiUtils setView:myview positionRect:rect];
 		}
-		UIGraphicsBeginImageContext(size);
+		UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], (honorScale ? 0.0 : 1.0));
 		[myview.layer renderInContext:UIGraphicsGetCurrentContext()];
 		UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
 		[blob setImage:image];
