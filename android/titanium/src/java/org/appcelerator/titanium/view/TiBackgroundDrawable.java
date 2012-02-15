@@ -41,7 +41,7 @@ public class TiBackgroundDrawable extends StateListDrawable {
 	private RectF outerRect, innerRect;
 	private static final int NOT_SET = -1;
 	private int alpha = NOT_SET;
-	private Path path;
+	private Path path, borderPath;
 	private Paint paint;
 
 	public TiBackgroundDrawable()
@@ -55,13 +55,11 @@ public class TiBackgroundDrawable extends StateListDrawable {
 
 	@Override
 	public void draw(Canvas canvas) {
-		if (border != null) {
+		if (border != null && (border.width > 0) && (Color.alpha(border.color) > 0)) {
+			int curPaintColor = paint.getColor();
 			paint.setColor(border.color);
-			if (border.radius > 0) {
-				canvas.drawRoundRect(outerRect, border.radius, border.radius, paint);
-			} else {
-				canvas.drawRect(outerRect, paint);
-			}
+			canvas.drawPath(borderPath, paint);
+			paint.setColor(curPaintColor);
 		}
 
 		//paint.setColor(backgroundColor);
@@ -101,9 +99,9 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		super.onBoundsChange(bounds);
 
 		outerRect.set(bounds);
-		int padding = 0;
+		float padding = 0;
 		if (border != null) {
-			padding = (int)border.width;
+			padding = border.width;
 		}
 		innerRect.set(bounds.left+padding, bounds.top+padding, bounds.right-padding, bounds.bottom-padding);
 		if (background != null) {
@@ -116,6 +114,12 @@ public class TiBackgroundDrawable extends StateListDrawable {
 			Arrays.fill(radii, border.radius);
 			path.addRoundRect(innerRect, radii, Direction.CW);
 			path.setFillType(FillType.EVEN_ODD);
+			
+			borderPath = new Path();
+			borderPath.addRoundRect(outerRect, radii, Direction.CCW);
+			borderPath.addRoundRect(innerRect, radii, Direction.CW);
+			borderPath.setFillType(FillType.WINDING);
+			
 		}
 	}
 
