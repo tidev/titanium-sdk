@@ -1,12 +1,12 @@
 define(
-	["Ti/_/dom", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style"],
-	function(dom, Evented, lang, ready, style) {
+	["Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style"],
+	function(Evented, lang, ready, style) {
 
 	var body = document.body,
-		isDef = require.isDef,
 		isIOS = /(iPhone|iPad)/.test(navigator.userAgent),
 		modules = "2DMatrix,ActivityIndicator,AlertDialog,Animation,Button,EmailDialog,ImageView,Label,OptionDialog,ScrollableView,ScrollView,Slider,Switch,Tab,TabGroup,TableView,TableViewRow,TableViewSection,TextArea,TextField,View,WebView,Window",
-		creators = {};
+		creators = {},
+		setStyle = style.set;
 
 	body.addEventListener('touchmove', function(e) {
 		e.preventDefault();
@@ -23,7 +23,7 @@ define(
 		var x = 0;
 		if (isIOS && !window.location.hash) {
 			if (document.height <= window.outerHeight + 10) {
-				body.style.height = (window.outerHeight + 60) + "px";
+				setStyle(body, "height", (window.outerHeight + 60) + "px");
 				x = 50;
 			}
 			setTimeout(function() {
@@ -44,7 +44,7 @@ define(
 			left: 0,
 			top: 0
 		})).domNode);
-		style.set(Ti.UI._container.domNode,"overflow","hidden");
+		setStyle(Ti.UI._container.domNode,"overflow","hidden");
 		Ti.UI._recalculateLayout();
 	});
 
@@ -110,12 +110,12 @@ define(
 		properties: {
 			backgroundColor: {
 				set: function(value) {
-					return style.set(body, "backgroundColor", value);
+					return setStyle(body, "backgroundColor", value);
 				}
 			},
 			backgroundImage: {
 				set: function(value) {
-					return style.set(body, "backgroundImage", value ? style.url(value) : "");
+					return setStyle(body, "backgroundImage", value ? style.url(value) : "");
 				}
 			},
 			currentTab: {

@@ -15,6 +15,7 @@ import org.appcelerator.kroll.runtime.rhino.KrollBindings;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollModuleInfo;
 import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiRootActivity;
 
@@ -36,6 +37,10 @@ public final class ${config['classname']}Application extends TiApplication
 
 		appInfo = new ${config['classname']}AppInfo(this);
 		postAppInfo();
+
+		% if config['compile_js']:
+		    KrollAssetHelper.setAssetCrypt(new AssetCryptImpl());
+		% endif
 
 		% if config['deploy_type'] != 'production' and runtime == "rhino":
 			ti.modules.titanium.debug.DebugModule debugger = new ti.modules.titanium.debug.DebugModule();

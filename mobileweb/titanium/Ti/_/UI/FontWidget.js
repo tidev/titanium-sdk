@@ -1,4 +1,5 @@
-define(["Ti/_/declare", "Ti/_/dom", "Ti/_/ready", "Ti/_/style", "Ti/_/UI/Widget"], function(declare, dom, ready, style, Widget) {
+define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/_/UI/Widget"],
+	function(declare, dom, lang, ready, style, Widget) {
 
 	var textRuler;
 
@@ -21,7 +22,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/ready", "Ti/_/style", "Ti/_/UI/Widget"
 		},
 
 		_setFont: function(font,domNode) {
-			require.isDef(font.fontSize) && (font.fontSize = dom.unitize(font.fontSize));
+			lang.isDef(font.fontSize) && (font.fontSize = dom.unitize(font.fontSize));
 			style.set(domNode, font);
 		},
 

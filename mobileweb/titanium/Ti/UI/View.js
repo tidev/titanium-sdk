@@ -50,15 +50,15 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 		},
 
 		destroy: function() {
-			if (!this._destroyed) {
+			if (this.children) {
 				var c;
 				while (this.children.length) {
 					c = this.children.splice(0, 1);
 					c[0].destroy();
 				}
 				this._parent && View.prototype.remove.call(this._parent, this);
-				Element.prototype.destroy.apply(this, arguments);
 			}
+			Element.prototype.destroy.apply(this, arguments);
 		},
 
 		_removeAllChildren: function(view) {

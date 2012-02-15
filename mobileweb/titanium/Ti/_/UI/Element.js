@@ -11,7 +11,7 @@ define(
 		computeSize = dom.computeSize,
 		on = require.on,
 		setStyle = style.set,
-		isDef = require.isDef,
+		isDef = lang.isDef,
 		val = lang.val,
 		is = require.is,
 		transitionEvents = {
@@ -35,6 +35,7 @@ define(
 
 		domType: null,
 		domNode: null,
+		_alive: 1,
 
 		constructor: function(args) {
 			var self = this,
@@ -124,12 +125,13 @@ define(
 		},
 
 		destroy: function() {
-			this.parent && this.parent.remove(this);
-			if (this.domNode) {
-				dom.destroy(this.domNode);
-				this.domNode = null;
+			if (this._alive) {
+				this.parent && this.parent.remove(this);
+				if (this.domNode) {
+					dom.destroy(this.domNode);
+					this.domNode = null;
+				}
 			}
-			this._destroyed = 1;
 			Evented.destroy.apply(this, arguments);
 		},
 		
