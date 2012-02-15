@@ -1,49 +1,80 @@
 ---
 name: Titanium.UI.WebView
-summary: The Web View allows you to open an HTML5 based view which can load either local or remote content. The content can be any valid web content such as HTML, PDF, SVG or other WebKit supported content types. The Web View is created by the method <Titanium.UI.createWebView>.
+summary: |
+    The web view allows you to open an HTML5 based view which can load either local or remote content. 
+description: |
+    The web view content can be any valid web content such as HTML, PDF, SVG or other WebKit supported 
+    content types. 
+    
+    Use the <Titanium.UI.createWebView> method to create a web view.
 extends: Titanium.UI.View
 since: "0.8"
 methods:
+
   - name: setHtml
     summary: Sets the value of [html](Titanium.UI.WebView.html) property.
     description: |
       In iOS, there are additional parameters `baseURL` and `mimeType` that can be used to configure
       the WebView main content presentation. For example:
               
-              setHtml('<html><body>Hello,<a href="/documentation">Titanium</a>!</body></html>',{baseURL:'http://developer.appcelerator.com/'})
+          setHtml('<html><body>Hello, <a href="/documentation">Titanium</a>!</body></html>',
+                  {baseURL:'http://developer.appcelerator.com/'})
     parameters:
+
       - name: html
-        summary: New value for the property
+        summary: New HTML to display in the web view.
         type: Object
+
       - name: baseURL
-        summary: The base URL for the content
+        summary: The base URL for the content. Only used by iOS.
         optional: true
         type: String
+
       - name: mimeType
-        summary: The MIME type of the content (default is `text/html`)
+        summary: The MIME type of the content. Only used by iOS.
         optional: true
         type: String
+        default: 'text/html'
+
   - name: canGoBack
-    summary: returns true if the webview can go back in history
+    summary: Returns `true` if the web view can go back in history.
     description: |
         For Mobile Web, returns true if `url` is set.
     returns:
         type: Boolean
+
   - name: canGoForward
-    summary: returns true if the webview can go forward in history
+    summary: Returns `true` if the webview can go forward in history
     description: |
         For Mobile Web, returns true if `url` is set.
     returns:
         type: Boolean
+
   - name: evalJS
-    summary: invoke JavaScript inside the context of the webview and optionally, return a result
+    summary: |
+        Evaluates a JavaScript expression inside the context of the web view and
+        optionally, returns a result.
     description: |
+        The JavaScript expression must be passed in as a string. If you are passing in any objects,
+        you must serialize them to strings using [JSON.stringify](Globals.JSON.stringify).
+
+        The `evalJS` method returns a string representing the value of the expression. For
+        example, the following call retrieves the `document.title` element from the
+        document currently loaded into the web view.
+        
+            var docTitle = myWebView.evalJS('document.title');
+
+        It is not necessary to include `return` in the JavaScript. In fact, the following
+        call returns the empty string:
+
+            myWebView.evalJS('return document.title');
+
         For Mobile Web, you can only execute JavaScript when the contents are on the same domain.
     returns:
         type: String
     parameters:
       - name: content
-        summary: JavaScript code as a string. The code will be evaluated inside the webview context.
+        summary: JavaScript code as a string. The code will be evaluated inside the web view context.
         type: String
   - name: goBack
     summary: go back one entry in history to the previous page
@@ -162,12 +193,29 @@ properties:
         For Mobile Web, setting new content will reset the `url` and the WebView's history.
     type: String
   - name: loading
-    summary: boolean indicating if the webview is loading content
+    summary: Indicates if the webview is loading content.
     type: Boolean
   - name: pluginState
-    summary: set how plugins are processed. Accepts one of <Titanium.UI.Android.WEBVIEW_PLUGINS_OFF>, <Titanium.UI.Android.WEBVIEW_PLUGINS_ON>, or <Titanium.UI.Android.WEBVIEW_PLUGINS_ON_DEMAND>.
-        See Android documentation for [WebSettings.PluginState](http://developer.android.com/reference/android/webkit/WebSettings.PluginState.html). Only
-        works on Android devices at API Level 8 or greater.
+    summary: Determines how to treat content that requires plugins in this web view.
+    description: |
+        This setting affects the loading of content that requires web plugins, such as
+        Flash Player.
+        
+        Accepts one of <Titanium.UI.Android.WEBVIEW_PLUGINS_OFF>, 
+        <Titanium.UI.Android.WEBVIEW_PLUGINS_ON>, or <Titanium.UI.Android.WEBVIEW_PLUGINS_ON_DEMAND>.
+
+            <android ...>
+                <tool-api-level>11</tool-api-level>
+                <manifest>
+                    <application android:hardwareAccelerated="true"/>
+                </manifest>
+            </android>
+
+
+        See Android documentation for 
+        [WebSettings.PluginState](http://developer.android.com/reference/android/webkit/WebSettings.PluginState.html). 
+        
+        Only works on Android devices at API Level 8 or greater.
     type: Number
     platforms: [android]
     since: "1.8.0"
@@ -191,6 +239,13 @@ properties:
   - name: url
     summary: the url to the web document. this property will change as the content of the webview changes (such as from internal hyperlinks, etc)
     type: String
+
+  - name: userAgent
+    summary: The User-Agent header used by the web view when requesting content.
+    type: String
+    default: System default user-agent value.
+    platforms: [android]
+
   - name: willHandleTouches
     summary: Explicitly specifies if this webview handles touches.
     description: |
