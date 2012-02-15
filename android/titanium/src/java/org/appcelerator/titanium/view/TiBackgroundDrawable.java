@@ -108,17 +108,29 @@ public class TiBackgroundDrawable extends StateListDrawable {
 			background.setBounds((int)innerRect.left, (int)innerRect.top, (int)innerRect.right, (int)innerRect.bottom);
 		}
 
-		if (border != null && border.radius > 0) {
-			path = new Path();
+		if (border != null) {
 			float radii[] = new float[8];
 			Arrays.fill(radii, border.radius);
-			path.addRoundRect(innerRect, radii, Direction.CW);
-			path.setFillType(FillType.EVEN_ODD);
-			
-			borderPath = new Path();
-			borderPath.addRoundRect(outerRect, radii, Direction.CCW);
-			borderPath.addRoundRect(innerRect, radii, Direction.CW);
-			borderPath.setFillType(FillType.WINDING);
+			if (border.radius > 0) {
+				path = new Path();
+				path.addRoundRect(innerRect, radii, Direction.CW);
+				path.setFillType(FillType.EVEN_ODD);
+				
+				if(border.width > 0) {
+					borderPath = new Path();
+					borderPath.addRoundRect(outerRect, radii, Direction.CCW);
+					borderPath.addRoundRect(innerRect, radii, Direction.CW);
+					borderPath.setFillType(FillType.WINDING);
+				}
+			}
+			else {
+				if(border.width > 0) {
+					borderPath = new Path();
+					borderPath.addRect(outerRect, Direction.CCW);
+					borderPath.addRect(innerRect, Direction.CW);
+					borderPath.setFillType(FillType.WINDING);
+				}
+			}
 			
 		}
 	}
