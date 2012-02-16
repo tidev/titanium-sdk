@@ -15,10 +15,15 @@
 #import "TiViewProxy.h"
 
 @interface TiUISearchBarProxy : TiViewProxy {
+	BOOL showsCancelButton;
 }
 
 -(void)setDelegate:(id<UISearchBarDelegate>)delegate;
 -(UISearchBar*)searchBar;
+
+//	showsCancelButton is related to the JS property ShowCancel,
+//	but is internal ONLY, and should NOT be used by javascript.
+@property(nonatomic,readwrite,assign) BOOL showsCancelButton;
 
 @end
 
