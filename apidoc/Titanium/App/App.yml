@@ -86,7 +86,7 @@ properties:
     
   - name: deployType
     summary: |
-        Application build type indicating how it was packaged. One of `test`, `development` and 
+        Application build type indicating how it was packaged; either `test`, `development` or 
         `production`.
     type: String
     permission: read-only
