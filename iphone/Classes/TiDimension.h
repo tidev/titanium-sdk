@@ -6,6 +6,10 @@
  */
 
 #import "TiBase.h"
+#import "TiUtils.h"
+
+#define INCH_IN_CM 2.54
+#define INCH_IN_MM 25.4
 
 //Not a class for speed reasons, like LayoutConstraint.
 
