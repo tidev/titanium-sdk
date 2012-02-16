@@ -394,7 +394,8 @@ public class TiCompositeLayout extends ViewGroup
 		int measuredSize, int layoutPosition0, int layoutPosition1, int[] pos)
 	{
 		int dist = layoutPosition1 - layoutPosition0;
-		if (optionCenter != null) {
+		// Don't calculate position based on center dimension if it's 0.0
+		if (optionCenter != null && optionCenter.getValue() != 0.0) {
 			int halfSize= measuredSize/2;
 			pos[0] = layoutPosition0 + optionCenter.getAsPixels(parent) - halfSize;
 			pos[1] = pos[0] + measuredSize;

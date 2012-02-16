@@ -16,6 +16,7 @@ import java.util.TreeSet;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
@@ -70,7 +71,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	private static final int MSG_ANIMATE = MSG_FIRST_ID + 108;
 	private static final int MSG_TOIMAGE = MSG_FIRST_ID + 109;
 	private static final int MSG_GETSIZE = MSG_FIRST_ID + 110;
-	private static final int MSG_GETCENTER = MSG_FIRST_ID + 111;
+	private static final int MSG_GETRECT = MSG_FIRST_ID + 111;
 
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
@@ -323,21 +324,25 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				result.setResult(d);
 				return true;
 			}
-			case MSG_GETCENTER : {
+			case MSG_GETRECT: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				KrollDict d = null;
 				if (view != null) {
 					View v = view.getNativeView();
 					if (v != null) {
 						d = new KrollDict();
-						d.put(TiC.EVENT_PROPERTY_X, (double)v.getLeft() + (double)v.getWidth() / 2);
-						d.put(TiC.EVENT_PROPERTY_Y, (double)v.getTop() + (double)v.getHeight() / 2);
+						d.put(TiC.PROPERTY_TOP, v.getTop());
+						d.put(TiC.PROPERTY_BOTTOM, v.getBottom());
+						d.put(TiC.PROPERTY_LEFT, v.getLeft());
+						d.put(TiC.PROPERTY_RIGHT, v.getRight());
 					}
 				}
 				if (d == null) {
 					d = new KrollDict();
-					d.put(TiC.EVENT_PROPERTY_X, 0);
-					d.put(TiC.EVENT_PROPERTY_Y, 0);
+					d.put(TiC.PROPERTY_TOP, 0);
+					d.put(TiC.PROPERTY_BOTTOM, 0);
+					d.put(TiC.PROPERTY_LEFT, 0);
+					d.put(TiC.PROPERTY_RIGHT, 0);
 				}
 
 				result.setResult(d);
@@ -355,6 +360,12 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	*/
 
 	@Kroll.getProperty @Kroll.method
+	public KrollDict getRect()
+	{
+		return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETRECT), getActivity());
+	}
+
+	@Kroll.getProperty @Kroll.method
 	public KrollDict getSize()
 	{
 		return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETSIZE), getActivity());
@@ -367,8 +378,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			return getProperty(TiC.PROPERTY_WIDTH);
 		}
 		
-		KrollDict size = getSize();
-		return size.getInt(TiC.PROPERTY_WIDTH);
+		return KrollRuntime.UNDEFINED;
 	}
 
 	@Kroll.setProperty(retain=false) @Kroll.method
@@ -384,8 +394,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			return getProperty(TiC.PROPERTY_HEIGHT);
 		}
 		
-		KrollDict size = getSize();
-		return size.getInt(TiC.PROPERTY_HEIGHT);
+		return KrollRuntime.UNDEFINED;
 	}
 
 	@Kroll.setProperty(retain=false) @Kroll.method
@@ -395,9 +404,14 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public KrollDict getCenter()
+	public Object getCenter()
 	{
-		return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETCENTER), getActivity());
+		Object dict = KrollRuntime.UNDEFINED;
+		if (hasProperty(TiC.PROPERTY_CENTER)) {
+			dict = getProperty(TiC.PROPERTY_CENTER);
+		}
+
+		return dict;
 	}
 
 	public void clearView()
