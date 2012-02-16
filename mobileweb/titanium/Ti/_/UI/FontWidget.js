@@ -48,6 +48,11 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti
 				fontStyle: font.fontStyle || computedStyle.fontStyle,
 				fontWeight: font.fontWeight || computedStyle.fontWeight
 			}, textRuler);
+			style.set(textRuler,{
+				whiteSpace: domNode.style.whiteSpace,
+				width: this.width === "auto" ? "auto" : dom.unitize(this._measuredWidth),
+				height: this.height === "auto" ? "auto" : dom.unitize(this._measuredHeight)
+			});
 
 			// Return the computed style
 			return { width: emptyText ? 0 : textRuler.clientWidth, height: textRuler.clientHeight };
