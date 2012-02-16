@@ -267,7 +267,11 @@ define(
 
 		// load app.js when ti and dom is ready
 		ready(function() {
-			require([cfg.main || "app.js"]);
+			require(cfg.ti.preload.map(function(i) {
+				return "Ti/_/image!" + i;
+			}), function() {
+				require(cfg.main || ["app.js"]);
+			});
 		});
 	});
 

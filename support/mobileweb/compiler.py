@@ -85,7 +85,14 @@ class Compiler(object):
 		
 		# scan all dependencies for distinct list of modules
 		self.find_modules_to_cache()
+		self.modules_to_cache.append('Ti/_/image')
 		self.modules_to_cache.append('Ti/_/include')
+		if len(tiapp_xml.mobileweb['preload']['requires']):
+			for req in tiapp_xml.mobileweb['preload']['requires']:
+				self.modules_to_cache.append('commonjs:' + req)
+		if len(tiapp_xml.mobileweb['preload']['includes']):
+			for inc in tiapp_xml.mobileweb['preload']['includes']:
+				self.modules_to_cache.append('url:' + inc)
 		
 		# find only the top most modules to be required
 		areDeps = {}
@@ -99,9 +106,17 @@ class Compiler(object):
 			if not module in areDeps:
 				self.modules_to_load.append(module)
 		
+		# check what we need to preload
+		preload = []
+		if 'Ti/UI/TableViewRow' in self.modules_map:
+			preload.append('/themes/titanium/UI/TableViewRow/child.png')
+		if len(tiapp_xml.mobileweb['preload']['images']):
+			for img in tiapp_xml.mobileweb['preload']['images']:
+				preload.append(img)
+		
 		# detect Ti+ modules
 		if len(tiapp_xml.properties['modules']):
-			print '[INFO] Locating Ti+ modules…'
+			print '[INFO] Locating Ti+ modules...'
 			for module in tiapp_xml.properties['modules']:
 				if module['platform'] == '' or module['platform'] == 'mobileweb':
 					module_dir = os.path.join(self.modules_path, module['id'], module['version'])
@@ -158,6 +173,8 @@ class Compiler(object):
 		
 		# TODO: break up the dependencies into layers
 		
+		# TODO: minify the project's code first
+		
 		# build the titanium.js
 		print '[INFO] Assembling titanium.js...'
 		ti_js = codecs.open(self.ti_js_file, 'w', encoding='utf-8')
@@ -176,8 +193,10 @@ class Compiler(object):
 			app_version=tiapp_xml.properties['version'],
 			deploy_type=deploytype,
 			packages=simplejson.dumps(self.packages, sort_keys=True),
+			preload=simplejson.dumps(preload, sort_keys=True),
 			project_id=tiapp_xml.properties['id'],
 			project_name=tiapp_xml.properties['name'],
+			ti_filesystem_external=tiapp_xml.mobileweb['filesystem']['external'],
 			ti_githash=self.package_json['titanium']['githash'],
 			ti_timestamp=self.package_json['titanium']['timestamp'],
 			ti_version=sdk_version,
@@ -191,7 +210,11 @@ class Compiler(object):
 		ti_js.write('require.cache({\n');
 		first = True
 		for x in self.modules_to_cache:
-			dep = self.resolve(x)
+			is_cjs = False
+			if x.startswith('commonjs:'):
+				is_cjs = True
+				x = x[9:]
+			dep = self.resolve(x, None)
 			if not len(dep):
 				continue
 			if not first:
@@ -205,6 +228,7 @@ class Compiler(object):
 				source = filename + '.uncompressed.js'
 				if self.minify:
 					os.rename(filename, source)
+					print '[INFO] Minifying include %s' % filename
 					p = subprocess.Popen('java -jar "%s" --compilation_level SIMPLE_OPTIMIZATIONS --js "%s" --js_output_file "%s"' % (os.path.join(self.sdk_path, 'closureCompiler', 'compiler.jar'), source, filename), shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
 					stdout, stderr = p.communicate()
 					if p.returncode != 0:
@@ -215,7 +239,9 @@ class Compiler(object):
 						print '[WARN] Leaving %s un-minified' % filename
 						os.remove(filename)
 						shutil.copy(source, filename)
-				ti_js.write('"%s":"%s"' % (x, codecs.open(filename, 'r', 'utf-8').read().strip().replace('\\', '\\\\').replace('\n', '\\\n').replace('\"', '\\\"')))
+				ti_js.write('"%s":"%s"' % (x, codecs.open(filename, 'r', 'utf-8').read().strip().replace('\\', '\\\\').replace('\n', '\\n\\\n').replace('\"', '\\\"')))
+			elif is_cjs:
+				ti_js.write('"%s":function(){\ndefine(function(require, exports, module){\n%s\n});\n}' % (x, codecs.open(os.path.join(dep[0], filename), 'r', 'utf-8').read()))
 			else:
 				ti_js.write('"%s":function(){\n%s\n}' % (x, codecs.open(os.path.join(dep[0], filename), 'r', 'utf-8').read()))
 		ti_js.write('});\n')
@@ -283,6 +309,7 @@ class Compiler(object):
 		
 		# minify all javascript, html, and css files
 		if self.minify:
+			# TODO: only minify non-project code (i.e. Titanium and Ti+ modules)
 			subprocess.call('java -cp "%s:%s" -Djava.awt.headless=true minify "%s"' % (os.path.join(self.sdk_path, 'minify'), os.path.join(self.sdk_path, 'closureCompiler', 'compiler.jar'), self.build_path), shell=True)
 			# elif ext == '.json':
 			#	TODO: minify json
@@ -334,11 +361,13 @@ class Compiler(object):
 		else:
 			print '[INFO] Finished in %s seconds' % int(total_time)
 	
-	def resolve(self, it):
+	def resolve(self, it, ref):
 		parts = it.split('!')
 		it = parts[-1]
 		if it.startswith('url:'):
 			it = it[4:]
+			if it.startswith('/'):
+				it = '.' + it
 			parts = it.split('/')
 			for p in self.packages:
 				if p['name'] == parts[0]:
@@ -348,6 +377,8 @@ class Compiler(object):
 			return []
 		if it.startswith('/') or (len(parts) == 1 and it.endswith('.js')):
 			return [self.build_path, it]
+		if it.startswith('.') and ref is not None:
+			it = self.compact_path(ref + it)
 		parts = it.split('/')
 		for p in self.packages:
 			if p['name'] == parts[0]:
@@ -411,7 +442,9 @@ class Compiler(object):
 			'Ti/App',
 			'Ti/App/Properties',
 			'Ti/Facebook',
+			'Ti/_/Filesystem/local',
 			'Ti/Filesystem',
+			'Ti/Filesystem/File',
 			'Ti/Media',
 			'Ti/Media/VideoPlayer',
 			'Ti/Network',
@@ -447,28 +480,41 @@ class Compiler(object):
 			'Ti/Utils'
 		]
 	
+	def parse_deps(self, deps):
+		found = []
+		if len(deps) > 2:
+			deps = deps[1:-1]
+			deps = deps.split(',')
+			for dep in deps:
+				dep = dep.strip()
+				if dep.startswith('\'') or dep.startswith('"'):
+					found.append(simplejson.loads(dep))
+		return found
+	
 	def find_modules_to_cache(self):
 		print '[INFO] Searching for all required modules...'
 		
 		self.require_cache = {}
 		
 		for module in self.project_dependencies:
-			self.parse_module(module)
+			self.parse_module(module, None)
 		
 		self.modules_to_cache = []
 		for module in self.require_cache:
 			self.modules_to_cache.append(module)
 	
-	def parse_module(self, module):
+	def parse_module(self, module, ref):
 		if module in self.require_cache:
 			return
 		
 		parts = module.split('!')
 		
 		if len(parts) == 1:
+			if module.startswith('.') and ref is not None:
+				module = self.compact_path(ref + module)
 			self.require_cache[module] = 1
 		
-		dep = self.resolve(module)
+		dep = self.resolve(module, ref)
 		if not len(dep):
 			return
 		
@@ -490,26 +536,32 @@ class Compiler(object):
 				if groups[1] is None:
 					self.modules_map[module] = []
 				else:
-					deps = simplejson.loads(groups[1])
-					self.modules_map[module] = deps
-					for dep in deps:
+					deps = self.parse_deps(groups[1])
+					for i in range(0, len(deps)):
+						dep = deps[i]
 						parts = dep.split('!')
+						ref = module.split('/')
+						ref.pop()
+						ref = '/'.join(ref) + '/'
+						if dep.startswith('.'):
+							deps[i] = self.compact_path(ref + dep)
 						if len(parts) == 1:
 							if dep.startswith('./'):
 								parts = module.split('/')
 								parts.pop()
 								parts.append(dep)
-								self.parse_module(self.compact_path('/'.join(parts)))
+								self.parse_module(self.compact_path('/'.join(parts)), ref)
 							else:
-								self.parse_module(dep)
+								self.parse_module(dep, ref)
 						else:
 							self.modules_map[dep] = parts[0]
-							self.parse_module(parts[0])
+							self.parse_module(parts[0], module)
 							if parts[0] == 'Ti/_/text':
 								if dep.startswith('./'):
 									parts = module.split('/')
 									parts.pop()
 									parts.append(dep)
-									self.parse_module(self.compact_path('/'.join(parts)))
+									self.parse_module(self.compact_path('/'.join(parts)), ref)
 								else:
-									self.parse_module(dep)
+									self.parse_module(dep, ref)
+					self.modules_map[module] = deps

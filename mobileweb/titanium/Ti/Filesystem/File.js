@@ -1,5 +1,8 @@
-define("Ti/Filesystem/File", ["Ti/_/Evented"], function(Evented) {
-	
+define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
+
+	return declare("Ti/Filesystem/File", null, {
+	});
+
 	(function(api){
 		// Interfaces
 		Ti._5.EventDriven(api);

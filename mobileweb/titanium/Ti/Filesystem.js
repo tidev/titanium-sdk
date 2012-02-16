@@ -1,17 +1,20 @@
-define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
+define(["Ti/_/Evented", "Ti/_/lang"],
+	function(Evented, lang) {
 
-	lang.setObject("Ti.Filesystem", Evented, {
+	var external = require.config.filesystem.external;
+	// need to validate/authenticate external storage
+
+	return lang.setObject("Ti.Filesystem", Evented, {
 
 		constants: {
-			MODE_APPEND: 1,
-			MODE_READ: 2,
-			MODE_WRITE: 3,
+			MODE_APPEND: 4,
+			MODE_READ: 1,
+			MODE_WRITE: 2,
+
 			applicationDataDirectory: "/",
 			lineEnding: "\n",
 			resourcesDirectory: "/",
 			separator: "/",
-			
-			// on iphone, tempDirectory = "file://localhost/var/folders/14/_wzcmsd17pn76bzvb5lsmzr40000gn/T/"
 			tempDirectory: "/tmp"
 		},
 
@@ -25,6 +28,10 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 		},
 
 		createTempFile: function(args) {
+			//
+		},
+
+		getExternalStorageDirectory: function() {
 			//
 		},
 

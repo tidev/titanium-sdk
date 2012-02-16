@@ -65,6 +65,16 @@ class TiAppXML(object):
 		self.android = {}
 		self.android_manifest = {}
 		self.iphone = {}
+		self.mobileweb = {
+			'filesystem': {
+				'external': None
+			},
+			'preload': {
+				'images': [],
+				'requires': [],
+				'includes': []
+			}
+		}
 		
 		root = self.dom.documentElement
 		children = root.childNodes
@@ -100,6 +110,8 @@ class TiAppXML(object):
 					self.parse_android(child)
 				elif child.nodeName == 'iphone':
 					self.parse_iphone(child)
+				elif child.nodeName == 'mobileweb':
+					self.parse_mobileweb(child)
 				elif child.nodeName == 'property':
 					name = child.getAttribute('name')
 					type = child.getAttribute('type') or 'string'
@@ -303,6 +315,42 @@ class TiAppXML(object):
 		for child in node.childNodes:
 			if child.nodeName in parse_tags:
 				local_objects['parse_'+child.nodeName](child)
+
+	def parse_mobileweb(self, node):
+		def parse_filesystem(node):
+			val = node.getAttribute('externalStorage')
+			if val is not None:
+				self.mobileweb['filesystem']['external'] = val
+		
+		def parse_image(node):
+			val = node.getAttribute('src')
+			if val is not None:
+				self.mobileweb['preload']['images'].append(val)
+		
+		def parse_require(node):
+			val = node.getAttribute('src')
+			if val is not None:
+				self.mobileweb['preload']['requires'].append(val)
+		
+		def parse_include(node):
+			val = node.getAttribute('src')
+			if val is not None:
+				self.mobileweb['preload']['includes'].append(val)
+		
+		local_objects = locals()
+		parse_tags = {
+			'filesystem': None,
+			'preload': ['image', 'require', 'include']
+		}
+		
+		for child in node.childNodes:
+			if child.nodeName in parse_tags:
+				if parse_tags[child.nodeName] is None:
+					local_objects['parse_'+child.nodeName](child)
+				else:
+					for preload_child in child.childNodes:
+						if preload_child.nodeName in parse_tags[child.nodeName]:
+							local_objects['parse_'+preload_child.nodeName](preload_child)
 
 	def has_app_property(self, property):
 		return property in self.app_properties

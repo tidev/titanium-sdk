@@ -583,6 +583,7 @@
 			var i,
 				p,
 				r = _t.rawDef,
+				depsCount = deps.length,
 				q = defQ.slice(0), // backup the defQ
 				finish = function() {
 					_t.executed = 1;
@@ -596,18 +597,17 @@
 				||	(r && (is(r, "String")
 						? evaluate(r, _t.cjs)
 						: is(r, "Function")
-							? r.apply(null, deps)
+							? r.apply(null, deps) || (depsCount > 1 && deps[1]) || (depsCount > 2 && deps[2].exports)
 							: is(r, "Object")
-								? (function(obj, vars) {
+								?	(function(obj, vars) {
 										for (var i in vars){
 											this[i] = vars[i];
 										}
 										return obj;
-									}).call({}, r, _t.cjs)
+									}).call({}, r, _t.cjs) || _t.cjs.exports
 								: null
 						)
-					)
-				||	_t.cjs.exports;
+					);
 
 			// we might have just executed code above that could have caused a couple
 			// define()'s to queue up
@@ -872,7 +872,7 @@
 
 		if (!rawDef) {
 			rawDef = deps || name;
-			rawDef.length === 1 || i.concat(["exports", "module"]);
+			rawDef.length === 1 || (i = i.concat(["exports", "module"]));
 			if (typeof name !== "string") {
 				deps = deps ? name : i;
 				name = 0;
@@ -1034,7 +1034,8 @@
 			for (p in subject) {
 				m = p.match(urlRegExp);
 				if (m) {
-					defCache[toUrl(m[1])] = subject[p];
+					var s = toUrl(m[1]);
+					defCache[s] = subject[p];
 				} else {
 					m = getResourceDef(p, 0, 0, subject[p], 1);
 					defCache[m.name] = m.rawDef;

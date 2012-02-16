@@ -55,6 +55,8 @@ methods:
         available for reading and writing.
 
         Returns `false` on iOS.
+
+        Returns `true` on Mobile Web if the `externalStorage` setting was set in the `tiapp.xml`, otherwise `false`.
     returns:
         type: Boolean
 properties:
