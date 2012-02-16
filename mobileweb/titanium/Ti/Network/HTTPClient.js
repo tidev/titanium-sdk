@@ -50,7 +50,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 		_onError: function(error) {
 			this.abort();
 			is(error, "Object") || (error = { message: error });
-			error.error || (error.error = error.message || xhr.status);
+			error.error || (error.error = error.message || this._xhr.status);
 			parseInt(error.error) || (error.error = "Can't reach host");
 			is(this.onerror, "Function") && this.onerror.call(this, error);
 		},
