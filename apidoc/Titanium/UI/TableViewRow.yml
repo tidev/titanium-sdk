@@ -191,11 +191,11 @@ events:
         type: Dictionary<Titanium.UI.TableViewRow>
         
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: row
@@ -210,11 +210,11 @@ events:
     platforms: [iphone, ipad, mobileweb]
     properties:
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
   - name: touchend
@@ -222,11 +222,11 @@ events:
     platforms: [iphone, ipad, mobileweb]
     properties:
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
   - name: touchstart
@@ -234,11 +234,11 @@ events:
     platforms: [iphone, ipad, mobileweb]
     properties:
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
     
 

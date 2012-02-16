@@ -214,11 +214,11 @@ events:
         type: Dictionary<Titanium.UI.TableViewRow>
         
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: row
@@ -230,12 +230,12 @@ events:
     platforms: [mobileweb]
     properties:
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: x
         type: Number
-        summary: X coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
 
   - name: delete
     summary: Fired when a table row is deleted by the user.
@@ -262,11 +262,11 @@ events:
         type: Dictionary<Titanium.UI.TableViewRow>
         
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
             
       - name: row
@@ -278,11 +278,11 @@ events:
     platforms: [iphone, ipad, mobileweb]
     properties:
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
     
   - name: longpress
@@ -298,10 +298,10 @@ events:
         In contrast to a `longclick`, this event returns the `x` and `y` coordinates of the touch.
     properties:
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
     platforms: [android, iphone, ipad]
 
@@ -330,11 +330,11 @@ events:
         type: Dictionary<Titanium.UI.TableViewRow>
         
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
             
       - name: row
@@ -366,11 +366,11 @@ events:
         type: Number
         
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: contentSize
@@ -392,11 +392,11 @@ events:
         type: Point
         
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: contentSize
@@ -413,11 +413,11 @@ events:
     summary: Fired when the device detects a single tap against the view.
     properties:
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
 
   - name: swipe
@@ -429,11 +429,11 @@ events:
         type: String
         
       - name: y
-        summary: Y coordinate of the event's endpoint from the `source` view.
+        summary: Y coordinate of the event's endpoint from the `source` view's coordinate system.
         type: Number
         
       - name: x
-        summary: Y coordinate of the event's endpoint from the `source` view.
+        summary: X coordinate of the event's endpoint from the `source` view's coordinate system.
         type: Number
         
   - name: touchcancel
@@ -444,11 +444,11 @@ events:
     platforms: [iphone, ipad, mobileweb]
     properties:
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
   - name: touchend
@@ -456,11 +456,11 @@ events:
     platforms: [iphone, ipad, mobileweb]
     properties:
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
   - name: touchstart
@@ -468,11 +468,11 @@ events:
     platforms: [iphone, ipad, mobileweb]
     properties:
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
 
   - name: twofingertap
@@ -480,11 +480,11 @@ events:
     platforms: [iphone, ipad, mobileweb]
     properties:
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
             
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
 
 properties:
