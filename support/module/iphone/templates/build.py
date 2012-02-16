@@ -58,8 +58,8 @@ def generate_doc(config):
 		print "Couldn't find documentation file at: %s" % docdir
 		return None
 	sdk = find_sdk(config)
-	support_dir = os.path.join(sdk,'module','support')
-	sys.path.append(support_dir)
+	common_support_dir = os.path.join(sdk, 'common')
+	sys.path.append(common_support_dir)
 	try:
 		import markdown2 as markdown
 	except ImportError:
