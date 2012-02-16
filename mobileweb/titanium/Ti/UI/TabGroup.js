@@ -1,25 +1,30 @@
-define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI"], function(declare, css, SuperView, UI) {
+define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI", "Ti/_/lang"], function(declare, css, SuperView, UI, lang) {
 
-	var is = require.is;
+	var is = require.is,
+		postUpdateTabsBackground = {
+			post: "_updateTabsBackground"
+		};
 
 	return declare("Ti.UI.TabGroup", SuperView, {
 
 		constructor: function(args){
+			
+			this.layout = "vertical";
+			
 			// Create the tab bar
 			this.add(this._tabBarContainer = UI.createView({
-				width: "100%",
-				height: "10%",
-				layout: "horizontal",
-				top: 0,
-				left: 0
+				left: 0,
+				right: 0,
+				layout: "horizontal"
 			}));
+			this.tabHeight = "10%";
 
 			// Create the tab window container
 			this.add(this._tabContentContainer = UI.createView({
-				width: "100%",
-				height: "90%",
 				left: 0,
-				top: "10%"
+				right: 0,
+				top: 0,
+				bottom: 0
 			}));
 
 			this.tabs = [];
@@ -66,14 +71,11 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI"], function(decl
 
 			if (prev) {
 				prev.active = false;
-				prev._selected = false;
 				prev._doBackground();
 				this._tabContentContainer.remove(prev["window"]);
 			}
 
 			tab.active = true;
-			tab._selected = true;
-
 			this._activeTab = tab;
 			this._tabContentContainer.add(tab["window"]);
 			this._state = {
@@ -82,6 +84,7 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI"], function(decl
 				previousTab: prev,
 				tab: tab
 			};
+			this._updateTabsBackground();
 		},
 
 		_setTabBarWidths: function(tabs) {
@@ -92,18 +95,16 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI"], function(decl
 		},
 		
 		_updateTabBackground: function(tab) {
-			if (tab.active) {
-				tab._defaultBackgroundColor = this.tabsBackgroundSelectedColor;
-				tab._defaultBackgroundImage = this.tabsBackgroundSelectedImage;
-			} else {
-				tab._defaultBackgroundColor = this.tabsBackgroundColor;
-				tab._defaultBackgroundImage = this.tabsBackgroundImage;
-			}
-			tab._defaultBackgroundSelectedColor = "grey";
-			tab._defaultBackgroundDisabledColor = this.tabsBackgroundDisabledColor;
-			tab._defaultBackgroundDisabledImage = this.tabsBackgroundDisabledImage;
-			tab._defaultBackgroundFocusedColor = this.tabsBackgroundFocusedColor;
-			tab._defaultBackgroundFocusedImage = this.tabsBackgroundFocusedImage;
+			var prefix = tab.active ? "activeTab" : "tabs";
+			tab._defaultBackgroundColor = this[prefix + "BackgroundColor"];
+			tab._defaultBackgroundImage = this[prefix + "BackgroundImage"];
+			tab._defaultBackgroundFocusedColor = this[prefix + "BackgroundFocusedColor"];
+			tab._defaultBackgroundFocusedImage = this[prefix + "BackgroundFocusedImage"];
+			tab._defaultBackgroundDisabledColor = this[prefix + "BackgroundDisabledColor"];
+			tab._defaultBackgroundDisabledImage = this[prefix + "BackgroundDisabledImage"];
+			tab._defaultBackgroundSelectedColor = this[prefix + "BackgroundSelectedColor"];
+			tab._defaultBackgroundSelectedImage = this[prefix + "BackgroundSelectedImage"];
+			tab._doBackground();
 		},
 		
 		_updateTabsBackground: function() {
@@ -121,14 +122,15 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI"], function(decl
 			activeTab: {
 				set: function(value) {
 					if (is(value, "Number")) {
-						if (!value in this.tabs) {
-							return;
-						}
 						value = this.tabs[value];
 					}
-
-					this._activateTab(value);
+					if (!value in this.tabs) {
+						return;
+					}
 					return value;
+				},
+				post: function(value) {
+					lang.isDef(value) && this._activateTab(value);
 				}
 			},
 
@@ -155,94 +157,64 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI"], function(decl
 
 					return value;
 				},
-				post: function() {
-					this._updateTabsBackground();
-				}
+				post: "_updateTabsBackground"
 			},
+			
+			activeTabBackgroundColor: {
+				post: "_updateTabsBackground",
+				value: "#fff"
+			},
+			
+			activeTabBackgroundImage: postUpdateTabsBackground,
+			
+			activeTabBackgroundDisabledColor: {
+				post: "_updateTabsBackground",
+				value: "#888"
+			},
+			
+			activeTabBackgroundDisabledImage: postUpdateTabsBackground,
+			
+			activeTabBackgroundFocusedColor: {
+				post: "_updateTabsBackground",
+				value: "#ccc"
+			},
+			
+			activeTabBackgroundFocusedImage: postUpdateTabsBackground,
+			
+			activeTabBackgroundSelectedColor: {
+				post: "_updateTabsBackground",
+				value: "#ddd"
+			},
+			
+			activeTabBackgroundSelectedImage: postUpdateTabsBackground,
 			
 			tabsBackgroundColor: {
-				post: function(value) {
-					this._updateTabsBackground();
-				},
-				value: "white"
+				post: "_updateTabsBackground",
+				value: "#aaa"
 			},
 			
-			tabsBackgroundImage: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.TabGroup#.tabsBackgroundImage" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TabGroup#.tabsBackgroundImage" is not implemented yet.');
-					return value;
-				}
-			},
+			tabsBackgroundImage: postUpdateTabsBackground,
 			
 			tabsBackgroundDisabledColor: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.TabGroup#.tabsBackgroundDisabledColor" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TabGroup#.tabsBackgroundDisabledColor" is not implemented yet.');
-					return value;
-				}
+				post: "_updateTabsBackground",
+				value: "#666"
 			},
 			
-			tabsBackgroundDisabledImage: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.TabGroup#.tabsBackgroundDisabledImage" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TabGroup#.tabsBackgroundDisabledImage" is not implemented yet.');
-					return value;
-				}
-			},
+			tabsBackgroundDisabledImage: postUpdateTabsBackground,
 			
 			tabsBackgroundFocusedColor: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.TabGroup#.tabsBackgroundFocusedColor" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TabGroup#.tabsBackgroundFocusedColor" is not implemented yet.');
-					return value;
-				}
+				post: "_updateTabsBackground",
+				value: "#ccc"
 			},
 			
-			tabsBackgroundFocusedImage: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.TabGroup#.tabsBackgroundFocusedImage" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TabGroup#.tabsBackgroundFocusedImage" is not implemented yet.');
-					return value;
-				}
-			},
+			tabsBackgroundFocusedImage: postUpdateTabsBackground,
 			
 			tabsBackgroundSelectedColor: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.TabGroup#.tabsBackgroundSelectedColor" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TabGroup#.tabsBackgroundSelectedColor" is not implemented yet.');
-					return value;
-				}
+				post: "_updateTabsBackground",
+				value: "#ddd"
 			},
 			
-			tabsBackgroundSelectedImage: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.TabGroup#.tabsBackgroundSelectedImage" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TabGroup#.tabsBackgroundSelectedImage" is not implemented yet.');
-					return value;
-				}
-			},
+			tabsBackgroundSelectedImage: postUpdateTabsBackground,
 			
 			tabDividerColor: {
 				get: function(value) {
@@ -262,6 +234,13 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI"], function(decl
 				},
 				set: function(value) {
 					console.debug('Property "Titanium.UI.TabGroup#.tabDividerWidth" is not implemented yet.');
+					return value;
+				}
+			},
+			
+			tabHeight: {
+				set: function(value) {
+					this._tabBarContainer.height = value;
 					return value;
 				}
 			}

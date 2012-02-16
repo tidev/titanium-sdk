@@ -167,3 +167,11 @@ properties:
     type: [Number,String]
     since: "2.0"
     platforms: [android, mobileweb]
+  - name: tabHeight
+    summary: The height of the tabs.
+    description: |
+        This height is relative to the tabgroup's parent. Can be either a float value or 
+        a dimension string (for example, '50%' or 'auto').
+    type: [Number,String]
+    since: "2.0"
+    platforms: [mobileweb]

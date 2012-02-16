@@ -467,7 +467,7 @@ define(
 				bi = this.backgroundImage || this._defaultBackgroundImage || "none",
 				bc = this.backgroundColor || this._defaultBackgroundColor;
 
-			if (this._touching || this._selected) {
+			if (this._touching) {
 				bc = this.backgroundSelectedColor || this._defaultBackgroundSelectedColor || bc;
 				bi = this.backgroundSelectedImage || this._defaultBackgroundSelectedImage || bi;
 			}
