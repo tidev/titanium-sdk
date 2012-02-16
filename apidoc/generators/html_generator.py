@@ -303,25 +303,38 @@ def load_file_markdown(file_specifier, obj):
 		return open(filename, "r").read()
 
 def anchor_for_object_or_member(obj_specifier, text=None, language="markdown", suppress_code_formatting=False):
+	fragment = ""
+	obj_specifier_base = obj_specifier
+	fragment_start = obj_specifier.rfind("#")
+	if fragment_start >= 0:
+		fragment = obj_specifier[fragment_start:]
+		if fragment_start > 0:
+			obj_specifier_base = obj_specifier[0:fragment_start]
+		elif fragment_start == 0:
+			obj_specifier_base = ""
+
 	if language == "markdown":
 		if not suppress_code_formatting:
 			label = text or ("`%s`" % obj_specifier)
 		else:
 			label = text or obj_specifier
-		template = "[%s](#)" % label
+		template = "[%s](<address_here>)" % label
 	else:
 		if not suppress_code_formatting:
 			label = text or ("<code>%s</code>" % obj_specifier)
 		else:
 			label = text or (obj_specifier)
-		template = '<a href="#">%s</a>' % label
-	if obj_specifier in all_annotated_apis:
-		obj = all_annotated_apis[obj_specifier]
+		template = '<a href="<address_here>">%s</a>' % label
+	if obj_specifier_base in all_annotated_apis:
+		obj = all_annotated_apis[obj_specifier_base]
 		if hasattr(obj, "filename_html"):
-			return (template.replace("#", "%s.html" % obj.filename_html), True)
+			url = "%s.html" % obj.filename_html
+			if fragment:
+				url += fragment
+			return (template.replace("<address_here>", url), True)
 	else:
 		# Maybe a method, property or event
-		parts = obj_specifier.split(".")
+		parts = obj_specifier_base.split(".")
 		if len(parts) > 0:
 			parent = ".".join(parts[:-1])
 			member_name = parts[-1]
@@ -332,7 +345,10 @@ def anchor_for_object_or_member(obj_specifier, text=None, language="markdown", s
 					if hasattr(obj, list_name) and type(getattr(obj, list_name)) == list:
 						for m in getattr(obj, list_name):
 							if m.name == member_name and hasattr(m, "filename_html"):
-								return (template.replace("#", "%s.html" % m.filename_html), True)
+								url = "%s.html" % m.filename_html
+								if fragment:
+									url += fragment
+								return (template.replace("<address_here>", url), True)
 	# Didn't find it. At least send it back styled like code (unless that's suppressed).
 	if language == "markdown":
 		if not suppress_code_formatting:
