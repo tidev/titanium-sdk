@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(this_dir, "..")))
 
 from common import dict_has_non_empty_member, strip_tags, not_real_titanium_types
 
-# We package markdown and mako in support/common.
+# We package simplejson, markdown and mako in support/common.
 common_support_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "support", "common"))
 sys.path.append(common_support_dir)
 import markdown

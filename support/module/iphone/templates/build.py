@@ -7,11 +7,6 @@ import os, sys, glob, string
 import zipfile
 from datetime import date
 
-try:
-	import json
-except:
-	import simplejson as json
-
 cwd = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 os.chdir(cwd)
 required_module_keys = ['name','version','moduleid','description','copyright','license','copyright','platform','minsdk']
@@ -81,6 +76,11 @@ def compile_js(manifest,config):
 	iphone_dir = os.path.join(sdk,'iphone')
 	sys.path.insert(0,iphone_dir)
 	from compiler import Compiler
+	sys.path.append(os.path.join(sdk, "common"))
+	try:
+		import json
+	except:
+		import simplejson as json
 	
 	path = os.path.basename(js_file)
 	compiler = Compiler(cwd, manifest['moduleid'], manifest['name'], 'commonjs')

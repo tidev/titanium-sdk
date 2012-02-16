@@ -13,7 +13,7 @@ from common import dict_has_non_empty_member, strip_tags, not_real_titanium_type
 android_support_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "support", "android"))
 sys.path.append(android_support_dir)
 
-# We package markdown in support/common.
+# We package markdown and simplejson in support/common.
 common_support_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "support", "common"))
 sys.path.append(common_support_dir)
 from markdown import markdown

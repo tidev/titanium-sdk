@@ -15,8 +15,13 @@
 # may need to be run again.
 
 import optparse
-import os
+import os, sys
 from coverage import CoverageData
+
+# We package simplejson in support/common.
+thisDir = os.path.abspath(os.path.dirname(__file__))
+commonSupportDir = os.path.abspath(os.path.join(thisDir, "..", "..", "support", "common"))
+sys.path.append(commonSupportDir)
 
 try:
 	import json

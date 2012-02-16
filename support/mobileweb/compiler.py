@@ -4,14 +4,15 @@
 # Project Compiler
 #
 
-import os, sys, time, datetime, simplejson, codecs, shutil, subprocess, re, math
+import os, sys, time, datetime, codecs, shutil, subprocess, re, math
 from tiapp import *
 
-# mako is in support/common
+# mako and simplejson are in support/common
 this_dir = os.path.dirname(os.path.abspath(__file__))
 common_dir = os.path.join(os.path.dirname(this_dir), "common")
 sys.path.append(common_dir)
 import mako.template
+import simplejson
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn','CVS'];
