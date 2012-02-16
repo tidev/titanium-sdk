@@ -97,15 +97,15 @@
 -(void)stop:(id)args
 {
     if (player!=nil)
-	{
-		if ([player isPlaying] || paused) {
-			[player stop];
-			[player setCurrentTime:0];
-			[[TiMediaAudioSession sharedSession] stopAudioSession];
-		}
-	}
-	resumeTime = 0;
-	paused = NO;
+    {
+        if ([player isPlaying] || paused) {
+            [player stop];
+            [player setCurrentTime:0];
+            [[TiMediaAudioSession sharedSession] stopAudioSession];
+        }
+    }
+    resumeTime = 0;
+    paused = NO;
 }
 
 -(void)pause:(id)args
@@ -339,6 +339,8 @@
     [self forgetSelf];
 }
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+
 - (void)audioPlayerEndInterruption:(AVAudioPlayer *)player withFlags:(NSUInteger)flags
 {
 	if (flags != AVAudioSessionInterruptionFlags_ShouldResume) {
@@ -360,7 +362,8 @@
 		{
 			if (paused) { 
 				[self play:nil];
-			} else {
+			}
+            else {
 				[self pause:nil];
 			}
 			break;
@@ -380,12 +383,9 @@
 			[self play:nil];
 			break;
 		}
-        default:
-        {
-            break;
-        }
-	}
+    }
 }
+#endif
 
 @end
 
