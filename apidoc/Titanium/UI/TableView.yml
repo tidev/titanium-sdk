@@ -199,10 +199,10 @@ events:
         summary: Dictionary containing the properties set on the row.
         type: Dictionary<Titanium.UI.TableViewRow>
       - name: y
-        summary: Y coordinate of the event, in the `source` view's coordinates.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
       - name: x
-        summary: X coordinate of the event, in the `source` view's coordinates.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
       - name: globalPoint
         summary: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
@@ -233,10 +233,10 @@ events:
         summary: Dictionary containing the properties set on the row.
         type: Dictionary<Titanium.UI.TableViewRow>
       - name: y
-        summary: Y coordinate of the event, in the `source` view's coordinates.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
       - name: x
-        summary: X coordinate of the event, in the `source` view's coordinates.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
       - name: globalPoint
         summary: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
@@ -267,10 +267,10 @@ events:
         summary: Dictionary containing the properties set on the row.
         type: Dictionary<Titanium.UI.TableViewRow>
       - name: y
-        summary: Y coordinate of the event, in the `source` view's coordinates.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
       - name: x
-        summary: X coordinate of the event, in the `source` view's coordinates.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
       - name: globalPoint
         summary: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
@@ -301,10 +301,10 @@ events:
         platforms: [android, mobileweb]
         type: Number
       - name: y
-        summary: Y coordinate of the event, in the `source` view's coordinates.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
       - name: x
-        summary: X coordinate of the event, in the `source` view's coordinates.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
       - name: contentSize
         summary: Dictionary with `width` and `height` properties containing the size of the content (regardless of the display size in the case of scrolling).
@@ -327,7 +327,7 @@ events:
         platforms: [iphone, ipad, mobileweb]
         type: Point
       - name: y
-        summary: Y coordinate of the event, in the `source` view's coordinates.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
       - name: x
         summary: X coordinate of the event, in `source` view's coordinates.
