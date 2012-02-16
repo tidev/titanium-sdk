@@ -76,6 +76,23 @@
 	[actionSheet showInView:[[TiApp controller] view]];
 }
 
+-(void)hide:(id)args
+{
+	if(actionSheet == nil){
+		return;
+	}
+
+	id options = nil;
+	if ([args count]>0) {
+		options = [args objectAtIndex:0];
+	}
+	BOOL animated = [TiUtils boolValue:@"animated" properties:options def:YES];
+
+	TiThreadPerformOnMainThread(^{
+		[actionSheet dismissWithClickedButtonIndex:[actionSheet cancelButtonIndex] animated:YES];	
+	}, NO);
+}
+
 #pragma mark AlertView Delegate
 
 - (void)actionSheet:(UIActionSheet *)actionSheet_ clickedButtonAtIndex:(NSInteger)buttonIndex;
