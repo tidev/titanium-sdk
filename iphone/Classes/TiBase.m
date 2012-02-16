@@ -138,10 +138,16 @@ void TiThreadInitalize()
 	TiThreadBlockQueue = [[NSMutableArray alloc] initWithCapacity:10];
 }
 
+//#define DISABLE_BATCH_PROCESSING
+
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 {
 	BOOL alreadyOnMainThread = [NSThread isMainThread];
 	BOOL usesWaitSemaphore = waitForFinish && !alreadyOnMainThread;
+#ifdef DISABLE_BATCH_PROCESSING
+	//Interim fix until we figure out scheduling issues.
+	usesWaitSemaphore = NO;
+#endif
 	__block dispatch_semaphore_t waitSemaphore;
 	if (usesWaitSemaphore) {
 		waitSemaphore = dispatch_semaphore_create(0);
@@ -163,6 +169,31 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 			dispatch_semaphore_signal(waitSemaphore);
 		}
 	};
+	
+#ifdef DISABLE_BATCH_PROCESSING
+	if (waitForFinish)
+	{
+		if (alreadyOnMainThread)
+		{
+			wrapperBlock();
+		}
+		else
+		{
+			dispatch_sync(dispatch_get_main_queue(), (dispatch_block_t)wrapperBlock);
+		}
+	}
+	else
+	{
+		dispatch_async(dispatch_get_main_queue(), (dispatch_block_t)wrapperBlock);
+	}
+	
+	if (caughtException != nil) {
+		[caughtException autorelease];
+		[caughtException raise];
+	}
+	return;
+#endif
+	
 	void (^wrapperBlockCopy)() = [wrapperBlock copy];
 	
 	
@@ -193,7 +224,7 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 	}
 
 	dispatch_block_t dispatchedMainBlock = (dispatch_block_t)^(){
-		TiThreadProcessPendingMainThreadBlocks(10.0, YES, nil);
+		TiThreadProcessPendingMainThreadBlocks(0.0, YES, nil);
 	};
 	dispatch_async(dispatch_get_main_queue(), (dispatch_block_t)dispatchedMainBlock);
 	if (waitForFinish)
