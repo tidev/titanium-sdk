@@ -191,11 +191,11 @@ events:
         type: Dictionary<Titanium.UI.TableViewRow>
         
       - name: y
-        summary: Y coordinate of the event, in the `source` view's coordinates.
+        summary: Y coordinate of the event from the `source` view.
         type: Number
         
       - name: x
-        summary: X coordinate of the event, in the `source` view's coordinates.
+        summary: X coordinate of the event from the `source` view.
         type: Number
         
       - name: row
