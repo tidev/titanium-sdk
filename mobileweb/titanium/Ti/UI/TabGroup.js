@@ -1,4 +1,4 @@
-define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI", "Ti/_/lang"], function(declare, css, SuperView, UI, lang) {
+define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"], function(declare, css, SuperView, View, UI, lang) {
 
 	var is = require.is,
 		postUpdateTabsBackground = {
@@ -11,8 +11,24 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI", "Ti/_/lang"], 
 			
 			this.layout = "vertical";
 			
+			// Create the tabBarContainer class
+			var self = this;
+			var TabBarContainer = declare("Ti._.UI.TabGroup.TabBarContainer", View, {
+				_doLayout: function(originX, originY, parentWidth, parentHeight, centerHDefault, centerVDefault) {
+					var tabs = self.tabs,
+						numTabs = tabs.length,
+						tabWidth = Math.floor((parentWidth - (numTabs - 1) * self.tabDividerWidth) / numTabs);
+					for (var i = 0; i < numTabs - 1; i++) {
+						tabs[i]._tabWidth = tabWidth;
+					}
+					 // Make the last tab consume the remaining space. Fractional widths look really bad in tabs.
+					tabs[i]._tabWidth = parentWidth - (numTabs - 1) * self.tabDividerWidth - tabWidth * (numTabs - 1);
+					View.prototype._doLayout.apply(this,arguments);
+				}
+			});
+			
 			// Create the tab bar
-			this.add(this._tabBarContainer = UI.createView({
+			this.add(this._tabBarContainer = new TabBarContainer({
 				left: 0,
 				right: 0,
 				layout: "horizontal"
@@ -33,19 +49,24 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI", "Ti/_/lang"], 
 		addTab: function(tab) {
 			// Initialize the tabs, if necessary
 			this.tabs = this.tabs || [];
-
-			// Add the tab to the list and tab bar
+			
+			// Add the tab to the list
 			var tabs = this.tabs;
 			tabs.push(tab);
 			tab._tabGroup = this;
+
+			// Set the active tab if there are currently no tabs, otherwise add a divider
+			if (tabs.length === 1) {
+				this.properties.activeTab = tab;
+			} else {
+				this._tabBarContainer.add(this._createTabDivider());
+			}
+			
+			// Add the tab to the UI
 			this._tabBarContainer.add(tab);
-			this._setTabBarWidths(tabs);
 			
 			// Update the background on the tab
 			this._updateTabBackground(tab);
-
-			// Set the active tab if there are currently no tabs
-			tabs.length == 1 && (this.properties.activeTab = tab);
 		},
 
 		removeTab: function(tab) {
@@ -58,11 +79,18 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI", "Ti/_/lang"], 
 
 				// Remove the tab from the tab bar and recalculate the tab sizes
 				this._tabBarContainer.remove(tab);
-				this._setTabBarWidths(tabs);
 
 				// Update the active tab, if necessary
 				tab === this._activeTab && this._activateTab(tabs[0]);
 			}
+		},
+		
+		_createTabDivider: function() {
+			return Ti.UI.createView({
+				width: this.tabDividerWidth,
+				height: "100%",
+				backgroundColor: this.tabDividerColor
+			});
 		},
 
 		_activateTab: function(tab) {
@@ -72,12 +100,12 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI", "Ti/_/lang"], 
 			if (prev) {
 				prev.active = false;
 				prev._doBackground();
-				this._tabContentContainer.remove(prev["window"]);
+				prev["window"] && this._tabContentContainer.remove(prev["window"]);
 			}
 
 			tab.active = true;
 			this._activeTab = tab;
-			this._tabContentContainer.add(tab["window"]);
+			tab["window"] && this._tabContentContainer.add(tab["window"]);
 			this._state = {
 				index: tabs.indexOf(tab),
 				previousIndex: prev ? tabs.indexOf(prev) : -1,
@@ -85,13 +113,6 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI", "Ti/_/lang"], 
 				tab: tab
 			};
 			this._updateTabsBackground();
-		},
-
-		_setTabBarWidths: function(tabs) {
-			var tabWidth = (100 / tabs.length) + "%";
-			for (var i in tabs) {
-				tabs[i]._tabWidth = tabWidth;
-			}
 		},
 		
 		_updateTabBackground: function(tab) {
@@ -111,6 +132,15 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI", "Ti/_/lang"], 
 			var tabs = this.tabs;
 			for (var i = 0; i < tabs.length; i++) {
 				this._updateTabBackground(tabs[i]);
+			}
+		},
+		
+		_updateDividers: function(){
+			var tabs = this._tabBarContainer.children;
+			for(var i = 1; i < tabs.length; i += 2) {
+				var tab = tabs[i];
+				tab.width = this.tabDividerWidth;
+				tab.backgroundColor = this.tabDividerColor;
 			}
 		},
 
@@ -135,7 +165,7 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI", "Ti/_/lang"], 
 			},
 
 			tabs: {
-				set: function(value, oldValue) {
+				set: function(value) {
 					var i,
 						tabBarContainer = this._tabBarContainer;
 
@@ -143,16 +173,15 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI", "Ti/_/lang"], 
 						return;
 					}
 
-					for (i in oldValue) {
-						tabBarContainer.remove(oldValue[i]);
-					}
+					tabBarContainer._removeAllChildren();
 
 					if (value.length) {
-						this._setTabBarWidths(value);
 						this._activateTab(value[0]);
-						for (i in value) {
+						for (i = 0; i < value.length - 1; i++) {
 							tabBarContainer.add(value[i]);
+							tabBarContainer.add(this._createTabDivider());
 						}
+						tabBarContainer.add(value[value.length - 1]); // No trailing divider
 					}
 
 					return value;
@@ -217,25 +246,17 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI", "Ti/_/lang"], 
 			tabsBackgroundSelectedImage: postUpdateTabsBackground,
 			
 			tabDividerColor: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.TabGroup#.tabDividerColor" is not implemented yet.');
-					return value;
+				post: function() {
+					this._updateDividers();
 				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TabGroup#.tabDividerColor" is not implemented yet.');
-					return value;
-				}
+				value: "#555"
 			},
 			
 			tabDividerWidth: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.TabGroup#.tabDividerWidth" is not implemented yet.');
-					return value;
+				post: function() {
+					this._updateDividers();
 				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.TabGroup#.tabDividerWidth" is not implemented yet.');
-					return value;
-				}
+				value: 1
 			},
 			
 			tabHeight: {
