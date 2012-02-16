@@ -54,7 +54,7 @@ methods:
     summary: Pauses playing the video.
 
   - name: play
-    summary: Starts playing the video
+    summary: Starts playing the video.
 
   - name: release
     summary: Releases the internal video resources immediately.  
@@ -119,20 +119,22 @@ methods:
         view.
     platforms: [iphone, ipad]
     parameters:
+
       - name: view
         summary: View to set.
         type: Titanium.UI.View
 
   - name: setMedia
-    summary: Specifies the media to play, as either a `File` or `Blob` object..
+    summary: Specifies the media to play, as either a `File`,  a `Blob`, or a URL.
     platforms: [iphone, ipad]
     parameters:
+
       - name: media
-        summary: Media to play
-        type: [Titanium.Blob, Titanium.Filesystem.File]
+        summary: Media to play.
+        type: [Titanium.Blob, Titanium.Filesystem.File, String]
 
   - name: stop
-    summary: Stops playing the video
+    summary: Stops playing the video.
 
   - name: thumbnailImageAtTime
     summary: Returns a thumbnail image for the video at the specified time.
@@ -140,17 +142,23 @@ methods:
     returns:
         type: Titanium.Blob
     parameters:
+
       - name: time
         summary: Playback time, in **seconds**.
         type: Number
+
       - name: option
-        summary: Either <Titanium.Media.VIDEO_TIME_OPTION_NEAREST_KEYFRAME> or <Titanium.Media.VIDEO_TIME_OPTION_EXACT>
+        summary: |
+            Either <Titanium.Media.VIDEO_TIME_OPTION_NEAREST_KEYFRAME> or
+            <Titanium.Media.VIDEO_TIME_OPTION_EXACT>.
         type: Number
 
 events:
 
   - name: complete
     summary: Fired when movie playback ends or a user exits playback.
+    description: |
+        On iOS, the `reason` property is only included if this information is available.
     properties:
       - name: reason
         summary: |
@@ -161,7 +169,7 @@ events:
         type: Number
 
   - name: durationAvailable
-    summary: Fired when the video duration is available
+    summary: Fired when the video duration is available.
     properties:
       - name: duration
         summary: Video duration, in milliseconds.
@@ -173,6 +181,7 @@ events:
       - name: message
         summary: Reason for error as a string.
         type: String
+    platforms: [android, mobileweb]
 
   - name: fullscreen
     summary: Fired when a movie changes to or from fullscreen view.
@@ -230,17 +239,20 @@ events:
 
   - name: preload
     summary: Fired when the movie has preloaded and is ready to play.
+    platforms: [android, mobileweb]
 
   - name: resize
     summary: Fired when the movie player is resized.
     platforms: [iphone, ipad]
 
   - name: sourceChange
-    summary: Fired when the movieSourceType is <Titanium.Media.VIDEO_SOURCE_TYPE_UNKNOWN> when preparing for playback.
+    summary: |
+        Fired when the [sourceType](Titanium.Media.VideoPlayer.sourceType) property
+        changes.
     platforms: [iphone, ipad]
     properties:
-      - name: sourceChange
-        summary: the new sourceType
+      - name: sourceType
+        summary: New `sourceType` value.
 
 properties:
 
@@ -286,7 +298,8 @@ properties:
     description: |
         On iOS, defaults to NaN, which indicates natural end time of the movie.
         Changing the value to a value less than `duration` causes the movie to 
-        stop playing at the specified point.
+        stop playing at the specified point. On iOS, this is not available for 
+        streaming media.
         
         On Android, this is always the same as `duration` (the natural end time),
         and changing the value has no effect.
@@ -381,7 +394,9 @@ properties:
     permission: read-only
 
   - name: playbackState
-    summary: Returns the current playback state of the video player
+    summary: Current playback state of the video player.
+    description: |
+        One of the `VIDEO_PLAYBACK_STATE` constants defined in <Titanium.Media>.
     type: Number
     permission: read-only
 
@@ -450,27 +465,35 @@ summary: |
     method.
 description: |
     The callback is invoked when a movie thumbnail is available.
-  - name: thumbnail
-    summary: fired when a movie thumbnail is available from `requestThumbnailImagesAtTimes`
 platforms: [iphone, ipad]
-    properties:
-      - name: success
-        summary: boolean to indicate success or failure
-      - name: image
-        summary: blob of the thumbnail image
-      - name: time
-        summary: time
-      - name: error
-        summary: if success is `false`, error message as string for reason
+properties:
+  - name: success
+    summary: Boolean to indicate success or failure.
+    type: Boolean
+
+  - name: image
+    summary: Thumbnail image, as a `Blob`.
+    type: Titanium.Blob
+
+  - name: time
+    summary: Time offset for the thumbnail, in seconds.
+    type: Number
+
+  - name: error
+    summary: If `success` is `false`, provides an error message.
+    type: String
+
 
 ---
 name: MovieSize
 summary: Simple object used to describe the size of a movie.
 platforms: [iphone, ipad]
 properties:
+
   - name: width
     summary: Width of the movie.
     type: Number
+
   - name: height
     summary: Height of the movie.
     type: Number
