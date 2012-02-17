@@ -64,7 +64,8 @@ java_keywords = [
 	"catch", "extends", "int", "short", "try",
 	"char", "final", "interface", "static", "void",
 	"class", "finally", "long",	"strictfp", "volatile",
-	"const", "float", "native",	"super", "while"
+	"const", "float", "native",	"super", "while",
+	"true", "false", "null"
 ]
 
 

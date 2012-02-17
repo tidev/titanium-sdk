@@ -49,12 +49,11 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 		_defaultHeight: "auto",
 		
-		_getContentWidth: function() {
-			return this._measureText(this.text, this.textContainerDiv).width;
-		},
-		
-		_getContentHeight: function() {
-			return this._measureText(this.text, this.textContainerDiv).height;
+		_getContentSize: function(width, height) {
+			return {
+				width: width === "auto" ? this._measureText(this.text, this.textContainerDiv, width).width : width,
+				height: height === "auto" ? this._measureText(this.text, this.textContainerDiv, width).height : height
+			};
 		},
 		
 		_setTouchEnabled: function(value) {
@@ -113,7 +112,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					// Convert \t and \n to &nbsp;'s and <br/>'s
 					var lineStartIndex = 0,
 						currentIndex = 0,
-						currentTabIndex;
+						currentTabIndex,
+						value = value || "";
 					while(currentIndex < value.length) {
 						if (value[currentIndex] === '\t') {
 							var tabSpaces = "",
