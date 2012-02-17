@@ -34,6 +34,7 @@
     RELEASE_TO_NIL(controllerStack);
 	RELEASE_TO_NIL(tabGroup);
 	RELEASE_TO_NIL(rootController);
+    RELEASE_TO_NIL(controller);
 	RELEASE_TO_NIL(current);
 	[super _destroy];
 }
@@ -295,17 +296,21 @@
 	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
 	if ([current window] == window)
 	{
-		[[rootController navigationController] popViewControllerAnimated:animated];
-		return;
+		if ([[rootController navigationController] popViewControllerAnimated:animated] != nil) {
+            return;
+        }
 	}
-	
+    UIViewController *windowController = [[window controller] retain];
+	[self setTabGroup:nil];
+
 	// Manage the navigation controller stack
 	UINavigationController* navController = [rootController navigationController];
 	NSMutableArray* newControllerStack = [NSMutableArray arrayWithArray:[navController viewControllers]];
-	[newControllerStack removeObject:[window controller]];
+	[newControllerStack removeObject:windowController];
 	[navController setViewControllers:newControllerStack animated:animated];
     RELEASE_TO_NIL(controllerStack);
     controllerStack = [newControllerStack retain];
+    [windowController release];
 	
 	[window retain];
 	[window _tabBlur];
@@ -319,6 +324,9 @@
 	{
 		RELEASE_TO_NIL(current);
 	}
+    // this TiUITabController is retaining a reference to self which leads to a cycle, so release to nil
+	RELEASE_TO_NIL(rootController);
+    [window forgetSelf];
 	[window autorelease];
 }
 
