@@ -26,13 +26,12 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
         _defaultWidth: "auto",
 
         _defaultHeight: "auto",
-
-		_getContentWidth: function() {
-			return this._measureText(this.value, this._field).width;
-		},
-
-		_getContentHeight: function() {
-			return this._measureText(this.value, this._field).height;
+		
+		_getContentSize: function(width, height) {
+			return {
+				width: width === "auto" ? this._measureText(this.value, this._field, width).width : width,
+				height: height === "auto" ? this._measureText(this.value, this._field, width).height : height
+			};
 		},
 
 		_setTouchEnabled: function(value) {

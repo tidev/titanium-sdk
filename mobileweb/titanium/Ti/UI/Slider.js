@@ -18,13 +18,16 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"],
 		},
 		
 		_defaultWidth: "100%",
+		
 		_defaultHeight: "auto",
-		_getContentWidth: function() {
-			return this.slider.clientWidth;
+		
+		_getContentSize: function(width, height) {
+			return {
+				width: this.slider.clientWidth,
+				height: this.slider.clientHeight
+			};
 		},
-		_getContentHeight: function() {
-			return this.slider.clientHeight;
-		},
+		
 		_setTouchEnabled: function(value) {
 			Widget.prototype._setTouchEnabled.apply(this,arguments);
 			this.slider && set(this.slider,"pointerEvents", value ? "auto" : "none");
