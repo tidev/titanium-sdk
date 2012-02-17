@@ -326,7 +326,6 @@
 	}
     // this TiUITabController is retaining a reference to self which leads to a cycle, so release to nil
 	RELEASE_TO_NIL(rootController);
-    [window forgetSelf];
 	[window autorelease];
 }
 
