@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -65,16 +65,9 @@ Module.runModule = function (source, filename, activityOrService) {
 	return module;
 }
 
-// Run a module as the main entry point.
-Module.runMainModule = function (source, filename) {
-	var mainModule = Module.main = new Module('.');
-	mainModule.load(filename, source);
-	return true;
-}
-
 // Attempts to load the module. If no file is found
 // with the provided name an exception will be thrown.
-// Once the contents of the file are read, it is ran
+// Once the contents of the file are read, it is run
 // in the current context. A sandbox is created by
 // executing the code inside a wrapper function.
 // This provides a speed boost vs creating a new context.
@@ -243,7 +236,10 @@ Module.prototype._runScript = function (source, filename) {
 	}
 	require.main = Module.main;
 
-	if (self.id == '.') {
+	// This "first time" run is really only for app.js, AFAICT, and needs
+	// an activity. If app was restarted for Service only, we don't want
+	// to go this route. So added currentActivity check. (bill)
+	if (self.id == '.' && self.context.currentActivity) {
 		global.require = require;
 		Titanium.Android.currentActivity = self.context.currentActivity;
 
