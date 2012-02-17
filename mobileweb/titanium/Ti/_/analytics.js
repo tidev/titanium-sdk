@@ -10,7 +10,8 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 		analyticsEnabled = cfg.analytics,
 		analyticsStorageName = "ti:analyticsEvents",
 		analyticsEventSeq = 1,
-		analyticsLastSent = null;
+		analyticsLastSent = null,
+		analyticsUrl = "https://api.appcelerator.net/p/v2/mobile-web-track";
 
 	mid || (mid = localStorage.getItem(midName));
 	mid || localStorage.setItem(midName, mid = _.uuid());
@@ -120,7 +121,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 							} catch (e) {}
 						}
 					};
-					xhr.open("POST", "https://api.appcelerator.net/p/v2/mobileweb-track", true);
+					xhr.open("POST", analyticsUrl, true);
 					xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 					xhr.send(lang.urlEncode({ content: jsonStrs }));
 				} else {
@@ -136,7 +137,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 							}
 						}, body),
 						form = dom.create("form", {
-							action: "https://api.appcelerator.net/p/v2/mobileweb-track?callback=" + callback,
+							action: analyticsUrl + "?callback=" + callback,
 							method: "POST",
 							style: {
 								display: "none"

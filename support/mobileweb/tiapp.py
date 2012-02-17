@@ -67,10 +67,12 @@ class TiAppXML(object):
 		self.iphone = {}
 		self.mobileweb = {
 			'filesystem': {
-				'external': None
+				'registry': 'preload'
 			},
 			'preload': {
-				'images': [],
+				'images': []
+			},
+			'precache': {
 				'requires': [],
 				'includes': []
 			}
@@ -320,7 +322,7 @@ class TiAppXML(object):
 		def parse_filesystem(node):
 			val = node.getAttribute('externalStorage')
 			if val is not None:
-				self.mobileweb['filesystem']['external'] = val
+				self.mobileweb['filesystem']['registry'] = val
 		
 		def parse_image(node):
 			val = node.getAttribute('src')
@@ -330,17 +332,18 @@ class TiAppXML(object):
 		def parse_require(node):
 			val = node.getAttribute('src')
 			if val is not None:
-				self.mobileweb['preload']['requires'].append(val)
+				self.mobileweb['precache']['requires'].append(val)
 		
 		def parse_include(node):
 			val = node.getAttribute('src')
 			if val is not None:
-				self.mobileweb['preload']['includes'].append(val)
+				self.mobileweb['precache']['includes'].append(val)
 		
 		local_objects = locals()
 		parse_tags = {
 			'filesystem': None,
-			'preload': ['image', 'require', 'include']
+			'preload': ['image'],
+			'precache': ['require', 'include']
 		}
 		
 		for child in node.childNodes:
@@ -348,9 +351,9 @@ class TiAppXML(object):
 				if parse_tags[child.nodeName] is None:
 					local_objects['parse_'+child.nodeName](child)
 				else:
-					for preload_child in child.childNodes:
-						if preload_child.nodeName in parse_tags[child.nodeName]:
-							local_objects['parse_'+preload_child.nodeName](preload_child)
+					for child_child in child.childNodes:
+						if child_child.nodeName in parse_tags[child.nodeName]:
+							local_objects['parse_'+child_child.nodeName](child_child)
 
 	def has_app_property(self, property):
 		return property in self.app_properties

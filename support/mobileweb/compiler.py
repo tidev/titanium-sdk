@@ -87,11 +87,11 @@ class Compiler(object):
 		self.find_modules_to_cache()
 		self.modules_to_cache.append('Ti/_/image')
 		self.modules_to_cache.append('Ti/_/include')
-		if len(tiapp_xml.mobileweb['preload']['requires']):
-			for req in tiapp_xml.mobileweb['preload']['requires']:
+		if len(tiapp_xml.mobileweb['precache']['requires']):
+			for req in tiapp_xml.mobileweb['precache']['requires']:
 				self.modules_to_cache.append('commonjs:' + req)
-		if len(tiapp_xml.mobileweb['preload']['includes']):
-			for inc in tiapp_xml.mobileweb['preload']['includes']:
+		if len(tiapp_xml.mobileweb['precache']['includes']):
+			for inc in tiapp_xml.mobileweb['precache']['includes']:
 				self.modules_to_cache.append('url:' + inc)
 		
 		# find only the top most modules to be required
@@ -196,7 +196,7 @@ class Compiler(object):
 			preload=simplejson.dumps(preload, sort_keys=True),
 			project_id=tiapp_xml.properties['id'],
 			project_name=tiapp_xml.properties['name'],
-			ti_filesystem_external=tiapp_xml.mobileweb['filesystem']['external'],
+			ti_fs_registry=tiapp_xml.mobileweb['filesystem']['registry'],
 			ti_githash=self.package_json['titanium']['githash'],
 			ti_timestamp=self.package_json['titanium']['timestamp'],
 			ti_version=sdk_version,
@@ -269,7 +269,7 @@ class Compiler(object):
 		# 6) close the titanium.js
 		ti_js.close()
 		
-		# assemble the titanium.css file
+		# build the titanium.css file
 		print '[INFO] Assembling titanium.css...'
 		self.ti_css_file = os.path.join(self.build_path, 'titanium.css')
 		ti_css = codecs.open(self.ti_css_file, 'w', encoding='utf-8')
@@ -277,7 +277,6 @@ class Compiler(object):
 		# TODO: need to rewrite absolute paths for urls
 		ti_css.write(HEADER + '\n' + codecs.open(os.path.join(self.themes_path, 'common.css'), 'r', 'utf-8').read())
 		
-		# read in the 
 		# TODO: get theme from tiapp.xml
 		theme = 'titanium'
 		if len(theme):
@@ -317,7 +316,19 @@ class Compiler(object):
 			#	TODO: minify css
 			# elif ext == '.html':
 			#	TODO: minify html
-			
+		
+		# create the filesystem registry
+		filesystem_registry = self.walk_fs(self.build_path, 0)
+		filesystem_registry_file = codecs.open(os.path.join(self.build_path, 'titanium', 'filesystem.registry'), 'w', encoding='utf-8')
+		filesystem_registry_file.write(filesystem_registry)
+		filesystem_registry_file.close()
+		
+		# if we're preloading the filesystem registry, write it to the require cache
+		if tiapp_xml.mobileweb['filesystem']['registry'] == 'preload':
+			ti_js = codecs.open(self.ti_js_file, 'a', encoding='utf-8')
+			ti_js.write('require.cache({"url:/titanium/filesystem.registry":"' + filesystem_registry.strip().replace('\n', '|') + '"});')
+			ti_js.close()
+		
 		# get status bar style
 		status_bar_style = 'default'
 		if 'statusbar-style' in tiapp_xml.properties:
@@ -328,6 +339,16 @@ class Compiler(object):
 				status_bar_style = 'black-translucent'
 			else:
 				status_bar_style = 'default'
+		
+		# create the favicon and apple touch icons
+		icon_file = os.path.join(self.resources_path, tiapp_xml.properties['icon'])
+		fname, ext = os.path.splitext(icon_file.lower())
+		if os.path.exists(icon_file) and (ext == '.png' or ext == '.jpg' or ext == '.gif'):
+			self.build_icons(icon_file)
+		else:
+			icon_file = os.path.join(self.resources_path, 'mobileweb', 'appicon.png')
+			if os.path.exists(icon_file):
+				self.build_icons(icon_file)
 		
 		# populate index.html
 		index_html_file = codecs.open(os.path.join(self.build_path, 'index.html'), 'w', encoding='utf-8')
@@ -343,16 +364,6 @@ class Compiler(object):
 		))
 		index_html_file.close()
 		
-		# create the favicon and apple touch icons
-		icon_file = os.path.join(self.resources_path, tiapp_xml.properties['icon'])
-		fname, ext = os.path.splitext(icon_file.lower())
-		if os.path.exists(icon_file) and (ext == '.png' or ext == '.jpg' or ext == '.gif'):
-			self.build_icons(icon_file)
-		else:
-			icon_file = os.path.join(self.resources_path, 'mobileweb', 'appicon.png')
-			if os.path.exists(icon_file):
-				self.build_icons(icon_file)
-		
 		total_time = round(time.time() - start_time)
 		total_minutes = math.floor(total_time / 60)
 		total_seconds = total_time % 60
@@ -360,6 +371,19 @@ class Compiler(object):
 			print '[INFO] Finished in %s minutes %s seconds' % (int(total_minutes), int(total_seconds))
 		else:
 			print '[INFO] Finished in %s seconds' % int(total_time)
+	
+	def walk_fs(self, path, depth):
+		s = ''
+		listing = os.listdir(path)
+		listing.sort()
+		for file in listing:
+			p = os.path.join(path, file)
+			# TODO: screen out specific file/folder patterns (i.e. uncompressed js files)
+			if os.path.isdir(p):
+				s += ('\t' * depth) + file + '\n' + self.walk_fs(p, depth + 1)
+			else:
+				s += ('\t' * depth) + file + '\t' + str(os.path.getsize(p)) + '\n'
+		return s
 	
 	def resolve(self, it, ref):
 		parts = it.split('!')
@@ -442,7 +466,6 @@ class Compiler(object):
 			'Ti/App',
 			'Ti/App/Properties',
 			'Ti/Facebook',
-			'Ti/_/Filesystem/local',
 			'Ti/Filesystem',
 			'Ti/Filesystem/File',
 			'Ti/Media',

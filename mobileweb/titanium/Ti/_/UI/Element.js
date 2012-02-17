@@ -528,12 +528,10 @@ define(
 
 		show: function() {
 			this.visible = true;
-			//this.fireEvent("ti:shown");
 		},
 
 		hide: function() {
 			this.visible = false;
-			//obj.fireEvent("ti:hidden");
 		},
 
 		animate: function(anim, callback) {

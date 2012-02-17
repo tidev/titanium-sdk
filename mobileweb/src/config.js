@@ -36,8 +36,8 @@ var require = {
 		buildHash: "${ti_githash | jsQuoteEscapeFilter}",
 		buildDate: "${ti_timestamp | jsQuoteEscapeFilter}",
 		filesystem: {
-			external: ${'"' + ti_filesystem_external + '"' if ti_filesystem_external is not None else 'null'}
-		}
+			registry: "${ti_fs_registry}"
+		},
 		preload: ${preload},
 		version: "${ti_version | jsQuoteEscapeFilter}"
 	},
