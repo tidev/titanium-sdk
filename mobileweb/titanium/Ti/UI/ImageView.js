@@ -64,7 +64,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 		
 		_defaultHeight: "auto",
 		
-		_getContentSize: function() {
+		_getContentSize: function(width, height) {
 			return {
 				width: this.imageDisplay.width,
 				height: this.imageDisplay.height

@@ -27,10 +27,10 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 
         _defaultHeight: "auto",
 		
-		_getContentSize: function() {
+		_getContentSize: function(width, height) {
 			return {
-				width: this._measureText(this.value, this._field).width,
-				height: this._measureText(this.value, this._field).height
+				width: width === "auto" ? this._measureText(this.value, this._field, width).width : width,
+				height: height === "auto" ? this._measureText(this.value, this._field, width).height : height
 			};
 		},
 

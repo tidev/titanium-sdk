@@ -18,10 +18,10 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/dom", "Ti/_/css", "Ti/_/style",
 
 		_defaultHeight: "auto",
 		
-		_getContentSize: function() {
+		_getContentSize: function(width, height) {
 			return {
-				width: this._measureText(this.value, this.textArea).width,
-				height: this._measureText(this.value, this.textArea).height
+				width: width === "auto" ? this._measureText(this.value, this.textArea, width).width : width,
+				height: height === "auto" ? this._measureText(this.value, this.textArea, width).height : height
 			};
 		},
 

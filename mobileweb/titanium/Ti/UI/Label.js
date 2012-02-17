@@ -49,10 +49,10 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 		_defaultHeight: "auto",
 		
-		_getContentSize: function() {
+		_getContentSize: function(width, height) {
 			return {
-				width: this._measureText(this.text, this.textContainerDiv).width,
-				height: this._measureText(this.text, this.textContainerDiv).height
+				width: width === "auto" ? this._measureText(this.text, this.textContainerDiv, width).width : width,
+				height: height === "auto" ? this._measureText(this.text, this.textContainerDiv, width).height : height
 			};
 		},
 		
