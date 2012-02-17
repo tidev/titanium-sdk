@@ -433,7 +433,7 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
             else if ([convertToUnits caseInsensitiveCompare:self.UNIT_CM]==NSOrderedSame) {
                 result = convertDipToInch(fromVal.value)*INCH_IN_CM;
             }
-            else if ([convertToUnits caseInsensitiveCompare:self.UNIT_DIP]==NSOrderedSame) {
+            else if ([convertToUnits caseInsensitiveCompare:self.UNIT_MM]==NSOrderedSame) {
                 result = convertDipToInch(fromVal.value)*INCH_IN_MM;
             }
         }
