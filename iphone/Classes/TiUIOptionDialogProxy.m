@@ -86,10 +86,10 @@
 	if ([args count]>0) {
 		options = [args objectAtIndex:0];
 	}
-	BOOL animated = [TiUtils boolValue:@"animated" properties:options def:YES];
+	BOOL animatedhide = [TiUtils boolValue:@"animated" properties:options def:YES];
 
 	TiThreadPerformOnMainThread(^{
-		[actionSheet dismissWithClickedButtonIndex:[actionSheet cancelButtonIndex] animated:YES];	
+		[actionSheet dismissWithClickedButtonIndex:[actionSheet cancelButtonIndex] animated:animatedhide];	
 	}, NO);
 }
 

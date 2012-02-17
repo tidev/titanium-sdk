@@ -12,6 +12,14 @@ methods:
         summary: name of the view the OptionDialog needs to be attached to. Only used on iPad.
         type: Titanium.UI.View
         optional: true
+  - name: hide
+    platforms: [iphone, ipad]
+    summary: cause the dialog to no longer be visible
+    parameters:
+      - name: properties
+        summary: object of animation properties. pass `animated` property (as boolean) to indicate if the optionDialog should be animated in hiding.
+        type: Object
+        optional: true
 events:
   - name: click
     summary: fired when a button in the dialog is clicked
