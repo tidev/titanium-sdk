@@ -34,6 +34,19 @@ events:
             since: "1.8.0"
       - name: x
         summary: the x point of the event in receiving view coordiantes
+  - name: bookmark
+    summary: fired when the bookmark button is pressed
+    platforms: [iphone, ipad]
+    properties:
+      - name: y
+        summary: the y point of the event, in receiving view coordinates
+      - name: globalPoint
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
+      - name: x
+        summary: the x point of the event in receiving view coordiantes
   - name: cancel
     summary: fired when the cancel button is pressed
     properties:
@@ -107,6 +120,10 @@ properties:
   - name: promptid
     summary: the key in the locale file to use for the prompt property
     type: String
+  - name: showBookmark
+    summary: boolean indicates whether the bookmark button is displayed
+    type: Boolean
+    platforms: [iphone, ipad]
   - name: showCancel
     summary: boolean indicates whether the cancel button is displayed
     type: Boolean
