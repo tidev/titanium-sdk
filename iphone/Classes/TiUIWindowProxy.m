@@ -561,8 +561,8 @@
 
     if (oldView != newTitleView) {
         [ourNavItem setTitleView:newTitleView];
-        [self updateBarImage];
     }
+	[self updateBarImage];
 }
 
 

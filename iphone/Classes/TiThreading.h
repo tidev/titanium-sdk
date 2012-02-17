@@ -52,7 +52,8 @@ return result;\
 if (![NSThread isMainThread])\
 {\
 __block id result=nil;\
-TiThreadPerformOnMainThread(^{result=[[self _sync_##method:nil] retain];},YES); \
+__block id bself=self;\
+TiThreadPerformOnMainThread(^{result=[[bself _sync_##method:nil] retain];},YES); \
 return [result autorelease];\
 }\
 return [self _sync_##method:nil];\
