@@ -15,9 +15,9 @@ description:  |
     * On Android, the activity indicator is a modal dialog that blocks the UI. Calling `show` 
     displays the indicator, and calling `hide` removes it. 
     
-    * On iOS and Mobile Web, the activity indicator is a view like any other view, and must be added to a window 
-    or other top-level view before it can be shown. Note that, unlike most views, the activity 
-    indicator is hidden by default and must be shown explicitly.
+    * On iOS and Mobile Web, the activity indicator is a view like any other view, and must be 
+    added to a window or other top-level view before it can be shown. Note that, unlike most views, 
+    the activity indicator is hidden by default and must be shown explicitly.
 extends: Titanium.Proxy
 since: "0.8"
 methods:
@@ -39,7 +39,7 @@ properties:
   - name: color
     summary: |
         Color of the message text in 
-        [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name or hex format.
+        [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name or hex triplet.
 
     type: String
     platforms: [iphone, ipad, mobileweb]
