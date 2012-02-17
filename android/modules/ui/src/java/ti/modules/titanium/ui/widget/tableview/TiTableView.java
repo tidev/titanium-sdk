@@ -492,6 +492,11 @@ public class TiTableView extends FrameLayout
 		// To prevent undesired "focus" and "blur" events during layout caused
 		// by ListView temporarily taking focus, we will disable focus events until
 		// layout has finished.
+		// First check for a quick exit. listView can be null, such as if window closing.
+		if (listView == null) {
+			super.onLayout(changed, left, top, right, bottom);
+			return;
+		}
 		OnFocusChangeListener focusListener = null;
 		View focusedView = listView.findFocus();
 		if (focusedView != null) {
