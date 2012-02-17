@@ -13,7 +13,7 @@
 	UIButton *button;
 	int style;
 	
-	BOOL eventAlreadyTriggered;
+    BOOL touchStarted;
     //Variables holding for control state images
     BOOL hasBackgroundForStateNormal;
     BOOL hasBackgroundForStateFocused;

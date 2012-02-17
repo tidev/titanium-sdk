@@ -338,6 +338,7 @@ const static CGFloat kReflectionFraction = 0.85;
 
 - (void)centerOnSelectedCover:(BOOL)animated {
 	CGPoint selectedOffset = CGPointMake(COVER_SPACING * selectedCoverView.number, 0);
+    animated &= (self.frame.size.width > 0);
 	[scrollView setContentOffset:selectedOffset animated:animated];
 }
 

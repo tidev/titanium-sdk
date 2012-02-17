@@ -276,6 +276,26 @@ properties:
     type: Number
     since: "1.8.0"
     platforms: [iphone, ipad]
+  - name: cache
+    summary: Controls whether or not HTTP responses are cached.
+    description: |
+        If `cache` is set to `true`, requests using this HTTP client will cache
+        their responses (respecting headers such as "no-cache", "no-store",
+        and cache expiry). In this case, repeated requests to the same URL may
+        retrieve the initial response rather than triggering a new request. The
+        cache is shared between all instances of `HTTPClient`.
+        
+        Caching should only be enabled for HTTP requests which you
+        expect the result to remain consistent for.
+        
+        If `cache` is `false`, any request on this HTTP client will result
+        in a new HTTP request. 
+        
+        This propery must be set before `open` is called.
+    type: Boolean
+    since: "1.9.0"
+    default: false
+    platforms: [iphone, ipad]
 examples:
   - title: Simple GET Request
     example: |

@@ -45,7 +45,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 			Widget.prototype._doLayout.apply(this,arguments);
 			if (this.canScale) {
 				var controlRatio = this._measuredWidth / this._measuredHeight,
-					imageRatio = this._getContentWidth() / this._getContentHeight();
+					contentSize = this._getContentSize(),
+					imageRatio = contentSize.width / contentSize.height;
 				if (controlRatio > imageRatio) {
 					set(this.imageDisplay,"width","auto");
 					set(this.imageDisplay,"height","100%");
@@ -60,13 +61,16 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 		},
 
 		_defaultWidth: "auto",
+		
 		_defaultHeight: "auto",
-		_getContentWidth: function() {
-			return this.imageDisplay.width;
+		
+		_getContentSize: function(width, height) {
+			return {
+				width: this.imageDisplay.width,
+				height: this.imageDisplay.height
+			};
 		},
-		_getContentHeight: function() {
-			return this.imageDisplay.height;
-		},
+		
 		_setTouchEnabled: function(value) {
 			Widget.prototype._setTouchEnabled.apply(this,arguments);
 			var cssVal = value ? "auto" : "none";

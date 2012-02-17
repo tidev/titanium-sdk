@@ -3,13 +3,12 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 	var set = style.set,
 		undef,
-		unitize = dom.unitize;
+		unitize = dom.unitize,
+		tabStop = 2;
 
 	return declare("Ti.UI.Label", FontWidget, {
 		
 		constructor: function() {
-			
-			this.touchEnabled = false;
 			
 			// Create the aligner div. This sets up a flexbox to float the text to the middle
 			this.textAlignerDiv = dom.create("div", {
@@ -41,18 +40,20 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			}, this.textAlignerDiv);
 
 			this._addStyleableDomNode(this.textContainerDiv);
+			
+			this.touchEnabled = false;
+			this.wordWrap = true;
 		},
 
 		_defaultWidth: "auto",
 
 		_defaultHeight: "auto",
 		
-		_getContentWidth: function() {
-			return this._measureText(this.text, this.textContainerDiv).width;
-		},
-		
-		_getContentHeight: function() {
-			return this._measureText(this.text, this.textContainerDiv).height;
+		_getContentSize: function(width, height) {
+			return {
+				width: width === "auto" ? this._measureText(this.text, this.textContainerDiv, width).width : width,
+				height: height === "auto" ? this._measureText(this.text, this.textContainerDiv, width).height : height
+			};
 		},
 		
 		_setTouchEnabled: function(value) {
@@ -107,6 +108,34 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			},
 			text: {
 				set: function(value) {
+					
+					// Convert \t and \n to &nbsp;'s and <br/>'s
+					var lineStartIndex = 0,
+						currentIndex = 0,
+						currentTabIndex,
+						value = value || "";
+					while(currentIndex < value.length) {
+						if (value[currentIndex] === '\t') {
+							var tabSpaces = "",
+								numSpacesToInsert = tabStop - (currentTabIndex) % tabStop;
+							for(var i = 0; i < numSpacesToInsert; i++) {
+								tabSpaces += "&nbsp;";
+							}
+							value = value.substring(0,currentIndex) + tabSpaces + value.substring(currentIndex + 1);
+							currentIndex += tabSpaces.length;
+							currentTabIndex += numSpacesToInsert;
+						} else if (value[currentIndex] === '\n') {
+							value = value.substring(0,currentIndex) + "<br/>" + value.substring(currentIndex + 1);
+							currentIndex += 5;
+							lineStartIndex = currentIndex;
+							currentTabIndex = 0;
+						} else {
+							currentIndex++;
+							currentTabIndex++;
+						}
+					}
+					value.match("<br/>$") && (value += "&nbsp;");
+					
 					this.textContainerDiv.innerHTML = value;
 					this._hasAutoDimensions() && this._triggerParentLayout();
 					return value;
@@ -140,8 +169,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				set: function(value) {
 					set(this.textContainerDiv,"whiteSpace", !!value ? "normal" : "nowrap");
 					return value;
-				},
-				value: false
+				}
 			}
 		}
 
