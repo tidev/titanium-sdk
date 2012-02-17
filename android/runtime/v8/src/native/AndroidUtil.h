@@ -8,6 +8,7 @@
 #define ANDROID_UTIL_H
 
 #include <android/log.h>
+#include <stdlib.h>
 
 #define _LOG_LEVEL(level) ANDROID_LOG_ ## level
 #define LOG(level, tag, ...) __android_log_print(_LOG_LEVEL(level), tag, __VA_ARGS__)
@@ -17,7 +18,10 @@
 # define LOGD(tag, ...) LOG(DEBUG, tag, __VA_ARGS__)
 # define LOG_TIMER(tag, desc) LogTimer timer(tag, desc)
 # define ASSERT(expr) \
-    if (!(expr)) LOGE("assert", "Assert failure @ [%s:%d] %s", __FILE__, __LINE__);
+    if (!(expr)) { \
+		LOGE("assert", "Assert failure @ [%s:%d]", __FILE__, __LINE__); \
+		abort(); \
+	}
 #else
 # define LOGV(tag, ...)
 # define LOGD(tag, ...)
