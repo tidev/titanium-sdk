@@ -77,6 +77,8 @@ public class TabProxy extends TiViewProxy
 
 		this.win.setTabProxy(this);
 		this.win.setTabGroupProxy(tabGroupProxy);
+		//Send out a sync event to indicate window is added to tab
+		this.win.fireSyncEvent(TiC.EVENT_ADDED_TO_TAB, null);
 	}
 
 	@Kroll.method @Kroll.getProperty

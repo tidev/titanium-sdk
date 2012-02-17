@@ -14,6 +14,7 @@ public class TiC
 	public static final String ERROR_PROPERTY_CODE = "code";
 	public static final String ERROR_PROPERTY_ERRORCODE = "errorcode";
 	public static final String ERROR_PROPERTY_MESSAGE = "message";
+	public static final String EVENT_ADDED_TO_TAB = "addedToTab";
 	public static final String EVENT_ANDROID_BACK = "android:back";
 	public static final String EVENT_ANDROID_CAMERA = "android:camera";
 	public static final String EVENT_ANDROID_FOCUS = "android:focus";
@@ -51,6 +52,8 @@ public class TiC
 	public static final String EVENT_PROPERTY_ERROR = "error";
 	public static final String EVENT_PROPERTY_INDEX = "index";
 	public static final String EVENT_PROPERTY_INTENT = "intent";
+	public static final String EVENT_PROPERTY_IS_DIALOG = "isDialog";
+	public static final String EVENT_PROPERTY_IS_USER_GESTURE = "isUserGesture";
 	public static final String EVENT_PROPERTY_LAYOUT_NAME = "layoutName";
 	public static final String EVENT_PROPERTY_LOADSTATE = "loadState";
 	public static final String EVENT_PROPERTY_MENU = "menu";
@@ -247,6 +250,7 @@ public class TiC
 	public static final String PROPERTY_OKID = "okid";
 	public static final String PROPERTY_ON_CREATE_OPTIONS_MENU = "onCreateOptionsMenu";
 	public static final String PROPERTY_ON_PREPARE_OPTIONS_MENU = "onPrepareOptionsMenu";
+	public static final String PROPERTY_ON_CREATE_WINDOW = "onCreateWindow";
 	public static final String PROPERTY_OPACITY = "opacity";
 	public static final String PROPERTY_OPTIONS = "options";
 	public static final String PROPERTY_ORDER = "order";
@@ -292,6 +296,7 @@ public class TiC
 	public static final String PROPERTY_SELECTION_INDICATOR = "selectionIndicator";
 	public static final String PROPERTY_SEPARATOR_COLOR = "separatorColor";
 	public static final String PROPERTY_SHOW_PAGING_CONTROL = "showPagingControl";
+	public static final String PROPERTY_SHOW_PROGRESS = "showProgress";
 	public static final String PROPERTY_SIZE = "size";
 	public static final String PROPERTY_SOFT_KEYBOARD_ON_FOCUS = "softKeyboardOnFocus";
 	public static final String PROPERTY_SOUND = "sound";

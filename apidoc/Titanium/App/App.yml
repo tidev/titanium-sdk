@@ -83,7 +83,16 @@ properties:
     description: This value is system-generated and consistent through all versions.
     type: String
     permission: read-only
-    
+  - name: deployType
+    summary: Application build type, as determined by how it was packaged.
+    description: |
+        The valid deployment types are as follows: test, development, and production.
+    type: String
+    permission: read-only
+  - name: sessionId
+    summary: A unique identifier for the current continuous run of the application.
+    type: String
+    permission: read-only
   - name: id
     summary: Application ID, from `tiapp.xml`. 
     description: |
