@@ -16,16 +16,20 @@
 # define LOGV(tag, format, ...) LOG(VERBOSE, tag, "[%s:%d] " format, __FILE__, __LINE__, ##__VA_ARGS__)
 # define LOGD(tag, ...) LOG(DEBUG, tag, __VA_ARGS__)
 # define LOG_TIMER(tag, desc) LogTimer timer(tag, desc)
+# define ASSERT(expr) \
+    if (!(expr)) LOGE("assert", "Assert failure @ [%s:%d] %s", __FILE__, __LINE__);
 #else
 # define LOGV(tag, ...)
 # define LOGD(tag, ...)
 # define LOG_TIMER(tag, desc)
+# define ASSERT(expr)
 #endif
 
 #define LOGI(tag, ...) LOG(INFO, tag, __VA_ARGS__)
 #define LOGW(tag, ...) LOG(WARN, tag, __VA_ARGS__)
 #define LOGE(tag, ...) LOG(ERROR, tag, __VA_ARGS__)
 #define LOGF(tag, ...) LOG(FATAL, tag, __VA_ARGS__)
+
 
 namespace titanium {
 
