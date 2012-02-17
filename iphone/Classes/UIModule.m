@@ -8,6 +8,7 @@
 
 #ifdef USE_TI_UI
 
+#import "TiDimension.h"
 #import "UIModule.h"
 #import "TiProxy.h"
 
@@ -397,6 +398,48 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 -(NSString*)UNIT_DIP
 {
     return @"dip";
+}
+
+-(NSNumber*)convertUnits:(id)args
+{
+    ENSURE_ARG_COUNT(args, 2);
+    
+	NSString* convertFromValue;
+	NSString* convertToUnits;
+    
+	ENSURE_ARG_AT_INDEX(convertFromValue, args, 0, NSString);
+	ENSURE_ARG_AT_INDEX(convertToUnits, args, 1, NSString);  
+    
+    float result = 0.0;
+    if (convertFromValue != nil && convertToUnits != nil) {
+        //Convert to DIP first
+        TiDimension fromVal = TiDimensionFromObject(convertFromValue);
+        //
+        if (TiDimensionIsDip(fromVal)) {
+            if ([convertToUnits caseInsensitiveCompare:self.UNIT_DIP]==NSOrderedSame) {
+                result = fromVal.value;
+            }
+            else if ([convertToUnits caseInsensitiveCompare:self.UNIT_PX]==NSOrderedSame) {
+                if ([TiUtils isRetinaDisplay]) {
+                    result = fromVal.value*2;
+                }
+                else {
+                    result = fromVal.value;
+                }
+            }
+            else if ([convertToUnits caseInsensitiveCompare:self.UNIT_IN]==NSOrderedSame) {
+                result = convertDipToInch(fromVal.value);
+            }
+            else if ([convertToUnits caseInsensitiveCompare:self.UNIT_CM]==NSOrderedSame) {
+                result = convertDipToInch(fromVal.value)*INCH_IN_CM;
+            }
+            else if ([convertToUnits caseInsensitiveCompare:self.UNIT_DIP]==NSOrderedSame) {
+                result = convertDipToInch(fromVal.value)*INCH_IN_MM;
+            }
+        }
+    }
+    
+    return [NSNumber numberWithFloat:result];
 }
 
 

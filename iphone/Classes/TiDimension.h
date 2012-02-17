@@ -36,6 +36,7 @@ extern const TiDimension TiDimensionUndefined;
 TiDimension TiDimensionMake(TiDimensionType type, CGFloat value);
 CGFloat convertInchToPixels(CGFloat value);
 CGFloat convertPixelsToDip(CGFloat value);
+CGFloat convertDipToInch(CGFloat value);
 
 TI_INLINE TiDimension TiDimensionDip(CGFloat value)
 {

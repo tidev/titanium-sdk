@@ -41,4 +41,13 @@ CGFloat convertPixelsToDip(CGFloat value)
     return value;
 }
 
+CGFloat convertDipToInch(CGFloat value)
+{
+    if ([TiUtils isRetinaDisplay]) {
+        return (value*2)/[TiUtils dpi];
+    }
+    return value/[TiUtils dpi];
+}
+
+
 
