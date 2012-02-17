@@ -163,7 +163,7 @@ methods:
     platforms: [iphone, ipad]
     parameters:
       - name: times
-        summary: Array of time values, representing offsets into the video, in milliseconds.
+        summary: Array of time values, representing offsets into the video, in seconds.
         type: Array<Number>
       - name: option
         summary: |
@@ -210,15 +210,6 @@ methods:
       - name: view
         summary: View to set.
         type: Titanium.UI.View
-
-  - name: setMedia
-    summary: Specifies the media to play, as either a `File`,  a `Blob`, or a URL.
-    platforms: [iphone, ipad]
-    parameters:
-
-      - name: media
-        summary: Media to play.
-        type: [Titanium.Blob, Titanium.Filesystem.File, String]
 
   - name: stop
     summary: Stops playing the video.
@@ -272,13 +263,24 @@ events:
 
   - name: fullscreen
     summary: Fired when a movie changes to or from fullscreen view.
+    description: |
+        On iOS, this event is fired at the beginning of the transition to 
+        fullscreen mode. A `duration` property is provided, indicating the duration
+        of the animated transition to or from fullscreen mode.
     platforms: [iphone, ipad, mobileweb]
     properties:
+
       - name: entering
         summary: |
             `true` if the player is entering fullscreen mode, `false` if it is leaving
             fullscreen mode.
         type: Boolean
+
+      - name: duration
+        summary: Duration of the animated transition to or from fullscreen mode, in seconds.
+        type: Number
+        platforms: [iphone, ipad]
+        
 
   - name: load
     summary: Fired when the movie play loads.
@@ -441,6 +443,7 @@ properties:
     summary: Current playback time of the current movie in milliseconds.
     type: Number
     permission: read-only
+    platforms: [android, mobileweb]
 
   - name: duration
     summary: The duration of the current movie in milliseconds, or 0.0 if not known.
@@ -455,8 +458,8 @@ properties:
     description: |
         On iOS, defaults to NaN, which indicates natural end time of the movie.
         Changing the value to a value less than `duration` causes the movie to 
-        stop playing at the specified point. On iOS, this is not available for 
-        streaming media.
+        stop playing at the specified point. On iOS, this value is not applicable to
+        streaming media, so NaN is returned if the current media is being streamed.
         
         On Android, this is always the same as `duration` (the natural end time),
         and changing the value has no effect.
@@ -492,9 +495,10 @@ properties:
     permission: read-only
 
   - name: media
-    summary: Media object to play, either as a `File` or as a `Blob`.
+    summary: Media object to play, as either a `File`,  a `Blob`, or a URL.
     platforms: [iphone, ipad]
-    type: [Titanium.Blob, Titanium.Filesystem.File]
+    type: [Titanium.Blob, Titanium.Filesystem.File, String]
+    permission: write-only
 
   - name: mediaControlStyle
     summary: The style of the playback controls.
