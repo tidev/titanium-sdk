@@ -26,8 +26,17 @@ description: |
     load the HTML browser into memory.
     
     The native web view handles scrolling and other related touch events internally.
-    you cannot have both Titanium style events against the 
-    web view instance and internal JavaScript events in the DOM.  You must choose between one or the other.
+    If you add event listeners for any of the standard touch events (`touchstart`, 
+    `click`, and so on), these events do not reach the native web view, and the user
+    will not be able to scroll, zoom, click on links, and so on.
+    
+    In other words, you can you can have either Titanium-style events against the 
+    web view instance, or internal JavaScript events in the DOM, but not both.
+
+    Note that on the iOS platform, any touch event listeners on the web view **or its
+    parent views** will prevent users from interacting with the native web view. To
+    prevent this default behavior, set [willHandleTouches](Titanium.UI.WebView.willHandleTouches)
+    to `false`.
 
     #### Android Platform Implementation Notes
 
@@ -41,6 +50,7 @@ description: |
     [resume](Titanium.UI.WebView.resume) when the current activity is resumed. You can
     do this by adding listeners for the [Activity.pause](Titanium.Android.Activity.pause)
     and [Activity.resume](Titanium.Android.Activity.resume) events.
+
 extends: Titanium.UI.View
 since: "0.8"
 methods:
@@ -71,14 +81,14 @@ methods:
         default: 'text/html'
 
   - name: canGoBack
-    summary: Returns `true` if the web view can go back in history.
+    summary: Returns `true` if the web view can go back in its history list.
     description: |
         For Mobile Web, returns true if `url` is set.
     returns:
         type: Boolean
 
   - name: canGoForward
-    summary: Returns `true` if the webview can go forward in history
+    summary: Returns `true` if the web view can go forward in its history list.
     description: |
         For Mobile Web, returns true if `url` is set.
     returns:
@@ -174,7 +184,7 @@ methods:
         type: String
 
   - name: stopLoading
-    summary: stop loading a currently loading page
+    summary: Stops loading a currently loading page.
     description: |
         For Mobile Web, due to browser permissions, this will issue a stop on all windows including 
         the parent and all other WebViews.  Generally, this feature does not work reliably and instead 
@@ -244,18 +254,21 @@ properties:
         Accepts one of <Titanium.UI.Android.WEBVIEW_PLUGINS_OFF>, 
         <Titanium.UI.Android.WEBVIEW_PLUGINS_ON>, or <Titanium.UI.Android.WEBVIEW_PLUGINS_ON_DEMAND>.
 
-            <android ...>
+        To use the Flash Player plugin, hardware acceleration must be enabled for your
+        application. To enable hardware acceleration, add the `tool-api-level` and
+        `manifest` elements shown below inside the `android` element in your `tiapp.xml` file.
+
+            <android xmlns:android="http://schemas.android.com/apk/res/android">
                 <tool-api-level>11</tool-api-level>
                 <manifest>
                     <application android:hardwareAccelerated="true"/>
                 </manifest>
             </android>
 
-
         See Android documentation for 
         [WebSettings.PluginState](http://developer.android.com/reference/android/webkit/WebSettings.PluginState.html). 
         
-        Only works on Android devices at API Level 8 or greater.
+        This property only works on Android devices at API Level 8 or greater.
     type: Number
     platforms: [android]
     since: "1.8.0"
@@ -265,7 +278,7 @@ properties:
     summary: If `true`, scrollbars are displayed if content is larger than the web view.
     type: Boolean
     platforms: [mobileweb]
-    since: "1.9.0"
+    since: "1.8.2"
     default: true
 
   - name: enableZoomControls
@@ -283,15 +296,17 @@ properties:
         `false` prevents the user from zooming the web view.
 
         On Android, only controls the initial zoom level.
-
     platforms: [android, iphone, ipad]
     type: Boolean
     default: |
-        `false` when content is specified as a local URL, `true` for any other kind of
-        content (remote URL, `Blob`, or `File`).
+        `false` on iOS. On Android, `false` when content is specified as a local URL, 
+        `true` for any other kind of content (remote URL, `Blob`, or `File`).
 
   - name: url
-    summary: the url to the web document. this property will change as the content of the webview changes (such as from internal hyperlinks, etc)
+    summary: URL to the web document. 
+    description:
+        This property changes as the content of the webview changes (such as when the user
+        clicks a hyperlink inside the web view).
     type: String
 
   - name: userAgent
@@ -301,21 +316,28 @@ properties:
     platforms: [android]
 
   - name: willHandleTouches
-    summary: Explicitly specifies if this webview handles touches.
+    summary: Explicitly specifies if this web view handles touches.
     description: |
-        On the iOS platform, the web view will intercept **all** touch events if this web view or any of its 
-        parent views have touch listeners. This makes interaction with native web view components impossible.
+        On the iOS platform, if this web view **or any of its parent views** have touch
+        listeners, the Titanium component intercepts **all** touch events. This 
+        prevents the user from interacting with the native web view components.
 
         Set this flag to `false` to disable the default behavior. Setting this property to `false` 
-        allows the user to interact with the native webview and still honor any `touch` events sent to 
+        allows the user to interact with the native web view and still honor any `touch` events sent to 
         its parents. No `touch` events will be generated when the user interacts with the web view itself.
+
+        Set this flag to `true` if you want to receive touch events from the web view and
+        the user does not need to interact with the web content directly.
+
+        This flag is `true` by default to retain backwards compatibility with previous
+        behavior.
     type: Boolean
     platforms: [iphone, ipad]
-    since: "1.9.0"
+    since: "1.8.2"
     default: true
 
 examples:
-  - title: Basic Web View to external URL example
+  - title: Basic Web View to External URL 
     example: |
         Create a web view to a remote URL and open the window as modal.
         
