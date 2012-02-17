@@ -49,12 +49,11 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 		_defaultHeight: "auto",
 		
-		_getContentWidth: function() {
-			return this._measureText(this.text, this.textContainerDiv).width;
-		},
-		
-		_getContentHeight: function() {
-			return this._measureText(this.text, this.textContainerDiv).height;
+		_getContentSize: function() {
+			return {
+				width: this._measureText(this.text, this.textContainerDiv).width,
+				height: this._measureText(this.text, this.textContainerDiv).height
+			};
 		},
 		
 		_setTouchEnabled: function(value) {

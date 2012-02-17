@@ -360,9 +360,12 @@ define(
 				calculateHeightAfterAuto = true;
 			}
 
-			if (this._getContentWidth) {
-				width == "auto" && (width = this._getContentWidth(height));
-				height == "auto" && (height = this._getContentHeight(width));
+			if (this._getContentSize) {
+				if (width === "auto" || height === "auto") {
+					var contentSize = this._getContentSize(width,height);
+					width == "auto" && (width = contentSize.width);
+					height == "auto" && (height = contentSize.height);
+				}
 			} else {
 				var computedSize;
 				if (layoutChildren) {

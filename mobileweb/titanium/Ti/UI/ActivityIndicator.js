@@ -89,12 +89,11 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style"], functio
 		
 		_messagePadding: 0,
 		
-		_getContentWidth: function() {
-			return 36 + this._measureText(this.message, this._indicatorMessage).width + this._messagePadding;
-		},
-
-		_getContentHeight: function() {
-			return Math.max(this._measureText(this.message, this._indicatorMessage).height,36);
+		_getContentSize: function() {
+			return {
+				width: 36 + this._measureText(this.message, this._indicatorMessage).width + this._messagePadding,
+				height: Math.max(this._measureText(this.message, this._indicatorMessage).height,36)
+			};
 		},
 		
 		properties: {
