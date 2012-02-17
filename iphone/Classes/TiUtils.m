@@ -73,6 +73,22 @@ static void getAddrInternal(char* macAddress, const char* ifName) {
 
 @implementation TiUtils
 
++(int) dpi
+{
+	if ([TiUtils isIPad])
+	{
+		return 130;
+	}
+	else if ([TiUtils isRetinaDisplay])
+	{
+		return 320;
+	}
+	else
+	{
+		return 160;
+	}    
+}
+
 +(BOOL)isRetinaDisplay
 {
 	// since we call this alot, cache it

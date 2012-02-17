@@ -6,6 +6,7 @@
  */
 
 #import "TiDimension.h"
+#import "TiUtils.h"
 
 
 const TiDimension TiDimensionZero = {TiDimensionTypePixels, 0};
@@ -26,4 +27,10 @@ TiDimension TiDimensionMake(TiDimensionType type, CGFloat value)
 	dimension.value = value;
 	return dimension;
 }
+
+CGFloat convertInchToPixel(CGFloat value)
+{
+    return [TiUtils dpi]*value;
+}
+
 

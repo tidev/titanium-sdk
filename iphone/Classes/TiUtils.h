@@ -205,6 +205,8 @@ typedef enum {
 
 +(BOOL)isRetinaDisplay;
 
++(int)dpi;
+
 +(NSStringEncoding)charsetToEncoding:(NSString*)charset;
 
 +(TiDataType)constantToType:(NSString*)typeStr;

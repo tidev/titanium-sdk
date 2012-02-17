@@ -6,10 +6,10 @@
  */
 
 #import "TiBase.h"
-#import "TiUtils.h"
 
 #define INCH_IN_CM 2.54
 #define INCH_IN_MM 25.4
+
 
 //Not a class for speed reasons, like LayoutConstraint.
 
@@ -34,6 +34,8 @@ extern const TiDimension TiDimensionAuto;
 extern const TiDimension TiDimensionUndefined;
 
 TiDimension TiDimensionMake(TiDimensionType type, CGFloat value);
+CGFloat convertInchToPixel(CGFloat value);
+
 
 TI_INLINE TiDimension TiDimensionPixels(CGFloat value)
 {
@@ -88,6 +90,33 @@ TI_INLINE TiDimension TiDimensionFromObject(id object)
 			NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
 			return TiDimensionMake(TiDimensionTypePixels, [value floatValue]);
 		}
+        range = [object rangeOfString:@"cm"];
+        if (range.location!=NSNotFound)
+        {
+            NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
+            float dimValue = ([value floatValue]/INCH_IN_CM);
+            return TiDimensionMake(TiDimensionTypePixels, convertInchToPixel(dimValue));
+            
+        }
+        range = [object rangeOfString:@"mm"];
+        if (range.location!=NSNotFound)
+        {
+            NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
+            float dimValue = ([value floatValue]/INCH_IN_MM);
+            return TiDimensionMake(TiDimensionTypePixels, convertInchToPixel(dimValue));
+            
+        }
+        range = [object rangeOfString:@"dp"];
+        if (range.location==NSNotFound) {
+            range = [object rangeOfString:@"dip"];
+        }
+        if (range.location!=NSNotFound)
+        {
+            NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
+            float dimValue = ([value floatValue]);
+            return TiDimensionMake(TiDimensionTypePixels, dimValue);
+            
+        }    
 		range = [object rangeOfString:@"%"];
 		if (range.location!=NSNotFound)
 		{
