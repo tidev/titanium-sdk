@@ -55,7 +55,7 @@
 -(void)configurePlayer;
 -(void)restart;
 -(void)stop:(id)args;
-
+-(void)play:(id)args;
 @end
 
 #endif
