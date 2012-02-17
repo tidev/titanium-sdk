@@ -122,7 +122,7 @@ properties:
         Determines how the tab group is treated when a soft input method (such as a virtual keyboard) is displayed. One of [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN), [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE), or [SOFT_INPUT_ADJUST_UNSPECIFIED](Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED). For more information see the Android API Reference: [Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
     type: Number
     platforms: [android]
-    availabilty: creation
+    availability: creation
   - name: tabsBackgroundColor
     summary: The default background color for tabs. If [backgroundColor](Titanium.UI.Tab.backgroundColor) is explicitly set on an individual tab, that value takes precidence.
     type: String
