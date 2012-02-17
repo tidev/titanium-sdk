@@ -194,7 +194,8 @@ define(
 					this.center && this.center.y,
 					this.width,
 					this.height,
-					this.borderWidth
+					this.borderWidth,
+					true
 				),
 				styles;
 
@@ -232,7 +233,7 @@ define(
 			}
 		},
 
-		_computeDimensions: function(parentWidth, parentHeight, left, top, originalRight, originalBottom, centerX, centerY, width, height, borderWidth) {
+		_computeDimensions: function(parentWidth, parentHeight, left, top, originalRight, originalBottom, centerX, centerY, width, height, borderWidth, layoutChildren) {
 			
 			// Compute as many sizes as possible, should be everything except auto
 			left = computeSize(left, parentWidth, 1);
@@ -359,12 +360,16 @@ define(
 				calculateHeightAfterAuto = true;
 			}
 
-			// TODO change this once we re-architect the inheritence so that widgets don't have add/remove/layouts
 			if (this._getContentWidth) {
-				width == "auto" && (width = this._getContentWidth());
-				height == "auto" && (height = this._getContentHeight());
+				width == "auto" && (width = this._getContentWidth(height));
+				height == "auto" && (height = this._getContentHeight(width));
 			} else {
-				var computedSize = this._layout._doLayout(this,is(width,"Number") ? width : parentWidth,is(height,"Number") ? height : parentHeight);
+				var computedSize;
+				if (layoutChildren) {
+					computedSize = this._layout._doLayout(this,is(width,"Number") ? width : parentWidth,is(height,"Number") ? height : parentHeight);
+				} else {
+					computedSize = this._layout._computedSize;
+				}
 				width == "auto" && (width = computedSize.width);
 				height == "auto" && (height = computedSize.height);
 			}
@@ -548,7 +553,8 @@ define(
 						isDef(anim.center) ? anim.center.y : isDef(this.center) ? this.center.y : undef,
 						val(anim.width, this.width),
 						val(anim.height, this.height),
-						val(anim.borderWidth, this.borderWidth)
+						val(anim.borderWidth, this.borderWidth),
+						false
 					);
 
 					setStyle(this.domNode, {

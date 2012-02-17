@@ -113,7 +113,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					// Convert \t and \n to &nbsp;'s and <br/>'s
 					var lineStartIndex = 0,
 						currentIndex = 0,
-						currentTabIndex;
+						currentTabIndex,
+						value = value || "";
 					while(currentIndex < value.length) {
 						if (value[currentIndex] === '\t') {
 							var tabSpaces = "",
