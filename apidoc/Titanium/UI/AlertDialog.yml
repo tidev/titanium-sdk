@@ -13,7 +13,7 @@ description: |
         
     This will generate an alert with a title of "Alert" and an "OK" button.
     
-    Multiple alerts should not be shown at once once.
+    Multiple alerts should not be shown at once.
 
     Although this dialog appears in the middle of the display (not touching the 
     edges) other aspects of the aesthetics, behavior and the way the user interacts with it is 
@@ -28,7 +28,8 @@ description: |
     Buttons are shown if the `buttonNames` property is defined, and are rendered horizontally below 
     the message.
     
-    Other views may be added to 
+    To create a custom layout, a view may be created and added and other views added to it.
+    
     #### iOS
     
     On iOS, the default alert dialog displays text information, via a title and message, with 
@@ -48,18 +49,19 @@ events:
     properties:
       - name: cancel
         type: Boolean
-        summary: Indicates whether the cancel button was pressed.
+        summary: |
+            Indicates whether the button pressed was the cancel button, defined by the `cancel` 
+            property.
         
       - name: index
         type: Number
         summary: Index of the button that was pressed.
-
 methods:
   - name: show
-    summary: Shows this alert dialog.
+    summary: Shows this dialog.
 
   - name: hide
-    summary: Hides the alert dialog.
+    summary: Hides this dialog.
 
 properties:
   - name: androidView
@@ -79,7 +81,7 @@ properties:
     availability: creation
 
   - name: cancel
-    summary: Index to indicate the button used to cancel the dialog, returned by the `click` event.
+    summary: Index to define the button cancel button, returned by the `click` event.
     type: Number
     
   - name: message
@@ -110,7 +112,7 @@ properties:
     type: String
 
   - name: okid
-    summary: Key identifying a string in the locale file to use for the `ok` property.
+    summary: Key identifying a string in the locale file to use for the `ok` text.
     description: |
         If `buttonNames` is defined, this property is ignored.
     type: String
