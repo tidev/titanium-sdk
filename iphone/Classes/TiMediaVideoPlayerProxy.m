@@ -842,8 +842,6 @@ NSArray* moviePlayerKeys = nil;
 		[event setObject:[userinfo valueForKey:MPMoviePlayerThumbnailTimeKey] forKey:@"time"];
 		
 		[self _fireEventToListener:@"thumbnail" withObject:event listener:thumbnailCallback thisObject:nil];
-
-		RELEASE_TO_NIL(thumbnailCallback);
 	}
 }
 
