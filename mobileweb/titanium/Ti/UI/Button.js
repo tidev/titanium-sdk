@@ -111,14 +111,13 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style", "Ti/_/la
 				});
 			}
 		},
-
-		_getContentWidth: function() {
-			return this._buttonImage.width + this._measureText(this.title, this._buttonTitle).width + (this._hasDefaultLook ? 20 : 0);
-		},
-
-		_getContentHeight: function() {
-			var maxHeight = Math.max(this._buttonImage.height, this._measureText(this.title, this._buttonTitle).height);
-			return maxHeight + (this._hasDefaultLook ? 20 : 0);
+		
+		_getContentSize: function(width, height) {
+			var defaultLookOffset = (this._hasDefaultLook ? 20 : 0);
+			return {
+				width: width === "auto" ? this._buttonImage.width + this._measureText(this.title, this._buttonTitle).width + defaultLookOffset : width,
+				height: height === "auto" ? Math.max(this._buttonImage.height, this._measureText(this.title, this._buttonTitle).height) + defaultLookOffset : height
+			};
 		},
 
 		_setTouchEnabled: function(value) {

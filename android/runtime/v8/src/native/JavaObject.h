@@ -51,6 +51,7 @@ public:
 
 	// When useGlobalRefs is false, you MUST DeleteLocalRef()
 	// the returned jobject when you are done using it.
+	// This is guaranteed to return a valid reference.
 	jobject getJavaObject();
 
 	// True when we use global refs for the wrapped jobject.
@@ -60,9 +61,10 @@ public:
 	static bool useGlobalRefs;
 private:
 	jobject javaObject_;
-	int refIndex;
+	bool isWeakRef_;
 
 	void newGlobalRef();
+	void weakGlobalRef();
 	void deleteGlobalRef();
 };
 

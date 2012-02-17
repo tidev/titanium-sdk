@@ -127,16 +127,17 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				});
 			}
 		},
-
-		_getContentWidth: function() {
-			return Math.max(this._measureText(this._switchTitle.innerHTML, this._switchTitle).width, this._switchIndicator.offsetWidth) + (this._hasDefaultLook ? 12 : 0);
-		},
-
-		_getContentHeight: function() {
-			return this._measureText(this._switchTitle.innerHTML, this._switchTitle).height + // Text height
-				this._switchIndicator.offsetHeight + // Indicator height
-				3 + // Padding between the indicator and text
-				(this._hasDefaultLook ? 12 : 0); // Border of the default style
+		
+		_getContentSize: function(width, height) {
+			var defaultLookOffset = (this._hasDefaultLook ? 12 : 0);
+			return {
+				width: width === "auto" ? Math.max(this._measureText(this._switchTitle.innerHTML, this._switchTitle).width, this._switchIndicator.offsetWidth) + defaultLookOffset : width,
+				height: height === "auto" ? this._measureText(this._switchTitle.innerHTML, this._switchTitle).height + // Text height
+						this._switchIndicator.offsetHeight + // Indicator height
+						3 + // Padding between the indicator and text
+						defaultLookOffset // Border of the default style
+						: height
+			};
 		},
 		
 		_defaultWidth: "auto",

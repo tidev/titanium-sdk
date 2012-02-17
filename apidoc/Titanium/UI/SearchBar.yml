@@ -8,6 +8,19 @@ methods:
     summary: called to force the search bar to lose focus
   - name: focus
     summary: called to force the search bar to focus
+  - name: setShowCancel
+    summary: shows or hides the cancel button.
+    parameters:
+      - name: showCancel
+        summary: the new boolean value
+        type: Boolean
+        
+      - name: animated
+        summary: |
+            Determines whether the change should be animated.
+        type: Boolean
+        default: false
+        optional: true
 events:
   - name: blur
     summary: fired when the search bar loses focus
