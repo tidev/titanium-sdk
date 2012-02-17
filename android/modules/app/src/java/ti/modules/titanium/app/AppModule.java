@@ -5,6 +5,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.util.TiPlatformHelper;
 
 @Kroll.module
 public class AppModule extends KrollModule
@@ -67,7 +68,17 @@ public class AppModule extends KrollModule
 	public String getGUID() {
 		return appInfo.getGUID();
 	}
-
+	
+	@Kroll.getProperty @Kroll.method
+	public String getDeployType() {
+		return TiApplication.getInstance().getDeployType();
+	}
+	
+	@Kroll.getProperty @Kroll.method
+	public String getSessionId() {
+		return TiPlatformHelper.getSessionId();
+	}
+	
 	@Kroll.method
 	public String appURLToPath(String url) {
 		return resolveUrl(null, url);

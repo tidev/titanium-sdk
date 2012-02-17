@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#include "AndroidUtil.h"
 #include "EventEmitter.h"
 #include "JavaObject.h"
 #include "JNIUtil.h"
@@ -38,6 +39,7 @@ static struct {
 JavaObject::JavaObject(jobject javaObject)
 	: EventEmitter()
 	, javaObject_(NULL)
+	, isWeakRef_(false)
 {
 	UPDATE_STATS(1, 1);
 
@@ -49,13 +51,16 @@ JavaObject::JavaObject(jobject javaObject)
 void JavaObject::newGlobalRef()
 {
 	JNIEnv *env = JNIUtil::getJNIEnv();
-	if (!env) {
-		LOGE(TAG, "Failed to get JNI environment.");
-		return;
-	}
+	ASSERT(env != NULL);
+	ASSERT(javaObject_ != NULL);
 
 	if (useGlobalRefs) {
-		javaObject_ = env->NewGlobalRef(javaObject_);
+		jobject globalRef = env->NewGlobalRef(javaObject_);
+		if (isWeakRef_) {
+			env->DeleteWeakGlobalRef(javaObject_);
+			isWeakRef_ = false;
+		}
+		javaObject_ = globalRef;
 	} else {
 		// We store a single global reference to an object list that holds our actual ref list for the emulator
 		// (or whenever the reference limit is artificially limited)
@@ -76,6 +81,16 @@ void JavaObject::newGlobalRef()
 jobject JavaObject::getJavaObject()
 {
 	if (useGlobalRefs) {
+		ASSERT(javaObject_ != NULL);
+
+		// We must always return a valid Java proxy reference.
+		// Otherwise we risk crashing in the calling code.
+		// If we are "detached" we will re-attach whenever the Java
+		// proxy is requested.
+		if (isDetached()) {
+			attach(NULL);
+		}
+
 		return javaObject_;
 	} else {
 		// Pull from the global object list. This is inefficient, but it's probably
@@ -93,22 +108,41 @@ jobject JavaObject::getJavaObject()
 	}
 }
 
+void JavaObject::weakGlobalRef()
+{
+	JNIEnv *env = JNIUtil::getJNIEnv();
+	ASSERT(env != NULL);
+
+	if (useGlobalRefs) {
+		ASSERT(javaObject_ != NULL);
+		jweak weakRef = env->NewWeakGlobalRef(javaObject_);
+		env->DeleteGlobalRef(javaObject_);
+		javaObject_ = weakRef;
+		isWeakRef_ = true;
+	}
+
+	// TODO: Implement weak references when using
+	// our emulator global reference hack.
+}
+
 void JavaObject::deleteGlobalRef()
 {
 	JNIEnv *env = JNIUtil::getJNIEnv();
-	if (!env) {
-		// TODO error
-		return;
-	}
+	ASSERT(env != NULL);
 
 	if (useGlobalRefs) {
-		env->DeleteGlobalRef(javaObject_);
+		ASSERT(javaObject_ != NULL);
+		if (isWeakRef_) {
+			env->DeleteWeakGlobalRef(javaObject_);
+		} else {
+			env->DeleteGlobalRef(javaObject_);
+		}
 		javaObject_ = NULL;
 	} else {
 		// Clear from the global object list
 		if (objectMap) {
 			jobject longObject = env->NewObject(JNIUtil::longClass, JNIUtil::longInitMethod, (jlong) this);
-			env->CallObjectMethod(objectMap, JNIUtil::hashMapRemoveMethod, (jint) refIndex);
+			env->CallObjectMethod(objectMap, JNIUtil::hashMapRemoveMethod, longObject);
 			env->DeleteLocalRef(longObject);
 		}
 	}
@@ -131,8 +165,8 @@ static void DetachCallback(v8::Persistent<v8::Value> value, void *data)
 
 void JavaObject::wrap(Handle<Object> jsObject)
 {
-	assert(handle_.IsEmpty());
-	assert(handle->InternalFieldCount() > 0);
+	ASSERT(handle_.IsEmpty());
+	ASSERT(jsObject->InternalFieldCount() > 0);
 	handle_ = v8::Persistent<v8::Object>::New(jsObject);
 	handle_->SetPointerInInternalField(0, this);
 }
@@ -143,7 +177,9 @@ void JavaObject::attach(jobject javaObject)
 
 	handle_.MakeWeak(this, DetachCallback);
 
-	javaObject_ = javaObject;
+	if (javaObject) {
+		javaObject_ = javaObject;
+	}
 	newGlobalRef();
 }
 
@@ -154,15 +190,14 @@ void JavaObject::detach()
 	// Keep JavaScript object around until finalization.
 	handle_.ClearWeak();
 
-	// Release reference to Java object so it can get finalized.
-	deleteGlobalRef();
+	weakGlobalRef();
 }
 
 bool JavaObject::isDetached()
 {
-	// Quick and direct if not using global ref hack for emulator.
+	// Fast check if using real global references.
 	if (useGlobalRefs) {
-		return javaObject_ == NULL;
+		return javaObject_ == NULL || isWeakRef_;
 	}
 
 	jobject javaObject = getJavaObject();

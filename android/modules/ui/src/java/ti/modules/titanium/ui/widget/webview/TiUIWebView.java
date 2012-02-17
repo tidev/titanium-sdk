@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -92,6 +92,7 @@ public class TiUIWebView extends TiUIView
 		settings.setJavaScriptCanOpenWindowsAutomatically(true);
 		settings.setLoadsImagesAutomatically(true);
 		settings.setLightTouchEnabled(true);
+		settings.setDomStorageEnabled(true); // Required by some sites such as Twitter. Is on in our iOS WebView too.
 
 		// enable zoom controls by default
 		boolean enableZoom = true;

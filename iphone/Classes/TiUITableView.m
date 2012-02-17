@@ -620,7 +620,10 @@
 					TiUITableViewRowProxy* moveRow = [[[updateSection rows] objectAtIndex:rowIndex] retain];
 					
 					[removeRows addObject:[NSIndexPath indexPathForRow:i inSection:updateSectionIndex]];
-					[self deleteRow:moveRow];
+					/*We need to save the row proxy before deleting it, as the KrollObject might get finalized 
+                     before appendRow can happen and thus leaving the proxy with no KrollObject associated with it.*/
+                    [(TiUITableViewProxy *)[self proxy] rememberProxy:moveRow];
+                    [self deleteRow:moveRow];
 					
 					moveRow.section = newSection;
 					moveRow.row = (i-rowIndex)+1;
@@ -637,6 +640,8 @@
             [self appendRow:row];
             for (TiUITableViewRowProxy* moveRow in addRows) {
                 [self appendRow:moveRow];
+                //Removing the temporarly saved proxy.
+                [(TiUITableViewProxy *)[self proxy] forgetProxy:moveRow];
             }
             [tableview insertSections:[NSIndexSet indexSetWithIndex:newSectionIndex] withRowAnimation:action.animation];
             
@@ -867,8 +872,21 @@
 		[target fireEvent:name withObject:eventObject];
 	}	
     
-    if (viaSearch && hideOnSearch) {
-        [self hideSearchScreen:nil];
+    if (viaSearch) {
+        if (hideOnSearch) {
+            [self hideSearchScreen:nil];
+        }
+        else {
+            /*
+             TIMOB-7397. Observed that `searchBarTextDidBeginEditing` delegate 
+             method was being called on screen transition which was causing a 
+             visual glitch. Checking for isFirstResponder at this point always 
+             returns false. Calling blur here so that the UISearchBar resigns 
+             as first responder on main thread
+            */
+            [searchField performSelector:@selector(blur:) withObject:nil];
+        }
+        
     }
 }
 
@@ -1061,7 +1079,7 @@
 		}
 		else
 		{
-			[tableview performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
+			TiThreadPerformOnMainThread(^{[tableview reloadData];}, NO);
 		}
 	}
 }

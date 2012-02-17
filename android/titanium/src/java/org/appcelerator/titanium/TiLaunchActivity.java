@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,6 +14,7 @@ import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiColorHelper;
+import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
@@ -97,8 +98,19 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		if (noLaunchCategoryDetected || checkMissingLauncher(savedInstanceState)) {
-			return;
+		TiApplication tiApp = getTiApp();
+
+		if (!tiApp.isRestartPending()) {
+			// Check for a system application restart that we can't support.
+			if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
+				super.onCreate(savedInstanceState); // Will take care of scheduling restart and finishing.
+				return;
+			}
+
+			// Check for android bug 2373.
+			if (checkMissingLauncher(savedInstanceState)) {
+				return;
+			}
 		}
 
 		url = TiUrl.normalizeWindowUrl(getUrl());
@@ -106,7 +118,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		// we only want to set the current activity for good in the resume state but we need it right now.
 		// save off the existing current activity, set ourselves to be the new current activity temporarily 
 		// so we don't run into problems when we bind the current activity
-		TiApplication tiApp = getTiApp();
 		Activity tempCurrentActivity = tiApp.getCurrentActivity();
 		tiApp.setCurrentActivity(this, this);
 
@@ -246,8 +257,8 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	{
 		if (noLaunchCategoryAlert != null && noLaunchCategoryAlert.isShowing()) {
 			noLaunchCategoryAlert.cancel();
-			noLaunchCategoryAlert = null;
 		}
+		noLaunchCategoryAlert = null;
 
 		if (!isFinishing()) {
 			finish();
@@ -259,18 +270,30 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	protected void onRestart()
 	{
 		super.onRestart();
-		TiProperties systemProperties = getTiApp().getSystemProperties();
+
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			return;
+		}
+
+		TiProperties systemProperties = tiApp.getSystemProperties();
 
 		boolean restart = systemProperties.getBool("ti.android.root.reappears.restart", false);
 		if (restart) {
 			Log.w(TAG, "Tasks may have been destroyed by Android OS for inactivity. Restarting.");
-			restartActivity(250);
+			tiApp.scheduleRestart(250);
 		}
 	}
 
 	@Override
 	protected void onPause()
 	{
+		if (getTiApp().isRestartPending()) {
+			super.onPause(); // Will take care of finish() if needed.
+			return;
+		}
+
 		if (noLaunchCategoryDetected) {
 			doFinishForRestart();
 			activityOnPause();
@@ -283,6 +306,11 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onStop()
 	{
+		if (getTiApp().isRestartPending()) {
+			super.onStop();
+			return;
+		}
+
 		if (noLaunchCategoryDetected) {
 			activityOnStop();
 			return;
@@ -293,6 +321,11 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onStart()
 	{
+		if (getTiApp().isRestartPending()) {
+			super.onStart();
+			return;
+		}
+
 		if (noLaunchCategoryDetected) {
 			activityOnStart();
 			return;
@@ -303,6 +336,11 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onResume()
 	{
+		if (getTiApp().isRestartPending()) {
+			super.onResume();
+			return;
+		}
+
 		if (noLaunchCategoryDetected) {
 			alertMissingLauncher(); // This also kicks off the finish() and restart.
 			activityOnResume();
@@ -315,8 +353,14 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onDestroy()
 	{
-		if (noLaunchCategoryDetected) {
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending() || noLaunchCategoryDetected) {
 			activityOnDestroy();
+			if (restartAlarmManager == null) {
+				restartActivity(0);
+			}
+			tiApp.beforeForcedRestart();
 			restartAlarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + restartDelay, restartPendingIntent);
 			restartPendingIntent = null;
 			restartAlarmManager = null;
@@ -325,11 +369,13 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			return;
 		}
 
-		TiApplication tiApp = TiApplication.getInstance();
 		if (tiApp != null) {
 			tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppEndEvent());
 		}
-
+		
+		// Create a new session ID for next session
+		TiPlatformHelper.resetSid();
+		
 		super.onDestroy();
 	}
 }

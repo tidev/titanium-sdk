@@ -40,7 +40,7 @@
 {
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(show:) withObject:args waitUntilDone:YES];
+		TiThreadPerformOnMainThread(^{[self show:args];}, YES);
 		return;
 	}	
 	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];

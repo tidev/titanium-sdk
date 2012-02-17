@@ -52,6 +52,21 @@ uncompressed_types = [
 	".amr", ".awb", ".wma", ".wmv"
 ]
 
+# Java keywords to reference in case app id contains java keyword
+java_keywords = [
+	"abstract",	"continue",	"for", "new", "switch",
+	"assert", "default", "goto", "package", "synchronized",
+	"boolean", "do", "if", "private", "this",
+	"break", "double", "implements", "protected", "throw",
+	"byte", "else", "import", "public", "throws",
+	"case", "enum", "instanceof", "return", "transient",
+	"catch", "extends", "int", "short", "try",
+	"char", "final", "interface", "static", "void",
+	"class", "finally", "long",	"strictfp", "volatile",
+	"const", "float", "native",	"super", "while",
+	"true", "false", "null"
+]
+
 
 MIN_API_LEVEL = 8
 
@@ -199,6 +214,14 @@ class Builder(object):
 		self.debugger_port = -1
 		self.fastdev_port = -1
 		self.fastdev = False
+		self.compile_js = False
+		
+		# don't build if a java keyword in the app id would cause the build to fail
+		tok = self.app_id.split('.')
+		for token in tok:
+			if token in java_keywords:
+				error("Do not use java keywords for project app id, such as " + token)
+				sys.exit(1)
 
 		temp_tiapp = TiAppXML(self.project_tiappxml)
 		if temp_tiapp and temp_tiapp.android and 'tool-api-level' in temp_tiapp.android:
@@ -596,7 +619,7 @@ class Builder(object):
 			for root, dirs, files in os.walk(topdir):
 				remove_ignored_dirs(dirs)
 				for d in dirs:
-					if d == "iphone":
+					if d == "iphone" or d == "mobileweb":
 						dirs.remove(d)
 				for filename in files:
 					if filename.startswith("_"):
@@ -620,6 +643,13 @@ class Builder(object):
 			self.project_deltas = self.project_deltafy.scan()
 			# rescan tiapp.xml so it doesn't show up as created next time around 
 			self.project_deltafy.scan_single_file(self.project_tiappxml)
+			
+		if self.tiapp_changed:
+			for root, dirs, files in os.walk(self.project_gen_dir, topdown=False):
+				for name in files:
+					os.remove(os.path.join(root, name))
+				for name in dirs:
+					os.rmdir(os.path.join(root, name))
 			
 		def strip_slash(s):
 			if s[0:1]=='/' or s[0:1]=='\\': return s[1:]
@@ -651,9 +681,7 @@ class Builder(object):
 					if os.path.exists(path.replace(resources_dir, android_resources_dir, 1)):
 						continue
 					dest = make_relative(path, resources_dir, self.assets_resources_dir)
-				# check to see if this is a compiled file and if so, don't copy
-				if dest in self.compiled_files: continue
-				if path.startswith(os.path.join(resources_dir, "iphone")) or path.startswith(os.path.join(resources_dir, "blackberry")):
+				if path.startswith(os.path.join(resources_dir, "iphone")) or path.startswith(os.path.join(resources_dir, "mobileweb")) or path.startswith(os.path.join(resources_dir, "blackberry")):
 					continue
 				parent = os.path.dirname(dest)
 				if not os.path.exists(parent):
@@ -1319,6 +1347,10 @@ class Builder(object):
 			if ext == '.class': return True
 			if 'org/appcelerator/titanium/bindings' in path and ext == '.json': return True
 
+		def skip_js_file(path):
+			return self.compile_js is True and \
+				os.path.splitext(path)[1] == '.js'
+
 		def compression_type(path):
 			ext = os.path.splitext(path)[1]
 			if ext in uncompressed_types:
@@ -1344,7 +1376,7 @@ class Builder(object):
 			self.apk_updated = True
 			resources_zip = zipfile.ZipFile(resources_zip_file)
 			for path in resources_zip.namelist():
-				if skip_jar_path(path): continue
+				if skip_jar_path(path) or skip_js_file(path): continue
 				debug("from resource zip => " + path)
 				apk_zip.writestr(zipinfo(path), resources_zip.read(path))
 			resources_zip.close()
@@ -1394,20 +1426,22 @@ class Builder(object):
 								debug("installing native lib: %s" % native_lib)
 								apk_zip.write(native_lib, path_in_zip)
 
-		# add any native libraries : libs/**/*.so -> lib/**/*.so
-		add_native_libs(os.path.join(self.project_dir, 'libs'))
+		if self.runtime == 'v8':
+			# add any native libraries : libs/**/*.so -> lib/**/*.so
+			add_native_libs(os.path.join(self.project_dir, 'libs'))
 
-		# add module native libraries
-		for module in self.modules:
-			add_native_libs(module.get_resource('libs'))
+			# add module native libraries
+			for module in self.modules:
+				add_native_libs(module.get_resource('libs'))
 
-		# add sdk runtime native libraries
-		sdk_native_libs = os.path.join(template_dir, 'native', 'libs')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libkroll-v8.so'), 'lib/armeabi/libkroll-v8.so')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libstlport_shared.so'), 'lib/armeabi/libstlport_shared.so')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libkroll-v8.so'), 'lib/armeabi-v7a/libkroll-v8.so')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libstlport_shared.so'), 'lib/armeabi-v7a/libstlport_shared.so')
-		self.apk_updated = True
+			# add sdk runtime native libraries
+			debug("installing native SDK libs")
+			sdk_native_libs = os.path.join(template_dir, 'native', 'libs')
+			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libkroll-v8.so'), 'lib/armeabi/libkroll-v8.so')
+			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libstlport_shared.so'), 'lib/armeabi/libstlport_shared.so')
+			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libkroll-v8.so'), 'lib/armeabi-v7a/libkroll-v8.so')
+			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libstlport_shared.so'), 'lib/armeabi-v7a/libstlport_shared.so')
+			self.apk_updated = True
 
 		apk_zip.close()
 		return unsigned_apk
@@ -1431,9 +1465,7 @@ class Builder(object):
 			non_js_assets = os.path.join(self.project_dir, 'bin', 'non-js-assets')
 			if not os.path.exists(non_js_assets):
 				os.mkdir(non_js_assets)
-			#TODO: Decide whether we need to add 'ignore_exts=[".js"]' back to the copy_all() method once we are able to package with rhino
-			# For now, we leave the js files in for v8 packaging
-			copy_all(self.assets_dir, non_js_assets)
+			copy_all(self.assets_dir, non_js_assets, ignore_exts=['.js'])
 			pkg_assets_dir = non_js_assets
 
 		run.run([self.aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', pkg_assets_dir,
@@ -1781,6 +1813,13 @@ class Builder(object):
 				last_build_info = simplejson.loads(open(build_info_path, 'r').read())
 				built_all_modules = last_build_info["include_all_modules"]
 
+			if self.tiapp.has_app_property("ti.android.compilejs"):
+				if self.tiapp.to_bool(self.tiapp.get_app_property('ti.android.compilejs')):
+					self.compile_js = True
+			elif self.tiapp.has_app_property('ti.deploytype'):
+				if self.tiapp.get_app_property('ti.deploytype') == 'production':
+					self.compile_js = True
+
 			include_all_ti_modules = self.fastdev 
 			if (self.tiapp.has_app_property('ti.android.include_all_modules')):
 				if self.tiapp.to_bool(self.tiapp.get_app_property('ti.android.include_all_modules')):
@@ -1789,6 +1828,7 @@ class Builder(object):
 					self.force_rebuild or self.deploy_type == "production" or \
 					(self.fastdev and (not self.app_installed or not built_all_modules)) or \
 					(not self.fastdev and built_all_modules):
+				self.android.config['compile_js'] = self.compile_js
 				trace("Generating Java Classes")
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')),
 					True, project_dir = self.top_dir, include_all_ti_modules=include_all_ti_modules)
@@ -1800,9 +1840,14 @@ class Builder(object):
 
 			# compile resources
 			full_resource_dir = os.path.join(self.project_dir, self.assets_resources_dir)
-			compiler = Compiler(self.tiapp, full_resource_dir, self.java, self.classes_dir, self.project_dir, 
-					include_all_modules=include_all_ti_modules)
-			compiler.compile()
+			compiler = Compiler(self.tiapp,
+								full_resource_dir,
+								self.java,
+								self.classes_dir,
+								self.project_gen_dir,
+								self.project_dir, 
+								include_all_modules=include_all_ti_modules)
+			compiler.compile(compile_bytecode=self.compile_js)
 			self.compiled_files = compiler.compiled_files
 			self.android_jars = compiler.jar_libraries
 			self.merge_internal_module_resources()

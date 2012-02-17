@@ -32,21 +32,18 @@ DIST_DIR := $(THIS_DIR)/../../../../../dist/android
 $(THIS_DIR)/V8Runtime.cpp: $(JNI_PREFIX)_V8Runtime.h
 $(THIS_DIR)/V8Object.cpp: $(JNI_PREFIX)_V8Object.h
 
-ti-generated-dir:
-	@mkdir -p $(GENERATED_DIR) 2>/dev/null
-
 ifeq ($(PYTHON),)
 PYTHON := python
 endif
 
-$(GENERATED_DIR)/KrollJS.cpp: ti-generated-dir $(ABS_JS_FILES) $(GENERATED_DIR)/KrollGeneratedBindings.cpp
+$(GENERATED_DIR)/KrollJS.cpp: $(ABS_JS_FILES) $(GENERATED_DIR)/KrollGeneratedBindings.cpp
 	$(PYTHON) $(JS2C) $(GENERATED_DIR)/KrollJS.cpp $(ABS_JS_FILES)
 
-$(GENERATED_DIR)/KrollGeneratedBindings.cpp $(GENERATED_DIR)/bootstrap.js: ti-generated-dir $(ABS_PROXY_SOURCES)
+$(GENERATED_DIR)/KrollGeneratedBindings.cpp $(GENERATED_DIR)/bootstrap.js: $(ABS_PROXY_SOURCES)
 	$(PYTHON) $(GEN_BOOTSTRAP) --runtime=v8
 	gperf -L C++ -E -t $(GENERATED_DIR)/KrollGeneratedBindings.gperf > $(GENERATED_DIR)/KrollGeneratedBindings.cpp
 
-$(GENERATED_DIR)/KrollNativeBindings.cpp: ti-generated-dir $(THIS_DIR)/KrollNativeBindings.gperf
+$(GENERATED_DIR)/KrollNativeBindings.cpp: $(THIS_DIR)/KrollNativeBindings.gperf
 	gperf -L C++ -E -t $(THIS_DIR)/KrollNativeBindings.gperf > $(GENERATED_DIR)/KrollNativeBindings.cpp
 
 JAVAH := javah
