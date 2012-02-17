@@ -162,13 +162,12 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 		_defaultWidth: "100%",
 
 		_defaultHeight: "100%",
-
-		_getContentHeight: function() {
-			return this._iframe ? this._iframe.clientHeight : 0;
-		},
-
-		_getContentWidth: function() {
-			return this._iframe ? this._iframe.clientWidth : 0;
+		
+		_getContentSize: function() {
+			return {
+				width: this._iframe ? this._iframe.clientWidth : 0,
+				height: this._iframe ? this._iframe.clientHeight : 0
+			};
 		},
 
 		_setContent: function(value) {
