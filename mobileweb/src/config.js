@@ -8,7 +8,8 @@ var require = {
 		name: "${app_name | jsQuoteEscapeFilter}",
 		publisher: "${app_publisher | jsQuoteEscapeFilter}",
 		url: "${app_url | jsQuoteEscapeFilter}",
-		version: "${app_version | jsQuoteEscapeFilter}"
+		version: "${app_version | jsQuoteEscapeFilter}",
+		analytics: ${app_analytics | jsQuoteEscapeFilter}
 	},
 	deployType: "${deploy_type | jsQuoteEscapeFilter}",
 	has: {
