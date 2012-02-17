@@ -443,7 +443,6 @@ properties:
     summary: Current playback time of the current movie in milliseconds.
     type: Number
     permission: read-only
-    platforms: [android, mobileweb]
 
   - name: duration
     summary: The duration of the current movie in milliseconds, or 0.0 if not known.
