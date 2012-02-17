@@ -68,7 +68,8 @@ class Crypt(object):
     self.assets = []
 
   def add_asset(self, key, data):
-    self.keys.append(key)
+    # Convert Window paths to Unix style.
+    self.keys.append(key.replace('\\', '/'))
     self.assets.append(data)
 
   def generate_code(self, package, target_file):

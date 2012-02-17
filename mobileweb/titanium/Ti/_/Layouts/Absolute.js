@@ -3,7 +3,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 	return declare("Ti._.Layouts.Absolute", Base, {
 
 		_doLayout: function(element, width, height) {
-			var computedSize = {width: 0, height: 0};
+			var computedSize = this._computedSize = {width: 0, height: 0};
 			for(var i in element.children) {
 				
 				// Layout the child

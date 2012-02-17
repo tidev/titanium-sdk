@@ -153,6 +153,7 @@ methods:
     returns:
         type: Boolean
   - name: insertBefore
+    summary: Inserts the node `newChild` before the node `refChild`.
     parameters:
       - name: newChild
         type: Titanium.XML.Node
