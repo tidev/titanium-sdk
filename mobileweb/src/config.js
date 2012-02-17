@@ -1,5 +1,4 @@
 var require = {
-	analytics: ${app_analytics | jsQuoteEscapeFilter},
 	app: {
 		copyright: "${app_copyright | jsQuoteEscapeFilter}",
 		description: "${app_description | jsQuoteEscapeFilter}",
