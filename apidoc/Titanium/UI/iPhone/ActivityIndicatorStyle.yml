@@ -7,14 +7,16 @@ platforms: [iphone, ipad]
 createable: false
 properties:
   - name: BIG
-    summary: The large white style of indicator.
+    summary: A large white spinning indicator.
     type: Number
     permission: read-only
+    
   - name: DARK
-    summary: The standard gray style of indicator.
+    summary: A small gray spinning indicator
     type: Number
     permission: read-only
+    
   - name: PLAIN
-    summary: The standard white style of indicator (the default).
+    summary: A small white spinning indicator (the default).
     type: Number
     permission: read-only
