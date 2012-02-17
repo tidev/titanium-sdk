@@ -370,6 +370,36 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 	[super didReceiveMemoryWarning:notification];
 }
 
+-(NSString*)SIZE
+{
+    return @"SIZE";
+}
+-(NSString*)FILL
+{
+    return @"FILL";
+}
+-(NSString*)UNIT_PX
+{
+    return @"px";
+}
+-(NSString*)UNIT_CM
+{
+    return @"cm";
+}
+-(NSString*)UNIT_MM
+{
+    return @"mm";
+}
+-(NSString*)UNIT_IN
+{
+    return @"in";
+}
+-(NSString*)UNIT_DIP
+{
+    return @"dip";
+}
+
+
 @end
 
 #endif
