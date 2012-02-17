@@ -52,7 +52,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
 	switch (constraint->width.type)
 	{
 		case TiDimensionTypePercent:
-		case TiDimensionTypePixels:
+		case TiDimensionTypeDip:
 			width = TiDimensionCalculateValue(constraint->width, referenceSize.width);
 			break;
 		default:
@@ -81,7 +81,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
 	switch (constraint->height.type)
 	{
 		case TiDimensionTypePercent:
-		case TiDimensionTypePixels:
+		case TiDimensionTypeDip:
 			height = TiDimensionCalculateValue(constraint->height, referenceSize.height);
 			break;
 		default:
@@ -254,7 +254,7 @@ CGFloat WidthFromConstraintGivenWidth(LayoutConstraint * constraint, CGFloat vie
 {
 	switch (constraint->width.type)
 	{
-		case TiDimensionTypePixels:
+		case TiDimensionTypeDip:
 		{
 			return constraint->width.value;
 		}

@@ -511,7 +511,7 @@ static void getAddrInternal(char* macAddress, const char* ifName) {
 			return [NSNull null];
 		case TiDimensionTypeAuto:
 			return @"auto";
-		case TiDimensionTypePixels:
+		case TiDimensionTypeDip:
 			return [NSNumber numberWithFloat:dimension.value];
 		default: {
 			break;

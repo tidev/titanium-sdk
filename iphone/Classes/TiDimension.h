@@ -15,7 +15,7 @@
 
 typedef enum {
 	TiDimensionTypeUndefined,
-	TiDimensionTypePixels,
+	TiDimensionTypeDip,
 	TiDimensionTypeAuto,
 	TiDimensionTypePercent,
 } TiDimensionType;
@@ -23,7 +23,7 @@ typedef enum {
 struct TiDimension {
 	TiDimensionType type;
 	CGFloat value;
-	//If type is TiDimensionTypePixels, value is a pixel constant,
+	//If type is TiDimensionTypeDip, value is a Dip constant,
 	//If type is TiDimensionTypePercent, value ranges from 0 (0%) to 1.0 (100%)
 };
 
@@ -34,12 +34,12 @@ extern const TiDimension TiDimensionAuto;
 extern const TiDimension TiDimensionUndefined;
 
 TiDimension TiDimensionMake(TiDimensionType type, CGFloat value);
-CGFloat convertInchToPixel(CGFloat value);
+CGFloat convertInchToPixels(CGFloat value);
+CGFloat convertPixelsToDip(CGFloat value);
 
-
-TI_INLINE TiDimension TiDimensionPixels(CGFloat value)
+TI_INLINE TiDimension TiDimensionDip(CGFloat value)
 {
-	return TiDimensionMake(TiDimensionTypePixels,value);
+	return TiDimensionMake(TiDimensionTypeDip,value);
 }
 
 TI_INLINE bool TiDimensionIsPercent(TiDimension dimension)
@@ -52,9 +52,9 @@ TI_INLINE bool TiDimensionIsAuto(TiDimension dimension)
 	return dimension.type == TiDimensionTypeAuto;
 }
 
-TI_INLINE bool TiDimensionIsPixels(TiDimension dimension)
+TI_INLINE bool TiDimensionIsDip(TiDimension dimension)
 {
-	return dimension.type == TiDimensionTypePixels;
+	return dimension.type == TiDimensionTypeDip;
 }
 
 TI_INLINE bool TiDimensionIsUndefined(TiDimension dimension)
@@ -68,7 +68,7 @@ TI_INLINE bool TiDimensionEqual(TiDimension dimension1, TiDimension dimension2)
 	{
 		return false;
 	}
-	if (TiDimensionIsPixels(dimension1) || TiDimensionIsPercent(dimension1)) {
+	if (TiDimensionIsDip(dimension1) || TiDimensionIsPercent(dimension1)) {
 		//Value is only valid in pixels and percent. In undefined and auto, value is ignored.
 		return dimension1.value == dimension2.value;
 	}
@@ -88,22 +88,30 @@ TI_INLINE TiDimension TiDimensionFromObject(id object)
 		if (range.location!=NSNotFound)
 		{
 			NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
-			return TiDimensionMake(TiDimensionTypePixels, [value floatValue]);
+			return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip([value floatValue]));
 		}
         range = [object rangeOfString:@"cm"];
         if (range.location!=NSNotFound)
         {
             NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
-            float dimValue = ([value floatValue]/INCH_IN_CM);
-            return TiDimensionMake(TiDimensionTypePixels, convertInchToPixel(dimValue));
+            float dimValue = convertInchToPixels(([value floatValue]/INCH_IN_CM));
+            return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(dimValue));
             
         }
         range = [object rangeOfString:@"mm"];
         if (range.location!=NSNotFound)
         {
             NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
-            float dimValue = ([value floatValue]/INCH_IN_MM);
-            return TiDimensionMake(TiDimensionTypePixels, convertInchToPixel(dimValue));
+            float dimValue = convertInchToPixels(([value floatValue]/INCH_IN_MM));
+            return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(dimValue));
+            
+        }
+        range = [object rangeOfString:@"in"];
+        if (range.location!=NSNotFound)
+        {
+            NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
+            float dimValue = convertInchToPixels([value floatValue]);
+            return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(dimValue));
             
         }
         range = [object rangeOfString:@"dp"];
@@ -113,8 +121,7 @@ TI_INLINE TiDimension TiDimensionFromObject(id object)
         if (range.location!=NSNotFound)
         {
             NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
-            float dimValue = ([value floatValue]);
-            return TiDimensionMake(TiDimensionTypePixels, dimValue);
+            return TiDimensionMake(TiDimensionTypeDip, [value floatValue]);
             
         }    
 		range = [object rangeOfString:@"%"];
@@ -126,7 +133,7 @@ TI_INLINE TiDimension TiDimensionFromObject(id object)
 	}
 	if ([object respondsToSelector:@selector(floatValue)])
 	{
-		return TiDimensionMake(TiDimensionTypePixels, [object floatValue]);
+		return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
 	}
 	return TiDimensionUndefined;
 }
@@ -135,7 +142,7 @@ TI_INLINE BOOL TiDimensionDidCalculateValue(TiDimension dimension,CGFloat boundi
 {
 	switch (dimension.type)
 	{
-		case TiDimensionTypePixels:
+		case TiDimensionTypeDip:
 			*result = dimension.value;
 			return YES;
 		case TiDimensionTypePercent:
@@ -164,7 +171,7 @@ TI_INLINE CGFloat TiDimensionCalculateRatio(TiDimension dimension,CGFloat boundi
 	{
 		case TiDimensionTypePercent:
 			return dimension.value;
-		case TiDimensionTypePixels:
+		case TiDimensionTypeDip:
 			return dimension.value / boundingValue;
 		default: {
 			break;

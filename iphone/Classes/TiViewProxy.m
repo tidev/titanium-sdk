@@ -296,8 +296,8 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		layoutProperties.centerY = TiDimensionFromObject([value objectForKey:@"y"]);
 	} else if ([value isKindOfClass:[TiPoint class]]) {
         CGPoint p = [value point];
-		layoutProperties.centerX = TiDimensionPixels(p.x);
-		layoutProperties.centerY = TiDimensionPixels(p.y);
+		layoutProperties.centerX = TiDimensionDip(p.x);
+		layoutProperties.centerY = TiDimensionDip(p.y);
     } else {
 		layoutProperties.centerX = TiDimensionUndefined;
 		layoutProperties.centerY = TiDimensionUndefined;
@@ -561,7 +561,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 {
 	CGFloat result = TiDimensionCalculateValue(layoutProperties.left, 0)
 			+ TiDimensionCalculateValue(layoutProperties.right, 0);
-	if (TiDimensionIsPixels(layoutProperties.width))
+	if (TiDimensionIsDip(layoutProperties.width))
 	{
 		result += layoutProperties.width.value;
 	}
@@ -579,13 +579,13 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	CGFloat result = TiDimensionCalculateValue(layoutProperties.top, 0)
 			+ TiDimensionCalculateValue(layoutProperties.bottom, 0);
 
-	if (TiDimensionIsPixels(layoutProperties.height))
+	if (TiDimensionIsDip(layoutProperties.height))
 	{
 		result += layoutProperties.height.value;
 	}
 	else if(TiDimensionIsAuto(layoutProperties.height))
 	{
-		if (TiDimensionIsPixels(layoutProperties.width))
+		if (TiDimensionIsDip(layoutProperties.width))
 		{
 			suggestedWidth = layoutProperties.width.value;
 		}
@@ -1429,8 +1429,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	{
 		[self willChangeSize];
 	}
-	if(!TiDimensionIsPixels(layoutProperties.centerX) ||
-			!TiDimensionIsPixels(layoutProperties.centerY))
+	if(!TiDimensionIsDip(layoutProperties.centerX) ||
+			!TiDimensionIsDip(layoutProperties.centerY))
 	{
 		[self willChangePosition];
 	}
