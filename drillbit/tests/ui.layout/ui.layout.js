@@ -239,6 +239,481 @@ describe("Ti.UI Layout tests", {
 		win.open();
 
 	}),
+	// functional test #1027 ViewPaddingZero
+	viewPaddingZero: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var view = Ti.UI.createView({
+			backgroundColor: 'yellow',
+			padding: 0
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			valueOf(view.padding).shouldBe(0);
+		}));
+
+		win.add(view);
+		win.open();
+
+	}),
+	// functional test #1028 ViewPadding
+	viewPadding: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var view = Ti.UI.createView({
+			backgroundColor: 'yellow',
+			padding: 10
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			valueOf(view.padding).shouldBe(10);
+		}));
+
+		win.add(view);
+		win.open();
+
+	}),
+	// functional test #1029 ViewPaddingDiffrerent
+	viewPaddingZero: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+		var view = Ti.UI.createView({
+			backgroundColor: 'yellow',
+			padding: {top:1, left:2, right:3, bottom:4}
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			valueOf(view.padding.top).shouldBe(1);
+			valueOf(view.padding.left).shouldBe(2);
+			valueOf(view.padding.right).shouldBe(3);
+			valueOf(view.padding.bottom).shouldBe(4);
+		}));
+
+		win.add(view);
+		win.open();
+
+	}),
+	// functional test #1030 ViewMarginZero
+	viewMarginZero: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var view = Ti.UI.createView({
+			backgroundColor: 'yellow',
+			margin: 0
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			valueOf(view.margin).shouldBe(0);
+		}));
+
+		win.add(view);
+		win.open();
+
+	}),
+	// functional test #1031 ViewMargin
+	viewMargin: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var view = Ti.UI.createView({
+			backgroundColor: 'yellow',
+			margin: 10
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			valueOf(view.padding).shouldBe(10);
+		}));
+
+		win.add(view);
+		win.open();
+
+	}),
+	// functional test #1032 ViewMarginDifferent
+	viewMarginDifferent: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var view = Ti.UI.createView({
+			backgroundColor: 'yellow',
+			margin: {top:1, left:2, right:3, bottom:4}
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			valueOf(view.margin.top).shouldBe(1);
+			valueOf(view.margin.left).shouldBe(2);
+			valueOf(view.margin.right).shouldBe(3);
+			valueOf(view.margin.bottom).shouldBe(4);
+		}));
+
+		win.add(view);
+		win.open();
+
+	}),
+	// functional test #1033 UndefinedWidth
+	undefinedWidth: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+		var view = Ti.UI.createView({
+			backgroundColor: 'yellow',
+			left: 5,
+			right: 10
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			// Don't check for actual values here since rect will be different depending on device
+			valueOf(view.rect.right).shouldNotBeUndefined();
+			valueOf(view.rect.left).shouldNotBeUndefined();
+			valueOf(view.size.width).shouldNotBeUndefined();
+			valueOf(view.width).shouldBeUndefined();
+		}));
+
+		win.add(view);
+		win.open();
+
+	}),
+	// functional test #1033a #1033b  UndefinedWidthCenter
+	undefinedWidthCenter: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var view = Ti.UI.createView({
+			backgroundColor: 'yellow',
+			left: 5,
+			center: {x:10}
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			valueOf(view.rect.right - view.rect.left).shouldBe(view.size.width);
+			valueOf(view.width).shouldBeUndefined();
+		}));
+
+		win.add(view);
+		win.open();
+
+	}),
+	// functional test #1034/1034a/1034b UndefinedLeft
+	undefinedLeft: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var view = Ti.UI.createView({
+			backgroundColor: 'yellow',
+			right: 5,
+			center: {x:10}
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			valueOf(view.rect.left).shouldNotBeUndefined();
+			valueOf(view.left).shouldBeUndefined();
+		}));
+
+		win.add(view);
+		win.open();
+
+	}),
+	// functional test #1035 & #1039 UndefinedCenter
+	undefinedCenter: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var view = Ti.UI.createView({
+			backgroundColor: 'yellow',
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			valueOf(view.center).shouldBeUndefined();
+		}));
+
+		win.add(view);
+		win.open();
+	}),
+	// functional test #1036 UndefinedRight
+	undefinedRight: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var view = Ti.UI.createView({
+			backgroundColor: 'yellow',
+			center: {x:50},
+			left:10
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			valueOf(view.rect.right).shouldNotBeUndefined();
+			valueOf(view.right).shouldBeUndefined();
+		}));
+
+		win.add(view);
+		win.open();
+
+	}),
+	// functional test #1037 UndefinedHeight
+	undefinedHeight: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var view = Ti.UI.createView({
+			backgroundColor: 'yellow',
+			top: 5,
+			bottom: 10
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			valueOf(view.rect.bottom - view.rect.top).shouldBe(view.size.height);
+			valueOf(view.height).shouldBeUndefined();
+		}));
+
+		win.add(view);
+		win.open();
+
+	}),
+	// functional test #1037a & #1037b UndefinedHeightCenterBottom UndefinedHeightCenterTop
+	undefinedHeightCenter: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var view = Ti.UI.createView({
+			backgroundColor: 'yellow',
+			top: 5,
+			bottom: 10
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			valueOf(view.rect.bottom - view.rect.top).shouldBe(view.size.height);
+			valueOf(view.height).shouldBeUndefined();
+		}));
+
+		win.add(view);
+		win.open();
+
+	}),
+	// functional test #1038 UndefinedTop
+	undefinedTop: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+		var view = Ti.UI.createView({
+			backgroundColor: 'yellow',
+			height: 50,
+			center: {y:200}
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			valueOf(view.rect.top).shouldNotBeUndefined();
+			valueOf(view.top).shouldBeUndefined();
+		}));
+
+		win.add(view);
+		win.open();
+
+	}),
+	// functional test #1038a #1038b UndefinedTopCenterBottom UndefinedTopHeightBottom
+	undefinedTopCenter: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+		
+		var view = Ti.UI.createView({
+			backgroundColor: 'yellow',
+			bottom: 10,
+			center: {y:5}
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			valueOf(view.rect.bottom - view.rect.top).shouldBe(view.size.height);
+			valueOf(view.height).shouldBeUndefined();
+		}));
+
+		win.add(view);
+		win.open();
+	}),
+	// functional test #1040 UndefinedBottom
+	undefinedBottom: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var view = Ti.UI.createView({
+			backgroundColor: 'yellow',
+			center: {y:50},
+			top: 10
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			valueOf(view.rect.bottom).shouldNotBeUndefined();
+			valueOf(view.bottom).shouldBeUndefined();
+		}));
+
+		win.add(view);
+		win.open();
+	}),
+	// functional test #1042 WidthPrecedence
+	widthPrecedence: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var view = Ti.UI.createView({
+			backgroundColor: 'yellow',
+			left: 10,
+			right: 15,
+			width: 10
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			valueOf(view.size.width).shouldBe(10);
+		}));
+
+		win.add(view);
+		win.open();
+	}),
+	// functional test #1043 LeftPrecedence
+	leftPrecedence: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var view = Ti.UI.createView({
+			backgroundColor: 'yellow',
+			left: 10,
+			right: 100,
+			center: {x:30}
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			// FIXME need to figure out what the correct value is
+			valueOf(view.size.width).shouldBe(40);
+		}));
+
+		win.add(view);
+		win.open();
+	}),
+	// functional test #1044 CenterXPrecedence
+	centerXPrecedence: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var view = Ti.UI.createView({
+			height: 200,
+			width:200,
+			backgroundColor: 'yellow'
+		})
+		var viewChild = Ti.UI.createView({
+			backgroundColor: 'red',
+			center: {x:100},
+			right: 50
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			// FIXME need to figure out what the correct value is
+			valueOf(viewChild.size.width).shouldBe(100);
+		}));
+
+		view.add(viewChild);
+		win.add(view);
+		win.open();
+	}),
+	// functional test #1046 HeightPrecedence
+	heightPrecedence: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var view = Ti.UI.createView({
+			backgroundColor: 'yellow',
+			top: 10,
+			bottom: 15,
+			height: 10
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			valueOf(viewChild.size.height).shouldBe(10);
+		}));
+
+		win.add(view);
+		win.open();
+	}),
+	// functional test #1047 TopPrecedence
+	topPrecedence: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var view = Ti.UI.createView({
+			backgroundColor: 'yellow',
+			top: 10,
+			bottom: 100,
+			center: {y: 30}
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			// FIXME need to figure out what the correct value is
+			valueOf(viewChild.size.height).shouldBe(40);
+		}));
+
+		win.add(view);
+		win.open();
+	}),
+	// functional test #1048 CenterYPrecedence
+	centerYPrecedence: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var view = Ti.UI.createView({
+			height: 200,
+			width:200,
+			backgroundColor: 'yellow'
+		})
+		var viewChild = Ti.UI.createView({
+			backgroundColor: 'red',
+			center: {y:100},
+			bottom: 50
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			// FIXME need to figure out what the correct value is
+			valueOf(viewChild.size.height).shouldBe(100);
+		}));
+
+		view.add(viewChild);
+		win.add(view);
+		win.open();
+	}),
+	// functional test #1053 ScrollViewSize
+	scrollViewSize: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var label = Ti.UI.createLabel({
+			text: 'View Size is: ',
+			top: 20,
+			left: 10,
+			height: 200,
+			color: 'black'
+		});
+
+		var label2 = Ti.UI.createLabel({
+			color: 'red'
+		})
+		var scrollView = Titanium.UI.createScrollView({
+		    contentHeight:'auto',
+		    contentWidth:'auto',
+		    showVerticalScrollIndicator:true,
+		    showHorizontalScrollIndicator:true
+		});
+
+		var view = Titanium.UI.createView();
+		label2.add(scrollView);
+
+		win.addEventListener('open', this.async(function(e){
+			valueOf(scrollView.size).shouldNotBeUndefined();
+			valueOf(scrollView.size.height).shouldNotBe(0);
+			valueOf(scrollView.size.width).shouldNotBe(0);
+		}));
+
+		win.add(label2);
+		win.add(view);
+		view.add(label);
+		win.open();
+	}),
+	// functional test #1106 ZIndexMultiple
+	zIndexMultiple: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var view1 = Ti.UI.createView({backgroundColor:'red', zIndex:0, height: 50, width: 50, top: 10});
+		var view2 = Ti.UI.createView({backgroundColor:'orange',zIndex:1, height: 50, width: 50, top: 20});
+		var view3 = Ti.UI.createView({backgroundColor:'yellow',zIndex:2, height: 50, width: 50, top: 30});
+		var view4 = Ti.UI.createView({backgroundColor:'green', zIndex:3, height: 50, width: 50, top: 40});
+		var view5 = Ti.UI.createView({backgroundColor:'blue', zIndex:4, height: 50, width: 50, top: 50});
+
+		win.addEventListener('open', this.async(function(e){
+			valueOf(view1.zIndex).shouldBe(0);
+			valueOf(view2.zIndex).shouldBe(1);
+			valueOf(view3.zIndex).shouldBe(2);
+			valueOf(view4.zIndex).shouldBe(3);
+			valueOf(view5.zIndex).shouldBe(4);
+		}));
+
+		win.add(view5);
+		win.add(view4);
+		win.add(view3);
+		win.add(view2);
+		win.add(view1);
+		win.open();
+	}),
 	fourPins: asyncTest(function() {
 		var win = Ti.UI.createWindow({
 			width: 100, height: 100
