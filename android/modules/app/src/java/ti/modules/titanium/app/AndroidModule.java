@@ -7,6 +7,7 @@
 package ti.modules.titanium.app;
 
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
@@ -20,9 +21,8 @@ import android.app.Activity;
 @Kroll.module(parentModule=AppModule.class)
 public class AndroidModule extends KrollModule
 {
-	private static final String TAG = "AndroidModule";
-
 	protected RProxy r;
+	private static final String TAG = "App.AndroidModule";
 
 
 	public AndroidModule()
@@ -48,6 +48,11 @@ public class AndroidModule extends KrollModule
 	@Kroll.method
 	public ActivityProxy getTopActivity()
 	{
+		if (KrollRuntime.getActivityRefCount() == 0) {
+			// No activity to wait for. This can be the case if, for example,
+			// the Application is being started for a Service, not an Activity.
+			return null;
+		}
 		TiApplication tiApp = TiApplication.getInstance();
 		Activity activity = tiApp.getCurrentActivity();
 		if (activity == null || !(activity instanceof TiBaseActivity)) {
