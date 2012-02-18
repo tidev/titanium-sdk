@@ -16,7 +16,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			// This container holds the flex boxes used to position the elements
 			this._contentContainer = dom.create("div", {
 				className: "TiUIButtonContentContainer",
-				style: {display: ["-webkit-box", "-moz-box"],
+				style: {
+					display: ["-webkit-box", "-moz-box"],
 					boxOrient: "vertical",
 					boxPack: "center",
 					boxAlign: "stretch",

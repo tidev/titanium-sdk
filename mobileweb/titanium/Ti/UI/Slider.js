@@ -1,20 +1,72 @@
 define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, Widget, dom, css, style) {
 
-	var set = style.set;
+	var setStyle = style.set;
 
 	return declare("Ti.UI.Slider", Widget, {
 
 		constructor: function(args) {
-			this.slider = dom.create("input", {
-				className: css.clean("TiUISliderSlider")
+			this._contentContainer = dom.create("div", {
+				className: "TiUISliderContentContainer",
+				style: {
+					display: ["-webkit-box", "-moz-box"],
+					boxOrient: "horizontal",
+					boxPack: "center",
+					boxAlign: "center",
+					width: "100%",
+					height: "100%"
+				}
+			}, this.domNode);
+			this._leftTrack = dom.create("div", {
+				className: "TiUISliderLeftTrack",
+				style: {
+					height: "5px",
+					backgroundColor: "red"
+				}
+			}, this._contentContainer);
+			this._thumb = dom.create("div", {
+				className: "TiUISliderThumb",
+				style: {
+					width: "20px",
+					height: "20px",
+					backgroundColor: "green"
+				}
+			}, this._contentContainer);
+			this._rightTrack = dom.create("div", {
+				className: "TiUISliderRightTrack",
+				style: {
+					height: "5px",
+					backgroundColor: "blue"
+				}
+			}, this._contentContainer);
+			
+			var initialPosition,
+				initialValue,
+				self = this,
+				mouseMoveListener = function(e) {
+					var value = (e.clientX - initialPosition) * (self.max - self.min) / (self._measuredWidth - 20) + initialValue;
+					self.value = Math.min(Math.max(value, self.min), self.max)
+				},
+				mouseUpListener = function(e) {
+					document.body.removeEventListener("mousemove", mouseMoveListener);
+					document.body.removeEventListener("mouseup", mouseUpListener);
+				};
+			this._thumb.addEventListener("mousedown", function(e) {
+				initialPosition = e.clientX;
+				initialValue = self.value;
+				document.body.addEventListener("mousemove", mouseMoveListener);
+				document.body.addEventListener("mouseup", mouseUpListener);
 			});
-			this.slider.type = "range";
-			this.domNode.appendChild(this.slider);
-			set(this.slider,"width","100%");
-			set(this.slider,"height","100%");
-			this.slider.min = 0;
-			this.slider.max = 100;
-			this.slider.value = 0;
+		},
+		
+		_doLayout: function() {
+			Widget.prototype._doLayout.apply(this,arguments);
+			this._updateSize();
+		},
+		
+		_updateSize: function() {
+			var scaleFactor = this._measuredWidth - 20;
+			setStyle(this._leftTrack,"width",(this.value / this.max) * scaleFactor + "px");
+			setStyle(this._rightTrack,"width",(this.max - this.value) / this.max * scaleFactor + "px");
 		},
 		
 		_defaultWidth: "100%",
@@ -22,15 +74,11 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"],
 		_defaultHeight: "auto",
 		
 		_getContentSize: function(width, height) {
-			return {
-				width: this.slider.clientWidth,
-				height: this.slider.clientHeight
-			};
+			console.debug('Method "Titanium.UI.Slider#._getContentSize" is not implemented yet.');
 		},
 		
 		_setTouchEnabled: function(value) {
-			Widget.prototype._setTouchEnabled.apply(this,arguments);
-			this.slider && set(this.slider,"pointerEvents", value ? "auto" : "none");
+			console.debug('Method "Titanium.UI.Slider#._setTouchEnabled" is not implemented yet.');
 		},
 
 		properties: {
@@ -68,6 +116,19 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"],
 					console.debug('Property "Titanium.UI.Slider#.disabledThumbImage" is not implemented yet.');
 					return value;
 				}
+			},
+			
+			enabled: {
+				get: function(value) {
+					// TODO
+					console.debug('Property "Titanium.UI.Slider#.enabled" is not implemented yet.');
+					return value;
+				},
+				set: function(value) {
+					console.debug('Property "Titanium.UI.Slider#.enabled" is not implemented yet.');
+					return value;
+				},
+				value: true
 			},
 			
 			highlightedLeftTrackImage: {
@@ -119,21 +180,31 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"],
 			},
 			
 			max: {
-				get: function(value) {
-					return this.slider.max;
-				},
 				set: function(value) {
-					this.slider.max = value;
+					console.debug('Property "Titanium.UI.Slider#.max" is not implemented yet.');
+					return value;
+				},
+				value: 100
+			},
+			
+			maxRange: {
+				set: function(value) {
+					console.debug('Property "Titanium.UI.Slider#.maxRange" is not implemented yet.');
 					return value;
 				}
 			},
 			
 			min: {
-				get: function(value) {
-					return this.slider.min;
-				},
 				set: function(value) {
-					this.slider.min = value;
+					console.debug('Property "Titanium.UI.Slider#.min" is not implemented yet.');
+					return value;
+				},
+				value: 0
+			},
+			
+			minRange: {
+				set: function(value) {
+					console.debug('Property "Titanium.UI.Slider#.minRange" is not implemented yet.');
 					return value;
 				}
 			},
@@ -199,14 +270,17 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"],
 			},
 			
 			value: {
-				get: function(value) {
-					return this.slider.value;
+				set: function(value, oldValue) {
+					if (value >= this.min && value <= this.max) {
+						return value;
+					}
+					return oldValue;
 				},
-				set: function(value) {
-					this.slider.value = value;
-					return value;
-				}
-			}
+				post: function() {
+					this._updateSize();
+				},
+				value: 0
+			},
 		}
 
 	});
