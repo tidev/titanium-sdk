@@ -1,4 +1,4 @@
-define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, Widget, dom, css, style) {
+define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang"], function(declare, Widget, dom, css, style, lang) {
 
 	var setStyle = style.set;
 
@@ -67,6 +67,14 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"],
 			var scaleFactor = this._measuredWidth - 20;
 			setStyle(this._leftTrack,"width",(this.value / this.max) * scaleFactor + "px");
 			setStyle(this._rightTrack,"width",(this.max - this.value) / this.max * scaleFactor + "px");
+		},
+		
+		_constrainValue: function(value) {
+			var minVal = lang.val(this.minRange, this.min),
+				maxVal = lang.val(this.maxRange, this.max);
+			value < minVal && (value = minVal);
+			value > maxVal && (value = maxVal);
+			return value;
 		},
 		
 		_defaultWidth: "100%",
@@ -181,31 +189,43 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"],
 			
 			max: {
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Slider#.max" is not implemented yet.');
+					value < this.min && (value = this.min);
 					return value;
+				},
+				post: function() {
+					this.value = this._constrainValue(this.value);
 				},
 				value: 100
 			},
 			
 			maxRange: {
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Slider#.maxRange" is not implemented yet.');
+					value > this.max && (value = this.max);
 					return value;
+				},
+				post: function() {
+					this.value = this._constrainValue(this.value);
 				}
 			},
 			
 			min: {
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Slider#.min" is not implemented yet.');
+					value > this.max && (value = this.max);
 					return value;
+				},
+				post: function() {
+					this.value = this._constrainValue(this.value);
 				},
 				value: 0
 			},
 			
 			minRange: {
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Slider#.minRange" is not implemented yet.');
+					value < this.min && (value = this.min);
 					return value;
+				},
+				post: function() {
+					this.value = this._constrainValue(this.value);
 				}
 			},
 			
@@ -270,14 +290,17 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"],
 			},
 			
 			value: {
-				set: function(value, oldValue) {
-					if (value >= this.min && value <= this.max) {
-						return value;
-					}
-					return oldValue;
+				set: function(value) {
+					value = this._constrainValue(value);
+					return value;
 				},
 				post: function() {
 					this._updateSize();
+					this.fireEvent("change", {
+						value: this.value,
+						x: -1,
+						y: -1
+					})
 				},
 				value: 0
 			},

@@ -60,7 +60,9 @@ properties:
     type: Number
     platforms: [android, iphone, ipad, mobileweb]
   - name: maxRange
-    summary: value can't be moved higher than maxRange. maxRange equals max by default. (Android)
+    summary: value can't be moved higher than maxRange.
+    description: |
+       maxRange equals max by default on Android, and is undefined on Mobile Web by default.
     type: Number
     platforms: [android, mobileweb]
   - name: min
@@ -68,7 +70,9 @@ properties:
     type: Number
     platforms: [android, iphone, ipad, mobileweb]
   - name: minRange
-    summary: value can't be moved lower than minRange. minRange equals min by default. (Android)
+    summary: value can't be moved lower than minRange. minRange equals min by default
+    description: |
+       minRange equals min by default on Android, and is undefined on Mobile Web by default.
     platforms: [android, mobileweb]
     type: Number
   - name: rightTrackImage
