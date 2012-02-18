@@ -341,7 +341,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(CGFloat)rowHeight:(CGFloat)width
 {
-	if (TiDimensionIsPixels(height))
+	if (TiDimensionIsDip(height))
 	{
 		return height.value;
 	}

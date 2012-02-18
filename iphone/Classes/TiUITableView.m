@@ -293,18 +293,18 @@
 
 -(CGFloat)tableRowHeight:(CGFloat)height
 {
-	if (TiDimensionIsPixels(rowHeight))
+	if (TiDimensionIsDip(rowHeight))
 	{
 		if (rowHeight.value > height)
 		{
 			height = rowHeight.value;
 		}
 	}
-	if (TiDimensionIsPixels(minRowHeight))
+	if (TiDimensionIsDip(minRowHeight))
 	{
 		height = MAX(minRowHeight.value,height);
 	}
-	if (TiDimensionIsPixels(maxRowHeight))
+	if (TiDimensionIsDip(maxRowHeight))
 	{
 		height = MIN(maxRowHeight.value,height);
 	}
@@ -346,7 +346,7 @@
 		tableview.delegate = self;
 		tableview.dataSource = self;
 		tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-		if (TiDimensionIsPixels(rowHeight))
+		if (TiDimensionIsDip(rowHeight))
 		{
 			[tableview setRowHeight:rowHeight.value];
 		}		
@@ -1506,7 +1506,7 @@
 -(void)setRowHeight_:(id)height
 {
 	rowHeight = [TiUtils dimensionValue:height];
-	if (TiDimensionIsPixels(rowHeight))
+	if (TiDimensionIsDip(rowHeight))
 	{
 		[tableview setRowHeight:rowHeight.value];
 	}	
@@ -1966,7 +1966,7 @@ if(ourTableView != tableview)	\
 		LayoutConstraint *viewLayout = [viewProxy layoutProperties];
 		switch (viewLayout->height.type)
 		{
-			case TiDimensionTypePixels:
+			case TiDimensionTypeDip:
 				size += viewLayout->height.value;
 				break;
 			case TiDimensionTypeAuto:
@@ -2014,7 +2014,7 @@ if(ourTableView != tableview)	\
 		LayoutConstraint *viewLayout = [viewProxy layoutProperties];
 		switch (viewLayout->height.type)
 		{
-			case TiDimensionTypePixels:
+			case TiDimensionTypeDip:
 				size += viewLayout->height.value;
 				break;
 			case TiDimensionTypeAuto:

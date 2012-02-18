@@ -179,7 +179,7 @@ enum
 #pragma mark Callbacks
 
 -(void)animationCompleted:(TiAnimation*)animation;
--(void)makeViewPerformAction:(TiAction *)action;
+//-(void)makeViewPerformAction:(TiAction *)action;
 
 -(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait;
 

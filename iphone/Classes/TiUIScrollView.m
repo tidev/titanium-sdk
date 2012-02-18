@@ -83,7 +83,7 @@
 
 	switch (contentWidth.type)
 	{
-		case TiDimensionTypePixels:
+		case TiDimensionTypeDip:
 		{
 			newContentSize.width = MAX(newContentSize.width,contentWidth.value);
 			break;
@@ -100,7 +100,7 @@
 
 	switch (contentHeight.type)
 	{
-		case TiDimensionTypePixels:
+		case TiDimensionTypeDip:
 		{
 			minimumContentHeight = contentHeight.value;
 			break;

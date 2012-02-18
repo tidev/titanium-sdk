@@ -7,7 +7,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 		matches = doc.cookie.match(new RegExp("(?:^|; )" + midName + "=([^;]*)")),
 		mid = matches ? decodeURIComponent(matches[1]) : undefined,
 		cfg = require.config,
-		analyticsEnabled = cfg.analytics,
+		analyticsEnabled = cfg.app.analytics,
 		analyticsStorageName = "ti:analyticsEvents",
 		analyticsEventSeq = 1,
 		analyticsLastSent = null;
