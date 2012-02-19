@@ -390,7 +390,14 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		[textLabel setTextColor:(textColor==nil)?[UIColor blackColor]:textColor];
 		
 		UIColor * selectedTextColor = [[TiUtils colorValue:[self valueForKey:@"selectedColor"]] _color];
-		[textLabel setHighlightedTextColor:(selectedTextColor==nil)?[UIColor whiteColor]:selectedTextColor];	
+		[textLabel setHighlightedTextColor:(selectedTextColor==nil)?[UIColor whiteColor]:selectedTextColor];
+		
+		id fontValue = [self valueForKey:@"font"];
+		if (fontValue!=nil)
+		{
+			UIFont * font = [[TiUtils fontValue:fontValue] font];
+			[textLabel setFont:font];
+		}
 	}
 	else
 	{
