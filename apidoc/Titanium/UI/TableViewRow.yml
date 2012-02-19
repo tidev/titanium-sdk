@@ -82,12 +82,8 @@ properties:
     description: |
         If the table uses different fonts on different rows, the font properites may become 
         associated with the wrong row as the table scrolls. This is a known issue.
-
-        Because this property is Android-only, adding a [Label](Titanium.UI.Label) to a 
-        table view row is a more portable and versatile alternative to using this property.
     type: Font
     default: System default font.
-    platforms: [android]
   - name: hasCheck
     summary: Render a system provided check mark in the right image area of the row.
     type: Boolean
