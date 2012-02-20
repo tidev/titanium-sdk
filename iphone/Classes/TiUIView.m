@@ -380,6 +380,12 @@ DEFINE_EXCEPTIONS
 	[rect setRect:r];
 }
 
+-(void)fillFrameToRect:(TiRect*)rect
+{
+	CGRect r = [self frame];
+	[rect setRect:r];
+}
+
 #pragma mark Public APIs
 
 -(void)setBorderColor_:(id)color
