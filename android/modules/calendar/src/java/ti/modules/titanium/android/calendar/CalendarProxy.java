@@ -51,8 +51,19 @@ public class CalendarProxy extends KrollProxy {
 		ArrayList<CalendarProxy> calendars = new ArrayList<CalendarProxy>();
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		
-		Cursor cursor = contentResolver.query(Uri.parse(getBaseCalendarUri() + "/calendars"),
-			new String[] { "_id", "displayName", "selected", "hidden" }, query, queryArgs, null);
+		Cursor cursor = null;
+		if (Build.VERSION.SDK_INT >= 14) { // ICE_CREAM_SANDWICH, 4.0
+			cursor = contentResolver.query(Uri.parse(getBaseCalendarUri() + "/calendars"),
+				new String[] { "_id", "calendar_displayName", "visible"}, query, queryArgs, null);
+		}
+		else if (Build.VERSION.SDK_INT >= 11) { // HONEYCOMB, 3.0
+			cursor = contentResolver.query(Uri.parse(getBaseCalendarUri() + "/calendars"),
+				new String[] { "_id", "displayName", "selected"}, query, queryArgs, null);
+		}
+		else {
+			cursor = contentResolver.query(Uri.parse(getBaseCalendarUri() + "/calendars"),
+				new String[] { "_id", "displayName", "selected", "hidden" }, query, queryArgs, null);
+		}
 		
 		// calendars can be null
 		if (cursor!=null)
@@ -61,7 +72,11 @@ public class CalendarProxy extends KrollProxy {
 				String id = cursor.getString(0);
 				String name = cursor.getString(1);
 				boolean selected = !cursor.getString(2).equals("0");
-				boolean hidden = !cursor.getString(3).equals("0");
+				// For API level >= 11 (3.0), there is no such column "hidden".
+				boolean hidden = false;
+				if (Build.VERSION.SDK_INT < 11) {
+					hidden = !cursor.getString(3).equals("0");
+				}
 
 				calendars.add(new CalendarProxy(id, name, selected, hidden));
 			}
