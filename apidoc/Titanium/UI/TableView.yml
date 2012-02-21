@@ -220,7 +220,16 @@ events:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
-        
+
+      - name: globalPoint
+        summary: |
+            Dictionary with properties `x` and `y` describing the location of the event in screen 
+            coordinates.
+        platforms: [iphone, ipad]
+        type: Point
+        deprecated:
+            since: "1.8.0"
+
       - name: row
         summary: Table view row object.
         type: Titanium.UI.TableViewRow
@@ -268,7 +277,14 @@ events:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
-            
+        
+      - name: globalPoint
+        summary: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
+        platforms: [iphone, ipad]
+        type: Point
+        deprecated:
+            since: "1.8.0"
+
       - name: row
         summary: Table view row object.
         type: Titanium.UI.TableViewRow
@@ -336,7 +352,14 @@ events:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
-            
+
+      - name: globalPoint
+        summary: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
+        platforms: [iphone, ipad]
+        type: Point
+        deprecated:
+            since: "1.8.0"
+
       - name: row
         summary: Table view row object.
         type: Titanium.UI.TableViewRow
@@ -372,6 +395,13 @@ events:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
+
+      - name: globalPoint
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        type: Point
+        deprecated:
+            since: "1.8.0"
         
       - name: contentSize
         summary: Dictionary with `width` and `height` properties containing the size of the content (regardless of the display size in the case of scrolling).
@@ -403,6 +433,13 @@ events:
         summary: Dictionary with `width` and `height` properties containing the size of the content (regardless of the display size in the case of scrolling).
         platforms: [iphone, ipad, mobileweb]
         type: Dictionary
+        
+      - name: globalPoint
+        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
+        platforms: [iphone, ipad]
+        type: Point
+        deprecated:
+            since: "1.8.0"
         
       - name: size
         summary: Dictionary with `width` and `height` properties containing the size of the visible table view.
