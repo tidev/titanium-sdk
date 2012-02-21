@@ -231,14 +231,12 @@
     TiDimension result = converter(value);\
     if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {\
         layoutProperties.layoutName = result;\
-        [self replaceValue:value forKey:@#layoutName notification:YES];	\
-        postaction; \
     }\
     else {\
         layoutProperties.layoutName = TiDimensionUndefined;\
-        [self replaceValue:value forKey:@#layoutName notification:YES];	\
-        postaction; \
     }\
+    [self replaceValue:value forKey:@#layoutName notification:YES];	\
+    postaction; \
 }
 
 #define LAYOUTPROPERTIES_SETTER(methodName,layoutName,converter,postaction)	\
