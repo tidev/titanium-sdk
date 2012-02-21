@@ -414,7 +414,7 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
     if (convertFromValue != nil && convertToUnits != nil) {
         //Convert to DIP first
         TiDimension fromVal = TiDimensionFromObject(convertFromValue);
-        //
+        
         if (TiDimensionIsDip(fromVal)) {
             if ([convertToUnits caseInsensitiveCompare:self.UNIT_DIP]==NSOrderedSame) {
                 result = fromVal.value;
