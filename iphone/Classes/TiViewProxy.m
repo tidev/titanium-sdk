@@ -354,6 +354,9 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
         [self replaceValue:[value objectForKey:@"right"] forKey:@"marginRight_" notification:NO];
         [self replaceValue:[value objectForKey:@"top"] forKey:@"marginTop_" notification:NO];
         [self replaceValue:[value objectForKey:@"bottom"] forKey:@"marginBottom_" notification:NO];
+        
+        //This means the children have to relayout
+        [self contentsWillChange];
     }
 }
 
@@ -418,6 +421,9 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
         [self replaceValue:[value objectForKey:@"right"] forKey:@"paddingRight_" notification:NO];
         [self replaceValue:[value objectForKey:@"top"] forKey:@"paddingTop_" notification:NO];
         [self replaceValue:[value objectForKey:@"bottom"] forKey:@"paddingBottom_" notification:NO];
+        
+        //This is equivalent to setting left/right/top/bottom pins
+        [self willChangePosition];
     }
 }
 
