@@ -224,6 +224,22 @@
 	[self animate:arg];
 }
 
+
+#define LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(methodName,layoutName,converter,postaction)	\
+-(void)methodName:(id)value	\
+{	\
+    TiDimension result = converter(value);\
+    if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {\
+        layoutProperties.layoutName = result;\
+        [self replaceValue:value forKey:@#layoutName notification:YES];	\
+        postaction; \
+    }\
+    else {\
+        layoutProperties.layoutName = TiDimensionUndefined;\
+        [self replaceValue:value forKey:@#layoutName notification:YES];	\
+    }\
+}
+
 #define LAYOUTPROPERTIES_SETTER(methodName,layoutName,converter,postaction)	\
 -(void)methodName:(id)value	\
 {	\
@@ -232,11 +248,11 @@
 	postaction; \
 }
 
-LAYOUTPROPERTIES_SETTER(setTop,top,TiDimensionFromObject,[self willChangePosition])
-LAYOUTPROPERTIES_SETTER(setBottom,bottom,TiDimensionFromObject,[self willChangePosition])
+LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(setTop,top,TiDimensionFromObject,[self willChangePosition])
+LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(setBottom,bottom,TiDimensionFromObject,[self willChangePosition])
 
-LAYOUTPROPERTIES_SETTER(setLeft,left,TiDimensionFromObject,[self willChangePosition])
-LAYOUTPROPERTIES_SETTER(setRight,right,TiDimensionFromObject,[self willChangePosition])
+LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(setLeft,left,TiDimensionFromObject,[self willChangePosition])
+LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(setRight,right,TiDimensionFromObject,[self willChangePosition])
 
 LAYOUTPROPERTIES_SETTER(setWidth,width,TiDimensionFromObject,[self willChangeSize])
 LAYOUTPROPERTIES_SETTER(setHeight,height,TiDimensionFromObject,[self willChangeSize])
