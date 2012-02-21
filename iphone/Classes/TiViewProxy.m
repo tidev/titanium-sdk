@@ -61,11 +61,6 @@
 }
 
 
--(TiPoint*)center
-{
-	return [[[TiPoint alloc] initWithPoint:[self view].center] autorelease];
-}
-
 -(void)add:(id)arg
 {
 	// allow either an array of arrays or an array of single proxy
@@ -298,12 +293,171 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
     return [rect autorelease];
 }
 
+-(NSMutableDictionary*)margin
+{
+    NSMutableDictionary* result = [[NSMutableDictionary alloc] init];
+    id lVal = [self valueForUndefinedKey:@"marginLeft_"];
+    if (lVal != nil) {
+        [result setObject:lVal forKey:@"left"];
+    }
+    id rVal = [self valueForUndefinedKey:@"marginRight_"];
+    if (rVal != nil) {
+        [result setObject:rVal forKey:@"right"];
+    }
+    id tVal = [self valueForUndefinedKey:@"marginTop_"];
+    if (tVal != nil) {
+        [result setObject:tVal forKey:@"top"];
+    }
+    id bVal = [self valueForUndefinedKey:@"marginBottom_"];
+    if (bVal != nil) {
+        [result setObject:bVal forKey:@"bottom"];
+    }
+    
+    return [result autorelease];
+}
+
+-(void)setMargin:(id)value
+{
+    TiDimension result;
+    if ([value isKindOfClass:[NSDictionary class]])
+    {
+        result = TiDimensionFromObject([value objectForKey:@"left"]);
+        if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
+            layoutProperties.marginLeft = result;
+        }
+        else {
+            layoutProperties.marginLeft = TiDimensionUndefined;
+        }
+        result = TiDimensionFromObject([value objectForKey:@"right"]);
+        if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
+            layoutProperties.marginRight = result;
+        }
+        else {
+            layoutProperties.marginRight = TiDimensionUndefined;
+        }
+        result = TiDimensionFromObject([value objectForKey:@"top"]);
+        if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
+            layoutProperties.marginTop = result;
+        }
+        else {
+            layoutProperties.marginTop = TiDimensionUndefined;
+        }
+        result = TiDimensionFromObject([value objectForKey:@"bottom"]);
+        if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
+            layoutProperties.marginBottom = result;
+        }
+        else {
+            layoutProperties.marginBottom = TiDimensionUndefined;
+        }
+        //Store the values for the getter methods
+        [self replaceValue:[value objectForKey:@"left"] forKey:@"marginLeft_" notification:NO];
+        [self replaceValue:[value objectForKey:@"right"] forKey:@"marginRight_" notification:NO];
+        [self replaceValue:[value objectForKey:@"top"] forKey:@"marginTop_" notification:NO];
+        [self replaceValue:[value objectForKey:@"bottom"] forKey:@"marginBottom_" notification:NO];
+    }
+}
+
+-(NSMutableDictionary*)padding
+{
+    NSMutableDictionary* result = [[NSMutableDictionary alloc] init];
+    id lVal = [self valueForUndefinedKey:@"paddingLeft_"];
+    if (lVal != nil) {
+        [result setObject:lVal forKey:@"left"];
+    }
+    id rVal = [self valueForUndefinedKey:@"paddingRight_"];
+    if (rVal != nil) {
+        [result setObject:rVal forKey:@"right"];
+    }
+    id tVal = [self valueForUndefinedKey:@"paddingTop_"];
+    if (tVal != nil) {
+        [result setObject:tVal forKey:@"top"];
+    }
+    id bVal = [self valueForUndefinedKey:@"paddingBottom_"];
+    if (bVal != nil) {
+        [result setObject:bVal forKey:@"bottom"];
+    }
+    
+    return [result autorelease];
+}
+
+-(void)setPadding:(id)value
+{
+    TiDimension result;
+    if ([value isKindOfClass:[NSDictionary class]])
+    {
+        result = TiDimensionFromObject([value objectForKey:@"left"]);
+        if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
+            layoutProperties.paddingLeft = result;
+        }
+        else {
+            layoutProperties.paddingLeft = TiDimensionUndefined;
+        }
+        result = TiDimensionFromObject([value objectForKey:@"right"]);
+        if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
+            layoutProperties.paddingRight = result;
+        }
+        else {
+            layoutProperties.paddingRight = TiDimensionUndefined;
+        }
+        result = TiDimensionFromObject([value objectForKey:@"top"]);
+        if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
+            layoutProperties.paddingTop = result;
+        }
+        else {
+            layoutProperties.paddingTop = TiDimensionUndefined;
+        }
+        result = TiDimensionFromObject([value objectForKey:@"bottom"]);
+        if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
+            layoutProperties.paddingBottom = result;
+        }
+        else {
+            layoutProperties.paddingBottom = TiDimensionUndefined;
+        }
+        //Store the values for the getter methods
+        [self replaceValue:[value objectForKey:@"left"] forKey:@"paddingLeft_" notification:NO];
+        [self replaceValue:[value objectForKey:@"right"] forKey:@"paddingRight_" notification:NO];
+        [self replaceValue:[value objectForKey:@"top"] forKey:@"paddingTop_" notification:NO];
+        [self replaceValue:[value objectForKey:@"bottom"] forKey:@"paddingBottom_" notification:NO];
+    }
+}
+
+
+-(NSMutableDictionary*)center
+{
+    NSMutableDictionary* result = [[NSMutableDictionary alloc] init];
+    id xVal = [self valueForUndefinedKey:@"centerX_"];
+    if (xVal != nil) {
+        [result setObject:xVal forKey:@"x"];
+    }
+    id yVal = [self valueForUndefinedKey:@"centerY_"];
+    if (yVal != nil) {
+        [result setObject:yVal forKey:@"y"];
+    }
+    return [result autorelease];
+}
+
 -(void)setCenter:(id)value
 {
 	if ([value isKindOfClass:[NSDictionary class]])
 	{
-		layoutProperties.centerX = TiDimensionFromObject([value objectForKey:@"x"]);
-		layoutProperties.centerY = TiDimensionFromObject([value objectForKey:@"y"]);
+        TiDimension result;
+        result = TiDimensionFromObject([value objectForKey:@"x"]);
+        if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
+            layoutProperties.centerX = result;
+        }
+        else {
+            layoutProperties.centerX = TiDimensionUndefined;
+        }
+        result = TiDimensionFromObject([value objectForKey:@"x"]);
+        if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
+            layoutProperties.centerY = result;
+        }
+        else {
+            layoutProperties.centerY = TiDimensionUndefined;
+        }
+        [self replaceValue:[value objectForKey:@"x"] forKey:@"centerX_" notification:NO];
+        [self replaceValue:[value objectForKey:@"y"] forKey:@"centerY_" notification:NO];
+
 	} else if ([value isKindOfClass:[TiPoint class]]) {
         CGPoint p = [value point];
 		layoutProperties.centerX = TiDimensionDip(p.x);
