@@ -68,11 +68,11 @@ events:
     platforms: [iphone, ipad]
     properties:
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
 
   - name: doubletap
@@ -80,11 +80,11 @@ events:
     platforms: [iphone, ipad]
     properties:
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
     
   - name: longpress
@@ -95,11 +95,11 @@ events:
     platforms: [iphone, ipad]
     properties:
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
     
   - name: scroll
@@ -118,11 +118,11 @@ events:
     platforms: [iphone, ipad]
     properties:
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
       
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
   
   - name: touchcancel
@@ -133,11 +133,11 @@ events:
     platforms: [iphone, ipad]
     properties:
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
   - name: touchstart
@@ -145,11 +145,11 @@ events:
     platforms: [iphone, ipad]
     properties:
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
 
   - name: twofingertap
@@ -157,11 +157,11 @@ events:
     platforms: [iphone, ipad]
     properties:
       - name: y
-        summary: Y coordinate of the event from the `source` view.
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
 
       - name: x
-        summary: X coordinate of the event from the `source` view.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
 
 properties:
