@@ -261,17 +261,26 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(TiRect*)size
 {
-	TiRect *rect = [[[TiRect alloc] init] autorelease];
-	[self makeViewPerformSelector:@selector(fillBoundsToRect:) withObject:rect createIfNeeded:YES waitUntilDone:YES];
-	return rect;
+	TiRect *rect = [[TiRect alloc] init];
+    if ([self viewAttached]) {
+        [self makeViewPerformSelector:@selector(fillBoundsToRect:) withObject:rect createIfNeeded:YES waitUntilDone:YES];
+    }
+    else {
+        [rect setRect:CGRectZero];
+    }
+    return [rect autorelease];
 }
 
--(void)setSize:(id)value
+-(TiRect*)rect
 {
-	ENSURE_DICT(value);
-	layoutProperties.width = TiDimensionFromObject([value objectForKey:@"width"]);
- 	layoutProperties.height = TiDimensionFromObject([value objectForKey:@"height"]);
-	[self willChangeSize];
+	TiRect *rect = [[TiRect alloc] init];
+	if ([self viewAttached]) {
+        [self makeViewPerformSelector:@selector(fillFrameToRect:) withObject:rect createIfNeeded:YES waitUntilDone:YES];
+    }
+    else {
+        [rect setRect:CGRectZero];
+    }
+    return [rect autorelease];
 }
 
 -(void)setCenter:(id)value
