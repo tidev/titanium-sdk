@@ -237,6 +237,7 @@
     else {\
         layoutProperties.layoutName = TiDimensionUndefined;\
         [self replaceValue:value forKey:@#layoutName notification:YES];	\
+        postaction; \
     }\
 }
 
