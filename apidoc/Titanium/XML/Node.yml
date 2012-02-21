@@ -1,9 +1,10 @@
 ---
 name: Titanium.XML.Node
 extends: Titanium.Proxy
-summary: >
-    A single node in the [Document|Titanium.XML.Document] tree. For full property and method description,
-    see the [DOM Level 2 API|http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-1950641247].
+summary: A single node in the [Document|Titanium.XML.Document] tree. 
+description: |
+    For full property and method description,
+    see the [DOM Level 2 API](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-1950641247).
 createable: false
 platforms: [android, iphone, ipad]
 properties:
@@ -24,12 +25,12 @@ properties:
     value: 3
   - name: CDATA_SECTION_NODE
     type: Number
-    summary: The value of <nodeType> when this node is a CData section (a type of <Titanium.XML.Text>)
+    summary: The value of <nodeType> when this node is a <Titanium.XML.CDATASection> (a type of <Titanium.XML.Text>)
     permission: read-only
     value: 4
   - name: ENTITY_REFERENCE_NODE
     type: Number
-    summary: The value of <nodeType> when this node is an [Entity reference](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-11C98490) (a type of <Titanium.XML.Node>)
+    summary: The value of <nodeType> when this node is a <Titanium.XML.EntityReference> (a type of <Titanium.XML.Node>)
     permission: read-only
     value: 5
   - name: ENTITY_NODE
