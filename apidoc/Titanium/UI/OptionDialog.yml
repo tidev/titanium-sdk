@@ -1,65 +1,164 @@
 ---
 name: Titanium.UI.OptionDialog
-summary: The Option Dialog is created by <Titanium.UI.createOptionDialog> and allows you to show a modal dialog of one or more options to the user.
+summary: |
+    An option dialog is a modal view that includes a message and one or more option items. On 
+    Android, buttons may be added below these items. It is positioned in the middle of the display 
+    on Android and at the bottom edge on iOS.
+description: |
+    An option dialog is created using <Titanium.UI.createOptionDialog>.
+    
+    This dialog is considerably different on each platform, as described below.
+    
+    #### Android
+    
+    On Android, this dialog is shown in the middle of the display (not touching the edges), 
+    with the option items represented in a picker. The previously-selected, or default, item can be 
+    set on creation.
+    
+    Buttons below the picker may be optionally defined. The `click` event returns a Boolean value 
+    to indicate whether either an option item or a button was clicked.
+    
+    #### iOS
+    
+    On iOS, this dialog is shown at the bottom edge of the display, with the option items 
+    represented as vertical buttons. 
+    
+    The `destructive` property may be set for an item, to give a visual cue that selecting it 
+    results in an irreversible action.
+    
+    On iOS 4, option dialogs are automatically cancelled when the application is paused/suspended.
+    
+    #### Caveats
+    
+    Care should be taken not to define any properties that are not documented, as this may produce 
+    unexpected results. For example, setting a `message` property will prevent the picker of option 
+    items from being displayed on Android.
 extends: Titanium.Proxy
 since: "0.8"
 
 methods:
   - name: show
-    summary: cause the dialog to become visible
+    summary: Shows this dialog.
     parameters:
       - name: view
-        summary: name of the view the OptionDialog needs to be attached to. Only used on iPad.
+        summary: View to which the dialog will be attached (iPad only.)
         type: Titanium.UI.View
         optional: true
+    
+  - name: hide
+    summary: Hides this dialog.
+    
 events:
   - name: click
-    summary: fired when a button in the dialog is clicked
+    summary: Fired when a button in the dialog is clicked.
     properties:
       - name: index
-        summary: the button index that was pressed
+        summary: Index of the button or option that was pressed.
+        type: Number
+        
       - name: button
-        summary: boolean to indicate that the index refers to a button on the dialog and not an item.
+        summary: |
+            Indicates whether the index returned by the `index` property relates to a button rather 
+            than an option item.
+        type: Boolean
         platforms: [android]
+        
       - name: cancel
-        summary: the index of the cancel button
+        summary: Index of the cancel button.
+        type: Number
+        
       - name: destructive
-        summary: the index of the destructive button
+        summary: Index of the destructive button.
+        type: Number
 properties:
   - name: androidView
-    summary: A Titanium.UI.View. Allows for arbitrary contents inside a native dialog. Works for any dialog.
+    summary: View to load inside the message area, to create a custom layout.
+    type: Titanium.UI.View
     platforms: [android]
-    type: Object
+    
   - name: cancel
-    summary: an index to indicate which button should be the cancel button. If no button should be the cancel button, use -1. If there is a cancel button, it MUST be the last button for use on iPad.
+    summary: Index to define the cancel button, returned by the `click` event.
+    description: |
+        If a cancel button is not required, set to `-1`.
+        
+        On iPad, the cancel button *must* be the last button.
     type: Number
+
   - name: destructive
-    summary: the destructive button (indicated by a visual clue in the UI)
+    summary: Index to define the destructive button, indicated by a visual cue when rendered.
     type: Number
+    platforms: [iphone, ipad]
+    availability: creation
+    
   - name: options
-    summary: array of button names as strings
-    type: Array<Object>
+    summary: Option names.
+    type: Array<String>
+    availability: creation
+    
   - name: selectedIndex
-    summary: set an initially selected option. Only valid when options has been specified.
+    summary: Defines the default selected option.
     platforms: [android]
     type: Number
+    availability: creation
+    
   - name: title
-    summary: the title of the dialog
+    summary: Title of the dialog.
     type: String
+    
   - name: titleid
-    summary: the key in the locale file to use for the title property
+    summary: Key identifying a string in the locale file to use for the title text.
     type: String
+
 examples:
-  - title: Simple Options Dialog with 2 Options
+  - title: Options Dialog with 3 Items
+    example: |        
+        
+        Ti.UI.setBackgroundColor('white');
+        var win = Ti.UI.createWindow({  
+          title: 'Click window to test',
+          backgroundColor: 'white',
+          exitOnClose: true,
+          fullscreen: false
+        });
+
+        var opts = {
+          cancel: 1,
+          options: ['Confirm', 'Cancel', 'Help'],
+          selectedIndex: 1,
+          destructive: 0,
+          title: 'Delete File?'
+        };
+
+        win.addEventListener('click', function(e){
+          var dialog = Ti.UI.createOptionDialog(opts).show();
+        });
+        win.open();
+
+  - title: Options Dialog with 2 Items and 1 Button on Android and 3 Items on iOS
     example: |
         
-        In this example, we show a simple option dialog.
+        Ti.UI.setBackgroundColor('white');
+          var win = Ti.UI.createWindow({  
+          title: 'Click window to test',
+          backgroundColor: 'white',
+          exitOnClose: true,
+          fullscreen: false
+        });
         
-            var dialog = Titanium.UI.createOptionDialog({
-            	title: 'Hello',
-            	options: ['Option 1','Option 2'],
-            	cancel:1
-            });
-            dialog.show();
+        var opts = {
+          title: 'Delete File?'
+        };
         
-        
+        var isAndroid = Ti.Platform.osname == 'android';
+
+        if(isAndroid){
+          opts.options = ['Confirm', 'Cancel'];
+          opts.buttonNames = ['Confirm'];
+        } else {
+          opts.options = ['Confirm', 'Cancel', 'Help'];
+        }
+
+        win.addEventListener('click', function(e){
+          var dialog = Ti.UI.createOptionDialog(opts).show();
+        });
+        win.open();
