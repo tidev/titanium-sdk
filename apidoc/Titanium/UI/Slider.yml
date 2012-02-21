@@ -26,15 +26,15 @@ properties:
   - name: disabledLeftTrackImage
     summary: the image url of the slider left track when in the disabled state
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: disabledRightTrackImage
     summary: the image url of the slider right track when in the disabled state
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: disabledThumbImage
     summary: the image url of the slider thumb when in the disabled state
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: enabled
     summary: boolean to indicate the enabled state of the slider
     type: Boolean
@@ -42,19 +42,19 @@ properties:
   - name: highlightedLeftTrackImage
     summary: the image url of the slider left track when in the highlighted state
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: highlightedRightTrackImage
     summary: the image url of the slider right track when in the highlighted state
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: highlightedThumbImage
     summary: the image url of the slider thumb when in the highlighted state
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: leftTrackImage
     summary: the image url of the slider left track
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: max
     summary: the maximum slider value, inclusive
     type: Number
@@ -78,24 +78,24 @@ properties:
   - name: rightTrackImage
     summary: the image url of the slider right track
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: selectedLeftTrackImage
     summary: the image url of the slider left track when in the selected state
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: selectedRightTrackImage
     summary: the image url of the slider right track when in the selected state
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: selectedThumbImage
     summary: the image url of the slider thumb when in the selected state
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: thumbImage
     summary: The image for the slider thumb.
     description: Support for using <Titanium.Blob> for this property is only available on iOS.
     type: [String, Titanium.Blob]
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: value
     summary: the value of the slider
     type: String
