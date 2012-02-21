@@ -1,45 +1,49 @@
 ---
 name: Titanium.UI.AlertDialog
 summary: |
-    An alert dialog is a modal view that displays a title, message and one or more buttons for users 
-    to choose between.
+    An alert dialog is a modal view that includes a title, message and one or more buttons, 
+    positioned in the middle of the display.
 description: |
     An alert dialog is created using <Titanium.UI.createAlertDialog>.
-
-    A global method `alert()` is aliased to this object, and can be invoked with a single message. 
-    For example
     
-        alert('this is a message');
-        
-    This will generate an alert with a title of "Alert" and an "OK" button.
+    Although this dialog always appears in the middle of the display (not touching the edges), 
+    other aspects of its aesthetics and the way the user interacts with it are different for each 
+    platform, as described below.
     
-    Multiple alerts should not be shown at once.
-
-    Although this dialog appears in the middle of the display (not touching the 
-    edges) other aspects of the aesthetics, behavior and the way the user interacts with it is 
-    different for each platform, as described below.
-
     #### Android
     
     On Android, the default alert dialog displays text information, via a title and message, without 
     any buttons. As the user can use the system hardware `back` button to dismiss it, a button is 
-    not mandatory.
+    optional.
     
     Buttons are shown if the `buttonNames` property is defined, and are rendered horizontally below 
     the message.
     
-    To create a custom layout, a view may be created and added and other views added to it.
+    To create a custom layout, a view may be added and, in turn, a hierarchy of views added to that 
+    child view.
     
     #### iOS
     
     On iOS, the default alert dialog displays text information, via a title and message, with 
-    a single button, used to dismiss it.
+    a single button to allow it to be dismissed.
     
-    Buttons are shown if the `buttonNames` property is defined, and are rendered vertically below 
+    Buttons are defined using the `buttonNames` property and are rendered vertically below 
     the message.
     
-    On iOS 4, alert dialogs will automatically be cancelled upon application suspend.    
-
+    On iOS 4, alert dialogs are automatically cancelled when the application is paused/suspended.
+    
+    #### Global Alias
+    
+    A global method `alert()` is aliased to this object, and can be invoked with a single message. 
+    For example
+    
+        alert('this is a message');
+    
+    This will generate an alert with a title of "Alert" and an "OK" button.
+    
+    #### Caveats
+    
+    Multiple alerts should not be shown at once.
 extends: Titanium.Proxy
 since: "0.8"
 
@@ -48,14 +52,14 @@ events:
     summary: Fired when a button in the dialog is clicked.
     properties:
       - name: cancel
-        type: Boolean
         summary: |
             Indicates whether the button pressed was the cancel button, defined by the `cancel` 
             property.
+        type: Boolean
         
       - name: index
-        type: Number
         summary: Index of the button that was pressed.
+        type: Number
 methods:
   - name: show
     summary: Shows this dialog.
@@ -122,7 +126,8 @@ properties:
 examples:
   - title: Single-button Alert Dialog (using alias)
     example: |
-            
+        Create a single-button alert dialog using the global `alert()` alias.
+        
             Ti.UI.setBackgroundColor('white');
             var win = Ti.UI.createWindow({  
               title: 'Click window to test',
@@ -138,6 +143,8 @@ examples:
 
   - title: Single-button Alert Dialog (standard)
     example: |
+        Create a single-button alert dialog, without explicitly defining it using the `buttonNames` 
+        property, which is invoked when the app window is clicked.
         
             Ti.UI.setBackgroundColor('white');
             var win = Ti.UI.createWindow({  
@@ -158,6 +165,7 @@ examples:
         
   - title: Three-button Alert Dialog
     example: |
+        Create a three-button alert dialog, which is invoked when the app window is clicked.        
         
             Ti.UI.setBackgroundColor('white');
             var win = Ti.UI.createWindow({  
@@ -169,10 +177,12 @@ examples:
 
             win.addEventListener('click', function(e){
               var dialog = Ti.UI.createAlertDialog({
+                cancel: 1,
                 buttonNames: ['Confirm', 'Cancel', 'Help'],
-                message: 'The file has been deleted',
-                title: 'File Deleted'
+                message: 'Would you like to delete the file?',
+                title: 'Delete'
               }).show();
             });
             win.open();
+
 
