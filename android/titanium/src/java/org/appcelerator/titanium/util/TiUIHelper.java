@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -41,7 +41,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -222,6 +221,8 @@ public class TiUIHelper
 						units = TypedValue.COMPLEX_UNIT_PT;
 					} else if ("mm".equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_MM;
+					} else if ("cm".equals(unit)) {
+						units = TiDimension.COMPLEX_UNIT_CM;
 					} else if ("in".equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_IN;
 					} else {

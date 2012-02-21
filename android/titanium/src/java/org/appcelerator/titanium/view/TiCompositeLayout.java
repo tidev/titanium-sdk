@@ -389,35 +389,31 @@ public class TiCompositeLayout extends ViewGroup
 		}
 	}
 
-	// 0 is left/top, 1 is right/bottom
+	// option0 is left/top, option1 is right/bottom
 	public static void computePosition(View parent, TiDimension option0, TiDimension optionCenter, TiDimension option1,
 		int measuredSize, int layoutPosition0, int layoutPosition1, int[] pos)
 	{
 		int dist = layoutPosition1 - layoutPosition0;
-		// Don't calculate position based on center dimension if it's 0.0
-		if (optionCenter != null && optionCenter.getValue() != 0.0) {
-			int halfSize= measuredSize/2;
-			pos[0] = layoutPosition0 + optionCenter.getAsPixels(parent) - halfSize;
-			pos[1] = pos[0] + measuredSize;
-		} else if (option0 == null && option1 == null) {
-			// Center
-			int offset = (dist-measuredSize)/2;
-			pos[0] = layoutPosition0 + offset;
-			pos[1] = pos[0] + measuredSize;
-		} else if (option0 == null) {
-			// peg right/bottom
-			int option1Pixels = option1.getAsPixels(parent);
-			pos[0] = dist - option1Pixels - measuredSize;
-			pos[1] = dist - option1Pixels;
-		} else if (option1 == null) {
+		if (option0 != null) {
 			// peg left/top
 			int option0Pixels = option0.getAsPixels(parent);
 			pos[0] = layoutPosition0 + option0Pixels;
 			pos[1] = layoutPosition0 + option0Pixels + measuredSize;
+		} else if (optionCenter != null && optionCenter.getValue() != 0.0) {
+			// Don't calculate position based on center dimension if it's 0.0
+			int halfSize = measuredSize / 2;
+			pos[0] = layoutPosition0 + optionCenter.getAsPixels(parent) - halfSize;
+			pos[1] = pos[0] + measuredSize;
+		} else if (option1 != null) {
+			// peg right/bottom
+			int option1Pixels = option1.getAsPixels(parent);
+			pos[0] = dist - option1Pixels - measuredSize;
+			pos[1] = dist - option1Pixels;
 		} else {
-			// pegged both. override and force.
-			pos[0] = layoutPosition0 + option0.getAsPixels(parent);
-			pos[1] = layoutPosition1 - option1.getAsPixels(parent);
+			// Center
+			int offset = (dist - measuredSize) / 2;
+			pos[0] = layoutPosition0 + offset;
+			pos[1] = pos[0] + measuredSize;
 		}
 	}
 
