@@ -235,7 +235,7 @@ events:
         
       - name: x
         type: Number
-        summary: Y coordinate of the event from the `source` view's coordinate system.
+        summary: X coordinate of the event from the `source` view's coordinate system.
 
   - name: delete
     summary: Fired when a table row is deleted by the user.
@@ -278,7 +278,7 @@ events:
     platforms: [iphone, ipad, mobileweb]
     properties:
       - name: x
-        summary: Y coordinate of the event from the `source` view's coordinate system.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: y
@@ -301,7 +301,7 @@ events:
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
       - name: x
-        summary: Y coordinate of the event from the `source` view's coordinate system.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
     platforms: [android, iphone, ipad]
 
@@ -396,7 +396,7 @@ events:
         type: Number
         
       - name: x
-        summary: Y coordinate of the event from the `source` view's coordinate system.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: contentSize
@@ -417,7 +417,7 @@ events:
         type: Number
         
       - name: x
-        summary: Y coordinate of the event from the `source` view's coordinate system.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
 
   - name: swipe
@@ -444,7 +444,7 @@ events:
     platforms: [iphone, ipad, mobileweb]
     properties:
       - name: x
-        summary: Y coordinate of the event from the `source` view's coordinate system.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: y
@@ -456,7 +456,7 @@ events:
     platforms: [iphone, ipad, mobileweb]
     properties:
       - name: x
-        summary: Y coordinate of the event from the `source` view's coordinate system.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: y
@@ -468,7 +468,7 @@ events:
     platforms: [iphone, ipad, mobileweb]
     properties:
       - name: x
-        summary: Y coordinate of the event from the `source` view's coordinate system.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: y
@@ -484,7 +484,7 @@ events:
         type: Number
             
       - name: x
-        summary: Y coordinate of the event from the `source` view's coordinate system.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
 
 properties:
