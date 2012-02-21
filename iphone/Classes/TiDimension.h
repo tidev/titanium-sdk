@@ -17,6 +17,8 @@ typedef enum {
 	TiDimensionTypeUndefined,
 	TiDimensionTypeDip,
 	TiDimensionTypeAuto,
+    TiDimensionTypeAutoSize,
+    TiDimensionTypeAutoFill,
 	TiDimensionTypePercent,
 } TiDimensionType;
 
@@ -31,6 +33,8 @@ typedef struct TiDimension TiDimension;
 
 extern const TiDimension TiDimensionZero;
 extern const TiDimension TiDimensionAuto;
+extern const TiDimension TiDimensionAutoSize;
+extern const TiDimension TiDimensionAutoFill;
 extern const TiDimension TiDimensionUndefined;
 
 TiDimension TiDimensionMake(TiDimensionType type, CGFloat value);
@@ -51,6 +55,16 @@ TI_INLINE bool TiDimensionIsPercent(TiDimension dimension)
 TI_INLINE bool TiDimensionIsAuto(TiDimension dimension)
 {
 	return dimension.type == TiDimensionTypeAuto;
+}
+
+TI_INLINE bool TiDimensionIsAutoSize(TiDimension dimension)
+{
+	return dimension.type == TiDimensionTypeAutoSize;
+}
+
+TI_INLINE bool TiDimensionIsAutoFill(TiDimension dimension)
+{
+	return dimension.type == TiDimensionTypeAutoFill;
 }
 
 TI_INLINE bool TiDimensionIsDip(TiDimension dimension)
@@ -83,6 +97,14 @@ TI_INLINE TiDimension TiDimensionFromObject(id object)
 		if ([object caseInsensitiveCompare:@"auto"]==NSOrderedSame)
 		{
 			return TiDimensionAuto;
+		}
+		if ([object caseInsensitiveCompare:@"fill"]==NSOrderedSame)
+		{
+			return TiDimensionAutoFill;
+		}
+		if ([object caseInsensitiveCompare:@"size"]==NSOrderedSame)
+		{
+			return TiDimensionAutoSize;
 		}
 		// do px vs % parsing
 		NSRange range = [object rangeOfString:@"px"];
