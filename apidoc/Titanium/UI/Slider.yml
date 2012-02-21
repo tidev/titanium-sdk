@@ -12,9 +12,9 @@ events:
       - name: thumbSize
         summary: a dictionary with properties width and height of the size of the thumb. Available with custom thumb image.  (Android)
       - name: y
-        summary: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event from the `source` view's coordinate system.
       - name: x
-        summary: the x point of the event in receiving view coordiantes
+        summary: X coordinate of the event from the `source` view's coordinate system.
       - name: thumbOffset
         summary: a dictionary with properties x and y of the thumbs left-top corner in the control Available with custom thumb image. (Android)
       - name: globalPoint
