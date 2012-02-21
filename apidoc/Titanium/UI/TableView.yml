@@ -218,7 +218,7 @@ events:
         type: Number
         
       - name: x
-        summary: Y coordinate of the event from the `source` view's coordinate system.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: row
@@ -239,7 +239,7 @@ events:
 
   - name: delete
     summary: Fired when a table row is deleted by the user.
-    platforms: [mobileweb]
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: index
         summary: Row index.
@@ -266,7 +266,7 @@ events:
         type: Number
         
       - name: x
-        summary: Y coordinate of the event from the `source` view's coordinate system.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
             
       - name: row
@@ -334,7 +334,7 @@ events:
         type: Number
         
       - name: x
-        summary: Y coordinate of the event from the `source` view's coordinate system.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
             
       - name: row
@@ -370,7 +370,7 @@ events:
         type: Number
         
       - name: x
-        summary: Y coordinate of the event from the `source` view's coordinate system.
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: contentSize

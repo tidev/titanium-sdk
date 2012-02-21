@@ -345,7 +345,7 @@ properties:
   - name: address
     summary: The IP address of the device's WiFi network interface.
     type: String
-    platform: [iphone,ipad]
+    platforms: [iphone, ipad]
   - name: networkType
     summary: Network type value as a constant.
     description: |

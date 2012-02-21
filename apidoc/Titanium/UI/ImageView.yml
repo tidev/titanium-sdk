@@ -16,21 +16,21 @@ methods:
     summary: |
         Pauses a running animation. Use `resume` method on Android and `start` method on iOS 
         to continue.
-    descrption:  This method only works if multiple images are specified.
+    description:  This method only works if multiple images are specified.
     
   - name: resume
     summary: Resumes an animation from a `pause` state.
-    descrption:  This method only works if multiple images are specified.
+    description:  This method only works if multiple images are specified.
     platforms: [android]
     
   - name: start
     summary: |
         Starts the image animation. On Android, also resets `index` to the first image.
-    descrption:  This method only works if multiple images are specified.
+    description:  This method only works if multiple images are specified.
     
   - name: stop
     summary: Stops a running animation. On iOS, also resets `index` to the first image.
-    descrption:  This method only works if multiple images are specified.
+    description:  This method only works if multiple images are specified.
     
   - name: toBlob
     summary: Returns the image as a Blob object.
