@@ -95,10 +95,10 @@ events:
       - name: url
         summary: the url of the web document
       - name: y
-        summary: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         platforms: [iphone, ipad, android]
       - name: x
-        summary: the x point of the event in receiving view coordiantes
+        summary: X coordinate of the event from the `source` view's coordinate system.
         platforms: [iphone, ipad, android]
       - name: globalPoint
         summary: a dictionary with properties x and y describing the point of the event in screen coordinates
@@ -111,10 +111,10 @@ events:
       - name: url
         summary: the url of the web document
       - name: y
-        summary: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         platforms: [iphone, ipad, android]
       - name: x
-        summary: the x point of the event in receiving view coordiantes
+        summary: X coordinate of the event from the `source` view's coordinate system.
         platforms: [iphone, ipad, android]
       - name: message
         summary: the error message
@@ -129,10 +129,10 @@ events:
       - name: url
         summary: The url of the web document. For Mobile Web, this `url` is generally accurate when loading same domain pages and remote pages that you explicitly set using the `url` property. If you navigate a remote page, then this `url` is set to the initial remote page's URL.
       - name: y
-        summary: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         platforms: [iphone, ipad, android]
       - name: x
-        summary: the x point of the event in receiving view coordiantes
+        summary: X coordinate of the event from the `source` view's coordinate system.
         platforms: [iphone, ipad, android]
       - name: globalPoint
         summary: a dictionary with properties x and y describing the point of the event in screen coordinates
