@@ -72,7 +72,7 @@ public class CalendarProxy extends KrollProxy {
 				String id = cursor.getString(0);
 				String name = cursor.getString(1);
 				boolean selected = !cursor.getString(2).equals("0");
-				// For API level >= 11 (3.0), there is no such column "hidden".
+				// For API level >= 11 (3.0), there is no column "hidden".
 				boolean hidden = false;
 				if (Build.VERSION.SDK_INT < 11) {
 					hidden = !cursor.getString(3).equals("0");
