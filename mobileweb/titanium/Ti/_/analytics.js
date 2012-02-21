@@ -1,7 +1,7 @@
 define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 
 	var global = window,
-		sessionId = "sessionStorage" in global && sessionStorage.getItem("mobileweb_sessionId"),
+		sessionId = sessionStorage.getItem("ti:sessionId"),
 		midName = "ti_mid",
 		doc = document,
 		matches = doc.cookie.match(new RegExp("(?:^|; )" + midName + "=([^;]*)")),
@@ -24,7 +24,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 		localStorage.setItem(midName, mid);
 	});
 
-	sessionId || sessionStorage.setItem("mobileweb_sessionId", sessionId = _.uuid());
+	sessionId || sessionStorage.setItem("ti:sessionId", sessionId = _.uuid());
 
 	return _.analytics = {
 

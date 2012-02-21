@@ -1,4 +1,5 @@
-define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
+define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/Filesystem/Local"],
+	function(declare, Evented, localFS) {
 
 	return declare("Ti/Filesystem/File", Evented, {
 
@@ -60,8 +61,9 @@ define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
 		},
 
 		exists: function() {
-			// TODO
-			return false;
+			console.debug(this.nativePath);
+			console.debug(this.name);
+			return localFS.exists(this.nativePath + this.name);
 		},
 
 		extension: function() {

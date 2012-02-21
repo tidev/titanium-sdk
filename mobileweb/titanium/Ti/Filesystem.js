@@ -1,5 +1,5 @@
-define(["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/Filesystem/File"],
-	function(_, Evented, lang, File) {
+define(["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/Filesystem/File", "Ti/_/Filesystem/Local"],
+	function(_, Evented, lang, File, localFS) {
 
 	function tmpName() {
 		return ((new Date()).getTime() & 0xFFFF).toString(16).toUpperCase()
@@ -34,25 +34,36 @@ define(["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/Filesystem/File"],
 		},
 
 		_join: function() {
-			var result = "",
-				match,
-				prefix = "";
+			var each = require.each,
+				args = lang.toArray(arguments),
+				path = args.shift(),
+				match = path.match(/(.+:\/\/)(.*)/),
+				re = /\/$/,
+				result = [],
+				lastSegment;
 
-			require.each(arguments, function(a) {
-				/\/$/.test(result) || (result += '/');
-				result += a.charAt(0) === '/' ? a.substring(1) : a;
+			match && (path = match[2]);
+
+			each(args, function(a) {
+				re.test(path) || path && (path += '/');
+				path += a.charAt(0) === '/' ? a.substring(1) : a;
 			});
 
-			if (match = result.match(/(.+:\/\/)(.*)/)) {
-				prefix = match[1];
-				result = match[2].split('/');
-			}
-
-			// TODO: what about . and .. ?
+			path && each(path.split('/'), function(segment) {
+				if (segment === ".." && lastSegment !== "..") {
+					if (!result.length) {
+						throw new Error('Irrational path "' + path + '"')
+					}
+					result.pop();
+					lastSegment = result[result.length - 1];
+				} else if (segment !== ".") {
+					result.push(lastSegment = segment);
+				}
+			});
 
 			return {
 				name: result.pop() || "",
-				nativePath: prefix + result.join('/')
+				nativePath: (result = (match && match[1] || "") + result.join('/')) + (re.test(result) ? '' : '/')
 			};
 		},
 
@@ -66,7 +77,7 @@ define(["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/Filesystem/File"],
 				name: tmpName(),
 				nativePath: this.tempDirectory
 			});
-			// TODO: create the file/directory
+			localFS[isDir ? "mkdir" : "touch"](f.nativePath + f.name);
 			return f;
 		},
 

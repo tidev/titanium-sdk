@@ -229,7 +229,7 @@ class Compiler(object):
 				if self.minify:
 					os.rename(filename, source)
 					print '[INFO] Minifying include %s' % filename
-					p = subprocess.Popen('java -jar "%s" --compilation_level SIMPLE_OPTIMIZATIONS --js "%s" --js_output_file "%s"' % (os.path.join(self.sdk_path, 'closureCompiler', 'compiler.jar'), source, filename), shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+					p = subprocess.Popen('java -Xms256m -Xmx256m -jar "%s" --compilation_level SIMPLE_OPTIMIZATIONS --js "%s" --js_output_file "%s"' % (os.path.join(self.sdk_path, 'closureCompiler', 'compiler.jar'), source, filename), shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
 					stdout, stderr = p.communicate()
 					if p.returncode != 0:
 						print '[ERROR] Failed to minify "%s"' % filename
@@ -309,7 +309,7 @@ class Compiler(object):
 		# minify all javascript, html, and css files
 		if self.minify:
 			# TODO: only minify non-project code (i.e. Titanium and Ti+ modules)
-			subprocess.call('java -cp "%s:%s" -Djava.awt.headless=true minify "%s"' % (os.path.join(self.sdk_path, 'minify'), os.path.join(self.sdk_path, 'closureCompiler', 'compiler.jar'), self.build_path), shell=True)
+			subprocess.call('java -Xms256m -Xmx256m -cp "%s:%s" -Djava.awt.headless=true minify "%s"' % (os.path.join(self.sdk_path, 'minify'), os.path.join(self.sdk_path, 'closureCompiler', 'compiler.jar'), self.build_path), shell=True)
 			# elif ext == '.json':
 			#	TODO: minify json
 			# elif ext == '.css':
@@ -441,7 +441,7 @@ class Compiler(object):
 	
 	def build_icons(self, src):
 		print '[INFO] Generating app icons...'
-		s = 'java -cp "%s:%s" -Djava.awt.headless=true resize "%s"' % (os.path.join(self.sdk_path, 'imageResizer'), os.path.join(self.sdk_path, 'imageResizer', 'imgscalr-lib-4.2.jar'), src)
+		s = 'java -Xms256m -Xmx256m -cp "%s:%s" -Djava.awt.headless=true resize "%s"' % (os.path.join(self.sdk_path, 'imageResizer'), os.path.join(self.sdk_path, 'imageResizer', 'imgscalr-lib-4.2.jar'), src)
 		s += ' "%s" %d %d' % (os.path.join(self.build_path, 'apple-touch-icon-precomposed.png'), 57, 57)
 		s += ' "%s" %d %d' % (os.path.join(self.build_path, 'apple-touch-icon-57x57-precomposed.png'), 57, 57)
 		s += ' "%s" %d %d' % (os.path.join(self.build_path, 'apple-touch-icon-72x72-precomposed.png'), 72, 72)
