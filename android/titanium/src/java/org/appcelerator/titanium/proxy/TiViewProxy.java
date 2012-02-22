@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -72,7 +73,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	private static final int MSG_TOIMAGE = MSG_FIRST_ID + 109;
 	private static final int MSG_GETSIZE = MSG_FIRST_ID + 110;
 	private static final int MSG_GETRECT = MSG_FIRST_ID + 111;
-
+	private static final int MSG_FINISH_LAYOUT = MSG_FIRST_ID + 112;
+	private static final int MSG_UPDATE_LAYOUT = MSG_FIRST_ID + 113;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
@@ -84,6 +86,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	protected TiAnimationBuilder pendingAnimation;
 	private KrollDict langConversionTable;
 	private boolean isDecorView = false;
+	private AtomicBoolean layoutStarted = new AtomicBoolean();
 	
 	public TiViewProxy()
 	{
@@ -346,6 +349,14 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				}
 
 				result.setResult(d);
+				return true;
+			}
+			case MSG_FINISH_LAYOUT : {
+				handleFinishLayout();
+				return true;
+			}
+			case MSG_UPDATE_LAYOUT : {
+				handleUpdateLayout((KrollDict) msg.obj);
 				return true;
 			}
 		}
@@ -940,5 +951,63 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		destPoint.put(TiC.PROPERTY_X, pointWindowX - destLocation[0]);
 		destPoint.put(TiC.PROPERTY_Y, pointWindowY - destLocation[1]);
 		return destPoint;
+	}
+
+	@Kroll.method
+	public void startLayout()
+	{
+		layoutStarted.set(true);
+	}
+
+	@Kroll.method
+	public void finishLayout()
+	{
+		// Don't force a layout if startLayout() was never called
+		if (!isLayoutStarted()) {
+			return;
+		}
+		if (TiApplication.isUIThread()) {
+			handleFinishLayout();
+		} else {
+			getMainHandler().sendEmptyMessage(MSG_FINISH_LAYOUT);
+		}
+		layoutStarted.set(false);
+	}
+
+	@Kroll.method
+	public void updateLayout(KrollDict params)
+	{
+		layoutStarted.set(true);
+		if (TiApplication.isUIThread()) {
+			handleUpdateLayout(params);
+		} else {
+			getMainHandler().obtainMessage(MSG_UPDATE_LAYOUT, params).sendToTarget();
+		}
+		layoutStarted.set(false);
+	}
+
+	private void handleFinishLayout()
+	{
+		if (view.iszIndexChanged()) {
+			view.forceLayoutNativeView(true);
+			view.setzIndexChanged(false);
+		} else {
+			view.forceLayoutNativeView(false);
+		}
+	}
+
+	private void handleUpdateLayout(KrollDict params)
+	{
+		for (String key : params.keySet()) {
+			setPropertyAndFire(key, params.get(key));
+		}
+		handleFinishLayout();
+	}
+
+	// This is used to check if the user has called startLayout(). We mainly use this to perform a check before running
+	// deprecated behavior. (i.e. performing layout when a property has changed, and the user didn't call startLayout)
+	public boolean isLayoutStarted()
+	{
+		return layoutStarted.get();
 	}
 }

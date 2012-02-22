@@ -85,6 +85,8 @@ public abstract class TiUIView
 
 	private Method mSetLayerTypeMethod = null; // Honeycomb, for turning off hw acceleration.
 
+	private boolean zIndexChanged = false;
+
 	public TiUIView(TiViewProxy proxy)
 	{
 		if (idGenerator == null) {
@@ -243,11 +245,18 @@ public abstract class TiUIView
 		}
 	}
 
+	public void forceLayoutNativeView(boolean imformParent)
+	{
+		layoutNativeView(imformParent);
+	}
+
 	protected void layoutNativeView()
 	{
-		layoutNativeView(false);
+		if (!this.proxy.isLayoutStarted()) {
+			layoutNativeView(false);
+		}
 	}
-	
+
 	protected void layoutNativeView(boolean informParent)
 	{
 		if (nativeView != null) {
@@ -271,8 +280,19 @@ public abstract class TiUIView
 		}
 	}
 
+	public boolean iszIndexChanged()
+	{
+		return zIndexChanged;
+	}
+
+	public void setzIndexChanged(boolean zIndexChanged)
+	{
+		this.zIndexChanged = zIndexChanged;
+	}
+
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
+
 		if (key.equals(TiC.PROPERTY_LEFT)) {
 			if (newValue != null) {
 				layoutParams.optionLeft = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_LEFT);
@@ -344,7 +364,11 @@ public abstract class TiUIView
 			} else {
 				layoutParams.optionZIndex = 0;
 			}
-			layoutNativeView(true);
+			if (!this.proxy.isLayoutStarted()) {
+				layoutNativeView(true);
+			} else {
+				setzIndexChanged(true);
+			}
 		} else if (key.equals(TiC.PROPERTY_FOCUSABLE)) {
 			boolean focusable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_FOCUSABLE));
 			nativeView.setFocusable(focusable);
@@ -385,7 +409,7 @@ public abstract class TiUIView
 
 				if (d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
 					Integer bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
-					if (nativeView != null){
+					if (nativeView != null) {
 						nativeView.setBackgroundColor(bgColor);
 						nativeView.postInvalidate();
 					}
