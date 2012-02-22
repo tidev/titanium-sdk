@@ -110,7 +110,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 +(void)initialize
 {
-	TiThreadInitialize();
+	TiThreadInitalize();
 }
 
 + (TiApp*)app
