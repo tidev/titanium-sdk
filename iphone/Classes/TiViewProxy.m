@@ -457,6 +457,34 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
     }
 }
 
+-(CGFloat)padLeft
+{
+    if ( TiDimensionIsDip(layoutProperties.paddingLeft) ) {
+        return TiDimensionCalculateValue(layoutProperties.paddingLeft, 0.0);
+    }
+    return 0.0f;
+}
+-(CGFloat)padRight
+{
+    if ( TiDimensionIsDip(layoutProperties.paddingRight) ) {
+        return TiDimensionCalculateValue(layoutProperties.paddingRight, 0.0);
+    }
+    return 0.0f;
+}
+-(CGFloat)padTop
+{
+    if ( TiDimensionIsDip(layoutProperties.paddingTop) ) {
+        return TiDimensionCalculateValue(layoutProperties.paddingTop, 0.0);
+    }
+    return 0.0f;
+}
+-(CGFloat)padBottom
+{
+    if ( TiDimensionIsDip(layoutProperties.paddingBottom) ) {
+        return TiDimensionCalculateValue(layoutProperties.paddingBottom, 0.0);
+    }
+    return 0.0f;
+}
 
 -(NSMutableDictionary*)center
 {
@@ -1873,7 +1901,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         CGSize referenceSize = (parentView != nil) ? parentView.bounds.size : sandboxBounds.size;
 		sizeCache.size = SizeConstraintViewWithSizeAddingResizing(&layoutProperties,self, referenceSize, &autoresizeCache);
 
-		positionCache = PositionConstraintGivenSizeBoundsAddingResizing(&layoutProperties, sizeCache.size,
+		positionCache = PositionConstraintGivenSizeBoundsAddingResizing(&layoutProperties, self, sizeCache.size,
 		[[view layer] anchorPoint], referenceSize, sandboxBounds.size, &autoresizeCache);
 
 		positionCache.x += sizeCache.origin.x + sandboxBounds.origin.x;
