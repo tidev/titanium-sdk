@@ -302,7 +302,9 @@
         }
 	}
     UIViewController *windowController = [[window controller] retain];
-	[self setTabGroup:nil];
+    if (closingCurrentWindow) {
+        [self setTabGroup:nil];
+    }
 
 	// Manage the navigation controller stack
 	UINavigationController* navController = [rootController navigationController];
