@@ -295,76 +295,81 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(NSMutableDictionary*)margin
 {
-    NSMutableDictionary* result = nil;
+    NSMutableDictionary* result = [[[NSMutableDictionary alloc] init] autorelease];
     id lVal = [self valueForUndefinedKey:@"marginLeft_"];
     if (lVal != nil) {
-        result = [[[NSMutableDictionary alloc] init] autorelease];
         [result setObject:lVal forKey:@"left"];
     }
     id rVal = [self valueForUndefinedKey:@"marginRight_"];
     if (rVal != nil) {
-        if (result == nil) {
-            result = [[[NSMutableDictionary alloc] init] autorelease];
-        }
         [result setObject:rVal forKey:@"right"];
     }
     id tVal = [self valueForUndefinedKey:@"marginTop_"];
     if (tVal != nil) {
-        if (result == nil) {
-            result = [[[NSMutableDictionary alloc] init] autorelease];
-        }
         [result setObject:tVal forKey:@"top"];
     }
     id bVal = [self valueForUndefinedKey:@"marginBottom_"];
     if (bVal != nil) {
-        if (result == nil) {
-            result = [[[NSMutableDictionary alloc] init] autorelease];
-        }
         [result setObject:bVal forKey:@"bottom"];
     }
     
-    return result;
+    if ([[result allKeys] count] > 0) {
+        return result;
+    }
+    
+    return nil;
 }
 
 -(void)setMargin:(id)value
 {
     TiDimension result;
+    id obj = nil;
     if ([value isKindOfClass:[NSDictionary class]])
     {
-        result = TiDimensionFromObject([value objectForKey:@"left"]);
-        if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
-            layoutProperties.marginLeft = result;
+        obj = [value objectForKey:@"left"];
+        if (obj != nil) {
+            [self replaceValue:obj forKey:@"marginLeft_" notification:NO];
+            result = TiDimensionFromObject(obj);
+            if ( TiDimensionIsDip(result) ) {
+                layoutProperties.marginLeft = result;
+            }
+            else {
+                layoutProperties.marginLeft = TiDimensionUndefined;
+            }
         }
-        else {
-            layoutProperties.marginLeft = TiDimensionUndefined;
+        obj = [value objectForKey:@"right"];
+        if (obj != nil) {
+            [self replaceValue:obj forKey:@"marginRight_" notification:NO];
+            result = TiDimensionFromObject(obj);
+            if ( TiDimensionIsDip(result) ) {
+                layoutProperties.marginRight = result;
+            }
+            else {
+                layoutProperties.marginRight = TiDimensionUndefined;
+            }
         }
-        result = TiDimensionFromObject([value objectForKey:@"right"]);
-        if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
-            layoutProperties.marginRight = result;
+        obj = [value objectForKey:@"top"];
+        if (obj != nil) {
+            [self replaceValue:obj forKey:@"marginTop_" notification:NO];
+            result = TiDimensionFromObject(obj);
+            if ( TiDimensionIsDip(result) ) {
+                layoutProperties.marginTop = result;
+            }
+            else {
+                layoutProperties.marginTop = TiDimensionUndefined;
+            }
         }
-        else {
-            layoutProperties.marginRight = TiDimensionUndefined;
+        obj = [value objectForKey:@"bottom"];
+        if (obj != nil) {
+            [self replaceValue:obj forKey:@"marginBottom_" notification:NO];
+            result = TiDimensionFromObject(obj);
+            if ( TiDimensionIsDip(result) ) {
+                layoutProperties.marginBottom = result;
+            }
+            else {
+                layoutProperties.marginBottom = TiDimensionUndefined;
+            }
         }
-        result = TiDimensionFromObject([value objectForKey:@"top"]);
-        if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
-            layoutProperties.marginTop = result;
-        }
-        else {
-            layoutProperties.marginTop = TiDimensionUndefined;
-        }
-        result = TiDimensionFromObject([value objectForKey:@"bottom"]);
-        if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
-            layoutProperties.marginBottom = result;
-        }
-        else {
-            layoutProperties.marginBottom = TiDimensionUndefined;
-        }
-        //Store the values for the getter methods
-        [self replaceValue:[value objectForKey:@"left"] forKey:@"marginLeft_" notification:NO];
-        [self replaceValue:[value objectForKey:@"right"] forKey:@"marginRight_" notification:NO];
-        [self replaceValue:[value objectForKey:@"top"] forKey:@"marginTop_" notification:NO];
-        [self replaceValue:[value objectForKey:@"bottom"] forKey:@"marginBottom_" notification:NO];
-        
         //This means the children have to relayout
         [self contentsWillChange];
     }
@@ -372,75 +377,80 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(NSMutableDictionary*)padding
 {
-    NSMutableDictionary* result = nil;
+    NSMutableDictionary* result = [[[NSMutableDictionary alloc] init] autorelease];
     id lVal = [self valueForUndefinedKey:@"paddingLeft_"];
     if (lVal != nil) {
-        result = [[[NSMutableDictionary alloc] init] autorelease];
         [result setObject:lVal forKey:@"left"];
     }
     id rVal = [self valueForUndefinedKey:@"paddingRight_"];
     if (rVal != nil) {
-        if (result == nil) {
-            result = [[[NSMutableDictionary alloc] init] autorelease];
-        }
         [result setObject:rVal forKey:@"right"];
     }
     id tVal = [self valueForUndefinedKey:@"paddingTop_"];
     if (tVal != nil) {
-        if (result == nil) {
-            result = [[[NSMutableDictionary alloc] init] autorelease];
-        }
         [result setObject:tVal forKey:@"top"];
     }
     id bVal = [self valueForUndefinedKey:@"paddingBottom_"];
     if (bVal != nil) {
-        if (result == nil) {
-            result = [[[NSMutableDictionary alloc] init] autorelease];
-        }
         [result setObject:bVal forKey:@"bottom"];
     }
     
-    return result;
+    if ([[result allKeys] count] > 0) {
+        return result;
+    }
+    return nil;
 }
 
 -(void)setPadding:(id)value
 {
     TiDimension result;
+    id obj = nil;
     if ([value isKindOfClass:[NSDictionary class]])
     {
-        result = TiDimensionFromObject([value objectForKey:@"left"]);
-        if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
-            layoutProperties.paddingLeft = result;
+        obj = [value objectForKey:@"left"];
+        if (obj != nil) {
+            [self replaceValue:obj forKey:@"paddingLeft_" notification:NO];
+            result = TiDimensionFromObject(obj);
+            if ( TiDimensionIsDip(result) ) {
+                layoutProperties.paddingLeft = result;
+            }
+            else {
+                layoutProperties.paddingLeft = TiDimensionUndefined;
+            }
         }
-        else {
-            layoutProperties.paddingLeft = TiDimensionUndefined;
+        obj = [value objectForKey:@"right"];
+        if (obj != nil) {
+            [self replaceValue:obj forKey:@"paddingRight_" notification:NO];
+            result = TiDimensionFromObject(obj);
+            if ( TiDimensionIsDip(result) ) {
+                layoutProperties.paddingRight = result;
+            }
+            else {
+                layoutProperties.paddingRight = TiDimensionUndefined;
+            }
         }
-        result = TiDimensionFromObject([value objectForKey:@"right"]);
-        if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
-            layoutProperties.paddingRight = result;
+        obj = [value objectForKey:@"top"];
+        if (obj != nil) {
+            [self replaceValue:obj forKey:@"paddingTop_" notification:NO];
+            result = TiDimensionFromObject(obj);
+            if ( TiDimensionIsDip(result) ) {
+                layoutProperties.paddingTop = result;
+            }
+            else {
+                layoutProperties.paddingTop = TiDimensionUndefined;
+            }
         }
-        else {
-            layoutProperties.paddingRight = TiDimensionUndefined;
+        obj = [value objectForKey:@"bottom"];
+        if (obj != nil) {
+            [self replaceValue:obj forKey:@"paddingBottom_" notification:NO];
+            result = TiDimensionFromObject(obj);
+            if ( TiDimensionIsDip(result) ) {
+                layoutProperties.paddingBottom = result;
+            }
+            else {
+                layoutProperties.paddingBottom = TiDimensionUndefined;
+            }
         }
-        result = TiDimensionFromObject([value objectForKey:@"top"]);
-        if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
-            layoutProperties.paddingTop = result;
-        }
-        else {
-            layoutProperties.paddingTop = TiDimensionUndefined;
-        }
-        result = TiDimensionFromObject([value objectForKey:@"bottom"]);
-        if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
-            layoutProperties.paddingBottom = result;
-        }
-        else {
-            layoutProperties.paddingBottom = TiDimensionUndefined;
-        }
-        //Store the values for the getter methods
-        [self replaceValue:[value objectForKey:@"left"] forKey:@"paddingLeft_" notification:NO];
-        [self replaceValue:[value objectForKey:@"right"] forKey:@"paddingRight_" notification:NO];
-        [self replaceValue:[value objectForKey:@"top"] forKey:@"paddingTop_" notification:NO];
-        [self replaceValue:[value objectForKey:@"bottom"] forKey:@"paddingBottom_" notification:NO];
         
         //This is equivalent to setting left/right/top/bottom pins
         [self willChangePosition];
@@ -450,20 +460,20 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(NSMutableDictionary*)center
 {
-    NSMutableDictionary* result = nil;
+    NSMutableDictionary* result = [[[NSMutableDictionary alloc] init] autorelease];
     id xVal = [self valueForUndefinedKey:@"centerX_"];
     if (xVal != nil) {
-        result = [[[NSMutableDictionary alloc] init] autorelease];
         [result setObject:xVal forKey:@"x"];
     }
     id yVal = [self valueForUndefinedKey:@"centerY_"];
     if (yVal != nil) {
-        if (result == nil) {
-            result = [[[NSMutableDictionary alloc] init] autorelease];
-        }
         [result setObject:yVal forKey:@"y"];
     }
-    return result;
+    
+    if ([[result allKeys] count] > 0) {
+        return result;
+    }
+    return nil;
 }
 
 -(void)setCenter:(id)value
@@ -471,22 +481,30 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	if ([value isKindOfClass:[NSDictionary class]])
 	{
         TiDimension result;
-        result = TiDimensionFromObject([value objectForKey:@"x"]);
-        if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
-            layoutProperties.centerX = result;
+        id obj = [value objectForKey:@"x"];
+        if (obj != nil) {
+            [self replaceValue:obj forKey:@"centerX_" notification:NO];
+            result = TiDimensionFromObject(obj);
+            if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
+                layoutProperties.centerX = result;
+            }
+            else {
+                layoutProperties.centerX = TiDimensionUndefined;
+            }
         }
-        else {
-            layoutProperties.centerX = TiDimensionUndefined;
+        obj = [value objectForKey:@"y"];
+        if (obj != nil) {
+            [self replaceValue:obj forKey:@"centerY_" notification:NO];
+            result = TiDimensionFromObject(obj);
+            if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
+                layoutProperties.centerY = result;
+            }
+            else {
+                layoutProperties.centerY = TiDimensionUndefined;
+            }
         }
-        result = TiDimensionFromObject([value objectForKey:@"y"]);
-        if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
-            layoutProperties.centerY = result;
-        }
-        else {
-            layoutProperties.centerY = TiDimensionUndefined;
-        }
-        [self replaceValue:[value objectForKey:@"x"] forKey:@"centerX_" notification:NO];
-        [self replaceValue:[value objectForKey:@"y"] forKey:@"centerY_" notification:NO];
+        
+        
 
 	} else if ([value isKindOfClass:[TiPoint class]]) {
         CGPoint p = [value point];
