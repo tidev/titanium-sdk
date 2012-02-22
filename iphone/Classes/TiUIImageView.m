@@ -431,12 +431,13 @@ DEFINE_EXCEPTIONS
 		// NOTE: Loading from URL means we can't pre-determine any % value.
 		CGSize imageSize = CGSizeMake(TiDimensionCalculateValue(width, 0.0), 
 									  TiDimensionCalculateValue(height,0.0));
+
 		if ([TiUtils boolValue:[[self proxy] valueForKey:@"hires"]])
 		{
 			imageSize.width *= 2;
 			imageSize.height *= 2;
 		}
-		
+        
 		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url_ withSize:imageSize];
 		if (image==nil)
 		{
@@ -661,7 +662,7 @@ DEFINE_EXCEPTIONS
 	
 	BOOL replaceProperty = YES;
 	UIImage *image = nil;
-	
+    NSURL* imageURL = nil;
 	if ([arg isKindOfClass:[UIImage class]]) 
 	{
 		// called within this class
@@ -680,7 +681,7 @@ DEFINE_EXCEPTIONS
 	{
 		if ([arg isKindOfClass:[NSString class]])
 		{
-			[self loadUrl:[NSURL URLWithString:arg]];
+			[self loadUrl:[TiUtils toURL:arg proxy:[self proxy]]];
 			return;
 		}
 		if ([arg isKindOfClass:[NSURL class]])
