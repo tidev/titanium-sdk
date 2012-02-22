@@ -591,8 +591,7 @@ void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish);
 
 BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhenEmpty, void * reserved );
 
-	
-void TiThreadInitalize();
+void TiThreadInitialize();
 
 #include "TiPublicAPI.h"
 
