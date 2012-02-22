@@ -49,64 +49,116 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
 		*resultResizing &= ~(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
 	}
 
-	switch (constraint->width.type)
-	{
-		case TiDimensionTypePercent:
-		case TiDimensionTypeDip:
-			width = TiDimensionCalculateValue(constraint->width, referenceSize.width);
+    switch (constraint->width.type)
+    {
+        case TiDimensionTypePercent:
+        case TiDimensionTypeDip:
+            width = TiDimensionCalculateValue(constraint->width, referenceSize.width);
+            break;
+        case TiDimensionTypeAutoFill:
+            width = referenceSize.width;
+            break;
+        case TiDimensionTypeUndefined:
+        case TiDimensionTypeAuto:
+        case TiDimensionTypeAutoSize:
+            //For undefined width, we will break out of the code early if the width can be implicitly calculated
+            if (!TiDimensionIsUndefined(constraint->left) && !TiDimensionIsUndefined(constraint->centerX) ) {
+                width = 2 * ( TiDimensionCalculateValue(constraint->centerX, referenceSize.width) - TiDimensionCalculateValue(constraint->left, referenceSize.width) );
+                if (TiDimensionIsUndefined(constraint->width)) {
+                    break;
+                }
+            }
+            else if (!TiDimensionIsUndefined(constraint->left) && !TiDimensionIsUndefined(constraint->right) ) {
+                width = TiDimensionCalculateMargins(constraint->left, constraint->right, referenceSize.width);
+                if (TiDimensionIsUndefined(constraint->width)) {
+                    break;
+                }
+            }
+            else if (!TiDimensionIsUndefined(constraint->centerX) && !TiDimensionIsUndefined(constraint->right) ) {
+                width = 2 * ( TiDimensionCalculateValue(constraint->centerX, referenceSize.width) - TiDimensionCalculateValue(constraint->right, referenceSize.width) );
+                if (TiDimensionIsUndefined(constraint->width)) {
+                    break;
+                }
+            }
+            else
+            {
+                //This is old code and it corresponds to the new code when above 3 conditions fail
+                //width = TiDimensionCalculateMargins(constraint->left, constraint->right, referenceSize.width);
+                width = referenceSize.width;
+            }
+            if ( (TiDimensionIsAuto(constraint->width) || TiDimensionIsAutoSize(constraint->width) ) && 
+                [autoSizer respondsToSelector:@selector(autoWidthForWidth:)])
+            {
+                width = [autoSizer autoWidthForWidth:width];
+            }
+            else if(resultResizing != NULL)
+            {
+                *resultResizing |= UIViewAutoresizingFlexibleWidth;
+            }
 			break;
-		default:
-			{
-				width = TiDimensionCalculateMargins(constraint->left, constraint->right, referenceSize.width);
-				if (TiDimensionIsAuto(constraint->width) && 
-					[autoSizer respondsToSelector:@selector(autoWidthForWidth:)])
-				{
-					width = [autoSizer autoWidthForWidth:width];
-				}
-				else if(resultResizing != NULL)
-				{
-					*resultResizing |= UIViewAutoresizingFlexibleWidth;
-				}
-			}
-			break;
-	}
+    }
 	
-	if ([autoSizer respondsToSelector:@selector(verifyWidth:)])
-	{
-		width = [autoSizer verifyWidth:width];
-	}
+    //Should we always do this or only for auto
+    if ([autoSizer respondsToSelector:@selector(verifyWidth:)])
+    {
+        width = [autoSizer verifyWidth:width];
+    }
 	
-	CGFloat height;
+    CGFloat height;
 
-	switch (constraint->height.type)
-	{
-		case TiDimensionTypePercent:
-		case TiDimensionTypeDip:
-			height = TiDimensionCalculateValue(constraint->height, referenceSize.height);
+    switch (constraint->height.type)
+    {
+        case TiDimensionTypePercent:
+        case TiDimensionTypeDip:
+            height = TiDimensionCalculateValue(constraint->height, referenceSize.height);
+            break;
+        case TiDimensionTypeAutoFill:
+            height = referenceSize.height;
+            break;
+        case TiDimensionTypeUndefined:
+        case TiDimensionTypeAuto:
+        case TiDimensionTypeAutoSize:
+            //For undefined height, we will break out of the code early if the height can be implicitly calculated
+            if (!TiDimensionIsUndefined(constraint->top) && !TiDimensionIsUndefined(constraint->centerY) ) {
+                height = 2 * ( TiDimensionCalculateValue(constraint->centerY, referenceSize.height) - TiDimensionCalculateValue(constraint->top, referenceSize.height) );
+                if (TiDimensionIsUndefined(constraint->height)) {
+                    break;
+                }
+            }
+            else if (!TiDimensionIsUndefined(constraint->top) && !TiDimensionIsUndefined(constraint->bottom) ) {
+                height = TiDimensionCalculateMargins(constraint->top, constraint->bottom, referenceSize.height);
+                if (TiDimensionIsUndefined(constraint->height)) {
+                    break;
+                }
+            }
+            else if (!TiDimensionIsUndefined(constraint->centerY) && !TiDimensionIsUndefined(constraint->bottom) ) {
+                height = 2 * ( TiDimensionCalculateValue(constraint->centerY, referenceSize.height) - TiDimensionCalculateValue(constraint->bottom, referenceSize.height) );
+                if (TiDimensionIsUndefined(constraint->height)) {
+                    break;
+                }
+            }
+            else {
+                //When the above 3 conditions fail 
+                height = referenceSize.height;
+            }
+            
+            if ( (TiDimensionIsAuto(constraint->height) || TiDimensionIsAutoSize(constraint->height) )&& 
+                [autoSizer respondsToSelector:@selector(autoHeightForWidth:)])
+            {
+                height = [autoSizer autoHeightForWidth:width];
+            }
+            else if(resultResizing != NULL)
+            {
+                *resultResizing |= UIViewAutoresizingFlexibleHeight;
+            }
 			break;
-		default:
-			{
-				if (TiDimensionIsAuto(constraint->height) && 
-					[autoSizer respondsToSelector:@selector(autoHeightForWidth:)])
-				{
-					height = [autoSizer autoHeightForWidth:width];
-				}
-				else
-				{
-					height = TiDimensionCalculateMargins(constraint->top, constraint->bottom, referenceSize.height);
-					if(resultResizing != NULL)
-					{
-						*resultResizing |= UIViewAutoresizingFlexibleHeight;
-					}
-				}
-			}
-			break;
-	}
-	
-	if ([autoSizer respondsToSelector:@selector(verifyHeight:)])
-	{
-		height = [autoSizer verifyHeight:height];
-	}
+    }
+
+    //Should we always do this or only for auto
+    if ([autoSizer respondsToSelector:@selector(verifyHeight:)])
+    {
+        height = [autoSizer verifyHeight:height];
+    }
 
 	// when you use negative top, you get into a situation where you get smaller
 	// then intended sizes when using auto.  this allows you to set a floor for

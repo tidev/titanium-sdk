@@ -11,6 +11,8 @@
 
 const TiDimension TiDimensionZero = {TiDimensionTypeDip, 0};
 const TiDimension TiDimensionAuto = {TiDimensionTypeAuto, 0};
+const TiDimension TiDimensionAutoSize = {TiDimensionTypeAutoSize, 0};
+const TiDimension TiDimensionAutoFill = {TiDimensionTypeAutoFill, 0};
 const TiDimension TiDimensionUndefined = {TiDimensionTypeUndefined, 0};
 
 TiDimension TiDimensionMake(TiDimensionType type, CGFloat value)

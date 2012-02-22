@@ -109,7 +109,6 @@ enum
 -(void)setMinWidth:(id)value;
 -(void)setMinHeight:(id)value;
 
--(void)setSize:(id)value;
 -(void)setCenter:(id)value;
 -(TiPoint*)center;
 -(id)animatedCenter;

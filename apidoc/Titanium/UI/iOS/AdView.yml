@@ -12,21 +12,21 @@ events:
     summary: called when a banner action is performed
     properties:
       - name: y
-        summary: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event from the `source` view's coordinate system.
       - name: globalPoint
         summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        summary: the x point of the event in receiving view coordiantes
+        summary: X coordinate of the event from the `source` view's coordinate system.
   - name: error
     summary: called when a banner could not be loaded
     properties:
       - name: y
-        summary: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event from the `source` view's coordinate system.
       - name: x
-        summary: the x point of the event in receiving view coordiantes
+        summary: Y coordinate of the event from the `source` view's coordinate system.
       - name: message
         summary: the error message
       - name: globalPoint
@@ -38,14 +38,14 @@ events:
     summary: called when a banner is loaded and displayed
     properties:
       - name: y
-        summary: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event from the `source` view's coordinate system.
       - name: globalPoint
         summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        summary: the x point of the event in receiving view coordiantes
+        summary: X coordinate of the event from the `source` view's coordinate system.
 properties:
   - name: adSize
     summary: The size of the advertisement when minimized.

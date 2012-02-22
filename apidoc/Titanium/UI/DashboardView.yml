@@ -19,23 +19,23 @@ events:
     summary: fired when editing ends
     properties:
       - name: y
-        summary: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event from the `source` view's coordinate system.
       - name: globalPoint
         summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        summary: the x point of the event in receiving view coordiantes
+        summary: X coordinate of the event from the `source` view's coordinate system.
   - name: delete
     summary: fired when a  <Titanium.UI.DashboardItem> is deleted during editings
     properties:
       - name: item
         summary: the <Titanium.UI.DashboardItem> that was deleted
       - name: y
-        summary: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event from the `source` view's coordinate system.
       - name: x
-        summary: the x point of the event in receiving view coordiantes
+        summary: X coordinate of the event from the `source` view's coordinate system.
       - name: globalPoint
         summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
@@ -45,14 +45,14 @@ events:
     summary: fired when editing begins
     properties:
       - name: y
-        summary: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event from the `source` view's coordinate system.
       - name: globalPoint
         summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        summary: the x point of the event in receiving view coordiantes
+        summary: X coordinate of the event from the `source` view's coordinate system.
   - name: move
     summary: fired when a  <Titanium.UI.DashboardItem> is moved during editing
     properties:
@@ -61,9 +61,9 @@ events:
       - name: items
         summary: the pending data array in the new order (uncommitted)
       - name: y
-        summary: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event from the `source` view's coordinate system.
       - name: x
-        summary: the x point of the event in receiving view coordiantes
+        summary: X coordinate of the event from the `source` view's coordinate system.
       - name: globalPoint
         summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]

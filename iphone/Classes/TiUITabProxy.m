@@ -294,7 +294,8 @@
 								([[args objectAtIndex:1] isKindOfClass:[NSDictionary class]])) ? [args objectAtIndex:1] : nil;
 
 	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-	if ([current window] == window)
+    BOOL closingCurrentWindow = ([current window] == window);
+	if (closingCurrentWindow)
 	{
 		if ([[rootController navigationController] popViewControllerAnimated:animated] != nil) {
             return;
@@ -320,12 +321,11 @@
 	// and not let the window simply close by itself. this will ensure that we tell the 
 	// tab that we're doing that
 	[window close:[NSArray arrayWithObjects:[NSDictionary dictionaryWithObject:NUMBOOL(YES) forKey:@"closeByTab"],nil]];
-	if ([current window]==window)
-	{
+    if (closingCurrentWindow) {
 		RELEASE_TO_NIL(current);
-	}
-    // this TiUITabController is retaining a reference to self which leads to a cycle, so release to nil
-	RELEASE_TO_NIL(rootController);
+        // this TiUITabController is retaining a reference to self which leads to a cycle, so release to nil
+        RELEASE_TO_NIL(rootController);
+    }
 	[window autorelease];
 }
 
