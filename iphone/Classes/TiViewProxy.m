@@ -295,25 +295,35 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(NSMutableDictionary*)margin
 {
-    NSMutableDictionary* result = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary* result = nil;
     id lVal = [self valueForUndefinedKey:@"marginLeft_"];
     if (lVal != nil) {
+        result = [[[NSMutableDictionary alloc] init] autorelease];
         [result setObject:lVal forKey:@"left"];
     }
     id rVal = [self valueForUndefinedKey:@"marginRight_"];
     if (rVal != nil) {
+        if (result == nil) {
+            result = [[[NSMutableDictionary alloc] init] autorelease];
+        }
         [result setObject:rVal forKey:@"right"];
     }
     id tVal = [self valueForUndefinedKey:@"marginTop_"];
     if (tVal != nil) {
+        if (result == nil) {
+            result = [[[NSMutableDictionary alloc] init] autorelease];
+        }
         [result setObject:tVal forKey:@"top"];
     }
     id bVal = [self valueForUndefinedKey:@"marginBottom_"];
     if (bVal != nil) {
+        if (result == nil) {
+            result = [[[NSMutableDictionary alloc] init] autorelease];
+        }
         [result setObject:bVal forKey:@"bottom"];
     }
     
-    return [result autorelease];
+    return result;
 }
 
 -(void)setMargin:(id)value
@@ -362,25 +372,35 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(NSMutableDictionary*)padding
 {
-    NSMutableDictionary* result = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary* result = nil;
     id lVal = [self valueForUndefinedKey:@"paddingLeft_"];
     if (lVal != nil) {
+        result = [[[NSMutableDictionary alloc] init] autorelease];
         [result setObject:lVal forKey:@"left"];
     }
     id rVal = [self valueForUndefinedKey:@"paddingRight_"];
     if (rVal != nil) {
+        if (result == nil) {
+            result = [[[NSMutableDictionary alloc] init] autorelease];
+        }
         [result setObject:rVal forKey:@"right"];
     }
     id tVal = [self valueForUndefinedKey:@"paddingTop_"];
     if (tVal != nil) {
+        if (result == nil) {
+            result = [[[NSMutableDictionary alloc] init] autorelease];
+        }
         [result setObject:tVal forKey:@"top"];
     }
     id bVal = [self valueForUndefinedKey:@"paddingBottom_"];
     if (bVal != nil) {
+        if (result == nil) {
+            result = [[[NSMutableDictionary alloc] init] autorelease];
+        }
         [result setObject:bVal forKey:@"bottom"];
     }
     
-    return [result autorelease];
+    return result;
 }
 
 -(void)setPadding:(id)value
@@ -430,16 +450,20 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(NSMutableDictionary*)center
 {
-    NSMutableDictionary* result = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary* result = nil;
     id xVal = [self valueForUndefinedKey:@"centerX_"];
     if (xVal != nil) {
+        result = [[[NSMutableDictionary alloc] init] autorelease];
         [result setObject:xVal forKey:@"x"];
     }
     id yVal = [self valueForUndefinedKey:@"centerY_"];
     if (yVal != nil) {
+        if (result == nil) {
+            result = [[[NSMutableDictionary alloc] init] autorelease];
+        }
         [result setObject:yVal forKey:@"y"];
     }
-    return [result autorelease];
+    return result;
 }
 
 -(void)setCenter:(id)value
