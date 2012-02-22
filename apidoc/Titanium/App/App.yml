@@ -96,6 +96,11 @@ properties:
     type: String
     permission: read-only
     
+  - name: analytics
+    summary: Whether or not Analytics are enabled, from `tiapp.xml`.
+    type: Boolean
+    permission: read-only
+    
   - name: id
     summary: Application ID, from `tiapp.xml`. 
     description: |
