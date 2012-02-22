@@ -89,6 +89,7 @@ NSString * const kTiRemoteControlNotification = @"TiRemoteControl";
 NSString * const kTiLocalNotification = @"TiLocalNotification";
 
 BOOL TiExceptionIsSafeOnMainThread = NO;
+unsigned long long blockCounter = 0;
 
 void TiExceptionThrowWithNameAndReason(NSString * exceptionName, NSString * message)
 {
@@ -126,28 +127,29 @@ void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish)
 	}
 }
 
-
-NSMutableArray * TiThreadBlockQueue = nil;
+dispatch_group_t TiThreadBlocks;
 pthread_mutex_t TiThreadBlockMutex;
 pthread_cond_t TiThreadBlockCondition;
 
-void TiThreadInitalize()
+void TiThreadInitialize()
 {
-	pthread_mutex_init(&TiThreadBlockMutex,NULL);
+    TiThreadBlocks = dispatch_group_create();
+    pthread_mutex_init(&TiThreadBlockMutex, NULL);
     pthread_cond_init(&TiThreadBlockCondition, NULL);
-	TiThreadBlockQueue = [[NSMutableArray alloc] initWithCapacity:10];
 }
 
-void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
+void TiThreadPerformOnMainThread(void (^mainBlock)(void), BOOL waitForFinish)
 {
 	BOOL alreadyOnMainThread = [NSThread isMainThread];
-	BOOL usesWaitSemaphore = waitForFinish && !alreadyOnMainThread;
+	BOOL usesWaitSemaphore = (waitForFinish && !alreadyOnMainThread);
+    
 	__block dispatch_semaphore_t waitSemaphore;
 	if (usesWaitSemaphore) {
 		waitSemaphore = dispatch_semaphore_create(0);
 	}
 	__block NSException * caughtException = nil;
-	void (^wrapperBlock)() = ^{
+    
+	void (^wrapperBlock)(void) = ^{
 		BOOL exceptionsWereSafe = TiExceptionIsSafeOnMainThread;
 		TiExceptionIsSafeOnMainThread = YES;
 		@try {
@@ -161,59 +163,39 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 		TiExceptionIsSafeOnMainThread = exceptionsWereSafe;
 		if (usesWaitSemaphore) {
 			dispatch_semaphore_signal(waitSemaphore);
-		}
+        }
 	};
-	void (^wrapperBlockCopy)() = [wrapperBlock copy];
-	
-	
-	pthread_mutex_lock(&TiThreadBlockMutex);
-		if (!alreadyOnMainThread || !waitForFinish) {
-			[TiThreadBlockQueue addObject:wrapperBlockCopy];
-		}
-    pthread_cond_signal(&TiThreadBlockCondition);
-    pthread_mutex_unlock(&TiThreadBlockMutex);
-	
-	if (alreadyOnMainThread) {
-		// In order to maintain serial consistency, we have to stand in line
-		BOOL finished = TiThreadProcessPendingMainThreadBlocks(0.1, YES, nil);
-		if(waitForFinish)
-		{
-			//More or less. If things took too long, we cut.
-			wrapperBlockCopy();
-		}
-		[wrapperBlockCopy release];
-		if (caughtException != nil) {
-			[caughtException autorelease];
-			NSLog(@"[ERROR] %@",[caughtException reason]);
-			if (TiExceptionIsSafeOnMainThread) {
-				@throw caughtException;
-			}
-		}
-		return;
-	}
+    
+    if (alreadyOnMainThread && waitForFinish) {
+        // NOTE: Depending on system scheduling over GCD, this may lead to slight inefficiencies.
+        // However this is preferable to deadlocks or other behavior that may result from 'waiting'
+        // via an async until this block is finished or via other methods (such as with a manual queue).
 
-	dispatch_block_t dispatchedMainBlock = (dispatch_block_t)^(){
-		TiThreadProcessPendingMainThreadBlocks(10.0, YES, nil);
-	};
-	dispatch_async(dispatch_get_main_queue(), (dispatch_block_t)dispatchedMainBlock);
-	if (waitForFinish)
-	{
-		/*
-		 *	The reason we use a semaphore instead of simply calling the block sychronously
-		 *	is that it is possible that a previous dispatchedMainBlock (Or manual call of
-		 *	TiThreadProcessPendingMainThreadBlocks) processes the wrapperBlockCopy we
-		 *	care about. In other words, sychronously waiting will lead to the thread
-		 *	blocking much longer than necessary, especially during the shutdown sequence.
-		 */
-		dispatch_time_t oneSecond = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC);
-		BOOL waiting = dispatch_semaphore_wait(waitSemaphore, oneSecond);
-		if (waiting) {
-			NSLog(@"[WARN] Timing out waiting on main thread. Possibly a deadlock? %@",CODELOCATION);
-			dispatch_semaphore_wait(waitSemaphore, DISPATCH_TIME_FOREVER);
-		}
-		dispatch_release(waitSemaphore);
-	}
-	[wrapperBlockCopy release];
+        pthread_mutex_lock(&TiThreadBlockMutex);
+        dispatch_group_enter(TiThreadBlocks);
+        pthread_cond_broadcast(&TiThreadBlockCondition);
+        pthread_mutex_unlock(&TiThreadBlockMutex);
+        
+        wrapperBlock();
+        dispatch_group_leave(TiThreadBlocks);
+    }
+    else {
+        pthread_mutex_lock(&TiThreadBlockMutex);
+        dispatch_group_async(TiThreadBlocks, dispatch_get_main_queue(), wrapperBlock);
+        pthread_cond_broadcast(&TiThreadBlockCondition);
+        pthread_mutex_unlock(&TiThreadBlockMutex);
+    }
+    
+    if (usesWaitSemaphore) { // Only waits for the single block; means everything prior was processed
+        dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC); // 1s
+        BOOL waiting = dispatch_semaphore_wait(waitSemaphore, delay);
+        if (waiting) {
+            NSLog(@"[WARN] Timing out waiting on main thread. Possibly a deadlock? %@",CODELOCATION);
+            dispatch_semaphore_wait(waitSemaphore, DISPATCH_TIME_FOREVER);
+        }
+        dispatch_release(waitSemaphore);
+    }
+    
 	if (caughtException != nil) {
 		[caughtException autorelease];
 		[caughtException raise];
@@ -234,46 +216,31 @@ BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhe
 	
 	BOOL shouldContinue = YES;
 	BOOL isEmpty = NO;
+    
 	do {
-		void (^thisAction)(void) = nil;
-		
-		pthread_mutex_lock(&TiThreadBlockMutex);
-			isEmpty = [TiThreadBlockQueue count] <= 0;
-			if (!isEmpty) {
-				thisAction = [[TiThreadBlockQueue objectAtIndex:0] retain];
-				[TiThreadBlockQueue removeObjectAtIndex:0];
-			}
-		pthread_mutex_unlock(&TiThreadBlockMutex);
-		
-		if (thisAction != nil) {
-			NSAutoreleasePool * smallPool = [[NSAutoreleasePool alloc] init];
-			thisAction();
-			[thisAction release];
-			[smallPool release];
-		}
-		//It's entirely possible that the action itself caused more entries.
-
-		pthread_mutex_lock(&TiThreadBlockMutex);
-			isEmpty = [TiThreadBlockQueue count] <= 0;
-			shouldContinue = !(doneWhenEmpty && isEmpty);
-			if (shouldContinue) {
-				struct timeval nowTime;
-				gettimeofday(&nowTime, NULL);
-				shouldContinue = timercmp(&nowTime, &doneTime, <);
-			}
-			
-			if (shouldContinue && isEmpty) {
-				struct timespec doneTimeSpec;
-				TIMEVAL_TO_TIMESPEC(&doneTime,&doneTimeSpec);
-				/*
-				 *	If we're told to loop despite there being nothing to loop, it
-				 *	is likely we're waiting for the background thread to request
-				 *	something. In this case, we should briefly sleep.
-				 */
-				pthread_cond_timedwait(&TiThreadBlockCondition, &TiThreadBlockMutex, &doneTimeSpec);
-			}
-		pthread_mutex_unlock(&TiThreadBlockMutex);
-
+        long dispatching = dispatch_group_wait(TiThreadBlocks, dispatch_time(DISPATCH_TIME_NOW, timeout*USEC_PER_SEC));
+        isEmpty = (dispatching == 0);
+                
+		shouldContinue = !(doneWhenEmpty && isEmpty);
+		if (shouldContinue) {
+            struct timeval nowTime;
+            gettimeofday(&nowTime, NULL);
+            shouldContinue = timercmp(&nowTime, &doneTime, <);
+        }
+        
+        if (shouldContinue && isEmpty) {
+            struct timespec doneTimeSpec;
+            TIMEVAL_TO_TIMESPEC(&doneTime,&doneTimeSpec);
+            /*
+             *	If we're told to loop despite there being nothing to loop, it
+             *	is likely we're waiting for the background thread to request
+             *	something. In this case, we should briefly sleep.
+             */
+            pthread_mutex_lock(&TiThreadBlockMutex);
+            pthread_cond_timedwait(&TiThreadBlockCondition, &TiThreadBlockMutex, &doneTimeSpec);
+            pthread_mutex_unlock(&TiThreadBlockMutex);
+        }
 	} while (shouldContinue);
+    
 	return isEmpty;
 }
