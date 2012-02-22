@@ -1,45 +1,18 @@
 define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang"], function(declare, Widget, dom, css, style, lang) {
 
 	var setStyle = style.set,
-		unitize = dom.unitize,
-		thumbWidth = 30;
+		unitize = dom.unitize;
 
 	return declare("Ti.UI.Slider", Widget, {
 
 		constructor: function(args) {
 			this._track = dom.create("div", {
-				className: "TiUISliderTrack",
-				style: {
-					left: 0,
-					right: 0,
-					top: "10px",
-					bottom: "10px",
-					position: "absolute",
-					backgroundColor: "red"
-				}
+				className: "TiUISliderTrack"
 			}, this.domNode);
 			
-			this._thumbAligner = dom.create("div", {
-				className: "TiUISliderThumbAligner",
-				style: {
-					left: 0,
-					top: 0,
-					right: unitize(thumbWidth),
-					bottom: 0,
-					position: "absolute"
-				}
-			}, this.domNode);
 			this._thumb = dom.create("div", {
-				className: "TiUISliderThumb",
-				style: {
-					left: 0,
-					top: 0,
-					bottom: 0,
-					width: unitize(thumbWidth),
-					position: "absolute",
-					backgroundColor: "green"
-				}
-			}, this._thumbAligner);
+				className: "TiUIButtonDefault TiUISliderThumb"
+			}, this.domNode);
 			
 			var initialPosition,
 				initialValue,
@@ -49,7 +22,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				initialValue = self.value;
 			});
 			this.addEventListener("touchmove", function(e) {
-				self.value = (e.x - initialPosition) * (self.max - self.min) / (self.domNode.clientWidth - thumbWidth) + initialValue;
+				self.value = (e.x - initialPosition) * (self.max - self.min) / (self.domNode.clientWidth - 30) + initialValue;
 			});
 		},
 		
@@ -59,7 +32,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 		},
 		
 		_updateSize: function() {
-			setStyle(this._thumb, "transform", "translateX(" + Math.round(this._thumbAligner.clientWidth * this.value / (this.max - this.min)) + "px)");
+			this._thumbLocation = Math.round((this.domNode.clientWidth - 30) * this.value / (this.max - this.min))
+			setStyle(this._thumb, "transform", "translateX(" + this._thumbLocation + "px)");
 		},
 		
 		_constrainValue: function(value) {
@@ -75,23 +49,35 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 		_defaultHeight: "auto",
 		
 		_getContentSize: function(width, height) {
-			console.debug('Method "Titanium.UI.Slider#._getContentSize" is not implemented yet.');
+			// There is nothing to measure, or that has a "size" to return, so we just return sensible defaults.
+			return {
+				width: 200,
+				height: 40
+			}
 		},
 		
 		_setTouchEnabled: function(value) {
-			console.debug('Method "Titanium.UI.Slider#._setTouchEnabled" is not implemented yet.');
+			Widget.prototype._setTouchEnabled.apply(this, arguments);
+			var cssVal = value ? "auto" : "none";
+			setStyle(this._track, "pointerEvents", cssVal);
+			setStyle(this._thumb, "pointerEvents", cssVal);
 		},
 
 		properties: {
 						
 			enabled: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Slider#.enabled" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Slider#.enabled" is not implemented yet.');
+				set: function(value, oldValue) {
+					
+					if (value !== oldValue) {
+						if (!value) {
+							css.remove(this._thumb,"TiUIButtonDefault");
+							setStyle(this._thumb,"backgroundColor","#aaa");
+						} else {
+							css.add(this._thumb,"TiUIButtonDefault");
+							setStyle(this._thumb,"backgroundColor","");
+						}
+						this._setTouchEnabled(value);
+					}
 					return value;
 				},
 				value: true
