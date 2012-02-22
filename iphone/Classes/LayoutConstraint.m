@@ -182,19 +182,6 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
     
     *resultResizing &= ~(UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin);
     
-    //These are not used in positioning but added on after positioning is determined
-    CGFloat parentLeftPadding = 0.0;
-    CGFloat parentRightPadding = 0.0;
-    CGFloat parentTopPadding = 0.0;
-    CGFloat parentBottomPadding = 0.0;
-    
-    if ([viewProxy parent] != nil) {
-        parentLeftPadding = [[viewProxy parent] padLeft];
-        parentRightPadding = [[viewProxy parent] padRight];
-        parentTopPadding = [[viewProxy parent] padTop];
-        parentBottomPadding = [[viewProxy parent] padBottom];
-    }
-    
     //PIN PRECEDENCE IS LEFT, CENTERX, RIGHT, TOP, CENTERY, BOTTOM
     CGFloat centerX = 0.0f;
     CGFloat validVal = 0.0f;
@@ -324,8 +311,21 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
             centerY = frameTop/marginSuggestions + viewSize.height*anchorPoint.y;
         }
     }
+    
+    //padding and margin are not used in positioning but added on after positioning is determined
+    CGFloat xAdjustment = 0.0;
+    CGFloat yAdjustment = 0.0;
+    
+    if ([viewProxy parent] != nil) {
+        xAdjustment += ([[viewProxy parent] padLeft] - [[viewProxy parent] padRight]);
+        yAdjustment += ([[viewProxy parent] padTop] - [[viewProxy parent] padBottom]);
+    }
+    
+    //OK to send 0 as bounding value since these are supposed to be DIP only
+    xAdjustment += (TiDimensionCalculateValue(constraint->marginLeft, 0.0) - TiDimensionCalculateValue(constraint->marginRight, 0.0));
+    yAdjustment += (TiDimensionCalculateValue(constraint->marginTop, 0.0) - TiDimensionCalculateValue(constraint->marginBottom, 0.0));
 
-    return CGPointMake(centerX, centerY);
+    return CGPointMake(centerX+xAdjustment, centerY+yAdjustment);
 }
 
 void ApplyConstraintToViewWithBounds(LayoutConstraint * constraint, TiUIView * subView, CGRect viewBounds)
