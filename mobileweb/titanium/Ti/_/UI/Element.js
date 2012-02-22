@@ -177,11 +177,13 @@ define(
 				(this.height === "auto" || (!isDef(this.height) && this._defaultHeight === "auto"));
 		},
 
-		_doLayout: function(originX, originY, parentWidth, parentHeight, centerHDefault, centerVDefault) {
+		_doLayout: function(originX, originY, parentWidth, parentHeight, centerHDefault, centerVDefault, isParentAutoWidth, isParentAutoHeight) {
 			this._originX = originX;
 			this._originY = originY;
 			this._centerHDefault = centerHDefault;
 			this._centerVDefault = centerVDefault;
+			this._isParentAutoWidth = isParentAutoWidth;
+			this._isParentAutoHeight = isParentAutoHeight;
 
 			var dimensions = this._computeDimensions(
 					parentWidth,
@@ -369,7 +371,7 @@ define(
 			} else {
 				var computedSize;
 				if (layoutChildren) {
-					computedSize = this._layout._doLayout(this,is(width,"Number") ? width : parentWidth,is(height,"Number") ? height : parentHeight);
+					computedSize = this._layout._doLayout(this,is(width,"Number") ? width : parentWidth,is(height,"Number") ? height : parentHeight, !is(width,"Number"), !is(height,"Number"));
 				} else {
 					computedSize = this._layout._computedSize;
 				}
@@ -400,10 +402,10 @@ define(
 
 			// Set the default top/left if need be
 			if (left == "calculateAuto") {
-				left = this._centerHDefault && parentWidth !== "auto" ? computeSize("50%",parentWidth) - (is(width,"Number") ? width + borderWidth * 2 : 0) / 2 : 0;
+				left = this._centerHDefault && !this._isParentAutoWidth ? computeSize("50%",parentWidth) - (is(width,"Number") ? width + borderWidth * 2 : 0) / 2 : 0;
 			}
 			if (top == "calculateAuto") {
-				top = this._centerVDefault && parentHeight !== "auto" ? computeSize("50%",parentHeight) - (is(height,"Number") ? height + borderWidth * 2 : 0) / 2 : 0;
+				top = this._centerVDefault && !this._isParentAutoHeight ? computeSize("50%",parentHeight) - (is(height,"Number") ? height + borderWidth * 2 : 0) / 2 : 0;
 			}
 
 			// Apply the origin and border width
