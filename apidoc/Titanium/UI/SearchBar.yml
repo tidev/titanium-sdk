@@ -61,7 +61,7 @@ methods:
         On iOS, this method can be used to specify animation properties when changing the
         state of the cancel button. 
 
-           searchBar.setShowCancel(true, { animated: true });
+            searchBar.setShowCancel(true, { animated: true });
 
     parameters:
       - name: showCancel
@@ -71,11 +71,10 @@ methods:
       - name: animated
         summary: |
             Dictionary of animation properties. Currently only a
-            single boolean property, `animated` is supported. 
+            single boolean property, `animated` is supported. Only used on iOS.
         type: Dictionary
         optional: true
         default: No animation.
-        platforms: [iphone, ipad]
 events:
 
   - name: blur
@@ -106,11 +105,13 @@ properties:
 
     type: Number
     platforms: [iphone, ipad]
+    default: No autocapitalization.
 
   - name: autocorrect
     summary: Determines whether the text in the search bar is autocorrected during typing.
     type: Boolean
     platforms: [iphone, ipad]
+    default: false
 
   - name: barColor
     summary: Bar color of the search bar view.
@@ -123,10 +124,9 @@ properties:
   - name: hintText
     summary: Text to show when the search bar field is not focused.
     type: String
-    default: "Search"
+    default: On iOS, "Search"; on Android, no hint text.
 
   - name: hinttextid
-    summary: Key in the locale file to use for the hintText property.
     summary: |
         Key identifying a string from the locale file to use for the
         [hintText](Titanium.UI.SearchBar.hintText) property.
@@ -137,6 +137,7 @@ properties:
     summary: Keyboard type constant to use when the field is focused.
     type: Number
     platforms: [iphone, ipad]
+    default: System default keyboard.
 
   - name: prompt
     summary: Single line of text displayed at the top of the search bar.
@@ -145,10 +146,11 @@ properties:
     default: No prompt.
 
   - name: promptid
-    summary: the key in the locale file to use for the prompt property
+    summary: |
+        Key identifying a string from the locale file to use for the
+        [prompt](Titanium.UI.SearchBar.prompt) property.
     type: String
     platforms: [iphone, ipad]
-
 
   - name: showCancel
     summary: Determines whether the cancel button is displayed.
