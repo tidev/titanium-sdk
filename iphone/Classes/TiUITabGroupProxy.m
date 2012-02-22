@@ -89,8 +89,8 @@
 		
 		//TODO: close all the tabs and fire events
 		
+        [tabProxy removeFromTabGroup];
 		[tabProxy setParentOrientationController:nil];
-		[tabProxy setTabGroup:nil];
 		[tabs removeObject:tabProxy];
 		[self replaceValue:tabs forKey:@"tabs" notification:YES];
 		[self forgetProxy:tabProxy];
