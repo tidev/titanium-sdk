@@ -478,7 +478,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
         else {
             layoutProperties.centerX = TiDimensionUndefined;
         }
-        result = TiDimensionFromObject([value objectForKey:@"x"]);
+        result = TiDimensionFromObject([value objectForKey:@"y"]);
         if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
             layoutProperties.centerY = result;
         }
