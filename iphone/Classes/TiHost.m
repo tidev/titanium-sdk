@@ -68,7 +68,7 @@ extern NSString * const TI_APPLICATION_ID;
 	if (self = [super init])
 	{
 		modules = [[NSMutableDictionary alloc] init];
-		contexts = [[NSMutableDictionary alloc] init];
+		contexts = TiCreateNonRetainingDictionary();
 		 
 		NSString *fn = @"app.js";
 		const char *start = getenv("TI_STARTPAGE");
