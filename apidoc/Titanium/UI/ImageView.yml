@@ -95,6 +95,7 @@ properties:
   - name: defaultImage
     summary: Local path to the default image to display while loading a remote image.
     type: String
+    platforms: [android, iphone, ipad]
     
   - name: duration
     summary: Amount of time in milliseconds to animate one cycle.

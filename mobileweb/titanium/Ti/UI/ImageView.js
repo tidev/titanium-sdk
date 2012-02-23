@@ -1,7 +1,8 @@
 define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang"], 
 	function(declare, Widget, dom, css, style, lang) {
 		
-	var set = style.set,
+	var setStyle = style.set,
+		undef,
 		internalImageView = (declare(Widget, {
 			
 			domType: "img",
@@ -68,128 +69,123 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 		
 		_defaultHeight: "auto",
 		
-		pause: function(){
-			console.debug('Method "Titanium.UI.ImageView#.pause" is not implemented yet.');
+		_slideshowCount: 0,
+		
+		_setSlideshowInterval: function() {
+			var self = this;
+			clearInterval(this._slideshowTimer);
+			this._slideshowTimer = setInterval(function(){
+				setStyle(self._images[self._currentIndex].domNode,"display","none");
+				var rollover = false;
+				if (self.reverse) {
+					self._currentIndex--;
+					if (self._currentIndex === 0) {
+						self._currentIndex = self.images.length - 1;
+						rollover = true;
+					}
+				} else {
+					self._currentIndex++;
+					if (self._currentIndex === self.images.length) {
+						self._currentIndex = 0;
+						rollover = true;
+					}
+				}
+				setStyle(self._images[self._currentIndex].domNode,"display","inherit");
+				if (self.repeatCount > 0 && rollover) {
+					self._slideshowCount++;
+					if (self._slideshowCount === self.repeatCount) {
+						self.stop();
+					}
+				}
+			}, this.duration);
 		},
 		
 		start: function(){
-			console.debug('Method "Titanium.UI.ImageView#.start" is not implemented yet.');
+			if (this._images) {
+				this.constants.__values__.animating = true;
+				this.constants.__values__.paused = false;
+				this._slideshowCount = 0;
+				this._setSlideshowInterval();
+			}
 		},
 		
 		stop: function(){
-			console.debug('Method "Titanium.UI.ImageView#.stop" is not implemented yet.');
+			if (this._images) {
+				clearInterval(this._slideshowTimer);
+				if (this._images.length > 0) {
+					var start = 0;
+					if (this.reverse) {
+						start = this._images.length - 1;
+					}
+					this._currentIndex && setStyle(this._images[this._currentIndex].domNode,"display","none");
+					setStyle(this._images[start].domNode,"display","inherit");
+					this._currentIndex = start;
+				}
+				this.constants.__values__.animating = false;
+				this.constants.__values__.paused = false;
+			}
+		},
+		
+		pause: function(){
+			if (this._images) {
+				clearInterval(this._slideshowTimer);
+				this.constants.__values__.paused = true;
+				this.constants.__values__.animating = false;
+			}
 		},
 		
 		resume: function() {
-			console.debug('Method "Titanium.UI.ImageView#.resume" is not implemented yet.');
+			if (this._images) {
+				this._setSlideshowInterval();
+				this.constants.__values__.paused = false;
+				this.constants.__values__.animating = true;
+			}
+		},
+		
+		constants: {
+			
+			animating: false, 
+			
+			paused: false
+			
 		},
 		
 		properties: {
 			
-			animating: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.ImageView#.animating" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.ImageView#.animating" is not implemented yet.');
-					return value;
-				}
-			},
-			
-			defaultImage: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.ImageView#.defaultImage" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.ImageView#.defaultImage" is not implemented yet.');
-					return value;
-				}
-			},
-			
-			duration: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.ImageView#.duration" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.ImageView#.duration" is not implemented yet.');
-					return value;
-				}
-			},
+			duration: 30,
 			
 			image: {
 				set: function(value) {
+					this._removeAllChildren();
+					this._images = undef;
 					this.add(new internalImageView({src: value}));
 					return value;
 				}
 			},
 			
 			images: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ImageView#.images" is not implemented yet.');
+				set: function(value) {
+					this._removeAllChildren();
+					this._images = undef;
+					if (require.is(value,"Array") && value.length > 0) {
+						this._images = [];
+						for(var i in value) {
+							var image = new internalImageView({src: value[i]})
+							setStyle(image.domNode,"display","none");
+							this._images.push(image);
+							this.add(image);
+						}
+					}
 					return value;
 				},
-				set: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ImageView#.images" is not implemented yet.');
-					return value;
+				post: function() {
+					this.stop();
 				}
 			},
 			
-			paused: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ImageView#.paused" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ImageView#.paused" is not implemented yet.');
-					return value;
-				}
-			},
+			repeatCount: 0,
 			
-			preventDefaultImage: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ImageView#.preventDefaultImage" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ImageView#.preventDefaultImage" is not implemented yet.');
-					return value;
-				}
-			},
-			
-			repeatCount: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ImageView#.repeatCount" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ImageView#.repeatCount" is not implemented yet.');
-					return value;
-				}
-			},
-			
-			reverse: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ImageView#.reverse" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ImageView#.reverse" is not implemented yet.');
-					return value;
-				}
-			}
+			reverse: false
 		}
 
 	});
