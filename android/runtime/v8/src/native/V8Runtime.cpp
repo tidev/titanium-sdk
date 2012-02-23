@@ -261,7 +261,8 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 			// WrappedContext is simply a C++ wrapper for the V8 Context object,
 			// and is used to expose the Context to javascript. See ScriptsModule for
 			// implementation details
-			WrappedContext *wrappedContext = NativeObject::Unwrap<WrappedContext>(moduleContext->ToObject());
+			WrappedContext *wrappedContext = WrappedContext::Unwrap(moduleContext->ToObject());
+			ASSERT(wrappedContext != NULL);
 
 			// Detach each context's global object, and dispose the context
 			wrappedContext->GetV8Context()->DetachGlobal();
