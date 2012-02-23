@@ -23,6 +23,9 @@
 
 #pragma mark dirtyflags used by TiViewProxy
 #define NEEDS_LAYOUT_CHILDREN	1
+//Set this flag to true to disable instant updates
+static const BOOL ENFORCE_BATCH_UPDATE = NO;
+
 
 enum
 {

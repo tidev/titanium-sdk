@@ -23,9 +23,6 @@
 
 #define IGNORE_IF_NOT_OPENED if (!windowOpened||[self viewAttached]==NO) return;
 
-//Set this flag to true to disable instant updates
-static const BOOL ENFORCE_BATCH_UPDATE = NO;
-
 @implementation TiViewProxy
 
 #pragma mark public API
