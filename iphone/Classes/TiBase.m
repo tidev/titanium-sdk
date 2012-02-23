@@ -138,7 +138,7 @@ void TiThreadInitalize()
 	TiThreadBlockQueue = [[NSMutableArray alloc] initWithCapacity:10];
 }
 
-//#define DISABLE_BATCH_PROCESSING
+#define DISABLE_BATCH_PROCESSING
 
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 {
