@@ -156,7 +156,39 @@ TI_INLINE TiDimension TiDimensionFromObject(id object)
 	}
 	if ([object respondsToSelector:@selector(floatValue)])
 	{
-		return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
+        id val = [[NSUserDefaults standardUserDefaults] objectForKey:@"ti.ui.defaultunit"];
+        if (val == nil) {
+            return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
+        }
+        if ([val isKindOfClass:[NSString class]]) {
+            if ( ([val caseInsensitiveCompare:@"dp"]==NSOrderedSame) || ([val caseInsensitiveCompare:@"dip"]==NSOrderedSame)
+                || ([val caseInsensitiveCompare:@"system"]==NSOrderedSame) ){
+                return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
+            }
+            else if ([val caseInsensitiveCompare:@"px"]==NSOrderedSame){
+                return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip([object floatValue]));
+            }
+            else if ([val caseInsensitiveCompare:@"in"]==NSOrderedSame){
+                float dimValue = convertInchToPixels([object floatValue]);
+                return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(dimValue));
+            }
+            else if ([val caseInsensitiveCompare:@"cm"]==NSOrderedSame){
+                float dimValue = convertInchToPixels([object floatValue]/INCH_IN_CM);
+                return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(dimValue));
+            }
+            else if ([val caseInsensitiveCompare:@"mm"]==NSOrderedSame){
+                float dimValue = convertInchToPixels([object floatValue]/INCH_IN_MM);
+                return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(dimValue));
+            }
+            else {
+                NSLog(@"Property ti.ui.defaultunit is not valid value. Defaulting to system");
+                return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
+            }
+        }
+        else {
+            NSLog(@"Property ti.ui.defaultunit is not of type string. Defaulting to system");
+            return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
+        }
 	}
 	return TiDimensionUndefined;
 }
