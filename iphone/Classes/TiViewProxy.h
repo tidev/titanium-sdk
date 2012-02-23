@@ -100,6 +100,9 @@ enum
 -(void)startLayout:(id)arg;
 -(void)finishLayout:(id)arg;
 -(void)updateLayout:(id)arg;
+-(void)setTempProperty:(id)propVal forKey:(id)propName;
+-(void)processTempProperties:(NSDictionary*)arg;
+
 
 -(void)add:(id)arg;
 -(void)remove:(id)arg;
@@ -135,7 +138,6 @@ enum
 -(CGFloat)padRight;
 -(CGFloat)padTop;
 -(CGFloat)padBottom;
-
 
 #pragma mark nonpublic accessors not related to Housecleaning
 @property(nonatomic, assign) TiViewProxy *parent;

@@ -25,6 +25,8 @@ NSString * const defaultRowTableClass = @"_default_";
 // TODO: Clean this up a bit
 #define NEEDS_UPDATE_ROW 1
 
+extern const BOOL ENFORCE_BATCH_UPDATE;
+
 static void addRoundedRectToPath(CGContextRef context, CGRect rect,
 								 float ovalWidth,float ovalHeight)
 
@@ -300,6 +302,16 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)setValue:(id)value forUndefinedKey:(NSString *)key
 {
     if ([key isEqualToString:[@"lay" stringByAppendingString:@"out"]]) {
+        //CAN NOT USE THE MACRO 
+        if (ENFORCE_BATCH_UPDATE) {
+            if (updateStarted) {
+                [self setTempProperty:value forKey:key]; \
+                return;
+            }
+            else if(!allowLayoutUpdate){
+                return;
+            }
+        }
         layoutProperties.layoutStyle = TiLayoutRuleFromObject(value);
         [self replaceValue:value forKey:[@"lay" stringByAppendingString:@"out"] notification:YES];
         return;

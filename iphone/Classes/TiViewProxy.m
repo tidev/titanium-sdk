@@ -87,9 +87,13 @@ static const BOOL ENFORCE_BATCH_UPDATE = NO;
     if (layoutPropDictionary != nil) {
         /*
          The properties to be processed are 
-         WIDTH,HEIGHT,LEFT,RIGHT,TOP,BOTTOM,CENTER,PADDING,MARGIN
+         LAYOUT, WIDTH,HEIGHT,LEFT,RIGHT,TOP,BOTTOM,CENTER,PADDING,MARGIN
          */
         id obj = nil;
+        obj = [layoutPropDictionary objectForKey:[@"lay" stringByAppendingString:@"out"]];
+        if ( obj != nil) {
+            [self setValue:obj forUndefinedKey:[@"lay" stringByAppendingString:@"out"]];
+        }
         obj = [layoutPropDictionary objectForKey:@"width"];
         if ( obj != nil) {
             [self setWidth:obj];
@@ -369,8 +373,19 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 -(void)setValue:(id)value forUndefinedKey:(NSString *)key
 {
     if ([key isEqualToString:[@"lay" stringByAppendingString:@"out"]]) {
+        //CAN NOT USE THE MACRO 
+        if (ENFORCE_BATCH_UPDATE) {
+            if (updateStarted) {
+                [self setTempProperty:value forKey:key]; \
+                return;
+            }
+            else if(!allowLayoutUpdate){
+                return;
+            }
+        }
         layoutProperties.layoutStyle = TiLayoutRuleFromObject(value);
         [self replaceValue:value forKey:[@"lay" stringByAppendingString:@"out"] notification:YES];
+        
         [self willChangeLayout];
         return;
     }
