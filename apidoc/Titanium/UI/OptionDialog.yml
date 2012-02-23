@@ -70,6 +70,7 @@ events:
       - name: destructive
         summary: Index of the destructive button.
         type: Number
+        platforms: [iphone, ipad]
 properties:
   - name: androidView
     summary: View to load inside the message area, to create a custom layout.
@@ -114,7 +115,7 @@ examples:
     example: |        
         
         Ti.UI.setBackgroundColor('white');
-        var win = Ti.UI.createWindow({  
+        var win = Ti.UI.createWindow({
           title: 'Click window to test',
           backgroundColor: 'white',
           exitOnClose: true,
@@ -138,7 +139,7 @@ examples:
     example: |
         
         Ti.UI.setBackgroundColor('white');
-          var win = Ti.UI.createWindow({  
+          var win = Ti.UI.createWindow({
           title: 'Click window to test',
           backgroundColor: 'white',
           exitOnClose: true,
