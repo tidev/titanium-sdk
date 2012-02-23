@@ -44,7 +44,7 @@ enum
 
 #pragma mark Layout properties
 	LayoutConstraint layoutProperties;
-	int zIndex;
+	int vzIndex;
 	BOOL hidden;	//This is the boolean version of ![TiUtils boolValue:visible def:yes]
 		//And has nothing to do with whether or not it's onscreen or 
 
@@ -93,7 +93,7 @@ enum
 }
 
 #pragma mark public API
-@property(nonatomic,readwrite,assign) int zIndex;
+@property(nonatomic,readwrite,assign) int vzIndex;
 @property(nonatomic,readwrite,assign) BOOL parentVisible; // For tableview magic ONLY
 @property(nonatomic,readonly) NSArray *children;
 
@@ -118,8 +118,10 @@ enum
 -(void)setHeight:(id)value;
 -(void)setMargin:(id)value;
 -(void)setPadding:(id)value;
+-(void)setZIndex:(id)value;
 -(NSMutableDictionary*)padding;
 -(NSMutableDictionary*)margin;
+-(id)zIndex;
 
 // See the code for setValue:forUndefinedKey: for why we can't have this
 //-(void)setLayout:(id)value;

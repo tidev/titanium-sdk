@@ -30,16 +30,16 @@ static const BOOL ENFORCE_BATCH_UPDATE = NO;
 
 #pragma mark public API
 
-@synthesize zIndex, parentVisible;
--(void)setZIndex:(int)newZindex
+@synthesize vzIndex, parentVisible;
+-(void)setVzIndex:(int)newZindex
 {
-	if(newZindex == zIndex)
+	if(newZindex == vzIndex)
 	{
 		return;
 	}
 
-	zIndex = newZindex;
-	[self replaceValue:NUMINT(zIndex) forKey:@"zIndex" notification:NO];
+	vzIndex = newZindex;
+	[self replaceValue:NUMINT(vzIndex) forKey:@"vzIndex" notification:NO];
 	[self willChangeZIndex];
 }
 
@@ -87,7 +87,7 @@ static const BOOL ENFORCE_BATCH_UPDATE = NO;
     if (layoutPropDictionary != nil) {
         /*
          The properties to be processed are 
-         LAYOUT, WIDTH,HEIGHT,LEFT,RIGHT,TOP,BOTTOM,CENTER,PADDING,MARGIN
+         LAYOUT, WIDTH,HEIGHT,LEFT,RIGHT,TOP,BOTTOM,CENTER,PADDING,MARGIN,ZINDEX
          */
         id obj = nil;
         obj = [layoutPropDictionary objectForKey:[@"lay" stringByAppendingString:@"out"]];
@@ -130,6 +130,11 @@ static const BOOL ENFORCE_BATCH_UPDATE = NO;
         if ( obj != nil) {
             [self setMargin:obj];
         }
+        obj = [layoutPropDictionary objectForKey:@"zIndex"];
+        if ( obj != nil) {
+            [self setZIndex:obj];
+        }
+        
         RELEASE_TO_NIL(layoutPropDictionary);
     }
 }
@@ -611,6 +616,21 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
         return TiDimensionCalculateValue(layoutProperties.paddingBottom, 0.0);
     }
     return 0.0f;
+}
+
+-(id)zIndex
+{
+    return [self valueForUndefinedKey:@"zindex_"];
+}
+
+-(void)setZIndex:(id)value
+{
+    CHECK_LAYOUT_UPDATE(zIndex, value);
+    
+    if ([value respondsToSelector:@selector(intValue)]) {
+        [self setVzIndex:[TiUtils intValue:value]];
+        [self replaceValue:value forKey:@"zindex_" notification:NO];
+    }
 }
 
 -(NSMutableDictionary*)center
@@ -1979,7 +1999,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 {
 	
 	int result = 0;
-	int childZindex = [childProxy zIndex];
+	int childZindex = [childProxy vzIndex];
 	BOOL earlierSibling = YES;
 	UIView * ourView = [self parentViewForChild:childProxy];
 	
@@ -2007,9 +2027,9 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 			continue;
 		}
 		
-		int thisChildZindex = [thisChildProxy zIndex];
+		int thisChildZindex = [thisChildProxy vzIndex];
 		if((thisChildZindex < childZindex) ||
-				(earlierSibling && (thisChildZindex == zIndex)))
+				(earlierSibling && (thisChildZindex == vzIndex)))
 		{
 			result ++;
 		}
@@ -2202,7 +2222,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		{	
 			//TODO: Optimize!
 			int insertPosition = 0;
-			int childZIndex = [child zIndex];
+			int childZIndex = [child vzIndex];
 			
 			pthread_rwlock_rdlock(&childrenLock);
 			int childProxyIndex = [children indexOfObject:child];
@@ -2215,7 +2235,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 					continue;
 				}
 				
-				int thisZIndex=[(TiViewProxy *)[thisView proxy] zIndex];
+				int thisZIndex=[(TiViewProxy *)[thisView proxy] vzIndex];
 				if (childZIndex < thisZIndex) //We've found our stop!
 				{
 					break;
