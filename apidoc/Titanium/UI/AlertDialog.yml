@@ -74,12 +74,13 @@ properties:
     platforms: [android]
     
   - name: buttonNames
-    summary: Button names. A maximum of 3 buttons is supported on Android.
+    summary: Name of each button to create.
     description: |
-        On iOS, it is recommended to always include at least one button on an alert dialog, 
-        otherwise users will not be able to dismiss it.
+        On iOS, a button will automatically be created if none are explicitly defined, because 
+        without it users would be unable to dismiss the dialog. Conversely, a dialog with no 
+        buttons may be created on Android, as the hardware `back` button may be used instead.
         
-        In contrast, Android users may use the `back` hardware button.
+        A maximum of 3 buttons is supported on Android.
     type: Array<String>
     default: null (Android), ['OK'] (iOS)
     availability: creation
