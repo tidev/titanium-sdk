@@ -2,12 +2,15 @@
 import os, sys
 import zipfile
 
+android_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
+common_dir = os.path.abspath(os.path.join(android_dir, "..", "common"))
+sys.path.append(common_dir)
+
 try:
 	import simplejson as json
 except ImportError, e:
 	import json
 
-android_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
 android_modules_dir = os.path.abspath(os.path.join(android_dir, 'modules'))
 modules_json = os.path.join(android_dir, 'modules.json')
 module_jars = None
