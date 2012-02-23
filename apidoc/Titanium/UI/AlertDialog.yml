@@ -1,7 +1,7 @@
 ---
 name: Titanium.UI.AlertDialog
 summary: |
-    An alert dialog is a modal view that includes a title, message and one or more buttons, 
+    An alert dialog is a modal view that includes an optional title, a message and buttons, 
     positioned in the middle of the display.
 description: |
     An alert dialog is created using <Titanium.UI.createAlertDialog>.
@@ -100,6 +100,7 @@ properties:
 
   - name: title
     summary: Title of the dialog.
+    description: If not set, a dialog with no title bar will be created.
     type: String
 
   - name: titleid
@@ -120,6 +121,7 @@ properties:
     description: |
         If `buttonNames` is defined, this property is ignored.
     type: String
+    default: okid (Android)
     accessors: false
     platforms: [android, iphone, ipad]
 
