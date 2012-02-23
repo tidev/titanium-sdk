@@ -122,9 +122,8 @@ properties:
     description: |
         If `buttonNames` is defined, this property is ignored.
     type: String
-    default: okid (Android)
     accessors: false
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
 
 examples:
   - title: Single-button Alert Dialog (using alias)
