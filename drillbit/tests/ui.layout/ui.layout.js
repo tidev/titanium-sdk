@@ -51,36 +51,28 @@ describe("Ti.UI Layout tests", {
 		}));
 		win.open();
 	}),
-	// functional test case #1016: ViewTop
+	// functional test case #1016, #1018
+	// ViewTop and ViewBottom
 	viewTop: asyncTest(function() {
 		var win = Ti.UI.createWindow();
 		var view = Ti.UI.createView({
 			top: 10, height: 10
 		});
-		win.add(view);
-		win.addEventListener("open", this.async(function(e) {
-			valueOf(view.top).shouldBe(10);
-			valueOf(view.bottom).shouldBeUndefined();
-			valueOf(view.rect.top).shouldBe(10);
-			valueOf(view.rect.bottom).shouldBe(20);
-			valueOf(view.height).shouldBe(10);
-			valueOf(view.size.height).shouldBe(10);
-		}));
-		win.open();
-	}),
-	// functional test case #1018: ViewBottom
-	viewBottom: asyncTest(function() {
-		var win = Ti.UI.createWindow();
-		var view = Ti.UI.createView({
+		var view2 = Ti.UI.createView({
 			bottom: 10, height: 10
 		});
 		win.add(view);
+		win.add(view2);
 		win.addEventListener("open", this.async(function(e) {
-			valueOf(view.bottom).shouldBe(10);
-			valueOf(view.rect.bottom).shouldBe(win.size.height - 10);
-			valueOf(view.top).shouldBeUndefined();
-			valueOf(view.rect.top).shouldBe(win.size.height - 20);
-			valueOf(view.size.height).shouldBe(10);
+			valueOf(view.top).shouldBe(10);
+			valueOf(view.rect.y).shouldBe(10);
+			valueOf(view.rect.height).shouldBe(10);
+			valueOf(view.bottom).shouldBeUndefined();
+			
+			valueOf(view2.bottom).shouldBe(10);
+			valueOf(view2.rect.y).shouldBe(win.size.height - 20);
+			valueOf(view2.rect.height).shouldBe(10);
+			valueOf(view2.top).shouldBeUndefined();
 		}));
 		win.open();
 	}),
