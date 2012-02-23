@@ -24,6 +24,7 @@ extern NSString * const TI_APPLICATION_VERSION;
 extern NSString * const TI_APPLICATION_DESCRIPTION;
 extern NSString * const TI_APPLICATION_COPYRIGHT;
 extern NSString * const TI_APPLICATION_GUID;
+extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @implementation AppModule
 
@@ -414,6 +415,11 @@ extern NSString * const TI_APPLICATION_GUID;
 -(id)sessionId
 {
 	return [[TiApp app] sessionId];
+}
+
+-(id)analytics
+{
+	return NUMBOOL(TI_APPLICATION_ANALYTICS);
 }
 
 #if defined(USE_TI_APPIOS)
