@@ -1,58 +1,28 @@
 describe("Ti.UI Layout tests", {
 	// functional test cases #1010, #1011
-	// ViewSize, ViewRect
+	//rect and size properties should not be undefined
 	viewSizeAndRectPx: asyncTest(function() {
-		var win = Ti.UI.createWindow({
-			top: 0, left: 0, right: 0, bottom: 0
-		});
-		if (Ti.Platform.osname == "android")
-		{
-			var view = Ti.UI.createView({width: "310px", height: "60"});
-			var label = Ti.UI.createLabel({
-				top: 20, left: 10, height: "40px", width: "300px"
-			});
-			view.add(label);
-			win.add(view);
-		}
-		else
-		{
-			var view = Ti.UI.createView({width: "310dip", height: "60"});
-			var label = Ti.UI.createLabel({
-				top: 20, left: 10, height: "40dp", width: "300dip"
-			});
-			view.add(label);
-			win.add(view);
-		}
+		var win = Ti.UI.createWindow();
+		var view = Ti.UI.createView();
 		win.addEventListener("open", this.async(function(e) {
-			valueOf(view.size.width).shouldBe(310);
-			valueOf(view.size.height).shouldBe(60);
-			valueOf(view.rect.top).shouldBe(Math.floor((win.size.height - view.size.height) / 2));
-			valueOf(view.top).shouldBeUndefined();
-			valueOf(view.rect.left).shouldBe(Math.floor((win.size.width - view.size.width) / 2));
-			valueOf(view.left).shouldBeUndefined();
-			valueOf(view.bottom).shouldBeUndefined();
-			valueOf(view.rect.height).shouldBe(60);
-			valueOf(view.rect.width).shouldBe(310);
-			valueOf(view.right).shouldBeUndefined();
+			valueOf(view.size).shouldNotBeUndefined();
+			valueOf(view.size.width).shouldNotBeUndefined();
+			valueOf(view.size.height).shouldNotBeUndefined();
+			valueOf(view.size.x).shouldNotBeUndefined();
+			valueOf(view.size.y).shouldNotBeUndefined();
+			valueOf(view.rect).shouldNotBeUndefined();
+			valueOf(view.rect.width).shouldNotBeUndefined();
+			valueOf(view.rect.height).shouldNotBeUndefined();
+			valueOf(view.rect.x).shouldNotBeUndefined();
+			valueOf(view.rect.y).shouldNotBeUndefined();
 			
-			valueOf(label.size.width).shouldBe(300);
-			valueOf(label.size.height).shouldBe(40);
-			if (Ti.Platform.osname == "android")
-			{
-				valueOf(label.width).shouldBe("300px");
-				valueOf(label.height).shouldBe("40px");
-			}
-			else
-			{
-				valueOf(label.width).shouldBe("300dip");
-				valueOf(label.height).shouldBe("40dp");
-			}
-			valueOf(label.rect.top).shouldBe(label.top);
-			valueOf(label.rect.left).shouldBe(label.left);
-			valueOf(label.rect.right).shouldBe(310);
-			valueOf(label.right).shouldBeUndefined();
-			valueOf(label.rect.bottom).shouldBe(60);
-			valueOf(label.bottom).shouldBeUndefined();
+			//size and rect properties return the same width and height
+			valueOf(view.size.width).shouldBe(view.size.width);
+			valueOf(view.size.height).shouldBe(view.size.height);
+			
+			//size property returns 0 for x and y
+			valueOf(view.size.x).shouldBe(0);
+			valueOf(view.size.y).shouldBe(0);
 		}));
 		win.open();
 	}),
