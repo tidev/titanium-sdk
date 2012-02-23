@@ -154,15 +154,15 @@ void APIModule::logInternal(int logLevel, const char *messageTag, const char *me
 	}
 
 	if (logLevel == LOG_LEVEL_TRACE) {
-		LOG(VERBOSE, messageTag, message);
+		LOG(VERBOSE, messageTag, "%s", message);
 	} else if (logLevel < LOG_LEVEL_INFO) {
-		LOG(DEBUG, messageTag, message);
+		LOG(DEBUG, messageTag, "%s", message);
 	} else if (logLevel < LOG_LEVEL_WARN) {
-		LOG(INFO, messageTag, message);
+		LOG(INFO, messageTag, "%s", message);
 	} else if (logLevel == LOG_LEVEL_WARN) {
-		LOG(WARN, messageTag, message);
+		LOG(WARN, messageTag, "%s", message);
 	} else {
-		LOG(ERROR, messageTag, message);
+		LOG(ERROR, messageTag, "%s", message);
 	}
 }
 
