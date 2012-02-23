@@ -506,7 +506,26 @@
 {
 	[super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }
-
+-(BOOL)isModal {
+    //For detecting windows that are opened modally.
+    for (TiWindowProxy * thisProxy in windowProxies){
+        if([thisProxy modalFlagValue] == TRUE){
+            return TRUE;
+        }
+    }
+    //For modal views that was added by the tiapp
+    UIViewController *navController = [self.modalViewController parentViewController];
+    //As of iOS 5, Apple is phasing out the modal concept in exchange for
+    //'presenting', making all non-Ti modal view controllers claim to have
+    //no parent view controller.
+    if(navController==nil && [self.modalViewController respondsToSelector:@selector(presentingViewController)]){
+        navController = [self.modalViewController presentingViewController];
+    }
+    if(navController == self){
+        return TRUE;
+    }
+    return FALSE;
+}
 -(void)refreshOrientationWithDuration:(NSTimeInterval) duration
 {	/*
 	 *	Apple gives us a wonderful method, attemptRotation... in iOS 5 below
@@ -520,9 +539,13 @@
 	if ([self respondsToSelector:@selector(presentingViewController)]) {
 		[UIViewController attemptRotationToDeviceOrientation];
 	}
-	UIInterfaceOrientation newOrientation = [self lastValidOrientation];	
-	if ((newOrientation == windowOrientation) &&
-		(oldFlags & allowedOrientations))
+    //Check if the view was opened modally, then we shouldnot be handling the rotation.
+    if([self isModal] == TRUE){
+        return;
+    }
+    UIInterfaceOrientation newOrientation = [self lastValidOrientation];	
+    if ((newOrientation == windowOrientation) &&
+        (oldFlags & allowedOrientations))
 	{
         // If it's the case that the window orientation doesn't match the status bar orientation,
         // move the status bar into the right place.
