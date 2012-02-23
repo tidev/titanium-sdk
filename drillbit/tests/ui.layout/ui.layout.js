@@ -5,12 +5,24 @@ describe("Ti.UI Layout tests", {
 		var win = Ti.UI.createWindow({
 			top: 0, left: 0, right: 0, bottom: 0
 		});
-		var view = Ti.UI.createView({width: "310px", height: "60"});
-		var label = Ti.UI.createLabel({
-			top: 20, left: 10, height: "40px", width: "300px"
-		});
-		view.add(label);
-		win.add(view);
+		if (Ti.Platform.osname == "android")
+		{
+			var view = Ti.UI.createView({width: "310px", height: "60"});
+			var label = Ti.UI.createLabel({
+				top: 20, left: 10, height: "40px", width: "300px"
+			});
+			view.add(label);
+			win.add(view);
+		}
+		else
+		{
+			var view = Ti.UI.createView({width: "310dip", height: "60"});
+			var label = Ti.UI.createLabel({
+				top: 20, left: 10, height: "40dp", width: "300dip"
+			});
+			view.add(label);
+			win.add(view);
+		}
 		win.addEventListener("open", this.async(function(e) {
 			valueOf(view.size.width).shouldBe(310);
 			valueOf(view.size.height).shouldBe(60);
@@ -19,14 +31,22 @@ describe("Ti.UI Layout tests", {
 			valueOf(view.rect.left).shouldBe(Math.floor((win.size.width - view.size.width) / 2));
 			valueOf(view.left).shouldBeUndefined();
 			valueOf(view.bottom).shouldBeUndefined();
-			valueOf(view.rect.height).shouldBeUndefined();
-			valueOf(view.rect.width).shouldBeUndefined();
+			valueOf(view.rect.height).shouldBe(60);
+			valueOf(view.rect.width).shouldBe(310);
 			valueOf(view.right).shouldBeUndefined();
-
+			
 			valueOf(label.size.width).shouldBe(300);
-			valueOf(label.width).shouldBe("300px");
 			valueOf(label.size.height).shouldBe(40);
-			valueOf(label.height).shouldBe("40px");
+			if (Ti.Platform.osname == "android")
+			{
+				valueOf(label.width).shouldBe("300px");
+				valueOf(label.height).shouldBe("40px");
+			}
+			else
+			{
+				valueOf(label.width).shouldBe("300dip");
+				valueOf(label.height).shouldBe("40dp");
+			}
 			valueOf(label.rect.top).shouldBe(label.top);
 			valueOf(label.rect.left).shouldBe(label.left);
 			valueOf(label.rect.right).shouldBe(310);
@@ -249,7 +269,7 @@ describe("Ti.UI Layout tests", {
 		});
 
 		win.addEventListener('open', this.async(function(e){
-			valueOf(view.padding).shouldBe(0);
+			valueOf(view.padding).shouldBeUndefined();
 		}));
 
 		win.add(view);
@@ -262,11 +282,12 @@ describe("Ti.UI Layout tests", {
 
 		var view = Ti.UI.createView({
 			backgroundColor: 'yellow',
-			padding: 10
+			padding: {left:10}
 		});
 
 		win.addEventListener('open', this.async(function(e){
-			valueOf(view.padding).shouldBe(10);
+			valueOf(view.padding.left).shouldBe(10);
+			valueOf(view.padding.right).shouldBeUndefined();
 		}));
 
 		win.add(view);
@@ -302,7 +323,7 @@ describe("Ti.UI Layout tests", {
 		});
 
 		win.addEventListener('open', this.async(function(e){
-			valueOf(view.margin).shouldBe(0);
+			valueOf(view.margin).shouldBeUndefined();
 		}));
 
 		win.add(view);
@@ -315,11 +336,12 @@ describe("Ti.UI Layout tests", {
 
 		var view = Ti.UI.createView({
 			backgroundColor: 'yellow',
-			margin: 10
+			margin: {left:10}
 		});
 
 		win.addEventListener('open', this.async(function(e){
-			valueOf(view.padding).shouldBe(10);
+			valueOf(view.margin.left).shouldBe(10);
+			valueOf(view.margin.right).shouldBeUndefined();
 		}));
 
 		win.add(view);
@@ -604,7 +626,7 @@ describe("Ti.UI Layout tests", {
 		});
 
 		win.addEventListener('open', this.async(function(e){
-			valueOf(viewChild.size.height).shouldBe(10);
+			valueOf(view.size.height).shouldBe(10);
 		}));
 
 		win.add(view);
@@ -623,7 +645,7 @@ describe("Ti.UI Layout tests", {
 
 		win.addEventListener('open', this.async(function(e){
 			// FIXME need to figure out what the correct value is
-			valueOf(viewChild.size.height).shouldBe(40);
+			valueOf(view.size.height).shouldBe(40);
 		}));
 
 		win.add(view);
