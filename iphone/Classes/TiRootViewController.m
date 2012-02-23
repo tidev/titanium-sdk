@@ -273,13 +273,13 @@
 	[rootView release];
 }
 
-- (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
+- (void)viewWillAppear:(BOOL)animated;    
 {
 	TiThreadProcessPendingMainThreadBlocks(0.1, YES, nil);
 	[[viewControllerStack lastObject] viewWillAppear:animated];
 }
 
-- (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
+- (void)viewWillDisappear:(BOOL)animated; 
 {
 	[[viewControllerStack lastObject] viewWillDisappear:animated];
 }
