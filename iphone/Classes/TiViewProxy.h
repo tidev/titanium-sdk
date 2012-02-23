@@ -116,6 +116,12 @@ enum
 -(void)setBackgroundGradient:(id)arg;
 -(TiBlob*)toImage:(id)args;
 
+//These are needed to get parent padding when in relayout
+-(CGFloat)padLeft;
+-(CGFloat)padRight;
+-(CGFloat)padTop;
+-(CGFloat)padBottom;
+
 
 #pragma mark nonpublic accessors not related to Housecleaning
 @property(nonatomic, assign) TiViewProxy *parent;

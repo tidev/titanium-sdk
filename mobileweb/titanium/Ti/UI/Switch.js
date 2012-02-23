@@ -16,7 +16,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			// This container holds the flex boxes used to position the elements
 			this._contentContainer = dom.create("div", {
 				className: "TiUIButtonContentContainer",
-				style: {display: ["-webkit-box", "-moz-box"],
+				style: {
+					display: ["-webkit-box", "-moz-box"],
 					boxOrient: "vertical",
 					boxPack: "center",
 					boxAlign: "stretch",
@@ -68,21 +69,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			}, this._indicatorContainer);
 			this._switchIndicator.domNode += " TiUISwitchIndicator";
 			
-			// Add the enabled/disabled dimmer
-			this._disabledDimmer = dom.create("div", {
-				className: "TiUISwitchDisableDimmer",
-				style: {
-					pointerEvents: "none",
-					opacity: 0,
-					backgroundColor: "white",
-					width: "100%",
-					height: "100%",
-					position: "absolute",
-					top: 0,
-					left: 0
-				}
-			}, this.domNode);
-			
 			// Set the default look
 			this._setDefaultLook();
 			this.domNode.addEventListener("click",lang.hitch(this,function(){
@@ -105,12 +91,15 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		_setDefaultLook: function() {
 			if (!this._hasDefaultLook) {
 				this._hasDefaultLook = true;
-				this.domNode.className += " TiUIButtonDefault";
-				setStyle(this.domNode,"padding","6px 6px");
+				css.add(this.domNode, "TiUIButtonDefault");
 				this._previousBorderWidth = this.borderWidth;
 				this._previousBorderColor = this.borderColor;
 				this.borderWidth = 1;
-				this.borderColor = "#aaa";
+				this.borderColor = "#666";
+				setStyle(this.domNode, { 
+					borderRadius: "6px",
+					padding: "6px 6px"
+				});
 			}
 		},
 		
@@ -118,12 +107,12 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			if (this._hasDefaultLook) {
 				this._hasDefaultLook = false;
 				var className = this.domNode.className;
-				this.domNode.className = className.substring(0,className.length - " TiUIButtonDefault".length);
-				setStyle(this.domNode,"padding",0);
+				css.remove(this.domNode, "TiUIButtonDefault");
 				this.borderWidth = this._previousBorderWidth;
 				this.borderColor = this._previousBorderColor;
-				setStyle(this._disabledDimmer,{
-					opacity: 0
+				setStyle(this.domNode, { 
+					borderRadius: "",
+					padding: ""
 				});
 			}
 		},
@@ -174,14 +163,14 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				set: function(value, oldValue) {
 					
 					if (value !== oldValue) {
-						if (!value) {
-							this._hasDefaultLook && setStyle(this._disabledDimmer,{
-								opacity: 0.5
-							});
-						} else {
-							this._hasDefaultLook && setStyle(this._disabledDimmer,{
-								opacity: 0
-							});
+						if (this._hasDefaultLook) {	
+							if (!value) {
+								css.remove(this.domNode,"TiUIButtonDefault");
+								setStyle(this.domNode,"backgroundColor","#aaa");
+							} else {
+								css.add(this.domNode,"TiUIButtonDefault");
+								setStyle(this.domNode,"backgroundColor","");
+							}
 						}
 						this._setTouchEnabled(value);
 					}
