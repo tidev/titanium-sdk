@@ -1,6 +1,6 @@
 define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 
-	return declare("Ti._.Layouts.Horizontal", Base, {
+	return declare("Ti._.Layouts.CenteredHorizontal", Base, {
 
 		_doLayout: function(element, width, height) {
 			var computedSize = this._computedSize = {width: 0, height: 0},
@@ -9,7 +9,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 				
 				// Layout the child
 				var child = element.children[i];
-				child._doLayout(currentLeft,0,width,height,false,false);
+				child._doLayout(currentLeft,0,width,height,false,true);
 				
 				// Update the size of the component
 				currentLeft = child._measuredLeft + child._measuredWidth + 2 * child._measuredBorderWidth + child._measuredRightPadding;

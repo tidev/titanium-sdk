@@ -1,0 +1,11 @@
+---
+name: Titanium.XML.EntityReference
+extends: Titanium.XML.Node
+summary: |
+    Represents an XML entity reference.
+description: |
+    This conforms to the [DOM Level
+    2](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-11C98490)
+    defintion of an `EntityReference`.
+createable: false
+platforms: [android, iphone, ipad]

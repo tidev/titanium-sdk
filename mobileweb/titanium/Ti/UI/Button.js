@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
-	function(declare, FontWidget, dom, style, lang, UI) {
+define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
+	function(declare, FontWidget, dom, css, style, lang, UI) {
 
 	var setStyle = style.set,
 		postDoBackground = {
@@ -42,21 +42,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style", "Ti/_/la
 			
 			this._setDefaultLook();
 			
-			// Add the enabled/disabled dimmer
-			this._disabledDimmer = dom.create("div", {
-				className: "TiUISwitchDisableDimmer",
-				style: {
-					pointerEvents: "none",
-					opacity: 0,
-					backgroundColor: "white",
-					width: "100%",
-					height: "100%",
-					position: "absolute",
-					top: 0,
-					left: 0
-				}
-			}, this.domNode);
-			
 			this.addEventListener("touchstart",function(){
 				if (this.selectedColor) {
 					setStyle(this._buttonTitle,"color",this.selectedColor);
@@ -91,11 +76,15 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style", "Ti/_/la
 		_setDefaultLook: function() {
 			if (!this._hasDefaultLook) {
 				this._hasDefaultLook = true;
-				this.domNode.className += " TiUIButtonDefault";
+				css.add(this.domNode, "TiUIButtonDefault");
 				this._previousBorderWidth = this.borderWidth;
 				this._previousBorderColor = this.borderColor;
 				this.borderWidth = 1;
-				this.borderColor = "#aaa";
+				this.borderColor = "#666";
+				setStyle(this.domNode, { 
+					borderRadius: "10px",
+					padding: "0px 10px"
+				});
 			}
 		},
 		
@@ -103,22 +92,22 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style", "Ti/_/la
 			if (this._hasDefaultLook) {
 				this._hasDefaultLook = false;
 				var className = this.domNode.className;
-				this.domNode.className = className.substring(0,className.length - " TiUIButtonDefault".length);
+				css.remove(this.domNode, "TiUIButtonDefault");
 				this.borderWidth = this._previousBorderWidth;
 				this.borderColor = this._previousBorderColor;
-				setStyle(this._disabledDimmer,{
-					opacity: 0
+				setStyle(this.domNode, { 
+					borderRadius: "",
+					padding: ""
 				});
 			}
 		},
-
-		_getContentWidth: function() {
-			return this._buttonImage.width + this._measureText(this.title, this._buttonTitle).width + (this._hasDefaultLook ? 20 : 0);
-		},
-
-		_getContentHeight: function() {
-			var maxHeight = Math.max(this._buttonImage.height, this._measureText(this.title, this._buttonTitle).height);
-			return maxHeight + (this._hasDefaultLook ? 20 : 0);
+		
+		_getContentSize: function(width, height) {
+			var defaultLookOffset = (this._hasDefaultLook ? 20 : 0);
+			return {
+				width: width === "auto" ? this._buttonImage.width + this._measureText(this.title, this._buttonTitle).width + defaultLookOffset : width,
+				height: height === "auto" ? Math.max(this._buttonImage.height, this._measureText(this.title, this._buttonTitle).height) + defaultLookOffset : height
+			};
 		},
 
 		_setTouchEnabled: function(value) {
@@ -159,14 +148,14 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style", "Ti/_/la
 				set: function(value, oldValue) {
 					
 					if (value !== oldValue) {
-						if (!value) {
-							this._hasDefaultLook && setStyle(this._disabledDimmer,{
-								opacity: 0.5
-							});
-						} else {
-							this._hasDefaultLook && setStyle(this._disabledDimmer,{
-								opacity: 0
-							});
+						if (this._hasDefaultLook) {	
+							if (!value) {
+								css.remove(this.domNode,"TiUIButtonDefault");
+								setStyle(this.domNode,"backgroundColor","#aaa");
+							} else {
+								css.add(this.domNode,"TiUIButtonDefault");
+								setStyle(this.domNode,"backgroundColor","");
+							}
 						}
 						this._setTouchEnabled(value);
 					}
