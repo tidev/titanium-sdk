@@ -89,19 +89,8 @@ describe("Ti.UI Layout tests", {
 		win.addEventListener("open", this.async(function(e) {
 			valueOf(view.center.x).shouldBe(50);
 			valueOf(view.center.y).shouldBe(50);
-			valueOf(view.rect.center).shouldBeUndefined();
-			valueOf(view.left).shouldBeUndefined();
-			valueOf(view.right).shouldBeUndefined();
-			valueOf(view.top).shouldBeUndefined();
-			valueOf(view.bottom).shouldBeUndefined();
-			valueOf(view.height).shouldBe(40);
-			valueOf(view.width).shouldBe(40);
-			valueOf(view.rect.left).shouldBe(view.center.x - 20);
-			valueOf(view.rect.right).shouldBe(view.center.x + 20);
-			valueOf(view.rect.top).shouldBe(view.center.y - 20);
-			valueOf(view.rect.bottom).shouldBe(view.center.y + 20);
-			valueOf(view.size.width).shouldBe(40);
-			valueOf(view.size.height).shouldBe(40);
+			valueOf(view.rect.x).shouldBe(30);
+			valueOf(view.rect.y).shouldBe(30);
 		}));
 		win.open();
 	}),
