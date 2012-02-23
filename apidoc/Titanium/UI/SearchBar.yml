@@ -26,62 +26,62 @@ events:
     summary: fired when the search bar loses focus
     properties:
       - name: y
-        summary: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event from the `source` view's coordinate system.
       - name: globalPoint
         summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        summary: the x point of the event in receiving view coordiantes
+        summary: X coordinate of the event from the `source` view's coordinate system.
   - name: cancel
     summary: fired when the cancel button is pressed
     properties:
       - name: y
-        summary: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event from the `source` view's coordinate system.
       - name: globalPoint
         summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        summary: the x point of the event in receiving view coordiantes
+        summary: X coordinate of the event from the `source` view's coordinate system.
   - name: change
     summary: fired when the value of the search bar changes
     properties:
       - name: y
-        summary: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event from the `source` view's coordinate system.
       - name: globalPoint
         summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        summary: the x point of the event in receiving view coordiantes
+        summary: X coordinate of the event from the `source` view's coordinate system.
   - name: focus
     summary: fired when the search bar gains focus
     properties:
       - name: y
-        summary: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event from the `source` view's coordinate system.
       - name: globalPoint
         summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        summary: the x point of the event in receiving view coordiantes
+        summary: X coordinate of the event from the `source` view's coordinate system.
   - name: return
     summary: fired when keyboard search button is pressed
     properties:
       - name: y
-        summary: the y point of the event, in receiving view coordinates
+        summary: Y coordinate of the event from the `source` view's coordinate system.
       - name: globalPoint
         summary: a dictionary with properties x and y describing the point of the event in screen coordinates
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
       - name: x
-        summary: the x point of the event in receiving view coordiantes
+        summary: X coordinate of the event from the `source` view's coordinate system.
 properties:
   - name: autocapitalization
     summary: One of <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>, <Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS>, <Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES>, or <Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL> to indicate how the field should be capitalized during typing.
