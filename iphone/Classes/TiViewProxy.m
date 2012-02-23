@@ -63,59 +63,91 @@ static const BOOL ENFORCE_BATCH_UPDATE = NO;
 	[self replaceValue:newVisible forKey:@"visible" notification:YES];
 }
 
+-(void)setTempProperty:(id)propVal forKey:(id)propName {
+    if (layoutPropDictionary == nil) {
+        layoutPropDictionary = [[NSMutableDictionary alloc] init];
+    }
+    
+    if (propVal != nil && propName != nil) {
+        [layoutPropDictionary setObject:propVal forKey:propName];
+    }
+}
+
+-(void)processTempProperties:(NSDictionary*)arg
+{
+    //arg will be non nil when called from updateLayout
+    if (arg != nil) {
+        NSEnumerator *enumerator = [arg keyEnumerator];
+        id key;
+        while ((key = [enumerator nextObject])) {
+            [self setTempProperty:[arg objectForKey:key] forKey:key];
+        }
+    }
+    
+    if (layoutPropDictionary != nil) {
+        /*
+         The properties to be processed are 
+         WIDTH,HEIGHT,LEFT,RIGHT,TOP,BOTTOM,CENTER,PADDING,MARGIN
+         */
+        id obj = nil;
+        obj = [layoutPropDictionary objectForKey:@"width"];
+        if ( obj != nil) {
+            [self setWidth:obj];
+        }
+        obj = [layoutPropDictionary objectForKey:@"height"];
+        if ( obj != nil) {
+            [self setHeight:obj];
+        }
+        obj = [layoutPropDictionary objectForKey:@"left"];
+        if ( obj != nil) {
+            [self setLeft:obj];
+        }
+        obj = [layoutPropDictionary objectForKey:@"right"];
+        if ( obj != nil) {
+            [self setRight:obj];
+        }
+        obj = [layoutPropDictionary objectForKey:@"top"];
+        if ( obj != nil) {
+            [self setTop:obj];
+        }
+        obj = [layoutPropDictionary objectForKey:@"bottom"];
+        if ( obj != nil) {
+            [self setBottom:obj];
+        }
+        obj = [layoutPropDictionary objectForKey:@"center"];
+        if ( obj != nil) {
+            [self setCenter:obj];
+        }
+        obj = [layoutPropDictionary objectForKey:@"padding"];
+        if ( obj != nil) {
+            [self setPadding:obj];
+        }
+        obj = [layoutPropDictionary objectForKey:@"margin"];
+        if ( obj != nil) {
+            [self setMargin:obj];
+        }
+        RELEASE_TO_NIL(layoutPropDictionary);
+    }
+}
+
 -(void)startLayout:(id)arg
 {
-    allowLayoutUpdate = YES;
+    updateStarted = YES;
+    allowLayoutUpdate = NO;
 }
 -(void)finishLayout:(id)arg
 {
+    updateStarted = NO;
+    allowLayoutUpdate = YES;
+    [self processTempProperties:nil];
     allowLayoutUpdate = NO;
 }
 -(void)updateLayout:(id)arg
 {
+    updateStarted = NO;
     allowLayoutUpdate = YES;
     if ([arg isKindOfClass:[NSDictionary class]]) {
-        /*
-        The properties to be processed are 
-        WIDTH,HEIGHT,LEFT,RIGHT,TOP,BOTTOM,CENTER,PADDING,MARGIN
-         */
-        id obj = nil;
-        obj = [arg objectForKey:@"width"];
-        if ( obj != nil) {
-            [self setWidth:obj];
-        }
-        obj = [arg objectForKey:@"height"];
-        if ( obj != nil) {
-            [self setHeight:obj];
-        }
-        obj = [arg objectForKey:@"left"];
-        if ( obj != nil) {
-            [self setLeft:obj];
-        }
-        obj = [arg objectForKey:@"right"];
-        if ( obj != nil) {
-            [self setRight:obj];
-        }
-        obj = [arg objectForKey:@"top"];
-        if ( obj != nil) {
-            [self setTop:obj];
-        }
-        obj = [arg objectForKey:@"bottom"];
-        if ( obj != nil) {
-            [self setBottom:obj];
-        }
-        obj = [arg objectForKey:@"center"];
-        if ( obj != nil) {
-            [self setCenter:obj];
-        }
-        obj = [arg objectForKey:@"padding"];
-        if ( obj != nil) {
-            [self setPadding:obj];
-        }
-        obj = [arg objectForKey:@"margin"];
-        if ( obj != nil) {
-            [self setMargin:obj];
-        }
+        [self processTempProperties:arg];
     }
     else {
         NSLog(@"Invalid argument passed to updateLayout");
@@ -283,16 +315,21 @@ static const BOOL ENFORCE_BATCH_UPDATE = NO;
 	[self animate:arg];
 }
 
-#define CHECK_UPDATE_ALLOWED \
-if (ENFORCE_BATCH_UPDATE && !allowLayoutUpdate) { \
-    return; \
+#define CHECK_LAYOUT_UPDATE(layoutName,value) \
+if (ENFORCE_BATCH_UPDATE) { \
+    if (updateStarted) { \
+        [self setTempProperty:value forKey:@#layoutName]; \
+        return; \
+    } \
+    else if(!allowLayoutUpdate){ \
+        return; \
+    } \
 }
-
 
 #define LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(methodName,layoutName,converter,postaction)	\
 -(void)methodName:(id)value	\
 {	\
-    CHECK_UPDATE_ALLOWED \
+    CHECK_LAYOUT_UPDATE(layoutName,value) \
     TiDimension result = converter(value);\
     if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {\
         layoutProperties.layoutName = result;\
@@ -307,7 +344,7 @@ if (ENFORCE_BATCH_UPDATE && !allowLayoutUpdate) { \
 #define LAYOUTPROPERTIES_SETTER(methodName,layoutName,converter,postaction)	\
 -(void)methodName:(id)value	\
 {	\
-    CHECK_UPDATE_ALLOWED \
+    CHECK_LAYOUT_UPDATE(layoutName,value) \
     layoutProperties.layoutName = converter(value);	\
     [self replaceValue:value forKey:@#layoutName notification:YES];	\
     postaction; \
@@ -393,7 +430,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(void)setMargin:(id)value
 {
-    CHECK_UPDATE_ALLOWED
+    CHECK_LAYOUT_UPDATE(margin, value);
     
     TiDimension result;
     id obj = nil;
@@ -476,8 +513,8 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(void)setPadding:(id)value
 {
-    CHECK_UPDATE_ALLOWED
-    
+    CHECK_LAYOUT_UPDATE(padding, value);
+
     TiDimension result;
     id obj = nil;
     if ([value isKindOfClass:[NSDictionary class]])
@@ -581,7 +618,8 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(void)setCenter:(id)value
 {
-    CHECK_UPDATE_ALLOWED
+    CHECK_LAYOUT_UPDATE(center, value);
+
     
 	if ([value isKindOfClass:[NSDictionary class]])
 	{

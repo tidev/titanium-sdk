@@ -86,7 +86,10 @@ enum
 	BOOL repositioning;
 	BOOL isUsingBarButtonItem;
     //This flag is set to true on startLayout() call and false on finishLayout() call
+    BOOL updateStarted;
     BOOL allowLayoutUpdate;
+    
+    NSMutableDictionary *layoutPropDictionary;
 }
 
 #pragma mark public API
