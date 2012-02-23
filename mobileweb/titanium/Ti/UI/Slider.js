@@ -141,7 +141,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 					this._updateSize();
 				},
 				value: 0
-			},
+			}
 		}
 
 	});
