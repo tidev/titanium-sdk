@@ -21,7 +21,7 @@ methods:
   - name: resume
     summary: Resumes an animation from a `pause` state.
     description:  This method only works if multiple images are specified.
-    platforms: [android, mobilweb]
+    platforms: [android, mobileweb]
     
   - name: start
     summary: |
@@ -130,9 +130,10 @@ properties:
     platforms: [iphone, ipad]
     
   - name: image
-    summary: | 
+    summary: Image to display.
+    description: |
         Image to display, defined using a local filesystem path, a `File` object, a remote URL, 
-        or a `Blob` object containing image data.
+        or a `Blob` object containing image data. `Blob` objects are not supported on Mobile Web.
     type: [ String, Titanium.Blob, Titanium.Filesystem.File ]
 
   - name: images
