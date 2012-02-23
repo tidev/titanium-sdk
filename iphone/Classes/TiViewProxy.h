@@ -85,12 +85,18 @@ enum
 	BOOL viewInitialized;
 	BOOL repositioning;
 	BOOL isUsingBarButtonItem;
+    //This flag is set to true on startLayout() call and false on finishLayout() call
+    BOOL allowLayoutUpdate;
 }
 
 #pragma mark public API
 @property(nonatomic,readwrite,assign) int zIndex;
 @property(nonatomic,readwrite,assign) BOOL parentVisible; // For tableview magic ONLY
 @property(nonatomic,readonly) NSArray *children;
+
+-(void)startLayout:(id)arg;
+-(void)finishLayout:(id)arg;
+-(void)updateLayout:(id)arg;
 
 -(void)add:(id)arg;
 -(void)remove:(id)arg;
@@ -104,13 +110,18 @@ enum
 -(void)setRight:(id)value;
 -(void)setWidth:(id)value;
 -(void)setHeight:(id)value;
+-(void)setMargin:(id)value;
+-(void)setPadding:(id)value;
+-(NSMutableDictionary*)padding;
+-(NSMutableDictionary*)margin;
+
 // See the code for setValue:forUndefinedKey: for why we can't have this
 //-(void)setLayout:(id)value;
 -(void)setMinWidth:(id)value;
 -(void)setMinHeight:(id)value;
 
 -(void)setCenter:(id)value;
--(TiPoint*)center;
+-(NSMutableDictionary*)center;
 -(id)animatedCenter;
 
 -(void)setBackgroundGradient:(id)arg;

@@ -23,6 +23,9 @@
 
 #define IGNORE_IF_NOT_OPENED if (!windowOpened||[self viewAttached]==NO) return;
 
+//Set this flag to true to disable instant updates
+static const BOOL ENFORCE_BATCH_UPDATE = NO;
+
 @implementation TiViewProxy
 
 #pragma mark public API
@@ -58,6 +61,67 @@
 {
 	[self setHidden:![TiUtils boolValue:newVisible def:YES] withArgs:args];
 	[self replaceValue:newVisible forKey:@"visible" notification:YES];
+}
+
+-(void)startLayout:(id)arg
+{
+    allowLayoutUpdate = YES;
+}
+-(void)finishLayout:(id)arg
+{
+    allowLayoutUpdate = NO;
+}
+-(void)updateLayout:(id)arg
+{
+    allowLayoutUpdate = YES;
+    if ([arg isKindOfClass:[NSDictionary class]]) {
+        /*
+        The properties to be processed are 
+        WIDTH,HEIGHT,LEFT,RIGHT,TOP,BOTTOM,CENTER,PADDING,MARGIN
+         */
+        id obj = nil;
+        obj = [arg objectForKey:@"width"];
+        if ( obj != nil) {
+            [self setWidth:obj];
+        }
+        obj = [arg objectForKey:@"height"];
+        if ( obj != nil) {
+            [self setHeight:obj];
+        }
+        obj = [arg objectForKey:@"left"];
+        if ( obj != nil) {
+            [self setLeft:obj];
+        }
+        obj = [arg objectForKey:@"right"];
+        if ( obj != nil) {
+            [self setRight:obj];
+        }
+        obj = [arg objectForKey:@"top"];
+        if ( obj != nil) {
+            [self setTop:obj];
+        }
+        obj = [arg objectForKey:@"bottom"];
+        if ( obj != nil) {
+            [self setBottom:obj];
+        }
+        obj = [arg objectForKey:@"center"];
+        if ( obj != nil) {
+            [self setCenter:obj];
+        }
+        obj = [arg objectForKey:@"padding"];
+        if ( obj != nil) {
+            [self setPadding:obj];
+        }
+        obj = [arg objectForKey:@"margin"];
+        if ( obj != nil) {
+            [self setMargin:obj];
+        }
+    }
+    else {
+        NSLog(@"Invalid argument passed to updateLayout");
+    }
+    allowLayoutUpdate = NO;
+    
 }
 
 
@@ -219,10 +283,16 @@
 	[self animate:arg];
 }
 
+#define CHECK_UPDATE_ALLOWED \
+if (ENFORCE_BATCH_UPDATE && !allowLayoutUpdate) { \
+    return; \
+}
+
 
 #define LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(methodName,layoutName,converter,postaction)	\
 -(void)methodName:(id)value	\
 {	\
+    CHECK_UPDATE_ALLOWED \
     TiDimension result = converter(value);\
     if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {\
         layoutProperties.layoutName = result;\
@@ -237,9 +307,10 @@
 #define LAYOUTPROPERTIES_SETTER(methodName,layoutName,converter,postaction)	\
 -(void)methodName:(id)value	\
 {	\
-	layoutProperties.layoutName = converter(value);	\
-	[self replaceValue:value forKey:@#layoutName notification:YES];	\
-	postaction; \
+    CHECK_UPDATE_ALLOWED \
+    layoutProperties.layoutName = converter(value);	\
+    [self replaceValue:value forKey:@#layoutName notification:YES];	\
+    postaction; \
 }
 
 LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(setTop,top,TiDimensionFromObject,[self willChangePosition])
@@ -322,6 +393,8 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(void)setMargin:(id)value
 {
+    CHECK_UPDATE_ALLOWED
+    
     TiDimension result;
     id obj = nil;
     if ([value isKindOfClass:[NSDictionary class]])
@@ -403,6 +476,8 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(void)setPadding:(id)value
 {
+    CHECK_UPDATE_ALLOWED
+    
     TiDimension result;
     id obj = nil;
     if ([value isKindOfClass:[NSDictionary class]])
@@ -506,6 +581,8 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(void)setCenter:(id)value
 {
+    CHECK_UPDATE_ALLOWED
+    
 	if ([value isKindOfClass:[NSDictionary class]])
 	{
         TiDimension result;
@@ -1212,6 +1289,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(void)_initWithProperties:(NSDictionary*)properties
 {
+    [self startLayout:nil];
 	if (properties!=nil)
 	{
 		NSString *objectId = [properties objectForKey:@"id"];
@@ -1279,6 +1357,8 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		}
 	}
 	[super _initWithProperties:properties];
+    [self finishLayout:nil];
+
 }
 
 -(void)dealloc
