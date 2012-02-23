@@ -57,6 +57,18 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 							this.fireEvent("load", {});
 							this._triggerLayout();
 						}));
+						require.on(this.domNode,"error", lang.hitch(this, function() {
+							this.fireEvent("error", {
+								image: value
+							});
+							this._triggerLayout();
+						}));
+						require.on(this.domNode,"abort", lang.hitch(this, function() {
+							this.fireEvent("error", {
+								image: value
+							});
+							this._triggerLayout();
+						}));
 						return value;
 					}
 				}
@@ -91,12 +103,18 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 					}
 				}
 				setStyle(self._images[self._currentIndex].domNode,"display","inherit");
+				
 				if (self.repeatCount > 0 && rollover) {
 					self._slideshowCount++;
 					if (self._slideshowCount === self.repeatCount) {
 						self.stop();
+						return;
 					}
 				}
+				
+				self.fireEvent("change", {
+					index: self._currentIndex
+				});
 			}, this.duration);
 		},
 		
@@ -106,6 +124,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				this.constants.__values__.paused = false;
 				this._slideshowCount = 0;
 				this._setSlideshowInterval();
+				this.fireEvent("start", {});
 			}
 		},
 		
@@ -123,6 +142,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				}
 				this.constants.__values__.animating = false;
 				this.constants.__values__.paused = false;
+				this.fireEvent("stop", {});
 			}
 		},
 		
@@ -131,6 +151,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				clearInterval(this._slideshowTimer);
 				this.constants.__values__.paused = true;
 				this.constants.__values__.animating = false;
+				this.fireEvent("pause", {});
 			}
 		},
 		
@@ -158,7 +179,16 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				set: function(value) {
 					this._removeAllChildren();
 					this._images = undef;
-					this.add(new internalImageView({src: value}));
+					var image = new internalImageView({src: value});
+					image.addEventListener("load",lang.hitch(this,function() {
+						this.fireEvent("load", {
+							state: "image"
+						});
+					}));
+					image.addEventListener("error",lang.hitch(this,function(e) {
+						this.fireEvent("error", e);
+					}));
+					this.add(image);
 					return value;
 				}
 			},
@@ -169,9 +199,23 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 					this._images = undef;
 					if (require.is(value,"Array") && value.length > 0) {
 						this._images = [];
+						var loadCount = 0,
+							errorEncountered = false;
 						for(var i in value) {
 							var image = new internalImageView({src: value[i]})
 							setStyle(image.domNode,"display","none");
+							image.addEventListener("load",lang.hitch(this,function(e) {
+								loadCount++;
+								if (!errorEncountered && loadCount == value.length) {
+									this.fireEvent("load", {
+										state: "images"
+									});
+								}
+							}));
+							image.addEventListener("error",lang.hitch(this,function(e) {
+								this.fireEvent("error", e);
+								errorEncountered = true;
+							}));
 							this._images.push(image);
 							this.add(image);
 						}

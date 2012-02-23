@@ -48,7 +48,7 @@ events:
     properties:
       - name: state
         summary: |
-            Set to `image` on Android and `url` on iOS and Mobile Web when the image defined in the 
+            Set to `image` on Android and Mobile Web and `url` on iOS when the image defined in the 
             [image](Titanium.UI.ImageView.image) property is loaded. Set to `images`, when the series 
             of images defined in the [images](Titanium.UI.ImageView.images) property are loaded.
         type: String
