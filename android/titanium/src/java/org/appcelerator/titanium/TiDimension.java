@@ -43,7 +43,7 @@ public class TiDimension
 	public static final double MM_INCH = 25.4;
 	public static final double CM_INCH = 2.54;
 
-	public static Pattern DIMENSION_PATTERN = Pattern.compile("(-?[0-9]*\\.?[0-9]+)\\s*(px|dp|dip|sp|sip|mm|cm|pt|in|%)?");
+	public static Pattern DIMENSION_PATTERN = Pattern.compile("(-?[0-9]*\\.?[0-9]+)\\s*(system|px|dp|dip|sp|sip|mm|cm|pt|in|%)?");
 	protected static DisplayMetrics metrics = null;
 
 	protected double value;
@@ -67,7 +67,11 @@ public class TiDimension
 
 				if (m.groupCount() == 2) {
 					String unit = m.group(2);
-					if ("px".equals(unit)) {
+					// if there is no unit, then use the default one
+					if (unit == null) {
+						unit = TiApplication.getInstance().getDefaultUnit();
+					}
+					if ("px".equals(unit) || "system".equals(unit)) {
 						this.units = TypedValue.COMPLEX_UNIT_PX;
 					} else if ("pt".equals(unit)) {
 						this.units = TypedValue.COMPLEX_UNIT_PT;
