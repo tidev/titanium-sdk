@@ -224,7 +224,7 @@
     if (!local && imageData != nil) {
         NSFileManager* fm = [NSFileManager defaultManager];
         NSString* path = localPath;
-        if (hires) {
+        if (hires && [TiUtils isRetinaDisplay]) { // Save as @2x w/retina
             path = [NSString stringWithFormat:@"%@@2x.%@", [localPath stringByDeletingPathExtension], [localPath pathExtension]];
         }
         
