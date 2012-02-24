@@ -177,11 +177,11 @@ define(
 				(this.height === "auto" || (!isDef(this.height) && this._defaultHeight === "auto"));
 		},
 
-		_doLayout: function(originX, originY, parentWidth, parentHeight, centerHDefault, centerVDefault, isParentAutoWidth, isParentAutoHeight) {
+		_doLayout: function(originX, originY, parentWidth, parentHeight, defaultHorizontalAlignment, defaultVerticalAlignment, isParentAutoWidth, isParentAutoHeight) {
 			this._originX = originX;
 			this._originY = originY;
-			this._centerHDefault = centerHDefault;
-			this._centerVDefault = centerVDefault;
+			this._defaultHorizontalAlignment = defaultHorizontalAlignment;
+			this._defaultVerticalAlignment = defaultVerticalAlignment;
 			this._isParentAutoWidth = isParentAutoWidth;
 			this._isParentAutoHeight = isParentAutoHeight;
 
@@ -402,10 +402,26 @@ define(
 
 			// Set the default top/left if need be
 			if (left == "calculateAuto") {
-				left = this._centerHDefault && !this._isParentAutoWidth ? computeSize("50%",parentWidth) - (is(width,"Number") ? width + borderWidth * 2 : 0) / 2 : 0;
+				if (!this._isParentAutoWidth) {
+					switch(this._defaultHorizontalAlignment) {
+						case "left": left = 0; break;
+						case "center": left = computeSize("50%",parentWidth) - (is(width,"Number") ? width + borderWidth * 2 : 0) / 2; break;
+						case "right": left = parentWidth - (is(width,"Number") ? width + borderWidth * 2 : 0) / 2; break;
+					}
+				} else {
+					left = 0;
+				}
 			}
 			if (top == "calculateAuto") {
-				top = this._centerVDefault && !this._isParentAutoHeight ? computeSize("50%",parentHeight) - (is(height,"Number") ? height + borderWidth * 2 : 0) / 2 : 0;
+				if (!this._isParentAutoHeight) {
+					switch(this._defaultVerticalAlignment) {
+						case "top": top = 0; break;
+						case "center": top = computeSize("50%",parentHeight) - (is(height,"Number") ? height + borderWidth * 2 : 0) / 2; break;
+						case "bottom": top = parentWidth - (is(height,"Number") ? height + borderWidth * 2 : 0) / 2; break;
+					}
+				} else {
+					top = 0;
+				}
 			}
 
 			// Apply the origin and border width
