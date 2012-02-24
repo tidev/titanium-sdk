@@ -26,6 +26,8 @@ description: |
     * The search bar does not lose focus when the user clicks on a row in the search
       results.
 
+    * The `value` property cannot be specified in the `createSearchBar` method.
+
     To use a search bar on Android, you may need to explicitly control the focus and
     clearing of the search bar, depending on your desired behavior. For example, to clear
     the search bar and dismiss the onscreen keyboard when the user selects a row, you
@@ -162,6 +164,8 @@ properties:
 
   - name: value
     summary: Value of the search bar.
+    description: |
+        On Android, the value cannot be set until after the search bar is created.
     type: String
     
 examples:
