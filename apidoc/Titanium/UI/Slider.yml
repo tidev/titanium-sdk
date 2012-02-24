@@ -134,7 +134,7 @@ properties:
   - name: enabled
     summary: Boolean to indicate the enabled state of the slider.
     type: Boolean
-    default: true
+    default: Slider is enabled by default (property value may be `undefined`).
 
   - name: highlightedLeftTrackImage
     summary: Image URL of the slider left track when in the highlighted state.
