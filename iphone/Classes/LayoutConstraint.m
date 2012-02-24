@@ -75,7 +75,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
                 }
             }
             else if (!TiDimensionIsUndefined(constraint->centerX) && !TiDimensionIsUndefined(constraint->right) ) {
-                width = 2 * ( TiDimensionCalculateValue(constraint->centerX, referenceSize.width) - TiDimensionCalculateValue(constraint->right, referenceSize.width) );
+                width = 2 * ( referenceSize.width - TiDimensionCalculateValue(constraint->right, referenceSize.width) - TiDimensionCalculateValue(constraint->centerX, referenceSize.width));
                 if (TiDimensionIsUndefined(constraint->width)) {
                     break;
                 }
@@ -132,7 +132,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
                 }
             }
             else if (!TiDimensionIsUndefined(constraint->centerY) && !TiDimensionIsUndefined(constraint->bottom) ) {
-                height = 2 * ( TiDimensionCalculateValue(constraint->centerY, referenceSize.height) - TiDimensionCalculateValue(constraint->bottom, referenceSize.height) );
+                height = 2 * ( referenceSize.height - TiDimensionCalculateValue(constraint->centerY, referenceSize.height) - TiDimensionCalculateValue(constraint->bottom, referenceSize.height) );
                 if (TiDimensionIsUndefined(constraint->height)) {
                     break;
                 }
