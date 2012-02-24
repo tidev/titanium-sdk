@@ -188,6 +188,16 @@ public class TiConvert
 			dirty = true;
 		}
 
+		if (hashMap.containsKey(TiC.PROPERTY_MARGIN)) {
+			updateLayoutMargin(hashMap.get(TiC.PROPERTY_MARGIN), layoutParams);
+			dirty = true;
+		}
+
+		if (hashMap.containsKey(TiC.PROPERTY_PADDING)) {
+			updateLayoutPadding(hashMap.get(TiC.PROPERTY_PADDING), layoutParams);
+			dirty = true;
+		}
+
 		if (width != null || hashMap.containsKey(TiC.PROPERTY_WIDTH)) {
 			if (width == null)
 			{
@@ -243,6 +253,7 @@ public class TiConvert
 	public static void updateLayoutCenter(Object value, LayoutParams layoutParams)
 	{
 		if (value instanceof HashMap) {
+			@SuppressWarnings("rawtypes")
 			HashMap center = (HashMap) value;
 			Object x = center.get(TiC.PROPERTY_X);
 			Object y = center.get(TiC.PROPERTY_Y);
@@ -268,6 +279,54 @@ public class TiConvert
 		} else {
 			layoutParams.optionCenterX = null;
 			layoutParams.optionCenterY = null;
+		}
+	}
+
+	public static void updateLayoutMargin(Object value, LayoutParams layoutParams)
+	{
+		if (value instanceof HashMap) {
+			@SuppressWarnings("rawtypes")
+			HashMap center = (HashMap) value;
+			Object left = center.get(TiC.PROPERTY_LEFT);
+			Object right = center.get(TiC.PROPERTY_RIGHT);
+			Object top = center.get(TiC.PROPERTY_TOP);
+			Object bottom = center.get(TiC.PROPERTY_BOTTOM);
+
+			layoutParams.marginLeft = left == null ? null : toTiDimension(left, TiDimension.TYPE_LEFT);
+			layoutParams.marginRight = right == null ? null : toTiDimension(right, TiDimension.TYPE_RIGHT);
+			layoutParams.marginTop = top == null ? null : toTiDimension(top, TiDimension.TYPE_TOP);
+			layoutParams.marginBottom = bottom == null ? null : toTiDimension(bottom, TiDimension.TYPE_BOTTOM);
+
+		} else {
+			layoutParams.marginLeft = null;
+			layoutParams.marginRight = null;
+			layoutParams.marginTop = null;
+			layoutParams.marginBottom = null;
+
+		}
+	}
+
+	public static void updateLayoutPadding(Object value, LayoutParams layoutParams)
+	{
+		if (value instanceof HashMap) {
+			@SuppressWarnings("rawtypes")
+			HashMap center = (HashMap) value;
+			Object left = center.get(TiC.PROPERTY_LEFT);
+			Object right = center.get(TiC.PROPERTY_RIGHT);
+			Object top = center.get(TiC.PROPERTY_TOP);
+			Object bottom = center.get(TiC.PROPERTY_BOTTOM);
+
+			layoutParams.paddingLeft = left == null ? null : toTiDimension(left, TiDimension.TYPE_LEFT);
+			layoutParams.paddingRight = right == null ? null : toTiDimension(right, TiDimension.TYPE_RIGHT);
+			layoutParams.paddingTop = top == null ? null : toTiDimension(top, TiDimension.TYPE_TOP);
+			layoutParams.paddingBottom = bottom == null ? null : toTiDimension(bottom, TiDimension.TYPE_BOTTOM);
+
+		} else {
+			layoutParams.paddingLeft = null;
+			layoutParams.paddingRight = null;
+			layoutParams.paddingTop = null;
+			layoutParams.paddingBottom = null;
+
 		}
 	}
 

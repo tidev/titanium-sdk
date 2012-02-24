@@ -310,16 +310,17 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			case MSG_GETSIZE : {
 				AsyncResult result = (AsyncResult) msg.obj;
 				KrollDict d = null;
+				d = new KrollDict();
+				d.put(TiC.PROPERTY_X, 0);
+				d.put(TiC.PROPERTY_Y, 0);
 				if (view != null) {
 					View v = view.getNativeView();
 					if (v != null) {
-						d = new KrollDict();
 						d.put(TiC.PROPERTY_WIDTH, v.getWidth());
 						d.put(TiC.PROPERTY_HEIGHT, v.getHeight());
 					}
 				}
-				if (d == null) {
-					d = new KrollDict();
+				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
 					d.put(TiC.PROPERTY_WIDTH, 0);
 					d.put(TiC.PROPERTY_HEIGHT, 0);
 				}
@@ -330,22 +331,21 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			case MSG_GETRECT: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				KrollDict d = null;
+				d = new KrollDict();
 				if (view != null) {
 					View v = view.getNativeView();
 					if (v != null) {
-						d = new KrollDict();
-						d.put(TiC.PROPERTY_TOP, v.getTop());
-						d.put(TiC.PROPERTY_BOTTOM, v.getBottom());
-						d.put(TiC.PROPERTY_LEFT, v.getLeft());
-						d.put(TiC.PROPERTY_RIGHT, v.getRight());
+						d.put(TiC.PROPERTY_WIDTH, v.getWidth());
+						d.put(TiC.PROPERTY_HEIGHT, v.getHeight());
+						d.put(TiC.PROPERTY_X, v.getLeft());
+						d.put(TiC.PROPERTY_Y, v.getTop());
 					}
 				}
-				if (d == null) {
-					d = new KrollDict();
-					d.put(TiC.PROPERTY_TOP, 0);
-					d.put(TiC.PROPERTY_BOTTOM, 0);
-					d.put(TiC.PROPERTY_LEFT, 0);
-					d.put(TiC.PROPERTY_RIGHT, 0);
+				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
+					d.put(TiC.PROPERTY_WIDTH, 0);
+					d.put(TiC.PROPERTY_HEIGHT, 0);
+					d.put(TiC.PROPERTY_X, 0);
+					d.put(TiC.PROPERTY_Y, 0);
 				}
 
 				result.setResult(d);

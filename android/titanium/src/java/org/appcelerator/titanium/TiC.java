@@ -235,6 +235,7 @@ public class TiC
 	public static final String PROPERTY_LONGITUDE_DELTA = "longitudeDelta";
 	public static final String PROPERTY_MAGNETIC_HEADING = "magneticHeading";
 	public static final String PROPERTY_MAP_TYPE = "mapType";
+	public static final String PROPERTY_MARGIN = "margin";
 	public static final String PROPERTY_MEDIA_CONTROL_STYLE = "mediaControlStyle";
 	public static final String PROPERTY_MENU = EVENT_PROPERTY_MENU;
 	public static final String PROPERTY_MESSAGE = "message";
@@ -256,6 +257,7 @@ public class TiC
 	public static final String PROPERTY_OPTIONS = "options";
 	public static final String PROPERTY_ORDER = "order";
 	public static final String PROPERTY_PACKAGE_NAME = "packageName";
+	public static final String PROPERTY_PADDING = "padding";
 	public static final String PROPERTY_PAGING_CONTROL_TIMEOUT = "pagingControlTimeout";
 	public static final String PROPERTY_PARENT = "parent";
 	public static final String PROPERTY_PASSWORD_MASK = "passwordMask";
