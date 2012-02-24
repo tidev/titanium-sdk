@@ -257,8 +257,16 @@ textarea {
 }
 
 .TiUIProgressBarContainer {
-	background-color: #888;
-	border-radius: 2px;
+	background-color: #666;
+	border-radius: 3px;
+	border: 1px solid #666;
+	box-shadow: inset 1px 2px 1px 1px #444;
+	-moz-box-shadow: inset 1px 2px 1px 1px #444;
+	-webkit-box-shadow: inset 1px 2px 1px 1px #444;
+}
+
+.TiUIProgressBarIndicator {
+	background-color: #ccc;
 }
 
 .TiMediaVideoPlayer video {

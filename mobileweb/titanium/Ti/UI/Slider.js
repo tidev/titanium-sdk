@@ -90,6 +90,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				},
 				post: function() {
 					this.value = this._constrainValue(this.value);
+					this._updateSize();
 				},
 				value: 100
 			},
@@ -101,6 +102,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				},
 				post: function() {
 					this.value = this._constrainValue(this.value);
+					this._updateSize();
 				}
 			},
 			
@@ -111,6 +113,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				},
 				post: function() {
 					this.value = this._constrainValue(this.value);
+					this._updateSize();
 				},
 				value: 0
 			},
@@ -122,6 +125,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				},
 				post: function() {
 					this.value = this._constrainValue(this.value);
+					this._updateSize();
 				}
 			},
 			
