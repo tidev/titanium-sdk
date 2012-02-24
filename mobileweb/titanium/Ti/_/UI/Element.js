@@ -497,25 +497,27 @@ define(
 					
 					// Compute the angle, start location, and end location of the gradient
 					var angle = Math.atan2(endPointY - startPointY, endPointX - startPointX)
-						userLineIntersection = startPointY - startPointX * Math.tan(angle),
-						originLineIntersection =  centerY - centerX * Math.tan(angle),
-						userDistance = (userLineIntersection - originLineIntersection) * Math.cos(angle),
+						tanAngle = Math.tan(angle),
+						cosAngle = Math.cos(angle),
+						originLineIntersection = centerY - centerX * tanAngle;
+						userDistance = (startPointY - startPointX * tanAngle - originLineIntersection) * cosAngle,
 						userXOffset = userDistance * Math.sin(angle),
-						userYOffset = userDistance * Math.cos(angle),
+						userYOffset = userDistance * cosAngle,
 						startPointX = startPointX + userXOffset,
 						startPointY = startPointY - userYOffset,
 						endPointX = endPointX + userXOffset,
-						endPointY = endPointY - userYOffset;
+						endPointY = endPointY - userYOffset,
+						shiftedAngle = Math.PI / 2 - angle;
 					if (angle > 0) {
-						var globalGradientStartDistance = originLineIntersection * Math.sin(Math.PI / 2 - angle),
-							globalGradientStartOffsetX = -globalGradientStartDistance * Math.cos(Math.PI / 2 - angle),
-							globalGradientStartOffsetY = globalGradientStartDistance * Math.sin(Math.PI / 2 - angle);
+						var globalGradientStartDistance = originLineIntersection * Math.sin(shiftedAngle),
+							globalGradientStartOffsetX = -globalGradientStartDistance * Math.cos(shiftedAngle),
+							globalGradientStartOffsetY = globalGradientStartDistance * Math.sin(shiftedAngle);
 						userGradientStart = Math.sqrt(Math.pow(startPointX - globalGradientStartOffsetX,2) + Math.pow(startPointY - globalGradientStartOffsetY,2));
 						userGradientEnd = Math.sqrt(Math.pow(endPointX - globalGradientStartOffsetX,2) + Math.pow(endPointY - globalGradientStartOffsetY,2));
 					} else {
-						var globalGradientStartDistance = (this._measuredHeight - originLineIntersection) * Math.sin(Math.PI / 2 + angle),
-							globalGradientStartOffsetX = -globalGradientStartDistance * Math.cos(Math.PI / 2 + angle),
-							globalGradientStartOffsetY = this._measuredHeight - globalGradientStartDistance * Math.sin(Math.PI / 2 + angle);
+						var globalGradientStartDistance = (this._measuredHeight - originLineIntersection) * Math.sin(shiftedAngle),
+							globalGradientStartOffsetX = -globalGradientStartDistance * Math.cos(shiftedAngle),
+							globalGradientStartOffsetY = this._measuredHeight - globalGradientStartDistance * Math.sin(shiftedAngle);
 						userGradientStart = Math.sqrt(Math.pow(startPointX - globalGradientStartOffsetX,2) + Math.pow(startPointY - globalGradientStartOffsetY,2));
 						userGradientEnd = Math.sqrt(Math.pow(endPointX - globalGradientStartOffsetX,2) + Math.pow(endPointY - globalGradientStartOffsetY,2));
 					}
@@ -825,7 +827,7 @@ define(
 							}
 						}
 						if (!endPoint || !("x" in endPoint) || !("y" in endPoint)) {
-							value.startPoint = {
+							value.endPoint = {
 								x: "100%",
 								y: "50%"
 							}
