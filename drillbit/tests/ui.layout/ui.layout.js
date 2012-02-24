@@ -473,42 +473,51 @@ describe("Ti.UI Layout tests", {
 		win.open();
 
 	}),
-	// functional test #1038 UndefinedTop
+	// functional test #1038, 1038a, 1038b
+	// UndefinedTop. Dynamic top calculation
 	undefinedTop: asyncTest(function() {
 		var win = Ti.UI.createWindow();
-		var view = Ti.UI.createView({
-			backgroundColor: 'yellow',
+		var view1 = Ti.UI.createView({
 			height: 50,
 			center: {y:200}
 		});
-
-		win.addEventListener('open', this.async(function(e){
-			valueOf(view.rect.top).shouldNotBeUndefined();
-			valueOf(view.top).shouldBeUndefined();
-		}));
-
-		win.add(view);
-		win.open();
-
-	}),
-	// functional test #1038a #1038b UndefinedTopCenterBottom UndefinedTopHeightBottom
-	undefinedTopCenter: asyncTest(function() {
-		var win = Ti.UI.createWindow();
-		
-		var view = Ti.UI.createView({
-			backgroundColor: 'yellow',
-			bottom: 10,
-			center: {y:5}
+		var view2 = Ti.UI.createView({
+			center: {y:50},
+			bottom: 200
+		});
+		var view3 = Ti.UI.createView({
+			bottom: 200,
+			height: 100
 		});
 
 		win.addEventListener('open', this.async(function(e){
-			valueOf(view.rect.bottom - view.rect.top).shouldBe(view.size.height);
-			valueOf(view.height).shouldBeUndefined();
+			//Static Tops
+			valueOf(view1.top).shouldBeUndefined();
+			valueOf(view2.top).shouldBeUndefined();
+			valueOf(view3.top).shouldBeUndefined();
+			//Dynamic Tops
+			valueOf(view1.rect.y).shouldBe(175);
+			if(win.size.height <= 250)
+			{
+				//View Height of 0 positioned at center
+				valueOf(view2.rect.y).shouldBe(50);
+			}
+			else
+			{
+				//View height = 2x(wh - bottom - center)
+				//View top = center - height/2 = 2c + b - wh
+				valueOf(view2.rect.y).shouldBe(300 - win.size.height);
+			}
+			
+			valueOf(view3.rect.y).shouldBe(win.size.height-300);
 		}));
-
-		win.add(view);
+		
+		win.add(view1);
+		win.add(view2);
+		win.add(view3);
 		win.open();
 	}),
+	
 	// functional test #1040 UndefinedBottom
 	undefinedBottom: asyncTest(function() {
 		var win = Ti.UI.createWindow();
