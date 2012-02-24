@@ -540,8 +540,6 @@ DEFINE_EXCEPTIONS
 		image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl withSize:CGSizeMake(TiDimensionCalculateValue(width, autoWidth),
 																						   TiDimensionCalculateValue(height, autoHeight))];
 	}
-    else if ([arg isKindOfClass:[NSString class]]) {
-    }
 	else if ([arg isKindOfClass:[UIImage class]])
 	{
 		// called within this class
