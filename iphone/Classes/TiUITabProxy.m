@@ -286,7 +286,6 @@
 	// Don't use ENSURE_SINGLE_ARG because it will overwrite the original 'args' value if we
 	// ARE passing more than one arg
 	TiWindowProxy* window = nil;
-    BOOL removeTab = NO;
 	if ([args isKindOfClass:[NSArray class]]) {
 		window = [args objectAtIndex:0];
 	}
