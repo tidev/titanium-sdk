@@ -53,9 +53,9 @@ public class TiBlob extends KrollProxy
 	}
 
 	/**
-	 * Creates a new TiBlob object from a string type, with TYPE_STRING id
-	 * @param data the data used to create blob
-	 * @return TiBlob
+	 * Creates a new TiBlob object from String data, with TYPE_STRING id.
+	 * @param data the data used to create blob.
+	 * @return new instance of TiBlob.
 	 */
 	public static TiBlob blobFromString(String data)
 	{
@@ -63,9 +63,9 @@ public class TiBlob extends KrollProxy
 	}
 
 	/**
-	 * Creates a blob from a file, with TYPE_FILE id and with a mimeType as the file's path
-	 * @param file the file used to create blob
-	 * @return TiBlob
+	 * Creates a blob from a file, with TYPE_FILE id and with a mimeType as the file's path.
+	 * @param file the file used to create blob.
+	 * @return new instane of TiBlob.
 	 */
 	public static TiBlob blobFromFile(TiBaseFile file)
 	{
@@ -73,11 +73,11 @@ public class TiBlob extends KrollProxy
 	}
 
 	/**
-	 * Creates a blob from a file, with TYPE_FILE id and with a specified mimeType. If 'mimeType' is null,
-	 * the file's path will be used instead
-	 * @param file the file used to create blob
-	 * @param mimeType the mimeType used to create blob
-	 * @return TiBlob
+	 * Creates a blob from a file, with TYPE_FILE id and with the specified mimeType. If mimeType is null,
+	 * the file's path will be used instead.
+	 * @param file the file used to create blob.
+	 * @param mimeType the mimeType used to create blob.
+	 * @return new instance of TiBlob.
 	 */
 	public static TiBlob blobFromFile(TiBaseFile file, String mimeType)
 	{
@@ -88,9 +88,9 @@ public class TiBlob extends KrollProxy
 	}
 
 	/**
-	 * Creates a blob from a bitmap with TYPE_IMAGE id
-	 * @param image the image used to create blob
-	 * @return TiBlob
+	 * Creates a blob from a bitmap with TYPE_IMAGE id.
+	 * @param image the image used to create blob.
+	 * @return new instance of TiBlob.
 	 */
 	public static TiBlob blobFromImage(Bitmap image)
 	{
@@ -107,9 +107,9 @@ public class TiBlob extends KrollProxy
 	}
 
 	/**
-	 * Creates a blob from binary data, with TYPE_DATA id and with mimeType as "application/octet-stream"
-	 * @param data data used to create blob
-	 * @return TiBlob
+	 * Creates a blob from binary data, with TYPE_DATA id and with mimeType as "application/octet-stream".
+	 * @param data data used to create blob.
+	 * @return TiBlob.
 	 */
 	public static TiBlob blobFromData(byte[] data)
 	{
@@ -118,10 +118,10 @@ public class TiBlob extends KrollProxy
 	
 	/**
 	 * Creates a blob from binary data with TYPE_DATA id and with the given mimetype.
-	 * If 'mimetype' is null, "application/octet-stream" will be used instead
-	 * @param data  binary data used to create blob
-	 * @param mimetype mimetype used to create blob
-	 * @return
+	 * If 'mimetype' is null, "application/octet-stream" will be used instead.
+	 * @param data  binary data used to create blob.
+	 * @param mimetype mimetype used to create blob.
+	 * @return a new instance of TiBlob.
 	 */
 	public static TiBlob blobFromData(byte[] data, String mimetype)
 	{
@@ -133,8 +133,8 @@ public class TiBlob extends KrollProxy
 
 	/**
 	 * Returns the content of blob in form of binary data. Exception will be thrown
-	 * if blob's id is unknown
-	 * @return binary data
+	 * if blob's id is unknown.
+	 * @return binary data.
 	 */
 	public byte[] getBytes()
 	{

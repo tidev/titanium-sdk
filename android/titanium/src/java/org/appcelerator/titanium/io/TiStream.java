@@ -15,7 +15,7 @@ public interface TiStream
 	/**
 	 * Implementing classes should use this method to read data from a stream into a buffer.
 	 * This should be done asynchronously.
-	 * @param args  the args should include a stream object to read from and a buffer to read into.
+	 * @param args  the args should include a stream object to read from and a buffer object to read into.
 	 * @return
 	 * @throws IOException
 	 */
@@ -24,7 +24,7 @@ public interface TiStream
 	/**
 	 * Implementing classes should use this method to write data from a buffer into an outputStream.
 	 * This should be done asynchronously.
-	 * @param args the args should include a stream object to write into and a buffer to write from
+	 * @param args the args should include a stream object to write into and a buffer object to write from
 	 * @return
 	 * @throws IOException
 	 */

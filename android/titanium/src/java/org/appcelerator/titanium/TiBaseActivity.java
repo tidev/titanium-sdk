@@ -98,8 +98,8 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	/**
-	 * Returns the instance of TiApplication
-	 * @return
+	 * Returns the instance of TiApplication.
+	 * @return the instance of TiApplication.
 	 */
 	public TiApplication getTiApp()
 	{
@@ -107,8 +107,8 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	/**
-	 * Returns the window proxy associates with this activity
-	 * @return the window proxy
+	 * Returns the window proxy associates with this activity.
+	 * @return the window proxy.
 	 */
 	public TiWindowProxy getWindowProxy()
 	{
@@ -116,7 +116,7 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	/**
-	 * Sets the window proxy
+	 * Sets the window proxy.
 	 * @param proxy
 	 */
 	public void setWindowProxy(TiWindowProxy proxy)
@@ -126,7 +126,7 @@ public abstract class TiBaseActivity extends Activity
 	}
 	
 	/**
-	 * Sets the view proxy
+	 * Sets the view proxy.
 	 * @param proxy
 	 */
 	public void setViewProxy(TiViewProxy proxy)
@@ -135,7 +135,7 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	/**
-	 * Returns the activity proxy associates with this Activity
+	 * Returns the activity proxy associates with this Activity.
 	 * @return activity proxy
 	 */
 	public ActivityProxy getActivityProxy()
@@ -158,7 +158,7 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	/**
-	 * Returns the activity's layout
+	 * Returns the activity's layout.
 	 * @return
 	 */
 	public TiCompositeLayout getLayout()

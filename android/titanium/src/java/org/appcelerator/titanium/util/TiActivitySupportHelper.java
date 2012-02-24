@@ -38,7 +38,7 @@ public class TiActivitySupportHelper
 	}
 
 	/**
-	 * See TiActivitySupport.launchActivityForResult for more details.
+	 * Refer to {@link TiActivitySupport#launchActivityForResult(Intent, int, TiActivityResultHandler)} for more details.
 	 */
 	public void launchActivityForResult(Intent intent, final int code, final TiActivityResultHandler resultHandler)
 	{
@@ -65,10 +65,10 @@ public class TiActivitySupportHelper
 	}
 
 	/**
-	 * Invokes TiActivityResultHandler.onResult - This is done when the launched activity exits.
+	 * Invokes {@link TiActivityResultHandler#onResult(Activity, int, int, Intent)}. This is done when the launched activity exits.
 	 * @param requestCode
 	 * @param resultCode 
-	 * @param data  the intent
+	 * @param data  the intent.
 	 */
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		TiActivityResultHandler handler = resultHandlers.get(requestCode);

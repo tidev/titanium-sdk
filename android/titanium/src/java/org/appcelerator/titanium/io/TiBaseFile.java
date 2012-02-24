@@ -81,24 +81,24 @@ public abstract class TiBaseFile
 	}
 
 	/**
-	 * Return whether the file is executable
-	 * @return  true if the file is executable, false otherwise
+	 * Return whether the file is executable.
+	 * @return  true if the file is executable, false otherwise.
 	 */
 	public boolean isExecutable() {
 		return modeExecutable;
 	}
 
 	/**
-	 * Return whether the file is read-only
-	 * @return  true if the file is read-only, false otherwise
+	 * Return whether the file is read-only.
+	 * @return  true if the file is read-only, false otherwise.
 	 */
 	public boolean isReadonly() {
 		return modeRead && !modeWrite;
 	}
 	
 	/**
-	 * Return whether the file is writable
-	 * @return  true if the file is writable, false otherwise
+	 * Return whether the file is writable.
+	 * @return  true if the file is writable, false otherwise.
 	 */
 	public boolean isWriteable() {
 		return modeWrite;
@@ -418,22 +418,22 @@ public abstract class TiBaseFile
 	}
 
 	/**
-	 * Implementing subclasses should return the InputStream of the file
-	 * @return  the InputStream of the file
+	 * Implementing subclasses should return the InputStream of the file.
+	 * @return  the InputStream of the file.
 	 * @throws IOException
 	 */
 	public abstract InputStream getInputStream() throws IOException;
 	
 	/**
-	 * Implementing subclasses should return the OutputStream of the file
-	 * @return  the OutputStream of the file
+	 * Implementing subclasses should return the OutputStream of the file.
+	 * @return  the OutputStream of the file.
 	 * @throws IOException
 	 */
 	public abstract OutputStream getOutputStream() throws IOException;
 	
 	/**
-	 * Implementing subclasses should return the file object
-	 * @return  the file object
+	 * Implementing subclasses should return the file object.
+	 * @return  the file object.
 	 */
 	public abstract File getNativeFile();
 }

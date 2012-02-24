@@ -274,8 +274,8 @@ public class IntentProxy extends KrollProxy
 	}
 
 	/**
-	 * Returns the intent
-	 * @return
+	 * Returns the intent.
+	 * @return the associated intent.
 	 */
 	public Intent getIntent()
 	{ 
@@ -283,8 +283,8 @@ public class IntentProxy extends KrollProxy
 	}
 
 	/**
-	 * Returns the type of intent
-	 * @return type of intent
+	 * Returns the type of intent.
+	 * @return type of intent.
 	 */
 	public int getType()
 	{
@@ -292,7 +292,7 @@ public class IntentProxy extends KrollProxy
 	}
 
 	/**
-	 * Sets the intent type
+	 * Sets the intent type.
 	 * @param type
 	 */
 	public void setType(int type)

@@ -216,6 +216,7 @@ public class ActivityProxy extends KrollProxy
 		return tiActivity.getWindowProxy();
 	}
 
+	
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 	{
 		IntentProxy intent = null;

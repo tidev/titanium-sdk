@@ -47,7 +47,7 @@ public class TiBaseService extends Service
 
 	/**
 	 * Implementing subclasses should use this method to start the service.
-	 * @param proxy the ServiceProxy
+	 * @param proxy the ServiceProxy.
 	 */
 	public void start(ServiceProxy proxy)
 	{
@@ -55,8 +55,8 @@ public class TiBaseService extends Service
 	}
 
 	/**
-	 * Implementing subclasses should use this method to release the service proxy
-	 * @param proxy the proxy to release
+	 * Implementing subclasses should use this method to release the service proxy.
+	 * @param proxy the proxy to release.
 	 */
 	public void unbindProxy(ServiceProxy proxy)
 	{
@@ -64,8 +64,8 @@ public class TiBaseService extends Service
 	}
 
 	/**
-	 * Returns the next service instance id
-	 * @return next service id
+	 * Returns the next service instance id.
+	 * @return next service id.
 	 */
 	public int nextServiceInstanceId()
 	{

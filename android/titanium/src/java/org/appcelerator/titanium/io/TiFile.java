@@ -49,7 +49,7 @@ public class TiFile extends TiBaseFile
 
 	
 	/**
-	 * Return whether the file is a plain file.
+	 * Returns whether the file is a plain file.
 	 * @return true if the file is a plain file, false otherwise.
 	 */
 	@Override
@@ -59,7 +59,7 @@ public class TiFile extends TiBaseFile
 	}
 
 	/**
-	 * Return whether the file is a directory.
+	 * Returns whether the file is a directory.
 	 * @return true if the file is a directory, false otherwise.
 	 */
 	@Override
@@ -69,7 +69,7 @@ public class TiFile extends TiBaseFile
 	}
 
 	/**
-	 * Return whether the file is hidden.
+	 * Returns whether the file is hidden.
 	 * @return true if the file is hidden, false otherwise.
 	 */
 	@Override
@@ -79,8 +79,8 @@ public class TiFile extends TiBaseFile
 	}
 
 	/**
-	 * Return whether the file is read-only.
-	 * @return true if the file is read-only, false otherwise
+	 * Returns whether the file is read-only.
+	 * @return true if the file is read-only, false otherwise.
 	 */
 	@Override
 	public boolean isReadonly()
@@ -89,8 +89,8 @@ public class TiFile extends TiBaseFile
 	}
 
 	/**
-	 * Return whether the file is writable
-	 * @return true if the file is writable, false otherwise
+	 * Returns whether the file is writable.
+	 * @return true if the file is writable, false otherwise.
 	 */
 	@Override
 	public boolean isWriteable()
@@ -99,9 +99,9 @@ public class TiFile extends TiBaseFile
 	}
 
 	/**
-	 * Attempts to create a directory named by the trailing filename of this file
-	 * @param recursive  whether the created directory is recursive (complete directory path created)
-	 * @return  true if directory created, false if it already exists
+	 * Attempts to create a directory named by the trailing filename of this file.
+	 * @param recursive  whether the created directory is recursive (complete directory path created).
+	 * @return  true if directory is created, false otherwise.
 	 */
 	@Override
 	public boolean createDirectory(boolean recursive)
@@ -140,9 +140,9 @@ public class TiFile extends TiBaseFile
 	}
 
 	/**
-	 * Attempts to delete a data directory
-	 * @param recursive whether to delete the directory recursively
-	 * @return true if the directory was successfully deleted, false otherwise
+	 * Attempts to delete a data directory.
+	 * @param recursive whether to delete the directory recursively.
+	 * @return true if the directory was successfully deleted, false otherwise.
 	 */
 	@Override
 	public boolean deleteDirectory(boolean recursive) {
@@ -162,7 +162,7 @@ public class TiFile extends TiBaseFile
 	
 	/**
 	 * Deletes this file. Directories must be empty before they will be deleted.
-	 * @return true if the file is successfully deleted, false otherwise
+	 * @return true if the file is successfully deleted, false otherwise.
 	 */
 	@Override
 	public boolean deleteFile()
@@ -171,8 +171,8 @@ public class TiFile extends TiBaseFile
 	}
 
 	/**
-	 * Return whether the file exists
-	 * @return true if the file exists, false otherwise
+	 * Returns whether the file exists.
+	 * @return true if the file exists, false otherwise.
 	 */
 	@Override
 	public boolean exists()
@@ -312,11 +312,11 @@ public class TiFile extends TiBaseFile
 	}
 
 	/**
-	 * Opens the file and instantiate the appropriate read/write buffer for it.
-	 * For instance, if MODE_READ and true is passed into this method, respectively,
+	 * Instantiates and opens a file with the appropriate read/write buffer.
+	 * For instance, if MODE_READ and true is passed in, respectively, then
 	 * instream will now be the BufferedInputStream for this file.
-	 * @param mode MODE_READ. MODE_WRITE, or MODE_APPEND
-	 * @param binary whether the content of the file is binary or characters/lines
+	 * @param mode MODE_READ. MODE_WRITE, or MODE_APPEND.
+	 * @param binary whether the content of the file is binary or characters/lines.
 	 */
 	@Override
 	public void open(int mode, boolean binary) throws IOException

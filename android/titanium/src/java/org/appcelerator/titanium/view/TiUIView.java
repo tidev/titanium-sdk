@@ -96,8 +96,8 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Adds a child view into the ViewGroup
-	 * @param child the view to be added
+	 * Adds a child view into the ViewGroup.
+	 * @param child the view to be added.
 	 */
 	public void add(TiUIView child)
 	{
@@ -118,7 +118,7 @@ public abstract class TiUIView
 
 	/**
 	 * Removes the child view from the ViewGroup, if child exists.
-	 * @param child the view to be removed
+	 * @param child the view to be removed.
 	 */
 	public void remove(TiUIView child)
 	{
@@ -136,8 +136,8 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Returns a list of views added
-	 * @return list of views
+	 * Returns a list of views added.
+	 * @return list of views.
 	 */
 	public List<TiUIView> getChildren()
 	{
@@ -145,8 +145,8 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Returns the view proxy
-	 * @return the view proxy
+	 * Returns the view proxy.
+	 * @return the view proxy.
 	 */
 	public TiViewProxy getProxy()
 	{
@@ -154,7 +154,7 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Sets the view proxy
+	 * Sets the view proxy.
 	 * @param proxy
 	 */
 	public void setProxy(TiViewProxy proxy)
@@ -178,8 +178,8 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Returns the Android native view
-	 * @return the native view
+	 * Returns the Android native view.
+	 * @return the native view.
 	 */
 	public View getNativeView()
 	{
@@ -187,7 +187,7 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Sets the nativeView to view
+	 * Sets the nativeView to view.
 	 * @param view
 	 */
 	protected void setNativeView(View view)
@@ -615,7 +615,7 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Focuses the view
+	 * Focuses the view.
 	 */
 	public void focus()
 	{
@@ -625,7 +625,7 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Blurs the view
+	 * Blurs the view.
 	 */
 	public void blur()
 	{
@@ -668,7 +668,7 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Makes the view visible
+	 * Shows the view, change the visibility state to View.VISIBLE.
 	 */
 	public void show()
 	{
@@ -682,7 +682,7 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Hides the view, making it invisible
+	 * Hides the view, change the visibility state to View.INVISIBLE.
 	 */
 	public void hide()
 	{
@@ -944,8 +944,8 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Sets the nativeView's opacity
-	 * @param opacity the opacity to be set
+	 * Sets the nativeView's opacity.
+	 * @param opacity the opacity to be set.
 	 */
 	public void setOpacity(float opacity)
 	{
@@ -953,8 +953,8 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Sets opacity of view
-	 * @param view the view to change opacity
+	 * Sets the view's opacity.
+	 * @param view the view object.
 	 * @param opacity
 	 */
 	protected void setOpacity(View view, float opacity)

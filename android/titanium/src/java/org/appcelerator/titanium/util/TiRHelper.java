@@ -102,8 +102,8 @@ public class TiRHelper {
 	}
 	
 	/**
-	 * Returns the application resource given its path
-	 * @param path path of the resource
+	 * Returns the application resource given its path.
+	 * @param path path of the resource.
 	 * @return
 	 * @throws ResourceNotFoundException
 	 */
@@ -115,7 +115,7 @@ public class TiRHelper {
 		return getResource(clsPrefixAndroid, path);
 	}
 	
-	/*
+	/**
 	 * Clears the cache.  Should only be used in low memory situations
 	 * as clearing the cache will adversely affect performance.
 	 */

@@ -118,8 +118,8 @@ public class TiFileHelper
 	}
 
 	/**
-	 * Create or retrieve the instance of TiFileHelper.
-	 * @return  the instance of TiFileHelper
+	 * Creates or retrieves the instance of TiFileHelper.
+	 * @return  the instance of TiFileHelper.
 	 */
 	public static TiFileHelper getInstance()
 	{
@@ -252,23 +252,23 @@ public class TiFileHelper
 	}
 
 	/**
-	 * This method is a wrapper of loadDrawable(path, report, checkForNinePatch).
-	 * Documentation regarding behavior can be found there.
+	 * This is a wrapper method.
+	 * Refer to loadDrawable(path, report, checkForNinePatch) for more details.
 	 * @param path  the path/url of the drawable
 	 * @param report  this is not being used.
-	 * @return
+	 * @return a Drawable
 	 */
 	public Drawable loadDrawable(String path, boolean report) {
 		return loadDrawable(path, report, false);
 	}
 
 	/**
-	 * This method creates a Drawable given a path/url of a bitmap, and convert it to a NinePatch Drawable
-	 * if checkForNinePatch argument is true.
+	 * This method creates a Drawable given the bitmap's path, and converts it to a NinePatch Drawable
+	 * if checkForNinePatch param is true.
 	 * @param path  the path/url of the drawable 
-	 * @param report  this is not being used 
-	 * @param checkForNinePatch  a boolean to determine whether the returning drawable is a NinePatch drawable
-	 * @return  a Drawable
+	 * @param report  this is not being used. 
+	 * @param checkForNinePatch  a boolean to determine whether the returning drawable is a NinePatch drawable.
+	 * @return  a Drawable.
 	 */
 	public Drawable loadDrawable(String path, boolean report, boolean checkForNinePatch)
 	{
@@ -590,10 +590,10 @@ public class TiFileHelper
 	}
 
 	/**
-	 * Retrieve, creating if needed, a new directory in which the application can place its own custom data files.
-	 * @param privateStorage  determines the path of the data directory. If this is true, the path is internal(app-data://),
+	 * Creates/retrieves a data directory in which the application can place its own custom data files.
+	 * @param privateStorage  determines the location of the data directory. If this is true, the location is internal(app-data://),
 	 * and external (SD) otherwise.
-	 * @return  the data directory
+	 * @return  the data directory.
 	 */
 	public File getDataDirectory(boolean privateStorage)
 	{

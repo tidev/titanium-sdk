@@ -21,31 +21,31 @@ public class TiLifecycle
 		
 		/**
 		 * Implementing classes should use this to receive native Android onStart life cycle event.
-		 * @param activity the activity attached to this module.
+		 * @param activity the attached activity.
 		 */
 		public void onStart(Activity activity);
 		
 		/**
 		 * Implementing classes should use this to receive native Android onResume life cycle event.
-		 * @param activity the activity attached to this module.
+		 * @param activity the attached activity.
 		 */
 		public void onResume(Activity activity);
 		
 		/**
 		 * Implementing classes should use this to receive native Android onPause life cycle event.
-		 * @param activity the activity attached to this module.
+		 * @param activity the attached activity.
 		 */
 		public void onPause(Activity activity);
 		
 		/**
 		 * Implementing classes should use this to receive native Android onStop life cycle event.
-		 * @param activity the activity attached to this module.
+		 * @param activity the attached activity.
 		 */
 		public void onStop(Activity activity);
 		
 		/**
 		 * Implementing classes should use this to receive native Android onDestroy life cycle event.
-		 * @param activity the activity attached to this module.
+		 * @param activity the attached activity.
 		 */
 		public void onDestroy(Activity activity);
 	}

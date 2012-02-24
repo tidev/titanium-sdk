@@ -133,7 +133,7 @@ public class TiUIHelper
 
 	/**
 	 * Waits for the current activity to be ready(something not null), then invokes
-	 * CurrentActivityListener.onCurrentActivityReady(Activity currentActivity)
+	 * {@link CurrentActivityListener#onCurrentActivityReady(Activity)}.
 	 * @param l the CurrentActivityListener
 	 */
 	public static void waitForCurrentActivity(final CurrentActivityListener l)
@@ -164,11 +164,11 @@ public class TiUIHelper
 	}
 
 	/**
-	 * Create and show a Dialog with a OK button with title 'title' and message 'message'.
-	 * The dialog's context is the activity on top of activityStack (current Activity)
-	 * @param title  the title of dialog
-	 * @param message  the message to be shown
-	 * @param listener the clickListener for click events
+	 * Creates and shows a dialog with an OK button with title 'title' and message 'message'.
+	 * The dialog's context is the activity on top of activityStack - the current activity.
+	 * @param title  the title of dialog.
+	 * @param message  the message to be shown.
+	 * @param listener the clickListener for click events.
 	 */
 	public static void doOkDialog(final String title, final String message, OnClickListener listener) {
 		if (listener == null) {
@@ -890,8 +890,8 @@ public class TiUIHelper
 	
 	/**
 	 * Shows/Hides softkeyboard.
-	 * @param view a view to show softkeyboard on
-	 * @param show a boolean that determines whether to show softkeyboard.
+	 * @param view a view to show softkeyboard.
+	 * @param show whether to show softkeyboard.
 	 */
 	public static void showSoftKeyboard(View view, boolean show) 
 	{

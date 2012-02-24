@@ -11,17 +11,17 @@ import java.util.List;
 public interface KrollProxyListener
 {
 	/**
-	 * Implementing classes should use this method when a property changes its value
-	 * @param key the key whose value has been modified
-	 * @param oldValue  the old value of 'key'
-	 * @param newValue  the new value of 'key'
-	 * @param proxy  the proxy associated with 'key'
+	 * Implementing classes should use this method to modify an existing property.
+	 * @param key the key whose value has been modified.
+	 * @param oldValue  the old value.
+	 * @param newValue  the new value.
+	 * @param proxy  the associated proxy.
 	 */
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy);
 	
 	/**
-	 * Implementing classes should use this method to process the initial properties passed into the proxy.
-	 * @param d  a KrollDict properties object(key,value) to process
+	 * Implementing classes should use this method to process initial properties passed into the proxy.
+	 * @param d  the properties object to process.
 	 */
 	public void processProperties(KrollDict d);
 	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy);

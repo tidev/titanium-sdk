@@ -130,8 +130,8 @@ public class TiConvert
 	}
 
 	/**
-	 * This method is the wrapper of TiColorHelper.parseColor(String value),
-	 * please refer to that method for more details.
+	 * This is a wrapper method. 
+	 * Refer to {@link TiColorHelper#parseColor(String)} for more details.
 	 * @param value  color value to convert.
 	 * @return an int representation of the color.
 	 */
@@ -141,8 +141,8 @@ public class TiConvert
 	}
 
 	/**
-	 * This method is a wrapper of TiColorHelper.parseColor(String value), where Please refer to TiColorHelper.parseColor
-	 * for more details.
+	 * This is a wrapper method. 
+	 * Refer to {@link TiColorHelper#parseColor(String)} for more details.
 	 * @param hashMap the HashMap contains the String representation of the color.
 	 * @param key the color lookup key.
 	 * @return an int representation of the color.
@@ -283,10 +283,10 @@ public class TiConvert
 	}
 
 	/**
-	 * Attempts to convert 'value' into a boolean, if value is of type Boolean or String. Otherwise,
+	 * Attempts to convert a value into a boolean, if value is a Boolean or String. Otherwise,
 	 * an exception is thrown.
 	 * @param value the value to be converted.
-	 * @return a boolean.
+	 * @return a boolean value.
 	 */
 	public static boolean toBoolean(Object value)
 	{
@@ -303,10 +303,10 @@ public class TiConvert
 
 	/**
 	 * A wrapper function.
-	 * See toBoolean(Object value) for more details.
-	 * @param hashMap 
+	 * Refer to {@link #toBoolean(Object)} for more details.
+	 * @param hashMap. 
 	 * @param key the lookup key.
-	 * @return
+	 * @return a boolean value.
 	 */
 	public static boolean toBoolean(HashMap<String, Object> hashMap, String key)
 	{
@@ -314,10 +314,10 @@ public class TiConvert
 	}
 
 	/**
-	 * If value is of type Double, Integer, Long or String, converts to Integer. Otherwise
+	 * If value is a Double, Integer, Long or String, converts it to Integer. Otherwise
 	 * an exception is thrown.
 	 * @param value the value to be converted.
-	 * @return an int
+	 * @return an int value.
 	 */
 	public static int toInt(Object value)
 	{
@@ -340,10 +340,10 @@ public class TiConvert
 
 	/**
 	 * A wrapper function.
-	 * See toInt(Object value) for more details.
+	 * Refer to {@link #toInt(Object)} for more details.
 	 * @param hashMap
 	 * @param key the lookup key.
-	 * @return an int.
+	 * @return an int value.
 	 */
 	public static int toInt(HashMap<String, Object> hashMap, String key)
 	{
@@ -351,10 +351,10 @@ public class TiConvert
 	}
 
 	/**
-	 * If value is of type Double, Integer or String, converts to Float. Otherwise,
+	 * If value is a Double, Integer or String, converts it to Float. Otherwise,
 	 * an exception is thrown.
 	 * @param value the value to be converted.
-	 * @return a float.
+	 * @return a float value.
 	 */
 	public static float toFloat(Object value)
 	{
@@ -374,10 +374,10 @@ public class TiConvert
 
 	/**
 	 * A wrapper function.
-	 * See toFloat(Object value) for more details.
-	 * @param hashMap
+	 * Refer to {@link #toFloat(Object)} for more details.
+	 * @param hashMap.
 	 * @param key the lookup key.
-	 * @return a float.
+	 * @return a float value.
 	 */
 	public static float toFloat(HashMap<String, Object> hashMap, String key)
 	{
@@ -385,10 +385,10 @@ public class TiConvert
 	}
 
 	/**
-	 * If value is of type Double, Integer, or String, converts to Double. Otherwise,
+	 * If value is a Double, Integer, or String, converts it to Double. Otherwise,
 	 * an exception is thrown.
 	 * @param value the value to be converted.
-	 * @return a double.
+	 * @return a double value.
 	 */ 
 	public static double toDouble(Object value)
 	{
@@ -408,7 +408,7 @@ public class TiConvert
 
 	/**
 	 * A wrapper function.
-	 * See toDouble(Object value) for more details.
+	 * Refer to {@link #toDouble(Object)} for more details.
 	 * @param hashMap
 	 * @param key
 	 * @return a double.
@@ -429,7 +429,7 @@ public class TiConvert
 	}
 
 	/**
-	 * Converts value into a String. If value is null, returns null.
+	 * Converts a value into a String. If value is null, returns null.
 	 * @param value the value to be converted.
 	 * @return String or null.
 	 */
@@ -440,7 +440,7 @@ public class TiConvert
 
 	/**
 	 * A wrapper function.
-	 * See toString(Object value) for more details.
+	 * Refer to {@link #toString(Object)} for more details.
 	 * @param hashMap
 	 * @param key the lookup key.
 	 * @return String or null.
@@ -464,10 +464,10 @@ public class TiConvert
 
 	/**
 	 * Returns a new TiDimension object given a String value and type.
-	 * See TiDimension(String value, int valueType) for more details.
+	 * Refer to {@link TiDimension#TiDimension(String, int)} for more details.
 	 * @param value the dimension value.
 	 * @param valueType the dimension type.
-	 * @return
+	 * @return an instance of TiDimension.
 	 */
 	public static TiDimension toTiDimension(String value, int valueType)
 	{
@@ -475,12 +475,12 @@ public class TiConvert
 	}
 
 	/**
-	 * Converts it to String, and if 'value' is of type Number, append "px" to value, 
-	 * then returns a new TiDimension object given the new 'value' and valueType.
-	 * See TiDimension(String value, int valueType) for more details.
+	 * Converts value to String, and if value is a Number, append "px" to value, 
+	 * then creates and returns a new TiDimension object with the new value and valueType.
+	 * Refer to {@link TiDimension#TiDimension(String, int)} for more details.
 	 * @param value the dimension value.
 	 * @param valueType the dimension type.
-	 * @return
+	 * @return an instanceof TiDimension.
 	 */
 	public static TiDimension toTiDimension(Object value, int valueType)
 	{
@@ -492,7 +492,7 @@ public class TiConvert
 	}
 	/**
 	 * A wrapper function.
-	 * See toToDimension(Object value, int valueType) for more details.
+	 * Refer to {@link #toTiDimension(Object, int)} for more details.
 	 * @param hashMap
 	 * @param key the lookup key.
 	 * @param valueType the dimension type.
@@ -507,7 +507,7 @@ public class TiConvert
 	 * Returns a url string by appending the 
 	 * String representation of 'uri' to file:///android_asset/Resources/
 	 * @param uri the uri, cannot be null.
-	 * @return url string
+	 * @return url string.
 	 */
 	public static String toURL(Uri uri)
 	{
@@ -552,10 +552,10 @@ public class TiConvert
 
 	/**
 	 * A wrapper function.
-	 * See toBlob(Object value) for more details.
-	 * @param object
-	 * @param property
-	 * @return
+	 * Refer to {@link #toBlob(Object)} for more details.
+	 * @param object the hashmap.
+	 * @param property the lookup key.
+	 * @return an instance of TiBlob.
 	 */
 	public static TiBlob toBlob(HashMap<String, Object> object, String property)
 	{
@@ -563,9 +563,9 @@ public class TiConvert
 	}
 
 	/**
-	 * Converts a HashMap into a JSONObject and returns it. If 'data' is null, null is returned.
-	 * @param data the HashMap used for conversion
-	 * @return JSONObject
+	 * Converts a HashMap into a JSONObject and returns it. If data is null, null is returned.
+	 * @param data the HashMap used for conversion.
+	 * @return JSONObject object.
 	 */
 	public static JSONObject toJSON(HashMap<String, Object> data)
 	{
@@ -611,9 +611,9 @@ public class TiConvert
 	}
 
 	/**
-	 * Converts an object array into JSONArray and returns it
-	 * @param a  the object array to be converted
-	 * @return JSONArray
+	 * Converts an object array into JSONArray and returns it.
+	 * @param a  the object array to be converted.
+	 * @return JSONArray object.
 	 */
 	public static JSONArray toJSONArray(Object[] a)
 	{
@@ -658,10 +658,10 @@ public class TiConvert
 	}
 	
 	/**
-	 * If value is an instance of Date, formats and returns it. Otherwise,
-	 * return a String representation of value
-	 * @param value the value to be converted
-	 * @return a String
+	 * If value is a  Date, formats and returns it. Otherwise,
+	 * return a String representation of value.
+	 * @param value the value to be converted.
+	 * @return a String.
 	 */
 	public static String toJSONString(Object value)
 	{
@@ -679,7 +679,7 @@ public class TiConvert
 	/**
 	 * Converts value into Date object and returns it.
 	 * @param value the value to be converted.
-	 * @return Date object
+	 * @return Date instance.
 	 */
 	public static Date toDate(Object value)
 	{
@@ -697,7 +697,7 @@ public class TiConvert
 	
 	/**
 	 * A wrapper function.
-	 * See toDate(Object value) for more details
+	 * Refer to {@link #toDate(Object)} for more details.
 	 * @param hashMap
 	 * @param key
 	 * @return

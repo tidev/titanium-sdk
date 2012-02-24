@@ -12,16 +12,16 @@ public interface TiActivitySupport
 {
 	/**
 	 * Launch an activity for which you would like a result when it finished. When this activity exits,
-	 * TiActivityResultHandler.onResult() method will be called.
-	 * @param intent
-	 * @param code a launching code
-	 * @param handler the callback handler
+	 * {@link TiActivityResultHandler#onResult(android.app.Activity, int, int, Intent)} method will be called.
+	 * @param intent.
+	 * @param code a launching code.
+	 * @param handler the callback handler.
 	 */
 	public void launchActivityForResult(Intent intent, int code, TiActivityResultHandler handler);
 	
 	/**
 	 * Returns a unique result code.
-	 * @return the result code
+	 * @return the result code.
 	 */
 	public int getUniqueResultCode();
 }

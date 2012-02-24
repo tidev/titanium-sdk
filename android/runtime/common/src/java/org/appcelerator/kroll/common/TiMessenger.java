@@ -124,10 +124,10 @@ public class TiMessenger implements Handler.Callback
 	}
 
 	/**
-	 * Sends a message on blockQueue, and dispatches messages on the current
+	 * Sends a message on blockQueue, and dispatch messages on the current
 	 * queue while blocking on the passed in AsyncResult. This is done via the MAIN thread.
-	 * @param message  the message to send
-	 * @return  The getResult() value of the AsyncResult put on the message
+	 * @param message  the message to send.
+	 * @return  The getResult() value of the AsyncResult put on the message.
 	 */
 	public static Object sendBlockingMainMessage(Message message)
 	{
@@ -135,11 +135,11 @@ public class TiMessenger implements Handler.Callback
 	}
 
 	/**
-	 * Sends a message on blockQueue, and dispatches messages on the current
+	 * Sends a message on blockQueue, and dispatch messages on the current
 	 * queue while blocking on the passed in AsyncResult. This is done via the MAIN thread.
-	 * @param message   the message to send
-	 * @param asyncArg  argument to be added to the AsyncResult
-	 * @return  The getResult() value of the AsyncResult put on the message
+	 * @param message   the message to send.
+	 * @param asyncArg  argument to be added to the AsyncResult.
+	 * @return  The getResult() value of the AsyncResult put on the message.
 	 */
 	public static Object sendBlockingMainMessage(Message message, Object asyncArg)
 	{
@@ -147,10 +147,10 @@ public class TiMessenger implements Handler.Callback
 	}
 
 	/**
-	 * Sends a message on blockQueue, and dispatches messages on the current
+	 * Sends a message on blockQueue, and dispatch messages on the current
 	 * queue while blocking on the passed in AsyncResult. This is done via the KrollRuntime thread.
-	 * @param message  the message to send
-	 * @return  The getResult() value of the AsyncResult put on the message
+	 * @param message  the message to send.
+	 * @return  The getResult() value of the AsyncResult put on the message.
 	 */
 	public static Object sendBlockingRuntimeMessage(Message message)
 	{
@@ -158,11 +158,11 @@ public class TiMessenger implements Handler.Callback
 	}
 
 	/**
-	 * Sends a message on blockQueue, and dispatches messages on the current
+	 * Sends a message on blockQueue, and dispatch messages on the current
 	 * queue while blocking on the passed in AsyncResult. This is done via the KrollRuntime thread.
-	 * @param message   the message to send
-	 * @param asyncArg  the argument to be added to AsyncResult
-	 * @return  The getResult() value of the AsyncResult put on the message
+	 * @param message   the message to send.
+	 * @param asyncArg  the argument to be added to AsyncResult.
+	 * @return  The getResult() value of the AsyncResult put on the message.
 	 */
 	public static Object sendBlockingRuntimeMessage(Message message, Object asyncArg)
 	{
@@ -187,13 +187,12 @@ public class TiMessenger implements Handler.Callback
 	}
 
 	/**
-	 * Sends a message on blockQueue, and dispatches messages on the current
-	 * queue while blocking on the passed in AsyncResult
-	 * 
+	 * Sends a message on blockQueue, and dispatch messages on the current
+	 * queue while blocking on the passed in AsyncResult.
 	 * @param message The message to send.
 	 * @param targetMessenger The TiMessenger to send it to.
-	 * @param asyncArg argument to be added to the AsyncResult put on the message
-	 * @return The getResult() value of the AsyncResult put on the message
+	 * @param asyncArg argument to be added to the AsyncResult put on the message.
+	 * @return The getResult() value of the AsyncResult put on the message.
 	 */
 	private Object sendBlockingMessage(Message message, TiMessenger targetMessenger, Object asyncArg)
 	{

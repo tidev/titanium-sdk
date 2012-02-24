@@ -161,7 +161,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 	/**
 	 * Returns the activity associated with this proxy.
-	 * @return the activity associated with this proxy. It can be null
+	 * @return the activity associated with this proxy. It can be null.
 	 */
 	public Activity getActivity()
 	{
@@ -195,7 +195,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Handles initialization of the proxy's default property values
+	 * Handles initialization of the proxy's default property values.
 	 */
 	protected void handleDefaultValues()
 	{
@@ -251,8 +251,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Retrieves krollObject if exists, otherwise create it in KrollRuntime thread
-	 * @return the KrollObject associated with this proxy
+	 * Retrieves krollObject if exists, otherwise create it in KrollRuntime thread.
+	 * @return the KrollObject associated with this proxy.
 	 */
 	public KrollObject getKrollObject()
 	{
@@ -356,9 +356,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Returns whether the property(key) exists in KrollDict properties (key,value).
-	 * @param name  the name of the property(key)
-	 * @return  true if the property exists, false otherwise
+	 * Returns whether the property(key) exists in KrollDict properties.
+	 * @param name  the lookup key.
+	 * @return  <b>true</b> if the property exists, <b>false</b> otherwise.
 	 */
 	public boolean hasProperty(String name)
 	{
@@ -366,10 +366,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Returns the property object(value) given name(key)
+	 * Returns the property value given its key.
 	 * Properties are cached on the Proxy and updated from JS for relevant annotated APIs
-	 * @param name  the name of the property(key)
-	 * @return the property object
+	 * @param name  the lookup key.
+	 * @return the property object.
 	 */
 	public Object getProperty(String name)
 	{
@@ -391,7 +391,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * This internally sets the named property as well as updating the actual JS object
+	 * This sets the named property as well as updating the actual JS object.
 	 */
 	public void setProperty(String name, Object value)
 	{
@@ -414,9 +414,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 	/**
 	 * Fires an event asynchronously via KrollRuntime thread, which can be intercepted on JS side.
-	 * @param event the event to be fired
-	 * @param data  the data to be sent
-	 * @return whether this proxy has an eventListener for this event
+	 * @param event the event to be fired.
+	 * @param data  the data to be sent.
+	 * @return whether this proxy has an eventListener for this event.
 	 */
 	public boolean fireEvent(String event, Object data)
 	{
@@ -429,9 +429,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 	/**
 	 * Fires an event synchronously via KrollRuntime thread, which can be intercepted on JS side.
-	 * @param event the event to be fired
-	 * @param data  the data to be sent
-	 * @return whether this proxy has an eventListener for this event
+	 * @param event the event to be fired.
+	 * @param data  the data to be sent.
+	 * @return whether this proxy has an eventListener for this event.
 	 */
 	public boolean fireSyncEvent(String event, Object data)
 	{
@@ -506,9 +506,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Updates the property in properties(Java) as well as in JS.
-	 * @param name the property name(key)
-	 * @param value the property value(value)
+	 * Updates the property in properties as well as in the JS object.
+	 * @param name the property name(key).
+	 * @param value the property value(value).
 	 */
 	public void setPropertyAndFire(String name, Object value)
 	{
@@ -572,7 +572,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 	/**
 	 * Returns a KrollDict object that contains all current properties associated with this proxy.
-	 * @return KrollDict properties object
+	 * @return KrollDict properties object.
 	 */
 	public KrollDict getProperties()
 	{
@@ -580,8 +580,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Returns the KrollModule associated with this proxy
-	 * @return the KrollModule associated with this proxy
+	 * Returns the KrollModule associated with this proxy.
+	 * @return the KrollModule associated with this proxy.
 	 */
 	public KrollModule getCreatedInModule()
 	{

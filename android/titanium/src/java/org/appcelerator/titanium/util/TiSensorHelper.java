@@ -67,9 +67,9 @@ public class TiSensorHelper
 	}
 
 	/**
-	 * Attempts to unregister the listener. An error will be logged if unable to unregister
+	 * Attempts to unregister the listener. An error will be logged if unable to unregister.
 	 * @param type
-	 * @param listener the listener
+	 * @param listener the listener.
 	 */
 	public static void unregisterListener(int type, SensorEventListener listener)
 	{

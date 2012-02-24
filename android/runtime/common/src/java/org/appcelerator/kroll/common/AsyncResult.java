@@ -26,8 +26,8 @@ public class AsyncResult extends Semaphore
 	}
 
 	/**
-	 * Returning object arg that was passed into the constructor. 
-	 * @return
+	 * Returning the arg object that is passed into the constructor. 
+	 * @return the arg object
 	 */
 	public Object getArg() {
 		return arg;
@@ -35,7 +35,7 @@ public class AsyncResult extends Semaphore
 
 	/**
 	 * Setting the result asynchronously, releasing the lock.
-	 * @param result  the resulting Object.
+	 * @param result the resulting object.
 	 */
 	public void setResult(Object result) {
 		this.result = result;
@@ -43,8 +43,8 @@ public class AsyncResult extends Semaphore
 	}
 	
 	/**
-	 * Set the exception that will be thrown in TiMessenger.sendBlockingMessage(...). Also releases the lock.
-	 * @param exception the exception to be thrown.
+	 * Sets the exception that will be thrown in TiMessenger.sendBlockingMessage(...). Also releases the lock.
+	 * @param exception a thrown exception.
 	 */
 	public void setException(Throwable exception) {
 		this.result = null;

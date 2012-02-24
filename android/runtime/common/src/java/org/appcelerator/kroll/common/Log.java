@@ -25,11 +25,11 @@ public class Log
 	}
 	
 	/**
-	 * Sends a 'debug' log, with thread name and time stamp pre-append, ONLY when TiConfig.DEBUG is true
-	 * For more information regarding formatting, refer to w(String tag, String msg).
+	 * Sends a 'debug' log, with thread name and time stamp pre-append, ONLY when TiConfig.DEBUG is true.
+	 * For more information regarding formatting, refer to {@link #w(String, String)}.
 	 * This method is thread safe.
-	 * @param tag  used to identify the source of the msg
-	 * @param msg  the msg to log
+	 * @param tag  used to identify the source of the msg.
+	 * @param msg  the msg to log.
 	 * @return     an integer that is dependent on the content and tag of the log. 
 	 *             Two different msgs would have two different return values.
 	 */
@@ -75,10 +75,10 @@ public class Log
 	
 	/**
 	 * Sends a 'debug' log message, with the thread name and time stamp pre-append.
-	 * For more information regarding formatting, refer to w(String tag, String msg).
+	 * For more information regarding formatting, refer to {@link #w(String, String)}.
 	 * This method is thread safe.
-	 * @param tag  used to identify the source of the message
-	 * @param msg  the message to log
+	 * @param tag  used to identify the source of the message.
+	 * @param msg  the message to log.
 	 * @return     an integer that is dependent on the content and tag of the log. 
 	 *             Two different msgs would have two different return values.
 	 */
@@ -93,11 +93,11 @@ public class Log
 	
 	/**
 	 * Sends a 'debug' log message, with the thread name and time stamp pre-append, and log the exception.
-	 * For more information regarding formatting, refer to w(String tag, String msg).
+	 * For more information regarding formatting, refer to {@link #w(String, String)}.
 	 * This method is thread safe.
-	 * @param tag  used to identify the source of the message
-	 * @param msg  the message to log
-	 * @param t    the exception to log
+	 * @param tag  used to identify the source of the message.
+	 * @param msg  the message to log.
+	 * @param t    the exception to log.
 	 * @return     an integer that is dependent on the content and tag of the log. 
 	 *             Two different msgs would have two different return values.
 	 */
@@ -112,10 +112,10 @@ public class Log
 
 	/**
 	 * Sends a 'info' log message, with the thread name and time stamp pre-append.
-	 * For more information regarding formatting, refer to w(String tag, String msg).
+	 * For more information regarding formatting, refer to {@link #w(String, String)}.
 	 * This method is thread safe.
-	 * @param tag  used to identify the source of the message
-	 * @param msg  the message to log
+	 * @param tag  used to identify the source of the message.
+	 * @param msg  the message to log.
 	 * @return     an integer that is dependent on the content and tag of the log. 
 	 *             Two different msgs would have two different return values.
 	 */
@@ -130,11 +130,11 @@ public class Log
 	
 	/**
 	 * Sends a 'info' log message, with the thread name and time stamp pre-append, and log the exception. 
-	 * For more information regarding formatting, refer to w(String tag, String msg).
+	 * For more information regarding formatting, refer to {@link #w(String, String)}.
 	 * This method is thread safe.
-	 * @param tag  used to idenfity the source of the message
-	 * @param msg  the message to log
-	 * @param t    the exception to log
+	 * @param tag  used to idenfity the source of the message.
+	 * @param msg  the message to log.
+	 * @param t    the exception to log.
 	 * @return     an integer that is dependent on the content and tag of the log. 
 	 *             Two different msgs would have two different return values.
 	 */
@@ -151,8 +151,8 @@ public class Log
 	 * Sends a 'warn' log message, with the thread name and time stamp pre-append.
 	 * For example, "(main) [298, 474] hello" --> "(thread-name) [elapsed time, total time] msg".
 	 * This method is thread safe.
-	 * @param tag  used to identify the source of the message
-	 * @param msg  the message to log
+	 * @param tag  used to identify the source of the message.
+	 * @param msg  the message to log.
 	 * @return     an integer that is dependent on the content and tag of the log. 
 	 *             Two different msgs would have two different return values.
 	 */
@@ -166,12 +166,12 @@ public class Log
 	}
 	
 	/**
-	 * Sends a 'warn' log message, with the thread name and time stamp pre-append, and log the exception 
-	 * For more information regarding formatting, refer to w(String tag, String msg).
+	 * Sends a 'warn' log message, with the thread name and time stamp pre-append, and log the exception.
+	 * For more information regarding formatting, refer to {@link #w(String, String)}.
 	 * This method is thread safe.
-	 * @param tag  used to identify the source of message
-	 * @param msg  the message to log
-	 * @param t    an exception to log
+	 * @param tag  used to identify the source of message.
+	 * @param msg  the message to log.
+	 * @param t    an exception to log.
 	 * @return     an integer that is dependent on the content and tag of the log. 
 	 *             Two different msgs would have two different return values.
 	 */
@@ -186,10 +186,10 @@ public class Log
 
 	/**
 	 * Sends a 'error' log message, with the thread name and time stamp pre-append.
-	 * For more information regarding formatting, refer to w(String tag, String msg).
+	 * For more information regarding formatting, refer to {@link #w(String, String)}.
 	 * This method is thread safe.
-	 * @param tag  used to identify the source of message
-	 * @param msg  the message to log
+	 * @param tag  used to identify the source of message.
+	 * @param msg  the message to log.
 	 * @return     an integer that is dependent on the content and tag of the log. 
 	 *             Two different msgs would have two different return values.
 	 */
@@ -204,11 +204,11 @@ public class Log
 	
 	/**
 	 * Sends a 'error' log message, with the thread name and time stamp pre-append, and log the exception
-	 * For more information regarding formatting, refer to w(String tag, String msg).
+	 * For more information regarding formatting, refer to {@link #w(String, String)}.
 	 * This method is thread safe.
-	 * @param tag  used to identify the source of message
-	 * @param msg  the message to log 
-	 * @param t    the exception to log
+	 * @param tag  used to identify the source of message.
+	 * @param msg  the message to log.
+	 * @param t    the exception to log.
 	 * @return     an integer that is dependent on the content and tag of the log. 
 	 *             Two different msgs would have two different return values.
 	 */

@@ -128,10 +128,10 @@ public class TiDrawableReference
 	}
 
 	/**
-	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.BLOB
+	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.BLOB.
 	 * @param activity the activity to reference.
 	 * @param blob the blob to reference.
-	 * @return A ready instance of TiDrawableReference
+	 * @return A ready instance of TiDrawableReference.
 	 */
 	public static TiDrawableReference fromBlob(Activity activity, TiBlob blob)
 	{
@@ -146,10 +146,10 @@ public class TiDrawableReference
 	}
 
 	/**
-	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.URL
-	 * @param activity the activity to reference
+	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.URL.
+	 * @param activity the activity to reference.
 	 * @param url the resource's url.
-	 * @return A ready instance of TiDrawableReference
+	 * @return A ready instance of TiDrawableReference.
 	 */
 	public static TiDrawableReference fromUrl(Activity activity, String url)
 	{
@@ -169,10 +169,10 @@ public class TiDrawableReference
 	}
 
 	/**
-	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.FILE
-	 * @param activity the activity to reference
-	 * @param file the file to reference
-	 * @return A ready instance of TiDrawableReference
+	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.FILE.
+	 * @param activity the activity to reference.
+	 * @param file the file to reference.
+	 * @return A ready instance of TiDrawableReference.
 	 */
 	public static TiDrawableReference fromFile(Activity activity, TiBaseFile file)
 	{
@@ -194,7 +194,7 @@ public class TiDrawableReference
 	 * Does its best to determine the type of reference (url, blob, etc) based on object parameter.
 	 * @param context
 	 * @param object
-	 * @return A ready instance of TiDrawableReference
+	 * @return A ready instance of TiDrawableReference.
 	 */
 	public static TiDrawableReference fromObject(Activity activity, Object object)
 	{

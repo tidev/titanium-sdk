@@ -22,11 +22,11 @@ public class TiProperties
 	SharedPreferences preferences;
 
 	/**
-	 * Create/retrieve SharedPreferences with given context and name.
-	 * If it is being created, it will be with Context.MODE_PRIVATE
-	 * @param context the context used to create/retrieve preferences
-	 * @param name the name used to create/retrieve preferences
-	 * @param clear clear the preferences
+	 * Creates/retrieves SharedPreferences with given context and name.
+	 * If preferences is being created, the mode is Context.MODE_PRIVATE.
+	 * @param context the context used to create/retrieve preferences.
+	 * @param name the name used to create/retrieve preferences.
+	 * @param clear whether to clear the preferences.
 	 */
 	public TiProperties(Context context, String name, boolean clear) {
 		preferences = context.getSharedPreferences(name,Context.MODE_PRIVATE);
@@ -36,10 +36,10 @@ public class TiProperties
 	}
 
 	/**
-	 * Return the mapping of a specified key, in String format. If key does not exist, return the default value
-	 * @param key the lookup key
-	 * @param def the default value
-	 * @return mapping of key, or default value
+	 * Returns the mapping of a specified key, in String format. If key does not exist, returns the default value.
+	 * @param key the lookup key.
+	 * @param def the default value.
+	 * @return mapping of key, or default value.
 	 */
 	public String getString(String key, String def)
 	{
@@ -54,10 +54,10 @@ public class TiProperties
 	}
 
 	/**
-	 * Maps the specified key with String value. If value is null, key will be removed from preferences
-	 * if it exists. If key exists, its value will be overwritten with 'value'
-	 * @param key the key to be set
-	 * @param value the value to be set
+	 * Maps the specified key with a String value. If value is null, existing key will be removed from preferences.
+	 * Otherwise, its value will be overwritten.
+	 * @param key the key to be set.
+	 * @param value the value to be set.
 	 */
 	public void setString(String key, String value)
 	{
@@ -77,10 +77,10 @@ public class TiProperties
 	}
 
 	/**
-	 * Return the mapping of a specified key, as an Integer. If key does not exist, return the default value
-	 * @param key the lookup key
-	 * @param def the default value
-	 * @return mapping of key, or default value
+	 * Returns the mapping of a specified key as an Integer. If key does not exist, returns the default value.
+	 * @param key the lookup key.
+	 * @param def the default value.
+	 * @return mapping of key, or default value.
 	 */
 	public int getInt(String key, int def)
 	{
@@ -91,10 +91,9 @@ public class TiProperties
 	}
 	
 	/**
-	 * Maps the specified key with int value. If key exists, its value will be
-	 * overwritten with 'value'
-	 * @param key the key to be set
-	 * @param value the value to be set
+	 * Maps the specified key with an int value. If key exists, its value will be overwritten.
+	 * @param key the key to be set.
+	 * @param value the value to be set.
 	 */
 	public void setInt(String key, int value)
 	{
@@ -108,10 +107,10 @@ public class TiProperties
 	}
 	
 	/**
-	 * Return the mapping of a specified key, as a Double. If key does not exist, return the default value
-	 * @param key the lookup key
-	 * @param def the default value
-	 * @return mapping of key, or default value
+	 * Returns the mapping of a specified key as a Double. If key does not exist, returns the default value.
+	 * @param key the lookup key.
+	 * @param def the default value.
+	 * @return mapping of key, or default value.
 	 */
 	public double getDouble(String key, double def)
 	{
@@ -131,10 +130,10 @@ public class TiProperties
 	}
 	
 	/**
-	 * Maps the specified key with double value. If key exists, its value will be
-	 * overwritten with 'value'
-	 * @param key the key to be set
-	 * @param value the value to be set
+	 * Maps the specified key with a double value. If key exists, its value will be
+	 * overwritten.
+	 * @param key the key to be set.
+	 * @param value the value to be set.
 	 */
 	public void setDouble(String key, double value)
 	{
@@ -148,10 +147,10 @@ public class TiProperties
 	}
 	
 	/**
-	 * Return the mapping of a specified key, as a Boolean. If key does not exist, return the default value
-	 * @param key the lookup key
-	 * @param def the default value
-	 * @return mapping of key, or default value
+	 * Returns the mapping of a specified key, as a Boolean. If key does not exist, returns the default value.
+	 * @param key the lookup key.
+	 * @param def the default value.
+	 * @return mapping of key, or default value.
 	 */
 	public boolean getBool(String key, boolean def)
 	{
@@ -162,10 +161,10 @@ public class TiProperties
 	}
 	
 	/**
-	 * Maps the specified key with boolean value. If key exists, its value will be
-	 * overwritten with 'value'
-	 * @param key the key to be set
-	 * @param value the value to be set
+	 * Maps the specified key with a boolean value. If key exists, its value will be
+	 * overwritten.
+	 * @param key the key to be set.
+	 * @param value the value to be set.
 	 */
 	public void setBool(String key, boolean value)
 	{
@@ -179,10 +178,10 @@ public class TiProperties
 	}
 
 	/**
-	 * Return the mapping of a specified key, as a String array. If key does not exist, return the default value
-	 * @param key the lookup key
-	 * @param def the default value
-	 * @return mapping of key, or default value
+	 * Returns the mapping of a specified key as a String array. If key does not exist, returns the default value.
+	 * @param key the lookup key.
+	 * @param def the default value.
+	 * @return mapping of key, or default value.
 	 */
 	public String[] getList(String key, String def[])
 	{
@@ -204,9 +203,9 @@ public class TiProperties
 
 	/**
 	 * Maps the specified key with String[] value. Also maps 'key.length' to 'value.length'.
-	 * If key already exists, its value will be overwritten by the content of 'value'
-	 * @param key the key to be set
-	 * @param value the value to be set
+	 * If key exists, its value will be overwritten.
+	 * @param key the key to be set.
+	 * @param value the value to be set.
 	 */
 	public void setList(String key, String[] value)
 	{
@@ -230,9 +229,9 @@ public class TiProperties
 	}
 	
 	/**
-	 * Returns whether key exists in preferences
-	 * @param key the lookup key
-	 * @return true if key exists in preferences
+	 * Returns whether key exists in preferences.
+	 * @param key the lookup key.
+	 * @return true if key exists in preferences.
 	 */
 	public boolean hasProperty(String key)
 	{
@@ -240,8 +239,8 @@ public class TiProperties
 	}
 
 	/**
-	 * Returns an array of keys whose values are lists
-	 * @return an array of keys
+	 * Returns an array of keys whose values are lists.
+	 * @return an array of keys.
 	 */
 	public String[] listProperties()
 	{
@@ -262,8 +261,8 @@ public class TiProperties
 	}
 
 	/**
-	 * Removes the key from preferences if it exists
-	 * @param key the key to be removed
+	 * Removes the key from preferences if it exists.
+	 * @param key the key to be removed.
 	 */
 	public void removeProperty(String key)
 	{
