@@ -4,11 +4,16 @@ summary: A slider component with a draggable thumb.
 description: |
     A slider lets the user select from a range of values by dragging the slider thumb. 
     
+    Use the <Titanium.UI.createSlider> method to create a slider.
+    
+    #### Android Platform Implementation Notes
+
     On Android, the user can also maniuplate the slider using the arrow keys. For this
     reason, placing other focusable UI elements to the left or right of
     the slider is not recommended.
 
-    Use the <Titanium.UI.createSlider> method to create a slider.
+    On Android, both `min` and `max` must be specified for the slider to work properly.
+
 extends: Titanium.UI.View
 excludes: { events: [ 'pinch' ] }
 since: "0.8"
@@ -39,6 +44,29 @@ examples:
                 label.text = String.format("%3.1f", e.value);
             });
             
+methods: 
+
+  - name: setValue
+    summary: Sets the [value](Titanium.UI.Slider.value) property.
+    description: |
+        On iOS, you can specify that the value change should be animated by passing the 
+        optional `options` parameter. 
+    parameters:
+
+      - name: value
+        summary: New value for the [value](Titanium.UI.Slider.value) property.
+        type: Number
+
+      - name: options
+        summary: |
+            Specifies animation options. The only supported property
+            for this dictionary is the `animated` flag, which specifies whether
+            the value change should be animated. `animated` is false by default. Only used
+            on iOS.
+        type: Dictionary
+        optional: true
+
+
 events:
 
   - name: change
@@ -131,11 +159,14 @@ properties:
   - name: max
     summary: Maximum value of the slider.
     description: |
-        Specifies the value of the slider when the thumb is all the way to the right.
+        Specifies the value of the slider when the thumb is all the way to the right. This
+        value is inclusive.
 
-        On Android, the selectable values can be limited using the
+        On Android and Mobile Web, the selectable values can be limited using the
         [minRange](Titanium.UI.Slider.minRange) and [maxRange](Titanium.UI.Slider.maxRange)
         properties.
+
+        On Android, `min` and `max` must be set in order for the slider to work.
     type: Number
 
   - name: maxRange
@@ -145,18 +176,22 @@ properties:
 
         The total displayed range of the slider is still from `min` to `max`.
 
-        If not specified, `maxRange` is equal to `max`.
+        If `undefined`, the slider can go all the way to `max`.
     type: Number
-    platforms: [android]
+    platforms: [android, mobileweb]
+    default: undefined
 
   - name: min
     summary: Minimum value of the slider.
     description: |
-        Specifies the value of the slider when the thumb is all the way to the left.
+        Specifies the value of the slider when the thumb is all the way to the left. This
+        value is inclusive.
 
         On Android, the selectable values can be limited using the
         [minRange](Titanium.UI.Slider.minRange) and [maxRange](Titanium.UI.Slider.maxRange)
         properties.
+
+        On Android, `min` and `max` must be set in order for the slider to work.
     type: Number
 
   - name: minRange
@@ -166,13 +201,15 @@ properties:
 
         The total displayed range of the slider is still from `min` to `max`.
 
-        If not specified, `minRange` is equal to `min`.
-    platforms: [android]
+        If `undefined`, the slider can go all the way to `min`.
+    platforms: [android, mobileweb]
     type: Number
+    default: undefined
 
   - name: rightTrackImage
     summary: Image URL of the slider right track.
     type: String
+    platforms: [android, iphone, ipad]
 
   - name: selectedLeftTrackImage
     summary: Image URL of the slider left track when in the selected state.
@@ -196,7 +233,9 @@ properties:
 
         Support for using <Titanium.Blob> for this property is only available on iOS.
     type: [String, Titanium.Blob]
+    platforms: [android, iphone, ipad]
 
   - name: value
     summary: Current value of the slider.
     type: String
+    platforms: [android, iphone, ipad, mobileweb]
