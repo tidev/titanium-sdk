@@ -256,6 +256,11 @@ textarea {
 	background-color: #ccc;
 }
 
+.TiUIProgressBarContainer {
+	background-color: #888;
+	border-radius: 2px;
+}
+
 .TiMediaVideoPlayer video {
 	left: 0;
 	position: absolute;
