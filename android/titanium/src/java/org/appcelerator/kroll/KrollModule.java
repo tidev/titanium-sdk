@@ -46,6 +46,10 @@ public class KrollModule extends KrollProxy
 		modelListener = this;
 	}
 
+	/**
+	 * Instantiate and register module with TiApplication with the given name
+	 * @param name the name of module
+	 */
 	public KrollModule(String name)
 	{
 		this();

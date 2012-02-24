@@ -12,19 +12,42 @@ package org.appcelerator.kroll;
  */
 public interface KrollProxySupport
 {
+	/**
+	 * Implementing classes should use this method to modify an existing property
+	 * @param name The property name(key)
+	 * @param value The new property value(value)
+	 */
 	public void onPropertyChanged(String name, Object value);
 
 	public void onPropertiesChanged(Object[][] changes);
 
+	/**
+	 * Implementing classes should return the corresponding KrollObject associated with it
+	 * @return the KrollObject object
+	 */
 	public KrollObject getKrollObject();
-
+	
+	/**
+	 * Implementing classes should set its KrollObject to object.
+	 * @param object the KrollObject to be set
+	 */
 	public void setKrollObject(KrollObject object);
 
 	public Object getIndexedProperty(int index);
 
 	public void setIndexedProperty(int index, Object value);
 
+	/**
+	 * Implementing classes should use this method when an eventListener is added/removed from 'event'
+	 * @param event the event whose eventListener has been added or removed
+	 * @param hasListeners If this is true, the eventListener has been added to 'event', and vice versa
+	 */
 	public void onHasListenersChanged(String event, boolean hasListeners);
 	
+	/**
+	 * 
+	 * @param event
+	 * @param data
+	 */
 	public void onEventFired(String event, Object data);
 }

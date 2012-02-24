@@ -32,11 +32,20 @@ public abstract class KrollObject implements Handler.Callback
 		handler = new Handler(TiMessenger.getRuntimeMessenger().getLooper(), this);	
 	}
 
+	/**
+	 * Sets the KrollProxySupport associated with this object
+	 * @param proxySupport the KrollProxySupport to be set
+	 */
 	public void setProxySupport(KrollProxySupport proxySupport)
 	{
 		this.proxySupport = proxySupport;
 	}
 
+	/**
+	 * Returns whether this object has an eventListener for the given event
+	 * @param event an event to be fired
+	 * @return whether this object has an eventListener for this event
+	 */
 	public boolean hasListeners(String event)
 	{
 		Boolean hasListeners = hasListenersForEventType.get(event);
@@ -47,6 +56,11 @@ public abstract class KrollObject implements Handler.Callback
 		return hasListeners.booleanValue();
 	}
 
+	/**
+	 * Sets whether the passed in event has a corresponding eventListener associated with it on JS side.
+	 * @param event  the event to be set
+	 * @param hasListeners  If this is true, then the passed in event has an eventListener on JS side, false otherwise
+	 */
 	public void setHasListenersForEventType(String event, boolean hasListeners)
 	{
 		hasListenersForEventType.put(event, hasListeners);
@@ -55,6 +69,11 @@ public abstract class KrollObject implements Handler.Callback
 		}
 	}
 
+	/**
+	 * This is used to notify Java side when JS fires an event. Right now only webView uses this 
+	 * @param event the event fired
+	 * @param data  the data that came with 'event'
+	 */
 	public void onEventFired(String event, Object data)
 	{
 		if (proxySupport != null) {
@@ -62,6 +81,9 @@ public abstract class KrollObject implements Handler.Callback
 		}
 	}
 
+	/**
+	 * Releases itself, freeing memory. This is done via KrollRuntime thread
+	 */
 	protected void release()
 	{
 		if (KrollRuntime.getInstance().isRuntimeThread()) {
