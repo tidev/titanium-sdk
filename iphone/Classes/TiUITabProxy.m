@@ -100,7 +100,7 @@
 	if (current!=nil)
 	{
 		TiWindowProxy *currentWindow = [current window];
-		[self close:[NSArray arrayWithObjects:currentWindow, [NSNumber numberWithBool:YES], nil]];
+		[self closeWindow:currentWindow animated:YES removeTab:YES];
 	}
 }
 
@@ -109,7 +109,7 @@
 	if (current!=nil)
 	{
 		TiWindowProxy *currentWindow = [current window];
-		[self close:currentWindow];
+		[self closeWindow:currentWindow animated:YES removeTab:NO];
 	}
 }
 
@@ -289,9 +289,6 @@
     BOOL removeTab = NO;
 	if ([args isKindOfClass:[NSArray class]]) {
 		window = [args objectAtIndex:0];
-        if ([args count] > 1) {
-            removeTab = [[args objectAtIndex:1] boolValue];
-        }
 	}
 	else {
 		window = args;
@@ -307,6 +304,11 @@
 								([[args objectAtIndex:1] isKindOfClass:[NSDictionary class]])) ? [args objectAtIndex:1] : nil;
 
 	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
+    [self closeWindow:window animated:animated removeTab:NO];
+}
+
+- (void)closeWindow:(TiWindowProxy *)window animated:(BOOL)animated removeTab:(BOOL)removeTab
+{
     BOOL closingCurrentWindow = ([current window] == window);
 	if (closingCurrentWindow)
 	{
