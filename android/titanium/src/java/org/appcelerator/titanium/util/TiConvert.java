@@ -129,12 +129,24 @@ public class TiConvert
 		return value;
 	}
 
-	// Color conversions
+	/**
+	 * This method is the wrapper of TiColorHelper.parseColor(String value),
+	 * please refer to that method for more details.
+	 * @param value  color value to convert.
+	 * @return an int representation of the color.
+	 */
 	public static int toColor(String value)
 	{
 		return TiColorHelper.parseColor(value);
 	}
 
+	/**
+	 * This method is a wrapper of TiColorHelper.parseColor(String value), where Please refer to TiColorHelper.parseColor
+	 * for more details.
+	 * @param hashMap the HashMap contains the String representation of the color.
+	 * @param key the color lookup key.
+	 * @return an int representation of the color.
+	 */
 	public static int toColor(HashMap<String, Object> hashMap, String key)
 	{
 		return toColor(TiConvert.toString(hashMap.get(key)));
@@ -270,7 +282,12 @@ public class TiConvert
 		}
 	}
 
-	// Values
+	/**
+	 * Attempts to convert 'value' into a boolean, if value is of type Boolean or String. Otherwise,
+	 * an exception is thrown.
+	 * @param value the value to be converted.
+	 * @return a boolean.
+	 */
 	public static boolean toBoolean(Object value)
 	{
 		if (value instanceof Boolean) {
@@ -284,11 +301,24 @@ public class TiConvert
 		}
 	}
 
+	/**
+	 * A wrapper function.
+	 * See toBoolean(Object value) for more details.
+	 * @param hashMap 
+	 * @param key the lookup key.
+	 * @return
+	 */
 	public static boolean toBoolean(HashMap<String, Object> hashMap, String key)
 	{
 		return toBoolean(hashMap.get(key));
 	}
 
+	/**
+	 * If value is of type Double, Integer, Long or String, converts to Integer. Otherwise
+	 * an exception is thrown.
+	 * @param value the value to be converted.
+	 * @return an int
+	 */
 	public static int toInt(Object value)
 	{
 		if (value instanceof Double) {
@@ -308,11 +338,24 @@ public class TiConvert
 		}
 	}
 
+	/**
+	 * A wrapper function.
+	 * See toInt(Object value) for more details.
+	 * @param hashMap
+	 * @param key the lookup key.
+	 * @return an int.
+	 */
 	public static int toInt(HashMap<String, Object> hashMap, String key)
 	{
 		return toInt(hashMap.get(key));
 	}
 
+	/**
+	 * If value is of type Double, Integer or String, converts to Float. Otherwise,
+	 * an exception is thrown.
+	 * @param value the value to be converted.
+	 * @return a float.
+	 */
 	public static float toFloat(Object value)
 	{
 		if (value instanceof Double) {
@@ -329,11 +372,24 @@ public class TiConvert
 		}
 	}
 
+	/**
+	 * A wrapper function.
+	 * See toFloat(Object value) for more details.
+	 * @param hashMap
+	 * @param key the lookup key.
+	 * @return a float.
+	 */
 	public static float toFloat(HashMap<String, Object> hashMap, String key)
 	{
 		return toFloat(hashMap.get(key));
 	}
 
+	/**
+	 * If value is of type Double, Integer, or String, converts to Double. Otherwise,
+	 * an exception is thrown.
+	 * @param value the value to be converted.
+	 * @return a double.
+	 */ 
 	public static double toDouble(Object value)
 	{
 		if (value instanceof Double) {
@@ -350,6 +406,13 @@ public class TiConvert
 		}
 	}
 
+	/**
+	 * A wrapper function.
+	 * See toDouble(Object value) for more details.
+	 * @param hashMap
+	 * @param key
+	 * @return a double.
+	 */
 	public static double toDouble(HashMap<String, Object> hashMap, String key)
 	{
 		return toDouble(hashMap.get(key));
@@ -365,11 +428,23 @@ public class TiConvert
 		return result;
 	}
 
+	/**
+	 * Converts value into a String. If value is null, returns null.
+	 * @param value the value to be converted.
+	 * @return String or null.
+	 */
 	public static String toString(Object value)
 	{
 		return value == null ? null : value.toString();
 	}
 
+	/**
+	 * A wrapper function.
+	 * See toString(Object value) for more details.
+	 * @param hashMap
+	 * @param key the lookup key.
+	 * @return String or null.
+	 */
 	public static String toString(HashMap<String, Object> hashMap, String key)
 	{
 		return toString(hashMap.get(key));
@@ -387,12 +462,26 @@ public class TiConvert
 		return sparts;
 	}
 
-	// Dimensions
+	/**
+	 * Returns a new TiDimension object given a String value and type.
+	 * See TiDimension(String value, int valueType) for more details.
+	 * @param value the dimension value.
+	 * @param valueType the dimension type.
+	 * @return
+	 */
 	public static TiDimension toTiDimension(String value, int valueType)
 	{
 		return new TiDimension(value, valueType);
 	}
 
+	/**
+	 * Converts it to String, and if 'value' is of type Number, append "px" to value, 
+	 * then returns a new TiDimension object given the new 'value' and valueType.
+	 * See TiDimension(String value, int valueType) for more details.
+	 * @param value the dimension value.
+	 * @param valueType the dimension type.
+	 * @return
+	 */
 	public static TiDimension toTiDimension(Object value, int valueType)
 	{
 		if (value instanceof Number) {
@@ -401,13 +490,25 @@ public class TiConvert
 
 		return toTiDimension((String) value, valueType);
 	}
-	
+	/**
+	 * A wrapper function.
+	 * See toToDimension(Object value, int valueType) for more details.
+	 * @param hashMap
+	 * @param key the lookup key.
+	 * @param valueType the dimension type.
+	 * @return
+	 */
 	public static TiDimension toTiDimension(HashMap<String, Object> hashMap, String key, int valueType)
 	{
 		return toTiDimension(hashMap.get(key), valueType);
 	}
 
-	// URL
+	/**
+	 * Returns a url string by appending the 
+	 * String representation of 'uri' to file:///android_asset/Resources/
+	 * @param uri the uri, cannot be null.
+	 * @return url string
+	 */
 	public static String toURL(Uri uri)
 	{
 		String url = null;
@@ -439,17 +540,33 @@ public class TiConvert
 		return d;
 	}
 
+	/**
+	 * Casts and returns value as TiBlob.
+	 * @param value must be of type TiBlob.
+	 * @return TiBlob.
+	 */
 	public static TiBlob toBlob(Object value)
 	{
 		return (TiBlob) value;
 	}
 
+	/**
+	 * A wrapper function.
+	 * See toBlob(Object value) for more details.
+	 * @param object
+	 * @param property
+	 * @return
+	 */
 	public static TiBlob toBlob(HashMap<String, Object> object, String property)
 	{
 		return toBlob(object.get(property));
 	}
 
-	// JSON
+	/**
+	 * Converts a HashMap into a JSONObject and returns it. If 'data' is null, null is returned.
+	 * @param data the HashMap used for conversion
+	 * @return JSONObject
+	 */
 	public static JSONObject toJSON(HashMap<String, Object> data)
 	{
 		if (data == null) {
@@ -493,6 +610,11 @@ public class TiConvert
 		return json;
 	}
 
+	/**
+	 * Converts an object array into JSONArray and returns it
+	 * @param a  the object array to be converted
+	 * @return JSONArray
+	 */
 	public static JSONArray toJSONArray(Object[] a)
 	{
 		JSONArray ja = new JSONArray();
@@ -535,6 +657,12 @@ public class TiConvert
 		return ja;
 	}
 	
+	/**
+	 * If value is an instance of Date, formats and returns it. Otherwise,
+	 * return a String representation of value
+	 * @param value the value to be converted
+	 * @return a String
+	 */
 	public static String toJSONString(Object value)
 	{
 		if (value instanceof Date) {
@@ -548,6 +676,11 @@ public class TiConvert
 		}
 	}
 
+	/**
+	 * Converts value into Date object and returns it.
+	 * @param value the value to be converted.
+	 * @return Date object
+	 */
 	public static Date toDate(Object value)
 	{
 		if (value instanceof Date) {
@@ -562,6 +695,13 @@ public class TiConvert
 		return null;
 	}
 	
+	/**
+	 * A wrapper function.
+	 * See toDate(Object value) for more details
+	 * @param hashMap
+	 * @param key
+	 * @return
+	 */
 	public static Date toDate(HashMap<String, Object> hashMap, String key)
 	{
 		return toDate(hashMap.get(key));

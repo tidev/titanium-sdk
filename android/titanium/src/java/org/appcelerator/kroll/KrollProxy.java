@@ -757,9 +757,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * 
-	 * @param scheme
-	 * @param path  
+	 * Returns a string representation of URL given its components.
+	 * @param scheme the scheme of Url.
+	 * @param path   the path of Url.
 	 * @return
 	 */
 	public String resolveUrl(String scheme, String path)

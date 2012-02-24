@@ -46,6 +46,11 @@ public class TiDimension
 	protected double value;
 	protected int units, valueType;
 
+	/**
+	 * Creates a TiDimension object with passed in arguments.
+	 * @param value the value to be set
+	 * @param valueType the valueType to be set
+	 */
 	public TiDimension(double value, int valueType)
 	{
 		this.value = value;
@@ -53,6 +58,11 @@ public class TiDimension
 		this.units = COMPLEX_UNIT_UNDEFINED;
 	}
 
+	/**
+	 * Creates and parses a TiDimension object with passed in arguments
+	 * @param svalue the string to be parse
+	 * @param valueType the valueType to be set
+	 */
 	public TiDimension(String svalue, int valueType)
 	{
 		this.valueType = valueType;
@@ -93,31 +103,56 @@ public class TiDimension
 		}
 	}
 
+	/**
+	 * Returns value
+	 * @return value
+	 */
 	public double getValue()
 	{
 		return value;
 	}
 
+	/**
+	 * Returns its value, converted to int
+	 * @return int value
+	 */
 	public int getIntValue()
 	{
 		return Double.valueOf(value).intValue();
 	}
 
+	/**
+	 * Sets 'value' to a double value
+	 * @param value a double to be set
+	 */
 	public void setValue(double value)
 	{
 		this.value = value;
 	}
 
+	/**
+	 * Returns units
+	 * @return units
+	 */
 	public int getUnits()
 	{
 		return units;
 	}
 
+	/**
+	 * Sets units
+	 * @param units
+	 */
 	public void setUnits(int units)
 	{
 		this.units = units;
 	}
 
+	/**
+	 * Calculates and returns the number of pixels, depending on its type.
+	 * @param parent the parent view used for calculation
+	 * @return number of pixels
+	 */
 	public int getAsPixels(View parent)
 	{
 		switch (units) {
@@ -206,11 +241,19 @@ public class TiDimension
 		return -1;
 	}
 
+	/**
+	 * Returns whether units is undefined
+	 * @return true if units is TiDimension.COMPLEX_UNIT_UNDEFINED, false otherwise
+	 */
 	public boolean isUnitUndefined()
 	{
 		return units == COMPLEX_UNIT_UNDEFINED;
 	}
 
+	/**
+	 * Returns whether units is a percent unit
+	 * @return true if units is TiDimension.COMPLEX_UNIT_PERCENT, false otherwise
+	 */
 	public boolean isUnitPercent()
 	{
 		return units == COMPLEX_UNIT_PERCENT;
@@ -221,6 +264,10 @@ public class TiDimension
 		return units == COMPLEX_UNIT_AUTO;
 	}
 
+	/**
+	 * Converts and returns TiDimension as a string.
+	 * @return string representation of TiDimension
+	 */
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder(10);

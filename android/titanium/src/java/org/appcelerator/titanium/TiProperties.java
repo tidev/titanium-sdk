@@ -21,6 +21,13 @@ public class TiProperties
 
 	SharedPreferences preferences;
 
+	/**
+	 * Create/retrieve SharedPreferences with given context and name.
+	 * If it is being created, it will be with Context.MODE_PRIVATE
+	 * @param context the context used to create/retrieve preferences
+	 * @param name the name used to create/retrieve preferences
+	 * @param clear clear the preferences
+	 */
 	public TiProperties(Context context, String name, boolean clear) {
 		preferences = context.getSharedPreferences(name,Context.MODE_PRIVATE);
 		if (clear) {
@@ -28,6 +35,12 @@ public class TiProperties
 		}
 	}
 
+	/**
+	 * Return the mapping of a specified key, in String format. If key does not exist, return the default value
+	 * @param key the lookup key
+	 * @param def the default value
+	 * @return mapping of key, or default value
+	 */
 	public String getString(String key, String def)
 	{
 		if (DBG) {
@@ -40,6 +53,12 @@ public class TiProperties
 		return preferences.getAll().get(key).toString();
 	}
 
+	/**
+	 * Maps the specified key with String value. If value is null, key will be removed from preferences
+	 * if it exists. If key exists, its value will be overwritten with 'value'
+	 * @param key the key to be set
+	 * @param value the value to be set
+	 */
 	public void setString(String key, String value)
 	{
 		if (DBG) {
@@ -57,6 +76,12 @@ public class TiProperties
 		editor.commit();
 	}
 
+	/**
+	 * Return the mapping of a specified key, as an Integer. If key does not exist, return the default value
+	 * @param key the lookup key
+	 * @param def the default value
+	 * @return mapping of key, or default value
+	 */
 	public int getInt(String key, int def)
 	{
 		if (DBG) {
@@ -64,6 +89,13 @@ public class TiProperties
 		}
 		return preferences.getInt(key,def);
 	}
+	
+	/**
+	 * Maps the specified key with int value. If key exists, its value will be
+	 * overwritten with 'value'
+	 * @param key the key to be set
+	 * @param value the value to be set
+	 */
 	public void setInt(String key, int value)
 	{
 		if (DBG) {
@@ -74,6 +106,13 @@ public class TiProperties
 		editor.putInt(key,value);
 		editor.commit();
 	}
+	
+	/**
+	 * Return the mapping of a specified key, as a Double. If key does not exist, return the default value
+	 * @param key the lookup key
+	 * @param def the default value
+	 * @return mapping of key, or default value
+	 */
 	public double getDouble(String key, double def)
 	{
 		if (DBG) {
@@ -90,6 +129,13 @@ public class TiProperties
 			return def;
 		}
 	}
+	
+	/**
+	 * Maps the specified key with double value. If key exists, its value will be
+	 * overwritten with 'value'
+	 * @param key the key to be set
+	 * @param value the value to be set
+	 */
 	public void setDouble(String key, double value)
 	{
 		if (DBG) {
@@ -100,6 +146,13 @@ public class TiProperties
 		editor.putString(key,value + "");
 		editor.commit();
 	}
+	
+	/**
+	 * Return the mapping of a specified key, as a Boolean. If key does not exist, return the default value
+	 * @param key the lookup key
+	 * @param def the default value
+	 * @return mapping of key, or default value
+	 */
 	public boolean getBool(String key, boolean def)
 	{
 		if (DBG) {
@@ -107,6 +160,13 @@ public class TiProperties
 		}
 		return preferences.getBoolean(key,def);
 	}
+	
+	/**
+	 * Maps the specified key with boolean value. If key exists, its value will be
+	 * overwritten with 'value'
+	 * @param key the key to be set
+	 * @param value the value to be set
+	 */
 	public void setBool(String key, boolean value)
 	{
 		if (DBG) {
@@ -118,6 +178,12 @@ public class TiProperties
 		editor.commit();
 	}
 
+	/**
+	 * Return the mapping of a specified key, as a String array. If key does not exist, return the default value
+	 * @param key the lookup key
+	 * @param def the default value
+	 * @return mapping of key, or default value
+	 */
 	public String[] getList(String key, String def[])
 	{
 		if (DBG) {
@@ -136,6 +202,12 @@ public class TiProperties
 		return list;
 	}
 
+	/**
+	 * Maps the specified key with String[] value. Also maps 'key.length' to 'value.length'.
+	 * If key already exists, its value will be overwritten by the content of 'value'
+	 * @param key the key to be set
+	 * @param value the value to be set
+	 */
 	public void setList(String key, String[] value)
 	{
 		if (DBG) {
@@ -157,11 +229,20 @@ public class TiProperties
 		return hasProperty(key+".0");
 	}
 	
+	/**
+	 * Returns whether key exists in preferences
+	 * @param key the lookup key
+	 * @return true if key exists in preferences
+	 */
 	public boolean hasProperty(String key)
 	{
 		return preferences.contains(key);
 	}
 
+	/**
+	 * Returns an array of keys whose values are lists
+	 * @return an array of keys
+	 */
 	public String[] listProperties()
 	{
 		ArrayList<String> properties = new ArrayList<String>();
@@ -180,6 +261,10 @@ public class TiProperties
 		return properties.toArray(new String[properties.size()]);
 	}
 
+	/**
+	 * Removes the key from preferences if it exists
+	 * @param key the key to be removed
+	 */
 	public void removeProperty(String key)
 	{
 		if (preferences.contains(key)) {

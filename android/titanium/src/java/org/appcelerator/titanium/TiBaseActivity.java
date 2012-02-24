@@ -97,27 +97,47 @@ public abstract class TiBaseActivity extends Activity
 		public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig);
 	}
 
+	/**
+	 * Returns the instance of TiApplication
+	 * @return
+	 */
 	public TiApplication getTiApp()
 	{
 		return (TiApplication) getApplication();
 	}
 
+	/**
+	 * Returns the window proxy associates with this activity
+	 * @return the window proxy
+	 */
 	public TiWindowProxy getWindowProxy()
 	{
 		return this.window;
 	}
 
+	/**
+	 * Sets the window proxy
+	 * @param proxy
+	 */
 	public void setWindowProxy(TiWindowProxy proxy)
 	{
 		this.window = proxy;
 		updateTitle();
 	}
 	
+	/**
+	 * Sets the view proxy
+	 * @param proxy
+	 */
 	public void setViewProxy(TiViewProxy proxy)
 	{
 		this.view = proxy;
 	}
 
+	/**
+	 * Returns the activity proxy associates with this Activity
+	 * @return activity proxy
+	 */
 	public ActivityProxy getActivityProxy()
 	{
 		return activityProxy;
@@ -137,6 +157,10 @@ public abstract class TiBaseActivity extends Activity
 		this.activityProxy = proxy;
 	}
 
+	/**
+	 * Returns the activity's layout
+	 * @return
+	 */
 	public TiCompositeLayout getLayout()
 	{
 		return layout;
@@ -304,6 +328,11 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When activity is created, adds it to the activity stack and
+	 * fires 'create' event to JS side.
+	 * @param savedInstanceState Bundle of saved data.
+	 */
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		if (DBG) {
@@ -447,6 +476,9 @@ public abstract class TiBaseActivity extends Activity
 		return getSupportHelper().getUniqueResultCode();
 	}
 
+	/**
+	 * See TiActivitySupport.launchActivityForResult for more details.
+	 */
 	public void launchActivityForResult(Intent intent, int code, TiActivityResultHandler resultHandler)
 	{
 		getSupportHelper().launchActivityForResult(intent, code, resultHandler);
@@ -630,6 +662,11 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When activity pauses, sets current activity to null, fires 'pause' event
+	 * to JS side, and if the activity is finishing, removes all dialogs associated with
+	 * it.
+	 */
 	protected void onPause() 
 	{
 		super.onPause();
@@ -672,6 +709,10 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When the activity resumes, sets the current activity to this and fires
+	 * 'resume' event to JS side.
+	 */
 	protected void onResume()
 	{
 		super.onResume();
@@ -708,6 +749,11 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When activity starts, sets the current activity to this if necessary and
+	 * fires 'start' and 'focus' events to JS side. Focus event will only fire if 
+	 * the activity is not a tab activity.
+	 */
 	protected void onStart()
 	{
 		super.onStart();
@@ -764,6 +810,10 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When activity stops, fires 'blur' and 'stop' events to JS side. Blur event will only fire
+	 * if the activity is not a tab activity.
+	 */
 	protected void onStop()
 	{
 		super.onStop();
@@ -803,6 +853,10 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When activity restarts, sets the current activity to this and fires 'restart'
+	 * event to JS side.
+	 */
 	protected void onRestart()
 	{
 		super.onRestart();
@@ -835,6 +889,10 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When activity is destroyed, removes it from the activity stack, performs
+	 * clean up, and fires 'destroy' event to JS side. 
+	 */
 	protected void onDestroy()
 	{
 		if (DBG) {
@@ -958,6 +1016,10 @@ public abstract class TiBaseActivity extends Activity
 		}
 	}
 
+	/**
+	 * Returns whether this activity is a tab activity.
+	 * @return true if this activity is a tab activity, false otherwise.
+	 */
 	protected boolean isTabActivity()
 	{
 		boolean isTab = false;

@@ -95,6 +95,10 @@ public abstract class TiUIView
 		this.layoutParams = new TiCompositeLayout.LayoutParams();
 	}
 
+	/**
+	 * Adds a child view into the ViewGroup
+	 * @param child the view to be added
+	 */
 	public void add(TiUIView child)
 	{
 		if (child != null) {
@@ -112,6 +116,10 @@ public abstract class TiUIView
 		}
 	}
 
+	/**
+	 * Removes the child view from the ViewGroup, if child exists.
+	 * @param child the view to be removed
+	 */
 	public void remove(TiUIView child)
 	{
 		if (child != null) {
@@ -127,16 +135,28 @@ public abstract class TiUIView
 		}
 	}
 
+	/**
+	 * Returns a list of views added
+	 * @return list of views
+	 */
 	public List<TiUIView> getChildren()
 	{
 		return children;
 	}
 
+	/**
+	 * Returns the view proxy
+	 * @return the view proxy
+	 */
 	public TiViewProxy getProxy()
 	{
 		return proxy;
 	}
 
+	/**
+	 * Sets the view proxy
+	 * @param proxy
+	 */
 	public void setProxy(TiViewProxy proxy)
 	{
 		this.proxy = proxy;
@@ -157,11 +177,19 @@ public abstract class TiUIView
 		return layoutParams;
 	}
 
+	/**
+	 * Returns the Android native view
+	 * @return the native view
+	 */
 	public View getNativeView()
 	{
 		return nativeView;
 	}
 
+	/**
+	 * Sets the nativeView to view
+	 * @param view
+	 */
 	protected void setNativeView(View view)
 	{
 		if (view.getId() == View.NO_ID) {
@@ -182,6 +210,9 @@ public abstract class TiUIView
 		this.layoutParams = layoutParams;
 	}
 
+	/**
+	 * Animates the view if there are pending animations.
+	 */
 	public void animate()
 	{
 		TiAnimationBuilder builder = proxy.getPendingAnimation();
@@ -583,6 +614,9 @@ public abstract class TiUIView
 		return imm;
 	}
 
+	/**
+	 * Focuses the view
+	 */
 	public void focus()
 	{
 		if (nativeView != null) {
@@ -590,6 +624,9 @@ public abstract class TiUIView
 		}
 	}
 
+	/**
+	 * Blurs the view
+	 */
 	public void blur()
 	{
 		if (nativeView != null) {
@@ -630,6 +667,9 @@ public abstract class TiUIView
 		}
 	}
 
+	/**
+	 * Makes the view visible
+	 */
 	public void show()
 	{
 		if (nativeView != null) {
@@ -641,6 +681,9 @@ public abstract class TiUIView
 		}
 	}
 
+	/**
+	 * Hides the view, making it invisible
+	 */
 	public void hide()
 	{
 		if (nativeView != null) {
@@ -900,11 +943,20 @@ public abstract class TiUIView
 		doSetClickable(touchable);
 	}
 
+	/**
+	 * Sets the nativeView's opacity
+	 * @param opacity the opacity to be set
+	 */
 	public void setOpacity(float opacity)
 	{
 		setOpacity(nativeView, opacity);
 	}
 
+	/**
+	 * Sets opacity of view
+	 * @param view the view to change opacity
+	 * @param opacity
+	 */
 	protected void setOpacity(View view, float opacity)
 	{
 		if (view != null) {
@@ -916,6 +968,7 @@ public abstract class TiUIView
 		}
 	}
 
+	
 	public void clearOpacity(View view)
 	{
 		Drawable d = view.getBackground();

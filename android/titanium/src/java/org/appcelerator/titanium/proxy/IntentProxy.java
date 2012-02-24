@@ -273,16 +273,28 @@ public class IntentProxy extends KrollProxy
 		return intent.getDataString();
 	}
 
+	/**
+	 * Returns the intent
+	 * @return
+	 */
 	public Intent getIntent()
 	{ 
 		return intent;
 	}
 
+	/**
+	 * Returns the type of intent
+	 * @return type of intent
+	 */
 	public int getType()
 	{
 		return type;
 	}
 
+	/**
+	 * Sets the intent type
+	 * @param type
+	 */
 	public void setType(int type)
 	{
 		this.type = type;

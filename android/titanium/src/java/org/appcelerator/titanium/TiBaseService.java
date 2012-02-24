@@ -34,21 +34,39 @@ public class TiBaseService extends Service
 		return new TiServiceBinder();
 	}
 
+	/**
+	 * Creates and returns a service proxy, also increments the instance id.
+	 * Each service proxy has a unique instance id.
+	 * @param intent the intent used to create the proxy.
+	 * @return service proxy
+	 */
 	protected ServiceProxy createProxy(Intent intent)
 	{
 		return new ServiceProxy(this, intent, proxyCounter.incrementAndGet());
 	}
 
+	/**
+	 * Implementing subclasses should use this method to start the service.
+	 * @param proxy the ServiceProxy
+	 */
 	public void start(ServiceProxy proxy)
 	{
 		// meant to be overridden
 	}
 
+	/**
+	 * Implementing subclasses should use this method to release the service proxy
+	 * @param proxy the proxy to release
+	 */
 	public void unbindProxy(ServiceProxy proxy)
 	{
 		// meant to be overridden
 	}
 
+	/**
+	 * Returns the next service instance id
+	 * @return next service id
+	 */
 	public int nextServiceInstanceId()
 	{
 		return proxyCounter.incrementAndGet();

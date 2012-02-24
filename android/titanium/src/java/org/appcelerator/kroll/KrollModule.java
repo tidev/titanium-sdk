@@ -80,22 +80,42 @@ public class KrollModule extends KrollProxy
 	}
 
 	// TODO @Override
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onResume life cycle event.
+	 * @param activity the activity attached to this module
+	 */
 	public void onResume(Activity activity) {
 	}
 
 	// TODO @Override
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onPause life cycle event.
+	 * @param activity the activity attached to this module
+	 */
 	public void onPause(Activity activity) {
 	}
 	
 	// TODO @Override
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onDestroy life cycle event.
+	 * @param activity the activity attached to this module
+	 */
 	public void onDestroy(Activity activity) {
 	}
 	
 	// TODO @Override
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onStart life cycle event.
+	 * @param activity the activity attached to this module
+	 */
 	public void onStart(Activity activity) {
 	}
 	
 	// TODO @Override
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onStop life cycle event.
+	 * @param activity the activity attached to this module
+	 */
 	public void onStop(Activity activity) {	
 	}
 	
@@ -108,10 +128,21 @@ public class KrollModule extends KrollProxy
 	}
 	
 	// TODO @Override
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to process initial properties of the module
+	 * @param d
+	 */
 	public void processProperties(KrollDict d) {
 	}
 	
 	// TODO @Override
+	/**
+	 * A place holder for subclasses to extend. This is used to update a property's value
+	 * @param key  the key of the property
+	 * @param oldValue  the property's old value
+	 * @param newValue  the property's new value
+	 * @param proxy     proxy associated with the property
+	 */
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
 	}
 	

@@ -23,6 +23,11 @@ public class TiColorHelper
 
 	private static HashMap<String, Integer> colorTable;
 
+	/**
+	 * Converts a string representation of color, like "red" into a RGB/RGBA representation, an integer
+	 * @param value the color value to be converted. For example, "red".
+	 * @return the RGB/RGBA representation (int) of the color.
+	 */
 	public static int parseColor(String value) {
 		int color = Color.YELLOW; // Something noticeable
 		if (value != null) {

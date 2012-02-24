@@ -151,6 +151,10 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		Log.i(LCAT, "Titanium " + buildVersion + " (" + buildTimestamp + " " + buildHash + ")");
 	}
 
+	/**
+	 * Create/retrieve the instance of TiApplication. There is one instance per android application.
+	 * @return the instance of TiApplication
+	 */
 	public static TiApplication getInstance()
 	{
 		if (tiApp != null) {
@@ -187,8 +191,12 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return false;
 	}
 
-	// This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
-	// time we need to grab the current activity
+	
+	/**
+	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
+	 * time we need to grab the current activity
+	 * @return the current activity
+	 */
 	public static Activity getAppCurrentActivity()
 	{
 		TiApplication tiApp = getInstance();
@@ -199,8 +207,13 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return tiApp.getCurrentActivity();
 	}
 
-	// This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
-	// time we need to grab the root or current activity
+	/**
+	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
+	 * time we need to grab the root or current activity
+	 * Returns the root activity if it exists. Otherwise returns the current Activity if it exists.
+	 * If both do not exist, null is returned.
+	 * @return root activity, current activity, or null.
+	 */
 	public static Activity getAppRootOrCurrentActivity()
 	{
 		TiApplication tiApp = getInstance();
@@ -211,6 +224,10 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return tiApp.getRootOrCurrentActivity();
 	}
 
+	/**
+	 * Returns the top activity from activityStack. If the stack is empty, it blocks the thread.
+	 * @return the current activity
+	 */
 	public Activity getCurrentActivity()
 	{
 		int activityStackSize;
@@ -233,6 +250,11 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return null;
 	}
 	
+	/**
+	 * Returns the root activity if it exists. Otherwise returns the current Activity if it exists.
+	 * If both do not exist, null is returned.
+	 * @return root activity, current activity, or null
+	 */
 	public Activity getRootOrCurrentActivity()
 	{
 		Activity activity;
@@ -402,6 +424,10 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		tempFileHelper.scheduleCleanTempDir();
 	}
 
+	/**
+	 * Returns the app's root activity. Null if this does not exist
+	 * @return app's root activity or null
+	 */
 	public TiRootActivity getRootActivity()
 	{
 		if (rootActivity == null) {
@@ -477,6 +503,10 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return handled;
 	}
 
+	/**
+	 * Returns the app's properties, which is listed in tiApp.xml
+	 * @return the app's properties
+	 */
 	public TiProperties getAppProperties()
 	{
 		return appProperties;
@@ -492,6 +522,10 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return appInfo;
 	}
 
+	/**
+	 * Returns the app's unique GUID. Each application has a unique GUID
+	 * @return the app's GUID
+	 */
 	public String getAppGUID()
 	{
 		return getAppInfo().getGUID();
@@ -540,6 +574,10 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return getAppInfo().isAnalyticsEnabled();
 	}
 
+	/**
+	 * Post analytics event to server if the app is collecting analytics information.
+	 * @param event the analytics event to be posted
+	 */
 	public synchronized void postAnalyticsEvent(TiAnalyticsEvent event)
 	{
 		if (!collectAnalytics()) {
@@ -621,6 +659,10 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return getSystemProperties().getString(PROPERTY_DEPLOY_TYPE, DEPLOY_TYPE_DEVELOPMENT);
 	}
 
+	/**
+	 * Returns the sdk's build version, which is listed in tiApp.xml
+	 * @return the build version
+	 */
 	public String getTiBuildVersion()
 	{
 		return buildVersion;
@@ -692,6 +734,10 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return tempFileHelper;
 	}
 
+	/**
+	 * Returns whether the current thread is main thread
+	 * @return true if current thread is main thread, false otherwise
+	 */
 	public static boolean isUIThread()
 	{
 		if (mainThreadId == Thread.currentThread().getId()) {

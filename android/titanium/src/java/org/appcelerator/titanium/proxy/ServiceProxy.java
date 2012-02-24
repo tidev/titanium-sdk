@@ -72,6 +72,10 @@ public class ServiceProxy extends KrollProxy
 		setIntent(new IntentProxy(intent));
 	}
 
+	/**
+	 * Sets the intentProxy
+	 * @param intentProxy
+	 */
 	public void setIntent(IntentProxy intentProxy)
 	{
 		this.intentProxy = intentProxy;

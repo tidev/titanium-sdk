@@ -131,6 +131,11 @@ public class TiUIHelper
 			.setCancelable(false).create().show();
 	}
 
+	/**
+	 * Waits for the current activity to be ready(something not null), then invokes
+	 * CurrentActivityListener.onCurrentActivityReady(Activity currentActivity)
+	 * @param l the CurrentActivityListener
+	 */
 	public static void waitForCurrentActivity(final CurrentActivityListener l)
 	{
 		// Some window opens are async, so we need to make sure we don't
@@ -158,6 +163,13 @@ public class TiUIHelper
 		}
 	}
 
+	/**
+	 * Create and show a Dialog with a OK button with title 'title' and message 'message'.
+	 * The dialog's context is the activity on top of activityStack (current Activity)
+	 * @param title  the title of dialog
+	 * @param message  the message to be shown
+	 * @param listener the clickListener for click events
+	 */
 	public static void doOkDialog(final String title, final String message, OnClickListener listener) {
 		if (listener == null) {
 			listener = new OnClickListener() {
@@ -646,6 +658,11 @@ public class TiUIHelper
 		return image;
 	}
 
+	/**
+	 * Creates and returns a Bitmap from an InputStream.
+	 * @param stream an InputStream to read bitmap data.
+	 * @return a Bitmap
+	 */
 	public static Bitmap createBitmap(InputStream stream)
 	{
 		Rect pad = new Rect();
@@ -722,6 +739,11 @@ public class TiUIHelper
 		}
 	}
 	
+	/**
+	 * Creates and returns a bitmap from its url.
+	 * @param url the bitmap url.
+	 * @return a Bitmap
+	 */
 	public static Bitmap getResourceBitmap(String url)
 	{
 		int id = getResourceId(url);
@@ -866,6 +888,11 @@ public class TiUIHelper
 		}
 	}
 	
+	/**
+	 * Shows/Hides softkeyboard.
+	 * @param view a view to show softkeyboard on
+	 * @param show a boolean that determines whether to show softkeyboard.
+	 */
 	public static void showSoftKeyboard(View view, boolean show) 
 	{
 		InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);

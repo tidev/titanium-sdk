@@ -52,6 +52,12 @@ public class TiAnalyticsEvent
 
 	private boolean expandPayload;
 
+	/**
+	 * Constructs an analytics event.
+	 * @param eventType the analytics event type
+	 * @param eventEvent the analytics event
+	 * @param eventPayload the analytics payload
+	 */
 	TiAnalyticsEvent(String eventType, String eventEvent, String eventPayload) {
 		try {
 			JSONObject o = new JSONObject();

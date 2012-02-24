@@ -10,5 +10,10 @@ import android.app.Activity;
 
 public interface CurrentActivityListener
 {
+	/**
+	 * Implementing classes should use this method after waited for the current activity to be visible.
+	 * Look at TiUIHelper.wiatForCurrentActivity(final CurrentActivityListener) for an example use case.
+	 * @param activity the associated activity
+	 */
 	public void onCurrentActivityReady(Activity activity);
 }
