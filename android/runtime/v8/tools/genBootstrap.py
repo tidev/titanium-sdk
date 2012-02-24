@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # Appcelerator Titanium Mobile
-# Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
 # Licensed under the terms of the Apache Public License
 # Please see the LICENSE included with this distribution for details.
 #
@@ -9,6 +9,13 @@
 #
 
 import os, re, sys
+
+thisDir = os.path.abspath(os.path.dirname(__file__))
+androidDir = os.path.abspath(os.path.join(thisDir, "..", "..", ".."))
+
+# We package simplejson in the support/common directory.
+commonSupportDir = os.path.abspath(os.path.join(androidDir, "..", "support", "common"))
+sys.path.append(commonSupportDir)
 
 try:
 	import json
@@ -23,7 +30,6 @@ genDir = os.path.join(os.path.dirname(thisDir), "generated")
 if not os.path.exists(genDir):
 	os.makedirs(genDir)
 
-androidDir = os.path.abspath(os.path.join(thisDir, "..", "..", ".."))
 androidModuleDir = os.path.abspath(os.path.join(androidDir, "..", "support", "module", "android"))
 jsonDir = os.path.abspath(os.path.join(androidDir, "..", "dist", "android", "json"))
 

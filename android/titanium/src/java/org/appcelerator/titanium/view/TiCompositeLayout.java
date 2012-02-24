@@ -388,6 +388,13 @@ public class TiCompositeLayout extends ViewGroup
 			}
 		}
 	}
+	
+	@Override
+	protected void onAnimationEnd()
+	{
+		super.onAnimationEnd();
+		invalidate();
+	}
 
 	// 0 is left/top, 1 is right/bottom
 	public static void computePosition(View parent, TiDimension option0, TiDimension optionCenter, TiDimension option1,
