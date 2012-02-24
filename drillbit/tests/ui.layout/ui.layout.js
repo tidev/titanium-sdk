@@ -394,12 +394,12 @@ describe("Ti.UI Layout tests", {
 	undefinedCenter: asyncTest(function() {
 		var win = Ti.UI.createWindow();
 
-		var view = Ti.UI.createView({
-			backgroundColor: 'yellow',
-		});
+		var view = Ti.UI.createView({});
 
 		win.addEventListener('open', this.async(function(e){
 			valueOf(view.center).shouldBeUndefined();
+			//Dynamic center can be calculated from view.rect
+			valueOf(view.rect).shouldNotBeUndefined();
 		}));
 
 		win.add(view);
