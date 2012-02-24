@@ -3,7 +3,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 		
 	var setStyle = style.set,
 		undef,
-		internalImageView = (declare(Widget, {
+		InternalImageView = (declare(Widget, {
 			
 			domType: "img",
 			
@@ -179,7 +179,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				set: function(value) {
 					this._removeAllChildren();
 					this._images = undef;
-					var image = new internalImageView({src: value});
+					var image = new InternalImageView({src: value});
 					image.addEventListener("load",lang.hitch(this,function() {
 						this.fireEvent("load", {
 							state: "image"
@@ -202,7 +202,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 						var loadCount = 0,
 							errorEncountered = false;
 						for(var i in value) {
-							var image = new internalImageView({src: value[i]})
+							var image = new InternalImageView({src: value[i]})
 							setStyle(image.domNode,"display","none");
 							image.addEventListener("load",lang.hitch(this,function(e) {
 								loadCount++;
