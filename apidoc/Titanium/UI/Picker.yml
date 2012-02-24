@@ -16,8 +16,11 @@ methods:
     summary: Adds rows or columns to the picker.
     parameters:
       - name: data
-        summary: An array of rows, a single row, an array of columns or a single column.
+        summary: |
+            A row, set of rows, a column of rows or a set of columns of rows. When this method is 
+            used to add a row or set of rows, a single-column picker is created.
         type: [Array<Titanium.UI.PickerRow>, Titanium.UI.PickerRow, Array<Titanium.UI.PickerColumn>, Titanium.UI.PickerColumn]
+    platforms: [iphone, ipad]
 
   - name: getSelectedRow
     summary: Gets the selected row for a column, or `null` if none exists.
@@ -50,8 +53,7 @@ methods:
         
       - name: animated
         summary: |
-            Determines whether the selection should be animated. On iOS, only effective if the 
-            picker is already rendered. (iPhone, iPad-only)
+            Determines whether the selection should be animated. (iPhone, iPad-only)
         type: Boolean
         default: true
         optional: true
@@ -146,7 +148,7 @@ events:
 properties:
   - name: columns
     summary: Columns used for this picker, as an array of <Titanium.UI.PickerColumn> objects.
-    type: Array<Object>
+    type: Array<Titanium.UI.PickerColumn>
     
   - name: countDownDuration
     summary: Duration in milliseconds used for a Countdown Timer picker.
