@@ -6,13 +6,15 @@
 #
 import glob, re, os.path as path
 import fnmatch, os, sys, types
-import simplejson as json
 import traceback
 
 cwd = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-sys.path.append(path.join(cwd,"../build"))
+sys.path.append(path.join(cwd, "..", "build"))
+sys.path.append(path.join(cwd, "..", "support", "common"))
 
+import simplejson as json
 import titanium_version
+
 baseVersion = titanium_version.version
 t = baseVersion.split(".")
 defaultVersion = "%s.%s" % (t[0],t[1])

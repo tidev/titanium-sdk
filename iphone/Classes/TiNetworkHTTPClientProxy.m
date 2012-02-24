@@ -57,7 +57,9 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 			TRYENCODING("iso-8859-1",10,NSISOLatin1StringEncoding);
 			TRYENCODING("utf-8",5,NSUTF8StringEncoding);
 			TRYENCODING("shift-jis",9,NSShiftJISStringEncoding);
+			TRYENCODING("shift_jis",9,NSShiftJISStringEncoding);
 			TRYENCODING("x-euc",5,NSJapaneseEUCStringEncoding);
+			TRYENCODING("euc-jp",6,NSJapaneseEUCStringEncoding);
 			TRYENCODING("windows-1250",12,NSWindowsCP1251StringEncoding);
 			TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding);
 			TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding);
@@ -82,7 +84,9 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 		TRYENCODING("iso-8859-1",10,NSISOLatin1StringEncoding);
 		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
 		TRYENCODING("shift-jis",9,NSShiftJISStringEncoding);
+		TRYENCODING("shift_jis",9,NSShiftJISStringEncoding);
 		TRYENCODING("x-euc",5,NSJapaneseEUCStringEncoding);
+		TRYENCODING("euc-jp",6,NSJapaneseEUCStringEncoding);
 		TRYENCODING("windows-1250",12,NSWindowsCP1251StringEncoding);
 		TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding);
 		TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding);
