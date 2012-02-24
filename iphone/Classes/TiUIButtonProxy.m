@@ -145,6 +145,14 @@
 	[super fireEvent:type withObject:obj withSource:source propagate:propagate];
 }
 
+-(TiDimension)defualtAutoWidthBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+-(TiDimension)defualtAutoHeightBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
 
 @end
 

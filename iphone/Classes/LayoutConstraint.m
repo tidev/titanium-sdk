@@ -82,6 +82,17 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
             }
             else
             {
+                //Undefined falls to auto behavior
+                if ( TiDimensionIsUndefined(constraint->width) || TiDimensionIsAuto(constraint->width) ) 
+                {
+                    //If default auto behavior is fill, set value and break
+                    if ([autoSizer respondsToSelector:@selector(defualtAutoWidthBehavior:)]) {
+                        if (TiDimensionIsAutoFill([autoSizer defualtAutoWidthBehavior:nil])) {
+                            width = referenceSize.width;
+                            break;
+                        }
+                    }
+                }
                 //This is old code and it corresponds to the new code when above 3 conditions fail
                 //width = TiDimensionCalculateMargins(constraint->left, constraint->right, referenceSize.width);
                 width = referenceSize.width;
@@ -138,6 +149,17 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
                 }
             }
             else {
+                //Undefined falls to auto behavior
+                if ( TiDimensionIsUndefined(constraint->height) || TiDimensionIsAuto(constraint->height) ) 
+                {
+                    //If default auto behavior is fill, set value and break
+                    if ([autoSizer respondsToSelector:@selector(defualtAutoHeightBehavior:)]) {
+                        if (TiDimensionIsAutoFill([autoSizer defualtAutoHeightBehavior:nil])) {
+                            height = referenceSize.height;
+                            break;
+                        }
+                    }
+                }
                 //When the above 3 conditions fail 
                 height = referenceSize.height;
             }

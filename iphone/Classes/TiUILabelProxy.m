@@ -57,6 +57,16 @@ USE_VIEW_FOR_AUTO_WIDTH
     return [NSMutableDictionary dictionaryWithObject:@"text" forKey:@"textid"];
 }
 
+-(TiDimension)defualtAutoWidthBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+-(TiDimension)defualtAutoHeightBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+
+
 @end
 
 #endif

@@ -204,6 +204,14 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 	return nil;
 }
 
+-(TiDimension)defualtAutoWidthBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+-(TiDimension)defualtAutoHeightBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
 
 @end
 

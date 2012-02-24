@@ -318,6 +318,15 @@ USE_VIEW_FOR_VERIFY_HEIGHT
 	[self makeViewPerformSelector:@selector(reloadColumn:) withObject:NUMINT(columnIndex) createIfNeeded:YES waitUntilDone:NO];
 }
 
+-(TiDimension)defualtAutoWidthBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+-(TiDimension)defualtAutoHeightBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+
 @end
 
 #endif

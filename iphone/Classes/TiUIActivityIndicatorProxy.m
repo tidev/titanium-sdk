@@ -16,6 +16,14 @@
     return [NSMutableDictionary dictionaryWithObject:@"message" forKey:@"messageid"];
 }
 
+-(TiDimension)defualtAutoWidthBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+-(TiDimension)defualtAutoHeightBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
 
 USE_VIEW_FOR_AUTO_WIDTH
 

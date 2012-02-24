@@ -2301,4 +2301,14 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	}
 }
 
+
+-(TiDimension)defualtAutoWidthBehavior:(id)unused
+{
+    return TiDimensionAutoFill;
+}
+-(TiDimension)defualtAutoHeightBehavior:(id)unused
+{
+    return TiDimensionAutoFill;
+}
+
 @end

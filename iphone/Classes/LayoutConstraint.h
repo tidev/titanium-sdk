@@ -25,6 +25,9 @@
 
 -(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing;
 
+-(TiDimension)defualtAutoWidthBehavior:(id)unused;
+-(TiDimension)defualtAutoHeightBehavior:(id)unused;
+
 @end
 
 typedef enum {

@@ -30,4 +30,14 @@ NSArray* tabbedKeySequence;
 USE_VIEW_FOR_AUTO_WIDTH
 USE_VIEW_FOR_AUTO_HEIGHT
 
+
+-(TiDimension)defualtAutoWidthBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+-(TiDimension)defualtAutoHeightBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+
 @end
