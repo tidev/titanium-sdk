@@ -141,7 +141,7 @@ methods:
         type: Callback<FacebookDialogResponse>
 
   - name: logout
-    summary: Clears the OAuth `accessToken` and logout the user.
+    summary: Clears the OAuth `accessToken` and logs out the user.
 
   - name: request
     summary: Makes a request to the legacy Facebook REST API.
