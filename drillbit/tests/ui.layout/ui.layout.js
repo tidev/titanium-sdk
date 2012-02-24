@@ -1,9 +1,18 @@
 describe("Ti.UI Layout tests", {
-	// functional test cases #1010, #1011
+	// functional test cases #1010, #1011, #1025, #1025a
 	//rect and size properties should not be undefined
 	viewSizeAndRectPx: asyncTest(function() {
 		var win = Ti.UI.createWindow();
 		var view = Ti.UI.createView();
+		var label = Ti.UI.createLabel({
+			text: "a",
+			font: {
+				fontSize: 14,
+				fontFamily: "monospace"
+			}
+		});
+		win.add(view);
+		win.add(label);
 		win.addEventListener("open", this.async(function(e) {
 			valueOf(view.size).shouldNotBeUndefined();
 			valueOf(view.size.width).shouldNotBeUndefined();
@@ -23,6 +32,32 @@ describe("Ti.UI Layout tests", {
 			//size property returns 0 for x and y
 			valueOf(view.size.x).shouldBe(0);
 			valueOf(view.size.y).shouldBe(0);
+			
+			//Functonal test case 1025
+			valueOf(view.top).shouldBeUndefined();
+			valueOf(view.bottom).shouldBeUndefined();
+			valueOf(view.left).shouldBeUndefined();
+			valueOf(view.right).shouldBeUndefined();
+			valueOf(view.center).shouldBeUndefined();
+			valueOf(view.zIndex).shouldBeUndefined();
+			valueOf(view.padding).shouldBeUndefined();
+			valueOf(view.margin).shouldBeUndefined();
+			
+			//Functonal test case 1025a
+			valueOf(label.top).shouldBeUndefined();
+			valueOf(label.bottom).shouldBeUndefined();
+			valueOf(label.left).shouldBeUndefined();
+			valueOf(label.right).shouldBeUndefined();
+			valueOf(label.center).shouldBeUndefined();
+			valueOf(label.zIndex).shouldBeUndefined();
+			valueOf(label.padding).shouldBeUndefined();
+			valueOf(label.margin).shouldBeUndefined();
+			
+			//FILL behavior
+			valueOf(view.rect.x).shouldBe(0);
+			valueOf(view.rect.y).shouldBe(0);
+			valueOf(win.size.height/view.size.height).shouldBe(1);
+			valueOf(win.size.width/view.size.width).shouldBe(1);
 		}));
 		win.open();
 	}),
@@ -112,62 +147,9 @@ describe("Ti.UI Layout tests", {
 			valueOf(view.right).shouldBeUndefined();
 			valueOf(view.top).shouldBeUndefined();
 			valueOf(view.bottom).shouldBeUndefined();
-			valueOf(view.rect.left).shouldBe(Math.floor((win.size.width - view.size.width) / 2));
-			valueOf(view.rect.top).shouldBe(Math.floor((win.size.height - view.size.height) / 2));
-			valueOf(view.rect.right).shouldBe(view.rect.left + 10);
-			valueOf(view.rect.bottom).shouldBe(view.rect.top + 10);
-		}));
-		win.open();
-	}),
-	// functional test case #1025: ViewDefault
-	viewDefault: asyncTest(function() {
-		var win = Ti.UI.createWindow();
-		var view = Ti.UI.createView();
-		win.add(view);
-		win.addEventListener("open", this.async(function(e) {
-			valueOf(view.top).shouldBeUndefined();
-			valueOf(view.bottom).shouldBeUndefined();
-			valueOf(view.left).shouldBeUndefined();
-			valueOf(view.right).shouldBeUndefined();
-			valueOf(view.center).shouldBeUndefined();
-			valueOf(view.zIndex).shouldBeUndefined();
-			valueOf(view.padding).shouldBeUndefined();
-			valueOf(view.margin).shouldBeUndefined();
-
-			valueOf(view.rect.top).shouldBe((win.size.height - view.size.height) / 2);
-			valueOf(view.rect.left).shouldBe((win.size.width - view.size.width) / 2);
-			valueOf(win.size.height/view.size.height).shouldBe(1);
-			valueOf(win.size.width/view.size.width).shouldBe(1);
-		}));
-		win.open();
-	}),
-	// functional test #1025a SizeViewDefault
-	sizeViewDefault: asyncTest(function() {
-		var win = Ti.UI.createWindow();
-		var label1 = Ti.UI.createLabel({
-			text: "a",
-			font: {
-				fontSize: 14,
-				fontFamily: "monospace"
-			}
-		});
-		win.add(label1);
-		var label2 = Ti.UI.createLabel({
-			text: "ab",
-			font: {
-				fontSize: 14,
-				fontFamily: "monospace"
-			}
-		});
-		win.add(label2);
-		win.addEventListener("open", this.async(function(e) {
-			valueOf(label2.left).shouldBeUndefined();
-			valueOf(label2.right).shouldBeUndefined();
-			valueOf(label2.top).shouldBeUndefined();
-			valueOf(label2.bottom).shouldBeUndefined();
-			valueOf(label2.center).shouldBeUndefined();
-			valueOf(label2.width).shouldBeUndefined();
-			valueOf(label2.height).shouldBeUndefined();
+			//Centered View with width and height defined
+			valueOf(view.rect.x).shouldBe(Math.floor((win.size.width - view.size.width) / 2));
+			valueOf(view.rect.y).shouldBe(Math.floor((win.size.height - view.size.height) / 2));
 		}));
 		win.open();
 	}),
