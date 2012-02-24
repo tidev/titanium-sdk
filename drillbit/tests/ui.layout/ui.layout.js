@@ -322,7 +322,6 @@ describe("Ti.UI Layout tests", {
 		});
 
 		win.addEventListener('open', this.async(function(e){
-			// Don't check for actual values here since rect will be different depending on device
 			valueOf(view1.width).shouldBeUndefined();
 			valueOf(view2.width).shouldBeUndefined();
 			valueOf(view3.width).shouldBeUndefined();
@@ -416,49 +415,61 @@ describe("Ti.UI Layout tests", {
 		});
 
 		win.addEventListener('open', this.async(function(e){
-			valueOf(view.rect.right).shouldNotBeUndefined();
 			valueOf(view.right).shouldBeUndefined();
+			valueOf(view.rect.width).shouldBe(80);
+			valueOf(view.rect.x).shouldBe(10);
 		}));
 
 		win.add(view);
 		win.open();
 
 	}),
-	// functional test #1037 UndefinedHeight
+	// functional test #1037, #1037a, #1037b 
+	// UndefinedHeight Implicit calculations
 	undefinedHeight: asyncTest(function() {
 		var win = Ti.UI.createWindow();
-
-		var view = Ti.UI.createView({
-			backgroundColor: 'yellow',
+		var parentView = Ti.UI.createView({
+			padding:{left:10,bottom:10},
+			width:100,
+			height:100
+		});
+		
+		var view1 = Ti.UI.createView({
 			top: 5,
+			bottom: 10
+		});
+		var view2 = Ti.UI.createView({
+			top: 5,
+			center: {y:10}
+		});
+		var view3 = Ti.UI.createView({
+			center: {y:75},
 			bottom: 10
 		});
 
 		win.addEventListener('open', this.async(function(e){
-			valueOf(view.rect.bottom - view.rect.top).shouldBe(view.size.height);
-			valueOf(view.height).shouldBeUndefined();
+			valueOf(view1.height).shouldBeUndefined();
+			valueOf(view2.height).shouldBeUndefined();
+			valueOf(view3.height).shouldBeUndefined();
+			
+			valueOf(view1.rect.height).shouldBe(85);
+			valueOf(view2.rect.height).shouldBe(10);
+			valueOf(view3.rect.height).shouldBe(30);
+			
+			//Parentview padding should effect positioning of views
+			valueOf(view1.rect.x).shouldBe(10);
+			valueOf(view2.rect.x).shouldBe(10);
+			valueOf(view3.rect.x).shouldBe(10);
+		
+			valueOf(view1.rect.y).shouldBe(-5);
+			valueOf(view2.rect.y).shouldBe(-5);
+			valueOf(view3.rect.y).shouldBe(50);
 		}));
-
-		win.add(view);
-		win.open();
-
-	}),
-	// functional test #1037a & #1037b UndefinedHeightCenterBottom UndefinedHeightCenterTop
-	undefinedHeightCenter: asyncTest(function() {
-		var win = Ti.UI.createWindow();
-
-		var view = Ti.UI.createView({
-			backgroundColor: 'yellow',
-			top: 5,
-			bottom: 10
-		});
-
-		win.addEventListener('open', this.async(function(e){
-			valueOf(view.rect.bottom - view.rect.top).shouldBe(view.size.height);
-			valueOf(view.height).shouldBeUndefined();
-		}));
-
-		win.add(view);
+		
+		parentView.add(view1);
+		parentView.add(view2);
+		parentView.add(view3);
+		win.add(parentView);
 		win.open();
 
 	}),
