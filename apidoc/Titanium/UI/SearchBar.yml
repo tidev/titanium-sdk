@@ -37,7 +37,6 @@ description: |
                 mySearchBar.value ="";
                 // hiding and showing the search bar forces it back to its non-focused appearance.
                 mySearchBar.hide();
-                mySearchBar.blur();
                 mySearchBar.show();
             }
             // standard click event handling here
