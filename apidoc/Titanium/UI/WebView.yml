@@ -246,11 +246,16 @@ properties:
     type: [Titanium.Blob, Titanium.Filesystem.File]
 
   - name: html
-    summary: HTML content of the web document.
+    summary: HTML content of this web view.
     description: |
-        Content can also be set using [data](Titanium.UI.WebView.data) or [url](Titanium.UI.WebView.url).
+        On Android, This property is read-only. On other platforms, it is read-write and can 
+        be used to set the web view's content. 
 
-        On Android, This property is read-only. 
+        On all platforms the web view's content can be set using the [data](Titanium.UI.WebView.data) or 
+        [url](Titanium.UI.WebView.url) properties.
+        
+        For iOS, see [setHtml](Titanium.UI.WebView.setHtml) for additional parameters that can be
+        specified when setting HTML content.
 
         For Mobile Web, setting new content will reset the `url` and the WebView's history.
     type: String
