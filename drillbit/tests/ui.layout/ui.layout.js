@@ -529,8 +529,9 @@ describe("Ti.UI Layout tests", {
 		});
 
 		win.addEventListener('open', this.async(function(e){
-			valueOf(view.rect.bottom).shouldNotBeUndefined();
 			valueOf(view.bottom).shouldBeUndefined();
+			//Dynamic bottom is rect.y + rect.height
+			valueOf(view.rect.height).shouldNotBeUndefined();
 		}));
 
 		win.add(view);
