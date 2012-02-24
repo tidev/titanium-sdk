@@ -410,7 +410,7 @@ class Builder(object):
 			
 		return name
 	
-	def run_emulator(self,avd_id,avd_skin):
+	def run_emulator(self,avd_id,avd_skin,add_args):
 		info("Launching Android emulator...one moment")
 		debug("From: " + self.sdk.get_emulator())
 		debug("SDCard: " + self.sdcard)
@@ -447,6 +447,7 @@ class Builder(object):
 			'-partition-size',
 			'128' # in between nexusone and droid
 		]
+		emulator_cmd.extend(add_args);
 		debug(' '.join(emulator_cmd))
 		
 		p = subprocess.Popen(emulator_cmd)
@@ -2004,7 +2005,7 @@ class Builder(object):
 
 if __name__ == "__main__":
 	def usage():
-		print "%s <command> <project_name> <sdk_dir> <project_dir> <app_id> [key] [password] [alias] [dir] [avdid] [avdsdk]" % os.path.basename(sys.argv[0])
+		print "%s <command> <project_name> <sdk_dir> <project_dir> <app_id> [key] [password] [alias] [dir] [avdid] [avdsdk] [emulator options]" % os.path.basename(sys.argv[0])
 		print
 		print "available commands: "
 		print
@@ -2068,13 +2069,14 @@ if __name__ == "__main__":
 
 	try:
 		if command == 'run-emulator':
-			s.run_emulator(avd_id, avd_skin)
+			s.run_emulator(avd_id, avd_skin, [])
 		elif command == 'run':
 			s.build_and_run(False, avd_id)
 		elif command == 'emulator':
 			avd_id = dequote(sys.argv[6])
 			avd_skin = dequote(sys.argv[7])
-			s.run_emulator(avd_id, avd_skin)
+			add_args = sys.argv[8:]
+			s.run_emulator(avd_id, avd_skin, add_args)
 		elif command == 'simulator':
 			info("Building %s for Android ... one moment" % project_name)
 			avd_id = dequote(sys.argv[6])
