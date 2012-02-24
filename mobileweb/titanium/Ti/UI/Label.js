@@ -31,7 +31,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				style: {
 					textAlign: "left",
 					textOverflow: "ellipsis",
-					overflowX: "hidden",
+					overflow: "hidden",
 					width: "100%",
 					maxHeight: "100%",
 					userSelect: "none",
