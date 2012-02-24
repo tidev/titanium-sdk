@@ -7,7 +7,7 @@
 # A custom server that speeds up development time in Android significantly
 
 import os, sys, time, optparse, logging
-import urllib, simplejson, threading
+import urllib, threading
 import SocketServer, socket, struct, codecs
 import platform, mimetypes
 
@@ -22,8 +22,9 @@ logging.basicConfig(format='[%(levelname)s] [%(asctime)s] %(message)s', level=lo
 support_android_dir = os.path.dirname(os.path.abspath(__file__))
 support_dir = os.path.dirname(support_android_dir)
 sys.path.append(support_dir)
+sys.path.append(os.path.join(support_dir, "common"))
 
-import tiapp
+import tiapp, simplejson
 
 server = None
 request_count = 0
