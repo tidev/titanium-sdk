@@ -407,6 +407,13 @@ public class TiCompositeLayout extends ViewGroup
 			}
 		}
 	}
+	
+	@Override
+	protected void onAnimationEnd()
+	{
+		super.onAnimationEnd();
+		invalidate();
+	}
 
 	// option0 is left/top, option1 is right/bottom
 	private void adjustPosition(View parent, TiDimension option0, TiDimension option1, int[] pos)
