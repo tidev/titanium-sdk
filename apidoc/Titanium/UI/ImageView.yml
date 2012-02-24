@@ -133,13 +133,15 @@ properties:
     summary: Image to display.
     description: |
         Image to display, defined using a local filesystem path, a `File` object, a remote URL, 
-        or a `Blob` object containing image data. `Blob` objects are not supported on Mobile Web.
+        or a `Blob` object containing image data. `Blob` and `File` objects are not supported on 
+        Mobile Web.
     type: [ String, Titanium.Blob, Titanium.Filesystem.File ]
 
   - name: images
     summary: | 
         Array of images to animate, defined using local filesystem paths, `File` objects, 
-        remote URLs (Android only), or `Blob` objects containing image data.
+        remote URLs (Android only), or `Blob` objects containing image data. `Blob` and `File` 
+        objects are not supported on Mobile Web.
     type: [ Array<String>, Array<Titanium.Blob>, Array<Titanium.Filesystem.File> ]
     
   - name: paused
