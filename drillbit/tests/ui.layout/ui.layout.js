@@ -352,18 +352,41 @@ describe("Ti.UI Layout tests", {
 	undefinedLeft: asyncTest(function() {
 		var win = Ti.UI.createWindow();
 
-		var view = Ti.UI.createView({
-			backgroundColor: 'yellow',
-			right: 5,
-			center: {x:10}
+		var view1 = Ti.UI.createView({
+			width: 120,
+			center: {x:80}
+		});
+		var view2 = Ti.UI.createView({
+			right: 120,
+			center: {x:80}
+		});
+		var view3 = Ti.UI.createView({
+			right: 80,
+			width: 120
 		});
 
 		win.addEventListener('open', this.async(function(e){
-			valueOf(view.rect.left).shouldNotBeUndefined();
-			valueOf(view.left).shouldBeUndefined();
+			valueOf(view1.left).shouldBeUndefined();
+			valueOf(view2.left).shouldBeUndefined();
+			valueOf(view3.left).shouldBeUndefined();
+			
+			valueOf(view1.rect.x).shouldNotBeUndefined();
+			valueOf(view2.rect.x).shouldNotBeUndefined();
+			valueOf(view3.rect.x).shouldNotBeUndefined();
+			valueOf(view1.rect.y).shouldNotBeUndefined();
+			valueOf(view2.rect.y).shouldNotBeUndefined();
+			valueOf(view3.rect.y).shouldNotBeUndefined();
+			valueOf(view1.rect.width).shouldNotBeUndefined();
+			valueOf(view2.rect.width).shouldNotBeUndefined();
+			valueOf(view3.rect.width).shouldNotBeUndefined();
+			valueOf(view1.rect.height).shouldNotBeUndefined();
+			valueOf(view2.rect.height).shouldNotBeUndefined();
+			valueOf(view3.rect.height).shouldNotBeUndefined();
 		}));
 
-		win.add(view);
+		win.add(view1);
+		win.add(view2);
+		win.add(view3);
 		win.open();
 
 	}),
