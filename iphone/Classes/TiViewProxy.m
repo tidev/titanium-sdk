@@ -2026,7 +2026,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		
 		int thisChildZindex = [thisChildProxy vzIndex];
 		if((thisChildZindex < childZindex) ||
-				(earlierSibling && (thisChildZindex == vzIndex)))
+				(earlierSibling && (thisChildZindex == childZindex)))
 		{
 			result ++;
 		}
