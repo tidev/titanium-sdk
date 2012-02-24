@@ -736,10 +736,10 @@ describe("Ti.UI Layout tests", {
 			valueOf(label.right).shouldBe(10);
 			valueOf(label.top).shouldBe(10);
 			valueOf(label.bottom).shouldBe(10);
-			valueOf(label.rect.left).shouldBe(10);
-			valueOf(label.rect.right).shouldBe(90);
-			valueOf(label.rect.top).shouldBe(10);
-			valueOf(label.rect.bottom).shouldBe(90);
+			valueOf(label.rect.x).shouldBe(10);
+			valueOf(label.rect.width).shouldBe(80);
+			valueOf(label.rect.y).shouldBe(10);
+			valueOf(label.rect.height).shouldBe(80);
 		}));
 		win.open();
 	})
