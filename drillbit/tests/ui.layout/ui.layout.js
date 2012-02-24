@@ -193,6 +193,7 @@ describe("Ti.UI Layout tests", {
 		});
 
 		win.addEventListener('open', this.async(function(e){
+			//Invalid value test. Must be defined as Rect(duck type)
 			valueOf(view.padding).shouldBeUndefined();
 		}));
 
@@ -212,6 +213,8 @@ describe("Ti.UI Layout tests", {
 		win.addEventListener('open', this.async(function(e){
 			valueOf(view.padding.left).shouldBe(10);
 			valueOf(view.padding.right).shouldBeUndefined();
+			//Padding should not effect this views positioning
+			valueOf(view.rect.x).shouldBe(0);
 		}));
 
 		win.add(view);
@@ -247,6 +250,7 @@ describe("Ti.UI Layout tests", {
 		});
 
 		win.addEventListener('open', this.async(function(e){
+			//Invalid value test. Must be defined as Rect(duck type)
 			valueOf(view.margin).shouldBeUndefined();
 		}));
 
@@ -266,6 +270,8 @@ describe("Ti.UI Layout tests", {
 		win.addEventListener('open', this.async(function(e){
 			valueOf(view.margin.left).shouldBe(10);
 			valueOf(view.margin.right).shouldBeUndefined();
+			//Margin will effect this views positioning
+			valueOf(view.rect.x).shouldBe(10);
 		}));
 
 		win.add(view);
