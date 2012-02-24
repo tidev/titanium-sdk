@@ -97,8 +97,8 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
                 //width = TiDimensionCalculateMargins(constraint->left, constraint->right, referenceSize.width);
                 width = referenceSize.width;
             }
-            if ( (TiDimensionIsAuto(constraint->width) || TiDimensionIsAutoSize(constraint->width) ) && 
-                [autoSizer respondsToSelector:@selector(autoWidthForWidth:)])
+            //If it comes here it has to follow size behavior
+            if ([autoSizer respondsToSelector:@selector(autoWidthForWidth:)])
             {
                 width = [autoSizer autoWidthForWidth:width];
             }
@@ -163,9 +163,8 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
                 //When the above 3 conditions fail 
                 height = referenceSize.height;
             }
-            
-            if ( (TiDimensionIsAuto(constraint->height) || TiDimensionIsAutoSize(constraint->height) )&& 
-                [autoSizer respondsToSelector:@selector(autoHeightForWidth:)])
+            //If it comes here it has to follow size behavior
+            if ([autoSizer respondsToSelector:@selector(autoHeightForWidth:)])
             {
                 height = [autoSizer autoHeightForWidth:width];
             }
