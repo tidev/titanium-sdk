@@ -298,43 +298,53 @@ describe("Ti.UI Layout tests", {
 		win.open();
 
 	}),
-	// functional test #1033 UndefinedWidth
+	// functional test #1033, 1033a, 1033b 
+	// UndefinedWidth Implicit calculations
 	undefinedWidth: asyncTest(function() {
 		var win = Ti.UI.createWindow();
-		var view = Ti.UI.createView({
-			backgroundColor: 'yellow',
+		var parentView = Ti.UI.createView({
+			padding:{right:10,top:10},
+			width:100,
+			height:100
+		});
+		
+		var view1 = Ti.UI.createView({
 			left: 5,
+			right: 10
+		});
+		var view2 = Ti.UI.createView({
+			left: 5,
+			center: {x:10}
+		});
+		var view3 = Ti.UI.createView({
+			center: {x:75},
 			right: 10
 		});
 
 		win.addEventListener('open', this.async(function(e){
 			// Don't check for actual values here since rect will be different depending on device
-			valueOf(view.rect.right).shouldNotBeUndefined();
-			valueOf(view.rect.left).shouldNotBeUndefined();
-			valueOf(view.size.width).shouldNotBeUndefined();
-			valueOf(view.width).shouldBeUndefined();
+			valueOf(view1.width).shouldBeUndefined();
+			valueOf(view2.width).shouldBeUndefined();
+			valueOf(view3.width).shouldBeUndefined();
+			
+			valueOf(view1.rect.width).shouldBe(85);
+			valueOf(view2.rect.width).shouldBe(10);
+			valueOf(view3.rect.width).shouldBe(30);
+			
+			//Parentview padding should effect positioning of views
+			valueOf(view1.rect.y).shouldBe(10);
+			valueOf(view2.rect.y).shouldBe(10);
+			valueOf(view3.rect.y).shouldBe(10);
+		
+			valueOf(view1.rect.x).shouldBe(-5);
+			valueOf(view2.rect.x).shouldBe(-5);
+			valueOf(view3.rect.x).shouldBe(50);
 		}));
-
-		win.add(view);
-		win.open();
-
-	}),
-	// functional test #1033a #1033b  UndefinedWidthCenter
-	undefinedWidthCenter: asyncTest(function() {
-		var win = Ti.UI.createWindow();
-
-		var view = Ti.UI.createView({
-			backgroundColor: 'yellow',
-			left: 5,
-			center: {x:10}
-		});
-
-		win.addEventListener('open', this.async(function(e){
-			valueOf(view.rect.right - view.rect.left).shouldBe(view.size.width);
-			valueOf(view.width).shouldBeUndefined();
-		}));
-
-		win.add(view);
+		
+		parentView.add(view1);
+		parentView.add(view2);
+		parentView.add(view3);
+		win.add(parentView);
 		win.open();
 
 	}),
