@@ -456,36 +456,76 @@ define(
 				var endPointX = computeSize(backgroundGradient.endPoint.x, this._measuredWidth),
 					endPointY = computeSize(backgroundGradient.endPoint.y, this._measuredHeight);
 					
-				// Rearrange values so that start is to the left of end
-				if (startPointX > endPointX) {
-					var temp = startPointX;
-					startPointX = endPointX;
-					endPointX = temp;
-					temp = startPointY;
-					startPointY = endPointY;
-					endPointY = temp;
+				var userGradientStart,
+					userGradientEnd,
+					numColors = colors.length;
+				if (Math.abs(startPointX - endPointX) < 0.01) {
+					// Vertical gradient shortcut
+					if (startPointY < endPointY) {
+						userGradientStart = startPointY;
+						userGradientEnd = endPointY;
+						cssVal += "270deg";
+					} else {
+						userGradientStart = endPointY;
+						userGradientEnd = startPointY;
+						cssVal += "90deg";
+					}
+				} else if(Math.abs(startPointY - endPointY) < 0.01) {
+					// Horizontal gradient shortcut
+					if (startPointX < endPointX) {
+						userGradientStart = startPointX;
+						userGradientEnd = endPointX;
+						cssVal += "0deg";
+					} else {
+						userGradientStart = endPointX;
+						userGradientEnd = startPointX;
+						cssVal += "180deg";
+					}
+				}else {
+					
+					// Rearrange values so that start is to the left of end
+					var mirrorGradient = false;
+					if (startPointX > endPointX) {
+						mirrorGradient = true;
+						var temp = startPointX;
+						startPointX = endPointX;
+						endPointX = temp;
+						temp = startPointY;
+						startPointY = endPointY;
+						endPointY = temp;
+					}
+					
+					// Compute the angle, start location, and end location of the gradient
+					var angle = Math.atan2(endPointY - startPointY, endPointX - startPointX)
+						userLineIntersection = startPointY - startPointX * Math.tan(angle),
+						originLineIntersection =  centerY - centerX * Math.tan(angle),
+						userDistance = (userLineIntersection - originLineIntersection) * Math.cos(angle),
+						userXOffset = userDistance * Math.sin(angle),
+						userYOffset = userDistance * Math.cos(angle),
+						startPointX = startPointX + userXOffset,
+						startPointY = startPointY - userYOffset,
+						endPointX = endPointX + userXOffset,
+						endPointY = endPointY - userYOffset;
+					if (angle > 0) {
+						var globalGradientStartDistance = originLineIntersection * Math.sin(Math.PI / 2 - angle),
+							globalGradientStartOffsetX = -globalGradientStartDistance * Math.cos(Math.PI / 2 - angle),
+							globalGradientStartOffsetY = globalGradientStartDistance * Math.sin(Math.PI / 2 - angle);
+						userGradientStart = Math.sqrt(Math.pow(startPointX - globalGradientStartOffsetX,2) + Math.pow(startPointY - globalGradientStartOffsetY,2));
+						userGradientEnd = Math.sqrt(Math.pow(endPointX - globalGradientStartOffsetX,2) + Math.pow(endPointY - globalGradientStartOffsetY,2));
+					} else {
+						var globalGradientStartDistance = (this._measuredHeight - originLineIntersection) * Math.sin(Math.PI / 2 + angle),
+							globalGradientStartOffsetX = -globalGradientStartDistance * Math.cos(Math.PI / 2 + angle),
+							globalGradientStartOffsetY = this._measuredHeight - globalGradientStartDistance * Math.sin(Math.PI / 2 + angle);
+						userGradientStart = Math.sqrt(Math.pow(startPointX - globalGradientStartOffsetX,2) + Math.pow(startPointY - globalGradientStartOffsetY,2));
+						userGradientEnd = Math.sqrt(Math.pow(endPointX - globalGradientStartOffsetX,2) + Math.pow(endPointY - globalGradientStartOffsetY,2));
+					}
+					
+					// Set the angle info for the gradient
+					angle = mirrorGradient ? angle + Math.PI : angle;
+					cssVal += Math.round((360 * (2 * Math.PI - angle) / (2 * Math.PI))) + "deg";
 				}
 				
-				// Calculate the angle and offset gradient start and end points (these become colorstops)
-				var angle = Math.atan2(endPointY - startPointY, endPointX - startPointX);
-					userLineIntersection = startPointY - startPointX * Math.tan(angle);
-					originLineIntersection =  centerY - centerX * Math.tan(angle);
-					userDistance = (userLineIntersection - originLineIntersection) * Math.cos(angle);
-					userXOffset = userDistance * Math.sin(angle);
-					userYOffset = userDistance * Math.cos(angle);
-					startPointX = startPointX + userXOffset;
-					startPointY = startPointY - userYOffset;
-					endPointX = endPointX + userXOffset;
-					endPointY = endPointY - userYOffset;
-					globalGradientStartDistance = originLineIntersection * Math.sin(Math.PI / 2 - angle);
-					globalGradientStartOffsetX = -globalGradientStartDistance * Math.cos(Math.PI / 2 - angle);
-					globalGradientStartOffsetY = globalGradientStartDistance * Math.sin(Math.PI / 2 - angle);
-					userGradientStart = Math.sqrt(Math.pow(startPointX - globalGradientStartOffsetX,2) + Math.pow(startPointY - globalGradientStartOffsetY,2));
-					userGradientEnd = Math.sqrt(Math.pow(endPointX - globalGradientStartOffsetX,2) + Math.pow(endPointY - globalGradientStartOffsetY,2));
-				
-				// Set the base info for the gradient
-				cssVal += Math.round((360 * (2 * Math.PI - angle) / (2 * Math.PI))) + "deg";
-				var numColors = colors.length;
+				// Calculate the color stops
 				for (var i = 0; i < numColors; i++) {
 					var color = colors[i];
 					if (is(color,"String")) {
