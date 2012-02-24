@@ -268,6 +268,9 @@ DEFINE_EXCEPTIONS
 	 
 	self.backgroundColor = [UIColor clearColor]; 
 	self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    
+    //Make sure sub views are clipped to bounds
+    self.clipsToBounds = YES;
 }
 
 -(void)configurationSet
