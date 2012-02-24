@@ -28,6 +28,12 @@ public class TiSensorHelper
 	private static SensorManager sensorManager;
 
 
+	/**
+	 * Registers a sensor listener with specified types and sensitivity.
+	 * @param types
+	 * @param listener the sensor listener to be registered.
+	 * @param rate sensitivity of listener measured in milliseconds.
+	 */
 	public static void registerListener(int[] types, SensorEventListener listener, int rate)
 	{
 		for (int type : types) {
@@ -60,6 +66,11 @@ public class TiSensorHelper
 		}
 	}
 
+	/**
+	 * Attempts to unregister the listener. An error will be logged if unable to unregister
+	 * @param type
+	 * @param listener the listener
+	 */
 	public static void unregisterListener(int type, SensorEventListener listener)
 	{
 		if (sensorManager != null) {
@@ -81,6 +92,12 @@ public class TiSensorHelper
 		}
 	}
 
+	/**
+	 * Returns whether the activity has a default sensor.
+	 * @param activity
+	 * @param type
+	 * @return
+	 */
 	public static boolean hasDefaultSensor(Activity activity, int type)
 	{
 		boolean oneShot = false;

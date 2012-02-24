@@ -127,6 +127,12 @@ public class TiDrawableReference
 		return ref;
 	}
 
+	/**
+	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.BLOB
+	 * @param activity the activity to reference.
+	 * @param blob the blob to reference.
+	 * @return A ready instance of TiDrawableReference
+	 */
 	public static TiDrawableReference fromBlob(Activity activity, TiBlob blob)
 	{
 		TiDrawableReference ref = new TiDrawableReference(activity, DrawableReferenceType.BLOB);
@@ -139,6 +145,12 @@ public class TiDrawableReference
 		return fromUrl(proxy.getActivity(), proxy.resolveUrl(null, url));
 	}
 
+	/**
+	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.URL
+	 * @param activity the activity to reference
+	 * @param url the resource's url.
+	 * @return A ready instance of TiDrawableReference
+	 */
 	public static TiDrawableReference fromUrl(Activity activity, String url)
 	{
 		TiDrawableReference ref = new TiDrawableReference(activity, DrawableReferenceType.URL);
@@ -156,6 +168,12 @@ public class TiDrawableReference
 		return ref;
 	}
 
+	/**
+	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.FILE
+	 * @param activity the activity to reference
+	 * @param file the file to reference
+	 * @return A ready instance of TiDrawableReference
+	 */
 	public static TiDrawableReference fromFile(Activity activity, TiBaseFile file)
 	{
 		TiDrawableReference ref = new TiDrawableReference(activity, DrawableReferenceType.FILE);
