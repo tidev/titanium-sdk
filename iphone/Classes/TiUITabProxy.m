@@ -100,6 +100,15 @@
 	if (current!=nil)
 	{
 		TiWindowProxy *currentWindow = [current window];
+		[self close:[NSArray arrayWithObjects:currentWindow, [NSNumber numberWithBool:YES], nil]];
+	}
+}
+
+-(void)closeTab
+{
+	if (current!=nil)
+	{
+		TiWindowProxy *currentWindow = [current window];
 		[self close:currentWindow];
 	}
 }
@@ -277,8 +286,12 @@
 	// Don't use ENSURE_SINGLE_ARG because it will overwrite the original 'args' value if we
 	// ARE passing more than one arg
 	TiWindowProxy* window = nil;
+    BOOL removeTab = NO;
 	if ([args isKindOfClass:[NSArray class]]) {
 		window = [args objectAtIndex:0];
+        if ([args count] > 1) {
+            removeTab = [[args objectAtIndex:1] boolValue];
+        }
 	}
 	else {
 		window = args;
@@ -297,7 +310,8 @@
     BOOL closingCurrentWindow = ([current window] == window);
 	if (closingCurrentWindow)
 	{
-		if ([[rootController navigationController] popViewControllerAnimated:animated] != nil) {
+        [[rootController navigationController] popViewControllerAnimated:animated];
+		if (!removeTab) {
             return;
         }
 	}
