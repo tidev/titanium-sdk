@@ -39,10 +39,10 @@ else (width is invalid)
 
 
 
-CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, NSObject<LayoutAutosizing> * autoSizer, CGSize referenceSize, UIViewAutoresizing * resultResizing)
+CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, NSObject<LayoutAutosizing> * autoSizer, CGSize boundSize, UIViewAutoresizing * resultResizing)
 {
 	//TODO: Refactor for elegance.
-	CGFloat width;
+	CGFloat width = 0.0f;
 
 	if(resultResizing != NULL)
 	{
@@ -53,11 +53,11 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
 	{
 		case TiDimensionTypePercent:
 		case TiDimensionTypePixels:
-			width = TiDimensionCalculateValue(constraint->width, referenceSize.width);
+			width = TiDimensionCalculateValue(constraint->width, boundSize.width);
 			break;
 		default:
 			{
-				width = TiDimensionCalculateMargins(constraint->left, constraint->right, referenceSize.width);
+				width = TiDimensionCalculateMargins(constraint->left, constraint->right, boundSize.width);
 				if (TiDimensionIsAuto(constraint->width) && 
 					[autoSizer respondsToSelector:@selector(autoWidthForWidth:)])
 				{
@@ -76,13 +76,15 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
 		width = [autoSizer verifyWidth:width];
 	}
 	
-	CGFloat height;
+	CGFloat height = boundSize.height;
 
 	switch (constraint->height.type)
 	{
 		case TiDimensionTypePercent:
+			height *= constraint->height.value;
+			break;
 		case TiDimensionTypePixels:
-			height = TiDimensionCalculateValue(constraint->height, referenceSize.height);
+			height = constraint->height.value;
 			break;
 		default:
 			{
@@ -93,7 +95,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
 				}
 				else
 				{
-					height = TiDimensionCalculateMargins(constraint->top, constraint->bottom, referenceSize.height);
+					height = TiDimensionCalculateMargins(constraint->top, constraint->bottom, boundSize.height);
 					if(resultResizing != NULL)
 					{
 						*resultResizing |= UIViewAutoresizingFlexibleHeight;
@@ -124,7 +126,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
 
 
 
-CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * constraint, CGSize viewSize, CGPoint anchorPoint, CGSize referenceSize, CGSize sandboxSize, UIViewAutoresizing * resultResizing)
+CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * constraint, CGSize viewSize, CGPoint anchorPoint, CGSize superViewSize, UIViewAutoresizing * resultResizing)
 {
 	BOOL flexibleSize = *resultResizing & UIViewAutoresizingFlexibleWidth;
 
@@ -135,7 +137,7 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
 
 	if(!flexibleSize)
 	{
-		ignoreMargins = TiDimensionDidCalculateValue(constraint->centerX, referenceSize.width, &centerX);
+		ignoreMargins = TiDimensionDidCalculateValue(constraint->centerX, superViewSize.width, &centerX);
 	}
 	else
 	{
@@ -147,7 +149,7 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
 	{
 		int marginSuggestions=0;
 		CGFloat frameLeft = 0.0;
-		if(TiDimensionDidCalculateValue(constraint->left, referenceSize.width, &frameLeft))
+		if(TiDimensionDidCalculateValue(constraint->left, superViewSize.width, &frameLeft))
 		{
 			marginSuggestions++;
 		}
@@ -157,10 +159,10 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
 		}
 
 		CGFloat frameRight;
-		if(TiDimensionDidCalculateValue(constraint->right, referenceSize.width, &frameRight))
+		if(TiDimensionDidCalculateValue(constraint->right, superViewSize.width, &frameRight))
 		{
 			marginSuggestions++;
-			frameLeft += sandboxSize.width - viewSize.width - frameRight;
+			frameLeft += superViewSize.width - viewSize.width - frameRight;
 		}
 		else if (!flexibleSize)
 		{
@@ -169,7 +171,7 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
 		
 		if (marginSuggestions < 1)
 		{
-			centerX = sandboxSize.width/2.0 + viewSize.width*(anchorPoint.x-0.5);
+			centerX = superViewSize.width/2.0 + viewSize.width*(anchorPoint.x-0.5);
 		}
 		else
 		{
@@ -182,7 +184,7 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
 
 	if(!flexibleSize)
 	{
-		ignoreMargins = TiDimensionDidCalculateValue(constraint->centerY, referenceSize.width, &centerY);
+		ignoreMargins = TiDimensionDidCalculateValue(constraint->centerY, superViewSize.width, &centerY);
 	}
 	else
 	{
@@ -193,7 +195,7 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
 	{
 		int marginSuggestions=0;
 		CGFloat frameTop = 0.0;
-		if(TiDimensionDidCalculateValue(constraint->top, referenceSize.height, &frameTop))
+		if(TiDimensionDidCalculateValue(constraint->top, superViewSize.height, &frameTop))
 		{
 			marginSuggestions++;
 		}
@@ -203,10 +205,10 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
 		}
 
 		CGFloat frameBottom;
-		if(TiDimensionDidCalculateValue(constraint->bottom, referenceSize.height, &frameBottom))
+		if(TiDimensionDidCalculateValue(constraint->bottom, superViewSize.height, &frameBottom))
 		{
 			marginSuggestions++;
-			frameTop += sandboxSize.height - viewSize.height - frameBottom;
+			frameTop += superViewSize.height - viewSize.height - frameBottom;
 		}
 		else if (!flexibleSize)
 		{
@@ -215,7 +217,7 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
 		
 		if (marginSuggestions < 1)
 		{
-			centerY = sandboxSize.height/2.0 + viewSize.height*(anchorPoint.y-0.5);
+			centerY = superViewSize.height/2.0 + viewSize.height*(anchorPoint.y-0.5);
 		}
 		else
 		{
@@ -240,7 +242,7 @@ void ApplyConstraintToViewWithBounds(LayoutConstraint * constraint, TiUIView * s
 	resultBounds.size = SizeConstraintViewWithSizeAddingResizing(constraint,(TiViewProxy *)[subView proxy], viewBounds.size, &resultMask);
 	
 	CGPoint resultCenter = PositionConstraintGivenSizeBoundsAddingResizing(constraint, resultBounds.size,
-			[[subView layer] anchorPoint], viewBounds.size, viewBounds.size, &resultMask);
+			[[subView layer] anchorPoint], viewBounds.size, &resultMask);
 	
 	resultCenter.x += resultBounds.origin.x + viewBounds.origin.x;
 	resultCenter.y += resultBounds.origin.y + viewBounds.origin.y;

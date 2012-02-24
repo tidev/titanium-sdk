@@ -553,9 +553,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	else if(TiDimensionIsAuto(layoutProperties.width))
 	{
 		result += [self autoWidthForWidth:suggestedWidth - result];
-	} else if (TiDimensionIsPercent(layoutProperties.width)) {
-        result = TiDimensionCalculateValue(layoutProperties.width, suggestedWidth);
-    }
+	}
 	return result;
 }
 
@@ -1642,12 +1640,10 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 		repositioning = YES;
 
-        UIView *parentView = [parent parentViewForChild:self];
-        CGSize referenceSize = (parentView != nil) ? parentView.bounds.size : sandboxBounds.size;
-		sizeCache.size = SizeConstraintViewWithSizeAddingResizing(&layoutProperties,self, referenceSize, &autoresizeCache);
+		sizeCache.size = SizeConstraintViewWithSizeAddingResizing(&layoutProperties,self, sandboxBounds.size, &autoresizeCache);
 
 		positionCache = PositionConstraintGivenSizeBoundsAddingResizing(&layoutProperties, sizeCache.size,
-		[[view layer] anchorPoint], referenceSize, sandboxBounds.size, &autoresizeCache);
+		[[view layer] anchorPoint], sandboxBounds.size, &autoresizeCache);
 
 		positionCache.x += sizeCache.origin.x + sandboxBounds.origin.x;
 		positionCache.y += sizeCache.origin.y + sandboxBounds.origin.y;
