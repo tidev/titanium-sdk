@@ -14,11 +14,12 @@ methods:
         optional: true
   - name: hide
     platforms: [iphone, ipad]
+    since: 1.8.2
     summary: cause the dialog to no longer be visible
     parameters:
-      - name: properties
-        summary: object of animation properties. pass `animated` property (as boolean) to indicate if the optionDialog should be animated in hiding.
-        type: Object
+      - name: animated
+        summary: Whether the optionDialog should be animated in hiding.
+        type: hideOption
         optional: true
 events:
   - name: click
@@ -70,4 +71,12 @@ examples:
             });
             dialog.show();
         
-        
+---
+name: hideOption
+summary: Optional parameter for [hide](Titanium.UI.OptionDialog.hide) method.
+since: 1.8.2
+platforms: [iphone, ipad]
+properties:
+  - name: animated
+    summary: Boolean to indicate whether the option dialog's dismissal is animated.
+    type: Boolean
