@@ -30,7 +30,8 @@ description: |
     Buttons are defined using the `buttonNames` property and are rendered vertically below 
     the message.
     
-    On iOS 4, alert dialogs are automatically cancelled when the application is paused/suspended.
+    On iOS 4.0 and later, alert dialogs are automatically cancelled when the application is 
+    paused/suspended.
     
     #### Global Alias
     
