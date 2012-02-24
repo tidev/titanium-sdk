@@ -448,7 +448,8 @@ define(
 			var startPointX = computeSize(backgroundGradient.startPoint.x, this._measuredWidth),
 				startPointY = computeSize(backgroundGradient.startPoint.y, this._measuredHeight),
 				centerX = computeSize("50%", this._measuredWidth),
-				centerY = computeSize("50%", this._measuredHeight);
+				centerY = computeSize("50%", this._measuredHeight),
+				numColors = colors.length;
 			
 			if (type === "linear") {
 				
@@ -457,8 +458,7 @@ define(
 					endPointY = computeSize(backgroundGradient.endPoint.y, this._measuredHeight);
 					
 				var userGradientStart,
-					userGradientEnd,
-					numColors = colors.length;
+					userGradientEnd;
 				if (Math.abs(startPointX - endPointX) < 0.01) {
 					// Vertical gradient shortcut
 					if (startPointY < endPointY) {
@@ -532,7 +532,7 @@ define(
 						color = { color: color };
 					}
 					if (!is(color.offset,"Number")) {
-						color.offset = userGradientStart + (userGradientEnd - userGradientStart) * i / numColors;
+						color.offset = i / (numColors - 1);
 					}
 					cssVal += "," + color.color + " " + Math.round(computeSize(100 * color.offset + "%", userGradientEnd - userGradientStart) + userGradientStart) + "px";
 				}
@@ -543,6 +543,46 @@ define(
 				var radiusTotalLength = Math.min(this._measuredWidth,this._measuredHeight),
 					startRadius = computeSize(backgroundGradient.startRadius, radiusTotalLength),
 					endRadius = computeSize(backgroundGradient.endRadius, radiusTotalLength);
+				
+				var colorList = [],
+					mirrorGradient = false;
+				if (startRadius > endRadius) {
+					var temp = startRadius;
+					startRadius = endRadius;
+					endRadius = temp;
+					mirrorGradient = true;
+					
+					for (var i = 0; i <= (numColors - 2) / 2; i++) {
+						var mirroredPosition = numColors - i - 1;
+						colorList[i] = colors[mirroredPosition],
+						colorList[mirroredPosition] = colors[i];
+					}
+					if (numColors % 2 === 1) {
+						var middleIndex = Math.floor(numColors / 2);
+						colorList[middleIndex] = colors[middleIndex];
+					}
+				} else {
+					for (var i = 0; i < numColors; i++) {
+						colorList[i] = colors[i];
+					}
+				}
+				
+				cssVal += startPointX + "px " + startPointY + "px";
+				
+				// Calculate the color stops
+				for (var i = 0; i < numColors; i++) {
+					var color = colorList[i];
+					if (is(color,"String")) {
+						color = { color: color };
+					}
+					var offset;
+					if (!is(color.offset,"Number")) {
+						offset = i / (numColors - 1);
+					} else {
+						offset = mirrorGradient ? numColors % 2 === 1 && i === Math.floor(numColors / 2) ? color.offset : 1 - color.offset : color.offset;
+					}
+					cssVal += "," + color.color + " " + Math.round(computeSize(100 * offset + "%", endRadius - startRadius) + startRadius) + "px";
+				}
 			}
 
 			cssVal += ")";
@@ -793,7 +833,7 @@ define(
 					} else if (type === "radial") {
 						if (!startPoint || !("x" in startPoint) || !("y" in startPoint)) {
 							value.startPoint = {
-								x: "0%",
+								x: "50%",
 								y: "50%"
 							}
 						}
