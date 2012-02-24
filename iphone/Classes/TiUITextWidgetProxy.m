@@ -24,6 +24,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 	for (TiViewProxy * thisToolBarItem in keyboardToolbarItems)
 	{
 		[thisToolBarItem windowWillClose];
+        [self forgetProxy:thisToolBarItem];
 	}
 	[super windowWillClose];
 }
@@ -33,6 +34,9 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 	[keyboardTiView removeFromSuperview];
 	[keyboardUIToolbar removeFromSuperview];
 	RELEASE_TO_NIL(keyboardTiView);
+    for (TiProxy* proxy in keyboardToolbarItems) {
+        [self forgetProxy:proxy];
+    }
 	RELEASE_TO_NIL(keyboardToolbarItems);
 	RELEASE_TO_NIL(keyboardUIToolbar);
 	[super dealloc];
