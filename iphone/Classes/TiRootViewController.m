@@ -509,22 +509,23 @@
 -(BOOL)isModal {
     //For detecting windows that are opened modally.
     for (TiWindowProxy * thisProxy in windowProxies){
-        if([thisProxy modalFlagValue] == TRUE){
-            return TRUE;
+        if([thisProxy modalFlagValue] == YES){
+            return YES;
         }
     }
-    //For modal views that was added by the tiapp
-    UIViewController *navController = [self.modalViewController parentViewController];
-    //As of iOS 5, Apple is phasing out the modal concept in exchange for
+    
+    //For modal views that was added by the TiApp.mm (ApplicationDelegate)
+    UIViewController *modalController = [self.modalViewController parentViewController];
+    //TODO: As of iOS 5, Apple is phasing out the modal concept in exchange for
     //'presenting', making all non-Ti modal view controllers claim to have
     //no parent view controller.
-    if(navController==nil && [self.modalViewController respondsToSelector:@selector(presentingViewController)]){
-        navController = [self.modalViewController presentingViewController];
+    if(modalController==nil && [self.modalViewController respondsToSelector:@selector(presentingViewController)]){
+        modalController = [self.modalViewController presentingViewController];
     }
-    if(navController == self){
-        return TRUE;
+    if(modalController == self){
+        return YES;
     }
-    return FALSE;
+    return NO;
 }
 -(void)refreshOrientationWithDuration:(NSTimeInterval) duration
 {	/*
@@ -540,7 +541,7 @@
 		[UIViewController attemptRotationToDeviceOrientation];
 	}
     //Check if the view was opened modally, then we shouldnot be handling the rotation.
-    if([self isModal] == TRUE){
+    if([self isModal] == YES){
         return;
     }
     UIInterfaceOrientation newOrientation = [self lastValidOrientation];	
