@@ -6,12 +6,10 @@
 import os, sys, re
 apiDocDir = os.path.abspath(os.path.dirname(__file__))
 
-# We package the python markdown module already in the sdk source tree,
-# namely in /support/module/support/markdown.  So go ahead and  use it
-# rather than rely on it being easy_installed.
-moduleSupportDir = os.path.abspath(os.path.join(apiDocDir, '..', 'support', 'module', 'support'))
-if os.path.exists(moduleSupportDir):
-	sys.path.append(moduleSupportDir)
+# We package markdown in support/common.
+commonSupportDir = os.path.abspath(os.path.join(apiDocDir, '..', 'support', 'common'))
+if os.path.exists(commonSupportDir):
+	sys.path.append(commonSupportDir)
 
 import codecs, optparse
 import markdown

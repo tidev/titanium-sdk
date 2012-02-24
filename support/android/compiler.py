@@ -7,7 +7,7 @@
 # Handles JS, CSS and HTML files only
 #
 import os, sys, re, shutil, tempfile, run, codecs, traceback, types
-import jspacker, simplejson
+import jspacker
 from xml.sax.saxutils import escape
 from sgmllib import SGMLParser
 from csspacker import CSSPacker
@@ -18,6 +18,9 @@ ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store']
 ignoreDirs = ['.git','.svn','_svn', 'CVS']
 ignoreSymbols = ['version','userAgent','name','_JSON','include','fireEvent','addEventListener','removeEventListener','buildhash','builddate']
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+sys.path.append(os.path.abspath(os.path.join(template_dir, "..", "common")))
+
+import simplejson
 
 # class for extracting javascripts
 class ScriptProcessor(SGMLParser):
