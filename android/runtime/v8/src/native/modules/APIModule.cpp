@@ -154,15 +154,15 @@ void APIModule::logInternal(int logLevel, const char *messageTag, const char *me
 	}
 
 	if (logLevel == LOG_LEVEL_TRACE) {
-		LOG(VERBOSE, messageTag, "%s", message);
+		__android_log_write(ANDROID_LOG_VERBOSE, messageTag, message);
 	} else if (logLevel < LOG_LEVEL_INFO) {
-		LOG(DEBUG, messageTag, "%s", message);
+		__android_log_write(ANDROID_LOG_DEBUG, messageTag, message);
 	} else if (logLevel < LOG_LEVEL_WARN) {
-		LOG(INFO, messageTag, "%s", message);
+		__android_log_write(ANDROID_LOG_INFO, messageTag, message);
 	} else if (logLevel == LOG_LEVEL_WARN) {
-		LOG(WARN, messageTag, "%s", message);
+		__android_log_write(ANDROID_LOG_WARN, messageTag, message);
 	} else {
-		LOG(ERROR, messageTag, "%s", message);
+		__android_log_write(ANDROID_LOG_ERROR, messageTag, message);
 	}
 }
 
