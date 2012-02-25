@@ -18,7 +18,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				}
 			},
 			
-			_doLayout: function(originX, originY, parentWidth, parentHeight, centerHDefault, centerVDefault, isParentAutoWidth, isParentAutoHeight) {
+			_doLayout: function(originX, originY, parentWidth, parentHeight, defaultHorizontalAlignment, defaultVerticalAlignment, isParentAutoWidth, isParentAutoHeight) {
 				var imageRatio = this.domNode.width / this.domNode.height,
 					self = this;
 				

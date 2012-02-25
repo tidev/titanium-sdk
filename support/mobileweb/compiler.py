@@ -511,6 +511,7 @@ class Compiler(object):
 			'Ti/UI/ImageView',
 			'Ti/UI/Label',
 			'Ti/UI/OptionDialog',
+			'Ti/UI/ProgressBar',
 			'Ti/UI/ScrollableView',
 			'Ti/UI/ScrollView',
 			'Ti/UI/Slider',
