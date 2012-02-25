@@ -84,6 +84,7 @@ class Compiler(object):
 			pass
 		
 		# copy all of the project's resources to the build directory
+		self.copy(self.themes_path, os.path.join(self.build_path, 'themes'))
 		self.copy(self.resources_path, self.build_path)
 		self.copy(self.ti_package_path, os.path.join(self.build_path, 'titanium'))
 		
@@ -287,16 +288,19 @@ class Compiler(object):
 		# TODO: get theme from tiapp.xml
 		theme = 'titanium'
 		if len(theme):
-			theme_path = os.path.join(self.resources_path, theme)
+			theme_path = os.path.join(self.resources_path, 'themes', theme)
+			if not os.path.exists(theme_path):
+				theme_path = os.path.join(self.resources_path, theme)
 			if not os.path.exists(theme_path):
 				theme_path = os.path.join(self.themes_path, theme)
 			if not os.path.exists(theme_path):
 				print '[ERROR] Unable to locate theme "%s"' % theme
-			for dirname, dirnames, filenames in os.walk(theme_path):
-				for filename in filenames:
-					fname, ext = os.path.splitext(filename.lower())
-					if ext == '.css':
-						ti_css.write(codecs.open(os.path.join(dirname, filename), 'r', 'utf-8').read())
+			else:
+				for dirname, dirnames, filenames in os.walk(theme_path):
+					for filename in filenames:
+						fname, ext = os.path.splitext(filename.lower())
+						if ext == '.css':
+							ti_css.write(codecs.open(os.path.join(dirname, filename), 'r', 'utf-8').read())
 		
 		# detect any fonts and add font face rules to the css file
 		fonts = {}
@@ -449,13 +453,15 @@ class Compiler(object):
 	
 	def build_icons(self, src):
 		print '[INFO] Generating app icons...'
+		favicon = os.path.join(self.build_path, 'favicon.png')
 		s = 'java -Xms256m -Xmx256m -cp "%s:%s" -Dquiet=true -Djava.awt.headless=true resize "%s"' % (os.path.join(self.sdk_path, 'imageResizer'), os.path.join(self.sdk_path, 'imageResizer', 'imgscalr-lib-4.2.jar'), src)
-		s += ' "%s" %d %d' % (os.path.join(self.build_path, 'favicon.ico'), 57, 57)
+		s += ' "%s" %d %d' % (favicon, 16, 16)
 		s += ' "%s" %d %d' % (os.path.join(self.build_path, 'apple-touch-icon-precomposed.png'), 57, 57)
 		s += ' "%s" %d %d' % (os.path.join(self.build_path, 'apple-touch-icon-57x57-precomposed.png'), 57, 57)
 		s += ' "%s" %d %d' % (os.path.join(self.build_path, 'apple-touch-icon-72x72-precomposed.png'), 72, 72)
 		s += ' "%s" %d %d' % (os.path.join(self.build_path, 'apple-touch-icon-114x114-precomposed.png'), 114, 114)
 		subprocess.call(s, shell=True)
+		os.rename(favicon, os.path.join(self.build_path, 'favicon.ico'))
 	
 	def load_package_json(self):
 		package_json_file = os.path.join(self.ti_package_path, 'package.json')
