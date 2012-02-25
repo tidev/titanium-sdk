@@ -69,26 +69,23 @@ events:
         
 properties:
   - name: CANCELLED
-    summary: Constant for the `CANCELLED` status result.
+    summary: Constant for the `CANCELLED` status result. On Android, this property exists but is not used.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
     
   - name: FAILED
     summary: Constant for the `FAILED` status result.
-    description: On Android, this property exists but is not used.
     type: Number
     permission: read-only
     
   - name: SAVED
-    summary: Constant for the `SAVED` status result.
+    summary: Constant for the `SAVED` status result. On Android, this property exists but is not used.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
     
   - name: SENT
     summary: Constant for the `SENT` status result.
-    description: On Android, this property exists but is not used.
     type: Number
     permission: read-only
     
