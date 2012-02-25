@@ -500,6 +500,9 @@ properties:
         the following color array specifies a gradient that goes from red to blue back to red:
 
             colors: [ { color: 'red', offset: 0.0}, { color: 'blue', offset: 0.25 }, { color: 'red', offset: 1.0 } ]
+            
+        Mobile Web has two limitations: backfillStart and backfillEnd are ignored and the system behaves as if they 
+        are true, and endPoint is not supported for radial gradients. 
     examples:
       - title: Linear and Radial Gradients
         example: |
