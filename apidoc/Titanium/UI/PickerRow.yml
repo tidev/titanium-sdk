@@ -16,7 +16,7 @@ methods:
     parameters:
       - name: view
         summary: A view object.
-        type: Object
+        type: Titanium.UI.View
     platforms: [iphone, ipad]
 
 properties:
@@ -30,12 +30,6 @@ properties:
     type: String
 
 examples:
-  - title: Custom Views for a Picker Row
-    example: |
-        
-        Since the row object is itself a view, you can add views and widgets to it to customize the 
-        the row's display. In the example below, we create a custom label for the row.
-        
   - title: Custom View for Row (iOS only)
     example: |
         Create a two-column picker, with the first column containing a child view, and automatically 
