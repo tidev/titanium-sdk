@@ -94,7 +94,7 @@ def compile_js(manifest,config):
 	eq = path.replace('.','_')
 	method = '  return %s;' % method
 	
-	f = os.path.join(cwd,'Classes','___PROJECTNAMEASIDENTIFIER___ModuleAssets.m')
+	f = os.path.join(cwd,'Classes','___PROJECTNAMEASIDENTIFIER___	.m')
 	c = open(f).read()
 	idx = c.find('return ')
 	before = c[0:idx]
