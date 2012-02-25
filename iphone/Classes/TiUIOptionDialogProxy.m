@@ -95,7 +95,7 @@
 
 #pragma mark AlertView Delegate
 
-- (void)actionSheet:(UIActionSheet *)actionSheet_ clickedButtonAtIndex:(NSInteger)buttonIndex;
+- (void)actionSheet:(UIActionSheet *)actionSheet_ didDismissWithButtonIndex:(NSInteger)buttonIndex;
 {
 	if (buttonIndex == -2)
 	{
