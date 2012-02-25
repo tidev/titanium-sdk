@@ -12,6 +12,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -108,8 +109,8 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_WORDS = 2;
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_ALL = 3;
 
-	@Kroll.constant public static final String SIZE = "size";
-	@Kroll.constant public static final String FILL = "fill";
+	@Kroll.constant public static final String SIZE = TiC.LAYOUT_SIZE;
+	@Kroll.constant public static final String FILL = TiC.LAYOUT_FILL;
 	@Kroll.constant public static final String UNIT_PX = "px";
 	@Kroll.constant public static final String UNIT_MM = "mm";
 	@Kroll.constant public static final String UNIT_CM = "cm";

@@ -95,7 +95,9 @@ public class TiC
 	public static final String INTENT_PROPERTY_START_MODE = "startMode";
 	public static final String INTENT_PROPERTY_USE_ACTIVITY_WINDOW = "useActivityWindow";
 	public static final String INTENT_PROPERTY_WINDOW_ID = "windowId";
+	public static final String LAYOUT_FILL = "fill";
 	public static final String LAYOUT_HORIZONTAL = "horizontal";
+	public static final String LAYOUT_SIZE = "size";
 	public static final String LAYOUT_VERTICAL = "vertical";
 	public static final String MSG_PROPERTY_EVENT_NAME = "eventName";
 	public static final String MSG_PROPERTY_FILENAME = "filename";

@@ -503,7 +503,7 @@ public abstract class TiUIView
 		}
 		if (TiConvert.fillLayout(d, layoutParams) && !nativeViewNull) {
 			nativeView.requestLayout();
-			
+
 		}
 
 		Integer bgColor = null;

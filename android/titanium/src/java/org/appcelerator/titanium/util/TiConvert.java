@@ -199,15 +199,24 @@ public class TiConvert
 		}
 
 		if (width != null || hashMap.containsKey(TiC.PROPERTY_WIDTH)) {
-			if (width == null)
-			{
+			if (width == null) {
 				width = hashMap.get(TiC.PROPERTY_WIDTH);
 			}
 
 			if (width == null || width.equals(TiC.SIZE_AUTO)) {
 				layoutParams.optionWidth = null;
 				layoutParams.autoWidth = true;
+			} else if (width.equals(TiC.LAYOUT_FILL)) {
+				// fill
+				layoutParams.optionWidth = null;
+				layoutParams.autoWidth = true;
+				layoutParams.autoFillsWidth = true;
 
+			} else if (width.equals(TiC.LAYOUT_SIZE)) {
+				// size
+				layoutParams.optionWidth = null;
+				layoutParams.autoWidth = true;
+				layoutParams.autoFillsWidth = false;
 			} else {
 				layoutParams.optionWidth = toTiDimension(width, TiDimension.TYPE_WIDTH);
 				layoutParams.autoWidth = false;
@@ -225,6 +234,17 @@ public class TiConvert
 				layoutParams.optionHeight = null;
 				layoutParams.autoHeight = true;
 
+			} else if (height.equals(TiC.LAYOUT_FILL)) {
+				// fill
+				layoutParams.optionHeight = null;
+				layoutParams.autoHeight = true;
+				layoutParams.autoFillsHeight = true;
+
+			} else if (height.equals(TiC.LAYOUT_SIZE)) {
+				//size
+				layoutParams.optionHeight = null;
+				layoutParams.autoHeight = true;
+				layoutParams.autoFillsHeight = false;
 			} else {
 				layoutParams.optionHeight = toTiDimension(height, TiDimension.TYPE_HEIGHT);
 				layoutParams.autoHeight = false;
