@@ -523,7 +523,7 @@ class Compiler(object):
 
 		titanium_prep = os.path.abspath(os.path.join(template_dir,'titanium_prep'))
 		
-		data = os.popen("\"%s\" \"%s\" \"%s\"" % (titanium_prep, tfilename, identifier)).read()
+		data = os.popen("\"%s\" \"%s\" \"%s\"" % (titanium_prep, tfilename, self.appid)).read()
 		os.remove(tfilename)
 
 		data = data.translate(None, '\r\n')

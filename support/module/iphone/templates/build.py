@@ -92,9 +92,9 @@ def compile_js(manifest,config):
 
 	method = metadata['method']
 	eq = path.replace('.','_')
-	method = '  return %s;' % method
+	method = '  return filterData(%s, @"%s");' % (method, manifest['moduleid'])
 	
-	f = os.path.join(cwd,'Classes','___PROJECTNAMEASIDENTIFIER___	.m')
+	f = os.path.join(cwd,'Classes','___PROJECTNAMEASIDENTIFIER___ModuleAssets.mm')
 	c = open(f).read()
 	idx = c.find('return ')
 	before = c[0:idx]
