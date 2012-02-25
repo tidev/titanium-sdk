@@ -663,7 +663,7 @@ describe("Ti.UI Layout tests", {
 	scrollViewSize: asyncTest(function() {
 		var win = Ti.UI.createWindow();
 
-		var label = Ti.UI.createLabel({
+		var label2 = Ti.UI.createLabel({
 			text: 'View Size is: ',
 			top: 20,
 			left: 10,
@@ -671,7 +671,7 @@ describe("Ti.UI Layout tests", {
 			color: 'black'
 		});
 
-		var label2 = Ti.UI.createLabel({
+		var label = Ti.UI.createLabel({
 			color: 'red'
 		})
 		var scrollView = Titanium.UI.createScrollView({
@@ -680,19 +680,44 @@ describe("Ti.UI Layout tests", {
 		    showVerticalScrollIndicator:true,
 		    showHorizontalScrollIndicator:true
 		});
-
-		var view = Titanium.UI.createView();
-		label2.add(scrollView);
+		var scrollView2 = Titanium.UI.createScrollView({
+		    contentHeight:'auto',
+		    contentWidth:'auto',
+		    showVerticalScrollIndicator:true,
+		    showHorizontalScrollIndicator:true
+		});
+		
+		label.add(scrollView);
+		label2.add(scrollView2);
 
 		win.addEventListener('open', this.async(function(e){
+		
+			//LABEL HAS SIZE AUTO BEHAVIOR. 
+			//SCROLLVIEW HAS FILL BEHAVIOR
+			//LABEL will have 0 size (no text)
+			//LABEL2 will have non 0 size (has text/pins)
+			valueOf(label.size).shouldNotBeUndefined();
+			valueOf(label2.size).shouldNotBeUndefined();
 			valueOf(scrollView.size).shouldNotBeUndefined();
-			valueOf(scrollView.size.height).shouldNotBe(0);
-			valueOf(scrollView.size.width).shouldNotBe(0);
+			valueOf(scrollView2.size).shouldNotBeUndefined();
+			
+			valueOf(label.size.width).shouldBe(0);
+			valueOf(label.size.height).shouldBe(0);
+			valueOf(scrollView.size.width).shouldBe(0);
+			valueOf(scrollView.size.height).shouldBe(0);
+
+			valueOf(label2.size.height).shouldNotBe(0);
+			valueOf(label2.size.width).shouldNotBe(0);
+			valueOf(scrollView2.size.height).shouldNotBe(0);
+			valueOf(scrollView2.size.width).shouldNotBe(0);
+			
+			valueOf(label2.size.width).shouldBe(scrollView2.size.width);
+			valueOf(label2.size.height).shouldBe(scrollView2.size.height);
+			
 		}));
 
 		win.add(label2);
-		win.add(view);
-		view.add(label);
+		win.add(label);
 		win.open();
 	}),
 	// functional test #1106 ZIndexMultiple
