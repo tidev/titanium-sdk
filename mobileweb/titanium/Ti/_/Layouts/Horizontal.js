@@ -9,7 +9,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 				
 				// Layout the child
 				var child = element.children[i];
-				child._doLayout(currentLeft,0,width,height,false,false,isAutoWidth,isAutoHeight);
+				child._doLayout(currentLeft,0,width,height,this._defaultHorizontalAlignment,this._defaultVerticalAlignment,isAutoWidth,isAutoHeight);
 				
 				// Update the size of the component
 				currentLeft = child._measuredLeft + child._measuredWidth + 2 * child._measuredBorderWidth + child._measuredRightPadding;
@@ -18,7 +18,11 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 				bottomMostEdge > computedSize.height && (computedSize.height = bottomMostEdge);
 			}
 			return computedSize;
-		}
+		},
+		
+		_defaultHorizontalAlignment: "left",
+		
+		_defaultVerticalAlignment: "top"
 
 	});
 
