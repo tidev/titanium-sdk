@@ -38,7 +38,7 @@ methods:
       - name: properties
         summary: |
             Animation properties. Set `animated` Boolean property to `true` to animate dialog 
-            on open.
+            on open. (iPhone, iPad only)
         type: Object
 
 events:
@@ -95,7 +95,7 @@ properties:
         Bar color of the email dialog window as a 
         [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name or hex triplet.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
     
   - name: bccRecipients
     summary: Recipients of the email included via the `BCC` (Blind Carbon Copy) field.
