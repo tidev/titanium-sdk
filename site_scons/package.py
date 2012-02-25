@@ -81,7 +81,6 @@ def zip_dir(zf,dir,basepath,subs=None,cb=None):
 
 def zip_android(zf, basepath):
 	android_dist_dir = os.path.join(top_dir, 'dist', 'android')
-	zip_dir(zf, os.path.join(cur_dir,'simplejson'), os.path.join(basepath, 'android', 'simplejson'))
 
 	for jar in ['titanium.jar', 'kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar', 'kroll-rhino.jar']:
 		jar_path = os.path.join(android_dist_dir, jar)
