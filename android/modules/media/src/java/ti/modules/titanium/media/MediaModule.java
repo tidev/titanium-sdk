@@ -287,7 +287,7 @@ public class MediaModule extends KrollModule
 				}
 
 			} else {
-				if (data == null){
+				if (data == null) {
 					ContentValues values = new ContentValues(7);
 					values.put(Images.Media.TITLE, imageFile.getName());
 					values.put(Images.Media.DISPLAY_NAME, imageFile.getName());
