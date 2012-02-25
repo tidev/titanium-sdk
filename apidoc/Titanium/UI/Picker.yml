@@ -175,7 +175,7 @@ properties:
         The value of this property may be modified even after a picker is rendered and the UI will be 
         updated accordingly.
     type: Boolean
-    default: true (Android native spinner enabled), false (otherwise)
+    default: true (spinner enabled), false (otherwise)
     platforms: [android]
     
   - name: locale
@@ -222,9 +222,10 @@ properties:
     
   - name: selectionIndicator
     summary: |
-        Determines whether the visual selection style is shown. On iPhone, this is a blue bar.
+        Determines whether the visual selection indicator is shown. On iPhone, this is a blue bar.
+    description: If `true`, selection indicator is enabled.
     type: Boolean
-    default: false
+    default: true (Android), false (iPhone, iPad)
     
   - name: type
     summary: |
@@ -237,9 +238,11 @@ properties:
     
   - name: useSpinner
     summary: |
-        Enables the non-native Android control, with a spinning wheel that looks 
-        and behaves like the iOS picker, rather than the default native "dropdown" style.
+        Determines whether the non-native Android control, with a spinning wheel that looks and 
+        behaves like the iOS picker, is invoked rather than the default native "dropdown" style.
     description: |
+        If `true`, the spinner is enabled.
+        
         This property should be set either at picker creation, i.e. 
         <Titanium.UI.createPicker({useSpinner:true});> or before adding the picker to its parent.  
         
