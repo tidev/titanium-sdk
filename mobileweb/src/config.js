@@ -15,7 +15,7 @@ var require = {
 		"analytics-use-xhr": false,
 		"declare-property-methods": true,
 		"json-stringify": function(g) {
-			return ("JSON" in g) && JSON.toString() == "[object Function]" && JSON.stringify({a:0}, function(k,v){return v||1;}) !== '{"a":1}'
+			return ("JSON" in g) && typeof JSON.stringify === "function" && JSON.stringify({a:0}, function(k,v){return v||1;}) === '{"a":1}';
 		},
 		"native-localstorage": function(g) {
 			return "localStorage" in g && "setItem" in localStorage;

@@ -286,7 +286,7 @@ define(
 				}
 			} else {
 				var skipSet,
-					capitalizedName = require("Ti/_/string").capitalize(property);
+					capitalizedName = property.substring(0, 1).toUpperCase() + property.substring(1);
 
 				// if we only have 3 args, so need to check if it's a default value or a descriptor
 				if (arguments.length === 3 && require.is(value, "Object") && (value.get || value.set)) {

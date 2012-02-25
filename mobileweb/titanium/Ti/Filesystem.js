@@ -1,9 +1,5 @@
-define(["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/Filesystem/File", "Ti/_/Filesystem/Local"],
-	function(_, Evented, lang, File, localFS) {
-
-	function tmpName() {
-		return ((new Date()).getTime() & 0xFFFF).toString(16).toUpperCase()
-	}
+define(["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/Filesystem/File"],
+	function(_, Evented, lang, File) {
 
 	return lang.setObject("Ti.Filesystem", Evented, {
 
@@ -11,25 +7,10 @@ define(["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/Filesystem/File", "Ti/_/Filesys
 			MODE_APPEND: 4,
 			MODE_READ: 1,
 			MODE_WRITE: 2,
-
-			// iOS:       file://localhost/Users/chris/Library/Application%20Support/iPhone%20Simulator/5.0/Applications/F54567B1-B4B9-46EC-B9D1-6D89DAF703D0/Documents/
-			// Android:   appdata-private://
-			// MobileWeb: appdata://
 			applicationDataDirectory: "appdata://",
-
 			lineEnding: "\n",
-
-			// iOS:       file://localhost/Users/chris/Library/Application%20Support/iPhone%20Simulator/5.0/Applications/F54567B1-B4B9-46EC-B9D1-6D89DAF703D0/funwithmodules.app/
-			//            Note: this is marked writable on iOS!
-			// Android:   app://
-			// MobileWeb: resources://
-			resourcesDirectory: "resources://",
-
+			resourcesDirectory: "/",
 			separator: "/",
-
-			// iOS:       file://localhost/var/folders/14/_wzcmsd17pn76bzvb5lsmzr40000gn/T/
-			// Android:   file:///mnt/sdcard/Android/data/com.appcelerator.cbarber/cache/_tmp
-			// MobileWeb: tmp://
 			tempDirectory: "tmp://"
 		},
 
@@ -73,12 +54,10 @@ define(["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/Filesystem/File", "Ti/_/Filesys
 
 		_makeTemp: function(isDir) {
 			var f = new File({
-				type: isDir && 'D',
-				name: tmpName(),
-				nativePath: this.tempDirectory
+				_type: isDir && 'D',
+				nativePath: this.tempDirectory + ((new Date()).getTime() & 0xFFFF).toString(16).toUpperCase()
 			});
-			localFS[isDir ? "mkdir" : "touch"](f.nativePath + f.name);
-			return f;
+			return f[isDir ? "createDirectory" : "createFile"]();
 		},
 
 		createTempDirectory: function() {
@@ -91,7 +70,6 @@ define(["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/Filesystem/File", "Ti/_/Filesys
 
 		getFile: function() {
 			var args = lang.toArray(arguments);
-			// TODO: if we don't have an absolute path, we need to know which include/require we're being called from which is really hard
 			/:\/\//.test(args[0]) || args.unshift(this.resourcesDirectory);
 			return new File(this._join.apply(this, args));
 		},

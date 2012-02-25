@@ -35,9 +35,6 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 					now = new Date(),
 					tz = now.getTimezoneOffset(),
 					atz = Math.abs(tz),
-					m = now.getMonth() + 1,
-					d = now.getDate(),
-					ts = now.getFullYear() + "-" + (m < 10 ? "0" + m : m) + "-" + (d < 10 ? "0" + d : d) + "T" + now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds() + "." + now.getMilliseconds() + (tz < 0 ? "-" : "+") + (atz < 100 ? "00" : (atz < 1000 ? "0" : "")) + atz,
 					formatZeros = function(v, n){
 						var d = (v+'').length;
 						return (d < n ? (new Array(++n - d)).join("0") : "") + v;
@@ -48,7 +45,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 					eventId: _.uuid(),
 					eventType: eventType,
 					eventEvent: eventEvent,
-					eventTimestamp: ts,
+					eventTimestamp: now.toISOString().replace('Z', (tz < 0 ? '-' : '+') + (atz < 100 ? "00" : (atz < 1000 ? "0" : "")) + atz),
 					eventPayload: data
 				});
 				localStorage.setItem(analyticsStorageName, JSON.stringify(storage));

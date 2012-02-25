@@ -579,11 +579,10 @@
 		}
 
 		// first need to make sure we have all the deps loaded
-		fetch(_t.deps, function(deps) {
+		fetch(_t, function(deps) {
 			var i,
 				p,
 				r = _t.rawDef,
-				depsCount = deps.length,
 				q = defQ.slice(0), // backup the defQ
 				finish = function() {
 					_t.executed = 1;
@@ -597,17 +596,18 @@
 				||	(r && (is(r, "String")
 						? evaluate(r, _t.cjs)
 						: is(r, "Function")
-							? r.apply(null, deps) || (depsCount > 1 && deps[1]) || (depsCount > 2 && deps[2].exports)
+							? r.apply(null, deps)
 							: is(r, "Object")
 								?	(function(obj, vars) {
-										for (var i in vars){
+										for (var i in vars) {
 											this[i] = vars[i];
 										}
 										return obj;
-									}).call({}, r, _t.cjs) || _t.cjs.exports
+									}).call({}, r, _t.cjs)
 								: null
 						)
-					);
+					)
+				|| _t.cjs.exports;
 
 			// we might have just executed code above that could have caused a couple
 			// define()'s to queue up
@@ -644,8 +644,8 @@
 		var module = new ResourceDef(name, refModule, deps, rawDef),
 			moduleName = module.name;
 
-		if (name in module.cjs) {
-			module.def = module.cjs[name];
+		if (refModule && name in refModule.cjs) {
+			module.def = refModule.cjs[name];
 			module.loaded = module.executed = 1;
 			return module;
 		}
@@ -696,9 +696,8 @@
 		//		The fetch() function will fetch each of the dependents either
 		//		synchronously or asynchronously (default).
 		//
-		// deps: String | Array
-		//		A string or array of module ids to load. If deps is a string, load()
-		//		returns the module's definition.
+		// deps: String | Array | Object
+		//		A string or array of module ids to load or a resource definition.
 		//
 		// callback: Function?
 		//		A callback function fired once the loader successfully loads and evaluates
@@ -715,7 +714,16 @@
 		//		If deps is a string, then it returns the corresponding module definition,
 		//		otherwise the require() function.
 
-		var i, l, count, s = is(deps, "String");
+		var i,
+			l,
+			count,
+			type = is(deps),
+			s = type === "String";
+
+		if (type === "Object") {
+			refModule = deps;
+			deps = refModule.deps;
+		}
 
 		if (s) {
 			deps = [deps];
@@ -1034,8 +1042,7 @@
 			for (p in subject) {
 				m = p.match(urlRegExp);
 				if (m) {
-					var s = toUrl(m[1]);
-					defCache[s] = subject[p];
+					defCache[toUrl(m[1])] = subject[p];
 				} else {
 					m = getResourceDef(p, 0, 0, subject[p], 1);
 					defCache[m.name] = m.rawDef;

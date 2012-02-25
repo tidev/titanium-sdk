@@ -223,27 +223,27 @@ class Compiler(object):
 			filename = dep[1]
 			if not filename.endswith('.js'):
 				filename += '.js'
+			file_path = os.path.join(dep[0], filename)
 			if x.startswith('url:'):
-				filename = os.path.join(dep[0], filename)
-				source = filename + '.uncompressed.js'
+				source = file_path + '.uncompressed.js'
 				if self.minify:
-					os.rename(filename, source)
-					print '[INFO] Minifying include %s' % filename
-					p = subprocess.Popen('java -Xms256m -Xmx256m -jar "%s" --compilation_level SIMPLE_OPTIMIZATIONS --js "%s" --js_output_file "%s"' % (os.path.join(self.sdk_path, 'closureCompiler', 'compiler.jar'), source, filename), shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+					os.rename(file_path, source)
+					print '[INFO] Minifying include %s' % file_path
+					p = subprocess.Popen('java -Xms256m -Xmx256m -jar "%s" --compilation_level SIMPLE_OPTIMIZATIONS --js "%s" --js_output_file "%s"' % (os.path.join(self.sdk_path, 'closureCompiler', 'compiler.jar'), source, file_path), shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
 					stdout, stderr = p.communicate()
 					if p.returncode != 0:
-						print '[ERROR] Failed to minify "%s"' % filename
+						print '[ERROR] Failed to minify "%s"' % file_path
 						for line in stderr.split('\n'):
 							if len(line):
 								print '[ERROR]    %s' % line
-						print '[WARN] Leaving %s un-minified' % filename
-						os.remove(filename)
-						shutil.copy(source, filename)
-				ti_js.write('"%s":"%s"' % (x, codecs.open(filename, 'r', 'utf-8').read().strip().replace('\\', '\\\\').replace('\n', '\\n\\\n').replace('\"', '\\\"')))
+						print '[WARN] Leaving %s un-minified' % file_path
+						os.remove(file_path)
+						shutil.copy(source, file_path)
+				ti_js.write('"%s":"%s"' % (x, codecs.open(file_path, 'r', 'utf-8').read().strip().replace('\\', '\\\\').replace('\n', '\\n\\\n').replace('\"', '\\\"')))
 			elif is_cjs:
-				ti_js.write('"%s":function(){\ndefine(function(require, exports, module){\n%s\n});\n}' % (x, codecs.open(os.path.join(dep[0], filename), 'r', 'utf-8').read()))
+				ti_js.write('"%s":function(){\n/* %s */\ndefine(function(require, exports, module){\n%s\n});\n}' % (x, file_path.replace(self.build_path, ''), codecs.open(file_path, 'r', 'utf-8').read()))
 			else:
-				ti_js.write('"%s":function(){\n%s\n}' % (x, codecs.open(os.path.join(dep[0], filename), 'r', 'utf-8').read()))
+				ti_js.write('"%s":function(){\n/* %s */\n\n%s\n}' % (x, file_path.replace(self.build_path, ''), codecs.open(file_path, 'r', 'utf-8').read()))
 		ti_js.write('});\n')
 		
 		# 4) write the ti.app.properties
@@ -318,6 +318,7 @@ class Compiler(object):
 			#	TODO: minify html
 		
 		# create the filesystem registry
+		print '[INFO] Building filesystem registry...'
 		filesystem_registry = self.walk_fs(self.build_path, 0)
 		filesystem_registry_file = codecs.open(os.path.join(self.build_path, 'titanium', 'filesystem.registry'), 'w', encoding='utf-8')
 		filesystem_registry_file.write(filesystem_registry)
@@ -441,7 +442,8 @@ class Compiler(object):
 	
 	def build_icons(self, src):
 		print '[INFO] Generating app icons...'
-		s = 'java -Xms256m -Xmx256m -cp "%s:%s" -Djava.awt.headless=true resize "%s"' % (os.path.join(self.sdk_path, 'imageResizer'), os.path.join(self.sdk_path, 'imageResizer', 'imgscalr-lib-4.2.jar'), src)
+		s = 'java -Xms256m -Xmx256m -cp "%s:%s" -Dquiet=true -Djava.awt.headless=true resize "%s"' % (os.path.join(self.sdk_path, 'imageResizer'), os.path.join(self.sdk_path, 'imageResizer', 'imgscalr-lib-4.2.jar'), src)
+		s += ' "%s" %d %d' % (os.path.join(self.build_path, 'favicon.ico'), 57, 57)
 		s += ' "%s" %d %d' % (os.path.join(self.build_path, 'apple-touch-icon-precomposed.png'), 57, 57)
 		s += ' "%s" %d %d' % (os.path.join(self.build_path, 'apple-touch-icon-57x57-precomposed.png'), 57, 57)
 		s += ' "%s" %d %d' % (os.path.join(self.build_path, 'apple-touch-icon-72x72-precomposed.png'), 72, 72)
@@ -461,13 +463,17 @@ class Compiler(object):
 		# TODO: using an AST, scan the entire project's source and identify all dependencies
 		self.project_dependencies += [
 			'Ti',
-			'Ti/UI',
 			'Ti/API',
 			'Ti/App',
 			'Ti/App/Properties',
+			'Ti/Blob',
+			'Ti/Buffer',
+			'Ti/Codec',
 			'Ti/Facebook',
 			'Ti/Filesystem',
 			'Ti/Filesystem/File',
+			'Ti/Filesystem/FileStream',
+			'Ti/IOStream',
 			'Ti/Media',
 			'Ti/Media/VideoPlayer',
 			'Ti/Network',
@@ -478,6 +484,7 @@ class Compiler(object):
 			'Ti/XML',
 			'Ti/UI/View',
 			'Ti/Media/VideoPlayer',
+			'Ti/UI',
 			'Ti/UI/TableViewRow',
 			'Ti/UI/Tab',
 			'Ti/UI/TabGroup',
@@ -509,7 +516,7 @@ class Compiler(object):
 			deps = deps[1:-1]
 			deps = deps.split(',')
 			for dep in deps:
-				dep = dep.strip()
+				dep = dep.strip().split(' ')[0].strip()
 				if dep.startswith('\'') or dep.startswith('"'):
 					found.append(simplejson.loads(dep))
 		return found
