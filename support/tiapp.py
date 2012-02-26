@@ -466,7 +466,20 @@ class TiAppXML(object):
 			fn = plist[e:]
 			version = self.properties['version']
 			plist = st + version + fn
-
+			
+		# replace the CFBundleShortVersionString in case it's changed
+		i = plist.index('CFBundleShortVersionString')
+		if i:
+			i = plist.index('<string>',i+1)
+			e = plist.index('</string>',i+1)
+			st = plist[0:i+8]
+			fn = plist[e:]
+			CFBundleShortVersionString = self.properties['version']
+			app_version_ = CFBundleShortVersionString.split('.')
+			if(len(app_version_) > 3):
+				CFBundleShortVersionString = app_version_[0]+app_version_[1]+app_version_[2]
+			plist = st + CFBundleShortVersionString + fn
+			
 		i = plist.rindex('</dict>')	
 		if i:
 			before = plist[0:i]
