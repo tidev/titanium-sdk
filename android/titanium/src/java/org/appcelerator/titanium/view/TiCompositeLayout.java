@@ -273,7 +273,7 @@ public class TiCompositeLayout extends ViewGroup
 				childDimension = p.optionWidth.getAsPixels(this);
 			}
 		} else {
-			if (p.autoWidth && p.autoFillsWidth && !isHorizontalArrangement()) {
+			if (p.autoFillsWidth && !isHorizontalArrangement()) {
 				childDimension = LayoutParams.FILL_PARENT;
 			}
 		}
@@ -288,7 +288,7 @@ public class TiCompositeLayout extends ViewGroup
 				childDimension = p.optionHeight.getAsPixels(this);
 			}
 		} else {
-			if (p.autoHeight && p.autoFillsHeight && !isVerticalArrangement()) {
+			if (p.autoFillsHeight && !isVerticalArrangement()) {
 				childDimension = LayoutParams.FILL_PARENT;
 			}
 		}
@@ -300,6 +300,56 @@ public class TiCompositeLayout extends ViewGroup
 		// Useful for debugging.
 		// int childWidth = child.getMeasuredWidth();
 		// int childHeight = child.getMeasuredHeight();
+	}
+
+	private int getUndefinedWidth(LayoutParams params, int parentLeft, int parentRight, int parentWidth)
+	{
+		int width = -1;
+
+		if (params.optionWidth != null || params.autoWidth) {
+			return width;
+		}
+
+		TiDimension left = params.optionLeft;
+		TiDimension centerX = params.optionCenterX;
+		TiDimension right = params.optionRight;
+
+		if (left != null) {
+			if (centerX != null) {
+				width = (centerX.getAsPixels(this) - left.getAsPixels(this) - parentLeft) * 2;
+			} else if (right != null) {
+				width = parentWidth - right.getAsPixels(this) - left.getAsPixels(this);
+			}
+		} else if (centerX != null && right != null) {
+			width = (parentRight - right.getAsPixels(this) - centerX.getAsPixels(this)) * 2;
+		}
+		return width;
+	}
+
+	private int getUndefinedHeight(LayoutParams params, int parentTop, int parentBottom, int parentHeight)
+	{
+		int height = -1;
+
+		// Return if we don't need undefined behavior
+		if (params.optionHeight != null || params.autoHeight) {
+			return height;
+		}
+
+		TiDimension top = params.optionTop;
+		TiDimension centerY = params.optionCenterY;
+		TiDimension bottom = params.optionBottom;
+
+		if (top != null) {
+			if (centerY != null) {
+				height = (centerY.getAsPixels(this) - parentTop - top.getAsPixels(this)) * 2;
+			} else if (bottom != null) {
+				height = parentBottom - top.getAsPixels(this) - bottom.getAsPixels(this);
+			}
+		} else if (centerY != null && bottom != null) {
+			height = (parentBottom - bottom.getAsPixels(this) - centerY.getAsPixels(this)) * 2;
+		}
+
+		return height;
 	}
 
 	protected int getMeasuredWidth(int maxWidth, int widthSpec)
@@ -357,8 +407,17 @@ public class TiCompositeLayout extends ViewGroup
 			if (child.getVisibility() != View.GONE) {
 				// Dimension is required from Measure. Positioning is determined here.
 				
-				int childMeasuredWidth = child.getMeasuredWidth();
-				int childMeasuredHeight = child.getMeasuredHeight();
+				// Try using undefined behavior first
+				int childMeasuredHeight = getUndefinedHeight(params, top, bottom, getHeight());
+				int childMeasuredWidth = getUndefinedWidth(params, left, right, getWidth());
+
+				if (childMeasuredWidth == -1) {
+					childMeasuredWidth = child.getMeasuredWidth();
+				}
+
+				if (childMeasuredHeight == -1) {
+					childMeasuredHeight = child.getMeasuredHeight();
+				}
 
 				if (isHorizontalArrangement()) {
 					if (i == 0)  {

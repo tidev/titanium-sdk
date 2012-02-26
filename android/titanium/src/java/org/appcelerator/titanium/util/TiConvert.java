@@ -157,6 +157,11 @@ public class TiConvert
 		boolean dirty = false;
 		Object width = null;
 		Object height = null;
+
+		// Set auto width/height to false to trigger undefined behavior
+		layoutParams.autoWidth = false;
+		layoutParams.autoHeight = false;
+
 		if (hashMap.containsKey(TiC.PROPERTY_SIZE)) {
 			HashMap<String, Object> size = (HashMap<String, Object>) hashMap.get(TiC.PROPERTY_SIZE);
 			width = size.get(TiC.PROPERTY_WIDTH);
@@ -203,9 +208,14 @@ public class TiConvert
 				width = hashMap.get(TiC.PROPERTY_WIDTH);
 			}
 
-			if (width == null || width.equals(TiC.SIZE_AUTO)) {
+			if (width == null) {
+				layoutParams.optionWidth = null;
+				layoutParams.autoWidth = false;
+
+			} else if (width.equals(TiC.SIZE_AUTO)) {
 				layoutParams.optionWidth = null;
 				layoutParams.autoWidth = true;
+
 			} else if (width.equals(TiC.LAYOUT_FILL)) {
 				// fill
 				layoutParams.optionWidth = null;
@@ -225,12 +235,15 @@ public class TiConvert
 		}
 
 		if (height != null || hashMap.containsKey(TiC.PROPERTY_HEIGHT)) {
-			if (height == null)
-			{
+			if (height == null) {
 				height = hashMap.get(TiC.PROPERTY_HEIGHT);
 			}
 
-			if (height == null || height.equals(TiC.SIZE_AUTO)) {
+			if (height == null) {
+				layoutParams.optionHeight = null;
+				layoutParams.autoHeight = false;
+
+			} else if (height.equals(TiC.SIZE_AUTO)) {
 				layoutParams.optionHeight = null;
 				layoutParams.autoHeight = true;
 
@@ -241,7 +254,7 @@ public class TiConvert
 				layoutParams.autoFillsHeight = true;
 
 			} else if (height.equals(TiC.LAYOUT_SIZE)) {
-				//size
+				// size
 				layoutParams.optionHeight = null;
 				layoutParams.autoHeight = true;
 				layoutParams.autoFillsHeight = false;
