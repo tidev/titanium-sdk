@@ -160,52 +160,84 @@ file.write(this.responseData);
 
 /*
 stored meta info
-	n	Filename
-	p	Full path including filename (nativePath)
-	d	Date created
-	t	Type (D or F)
-	c	Is copy
-
-constants: {
-	executable: false,
-	name: "",
-	nativePath: "",
-	parent: null,
-	readonly: false,
-	size: 0,
-	symbolicLink: false,
-	writable: true
-},
-
-properties: {
-	hidden: false
-}
+	n	name
+	c	date created
+	t	type (D or F)
+	x	executable
+	r	readonly
+	s	size
+	l	link
+	h	hidden
+	
+	do we need a "is copy" flag?
+	parent File object?
 */
 
 	var extRegExp = /\.(.+)$/,
-		File;
+		reg,
+		File,
+		metaMap = {
+			n: "name",
+			c: "created",
+			t: "type",
+			x: "exec",
+			r: "readonly",
+			s: "size",
+			l: "link",
+			h: "hidden"
+		},
+		metaStrings = "nt";
 
-	function get(path) {
-		return localStorage.getItem("ti:fs:" + path);
+	function parseMeta(value) {
+		var meta = {
+			name: '',
+			created: 0,
+			type: 'F',
+			exec: 0,
+			readonly: 1,
+			size: 0,
+			link: 0,
+			hidden: 0
+		};
+		value && value.split('\n').forEach(function(line) {
+			var type = line.charAt(0),
+				val = line.substring(1);
+			meta[metaMap[type]] = metaStrings.indexOf(type) >= 0 ? val : val-0;
+		});
+		return meta;
 	}
 
-	function set(obj) {
-		localStorage.setItem("ti:fs:" + obj.path + obj.name, obj);
-	}
+	function registry(path) {
+		if (!reg) {
+			reg = {
+				'/': "tD"
+			};
+			var stack = [],
+				created = (new Date()).getTime(),
+			require("/titanium/filesystem.registry").split(/\n|\|/).forEach(function(line, i) {
+				var depth = 0,
+					line = line.split('\t'),
+					len = line.length,
+					name;
 
-	function fs() {
-		return require("Ti/Filesystem");
-	}
-
-	function registry() {
-		return require("/titanium/filesystem.registry");
+				if (i === 0 && line[0] === "ts") {
+					created = line[1];
+					reg['/'] += "\nc" + created;
+				} else {
+					for (; depth < len && !line[depth]; depth++) {}
+					stack = stack.slice(0, depth).concat(name = line[depth]);
+					reg['/' + stack.join('/')] = "n" + name + "\nc" + created + "\nt" + (depth + 1 == len ? 'D' : 'F\ns' + line[depth + 1]);
+				}
+			});
+		}
+		return reg[path];
 	}
 
 	return File = declare("Ti._.Filesystem.Local", Base, {
 
-		constructor: function() {
-			var p = this.nativePath;
-			this._meta = p && get(p) || {};
+		postscript: function() {
+			var path = this.nativePath;
+			this._meta = parseMeta(path && (localStorage.getItem("ti:fs:meta:" + path) || registry(path)));
 		},
 
 		append: function(/*Ti.Blob|Ti.Filesystem.File*/data) {
@@ -334,6 +366,11 @@ properties: {
 	});
 
 /*
+	function fs() {
+		return require("Ti/Filesystem");
+	}
+
+
 	var is = require.is,
 		ls = window.localStorage,
 		storage = {};

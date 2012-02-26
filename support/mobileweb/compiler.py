@@ -5,6 +5,7 @@
 #
 
 import os, sys, time, datetime, codecs, shutil, subprocess, re, math
+from stat import *
 from tiapp import *
 
 # mako and simplejson are in support/common
@@ -330,7 +331,7 @@ class Compiler(object):
 		
 		# create the filesystem registry
 		print '[INFO] Building filesystem registry...'
-		filesystem_registry = self.walk_fs(self.build_path, 0)
+		filesystem_registry = 'ts\t' + str(int(os.path.getctime(self.build_path))) + '\n' + self.walk_fs(self.build_path, 0)
 		filesystem_registry_file = codecs.open(os.path.join(self.build_path, 'titanium', 'filesystem.registry'), 'w', encoding='utf-8')
 		filesystem_registry_file.write(filesystem_registry)
 		filesystem_registry_file.close()

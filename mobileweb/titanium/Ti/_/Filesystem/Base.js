@@ -10,15 +10,18 @@ define(["Ti/_/declare", "Ti/_/lang"], function(declare, lang) {
 			throw new Error('Irrational path "' + path + '"');
 		}
 
-		return (b ? match[2] : "resources") + path;
+		return (b ? match[2] : "/") + path;
 	}
 
 	return declare("Ti._.Filesystem.Base", null, {
 
-		constructor: function(path) {
-			this.nativePath = parse(require.is(path, "Object") ? this.nativePath : path);
-console.debug("new File() nativePath = [" + this.nativePath + "]");
-			this._type = args._type === 'D' || 'F';
+		constructor: function(args) {
+			args = args || {};
+			if (!require.is(args, "Object")) {
+				var v = this.constants.__values__;
+				v.name = (v.nativePath = parse(args)).split('/').pop();
+			}
+			this._type = args._type === 'D' ? 'D' : 'F';
 		},
 
 		constants: {
