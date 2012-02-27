@@ -21,9 +21,9 @@ public interface KrollProxyListener
 	
 	/**
 	 * Implementing classes should use this method to process initial properties passed into the proxy.
-	 * @param d  the properties object to process.
+	 * @param properties  a set of properties to process
 	 */
-	public void processProperties(KrollDict d);
+	public void processProperties(KrollDict properties);
 	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy);
 	
 	

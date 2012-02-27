@@ -25,7 +25,7 @@ public class Log
 	}
 	
 	/**
-	 * Sends a 'debug' log, with thread name and time stamp pre-append, ONLY when TiConfig.DEBUG is true.
+	 * Sends a 'debug' log, with thread name and time stamp pre-appended, ONLY when TiConfig.DEBUG is true.
 	 * For more information regarding formatting, refer to {@link #w(String, String)}.
 	 * This method is thread safe.
 	 * @param tag  used to identify the source of the msg.
@@ -74,7 +74,7 @@ public class Log
 	}
 	
 	/**
-	 * Sends a 'debug' log message, with the thread name and time stamp pre-append.
+	 * Sends a 'debug' log message, with the thread name and time stamp pre-appended.
 	 * For more information regarding formatting, refer to {@link #w(String, String)}.
 	 * This method is thread safe.
 	 * @param tag  used to identify the source of the message.
@@ -92,7 +92,7 @@ public class Log
 	}
 	
 	/**
-	 * Sends a 'debug' log message, with the thread name and time stamp pre-append, and log the exception.
+	 * Sends a 'debug' log message, with the thread name and time stamp pre-appended, and log the exception.
 	 * For more information regarding formatting, refer to {@link #w(String, String)}.
 	 * This method is thread safe.
 	 * @param tag  used to identify the source of the message.
@@ -111,7 +111,7 @@ public class Log
 	}
 
 	/**
-	 * Sends a 'info' log message, with the thread name and time stamp pre-append.
+	 * Sends a 'info' log message, with the thread name and time stamp pre-appended.
 	 * For more information regarding formatting, refer to {@link #w(String, String)}.
 	 * This method is thread safe.
 	 * @param tag  used to identify the source of the message.
@@ -129,7 +129,7 @@ public class Log
 	}
 	
 	/**
-	 * Sends a 'info' log message, with the thread name and time stamp pre-append, and log the exception. 
+	 * Sends a 'info' log message, with the thread name and time stamp pre-appended, and log the exception. 
 	 * For more information regarding formatting, refer to {@link #w(String, String)}.
 	 * This method is thread safe.
 	 * @param tag  used to idenfity the source of the message.
@@ -148,7 +148,7 @@ public class Log
 	}
 
 	/**
-	 * Sends a 'warn' log message, with the thread name and time stamp pre-append.
+	 * Sends a 'warn' log message, with the thread name and time stamp pre-appended.
 	 * For example, "(main) [298, 474] hello" --> "(thread-name) [elapsed time, total time] msg".
 	 * This method is thread safe.
 	 * @param tag  used to identify the source of the message.
@@ -166,7 +166,7 @@ public class Log
 	}
 	
 	/**
-	 * Sends a 'warn' log message, with the thread name and time stamp pre-append, and log the exception.
+	 * Sends a 'warn' log message, with the thread name and time stamp pre-appended, and log the exception.
 	 * For more information regarding formatting, refer to {@link #w(String, String)}.
 	 * This method is thread safe.
 	 * @param tag  used to identify the source of message.
@@ -185,7 +185,7 @@ public class Log
 	}
 
 	/**
-	 * Sends a 'error' log message, with the thread name and time stamp pre-append.
+	 * Sends a 'error' log message, with the thread name and time stamp pre-appended.
 	 * For more information regarding formatting, refer to {@link #w(String, String)}.
 	 * This method is thread safe.
 	 * @param tag  used to identify the source of message.
@@ -203,7 +203,7 @@ public class Log
 	}
 	
 	/**
-	 * Sends a 'error' log message, with the thread name and time stamp pre-append, and log the exception
+	 * Sends a 'error' log message, with the thread name and time stamp pre-appended, and log the exception
 	 * For more information regarding formatting, refer to {@link #w(String, String)}.
 	 * This method is thread safe.
 	 * @param tag  used to identify the source of message.

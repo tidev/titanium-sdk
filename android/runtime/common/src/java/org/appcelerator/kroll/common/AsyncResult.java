@@ -26,15 +26,14 @@ public class AsyncResult extends Semaphore
 	}
 
 	/**
-	 * Returning the arg object that is passed into the constructor. 
-	 * @return the arg object
+	 * @return the arg object that is passed into the constructor.
 	 */
 	public Object getArg() {
 		return arg;
 	}
 
 	/**
-	 * Setting the result asynchronously, releasing the lock.
+	 * Sets the result asynchronously, releasing the lock.
 	 * @param result the resulting object.
 	 */
 	public void setResult(Object result) {

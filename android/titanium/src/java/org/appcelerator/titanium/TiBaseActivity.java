@@ -98,7 +98,6 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	/**
-	 * Returns the instance of TiApplication.
 	 * @return the instance of TiApplication.
 	 */
 	public TiApplication getTiApp()
@@ -107,8 +106,7 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	/**
-	 * Returns the window proxy associates with this activity.
-	 * @return the window proxy.
+	 * @return the window proxy associates with this activity.
 	 */
 	public TiWindowProxy getWindowProxy()
 	{
@@ -135,8 +133,7 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	/**
-	 * Returns the activity proxy associates with this Activity.
-	 * @return activity proxy
+	 * @return activity proxy associates with this activity.
 	 */
 	public ActivityProxy getActivityProxy()
 	{
@@ -158,8 +155,7 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	/**
-	 * Returns the activity's layout.
-	 * @return
+	 * @return the activity's current layout.
 	 */
 	public TiCompositeLayout getLayout()
 	{
@@ -330,7 +326,7 @@ public abstract class TiBaseActivity extends Activity
 	@Override
 	/**
 	 * When activity is created, adds it to the activity stack and
-	 * fires 'create' event to JS side.
+	 * fires a javascript 'create' event.
 	 * @param savedInstanceState Bundle of saved data.
 	 */
 	protected void onCreate(Bundle savedInstanceState)
@@ -663,9 +659,8 @@ public abstract class TiBaseActivity extends Activity
 
 	@Override
 	/**
-	 * When activity pauses, sets current activity to null, fires 'pause' event
-	 * to JS side, and if the activity is finishing, removes all dialogs associated with
-	 * it.
+	 * When activity pauses, sets current activity to null, fires a javascript 'pause' event,
+	 * and if the activity is finishing, remove all dialogs associated with it.
 	 */
 	protected void onPause() 
 	{
@@ -710,8 +705,8 @@ public abstract class TiBaseActivity extends Activity
 
 	@Override
 	/**
-	 * When the activity resumes, sets the current activity to this and fires
-	 * 'resume' event to JS side.
+	 * When the activity resumes, sets the current activity to this and fires a javascript
+	 * 'resume' event.
 	 */
 	protected void onResume()
 	{
@@ -751,7 +746,7 @@ public abstract class TiBaseActivity extends Activity
 	@Override
 	/**
 	 * When activity starts, sets the current activity to this if necessary and
-	 * fires 'start' and 'focus' events to JS side. Focus event will only fire if 
+	 * fire javascript 'start' and 'focus' events. Focus events will only fire if 
 	 * the activity is not a tab activity.
 	 */
 	protected void onStart()
@@ -811,7 +806,7 @@ public abstract class TiBaseActivity extends Activity
 
 	@Override
 	/**
-	 * When activity stops, fires 'blur' and 'stop' events to JS side. Blur event will only fire
+	 * When activity stops, fire javascript 'blur' and 'stop' events. Blur events will only fire
 	 * if the activity is not a tab activity.
 	 */
 	protected void onStop()
@@ -854,8 +849,8 @@ public abstract class TiBaseActivity extends Activity
 
 	@Override
 	/**
-	 * When activity restarts, sets the current activity to this and fires 'restart'
-	 * event to JS side.
+	 * When activity restarts, sets the current activity to this and fires javascript 'restart'
+	 * event.
 	 */
 	protected void onRestart()
 	{
@@ -891,7 +886,7 @@ public abstract class TiBaseActivity extends Activity
 	@Override
 	/**
 	 * When activity is destroyed, removes it from the activity stack, performs
-	 * clean up, and fires 'destroy' event to JS side. 
+	 * clean up, and fires javascript 'destroy' event. 
 	 */
 	protected void onDestroy()
 	{
@@ -1017,7 +1012,6 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	/**
-	 * Returns whether this activity is a tab activity.
 	 * @return true if this activity is a tab activity, false otherwise.
 	 */
 	protected boolean isTabActivity()

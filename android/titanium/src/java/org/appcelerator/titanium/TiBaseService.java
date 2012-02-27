@@ -55,7 +55,7 @@ public class TiBaseService extends Service
 	}
 
 	/**
-	 * Implementing subclasses should use this method to release the service proxy.
+	 * Implementing subclasses should use this method to release the proxy.
 	 * @param proxy the proxy to release.
 	 */
 	public void unbindProxy(ServiceProxy proxy)
@@ -64,8 +64,7 @@ public class TiBaseService extends Service
 	}
 
 	/**
-	 * Returns the next service instance id.
-	 * @return next service id.
+	 * @return next service instance id.
 	 */
 	public int nextServiceInstanceId()
 	{

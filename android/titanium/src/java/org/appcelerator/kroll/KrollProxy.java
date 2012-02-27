@@ -251,8 +251,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Retrieves krollObject if exists, otherwise create it in KrollRuntime thread.
-	 * @return the KrollObject associated with this proxy.
+	 * @return the KrollObject associated with this proxy if it exists. Otherwise create it in KrollRuntime thread.
 	 */
 	public KrollObject getKrollObject()
 	{

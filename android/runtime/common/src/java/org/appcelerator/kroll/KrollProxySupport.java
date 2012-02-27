@@ -13,7 +13,7 @@ package org.appcelerator.kroll;
 public interface KrollProxySupport
 {
 	/**
-	 * Implementing classes should use this method to modify an existing property.
+	 * This method is a callback from the Javascript runtime to notify that a property has been changed.
 	 * @param name the property name.
 	 * @param value the replacing value.
 	 */
@@ -22,7 +22,7 @@ public interface KrollProxySupport
 	public void onPropertiesChanged(Object[][] changes);
 
 	/**
-	 * Implementing classes should return the corresponding KrollObject associated with it.
+	 * Implementing classes should return the corresponding KrollObject associated with this proxy.
 	 * @return the KrollObject object.
 	 */
 	public KrollObject getKrollObject();
@@ -38,7 +38,7 @@ public interface KrollProxySupport
 	public void setIndexedProperty(int index, Object value);
 
 	/**
-	 * Implementing classes should use this method when an eventListener is added or removed from event
+	 * Kroll will call this method directly when the value of hasListeners has changed.
 	 * @param event the event whose eventListener has been added or removed.
 	 * @param hasListeners If this is true, the eventListener has been added to event, and vice versa.
 	 */

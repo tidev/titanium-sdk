@@ -11,7 +11,7 @@ import android.app.Activity;
 public interface CurrentActivityListener
 {
 	/**
-	 * Implementing classes should use this method after waited for the current activity to be visible.
+	 * Implementing classes should override this method to run code after the current activity has become visible.
 	 * Refer to {@link TiUIHelper#waitForCurrentActivity(CurrentActivityListener)} for an example use case.
 	 * @param activity the associated activity.
 	 */

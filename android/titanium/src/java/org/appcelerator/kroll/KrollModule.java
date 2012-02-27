@@ -81,7 +81,7 @@ public class KrollModule extends KrollProxy
 
 	// TODO @Override
 	/**
-	 * A place holder for subclasses to extend. Its purpose is to receive native Android onResume life cycle event.
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onResume life cycle events.
 	 * @param activity the activity attached to this module.
 	 */
 	public void onResume(Activity activity) {
@@ -89,7 +89,7 @@ public class KrollModule extends KrollProxy
 
 	// TODO @Override
 	/**
-	 * A place holder for subclasses to extend. Its purpose is to receive native Android onPause life cycle event.
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onPause life cycle events.
 	 * @param activity the activity attached to this module.
 	 */
 	public void onPause(Activity activity) {
@@ -97,7 +97,7 @@ public class KrollModule extends KrollProxy
 	
 	// TODO @Override
 	/**
-	 * A place holder for subclasses to extend. Its purpose is to receive native Android onDestroy life cycle event.
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onDestroy life cycle events.
 	 * @param activity the activity attached to this module.
 	 */
 	public void onDestroy(Activity activity) {
@@ -105,7 +105,7 @@ public class KrollModule extends KrollProxy
 	
 	// TODO @Override
 	/**
-	 * A place holder for subclasses to extend. Its purpose is to receive native Android onStart life cycle event.
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onStart life cycle events.
 	 * @param activity the activity attached to this module.
 	 */
 	public void onStart(Activity activity) {
@@ -113,7 +113,7 @@ public class KrollModule extends KrollProxy
 	
 	// TODO @Override
 	/**
-	 * A place holder for subclasses to extend. Its purpose is to receive native Android onStop life cycle event.
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onStop life cycle events.
 	 * @param activity the activity attached to this module.
 	 */
 	public void onStop(Activity activity) {	
@@ -130,9 +130,9 @@ public class KrollModule extends KrollProxy
 	// TODO @Override
 	/**
 	 * A place holder for subclasses to extend. Its purpose is to process initial properties of the module.
-	 * @param d
+	 * @param properties  a set of properties to process.
 	 */
-	public void processProperties(KrollDict d) {
+	public void processProperties(KrollDict properties) {
 	}
 	
 	// TODO @Override

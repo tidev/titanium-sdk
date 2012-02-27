@@ -33,8 +33,8 @@ public abstract class KrollObject implements Handler.Callback
 	}
 
 	/**
-	 * Sets the KrollProxySupport associated with this object.
-	 * @param proxySupport the KrollProxySupport to be set.
+	 * Sets the Proxy associated with this object.
+	 * @param proxySupport the Proxy to be set.
 	 */
 	public void setProxySupport(KrollProxySupport proxySupport)
 	{
@@ -42,7 +42,7 @@ public abstract class KrollObject implements Handler.Callback
 	}
 
 	/**
-	 * Returns whether this object has an eventListener for the given event.
+	 * Checks to see if this object has event listeners added.
 	 * @param event an event to be fired.
 	 * @return whether this object has an eventListener for this event.
 	 */
@@ -59,7 +59,7 @@ public abstract class KrollObject implements Handler.Callback
 	/**
 	 * Sets whether the passed in event has a corresponding eventListener associated with it on JS side.
 	 * @param event  the event to be set.
-	 * @param hasListeners  If this is true, then the passed in event has an eventListener on JS side, false otherwise.
+	 * @param hasListeners  If this is true, then the passed in event has a javascript event listener, false otherwise.
 	 */
 	public void setHasListenersForEventType(String event, boolean hasListeners)
 	{

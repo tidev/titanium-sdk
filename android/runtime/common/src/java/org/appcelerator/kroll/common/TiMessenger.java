@@ -124,8 +124,9 @@ public class TiMessenger implements Handler.Callback
 	}
 
 	/**
-	 * Sends a message on blockQueue, and dispatch messages on the current
-	 * queue while blocking on the passed in AsyncResult. This is done via the MAIN thread.
+	 * Sends a message to an {@link java.util.concurrent.ArrayBlockingQueue#ArrayBlockingQueue(int) ArrayBlockingQueue},
+	 * and dispatch messages on the current
+	 * queue while blocking on the passed in AsyncResult. This is done via the Main thread.
 	 * @param message  the message to send.
 	 * @return  The getResult() value of the AsyncResult put on the message.
 	 */
@@ -135,8 +136,9 @@ public class TiMessenger implements Handler.Callback
 	}
 
 	/**
-	 * Sends a message on blockQueue, and dispatch messages on the current
-	 * queue while blocking on the passed in AsyncResult. This is done via the MAIN thread.
+	 * Sends a message to an {@link java.util.concurrent.ArrayBlockingQueue#ArrayBlockingQueue(int) ArrayBlockingQueue},
+	 * and dispatch messages on the current
+	 * queue while blocking on the passed in AsyncResult. This is done via the Main thread.
 	 * @param message   the message to send.
 	 * @param asyncArg  argument to be added to the AsyncResult.
 	 * @return  The getResult() value of the AsyncResult put on the message.
@@ -147,7 +149,8 @@ public class TiMessenger implements Handler.Callback
 	}
 
 	/**
-	 * Sends a message on blockQueue, and dispatch messages on the current
+	 * Sends a message to an {@link java.util.concurrent.ArrayBlockingQueue#ArrayBlockingQueue(int) ArrayBlockingQueue}, 
+	 * and dispatch messages on the current
 	 * queue while blocking on the passed in AsyncResult. This is done via the KrollRuntime thread.
 	 * @param message  the message to send.
 	 * @return  The getResult() value of the AsyncResult put on the message.
@@ -158,7 +161,8 @@ public class TiMessenger implements Handler.Callback
 	}
 
 	/**
-	 * Sends a message on blockQueue, and dispatch messages on the current
+	 * Sends a message to an {@link java.util.concurrent.ArrayBlockingQueue#ArrayBlockingQueue(int) ArrayBlockingQueue}, 
+	 * and dispatch messages on the current
 	 * queue while blocking on the passed in AsyncResult. This is done via the KrollRuntime thread.
 	 * @param message   the message to send.
 	 * @param asyncArg  the argument to be added to AsyncResult.
@@ -187,7 +191,7 @@ public class TiMessenger implements Handler.Callback
 	}
 
 	/**
-	 * Sends a message on blockQueue, and dispatch messages on the current
+	 * Sends a message to an {@link java.util.concurrent.ArrayBlockingQueue#ArrayBlockingQueue(int) ArrayBlockingQueue}, and dispatch messages on the current
 	 * queue while blocking on the passed in AsyncResult.
 	 * @param message The message to send.
 	 * @param targetMessenger The TiMessenger to send it to.
