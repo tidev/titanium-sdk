@@ -60,9 +60,14 @@ properties:
     platforms: [android]
     
 examples:
-  - title: System screen dimensions
+  - title: System Display Information
     example: |
-        The system's screen dimensions can be obtained using the following code.
+        Output the display properties to the system log.
 
-            var width = Titanium.Platform.displayCaps.platformWidth;
-            var height = Titanium.Platform.displayCaps.platformHeight;
+            Ti.API.info('Ti.Platform.displayCaps.density: ' + Ti.Platform.displayCaps.density);
+            Ti.API.info('Ti.Platform.displayCaps.dpi: ' + Ti.Platform.displayCaps.dpi);
+            Ti.API.info('Ti.Platform.displayCaps.platformHeight: ' + Ti.Platform.displayCaps.platformHeight);
+            Ti.API.info('Ti.Platform.displayCaps.platformWidth: ' + Ti.Platform.displayCaps.platformWidth);
+            Ti.API.info('Ti.Platform.displayCaps.xdpi: ' + Ti.Platform.displayCaps.xdpi);
+            Ti.API.info('Ti.Platform.displayCaps.ydpi: ' + Ti.Platform.displayCaps.ydpi);
+            Ti.API.info('Ti.Platform.displayCaps.logicalDensityFactor: ' + Ti.Platform.displayCaps.logicalDensityFactor);
