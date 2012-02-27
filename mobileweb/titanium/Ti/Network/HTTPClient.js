@@ -87,7 +87,12 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 				c.location = _.getAbsolutePath(httpURLFormatter ? httpURLFormatter(url) : url),
 				!!async
 			);
-			this._xhr.setRequestHeader("UserAgent", Ti.userAgent);
+			if (this.userAgent === undefined) {
+				this._xhr.setRequestHeader("UserAgent", Ti.userAgent);
+			}
+			else if (this.userAgent !== null) {
+				this._xhr.setRequestHeader("UserAgent", this.userAgent);
+			}
 		},
 
 		send: function(args){
@@ -105,6 +110,10 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 					}
 				}, timeout)));
 			} catch (ex) {}
+		},
+
+		setWithCredentials: function(val) {
+			this._xhr.withCredentials = val;
 		},
 
 		setRequestHeader: function(name, value) {

@@ -88,6 +88,18 @@ methods:
         summary: Value to assign to the header. May be `null` to clear a default header value, 
             such as X-Requested-With.
         type: String
+  - name: setWithCredentials
+    summary: Sets the value for the `withCredentials` property of the underlying request.
+    description: |
+        This method may only be called after `open` is called but before `send` is called.
+    parameters:
+      - name: value
+        summary: Value to assign to the property. May be the strings `true` or `false`.
+        type: String
+        optional: true
+        default: not set
+    platforms: [mobileweb]
+    since: "1.9.0"
   - name: setTimeout
     summary: Sets the request timeout.
     parameters:
@@ -276,6 +288,16 @@ properties:
     type: Number
     since: "1.8.0"
     platforms: [iphone, ipad]
+  - name: userAgent
+    summary: Overrides or excludes the user agent that will be sent with the request. 
+    description: |
+        Set this to `null` to exclude the user agent, otherwise specify a String.
+
+        This propery must be set before `open` is called.
+    default:  undefined.
+    type: String
+    platforms: [mobileweb]
+    since: "1.9.0"
   - name: cache
     summary: Controls whether or not HTTP responses are cached.
     description: |
