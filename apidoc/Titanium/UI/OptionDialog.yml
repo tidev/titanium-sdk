@@ -20,13 +20,20 @@ description: |
     
     #### iOS
     
-    On iOS, this dialog is shown at the bottom edge of the display, with the option items 
-    represented as vertical buttons. 
-    
     The `destructive` property may be set for an item, to give a visual cue that selecting it 
     results in an irreversible action.
     
     On iOS 4, option dialogs are automatically cancelled when the application is paused/suspended.
+
+    ### iPhone
+    
+    On iPhone, this dialog is shown at the bottom edge of the display, with the option items 
+    represented as vertical buttons. 
+
+    ### iPad
+    
+    On iPad, this dialog is shown in the middle of the display, or as a popover-like dialog if 
+    another view or control is specified via an argument.
     
     #### Caveats
     
@@ -36,18 +43,6 @@ description: |
 extends: Titanium.Proxy
 since: "0.8"
 
-methods:
-  - name: show
-    summary: Shows this dialog.
-    parameters:
-      - name: view
-        summary: View to which the dialog will be attached (iPad only.)
-        type: Titanium.UI.View
-        optional: true
-    
-  - name: hide
-    summary: Hides this dialog.
-    
 events:
   - name: click
     summary: Fired when a button in the dialog is clicked.
@@ -71,6 +66,22 @@ events:
         summary: Index of the destructive button.
         type: Number
         platforms: [iphone, ipad]
+
+methods:
+  - name: show
+    summary: Shows this dialog.
+    description: |
+        On iPad, this dialog is shown in the middle of the display, or as a popover-like dialog 
+        attached to another view or control if specified via the `options` argument.
+    parameters:
+      - name: options
+        summary: 
+        type: showOptions
+        optional: true
+    
+  - name: hide
+    summary: Hides this dialog.
+
 properties:
   - name: androidView
     summary: View to load inside the message area, to create a custom layout.
@@ -163,3 +174,16 @@ examples:
           var dialog = Ti.UI.createOptionDialog(opts).show();
         });
         win.open();
+---
+name: showOptions
+summary: Dictionary of options for the <Titanium.UI.OptionDialog.show> method.
+platforms: [ipad]
+
+properties:
+  - name: view
+    summary: View to which to attach the dialog.
+    type: Titanium.UI.View
+    
+  - name: animated
+    summary: Determines whether to animate the dialog as it is shown.
+    type: Boolean
