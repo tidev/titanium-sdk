@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/lang", "Ti/Blob", "Ti/Filesystem/FileStream", "./Base"],
-	function(declare, lang, Blob, FileStream, Base) {
+define(["Ti/_/declare", "Ti/_/lang", "Ti/Blob", "Ti/Filesystem/FileStream"],
+	function(declare, lang, Blob, FileStream) {
 
 /*
 
@@ -158,62 +158,91 @@ file = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,
 file.write(this.responseData);
 */
 
-/*
-stored meta info
-	n	name
-	c	date created
-	t	type (D or F)
-	x	executable
-	r	readonly
-	s	size
-	l	link
-	h	hidden
-	
-	do we need a "is copy" flag?
-	parent File object?
-*/
-
-	var extRegExp = /\.(.+)$/,
-		reg,
+	var reg,
+		regDate = (new Date()).getTime(),
 		File,
 		metaMap = {
-			n: "name",
-			c: "created",
-			t: "type",
-			x: "exec",
-			r: "readonly",
-			s: "size",
-			l: "link",
-			h: "hidden"
+			n: "sname",
+			c: "i_created",
+			m: "i_modified",
+			t: "s_type",
+			e: "b_remote",
+			x: "bexecutable",
+			r: "breadonly",
+			s: "isize",
+			l: "bsymbolicLink", // should this be a string?
+			h: "bhidden"
+			// do we need a "is copy" flag?
 		},
-		metaStrings = "nt";
-
-	function parseMeta(value) {
-		var meta = {
-			name: '',
-			created: 0,
-			type: 'F',
-			exec: 0,
-			readonly: 1,
-			size: 0,
-			link: 0,
-			hidden: 0
+		metaCast = {
+			i: function(i) {
+				return i - 0;
+			},
+			s: function(s) {
+				return ""+s;
+			},
+			b: function(b) {
+				return !!b;
+			}
+		},
+		pathRegExp = /(\/)?([^\:]*)(\:\/\/)?(.*)/,
+		mimeTypes = "application/octet-stream,text/plain,text/html,text/css,text/xml,text/mathml,image/gif,image/jpeg,image/png,image/x-icon,image/svg+xml,application/x-javascript,application/json,application/pdf,application/x-opentype,audio/mpeg,video/mpeg,video/quicktime,video/x-flv,video/x-ms-wmv,video/x-msvideo,video/ogg,video/mp4,video/webm".split(','),
+		mimeExtentions = {
+			txt: 1,
+			html: 2,
+			htm: 2,
+			css: 3,
+			xml: 4,
+			mml: 5,
+			gif: 6,
+			jpeg: 7,
+			jpg: 7,
+			png: 8,
+			ico: 9,
+			svg: 10,
+			js: 11,
+			json: 12,
+			pdf: 13,
+			otf: 14,
+			mp3: 15,
+			mpeg: 16,
+			mpg: 16,
+			mov: 17,
+			flv: 18,
+			wmv: 19,
+			avi: 20,
+			ogg: 21,
+			ogv: 21,
+			mp4: 22,
+			m4v: 22,
+			webm: 23
 		};
-		value && value.split('\n').forEach(function(line) {
-			var type = line.charAt(0),
-				val = line.substring(1);
-			meta[metaMap[type]] = metaStrings.indexOf(type) >= 0 ? val : val-0;
-		});
-		return meta;
+
+	function getLocal(path, meta) {
+		return localStorage.getItem("ti:fs:" + (meta ? "meta:" : "data:") + path);
+	}
+
+	function getRemote(path) {
+		var xhr = new XMLHttpRequest,
+			type;
+
+		xhr.overrideMimeType('text/plain; charset=x-user-defined')
+		xhr.open("GET", path, false);
+		xhr.send(null);
+		type = xhr.getResponseHeader("Content-Type");
+
+		return xhr.status === 200 ? { data: xhr.responseText, mimeType: type } : null;
 	}
 
 	function registry(path) {
+		var stack = [],
+			r;
+
 		if (!reg) {
 			reg = {
-				'/': "tD"
+				'/': "tD\nr1"
 			};
-			var stack = [],
-				created = (new Date()).getTime(),
+
 			require("/titanium/filesystem.registry").split(/\n|\|/).forEach(function(line, i) {
 				var depth = 0,
 					line = line.split('\t'),
@@ -221,23 +250,85 @@ stored meta info
 					name;
 
 				if (i === 0 && line[0] === "ts") {
-					created = line[1];
-					reg['/'] += "\nc" + created;
+					regDate = line[1];
+					reg['/'] += "\nc" + regDate;
 				} else {
 					for (; depth < len && !line[depth]; depth++) {}
 					stack = stack.slice(0, depth).concat(name = line[depth]);
-					reg['/' + stack.join('/')] = "n" + name + "\nc" + created + "\nt" + (depth + 1 == len ? 'D' : 'F\ns' + line[depth + 1]);
+					reg['/' + stack.join('/')] = "n" + name + "\nt" + (depth + 1 == len ? 'D' : 'F\ns' + line[depth + 1]);
 				}
 			});
 		}
-		return reg[path];
+		return (r = reg[path]) && r + "\nr1\ne1\nc" + regDate + "\nm" + regDate;
 	}
 
-	return File = declare("Ti._.Filesystem.Local", Base, {
+	return File = declare("Ti._.Filesystem.Local", null, {
 
-		postscript: function() {
-			var path = this.nativePath;
-			this._meta = parseMeta(path && (localStorage.getItem("ti:fs:meta:" + path) || registry(path)));
+		constructor: function(path) {
+			if (require.is(path, "String")) {
+				var match = path.match(pathRegExp),
+					b = !match[1] && match[3];
+
+				if (/^\.\./.test(path = b ? match[4] : match[2])) {
+					throw new Error('Irrational path "' + path + '"');
+				}
+
+				this.constants.__values__.nativePath = (b ? match[2] + "://" : "/") + path;
+			}
+
+			this._type = 'F';
+		},
+
+		postscript: function(args) {
+			var c = this.constants.__values__,
+				path = this.nativePath,
+				metaData = path && getLocal(path, 1) || registry(path),
+				match = path.match(pathRegExp);
+
+			metaData && (this._exists = 1) && metaData.split('\n').forEach(function(line) {
+				var fieldInfo = metaMap[line.charAt(0)],
+					field = fieldInfo.substring(1),
+					value = metaCast[fieldInfo.charAt(0)](line.substring(1));
+				(c.hasOwnProperty(field) ? c : this)[field] = value;
+			}, this);
+
+			c.name = path.split('/').pop();
+
+			match && match[1] || (c.readonly = true); // resources folder is readonly
+		},
+
+		constants: {
+			name: "",
+			executable: false,
+			readonly: false,
+			size: 0,
+			symbolicLink: false,
+			hidden: false,
+			nativePath: "",
+			parent: function() {
+				// TODO: if we're not already at the root level, pop the current nativePath and return a new File()
+				return null;
+			},
+			writable: {
+				get: function() {
+					return !this.readonly;
+				},
+				set: function(value) {
+					return this.constants.__value__.readonly = !value;
+				},
+				value: true
+			}
+		},
+
+		properties: {
+			hidden: {
+				get: function() {
+					return this._meta.hidden;
+				},
+				set: function(value) {
+					this._meta.hidden = value;
+				}
+			}
 		},
 
 		append: function(/*Ti.Blob|Ti.Filesystem.File*/data) {
@@ -269,38 +360,56 @@ stored meta info
 		},
 
 		createDirectory: function() {
-			return localFS.mkdir(this);
+			if (!this.exists()) {
+				// TODO
+				return true;
+			}
+			return false;
 		},
 
 		createFile: function() {
-			return true;
+			if (!this.exists()) {
+				// TODO
+				return true;
+			}
+			return false;
 		},
 
 		createTimestamp: function() {
-			var dateCreated = this._meta.dc;
-			return dateCreated ? dateCreated.toString() : null;
+			var d = this._created;
+			return d ? d.toString() : null;
 		},
 
 		deleteDirectory: function(recursive) {
-			return this.isDirectory() && localFS.rmdir(this);
+			if (this.isDirectory()) {
+				// TODO
+				return true;
+			}
+			return false;
 		},
 
 		deleteFile: function() {
-			return this.isFile() && localFS.rm(this);
+			if (this.isFile()) {
+				// TODO
+				return true;
+			}
+			return false;
 		},
 
 		exists: function() {
-			return localFS.exists(this);
+			return !!this._exists;
 		},
 
 		extension: function() {
-			var m = this.name.match(extRegExp);
+			var m = this.name.match(/\.(.+)$/);
 			return m ? m[1] : "";
 		},
 
 		getDirectoryListing: function() {
 			if (this.isDirectory()) {
-				
+				var files = [];
+				// TODO
+				return files;
 			}
 			return null;
 		},
@@ -314,16 +423,22 @@ stored meta info
 		},
 
 		modificationTimestamp: function() {
-			return 123;
+			var d = this._modified;
+			return d ? d.toString() : null;
 		},
 
 		move: function(dest) {
-			return localFS.mv(this, dest);
+			if (this.exists()) {
+				// TODO
+				// - check if dest already exists
+				return true;
+			}
+			return false;
 		},
 
 		open: function(mode) {
 			if (mode) {
-				this.mode = mode;
+				this._openMode = mode;
 				// MODE_READ, MODE_WRITE, or MODE_APPEND.
 				//return Titanium.Filesystem.FileStream;
 			}
@@ -331,17 +446,44 @@ stored meta info
 		},
 
 		read: function() {
-			/*
-			data
-			height: 0, // images only
-			length: 0,
-			mimeType: "",
-			nativePath: "",
-			size: 0, // images only
-			text: null, // null if binary, else string
-			width: 0 // images only
-			*/
-			//return Blob;
+			if (this.exists() && this.isFile()) {
+				var path = this.nativePath,
+					params,
+					obj,
+					data = this._remote ? (obj = getRemote(path)).data : getLocal(path),
+					type = obj && obj.mimeType || mimeTypes[mimeExtentions[this.extension] || 0],
+					binaryData,
+					i,
+					len = data.length;
+
+				if (data) {
+					params = {
+						data: data,
+						length: len,
+						mimeType: type,
+						nativePath: path
+					};
+					if (/^(application|image|audio|video)\//.test(type)) {
+						var binaryData = "";
+						for (i = 0; i < len; i++) {
+							binaryData += String.fromCharCode(data.charCodeAt(i) & 0xff);
+						}
+						params.size = len;
+						try {
+							// TODO: shim btoa
+							params.data = window.btoa(binaryData);
+							if (!type.indexOf("image/")) {
+								i = new Image;
+								i.src = "data:" + type + ";base64," + params.data;
+								params.width = i.width;
+								params.height = i.height;
+							}
+						} catch (ex) {}
+					}
+					return new Blob(params);
+				}
+			}
+			return null;
 		},
 
 		rename: function(newname) {

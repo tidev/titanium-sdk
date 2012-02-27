@@ -30,10 +30,7 @@ define(["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/Filesystem/File"],
 			path = '/' + path;
 		}
 
-		return {
-			name: path.split('/').pop(),
-			nativePath: path
-		};
+		return path;
 	}
 
 	return lang.setObject("Ti.Filesystem", Evented, {

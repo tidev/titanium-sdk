@@ -5,7 +5,7 @@ define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
 		constructor: function(args) {
 			args = args || {};
 			var data = this.data = args.data || null;
-			(this.isBinary = !!args.isBinary) || (this.text = data || "");
+			(this._isBinary = args.size !== undefined) || (this.constants.__values__.text = data || "");
 		},
 
 		append: function(blob) {
@@ -13,7 +13,7 @@ define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
 		},
 
 		toString: function() {
-			return this.text;
+			return this._isBinary ? this.data : this.text;
 		},
 
 		constants: {

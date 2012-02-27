@@ -284,17 +284,17 @@ properties:
     summary: |
         `true` if the file is executable.
     description: |
-        On iOS, this property exists but is always `false`.
+        On iOS and Mobile Web, this property exists but is always `false`.
     type: Boolean
-    platforms: [android,iphone,ipad]
+    platforms: [android,iphone,ipad,mobileweb]
     permission: read-only
   - name: hidden
     summary:
         Set to `true` if the file is hidden.
     description: |
-        On iOS, this property exists but is always `false`.
+        On iOS and Mobile Web, this property exists but is always `false`.
     type: Boolean
-    platforms: [android,iphone,ipad]
+    platforms: [android,iphone,ipad,mobileweb]
   - name: name
     summary: Name of the file.
     type: String
@@ -316,12 +316,12 @@ properties:
         `true` if the file identified by this object is read-only.
     type: Boolean
     permission: read-only
-    platforms: [android]
+    platforms: [android,mobileweb]
   - name: size
     summary: Size, in bytes, of the file identified by this object.
     type: Number
     permission: read-only
-    platforms: [android]
+    platforms: [android,mobileweb]
   - name: remoteBackup
     summary: Value indicating whether or not to back up to a cloud service.
     description: |
