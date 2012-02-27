@@ -74,12 +74,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		},
 
 		properties: {
-			color: {
-				set: function(value) {
-					this.textContainerDiv.style.color = value;
-					return value;
-				}
-			},
 			ellipsize: {
 				set: function(value) {
 					set(this.textContainerDiv,"textOverflow", !!value ? "ellipsis" : "clip");
