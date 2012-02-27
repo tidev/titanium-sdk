@@ -132,7 +132,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 			onsendstream: undef,
 			timeout: undef,
 			userAgent: undef,
-			withCredentials: undef
+			withCredentials: false
 		},
 
 		constants: {
