@@ -155,7 +155,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
     // - Any property setter which is active on the main thread only MAY NOT protect their object
     // correctly or in time (see the comment in -[KrollObject noteKeylessKrollObject:]).
     //
-    // This may have to be done as part of TIMOB-6292 (convert KrollContext to serialized GCD)
+    // This may have to be done as part of TIMOB-6990 (convert KrollContext to serialized GCD)
     
     if ([value isKindOfClass:[NSArray class]]) {
         for (id item in value) {
