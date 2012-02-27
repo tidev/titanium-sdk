@@ -770,6 +770,47 @@ describe("Ti.UI Layout tests", {
 		win.add(view1);
 		win.open();
 	}),
+	// functional test for percentages on margin/padding
+	marginPaddingPercentages: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+
+		var parentView = Ti.UI.createView({
+			backgroundColor:'blue',
+			padding:{right:10,top:10, bottom:'10%'},
+			width:100,
+			height:100,
+      top: 200
+		});
+
+		var view1 = Ti.UI.createView({
+			left: 5,
+			right: 10,
+			margin: {left:'10%'}
+		});
+
+		var view2 = Ti.UI.createView({
+			left: 5,
+			center: {x:10},
+			margin: {left:10}
+		});
+
+		win.addEventListener('open', this.async(function(e){
+			valueOf(view1.rect.width).shouldBe(85);
+			valueOf(view2.rect.width).shouldBe(10);
+
+			valueOf(view1.rect.y).shouldBe(10);
+			valueOf(view2.rect.y).shouldBe(10);
+
+			valueOf(view1.rect.x).shouldBe(-5);
+			valueOf(view2.rect.x).shouldBe(5);
+
+		}));
+
+		parentView.add(view1);
+		parentView.add(view2);
+		win.add(parentView);
+		win.open();
+	}),
 	fourPins: asyncTest(function() {
 		var win = Ti.UI.createWindow({
 			width: 100, height: 100

@@ -317,49 +317,91 @@ public class TiConvert
 
 	public static void updateLayoutMargin(Object value, LayoutParams layoutParams)
 	{
+		layoutParams.marginLeft = null;
+		layoutParams.marginRight = null;
+		layoutParams.marginTop = null;
+		layoutParams.marginBottom = null;
+
 		if (value instanceof HashMap) {
 			@SuppressWarnings("rawtypes")
-			HashMap center = (HashMap) value;
-			Object left = center.get(TiC.PROPERTY_LEFT);
-			Object right = center.get(TiC.PROPERTY_RIGHT);
-			Object top = center.get(TiC.PROPERTY_TOP);
-			Object bottom = center.get(TiC.PROPERTY_BOTTOM);
+			HashMap margin = (HashMap) value;
+			Object left = margin.get(TiC.PROPERTY_LEFT);
+			Object right = margin.get(TiC.PROPERTY_RIGHT);
+			Object top = margin.get(TiC.PROPERTY_TOP);
+			Object bottom = margin.get(TiC.PROPERTY_BOTTOM);
 
-			layoutParams.marginLeft = left == null ? null : toTiDimension(left, TiDimension.TYPE_LEFT);
-			layoutParams.marginRight = right == null ? null : toTiDimension(right, TiDimension.TYPE_RIGHT);
-			layoutParams.marginTop = top == null ? null : toTiDimension(top, TiDimension.TYPE_TOP);
-			layoutParams.marginBottom = bottom == null ? null : toTiDimension(bottom, TiDimension.TYPE_BOTTOM);
+			if (left != null) {
+				TiDimension leftMargin = toTiDimension(left, TiDimension.TYPE_LEFT);
+				if (!leftMargin.isUnitPercent()) {
+					layoutParams.marginLeft = leftMargin;
+				}
+			}
 
-		} else {
-			layoutParams.marginLeft = null;
-			layoutParams.marginRight = null;
-			layoutParams.marginTop = null;
-			layoutParams.marginBottom = null;
+			if (right != null) {
+				TiDimension rightMargin = toTiDimension(right, TiDimension.TYPE_RIGHT);
+				if (!rightMargin.isUnitPercent()) {
+					layoutParams.marginRight = rightMargin;
+				}
+			}
 
+			if (top != null) {
+				TiDimension topMargin = toTiDimension(top, TiDimension.TYPE_TOP);
+				if (!topMargin.isUnitPercent()) {
+					layoutParams.marginTop = topMargin;
+				}
+			}
+
+			if (bottom != null) {
+				TiDimension bottomMargin = toTiDimension(bottom, TiDimension.TYPE_BOTTOM);
+				if (!bottomMargin.isUnitPercent()) {
+					layoutParams.marginBottom = bottomMargin;
+				}
+			}
 		}
 	}
 
 	public static void updateLayoutPadding(Object value, LayoutParams layoutParams)
 	{
+		layoutParams.paddingLeft = null;
+		layoutParams.paddingRight = null;
+		layoutParams.paddingTop = null;
+		layoutParams.paddingBottom = null;
+
 		if (value instanceof HashMap) {
 			@SuppressWarnings("rawtypes")
-			HashMap center = (HashMap) value;
-			Object left = center.get(TiC.PROPERTY_LEFT);
-			Object right = center.get(TiC.PROPERTY_RIGHT);
-			Object top = center.get(TiC.PROPERTY_TOP);
-			Object bottom = center.get(TiC.PROPERTY_BOTTOM);
+			HashMap padding = (HashMap) value;
+			Object left = padding.get(TiC.PROPERTY_LEFT);
+			Object right = padding.get(TiC.PROPERTY_RIGHT);
+			Object top = padding.get(TiC.PROPERTY_TOP);
+			Object bottom = padding.get(TiC.PROPERTY_BOTTOM);
 
-			layoutParams.paddingLeft = left == null ? null : toTiDimension(left, TiDimension.TYPE_LEFT);
-			layoutParams.paddingRight = right == null ? null : toTiDimension(right, TiDimension.TYPE_RIGHT);
-			layoutParams.paddingTop = top == null ? null : toTiDimension(top, TiDimension.TYPE_TOP);
-			layoutParams.paddingBottom = bottom == null ? null : toTiDimension(bottom, TiDimension.TYPE_BOTTOM);
+			if (left != null) {
+				TiDimension leftPadding = toTiDimension(left, TiDimension.TYPE_LEFT);
+				if (!leftPadding.isUnitPercent()) {
+					layoutParams.paddingLeft = leftPadding;
+				}
+			}
 
-		} else {
-			layoutParams.paddingLeft = null;
-			layoutParams.paddingRight = null;
-			layoutParams.paddingTop = null;
-			layoutParams.paddingBottom = null;
+			if (right != null) {
+				TiDimension rightPadding = toTiDimension(right, TiDimension.TYPE_RIGHT);
+				if (!rightPadding.isUnitPercent()) {
+					layoutParams.paddingRight = rightPadding;
+				}
+			}
 
+			if (top != null) {
+				TiDimension topPadding = toTiDimension(top, TiDimension.TYPE_TOP);
+				if (!topPadding.isUnitPercent()) {
+					layoutParams.paddingTop = topPadding;
+				}
+			}
+
+			if (bottom != null) {
+				TiDimension bottomPadding = toTiDimension(bottom, TiDimension.TYPE_BOTTOM);
+				if (!bottomPadding.isUnitPercent()) {
+					layoutParams.paddingBottom = bottomPadding;
+				}
+			}
 		}
 	}
 
