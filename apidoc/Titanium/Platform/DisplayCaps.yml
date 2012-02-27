@@ -3,30 +3,61 @@ name: Titanium.Platform.DisplayCaps
 summary: |
     The Display Caps object returned by the <Titanium.Platform.displayCaps> property.
 description: |
-    On iPhone, the `density` property will return `high` for retina devices and
-    `medium` otherwise, and the `dpi` property `320` and `160` otherwise.
+    On iPhone, the `density` property is `high` for retina devices or `medium` otherwise, 
+    and the `dpi` property is `320` or `160` otherwise.
 
-    On iPad, the `density` property will return `medium` and the `dpi` property
-    will return `130`.
+    On iPad, the `density` property is `medium` and the `dpi` property is `130`.
     
-    Note that the `displayCaps` property begins with a lowercase letter,
-    which is in contrast to the `DisplayCaps` object that it returns.
+    Note that the `displayCaps` property begins with a lowercase letter, which differentiates it 
+    from the `DisplayCaps` object that it returns. Refer to the example to understand how it should 
+    be called.
 extends: Titanium.Proxy
 since: "0.8"
 createable: false
+
 properties:
   - name: density
-    summary: The system's display density.
+    summary: Logical density of the display.
     type: String
+    
   - name: dpi
-    summary: The system's display DPI.
+    summary: Display density expressed as dots-per-inch.
     type: Number
+
+  - name: logicalDensityFactor
+    summary: |
+        Logical density of the display, as a scaling factor for the Density Independent Pixel (dip) 
+        unit.
+    description: |
+        One dip is one pixel on a 160dpi display, approximately, with a 240x320, 1.5"x2" display
+        providing a baseline. For example, for a 160dpi display, this value will be 1, and for 120dpi, 
+        it will be .75.
+        
+        This value does not precisely follow the real display size, as given by `xdpi` and `ydpi`, 
+        but instead is used to scale the size of the overall UI in steps based on changes in the 
+        display dpi. For example, a 240x320 screen will have a density of 1, whether its width is 
+        1.8" or 1.3". However, if the resolution is increased to 320x480 but the display remains 
+        1.5"x2" then the density would be increased to about 1.5.
+    type: Number
+
   - name: platformHeight
-    summary: The system's display height.
+    summary: Absolute height of the display in pixels.
     type: Number
+    
   - name: platformWidth
-    summary: The system's display width.
+    summary: Absolute width of the display in pixels.
     type: Number
+    
+  - name: xdpi
+    summary: Physical pixels per inch of the display in the X dimension.
+    type: Number
+    platforms: [android]
+    
+  - name: ydpi
+    summary: Physical pixels per inch of the display in the Y dimension.
+    type: Number
+    platforms: [android]
+    
 examples:
   - title: System screen dimensions
     example: |
