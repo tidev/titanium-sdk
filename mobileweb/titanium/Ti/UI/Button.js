@@ -137,13 +137,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 			backgroundSelectedImage: postDoBackground,
 			
-			color: {
-				set: function(value) {
-					setStyle(this._buttonTitle, "color", value);
-					return value;
-				}
-			},
-			
 			enabled: {
 				set: function(value, oldValue) {
 					

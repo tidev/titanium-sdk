@@ -330,7 +330,8 @@ public class MediaModule extends KrollModule
 						Images.Media.MIME_TYPE,
 						Images.ImageColumns.BUCKET_ID,
 						Images.ImageColumns.BUCKET_DISPLAY_NAME,
-						"_data"
+						"_data",
+						Images.ImageColumns.DATE_TAKEN
 					};
 
 					String title = null;
@@ -339,17 +340,31 @@ public class MediaModule extends KrollModule
 					String bucketId = null;
 					String bucketDisplayName = null;
 					String dataPath = null;
+					String dateTaken = null;
 
-					Cursor c = activity.getContentResolver().query(data.getData(), projection, null, null, null);
+					Cursor c;
+					if (data.getData() != null) {
+						c = activity.getContentResolver().query(data.getData(), projection, null, null, null);
+					}
+					else {
+						c = activity.getContentResolver().query(Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, Images.ImageColumns.DATE_TAKEN);
+					}
 					if (c != null) {
 						try {
-							if (c.moveToNext()) {
+							boolean isCursorValid = false;
+							if (data.getData() != null) {
+								isCursorValid = c.moveToNext();
+							} else {
+								isCursorValid = c.moveToLast();
+							}
+							if (isCursorValid) {
 								title = c.getString(0);
 								displayName = c.getString(1);
 								mimeType = c.getString(2);
 								bucketId = c.getString(3);
 								bucketDisplayName = c.getString(4);
 								dataPath = c.getString(5);
+								dateTaken = c.getString(6);
 								
 								if (DBG) {
 									Log.d(LCAT,"Image { title: " + title + " displayName: " + displayName + " mimeType: " + mimeType +
@@ -357,7 +372,6 @@ public class MediaModule extends KrollModule
 										" path: " + dataPath + " }");
 								}
 							}
-
 						} finally {
 							if (c != null) {
 								c.close();
@@ -407,7 +421,11 @@ public class MediaModule extends KrollModule
 							values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, imageFile.getName());
 							values.put("_data", imageFile.getAbsolutePath());
 
-							activity.getContentResolver().update(data.getData(), values, null, null);
+							if (data.getData() != null) {
+								activity.getContentResolver().update(data.getData(), values, null, null);
+							} else {
+								activity.getContentResolver().update(Images.Media.EXTERNAL_CONTENT_URI, values, "datetaken = ?", new String[] {dateTaken});
+							}
 
 							src.delete();
 							localImageUrl = imageUrl; // make sure it's a good URL before setting it to pass back.
