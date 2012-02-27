@@ -411,7 +411,7 @@ DEFINE_EXCEPTIONS
 		{
 			UINavigationController *navController = (UINavigationController*)c;
 			TiUITabProxy *tab = (TiUITabProxy*)navController.delegate;
-			[tab removeFromTabGroup];
+			[tab closeTab];
 		}
 		controller.viewControllers = nil;
 	}

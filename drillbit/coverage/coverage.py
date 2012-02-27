@@ -21,7 +21,9 @@ coverageDir = os.path.dirname(os.path.abspath(__file__))
 drillbitDir = os.path.dirname(coverageDir)
 mobileDir = os.path.dirname(drillbitDir)
 supportCommonDir = os.path.join(mobileDir, "support", "common")
+supportAndroidDir = os.path.join(mobileDir, "support", "android")
 sys.path.append(supportCommonDir)
+sys.path.append(supportAndroidDir)
 
 try:
 	import json
@@ -383,7 +385,7 @@ class CoverageMatrix(object):
 
 	def initDrillbitTests(self):
 		os.chdir(drillbitDir)
-		rhinoJar = os.path.join(mobileDir, "android", "titanium", "lib", "js.jar")
+		rhinoJar = os.path.join(mobileDir, "android", "runtime", "rhino", "lib", "js.jar")
 		self.drillbitTests = json.loads(subprocess.Popen(
 			["java", "-jar", rhinoJar, "drillbit.js"], stdout=subprocess.PIPE).communicate()[0])
 
