@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Appcelerator Titanium Mobile
-# Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
 # Licensed under the terms of the Apache Public License
 # Please see the LICENSE included with this distribution for details.
 #
@@ -11,7 +11,6 @@
 
 import os, sys, shutil, platform, zipfile
 import string, subprocess, re
-from mako.template import Template
 from xml.etree.ElementTree import ElementTree
 from StringIO import StringIO
 from os.path import join, splitext, split, exists
@@ -22,7 +21,9 @@ import bindings
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 module_dir = os.path.join(os.path.dirname(template_dir), 'module')
-sys.path.extend([os.path.dirname(template_dir), module_dir])
+common_dir = os.path.join(os.path.dirname(template_dir), 'common')
+sys.path.extend([os.path.dirname(template_dir), module_dir, common_dir])
+from mako.template import Template
 from tiapp import TiAppXML, touch_tiapp_xml
 from manifest import Manifest
 from module import ModuleDetector

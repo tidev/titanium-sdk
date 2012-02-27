@@ -14,23 +14,23 @@ since: "0.9"
 methods:
   - name: pause
     summary: |
-        Pauses a running animation. Use `resume` method on Android and `start` method on iOS 
+        Pauses a running animation. Use `resume` method on Android and Mobile Web and `start` method on iOS 
         to continue.
-    descrption:  This method only works if multiple images are specified.
+    description:  This method only works if multiple images are specified.
     
   - name: resume
     summary: Resumes an animation from a `pause` state.
-    descrption:  This method only works if multiple images are specified.
-    platforms: [android]
+    description:  This method only works if multiple images are specified.
+    platforms: [android, mobileweb]
     
   - name: start
     summary: |
-        Starts the image animation. On Android, also resets `index` to the first image.
-    descrption:  This method only works if multiple images are specified.
+        Starts the image animation. On Android and Mobile Web, also resets `index` to the first image.
+    description:  This method only works if multiple images are specified.
     
   - name: stop
-    summary: Stops a running animation. On iOS, also resets `index` to the first image.
-    descrption:  This method only works if multiple images are specified.
+    summary: Stops a running animation. On iOS and Mobile Web, also resets `index` to the first image.
+    description:  This method only works if multiple images are specified.
     
   - name: toBlob
     summary: Returns the image as a Blob object.
@@ -48,7 +48,7 @@ events:
     properties:
       - name: state
         summary: |
-            Set to `image` on Android and `url` on iOS when the image defined in the 
+            Set to `image` on Android and Mobile Web and `url` on iOS when the image defined in the 
             [image](Titanium.UI.ImageView.image) property is loaded. Set to `images`, when the series 
             of images defined in the [images](Titanium.UI.ImageView.images) property are loaded.
         type: String
@@ -67,13 +67,13 @@ events:
 
   - name: pause
     summary: Fired when the animation pauses.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
 properties:
   - name: animating
     summary: |
         Indicates whether animation is running.
     type: Boolean
-    default: false on creation, true on load (Android), false (iPhone, iPad)
+    default: false on creation, true on load (Android), false (iPhone, iPad, Mobile Web)
     permission: read-only
     
   - name: canScale
@@ -95,6 +95,7 @@ properties:
   - name: defaultImage
     summary: Local path to the default image to display while loading a remote image.
     type: String
+    platforms: [android, iphone, ipad]
     
   - name: duration
     summary: Amount of time in milliseconds to animate one cycle.
@@ -103,9 +104,9 @@ properties:
         started, duration will be set to the number of images multiplied by 33ms. If no images 
         are assigned, duration will be set to 100ms.
         
-        On iOS, the default is 30ms.
+        On iOS and Mobile Web, the default is 30ms.
     type: Number
-    default: See description (Android), 30 (iPhone, iPad)
+    default: See description (Android), 30 (iPhone, iPad, Mobile Web)
     
   - name: enableZoomControls
     summary: Show zoom controls when the user touches the image view.
@@ -126,18 +127,21 @@ properties:
         filenames, and thus this property is only applicable to remote images.
     type: Boolean
     default: false
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     
   - name: image
-    summary: | 
+    summary: Image to display.
+    description: |
         Image to display, defined using a local filesystem path, a `File` object, a remote URL, 
-        or a `Blob` object containing image data.
+        or a `Blob` object containing image data. `Blob` and `File` objects are not supported on 
+        Mobile Web.
     type: [ String, Titanium.Blob, Titanium.Filesystem.File ]
 
   - name: images
     summary: | 
         Array of images to animate, defined using local filesystem paths, `File` objects, 
-        remote URLs (Android only), or `Blob` objects containing image data.
+        remote URLs (Android only), or `Blob` objects containing image data. `Blob` and `File` 
+        objects are not supported on Mobile Web.
     type: [ Array<String>, Array<Titanium.Blob>, Array<Titanium.Filesystem.File> ]
     
   - name: paused

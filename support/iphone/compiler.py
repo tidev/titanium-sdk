@@ -7,7 +7,8 @@
 import os, sys, re, shutil, time, run, sgmllib, codecs, tempfile
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-sys.path.append(os.path.join(template_dir,'../'))
+sys.path.append(os.path.abspath(os.path.join(template_dir,'..')))
+sys.path.append(os.path.abspath(os.path.join(template_dir,'..', 'common')))
 
 from tiapp import *
 import jspacker 
@@ -25,7 +26,7 @@ ignoreDirs = ['.git','.svn','_svn','CVS','android','iphone','mobileweb'];
 HEADER = """/**
  * Appcelerator Titanium Mobile
  * This is generated code. Do not modify. Your changes *will* be lost.
- * Generated code is Copyright (c) 2009-2011 by Appcelerator, Inc.
+ * Generated code is Copyright (c) 2009-2012 by Appcelerator, Inc.
  * All Rights Reserved.
  */
 #import <Foundation/Foundation.h>

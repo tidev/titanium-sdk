@@ -23,7 +23,7 @@ define(["Ti/_/declare", "Ti/Gesture", "Ti/_/UI/SuperView", "Ti/UI"], function(de
 					backgroundImage: UI.backgroundImage
 				})).show();
 			}
-			SuperView.prototype.open.apply(this, args);
+			SuperView.prototype.open.call(this, args);
 		},
 
 		close: function(args) {
@@ -32,7 +32,7 @@ define(["Ti/_/declare", "Ti/Gesture", "Ti/_/UI/SuperView", "Ti/UI"], function(de
 				UI._removeWindow(mw).destroy();
 				this._modalWin = null;
 			}
-			SuperView.prototype.close.apply(this, args);
+			SuperView.prototype.close.call(this, args);
 		},
 
 		constants: {
