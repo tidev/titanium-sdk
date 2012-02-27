@@ -6,7 +6,7 @@ description: |
     Use the <Titanium.UI.createPickerRow> method to create a picker row control.
     
     Views added to picker rows is only supported on iOS.
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 extends: Titanium.UI.View
 since: "0.9"
 
@@ -17,14 +17,21 @@ methods:
       - name: view
         summary: A view object.
         type: Object
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
 
 properties:
+  - name: color
+    summary: Color of the item text.
+    type: String
+    platforms: [mobileweb]
   - name: fontSize
     summary: Font size for displaying item text. Ignored when using a custom view.
     type: Number
     platforms: [iphone, ipad]
-    
+  - name: font
+    summary: Font to use for the item text.
+    type: Font
+    platforms: [mobileweb]
   - name: title
     summary: Item text.
     type: String
