@@ -551,6 +551,7 @@ def main(args):
 		print
 		print "  install       install the app to itunes for testing on iphone"
 		print "  simulator     build and run on the iphone simulator"
+		print "  adhoc         build for adhoc distribution"
 		print "  distribute    build final distribution bundle"
 		print "  xcode         build from within xcode"
 		print "  run           build and run app from project folder"
@@ -724,6 +725,14 @@ def main(args):
 			target = 'Debug'
 			deploytype = 'test'
 		
+		elif command == 'adhoc':
+			iphone_version = check_iphone_sdk(iphone_version)
+			link_version = iphone_version
+			appuuid = dequote(args[6].decode("utf-8"))
+			dist_name = dequote(args[7].decode("utf-8"))
+			target = 'Release'
+			deploytype = 'production'
+			
 		# setup up the useful directories we need in the script
 		build_out_dir = os.path.abspath(os.path.join(iphone_dir,'build'))
 		build_dir = os.path.abspath(os.path.join(build_out_dir,'%s-iphone%s'%(target,ostype)))
@@ -1420,7 +1429,51 @@ def main(args):
 				###########################################################################	
 				# END OF SIMULATOR COMMAND	
 				###########################################################################	
-				
+	
+					
+				#
+				# this command is run for installing an app on device
+				#
+				elif command == 'adhoc':
+
+					debugstr = ''
+					if debughost:
+						debugstr = 'DEBUGGER_ENABLED=1'
+						
+					args += [
+						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=test TI_TEST=1 %s %s" % (debugstr, kroll_coverage),
+						"PROVISIONING_PROFILE=%s" % appuuid,
+						"CODE_SIGN_IDENTITY=iPhone Distribution: %s" % dist_name,
+						"DEPLOYMENT_POSTPROCESSING=YES"
+					]
+					execute_xcode("iphoneos%s" % iphone_version,args,False)
+
+					sys.stdout.flush()
+
+					if os.path.exists("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication"):
+						o.write("+ Preparing to run /Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication\n")
+						output = run.run(["/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication",app_dir],True)
+						o.write("+ Finished running /Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication\n")
+						if output: o.write(output)
+
+					# for install, launch itunes with the app
+					ipa = os.path.join(os.path.dirname(app_dir),"%s.ipa" % name)
+					o.write("+ IPA file should be at %s\n" % ipa);
+
+					# it appears that sometimes this command above fails on certain installs
+					# or is missing. let's just open if we have it otherwise, open the app 
+					# directory
+					if not os.path.exists(ipa):
+						# just open the app dir itself
+						o.write("+ IPA didn't exist at %s\n" % ipa)
+						o.write("+ Will try and open %s\n" % app_dir)
+						ipa = app_dir
+					
+					run_postbuild()
+					
+				###########################################################################	
+				# END OF ADHOC COMMAND	
+				###########################################################################				
 				
 				#
 				# this command is run for installing an app on device
