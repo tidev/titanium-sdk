@@ -16,12 +16,16 @@ methods:
         keyboard is already visible or to globally show the keyboard.
         
   - name: openPreferences
-    summary: Opens the UI for Android Preferences dialog.
+    summary: |
+        Opens an application preferences dialog, using the native Android system settings interface, 
+        defined by the platform-specific `preferences.xml` and `array.xml` files.
     description: |
-        The `preferences.xml` file must be placed in the `platform/android/res/xml/` folder of the 
-        project. Documentation on its file format may be found in the 
-        [preferences.xml](http://developer.android.com/resources/samples/ApiDemos/res/xml/preferences.html) 
-        page of the Android Developer website.
+        The preferences configuration files must be created in the project folders, 
+        `platform/android/res/xml/preferences.xml` and `platform/android/res/values/array/array.xml`.
+        
+        See the example for a demonstration, and the official Android Developer documentation for 
+        the [preferences.xml](http://developer.android.com/resources/samples/ApiDemos/res/xml/preferences.html) 
+        format.
 properties:
   - name: LINKIFY_ALL
     summary: Auto-link all supported types for <Titanium.UI.Label>.
@@ -311,3 +315,74 @@ properties:
     summary: Display a placeholder and only load plugins when user selects it.
     type: Number
     permission: read-only
+examples:
+  - title: Android Preferences Example
+    example: |
+        Create preferences interface for the application.
+        
+        #### `app.js`
+        
+            var button = Ti.UI.createButton({
+              title:	'Click to Open Preferences'
+            });
+            button.addEventListener('click', function() {
+              Ti.UI.Android.openPreferences();
+            });
+            Ti.UI.currentWindow.add(button);
+        
+        #### `platform/android/res/xml/preferences.xml`
+        
+            <?xml version="1.0" encoding="utf-8"?>
+            <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                android:title="Preferences">
+              <PreferenceScreen
+                  android:title="Misc. Preferences"
+                  android:summary="Click to see more options">
+                <EditTextPreference
+                  android:title="Edit Text Preference"
+                  android:summary="You may enter a string"
+                  android:defaultValue=""
+                  android:key="editText" />
+              </PreferenceScreen>
+              <PreferenceCategory android:title="Category One">
+                <CheckBoxPreference
+                  android:title="CheckBox Preference"
+                  android:defaultValue="false"
+                  android:summary="You may enter a boolean"
+                  android:key="checkbox" />
+                <RingtonePreference
+                  android:title="Ringtone Preference"
+                  android:summary="You may pick a ringtone"
+                  android:defaultValue=""
+                  android:key="ringtone" />
+              </PreferenceCategory>
+              <PreferenceCategory android:title="Category Two">
+                <ListPreference
+                  android:title="List Preference"
+                  android:summary="You may chose from multiple choices"
+                  android:key="list" 
+                android:entries="@array/listNames"
+                android:entryValues="@array/listValues" 
+                />
+              </PreferenceCategory>
+            </PreferenceScreen>
+            
+        #### `platform/android/res/values/array/array.xml`
+        
+            <?xml version="1.0" encoding="utf-8"?>
+            <resources>
+              <string-array name="listNames">
+                <item>5 Minutes</item>
+                <item>10 Minutes</item>
+                <item>15 Minutes</item>
+                <item>30 Minutes</item>
+                <item>60 Minutes</item>
+              </string-array>
+              <string-array name="listValues">
+                <item>5</item>
+                <item>10</item>
+                <item>15</item>
+                <item>30</item>
+                <item>60</item>
+              </string-array>
+            </resources>
