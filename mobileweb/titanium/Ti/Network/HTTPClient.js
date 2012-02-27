@@ -87,11 +87,19 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 				c.location = _.getAbsolutePath(httpURLFormatter ? httpURLFormatter(url) : url),
 				!!async
 			);
-			if (this.userAgent === undefined) {
+			if (this.userAgent === undef) {
 				this._xhr.setRequestHeader("UserAgent", Ti.userAgent);
 			}
-			else if (this.userAgent !== null) {
+			else if (this.userAgent) {
 				this._xhr.setRequestHeader("UserAgent", this.userAgent);
+			}
+			if (this.withCredentials !== undef) {
+				if (typeof this.withCredentials === 'string') {
+					this._xhr.withCredentials = this.withCredentials;
+				}
+				else {
+					this._xhr.withCredentials = this.withCredentials ? 'true' : 'false';
+				}
 			}
 		},
 
@@ -111,11 +119,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 				}, timeout)));
 			} catch (ex) {}
 		},
-
-		setWithCredentials: function(val) {
-			this._xhr.withCredentials = val;
-		},
-
+        
 		setRequestHeader: function(name, value) {
 			this._xhr.setRequestHeader(name, value);
 		},
@@ -126,7 +130,9 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 			onload: undef,
 			onreadystatechange: undef,
 			onsendstream: undef,
-			timeout: undef
+			timeout: undef,
+			userAgent: undef,
+			withCredentials: undef
 		},
 
 		constants: {
