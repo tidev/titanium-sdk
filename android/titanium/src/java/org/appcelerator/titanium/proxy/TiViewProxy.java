@@ -37,6 +37,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.OpenableColumns;
 import android.view.View;
 
 @Kroll.proxy(propertyAccessors={
@@ -143,6 +144,13 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	@Override
 	public void handleCreationDict(KrollDict options)
 	{
+		// Remove margin/padding if it is invalid
+		if (options.containsKey(TiC.PROPERTY_PADDING) && !(options.get(TiC.PROPERTY_PADDING) instanceof HashMap)) {
+			options.remove(TiC.PROPERTY_PADDING);
+		}
+		if (options.containsKey(TiC.PROPERTY_MARGIN) && !(options.get(TiC.PROPERTY_MARGIN) instanceof HashMap)) {
+			options.remove(TiC.PROPERTY_MARGIN);
+		}
 		options = handleStyleOptions(options);
 		if (langConversionTable != null) {
 			KrollDict foundStrings = new KrollDict();
@@ -388,7 +396,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (hasProperty(TiC.PROPERTY_WIDTH)) {
 			return getProperty(TiC.PROPERTY_WIDTH);
 		}
-		
+
 		return KrollRuntime.UNDEFINED;
 	}
 
@@ -404,7 +412,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (hasProperty(TiC.PROPERTY_HEIGHT)) {
 			return getProperty(TiC.PROPERTY_HEIGHT);
 		}
-		
+
 		return KrollRuntime.UNDEFINED;
 	}
 
@@ -423,6 +431,42 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 
 		return dict;
+	}
+
+	@Kroll.setProperty(retain = false) @Kroll.method
+	public void setMargin(Object margin)
+	{
+		if (margin instanceof HashMap) {
+			setPropertyAndFire(TiC.PROPERTY_MARGIN, margin);
+		}
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public Object getMargin()
+	{
+		if (hasProperty(TiC.PROPERTY_MARGIN)) {
+			return getProperty(TiC.PROPERTY_MARGIN);
+		}
+
+		return KrollRuntime.UNDEFINED;
+	}
+
+	@Kroll.setProperty(retain = false) @Kroll.method
+	public void setPadding(Object padding)
+	{
+		if (padding instanceof HashMap) {
+			setPropertyAndFire(TiC.PROPERTY_PADDING, padding);
+		}
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public Object getPadding()
+	{
+		if (hasProperty(TiC.PROPERTY_PADDING)) {
+			return getProperty(TiC.PROPERTY_PADDING);
+		}
+
+		return KrollRuntime.UNDEFINED;
 	}
 
 	public void clearView()

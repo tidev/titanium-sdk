@@ -277,6 +277,7 @@ public class TiCompositeLayout extends ViewGroup
 				childDimension = LayoutParams.FILL_PARENT;
 			}
 		}
+
 		int widthPadding = getViewWidthPadding(child, width);
 		int widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(width, wMode), widthPadding,
 			childDimension);
@@ -296,6 +297,7 @@ public class TiCompositeLayout extends ViewGroup
 		int heightPadding = getViewHeightPadding(child, height);
 		int heightSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(height, hMode), heightPadding,
 			childDimension);
+
 		child.measure(widthSpec, heightSpec);
 		// Useful for debugging.
 		// int childWidth = child.getMeasuredWidth();
