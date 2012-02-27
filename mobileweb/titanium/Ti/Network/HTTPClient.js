@@ -93,14 +93,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 			else if (this.userAgent) {
 				this._xhr.setRequestHeader("UserAgent", this.userAgent);
 			}
-			if (this.withCredentials !== undef) {
-				if (typeof this.withCredentials === 'string') {
-					this._xhr.withCredentials = this.withCredentials;
-				}
-				else {
-					this._xhr.withCredentials = this.withCredentials ? 'true' : 'false';
-				}
-			}
+			this._xhr.withCredentials = (!!this.withCredentials).toString();
 		},
 
 		send: function(args){
