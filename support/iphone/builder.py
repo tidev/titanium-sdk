@@ -730,6 +730,16 @@ def main(args):
 			link_version = iphone_version
 			appuuid = dequote(args[6].decode("utf-8"))
 			dist_name = dequote(args[7].decode("utf-8"))
+			if argc > 8:
+				devicefamily = dequote(args[8].decode("utf-8"))
+			if argc > 9:
+				# this is host:port from the debugger
+				debughost = dequote(args[9].decode("utf-8"))
+				if debughost=='':
+					debughost=None
+					debugport=None
+				else:
+					debughost,debugport = debughost.split(":")
 			target = 'Release'
 			deploytype = 'production'
 			
