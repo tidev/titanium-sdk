@@ -12,10 +12,10 @@ events:
     properties:
       - name: state
         summary: |
-            The battery state, relating to <Titanium.Platform.BATTERY_STATE_CHARGING>, 
+            The battery state. One of <Titanium.Platform.BATTERY_STATE_CHARGING>, 
             <Titanium.Platform.BATTERY_STATE_FULL>, 
             <Titanium.Platform.BATTERY_STATE_UNKNOWN>, 
-            and <Titanium.Platform.BATTERY_STATE_UNPLUGGED>.
+            or <Titanium.Platform.BATTERY_STATE_UNPLUGGED>.
         type: Number
         
       - name: level
@@ -105,9 +105,7 @@ properties:
     permission: read-only
     
   - name: batteryState
-    summary: |
-        Constant to indicate the state of the battery, accessible only when `batteryMonitoring` is 
-        enabled.
+    summary: Indicates the state of the battery. Accessible only when `batteryMonitoring` is enabled.
     description: |
         Returns one of the following constants from <Titanium.Platform>:  
         `BATTERY_STATE_CHARGING`,  
