@@ -1,25 +1,17 @@
-define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom"],
-	function(declare, FontWidget) {
+define(["Ti/_/declare", "Ti/UI/Label", "Ti/_/dom"],
+	function(declare, Label) {
 
-	return declare("Ti.UI.PickerRow", FontWidget, {
-		
-		constructor: function() {
-			
-		},
+	return declare("Ti.UI.PickerRow", Label, {
 		
 		properties: {
 			title: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.PickerRow#.title" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.PickerRow#.title" is not implemented yet.');
+					this.text = value;
 					return value;
 				}
 			}
 		}
-	
+		
 	});
 	
 });

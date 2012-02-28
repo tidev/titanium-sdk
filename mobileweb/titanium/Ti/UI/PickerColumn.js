@@ -1,18 +1,29 @@
-define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom"],
-	function(declare, View) {
+define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/UI"],
+	function(declare, View, dom, UI) {
 
 	return declare("Ti.UI.PickerColumn", View, {
 		
 		constructor: function() {
-			
+			this.add(this._contents = UI.createScrollView({
+				layout: "vertical",
+				contentWidth: "100%"
+			}));
 		},
 		
 		addRow: function(row) {
-			console.debug('Method "Titanium.UI.PickerColumn#.addRow" is not implemented yet.');
+			this._contents.add(row);
 		},
 		
 		removeRow: function(row) {
 			console.debug('Method "Titanium.UI.PickerColumn#.removeRow" is not implemented yet.');
+		},
+		
+		_getSelectedRow: function() {
+			console.debug('Method "Titanium.UI.PickerColumn#._getSelectedRow" is not implemented yet.');
+		},
+		
+		_setSelectedRow: function(row) {
+			console.debug('Method "Titanium.UI.PickerColumn#._setSelectedRow" is not implemented yet.');
 		},
 		
 		constants: {
