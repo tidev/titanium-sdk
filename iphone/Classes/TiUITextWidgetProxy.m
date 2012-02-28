@@ -248,6 +248,10 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
     return TiDimensionAutoSize;
 }
 
+USE_VIEW_FOR_AUTO_HEIGHT
+USE_VIEW_FOR_AUTO_WIDTH
+
+
 @end
 
 #endif

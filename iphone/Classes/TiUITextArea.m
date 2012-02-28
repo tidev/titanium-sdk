@@ -150,6 +150,30 @@
 	return TRUE;
 }
 
+-(CGFloat)autoWidthForWidth:(CGFloat)value
+{
+    if (![self hasText]) {
+        return 0.0;
+    }
+    UITextView* ourView = (UITextView*)[self textWidgetView];
+    NSString* txt = ourView.text;
+    //sizeThatFits does not seem to work properly.
+    //Adding a constant 10 for now since the value returned is too small
+    return [txt sizeWithFont:ourView.font forWidth:value lineBreakMode:UILineBreakModeWordWrap].width+10;
+}
+
+-(CGFloat)autoHeightForWidth:(CGFloat)value
+{
+    if (![self hasText]) {
+        return 0.0;
+    }
+    UITextView* ourView = (UITextView*)[self textWidgetView];
+    NSString* txt = ourView.text;
+    //sizeThatFits does not seem to work properly
+    return [txt sizeWithFont:ourView.font forWidth:value lineBreakMode:UILineBreakModeWordWrap].height;
+}
+
+
 @end
 
 #endif
