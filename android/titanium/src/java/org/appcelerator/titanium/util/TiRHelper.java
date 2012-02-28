@@ -102,9 +102,8 @@ public class TiRHelper {
 	}
 	
 	/**
-	 * Returns the application resource given its path.
 	 * @param path path of the resource.
-	 * @return
+	 * @return the application resource given its path.
 	 * @throws ResourceNotFoundException
 	 */
 	public static int getApplicationResource(String path) throws ResourceNotFoundException {

@@ -20,31 +20,31 @@ public class TiLifecycle
 	public interface OnLifecycleEvent {
 		
 		/**
-		 * Implementing classes should use this to receive native Android onStart life cycle event.
+		 * Implementing classes should use this to receive native Android onStart life cycle events.
 		 * @param activity the attached activity.
 		 */
 		public void onStart(Activity activity);
 		
 		/**
-		 * Implementing classes should use this to receive native Android onResume life cycle event.
+		 * Implementing classes should use this to receive native Android onResume life cycle events.
 		 * @param activity the attached activity.
 		 */
 		public void onResume(Activity activity);
 		
 		/**
-		 * Implementing classes should use this to receive native Android onPause life cycle event.
+		 * Implementing classes should use this to receive native Android onPause life cycle events.
 		 * @param activity the attached activity.
 		 */
 		public void onPause(Activity activity);
 		
 		/**
-		 * Implementing classes should use this to receive native Android onStop life cycle event.
+		 * Implementing classes should use this to receive native Android onStop life cycle events.
 		 * @param activity the attached activity.
 		 */
 		public void onStop(Activity activity);
 		
 		/**
-		 * Implementing classes should use this to receive native Android onDestroy life cycle event.
+		 * Implementing classes should use this to receive native Android onDestroy life cycle events.
 		 * @param activity the attached activity.
 		 */
 		public void onDestroy(Activity activity);

@@ -129,8 +129,8 @@ public class TiDrawableReference
 
 	/**
 	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.BLOB.
-	 * @param activity the activity to reference.
-	 * @param blob the blob to reference.
+	 * @param activity the referenced activity.
+	 * @param blob the referenced blob.
 	 * @return A ready instance of TiDrawableReference.
 	 */
 	public static TiDrawableReference fromBlob(Activity activity, TiBlob blob)
@@ -147,7 +147,7 @@ public class TiDrawableReference
 
 	/**
 	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.URL.
-	 * @param activity the activity to reference.
+	 * @param activity the referenced activity.
 	 * @param url the resource's url.
 	 * @return A ready instance of TiDrawableReference.
 	 */
@@ -170,8 +170,8 @@ public class TiDrawableReference
 
 	/**
 	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.FILE.
-	 * @param activity the activity to reference.
-	 * @param file the file to reference.
+	 * @param activity the referenced activity.
+	 * @param file the referenced file.
 	 * @return A ready instance of TiDrawableReference.
 	 */
 	public static TiDrawableReference fromFile(Activity activity, TiBaseFile file)
@@ -192,8 +192,8 @@ public class TiDrawableReference
 	}
 	/**
 	 * Does its best to determine the type of reference (url, blob, etc) based on object parameter.
-	 * @param context
-	 * @param object
+	 * @param activity the referenced activity.
+	 * @param object the referenced object.
 	 * @return A ready instance of TiDrawableReference.
 	 */
 	public static TiDrawableReference fromObject(Activity activity, Object object)
@@ -248,7 +248,7 @@ public class TiDrawableReference
 	}
 
 	/**
-	 * Get the bitmap from the resource without respect to sampling/scaling.
+	 * Gets the bitmap from the resource without respect to sampling/scaling.
 	 * @return Bitmap, or null if any problem getting it.  Check logcat if null.
 	 */
 	public Bitmap getBitmap()

@@ -136,8 +136,7 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Returns a list of views added.
-	 * @return list of views.
+	 * @return list of views added.
 	 */
 	public List<TiUIView> getChildren()
 	{
@@ -145,7 +144,6 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Returns the view proxy.
 	 * @return the view proxy.
 	 */
 	public TiViewProxy getProxy()
@@ -155,7 +153,7 @@ public abstract class TiUIView
 
 	/**
 	 * Sets the view proxy.
-	 * @param proxy
+	 * @param proxy the proxy to set.
 	 */
 	public void setProxy(TiViewProxy proxy)
 	{
@@ -178,8 +176,7 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Returns the Android native view.
-	 * @return the native view.
+	 * @return the Android native view.
 	 */
 	public View getNativeView()
 	{
@@ -188,7 +185,7 @@ public abstract class TiUIView
 
 	/**
 	 * Sets the nativeView to view.
-	 * @param view
+	 * @param view the view to set
 	 */
 	protected void setNativeView(View view)
 	{
@@ -668,7 +665,7 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Shows the view, change the visibility state to View.VISIBLE.
+	 * Shows the view, change the view's visibility to View.VISIBLE.
 	 */
 	public void show()
 	{
@@ -682,7 +679,7 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Hides the view, change the visibility state to View.INVISIBLE.
+	 * Hides the view, change the view's visibility to View.INVISIBLE.
 	 */
 	public void hide()
 	{
@@ -945,7 +942,7 @@ public abstract class TiUIView
 
 	/**
 	 * Sets the nativeView's opacity.
-	 * @param opacity the opacity to be set.
+	 * @param opacity the opacity to set.
 	 */
 	public void setOpacity(float opacity)
 	{
@@ -955,7 +952,7 @@ public abstract class TiUIView
 	/**
 	 * Sets the view's opacity.
 	 * @param view the view object.
-	 * @param opacity
+	 * @param opacity the opacity to set.
 	 */
 	protected void setOpacity(View view, float opacity)
 	{

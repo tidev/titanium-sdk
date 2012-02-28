@@ -15,8 +15,8 @@ public interface TiStream
 	/**
 	 * Implementing classes should use this method to read data from a stream into a buffer.
 	 * This should be done asynchronously.
-	 * @param args  the args should include a stream object to read from and a buffer object to read into.
-	 * @return
+	 * @param args  arguments should include a stream object to read from and a buffer object to read into.
+	 * @return an int.
 	 * @throws IOException
 	 */
 	int read(Object args[]) throws IOException;
@@ -25,26 +25,24 @@ public interface TiStream
 	 * Implementing classes should use this method to write data from a buffer into an outputStream.
 	 * This should be done asynchronously.
 	 * @param args the args should include a stream object to write into and a buffer object to write from
-	 * @return
+	 * @return an int.
 	 * @throws IOException
 	 */
 	int write(Object args[]) throws IOException;
 	
 	/**
-	 * Returns whether the stream is writable.
 	 * @return true if the stream is writable, false otherwise.
 	 */
 	boolean isWritable();
 	
 	/**
-	 * Returns whether the stream is readable.
 	 * @return true if the stream is readable, false otherwise.
 	 */
 	boolean isReadable();
 	
 	/**
 	 * Implementing classes should use this method to close the stream.
-	 * @throws IOException
+	 * @throws IOException the thrown exception.
 	 */
 	void close() throws IOException;
 }

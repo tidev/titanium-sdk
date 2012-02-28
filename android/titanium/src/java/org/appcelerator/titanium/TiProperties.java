@@ -56,8 +56,8 @@ public class TiProperties
 	/**
 	 * Maps the specified key with a String value. If value is null, existing key will be removed from preferences.
 	 * Otherwise, its value will be overwritten.
-	 * @param key the key to be set.
-	 * @param value the value to be set.
+	 * @param key the key to set.
+	 * @param value the value to set.
 	 */
 	public void setString(String key, String value)
 	{
@@ -92,8 +92,8 @@ public class TiProperties
 	
 	/**
 	 * Maps the specified key with an int value. If key exists, its value will be overwritten.
-	 * @param key the key to be set.
-	 * @param value the value to be set.
+	 * @param key the key to set.
+	 * @param value the value to set.
 	 */
 	public void setInt(String key, int value)
 	{
@@ -132,8 +132,8 @@ public class TiProperties
 	/**
 	 * Maps the specified key with a double value. If key exists, its value will be
 	 * overwritten.
-	 * @param key the key to be set.
-	 * @param value the value to be set.
+	 * @param key the key to set.
+	 * @param value the value to set.
 	 */
 	public void setDouble(String key, double value)
 	{
@@ -163,8 +163,8 @@ public class TiProperties
 	/**
 	 * Maps the specified key with a boolean value. If key exists, its value will be
 	 * overwritten.
-	 * @param key the key to be set.
-	 * @param value the value to be set.
+	 * @param key the key to set.
+	 * @param value the value to set.
 	 */
 	public void setBool(String key, boolean value)
 	{
@@ -204,8 +204,8 @@ public class TiProperties
 	/**
 	 * Maps the specified key with String[] value. Also maps 'key.length' to 'value.length'.
 	 * If key exists, its value will be overwritten.
-	 * @param key the key to be set.
-	 * @param value the value to be set.
+	 * @param key the key to set.
+	 * @param value the value to set.
 	 */
 	public void setList(String key, String[] value)
 	{
@@ -262,7 +262,7 @@ public class TiProperties
 
 	/**
 	 * Removes the key from preferences if it exists.
-	 * @param key the key to be removed.
+	 * @param key the key to remove.
 	 */
 	public void removeProperty(String key)
 	{

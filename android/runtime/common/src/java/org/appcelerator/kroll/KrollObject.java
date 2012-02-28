@@ -82,7 +82,7 @@ public abstract class KrollObject implements Handler.Callback
 	}
 
 	/**
-	 * Releases itself, freeing memory. This is done via KrollRuntime thread
+	 * Releases this KrollObject, that is, removes event listeners and any associated native views or content.	
 	 */
 	protected void release()
 	{

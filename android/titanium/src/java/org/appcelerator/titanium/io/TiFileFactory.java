@@ -28,12 +28,12 @@ public class TiFileFactory
 	}
 
 	/**
-	 * Creates a TiBaseFile object given the url/path. If the path's scheme provided isn't a member of this list:
+	 * Creates a TiBaseFile object given the path. If the path's scheme provided isn't a member of:
 	 * {"app://" , "appdata://" , "appdata-private://" , "file://", "content://" }, 
 	 * the file will be created in "appdata-private://" + path, where path is the given path.
 	 * @param parts A String Array containing parts of a file path.
-	 * @param stream  
-	 * @return
+	 * @param stream this is not being used.
+	 * @return a TiBaseFile instance.
 	 */
 	public static TiBaseFile createTitaniumFile(String[] parts, boolean stream)
 	{
@@ -118,7 +118,7 @@ public class TiFileFactory
 
 	/**
 	 * Retrieves/creates a data directory in which the application can place its own custom data files.
-	 * Refer to TiFileFactory.getDataDirectory(boolean privateStorage) for more details.
+	 * Refer to {@link TiFileFactory#getDataDirectory(boolean)} for more details.
 	 * @param privateStorage  determines the location of the data directory. If this is true, the location is internal(app-data://),
 	 * and external (SD) otherwise.
 	 * @return  the data directory.

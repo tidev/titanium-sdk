@@ -285,7 +285,7 @@ public class TiConvert
 	/**
 	 * Attempts to convert a value into a boolean, if value is a Boolean or String. Otherwise,
 	 * an exception is thrown.
-	 * @param value the value to be converted.
+	 * @param value the value to convert.
 	 * @return a boolean value.
 	 */
 	public static boolean toBoolean(Object value)
@@ -304,7 +304,7 @@ public class TiConvert
 	/**
 	 * A wrapper function.
 	 * Refer to {@link #toBoolean(Object)} for more details.
-	 * @param hashMap. 
+	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @return a boolean value.
 	 */
@@ -316,7 +316,7 @@ public class TiConvert
 	/**
 	 * If value is a Double, Integer, Long or String, converts it to Integer. Otherwise
 	 * an exception is thrown.
-	 * @param value the value to be converted.
+	 * @param value the value to convert.
 	 * @return an int value.
 	 */
 	public static int toInt(Object value)
@@ -341,7 +341,7 @@ public class TiConvert
 	/**
 	 * A wrapper function.
 	 * Refer to {@link #toInt(Object)} for more details.
-	 * @param hashMap
+	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @return an int value.
 	 */
@@ -353,7 +353,7 @@ public class TiConvert
 	/**
 	 * If value is a Double, Integer or String, converts it to Float. Otherwise,
 	 * an exception is thrown.
-	 * @param value the value to be converted.
+	 * @param value the value to convert.
 	 * @return a float value.
 	 */
 	public static float toFloat(Object value)
@@ -375,7 +375,7 @@ public class TiConvert
 	/**
 	 * A wrapper function.
 	 * Refer to {@link #toFloat(Object)} for more details.
-	 * @param hashMap.
+	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @return a float value.
 	 */
@@ -387,7 +387,7 @@ public class TiConvert
 	/**
 	 * If value is a Double, Integer, or String, converts it to Double. Otherwise,
 	 * an exception is thrown.
-	 * @param value the value to be converted.
+	 * @param value the value to convert.
 	 * @return a double value.
 	 */ 
 	public static double toDouble(Object value)
@@ -409,8 +409,8 @@ public class TiConvert
 	/**
 	 * A wrapper function.
 	 * Refer to {@link #toDouble(Object)} for more details.
-	 * @param hashMap
-	 * @param key
+	 * @param hashMap the hash map to search.
+	 * @param key the lookup key.
 	 * @return a double.
 	 */
 	public static double toDouble(HashMap<String, Object> hashMap, String key)
@@ -430,7 +430,7 @@ public class TiConvert
 
 	/**
 	 * Converts a value into a String. If value is null, returns null.
-	 * @param value the value to be converted.
+	 * @param value the value to convert.
 	 * @return String or null.
 	 */
 	public static String toString(Object value)
@@ -441,7 +441,7 @@ public class TiConvert
 	/**
 	 * A wrapper function.
 	 * Refer to {@link #toString(Object)} for more details.
-	 * @param hashMap
+	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @return String or null.
 	 */
@@ -467,7 +467,7 @@ public class TiConvert
 	 * Refer to {@link TiDimension#TiDimension(String, int)} for more details.
 	 * @param value the dimension value.
 	 * @param valueType the dimension type.
-	 * @return an instance of TiDimension.
+	 * @return a TiDimension instance.
 	 */
 	public static TiDimension toTiDimension(String value, int valueType)
 	{
@@ -475,12 +475,12 @@ public class TiConvert
 	}
 
 	/**
-	 * Converts value to String, and if value is a Number, append "px" to value, 
+	 * Converts value to String, and if value is a Number, appends "px" to value, 
 	 * then creates and returns a new TiDimension object with the new value and valueType.
 	 * Refer to {@link TiDimension#TiDimension(String, int)} for more details.
 	 * @param value the dimension value.
 	 * @param valueType the dimension type.
-	 * @return an instanceof TiDimension.
+	 * @return a TiDimension instance.
 	 */
 	public static TiDimension toTiDimension(Object value, int valueType)
 	{
@@ -496,7 +496,7 @@ public class TiConvert
 	 * @param hashMap
 	 * @param key the lookup key.
 	 * @param valueType the dimension type.
-	 * @return
+	 * @return a TiDimension instance.
 	 */
 	public static TiDimension toTiDimension(HashMap<String, Object> hashMap, String key, int valueType)
 	{
@@ -543,7 +543,7 @@ public class TiConvert
 	/**
 	 * Casts and returns value as TiBlob.
 	 * @param value must be of type TiBlob.
-	 * @return TiBlob.
+	 * @return a TiBlob instance.
 	 */
 	public static TiBlob toBlob(Object value)
 	{
@@ -555,7 +555,7 @@ public class TiConvert
 	 * Refer to {@link #toBlob(Object)} for more details.
 	 * @param object the hashmap.
 	 * @param property the lookup key.
-	 * @return an instance of TiBlob.
+	 * @return a TiBlob instance.
 	 */
 	public static TiBlob toBlob(HashMap<String, Object> object, String property)
 	{
@@ -565,7 +565,7 @@ public class TiConvert
 	/**
 	 * Converts a HashMap into a JSONObject and returns it. If data is null, null is returned.
 	 * @param data the HashMap used for conversion.
-	 * @return JSONObject object.
+	 * @return a JSONObject instance.
 	 */
 	public static JSONObject toJSON(HashMap<String, Object> data)
 	{
@@ -613,7 +613,7 @@ public class TiConvert
 	/**
 	 * Converts an object array into JSONArray and returns it.
 	 * @param a  the object array to be converted.
-	 * @return JSONArray object.
+	 * @return a JSONArray instance.
 	 */
 	public static JSONArray toJSONArray(Object[] a)
 	{
@@ -660,7 +660,7 @@ public class TiConvert
 	/**
 	 * If value is a  Date, formats and returns it. Otherwise,
 	 * return a String representation of value.
-	 * @param value the value to be converted.
+	 * @param value the value to convert.
 	 * @return a String.
 	 */
 	public static String toJSONString(Object value)
@@ -678,8 +678,8 @@ public class TiConvert
 
 	/**
 	 * Converts value into Date object and returns it.
-	 * @param value the value to be converted.
-	 * @return Date instance.
+	 * @param value the value to convert.
+	 * @return a Date instance.
 	 */
 	public static Date toDate(Object value)
 	{
@@ -698,9 +698,9 @@ public class TiConvert
 	/**
 	 * A wrapper function.
 	 * Refer to {@link #toDate(Object)} for more details.
-	 * @param hashMap
-	 * @param key
-	 * @return
+	 * @param hashMap the hash map to search.
+	 * @param key the lookup key
+	 * @return a Date instance.
 	 */
 	public static Date toDate(HashMap<String, Object> hashMap, String key)
 	{

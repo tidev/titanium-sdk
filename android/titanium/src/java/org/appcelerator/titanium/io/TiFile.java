@@ -49,7 +49,6 @@ public class TiFile extends TiBaseFile
 
 	
 	/**
-	 * Returns whether the file is a plain file.
 	 * @return true if the file is a plain file, false otherwise.
 	 */
 	@Override
@@ -59,7 +58,6 @@ public class TiFile extends TiBaseFile
 	}
 
 	/**
-	 * Returns whether the file is a directory.
 	 * @return true if the file is a directory, false otherwise.
 	 */
 	@Override
@@ -69,7 +67,6 @@ public class TiFile extends TiBaseFile
 	}
 
 	/**
-	 * Returns whether the file is hidden.
 	 * @return true if the file is hidden, false otherwise.
 	 */
 	@Override
@@ -79,7 +76,6 @@ public class TiFile extends TiBaseFile
 	}
 
 	/**
-	 * Returns whether the file is read-only.
 	 * @return true if the file is read-only, false otherwise.
 	 */
 	@Override
@@ -89,7 +85,6 @@ public class TiFile extends TiBaseFile
 	}
 
 	/**
-	 * Returns whether the file is writable.
 	 * @return true if the file is writable, false otherwise.
 	 */
 	@Override
@@ -101,7 +96,7 @@ public class TiFile extends TiBaseFile
 	/**
 	 * Attempts to create a directory named by the trailing filename of this file.
 	 * @param recursive  whether the created directory is recursive (complete directory path created).
-	 * @return  true if directory is created, false otherwise.
+	 * @return  true if directory was sucessfully created, false otherwise.
 	 */
 	@Override
 	public boolean createDirectory(boolean recursive)
@@ -162,7 +157,7 @@ public class TiFile extends TiBaseFile
 	
 	/**
 	 * Deletes this file. Directories must be empty before they will be deleted.
-	 * @return true if the file is successfully deleted, false otherwise.
+	 * @return true if the file was successfully deleted, false otherwise.
 	 */
 	@Override
 	public boolean deleteFile()
@@ -171,7 +166,6 @@ public class TiFile extends TiBaseFile
 	}
 
 	/**
-	 * Returns whether the file exists.
 	 * @return true if the file exists, false otherwise.
 	 */
 	@Override

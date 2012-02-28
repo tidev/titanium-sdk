@@ -47,9 +47,9 @@ public class TiDimension
 	protected int units, valueType;
 
 	/**
-	 * Creates a TiDimension object with passed in arguments.
-	 * @param value the value to be set.
-	 * @param valueType the valueType to be set.
+	 * Creates a TiDimension object.
+	 * @param value the value to set.
+	 * @param valueType the valueType to set.
 	 */
 	public TiDimension(double value, int valueType)
 	{
@@ -59,9 +59,9 @@ public class TiDimension
 	}
 
 	/**
-	 * Creates and parses a TiDimension object with passed in arguments.
-	 * @param svalue the string to be parse.
-	 * @param valueType the valueType to be set.
+	 * Creates and parses a TiDimension object.
+	 * @param svalue the string to parse.
+	 * @param valueType the valueType to set.
 	 */
 	public TiDimension(String svalue, int valueType)
 	{
@@ -104,8 +104,7 @@ public class TiDimension
 	}
 
 	/**
-	 * Returns the TiDimension's value
-	 * @return value
+	 * @return the TiDimension's value.
 	 */
 	public double getValue()
 	{
@@ -113,8 +112,7 @@ public class TiDimension
 	}
 
 	/**
-	 * Converts TiDimension's value to int and returns it.
-	 * @return int value.
+	 * @return the TiDimension's int value.
 	 */
 	public int getIntValue()
 	{
@@ -131,8 +129,7 @@ public class TiDimension
 	}
 
 	/**
-	 * Returns TiDimension's units.
-	 * @return units
+	 * @return the TiDimension's units.
 	 */
 	public int getUnits()
 	{
@@ -140,8 +137,8 @@ public class TiDimension
 	}
 
 	/**
-	 * Sets units.
-	 * @param units
+	 * Set TiDimension's units.
+	 * @param units the unit to set
 	 */
 	public void setUnits(int units)
 	{
@@ -151,7 +148,7 @@ public class TiDimension
 	/**
 	 * Calculates and returns the number of pixels, depending on the type.
 	 * @param parent the parent view used for calculation.
-	 * @return number of pixels.
+	 * @return the number of pixels.
 	 */
 	public int getAsPixels(View parent)
 	{
@@ -242,7 +239,6 @@ public class TiDimension
 	}
 
 	/**
-	 * Returns whether units is undefined.
 	 * @return true if units is TiDimension.COMPLEX_UNIT_UNDEFINED, false otherwise.
 	 */
 	public boolean isUnitUndefined()
@@ -251,7 +247,6 @@ public class TiDimension
 	}
 
 	/**
-	 * Returns whether units is a percent unit.
 	 * @return true if units is TiDimension.COMPLEX_UNIT_PERCENT, false otherwise.
 	 */
 	public boolean isUnitPercent()
@@ -265,8 +260,7 @@ public class TiDimension
 	}
 
 	/**
-	 * Converts and returns TiDimension as a string.
-	 * @return string representation of TiDimension.
+	 * @return string representation of the TiDimension object.
 	 */
 	public String toString()
 	{

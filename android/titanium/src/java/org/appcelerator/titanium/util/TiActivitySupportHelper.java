@@ -66,8 +66,8 @@ public class TiActivitySupportHelper
 
 	/**
 	 * Invokes {@link TiActivityResultHandler#onResult(Activity, int, int, Intent)}. This is done when the launched activity exits.
-	 * @param requestCode
-	 * @param resultCode 
+	 * @param requestCode the returned request code in {@link TiActivityResultHandler#onResult(Activity, int, int, Intent)} when the activity exits.
+	 * @param resultCode  the returned result code in {@link TiActivityResultHandler#onResult(Activity, int, int, Intent)} when the activity exits.
 	 * @param data  the intent.
 	 */
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -79,7 +79,7 @@ public class TiActivitySupportHelper
 
 	/**
 	 * Removes a registered handler.
-	 * @param code
+	 * @param code the handler's lookup key.
 	 */
 	public void removeResultHandler(int code) {
 		resultHandlers.remove(code);
@@ -87,8 +87,8 @@ public class TiActivitySupportHelper
 
 	/**
 	 * Registers the resultHandler into a HashMap<Integer, TiActivityResultHandler>
-	 * @param code resultHandler's id
-	 * @param resultHandler the resultHandler
+	 * @param code resultHandler's id.
+	 * @param resultHandler the resultHandler.
 	 */
 	public void registerResultHandler(int code, TiActivityResultHandler resultHandler) {
 		if (resultHandler == null) {

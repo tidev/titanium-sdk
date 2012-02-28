@@ -13,19 +13,21 @@ import android.content.Intent;
 public interface TiActivityResultHandler
 {
 	/**
-	 * This is invoked after the launched activity exits via launchActivityForResult.
-	 * @param activity the launched Activity.
-	 * @param requestCode 
-	 * @param resultCode
+	 * This method is invoked after the launched activity exits via 
+	 * {@link TiActivitySupport#launchActivityForResult(Intent, int, TiActivityResultHandler)}.
+	 * @param activity the launched activity.
+	 * @param requestCode the returned request code.
+	 * @param resultCode the returned result code.
 	 * @param data the intent.
 	 */
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data);
 	
 	/**
-	 * This is invoked when there's an exception launching the activity via launchActivityForResult.
-	 * @param activity
-	 * @param requestCode
-	 * @param e
+	 * This method is invoked when an exception occurred launching the activity via 
+	 * {@link TiActivitySupport#launchActivityForResult(Intent, int, TiActivityResultHandler)}.
+	 * @param activity the launched activity.
+	 * @param requestCode the returned request code.
+	 * @param e the returned exception
 	 */
 	public void onError(Activity activity, int requestCode, Exception e);
 }

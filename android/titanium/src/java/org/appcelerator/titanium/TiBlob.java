@@ -109,7 +109,7 @@ public class TiBlob extends KrollProxy
 	/**
 	 * Creates a blob from binary data, with TYPE_DATA id and with mimeType as "application/octet-stream".
 	 * @param data data used to create blob.
-	 * @return TiBlob.
+	 * @return new instance of TiBlob.
 	 */
 	public static TiBlob blobFromData(byte[] data)
 	{

@@ -81,7 +81,6 @@ public abstract class TiBaseFile
 	}
 
 	/**
-	 * Return whether the file is executable.
 	 * @return  true if the file is executable, false otherwise.
 	 */
 	public boolean isExecutable() {
@@ -89,7 +88,6 @@ public abstract class TiBaseFile
 	}
 
 	/**
-	 * Return whether the file is read-only.
 	 * @return  true if the file is read-only, false otherwise.
 	 */
 	public boolean isReadonly() {
@@ -97,7 +95,6 @@ public abstract class TiBaseFile
 	}
 	
 	/**
-	 * Return whether the file is writable.
 	 * @return  true if the file is writable, false otherwise.
 	 */
 	public boolean isWriteable() {
@@ -420,14 +417,14 @@ public abstract class TiBaseFile
 	/**
 	 * Implementing subclasses should return the InputStream of the file.
 	 * @return  the InputStream of the file.
-	 * @throws IOException
+	 * @throws IOException the thrown exception.
 	 */
 	public abstract InputStream getInputStream() throws IOException;
 	
 	/**
 	 * Implementing subclasses should return the OutputStream of the file.
 	 * @return  the OutputStream of the file.
-	 * @throws IOException
+	 * @throws IOException the thrown exception.
 	 */
 	public abstract OutputStream getOutputStream() throws IOException;
 	

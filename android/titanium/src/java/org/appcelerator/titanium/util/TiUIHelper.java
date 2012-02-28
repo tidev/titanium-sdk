@@ -132,9 +132,9 @@ public class TiUIHelper
 	}
 
 	/**
-	 * Waits for the current activity to be ready(something not null), then invokes
+	 * Waits for the current activity to be ready, then invokes
 	 * {@link CurrentActivityListener#onCurrentActivityReady(Activity)}.
-	 * @param l the CurrentActivityListener
+	 * @param l the CurrentActivityListener.
 	 */
 	public static void waitForCurrentActivity(final CurrentActivityListener l)
 	{
@@ -164,11 +164,11 @@ public class TiUIHelper
 	}
 
 	/**
-	 * Creates and shows a dialog with an OK button with title 'title' and message 'message'.
-	 * The dialog's context is the activity on top of activityStack - the current activity.
+	 * Creates and shows a dialog with an OK button given title and message.
+	 * The dialog's creation context is the current activity.
 	 * @param title  the title of dialog.
-	 * @param message  the message to be shown.
-	 * @param listener the clickListener for click events.
+	 * @param message  the dialog's message.
+	 * @param listener the click listener for click events.
 	 */
 	public static void doOkDialog(final String title, final String message, OnClickListener listener) {
 		if (listener == null) {
@@ -661,7 +661,7 @@ public class TiUIHelper
 	/**
 	 * Creates and returns a Bitmap from an InputStream.
 	 * @param stream an InputStream to read bitmap data.
-	 * @return a Bitmap
+	 * @return a new bitmap instance.
 	 */
 	public static Bitmap createBitmap(InputStream stream)
 	{
@@ -742,7 +742,7 @@ public class TiUIHelper
 	/**
 	 * Creates and returns a bitmap from its url.
 	 * @param url the bitmap url.
-	 * @return a Bitmap
+	 * @return a new bitmap instance
 	 */
 	public static Bitmap getResourceBitmap(String url)
 	{
@@ -889,9 +889,9 @@ public class TiUIHelper
 	}
 	
 	/**
-	 * Shows/Hides softkeyboard.
-	 * @param view a view to show softkeyboard.
-	 * @param show whether to show softkeyboard.
+	 * Shows/hides the soft keyboard.
+	 * @param view the current focused view.
+	 * @param show whether to show soft keyboard.
 	 */
 	public static void showSoftKeyboard(View view, boolean show) 
 	{
