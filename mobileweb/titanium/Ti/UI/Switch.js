@@ -152,13 +152,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 			backgroundSelectedImage: postDoBackground,
 			
-			color: {
-				set: function(value) {
-					setStyle(this._switchTitle, "color", value);
-					return value;
-				}
-			},
-			
 			enabled: {
 				set: function(value, oldValue) {
 					
@@ -219,12 +212,15 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					setStyle(this._switchIndicator,{
 						backgroundColor: value ? "#0f0" : "#aaa"
 					});
+					value = !!value;
 					this._switchTitle.innerHTML = value ? this.titleOn : this.titleOff;
 					this._hasAutoDimensions() && this._triggerParentLayout();
-					this.fireEvent("change",{
-						value: !!value
-					});
 					return value;
+				},
+				post: function() {
+					this.fireEvent("change",{
+						value: this.value
+					});
 				}
 			},
 			

@@ -138,7 +138,6 @@ if (isAndroid) {
 	});
 }
 
-
 win.add(button1);
 win.add(button2);
 win.add(label);
@@ -146,4 +145,43 @@ win.add(label);
 if (isAndroid) {
 	win.add(showCancel);
 	win.add(button3);
+}
+
+if (!isAndroid) {
+	var button4 = Titanium.UI.createButton({
+		title:'Show w/hide, animated',
+		height:40,
+		width:200,
+		top:250
+	});
+	
+	button4.addEventListener('click', function()
+	{
+		if (isAndroid) {
+			dialog.androidView = null;
+			applyButtons();
+		}
+		dialog.show();
+		setTimeout(function(){dialog.hide({animated:true});},2000);
+	});
+	
+	var button5 = Titanium.UI.createButton({
+		title:'Show w/hide, nonanimated',
+		height:40,
+		width:200,
+		top:300
+	});
+	
+	button5.addEventListener('click', function()
+	{
+		if (isAndroid) {
+			dialog.androidView = null;
+			applyButtons();
+		}
+		dialog.show();
+		setTimeout(function(){dialog.hide({animated:false});},2000);
+	});
+	
+	win.add(button4);
+	win.add(button5);
 }
