@@ -17,7 +17,7 @@
 	CGRect dialogRect;
 	BOOL animated;
     NSUInteger accumulatedOrientationChanges;
-
+	BOOL showDialog;
 }
 
 @property(nonatomic,retain,readwrite)	TiViewProxy *dialogView;
