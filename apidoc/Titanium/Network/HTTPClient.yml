@@ -279,18 +279,21 @@ properties:
   - name: userAgent
     summary: Overrides or excludes the user agent that will be sent with the request. 
     description: |
-        Set this to `null` to exclude the user agent, otherwise specify a String.
+        Set this to `false` (or any falsy value, except undefined) to exclude the user agent. Set it to undefined to
+        use the default `Ti.userAgent`. Otherwise, specify a String.
         
-        This propery must be set before `open` is called.
-    default:  undefined.
+        Updates to this propery will only take affect before `open` is called.
+    default:  Ti.userAgent.
     type: String
     platforms: [mobileweb]
     since: "1.9.0"
   - name: withCredentials
-    summary: Sets the value for the `withCredentials` property of the underlying request.
+    summary: Specifies whether or not secure information will be communicated cross-domain.
     description: |
+        "Secure information" encompasses Authorization headers and cookies.
+        
         This propery must be set before `open` is called.
-    default:  undefined.
+    default:  false.
     type: Boolean
     platforms: [mobileweb]
     since: "1.9.0"
