@@ -356,7 +356,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		return height.value;
 	}
 	CGFloat result = 0;
-	if (TiDimensionIsAuto(height))
+	if (TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height))
 	{
 		result = [self autoHeightForWidth:width];
 	}
