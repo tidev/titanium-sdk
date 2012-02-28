@@ -6,6 +6,8 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
 
+import android.os.Build;
+
 import ti.modules.titanium.android.AndroidModule;
 
 @Kroll.module(parentModule=AndroidModule.class)
@@ -47,9 +49,22 @@ public class CalendarModule extends KrollModule
 	
 	@Kroll.getProperty @Kroll.method
 	public CalendarProxy[] getSelectableCalendars() {
+		ArrayList<CalendarProxy> calendars;
+		// selectable calendars are "visible"
+		if (Build.VERSION.SDK_INT >= 14) { // ICE_CREAM_SANDWICH, 4.0
+			calendars = CalendarProxy.queryCalendars(
+				"Calendars.visible = ?", new String[] {"1"});
+		}
+		// selectable calendars are "selected"
+		else if (Build.VERSION.SDK_INT >= 11) { // HONEYCOMB, 3.0
+			calendars = CalendarProxy.queryCalendars(
+				"Calendars.selected = ?", new String[] {"1"});
+		}
 		// selectable calendars are "selected" && !"hidden"
-		ArrayList<CalendarProxy> calendars = CalendarProxy.queryCalendars(
+		else {
+			calendars = CalendarProxy.queryCalendars(
 				"Calendars.selected = ? AND Calendars.hidden = ?", new String[] { "1", "0" });
+		}
 		return calendars.toArray(new CalendarProxy[calendars.size()]);
 	}
 	

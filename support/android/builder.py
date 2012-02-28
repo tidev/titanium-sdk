@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Appcelerator Titanium Mobile
-# Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
 # Licensed under the terms of the Apache Public License
 # Please see the LICENSE included with this distribution for details.
 #
@@ -10,8 +10,7 @@
 # and debugging Titanium Mobile applications on Android
 #
 import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib, imp, inspect
-import run, avd, prereq, zipfile, tempfile, fnmatch, codecs, traceback, simplejson
-from mako.template import Template
+import run, avd, prereq, zipfile, tempfile, fnmatch, codecs, traceback
 from os.path import splitext
 from compiler import Compiler
 from os.path import join, splitext, split, exists
@@ -26,6 +25,8 @@ sys.path.append(top_support_dir)
 sys.path.append(os.path.join(top_support_dir, 'common'))
 sys.path.append(os.path.join(top_support_dir, 'module'))
 
+import simplejson
+from mako.template import Template
 from tiapp import *
 from android import Android
 from androidsdk import AndroidSDK
@@ -410,7 +411,7 @@ class Builder(object):
 			
 		return name
 	
-	def run_emulator(self,avd_id,avd_skin):
+	def run_emulator(self,avd_id,avd_skin,add_args):
 		info("Launching Android emulator...one moment")
 		debug("From: " + self.sdk.get_emulator())
 		debug("SDCard: " + self.sdcard)
@@ -447,6 +448,7 @@ class Builder(object):
 			'-partition-size',
 			'128' # in between nexusone and droid
 		]
+		emulator_cmd.extend(add_args);
 		debug(' '.join(emulator_cmd))
 		
 		p = subprocess.Popen(emulator_cmd)
@@ -2004,7 +2006,7 @@ class Builder(object):
 
 if __name__ == "__main__":
 	def usage():
-		print "%s <command> <project_name> <sdk_dir> <project_dir> <app_id> [key] [password] [alias] [dir] [avdid] [avdsdk]" % os.path.basename(sys.argv[0])
+		print "%s <command> <project_name> <sdk_dir> <project_dir> <app_id> [key] [password] [alias] [dir] [avdid] [avdsdk] [emulator options]" % os.path.basename(sys.argv[0])
 		print
 		print "available commands: "
 		print
@@ -2068,13 +2070,14 @@ if __name__ == "__main__":
 
 	try:
 		if command == 'run-emulator':
-			s.run_emulator(avd_id, avd_skin)
+			s.run_emulator(avd_id, avd_skin, [])
 		elif command == 'run':
 			s.build_and_run(False, avd_id)
 		elif command == 'emulator':
 			avd_id = dequote(sys.argv[6])
 			avd_skin = dequote(sys.argv[7])
-			s.run_emulator(avd_id, avd_skin)
+			add_args = sys.argv[8:]
+			s.run_emulator(avd_id, avd_skin, add_args)
 		elif command == 'simulator':
 			info("Building %s for Android ... one moment" % project_name)
 			avd_id = dequote(sys.argv[6])
