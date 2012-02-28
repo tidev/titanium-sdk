@@ -34,6 +34,7 @@
 	[self rememberSelf];
 	ENSURE_UI_THREAD(show,args);
 	
+	showDialog = YES;
 	NSMutableArray *options = [self valueForKey:@"options"];
 	if (options==nil)
 	{
@@ -69,11 +70,28 @@
 		{
 			dialogRect = CGRectZero;
 		}
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateOptionDialog:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceRotationBegan:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
 		[self updateOptionDialogNow];
 		return;
 	}
 	[actionSheet showInView:[[TiApp controller] view]];
+}
+
+-(void)completeWithButton:(int)buttonIndex
+{
+	showDialog = NO;
+	if ([self _hasListeners:@"click"])
+	{
+		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+							   [NSNumber numberWithInt:buttonIndex],@"index",
+							   [NSNumber numberWithInt:[actionSheet cancelButtonIndex]],@"cancel",
+							   [NSNumber numberWithInt:[actionSheet destructiveButtonIndex]],@"destructive",
+							   nil];
+		[self fireEvent:@"click" withObject:event];
+	}
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+	[self forgetSelf];
+	[self release];
 }
 
 -(void)hide:(id)args
@@ -89,7 +107,15 @@
 	BOOL animatedhide = [TiUtils boolValue:@"animated" properties:options def:YES];
 
 	TiThreadPerformOnMainThread(^{
-		[actionSheet dismissWithClickedButtonIndex:[actionSheet cancelButtonIndex] animated:animatedhide];	
+		if ([actionSheet isVisible]) {
+			showDialog = NO;
+			[actionSheet dismissWithClickedButtonIndex:[actionSheet cancelButtonIndex] animated:animatedhide];
+		}
+		else if(!showDialog) {
+			//This is to avoid double-releasing.
+			showDialog = NO;
+			[self completeWithButton:[actionSheet cancelButtonIndex]];
+		}
 	}, NO);
 }
 
@@ -103,21 +129,10 @@
 		//A -2 is used by us to indicate that this was programatically dismissed to properly
 		//place the option dialog during a roation.
 	}
-	if ([self _hasListeners:@"click"])
-	{
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-							   [NSNumber numberWithInt:buttonIndex],@"index",
-							   [NSNumber numberWithInt:[actionSheet cancelButtonIndex]],@"cancel",
-							   [NSNumber numberWithInt:[actionSheet destructiveButtonIndex]],@"destructive",
-							   nil];
-		[self fireEvent:@"click" withObject:event];
-	}
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
-	[self forgetSelf];
-	[self release];
+	[self completeWithButton:buttonIndex];
 }
 
--(void)updateOptionDialog:(NSNotification *)notification;
+-(void)deviceRotationBegan:(NSNotification *)notification;
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateOptionDialogNow) object:nil];
     NSTimeInterval delay = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
@@ -135,6 +150,9 @@
 
 -(void)updateOptionDialogNow;
 {
+	if (!showDialog) {
+		return;
+	}
     accumulatedOrientationChanges = 0;
 	UIView *view = nil;
 	if (dialogView==nil)
