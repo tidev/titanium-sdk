@@ -2,7 +2,7 @@
  * Appcelerator Titanium License
  * This source code and all modifications done by Appcelerator
  * are licensed under the Apache Public License (version 2) and
- * are Copyright (c) 2009 by Appcelerator, Inc.
+ * are Copyright (c) 2009-2012 by Appcelerator, Inc.
  */
 
 /*
@@ -53,6 +53,15 @@ extern "C" {
 */
 JS_EXPORT TiGlobalContextRef TiContextGetGlobalContext(TiContextRef ctx);
 
+    
+/*!
+@function
+@abstract Gets a Backtrace for the existing context
+@param ctx The TiContext whose backtrace you want to get
+@result A string containing the backtrace
+*/
+JS_EXPORT TiStringRef TiContextCreateBacktrace(TiContextRef ctx, unsigned maxStackSize) AVAILABLE_IN_WEBKIT_VERSION_4_0;
+    
 #ifdef __cplusplus
 }
 #endif
