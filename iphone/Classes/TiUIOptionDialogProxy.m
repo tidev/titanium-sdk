@@ -42,10 +42,13 @@
 		[options addObject:NSLocalizedString(@"OK",@"Alert OK Button")];
 	}
 	
-	if (actionSheet == nil) {
-		actionSheet = [[UIActionSheet alloc] init];
-		[actionSheet setDelegate:self];
+	if (actionSheet != nil) {
+		[actionSheet setDelegate:nil];
+		[actionSheet release];
 	}
+	actionSheet = [[UIActionSheet alloc] init];
+	[actionSheet setDelegate:self];
+
 	[actionSheet setTitle:[TiUtils stringValue:[self valueForKey:@"title"]]];
 	
 	for (id thisOption in options)
@@ -134,7 +137,7 @@
 	[self completeWithButton:buttonIndex];
 }
 
--(void)deviceRotationBegan:(NSNotification *)notification;
+-(void)deviceRotationBegan:(NSNotification *)notification
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateOptionDialogNow) object:nil];
     NSTimeInterval delay = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
