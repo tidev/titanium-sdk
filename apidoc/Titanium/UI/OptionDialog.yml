@@ -23,7 +23,7 @@ methods:
         optional: true
 events:
   - name: click
-    summary: fired when a button in the dialog is dismissed.
+    summary: fired when a button in the dialog is clicked or in some cases, dismissed.
     description: |
         The most common trigger is the user clicking a button. However as of 1.9, tapping outside
         of a popover containing the optionDialog (iPad) or calling hide (iPad, iPhone) will also
@@ -85,7 +85,7 @@ examples:
 ---
 name: hideOption
 summary: Optional parameter for [hide](Titanium.UI.OptionDialog.hide) method.
-since: 1.8.2
+since: 1.9.0
 platforms: [iphone, ipad]
 properties:
   - name: animated
