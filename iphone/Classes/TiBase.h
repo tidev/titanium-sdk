@@ -67,6 +67,8 @@ void TiLogMessage(NSString* str, ...);
 #define degreesToRadians(x) (M_PI * x / 180.0)
 #define radiansToDegrees(x) (x * (180.0 / M_PI))
 
+// TODO: Need to update RELEASE_TO_NIL etc. to be friendly to rememberproxy/forgetproxy for concurrent
+// memory mgt.
 #define RELEASE_TO_NIL(x) { if (x!=nil) { [x release]; x = nil; } }
 #define RELEASE_TO_NIL_AUTORELEASE(x) { if (x!=nil) { [x autorelease]; x = nil; } }
 #define RELEASE_AND_REPLACE(x,y) { [x release]; x = [y retain]; }
