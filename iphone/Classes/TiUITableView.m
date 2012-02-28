@@ -1783,6 +1783,9 @@ if(ourTableView != tableview)	\
     }
     fromRow.section = toSection;
     [toSection reorderRows];
+    if (fromSectionIndex != toSectionIndex) {
+        [fromSection reorderRows];
+    }
     // now we can release from our retain above
     [fromRow autorelease];
     [self triggerActionForIndexPath:destinationIndexPath fromPath:sourceIndexPath tableView:ourTableView wasAccessory:NO search:NO name:@"move"];
