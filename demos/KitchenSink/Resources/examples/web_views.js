@@ -97,12 +97,14 @@ tableview.addEventListener('click', function(e)
 		win.tab.open(w);
 		var xhr = Titanium.Network.createHTTPClient();
 		var baseURL = 'http://www.google.com';
-		if (Titanium.Platform.name != 'android') { // TIMOB-7840
-			xhr.onload = function()
-			{
+		xhr.onload = function()
+		{
+			if (Titanium.Platform.name != 'android') { // TIMOB-7840
 				webview.setHtml(this.responseText, { baseURL: baseURL });
-			};
-		}
+			} else {
+				webview.html = this.responseText;
+			}
+		};
 		
 		// open the client
 		xhr.open('GET',baseURL);
