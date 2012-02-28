@@ -76,29 +76,16 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		_setDefaultLook: function() {
 			if (!this._hasDefaultLook) {
 				this._hasDefaultLook = true;
+				css.add(this.domNode, "TiUIElementGradient");
 				css.add(this.domNode, "TiUIButtonDefault");
-				this._previousBorderWidth = this.borderWidth;
-				this._previousBorderColor = this.borderColor;
-				this.borderWidth = 1;
-				this.borderColor = "#666";
-				setStyle(this.domNode, { 
-					borderRadius: "10px",
-					padding: "0px 10px"
-				});
 			}
 		},
 		
 		_clearDefaultLook: function() {
 			if (this._hasDefaultLook) {
 				this._hasDefaultLook = false;
-				var className = this.domNode.className;
+				css.remove(this.domNode, "TiUIElementGradient");
 				css.remove(this.domNode, "TiUIButtonDefault");
-				this.borderWidth = this._previousBorderWidth;
-				this.borderColor = this._previousBorderColor;
-				setStyle(this.domNode, { 
-					borderRadius: "",
-					padding: ""
-				});
 			}
 		},
 		
@@ -143,10 +130,10 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					if (value !== oldValue) {
 						if (this._hasDefaultLook) {	
 							if (!value) {
-								css.remove(this.domNode,"TiUIButtonDefault");
+								css.remove(this.domNode,"TiUIElementGradient");
 								setStyle(this.domNode,"backgroundColor","#aaa");
 							} else {
-								css.add(this.domNode,"TiUIButtonDefault");
+								css.add(this.domNode,"TiUIElementGradient");
 								setStyle(this.domNode,"backgroundColor","");
 							}
 						}

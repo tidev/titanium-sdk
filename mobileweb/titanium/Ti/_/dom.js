@@ -97,6 +97,10 @@ define(["Ti/_", "Ti/_/style"], function(_, style) {
 				/* squelch */
 			}
 		},
+		
+		getComputedStyle: function(domNode, style) {
+			return window.getComputedStyle(domNode)[style];
+		},
 
 		unitize: function(x) {
 			return isNaN(x-0) || x-0 != x ? x : x + "px"; // note: must be != and not !==
