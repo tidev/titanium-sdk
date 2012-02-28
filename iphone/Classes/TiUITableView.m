@@ -1757,35 +1757,35 @@ if(ourTableView != tableview)	\
 
 - (void)tableView:(UITableView *)ourTableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
 {
-	RETURN_IF_SEARCH_TABLE_VIEW();
-	int fromSectionIndex = [sourceIndexPath section];
-	int toSectionIndex = [destinationIndexPath section];
-	
-	TiUITableViewSectionProxy *fromSection = [self sectionForIndex:fromSectionIndex];
-	TiUITableViewSectionProxy *toSection = fromSectionIndex!=toSectionIndex ? [self sectionForIndex:toSectionIndex] : fromSection;
-	
-	TiUITableViewRowProxy *fromRow = [fromSection rowAtIndex:[sourceIndexPath row]];
-	TiUITableViewRowProxy *toRow = [toSection rowAtIndex:[destinationIndexPath row]];
-	
-	// hold during the move in case the array is the last guy holding the retain count
-	[fromRow retain];
-	[toRow retain];
-	
-	[[fromSection rows] removeObjectAtIndex:[sourceIndexPath row]];
-	[[toSection rows] insertObject:fromRow atIndex:[destinationIndexPath row]];
-	
-	// rewire our properties
-	fromRow.section = toSection;
-	toRow.section = fromSection;
-	
-	fromRow.row = [destinationIndexPath row];
-	toRow.row = [sourceIndexPath row];
-	
-	// now we can release from our retain above
-	[fromRow autorelease];
-	[toRow autorelease];
-	
-	[self triggerActionForIndexPath:destinationIndexPath fromPath:sourceIndexPath tableView:ourTableView wasAccessory:NO search:NO name:@"move"];
+    RETURN_IF_SEARCH_TABLE_VIEW();
+    int fromSectionIndex = [sourceIndexPath section];
+    int toSectionIndex = [destinationIndexPath section];
+    int fromRowIndex = [sourceIndexPath row];
+    int toRowIndex = [destinationIndexPath row];
+    
+    if (fromSectionIndex == toSectionIndex && fromRowIndex == toRowIndex) {
+        //No need to fire a move event if the row never moved
+        return;
+    }
+    
+    TiUITableViewSectionProxy *fromSection = [self sectionForIndex:fromSectionIndex];
+    TiUITableViewSectionProxy *toSection = fromSectionIndex!=toSectionIndex ? [self sectionForIndex:toSectionIndex] : fromSection;
+    TiUITableViewRowProxy *fromRow = [fromSection rowAtIndex:fromRowIndex];
+    // hold during the move in case the array is the last guy holding the retain count
+    [fromRow retain];
+    [fromSection remove:fromRow];
+    if ( ([toSection rows] == nil) || ([[toSection rows] count] <= toRowIndex) ){
+        [toSection add:fromRow];
+    }
+    else {
+        [[toSection rows] insertObject:fromRow atIndex:toRowIndex];
+        [toSection rememberProxy:fromRow];
+    }
+    fromRow.section = toSection;
+    [toSection reorderRows];
+    // now we can release from our retain above
+    [fromRow autorelease];
+    [self triggerActionForIndexPath:destinationIndexPath fromPath:sourceIndexPath tableView:ourTableView wasAccessory:NO search:NO name:@"move"];
 }
 
 #pragma mark Collation
