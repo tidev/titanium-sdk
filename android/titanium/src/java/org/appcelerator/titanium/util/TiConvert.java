@@ -31,6 +31,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 
 
+/**
+ * API for type conversions.
+ */
 public class TiConvert
 {
 	private static final String LCAT = "TiConvert";

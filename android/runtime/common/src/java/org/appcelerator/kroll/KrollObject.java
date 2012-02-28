@@ -14,7 +14,9 @@ import org.appcelerator.kroll.common.TiMessenger;
 import android.os.Handler;
 import android.os.Message;
 
-
+/**
+ * This class maintains a reference between the JavaScript and Java objects.
+ */
 public abstract class KrollObject implements Handler.Callback
 {
 

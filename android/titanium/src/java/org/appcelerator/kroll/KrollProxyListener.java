@@ -8,6 +8,10 @@ package org.appcelerator.kroll;
 
 import java.util.List;
 
+/**
+ * This class is used by kroll proxy to delegate model changes. See {@link KrollProxy#setModelListener(KrollProxyListener)})
+ * for more details.
+ */
 public interface KrollProxyListener
 {
 	/**

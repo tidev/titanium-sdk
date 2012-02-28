@@ -19,6 +19,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
+/**
+ * Utility methods to register/unregister sensor listeners.
+ */
 public class TiSensorHelper
 {
 	private static final String LCAT = "TiSensorHelper";

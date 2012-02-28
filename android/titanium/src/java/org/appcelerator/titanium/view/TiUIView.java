@@ -52,6 +52,9 @@ import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 
+/**
+ * The view parent class.
+ */
 public abstract class TiUIView
 	implements KrollProxyListener, OnFocusChangeListener
 {

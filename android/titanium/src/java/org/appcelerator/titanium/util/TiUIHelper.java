@@ -74,6 +74,9 @@ import android.view.View.MeasureSpec;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
+/**
+ * A set of general utility methods.
+ */
 public class TiUIHelper
 {
 	private static final String LCAT = "TiUIHelper";

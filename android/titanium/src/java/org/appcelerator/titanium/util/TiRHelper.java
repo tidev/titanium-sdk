@@ -8,7 +8,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 
-/*
+/**
  * A Class which allows us to pull resource integers 
  * off of the various R class structures using
  * strings at runtime.

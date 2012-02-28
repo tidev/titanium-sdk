@@ -45,6 +45,9 @@ import android.util.DisplayMetrics;
 import android.view.View;
 import android.webkit.URLUtil;
 
+/**
+ * Helper class for loading images.
+ */
 public class TiDrawableReference
 {
 	private static Map<Integer, Bounds> boundsCache;
