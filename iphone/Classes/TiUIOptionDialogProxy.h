@@ -22,7 +22,7 @@
 
 @property(nonatomic,retain,readwrite)	TiViewProxy *dialogView;
 
--(void)updateOptionDialog:(NSNotification *)notification;
+-(void)deviceRotationBegan:(NSNotification *)notification;
 -(void)updateOptionDialogNow;
 
 @end

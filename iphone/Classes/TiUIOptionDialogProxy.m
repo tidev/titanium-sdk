@@ -42,8 +42,10 @@
 		[options addObject:NSLocalizedString(@"OK",@"Alert OK Button")];
 	}
 	
-	actionSheet = [[UIActionSheet alloc] init];
-	[actionSheet setDelegate:self];
+	if (actionSheet == nil) {
+		actionSheet = [[UIActionSheet alloc] init];
+		[actionSheet setDelegate:self];
+	}
 	[actionSheet setTitle:[TiUtils stringValue:[self valueForKey:@"title"]]];
 	
 	for (id thisOption in options)
@@ -111,7 +113,7 @@
 			showDialog = NO;
 			[actionSheet dismissWithClickedButtonIndex:[actionSheet cancelButtonIndex] animated:animatedhide];
 		}
-		else if(!showDialog) {
+		else if(showDialog) {
 			//This is to avoid double-releasing.
 			showDialog = NO;
 			[self completeWithButton:[actionSheet cancelButtonIndex]];
