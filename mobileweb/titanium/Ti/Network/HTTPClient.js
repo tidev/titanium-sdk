@@ -89,8 +89,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 			);
 			if (this.userAgent === undef) {
 				this._xhr.setRequestHeader("UserAgent", Ti.userAgent);
-			}
-			else if (this.userAgent) {
+			} else if (this.userAgent) {
 				this._xhr.setRequestHeader("UserAgent", this.userAgent);
 			}
 			this._xhr.withCredentials = (!!this.withCredentials).toString();
