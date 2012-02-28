@@ -284,7 +284,7 @@ public class TiUIWebView extends TiUIView
 						out.append("\n");
 						line = breader.readLine();
 					}
-					setHtml(out.toString(), (originalUrlHasScheme ? url : finalUrl)); // keep app:// etc. intact in case
+					setHtmlInternal(out.toString(), (originalUrlHasScheme ? url : finalUrl), "text/html"); // keep app:// etc. intact in case
 																						// html in file contains links
 																						// to JS that use app:// etc.
 					return;
@@ -342,39 +342,32 @@ public class TiUIWebView extends TiUIView
 		}
 		return content;
 	}
-
+	
 	public void setHtml(String html)
 	{
-		// getWebView().loadData(escapeContent(html), "text/html", "utf-8");
-		// Commented out the loadData solution. You can't access local assets without
-		// providing an acceptable base url to loadDataWithBaseURL. Using the contentEscaping
-		// breaks the document and munges the quotes causing images to fail. Images in local
-		// html should be absolute or relative to app:// if you want to use app url's, they
-		// need to be translated before setting html or setting a document change trigger.
-		// I've enclosed the code used in the old 0.X codebase for reference
-		//
-		// Use this code to post process your document to adjust URLs. May need updating it comes
-		// from ti.js in the old 0.X method.
-		//
-		// var imgs = document.getElementsByTagName('img');
-		// for(i=0; i < imgs.length;i++) {
-		// var s = imgs[i].src;
-		// //alert('BEFORE: ' + s);
-		// if (s.indexOf('file:///') === 0) {
-		// if (s.indexOf('file:///sdcard/') == -1 && s.indexOf('file:///android_asset') == -1) {
-		// imgs[i].src = s.substring(8);
-		// }
-		// } else if (s.indexOf('app://') === 0) {
-		// imgs[i].src = s.substring(6);
-		// }
-		//
-		// //alert('AFTER: ' + imgs[i].src);
-		// }
-
-		setHtml(html, TiC.URL_ANDROID_ASSET_RESOURCES);
+		setHtmlInternal(html, TiC.URL_ANDROID_ASSET_RESOURCES, "text/html");
 	}
 
-	private void setHtml(String html, String baseUrl)
+	public void setHtml(String html, KrollDict d)
+	{
+		if (d == null) {
+			setHtml(html);
+			return;
+		}
+		
+		String baseUrl = TiC.URL_ANDROID_ASSET_RESOURCES;
+		String mimeType = "text/html";
+		if (d.containsKey("baseURL")) {
+			baseUrl = TiConvert.toString(d.get("baseURL"));
+		} 
+		if (d.containsKey("mimeType")) {
+			mimeType = TiConvert.toString(d.get("mimeType"));
+		}
+		
+		setHtmlInternal(html, baseUrl, mimeType);
+	}
+
+	private void setHtmlInternal(String html, String baseUrl, String mimeType)
 	{
 		// iOS parity: for whatever reason, when html is set directly, the iOS implementation
 		// explicitly sets the native webview's setScalesPageToFit to NO if the
@@ -384,7 +377,7 @@ public class TiUIWebView extends TiUIView
 		}
 		if (html.contains(TiWebViewBinding.SCRIPT_INJECTION_ID)) {
 			// Our injection code is in there already, go ahead and show.
-			getWebView().loadDataWithBaseURL(baseUrl, html, "text/html", "utf-8", null);
+			getWebView().loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", null);
 			return;
 		}
 
@@ -397,11 +390,11 @@ public class TiUIWebView extends TiUIView
 				sb.append(html.substring(0, tagEnd + 1));
 				sb.append(TiWebViewBinding.INJECTION_CODE);
 				sb.append(html.substring(tagEnd + 1));
-				getWebView().loadDataWithBaseURL(baseUrl, sb.toString(), "text/html", "utf-8", null);
+				getWebView().loadDataWithBaseURL(baseUrl, sb.toString(), mimeType, "utf-8", null);
 				return;
 			}
 		}
-		getWebView().loadDataWithBaseURL(baseUrl, html, "text/html", "utf-8", null);
+		getWebView().loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", null);
 	}
 
 	public void setData(TiBlob blob)

@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
@@ -98,6 +99,18 @@ public class WebViewProxy extends ViewProxy
 			return getWebView().getJSValue("document.documentElement.outerHTML");
 		}
 		return (String) getProperty(TiC.PROPERTY_HTML);
+	}
+	
+	@Kroll.setProperty
+	public void setHtml(String html)
+	{
+		getWebView().setHtml(html);
+	}
+	
+	@Kroll.method
+	public void setHtml(String html, @Kroll.argument(optional=true)KrollDict d)
+	{
+		getWebView().setHtml(html, d);
 	}
 
 	@Override
