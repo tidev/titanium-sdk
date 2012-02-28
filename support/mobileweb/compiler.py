@@ -445,6 +445,7 @@ class Compiler(object):
 			'Ti/UI/Picker',
 			'Ti/UI/PickerColumn',
 			'Ti/UI/PickerRow',
+			'Ti/UI/ProgressBar',
 			'Ti/UI/ScrollableView',
 			'Ti/UI/ScrollView',
 			'Ti/UI/Slider',
