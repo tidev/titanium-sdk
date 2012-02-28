@@ -13,19 +13,50 @@
 
 @class TiViewProxy;
 
+/**
+ Protocol for animation delegate.
+ */
 @protocol TiAnimationDelegate
 
 @optional
 
+/**
+ Returns if the animation should transition.
+ @param sender The sender of the message.
+ @return _YES_ if the animation should transition, _NO_ otherwise.
+ */
 -(BOOL)animationShouldTransition:(id)sender;
+
+/**
+ Tells the delegate that the animation will start.
+ @param sender The sender of the message.
+ */
 -(void)animationWillStart:(id)sender;
+
+/**
+ Tells the delegate that the animation did start.
+ @param sender The sender of the message.
+ */
 -(void)animationDidStart:(id)sender;
+
+/**
+ Tells the delegate that the animation will complete.
+ @param sender The sender of the message.
+ */
 -(void)animationWillComplete:(id)sender;
+
+/**
+ Tells the delegate that the animation did complete.
+ @param sender The sender of the message.
+ */
 -(void)animationDidComplete:(id)sender;
 
 @end
 
 
+/**
+ The class represents animation proxy. 
+ */
 @interface TiAnimation : TiProxy {
 @private
 	NSNumber	*zIndex;
@@ -65,12 +96,34 @@
 	id transformMatrix;
 }
 
+/**
+ Provides access to animation delegate object.
+ */
 @property(nonatomic,assign,readwrite) NSObject<TiAnimationDelegate> *delegate;
 
+/**
+ Provides access to the view being animated.
+ */
 @property(nonatomic,readwrite,assign) UIView* animatedView;
+
+/**
+ Provides access to autoreverse view to be animated.
+ */
 @property(nonatomic,readwrite,assign) UIView* autoreverseView;
+
+/**
+ Provides access to animation transformation matrix.
+ */
 @property(nonatomic,readwrite,assign) id transformMatrix;
+
+/**
+ Returns autoreverse layout.
+ */
 @property(nonatomic,readonly) LayoutConstraint autoreverseLayout;
+
+/**
+ Returns the callback for the animation.
+ */
 @property(nonatomic,readonly) ListenerEntry* callback;
 
 // animatable properties against what is being animated

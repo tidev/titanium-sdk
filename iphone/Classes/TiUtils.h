@@ -20,17 +20,44 @@ typedef enum {
     TOO_SMALL = -32,
 } EncodingError;
 
+/**
+ Utilities class.
+ */
 @interface TiUtils : NSObject {
 
 }
 
-+(NSString *)UTCDateForDate:(NSDate*)data;
+/**
+ Converts date to UTC format.
+ @param date The date
+ @return The date string in UTC format.
+ */
++(NSString *)UTCDateForDate:(NSDate*)date;
+
+/**
+ Converts string in UTC format into a date.
+ @param The date string in UTC format.
+ @return The converted date.
+ */
 +(NSDate *)dateForUTCDate:(NSString*)date;
 
+/**
+ Returns current date in UTC format.
+ @return The date string in UTC format.
+ */
 +(NSString *)UTCDate;
 
+/**
+ Generates a new UUID.
+ @return The generate UUID.
+ */
 +(NSString*)createUUID;
 
+/**
+ Creates a temporary file with name extension.
+ @param extension The filename extension.
+ @return The created temporary file object.
+ */
 +(TiFile*)createTempFile:(NSString*)extension;
 
 +(NSData *)loadAppResource:(NSURL*)url;

@@ -8,12 +8,19 @@
 
 // marker interface for toolbars
 
+/**
+ Toolbar proxy class.
+ */
 @interface TiToolbar : TiViewProxy {
 
 @private
 
 }
 
+/**
+ Returns the underlying toolbar.
+ @return The toolbar.
+ */
 -(UIToolbar*)toolbar;
 
 @end

@@ -7,14 +7,36 @@
 
 #import <UIKit/UIKit.h>
 
+/**
+ The utility class for web colors.
+ */
 @interface Webcolor : NSObject
 {
 }
 
 +(UIColor*)checkmarkColor;
+
+/**
+ Returns web color by name.
+ @param colorName The color name.
+ @return The color object.
+ */
 +(UIColor*)webColorNamed:(NSString*)colorName;
+
+/**
+ Returns the color for RGB function.
+ @param functionString The RGB function string.
+ @return The color object.
+ */
 +(UIColor*)colorForRGBFunction:(NSString*)functionString;
+
+/**
+ Returns teh color for hex string.
+ @param hexCode The hex string.
+ @return The color object.
+ */
 +(UIColor*)colorForHex:(NSString*)hexCode;
+
 +(void)flushCache;
 +(BOOL)isDarkColor:(UIColor*)color;
 
