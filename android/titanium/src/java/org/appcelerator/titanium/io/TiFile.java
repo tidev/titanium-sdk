@@ -30,6 +30,9 @@ import org.appcelerator.titanium.TiBlob;
 import android.net.Uri;
 import android.os.StatFs;
 
+/**
+ * An extension of {@link TiBaseFile}. This is the parent class of Titanium files.
+ */
 public class TiFile extends TiBaseFile
 {
 	private static final String LCAT = "TiFile";

@@ -9,7 +9,9 @@ package org.appcelerator.titanium.io;
 
 import java.io.IOException;
 
-
+/**
+ * An interface designed to read/write from a stream object.
+ */
 public interface TiStream
 {
 	/**

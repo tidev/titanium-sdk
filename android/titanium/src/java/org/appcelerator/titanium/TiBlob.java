@@ -27,6 +27,9 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 
 @Kroll.proxy
+/** 
+ * A Titanium Blob object.
+ */
 public class TiBlob extends KrollProxy
 {
 	private static final String LCAT = "TiBlob";

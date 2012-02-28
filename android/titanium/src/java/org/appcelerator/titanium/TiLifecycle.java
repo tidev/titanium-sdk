@@ -9,6 +9,9 @@ package org.appcelerator.titanium;
 import android.app.Activity;
 
 
+/**
+ *This class is used to receive native Android life-cycle events.
+ */
 public class TiLifecycle
 {
 	public static final int LIFECYCLE_ON_START = 0;

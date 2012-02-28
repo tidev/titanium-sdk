@@ -10,6 +10,10 @@ package org.appcelerator.titanium.util;
 import android.app.Activity;
 import android.content.Intent;
 
+/**
+ * An interface which invoke callbacks whenever a launched activity extis via
+ * {@link TiActivitySupport#launchActivityForResult(Intent, int, TiActivityResultHandler)}.
+ */
 public interface TiActivityResultHandler
 {
 	/**

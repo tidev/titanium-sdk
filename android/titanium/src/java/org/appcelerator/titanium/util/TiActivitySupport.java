@@ -8,6 +8,9 @@ package org.appcelerator.titanium.util;
 
 import android.content.Intent;
 
+/**
+ * This interface is designed to launch an activity for which you would like a result when it finished.
+ */
 public interface TiActivitySupport
 {
 	/**

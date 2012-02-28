@@ -53,7 +53,7 @@ import android.os.Message;
 import android.util.DisplayMetrics;
 
 /**
- * The main application entry point for all Titanium applications and services
+ * The main application entry point for all Titanium applications and services.
  */
 public abstract class TiApplication extends Application implements Handler.Callback, KrollApplication
 {

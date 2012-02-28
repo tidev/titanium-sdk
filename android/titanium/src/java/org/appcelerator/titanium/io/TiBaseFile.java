@@ -23,6 +23,9 @@ import java.util.List;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 
+/**
+ * This is the parent class of all files/directories.
+ */
 public abstract class TiBaseFile
 {
 	private static final String LCAT = "TiBaseFile";

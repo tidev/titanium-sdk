@@ -16,6 +16,10 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 
+/**
+ * An implementation of {@link TiActivitySupport}.
+ * Refer to parent class for more details.
+ */
 public class TiActivitySupportHelper
 	implements TiActivitySupport
 {

@@ -19,6 +19,10 @@ import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 
+/**
+ * A class used to handle different unit measurements for layout purposes.
+ *
+ */
 public class TiDimension
 {
 	private static final String LCAT = "TiDimension";

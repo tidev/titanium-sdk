@@ -19,6 +19,9 @@ import org.appcelerator.titanium.TiRootActivity;
 import android.app.Activity;
 
 @Kroll.module(name="KrollModule")
+/**
+ * This is the parent class for all modules. All modules must extend this class.
+ */
 public class KrollModule extends KrollProxy
 	implements KrollProxyListener, OnLifecycleEvent
 {

@@ -15,6 +15,9 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 
+/**
+ * An extension of android native service. This is the parent class of all services.
+ */
 public class TiBaseService extends Service
 {
 	public static final String TI_SERVICE_INTENT_ID_KEY = "$__TITANIUM_SERVICE_INTENT_ID__$";

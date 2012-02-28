@@ -16,6 +16,9 @@ import org.appcelerator.titanium.util.TiFileHelper;
 
 import android.net.Uri;
 
+/**
+ * A helper class used to create Titanium files.
+ */
 public class TiFileFactory
 {
 	private static final String LCAT = "TiFileFactory";

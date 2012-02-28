@@ -8,6 +8,10 @@ package org.appcelerator.kroll.common;
 
 import java.util.concurrent.Semaphore;
 
+/**
+ * This is a thread-safe message object that is being sent by {@link TiMessenger}.
+ * asynchronously.
+ */
 public class AsyncResult extends Semaphore
 {
 	private static final long serialVersionUID = 1L;

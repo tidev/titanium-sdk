@@ -22,6 +22,9 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 
 @Kroll.proxy
+/**
+ * A proxy used to communicate with javascript services.
+ */
 public class ServiceProxy extends KrollProxy
 {
 	private Service service;

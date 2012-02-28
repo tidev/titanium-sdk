@@ -14,6 +14,9 @@ import org.appcelerator.kroll.common.TiConfig;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+/**
+ * API for accessing, storing, and modifying Titanium properties.
+ */
 public class TiProperties
 {
 	private static final String LCAT = "TiProperties";

@@ -6,6 +6,9 @@
  */
 package org.appcelerator.kroll.common;
 
+/**
+ * API to send log output.
+ */
 public class Log
 {
 	private static long lastLog = System.currentTimeMillis();

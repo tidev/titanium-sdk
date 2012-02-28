@@ -45,6 +45,9 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 
+/**
+ * An extension of android native activity. This is the parent class of all non-tab activities. 
+ */
 public abstract class TiBaseActivity extends Activity 
 	implements TiActivitySupport/*, ITiWindowHandler*/
 {

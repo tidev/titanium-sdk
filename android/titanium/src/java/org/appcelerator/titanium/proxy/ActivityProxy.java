@@ -26,6 +26,9 @@ import android.content.Intent;
 	"onCreateOptionsMenu",
 	"onPrepareOptionsMenu"
 })
+/**
+ * A proxy used to communicate with javascript activities.
+ */
 public class ActivityProxy extends KrollProxy
 	implements TiActivityResultHandler
 {

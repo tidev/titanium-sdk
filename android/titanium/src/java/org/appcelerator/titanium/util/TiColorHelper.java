@@ -15,6 +15,9 @@ import org.appcelerator.kroll.common.Log;
 
 import android.graphics.Color;
 
+/**
+ * This class contain utility methods that converts a String color, like "red", into its corresponding RGB/RGBA representation.
+ */
 public class TiColorHelper
 {
 	static Pattern shortHexPattern = Pattern.compile("#([0-9a-f])([0-9a-f])([0-9a-f])([0-9a-f]?)");

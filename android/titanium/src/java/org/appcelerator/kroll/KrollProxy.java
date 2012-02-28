@@ -33,6 +33,9 @@ import android.os.Message;
 
 
 @Kroll.proxy(name = "KrollProxy", propertyAccessors = { KrollProxy.PROPERTY_HAS_JAVA_LISTENER })
+/**
+ * This is the parent class for objects that can be created in Javascript.
+ */
 public class KrollProxy implements Handler.Callback, KrollProxySupport
 {
 	private static final boolean DBG = TiConfig.LOGD;
