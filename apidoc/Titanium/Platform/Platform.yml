@@ -119,8 +119,8 @@ properties:
     summary: |
         Returns the DisplayCaps object.
     description: |
-        Note that he `displayCaps` property begins with a lowercase letter, which is in contrast to 
-        the `DisplayCaps` object that it returns.
+        Note that the `displayCaps` property begins with a lowercase letter, which differentiates it 
+        from the `DisplayCaps` object that it returns.
     type: Titanium.Platform.DisplayCaps
     permission: read-only
     
