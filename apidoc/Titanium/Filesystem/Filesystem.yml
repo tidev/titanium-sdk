@@ -59,6 +59,18 @@ methods:
         type: Boolean
   - name: openStream
     summary: Opens file using the <Titanium.IOStream> interface.
+    parameters:
+      - name: mode
+        summary: |
+            Access mode. Either <Titanium.Stream.MODE_READ> or <Titanium.Stream.MODE_APPEND>. 
+            Not used on Android.
+        type: Number
+        
+      - name: path
+        summary: |
+            One or more path components. Path arguments are joined together using the 
+            platform-specific path separator to form the full path. 
+        type: String
     returns:
         type: Titanium.Filesystem.FileStream
 properties:
