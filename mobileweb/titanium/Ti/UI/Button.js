@@ -9,8 +9,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 	return declare("Ti.UI.Button", FontWidget, {
 
-		domType: "button",
-
 		constructor: function() {
 			this._contentContainer = dom.create("div", {
 				className: "TiUIButtonContentContainer",
@@ -90,7 +88,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		},
 		
 		_getContentSize: function(width, height) {
-			var defaultLookOffset = (this._hasDefaultLook ? 20 : 0);
+			var defaultLookOffset = 0; //(this._hasDefaultLook ? 20 : 0);
 			return {
 				width: width === "auto" ? this._buttonImage.width + this._measureText(this.title, this._buttonTitle).width + defaultLookOffset : width,
 				height: height === "auto" ? Math.max(this._buttonImage.height, this._measureText(this.title, this._buttonTitle).height) + defaultLookOffset : height

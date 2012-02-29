@@ -8,8 +8,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
         unitize = dom.unitize;
 
 	return declare("Ti.UI.Switch", FontWidget, {
-		
-		domType: "button",
 
 		constructor: function(args) {
 			

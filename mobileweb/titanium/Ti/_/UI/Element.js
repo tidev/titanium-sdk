@@ -336,14 +336,18 @@ define(
 				}
 			}
 			
+			function getBorderSize() {
+				return {
+					left: parseInt(computedStyle["border-left-width"]) + parseInt(computedStyle["padding-left"]),
+					right: parseInt(computedStyle["border-right-width"]) + parseInt(computedStyle["padding-right"]),
+					top: parseInt(computedStyle["border-top-width"]) + parseInt(computedStyle["padding-top"]),
+					bottom: parseInt(computedStyle["border-bottom-width"]) + parseInt(computedStyle["padding-bottom"])
+				};
+			}
+			
 			// Calculate the border
 			var computedStyle = window.getComputedStyle(this.domNode);
-				borderSize = {
-					left: parseInt(computedStyle["border-left-width"]),
-					right: parseInt(computedStyle["border-right-width"]),
-					top: parseInt(computedStyle["border-top-width"]),
-					bottom: parseInt(computedStyle["border-bottom-width"])
-				};
+				borderSize = getBorderSize();
 
 			// Calculate the width/left properties if width is NOT auto
 			var calculateWidthAfterAuto = false,
@@ -391,32 +395,25 @@ define(
 			}
 			
 			// I have no idea why we have to recalculate, but for some reason the recursion is screwing with the values.
-			borderSize = {
-				left: parseInt(computedStyle["border-left-width"]),
-				right: parseInt(computedStyle["border-right-width"]),
-				top: parseInt(computedStyle["border-top-width"]),
-				bottom: parseInt(computedStyle["border-bottom-width"])
-			};
+			borderSize = getBorderSize();
 			
 			if (calculateWidthAfterAuto) {
 				if (isDef(right) && !isDef(left)) {
 					left = right - width;
 				}
-				width -= borderSize.left + borderSize.right;
 			}
 			if (calculateHeightAfterAuto) {
 				if (isDef(bottom) && !isDef(top)) {
 					top = bottom - height;
 				}
-				height -= borderSize.top + borderSize.bottom;
 			}
 
 			// Set the default top/left if need be
 			if (left === "calculateAuto") {
 				if (!this._isParentAutoWidth) {
 					switch(this._defaultHorizontalAlignment) {
-						case "center": left = computeSize("50%",parentWidth) - (is(width,"Number") ? width : 0) / 2; break;
-						case "right": left = parentWidth - (is(width,"Number") ? width : 0) / 2; break;
+						case "center": left = computeSize("50%",parentWidth) - borderSize.left - (is(width,"Number") ? width : 0) / 2; break;
+						case "right": left = parentWidth - borderSize.left - borderSize.right - (is(width,"Number") ? width : 0) / 2; break;
 						default: left = 0; break; // left
 					}
 				} else {
@@ -426,8 +423,8 @@ define(
 			if (top === "calculateAuto") {
 				if (!this._isParentAutoHeight) {
 					switch(this._defaultVerticalAlignment) {
-						case "center": top = computeSize("50%",parentHeight) - (is(height,"Number") ? height : 0) / 2; break;
-						case "bottom": top = parentWidth - (is(height,"Number") ? height : 0) / 2; break;
+						case "center": top = computeSize("50%",parentHeight) - borderSize.top - (is(height,"Number") ? height : 0) / 2; break;
+						case "bottom": top = parentWidth - borderSize.top - borderSize.bottom - (is(height,"Number") ? height : 0) / 2; break;
 						default: top = 0; break; // top
 					}
 				} else {
