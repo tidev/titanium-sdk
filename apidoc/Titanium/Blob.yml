@@ -28,7 +28,7 @@ properties:
     permission: read-only
   - name: nativePath
     type: String
-    summary: When this blob represents a <Titanium.File>, this is the file URL that represents it
+    summary: When this blob represents a <Titanium.Filesystem.File>, this is the file URL that represents it
     permission: read-only
   - name: size
     type: Number
