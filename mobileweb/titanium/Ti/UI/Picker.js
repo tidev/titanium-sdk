@@ -55,11 +55,13 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 		},
 		
 		getSelectedRow: function(columnIndex) {
-			console.debug('Method "Titanium.UI.Picker#.getSelectedRow" is not implemented yet.');
+			var column = this._columns[columnIndex];
+			return column && column.selectedRow;
 		},
 		
 		setSelectedRow: function(columnIndex, rowIndex) {
-			console.debug('Method "Titanium.UI.Picker#.setSelectedRow" is not implemented yet.');
+			var column = this._columns[columnIndex];
+			column && (column.selectedRow = column.rows[rowIndex]);
 		},
 		
 		properties: {

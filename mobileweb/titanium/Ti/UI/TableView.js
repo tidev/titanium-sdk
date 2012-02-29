@@ -96,6 +96,13 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			}));
 		},
 		
+		_doLayout: function() {
+			
+			this._contentContainer.properties.__values__.width = this.width === "auto" ? "auto" : "100%";
+			this._contentContainer.properties.__values__.height = this.height === "auto" ? "auto" : "100%"; 
+			View.prototype._doLayout.apply(this,arguments);
+		},
+		
 		_fireScrollEvent: function(x,y) {
 			// Calculate the visible items
 			var firstVisibleItem,
