@@ -253,7 +253,7 @@ public class TiFileHelper
 
 	/**
 	 * This is a wrapper method.
-	 * Refer to loadDrawable(path, report, checkForNinePatch) for more details.
+	 * Refer to {@link #loadDrawable(String, boolean, boolean)} for more details.
 	 * @param path  url of the Drawable
 	 * @param report  this is not being used.
 	 * @return a Drawable instance.
