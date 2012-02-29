@@ -508,24 +508,40 @@
 }
 -(BOOL)isModal {
     //For detecting windows that are opened modally.
-    for (TiWindowProxy * thisProxy in windowProxies){
-        if([thisProxy modalFlagValue] == YES){
-            return YES;
-        }
+    BOOL modalFlag = NO;
+    TiWindowProxy *thisProxy = [windowProxies lastObject];
+    if([thisProxy modalFlagValue] == YES){
+       return YES;
     }
-    
+  
     //For modal views that was added by the TiApp.mm (ApplicationDelegate)
-    UIViewController *modalController = [self.modalViewController parentViewController];
+    
+    //TODO: modalViewController is being deprecated should use presentedViewcontroller.
+    id modalvc= self.modalViewController;
+    UIViewController *parentController = [modalvc parentViewController];
     //TODO: As of iOS 5, Apple is phasing out the modal concept in exchange for
     //'presenting', making all non-Ti modal view controllers claim to have
     //no parent view controller.
-    if(modalController==nil && [self.modalViewController respondsToSelector:@selector(presentingViewController)]){
-        modalController = [self.modalViewController presentingViewController];
+    
+    if(parentController==nil && [modalvc respondsToSelector:@selector(presentingViewController)]){
+        parentController = [modalvc presentingViewController];
     }
-    if(modalController == self){
-        return YES;
+    
+    if(parentController == self){
+        modalFlag = YES;
     }
-    return NO;
+
+    if(modalvc != nil){
+        if ([modalvc isKindOfClass:[UINavigationController class]] && 
+            ![modalvc isKindOfClass:[MFMailComposeViewController class]] &&
+            modalFlag == YES ) 
+        {
+            //Since this is a window opened from inside a modalviewcontroller we need
+            //to let this be oriented by ourselves.
+            modalFlag = NO;
+        }
+    }
+    return modalFlag;
 }
 -(void)refreshOrientationWithDuration:(NSTimeInterval) duration
 {	/*
@@ -552,10 +568,6 @@
         // move the status bar into the right place.
         if (windowOrientation != [[UIApplication sharedApplication] statusBarOrientation]) {
             [[UIApplication sharedApplication] setStatusBarOrientation:windowOrientation animated:NO];
-        }
-        if (TI_ORIENTATION_ALLOWED(allowedOrientations, orientationHistory[0])) {
-            //Nothing to do here.
-            return;
         }
 	}
 	
