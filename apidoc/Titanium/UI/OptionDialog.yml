@@ -45,7 +45,13 @@ since: "0.8"
 
 events:
   - name: click
-    summary: Fired when a button in the dialog is clicked.
+    summary: |
+        Fired when a button of this dialog is clicked or, under certain circumstances, this dialog 
+        is dismissed.
+    description: |
+        As of 1.9, in addition to clicking a button, a tap outside of a popover containing the 
+        optionDialog (iPad) or calling hide (iPad, iPhone) will also trigger this event as if the 
+        user tapped the cancel button.
     properties:
       - name: index
         summary: Index of the button or option that was pressed.
@@ -71,16 +77,23 @@ methods:
   - name: show
     summary: Shows this dialog.
     description: |
-        On iPad, this dialog is shown in the middle of the display, or as a popover-like dialog 
-        attached to another view or control if specified via the `options` argument.
+        On iPad, this dialog is shown in the middle of the display or, when specified via the 
+        `options` argument, as a popover-like dialog attached to another view or control.
     parameters:
       - name: options
-        summary: View to which to attach the dialog (iPad only.)
+        summary: Options for this method. Only used on iPad.
         type: showOptions
         optional: true
-    
+
   - name: hide
     summary: Hides this dialog.
+    description: This will trigger a click event, as if cancel was invoked.
+
+    parameters:
+      - name: options
+        summary: Options for this method. Only used on iPad.
+        type: hideOptions
+        optional: true
 
 properties:
   - name: androidView
@@ -94,6 +107,10 @@ properties:
         If a cancel button is not required, set to `-1`.
         
         On iPad, the cancel button *must* be the last button.
+        
+        If the cancel button is used (IE, not -1) then the cancel button will be removed from
+        option dialog. As of 1.9, this value will be used for the index when click is fired via
+        outside taps or hide, even using -1 if no cancel button was provided.
     type: Number
 
   - name: destructive
@@ -132,7 +149,7 @@ examples:
           exitOnClose: true,
           fullscreen: false
         });
-
+        
         var opts = {
           cancel: 1,
           options: ['Confirm', 'Cancel', 'Help'],
@@ -140,12 +157,12 @@ examples:
           destructive: 0,
           title: 'Delete File?'
         };
-
+        
         win.addEventListener('click', function(e){
           var dialog = Ti.UI.createOptionDialog(opts).show();
         });
         win.open();
-
+        
   - title: Options Dialog with 2 Items and 1 Button on Android and 3 Items on iOS
     example: |
         
@@ -162,18 +179,29 @@ examples:
         };
         
         var isAndroid = Ti.Platform.osname == 'android';
-
+        
         if(isAndroid){
           opts.options = ['Confirm', 'Cancel'];
           opts.buttonNames = ['Confirm'];
         } else {
           opts.options = ['Confirm', 'Cancel', 'Help'];
         }
-
+        
         win.addEventListener('click', function(e){
           var dialog = Ti.UI.createOptionDialog(opts).show();
         });
         win.open();
+---
+name: hideOptions
+summary: Dictionary of options for the <Titanium.UI.OptionDialog.hide> method.
+since: 1.9.0
+platforms: [iphone, ipad]
+
+properties:
+  - name: animated
+    summary: Determines whether to animate the dialog as it is dismissed.
+    type: Boolean
+
 ---
 name: showOptions
 summary: Dictionary of options for the <Titanium.UI.OptionDialog.show> method.
