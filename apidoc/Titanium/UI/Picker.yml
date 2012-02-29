@@ -246,7 +246,7 @@ properties:
         If `true`, the spinner is enabled.
         
         This property should be set either at picker creation, i.e. 
-        <Titanium.UI.createPicker({useSpinner:true});> or before adding the picker to its parent.  
+        `Titanium.UI.createPicker({ useSpinner:true });`, or before the picker is added to its parent.  
         
         This property must be enabled for multi-column pickers.
     type: Boolean

@@ -57,6 +57,10 @@ methods:
         Returns `false` on iOS.
     returns:
         type: Boolean
+  - name: openStream
+    summary: Opens file using the <Titanium.IOStream> interface.
+    returns:
+        type: Titanium.Filesystem.FileStream
 properties:
   - name: MODE_APPEND
     summary: Constant for append mode for file operations.
