@@ -101,15 +101,10 @@ public class WebViewProxy extends ViewProxy
 		return (String) getProperty(TiC.PROPERTY_HTML);
 	}
 	
-	@Kroll.setProperty
-	public void setHtml(String html)
-	{
-		getWebView().setHtml(html);
-	}
-	
 	@Kroll.method
 	public void setHtml(String html, @Kroll.argument(optional=true)KrollDict d)
 	{
+		setProperty(TiC.PROPERTY_HTML, html);
 		getWebView().setHtml(html, d);
 	}
 

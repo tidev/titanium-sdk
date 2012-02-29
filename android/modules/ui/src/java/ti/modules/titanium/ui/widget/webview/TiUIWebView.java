@@ -285,8 +285,8 @@ public class TiUIWebView extends TiUIView
 						line = breader.readLine();
 					}
 					setHtmlInternal(out.toString(), (originalUrlHasScheme ? url : finalUrl), "text/html"); // keep app:// etc. intact in case
-																						// html in file contains links
-																						// to JS that use app:// etc.
+																								   	       // html in file contains links
+																						 				   // to JS that use app:// etc.
 					return;
 				} catch (IOException ioe) {
 					Log.e(LCAT, "Problem reading from " + url + ": " + ioe.getMessage()
@@ -357,11 +357,11 @@ public class TiUIWebView extends TiUIView
 		
 		String baseUrl = TiC.URL_ANDROID_ASSET_RESOURCES;
 		String mimeType = "text/html";
-		if (d.containsKey("baseURL")) {
-			baseUrl = TiConvert.toString(d.get("baseURL"));
+		if (d.containsKey(TiC.PROPERTY_BASE_URL_WEBVIEW)) {
+			baseUrl = TiConvert.toString(d.get(TiC.PROPERTY_BASE_URL_WEBVIEW));
 		} 
-		if (d.containsKey("mimeType")) {
-			mimeType = TiConvert.toString(d.get("mimeType"));
+		if (d.containsKey(TiC.PROPERTY_MIMETYPE)) {
+			mimeType = TiConvert.toString(d.get(TiC.PROPERTY_MIMETYPE));
 		}
 		
 		setHtmlInternal(html, baseUrl, mimeType);
