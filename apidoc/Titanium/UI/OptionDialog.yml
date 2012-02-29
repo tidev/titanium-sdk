@@ -75,7 +75,7 @@ methods:
         attached to another view or control if specified via the `options` argument.
     parameters:
       - name: options
-        summary: 
+        summary: View to which to attach the dialog (iPad only.)
         type: showOptions
         optional: true
     
@@ -180,10 +180,16 @@ summary: Dictionary of options for the <Titanium.UI.OptionDialog.show> method.
 platforms: [ipad]
 
 properties:
+  - name: animated
+    summary: Determines whether to animate the dialog as it is shown.
+    type: Boolean
+    
   - name: view
     summary: View to which to attach the dialog.
     type: Titanium.UI.View
     
-  - name: animated
-    summary: Determines whether to animate the dialog as it is shown.
-    type: Boolean
+  - name: rect
+    summary: |
+        View size and position, determined by coordinates `x` and `y` and dimensions `height` 
+        and `width`.
+    type: Dictionary
