@@ -34,9 +34,9 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 
 			this.add(this.rightImageView = UI.createImageView({
 				right: 0,
-				top: 0,
+				center: {y: "50%"},
 				width: "auto", 
-				height: "100%"
+				height: "auto"
 			}));
 		},
 
