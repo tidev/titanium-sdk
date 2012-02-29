@@ -28,7 +28,7 @@ methods:
         as a path component. All of the arguments are joined together using the
         platform-specific path separator to make the final path.
 
-        If a relative path is passed, the full path should be interpreted relative
+        If a relative path is passed, the full path sh[TIDOC-52] [TIDOC-198] [TIDOC-415] Platform and DisplayCaps improvements - rev4ould be interpreted relative
         to the current file. For example, if the file `Resources/login/login.js` 
         contains the following code:
         
@@ -62,8 +62,8 @@ methods:
     parameters:
       - name: mode
         summary: |
-            Access mode. Either <Titanium.Stream.MODE_READ> or <Titanium.Stream.MODE_APPEND>. 
-            Not used on Android.
+            Access mode. Either <Titanium.Stream.MODE_READ>, <Titanium.Stream.MODE_WRITE>, or 
+            <Titanium.Stream. MODE_APPEND>.
         type: Number
         
       - name: path
