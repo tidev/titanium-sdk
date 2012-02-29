@@ -117,6 +117,12 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	}
 
 	@Override
+	public Object doEvalString(String source, String filename)
+	{
+		return nativeEvalString(source, filename);
+	}
+
+	@Override
 	public void initObject(KrollProxySupport proxy)
 	{
 		V8Object.nativeInitObject(proxy.getClass(), proxy);
@@ -155,6 +161,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	// JNI method prototypes
 	private native void nativeInit(boolean useGlobalRefs, int debuggerPort, boolean DBG);
 	private native void nativeRunModule(String source, String filename, KrollProxySupport activityProxy);
+	private native Object nativeEvalString(String source, String filename);
 	private native void nativeProcessDebugMessages();
 	private native void nativeIdle();
 	private native void nativeDispose();

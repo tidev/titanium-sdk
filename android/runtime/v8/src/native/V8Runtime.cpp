@@ -218,6 +218,33 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRu
 	}
 }
 
+JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeEvalString
+	(JNIEnv *env, jobject self, jstring source, jstring filename)
+{
+	ENTER_V8(V8Runtime::globalContext);
+	titanium::JNIScope jniScope(env);
+
+	Handle<Value> jsSource = TypeConverter::javaStringToJsString(source);
+	if (jsSource.IsEmpty() || !jsSource->IsString()) {
+		LOGE(TAG, "Error converting Javascript string, aborting evalScript");
+		return NULL;
+	}
+
+	Handle<Value> jsFilename = TypeConverter::javaStringToJsString(filename);
+
+	TryCatch tryCatch;
+	Handle<Script> script = Script::Compile(jsSource->ToString(), jsFilename);
+	Local<Value> result = script->Run();
+
+	if (tryCatch.HasCaught()) {
+		V8Util::openJSErrorDialog(tryCatch);
+		V8Util::reportException(tryCatch, true);
+		return NULL;
+	}
+
+	return TypeConverter::jsValueToJavaObject(result);
+}
+
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeProcessDebugMessages(JNIEnv *env, jobject self)
 {
 	v8::Debug::ProcessDebugMessages();

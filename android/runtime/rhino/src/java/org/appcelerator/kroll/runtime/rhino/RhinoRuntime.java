@@ -93,6 +93,31 @@ public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 	}
 
 	@Override
+	public Object doEvalString(String source, String filename)
+	{
+		Context context = enterContext();
+
+		try {
+			Object result = context.evaluateString(globalScope, source, filename, 1, null);
+			return TypeConverter.jsObjectToJavaObject(result, globalScope);
+
+		} catch (Exception e) {
+			if (e instanceof RhinoException) {
+				RhinoException re = (RhinoException) e;
+				Context.reportRuntimeError(re.getMessage(), re.sourceName(), re.lineNumber(), re.lineSource(),
+					re.columnNumber());
+
+			} else {
+				Context.reportError(e.getMessage());
+			}
+			return null;
+
+		} finally {
+			Context.exit();
+		}
+	}
+
+	@Override
 	public void initObject(KrollProxySupport proxy)
 	{
 		Context context = ((RhinoRuntime) KrollRuntime.getInstance()).enterContext();
