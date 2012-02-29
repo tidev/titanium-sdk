@@ -148,7 +148,7 @@ methods:
         summary: The resource id of the View whose visibility will change (also see <Titanium.App.Android.R>)
         type: Number
       - name: visibility
-        summary: The visibility, one of <Titanium.Android.VISIBLE>, <Titanium.Android.INVISIBLE>, or <Titanium.Android.GONE>
+        summary: The visibility. Either `0` (VISIBLE), `4` (INVISIBLE) or `8` (GONE).
         type: Number
 examples:
   - title: Create a RemoteViews based on a custom layout called "custom_layout.xml", and set a label's text.
