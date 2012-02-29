@@ -161,6 +161,7 @@ file.write(this.responseData);
 	var reg,
 		regDate = (new Date()).getTime(),
 		File,
+		ls = localStorage,
 		metaMap = {
 			n: "sname",
 			c: "i_created",
@@ -186,6 +187,8 @@ file.write(this.responseData);
 				return !!(b|0);
 			}
 		},
+		metaPrefix = "ti:fs:meta:",
+		blobPrefix = "ti:fs:blob:",
 		pathRegExp = /(\/)?([^\:]*)(\:\/\/)?(.*)/,
 		mimeTypes = "application/octet-stream,text/plain,text/html,text/css,text/xml,text/mathml,image/gif,image/jpeg,image/png,image/x-icon,image/svg+xml,application/x-javascript,application/json,application/pdf,application/x-opentype,audio/mpeg,video/mpeg,video/quicktime,video/x-flv,video/x-ms-wmv,video/x-msvideo,video/ogg,video/mp4,video/webm".split(','),
 		mimeExtentions = {
@@ -220,11 +223,11 @@ file.write(this.responseData);
 		};
 
 	function getLocal(path, meta) {
-		return localStorage.getItem("ti:fs:" + (meta ? "meta:" : "blob:") + path);
+		return ls.getItem("ti:fs:" + (meta ? "meta:" : "blob:") + path);
 	}
 
 	function setLocal(path, value, meta) {
-		localStorage.setItem("ti:fs:" + (meta ? "meta:" : "blob:") + path, value);
+		ls.setItem("ti:fs:" + (meta ? "meta:" : "blob:") + path, value);
 	}
 
 	function getRemote(path) {
@@ -294,7 +297,7 @@ file.write(this.responseData);
 		if (path) {
 			var match = path.match(pathRegExp),
 				prefix = (match[1] ? match[1] : match[2] + match[3]) || '/';
-			path = (match[1] ? match[2] : match[4]);
+			path = match[1] ? match[2] : match[4];
 			return path ? mkdir(prefix, path.split('/')) : true;
 		}
 		return false;
@@ -314,14 +317,15 @@ file.write(this.responseData);
 				this.constants.__values__.nativePath = (b ? match[2] + "://" : "/") + path;
 			}
 
-			this._type = 'F';
+			this._type = path && path._type === 'D' ? 'D' : 'F';
 		},
 
 		postscript: function(args) {
 			var c = this.constants,
 				path = this.nativePath,
 				metaData = path && getLocal(path, 1) || registry(path),
-				match = path.match(pathRegExp);
+				match = path.match(pathRegExp),
+				p;
 
 			metaData && (this._exists = 1) && metaData.split('\n').forEach(function(line) {
 				var fieldInfo = metaMap[line.charAt(0)],
@@ -330,9 +334,10 @@ file.write(this.responseData);
 				(c.hasOwnProperty(field) ? c.__values__ : this)[field] = value;
 			}, this);
 
-			c.name = path.split('/').pop();
+			path = path.split('/');
+			p = c.parent = (c.name = path.pop()) ? new File({ nativePath: path.join('/'), _type: 'D' }) : null;
 
-			match && match[1] && (c.readonly = true); // resources folder is readonly
+			(p && p.readonly) || (match && match[1]) && (c.readonly = true);
 		},
 
 		constants: {
@@ -349,10 +354,7 @@ file.write(this.responseData);
 				return false;
 			},
 			nativePath: "",
-			parent: function() {
-				// TODO: if we're not already at the root level, pop the current nativePath and return a new File()
-				return null;
-			},
+			parent: null,
 			writable: {
 				get: function() {
 					return !this.readonly;
@@ -406,10 +408,7 @@ file.write(this.responseData);
 		},
 
 		_create: function(type) {
-			var path = this.nativePath;
-			if (this.exists()) {
-				API.warn(path + " already exists");
-			} else if (mkdirs(path)) {
+			if (!this.exists() && mkdirs(this.nativePath)) {
 				this._created = this._modified = (new Date()).getTime();
 				this._exists = true;
 				this._type = type;
@@ -439,8 +438,10 @@ file.write(this.responseData);
 		},
 
 		deleteFile: function() {
-			if (this.isFile()) {
-				// TODO
+			if (this.exists() && this.isFile() && !this.readonly) {
+				var path = this.nativePath;
+				ls.removeItem(metaPrefix + path);
+				ls.removeItem(blobPrefix + path);
 				return true;
 			}
 			return false;
@@ -459,9 +460,8 @@ file.write(this.responseData);
 			var files = [];
 			if (this.isDirectory()) {
 				var path = this.nativePath + (/\/$/.test(this.nativePath) ? '' : '/'),
-					lsRegExp = new RegExp("^ti:fs:meta:" + path + "(.*)"),
+					lsRegExp = new RegExp("^" + metaPrefix + path + "(.*)"),
 					regRegExp = new RegExp("^" + path + "(.*)"),
-					ls = localStorage,
 					i = 0,
 					len = ls.length;
 
@@ -554,13 +554,55 @@ file.write(this.responseData);
 			return null;
 		},
 
-		rename: function(newname) {
-			this.name = newname;
-			// TODO:
-			// - update the nativePath
-			// - save meta
-			// - if a directory, find ALL files in this directory and rename
-			return true;
+		rename: function(name) {
+			if (this.exists && !this.readonly) {
+				var origPath = this.nativePath,
+					path = origPath,
+					blob = ls.getItem(blobPrefix + path),
+					re = new RegExp("^ti:fs:(meta|blob):" + path + (/\/$/.test(path) ? '' : '/') + "(.*)"),
+					match = path.match(pathRegExp),
+					prefix = (match[1] ? match[1] : match[2] + match[3]) || '/',
+					i = 0,
+					len = ls.length,
+					c = this.constants.__values__,
+					dest;
+
+				path = match[1] ? match[2] : match[4];
+
+				if (!path) {
+					Ti.API.warn("Can't rename root " + prefix);
+					return false;
+				}
+
+				path = path.split('/');
+				path.pop();
+				path.push(name);
+
+				dest = new File(prefix + path.join('/'));
+				if (dest.exists() || dest.parent.readonly) {
+					return false;
+				}
+
+				if (this._type === 'D') {
+					while (i < len) {
+						if (match = ls.key(i++).match(re)) {
+							console.debug(match);
+						}
+					}
+				}
+
+				c.name = dest.name;
+				c.nativePath = dest.nativePath;
+				this._save();
+				blob && ls.setItem(blobPrefix + path, blob);
+
+				// remove the old keys
+				ls.removeItem(metaPrefix + origPath);
+				ls.removeItem(blobPrefix + origPath);
+
+				return true;
+			}
+			return false;
 		},
 
 		resolve: function() {
@@ -573,7 +615,7 @@ file.write(this.responseData);
 
 		write: function(/*String|File|Blob*/data, append) {
 			var path = this.nativePath;
-			if (path && this.isFile()) {
+			if (path && this.isFile() && !this.readonly) {
 				if (require.is(data, "Object")) {
 					switch (data.declaredClass) {
 						case "Ti.Filesystem.File":

@@ -47,6 +47,8 @@ define(["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/Filesystem/File"],
 				tempDirectory: tempDirectory
 			},
 
+			protocols: ["appdata", "tmp"],
+
 			_makeTemp: function(isDir) {
 				var f = new File({
 					_type: isDir && 'D',

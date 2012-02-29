@@ -28,7 +28,14 @@ define(["Ti/_", "Ti/_/string", "Ti/Filesystem"], function(_, string, Filesystem)
 
 	return {
 		url: function(/*String|Blob*/url) {
-			return /^(appdata|tmp):\/\//.test(url) ? "url(" + Filesystem.getFile(url).read().toString() + ")" : !url || url === "none" ? "" : /^url\(/.test(url) ? url : "url(" + _.getAbsolutePath(url) + ")";
+			var match = url.match(/^(.+):\/\//);
+			return match && Filesystem.protocols.indexOf(match[1]) >= 0
+				? "url(" + Filesystem.getFile(url).read().toString() + ")"
+				: !url || url === "none"
+					? ""
+					: /^url\(/.test(url)
+						? url
+						: "url(" + _.getAbsolutePath(url) + ")";
 		},
 
 		get: function(node, name) {
