@@ -69,4 +69,4 @@ properties:
 description: |
     These properties and sub-properties are queried directly against the `android.R` class, and should have the same syntax. For example, to retrieve the "OK" string in Android:
     
-    <Ti.Android.currentActivity.getString(Ti.Android.R.string.ok);>
+    `Ti.Android.currentActivity.getString(Ti.Android.R.string.ok);`

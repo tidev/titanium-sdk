@@ -11,41 +11,41 @@ description:  |
     
     The UI module is broken down into 3 major area:
 
-    * **Views** - [Views](Titanium.UI.View-object.html) are containers that
+    * **Views** - [Views](Titanium.UI.View) are containers that
     host visual elements such as controls or other views.  Views can have
     their properties customized, such as their border color and radius, can
     fire events such as swipe events or touches, and can optionally contain a
     hierarchy or other views as children. In Titanium, most views are
     specialized to perform both a visual function and set of interaction
-    behaviors such as [Table View](Titanium.UI.TableView-object.html) or
-    [Coverflow View](Titanium.UI.CoverFlowView-object.html).  Views are always
+    behaviors such as [Table View](Titanium.UI.TableView) or
+    [Coverflow View](Titanium.UI.CoverFlowView).  Views are always
     named with the suffix `View`.
 
     * **Controls** - controls, or sometimes referred as widgets, are visual
-    elements such as [sliders](Titanium.UI.Slider-object.html),
-    [buttons](Titanium.UI.Button-object.html) and
-    [switches](Titanium.UI.Switch-object.html). They provide a visual element
+    elements such as [sliders](Titanium.UI.Slider),
+    [buttons](Titanium.UI.Button) and
+    [switches](Titanium.UI.Switch). They provide a visual element
     which has a defined behavior and typical have special configuration and
     special events.  Controls themselves are views and also inherit a views
     properties, functions and events.
 
-    * **Windows** - [Windows](Titanium.UI.Window-object.html) are typically
+    * **Windows** - [Windows](Titanium.UI.Window) are typically
     top-level visual constructs that are the main part of your interface. An
     application will always have at least one window and windows can take
     different shapes and sizes, can have display and interaction properties
     such as fullscreen or modal and can be customized, such as changing their
     opacity or background color. Windows themselves are views and also inherit
     a views properties, functions and events. There are a few specialization
-    of Windows such as a [Tab Group](Titanium.UI.TabGroup-object.html) which
+    of Windows such as a [Tab Group](Titanium.UI.TabGroup) which
     offer additional behavior beyond the basic Window.
 
 
     Titanium uses the [Factory
     Pattern](http://en.wikipedia.org/wiki/Factory_method_pattern) for
     constructing objects and a general naming pattern for APIs.  For example,
-    to construct a [Alert Dialog](Titanium.UI.AlertDialog-object.html), you
+    to construct a [Alert Dialog](Titanium.UI.AlertDialog), you
     call the method <Titanium.UI.createAlertDialog>.  To create a
-    [TextArea](Titanium.UI.TextArea-object.html), you call the method
+    [TextArea](Titanium.UI.TextArea), you call the method
     <Titanium.UI.createTextArea>.  Once an object is created, it will be
     available until it goes out of scope.
 
@@ -61,7 +61,7 @@ description:  |
     screen or in low memory situations.  However, it's a good idea to help
     Titanium along in certain cases where you are no longer using objects.  For
     example, you should call `close` on a
-    [Window](Titanium.UI.Window-object.html) instance when you are no longer
+    [Window](Titanium.UI.Window) instance when you are no longer
     using it.  You can safely call `open` on the window again to re-open it.
 
     #### Global Context and Threading
@@ -71,7 +71,7 @@ description:  |
     until the application exits, you should think about the design of your
     application as it relates to this fact.
 
-    [Window](Titanium.UI.Window-object.html) objects that are opened up with the
+    [Window](Titanium.UI.Window) objects that are opened up with the
     `url` property to another JavaScript file provide a nice way to decompose
     your application into smaller units. 
     
@@ -103,7 +103,7 @@ description:  |
     
     Event listeners must be defined before their respective events are likely to 
     be fired, otherwise they are not guaranteed to be called. The open and focus 
-    [Window](Titanium.UI.Window-object.html) event listeners, for instance, must 
+    [Window](Titanium.UI.Window) event listeners, for instance, must 
     be defined before the window is opened.
 
     Evaluating events as late as possible while bearing the above consideration 
