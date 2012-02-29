@@ -1,17 +1,58 @@
-define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/UI"],
-	function(declare, View, dom, UI) {
+define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/UI", "Ti/_/style"],
+	function(declare, View, dom, UI, style) {
+		
+	var setStyle = style.set;
 
 	return declare("Ti.UI.PickerColumn", View, {
 		
 		constructor: function() {
-			this.add(this._contents = UI.createScrollView({
-				layout: "vertical",
-				contentWidth: "100%"
-			}));
+			this._upArrow = dom.create("div", {
+				className: "TiUIElementGradient",
+				style: {
+					textAlign: "center",
+					position: "absolute",
+					top: "0px",
+					height: "40px",
+					width: "100%",
+					borderBottom: "1px solid #666",
+					fontSize: "28px"
+				}
+			}, this.domNode);
+			this._upArrow.innerHTML = "\u2227";
+			
+			this._content = dom.create("div", {
+				style: {
+					position: "absolute",
+					top: "50%",
+					height: "1em",
+					width: "100%",
+					marginTop: "-0.5em",
+					textAlign: "center"
+				}
+			}, this.domNode);
+			this._content.innerHTML = "Helloy"
+			
+			this._downArrow = dom.create("div", {
+				className: "TiUIElementGradient",
+				style: {
+					textAlign: "center",
+					position: "absolute",
+					bottom: "0px",
+					height: "40px",
+					width: "100%",
+					borderTop: "1px solid #666",
+					fontSize: "28px"
+				}
+			}, this.domNode);
+			this._downArrow.innerHTML = "\u2228";
+		},
+		
+		_setRightBorder: function() {
+			setStyle(this.domNode,"borderRight","1px solid #666");
 		},
 		
 		addRow: function(row) {
-			this._contents.add(row);
+			
 		},
 		
 		removeRow: function(row) {

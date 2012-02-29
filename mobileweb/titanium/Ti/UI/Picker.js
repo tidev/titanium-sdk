@@ -14,6 +14,9 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 		_currentColumn: null,
 		
 		_addColumn: function(column) {
+			if (this._columns.length > 0) {
+				this._columns[this._columns.length - 1]._setRightBorder();
+			}
 			this._columns.push(column);
 			var width = 100 / this._columns.length + "%";
 			for (var i in this._columns) {

@@ -17,7 +17,7 @@ methods:
       - name: view
         summary: A view object.
         type: Titanium.UI.View
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
 
 properties:
   - name: color
