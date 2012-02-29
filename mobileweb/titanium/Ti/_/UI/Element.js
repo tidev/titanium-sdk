@@ -339,11 +339,11 @@ define(
 			// Calculate the border
 			var computedStyle = window.getComputedStyle(this.domNode);
 				borderSize = {
-				left: parseInt(computedStyle["border-left-width"]),
-				right: parseInt(computedStyle["border-right-width"]),
-				top: parseInt(computedStyle["border-top-width"]),
-				bottom: parseInt(computedStyle["border-bottom-width"])
-			};
+					left: parseInt(computedStyle["border-left-width"]),
+					right: parseInt(computedStyle["border-right-width"]),
+					top: parseInt(computedStyle["border-top-width"]),
+					bottom: parseInt(computedStyle["border-bottom-width"])
+				};
 
 			// Calculate the width/left properties if width is NOT auto
 			var calculateWidthAfterAuto = false,
@@ -390,23 +390,23 @@ define(
 				height == "auto" && (height = computedSize.height);
 			}
 			
+			// I have no idea why we have to recalculate, but for some reason the recursion is screwing with the values.
+			borderSize = {
+				left: parseInt(computedStyle["border-left-width"]),
+				right: parseInt(computedStyle["border-right-width"]),
+				top: parseInt(computedStyle["border-top-width"]),
+				bottom: parseInt(computedStyle["border-bottom-width"])
+			};
+			
 			if (calculateWidthAfterAuto) {
-				if (isDef(right)) {
-					if (isDef(left)) {
-						width = right - left;
-					} else {
-						left = right - width;
-					}
+				if (isDef(right) && !isDef(left)) {
+					left = right - width;
 				}
 				width -= borderSize.left + borderSize.right;
 			}
 			if (calculateHeightAfterAuto) {
-				if (isDef(bottom)) {
-					if (isDef(top)) {
-						height = bottom - top;
-					} else {
-						top = bottom - height;
-					}
+				if (isDef(bottom) && !isDef(top)) {
+					top = bottom - height;
 				}
 				height -= borderSize.top + borderSize.bottom;
 			}
@@ -447,7 +447,7 @@ define(
 
 			if(!is(left,"Number") || !is(top,"Number") || !is(rightPadding,"Number")
 				 || !is(bottomPadding,"Number") || !is(width,"Number") || !is(height,"Number")) {
-			 	throw "Invalid layout";
+			 	throw "Invalid layout";	
 			}
 			
 			return {
@@ -457,7 +457,6 @@ define(
 				bottomPadding: bottomPadding,
 				width: width,
 				height: height,
-				borderWidth: is(computeSize(borderWidth),"Number") ? computeSize(borderWidth): 0,
 				borderSize: borderSize
 			};
 		},
@@ -750,6 +749,8 @@ define(
 					anim.backgroundColor !== undef && (obj.backgroundColor = anim.backgroundColor);
 					anim.opacity !== undef && setStyle(this.domNode, "opacity", anim.opacity);
 					setStyle(this.domNode, "display", anim.visible !== undef && !anim.visible ? "none" : "");
+					
+					// TODO set border width here
 
 					// Set the position and size properties
 					var dimensions = this._computeDimensions(
@@ -763,7 +764,6 @@ define(
 						isDef(anim.center) ? anim.center.y : isDef(this.center) ? this.center.y : undef,
 						val(anim.width, this.width),
 						val(anim.height, this.height),
-						val(anim.borderWidth, this.borderWidth),
 						false
 					);
 
@@ -772,7 +772,10 @@ define(
 						top: unitize(dimensions.top),
 						width: unitize(dimensions.width),
 						height: unitize(dimensions.height),
-						borderWidth: unitize(dimensions.borderWidth)
+						borderLeftWidth: unitize(dimensions.borderSize.left),
+						borderTopWidth: unitize(dimensions.borderSize.top),
+						borderRightWidth: unitize(dimensions.borderSize.right),
+						borderBottomWidth: unitize(dimensions.borderSize.bottom)
 					});
 
 					// Set the z-order
@@ -888,12 +891,7 @@ define(
 
 			borderColor: {
 				set: function(value) {
-					if (setStyle(this.domNode, "borderColor", value)) {
-						this.borderWidth | 0 || (this.borderWidth = 1);
-						setStyle(this.domNode, "borderStyle", "solid");
-					} else {
-						this.borderWidth = 0;
-					}
+					setStyle(this.domNode, "borderColor", value);
 					return value;
 				}
 			},
