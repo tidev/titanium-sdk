@@ -24,13 +24,13 @@ description: |
     results in an irreversible action.
     
     On iOS 4, option dialogs are automatically cancelled when the application is paused/suspended.
-
-    ### iPhone
+    
+    ##### iPhone
     
     On iPhone, this dialog is shown at the bottom edge of the display, with the option items 
     represented as vertical buttons. 
-
-    ### iPad
+    
+    ##### iPad
     
     On iPad, this dialog is shown in the middle of the display, or as a popover-like dialog if 
     another view or control is specified via an argument.
@@ -46,15 +46,16 @@ since: "0.8"
 events:
   - name: click
     summary: |
-        Fired when a button of this dialog is clicked or, under certain circumstances, this dialog 
-        is dismissed.
+        Fired when an option of this dialog is clicked or, under certain circumstances, when this 
+        dialog is dismissed.
     description: |
-        As of 1.9, in addition to clicking a button, a tap outside of a popover containing the 
-        optionDialog (iPad) or calling hide (iPad, iPhone) will also trigger this event as if the 
-        user tapped the cancel button.
+        On iOS as of 1.9, if [hide()](Titanium.UI.OptionDialog.hide) is called (iPhone, iPad) or 
+        there is a tap outside of this dialog (iPad) this event is fired as if the cancel option 
+        was selected. In these circumstances, `index` property will be `-1`.
     properties:
       - name: index
-        summary: Index of the button or option that was pressed.
+        summary: |
+            Index of the option that was pressed.
         type: Number
         
       - name: button
@@ -65,11 +66,11 @@ events:
         platforms: [android]
         
       - name: cancel
-        summary: Index of the cancel button.
+        summary: Index of the cancel button or, on  ``
         type: Number
         
       - name: destructive
-        summary: Index of the destructive button.
+        summary: Index of the destructive option.
         type: Number
         platforms: [iphone, ipad]
 
@@ -87,11 +88,10 @@ methods:
 
   - name: hide
     summary: Hides this dialog.
-    description: This will trigger a click event, as if cancel was invoked.
-
+    description: This triggers a `click` event as if cancel was invoked.
     parameters:
       - name: options
-        summary: Options for this method. Only used on iPad.
+        summary: Options for this method. Only used on iOS.
         type: hideOptions
         optional: true
 
@@ -102,19 +102,16 @@ properties:
     platforms: [android]
     
   - name: cancel
-    summary: Index to define the cancel button, returned by the `click` event.
+    summary: Index to define the cancel option, returned by the `click` event.
     description: |
-        If a cancel button is not required, set to `-1`.
+        Set to `-1` to disable the cancel option.
         
-        On iPad, the cancel button *must* be the last button.
-        
-        If the cancel button is used (IE, not -1) then the cancel button will be removed from
-        option dialog. As of 1.9, this value will be used for the index when click is fired via
-        outside taps or hide, even using -1 if no cancel button was provided.
+        On iPad, when the cancel option is enabled by having a valid option index, it must be 
+        the last option, otherwise any that follow it will not be displayed. 
     type: Number
 
   - name: destructive
-    summary: Index to define the destructive button, indicated by a visual cue when rendered.
+    summary: Index to define the destructive option, indicated by a visual cue when rendered.
     type: Number
     platforms: [iphone, ipad]
     availability: creation
@@ -139,7 +136,7 @@ properties:
     type: String
 
 examples:
-  - title: Options Dialog with 3 Items
+  - title: Dialog with 3 Options
     example: |        
         
         Ti.UI.setBackgroundColor('white');
@@ -163,7 +160,7 @@ examples:
         });
         win.open();
         
-  - title: Options Dialog with 2 Items and 1 Button on Android and 3 Items on iOS
+  - title: Dialog with 2 Options and 1 Button on Android and 3 Options on iOS
     example: |
         
         Ti.UI.setBackgroundColor('white');
