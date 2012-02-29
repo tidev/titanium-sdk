@@ -1763,7 +1763,7 @@ if(ourTableView != tableview)	\
     int fromRowIndex = [sourceIndexPath row];
     int toRowIndex = [destinationIndexPath row];
     
-    if (fromSectionIndex == toSectionIndex && fromRowIndex == toRowIndex) {
+    if ((fromSectionIndex == toSectionIndex) && (fromRowIndex == toRowIndex)) {
         //No need to fire a move event if the row never moved
         return;
     }
