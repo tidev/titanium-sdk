@@ -1,7 +1,8 @@
 define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 	function(declare, View, UI, lang) {
 		
-	var is = require.is;
+	var is = require.is,
+		undef;
 
 	return declare("Ti.UI.Picker", View, {
 		
@@ -15,6 +16,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 		
 		_addColumn: function(column) {
 			this._columns.push(column);
+			column._parentPicker = this;
 			var numColumns = this._columns.length,
 				width = this.width === "auto" ? "auto" : 100 / numColumns + "%",
 				height = this.height === "auto" ? "auto" : "100%";
@@ -25,6 +27,16 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 				column._setCorners(i === 0, i === numColumns - 1, "6px");
 			}
 			View.prototype.add.call(this,column);
+		},
+		
+		_updateColumnHeights: function() {
+			var tallestColumnHeight = 0;
+			for(var i in this._columns) {
+				tallestColumnHeight = Math.max(tallestColumnHeight, this._columns[i]._getTallestRowHeight());
+			}
+			for(var i in this._columns) {
+				this._columns[i]._setTallestRowHeight(tallestColumnHeight);
+			}
 		},
 		
 		add: function(value) {
@@ -42,11 +54,11 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 			}
 		},
 		
-		getSelectedRow: function(index) {
+		getSelectedRow: function(columnIndex) {
 			console.debug('Method "Titanium.UI.Picker#.getSelectedRow" is not implemented yet.');
 		},
 		
-		setSelectedRow: function(column, row) {
+		setSelectedRow: function(columnIndex, rowIndex) {
 			console.debug('Method "Titanium.UI.Picker#.setSelectedRow" is not implemented yet.');
 		},
 		
@@ -59,10 +71,13 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 					
 					// Remove the existing columns
 					this._removeAllChildren();
+					for(var i in this._columns) {
+						this._columns[i]._parentPicker = undef;
+					}
 					this._columns = [];
 					
-					// Add the new columns
-					this.add(value);
+					// Add the new column(s)
+					value && this.add(value);
 					
 					// We intentionally don't return anything because we are not using the internal storage mechanism.
 				}
@@ -90,24 +105,19 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 				}
 			},
 			
-			selectionIndicator: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.Picker#.selectionIndicator" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Picker#.selectionIndicator" is not implemented yet.');
-					return value;
-				}
-			},
-			
 			type: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.Picker#.type" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Picker#.type" is not implemented yet.');
+				set: function(value, oldValue) {
+					if (value !== oldValue) {
+						this.columns = undef;
+						switch(value) {
+							case Ti.UI.PICKER_TYPE_DATE:
+								break;
+							case Ti.UI.PICKER_TYPE_TIME: 
+								break;
+							default: 
+								break;
+						}
+					}
 					return value;
 				},
 				value: Ti.UI.PICKER_TYPE_PLAIN

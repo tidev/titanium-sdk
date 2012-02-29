@@ -227,7 +227,8 @@ properties:
         Determines whether the visual selection indicator is shown. On iPhone, this is a blue bar.
     description: If `true`, selection indicator is enabled.
     type: Boolean
-    default: true (Android), false (iPhone, iPad)
+    default: true (Android), false (iPhone, iPad),
+    platforms: [android, iphone, ipad]
     
   - name: type
     summary: |

@@ -23,7 +23,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti
 
 		_setFont: function(font,domNode) {
 			if (font) {
-				lang.isDef(font.fontSize) && (font.fontSize = dom.unitize(font.fontSize));
+				require.is(font.fontSize, "Number") && (font.fontSize = dom.unitize(font.fontSize));
 				style.set(domNode, font);
 			} else {
 				style.set(domNode,{
@@ -52,10 +52,10 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti
 			textRuler.innerHTML = emptyText ? "\u00C4y" : text;
 
 			this._setFont({
-				fontFamily: font.fontFamily || computedStyle.fontFamily,
-				fontSize: font.fontSize || computedStyle.fontSize,
-				fontStyle: font.fontStyle || computedStyle.fontStyle,
-				fontWeight: font.fontWeight || computedStyle.fontWeight
+				fontFamily: font.fontFamily || computedStyle.fontFamily || "",
+				fontSize: font.fontSize || computedStyle.fontSize || "",
+				fontStyle: font.fontStyle || computedStyle.fontStyle || "",
+				fontWeight: font.fontWeight || computedStyle.fontWeight || ""
 			}, textRuler);
 			style.set(textRuler,{
 				whiteSpace: domNode.style.whiteSpace,

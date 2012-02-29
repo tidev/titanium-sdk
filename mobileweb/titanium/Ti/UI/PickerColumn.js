@@ -2,7 +2,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 	function(declare, FontWidget, dom, UI, style, lang) {
 		
 	var setStyle = style.set,
-		contentPadding = 15;
+		contentPadding = 15,
+		undef;
 
 	return declare("Ti.UI.PickerColumn", FontWidget, {
 		
@@ -71,7 +72,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 		},
 		
 		_doLayout: function() {
-			this._updateContentDimensions();
+			this._updateContentWidth();
+			this._parentPicker && this._parentPicker._updateColumnHeights();
 			FontWidget.prototype._doLayout.apply(this,arguments);
 		},
 		
@@ -88,65 +90,73 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 		
 		_tallestRowHeight: 0,
 		
-		_updateContentDimensions: function() {
+		_updateContentWidth: function() {
+			if (this._hasAutoDimensions()) {
+				var widestRowWidth = 0;
+				for(var i in this._rows) {
+					var row = this._rows[i];
+					widestRowWidth = Math.max(widestRowWidth, row._measureText(row.title, row.domNode).width);
+				}
+				if (this._widestRowWidth !== widestRowWidth) {
+					this._widestRowWidth = widestRowWidth;
+					this._triggerParentLayout();
+				}
+			}
+		},
+		
+		_getTallestRowHeight: function() {
 			if (this._hasAutoDimensions()) {
 				var widestRowWidth = 0,
 					tallestRowHeight = 0;
 				for(var i in this._rows) {
-					var row = this._rows[i],
-						rowDimensions = this._measureText(row.title, row.domNode);
-					widestRowWidth = Math.max(widestRowWidth, rowDimensions.width);
-					tallestRowHeight = Math.max(tallestRowHeight, rowDimensions.height);
+					var row = this._rows[i];
+					tallestRowHeight = Math.max(tallestRowHeight, row._measureText(row.title, row.domNode).height);
 				}
-				if (this._widestRowWidth !== widestRowWidth || this._tallestRowHeight !== tallestRowHeight) {
-					this._widestRowWidth = widestRowWidth;
-					this._tallestRowHeight = tallestRowHeight;
-					this._triggerParentLayout();
-				}
+				return tallestRowHeight;
+			}
+		},
+		
+		_setTallestRowHeight: function(height) {
+			if (this._tallestRowHeight !== height) {
+				this._tallestRowHeight = height;
+				this._triggerParentLayout();
 			}
 		},
 		
 		addRow: function(row) {
 			this._rows.push(row);
 			row._parentColumn = this;
+			this._updateContentWidth();
+			this._parentPicker && this._parentPicker._updateColumnHeights();
 			if (!this.selectedRow) {
 				this.selectedRow = row;
 			}
-			this._updateContentDimensions();
 		},
 		
 		removeRow: function(row) {
-			console.debug('Method "Titanium.UI.PickerColumn#.removeRow" is not implemented yet.');
+			var rowIndex = this._rows.indexOf(row);
+			if (rowIndex !== -1) {
+				this._rows.splice(rowIndex,1);
+				row._parentColumn = undef;
+				this._updateContentWidth();
+				this._parentPicker && this._parentPicker._updateColumnHeights();
+				if (this.selectedRow === row) {
+					this.selectedRow = this._rows[0];
+				}
+			}
 		},
 		
 		constants: {
 			
 			rowCount: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.PickerColumn#.rowCount" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.PickerColumn#.rowCount" is not implemented yet.');
-					return value;
+				get: function() {
+					return this._rows.length;
 				}
 			},
 			
 			rows: {
-				get: function(value) {
+				get: function() {
 					return this._rows;
-				},
-				set: function(value) {
-					
-					// Clear the list of old rows
-					this._rows = [];
-					
-					// Add each new row
-					for (var i in value) {
-						this.addRow(value);
-					}
-					
-					// We return nothing because we don't use the internal storage mechanism
 				}
 			}
 			
@@ -156,13 +166,20 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 			
 			selectedRow: {
 				set: function(value) {
-					if (this._rows.indexOf(value) === -1) {
-						return;
+					if (!value) {
+						this.font = undef;
+						this.color = undef;
+						this._titleContainer.innerHTML = "";
+						this._hasAutoDimensions() && this._triggerParentLayout();
+					} else {
+						if (this._rows.indexOf(value) === -1) {
+							return;
+						}
+						this.font = value.font;
+						this.color = lang.val(value.color, "");
+						this._titleContainer.innerHTML = value.title;
+						this._hasAutoDimensions() && this._triggerParentLayout();
 					}
-					this.font = value.font;
-					this.color = lang.val(value.color, "");
-					this._titleContainer.innerHTML = value.title;
-					this._hasAutoDimensions() && this._triggerParentLayout();
 					return value;
 				}
 			}
