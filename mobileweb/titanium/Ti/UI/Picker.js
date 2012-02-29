@@ -26,6 +26,26 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 				column.height = height;
 				column._setCorners(i === 0, i === numColumns - 1, "6px");
 			}
+			column._pickerChangeEventListener = lang.hitch(this,function(e) {
+				var eventInfo = {
+					column: e.column,
+					columnIndex: this._columns.indexOf(e.column),
+					row: e.row,
+					rowIndex: e.rowIndex
+				};
+				if (this.type === Ti.UI.PICKER_TYPE_PLAIN) {
+					var selectedValue = []
+					for(var i in this._columns) {
+						var selectedRow = this._columns[i].selectedRow;
+						selectedRow && selectedValue.push(selectedRow.title);
+					}
+					eventInfo.selectedValue = selectedValue;
+				} else {
+					
+				}
+				this.fireEvent("change", eventInfo);
+			});
+			column.addEventListener("change", column._pickerChangeEventListener);
 			View.prototype.add.call(this,column);
 		},
 		
@@ -74,7 +94,9 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 					// Remove the existing columns
 					this._removeAllChildren();
 					for(var i in this._columns) {
-						this._columns[i]._parentPicker = undef;
+						var column = this._columns[i];
+						column.removeEventListener(column._pickerChangeEventListener);
+						column._parentPicker = undef;
 					}
 					this._columns = [];
 					

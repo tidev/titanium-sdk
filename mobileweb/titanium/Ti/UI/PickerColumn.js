@@ -261,7 +261,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 						this._titleContainer.innerHTML = "";
 						this._hasAutoDimensions() && this._triggerParentLayout();
 					} else {
-						if (this._rows.indexOf(value) === -1) {
+						var rowIndex = this._rows.indexOf(value);
+						if (rowIndex === -1) {
 							return;
 						}
 						this.font = value.font;
@@ -270,6 +271,14 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 						this._hasAutoDimensions() && this._triggerParentLayout();
 					}
 					return value;
+				},
+				post: function(value) {
+					this.fireEvent("change", {
+						column: this,
+						rowIndex: this._rows.indexOf(value),
+						row: value,
+						value: value.title
+					});
 				}
 			}
 			
