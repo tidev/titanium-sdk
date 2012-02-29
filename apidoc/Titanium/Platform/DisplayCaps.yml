@@ -42,11 +42,15 @@ properties:
     platforms: [android]
 
   - name: platformHeight
-    summary: Absolute height of the display in pixels.
+    summary: |
+        Absolute height of the display in platform-specific units. This is pixels on Android and 
+        density-independent pixels (dip) on iOS.
     type: Number
     
   - name: platformWidth
-    summary: Absolute width of the display in pixels.
+    summary: |
+        Absolute width of the display in platform-specific units. This is pixels on Android and 
+        density-independent pixels (dip) on iOS.
     type: Number
     
   - name: xdpi
