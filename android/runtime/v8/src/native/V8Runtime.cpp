@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -226,7 +226,7 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativ
 
 	Handle<Value> jsSource = TypeConverter::javaStringToJsString(source);
 	if (jsSource.IsEmpty() || !jsSource->IsString()) {
-		LOGE(TAG, "Error converting Javascript string, aborting evalScript");
+		LOGE(TAG, "Error converting Javascript string, aborting evalString");
 		return NULL;
 	}
 

@@ -183,8 +183,9 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	/**
 	 * Equivalent to <pre>evalString(source, SOURCE_ANONYMOUS)</pre>
-	 * @see evalString(String source, String filename)
-	 * @return
+	 * @see #evalString(String, String)
+	 * @param source A string containing Javascript source
+	 * @return The Java representation of the return value of {@link source}, as long as Kroll supports the return value
 	 */
 	public Object evalString(String source)
 	{
@@ -194,7 +195,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	/**
 	 * Evaluates a String of Javascript code, returning the result of the execution
 	 * when this method is called on the KrollRuntime thread. If this method is called
-	 * ony any other thread, then this function is asynchronous, and returns null.
+	 * ony any other thread, then the code is executed asynchronous, and this method returns null.
 	 * 
 	 * Currently, Kroll supports converting the following Javascript return types:
 	 * <ul>
