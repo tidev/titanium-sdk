@@ -5,6 +5,11 @@
  * Copyright 2009, 2010 Kristopher Michael Kowal
  * MIT License
  * <https://github.com/kriskowal/es5-shim>
+ *
+ * Dojo Toolkit
+ * Copyright (c) 2005-2011, The Dojo Foundation
+ * New BSD License
+ * <http://dojotoolkit.org>
  */
 
 define(
@@ -88,6 +93,63 @@ define(
 					obj[prop] = null;
 				}
 			}
+		};
+	}
+
+	if (!has("js-btoa")) {
+		var tab = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+			fromCharCode = String.fromCharCode;
+
+		global.btoa = function(bytes) {
+			var ascii = [],
+				chr1, chr2, chr3,
+				enc1, enc2, enc3, enc4,
+				i = 0,
+				len = byte.length;
+
+			while (i < len) {
+				chr1 = bytes.charCodeAt(i++);
+				chr2 = bytes.charCodeAt(i++);
+				chr3 = bytes.charCodeAt(i++);
+
+				enc1 = chr1 >> 2;
+				enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+				enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+				enc4 = chr3 & 63;
+
+				if (isNaN(chr2)) {
+					enc3 = enc4 = 64;
+				} else if (isNaN(chr3)) {
+					enc4 = 64;
+				}
+
+				ascii.push(tab.charAt(enc1) + tab.charAt(enc2) + tab.charAt(enc3) + tab.charAt(enc4));
+			}
+
+			return ascii.join('');
+		};
+
+		global.atob = function(ascii) {
+			var bytes = [],
+				enc1, enc2, enc3, enc4,
+				i = 0,
+				len = ascii.length;
+
+			ascii = ascii.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+			while (i < len) {
+				enc1 = tab.indexOf(ascii.charAt(i++));
+				enc2 = tab.indexOf(ascii.charAt(i++));
+				enc3 = tab.indexOf(ascii.charAt(i++));
+				enc4 = tab.indexOf(ascii.charAt(i++));
+
+				bytes.push(fromCharCode((enc1 << 2) | (enc2 >> 4)));
+
+				enc3 !== 64 && bytes.push(fromCharCode(((enc2 & 15) << 4) | (enc3 >> 2)));
+				enc4 !== 64 && bytes.push(fromCharCode(((enc3 & 3) << 6) | enc4));
+			}
+
+			return bytes.join('');
 		};
 	}
 

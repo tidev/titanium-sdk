@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/lang", "Ti/Blob", "Ti/Filesystem/FileStream"],
-	function(declare, lang, Blob, FileStream) {
+define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/Filesystem/FileStream"],
+	function(declare, encoding, lang, API, Blob, FileStream) {
 
 /*
 
@@ -166,6 +166,7 @@ file.write(this.responseData);
 			c: "i_created",
 			m: "i_modified",
 			t: "s_type",
+			y: "s_mimeType",
 			e: "b_remote",
 			x: "bexecutable",
 			r: "breadonly",
@@ -182,7 +183,7 @@ file.write(this.responseData);
 				return ""+s;
 			},
 			b: function(b) {
-				return !!b;
+				return !!(b|0);
 			}
 		},
 		pathRegExp = /(\/)?([^\:]*)(\:\/\/)?(.*)/,
@@ -219,19 +220,19 @@ file.write(this.responseData);
 		};
 
 	function getLocal(path, meta) {
-		return localStorage.getItem("ti:fs:" + (meta ? "meta:" : "data:") + path);
+		return localStorage.getItem("ti:fs:" + (meta ? "meta:" : "blob:") + path);
+	}
+
+	function setLocal(path, value, meta) {
+		localStorage.setItem("ti:fs:" + (meta ? "meta:" : "blob:") + path, value);
 	}
 
 	function getRemote(path) {
-		var xhr = new XMLHttpRequest,
-			type;
-
-		xhr.overrideMimeType('text/plain; charset=x-user-defined')
+		var xhr = new XMLHttpRequest;
+		xhr.overrideMimeType('text/plain; charset=x-user-defined');
 		xhr.open("GET", path, false);
 		xhr.send(null);
-		type = xhr.getResponseHeader("Content-Type");
-
-		return xhr.status === 200 ? { data: xhr.responseText, mimeType: type } : null;
+		return xhr.status === 200 ? { data: xhr.responseText, mimeType: xhr.getResponseHeader("Content-Type") } : null;
 	}
 
 	function registry(path) {
@@ -262,6 +263,43 @@ file.write(this.responseData);
 		return (r = reg[path]) && r + "\nr1\ne1\nc" + regDate + "\nm" + regDate;
 	}
 
+	function mkdir(prefix, parts, i, parent) {
+		var file,
+			i = i || 0,
+			j = 0,
+			len = parts.length,
+			path = prefix + parts.slice(0, i).join('/');
+
+		if (i >= len) {
+			// we're done!
+			return true;
+		}
+
+		if (parent && parent.readonly) {
+			// parent directory is readonly, so we can't create a directory here
+			API.warn("Unable to create " + path + " because parent is readonly");
+			return false;
+		}
+
+		file = new File({
+			nativePath: path,
+			type: 'D'
+		});
+		file.createDirectory();
+
+		return mkdir(prefix, parts, i+1, file);
+	}
+
+	function mkdirs(path) {
+		if (path) {
+			var match = path.match(pathRegExp),
+				prefix = (match[1] ? match[1] : match[2] + match[3]) || '/';
+			path = (match[1] ? match[2] : match[4]);
+			return path ? mkdir(prefix, path.split('/')) : true;
+		}
+		return false;
+	}
+
 	return File = declare("Ti._.Filesystem.Local", null, {
 
 		constructor: function(path) {
@@ -280,7 +318,7 @@ file.write(this.responseData);
 		},
 
 		postscript: function(args) {
-			var c = this.constants.__values__,
+			var c = this.constants,
 				path = this.nativePath,
 				metaData = path && getLocal(path, 1) || registry(path),
 				match = path.match(pathRegExp);
@@ -289,21 +327,27 @@ file.write(this.responseData);
 				var fieldInfo = metaMap[line.charAt(0)],
 					field = fieldInfo.substring(1),
 					value = metaCast[fieldInfo.charAt(0)](line.substring(1));
-				(c.hasOwnProperty(field) ? c : this)[field] = value;
+				(c.hasOwnProperty(field) ? c.__values__ : this)[field] = value;
 			}, this);
 
 			c.name = path.split('/').pop();
 
-			match && match[1] || (c.readonly = true); // resources folder is readonly
+			match && match[1] && (c.readonly = true); // resources folder is readonly
 		},
 
 		constants: {
 			name: "",
-			executable: false,
+			executable: function() {
+				return false;
+			},
 			readonly: false,
 			size: 0,
-			symbolicLink: false,
-			hidden: false,
+			symbolicLink: function() {
+				return false;
+			},
+			hidden: function() {
+				return false;
+			},
 			nativePath: "",
 			parent: function() {
 				// TODO: if we're not already at the root level, pop the current nativePath and return a new File()
@@ -323,10 +367,10 @@ file.write(this.responseData);
 		properties: {
 			hidden: {
 				get: function() {
-					return this._meta.hidden;
+					return false;
 				},
-				set: function(value) {
-					this._meta.hidden = value;
+				set: function() {
+					return false;
 				}
 			}
 		},
@@ -349,35 +393,41 @@ file.write(this.responseData);
 				// TODO:
 				// - rewrite the nativePath
 				// - new ????
+				/*
 				var path = this.nativePath;
 				set(path, {
 					n: this.name,
 					p: path
 				});
+				*/
 				return true;
+			}
+			return false;
+		},
+
+		_create: function(type) {
+			var path = this.nativePath;
+			if (this.exists()) {
+				API.warn(path + " already exists");
+			} else if (mkdirs(path)) {
+				this._created = this._modified = (new Date()).getTime();
+				this._exists = true;
+				this._type = type;
+				return this._save();
 			}
 			return false;
 		},
 
 		createDirectory: function() {
-			if (!this.exists()) {
-				// TODO
-				return true;
-			}
-			return false;
+			return this._create('D');
 		},
 
 		createFile: function() {
-			if (!this.exists()) {
-				// TODO
-				return true;
-			}
-			return false;
+			return this._create('F');
 		},
 
 		createTimestamp: function() {
-			var d = this._created;
-			return d ? d.toString() : null;
+			return this._created || null;
 		},
 
 		deleteDirectory: function(recursive) {
@@ -406,12 +456,31 @@ file.write(this.responseData);
 		},
 
 		getDirectoryListing: function() {
+			var files = [];
 			if (this.isDirectory()) {
-				var files = [];
-				// TODO
-				return files;
+				var path = this.nativePath + (/\/$/.test(this.nativePath) ? '' : '/'),
+					lsRegExp = new RegExp("^ti:fs:meta:" + path + "(.*)"),
+					regRegExp = new RegExp("^" + path + "(.*)"),
+					ls = localStorage,
+					i = 0,
+					len = ls.length;
+
+				function add(s, re) {
+					var file, match = s.match(re);
+					match && match[1] && files.indexOf(file = match[1].split('/')[0]) === -1 && files.push(file);
+				}
+
+				// check local storage
+				while (i < len) {
+					add(ls.key(i++), lsRegExp);
+				}
+
+				// check remote storage
+				for (i in reg) {
+					add(i, regRegExp);
+				}
 			}
-			return null;
+			return files.sort();
 		},
 
 		isDirectory: function() {
@@ -423,8 +492,7 @@ file.write(this.responseData);
 		},
 
 		modificationTimestamp: function() {
-			var d = this._modified;
-			return d ? d.toString() : null;
+			return this._modified || null;
 		},
 
 		move: function(dest) {
@@ -437,12 +505,10 @@ file.write(this.responseData);
 		},
 
 		open: function(mode) {
-			if (mode) {
-				this._openMode = mode;
-				// MODE_READ, MODE_WRITE, or MODE_APPEND.
-				//return Titanium.Filesystem.FileStream;
-			}
-			return null;
+			return new FileStream({
+				mode: mode,
+				data: this.read()
+			});
 		},
 
 		read: function() {
@@ -451,27 +517,29 @@ file.write(this.responseData);
 					params,
 					obj,
 					data = this._remote ? (obj = getRemote(path)).data : getLocal(path),
-					type = obj && obj.mimeType || mimeTypes[mimeExtentions[this.extension] || 0],
+					type = obj && obj.mimeType || this._mimeType || mimeTypes[mimeExtentions[this.extension] || 0],
 					binaryData,
 					i,
-					len = data.length;
+					len = data.length,
+					binaryData = '';
 
 				if (data) {
 					params = {
+						file: this,
 						data: data,
 						length: len,
 						mimeType: type,
 						nativePath: path
 					};
 					if (/^(application|image|audio|video)\//.test(type)) {
-						var binaryData = "";
-						for (i = 0; i < len; i++) {
-							binaryData += String.fromCharCode(data.charCodeAt(i) & 0xff);
-						}
 						params.size = len;
 						try {
-							// TODO: shim btoa
-							params.data = window.btoa(binaryData);
+							if (this._remote) {
+								for (i = 0; i < len; i++) {
+									binaryData += String.fromCharCode(data.charCodeAt(i) & 0xff);
+								}
+								params.data = btoa(binaryData);
+							}
 							if (!type.indexOf("image/")) {
 								i = new Image;
 								i.src = "data:" + type + ";base64," + params.data;
@@ -495,99 +563,49 @@ file.write(this.responseData);
 			return true;
 		},
 
+		resolve: function() {
+			return this.nativePath;
+		},
+
 		spaceAvailable: function() {
 			return 0;
 		},
 
-		write: function(data, append) {
-			// data String or Titanium.Filesystem.File or Titanium.Blob
-			// append false
-			return true;
-		}
-
-	});
-
-/*
-	function fs() {
-		return require("Ti/Filesystem");
-	}
-
-
-	var is = require.is,
-		ls = window.localStorage,
-		storage = {};
-
-	if (!require.has("native-localstorage")) {
-		// simple memory only storage shim
-		ls = {
-			getItem: function(key) {
-				return storage[key] || null;
-			},
-			setItem: function(key, value) {
-				storage[key] = JSON.stringify(value);
-			},
-			removeItem: function(key) {
-				delete storage[key];
-			}
-		}
-	}
-
-	
-
-	
-
-	return lang.setObject("Ti._.Filesystem.Local", {
-
-		exists: function(path) {
-			return !!get(is(path, "Object") ? path : parse(path));
-		},
-
-		mkdir: function(path) {
-console.debug("mkdir(" + path + ")");
-			var resource = is(path, "Object") ? path : parse(path),
-				parts = [],
-				dirs = resource.path,
-				result;
-			dirs.length || dirs.push("");
-			dirs.forEach(function(part) {
-				parts.push(part);
-				result = get(resource.bucket, parts.join('/'));
-				if (!result || !result.type == 'D') {
-console.debug("creating directory \"" + part + "\" in \"" + parts.join('/') + "\"");
-					set(result = {
-						name: part,
-						path: parts.join('/'),
-						bucket: resource.bucket,
-						type: 'D',
-						listing: []
-					});
+		write: function(/*String|File|Blob*/data, append) {
+			var path = this.nativePath;
+			if (path && this.isFile()) {
+				if (require.is(data, "Object")) {
+					switch (data.declaredClass) {
+						case "Ti.Filesystem.File":
+							data = data.read();
+						case "Ti.Blob":
+							this._mimeType = data.mimeType;
+							data = data.toString();
+							break;
+						default:
+							data = "";
+					}
 				}
-			});
-			// THIS MUST RETURN A Ti.Filesystem.File OBJECT
-			return result;
+				this._save();
+				setLocal(path, append ? this.read() + data : data);
+				return true;
+			}
+			return false;
 		},
 
-		touch: function(path) {
-console.debug("touch(" + path + ")");
-			var resource = parse(path),
-				file = get(resource),
-				filename = resource.path.pop(),
-				dir = this.mkdir(resource),
-				result;
-			if (!file || !file.type == 'F') {
-console.debug("creating file \"" + file + "\" in \"" + dir.path + "\"");
-				set(result = {
-					name: filename,
-					path: dir.path,
-					bucket: path.bucket,
-					type: 'F',
-					size: 0
-				});
+		_save: function() {
+			var path = this.nativePath,
+				meta;
+			if (path) {
+				meta = ["n", this.name, "\nc", this._created, "\nm", this._modified, "\nt", this._type, "\ne0\nx0\nr", this.readonly|0, "\nl", this.symbolicLink|0, "\nh", this.hidden|0];
+				this._type === 'F' && meta.push("\ns" + this.size);
+				this._mimeType && meta.push("\ny" + this._mimeType);
+				setLocal(path, meta.join(''), 1);
+				return true;
 			}
-			// THIS MUST RETURN A Ti.Filesystem.File OBJECT
-			return result;
+			return false;
 		}
 
 	});
-*/
+
 });

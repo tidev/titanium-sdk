@@ -13,10 +13,11 @@ define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
 		},
 
 		toString: function() {
-			return this._isBinary ? this.data : this.text;
+			return this._isBinary ? (!this.mimeType.indexOf("image/") ? "data:" + this.mimeType + ";base64," : "") + this.data : this.text;
 		},
 
 		constants: {
+			file: null,
 			height: 0,
 			length: 0,
 			mimeType: "",

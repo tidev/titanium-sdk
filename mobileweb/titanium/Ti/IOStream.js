@@ -2,8 +2,10 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Buffer"], function(declare, Evented,
 
 	return declare("Ti.IOStream", Evented, {
 
-		constructor: function() {
+		constructor: function(args) {
+			// MODE_READ, MODE_WRITE, or MODE_APPEND.
 			this._data = "";
+			this._mode = args && args.mode;
 		},
 
 		close: function() {

@@ -14,6 +14,9 @@ var require = {
 	has: {
 		"analytics-use-xhr": false,
 		"declare-property-methods": true,
+		"js-btoa": function(g) {
+			return "btoa" in g;
+		},
 		"json-stringify": function(g) {
 			return ("JSON" in g) && typeof JSON.stringify === "function" && JSON.stringify({a:0}, function(k,v){return v||1;}) === '{"a":1}';
 		},

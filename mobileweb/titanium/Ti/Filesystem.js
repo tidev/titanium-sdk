@@ -33,47 +33,56 @@ define(["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/Filesystem/File"],
 		return path;
 	}
 
-	return lang.setObject("Ti.Filesystem", Evented, {
+	var applicationDataDirectory = "appdata://",
+		tempDirectory = "tmp://",
+		Filesystem = lang.setObject("Ti.Filesystem", Evented, {
+			constants: {
+				MODE_APPEND: 4,
+				MODE_READ: 1,
+				MODE_WRITE: 2,
+				applicationDataDirectory: applicationDataDirectory,
+				lineEnding: '\n',
+				resourcesDirectory: '/',
+				separator: '/',
+				tempDirectory: tempDirectory
+			},
 
-		constants: {
-			MODE_APPEND: 4,
-			MODE_READ: 1,
-			MODE_WRITE: 2,
-			applicationDataDirectory: "appdata://",
-			lineEnding: "\n",
-			resourcesDirectory: "/",
-			separator: "/",
-			tempDirectory: "tmp://"
-		},
+			_makeTemp: function(isDir) {
+				var f = new File({
+					_type: isDir && 'D',
+					nativePath: this.tempDirectory + ((new Date()).getTime() & 0xFFFF).toString(16).toUpperCase()
+				});
+				return f[isDir ? "createDirectory" : "createFile"]();
+			},
 
-		createFile: function(args){
-			return new File(args);
-		},
+			createTempDirectory: function() {
+				return this._makeTemp(1);
+			},
 
-		_makeTemp: function(isDir) {
-			var f = new File({
-				_type: isDir && 'D',
-				nativePath: this.tempDirectory + ((new Date()).getTime() & 0xFFFF).toString(16).toUpperCase()
-			});
-			return f[isDir ? "createDirectory" : "createFile"]();
-		},
+			createTempFile: function() {
+				return this._makeTemp();
+			},
 
-		createTempDirectory: function() {
-			return this._makeTemp(1);
-		},
+			getFile: function() {
+				return new File(join.apply(null, arguments));
+			},
 
-		createTempFile: function() {
-			return this._makeTemp();
-		},
+			isExternalStoragePresent: function() {
+				return false;
+			}
+		});
 
-		getFile: function() {
-			return new File(join.apply(null, arguments));
-		},
+	// initialize the filesystem
+	function initRoot(path, readonly) {
+		var f = new File({
+			nativePath: path,
+			readonly: readonly
+		});
+		f.exists() || f.createDirectory();
+	}
+	initRoot(applicationDataDirectory);
+	initRoot(tempDirectory);
 
-		isExternalStoragePresent: function() {
-			return false;
-		}
-
-	});
+	return Filesystem;
 
 });
