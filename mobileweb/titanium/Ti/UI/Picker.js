@@ -14,13 +14,15 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 		_currentColumn: null,
 		
 		_addColumn: function(column) {
-			if (this._columns.length > 0) {
-				this._columns[this._columns.length - 1]._setRightBorder();
-			}
 			this._columns.push(column);
-			var width = 100 / this._columns.length + "%";
-			for (var i in this._columns) {
-				this._columns[i].width = width;
+			var numColumns = this._columns.length,
+				width = this.width === "auto" ? "auto" : 100 / numColumns + "%",
+				height = this.height === "auto" ? "auto" : "100%";
+			for (var i = 0; i < numColumns; i++) {
+				var column = this._columns[i];
+				column.width = width;
+				column.height = height;
+				column._setCorners(i === 0, i === numColumns - 1, "6px");
 			}
 			View.prototype.add.call(this,column);
 		},

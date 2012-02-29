@@ -22,8 +22,17 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti
 		},
 
 		_setFont: function(font,domNode) {
-			lang.isDef(font.fontSize) && (font.fontSize = dom.unitize(font.fontSize));
-			style.set(domNode, font);
+			if (font) {
+				lang.isDef(font.fontSize) && (font.fontSize = dom.unitize(font.fontSize));
+				style.set(domNode, font);
+			} else {
+				style.set(domNode,{
+					fontFamily: "",
+					fontSize: "",
+					fontStyle: "",
+					fontWeight: ""
+				});
+			}
 		},
 
 		_addStyleableDomNode: function(styleableDomNode) {

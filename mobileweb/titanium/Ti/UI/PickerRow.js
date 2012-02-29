@@ -1,12 +1,16 @@
-define(["Ti/_/declare", "Ti/UI/Label", "Ti/_/dom"],
-	function(declare, Label) {
+define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom"],
+	function(declare, FontWidget) {
 
-	return declare("Ti.UI.PickerRow", Label, {
+	return declare("Ti.UI.PickerRow", FontWidget, {
+		
+		constructor: function() {
+			this._addStyleableDomNode(this.domNode);
+		},
 		
 		properties: {
 			title: {
 				set: function(value) {
-					this.text = value;
+					this._parentColumn && this._parentColumn._updateContentDimensions();
 					return value;
 				}
 			}
