@@ -869,7 +869,7 @@ def main(args):
 						custom_fonts.append(f)
 					
 
-			if  (not (simulator or build_only)) and (deploytype != 'production'):
+			if not (simulator or build_only):
 				version = ti.properties['version']
 				# we want to make sure in debug mode the version always changes
 				version = "%s.%d" % (version,time.time())
