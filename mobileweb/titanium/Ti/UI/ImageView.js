@@ -52,23 +52,28 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 			properties: {
 				src: {
 					set: function(value) {
-						this.domNode.src = value;
-						require.on(this.domNode,"load", lang.hitch(this, function() {
-							this.fireEvent("load", {});
-							this._triggerLayout();
-						}));
-						require.on(this.domNode,"error", lang.hitch(this, function() {
-							this.fireEvent("error", {
-								image: value
-							});
-							this._triggerLayout();
-						}));
-						require.on(this.domNode,"abort", lang.hitch(this, function() {
-							this.fireEvent("error", {
-								image: value
-							});
-							this._triggerLayout();
-						}));
+						if (value) {
+							setStyle(this.domNode,"display", "inherit");
+							this.domNode.src = value;
+							require.on(this.domNode,"load", lang.hitch(this, function() {
+								this.fireEvent("load", {});
+								this._triggerLayout();
+							}));
+							require.on(this.domNode,"error", lang.hitch(this, function() {
+								this.fireEvent("error", {
+									image: value
+								});
+								this._triggerLayout();
+							}));
+							require.on(this.domNode,"abort", lang.hitch(this, function() {
+								this.fireEvent("error", {
+									image: value
+								});
+								this._triggerLayout();
+							}));
+						} else {
+							setStyle(this.domNode,"display", "none");
+						}
 						return value;
 					}
 				}

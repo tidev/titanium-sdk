@@ -77,8 +77,10 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 				var rows = self._rows,
 					data = [];
 				for(var i in rows) {
+					var row = rows[i];
 					data.push({
-						title: rows[i].title
+						title: row.title,
+						hasCheck: row === self.selectedRow
 					});
 				}
 				
