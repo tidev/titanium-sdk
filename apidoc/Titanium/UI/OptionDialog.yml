@@ -12,9 +12,22 @@ methods:
         summary: name of the view the OptionDialog needs to be attached to. Only used on iPad.
         type: Titanium.UI.View
         optional: true
+  - name: hide
+    platforms: [iphone, ipad]
+    since: 1.9.0
+    summary: cause the dialog to no longer be visible. This will trigger a click event as if the user pressed cancel.
+    parameters:
+      - name: animated
+        summary: Whether the optionDialog should be animated in hiding.
+        type: hideOption
+        optional: true
 events:
   - name: click
-    summary: fired when a button in the dialog is clicked
+    summary: fired when a button in the dialog is clicked or in some cases, dismissed.
+    description: |
+        The most common trigger is the user clicking a button. However as of 1.9, tapping outside
+        of a popover containing the optionDialog (iPad) or calling hide (iPad, iPhone) will also
+        trigger a click event as if the user tapped the cancel button.
     properties:
       - name: index
         summary: the button index that was pressed
@@ -31,7 +44,14 @@ properties:
     platforms: [android]
     type: Object
   - name: cancel
-    summary: an index to indicate which button should be the cancel button. If no button should be the cancel button, use -1. If there is a cancel button, it MUST be the last button for use on iPad.
+    summary: Index to define the cancel button, returned by the `click` event.
+    description: |
+        If a cancel button is not required, set to `-1`.
+        
+        On iPad, the cancel button *must* be -1 or the last button.
+        If the cancel button is used (IE, not -1) then the cancel button will be removed from
+        option dialog. As of 1.9, this value will be used for the index when click is fired via
+        outside taps or hide, even using -1 if no cancel button was provided.
     type: Number
   - name: destructive
     summary: the destructive button (indicated by a visual clue in the UI)
@@ -62,4 +82,12 @@ examples:
             });
             dialog.show();
         
-        
+---
+name: hideOption
+summary: Optional parameter for [hide](Titanium.UI.OptionDialog.hide) method.
+since: 1.9.0
+platforms: [iphone, ipad]
+properties:
+  - name: animated
+    summary: Boolean to indicate whether the option dialog's dismissal is animated.
+    type: Boolean

@@ -507,18 +507,22 @@ function AsyncTest(args) {
 	this.timeoutError = args.timeoutError || null;
 	this.onTimeoutFn = args.onTimeout || null;
 	this.timer = null;
+	this.sequence = [];
 };
 
 AsyncTest.prototype.async = function(fn) {
 	var self = this;
 	return function() {
 		try {
-			if (self.timer != null) {
-				clearTimeout(self.timer);
+			fn.apply(self,arguments);
+			if (self.sequence.length > 0) {
+				self.sequence.shift().call(self);
+			} else {
+				if (self.timer != null) {
+					clearTimeout(self.timer);
+				}
+				self.callback.passed();
 			}
-			
-			fn.apply(this, arguments);
-			self.callback.passed();
 		} catch (e) {
 			self.callback.failed(e);
 		}
@@ -544,6 +548,9 @@ AsyncTest.prototype.start = function(callback) {
 					callback.failed(message);
 				}
 			}, this.timeout);
+		}
+		if (this.sequence.length > 0) {
+			this.sequence.shift().call(this);
 		}
 	} catch (e) {
 		callback.failed(e);

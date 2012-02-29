@@ -79,6 +79,11 @@ public class AppModule extends KrollModule
 		return TiPlatformHelper.getSessionId();
 	}
 	
+	@Kroll.getProperty @Kroll.method
+	public boolean getAnalytics() {
+		return appInfo.isAnalyticsEnabled();
+	}
+	
 	@Kroll.method
 	public String appURLToPath(String url) {
 		return resolveUrl(null, url);

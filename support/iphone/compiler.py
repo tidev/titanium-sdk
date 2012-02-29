@@ -7,7 +7,8 @@
 import os, sys, re, shutil, time, run, sgmllib, codecs, tempfile
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-sys.path.append(os.path.join(template_dir,'../'))
+sys.path.append(os.path.abspath(os.path.join(template_dir,'..')))
+sys.path.append(os.path.abspath(os.path.join(template_dir,'..', 'common')))
 
 from tiapp import *
 import jspacker 
@@ -25,7 +26,7 @@ ignoreDirs = ['.git','.svn','_svn','CVS','android','iphone','mobileweb'];
 HEADER = """/**
  * Appcelerator Titanium Mobile
  * This is generated code. Do not modify. Your changes *will* be lost.
- * Generated code is Copyright (c) 2009-2011 by Appcelerator, Inc.
+ * Generated code is Copyright (c) 2009-2012 by Appcelerator, Inc.
  * All Rights Reserved.
  */
 #import <Foundation/Foundation.h>
@@ -39,7 +40,7 @@ INTERFACE_HEADER= """
 
 IMPL_HEADER= """#import "ApplicationRouting.h"
 
-extern NSData* filterData(NSString* thedata);
+extern NSData* filterData(NSString* thedata, NSString* identifier);
 
 @implementation ApplicationRouting
 
@@ -512,26 +513,21 @@ class Compiler(object):
 			file_contents = jspacker.jsmin(file_contents)
 		file_contents = file_contents.replace('Titanium.','Ti.')
 		self.compile_js(file_contents)
+	
+		tfile = tempfile.NamedTemporaryFile(mode="r+b", delete=False)
+		tfilename = tfile.name
+		tfile.write(file_contents)
+		tfile.close()
+		template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+
+
+		titanium_prep = os.path.abspath(os.path.join(template_dir,'titanium_prep'))
 		
-		# TODO: employ advanced encoding with titanium_prep
-		if self.deploytype == 'commonjs':
-			data = str(file_contents).encode("hex")
-			method = "dataWithHexString(@\"%s\")" % data
-		else:
-			tfile = tempfile.NamedTemporaryFile(mode="r+b", delete=False)
-			tfilename = tfile.name
-			tfile.write(file_contents)
-			tfile.close()
-			template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-	
-	
-			titanium_prep = os.path.abspath(os.path.join(template_dir,'titanium_prep'))
-			
-			data = os.popen("\"%s\" \"%s\" \"%s\"" % (titanium_prep, tfilename, self.appid)).read()
-			os.remove(tfilename)
-	
-			data = data.translate(None, '\r\n')
-			method = "@\"%s\"" % data
+		data = os.popen("\"%s\" \"%s\" \"%s\"" % (titanium_prep, tfilename, self.appid)).read()
+		os.remove(tfilename)
+
+		data = data.translate(None, '\r\n')
+		method = "@\"%s\"" % data
 			
 		return {'method':method,'path':path}
 		
@@ -650,7 +646,7 @@ class Compiler(object):
 				compile_js_file(js_file['path'],js_file['from'])
 			
 			impf.write("     }\n")
-			impf.write("     return filterData([map objectForKey:path]);\n")
+			impf.write("     return filterData([map objectForKey:path], [[NSBundle mainBundle] objectForInfoDictionaryKey:@\"CFBundleIdentifier\"]);\n")
 			impf.write('}\n')
 			impf.write(impf_buffer)
 

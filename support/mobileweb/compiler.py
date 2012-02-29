@@ -4,8 +4,15 @@
 # Project Compiler
 #
 
-import os, sys, time, datetime, simplejson, codecs, shutil, subprocess, mako.template, re, math
+import os, sys, time, datetime, codecs, shutil, subprocess, re, math
 from tiapp import *
+
+# mako and simplejson are in support/common
+this_dir = os.path.dirname(os.path.abspath(__file__))
+common_dir = os.path.join(os.path.dirname(this_dir), "common")
+sys.path.append(common_dir)
+import mako.template
+import simplejson
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn','CVS'];
@@ -77,6 +84,7 @@ class Compiler(object):
 			pass
 		
 		# copy all of the project's resources to the build directory
+		self.copy(self.themes_path, os.path.join(self.build_path, 'themes'))
 		self.copy(self.resources_path, self.build_path)
 		self.copy(self.ti_package_path, os.path.join(self.build_path, 'titanium'))
 		
@@ -435,6 +443,7 @@ class Compiler(object):
 			'Ti/UI/ImageView',
 			'Ti/UI/Label',
 			'Ti/UI/OptionDialog',
+			'Ti/UI/ProgressBar',
 			'Ti/UI/ScrollableView',
 			'Ti/UI/ScrollView',
 			'Ti/UI/Slider',

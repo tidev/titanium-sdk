@@ -231,7 +231,7 @@ define(
 			padding: 0
 		});
 
-		if (cfg.analytics) {
+		if (cfg.app.analytics) {
 			// enroll event
 			if (localStorage.getItem("mobileweb_enrollSent") === null) {
 				// setup enroll event

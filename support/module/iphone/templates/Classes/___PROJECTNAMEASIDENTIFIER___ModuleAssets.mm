@@ -3,7 +3,7 @@
  */
 #import "___PROJECTNAMEASIDENTIFIER___ModuleAssets.h"
 
-extern NSData * dataWithHexString (NSString * hexString);
+extern NSData* filterData(NSString* thedata, NSString* identifier);
 
 @implementation ___PROJECTNAMEASIDENTIFIER___ModuleAssets
 
