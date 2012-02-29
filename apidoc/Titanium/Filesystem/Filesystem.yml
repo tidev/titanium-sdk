@@ -23,19 +23,19 @@ methods:
         application can create a file at that path by calling 
         [write](Titanium.Filesystem.File.write) or create a directory by calling
         [createDirectory](Titanium.Filesystem.File.createDirectory) on the `File` object.
-
+        
         This method takes a variable number of arguments, where each argument is treated
         as a path component. All of the arguments are joined together using the
         platform-specific path separator to make the final path.
-
-        If a relative path is passed, the full path sh[TIDOC-52] [TIDOC-198] [TIDOC-415] Platform and DisplayCaps improvements - rev4ould be interpreted relative
+        
+        If a relative path is passed, the full path should be interpreted relative
         to the current file. For example, if the file `Resources/login/login.js` 
         contains the following code:
         
             var icon = Titanium.Filesystem.getFile('icon.png');
-
+        
         The path is interpreted as `Resources/login/icon.png`. 
-
+        
         On iOS, all relative paths are currently interpreted as relative to the
         `Resources` directory, **not** to the current context. This is a known issue
         that will be addressed in a future release.
