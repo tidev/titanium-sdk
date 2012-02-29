@@ -11,7 +11,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 			}, this.domNode);
 			
 			this._thumb = dom.create("div", {
-				className: "TiUIButtonDefault TiUISliderThumb"
+				className: "TiUIElementGradient TiUISliderThumb"
 			}, this.domNode);
 			
 			var initialPosition,
@@ -70,10 +70,10 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 					
 					if (value !== oldValue) {
 						if (!value) {
-							css.remove(this._thumb,"TiUIButtonDefault");
+							css.remove(this._thumb,"TiUIElementGradient");
 							setStyle(this._thumb,"backgroundColor","#aaa");
 						} else {
-							css.add(this._thumb,"TiUIButtonDefault");
+							css.add(this._thumb,"TiUIElementGradient");
 							setStyle(this._thumb,"backgroundColor","");
 						}
 						this._setTouchEnabled(value);
