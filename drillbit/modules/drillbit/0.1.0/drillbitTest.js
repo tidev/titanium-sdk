@@ -519,7 +519,7 @@ AsyncTest.prototype.async = function(fn) {
 				self.sequence.shift().call(self);
 			} else {
 				if (self.timer != null) {
-					clearTimeout(self.time);
+					clearTimeout(self.timer);
 				}
 				self.callback.passed();
 			}
