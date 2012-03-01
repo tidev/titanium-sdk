@@ -10,7 +10,7 @@ description: |
     Adding views to picker rows is only supported on iOS.
 extends: Titanium.Proxy
 since: "0.8"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 methods:
   - name: add
     summary: Adds rows or columns to the picker.
@@ -113,19 +113,19 @@ events:
     properties:
       - name: columnIndex
         summary: |
-            Selected column index. On iOS, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
+            Selected column index. On iOS and Mobile Web, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
             picker types.
         type: Number
         
       - name: rowIndex
         summary: |
-            Selected row index. On iOS, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
+            Selected row index. On iOS and Mobile Web, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
             picker types.
         type: Number
         
       - name: column
         summary: |
-            The column object. On iOS, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
+            The column object. On iOS and Mobile Web, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
             picker types.
         type: Titanium.UI.PickerColumn
         
@@ -137,7 +137,7 @@ events:
         
       - name: row
         summary: |
-            The row object. On iOS, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> picker types.
+            The row object. On iOS and Mobile Web, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> picker types.
         type: Titanium.UI.PickerRow
         
       - name: selectedValue
@@ -227,14 +227,20 @@ properties:
         Determines whether the visual selection indicator is shown. On iPhone, this is a blue bar.
     description: If `true`, selection indicator is enabled.
     type: Boolean
-    default: true (Android), false (iPhone, iPad)
+    default: true (Android), false (iPhone, iPad),
+    platforms: [android, iphone, ipad]
     
   - name: type
-    summary: |
-        Determines the type of picker displayed. One of <Titanium.UI.PICKER_TYPE_PLAIN>, 
+    summary: Determines the type of picker displayed
+    description: |
+        One of <Titanium.UI.PICKER_TYPE_PLAIN>, 
         <Titanium.UI.PICKER_TYPE_DATE>, <Titanium.UI.PICKER_TYPE_TIME>, 
-        <Titanium.UI.PICKER_TYPE_DATE_AND_TIME> (iPhone, iPad-only) 
-        and <Titanium.UI.PICKER_TYPE_COUNT_DOWN_TIMER> (iPhone, iPad-only.)
+        <Titanium.UI.PICKER_TYPE_DATE_AND_TIME> (Mobile Web, iPhone, iPad-only) 
+        and <Titanium.UI.PICKER_TYPE_COUNT_DOWN_TIMER> (iPhone, iPad-only.). 
+        
+        Mobile Web relies on input types for date and time types, but as of Q1 2012 these input types 
+        are not supported on most browsers, those that do support it support it poorly, and no fall-back 
+        exists. It is recommended not to use these types on Mobile Web until browser support improves.
     type: Number
     default: <Titanium.UI.PICKER_TYPE_PLAIN>
     
