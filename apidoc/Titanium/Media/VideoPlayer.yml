@@ -157,6 +157,8 @@ methods:
         representing the video at that point in time.
         
         The callback function is invoked when a thumbnail is available.
+        
+        Calling this method will cancel all pending asynchronous thumbnail requests.
 
     platforms: [iphone, ipad]
     parameters:

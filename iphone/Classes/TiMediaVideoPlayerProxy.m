@@ -480,15 +480,21 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)requestThumbnailImagesAtTimes:(id)args
 {
-    ENSURE_UI_THREAD(requestThumbnailImagesAtTimes,args);
+    ENSURE_ARG_COUNT(args, 3);
     RELEASE_TO_NIL(thumbnailCallback);
-	
+    ENSURE_TYPE([args objectAtIndex:0], NSArray);
+    ENSURE_TYPE([args objectAtIndex:1], NSNumber);
+    ENSURE_TYPE([args objectAtIndex:2],KrollCallback);
+    
     NSArray* array = [args objectAtIndex:0];
     callbackRequestCount = [array count];
     if (callbackRequestCount > 0) {
         NSNumber* option = [args objectAtIndex:1];
         thumbnailCallback = [[args objectAtIndex:2] retain];
-        [[self player] requestThumbnailImagesAtTimes:array timeOption:[option intValue]];
+        TiThreadPerformOnMainThread(^{
+            [[self player] cancelAllThumbnailImageRequests];
+            [[self player] requestThumbnailImagesAtTimes:array timeOption:[option intValue]];
+        }, NO);
     }
 }
 
@@ -845,7 +851,7 @@ NSArray* moviePlayerKeys = nil;
 		
 		[self _fireEventToListener:@"thumbnail" withObject:event listener:thumbnailCallback thisObject:nil];
         
-		if (!(--callbackRequestCount > 0)) {
+		if (--callbackRequestCount <= 0) {
 			RELEASE_TO_NIL(thumbnailCallback);
 		}
 	}
