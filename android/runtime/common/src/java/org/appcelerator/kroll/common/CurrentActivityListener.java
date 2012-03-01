@@ -15,7 +15,7 @@ public interface CurrentActivityListener
 {
 	/**
 	 * Implementing classes should override this method to run code after the current activity has become visible.
-	 * Refer to {@link TiUIHelper#waitForCurrentActivity(CurrentActivityListener)} for an example use case.
+	 * Refer to {@link org.appcelerator.titanium.util.TiUIHelper#waitForCurrentActivity(CurrentActivityListener)} for an example use case.
 	 * @param activity the associated activity.
 	 */
 	public void onCurrentActivityReady(Activity activity);
