@@ -209,8 +209,6 @@ define(
 
 		_doLayout: function(originX, originY, parentWidth, parentHeight, defaultHorizontalAlignment, defaultVerticalAlignment, isParentAutoWidth, isParentAutoHeight) {
 			
-			this.fireEvent("layoutstart", {});
-			
 			this._originX = originX;
 			this._originY = originY;
 			this._defaultHorizontalAlignment = defaultHorizontalAlignment;
@@ -273,7 +271,7 @@ define(
 			// Recompute the gradient, if it exists
 			this.backgroundGradient && this._computeGradient();
 			
-			this.fireEvent("layoutend", {});
+			this.fireEvent("postlayout", {});
 		},
 
 		_computeDimensions: function(parentWidth, parentHeight, left, top, originalRight, originalBottom, centerX, centerY, width, height, borderWidth, layoutChildren) {
