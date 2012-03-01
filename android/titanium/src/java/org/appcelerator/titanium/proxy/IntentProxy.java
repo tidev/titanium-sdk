@@ -29,6 +29,9 @@ import android.text.TextUtils;
 	TiC.PROPERTY_TYPE,
 	TiC.PROPERTY_URL
 })
+/**
+ * A proxy used to communicate with javascript intents.
+ */
 public class IntentProxy extends KrollProxy 
 {
 	private static final String TAG = "TiIntent";
@@ -273,16 +276,26 @@ public class IntentProxy extends KrollProxy
 		return intent.getDataString();
 	}
 
+	/**
+	 * @return the associated intent.
+	 */
 	public Intent getIntent()
 	{ 
 		return intent;
 	}
 
+	/**
+	 * @return intent type.
+	 */
 	public int getType()
 	{
 		return type;
 	}
 
+	/**
+	 * Sets the intent type.
+	 * @param type the intent type to set.
+	 */
 	public void setType(int type)
 	{
 		this.type = type;

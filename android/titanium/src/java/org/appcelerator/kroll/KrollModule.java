@@ -19,6 +19,9 @@ import org.appcelerator.titanium.TiRootActivity;
 import android.app.Activity;
 
 @Kroll.module(name="KrollModule")
+/**
+ * This is the parent class for all modules. All modules must extend this class.
+ */
 public class KrollModule extends KrollProxy
 	implements KrollProxyListener, OnLifecycleEvent
 {
@@ -46,6 +49,10 @@ public class KrollModule extends KrollProxy
 		modelListener = this;
 	}
 
+	/**
+	 * Instantiates and registers module with TiApplication.
+	 * @param name the name of module.
+	 */
 	public KrollModule(String name)
 	{
 		this();
@@ -76,22 +83,42 @@ public class KrollModule extends KrollProxy
 	}
 
 	// TODO @Override
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onResume life cycle events.
+	 * @param activity the activity attached to this module.
+	 */
 	public void onResume(Activity activity) {
 	}
 
 	// TODO @Override
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onPause life cycle events.
+	 * @param activity the activity attached to this module.
+	 */
 	public void onPause(Activity activity) {
 	}
 	
 	// TODO @Override
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onDestroy life cycle events.
+	 * @param activity the activity attached to this module.
+	 */
 	public void onDestroy(Activity activity) {
 	}
 	
 	// TODO @Override
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onStart life cycle events.
+	 * @param activity the activity attached to this module.
+	 */
 	public void onStart(Activity activity) {
 	}
 	
 	// TODO @Override
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onStop life cycle events.
+	 * @param activity the activity attached to this module.
+	 */
 	public void onStop(Activity activity) {	
 	}
 	
@@ -104,10 +131,21 @@ public class KrollModule extends KrollProxy
 	}
 	
 	// TODO @Override
-	public void processProperties(KrollDict d) {
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to process initial properties of the module.
+	 * @param properties  a set of properties to process.
+	 */
+	public void processProperties(KrollDict properties) {
 	}
 	
 	// TODO @Override
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to modify an existing property.
+	 * @param key  the key of the property.
+	 * @param oldValue  the property's old value.
+	 * @param newValue  the property's new value.
+	 * @param proxy     the associated proxy.
+	 */
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
 	}
 	

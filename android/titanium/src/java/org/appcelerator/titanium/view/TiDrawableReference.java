@@ -45,6 +45,9 @@ import android.util.DisplayMetrics;
 import android.view.View;
 import android.webkit.URLUtil;
 
+/**
+ * Helper class for loading images.
+ */
 public class TiDrawableReference
 {
 	private static Map<Integer, Bounds> boundsCache;
@@ -127,6 +130,12 @@ public class TiDrawableReference
 		return ref;
 	}
 
+	/**
+	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.BLOB.
+	 * @param activity the referenced activity.
+	 * @param blob the referenced blob.
+	 * @return A ready instance of TiDrawableReference.
+	 */
 	public static TiDrawableReference fromBlob(Activity activity, TiBlob blob)
 	{
 		TiDrawableReference ref = new TiDrawableReference(activity, DrawableReferenceType.BLOB);
@@ -139,6 +148,12 @@ public class TiDrawableReference
 		return fromUrl(proxy.getActivity(), proxy.resolveUrl(null, url));
 	}
 
+	/**
+	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.URL.
+	 * @param activity the referenced activity.
+	 * @param url the resource's url.
+	 * @return A ready instance of TiDrawableReference.
+	 */
 	public static TiDrawableReference fromUrl(Activity activity, String url)
 	{
 		TiDrawableReference ref = new TiDrawableReference(activity, DrawableReferenceType.URL);
@@ -156,6 +171,12 @@ public class TiDrawableReference
 		return ref;
 	}
 
+	/**
+	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.FILE.
+	 * @param activity the referenced activity.
+	 * @param file the referenced file.
+	 * @return A ready instance of TiDrawableReference.
+	 */
 	public static TiDrawableReference fromFile(Activity activity, TiBaseFile file)
 	{
 		TiDrawableReference ref = new TiDrawableReference(activity, DrawableReferenceType.FILE);
@@ -174,9 +195,9 @@ public class TiDrawableReference
 	}
 	/**
 	 * Does its best to determine the type of reference (url, blob, etc) based on object parameter.
-	 * @param activity
-	 * @param object
-	 * @return A ready instance of TiDrawableReference
+	 * @param activity the referenced activity.
+	 * @param object the referenced object.
+	 * @return A ready instance of TiDrawableReference.
 	 */
 	public static TiDrawableReference fromObject(Activity activity, Object object)
 	{
@@ -230,7 +251,7 @@ public class TiDrawableReference
 	}
 
 	/**
-	 * Get the bitmap from the resource without respect to sampling/scaling.
+	 * Gets the bitmap from the resource without respect to sampling/scaling.
 	 * @return Bitmap, or null if any problem getting it.  Check logcat if null.
 	 */
 	public Bitmap getBitmap()

@@ -9,6 +9,9 @@ package org.appcelerator.titanium;
 import android.app.Activity;
 
 
+/**
+ *This class is used to receive native Android life-cycle events.
+ */
 public class TiLifecycle
 {
 	public static final int LIFECYCLE_ON_START = 0;
@@ -18,10 +21,35 @@ public class TiLifecycle
 	public static final int LIFECYCLE_ON_DESTROY = 4;
 
 	public interface OnLifecycleEvent {
+		
+		/**
+		 * Implementing classes should use this to receive native Android onStart life cycle events.
+		 * @param activity the attached activity.
+		 */
 		public void onStart(Activity activity);
+		
+		/**
+		 * Implementing classes should use this to receive native Android onResume life cycle events.
+		 * @param activity the attached activity.
+		 */
 		public void onResume(Activity activity);
+		
+		/**
+		 * Implementing classes should use this to receive native Android onPause life cycle events.
+		 * @param activity the attached activity.
+		 */
 		public void onPause(Activity activity);
+		
+		/**
+		 * Implementing classes should use this to receive native Android onStop life cycle events.
+		 * @param activity the attached activity.
+		 */
 		public void onStop(Activity activity);
+		
+		/**
+		 * Implementing classes should use this to receive native Android onDestroy life cycle events.
+		 * @param activity the attached activity.
+		 */
 		public void onDestroy(Activity activity);
 	}
 

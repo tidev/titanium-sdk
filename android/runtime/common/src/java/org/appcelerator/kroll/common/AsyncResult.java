@@ -8,6 +8,10 @@ package org.appcelerator.kroll.common;
 
 import java.util.concurrent.Semaphore;
 
+/**
+ * This is a thread-safe message object that is being sent by {@link TiMessenger}.
+ * asynchronously.
+ */
 public class AsyncResult extends Semaphore
 {
 	private static final long serialVersionUID = 1L;
@@ -25,15 +29,26 @@ public class AsyncResult extends Semaphore
 		this.arg = arg;
 	}
 
+	/**
+	 * @return the arg object that is passed into the constructor.
+	 */
 	public Object getArg() {
 		return arg;
 	}
 
+	/**
+	 * Sets the result asynchronously, releasing the lock.
+	 * @param result the resulting object.
+	 */
 	public void setResult(Object result) {
 		this.result = result;
 		this.release();
 	}
 	
+	/**
+	 * Sets the exception that will be thrown in TiMessenger.sendBlockingMessage(...). Also releases the lock.
+	 * @param exception a thrown exception.
+	 */
 	public void setException(Throwable exception) {
 		this.result = null;
 		this.exception = exception;

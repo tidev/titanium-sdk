@@ -45,6 +45,9 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 
+/**
+ * An extension of android native activity. This is the parent class of all non-tab activities. 
+ */
 public abstract class TiBaseActivity extends Activity 
 	implements TiActivitySupport/*, ITiWindowHandler*/
 {
@@ -97,27 +100,44 @@ public abstract class TiBaseActivity extends Activity
 		public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig);
 	}
 
+	/**
+	 * @return the instance of TiApplication.
+	 */
 	public TiApplication getTiApp()
 	{
 		return (TiApplication) getApplication();
 	}
 
+	/**
+	 * @return the window proxy associates with this activity.
+	 */
 	public TiWindowProxy getWindowProxy()
 	{
 		return this.window;
 	}
 
+	/**
+	 * Sets the window proxy.
+	 * @param proxy
+	 */
 	public void setWindowProxy(TiWindowProxy proxy)
 	{
 		this.window = proxy;
 		updateTitle();
 	}
 	
+	/**
+	 * Sets the view proxy.
+	 * @param proxy
+	 */
 	public void setViewProxy(TiViewProxy proxy)
 	{
 		this.view = proxy;
 	}
 
+	/**
+	 * @return activity proxy associates with this activity.
+	 */
 	public ActivityProxy getActivityProxy()
 	{
 		return activityProxy;
@@ -137,6 +157,9 @@ public abstract class TiBaseActivity extends Activity
 		this.activityProxy = proxy;
 	}
 
+	/**
+	 * @return the activity's current layout.
+	 */
 	public TiCompositeLayout getLayout()
 	{
 		return layout;
@@ -304,6 +327,11 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When activity is created, adds it to the activity stack and
+	 * fires a javascript 'create' event.
+	 * @param savedInstanceState Bundle of saved data.
+	 */
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		if (DBG) {
@@ -447,6 +475,9 @@ public abstract class TiBaseActivity extends Activity
 		return getSupportHelper().getUniqueResultCode();
 	}
 
+	/**
+	 * See TiActivitySupport.launchActivityForResult for more details.
+	 */
 	public void launchActivityForResult(Intent intent, int code, TiActivityResultHandler resultHandler)
 	{
 		getSupportHelper().launchActivityForResult(intent, code, resultHandler);
@@ -630,6 +661,10 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When activity pauses, sets current activity to null, fires a javascript 'pause' event,
+	 * and if the activity is finishing, remove all dialogs associated with it.
+	 */
 	protected void onPause() 
 	{
 		super.onPause();
@@ -672,6 +707,10 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When the activity resumes, sets the current activity to this and fires a javascript
+	 * 'resume' event.
+	 */
 	protected void onResume()
 	{
 		super.onResume();
@@ -708,6 +747,11 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When activity starts, sets the current activity to this if necessary and
+	 * fire javascript 'start' and 'focus' events. Focus events will only fire if 
+	 * the activity is not a tab activity.
+	 */
 	protected void onStart()
 	{
 		super.onStart();
@@ -764,6 +808,10 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When activity stops, fire javascript 'blur' and 'stop' events. Blur events will only fire
+	 * if the activity is not a tab activity.
+	 */
 	protected void onStop()
 	{
 		super.onStop();
@@ -803,6 +851,10 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When activity restarts, sets the current activity to this and fires javascript 'restart'
+	 * event.
+	 */
 	protected void onRestart()
 	{
 		super.onRestart();
@@ -835,6 +887,10 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When activity is destroyed, removes it from the activity stack, performs
+	 * clean up, and fires javascript 'destroy' event. 
+	 */
 	protected void onDestroy()
 	{
 		if (DBG) {
@@ -958,6 +1014,9 @@ public abstract class TiBaseActivity extends Activity
 		}
 	}
 
+	/**
+	 * @return true if this activity is a tab activity, false otherwise.
+	 */
 	protected boolean isTabActivity()
 	{
 		boolean isTab = false;

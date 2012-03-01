@@ -8,11 +8,28 @@ package org.appcelerator.kroll;
 
 import java.util.List;
 
+/**
+ * This class is used by kroll proxy to delegate model changes. See {@link KrollProxy#setModelListener(KrollProxyListener)})
+ * for more details.
+ */
 public interface KrollProxyListener
 {
+	/**
+	 * Implementing classes should use this method to modify an existing property.
+	 * @param key the key whose value has been modified.
+	 * @param oldValue  the old value.
+	 * @param newValue  the new value.
+	 * @param proxy  the associated proxy.
+	 */
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy);
-	public void processProperties(KrollDict d);
+	
+	/**
+	 * Implementing classes should use this method to process initial properties passed into the proxy.
+	 * @param properties  a set of properties to process
+	 */
+	public void processProperties(KrollDict properties);
 	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy);
+	
 	
 	public void listenerAdded(String type, int count, KrollProxy proxy);
 	public void listenerRemoved(String type, int count, KrollProxy proxy);

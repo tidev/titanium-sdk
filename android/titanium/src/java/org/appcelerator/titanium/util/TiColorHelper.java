@@ -15,6 +15,9 @@ import org.appcelerator.kroll.common.Log;
 
 import android.graphics.Color;
 
+/**
+ * This class contain utility methods that converts a String color, like "red", into its corresponding RGB/RGBA representation.
+ */
 public class TiColorHelper
 {
 	static Pattern shortHexPattern = Pattern.compile("#([0-9a-f])([0-9a-f])([0-9a-f])([0-9a-f]?)");
@@ -23,6 +26,11 @@ public class TiColorHelper
 
 	private static HashMap<String, Integer> colorTable;
 
+	/**
+	 * Converts a string representation of color, like "red" into an int RGB/RGBA representation.
+	 * @param value the color value to convert. For example, "red".
+	 * @return the RGB/RGBA representation (int) of the color.
+	 */
 	public static int parseColor(String value) {
 		int color = Color.YELLOW; // Something noticeable
 		if (value != null) {
