@@ -3,26 +3,27 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 		
 	var setStyle = style.set,
 		contentPadding = 15,
-		undef;
+		undef,
+		on = require.on;
 
 	return declare("Ti.UI.PickerColumn", FontWidget, {
 		
 		constructor: function() {
 			var self = this,
 				upArrow = this._upArrow = dom.create("div", {
-				className: "TiUIElementGradient",
-				style: {
-					textAlign: "center",
-					position: "absolute",
-					top: "0px",
-					height: "40px",
-					width: "100%",
-					borderBottom: "1px solid #666",
-					fontSize: "28px"
-				}
-			}, this.domNode);
-			upArrow.innerHTML = "\u2227";
-			upArrow.addEventListener("click", function(){
+					className: "TiUIElementGradient",
+					style: {
+						textAlign: "center",
+						position: "absolute",
+						top: "0px",
+						height: "40px",
+						width: "100%",
+						borderBottom: "1px solid #666",
+						fontSize: "28px"
+					},
+					innerHTML: "\u2227"
+				}, this.domNode);
+			on(upArrow, "click", function(){
 				var nextRow = self._rows.indexOf(self.selectedRow);
 				if (nextRow > 0) {
 					self.selectedRow = self._rows[nextRow - 1];
@@ -51,7 +52,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					width: "100%"
 				}
 			}, this.domNode);
-			titleClickArea.addEventListener("click", function() {
+			on(titleClickArea, "click", function() {
 				// Create the window and a background to dim the current view
 				var listWindow = UI.createWindow();
 				var dimmingView = UI.createView({

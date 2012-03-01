@@ -37,8 +37,9 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 			},
 			
 			_doLayout: function(originX, originY, parentWidth, parentHeight, defaultHorizontalAlignment, defaultVerticalAlignment, isParentAutoWidth, isParentAutoHeight) {
-				this.properties.__values__.width = isParentAutoWidth ? "auto" : "100%";
-				this.properties.__values__.height = isParentAutoHeight ? "auto" : "100%";
+				var values = this.properties.__values__;
+				values.width = isParentAutoWidth ? "auto" : "100%";
+				values.height = isParentAutoHeight ? "auto" : "100%";
 				Widget.prototype._doLayout.apply(this,arguments);
 			},
 		
@@ -64,6 +65,11 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 						this._input.max = lang.val(value,"");
 						return value;
 					}
+				},
+				value: {
+					set: function(value) {
+						this._input.valueAsDate = value;
+					}
 				}
 			}
 		});
@@ -76,15 +82,14 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 			}
 		}, document.body);
 		
-		var types = ["Date", "Time", "DateTime"];
-		for (var i in types) {
-			var type = types[i];
+		
+		["Date", "Time", "DateTime"].forEach(function(type) {
 			inputRuler.type = type;
 			inputSizes[type] = {
 				width: inputRuler.clientWidth + 2 * borderRadius,
 				height: inputRuler.clientHeight + 2 * borderRadius
 			};
-		}
+		});
 		
 		dom.detach(inputRuler);
 	});
@@ -135,11 +140,12 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 		},
 		
 		_updateColumnHeights: function() {
-			var tallestColumnHeight = 0;
-			for(var i in this._columns) {
+			var tallestColumnHeight = 0,
+				i;
+			for(i in this._columns) {
 				tallestColumnHeight = Math.max(tallestColumnHeight, this._columns[i]._getTallestRowHeight());
 			}
-			for(var i in this._columns) {
+			for(i in this._columns) {
 				this._columns[i]._setTallestRowHeight(tallestColumnHeight);
 			}
 		},
@@ -217,6 +223,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 								type: inputType
 							});
 							dateTimeInput.addEventListener("change", function(e) {
+								self.properties.__values__.value = e.value;
 								self.fireEvent("change",e);
 							});
 							dateTimeInput.min = self.min;
@@ -233,8 +240,6 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 							case Ti.UI.PICKER_TYPE_DATE_AND_TIME: 
 								createInput("DateTime");
 								break;
-							default: 
-								break;
 						}
 					}
 					return value;
@@ -243,12 +248,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 			},
 			
 			value: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.Picker#.value" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Picker#.value" is not implemented yet.');
+					this._dateTimeInput.value = value;
 					return value;
 				}
 			}

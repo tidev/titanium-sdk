@@ -1,4 +1,4 @@
-define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom"],
+define(["Ti/_/declare", "Ti/_/UI/FontWidget"],
 	function(declare, FontWidget) {
 
 	return declare("Ti.UI.PickerRow", FontWidget, {
@@ -9,9 +9,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom"],
 		
 		properties: {
 			title: {
-				set: function(value) {
+				post: function() {
 					this._parentColumn && this._parentColumn._updateContentDimensions();
-					return value;
 				}
 			}
 		}
