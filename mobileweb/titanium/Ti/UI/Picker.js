@@ -55,13 +55,13 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 				},
 				min: {
 					set: function(value) {
-						this._input.min = value;
+						this._input.min = lang.val(value,"");
 						return value;
 					}
 				},
 				max: {
 					set: function(value) {
-						this._input.max = value;
+						this._input.max = lang.val(value,"");
 						return value;
 					}
 				}
@@ -193,23 +193,15 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 			},
 			
 			maxDate: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.Picker#.maxDate" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Picker#.maxDate" is not implemented yet.');
+					this._dateTimeInput && (this._dateTimeInput.max = value);
 					return value;
 				}
 			},
 			
 			minDate: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.Picker#.minDate" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Picker#.minDate" is not implemented yet.');
+					this._dateTimeInput && (this._dateTimeInput.min = value);
 					return value;
 				}
 			},
@@ -218,15 +210,18 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 				set: function(value, oldValue) {
 					if (value !== oldValue) {
 						this.columns = undef;
+						this._dateTimeInput = null;
 						var self = this;
 						function createInput(inputType) {
-							var input = new DateTimeInput({
+							var dateTimeInput = self._dateTimeInput = new DateTimeInput({
 								type: inputType
 							});
-							input.addEventListener("change", function(e) {
+							dateTimeInput.addEventListener("change", function(e) {
 								self.fireEvent("change",e);
-							})
-							View.prototype.add.call(self,input);
+							});
+							dateTimeInput.min = self.min;
+							dateTimeInput.max = self.max;
+							View.prototype.add.call(self,dateTimeInput);
 						}
 						switch(value) {
 							case Ti.UI.PICKER_TYPE_DATE:
