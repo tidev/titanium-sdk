@@ -9,8 +9,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 	return declare("Ti.UI.Button", FontWidget, {
 
-		domType: "button",
-
 		constructor: function() {
 			this._contentContainer = dom.create("div", {
 				className: "TiUIButtonContentContainer",
@@ -76,34 +74,21 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		_setDefaultLook: function() {
 			if (!this._hasDefaultLook) {
 				this._hasDefaultLook = true;
+				css.add(this.domNode, "TiUIElementGradient");
 				css.add(this.domNode, "TiUIButtonDefault");
-				this._previousBorderWidth = this.borderWidth;
-				this._previousBorderColor = this.borderColor;
-				this.borderWidth = 1;
-				this.borderColor = "#666";
-				setStyle(this.domNode, { 
-					borderRadius: "10px",
-					padding: "0px 10px"
-				});
 			}
 		},
 		
 		_clearDefaultLook: function() {
 			if (this._hasDefaultLook) {
 				this._hasDefaultLook = false;
-				var className = this.domNode.className;
+				css.remove(this.domNode, "TiUIElementGradient");
 				css.remove(this.domNode, "TiUIButtonDefault");
-				this.borderWidth = this._previousBorderWidth;
-				this.borderColor = this._previousBorderColor;
-				setStyle(this.domNode, { 
-					borderRadius: "",
-					padding: ""
-				});
 			}
 		},
 		
 		_getContentSize: function(width, height) {
-			var defaultLookOffset = (this._hasDefaultLook ? 20 : 0);
+			var defaultLookOffset = 0; //(this._hasDefaultLook ? 20 : 0);
 			return {
 				width: width === "auto" ? this._buttonImage.width + this._measureText(this.title, this._buttonTitle).width + defaultLookOffset : width,
 				height: height === "auto" ? Math.max(this._buttonImage.height, this._measureText(this.title, this._buttonTitle).height) + defaultLookOffset : height
@@ -143,10 +128,10 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					if (value !== oldValue) {
 						if (this._hasDefaultLook) {	
 							if (!value) {
-								css.remove(this.domNode,"TiUIButtonDefault");
+								css.remove(this.domNode,"TiUIElementGradient");
 								setStyle(this.domNode,"backgroundColor","#aaa");
 							} else {
-								css.add(this.domNode,"TiUIButtonDefault");
+								css.add(this.domNode,"TiUIElementGradient");
 								setStyle(this.domNode,"backgroundColor","");
 							}
 						}
