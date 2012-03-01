@@ -26,6 +26,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 				var nextRow = self._rows.indexOf(self.selectedRow);
 				if (nextRow > 0) {
 					self.selectedRow = self._rows[nextRow - 1];
+				} else {
+					self.selectedRow = self._rows[self._rows.length - 1];
 				}
 			});
 			
@@ -147,6 +149,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 				var nextRow = self._rows.indexOf(self.selectedRow);
 				if (nextRow < self._rows.length - 1) {
 					self.selectedRow = self._rows[nextRow + 1];
+				} else {
+					self.selectedRow = self._rows[0];
 				}
 			});
 			this._rows = [];

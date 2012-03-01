@@ -1,8 +1,93 @@
-define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
-	function(declare, View, UI, lang) {
+define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "Ti/_/dom", "Ti/_/ready"],
+	function(declare, View, Widget, UI, lang, dom, ready) {
 		
 	var is = require.is,
-		undef;
+		undef,
+		borderRadius = 6,
+		unitizedBorderRadius = dom.unitize(borderRadius),
+		inputSizes = {},
+		DateTimeInput = declare(Widget, {
+			
+			constructor: function() {
+				var input = this._input = dom.create("input", {
+					style: {
+						left: unitizedBorderRadius,
+						top: unitizedBorderRadius,
+						right: unitizedBorderRadius,
+						bottom: unitizedBorderRadius,
+						position: "absolute"
+					}
+				}, this.domNode);
+				var currentValue = this._input.value,
+					self = this;
+				function handleChange() {
+					if (currentValue !== input.value) {
+						currentValue = input.value;
+						self.fireEvent("change", {
+							value: input.valueAsDate
+						});
+					}
+				}
+				this._input.addEventListener("click", function(e) {
+					handleChange();
+				});
+				this._input.addEventListener("keyup", function(e) {
+					handleChange();
+				});
+			},
+			
+			_doLayout: function(originX, originY, parentWidth, parentHeight, defaultHorizontalAlignment, defaultVerticalAlignment, isParentAutoWidth, isParentAutoHeight) {
+				this.properties.__values__.width = isParentAutoWidth ? "auto" : "100%";
+				this.properties.__values__.height = isParentAutoHeight ? "auto" : "100%";
+				Widget.prototype._doLayout.apply(this,arguments);
+			},
+		
+			_getContentSize: function(width, height) {
+				return inputSizes[this.type];
+			},
+			
+			properties: {
+				type: {
+					set: function(value) {
+						this._input.type = value;
+						return value;
+					}
+				},
+				min: {
+					set: function(value) {
+						this._input.min = value;
+						return value;
+					}
+				},
+				max: {
+					set: function(value) {
+						this._input.max = value;
+						return value;
+					}
+				}
+			}
+		});
+	
+	ready(function() {
+		var inputRuler = dom.create("input", {
+			style: {
+				height: "auto",
+				width: "auto"
+			}
+		}, document.body);
+		
+		var types = ["Date", "Time", "DateTime"];
+		for (var i in types) {
+			var type = types[i];
+			inputRuler.type = type;
+			inputSizes[type] = {
+				width: inputRuler.clientWidth + 2 * borderRadius,
+				height: inputRuler.clientHeight + 2 * borderRadius
+			};
+		}
+		
+		dom.detach(inputRuler);
+	});
 
 	return declare("Ti.UI.Picker", View, {
 		
@@ -24,7 +109,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 				var column = this._columns[i];
 				column.width = width;
 				column.height = height;
-				column._setCorners(i === 0, i === numColumns - 1, "6px");
+				column._setCorners(i === 0, i === numColumns - 1, unitizedBorderRadius);
 			}
 			column._pickerChangeEventListener = lang.hitch(this,function(e) {
 				var eventInfo = {
@@ -133,10 +218,25 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 				set: function(value, oldValue) {
 					if (value !== oldValue) {
 						this.columns = undef;
+						var self = this;
+						function createInput(inputType) {
+							var input = new DateTimeInput({
+								type: inputType
+							});
+							input.addEventListener("change", function(e) {
+								self.fireEvent("change",e);
+							})
+							View.prototype.add.call(self,input);
+						}
 						switch(value) {
 							case Ti.UI.PICKER_TYPE_DATE:
+								createInput("Date");
 								break;
-							case Ti.UI.PICKER_TYPE_TIME: 
+							case Ti.UI.PICKER_TYPE_TIME:
+								createInput("Time");
+								break;
+							case Ti.UI.PICKER_TYPE_DATE_AND_TIME: 
+								createInput("DateTime");
 								break;
 							default: 
 								break;
