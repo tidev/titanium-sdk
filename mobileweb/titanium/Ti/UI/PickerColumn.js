@@ -19,7 +19,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 						height: "40px",
 						width: "100%",
 						borderBottom: "1px solid #666",
-						fontSize: "28px"
+						fontSize: "28px",
+						cursor: "pointer"
 					},
 					innerHTML: "\u2227"
 				}, this.domNode);
@@ -78,13 +79,16 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 				
 				// Create the table rows
 				var rows = self._rows,
-					data = [];
+					data = [],
+					selectedRowIndex = 0;
 				for(var i in rows) {
-					var row = rows[i];
+					var row = rows[i],
+						isSelectedRow = row === self.selectedRow;
 					data.push({
 						title: row.title,
-						hasCheck: row === self.selectedRow
+						hasCheck: isSelectedRow
 					});
+					isSelectedRow && (selectedRowIndex = parseInt(i));
 				}
 				
 				// Add the table to the dialog
@@ -128,6 +132,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 						listDialog.animate({
 							opacity: 1,
 							duration: 200
+						}, function() {
+							listTable.scrollToIndex(selectedRowIndex);
 						});
 					});
 				},30);
@@ -142,7 +148,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					height: "40px",
 					width: "100%",
 					borderTop: "1px solid #666",
-					fontSize: "28px"
+					fontSize: "28px",
+						cursor: "pointer"
 				}
 			}, this.domNode);
 			downArrow.innerHTML = "\u2228";
@@ -282,7 +289,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 						column: this,
 						rowIndex: this._rows.indexOf(value),
 						row: value,
-						value: value.title
+						value: value && value.title
 					});
 				}
 			}

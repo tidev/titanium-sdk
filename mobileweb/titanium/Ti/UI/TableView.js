@@ -266,7 +266,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		scrollToIndex: function(index) {
 			var location = this._calculateLocation(index);
 			if (location) {
-				this._contentContainer.scrollTop = location.section._measuredTop + location.section._rows.children[2 * location.localIndex + 1]._measuredTop;
+				this._contentContainer.domNode.scrollTop = location.section._measuredTop + location.section._rows.children[2 * location.localIndex + 1]._measuredTop;
 			}
 		},
 		
