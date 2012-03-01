@@ -480,14 +480,16 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)requestThumbnailImagesAtTimes:(id)args
 {
-	ENSURE_UI_THREAD(requestThumbnailImagesAtTimes,args);
-	RELEASE_TO_NIL(thumbnailCallback);
+    ENSURE_UI_THREAD(requestThumbnailImagesAtTimes,args);
+    RELEASE_TO_NIL(thumbnailCallback);
 	
-	NSArray* array = [args objectAtIndex:0];
-	NSNumber* option = [args objectAtIndex:1];
-	thumbnailCallback = [[args objectAtIndex:2] retain];
-	
-	[[self player] requestThumbnailImagesAtTimes:array timeOption:[option intValue]];
+    NSArray* array = [args objectAtIndex:0];
+    callbackRequestCount = [array count];
+    if (callbackRequestCount > 0) {
+        NSNumber* option = [args objectAtIndex:1];
+        thumbnailCallback = [[args objectAtIndex:2] retain];
+        [[self player] requestThumbnailImagesAtTimes:array timeOption:[option intValue]];
+    }
 }
 
 -(TiBlob*)thumbnailImageAtTime:(id)args
@@ -842,6 +844,10 @@ NSArray* moviePlayerKeys = nil;
 		[event setObject:[userinfo valueForKey:MPMoviePlayerThumbnailTimeKey] forKey:@"time"];
 		
 		[self _fireEventToListener:@"thumbnail" withObject:event listener:thumbnailCallback thisObject:nil];
+        
+		if (!(--callbackRequestCount > 0)) {
+			RELEASE_TO_NIL(thumbnailCallback);
+		}
 	}
 }
 
