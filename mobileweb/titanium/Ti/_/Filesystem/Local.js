@@ -494,7 +494,7 @@ file.write(this.responseData);
 
 				function add(s, re) {
 					var file, match = s.match(re);
-					match && match[1] && files.indexOf(file = match[1].split('/')[0]) === -1 && files.push(file);
+					match && match[1] && files.indexOf(file = match[1].split('/')[0]) < 0 && files.push(file);
 				}
 
 				// check local storage
@@ -560,7 +560,7 @@ file.write(this.responseData);
 							}
 							params.data = btoa(binaryData);
 						}
-						if (!type.indexOf("image/")) {
+						if (~type.indexOf("image/")) {
 							i = new Image;
 							i.src = "data:" + type + ";base64," + params.data;
 							params.width = i.width;

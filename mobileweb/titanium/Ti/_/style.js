@@ -29,7 +29,7 @@ define(["Ti/_", "Ti/_/string", "Ti/Filesystem"], function(_, string, Filesystem)
 	return {
 		url: function(/*String|Blob*/url) {
 			var match = url.match(/^(.+):\/\//);
-			return match && Filesystem.protocols.indexOf(match[1]) >= 0
+			return match && ~Filesystem.protocols.indexOf(match[1])
 				? "url(" + Filesystem.getFile(url).read().toString() + ")"
 				: !url || url === "none"
 					? ""
