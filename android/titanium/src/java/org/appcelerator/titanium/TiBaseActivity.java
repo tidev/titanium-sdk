@@ -810,7 +810,7 @@ public abstract class TiBaseActivity extends Activity
 
 	@Override
 	/**
-	 * When this activity stops, this method fire the javascript 'blur' and 'stop' events. Blur events will only fire
+	 * When this activity stops, this method fires the javascript 'blur' and 'stop' events. Blur events will only fire
 	 * if the activity is not a tab activity.
 	 */
 	protected void onStop()

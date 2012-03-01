@@ -727,7 +727,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	}
 
 	/**
-	 * @return true if the current thread is main thread, false otherwise.
+	 * @return true if the current thread is the main thread, false otherwise.
 	 */
 	public static boolean isUIThread()
 	{

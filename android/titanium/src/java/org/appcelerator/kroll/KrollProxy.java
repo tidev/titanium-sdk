@@ -760,7 +760,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Resolves the passed in scheme / path, and use the Proxy's creationUrl if the path is relative.
+	 * Resolves the passed in scheme / path, and uses the Proxy's creationUrl if the path is relative.
 	 * @param scheme the scheme of Url.
 	 * @param path   the path of Url.
 	 * @return a string representation of URL given its components.
