@@ -68,7 +68,10 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 				},
 				value: {
 					set: function(value) {
-						this._input.valueAsDate = value;
+						// Some browsers have this property, but if you assign to it, it throws an exception.
+						try {
+							this._input.valueAsDate = value;
+						} catch(e) {}
 					}
 				}
 			}
