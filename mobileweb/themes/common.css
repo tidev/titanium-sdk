@@ -95,136 +95,226 @@ textarea {
 	background-size: 100% 100%;
 	line-height: normal;
 	position: absolute;
-}
-
-.TiUIButton {
 	padding: 0;
 	margin: 0;
-	border: 0;
+	border-width: 0px;
+	border-style: solid;
+	border-color: transparent;
 }
 
-.TiUIButtonDefault {
+.TiUIElementGradient {
 	background: -moz-linear-gradient(
 		top,
 		#fff 0%,
 		#fff 50%,
 		#bbb);
-	background: -webkit-gradient(
-		linear, left top, left bottom, 
-		from(#fff),
-		color-stop(0.50, #fff),
-		to(#bbb));
-	-moz-box-shadow:
-		0px 1px 2px rgba(000,000,000,0.5),
-		inset 0px 0px 3px rgba(255,255,255,1);
-	-webkit-box-shadow:
-		0px 1px 2px rgba(000,000,000,0.5),
-		inset 0px 0px 3px rgba(255,255,255,1);
+	background: -webkit-linear-gradient(
+		top,
+		#fff 0%,
+		#fff 50%,
+		#bbb);
+	background: -ms-linear-gradient(
+		top,
+		#fff 0%,
+		#fff 50%,
+		#bbb);
+	background: -o-linear-gradient(
+		top,
+		#fff 0%,
+		#fff 50%,
+		#bbb);
 }
 
-.TiUIButtonDefault:hover {
+.TiUIElementGradient:hover {
 	background: -moz-linear-gradient(
 		top,
 		#fff 0%,
 		#fff 50%,
 		#999);
-	background: -webkit-gradient(
-		linear, left top, left bottom, 
-		from(#fff),
-		color-stop(0.50, #fff),
-		to(#999));
+	background: -webkit-linear-gradient(
+		top,
+		#fff 0%,
+		#fff 50%,
+		#999);
+	background: -ms-linear-gradient(
+		top,
+		#fff 0%,
+		#fff 50%,
+		#999);
+	background: -o-linear-gradient(
+		top,
+		#fff 0%,
+		#fff 50%,
+		#999);
 }
 
-.TiUIButtonDefault:active {background: -moz-linear-gradient(
+.TiUIElementGradient:active {
+	background: -moz-linear-gradient(
 		top,
 		#bbb 0%,
 		#fff 50%,
 		#fff);
-	background: -webkit-gradient(
-		linear, left top, left bottom, 
-		from(#bbb),
-		color-stop(0.50, #fff),
-		to(#fff));
+	background: -webkit-linear-gradient(
+		top,
+		#bbb 0%,
+		#fff 50%,
+		#fff);
+	background: -ms-linear-gradient(
+		top,
+		#bbb 0%,
+		#fff 50%,
+		#fff);
+	background: -o-linear-gradient(
+		top,
+		#bbb 0%,
+		#fff 50%,
+		#fff);
 }
 
-.TiUIButtonDestructive {
+.TiUIElementGradientDestructive {
 	background: -moz-linear-gradient(
 		top,
 		#f00 0%,
 		#f00 50%,
 		#a00);
-	background: -webkit-gradient(
-		linear, left top, left bottom, 
-		from(#f00),
-		color-stop(0.50, #f00),
-		to(#a00));
+	background: -webkit-linear-gradient(
+		top,
+		#f00 0%,
+		#f00 50%,
+		#a00);
+	background: -ms-linear-gradient(
+		top,
+		#f00 0%,
+		#f00 50%,
+		#a00);
+	background: -o-linear-gradient(
+		top,
+		#f00 0%,
+		#f00 50%,
+		#a00);
 	color: white;
 }
 
-.TiUIButtonDestructive:hover {
+.TiUIElementGradientDestructive:hover {
 	background: -moz-linear-gradient(
 		top,
 		#f00 0%,
 		#f00 50%,
 		#700);
-	background: -webkit-gradient(
-		linear, left top, left bottom, 
-		from(#f00),
-		color-stop(0.50, #f00),
-		to(#700));
+	background: -webkit-linear-gradient(
+		top,
+		#f00 0%,
+		#f00 50%,
+		#700);
+	background: -ms-linear-gradient(
+		top,
+		#f00 0%,
+		#f00 50%,
+		#700);
+	background: -o-linear-gradient(
+		top,
+		#f00 0%,
+		#f00 50%,
+		#700);
 }
 
-.TiUIButtonDestructive:active {
+.TiUIElementGradientDestructive:active {
 	background: -moz-linear-gradient(
 		top,
 		#a00 0%,
 		#f00 50%,
 		#f00);
-	background: -webkit-gradient(
-		linear, left top, left bottom, 
-		from(#b00),
-		color-stop(0.50, #f00),
-		to(#f00));
+	background: -webkit-linear-gradient(
+		top,
+		#a00 0%,
+		#f00 50%,
+		#f00);
+	background: -ms-linear-gradient(
+		top,
+		#a00 0%,
+		#f00 50%,
+		#f00);
+	background: -o-linear-gradient(
+		top,
+		#a00 0%,
+		#f00 50%,
+		#f00);
 }
 
-.TiUIButtonCancel {
+.TiUIElementGradientCancel {
 	background: -moz-linear-gradient(
 		top,
 		#666 0%,
 		#666 50%,
 		#333);
-	background: -webkit-gradient(
-		linear, left top, left bottom, 
-		from(#666),
-		color-stop(0.50, #666),
-		to(#333));
+	background: -webkit-linear-gradient(
+		top,
+		#666 0%,
+		#666 50%,
+		#333);
+	background: -ms-linear-gradient(
+		top,
+		#666 0%,
+		#666 50%,
+		#333);
+	background: -o-linear-gradient(
+		top,
+		#666 0%,
+		#666 50%,
+		#333);
 	color: white;
 }
 
-.TiUIButtonCancel:hover {
+.TiUIElementGradientCancel:hover {
 	background: -moz-linear-gradient(
 		top,
 		#666 0%,
 		#666 50%,
 		#222);
-	background: -webkit-gradient(
-		linear, left top, left bottom, 
-		from(#666),
-		color-stop(0.50, #666),
-		to(#222));
+	background: -webkit-linear-gradient(
+		top,
+		#666 0%,
+		#666 50%,
+		#222);
+	background: -ms-linear-gradient(
+		top,
+		#666 0%,
+		#666 50%,
+		#222);
+	background: -o-linear-gradient(
+		top,
+		#666 0%,
+		#666 50%,
+		#222);
 }
 
-.TiUIButtonCancel:active {
+.TiUIElementGradientCancel:active {
 	background: -moz-linear-gradient(
 		top,
 		#333 0%,
 		#666 50%,
 		#666);
-	background: -webkit-gradient(
-		linear, left top, left bottom, 
-		from(#333),
-		color-stop(0.50, #666),
-		to(#666));
+	background: -webkit-linear-gradient(
+		top,
+		#333 0%,
+		#666 50%,
+		#666);
+	background: -ms-linear-gradient(
+		top,
+		#333 0%,
+		#666 50%,
+		#666);
+	background: -o-linear-gradient(
+		top,
+		#333 0%,
+		#666 50%,
+		#666);
+}
+
+.TiUIButtonDefault {
+	border: 1px solid #666; 
+	border-radius: 10px;
+	padding: 10px 10px;
 }
 
 .TiUISliderTrack {
