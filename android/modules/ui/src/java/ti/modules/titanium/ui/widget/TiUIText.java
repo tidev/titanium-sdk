@@ -290,6 +290,7 @@ public class TiUIText extends TiUIView
 		if (DBG) {
 			Log.d(LCAT, "ActionID: " + actionId + " KeyEvent: " + (keyEvent != null ? keyEvent.getKeyCode() : null));
 		}
+		//checking keyEvent is a workaround for a known android bug: this method is called twice when return key is clicked.
 		if (keyEvent != null && actionId != EditorInfo.IME_ACTION_GO && actionId != EditorInfo.IME_ACTION_SEND) {
 			proxy.fireEvent("return", data);
 		}
