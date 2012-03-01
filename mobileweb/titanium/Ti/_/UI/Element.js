@@ -225,7 +225,7 @@ define(
 			this._measuredRightPadding = dimensions.rightPadding;
 			this._measuredBottomPadding = dimensions.bottomPadding;
 			this._measuredBorderWidth = dimensions.borderWidth;
-			this._measuredBorderSize = dimensions.borderSize
+			this._measuredBorderSize = dimensions.borderSize;
 			setStyle(this.domNode, styles);
 			
 			this._markedForLayout = false;
@@ -415,7 +415,7 @@ define(
 					switch(this._defaultHorizontalAlignment) {
 						case "center": left = computeSize("50%",parentWidth) - borderSize.left - (is(width,"Number") ? width : 0) / 2; break;
 						case "right": left = parentWidth - borderSize.left - borderSize.right - (is(width,"Number") ? width : 0) / 2; break;
-						default: left = 0; break; // left
+						default: left = 0; // left
 					}
 				} else {
 					left = 0;
@@ -426,7 +426,7 @@ define(
 					switch(this._defaultVerticalAlignment) {
 						case "center": top = computeSize("50%",parentHeight) - borderSize.top - (is(height,"Number") ? height : 0) / 2; break;
 						case "bottom": top = parentWidth - borderSize.top - borderSize.bottom - (is(height,"Number") ? height : 0) / 2; break;
-						default: top = 0; break; // top
+						default: top = 0; // top
 					}
 				} else {
 					top = 0;
@@ -445,7 +445,7 @@ define(
 
 			if(!is(left,"Number") || !is(top,"Number") || !is(rightPadding,"Number")
 				 || !is(bottomPadding,"Number") || !is(width,"Number") || !is(height,"Number")) {
-			 	throw "Invalid layout";	
+			 	throw "Invalid layout";
 			}
 			
 			return {

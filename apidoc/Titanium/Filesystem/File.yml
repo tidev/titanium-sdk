@@ -43,6 +43,7 @@ description: |
 extends: Titanium.Proxy
 since: "0.1"
 platforms: [android, iphone, ipad, mobileweb]
+createable: false
 examples: 
   - title: Reading a File
     example: |
