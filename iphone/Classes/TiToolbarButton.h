@@ -8,21 +8,22 @@
 #include "TiToolbar.h"
 
 /**
- The protocol for toolbar button.
+ The protocol is used for any type of UI decoration which needs
+ special handling when it is added to a toolbar element.
  */
 @protocol TiToolbarButton
 
 /**
- Attaches the toolbar button to the specified toolbar.
+ This method is called when the object is attached to a toolbar.
  @param toolbar The toolbar to attach to.
  */
--(void)setToolbar:(TiToolbar*)toolbar;
+-(void)setToolbar:(id<TiToolbar>)toolbar;
 
 /**
  Returns the toolbar the button is attached to.
  @return The toolbar.
  */
--(TiToolbar*)toolbar;
+-(id<TiToolbar>)toolbar;
 
 /**
  Returns if the button it attached to a toolbar.

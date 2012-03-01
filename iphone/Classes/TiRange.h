@@ -7,6 +7,7 @@
 
 /**
  The class representing a range object.
+ @deprecated
  */
 @interface TiRange : NSObject 
 {

@@ -538,7 +538,6 @@ extern NSString * const kTiLocalNotification;
  *	exceptional-case main thread activities can process them outside of the
  *	standard event loop.
  */
-
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish);
 
 /**
@@ -548,7 +547,6 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish);
  *	convenience functions are provided. By being a function, it removes self
  *	from being a stack variable. It also has some optimizations.
  */
-	
 void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish);
 void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish);
 
@@ -588,7 +586,6 @@ void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish);
  *
  *	Returns: Whether or not the queue was empty upon return.
  */
-
 BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhenEmpty, void * reserved );
 
 	

@@ -22,7 +22,9 @@
 @property(nonatomic,readwrite,retain) NSString *currentLocale;
 
 /**
- Returns bundle.
+ Returns the bundle associated with the locale.
+ 
+ Read-only property.
  */
 @property(nonatomic,readwrite,retain) NSBundle *bundle;
 
@@ -41,8 +43,8 @@
 /**
  Return localized text for the key.
  @param key The text key.
- @param comment The default value.
+ @param defaultValue The default value.
  */
-+(NSString*)getString:(NSString*)key comment:(NSString*)comment;
++(NSString*)getString:(NSString*)key comment:(NSString*)defaultValue;
 
 @end

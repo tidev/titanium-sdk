@@ -31,7 +31,7 @@
 +(UIColor*)colorForRGBFunction:(NSString*)functionString;
 
 /**
- Returns teh color for hex string.
+ Returns the color for hex string.
  @param hexCode The hex string.
  @return The color object.
  */

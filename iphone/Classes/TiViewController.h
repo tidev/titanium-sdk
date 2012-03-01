@@ -14,36 +14,40 @@
 
 @required
 
+/**
+ Returns the child view controller, if any.
+ @return The child view controller.
+ */
 - (UIViewController *)childViewController;
 
 /**
- Tells the view controller that it's view will appear.
+ Tells the view controller that its view will appear.
  
- Called when the view is about to made visible. Default does nothing.
+ Called when the view is about to made visible.
  @param animated The animation flag.
  */
 - (void)viewWillAppear:(BOOL)animated;
 
 /**
- Tells the view controller that it's view did appear.
+ Tells the view controller that its view did appear.
  
- Called when the view has been fully transitioned onto the screen. Default does nothing.
+ Called when the view has been fully transitioned onto the screen.
  @param animated The animation flag.
  */
 - (void)viewDidAppear:(BOOL)animated;
 
 /**
- Tells the view controller that it's view will disappear.
+ Tells the view controller that its view will disappear.
  
- Called when the view is dismissed, covered or otherwise hidden. Default does nothing.
+ Called when the view is dismissed, covered or otherwise hidden.
  @param animated The animation flag.
  */
 - (void)viewWillDisappear:(BOOL)animated;
 
 /**
- Tells the view controller that it's view did disappear.
+ Tells the view controller that its view did disappear.
  
- Called after the view was dismissed, covered or otherwise hidden. Default does nothing.
+ Called after the view was dismissed, covered or otherwise hidden.
  @param animated The animation flag.
  */
 - (void)viewDidDisappear:(BOOL)animated;
@@ -51,7 +55,7 @@
 @optional
 
 /**
- Tells the view controller that it's view will be rotated to interface orientation.
+ Tells the view controller that its view will be rotated to interface orientation.
  @param toInterfaceOrientation The target interface orientation.
  @param duration The duration of the rotation animation.
  */

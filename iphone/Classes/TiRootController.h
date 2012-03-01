@@ -9,7 +9,9 @@
 #import "TiWindowProxy.h"
 
 /**
- Protocol for root controller.
+ The protocol for root controller.
+ It is not intended to be implemented by clients.
+ @see TiRootViewController
  */
 @protocol TiRootController
 @required
@@ -27,57 +29,43 @@
 -(void)windowClosed:(UIViewController *)closedViewController;
 
 /**
- Tells the root controller to resize it's view to the size of main screen.
+ Tells the root controller to resize its view to the size of main screen.
  @return The bounds of the view after resize. 
  */
 -(CGRect)resizeView;
 
 /**
- Tells the root controller to reposition all it's subviews.
+ Tells the root controller to reposition all its subviews.
  */
 -(void)repositionSubviews;
 
 /**
- Tells the root controller to set background color on it's view.
- @param color The color to set.
- @see setBackgroundImage:
- */
--(void)setBackgroundColor:(UIColor*)color;
-
-/**
- Tells the root controller to set background image on it's view.
- @param backgroundImage The background image to set.
- @see setBackgroundColor:
- */
--(void)setBackgroundImage:(UIImage*) backgroundImage;
-
-/**
  Tells the root controller that the view controller will hide.
- @param focusedViewController The view controller to hide.
+ @param viewController The view controller to hide.
  @param animated The animation flag.
  */
-- (void)willHideViewController:(UIViewController *)focusedViewController animated:(BOOL)animated;
+- (void)willHideViewController:(UIViewController *)viewController animated:(BOOL)animated;
 
 /**
  Tells the root controller that the view controller was hidden.
- @param focusedViewController The view controller hidden.
+ @param viewController The view controller hidden.
  @param animated The animation flag.
  */
-- (void)didHideViewController:(UIViewController *)focusedViewController animated:(BOOL)animated;
+- (void)didHideViewController:(UIViewController *)viewController animated:(BOOL)animated;
 
 /**
  Tells the root controller that the view controller will show.
- @param focusedViewController The view controller to show.
+ @param viewController The view controller to show.
  @param animated The animation flag.
  */
-- (void)willShowViewController:(UIViewController *)focusedViewController animated:(BOOL)animated;
+- (void)willShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
 
 /**
  Tells the root controller that the view controller was shown.
- @param focusedViewController The view controller shown.
+ @param viewController The view controller shown.
  @param animated The animation flag.
  */
-- (void)didShowViewController:(UIViewController *)focusedViewController animated:(BOOL)animated;
+- (void)didShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
 
 /**
  Tells the root controller that the keyboard received a focus.

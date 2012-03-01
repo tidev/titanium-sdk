@@ -52,13 +52,12 @@
  */
 +(TiFile*)createTempFile:(NSString*)extension;
 
--(id)blob;
-
 /**
  Returns the contents of the file as a TiBlob.
- @param args Reserved for future use.
  @return The TiBlob object.
  */
+-(id)blob;
+
 -(id)toBlob:(id)args;
 
 @end

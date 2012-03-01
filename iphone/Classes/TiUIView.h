@@ -30,13 +30,6 @@
  */
 -(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop;
 
-/**
- Tells the scroll view that keyboard did show.
- @param keyboardTop The keyboard height.
- @param firstResponderView The view for which keyboard was shown.
- */
--(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop forView:(TiUIView *)firstResponderView;
-
 @end
 
 void InsetScrollViewForKeyboard(UIScrollView * scrollView,CGFloat keyboardTop,CGFloat minimumContentHeight);
@@ -172,26 +165,26 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 -(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys;
 
 /**
- Tells the view to change it's proxy to the new one provided.
+ Tells the view to change its proxy to the new one provided.
  @param newProxy The new proxy to set on the view.
  */
 -(void)transferProxy:(TiViewProxy*)newProxy;
 
 /**
- Tells the view to update it's touch handling state.
+ Tells the view to update its touch handling state.
  @see touchEnabled
  */
 -(void)updateTouchHandling;
 
 /**
- Tells the view that it's frame and/or bounds has chnaged.
+ Tells the view that its frame and/or bounds has chnaged.
  @param frame The frame rect
  @param bounds The bounds rect
  */
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds;
 
 /**
- Tells the view to make it's root view a first responder.
+ Tells the view to make its root view a first responder.
  */
 -(void)makeRootViewFirstResponder;
 

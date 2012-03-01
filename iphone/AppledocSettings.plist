@@ -35,30 +35,23 @@
 		<string>Classes/TiWindowProxy.h</string>
 		<string>Classes/TiViewController.h</string>
 		<string>Classes/TiProxy.h</string>
-		<string>Classes/TiTab.h</string>
 		<string>Classes/TiBlob.h</string>
 		<string>Classes/TiBase.h</string>
 		<string>Classes/TiAnimation.h</string>
-		<string>Classes/TiAction.h</string>
 		<string>Classes/TiToolbar.h</string>
-		<string>Classes/TiTabGroup.h</string>
 		<string>Classes/TiToolbarButton.h</string>
-		<string>Classes/TiTabController.h</string>
 		<string>Classes/TiRootController.h</string>
 		<string>Classes/TiLocale.h</string>
 		<string>Classes/TiBuffer.h</string>
 		<string>Classes/WebFont.h</string>
 		<string>Classes/Webcolor.h</string>
 		<string>Classes/TiRect.h</string>
-		<string>Classes/TiRange.h</string>
 		<string>Classes/TiPoint.h</string>
 		<string>Classes/TiComplexValue.h</string>
 		<string>Classes/TiColor.h</string>
 		<string>Classes/Ti2DMatrix.h</string>
 		<string>Classes/ImageLoader.h</string>
-		<string>Classes/TiLayoutQueue.h</string>
 		<string>Classes/TiDimension.h</string>
-		<string>Classes/OperationQueue.h</string>
 		<string>Classes/TiUtils.h</string>
 	</array>
 </dict>

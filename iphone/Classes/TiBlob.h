@@ -37,6 +37,8 @@ typedef enum {
 
 /**
  Return a textual representation of the blob.
+ 
+ The method converts data into a textual representation. Appropriate only for types <TiBlobTypeFile> and <TiBlobTypeData>.
  */
 @property(nonatomic,readonly) NSString* text;
 
@@ -121,13 +123,13 @@ typedef enum {
 -(NSString*)path;
 
 /**
- Returns the blob native path.
- @return The blob native path (Android compatibility).
+ Returns the blob native path (Android compatibility).
+ @return The blob native path.
  */
 -(NSString*)nativePath;
 
 /**
- Tells the blob to write it's data to a file.
+ Tells the blob to write its data to a file.
  @param path The file path.
  @param error The error result if failed.
  @return _YES_ if the write operation succeeded, _NO_ otherwise.

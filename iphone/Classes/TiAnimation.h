@@ -12,6 +12,7 @@
 #import <QuartzCore/QuartzCore.h>
 
 @class TiViewProxy;
+@class TiAnimation;
 
 /**
  Protocol for animation delegate.
@@ -22,40 +23,42 @@
 
 /**
  Returns if the animation should transition.
- @param sender The sender of the message.
+ 
+ The method is only called if the animation is a transition animation type.
+ @param animation The animation this delegate is assigned to.
  @return _YES_ if the animation should transition, _NO_ otherwise.
  */
--(BOOL)animationShouldTransition:(id)sender;
+-(BOOL)animationShouldTransition:(TiAnimation *)animation;
 
 /**
  Tells the delegate that the animation will start.
- @param sender The sender of the message.
+ @param animation The animation this delegate is assigned to.
  */
--(void)animationWillStart:(id)sender;
+-(void)animationWillStart:(TiAnimation *)animation;
 
 /**
  Tells the delegate that the animation did start.
- @param sender The sender of the message.
+ @param animation The animation this delegate is assigned to.
  */
--(void)animationDidStart:(id)sender;
+-(void)animationDidStart:(TiAnimation *)animation;
 
 /**
  Tells the delegate that the animation will complete.
- @param sender The sender of the message.
+ @param animation The animation this delegate is assigned to.
  */
--(void)animationWillComplete:(id)sender;
+-(void)animationWillComplete:(TiAnimation *)animation;
 
 /**
  Tells the delegate that the animation did complete.
- @param sender The sender of the message.
+ @param animation The animation this delegate is assigned to.
  */
--(void)animationDidComplete:(id)sender;
+-(void)animationDidComplete:(TiAnimation *)animation;
 
 @end
 
 
 /**
- The class represents animation proxy. 
+ A type of proxy representing an animation to apply to a view. 
  */
 @interface TiAnimation : TiProxy {
 @private
@@ -101,29 +104,10 @@
  */
 @property(nonatomic,assign,readwrite) NSObject<TiAnimationDelegate> *delegate;
 
-/**
- Provides access to the view being animated.
- */
 @property(nonatomic,readwrite,assign) UIView* animatedView;
-
-/**
- Provides access to autoreverse view to be animated.
- */
 @property(nonatomic,readwrite,assign) UIView* autoreverseView;
-
-/**
- Provides access to animation transformation matrix.
- */
 @property(nonatomic,readwrite,assign) id transformMatrix;
-
-/**
- Returns autoreverse layout.
- */
 @property(nonatomic,readonly) LayoutConstraint autoreverseLayout;
-
-/**
- Returns the callback for the animation.
- */
 @property(nonatomic,readonly) ListenerEntry* callback;
 
 // animatable properties against what is being animated
@@ -159,6 +143,10 @@
 
 -(void)animate:(id)args;
 
+/**
+ Returns if the animation is a transition animation type.
+ @return _YES_ if the animation is a transition animation type, _NO_ otherwise.
+ */
 -(BOOL)isTransitionAnimation;
 
 -(NSTimeInterval)animationDuration;

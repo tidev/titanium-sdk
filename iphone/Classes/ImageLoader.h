@@ -85,33 +85,36 @@ typedef enum {
 @property(nonatomic,readonly) NSObject<ImageLoaderDelegate>* delegate;
 
 /**
- Cancells the request.
+ Cancels the request.
  */
 -(void)cancel;
 
 /**
- Returns is the image load request was cancelled.
- @return _YES_ if request was cancelled, _NO_ otherwise.
+ Returns if the image load request was cancelled.
+ @return _YES_ if request was canceled, _NO_ otherwise.
  */
--(BOOL)cancelled;
+@property(nonatomic,readonly) BOOL cancelled;
 
 /**
  Returns request additional properties.
  @return The dictionary of properties.
  */
--(NSDictionary*)userInfo;
+@property(nonatomic,readonly) NSDictionary *userInfo;
 
 /**
  Returns the request URL.
  @return The image URL.
  */
--(NSURL*)url;
-
+@property(nonatomic,readonly) NSURL *url;
 
 @end
 
 /**
- The image loader.
+ The ImageLoader class provides a centralized point for loading images in Titanium.
+ Using ImageLoader is the preferred way for getting images from remote sources.
+ 
+ The class is singleton and not supposed to be subclassed.
+ The instance should not be instantiated directly, but lazily created with <sharedLoader>.
  */
 @interface ImageLoader : NSObject<NSCacheDelegate> {
 @private
@@ -131,13 +134,15 @@ typedef enum {
  Tells the loader to load remote image from URL.
  @param url The image URL
  @return The loaded image.
- */
+ @see loadRemote:delegate:userInfo:
+*/
 -(UIImage *)loadRemote:(NSURL*)url;
 
 /**
  Tells the loader to return previously loaded image with URL.
  @param url The image URL
- @return The loaded image.
+ @return The loaded image or _nil_ if the image is not available from the cache.
+ @see loadRemote:
  */
 -(UIImage *)loadImmediateImage:(NSURL *)url;
 
@@ -145,23 +150,26 @@ typedef enum {
  Tells the loader to return previously loaded image with URL and size.
  @param url The image URL
  @param imageSize The required image size.
- @return The loaded image.
+ @return The loaded image or _nil_ if the image is not available from the cache.
+ @see loadRemote:
  */
 -(UIImage *)loadImmediateImage:(NSURL *)url withSize:(CGSize)imageSize;
 
 /**
  Tells the loader to return previously loaded stretchable image with URL.
  @param url The image URL
- @return The loaded image.
+ @return The loaded image or _nil_ if the image is not available from the cache.
+ @see loadRemote:
  */
 -(UIImage *)loadImmediateStretchableImage:(NSURL *)url;
 
 /**
- Tells the loader to return previously loaded stretchable image with URL for dimensions.
+ Tells the loader to return previously loaded stretchable image with URL and specified cap values.
  @param url The image URL
- @param left The left dimension
- @param top The top dimension.
- @return The loaded image.
+ @param left The value to use for the left cap width. Specify 0 if you want the entire image to be horizontally stretchable.
+ @param top The value to use for the top cap width. Specify 0 if you want the entire image to be vertically stretchable.
+ @return The loaded image or _nil_ if the image is not available from cache.
+ @see loadRemote:
  */
 -(UIImage *)loadImmediateStretchableImage:(NSURL *)url withLeftCap:(TiDimension)left topCap:(TiDimension)top;
 
@@ -178,18 +186,19 @@ typedef enum {
  @param delegate The loader delegate.
  @param userInfo The additional properties to be assigned to the request.
  @return The image load request.
+ @see loadRemote:
  */
 -(ImageLoaderRequest*)loadImage:(NSURL*)url 
 					   delegate:(NSObject<ImageLoaderDelegate>*)delegate 
 					   userInfo:(NSDictionary*)userInfo;
 
 /**
- Tells the image loader to suspend it's activities.
+ Tells the image loader to suspend its activities.
  */
 -(void)suspend;
 
 /**
- Tells teh image loader to resume it's activities.
+ Tells the image loader to resume its activities.
  */
 -(void)resume;
 

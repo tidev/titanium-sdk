@@ -9,7 +9,7 @@
 #import <pthread.h>
 
 /**
- Protocol for the view that could receive keyboard focus.
+ Protocol for views that can receive keyboard focus.
  */
 @protocol TiKeyboardFocusableView
 
@@ -155,7 +155,7 @@ enum
 -(void)hide:(id)arg;
 
 /**
- Tells the view proxy to run animation on it's view.
+ Tells the view proxy to run animation on its view.
  @param arg An animation object.
  */
 -(void)animate:(id)arg;
@@ -245,7 +245,7 @@ enum
 -(BOOL)canHaveControllerParent;
 
 /**
- Returns if the view proxy should detach it's view on unload.
+ Returns if the view proxy should detach its view on unload.
  
  Subclasses may override.
  @return _YES_ if the view should be detached, _NO_ otherwise.
@@ -289,13 +289,13 @@ enum
 -(void)windowDidClose;
 
 /**
- Tells the view proxy that it's properties are about to change.
+ Tells the view proxy that its properties are about to change.
  @see didFirePropertyChanges
  */
 -(void)willFirePropertyChanges;
 
 /**
- Tells the view proxy that it's properties are changed.
+ Tells the view proxy that its properties are changed.
  @see willFirePropertyChanges
  */
 -(void)didFirePropertyChanges;
@@ -341,7 +341,7 @@ enum
 
 /**
  Returns if the view proxy has been completely set up.
- @return _YES_ if the view proxy has been initialized and it's view has a superview and non-empty bounds, _NO_ otherwise.
+ @return _YES_ if the view proxy has been initialized and its view has a superview and non-empty bounds, _NO_ otherwise.
  */
 -(BOOL)viewReady;
 
@@ -375,7 +375,7 @@ enum
 -(TiUIView*)newView;
 
 /**
- Tells the view proxy to detach it's view.
+ Tells the view proxy to detach its view.
  */
 -(void)detachView;
 
@@ -383,14 +383,14 @@ enum
 
 
 /**
- Tells the view proxy to remove it's bar button item.
+ Tells the view proxy to remove its bar button item.
  */
 -(void)removeBarButtonView;
 
 #pragma mark Callbacks
 
 /**
- Tells the view proxy that it's view animation did complete.
+ Tells the view proxy that its view animation did complete.
  @param animation The completed animation
  */
 -(void)animationCompleted:(TiAnimation*)animation;

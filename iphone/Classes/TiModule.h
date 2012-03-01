@@ -30,22 +30,8 @@
 
 // module related utilities
 
-/**
- Returns module identifier.
- @return module identifier.
- */
 -(NSString*)moduleId;
-
-/**
- Returns if the module is JS native module.
- @return _YES_ if the module is JS native module, _NO_ ortherwise.
- */
 -(BOOL)isJSModule;
-
-/**
- Returns the JS script data for the module.
- @return The string containing JS code.
- */
 -(NSData*)moduleJS;
 
 /**
@@ -61,24 +47,24 @@
 // lifecycle
 
 /**
- Tells the module to startup.
+ Titanium Platform calls this method on startup.
  */
 -(void)startup;
 
 /**
- Tells the module to shutdown.
+ Titanium Platform calls this method on shutdown.
  @param sender The sender of the event.
  */
 -(void)shutdown:(id)sender;
 
 /**
- Tells the module to suspend.
+ Titanium Platform calls this method on suspend.
  @param sender The sender of the event.
  */
 -(void)suspend:(id)sender;
 
 /**
- Tells the module to resume.
+ Titanium Platform calls this method on resume.
  @param sender The sender of the event.
  */
 -(void)resume:(id)sender;

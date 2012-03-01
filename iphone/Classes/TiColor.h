@@ -35,12 +35,17 @@
  Returns the color.
  @return The color.
  */
--(UIColor*)_color;
+@property(nonatomic,readonly) UIColor *color;
 
 /**
  Returns the color name.
  @return The color name.
  */
+@property(nonatomic,readonly) NSString *name;
+
+#pragma mark Deprecated
+
+-(UIColor*)_color;
 -(NSString*)_name;
 
 @end

@@ -132,11 +132,6 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  */
 -(void)stopNetwork;
 
-/**
- Tells application to display modal error dialog.
- 
- @param message Message to display
- */
 -(void)showModalError:(NSString*)message;
 
 /**
@@ -174,28 +169,8 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 -(void)beginBackgrounding;
 -(void)endBackgrounding;
 
-/**
- Tells application to register background service.
- 
- @param proxy The proxy object representing background service to register.
- @see unregisterBackgroundService:
- */
 -(void)registerBackgroundService:(TiProxy*)proxy;
-
-/**
- Tells application to unregister background service.
- 
- @param proxy The proxy object representing background service to unregister.
- @see registerBackgroundService:
- */
 -(void)unregisterBackgroundService:(TiProxy*)proxy;
-
-/**
- Tells application that the background service has stopped.
- 
- @param proxy The proxy object representing background service.
- @see registerBackgroundService:
- */
 -(void)stopBackgroundService:(TiProxy*)proxy;
 
 /**

@@ -7,7 +7,7 @@
 #import "TiProxy.h"
 
 /**
- The proxy class for 2D matrix.
+ The proxy representing a 2D matrix for an affine transform.
  */
 @interface Ti2DMatrix : TiProxy {
 @protected
@@ -21,7 +21,7 @@
 -(id)initWithProperties:(NSDictionary*)dict_;
 
 /**
- Initializes the proxy with transform matrix.
+ Initializes the proxy with the specified transform matrix.
  @param matrix_ The transform matrix.
  */
 -(id)initWithMatrix:(CGAffineTransform)matrix_;
@@ -30,7 +30,7 @@
  Returns transform matrix.
  @return The transform matrix.
  */
--(CGAffineTransform)matrix;
+@property(nonatomic,readonly) CGAffineTransform matrix;
 
 -(Ti2DMatrix*)translate:(id)args;
 -(Ti2DMatrix*)scale:(id)args;

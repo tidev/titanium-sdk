@@ -7,8 +7,9 @@
 #import "TiBase.h"
 
 /**
- * The generic action wrapper class for packaging something that you
- * want to be executed but simplier than an NSOperation
+ The generic action wrapper class for packaging something that you
+ want to be executed but simplier than an NSOperation.
+ @deprecated
  */
 @interface TiAction : NSObject {
 @protected
@@ -24,6 +25,10 @@
  @param arg_ The argument to pass to the method.
  */
 -(id)initWithTarget:(id)target_ selector:(SEL)selector_ arg:(id)arg_;
+
+/**
+ Tells the action to invoke the selector on target.
+ */
 -(void)execute;
 
 /**

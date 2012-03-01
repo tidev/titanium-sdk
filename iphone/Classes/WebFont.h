@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 
 /**
- The class representin a web font.
+ The class rrepresenting a font.
  */
 @interface WebFont : NSObject {
 	NSString* family;
@@ -23,43 +23,43 @@
 }
 
 /**
- Provides access to web font family.
+ Provides access to the font family.
  */
 @property(nonatomic,retain) NSString *family;
 
 /**
- Provides access to web font size.
+ Provides access to the font size.
  */
 @property(nonatomic) CGFloat size;
 
 /**
- Returns if the web font size if set.
- @return _YES_ if font size is set, _NO_ otherwise.
+ Returns if the font size is not set.
+ @return _YES_ if the font size is not set, _NO_ otherwise.
  */
 @property(nonatomic,readonly) BOOL isSizeNotSet;
 
 /**
- Returns if the web font weight is bold.
+ Returns if the font weight is bold.
  */
 @property(nonatomic) BOOL isBoldWeight;
 
 /**
- Returns if the web font weight is normal.
+ Returns if the font weight is normal.
  */
 @property(nonatomic) BOOL isNormalWeight;
 
 /**
- Returns if the web font style is italic.
+ Returns if the font style is italic.
  */
 @property(nonatomic) BOOL isItalicStyle;
 
 /**
- Returns if the web font style is normal.
+ Returns if the font style is normal.
  */
 @property(nonatomic) BOOL isNormalStyle;
 
 /**
- Returns if the web font weight is semibold.
+ Returns if the font weight is semibold.
  */
 @property(nonatomic) BOOL isSemiboldWeight;
 
@@ -70,7 +70,7 @@
 -(UIFont*)font;
 
 /**
- Tells the web font to update it's parameters from dictionary.
+ Tells the font to update its parameters from dictionary.
  @param fontDict The dictionary to update from.
  @param inheritedFont The font to inherit parameters from.
  @return _YES_ if the update operation succeeded, _NO_ otherwise.
@@ -96,7 +96,7 @@
 +(WebFont *)defaultBoldFont;
 
 /**
- Returns a web font by name.
+ Returns the font by name.
  @param name The web font name.
  @return The web font.
  */

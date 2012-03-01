@@ -33,7 +33,7 @@
 -(void)close:(NSArray*)args;
 
 /**
- Tells the tab that it's associated window is closing.
+ Tells the tab that its associated window is closing.
  @param window The window being closed.
  @param animated _YES_ if window close is anumated, _NO_ otherwise.
  */

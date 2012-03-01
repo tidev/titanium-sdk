@@ -135,9 +135,9 @@
 			return;
 		}
 		
-		if ([dialogView isKindOfClass:[TiToolbar class]])
+		if ([dialogView conformsToProtocol:@protocol(TiToolbar)])
 		{
-			UIToolbar *toolbar = [(TiToolbar*)dialogView toolbar];
+			UIToolbar *toolbar = [(id<TiToolbar>)dialogView toolbar];
 			[actionSheet showFromToolbar:toolbar];
 			return;
 		}
