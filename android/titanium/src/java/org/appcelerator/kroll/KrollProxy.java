@@ -34,9 +34,7 @@ import android.os.Message;
 
 @Kroll.proxy(name = "KrollProxy", propertyAccessors = { KrollProxy.PROPERTY_HAS_JAVA_LISTENER })
 /**
- * This is the parent class for objects that can be created in Javascript and 
- * can also be returned from Java to JavaScript without the need for explicit creation.
- * It is also the parent class of all proxies. A proxy is a dynamic object that can be created or 
+ * This is the parent class of all proxies. A proxy is a dynamic object that can be created or 
  * queried by the user through a module or another proxy's API. When you create a native view with 
  * <a href="http://developer.appcelerator.com/apidoc/mobile/latest/Titanium.UI.createView-method.html">Titanium.UI.createView </a>, 
  * the view object is a proxy itself.
@@ -586,7 +584,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * @return the KrollModule associated with this proxy.
+	 * @return the KrollModule that this proxy was created in.
 	 */
 	public KrollModule getCreatedInModule()
 	{
@@ -762,10 +760,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Returns a string representation of URL given its components.
+	 * Resolves the passed in scheme / path, and use the Proxy's creationUrl if the path is relative.
 	 * @param scheme the scheme of Url.
 	 * @param path   the path of Url.
-	 * @return
+	 * @return a string representation of URL given its components.
 	 */
 	public String resolveUrl(String scheme, String path)
 	{

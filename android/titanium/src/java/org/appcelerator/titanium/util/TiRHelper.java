@@ -10,7 +10,7 @@ import org.appcelerator.titanium.TiApplication;
 
 /**
  * This class allows us to retrieve Android resource IDs 
- * off of the various Android R classes using
+ * from the various Android R classes using
  * strings at runtime.
  */
 public class TiRHelper {

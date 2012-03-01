@@ -46,7 +46,8 @@ import android.view.Window;
 import android.view.WindowManager;
 
 /**
- * An extension of android native activity. This is the parent class of all non-tab activities. 
+ * The base class for all non tab Titanium activities. To learn more about Activities, see the
+ * <a href="http://developer.android.com/reference/android/app/Activity.html">Android Activity documentation</a>.
  */
 public abstract class TiBaseActivity extends Activity 
 	implements TiActivitySupport/*, ITiWindowHandler*/
@@ -328,7 +329,7 @@ public abstract class TiBaseActivity extends Activity
 
 	@Override
 	/**
-	 * When activity is created, adds it to the activity stack and
+	 * When the activity is created, this method adds it to the activity stack and
 	 * fires a javascript 'create' event.
 	 * @param savedInstanceState Bundle of saved data.
 	 */
@@ -662,7 +663,7 @@ public abstract class TiBaseActivity extends Activity
 
 	@Override
 	/**
-	 * When activity pauses, sets current activity to null, fires a javascript 'pause' event,
+	 * When this activity pauses, this method sets the current activity to null, fires a javascript 'pause' event,
 	 * and if the activity is finishing, remove all dialogs associated with it.
 	 */
 	protected void onPause() 
@@ -708,7 +709,7 @@ public abstract class TiBaseActivity extends Activity
 
 	@Override
 	/**
-	 * When the activity resumes, sets the current activity to this and fires a javascript
+	 * When the activity resumes, this method updates the current activity to this and fires a javascript
 	 * 'resume' event.
 	 */
 	protected void onResume()
@@ -748,7 +749,7 @@ public abstract class TiBaseActivity extends Activity
 
 	@Override
 	/**
-	 * When activity starts, sets the current activity to this if necessary and
+	 * When this activity starts, this method updates the current activity to this if necessary and
 	 * fire javascript 'start' and 'focus' events. Focus events will only fire if 
 	 * the activity is not a tab activity.
 	 */
@@ -809,7 +810,7 @@ public abstract class TiBaseActivity extends Activity
 
 	@Override
 	/**
-	 * When activity stops, fire javascript 'blur' and 'stop' events. Blur events will only fire
+	 * When this activity stops, this method fire the javascript 'blur' and 'stop' events. Blur events will only fire
 	 * if the activity is not a tab activity.
 	 */
 	protected void onStop()
@@ -852,7 +853,7 @@ public abstract class TiBaseActivity extends Activity
 
 	@Override
 	/**
-	 * When activity restarts, sets the current activity to this and fires javascript 'restart'
+	 * When this activity restarts, this method updates the current activity to this and fires javascript 'restart'
 	 * event.
 	 */
 	protected void onRestart()
@@ -888,7 +889,7 @@ public abstract class TiBaseActivity extends Activity
 
 	@Override
 	/**
-	 * When activity is destroyed, removes it from the activity stack, performs
+	 * When this activity is destroyed, this method removes it from the activity stack, performs
 	 * clean up, and fires javascript 'destroy' event. 
 	 */
 	protected void onDestroy()

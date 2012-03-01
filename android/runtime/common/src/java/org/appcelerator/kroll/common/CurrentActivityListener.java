@@ -9,7 +9,7 @@ package org.appcelerator.kroll.common;
 import android.app.Activity;
 
 /**
- * This interface invokes a callback function when the current activity becomes visible.
+ * The APIs that accept this interface invokes a callback function when the current activity becomes visible.
  */
 public interface CurrentActivityListener
 {

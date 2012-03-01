@@ -136,7 +136,7 @@ public class TiBlob extends KrollProxy
 
 	/**
 	 * Returns the content of blob in form of binary data. Exception will be thrown
-	 * if blob's id is unknown.
+	 * if blob's type is unknown.
 	 * @return binary data.
 	 */
 	public byte[] getBytes()

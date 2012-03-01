@@ -21,7 +21,16 @@ import android.view.WindowManager;
 
 /**
  * A class used to handle different unit measurements for layout purposes.
- * Supported units include: "px", "pt", "%", "dp", "sp", "mm" and "in".
+ * Supported units include: 
+ * <li> TypedValue.COMPLEX_UNIT_PX </li>
+ * <li> TypedValue.COMPLEX_UNIT_PT </li>
+ * <li> TypedValue.COMPLEX_UNIT_DIP </li>
+ * <li> TypedValue.COMPLEX_UNIT_SP </li>
+ * <li> TypedValue.COMPLEX_UNIT_MM </li>
+ * <li> TypedValue.COMPLEX_UNIT_IN </li>
+ * <li> TiDimension.COMPLEX_UNIT_PERCENT </li>
+ * <li> TiDimension.COMPLEX_UNIT_AUTO </li>
+ * <li> TiDimension.COMPLEX_UNIT_UNDEFINED </li>
  * Refer to {@link android.util.TypedValue} for more details.
  *
  */
@@ -139,7 +148,16 @@ public class TiDimension
 	}
 
 	/**
-	 * @return the TiDimension's units. Supported units include: "px", "pt", "%", "dp", "sp", "mm" and "in".
+	 * @return the TiDimension's units. Supported units include: 
+	 * <li> TypedValue.COMPLEX_UNIT_PX </li>
+	 * <li> TypedValue.COMPLEX_UNIT_PT </li>
+	 * <li> TypedValue.COMPLEX_UNIT_DIP </li>
+	 * <li> TypedValue.COMPLEX_UNIT_SP </li>
+	 * <li> TypedValue.COMPLEX_UNIT_MM </li>
+	 * <li> TypedValue.COMPLEX_UNIT_IN </li>
+	 * <li> TiDimension.COMPLEX_UNIT_PERCENT </li>
+	 * <li> TiDimension.COMPLEX_UNIT_AUTO </li>
+	 * <li> TiDimension.COMPLEX_UNIT_UNDEFINED </li>
 	 * Refer to {@link android.util.TypedValue} for more details.
 	 */
 	public int getUnits()

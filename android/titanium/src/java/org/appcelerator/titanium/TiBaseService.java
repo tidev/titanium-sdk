@@ -16,7 +16,8 @@ import android.os.Binder;
 import android.os.IBinder;
 
 /**
- * An extension of android native service. This is the parent class of all services.
+ * The base class for Titanium services. To learn more about Services, see the
+ * <a href="http://developer.android.com/reference/android/app/Service.html">Android Service documentation</a>.
  */
 public class TiBaseService extends Service
 {

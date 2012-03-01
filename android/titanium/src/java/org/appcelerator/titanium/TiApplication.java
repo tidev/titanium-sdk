@@ -223,8 +223,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	}
 
 	/**
-	 * If the current activity exists, returns it. Otherwise, the thread will wait for a valid activity to be visible.
-	 * @return the current activity.
+	 * @return the current activity if exists. Otherwise, the thread will wait for a valid activity to be visible.
 	 */
 	public Activity getCurrentActivity()
 	{
@@ -499,7 +498,8 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	}
 
 	/**
-	 * @return the app's properties, which is listed in tiapp.xml.
+	 * @return the app's properties, which are listed in tiapp.xml.
+	 * App properties can also be set at runtime by the application in Javascript.
 	 */
 	public TiProperties getAppProperties()
 	{
@@ -568,7 +568,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	}
 
 	/**
-	 * Posts analytic event to server if the application is collecting analytic information.
+	 * Posts analytic event to the server if the application is collecting analytic information.
 	 * @param event the analytic event to be posted.
 	 */
 	public synchronized void postAnalyticsEvent(TiAnalyticsEvent event)
@@ -653,7 +653,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	}
 
 	/**
-	 * @return the build version, which is listed in tiapp.xml.
+	 * @return the build version, which is built in as part of the SDK.
 	 */
 	public String getTiBuildVersion()
 	{
@@ -727,7 +727,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	}
 
 	/**
-	 * @return true if current thread is main thread, false otherwise.
+	 * @return true if the current thread is main thread, false otherwise.
 	 */
 	public static boolean isUIThread()
 	{

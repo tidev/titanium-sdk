@@ -53,7 +53,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 
 /**
- * The view parent class.
+ * This class is for Titanium View implementations, that correspond with TiViewProxy. 
+ * A TiUIView is responsible for creating and maintaining a native Android View instance.
  */
 public abstract class TiUIView
 	implements KrollProxyListener, OnFocusChangeListener

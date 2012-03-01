@@ -9,8 +9,8 @@ package org.appcelerator.kroll.common;
 import java.util.concurrent.Semaphore;
 
 /**
- * This is a thread-safe message object that is being sent by {@link TiMessenger}.
- * asynchronously.
+ * This is a semaphore that blocks the current thread when getResult() is called until another thread calls setResult().
+ * See {@link TiMessenger#sendBlockingMainMessage(android.os.Message, Object)} for an example use case.
  */
 public class AsyncResult extends Semaphore
 {
@@ -47,7 +47,7 @@ public class AsyncResult extends Semaphore
 	
 	/**
 	 * Sets the exception that will be thrown in TiMessenger.sendBlockingMessage(...). Also releases the lock.
-	 * @param exception a thrown exception.
+	 * @param exception a thrown exception. It can be thrown from any place that handles an AsyncResult.
 	 */
 	public void setException(Throwable exception) {
 		this.result = null;
