@@ -64,7 +64,7 @@ USE_VIEW_FOR_VERIFY_HEIGHT
 	[self replaceValue:newItems forKey:@"items" notification:YES];
 }
 
--(TiDimension)defualtAutoHeightBehavior:(id)unused
+-(TiDimension)defaultAutoHeightBehavior:(id)unused
 {
     return TiDimensionAutoSize;
 }

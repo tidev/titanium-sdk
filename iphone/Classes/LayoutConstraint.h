@@ -25,8 +25,8 @@
 
 -(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing;
 
--(TiDimension)defualtAutoWidthBehavior:(id)unused;
--(TiDimension)defualtAutoHeightBehavior:(id)unused;
+-(TiDimension)defaultAutoWidthBehavior:(id)unused;
+-(TiDimension)defaultAutoHeightBehavior:(id)unused;
 
 @end
 

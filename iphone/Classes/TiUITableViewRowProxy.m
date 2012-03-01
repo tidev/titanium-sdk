@@ -880,7 +880,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	}
 }
 
--(TiDimension)defualtAutoHeightBehavior:(id)unused
+-(TiDimension)defaultAutoHeightBehavior:(id)unused
 {
     return TiDimensionAutoSize;
 }
