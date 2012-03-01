@@ -1,6 +1,6 @@
 ---
 name: Titanium.XML.Document
-summary: The DOM Document returned from <Titanium.XML.parseString> or <Titanium.XML.parse>.
+summary: The DOM Document returned from <Titanium.XML.parseString>.
     Implements the [DOM Level 2 API](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#i-Document).
 description: |
     As of version 3.1, Android still does not truly support DTDs.  A document with a DTD can be

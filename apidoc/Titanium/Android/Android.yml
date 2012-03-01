@@ -1,6 +1,6 @@
 ---
 name: Titanium.Android
-summary: The top level Android module. <Ti.Android.currentActivity> provides each context an Activity. This object cannot be created directly.
+summary: The top level Android module. <Titanium.Android.currentActivity> provides each context an Activity. This object cannot be created directly.
 extends: Titanium.Module
 platforms: [android]
 since: "1.5"
@@ -779,6 +779,14 @@ properties:
   - name: URI_INTENT_SCHEME
     summary: 
     type: Number
+    permission: read-only
+  - name: currentActivity
+    summary: Activity of the active context.
+    type: Titanium.Android.Activity
+    permission: read-only
+  - name: currentService
+    summary: Service in the active context.
+    type: Titanium.Android.Service
     permission: read-only
 description: |
     Almost all of the constants defined in this module are directly taken from Android.  
