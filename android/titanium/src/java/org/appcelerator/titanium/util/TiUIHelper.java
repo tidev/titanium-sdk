@@ -209,21 +209,19 @@ public class TiUIHelper
 			if (m.matches()) {
 				if (m.groupCount() == 2) {
 					String unit = m.group(2);
-					if ("px".equals(unit)) {
+					if (TiDimension.UNIT_PX.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_PX;
-					} else if ("pt".equals(unit)) {
+					} else if (TiDimension.UNIT_PT.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_PT;
-					} else if ("dp".equals(unit) || "dip".equals(unit)) {
+					} else if (TiDimension.UNIT_DP.equals(unit) || TiDimension.UNIT_DIP.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_DIP;
-					} else if ("sp".equals(unit) || "sip".equals(unit)) {
+					} else if (TiDimension.UNIT_SP.equals(unit) || TiDimension.UNIT_SIP.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_SP;
-					} else if ("pt".equals(unit)) {
-						units = TypedValue.COMPLEX_UNIT_PT;
-					} else if ("mm".equals(unit)) {
+					} else if (TiDimension.UNIT_MM.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_MM;
-					} else if ("cm".equals(unit)) {
+					} else if (TiDimension.UNIT_CM.equals(unit)) {
 						units = TiDimension.COMPLEX_UNIT_CM;
-					} else if ("in".equals(unit)) {
+					} else if (TiDimension.UNIT_IN.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_IN;
 					} else {
 						if (DBG) {

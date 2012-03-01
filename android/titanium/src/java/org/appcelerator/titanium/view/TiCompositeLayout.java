@@ -468,7 +468,7 @@ public class TiCompositeLayout extends ViewGroup
 			}
 		}
 	}
-	
+
 	@Override
 	protected void onAnimationEnd()
 	{
@@ -477,38 +477,38 @@ public class TiCompositeLayout extends ViewGroup
 	}
 
 	// option0 is left/top, option1 is right/bottom
-	private void adjustPosition(View parent, TiDimension option0, TiDimension option1, int[] pos)
+	private void adjustPosition(View parent, TiDimension leftOrTop, TiDimension rightOrBottom, int[] pos)
 	{
-		if (option0 != null) {
-			pos[0] += option0.getAsPixels(parent);
-			pos[1] += option0.getAsPixels(parent);
+		if (leftOrTop != null) {
+			pos[0] += leftOrTop.getAsPixels(parent);
+			pos[1] += leftOrTop.getAsPixels(parent);
 		}
-		if (option1 != null) {
-			pos[0] -= option1.getAsPixels(parent);
-			pos[1] -= option1.getAsPixels(parent);
+		if (rightOrBottom != null) {
+			pos[0] -= rightOrBottom.getAsPixels(parent);
+			pos[1] -= rightOrBottom.getAsPixels(parent);
 		}
 	}
 
 	// option0 is left/top, option1 is right/bottom
-	public static void computePosition(View parent, TiDimension option0, TiDimension optionCenter, TiDimension option1,
+	public static void computePosition(View parent, TiDimension leftOrTop, TiDimension optionCenter, TiDimension rightOrBottom,
 		int measuredSize, int layoutPosition0, int layoutPosition1, int[] pos)
 	{
 		int dist = layoutPosition1 - layoutPosition0;
-		if (option0 != null) {
+		if (leftOrTop != null) {
 			// peg left/top
-			int option0Pixels = option0.getAsPixels(parent);
-			pos[0] = layoutPosition0 + option0Pixels;
-			pos[1] = layoutPosition0 + option0Pixels + measuredSize;
+			int leftOrTopPixels = leftOrTop.getAsPixels(parent);
+			pos[0] = layoutPosition0 + leftOrTopPixels;
+			pos[1] = layoutPosition0 + leftOrTopPixels + measuredSize;
 		} else if (optionCenter != null && optionCenter.getValue() != 0.0) {
 			// Don't calculate position based on center dimension if it's 0.0
 			int halfSize = measuredSize / 2;
 			pos[0] = layoutPosition0 + optionCenter.getAsPixels(parent) - halfSize;
 			pos[1] = pos[0] + measuredSize;
-		} else if (option1 != null) {
+		} else if (rightOrBottom != null) {
 			// peg right/bottom
-			int option1Pixels = option1.getAsPixels(parent);
-			pos[0] = dist - option1Pixels - measuredSize;
-			pos[1] = dist - option1Pixels;
+			int rightOrBottomPixels = rightOrBottom.getAsPixels(parent);
+			pos[0] = dist - rightOrBottomPixels - measuredSize;
+			pos[1] = dist - rightOrBottomPixels;
 		} else {
 			// Center
 			int offset = (dist - measuredSize) / 2;

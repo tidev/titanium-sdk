@@ -43,6 +43,19 @@ public class TiDimension
 	public static final double MM_INCH = 25.4;
 	public static final double CM_INCH = 2.54;
 
+	public static final String UNIT_CM = "cm";
+	public static final String UNIT_DIP = "dip";
+	public static final String UNIT_DP = "dp";
+	public static final String UNIT_IN = "in";
+	public static final String UNIT_MM = "mm";
+	public static final String UNIT_PX = "px";
+	public static final String UNIT_PT = "pt";
+	public static final String UNIT_SP = "sp";
+	public static final String UNIT_SIP = "sip";
+	public static final String UNIT_SYSTEM = "system";
+	public static final String UNIT_PERCENT = "%";
+	public static final String UNIT_AUTO = "auto";
+
 	public static Pattern DIMENSION_PATTERN = Pattern.compile("(-?[0-9]*\\.?[0-9]+)\\s*(system|px|dp|dip|sp|sip|mm|cm|pt|in|%)?");
 	protected static DisplayMetrics metrics = null;
 
@@ -71,21 +84,21 @@ public class TiDimension
 					if (unit == null) {
 						unit = TiApplication.getInstance().getDefaultUnit();
 					}
-					if ("px".equals(unit) || "system".equals(unit)) {
+					if (UNIT_PX.equals(unit) || UNIT_SYSTEM.equals(unit)) {
 						this.units = TypedValue.COMPLEX_UNIT_PX;
-					} else if ("pt".equals(unit)) {
+					} else if (UNIT_PT.equals(unit)) {
 						this.units = TypedValue.COMPLEX_UNIT_PT;
-					} else if ("dp".equals(unit) || "dip".equals(unit)) {
+					} else if (UNIT_DP.equals(unit) || UNIT_DIP.equals(unit)) {
 						this.units = TypedValue.COMPLEX_UNIT_DIP;
-					} else if ("sp".equals(unit) || "sip".equals(unit)) {
+					} else if (UNIT_SP.equals(unit) || UNIT_SIP.equals(unit)) {
 						this.units = TypedValue.COMPLEX_UNIT_SP;
-					} else if ("%".equals(unit)) {
+					} else if (UNIT_PERCENT.equals(unit)) {
 						this.units = COMPLEX_UNIT_PERCENT;
-					} else if ("mm".equals(unit)) {
+					} else if (UNIT_MM.equals(unit)) {
 						this.units = TypedValue.COMPLEX_UNIT_MM;
-					} else if ("cm".equals(unit)) {
+					} else if (UNIT_CM.equals(unit)) {
 						this.units = COMPLEX_UNIT_CM;
-					} else if ("in".equals(unit)) {
+					} else if (UNIT_IN.equals(unit)) {
 						this.units = TypedValue.COMPLEX_UNIT_IN;
 					} else {
 						if (DBG) {
@@ -95,7 +108,7 @@ public class TiDimension
 						}
 					}
 				}
-			} else if (svalue.trim().equals("auto")) {
+			} else if (svalue.trim().equals(UNIT_AUTO)) {
 				this.value = Integer.MIN_VALUE;
 				this.units = COMPLEX_UNIT_AUTO;
 			}
@@ -287,32 +300,32 @@ public class TiDimension
 			sb.append(value);
 			switch (units) {
 				case TypedValue.COMPLEX_UNIT_PX:
-					sb.append("px");
+					sb.append(UNIT_PX);
 					break;
 				case TypedValue.COMPLEX_UNIT_PT:
-					sb.append("pt");
+					sb.append(UNIT_PT);
 					break;
 				case TypedValue.COMPLEX_UNIT_DIP:
-					sb.append("dp");
+					sb.append(UNIT_DIP);
 					break;
 				case TypedValue.COMPLEX_UNIT_SP:
-					sb.append("sp");
+					sb.append(UNIT_SP);
 					break;
 				case TypedValue.COMPLEX_UNIT_MM:
-					sb.append("mm");
+					sb.append(UNIT_MM);
 					break;
 				case COMPLEX_UNIT_CM:
-					sb.append("cm");
+					sb.append(UNIT_CM);
 					break;
 				case TypedValue.COMPLEX_UNIT_IN:
-					sb.append("in");
+					sb.append(UNIT_IN);
 					break;
 				case COMPLEX_UNIT_PERCENT:
-					sb.append("%");
+					sb.append(UNIT_PERCENT);
 					break;
 			}
 		} else {
-			sb.append("auto");
+			sb.append(UNIT_AUTO);
 		}
 
 		return sb.toString();

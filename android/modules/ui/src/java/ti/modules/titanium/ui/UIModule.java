@@ -111,11 +111,11 @@ public class UIModule extends KrollModule implements Handler.Callback
 
 	@Kroll.constant public static final String SIZE = TiC.LAYOUT_SIZE;
 	@Kroll.constant public static final String FILL = TiC.LAYOUT_FILL;
-	@Kroll.constant public static final String UNIT_PX = "px";
-	@Kroll.constant public static final String UNIT_MM = "mm";
-	@Kroll.constant public static final String UNIT_CM = "cm";
-	@Kroll.constant public static final String UNIT_IN = "in";
-	@Kroll.constant public static final String UNIT_DIP = "dip";
+	@Kroll.constant public static final String UNIT_PX = TiDimension.UNIT_PX;
+	@Kroll.constant public static final String UNIT_MM = TiDimension.UNIT_MM;
+	@Kroll.constant public static final String UNIT_CM = TiDimension.UNIT_CM;
+	@Kroll.constant public static final String UNIT_IN = TiDimension.UNIT_IN;
+	@Kroll.constant public static final String UNIT_DIP = TiDimension.UNIT_DIP;
 
 	protected static final int MSG_SET_BACKGROUND_COLOR = KrollProxy.MSG_LAST_ID + 100;
 	protected static final int MSG_SET_BACKGROUND_IMAGE = KrollProxy.MSG_LAST_ID + 101;
