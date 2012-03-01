@@ -75,7 +75,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 /**
- * A set of general utility methods.
+ * A set of utility methods focused on UI and View operations.
  */
 public class TiUIHelper
 {

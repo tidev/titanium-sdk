@@ -9,8 +9,8 @@ import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 
 /**
- * A Class which allows us to pull resource integers 
- * off of the various R class structures using
+ * This class allows us to retrieve Android resource IDs 
+ * off of the various Android R classes using
  * strings at runtime.
  */
 public class TiRHelper {

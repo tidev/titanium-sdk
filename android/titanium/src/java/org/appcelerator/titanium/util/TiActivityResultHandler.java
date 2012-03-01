@@ -11,14 +11,14 @@ import android.app.Activity;
 import android.content.Intent;
 
 /**
- * An interface which invoke callbacks whenever a launched activity extis via
- * {@link TiActivitySupport#launchActivityForResult(Intent, int, TiActivityResultHandler)}.
+ * An interface which invoke callbacks whenever the launched activity from 
+ * {@link TiActivitySupport#launchActivityForResult(Intent, int, TiActivityResultHandler)} exits.
  */
 public interface TiActivityResultHandler
 {
 	/**
-	 * This method is invoked after the launched activity exits via 
-	 * {@link TiActivitySupport#launchActivityForResult(Intent, int, TiActivityResultHandler)}.
+	 * This method is invoked after the launched activity from 
+	 * {@link TiActivitySupport#launchActivityForResult(Intent, int, TiActivityResultHandler)} exits.
 	 * @param activity the launched activity.
 	 * @param requestCode the returned request code.
 	 * @param resultCode the returned result code.

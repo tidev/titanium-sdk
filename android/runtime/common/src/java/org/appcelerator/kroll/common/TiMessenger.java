@@ -126,7 +126,7 @@ public class TiMessenger implements Handler.Callback
 	/**
 	 * Sends a message to an {@link java.util.concurrent.ArrayBlockingQueue#ArrayBlockingQueue(int) ArrayBlockingQueue},
 	 * and dispatch messages on the current
-	 * queue while blocking on the passed in AsyncResult. This is done via the Main thread.
+	 * queue while blocking on the passed in AsyncResult. The blocking is done on the Main thread.
 	 * @param message  the message to send.
 	 * @return  The getResult() value of the AsyncResult put on the message.
 	 */
@@ -138,7 +138,7 @@ public class TiMessenger implements Handler.Callback
 	/**
 	 * Sends a message to an {@link java.util.concurrent.ArrayBlockingQueue#ArrayBlockingQueue(int) ArrayBlockingQueue},
 	 * and dispatch messages on the current
-	 * queue while blocking on the passed in AsyncResult. This is done via the Main thread.
+	 * queue while blocking on the passed in AsyncResult. The blocking is done on the Main thread.
 	 * @param message   the message to send.
 	 * @param asyncArg  argument to be added to the AsyncResult.
 	 * @return  The getResult() value of the AsyncResult put on the message.
@@ -151,7 +151,7 @@ public class TiMessenger implements Handler.Callback
 	/**
 	 * Sends a message to an {@link java.util.concurrent.ArrayBlockingQueue#ArrayBlockingQueue(int) ArrayBlockingQueue}, 
 	 * and dispatch messages on the current
-	 * queue while blocking on the passed in AsyncResult. This is done via the KrollRuntime thread.
+	 * queue while blocking on the passed in AsyncResult. The blocking is done on the KrollRuntime thread.
 	 * @param message  the message to send.
 	 * @return  The getResult() value of the AsyncResult put on the message.
 	 */
@@ -163,7 +163,7 @@ public class TiMessenger implements Handler.Callback
 	/**
 	 * Sends a message to an {@link java.util.concurrent.ArrayBlockingQueue#ArrayBlockingQueue(int) ArrayBlockingQueue}, 
 	 * and dispatch messages on the current
-	 * queue while blocking on the passed in AsyncResult. This is done via the KrollRuntime thread.
+	 * queue while blocking on the passed in AsyncResult. The blocking is done on the KrollRuntime thread.
 	 * @param message   the message to send.
 	 * @param asyncArg  the argument to be added to AsyncResult.
 	 * @return  The getResult() value of the AsyncResult put on the message.

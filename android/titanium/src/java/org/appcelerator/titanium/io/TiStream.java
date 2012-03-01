@@ -10,25 +10,25 @@ package org.appcelerator.titanium.io;
 import java.io.IOException;
 
 /**
- * An interface designed to read/write from a stream object.
+ * An interface designed to represent a Stream.
  */
 public interface TiStream
 {
 	/**
-	 * Implementing classes should use this method to read data from a stream into a buffer.
-	 * This should be done asynchronously.
-	 * @param args  arguments should include a stream object to read from and a buffer object to read into.
-	 * @return an int.
-	 * @throws IOException
+	 * Implementing classes should use this method to read data into a buffer.
+	 * Refer to <a href="https://wiki.appcelerator.org/display/guides/Stream+Spec">Stream Spec</a> for more details.
+	 * @param args  arguments passed in. Must match the arguments listed in the <a href="https://wiki.appcelerator.org/display/guides/Stream+Spec">Stream Spec</a>.
+	 * @return number of bytes read, -1 if no data is available.
+	 * @throws IOException on error.
 	 */
 	int read(Object args[]) throws IOException;
 	
 	/**
-	 * Implementing classes should use this method to write data from a buffer into an outputStream.
-	 * This should be done asynchronously.
-	 * @param args the args should include a stream object to write into and a buffer object to write from
-	 * @return an int.
-	 * @throws IOException
+	 * Implementing classes should use this method to write data from a buffer to this stream.
+	 * Refer to <a href="https://wiki.appcelerator.org/display/guides/Stream+Spec">Stream Spec</a> for more details.
+	 * @param args arguments passed in. Must match the arguments listed in the <a href="https://wiki.appcelerator.org/display/guides/Stream+Spec">Stream Spec</a>.
+	 * @return number of bytes written, -1 if no data is available.
+	 * @throws IOException on error.
 	 */
 	int write(Object args[]) throws IOException;
 	

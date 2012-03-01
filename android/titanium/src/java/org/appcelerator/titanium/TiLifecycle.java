@@ -10,7 +10,8 @@ import android.app.Activity;
 
 
 /**
- *This class is used to receive native Android life-cycle events.
+ *This class contains a single static utility method for firing a lifecycle event to a single listener.
+ *It also contains the definition for the listener interface.
  */
 public class TiLifecycle
 {
@@ -20,34 +21,37 @@ public class TiLifecycle
 	public static final int LIFECYCLE_ON_STOP = 3;
 	public static final int LIFECYCLE_ON_DESTROY = 4;
 
+	/**
+	 * An interface for receiving Android lifecycle events. 
+	 */
 	public interface OnLifecycleEvent {
 		
 		/**
-		 * Implementing classes should use this to receive native Android onStart life cycle events.
+		 * Implementing classes should use this to receive native Android onStart lifecycle events.
 		 * @param activity the attached activity.
 		 */
 		public void onStart(Activity activity);
 		
 		/**
-		 * Implementing classes should use this to receive native Android onResume life cycle events.
+		 * Implementing classes should use this to receive native Android onResume lifecycle events.
 		 * @param activity the attached activity.
 		 */
 		public void onResume(Activity activity);
 		
 		/**
-		 * Implementing classes should use this to receive native Android onPause life cycle events.
+		 * Implementing classes should use this to receive native Android onPause lifecycle events.
 		 * @param activity the attached activity.
 		 */
 		public void onPause(Activity activity);
 		
 		/**
-		 * Implementing classes should use this to receive native Android onStop life cycle events.
+		 * Implementing classes should use this to receive native Android onStop lifecycle events.
 		 * @param activity the attached activity.
 		 */
 		public void onStop(Activity activity);
 		
 		/**
-		 * Implementing classes should use this to receive native Android onDestroy life cycle events.
+		 * Implementing classes should use this to receive native Android onDestroy lifecycle events.
 		 * @param activity the attached activity.
 		 */
 		public void onDestroy(Activity activity);

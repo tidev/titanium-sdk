@@ -418,14 +418,15 @@ public abstract class TiBaseFile
 	}
 
 	/**
-	 * Implementing subclasses should return the InputStream of the file.
+	 * Implementing subclasses should return an InputStream that can be used to retrieve
+	 * the contents of the file.
 	 * @return  the InputStream of the file.
 	 * @throws IOException the thrown exception.
 	 */
 	public abstract InputStream getInputStream() throws IOException;
 	
 	/**
-	 * Implementing subclasses should return the OutputStream of the file.
+	 * Implementing subclasses should return an OutputStream for writing to the file.
 	 * @return  the OutputStream of the file.
 	 * @throws IOException the thrown exception.
 	 */

@@ -152,7 +152,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	}
 
 	/**
-	 * Creates/retrieves the instance of TiApplication. There is one instance per android application.
+	 * Retrieves the instance of TiApplication. There is one instance per Android application.
 	 * @return the instance of TiApplication.
 	 */
 	public static TiApplication getInstance()
@@ -210,9 +210,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	/**
 	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
 	 * time we need to grab the root or current activity.
-	 * Returns the root activity if it exists. Otherwise returns the current activity if it exists.
-	 * If both do not exist, null is returned.
-	 * @return root activity, current activity, or null.
+	 * @return root activity if exists. If root activity doesn't exist, returns current activity if exists. Otherwise returns null.
 	 */
 	public static Activity getAppRootOrCurrentActivity()
 	{
@@ -423,8 +421,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	}
 
 	/**
-	 * Returns the app's root activity if exists, null otherwise.
-	 * @return app's root activity or null.
+	 * @return the app's root activity if exists, null otherwise.
 	 */
 	public TiRootActivity getRootActivity()
 	{
@@ -502,7 +499,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	}
 
 	/**
-	 * @return the app's properties, which is listed in tiApp.xml.
+	 * @return the app's properties, which is listed in tiapp.xml.
 	 */
 	public TiProperties getAppProperties()
 	{
@@ -656,7 +653,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	}
 
 	/**
-	 * @return the build version, which is listed in tiApp.xml.
+	 * @return the build version, which is listed in tiapp.xml.
 	 */
 	public String getTiBuildVersion()
 	{

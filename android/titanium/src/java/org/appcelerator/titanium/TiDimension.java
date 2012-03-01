@@ -21,6 +21,8 @@ import android.view.WindowManager;
 
 /**
  * A class used to handle different unit measurements for layout purposes.
+ * Supported units include: "px", "pt", "%", "dp", "sp", "mm" and "in".
+ * Refer to {@link android.util.TypedValue} for more details.
  *
  */
 public class TiDimension
@@ -53,7 +55,9 @@ public class TiDimension
 	/**
 	 * Creates a TiDimension object.
 	 * @param value the value to set.
-	 * @param valueType the valueType to set.
+	 * @param valueType the valueType to set. Supported types include: {@link #TYPE_LEFT}, {@link #TYPE_RIGHT}, 
+	 * {@link #TYPE_BOTTOM}, {@link #TYPE_TOP}, {@link #TYPE_CENTER_X}, {@link #TYPE_CENTER_Y}, {@link #TYPE_HEIGHT}.
+	 * {@link #TYPE_WIDTH}.
 	 */
 	public TiDimension(double value, int valueType)
 	{
@@ -65,7 +69,9 @@ public class TiDimension
 	/**
 	 * Creates and parses a TiDimension object.
 	 * @param svalue the string to parse.
-	 * @param valueType the valueType to set.
+	 * @param valueType the valueType to set. Supported types include: {@link #TYPE_LEFT}, {@link #TYPE_RIGHT}, 
+	 * {@link #TYPE_BOTTOM}, {@link #TYPE_TOP}, {@link #TYPE_CENTER_X}, {@link #TYPE_CENTER_Y}, {@link #TYPE_HEIGHT}.
+	 * {@link #TYPE_WIDTH}.
 	 */
 	public TiDimension(String svalue, int valueType)
 	{
@@ -133,7 +139,8 @@ public class TiDimension
 	}
 
 	/**
-	 * @return the TiDimension's units.
+	 * @return the TiDimension's units. Supported units include: "px", "pt", "%", "dp", "sp", "mm" and "in".
+	 * Refer to {@link android.util.TypedValue} for more details.
 	 */
 	public int getUnits()
 	{
@@ -141,8 +148,8 @@ public class TiDimension
 	}
 
 	/**
-	 * Set TiDimension's units.
-	 * @param units the unit to set
+	 * Set TiDimension's units. Refer to {@link #getUnits()} for more details.
+	 * @param units the unit to set.
 	 */
 	public void setUnits(int units)
 	{
@@ -151,6 +158,7 @@ public class TiDimension
 
 	/**
 	 * Calculates and returns the number of pixels, depending on the type.
+	 * It also takes screen/view density into consideration.
 	 * @param parent the parent view used for calculation.
 	 * @return the number of pixels.
 	 */

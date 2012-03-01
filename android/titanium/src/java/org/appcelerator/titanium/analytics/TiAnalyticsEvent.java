@@ -30,7 +30,7 @@ import org.json.JSONObject;
 //- data		-- the event data (NULL value if none provided) (object)
 
 /**
- * This is the parent class of all Titanium analytic events.
+ * This is the parent class of all Titanium analytics events.
  */
 public class TiAnalyticsEvent
 {

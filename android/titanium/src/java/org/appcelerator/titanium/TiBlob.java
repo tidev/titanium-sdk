@@ -28,7 +28,7 @@ import android.graphics.Bitmap.CompressFormat;
 
 @Kroll.proxy
 /** 
- * A Titanium Blob object.
+ * A Titanium Blob object. A Blob can represent any opaque data or input stream.
  */
 public class TiBlob extends KrollProxy
 {
@@ -56,7 +56,7 @@ public class TiBlob extends KrollProxy
 	}
 
 	/**
-	 * Creates a new TiBlob object from String data, with TYPE_STRING id.
+	 * Creates a new TiBlob object from String data.
 	 * @param data the data used to create blob.
 	 * @return new instance of TiBlob.
 	 */
@@ -66,7 +66,7 @@ public class TiBlob extends KrollProxy
 	}
 
 	/**
-	 * Creates a blob from a file, with TYPE_FILE id and with a mimeType as the file's path.
+	 * Creates a blob from a file and sets a mimeType based on the file name.
 	 * @param file the file used to create blob.
 	 * @return new instane of TiBlob.
 	 */
@@ -76,8 +76,8 @@ public class TiBlob extends KrollProxy
 	}
 
 	/**
-	 * Creates a blob from a file, with TYPE_FILE id and with the specified mimeType. If mimeType is null,
-	 * the file's path will be used instead.
+	 * Creates a blob from a file with the specified mimeType. If the passed mimeType is null, 
+	 * the mimeType will be determined using the file name.
 	 * @param file the file used to create blob.
 	 * @param mimeType the mimeType used to create blob.
 	 * @return new instance of TiBlob.
@@ -91,7 +91,7 @@ public class TiBlob extends KrollProxy
 	}
 
 	/**
-	 * Creates a blob from a bitmap with TYPE_IMAGE id.
+	 * Creates a blob from a bitmap.
 	 * @param image the image used to create blob.
 	 * @return new instance of TiBlob.
 	 */
@@ -110,7 +110,7 @@ public class TiBlob extends KrollProxy
 	}
 
 	/**
-	 * Creates a blob from binary data, with TYPE_DATA id and with mimeType as "application/octet-stream".
+	 * Creates a blob from binary data, with mimeType as "application/octet-stream".
 	 * @param data data used to create blob.
 	 * @return new instance of TiBlob.
 	 */
@@ -120,8 +120,8 @@ public class TiBlob extends KrollProxy
 	}
 	
 	/**
-	 * Creates a blob from binary data with TYPE_DATA id and with the given mimetype.
-	 * If 'mimetype' is null, "application/octet-stream" will be used instead.
+	 * Creates a blob from binary data with the specified mimetype.
+	 * If the passed mimetype is null, "application/octet-stream" will be used instead.
 	 * @param data  binary data used to create blob.
 	 * @param mimetype mimetype used to create blob.
 	 * @return a new instance of TiBlob.

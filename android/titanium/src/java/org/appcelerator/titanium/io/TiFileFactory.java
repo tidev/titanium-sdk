@@ -31,7 +31,7 @@ public class TiFileFactory
 	}
 
 	/**
-	 * Creates a TiBaseFile object given the path. If the path's scheme provided isn't a member of:
+	 * Creates a TiBaseFile object given the path. If the URI scheme portion of the passed path is not a member of:
 	 * {"app://" , "appdata://" , "appdata-private://" , "file://", "content://" }, 
 	 * the file will be created in "appdata-private://" + path, where path is the given path.
 	 * @param parts A String Array containing parts of a file path.

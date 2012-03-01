@@ -34,7 +34,12 @@ import android.os.Message;
 
 @Kroll.proxy(name = "KrollProxy", propertyAccessors = { KrollProxy.PROPERTY_HAS_JAVA_LISTENER })
 /**
- * This is the parent class for objects that can be created in Javascript.
+ * This is the parent class for objects that can be created in Javascript and 
+ * can also be returned from Java to JavaScript without the need for explicit creation.
+ * It is also the parent class of all proxies. A proxy is a dynamic object that can be created or 
+ * queried by the user through a module or another proxy's API. When you create a native view with 
+ * <a href="http://developer.appcelerator.com/apidoc/mobile/latest/Titanium.UI.createView-method.html">Titanium.UI.createView </a>, 
+ * the view object is a proxy itself.
  */
 public class KrollProxy implements Handler.Callback, KrollProxySupport
 {
@@ -163,7 +168,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Returns the activity associated with this proxy.
 	 * @return the activity associated with this proxy. It can be null.
 	 */
 	public Activity getActivity()
@@ -254,7 +258,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * @return the KrollObject associated with this proxy if it exists. Otherwise create it in KrollRuntime thread.
+	 * @return the KrollObject associated with this proxy if it exists. Otherwise create it in the KrollRuntime thread.
 	 */
 	public KrollObject getKrollObject()
 	{
@@ -358,9 +362,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Returns whether the property(key) exists in KrollDict properties.
 	 * @param name  the lookup key.
-	 * @return  <b>true</b> if the property exists, <b>false</b> otherwise.
+	 * @return  true if the proxy contains this property, false otherwise.
 	 */
 	public boolean hasProperty(String name)
 	{
@@ -371,7 +374,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * Returns the property value given its key.
 	 * Properties are cached on the Proxy and updated from JS for relevant annotated APIs
 	 * @param name  the lookup key.
-	 * @return the property object.
+	 * @return the property object or null if a property for the given key does not exist.
 	 */
 	public Object getProperty(String name)
 	{
@@ -508,9 +511,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Updates the property in properties as well as in the JS object.
-	 * @param name the property name(key).
-	 * @param value the property value(value).
+	 * Same behavior as {@link #setProperty(String, Object)}, but also invokes
+	 * {@link KrollProxyListener#propertyChanged(String, Object, Object, KrollProxy)}.
+	 * @param name the property name.
+	 * @param value the property value.
 	 */
 	public void setPropertyAndFire(String name, Object value)
 	{
@@ -582,7 +586,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Returns the KrollModule associated with this proxy.
 	 * @return the KrollModule associated with this proxy.
 	 */
 	public KrollModule getCreatedInModule()
@@ -784,7 +787,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Releases the krollObject, freeing memory.
+	 * Releases the KrollObject, freeing memory.
 	 */
 	public void release()
 	{

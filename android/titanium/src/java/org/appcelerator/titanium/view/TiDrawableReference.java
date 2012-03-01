@@ -46,7 +46,7 @@ import android.view.View;
 import android.webkit.URLUtil;
 
 /**
- * Helper class for loading images.
+ * Helper class for loading, scaling, and caching images if necessary.
  */
 public class TiDrawableReference
 {

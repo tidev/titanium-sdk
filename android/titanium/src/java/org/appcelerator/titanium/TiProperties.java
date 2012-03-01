@@ -15,7 +15,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 /**
- * API for accessing, storing, and modifying Titanium properties.
+ * API for accessing, storing, and modifying application properties that are 
+ * exposed via Ti.App.Properties.
  */
 public class TiProperties
 {
@@ -25,11 +26,11 @@ public class TiProperties
 	SharedPreferences preferences;
 
 	/**
-	 * Creates/retrieves SharedPreferences with given context and name.
-	 * If preferences is being created, the mode is Context.MODE_PRIVATE.
+	 * Instantiates the private SharedPreferences collection with the given name and context.
+	 * This means no other Android application will have access to they keys and values.
 	 * @param context the context used to create/retrieve preferences.
 	 * @param name the name used to create/retrieve preferences.
-	 * @param clear whether to clear the preferences.
+	 * @param clear whether to clear all keys and values in the instantiated SharedPreferences collection.
 	 */
 	public TiProperties(Context context, String name, boolean clear) {
 		preferences = context.getSharedPreferences(name,Context.MODE_PRIVATE);

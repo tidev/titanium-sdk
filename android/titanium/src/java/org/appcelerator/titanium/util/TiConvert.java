@@ -32,7 +32,7 @@ import android.net.Uri;
 
 
 /**
- * API for type conversions.
+ * Utility class for type conversions.
  */
 public class TiConvert
 {
@@ -305,8 +305,7 @@ public class TiConvert
 	}
 
 	/**
-	 * A wrapper function.
-	 * Refer to {@link #toBoolean(Object)} for more details.
+	 * Takes a value out of a hash table then attempts to convert it using {@link #toBoolean(Object)}.
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @return a boolean value.
@@ -342,8 +341,7 @@ public class TiConvert
 	}
 
 	/**
-	 * A wrapper function.
-	 * Refer to {@link #toInt(Object)} for more details.
+	 * Takes a value out of a hash table then attempts to convert it using {@link #toInt(Object)}.
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @return an int value.
@@ -376,8 +374,7 @@ public class TiConvert
 	}
 
 	/**
-	 * A wrapper function.
-	 * Refer to {@link #toFloat(Object)} for more details.
+	 * Takes a value out of a hash table then attempts to convert it using {@link #toFloat(Object)} for more details.
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @return a float value.
@@ -410,8 +407,7 @@ public class TiConvert
 	}
 
 	/**
-	 * A wrapper function.
-	 * Refer to {@link #toDouble(Object)} for more details.
+	 * Takes a value out of a hash table then attempts to convert it using {@link #toDouble(Object)} for more details.
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @return a double.
@@ -442,8 +438,7 @@ public class TiConvert
 	}
 
 	/**
-	 * A wrapper function.
-	 * Refer to {@link #toString(Object)} for more details.
+	 * Takes a value out of a hash table then attempts to convert it using {@link #toString(Object)} for more details.
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @return String or null.
@@ -494,9 +489,8 @@ public class TiConvert
 		return toTiDimension((String) value, valueType);
 	}
 	/**
-	 * A wrapper function.
-	 * Refer to {@link #toTiDimension(Object, int)} for more details.
-	 * @param hashMap
+	 * Takes a value out of a hash table then attempts to convert it using {@link #toTiDimension(Object, int)} for more details.
+	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
 	 * @param valueType the dimension type.
 	 * @return a TiDimension instance.

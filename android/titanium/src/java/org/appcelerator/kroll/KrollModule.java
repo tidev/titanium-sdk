@@ -131,16 +131,12 @@ public class KrollModule extends KrollProxy
 	}
 	
 	// TODO @Override
-	/**
-	 * A place holder for subclasses to extend. Its purpose is to process initial properties of the module.
-	 * @param properties  a set of properties to process.
-	 */
 	public void processProperties(KrollDict properties) {
 	}
 	
 	// TODO @Override
 	/**
-	 * A place holder for subclasses to extend. Its purpose is to modify an existing property.
+	 * A place holder for subclasses to extend. Its purpose is to be notified when an existing property is changed.
 	 * @param key  the key of the property.
 	 * @param oldValue  the property's old value.
 	 * @param newValue  the property's new value.

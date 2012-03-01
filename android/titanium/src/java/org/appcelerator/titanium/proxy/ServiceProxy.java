@@ -23,7 +23,8 @@ import android.os.IBinder;
 
 @Kroll.proxy
 /**
- * A proxy used to communicate with javascript services.
+ * This is a proxy representation of the Android Service type.
+ * Refer to <a href="http://developer.android.com/reference/android/app/Service.html" >Android Service</a> for more details.
  */
 public class ServiceProxy extends KrollProxy
 {
@@ -76,7 +77,7 @@ public class ServiceProxy extends KrollProxy
 	}
 
 	/**
-	 * Sets the proxy.
+	 * Sets the IntentProxy.
 	 * @param intentProxy the proxy to set.
 	 */
 	public void setIntent(IntentProxy intentProxy)

@@ -31,7 +31,8 @@ import android.net.Uri;
 import android.os.StatFs;
 
 /**
- * An extension of {@link TiBaseFile}. This is the parent class of Titanium files.
+ * An extension of {@link TiBaseFile}, used for representing a file on the device's true file system. 
+ * This differentiates it from TiResourceFile, which represents a file inside the application's resource bundle.
  */
 public class TiFile extends TiBaseFile
 {
@@ -98,7 +99,7 @@ public class TiFile extends TiBaseFile
 
 	/**
 	 * Attempts to create a directory named by the trailing filename of this file.
-	 * @param recursive  whether the created directory is recursive (complete directory path created).
+	 * @param recursive  whether to recursively create any missing parent directories in the path.
 	 * @return  true if directory was sucessfully created, false otherwise.
 	 */
 	@Override
@@ -138,8 +139,8 @@ public class TiFile extends TiBaseFile
 	}
 
 	/**
-	 * Attempts to delete a data directory.
-	 * @param recursive whether to delete the directory recursively.
+	 * Attempts to delete a directory in the file system.
+	 * @param recursive whether to recursively delete any parent directories in the path.
 	 * @return true if the directory was successfully deleted, false otherwise.
 	 */
 	@Override
@@ -159,7 +160,7 @@ public class TiFile extends TiBaseFile
 	}
 	
 	/**
-	 * Deletes this file. Directories must be empty before they will be deleted.
+	 * Deletes this file.
 	 * @return true if the file was successfully deleted, false otherwise.
 	 */
 	@Override
@@ -236,8 +237,8 @@ public class TiFile extends TiBaseFile
 	}
 
 	/**
-	 * Sets the file to read-only
-	 * @return true
+	 * Sets the file to read-only.
+	 * @return true if the file is verified as read-only, false otherwise.
 	 */
 	@Override
 	public boolean setReadonly()
@@ -310,8 +311,8 @@ public class TiFile extends TiBaseFile
 
 	/**
 	 * Instantiates and opens a file with the appropriate read/write buffer.
-	 * For instance, if MODE_READ and true is passed in, respectively, then
-	 * instream will now be the BufferedInputStream for this file.
+	 * For instance, if MODE_READ and true are passed in, respectively, then
+	 * {@link TiBaseFile#getExistingInputStream()} will now be the {@link java.io.BufferedInputStream BufferedInputStream} for this file.
 	 * @param mode MODE_READ. MODE_WRITE, or MODE_APPEND.
 	 * @param binary whether the content of the file is binary or characters/lines.
 	 */

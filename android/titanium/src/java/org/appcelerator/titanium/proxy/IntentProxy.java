@@ -30,7 +30,9 @@ import android.text.TextUtils;
 	TiC.PROPERTY_URL
 })
 /**
- * A proxy used to communicate with javascript intents.
+ * This is a proxy representation of the Android Intent type.
+ * Refer to <a href="http://developer.android.com/reference/android/content/Intent.html">Android Intent</a>
+ * for more details.
  */
 public class IntentProxy extends KrollProxy 
 {

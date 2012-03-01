@@ -109,7 +109,7 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	/**
-	 * @return the window proxy associates with this activity.
+	 * @return the window proxy associated with this activity.
 	 */
 	public TiWindowProxy getWindowProxy()
 	{
@@ -136,7 +136,7 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	/**
-	 * @return activity proxy associates with this activity.
+	 * @return activity proxy associated with this activity.
 	 */
 	public ActivityProxy getActivityProxy()
 	{

@@ -668,7 +668,7 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Shows the view, change the view's visibility to View.VISIBLE.
+	 * Shows the view, changing the view's visibility to View.VISIBLE.
 	 */
 	public void show()
 	{
@@ -682,7 +682,7 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Hides the view, change the view's visibility to View.INVISIBLE.
+	 * Hides the view, changing the view's visibility to View.INVISIBLE.
 	 */
 	public void hide()
 	{
