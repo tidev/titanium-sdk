@@ -161,6 +161,7 @@ file.write(this.responseData);
 	var reg,
 		regDate = (new Date()).getTime(),
 		File,
+		Filesystem,
 		ls = localStorage,
 		metaMap = {
 			n: "sname",
@@ -172,9 +173,8 @@ file.write(this.responseData);
 			x: "bexecutable",
 			r: "breadonly",
 			s: "isize",
-			l: "bsymbolicLink", // should this be a string?
+			l: "bsymbolicLink",
 			h: "bhidden"
-			// do we need a "is copy" flag?
 		},
 		metaCast = {
 			i: function(i) {
@@ -228,6 +228,7 @@ file.write(this.responseData);
 
 	function setLocal(path, value, meta) {
 		ls.setItem("ti:fs:" + (meta ? "meta:" : "blob:") + path, value);
+		return value.length;
 	}
 
 	function getRemote(path) {
@@ -266,6 +267,10 @@ file.write(this.responseData);
 		return (r = reg[path]) && r + "\nr1\ne1\nc" + regDate + "\nm" + regDate;
 	}
 
+	function filesystem() {
+		return Filesystem || (Filesystem = require("Ti/Filesystem"));
+	}
+
 	function mkdir(prefix, parts, i, parent) {
 		var file,
 			i = i || 0,
@@ -280,7 +285,7 @@ file.write(this.responseData);
 
 		if (parent && parent.readonly) {
 			// parent directory is readonly, so we can't create a directory here
-			API.warn("Unable to create " + path + " because parent is readonly");
+			API.error('Unable to create "' + path + '" because parent is readonly');
 			return false;
 		}
 
@@ -301,6 +306,22 @@ file.write(this.responseData);
 			return path ? mkdir(prefix, path.split('/')) : true;
 		}
 		return false;
+	}
+
+	function cpdir(src, dest) {
+		var path = src.nativePath,
+			re = new RegExp("^(ti:fs:meta|ti:fs:blob):" + path + (/\/$/.test(path) ? '' : '/') + "(.*)"),
+			match,
+			key,
+			i = 0,
+			len = ls.length;
+
+		while (i < len) {
+			key = ls.key(i++);
+			(match = key.match(re)) && ls.setItem(match[1] + ':' + dest.nativePath + '/' + match[2], ls.getItem(key) || '');
+		}
+
+		return true;
 	}
 
 	return File = declare("Ti._.Filesystem.Local", null, {
@@ -342,17 +363,11 @@ file.write(this.responseData);
 
 		constants: {
 			name: "",
-			executable: function() {
-				return false;
-			},
+			executable: false,
 			readonly: false,
 			size: 0,
-			symbolicLink: function() {
-				return false;
-			},
-			hidden: function() {
-				return false;
-			},
+			symbolicLink: false,
+			hidden: false,
 			nativePath: "",
 			parent: null,
 			writable: {
@@ -367,52 +382,50 @@ file.write(this.responseData);
 		},
 
 		properties: {
-			hidden: {
-				get: function() {
-					return false;
-				},
-				set: function() {
-					return false;
-				}
-			}
+			hidden: false
 		},
 
 		append: function(/*Ti.Blob|Ti.Filesystem.File*/data) {
-			// TODO:
-			// - is data arg a valid blob?
-			// - are we a file?
-			// - load the data from localStorage
-			// - if null, check the registry
-			// - if exists in registry, xhr the file
-			// - append data
-			// - store file back into localstorage
-			return true;
-		},
-
-		copy: function(dest) {
-			dest = new File(dest)
-			if (dest && this._type === 'F') {
-				// TODO:
-				// - rewrite the nativePath
-				// - new ????
-				/*
-				var path = this.nativePath;
-				set(path, {
-					n: this.name,
-					p: path
-				});
-				*/
-				return true;
+			if (this.isFile()) {
+				switch (data && data.declaredClass) {
+					case "Ti.Filesystem.File":
+						data = data.read();
+					case "Ti.Blob":
+						this._mimeType = data.mimeType;
+						var blob = this.read();
+						blob.append(data);
+						return this.write(blob);
+				}
 			}
 			return false;
 		},
 
-		_create: function(type) {
-			if (!this.exists() && mkdirs(this.nativePath)) {
-				this._created = this._modified = (new Date()).getTime();
-				this._exists = true;
-				this._type = type;
-				return this._save();
+		copy: function(dest) {
+			if (this.exists && dest) {
+				var fs = filesystem(),
+					dest = dest.declaredClass === "Ti.Filesystem.File" ? dest : fs.getFile.apply(null, arguments),
+					p = dest.parent,
+					isFile = this.isFile();
+				if (dest.exists()) {
+					if (dest.readonly) {
+						return false;
+					}
+					if (dest.isFile()) {
+						if (!isFile) {
+							Ti.API.error("Destination is not a directory");
+							return false;
+						}
+						return dest.write(this.read());
+					} else {
+						return isFile ? fs.getFile(dest.nativePath, this.name).write(this.read()) : cpdir(this, dest);
+					}
+				} else {
+					p.createDirectory();
+					if (!p.exists() || p.readonly || (!isFile && !dest.createDirectory())) {
+						return false;
+					}
+					return isFile ? dest.write(this.read()) : cpdir(this, dest);
+				}
 			}
 			return false;
 		},
@@ -430,8 +443,22 @@ file.write(this.responseData);
 		},
 
 		deleteDirectory: function(recursive) {
-			if (this.isDirectory()) {
-				// TODO
+			if (this.isDirectory() && !this.readonly) {
+				var path = this.nativePath,
+					re = new RegExp("^ti:fs:(meta|blob):" + path + (/\/$/.test(path) ? '' : '/') + ".*"),
+					i = 0,
+					len = ls.length;
+				while (i < len) {
+					if (re.test(key = ls.key(i++))) {
+						if (!recursive) {
+							Ti.API.error('Directory "' + path + '" not empty');
+							return false;
+						}
+						ls.removeItem(key);
+					}
+				}
+				ls.removeItem(metaPrefix + path);
+				ls.removeItem(blobPrefix + path);
 				return true;
 			}
 			return false;
@@ -495,13 +522,8 @@ file.write(this.responseData);
 			return this._modified || null;
 		},
 
-		move: function(dest) {
-			if (this.exists()) {
-				// TODO
-				// - check if dest already exists
-				return true;
-			}
-			return false;
+		move: function() {
+			return this.copy.apply(this, arguments) && this[this.isFile() ? "deleteFile" : "deleteDirectory"](1);
 		},
 
 		open: function(mode) {
@@ -514,16 +536,13 @@ file.write(this.responseData);
 		read: function() {
 			if (this.exists() && this.isFile()) {
 				var path = this.nativePath,
-					params,
 					obj,
-					data = this._remote ? (obj = getRemote(path)).data : getLocal(path),
-					type = obj && obj.mimeType || this._mimeType || mimeTypes[mimeExtentions[this.extension] || 0],
+					data = this._remote ? (obj = getRemote(path)).data : getLocal(path) || "",
+					type = obj && obj.mimeType || this._mimeType || mimeTypes[mimeExtentions[this.extension()] || 0],
 					binaryData,
 					i,
 					len = data.length,
-					binaryData = '';
-
-				if (data) {
+					binaryData = '',
 					params = {
 						file: this,
 						data: data,
@@ -531,25 +550,26 @@ file.write(this.responseData);
 						mimeType: type,
 						nativePath: path
 					};
-					if (/^(application|image|audio|video)\//.test(type)) {
-						params.size = len;
-						try {
-							if (this._remote) {
-								for (i = 0; i < len; i++) {
-									binaryData += String.fromCharCode(data.charCodeAt(i) & 0xff);
-								}
-								params.data = btoa(binaryData);
+
+				if (/^(application|image|audio|video)\//.test(type)) {
+					params.size = len;
+					try {
+						if (this._remote) {
+							for (i = 0; i < len; i++) {
+								binaryData += String.fromCharCode(data.charCodeAt(i) & 0xff);
 							}
-							if (!type.indexOf("image/")) {
-								i = new Image;
-								i.src = "data:" + type + ";base64," + params.data;
-								params.width = i.width;
-								params.height = i.height;
-							}
-						} catch (ex) {}
-					}
-					return new Blob(params);
+							params.data = btoa(binaryData);
+						}
+						if (!type.indexOf("image/")) {
+							i = new Image;
+							i.src = "data:" + type + ";base64," + params.data;
+							params.width = i.width;
+							params.height = i.height;
+						}
+					} catch (ex) {}
 				}
+
+				return new Blob(params);
 			}
 			return null;
 		},
@@ -565,12 +585,13 @@ file.write(this.responseData);
 					i = 0,
 					len = ls.length,
 					c = this.constants.__values__,
-					dest;
+					dest,
+					key;
 
 				path = match[1] ? match[2] : match[4];
 
 				if (!path) {
-					Ti.API.warn("Can't rename root " + prefix);
+					Ti.API.error('Can\'t rename root "' + prefix + '"');
 					return false;
 				}
 
@@ -578,25 +599,23 @@ file.write(this.responseData);
 				path.pop();
 				path.push(name);
 
-				dest = new File(prefix + path.join('/'));
+				dest = new File(path = prefix + path.join('/'));
 				if (dest.exists() || dest.parent.readonly) {
 					return false;
 				}
 
 				if (this._type === 'D') {
 					while (i < len) {
-						if (match = ls.key(i++).match(re)) {
-							console.debug(match);
+						key = ls.key(i++);
+						if (match = key.match(re)) {
+							ls.setItem("ti:fs:" + match[1] + ":" + path + '/' + match[2], ls.getItem(key));
+							ls.removeItem(key);
 						}
 					}
 				}
 
-				c.name = dest.name;
-				c.nativePath = dest.nativePath;
-				this._save();
+				this._save(path, name);
 				blob && ls.setItem(blobPrefix + path, blob);
-
-				// remove the old keys
 				ls.removeItem(metaPrefix + origPath);
 				ls.removeItem(blobPrefix + origPath);
 
@@ -610,36 +629,43 @@ file.write(this.responseData);
 		},
 
 		spaceAvailable: function() {
-			return 0;
+			return "remainingSpace" in ln ? ls.remainingSpace : null;
 		},
 
 		write: function(/*String|File|Blob*/data, append) {
 			var path = this.nativePath;
 			if (path && this.isFile() && !this.readonly) {
-				if (require.is(data, "Object")) {
-					switch (data.declaredClass) {
-						case "Ti.Filesystem.File":
-							data = data.read();
-						case "Ti.Blob":
-							this._mimeType = data.mimeType;
-							data = data.toString();
-							break;
-						default:
-							data = "";
-					}
+				switch (data && data.declaredClass) {
+					case "Ti.Filesystem.File":
+						data = data.read();
+					case "Ti.Blob":
+						this._mimeType = data.mimeType;
+						data = data.toString();
 				}
-				this._save();
-				setLocal(path, append ? this.read() + data : data);
-				return true;
+				this._exists = true;
+				this._modified = (new Date()).getTime();
+				this._created || (this._created = this._modified);
+				this.constants.__values__.size = setLocal(path, append ? this.read() + data : data);
+				return this._save();
 			}
 			return false;
 		},
 
-		_save: function() {
-			var path = this.nativePath,
+		_create: function(type) {
+			if (!this.exists() && mkdirs(this.nativePath)) {
+				this._created = this._modified = (new Date()).getTime();
+				this._exists = true;
+				this._type = type;
+				return this._save();
+			}
+			return false;
+		},
+
+		_save: function(path, name) {
+			var path = path || this.nativePath,
 				meta;
 			if (path) {
-				meta = ["n", this.name, "\nc", this._created, "\nm", this._modified, "\nt", this._type, "\ne0\nx0\nr", this.readonly|0, "\nl", this.symbolicLink|0, "\nh", this.hidden|0];
+				meta = ["n", name || this.name, "\nc", this._created, "\nm", this._modified, "\nt", this._type, "\ne0\nx0\nr", this.readonly|0, "\nl", this.symbolicLink|0, "\nh", this.hidden|0];
 				this._type === 'F' && meta.push("\ns" + this.size);
 				this._mimeType && meta.push("\ny" + this._mimeType);
 				setLocal(path, meta.join(''), 1);
