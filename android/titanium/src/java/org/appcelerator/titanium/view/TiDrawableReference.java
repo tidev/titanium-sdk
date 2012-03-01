@@ -174,7 +174,7 @@ public class TiDrawableReference
 	}
 	/**
 	 * Does its best to determine the type of reference (url, blob, etc) based on object parameter.
-	 * @param context
+	 * @param activity
 	 * @param object
 	 * @return A ready instance of TiDrawableReference
 	 */
