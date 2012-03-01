@@ -122,6 +122,19 @@ define(
 			this.addEventListener("touchend", bg);
 
 			// TODO: mixin JSS rules (http://jira.appcelerator.org/browse/TIMOB-6780)
+			
+			this.constants.__values__.size = {
+				x: 0,
+				y: 0,
+				width: 0,
+				height: 0
+			};
+			this.constants.__values__.rect = {
+				x: 0,
+				y: 0,
+				width: 0,
+				height: 0
+			};
 		},
 
 		destroy: function() {
@@ -164,8 +177,8 @@ define(
 			}
 			rootLayoutNode._markedForLayout = true;
 			
-			// Let the UI know that a layout needs to be performed.
-			UI._triggerLayout(force);
+			// Let the UI know that a layout needs to be performed if this is not part of a batch update
+			(!this._batchUpdateInProgress || force) && UI._triggerLayout(force);
 		},
 		
 		_triggerParentLayout: function() {
@@ -176,8 +189,28 @@ define(
 			return (this.width === "auto" || (!isDef(this.width) && this._defaultWidth === "auto")) || 
 				(this.height === "auto" || (!isDef(this.height) && this._defaultHeight === "auto"));
 		},
+		
+		startLayout: function() {
+			this._batchUpdateInProgress = true;
+		},
+		
+		finishLayout: function() {
+			this._batchUpdateInProgress = false;
+			UI._triggerLayout(true);
+		},
+		
+		updateLayout: function(params) {
+			this.startLayout();
+			for(var i in params) {
+				this[i] = params[i];
+			}
+			this.finishLayout();
+		},
 
 		_doLayout: function(originX, originY, parentWidth, parentHeight, defaultHorizontalAlignment, defaultVerticalAlignment, isParentAutoWidth, isParentAutoHeight) {
+			
+			this.fireEvent("layoutstart", {});
+			
 			this._originX = originX;
 			this._originY = originY;
 			this._defaultHorizontalAlignment = defaultHorizontalAlignment;
@@ -205,20 +238,22 @@ define(
 			styles = {
 				zIndex: this.zIndex | 0
 			};
+			var rect  = this.rect,
+				size  = this.size;
 			if (this._measuredLeft != dimensions.left) {
-				this._measuredLeft = dimensions.left;
+				rect.x = this._measuredLeft = dimensions.left;
 				isDef(this._measuredLeft) && (styles.left = unitize(this._measuredLeft));
 			}
 			if (this._measuredTop != dimensions.top) {
-				this._measuredTop = dimensions.top
+				rect.y = this._measuredTop = dimensions.top;
 				isDef(this._measuredTop) && (styles.top = unitize(this._measuredTop));
 			}
 			if (this._measuredWidth != dimensions.width) {
-				this._measuredWidth = dimensions.width
+				size.width = rect.width = this._measuredWidth = dimensions.width;
 				isDef(this._measuredWidth) && (styles.width = unitize(this._measuredWidth));
 			}
 			if (this._measuredHeight != dimensions.height) {
-				this._measuredHeight = dimensions.height
+				size.height = rect.height = this._measuredHeight = dimensions.height;
 				isDef(this._measuredHeight) && (styles.height = unitize(this._measuredHeight));
 			}
 			this._measuredRightPadding = dimensions.rightPadding;
@@ -237,6 +272,8 @@ define(
 			
 			// Recompute the gradient, if it exists
 			this.backgroundGradient && this._computeGradient();
+			
+			this.fireEvent("layoutend", {});
 		},
 
 		_computeDimensions: function(parentWidth, parentHeight, left, top, originalRight, originalBottom, centerX, centerY, width, height, borderWidth, layoutChildren) {
@@ -826,6 +863,11 @@ define(
 		_measuredBottomPadding: 0,
 		_measuredWidth: 0,
 		_measuredHeight: 0,
+		
+		constants: {
+			size: undef,
+			rect: undef
+		},
 
 		properties: {
 			backgroundColor: postDoBackground,
@@ -958,13 +1000,6 @@ define(
 			},
 
 			right: postLayoutProp,
-
-			size: {
-				set: function(value) {
-					console.debug('Property "Titanium._.UI.Element#.size" is not implemented yet.');
-					return value;
-				}
-			},
 
 			touchEnabled: {
 				set: function(value) {
