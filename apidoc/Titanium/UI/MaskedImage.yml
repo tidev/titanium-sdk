@@ -35,7 +35,7 @@ description: |
     Note that this legacy control lacks many of the features associated with a standard
     [ImageView](Titanium.UI.ImageView) control.
 
-    Use the <Titanium.UI.createMaskedImageView> method to create a masked image view.
+    Use the <Titanium.UI.createMaskedImage> method to create a masked image view.
 extends: Titanium.UI.View
 platforms: [iphone,ipad]
 examples: 
