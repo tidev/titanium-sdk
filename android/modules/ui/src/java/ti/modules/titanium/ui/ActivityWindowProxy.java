@@ -86,7 +86,6 @@ public class ActivityWindowProxy extends TiWindowProxy
 
 				opened = true;
 				handlePostOpen();
-				fireEvent(TiC.EVENT_OPEN, null);
 
 				return true;
 			}

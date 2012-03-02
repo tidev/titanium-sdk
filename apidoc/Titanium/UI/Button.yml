@@ -127,7 +127,7 @@ properties:
     type: String
     platforms: [iphone,ipad,mobileweb]
   - name: style
-    summary: Style constant for the button, as defined in <Titanium.UI.iPhone.SystemButtonStyles>.
+    summary: Style constant for the button, as defined in <Titanium.UI.iPhone.SystemButtonStyle>.
     type: Number
     platforms: [iphone,ipad]
   - name: systemButton

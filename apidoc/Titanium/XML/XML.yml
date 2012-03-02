@@ -5,7 +5,7 @@ extends: Titanium.Module
 since: "0.9"
 methods:
   - name: parseString
-    summary: > 
+    summary: | 
         Parses an XML string into a <Titanium.XML.Document> object.
         Throws an exception if the string is unable to be parsed into a valid
         document.

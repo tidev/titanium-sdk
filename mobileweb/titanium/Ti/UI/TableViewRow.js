@@ -34,9 +34,9 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 
 			this.add(this.rightImageView = UI.createImageView({
 				right: 0,
-				top: 0,
+				center: {y: "50%"},
 				width: "auto", 
-				height: "100%"
+				height: "auto"
 			}));
 		},
 
@@ -75,7 +75,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 			hasCheck: {
 				set: function(value, oldValue) {
 					if (value !== oldValue && !isDef(this.rightImage) && !this.hasChild) {
-						this.rightImageView.image = value ? checkImage : undef;
+						this.rightImageView.image = value ? checkImage : "";
 					}
 					return value;
 				}
@@ -83,7 +83,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 			hasChild: {
 				set: function(value, oldValue) {
 					if (value !== oldValue && !isDef(this.rightImage)) {
-						this.rightImageView.image = value ? childImage : undef;
+						this.rightImageView.image = value ? childImage : "";
 					}
 					return value;
 				}
@@ -91,7 +91,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 			hasDetail: {
 				set: function(value, oldValue) {
 					if (value !== oldValue && !isDef(this.rightImage) && !this.hasChild && !this.hasCheck) {
-						this.rightImageView.image = value ? detailImage : undef;
+						this.rightImageView.image = value ? detailImage : "";
 					}
 					return value;
 				}
