@@ -152,14 +152,13 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
     [super frameSizeChanged:frame bounds:bounds];
 	if (webview!=nil)
 	{
+		[webview stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.body.style.minWidth='%fpx';document.body.style.minHeight='%fpx';",bounds.size.width-8,bounds.size.height-16]];
 		[TiUtils setView:webview positionRect:bounds];
 		
 		if (spinner!=nil)
 		{
 			spinner.center = self.center;
-		}
-		
-		[[self webview] stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.body.style.minWidth='%fpx';document.body.style.minHeight='%fpx';",bounds.size.width-8,bounds.size.height-16]];
+		}		
 	}
 }
 

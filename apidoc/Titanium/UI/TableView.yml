@@ -693,10 +693,10 @@ properties:
     default: true
     
   - name: animationStyle
-    summary: Type of animation to use for row insertions and deletions. One of the animation style constants defined in <Titanium.UI.iPhone.RowAnimationStyles>.
+    summary: Type of animation to use for row insertions and deletions. One of the animation style constants defined in <Titanium.UI.iPhone.RowAnimationStyle>.
     type: Number
     default: If `animated` is `true` but no `animationStyle` is specified, 
-        the style defaults to [FADE](Titanium.UI.iPhone.RowAnimationStyles.FADE).
+        the style defaults to [FADE](Titanium.UI.iPhone.RowAnimationStyle.FADE).
         
   - name: position
     summary: Specifies what position to scroll the selected row to. One of the position constants from <Titanium.UI.iPhone.TableViewScrollPosition>.
