@@ -333,6 +333,8 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
         }
     }
     
+    return CGPointMake(centerX, centerY);
+    /*
     //padding and margin are not used in positioning but added on after positioning is determined
     CGFloat xAdjustment = 0.0;
     CGFloat yAdjustment = 0.0;
@@ -347,6 +349,7 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
     yAdjustment += (TiDimensionCalculateValue(constraint->marginTop, 0.0) - TiDimensionCalculateValue(constraint->marginBottom, 0.0));
 
     return CGPointMake(centerX+xAdjustment, centerY+yAdjustment);
+     */
 }
 
 void ApplyConstraintToViewWithBounds(LayoutConstraint * constraint, TiUIView * subView, CGRect viewBounds)
