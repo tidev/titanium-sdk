@@ -195,36 +195,18 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
     
     *resultResizing &= ~(UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin);
     
-    //PIN PRECEDENCE IS LEFT, CENTERX, RIGHT, TOP, CENTERY, BOTTOM
     CGFloat centerX = 0.0f;
-    CGFloat validVal = 0.0f;
-    BOOL ignoreMargins;
+    
+    BOOL ignoreMargins = NO;
+    
+    BOOL isSizeUndefined = TiDimensionIsUndefined(constraint->width);
+    BOOL isCenterDefined = TiDimensionDidCalculateValue(constraint->centerX, referenceSize.width, &centerX);
     
     if (!flexibleSize) {
-        //I have a valid width value. Try and calculate center from pins
-        ignoreMargins = TiDimensionDidCalculateValue(constraint->left, referenceSize.width, &validVal);
-        if (ignoreMargins) {
-            //Got left. So center is left + viewSize.width/2
-            centerX = validVal + viewSize.width/2;
+        if (isSizeUndefined) {
+            //Width was calculated from pin. If center was used as one of the pins to calculate width just set and go
+            ignoreMargins = isCenterDefined;
         }
-        else {
-            ignoreMargins = TiDimensionDidCalculateValue(constraint->centerX, referenceSize.width, &validVal);
-            if (ignoreMargins) {
-                //Got the center itself. Use it
-                centerX = validVal;
-            }
-            else {
-                ignoreMargins = TiDimensionDidCalculateValue(constraint->right, referenceSize.width, &validVal);
-                if (ignoreMargins) {
-                    //Got right. So left is sandboxSize.width - right - viewSize.width
-                    //Center is left + viewSize.width/2 --> sandboxSize.width - right - viewSize.width/2
-                    centerX = sandboxSize.width - validVal - viewSize.width/2;
-                }
-            }
-        }
-    }
-    else {
-        ignoreMargins = NO;
     }
 	
     if (!ignoreMargins)
@@ -240,15 +222,19 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
         {
             *resultResizing |= UIViewAutoresizingFlexibleLeftMargin;
         }
-        CGFloat frameRight;
-        if(TiDimensionDidCalculateValue(constraint->right, referenceSize.width, &frameRight))
-        {
-            marginSuggestions++;
-            frameLeft += sandboxSize.width - viewSize.width - frameRight;
-        }
-        else if (!flexibleSize)
-        {
-            *resultResizing |= UIViewAutoresizingFlexibleRightMargin;
+        
+        if (isSizeUndefined || (marginSuggestions == 0) || flexibleSize) {
+            
+            CGFloat frameRight;
+            if(TiDimensionDidCalculateValue(constraint->right, referenceSize.width, &frameRight))
+            {
+                marginSuggestions++;
+                frameLeft += sandboxSize.width - viewSize.width - frameRight;
+            }
+            else if (!flexibleSize)
+            {
+                *resultResizing |= UIViewAutoresizingFlexibleRightMargin;
+            }
         }
         if (marginSuggestions < 1)
         {
@@ -263,33 +249,17 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
     flexibleSize = *resultResizing & UIViewAutoresizingFlexibleHeight;
     CGFloat centerY = 0.0f;
     
-    if(!flexibleSize)
-    {
-        //I have a valid height value. Try and calculate center from pins
-        ignoreMargins = TiDimensionDidCalculateValue(constraint->top, referenceSize.width, &validVal);
-        if (ignoreMargins) {
-            //Got top. So center is top + viewSize.height/2
-            centerY = validVal + viewSize.height/2;
-        }
-        else {
-            ignoreMargins = TiDimensionDidCalculateValue(constraint->centerY, referenceSize.width, &validVal);
-            if (ignoreMargins) {
-                //Got the center itself. Use it
-                centerY = validVal;
-            }
-            else {
-                ignoreMargins = TiDimensionDidCalculateValue(constraint->bottom, referenceSize.width, &validVal);
-                if (ignoreMargins) {
-                    //Got bottom. So left is sandboxSize.height - bottom - viewSize.height/2
-                    centerY = sandboxSize.height - validVal - viewSize.height/2;
-                }
-            }
+    isSizeUndefined = TiDimensionIsUndefined(constraint->height);
+    isCenterDefined = TiDimensionDidCalculateValue(constraint->centerY, referenceSize.height, &centerY);
+    ignoreMargins = NO;
+    
+    if(!flexibleSize) {
+        if (isSizeUndefined) {
+            //Width was calculated from pin. If center was used as one of the pins to calculate width just set and go
+            ignoreMargins = isCenterDefined;
         }
     }
-    else
-    {
-        ignoreMargins = NO;
-    }
+ 
 	
     if (!ignoreMargins)
     {
@@ -304,16 +274,17 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
         {
             *resultResizing |= UIViewAutoresizingFlexibleTopMargin;
         }
-
-        CGFloat frameBottom;
-        if(TiDimensionDidCalculateValue(constraint->bottom, referenceSize.height, &frameBottom))
-        {
-            marginSuggestions++;
-            frameTop += sandboxSize.height - viewSize.height - frameBottom;
-        }
-        else if (!flexibleSize)
-        {
-            *resultResizing |= UIViewAutoresizingFlexibleBottomMargin;
+        if (isSizeUndefined || (marginSuggestions == 0) || flexibleSize) {
+            CGFloat frameBottom;
+            if(TiDimensionDidCalculateValue(constraint->bottom, referenceSize.height, &frameBottom))
+            {
+                marginSuggestions++;
+                frameTop += sandboxSize.height - viewSize.height - frameBottom;
+            }
+            else if (!flexibleSize)
+            {
+                *resultResizing |= UIViewAutoresizingFlexibleBottomMargin;
+            }
         }
         if (marginSuggestions < 1)
         {

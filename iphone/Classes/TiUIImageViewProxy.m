@@ -34,17 +34,34 @@ static NSArray* imageKeySequence;
 
 // TODO: Hack to resize 'auto' image views; other 'auto' views may still need to be
 // resized/relayed on iPad.  See #2227
+//This is no longer true. ImageViews are now SIZE views
+/*
 -(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
 {
 	UIViewAutoresizing resizing = suggestedResizing;
-	if (TiDimensionIsAuto(layoutProperties.width)) {
+	if (TiDimensionIsAuto(layoutProperties.width)th)) {
 		resizing |= UIViewAutoresizingFlexibleWidth;
 	}
-	if (TiDimensionIsAuto(layoutProperties.height)) {
+	if (TiDimensionIsAuto(layoutProperties.height)ght)) {
 		resizing |= UIViewAutoresizingFlexibleHeight;
 	}
 	
 	return resizing;
+}
+*/
+-(void)propagateLoadEvent:(NSString *)stateString
+{
+    //Send out a content change message if we are auto sizing
+    if (TiDimensionIsAuto(layoutProperties.width) || TiDimensionIsAutoSize(layoutProperties.width) || TiDimensionIsUndefined(layoutProperties.width) ||
+        TiDimensionIsAuto(layoutProperties.height) || TiDimensionIsAutoSize(layoutProperties.height) || TiDimensionIsUndefined(layoutProperties.height)) {
+        [self refreshSize];
+        [self willChangeSize];
+    }
+    
+    if ([self _hasListeners:@"load"]) {
+        NSDictionary *event = [NSDictionary dictionaryWithObject:stateString forKey:@"state"];
+        [self fireEvent:@"load" withObject:event];
+    }
 }
 
 -(void)_configure
