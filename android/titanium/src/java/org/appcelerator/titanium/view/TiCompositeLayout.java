@@ -145,14 +145,6 @@ public class TiCompositeLayout extends ViewGroup
 		params.optionZIndex = NOT_SET;
 		params.autoHeight = true;
 		params.autoWidth = true;
-		params.marginLeft = null;
-		params.marginRight = null;
-		params.marginTop = null;
-		params.marginBottom = null;
-		params.paddingLeft = null;
-		params.paddingRight = null;
-		params.paddingTop = null;
-		params.paddingBottom = null;
 
 		return params;
 	}
@@ -438,16 +430,6 @@ public class TiCompositeLayout extends ViewGroup
 					Log.d(TAG, child.getClass().getName() + " {" + horizontal[0] + "," + vertical[0] + "," + horizontal[1] + "," + vertical[1] + "}");
 				}
 
-				if (getLayoutParams() instanceof TiCompositeLayout.LayoutParams) {
-					LayoutParams parentParams = (LayoutParams) getLayoutParams();
-					// Adjust for padding/margin
-					adjustPosition(this, params.marginLeft, params.marginRight, horizontal);
-					adjustPosition(this, params.marginTop, params.marginBottom, vertical);
-
-					adjustPosition(this, parentParams.paddingLeft, parentParams.paddingRight, horizontal);
-					adjustPosition(this, parentParams.paddingTop, parentParams.paddingBottom, vertical);
-				}
-
 				int newWidth = horizontal[1] - horizontal[0];
 				int newHeight = vertical[1] - vertical[0];
 				if (newWidth != childMeasuredWidth
@@ -475,19 +457,6 @@ public class TiCompositeLayout extends ViewGroup
 	{
 		super.onAnimationEnd();
 		invalidate();
-	}
-
-	// option0 is left/top, option1 is right/bottom
-	private void adjustPosition(View parent, TiDimension leftOrTop, TiDimension rightOrBottom, int[] pos)
-	{
-		if (leftOrTop != null) {
-			pos[0] += leftOrTop.getAsPixels(parent);
-			pos[1] += leftOrTop.getAsPixels(parent);
-		}
-		if (rightOrBottom != null) {
-			pos[0] -= rightOrBottom.getAsPixels(parent);
-			pos[1] -= rightOrBottom.getAsPixels(parent);
-		}
 	}
 
 	// option0 is left/top, option1 is right/bottom
@@ -582,18 +551,6 @@ public class TiCompositeLayout extends ViewGroup
 		public boolean autoWidth = true;
 		public boolean autoFillsWidth = false;
 		public boolean autoFillsHeight = false;
-
-		// Margin
-		public TiDimension marginLeft = null;
-		public TiDimension marginRight = null;
-		public TiDimension marginTop = null;
-		public TiDimension marginBottom = null;
-
-		// Padding
-		public TiDimension paddingLeft = null;
-		public TiDimension paddingRight = null;
-		public TiDimension paddingTop = null;
-		public TiDimension paddingBottom = null;
 
 		public LayoutParams() {
 			super(WRAP_CONTENT, WRAP_CONTENT);

@@ -735,27 +735,11 @@ properties:
 
             Each child is positioned vertically as in the absolute layout mode.
     default: absolute layout
-    
-  - name: margin
-    summary: |
-        The top/left/right/bottom margin of the view.
-    description: |
-        Margin is used to adjust the position only, and has no effect on the hieght/width calculation.  Margin affects the positioning of the view itself ("external spacing").
-    since: 2.0.0
-    type: Rect
 
   - name: opacity
     summary: Opacity of this view, from 0.0 (transparent) to 1.0 (opaque).
     type: Number
     default: 1.0 (opaque)
-    
-  - name: padding
-    summary: |
-        The top/left/right/bottom padding of the view.
-    description: |
-        Padding is used to adjust the position only, and has no effect on the hieght/width calculation.  Padding affects the positioning of its children, not the view itself ("internal spacing").
-    since: 2.0.0
-    type: Rect
 
   - name: right
     summary: View's right position, in platform-specific units.

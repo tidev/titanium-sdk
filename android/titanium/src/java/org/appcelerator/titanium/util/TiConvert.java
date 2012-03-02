@@ -193,16 +193,6 @@ public class TiConvert
 			dirty = true;
 		}
 
-		if (hashMap.containsKey(TiC.PROPERTY_MARGIN)) {
-			updateLayoutMargin(hashMap.get(TiC.PROPERTY_MARGIN), layoutParams);
-			dirty = true;
-		}
-
-		if (hashMap.containsKey(TiC.PROPERTY_PADDING)) {
-			updateLayoutPadding(hashMap.get(TiC.PROPERTY_PADDING), layoutParams);
-			dirty = true;
-		}
-
 		if (width != null || hashMap.containsKey(TiC.PROPERTY_WIDTH)) {
 			if (width == null) {
 				width = hashMap.get(TiC.PROPERTY_WIDTH);
@@ -312,96 +302,6 @@ public class TiConvert
 		} else {
 			layoutParams.optionCenterX = null;
 			layoutParams.optionCenterY = null;
-		}
-	}
-
-	public static void updateLayoutMargin(Object value, LayoutParams layoutParams)
-	{
-		layoutParams.marginLeft = null;
-		layoutParams.marginRight = null;
-		layoutParams.marginTop = null;
-		layoutParams.marginBottom = null;
-
-		if (value instanceof HashMap) {
-			@SuppressWarnings("rawtypes")
-			HashMap margin = (HashMap) value;
-			Object left = margin.get(TiC.PROPERTY_LEFT);
-			Object right = margin.get(TiC.PROPERTY_RIGHT);
-			Object top = margin.get(TiC.PROPERTY_TOP);
-			Object bottom = margin.get(TiC.PROPERTY_BOTTOM);
-
-			if (left != null) {
-				TiDimension leftMargin = toTiDimension(left, TiDimension.TYPE_LEFT);
-				if (!leftMargin.isUnitPercent()) {
-					layoutParams.marginLeft = leftMargin;
-				}
-			}
-
-			if (right != null) {
-				TiDimension rightMargin = toTiDimension(right, TiDimension.TYPE_RIGHT);
-				if (!rightMargin.isUnitPercent()) {
-					layoutParams.marginRight = rightMargin;
-				}
-			}
-
-			if (top != null) {
-				TiDimension topMargin = toTiDimension(top, TiDimension.TYPE_TOP);
-				if (!topMargin.isUnitPercent()) {
-					layoutParams.marginTop = topMargin;
-				}
-			}
-
-			if (bottom != null) {
-				TiDimension bottomMargin = toTiDimension(bottom, TiDimension.TYPE_BOTTOM);
-				if (!bottomMargin.isUnitPercent()) {
-					layoutParams.marginBottom = bottomMargin;
-				}
-			}
-		}
-	}
-
-	public static void updateLayoutPadding(Object value, LayoutParams layoutParams)
-	{
-		layoutParams.paddingLeft = null;
-		layoutParams.paddingRight = null;
-		layoutParams.paddingTop = null;
-		layoutParams.paddingBottom = null;
-
-		if (value instanceof HashMap) {
-			@SuppressWarnings("rawtypes")
-			HashMap padding = (HashMap) value;
-			Object left = padding.get(TiC.PROPERTY_LEFT);
-			Object right = padding.get(TiC.PROPERTY_RIGHT);
-			Object top = padding.get(TiC.PROPERTY_TOP);
-			Object bottom = padding.get(TiC.PROPERTY_BOTTOM);
-
-			if (left != null) {
-				TiDimension leftPadding = toTiDimension(left, TiDimension.TYPE_LEFT);
-				if (!leftPadding.isUnitPercent()) {
-					layoutParams.paddingLeft = leftPadding;
-				}
-			}
-
-			if (right != null) {
-				TiDimension rightPadding = toTiDimension(right, TiDimension.TYPE_RIGHT);
-				if (!rightPadding.isUnitPercent()) {
-					layoutParams.paddingRight = rightPadding;
-				}
-			}
-
-			if (top != null) {
-				TiDimension topPadding = toTiDimension(top, TiDimension.TYPE_TOP);
-				if (!topPadding.isUnitPercent()) {
-					layoutParams.paddingTop = topPadding;
-				}
-			}
-
-			if (bottom != null) {
-				TiDimension bottomPadding = toTiDimension(bottom, TiDimension.TYPE_BOTTOM);
-				if (!bottomPadding.isUnitPercent()) {
-					layoutParams.paddingBottom = bottomPadding;
-				}
-			}
 		}
 	}
 

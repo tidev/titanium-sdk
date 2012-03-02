@@ -324,12 +324,6 @@ public abstract class TiUIView
 				layoutParams.optionBottom = null;
 			}
 			layoutNativeView();
-		} else if (key.equals(TiC.PROPERTY_MARGIN)) {
-			TiConvert.updateLayoutMargin(newValue, layoutParams);
-			layoutNativeView();
-		} else if (key.equals(TiC.PROPERTY_PADDING)) {
-			TiConvert.updateLayoutPadding(newValue, layoutParams);
-			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_SIZE)) {
 			if (newValue instanceof HashMap) {
 				HashMap<String, Object> d = (HashMap) newValue;
