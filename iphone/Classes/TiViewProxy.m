@@ -1859,6 +1859,10 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 
 		repositioning = NO;
+        
+        if ([self _hasListeners:@"postlayout"]) {
+            [self fireEvent:@"postlayout" withObject:nil];
+        }
 	}
 #ifdef VERBOSE
 	else
