@@ -1,163 +1,6 @@
 define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/Filesystem/FileStream"],
 	function(declare, encoding, lang, API, Blob, FileStream) {
 
-/*
-
-KITCHEN SINK
-
-var f = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,'camera_photo.png');
-f.write(image);
-
-sampleImage = Ti.Filesystem.getFile('images/chat.png').read();
-
-var f = Ti.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'cricket.wav');
-
-var f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'images', 'flower.jpg');
-var blob = f.read();
-
-var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'text.txt');
-Ti.API.info('file = ' + f);
-var contents = f.read();
-Ti.API.info("contents blob object = "+contents);
-Ti.API.info('contents = ' + contents.text);
-Ti.API.info('mime type = ' + contents.mimeType);
-Ti.API.info('Blob\'s file = ' + contents.file);
-Ti.API.info('nativePath = ' + f.nativePath);
-Ti.API.info('Blob\'s file nativePath= ' + contents.file.nativePath);
-Ti.API.info('exists = ' + f.exists());
-Ti.API.info('size = ' + f.size);
-Ti.API.info('readonly = ' + f.readonly);
-Ti.API.info('symbolicLink = ' + f.symbolicLink);
-Ti.API.info('executable = ' + f.executable);
-Ti.API.info('hidden = ' + f.hidden);
-Ti.API.info('writable = ' + f.writable);
-Ti.API.info('name = ' + f.name);
-Ti.API.info('extension = ' + f.extension());
-Ti.API.info('resolve = ' + f.resolve());
-Ti.API.info('created = ' + String(new Date(f.createTimestamp()))); // #2085 test
-
-var dir = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory);
-Ti.API.info('directoryListing = ' + dir.getDirectoryListing());
-Ti.API.info('getParent = ' + dir.getParent());
-Ti.API.info('spaceAvailable = ' + dir.spaceAvailable());
-
-var newDir = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,'mydir');
-Ti.API.info("Created mydir: " + newDir.createDirectory());
-Ti.API.info('newdir ' + newDir);
-var newFile = Titanium.Filesystem.getFile(newDir.nativePath,'newfile.txt');
-newFile.write(f.read());
-Ti.API.info('directoryListing for newDir = ' + newDir.getDirectoryListing());
-Ti.API.info("newfile.txt created: " + String(new Date(newFile.createTimestamp())));
-Ti.API.info("newfile.txt modified: " + String(new Date(newFile.modificationTimestamp())));
-Ti.API.info("newfile.txt renamed as b.txt: " + newFile.rename('b.txt'));
-
-var renamedFile = Titanium.Filesystem.getFile(newDir.nativePath, 'b.txt');
-Ti.API.info("newfile.txt deleted (expected to fail): " + newFile.deleteFile());
-Ti.API.info("b.txt deleted: " + renamedFile.deleteFile());
-Ti.API.info("mydir deleted: " + newDir.deleteDirectory());
-Ti.API.info('directoryListing for newDir after deleteDirectory = ' + newDir.getDirectoryListing());
-
-var jsfile = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory,'app.js');
-Ti.API.info("app.js exists? " + jsfile.exists());                                                                                                
-Ti.API.info("app.js size? " + jsfile.size);
-
-var testfile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'text.txt');
-Ti.API.info('text.txt exists? ' + testfile.exists());
-Ti.API.info('text.txt size: ' + testfile.size + ' bytes');
-
-var f = Ti.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory,'images/apple_logo.jpg');
-
-var plFile = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'paradise_lost.txt');
-var text = plFile.read();
-
-var f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory,'examples','route.csv');
-var csv = f.read();
-
-bgImage = Titanium.Filesystem.getFile(f);
-win.backgroundImage = bgImage.nativePath;
-
-var filename = Titanium.Filesystem.applicationDataDirectory + "/" + new Date().getTime() + ".jpg";
-if (bgImage != null) {
-	bgImage.deleteFile();
-}
-bgImage = Titanium.Filesystem.getFile(filename);
-bgImage.write(image);
-
-var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory,'images/appcelerator_small.png');
-
-var f1 = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'images', 'apple_logo.jpg');
-var f2 = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,'apple_logo.jpg');
-f2.write(f1);
-
-var f = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory,'ti.png');
-f.write(this.responseData);
-imageView.image = f.nativePath;
-
-var plBlob = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'paradise_lost.txt').read();
-var input = Ti.Stream.createStream({source:plBlob, mode:Ti.Stream.MODE_READ});
-
-for (var index in connectedSockets) {
-	var sock = connectedSockets[index];
-	Ti.Stream.writeStream(input, sock, 4096);
-}
-
-BRAVO
-
-var file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, service + '.config');
-if(!file.exists()) {
-	Ti.API.error(service + '.config is missing');
-	return false;
-}
-
-// try to read file
-var contents = file.read();
-if(contents == null) {
-	Ti.API.error(service + '.config is empty');
-	return false;
-}
-
-var file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, service + '.config');
-if(file == null) {
-	file = Ti.Filesystem.createFile(Ti.Filesystem.applicationDataDirectory, service + '.config');
-}
-file.write(JSON.stringify({
-	access_token : cfg.access_token,
-	access_token_secret : cfg.access_token_secret
-}));
-
-var file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, service + '.config');
-file.deleteFile();
-
-var file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'cached_images', filename);
-if (file.exists()) {
-	// If it has been cached, assign the local asset path to the image view object.
-	imageViewObject.set('image', file.nativePath);
-} else {
-	// If it hasn't been cached, grab the directory it will be stored in.
-	var g = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'cached_images');
-	if (!g.exists()) {
-		// If the directory doesn't exist, make it
-		g.createDirectory();
-	}
-	// ...
-	file.write(xhr.responseData);
-	imageViewObject.set('image', file.nativePath);
-}
-
-NBC
-
-file = Ti.Filesystem.getFile(path, imageToCheck);
-finalPath = (file.exists()) ? path + imageToCheck : path + image;
-
-var termsContent = Ti.Filesystem.getFile(N._PATH._DOCS, 'terms.html');
-Ti.UI.createWebView({ html:termsContent.read().text });
-
-Ti.UI.createView({ backgroundImage:Titanium.Filesystem.applicationDataDirectory + object.siteId + '.jpg'});
-
-file = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory, button.data.siteId + '.jpg');
-file.write(this.responseData);
-*/
-
 	var reg,
 		regDate = (new Date()).getTime(),
 		File,
@@ -324,6 +167,19 @@ file.write(this.responseData);
 		return true;
 	}
 
+	function purgeTemp() {
+		var re = /^ti:fs:tmp:\/\//,
+			i = 0,
+			len = ls.length,
+			key;
+		while (i < len) {
+			key = ls.key(i++);
+			re.test(key) && ls.removeItem(key);
+		}
+	}
+	purgeTemp();
+	require.on(window, "beforeunload", purgeTemp);
+
 	return File = declare("Ti._.Filesystem.Local", null, {
 
 		constructor: function(path) {
@@ -367,7 +223,6 @@ file.write(this.responseData);
 			readonly: false,
 			size: 0,
 			symbolicLink: false,
-			hidden: false,
 			nativePath: "",
 			parent: null,
 			writable: {
