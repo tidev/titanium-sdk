@@ -9,7 +9,6 @@ package org.appcelerator.titanium.view;
 import java.util.Comparator;
 import java.util.TreeSet;
 
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
