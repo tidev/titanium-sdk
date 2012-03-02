@@ -36,11 +36,11 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 				});
 			},
 			
-			_doLayout: function(originX, originY, parentWidth, parentHeight, defaultHorizontalAlignment, defaultVerticalAlignment, isParentAutoWidth, isParentAutoHeight) {
+			_doLayout: function(params) {
 				var values = this.properties.__values__;
-				values.width = isParentAutoWidth ? "auto" : "100%";
-				values.height = isParentAutoHeight ? "auto" : "100%";
-				Widget.prototype._doLayout.apply(this,arguments);
+				values.width = params.parentAuto.width ? "auto" : "100%";
+				values.height = params.parentAuto.height ? "auto" : "100%";
+				Widget.prototype._doLayout.call(this,params);
 			},
 		
 			_getContentSize: function(width, height) {

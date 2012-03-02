@@ -14,16 +14,16 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 			// Create the tabBarContainer class
 			var self = this;
 			var TabBarContainer = declare("Ti._.UI.TabGroup.TabBarContainer", View, {
-				_doLayout: function(originX, originY, parentWidth, parentHeight, centerHDefault, centerVDefault) {
+				_doLayout: function(params) {
 					var tabs = self.tabs,
 						numTabs = tabs.length,
-						tabWidth = Math.floor((parentWidth - (numTabs - 1) * self.tabDividerWidth) / numTabs);
+						tabWidth = Math.floor((params.boundingSize.width - (numTabs - 1) * self.tabDividerWidth) / numTabs);
 					for (var i = 0; i < numTabs - 1; i++) {
 						tabs[i]._tabWidth = tabWidth;
 					}
 					 // Make the last tab consume the remaining space. Fractional widths look really bad in tabs.
-					tabs[i]._tabWidth = parentWidth - (numTabs - 1) * self.tabDividerWidth - tabWidth * (numTabs - 1);
-					View.prototype._doLayout.apply(this,arguments);
+					tabs[i]._tabWidth = params.boundingSize.width - (numTabs - 1) * self.tabDividerWidth - tabWidth * (numTabs - 1);
+					View.prototype._doLayout.call(this,params);
 				}
 			});
 			

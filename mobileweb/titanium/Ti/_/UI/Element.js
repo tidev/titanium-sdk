@@ -207,18 +207,20 @@ define(
 			this.finishLayout();
 		},
 
-		_doLayout: function(originX, originY, parentWidth, parentHeight, defaultHorizontalAlignment, defaultVerticalAlignment, isParentAutoWidth, isParentAutoHeight) {
+		_doLayout: function(params) {
 			
-			this._originX = originX;
-			this._originY = originY;
-			this._defaultHorizontalAlignment = defaultHorizontalAlignment;
-			this._defaultVerticalAlignment = defaultVerticalAlignment;
-			this._isParentAutoWidth = isParentAutoWidth;
-			this._isParentAutoHeight = isParentAutoHeight;
+			this._originX = params.origin.x;
+			this._originY = params.origin.y;
+			this._defaultHorizontalAlignment = params.alignment.horizontal;
+			this._defaultVerticalAlignment = params.alignment.vertical;
+			this._isParentAutoWidth = params.parentAuto.width;
+			this._isParentAutoHeight = params.parentAuto.height;
+			
+			this._layoutParams = params;
 
 			var dimensions = this._computeDimensions(
-					parentWidth,
-					parentHeight,
+					params.boundingSize.width,
+					params.boundingSize.height,
 					this.left,
 					this.top,
 					this.right,

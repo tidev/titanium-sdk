@@ -51,10 +51,6 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 			View.prototype._handleTouchEvent.apply(this,arguments);
 		},
 
-		_doLayout: function(){
-			View.prototype._doLayout.apply(this,arguments);
-		},
-
 		_doBackground: function(evt) {
 			if (this._touching) {
 				this.titleLabel.color = this.selectedColor;

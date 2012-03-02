@@ -19,7 +19,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				}
 			},
 			
-			_doLayout: function(originX, originY, parentWidth, parentHeight, defaultHorizontalAlignment, defaultVerticalAlignment, isParentAutoWidth, isParentAutoHeight) {
+			_doLayout: function(params) {
 				var imageRatio = this.domNode.width / this.domNode.height,
 					self = this;
 				
@@ -33,21 +33,23 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 					self.properties.__values__.height = parentWidth / imageRatio;
 				}
 				
-				if (!isParentAutoWidth && !isParentAutoHeight) {
+				var isParentWidthAuto = params.parentAuto.width,
+					isParentHeightAuto = params.parentAuto.width;
+				if (!isParentWidthAuto && !isParentHeightAuto) {
 					if (parentWidth / parentHeight > imageRatio) {
 						setByHeight();
 					} else {
 						setByWidth();
 					}
-				} else if (!isParentAutoWidth) {
+				} else if (!isParentWidthAuto) {
 					setByWidth();
-				} else if (!isParentAutoHeight) {
+				} else if (!isParentHeightAuto) {
 					setByHeight();
 				} else {
 					this.properties.__values__.width = "auto";
 					this.properties.__values__.height = "auto";
 				}
-				Widget.prototype._doLayout.apply(this,arguments);
+				Widget.prototype._doLayout.call(this,params);
 			},
 			
 			properties: {

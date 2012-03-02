@@ -24,23 +24,11 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 				}, this._contentContainer);
 			},
 			
-			_doLayout: function(originX, originY, parentWidth, parentHeight, defaultHorizontalAlignment, defaultVerticalAlignment, isParentAutoWidth, isParentAutoHeight) {
-				var props = this.properties.__values__;
-				if (!isParentAutoWidth && !isParentAutoHeight) {
-					props.width = "100%";
-					props.height = "100%";
-				} else if (!isParentAutoWidth) {
-					props.width = "100%";
-					props.height = "auto";
-				} else if (!isParentAutoHeight) {
-					props.width = "auto";
-					props.height = "100%";
-				} else {
-					props.width = "auto";
-					props.height = "auto";
-				}
-				
-				Widget.prototype._doLayout.apply(this,arguments);
+			_doLayout: function(params) {
+				var values = this.properties.__values__;
+				values.width = params.parentAuto.width ? "auto" : "100%";
+				values.height = params.parentAuto.height ? "auto" : "100%";
+				Widget.prototype._doLayout.call(this,params);
 			},
 			
 			_getContentSize: function(width, height) {

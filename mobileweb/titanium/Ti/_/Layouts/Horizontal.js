@@ -9,7 +9,24 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 				
 				// Layout the child
 				var child = element.children[i];
-				child._doLayout(currentLeft,0,width,height,this._defaultHorizontalAlignment,this._defaultVerticalAlignment,isAutoWidth,isAutoHeight);
+				child._doLayout({
+				 	origin: {
+				 		x: currentLeft,
+				 		y: 0
+				 	},
+				 	parentAuto: {
+				 		width: isAutoWidth,
+				 		height: isAutoHeight
+				 	},
+				 	boundingSize: {
+				 		width: width,
+				 		height: height
+				 	},
+				 	alignment: {
+				 		horizontal: this._defaultHorizontalAlignment,
+				 		vertical: this._defaultVerticalAlignment
+				 	}
+			 	});
 				
 				// Update the size of the component
 				currentLeft = child._measuredLeft + child._measuredWidth + child._measuredBorderSize.left + child._measuredBorderSize.right + child._measuredRightPadding;

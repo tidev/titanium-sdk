@@ -101,7 +101,10 @@ define(
 		
 		_layoutMarkedNodes: function(node) {
 			if (node._markedForLayout) {
-				node._layout && node._layout._doLayout(node, node._measuredWidth, node._measuredHeight);
+				var parent = node._parent,
+					isParentWidthAuto = parent && parent.width === "auto", 
+					isParentHeightAuto = parent && parent.height === "auto";
+				node._layout && node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, !!isParentWidthAuto, !!isParentHeightAuto);
 			} else {
 				for (var i in node.children) {
 					this._layoutMarkedNodes(node.children[i]);
@@ -117,7 +120,24 @@ define(
 		_recalculateLayout: function() {
 			this._container.width = window.innerWidth;
 			this._container.height = window.innerHeight;
-			this._container._doLayout(0, 0, window.innerWidth, window.innerHeight, true, true);
+			this._container._doLayout({
+			 	origin: {
+			 		x: 0,
+			 		y: 0
+			 	},
+			 	parentAuto: {
+			 		width: false,
+			 		height: false
+			 	},
+			 	boundingSize: {
+			 		width: window.innerWidth,
+			 		height: window.innerHeight
+			 	},
+			 	alignment: {
+			 		horizontal: "center",
+			 		vertical: "center"
+			 	}
+		 	});
 		},
 
 		properties: {

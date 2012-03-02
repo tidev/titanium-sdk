@@ -8,7 +8,24 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 				
 				// Layout the child
 				var child = element.children[i];
-				child._doLayout(0,0,width,height,this._defaultHorizontalAlignment,this._defaultVerticalAlignment,isAutoWidth,isAutoHeight);
+				child._doLayout({
+				 	origin: {
+				 		x: 0,
+				 		y: 0
+				 	},
+				 	parentAuto: {
+				 		width: isAutoWidth,
+				 		height: isAutoHeight
+				 	},
+				 	boundingSize: {
+				 		width: width,
+				 		height: height
+				 	},
+				 	alignment: {
+				 		horizontal: this._defaultHorizontalAlignment,
+				 		vertical: this._defaultVerticalAlignment
+				 	}
+			 	});
 				
 				// Update the size of the component
 				var rightMostEdge = child._measuredWidth + child._measuredLeft + child._measuredBorderSize.left + child._measuredBorderSize.right + child._measuredRightPadding;
