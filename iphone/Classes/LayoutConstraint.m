@@ -334,22 +334,6 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
     }
     
     return CGPointMake(centerX, centerY);
-    /*
-    //padding and margin are not used in positioning but added on after positioning is determined
-    CGFloat xAdjustment = 0.0;
-    CGFloat yAdjustment = 0.0;
-    
-    if ([viewProxy parent] != nil) {
-        xAdjustment += ([[viewProxy parent] padLeft] - [[viewProxy parent] padRight]);
-        yAdjustment += ([[viewProxy parent] padTop] - [[viewProxy parent] padBottom]);
-    }
-    
-    //OK to send 0 as bounding value since these are supposed to be DIP only
-    xAdjustment += (TiDimensionCalculateValue(constraint->marginLeft, 0.0) - TiDimensionCalculateValue(constraint->marginRight, 0.0));
-    yAdjustment += (TiDimensionCalculateValue(constraint->marginTop, 0.0) - TiDimensionCalculateValue(constraint->marginBottom, 0.0));
-
-    return CGPointMake(centerX+xAdjustment, centerY+yAdjustment);
-     */
 }
 
 void ApplyConstraintToViewWithBounds(LayoutConstraint * constraint, TiUIView * subView, CGRect viewBounds)

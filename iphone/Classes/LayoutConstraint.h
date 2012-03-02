@@ -84,16 +84,6 @@ typedef struct LayoutConstraint {
 	TiDimension top;
 	TiDimension bottom;
 	TiDimension height;
-	
-	TiDimension paddingLeft;
-	TiDimension paddingRight;
-	TiDimension paddingTop;
-	TiDimension paddingBottom;
-
-	TiDimension marginLeft;
-	TiDimension marginRight;
-	TiDimension marginTop;
-	TiDimension marginBottom;
 
 	TiLayoutRule layoutStyle;
 	

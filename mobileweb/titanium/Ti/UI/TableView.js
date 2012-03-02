@@ -96,6 +96,13 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			}));
 		},
 		
+		_doLayout: function() {
+			
+			this._contentContainer.properties.__values__.width = this.width === "auto" ? "auto" : "100%";
+			this._contentContainer.properties.__values__.height = this.height === "auto" ? "auto" : "100%"; 
+			View.prototype._doLayout.apply(this,arguments);
+		},
+		
 		_fireScrollEvent: function(x,y) {
 			// Calculate the visible items
 			var firstVisibleItem,
@@ -259,7 +266,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		scrollToIndex: function(index) {
 			var location = this._calculateLocation(index);
 			if (location) {
-				this._contentContainer.scrollTop = location.section._measuredTop + location.section._rows.children[2 * location.localIndex + 1]._measuredTop;
+				this._contentContainer.domNode.scrollTop = location.section._measuredTop + location.section._rows.children[2 * location.localIndex + 1]._measuredTop;
 			}
 		},
 		

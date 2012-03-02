@@ -224,6 +224,7 @@ define(
 			this._measuredRightPadding = dimensions.rightPadding;
 			this._measuredBottomPadding = dimensions.bottomPadding;
 			this._measuredBorderWidth = dimensions.borderWidth;
+			this._measuredBorderSize = dimensions.borderSize;
 			setStyle(this.domNode, styles);
 			
 			this._markedForLayout = false;
@@ -334,13 +335,24 @@ define(
 					}
 				}
 			}
+			
+			function getBorderSize() {
+				return {
+					left: parseInt(computedStyle["border-left-width"]) + parseInt(computedStyle["padding-left"]),
+					right: parseInt(computedStyle["border-right-width"]) + parseInt(computedStyle["padding-right"]),
+					top: parseInt(computedStyle["border-top-width"]) + parseInt(computedStyle["padding-top"]),
+					bottom: parseInt(computedStyle["border-bottom-width"]) + parseInt(computedStyle["padding-bottom"])
+				};
+			}
+			
+			// Calculate the border
+			var computedStyle = window.getComputedStyle(this.domNode);
+				borderSize = getBorderSize();
 
 			// Calculate the width/left properties if width is NOT auto
-			var borderWidth = computeSize(borderWidth),
-				calculateWidthAfterAuto = false,
+			var calculateWidthAfterAuto = false,
 				calculateHeightAfterAuto = false;
-			borderWidth = is(borderWidth,"Number") ? borderWidth: 0;
-			if (width != "auto") {
+			if (width !== "auto") {
 				if (isDef(right)) {
 					if (isDef(left)) {
 						width = right - left;
@@ -348,11 +360,11 @@ define(
 						left = right - width;
 					}
 				}
-				width -= borderWidth * 2;
-			} else if(isDef(right)) {
+				width -= borderSize.left + borderSize.right;
+			} else {
 				calculateWidthAfterAuto = true;
 			}
-			if (height != "auto") {
+			if (height !== "auto") {
 				if (isDef(bottom)) {
 					if (isDef(top)) {
 						height = bottom - top;
@@ -360,8 +372,8 @@ define(
 						top = bottom - height;
 					}
 				}
-				height -= borderWidth * 2;
-			} else if(isDef(bottom)) {
+				height -= borderSize.top + borderSize.bottom;
+			} else {
 				calculateHeightAfterAuto = true;
 			}
 
@@ -382,62 +394,59 @@ define(
 				height == "auto" && (height = computedSize.height);
 			}
 			
+			// I have no idea why we have to recalculate, but for some reason the recursion is screwing with the values.
+			borderSize = getBorderSize();
+			
 			if (calculateWidthAfterAuto) {
-				if (isDef(right)) {
-					if (isDef(left)) {
-						width = right - left;
-					} else {
-						left = right - width;
-					}
+				if (isDef(right) && !isDef(left)) {
+					left = right - width;
 				}
-				width -= borderWidth * 2;
 			}
 			if (calculateHeightAfterAuto) {
-				if (isDef(bottom)) {
-					if (isDef(top)) {
-						height = bottom - top;
-					} else {
-						top = bottom - height;
-					}
+				if (isDef(bottom) && !isDef(top)) {
+					top = bottom - height;
 				}
-				height -= borderWidth * 2;
 			}
 
 			// Set the default top/left if need be
-			if (left == "calculateAuto") {
+			if (left === "calculateAuto") {
 				if (!this._isParentAutoWidth) {
 					switch(this._defaultHorizontalAlignment) {
-						case "left": left = 0; break;
-						case "center": left = computeSize("50%",parentWidth) - (is(width,"Number") ? width + borderWidth * 2 : 0) / 2; break;
-						case "right": left = parentWidth - (is(width,"Number") ? width + borderWidth * 2 : 0) / 2; break;
+						case "center": left = computeSize("50%",parentWidth) - borderSize.left - (is(width,"Number") ? width : 0) / 2; break;
+						case "right": left = parentWidth - borderSize.left - borderSize.right - (is(width,"Number") ? width : 0) / 2; break;
+						default: left = 0; // left
 					}
 				} else {
 					left = 0;
 				}
 			}
-			if (top == "calculateAuto") {
+			if (top === "calculateAuto") {
 				if (!this._isParentAutoHeight) {
 					switch(this._defaultVerticalAlignment) {
-						case "top": top = 0; break;
-						case "center": top = computeSize("50%",parentHeight) - (is(height,"Number") ? height + borderWidth * 2 : 0) / 2; break;
-						case "bottom": top = parentWidth - (is(height,"Number") ? height + borderWidth * 2 : 0) / 2; break;
+						case "center": top = computeSize("50%",parentHeight) - borderSize.top - (is(height,"Number") ? height : 0) / 2; break;
+						case "bottom": top = parentWidth - borderSize.top - borderSize.bottom - (is(height,"Number") ? height : 0) / 2; break;
+						default: top = 0; // top
 					}
 				} else {
 					top = 0;
 				}
 			}
+			
+			// Calculate the "padding"
+			var leftPadding = left,
+				topPadding = top,
+				rightPadding = is(originalRight,"Number") ? originalRight : 0,
+				bottomPadding = is(originalBottom,"Number") ? originalBottom : 0;
 
-			// Apply the origin and border width
+			// Apply the origin translation
 			left += this._originX;
 			top += this._originY;
-			var rightPadding = is(originalRight,"Number") ? originalRight : 0,
-				bottomPadding = is(originalBottom,"Number") ? originalBottom : 0;
 
 			if(!is(left,"Number") || !is(top,"Number") || !is(rightPadding,"Number")
 				 || !is(bottomPadding,"Number") || !is(width,"Number") || !is(height,"Number")) {
 			 	throw "Invalid layout";
 			}
-
+			
 			return {
 				left: left,
 				top:top,
@@ -445,7 +454,7 @@ define(
 				bottomPadding: bottomPadding,
 				width: width,
 				height: height,
-				borderWidth: borderWidth
+				borderSize: borderSize
 			};
 		},
 
@@ -737,6 +746,8 @@ define(
 					anim.backgroundColor !== undef && (obj.backgroundColor = anim.backgroundColor);
 					anim.opacity !== undef && setStyle(this.domNode, "opacity", anim.opacity);
 					setStyle(this.domNode, "display", anim.visible !== undef && !anim.visible ? "none" : "");
+					
+					// TODO set border width here
 
 					// Set the position and size properties
 					var dimensions = this._computeDimensions(
@@ -750,7 +761,6 @@ define(
 						isDef(anim.center) ? anim.center.y : isDef(this.center) ? this.center.y : undef,
 						val(anim.width, this.width),
 						val(anim.height, this.height),
-						val(anim.borderWidth, this.borderWidth),
 						false
 					);
 
@@ -759,7 +769,10 @@ define(
 						top: unitize(dimensions.top),
 						width: unitize(dimensions.width),
 						height: unitize(dimensions.height),
-						borderWidth: unitize(dimensions.borderWidth)
+						borderLeftWidth: unitize(dimensions.borderSize.left),
+						borderTopWidth: unitize(dimensions.borderSize.top),
+						borderRightWidth: unitize(dimensions.borderSize.right),
+						borderBottomWidth: unitize(dimensions.borderSize.bottom)
 					});
 
 					// Set the z-order
@@ -875,12 +888,7 @@ define(
 
 			borderColor: {
 				set: function(value) {
-					if (setStyle(this.domNode, "borderColor", value)) {
-						this.borderWidth | 0 || (this.borderWidth = 1);
-						setStyle(this.domNode, "borderStyle", "solid");
-					} else {
-						this.borderWidth = 0;
-					}
+					setStyle(this.domNode, "borderColor", value);
 					return value;
 				}
 			},
@@ -889,19 +897,16 @@ define(
 				set: function(value) {
 					setStyle(this.domNode, "borderRadius", unitize(value));
 					return value;
-				}
+				},
+				value: 0
 			},
 
 			borderWidth: {
 				set: function(value) {
-					var s = {
-						borderWidth: unitize(value),
-						borderStyle: "solid"
-					};
-					this.borderColor || (s.borderColor = "black");
-					setStyle(this.domNode, s);
+					setStyle(this.domNode, "borderWidth", unitize(value));
 					return value;
-				}
+				},
+				value: 0
 			},
 
 			bottom: postLayoutProp,
