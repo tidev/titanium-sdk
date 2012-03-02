@@ -1,9 +1,9 @@
 ---
 name: Titanium.UI.OptionDialog
 summary: |
-    An option dialog is a modal view that includes a message and one or more option items. On 
-    Android, buttons may be added below these items. It is positioned in the middle of the display 
-    on Android and at the bottom edge on iOS.
+    An option dialog is a modal view that includes a message and one or more option items positioned 
+    in the middle of the display on Android and at the bottom edge on iOS. On Android, buttons may 
+    be added below the options.
 description: |
     An option dialog is created using <Titanium.UI.createOptionDialog>.
     
@@ -49,13 +49,16 @@ events:
         Fired when an option of this dialog is clicked or, under certain circumstances, when this 
         dialog is dismissed.
     description: |
-        On iOS as of 1.9, if [hide()](Titanium.UI.OptionDialog.hide) is called (iPhone, iPad) or 
-        there is a tap outside of this dialog (iPad) this event is fired as if the cancel option 
-        was selected. In these circumstances, `index` property will be `-1`.
+        On iOS as of 1.9, when the dialog is dismissed without using an option, for example, using 
+        the [hide](Titanium.UI.OptionDialog.hide) method (iPhone, iPad) or a tap outside of the 
+        dialog (iPad), this event is fired as though the cancel option was selected. In these 
+        circumstances, the `index` property will be the cancel option index if defined or `-1` 
+        otherwise.
     properties:
       - name: index
         summary: |
-            Index of the option that was pressed.
+            Index of the option that was pressed. See description for result of the dialog being 
+            dismissed in some other way.
         type: Number
         
       - name: button
@@ -66,11 +69,11 @@ events:
         platforms: [android]
         
       - name: cancel
-        summary: Index of the cancel button or, on  ``
+        summary: Index of the cancel option if defined or `-1` otherwise.
         type: Number
         
       - name: destructive
-        summary: Index of the destructive option.
+        summary: Index of the destructive option if defined or `-1` otherwise.
         type: Number
         platforms: [iphone, ipad]
 
@@ -79,20 +82,20 @@ methods:
     summary: Shows this dialog.
     description: |
         On iPad, this dialog is shown in the middle of the display or, when specified via the 
-        `options` argument, as a popover-like dialog attached to another view or control.
+        `params` argument, as a popover-like dialog attached to another view or control.
     parameters:
-      - name: options
-        summary: Options for this method. Only used on iPad.
-        type: showOptions
+      - name: params
+        summary: Argument containing parameters for this method. Only used on iPad.
+        type: showParams
         optional: true
 
   - name: hide
     summary: Hides this dialog.
     description: This triggers a `click` event as if cancel was invoked.
     parameters:
-      - name: options
-        summary: Options for this method. Only used on iOS.
-        type: hideOptions
+      - name: params
+        summary: Argument containing parameters for this method. Only used on iOS.
+        type: hideParams
         optional: true
 
 properties:
@@ -107,8 +110,10 @@ properties:
         Set to `-1` to disable the cancel option.
         
         On iPad, when the cancel option is enabled by having a valid option index, it must be 
-        the last option, otherwise any that follow it will not be displayed. 
+        the last option, otherwise the last entry in [options](Titanium.UI.OptionDialog.options) 
+        will not be displayed.
     type: Number
+    default: -1
 
   - name: destructive
     summary: Index to define the destructive option, indicated by a visual cue when rendered.
@@ -117,7 +122,7 @@ properties:
     availability: creation
     
   - name: options
-    summary: Option names.
+    summary: List of option names.
     type: Array<String>
     availability: creation
     
@@ -189,7 +194,7 @@ examples:
         });
         win.open();
 ---
-name: hideOptions
+name: hideParams
 summary: Dictionary of options for the <Titanium.UI.OptionDialog.hide> method.
 since: 1.9.0
 platforms: [iphone, ipad]
@@ -200,7 +205,7 @@ properties:
     type: Boolean
 
 ---
-name: showOptions
+name: showParams
 summary: Dictionary of options for the <Titanium.UI.OptionDialog.show> method.
 platforms: [ipad]
 
