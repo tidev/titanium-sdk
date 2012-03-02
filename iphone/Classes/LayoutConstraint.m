@@ -198,14 +198,13 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
     CGFloat centerX = 0.0f;
     
     BOOL ignoreMargins = NO;
-    
     BOOL isSizeUndefined = TiDimensionIsUndefined(constraint->width);
-    BOOL isCenterDefined = TiDimensionDidCalculateValue(constraint->centerX, referenceSize.width, &centerX);
     
+    CGFloat frameLeft = 0.0;
     if (!flexibleSize) {
-        if (isSizeUndefined) {
-            //Width was calculated from pin. If center was used as one of the pins to calculate width just set and go
-            ignoreMargins = isCenterDefined;
+        if(!TiDimensionDidCalculateValue(constraint->left, referenceSize.width, &frameLeft))
+        {
+            ignoreMargins = TiDimensionDidCalculateValue(constraint->centerX, referenceSize.width, &centerX);;
         }
     }
 	
@@ -213,7 +212,7 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
     {
         //Either the view has flexible width or pins were not defined for positioning
         int marginSuggestions=0;
-        CGFloat frameLeft = 0.0;
+        
         if(TiDimensionDidCalculateValue(constraint->left, referenceSize.width, &frameLeft))
         {
             marginSuggestions++;
@@ -249,14 +248,14 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
     flexibleSize = *resultResizing & UIViewAutoresizingFlexibleHeight;
     CGFloat centerY = 0.0f;
     
-    isSizeUndefined = TiDimensionIsUndefined(constraint->height);
-    isCenterDefined = TiDimensionDidCalculateValue(constraint->centerY, referenceSize.height, &centerY);
-    ignoreMargins = NO;
     
+    isSizeUndefined = TiDimensionIsUndefined(constraint->height);
+    ignoreMargins = NO;
+    CGFloat frameTop = 0.0;
     if(!flexibleSize) {
-        if (isSizeUndefined) {
-            //Width was calculated from pin. If center was used as one of the pins to calculate width just set and go
-            ignoreMargins = isCenterDefined;
+        if(!TiDimensionDidCalculateValue(constraint->top, referenceSize.height, &frameTop))
+        {
+            ignoreMargins = TiDimensionDidCalculateValue(constraint->centerY, referenceSize.height, &centerY);;
         }
     }
  
@@ -265,7 +264,7 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
     {
         //Either the view has flexible height or pins were not defined for positioning
         int marginSuggestions=0;
-        CGFloat frameTop = 0.0;
+        
         if(TiDimensionDidCalculateValue(constraint->top, referenceSize.height, &frameTop))
         {
             marginSuggestions++;
