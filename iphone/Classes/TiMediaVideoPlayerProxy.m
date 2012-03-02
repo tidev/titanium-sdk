@@ -481,18 +481,19 @@ NSArray* moviePlayerKeys = nil;
 -(void)requestThumbnailImagesAtTimes:(id)args
 {
     ENSURE_ARG_COUNT(args, 3);
-    RELEASE_TO_NIL(thumbnailCallback);
+    
     ENSURE_TYPE([args objectAtIndex:0], NSArray);
     ENSURE_TYPE([args objectAtIndex:1], NSNumber);
     ENSURE_TYPE([args objectAtIndex:2],KrollCallback);
     
     NSArray* array = [args objectAtIndex:0];
-    callbackRequestCount = [array count];
-    if (callbackRequestCount > 0) {
+    if ([array count] > 0) {
         NSNumber* option = [args objectAtIndex:1];
-        thumbnailCallback = [[args objectAtIndex:2] retain];
         TiThreadPerformOnMainThread(^{
             [[self player] cancelAllThumbnailImageRequests];
+            RELEASE_TO_NIL(thumbnailCallback);
+            callbackRequestCount = [array count];
+            thumbnailCallback = [[args objectAtIndex:2] retain];
             [[self player] requestThumbnailImagesAtTimes:array timeOption:[option intValue]];
         }, NO);
     }
