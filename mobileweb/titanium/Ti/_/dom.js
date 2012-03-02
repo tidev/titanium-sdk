@@ -111,7 +111,8 @@ define(["Ti/_", "Ti/_/style"], function(_, style) {
 					convertAutoToUndef && (x = undef);
 				} else {
 					var value = parseFloat(x),
-						units = x.substring((value + "").length);
+						units = x.substring(x.length - 2);
+					units.indexOf("%") !== -1 && (units = "%");
 
 					switch(units) {
 						case "%":
@@ -126,15 +127,12 @@ define(["Ti/_", "Ti/_/style"], function(_, style) {
 							value *= 10;
 						case "cm":
 							return value * 0.0393700787 * _.dpi;
-						case "pc":
-							dpi /= 12;
-						case "pt":
-							dpi /= 72;
 						case "in":
 							return value * _.dpi;
 						case "px":
-						case "dp":
 							return value;
+						case "dp":
+							return value * _.dpi / 96;
 					}
 				}
 			} else if (type !== "Number") {

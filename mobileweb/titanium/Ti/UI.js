@@ -1,6 +1,6 @@
 define(
-	["Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style"],
-	function(Evented, lang, ready, style) {
+	["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/_/dom"],
+	function(_, Evented, lang, ready, style, dom) {
 
 	var body = document.body,
 		isIOS = /(iPhone|iPad)/.test(navigator.userAgent),
@@ -140,6 +140,23 @@ define(
 				}
 			}
 		},
+		
+		convertUnits: function(convertFromValue, convertToUnits) {
+			var intermediary = dom.computeSize(convertFromValue, 0, false);
+			switch(convertToUnits) {
+				case Ti.UI.UNIT_MM:
+					intermediary *= 10;
+				case Ti.UI.UNIT_CM:
+					return intermediary / ( 0.0393700787 * _.dpi * 10);
+				case Ti.UI.UNIT_IN:
+					return intermediary / _.dpi;
+				case Ti.UI.UNIT_DIP:
+					return intermediary * 96 / _.dpi;
+				case Ti.UI.UNIT_PX:
+					return intermediary;
+				default: return 0;
+			}
+		},
 
 		constants: {
 			currentWindow: undefined,
@@ -199,7 +216,14 @@ define(
 			ANIMATION_CURVE_EASE_IN: 1,
 			ANIMATION_CURVE_EASE_IN_OUT: 2,
 			ANIMATION_CURVE_EASE_OUT: 3,
-			ANIMATION_CURVE_LINEAR: 4
+			ANIMATION_CURVE_LINEAR: 4,
+			SIZE: "size",
+			FILL: "fill",
+			UNIT_PX: "px",
+			UNIT_MM: "mm",
+			UNIT_CM: "cm",
+			UNIT_IN: "in",
+			UNIT_DIP: "dp" // We don't have DIPs, so we treat them as pixels
 		}
 
 	});
