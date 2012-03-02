@@ -91,7 +91,7 @@ typedef enum {
 
 /**
  Returns if the image load request was cancelled.
- @return _YES_ if request was canceled, _NO_ otherwise.
+ @return _YES_ if request was cancelled, _NO_ otherwise.
  */
 @property(nonatomic,readonly) BOOL cancelled;
 
@@ -134,7 +134,7 @@ typedef enum {
  Tells the loader to load remote image from URL.
  @param url The image URL
  @return The loaded image.
- @see loadRemote:delegate:userInfo:
+ @see loadImage:delegate:userInfo:
 */
 -(UIImage *)loadRemote:(NSURL*)url;
 

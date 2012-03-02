@@ -29,7 +29,7 @@
 @property(nonatomic,readwrite,retain) NSBundle *bundle;
 
 /**
- Return current locale.
+ Return current locale or preferred language from user deafults.
  @see currentLocale
  */
 +(NSString*)currentLocale;

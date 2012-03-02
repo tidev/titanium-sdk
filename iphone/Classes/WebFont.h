@@ -24,6 +24,10 @@
 
 /**
  Provides access to the font family.
+ 
+ Font support depends on the OS version. Custom TrueType (.ttf) or OpenType (.otf) fonts may be embedded in an application.
+ Custom fonts must be placed in the Resources/fonts directory, in that case, font family is the official font name embedded into  the file, not the name of the file.
+ @see http://developer.appcelerator.com/apidoc/mobile/latest/Font-object.html
  */
 @property(nonatomic,retain) NSString *family;
 

@@ -38,7 +38,7 @@ typedef enum {
 /**
  Return a textual representation of the blob.
  
- The method converts data into a textual representation. Appropriate only for types <TiBlobTypeFile> and <TiBlobTypeData>.
+ The method converts data into a textual representation. Appropriate only for types TiBlobTypeFile and TiBlobTypeData.
  */
 @property(nonatomic,readonly) NSString* text;
 
@@ -112,7 +112,7 @@ typedef enum {
 
 /**
  Returns the blob image.
- @return The image.
+ @return The image or _nil_ if the blob data cannot represent an image.
  */
 -(UIImage*)image;
 

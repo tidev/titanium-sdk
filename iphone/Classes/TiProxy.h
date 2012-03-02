@@ -176,15 +176,19 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
  Tells the proxy to associate another proxy with it.
  
  The associated proxy will be retained.
+ Note: rememberProxy/forgetProxy are not reference counted - multiple calls to <rememberProxy:> are all undone by a single call to <forgetProxy:> 
  @param rememberedProxy The proxy to remember.
+ @see forgetProxy:
  */
 -(void)rememberProxy:(TiProxy *)rememberedProxy;
 
 /**
- Tells the proxy to deassociate another proxy with it.
+ Tells the proxy to disassociate another proxy from it.
  
  The deassociated proxy will be released.
+ Note: rememberProxy/forgetProxy are not reference counted - multiple calls to <rememberProxy:> are all undone by a single call to <forgetProxy:> 
  @param forgottenProxy The proxy to forget.
+ @see rememberProxy:
  */
 -(void)forgetProxy:(TiProxy *)forgottenProxy;
 
@@ -206,7 +210,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 #pragma mark Public 
 
 /**
- Returns keys of all properties associated with the proxy.
+ Returns all properties set on the proxy.
  */
 -(id<NSFastEnumeration>)allKeys;
 

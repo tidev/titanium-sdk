@@ -63,7 +63,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 }
 
 /**
- Returns application primary window.
+ Returns application's primary window.
  
  Convenience method to access the application's primary window
  */
