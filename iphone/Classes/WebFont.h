@@ -23,10 +23,7 @@
 }
 
 /**
- Provides access to the font family.
- 
- Font support depends on the OS version. Custom TrueType (.ttf) or OpenType (.otf) fonts may be embedded in an application.
- Custom fonts must be placed in the Resources/fonts directory, in that case, font family is the official font name embedded into  the file, not the name of the file.
+ Provides access to the font family which is the official font name.
  @see http://developer.appcelerator.com/apidoc/mobile/latest/Font-object.html
  */
 @property(nonatomic,retain) NSString *family;
@@ -37,33 +34,33 @@
 @property(nonatomic) CGFloat size;
 
 /**
- Returns if the font size is not set.
+ Whether or not the font size is not set.
  @return _YES_ if the font size is not set, _NO_ otherwise.
  */
 @property(nonatomic,readonly) BOOL isSizeNotSet;
 
 /**
- Returns if the font weight is bold.
+ Whether or not the font weight is bold.
  */
 @property(nonatomic) BOOL isBoldWeight;
 
 /**
- Returns if the font weight is normal.
+ Whether or not the font weight is normal.
  */
 @property(nonatomic) BOOL isNormalWeight;
 
 /**
- Returns if the font style is italic.
+ Whether or not the font style is italic.
  */
 @property(nonatomic) BOOL isItalicStyle;
 
 /**
- Returns if the font style is normal.
+ Whether or not the font style is normal.
  */
 @property(nonatomic) BOOL isNormalStyle;
 
 /**
- Returns if the font weight is semibold.
+ Whether or not the font weight is semibold.
  */
 @property(nonatomic) BOOL isSemiboldWeight;
 

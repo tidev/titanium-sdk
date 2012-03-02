@@ -26,7 +26,7 @@
 -(id<TiToolbar>)toolbar;
 
 /**
- Returns if the button it attached to a toolbar.
+ Whether or not the button it attached to a toolbar.
  @return _YES_ if the button is attached to a toolbar, _NO_ otherwise.
  */
 -(BOOL)attachedToToolbar;

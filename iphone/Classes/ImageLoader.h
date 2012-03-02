@@ -67,7 +67,7 @@ typedef enum {
 @property(nonatomic,readwrite,retain) ASIHTTPRequest* request;
 
 /**
- Returns if the request has completed.
+ Whether or not the request has completed.
  @return _YES_ if the request has completed, _NO_ otherwise.
  */
 @property(nonatomic,readwrite,assign) BOOL completed;
@@ -90,7 +90,7 @@ typedef enum {
 -(void)cancel;
 
 /**
- Returns if the image load request was cancelled.
+ Whether or not the image load request was cancelled.
  @return _YES_ if request was cancelled, _NO_ otherwise.
  */
 @property(nonatomic,readonly) BOOL cancelled;

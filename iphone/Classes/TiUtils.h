@@ -68,14 +68,14 @@ typedef enum {
 +(NSData *)loadAppResource:(NSURL*)url;
 
 /**
- Encodes the input string according to RFC 3986.
+ Encodes the input string according by escaping illegal characters.
  @param unencodedString The input string.
  @return The encoded string.
  */
 +(NSString *)encodeQueryPart:(NSString *)unencodedString;
 
 /**
- Encodes the URL query string according to RFC 3986.
+ Encodes the URL query string by escaping illegal characters.
  @param unencodedString The input string.
  @return The encoded string.
  */
@@ -156,7 +156,7 @@ typedef enum {
 /**
  Converts input value into the point type.
  @param value The input value of either <TiPoint> type or NSDictionary with {x,y} keys.
- @param isValid The output parameter indicating the status of the convertion. _YES_ if the value was converted successfully, _NO_ otherwise.
+ @param isValid The optional output parameter indicating the status of the convertion. If not _NULL_, its value is set to _YES_ if the value was converted successfully and _NO_ otherwise.
  @return The point representation of the value or {0,0} if the input value cannot be converted.
  @see pointValue:
  */
@@ -187,7 +187,7 @@ typedef enum {
  Converts input value into a float with default fallback.
  @param value The input value.
  @param def The default value if the input value cannot be converted.
- @param isValid The output parameter indicating the status of the convertion. _YES_ if the value was converted successfully, _NO_ otherwise.
+ @param isValid The optional output parameter indicating the status of the convertion. If not _NULL_, its value is set to _YES_ if the value was converted successfully and _NO_ otherwise.
  @return The float representation of the value.
  @see floatValue:
  */
@@ -214,7 +214,7 @@ typedef enum {
  Converts input value into a double with default fallback.
  @param value The input value.
  @param def The default value if the input value cannot be converted.
- @param isValid The output parameter indicating the status of the convertion. _YES_ if the value was converted successfully, _NO_ otherwise.
+ @param isValid The optional output parameter indicating the status of the convertion. If not _NULL_, its value is set to _YES_ if the value was converted successfully and _NO_ otherwise.
  @return The double representation of the value.
  @see doubleValue:
  */
@@ -241,7 +241,7 @@ typedef enum {
  Converts input value into an int with default fallback.
  @param value The input value.
  @param def The default value if the input value cannot be converted.
- @param isValid The output parameter indicating the status of the convertion. _YES_ if the value was converted successfully, _NO_ otherwise.
+ @param isValid The optional output parameter indicating the status of the convertion. If not _NULL_, its value is set to _YES_ if the value was converted successfully and _NO_ otherwise.
  @return The int representation of the value.
  @see intValue:
  */
@@ -268,7 +268,7 @@ typedef enum {
  @param name The lookup key.
  @param properties The dictionary.
  @param def The default value if the key doesn't exist in the dictionary.
- @param exists The output parameter indicating the status of dictionary lookup. _YES_ if the key was found, _NO_ otherwise.
+ @param exists The optional output parameter indicating the status of dictionary lookup. If not _NULL_, its value is set to _YES_ if the key was founda and _NO_ otherwise.
  @return The resulting value as an int
  */
 +(int)intValue:(NSString*)name properties:(NSDictionary*)properties def:(int)def exists:(BOOL*) exists;
@@ -278,7 +278,7 @@ typedef enum {
  @param name The lookup key.
  @param properties The dictionary.
  @param def The default value if the key doesn't exist in the dictionary.
- @param exists The output parameter indicating the status of dictionary lookup. _YES_ if the key was found, _NO_ otherwise.
+ @param exists The optional output parameter indicating the status of dictionary lookup. If not _NULL_, its value is set to _YES_ if the key was founda and _NO_ otherwise.
  @return The resulting value as a double
  */
 +(double)doubleValue:(NSString*)name properties:(NSDictionary*)properties def:(double)def exists:(BOOL*) exists;
@@ -288,7 +288,7 @@ typedef enum {
  @param name The lookup key.
  @param properties The dictionary.
  @param def The default value if the key doesn't exist in the dictionary.
- @param exists The output parameter indicating the status of dictionary lookup. _YES_ if the key was found, _NO_ otherwise.
+ @param exists The optional output parameter indicating the status of dictionary lookup. If not _NULL_, its value is set to _YES_ if the key was founda and _NO_ otherwise.
  @return The resulting value as a float
  */
 +(float)floatValue:(NSString*)name properties:(NSDictionary*)properties def:(float)def exists:(BOOL*) exists;
@@ -298,7 +298,7 @@ typedef enum {
  @param name The lookup key.
  @param properties The dictionary.
  @param def The default value if the key doesn't exist in the dictionary.
- @param exists The output parameter indicating the status of dictionary lookup. _YES_ if the key was found, _NO_ otherwise.
+ @param exists The optional output parameter indicating the status of dictionary lookup. If not _NULL_, its value is set to _YES_ if the key was founda and _NO_ otherwise.
  @return The resulting value as a boolean
  */
 +(BOOL)boolValue:(NSString*)name properties:(NSDictionary*)properties def:(BOOL)def exists:(BOOL*) exists;
@@ -308,7 +308,7 @@ typedef enum {
  @param name The lookup key.
  @param properties The dictionary.
  @param def The default value if the key doesn't exist in the dictionary.
- @param exists The output parameter indicating the status of dictionary lookup. _YES_ if the key was found, _NO_ otherwise.
+ @param exists The optional output parameter indicating the status of dictionary lookup. If not _NULL_, its value is set to _YES_ if the key was founda and _NO_ otherwise.
  @return The resulting value as a string
  */
 +(NSString*)stringValue:(NSString*)name properties:(NSDictionary*)properties def:(NSString*)def exists:(BOOL*) exists;
@@ -318,7 +318,7 @@ typedef enum {
  @param name The lookup key.
  @param properties The dictionary.
  @param def The default value if the key doesn't exist in the dictionary.
- @param exists The output parameter indicating the status of dictionary lookup. _YES_ if the key was found, _NO_ otherwise.
+ @param exists The optional output parameter indicating the status of dictionary lookup. If not _NULL_, its value is set to _YES_ if the key was founda and _NO_ otherwise.
  @return The resulting value as a point
  */
 +(CGPoint)pointValue:(NSString*)name properties:(NSDictionary*)properties def:(CGPoint)def exists:(BOOL*) exists;
@@ -328,7 +328,7 @@ typedef enum {
  @param name The lookup key.
  @param properties The dictionary.
  @param def The default value if the key doesn't exist in the dictionary.
- @param exists The output parameter indicating the status of dictionary lookup. _YES_ if the key was found, _NO_ otherwise.
+ @param exists The optional output parameter indicating the status of dictionary lookup. If not _NULL_, its value is set to _YES_ if the key was founda and _NO_ otherwise.
  @return The resulting value as a color
  */
 +(TiColor*)colorValue:(NSString*)name properties:(NSDictionary*)properties def:(TiColor*)def exists:(BOOL*) exists;
@@ -338,7 +338,7 @@ typedef enum {
  @param name The lookup key.
  @param properties The dictionary.
  @param def The default value if the key doesn't exist in the dictionary.
- @param exists The output parameter indicating the status of dictionary lookup. _YES_ if the key was found, _NO_ otherwise.
+ @param exists The optional output parameter indicating the status of dictionary lookup. If not _NULL_, its value is set to _YES_ if the key was founda and _NO_ otherwise.
  @return The resulting value as a dimension
  */
 +(TiDimension)dimensionValue:(NSString*)name properties:(NSDictionary*)properties def:(TiDimension)def exists:(BOOL*) exists;
@@ -402,13 +402,13 @@ typedef enum {
 +(NSString*)exceptionMessage:(id)arg;
 
 /**
- Returns if the current device orientation is portrait.
+ Whether or not the current device orientation is portrait.
  @return _YES_ is the current device orientation is portrait, _NO_ otherwise.
  */
 +(BOOL)isOrientationPortait;
 
 /**
- Returns if the current device orientation is landscape.
+ Whether or not the current device orientation is landscape.
  @return _YES_ is the current device orientation is landscape, _NO_ otherwise.
  */
 +(BOOL)isOrientationLandscape;
@@ -444,7 +444,7 @@ typedef enum {
 +(void)queueAnalytics:(NSString*)type name:(NSString*)name data:(NSDictionary*)data;
 
 /**
- Returns if the current device interface idiom is iPad.
+ Whether or not the current device interface idiom is iPad.
  @return _YES_ if the current device interface idiom is iPad, _NO_ otherwise.
  */
 +(BOOL)isIPad;
@@ -456,7 +456,7 @@ typedef enum {
 +(BOOL)isIPhone4;
 
 /**
- Returns if the current device has retina display.
+ Whether or not the current device has retina display.
  @return _YES_ if the current device has retina display, _NO_ otherwise.
  */
 +(BOOL)isRetinaDisplay;

@@ -148,7 +148,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(id)toString:(id)args;
 
 /**
- Returns if the proxy was destroyed.
+ Whether or not the proxy was destroyed.
  @return _YES_ if destroyed, _NO_ otherwise.
  */
 -(BOOL)destroyed;
@@ -160,7 +160,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)setReproxying:(BOOL)yn;
 
 /**
- Returns if the proxy is in reproxying stage.
+ Whether or not the proxy is in reproxying stage.
  @return _YES_ if the proxy is in reproxying stage, _NO_ otherwise.
  */
 -(BOOL)inReproxy;

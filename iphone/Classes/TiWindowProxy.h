@@ -105,7 +105,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 -(void)fireFocus:(BOOL)newFocused;
 
 /**
- Returns if the window is being opened.
+ Whether or not the window is being opened.
  */
 @property(nonatomic,readonly)	BOOL opening;
 
@@ -115,7 +115,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 @property(nonatomic,readonly)	NSNumber *focused;
 
 /**
- Returns if the window is being closed.
+ Whether or not the window is being closed.
  */
 @property(nonatomic,readonly)	BOOL closing;
 

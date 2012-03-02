@@ -22,7 +22,7 @@
 @optional
 
 /**
- Returns if the animation should transition.
+ Whether or not the animation should transition.
  
  The method is only called if the animation is a transition animation type.
  @param animation The animation this delegate is assigned to.
@@ -144,7 +144,7 @@
 -(void)animate:(id)args;
 
 /**
- Returns if the animation is a transition animation type.
+ Whether or not the animation is a transition animation type.
  @return _YES_ if the animation is a transition animation type, _NO_ otherwise.
  */
 -(BOOL)isTransitionAnimation;

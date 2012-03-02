@@ -80,7 +80,7 @@
 -(void)didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)blurredProxy;
 
 /**
- Returns if the window proxy is the top window.
+ Whether or not the window proxy is the top window.
  @param window The window proxy
  @return _YES_ if the window proxy is the top window, _NO_ otherwise.
  */

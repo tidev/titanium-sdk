@@ -221,7 +221,7 @@ enum
 #pragma mark Methods subclasses should override for behavior changes
 
 /**
- Returns if the view proxy needs to suppress relayout.
+ Whether or not the view proxy needs to suppress relayout.
  
  Subclasses may override.
  @return _YES_ if relayout should be suppressed, _NO_ otherwise.
@@ -229,7 +229,7 @@ enum
 -(BOOL)suppressesRelayout;
 
 /**
- Returns if the view proxy supports navigation bar positioning.
+ Whether or not the view proxy supports navigation bar positioning.
  
  Subclasses may override.
  @return _YES_ if navigation bar positioning is supported, _NO_ otherwise.
@@ -237,7 +237,7 @@ enum
 -(BOOL)supportsNavBarPositioning;
 
 /**
- Returns if the view proxy can have a UIController object in its parent view.
+ Whether or not the view proxy can have a UIController object in its parent view.
  
  Subclasses may override.
  @return _YES_ if the view proxy can have a UIController object in its parent view
@@ -245,7 +245,7 @@ enum
 -(BOOL)canHaveControllerParent;
 
 /**
- Returns if the view proxy should detach its view on unload.
+ Whether or not the view proxy should detach its view on unload.
  
  Subclasses may override.
  @return _YES_ if the view should be detached, _NO_ otherwise.
@@ -328,37 +328,37 @@ enum
 //TODO: Sounds like the redundancy department of redundancy was here.
 
 /**
- Returns if a view is attached to the view proxy.
+ Whether or not a view is attached to the view proxy.
  @return _YES_ if the view proxy has a view attached to it, _NO_ otherwise.
  */
 -(BOOL)viewAttached;
 
 /**
- Returns if the view proxy has been initialized.
+ Whether or not the view proxy has been initialized.
  @return _YES_ if the view proxy has been initialized, _NO_ otherwise.
  */
 -(BOOL)viewInitialized;
 
 /**
- Returns if the view proxy has been completely set up.
+ Whether or not the view proxy has been completely set up.
  @return _YES_ if the view proxy has been initialized and its view has a superview and non-empty bounds, _NO_ otherwise.
  */
 -(BOOL)viewReady;
 
 /**
- Returns if a window attached to the view proxy has been opened.
+ Whether or not a window attached to the view proxy has been opened.
  @return _YES_ if the view proxy's window has been opened, _NO_ otherwise.
  */
 -(BOOL)windowHasOpened;
 
 /**
- Returns if a window attached to the view proxy is currently being opened.
+ Whether or not a window attached to the view proxy is currently being opened.
  @return _YES_ if the view proxy's window is being opened, _NO_ otherwise.
  */
 -(BOOL)windowIsOpening;
 
 /**
- Returns if the view proxy is using a bar button item.
+ Whether or not the view proxy is using a bar button item.
  @return _YES_ if a bar button item is used, _NO_ otherwise.
  */
 -(BOOL)isUsingBarButtonItem;

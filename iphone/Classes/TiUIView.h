@@ -211,7 +211,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 -(BOOL)interactionEnabled;
 
 /**
- Returns if the view has any touchable listeners attached.
+ Whether or not the view has any touchable listeners attached.
  @return _YES_ if the control has any touchable listener attached, _NO_ otherwise.
  */
 -(BOOL)hasTouchableListener;
