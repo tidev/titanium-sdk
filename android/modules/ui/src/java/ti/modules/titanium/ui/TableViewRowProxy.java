@@ -171,14 +171,18 @@ public class TableViewRowProxy extends TiViewProxy
 		data.put(TiC.EVENT_PROPERTY_DETAIL, false);
 	}
 
-	 
+	@Override
 	public boolean fireEvent(String eventName, Object data) {
 		if (eventName.equals(TiC.EVENT_CLICK) || eventName.equals(TiC.EVENT_LONGCLICK)) {
-			// inject row click data for events coming from row children
+			// Inject row click data for events coming from row children.
 			TableViewProxy table = getTable();
 			Item item = tableViewItem.getRowData();
 			if (table != null && item != null && data instanceof KrollDict) {
-				fillClickEvent((KrollDict) data, table.getTableView().getModel(), item);
+				// The data object may already be in use by the runtime thread
+				// due to a child view's event fire. Create a copy to be thread safe.
+				KrollDict dataCopy = new KrollDict((KrollDict)data);
+				fillClickEvent(dataCopy, table.getTableView().getModel(), item);
+				data = dataCopy;
 			}
 		}
 		return super.fireEvent(eventName, data);

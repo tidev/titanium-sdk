@@ -730,10 +730,12 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 		boolean handled = super.fireEvent(eventName, data);
 
-		if (parent != null && parent.get() != null) {
-			boolean parentHandled = parent.get().fireEvent(eventName, data);
+		TiViewProxy parentView = getParent();
+		if (parentView != null) {
+			boolean parentHandled = parentView.fireEvent(eventName, data);
 			handled = handled || parentHandled;
 		}
+
 		return handled;
 	}
 
