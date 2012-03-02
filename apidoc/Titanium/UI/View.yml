@@ -918,6 +918,9 @@ properties:
 name: Dimension
 summary: A simple object consisting of the position and size measurements.
 since: 2.0.0
+description: |
+  The value of x and y positions will both be 0 when returned by the size property. When a dimension is
+  returned by the rect property, x will return the left position, and y will return the top position.
 properties:
   - name: x
     summary: The x-axis coordinate of the position.
