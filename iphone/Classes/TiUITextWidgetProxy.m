@@ -239,11 +239,11 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 	return nil;
 }
 
--(TiDimension)defualtAutoWidthBehavior:(id)unused
+-(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
 }
--(TiDimension)defualtAutoHeightBehavior:(id)unused
+-(TiDimension)defaultAutoHeightBehavior:(id)unused
 {
     return TiDimensionAutoSize;
 }

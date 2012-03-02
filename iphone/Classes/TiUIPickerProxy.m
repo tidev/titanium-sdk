@@ -319,11 +319,11 @@ USE_VIEW_FOR_VERIFY_WIDTH
 	[self makeViewPerformSelector:@selector(reloadColumn:) withObject:NUMINT(columnIndex) createIfNeeded:YES waitUntilDone:NO];
 }
 
--(TiDimension)defualtAutoWidthBehavior:(id)unused
+-(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
 }
--(TiDimension)defualtAutoHeightBehavior:(id)unused
+-(TiDimension)defaultAutoHeightBehavior:(id)unused
 {
     return TiDimensionAutoSize;
 }

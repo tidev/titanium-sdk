@@ -40,8 +40,6 @@ describe("Ti.UI Layout tests", {
 			valueOf(view.right).shouldBeUndefined();
 			valueOf(view.center).shouldBeUndefined();
 			valueOf(view.zIndex).shouldBeUndefined();
-			valueOf(view.padding).shouldBeUndefined();
-			valueOf(view.margin).shouldBeUndefined();
 			
 			//Functonal test case 1025a
 			valueOf(label.top).shouldBeUndefined();
@@ -50,8 +48,6 @@ describe("Ti.UI Layout tests", {
 			valueOf(label.right).shouldBeUndefined();
 			valueOf(label.center).shouldBeUndefined();
 			valueOf(label.zIndex).shouldBeUndefined();
-			valueOf(label.padding).shouldBeUndefined();
-			valueOf(label.margin).shouldBeUndefined();
 			
 			//FILL behavior
 			valueOf(view.rect.x).shouldBe(0);
@@ -183,127 +179,11 @@ describe("Ti.UI Layout tests", {
 		win.open();
 
 	}),
-	// functional test #1027 ViewPaddingZero
-	viewPaddingZero: asyncTest(function() {
-		var win = Ti.UI.createWindow();
-
-		var view = Ti.UI.createView({
-			backgroundColor: 'yellow',
-			padding: 0
-		});
-
-		win.addEventListener('open', this.async(function(e){
-			//Invalid value test. Must be defined as Rect(duck type)
-			valueOf(view.padding).shouldBeUndefined();
-		}));
-
-		win.add(view);
-		win.open();
-
-	}),
-	// functional test #1028 ViewPadding
-	viewPadding: asyncTest(function() {
-		var win = Ti.UI.createWindow();
-
-		var view = Ti.UI.createView({
-			backgroundColor: 'yellow',
-			padding: {left:10}
-		});
-
-		win.addEventListener('open', this.async(function(e){
-			valueOf(view.padding.left).shouldBe(10);
-			valueOf(view.padding.right).shouldBeUndefined();
-			//Padding should not effect this views positioning
-			valueOf(view.rect.x).shouldBe(0);
-		}));
-
-		win.add(view);
-		win.open();
-
-	}),
-	// functional test #1029 ViewPaddingDiffrerent
-	viewPaddingZero: asyncTest(function() {
-		var win = Ti.UI.createWindow();
-		var view = Ti.UI.createView({
-			backgroundColor: 'yellow',
-			padding: {top:1, left:2, right:3, bottom:4}
-		});
-
-		win.addEventListener('open', this.async(function(e){
-			valueOf(view.padding.top).shouldBe(1);
-			valueOf(view.padding.left).shouldBe(2);
-			valueOf(view.padding.right).shouldBe(3);
-			valueOf(view.padding.bottom).shouldBe(4);
-		}));
-
-		win.add(view);
-		win.open();
-
-	}),
-	// functional test #1030 ViewMarginZero
-	viewMarginZero: asyncTest(function() {
-		var win = Ti.UI.createWindow();
-
-		var view = Ti.UI.createView({
-			backgroundColor: 'yellow',
-			margin: 0
-		});
-
-		win.addEventListener('open', this.async(function(e){
-			//Invalid value test. Must be defined as Rect(duck type)
-			valueOf(view.margin).shouldBeUndefined();
-		}));
-
-		win.add(view);
-		win.open();
-
-	}),
-	// functional test #1031 ViewMargin
-	viewMargin: asyncTest(function() {
-		var win = Ti.UI.createWindow();
-
-		var view = Ti.UI.createView({
-			backgroundColor: 'yellow',
-			margin: {left:10}
-		});
-
-		win.addEventListener('open', this.async(function(e){
-			valueOf(view.margin.left).shouldBe(10);
-			valueOf(view.margin.right).shouldBeUndefined();
-			//Margin will effect this views positioning
-			valueOf(view.rect.x).shouldBe(10);
-		}));
-
-		win.add(view);
-		win.open();
-
-	}),
-	// functional test #1032 ViewMarginDifferent
-	viewMarginDifferent: asyncTest(function() {
-		var win = Ti.UI.createWindow();
-
-		var view = Ti.UI.createView({
-			backgroundColor: 'yellow',
-			margin: {top:1, left:2, right:3, bottom:4}
-		});
-
-		win.addEventListener('open', this.async(function(e){
-			valueOf(view.margin.top).shouldBe(1);
-			valueOf(view.margin.left).shouldBe(2);
-			valueOf(view.margin.right).shouldBe(3);
-			valueOf(view.margin.bottom).shouldBe(4);
-		}));
-
-		win.add(view);
-		win.open();
-
-	}),
 	// functional test #1033, 1033a, 1033b 
 	// UndefinedWidth Implicit calculations
 	undefinedWidth: asyncTest(function() {
 		var win = Ti.UI.createWindow();
 		var parentView = Ti.UI.createView({
-			padding:{right:10,top:10},
 			width:100,
 			height:100
 		});
@@ -329,15 +209,6 @@ describe("Ti.UI Layout tests", {
 			valueOf(view1.rect.width).shouldBe(85);
 			valueOf(view2.rect.width).shouldBe(10);
 			valueOf(view3.rect.width).shouldBe(30);
-			
-			//Parentview padding should effect positioning of views
-			valueOf(view1.rect.y).shouldBe(10);
-			valueOf(view2.rect.y).shouldBe(10);
-			valueOf(view3.rect.y).shouldBe(10);
-		
-			valueOf(view1.rect.x).shouldBe(-5);
-			valueOf(view2.rect.x).shouldBe(-5);
-			valueOf(view3.rect.x).shouldBe(50);
 		}));
 		
 		parentView.add(view1);
@@ -429,7 +300,6 @@ describe("Ti.UI Layout tests", {
 	undefinedHeight: asyncTest(function() {
 		var win = Ti.UI.createWindow();
 		var parentView = Ti.UI.createView({
-			padding:{left:10,bottom:10},
 			width:100,
 			height:100
 		});
@@ -455,15 +325,6 @@ describe("Ti.UI Layout tests", {
 			valueOf(view1.rect.height).shouldBe(85);
 			valueOf(view2.rect.height).shouldBe(10);
 			valueOf(view3.rect.height).shouldBe(30);
-			
-			//Parentview padding should effect positioning of views
-			valueOf(view1.rect.x).shouldBe(10);
-			valueOf(view2.rect.x).shouldBe(10);
-			valueOf(view3.rect.x).shouldBe(10);
-		
-			valueOf(view1.rect.y).shouldBe(-5);
-			valueOf(view2.rect.y).shouldBe(-5);
-			valueOf(view3.rect.y).shouldBe(50);
 		}));
 		
 		parentView.add(view1);
@@ -768,47 +629,6 @@ describe("Ti.UI Layout tests", {
 		win.add(view3);
 		win.add(view2);
 		win.add(view1);
-		win.open();
-	}),
-	// functional test for percentages on margin/padding
-	marginPaddingPercentages: asyncTest(function() {
-		var win = Ti.UI.createWindow();
-
-		var parentView = Ti.UI.createView({
-			backgroundColor:'blue',
-			padding:{right:10,top:10, bottom:'10%'},
-			width:100,
-			height:100,
-      top: 200
-		});
-
-		var view1 = Ti.UI.createView({
-			left: 5,
-			right: 10,
-			margin: {left:'10%'}
-		});
-
-		var view2 = Ti.UI.createView({
-			left: 5,
-			center: {x:10},
-			margin: {left:10}
-		});
-
-		win.addEventListener('open', this.async(function(e){
-			valueOf(view1.rect.width).shouldBe(85);
-			valueOf(view2.rect.width).shouldBe(10);
-
-			valueOf(view1.rect.y).shouldBe(10);
-			valueOf(view2.rect.y).shouldBe(10);
-
-			valueOf(view1.rect.x).shouldBe(-5);
-			valueOf(view2.rect.x).shouldBe(5);
-
-		}));
-
-		parentView.add(view1);
-		parentView.add(view2);
-		win.add(parentView);
 		win.open();
 	}),
 	fourPins: asyncTest(function() {

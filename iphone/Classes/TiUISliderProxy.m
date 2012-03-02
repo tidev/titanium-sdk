@@ -26,7 +26,7 @@ NSArray* sliderKeySequence;
 	return suggestedResizing & ~UIViewAutoresizingFlexibleHeight;
 }
 
--(TiDimension)defualtAutoHeightBehavior:(id)unused
+-(TiDimension)defaultAutoHeightBehavior:(id)unused
 {
     return TiDimensionAutoSize;
 }

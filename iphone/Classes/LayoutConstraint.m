@@ -86,8 +86,8 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
                 if ( TiDimensionIsUndefined(constraint->width) || TiDimensionIsAuto(constraint->width) ) 
                 {
                     //If default auto behavior is fill, set value and break
-                    if ([autoSizer respondsToSelector:@selector(defualtAutoWidthBehavior:)]) {
-                        if (TiDimensionIsAutoFill([autoSizer defualtAutoWidthBehavior:nil])) {
+                    if ([autoSizer respondsToSelector:@selector(defaultAutoWidthBehavior:)]) {
+                        if (TiDimensionIsAutoFill([autoSizer defaultAutoWidthBehavior:nil])) {
                             width = referenceSize.width;
                             break;
                         }
@@ -153,8 +153,8 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
                 if ( TiDimensionIsUndefined(constraint->height) || TiDimensionIsAuto(constraint->height) ) 
                 {
                     //If default auto behavior is fill, set value and break
-                    if ([autoSizer respondsToSelector:@selector(defualtAutoHeightBehavior:)]) {
-                        if (TiDimensionIsAutoFill([autoSizer defualtAutoHeightBehavior:nil])) {
+                    if ([autoSizer respondsToSelector:@selector(defaultAutoHeightBehavior:)]) {
+                        if (TiDimensionIsAutoFill([autoSizer defaultAutoHeightBehavior:nil])) {
                             height = referenceSize.height;
                             break;
                         }
@@ -333,6 +333,8 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
         }
     }
     
+    return CGPointMake(centerX, centerY);
+    /*
     //padding and margin are not used in positioning but added on after positioning is determined
     CGFloat xAdjustment = 0.0;
     CGFloat yAdjustment = 0.0;
@@ -347,6 +349,7 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
     yAdjustment += (TiDimensionCalculateValue(constraint->marginTop, 0.0) - TiDimensionCalculateValue(constraint->marginBottom, 0.0));
 
     return CGPointMake(centerX+xAdjustment, centerY+yAdjustment);
+     */
 }
 
 void ApplyConstraintToViewWithBounds(LayoutConstraint * constraint, TiUIView * subView, CGRect viewBounds)

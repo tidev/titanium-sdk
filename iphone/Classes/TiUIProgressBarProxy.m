@@ -22,11 +22,11 @@ USE_VIEW_FOR_AUTO_HEIGHT
 	return [[TiUIProgressBar alloc] initWithStyle:style];
 }
 
--(TiDimension)defualtAutoWidthBehavior:(id)unused
+-(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
 }
--(TiDimension)defualtAutoHeightBehavior:(id)unused
+-(TiDimension)defaultAutoHeightBehavior:(id)unused
 {
     return TiDimensionAutoSize;
 }

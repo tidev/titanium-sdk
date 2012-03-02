@@ -119,6 +119,11 @@
         if ( obj != nil) {
             [self setCenter:obj];
         }
+        obj = [layoutPropDictionary objectForKey:@"zIndex"];
+        if ( obj != nil) {
+            [self setZIndex:obj];
+        }
+        /*
         obj = [layoutPropDictionary objectForKey:@"padding"];
         if ( obj != nil) {
             [self setPadding:obj];
@@ -127,11 +132,7 @@
         if ( obj != nil) {
             [self setMargin:obj];
         }
-        obj = [layoutPropDictionary objectForKey:@"zIndex"];
-        if ( obj != nil) {
-            [self setZIndex:obj];
-        }
-        
+        */
         RELEASE_TO_NIL(layoutPropDictionary);
     }
 }
@@ -417,7 +418,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
     }
     return [rect autorelease];
 }
-
+/*
 -(NSMutableDictionary*)margin
 {
     NSMutableDictionary* result = [[[NSMutableDictionary alloc] init] autorelease];
@@ -614,7 +615,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
     }
     return 0.0f;
 }
-
+*/
 -(id)zIndex
 {
     return [self valueForUndefinedKey:@"zindex_"];
@@ -2302,11 +2303,11 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 }
 
 
--(TiDimension)defualtAutoWidthBehavior:(id)unused
+-(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoFill;
 }
--(TiDimension)defualtAutoHeightBehavior:(id)unused
+-(TiDimension)defaultAutoHeightBehavior:(id)unused
 {
     return TiDimensionAutoFill;
 }
