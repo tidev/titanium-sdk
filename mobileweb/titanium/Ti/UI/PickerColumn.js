@@ -110,7 +110,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					left: 5,
 					top: 5,
 					right: 5,
-					title: "Cancel",
+					title: "Cancel"
 				});
 				listDialog.add(cancelButton);
 				cancelButton.addEventListener("singletap", function() {
