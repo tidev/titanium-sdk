@@ -132,10 +132,11 @@ methods:
         type: String
       - name: convertToUnits
         summary: |
-            The unit to convert to from. Use one of the unit constants in <Titanium.UI>.
+            The desired unit for the conversion result. Use one of the unit constants in <Titanium.UI>.
         type: String
     returns:
         type: Number
+        description: If percentages are passed in, 0 is returned.
     since: 2.0.0
 properties:
   - name: ANIMATION_CURVE_EASE_IN
@@ -420,6 +421,7 @@ properties:
     summary: FILL behavior for UI layout.
     since: 2.0.0
     type: String
+    description: The FILL behavior means the view will grow its size to fill its parent.
     permission: read-only
   - name: INPUT_BORDERSTYLE_BEZEL
     summary: Use a bezel-style border on the input field.
@@ -632,21 +634,25 @@ properties:
     summary: SIZE behavior for UI layout.
     since: 2.0.0
     type: String
+    description: The SIZE behavior means the view will constrain its size fit its contents.
     permission: read-only
   - name: TEXT_ALIGNMENT_CENTER
     summary: Center align text.
     platforms: [android, iphone, ipad]
-    type: Number (iphone) or String (android)
+    type: [Number, String]
+    description: This constant is a string on android, and a number on iOS.
     permission: read-only
   - name: TEXT_ALIGNMENT_LEFT
     summary: Left align text.
     platforms: [android, iphone, ipad]
-    type: Number (iphone) or String (android)
+    type: [Number, String]
+    description: This constant is a string on android, and a number on iOS.
     permission: read-only
   - name: TEXT_ALIGNMENT_RIGHT
     summary: Right align text.
     platforms: [android, iphone, ipad]
-    type: Number (iphone) or String (android)
+    type: [Number, String]
+    description: This constant is a string on android, and a number on iOS.
     permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_ALL
     summary: Auto-capitalize all text in the input field.
@@ -670,17 +676,20 @@ properties:
   - name: TEXT_VERTICAL_ALIGNMENT_BOTTOM
     summary: Align text to the bottom of the view.
     platforms: [android, iphone, ipad]
-    type: Number (iphone) or String (android)
+    type: [Number, String]
+    description: This constant is a string on android, and a number on iOS.
     permission: read-only
   - name: TEXT_VERTICAL_ALIGNMENT_CENTER
     summary: Vertically align text to the center of the view.
     platforms: [android, iphone, ipad]
-    type: Number (iphone) or String (android)
+    type: [Number, String]
+    description: This constant is a string on android, and a number on iOS.
     permission: read-only
   - name: TEXT_VERTICAL_ALIGNMENT_TOP
     summary: Align text to the top of the view.
     platforms: [android, iphone, ipad]
-    type: Number (iphone) or String (android)
+    type: [Number, String]
+    description: This constant is a string on android, and a number on iOS.
     permission: read-only
   - name: UNIT_CM
     summary: Unit constant representing units in centimeters.
