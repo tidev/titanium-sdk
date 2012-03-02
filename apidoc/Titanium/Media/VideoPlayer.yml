@@ -157,9 +157,9 @@ methods:
         representing the video at that point in time.
         
         The callback function is invoked when a thumbnail is available.
+        
+        Calling this method will cancel all pending asynchronous thumbnail requests.
 
-        Currently, only the first requested thumbnail is returned. This is a known issue
-        [(TIMOB-7623)](https://jira.appcelerator.org/browse/TIMOB-7623).
     platforms: [iphone, ipad]
     parameters:
       - name: times
