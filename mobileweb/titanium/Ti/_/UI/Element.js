@@ -122,14 +122,14 @@ define(
 			this.addEventListener("touchend", bg);
 
 			// TODO: mixin JSS rules (http://jira.appcelerator.org/browse/TIMOB-6780)
-			
-			this.constants.__values__.size = {
+			var values = this.constants.__values__;
+			values.size = {
 				x: 0,
 				y: 0,
 				width: 0,
 				height: 0
 			};
-			this.constants.__values__.rect = {
+			values.rect = {
 				x: 0,
 				y: 0,
 				width: 0,
@@ -271,7 +271,7 @@ define(
 			// Recompute the gradient, if it exists
 			this.backgroundGradient && this._computeGradient();
 			
-			this.fireEvent("postlayout", {});
+			this.fireEvent("postlayout");
 		},
 
 		_computeDimensions: function(parentWidth, parentHeight, left, top, originalRight, originalBottom, centerX, centerY, width, height, borderWidth, layoutChildren) {
