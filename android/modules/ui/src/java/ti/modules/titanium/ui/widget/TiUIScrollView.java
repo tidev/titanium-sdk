@@ -49,7 +49,7 @@ public class TiUIScrollView extends TiUIView {
 
 		public TiScrollViewLayout(Context context, LayoutArrangement arrangement)
 		{
-			super(context, arrangement);
+			super(context, arrangement, proxy);
 		}
 
 		private LayoutParams getParams(View child)

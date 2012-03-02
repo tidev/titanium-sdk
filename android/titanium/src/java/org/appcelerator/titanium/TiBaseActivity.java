@@ -246,7 +246,7 @@ public abstract class TiBaseActivity extends Activity
 			arrangement = LayoutArrangement.VERTICAL;
 		}
 
-		return new TiCompositeLayout(this, arrangement);
+		return new TiCompositeLayout(this, arrangement, null);
 	}
 
 	protected void setFullscreen(boolean fullscreen)

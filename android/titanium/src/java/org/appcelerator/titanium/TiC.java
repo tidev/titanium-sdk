@@ -46,6 +46,7 @@ public class TiC
 	public static final String EVENT_PAUSE = "pause";
 	public static final String EVENT_PLAYBACK_STATE = "playbackState";
 	public static final String EVENT_PRELOAD = "preload";
+	public static final String EVENT_POST_LAYOUT = "postlayout";
 	public static final String EVENT_PROPERTY_CLICKSOURCE = "clicksource";
 	public static final String EVENT_PROPERTY_CURRENT_PLAYBACK_TIME = "currentPlaybackTime";
 	public static final String EVENT_PROPERTY_DETAIL = "detail";

@@ -9,13 +9,14 @@ package org.appcelerator.titanium.view;
 import java.util.Comparator;
 import java.util.TreeSet;
 
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 
 import android.content.Context;
-import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.OnHierarchyChangeListener;
@@ -40,23 +41,24 @@ public class TiCompositeLayout extends ViewGroup
 	private int horizontalLayoutLineHeight = 0;
 	private boolean disableHorizontalWrap = false;
 
-	public TiCompositeLayout(Context context)
+	TiViewProxy proxy;
+
+	public TiCompositeLayout(Context context, TiViewProxy proxy)
 	{
-		this(context, LayoutArrangement.DEFAULT);
+		this(context, LayoutArrangement.DEFAULT, proxy);
 	}
 
-	public TiCompositeLayout(Context context, LayoutArrangement arrangement)
+	public TiCompositeLayout(Context context, LayoutArrangement arrangement, TiViewProxy proxy)
 	{
 		super(context);
 		this.arrangement = arrangement;
-		this.viewSorter = new TreeSet<View>(new Comparator<View>(){
+		this.viewSorter = new TreeSet<View>(new Comparator<View>()
+		{
 
 			public int compare(View o1, View o2)
 			{
-				TiCompositeLayout.LayoutParams p1 =
-					(TiCompositeLayout.LayoutParams) o1.getLayoutParams();
-				TiCompositeLayout.LayoutParams p2 =
-					(TiCompositeLayout.LayoutParams) o2.getLayoutParams();
+				TiCompositeLayout.LayoutParams p1 = (TiCompositeLayout.LayoutParams) o1.getLayoutParams();
+				TiCompositeLayout.LayoutParams p2 = (TiCompositeLayout.LayoutParams) o2.getLayoutParams();
 
 				int result = 0;
 
@@ -69,13 +71,15 @@ public class TiCompositeLayout extends ViewGroup
 				} else if (p1.optionZIndex != NOT_SET) {
 					if (p1.optionZIndex < 0) {
 						result = -1;
-					} if (p1.optionZIndex > 0) {
+					}
+					if (p1.optionZIndex > 0) {
 						result = 1;
 					}
 				} else if (p2.optionZIndex != NOT_SET) {
 					if (p2.optionZIndex < 0) {
 						result = 1;
-					} if (p2.optionZIndex > 0) {
+					}
+					if (p2.optionZIndex > 0) {
 						result = -1;
 					}
 				}
@@ -91,19 +95,12 @@ public class TiCompositeLayout extends ViewGroup
 				}
 
 				return result;
-			}});
+			}
+		});
 
 		needsSort = true;
 		setOnHierarchyChangeListener(this);
-	}
-
-	public TiCompositeLayout(Context context, AttributeSet attrs) {
-		super(context, attrs);
-	}
-
-	public TiCompositeLayout(Context context, AttributeSet attrs,
-			int defStyle) {
-		super(context, attrs, defStyle);
+		this.proxy = proxy;
 	}
 
 	private String viewToString(View view) {
@@ -466,6 +463,10 @@ public class TiCompositeLayout extends ViewGroup
 					currentHeight += params.optionTop.getAsPixels(this);
 				}
 			}
+		}
+
+		if (proxy != null && proxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
+			proxy.fireEvent(TiC.EVENT_POST_LAYOUT, null);
 		}
 	}
 
