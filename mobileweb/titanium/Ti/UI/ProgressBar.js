@@ -26,8 +26,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 			
 			_doLayout: function(params) {
 				var values = this.properties.__values__;
-				values.width = params.parentAuto.width ? "auto" : "100%";
-				values.height = params.parentAuto.height ? "auto" : "100%";
+				values.width = params.parentSize.width ? Ti.UI.SIZE : "100%";
+				values.height = params.parentSize.height ? Ti.UI.SIZE : "100%";
 				Widget.prototype._doLayout.call(this,params);
 			},
 			
@@ -47,8 +47,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 		
 		constructor: function() {
 			this.add(this._contentContainer = Ti.UI.createView({
-				width: "auto",
-				height: "auto",
+				width: Ti.UI.SIZE,
+				height: Ti.UI.SIZE,
 				left: 0,
 				top: 0,
 				layout: "vertical"
@@ -58,29 +58,16 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 			this._contentContainer.add(this._progressBar = new InternalProgressBar());
 		},
 			
-		_doLayout: function(originX, originY, parentWidth, parentHeight, defaultHorizontalAlignment, defaultVerticalAlignment, isParentAutoWidth, isParentAutoHeight) {
-			var props = this._contentContainer.properties.__values__,
-				hasAutoWidth = this.width === "auto" || !lang.isDef(this.width),
-				hasAutoHeight = this.height === "auto" || !lang.isDef(this.height);
-			if (!hasAutoWidth && !hasAutoHeight) {
-				props.width = "100%";
-				props.height = "100%";
-			} else if (!hasAutoWidth) {
-				props.width = "100%";
-				props.height = "auto";
-			} else if (!hasAutoHeight) {
-				props.width = "auto";
-				props.height = "100%";
-			} else {
-				props.width = "auto";
-				props.height = "auto";
-			}
+		_doLayout: function() {
+			var props = this._contentContainer.properties.__values__;
+			props.width = this.width === Ti.UI.SIZE || !lang.isDef(this.width) ? Ti.UI.SIZE : "100%";
+			props.height = this.height === Ti.UI.SIZE || !lang.isDef(this.height) ? Ti.UI.SIZE : "100%";
 			
-			if (this._message._getContentSize("auto","auto").width === 0) {
+			if (this._message._getContentSize(Ti.UI.SIZE,Ti.UI.SIZE).width === 0) {
 				this._message.properties.__values__.height = 0;
 				this._progressBar.properties.__values__.top = 0;
 			} else {
-				this._message.properties.__values__.height = "auto";
+				this._message.properties.__values__.height = Ti.UI.SIZE;
 				this._progressBar.properties.__values__.top = 2;
 			}
 			
@@ -91,9 +78,9 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 			this._progressBar._setPosition((this.value - this.min) / (this.max - this.min));
 		},
 
-		_defaultWidth: "auto",
+		_defaultWidth: Ti.UI.SIZE,
 
-		_defaultHeight: "auto",
+		_defaultHeight: Ti.UI.SIZE,
 		
 		properties: {
 			color: {

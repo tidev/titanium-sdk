@@ -2,7 +2,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 
 	return declare("Ti._.Layouts.Absolute", Base, {
 
-		_doLayout: function(element, width, height, isAutoWidth, isAutoHeight) {
+		_doLayout: function(element, width, height, isWidthSize, isHeightSize) {
 			var computedSize = this._computedSize = {width: 0, height: 0};
 			for(var i in element.children) {
 				
@@ -13,9 +13,9 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 				 		x: 0,
 				 		y: 0
 				 	},
-				 	parentAuto: {
-				 		width: isAutoWidth,
-				 		height: isAutoHeight
+				 	parentSize: {
+				 		width: isWidthSize,
+				 		height: isHeightSize
 				 	},
 				 	boundingSize: {
 				 		width: width,
@@ -24,6 +24,10 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 				 	alignment: {
 				 		horizontal: this._defaultHorizontalAlignment,
 				 		vertical: this._defaultVerticalAlignment
+				 	},
+				 	fillSpace: {
+				 		width: width,
+				 		height: height
 				 	}
 			 	});
 				

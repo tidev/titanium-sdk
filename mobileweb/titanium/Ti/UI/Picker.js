@@ -38,8 +38,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 			
 			_doLayout: function(params) {
 				var values = this.properties.__values__;
-				values.width = params.parentAuto.width ? "auto" : "100%";
-				values.height = params.parentAuto.height ? "auto" : "100%";
+				values.width = params.parentSize.width ? Ti.UI.SIZE : "100%";
+				values.height = params.parentSize.height ? Ti.UI.SIZE : "100%";
 				Widget.prototype._doLayout.call(this,params);
 			},
 		
@@ -111,8 +111,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 			this._columns.push(column);
 			column._parentPicker = this;
 			var numColumns = this._columns.length,
-				width = this.width === "auto" ? "auto" : 100 / numColumns + "%",
-				height = this.height === "auto" ? "auto" : "100%";
+				width = this.width === Ti.UI.SIZE ? Ti.UI.SIZE : 100 / numColumns + "%",
+				height = this.height === Ti.UI.SIZE ? Ti.UI.SIZE : "100%";
 			for (var i = 0; i < numColumns; i++) {
 				var column = this._columns[i];
 				column.width = width;

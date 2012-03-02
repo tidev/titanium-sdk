@@ -186,8 +186,8 @@ define(
 		},
 		
 		_hasAutoDimensions: function() {
-			return (this.width === "auto" || (!isDef(this.width) && this._defaultWidth === "auto")) || 
-				(this.height === "auto" || (!isDef(this.height) && this._defaultHeight === "auto"));
+			return (this.width === Ti.UI.SIZE || (!isDef(this.width) && this._defaultWidth === Ti.UI.SIZE)) || 
+				(this.height === Ti.UI.SIZE || (!isDef(this.height) && this._defaultHeight === Ti.UI.SIZE));
 		},
 		
 		startLayout: function() {
@@ -213,8 +213,8 @@ define(
 			this._originY = params.origin.y;
 			this._defaultHorizontalAlignment = params.alignment.horizontal;
 			this._defaultVerticalAlignment = params.alignment.vertical;
-			this._isParentAutoWidth = params.parentAuto.width;
-			this._isParentAutoHeight = params.parentAuto.height;
+			this._isParentWidthSize = params.parentSize.width;
+			this._isParentHeightSize = params.parentSize.height;
 			
 			this._layoutParams = params;
 
@@ -278,7 +278,7 @@ define(
 
 		_computeDimensions: function(parentWidth, parentHeight, left, top, originalRight, originalBottom, centerX, centerY, width, height, borderWidth, layoutChildren) {
 			
-			// Compute as many sizes as possible, should be everything except auto
+			// Compute as many sizes as possible, should be everything except SIZE
 			left = computeSize(left, parentWidth, 1);
 			top = computeSize(top, parentHeight, 1);
 			originalRight = computeSize(originalRight, parentWidth);
@@ -297,8 +297,8 @@ define(
 				if (isDef(left)) {
 					right = undef;
 				} else if (isDef(centerX)){
-					if (width === "auto") {
-						left = "calculateAuto";
+					if (width === Ti.UI.SIZE) {
+						left = "calculateDefault";
 					} else {
 						left = centerX - width / 2;
 						right = undef;
@@ -307,7 +307,7 @@ define(
 					// Do nothing
 				} else {
 					// Set the default position
-					left = "calculateAuto";
+					left = "calculateDefault";
 				}
 			} else {
 				if (isDef(centerX)) {
@@ -327,7 +327,7 @@ define(
 						width = computeSize(this._defaultWidth,parentWidth);
 						if(!isDef(left) && !isDef(right)) {
 							// Set the default position
-							left = "calculateAuto";
+							left = "calculateDefault";
 						}
 					}
 				}
@@ -336,8 +336,8 @@ define(
 				if (isDef(top)) {
 					bottom = undef;
 				} else if (isDef(centerY)){
-					if(height === "auto") {
-						top = "calculateAuto";
+					if(height === Ti.UI.SIZE) {
+						top = "calculateDefault";
 					} else {
 						top = centerY - height / 2;
 						bottom = undef;
@@ -346,7 +346,7 @@ define(
 					// Do nothing
 				} else {
 					// Set the default position
-					top = "calculateAuto";
+					top = "calculateDefault";
 				}
 			} else {
 				if (isDef(centerY)) {
@@ -367,7 +367,7 @@ define(
 						height = computeSize(this._defaultHeight,parentHeight);
 						if(!isDef(top) && !isDef(bottom)) {
 							// Set the default position
-							top = "calculateAuto";
+							top = "calculateDefault";
 						}
 					}
 				}
@@ -386,10 +386,10 @@ define(
 			var computedStyle = window.getComputedStyle(this.domNode);
 				borderSize = getBorderSize();
 
-			// Calculate the width/left properties if width is NOT auto
-			var calculateWidthAfterAuto = false,
-				calculateHeightAfterAuto = false;
-			if (width !== "auto") {
+			// Calculate the width/left properties if width is NOT SIZE
+			var calculateWidthAfterChildren = false,
+				calculateHeightAfterChildren = false;
+			if (width !== Ti.UI.SIZE) {
 				if (isDef(right)) {
 					if (isDef(left)) {
 						width = right - left;
@@ -399,9 +399,9 @@ define(
 				}
 				width -= borderSize.left + borderSize.right;
 			} else {
-				calculateWidthAfterAuto = true;
+				calculateWidthAfterChildren = true;
 			}
-			if (height !== "auto") {
+			if (height !== Ti.UI.SIZE) {
 				if (isDef(bottom)) {
 					if (isDef(top)) {
 						height = bottom - top;
@@ -411,14 +411,14 @@ define(
 				}
 				height -= borderSize.top + borderSize.bottom;
 			} else {
-				calculateHeightAfterAuto = true;
+				calculateHeightAfterChildren = true;
 			}
 
 			if (this._getContentSize) {
-				if (width === "auto" || height === "auto") {
+				if (width === Ti.UI.SIZE || height === Ti.UI.SIZE) {
 					var contentSize = this._getContentSize(width,height);
-					width == "auto" && (width = contentSize.width);
-					height == "auto" && (height = contentSize.height);
+					width === Ti.UI.SIZE && (width = contentSize.width);
+					height === Ti.UI.SIZE && (height = contentSize.height);
 				}
 			} else {
 				var computedSize;
@@ -427,27 +427,27 @@ define(
 				} else {
 					computedSize = this._layout._computedSize;
 				}
-				width == "auto" && (width = computedSize.width);
-				height == "auto" && (height = computedSize.height);
+				width === Ti.UI.SIZE && (width = computedSize.width);
+				height === Ti.UI.SIZE && (height = computedSize.height);
 			}
 			
 			// I have no idea why we have to recalculate, but for some reason the recursion is screwing with the values.
 			borderSize = getBorderSize();
 			
-			if (calculateWidthAfterAuto) {
+			if (calculateWidthAfterChildren) {
 				if (isDef(right) && !isDef(left)) {
 					left = right - width;
 				}
 			}
-			if (calculateHeightAfterAuto) {
+			if (calculateHeightAfterChildren) {
 				if (isDef(bottom) && !isDef(top)) {
 					top = bottom - height;
 				}
 			}
 
 			// Set the default top/left if need be
-			if (left === "calculateAuto") {
-				if (!this._isParentAutoWidth) {
+			if (left === "calculateDefault") {
+				if (!this._isParentWidthSize) {
 					switch(this._defaultHorizontalAlignment) {
 						case "center": left = computeSize("50%",parentWidth) - borderSize.left - (is(width,"Number") ? width : 0) / 2; break;
 						case "right": left = parentWidth - borderSize.left - borderSize.right - (is(width,"Number") ? width : 0) / 2; break;
@@ -457,8 +457,8 @@ define(
 					left = 0;
 				}
 			}
-			if (top === "calculateAuto") {
-				if (!this._isParentAutoHeight) {
+			if (top === "calculateDefault") {
+				if (!this._isParentHeightSize) {
 					switch(this._defaultVerticalAlignment) {
 						case "center": top = computeSize("50%",parentHeight) - borderSize.top - (is(height,"Number") ? height : 0) / 2; break;
 						case "bottom": top = parentWidth - borderSize.top - borderSize.bottom - (is(height,"Number") ? height : 0) / 2; break;
@@ -788,8 +788,8 @@ define(
 
 					// Set the position and size properties
 					var dimensions = this._computeDimensions(
-						this._parent ? this._parent._measuredWidth : "auto", 
-						this._parent ? this._parent._measuredHeight : "auto", 
+						this._parent ? this._parent._measuredWidth : Ti.UI.SIZE, 
+						this._parent ? this._parent._measuredHeight : Ti.UI.SIZE, 
 						val(anim.left, this.left),
 						val(anim.top, this.top),
 						val(anim.right, this.right),
@@ -978,7 +978,16 @@ define(
 				}
 			},
 
-			height: postLayoutProp,
+			height: {
+				set: function(value) {
+					// Temporary hack to handle "auto" backwards compatibility
+					value === "auto" && (value = Ti.UI.SIZE);
+					return value;
+				},
+				post: function() {
+					this._parent && this._parent._triggerLayout();
+				}
+			},
 
 			left: postLayoutProp,
 
@@ -1018,7 +1027,16 @@ define(
 				}
 			},
 
-			width: postLayoutProp,
+			width: {
+				set: function(value) {
+					// Temporary hack to handle "auto" backwards compatibility
+					value === "auto" && (value = Ti.UI.SIZE);
+					return value;
+				},
+				post: function() {
+					this._parent && this._parent._triggerLayout();
+				}
+			},
 
 			zIndex: postLayoutProp
 		}

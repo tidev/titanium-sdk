@@ -16,8 +16,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
 			style.set(contentContainer.domNode,"overflow","hidden");
 			
 			contentContainer.add(this._contentMeasurer = UI.createView({
-				width: "auto",
-				height: "auto",
+				width: Ti.UI.SIZE,
+				height: Ti.UI.SIZE,
 				left: 0,
 				top: 0
 			}));

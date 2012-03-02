@@ -84,15 +84,15 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style"], functio
 			setStyle(this._contentContainer,"display","none");
 		},
 		
-		_defaultWidth: "auto",
-		_defaultHeight: "auto",
+		_defaultWidth: Ti.UI.SIZE,
+		_defaultHeight: Ti.UI.SIZE,
 		
 		_messagePadding: 0,
 		
 		_getContentSize: function(width, height) {
 			return {
-				width: width === "auto" ? 36 + this._measureText(this.message, this._indicatorMessage).width + this._messagePadding : width,
-				height: height === "auto" ? Math.max(this._measureText(this.message, this._indicatorMessage).height,36) : height
+				width: width === Ti.UI.SIZE ? 36 + this._measureText(this.message, this._indicatorMessage).width + this._messagePadding : width,
+				height: height === Ti.UI.SIZE ? Math.max(this._measureText(this.message, this._indicatorMessage).height,36) : height
 			};
 		},
 		

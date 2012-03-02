@@ -21,33 +21,35 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 			
 			_doLayout: function(params) {
 				var imageRatio = this.domNode.width / this.domNode.height,
-					self = this;
+					boundingHeight = params.boundingSize.height,
+					boundingWidth = params.boundingSize.width,
+					values = this.properties.__values__;
 				
 				function setByHeight() {
-					self.properties.__values__.width = parentHeight * imageRatio;
-					self.properties.__values__.height = parentHeight;
+					values.width = boundingHeight * imageRatio;
+					values.height = boundingHeight;
 				}
 				
 				function setByWidth() {
-					self.properties.__values__.width = parentWidth;
-					self.properties.__values__.height = parentWidth / imageRatio;
+					values.width = boundingWidth;
+					values.height = boundingWidth / imageRatio;
 				}
 				
-				var isParentWidthAuto = params.parentAuto.width,
-					isParentHeightAuto = params.parentAuto.width;
-				if (!isParentWidthAuto && !isParentHeightAuto) {
-					if (parentWidth / parentHeight > imageRatio) {
+				var isParentWidthSize = params.parentSize.width,
+					isParentHeightSize = params.parentSize.width;
+				if (!isParentWidthSize && !isParentHeightSize) {
+					if (boundingWidth / boundingHeight > imageRatio) {
 						setByHeight();
 					} else {
 						setByWidth();
 					}
-				} else if (!isParentWidthAuto) {
+				} else if (!isParentWidthSize) {
 					setByWidth();
-				} else if (!isParentHeightAuto) {
+				} else if (!isParentHeightSize) {
 					setByHeight();
 				} else {
-					this.properties.__values__.width = "auto";
-					this.properties.__values__.height = "auto";
+					values.width = Ti.UI.SIZE;
+					values.height = Ti.UI.SIZE;
 				}
 				Widget.prototype._doLayout.call(this,params);
 			},
@@ -85,9 +87,9 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 
 	return declare("Ti.UI.ImageView", Widget, {
 
-		_defaultWidth: "auto",
+		_defaultWidth: Ti.UI.SIZE,
 		
-		_defaultHeight: "auto",
+		_defaultHeight: Ti.UI.SIZE,
 		
 		_slideshowCount: 0,
 		

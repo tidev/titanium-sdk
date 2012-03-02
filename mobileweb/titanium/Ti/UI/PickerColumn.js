@@ -69,7 +69,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 				// Create the list dialog itself
 				var listDialog = UI.createView({
 					width: "75%",
-					height: "auto",
+					height: Ti.UI.SIZE,
 					backgroundColor: "white",
 					layout: "vertical",
 					borderRadius: 3,
@@ -96,7 +96,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					left: 5,
 					right: 5,
 					top: 5,
-					height: data.length < 10 ? "auto" : "70%",
+					height: data.length < 10 ? Ti.UI.SIZE : "70%",
 					data: data
 				});
 				listDialog.add(listTable);
@@ -182,8 +182,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 			var titleContainer = this._titleContainer;
 				text = titleContainer.innerHTML;
 			return {
-				width: width === "auto" ? Math.max(this._widestRowWidth + contentPadding, 100) : width,
-				height: height === "auto" ? this._tallestRowHeight + contentPadding + this._upArrow.clientHeight + this._downArrow.clientHeight : height
+				width: width === Ti.UI.SIZE ? Math.max(this._widestRowWidth + contentPadding, 100) : width,
+				height: height === Ti.UI.SIZE ? this._tallestRowHeight + contentPadding + this._upArrow.clientHeight + this._downArrow.clientHeight : height
 			};
 		},
 		

@@ -102,13 +102,13 @@ define(["Ti/_", "Ti/_/style"], function(_, style) {
 			return isNaN(x-0) || x-0 != x ? x : x + "px"; // note: must be != and not !==
 		},
 
-		computeSize: function(x, totalLength, convertAutoToUndef) {
+		computeSize: function(x, totalLength, convertSizeToUndef) {
 			var undef,
 				type = require.is(x);
 
 			if (type === "String") {
-				if (x === "auto") {
-					convertAutoToUndef && (x = undef);
+				if (x === Ti.UI.SIZE) {
+					convertSizeToUndef && (x = undef);
 				} else {
 					var value = parseFloat(x),
 						units = x.substring(x.length - 2);
@@ -116,8 +116,8 @@ define(["Ti/_", "Ti/_/style"], function(_, style) {
 
 					switch(units) {
 						case "%":
-							if(totalLength == "auto") {
-								convertAutoToUndef ? undef : "auto";
+							if(totalLength == Ti.UI.SIZE) {
+								convertSizeToUndef ? undef : Ti.UI.SIZE;
 							} else if (!require.is(totalLength,"Number")) {
 								console.error("Could not compute percentage size/position of element.");
 								return;

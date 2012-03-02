@@ -18,7 +18,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 			this.leftView = UI.createView({
 				left: 0,
 				top: 0,
-				width: "auto", 
+				width: Ti.UI.SIZE, 
 				height: "100%",
 				layout: "horizontal"
 			}),
@@ -29,21 +29,25 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 			this.leftImageView = UI.createImageView();
 			this.leftView.add(this.leftImageView); 
 
-			this.titleLabel = UI.createLabel({ width: "auto", height: "100%" });
+			this.titleLabel = UI.createLabel({ width: Ti.UI.SIZE, height: "100%" });
 			this.leftView.add(this.titleLabel);
 
 			this.add(this.rightImageView = UI.createImageView({
 				right: 0,
 				center: {y: "50%"},
-				width: "auto", 
-				height: "auto"
+				width: Ti.UI.SIZE, 
+				height: Ti.UI.SIZE
 			}));
 		},
 
-		_defaultHeight: "auto",
+		_defaultHeight: Ti.UI.SIZE,
+		
 		_defaultWidth: "100%",
+		
 		_tableRowHeight: undef,
+		
 		_tableViewSection: null,
+		
 		_handleTouchEvent: function(type, e) {
 			if (type === "click" || type === "singletap") {
 				this._tableViewSection && this._tableViewSection._tableView && (this._tableViewSection._tableView._tableViewRowClicked = this);

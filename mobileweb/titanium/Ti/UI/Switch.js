@@ -118,8 +118,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		_getContentSize: function(width, height) {
 			var defaultLookOffset = (this._hasDefaultLook ? 12 : 0);
 			return {
-				width: width === "auto" ? Math.max(this._measureText(this._switchTitle.innerHTML, this._switchTitle).width, this._switchIndicator.offsetWidth) + defaultLookOffset : width,
-				height: height === "auto" ? this._measureText(this._switchTitle.innerHTML, this._switchTitle).height + // Text height
+				width: width === Ti.UI.SIZE ? Math.max(this._measureText(this._switchTitle.innerHTML, this._switchTitle).width, this._switchIndicator.offsetWidth) + defaultLookOffset : width,
+				height: height === Ti.UI.SIZE ? this._measureText(this._switchTitle.innerHTML, this._switchTitle).height + // Text height
 						this._switchIndicator.offsetHeight + // Indicator height
 						3 + // Padding between the indicator and text
 						defaultLookOffset // Border of the default style
@@ -127,9 +127,9 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			};
 		},
 		
-		_defaultWidth: "auto",
+		_defaultWidth: Ti.UI.SIZE,
 		
-        _defaultHeight: "auto",
+        _defaultHeight: Ti.UI.SIZE,
 
 		properties: {
 			

@@ -14,14 +14,14 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/dom", "Ti/_/css", "Ti/_/style",
 			this._initTextBox();
 		},
 
-		_defaultWidth: "auto",
+		_defaultWidth: Ti.UI.SIZE,
 
-		_defaultHeight: "auto",
+		_defaultHeight: Ti.UI.SIZE,
 		
 		_getContentSize: function(width, height) {
 			return {
-				width: width === "auto" ? this._measureText(this.value, this.textArea, width).width : width,
-				height: height === "auto" ? this._measureText(this.value, this.textArea, width).height : height
+				width: width === Ti.UI.SIZE ? this._measureText(this.value, this.textArea, width).width : width,
+				height: height === Ti.UI.SIZE ? this._measureText(this.value, this.textArea, width).height : height
 			};
 		},
 

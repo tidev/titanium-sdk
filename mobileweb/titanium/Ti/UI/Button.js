@@ -57,9 +57,9 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			}));
 		},
 
-		_defaultWidth: "auto",
+		_defaultWidth: Ti.UI.SIZE,
 
-		_defaultHeight: "auto",
+		_defaultHeight: Ti.UI.SIZE,
 		
 		_updateLook: function() {
 			if (this.backgroundColor || this.backgroundDisabledColor || this.backgroundDisabledImage || this.backgroundFocusedColor || 
@@ -89,8 +89,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		
 		_getContentSize: function(width, height) {
 			return {
-				width: width === "auto" ? this._buttonImage.width + this._measureText(this.title, this._buttonTitle).width : width,
-				height: height === "auto" ? Math.max(this._buttonImage.height, this._measureText(this.title, this._buttonTitle).height) : height
+				width: width === Ti.UI.SIZE ? this._buttonImage.width + this._measureText(this.title, this._buttonTitle).width : width,
+				height: height === Ti.UI.SIZE ? Math.max(this._buttonImage.height, this._measureText(this.title, this._buttonTitle).height) : height
 			};
 		},
 

@@ -39,7 +39,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 			}));
 
 			this._pagingControlContainer.add(this._pagingControlContentContainer = UI.createView({
-				width: "auto",
+				width: Ti.UI.SIZE,
 				height: "100%",
 				top: 0,
 				touchEnabled: false

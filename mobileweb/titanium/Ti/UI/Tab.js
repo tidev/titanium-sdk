@@ -58,9 +58,12 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom"],
 			});
 		},
 
-		_defaultWidth: "auto",
-		_defaultHeight: "auto",
+		_defaultWidth: Ti.UI.SIZE,
+		
+		_defaultHeight: Ti.UI.SIZE,
+		
 		_tabGroup: null,
+		
 		_tabWidth: "100%",
 
 		properties: {

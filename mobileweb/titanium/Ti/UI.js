@@ -102,9 +102,9 @@ define(
 		_layoutMarkedNodes: function(node) {
 			if (node._markedForLayout) {
 				var parent = node._parent,
-					isParentWidthAuto = parent && parent.width === "auto", 
-					isParentHeightAuto = parent && parent.height === "auto";
-				node._layout && node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, !!isParentWidthAuto, !!isParentHeightAuto);
+					isParentWidthSize = parent && parent.width === Ti.UI.SIZE, 
+					isParentHeightSize = parent && parent.height === Ti.UI.SIZE;
+				node._layout && node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, !!isParentWidthSize, !!isParentHeightSize);
 			} else {
 				for (var i in node.children) {
 					this._layoutMarkedNodes(node.children[i]);
@@ -118,24 +118,28 @@ define(
 		},
 		
 		_recalculateLayout: function() {
-			this._container.width = window.innerWidth;
-			this._container.height = window.innerHeight;
+			var width = this._container.width = window.innerWidth,
+				height = this._container.height = window.innerHeight;
 			this._container._doLayout({
 			 	origin: {
 			 		x: 0,
 			 		y: 0
 			 	},
-			 	parentAuto: {
+			 	parentSize: {
 			 		width: false,
 			 		height: false
 			 	},
 			 	boundingSize: {
-			 		width: window.innerWidth,
-			 		height: window.innerHeight
+			 		width: width,
+			 		height: height
 			 	},
 			 	alignment: {
 			 		horizontal: "center",
 			 		vertical: "center"
+			 	},
+			 	fillSpace: {
+			 		width: width,
+			 		height: height
 			 	}
 		 	});
 		},

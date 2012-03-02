@@ -45,14 +45,14 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			this.wordWrap = true;
 		},
 
-		_defaultWidth: "auto",
+		_defaultWidth: Ti.UI.SIZE,
 
-		_defaultHeight: "auto",
+		_defaultHeight: Ti.UI.SIZE,
 		
 		_getContentSize: function(width, height) {
 			return {
-				width: width === "auto" ? this._measureText(this.text, this.textContainerDiv, width).width : width,
-				height: height === "auto" ? this._measureText(this.text, this.textContainerDiv, width).height : height
+				width: width === Ti.UI.SIZE ? this._measureText(this.text, this.textContainerDiv, width).width : width,
+				height: height === Ti.UI.SIZE ? this._measureText(this.text, this.textContainerDiv, width).height : height
 			};
 		},
 		

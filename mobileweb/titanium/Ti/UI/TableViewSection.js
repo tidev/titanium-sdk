@@ -10,14 +10,14 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			this._indexedContent = [];
 
 			require.each(["_header", "_rows", "_footer"], lang.hitch(this, function(v) {
-				Widget.prototype.add.call(this, this[v] = UI.createView({ height: "auto", layout: "vertical" }));
+				Widget.prototype.add.call(this, this[v] = UI.createView({ height: Ti.UI.SIZE, layout: "vertical" }));
 			}));
 
 			// Create the parts out of Ti controls so we can make use of the layout system
 			this.layout = "vertical";
 		},
 
-		_defaultHeight: "auto",
+		_defaultHeight: Ti.UI.SIZE,
 		_defaultWidth: "100%",
 		
 		_handleTouchEvent: function(type, e) {
@@ -44,7 +44,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 				backgroundColor: "darkGrey",
 				color: "white",
 				width: "100%",
-				height: "auto",
+				height: Ti.UI.SIZE,
 				left: 0,
 				font: {fontSize: 18}
 			});
