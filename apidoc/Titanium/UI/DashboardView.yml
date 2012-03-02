@@ -2,15 +2,24 @@
 name: Titanium.UI.DashboardView
 summary: |
     A dashboard view is an iOS Springboard-like view of <Titanium.UI.DashboardItem> items that may 
-    be deleted and reordered by the user using its edit mode.
+    be deleted and reordered by the user using its built-in edit mode.
 description: |
-    A DashboardView is created using the <Titanium.UI.createDashboardView> method.
+    The DashboardView is created using the <Titanium.UI.createDashboardView> method.
+    
+    Dashboard view's edit mode may be activated by a longpress of a <Titanium.UI.DashboardItem> item, 
+    unless this behavior has been disabled by the [editable](Titanium.UI.DashboardView.editable) 
+    property. As a dashboard view does not inherently provide a way to exit edit mode, this must be 
+    explicitly defined.
+    
+    When edit mode has been activated, the item icons wobble by default to act as a visual cue. 
+    This behavior may be disabled using the [wobble](Titanium.UI.DashboardView.wobble) property.
     
     If a dashboard contains more than 9 items, it will be paged into screens in a 3 x 3 formation 
     using its built-in scrollable view. A paging control is added to the bottom of the view to 
     indicate the active page.
     
-    A dashboard is only intended to be used in [PORTRAIT](Titanium.UI.PORTRAIT) orientation mode.
+    Note that a dashboard is only intended to be used in [PORTRAIT](Titanium.UI.PORTRAIT) 
+    orientation mode.
 extends: Titanium.UI.View
 since: "1.2"
 platforms: [iphone, ipad]
@@ -162,6 +171,13 @@ properties:
   - name: data
     summary: Items to display in this view.
     type: Array<Titanium.UI.DashboardItem>
+
+  - name: editable
+    summary: Determines whether edit mode is activated by a longpress of an item.
+    description: |
+        Set to `false` to prevent a longpress from activating edit mode.
+    type: Boolean
+    default: true
     
   - name: wobble
     summary: Determines whether the wobble visual editing cue is enabled in edit mode.
