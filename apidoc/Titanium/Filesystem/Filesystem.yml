@@ -23,19 +23,19 @@ methods:
         application can create a file at that path by calling 
         [write](Titanium.Filesystem.File.write) or create a directory by calling
         [createDirectory](Titanium.Filesystem.File.createDirectory) on the `File` object.
-
+        
         This method takes a variable number of arguments, where each argument is treated
         as a path component. All of the arguments are joined together using the
         platform-specific path separator to make the final path.
-
+        
         If a relative path is passed, the full path should be interpreted relative
         to the current file. For example, if the file `Resources/login/login.js` 
         contains the following code:
         
             var icon = Titanium.Filesystem.getFile('icon.png');
-
+        
         The path is interpreted as `Resources/login/icon.png`. 
-
+        
         On iOS, all relative paths are currently interpreted as relative to the
         `Resources` directory, **not** to the current context. This is a known issue
         that will be addressed in a future release.
@@ -57,6 +57,22 @@ methods:
         Returns `false` on iOS.
     returns:
         type: Boolean
+  - name: openStream
+    summary: Opens file using the <Titanium.IOStream> interface.
+    parameters:
+      - name: mode
+        summary: |
+            Access mode. Either <Titanium.Filesystem.MODE_READ>, <Titanium.Filesystem.MODE_WRITE>, or 
+            <Titanium.Filesystem.MODE_APPEND>.
+        type: Number
+        
+      - name: path
+        summary: |
+            One or more path components. Path arguments are joined together using the 
+            platform-specific path separator to form the full path. 
+        type: String
+    returns:
+        type: Titanium.Filesystem.FileStream
 properties:
   - name: MODE_APPEND
     summary: Constant for append mode for file operations.

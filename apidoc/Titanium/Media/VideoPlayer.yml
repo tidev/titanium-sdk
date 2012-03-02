@@ -103,7 +103,7 @@ examples:
                     url : contentURL,
                     backgroundColor : 'blue',
                     movieControlMode : Titanium.Media.VIDEO_CONTROL_DEFAULT,
-                    scalingMode : Titanium.Media.VIDEO_SCALING_MODE_ASPECT_FILL,
+                    scalingMode : Titanium.Media.VIDEO_SCALING_ASPECT_FILL,
                     fullscreen : true,
                     autoplay : true
                 });
@@ -201,7 +201,7 @@ methods:
 
         Note that if [scalingMode](Titanium.Media.VideoPlayer.scalingMode) is set to 
         [VIDEO_SCALING_MODE_FILL](Titanium.Media.VIDEO_SCALING_MODE_FILL) or 
-        [VIDEO_SCALING_MODE_ASPECT_FILL](Titanium.Media.VIDEO_SCALING_MODE_ASPECT_FILL),
+        [VIDEO_SCALING_ASPECT_FILL](Titanium.Media.VIDEO_SCALING_ASPECT_FILL),
         the playing video will fill the entire video player area, obscuring any background
         view.
     platforms: [iphone, ipad]

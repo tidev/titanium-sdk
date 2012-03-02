@@ -12,8 +12,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 				child._doLayout(0,currentTop,width,height,this._defaultHorizontalAlignment,this._defaultVerticalAlignment,isAutoWidth,isAutoHeight);
 				
 				// Update the size of the component
-				var rightMostEdge = child._measuredWidth + child._measuredLeft + 2 * child._measuredBorderWidth + child._measuredRightPadding;
-				currentTop = child._measuredHeight + child._measuredTop + 2 * child._measuredBorderWidth + child._measuredBottomPadding;
+				var rightMostEdge = child._measuredWidth + child._measuredLeft + child._measuredBorderSize.left + child._measuredBorderSize.right + child._measuredRightPadding;
+				currentTop = child._measuredHeight + child._measuredTop + child._measuredBorderSize.top + child._measuredBorderSize.bottom + child._measuredBottomPadding;
 				rightMostEdge > computedSize.width && (computedSize.width = rightMostEdge);
 				currentTop > computedSize.height && (computedSize.height = currentTop);
 			}

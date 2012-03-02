@@ -1,4 +1,4 @@
-define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI"], function(declare, Evented, UI) {
+define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI", "Ti/_/css"], function(declare, Evented, UI, css) {
 
 	var undef;
 
@@ -51,9 +51,9 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI"], function(declare, Evented, UI)
 					index: index
 				});
 				if (index === self.destructive) {
-					button.domNode.className += " TiUIButtonDestructive";
+					css.add(button.domNode, "TiUIElementGradientDestructive");
 				} else if (index === self.cancel) {
-					button.domNode.className += " TiUIButtonCancel";
+					css.add(button.domNode, "TiUIElementGradientCancel");
 				}
 				optionsDialog.add(button);
 				button.addEventListener("singletap",function(){
