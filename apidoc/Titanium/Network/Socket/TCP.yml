@@ -34,7 +34,7 @@ examples:
         The following example uses the [pump](Titanium.Stream.pump) method from the <Titanium.Stream> 
         module to read data from a socket. The `pump` method registers a callback that is 
         called repeatedly to process incoming data from the socket.
-
+            
             var socket = Ti.Network.Socket.createTCP({
                 host: 'blog.example.com', port: 80,
                 connected: function (e) {
@@ -71,16 +71,18 @@ examples:
                     Ti.API.error(ex);
                 }
             }
-
+            
   - title: Listening Socket Example
     example: |
         The following sample shows a trivial example of using a listening 
         socket. In this case, the application simply sends messages to itself,
-        using the loopback address. 
+        using the loopback address.
+            
             // Hostname to listen on/connect to. Here we use the loopback
-            // address. iOS also supports Ti.Network.address (the address of
+            // address. iOS also supports Ti.Platform.address (the address of
             // the WiFi interface).
             // Android supports only the loopback address.
+            
             var hostname = '127.0.0.1';
             
             var clientSocket = Ti.Network.Socket.createTCP({
@@ -161,7 +163,6 @@ examples:
                 Ti.API.info("Calling connect on client socket.");
                clientSocket.connect();
             }, 500);
-
 
 properties:
   - name: host
