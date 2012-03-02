@@ -48,7 +48,7 @@ properties:
     default: <Titanium.UI.TEXT_ALIGNMENT_CENTER>
     platforms: [android, mobileweb]
   - name: title
-    summary: text to display with checkbox. Used if style is <Ti.UI.Android.SWITCH_STYLE_CHECKBOX>
+    summary: text to display with checkbox. Used if style is <Titanium.UI.Android.SWITCH_STYLE_CHECKBOX>
     type: String
     platforms: [android]
   - name: titleOff

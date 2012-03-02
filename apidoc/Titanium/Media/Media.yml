@@ -95,7 +95,7 @@ methods:
         To suppress the default controls, set `showControls` and `autohide` to `false`.
 
         If the `showControls` option is `false`, you must control the camera explicitly, using
-        the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.UI.hideCamera) 
+        the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera) 
         methods.
     platforms: [iphone, ipad, android]
     parameters:
