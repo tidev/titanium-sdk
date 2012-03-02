@@ -102,7 +102,7 @@ methods:
         optionally, returns a result.
     description: |
         The JavaScript expression must be passed in as a string. If you are passing in any objects,
-        you must serialize them to strings using [JSON.stringify](Globals.JSON.stringify).
+        you must serialize them to strings using [stringify](Global).
 
         The `evalJS` method returns a string representing the value of the expression. For
         example, the following call retrieves the `document.title` element from the
@@ -140,7 +140,7 @@ methods:
   - name: pause
     summary: Pauses native webview plugins. 
     description: |
-        Add a `pause` handler to your <Titanium.UI.Android.Activity> and invoke
+        Add a `pause` handler to your <Titanium.Android.Activity> and invoke
         this method to pause native plugins. This is important with Flash content 
         as it will continue in the background unless this method is invoked.
 
@@ -166,7 +166,7 @@ methods:
     description: |
         Used to unpause native plugins after calling [pause](Titanium.UI.WebView.pause).
 
-        Add a `resume` handler to your <Titanium.UI.Android.Activity> and invoke
+        Add a `resume` handler to your <Titanium.Android.Activity> and invoke
         this method to resume native plugins.
     since: "1.8.0"
     platforms: [android]

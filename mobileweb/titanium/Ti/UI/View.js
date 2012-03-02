@@ -225,7 +225,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 		properties: {
 			layout: {
 				set: function(value) {
-					var match = value.match(/^(uncenteredAbsolute|horizontal|centeredHorizontal|vertical)$/),
+					var match = value.match(/^(horizontal|vertical)$/),
 						value = match ? match[0] : "absolute";
 
 					if (this._layout) {

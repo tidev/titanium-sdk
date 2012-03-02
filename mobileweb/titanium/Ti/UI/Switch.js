@@ -8,14 +8,12 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
         unitize = dom.unitize;
 
 	return declare("Ti.UI.Switch", FontWidget, {
-		
-		domType: "button",
 
 		constructor: function(args) {
 			
 			// This container holds the flex boxes used to position the elements
 			this._contentContainer = dom.create("div", {
-				className: "TiUIButtonContentContainer",
+				className: "TiUISwitchContentContainer",
 				style: {
 					display: ["-webkit-box", "-moz-box"],
 					boxOrient: "vertical",
@@ -28,7 +26,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			
 			// Create the text box and a flex box to align it
 			this._titleContainer = dom.create("div", {
-				className: "TiUIButtonTextAligner",
+				className: "TiUISwitchTextAligner",
 				style: {
 					display: ["-webkit-box", "-moz-box"],
 					boxOrient: "vertical",
@@ -49,7 +47,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 			// Create the switch indicator and a flex box to contain it
 			this._indicatorContainer = dom.create("div", {
-				className: "TiUIButtonTextAligner",
+				className: "TiUISwitchTextAligner",
 				style: {
 					display: ["-webkit-box", "-moz-box"],
 					boxPack: "center",
@@ -91,7 +89,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		_setDefaultLook: function() {
 			if (!this._hasDefaultLook) {
 				this._hasDefaultLook = true;
-				css.add(this.domNode, "TiUIButtonDefault");
+				css.add(this.domNode, "TiUIElementGradient");
 				this._previousBorderWidth = this.borderWidth;
 				this._previousBorderColor = this.borderColor;
 				this.borderWidth = 1;
@@ -107,7 +105,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			if (this._hasDefaultLook) {
 				this._hasDefaultLook = false;
 				var className = this.domNode.className;
-				css.remove(this.domNode, "TiUIButtonDefault");
+				css.remove(this.domNode, "TiUIElementGradient");
 				this.borderWidth = this._previousBorderWidth;
 				this.borderColor = this._previousBorderColor;
 				setStyle(this.domNode, { 
@@ -152,23 +150,16 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 			backgroundSelectedImage: postDoBackground,
 			
-			color: {
-				set: function(value) {
-					setStyle(this._switchTitle, "color", value);
-					return value;
-				}
-			},
-			
 			enabled: {
 				set: function(value, oldValue) {
 					
 					if (value !== oldValue) {
 						if (this._hasDefaultLook) {	
 							if (!value) {
-								css.remove(this.domNode,"TiUIButtonDefault");
+								css.remove(this.domNode,"TiUIElementGradient");
 								setStyle(this.domNode,"backgroundColor","#aaa");
 							} else {
-								css.add(this.domNode,"TiUIButtonDefault");
+								css.add(this.domNode,"TiUIElementGradient");
 								setStyle(this.domNode,"backgroundColor","");
 							}
 						}
@@ -219,12 +210,15 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					setStyle(this._switchIndicator,{
 						backgroundColor: value ? "#0f0" : "#aaa"
 					});
+					value = !!value;
 					this._switchTitle.innerHTML = value ? this.titleOn : this.titleOff;
 					this._hasAutoDimensions() && this._triggerParentLayout();
-					this.fireEvent("change",{
-						value: !!value
-					});
 					return value;
+				},
+				post: function() {
+					this.fireEvent("change",{
+						value: this.value
+					});
 				}
 			},
 			

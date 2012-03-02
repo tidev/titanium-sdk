@@ -23,8 +23,6 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
 			}));
 			style.set(this._contentMeasurer.domNode,"overflow","hidden");
 			
-			this.layout = "uncenteredAbsolute";
-			
 			this._createHorizontalScrollBar();
 			this._createVerticalScrollBar();
 			

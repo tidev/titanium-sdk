@@ -22,8 +22,17 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti
 		},
 
 		_setFont: function(font,domNode) {
-			lang.isDef(font.fontSize) && (font.fontSize = dom.unitize(font.fontSize));
-			style.set(domNode, font);
+			if (font) {
+				require.is(font.fontSize, "Number") && (font.fontSize = dom.unitize(font.fontSize));
+				style.set(domNode, font);
+			} else {
+				style.set(domNode,{
+					fontFamily: "",
+					fontSize: "",
+					fontStyle: "",
+					fontWeight: ""
+				});
+			}
 		},
 
 		_addStyleableDomNode: function(styleableDomNode) {
@@ -43,10 +52,10 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti
 			textRuler.innerHTML = emptyText ? "\u00C4y" : text;
 
 			this._setFont({
-				fontFamily: font.fontFamily || computedStyle.fontFamily,
-				fontSize: font.fontSize || computedStyle.fontSize,
-				fontStyle: font.fontStyle || computedStyle.fontStyle,
-				fontWeight: font.fontWeight || computedStyle.fontWeight
+				fontFamily: font.fontFamily || computedStyle.fontFamily || "",
+				fontSize: font.fontSize || computedStyle.fontSize || "",
+				fontStyle: font.fontStyle || computedStyle.fontStyle || "",
+				fontWeight: font.fontWeight || computedStyle.fontWeight || ""
 			}, textRuler);
 			style.set(textRuler,{
 				whiteSpace: domNode.style.whiteSpace,
@@ -58,6 +67,14 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti
 		},
 
 		properties: {
+			color: {
+				set: function(value) {
+					for (var domNode in this._styleableDomNodes) {
+						style.set(this._styleableDomNodes[domNode], "color", value);
+					}
+					return value;
+				}
+			},
 			font: {
 				set: function(value) {
 					for (var domNode in this._styleableDomNodes) {

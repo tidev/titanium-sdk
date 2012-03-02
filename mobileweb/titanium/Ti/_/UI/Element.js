@@ -122,6 +122,19 @@ define(
 			this.addEventListener("touchend", bg);
 
 			// TODO: mixin JSS rules (http://jira.appcelerator.org/browse/TIMOB-6780)
+			var values = this.constants.__values__;
+			values.size = {
+				x: 0,
+				y: 0,
+				width: 0,
+				height: 0
+			};
+			values.rect = {
+				x: 0,
+				y: 0,
+				width: 0,
+				height: 0
+			};
 		},
 
 		destroy: function() {
@@ -164,8 +177,8 @@ define(
 			}
 			rootLayoutNode._markedForLayout = true;
 			
-			// Let the UI know that a layout needs to be performed.
-			UI._triggerLayout(force);
+			// Let the UI know that a layout needs to be performed if this is not part of a batch update
+			(!this._batchUpdateInProgress || force) && UI._triggerLayout(force);
 		},
 		
 		_triggerParentLayout: function() {
@@ -176,12 +189,32 @@ define(
 			return (this.width === "auto" || (!isDef(this.width) && this._defaultWidth === "auto")) || 
 				(this.height === "auto" || (!isDef(this.height) && this._defaultHeight === "auto"));
 		},
+		
+		startLayout: function() {
+			this._batchUpdateInProgress = true;
+		},
+		
+		finishLayout: function() {
+			this._batchUpdateInProgress = false;
+			UI._triggerLayout(true);
+		},
+		
+		updateLayout: function(params) {
+			this.startLayout();
+			for(var i in params) {
+				this[i] = params[i];
+			}
+			this.finishLayout();
+		},
 
-		_doLayout: function(originX, originY, parentWidth, parentHeight, centerHDefault, centerVDefault) {
+		_doLayout: function(originX, originY, parentWidth, parentHeight, defaultHorizontalAlignment, defaultVerticalAlignment, isParentAutoWidth, isParentAutoHeight) {
+			
 			this._originX = originX;
 			this._originY = originY;
-			this._centerHDefault = centerHDefault;
-			this._centerVDefault = centerVDefault;
+			this._defaultHorizontalAlignment = defaultHorizontalAlignment;
+			this._defaultVerticalAlignment = defaultVerticalAlignment;
+			this._isParentAutoWidth = isParentAutoWidth;
+			this._isParentAutoHeight = isParentAutoHeight;
 
 			var dimensions = this._computeDimensions(
 					parentWidth,
@@ -203,25 +236,28 @@ define(
 			styles = {
 				zIndex: this.zIndex | 0
 			};
+			var rect  = this.rect,
+				size  = this.size;
 			if (this._measuredLeft != dimensions.left) {
-				this._measuredLeft = dimensions.left;
+				rect.x = this._measuredLeft = dimensions.left;
 				isDef(this._measuredLeft) && (styles.left = unitize(this._measuredLeft));
 			}
 			if (this._measuredTop != dimensions.top) {
-				this._measuredTop = dimensions.top
+				rect.y = this._measuredTop = dimensions.top;
 				isDef(this._measuredTop) && (styles.top = unitize(this._measuredTop));
 			}
 			if (this._measuredWidth != dimensions.width) {
-				this._measuredWidth = dimensions.width
+				size.width = rect.width = this._measuredWidth = dimensions.width;
 				isDef(this._measuredWidth) && (styles.width = unitize(this._measuredWidth));
 			}
 			if (this._measuredHeight != dimensions.height) {
-				this._measuredHeight = dimensions.height
+				size.height = rect.height = this._measuredHeight = dimensions.height;
 				isDef(this._measuredHeight) && (styles.height = unitize(this._measuredHeight));
 			}
 			this._measuredRightPadding = dimensions.rightPadding;
 			this._measuredBottomPadding = dimensions.bottomPadding;
 			this._measuredBorderWidth = dimensions.borderWidth;
+			this._measuredBorderSize = dimensions.borderSize;
 			setStyle(this.domNode, styles);
 			
 			this._markedForLayout = false;
@@ -231,6 +267,11 @@ define(
 				this._doAnimationAfterLayout = false;
 				this._doAnimation();
 			}
+			
+			// Recompute the gradient, if it exists
+			this.backgroundGradient && this._computeGradient();
+			
+			this.fireEvent("postlayout");
 		},
 
 		_computeDimensions: function(parentWidth, parentHeight, left, top, originalRight, originalBottom, centerX, centerY, width, height, borderWidth, layoutChildren) {
@@ -329,13 +370,24 @@ define(
 					}
 				}
 			}
+			
+			function getBorderSize() {
+				return {
+					left: parseInt(computedStyle["border-left-width"]) + parseInt(computedStyle["padding-left"]),
+					right: parseInt(computedStyle["border-right-width"]) + parseInt(computedStyle["padding-right"]),
+					top: parseInt(computedStyle["border-top-width"]) + parseInt(computedStyle["padding-top"]),
+					bottom: parseInt(computedStyle["border-bottom-width"]) + parseInt(computedStyle["padding-bottom"])
+				};
+			}
+			
+			// Calculate the border
+			var computedStyle = window.getComputedStyle(this.domNode);
+				borderSize = getBorderSize();
 
 			// Calculate the width/left properties if width is NOT auto
-			var borderWidth = computeSize(borderWidth),
-				calculateWidthAfterAuto = false,
+			var calculateWidthAfterAuto = false,
 				calculateHeightAfterAuto = false;
-			borderWidth = is(borderWidth,"Number") ? borderWidth: 0;
-			if (width != "auto") {
+			if (width !== "auto") {
 				if (isDef(right)) {
 					if (isDef(left)) {
 						width = right - left;
@@ -343,11 +395,11 @@ define(
 						left = right - width;
 					}
 				}
-				width -= borderWidth * 2;
-			} else if(isDef(right)) {
+				width -= borderSize.left + borderSize.right;
+			} else {
 				calculateWidthAfterAuto = true;
 			}
-			if (height != "auto") {
+			if (height !== "auto") {
 				if (isDef(bottom)) {
 					if (isDef(top)) {
 						height = bottom - top;
@@ -355,8 +407,8 @@ define(
 						top = bottom - height;
 					}
 				}
-				height -= borderWidth * 2;
-			} else if(isDef(bottom)) {
+				height -= borderSize.top + borderSize.bottom;
+			} else {
 				calculateHeightAfterAuto = true;
 			}
 
@@ -369,7 +421,7 @@ define(
 			} else {
 				var computedSize;
 				if (layoutChildren) {
-					computedSize = this._layout._doLayout(this,is(width,"Number") ? width : parentWidth,is(height,"Number") ? height : parentHeight);
+					computedSize = this._layout._doLayout(this,is(width,"Number") ? width : parentWidth,is(height,"Number") ? height : parentHeight, !is(width,"Number"), !is(height,"Number"));
 				} else {
 					computedSize = this._layout._computedSize;
 				}
@@ -377,46 +429,59 @@ define(
 				height == "auto" && (height = computedSize.height);
 			}
 			
+			// I have no idea why we have to recalculate, but for some reason the recursion is screwing with the values.
+			borderSize = getBorderSize();
+			
 			if (calculateWidthAfterAuto) {
-				if (isDef(right)) {
-					if (isDef(left)) {
-						width = right - left;
-					} else {
-						left = right - width;
-					}
+				if (isDef(right) && !isDef(left)) {
+					left = right - width;
 				}
-				width -= borderWidth * 2;
 			}
 			if (calculateHeightAfterAuto) {
-				if (isDef(bottom)) {
-					if (isDef(top)) {
-						height = bottom - top;
-					} else {
-						top = bottom - height;
-					}
+				if (isDef(bottom) && !isDef(top)) {
+					top = bottom - height;
 				}
-				height -= borderWidth * 2;
 			}
 
 			// Set the default top/left if need be
-			if (left == "calculateAuto") {
-				left = this._centerHDefault && parentWidth !== "auto" ? computeSize("50%",parentWidth) - (is(width,"Number") ? width + borderWidth * 2 : 0) / 2 : 0;
+			if (left === "calculateAuto") {
+				if (!this._isParentAutoWidth) {
+					switch(this._defaultHorizontalAlignment) {
+						case "center": left = computeSize("50%",parentWidth) - borderSize.left - (is(width,"Number") ? width : 0) / 2; break;
+						case "right": left = parentWidth - borderSize.left - borderSize.right - (is(width,"Number") ? width : 0) / 2; break;
+						default: left = 0; // left
+					}
+				} else {
+					left = 0;
+				}
 			}
-			if (top == "calculateAuto") {
-				top = this._centerVDefault && parentHeight !== "auto" ? computeSize("50%",parentHeight) - (is(height,"Number") ? height + borderWidth * 2 : 0) / 2 : 0;
+			if (top === "calculateAuto") {
+				if (!this._isParentAutoHeight) {
+					switch(this._defaultVerticalAlignment) {
+						case "center": top = computeSize("50%",parentHeight) - borderSize.top - (is(height,"Number") ? height : 0) / 2; break;
+						case "bottom": top = parentWidth - borderSize.top - borderSize.bottom - (is(height,"Number") ? height : 0) / 2; break;
+						default: top = 0; // top
+					}
+				} else {
+					top = 0;
+				}
 			}
+			
+			// Calculate the "padding"
+			var leftPadding = left,
+				topPadding = top,
+				rightPadding = is(originalRight,"Number") ? originalRight : 0,
+				bottomPadding = is(originalBottom,"Number") ? originalBottom : 0;
 
-			// Apply the origin and border width
+			// Apply the origin translation
 			left += this._originX;
 			top += this._originY;
-			var rightPadding = is(originalRight,"Number") ? originalRight : 0,
-				bottomPadding = is(originalBottom,"Number") ? originalBottom : 0;
 
 			if(!is(left,"Number") || !is(top,"Number") || !is(rightPadding,"Number")
 				 || !is(bottomPadding,"Number") || !is(width,"Number") || !is(height,"Number")) {
 			 	throw "Invalid layout";
 			}
-
+			
 			return {
 				left: left,
 				top:top,
@@ -424,7 +489,7 @@ define(
 				bottomPadding: bottomPadding,
 				width: width,
 				height: height,
-				borderWidth: borderWidth
+				borderSize: borderSize
 			};
 		},
 
@@ -432,6 +497,163 @@ define(
 		// This is useful for controls like ScrollView that can move the children around relative to itself.
 		_getContentOffset: function(){
 			return {x: 0, y: 0};
+		},
+		
+		_computeGradient: function() {
+			
+			var backgroundGradient = this.backgroundGradient;
+				colors = backgroundGradient.colors,
+				type = backgroundGradient.type,
+				cssVal = type + "-gradient(";
+			
+			// Convert common units to absolute
+			var startPointX = computeSize(backgroundGradient.startPoint.x, this._measuredWidth),
+				startPointY = computeSize(backgroundGradient.startPoint.y, this._measuredHeight),
+				centerX = computeSize("50%", this._measuredWidth),
+				centerY = computeSize("50%", this._measuredHeight),
+				numColors = colors.length;
+			
+			if (type === "linear") {
+				
+				// Convert linear specific values to absolute
+				var endPointX = computeSize(backgroundGradient.endPoint.x, this._measuredWidth),
+					endPointY = computeSize(backgroundGradient.endPoint.y, this._measuredHeight);
+					
+				var userGradientStart,
+					userGradientEnd;
+				if (Math.abs(startPointX - endPointX) < 0.01) {
+					// Vertical gradient shortcut
+					if (startPointY < endPointY) {
+						userGradientStart = startPointY;
+						userGradientEnd = endPointY;
+						cssVal += "270deg";
+					} else {
+						userGradientStart = endPointY;
+						userGradientEnd = startPointY;
+						cssVal += "90deg";
+					}
+				} else if(Math.abs(startPointY - endPointY) < 0.01) {
+					// Horizontal gradient shortcut
+					if (startPointX < endPointX) {
+						userGradientStart = startPointX;
+						userGradientEnd = endPointX;
+						cssVal += "0deg";
+					} else {
+						userGradientStart = endPointX;
+						userGradientEnd = startPointX;
+						cssVal += "180deg";
+					}
+				}else {
+					
+					// Rearrange values so that start is to the left of end
+					var mirrorGradient = false;
+					if (startPointX > endPointX) {
+						mirrorGradient = true;
+						var temp = startPointX;
+						startPointX = endPointX;
+						endPointX = temp;
+						temp = startPointY;
+						startPointY = endPointY;
+						endPointY = temp;
+					}
+					
+					// Compute the angle, start location, and end location of the gradient
+					var angle = Math.atan2(endPointY - startPointY, endPointX - startPointX)
+						tanAngle = Math.tan(angle),
+						cosAngle = Math.cos(angle),
+						originLineIntersection = centerY - centerX * tanAngle;
+						userDistance = (startPointY - startPointX * tanAngle - originLineIntersection) * cosAngle,
+						userXOffset = userDistance * Math.sin(angle),
+						userYOffset = userDistance * cosAngle,
+						startPointX = startPointX + userXOffset,
+						startPointY = startPointY - userYOffset,
+						endPointX = endPointX + userXOffset,
+						endPointY = endPointY - userYOffset,
+						shiftedAngle = Math.PI / 2 - angle;
+					if (angle > 0) {
+						var globalGradientStartDistance = originLineIntersection * Math.sin(shiftedAngle),
+							globalGradientStartOffsetX = -globalGradientStartDistance * Math.cos(shiftedAngle),
+							globalGradientStartOffsetY = globalGradientStartDistance * Math.sin(shiftedAngle);
+						userGradientStart = Math.sqrt(Math.pow(startPointX - globalGradientStartOffsetX,2) + Math.pow(startPointY - globalGradientStartOffsetY,2));
+						userGradientEnd = Math.sqrt(Math.pow(endPointX - globalGradientStartOffsetX,2) + Math.pow(endPointY - globalGradientStartOffsetY,2));
+					} else {
+						var globalGradientStartDistance = (this._measuredHeight - originLineIntersection) * Math.sin(shiftedAngle),
+							globalGradientStartOffsetX = -globalGradientStartDistance * Math.cos(shiftedAngle),
+							globalGradientStartOffsetY = this._measuredHeight - globalGradientStartDistance * Math.sin(shiftedAngle);
+						userGradientStart = Math.sqrt(Math.pow(startPointX - globalGradientStartOffsetX,2) + Math.pow(startPointY - globalGradientStartOffsetY,2));
+						userGradientEnd = Math.sqrt(Math.pow(endPointX - globalGradientStartOffsetX,2) + Math.pow(endPointY - globalGradientStartOffsetY,2));
+					}
+					
+					// Set the angle info for the gradient
+					angle = mirrorGradient ? angle + Math.PI : angle;
+					cssVal += Math.round((360 * (2 * Math.PI - angle) / (2 * Math.PI))) + "deg";
+				}
+				
+				// Calculate the color stops
+				for (var i = 0; i < numColors; i++) {
+					var color = colors[i];
+					if (is(color,"String")) {
+						color = { color: color };
+					}
+					if (!is(color.offset,"Number")) {
+						color.offset = i / (numColors - 1);
+					}
+					cssVal += "," + color.color + " " + Math.round(computeSize(100 * color.offset + "%", userGradientEnd - userGradientStart) + userGradientStart) + "px";
+				}
+				
+			} else if (type === "radial") {
+				
+				// Convert radial specific values to absolute
+				var radiusTotalLength = Math.min(this._measuredWidth,this._measuredHeight),
+					startRadius = computeSize(backgroundGradient.startRadius, radiusTotalLength),
+					endRadius = computeSize(backgroundGradient.endRadius, radiusTotalLength);
+				
+				var colorList = [],
+					mirrorGradient = false;
+				if (startRadius > endRadius) {
+					var temp = startRadius;
+					startRadius = endRadius;
+					endRadius = temp;
+					mirrorGradient = true;
+					
+					for (var i = 0; i <= (numColors - 2) / 2; i++) {
+						var mirroredPosition = numColors - i - 1;
+						colorList[i] = colors[mirroredPosition],
+						colorList[mirroredPosition] = colors[i];
+					}
+					if (numColors % 2 === 1) {
+						var middleIndex = Math.floor(numColors / 2);
+						colorList[middleIndex] = colors[middleIndex];
+					}
+				} else {
+					for (var i = 0; i < numColors; i++) {
+						colorList[i] = colors[i];
+					}
+				}
+				
+				cssVal += startPointX + "px " + startPointY + "px";
+				
+				// Calculate the color stops
+				for (var i = 0; i < numColors; i++) {
+					var color = colorList[i];
+					if (is(color,"String")) {
+						color = { color: color };
+					}
+					var offset;
+					if (!is(color.offset,"Number")) {
+						offset = i / (numColors - 1);
+					} else {
+						offset = mirrorGradient ? numColors % 2 === 1 && i === Math.floor(numColors / 2) ? color.offset : 1 - color.offset : color.offset;
+					}
+					cssVal += "," + color.color + " " + Math.round(computeSize(100 * offset + "%", endRadius - startRadius) + startRadius) + "px";
+				}
+			}
+
+			cssVal += ")";
+
+			require.each(require.config.vendorPrefixes.css, lang.hitch(this,function(vendorPrefix) {
+				setStyle(this.domNode, "backgroundImage", vendorPrefix + cssVal);
+			}));
 		},
 		
 		_preventDefaultTouchEvent: true,
@@ -491,7 +713,7 @@ define(
 				bi = this.backgroundDisabledImage || this._defaultBackgroundDisabledImage || bi;
 			}
 
-			setStyle(node, {
+			!this.backgroundGradient && setStyle(node, {
 				backgroundColor: bc || (bi && bi !== "none" ? "transparent" : ""),
 				backgroundImage: style.url(bi)
 			});
@@ -559,6 +781,8 @@ define(
 					anim.backgroundColor !== undef && (obj.backgroundColor = anim.backgroundColor);
 					anim.opacity !== undef && setStyle(this.domNode, "opacity", anim.opacity);
 					setStyle(this.domNode, "display", anim.visible !== undef && !anim.visible ? "none" : "");
+					
+					// TODO set border width here
 
 					// Set the position and size properties
 					var dimensions = this._computeDimensions(
@@ -572,7 +796,6 @@ define(
 						isDef(anim.center) ? anim.center.y : isDef(this.center) ? this.center.y : undef,
 						val(anim.width, this.width),
 						val(anim.height, this.height),
-						val(anim.borderWidth, this.borderWidth),
 						false
 					);
 
@@ -581,7 +804,10 @@ define(
 						top: unitize(dimensions.top),
 						width: unitize(dimensions.width),
 						height: unitize(dimensions.height),
-						borderWidth: unitize(dimensions.borderWidth)
+						borderLeftWidth: unitize(dimensions.borderSize.left),
+						borderTopWidth: unitize(dimensions.borderSize.top),
+						borderRightWidth: unitize(dimensions.borderSize.right),
+						borderBottomWidth: unitize(dimensions.borderSize.bottom)
 					});
 
 					// Set the z-order
@@ -635,6 +861,11 @@ define(
 		_measuredBottomPadding: 0,
 		_measuredWidth: 0,
 		_measuredHeight: 0,
+		
+		constants: {
+			size: undef,
+			rect: undef
+		},
 
 		properties: {
 			backgroundColor: postDoBackground,
@@ -648,40 +879,44 @@ define(
 			backgroundFocusedImage: postDoBackground,
 
 			backgroundGradient: {
-				set: function(value) {
-					var value = value || {},
-						output = [],
-						colors = value.colors || [],
-						type = value.type,
-						start = value.startPoint,
-						end = value.endPoint;
-
-					if (type === "linear") {
-						start && end && start.x != end.x && start.y != end.y && output.concat([
-							unitize(value.startPoint.x) + " " + unitize(value.startPoint.y),
-							unitize(value.endPoint.x) + " " + unitize(value.startPoint.y)
-						]);
-					} else if (type === "radial") {
-						start = value.startRadius;
-						end = value.endRadius;
-						start && end && output.push(unitize(start) + " " + unitize(end));
-						output.push("ellipse closest-side");
-					} else {
-						setStyle(this.domNode, "backgroundImage", "none");
+				set: function(value, oldValue) {
+					
+					// Type and colors are required
+					if (!is(value.type,"String") || !is(value.colors,"Array") || value.colors.length < 2) {
 						return;
 					}
-
-					require.each(colors, function(c) {
-						output.push(c.color ? c.color + " " + (c.position * 100) + "%" : c);
-					});
-
-					output = type + "-gradient(" + output.join(",") + ")";
-
-					require.each(require.config.vendorPrefixes.css, function(p) {
-						setStyle(this.domNode, "backgroundImage", p + output);
-					});
-
+					
+					// Vet the type and assign default values
+					var type = value.type,
+						startPoint = value.startPoint,
+						endPoint = value.endPoint;
+					if (type === "linear") {
+						if (!startPoint || !("x" in startPoint) || !("y" in startPoint)) {
+							value.startPoint = {
+								x: "0%",
+								y: "50%"
+							}
+						}
+						if (!endPoint || !("x" in endPoint) || !("y" in endPoint)) {
+							value.endPoint = {
+								x: "100%",
+								y: "50%"
+							}
+						}
+					} else if (type === "radial") {
+						if (!startPoint || !("x" in startPoint) || !("y" in startPoint)) {
+							value.startPoint = {
+								x: "50%",
+								y: "50%"
+							}
+						}
+					} else {
+						return;
+					}
 					return value;
+				},
+				post: function() {
+					this.backgroundGradient && this._computeGradient();
 				}
 			},
 
@@ -693,12 +928,7 @@ define(
 
 			borderColor: {
 				set: function(value) {
-					if (setStyle(this.domNode, "borderColor", value)) {
-						this.borderWidth | 0 || (this.borderWidth = 1);
-						setStyle(this.domNode, "borderStyle", "solid");
-					} else {
-						this.borderWidth = 0;
-					}
+					setStyle(this.domNode, "borderColor", value);
 					return value;
 				}
 			},
@@ -707,19 +937,16 @@ define(
 				set: function(value) {
 					setStyle(this.domNode, "borderRadius", unitize(value));
 					return value;
-				}
+				},
+				value: 0
 			},
 
 			borderWidth: {
 				set: function(value) {
-					var s = {
-						borderWidth: unitize(value),
-						borderStyle: "solid"
-					};
-					this.borderColor || (s.borderColor = "black");
-					setStyle(this.domNode, s);
+					setStyle(this.domNode, "borderWidth", unitize(value));
 					return value;
-				}
+				},
+				value: 0
 			},
 
 			bottom: postLayoutProp,
@@ -771,13 +998,6 @@ define(
 			},
 
 			right: postLayoutProp,
-
-			size: {
-				set: function(value) {
-					console.debug('Property "Titanium._.UI.Element#.size" is not implemented yet.');
-					return value;
-				}
-			},
 
 			touchEnabled: {
 				set: function(value) {

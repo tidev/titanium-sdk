@@ -4,7 +4,7 @@ define(
 
 	var body = document.body,
 		isIOS = /(iPhone|iPad)/.test(navigator.userAgent),
-		modules = "2DMatrix,ActivityIndicator,AlertDialog,Animation,Button,EmailDialog,ImageView,Label,OptionDialog,ScrollableView,ScrollView,Slider,Switch,Tab,TabGroup,TableView,TableViewRow,TableViewSection,TextArea,TextField,View,WebView,Window",
+		modules = "2DMatrix,ActivityIndicator,AlertDialog,Animation,Button,EmailDialog,ImageView,Label,OptionDialog,Picker,PickerColumn,PickerRow,ProgressBar,ScrollableView,ScrollView,Slider,Switch,Tab,TabGroup,TableView,TableViewRow,TableViewSection,TextArea,TextField,View,WebView,Window",
 		creators = {},
 		setStyle = style.set;
 
@@ -67,6 +67,19 @@ define(
 		_removeWindow: function(win) {
 			this._container.remove(win);
 			return win;
+		},
+		
+		_layoutSemaphore: 0,
+		
+		_startLayout: function() {
+			this._layoutSemaphore++;
+		},
+		
+		_finishLayout: function() {
+			this._layoutSemaphore--;
+			if (this._layoutSemaphore === 0) {
+				this._triggerLayout(true);
+			}
 		},
 		
 		_triggerLayout: function(force) {

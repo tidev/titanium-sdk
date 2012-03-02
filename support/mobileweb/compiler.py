@@ -84,6 +84,7 @@ class Compiler(object):
 			pass
 		
 		# copy all of the project's resources to the build directory
+		self.copy(self.themes_path, os.path.join(self.build_path, 'themes'))
 		self.copy(self.resources_path, self.build_path)
 		self.copy(self.ti_package_path, os.path.join(self.build_path, 'titanium'))
 		
@@ -442,6 +443,10 @@ class Compiler(object):
 			'Ti/UI/ImageView',
 			'Ti/UI/Label',
 			'Ti/UI/OptionDialog',
+			'Ti/UI/Picker',
+			'Ti/UI/PickerColumn',
+			'Ti/UI/PickerRow',
+			'Ti/UI/ProgressBar',
 			'Ti/UI/ScrollableView',
 			'Ti/UI/ScrollView',
 			'Ti/UI/Slider',
