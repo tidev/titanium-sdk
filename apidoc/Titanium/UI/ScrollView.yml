@@ -27,7 +27,7 @@ since: "0.9"
 
 methods:
   - name: scrollTo
-    summary: Moves the top-left coordinate of the scrollable region into view.
+    summary: Moves the specified coordinate of the scrollable region into the viewable area.
     parameters:
       - name: x
         summary: X coordinate from the scrollable region's coordinate system.
@@ -39,6 +39,7 @@ methods:
         
   - name: setContentOffset
     summary: Sets the value of the [contentOffset](Titanium.UI.ScrollView.contentOffset) property.
+    platforms: [iphone, ipad, mobileweb]
     parameters:
       - name: contentOffset
         summary: |
@@ -49,11 +50,15 @@ methods:
         summary: Determines whether the scrollable region reposition should be animated 
         type: contentOffsetOption
         optional: true
-
+        
+  - name: scrollToBottom
+    summary: Moves the bottom of the scrollable region into the viewable area.
+    platforms: [android]
+        
 events:
   - name: scale
     summary: Fired when the zoom scale factor changes.
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
     properties:
       - name: globalPoint
         summary: X and Y coordinates of the event from the display's coordinate system.
@@ -64,14 +69,6 @@ events:
 
       - name: scale
         summary: New scaling factor as a float.
-        type: Number
-
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        type: Number
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
       
   - name: scroll
@@ -119,6 +116,7 @@ properties:
   - name: canCancelEvents
     summary: |
         Determines whether this scroll view can cancel subview touches in order to scroll instead.
+    description: Set to `false` to ensure that subview touches always take effect.
     type: Boolean
     default: true
     platforms: [iphone, ipad]
@@ -146,17 +144,25 @@ properties:
     type: [Number, String]
     
   - name: disableBounce
-    summary: |
-        Determines whether all scroll bounce of the scrollable region is enabled. If set, 
-        overrides `horizontalBounce` and `verticalBounce`.
-    description: If `true`, bounce is disabled.
+    summary: Determines whether all scroll bounce of the scrollable region is enabled.
+    description: |
+        Set to `true` to disable vertical bounce.
+        
+        Note that the `disableBounce`, `horizontalBounce` and `verticalBounce` properties are mutually 
+        exclusive. This means that only one should be set on creation, otherwise the result may be 
+        unexpected. Any may be set after creation, but only the last one will take effect.
     type: Boolean
     default: false
     platforms: [iphone, ipad]
     
   - name: horizontalBounce
     summary: Determines whether horizontal scroll bounce of the scrollable region is enabled.
-    description: If `true`, bounce is enabled.
+    description: |
+        Set to `false` to disable horizontal scroll bounce.
+        
+        Note that the `disableBounce`, `horizontalBounce` and `verticalBounce` properties are mutually 
+        exclusive. This means that only one should be set on creation, otherwise the result may be 
+        unexpected. Any may be set after creation, but only the last one will take effect.
     type: Boolean
     default: true
     platforms: [iphone, ipad]
@@ -184,19 +190,24 @@ properties:
     
   - name: showHorizontalScrollIndicator
     summary: Determines whether the horizontal scroll indicator is visible.
-    description: If `true`, scroll indicator is visible.
+    description: Set to `true` to show the horizontal scroll indicator.
     type: Boolean
     default: false
     
   - name: showVerticalScrollIndicator
     summary: Determines whether the vertical scroll indicator is visible.
-    description: If `true`, scroll indicator is visible.
+    description: Set to `true` to show the vertical scroll indicator.
     type: Boolean
     default: false
     
   - name: verticalBounce
     summary: Determines whether vertical scroll bounce of the scrollable region is enabled.
-    description: If `true`, bounce is enabled.
+    description: |
+        Set to `false` to disable vertical scroll bounce.
+        
+        Note that the `disableBounce`, `horizontalBounce` and `verticalBounce` properties are mutually 
+        exclusive. This means that only one should be set on creation, otherwise the result may be 
+        unexpected. Any may be set after creation, but only the last one will take effect.
     type: Boolean
     default: true
     platforms: [iphone, ipad]
