@@ -477,7 +477,7 @@ class TiAppXML(object):
 			CFBundleShortVersionString = self.properties['version']
 			app_version_ = CFBundleShortVersionString.split('.')
 			if(len(app_version_) > 3):
-				CFBundleShortVersionString = app_version_[0]+app_version_[1]+app_version_[2]
+				CFBundleShortVersionString = app_version_[0]+'.'+app_version_[1]+'.'+app_version_[2]
 			plist = st + CFBundleShortVersionString + fn
 			
 		i = plist.rindex('</dict>')	
