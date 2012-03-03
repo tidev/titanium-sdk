@@ -124,7 +124,7 @@ methods:
     returns:
         type: Titanium.UI.2DMatrix
   - name: convertUnits
-    summary: Converts one type of unit to another using the metrics of the main Display. Returns the converted amount in the units of convertToUnits.
+    summary: Converts one type of unit to another using the metrics of the main Display.
     parameters:
       - name: convertFromValue
         summary: |
@@ -136,7 +136,7 @@ methods:
         type: String
     returns:
         type: Number
-        description: If percentages are passed in, 0 is returned.
+        description: Returns the converted amount in the units of convertToUnits. If percentages are passed in, 0 is returned.
     since: "2.0.0"
 properties:
   - name: ANIMATION_CURVE_EASE_IN

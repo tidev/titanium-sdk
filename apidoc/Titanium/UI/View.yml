@@ -120,6 +120,7 @@ methods:
   - name: finishLayout
     since: "2.0.0"
     summary: Finishes a batch-update of the View's layout params and schedules a layout pass of the view tree.
+    description: Since the layout pass scheduled is asynchronous, rect and size values may not be available immediately after finishLayout() is called.  It may take some time for the layout pass to actually occur.
 
   - name: hide
     summary: Hides this view.
@@ -138,12 +139,11 @@ methods:
     since: "2.0.0"
     summary: Starts a batch-update of the View's layout params
     description: |
-      To prevent a layout pass each time a property is modified, startLayout() and finishLayout().  A startLayout() call will start the batch-update process, and a finish layout will end the batch-update process and trigger a layout pass.  Here is an example of how this can be used:
-
-        view.startLayout();
-        view.top = 50;
-        view.left = 50;
-        view.finishLayout();
+        To prevent a layout pass each time a property is modified, use a layout delineated by startLayout() and finishLayout().  A startLayout() call will start the batch-update process, and a finish layout will end the batch-update process and trigger a layout pass.
+            view.startLayout();
+            view.top = 50;
+            view.left = 50;
+            view.finishLayout();
 
   - name: toImage
     summary: Returns an image of the rendered view, as a Blob.
@@ -186,6 +186,19 @@ methods:
         summary: |
           Dictionary of the layout params that should be updated.
         type: Object
+    description: |
+        This is another way to perform a batch-update.  The updateLayout() method should be called with a dictionary of layout parameters to perform the batch-update.
+
+        Instead of using startLayout() and finishLayout():
+
+            view.startLayout();
+            view.top = 50;
+            view.left = 50;
+            view.finishLayout();
+
+        updateLayout() can be used to accomplish the same task:
+
+            view.updateLayout({top:50, left:50});
 
   - name: convertPointToView
     summary: |
