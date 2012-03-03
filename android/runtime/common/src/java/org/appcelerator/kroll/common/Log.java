@@ -8,7 +8,7 @@ package org.appcelerator.kroll.common;
 
 /**
  * API to send log output. Supported severity-levels include: 'debug', 'warn', 'info' and 'error'.
- * Refer to {@link android.util.Log} for more information. 
+ * Refer to <a href="http://developer.android.com/reference/android/util/Log.html">Android Log documentation</a> for more information. 
  */
 public class Log
 {

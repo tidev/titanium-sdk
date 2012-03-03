@@ -46,7 +46,7 @@ public class AsyncResult extends Semaphore
 	}
 	
 	/**
-	 * Sets the exception that will be thrown in TiMessenger.sendBlockingMessage(...). Also releases the lock.
+	 * Sets an exception to be thrown to the code that is blocking on {@link #getResult()}, and releases the lock.
 	 * @param exception a thrown exception. It can be thrown from any place that handles an AsyncResult.
 	 */
 	public void setException(Throwable exception) {

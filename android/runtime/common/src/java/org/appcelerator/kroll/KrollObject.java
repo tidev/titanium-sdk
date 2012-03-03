@@ -45,7 +45,7 @@ public abstract class KrollObject implements Handler.Callback
 
 	/**
 	 * Checks to see if this object has event listeners added.
-	 * @param event an event to be fired.
+	 * @param event the event name to check.
 	 * @return whether this object has an eventListener for this event.
 	 */
 	public boolean hasListeners(String event)

@@ -11,8 +11,8 @@ import android.app.Activity;
 import android.content.Intent;
 
 /**
- * An interface which invoke callbacks whenever the launched activity from 
- * {@link TiActivitySupport#launchActivityForResult(Intent, int, TiActivityResultHandler)} exits.
+ * An interface for receiving Activity results from
+ * {@link TiActivitySupport#launchActivityForResult(Intent, int, TiActivityResultHandler)}.
  */
 public interface TiActivityResultHandler
 {
