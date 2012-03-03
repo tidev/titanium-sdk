@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium.view;
 
+import java.lang.ref.WeakReference;
 import java.util.Comparator;
 import java.util.TreeSet;
 
@@ -40,7 +41,7 @@ public class TiCompositeLayout extends ViewGroup
 	private int horizontalLayoutLineHeight = 0;
 	private boolean disableHorizontalWrap = false;
 
-	TiViewProxy proxy;
+	private WeakReference<TiViewProxy> proxy;
 
 	public TiCompositeLayout(Context context, TiViewProxy proxy)
 	{
@@ -99,7 +100,7 @@ public class TiCompositeLayout extends ViewGroup
 
 		needsSort = true;
 		setOnHierarchyChangeListener(this);
-		this.proxy = proxy;
+		this.proxy = new WeakReference<TiViewProxy>(proxy);
 	}
 
 	private String viewToString(View view) {
@@ -446,8 +447,10 @@ public class TiCompositeLayout extends ViewGroup
 			}
 		}
 
-		if (proxy != null && proxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
-			proxy.fireEvent(TiC.EVENT_POST_LAYOUT, null);
+		TiViewProxy viewProxy = proxy.get();
+
+		if (viewProxy != null && viewProxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
+			viewProxy.fireEvent(TiC.EVENT_POST_LAYOUT, null);
 		}
 	}
 
@@ -591,6 +594,6 @@ public class TiCompositeLayout extends ViewGroup
 
 	public void setProxy(TiViewProxy proxy)
 	{
-		this.proxy = proxy;
+		this.proxy = new WeakReference<TiViewProxy>(proxy);
 	}
 }
