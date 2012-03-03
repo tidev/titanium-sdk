@@ -38,19 +38,47 @@ typedef enum {
 } TiProxyBridgeType;
 
 
+/**
+ The proxy delegate protocol
+ */
 @protocol TiProxyDelegate<NSObject>
 
 @required
 
+/**
+ Tells the delegate that the proxy property has changed.
+ @param key The property name.
+ @param oldValue An old value of the property.
+ @param newValue A new value of the property.
+ @param proxy The proxy where the property has changed.
+ */
 -(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy;
 
 @optional
 
+/**
+ Tells the delegate to read proxy values.
+ @param keys The enumeration of keys to read.
+ */
 -(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys;
 
+/**
+ Tells the delegate that a listener has been added to the proxy.
+ @param type The listener type.
+ @param count The current number of active listeners
+ */
 -(void)listenerAdded:(NSString*)type count:(int)count;
+
+/**
+ Tells the delegate that a listener has been removed to the proxy.
+ @param type The listener type.
+ @param count The current number of active listeners after the remove
+ */
 -(void)listenerRemoved:(NSString*)type count:(int)count;
 
+/**
+ Tells the delegate to detach from proxy.
+ */
 -(void)detachProxy;
 
 @end
@@ -63,6 +91,9 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 //Why are these here? Because they can be commonly used between TiUIView and TiUITableViewCell.
 
 
+/**
+ The base class for Titanium proxies.
+ */
 @interface TiProxy : NSObject<KrollTargetable> {
 @private
 	NSMutableDictionary *listeners;
@@ -89,6 +120,9 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 @property(readonly,nonatomic)			id<TiEvaluator> pageContext;
 @property(readonly,nonatomic)			id<TiEvaluator> executionContext;
 
+/**
+ Provides access to proxy delegate.
+ */
 @property(nonatomic,retain,readwrite)	id<TiProxyDelegate> modelDelegate;
 
 +(BOOL)shouldRegisterOnInit;
@@ -112,8 +146,23 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(TiProxy*)currentWindow;
 -(void)contextShutdown:(id)sender;
 -(id)toString:(id)args;
+
+/**
+ Whether or not the proxy was destroyed.
+ @return _YES_ if destroyed, _NO_ otherwise.
+ */
 -(BOOL)destroyed;
+
+/**
+ Tells the proxy that it is in reproxying stage.
+ @param yn _YES_ if the proxy is in reproxying stage, _NO_ otherwise.
+ */
 -(void)setReproxying:(BOOL)yn;
+
+/**
+ Whether or not the proxy is in reproxying stage.
+ @return _YES_ if the proxy is in reproxying stage, _NO_ otherwise.
+ */
 -(BOOL)inReproxy;
 
 #pragma mark Utility
@@ -122,17 +171,49 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(BOOL)retainsJsObjectForKey:(NSString *)key;
 
 //TODO: Find everywhere were we retain a proxy in a non-assignment way, and do remember/forget properly.
+
+/**
+ Tells the proxy to associate another proxy with it.
+ 
+ The associated proxy will be retained.
+ Note: rememberProxy/forgetProxy are not reference counted - multiple calls to <rememberProxy:> are all undone by a single call to <forgetProxy:> 
+ @param rememberedProxy The proxy to remember.
+ @see forgetProxy:
+ */
 -(void)rememberProxy:(TiProxy *)rememberedProxy;
+
+/**
+ Tells the proxy to disassociate another proxy from it.
+ 
+ The deassociated proxy will be released.
+ Note: rememberProxy/forgetProxy are not reference counted - multiple calls to <rememberProxy:> are all undone by a single call to <forgetProxy:> 
+ @param forgottenProxy The proxy to forget.
+ @see rememberProxy:
+ */
 -(void)forgetProxy:(TiProxy *)forgottenProxy;
+
 //These are when, say, a window is opened, so you want to do tiValueProtect to make SURE it doesn't go away.
+
+/**
+ Tells the proxy to retain associated JS object.
+ */
 -(void)rememberSelf;
+
+/**
+ Tells the proxy to release associated JS object.
+ */
 -(void)forgetSelf;
 
 //SetCallback is done internally by setValue:forUndefinedKey:
 -(void)fireCallback:(NSString*)type withArg:(NSDictionary *)argDict withSource:(id)source;
 
 #pragma mark Public 
+
+/**
+ Returns all properties set on the proxy.
+ */
 -(id<NSFastEnumeration>)allKeys;
+
 -(NSArray *)keySequence;
 
 +(void)throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location;
