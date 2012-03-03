@@ -588,4 +588,9 @@ public class TiCompositeLayout extends ViewGroup
 	{
 		disableHorizontalWrap = disable;
 	}
+
+	public void setProxy(TiViewProxy proxy)
+	{
+		this.proxy = proxy;
+	}
 }
