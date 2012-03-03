@@ -346,18 +346,68 @@ properties:
 
   - name: windowSoftInputMode
     summary: |
-        Determines how the window is treated when a soft input method (such as a
-        virtual keyboard) is displayed.
+        Determines whether a heavyweight window's soft input area (ie software keyboard) is visible 
+        as it receives focus and how the window behaves in order to accomodate it while keeping its 
+        contents in view.
     description: |
-        Specify one of [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN),
-        [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE),
-        or [SOFT_INPUT_ADJUST_UNSPECIFIED](Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED).
-
-        For more information see the Android API Reference: 
+        This property is capable of representing two settings from the following two groups of 
+        settings using the [bitwise OR](http://en.wikipedia.org/wiki/Bitwise_operation#OR) operation. 
+        
+        One of the group of soft input *visibility* constants, 
+        [SOFT_INPUT_STATE_ALWAYS_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_HIDDEN), 
+        [SOFT_INPUT_STATE_ALWAYS_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE), 
+        [SOFT_INPUT_STATE_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_HIDDEN), 
+        [SOFT_INPUT_STATE_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_STATE_UNSPECIFIED), 
+        or [SOFT_INPUT_STATE_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_VISIBLE).
+        
+        One of the group of soft input *adjustment* constants, 
+        [SOFT_INPUT_ADJUST_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED), 
+        [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE), 
+        or [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN).
+        
+        Note that in Javascript, bitwise OR is achieved using the single pipe operand. See the 
+        example for a demonstration.
+        
+        For more information, see the official Android Developers website API Reference for 
         [Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
     platforms: [android]
     type: Number
     availability: creation
+    examples:
+      - title: Soft Input Visibility and Adjustment
+        example: |
+            Create a white window and respond to a click of it to open a red window containing a 
+            text area. Show the software keyboard automatically as the red window opens.
+                
+                var win1 = Ti.UI.createWindow({
+                  backgroundColor: 'white',
+                  exitOnClose: true,
+                  fullscreen: false,
+                  title: 'Click window to test'
+                });
+                
+                // use bitwise OR to combine two settings for the windowSoftInputMode property
+                var softInput = Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE | SOFT_INPUT_ADJUST_RESIZE;
+                
+                win1.addEventListener('click', function(){
+                  var win2 = Ti.UI.createWindow({
+                    backgroundColor: 'red',
+                    fullscreen: false,
+                    windowSoftInputMode: softInput
+                  });
+                
+                  var textArea = Ti.UI.createTextArea({
+                    value : 'I am a textarea',
+                    height : 500,
+                    width : 300,
+                    top : 60
+                  });
+                  win2.add(textArea);
+                  win2.open();
+                });
+                
+                win1.open();
+                
   - name: windowPixelFormat
     summary: Set the pixel format for the Activity's Window.
     description: |

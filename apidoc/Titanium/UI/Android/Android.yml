@@ -222,46 +222,129 @@ properties:
     
   - name: SOFT_INPUT_ADJUST_PAN
     summary: |
-        Pan window contents to accomodate the soft keyboard when visible.
-    description:
-        Use on Activity ("heavy weight window") to suggest how the virtual keyboard should treat 
-        the window contents.
+        Pan the current heavyweight window when the input method (ie software keyboard) is shown, to 
+        ensure that its contents are not obscured.
+    description: |
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+        
+        One of the group of soft input adjustment constants, 
+        [SOFT_INPUT_ADJUST_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED), 
+        [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE), 
+        and [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.OFT_INPUT_ADJUST_PAN).
     type: Number
     availability: creation
     permission: read-only
     
   - name: SOFT_INPUT_ADJUST_RESIZE
     summary: |
-        Resize window contents to accomodate the soft keyboard when visible.
-    description:
-        Use on Activity ("heavy weight window") to suggest how the virtual keyboard should treat 
-        the window contents.
+        Resize the current heavyweight window when the input method (ie software keyboard) is shown, 
+        to ensure that its contents are not obscured.
+    description: |
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+        
+        One of the group of soft input adjustment constants, 
+        [SOFT_INPUT_ADJUST_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED), 
+        [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE), 
+        and [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN).
     type: Number
     availability: creation
     permission: read-only
     
   - name: SOFT_INPUT_ADJUST_UNSPECIFIED
     summary: |
-        Use the `AndroidManifest.xml` setting if defined, or system-default otherwise, to 
-        determine how to accomodate the soft keyboard when visible. (default)
+        Use the system-default behavior to determine how the soft input area (ie software keyboard) 
+        is accomodated by the current heavyweight window when it receives focus (default.)
+    description: |
+        Depends on the `AndroidManifest.xml` setting if defined or system-default otherwise, to 
+        determine how to accomodate the soft keyboard when visible.
+        
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+        
+        One of the group of soft input adjustment constants, 
+        [SOFT_INPUT_ADJUST_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED), 
+        [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE), 
+        and [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN).
     type: Number
     availability: creation
     permission: read-only
+
+  - name: SOFT_INPUT_STATE_ALWAYS_HIDDEN
+    summary: |
+        Always hide the soft input area (ie software keyboard) when the current heavyweight window 
+        receives focus.
+    description: |
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+        
+        One of the group of soft input visibility constants, 
+        [SOFT_INPUT_STATE_ALWAYS_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_HIDDEN), 
+        [SOFT_INPUT_STATE_ALWAYS_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE), 
+        [SOFT_INPUT_STATE_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_HIDDEN), 
+        [SOFT_INPUT_STATE_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_STATE_UNSPECIFIED), 
+        and [SOFT_INPUT_STATE_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_VISIBLE).
+    type: Number
+    permission: read-only
+
+  - name: SOFT_INPUT_STATE_ALWAYS_VISIBLE
+    summary: |
+        Always show the soft input area (ie software keyboard) when the current heavyweight window 
+        receives focus.
+    description: |
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+        
+        This constant is one of the group of soft input visibility constants, 
+        [SOFT_INPUT_STATE_ALWAYS_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_HIDDEN), 
+        [SOFT_INPUT_STATE_ALWAYS_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE), 
+        [SOFT_INPUT_STATE_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_HIDDEN), 
+        [SOFT_INPUT_STATE_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_STATE_UNSPECIFIED), 
+        and [SOFT_INPUT_STATE_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_VISIBLE).
+    type: Number
+    permission: read-only
     
   - name: SOFT_INPUT_STATE_HIDDEN
-    summary: Attempt to hide the soft keyboard when a control receives keyboard focus.
+    summary: |
+        Attempt to hide the soft input area (ie software keyboard) when the current heavyweight 
+        window receives focus.
+    description: |
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+        
+        This constant is one of the group of soft input visibility constants, 
+        [SOFT_INPUT_STATE_ALWAYS_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_HIDDEN), 
+        [SOFT_INPUT_STATE_ALWAYS_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE), 
+        [SOFT_INPUT_STATE_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_HIDDEN), 
+        [SOFT_INPUT_STATE_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_STATE_UNSPECIFIED), 
+        and [SOFT_INPUT_STATE_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_VISIBLE).
     type: Number
     permission: read-only
     
   - name: SOFT_INPUT_STATE_UNSPECIFIED
     summary: |
-        Use the system-default behavior to handle keyboard visibility when a control receives 
-        keyboard focus. (default)
+        Use the system-default behavior to determine whether to show the soft input area 
+        (ie software keyboard) when the current heavyweight window receives focus.
+    description: |
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+        
+        This constant is one of the group of soft input visibility constants, 
+        [SOFT_INPUT_STATE_ALWAYS_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_HIDDEN), 
+        [SOFT_INPUT_STATE_ALWAYS_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE), 
+        [SOFT_INPUT_STATE_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_HIDDEN), 
+        [SOFT_INPUT_STATE_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_STATE_UNSPECIFIED), 
+        and [SOFT_INPUT_STATE_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_VISIBLE).
     type: Number
     permission: read-only
     
   - name: SOFT_INPUT_STATE_VISIBLE
-    summary: Attempt to show the soft keyboard when a control receives keyboard focus.
+    summary: |
+        Attempt to show the soft input area (ie software keyboard) when the current heavyweight 
+        window receives focus.
+    description: |
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+        
+        This constant is one of the group of soft input visibility constants, 
+        [SOFT_INPUT_STATE_ALWAYS_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_HIDDEN), 
+        [SOFT_INPUT_STATE_ALWAYS_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE), 
+        [SOFT_INPUT_STATE_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_HIDDEN), 
+        [SOFT_INPUT_STATE_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_STATE_UNSPECIFIED), 
+        and [SOFT_INPUT_STATE_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_VISIBLE).
     type: Number
     permission: read-only
     
