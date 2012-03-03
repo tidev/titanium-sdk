@@ -202,9 +202,12 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
     
     CGFloat frameLeft = 0.0;
     if (!flexibleSize) {
-        if(!TiDimensionDidCalculateValue(constraint->left, referenceSize.width, &frameLeft))
+        if (TiDimensionIsUndefined(constraint->width)) {
+            ignoreMargins = TiDimensionDidCalculateValue(constraint->centerX, referenceSize.width, &centerX);
+        }
+        else if(!TiDimensionDidCalculateValue(constraint->left, referenceSize.width, &frameLeft))
         {
-            ignoreMargins = TiDimensionDidCalculateValue(constraint->centerX, referenceSize.width, &centerX);;
+            ignoreMargins = TiDimensionDidCalculateValue(constraint->centerX, referenceSize.width, &centerX);
         }
     }
 	
@@ -253,7 +256,10 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
     ignoreMargins = NO;
     CGFloat frameTop = 0.0;
     if(!flexibleSize) {
-        if(!TiDimensionDidCalculateValue(constraint->top, referenceSize.height, &frameTop))
+        if (TiDimensionIsUndefined(constraint->height)) {
+            ignoreMargins = TiDimensionDidCalculateValue(constraint->centerY, referenceSize.height, &centerY);
+        }
+        else if(!TiDimensionDidCalculateValue(constraint->top, referenceSize.height, &frameTop))
         {
             ignoreMargins = TiDimensionDidCalculateValue(constraint->centerY, referenceSize.height, &centerY);;
         }
