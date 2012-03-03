@@ -206,6 +206,10 @@ define(
 			}
 			this.finishLayout();
 		},
+		
+		_originX: 0,
+		
+		_originY: 0,
 
 		_doLayout: function(params) {
 			
@@ -213,8 +217,6 @@ define(
 			this._originY = params.origin.y;
 			this._defaultHorizontalAlignment = params.alignment.horizontal;
 			this._defaultVerticalAlignment = params.alignment.vertical;
-			this._isParentWidthSize = params.parentSize.width;
-			this._isParentHeightSize = params.parentSize.height;
 			
 			this._layoutParams = params;
 
@@ -240,27 +242,35 @@ define(
 			};
 			var rect  = this.rect,
 				size  = this.size;
-			if (this._measuredLeft != dimensions.left) {
-				rect.x = this._measuredLeft = dimensions.left;
-				isDef(this._measuredLeft) && (styles.left = unitize(this._measuredLeft));
-			}
-			if (this._measuredTop != dimensions.top) {
-				rect.y = this._measuredTop = dimensions.top;
-				isDef(this._measuredTop) && (styles.top = unitize(this._measuredTop));
-			}
-			if (this._measuredWidth != dimensions.width) {
-				size.width = rect.width = this._measuredWidth = dimensions.width;
-				isDef(this._measuredWidth) && (styles.width = unitize(this._measuredWidth));
-			}
-			if (this._measuredHeight != dimensions.height) {
-				size.height = rect.height = this._measuredHeight = dimensions.height;
-				isDef(this._measuredHeight) && (styles.height = unitize(this._measuredHeight));
-			}
+			rect.x = this._measuredLeft = dimensions.left;
+			isDef(this._measuredLeft) && (styles.left = unitize(this._measuredLeft));
+			rect.y = this._measuredTop = dimensions.top;
+			isDef(this._measuredTop) && (styles.top = unitize(this._measuredTop));
+			size.width = rect.width = this._measuredWidth = dimensions.width;
+			isDef(this._measuredWidth) && (styles.width = unitize(this._measuredWidth));
+			size.height = rect.height = this._measuredHeight = dimensions.height;
+			isDef(this._measuredHeight) && (styles.height = unitize(this._measuredHeight));
 			this._measuredRightPadding = dimensions.rightPadding;
 			this._measuredBottomPadding = dimensions.bottomPadding;
 			this._measuredBorderWidth = dimensions.borderWidth;
 			this._measuredBorderSize = dimensions.borderSize;
 			setStyle(this.domNode, styles);
+			
+			try{
+				var computedStyle = window.getComputedStyle(this.domNode);
+				if (styles.left && computedStyle["left"] != styles.left) {
+					throw "Invalid layout";
+				}
+				if (styles.top && computedStyle["top"] != styles.top) {
+					throw "Invalid layout";
+				}
+				if (styles.width && computedStyle["width"] != styles.width) {
+					throw "Invalid layout";
+				}
+				if (styles.height && computedStyle["height"] != styles.height) {
+					throw "Invalid layout";
+				}
+			} catch(e) {}
 			
 			this._markedForLayout = false;
 			
@@ -287,10 +297,25 @@ define(
 			centerY = centerY && computeSize(centerY, parentHeight, 1);
 			width = computeSize(width, parentWidth);
 			height = computeSize(height, parentHeight);
+			
+			is(width,"Number") && (width = Math.max(width,0));
+			is(height,"Number") && (height = Math.max(height,0));
 
 			// Convert right/bottom coordinates to be with respect to (0,0)
 			var right = isDef(originalRight) ? (parentWidth - originalRight) : undef,
 				bottom = isDef(originalBottom) ? (parentHeight - originalBottom) : undef;
+				
+			function validate() {
+				try{
+					if(is(left,"Number") && isNaN(left) || 
+						is(top,"Number") && isNaN(top) || 
+						is(width,"Number") && (isNaN(width) || width < 0) || 
+						is(height,"Number") && (isNaN(height) || height < 0)) {
+					 	throw "Invalid layout";
+					}
+				} catch(e) {}
+			}
+			validate();
 
 			// Unfortunately css precidence doesn't match the titanium, so we have to handle precedence and default setting ourselves
 			if (isDef(width)) {
@@ -372,13 +397,20 @@ define(
 					}
 				}
 			}
+			validate();
 			
 			function getBorderSize() {
+				
+				function getValue(value) {
+					var value = parseInt(computedStyle[value]);
+					return isNaN(value) ? 0 : value;
+				}
+					
 				return {
-					left: parseInt(computedStyle["border-left-width"]) + parseInt(computedStyle["padding-left"]),
-					right: parseInt(computedStyle["border-right-width"]) + parseInt(computedStyle["padding-right"]),
-					top: parseInt(computedStyle["border-top-width"]) + parseInt(computedStyle["padding-top"]),
-					bottom: parseInt(computedStyle["border-bottom-width"]) + parseInt(computedStyle["padding-bottom"])
+					left: getValue("border-left-width") + getValue("padding-left"),
+					top: getValue("border-top-width") + getValue("padding-top"),
+					right: getValue("border-right-width") + getValue("padding-right"),
+					bottom: getValue("border-bottom-width") + getValue("padding-bottom")
 				};
 			}
 			
@@ -413,6 +445,7 @@ define(
 			} else {
 				calculateHeightAfterChildren = true;
 			}
+			validate();
 
 			if (this._getContentSize) {
 				if (width === Ti.UI.SIZE || height === Ti.UI.SIZE) {
@@ -430,6 +463,7 @@ define(
 				width === Ti.UI.SIZE && (width = computedSize.width);
 				height === Ti.UI.SIZE && (height = computedSize.height);
 			}
+			validate();
 			
 			// I have no idea why we have to recalculate, but for some reason the recursion is screwing with the values.
 			borderSize = getBorderSize();
@@ -444,10 +478,11 @@ define(
 					top = bottom - height;
 				}
 			}
+			validate();
 
 			// Set the default top/left if need be
 			if (left === "calculateDefault") {
-				if (!this._isParentWidthSize) {
+				if (parentWidth !== Ti.UI.SIZE) {
 					switch(this._defaultHorizontalAlignment) {
 						case "center": left = computeSize("50%",parentWidth) - borderSize.left - (is(width,"Number") ? width : 0) / 2; break;
 						case "right": left = parentWidth - borderSize.left - borderSize.right - (is(width,"Number") ? width : 0) / 2; break;
@@ -458,7 +493,7 @@ define(
 				}
 			}
 			if (top === "calculateDefault") {
-				if (!this._isParentHeightSize) {
+				if (parentHeight !== Ti.UI.SIZE) {
 					switch(this._defaultVerticalAlignment) {
 						case "center": top = computeSize("50%",parentHeight) - borderSize.top - (is(height,"Number") ? height : 0) / 2; break;
 						case "bottom": top = parentWidth - borderSize.top - borderSize.bottom - (is(height,"Number") ? height : 0) / 2; break;
@@ -468,6 +503,7 @@ define(
 					top = 0;
 				}
 			}
+			validate();
 			
 			// Calculate the "padding"
 			var leftPadding = left,
@@ -479,18 +515,30 @@ define(
 			left += this._originX;
 			top += this._originY;
 
-			if(!is(left,"Number") || !is(top,"Number") || !is(rightPadding,"Number")
-				 || !is(bottomPadding,"Number") || !is(width,"Number") || !is(height,"Number")) {
-			 	throw "Invalid layout";
+			if(!is(left,"Number") || isNaN(left) || 
+				!is(top,"Number") || isNaN(top) || 
+				!is(rightPadding,"Number") || isNaN(rightPadding) || 
+				!is(bottomPadding,"Number") || isNaN(bottomPadding) || 
+				!is(width,"Number") || isNaN(width) || 
+				!is(height,"Number") || isNaN(height)) {
+			 	try{
+			 		throw "Invalid layout";
+			 	} catch(e) {}
 			}
 			
+			/*console.debug("l(" + left + "," + Math.round(left) + ")," + 
+				"t(" + top + "," + Math.round(top) + ")," + 
+				"w(" + width + "," + Math.round(width) + ")," + 
+				"h(" + height + "," + Math.round(height) + ")" 
+			);*/
+			
 			return {
-				left: left,
-				top:top,
-				rightPadding: rightPadding,
-				bottomPadding: bottomPadding,
-				width: width,
-				height: height,
+				left: Math.round(left),
+				top: Math.round(top),
+				rightPadding: Math.round(rightPadding),
+				bottomPadding: Math.round(bottomPadding),
+				width: Math.round(Math.max(width,0)),
+				height: Math.round(Math.max(height,0)),
 				borderSize: borderSize
 			};
 		},
@@ -978,16 +1026,7 @@ define(
 				}
 			},
 
-			height: {
-				set: function(value) {
-					// Temporary hack to handle "auto" backwards compatibility
-					value === "auto" && (value = Ti.UI.SIZE);
-					return value;
-				},
-				post: function() {
-					this._parent && this._parent._triggerLayout();
-				}
-			},
+			height: postLayoutProp,
 
 			left: postLayoutProp,
 
@@ -1027,16 +1066,7 @@ define(
 				}
 			},
 
-			width: {
-				set: function(value) {
-					// Temporary hack to handle "auto" backwards compatibility
-					value === "auto" && (value = Ti.UI.SIZE);
-					return value;
-				},
-				post: function() {
-					this._parent && this._parent._triggerLayout();
-				}
-			},
+			width: postLayoutProp,
 
 			zIndex: postLayoutProp
 		}

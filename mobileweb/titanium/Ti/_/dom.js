@@ -101,11 +101,13 @@ define(["Ti/_", "Ti/_/style"], function(_, style) {
 		unitize: function(x) {
 			return isNaN(x-0) || x-0 != x ? x : x + "px"; // note: must be != and not !==
 		},
-
+		
 		computeSize: function(x, totalLength, convertSizeToUndef) {
+			if (is(x,"Number") && isNaN(x)) {
+				return 0;
+			}
 			var undef,
 				type = require.is(x);
-
 			if (type === "String") {
 				if (x === Ti.UI.SIZE) {
 					convertSizeToUndef && (x = undef);

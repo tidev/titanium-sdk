@@ -241,7 +241,7 @@ define(
 			ANIMATION_CURVE_EASE_IN_OUT: 2,
 			ANIMATION_CURVE_EASE_OUT: 3,
 			ANIMATION_CURVE_LINEAR: 4,
-			SIZE: "size",
+			SIZE: "auto",
 			FILL: "fill",
 			UNIT_PX: "px",
 			UNIT_MM: "mm",
