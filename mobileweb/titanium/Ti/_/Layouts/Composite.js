@@ -1,6 +1,6 @@
 define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 
-	return declare("Ti._.Layouts.Absolute", Base, {
+	return declare("Ti._.Layouts.Composite", Base, {
 
 		_doLayout: function(element, width, height, isWidthSize, isHeightSize) {
 			var computedSize = this._computedSize = {width: 0, height: 0};
