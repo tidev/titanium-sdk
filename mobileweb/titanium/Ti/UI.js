@@ -136,10 +136,6 @@ define(
 			 	alignment: {
 			 		horizontal: "center",
 			 		vertical: "center"
-			 	},
-			 	fillSpace: {
-			 		width: width,
-			 		height: height
 			 	}
 		 	});
 		},
