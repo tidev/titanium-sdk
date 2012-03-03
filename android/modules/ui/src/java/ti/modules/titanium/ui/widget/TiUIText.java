@@ -291,7 +291,7 @@ public class TiUIText extends TiUIView
 			Log.d(LCAT, "ActionID: " + actionId + " KeyEvent: " + (keyEvent != null ? keyEvent.getKeyCode() : null));
 		}
 		//This check is a workaround for a known android bug: this method is called twice when return key is clicked.
-		if (actionId != EditorInfo.IME_ACTION_SEARCH && actionId != EditorInfo.IME_ACTION_GO && actionId != EditorInfo.IME_ACTION_SEND) {
+		if (actionId != EditorInfo.IME_NULL) {
 			proxy.fireEvent("return", data);
 		}
 
