@@ -182,8 +182,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 			var titleContainer = this._titleContainer;
 				text = titleContainer.innerHTML;
 			return {
-				width: width === Ti.UI.SIZE ? Math.max(this._widestRowWidth + contentPadding, 100) : width,
-				height: height === Ti.UI.SIZE ? this._tallestRowHeight + contentPadding + this._upArrow.clientHeight + this._downArrow.clientHeight : height
+				width: Math.max(this._widestRowWidth + contentPadding, 100),
+				height: this._tallestRowHeight + contentPadding + this._upArrow.clientHeight + this._downArrow.clientHeight
 			};
 		},
 		

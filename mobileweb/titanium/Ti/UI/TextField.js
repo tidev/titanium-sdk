@@ -29,8 +29,8 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 		
 		_getContentSize: function(width, height) {
 			return {
-				width: width === Ti.UI.SIZE ? this._measureText(this.value, this._field, width).width : width,
-				height: height === Ti.UI.SIZE ? this._measureText(this.value, this._field, width).height : height
+				width: this._measureText(this.value, this._field, width).width,
+				height: this._measureText(this.value, this._field, width).height
 			};
 		},
 

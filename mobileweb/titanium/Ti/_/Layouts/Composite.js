@@ -13,7 +13,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 				 		x: 0,
 				 		y: 0
 				 	},
-				 	parentSize: {
+				 	isParentSize: {
 				 		width: isWidthSize,
 				 		height: isHeightSize
 				 	},

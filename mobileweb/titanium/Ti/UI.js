@@ -125,7 +125,7 @@ define(
 			 		x: 0,
 			 		y: 0
 			 	},
-			 	parentSize: {
+			 	isParentSize: {
 			 		width: false,
 			 		height: false
 			 	},

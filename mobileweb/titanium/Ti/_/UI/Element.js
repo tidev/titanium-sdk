@@ -212,7 +212,7 @@ define(
 		 		x: 0,
 		 		y: 0
 		 	},
-		 	parentSize: {
+		 	isParentSize: {
 		 		width: 0,
 		 		height: 0
 		 	},
@@ -464,11 +464,9 @@ define(
 			validate();
 
 			if (this._getContentSize) {
-				if (width === Ti.UI.SIZE || height === Ti.UI.SIZE) {
-					var contentSize = this._getContentSize(width,height);
-					width === Ti.UI.SIZE && (width = contentSize.width);
-					height === Ti.UI.SIZE && (height = contentSize.height);
-				}
+				var contentSize = this._getContentSize();
+				width === Ti.UI.SIZE && (width = contentSize.width);
+				height === Ti.UI.SIZE && (height = contentSize.height);
 			} else {
 				var computedSize;
 				if (params.layoutChildren) {
@@ -498,7 +496,7 @@ define(
 
 			// Set the default top/left if need be
 			if (left === "calculateDefault") {
-				if (!layoutParams.parentSize.width) {
+				if (!layoutParams.isParentSize.width) {
 					switch(layoutParams.alignment.horizontal) {
 						case "center": left = computeSize("50%",boundingWidth) - borderSize.left - (is(width,"Number") ? width : 0) / 2; break;
 						case "right": left = boundingWidth - borderSize.left - borderSize.right - (is(width,"Number") ? width : 0) / 2; break;
@@ -509,7 +507,7 @@ define(
 				}
 			}
 			if (top === "calculateDefault") {
-				if (!layoutParams.parentSize.height) {
+				if (!layoutParams.isParentSize.height) {
 					switch(layoutParams.alignment.vertical) {
 						case "center": top = computeSize("50%",boundingHeight) - borderSize.top - (is(height,"Number") ? height : 0) / 2; break;
 						case "bottom": top = boundingWidth - borderSize.top - borderSize.bottom - (is(height,"Number") ? height : 0) / 2; break;

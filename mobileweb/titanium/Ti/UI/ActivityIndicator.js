@@ -91,8 +91,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style"], functio
 		
 		_getContentSize: function(width, height) {
 			return {
-				width: width === Ti.UI.SIZE ? 36 + this._measureText(this.message, this._indicatorMessage).width + this._messagePadding : width,
-				height: height === Ti.UI.SIZE ? Math.max(this._measureText(this.message, this._indicatorMessage).height,36) : height
+				width: 36 + this._measureText(this.message, this._indicatorMessage).width + this._messagePadding,
+				height: Math.max(this._measureText(this.message, this._indicatorMessage).height,36)
 			};
 		},
 		

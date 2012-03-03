@@ -35,8 +35,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 					values.height = boundingWidth / imageRatio;
 				}
 				
-				var isParentWidthSize = params.parentSize.width,
-					isParentHeightSize = params.parentSize.width;
+				var isParentWidthSize = params.isParentSize.width,
+					isParentHeightSize = params.isParentSize.width;
 				if (!isParentWidthSize && !isParentHeightSize) {
 					if (boundingWidth / boundingHeight > imageRatio) {
 						setByHeight();

@@ -26,8 +26,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 			
 			_doLayout: function(params) {
 				var values = this.properties.__values__;
-				values.width = params.parentSize.width ? Ti.UI.SIZE : "100%";
-				values.height = params.parentSize.height ? Ti.UI.SIZE : "100%";
+				values.width = params.isParentSize.width ? Ti.UI.SIZE : "100%";
+				values.height = params.isParentSize.height ? Ti.UI.SIZE : "100%";
 				Widget.prototype._doLayout.call(this,params);
 			},
 			
@@ -63,7 +63,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 			props.width = this.width === Ti.UI.SIZE || !lang.isDef(this.width) ? Ti.UI.SIZE : "100%";
 			props.height = this.height === Ti.UI.SIZE || !lang.isDef(this.height) ? Ti.UI.SIZE : "100%";
 			
-			if (this._message._getContentSize(Ti.UI.SIZE,Ti.UI.SIZE).width === 0) {
+			if (this._message._getContentSize().width === 0) {
 				this._message.properties.__values__.height = 0;
 				this._progressBar.properties.__values__.top = 0;
 			} else {

@@ -49,7 +49,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 		_defaultHeight: Ti.UI.SIZE,
 		
 		_getContentSize: function(width, height) {
-			// There is nothing to measure, or that has a "size" to return, so we just return sensible defaults.
+			// There is nothing to measure, or that has "dimensions" to return, so we just return sensible yet arbitrary defaults.
 			return {
 				width: 200,
 				height: 40
