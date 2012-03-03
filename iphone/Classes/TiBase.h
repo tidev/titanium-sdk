@@ -534,27 +534,25 @@ extern NSString * const kTiLocalNotification;
 
 #include "TiThreading.h"
 
-/*
+/**
  *	TiThreadPerformOnMainThread should replace all Titanium instances of
  *	performSelectorOnMainThread, ESPECIALLY if wait is to be yes. That way,
  *	exceptional-case main thread activities can process them outside of the
  *	standard event loop.
  */
-
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish);
 
-/*
+/**
  *	The one mixed blessing about blocks is that they retain+autorelease the
  *	stack variables, and inside a method, that includes self. During a dealloc,
  *	this may be dangerous. In order to make life easier for everyone, two
  *	convenience functions are provided. By being a function, it removes self
  *	from being a stack variable. It also has some optimizations.
  */
-	
 void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish);
 void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish);
 
-/*	
+/**	
  *	Blocks sent to TiThreadPerformOnMainThread will be processed on the main
  *	thread. Most of the time, this is done using dispatch_async or
  *	dispatch_sync onto the main queue as needed. However, there are some cases
@@ -590,7 +588,6 @@ void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish);
  *
  *	Returns: Whether or not the queue was empty upon return.
  */
-
 BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhenEmpty, void * reserved );
 
 	

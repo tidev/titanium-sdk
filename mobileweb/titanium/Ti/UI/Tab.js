@@ -7,7 +7,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom"],
 			this._windows = [];
 
 			this._contentContainer = dom.create("div", {
-				className: "TiUIButtonContentContainer",
+				className: "TiUITabContentContainer",
 				style: {
 					width: "100%",
 					height: "100%",
@@ -19,11 +19,11 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom"],
 			}, this.domNode);
 
 			this._tabIcon = dom.create("img", {
-				className: "TiUIButtonImage"
+				className: "TiUITabImage"
 			}, this._contentContainer);
 
 			this._tabTitle = dom.create("div", {
-				className: "TiUIButtonTitle",
+				className: "TiUITabTitle",
 				style: {
 					whiteSpace: "nowrap"
 				}

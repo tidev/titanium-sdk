@@ -1,39 +1,57 @@
 ---
 name: Titanium.UI.DashboardItem
-summary: An item that represents a visual icon in the <Titanium.UI.DashboardView>. The Dashboard Item is created by the method <Titanium.UI.createDashboardItem>.
+summary: A dashboard item is a view that is displayed as an icon in a <Titanium.UI.DashboardView>.
+description: A DashboardItem is created using the <Titanium.UI.createDashboardItem> method.
 extends: Titanium.Proxy
 since: "1.2"
 platforms: [iphone, ipad]
+
 events:
   - name: click
-    summary: fired when a <Titanium.UI.DashboardItem> is clicked
+    summary: Fired when a click is detected against the view.
     properties:
       - name: location
-        summary: the location object with the properties `x` and `y` of where in the parent view the click was
+        summary: Coordinates `x` and `y` of the event from the parent view's coordinate system.
+        type: Dictionary
+        
       - name: item
-        summary: the <Titanium.UI.DashboardItem> that was clicked
+        summary: Item that was clicked.
+        type: Titanium.UI.DashboardItem
+        
   - name: delete
-    summary: fired when a  <Titanium.UI.DashboardItem> is deleted during editings
+    summary: Fired when an item is deleted during editing mode.
     properties:
       - name: item
-        summary: the <Titanium.UI.DashboardItem> that was deleted
+        summary: Item that was deleted.
+        type: Titanium.UI.DashboardItem
+        
   - name: move
-    summary: fired when a  <Titanium.UI.DashboardItem> is moved during editing
+    summary: Fired when an item is moved during editing mode.
     properties:
       - name: items
-        summary: the pending data array in the new order (uncommitted)
+        summary: List of items to be committed, possibly in new order, when edit mode ends.
+        type: Array<Titanium.UI.DashboardItem>
+        
       - name: item
-        summary: the <Titanium.UI.DashboardItem> that was moved
+        summary: Item that was deleted.
+        type: Titanium.UI.DashboardItem
+        
 properties:
   - name: badge
-    summary: the badge value or `0` to remove the badge
+    summary: Integer value displayed in a badge.
+    description: Set to `0` to reset and remove the badge.
     type: Number
+    default: 0
+    
   - name: canDelete
-    summary: a boolean to indicate if this item can be deleted when it edit mode
+    summary: Determines whether this item can be deleted when it edit mode.
     type: Boolean
+    default: true
+    
   - name: image
-    summary: The image for the item.
+    summary: Image or path to image to display in the item by default.
     type: [String, Titanium.Blob]
+    
   - name: selectedImage
-    summary: The image to display when the item is depressed (clicked)
+    summary: Image or path to image to display in the item as it is selected.
     type: [String, Titanium.Blob]

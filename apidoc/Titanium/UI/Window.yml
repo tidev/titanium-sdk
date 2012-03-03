@@ -412,7 +412,7 @@ properties:
     summary: Set the pixel format for the Activity's Window.
     description: |
         The property is ignored on a Titanium "lightweight" Window. Use one of the
-        <Ti.UI.Android>.PIXEL_FORMAT constants to set the format.
+        <Titanium.UI.Android>.PIXEL_FORMAT constants to set the format.
 
         For more information on pixel formats, see 
         [Android SDK Window.setFormat](http://developer.android.com/reference/android/view/Window.html#setFormat(int))
@@ -485,7 +485,7 @@ description: |
     Now, you can create a new Window - let's call it `foo.js` - in your `app.js`.
 
         var w = Titanium.UI.createWindow({
-        	url:'foo.js'
+          url:'foo.js'
         });
 
     To _give_ your new window access to `message`, you would need to assign it to a
@@ -510,13 +510,13 @@ description: |
 
         Titanium.UI.currentWindow.addEventListener('foo',function(e)
         {
-        	Titanium.API.info("foo event received = "+JSON.stringify(e));
+          Titanium.API.info("foo event received = "+JSON.stringify(e));
         });
 
     You could now fire the event from `app.js` like this:
 
         var window = Titanium.UI.createWindow({
-        	url:'bar.js'
+          url:'bar.js'
         });
         window.open();
         window.fireEvent('foo',{a:'b'});
@@ -555,14 +555,14 @@ description: |
 
         // create a window with the initial transform scaled to 0
         var w = Titanium.UI.createWindow({
-        	backgroundColor:'#336699',
-        	borderWidth:8,
-        	borderColor:'#999',
-        	height:400,
-        	width:300,
-        	borderRadius:10,
-        	opacity:0.92,
-        	transform:t
+          backgroundColor:'#336699',
+          borderWidth:8,
+          borderColor:'#999',
+          height:400,
+          width:300,
+          borderRadius:10,
+          opacity:0.92,
+          transform:t
         });
 
         // create first transform to go beyond normal size
@@ -576,8 +576,8 @@ description: |
         a.addEventListener('complete', function()
         {
             // we can use the identity transform to take it back to it's real size
-        	var t2 = Titanium.UI.create2DMatrix();
-        	w.animate({transform:t2, duration:200});
+          var t2 = Titanium.UI.create2DMatrix();
+          w.animate({transform:t2, duration:200});
         });
 
     #### iPad Modal Windows
@@ -601,9 +601,9 @@ description: |
 
         var window = Titanium.UI.createWindow();
         window.open({
-        	modal:true,
-        	modalTransitionStyle: Ti.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,
-        	modalStyle: Ti.UI.iPhone.MODAL_PRESENTATION_FORMSHEET
+          modal:true,
+          modalTransitionStyle: Ti.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,
+          modalStyle: Ti.UI.iPhone.MODAL_PRESENTATION_FORMSHEET
         })
 
     #### Android Heavyweight and Lightweight Windows
@@ -641,8 +641,8 @@ description: |
     button is pressed, pass `exitOnClose: true` as one of the creation arguments, as shown here:
 
         var win = Titanium.UI.createWindow({
-        	title: 'My Root Window',
-        	exitOnClose: true
+          title: 'My Root Window',
+          exitOnClose: true
         });
 
 

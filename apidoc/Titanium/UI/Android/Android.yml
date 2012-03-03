@@ -230,7 +230,7 @@ properties:
         One of the group of soft input adjustment constants, 
         [SOFT_INPUT_ADJUST_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED), 
         [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE), 
-        and [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.OFT_INPUT_ADJUST_PAN).
+        and [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN).
     type: Number
     availability: creation
     permission: read-only

@@ -67,17 +67,13 @@ public @interface Kroll
 		 */
 		boolean optional() default false;
 		/**
-		 * Converter of Rhino/Javascript objects to Java objects suitable for use in Titanium<br>
-		 * <p>The value should be the fully qualified name of a class that implements {@link KrollJavascriptConverter}.
-		 * The class must also implement a static instance getter called getInstance().</p>
-		 * @see KrollJavascriptConverter
+		 * This API is no longer supported
+		 * @deprecated
 		 */
 		Class<?> converter() default DEFAULT.class;
 		/**
-		 * Provider of default values when an optional argument isn't passed in.<br>
-		 * <p>The value should be the fully qualified name of a class that implements {@link KrollDefaultValueProvider}.
-		 * The class must also implement a static instance getter called getInstance().</p>
-		 * @see KrollDefaultValueProvider
+		 * This API is no longer supported
+		 * @deprecated
 		 */
 		Class<?> defaultValueProvider() default DEFAULT.class;
 	}
@@ -105,7 +101,7 @@ public @interface Kroll
 	 * Injects a value by {@link inject#type() type} or {@link inject#name() name} directly into a field or by calling a setter method.
 	 * The currently supported injectable values are:
 	 * <ul>
-	 * <li><b>type</b>: {@link KrollInvocation}</li>
+	 * <li><b>type</b>: {@link org.appcelerator.kroll.KrollInvocation}</li>
 	 * </ul>
 	 * <b>Examples</b>:<br>
 	 * <pre>&#064;Kroll.inject protected KrollInvocation currentInvocation;</pre>
@@ -113,7 +109,7 @@ public @interface Kroll
 	 * 
 	 * @see inject#name()
 	 * @see inject#type()
-	 * @see KrollInvocation
+	 * @see org.appcelerator.kroll.KrollInvocation
 	 */
 	@Documented
 	@Retention(RetentionPolicy.SOURCE)
@@ -135,7 +131,7 @@ public @interface Kroll
 
 	/**
 	 * Declares a method to be exposed as part of this {@link proxy} or {@link module}.
-	 * <p>Methods may optionally make their first argument a {@link KrollInvocation} object,
+	 * <p>Methods may optionally make their first argument a {@link org.appcelerator.kroll.KrollInvocation} object,
 	 * and may also declare {@link argument#optional() optional arguments}.</p>
 	 * <b>Example</b>:<br>
 	 * <pre>
@@ -160,10 +156,8 @@ public @interface Kroll
 		 */
 		String name() default DEFAULT_NAME;
 		/**
-		 * Converter of Java objects to Javascript objects suitable for use by the Rhino runtime<br>
-		 * <p>The value should be the fully qualified name of a class that implements {@link KrollNativeConverter}.
-		 * The class must also implement a static instance getter called getInstance().</p>
-		 * @see KrollNativeConverter
+		 * This API is no longer supported
+		 * @deprecated
 		 */
 		Class<?> converter() default DEFAULT.class;
 		/**
@@ -171,11 +165,11 @@ public @interface Kroll
 		 * If the current thread is the UI thread, then this simply calls the method directly.
 		 * This is functionally equivalent to:</p>
 		 * <pre>
-		 * if (tiContext.isUIThread()) {
+		 * if (TiApplication.getInstance().isUIThread()) {
 		 *     return callMethod();
 		 * } else {
 		 *     final AsyncResult result = new AsyncResult();
-		 *     tiContext.getActivity().runOnUiThread(new Runnable() {
+		 *     getActivity().runOnUiThread(new Runnable() {
 		 *         public void run() {
 		 *             result.setResult(callMethod());
 		 *         }
@@ -191,7 +185,7 @@ public @interface Kroll
 	 * Declares a Kroll module.<br>
 	 * Modules differ from {@link proxy proxies} by being statically bound to an API point, and by only having a singleton instance (by default).<br>
 	 * Modules may also have a {@link module#parentModule() parent module}, and are where {@link proxy} "create" methods are generated. For more on this, see {@link proxy#creatableInModule()}.<br>
-	 * Module classes must extend {@link org.appcelerator.kroll.KrollModule} (which is itself an extension of {@link KrollProxy}).<br>
+	 * Module classes must extend {@link org.appcelerator.kroll.KrollModule} (which is itself an extension of {@link org.appcelerator.kroll.KrollProxy}).<br>
 	 * <b>Example</b>:<br>
 	 * <pre>
 	 * &#064;Kroll.module
@@ -233,8 +227,8 @@ public @interface Kroll
 		Class<?> parentModule() default DEFAULT.class;
 		
 		/**
-		 * <b>Warning</b>: This is reserved for future use, and not implemented yet
-		 * When set to true, this module will be instantiated for every TiContext that is created (instead of only once for the entire application).<br>
+		 * This API is not supported
+		 * @deprecated
 		 */
 		boolean contextSpecific() default false;
 		/**
@@ -261,8 +255,6 @@ public @interface Kroll
 	 * @see property#get()
 	 * @see property#set()
 	 * @see property#name()
-	 * @see property#nativeConverter()
-	 * @see property#javascriptConverter()
 	 * @see method @Kroll.method
 	 * @see getProperty @Kroll.getProperty
 	 * @see setProperty @Kroll.setProperty
@@ -286,31 +278,25 @@ public @interface Kroll
 		 */
 		String name() default DEFAULT_NAME;
 		/**
-		 * Converter of Java objects to Javascript objects suitable for use by the Rhino runtime<br>
-		 * <p>The value should be the fully qualified name of a class that implements {@link KrollNativeConverter}.
-		 * The class must also implement a static instance getter called getInstance().</p>
-		 * @see KrollNativeConverter
+		 * This API is no longer supported
+		 * @deprecated
 		 */
 		Class<?> nativeConverter() default DEFAULT.class;
 		/**
-		 * Converter of Rhino/Javascript objects to Java objects suitable for use in Titanium<br>
-		 * <p>The value should be the fully qualified name of a class that implements {@link KrollJavascriptConverter}.
-		 * The class must also implement a static instance getter called getInstance().</p>
-		 * @see KrollJavascriptConverter
+		 * This API is no longer supported
+		 * @deprecated
 		 */
 		Class<?> javascriptConverter() default DEFAULT.class;
 	}
 
 	/**
 	 * Declares a method as a property getter of this {@link proxy} or {@link module}.<br>
-	 * <p>Getter methods must return a value, and may optionally have a {@link KrollInvocation} as the first argument,
+	 * <p>Getter methods must return a value, and may optionally have a {@link org.appcelerator.kroll.KrollInvocation} as the first argument,
 	 * and {@link argument#optional() optional arguments} when they are also exposed as {@link method methods}</p>
 	 * 
 	 * @see getProperty#name()
-	 * @see getProperty#nativeConverter()
-	 * @see getProperty#javascriptConverter()
 	 * @see getProperty#runOnUiThread()
-	 * @see KrollInvocation
+	 * @see org.appcelerator.kroll.KrollInvocation
 	 * @see method @Kroll.method
 	 * @see argument#optional()
 	 */
@@ -325,17 +311,13 @@ public @interface Kroll
 		 */
 		String name() default DEFAULT_NAME;
 		/**
-		 * Converter of Java objects to Javascript objects suitable for use by the Rhino runtime<br>
-		 * <p>The value should be the fully qualified name of a class that implements {@link KrollNativeConverter}.
-		 * The class must also implement a static instance getter called getInstance().</p>
-		 * @see KrollNativeConverter
+		 * This API is no longer supported
+		 * @deprecated
 		 */
 		Class<?> nativeConverter() default DEFAULT.class;
 		/**
-		 * Converter of Rhino/Javascript objects to Java objects suitable for use in Titanium<br>
-		 * <p>The value should be the fully qualified name of a class that implements {@link KrollJavascriptConverter}.
-		 * The class must also implement a static instance getter called getInstance().</p>
-		 * @see KrollJavascriptConverter
+		 * This API is no longer supported
+		 * @deprecated
 		 */
 		Class<?> javascriptConverter() default DEFAULT.class;
 		/**
@@ -347,15 +329,13 @@ public @interface Kroll
 	/**
 	 * Declares a method as a property setter of this {@link proxy} or {@link module}.<br>
 	 * <p>Setter methods must have at least one argument: The value to set. Optionally, setter methods may also have a
-	 * {@link KrollInvocation} object as the first argument (with the value as the second), and may also have as many
+	 * {@link org.appcelerator.kroll.KrollInvocation} object as the first argument (with the value as the second), and may also have as many
 	 * {@link argument#optional() optional arguments} as necessary after the value when exposed as a {@link method}.
 	 * 
 	 * @see setProperty#name()
-	 * @see setProperty#nativeConverter()
-	 * @see setProperty#javascriptConverter()
 	 * @see setProperty#retain()
 	 * @see setProperty#runOnUiThread()
-	 * @see KrollInvocation
+	 * @see org.appcelerator.kroll.KrollInvocation
 	 * @see argument#optional()
 	 * @see method @Kroll.method
 	 * </p>
@@ -371,17 +351,13 @@ public @interface Kroll
 		 */
 		String name() default DEFAULT_NAME;
 		/**
-		 * Converter of Java objects to Javascript objects suitable for use by the Rhino runtime<br>
-		 * <p>The value should be the fully qualified name of a class that implements {@link KrollNativeConverter}.
-		 * The class must also implement a static instance getter called getInstance().</p>
-		 * @see KrollNativeConverter
+		 * This API is no longer supported
+		 * @deprecated
 		 */
 		Class<?> nativeConverter() default DEFAULT.class;
 		/**
-		 * Converter of Rhino/Javascript objects to Java objects suitable for use in Titanium<br>
-		 * <p>The value should be the fully qualified name of a class that implements {@link KrollJavascriptConverter}.
-		 * The class must also implement a static instance getter called getInstance().</p>
-		 * @see KrollJavascriptConverter
+		 * This API is no longer supported
+		 * @deprecated
 		 */
 		Class<?> javascriptConverter() default DEFAULT.class;
 		/**
@@ -400,15 +376,15 @@ public @interface Kroll
 	 * Proxy classes must use this or {@link module the module annotation} to expose methods and properties,
 	 * and must follow a few specific source patterns:
 	 * <ul>
-	 * <li>Proxy classes must extend the {@link KrollProxy} class</li>
-	 * <li>The proxy constructor must take only one argument, a {@link org.appcelerator.titanium.TiContext}</li>
+	 * <li>Proxy classes must extend the {@link org.appcelerator.kroll.KrollProxy} class</li>
+	 * <li>The proxy constructor must take 0 arguments</li>
 	 * </ul>
 	 * To expose a "create" method for this proxy, see {@link proxy#creatableInModule()}
 	 * 
 	 * @see proxy#name()
 	 * @see proxy#creatableInModule()
 	 * @see proxy#propertyAccessors()
-	 * @see KrollProxy
+	 * @see org.appcelerator.kroll.KrollProxy
 	 * @see module @Kroll.module
 	 * </p>
 	 */
@@ -430,8 +406,8 @@ public @interface Kroll
 		 * </p>
 		 * 
 		 * @default None (don't generate a create method)
-		 * @see KrollProxy#handleCreationArgs(org.appcelerator.kroll.KrollModule, Object[])
-		 * @see KrollProxy#handleCreationDict(org.appcelerator.kroll.KrollDict)
+		 * @see org.appcelerator.kroll.KrollProxy#handleCreationArgs(org.appcelerator.kroll.KrollModule, Object[])
+		 * @see org.appcelerator.kroll.KrollProxy#handleCreationDict(org.appcelerator.kroll.KrollDict)
 		 */
 		Class<?> creatableInModule() default DEFAULT.class;
 		/**
@@ -445,7 +421,7 @@ public @interface Kroll
 		String[] propertyAccessors() default {};
 		/**
 		 * Specify the parent module / namespace for this proxy (if you want this proxy to be expose via "create",
-		 * use {@link proxy#creatableInModule() instead)
+		 * use {@link proxy#creatableInModule()} instead)
 		 * @default None (lives under the Titanium namespace)
 		 */
 		Class<?> parentModule() default DEFAULT.class;
