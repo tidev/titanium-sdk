@@ -137,7 +137,7 @@ methods:
     returns:
         type: Number
         description: If percentages are passed in, 0 is returned.
-    since: 2.0.0
+    since: "2.0.0"
 properties:
   - name: ANIMATION_CURVE_EASE_IN
     summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
@@ -419,7 +419,7 @@ properties:
     permission: read-only
   - name: FILL
     summary: FILL behavior for UI layout.
-    since: 2.0.0
+    since: "2.0.0"
     type: String
     description: The FILL behavior means the view will grow its size to fill its parent.
     permission: read-only
@@ -632,7 +632,7 @@ properties:
     permission: read-only
   - name: SIZE
     summary: SIZE behavior for UI layout.
-    since: 2.0.0
+    since: "2.0.0"
     type: String
     description: The SIZE behavior means the view will constrain its size fit its contents.
     permission: read-only
@@ -693,27 +693,27 @@ properties:
     permission: read-only
   - name: UNIT_CM
     summary: Unit constant representing units in centimeters.
-    since: 2.0.0
+    since: "2.0.0"
     type: String
     permission: read-only
   - name: UNIT_DIP
     summary: Unit constant representing units in density-independent pixels.
-    since: 2.0.0
+    since: "2.0.0"
     type: String
     permission: read-only
   - name: UNIT_IN
     summary: Unit constant representing units in inches.
-    since: 2.0.0
+    since: "2.0.0"
     type: String
     permission: read-only
   - name: UNIT_MM
     summary: Unit constant representing units in millimeters.
-    since: 2.0.0
+    since: "2.0.0"
     type: String
     permission: read-only
   - name: UNIT_PX
     summary: Unit constant representing units in pixels.
-    since: 2.0.0
+    since: "2.0.0"
     type: String
     permission: read-only
   - name: UNKNOWN

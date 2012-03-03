@@ -118,7 +118,7 @@ methods:
         type: Callback<Object>
 
   - name: finishLayout
-    since: 2.0.0
+    since: "2.0.0"
     summary: Finishes a batch-update of the View's layout params and schedules a layout pass of the view tree.
 
   - name: hide
@@ -135,7 +135,7 @@ methods:
     summary: Makes this view visible.
 
   - name: startLayout
-    since: 2.0.0
+    since: "2.0.0"
     summary: Starts a batch-update of the View's layout params
     description: |
       To prevent a layout pass each time a property is modified, startLayout() and finishLayout().  A startLayout() call will start the batch-update process, and a finish layout will end the batch-update process and trigger a layout pass.  Here is an example of how this can be used:
@@ -179,7 +179,7 @@ methods:
         optional: true
 
   - name: updateLayout
-    since: 2.0.0
+    since: "2.0.0"
     summary: Performs a batch-update of all supplied layout params and schedules a layout pass after they have been updated
     parameters:
       - name: params
@@ -758,7 +758,7 @@ properties:
     description: |
         The correct values will only be available when rendering is fully complete.
     type: Dimension
-    since: 2.0.0
+    since: "2.0.0"
     permission: read-only
 
   - name: size
@@ -900,7 +900,7 @@ properties:
 ---
 name: Rect
 summary: A simple object consisting of measurements defined relative to the view's parent.
-since: 2.0.0
+since: "2.0.0"
 properties:
   - name: top
     summary: Top boundary of this Rect relative to parent's height.
@@ -917,7 +917,7 @@ properties:
 ---
 name: Dimension
 summary: A simple object consisting of the position and size measurements.
-since: 2.0.0
+since: "2.0.0"
 description: |
   The value of x and y positions will both be 0 when returned by the size property. When a dimension is
   returned by the rect property, x will return the left position, and y will return the top position.
