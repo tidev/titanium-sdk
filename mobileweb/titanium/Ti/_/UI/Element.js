@@ -482,7 +482,7 @@ define(
 
 			// Set the default top/left if need be
 			if (left === "calculateDefault") {
-				if (parentWidth !== Ti.UI.SIZE) {
+				if (this._layoutParams && !this._layoutParams.parentSize.width) {
 					switch(this._defaultHorizontalAlignment) {
 						case "center": left = computeSize("50%",parentWidth) - borderSize.left - (is(width,"Number") ? width : 0) / 2; break;
 						case "right": left = parentWidth - borderSize.left - borderSize.right - (is(width,"Number") ? width : 0) / 2; break;
@@ -493,7 +493,7 @@ define(
 				}
 			}
 			if (top === "calculateDefault") {
-				if (parentHeight !== Ti.UI.SIZE) {
+				if (this._layoutParams && !this._layoutParams.parentSize.height) {
 					switch(this._defaultVerticalAlignment) {
 						case "center": top = computeSize("50%",parentHeight) - borderSize.top - (is(height,"Number") ? height : 0) / 2; break;
 						case "bottom": top = parentWidth - borderSize.top - borderSize.bottom - (is(height,"Number") ? height : 0) / 2; break;
