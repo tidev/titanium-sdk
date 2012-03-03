@@ -6,8 +6,9 @@
  */
 package org.appcelerator.kroll;
 
-// A simple interface for classes that know how to convert
-// themselves to or from javascript.
+/**
+ * @deprecated
+ */
 public interface KrollConvertable {
 	public Object getJavascriptValue();
 	public Object getNativeValue();
