@@ -192,7 +192,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 		_tallestRowHeight: 0,
 		
 		_updateContentWidth: function() {
-			if (this._hasAutoDimensions()) {
+			if (this._hasSizeDimensions()) {
 				var widestRowWidth = 0;
 				for(var i in this._rows) {
 					var row = this._rows[i];
@@ -206,7 +206,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 		},
 		
 		_getTallestRowHeight: function() {
-			if (this._hasAutoDimensions()) {
+			if (this._hasSizeDimensions()) {
 				var widestRowWidth = 0,
 					tallestRowHeight = 0;
 				for(var i in this._rows) {
@@ -271,7 +271,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 						this.font = undef;
 						this.color = undef;
 						this._titleContainer.innerHTML = "";
-						this._hasAutoDimensions() && this._triggerParentLayout();
+						this._hasSizeDimensions() && this._triggerParentLayout();
 					} else {
 						var rowIndex = this._rows.indexOf(value);
 						if (rowIndex === -1) {
@@ -280,7 +280,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 						this.font = value.font;
 						this.color = lang.val(value.color, "");
 						this._titleContainer.innerHTML = value.title;
-						this._hasAutoDimensions() && this._triggerParentLayout();
+						this._hasSizeDimensions() && this._triggerParentLayout();
 					}
 					return value;
 				},

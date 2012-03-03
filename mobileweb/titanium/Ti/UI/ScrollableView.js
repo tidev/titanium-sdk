@@ -95,7 +95,6 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 					animationView = UI.createView({
 						width: unitize(viewsToScroll.length * width),
 						height: "100%",
-						layout: "absolute",
 						left: initialPosition,
 						top: 0
 					});
@@ -270,7 +269,6 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 				var animationView = UI.createView({
 					width: unitize(viewsToScroll.length * width),
 					height: "100%",
-					layout: "absolute",
 					left: initialPosition,
 					top: 0
 				});

@@ -187,7 +187,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				set: function(value) {
 					if (!this.value) {
 						this._switchTitle.innerHTML = value;
-						this._hasAutoDimensions() && this._triggerParentLayout();
+						this._hasSizeDimensions() && this._triggerParentLayout();
 					}
 					return value;
 				},
@@ -198,7 +198,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				set: function(value) {
 					if (this.value) {
 						this._switchTitle.innerHTML = value;
-						this._hasAutoDimensions() && this._triggerParentLayout();
+						this._hasSizeDimensions() && this._triggerParentLayout();
 					}
 					return value;
 				},
@@ -212,7 +212,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					});
 					value = !!value;
 					this._switchTitle.innerHTML = value ? this.titleOn : this.titleOff;
-					this._hasAutoDimensions() && this._triggerParentLayout();
+					this._hasSizeDimensions() && this._triggerParentLayout();
 					return value;
 				},
 				post: function() {

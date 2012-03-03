@@ -172,7 +172,7 @@ define(
 			
 			// Find the top most node that needs to be layed out.
 			var rootLayoutNode = this;
-			while(rootLayoutNode._parent != null && rootLayoutNode._hasAutoDimensions()) {
+			while(rootLayoutNode._parent != null && rootLayoutNode._hasSizeDimensions()) {
 				rootLayoutNode = rootLayoutNode._parent;
 			}
 			rootLayoutNode._markedForLayout = true;
@@ -185,7 +185,7 @@ define(
 			this._parent && this._parent._triggerLayout();
 		},
 		
-		_hasAutoDimensions: function() {
+		_hasSizeDimensions: function() {
 			return (this.width === Ti.UI.SIZE || (!isDef(this.width) && this._defaultWidth === Ti.UI.SIZE)) || 
 				(this.height === Ti.UI.SIZE || (!isDef(this.height) && this._defaultHeight === Ti.UI.SIZE));
 		},
@@ -231,7 +231,6 @@ define(
 					this.center && this.center.y,
 					this.width,
 					this.height,
-					this.borderWidth,
 					true
 				),
 				styles;
@@ -252,7 +251,6 @@ define(
 			isDef(this._measuredHeight) && (styles.height = unitize(this._measuredHeight));
 			this._measuredRightPadding = dimensions.rightPadding;
 			this._measuredBottomPadding = dimensions.bottomPadding;
-			this._measuredBorderWidth = dimensions.borderWidth;
 			this._measuredBorderSize = dimensions.borderSize;
 			setStyle(this.domNode, styles);
 			
@@ -286,7 +284,7 @@ define(
 			this.fireEvent("postlayout");
 		},
 
-		_computeDimensions: function(parentWidth, parentHeight, left, top, originalRight, originalBottom, centerX, centerY, width, height, borderWidth, layoutChildren) {
+		_computeDimensions: function(parentWidth, parentHeight, left, top, originalRight, originalBottom, centerX, centerY, width, height, layoutChildren) {
 			
 			// Compute as many sizes as possible, should be everything except SIZE
 			left = computeSize(left, parentWidth, 1);

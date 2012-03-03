@@ -11,7 +11,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 
 		constructor: function() {
 			this.children = [];
-			this.layout = "absolute";
+			this.layout = "composite";
 			this.containerNode = this.domNode;
 		},
 
@@ -226,7 +226,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 			layout: {
 				set: function(value) {
 					var match = value.match(/^(horizontal|vertical)$/),
-						value = match ? match[0] : "absolute";
+						value = match ? match[0] : "composite";
 
 					if (this._layout) {
 						this._layout.destroy();

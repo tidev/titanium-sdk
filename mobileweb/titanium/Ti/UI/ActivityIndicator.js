@@ -107,7 +107,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style"], functio
 					}
 					setStyle(this._indicatorMessage,"paddingLeft", dom.unitize(this._messagePadding));
 					this._indicatorMessage.innerHTML = innerHTML;
-					this._hasAutoDimensions() && this._triggerParentLayout();
+					this._hasSizeDimensions() && this._triggerParentLayout();
 					return value;
 				}
 			},

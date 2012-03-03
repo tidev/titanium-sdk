@@ -144,7 +144,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			image: {
 				set: function(value) {
 					require.on(this._buttonImage, "load", lang.hitch(this, function () {
-						this._hasAutoDimensions() && this._triggerLayout();
+						this._hasSizeDimensions() && this._triggerLayout();
 					}));
 					this._buttonImage.src = value;
 					return value;
@@ -166,7 +166,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			title: {
 				set: function(value) {
 					this._buttonTitle.innerHTML = value;
-					this._hasAutoDimensions() && this._triggerParentLayout();
+					this._hasSizeDimensions() && this._triggerParentLayout();
 					return value;
 				}
 			},
