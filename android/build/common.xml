@@ -501,21 +501,66 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 
 	<target name="build.titanium.javadoc">
 		<mkdir dir="${dist.dir}/javadoc"/>
-		<property file="${ti.build.dir}/javadoc.properties" prefix="javadoc"/>
-		
+		<property file="${ti.build.dir}/javadoc.properties" prefix="javadoc" prefixValues="true"/>
+
+		<property name="kroll.package" value="org/appcelerator/kroll"/>
+		<property name="ti.package" value="org/appcelerator/titanium"/>
+
 		<javadoc
-			packagenames="org.appcelerator.*"
-			sourcepath="${titanium.project.dir}/src"
-			excludepackagenames="ti.*"
-			defaultexcludes="yes"
 			destdir="${dist.dir}/javadoc"
 			version="true"
 			use="true"
 			windowtitle="${javadoc.windowTitle}">
-			
+
+			<sourcefiles>
+				<fileset dir="${titanium.project.dir}/src/java" defaultexcludes="yes">
+					<include name="**/*.java"/>
+					<!-- These don't work in external properties for some reason -->
+					<exclude name="${kroll.package}/KrollConvertable.java"/>
+					<exclude name="${kroll.package}/KrollModuleInfo.java"/>
+					<exclude name="${kroll.package}/KrollNativeConverter.java"/>
+					<exclude name="${kroll.package}/KrollProperty.java"/>
+					<exclude name="${kroll.package}/util/KrollReflectionUtils.java"/>
+					<exclude name="${ti.package}/ContextSpecific.java"/>
+					<exclude name="${ti.package}/TiContext.java"/>
+					<exclude name="${ti.package}/TiModalActivity.java"/>
+					<exclude name="${ti.package}/TiStylesheet.java"/>
+					<exclude name="${ti.package}/TiTranslucentActivity.java"/>
+					<exclude name="${ti.package}/analytics/**"/>
+					<exclude name="${ti.package}/bridge/**"/>
+					<exclude name="${ti.package}/kroll/**"/>
+					<exclude name="${ti.package}/proxy/DecorViewProxy.java"/>
+					<exclude name="${ti.package}/proxy/RProxy.java"/>
+					<exclude name="${ti.package}/util/Log.java"/>
+					<exclude name="${ti.package}/util/TiAnimationBuilder.java"/>
+					<exclude name="${ti.package}/util/TiAnimationPair.java"/>
+					<exclude name="${ti.package}/util/TiBindingHelper.java"/>
+					<exclude name="${ti.package}/util/TiConfig.java"/>
+					<exclude name="${ti.package}/util/TiIntentWrapper.java"/>
+					<exclude name="${ti.package}/util/TiResponseCache.java"/>
+					<exclude name="${ti.package}/view/ITiWindowHandler.java"/>
+					<exclude name="${ti.package}/view/TiUIDecorView.java"/>
+				</fileset>
+
+				<fileset dir="${kroll.apt.project.dir}/src/java" defaultexcludes="yes">
+					<include name="${kroll.package}/annotations/*"/>
+				</fileset>
+
+				<fileset dir="${kroll.common.project.dir}/src/java" defaultexcludes="yes">
+					<include name="**/*.java"/>
+					<exclude name="${kroll.package}/KrollEvaluator.java"/>
+					<exclude name="${kroll.package}/KrollExternalModule.java"/>
+					<exclude name="${kroll.package}/KrollLogging.java"/>
+					<exclude name="${kroll.package}/common/TiDeployData.java"/>
+					<exclude name="${kroll.package}/common/TiFastDev.java"/>
+					<exclude name="${kroll.package}/common/TiJSErrorDialog.java"/>
+				</fileset>
+			</sourcefiles>
+
 			<classpath refid="android"/>
 			<classpath refid="titanium.path"/>
 			<classpath refid="kroll.apt.path"/>
+			<classpath refid="kroll.common.path"/>
 			
 			<doctitle>${javadoc.docTitle}</doctitle>
 			<bottom>${javadoc.bottom}</bottom>

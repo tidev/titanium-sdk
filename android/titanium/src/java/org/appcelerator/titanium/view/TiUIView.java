@@ -52,6 +52,10 @@ import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 
+/**
+ * This class is for Titanium View implementations, that correspond with TiViewProxy. 
+ * A TiUIView is responsible for creating and maintaining a native Android View instance.
+ */
 public abstract class TiUIView
 	implements KrollProxyListener, OnFocusChangeListener
 {
@@ -95,6 +99,10 @@ public abstract class TiUIView
 		this.layoutParams = new TiCompositeLayout.LayoutParams();
 	}
 
+	/**
+	 * Adds a child view into the ViewGroup.
+	 * @param child the view to be added.
+	 */
 	public void add(TiUIView child)
 	{
 		if (child != null) {
@@ -112,6 +120,10 @@ public abstract class TiUIView
 		}
 	}
 
+	/**
+	 * Removes the child view from the ViewGroup, if child exists.
+	 * @param child the view to be removed.
+	 */
 	public void remove(TiUIView child)
 	{
 		if (child != null) {
@@ -127,16 +139,26 @@ public abstract class TiUIView
 		}
 	}
 
+	/**
+	 * @return list of views added.
+	 */
 	public List<TiUIView> getChildren()
 	{
 		return children;
 	}
 
+	/**
+	 * @return the view proxy.
+	 */
 	public TiViewProxy getProxy()
 	{
 		return proxy;
 	}
 
+	/**
+	 * Sets the view proxy.
+	 * @param proxy the proxy to set.
+	 */
 	public void setProxy(TiViewProxy proxy)
 	{
 		this.proxy = proxy;
@@ -157,11 +179,18 @@ public abstract class TiUIView
 		return layoutParams;
 	}
 
+	/**
+	 * @return the Android native view.
+	 */
 	public View getNativeView()
 	{
 		return nativeView;
 	}
 
+	/**
+	 * Sets the nativeView to view.
+	 * @param view the view to set
+	 */
 	protected void setNativeView(View view)
 	{
 		if (view.getId() == View.NO_ID) {
@@ -182,6 +211,9 @@ public abstract class TiUIView
 		this.layoutParams = layoutParams;
 	}
 
+	/**
+	 * Animates the view if there are pending animations.
+	 */
 	public void animate()
 	{
 		TiAnimationBuilder builder = proxy.getPendingAnimation();
@@ -583,6 +615,9 @@ public abstract class TiUIView
 		return imm;
 	}
 
+	/**
+	 * Focuses the view.
+	 */
 	public void focus()
 	{
 		if (nativeView != null) {
@@ -590,6 +625,9 @@ public abstract class TiUIView
 		}
 	}
 
+	/**
+	 * Blurs the view.
+	 */
 	public void blur()
 	{
 		if (nativeView != null) {
@@ -630,6 +668,9 @@ public abstract class TiUIView
 		}
 	}
 
+	/**
+	 * Shows the view, changing the view's visibility to View.VISIBLE.
+	 */
 	public void show()
 	{
 		if (nativeView != null) {
@@ -641,6 +682,9 @@ public abstract class TiUIView
 		}
 	}
 
+	/**
+	 * Hides the view, changing the view's visibility to View.INVISIBLE.
+	 */
 	public void hide()
 	{
 		if (nativeView != null) {
@@ -900,11 +944,20 @@ public abstract class TiUIView
 		doSetClickable(touchable);
 	}
 
+	/**
+	 * Sets the nativeView's opacity.
+	 * @param opacity the opacity to set.
+	 */
 	public void setOpacity(float opacity)
 	{
 		setOpacity(nativeView, opacity);
 	}
 
+	/**
+	 * Sets the view's opacity.
+	 * @param view the view object.
+	 * @param opacity the opacity to set.
+	 */
 	protected void setOpacity(View view, float opacity)
 	{
 		if (view != null) {
@@ -916,6 +969,7 @@ public abstract class TiUIView
 		}
 	}
 
+	
 	public void clearOpacity(View view)
 	{
 		Drawable d = view.getBackground();
