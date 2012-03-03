@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 
 /**
- The class rrepresenting a font.
+ The class representing a font.
  */
 @interface WebFont : NSObject {
 	NSString* family;

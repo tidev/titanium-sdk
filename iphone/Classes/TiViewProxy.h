@@ -211,7 +211,7 @@ enum
 @property(nonatomic,readwrite,retain)TiUIView * view;
 
 /**
- Returns language convertion table.
+ Returns language conversion table.
  
  Subclasses may override.
  @return The dictionary 
@@ -453,7 +453,7 @@ enum
 -(void)parentSizeWillChange;
 
 /**
- Tells the view proxy that the attached view's parent will relay.
+ Tells the view proxy that the attached view's parent will change position and size.
  */
 -(void)parentWillRelay;
 

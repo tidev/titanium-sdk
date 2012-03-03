@@ -123,13 +123,13 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 -(void)close:(id)args;
 
 /**
- Returns the tag group the proxy's window is attached to if any.
- @return The tag group proxy the window is attached to.
+ Returns the tab group the proxy's window is attached to if any.
+ @return The tab group proxy the window is attached to.
  */
 -(TiProxy*)tabGroup;
 
 /**
- The tab in tag group the proxy's window is associated with if any.
+ The tab in tab group the proxy's window is associated with if any.
  @return The tab  proxy the window is accosiated with
  */
 -(TiProxy<TiTab>*)tab;
