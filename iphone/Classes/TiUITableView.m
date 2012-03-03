@@ -2064,21 +2064,6 @@ if(ourTableView != tableview)	\
     }
 }
 
--(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop forView:(TiUIView *)firstResponderView
-{
-	int lastSectionIndex = [(TiUITableViewProxy *)[self proxy] sectionCount]-1;
-	ENSURE_CONSISTENCY(lastSectionIndex>=0);
-
-	lastFocusedView = firstResponderView;
-	CGRect responderRect = [self convertRect:[firstResponderView bounds] fromView:firstResponderView];
-	CGPoint offsetPoint = [tableview contentOffset];
-	responderRect.origin.x += offsetPoint.x;
-	responderRect.origin.y += offsetPoint.y;
-
-	CGRect minimumContentRect = [tableview rectForSection:lastSectionIndex];
-	ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(tableview,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y,responderRect);
-}
-
 #pragma Scroll View Delegate
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView 

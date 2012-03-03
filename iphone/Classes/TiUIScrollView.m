@@ -262,14 +262,6 @@
     }
 }
 
--(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop forView:(TiUIView *)firstResponderView
-{
-	lastFocusedView = firstResponderView;
-	CGRect responderRect = [wrapperView convertRect:[firstResponderView bounds] fromView:firstResponderView];
-	
-	ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(scrollView,keyboardTop,minimumContentHeight,responderRect);
-}
-
 @end
 
 #endif

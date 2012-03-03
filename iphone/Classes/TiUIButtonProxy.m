@@ -119,13 +119,13 @@
     [super removeBarButtonView];
 }
 
--(void)setToolbar:(TiToolbar*)toolbar_
+-(void)setToolbar:(id<TiToolbar>)toolbar_
 {
 	RELEASE_TO_NIL(toolbar);
 	toolbar = [toolbar_ retain];
 }
 
--(TiToolbar*)toolbar
+-(id<TiToolbar>)toolbar
 {
 	return toolbar;
 }

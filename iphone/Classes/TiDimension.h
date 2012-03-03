@@ -22,6 +22,9 @@ typedef enum {
 	TiDimensionTypePercent,
 } TiDimensionType;
 
+/**
+ The dimension struct.
+ */
 struct TiDimension {
 	TiDimensionType type;
 	CGFloat value;

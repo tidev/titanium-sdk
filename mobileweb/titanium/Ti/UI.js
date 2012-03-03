@@ -69,6 +69,19 @@ define(
 			return win;
 		},
 		
+		_layoutSemaphore: 0,
+		
+		_startLayout: function() {
+			this._layoutSemaphore++;
+		},
+		
+		_finishLayout: function() {
+			this._layoutSemaphore--;
+			if (this._layoutSemaphore === 0) {
+				this._triggerLayout(true);
+			}
+		},
+		
 		_triggerLayout: function(force) {
 			if (force) {
 				clearTimeout(this._layoutTimer);
