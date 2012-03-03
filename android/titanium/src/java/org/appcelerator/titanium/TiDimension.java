@@ -19,6 +19,21 @@ import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 
+/**
+ * A class used to handle different unit measurements for layout purposes.
+ * Supported units include: 
+ * <li> TypedValue.COMPLEX_UNIT_PX </li>
+ * <li> TypedValue.COMPLEX_UNIT_PT </li>
+ * <li> TypedValue.COMPLEX_UNIT_DIP </li>
+ * <li> TypedValue.COMPLEX_UNIT_SP </li>
+ * <li> TypedValue.COMPLEX_UNIT_MM </li>
+ * <li> TypedValue.COMPLEX_UNIT_IN </li>
+ * <li> TiDimension.COMPLEX_UNIT_PERCENT </li>
+ * <li> TiDimension.COMPLEX_UNIT_AUTO </li>
+ * <li> TiDimension.COMPLEX_UNIT_UNDEFINED </li>
+ * Refer to {@link android.util.TypedValue} for more details.
+ *
+ */
 public class TiDimension
 {
 	private static final String LCAT = "TiDimension";
@@ -62,6 +77,13 @@ public class TiDimension
 	protected double value;
 	protected int units, valueType;
 
+	/**
+	 * Creates a TiDimension object.
+	 * @param value the value to set.
+	 * @param valueType the valueType to set. Supported types include: {@link #TYPE_LEFT}, {@link #TYPE_RIGHT}, 
+	 * {@link #TYPE_BOTTOM}, {@link #TYPE_TOP}, {@link #TYPE_CENTER_X}, {@link #TYPE_CENTER_Y}, {@link #TYPE_HEIGHT}.
+	 * {@link #TYPE_WIDTH}.
+	 */
 	public TiDimension(double value, int valueType)
 	{
 		this.value = value;
@@ -69,6 +91,13 @@ public class TiDimension
 		this.units = COMPLEX_UNIT_UNDEFINED;
 	}
 
+	/**
+	 * Creates and parses a TiDimension object.
+	 * @param svalue the string to parse.
+	 * @param valueType the valueType to set. Supported types include: {@link #TYPE_LEFT}, {@link #TYPE_RIGHT}, 
+	 * {@link #TYPE_BOTTOM}, {@link #TYPE_TOP}, {@link #TYPE_CENTER_X}, {@link #TYPE_CENTER_Y}, {@link #TYPE_HEIGHT}.
+	 * {@link #TYPE_WIDTH}.
+	 */
 	public TiDimension(String svalue, int valueType)
 	{
 		this.valueType = valueType;
@@ -115,26 +144,53 @@ public class TiDimension
 		}
 	}
 
+	/**
+	 * @return the TiDimension's value.
+	 */
 	public double getValue()
 	{
 		return value;
 	}
 
+	/**
+	 * @return the TiDimension's int value.
+	 */
 	public int getIntValue()
 	{
 		return Double.valueOf(value).intValue();
 	}
 
+	/**
+	 * Sets value to a double value.
+	 * @param value a double to be set.
+	 */
 	public void setValue(double value)
 	{
 		this.value = value;
 	}
 
+	/**
+	 * @return the TiDimension's units. Supported units include: 
+	 * <li> TypedValue.COMPLEX_UNIT_PX </li>
+	 * <li> TypedValue.COMPLEX_UNIT_PT </li>
+	 * <li> TypedValue.COMPLEX_UNIT_DIP </li>
+	 * <li> TypedValue.COMPLEX_UNIT_SP </li>
+	 * <li> TypedValue.COMPLEX_UNIT_MM </li>
+	 * <li> TypedValue.COMPLEX_UNIT_IN </li>
+	 * <li> TiDimension.COMPLEX_UNIT_PERCENT </li>
+	 * <li> TiDimension.COMPLEX_UNIT_AUTO </li>
+	 * <li> TiDimension.COMPLEX_UNIT_UNDEFINED </li>
+	 * Refer to {@link android.util.TypedValue} for more details.
+	 */
 	public int getUnits()
 	{
 		return units;
 	}
 
+	/**
+	 * Set TiDimension's units. Refer to {@link #getUnits()} for more details.
+	 * @param units the unit to set.
+	 */
 	public void setUnits(int units)
 	{
 		this.units = units;
@@ -160,6 +216,12 @@ public class TiDimension
 		return -1;
 	}
 
+	/**
+	 * Calculates and returns the number of pixels, depending on the type.
+	 * It also takes screen/view density into consideration.
+	 * @param parent the parent view used for calculation.
+	 * @return the number of pixels.
+	 */
 	public int getAsPixels(View parent)
 	{
 		return (int) Math.round(getPixels(parent));
@@ -278,11 +340,17 @@ public class TiDimension
 		return -1;
 	}
 
+	/**
+	 * @return true if units is TiDimension.COMPLEX_UNIT_UNDEFINED, false otherwise.
+	 */
 	public boolean isUnitUndefined()
 	{
 		return units == COMPLEX_UNIT_UNDEFINED;
 	}
 
+	/**
+	 * @return true if units is TiDimension.COMPLEX_UNIT_PERCENT, false otherwise.
+	 */
 	public boolean isUnitPercent()
 	{
 		return units == COMPLEX_UNIT_PERCENT;
@@ -293,6 +361,9 @@ public class TiDimension
 		return units == COMPLEX_UNIT_AUTO;
 	}
 
+	/**
+	 * @return string representation of the TiDimension object.
+	 */
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder(10);
