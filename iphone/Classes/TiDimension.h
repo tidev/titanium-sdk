@@ -11,18 +11,6 @@
 #define INCH_IN_MM 25.4
 
 
-NSString* kTiBehaviorAuto = @"auto";
-NSString* kTiBehaviorSize = @"SIZE";
-NSString* kTiBehaviorFill = @"FILL";
-NSString* kTiUnitPixel = @"px";
-NSString* kTiUnitCm = @"cm";
-NSString* kTiUnitMm = @"mm";
-NSString* kTiUnitInch = @"in";
-NSString* kTiUnitDip = @"dip";
-NSString* kTiUnitDipAlternate = @"dp";
-NSString* kTiUnitSystem = @"system";
-NSString* kTiUnitPercent = @"%";
-
 //Not a class for speed reasons, like LayoutConstraint.
 
 typedef enum {
@@ -99,7 +87,6 @@ TI_INLINE bool TiDimensionEqual(TiDimension dimension1, TiDimension dimension2)
 		return false;
 	}
 	if (TiDimensionIsDip(dimension1) || TiDimensionIsPercent(dimension1)) {
-		//Value is only valid in pixels and percent. In undefined and auto, value is ignored.
 		return dimension1.value == dimension2.value;
 	}
 	return true;
@@ -121,53 +108,34 @@ TI_INLINE TiDimension TiDimensionFromObject(id object)
 		{
 			return TiDimensionAutoSize;
 		}
-		// do px vs % parsing
-		NSRange range = [object rangeOfString:kTiUnitPixel];
-		if (range.location!=NSNotFound)
-		{
-			NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
-			return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip([value floatValue]));
-		}
-        range = [object rangeOfString:kTiUnitCm];
-        if (range.location!=NSNotFound)
+		
+        if ([object hasSuffix:kTiUnitPixel]) 
         {
-            NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
-            float pixelVal = convertInchToPixels(([value floatValue]/INCH_IN_CM));
+            return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip([object floatValue]));
+        }
+        else if([object hasSuffix:kTiUnitCm])
+        {
+            float pixelVal = convertInchToPixels(([object floatValue]/INCH_IN_CM));
             return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
-            
         }
-        range = [object rangeOfString:kTiUnitMm];
-        if (range.location!=NSNotFound)
+        else if([object hasSuffix:kTiUnitMm])
         {
-            NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
-            float pixelVal = convertInchToPixels(([value floatValue]/INCH_IN_MM));
+            float pixelVal = convertInchToPixels(([object floatValue]/INCH_IN_MM));
             return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
-            
         }
-        range = [object rangeOfString:kTiUnitInch];
-        if (range.location!=NSNotFound)
+        else if([object hasSuffix:kTiUnitInch])
         {
-            NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
-            float pixelVal = convertInchToPixels([value floatValue]);
+            float pixelVal = convertInchToPixels([object floatValue]);
             return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
-            
         }
-        range = [object rangeOfString:kTiUnitDip];
-        if (range.location==NSNotFound) {
-            range = [object rangeOfString:kTiUnitDipAlternate];
-        }
-        if (range.location!=NSNotFound)
+        else if([object hasSuffix:kTiUnitDip] || [object hasSuffix:kTiUnitDipAlternate])
         {
-            NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
-            return TiDimensionMake(TiDimensionTypeDip, [value floatValue]);
-            
-        }    
-		range = [object rangeOfString:kTiUnitPercent];
-		if (range.location!=NSNotFound)
-		{
-			NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
-			return TiDimensionMake(TiDimensionTypePercent, ([value floatValue] / 100.0));
-		}
+            return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
+        }
+        else if([object hasSuffix:kTiUnitPercent])
+        {
+            return TiDimensionMake(TiDimensionTypePercent, ([object floatValue] / 100.0));
+        }
 	}
 	if ([object respondsToSelector:@selector(floatValue)])
 	{
