@@ -373,31 +373,31 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 
 -(NSString*)SIZE
 {
-    return @"SIZE";
+    return kTiBehaviorSize;
 }
 -(NSString*)FILL
 {
-    return @"FILL";
+    return kTiBehaviorFill;
 }
 -(NSString*)UNIT_PX
 {
-    return @"px";
+    return kTiUnitPixel;
 }
 -(NSString*)UNIT_CM
 {
-    return @"cm";
+    return kTiUnitCm;
 }
 -(NSString*)UNIT_MM
 {
-    return @"mm";
+    return kTiUnitMm;
 }
 -(NSString*)UNIT_IN
 {
-    return @"in";
+    return kTiUnitInch;
 }
 -(NSString*)UNIT_DIP
 {
-    return @"dip";
+    return kTiUnitDip;
 }
 
 -(NSNumber*)convertUnits:(id)args
@@ -416,10 +416,10 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
         TiDimension fromVal = TiDimensionFromObject(convertFromValue);
         
         if (TiDimensionIsDip(fromVal)) {
-            if ([convertToUnits caseInsensitiveCompare:self.UNIT_DIP]==NSOrderedSame) {
+            if ([convertToUnits caseInsensitiveCompare:kTiUnitDip]==NSOrderedSame) {
                 result = fromVal.value;
             }
-            else if ([convertToUnits caseInsensitiveCompare:self.UNIT_PX]==NSOrderedSame) {
+            else if ([convertToUnits caseInsensitiveCompare:kTiUnitPixel]==NSOrderedSame) {
                 if ([TiUtils isRetinaDisplay]) {
                     result = fromVal.value*2;
                 }
@@ -427,13 +427,13 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
                     result = fromVal.value;
                 }
             }
-            else if ([convertToUnits caseInsensitiveCompare:self.UNIT_IN]==NSOrderedSame) {
+            else if ([convertToUnits caseInsensitiveCompare:kTiUnitInch]==NSOrderedSame) {
                 result = convertDipToInch(fromVal.value);
             }
-            else if ([convertToUnits caseInsensitiveCompare:self.UNIT_CM]==NSOrderedSame) {
+            else if ([convertToUnits caseInsensitiveCompare:kTiUnitCm]==NSOrderedSame) {
                 result = convertDipToInch(fromVal.value)*INCH_IN_CM;
             }
-            else if ([convertToUnits caseInsensitiveCompare:self.UNIT_MM]==NSOrderedSame) {
+            else if ([convertToUnits caseInsensitiveCompare:kTiUnitMm]==NSOrderedSame) {
                 result = convertDipToInch(fromVal.value)*INCH_IN_MM;
             }
         }

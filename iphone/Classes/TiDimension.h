@@ -11,6 +11,18 @@
 #define INCH_IN_MM 25.4
 
 
+NSString* kTiBehaviorAuto = @"auto";
+NSString* kTiBehaviorSize = @"SIZE";
+NSString* kTiBehaviorFill = @"FILL";
+NSString* kTiUnitPixel = @"px";
+NSString* kTiUnitCm = @"cm";
+NSString* kTiUnitMm = @"mm";
+NSString* kTiUnitInch = @"in";
+NSString* kTiUnitDip = @"dip";
+NSString* kTiUnitDipAlternate = @"dp";
+NSString* kTiUnitSystem = @"system";
+NSString* kTiUnitPercent = @"%";
+
 //Not a class for speed reasons, like LayoutConstraint.
 
 typedef enum {
@@ -97,26 +109,26 @@ TI_INLINE TiDimension TiDimensionFromObject(id object)
 {
 	if ([object isKindOfClass:[NSString class]])
 	{
-		if ([object caseInsensitiveCompare:@"auto"]==NSOrderedSame)
+		if ([object caseInsensitiveCompare:kTiBehaviorAuto]==NSOrderedSame)
 		{
 			return TiDimensionAuto;
 		}
-		if ([object caseInsensitiveCompare:@"fill"]==NSOrderedSame)
+		if ([object caseInsensitiveCompare:kTiBehaviorFill]==NSOrderedSame)
 		{
 			return TiDimensionAutoFill;
 		}
-		if ([object caseInsensitiveCompare:@"size"]==NSOrderedSame)
+		if ([object caseInsensitiveCompare:kTiBehaviorSize]==NSOrderedSame)
 		{
 			return TiDimensionAutoSize;
 		}
 		// do px vs % parsing
-		NSRange range = [object rangeOfString:@"px"];
+		NSRange range = [object rangeOfString:kTiUnitPixel];
 		if (range.location!=NSNotFound)
 		{
 			NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
 			return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip([value floatValue]));
 		}
-        range = [object rangeOfString:@"cm"];
+        range = [object rangeOfString:kTiUnitCm];
         if (range.location!=NSNotFound)
         {
             NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
@@ -124,7 +136,7 @@ TI_INLINE TiDimension TiDimensionFromObject(id object)
             return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
             
         }
-        range = [object rangeOfString:@"mm"];
+        range = [object rangeOfString:kTiUnitMm];
         if (range.location!=NSNotFound)
         {
             NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
@@ -132,7 +144,7 @@ TI_INLINE TiDimension TiDimensionFromObject(id object)
             return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
             
         }
-        range = [object rangeOfString:@"in"];
+        range = [object rangeOfString:kTiUnitInch];
         if (range.location!=NSNotFound)
         {
             NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
@@ -140,9 +152,9 @@ TI_INLINE TiDimension TiDimensionFromObject(id object)
             return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
             
         }
-        range = [object rangeOfString:@"dp"];
+        range = [object rangeOfString:kTiUnitDip];
         if (range.location==NSNotFound) {
-            range = [object rangeOfString:@"dip"];
+            range = [object rangeOfString:kTiUnitDipAlternate];
         }
         if (range.location!=NSNotFound)
         {
@@ -150,7 +162,7 @@ TI_INLINE TiDimension TiDimensionFromObject(id object)
             return TiDimensionMake(TiDimensionTypeDip, [value floatValue]);
             
         }    
-		range = [object rangeOfString:@"%"];
+		range = [object rangeOfString:kTiUnitPercent];
 		if (range.location!=NSNotFound)
 		{
 			NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
@@ -164,22 +176,22 @@ TI_INLINE TiDimension TiDimensionFromObject(id object)
             return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
         }
         if ([val isKindOfClass:[NSString class]]) {
-            if ( ([val caseInsensitiveCompare:@"dp"]==NSOrderedSame) || ([val caseInsensitiveCompare:@"dip"]==NSOrderedSame)
-                || ([val caseInsensitiveCompare:@"system"]==NSOrderedSame) ){
+            if ( ([val caseInsensitiveCompare:kTiUnitDip]==NSOrderedSame) || ([val caseInsensitiveCompare:kTiUnitDipAlternate]==NSOrderedSame)
+                || ([val caseInsensitiveCompare:kTiUnitSystem]==NSOrderedSame) ){
                 return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
             }
-            else if ([val caseInsensitiveCompare:@"px"]==NSOrderedSame){
+            else if ([val caseInsensitiveCompare:kTiUnitPixel]==NSOrderedSame){
                 return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip([object floatValue]));
             }
-            else if ([val caseInsensitiveCompare:@"in"]==NSOrderedSame){
+            else if ([val caseInsensitiveCompare:kTiUnitInch]==NSOrderedSame){
                 float pixelVal = convertInchToPixels([object floatValue]);
                 return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
             }
-            else if ([val caseInsensitiveCompare:@"cm"]==NSOrderedSame){
+            else if ([val caseInsensitiveCompare:kTiUnitCm]==NSOrderedSame){
                 float pixelVal = convertInchToPixels([object floatValue]/INCH_IN_CM);
                 return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
             }
-            else if ([val caseInsensitiveCompare:@"mm"]==NSOrderedSame){
+            else if ([val caseInsensitiveCompare:kTiUnitMm]==NSOrderedSame){
                 float pixelVal = convertInchToPixels([object floatValue]/INCH_IN_MM);
                 return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
             }
