@@ -120,24 +120,24 @@ TI_INLINE TiDimension TiDimensionFromObject(id object)
         if (range.location!=NSNotFound)
         {
             NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
-            float dimValue = convertInchToPixels(([value floatValue]/INCH_IN_CM));
-            return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(dimValue));
+            float pixelVal = convertInchToPixels(([value floatValue]/INCH_IN_CM));
+            return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
             
         }
         range = [object rangeOfString:@"mm"];
         if (range.location!=NSNotFound)
         {
             NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
-            float dimValue = convertInchToPixels(([value floatValue]/INCH_IN_MM));
-            return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(dimValue));
+            float pixelVal = convertInchToPixels(([value floatValue]/INCH_IN_MM));
+            return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
             
         }
         range = [object rangeOfString:@"in"];
         if (range.location!=NSNotFound)
         {
             NSString *value = [[object substringToIndex:range.location] stringByReplacingOccurrencesOfString:@" " withString:@""];
-            float dimValue = convertInchToPixels([value floatValue]);
-            return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(dimValue));
+            float pixelVal = convertInchToPixels([value floatValue]);
+            return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
             
         }
         range = [object rangeOfString:@"dp"];
@@ -172,16 +172,16 @@ TI_INLINE TiDimension TiDimensionFromObject(id object)
                 return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip([object floatValue]));
             }
             else if ([val caseInsensitiveCompare:@"in"]==NSOrderedSame){
-                float dimValue = convertInchToPixels([object floatValue]);
-                return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(dimValue));
+                float pixelVal = convertInchToPixels([object floatValue]);
+                return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
             }
             else if ([val caseInsensitiveCompare:@"cm"]==NSOrderedSame){
-                float dimValue = convertInchToPixels([object floatValue]/INCH_IN_CM);
-                return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(dimValue));
+                float pixelVal = convertInchToPixels([object floatValue]/INCH_IN_CM);
+                return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
             }
             else if ([val caseInsensitiveCompare:@"mm"]==NSOrderedSame){
-                float dimValue = convertInchToPixels([object floatValue]/INCH_IN_MM);
-                return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(dimValue));
+                float pixelVal = convertInchToPixels([object floatValue]/INCH_IN_MM);
+                return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
             }
             else {
                 NSLog(@"Property ti.ui.defaultunit is not valid value. Defaulting to system");
