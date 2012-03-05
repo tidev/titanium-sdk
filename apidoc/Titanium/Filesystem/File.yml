@@ -100,7 +100,7 @@ methods:
         type: [String,Titanium.Blob,Titanium.Filesystem.File]
     returns:
         type: Boolean
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: copy
     summary: Copies the file identified by this file object to a new path.
     description: Returns `true` if the copy succeeds.
@@ -110,7 +110,7 @@ methods:
         type: String
     returns:
         type: Boolean
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: createDirectory
     summary: Creates a directory at the path identified by this file object.
     description: |
@@ -128,7 +128,7 @@ methods:
         file already exists, or if the file couldn't be created for some other reason.
     returns:
         type: Boolean
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: createTimestamp
     summary: Returns the creation timestamp for the file identified by this file object.
     returns:
@@ -183,12 +183,12 @@ methods:
     summary: Returns `true` if this file object represents a directory. 
     returns:
         type: Boolean
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: isFile
     summary: Returns `true` if this file object represents an ordinary file.
     returns: 
         type: Boolean
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: modificationTimestamp
     summary: Returns the last modification time for this file.
     returns:
@@ -287,7 +287,7 @@ properties:
     description: |
         On iOS and Mobile Web, this property exists but is always `false`.
     type: Boolean
-    platforms: [android,iphone,ipad,mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
     permission: read-only
   - name: hidden
     summary:
@@ -295,7 +295,7 @@ properties:
     description: |
         On iOS and Mobile Web, this property exists but is always `false`.
     type: Boolean
-    platforms: [android,iphone,ipad,mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: name
     summary: Name of the file.
     type: String
@@ -311,18 +311,21 @@ properties:
     summary: A `File` object representing the parent directory of the file identified by this object.
     type: Titanium.Filesystem.File
     permission: read-only
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: readonly
     summary: |
         `true` if the file identified by this object is read-only.
+    description: |
+        On Mobile Web, this property exists but is always `true` for files in the resources directory
+        and `false` for application data and temporary files.
     type: Boolean
     permission: read-only
-    platforms: [android,mobileweb]
+    platforms: [android, mobileweb]
   - name: size
     summary: Size, in bytes, of the file identified by this object.
     type: Number
     permission: read-only
-    platforms: [android,mobileweb]
+    platforms: [android, mobileweb]
   - name: remoteBackup
     summary: Value indicating whether or not to back up to a cloud service.
     description: |
@@ -342,6 +345,8 @@ properties:
   - name: symbolicLink
     summary: |
         `true` if the file identified by this object is a symbolic link.
+    description: |
+        On Mobile Web, this property exists but is always `false`.
     type: Boolean
     permission: read-only
   - name: writable
@@ -354,6 +359,6 @@ properties:
         Use [writable](Titanium.Filesystem.File.writable) instead.
     type: Boolean
     permission: read-only
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad]
     deprecated: 
         since: "1.8.1"

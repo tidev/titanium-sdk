@@ -74,6 +74,14 @@ define(["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/Filesystem/File"],
 
 		isExternalStoragePresent: function() {
 			return false;
+		},
+
+		openStream: function(mode) {
+			var args = lang.toArray(arguments),
+				file;
+			args.shift();
+			file = new File(join.apply(null, args));
+			return file.open(mode);
 		}
 	});
 

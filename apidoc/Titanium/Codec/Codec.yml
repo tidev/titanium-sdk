@@ -3,7 +3,7 @@ name: Titanium.Codec
 summary: A module for converting Numbers and Strings to and from a <Titanium.Buffer>.
 extends: Titanium.Module
 since: "1.7"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 
 properties:
   - name: CHARSET_ASCII
@@ -92,6 +92,8 @@ properties:
 methods:
   - name: getNativeByteOrder
     summary: Get the OS native byte order (either <Titanium.Codec.BIG_ENDIAN> or <Titanium.Codec.LITTLE_ENDIAN>)
+    description: |
+        On Mobile Web, this property always returns <Titanium.Codec.LITTLE_ENDIAN>.
     returns:
         type: Number
         summary: The OS native byte order
@@ -255,6 +257,7 @@ properties:
     summary: The position in dest to set the encoded data
     optional: true
     default: 0
+    platforms: [android, iphone, ipad]
   - name: byteOrder
     type: Number
     summary: The byte order to encode with
@@ -281,11 +284,13 @@ properties:
     summary: The position in `source` to start at
     optional: true
     default: 0
+    platforms: [android, iphone, ipad]
   - name: byteOrder
     type: Number
     summary: The byte order to decode with
     optional: true
     default: Return value of <Titanium.Codec.getNativeByteOrder>
+    platforms: [android, iphone, ipad]
 
 ---
 name: EncodeStringDict

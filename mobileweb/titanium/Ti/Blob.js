@@ -40,7 +40,7 @@ define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
 			nativePath: "",
 			size: 0,
 			text: function() {
-				return this._data || "";
+				return this._isBinary ? null : this._data || "";
 			},
 			width: 0
 		}

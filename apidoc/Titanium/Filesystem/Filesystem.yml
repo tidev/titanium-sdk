@@ -54,9 +54,7 @@ methods:
         Returns `true` on Android if an external storage device, such as an SD card, is
         available for reading and writing.
 
-        Returns `false` on iOS.
-
-        Returns `true` on Mobile Web if the `externalStorage` setting was set in the `tiapp.xml`, otherwise `false`.
+        Returns `false` on iOS and Mobile Web.
     returns:
         type: Boolean
   - name: openStream

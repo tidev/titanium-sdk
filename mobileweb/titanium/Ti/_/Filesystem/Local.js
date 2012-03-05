@@ -506,7 +506,7 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob"],
 						data = data.read();
 					case "Ti.Blob":
 						this._mimeType = data.mimeType;
-						data = data.text;
+						data = data._data || "";
 				}
 				this._exists = true;
 				this._modified = (new Date()).getTime();
