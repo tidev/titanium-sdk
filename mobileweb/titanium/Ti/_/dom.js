@@ -109,7 +109,8 @@ define(["Ti/_", "Ti/_/style"], function(_, style) {
 			var undef,
 				type = require.is(x);
 			if (type === "String") {
-				if (x === Ti.UI.SIZE) {
+				var UI = require("Ti/UI");
+				if (x === UI.SIZE) {
 					convertSizeToUndef && (x = undef);
 				} else {
 					var value = parseFloat(x),
@@ -118,8 +119,8 @@ define(["Ti/_", "Ti/_/style"], function(_, style) {
 
 					switch(units) {
 						case "%":
-							if(totalLength == Ti.UI.SIZE) {
-								convertSizeToUndef ? undef : Ti.UI.SIZE;
+							if(totalLength == UI.SIZE) {
+								convertSizeToUndef ? undef : UI.SIZE;
 							} else if (!require.is(totalLength,"Number")) {
 								console.error("Could not compute percentage size/position of element.");
 								return;
