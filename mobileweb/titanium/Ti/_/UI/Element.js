@@ -29,7 +29,8 @@ define(
 			post: function() {
 				this._parent && this._parent._triggerLayout();
 			}
-		};
+		},
+		elementLayouts = 0;
 
 	return declare("Ti._.UI.Element", Evented, {
 
@@ -228,6 +229,8 @@ define(
 
 		_doLayout: function(params) {
 			
+			console.debug("Element layout " + elementLayouts++);
+			
 			this._layoutParams = params;
 			
 			var dimensions = this._computeDimensions({
@@ -243,7 +246,7 @@ define(
 						width: this.width,
 						height: this.height
 					},
-					layoutChildren: true
+					layoutChildren: params.layoutChildren
 				});
 				
 			// Set and store the dimensions

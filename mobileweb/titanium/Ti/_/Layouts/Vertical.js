@@ -29,7 +29,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 					 		horizontal: this._defaultHorizontalAlignment,
 					 		vertical: this._defaultVerticalAlignment
 					 	},
-						positionElement: false
+						positionElement: false,
+				 		layoutChildren: true
 					});
 					availableHeight -= dimensions.height;
 				}
@@ -58,7 +59,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 				 		horizontal: this._defaultHorizontalAlignment,
 				 		vertical: this._defaultVerticalAlignment
 				 	},
-				 	positionElement: true
+				 	positionElement: true,
+				 	layoutChildren: isHeightFill
 			 	});
 				
 				// Update the size of the component
