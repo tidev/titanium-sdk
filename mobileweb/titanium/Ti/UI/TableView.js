@@ -146,9 +146,11 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				y: y
 			});
 		},
+
+		_defaultWidth: Ti.UI.FILL,
+
+		_defaultHeight: Ti.UI.FILL,
 		
-		_defaultWidth: "100%",
-		_defaultHeight: "100%",
 		_getContentOffset: function(){
 			return {x: this._contentContainer.scrollLeft, y: this._contentContainer.scrollTop};
 		},

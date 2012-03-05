@@ -45,7 +45,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 			return value;
 		},
 		
-		_defaultWidth: "100%",
+		_defaultWidth: Ti.UI.FILL,
 		
 		_defaultHeight: Ti.UI.SIZE,
 		

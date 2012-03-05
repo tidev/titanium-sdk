@@ -6,6 +6,10 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget"],
 		constructor: function() {
 			this._addStyleableDomNode(this.domNode);
 		},
+
+		_defaultWidth: Ti.UI.SIZE,
+
+		_defaultHeight: Ti.UI.SIZE,
 		
 		properties: {
 			title: {

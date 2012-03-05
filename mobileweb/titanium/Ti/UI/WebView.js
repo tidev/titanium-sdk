@@ -159,9 +159,9 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 			this._loading();
 		},
 
-		_defaultWidth: "100%",
+		_defaultWidth: Ti.UI.FILL,
 
-		_defaultHeight: "100%",
+		_defaultHeight: Ti.UI.FILL,
 		
 		_getContentSize: function() {
 			return {

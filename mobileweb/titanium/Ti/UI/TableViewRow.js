@@ -40,9 +40,9 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 			}));
 		},
 
+		_defaultWidth: Ti.UI.FILL,
+
 		_defaultHeight: Ti.UI.SIZE,
-		
-		_defaultWidth: "100%",
 		
 		_tableRowHeight: undef,
 		

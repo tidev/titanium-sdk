@@ -218,9 +218,9 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 			}
 		},
 
-		_defaultWidth: "100%",
+		_defaultWidth: Ti.UI.FILL,
 
-		_defaultHeight: "100%",
+		_defaultHeight: Ti.UI.FILL,
 
 		properties: {
 			layout: {

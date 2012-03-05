@@ -85,6 +85,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style"], functio
 		},
 		
 		_defaultWidth: Ti.UI.SIZE,
+		
 		_defaultHeight: Ti.UI.SIZE,
 		
 		_messagePadding: 0,

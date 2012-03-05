@@ -43,7 +43,7 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 				left: 0,
 				right: 0,
 				top: 0,
-				bottom: 0
+				height: Ti.UI.FILL
 			}));
 
 			this.tabs = [];
@@ -91,7 +91,7 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 		_createTabDivider: function() {
 			return Ti.UI.createView({
 				width: this.tabDividerWidth,
-				height: "100%",
+				height: Ti.UI.FILL,
 				backgroundColor: this.tabDividerColor
 			});
 		},
@@ -147,9 +147,9 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 			}
 		},
 
-		_defaultWidth: "100%",
+		_defaultWidth: Ti.UI.FILL,
 
-		_defaultHeight: "100%",
+		_defaultHeight: Ti.UI.FILL,
 
 		properties: {
 			activeTab: {

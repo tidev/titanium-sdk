@@ -171,6 +171,10 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 			setStyle(this._downArrow, "borderBottomRightRadius", right ? radius : "0px");
 			setStyle(this.domNode,"borderRight", right ? "" : "1px solid #666");
 		},
+
+		_defaultWidth: Ti.UI.SIZE,
+
+		_defaultHeight: Ti.UI.SIZE,
 		
 		_doLayout: function() {
 			this._updateContentWidth();

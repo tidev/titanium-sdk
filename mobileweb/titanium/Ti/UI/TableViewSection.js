@@ -17,8 +17,9 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			this.layout = "vertical";
 		},
 
+		_defaultWidth: Ti.UI.FILL,
+
 		_defaultHeight: Ti.UI.SIZE,
-		_defaultWidth: "100%",
 		
 		_handleTouchEvent: function(type, e) {
 			if (type === "click" || type === "singletap") {

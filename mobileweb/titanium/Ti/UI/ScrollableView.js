@@ -358,8 +358,9 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 			!hidePagingControl && this._showPagingControl();
 		},
 
-		_defaultWidth: "100%",
-		_defaultHeight: "100%",
+		_defaultWidth: Ti.UI.FILL,
+
+		_defaultHeight: Ti.UI.FILL,
 
 		properties: {
 			currentPage: {

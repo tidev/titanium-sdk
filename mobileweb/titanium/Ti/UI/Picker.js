@@ -153,6 +153,10 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 				this._columns[i]._setTallestRowHeight(tallestColumnHeight);
 			}
 		},
+
+		_defaultWidth: Ti.UI.SIZE,
+
+		_defaultHeight: Ti.UI.SIZE,
 		
 		add: function(value) {
 			if (is(value,"Array")) {
