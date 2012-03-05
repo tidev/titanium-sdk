@@ -6,33 +6,41 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 			var computedSize = this._computedSize = {width: 0, height: 0},
 				currentTop = 0,
 				children = element.children,
-				availableHeight = height;
+				availableHeight = height,
+				childrenWithFillHeight = false;
+				
+			// Determine if any children have fill height
+			for (var i = 0; i < children.length; i++) {
+				children[i].height === Ti.UI.FILL && (childrenWithFillHeight = true);
+			}
 				
 			// Measure the children
-			for (var i = 0; i < children.length; i++) {
-				var child = children[i];
-				if (child.height !== Ti.UI.FILL) {
-					var dimensions = child._doLayout({
-						origin: {
-					 		x: 0,
-					 		y: 0
-					 	},
-					 	isParentSize: {
-					 		width: isWidthSize,
-					 		height: isHeightSize
-					 	},
-					 	boundingSize: {
-					 		width: width,
-					 		height: height
-					 	},
-					 	alignment: {
-					 		horizontal: this._defaultHorizontalAlignment,
-					 		vertical: this._defaultVerticalAlignment
-					 	},
-						positionElement: false,
-				 		layoutChildren: true
-					});
-					availableHeight -= dimensions.height;
+			if (childrenWithFillHeight) {
+				for (var i = 0; i < children.length; i++) {
+					var child = children[i];
+					if (child.height !== Ti.UI.FILL) {
+						var dimensions = child._doLayout({
+							origin: {
+						 		x: 0,
+						 		y: 0
+						 	},
+						 	isParentSize: {
+						 		width: isWidthSize,
+						 		height: isHeightSize
+						 	},
+						 	boundingSize: {
+						 		width: width,
+						 		height: height
+						 	},
+						 	alignment: {
+						 		horizontal: this._defaultHorizontalAlignment,
+						 		vertical: this._defaultVerticalAlignment
+						 	},
+							positionElement: false,
+					 		layoutChildren: true
+						});
+						availableHeight -= dimensions.height;
+					}
 				}
 			}
 			
@@ -60,7 +68,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 				 		vertical: this._defaultVerticalAlignment
 				 	},
 				 	positionElement: true,
-				 	layoutChildren: isHeightFill
+				 	layoutChildren: !childrenWithFillHeight || isHeightFill
 			 	});
 				
 				// Update the size of the component

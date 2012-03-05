@@ -6,32 +6,40 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 			var computedSize = this._computedSize = {width: 0, height: 0},
 				currentLeft = 0,
 				children = element.children,
-				availableWidth = width;
+				availableWidth = width,
+				childrenWithFillWidth = false;
 				
+			// Determine if any children have fill height
 			for (var i = 0; i < children.length; i++) {
-				var child = children[i];
-				if (child.width !== Ti.UI.FILL) {
-					var dimensions = child._doLayout({
-					 	origin: {
-					 		x: 0,
-					 		y: 0
-					 	},
-					 	isParentSize: {
-					 		width: isWidthSize,
-					 		height: isHeightSize
-					 	},
-					 	boundingSize: {
-					 		width: width,
-					 		height: height
-					 	},
-					 	alignment: {
-					 		horizontal: this._defaultHorizontalAlignment,
-					 		vertical: this._defaultVerticalAlignment
-					 	},
-						positionElement: false,
-				 		layoutChildren: true
-					});
-					availableWidth -= dimensions.width;
+				children[i].width === Ti.UI.FILL && (childrenWithFillWidth = true);
+			}
+			
+			if (childrenWithFillWidth) {
+				for (var i = 0; i < children.length; i++) {
+					var child = children[i];
+					if (child.width !== Ti.UI.FILL) {
+						var dimensions = child._doLayout({
+						 	origin: {
+						 		x: 0,
+						 		y: 0
+						 	},
+						 	isParentSize: {
+						 		width: isWidthSize,
+						 		height: isHeightSize
+						 	},
+						 	boundingSize: {
+						 		width: width,
+						 		height: height
+						 	},
+						 	alignment: {
+						 		horizontal: this._defaultHorizontalAlignment,
+						 		vertical: this._defaultVerticalAlignment
+						 	},
+							positionElement: false,
+					 		layoutChildren: true
+						});
+						availableWidth -= dimensions.width;
+					}
 				}
 			}
 			
@@ -58,7 +66,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 				 		vertical: this._defaultVerticalAlignment
 				 	},
 				 	positionElement: true,
-				 	layoutChildren: isWidthFill
+				 	layoutChildren: !childrenWithFillWidth || isWidthFill
 			 	});
 				
 				// Update the size of the component

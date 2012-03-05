@@ -29,8 +29,7 @@ define(
 			post: function() {
 				this._parent && this._parent._triggerLayout();
 			}
-		},
-		elementLayouts = 0;
+		};
 
 	return declare("Ti._.UI.Element", Evented, {
 
@@ -229,8 +228,6 @@ define(
 
 		_doLayout: function(params) {
 			
-			console.debug("Element layout " + elementLayouts++);
-			
 			this._layoutParams = params;
 			
 			var dimensions = this._computeDimensions({
@@ -249,42 +246,43 @@ define(
 					layoutChildren: params.layoutChildren
 				});
 				
-			// Set and store the dimensions
-			var styles = {
-					zIndex: this.zIndex | 0
-				},
-				rect  = this.rect,
-				size  = this.size;
-			rect.x = this._measuredLeft = dimensions.left;
-			isDef(this._measuredLeft) && (styles.left = unitize(this._measuredLeft));
-			rect.y = this._measuredTop = dimensions.top;
-			isDef(this._measuredTop) && (styles.top = unitize(this._measuredTop));
-			size.width = rect.width = this._measuredWidth = dimensions.width;
-			isDef(this._measuredWidth) && (styles.width = unitize(this._measuredWidth));
-			size.height = rect.height = this._measuredHeight = dimensions.height;
-			isDef(this._measuredHeight) && (styles.height = unitize(this._measuredHeight));
-			this._measuredRightPadding = dimensions.rightPadding;
-			this._measuredBottomPadding = dimensions.bottomPadding;
-			this._measuredBorderSize = dimensions.borderSize;
-			setStyle(this.domNode, styles);
-			
-			try{
-				var computedStyle = window.getComputedStyle(this.domNode);
-				if (styles.left && computedStyle["left"] != styles.left) {
-					throw "Invalid layout";
-				}
-				if (styles.top && computedStyle["top"] != styles.top) {
-					throw "Invalid layout";
-				}
-				if (styles.width && computedStyle["width"] != styles.width) {
-					throw "Invalid layout";
-				}
-				if (styles.height && computedStyle["height"] != styles.height) {
-					throw "Invalid layout";
-				}
-			} catch(e) {}
-				
 			if (params.positionElement) {
+				
+				// Set and store the dimensions
+				var styles = {
+						zIndex: this.zIndex | 0
+					},
+					rect  = this.rect,
+					size  = this.size;
+				rect.x = this._measuredLeft = dimensions.left;
+				isDef(this._measuredLeft) && (styles.left = unitize(this._measuredLeft));
+				rect.y = this._measuredTop = dimensions.top;
+				isDef(this._measuredTop) && (styles.top = unitize(this._measuredTop));
+				size.width = rect.width = this._measuredWidth = dimensions.width;
+				isDef(this._measuredWidth) && (styles.width = unitize(this._measuredWidth));
+				size.height = rect.height = this._measuredHeight = dimensions.height;
+				isDef(this._measuredHeight) && (styles.height = unitize(this._measuredHeight));
+				this._measuredRightPadding = dimensions.rightPadding;
+				this._measuredBottomPadding = dimensions.bottomPadding;
+				this._measuredBorderSize = dimensions.borderSize;
+				setStyle(this.domNode, styles);
+			
+				try{
+					var computedStyle = window.getComputedStyle(this.domNode);
+					if (styles.left && computedStyle["left"] != styles.left) {
+						throw "Invalid layout";
+					}
+					if (styles.top && computedStyle["top"] != styles.top) {
+						throw "Invalid layout";
+					}
+					if (styles.width && computedStyle["width"] != styles.width) {
+						throw "Invalid layout";
+					}
+					if (styles.height && computedStyle["height"] != styles.height) {
+						throw "Invalid layout";
+					}
+				} catch(e) {}
+				
 				this._markedForLayout = false;
 				
 				// Run the post-layout animation, if needed
@@ -303,7 +301,6 @@ define(
 		},
 
 		_computeDimensions: function(params) {
-			
 			
 			var layoutParams = params.layoutParams,
 				boundingWidth = layoutParams.boundingSize.width,
