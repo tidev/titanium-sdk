@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/Filesystem/FileStream"],
-	function(declare, encoding, lang, API, Blob, FileStream) {
+define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob"],
+	function(declare, encoding, lang, API, Blob) {
 
 	var reg,
 		regDate = (new Date()).getTime(),
@@ -404,10 +404,11 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 		},
 
 		open: function(mode) {
-			return new FileStream({
+			var FileStream = require("Ti/Filesystem/FileStream");
+			return this.exists() && this.isFile() ? new FileStream({
 				mode: mode,
-				data: this.read()
-			});
+				data: this.read().text
+			}) : null;
 		},
 
 		read: function() {

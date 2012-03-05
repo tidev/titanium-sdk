@@ -13,8 +13,8 @@
  */
 
 define(
-	["Ti/_", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/Platform", "Ti/_/include"],
-	function(_, analytics, App, Evented, lang, ready, style, Platform) {
+	["Ti/_", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/Buffer", "Ti/Platform", "Ti/_/include"],
+	function(_, analytics, App, Evented, lang, ready, style, Buffer, Platform) {
 
 	var global = window,
 		cfg = require.config,
@@ -32,6 +32,10 @@ define(
 
 			properties: {
 				userAgent: "Appcelerator Titanium/" + ver + " (" + navigator.userAgent + ")!"
+			},
+
+			createBuffer: function(args) {
+				return new Buffer(args);
 			},
 
 			include: function(files) {

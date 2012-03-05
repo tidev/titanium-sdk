@@ -10,10 +10,10 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Blob", "Ti/Codec"], function(declare
 		},
 
 		append: function(buffer, offset, len) {
-			var b = buffer.buffer;
+			var v = buffer.value;
 			offset = offset | 0,
-			length = length || b.length;
-			this._set(this.value + b.substring(offset, offset + length));
+			length = length || v.length;
+			this._set(this.value + v.substring(offset, offset + length));
 			return length - offset;
 		},
 
@@ -26,11 +26,11 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Blob", "Ti/Codec"], function(declare
 		},
 
 		copy: function(srcBuffer, offset, srcOffset, srcLength) {
-			var b = srcBuffer.buffer,
+			var v = srcBuffer.value,
 				offset = offset | 0,
 				srcOffset = srcOffset | 0,
 				len = Math.max(this.length, srcLength && srcOffset + srcLength) - offset,
-				srcBuffer = b.substring(srcOffset, len);
+				srcBuffer = v.substring(srcOffset, len);
 			this._set(this.value.substring(0, offset) + srcBuffer + this.value.substring(offset, srcBuffer.length - offset));
 		},
 
@@ -44,11 +44,11 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Blob", "Ti/Codec"], function(declare
 		},
 
 		insert: function(buffer, offset, srcOffset, srcLength) {
-			var b = buffer.buffer;
+			var b = buffer.value;
 			srcOffset = srcOffset | 0;
 			offset = offset | 0;
-			this._set(this.value.substring(0, offset) + b.substring(srcOffset, srcLength && srcOffset + srcLength) + this.value.substring(offset));
-			return srcLength || b.length;
+			this._set(this.value.substring(0, offset) + v.substring(srcOffset, srcLength && srcOffset + srcLength) + this.value.substring(offset));
+			return srcLength || v.length;
 		},
 
 		release: function() {
