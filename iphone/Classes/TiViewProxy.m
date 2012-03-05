@@ -141,10 +141,18 @@
 }
 -(void)updateLayout:(id)arg
 {
+    id val = nil;
+    if ([arg isKindOfClass:[NSArray class]]) {
+        val = [arg objectAtIndex:0];
+    }
+    else
+    {
+        val = arg;
+    }
     updateStarted = NO;
     allowLayoutUpdate = YES;
-    if ([arg isKindOfClass:[NSDictionary class]]) {
-        [self processTempProperties:arg];
+    if ([val isKindOfClass:[NSDictionary class]]) {
+        [self processTempProperties:val];
     }
     else {
         NSLog(@"Invalid argument passed to updateLayout");
