@@ -4,7 +4,8 @@ define(
 	"Ti/_/Gestures/Swipe","Ti/_/Gestures/TouchCancel","Ti/_/Gestures/TouchEnd","Ti/_/Gestures/TouchMove",
 	"Ti/_/Gestures/TouchStart","Ti/_/Gestures/TwoFingerTap"],
 	function(browser, css, declare, dom, event, lang, style, Evented, UI,
-		DoubleTap, LongPress, Pinch, SingleTap, Swipe, TouchCancel, TouchEnd, TouchMove, TouchStart, TwoFingerTap) {
+		DoubleTap, LongPress, Pinch, SingleTap, Swipe, TouchCancel, TouchEnd,
+		TouchMove, TouchStart, TwoFingerTap) {
 
 	var undef,
 		unitize = dom.unitize,
@@ -750,12 +751,10 @@ define(
 
 		show: function() {
 			this.visible = true;
-			//this.fireEvent("ti:shown");
 		},
 
 		hide: function() {
 			this.visible = false;
-			//obj.fireEvent("ti:hidden");
 		},
 
 		animate: function(anim, callback) {

@@ -579,7 +579,7 @@
 		}
 
 		// first need to make sure we have all the deps loaded
-		fetch(_t.deps, function(deps) {
+		fetch(_t, function(deps) {
 			var i,
 				p,
 				r = _t.rawDef,
@@ -598,8 +598,8 @@
 						: is(r, "Function")
 							? r.apply(null, deps)
 							: is(r, "Object")
-								? (function(obj, vars) {
-										for (var i in vars){
+								?	(function(obj, vars) {
+										for (var i in vars) {
 											this[i] = vars[i];
 										}
 										return obj;
@@ -607,7 +607,7 @@
 								: null
 						)
 					)
-				||	_t.cjs.exports;
+				|| _t.cjs.exports;
 
 			// we might have just executed code above that could have caused a couple
 			// define()'s to queue up
@@ -644,8 +644,8 @@
 		var module = new ResourceDef(name, refModule, deps, rawDef),
 			moduleName = module.name;
 
-		if (name in module.cjs) {
-			module.def = module.cjs[name];
+		if (refModule && name in refModule.cjs) {
+			module.def = refModule.cjs[name];
 			module.loaded = module.executed = 1;
 			return module;
 		}
@@ -696,9 +696,8 @@
 		//		The fetch() function will fetch each of the dependents either
 		//		synchronously or asynchronously (default).
 		//
-		// deps: String | Array
-		//		A string or array of module ids to load. If deps is a string, load()
-		//		returns the module's definition.
+		// deps: String | Array | Object
+		//		A string or array of module ids to load or a resource definition.
 		//
 		// callback: Function?
 		//		A callback function fired once the loader successfully loads and evaluates
@@ -715,7 +714,16 @@
 		//		If deps is a string, then it returns the corresponding module definition,
 		//		otherwise the require() function.
 
-		var i, l, count, s = is(deps, "String");
+		var i,
+			l,
+			count,
+			type = is(deps),
+			s = type === "String";
+
+		if (type === "Object") {
+			refModule = deps;
+			deps = refModule.deps;
+		}
 
 		if (s) {
 			deps = [deps];
@@ -872,7 +880,7 @@
 
 		if (!rawDef) {
 			rawDef = deps || name;
-			rawDef.length === 1 || i.concat(["exports", "module"]);
+			rawDef.length === 1 || (i = i.concat(["exports", "module"]));
 			if (typeof name !== "string") {
 				deps = deps ? name : i;
 				name = 0;
