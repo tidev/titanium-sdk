@@ -10,10 +10,16 @@
 #import "TiBlob.h"
 
 // TODO: Support array-style access of bytes
+/**
+ The class represents a buffer of bytes.
+ */
 @interface TiBuffer : TiProxy {
     NSMutableData* data;
     NSNumber* byteOrder;
 }
+/**
+ Provides access to raw data.
+ */
 @property(nonatomic, retain) NSMutableData* data;
 
 // Public API
@@ -29,8 +35,19 @@
 -(TiBlob*)toBlob:(id)_void;
 -(NSString*)toString:(id)_void;
 
-@property(nonatomic,assign) NSNumber* length;
-@property(nonatomic,retain) NSNumber* byteOrder;
+/**
+ Returns the buffer length.
+ */
+@property(nonatomic,readonly) NSNumber* length;
+
+/**
+ Returns data byte order.
+ */
+@property(nonatomic,readonly) NSNumber* byteOrder;
+
+-(void)setLength:(NSNumber*)length;
+-(void)setByteOrder:(NSNumber *)order;
+
 // SPECIAL NOTES:
 // Ti.Buffer objects have an 'overloaded' Ti.Buffer[x] operation for x==int (making them behave like arrays).
 // See the code for how this works.

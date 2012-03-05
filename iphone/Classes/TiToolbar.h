@@ -8,12 +8,16 @@
 
 // marker interface for toolbars
 
-@interface TiToolbar : TiViewProxy {
+/**
+ Protocol for toolbar classes.
+ */
+@protocol TiToolbar <NSObject>
+@required
 
-@private
-
-}
-
+/**
+ Returns the underlying toolbar.
+ @return The toolbar.
+ */
 -(UIToolbar*)toolbar;
 
 @end

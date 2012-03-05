@@ -73,7 +73,7 @@
 }
 
 /**
- * Override FBDialog : to call with the login dialog get canceled 
+ * Override FBDialog : to call with the login dialog get cancelled 
  */
 - (void)dialogDidCancel:(NSURL *)url {
   [self dismissWithSuccess:NO animated:YES];
