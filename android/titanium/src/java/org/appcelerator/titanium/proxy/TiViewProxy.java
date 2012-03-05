@@ -575,6 +575,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			if (view != null) {
 				view.remove(child.peekView());
 			}
+			if (child != null) {
+				child.releaseViews();
+			}
 		}
 	}
 
