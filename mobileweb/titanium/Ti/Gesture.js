@@ -1,4 +1,4 @@
-define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI"], function(Evented, lang, UI) {
+define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI", "Ti/_/ready"], function(Evented, lang, UI, ready) {
 
 	var undef,
 		win = window,
@@ -8,34 +8,33 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI"], function(Evented, lang, UI) {
 		lastAccel = {},
 		api = lang.setObject("Ti.Gesture", Evented, {
 			properties: {
+				portrait: false,
+				landscape: false,
 				orientation: UI.UNKNOWN
 			}
 		});
 
 	function getWindowOrientation() {
-		api.orientation = UI.PORTRAIT;
-		switch (win.orientation) {
-			case 90:
-				api.orientation = UI.LANDSCAPE_LEFT;
-				break;
-			case -90:
-				api.orientation = UI.LANDSCAPE_RIGHT;
-				break;
-			case 180:
-				api.orientation = UI.UPSIDE_PORTRAIT;
-				break;
+		var landscape = !!(window.innerWidth && (window.innerWidth > window.innerHeight));
+		if (landscape) {
+			api.orientation = UI.LANDSCAPE_LEFT;
+		} else {
+			api.orientation = UI.PORTRAIT;
 		}
+		api.landscape = landscape;
+		api.portrait = !landscape;
 		return api.orientation;
 	}
-	getWindowOrientation();
-
-	on(win, "orientationchange", function(evt) {
+	ready(function() {
+		getWindowOrientation();
+	});
+	
+	api._updateOrientation = function() {
 		getWindowOrientation();
 		lastOrient !== api.orientation && api.fireEvent('orientationchange', {
-			orientation: lastOrient = api.orientation,
-			source: evt.source
+			orientation: lastOrient = api.orientation
 		});
-	});
+	}
 
 	function deviceOrientation(evt) {
 		var orient = null,

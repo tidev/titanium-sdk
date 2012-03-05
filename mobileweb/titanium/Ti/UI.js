@@ -50,6 +50,7 @@ define(
 
 	require.on(window, "resize", function() {
 		Ti.UI._recalculateLayout();
+		Ti.Gesture._updateOrientation();
 	});
 
 	return lang.setObject("Ti.UI", Evented, creators, {
