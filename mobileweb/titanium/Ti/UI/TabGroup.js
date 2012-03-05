@@ -1,4 +1,5 @@
-define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"], function(declare, css, SuperView, View, UI, lang) {
+define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"], 
+	function(declare, css, SuperView, View, UI, lang) {
 
 	var is = require.is,
 		postUpdateTabsBackground = {
@@ -14,16 +15,19 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 			// Create the tabBarContainer class
 			var self = this;
 			var TabBarContainer = declare("Ti._.UI.TabGroup.TabBarContainer", View, {
-				_doLayout: function(originX, originY, parentWidth, parentHeight, centerHDefault, centerVDefault) {
+				_doLayout: function(params) {
+					
 					var tabs = self.tabs,
 						numTabs = tabs.length,
-						tabWidth = Math.floor((parentWidth - (numTabs - 1) * self.tabDividerWidth) / numTabs);
+						totalDividerWidth = (numTabs - 1) * self.tabDividerWidth,
+						tabWidth = Math.floor((params.boundingSize.width - totalDividerWidth) / numTabs);
 					for (var i = 0; i < numTabs - 1; i++) {
-						tabs[i]._tabWidth = tabWidth;
+						tabs[i]._defaultWidth = tabWidth;
 					}
 					 // Make the last tab consume the remaining space. Fractional widths look really bad in tabs.
-					tabs[i]._tabWidth = parentWidth - (numTabs - 1) * self.tabDividerWidth - tabWidth * (numTabs - 1);
-					View.prototype._doLayout.apply(this,arguments);
+					tabs[i]._defaultWidth = params.boundingSize.width - totalDividerWidth - tabWidth * (numTabs - 1);
+					
+					return View.prototype._doLayout.call(this,params);
 				}
 			});
 			
@@ -40,7 +44,7 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 				left: 0,
 				right: 0,
 				top: 0,
-				bottom: 0
+				height: UI.FILL
 			}));
 
 			this.tabs = [];
@@ -86,9 +90,9 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 		},
 		
 		_createTabDivider: function() {
-			return Ti.UI.createView({
+			return UI.createView({
 				width: this.tabDividerWidth,
-				height: "100%",
+				height: UI.FILL,
 				backgroundColor: this.tabDividerColor
 			});
 		},
@@ -144,9 +148,9 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 			}
 		},
 
-		_defaultWidth: "100%",
+		_defaultWidth: UI.FILL,
 
-		_defaultHeight: "100%",
+		_defaultHeight: UI.FILL,
 
 		properties: {
 			activeTab: {

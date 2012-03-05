@@ -4,8 +4,9 @@ define(["Ti/_/declare", "Ti/Gesture", "Ti/_/UI/SuperView", "Ti/UI"], function(de
 
 	return declare("Ti.UI.Window", SuperView, {
 	
-		_defaultWidth: "100%",
-		_defaultHeight: "100%",
+		_defaultWidth: UI.FILL,
+
+		_defaultHeight: UI.FILL,
 
 		postscript: function() {
 			if (this.url) {
