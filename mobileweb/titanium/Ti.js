@@ -5,11 +5,16 @@
  * Copyright 2009, 2010 Kristopher Michael Kowal
  * MIT License
  * <https://github.com/kriskowal/es5-shim>
+ *
+ * Dojo Toolkit
+ * Copyright (c) 2005-2011, The Dojo Foundation
+ * New BSD License
+ * <http://dojotoolkit.org>
  */
 
 define(
-	["Ti/_", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/Platform", "Ti/_/include"],
-	function(_, analytics, App, Evented, lang, ready, style, Platform) {
+	["Ti/_", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/Buffer", "Ti/Platform", "Ti/_/include"],
+	function(_, analytics, App, Evented, lang, ready, style, Buffer, Platform) {
 
 	var global = window,
 		cfg = require.config,
@@ -27,6 +32,10 @@ define(
 
 			properties: {
 				userAgent: "Appcelerator Titanium/" + ver + " (" + navigator.userAgent + ")!"
+			},
+
+			createBuffer: function(args) {
+				return new Buffer(args);
 			},
 
 			include: function(files) {
@@ -88,6 +97,63 @@ define(
 					obj[prop] = null;
 				}
 			}
+		};
+	}
+
+	if (!has("js-btoa")) {
+		var tab = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+			fromCharCode = String.fromCharCode;
+
+		global.btoa = function(bytes) {
+			var ascii = [],
+				chr1, chr2, chr3,
+				enc1, enc2, enc3, enc4,
+				i = 0,
+				len = byte.length;
+
+			while (i < len) {
+				chr1 = bytes.charCodeAt(i++);
+				chr2 = bytes.charCodeAt(i++);
+				chr3 = bytes.charCodeAt(i++);
+
+				enc1 = chr1 >> 2;
+				enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+				enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+				enc4 = chr3 & 63;
+
+				if (isNaN(chr2)) {
+					enc3 = enc4 = 64;
+				} else if (isNaN(chr3)) {
+					enc4 = 64;
+				}
+
+				ascii.push(tab.charAt(enc1) + tab.charAt(enc2) + tab.charAt(enc3) + tab.charAt(enc4));
+			}
+
+			return ascii.join('');
+		};
+
+		global.atob = function(ascii) {
+			var bytes = [],
+				enc1, enc2, enc3, enc4,
+				i = 0,
+				len = ascii.length;
+
+			ascii = ascii.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+			while (i < len) {
+				enc1 = tab.indexOf(ascii.charAt(i++));
+				enc2 = tab.indexOf(ascii.charAt(i++));
+				enc3 = tab.indexOf(ascii.charAt(i++));
+				enc4 = tab.indexOf(ascii.charAt(i++));
+
+				bytes.push(fromCharCode((enc1 << 2) | (enc2 >> 4)));
+
+				enc3 !== 64 && bytes.push(fromCharCode(((enc2 & 15) << 4) | (enc3 >> 2)));
+				enc4 !== 64 && bytes.push(fromCharCode(((enc3 & 3) << 6) | enc4));
+			}
+
+			return bytes.join('');
 		};
 	}
 
@@ -267,7 +333,11 @@ define(
 
 		// load app.js when ti and dom is ready
 		ready(function() {
-			require([cfg.main || "app.js"]);
+			require(cfg.ti.preload.map(function(i) {
+				return "Ti/_/image!" + i;
+			}), function() {
+				require(cfg.main || ["app.js"]);
+			});
 		});
 	});
 
@@ -282,7 +352,7 @@ define(
 				}
 			} else {
 				var skipSet,
-					capitalizedName = require("Ti/_/string").capitalize(property);
+					capitalizedName = property.substring(0, 1).toUpperCase() + property.substring(1);
 
 				// if we only have 3 args, so need to check if it's a default value or a descriptor
 				if (arguments.length === 3 && require.is(value, "Object") && (value.get || value.set)) {
