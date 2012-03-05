@@ -16,41 +16,10 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI", "Ti/_/ready"], function(Evented, l
 
 	function getWindowOrientation() {
 		var landscape = !!(window.innerWidth && (window.innerWidth > window.innerHeight));
-		switch (win.orientation) {
-			case 0:
-				if (landscape) {
-					api.orientation = UI.LANDSCAPE_LEFT;
-				} else {
-					api.orientation = UI.PORTRAIT;
-				}
-				break;
-			case 90:
-				if (landscape) {
-					api.orientation = UI.LANDSCAPE_LEFT;
-				} else {
-					api.orientation = UI.PORTRAIT;
-				}
-				break;
-			case -90:
-				if (landscape) {
-					api.orientation = UI.LANDSCAPE_RIGHT;
-				} else {
-					api.orientation = UI.UPSIDE_PORTRAIT;
-				}
-				break;
-			case 180:
-				if (landscape) {
-					api.orientation = UI.LANDSCAPE_RIGHT;
-				} else {
-					api.orientation = UI.UPSIDE_PORTRAIT;
-				}
-				break;
-			default:
-				if (landscape) {
-					api.orientation = UI.LANDSCAPE_LEFT;
-				} else {
-					api.orientation = UI.PORTRAIT;
-				}
+		if (landscape) {
+			api.orientation = UI.LANDSCAPE_LEFT;
+		} else {
+			api.orientation = UI.PORTRAIT;
 		}
 		api.landscape = landscape;
 		api.portrait = !landscape;
@@ -59,18 +28,25 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI", "Ti/_/ready"], function(Evented, l
 	ready(function() {
 		getWindowOrientation();
 	});
+	
+	api._updateOrientation = function() {
+		getWindowOrientation();
+		lastOrient !== api.orientation && api.fireEvent('orientationchange', {
+			orientation: lastOrient = api.orientation
+		});
+	}
 
 	on(win, "orientationchange", function(evt) {
 		
 		// Android tablets throw the event before they do the rotation animation. 
 		// We have to wait until it's finished so we can query the screen size properly.
-		setTimeout(function () {
+		/*setTimeout(function () {
 			getWindowOrientation();
 			lastOrient !== api.orientation && api.fireEvent('orientationchange', {
 				orientation: lastOrient = api.orientation,
 				source: evt.source
 			});
-		}, 1000);
+		}, 1000);*/
 	});
 
 	function deviceOrientation(evt) {
