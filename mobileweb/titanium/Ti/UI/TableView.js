@@ -21,9 +21,9 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			set(contentContainer.domNode,"overflow","hidden");
 			
 			// Use horizontal layouts so that the default location is always (0,0)
-			contentContainer.add(this._header = UI.createView({height: Ti.UI.SIZE, layout: "vertical"}));
-			contentContainer.add(this._sections = UI.createView({height: Ti.UI.SIZE, layout: "vertical"}));
-			contentContainer.add(this._footer = UI.createView({height: Ti.UI.SIZE, layout: "vertical"}));
+			contentContainer.add(this._header = UI.createView({height: UI.SIZE, layout: "vertical"}));
+			contentContainer.add(this._sections = UI.createView({height: UI.SIZE, layout: "vertical"}));
+			contentContainer.add(this._footer = UI.createView({height: UI.SIZE, layout: "vertical"}));
 			
 			this.data = [];
 			
@@ -99,8 +99,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		_doLayout: function() {
 			
 			var values = this._contentContainer.properties.__values__;
-			values.width = this.width === Ti.UI.SIZE ? Ti.UI.SIZE : "100%";
-			values.height = this.height === Ti.UI.SIZE ? Ti.UI.SIZE : "100%"; 
+			values.width = this.width === UI.SIZE ? UI.SIZE : "100%";
+			values.height = this.height === UI.SIZE ? UI.SIZE : "100%"; 
 			
 			return View.prototype._doLayout.apply(this,arguments);
 		},
@@ -147,9 +147,9 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			});
 		},
 
-		_defaultWidth: Ti.UI.FILL,
+		_defaultWidth: UI.FILL,
 
-		_defaultHeight: Ti.UI.FILL,
+		_defaultHeight: UI.FILL,
 		
 		_getContentOffset: function(){
 			return {x: this._contentContainer.scrollLeft, y: this._contentContainer.scrollTop};
@@ -194,7 +194,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				backgroundColor: "darkGrey",
 				color: "white",
 				width: "100%",
-				height: Ti.UI.SIZE,
+				height: UI.SIZE,
 				left: 0,
 				font: {fontSize: 22}
 			});

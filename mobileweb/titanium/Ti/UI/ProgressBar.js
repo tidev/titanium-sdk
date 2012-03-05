@@ -1,4 +1,5 @@
-define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style"], function(declare, Widget, FontWidget, lang, dom, style) {
+define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style", "Ti/UI"], 
+	function(declare, Widget, FontWidget, lang, dom, style, UI) {
 
 	var setStyle = style.set;
 
@@ -26,8 +27,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 			
 			_doLayout: function(params) {
 				var values = this.properties.__values__;
-				values.width = params.isParentSize.width ? Ti.UI.SIZE : "100%";
-				values.height = params.isParentSize.height ? Ti.UI.SIZE : "100%";
+				values.width = params.isParentSize.width ? UI.SIZE : "100%";
+				values.height = params.isParentSize.height ? UI.SIZE : "100%";
 				
 				return Widget.prototype._doLayout.call(this,params);
 			},
@@ -47,28 +48,28 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 	return declare("Ti.UI.ProgressBar", Widget, {
 		
 		constructor: function() {
-			this.add(this._contentContainer = Ti.UI.createView({
-				width: Ti.UI.SIZE,
-				height: Ti.UI.SIZE,
+			this.add(this._contentContainer = UI.createView({
+				width: UI.SIZE,
+				height: UI.SIZE,
 				left: 0,
 				top: 0,
 				layout: "vertical"
 			}));
 			this._contentContainer._layout._defaultHorizontalLayout = "left";
-			this._contentContainer.add(this._message = Ti.UI.createLabel());
+			this._contentContainer.add(this._message = UI.createLabel());
 			this._contentContainer.add(this._progressBar = new InternalProgressBar());
 		},
 			
 		_doLayout: function() {
 			var props = this._contentContainer.properties.__values__;
-			props.width = this.width === Ti.UI.SIZE || !lang.isDef(this.width) ? Ti.UI.SIZE : "100%";
-			props.height = this.height === Ti.UI.SIZE || !lang.isDef(this.height) ? Ti.UI.SIZE : "100%";
+			props.width = this.width === UI.SIZE || !lang.isDef(this.width) ? UI.SIZE : "100%";
+			props.height = this.height === UI.SIZE || !lang.isDef(this.height) ? UI.SIZE : "100%";
 			
 			if (this._message._getContentSize().width === 0) {
 				this._message.properties.__values__.height = 0;
 				this._progressBar.properties.__values__.top = 0;
 			} else {
-				this._message.properties.__values__.height = Ti.UI.SIZE;
+				this._message.properties.__values__.height = UI.SIZE;
 				this._progressBar.properties.__values__.top = 2;
 			}
 			
@@ -79,9 +80,9 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 			this._progressBar._setPosition((this.value - this.min) / (this.max - this.min));
 		},
 
-		_defaultWidth: Ti.UI.SIZE,
+		_defaultWidth: UI.SIZE,
 
-		_defaultHeight: Ti.UI.SIZE,
+		_defaultHeight: UI.SIZE,
 		
 		properties: {
 			color: {

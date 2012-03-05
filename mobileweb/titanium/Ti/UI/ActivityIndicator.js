@@ -1,4 +1,4 @@
-define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style"], function(declare, FontWidget, dom, style) {
+define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style", "Ti/UI"], function(declare, FontWidget, dom, style, UI) {
 
 	var setStyle = style.set;
 
@@ -84,9 +84,9 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style"], functio
 			setStyle(this._contentContainer,"display","none");
 		},
 		
-		_defaultWidth: Ti.UI.SIZE,
+		_defaultWidth: UI.SIZE,
 		
-		_defaultHeight: Ti.UI.SIZE,
+		_defaultHeight: UI.SIZE,
 		
 		_messagePadding: 0,
 		

@@ -39,7 +39,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 			}));
 
 			this._pagingControlContainer.add(this._pagingControlContentContainer = UI.createView({
-				width: Ti.UI.SIZE,
+				width: UI.SIZE,
 				height: "100%",
 				top: 0,
 				touchEnabled: false
@@ -358,9 +358,9 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 			!hidePagingControl && this._showPagingControl();
 		},
 
-		_defaultWidth: Ti.UI.FILL,
+		_defaultWidth: UI.FILL,
 
-		_defaultHeight: Ti.UI.FILL,
+		_defaultHeight: UI.FILL,
 
 		properties: {
 			currentPage: {

@@ -9,8 +9,8 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti
 				position: "absolute",
 				top: "-1000em",
 				left: 0,
-				height: Ti.UI.SIZE,
-				width: Ti.UI.SIZE
+				height: "auto",
+				width: "auto"
 			}
 		}, document.body);
 	});
@@ -59,7 +59,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti
 			}, textRuler);
 			style.set(textRuler,{
 				whiteSpace: domNode.style.whiteSpace,
-				width: dom.unitize(lang.val(width,Ti.UI.SIZE))
+				width: dom.unitize(lang.val(width,"auto"))
 			});
 
 			// Return the computed style

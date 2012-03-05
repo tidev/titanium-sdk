@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom"],
-	function(declare, lang, View, dom) {
+define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/UI"],
+	function(declare, lang, View, dom, UI) {
 
 	return declare("Ti.UI.Tab", View, {
 
@@ -58,9 +58,9 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom"],
 			});
 		},
 
-		_defaultWidth: Ti.UI.FILL,
+		_defaultWidth: UI.FILL,
 		
-		_defaultHeight: Ti.UI.FILL,
+		_defaultHeight: UI.FILL,
 		
 		_tabGroup: null,
 

@@ -186,8 +186,8 @@ define(
 		},
 		
 		_hasSizeDimensions: function() {
-			return (this.width === Ti.UI.SIZE || (!isDef(this.width) && this._defaultWidth === Ti.UI.SIZE)) || 
-				(this.height === Ti.UI.SIZE || (!isDef(this.height) && this._defaultHeight === Ti.UI.SIZE));
+			return (this.width === UI.SIZE || (!isDef(this.width) && this._defaultWidth === UI.SIZE)) || 
+				(this.height === UI.SIZE || (!isDef(this.height) && this._defaultHeight === UI.SIZE));
 		},
 		
 		startLayout: function() {
@@ -342,7 +342,7 @@ define(
 				if (isDef(left)) {
 					right = undef;
 				} else if (isDef(centerX)){
-					if (width === Ti.UI.SIZE) {
+					if (width === UI.SIZE) {
 						left = "calculateDefault";
 					} else {
 						left = centerX - width / 2;
@@ -381,7 +381,7 @@ define(
 				if (isDef(top)) {
 					bottom = undef;
 				} else if (isDef(centerY)){
-					if(height === Ti.UI.SIZE) {
+					if(height === UI.SIZE) {
 						top = "calculateDefault";
 					} else {
 						top = centerY - height / 2;
@@ -441,10 +441,10 @@ define(
 			// Calculate the width/left properties if width is NOT SIZE
 			var calculateWidthAfterChildren = false,
 				calculateHeightAfterChildren = false;
-			if (width === Ti.UI.SIZE) {
+			if (width === UI.SIZE) {
 				calculateWidthAfterChildren = true;
 			} else {
-				if (width === Ti.UI.FILL) {
+				if (width === UI.FILL) {
 					if (isDef(left)) {
 						left === "calculateDefault" && (left = 0);
 						width = boundingWidth - left;
@@ -460,10 +460,10 @@ define(
 				}
 				width -= borderSize.left + borderSize.right;
 			}
-			if (height === Ti.UI.SIZE) {
+			if (height === UI.SIZE) {
 				calculateHeightAfterChildren = true;
 			} else {
-				if (height === Ti.UI.FILL) {
+				if (height === UI.FILL) {
 					if (isDef(top)) {
 						top === "calculateDefault" && (top = 0);
 						height = boundingHeight - top;
@@ -483,8 +483,8 @@ define(
 
 			if (this._getContentSize) {
 				var contentSize = this._getContentSize();
-				width === Ti.UI.SIZE && (width = contentSize.width);
-				height === Ti.UI.SIZE && (height = contentSize.height);
+				width === UI.SIZE && (width = contentSize.width);
+				height === UI.SIZE && (height = contentSize.height);
 			} else {
 				var computedSize;
 				if (params.layoutChildren) {
@@ -492,8 +492,8 @@ define(
 				} else {
 					computedSize = this._layout._computedSize;
 				}
-				width === Ti.UI.SIZE && (width = computedSize.width);
-				height === Ti.UI.SIZE && (height = computedSize.height);
+				width === UI.SIZE && (width = computedSize.width);
+				height === UI.SIZE && (height = computedSize.height);
 			}
 			validate();
 			

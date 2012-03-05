@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang"], 
-	function(declare, Widget, dom, css, style, lang) {
+define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/UI"], 
+	function(declare, Widget, dom, css, style, lang, UI) {
 		
 	var setStyle = style.set,
 		undef,
@@ -48,8 +48,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				} else if (!isParentHeightSize) {
 					setByHeight();
 				} else {
-					values.width = Ti.UI.SIZE;
-					values.height = Ti.UI.SIZE;
+					values.width = UI.SIZE;
+					values.height = UI.SIZE;
 				}
 				
 				return Widget.prototype._doLayout.call(this,params);
@@ -88,9 +88,9 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 
 	return declare("Ti.UI.ImageView", Widget, {
 
-		_defaultWidth: Ti.UI.SIZE,
+		_defaultWidth: UI.SIZE,
 		
-		_defaultHeight: Ti.UI.SIZE,
+		_defaultHeight: UI.SIZE,
 		
 		_slideshowCount: 0,
 		

@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string", "Ti/_/Layouts", "Ti/_/style"],
-	function(declare, dom, Element, lang, string, Layouts, style) {
+define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string", "Ti/_/Layouts", "Ti/_/style", "Ti/UI"],
+	function(declare, dom, Element, lang, string, Layouts, style, UI) {
 		
 	var unitize = dom.unitize,
 		set = style.set,
@@ -218,9 +218,9 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 			}
 		},
 
-		_defaultWidth: Ti.UI.FILL,
+		_defaultWidth: UI.FILL,
 
-		_defaultHeight: Ti.UI.FILL,
+		_defaultHeight: UI.FILL,
 
 		properties: {
 			layout: {

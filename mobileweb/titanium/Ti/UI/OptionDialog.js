@@ -20,7 +20,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI", "Ti/_/css"], function(declare, 
 			// Create the options dialog itself
 			var optionsDialog = UI.createView({
 				width: "100%",
-				height: Ti.UI.SIZE,
+				height: UI.SIZE,
 				bottom: 0,
 				backgroundColor: "white",
 				layout: "vertical",
@@ -35,7 +35,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI", "Ti/_/css"], function(declare, 
 				left: 5,
 				right: 5,
 				top: 5,
-				height: Ti.UI.SIZE,
+				height: UI.SIZE,
 				textAlign: UI.TEXT_ALIGNMENT_CENTER
 			}));
 			
@@ -46,7 +46,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI", "Ti/_/css"], function(declare, 
 					right: 5,
 					top: 5,
 					bottom: bottom,
-					height: Ti.UI.SIZE,
+					height: UI.SIZE,
 					title: title,
 					index: index
 				});

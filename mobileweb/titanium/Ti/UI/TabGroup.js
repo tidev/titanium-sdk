@@ -1,4 +1,5 @@
-define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"], function(declare, css, SuperView, View, UI, lang) {
+define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"], 
+	function(declare, css, SuperView, View, UI, lang) {
 
 	var is = require.is,
 		postUpdateTabsBackground = {
@@ -43,7 +44,7 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 				left: 0,
 				right: 0,
 				top: 0,
-				height: Ti.UI.FILL
+				height: UI.FILL
 			}));
 
 			this.tabs = [];
@@ -89,9 +90,9 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 		},
 		
 		_createTabDivider: function() {
-			return Ti.UI.createView({
+			return UI.createView({
 				width: this.tabDividerWidth,
-				height: Ti.UI.FILL,
+				height: UI.FILL,
 				backgroundColor: this.tabDividerColor
 			});
 		},
@@ -147,9 +148,9 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 			}
 		},
 
-		_defaultWidth: Ti.UI.FILL,
+		_defaultWidth: UI.FILL,
 
-		_defaultHeight: Ti.UI.FILL,
+		_defaultHeight: UI.FILL,
 
 		properties: {
 			activeTab: {

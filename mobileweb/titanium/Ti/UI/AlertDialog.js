@@ -20,7 +20,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI", "Ti/_/css"], function(declare, 
 			// Create the alert dialog itself
 			var alertDialog = UI.createView({
 				width: "50%",
-				height: Ti.UI.SIZE,
+				height: UI.SIZE,
 				backgroundColor: "white",
 				layout: "vertical",
 				borderRadius: 3,
@@ -35,7 +35,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI", "Ti/_/css"], function(declare, 
 				left: 5,
 				right: 5,
 				top: 5,
-				height: Ti.UI.SIZE,
+				height: UI.SIZE,
 				textAlign: UI.TEXT_ALIGNMENT_CENTER
 			}));
 			
@@ -45,7 +45,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI", "Ti/_/css"], function(declare, 
 				left: 5,
 				right: 5,
 				top: 5,
-				height: Ti.UI.SIZE,
+				height: UI.SIZE,
 				textAlign: UI.TEXT_ALIGNMENT_CENTER
 			}));
 			
@@ -56,7 +56,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI", "Ti/_/css"], function(declare, 
 					right: 5,
 					top: 5,
 					bottom: bottom,
-					height: Ti.UI.SIZE,
+					height: UI.SIZE,
 					title: title,
 					index: index
 				});

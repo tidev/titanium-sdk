@@ -14,9 +14,9 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/dom", "Ti/_/css", "Ti/_/style",
 			this._initTextBox();
 		},
 
-		_defaultWidth: Ti.UI.SIZE,
+		_defaultWidth: UI.SIZE,
 
-		_defaultHeight: Ti.UI.SIZE,
+		_defaultHeight: UI.SIZE,
 		
 		_getContentSize: function(width, height) {
 			return {

@@ -57,9 +57,9 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			}));
 		},
 
-		_defaultWidth: Ti.UI.SIZE,
+		_defaultWidth: UI.SIZE,
 
-		_defaultHeight: Ti.UI.SIZE,
+		_defaultHeight: UI.SIZE,
 		
 		_updateLook: function() {
 			if (this.backgroundColor || this.backgroundDisabledColor || this.backgroundDisabledImage || this.backgroundFocusedColor || 

@@ -18,7 +18,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 			this.leftView = UI.createView({
 				left: 0,
 				top: 0,
-				width: Ti.UI.SIZE, 
+				width: UI.SIZE, 
 				height: "100%",
 				layout: "horizontal"
 			}),
@@ -29,20 +29,20 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 			this.leftImageView = UI.createImageView();
 			this.leftView.add(this.leftImageView); 
 
-			this.titleLabel = UI.createLabel({ width: Ti.UI.SIZE, height: "100%" });
+			this.titleLabel = UI.createLabel({ width: UI.SIZE, height: "100%" });
 			this.leftView.add(this.titleLabel);
 
 			this.add(this.rightImageView = UI.createImageView({
 				right: 0,
 				center: {y: "50%"},
-				width: Ti.UI.SIZE, 
-				height: Ti.UI.SIZE
+				width: UI.SIZE, 
+				height: UI.SIZE
 			}));
 		},
 
-		_defaultWidth: Ti.UI.FILL,
+		_defaultWidth: UI.FILL,
 
-		_defaultHeight: Ti.UI.SIZE,
+		_defaultHeight: UI.SIZE,
 		
 		_tableRowHeight: undef,
 		

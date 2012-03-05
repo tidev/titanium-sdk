@@ -1,4 +1,4 @@
-define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
+define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, UI) {
 
 	return declare("Ti._.Layouts.Horizontal", Base, {
 
@@ -11,13 +11,13 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 				
 			// Determine if any children have fill height
 			for (var i = 0; i < children.length; i++) {
-				children[i].width === Ti.UI.FILL && (childrenWithFillWidth = true);
+				children[i].width === UI.FILL && (childrenWithFillWidth = true);
 			}
 			
 			if (childrenWithFillWidth) {
 				for (var i = 0; i < children.length; i++) {
 					var child = children[i];
-					if (child.width !== Ti.UI.FILL) {
+					if (child.width !== UI.FILL) {
 						var dimensions = child._doLayout({
 						 	origin: {
 						 		x: 0,
@@ -47,7 +47,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 				
 				// Layout the child
 				var child = children[i],
-					isWidthFill = child.width === Ti.UI.FILL;
+					isWidthFill = child.width === UI.FILL;
 				child._doLayout({
 				 	origin: {
 				 		x: currentLeft,

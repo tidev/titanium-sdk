@@ -16,8 +16,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
 			style.set(contentContainer.domNode,"overflow","hidden");
 			
 			contentContainer.add(this._contentMeasurer = UI.createView({
-				width: Ti.UI.SIZE,
-				height: Ti.UI.SIZE,
+				width: UI.SIZE,
+				height: UI.SIZE,
 				left: 0,
 				top: 0
 			}));
@@ -106,9 +106,9 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
 			y !== null && (this._contentContainer.scrollTop = parseInt(y));
 		},
 
-		_defaultWidth: Ti.UI.FILL,
+		_defaultWidth: UI.FILL,
 
-		_defaultHeight: Ti.UI.FILL,
+		_defaultHeight: UI.FILL,
 		
 		_getContentOffset: function(){
 			return this.contentOffset;
