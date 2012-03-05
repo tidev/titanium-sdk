@@ -137,7 +137,8 @@ define(
 			 		horizontal: "center",
 			 		vertical: "center"
 			 	},
-			 	positionElement: true
+			 	positionElement: true,
+				layoutChildren: true
 		 	});
 		},
 
