@@ -12,7 +12,7 @@ public class resize {
 	}
 	
 	private static void error(String message) {
-		System.out.println("Titanium Image Resizer\n\nError: " + message + "\n\nUsage:\n  java -cp .:imgscalr-lib-4.2.jar -Djava.awt.headless=true resize <source> <dest> <width> [<height>]");
+		System.out.println("[ERROR] " + message);
 		System.exit(1);
 	}
 	
@@ -23,16 +23,25 @@ public class resize {
 		if (!(new File(args[0])).exists())
 			error("Source image \"" + args[0] + "\" does not exist");
 		
+		Boolean quiet = System.getProperty("quiet", "not set").equals("true");
+		
 		try {
 			BufferedImage source = ImageIO.read(new File(args[0]));
 			
 			for (int i = 1; i < args.length; i += 3) {
 				String dest = args[i];
-				int p = args[i].lastIndexOf('.');
+				File destFile = new File(dest);
+				int p = dest.lastIndexOf('.');
 				if (p == -1) {
-					error("Invalid destination image \"" + args[i] + "\", image must have an extension");
+					error("Invalid destination image \"" + dest + "\", image must have an extension");
 				}
-				String ext = args[i].substring(p + 1, args[i].length());
+				
+				if (destFile.exists()) {
+					System.out.println("[INFO] Destination image \"" + dest + "\" already exists, skipping");
+					continue;
+				}
+				
+				String ext = dest.substring(p + 1, dest.length());
 				
 				int width = 16;
 				try {
@@ -49,7 +58,10 @@ public class resize {
 				}
 				
 				try {
-					ImageIO.write(Scalr.resize(source, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_EXACT, width, height), ext, new File(dest));
+					if (!quiet) {
+						System.out.println("[INFO] Creating " + dest);
+					}
+					ImageIO.write(Scalr.resize(source, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_EXACT, width, height), ext, destFile);
 				} catch (IOException ioe) {
 					error("Unable to writing destination image \"" + dest + "\"");
 				}
