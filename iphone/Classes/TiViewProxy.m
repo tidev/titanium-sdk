@@ -1575,8 +1575,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 -(void)contentsWillChange
 {
-	if (TiDimensionIsAuto(layoutProperties.width) ||
-			TiDimensionIsAuto(layoutProperties.height))
+	if (TiDimensionIsAuto(layoutProperties.width) || TiDimensionIsAuto(layoutProperties.height) 
+        || TiDimensionIsAutoSize(layoutProperties.width) || TiDimensionIsAutoSize(layoutProperties.height))
 	{
 		[self willChangeSize];
 	}
