@@ -61,7 +61,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 				 	},
 				 	boundingSize: {
 				 		width: width,
-				 		height: isHeightFill ? availableHeight : height,
+				 		height: isHeightFill ? availableHeight : height
 				 	},
 				 	alignment: {
 				 		horizontal: this._defaultHorizontalAlignment,
