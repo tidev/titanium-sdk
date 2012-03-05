@@ -35,7 +35,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 -(CGFloat)verifyWidth:(CGFloat)suggestedWidth
 {
-    if (suggestedWidth <= 0) {
+    if (suggestedWidth <= 0 && picker != nil) {
         return picker.frame.size.width;
     }
     else {

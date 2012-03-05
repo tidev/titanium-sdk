@@ -370,9 +370,24 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(TiRect*)rect
 {
-	TiRect *rect = [[TiRect alloc] init];
+    TiRect *rect = [[TiRect alloc] init];
 	if ([self viewAttached]) {
-        [self makeViewPerformSelector:@selector(fillFrameToRect:) withObject:rect createIfNeeded:YES waitUntilDone:YES];
+        __block CGRect viewRect;
+        __block CGPoint viewPosition;
+        __block CGAffineTransform viewTransform;
+        __block CGPoint viewAnchor;
+        TiThreadPerformOnMainThread(^{
+            TiUIView * ourView = [self view];
+            viewRect = [ourView bounds];
+            viewPosition = [ourView center];
+            viewTransform = [ourView transform];
+            viewAnchor = [[ourView layer] anchorPoint];
+        }, YES);
+        viewRect.origin = CGPointMake(-viewAnchor.x*viewRect.size.width, -viewAnchor.y*viewRect.size.height);
+        viewRect = CGRectApplyAffineTransform(viewRect, viewTransform);
+        viewRect.origin.x += viewPosition.x;
+        viewRect.origin.y += viewPosition.y;
+        [rect setRect:viewRect];
     }
     else {
         [rect setRect:CGRectZero];
