@@ -109,7 +109,7 @@ define(
 				chr1, chr2, chr3,
 				enc1, enc2, enc3, enc4,
 				i = 0,
-				len = byte.length;
+				len = bytes.length;
 
 			while (i < len) {
 				chr1 = bytes.charCodeAt(i++);
