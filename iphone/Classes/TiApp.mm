@@ -566,6 +566,14 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		[windowView addSubview:rootView];
 	}
 
+	/*
+	 *	In iPad (TIMOB 7839) there is a bug in iOS where a text field having
+	 *	focus during a modal presentation can lead to an edge case.
+	 *	The new view is not attached yet, and any current view will be covered
+	 *	by the new modal controller. Because of this, there is no valid reason
+	 *	to have a text field with focus.
+	 */
+	[controller dismissKeyboard];
 
 	UINavigationController *navController = nil; //[(TiRootViewController *)controller focusedViewController];
 	if (navController==nil)

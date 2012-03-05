@@ -80,3 +80,15 @@
 - (void)closeWindow:(TiWindowProxy *)window withObject:(id)args;
 
 @end
+
+@interface TiRootViewController (unsupported_internal)
+/*
+ *	Methods declarations stored or moved in this category are NOT to be used
+ *	by modules, as these methods can be added or removed from Titanium as
+ *	needed, and have not been vetted for long-term use. This category itself
+ *	may be moved to a private header later on, even.
+ */
+
+-(void)dismissKeyboard;
+
+@end
