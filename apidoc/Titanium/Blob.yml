@@ -41,7 +41,8 @@ properties:
     summary: When this blob represents an image, this is the total number of pixels in the image.
         Otherwise it returns the number of bytes in the binary data.
     description: |
-        On Mobile Web, the `size` represents the actual image file size before being base64 encoded.
+        On Mobile Web, always returns the number of bytes of the blob. Note that internally, binary data is stored base64 encoded
+        and `size` represents the number of bytes before base64 encoding.
     platforms: [iphone, ipad, mobileweb]
     permission: read-only
 methods:
