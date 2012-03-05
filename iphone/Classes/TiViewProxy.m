@@ -111,12 +111,8 @@
     }
     updateStarted = NO;
     allowLayoutUpdate = YES;
-    if ([val isKindOfClass:[NSDictionary class]]) {
-        [self processTempProperties:val];
-    }
-    else {
-        NSLog(@"Invalid argument passed to updateLayout");
-    }
+    ENSURE_TYPE_OR_NIL(val, NSDictionary);
+    [self processTempProperties:val];
     allowLayoutUpdate = NO;
     
 }
@@ -732,12 +728,14 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	{
 		result += layoutProperties.width.value;
 	}
-	else if(TiDimensionIsAuto(layoutProperties.width))
+	else if (TiDimensionIsPercent(layoutProperties.width)) 
+	{
+		result = TiDimensionCalculateValue(layoutProperties.width, suggestedWidth);
+	}
+	else
 	{
 		result += [self autoWidthForWidth:suggestedWidth - result];
-	} else if (TiDimensionIsPercent(layoutProperties.width)) {
-        result = TiDimensionCalculateValue(layoutProperties.width, suggestedWidth);
-    }
+	}
 	return result;
 }
 
@@ -750,7 +748,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	{
 		result += layoutProperties.height.value;
 	}
-	else if(TiDimensionIsAuto(layoutProperties.height))
+	else
 	{
 		if (TiDimensionIsDip(layoutProperties.width))
 		{
