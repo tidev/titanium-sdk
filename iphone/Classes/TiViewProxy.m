@@ -297,7 +297,7 @@ if (ENFORCE_BATCH_UPDATE) { \
     }\
     else {\
         if (!TiDimensionIsUndefined(result)) {\
-            NSLog(@"[WARN] Invalid value specified for property %@",@#layoutName); \
+            NSLog(@"[WARN] Invalid value %@ specified for property %@",[TiUtils stringValue:value],@#layoutName); \
         } \
         layoutProperties.layoutName = TiDimensionUndefined;\
     }\
