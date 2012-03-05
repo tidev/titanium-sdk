@@ -799,7 +799,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	/** 
 	 * Return true if any view in the hierarchy has the event listener.
 	 */
-	public boolean hasListener(String eventName)
+	public boolean hierarchyHasListener(String eventName)
 	{
 		boolean hasListener = hasListeners(eventName);
 		
@@ -807,7 +807,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (!hasListener) {
 			TiViewProxy parent = getParent();
 			if (parent != null) {
-				boolean parentHasListener = parent.hasListener(eventName);
+				boolean parentHasListener = parent.hierarchyHasListener(eventName);
 				hasListener = hasListener || parentHasListener;
 				if (hasListener) {
 					return hasListener;
