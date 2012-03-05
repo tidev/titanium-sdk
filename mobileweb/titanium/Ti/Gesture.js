@@ -36,19 +36,6 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI", "Ti/_/ready"], function(Evented, l
 		});
 	}
 
-	on(win, "orientationchange", function(evt) {
-		
-		// Android tablets throw the event before they do the rotation animation. 
-		// We have to wait until it's finished so we can query the screen size properly.
-		/*setTimeout(function () {
-			getWindowOrientation();
-			lastOrient !== api.orientation && api.fireEvent('orientationchange', {
-				orientation: lastOrient = api.orientation,
-				source: evt.source
-			});
-		}, 1000);*/
-	});
-
 	function deviceOrientation(evt) {
 		var orient = null,
 			beta = Math.abs(evt.beta || evt.y|0 * 90),
