@@ -24,7 +24,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 				 	alignment: {
 				 		horizontal: this._defaultHorizontalAlignment,
 				 		vertical: this._defaultVerticalAlignment
-				 	}
+				 	},
+					positionElement: true
 			 	});
 				
 				// Update the size of the component

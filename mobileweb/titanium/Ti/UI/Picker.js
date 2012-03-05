@@ -40,7 +40,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 				var values = this.properties.__values__;
 				values.width = params.isParentSize.width ? Ti.UI.SIZE : "100%";
 				values.height = params.isParentSize.height ? Ti.UI.SIZE : "100%";
-				Widget.prototype._doLayout.call(this,params);
+				
+				return Widget.prototype._doLayout.call(this,params);
 			},
 		
 			_getContentSize: function(width, height) {

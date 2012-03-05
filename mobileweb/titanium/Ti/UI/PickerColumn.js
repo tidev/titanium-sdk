@@ -175,7 +175,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 		_doLayout: function() {
 			this._updateContentWidth();
 			this._parentPicker && this._parentPicker._updateColumnHeights();
-			FontWidget.prototype._doLayout.apply(this,arguments);
+			
+			return FontWidget.prototype._doLayout.apply(this,arguments);
 		},
 		
 		_getContentSize: function(width, height) {

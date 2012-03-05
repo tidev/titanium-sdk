@@ -98,9 +98,11 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		
 		_doLayout: function() {
 			
-			this._contentContainer.properties.__values__.width = this.width === Ti.UI.SIZE ? Ti.UI.SIZE : "100%";
-			this._contentContainer.properties.__values__.height = this.height === Ti.UI.SIZE ? Ti.UI.SIZE : "100%"; 
-			View.prototype._doLayout.apply(this,arguments);
+			var values = this._contentContainer.properties.__values__;
+			values.width = this.width === Ti.UI.SIZE ? Ti.UI.SIZE : "100%";
+			values.height = this.height === Ti.UI.SIZE ? Ti.UI.SIZE : "100%"; 
+			
+			return View.prototype._doLayout.apply(this,arguments);
 		},
 		
 		_fireScrollEvent: function(x,y) {

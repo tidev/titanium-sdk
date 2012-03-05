@@ -245,7 +245,7 @@ define(
 					},
 					layoutChildren: true
 				});
-
+				
 			// Set and store the dimensions
 			var styles = {
 					zIndex: this.zIndex | 0
@@ -280,19 +280,23 @@ define(
 					throw "Invalid layout";
 				}
 			} catch(e) {}
-			
-			this._markedForLayout = false;
-			
-			// Run the post-layout animation, if needed
-			if (this._doAnimationAfterLayout) {
-				this._doAnimationAfterLayout = false;
-				this._doAnimation();
+				
+			if (params.positionElement) {
+				this._markedForLayout = false;
+				
+				// Run the post-layout animation, if needed
+				if (this._doAnimationAfterLayout) {
+					this._doAnimationAfterLayout = false;
+					this._doAnimation();
+				}
+				
+				// Recompute the gradient, if it exists
+				this.backgroundGradient && this._computeGradient();
+				
+				this.fireEvent("postlayout");
 			}
 			
-			// Recompute the gradient, if it exists
-			this.backgroundGradient && this._computeGradient();
-			
-			this.fireEvent("postlayout");
+			return dimensions;
 		},
 
 		_computeDimensions: function(params) {
@@ -431,14 +435,23 @@ define(
 			}
 			
 			// Calculate the border
-			var computedStyle = window.getComputedStyle(this.domNode);
+			var computedStyle = window.getComputedStyle(this.domNode),
 				borderSize = getBorderSize();
 
 			// Calculate the width/left properties if width is NOT SIZE
 			var calculateWidthAfterChildren = false,
 				calculateHeightAfterChildren = false;
-			if (width !== Ti.UI.SIZE) {
-				if (isDef(right)) {
+			if (width === Ti.UI.SIZE) {
+				calculateWidthAfterChildren = true;
+			} else {
+				if (width === Ti.UI.FILL) {
+					if (isDef(left)) {
+						left === "calculateDefault" && (left = 0);
+						width = boundingWidth - left;
+					} else if (isDef(right)) {
+						width = right;
+					}
+				} else if (isDef(right)) {
 					if (isDef(left)) {
 						width = right - left;
 					} else {
@@ -446,11 +459,18 @@ define(
 					}
 				}
 				width -= borderSize.left + borderSize.right;
-			} else {
-				calculateWidthAfterChildren = true;
 			}
-			if (height !== Ti.UI.SIZE) {
-				if (isDef(bottom)) {
+			if (height === Ti.UI.SIZE) {
+				calculateHeightAfterChildren = true;
+			} else {
+				if (height === Ti.UI.FILL) {
+					if (isDef(top)) {
+						top === "calculateDefault" && (top = 0);
+						height = boundingHeight - top;
+					} else if (isDef(bottom)) {
+						height = bottom;
+					}
+				} else if (isDef(bottom)) {
 					if (isDef(top)) {
 						height = bottom - top;
 					} else {
@@ -458,8 +478,6 @@ define(
 					}
 				}
 				height -= borderSize.top + borderSize.bottom;
-			} else {
-				calculateHeightAfterChildren = true;
 			}
 			validate();
 
@@ -478,9 +496,6 @@ define(
 				height === Ti.UI.SIZE && (height = computedSize.height);
 			}
 			validate();
-			
-			// I have no idea why we have to recalculate, but for some reason the recursion is screwing with the values.
-			borderSize = getBorderSize();
 			
 			if (calculateWidthAfterChildren) {
 				if (isDef(right) && !isDef(left)) {

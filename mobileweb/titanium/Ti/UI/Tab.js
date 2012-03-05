@@ -58,13 +58,11 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom"],
 			});
 		},
 
-		_defaultWidth: Ti.UI.SIZE,
+		_defaultWidth: Ti.UI.FILL,
 		
-		_defaultHeight: Ti.UI.SIZE,
+		_defaultHeight: Ti.UI.FILL,
 		
 		_tabGroup: null,
-		
-		_tabWidth: "100%",
 
 		properties: {
 			active: {
@@ -95,16 +93,6 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom"],
 					console.debug('Property "Titanium.UI.Tab#.titleid" is not implemented yet.');
 					return value;
 				}
-			},
-
-			// Override width and height
-			width: function(value) {
-				return this._tabWidth;
-			},
-
-			// Override width and height
-			height: function(value) {
-				return "100%";
 			},
 
 			window: {

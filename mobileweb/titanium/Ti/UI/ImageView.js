@@ -51,7 +51,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 					values.width = Ti.UI.SIZE;
 					values.height = Ti.UI.SIZE;
 				}
-				Widget.prototype._doLayout.call(this,params);
+				
+				return Widget.prototype._doLayout.call(this,params);
 			},
 			
 			properties: {

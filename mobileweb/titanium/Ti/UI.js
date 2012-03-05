@@ -136,7 +136,8 @@ define(
 			 	alignment: {
 			 		horizontal: "center",
 			 		vertical: "center"
-			 	}
+			 	},
+			 	positionElement: true
 		 	});
 		},
 

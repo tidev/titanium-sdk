@@ -4,11 +4,43 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 
 		_doLayout: function(element, width, height, isWidthSize, isHeightSize) {
 			var computedSize = this._computedSize = {width: 0, height: 0},
-				currentTop = 0;
-			for(var i in element.children) {
+				currentTop = 0,
+				children = element.children,
+				availableHeight = height;
+				
+			// Measure the children
+			for (var i = 0; i < children.length; i++) {
+				var child = children[i];
+				if (child.height !== Ti.UI.FILL) {
+					var dimensions = child._doLayout({
+						origin: {
+					 		x: 0,
+					 		y: 0
+					 	},
+					 	isParentSize: {
+					 		width: isWidthSize,
+					 		height: isHeightSize
+					 	},
+					 	boundingSize: {
+					 		width: width,
+					 		height: height
+					 	},
+					 	alignment: {
+					 		horizontal: this._defaultHorizontalAlignment,
+					 		vertical: this._defaultVerticalAlignment
+					 	},
+						positionElement: false
+					});
+					availableHeight -= dimensions.height;
+				}
+			}
+			
+			// Layout the children
+			for(var i = 0; i < children.length; i++) {
 				
 				// Layout the child
-				var child = element.children[i];
+				var child = children[i],
+					isHeightFill = child.height === Ti.UI.FILL;
 				child._doLayout({
 				 	origin: {
 				 		x: 0,
@@ -20,12 +52,13 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 				 	},
 				 	boundingSize: {
 				 		width: width,
-				 		height: height
+				 		height: isHeightFill ? availableHeight : height,
 				 	},
 				 	alignment: {
 				 		horizontal: this._defaultHorizontalAlignment,
 				 		vertical: this._defaultVerticalAlignment
-				 	}
+				 	},
+				 	positionElement: true
 			 	});
 				
 				// Update the size of the component

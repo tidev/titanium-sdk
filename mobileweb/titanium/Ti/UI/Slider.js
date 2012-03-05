@@ -27,8 +27,9 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 		},
 		
 		_doLayout: function() {
-			Widget.prototype._doLayout.apply(this,arguments);
+			var dimensions = Widget.prototype._doLayout.apply(this,arguments);
 			this._updateSize();
+			return dimensions;	
 		},
 		
 		_updateSize: function() {

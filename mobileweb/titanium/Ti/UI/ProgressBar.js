@@ -28,7 +28,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 				var values = this.properties.__values__;
 				values.width = params.isParentSize.width ? Ti.UI.SIZE : "100%";
 				values.height = params.isParentSize.height ? Ti.UI.SIZE : "100%";
-				Widget.prototype._doLayout.call(this,params);
+				
+				return Widget.prototype._doLayout.call(this,params);
 			},
 			
 			_getContentSize: function(width, height) {
@@ -71,7 +72,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 				this._progressBar.properties.__values__.top = 2;
 			}
 			
-			Widget.prototype._doLayout.apply(this,arguments);
+			return Widget.prototype._doLayout.apply(this,arguments);
 		},
 		
 		_updateSize: function() {
