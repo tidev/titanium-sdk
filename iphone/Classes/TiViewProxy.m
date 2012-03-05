@@ -82,47 +82,7 @@
     }
     
     if (layoutPropDictionary != nil) {
-        /*
-         The properties to be processed are 
-         LAYOUT, WIDTH,HEIGHT,LEFT,RIGHT,TOP,BOTTOM,CENTER,ZINDEX
-         */
-        id obj = nil;
-        obj = [layoutPropDictionary objectForKey:[@"lay" stringByAppendingString:@"out"]];
-        if ( obj != nil) {
-            [self setValue:obj forUndefinedKey:[@"lay" stringByAppendingString:@"out"]];
-        }
-        obj = [layoutPropDictionary objectForKey:@"width"];
-        if ( obj != nil) {
-            [self setWidth:obj];
-        }
-        obj = [layoutPropDictionary objectForKey:@"height"];
-        if ( obj != nil) {
-            [self setHeight:obj];
-        }
-        obj = [layoutPropDictionary objectForKey:@"left"];
-        if ( obj != nil) {
-            [self setLeft:obj];
-        }
-        obj = [layoutPropDictionary objectForKey:@"right"];
-        if ( obj != nil) {
-            [self setRight:obj];
-        }
-        obj = [layoutPropDictionary objectForKey:@"top"];
-        if ( obj != nil) {
-            [self setTop:obj];
-        }
-        obj = [layoutPropDictionary objectForKey:@"bottom"];
-        if ( obj != nil) {
-            [self setBottom:obj];
-        }
-        obj = [layoutPropDictionary objectForKey:@"center"];
-        if ( obj != nil) {
-            [self setCenter:obj];
-        }
-        obj = [layoutPropDictionary objectForKey:@"zIndex"];
-        if ( obj != nil) {
-            [self setZIndex:obj];
-        }
+        [self setValuesForKeysWithDictionary:layoutPropDictionary];
         RELEASE_TO_NIL(layoutPropDictionary);
     }
 }
