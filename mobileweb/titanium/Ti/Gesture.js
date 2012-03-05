@@ -1,4 +1,4 @@
-define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI"], function(Evented, lang, UI) {
+define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI", "Ti/_/ready"], function(Evented, lang, UI, ready) {
 
 	var undef,
 		win = window,
@@ -8,33 +8,69 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI"], function(Evented, lang, UI) {
 		lastAccel = {},
 		api = lang.setObject("Ti.Gesture", Evented, {
 			properties: {
+				portrait: false,
+				landscape: false,
 				orientation: UI.UNKNOWN
 			}
 		});
 
 	function getWindowOrientation() {
-		api.orientation = UI.PORTRAIT;
+		var landscape = !!(window.innerWidth && (window.innerWidth > window.innerHeight));
 		switch (win.orientation) {
+			case 0:
+				if (landscape) {
+					api.orientation = UI.LANDSCAPE_LEFT;
+				} else {
+					api.orientation = UI.PORTRAIT;
+				}
+				break;
 			case 90:
-				api.orientation = UI.LANDSCAPE_LEFT;
+				if (landscape) {
+					api.orientation = UI.LANDSCAPE_LEFT;
+				} else {
+					api.orientation = UI.PORTRAIT;
+				}
 				break;
 			case -90:
-				api.orientation = UI.LANDSCAPE_RIGHT;
+				if (landscape) {
+					api.orientation = UI.LANDSCAPE_RIGHT;
+				} else {
+					api.orientation = UI.UPSIDE_PORTRAIT;
+				}
 				break;
 			case 180:
-				api.orientation = UI.UPSIDE_PORTRAIT;
+				if (landscape) {
+					api.orientation = UI.LANDSCAPE_RIGHT;
+				} else {
+					api.orientation = UI.UPSIDE_PORTRAIT;
+				}
 				break;
+			default:
+				if (landscape) {
+					api.orientation = UI.LANDSCAPE_LEFT;
+				} else {
+					api.orientation = UI.PORTRAIT;
+				}
 		}
+		api.landscape = landscape;
+		api.portrait = !landscape;
 		return api.orientation;
 	}
-	getWindowOrientation();
+	ready(function() {
+		getWindowOrientation();
+	});
 
 	on(win, "orientationchange", function(evt) {
-		getWindowOrientation();
-		lastOrient !== api.orientation && api.fireEvent('orientationchange', {
-			orientation: lastOrient = api.orientation,
-			source: evt.source
-		});
+		
+		// Android tablets throw the event before they do the rotation animation. 
+		// We have to wait until it's finished so we can query the screen size properly.
+		setTimeout(function () {
+			getWindowOrientation();
+			lastOrient !== api.orientation && api.fireEvent('orientationchange', {
+				orientation: lastOrient = api.orientation,
+				source: evt.source
+			});
+		}, 1000);
 	});
 
 	function deviceOrientation(evt) {
