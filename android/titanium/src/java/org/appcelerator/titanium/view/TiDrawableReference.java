@@ -20,11 +20,11 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
-import org.appcelerator.titanium.TiFastDev;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiBackgroundImageLoadTask;
@@ -33,17 +33,21 @@ import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiDownloadManager;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
+import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.webkit.URLUtil;
 
+/**
+ * Helper class for loading, scaling, and caching images if necessary.
+ */
 public class TiDrawableReference
 {
 	private static Map<Integer, Bounds> boundsCache;
@@ -60,9 +64,8 @@ public class TiDrawableReference
 	public static class Bounds
 	{
 		public static final int UNKNOWN = TiDrawableReference.UNKNOWN;
-		private int height = UNKNOWN, width = UNKNOWN;
-		public int getHeight() { return height; }
-		public int getWidth() { return width; }
+		public int height = UNKNOWN;
+		public int width = UNKNOWN;
 	}
 
 	private static final String LCAT = "TiDrawableReference";
@@ -75,13 +78,22 @@ public class TiDrawableReference
 	private TiBaseFile file;
 	private DrawableReferenceType type;
 	private boolean oomOccurred = false;
-	
+	private boolean anyDensityFalse = false;
+
 	private SoftReference<Activity> softActivity = null;
-	
+
 	public TiDrawableReference(Activity activity, DrawableReferenceType type)
 	{
 		this.type = type;
 		softActivity = new SoftReference<Activity>(activity);
+		ApplicationInfo appInfo;
+
+		if (activity != null) {
+			appInfo = activity.getApplicationInfo();
+		} else {
+			appInfo = TiApplication.getInstance().getApplicationInfo();
+		}
+		anyDensityFalse = (appInfo.flags & ApplicationInfo.FLAG_SUPPORTS_SCREEN_DENSITIES) == 0;
 	}
 
 	/**
@@ -118,6 +130,12 @@ public class TiDrawableReference
 		return ref;
 	}
 
+	/**
+	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.BLOB.
+	 * @param activity the referenced activity.
+	 * @param blob the referenced blob.
+	 * @return A ready instance of TiDrawableReference.
+	 */
 	public static TiDrawableReference fromBlob(Activity activity, TiBlob blob)
 	{
 		TiDrawableReference ref = new TiDrawableReference(activity, DrawableReferenceType.BLOB);
@@ -130,6 +148,12 @@ public class TiDrawableReference
 		return fromUrl(proxy.getActivity(), proxy.resolveUrl(null, url));
 	}
 
+	/**
+	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.URL.
+	 * @param activity the referenced activity.
+	 * @param url the resource's url.
+	 * @return A ready instance of TiDrawableReference.
+	 */
 	public static TiDrawableReference fromUrl(Activity activity, String url)
 	{
 		TiDrawableReference ref = new TiDrawableReference(activity, DrawableReferenceType.URL);
@@ -147,6 +171,12 @@ public class TiDrawableReference
 		return ref;
 	}
 
+	/**
+	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.FILE.
+	 * @param activity the referenced activity.
+	 * @param file the referenced file.
+	 * @return A ready instance of TiDrawableReference.
+	 */
 	public static TiDrawableReference fromFile(Activity activity, TiBaseFile file)
 	{
 		TiDrawableReference ref = new TiDrawableReference(activity, DrawableReferenceType.FILE);
@@ -165,9 +195,9 @@ public class TiDrawableReference
 	}
 	/**
 	 * Does its best to determine the type of reference (url, blob, etc) based on object parameter.
-	 * @param context
-	 * @param object
-	 * @return A ready instance of TiDrawableReference
+	 * @param activity the referenced activity.
+	 * @param object the referenced object.
+	 * @return A ready instance of TiDrawableReference.
 	 */
 	public static TiDrawableReference fromObject(Activity activity, Object object)
 	{
@@ -221,7 +251,7 @@ public class TiDrawableReference
 	}
 
 	/**
-	 * Get the bitmap from the resource without respect to sampling/scaling.
+	 * Gets the bitmap from the resource without respect to sampling/scaling.
 	 * @return Bitmap, or null if any problem getting it.  Check logcat if null.
 	 */
 	public Bitmap getBitmap()
@@ -364,6 +394,8 @@ public class TiDrawableReference
 			parentWidth, parentHeight;
 		destWidth = destHeight = parentWidth = parentHeight =
 			containerWidth = containerHeight = TiDrawableReference.UNKNOWN;
+		boolean widthSpecified = false;
+		boolean heightSpecified = false;
 
 		if (parent != null) {
 			parentWidth = parent.getWidth();
@@ -375,6 +407,7 @@ public class TiDrawableReference
 			if (destWidthDimension.isUnitAuto()) {
 				containerWidth = srcWidth;
 			} else {
+				widthSpecified = true;
 				containerWidth = destWidthDimension.getAsPixels(parent);
 			}
 		} else {
@@ -392,6 +425,7 @@ public class TiDrawableReference
 			if (destHeightDimension.isUnitAuto()) {
 				containerHeight = srcHeight;
 			} else {
+				heightSpecified = true;
 				containerHeight = destHeightDimension.getAsPixels(parent);
 			}
 		} else {
@@ -407,12 +441,23 @@ public class TiDrawableReference
 
 		float origAspectRatio = (float) srcWidth / (float) srcHeight;
 
-		if (origAspectRatio > 1f) {
+		if (widthSpecified && heightSpecified) {
+			destWidth = containerWidth;
+			destHeight = containerHeight;
+		} else if (widthSpecified) {
 			destWidth = containerWidth;
 			destHeight = (int) ((float) destWidth / origAspectRatio);
-		} else {
+		} else if (heightSpecified) {
 			destHeight = containerHeight;
 			destWidth = (int) ((float) destHeight * origAspectRatio);
+		} else {
+			if (origAspectRatio > 1f) {
+				destWidth = containerWidth;
+				destHeight = (int) ((float) destWidth / origAspectRatio);
+			} else {
+				destHeight = containerHeight;
+				destWidth = (int) ((float) destHeight * origAspectRatio);
+			}
 		}
 
 		bounds.width = destWidth;
@@ -439,7 +484,7 @@ public class TiDrawableReference
 		srcHeight = bounds.height;
 
 		if (srcWidth <= 0 || srcHeight <= 0) {
-			Log.w(LCAT, "Bitmap bounds could not be determined.  If bitmap is loaded, it won't be scaled.");
+			Log.w(LCAT, "Bitmap bounds could not be determined. If bitmap is loaded, it won't be scaled.");
 			return getBitmap(); // fallback
 		}
 
@@ -453,6 +498,11 @@ public class TiDrawableReference
 		Bounds destBounds = calcDestSize(srcWidth, srcHeight, destWidthDimension, destHeightDimension, parent);
 		destWidth = destBounds.width;
 		destHeight = destBounds.height;
+
+		// If src and dest width/height are same, no need to go through all the sampling and scaling jazz.
+		if (srcWidth == destWidth && srcHeight == destHeight) {
+			return getBitmap();
+		}
 
 		if (destWidth <= 0 || destHeight <= 0) {
 			// calcDestSize() should actually prevent this from happening, but just in case...
@@ -472,6 +522,20 @@ public class TiDrawableReference
 			opts.inInputShareable = true;
 			opts.inPurgeable = true;
 			opts.inSampleSize =  calcSampleSize(srcWidth, srcHeight, destWidth, destHeight);
+			if (DBG) {
+				StringBuilder sb = new StringBuilder();
+				sb.append("Bitmap calcSampleSize results: inSampleSize=");
+				sb.append(opts.inSampleSize);
+				sb.append("; srcWidth=");
+				sb.append(srcWidth);
+				sb.append("; srcHeight=");
+				sb.append(srcHeight);
+				sb.append("; finalWidth=");
+				sb.append(opts.outWidth);
+				sb.append("; finalHeight=");
+				sb.append(opts.outHeight);
+				Log.d(LCAT, sb.toString());
+			}
 
 			Bitmap bTemp = null;
 			try {
@@ -481,25 +545,37 @@ public class TiDrawableReference
 					Log.w(LCAT, "Decoded bitmap is null");
 					return null;
 				}
+
 				if (DBG) {
 					StringBuilder sb = new StringBuilder();
-					sb.append("Bitmap sampling results: inSampleSize=");
-					sb.append(opts.inSampleSize);
-					sb.append("; srcWidth=");
-					sb.append(srcWidth);
-					sb.append("; srcHeight=");
-					sb.append(srcHeight);
-					sb.append("; finalWidth=");
-					sb.append(opts.outWidth);
-					sb.append("; finalHeight=");
-					sb.append(opts.outHeight);
+					sb.append("decodeStream resulting bitmap: .getWidth()=" + bTemp.getWidth());
+					sb.append("; .getHeight()=" + bTemp.getHeight());
+					sb.append("; getDensity()=" + bTemp.getDensity());
 					Log.d(LCAT, sb.toString());
 				}
+
+				// Set the bitmap density to match the view density before scaling, so that scaling
+				// algorithm takes destination density into account.
+				DisplayMetrics displayMetrics = new DisplayMetrics();
+				displayMetrics.setToDefaults();
+				bTemp.setDensity(displayMetrics.densityDpi);
+
 				if (bTemp.getNinePatchChunk() != null) {
 					// Don't scale nine-patches
 					b = bTemp;
 					bTemp = null;
 				} else {
+					if (DBG) {
+						Log.d(LCAT, "Scaling bitmap to " + destWidth + "x" + destHeight);
+					}
+
+					// If anyDensity=false, meaning Android is automatically scaling
+					// pixel dimensions, need to do that here as well, because Bitmap width/height
+					// calculations do _not_ do that automatically.
+					if (anyDensityFalse && displayMetrics.density != 1f) {
+						destWidth = (int) (destWidth * displayMetrics.density + 0.5f); // 0.5 is to force round up of dimension. Casting to int drops decimals.
+						destHeight = (int) (destHeight * displayMetrics.density + 0.5f);
+					}
 					b = Bitmap.createScaledBitmap(bTemp, destWidth, destHeight, true);
 				}
 			} catch (OutOfMemoryError e) {
@@ -517,6 +593,13 @@ public class TiDrawableReference
 			} catch (IOException e) {
 				Log.e(LCAT, "Problem closing stream: " + e.getMessage(), e);
 			}
+		}
+		if (DBG) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("Details of returned bitmap: .getWidth()=" + b.getWidth());
+			sb.append("; getHeight()=" + b.getHeight());
+			sb.append("; getDensity()=" + b.getDensity());
+			Log.d(LCAT, sb.toString());
 		}
 		return b;
 	}
@@ -536,6 +619,7 @@ public class TiDrawableReference
 			Log.e(LCAT, "URI Invalid: " + url, e);
 		}
 	}
+
 	/**
 	 * Just runs .load(url) on the passed TiBackgroundImageLoadTask.
 	 * @param asyncTask
@@ -547,10 +631,11 @@ public class TiDrawableReference
 		}
 		asyncTask.load(url);
 	}
+
 	/**
 	 * Uses BitmapFactory.Options' 'inJustDecodeBounds' to peak at the bitmap's bounds
 	 * (height & width) so we can do some sampling and scaling.
-	 * @return Bounds object with .getWidth() and .getHeight() available on it.
+	 * @return Bounds object with width and height.
 	 */
 	public Bounds peekBounds()
 	{
@@ -582,6 +667,7 @@ public class TiDrawableReference
 				Log.e(LCAT, "problem closing stream: " + e.getMessage(), e);
 			}
 		}
+
 		boundsCache.put(hash, bounds);
 		return bounds;
 	}
@@ -649,22 +735,6 @@ public class TiDrawableReference
 	}
 
 	/**
-	 * Calculates a value for the BitmapFactory.Options .inSampleSize property by first calling peakBounds() 
-	 * to determine the original width & height.
-	 * 
-	 * @see #calcSampleSize(int, int, int, int)
-	 * @param destWidth int
-	 * @param destHeight int
-	 * @return max of srcWidth/destWidth or srcHeight/destHeight
-	 */
-	public int calcSampleSize(int destWidth, int destHeight)
-	{
-		Bounds bounds = peekBounds();
-		return calcSampleSize(bounds.width, bounds.height, destWidth, destHeight);
-		
-	}
-
-	/**
 	 * Calculates a value for the BitmapFactory.Options .inSampleSize property.
 	 * 
 	 * @see <a href="http://developer.android.com/reference/android/graphics/BitmapFactory.Options.html#inSampleSize">BitmapFactory.Options.inSampleSize</a>
@@ -684,26 +754,6 @@ public class TiDrawableReference
 		destWidth = destBounds.width;
 		destHeight = destBounds.height;
 		return calcSampleSize(srcWidth, srcHeight, destWidth, destHeight);
-	}
-
-	/**
-	 * Calculates a value for the BitmapFactory.Options .inSampleSize property by first calling peakBounds() 
-	 * to determine the source width & height.
-	 * 
-	 * @see #calcSampleSize(int, int, int, int)
-	 * @param destWidthDimension TiDimension holding the destination width. If null, the TiContext's Activity's Window's decor width is used
-	 * as the destWidth.
-	 * @param destHeightDimension TiDimension holding the destination height.  If null, the destHeight will be proportional to destWidth as srcHeight
-	 * is to srcWidth.
-	 * @return max of srcWidth/destWidth or srcHeight/destHeight
-	 */
-	public int calcSampleSize(View parent, TiDimension destWidthDimension, TiDimension destHeightDimension) 
-	{
-		Bounds bounds = peekBounds();
-		int srcWidth = bounds.width;
-		int srcHeight = bounds.height;
-
-		return calcSampleSize(parent, srcWidth, srcHeight, destWidthDimension, destHeightDimension);
 	}
 
 	/**

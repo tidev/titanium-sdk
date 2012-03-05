@@ -128,7 +128,7 @@
 	{
 		type = TiBlobTypeFile;
 		path = [path_ retain];
-		mimetype = [Mimetypes mimeTypeForExtension:path];
+		mimetype = [[Mimetypes mimeTypeForExtension:path] retain];
 	}
 	return self;
 }
@@ -213,8 +213,8 @@
 -(void)setImage:(UIImage *)image_
 {
 	RELEASE_TO_NIL(image);
-	type = TiBlobTypeImage;
 	image = [image_ retain];
+    [self setMimeType:@"image/jpeg" type:TiBlobTypeImage];
 }
 
 -(NSString*)path

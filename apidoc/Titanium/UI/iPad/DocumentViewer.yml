@@ -1,29 +1,34 @@
 ---
 name: Titanium.UI.iPad.DocumentViewer
-description: A DocumentViewer provides in-app support for managing user interactions with files in the local system. For example, an email program might use this class to allow the user to preview attachments and open them in other apps. Use this class to present an appropriate user interface for previewing or printing a specified file. The DocumentViewere is created by the method <Titanium.UI.iPad.createDocumentViewer>.
+summary: A DocumentViewer provides in-app support for managing user interactions with files in the local system. 
+description: | 
+    For example, an email program might use this class to allow the user to preview 
+    attachments and open them in other apps. Use this class to present an appropriate 
+    user interface for previewing or printing a specified file. The DocumentViewer is 
+    created by the method <Titanium.UI.iPad.createDocumentViewer>.
 extends: Titanium.UI.View
 platforms: [ipad]
 since: "1.8"
 methods:
   - name: show
-    description: to display the document viewer over the current view.
+    summary: to display the document viewer over the current view.
     parameters:
       - name: animated
-        description: is a boolean indicating if the showing of the viewer should be animated.
+        summary: is a boolean indicating if the showing of the viewer should be animated.
         type: Boolean
       - name: view
-        description: The view property would specify the view relative to where the viewer should display.
+        summary: The view property would specify the view relative to where the viewer should display.
         type: Object
   - name: setUrl
-    description: change the url of the document viewer
+    summary: change the url of the document viewer
     parameters:
       - name: url
-        description: the new url
+        summary: the new url
         type: String
 examples:
   - title: Document Viewer Example
     example: |
-        In this example, we create a documentviwere with a window button and right navigation button.
+        In this example, we create a document viewer with a window button and right navigation button.
         
            //-----------example--------
            	Titanium.UI.setBackgroundColor('#000');

@@ -227,6 +227,7 @@ const static CGFloat kReflectionFraction = 0.85;
 
 - (void)setBounds:(CGRect)newSize {
 	[super setBounds:newSize];
+	scrollView.contentSize = CGSizeMake(numberOfImages * COVER_SPACING + self.bounds.size.width, self.bounds.size.height);
 	[self updateLayout];
 }
 
@@ -337,6 +338,7 @@ const static CGFloat kReflectionFraction = 0.85;
 
 - (void)centerOnSelectedCover:(BOOL)animated {
 	CGPoint selectedOffset = CGPointMake(COVER_SPACING * selectedCoverView.number, 0);
+    animated &= (self.frame.size.width > 0);
 	[scrollView setContentOffset:selectedOffset animated:animated];
 }
 

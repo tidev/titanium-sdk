@@ -6,16 +6,49 @@
  */
 (function(kroll) {
 	var TAG = "kroll";
+	var global = this;
 
-	global = this;
+	kroll.extend = function(thisObject, otherObject)
+	{
+		if (!otherObject) {
+			// extend with what?!  denied!
+			return;
+		}
+
+		for (var name in otherObject) {
+			if (otherObject.hasOwnProperty(name)) {
+				thisObject[name] = otherObject[name];
+			}
+		}
+
+		return thisObject;
+	}
 
 	function startup() {
 		startup.globalVariables();
 		startup.runMain();
 	}
 
+	// Used just to differentiate scope vars on java side by
+	// using a unique constructor name
+	function ScopeVars(vars) {
+		if (!vars) {
+			return this;
+		}
+
+		var keys = Object.keys(vars);
+		var length = keys.length;
+
+		for (var i = 0; i < length; ++i) {
+			var key = keys[i];
+			this[key] = vars[key];
+		}
+	}
+
 	startup.globalVariables = function() {
 		global.kroll = kroll;
+		kroll.ScopeVars = ScopeVars;
+		kroll.NativeModule = NativeModule; // So external module bootstrap.js can call NativeModule.require directly.
 
 		NativeModule.require('events');
 		global.Ti = global.Titanium = NativeModule.require('titanium');
@@ -88,7 +121,10 @@
 			var source = NativeModule.getSource(this.id);
 			source = NativeModule.wrap(source);
 
-			var fn = runInThisContext(source, this.filename, true);
+			// All native modules have their filename prefixed with ti:/
+			var filename = 'ti:/' + this.filename;
+
+			var fn = runInThisContext(source, filename, true);
 			fn(this.exports, NativeModule.require, this, this.filename, null, global.Ti, global.Ti, global, kroll);
 		}
 

@@ -1,0 +1,206 @@
+Titanium Mobile 1.8.1 - 1/31/2012
+==================================
+
+Titanium Mobile Release 1.8.1 is a patch set release that includes fixes
+for known issues in Release 1.8.0.1, as well as stability and parity
+improvements.
+
+Please see the updated [Titanium Mobile Reference Documentation for 1.8.1](/apidoc/mobile/1.8.1). 
+
+[Full list of Issues that were addressed in 1.8.1](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12454)
+
+
+Significant Changes In Titanium Mobile
+--------------------------------------
+
+- As of Release 1.8.0.1, Xcode 3.2.6 is no longer supported. This was documented in
+  the [Titanium Compatibility
+  Matrix](https://wiki.appcelerator.org/display/guides/Titanium+Compatibility+Matrix),
+  but mistakenly omitted from the release notes.
+
+
+Known Issues
+------------
+
+The following are known issues in Release 1.8.1: 
+
+- Android: TableViewRow memory leak. [TIMOB-4367](http://jira.appcelerator.org/browse/TIMOB-4367)
+
+- Android: Memory leak for proxies that have no references. [TIMOB-7409](http://jira.appcelerator.org/browse/TIMOB-7409)
+
+We are actively working on fixes for these issues, and plan to have fixes available in the
+continuous integration (CI) build in the next week.
+
+Android Changes
+---------------
+
+The following sections list notable new features and bug fixes in Android.
+
+*New Feature*
+
+-   Support for using a `Ti.Blob` object to set the `Ti.Map.Annotation.image` property. [TIMOB-6967](http://jira.appcelerator.org/browse/TIMOB-6967)
+
+    This feature is also supported on iOS.
+
+*Bug Fixes:*
+
+-   V8: Enable 3rd party module build for Windows. [TIMOB-6685](http://jira.appcelerator.org/browse/TIMOB-6685)
+   
+    Note that some additional software installs may be required. See 
+    [Requirements for Building Android Modules on Windows](#android_modules), below.
+
+-   UI - heavyweight window open event fired twice. [TIMOB-6816](http://jira.appcelerator.org/browse/TIMOB-6816)
+
+-   MapView not updating regions. [TIMOB-2104](http://jira.appcelerator.org/browse/TIMOB-2104)`
+
+For a complete list of Android fixes in this release, see: [Fixed Android Issues in JIRA](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12455).
+
+
+iOS Changes
+-----------
+
+The following sections list notable new features and bug fixes in iOS.
+
+*New Features*
+
+ -  Support for using a `Ti.Blob` object to set the `Ti.Map.Annotation.image` property. [TIMOB-6895](http://jira.appcelerator.org/browse/TIMOB-6895)
+
+    This feature is also supported on Android.
+
+ -  Support for repeating backgrounds on a view. [TIMOB-4690](http://jira.appcelerator.org/browse/TIMOB-4690)
+
+    Setting `backgroundRepeat` to `true` causes the view's background image to be tiled.
+    This feature is currently only supported on iOS, and will be added to other platforms in
+    subsequent releases.
+
+ -  Support for getting current latitude and longitude delta from a MapView. [TIMOB-6831](http://jira.appcelerator.org/browse/TIMOB-6831)
+  
+    This feature allows the application to determine the current zoom level of the map view. This 
+    feature is currently only supported on iOS, and will be added to other platforms in
+    subsequent releases.
+
+ -  Support for disabling animation when setting the `contentOffset` on a scroll view.
+  
+    To set the content offset for a scroll view without animation, pass a dictionary
+    object as the second argument, with the `animated` property set to `false`:
+
+        myScrollView.setContentOffset(newOffset, { animated: false } });
+
+    This feature is only relevant to iOS, since Android and Mobile Web do not support
+    animated scrolling.
+
+
+*Bug Fixes:*
+
+ -  Database migration fixes. [TIMOB-6756](http://jira.appcelerator.org/browse/TIMOB-6756)
+
+ -  Databases not symlinked on install. [TIMOB-6081](http://jira.appcelerator.org/browse/TIMOB-6081)
+
+ -  Two module fixes:
+
+     -  Native JS modules detected by compiler. [TIMOB-5815](http://jira.appcelerator.org/browse/TIMOB-5815) 
+
+     -  Modules not building on Lion. [TIMOB-7001](http://jira.appcelerator.org/browse/TIMOB-7001)
+
+    If you are working on iOS modules, see 
+    [Updating Native JS Modules for iOS](#ios_modules) to see if these fixes apply to you.
+
+ -  Two fixes to HTTP header handling:
+
+    -   A regression in 1.8.0.1 that caused an exception to be thrown when setting a request
+        header to `null`. [TIMOB-6828](http://jira.appcelerator.org/browse/TIMOB-6828)
+
+    -   The `getResponseHeader` method incorrectly used a case-sensitive match on response header names.
+        [TIMOB-6832](http://jira.appcelerator.org/browse/TIMOB-6832)
+
+For a complete list of iOS fixes in this release, see: [Fixed iOS Issues in JIRA](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12456).
+
+Mobile Web Changes
+------------------
+
+This release includes a significant increase in feature coverage on Mobile Web. In particular, the
+following UI objects are at or near parity with the other platforms:
+
+-   2DMatrix 
+-   Animation 
+-   Label 
+-   Tab 
+-   TabGroup 
+-   TableView
+-   TableViewRow
+-   TableViewSection
+-   TextArea
+-   TextField
+-   View
+-   WebView
+-   Window
+
+For a complete list of Mobile Web fixes in this release, see: [Fixed Mobile Web Issues in JIRA](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12457).
+
+
+
+Documentation Changes
+---------------------
+
+This release includes a number of documentation fixes and enhancements, including:
+
+-   The API Reference now supports hiding inherited members and standard property accessors.
+
+-   Improved API documentation for a number of commonly-used modules and objects, including
+    many fixes in the `Titanium.Filesystem`, `Titanium.Database`, and `Titanium.Network` 
+    modules, and updated docs for the `Button`, `ButtonBar`, `TabbedBar`, and `ImageView`
+    objects.
+
+-   A new guide section, 
+   [Debugging and Profiling](https://wiki.appcelerator.org/display/guides/Debugging+and+Profiling).
+
+[Fixed Documentation Issues in JIRA](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12458)
+
+
+<a name="android_modules"></a>
+
+Requirements for Building Android Modules on Windows
+----------------------------------------------------
+
+Building Android modules on Windows requires the following:
+
+- Android Native Development Kit (NDK) r7.
+
+- gperf ([http://gnuwin32.sourceforge.net/packages/gperf.htm](http://gnuwin32.sourceforge.net/packages/gperf.htm))
+
+- Ant ([http://ant.apache.org/](http://ant.apache.org/))
+
+- `ant` and `gperf` must be in the user's path.
+
+
+<a name="ios_modules"></a>
+
+Updating Native JavaScript Modules for iOS
+------------------------------------------
+
+You may need to update your iOS modules if either of the following applies to you:
+
+- You are working on OS X Lion. Modules created prior to this release did not build on
+  Lion with Titanium Mobile 1.8.0.1.
+
+- You have a native iOS module that includes JavaScript code which uses Titanium APIs. 
+  Due to the issue described in [TIMOB-5815](http://jira.appcelerator.org/browse/TIMOB-5815),
+  applicatons using your module may fail to compile if the module references APIs not
+  used by the application. 
+
+
+If either of the above conditions apply,  you should update your module's `build.py` file 
+and rebuild your module. 
+
+1. Download the `build.py` patch file from: https://gist.github.com/1586163
+
+2. From the top-level directory of your module project, run this command to 
+   patch your `build.py` file:
+
+       patch -p4 *<downloaded_file_path>*/build.py.patch
+
+3. Rebuild your module with `build.py`.
+
+
+Note that new modules created with release 1.8.1 do not need to 
+be patched.

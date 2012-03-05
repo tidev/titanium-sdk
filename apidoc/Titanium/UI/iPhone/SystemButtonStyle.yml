@@ -1,24 +1,90 @@
 ---
 name: Titanium.UI.iPhone.SystemButtonStyle
-description: A set of constants for the system button styles that can be used for the button `style` property.
+summary: A set of constants for the system button styles that can be used for the button `style` property.
+description: |
+    These constants represent standard iOS system button styles that affect the 
+    [Button](Titanium.UI.Button), [ButtonBar](Titanium.UI.ButtonBar), and 
+    [TabbedBar](Titanium.UI.iOS.TabbedBar) UI elements.
+
+    The different styles are used in different places. For normal buttons which are
+    **not** contained in a nav bar, toolbar, button bar or tabbed bar, the following
+    styles apply:
+
+    * `BORDERED`. Simple button style with a rounded border and a white background. 
+                The default style for normal buttons.
+    * `DONE`. Like the bordered button, but with a blue background. Button style for a button 
+            that indicates completion, such as OK, Save, or Go. 
+    * `PLAIN` Button style for an undecorated button. 
+
+    Note that if you specify the `PLAIN` style, you must style the button using the 
+    other button properties. For example, there is no indication that the button has been
+    pressed unless you set other properties for the selected state, such as  
+    `backgroundSelectedImage` and `selectedColor`.
+
+    When you add a button to a [Toolbar](Titanium.UI.iOS.Toolbar), the styles have a 
+    slightly different effect:
+
+    * `PLAIN` Button style for an undecorated button with large text and a *glow* effect 
+              when the button is pressed. Default style for buttons in toolbars.
+    * `BORDERED`. Simple button style with a rounded border and a light blue background. 
+    * `DONE`. Like the bordered button, but with a dark blue background. 
+
+    For `TabbedBar` and `ButtonBar` controls, styles have the following meaning:
+
+    * `PLAIN`. Default style for `ButtonBar` and `TabbedBar`.
+    * `BORDERED`. Creates a bar like the `PLAIN` bar, but with a heavier border.
+    * `BAR`. Used on `ButtonBar` and `TabbedBar` controls to produce a more compact bar with
+            translucent buttons that allow the bar's background color to show through.
+
 extends: Titanium.Proxy
 since: "0.8"
 platforms: [iphone, ipad]
 createable: false
 properties:
   - name: BAR
-    description: Used by tabbed bar and button bar only to use the more condensed style used in nav bars and tool bars.
+    summary: Used with [ButtonBar](Titanium.UI.ButtonBar) or [TabbedBar](Titanium.UI.iOS.TabbedBar) only, to use the more condensed style used in nav bars and tool bars.
+    description: |
+        To use a background color or gradient on a `ButtonBar` or `TabbedBar` 
+        control, you must use the `BAR` style. This style creates translucent buttons that 
+        allow the bar's background color to show through. 
     type: Number
     permission: read-only
   - name: BORDERED
-    description: A simple button style with a border.
+    summary: A simple button style with a border. 
+    description: |
+        Default style for normal buttons. May also be used for toolbar buttons. 
+
+        When used with [ButtonBar](Titanium.UI.ButtonBar) or 
+        [TabbedBar](Titanium.UI.iOS.TabbedBar), specifies a standard bar with a heavier
+        border.
+    description: |
     type: Number
     permission: read-only
   - name: DONE
-    description: The style for a done button - for example, a button that completes some task and returns to the previous view.
+    summary: |
+        The style for a **Done** button--for example, a button that completes some task and 
+        returns to the previous view.
+    description: |
+        Used in toolbars and navigation bars.
     type: Number
     permission: read-only
   - name: PLAIN
-    description: Glows when tapped. The default item style.
+    summary: Specifies a borderless button, the default style for toolbars, button bars,
+        and tabbed bars.
+    description: |
+        In toolbars, this specifies an undecorated button with large text. A glow effect
+        is used when tapped.
+
+        In button bars and tabbed bars, specifies a button with large text that is
+        highlighted when tapped.
+
+        When used on a normal button (that is, outside of a navigation bar, toolbar,
+        button bar or tabbed bar), `PLAIN` specifies a button with no built-in decoration
+        except its title text. This is the style you should choose if you want to supply
+        your own background images, background gradient, and so on.
+
+        Note that for tabbed bar or button bars, the
+        [BAR](Titanium.UI.iPhone.SystemButtonStyle.BAR) style is used to allow the bar's
+        background color or gradient to show through.
     type: Number
     permission: read-only

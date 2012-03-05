@@ -1,31 +1,31 @@
 ---
 name: Titanium.Media.AudioRecorder
-description: The AudioRecorder object is returned by <Titanium.Media.createAudioRecorder> and is used for recording audio from the device microphone.
+summary: The AudioRecorder object is returned by <Titanium.Media.createAudioRecorder> and is used for recording audio from the device microphone.
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]
 methods:
   - name: pause
-    description: called to temporarily pause recording
+    summary: called to temporarily pause recording
   - name: resume
-    description: called to resume audio recording
+    summary: called to resume audio recording
   - name: start
-    description: called to start recording audio
+    summary: called to start recording audio
   - name: stop
-    description: called to stop recording audio
+    summary: called to stop recording audio
 properties:
   - name: compression
-    description: audio compression constant to be used for the recording
+    summary: audio compression constant to be used for the recording
     type: Number
   - name: format
-    description: audio format constant for used for the recording
+    summary: audio format constant for used for the recording
     type: Number
   - name: paused
-    description: readonly property to indicate if paused
+    summary: readonly property to indicate if paused
     type: Boolean
   - name: recording
-    description: readonly property to indicate if recording
+    summary: readonly property to indicate if recording
     type: Boolean
   - name: stopped
-    description: readonly property to indicate if stopped
+    summary: readonly property to indicate if stopped
     type: Boolean

@@ -7,7 +7,7 @@
 # Handles JS, CSS and HTML files only
 #
 import os, sys, re, shutil, tempfile, run, codecs, traceback, types
-import jspacker, simplejson
+import jspacker
 from xml.sax.saxutils import escape
 from sgmllib import SGMLParser
 from csspacker import CSSPacker
@@ -18,6 +18,9 @@ ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store']
 ignoreDirs = ['.git','.svn','_svn', 'CVS']
 ignoreSymbols = ['version','userAgent','name','_JSON','include','fireEvent','addEventListener','removeEventListener','buildhash','builddate']
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+sys.path.append(os.path.abspath(os.path.join(template_dir, "..", "common")))
+
+import simplejson
 
 # class for extracting javascripts
 class ScriptProcessor(SGMLParser):
@@ -32,11 +35,12 @@ class ScriptProcessor(SGMLParser):
 					self.scripts.append(attr[1])
 
 class Compiler(object):
-	def __init__(self, tiapp, project_dir, java, classes_dir, root_dir, include_all_modules=False):
+	def __init__(self, tiapp, project_dir, java, classes_dir, gen_dir, root_dir, include_all_modules=False):
 		self.tiapp = tiapp
 		self.java = java
 		self.appname = tiapp.properties['name']
 		self.classes_dir = classes_dir
+		self.gen_dir = gen_dir
 		self.template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 		self.appid = tiapp.properties['id']
 		self.root_dir = root_dir
@@ -53,7 +57,7 @@ class Compiler(object):
 			self.add_required_module(required)
 
 		# TODO switch default runtime to Rhino
-		runtime = tiapp.app_properties.get('ti.android.runtime', 'v8')
+		runtime = tiapp.app_properties.get('ti.android.runtime', self.depends_map['runtimes']['defaultRuntime'])
 		for runtime_jar in self.depends_map['runtimes'][runtime]:
 			self.jar_libraries.add(os.path.join(template_dir, runtime_jar))
 
@@ -163,44 +167,46 @@ class Compiler(object):
 		sys.stdout.flush()
 		so, se = run.run(jsc_args, ignore_error=True, return_error=True)
 		if not se is None and len(se):
-			sys.stderr.write("[ERROR] %s\n" % se)
-			sys.stderr.flush()
-			sys.exit(1)
+			regex_result = re.search("(\d+) error\(s\), (\d+) warning\(s\)", se, flags=re.MULTILINE)
+			if not regex_result is None:
+				errors_count = int(regex_result.group(1))
+
+				if errors_count > 0:
+					sys.stderr.write("[ERROR] %s\n" % se)
+
+				else:
+					sys.stderr.write("[WARN] %s\n" % se)
+
+				sys.stderr.flush()
+
+				if errors_count > 0:
+					sys.exit(1)
+
+			else:
+				sys.stderr.write("[ERROR] unrecognized error encountered: " % se)
+				sys.exit(1)
+
 		os.unlink(fullpath)
 		os.rename(fullpath+'-compiled',fullpath)
 
 	def compile_into_bytecode(self, paths):
-		compile_js = False
-		# we only optimize for production deploy type or if it's forcefully overridden with ti.android.compilejs
-		if self.tiapp.has_app_property("ti.android.compilejs"):
-			if self.tiapp.to_bool(self.tiapp.get_app_property('ti.android.compilejs')):
-				print "[DEBUG] Found ti.android.compilejs=true, overriding default (this may take some time)"
-				sys.stdout.flush()
-				compile_js = True
-		elif self.tiapp.has_app_property('ti.deploytype'):
-			if self.tiapp.get_app_property('ti.deploytype') == 'production':
-				print "[DEBUG] Deploy type is production, turning on JS compilation"
-				sys.stdout.flush()
-				compile_js = True
-		
-		if not compile_js: return
-
 		for fullpath in paths:
 			# skip any JS found inside HTML <script>
 			if fullpath in self.html_scripts: continue
 			self.compile_javascript(fullpath)
+			self.compiled_files.append(fullpath)
+
+		# Pack JavaScript sources into an asset crypt.
+		jspacker.pack(self.project_dir, self.compiled_files, self.appid, self.gen_dir)
 		
 	def get_ext(self, path):
 		fp = os.path.splitext(path)
 		return fp[1][1:]
 		
-	def make_function_from_file(self, path, pack=True):
+	def make_function_from_file(self, path):
 		ext = self.get_ext(path)
 		path = os.path.expanduser(path)
 		file_contents = codecs.open(path,'r',encoding='utf-8').read()
-			
-		if pack: 
-			file_contents = self.pack(path, ext, file_contents)
 			
 		if ext == 'js':
 			# determine which modules this file is using
@@ -208,18 +214,6 @@ class Compiler(object):
 			
 		return file_contents
 		
-	def pack(self, path, ext, file_contents):
-		def jspack(c): return jspacker.jsmin(c)
-		def csspack(c): return CSSPacker(c).pack()
-		
-		packers = {'js': jspack, 'css': csspack }
-		if ext in packers:
-			file_contents = packers[ext](file_contents)
-			of = codecs.open(path,'w',encoding='utf-8')
-			of.write(file_contents)
-			of.close()
-		return file_contents
-	
 	def extra_source_inclusions(self,path):
 		content = codecs.open(path,'r',encoding='utf-8').read()
 		p = ScriptProcessor()
@@ -253,7 +247,7 @@ class Compiler(object):
 						self.extra_source_inclusions(fullpath)
 					if fp[1] == '.js':
 						relative = prefix[1:]
-						js_contents = self.make_function_from_file(fullpath, pack=False)
+						js_contents = self.make_function_from_file(fullpath)
 						if relative!='':
 							key = "%s_%s" % (relative,f)
 						else:

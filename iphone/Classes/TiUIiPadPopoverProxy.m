@@ -176,7 +176,7 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 	[super setWidth:value];
 	if (popoverController != nil)
 	{
-		[self performSelectorOnMainThread:@selector(updateContentSize) withObject:nil waitUntilDone:NO];
+		TiThreadPerformOnMainThread(^{[self updateContentSize];}, NO);
 	}
 }
 
@@ -185,7 +185,7 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 	[super setHeight:value];
 	if (popoverController != nil)
 	{
-		[self performSelectorOnMainThread:@selector(updateContentSize) withObject:nil waitUntilDone:NO];
+		TiThreadPerformOnMainThread(^{[self updateContentSize];}, NO);
 	}
 }
 
@@ -231,6 +231,10 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 
 -(void)updatePopover:(NSNotification *)notification;
 {
+	//This may be due to a possible race condition of rotating the iPad while another popover is coming up.
+	if ((currentlyDisplaying != self)) {
+		return;
+	}
 	[self performSelector:@selector(updatePopoverNow) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration] inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 }
 

@@ -38,6 +38,7 @@ public class TextFieldProxy extends TiViewProxy
 	public TextFieldProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_VALUE, "");
 	}
 
 	public TextFieldProxy(TiContext tiContext)
@@ -49,7 +50,6 @@ public class TextFieldProxy extends TiViewProxy
 	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
 		super.handleCreationArgs(createdInModule, args);
 
-		setProperty(TiC.PROPERTY_VALUE, "");
 	}
 
 	@Override

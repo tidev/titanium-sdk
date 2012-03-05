@@ -1,9 +1,10 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
 package ${packageName};
 
 import org.mozilla.javascript.Context;
@@ -22,6 +23,7 @@ import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.TiConfig;
 
 import org.appcelerator.kroll.runtime.rhino.KrollBindings;
+import org.appcelerator.kroll.runtime.rhino.KrollGeneratedBindings;
 import org.appcelerator.kroll.runtime.rhino.Proxy;
 import org.appcelerator.kroll.runtime.rhino.ProxyFactory;
 import org.appcelerator.kroll.runtime.rhino.RhinoRuntime;
@@ -64,21 +66,37 @@ public class ${className}Prototype extends ${superProxy}
 		return ${protoVar};
 	}
 
+	public static void dispose()
+	{
+		if (DBG) {
+			Log.d(TAG, "dispose()");
+		}
+		${protoVar} = null;
+	}
+
 	public ${className}Prototype()
 	{
 		if (${protoVar} == null && getClass().equals(${className}Prototype.class)) {
 			${protoVar} = this;
+			<#-- Enables us later to only dispose() classes that were actually used. Helps avoid VFY warnings in Android. -->
+			KrollGeneratedBindings.registerUsedPrototypeClass(getClass());
 		}
 
 		<#if isModule>
 		isModule = true;
 		</#if>
 		<@Proxy.listConstants ; isFirst, name, constant>
-		<#if constant.type = "java.lang.String">
-		putConst("${name}", this, "${constant.value}");
+
+		<#if (constant.value)??>
+			<#if constant.type = "java.lang.String">
+			putConst("${name}", this, "${constant.value}");
+			<#else>
+			putConst("${name}", this, ${constant.value?c});
+			</#if>
 		<#else>
-		putConst("${name}", this, ${constant.value?c});
+			putConst("${name}", this, ${className}.${constant.name});
 		</#if>
+
 		</@Proxy.listConstants>
 	}
 
@@ -97,7 +115,11 @@ public class ${className}Prototype extends ${superProxy}
 
 	protected KrollProxySupport createProxy(String creationUrl, Object[] args)
 	{
-		return KrollProxy.createProxy(${className}.class, getRhinoObject(), args, creationUrl); 
+		<#if (useTiContext!false)>
+		return KrollProxy.createDeprecatedProxy(${className}.class, getRhinoObject(), args, creationUrl);
+		<#else>
+		return KrollProxy.createProxy(${className}.class, getRhinoObject(), args, creationUrl);
+		</#if> 
 	}
 
 	// Methods
@@ -317,7 +339,7 @@ public class ${className}Prototype extends ${superProxy}
 			}
 		}
 
-		return result;
+		return TypeConverter.javaObjectToJsObject(result, start);
 	}
 	</#if>
 

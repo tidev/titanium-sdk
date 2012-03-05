@@ -7,11 +7,11 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
@@ -25,7 +25,8 @@ import android.os.Message;
 	"contentHeight", "contentWidth",
 	"showHorizontalScrollIndicator",
 	"showVerticalScrollIndicator",
-	"scrollType"
+	"scrollType",
+	TiC.PROPERTY_CONTENT_OFFSET
 })
 public class ScrollViewProxy extends TiViewProxy
 	implements Handler.Callback
@@ -39,6 +40,7 @@ public class ScrollViewProxy extends TiViewProxy
 	public ScrollViewProxy()
 	{
 		super();
+		
 	}
 
 	public ScrollViewProxy(TiContext context)

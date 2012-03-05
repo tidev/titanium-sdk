@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Intent;
@@ -137,6 +138,18 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			Log.d(LCAT , "Could not getPeople, context is GC'd");
 			return null;
 		}*/
+		
+		if (TiApplication.getInstance() == null) {
+			Log.e(LCAT, "Could not getPeople, application is null");
+			return null;
+		}
+		
+		Activity activity = TiApplication.getInstance().getRootOrCurrentActivity();
+		if (activity == null) {
+			Log.e(LCAT, "Could not getPeople, activity is null");
+			return null;
+		}
+		
 		LinkedHashMap<Long, CommonContactsApi.LightPerson> persons = new LinkedHashMap<Long, LightPerson>();
 		
 		String condition = "mimetype IN " + INConditionForKinds +
@@ -146,7 +159,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			condition += " AND " + additionalCondition;
 		}
 		
-		Cursor cursor = TiApplication.getInstance().getCurrentActivity().managedQuery(
+		Cursor cursor = activity.managedQuery(
 				DataUri, 
 				DATA_PROJECTION, 
 				condition, 
@@ -194,10 +207,21 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 		*/
 		
+		if (TiApplication.getInstance() == null) {
+			Log.e(LCAT, "Could not getPersonById, application is null");
+			return null;
+		}
+		
+		Activity activity = TiApplication.getInstance().getRootOrCurrentActivity();
+		if (activity == null) {
+			Log.e(LCAT, "Could not getPersonById, activity is null");
+			return null;
+		}
+		
 		CommonContactsApi.LightPerson person = null;
-
+		
 		// Basic person data.
-		Cursor cursor = TiApplication.getInstance().getCurrentActivity().managedQuery(
+		Cursor cursor = activity.managedQuery(
 				ContentUris.withAppendedId(ContactsUri, id),
 				PEOPLE_PROJECTION, null, null, null);
 		
@@ -216,7 +240,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		String condition = "mimetype IN " + INConditionForKinds +
 			" AND contact_id = ?";
 		
-		cursor = TiApplication.getInstance().getCurrentActivity().managedQuery(
+		cursor = activity.managedQuery(
 				DataUri, 
 				DATA_PROJECTION, 
 				condition, 
@@ -247,8 +271,14 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			return null;
 		}
 		*/
+		
+		if (TiApplication.getInstance() == null) {
+			Log.e(LCAT, "Could not getInternalContactImage, application is null");
+			return null;
+		}
+		
 		Uri uri = ContentUris.withAppendedId(ContactsUri, id);
-		ContentResolver cr = TiApplication.getInstance().getCurrentActivity().getContentResolver();
+		ContentResolver cr = TiApplication.getInstance().getContentResolver();
 		InputStream stream = null;
 		try {
 			stream = (InputStream) openContactPhotoInputStream.invoke(null, cr, uri);
@@ -267,5 +297,4 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 		return bm;
 	}
-
 }

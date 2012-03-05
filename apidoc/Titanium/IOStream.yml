@@ -1,6 +1,6 @@
 ---
 name: Titanium.IOStream
-description: IOStream is the interface that all stream types implement
+summary: IOStream is the interface that all stream types implement
 since: "1.7"
 extends: Titanium.Proxy
 createable: false
@@ -10,69 +10,69 @@ methods:
   - name: read
     returns:
         type: Number
-        description: Number of bytes read.
-    description: reads data from stream into a buffer
+        summary: Number of bytes read.
+    summary: reads data from stream into a buffer
     parameters:
       - name: buffer
-        description: buffer to read stream data into
+        summary: buffer to read stream data into
         type: Titanium.Buffer
 
   - name: read
     returns:
         type: Number
-        description: Number of bytes read.
-    description: reads data from stream into a buffer
+        summary: Number of bytes read.
+    summary: reads data from stream into a buffer
     parameters:
       - name: buffer
-        description: buffer to read stream data into
+        summary: buffer to read stream data into
         type: Titanium.Buffer
       - name: offset
-        description: offset to start reading buffer data from
+        summary: offset to start reading buffer data from
         type: Number
       - name: length
-        description: length of data to read from buffer
+        summary: length of data to read from buffer
         type: Number
 
   - name: write
     returns:
         type: Number
-        description: Number of bytes written.
-    description: writes data from buffer to stream
+        summary: Number of bytes written.
+    summary: writes data from buffer to stream
     parameters:
       - name: buffer
-        description: buffer to write to stream
+        summary: buffer to write to stream
         type: Titanium.Buffer
 
   - name: write
     returns:
         type: Number
-        description: Number of bytes written.
-    description: reads data from stream into a buffer
+        summary: Number of bytes written.
+    summary: reads data from stream into a buffer
     parameters:
       - name: buffer
-        description: buffer to write to stream
+        summary: buffer to write to stream
         type: Titanium.Buffer
       - name: offset
-        description: offset to start writing buffer data from
+        summary: offset to start writing buffer data from
         type: Number
       - name: length
-        description: length of data to write from buffer
+        summary: length of data to write from buffer
         type: Number
 
   - name: isWriteable
     returns:
         type: Boolean
-        description: true if stream is writeable, false otherwise
-    description: Whether stream is writeable.
+        summary: true if stream is writeable, false otherwise
+    summary: Whether stream is writeable.
 
   - name: isReadable
-    description: Whether stream is readable.
+    summary: Whether stream is readable.
     returns:
         type: Boolean
-        description: true if stream is readable, false otherwise
+        summary: true if stream is readable, false otherwise
 
   - name: close
-    description: closes stream and throws exception on error
+    summary: closes stream and throws exception on error
 
 
 examples:

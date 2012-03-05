@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.android;
 
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLaunchActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
@@ -19,9 +18,6 @@ import android.content.Intent;
 
 public abstract class TiJSActivity extends TiLaunchActivity
 {
-	private static final String TAG = "TiBaseActivity";
-	private static boolean DBG = TiConfig.LOGD;
-
 	protected String url;
 	protected TiUIActivityWindow activityWindow;
 

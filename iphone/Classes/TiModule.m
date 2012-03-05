@@ -21,7 +21,14 @@
 
 -(void)dealloc
 {	
-	[self performSelectorOnMainThread:@selector(unregisterForNotifications) withObject:nil waitUntilDone:YES];
+    // Have to jump through a hoop here to keep the dealloc block from
+    // retaining 'self' by creating a __block access ref. Note that
+    // this is only safe as long as the block until completion is YES.
+    __block id bself = self;
+	TiThreadPerformOnMainThread(^{
+        [bself unregisterForNotifications];
+    }, YES);
+    
 	RELEASE_TO_NIL(host);
 	if (classNameLookup != NULL)
 	{
@@ -94,7 +101,7 @@
 		classNameLookup = CFDictionaryCreateMutable(kCFAllocatorDefault, 1, &kCFTypeDictionaryKeyCallBacks, NULL);
 		//We do not retain the Class, but simply assign them.
 	}
-	[self performSelectorOnMainThread:@selector(registerForNotifications) withObject:nil waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[self registerForNotifications];}, NO);
 }
 
 -(void)_configure

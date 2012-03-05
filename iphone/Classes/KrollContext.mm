@@ -15,6 +15,8 @@
 #include <pthread.h>
 #import "TiDebugger.h"
 
+#import "TiUIAlertDialogProxy.h"
+
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
 #endif
@@ -245,6 +247,28 @@ static TiValueRef LCallback (TiContextRef jsContext, TiObjectRef jsFunction, TiO
 		return ThrowException(jsContext, [e reason], exception);
 	}
 }	
+
+static TiValueRef AlertCallback (TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
+                                 const TiValueRef args[], TiValueRef* exception)
+{
+#ifdef KROLL_COVERAGE
+    [KrollCoverageObject incrementTopLevelFunctionCall:TOP_LEVEL name:@"alert"];
+#endif
+    
+    if (argCount < 1) {
+        return ThrowException(jsContext, @"invalid number of arguments", exception);
+    }
+    
+    KrollContext* ctx = GetKrollContext(jsContext);
+    NSString* message = [KrollObject toID:ctx value:args[0]];
+    
+    TiUIAlertDialogProxy* alert = [[[TiUIAlertDialogProxy alloc] _initWithPageContext:(id<TiEvaluator>)[ctx delegate] args:nil] autorelease];
+    [alert setValue:@"Alert" forKey:@"title"];
+    [alert setValue:message forKey:@"message"];
+    [alert show:nil];
+    
+    return TiValueMakeUndefined(jsContext);
+}
 
 static TiValueRef StringFormatCallback (TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
 							 const TiValueRef args[], TiValueRef* exception)
@@ -539,14 +563,22 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	[super dealloc];
 }
 
--(void)invoke:(KrollContext*)context
+-(TiValueRef) jsInvokeInContext: (KrollContext*)context exception: (TiValueRef *)exceptionPointer
 {
 	TiStringRef js = TiStringCreateWithCFString((CFStringRef) code);
 	TiObjectRef global = TiContextGetGlobalObject([context context]);
 	
-	TiValueRef exception = NULL;
+	TiValueRef result = TiEvalScript([context context], js, global, NULL, 1, exceptionPointer);
+		
+	TiStringRelease(js);
 	
-	TiEvalScript([context context], js, global, NULL, 1, &exception);
+	return result;
+}
+
+-(void)invoke:(KrollContext*)context
+{
+	TiValueRef exception = NULL;
+	[self jsInvokeInContext:context exception:&exception];
 
 	if (exception!=NULL)
 	{
@@ -554,30 +586,20 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		NSLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
 		fflush(stderr);
 	}
-	
-	TiStringRelease(js);
 }
 
 -(id)invokeWithResult:(KrollContext*)context
 {
-	TiStringRef js = TiStringCreateWithCFString((CFStringRef) code);
-	TiObjectRef global = TiContextGetGlobalObject([context context]);
-	
 	TiValueRef exception = NULL;
-	
-	TiValueRef result = TiEvalScript([context context], js, global, NULL, 1, &exception);
+	TiValueRef result = [self jsInvokeInContext:context exception:&exception];
 	
 	if (exception!=NULL)
 	{
 		id excm = [KrollObject toID:context value:exception];
 		NSLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
 		fflush(stderr);
-		TiStringRelease(js);
-		throw excm;
+		@throw excm;
 	}
-	
-	TiStringRelease(js);
-	
 	return [KrollObject toID:context value:result];
 }
 
@@ -611,6 +633,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(void)dealloc
 {
+    [callback release];
 	[type release];
 	[thisObject release];
 	[callbackObject release];
@@ -1007,6 +1030,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	[self bindCallback:@"clearInterval" callback:&ClearTimerCallback];
 	[self bindCallback:@"require" callback:&CommonJSRequireCallback];
 	[self bindCallback:@"L" callback:&LCallback];
+    [self bindCallback:@"alert" callback:&AlertCallback];
 
 	prop = TiStringCreateWithUTF8CString("String");
 	
@@ -1225,7 +1249,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		[lock lock];
 		int queue_count = [queue count];
 		[lock unlock];
-		if (queue_count == 0)
+		if ((queue_count == 0) && !suspended)
 		{
 			// wait only 10 seconds and then loop, this will allow us to garbage
 			// collect every so often
@@ -1282,7 +1306,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	TiObjectDeleteProperty(context, globalRef, prop, NULL);	//TODO: This still needed?
 	TiStringRelease(prop);
 
-	[self performSelectorOnMainThread:@selector(unregisterForNotifications) withObject:nil waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[self unregisterForNotifications];}, NO);
 	[self forceGarbageCollectNow];
 	// cause the global context to be released and all objects internally to be finalized
 	TiGlobalContextRelease(context);

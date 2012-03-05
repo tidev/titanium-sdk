@@ -1,7 +1,7 @@
 ---
 name: Titanium.XML.CharacterData
 extends: Titanium.XML.Node
-description: An interface extending <Titanium.XML.Node> with a set of
+summary: An interface extending <Titanium.XML.Node> with a set of
     attributes and methods for accessing character data in the DOM. This
     conforms to the [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
     defintion of a DOM CharacterData. Unlike the DOM, for reasons of compatibility 
@@ -11,76 +11,76 @@ createable: false
 platforms: [android, iphone, ipad]
 methods:
   - name: appendData
-    description: Append the string to the end of the character data of the node. 
+    summary: Append the string to the end of the character data of the node. 
         Upon success, data provides access to the concatenation of data and the
         string specified.
         Throws an exception if this node is readonly.
     parameters: 
       - name: arg
-        description: The string to append.
+        summary: The string to append.
         type: String
   - name: deleteData
-    description: Remove a range of characters from the node. Upon success, data 
+    summary: Remove a range of characters from the node. Upon success, data 
         and length reflect the change.
         Throws an exception if this node is readonly, if offset is negative, 
         offset is beyond the data's length, or if count is negative.
     parameters:
       - name: offset
-        description: The offset from which to start removing.
+        summary: The offset from which to start removing.
         type: Number
       - name: count
-        description: The number of characters to delete. If the sum of offset 
+        summary: The number of characters to delete. If the sum of offset 
             and count exceeds length then all characters from offset to the end of 
             the data are deleted.
         type: Number
   - name: insertData
-    description: Insert a string at the specified offset.
+    summary: Insert a string at the specified offset.
         Throws an exception if this node is readonly, if offset is negative, or if offset is beyond the data's length.
     parameters:
       - name: offset
-        description: The character offset at which to insert.
+        summary: The character offset at which to insert.
         type: Number
       - name: arg
-        description: The string to insert.
+        summary: The string to insert.
         type: String
   - name: replaceData
-    description: Replace the characters starting at the specified offset with 
+    summary: Replace the characters starting at the specified offset with 
         the specified string.
         Throws an exception if this node is readonly, if offset is negative, offset is beyond the data's length, or if count is negative.
     parameters:
       - name: offset
-        description: The offset from which to start replacing.
+        summary: The offset from which to start replacing.
         type: Number
       - name: count
-        description: The number of characters to replace. If the sum of offset
+        summary: The number of characters to replace. If the sum of offset
             and count exceeds length, then all characters to the end of the data 
             are replaced; (i.e., the effect is the same as a remove method call with the same range, followed by an append method invocation).
         type: Number
       - name: arg
-        description: The string with which the range must be replaced.
+        summary: The string with which the range must be replaced.
         type: String
   - name: substringData
-    description: Extracts a range of data from the node.
+    summary: Extracts a range of data from the node.
         Throws an exception if offset is negative, offset is beyond the data's length, or if count is negative.
     returns:
         type: String
-        description: The specified substring. If the sum of offset and count
+        summary: The specified substring. If the sum of offset and count
             exceeds the length, then all 16-bit units to the end of the data
             are returned.
     parameters:
       - name: offset
-        description: Start offset of substring to extract.
+        summary: Start offset of substring to extract.
         type: Number
       - name: count
-        description: The number of characters units to extract.
+        summary: The number of characters units to extract.
         type: Number
 properties:
   - name: data
-    description: The character data of the node that implements this interface.
+    summary: The character data of the node that implements this interface.
         Throws an exception during setting if this node is readonly.
     type: String
   - name: length
-    description: The number of characters that are available through data and
+    summary: The number of characters that are available through data and
         the substringData method. This may have the value zero, i.e.,
         <Titanium.XML.CharacterData> may be empty.
     type: Number

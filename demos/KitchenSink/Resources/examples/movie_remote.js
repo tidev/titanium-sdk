@@ -2,29 +2,31 @@ var win = Titanium.UI.currentWindow;
 
 var contentURL = 'http://movies.apple.com/media/us/ipad/2010/tours/apple-ipad-video-us-20100127_r848-9cie.mov';
 if (Ti.Platform.name == 'android') {
-	contentURL = "http://c0222252.cdn.cloudfiles.rackspacecloud.com/0032_MotoBlur.m4v";
+	contentURL = "http://dts.podtrac.com/redirect.mp4/twit.cachefly.net/video/aaa/aaa0033/aaa0033_h264b_640x368_256.mp4";
 }
 var activeMovie = Titanium.Media.createVideoPlayer({
-	contentURL: contentURL,
+	url: contentURL,
 	backgroundColor:'#111',
-	movieControlMode:Titanium.Media.VIDEO_CONTROL_DEFAULT,
+	movieControlMode:Titanium.Media.VIDEO_CONTROL_DEFAULT, // See TIMOB-2802, which may change this property name
 	scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL
 });
 
-if (parseFloat(Titanium.Platform.version) >= 3.2)
-{
-	win.add(activeMovie);
-}
-
+win.add(activeMovie);
 var windowClosed = false;
 
 activeMovie.addEventListener('complete',function()
 {
 	if (!windowClosed)
 	{
-		Titanium.UI.createAlertDialog({title:'Movie', message:'Completed!'}).show();
+		var dlg = Titanium.UI.createAlertDialog({title:'Movie', message:'Completed!'});
+		if (Ti.Platform.name === "android") {
+			win.close();
+			dlg.show();
+		} else {
+			dlg.show();
+			win.close();
+		}
 	}
-	win.close();
 });
 
 activeMovie.play();
@@ -34,7 +36,6 @@ win.addEventListener('close', function()
 	if (!windowClosed)
 	{
 		windowClosed = true;
-		alert("Window closed");
 		activeMovie.stop();
 	}
 });

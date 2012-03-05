@@ -27,7 +27,6 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiLaunchActivity;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
-import org.appcelerator.titanium.TiLifecycle.OnServiceLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -35,14 +34,12 @@ import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
-import android.app.Service;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.Looper;
 
 @Kroll.module @Kroll.topLevel({"Ti", "Titanium"})
 public class TitaniumModule extends KrollModule
-	implements OnLifecycleEvent, OnServiceLifecycleEvent
+	implements OnLifecycleEvent
 {
 	private static final String LCAT = "TitaniumModule";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -244,12 +241,12 @@ public class TitaniumModule extends KrollModule
 
 		// FIXME this used to look at the activity / tiContext, but we don't care now
 		if (window != null) {
-			thread = Looper.getMainLooper().getThread();
+			thread = getRuntimeHandler().getLooper().getThread();
 
 		} else {
 			if (activity instanceof TiLaunchActivity) {
 				//TiLaunchActivity launchActivity = (TiLaunchActivity) activity;
-				thread = Looper.getMainLooper().getThread();
+				thread = getRuntimeHandler().getLooper().getThread();
 			}
 		}
 
@@ -441,11 +438,6 @@ public class TitaniumModule extends KrollModule
 		}
 
 		super.onDestroy(activity);
-	}
-
-	// TODO @Override
-	public void onDestroy(Service service)
-	{
 	}
 }
 

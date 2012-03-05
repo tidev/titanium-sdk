@@ -102,9 +102,13 @@ class TiAppXML(object):
 					self.parse_iphone(child)
 				elif child.nodeName == 'property':
 					name = child.getAttribute('name')
+					type = child.getAttribute('type') or 'string'
 					value = getText(child.childNodes)
-					print "[TRACE] app property, %s : %s" % (name, value)
-					self.app_properties[name] = value
+					print "[TRACE] app property, %s %s : %s" % (type, name, value)
+					self.app_properties[name] = {
+						'type': type,
+						'value': value
+					}
 					
 				# properties of the app
 				else:

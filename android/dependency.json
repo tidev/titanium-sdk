@@ -27,11 +27,13 @@
 	{
 		"android":["jaxen-1.1.1.jar","ti-commons-codec-1.3.jar","kroll-common.jar","titanium.jar"],
 		"xml":["jaxen-1.1.1.jar"],
-		"ui":["android-support-v4.jar"]
+		"ui":["android-support-v4.jar"],
+		"network":["thirdparty.jar"]
 	},
 	"runtimes":
 	{
 		"v8":["kroll-v8.jar"],
-		"rhino":["kroll-rhino.jar","js.jar"]
+		"rhino":["kroll-rhino.jar","js.jar"],
+		"defaultRuntime":"v8"
 	}
 }

@@ -1,34 +1,81 @@
 ---
 name: Titanium.Database.DB
-description: The Database instance returned by <Titanium.Database.open> or <Titanium.Database.install>.
+summary: The `Database` instance returned by <Titanium.Database.open> or <Titanium.Database.install>.
 extends: Titanium.Proxy
 since: "0.1"
 createable: false
 methods:
   - name: close
-    description: close the database and release resources from memory. once closed, this instance is no longer valid and must no longer be used.
+    summary: |
+      Closes the database and releases resources from memory. Once closed, this
+      instance is no longer valid and should not be used.
   - name: execute
-    description: execute a SQL statement against the database and returns a ResultSet
+    summary: |
+      Executes an SQL statement against the database and returns a `ResultSet`.
     returns:
-        type: Object
+        type: Titanium.Database.ResultSet
     parameters:
       - name: sql
-        description: the SQL to execute
+        summary: SQL to execute. May include placeholders for parameter substitution.
         type: String
       - name: vararg
-        description: one or more optional variable arguments passed to this function or an array of objects to be replaced in the query using `?` substitution.
-        type: Array<Object>
+        summary: |
+          Either a variable ordered list of zero or more values, or an array of values,
+          to be substituted with the respective `?` placeholder of the query.
+        type: [String, Array<String>, Object, Array<Object>]
         optional: true
+    examples:
+    - title: Executing a Query
+      example: |
+        The following code will install a database using [Titanium.Database.install](Titanium.Database.install)
+        and execute SQL statements that will create a table, insert data
+        and query the table.
+
+            var db = Ti.Database.install('mydb1', 'mydb1Installed');
+            db.execute('DELETE FROM people');
+            db.execute('CREATE TABLE IF NOT EXISTS people (name TEXT, phone_number TEXT, city TEXT)');
+
+            var thisName = 'Arthur';
+            var thisPhoneNo = '1-617-000-0000';
+            var thisCity = 'Mountain View';
+            db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', thisName, thisPhoneNo, thisCity);
+
+            var personArray = ['Paul','020 7000 0000', 'London'];
+            db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', personArray);
+
+            var rows = db.execute('SELECT rowid,name,phone_number,city FROM people');
+            db.close();
+
+            while (rows.isValidRow())
+            {
+              Ti.API.info('Person ---> ROWID: ' + rows.fieldByName('rowid') + ', name:' + rows.field(1) + ', phone_number: ' + rows.fieldByName('phone_number') + ', city: ' + rows.field(3));
+              rows.next();
+            }
+            rows.close();
+
+        Note that the above `SELECT` query contains the [rowid](http://www.sqlite.org/lang_createtable.html#rowid)
+        column, which is a SQLite-specific column that stores the unique identifier for each row.
   - name: remove
-    description: |
-        remove the database files for this instance from disk. WARNING: this is a destructive operation and cannot be reversed. All data in the database will be lost upon calling this function. Use with caution.
+    platforms: [android]
+    summary: |
+        Removes the database files for this instance from disk. WARNING: this is
+        a destructive operation and cannot be reversed. All data in the database
+        will be lost; use with caution.
 properties:
+  - name: file
+    summary: |
+      A `File` object representing the file where this database is stored. Must
+      only be used for setting file properties.
+    type: Titanium.Filesystem.File
+    platforms: [iphone,ipad]
+    since: "1.9"
+    permission: read-only
   - name: lastInsertRowId
-    description: the last row identifier by the last INSERT query
+    summary: The identifier of the last populated row.
     type: Number
   - name: name
-    description: the name of the database
+    summary: The name of the database.
     type: String
   - name: rowsAffected
-    description: the number of rows affected by the last query
+    summary: The number of rows affected by the last query.
     type: Number

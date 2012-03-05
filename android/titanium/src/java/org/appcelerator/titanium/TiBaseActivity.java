@@ -1,21 +1,23 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
-import org.appcelerator.titanium.TiLifecycle.OnServiceLifecycleEvent;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -29,6 +31,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
@@ -42,6 +45,10 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 
+/**
+ * The base class for all non tab Titanium activities. To learn more about Activities, see the
+ * <a href="http://developer.android.com/reference/android/app/Activity.html">Android Activity documentation</a>.
+ */
 public abstract class TiBaseActivity extends Activity 
 	implements TiActivitySupport/*, ITiWindowHandler*/
 {
@@ -53,11 +60,11 @@ public abstract class TiBaseActivity extends Activity
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
 	private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
-	private TiWeakList<OnServiceLifecycleEvent> serviceLifecycleListeners;
 
 	protected TiCompositeLayout layout;
 	protected TiActivitySupportHelper supportHelper;
 	protected TiWindowProxy window;
+	protected TiViewProxy view;
 	protected ActivityProxy activityProxy;
 	protected boolean mustFireInitialFocus;
 	protected TiWeakList<ConfigurationChangedListener> configChangedListeners = new TiWeakList<ConfigurationChangedListener>();
@@ -66,6 +73,8 @@ public abstract class TiBaseActivity extends Activity
 	protected Messenger messenger;
 	protected int msgActivityCreatedId = -1;
 	protected int msgId = -1;
+	protected static int previousOrientation = -1;
+	private ArrayList<Dialog> dialogs = new ArrayList<Dialog>();
 
 	public TiWindowProxy lwWindow;
 
@@ -92,37 +101,66 @@ public abstract class TiBaseActivity extends Activity
 		public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig);
 	}
 
-	public void activityOnCreate(Bundle savedInstanceState)
-	{
-		super.onCreate(savedInstanceState);
-	}
-
+	/**
+	 * @return the instance of TiApplication.
+	 */
 	public TiApplication getTiApp()
 	{
 		return (TiApplication) getApplication();
 	}
 
+	/**
+	 * @return the window proxy associated with this activity.
+	 */
 	public TiWindowProxy getWindowProxy()
 	{
 		return this.window;
 	}
 
+	/**
+	 * Sets the window proxy.
+	 * @param proxy
+	 */
 	public void setWindowProxy(TiWindowProxy proxy)
 	{
 		this.window = proxy;
 		updateTitle();
 	}
+	
+	/**
+	 * Sets the view proxy.
+	 * @param proxy
+	 */
+	public void setViewProxy(TiViewProxy proxy)
+	{
+		this.view = proxy;
+	}
 
+	/**
+	 * @return activity proxy associated with this activity.
+	 */
 	public ActivityProxy getActivityProxy()
 	{
 		return activityProxy;
 	}
 
+	public void addDialog(Dialog d) 
+	{
+		dialogs.add(d);
+	}
+	
+	public void removeDialog(Dialog d) 
+	{
+		dialogs.remove(d);
+	}
 	public void setActivityProxy(ActivityProxy proxy)
 	{
 		this.activityProxy = proxy;
 	}
 
+	/**
+	 * @return the activity's current layout.
+	 */
 	public TiCompositeLayout getLayout()
 	{
 		return layout;
@@ -290,14 +328,44 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When the activity is created, this method adds it to the activity stack and
+	 * fires a javascript 'create' event.
+	 * @param savedInstanceState Bundle of saved data.
+	 */
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onCreate");
 		}
 
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			super.onCreate(savedInstanceState);
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
+		if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
+			Log.w(TAG, "Unsupported, out-of-order activity creation. Finishing.");
+			super.onCreate(savedInstanceState);
+			tiApp.scheduleRestart(250);
+			finish();
+			return;
+		}
+
+		if (!isTabActivity()) {
+			TiApplication.addToActivityStack(this);
+		}
+
 		// create the activity proxy here so that it is accessible from the activity in all cases
 		activityProxy = new ActivityProxy(this);
+
+		// Increment the reference count so we correctly clean up when all of our activities have been destroyed
+		KrollRuntime.incrementActivityRefCount();
 
 		Intent intent = getIntent();
 		if (intent != null) {
@@ -321,21 +389,21 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		super.onCreate(savedInstanceState);
+		
+		// we only want to set the current activity for good in the resume state but we need it right now.
+		// save off the existing current activity, set ourselves to be the new current activity temporarily 
+		// so we don't run into problems when we give the proxy the event
+		Activity tempCurrentActivity = tiApp.getCurrentActivity();
+		tiApp.setCurrentActivity(this, this);
+
 		windowCreated();
 
 		if (activityProxy != null) {
-			// we only want to set the current activity for good in the resume state but we need it right now.
-			// save off the existing current activity, set ourselves to be the new current activity temporarily 
-			// so we don't run into problems when we give the proxy the event
-			TiApplication tiApp = getTiApp();
-			Activity tempCurrentActivity = tiApp.getCurrentActivity();
-			tiApp.setCurrentActivity(this, this);
-
 			activityProxy.fireSyncEvent(TiC.EVENT_CREATE, null);
-
-			// set the current activity back to what it was originally
-			tiApp.setCurrentActivity(this, tempCurrentActivity);
 		}
+
+		// set the current activity back to what it was originally
+		tiApp.setCurrentActivity(this, tempCurrentActivity);
 
 		setContentView(layout);
 
@@ -408,6 +476,9 @@ public abstract class TiBaseActivity extends Activity
 		return getSupportHelper().getUniqueResultCode();
 	}
 
+	/**
+	 * See TiActivitySupport.launchActivityForResult for more details.
+	 */
 	public void launchActivityForResult(Intent intent, int code, TiActivityResultHandler resultHandler)
 	{
 		getSupportHelper().launchActivityForResult(intent, code, resultHandler);
@@ -424,7 +495,14 @@ public abstract class TiBaseActivity extends Activity
 	public boolean dispatchKeyEvent(KeyEvent event) 
 	{
 		boolean handled = false;
-
+		
+		TiViewProxy window;
+		if (this.window != null) {
+			window = this.window;
+		} else {
+			window = this.view;
+		}
+		
 		if (window == null) {
 			return super.dispatchKeyEvent(event);
 		}
@@ -520,6 +598,14 @@ public abstract class TiBaseActivity extends Activity
 	{
 		return menuHelper.onPrepareOptionsMenu(super.onPrepareOptionsMenu(menu), menu);
 	}
+	
+	public static void callOrientationChangedListener(Configuration newConfig) 
+	{
+		if (orientationChangedListener != null && previousOrientation != newConfig.orientation) {
+			previousOrientation = newConfig.orientation;
+			orientationChangedListener.onOrientationChanged (newConfig.orientation);
+		}
+	}
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
@@ -532,10 +618,7 @@ public abstract class TiBaseActivity extends Activity
 			}
 		}
 
-		if (orientationChangedListener != null)
-		{
-			orientationChangedListener.onOrientationChanged (newConfig.orientation);
-		}
+		callOrientationChangedListener(newConfig);
 	}
 
 	@Override
@@ -565,17 +648,24 @@ public abstract class TiBaseActivity extends Activity
 		// TODO stub
 	}
 
-	public void addOnServiceLifecycleEventListener(OnServiceLifecycleEvent listener)
+	private void releaseDialogs()
 	{
-		serviceLifecycleListeners.add(new WeakReference<OnServiceLifecycleEvent>(listener));
-	}
-
-	public void removeOnServiceLifecycleEventListener(OnServiceLifecycleEvent listener)
-	{
-		serviceLifecycleListeners.remove(listener);
+		//clean up dialogs when activity is finishing
+		while (dialogs.size() > 0) {
+			Dialog dialog = dialogs.get(0);
+			if (dialog.isShowing()) {
+				dialog.dismiss();
+			}
+			removeDialog(dialog);
+		}
+		dialogs = null;
 	}
 
 	@Override
+	/**
+	 * When this activity pauses, this method sets the current activity to null, fires a javascript 'pause' event,
+	 * and if the activity is finishing, remove all dialogs associated with it.
+	 */
 	protected void onPause() 
 	{
 		super.onPause();
@@ -584,7 +674,22 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onPause");
 		}
 
-		getTiApp().setCurrentActivity(this, null);
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			releaseDialogs();
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
+		TiApplication.updateActivityTransitionState(true);
+		tiApp.setCurrentActivity(this, null);
+
+		if (this.isFinishing()) {
+			releaseDialogs();
+		}
 
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_PAUSE, null);
@@ -603,6 +708,10 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When the activity resumes, this method updates the current activity to this and fires a javascript
+	 * 'resume' event.
+	 */
 	protected void onResume()
 	{
 		super.onResume();
@@ -611,8 +720,17 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onResume");
 		}
 
-		getTiApp().setCurrentActivity(this, this);
+		TiApplication tiApp = getTiApp();
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
 
+		tiApp.setCurrentActivity(this, this);
+		TiApplication.updateActivityTransitionState(false);
+		
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_RESUME, null);
 		}
@@ -630,6 +748,11 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When this activity starts, this method updates the current activity to this if necessary and
+	 * fire javascript 'start' and 'focus' events. Focus events will only fire if 
+	 * the activity is not a tab activity.
+	 */
 	protected void onStart()
 	{
 		super.onStart();
@@ -638,10 +761,23 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onStart");
 		}
 
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
 		updateTitle();
 		
 		if (window != null) {
-			window.fireEvent(TiC.EVENT_FOCUS, null);
+			//we don't need to fire focus event for Tab activities as this is being done in TiUITabGroup.onTabChanged()
+			if (!(this instanceof TiActivity && ((TiActivity)this).isTab())) {
+				window.fireEvent(TiC.EVENT_FOCUS, null);
+			}
+			
 
 		} else {
 			mustFireInitialFocus = true;
@@ -651,7 +787,6 @@ public abstract class TiBaseActivity extends Activity
 			// we only want to set the current activity for good in the resume state but we need it right now.
 			// save off the existing current activity, set ourselves to be the new current activity temporarily 
 			// so we don't run into problems when we give the proxy the event
-			TiApplication tiApp = getTiApp();
 			Activity tempCurrentActivity = tiApp.getCurrentActivity();
 			tiApp.setCurrentActivity(this, this);
 
@@ -674,6 +809,10 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When this activity stops, this method fires the javascript 'blur' and 'stop' events. Blur events will only fire
+	 * if the activity is not a tab activity.
+	 */
 	protected void onStop()
 	{
 		super.onStop();
@@ -682,8 +821,18 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onStop");
 		}
 
+		if (getTiApp().isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
 		if (window != null) {
-			window.fireEvent(TiC.EVENT_BLUR, null);
+			//we don't need to fire blur for tabs b/c we're not firing focus when we re-enter the app
+			if (!(this instanceof TiActivity && ((TiActivity)this).isTab())) {
+				window.fireEvent(TiC.EVENT_BLUR, null);
+			}
 		}
 
 		if (activityProxy != null) {
@@ -703,6 +852,10 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When this activity restarts, this method updates the current activity to this and fires javascript 'restart'
+	 * event.
+	 */
 	protected void onRestart()
 	{
 		super.onRestart();
@@ -711,11 +864,19 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onRestart");
 		}
 
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
 		if (activityProxy != null) {
 			// we only want to set the current activity for good in the resume state but we need it right now.
 			// save off the existing current activity, set ourselves to be the new current activity temporarily 
 			// so we don't run into problems when we give the proxy the event
-			TiApplication tiApp = getTiApp();
 			Activity tempCurrentActivity = tiApp.getCurrentActivity();
 			tiApp.setCurrentActivity(this, this);
 
@@ -727,10 +888,24 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When this activity is destroyed, this method removes it from the activity stack, performs
+	 * clean up, and fires javascript 'destroy' event. 
+	 */
 	protected void onDestroy()
 	{
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onDestroy");
+		}
+
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			super.onDestroy();
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
 		}
 
 		synchronized (lifecycleListeners.synchronizedList()) {
@@ -744,6 +919,12 @@ public abstract class TiBaseActivity extends Activity
 			}
 		}
 
+		boolean isTab = isTabActivity();
+		//When we close a tabgroup, we don't remove its children from the stack, so here we remove the children if the parent is finishing.
+		if (!isTab || (isTab && this.getParent().isFinishing())) {
+			TiApplication.removeFromActivityStack(this);
+		}
+
 		super.onDestroy();
 
 		// Our Activities are currently unable to recover from Android-forced restarts,
@@ -755,7 +936,7 @@ public abstract class TiBaseActivity extends Activity
 				getIntent().putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, true);
 			}
 
-			getTiApp().scheduleRestart(250);
+			tiApp.scheduleRestart(250);
 			finish();
 
 			return;
@@ -763,6 +944,7 @@ public abstract class TiBaseActivity extends Activity
 
 		fireOnDestroy();
 
+		
 		if (layout != null) {
 			Log.e(TAG, "Layout cleanup.");
 			layout.removeAllViews();
@@ -783,6 +965,8 @@ public abstract class TiBaseActivity extends Activity
 			activityProxy.release();
 			activityProxy = null;
 		}
+
+		KrollRuntime.decrementActivityRefCount();
 	}
 
 	// called in order to ensure that the onDestroy call is only acted upon once.
@@ -813,6 +997,7 @@ public abstract class TiBaseActivity extends Activity
 
 		boolean animate = getIntentBoolean(TiC.PROPERTY_ANIMATE, true);
 
+		
 		if (shouldFinishRootActivity()) {
 			TiApplication app = getTiApp();
 			if (app != null) {
@@ -828,6 +1013,85 @@ public abstract class TiBaseActivity extends Activity
 		if (!animate) {
 			TiUIHelper.overridePendingTransition(this);
 		}
+	}
+
+	/**
+	 * @return true if this activity is a tab activity, false otherwise.
+	 */
+	protected boolean isTabActivity()
+	{
+		boolean isTab = false;
+		if (this instanceof TiActivity) {
+			if (((TiActivity)this).isTab()) {
+				isTab = true;
+			}
+		}
+
+		return isTab;
+	}
+
+	// These activityOnXxxx are all used by TiLaunchActivity when
+	// the android bug 2373 is detected and the app is being re-started.
+	// By calling these from inside its on onXxxx handlers, TiLaunchActivity
+	// can avoid calling super.onXxxx (super being TiBaseActivity), which would
+	// result in a bunch of Titanium-specific code running when we don't need it
+	// since we are restarting the app as fast as possible. Calling these methods
+	// allows TiLaunchActivity to fulfill the requirement that the Android built-in
+	// Activity's onXxxx must be called. (Think of these as something like super.super.onXxxx
+	// from inside TiLaunchActivity.)
+	protected void activityOnPause()
+	{
+		super.onPause();
+	}
+	protected void activityOnResume()
+	{
+		super.onResume();
+	}
+	protected void activityOnStop()
+	{
+		super.onStop();
+	}
+	protected void activityOnStart()
+	{
+		super.onStart();
+	}
+	protected void activityOnDestroy()
+	{
+		super.onDestroy();
+	}
+
+	public void activityOnCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+	}
+
+	/**
+	 * Called by the onCreate methods of TiBaseActivity and TiTabActivity (the latter does
+	 * not extend the former) to determine if an unsupported application re-launch appears to
+	 * be occurring. It's here simply as a convenience for both classes to use it without duplication.
+	 * @param activity The Activity getting the onCreate
+	 * @param savedInstanceState The argument passed to the onCreate. A non-null value is a "tell"
+	 * that the system is re-starting a killed application.
+	 */
+	public static boolean isUnsupportedReLaunch(Activity activity, Bundle savedInstanceState)
+	{
+		if (savedInstanceState != null && !(activity instanceof TiLaunchActivity) &&
+			!(TiApplication.getInstance().activityStackHasLaunchActivity())) {
+			/**
+			 * This state "looks like" the following has occurred:
+			 *
+			 * a) The app was running, but Android killed it off (such as, to save memory),
+			 * or a third-party task killer killed it.
+			 * b)  The app is now re-starting, and this activity -- which is *not*
+			 * a launch activity -- is being asked by Android to come into the foreground,
+			 * with none of our launch activities "behind" it.
+			 *
+			 * This is a situation we can't currently handle.  We count on a "normal" lifecycle
+			 * beginning with a launch activity.
+			 */
+			return true;
+		}
+		return false;
 	}
 }
 

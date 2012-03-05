@@ -26,6 +26,11 @@ import android.content.Intent;
 	"onCreateOptionsMenu",
 	"onPrepareOptionsMenu"
 })
+/**
+ * This is a proxy representation of the Android Activity type.
+ * Refer to <a href="http://developer.android.com/reference/android/app/Activity.html">Android Activity</a>
+ * for more details.
+ */
 public class ActivityProxy extends KrollProxy
 	implements TiActivityResultHandler
 {
@@ -41,7 +46,6 @@ public class ActivityProxy extends KrollProxy
 	public ActivityProxy()
 	{
 	}
-
 
 	public ActivityProxy(Activity activity)
 	{
@@ -79,12 +83,11 @@ public class ActivityProxy extends KrollProxy
 
 			DecorViewProxy decorViewProxy = new DecorViewProxy(((TiBaseActivity)activity).getLayout());
 			decorViewProxy.setActivity(activity);
-
-			return decorViewProxy;
-
-		} else {
-			return savedDecorViewProxy;
+			savedDecorViewProxy = decorViewProxy;
 		}
+		
+		return savedDecorViewProxy;
+		
 	}
 
 	@Kroll.method
@@ -217,6 +220,7 @@ public class ActivityProxy extends KrollProxy
 		return tiActivity.getWindowProxy();
 	}
 
+	
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 	{
 		IntentProxy intent = null;

@@ -8,7 +8,9 @@
 
 APP_BUILD_SCRIPT = src/native/Android.mk
 TARGET_PLATFORM = android-8
-APP_STL := stlport_static
+APP_STL := stlport_shared
+APP_ABI := armeabi armeabi-v7a
+
 TARGET_DEVICE := device
 APP_OPTIM := release
 TI_DEBUG := 1

@@ -29,19 +29,36 @@ typedef enum
 #define TI_ORIENTATION_ALLOWED(flag,bit)	(flag & (1<<bit))
 #define TI_ORIENTATION_SET(flag,bit)		(flag |= (1<<bit))
 
+/**
+ Protocol for orientation controller.
+ */
 @protocol TiOrientationController <NSObject>
 
+/**
+ Provides access to parent orientation controller.
+ */
 @property(nonatomic,readwrite,assign)	id<TiOrientationController> parentOrientationController;
+
+/**
+ Returns orientation flags.
+ */
 @property(nonatomic,readonly,assign)	TiOrientationFlags orientationFlags;
+
+/**
+ Tells the controller that child orientation controller has changed flags.
+ @param orientationController The child orientation controller
+ */
 -(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController;
 
 @end
 
 TiOrientationFlags TiOrientationFlagsFromObject(id args);
 
-// specialization for TiViews that act like top level 
-// windows when opened, closed, etc.
-//
+
+/**
+ The class is a specialization for TiViews that act like top level
+ windows when opened, closed, etc.
+ */
 @interface TiWindowProxy : TiViewProxy<TiAnimationDelegate,TiUIViewController,TiOrientationController> {
 @protected
 	BOOL opened;
@@ -59,12 +76,11 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 	BOOL closing;
 	BOOL startingTransitionAnimation;
 	int transitionAnimation;
-
-
+    
+    UIView* animatedOver;
 	TiAnimation * openAnimation;
 	TiAnimation * closeAnimation;
 	
-	NSMutableArray *reattachWindows;
 	UIView *closeView;
 	UIViewController *tempController;
 
@@ -72,22 +88,50 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 	TiOrientationFlags orientationFlags;
 }
 
+/**
+ Provides access to parent oriantation controller.
+ */
 @property(nonatomic,readwrite,assign)	id<TiOrientationController> parentOrientationController;
+
+/**
+ Provides access to window orientation flags.
+ */
 @property(nonatomic,readonly,assign)	TiOrientationFlags orientationFlags;
 
+/**
+ Tells the window proxy to fire focus event.
+ @param newFocused _YES_ to fire _focus_ event, _blur_ otherwise.
+ */
 -(void)fireFocus:(BOOL)newFocused;
 
+/**
+ Whether or not the window is being opened.
+ */
 @property(nonatomic,readonly)	BOOL opening;
 
 #pragma mark Public APIs
 
 @property(nonatomic,readonly)	NSNumber *opened;
 @property(nonatomic,readonly)	NSNumber *focused;
+
+/**
+ Whether or not the window is being closed.
+ */
 @property(nonatomic,readonly)	BOOL closing;
 
 -(void)open:(id)args;
 -(void)close:(id)args;
+
+/**
+ Returns the tab group the proxy's window is attached to if any.
+ @return The tab group proxy the window is attached to.
+ */
 -(TiProxy*)tabGroup;
+
+/**
+ The tab in tab group the proxy's window is associated with if any.
+ @return The tab  proxy the window is accosiated with
+ */
 -(TiProxy<TiTab>*)tab;
 
 #pragma mark Internal
@@ -97,9 +141,15 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 -(BOOL)_isChildOfTab;
 -(void)_associateTab:(UIViewController*)controller_ navBar:(UINavigationController*)navbar_ tab:(TiProxy<TiTab>*)tab_;
 -(void)prepareForNavView:(UINavigationController*)navController_;
--(void)ignoringRotationToOrientation:(UIInterfaceOrientation)orientation;
 
+/**
+ Returns view controller for the window's view.
+ */
 @property(nonatomic,readwrite,retain)	UIViewController *controller;
+
+/**
+ Returns navigation controller for the window's view.
+ */
 @property(nonatomic,readwrite,retain)	UINavigationController *navController;
 
 -(void)releaseController;
@@ -115,6 +165,9 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 -(void)_tabBeforeFocus;
 -(void)_tabBeforeBlur;
 
+/**
+ Tells the window proxy to setup window's decorations.
+ */
 -(void)setupWindowDecorations;
 
 @end

@@ -38,6 +38,7 @@ public class TextAreaProxy extends TiViewProxy
 	public TextAreaProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_VALUE, "");
 	}
 
 	public TextAreaProxy(TiContext tiContext)
@@ -50,7 +51,6 @@ public class TextAreaProxy extends TiViewProxy
 	{
 		super.handleCreationArgs(createdInModule, args);
 
-		setProperty(TiC.PROPERTY_VALUE, "");
 	}
 
 	@Override

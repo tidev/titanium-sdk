@@ -45,6 +45,9 @@ exports.bootstrap = function(Titanium) {
 		RowAnimationStyle: {
 			get NONE() { return iPhoneConstant("RowAnimationStyle.NONE"); }
 		},
+		TableViewScrollPosition: {
+			get MIDDLE() { return iPhoneConstant("TableViewScrollPosition.MIDDLE"); }
+		},
 		TableViewStyle: {
 			get GROUPED() { return iPhoneConstant("TableViewStyle.GROUPED"); }
 		}

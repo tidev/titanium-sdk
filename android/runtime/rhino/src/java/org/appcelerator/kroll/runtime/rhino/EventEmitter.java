@@ -31,6 +31,11 @@ public class EventEmitter extends IdScriptableObject
 		scope.put(EVENT_EMITTER_TAG, scope, constructor);
 	}
 
+	public static void dispose()
+	{
+		prototype = null;
+	}
+
 	public static EventEmitter getEventEmitterPrototype()
 	{
 		if (prototype == null) {

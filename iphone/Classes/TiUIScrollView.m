@@ -52,7 +52,7 @@
 {
 	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAuto(contentHeight))
 	{
-		[self performSelector:@selector(setNeedsHandleContentSize) withObject:nil afterDelay:.1];
+		[self setNeedsHandleContentSize];
 	}
 }
 
@@ -61,7 +61,7 @@
 	if (!needsHandleContentSize)
 	{
 		needsHandleContentSize = YES;
-		[self performSelectorOnMainThread:@selector(handleContentSize) withObject:nil waitUntilDone:NO];
+		TiThreadPerformOnMainThread(^{[self handleContentSize];}, NO);
 	}
 }
 
@@ -128,11 +128,8 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
 {
-    //Treat this as a size change
-    if (!CGRectIsEmpty(visibleBounds))
-    {
-        [self setNeedsHandleContentSizeIfAutosizing];
-    }
+	//Treat this as a size change
+	[(TiViewProxy *)[self proxy] willChangeSize];
     [super frameSizeChanged:frame bounds:visibleBounds];
 }
 
@@ -178,10 +175,10 @@
 	[[self scrollView] setAlwaysBounceVertical:[TiUtils boolValue:value]];
 }
 
--(void)setContentOffset_:(id)value
+-(void)setContentOffset_:(id)value withObject:(id)property
 {
-	CGPoint newOffset = [TiUtils pointValue:value];
-	BOOL animated = scrollView != nil;
+    CGPoint newOffset = [TiUtils pointValue:value];
+	BOOL animated = [TiUtils boolValue:@"animated" properties:property def:(scrollView !=nil)];
 	[[self scrollView] setContentOffset:newOffset animated:animated];
 }
 
@@ -259,16 +256,10 @@
 
 -(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
-	CGRect responderRect = [wrapperView convertRect:[firstResponderView bounds] fromView:firstResponderView];
-	OffsetScrollViewForRect(scrollView,keyboardTop,minimumContentHeight,responderRect);
-}
-
--(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop forView:(TiUIView *)firstResponderView
-{
-	lastFocusedView = firstResponderView;
-	CGRect responderRect = [wrapperView convertRect:[firstResponderView bounds] fromView:firstResponderView];
-	
-	ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(scrollView,keyboardTop,minimumContentHeight,responderRect);
+    if ([scrollView isScrollEnabled]) {
+        CGRect responderRect = [wrapperView convertRect:[firstResponderView bounds] fromView:firstResponderView];
+        OffsetScrollViewForRect(scrollView,keyboardTop,minimumContentHeight,responderRect);
+    }
 }
 
 @end

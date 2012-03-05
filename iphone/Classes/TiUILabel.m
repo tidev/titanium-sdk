@@ -95,6 +95,8 @@
     
     repad = YES;
     [self padLabel];
+    
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 -(UILabel*)label

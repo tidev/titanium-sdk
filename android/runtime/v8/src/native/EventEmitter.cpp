@@ -27,7 +27,7 @@ Persistent<FunctionTemplate> EventEmitter::constructorTemplate;
 static Persistent<String> eventsSymbol;
 Persistent<String> EventEmitter::emitSymbol;
 
-Handle<Value> EventEmitter::Constructor(const Arguments& args)
+Handle<Value> EventEmitter::eventEmitterConstructor(const Arguments& args)
 {
 	HandleScope scope;
 
@@ -37,15 +37,27 @@ Handle<Value> EventEmitter::Constructor(const Arguments& args)
 	return args.This();
 }
 
-void EventEmitter::Initialize()
+void EventEmitter::initTemplate()
 {
 	HandleScope scope;
-	constructorTemplate = Persistent<FunctionTemplate>::New(FunctionTemplate::New(Constructor));
+	constructorTemplate = Persistent<FunctionTemplate>::New(FunctionTemplate::New(eventEmitterConstructor));
 	constructorTemplate->InstanceTemplate()->SetInternalFieldCount(1);
 	constructorTemplate->SetClassName(String::NewSymbol("EventEmitter"));
 
 	eventsSymbol = SYMBOL_LITERAL("_events");
 	emitSymbol = SYMBOL_LITERAL("emit");
+}
+
+void EventEmitter::dispose()
+{
+	constructorTemplate.Dispose();
+	constructorTemplate = Persistent<FunctionTemplate>();
+
+	eventsSymbol.Dispose();
+	eventsSymbol = Persistent<String>();
+
+	emitSymbol.Dispose();
+	emitSymbol = Persistent<String>();
 }
 
 bool EventEmitter::emit(Handle<String> event, int argc, Handle<Value> *argv)

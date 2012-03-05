@@ -173,22 +173,19 @@ public class LoginButton extends TiUIView implements TiFacebookStateListener
 			final ImageButton btn = (ImageButton) view;
 			btn.setOnClickListener(new OnClickListener() {
 				public void onClick(View arg0) {
-					Activity activity = null;
-					if (btn.getContext() instanceof Activity) {
-						activity = (Activity) btn.getContext();
-					} else {
-						Context context = getProxy().getActivity();
-						if (context instanceof Activity) {
-							activity = (Activity) context;
-						}
-					}
-					if (activity == null) {
-						// Fallback on the root activity if possible
-						activity = TiApplication.getInstance().getRootActivity();
-					}
 					if (facebook.getLoggedIn()) {
-						facebook.executeLogout(activity);
+						facebook.executeLogout();
 					} else {
+						Activity activity = null;
+						if (btn.getContext() instanceof Activity) {
+							activity = (Activity) btn.getContext();
+						} else {
+							activity = getProxy().getActivity();
+						}
+						if (activity == null) {
+							// Fallback on the root activity if possible
+							activity = TiApplication.getInstance().getRootActivity();
+						}
 						facebook.executeAuthorize(activity);
 					}
 				}

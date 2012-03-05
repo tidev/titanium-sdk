@@ -84,10 +84,17 @@ Handle<Object> ProxyFactory::createV8Proxy(jclass javaClass, jobject javaProxy)
 	}
 
 	Local<Value> external = External::New(javaProxy);
+	TryCatch tryCatch;
 	Local<Object> v8Proxy = creator->NewInstance(1, &external);
+	if (tryCatch.HasCaught()) {
+		LOGE(TAG, "Exception thrown while creating V8 proxy.");
+		V8Util::reportException(tryCatch);
+		return Handle<Object>();
+	}
 
 	// set the pointer back on the java proxy
-	jlong ptr = (jlong) *Persistent<Object>::New(v8Proxy);
+	Proxy* proxy = NativeObject::Unwrap<Proxy>(v8Proxy);
+	jlong ptr = (jlong) *(proxy->handle_);
 
 	jobject javaV8Object = env->NewObject(JNIUtil::v8ObjectClass,
 		JNIUtil::v8ObjectInitMethod, ptr);
@@ -119,7 +126,8 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	// Create a persistent handle to the V8 proxy
 	// and cast it to a pointer. The Java proxy needs
 	// a reference to the V8 proxy for later use.
-	jlong pv8Proxy = (jlong) *Persistent<Object>::New(v8Proxy);
+	Proxy* proxy = NativeObject::Unwrap<Proxy>(v8Proxy);
+	jlong pv8Proxy = (jlong) *(proxy->handle_);
 
 	// We also pass the creation URL of the proxy so we can track relative URLs
 	Handle<Value> sourceUrl = args.Callee()->GetScriptOrigin().ResourceName();
@@ -194,7 +202,7 @@ jobject ProxyFactory::unwrapJavaProxy(const Arguments& args)
 	return firstArgument->IsExternal() ? (jobject)External::Unwrap(firstArgument) : NULL;
 }
 
-void ProxyFactory::registerProxyPair(jclass javaProxyClass, FunctionTemplate* v8ProxyTemplate)
+void ProxyFactory::registerProxyPair(jclass javaProxyClass, FunctionTemplate* v8ProxyTemplate, bool createDeprecated)
 {
 	JNIEnv* env = JNIScope::getEnv();
 	if (!env) {
@@ -204,9 +212,19 @@ void ProxyFactory::registerProxyPair(jclass javaProxyClass, FunctionTemplate* v8
 
 	ProxyInfo info;
 	info.v8ProxyTemplate = v8ProxyTemplate;
-	info.javaProxyCreator = JNIUtil::krollProxyCreateProxyMethod;
+
+	if (createDeprecated) {
+		info.javaProxyCreator = JNIUtil::krollProxyCreateDeprecatedProxyMethod;
+	} else {
+		info.javaProxyCreator = JNIUtil::krollProxyCreateProxyMethod;
+	}
 
 	factories[javaProxyClass] = info;
+}
+
+void ProxyFactory::dispose()
+{
+	factories.clear();
 }
 
 }

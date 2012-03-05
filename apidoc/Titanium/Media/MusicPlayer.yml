@@ -1,58 +1,58 @@
 ---
 name: Titanium.Media.MusicPlayer
-description: The MusicPlayer instance returned from <Titanium.Media.createMusicPlayer>.  This object represents a music controller.
+summary: The MusicPlayer instance returned from <Titanium.Media.createMusicPlayer>.  This object represents a music controller.
 extends: Titanium.Proxy
 since: "1.4.0"
 platforms: [iphone, ipad]
 methods:
   - name: pause
-    description: pause playback
+    summary: pause playback
   - name: play
-    description: begin playback
+    summary: begin playback
   - name: seekBackward
-    description: seek backward in the currently playing media
+    summary: seek backward in the currently playing media
   - name: seekForward
-    description: seek forward in the currently playing media
+    summary: seek forward in the currently playing media
   - name: setQueue
-    description: set the media queue
+    summary: set the media queue
     parameters:
       - name: queue
-        description: |
+        summary: |
             a queue representation to set the player queue to.  Can be any of: A dictionary with an `items` key that is an array of <Titanium.Media.Item> objects, an array of <Titanium.Media.Item> objects, or a single <Titanium.Media.Item> object.
         type: Object
   - name: skipToBeginning
-    description: skip to the beginning of the currently playing media
+    summary: skip to the beginning of the currently playing media
   - name: skipToNext
-    description: skip to the next media in the queue
+    summary: skip to the next media in the queue
   - name: skipToPrevious
-    description: skip to the previous media in the queue
+    summary: skip to the previous media in the queue
   - name: stop
-    description: stop playback
+    summary: stop playback
   - name: stopSeeking
-    description: end a seek operation
+    summary: end a seek operation
 events:
   - name: playingChange
-    description: the currently playing media changed
+    summary: the currently playing media changed
   - name: stateChange
-    description: the playback state changed
+    summary: the playback state changed
   - name: volumeChange
-    description: the volume changed
+    summary: the volume changed
 properties:
   - name: currentPlaybackTime
-    description: the current point in song playback
+    summary: the current point in song playback
     type: Number
   - name: nowPlaying
-    description: an Item object which indicates the currently playing media
+    summary: an Item object which indicates the currently playing media
     type: Object
   - name: playbackState
-    description: the playback state; one of <Titanium.Media.MUSIC_PLAYER_STATE_STOPPED>, <Titanium.Media.MUSIC_PLAYER_STATE_PLAYING>, <Titanium.Media.MUSIC_PLAYER_STATE_PAUSED>, <Titanium.Media.MUSIC_PLAYER_STATE_INTERRUPTED>, <Titanium.Media.MUSIC_PLAYER_STATE_SKEEK_FORWARD>, <Titanium.Media.MUSIC_PLAYER_STATE_SEEK_BACKWARD>
+    summary: the playback state; one of <Titanium.Media.MUSIC_PLAYER_STATE_STOPPED>, <Titanium.Media.MUSIC_PLAYER_STATE_PLAYING>, <Titanium.Media.MUSIC_PLAYER_STATE_PAUSED>, <Titanium.Media.MUSIC_PLAYER_STATE_INTERRUPTED>, <Titanium.Media.MUSIC_PLAYER_STATE_SKEEK_FORWARD>, <Titanium.Media.MUSIC_PLAYER_STATE_SEEK_BACKWARD>
     type: Number
   - name: repeatMode
-    description: the repeat setting; one of <Titanium.Media.MUSIC_PLAYER_REPEAT_DEFAULT>, <Titanium.Media.MUSIC_PLAYER_REPEAT_NONE>, <Titanium.Media.MUSIC_PLAYER_REPEAT_ONE>, <Titanium.Media.MUSIC_PLAYER_REPEAT_ALL>
+    summary: the repeat setting; one of <Titanium.Media.MUSIC_PLAYER_REPEAT_DEFAULT>, <Titanium.Media.MUSIC_PLAYER_REPEAT_NONE>, <Titanium.Media.MUSIC_PLAYER_REPEAT_ONE>, <Titanium.Media.MUSIC_PLAYER_REPEAT_ALL>
     type: Number
   - name: shuffleMode
-    description: the shuffle setting; one of <Titanium.Media.MUSIC_PLAYER_SHUFFLE_DEFAULT>, <Titanium.Media.MUSIC_PLAYER_SHUFFLE_NONE>, <Titanium.Media.MUSIC_PLAYER_SHUFFLE_SONGS>, <Titanium.Media.MUSIC_PLAYER_SHUFFLE_ALBUMS>
+    summary: the shuffle setting; one of <Titanium.Media.MUSIC_PLAYER_SHUFFLE_DEFAULT>, <Titanium.Media.MUSIC_PLAYER_SHUFFLE_NONE>, <Titanium.Media.MUSIC_PLAYER_SHUFFLE_SONGS>, <Titanium.Media.MUSIC_PLAYER_SHUFFLE_ALBUMS>
     type: Number
   - name: volume
-    description: a value between 0.0 and 1.0 indicating the volume level for the music player
+    summary: a value between 0.0 and 1.0 indicating the volume level for the music player
     type: Number

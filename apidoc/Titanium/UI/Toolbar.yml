@@ -1,8 +1,10 @@
 ---
 name: Titanium.UI.Toolbar
-description: A Toolbar is created by the method <Titanium.UI.iOS.createToolbar>.  A Toolbar can be placed at the bottom of a window and contain buttons.
+summary: An iOS toolbar. See <Titanium.UI.iOS.Toolbar> instead.
+description: A Toolbar is created by the method <Titanium.UI.iOS.createToolbar>.  A Toolbar can be placed at the bottom of a window and contain buttons. 
 extends: Titanium.UI.View
 since: "0.8"
 platforms: [iphone, ipad, mobileweb]
 deprecated:
     since: "1.8.0"
+    removed: "1.9.0"

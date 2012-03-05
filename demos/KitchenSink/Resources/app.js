@@ -89,7 +89,7 @@ tabGroup.addEventListener('open',function()
 tabGroup.setActiveTab(1);
 // open tab group with a transition animation
 tabGroup.open({
-	transition:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
+	transition: Titanium.UI.iPhone && Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
 });
 
 // setTimeout(function()
@@ -256,7 +256,7 @@ function showIndicator()
 
 	// loading indicator
 	actInd = Titanium.UI.createActivityIndicator({
-		style:Titanium.UI.iPhone.ActivityIndicatorStyle.BIG,
+		style:Titanium.UI.iPhone && Titanium.UI.iPhone.ActivityIndicatorStyle.BIG,
 		height:30,
 		width:30
 	});
@@ -390,7 +390,7 @@ if (Ti.App.Properties.getBool('showNotice', true)){
 		buttonNames: ['OK', 'Visit docs', 'Don\'t show again'],
 		cancel:0,
 		title: 'Notice',
-		message: 'While this KitchenSink provides an extensive demonstration of the Titanium API\'s options, its structure is not recommended for production apps. Please refer to our documentation for the reasons for this.'
+		message: 'While this KitchenSink provides an extensive demonstration of the Titanium API, its structure is not recommended for production apps. Please refer to our documentation for more details.'
 	});
 	alertNotice.show();
 	alertNotice.addEventListener('click', function(e){

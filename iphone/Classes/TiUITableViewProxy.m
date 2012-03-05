@@ -275,23 +275,14 @@ NSArray * tableKeySequence;
 
 #pragma mark Public APIs
 
--(void)setSearchHidden:(id)args
-{
-	// we implement here to force it regardless of the current state 
-	// since the user can manually change the search field by pulling 
-	// down the row
-	ENSURE_SINGLE_ARG(args,NSObject);
-	[self replaceValue:args forKey:@"searchHidden" notification:YES];
-}
-
 -(void)selectRow:(id)args
 {
-	[[self view] performSelectorOnMainThread:@selector(selectRow:) withObject:args waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[(TiUITableView*)[self view] selectRow:args];}, NO);
 }
 
 -(void)deselectRow:(id)args
 {
-	[[self view] performSelectorOnMainThread:@selector(deselectRow:) withObject:args waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[(TiUITableView*)[self view] deselectRow:args];}, NO);
 }
 
 -(void)scrollToIndex:(id)args
@@ -340,60 +331,69 @@ NSArray * tableKeySequence;
 
 -(void)updateRow:(id)args
 {
-	ENSURE_UI_THREAD(updateRow,args);
-	
-	int index = [TiUtils intValue:[args objectAtIndex:0]];
-    id data = [args objectAtIndex:1]; // Can be either dictionary or row object
-    NSDictionary *anim = [args count] > 2 ? [args objectAtIndex:2] : nil;
-	
+    int index = 0;
+    id data = nil;
+    NSDictionary* anim = nil;
+    
+    ENSURE_INT_AT_INDEX(index, args, 0);
+    ENSURE_ARG_AT_INDEX(data, args, 1, NSObject);
+    ENSURE_ARG_OR_NIL_AT_INDEX(anim, args, 2, NSDictionary);
+    
 	TiUITableViewRowProxy *newrow = [self tableRowFromArg:data];
-	TiUITableView *table = [self viewInitialized]?[self tableView]:nil;
-		
-	int current = 0;
-	int row = index;
-	int sectionIdx = 0;
-	
-	TiUITableViewRowProxy *rowProxy = nil;
-	TiUITableViewSectionProxy *sectionProxy = nil;
-	
-	for (sectionProxy in sections)
-	{
-		int rowCount = [sectionProxy rowCount];
-		if (rowCount + current > index)
-		{
-			rowProxy = [sectionProxy rowAtIndex:row];
-			break;
-		}
-		row -= rowCount;
-		current += rowCount;
-		sectionIdx++;
-	}		
-	
-	if (rowProxy==nil)
-	{
-		[self throwException:[NSString stringWithFormat:@"cannot find row at index: %d",index] subreason:nil location:CODELOCATION];
-		return;
-	}
-	
-	[rowProxy.section rememberProxy:newrow];	//If we wait until the main thread, it'll be too late!
-	newrow.section = rowProxy.section;
-	newrow.row = rowProxy.row;
-	newrow.parent = newrow.section;
-
-	//We now need to disconnect the old row proxy.
-	rowProxy.section = nil;
-	rowProxy.parent = nil;
-	rowProxy.table = nil;
-
-	
+    
+    __block TiUITableViewRowProxy *rowProxy = nil;
+    
+    TiThreadPerformOnMainThread(^{
+        int current = 0;
+        int row = index;
+        int sectionIdx = 0;
+        TiUITableViewSectionProxy *sectionProxy = nil;
+        
+        for (sectionProxy in sections)
+        {
+            int rowCount = [sectionProxy rowCount];
+            if (rowCount + current > index)
+            {
+                rowProxy = [sectionProxy rowAtIndex:row];
+                break;
+            }
+            row -= rowCount;
+            current += rowCount;
+            sectionIdx++;
+        }	
+    }, YES);
+    
+    if (rowProxy==nil)
+    {
+        [self throwException:[NSString stringWithFormat:@"cannot find row at index: %d",index] subreason:nil location:CODELOCATION];
+        return;
+    }
+    
+    [[rowProxy section] rememberProxy:newrow];
+    
+    newrow.section = rowProxy.section;
+    newrow.row = rowProxy.row;
+    newrow.parent = newrow.section;
+    
+    //We now need to disconnect the old row proxy.
+    rowProxy.section = nil;
+    rowProxy.parent = nil;
+    rowProxy.table = nil;
+    
+    
     // Only update the row if we're loading it with data; but most of this should
     // be taken care of by -[TiUITableViewProxy tableRowFromArg:] anyway, right?
     if ([data isKindOfClass:[NSDictionary class]]) {
         [newrow updateRow:data withObject:anim];
     }
-	
-	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:newrow animation:anim type:TiUITableViewActionUpdateRow] autorelease];
-	[table dispatchAction:action];
+    
+    TiThreadPerformOnMainThread(^{
+        TiUITableView *table = [self viewInitialized]?[self tableView]:nil;
+        TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:newrow animation:anim type:TiUITableViewActionUpdateRow] autorelease];
+        [table dispatchAction:action];
+    }, NO);
+    
+
 }
 
 -(void)deleteRow:(id)args
@@ -623,9 +623,10 @@ NSArray * tableKeySequence;
         TiUITableViewActionType actionType = TiUITableViewActionAppendRow;
         TiUITableViewSectionProxy* section = [sections lastObject];
         if (header != nil) {
-            section = [self sectionWithHeader:header table:table];			
-            section.section = [sections count];
-            
+            section = [self sectionWithHeader:header table:table];		
+            TiThreadPerformOnMainThread(^{
+                section.section = [sections count];
+            }, YES);
             actionType = TiUITableViewActionAppendRowWithSection;
         }
         row.section = section;

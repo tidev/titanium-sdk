@@ -11,9 +11,6 @@
 
 @implementation TiMapViewProxy
 
-#define VIEW_METHOD_ON_UI_THREAD(methodname,obj) \
-	[[self view] performSelectorOnMainThread:@selector(methodname:) withObject:obj waitUntilDone:NO];
-
 #pragma mark Internal
 
 -(NSArray *)keySequence
@@ -32,6 +29,33 @@
 	RELEASE_TO_NIL(routesToAdd);
 	RELEASE_TO_NIL(routesToRemove);
 	[super _destroy];
+}
+
+-(NSNumber*) longitudeDelta
+{
+	__block CLLocationDegrees delta = 0.0;
+	
+	if ([self viewAttached]) {
+		TiThreadPerformOnMainThread(^{
+			delta = [(TiMapView *)[self view] longitudeDelta];
+		},YES);
+		
+	}
+	return [NSNumber numberWithDouble:delta];
+
+}
+
+-(NSNumber*) latitudeDelta
+{
+	__block CLLocationDegrees delta = 0.0;
+	
+	if ([self viewAttached]) {
+		TiThreadPerformOnMainThread(^{
+			delta = [(TiMapView *)[self view] latitudeDelta];
+		},YES);
+		
+	}
+	return [NSNumber numberWithDouble:delta];
 }
 
 -(void)viewDidAttach
@@ -88,7 +112,7 @@
 {
 	ENSURE_SINGLE_ARG(arg,NSObject)
 	if ([self viewAttached]) {
-		VIEW_METHOD_ON_UI_THREAD(zoom,arg);
+		TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] zoom:arg];}, NO);
 	}
 	else {
 		double v = [TiUtils doubleValue:arg];
@@ -109,7 +133,7 @@
 {
 	ENSURE_SINGLE_ARG(arg,NSObject)
 	if ([self viewAttached]) {
-		VIEW_METHOD_ON_UI_THREAD(selectAnnotation,arg)
+		 TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] selectAnnotation:arg];}, NO);
 	}
 	else {
 		if (selectedAnnotation != arg) {
@@ -123,7 +147,7 @@
 {
 	ENSURE_SINGLE_ARG(arg,NSObject)
 	if ([self viewAttached]) {
-		VIEW_METHOD_ON_UI_THREAD(deselectAnnotation,arg)
+		TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] deselectAnnotation:arg];}, NO);
 	}
 	else {
 		RELEASE_TO_NIL(selectedAnnotation);
@@ -134,7 +158,7 @@
 {
 	ENSURE_SINGLE_ARG(arg,NSObject)
 	if ([self viewAttached]) {
-		VIEW_METHOD_ON_UI_THREAD(addAnnotation,arg)
+		TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] addAnnotation:arg];}, NO);
 	}
 	else 
 	{
@@ -157,7 +181,7 @@
 {
 	ENSURE_SINGLE_ARG(arg,NSArray)
 	if ([self viewAttached]) {
-		VIEW_METHOD_ON_UI_THREAD(addAnnotations,arg)
+		TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] addAnnotations:arg];}, NO);
 	}
 	else {
 		for (id annotation in arg) {
@@ -171,7 +195,7 @@
 	ENSURE_SINGLE_ARG(arg,NSObject)
 	if ([self viewAttached]) 
 	{
-		VIEW_METHOD_ON_UI_THREAD(removeAnnotation,arg)
+		TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] removeAnnotation:arg];}, NO);
 	}
 	else 
 	{
@@ -194,7 +218,7 @@
 {
 	ENSURE_TYPE(arg,NSArray)
 	if ([self viewAttached]) {
-		VIEW_METHOD_ON_UI_THREAD(removeAnnotations,arg)
+		TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] removeAnnotations:arg];}, NO);
 	}
 	else {
 		for (id annotation in arg) {
@@ -206,7 +230,7 @@
 -(void)removeAllAnnotations:(id)unused
 {
 	if ([self viewAttached]) {
-		VIEW_METHOD_ON_UI_THREAD(removeAllAnnotations,unused)
+		TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] removeAllAnnotations:unused];}, NO);
 	}
 	else 
 	{
@@ -226,7 +250,7 @@
 	ENSURE_SINGLE_ARG(arg,NSDictionary)
 	if ([self viewAttached]) 
 	{
-		VIEW_METHOD_ON_UI_THREAD(addRoute,arg)
+		TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] addRoute:arg];}, NO);
 	}
 	else 
 	{
@@ -250,7 +274,7 @@
 	ENSURE_SINGLE_ARG(arg,NSDictionary)
 	if ([self viewAttached]) 
 	{
-		VIEW_METHOD_ON_UI_THREAD(removeRoute,arg)
+		TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] removeRoute:arg];}, NO);
 	}
 	else 
 	{

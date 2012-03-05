@@ -6,6 +6,7 @@
  */
 
 #import "MGSplitView.h"
+#import "TiApp.h"
 #ifdef USE_TI_UIIPADSPLITWINDOW
 
 @implementation MGSplitView
@@ -38,7 +39,7 @@
 -(void)layoutSubviews
 {
     if (!layingOut && !singleLayout) {
-        [controller layoutSubviewsForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation] withAnimation:YES];
+        [controller layoutSubviewsForInterfaceOrientation:[[[TiApp app] controller] windowOrientation]  withAnimation:YES];
     }
     else {
         [super layoutSubviews];

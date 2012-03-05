@@ -12,6 +12,7 @@
 #import "SBJSON.h"
 #import "TiBlob.h"
 #import "TiNetworkSocketProxy.h"
+#import "ASIHTTPRequest.h"
 
 NSString* const INADDR_ANY_token = @"INADDR_ANY";
 
@@ -62,12 +63,12 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:kReachabilityChangedNotification object:nil];
 	// wait until done is important to get the right state
-	[self performSelectorOnMainThread:@selector(startReachability) withObject:nil waitUntilDone:YES];
+	TiThreadPerformOnMainThread(^{[self startReachability];}, YES);
 }
 
 -(void)_destroy
 {
-	[self performSelectorOnMainThread:@selector(stopReachability) withObject:nil waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[self stopReachability];}, NO);
 	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:kReachabilityChangedNotification object:nil];
 	RELEASE_TO_NIL(pushNotificationCallback);
@@ -211,6 +212,10 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_BADGE,1);
 MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_ALERT,2);
 MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
 MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_NEWSSTAND, 4);
+
+MAKE_SYSTEM_PROP(TLS_VERSION_1_0, TLS_VERSION_1_0);
+MAKE_SYSTEM_PROP(TLS_VERSION_1_1, TLS_VERSION_1_1);
+MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 
 #pragma mark Push Notifications 
 

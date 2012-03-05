@@ -6,6 +6,8 @@
  */
 package org.appcelerator.titanium.view;
 
+import java.util.ArrayList;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -47,7 +49,7 @@ public class Ti2DMatrix extends KrollProxy
 			anchorY = anchorY == DEFAULT_ANCHOR_VALUE ? this.anchorY : anchorY;
 			switch (type) {
 				case TYPE_SCALE:
-					matrix.preScale((interpolatedTime * (scaleToX - scaleFromX)) + scaleFromX, (interpolatedTime * (scaleToX - scaleFromY)) + scaleFromY); break;
+					matrix.preScale((interpolatedTime * (scaleToX - scaleFromX)) + scaleFromX, (interpolatedTime * (scaleToY - scaleFromY)) + scaleFromY); break;
 				case TYPE_TRANSLATE:
 					matrix.preTranslate(interpolatedTime * translateX, interpolatedTime * translateY); break;
 				case TYPE_ROTATE:
@@ -66,7 +68,9 @@ public class Ti2DMatrix extends KrollProxy
 	protected Ti2DMatrix(Ti2DMatrix prev, int opType)
 	{
 		if (prev != null) {
+			// this.prev represents the previous matrix. This value does not change.
 			this.prev = prev;
+			// prev.next is not constant. Subsequent calls to Ti2DMatrix() will alter the value of prev.next.
 			prev.next = this;
 		}
 		this.op = new Operation(opType);
@@ -160,19 +164,35 @@ public class Ti2DMatrix extends KrollProxy
 	@Kroll.method
 	public Ti2DMatrix multiply(Ti2DMatrix other)
 	{
-		return new Ti2DMatrix(this, Operation.TYPE_MULTIPLY);
+		Ti2DMatrix newMatrix = new Ti2DMatrix(other, Operation.TYPE_MULTIPLY);
+		newMatrix.op.multiplyWith = this;
+		return newMatrix;
+	}
+	
+	@Kroll.method
+	public float[] finalValuesAfterInterpolation (int width, int height)
+	{
+		Matrix m = interpolate(1f, width, height, 0.5f, 0.5f);
+		float[] result = new float[9];
+		m.getValues(result);
+		return result;
 	}
 
 	public Matrix interpolate(float interpolatedTime, int childWidth, int childHeight, float anchorX, float anchorY)
 	{
 		Ti2DMatrix first = this;
+		ArrayList<Ti2DMatrix> preMatrixList = new ArrayList<Ti2DMatrix>();
+		
 		while (first.prev != null)
 		{
 			first = first.prev;
+			// It is safe to use prev matrix to trace back the transformation matrix list,
+			// since prev matrix is constant.
+			preMatrixList.add(0, first);
 		}
 
 		Matrix matrix = new Matrix();
-		for (Ti2DMatrix current = first; current != this; current = current.next) {
+		for (Ti2DMatrix current : preMatrixList) {
 			if (current.op != null) {
 				current.op.apply(interpolatedTime, matrix, childWidth, childHeight, anchorX, anchorY);
 			}

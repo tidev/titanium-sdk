@@ -5,7 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#ifdef USE_TI_FILESYSTEM
+#if defined(USE_TI_FILESYSTEM) || defined(USE_TI_DATABASE)
+
+#include <sys/xattr.h>
 
 #import "TiUtils.h"
 #import "TiBlob.h"
@@ -14,6 +16,8 @@
 
 #define FILE_TOSTR(x) \
 	([x isKindOfClass:[TiFilesystemFileProxy class]]) ? [(TiFilesystemFileProxy*)x nativePath] : [TiUtils stringValue:x]
+
+static const char* backupAttr = "com.apple.MobileBackup";
 
 @implementation TiFilesystemFileProxy
 
@@ -101,13 +105,15 @@ FILEATTR(modificationTimestamp,NSFileModificationDate,YES);
 
 -(id)writeable
 {
-	return NUMBOOL(![[self readonly] boolValue]);
+	// Note: Despite previous incarnations claiming writeable is the proper API,
+	// writable is the correct spelling.
+	DEPRECATED_REPLACED(@"Filesystem.FileProxy.writeable",@"1.8.1",@"1.9.0",@"writable");
+	return [self writable];
 }
 
 -(id)writable
 {
-	NSLog(@"[WARN] The File.writable method is deprecated and should no longer be used. Use writeable instead.");
-	return [self writeable];
+	return NUMBOOL(![[self readonly] boolValue]);
 }
 
 
@@ -442,6 +448,38 @@ FILENOOP(setHidden:(id)x);
 	}
 	
 	return [[[TiFilesystemFileProxy alloc] initWithFile:resultPath] autorelease];
+}
+
+-(NSNumber*)remoteBackup
+{
+    u_int8_t value;
+    const char* fullPath = [[self path] fileSystemRepresentation];
+    
+    int result = getxattr(fullPath, backupAttr, &value, sizeof(value), 0, 0);
+    if (result == -1) {
+        // Doesn't matter what errno is set to; this means that we're backing up.
+        return [NSNumber numberWithBool:YES];
+    }
+
+    // A value of 0 means backup, so:
+    return [NSNumber numberWithBool:!value];
+}
+
+-(void)setRemoteBackup:(NSNumber *)remoteBackup
+{
+    // Value of 1 means nobackup
+    u_int8_t value = ![TiUtils boolValue:remoteBackup def:YES];
+    const char* fullPath = [[self path] fileSystemRepresentation];
+    
+    int result = setxattr(fullPath, backupAttr, &value, sizeof(value), 0, 0);
+    if (result != 0) {
+        // Throw an exception with the errno
+        char* errmsg = strerror(errno);
+        [self throwException:@"Error setting remote backup flag:" 
+                   subreason:[NSString stringWithUTF8String:errmsg] 
+                    location:CODELOCATION];
+        return;
+    }
 }
 
 @end

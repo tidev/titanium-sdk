@@ -1,94 +1,94 @@
 ---
 name: Titanium.Android.MenuItem
-description: The Titanium binding of an [Android MenuItem](http://developer.android.com/reference/android/view/MenuItem.html)
+summary: The Titanium binding of an [Android MenuItem](http://developer.android.com/reference/android/view/MenuItem.html)
 extends: Titanium.Proxy
 platforms: [android]
 createable: false
 since: "1.5"
 methods:
   - name: getTitleCondensed
-    description: retrieve the condensed title of the item
+    summary: retrieve the condensed title of the item
     returns:
         type: String
   - name: getGroupId
-    description: retrieve the groupId for this item
+    summary: retrieve the groupId for this item
     returns:
         type: Number
   - name: getItemId
-    description: retrieve the itemId for this item
+    summary: retrieve the itemId for this item
     returns:
         type: Number
   - name: getOrder
-    description: retrieve the sort order
+    summary: retrieve the sort order
     returns:
         type: Number
   - name: getTitle
-    description: retrieve the title of the item
+    summary: retrieve the title of the item
     returns:
         type: String
   - name: isEnabled
-    description: retrieve the enabled state of the menu
+    summary: retrieve the enabled state of the menu
     returns:
         type: Boolean
   - name: isVisible
-    description: retrieve the visible state of the menu
+    summary: retrieve the visible state of the menu
     returns:
         type: Boolean
   - name: setTitleCondensed
-    description: set the condensed title for the item
+    summary: set the condensed title for the item
     parameters:
       - name: condensedTitle
-        description: new condensed title
+        summary: new condensed title
         type: String
   - name: setEnabled
-    description: set the enabled state of the item
+    summary: set the enabled state of the item
     parameters:
       - name: enabled
-        description: true to enable item, false to disable
+        summary: true to enable item, false to disable
         type: Boolean
   - name: setIcon
-    description: set the icon for the item
+    summary: set the icon for the item
     parameters:
       - name: icon
-        description: icon to use with the item
+        summary: icon to use with the item
         type: Object
   - name: setTitle
-    description: set the title for the item
+    summary: set the title for the item
     parameters:
       - name: title
-        description: new title
+        summary: new title
         type: String
   - name: setVisible
-    description: set the visible state of the item
+    summary: set the visible state of the item
     parameters:
       - name: visible
-        description: true to show the item, false to hide
+        summary: true to show the item, false to hide
         type: Boolean
 events:
   - name: click
-    description: fired when the user presses the button
+    summary: fired when the user presses the button
 properties:
   - name: enabled
-    description: set the enabled state of the item
+    summary: set the enabled state of the item
     type: Boolean
   - name: groupId
-    description: groupId for this item
+    summary: groupId for this item
     type: Number
     permission: read-only
   - name: itemId
-    description: itemId for this item
+    summary: itemId for this item
     type: Number
     permission: read-only
   - name: order
-    description: integer used for controlling sort order
+    summary: integer used for controlling sort order
     type: Number
     permission: read-only
   - name: title
-    description: item title
+    summary: item title
     type: String
   - name: titleCondensed
-    description: condensed item title
+    summary: condensed item title
     type: String
   - name: visible
-    description: set the visible state of the item
+    summary: set the visible state of the item
     type: Boolean

@@ -11,8 +11,6 @@ import java.util.TreeSet;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
-import org.appcelerator.titanium.TiActivity;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 
@@ -225,21 +223,13 @@ public class TiCompositeLayout extends ViewGroup
 			}
 
 			if (isHorizontalArrangement()) {
-				LayoutParams p = (LayoutParams) child.getLayoutParams();
 				maxWidth += childWidth;
-				if (p.optionLeft != null) {
-					maxWidth += p.optionLeft.getAsPixels(this);  // I think this is wrong -- getViewWidthPadding above has already done this, I believe
-				}
 			} else {
 				maxWidth = Math.max(maxWidth, childWidth);
 			}
 
 			if (isVerticalArrangement()) {
-				LayoutParams p = (LayoutParams) child.getLayoutParams();
 				maxHeight += childHeight;
-				if (p.optionTop != null) {
-					maxHeight += p.optionTop.getAsPixels(this);
-				}
 			} else {
 				maxHeight = Math.max(maxHeight, childHeight);
 			}
@@ -397,6 +387,13 @@ public class TiCompositeLayout extends ViewGroup
 				}
 			}
 		}
+	}
+	
+	@Override
+	protected void onAnimationEnd()
+	{
+		super.onAnimationEnd();
+		invalidate();
 	}
 
 	// 0 is left/top, 1 is right/bottom

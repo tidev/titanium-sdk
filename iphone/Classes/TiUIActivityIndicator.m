@@ -111,6 +111,7 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[self setNeedsLayout];
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 #pragma mark View controller stuff

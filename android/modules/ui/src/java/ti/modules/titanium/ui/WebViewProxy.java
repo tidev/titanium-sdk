@@ -1,15 +1,14 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.AsyncResult;
-import org.appcelerator.kroll.common.TiMessenger;
-import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
@@ -19,15 +18,18 @@ import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
+import android.webkit.WebView;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_DATA,
+	TiC.PROPERTY_ON_CREATE_WINDOW,
 	TiC.PROPERTY_SCALES_PAGE_TO_FIT,
 	TiC.PROPERTY_URL
 })
 public class WebViewProxy extends ViewProxy
 	implements Handler.Callback
 {
+	private static final String TAG = "WebViewProxy";
 	private static final int MSG_FIRST_ID = ViewProxy.MSG_LAST_ID + 1;
 
 	private static final int MSG_GO_BACK = MSG_FIRST_ID + 101;
@@ -38,6 +40,8 @@ public class WebViewProxy extends ViewProxy
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	private static String fusername;
 	private static String fpassword;
+
+	private Message postCreateMessage;
 
 	public WebViewProxy()
 	{
@@ -54,25 +58,54 @@ public class WebViewProxy extends ViewProxy
 	{
 		TiUIWebView webView = new TiUIWebView(this);
 		webView.focus();
+
+		if (postCreateMessage != null) {
+			WebView.WebViewTransport transport = (WebView.WebViewTransport) postCreateMessage.obj;
+			if (transport != null) {
+				transport.setWebView(webView.getWebView());
+			}
+			postCreateMessage.sendToTarget();
+			postCreateMessage = null;
+		}
+
 		return webView;
 	}
 
-	public TiUIWebView getWebView() {
+	public TiUIWebView getWebView()
+	{
 		return (TiUIWebView) getOrCreateView();
 	}
 
 	@Kroll.method
-	public Object evalJS(String code) {
-		return getWebView().getJSValue(code);
+	public Object evalJS(String code)
+	{
+		// If the view doesn't even exist yet,
+		// or if it once did exist but doesn't anymore
+		// (like if the proxy was removed from a parent),
+		// we absolutely should not try to get a JS value
+		// from it.
+		TiUIWebView view = (TiUIWebView) peekView();
+		if (view == null) {
+			Log.w(TAG, "WebView not available, returning null for evalJS result.");
+			return null;
+		}
+		return view.getJSValue(code);
 	}
 
 	@Kroll.method @Kroll.getProperty
 	public String getHtml()
 	{
 		if (!hasProperty(TiC.PROPERTY_HTML)) {
-			return "";
+			return getWebView().getJSValue("document.documentElement.outerHTML");
 		}
 		return (String) getProperty(TiC.PROPERTY_HTML);
+	}
+	
+	@Kroll.method
+	public void setHtml(String html, @Kroll.argument(optional=true)KrollDict d)
+	{
+		setProperty(TiC.PROPERTY_HTML, html);
+		getWebView().setHtml(html, d);
 	}
 
 	@Override
@@ -144,29 +177,29 @@ public class WebViewProxy extends ViewProxy
 		}
 		return false;
 	}
-	
+
 	@Kroll.method
-	public void goBack() {
+	public void goBack()
+	{
 		getMainHandler().sendEmptyMessage(MSG_GO_BACK);
-		//getUIHandler().sendEmptyMessage(MSG_GO_BACK);
 	}
 
 	@Kroll.method
-	public void goForward() {
+	public void goForward()
+	{
 		getMainHandler().sendEmptyMessage(MSG_GO_FORWARD);
-		//getUIHandler().sendEmptyMessage(MSG_GO_FORWARD);
 	}
 
 	@Kroll.method
-	public void reload() {
+	public void reload()
+	{
 		getMainHandler().sendEmptyMessage(MSG_RELOAD);
-		//getUIHandler().sendEmptyMessage(MSG_RELOAD);
 	}
 
 	@Kroll.method
-	public void stopLoading() {
+	public void stopLoading()
+	{
 		getMainHandler().sendEmptyMessage(MSG_STOP_LOADING);
-		//getUIHandler().sendEmptyMessage(MSG_STOP_LOADING);
 	}
 
 	@Kroll.method @Kroll.getProperty
@@ -245,4 +278,8 @@ public class WebViewProxy extends ViewProxy
 		return fpassword;
 	}
 
+	public void setPostCreateMessage(Message postCreate)
+	{
+		this.postCreateMessage = postCreate;
+	}
 }

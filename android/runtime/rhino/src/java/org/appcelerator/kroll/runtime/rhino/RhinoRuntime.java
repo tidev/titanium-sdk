@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,6 +10,7 @@ import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.TiJSErrorDialog;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Function;
@@ -24,17 +25,19 @@ import android.util.Log;
 public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 {
 	private static final String TAG = "RhinoRuntime";
+	private static final String NAME = "rhino";
 
 	private Scriptable globalScope;
 	private Scriptable globalKrollObject;
 	private Scriptable moduleObject;
 	private Function runModuleFunction;
+	private Context context;
 	private static ErrorReporter errorReporter;
 
 	@Override
 	public void initRuntime()
 	{
-		Context context = Context.enter();
+		context = Context.enter();
 		context.setOptimizationLevel(-1);
 		context.setErrorReporter(getErrorReporter());
 
@@ -50,14 +53,23 @@ public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 	@Override
 	public void doDispose()
 	{
+		globalScope = null;
+		globalKrollObject = null;
+		moduleObject = null;
+		runModuleFunction = null;
+		errorReporter = null;
+
+		EventEmitter.dispose();
+		KrollBindings.dispose();
+		KrollWith.dispose();
+		Proxy.dispose();
+		ProxyFactory.dispose();
 	}
 
 	@Override
 	public void doRunModule(String source, String filename, KrollProxySupport activityProxy)
 	{
-		Context context = Context.enter();
-		context.setOptimizationLevel(-1);
-		context.setErrorReporter(getErrorReporter());
+		Context context = ((RhinoRuntime) KrollRuntime.getInstance()).enterContext();
 
 		try {
 			if (moduleObject == null) {
@@ -81,11 +93,34 @@ public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 	}
 
 	@Override
+	public Object doEvalString(String source, String filename)
+	{
+		Context context = enterContext();
+
+		try {
+			Object result = context.evaluateString(globalScope, source, filename, 1, null);
+			return TypeConverter.jsObjectToJavaObject(result, globalScope);
+
+		} catch (Exception e) {
+			if (e instanceof RhinoException) {
+				RhinoException re = (RhinoException) e;
+				Context.reportRuntimeError(re.getMessage(), re.sourceName(), re.lineNumber(), re.lineSource(),
+					re.columnNumber());
+
+			} else {
+				Context.reportError(e.getMessage());
+			}
+			return null;
+
+		} finally {
+			Context.exit();
+		}
+	}
+
+	@Override
 	public void initObject(KrollProxySupport proxy)
 	{
-		Context context = Context.enter();
-		context.setOptimizationLevel(-1);
-		context.setErrorReporter(getErrorReporter());
+		Context context = ((RhinoRuntime) KrollRuntime.getInstance()).enterContext();
 
 		try {
 			Proxy rhinoProxy = ProxyFactory.createRhinoProxy(context, globalScope, proxy);
@@ -94,6 +129,13 @@ public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 		} finally {
 			Context.exit();
 		}
+	}
+
+	// Enter the context for this runtime thread.
+	// When done with context, just call Context.exit().
+	public Context enterContext()
+	{
+		return ContextFactory.getGlobal().enterContext(context);
 	}
 
 	public static Scriptable getGlobalScope()
@@ -108,6 +150,8 @@ public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 
 		EventEmitter.init(globalKrollObject);
 		GlobalSandbox.init(globalKrollObject);
+
+		KrollBindings.initJsBindings();
 
 		Script krollScript = KrollBindings.getJsBinding("kroll");
 		Object result = krollScript.exec(context, globalScope);
@@ -149,6 +193,12 @@ public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 	{
 		TiJSErrorDialog.openErrorDialog("Runtime Error", message, sourceName, line, lineSource, lineOffset);
 		return new EvaluatorException(message, sourceName, line, lineSource, lineOffset);
+	}
+
+	@Override
+	public String getRuntimeName()
+	{
+		return NAME;
 	}
 
 	@Override

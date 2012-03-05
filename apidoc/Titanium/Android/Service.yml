@@ -1,36 +1,36 @@
 ---
 name: Titanium.Android.Service
-description: The Titanium binding of an [Android Service](http://developer.android.com/reference/android/app/Service.html).  Can be used to start/stop the service directly and listen for service-specific events.  In the Javascript-based services you write, this can be referenced with <Titanium.Android.currentService>.  You can create an instance of the service with <Titanium.Android.createService>.
+summary: The Titanium binding of an [Android Service](http://developer.android.com/reference/android/app/Service.html).  Can be used to start/stop the service directly and listen for service-specific events.  In the Javascript-based services you write, this can be referenced with <Titanium.Android.currentService>.  You can create an instance of the service with <Titanium.Android.createService>.
 extends: Titanium.Proxy
 platforms: [android]
 since: "1.5"
 methods:
   - name: start
-    description: Start the Service.  Effective only if this instance of <Titanium.Android.Service> was created with <Titanium.Android.createService>.
+    summary: Start the Service.  Effective only if this instance of <Titanium.Android.Service> was created with <Titanium.Android.createService>.
   - name: stop
-    description: Stop this running instance of the Service.
+    summary: Stop this running instance of the Service.
 events:
   - name: pause
-    description: For Javascript-based Services which you create, `pause` fires after each time the Javascript code executes.  `resume` and `pause` happen in pairs, with `resume` firing just before your Javascript service code executes, and `pause` just after.
+    summary: For Javascript-based Services which you create, `pause` fires after each time the Javascript code executes.  `resume` and `pause` happen in pairs, with `resume` firing just before your Javascript service code executes, and `pause` just after.
     properties:
       - name: iteration
-        description: incrementing integer indicating which iteration of an interval-based Service is pausing.  For example, if you have an interval-based Service running every 10 seconds, iteration 3 would occur at about 30 seconds after you start the instance (assuming your service code runs quickly.)
+        summary: incrementing integer indicating which iteration of an interval-based Service is pausing.  For example, if you have an interval-based Service running every 10 seconds, iteration 3 would occur at about 30 seconds after you start the instance (assuming your service code runs quickly.)
   - name: resume
-    description: For Javascript-based Services which you create, `resume` fires each time the Javascript code executes.  For example, if your Service runs on an interval of 10000 (10 seconds), you would expect to see `resume` fired every 10 seconds, just as the Javascript service code you wrote is about to execute.
+    summary: For Javascript-based Services which you create, `resume` fires each time the Javascript code executes.  For example, if your Service runs on an interval of 10000 (10 seconds), you would expect to see `resume` fired every 10 seconds, just as the Javascript service code you wrote is about to execute.
     properties:
       - name: iteration
-        description: incrementing integer indicating which iteration of an interval-based Service is resuming.  For example, if you have an interval-based Service running every 10 seconds, iteration 3 would occur at about 30 seconds after you start the instance (assuming your service code runs quickly.)
+        summary: incrementing integer indicating which iteration of an interval-based Service is resuming.  For example, if you have an interval-based Service running every 10 seconds, iteration 3 would occur at about 30 seconds after you start the instance (assuming your service code runs quickly.)
   - name: start
-    description: Fired when the bound Service instance starts.  Bound service instances are created via <Titanium.Android.createService>.
+    summary: Fired when the bound Service instance starts.  Bound service instances are created via <Titanium.Android.createService>.
   - name: stop
-    description: Fired when the bound Service instance stops, meaning <Titanium.Android.Service.stop> or <Titanium.Android.stopService> has been called and there are no more bound, un-stopped clients.
+    summary: Fired when the bound Service instance stops, meaning <Titanium.Android.Service.stop> or <Titanium.Android.stopService> has been called and there are no more bound, un-stopped clients.
 properties:
   - name: intent
-    description: The <Titanium.Android.Intent> used to start or bind to the Service.
+    summary: The <Titanium.Android.Intent> used to start or bind to the Service.
     type: Titanium.Android.Intent
     permission: read-only
   - name: serviceInstanceId
-    description: A service can be started more than once -- this number (based on an incrementing integer) indicates which "start number" in the sequence the current service instance is.
+    summary: A service can be started more than once -- this number (based on an incrementing integer) indicates which "start number" in the sequence the current service instance is.
     type: Number
     permission: read-only
 examples:

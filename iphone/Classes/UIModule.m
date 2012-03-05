@@ -234,9 +234,10 @@ MAKE_SYSTEM_PROP_DEPRECATED(AUTODETECT_CALENDAR,UIDataDetectorTypeCalendarEvent,
 
 -(void)setOrientation:(id)mode
 {
-	ENSURE_UI_THREAD(setOrientation,mode);
 	UIInterfaceOrientation orientation = (UIInterfaceOrientation)[TiUtils orientationValue:mode def:(UIDeviceOrientation)UIInterfaceOrientationPortrait];
-	[[[TiApp app] controller] manuallyRotateToOrientation:orientation];
+	TiThreadPerformOnMainThread(^{
+		[[TiApp controller] manuallyRotateToOrientation:orientation duration:[[TiApp controller] suggestedRotationDuration]];
+	}, NO);
 }
 
 MAKE_SYSTEM_PROP(PORTRAIT,UIInterfaceOrientationPortrait);
@@ -338,7 +339,7 @@ MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 #ifdef USE_TI_UITOOLBAR
 -(id)createToolbar:(id)args
 {
-	DEPRECATED_REPLACED(@"UI.createToolBar()",@"1.8.0",@"1.9.0",@"Ti.UI.iOS.createToolBar()");
+	DEPRECATED_REPLACED(@"UI.createToolBar()",@"1.8.0",@"1.9.0",@"Ti.UI.iOS.createToolbar()");
 	return [[[TiUIiOSToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif

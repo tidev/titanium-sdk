@@ -184,6 +184,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		opened = false;
 
 		// TODO ?
+		fireEvent("closeFromActivity", null);
 		activity = null;
 	}
 
@@ -316,9 +317,17 @@ public abstract class TiWindowProxy extends TiViewProxy
 			{
 				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
 			}
+			else if (hasPortraitReverse && Build.VERSION.SDK_INT >= 9)
+			{
+				activityOrientationMode = 9;
+			}
 			else if (hasLandscape)
 			{
 				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+			}
+			else if (hasLandscapeReverse && Build.VERSION.SDK_INT >= 9)
+			{
+				activityOrientationMode = 8;
 			}
 
 			Activity activity = getActivity();
@@ -353,26 +362,13 @@ public abstract class TiWindowProxy extends TiViewProxy
 		return orientationModes;
 	}
 
-	/*
-	@Kroll.method(name="getActivity")
-	@Kroll.getProperty(name="activity")
+	
+	// Expose the method and property here, instead of in KrollProxy
+	@Kroll.method(name = "getActivity") @Kroll.getProperty(name = "_internalActivity")
 	public ActivityProxy getActivityProxy()
 	{
-		Object activityObject = getProperty(TiC.PROPERTY_ACTIVITY);
-		ActivityProxy activityProxy = null;
-		if (activityObject == null) {
-			activityProxy = new ActivityProxy();
-			setProperty(TiC.PROPERTY_ACTIVITY, activityProxy);
-		} else if (activityObject instanceof KrollDict) {
-			KrollDict options = (KrollDict) activityObject;
-			activityProxy = new ActivityProxy();
-			activityProxy.handleCreationDict(options);
-			setProperty(TiC.PROPERTY_ACTIVITY, activityProxy);
-		} else if (activityObject instanceof ActivityProxy) {
-			activityProxy = (ActivityProxy) activityObject;
-		}
-		return activityProxy;
-	}*/
+		return super.getActivityProxy();
+	}
 
 	protected abstract void handleOpen(KrollDict options);
 	protected abstract void handleClose(KrollDict options);

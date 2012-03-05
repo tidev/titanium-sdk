@@ -7,6 +7,9 @@
 package org.appcelerator.kroll.runtime.rhino;
 
 import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.common.Log;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.RhinoException;
@@ -17,6 +20,8 @@ import org.mozilla.javascript.ScriptableObject;
  */
 public class RhinoObject extends KrollObject
 {
+	private static final String TAG = "RhinoObject";
+	
 	private Proxy proxy;
 	private Function emitFunction, setWindowFunction;
 
@@ -34,9 +39,7 @@ public class RhinoObject extends KrollObject
 	@Override
 	protected void setProperty(String name, Object value)
 	{
-		Context context = Context.enter();
-		context.setOptimizationLevel(-1);
-		context.setErrorReporter(RhinoRuntime.getErrorReporter());
+		((RhinoRuntime) KrollRuntime.getInstance()).enterContext();
 
 		try {
 			ScriptableObject.putProperty(proxy.getProperties(), name, 
@@ -50,9 +53,7 @@ public class RhinoObject extends KrollObject
 	@Override
 	protected boolean fireEvent(String type, Object data)
 	{
-		Context context = Context.enter();
-		context.setOptimizationLevel(-1);
-		context.setErrorReporter(RhinoRuntime.getErrorReporter());
+		Context context = ((RhinoRuntime) KrollRuntime.getInstance()).enterContext();
 
 		try {
 			if (emitFunction == null) {
@@ -73,6 +74,7 @@ public class RhinoObject extends KrollObject
 			return TypeConverter.jsObjectToJavaBoolean(result, proxy);
 
 		} catch (Exception e) {
+			Log.e(TAG,e.getMessage(), e);
 			if (e instanceof RhinoException) {
 				RhinoException re = (RhinoException) e;
 				Context.reportRuntimeError(re.getMessage(), re.sourceName(), re.lineNumber(), re.lineSource(),
@@ -94,9 +96,7 @@ public class RhinoObject extends KrollObject
 	@Override
 	protected void doSetWindow(Object windowProxy)
 	{
-		Context context = Context.enter();
-		context.setOptimizationLevel(-1);
-		context.setErrorReporter(RhinoRuntime.getErrorReporter());
+		Context context = ((RhinoRuntime) KrollRuntime.getInstance()).enterContext();
 
 		try {
 			if (setWindowFunction == null) {

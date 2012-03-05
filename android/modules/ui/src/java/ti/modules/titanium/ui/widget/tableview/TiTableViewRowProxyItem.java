@@ -236,16 +236,14 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 		}
 		if (props.containsKey(TiC.PROPERTY_RIGHT_IMAGE)) {
-			/*
 			String path = TiConvert.toString(props, TiC.PROPERTY_RIGHT_IMAGE);
-			String url = tiContext.resolveUrl(null, path);
+			String url = rp.resolveUrl(null, path);
 			Drawable d = loadDrawable(url);
 			if (d != null) {
 				rightImage.setImageDrawable(d);
 				rightImage.setVisibility(VISIBLE);
 				clearRightImage = false;
 			}
-			*/
 		}
 
 		if (clearRightImage) {
@@ -255,15 +253,14 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 		// Handle left image
 		if (props.containsKey(TiC.PROPERTY_LEFT_IMAGE)) {
-			/*
 			String path = TiConvert.toString(props, TiC.PROPERTY_LEFT_IMAGE);
-			String url = tiContext.resolveUrl(null, path);
+			String url = rp.resolveUrl(null, path);
 
 			Drawable d = loadDrawable(url);
 			if (d != null) {
 				leftImage.setImageDrawable(d);
 				leftImage.setVisibility(VISIBLE);
-			}*/
+			}
 		} else {
 			leftImage.setImageDrawable(null);
 			leftImage.setVisibility(GONE);

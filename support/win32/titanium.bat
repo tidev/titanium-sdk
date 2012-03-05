@@ -1,7 +1,7 @@
 @echo off
 
 set pythonPath=
-call findpython.bat
+call "%~dp0findpython.bat"
 
 if ()==(%pythonPath%) goto NoPython
 

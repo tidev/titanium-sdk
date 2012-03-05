@@ -52,11 +52,13 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	return result;
 }
 
-
+@interface TiWindowProxy(Private)
+-(void)openOnUIThread:(NSArray*)args;
+-(void)closeOnUIThread:(NSArray*)args;
+@end
 
 @implementation TiWindowProxy
-@synthesize navController, controller;
-@synthesize opening;
+@synthesize navController, controller, opening;
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
@@ -83,7 +85,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 -(void)releaseController
 {
 	[(TiViewController *)controller setProxy:nil];
-	[controller performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
+	TiThreadReleaseOnMainThread(controller, NO);
 	controller = nil;
 }
 
@@ -96,6 +98,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 }
 
 -(void) dealloc {
+    
 	RELEASE_TO_NIL(navController);
 	[self releaseController];
 	
@@ -106,13 +109,11 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 {
 	[self releaseController];
 
-	RELEASE_TO_NIL(tab);
-	RELEASE_TO_NIL(reattachWindows);
-	RELEASE_TO_NIL(closeView);
-
-
-	RELEASE_TO_NIL(openAnimation);
-	RELEASE_TO_NIL(closeAnimation);
+    [tab release];
+    [closeView release];
+    [animatedOver release];
+    [openAnimation release];
+    [closeAnimation release];
 	
 	[super _destroy];
 }
@@ -174,17 +175,17 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	{
 		[self fireFocus:YES];
 	}
-
-	if (reattachWindows!=nil)
-	{
-		UIView *rootView = [[TiApp app] controller].view;
-		for (UIView *aview in reattachWindows)
-		{
-			[rootView addSubview:aview];
-			[rootView sendSubviewToBack:aview];
-		}
-		RELEASE_TO_NIL(reattachWindows);
-	}
+    
+    if (animatedOver != nil) {
+        UIView* rootView = [[[TiApp app] controller] view];
+        [rootView insertSubview:animatedOver belowSubview:[self view]];
+        if ([animatedOver isKindOfClass:[TiUIView class]]) {
+            TiUIView* tiview = (TiUIView*)animatedOver;
+            LayoutConstraint* layoutProps = [(TiViewProxy*)[tiview proxy] layoutProperties];
+            ApplyConstraintToViewWithBounds(layoutProps, tiview, rootView.bounds);
+        }
+        RELEASE_TO_NIL(animatedOver);
+    }
 }
 
 -(void)windowReady
@@ -391,7 +392,9 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		}
 		opening = YES;
 	}
-	[self performSelectorOnMainThread:@selector(openOnUIThread:) withObject:args waitUntilDone:YES];
+    TiThreadPerformOnMainThread(^{
+        [self openOnUIThread:args];
+    }, YES);
 }
 
 -(void)openOnUIThread:(NSArray*)args
@@ -511,21 +514,43 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	}
 }
 
--(void)removeTempController:(id)sender
+-(void)removeTempController
 {
 	//TEMP hack until split view is fixed
 	[tempController.view removeFromSuperview];
-	[[[[TiApp app] controller] view] removeFromSuperview];
+    [[self view] removeFromSuperview];
 	RELEASE_TO_NIL(tempController);
 }
 
 -(void)close:(id)args
 {
+    // There's the following very odd case we need to handle:
+    // * Context A is opening a window for Context B
+    // * Context B, in its JS evaluation, fires an event which
+    //   is caught by the window's event listener in Context A - and requests
+    //   that the window close
+    // 
+    // Note that the JS evaluation doesn't occur until -[TiWindowProxy openOnUIThread:]
+    // is called, so it's safe to queue on the main thread and block until
+    // completion. This also doesn't guarantee the window isn't (briefly) displayed,
+    // because in between the open and close there may be a rendering pass (depends
+    // entirely on the instruction being executed in -[TiWindowProxy openOnUIThread:]
+    // when this is called).
+    
+    if (opening) {
+        TiThreadPerformOnMainThread(^{
+            opening = NO; // Preemptively clear 'opening' so we don't hit this block again
+            [self close:args];
+        }, YES);
+        return;
+    }
+    
 	// closing more than once does nothing
 	if (opened==NO)
 	{
 		return;
 	}
+    
 	if ([self _isChildOfTab]) 
 	{
 		if (![args isKindOfClass:[NSArray class]] ||
@@ -551,7 +576,9 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		[self rememberProxy:closeAnimation];
 	}
 
-	[self performSelectorOnMainThread:@selector(closeOnUIThread:) withObject:args waitUntilDone:YES];
+    TiThreadPerformOnMainThread(^{
+        [self closeOnUIThread:args];
+    }, YES);
 }
 
 -(void)closeOnUIThread:(id)args
@@ -561,17 +588,26 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	//TEMP hack until we can figure out split view issue
 	if (tempController!=nil)
 	{
-		BOOL animated = args!=nil && [args isKindOfClass:[NSDictionary class]] ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
-		[tempController dismissModalViewControllerAnimated:animated];
-		if (animated==NO)
-		{
-			[tempController.view removeFromSuperview];
-			RELEASE_TO_NIL(tempController);
-		}
-		else 
-		{
-			[self performSelector:@selector(removeTempController:) withObject:nil afterDelay:0.3];
-		}
+        if (modalFlag) {
+            BOOL animated = (args!=nil && [args isKindOfClass:[NSDictionary class]]) ? 
+                [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : 
+                YES;
+            
+            [tempController dismissModalViewControllerAnimated:animated];
+            
+            if (!animated)
+            {
+                [self removeTempController];
+            }
+            else 
+            {
+                [self performSelector:@selector(removeTempController) withObject:nil afterDelay:0.3];
+            }
+        }
+        else {
+            [self removeTempController];
+        }
+        
 		return;
 	}
 	else
@@ -601,10 +637,9 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	if([self viewAttached]) {
 		myview = [self view];
 	}
-	[[myview retain] autorelease];
-	
 	// hold ourself during close
-	[[self retain] autorelease];
+	[myview retain];	
+	[self retain];
 
 	[[[TiApp app] controller] willHideViewController:controller animated:YES];
 	VerboseLog(@"%@ (modal:%d)%@",self,modalFlag,CODELOCATION);
@@ -617,23 +652,8 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 				UIView *rootView = [[TiApp app] controller].view;
 				transitionAnimation = [[closeAnimation transition] intValue];
 				startingTransitionAnimation = [[rootView subviews] count]<=1 && modalFlag==NO;
-				if (!startingTransitionAnimation)
-				{
-					RELEASE_TO_NIL(reattachWindows);
-					if ([[rootView subviews] count] > 0)
-					{
-						reattachWindows = [[NSMutableArray array] retain];
-						for (UIView *aview in [rootView subviews])
-						{
-							if (aview!=[self view])
-							{
-								[reattachWindows addObject:aview];
-								[aview removeFromSuperview];
-							}
-						}
-					}
-				}
 			}
+            
 			closeAnimation.delegate = self;
 			// we need to hold a reference during close
 			closeView = [myview retain];
@@ -655,6 +675,8 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			[self windowClosed];
 		}
 	}
+	[myview release];
+	[self release];
 }
 
 -(void)attachViewToTopLevelWindow
@@ -712,12 +734,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	focused = newFocused;
 }
 
--(void)ignoringRotationToOrientation:(UIInterfaceOrientation)orientation
-{
-    // For subclasses
-}
-
-
 #pragma mark TIUIViewController methods
 /*
  *	Over time, we should move focus and blurs to be triggered by standard
@@ -760,6 +776,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 -(void)viewWillAppear:(BOOL)animated
 {
 	[self parentWillShow];
+	TiThreadProcessPendingMainThreadBlocks(0.1, YES, nil);
 }
 
 - (void)viewDidDisappear:(BOOL)animated
@@ -772,48 +789,48 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 -(BOOL)animationShouldTransition:(id)sender
 {
 	UIView *rootView = [[TiApp app] controller].view;
-	[UIView setAnimationTransition:transitionAnimation
-						   forView:rootView
-							 cache:NO];
-	
-	if (opening)
-	{
-		if (startingTransitionAnimation)
-		{
-			startingTransitionAnimation=NO;
-			[[TiApp controller] dismissDefaultImageView];
-		}
-		else
-		{
-			RELEASE_TO_NIL(reattachWindows);
-			if ([[rootView subviews] count] > 0)
-			{
-				reattachWindows = [[NSMutableArray array] retain];
-				for (UIView *aview in [rootView subviews])
-				{
-					if (aview!=[self view])
-					{
-						[reattachWindows addObject:aview];
-						[aview removeFromSuperview];
-					}
-				}
-			}
-		}
-		[self attachViewToTopLevelWindow];
-	}
-	else 
-	{
-		if (reattachWindows!=nil)
-		{
-			for (UIView *aview in reattachWindows)
-			{
-				[rootView addSubview:aview];
-			}
-			RELEASE_TO_NIL(reattachWindows);
-			[self detachView];
-		}
-	}
-
+    
+    void (^animation)(void) = ^{
+        if (opening)
+        {
+            if (startingTransitionAnimation)
+            {
+                startingTransitionAnimation=NO;
+                [[TiApp controller] dismissDefaultImageView];
+            }
+            else
+            {
+                RELEASE_TO_NIL(animatedOver);
+                NSArray* subviews = [rootView subviews];
+                if ([subviews count] > 0) {
+                    // We should be attached to the top level view at this point (the window is "ready") so
+                    // this is OK to do.
+                    NSUInteger index = [subviews indexOfObject:[self view]];
+                    if (index != NSNotFound && index != 0) {
+                        animatedOver = [[subviews objectAtIndex:index-1] retain];
+                        [animatedOver removeFromSuperview];
+                    }
+                }
+            }
+            [self attachViewToTopLevelWindow];
+        }
+        else 
+        {
+            [self detachView];
+        }
+    };
+    
+    [UIView transitionWithView:rootView
+                      duration:[(TiAnimation*)sender animationDuration]
+                       options:transitionAnimation
+                    animations:animation
+                    completion:^(BOOL finished) {
+                        [sender animationCompleted:[NSString stringWithFormat:@"%X",(void *)rootView] 
+                                          finished:[NSNumber numberWithBool:finished] 
+                                           context:sender];
+                    }
+     ];
+    
 	return NO;
 }
 
@@ -839,7 +856,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 
 -(void)animationDidComplete:(id)sender
 {
-	[self forgetProxy:sender];
+//	[self forgetProxy:sender];
 	if (opening)
 	{
 		[self windowDidOpen];
@@ -869,7 +886,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		return;
 	}
 	orientationFlags = newFlags;
-	[parentOrientationController performSelectorOnMainThread:@selector(childOrientationControllerChangedFlags:) withObject:self waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[parentOrientationController childOrientationControllerChangedFlags:self];}, NO);
 }
 
 

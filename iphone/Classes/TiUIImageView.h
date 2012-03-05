@@ -29,7 +29,6 @@
 	BOOL ready;
 	BOOL stopped;
 	BOOL reverse;
-	BOOL paused;
 	BOOL placeholderLoading;
 	TiDimension width;
 	TiDimension height;
@@ -44,6 +43,7 @@
 -(void)start;
 -(void)stop;
 -(void)pause;
+-(void)resume;
 
 -(void)setImage_:(id)arg;
 

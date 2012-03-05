@@ -51,11 +51,18 @@ var tf4 = Titanium.UI.createTextField({
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_NONE
 });
 
-
 var tf5 = Titanium.UI.createTextField({
+	height:35,
+	top:190,
+	left:10,
+	right:60
+});
+
+
+var tf6 = Titanium.UI.createTextField({
 	hintText:'custom background image',
 	height:32,
-	top:190,
+	top:235,
 	backgroundImage:'../images/inputfield.png',
 	paddingLeft:10,
 	left:10,
@@ -72,6 +79,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 	scrolly.add(tf2);
 	scrolly.add(tf3);
 	scrolly.add(tf4);
+	scrolly.add(tf5);
 }
 
-scrolly.add(tf5);
+scrolly.add(tf6);

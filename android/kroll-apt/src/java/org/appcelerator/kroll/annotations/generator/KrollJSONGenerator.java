@@ -25,6 +25,7 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -68,6 +69,7 @@ public class KrollJSONGenerator extends AbstractProcessor {
 	protected static final String KrollNativeConverter = Kroll_package + ".KrollNativeConverter";
 	protected static final String KrollJavascriptConverter = Kroll_package + ".KrollJavascriptConverter";
 	protected static final String KrollModule = Kroll_package + ".KrollModule";
+	protected static final String TiContext = "org.appcelerator.titanium.TiContext";
 
 	// this needs to mirror Kroll.DEFAULT_NAME
 	protected static final String DEFAULT_NAME = "__default_name__";
@@ -76,8 +78,10 @@ public class KrollJSONGenerator extends AbstractProcessor {
 	protected static final String PROPERTY_JSON_PACKAGE = "kroll.jsonPackage";
 	protected static final String PROPERTY_JSON_FILE = "kroll.jsonFile";
 	protected static final String PROPERTY_PROJECT_DIR = "kroll.projectDir";
+	protected static final String PROPERTY_CHECK_TICONTEXT = "kroll.checkTiContext";
 	protected static final String DEFAULT_JSON_PACKAGE = "org.appcelerator.titanium.gen";
 	protected static final String DEFAULT_JSON_FILE = "bindings.json";
+	protected static final boolean DEFAULT_CHECK_TICONTEXT = false;
 
 	// we make these generic because they may be initialized by JSON
 	protected Map<Object, Object> properties = new HashMap<Object, Object>();
@@ -87,6 +91,7 @@ public class KrollJSONGenerator extends AbstractProcessor {
 	protected String jsonPackage, jsonFile;
 
 	protected boolean initialized = false;
+	protected boolean checkTiContext;
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations,
@@ -142,6 +147,9 @@ public class KrollJSONGenerator extends AbstractProcessor {
 		String jsonFile = processingEnv.getOptions().get(PROPERTY_JSON_FILE);
 		this.jsonFile = jsonFile != null ? jsonFile : DEFAULT_JSON_FILE;
 
+		String checkTiContext = processingEnv.getOptions().get(PROPERTY_CHECK_TICONTEXT);
+		this.checkTiContext = checkTiContext != null ? Boolean.parseBoolean(checkTiContext) : DEFAULT_CHECK_TICONTEXT;
+
 		try {
 			FileObject bindingsFile = processingEnv.getFiler().getResource(
 				StandardLocation.SOURCE_OUTPUT, this.jsonPackage, this.jsonFile);
@@ -182,6 +190,30 @@ public class KrollJSONGenerator extends AbstractProcessor {
 				return jsonUtils.getOrCreateMap(jsonUtils.getOrCreateMap(properties, "modules"), moduleClassName);
 			}
 
+			protected void checkProxyConstructor(Element element)
+			{
+				List<? extends Element> elements = element.getEnclosedElements();
+				for (Element el : elements) {
+					if (!(el instanceof ExecutableElement)) {
+						continue;
+					}
+
+					ExecutableElement executable = (ExecutableElement) el;
+					if (!executable.getKind().equals(ElementKind.CONSTRUCTOR)) {
+						continue;
+					}
+
+					List<? extends VariableElement> parameters = executable.getParameters();
+					
+					if (parameters.size() == 1) {
+						String paramType = utils.getType(parameters.get(0));
+						if (TiContext.equals(paramType)) {
+							proxyProperties.put("useTiContext", true);
+						}
+					}
+				}
+			}
+
 			@Override
 			public boolean visit(AnnotationMirror annotation, Object arg) {
 				boolean isModule = utils.annotationTypeIs(annotation, Kroll_module);
@@ -190,6 +222,11 @@ public class KrollJSONGenerator extends AbstractProcessor {
 				String fullProxyClassName = String.format("%s.%s", packageName, proxyClassName);
 
 				proxyProperties = getProxyProperties(packageName, proxyClassName);
+
+				// only check the constructor if we need to check for TiContext
+				if (checkTiContext) {
+					checkProxyConstructor(element);
+				}
 
 				String genClassName = proxyClassName + "BindingGen";
 				String sourceName = String.format("%s.%s", packageName, genClassName);
@@ -617,11 +654,14 @@ public class KrollJSONGenerator extends AbstractProcessor {
 	{
 		String creatableInModule = (String) proxy.get("creatableInModule");
 		String parentModule = (String) proxy.get("parentModule");
+
 		if (creatableInModule != null && !creatableInModule.equals(Kroll_DEFAULT)) {
 			return creatableInModule;
+
 		} else if (parentModule != null && !parentModule.equals(Kroll_DEFAULT)) {
 			return parentModule;
 		}
+
 		return null;
 	}
 
@@ -630,6 +670,7 @@ public class KrollJSONGenerator extends AbstractProcessor {
 		// Parent module name wasn't found because it exists in another source round (probably another module)
 		// We can manually pull the annotation name here instead
 		String parentModuleClass = getParentModuleClass(proxy);
+
 		if (parentModuleClass != null) {
 			TypeElement type = processingEnv.getElementUtils().getTypeElement(parentModuleClass);
 			HashMap<String, Object> moduleParams = utils.getAnnotationParams(type, Kroll_module);
@@ -641,53 +682,61 @@ public class KrollJSONGenerator extends AbstractProcessor {
 			}
 
 			if (moduleParams.containsKey("name") && !moduleParams.get("name").equals(DEFAULT_NAME)) {
-				apiName = (String)moduleParams.get("name");
+				apiName = (String) moduleParams.get("name");
 			}
 			return apiName;
 		}
+
 		return null;
 	}
 
-	protected void generateFullAPIName(Map<String, Object> proxy) {
-		Map<String, Object> childProxy = proxy;
-		String fullAPIName = (String) proxy.get("name");
+	protected void generateFullAPIName(Map<String, Object> proxyAttrs)
+	{
+		Map<String, Object> childProxyAttrs = proxyAttrs;
+		String fullAPIName = (String) proxyAttrs.get("name");
 		Map<String, Object> modules = (Map<String, Object>) properties.get("modules");
 		Map<String, Object> proxies = (Map<String, Object>) properties.get("proxies");
 
 		for (int i = 0; i < 10; i++) {
-			if (childProxy == null) break;
-
-			String name = (String) childProxy.get("name");
-			if (name == null) {
-				name = (String) childProxy.get("apiName");
+			if (childProxyAttrs == null) {
+				break;
 			}
-			String moduleClassName = getParentModuleClass(childProxy);
-			String apiName = null;
 
+			String name = (String) childProxyAttrs.get("name");
+			if (name == null) {
+				name = (String) childProxyAttrs.get("apiName");
+			}
+
+			String moduleClassName = getParentModuleClass(childProxyAttrs);
+			String apiName = null;
 			Map<String, Object> module = ((Map<String, Object>) modules.get(moduleClassName));
 			if (module != null) {
 				apiName = (String) module.get("apiName");
 			}
+
 			if (apiName == null && module != null) {
 				apiName = findParentModuleName(module);
 			}
+
 			if (apiName == null) {
 				break;
 			}
+
 			fullAPIName = apiName + "." + fullAPIName;
 
 			Map<String, Object> proxyMap = (Map<String, Object>) proxies.get(moduleClassName);
-			childProxy = (Map<String, Object>) proxyMap.get("proxyAttrs");
+			childProxyAttrs = (Map<String, Object>) proxyMap.get("proxyAttrs");
 		}
-		proxy.put("fullAPIName", fullAPIName);
+
+		proxyAttrs.put("fullAPIName", fullAPIName);
 	}
-	
+
 	protected void generateJSON() {
 		try {
-			Map<String,Object> proxies = (Map<String,Object>) properties.get("proxies");
+			Map<String,Object> proxies = jsonUtils.getStringMap(properties, "proxies");
 			for (String proxyName : proxies.keySet()) {
-				Map<String,Object> proxy = (Map<String,Object>)proxies.get(proxyName);
-				generateFullAPIName((Map<String,Object>)proxy.get("proxyAttrs"));
+				Map<String,Object> proxy = jsonUtils.getStringMap(proxies, proxyName);
+				generateFullAPIName(jsonUtils.getStringMap(proxy, "proxyAttrs"));
 			}
 
 			FileObject file = processingEnv.getFiler().createResource(

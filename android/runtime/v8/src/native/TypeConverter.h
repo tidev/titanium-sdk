@@ -62,7 +62,7 @@ public:
 	static v8::Handle<v8::Value> * javaObjectArrayToJsArguments(jobjectArray javaObjectArray, int *length);
 
 	// array convert methods
-	static jarray jsArrayToJavaArray(v8::Handle<v8::Array>);
+	static jarray jsArrayToJavaArray(v8::Handle<v8::Array> jsArray);
 	static v8::Handle<v8::Array> javaArrayToJsArray(jbooleanArray javaBooleanArray);
 	static jshortArray jsArrayToJavaShortArray(v8::Handle<v8::Array> jsArray);
 	static v8::Handle<v8::Array> javaArrayToJsArray(jshortArray javaShortArray);
@@ -92,6 +92,8 @@ public:
 private:
 	// utility methods
 	static v8::Handle<v8::Array> javaDoubleArrayToJsNumberArray(jdoubleArray javaDoubleArray);
+	static v8::Handle<v8::Array> javaLongArrayToJsNumberArray(jlongArray javaLongArray);
+	static v8::Handle<v8::Array> javaFloatArrayToJsNumberArray(jfloatArray javaFloatArray);
 
 };
 }

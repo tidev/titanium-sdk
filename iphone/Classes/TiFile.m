@@ -44,7 +44,7 @@
 	return path;
 }
 
--(NSInteger)size
+-(unsigned long long)size
 {
 	NSFileManager *fm = [NSFileManager defaultManager];
 	NSError *error = nil; 
@@ -52,14 +52,18 @@
 	id resultType = [resultDict objectForKey:NSFileType];
 	if ([resultType isEqualToString:NSFileTypeSymbolicLink])
 	{
-		resultDict = [fm attributesOfFileSystemForPath:path error:&error];
+        // TODO: We should be translating all symlinks into their actual paths always
+        NSString* realPath = [fm destinationOfSymbolicLinkAtPath:path error:nil];
+        if (realPath != nil) {
+            resultDict = [fm attributesOfItemAtPath:realPath error:&error];
+        }
 	}
-	if (error != NULL)
+	if (error != nil)
 	{
 		return 0;
 	}
 	id result = [resultDict objectForKey:NSFileSize];
-	return [result intValue];
+	return [result unsignedLongLongValue];
 }
 
 -(id)blob

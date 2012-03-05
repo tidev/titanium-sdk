@@ -1,28 +1,28 @@
 ---
 name: Titanium.UI.iPhone.AnimationStyle
-description: A set of constants for the Animation Styles used for transitions.
+summary: A set of constants for the Animation Styles used for transitions.
 extends: Titanium.Proxy
 platforms: [iphone, ipad]
 since: "0.9"
 createable: false
 properties:
   - name: CURL_DOWN
-    description: Curl downwards during a transition animation
+    summary: Curl downwards during a transition animation
     type: Number
     permission: read-only
   - name: CURL_UP
-    description: Curl upwards during a transition animation
+    summary: Curl upwards during a transition animation
     type: Number
     permission: read-only
   - name: FLIP_FROM_LEFT
-    description: Flip from left to right during a transition animation
+    summary: Flip from left to right during a transition animation
     type: Number
     permission: read-only
   - name: FLIP_FROM_RIGHT
-    description: Flip from right to left during a transition animation
+    summary: Flip from right to left during a transition animation
     type: Number
     permission: read-only
   - name: NONE
-    description: No animation
+    summary: No animation
     type: Number
     permission: read-only

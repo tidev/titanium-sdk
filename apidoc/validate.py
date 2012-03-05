@@ -6,14 +6,12 @@
 import os, sys, re
 apiDocDir = os.path.abspath(os.path.dirname(__file__))
 
-# We package the python markdown module already in the sdk source tree,
-# namely in /support/module/support/markdown.  So go ahead and  use it
-# rather than rely on it being easy_installed.
-moduleSupportDir = os.path.abspath(os.path.join(apiDocDir, '..', 'support', 'module', 'support'))
-if os.path.exists(moduleSupportDir):
-	sys.path.append(moduleSupportDir)
+# We package markdown in support/common.
+commonSupportDir = os.path.abspath(os.path.join(apiDocDir, '..', 'support', 'common'))
+if os.path.exists(commonSupportDir):
+	sys.path.append(commonSupportDir)
 
-import codecs, optparse
+import codecs, optparse, platform
 import markdown
 
 try:
@@ -27,16 +25,97 @@ except:
 
 
 VALID_PLATFORMS = ["android", "iphone", "ipad", "mobileweb"]
+VALID_KEYS = {
+		"type": ["name", "summary", "description", "createable", "platforms", "extends",
+			"excludes", "since", "deprecated", "osver", "examples", "methods", "properties",
+			"events"],
+		"method": ["name", "summary", "description", "returns", "platforms", "since",
+			"deprecated", "osver", "examples", "parameters"],
+		"parameter": ["name", "summary", "type", "optional", "default"],
+		"property": ["name", "summary", "description", "type", "platforms", "since",
+			"deprecated", "osver", "examples", "permission", "availability", "accessors",
+			"optional", "value", "default"],
+		"event": ["name", "summary", "description", "extends", "platforms", "since",
+			"deprecated", "osver", "properties"],
+		"eventprop": ["name", "summary", "type", "platforms", "deprecated"]
+		}
+
 types = {}
 errorTrackers = {}
 options = None
 
-def printCheck(str, indent=1):
-	print u'%s\u2713 \033[92m%s\033[0m' % ('\t' * indent, str)
 
-def printError(str, indent=1):
-	print >>sys.stderr, u'%s\u0078 \033[91m%s\033[0m' % ('\t' * indent, str)
+def stringFrom(error):
+	if isinstance(error, basestring):
+		return error
+	elif isinstance(error, dict):
+		return "returns - " + str(error)
+	else:
+		return error.name
+		
+class Printer:
+	def __init__(self):
+		self.error_count = 0;
+		
+	def errorCount(self):
+		return self.error_count;
+	
+class PrettyPrinter(Printer):
+	
+	def printCheck(self, error, indent=1):
+		if not options.errorsOnly:
+			print u'%s\u2713 \033[92m%s\033[0m' % ('\t' * indent, stringFrom(error))
 
+	def printError(self, error, indent=1):
+		print >>sys.stderr, u'%s\u0078 \033[91m%s\033[0m' % ('\t' * indent, stringFrom(error))
+		
+	def printStatus(self, path, error):
+		if not options.errorsOnly or error.hasErrors():
+			print '%s:' % path		
+		self.printTrackerStatus(error)
+		
+	def printTrackerStatus(self, error, indent=1):
+		if error.hasErrors():
+			self.printError(error, indent)
+		elif options.verbose or indent == 1:
+			self.printCheck(error, indent)
+
+		for msg in error.errors:
+			self.printError(msg, indent + 1)
+			self.error_count += 1
+		for child in error.children:
+			self.printTrackerStatus(child, indent + 1)
+		
+class SimplePrinter(Printer):
+	
+	def printStatus(self, path, error):
+		self.printTrackerStatus(error, path)
+
+	def addField(self, line, field):
+		if len(line) > 0:
+			line += " : "
+		line += stringFrom(field)
+		return line
+		
+	def printTrackerStatus(self, error, line = ""):
+		line = self.addField(line, error.name)
+
+		for msg in error.errors:
+			self.printError(self.addField(line, msg))
+		if len(error.children) > 0:
+			for child in error.children:
+				self.printTrackerStatus(child, line)
+		else:
+			self.printCheck(line)
+
+	def printCheck(self, msg):
+		if not options.errorsOnly:
+			print "PASS: " + msg
+			
+	def printError(self, msg):
+		print "FAIL: " + msg
+		self.error_count += 1
+	
 class ErrorTracker(object):
 	def __init__(self, name, parent=None):
 		self.name = name
@@ -63,16 +142,17 @@ class ErrorTracker(object):
 				return True
 		return False
 
-	def printStatus(self, indent=1):
-		if self.hasErrors():
-			printError(self.name, indent)
-		elif options.verbose or indent == 1:
-			printCheck(self.name, indent)
-
-		for error in self.errors:
-			printError(error, indent + 1)
-		for child in self.children:
-			child.printStatus(indent + 1)
+def validateKeys(tracker, obj, objType):
+	validKeys = VALID_KEYS[objType]
+	if not isinstance(obj, dict):
+		return
+	if "name" in obj:
+		objName = obj["name"]
+	else:
+		objName = "object"
+	invalid = [k for k in obj.keys() if k not in validKeys]
+	if invalid:
+		tracker.trackError("Invalid key(s) in %s: %s" % (objName, invalid))
 
 def validateRequired(tracker, map, required):
 	for r in required:
@@ -116,7 +196,7 @@ def validateMarkdown(tracker, mdData, name):
 		tracker.trackError('Error parsing markdown block "%s": %s' % (name, e))
 
 def findType(tracker, typeName, name):
-	if typeName in ['Boolean', 'Number', 'String', 'Date', 'Object', 'Callback']: return
+	if typeName in ['Dictionary', 'Boolean', 'Number', 'String', 'Date', 'Object', 'Callback']: return
 
 	containerRegex = r'(Dictionary|Callback|Array)\<([^\>]+)\>'
 	match = re.match(containerRegex, typeName)
@@ -171,17 +251,41 @@ def validateCommon(tracker, map):
 	if 'optional' in map:
 		validateIsBool(tracker, 'optional', map['optional'])
 
+	if 'notes' in map:
+		tracker.trackError('"notes" field is no longer valid')
+		
+	if options.validateSummary:
+		if 'summary' in map:
+			summary = map['summary']
+			if not summary is None and not len(summary.strip()) == 0:
+				summary = summary.strip()
+				if not summary[0].isupper or summary[-1] != ".":
+					tracker.trackError('summary fields should start with a capital letter and end with a period. summary: %s' % summary)
+			else:
+				tracker.trackError('summary missing required text.')
+		
+
 def validateMethod(typeTracker, method):
 	tracker = ErrorTracker(method['name'], typeTracker)
-	validateRequired(tracker, method, ['name'])
+	validateKeys(tracker, method, "method")
+	validateRequired(tracker, method, ['name', 'summary'])
 	validateCommon(tracker, method)
 
 	if 'returns' in method:
-		if type(method['returns']) != dict:
-			tracker.trackError('"returns" must be an Object: %s' % method['returns'])
+		returns = method['returns']
+		if type(returns) != dict and type(returns) != list:
+			tracker.trackError('"returns" must be an Object or list of Objects: %s' % returns)
 			return
-		if 'type' not in method['returns']:
-			tracker.trackError('Required property "type" missing in "returns": %s' % method["returns"])
+		if type(returns) != list:
+			returns = [returns]
+		for oneReturn in returns:
+			if type(oneReturn) != dict:
+				tracker.trackError('"returns" must be an Object or list of Objects: %s' % returns)
+				return
+			if 'type' not in oneReturn:
+				tracker.trackError('Required property "type" missing in "returns": %s' % returns)
+			if not isinstance(oneReturn["type"], basestring):
+				tracker.trackError('"type" value of returns element must be a string.' % oneReturn["type"])
 
 
 	if 'parameters' in method:
@@ -189,15 +293,18 @@ def validateMethod(typeTracker, method):
 			tracker.trackError('"parameters" must be a list')
 		for param in method['parameters']:
 			pTracker = ErrorTracker(param['name'], tracker)
-			validateRequired(pTracker, param, ['name', 'description', 'type'])
+			validateKeys(pTracker, param, "parameter")
+			validateRequired(pTracker, param, ['name', 'summary', 'type'])
+			validateCommon(pTracker, param)
 
 	if 'examples' in method:
 		validateExamples(tracker, method['examples'])
 
 def validateProperty(typeTracker, property):
 	tracker = ErrorTracker(property['name'], typeTracker)
+	validateKeys(tracker, property, "property")
 
-	validateRequired(tracker, property, ['name', 'description', 'type'])
+	validateRequired(tracker, property, ['name', 'summary', 'type'])
 	validateCommon(tracker, property)
 
 	if 'examples' in property:
@@ -214,8 +321,18 @@ def validateProperty(typeTracker, property):
 
 def validateEvent(typeTracker, event):
 	tracker = ErrorTracker(event['name'], typeTracker)
-	validateRequired(tracker, event, ['name', 'description'])
+	validateKeys(tracker, event, "event")
+	validateRequired(tracker, event, ['name', 'summary'])
 	validateCommon(tracker, event)
+	if 'properties' in event:
+		if type(event['properties']) != list:
+			tracker.trackError('"properties" specified, but isn\'t a list')
+			return
+		for p in event['properties']:
+			pTracker = ErrorTracker(p['name'], tracker)
+			validateKeys(pTracker, p, "eventprop")
+			validateRequired(pTracker, p, ['name', 'summary'])
+			validateCommon(pTracker, p)
 
 def validateExamples(tracker, examples):
 	if not isinstance(examples, list):
@@ -226,37 +343,60 @@ def validateExamples(tracker, examples):
 			tracker.trackError('each example must be a dict with "title" and "example" members: %s' % example)
 			continue
 		validateMarkdown(tracker, example['example'], 'example')
+		
+def validateExcludes(tracker, excludes):
+	if not isinstance(excludes, dict):
+		tracker.trackError('"excludes" must be a dict and cannot be empty')
+		return
+	for category in excludes:
+		if category not in ['events','properties','methods']:
+			tracker.trackError('only "events","properties", and "methods" are allowed in "excludes": %s' % category)
+			continue
+		if not isinstance(excludes[category], list):
+			tracker.trackError('"%s" must be a list' % category)
+			continue
 
 def validateType(typeDoc):
 	typeName = typeDoc['name']
 	errorTrackers[typeName] = ErrorTracker(typeName)
 	tracker = errorTrackers[typeName]
 
-	validateRequired(tracker, typeDoc, ['name', 'description'])
+	validateRequired(tracker, typeDoc, ['name', 'summary'])
 	validateCommon(tracker, typeDoc)
+	if 'excludes' in typeDoc:
+		validateExcludes(tracker, typeDoc['excludes'])
 
-	if 'notes' in typeDoc:
-		validateMarkdown(tracker, typeDoc['notes'], 'notes')
+	if 'description' in typeDoc:
+		validateMarkdown(tracker, typeDoc['description'], 'description')
 
 	if 'examples' in typeDoc:
 		validateExamples(tracker, typeDoc['examples'])
 
 	if 'methods' in typeDoc:
-		for method in typeDoc['methods']:
-			validateMethod(tracker, method)
+		if type(typeDoc['methods']) != list:
+			tracker.trackError('"methods" specified, but isn\'t a list')
+		else:
+			for method in typeDoc['methods']:
+				validateMethod(tracker, method)
 
 	if 'properties' in typeDoc:
-		for property in typeDoc['properties']:
-			validateProperty(tracker, property)
+		if type(typeDoc['properties']) != list:
+			tracker.trackError('"properties" specified, but isn\'t a list')
+		else:
+			for property in typeDoc['properties']:
+				validateProperty(tracker, property)
 
 	if 'events' in typeDoc:
-		for event in typeDoc['events']:
-			validateEvent(tracker, event)
+		if type(typeDoc['events']) != list:
+			tracker.trackError('"events" specified, but isn\'t a list')
+		else:
+			for event in typeDoc['events']:
+				validateEvent(tracker, event)
 
 
 def validateTDoc(tdocPath):
 	tdocTypes = [type for type in yaml.load_all(codecs.open(tdocPath, 'r', 'utf8').read())]
-	if options.parseonly:
+	if options.parseOnly:
 		return
 
 	for type in tdocTypes:
@@ -315,19 +455,28 @@ def validateDir(dir):
 				try:
 					validateTDoc(absolutePath)
 				except Exception, e:
-					printError("Error parsing %s: %s:" % (os.path.join(root,file), str(e)))
+					print >> sys.stderr, ("Error parsing %s: %s:" % (os.path.join(root,file), str(e)))
 	validateRefs()
 
 def printStatus(dir=None):
+	if options.format == 'pretty':
+		printer = PrettyPrinter()
+	elif options.format == 'simple':
+		printer = SimplePrinter()
+	else:
+		print >> sys.stderr, "Invalid output style: %s. Use 'pretty' or 'simple'" % options.format
+		sys.exit(1)
+		
 	keys = types.keys()
 	keys.sort()
 	for key in keys:
 		tdocPath = key
 		tdocTypes = types[key]
 		if dir: tdocPath = tdocPath[len(dir)+1:]
-		print '%s:' % tdocPath
 		for type in tdocTypes:
-			errorTrackers[type["name"]].printStatus()
+			printer.printStatus(tdocPath, errorTrackers[type["name"]])
+			
+	print "Errors encountered: %s" % printer.errorCount()
 
 def main(args):
 	parser = optparse.OptionParser()
@@ -337,8 +486,17 @@ def main(args):
 		default=None, help='directory to recursively validate *.yml TDoc2 files')
 	parser.add_option('-f', '--file', dest='file',
 		default=None, help='specific TDoc2 file to validate (overrides -d/--dir)')
-	parser.add_option('-p', '--parseonly', dest='parseonly',
+	parser.add_option('-p', '--parse-only', dest='parseOnly',
 		action='store_true', default=False, help='only check yaml parse-ability')
+	format_default = "pretty"
+	if "windows" in platform.system().lower() or "cygwin" in platform.system().lower():
+		format_default = "simple"
+	parser.add_option('-s', '--style', dest='format',
+		default=format_default, help='output style: pretty (default) or simple.')
+	parser.add_option('-e', '--errors-only', dest='errorsOnly',
+		action='store_true', default=False, help='only emit failed validations')
+	parser.add_option('--warn-summary', dest='validateSummary',
+		action='store_true', default=False, help='validate summary field')
 	global options
 	(options, args) = parser.parse_args(args)
 

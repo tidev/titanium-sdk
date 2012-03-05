@@ -220,7 +220,16 @@ if (!isAndroid) {
 // region change event listener
 mapview.addEventListener('regionChanged',function(evt)
 {
-	Titanium.API.info('maps region has updated to '+evt.longitude+','+evt.latitude);
+	Titanium.API.info('maps region has updated to '+evt.longitude+','+evt.latitude+','+evt.latitudeDelta+','+evt.longitudeDelta);
+    Titanium.API.info(mapview.latitudeDelta+','+mapview.longitudeDelta);
+    if(evt.latitudeDelta === mapview.latitudeDelta)
+    {
+        Titanium.API.info('latitudeDelta property matches event values');
+    }
+    if(evt.longitudeDelta === mapview.longitudeDelta)
+    {
+        Titanium.API.info('longitudeDelta property matches event values');
+    }
 });
 
 var annotationAdded = false;

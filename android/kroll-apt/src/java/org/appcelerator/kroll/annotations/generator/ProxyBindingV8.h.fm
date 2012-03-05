@@ -16,13 +16,15 @@
 
 <#assign className = Proxy.className(proxyClassName)>
 
-class ${className} : public Proxy
+class ${className} : public titanium::Proxy
 {
 public:
 	explicit ${className}(jobject javaObject);
 
 	static void bindProxy(v8::Handle<v8::Object> exports);
 	static v8::Handle<v8::FunctionTemplate> getProxyTemplate();
+	static void dispose();
+
 	static v8::Persistent<v8::FunctionTemplate> proxyTemplate;
 	static jclass javaClass;
 

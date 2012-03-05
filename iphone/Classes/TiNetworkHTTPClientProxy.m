@@ -57,7 +57,9 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 			TRYENCODING("iso-8859-1",10,NSISOLatin1StringEncoding);
 			TRYENCODING("utf-8",5,NSUTF8StringEncoding);
 			TRYENCODING("shift-jis",9,NSShiftJISStringEncoding);
+			TRYENCODING("shift_jis",9,NSShiftJISStringEncoding);
 			TRYENCODING("x-euc",5,NSJapaneseEUCStringEncoding);
+			TRYENCODING("euc-jp",6,NSJapaneseEUCStringEncoding);
 			TRYENCODING("windows-1250",12,NSWindowsCP1251StringEncoding);
 			TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding);
 			TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding);
@@ -82,7 +84,9 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 		TRYENCODING("iso-8859-1",10,NSISOLatin1StringEncoding);
 		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
 		TRYENCODING("shift-jis",9,NSShiftJISStringEncoding);
+		TRYENCODING("shift_jis",9,NSShiftJISStringEncoding);
 		TRYENCODING("x-euc",5,NSJapaneseEUCStringEncoding);
+		TRYENCODING("euc-jp",6,NSJapaneseEUCStringEncoding);
 		TRYENCODING("windows-1250",12,NSWindowsCP1251StringEncoding);
 		TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding);
 		TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding);
@@ -106,6 +110,11 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		validatesSecureCertificate = [[NSNumber alloc] initWithBool:NO];
 	}
 	return self;
+}
+
+-(void)_configure
+{
+    [self initializeProperty:@"cache" defaultValue:NUMBOOL(NO)];
 }
 
 -(void)setOnload:(KrollCallback *)callback
@@ -142,7 +151,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 {
 	if (request!=nil && connected)
 	{
-		[request cancel];
+		[request clearDelegatesAndCancel];
 	}
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(request);
@@ -333,7 +342,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	{
 		connected = NO;
 		[[TiApp app] stopNetwork];
-		[request cancel];
+		[request clearDelegatesAndCancel];
 		[self forgetSelf];
 	}
 }
@@ -356,7 +365,12 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	}
 	
 	request = [[ASIFormDataRequest requestWithURL:url] retain];	
-    [request setDownloadCache:[ASIDownloadCache sharedCache]];
+    if ([TiUtils boolValue:[self valueForUndefinedKey:@"cache"] def:NO]) {
+        [request setDownloadCache:[ASIDownloadCache sharedCache]];
+    }
+    else {
+        [request setDownloadCache:nil];
+    }
 	[request setDelegate:self];
     if (timeout) {
         NSTimeInterval timeoutVal = [timeout doubleValue] / 1000;
@@ -537,6 +551,9 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	
 	// allow self-signed certs (NO) or required valid SSL (YES)    
 	[request setValidatesSecureCertificate:[validatesSecureCertificate boolValue]];
+    
+    // set the TLS version if needed
+    [request setTlsVersion:[TiUtils intValue:[self valueForUndefinedKey:@"tlsVersion"]]];
 	
 	if (async)
 	{
@@ -550,13 +567,23 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	}
 }
 
+// Checked with Apache project to see if this is a known bug for them; it's
+// not, so this must be a client-side issue with Apple.
+//
+// Turns out Apple has a bug where they seem to case-correct headers;
+// this turns WWW-Authenticate into Www-Authenticate. We don't have complete
+// information on how response headers are mangled, but assume that
+// they are all case-corrected like this.
+//
+// This occurs in iOS 4 only.
+
 -(id)getResponseHeader:(id)args
 {
+    ENSURE_SINGLE_ARG(args, NSString);
+    
 	if (request!=nil)
 	{
-		id key = [args objectAtIndex:0];
-		ENSURE_TYPE(key,NSString);
-		return [[request responseHeaders] objectForKey:key];
+        return [TiUtils getResponseHeader:args fromHeaders:[request responseHeaders]];
 	}
 	return nil;
 }

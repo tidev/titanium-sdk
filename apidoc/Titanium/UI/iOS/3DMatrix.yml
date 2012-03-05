@@ -1,113 +1,118 @@
 ---
 name: Titanium.UI.iOS.3DMatrix
-description: The 3DMatrix is created by <Titanium.UI.iOS.create3DMatrix>.  The 3D Matrix is an object for holding values for an affine transformation matrix. A 3D matrix is used to rotate, scale, translate, or skew the objects in a three-dimensional space. A 3D matrix is represented by a 4 by 4 matrix. Because the forth column is always (0,0,1), the data structure contains values for only the first three columns.
+summary: The 3D Matrix is an object for holding values for an affine transformation matrix. 
+description: |
+    The 3DMatrix is created by <Titanium.UI.iOS.create3DMatrix>.  A 3D matrix is
+    used to rotate, scale, translate, or skew the objects in a three-dimensional
+    space. A 3D matrix is represented by a 4 by 4 matrix. 
+
+    You create an `identity matrix` by creating a 3D Matrix with an empty
+    constructor.
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]
 methods:
   - name: invert
-    description: Returns a matrix constructed by inverting an existing matrix
+    summary: Returns a matrix constructed by inverting an existing matrix
   - name: multiply
-    description: Returns a matrix constructed by combining two existing matrix.
+    summary: Returns a matrix constructed by combining two existing matrix.
     returns:
         type: Titanium.UI.iOS.3DMatrix
     parameters:
       - name: t2
-        description: The second matrix. This matrix is concatenated to the matrix instance against which the function is invoked.  The result of this function is the first matrix multiplied by the second matrix. You might perform several multiplications in order to create a single matrix that contains the cumulative effects of several transformations. Note that matrix operations are not commutative - the order in which you concatenate matrices is important. That is, the result of multiplying matrix t1 by matrix t2 does not necessarily equal the result of multiplying matrix t2 by matrix t1.
+        summary: The second matrix. This matrix is concatenated to the matrix instance against which the function is invoked.  The result of this function is the first matrix multiplied by the second matrix. You might perform several multiplications in order to create a single matrix that contains the cumulative effects of several transformations. Note that matrix operations are not commutative - the order in which you concatenate matrices is important. That is, the result of multiplying matrix t1 by matrix t2 does not necessarily equal the result of multiplying matrix t2 by matrix t1.
         type: Titanium.UI.iOS.3DMatrix
   - name: rotate
-    description: Returns a matrix constructed by rotating an existing matrix
+    summary: Returns a matrix constructed by rotating an existing matrix
     returns:
         type: Titanium.UI.iOS.3DMatrix
     parameters:
       - name: angle
-        description: The angle, in degrees, by which to rotate the matrix. A positive value specifies counterclockwise rotation and a negative value specifies clockwise rotation.
+        summary: The angle, in degrees, by which to rotate the matrix. A positive value specifies counterclockwise rotation and a negative value specifies clockwise rotation.
         type: Number
       - name: x
-        description: The x part of the vector about which to rotate
+        summary: The x part of the vector about which to rotate
         type: Number
       - name: y
-        description: The y part of the vector about which to rotate
+        summary: The y part of the vector about which to rotate
         type: Number
       - name: z
-        description: The z part of the vector about which to rotate
+        summary: The z part of the vector about which to rotate
         type: Number
   - name: scale
-    description: Returns a matrix constructed by scaling an existing matrix
+    summary: Returns a matrix constructed by scaling an existing matrix
     returns:
         type: Titanium.UI.iOS.3DMatrix
     parameters:
       - name: sx
-        description: The value by which to scale x values of the matrix
+        summary: The value by which to scale x values of the matrix
         type: Number
       - name: sy
-        description: The value by which to scale y values of the matrix
+        summary: The value by which to scale y values of the matrix
         type: Number
       - name: sz
-        description: The value by which to scale z values of the matrix
+        summary: The value by which to scale z values of the matrix
         type: Number
   - name: translate
-    description: Returns a matrix constructed by translating an existing matrix
+    summary: Returns a matrix constructed by translating an existing matrix
     returns:
         type: Titanium.UI.iOS.3DMatrix
     parameters:
       - name: tx
-        description: The value by which to move x values with the matrix
+        summary: The value by which to move x values with the matrix
         type: Number
       - name: ty
-        description: The value by which to move y values with the matrix
+        summary: The value by which to move y values with the matrix
         type: Number
       - name: tz
-        description: The value by which to move z values with the matrix
+        summary: The value by which to move z values with the matrix
         type: Number
 properties:
   - name: m11
-    description: The entry at position [1,1] in the matrix.
+    summary: The entry at position [1,1] in the matrix.
     type: Number
   - name: m12
-    description: The entry at position [1,2] in the matrix.
+    summary: The entry at position [1,2] in the matrix.
     type: Number
   - name: m13
-    description: The entry at position [1,3] in the matrix.
+    summary: The entry at position [1,3] in the matrix.
     type: Number
   - name: m14
-    description: The entry at position [1,4] in the matrix.
+    summary: The entry at position [1,4] in the matrix.
     type: Number
   - name: m21
-    description: The entry at position [2,1] in the matrix.
+    summary: The entry at position [2,1] in the matrix.
     type: Number
   - name: m22
-    description: The entry at position [2,2] in the matrix.
+    summary: The entry at position [2,2] in the matrix.
     type: Number
   - name: m23
-    description: The entry at position [2,3] in the matrix.
+    summary: The entry at position [2,3] in the matrix.
     type: Number
   - name: m24
-    description: The entry at position [2,4] in the matrix.
+    summary: The entry at position [2,4] in the matrix.
     type: Number
   - name: m31
-    description: The entry at position [3,1] in the matrix.
+    summary: The entry at position [3,1] in the matrix.
     type: Number
   - name: m32
-    description: The entry at position [3,2] in the matrix.
+    summary: The entry at position [3,2] in the matrix.
     type: Number
   - name: m33
-    description: The entry at position [3,3] in the matrix.
+    summary: The entry at position [3,3] in the matrix.
     type: Number
   - name: m34
-    description: The entry at position [3,4] in the matrix.
+    summary: The entry at position [3,4] in the matrix.
     type: Number
   - name: m41
-    description: The entry at position [4,1] in the matrix.
+    summary: The entry at position [4,1] in the matrix.
     type: Number
   - name: m42
-    description: The entry at position [4,2] in the matrix.
+    summary: The entry at position [4,2] in the matrix.
     type: Number
   - name: m43
-    description: The entry at position [4,3] in the matrix.
+    summary: The entry at position [4,3] in the matrix.
     type: Number
   - name: m44
-    description: The entry at position [4,4] in the matrix.
+    summary: The entry at position [4,4] in the matrix.
     type: Number
-notes: |
-    You create an `identity matrix` by creating a 3D Matrix with an empty constructor.

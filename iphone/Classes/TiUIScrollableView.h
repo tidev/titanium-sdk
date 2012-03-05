@@ -14,6 +14,7 @@
 	UIPageControl *pageControl;
 	int currentPage; // Duplicate some info, just in case we're not showing the page control
 	BOOL showPageControl;
+	UIColor *pageControlBackgroundColor;
 	CGFloat pageControlHeight;
 	BOOL handlingPageControlEvent;
         

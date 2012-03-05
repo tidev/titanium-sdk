@@ -1,12 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium.analytics;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -28,15 +29,20 @@ import org.json.JSONObject;
 //- name     	-- the name of the event (string)
 //- data		-- the event data (NULL value if none provided) (object)
 
+/**
+ * This is the parent class of all Titanium analytics events.
+ */
 public class TiAnalyticsEvent
 {
 	private static final String LCAT = "TitaniumAnalyticsEvent";
 
-	private static TimeZone utc = TimeZone.getTimeZone("utc");
+	private static TimeZone utc = TimeZone.getTimeZone("UTC");
 	private static SimpleDateFormat isoDateFormatter =
 		new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 	static {
-		isoDateFormatter.setTimeZone(utc);
+		// Workaround for setting the timezone since there is a bug in android 2.2 and earlier
+		// http://code.google.com/p/android/issues/detail?id=8258
+		isoDateFormatter.setCalendar(Calendar.getInstance(utc));
 	}
 
 	private String eventType;
@@ -49,6 +55,12 @@ public class TiAnalyticsEvent
 
 	private boolean expandPayload;
 
+	/**
+	 * Constructs an analytics event.
+	 * @param eventType the analytics event type.
+	 * @param eventEvent the analytics event.
+	 * @param eventPayload the analytics payload.
+	 */
 	TiAnalyticsEvent(String eventType, String eventEvent, String eventPayload) {
 		try {
 			JSONObject o = new JSONObject();

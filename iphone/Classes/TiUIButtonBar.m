@@ -60,6 +60,7 @@
 		controlBounds.size = [ourControl sizeThatFits:CGSizeZero];
 		[ourControl setBounds:controlBounds];
 	}
+    [super frameSizeChanged:frame_ bounds:bounds_];
 }
 
 - (void)setTabbedBar: (BOOL)newIsTabbed;

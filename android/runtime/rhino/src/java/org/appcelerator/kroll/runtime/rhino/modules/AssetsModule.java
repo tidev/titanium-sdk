@@ -33,6 +33,7 @@ public class AssetsModule extends IdScriptableObject
 		Scriptable instance = constructor.construct(context, scope, ScriptRuntime.emptyArgs);
 		putProperty(scope, "readAsset", getProperty(instance, "readAsset"));
 		putProperty(scope, "readFile", getProperty(instance, "readFile"));
+		putProperty(scope, "fileExists", getProperty(instance, "fileExists"));
 	}
 
 	private String readAsset(Object[] args)
@@ -55,23 +56,36 @@ public class AssetsModule extends IdScriptableObject
 		return KrollAssetHelper.readFile(filePath);
 	}
 
+	private boolean fileExists(Object[] args)
+	{
+		if (args.length < 1 || !(args[0] instanceof String)) {
+			throw new IllegalArgumentException("fileExists requires a filesystem path");
+		}
+
+		String filePath = (String) args[0];
+		return KrollAssetHelper.fileExists(filePath);
+	}
+	
 // #string_id_map#
 	private final static int
 		Id_constructor = 1,
 		Id_readAsset = 2,
 		Id_readFile = 3,
-		MAX_PROTOTYPE_ID = Id_readFile;
+		Id_fileExists = 4,
+		MAX_PROTOTYPE_ID = Id_fileExists;
 
 	@Override
 	protected int findPrototypeId(String s)
 	{
 		int id = 0;
-// #generated# Last update: 2011-10-14 16:04:09 CDT
+// #generated# Last update: 2011-12-15 16:48:01 PST
         L0: { id = 0; String X = null;
-            int s_length = s.length();
-            if (s_length==8) { X="readFile";id=Id_readFile; }
-            else if (s_length==9) { X="readAsset";id=Id_readAsset; }
-            else if (s_length==11) { X="constructor";id=Id_constructor; }
+            L: switch (s.length()) {
+            case 8: X="readFile";id=Id_readFile; break L;
+            case 9: X="readAsset";id=Id_readAsset; break L;
+            case 10: X="fileExists";id=Id_fileExists; break L;
+            case 11: X="constructor";id=Id_constructor; break L;
+            }
             if (X!=null && X!=s && !X.equals(s)) id = 0;
             break L0;
         }
@@ -98,6 +112,9 @@ public class AssetsModule extends IdScriptableObject
 			case Id_readFile:
 				arity = 1; name = "readFile";
 				break;
+			case Id_fileExists:
+				arity = 1; name = "fileExists";
+				break;
 			default:
 				super.initPrototypeId(id);
 				return;
@@ -121,6 +138,8 @@ public class AssetsModule extends IdScriptableObject
 				return readAsset(args);
 			case Id_readFile:
 				return readFile(args);
+			case Id_fileExists:
+				return fileExists(args);
 			default:
 				throw new IllegalArgumentException(String.valueOf(id));
 		}

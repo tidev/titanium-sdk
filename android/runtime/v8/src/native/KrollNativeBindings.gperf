@@ -11,11 +11,11 @@ namespace titanium {
 %}
 struct BindEntry;
 %%
-natives, KrollBindings::initNatives
-evals, ScriptsModule::Initialize
-assets, AssetsModule::Initialize
-API, APIModule::Initialize
-Titanium, KrollBindings::initTitanium
+natives, KrollBindings::initNatives, NULL
+evals, ScriptsModule::Initialize, ScriptsModule::Dispose
+assets, AssetsModule::Initialize, NULL
+API, APIModule::Initialize, APIModule::Dispose
+Titanium, KrollBindings::initTitanium, KrollBindings::disposeTitanium
 %%
 	} // namespace bindings
 } // namespace titanium

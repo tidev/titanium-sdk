@@ -10,6 +10,7 @@ package ti.modules.titanium.ui;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
@@ -491,10 +492,10 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	@Kroll.method
 	public void showDatePickerDialog(Object[] args)
 	{
-		KrollDict settings = new KrollDict();
+		HashMap settings = new HashMap();
 		final AtomicInteger callbackCount = new AtomicInteger(0); // just a flag to be sure dismiss doesn't fire callback if ondateset did already.
 		if (args.length > 0) {
-			settings = (KrollDict) args[0];
+			settings = (HashMap) args[0];
 		}
 		Calendar calendar = Calendar.getInstance();
 		if (settings.containsKey("value")) {
@@ -549,8 +550,14 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 				}
 			};
 		}
+
+		/*
+		 * use getAppCurrentActivity over getActivity since technically the picker
+		 * should show up on top of the current activity when called - not just the
+		 * activity it was created in
+		 */
 		DatePickerDialog dialog = new DatePickerDialog(
-					getActivity(),
+					TiApplication.getAppCurrentActivity(),
 					dateSetListener,
 					calendar.get(Calendar.YEAR),
 					calendar.get(Calendar.MONTH),

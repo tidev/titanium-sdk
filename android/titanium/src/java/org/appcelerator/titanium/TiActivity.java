@@ -1,12 +1,10 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium;
-
-import org.appcelerator.kroll.common.Log;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -35,6 +33,33 @@ public class TiActivity extends TiBaseActivity
 	{
 		fireOnDestroy();
 		super.onDestroy();
+	}
+
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		if (getTiApp().isRestartPending()) {
+			return;
+		}
+
+		if (isTab()) {
+			TiApplication.addToActivityStack(this);
+		}
+	}
+
+	@Override
+	protected void onPause()
+	{
+		super.onPause();
+
+		if (getTiApp().isRestartPending()) {
+			return;
+		}
+
+		if (isTab()) {
+			TiApplication.removeFromActivityStack(this);
+		}
 	}
 
 	public boolean isTab()

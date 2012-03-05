@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,12 +17,14 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.RProxy;
 import org.appcelerator.titanium.proxy.ServiceProxy;
+import org.appcelerator.titanium.util.TiConvert;
 
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -218,6 +220,9 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int FLAG_SHOW_LIGHTS = Notification.FLAG_SHOW_LIGHTS;
 	@Kroll.constant public static final int STREAM_DEFAULT = Notification.STREAM_DEFAULT;
 
+	@Kroll.constant public static final int START_NOT_STICKY = Service.START_NOT_STICKY;
+	@Kroll.constant public static final int START_REDELIVER_INTENT = Service.START_REDELIVER_INTENT;
+
 	@Kroll.constant public static final int STREAM_ALARM = AudioManager.STREAM_ALARM;
 	@Kroll.constant public static final int STREAM_MUSIC = AudioManager.STREAM_MUSIC;
 	@Kroll.constant public static final int STREAM_NOTIFICATION = AudioManager.STREAM_NOTIFICATION;
@@ -251,6 +256,10 @@ public class AndroidModule extends KrollModule
 		IntentProxy intent = new IntentProxy();
 		intent.setType(IntentProxy.TYPE_SERVICE);
 		intent.handleCreationArgs(this, args);
+		Object startMode = intent.getProperty(TiC.INTENT_PROPERTY_START_MODE);
+		if (startMode != null) {
+			intent.putExtra(TiC.INTENT_PROPERTY_START_MODE, TiConvert.toInt(startMode));
+		}
 		return intent;
 	}
 
@@ -279,39 +288,23 @@ public class AndroidModule extends KrollModule
 	@Kroll.method
 	public void startService(IntentProxy intentProxy)
 	{
-		Activity activity = TiApplication.getInstance().getCurrentActivity();
-		if (activity != null) {
-			activity.startService(intentProxy.getIntent());
-			return;
+		TiApplication app = TiApplication.getInstance();
+		if (app != null) {
+			app.startService(intentProxy.getIntent());
+		} else {
+			Log.w(TAG, "Application instance no longer available. Unable to startService.");
 		}
-		// In case the activity was null, try context->application
-		/*
-		TiContext tiContext = invocation.getTiContext();
-		if (tiContext != null && tiContext.getTiApp() != null) {
-			tiContext.getTiApp().startService(intentProxy.getIntent());
-			return;
-		}*/
-		TiApplication.getInstance().startService(intentProxy.getIntent());
-		Log.w(TAG, "Could not locate non-null activity/context/application with which to start service.");
 	}
 
 	@Kroll.method
 	public void stopService(IntentProxy intentProxy)
 	{
-		Activity activity = TiApplication.getInstance().getCurrentActivity();
-		if (activity != null) {
-			activity.stopService(intentProxy.getIntent());
-			return;
+		TiApplication app = TiApplication.getInstance();
+		if (app != null) {
+			app.stopService(intentProxy.getIntent());
+		} else {
+			Log.w(TAG, "Application instance no longer available. Unable to stopService.");
 		}
-		// In case the activity was null, try context->application
-		/*
-		TiContext tiContext = invocation.getTiContext();
-		if (tiContext != null && tiContext.getTiApp() != null) {
-			tiContext.getTiApp().stopService(intentProxy.getIntent());
-			return;
-		}*/
-		TiApplication.getInstance().stopService(intentProxy.getIntent());
-		Log.w(TAG, "Could not locate non-null activity/context/application with which to stop service.");
 	}
 
 	@Kroll.method
@@ -322,9 +315,14 @@ public class AndroidModule extends KrollModule
 			Log.w(TAG, "isServiceRunning called with empty intent.  Will return false, but value is meaningless.");
 			return false;
 		}
-		Context context = TiApplication.getInstance().getRootActivity();
-		//Context context = invocation.getTiContext().getAndroidContext();
-		ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+
+		TiApplication app = TiApplication.getInstance();
+		if (app == null) {
+			Log.w(TAG, "Application instance is no longer available. Unable to check isServiceRunning. Returning false though value is meaningless.");
+			return false;
+		}
+
+		ActivityManager am = (ActivityManager) app.getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
 		if (am != null) {
 			List<RunningServiceInfo> services = am.getRunningServices(Integer.MAX_VALUE);
 			for (RunningServiceInfo service : services) {
@@ -336,25 +334,12 @@ public class AndroidModule extends KrollModule
 		return false;
 	}
 
+	/**
+	 * A "bound" service instance. Returns the proxy so that .start and .stop can be called directly on the service.
+	 */
 	@Kroll.method
 	public ServiceProxy createService(IntentProxy intentProxy)
 	{
-		// Create a new context for the service proxy
-		TiApplication app = TiApplication.getInstance();
-		Activity rootActivity = app.getRootActivity();
-
-		String url = null;
-		Object urlProperty = intentProxy.getProperty(TiC.PROPERTY_URL);
-		if (urlProperty != null) {
-			url = urlProperty.toString();
-		}
-
-		// TODO
-		/*
-		TiContext tiContext = TiContext.createTiContext(rootActivity, TiC.URL_APP_PREFIX, url);
-		tiContext.setServiceContext(true);
 		return new ServiceProxy(intentProxy);
-		*/
-		return new ServiceProxy();
 	}
 }

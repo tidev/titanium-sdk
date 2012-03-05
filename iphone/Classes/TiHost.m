@@ -68,7 +68,7 @@ extern NSString * const TI_APPLICATION_ID;
 	if (self = [super init])
 	{
 		modules = [[NSMutableDictionary alloc] init];
-		contexts = [[NSMutableDictionary alloc] init];
+		contexts = TiCreateNonRetainingDictionary();
 		 
 		NSString *fn = @"app.js";
 		const char *start = getenv("TI_STARTPAGE");
@@ -140,9 +140,21 @@ extern NSString * const TI_APPLICATION_ID;
 		if (moduleClass!=nil)
 		{
 			m = [[moduleClass alloc] _initWithPageContext:context];
-			[m setHost:self];
-			[modules setObject:m forKey:name];
-			[m release];
+			if (![m isJSModule])
+			{
+				[m setHost:self];
+				[modules setObject:m forKey:name];
+				[m release];
+			}
+			else
+			{
+				[m release];
+				m = [[self krollBridge] require:context path:name];
+				if (m != nil)
+				{
+					[modules setObject:m forKey:name];
+				}
+			}
 		}
 	}
 	

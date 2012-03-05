@@ -15,20 +15,24 @@ public class TiMapActivity extends MapActivity
 
 	OnLifecycleEvent lifecyleListener;
 
-	public TiMapActivity() {
+	public TiMapActivity()
+	{
 	}
 
-	public void setLifecycleListener(OnLifecycleEvent lifecycleListener) {
+	public void setLifecycleListener(OnLifecycleEvent lifecycleListener)
+	{
 		this.lifecyleListener = lifecycleListener;
 	}
 
 	@Override
-	protected boolean isRouteDisplayed() {
+	protected boolean isRouteDisplayed()
+	{
 		return false;
 	}
 
 	@Override
-	protected void onPause() {
+	protected void onPause()
+	{
 		super.onPause();
 
 		if (lifecyleListener != null) {
@@ -37,7 +41,8 @@ public class TiMapActivity extends MapActivity
 	}
 
 	@Override
-	protected void onResume() {
+	protected void onResume()
+	{
 		super.onResume();
 
 		if (lifecyleListener != null) {
@@ -46,13 +51,12 @@ public class TiMapActivity extends MapActivity
 	}
 
 	@Override
-	protected void onDestroy() {
+	protected void onDestroy()
+	{
 		super.onDestroy();
 
 		if (lifecyleListener != null) {
 			lifecyleListener.onDestroy(this);
 		}
 	}
-
-
 }

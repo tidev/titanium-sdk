@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.lang.ref.WeakReference;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -31,6 +33,7 @@ public class TiUIDialog extends TiUIView
 	protected Builder builder;
 	protected AlertDialog dialog;
 	protected TiUIView view;
+	protected WeakReference<Activity> ownerActivity;
 
 	protected class ClickHandler implements DialogInterface.OnClickListener
 	{
@@ -245,7 +248,13 @@ public class TiUIDialog extends TiUIView
 			builder = null;
 		}
 		try {
-			dialog.show();
+			Activity dialogActivity = ownerActivity.get();
+			if (dialogActivity != null && !dialogActivity.isFinishing()) {
+				dialog.show();
+			} else {
+				dialog = null;
+				Log.w(LCAT, "dialog activity is destroyed, unable to show dialog with message: " + TiConvert.toString(proxy.getProperty(TiC.PROPERTY_MESSAGE)));
+			}
 		} catch (Throwable t) {
 			Log.w(LCAT, "Context must have gone away: " + t.getMessage(), t);
 		}
@@ -268,6 +277,7 @@ public class TiUIDialog extends TiUIView
 		Activity currentActivity = getCurrentActivity();
 		this.builder = new AlertDialog.Builder(currentActivity);
 		this.builder.setCancelable(true);
+		ownerActivity = new WeakReference<Activity>(currentActivity);
 	}
 
 	public void handleEvent(int id)

@@ -177,7 +177,71 @@ static NSLock *callbackLock;
 
 @end
 
-@implementation KrollFunction
-@synthesize remoteFunction, remoteBridge;
+@implementation KrollWrapper
+@synthesize jsobject, bridge;
+
+/*	NOTE:
+ *	Until KrollWrapper takes a more expanded role as a general purpose wrapper,
+ *	protectJsobject is to be used during commonJS inclusion ONLY.
+ *	For example, KrollBridge ensures that this is only done in the JS thread,
+ *	and unlike KrollObject, KrollWrapper does not have the infrastructure to
+ *	handle being called outside the JS.
+ *	Furthermore, KrollWrapper does not get notified of JSObject finalization,
+ *	etc, etc. The specific cases where KrollWrapper is currently used do not
+ *	make this an issue, but KrollWrapper needs hardening if it is to be a base
+ *	class.
+ */
+
+- (void)dealloc {
+	if (protecting) {
+		[self unprotectJsobject];
+	}
+    [super dealloc];
+}
+
+-(void)protectJsobject
+{
+	if (protecting || ![KrollBridge krollBridgeExists:bridge])
+	{
+		return;
+	}
+
+	if (![[bridge krollContext] isKJSThread])
+	{
+		NSLog(@"[WARN] KrollWrapper trying to protect in the wrong thread.%@",CODELOCATION);
+		return;
+	}
+	protecting = YES;
+	TiValueProtect([[bridge krollContext] context],jsobject);
+}
+
+-(void)unprotectJsobject
+{
+	if (!protecting || ![KrollBridge krollBridgeExists:bridge])
+	{
+		return;
+	}
+	
+	if (![[bridge krollContext] isKJSThread])
+	{
+		NSLog(@"[WARN] KrollWrapper trying to unprotect in the wrong thread.%@",CODELOCATION);
+		return;
+	}
+	protecting = NO;
+	TiValueUnprotect([[bridge krollContext] context],jsobject);
+}
+
+- (void)replaceValue:(id)value forKey:(NSString*)key notification:(BOOL)notify
+{	/*
+	 *	This is to be used ONLY from KrollBridge's require call, due to some
+	 *	JS files assigning exports to a function instead of a standard
+	 *	JS object.
+	 */
+	KrollContext * context = [bridge krollContext];
+	TiValueRef valueRef = [KrollObject toValue:context value:value];
+	TiStringRef keyRef = TiStringCreateWithCFString((CFStringRef) key);
+	TiObjectSetProperty([context context], jsobject, keyRef, valueRef, kTiPropertyAttributeReadOnly, NULL);
+	TiStringRelease(keyRef);
+}
 
 @end

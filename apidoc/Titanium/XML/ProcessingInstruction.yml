@@ -1,20 +1,20 @@
 ---
 name: Titanium.XML.ProcessingInstruction
 extends: Titanium.Proxy
-description: >
+summary: >
     a way to keep processor-specific information in the text of the document. See [DOM Level 2 Spec](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-1004215813)
 since: "0.9"
 createable: false
 platforms: [android, iphone, ipad]
 properties:
   - name: data
-    description: >
+    summary: >
         Retrieve the content of this processing instruction. This from the first non white space character 
         after the target to the character immediatly preceding the ?>. When setting a processing instruction,
         a DOMException may be thrown on an invalid instruction.
     type: String
   - name: target
-    description: >
+    summary: >
         Retrieve the target of this processing instruction. XML defines this as being the first token following 
         the markup that begins the processing instruction.
     type: String

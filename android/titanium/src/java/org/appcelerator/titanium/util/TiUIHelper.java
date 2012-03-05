@@ -24,21 +24,24 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
-import org.appcelerator.titanium.TiFastDev;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy.PostOpenListener;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
+import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -71,6 +74,9 @@ import android.view.View.MeasureSpec;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
+/**
+ * A set of utility methods focused on UI and View operations.
+ */
 public class TiUIHelper
 {
 	private static final String LCAT = "TiUIHelper";
@@ -128,6 +134,11 @@ public class TiUIHelper
 			.setCancelable(false).create().show();
 	}
 
+	/**
+	 * Waits for the current activity to be ready, then invokes
+	 * {@link CurrentActivityListener#onCurrentActivityReady(Activity)}.
+	 * @param l the CurrentActivityListener.
+	 */
 	public static void waitForCurrentActivity(final CurrentActivityListener l)
 	{
 		// Some window opens are async, so we need to make sure we don't
@@ -155,11 +166,22 @@ public class TiUIHelper
 		}
 	}
 
+	/**
+	 * Creates and shows a dialog with an OK button given title and message.
+	 * The dialog's creation context is the current activity.
+	 * @param title  the title of dialog.
+	 * @param message  the dialog's message.
+	 * @param listener the click listener for click events.
+	 */
 	public static void doOkDialog(final String title, final String message, OnClickListener listener) {
 		if (listener == null) {
 			listener = new OnClickListener() {
 				public void onClick(DialogInterface dialog, int which) {
-					// Do nothing.
+					Activity ownerActivity = ((AlertDialog)dialog).getOwnerActivity();
+					//if activity is not finishing, remove dialog to free memory
+					if (ownerActivity != null && !ownerActivity.isFinishing()) {
+						((TiBaseActivity)ownerActivity).removeDialog((AlertDialog)dialog);
+					}
 				}};
 		}
 		final OnClickListener fListener = listener;
@@ -167,9 +189,19 @@ public class TiUIHelper
 			// TODO @Override
 			public void onCurrentActivityReady(Activity activity)
 			{
-				new AlertDialog.Builder(activity).setTitle(title).setMessage(message)
-					.setPositiveButton(android.R.string.ok, fListener)
-					.setCancelable(false).create().show();
+				//add dialog to activity for cleaning up purposes
+				if (!activity.isFinishing()) {
+					AlertDialog dialog = new AlertDialog.Builder(activity).setTitle(title).setMessage(message)
+							.setPositiveButton(android.R.string.ok, fListener)
+							.setCancelable(false).create();
+					if (activity instanceof TiBaseActivity) {
+						((TiBaseActivity)activity).addDialog(dialog);
+						dialog.setOwnerActivity(activity);
+					}
+					dialog.show();
+
+				}
+
 			}
 		});
 	}
@@ -629,6 +661,11 @@ public class TiUIHelper
 		return image;
 	}
 
+	/**
+	 * Creates and returns a Bitmap from an InputStream.
+	 * @param stream an InputStream to read bitmap data.
+	 * @return a new bitmap instance.
+	 */
 	public static Bitmap createBitmap(InputStream stream)
 	{
 		Rect pad = new Rect();
@@ -705,6 +742,11 @@ public class TiUIHelper
 		}
 	}
 	
+	/**
+	 * Creates and returns a bitmap from its url.
+	 * @param url the bitmap url.
+	 * @return a new bitmap instance
+	 */
 	public static Bitmap getResourceBitmap(String url)
 	{
 		int id = getResourceId(url);
@@ -765,6 +807,21 @@ public class TiUIHelper
 		return TiApplication.getInstance().getResources().getDrawable(res_id);
 	}
 
+	public static Drawable getResourceDrawable(Object path)
+	{
+		Drawable d;
+
+		if (path instanceof String) {
+			TiUrl imageUrl = new TiUrl((String) path);
+			TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
+			d = tfh.loadDrawable(imageUrl.resolve(), false);
+		} else {
+			d = TiDrawableReference.fromObject(TiApplication.getInstance().getCurrentActivity(), path).getDrawable();
+		}
+
+		return d;
+	}
+
 	public static void overridePendingTransition(Activity activity) 
 	{
 		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT) {
@@ -819,8 +876,8 @@ public class TiUIHelper
 	{
 		int focusState = TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS;
 		
-		if (proxy.hasProperty("softKeyboardOnFocus")) {
-			focusState = TiConvert.toInt(proxy.getProperty("softKeyboardOnFocus"));
+		if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
+			focusState = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS));
 		}
 
 		if (focusState > TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS) {
@@ -834,6 +891,11 @@ public class TiUIHelper
 		}
 	}
 	
+	/**
+	 * Shows/hides the soft keyboard.
+	 * @param view the current focused view.
+	 * @param show whether to show soft keyboard.
+	 */
 	public static void showSoftKeyboard(View view, boolean show) 
 	{
 		InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);

@@ -1,7 +1,7 @@
 ---
 name: Titanium.XML.DOMImplementation
 extends: Titanium.Proxy
-description: The <Titanium.XML.DOMImplementation> interface provides a number of methods for
+summary: The <Titanium.XML.DOMImplementation> interface provides a number of methods for
     performing operations that are independent of any particular instance of the document object
     model. This conforms to the [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
     defintion of a DOM DOMImplementation.
@@ -10,50 +10,50 @@ createable: false
 platforms: [android, iphone, ipad]
 methods:
   - name: createDocument
-    description: Creates an <Titanium.XML.Document> object of the specified type with its document
+    summary: Creates an <Titanium.XML.Document> object of the specified type with its document
         element. Raises an exception if qualifiedName is malformed, contains an illegal character,
         or is inconsistent with namespaceURI. Also raises an exception if doctype has already been
         used with a different document.
     returns: 
         type: Titanium.XML.Document
-        description: A new <Titanium.XML.Document> object
+        summary: A new <Titanium.XML.Document> object
     parameters: 
       - name: namespaceURI
-        description: The namespace URI of the document element to create.
+        summary: The namespace URI of the document element to create.
         type: String
       - name: qualifiedName
-        description: The qualified name of the document element to be created.
+        summary: The qualified name of the document element to be created.
         type: String
       - name: doctype
-        description: The type of document to be created or null. When doctype is not null,
+        summary: The type of document to be created or null. When doctype is not null,
             its Node.ownerDocument attribute is set to the document being created.
         type: Titanium.XML.DocumentType
   - name: createDocumentType
-    description: Creates an empty <Titanium.XML.DocumentType> node. Entity declarations and
+    summary: Creates an empty <Titanium.XML.DocumentType> node. Entity declarations and
         notations are not made available. Entity reference expansions and default attribute
         additions do not occur. Raises an exception if qualifiedName is malformed or contains
         an illegal character.
     returns: 
         type: Titanium.XML.DocumentType
-        description: A new <Titanium.XML.DocumentType> node with Node.ownerDocument set to null.
+        summary: A new <Titanium.XML.DocumentType> node with Node.ownerDocument set to null.
     parameters: 
       - name: qualifiedName
-        description: The qualified name of the document type to be created.
+        summary: The qualified name of the document type to be created.
         type: String
       - name: publicId
-        description: The external subset public identifier.
+        summary: The external subset public identifier.
         type: String
       - name: systemId
-        description: The external subset system identifier.
+        summary: The external subset system identifier.
         type: String
   - name: hasFeature
-    description: Test if the <Titanium.XML.DOMImplementation> implements a specific feature.
+    summary: Test if the <Titanium.XML.DOMImplementation> implements a specific feature.
     returns: 
         type: Boolean
-        description: true if the feature is implemented in the specified version, false otherwise.
+        summary: true if the feature is implemented in the specified version, false otherwise.
     parameters: 
       - name: feature
-        description: The name of the feature to test (case-insensitive). The values used by DOM
+        summary: The name of the feature to test (case-insensitive). The values used by DOM
             features are defined throughout the DOM Level 2 specifications and listed in the
             Conformance section. The name must be an XML name. To avoid possible conflicts, as a
             convention, names referring to features defined outside the DOM specification should
@@ -63,7 +63,7 @@ methods:
             defines the feature "org.w3c.dom.svg".
         type: String
       - name: version
-        description: This is the version number of the feature to test. In Level 2, the string can
+        summary: This is the version number of the feature to test. In Level 2, the string can
             be either "2.0" or "1.0". If the version is not specified, supporting any version of
             the feature causes the method to return true.
         type: String

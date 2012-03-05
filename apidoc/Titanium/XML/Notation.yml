@@ -1,17 +1,17 @@
 ---
 name: Titanium.XML.Notation
 extends: Titanium.Proxy
-description: > 
+summary: > 
     represents a notation declared in the DTD. See [DOM Level 2 Spec](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-5431D1B9)
 since: "0.9"
 createable: false
 platforms: [android, iphone, ipad]
 properties:
   - name: publicId
-    description: The public identifier of this notation. If the public identifier was not specified, this is `null`.
+    summary: The public identifier of this notation. If the public identifier was not specified, this is `null`.
     permission: read-only
     type: String
   - name: systemId
-    description: The system identifier of this notation. If the system identifier was not specified, this is `null`.
+    summary: The system identifier of this notation. If the system identifier was not specified, this is `null`.
     permission: read-only
     type: String

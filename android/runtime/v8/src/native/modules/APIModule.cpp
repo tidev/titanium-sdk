@@ -7,11 +7,16 @@
 
 #include <android/log.h>
 #include <v8.h>
+#include <v8-debug.h>
 #include <string.h>
+#include <signal.h>
+#include <unistd.h>
 
 #include "AndroidUtil.h"
 
 #include "APIModule.h"
+#include "JNIUtil.h"
+#include "V8Runtime.h"
 #include "V8Util.h"
 #include "org.appcelerator.kroll.KrollModule.h"
 
@@ -46,6 +51,15 @@ void APIModule::Initialize(Handle<Object> target)
 	DEFINE_PROTOTYPE_METHOD(constructorTemplate, "critical", logCritical);
 	DEFINE_PROTOTYPE_METHOD(constructorTemplate, "fatal", logFatal);
 	DEFINE_PROTOTYPE_METHOD(constructorTemplate, "log", log);
+
+	// Expose a method for terminating the application for the debugger.
+	// Debugger will send an evaluation request calling this method
+	// when it wants the application to terminate immediately.
+	if (V8Runtime::debuggerEnabled) {
+		DEFINE_PROTOTYPE_METHOD(constructorTemplate, "terminate", terminate);
+		DEFINE_PROTOTYPE_METHOD(constructorTemplate, "debugBreak", debugBreak);
+	}
+
 	constructorTemplate->Inherit(KrollModule::proxyTemplate);
 
 	target->Set(String::NewSymbol("API"), constructorTemplate->GetFunction()->NewInstance());
@@ -115,22 +129,42 @@ Handle<Value> APIModule::logFatal(const Arguments& args)
 	return Undefined();
 }
 
+static void debugLog(int logLevel, const char* message)
+{
+	JNIEnv* env = JNIScope::getEnv();
+	if (env == NULL) {
+		LOGE(LCAT, "Failed to get JNI environment.");
+		return;
+	}
+
+	jstring javaMessage = env->NewStringUTF(message);
+	env->CallStaticVoidMethod(JNIUtil::krollLoggingClass,
+	                          JNIUtil::krollLoggingLogWithDefaultLoggerMethod,
+	                          logLevel,
+	                          javaMessage);
+	env->DeleteLocalRef(javaMessage);
+}
 
 void APIModule::logInternal(int logLevel, const char *messageTag, const char *message)
 {
+
+	if (V8Runtime::debuggerEnabled) {
+		debugLog(logLevel, message);
+		return;
+	}
+
 	if (logLevel == LOG_LEVEL_TRACE) {
-		LOG(VERBOSE, messageTag, message);
+		__android_log_write(ANDROID_LOG_VERBOSE, messageTag, message);
 	} else if (logLevel < LOG_LEVEL_INFO) {
-		LOG(DEBUG, messageTag, message);
+		__android_log_write(ANDROID_LOG_DEBUG, messageTag, message);
 	} else if (logLevel < LOG_LEVEL_WARN) {
-		LOG(INFO, messageTag, message);
+		__android_log_write(ANDROID_LOG_INFO, messageTag, message);
 	} else if (logLevel == LOG_LEVEL_WARN) {
-		LOG(WARN, messageTag, message);
+		__android_log_write(ANDROID_LOG_WARN, messageTag, message);
 	} else {
-		LOG(ERROR, messageTag, message);
+		__android_log_write(ANDROID_LOG_ERROR, messageTag, message);
 	}
 }
-
 
 Handle<Value> APIModule::log(const Arguments& args)
 {
@@ -154,10 +188,32 @@ Handle<Value> APIModule::log(const Arguments& args)
 	} else if (strcasecmp(*level, "FATAL") == 0) {
 		APIModule::logInternal(LOG_LEVEL_FATAL, LCAT, *message);
 	} else {
-		APIModule::logInternal(LOG_LEVEL_INFO, LCAT, *message);
+		int size = strlen(*level) + strlen(*message) + 4;
+		
+		char *fmessage = new char[size];
+		snprintf(fmessage, size, "[%s] %s", *level, *message);
+
+		APIModule::logInternal(LOG_LEVEL_INFO, LCAT, fmessage);
+		delete fmessage;
 	}
 
 	return Undefined();
+}
+
+Handle<Value> APIModule::terminate(const Arguments& args)
+{
+	kill(getpid(), 9);
+}
+
+Handle<Value> APIModule::debugBreak(const Arguments& args)
+{
+	Debug::DebugBreak();
+	return Undefined();
+}
+
+void APIModule::Dispose()
+{
+	constructorTemplate.Dispose();
 }
 
 }

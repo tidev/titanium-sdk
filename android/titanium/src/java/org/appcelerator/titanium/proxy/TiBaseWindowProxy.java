@@ -2,11 +2,9 @@ package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
-import android.util.Log;
 
 /**
  * This class exists to allow JS wrapping of the abstract methods

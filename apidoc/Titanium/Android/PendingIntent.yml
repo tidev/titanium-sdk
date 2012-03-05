@@ -1,19 +1,23 @@
 ---
 name: Titanium.Android.PendingIntent
-description: The Titanium binding of an [Android Pending Intent](http://developer.android.com/reference/android/app/PendingIntent.html)
+summary: The Titanium binding of an [Android Pending Intent](http://developer.android.com/reference/android/app/PendingIntent.html)
 platforms: [android]
 extends: Titanium.Proxy
 since: "1.5"
 properties:
   - name: flags
-    description: Flags used for creating the Pending Intent. Possible values are <Titanium.Android.FLAG_CANCEL_CURRENT>, <Titanium.Android.FLAG_NO_CREATE>, <Titanium.Android.FLAG_ONE_SHOT>, and <Titanium.Android.FLAG_UPDATE_CURRENT>.
+    summary: Flags used for creating the Pending Intent. Possible values are <Titanium.Android.FLAG_CANCEL_CURRENT>, <Titanium.Android.FLAG_NO_CREATE>, <Titanium.Android.FLAG_ONE_SHOT>, and <Titanium.Android.FLAG_UPDATE_CURRENT>.
     type: Number
     availability: creation
   - name: intent
-    description: The intent data to pass to the Activity launched by this PendingIntent
+    summary: The intent data to pass to the Activity launched by this PendingIntent
     type: Titanium.Android.Intent
     availability: creation
-notes: |
+  - name: updateCurrentIntent
+    summary: If this property is true, flag <Titanium.Android.FLAG_UPDATE_CURRENT> will be appended to flags automatically. Default value is true.
+    type: Boolean
+    availability: creation
+description: |
     The type of Intent you choose will effect what kind of PendingIntent is created. Each type corresponds directly with a get method on Android's PendingIntent:
     
     * <Titanium.Android.createIntent> uses [PendingIntent.getActivity](http://developer.android.com/reference/android/app/PendingIntent.html#getActivity(android.content.Context, int, android.content.Intent, int))

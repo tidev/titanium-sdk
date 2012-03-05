@@ -82,6 +82,7 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[[[self controller] view] setFrame:bounds];
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 //FIXME - probably should remove this ... not sure...

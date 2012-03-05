@@ -60,7 +60,6 @@ public class ImageViewProxy extends ViewProxy
 		return bitmap;
 	}
 
-	@SuppressWarnings("unchecked")
 	public ArrayList<TiDrawableReference> getImageSources()
 	{
 		return imageSources;

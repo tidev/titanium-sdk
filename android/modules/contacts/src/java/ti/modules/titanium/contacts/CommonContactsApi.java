@@ -62,7 +62,7 @@ public abstract class CommonContactsApi
 	protected static Bitmap getContactImage(long contact_id)
 	{
 		CommonContactsApi api = getInstance();
-		return api.getContactImage(contact_id);
+		return api.getInternalContactImage(contact_id);
 	}
 
 	protected static Bitmap getContactImage(TiContext context, long contact_id)

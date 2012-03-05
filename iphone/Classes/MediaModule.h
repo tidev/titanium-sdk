@@ -11,6 +11,7 @@
 #import "TiMediaAudioSession.h"
 #import "MediaPlayer/MediaPlayer.h"
 #import "TiMediaMusicPlayer.h"
+#import "TiViewProxy.h"
 
 @interface MediaModule : TiModule
 <
@@ -39,16 +40,22 @@
 	KrollCallback *pickerCancelCallback;
 	
 	id popover;
+    TiViewProxy* cameraView;
 	
 	UIVideoEditorController *editor;
 	KrollCallback *editorSuccessCallback;
 	KrollCallback *editorErrorCallback;
 	KrollCallback *editorCancelCallback;
+	UIPopoverArrowDirection arrowDirection;
+	UIInterfaceOrientation oldOrientation;
+	UIInterfaceOrientation newOrientation;
+	BOOL isPresenting;
 }
 
 +(NSDictionary*)itemProperties;
 +(NSDictionary*)filterableItemProperties;
 
+@property(nonatomic,readwrite,retain) UIView *popoverView;
 @property(nonatomic,readonly) CGFloat volume;
 @property(nonatomic,readonly) CGFloat peakMicrophonePower;
 @property(nonatomic,readonly) CGFloat averageMicrophonePower;

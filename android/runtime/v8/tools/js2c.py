@@ -37,9 +37,7 @@ import re
 import sys
 import string
 
-sys.path.append(dirname(__file__) + "/../deps/v8/tools");
 import jsmin
-
 
 def ToCArray(filename, lines):
   result = []

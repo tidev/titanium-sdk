@@ -1,24 +1,27 @@
 ---
 name: Titanium.Android.Calendar.Reminder
-description: An object which represents a single reminder for an event in an Android calendar.  Reminders should not be created directly, but rather by using the createReminder method of <Titanium.Android.Calendar.Event>.
+summary: An object which represents a single reminder for an event in an Android calendar.  
+description: |
+    Reminders should not be created directly, but rather by using the `createReminder` method 
+    of <Titanium.Android.Calendar.Event>.
+    
+    See <Titanium.Android.Calendar> for examples of retrieving reminder information and 
+    creating reminders for events.
+    
 extends: Titanium.Proxy
 platforms: [android]
 since: "1.5"
 createable: false
 properties:
   - name: id
-    description: The id of the reminder.
+    summary: The id of the reminder.
     type: String
     permission: read-only
   - name: method
-    description: The reminder method.  Possible values are the METHOD constants in <Titanium.Android.Calendar>.
+    summary: The reminder method.  Possible values are the METHOD constants in <Titanium.Android.Calendar>.
     type: Number
     permission: read-only
   - name: minutes
-    description: The minutes before the event when the reminder should occur.
+    summary: The minutes before the event when the reminder should occur.
     type: Number
     permission: read-only
-notes: Reminder API
-    
-    See <Titanium.Android.Calendar> for examples of retrieving reminder information and creating reminders for events.
-    

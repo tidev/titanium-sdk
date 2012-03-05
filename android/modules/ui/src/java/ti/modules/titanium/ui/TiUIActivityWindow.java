@@ -13,7 +13,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
-import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiActivityWindow;
 import org.appcelerator.titanium.TiActivityWindows;
@@ -134,9 +133,13 @@ public class TiUIActivityWindow extends TiUIView
 
 	public void windowCreated(TiBaseActivity activity)
 	{
+		// This is the callback when any "heavy weight" (i.e. activity) window
+		// (except for windows associated with a tab) is created.
+
 		windowActivity = activity;
 		proxy.setActivity(activity);
 		bindProxies();
+		proxy.fireSyncEvent("windowCreated", null);
 	}
 
 	protected ActivityProxy bindWindowActivity(Activity activity)
@@ -214,8 +217,12 @@ public class TiUIActivityWindow extends TiUIView
 
 	public void close(KrollDict options) 
 	{
-		Object animated = options.get(TiC.PROPERTY_ANIMATED);
 		boolean animateOnClose = animate;
+
+		Object animated = null;
+		if (options != null) {
+			animated = options.get(TiC.PROPERTY_ANIMATED);
+		}
 
 		if (animated != null) {
 			animateOnClose = TiConvert.toBoolean(animated);
@@ -230,6 +237,8 @@ public class TiUIActivityWindow extends TiUIView
 				windowActivity.finish();
 			}
 
+			// Finishing an activity is not synchronous, so we remove the activity from the activity stack here
+			TiApplication.removeFromActivityStack(windowActivity);
 			windowActivity = null;
 		}
 	}
@@ -283,7 +292,16 @@ public class TiUIActivityWindow extends TiUIView
 		if (post) {
 			proxy.getMainHandler().post(new Runnable() {
 				public void run() {
-					windowActivity.getWindow().setBackgroundDrawable(drawable);
+					/*
+					 *This is a check to prevent a race condition- when user execute open, open, close on the window.
+					 *setActivityBackground is being called in KrollRuntime thread, which may cause a race condition: windowActivity
+					 *is set to null in the middle of closing process, while the 2nd call of open gets here. In the case of
+					 *"open, open, close, open", this would work b/c the assigning of windowActivity and setting it to null are both being done 
+					 *on the same thread.
+					 */
+					if (windowActivity != null) {
+						windowActivity.getWindow().setBackgroundDrawable(drawable);
+					}
 				}
 			});
 
@@ -405,6 +423,15 @@ public class TiUIActivityWindow extends TiUIView
 			handleWindowPixelFormat(TiConvert.toInt(d, TiC.PROPERTY_WINDOW_PIXEL_FORMAT));
 		}
 
+		if (d.containsKey(TiC.PROPERTY_ACTIVITY)) {
+			Object activityObject = d.get(TiC.PROPERTY_ACTIVITY);
+			ActivityProxy activityProxy = getProxy().getActivityProxy();
+			if (activityObject instanceof HashMap && activityProxy != null) {
+				KrollDict options = new KrollDict((HashMap) activityObject);
+				activityProxy.handleCreationDict(options);
+			}
+		}
+
 		// Don't allow default processing.
 		d.remove(TiC.PROPERTY_BACKGROUND_IMAGE);
 		d.remove(TiC.PROPERTY_BACKGROUND_COLOR);
@@ -426,7 +453,7 @@ public class TiUIActivityWindow extends TiUIView
 			handleBackgroundColor(newValue, false);
 
 		} else if (key.equals(TiC.PROPERTY_WIDTH) || key.equals(TiC.PROPERTY_HEIGHT)) {
-			Window w = proxy.getActivity().getWindow();
+			Window w = windowActivity.getWindow();
 			int width = lastWidth;
 			int height = lastHeight;
 

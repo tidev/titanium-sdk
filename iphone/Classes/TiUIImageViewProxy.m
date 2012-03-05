@@ -56,9 +56,10 @@ static NSArray* imageKeySequence;
 
 -(void)start:(id)args
 {
-	ENSURE_UI_THREAD(start,args);
-	TiUIImageView *iv= (TiUIImageView*)[self view];
-	[iv start];
+    TiThreadPerformOnMainThread(^{
+        TiUIImageView *iv = (TiUIImageView*)[self view];
+        [iv start];
+    }, NO);
 }
 
 -(void)stop:(id)args
@@ -78,9 +79,18 @@ static NSArray* imageKeySequence;
 
 -(void)pause:(id)args
 {
-	ENSURE_UI_THREAD(pause,args);
-	TiUIImageView *iv= (TiUIImageView*)[self view];
-	[iv pause];
+    TiThreadPerformOnMainThread(^{
+        TiUIImageView *iv = (TiUIImageView*)[self view];
+        [iv pause];
+    }, NO);
+}
+
+-(void)resume:(id)args
+{
+    TiThreadPerformOnMainThread(^{
+        TiUIImageView *iv = (TiUIImageView*)[self view];
+        [iv resume];
+    }, NO);
 }
 
 -(void)viewWillDetach
@@ -160,11 +170,12 @@ USE_VIEW_FOR_AUTO_HEIGHT
 
 -(void)setImage:(id)newImage
 {
-	if ([newImage isEqual:@""])
-	{
-		newImage = nil;
-	}
-	[self replaceValue:[self sanitizeURL:newImage] forKey:@"image" notification:YES];
+    id image = newImage;
+    if ([image isEqual:@""])
+    {
+        image = nil;
+    }
+    [self replaceValue:image forKey:@"image" notification:YES];
 }
 
 -(void)startImageLoad:(NSURL *)url;

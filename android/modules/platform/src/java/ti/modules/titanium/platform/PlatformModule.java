@@ -9,6 +9,7 @@ package ti.modules.titanium.platform;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
@@ -176,6 +177,7 @@ public class PlatformModule extends KrollModule
 			registerBatteryStateReceiver();
 		} else if (!monitor && batteryStateReceiver != null) {
 			unregisterBatteryStateReceiver();
+			batteryStateReceiver = null;
 		}
 	}
 	@Kroll.getProperty @Kroll.method
@@ -194,6 +196,12 @@ public class PlatformModule extends KrollModule
 	public double getBatteryLevel()
 	{
 		return batteryLevel;
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getRuntime()
+	{
+		return KrollRuntime.getInstance().getRuntimeName();
 	}
 
 	protected void registerBatteryStateReceiver()
@@ -236,6 +244,7 @@ public class PlatformModule extends KrollModule
 		super.eventListenerRemoved(type, count, proxy);
 		if (TiC.EVENT_BATTERY.equals(type) && count == 0 && batteryStateReceiver != null) {
 			unregisterBatteryStateReceiver();
+			batteryStateReceiver = null;
 		}
 	}
 
@@ -294,6 +303,7 @@ public class PlatformModule extends KrollModule
 		super.onPause(activity);
 		if (batteryStateReceiver != null) {
 			unregisterBatteryStateReceiver();
+			batteryStateReceiver = null;
 		}
 	}
 

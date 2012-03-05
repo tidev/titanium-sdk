@@ -138,6 +138,9 @@ def install_default(image, project_dir, template_dir, dest):
 		if not os.path.exists(graphic_path):
 			graphic_path = os.path.join(template_resources,image)
 	if os.path.exists(graphic_path):
+		dest_graphic_path = os.path.join(dest,image)
+		if os.path.exists(dest_graphic_path):
+			os.remove(dest_graphic_path)
 		shutil.copy(graphic_path, dest)
 
 def install_logo(tiapp, applogo, project_dir, template_dir, dest):

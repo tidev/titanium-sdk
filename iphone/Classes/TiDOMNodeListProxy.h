@@ -12,13 +12,14 @@
 @interface TiDOMNodeListProxy : TiProxy {
 @private
 	NSArray *nodes;
-	GDataXMLDocument *document;
 }
 
-@property(nonatomic,retain)	GDataXMLDocument *document;
 @property(nonatomic,readonly) NSNumber *length;
-
 -(void)setNodes:(NSArray*)nodes_;
+-(id)item:(id)args;
+-(NSNumber*)length;
+
+
 
 @end
 

@@ -1,14 +1,15 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -16,6 +17,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.app.TabActivity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -45,7 +47,30 @@ public class TiTabActivity extends TabActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			super.onCreate(savedInstanceState);
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
+		if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
+			Log.w(LCAT, "Unsupported, out-of-order activity creation. Finishing.");
+			super.onCreate(savedInstanceState);
+			tiApp.scheduleRestart(250);
+			finish();
+			return;
+		}
+
+		TiApplication.addToActivityStack(this);
+		KrollRuntime.incrementActivityRefCount();
+
 		super.onCreate(savedInstanceState);
+
+
 		int layoutResId = getResources().getIdentifier("titanium_tabgroup", "layout", getPackageName());
 		if (layoutResId == 0) {
 			throw new IllegalStateException("titanium_tabgroup layout resource not found.  TabGroup cannot be created.");
@@ -178,20 +203,51 @@ public class TiTabActivity extends TabActivity
 	protected void onPause()
 	{
 		super.onPause();
-		((TiApplication) getApplication()).setCurrentActivity(this, null);
+
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
+		tiApp.setCurrentActivity(this, null);
 	}
 
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
-		((TiApplication) getApplication()).setCurrentActivity(this, this);
+
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
+		tiApp.setCurrentActivity(this, this);
 	}
 
 	@Override
 	protected void onDestroy()
 	{
+		TiApplication.removeFromActivityStack(this);
 		super.onDestroy();
+
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
 		if (!isFinishing())
 		{
 			// Our Activities are currently unable to recover from Android-forced restarts,
@@ -211,9 +267,17 @@ public class TiTabActivity extends TabActivity
 			proxy.closeFromActivity();
 			proxy = null;
 		}
-		
+
+		KrollRuntime.decrementActivityRefCount();
 		handler = null;
 	}
+
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		super.onConfigurationChanged(newConfig);
+		TiBaseActivity.callOrientationChangedListener(newConfig);
+	}
+	
 	private boolean shouldFinishRootActivity()
 	{
 		Intent intent = getIntent();

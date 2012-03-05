@@ -91,6 +91,37 @@ describe("Ti.Android tests", {
 		intent.setFlags(Ti.Android.FLAG_ACTIVITY_NEW_TASK);
 		valueOf(intent.getFlags()).shouldBe(Ti.Android.FLAG_ACTIVITY_NEW_TASK);
 	},
+
+	// http://jira.appcelerator.org/browse/TIMOB-6928
+	proxyInvocation: function() {
+		var intent, pending, notification;
+		valueOf(function() {
+			intent = Ti.Android.createIntent({
+				className:"org.appcelerator.titanium.TiActivity",
+				flags: Ti.Android.FLAG_ACTIVITY_CLEAR_TOP | Ti.Android.FLAG_ACTIVITY_SINGLE_TOP,
+				packageName:Ti.App.id
+			});
+		}).shouldNotThrowException();
+
+		valueOf(function() {
+			pending = Ti.Android.createPendingIntent({
+				intent: intent,
+				flags:Ti.Android.FLAG_UPDATE_CURRENT
+			});
+		}).shouldNotThrowException();
+
+		valueOf(function() {
+			var notification = Ti.Android.createNotification({
+				contentTitle: "hello",
+				contentText: "hello",
+				when: 0,
+				contentIntent: pending,
+				icon: Ti.Android.R.drawable.progress_indeterminate_horizontal,
+				tickerText: "hello",
+				flags: (Ti.Android.FLAG_ONGOING_EVENT | Ti.Android.FLAG_NO_CLEAR)
+			});
+		}).shouldNotThrowException();
+	},
 	
 	options: {
 		forceBuild: true

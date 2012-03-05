@@ -40,6 +40,9 @@
 	BOOL manualSelect;
 }
 
+@property (nonatomic, readonly) CLLocationDegrees longitudeDelta;
+@property (nonatomic, readonly) CLLocationDegrees latitudeDelta;
+
 #pragma mark Public APIs
 -(void)addAnnotation:(id)args;
 -(void)addAnnotations:(id)args;

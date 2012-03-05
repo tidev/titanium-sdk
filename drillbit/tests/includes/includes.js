@@ -56,6 +56,7 @@ describe("Ti.include tests", {
 		//This test relies on cross-context function calls.
 		//As such, is it even a proper test? Conditioning out
 		//iOS in the meantime.
+			Ti.API.warn("Cross-context tests aren't currently being tested in iOS");
 			callback.passed();
 		}
 	},
@@ -72,5 +73,22 @@ describe("Ti.include tests", {
 		valueOf(module2).shouldBeObject();
 		valueOf(module2.increment).shouldBeFunction();
 		valueOf(module2.increment()).shouldBe(3);
-	}
+	},
+	includeFromUrlWindow: asyncTest({
+		start: function(callback) {
+			// Another cross-context test, will need to enable for iOS later
+			if (Ti.Platform.osname === 'android') {
+				var win = Ti.UI.createWindow({ url: "window_include.js", passed: false });
+				win.addEventListener("open", this.async(function(e) {
+					valueOf(win.passed).shouldBeTrue();
+				}));
+				win.open();
+			} else {
+				Ti.API.warn("Cross-context tests aren't currently being tested in iOS");
+				callback.passed();
+			}
+		},
+		timeout: 10000,
+		timeoutError: "Timed out waiting for window to open"
+	})
 });

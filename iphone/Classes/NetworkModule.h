@@ -50,6 +50,10 @@ typedef enum {
 @property(readonly, nonatomic) NSNumber* READ_WRITE_MODE;
 @property(readonly, nonatomic) NSString* INADDR_ANY;
 
+@property(nonatomic, readonly) NSNumber* TLS_VERSION_1_0;
+@property(nonatomic, readonly) NSNumber* TLS_VERSION_1_1;
+@property(nonatomic, readonly) NSNumber* TLS_VERSION_1_2;
+
 -(id)encodeURIComponent:(id)args;
 -(id)decodeURIComponent:(id)args;
 -(void)addConnectivityListener:(id)args;

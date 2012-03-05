@@ -117,6 +117,10 @@ public class TiFileHelper
 		}
 	}
 
+	/**
+	 * Creates or retrieves the TiFileHelper instance.
+	 * @return the TiFileHelper instance.
+	 */
 	public static TiFileHelper getInstance()
 	{
 		if (_instance == null) {
@@ -247,30 +251,36 @@ public class TiFileHelper
 		return is;
 	}
 
+	/**
+	 * This is a wrapper method.
+	 * Refer to {@link #loadDrawable(String, boolean, boolean)} for more details.
+	 * @param path  url of the Drawable
+	 * @param report  this is not being used.
+	 * @return a Drawable instance.
+	 */
 	public Drawable loadDrawable(String path, boolean report) {
 		return loadDrawable(path, report, false);
 	}
 
-	/*public Drawable loadDrawable(String path, boolean report, boolean checkForNinePatch)
-	{
-		// getResourceDrawable wants a resolved url
-		String url = path;
-		if (!url.startsWith("file:")) {
-			url = context.resolveUrl(path);
-		}
-		Drawable d = TiUIHelper.getResourceDrawable(context, url);
-		if (d != null) {
-			return d;
-		}
-		
-		return loadDrawable(url, report, checkForNinePatch);
-		
-	}*/
-
+	/**
+	 * This method creates a Drawable given the bitmap's path, and converts it to a NinePatch Drawable
+	 * if checkForNinePatch param is true.
+	 * @param path  the path/url of the Drawable 
+	 * @param report  this is not being used. 
+	 * @param checkForNinePatch  a boolean to determine whether the returning Drawable is a NinePatch Drawable.
+	 * @return  a Drawable instance.
+	 */
 	public Drawable loadDrawable(String path, boolean report, boolean checkForNinePatch)
 	{
 		Drawable d = null;
 		InputStream is = null;
+
+		// Try to get Resource drawable first.
+		d = TiUIHelper.getResourceDrawable(path);
+		if (d != null) {
+			return d;
+		}
+
 		try
 		{
 			if (checkForNinePatch && path != null && !URLUtil.isNetworkUrl(path)) {
@@ -579,6 +589,12 @@ public class TiFileHelper
 		return result;
 	}
 
+	/**
+	 * Creates/retrieves a data directory in which the application can place its own custom data files.
+	 * @param privateStorage  determines the location of the data directory. If this is true, the location is internal(app-data://),
+	 * and external (SD) otherwise.
+	 * @return  the data directory.
+	 */
 	public File getDataDirectory(boolean privateStorage)
 	{
 		File f = null;

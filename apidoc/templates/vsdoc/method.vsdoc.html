@@ -5,14 +5,14 @@ def getSafeWord(str):
 	return safeWord.get(str,str)
 
 def getReturnType(str, defaultValue):
-	needle = 'create and return an instance of '
+	needle = 'Creates and returns an instance of '
 	if needle in str:
 		return re.split(needle,str)[-1]
 	else:
 		return defaultValue
 		
 def getTypeInstance(str, defaultValue):
-	needle = 'create and return an instance of '
+	needle = 'Creates and returns an instance of '
 	if needle in str:
 		return 'new ' + re.split(needle,str)[-1] + '()'
 	else:
@@ -29,7 +29,7 @@ ${objectPrefix(d.typestr)}${m['name'].replace('[object]','')} ${propertyAssign(d
 	{
 		///<summary>${d.remove_html_tags(m['value'])}</summary>
 	%for p in m['parameters']:
-		///<param name="${getSafeWord(p['name'])}" type="${d.remove_html_tags(p['type'])}">${d.remove_html_tags(p['description'])}</param>
+		///<param name="${getSafeWord(p['name'])}" type="${d.remove_html_tags(p['type'])}">${d.remove_html_tags(p['summary'])}</param>
 	%endfor
 		///<return type="${d.remove_html_tags(getReturnType(m['value'], m['returntype']))}"/>
 		return ${d.vsdoc_return_type(d.remove_html_tags(getTypeInstance(m['value'], d.vsdoc_return_type(m['returntype']))))};

@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 var url = require("url"),
 	Script = kroll.binding("evals").Script;
 
@@ -12,9 +18,8 @@ function include(filename, baseUrl, sandbox) {
 		path = url.toFilePath(sourceUrl);
 	}
 
-	// Delegate back to Java for evaluation in Rhino to correctly
-	// handle pre-compiled JS classes
-	Script.runInSandbox(path, getSourceUrl(sourceUrl), sandbox);
+	// Delegate back to Java for evaluation in Rhino to correctly handle pre-compiled JS classes
+	Script.runInSandbox(path, getSourceUrl(sourceUrl), sandbox, sandbox.Ti.global || global);
 }
 exports.include = include;
 
@@ -26,7 +31,10 @@ function getSourceUrl(sourceUrl) {
 	var jarIndex = -1;
 
 	if ((jarIndex = tiUrl.indexOf(".jar:")) >= 0) {
-		tiUrl = "app://" + tiUrl.substring(jarIndex + 5) + ".js";
+		//This is temporarily changed to app://app.js to address TIMOB-7394
+
+		//tiUrl = "app://" + tiUrl.substring(jarIndex + 5) + ".js";
+		tiUrl = "app://app.js";
 	}
 	return tiUrl;
 }

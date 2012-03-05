@@ -1,59 +1,64 @@
 ---
 name: Titanium.Android.Notification
-description: The Titanium binding of an [Android Notification](http://developer.android.com/reference/android/app/Notification.html).
+summary: The Titanium binding of an [Android Notification](http://developer.android.com/reference/android/app/Notification.html).
 extends: Titanium.Proxy
 since: "1.5"
 platforms: [android]
 methods:
   - name: setLatestEventInfo
-    description: Sets the latest event info using the builtin Notification View for this notification. See Android's documentation for [setLatestEventInfo](http://developer.android.com/reference/android/app/Notification.html#setLatestEventInfo(android.content.Context, java.lang.CharSequence, java.lang.CharSequence, android.app.PendingIntent))
+    summary: Sets the latest event info using the builtin Notification View for this notification. See Android's documentation for [setLatestEventInfo](http://developer.android.com/reference/android/app/Notification.html#setLatestEventInfo(android.content.Context, java.lang.CharSequence, java.lang.CharSequence, android.app.PendingIntent))
 properties:
   - name: audioStreamType
-    description: The audio stream type to use when playing the sound.
+    summary: The audio stream type to use when playing the sound.
     type: Number
   - name: contentIntent
-    description: The <Titanium.Android.PendingIntent> to execute when the expanded status entry is clicked.
+    summary: The <Titanium.Android.PendingIntent> to execute when the expanded status entry is clicked.
     type: Object
   - name: contentText
-    description: Description text of the notification.
+    summary: Description text of the notification.
     type: String
   - name: contentTitle
-    description: Title of the notification.
+    summary: Title of the notification.
     type: String
   - name: defaults
-    description: Specifies which values should be taken from the defaults.
+    summary: Specifies which values should be taken from the defaults.
     type: Number
   - name: deleteIntent
-    description: The <Titanium.Android.PendingIntent> to execute when the status entry is deleted by the user with the "Clear All Notifications" button.
+    summary: The <Titanium.Android.PendingIntent> to execute when the status entry is deleted by the user with the "Clear All Notifications" button.
     type: Object
   - name: flags
-    description: |
+    summary: |
         Set of flags for the notification, defaults to <Titanium.Android.FLAG_AUTO_CANCEL>. Possible values: <Titanium.Android.FLAG_AUTO_CANCEL>, <Titanium.Android.FLAG_INSISTENT>, <Titanium.Android.FLAG_NO_CLEAR>, <Titanium.Android.FLAG_ONGOING_EVENT>, <Titanium.Android.FLAG_ONLY_ALERT_ONCE>, <Titanium.Android.FLAG_SHOW_LIGHTS>
     type: Number
   - name: icon
-    description: A resource id or URL to an icon (the URL must be an image located in Resources/android/images/<density> or an Android content URI)
+    summary: A resource id or URL to an icon (the URL must be an image located in Resources/android/images/<density> or an Android content URI)
     type: [Number,String]
   - name: ledARGB
-    description: The color for the LED to blink
+    summary: The color for the LED to blink
     type: Number
   - name: ledOffMS
-    description: The number of milliseconds for the LED to be off while it's flashing.
+    summary: The number of milliseconds for the LED to be off while it's flashing.
     type: Number
   - name: ledOnMS
-    description: The number of milliseconds for the LED to be on while it's flashing.
+    summary: The number of milliseconds for the LED to be on while it's flashing.
     type: Number
   - name: number
-    description: The number of events that this notification represents.
+    summary: The number of events that this notification represents.
     type: Number
   - name: sound
-    description: A URL to the sound to play (supports Android + Titanium URLs)
+    summary: A URL to the sound to play (supports Android + Titanium URLs)
     type: String
   - name: tickerText
-    description: Text to scroll across the screen when this item is added to the status bar.
+    summary: Text to scroll across the screen when this item is added to the status bar.
     type: String
   - name: when
-    description: The timestamp for the notification (defaults to the current time)
+    summary: The timestamp for the notification (defaults to the current time)
     type: [Date,Number]
-notes: If you pass contentTitle and/or contentText into <Titanium.Android.createNotification>, then setLatestEventInfo will automatically be called with those properties (there's no need to call it separately unless you want to). You can also use a custom layout.xml wrapped in a <Titanium.Android.RemoteViews> object in the contentView property, which gives more fine grained control and customization to how the notification actually behaves.
+description: |
+    If you pass contentTitle and/or contentText into <Titanium.Android.createNotification>, 
+    then setLatestEventInfo will automatically be called with those properties (there's no need 
+    to call it separately unless you want to). You can also use a custom layout.xml wrapped in 
+    a <Titanium.Android.RemoteViews> object in the contentView property, which gives more 
+    fine grained control and customization to how the notification actually behaves.
     
     Also see [Android's developer guide for Notifications](http://developer.android.com/guide/topics/ui/notifiers/notifications.html)

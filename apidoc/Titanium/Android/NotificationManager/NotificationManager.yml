@@ -1,70 +1,73 @@
 ---
 name: Titanium.Android.NotificationManager
-description: Module to notify users of events that happen. It is a thin wrapper on [NotificationManager](http://developer.android.com/reference/android/app/NotificationManager.html).
+summary: Module to notify users of events that happen. 
+description: |
+   The `NotificationManager` module is a thin wrapper on the Android [NotificationManager](http://developer.android.com/reference/android/app/NotificationManager.html) class. 
+
+   The constants in this module are derived from the Android [Notification](http://developer.android.com/reference/android/app/Notification.html) class.
 extends: Titanium.Module
 platforms: [android]
 since: "1.5"
 methods:
   - name: cancel
-    description: Cancel a previously shown notification.
+    summary: Cancel a previously shown notification.
     parameters:
       - name: id
-        description: The id you assigned to a notification.
+        summary: The id you assigned to a notification.
         type: Number
   - name: cancelAll
-    description: Cancel all previously shown notifications.
+    summary: Cancel all previously shown notifications.
   - name: notify
-    description: Add a persistent notification to the status bar.
+    summary: Add a persistent notification to the status bar.
     parameters:
       - name: id
-        description: An id that may be used to cancel a shown notification.
+        summary: An id that may be used to cancel a shown notification.
         type: Number
       - name: notification
-        description: An instance of <Titanium.Android.Notification> created with <Titanium.Android.createNotification>.
+        summary: An instance of <Titanium.Android.Notification> created with <Titanium.Android.createNotification>.
         type: Titanium.Android.Notification
 properties:
   - name: DEFAULT_ALL
-    description: Use all default values (where applicable).
+    summary: Use all default values (where applicable).
     type: Number
     permission: read-only
   - name: DEFAULT_LIGHTS
-    description: Use the default notification lights.
+    summary: Use the default notification lights.
     type: Number
     permission: read-only
   - name: DEFAULT_SOUND
-    description: Use the default notification sound.
+    summary: Use the default notification sound.
     type: Number
     permission: read-only
   - name: DEFAULT_VIBRATE
-    description: Use the default notification vibrate.
+    summary: Use the default notification vibrate.
     type: Number
     permission: read-only
   - name: FLAG_AUTO_CANCEL
-    description: Bit to be bitwise-ored into the flags field that should be set if the notification should be canceled when it is clicked by the user.
+    summary: Bit to be bitwise-ored into the flags field that should be set if the notification should be canceled when it is clicked by the user.
     type: Number
     permission: read-only
   - name: FLAG_INSISTENT
-    description: Bit to be bitwise-ored into the flags field that if set, the audio will be repeated until the notification is cancelled or the notification window is opened.
+    summary: Bit to be bitwise-ored into the flags field that if set, the audio will be repeated until the notification is cancelled or the notification window is opened.
     type: Number
     permission: read-only
   - name: FLAG_NO_CLEAR
-    description: Bit to be bitwise-ored into the flags field that should be set if the notification should not be canceled when the user clicks the Clear all button.
+    summary: Bit to be bitwise-ored into the flags field that should be set if the notification should not be canceled when the user clicks the Clear all button.
     type: Number
     permission: read-only
   - name: FLAG_ONGOING_EVENT
-    description: Bit to be bitwise-ored into the flags field that should be set if this notification is in reference to something that is ongoing, like a phone call.
+    summary: Bit to be bitwise-ored into the flags field that should be set if this notification is in reference to something that is ongoing, like a phone call.
     type: Number
     permission: read-only
   - name: FLAG_ONLY_ALERT_ONCE
-    description: Bit to be bitwise-ored into the flags field that should be set if you want the sound and/or vibration play each time the notification is sent, even if it has not been canceled before that.
+    summary: Bit to be bitwise-ored into the flags field that should be set if you want the sound and/or vibration play each time the notification is sent, even if it has not been canceled before that.
     type: Number
     permission: read-only
   - name: FLAG_SHOW_LIGHTS
-    description: Bit to be bitwise-ored into the flags field that should be set if you want the LED on for this notification.
+    summary: Bit to be bitwise-ored into the flags field that should be set if you want the LED on for this notification.
     type: Number
     permission: read-only
   - name: STREAM_DEFAULT
-    description: Use this constant as the value for audioStreamType to request that the default stream type for notifications be used.
+    summary: Use this constant as the value for audioStreamType to request that the default stream type for notifications be used.
     type: Number
     permission: read-only
-notes: The constants above are taken from [Notification](http://developer.android.com/reference/android/app/Notification.html).

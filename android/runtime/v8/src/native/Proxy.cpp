@@ -60,6 +60,8 @@ void Proxy::bindProxy(Handle<Object> exports)
 
 	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "_hasListenersForEventType", hasListenersForEventType);
 	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "onPropertiesChanged", proxyOnPropertiesChanged);
+	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "_onEventFired", onEventFired);
+
 
 	baseProxyTemplate = Persistent<FunctionTemplate>::New(proxyTemplate);
 
@@ -246,6 +248,41 @@ Handle<Value> Proxy::hasListenersForEventType(const Arguments& args)
 	return Undefined();
 }
 
+Handle<Value> Proxy::onEventFired(const Arguments& args)
+{
+	JNIEnv* env = JNIScope::getEnv();
+	if (!env) {
+		return JSException::GetJNIEnvironmentError();
+	}
+
+	Proxy* proxy = NativeObject::Unwrap<Proxy>(args.Holder());
+
+	Local<String> eventType = args[0]->ToString();
+	Local<Value> eventData = args[1];
+
+	jobject javaProxy = proxy->getJavaObject();
+	jobject krollObject = env->GetObjectField(javaProxy, JNIUtil::krollProxyKrollObjectField);
+
+	jstring javaEventType = TypeConverter::jsStringToJavaString(eventType);
+	jobject javaEventData = TypeConverter::jsValueToJavaObject(eventData);
+
+
+	if (!JavaObject::useGlobalRefs) {
+		env->DeleteLocalRef(javaProxy);
+	}
+
+	env->CallVoidMethod(krollObject,
+		JNIUtil::krollObjectOnEventFiredMethod,
+		javaEventType,
+		javaEventData);
+
+	env->DeleteLocalRef(krollObject);
+	env->DeleteLocalRef(javaEventType);
+	env->DeleteLocalRef(javaEventData);
+
+	return Undefined();
+}
+
 Handle<FunctionTemplate> Proxy::inheritProxyTemplate(
 	Handle<FunctionTemplate> superTemplate, jclass javaClass,
 	Handle<String> className, Handle<Function> callback)
@@ -279,6 +316,11 @@ Handle<Value> Proxy::proxyConstructor(const Arguments& args)
 	Handle<Function> constructor = Handle<Function>::Cast(prototype->Get(constructorSymbol));
 	jclass javaClass = (jclass) External::Unwrap(constructor->Get(javaClassSymbol));
 
+	JNIUtil::logClassName("Create proxy: %s", javaClass);
+
+	Proxy* proxy = new Proxy(NULL);
+	proxy->wrap(jsProxy);
+
 	// If ProxyFactory::createV8Proxy invoked us, unwrap
 	// the pre-created Java proxy it sent.
 	jobject javaProxy = ProxyFactory::unwrapJavaProxy(args);
@@ -287,11 +329,7 @@ Handle<Value> Proxy::proxyConstructor(const Arguments& args)
 		javaProxy = ProxyFactory::createJavaProxy(javaClass, jsProxy, args);
 		deleteRef = true;
 	}
-
-	JNIUtil::logClassName("Create proxy: %s", javaClass);
-
-	Proxy *proxy = new Proxy(javaProxy);
-	proxy->Wrap(jsProxy);
+	proxy->attach(javaProxy);
 
 	int length = args.Length();
 
@@ -421,6 +459,30 @@ Handle<Value> Proxy::proxyOnPropertiesChanged(const Arguments& args)
 	}
 
 	return Undefined();
+}
+
+void Proxy::dispose()
+{
+	baseProxyTemplate.Dispose();
+	baseProxyTemplate = Persistent<FunctionTemplate>();
+
+	javaClassSymbol.Dispose();
+	javaClassSymbol = Persistent<String>();
+
+	constructorSymbol.Dispose();
+	constructorSymbol = Persistent<String>();
+
+	inheritSymbol.Dispose();
+	inheritSymbol = Persistent<String>();
+
+	propertiesSymbol.Dispose();
+	propertiesSymbol = Persistent<String>();
+
+	lengthSymbol.Dispose();
+	lengthSymbol = Persistent<String>();
+
+	sourceUrlSymbol.Dispose();
+	sourceUrlSymbol = Persistent<String>();
 }
 
 } // namespace titanium

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,6 +8,7 @@ package org.appcelerator.titanium;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiRHelper;
 
@@ -30,14 +31,27 @@ public class TiRootActivity extends TiLaunchActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-		getTiApp().setCurrentActivity(this, this);
+		TiApplication tiApp = getTiApp();
+
+		if (checkMissingLauncher(savedInstanceState)) {
+			// Android bug 2373 detected and we're going to restart.
+			return;
+		}
+
+		if (tiApp.isRestartPending() || TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
+			super.onCreate(savedInstanceState); // Will take care of scheduling restart and finishing.
+			return;
+		}
+
+		tiApp.setCurrentActivity(this, this);
 
 		Log.checkpoint(LCAT, "checkpoint, on root activity create, savedInstanceState: " + savedInstanceState);
 
-		TiApplication app = getTiApp();
-		app.setRootActivity(this);
+		tiApp.setRootActivity(this);
 
 		super.onCreate(savedInstanceState);
+
+		tiApp.verifyCustomModules(this);
 	}
 
 	@Override
@@ -85,22 +99,7 @@ public class TiRootActivity extends TiLaunchActivity
 		if (DBG) {
 			Log.d(LCAT, "root activity onDestroy, activity = " + this);
 		}
-		/*
-		if (tiContext != null) {
-			TiApplication app = tiContext.getTiApp();
-			if (app != null) {
-				app.releaseModules();
-			}
-			tiContext.release();
-		}
-		*/
 		TiFastDev.onDestroy();
 	}
 
-	/*
-	public TiContext getTiContext()
-	{
-		return tiContext;
-	}
-	*/
 }

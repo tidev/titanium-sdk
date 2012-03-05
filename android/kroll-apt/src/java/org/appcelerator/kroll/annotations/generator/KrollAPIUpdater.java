@@ -69,6 +69,22 @@ public class KrollAPIUpdater
 		return fullApiName;
 	}
 
+	protected void generateSuperApiName(Map<String, Object> proxy)
+	{
+		String superClassName = (String) proxy.get("superProxyClassName");
+		String superPackageName = (String) proxy.get("superPackageName");
+
+		Map<String, Object> superProxy = findParent(superPackageName + "." + superClassName);
+
+		if (superProxy != null) {
+			String superApiName = (String) jsonUtils.getStringMap(superProxy, "proxyAttrs").get("fullAPIName");
+
+			if (superApiName != null) {
+				proxy.put("superAPIName", superApiName);
+			}
+		}
+	}
+
 	protected void addToApiTree(String jsonPath, String className, Map<String, Object> proxy)
 	{
 		String fullApiName = getFullApiName(jsonPath, proxy);
@@ -134,6 +150,9 @@ public class KrollAPIUpdater
 			for (String proxyName : jsonProxies.keySet()) {
 				Map<String, Object> proxy = jsonUtils.getStringMap(jsonProxies, proxyName);
 				addToApiTree(jsonPath, proxyName, proxy);
+			}
+			for (String proxyName : jsonProxies.keySet()) {
+				generateSuperApiName(jsonUtils.getStringMap(jsonProxies, proxyName));
 			}
 		}
 

@@ -23,7 +23,6 @@ import org.appcelerator.titanium.proxy.TiBaseWindowProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUITabGroup;
@@ -144,20 +143,10 @@ public class TabGroupProxy extends TiWindowProxy
 
 	private void handleAddTab(TabProxy tab)
 	{
-		String tag = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TAG));
+		String tag = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TAG) );
 		if (tag == null) {
-			String title = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TITLE));
-			if (title == null) {
-				String icon = TiConvert.toString(tab.getProperty(TiC.PROPERTY_ICON));
-				if (icon == null) {
-					tag = tab.toString();
-				} else {
-					tag = icon;
-				}
-			} else {
-				tag = title;
-			}
-			
+			//since tag is used to create tabSpec, it must be unique, otherwise tabs with same tag will use same activity (Timob-7487)
+			tag = tab.toString();
 			tab.setProperty(TiC.PROPERTY_TAG, tag, false); // store in proxy
 		}
 
@@ -180,7 +169,9 @@ public class TabGroupProxy extends TiWindowProxy
 				Log.w(LCAT, "Could not add tab because tab activity no longer exists");
 			}
 		}
-		Drawable icon = TiDrawableReference.fromObject(getActivity(), tab.getProperty(TiC.PROPERTY_ICON)).getDrawable();
+		Object iconProperty = tab.getProperty(TiC.PROPERTY_ICON);
+		Drawable icon = TiUIHelper.getResourceDrawable(iconProperty);
+
 		String tag = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TAG));
 		String title = TiConvert.toString(tab.getProperty(TiC.PROPERTY_TITLE));
 		if (title == null) {
@@ -217,7 +208,7 @@ public class TabGroupProxy extends TiWindowProxy
 
 			tspec.setContent(intent);
 
-			tg.addTab(tspec);
+			tg.addTab(tspec, tab);
 		}
 	}
 
@@ -329,8 +320,11 @@ public class TabGroupProxy extends TiWindowProxy
 		}
 		
 		modelListener = null;
-		if (this.weakActivity.get() != null) {
-			this.weakActivity.get().finish();
+		Activity tabActivity = this.weakActivity.get();
+		if (tabActivity != null) {
+			tabActivity.finish();
+			// Finishing an activity is not synchronous, so we remove the activity from the activity stack here
+			TiApplication.removeFromActivityStack(tabActivity);
 		};
 		releaseViews();
 		windowId = null;
@@ -339,12 +333,6 @@ public class TabGroupProxy extends TiWindowProxy
 		opened = false;
 	}
 
-	public KrollDict buildFocusEvent(String to, String from)
-	{
-		int toIndex = indexForId(to);
-		int fromIndex = indexForId(from);
-		return buildFocusEvent(toIndex, fromIndex);
-	}
 
 	public KrollDict buildFocusEvent(int toIndex, int fromIndex)
 	{
@@ -368,21 +356,6 @@ public class TabGroupProxy extends TiWindowProxy
 		return e;
 	}
 
-	private int indexForId(String id)
-	{
-		int index = -1;
-
-		int i = 0;
-		for(TabProxy t : tabs) {
-			String tag = (String) t.getProperty(TiC.PROPERTY_TAG);
-			if (tag.equals(id)) {
-				index = i;
-				break;
-			}
-			i += 1;
-		}
-		return index;
-	}
 
 	private void fillIntent(Activity activity, Intent intent)
 	{
