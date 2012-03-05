@@ -70,20 +70,18 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
         case TiDimensionTypeAutoFill:
         {
             width = TiDimensionCalculateMargins(constraint->left, constraint->right, referenceSize.width);
+            BOOL autoFill = NO;
             //Undefined falls to auto behavior
             if ( TiDimensionIsUndefined(constraint->width) || TiDimensionIsAuto(constraint->width) ) 
             {
-                //If default auto behavior is fill, set value and break
+                //Check if default auto behavior is fill
                 if ([autoSizer respondsToSelector:@selector(defaultAutoWidthBehavior:)]) {
                     if (TiDimensionIsAutoFill([autoSizer defaultAutoWidthBehavior:nil])) {
-                        if(resultResizing != NULL){
-                            *resultResizing |= UIViewAutoresizingFlexibleWidth;
-                        }
-                        break;
+                        autoFill = YES;
                     }
                 }
             }
-            if (TiDimensionIsAutoFill(constraint->width)) {
+            if (TiDimensionIsAutoFill(constraint->width) || autoFill) {
                 if(resultResizing != NULL){
                     *resultResizing |= UIViewAutoresizingFlexibleWidth;
                 }
@@ -134,21 +132,18 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
         case TiDimensionTypeAutoFill:
         {
             height = TiDimensionCalculateMargins(constraint->top, constraint->bottom, referenceSize.height);
+            BOOL autoFill = NO;
             //Undefined falls to auto behavior
             if ( TiDimensionIsUndefined(constraint->height) || TiDimensionIsAuto(constraint->height) ) 
             {
-                //If default auto behavior is fill, set value and break
+                //Check if default auto behavior is fill
                 if ([autoSizer respondsToSelector:@selector(defaultAutoHeightBehavior:)]) {
                     if (TiDimensionIsAutoFill([autoSizer defaultAutoHeightBehavior:nil])) {
-                        height = referenceSize.height;
-                        if (resultResizing != NULL) {
-                            *resultResizing |= UIViewAutoresizingFlexibleHeight;
-                        }
-                        break;
+                        autoFill = YES;
                     }
                 }
             }
-            if (TiDimensionIsAutoFill(constraint->height)) {
+            if (TiDimensionIsAutoFill(constraint->height) || autoFill) {
                 if(resultResizing != NULL){
                     *resultResizing |= UIViewAutoresizingFlexibleHeight;
                 }
