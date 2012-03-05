@@ -4,16 +4,32 @@ define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
 
 		constructor: function(args) {
 			args = args || {};
-			this._data = args.data || null;
-			this._isBinary = args.size !== undefined;
+			this._data = args.data || "";
 		},
 
-		append: function(blob) {
+		postscript: function() {
+			var type = this.mimeType,
+				img,
+				v = this.constants.__values__;
+
+			(this._isBinary = /^(application|image|audio|video)\//.test(type)) && (v.size = v.length);
+
+			if (!type.indexOf("image/")) {
+				img = new Image;
+				require.on.once(img, "load", function() {
+					v.width = img.width;
+					v.height = img.height;
+				});
+				img.src = this.toString();
+			}
+		},
+
+		append: function(/*String|Blob*/blob) {
 			blob && (this._data = (this._data || "") + blob.toString());
 		},
 
 		toString: function() {
-			return (this._isBinary && !this.mimeType.indexOf("image/") ? "data:" + this.mimeType + ";base64," : "") + (this._data || "");
+			return (this._isBinary ? "data:" + this.mimeType + ";base64," : "") + (this._data || "");
 		},
 
 		constants: {

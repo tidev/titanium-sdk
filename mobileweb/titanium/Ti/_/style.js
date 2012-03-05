@@ -28,7 +28,10 @@ define(["Ti/_", "Ti/_/string", "Ti/Filesystem"], function(_, string, Filesystem)
 
 	return {
 		url: function(/*String|Blob*/url) {
-			var match = url.match(/^(.+):\/\//),
+			if (url && url.declaredClass === "Ti.Blob") {
+				return "url(" + url.toString() + ")";
+			}
+			var match = url && url.match(/^(.+):\/\//),
 				file = match && ~Filesystem.protocols.indexOf(match[1]) && Filesystem.getFile(url),
 				isFile = file && file.exists();
 			url = isFile ? url : "";

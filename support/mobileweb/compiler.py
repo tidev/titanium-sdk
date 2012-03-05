@@ -329,6 +329,16 @@ class Compiler(object):
 			# elif ext == '.html':
 			#	TODO: minify html
 		
+		# create the favicon and apple touch icons
+		icon_file = os.path.join(self.resources_path, tiapp_xml.properties['icon'])
+		fname, ext = os.path.splitext(icon_file.lower())
+		if os.path.exists(icon_file) and (ext == '.png' or ext == '.jpg' or ext == '.gif'):
+			self.build_icons(icon_file)
+		else:
+			icon_file = os.path.join(self.resources_path, 'mobileweb', 'appicon.png')
+			if os.path.exists(icon_file):
+				self.build_icons(icon_file)
+		
 		# create the filesystem registry
 		print '[INFO] Building filesystem registry...'
 		filesystem_registry = 'ts\t' + str(int(os.path.getctime(self.build_path)) * 1000) + '\n' + self.walk_fs(self.build_path, 0)
@@ -352,16 +362,6 @@ class Compiler(object):
 				status_bar_style = 'black-translucent'
 			else:
 				status_bar_style = 'default'
-		
-		# create the favicon and apple touch icons
-		icon_file = os.path.join(self.resources_path, tiapp_xml.properties['icon'])
-		fname, ext = os.path.splitext(icon_file.lower())
-		if os.path.exists(icon_file) and (ext == '.png' or ext == '.jpg' or ext == '.gif'):
-			self.build_icons(icon_file)
-		else:
-			icon_file = os.path.join(self.resources_path, 'mobileweb', 'appicon.png')
-			if os.path.exists(icon_file):
-				self.build_icons(icon_file)
 		
 		# populate index.html
 		index_html_file = codecs.open(os.path.join(self.build_path, 'index.html'), 'w', encoding='utf-8')

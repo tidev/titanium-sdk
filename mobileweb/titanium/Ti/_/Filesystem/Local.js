@@ -6,6 +6,7 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 		File,
 		Filesystem,
 		ls = localStorage,
+		slash = '/',
 		metaMap = {
 			n: "sname",
 			c: "i_created",
@@ -99,11 +100,11 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 
 				if (i === 0 && line[0] === "ts") {
 					regDate = line[1];
-					reg['/'] += "\nc" + regDate;
+					reg[slash] += "\nc" + regDate;
 				} else {
 					for (; depth < len && !line[depth]; depth++) {}
 					stack = stack.slice(0, depth).concat(name = line[depth]);
-					reg['/' + stack.join('/')] = "n" + name + "\nt" + (depth + 1 == len ? 'D' : 'F\ns' + line[depth + 1]);
+					reg[slash + stack.join(slash)] = "n" + name + "\nt" + (depth + 1 == len ? 'D' : 'F\ns' + line[depth + 1]);
 				}
 			});
 		}
@@ -116,15 +117,8 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 
 	function mkdir(prefix, parts, i, parent) {
 		var file,
-			i = i || 0,
-			j = 0,
-			len = parts.length,
-			path = prefix + parts.slice(0, i).join('/');
-
-		if (i >= len) {
-			// we're done!
-			return true;
-		}
+			i = i || 1,
+			path = prefix + parts.slice(0, i).join(slash);
 
 		if (parent && parent.readonly) {
 			// parent directory is readonly, so we can't create a directory here
@@ -138,33 +132,43 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 		});
 		file.createDirectory();
 
-		return mkdir(prefix, parts, i+1, file);
+		if (++i > parts.length) {
+			// we're done!
+			return true;
+		}
+
+		return mkdir(prefix, parts, i, file);
 	}
 
 	function mkdirs(path) {
 		if (path) {
 			var match = path.match(pathRegExp),
-				prefix = (match[1] ? match[1] : match[2] + match[3]) || '/';
+				prefix = (match[1] ? match[1] : match[2] + match[3]) || slash;
 			path = match[1] ? match[2] : match[4];
-			return path ? mkdir(prefix, path.split('/')) : true;
+			return path ? mkdir(prefix, path.split(slash)) : true;
 		}
 		return false;
 	}
 
 	function cpdir(src, dest) {
 		var path = src.nativePath,
-			re = new RegExp("^(ti:fs:meta|ti:fs:blob):" + path + (/\/$/.test(path) ? '' : '/') + "(.*)"),
+			re = new RegExp("^(ti:fs:meta|ti:fs:blob):" + path + (/\/$/.test(path) ? '' : slash) + "(.*)"),
 			match,
 			key,
 			i = 0,
 			len = ls.length;
 
-		while (i < len) {
-			key = ls.key(i++);
-			(match = key.match(re)) && ls.setItem(match[1] + ':' + dest.nativePath + '/' + match[2], ls.getItem(key) || '');
+		dest = filesystem().getFile(dest.nativePath, src.name);
+
+		if (mkdirs(dest.nativePath)) {
+			while (i < len) {
+				key = ls.key(i++);
+				(match = key.match(re)) && ls.setItem(match[1] + ':' + dest.nativePath + slash + match[2], ls.getItem(key) || '');
+			}
+			return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	function purgeTemp() {
@@ -180,6 +184,16 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 	purgeTemp();
 	require.on(window, "beforeunload", purgeTemp);
 
+	(function(paths, now) {
+		for (var p in paths) {
+			getLocal(p, 1) || setLocal(p, "c" + now + "\nm" + now + "\ntD\ne0\nx0\nl0\nh0\nr" + paths[p], 1);
+		}
+	}({
+		"appdata://": 0,
+		"/": 1,
+		"tmp://": 0
+	}, (new Date()).getTime()));
+
 	return File = declare("Ti._.Filesystem.Local", null, {
 
 		constructor: function(path) {
@@ -191,10 +205,10 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 					throw new Error('Irrational path "' + path + '"');
 				}
 
-				this.constants.__values__.nativePath = (b ? match[2] + "://" : "/") + path;
+				this.constants.__values__.nativePath = (b ? match[2] + "://" : slash) + path;
 			}
 
-			this._type = path && path._type === 'D' ? 'D' : 'F';
+			this._type = !path || path._type === 'D' ? 'D' : 'F';
 		},
 
 		postscript: function(args) {
@@ -202,7 +216,9 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 				path = this.nativePath,
 				metaData = path && getLocal(path, 1) || registry(path),
 				match = path.match(pathRegExp),
-				p;
+				prefix = (match[1] ? match[1] : match[2] + match[3]) || slash,
+				parentPath,
+				parent;
 
 			metaData && (this._exists = 1) && metaData.split('\n').forEach(function(line) {
 				var fieldInfo = metaMap[line.charAt(0)],
@@ -211,10 +227,13 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 				(c.hasOwnProperty(field) ? c.__values__ : this)[field] = value;
 			}, this);
 
-			path = path.split('/');
-			p = c.parent = (c.name = path.pop()) ? new File({ nativePath: path.join('/'), _type: 'D' }) : null;
+			path = match[1] ? match[2] : match[4];
+			parentPath = path.split(slash);
+			c.name = parentPath.pop();
+			parentPath = parentPath.join(slash);
+			parent = c.parent = path ? new File(prefix + parentPath) : null;
 
-			(p && p.readonly) || (match && match[1]) && (c.readonly = true);
+			(parent && parent.readonly) || (match && match[1]) && (c.readonly = true);
 		},
 
 		constants: {
@@ -247,10 +266,11 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 						data = data.read();
 					case "Ti.Blob":
 						this._mimeType = data.mimeType;
-						var blob = this.read();
-						blob.append(data);
-						return this.write(blob);
+						data = data.text;
 				}
+				var blob = this.read();
+				blob.append(data);
+				return this.write(blob);
 			}
 			return false;
 		},
@@ -275,9 +295,11 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 						return isFile ? fs.getFile(dest.nativePath, this.name).write(this.read()) : cpdir(this, dest);
 					}
 				} else {
-					p.createDirectory();
-					if (!p.exists() || p.readonly || (!isFile && !dest.createDirectory())) {
-						return false;
+					if (p) {
+						p.createDirectory();
+						if (!p.exists() || p.readonly || (!isFile && !dest.createDirectory())) {
+							return false;
+						}
 					}
 					return isFile ? dest.write(this.read()) : cpdir(this, dest);
 				}
@@ -300,7 +322,7 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 		deleteDirectory: function(recursive) {
 			if (this.isDirectory() && !this.readonly) {
 				var path = this.nativePath,
-					re = new RegExp("^ti:fs:(meta|blob):" + path + (/\/$/.test(path) ? '' : '/') + ".*"),
+					re = new RegExp("^ti:fs:(meta|blob):" + path + (/\/$/.test(path) ? '' : slash) + ".*"),
 					i = 0,
 					len = ls.length;
 				while (i < len) {
@@ -341,7 +363,7 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 		getDirectoryListing: function() {
 			var files = [];
 			if (this.isDirectory()) {
-				var path = this.nativePath + (/\/$/.test(this.nativePath) ? '' : '/'),
+				var path = this.nativePath + (/\/$/.test(this.nativePath) ? '' : slash),
 					lsRegExp = new RegExp("^" + metaPrefix + path + "(.*)"),
 					regRegExp = new RegExp("^" + path + "(.*)"),
 					i = 0,
@@ -349,7 +371,7 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 
 				function add(s, re) {
 					var file, match = s.match(re);
-					match && match[1] && files.indexOf(file = match[1].split('/')[0]) < 0 && files.push(file);
+					match && match[1] && files.indexOf(file = match[1].split(slash)[0]) < 0 && files.push(file);
 				}
 
 				// check local storage
@@ -394,8 +416,7 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 					obj,
 					data = this._remote ? (obj = getRemote(path)).data : getLocal(path) || "",
 					type = obj && obj.mimeType || this._mimeType || mimeTypes[mimeExtentions[this.extension()] || 0],
-					binaryData,
-					i,
+					i = 0,
 					len = data.length,
 					binaryData = '',
 					params = {
@@ -406,22 +427,11 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 						nativePath: path
 					};
 
-				if (/^(application|image|audio|video)\//.test(type)) {
-					params.size = len;
-					try {
-						if (this._remote) {
-							for (i = 0; i < len; i++) {
-								binaryData += String.fromCharCode(data.charCodeAt(i) & 0xff);
-							}
-							params.data = btoa(binaryData);
-						}
-						if (~type.indexOf("image/")) {
-							i = new Image;
-							i.src = "data:" + type + ";base64," + params.data;
-							params.width = i.width;
-							params.height = i.height;
-						}
-					} catch (ex) {}
+				if (this._remote && /^(application|image|audio|video)\//.test(type)) {
+					while (i < len) {
+						binaryData += String.fromCharCode(data.charCodeAt(i++) & 0xff);
+					}
+					params.data = btoa(binaryData);
 				}
 
 				return new Blob(params);
@@ -434,9 +444,9 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 				var origPath = this.nativePath,
 					path = origPath,
 					blob = ls.getItem(blobPrefix + path),
-					re = new RegExp("^ti:fs:(meta|blob):" + path + (/\/$/.test(path) ? '' : '/') + "(.*)"),
+					re = new RegExp("^ti:fs:(meta|blob):" + path + (/\/$/.test(path) ? '' : slash) + "(.*)"),
 					match = path.match(pathRegExp),
-					prefix = (match[1] ? match[1] : match[2] + match[3]) || '/',
+					prefix = (match[1] ? match[1] : match[2] + match[3]) || slash,
 					i = 0,
 					len = ls.length,
 					c = this.constants.__values__,
@@ -450,11 +460,11 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 					return false;
 				}
 
-				path = path.split('/');
+				path = path.split(slash);
 				path.pop();
 				path.push(name);
 
-				dest = new File(path = prefix + path.join('/'));
+				dest = new File(path = prefix + path.join(slash));
 				if (dest.exists() || dest.parent.readonly) {
 					return false;
 				}
@@ -463,7 +473,7 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 					while (i < len) {
 						key = ls.key(i++);
 						if (match = key.match(re)) {
-							ls.setItem("ti:fs:" + match[1] + ":" + path + '/' + match[2], ls.getItem(key));
+							ls.setItem("ti:fs:" + match[1] + ":" + path + slash + match[2], ls.getItem(key));
 							ls.removeItem(key);
 						}
 					}
@@ -484,18 +494,18 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 		},
 
 		spaceAvailable: function() {
-			return "remainingSpace" in ln ? ls.remainingSpace : null;
+			return "remainingSpace" in ls ? ls.remainingSpace : null;
 		},
 
 		write: function(/*String|File|Blob*/data, append) {
 			var path = this.nativePath;
-			if (path && this.isFile() && !this.readonly) {
+			if (path && this.isFile() && !this.readonly && this.parent && !this.parent.readonly) {
 				switch (data && data.declaredClass) {
 					case "Ti.Filesystem.File":
 						data = data.read();
 					case "Ti.Blob":
 						this._mimeType = data.mimeType;
-						data = data.toString();
+						data = data.text;
 				}
 				this._exists = true;
 				this._modified = (new Date()).getTime();
@@ -507,7 +517,7 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob", "Ti/F
 		},
 
 		_create: function(type) {
-			if (!this.exists() && mkdirs(this.nativePath)) {
+			if (!this.exists() && this.parent && !this.parent.readonly && mkdirs(this.parent.nativePath)) {
 				this._created = this._modified = (new Date()).getTime();
 				this._exists = true;
 				this._type = type;
