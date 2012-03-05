@@ -8,9 +8,9 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 
-/*
- * A Class which allows us to pull resource integers 
- * off of the various R class structures using
+/**
+ * This class allows us to retrieve Android resource IDs 
+ * from the various Android R classes using
  * strings at runtime.
  */
 public class TiRHelper {
@@ -95,11 +95,17 @@ public class TiRHelper {
 		}
 	}
 
+	
 	public static int getResource(String path) throws ResourceNotFoundException
 	{
 		return getResource(path, true);
 	}
 	
+	/**
+	 * @param path path of the resource.
+	 * @return the application resource given its path.
+	 * @throws ResourceNotFoundException
+	 */
 	public static int getApplicationResource(String path) throws ResourceNotFoundException {
 		return getResource(clsPrefixApplication, path);
 	}
@@ -108,7 +114,7 @@ public class TiRHelper {
 		return getResource(clsPrefixAndroid, path);
 	}
 	
-	/*
+	/**
 	 * Clears the cache.  Should only be used in low memory situations
 	 * as clearing the cache will adversely affect performance.
 	 */

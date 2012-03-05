@@ -7,9 +7,10 @@
 #if defined(USE_TI_UIIOSTOOLBAR) || defined(USE_TI_UITOOLBAR)
 
 
+#import "TiViewProxy.h"
 #import "TiToolbar.h"
 
-@interface TiUIiOSToolbarProxy : TiToolbar {
+@interface TiUIiOSToolbarProxy : TiViewProxy <TiToolbar> {
 }
 @end
 

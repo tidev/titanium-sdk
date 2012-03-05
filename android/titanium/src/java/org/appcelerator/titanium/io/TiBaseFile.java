@@ -23,6 +23,9 @@ import java.util.List;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 
+/**
+ * This is the parent class of all files/directories.
+ */
 public abstract class TiBaseFile
 {
 	private static final String LCAT = "TiBaseFile";
@@ -80,14 +83,23 @@ public abstract class TiBaseFile
 		return typeDir;
 	}
 
+	/**
+	 * @return  true if the file is executable, false otherwise.
+	 */
 	public boolean isExecutable() {
 		return modeExecutable;
 	}
 
+	/**
+	 * @return  true if the file is read-only, false otherwise.
+	 */
 	public boolean isReadonly() {
 		return modeRead && !modeWrite;
 	}
-
+	
+	/**
+	 * @return  true if the file is writable, false otherwise.
+	 */
 	public boolean isWriteable() {
 		return modeWrite;
 	}
@@ -405,7 +417,24 @@ public abstract class TiBaseFile
 		return outstream;
 	}
 
+	/**
+	 * Implementing subclasses should return an InputStream that can be used to retrieve
+	 * the contents of the file.
+	 * @return  the InputStream of the file.
+	 * @throws IOException the thrown exception.
+	 */
 	public abstract InputStream getInputStream() throws IOException;
+	
+	/**
+	 * Implementing subclasses should return an OutputStream for writing to the file.
+	 * @return  the OutputStream of the file.
+	 * @throws IOException the thrown exception.
+	 */
 	public abstract OutputStream getOutputStream() throws IOException;
+	
+	/**
+	 * Implementing subclasses should return the file object.
+	 * @return  the file object.
+	 */
 	public abstract File getNativeFile();
 }
