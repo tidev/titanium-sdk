@@ -66,6 +66,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	private static final String PROPERTY_THREAD_STACK_SIZE = "ti.android.threadstacksize";
 	private static final String PROPERTY_COMPILE_JS = "ti.android.compilejs";
 	private static final String PROPERTY_ENABLE_COVERAGE = "ti.android.enablecoverage";
+	private static final String PROPERTY_DEFAULT_UNIT = "ti.ui.defaultunit";
 	private static long lastAnalyticsTriggered = 0;
 	private static long mainThreadId = 0;
 
@@ -668,6 +669,11 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public String getTiBuildHash()
 	{
 		return buildHash;
+	}
+
+	public String getDefaultUnit()
+	{
+		return getSystemProperties().getString(PROPERTY_DEFAULT_UNIT, "system");
 	}
 
 	public int getThreadStackSize()

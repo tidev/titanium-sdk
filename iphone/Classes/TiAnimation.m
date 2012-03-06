@@ -508,7 +508,7 @@ autoreverseLayout.a = TiDimensionUndefined; \
             
             if (zIndex!=nil)
             {
-                [(TiViewProxy *)[uiview proxy] setZIndex:[zIndex intValue]];
+                [(TiViewProxy *)[uiview proxy] setVzIndex:[zIndex intValue]];
             }
             
             if (doReposition)

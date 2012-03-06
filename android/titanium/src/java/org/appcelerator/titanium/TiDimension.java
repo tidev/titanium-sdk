@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -42,7 +42,9 @@ public class TiDimension
 	public static final int COMPLEX_UNIT_UNDEFINED = TypedValue.COMPLEX_UNIT_MASK + 1;
 	public static final int COMPLEX_UNIT_PERCENT = TypedValue.COMPLEX_UNIT_MASK + 2;
 	public static final int COMPLEX_UNIT_AUTO = TypedValue.COMPLEX_UNIT_MASK + 3;
+	public static final int COMPLEX_UNIT_CM = TypedValue.TYPE_DIMENSION + 1;
 
+	public static final int TYPE_UNDEFINED = -1;
 	public static final int TYPE_LEFT = 0;
 	public static final int TYPE_CENTER_X = 1;
 	public static final int TYPE_RIGHT = 2;
@@ -54,8 +56,22 @@ public class TiDimension
 
 	public static final double POINT_DPI = 72.0;
 	public static final double MM_INCH = 25.4;
+	public static final double CM_INCH = 2.54;
 
-	public static Pattern DIMENSION_PATTERN = Pattern.compile("(-?[0-9]*\\.?[0-9]+)\\s*(px|dp|dip|sp|sip|mm|pt|in|%)?");
+	public static final String UNIT_CM = "cm";
+	public static final String UNIT_DIP = "dip";
+	public static final String UNIT_DP = "dp";
+	public static final String UNIT_IN = "in";
+	public static final String UNIT_MM = "mm";
+	public static final String UNIT_PX = "px";
+	public static final String UNIT_PT = "pt";
+	public static final String UNIT_SP = "sp";
+	public static final String UNIT_SIP = "sip";
+	public static final String UNIT_SYSTEM = "system";
+	public static final String UNIT_PERCENT = "%";
+	public static final String UNIT_AUTO = "auto";
+
+	public static Pattern DIMENSION_PATTERN = Pattern.compile("(-?[0-9]*\\.?[0-9]+)\\s*(system|px|dp|dip|sp|sip|mm|cm|pt|in|%)?");
 	protected static DisplayMetrics metrics = null;
 
 	protected double value;
@@ -93,19 +109,25 @@ public class TiDimension
 
 				if (m.groupCount() == 2) {
 					String unit = m.group(2);
-					if ("px".equals(unit)) {
+					// if there is no unit, then use the default one
+					if (unit == null) {
+						unit = TiApplication.getInstance().getDefaultUnit();
+					}
+					if (UNIT_PX.equals(unit) || UNIT_SYSTEM.equals(unit)) {
 						this.units = TypedValue.COMPLEX_UNIT_PX;
-					} else if ("pt".equals(unit)) {
+					} else if (UNIT_PT.equals(unit)) {
 						this.units = TypedValue.COMPLEX_UNIT_PT;
-					} else if ("dp".equals(unit) || "dip".equals(unit)) {
+					} else if (UNIT_DP.equals(unit) || UNIT_DIP.equals(unit)) {
 						this.units = TypedValue.COMPLEX_UNIT_DIP;
-					} else if ("sp".equals(unit) || "sip".equals(unit)) {
+					} else if (UNIT_SP.equals(unit) || UNIT_SIP.equals(unit)) {
 						this.units = TypedValue.COMPLEX_UNIT_SP;
-					} else if ("%".equals(unit)) {
+					} else if (UNIT_PERCENT.equals(unit)) {
 						this.units = COMPLEX_UNIT_PERCENT;
-					} else if ("mm".equals(unit)) {
+					} else if (UNIT_MM.equals(unit)) {
 						this.units = TypedValue.COMPLEX_UNIT_MM;
-					} else if ("in".equals(unit)) {
+					} else if (UNIT_CM.equals(unit)) {
+						this.units = COMPLEX_UNIT_CM;
+					} else if (UNIT_IN.equals(unit)) {
 						this.units = TypedValue.COMPLEX_UNIT_IN;
 					} else {
 						if (DBG) {
@@ -115,7 +137,7 @@ public class TiDimension
 						}
 					}
 				}
-			} else if (svalue.trim().equals("auto")) {
+			} else if (svalue.trim().equals(UNIT_AUTO)) {
 				this.value = Integer.MIN_VALUE;
 				this.units = COMPLEX_UNIT_AUTO;
 			}
@@ -174,6 +196,26 @@ public class TiDimension
 		this.units = units;
 	}
 
+	protected double getPixels(View parent)
+	{
+		switch (units) {
+			case TypedValue.COMPLEX_UNIT_PX:
+			case COMPLEX_UNIT_UNDEFINED:
+				return (int) this.value;
+			case COMPLEX_UNIT_PERCENT:
+				return getPercentPixels(parent);
+			case TypedValue.COMPLEX_UNIT_DIP:
+			case TypedValue.COMPLEX_UNIT_SP:
+				return getScaledPixels(parent);
+			case TypedValue.COMPLEX_UNIT_PT:
+			case TypedValue.COMPLEX_UNIT_MM:
+			case COMPLEX_UNIT_CM:
+			case TypedValue.COMPLEX_UNIT_IN:
+				return getSizePixels(parent);
+		}
+		return -1;
+	}
+
 	/**
 	 * Calculates and returns the number of pixels, depending on the type.
 	 * It also takes screen/view density into consideration.
@@ -182,40 +224,64 @@ public class TiDimension
 	 */
 	public int getAsPixels(View parent)
 	{
-		switch (units) {
-			case TypedValue.COMPLEX_UNIT_PX:
-			case COMPLEX_UNIT_UNDEFINED:
-				return (int)this.value;
-			case COMPLEX_UNIT_PERCENT:
-				return getPercentPixels(parent);
-			case TypedValue.COMPLEX_UNIT_DIP:
-			case TypedValue.COMPLEX_UNIT_SP:
-				return getScaledPixels(parent);
-			case TypedValue.COMPLEX_UNIT_PT:
-			case TypedValue.COMPLEX_UNIT_MM:
-			case TypedValue.COMPLEX_UNIT_IN:
-				return getSizePixels(parent);
-		}
-		return -1;
+		return (int) Math.round(getPixels(parent));
 	}
 
-	protected int getPercentPixels(View parent)
+	public int getAsMillimeters(View parent)
 	{
-		int dimension = - 1;
+		if (units == TypedValue.COMPLEX_UNIT_MM) {
+			return (int) this.value;
+		}
+
+		return (int) Math.round(((getPixels(parent) / metrics.densityDpi) * MM_INCH));
+	}
+
+	public int getAsCentimeters(View parent)
+	{
+		if (units == COMPLEX_UNIT_CM) {
+			return (int) this.value;
+		}
+
+		return (int) Math.round(((getPixels(parent) / metrics.densityDpi) * CM_INCH));
+	}
+
+	public int getAsInches(View parent)
+	{
+		if (units == TypedValue.COMPLEX_UNIT_IN) {
+			return (int) this.value;
+		}
+
+		return (int) Math.round((getPixels(parent) / metrics.densityDpi));
+	}
+
+	public int getAsDIP(View parent)
+	{
+		if (units == TypedValue.COMPLEX_UNIT_DIP) {
+			return (int) this.value;
+		}
+
+		return (int) Math.round((getPixels(parent) / metrics.density));
+	}
+
+	protected double getPercentPixels(View parent)
+	{
+		int dimension = -1;
 		switch (valueType) {
 			case TYPE_TOP:
 			case TYPE_BOTTOM:
 			case TYPE_CENTER_Y:
 			case TYPE_HEIGHT:
-				dimension = parent.getHeight(); break;
+				dimension = parent.getHeight();
+				break;
 			case TYPE_LEFT:
 			case TYPE_RIGHT:
 			case TYPE_CENTER_X:
 			case TYPE_WIDTH:
-				dimension = parent.getWidth(); break;
+				dimension = parent.getWidth();
+				break;
 		}
 		if (dimension != -1) {
-			return (int) ((this.value / 100.0) * dimension);
+			return ((this.value / 100.0) * dimension);
 		}
 		return -1;
 	}
@@ -231,18 +297,18 @@ public class TiDimension
 		return metrics;
 	}
 
-	protected int getScaledPixels(View parent)
+	protected double getScaledPixels(View parent)
 	{
 		DisplayMetrics metrics = getDisplayMetrics(parent);
 		if (units == TypedValue.COMPLEX_UNIT_DIP) {
-			return (int) (metrics.density * this.value);
+			return ((metrics.density * this.value) / 160);
 		} else if (units == TypedValue.COMPLEX_UNIT_SP) {
-			return (int) (metrics.scaledDensity * this.value);
+			return ((metrics.scaledDensity * this.value) / 160);
 		}
 		return -1;
 	}
 
-	protected int getSizePixels(View parent)
+	protected double getSizePixels(View parent)
 	{
 		DisplayMetrics metrics = getDisplayMetrics(parent);
 		float dpi = -1;
@@ -251,19 +317,25 @@ public class TiDimension
 			case TYPE_BOTTOM:
 			case TYPE_CENTER_Y:
 			case TYPE_HEIGHT:
-				dpi = metrics.ydpi; break;
+				dpi = metrics.ydpi;
+				break;
 			case TYPE_LEFT:
 			case TYPE_RIGHT:
 			case TYPE_CENTER_X:
 			case TYPE_WIDTH:
-				dpi = metrics.xdpi; break;
+				dpi = metrics.xdpi;
+				break;
+			default:
+				dpi = metrics.densityDpi;
 		}
-		if (units == TypedValue.COMPLEX_UNIT_PT) { 
-			return (int) (this.value * (dpi / POINT_DPI));
+		if (units == TypedValue.COMPLEX_UNIT_PT) {
+			return (this.value * (dpi / POINT_DPI));
 		} else if (units == TypedValue.COMPLEX_UNIT_MM) {
-			return (int) ((this.value / MM_INCH) * dpi);
+			return ((this.value / MM_INCH) * dpi);
+		} else if (units == COMPLEX_UNIT_CM) {
+			return ((this.value / CM_INCH) * dpi);
 		} else if (units == TypedValue.COMPLEX_UNIT_IN) {
-			return (int) (this.value * dpi);
+			return (this.value * dpi);
 		}
 		return -1;
 	}
@@ -295,19 +367,36 @@ public class TiDimension
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder(10);
-		if (! isUnitAuto()) {
+		if (!isUnitAuto()) {
 			sb.append(value);
-			switch(units) {
-				case TypedValue.COMPLEX_UNIT_PX : sb.append("px"); break;
-				case TypedValue.COMPLEX_UNIT_PT : sb.append("pt"); break;
-				case TypedValue.COMPLEX_UNIT_DIP : sb.append("dp"); break;
-				case TypedValue.COMPLEX_UNIT_SP : sb.append("sp"); break;
-				case TypedValue.COMPLEX_UNIT_MM : sb.append("mm"); break;
-				case TypedValue.COMPLEX_UNIT_IN : sb.append("in"); break;
-				case COMPLEX_UNIT_PERCENT : sb.append("%"); break;
+			switch (units) {
+				case TypedValue.COMPLEX_UNIT_PX:
+					sb.append(UNIT_PX);
+					break;
+				case TypedValue.COMPLEX_UNIT_PT:
+					sb.append(UNIT_PT);
+					break;
+				case TypedValue.COMPLEX_UNIT_DIP:
+					sb.append(UNIT_DIP);
+					break;
+				case TypedValue.COMPLEX_UNIT_SP:
+					sb.append(UNIT_SP);
+					break;
+				case TypedValue.COMPLEX_UNIT_MM:
+					sb.append(UNIT_MM);
+					break;
+				case COMPLEX_UNIT_CM:
+					sb.append(UNIT_CM);
+					break;
+				case TypedValue.COMPLEX_UNIT_IN:
+					sb.append(UNIT_IN);
+					break;
+				case COMPLEX_UNIT_PERCENT:
+					sb.append(UNIT_PERCENT);
+					break;
 			}
 		} else {
-			sb.append("auto");
+			sb.append(UNIT_AUTO);
 		}
 
 		return sb.toString();
