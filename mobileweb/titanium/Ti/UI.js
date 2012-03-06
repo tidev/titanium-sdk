@@ -190,7 +190,10 @@ define(
 			UPSIDE_PORTRAIT: 4,
 			LANDSCAPE_LEFT: 5,
 			LANDSCAPE_RIGHT: 6,
-			INPUT_BORDERSTYLE_NONE: 0,
+			INPUT_BORDERSTYLE_NONE: 0, // DO NOT CHANGE! Values are referenced directly in code
+			INPUT_BORDERSTYLE_LINE: 1, // DO NOT CHANGE! Values are referenced directly in code
+			INPUT_BORDERSTYLE_BEZEL: 2, // DO NOT CHANGE! Values are referenced directly in code
+			INPUT_BORDERSTYLE_ROUNDED: 3, // DO NOT CHANGE! Values are referenced directly in code
 			KEYBOARD_DEFAULT: 2,
 			KEYBOARD_EMAIL: 3,
 			KEYBOARD_NUMBER_PAD: 6,
