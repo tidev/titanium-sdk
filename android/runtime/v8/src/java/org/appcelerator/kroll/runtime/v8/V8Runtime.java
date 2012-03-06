@@ -81,13 +81,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 					// a V8 GC (which is just a call to nativeIdle()), but nevertheless
 					// if more than the recommended time has passed since the last
 					// call to nativeIdle(), we'll want to do it anyways.
-					long now = System.currentTimeMillis();
-					long delta = now - lastV8Idle;
-					willGC = (delta >= MAX_V8_IDLE_INTERVAL);
-					//willGC = ((System.currentTimeMillis() - lastV8Idle) > MAX_V8_IDLE_INTERVAL);
-					if (willGC) {
-						Log.d(TAG, "Will call nativeIdle because of " + delta + " ms since last call");
-					}
+					willGC = ((System.currentTimeMillis() - lastV8Idle) > MAX_V8_IDLE_INTERVAL);
 				}
 				if (willGC) {
 					boolean gcWantsMore = !nativeIdle();
