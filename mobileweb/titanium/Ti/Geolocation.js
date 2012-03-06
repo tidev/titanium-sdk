@@ -1,9 +1,33 @@
 define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 	
-	return lang.setObject("Ti.Geolocation", Evented, {
+	var api = lang.setObject("Ti.Geolocation", Evented, {
 		
 		getCurrentPosition: function(callback) {
-			console.debug('Method "Ti.Geolocation#getCurrentPosition" is not implemented yet.');
+			if (api.locationServicesEnabled) {
+				navigator.geolocation.getCurrentPosition(
+					function(position) { // success callback
+						var locationEvent = {
+							coords: position.coords,
+							success: true
+						}
+						api.fireEvent("location", locationEvent);
+						callback(locationEvent);
+					},
+					function(error) { // error callback
+						var locationEvent = {
+							code: error.code,
+							success: false
+						}
+						api.fireEvent("location", locationEvent);
+						callback(locationEvent);
+					},
+					{
+						enableHighAccuracy: api.accuracy === api.ACCURACY_BEST,
+						timeout: api.MobileWeb.timeout,
+						maximumAge: api.MobileWeb.maximumAge
+					}
+				);
+			}
 		},
 		
 		forwardGeocoder: function(address, callback) {
@@ -24,26 +48,27 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 			
 			ACCURACY_LOW: 2,
 			
-			locationServicesEnabled: function() {
-				console.debug('Constant "Ti.Geolocation#locationServicesEnabled" is not implemented yet.');
+			locationServicesEnabled: {
+				get: function() {
+					return !!navigator.geolocation;
+				}
+			},
+			
+			MobileWeb: {
+				timeout: Infinity,
+				maximumAge: 0,
+				ERROR_PERMISSION_DENIED: 1,
+				ERROR_POSITION_UNAVAILABLE: 2,
+				ERROR_TIMEOUT: 3
 			}
 			
 		},
 	
 		properties: {
-			accuracy: {
-				get: function(value) {
-					console.debug('Property "Ti.Geolocation#accuracy" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Ti.Geolocation#accuracy" is not implemented yet.');
-					return value;
-				}
-			},
-			value: ACCURACY_LOW
+			accuracy: 2
 		}
 	
 	});
+	return api;
 
 });

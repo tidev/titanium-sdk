@@ -66,8 +66,8 @@ events:
     summary: fired when a location event is received
     properties:
       - name: code
-        summary: if success is false, the error code if available
-        platforms: [iphone, ipad]
+        summary: if success is false, the error code if available.
+        platforms: [iphone, ipad, mobileweb]
       - name: success
         summary: boolean to indicate if the location event was successfully received or an error occurred
       - name: provider
@@ -104,45 +104,45 @@ properties:
     summary: authorization constant
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
   - name: AUTHORIZATION_DENIED
     summary: authorization constant (user disabled authorization)
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
   - name: AUTHORIZATION_RESTRICTED
     summary: authorization constant (system disabled authorization)
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
   - name: AUTHORIZATION_UNKNOWN
     summary: authorization constant
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
   - name: ERROR_DENIED
     summary: error constant
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
   - name: ERROR_HEADING_FAILURE
     summary: error constant
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
   - name: ERROR_LOCATION_UNKNOWN
     summary: error constant
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
   - name: ERROR_NETWORK
     summary: error constant
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
   - name: ERROR_REGION_MONITORING_DELAYED
     summary: error constant
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     permission: read-only
     osver:
         ios:
@@ -152,7 +152,7 @@ properties:
     summary: error constant
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     osver:
         ios:
             min: "4.0"
@@ -160,20 +160,35 @@ properties:
     summary: error constant
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     osver:
         ios:
             min: "4.0"
+  - name: ERROR_PERMISSION_DENIED
+    summary: error constant
+    platforms: [mobileweb]
+    type: Number
+    permission: read-only
+  - name: ERROR_POSITION_UNAVAILABLE
+    summary: error constant
+    platforms: [mobileweb]
+    type: Number
+    permission: read-only
+  - name: ERROR_TIMEOUT
+    summary: error constant
+    platforms: [mobileweb]
+    type: Number
+    permission: read-only
   - name: PROVIDER_GPS
     summary: The GPS location provider
     type: String
     permission: read-only
-    platforms: [android, mobileweb]
+    platforms: [android]
   - name: PROVIDER_NETWORK
     summary: The Network location provider
     type: String
     permission: read-only
-    platforms: [android, mobileweb]
+    platforms: [android]
   - name: distanceFilter
     summary: The minimum change of position (in meters) before a 'location' event is fired. Default is 0, meaning that location events are continuously generated.
     type: Number
