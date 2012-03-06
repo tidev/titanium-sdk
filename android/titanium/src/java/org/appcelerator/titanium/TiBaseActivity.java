@@ -849,6 +849,7 @@ public abstract class TiBaseActivity extends Activity
 				}
 			}
 		}
+		KrollRuntime.suggestGC();
 	}
 
 	@Override
@@ -967,6 +968,7 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		KrollRuntime.decrementActivityRefCount();
+		KrollRuntime.suggestGC();
 	}
 
 	// called in order to ensure that the onDestroy call is only acted upon once.

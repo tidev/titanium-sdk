@@ -16,6 +16,7 @@ import java.util.TreeSet;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
@@ -495,6 +496,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			view = null;
 		}
 		setModelListener(null);
+		KrollRuntime.suggestGC();
 	}
 
 	public abstract TiUIView createView(Activity activity);

@@ -250,9 +250,9 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativePr
 	v8::Debug::ProcessDebugMessages();
 }
 
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIdle(JNIEnv *env, jobject self)
+JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIdle(JNIEnv *env, jobject self)
 {
-	v8::V8::IdleNotification();
+	return v8::V8::IdleNotification();
 }
 
 // This method disposes of all native resources used by V8 when
