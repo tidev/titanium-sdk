@@ -1,4 +1,4 @@
-define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
+define(["Ti/_/Evented", "Ti/_/lang", "Ti/Network"], function(Evented, lang, Network) {
 	
 	var api,
 		on = require.on,
@@ -8,7 +8,9 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 		locationWatchId,
 		currentLocation,
 		numHeadingEventListeners = 0,
-		numLocationEventListeners = 0;
+		numLocationEventListeners = 0,
+		isDef = lang.isDef,
+		undef;
 	
 	function singleShotHeading(callback) {
 		var removeOrientation = on(window,"deviceorientation",function(e) {
@@ -17,7 +19,7 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 		});
 	}
 	singleShotHeading(function(e) {
-		lang.isDef(e.webkitCompassHeading) && (compassSupport = true);
+		isDef(e.webkitCompassHeading) && (compassSupport = true);
 	});
 	function createHeadingCallback(callback) {
 		return function(e) {
@@ -73,6 +75,52 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 			}
 		},
 		
+		forwardGeocoder: function(address, callback) {
+			if (!require.is(address,"String")) {
+				return;
+			}
+			var client = Ti.Network.createHTTPClient({
+				onload : function(e) {
+					var responseParts = this.responseText.split(",");
+					callback({
+						places: [{
+							latitude: parseFloat(responseParts[2]),
+							longitude: parseFloat(responseParts[3])
+						}]
+					});
+				},
+				onerror : function(e) {
+					var result = e;
+					// TODO
+				},
+				timeout : api.MobileWeb.forwardGeocoderTimeout
+			});
+			client.open("GET", "http://api.appcelerator.com/p/v1/geo?d=f&" + 
+				// TODO "c=" + Locale.getCurrentCountry() + 
+				"q=" + escape(address));
+			client.send();
+		},
+		
+		reverseGeocoder: function(latitude, longitude, callback) {
+			if (!isDef(latitude) || !isDef(longitude)) {
+				return;
+			}
+			var client = Ti.Network.createHTTPClient({
+				onload : function(e) {
+					callback(JSON.parse(this.responseText));
+				},
+				onerror : function(e) {
+					var result = e;
+				},
+				timeout : api.MobileWeb.forwardGeocoderTimeout
+			});
+			client.open("GET", "http://api.appcelerator.com/p/v1/geo?d=r&" + 
+				// TODO "c=" + Locale.getCurrentCountry() + 
+				"q=" + latitude + "," + longitude);
+			client.send();
+		},
+		
+		// Hook in to add/remove event listener so that we can disable the geo and compass intervals
 		addEventListener: function(name, handler) {
 			switch(name) {
 				case "heading": 
@@ -143,6 +191,8 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 				timeout: Infinity,
 				maximumLocationAge: 0,
 				maximumHeadingAge: 1000,
+				forwardGeocoderTimeout: undef,
+				reverseGeocoderTimeout: undef,
 				ERROR_PERMISSION_DENIED: 1,
 				ERROR_POSITION_UNAVAILABLE: 2,
 				ERROR_TIMEOUT: 3

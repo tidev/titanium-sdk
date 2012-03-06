@@ -13,20 +13,21 @@ methods:
       - name: callback
         summary: function to invoke on success or failure. The event object contains the properties described as the `place` dictionary in <Titanium.Geolocation.reverseGeocoder>.
         type: Callback<Object>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: getCurrentHeading
     summary: retrieve the current compass heading.
     parameters:
       - name: callback
         summary: function to invoke on success or failure of obtaining the current heading. See heading event in <Titanium.Geolocation>.
         type: Callback<Object>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: getCurrentPosition
     summary: retrieve the last known location from the device. On Android, the radios are not turned on to update the location. On iOS the radios MAY be used if the location is too "old".
     parameters:
       - name: callback
         summary: function to invoke on success or failure of obtaining the current location. See location event in <Titanium.Geolocation>.
         type: Callback<Object>
+    platforms: [android, iphone, ipad, mobileweb]
   - name: reverseGeocoder
     summary: tries to resolve a location to an address.
     parameters:
@@ -40,10 +41,10 @@ methods:
         summary: |
             function to invoke on success or failure. The event object passed contains a `places` array of zero or more place dictionaries. Each `place` dictionary contains the following properties: `street`, `street1`, `city`, `region1`, `region2`, `postalCode`, `country`, `countryCode`, `longitude`, `latitude`, `displayAddress`, `address`.
         type: Callback<Object>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: setShowCalibration
     summary: configure the calibration UI. set the false to disable the calibration display.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
 events:
   - name: calibration
     summary: fired when the device detects interface and requires calibration. when this event is fired, the calibration UI is being displayed to the end user.
