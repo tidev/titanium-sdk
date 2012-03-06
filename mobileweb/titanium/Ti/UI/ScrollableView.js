@@ -39,7 +39,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 			}));
 
 			this._pagingControlContainer.add(this._pagingControlContentContainer = UI.createView({
-				width: "auto",
+				width: UI.SIZE,
 				height: "100%",
 				top: 0,
 				touchEnabled: false
@@ -95,7 +95,6 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 					animationView = UI.createView({
 						width: unitize(viewsToScroll.length * width),
 						height: "100%",
-						layout: "absolute",
 						left: initialPosition,
 						top: 0
 					});
@@ -270,7 +269,6 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 				var animationView = UI.createView({
 					width: unitize(viewsToScroll.length * width),
 					height: "100%",
-					layout: "absolute",
 					left: initialPosition,
 					top: 0
 				});
@@ -360,8 +358,9 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 			!hidePagingControl && this._showPagingControl();
 		},
 
-		_defaultWidth: "100%",
-		_defaultHeight: "100%",
+		_defaultWidth: UI.FILL,
+
+		_defaultHeight: UI.FILL,
 
 		properties: {
 			currentPage: {

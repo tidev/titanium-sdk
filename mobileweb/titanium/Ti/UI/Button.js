@@ -57,9 +57,9 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			}));
 		},
 
-		_defaultWidth: "auto",
+		_defaultWidth: UI.SIZE,
 
-		_defaultHeight: "auto",
+		_defaultHeight: UI.SIZE,
 		
 		_updateLook: function() {
 			if (this.backgroundColor || this.backgroundDisabledColor || this.backgroundDisabledImage || this.backgroundFocusedColor || 
@@ -88,10 +88,9 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		},
 		
 		_getContentSize: function(width, height) {
-			var defaultLookOffset = 0; //(this._hasDefaultLook ? 20 : 0);
 			return {
-				width: width === "auto" ? this._buttonImage.width + this._measureText(this.title, this._buttonTitle).width + defaultLookOffset : width,
-				height: height === "auto" ? Math.max(this._buttonImage.height, this._measureText(this.title, this._buttonTitle).height) + defaultLookOffset : height
+				width: this._buttonImage.width + this._measureText(this.title, this._buttonTitle).width,
+				height: Math.max(this._buttonImage.height, this._measureText(this.title, this._buttonTitle).height)
 			};
 		},
 
@@ -145,7 +144,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			image: {
 				set: function(value) {
 					require.on(this._buttonImage, "load", lang.hitch(this, function () {
-						this._hasAutoDimensions() && this._triggerLayout();
+						this._hasSizeDimensions() && this._triggerLayout();
 					}));
 					this._buttonImage.src = value;
 					return value;
@@ -167,7 +166,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			title: {
 				set: function(value) {
 					this._buttonTitle.innerHTML = value;
-					this._hasAutoDimensions() && this._triggerParentLayout();
+					this._hasSizeDimensions() && this._triggerParentLayout();
 					return value;
 				}
 			},

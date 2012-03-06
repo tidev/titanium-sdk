@@ -355,6 +355,11 @@ textarea {
 	-webkit-box-shadow: inset 1px 2px 1px 1px #444;
 }
 
+.TiUIPicker {
+	border-radius: 6px;
+	border: 1px solid #666;
+}
+
 .TiUIProgressBarIndicator {
 	background-color: #ccc;
 }

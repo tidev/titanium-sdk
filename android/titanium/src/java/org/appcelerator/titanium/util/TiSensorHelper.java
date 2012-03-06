@@ -19,6 +19,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
+/**
+ * Utility methods to register/unregister sensor listeners.
+ */
 public class TiSensorHelper
 {
 	private static final String LCAT = "TiSensorHelper";
@@ -28,6 +31,12 @@ public class TiSensorHelper
 	private static SensorManager sensorManager;
 
 
+	/**
+	 * Registers a sensor listener with specified types and sensitivity.
+	 * @param types sensor's types, refer to {@link android.hardware.Sensor} for the supported list.
+	 * @param listener the sensor listener to be registered.
+	 * @param rate the listener sensitivity measured in milliseconds.
+	 */
 	public static void registerListener(int[] types, SensorEventListener listener, int rate)
 	{
 		for (int type : types) {
@@ -60,6 +69,11 @@ public class TiSensorHelper
 		}
 	}
 
+	/**
+	 * Attempts to unregister the listener. An error will be logged if unable to unregister.
+	 * @param type the register's type, refer to {@link android.hardware.Sensor} for the supported list.
+	 * @param listener the sensor listener.
+	 */
 	public static void unregisterListener(int type, SensorEventListener listener)
 	{
 		if (sensorManager != null) {
@@ -81,6 +95,11 @@ public class TiSensorHelper
 		}
 	}
 
+	/**
+	 * @param activity the referenced activity.
+	 * @param type the sensor's type, refer to {@link android.hardware.Sensor} for the supported list.
+	 * @return true if activity has a default sensor of the given type, false otherwise.
+	 */
 	public static boolean hasDefaultSensor(Activity activity, int type)
 	{
 		boolean oneShot = false;

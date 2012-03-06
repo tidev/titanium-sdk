@@ -9,6 +9,10 @@ package org.appcelerator.kroll.util;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+/**
+ * @deprecated
+ *
+ */
 public class KrollReflectionUtils {
 
 	// private+protected methods/fields are only found through iteration (can't just lookup)

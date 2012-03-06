@@ -118,18 +118,17 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		_getContentSize: function(width, height) {
 			var defaultLookOffset = (this._hasDefaultLook ? 12 : 0);
 			return {
-				width: width === "auto" ? Math.max(this._measureText(this._switchTitle.innerHTML, this._switchTitle).width, this._switchIndicator.offsetWidth) + defaultLookOffset : width,
-				height: height === "auto" ? this._measureText(this._switchTitle.innerHTML, this._switchTitle).height + // Text height
+				width: Math.max(this._measureText(this._switchTitle.innerHTML, this._switchTitle).width, this._switchIndicator.offsetWidth) + defaultLookOffset,
+				height: this._measureText(this._switchTitle.innerHTML, this._switchTitle).height + // Text height
 						this._switchIndicator.offsetHeight + // Indicator height
 						3 + // Padding between the indicator and text
 						defaultLookOffset // Border of the default style
-						: height
 			};
 		},
 		
-		_defaultWidth: "auto",
+		_defaultWidth: UI.SIZE,
 		
-        _defaultHeight: "auto",
+        _defaultHeight: UI.SIZE,
 
 		properties: {
 			
@@ -187,7 +186,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				set: function(value) {
 					if (!this.value) {
 						this._switchTitle.innerHTML = value;
-						this._hasAutoDimensions() && this._triggerParentLayout();
+						this._hasSizeDimensions() && this._triggerParentLayout();
 					}
 					return value;
 				},
@@ -198,7 +197,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				set: function(value) {
 					if (this.value) {
 						this._switchTitle.innerHTML = value;
-						this._hasAutoDimensions() && this._triggerParentLayout();
+						this._hasSizeDimensions() && this._triggerParentLayout();
 					}
 					return value;
 				},
@@ -212,7 +211,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					});
 					value = !!value;
 					this._switchTitle.innerHTML = value ? this.titleOn : this.titleOff;
-					this._hasAutoDimensions() && this._triggerParentLayout();
+					this._hasSizeDimensions() && this._triggerParentLayout();
 					return value;
 				},
 				post: function() {

@@ -1,8 +1,9 @@
-define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang"], 
-	function(declare, Widget, dom, css, style, lang) {
+define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/UI"], 
+	function(declare, Widget, dom, css, style, lang, UI) {
 		
 	var setStyle = style.set,
 		undef,
+		on = require.on,
 		InternalImageView = (declare(Widget, {
 			
 			domType: "img",
@@ -18,57 +19,67 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				}
 			},
 			
-			_doLayout: function(originX, originY, parentWidth, parentHeight, defaultHorizontalAlignment, defaultVerticalAlignment, isParentAutoWidth, isParentAutoHeight) {
+			_doLayout: function(params) {
 				var imageRatio = this.domNode.width / this.domNode.height,
-					self = this;
+					boundingHeight = params.boundingSize.height,
+					boundingWidth = params.boundingSize.width,
+					values = this.properties.__values__;
 				
 				function setByHeight() {
-					self.properties.__values__.width = parentHeight * imageRatio;
-					self.properties.__values__.height = parentHeight;
+					values.width = boundingHeight * imageRatio;
+					values.height = boundingHeight;
 				}
 				
 				function setByWidth() {
-					self.properties.__values__.width = parentWidth;
-					self.properties.__values__.height = parentWidth / imageRatio;
+					values.width = boundingWidth;
+					values.height = boundingWidth / imageRatio;
 				}
 				
-				if (!isParentAutoWidth && !isParentAutoHeight) {
-					if (parentWidth / parentHeight > imageRatio) {
+				var isParentWidthSize = params.isParentSize.width,
+					isParentHeightSize = params.isParentSize.width;
+				if (!isParentWidthSize && !isParentHeightSize) {
+					if (boundingWidth / boundingHeight > imageRatio) {
 						setByHeight();
 					} else {
 						setByWidth();
 					}
-				} else if (!isParentAutoWidth) {
+				} else if (!isParentWidthSize) {
 					setByWidth();
-				} else if (!isParentAutoHeight) {
+				} else if (!isParentHeightSize) {
 					setByHeight();
 				} else {
-					this.properties.__values__.width = "auto";
-					this.properties.__values__.height = "auto";
+					values.width = UI.SIZE;
+					values.height = UI.SIZE;
 				}
-				Widget.prototype._doLayout.apply(this,arguments);
+				
+				return Widget.prototype._doLayout.call(this,params);
 			},
 			
 			properties: {
 				src: {
 					set: function(value) {
-						this.domNode.src = value;
-						require.on(this.domNode,"load", lang.hitch(this, function() {
-							this.fireEvent("load", {});
-							this._triggerLayout();
-						}));
-						require.on(this.domNode,"error", lang.hitch(this, function() {
-							this.fireEvent("error", {
-								image: value
+						if (value) {
+							setStyle(this.domNode,"display", "inherit");
+							this.domNode.src = value;
+							on(this.domNode,"load", this, function() {
+								this.fireEvent("load", {});
+								this._triggerLayout();
 							});
-							this._triggerLayout();
-						}));
-						require.on(this.domNode,"abort", lang.hitch(this, function() {
-							this.fireEvent("error", {
-								image: value
+							on(this.domNode,"error", this, function() {
+								this.fireEvent("error", {
+									image: value
+								});
+								this._triggerLayout();
 							});
-							this._triggerLayout();
-						}));
+							on(this.domNode,"abort", this, function() {
+								this.fireEvent("error", {
+									image: value
+								});
+								this._triggerLayout();
+							});
+						} else {
+							setStyle(this.domNode,"display", "none");
+						}
 						return value;
 					}
 				}
@@ -77,9 +88,9 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 
 	return declare("Ti.UI.ImageView", Widget, {
 
-		_defaultWidth: "auto",
+		_defaultWidth: UI.SIZE,
 		
-		_defaultHeight: "auto",
+		_defaultHeight: UI.SIZE,
 		
 		_slideshowCount: 0,
 		
