@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string", "Ti/_/Layouts", "Ti/_/style"],
-	function(declare, dom, Element, lang, string, Layouts, style) {
+define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string", "Ti/_/Layouts", "Ti/_/style", "Ti/UI"],
+	function(declare, dom, Element, lang, string, Layouts, style, UI) {
 		
 	var unitize = dom.unitize,
 		set = style.set,
@@ -11,7 +11,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 
 		constructor: function() {
 			this.children = [];
-			this.layout = "absolute";
+			this.layout = "composite";
 			this.containerNode = this.domNode;
 		},
 
@@ -218,15 +218,15 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 			}
 		},
 
-		_defaultWidth: "100%",
+		_defaultWidth: UI.FILL,
 
-		_defaultHeight: "100%",
+		_defaultHeight: UI.FILL,
 
 		properties: {
 			layout: {
 				set: function(value) {
 					var match = value.match(/^(horizontal|vertical)$/),
-						value = match ? match[0] : "absolute";
+						value = match ? match[0] : "composite";
 
 					if (this._layout) {
 						this._layout.destroy();

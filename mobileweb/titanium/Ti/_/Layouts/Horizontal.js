@@ -1,15 +1,73 @@
-define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
+define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, UI) {
 
 	return declare("Ti._.Layouts.Horizontal", Base, {
 
-		_doLayout: function(element, width, height, isAutoWidth, isAutoHeight) {
+		_doLayout: function(element, width, height, isWidthSize, isHeightSize) {
 			var computedSize = this._computedSize = {width: 0, height: 0},
-				currentLeft = 0;
-			for(var i in element.children) {
+				currentLeft = 0,
+				children = element.children,
+				availableWidth = width,
+				childrenWithFillWidth = false;
+				
+			// Determine if any children have fill height
+			for (var i = 0; i < children.length; i++) {
+				children[i].width === UI.FILL && (childrenWithFillWidth = true);
+			}
+			
+			if (childrenWithFillWidth) {
+				for (var i = 0; i < children.length; i++) {
+					var child = children[i];
+					if (child.width !== UI.FILL) {
+						var dimensions = child._doLayout({
+						 	origin: {
+						 		x: 0,
+						 		y: 0
+						 	},
+						 	isParentSize: {
+						 		width: isWidthSize,
+						 		height: isHeightSize
+						 	},
+						 	boundingSize: {
+						 		width: width,
+						 		height: height
+						 	},
+						 	alignment: {
+						 		horizontal: this._defaultHorizontalAlignment,
+						 		vertical: this._defaultVerticalAlignment
+						 	},
+							positionElement: false,
+					 		layoutChildren: true
+						});
+						availableWidth -= dimensions.width;
+					}
+				}
+			}
+			
+			for(var i = 0; i < children.length; i++) {
 				
 				// Layout the child
-				var child = element.children[i];
-				child._doLayout(currentLeft,0,width,height,this._defaultHorizontalAlignment,this._defaultVerticalAlignment,isAutoWidth,isAutoHeight);
+				var child = children[i],
+					isWidthFill = child.width === UI.FILL;
+				child._doLayout({
+				 	origin: {
+				 		x: currentLeft,
+				 		y: 0
+				 	},
+				 	isParentSize: {
+				 		width: isWidthSize,
+				 		height: isHeightSize
+				 	},
+				 	boundingSize: {
+				 		width: isWidthFill ? availableWidth : width,
+				 		height: height
+				 	},
+				 	alignment: {
+				 		horizontal: this._defaultHorizontalAlignment,
+				 		vertical: this._defaultVerticalAlignment
+				 	},
+				 	positionElement: true,
+				 	layoutChildren: !childrenWithFillWidth || isWidthFill
+			 	});
 				
 				// Update the size of the component
 				currentLeft = child._measuredLeft + child._measuredWidth + child._measuredBorderSize.left + child._measuredBorderSize.right + child._measuredRightPadding;

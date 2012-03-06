@@ -808,9 +808,7 @@ NSArray* moviePlayerKeys = nil;
 			}
 			[self fireEvent:@"complete" withObject:event];
 		}
-		// Release memory
 		playing = NO;
-		RELEASE_TO_NIL_AUTORELEASE(movie);
 	}
 	else if ([name isEqualToString:MPMoviePlayerScalingModeDidChangeNotification] && [self _hasListeners:@"resize"])
 	{

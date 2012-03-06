@@ -13,15 +13,14 @@ since: "0.9"
 
 methods:
   - name: pause
-    summary: |
-        Pauses a running animation. Use `resume` method on Android and Mobile Web and `start` method on iOS 
-        to continue.
+    summary: Pauses a running animation. Use `resume` method to continue.
     description:  This method only works if multiple images are specified.
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: resume
     summary: Resumes an animation from a `pause` state.
     description:  This method only works if multiple images are specified.
-    platforms: [android, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: start
     summary: |
