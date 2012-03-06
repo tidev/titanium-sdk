@@ -46,8 +46,8 @@
 
 -(void)setPoint:(CGPoint)point_
 {
-	xDimension = TiDimensionPixels(point_.x);
-	yDimension = TiDimensionPixels(point_.y);
+	xDimension = TiDimensionDip(point_.x);
+	yDimension = TiDimensionDip(point_.y);
 }
 
 -(CGPoint)point

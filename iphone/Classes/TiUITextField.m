@@ -523,6 +523,24 @@
 
 	return YES;
 }
+
+-(CGFloat)autoWidthForWidth:(CGFloat)value
+{
+    if (![self hasText]) {
+        return 0.0;
+    }
+	return [[self textWidgetView] sizeThatFits:CGSizeMake(value, 0)].width;
+}
+
+-(CGFloat)autoHeightForWidth:(CGFloat)value
+{
+    if (![self hasText]) {
+        return 0.0;
+    }
+	return [[self textWidgetView] sizeThatFits:CGSizeMake(value, 0)].height;
+}
+
+
 	
 @end
 

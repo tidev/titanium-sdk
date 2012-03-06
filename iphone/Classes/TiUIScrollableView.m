@@ -75,8 +75,14 @@
 		[scrollview setShowsVerticalScrollIndicator:NO];
 		[scrollview setShowsHorizontalScrollIndicator:NO];
 		[scrollview setDelaysContentTouches:NO];
-		[scrollview setClipsToBounds:[TiUtils boolValue:[self.proxy valueForKey:@"clipViews"] def:YES]];
+		BOOL clipsToBounds = [TiUtils boolValue:[self.proxy valueForKey:@"clipViews"] def:YES];
+		[scrollview setClipsToBounds:clipsToBounds];
 		[self insertSubview:scrollview atIndex:0];
+        
+        //Update clips to bounds only if cornerRadius and backgroundImage are not set
+        if ( (self.layer.cornerRadius == 0) && (self.backgroundImage == nil) ) {
+            [self setClipsToBounds:clipsToBounds];
+        }
 	}
 	return scrollview;
 }

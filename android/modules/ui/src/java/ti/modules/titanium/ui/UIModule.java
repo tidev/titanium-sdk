@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,7 +12,9 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiOrientationHelper;
@@ -24,6 +26,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
+import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
 
@@ -106,6 +109,14 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_WORDS = 2;
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_ALL = 3;
 
+	@Kroll.constant public static final String SIZE = TiC.LAYOUT_SIZE;
+	@Kroll.constant public static final String FILL = TiC.LAYOUT_FILL;
+	@Kroll.constant public static final String UNIT_PX = TiDimension.UNIT_PX;
+	@Kroll.constant public static final String UNIT_MM = TiDimension.UNIT_MM;
+	@Kroll.constant public static final String UNIT_CM = TiDimension.UNIT_CM;
+	@Kroll.constant public static final String UNIT_IN = TiDimension.UNIT_IN;
+	@Kroll.constant public static final String UNIT_DIP = TiDimension.UNIT_DIP;
+
 	protected static final int MSG_SET_BACKGROUND_COLOR = KrollProxy.MSG_LAST_ID + 100;
 	protected static final int MSG_SET_BACKGROUND_IMAGE = KrollProxy.MSG_LAST_ID + 101;
 	protected static final int MSG_SET_ORIENTATION = KrollProxy.MSG_LAST_ID + 102;
@@ -187,6 +198,30 @@ public class UIModule extends KrollModule implements Handler.Callback
 		}
 	}
 
+	@Kroll.method
+	public int convertUnits(String convertFromValue, String convertToUnits)
+	{
+		int result = 0;
+		TiDimension dimension = new TiDimension(convertFromValue, TiDimension.TYPE_UNDEFINED);
+
+		// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
+		View view = getActivity().getWindow().getDecorView();
+
+		if (convertToUnits.equals(UNIT_PX)) {
+			result = dimension.getAsPixels(view);
+		} else if (convertToUnits.equals(UNIT_MM)) {
+			result = dimension.getAsMillimeters(view);
+		} else if (convertToUnits.equals(UNIT_CM)) {
+			result = dimension.getAsCentimeters(view);
+		} else if (convertToUnits.equals(UNIT_IN)) {
+			result = dimension.getAsInches(view);
+		} else if (convertToUnits.equals(UNIT_DIP)) {
+			result = dimension.getAsDIP(view);
+		}
+
+		return result;
+	}
+
 	protected void doSetOrientation(int tiOrientationMode)
 	{
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
@@ -225,7 +260,6 @@ public class UIModule extends KrollModule implements Handler.Callback
 		}	
 	}
 
-	@SuppressWarnings("unchecked")
 	public boolean handleMessage(Message message)
 	{
 		switch (message.what) {
