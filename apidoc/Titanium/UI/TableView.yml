@@ -223,8 +223,8 @@ events:
 
       - name: globalPoint
         summary: |
-            Coordinates `x` and `y` describing the location of the event in the view's coordinate 
-            system.
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
         platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
@@ -240,8 +240,8 @@ events:
     properties:
       - name: globalPoint
         summary: |
-            Coordinates `x` and `y` describing the location of the event in the view's coordinate 
-            system.
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
         platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
@@ -289,8 +289,8 @@ events:
         
       - name: globalPoint
         summary: |
-            Coordinates `x` and `y` describing the location of the event in the view's coordinate 
-            system.
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
         platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
@@ -306,8 +306,8 @@ events:
     properties:
       - name: globalPoint
         summary: |
-            Coordinates `x` and `y` describing the location of the event in the view's coordinate 
-            system.
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
         platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
@@ -375,8 +375,8 @@ events:
 
       - name: globalPoint
         summary: |
-            Coordinates `x` and `y` describing the location of the event in the view's coordinate 
-            system.
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
         platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
@@ -420,8 +420,8 @@ events:
 
       - name: globalPoint
         summary: |
-            Coordinates `x` and `y` describing the location of the event in the view's coordinate 
-            system.
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
         platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
@@ -460,8 +460,8 @@ events:
         
       - name: globalPoint
         summary: |
-            Coordinates `x` and `y` describing the location of the event in the view's coordinate 
-            system.
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
         platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
@@ -493,8 +493,8 @@ events:
         
       - name: globalPoint
         summary: |
-            Coordinates `x` and `y` describing the location of the event in the view's coordinate 
-            system.
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
         platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
@@ -517,8 +517,8 @@ events:
     properties:
       - name: globalPoint
         summary: |
-            Coordinates `x` and `y` describing the location of the event in the view's coordinate 
-            system.
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
         platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
@@ -538,8 +538,8 @@ events:
     properties:
       - name: globalPoint
         summary: |
-            Coordinates `x` and `y` describing the location of the event in the view's coordinate 
-            system.
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
         platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
@@ -559,8 +559,8 @@ events:
     properties:
       - name: globalPoint
         summary: |
-            Coordinates `x` and `y` describing the location of the event in the view's coordinate 
-            system.
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
         platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
@@ -580,8 +580,8 @@ events:
     properties:
       - name: globalPoint
         summary: |
-            Coordinates `x` and `y` describing the location of the event in the view's coordinate 
-            system.
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
         platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
