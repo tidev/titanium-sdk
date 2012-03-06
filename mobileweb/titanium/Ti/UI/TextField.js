@@ -68,6 +68,8 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 					var n = this.domNode,
 						s = "TiUITextFieldBorderStyle";
 					if (value !== oldValue) {
+						// This code references constants Ti.UI.INPUT_BORDERSTYLE_NONE, 
+						// Ti.UI.INPUT_BORDERSTYLE_LINE, Ti.UI.INPUT_BORDERSTYLE_BEZEL, and Ti.UI.INPUT_BORDERSTYLE_ROUNDED
 						css.remove(n, s + borderStyles[oldValue]);
 						css.add(n, s + borderStyles[value]);
 					}

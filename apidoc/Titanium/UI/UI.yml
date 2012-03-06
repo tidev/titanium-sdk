@@ -394,12 +394,10 @@ properties:
         since: "1.8.0"
   - name: FACE_DOWN
     summary: Constant value for face-down orientation.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: FACE_UP
     summary: Constant value for face-up orientation.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BORDERSTYLE_BEZEL
@@ -414,7 +412,6 @@ properties:
     permission: read-only
   - name: INPUT_BORDERSTYLE_NONE
     summary: Use no border on the input field.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: INPUT_BORDERSTYLE_ROUNDED
@@ -426,18 +423,22 @@ properties:
     summary: Always show buttons on the input field.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
   - name: INPUT_BUTTONMODE_NEVER
     summary: Never show buttons on the input field.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
   - name: INPUT_BUTTONMODE_ONBLUR
     summary: Show buttons on the input field when it loses focus.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
   - name: INPUT_BUTTONMODE_ONFOCUS
     summary: Show buttons on the input field when it gains focus.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
   - name: KEYBOARD_APPEARANCE_ALERT
     summary: Use a keyboard appearance suitable for entering text on an alert.
     platforms: [android, iphone, ipad]
@@ -450,14 +451,11 @@ properties:
     permission: read-only
   - name: KEYBOARD_ASCII
     summary: Use an ASCII keyboard.
-    description: |
-        Note: on MobileWeb, `KEYBOARD_ASCII` is the same as `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
   - name: KEYBOARD_DEFAULT
     summary: Use the default keyboard.
-    description: |
-        Note: on MobileWeb, `KEYBOARD_DEFAULT` is the same as `KEYBOARD_ASCII`.
     type: Number
     permission: read-only
   - name: KEYBOARD_EMAIL
@@ -496,7 +494,6 @@ properties:
     permission: read-only
   - name: LANDSCAPE_LEFT
     summary: Standard landscape orientation (home button on left).
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: LANDSCAPE_RIGHT
@@ -524,27 +521,22 @@ properties:
     permission: read-only
   - name: PICKER_TYPE_DATE
     summary: Use a date picker.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: PICKER_TYPE_DATE_AND_TIME
     summary: Use a date and time picker.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: PICKER_TYPE_PLAIN
     summary: Use a plain picker (for values other than date or time).
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: PICKER_TYPE_TIME
     summary: Use a time picker.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: PORTRAIT
     summary: Orientation constant for portrait mode orientation.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: RETURNKEY_DEFAULT
@@ -611,17 +603,14 @@ properties:
     permission: read-only
   - name: TEXT_ALIGNMENT_CENTER
     summary: Center align text.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_ALIGNMENT_LEFT
     summary: Left align text.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_ALIGNMENT_RIGHT
     summary: Right align text.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_ALL
@@ -640,22 +629,18 @@ properties:
     summary: Auto-capitalize the first letter of each word in the input field.
     description: |
         Mobile Web does not support this because it would interfere with the native capitalization of the mobile browser.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_VERTICAL_ALIGNMENT_BOTTOM
     summary: Align text to the bottom of the view.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_VERTICAL_ALIGNMENT_CENTER
     summary: Vertically align text to the center of the view.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: TEXT_VERTICAL_ALIGNMENT_TOP
     summary: Align text to the top of the view.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
   - name: UNKNOWN
@@ -666,6 +651,7 @@ properties:
     summary: Orientation constant for inverted portait orientation.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
   - name: backgroundColor
     summary: Sets the background color of the master view (when there are no windows or other top-level controls displayed).
     description: |
