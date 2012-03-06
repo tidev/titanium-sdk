@@ -201,6 +201,11 @@ NSArray* moviePlayerKeys = nil;
 	reallyAttached = NO;
 }
 
+-(void)windowWillClose
+{
+    [movie.view removeFromSuperview];
+}
+
 #pragma mark Public APIs
 
 -(void)setBackgroundView:(id)proxy
