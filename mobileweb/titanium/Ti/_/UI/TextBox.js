@@ -107,7 +107,7 @@ define(
 						dest = this.domNode;
 					if (value !== UI.RETURNKEY_DEFAULT) {
 						deset = this._form;
-						[4,8,10].indexOf(value) !== -1 && (title = "Search");
+						~[4,8,10].indexOf(value) && (title = "Search");
 					}
 					this._field.title = title;
 					dom.place(this._field, dest);

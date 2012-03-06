@@ -1709,6 +1709,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		// if not visible, ignore layout
 		if (view.hidden)
 		{
+			OSAtomicTestAndClearBarrier(TiRefreshViewEnqueued, &dirtyflags);
 			return;
 		}
 		

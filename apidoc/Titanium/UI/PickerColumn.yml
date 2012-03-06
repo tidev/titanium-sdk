@@ -10,7 +10,7 @@ description: |
     See <Titanium.UI.Picker> for further examples of usage.
 extends: Titanium.UI.View
 since: "0.9"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 
 methods:
   - name: addRow
@@ -39,6 +39,11 @@ properties:
         discouraged.
     type: Array<Titanium.UI.PickerRow>
     permission: read-only
+    
+  - name: selectedRow
+    summary: The selected row in this column.
+    type: Titanium.UI.PickerRow
+    platforms: [mobileweb]
     
 examples:
   - title: Multi-Column Picker

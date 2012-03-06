@@ -1,4 +1,5 @@
-define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang"], function(declare, Widget, dom, css, style, lang) {
+define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/UI"], 
+	function(declare, Widget, dom, css, style, lang, UI) {
 
 	var setStyle = style.set,
 		unitize = dom.unitize;
@@ -11,7 +12,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 			}, this.domNode);
 			
 			this._thumb = dom.create("div", {
-				className: "TiUIButtonDefault TiUISliderThumb"
+				className: "TiUIElementGradient TiUISliderThumb"
 			}, this.domNode);
 			
 			var initialPosition,
@@ -27,8 +28,9 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 		},
 		
 		_doLayout: function() {
-			Widget.prototype._doLayout.apply(this,arguments);
+			var dimensions = Widget.prototype._doLayout.apply(this,arguments);
 			this._updateSize();
+			return dimensions;	
 		},
 		
 		_updateSize: function() {
@@ -44,12 +46,12 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 			return value;
 		},
 		
-		_defaultWidth: "100%",
+		_defaultWidth: UI.FILL,
 		
-		_defaultHeight: "auto",
+		_defaultHeight: UI.SIZE,
 		
 		_getContentSize: function(width, height) {
-			// There is nothing to measure, or that has a "size" to return, so we just return sensible defaults.
+			// There is nothing to measure, or that has "dimensions" to return, so we just return sensible yet arbitrary defaults.
 			return {
 				width: 200,
 				height: 40
@@ -70,10 +72,10 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 					
 					if (value !== oldValue) {
 						if (!value) {
-							css.remove(this._thumb,"TiUIButtonDefault");
+							css.remove(this._thumb,"TiUIElementGradient");
 							setStyle(this._thumb,"backgroundColor","#aaa");
 						} else {
-							css.add(this._thumb,"TiUIButtonDefault");
+							css.add(this._thumb,"TiUIElementGradient");
 							setStyle(this._thumb,"backgroundColor","");
 						}
 						this._setTouchEnabled(value);
