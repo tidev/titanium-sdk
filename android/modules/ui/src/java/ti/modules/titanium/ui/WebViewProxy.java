@@ -290,13 +290,6 @@ public class WebViewProxy extends ViewProxy
 	@Override
 	public void releaseViews()
 	{
-		if (view != null) {
-			if  (children != null) {
-				for (TiViewProxy p : children) {
-					p.releaseViews();
-				}
-			}
-		}
 	}
 	
 	@Kroll.method
