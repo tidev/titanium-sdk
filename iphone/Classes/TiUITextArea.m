@@ -157,8 +157,8 @@
     UITextView* ourView = (UITextView*)[self textWidgetView];
     if (![ourView isScrollEnabled]) {
         CGPoint origin = [scrollView contentOffset]; 
-        if (origin.y != 0) {
-            [scrollView setContentOffset:CGPointMake(origin.x, 0.0) animated:NO];
+        if ( (origin.x != 0) || (origin.y != 0) ) {
+            [scrollView setContentOffset:CGPointZero animated:NO];
         }
     }
 }
