@@ -411,12 +411,13 @@ class Builder(object):
 			
 		return name
 	
-	def run_emulator(self,avd_id,avd_skin,add_args):
+	def run_emulator(self,avd_id,avd_skin,avd_name,add_args):
 		info("Launching Android emulator...one moment")
 		debug("From: " + self.sdk.get_emulator())
 		debug("SDCard: " + self.sdcard)
 		debug("AVD ID: " + avd_id)
 		debug("AVD Skin: " + avd_skin)
+		debug("AVD Name: " + avd_name)
 		debug("SDK: " + sdk_dir)
 		
 		# make sure adb is running on windows, else XP can lockup the python
@@ -431,7 +432,8 @@ class Builder(object):
 				sys.exit()
 		
 		# this will create an AVD on demand or re-use existing one if already created
-		avd_name = self.create_avd(avd_id,avd_skin)
+		if avd_name == "":
+			avd_name = self.create_avd(avd_id,avd_skin)
 
 		# start the emulator
 		emulator_cmd = [
@@ -2070,14 +2072,21 @@ if __name__ == "__main__":
 
 	try:
 		if command == 'run-emulator':
-			s.run_emulator(avd_id, avd_skin, [])
+			s.run_emulator(avd_id, avd_skin, "", [])
 		elif command == 'run':
 			s.build_and_run(False, avd_id)
 		elif command == 'emulator':
 			avd_id = dequote(sys.argv[6])
-			avd_skin = dequote(sys.argv[7])
-			add_args = sys.argv[8:]
-			s.run_emulator(avd_id, avd_skin, add_args)
+			if avd_id.isdigit():
+				avd_name = ""
+				avd_skin = dequote(sys.argv[7])
+				add_args = sys.argv[8:]
+			else:
+				avd_name = sys.argv[6]
+				avd_id = ""
+				avd_skin = ""
+				add_args = sys.argv[7:]
+			s.run_emulator(avd_id, avd_skin, avd_name, add_args)
 		elif command == 'simulator':
 			info("Building %s for Android ... one moment" % project_name)
 			avd_id = dequote(sys.argv[6])
