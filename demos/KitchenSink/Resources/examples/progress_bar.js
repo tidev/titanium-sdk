@@ -95,7 +95,7 @@ var ind3=Titanium.UI.createProgressBar({
 	max:10,
 	value:0,
 	color:'#fff',
-	message:'Downloading 0 of 10  ',
+	message:'Downloading 0 of 10',
 	font:{fontSize:14, fontWeight:'bold'},
 	style:Titanium.UI.iPhone.ProgressBarStyle.PLAIN
 });
