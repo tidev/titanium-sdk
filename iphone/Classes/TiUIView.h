@@ -15,7 +15,7 @@
 /**
  The protocol for scroll view.
  */
-@protocol TiUIScrollView
+@protocol TiScrollableView
 
 /**
  Tells the scroll view that keyboard did show.

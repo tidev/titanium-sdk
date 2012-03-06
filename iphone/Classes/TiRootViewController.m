@@ -992,7 +992,7 @@
 		
 		while (possibleScrollView != nil)
 		{
-			if ([possibleScrollView conformsToProtocol:@protocol(TiUIScrollView)])
+			if ([possibleScrollView conformsToProtocol:@protocol(TiScrollableView)])
 			{
 				if(confirmedScrollViews == nil)
 				{
@@ -1006,8 +1006,8 @@
 			possibleScrollView = [possibleScrollView superview];
 		}
 
-		[(UIView<TiUIScrollView> *)[confirmedScrollViews objectAtIndex:0] keyboardDidShowAtHeight:keyboardHeight];
-		for (UIView<TiUIScrollView> * confirmedScrollView in confirmedScrollViews)
+		[(UIView<TiScrollableView> *)[confirmedScrollViews objectAtIndex:0] keyboardDidShowAtHeight:keyboardHeight];
+		for (UIView<TiScrollableView> * confirmedScrollView in confirmedScrollViews)
 		{
 			[confirmedScrollView scrollToShowView:scrolledView withKeyboardHeight:keyboardHeight];
 		}
@@ -1165,12 +1165,12 @@
 		UIView * ourView = [self viewForKeyboardAccessory];
 		CGFloat keyboardHeight = [ourView convertRect:endFrame fromView:nil].origin.y;
 		UIView * possibleScrollView = [scrolledView superview];
-		UIView<TiUIScrollView> * confirmedScrollView = nil;
+		UIView<TiScrollableView> * confirmedScrollView = nil;
 		while (possibleScrollView != nil)
 		{
-			if ([possibleScrollView conformsToProtocol:@protocol(TiUIScrollView)])
+			if ([possibleScrollView conformsToProtocol:@protocol(TiScrollableView)])
 			{
-				confirmedScrollView = (UIView<TiUIScrollView>*)possibleScrollView;
+				confirmedScrollView = (UIView<TiScrollableView>*)possibleScrollView;
 			}
 			possibleScrollView = [possibleScrollView superview];
 		}
