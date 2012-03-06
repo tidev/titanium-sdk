@@ -48,16 +48,16 @@ events:
         application that adds an orientation change listener from `app.js`
         without opening a heavyweight window.
 
-        Android and Mobile Web do not support the "reverse" orientations,
-        `UPSIDE_PORTRAIT` and `LANDSCAPE_RIGHT`.
+        Android and Mobile Web do not report the "reverse" orientations,
+        `UPSIDE_PORTRAIT` and `LANDSCAPE_RIGHT`. These are reported as 
+        `PORTRAIT` and `LANDSCAPE_LEFT`, respectively. 
     properties:
       - name: orientation
         type: Number
         summary: |
             Orientation of the current window.  Value is one of the following: 
             <Titanium.UI.PORTRAIT>, <Titanium.UI.UPSIDE_PORTRAIT>, <Titanium.UI.LANDSCAPE_LEFT>, 
-            <Titanium.UI.LANDSCAPE_RIGHT> (Android, iPad, iPhone only) or
-            <Titanium.UI.UNKNOWN>.
+            <Titanium.UI.LANDSCAPE_RIGHT> or <Titanium.UI.UNKNOWN>.
 
   - name: shake
     summary: fired when the device is shaken
