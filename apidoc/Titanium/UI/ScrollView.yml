@@ -8,7 +8,11 @@ description: |
     Views added to the scroll view will be scrolled based on the size of the scrollable region of 
     content. If a scrollable region fits within the size of its scroll view, the view will not 
     scroll.
-
+    
+    #### Scrolling and Dragging
+    
+    This view supports two types of gesturedrag is when your finger is still on the scroll view and you are physically dragging it versus the scrolling which is due to momentum (you scrolled the view with your finger, lifted your finger and the view cotinues to move)
+    
     #### Android
     
     On Android, a scroll view can only scroll in one direction, either vertical or horizontal, 
@@ -80,7 +84,10 @@ events:
         platforms: [iphone, ipad]
 
       - name: dragging
-        summary: Indicates whether the scroll was invoked by a dragging gesture.
+        summary: |
+            Indicates whether the event was fired during a dragging gesture, where the touch 
+            remained in contact with the display to physically drag the view, as opposed to it being 
+            the result of scrolling momentum.
         type: Boolean
         platforms: [iphone, ipad, mobileweb]
         
@@ -100,27 +107,26 @@ events:
         type: Number
 
   - name: dragStart
-    summary: Fired when the scrollable region starts moving.
+    summary: Fired when the scrollable region starts being dragged.
+    description: |
+        A dragging gesture is when a touch remains in contact with the display to physically drag 
+        the view, as opposed to it being the result of scrolling momentum.
     platforms: [iphone, ipad, mobileweb]
-    
+   
   - name: dragEnd
-    summary: Fired when the scrollable region stops moving.
+    summary: Fired when the scrollable region stops being dragged.
+    description: |
+        A dragging gesture is when a touch remains in contact with the display to physically drag 
+        the view, as opposed to it being the result of scrolling momentum.
     platforms: [iphone, ipad, mobileweb]
     properties:
       - name: decelerate
         summary: |
-            Indicates whether the scrolling movement during a dragging operation will continue, 
-            but decelerate, after an upwards touch gesture. If `false`, scrolling stops immediately.
+            Indicates whether scrolling will continue but decelerate in an upward direction, now 
+            that the drag gesture has been released by the touch. If `false`, scrolling will stop 
+            immediately.
         type: Boolean
 properties:
-  - name: canCancelEvents
-    summary: |
-        Determines whether this scroll view can cancel subview touches in order to scroll instead.
-    description: Set to `false` to ensure that subview touches always take effect.
-    type: Boolean
-    default: true
-    platforms: [iphone, ipad]
-    
   - name: contentHeight
     summary: Height of the scrollable region.
     description: |
@@ -144,13 +150,11 @@ properties:
     type: [Number, String]
     
   - name: disableBounce
-    summary: Determines whether all scroll bounce of the scrollable region is enabled.
+    summary: Determines whether scroll bounce of the scrollable region is enabled.
     description: |
-        Set to `true` to disable vertical bounce.
+        Set to `true` to disable horizontal and vertical bounce.
         
-        Note that the `disableBounce`, `horizontalBounce` and `verticalBounce` properties are mutually 
-        exclusive. This means that only one should be set on creation, otherwise the result may be 
-        unexpected. Any may be set after creation, but only the last one will take effect.
+        This property takes precedence over the `horizontalBounce` and `verticalBounce` properties.
     type: Boolean
     default: false
     platforms: [iphone, ipad]
@@ -158,11 +162,14 @@ properties:
   - name: horizontalBounce
     summary: Determines whether horizontal scroll bounce of the scrollable region is enabled.
     description: |
-        Set to `false` to disable horizontal scroll bounce.
+        By the default value of `true`, dragging in the horizontal direction is always allowed and 
+        also bounces.
         
-        Note that the `disableBounce`, `horizontalBounce` and `verticalBounce` properties are mutually 
-        exclusive. This means that only one should be set on creation, otherwise the result may be 
-        unexpected. Any may be set after creation, but only the last one will take effect.
+        Set to `false` to disable horizontal scroll bounce if the horizontal content is smaller than 
+        the scroll view bounds. However, larger content will still bounce when scrolled.
+        
+        Note that the `disableBounce` property takes precedence over the `horizontalBounce` and 
+        `verticalBounce` properties.
     type: Boolean
     default: true
     platforms: [iphone, ipad]
@@ -203,11 +210,14 @@ properties:
   - name: verticalBounce
     summary: Determines whether vertical scroll bounce of the scrollable region is enabled.
     description: |
-        Set to `false` to disable vertical scroll bounce.
+        By the default value of `true`, dragging in the vertical direction is always allowed and 
+        also bounces.
         
-        Note that the `disableBounce`, `horizontalBounce` and `verticalBounce` properties are mutually 
-        exclusive. This means that only one should be set on creation, otherwise the result may be 
-        unexpected. Any may be set after creation, but only the last one will take effect.
+        Set to `false` to disable vertical scroll bounce if the vertical content is smaller than 
+        the scroll view bounds. However, larger content will still bounce when scrolled.
+        
+        Note that the `disableBounce` property takes precedence over the `horizontalBounce` and 
+        `verticalBounce` properties.
     type: Boolean
     default: true
     platforms: [iphone, ipad]
