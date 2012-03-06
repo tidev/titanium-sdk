@@ -150,6 +150,20 @@
 	return TRUE;
 }
 
+- (void)scrollViewDidScroll:(id)scrollView
+{
+    //Ensure that system messages that cause the scrollView to 
+    //scroll are ignored if scrollable is set to false
+    UITextView* ourView = (UITextView*)[self textWidgetView];
+    if (![ourView isScrollEnabled]) {
+        CGPoint origin = [scrollView contentOffset]; 
+        if ( (origin.x != 0) || (origin.y != 0) ) {
+            [scrollView setContentOffset:CGPointZero animated:NO];
+        }
+    }
+}
+
+
 @end
 
 #endif
