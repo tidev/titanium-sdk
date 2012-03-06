@@ -19,17 +19,45 @@ properties:
 
   - name: orientation
     type: Number
-    summary: Orientation of the current window.  Value will be one of the following - <Titanium.UI.PORTRAIT>, <Titanium.UI.UPSIDE_PORTRAIT> (Android, iPad, iPhone only), <Titanium.UI.LANDSCAPE_LEFT>, <Titanium.UI.LANDSCAPE_RIGHT> (Android, iPad, iPhone only) or <Titanium.UI.UNKNOWN>
+    summary: Orientation of the current window.  
+    description: |
+        Value will be one of the following: <Titanium.UI.PORTRAIT>, <Titanium.UI.UPSIDE_PORTRAIT>, 
+        <Titanium.UI.LANDSCAPE_LEFT>, <Titanium.UI.LANDSCAPE_RIGHT> or 
+        <Titanium.UI.UNKNOWN>.
+
+        On iOS, returns the current orientation of the *device*, regardless of the screen
+        orientation. 
+
+        On Android and Mobile Web, returns the orientation of the current window, and
+        never reports the "reverse" orientations (`LANDSCAPE_RIGHT` and `UPSIDE_PORTRAIT`).
+
+        To set the *allowable* orientations for a window, see <Titanium.UI.Window.orientationModes>.
     permission: read-only
     platforms: [android, iphone, ipad, mobileweb]
 
 events:
   - name: orientationchange
-    summary: fired when the device orientation changes
+    summary: Fired when the device orientation changes.
+    description: |
+        On Android, note that the application must have a heavyweight window or tab group open 
+        in order to receive the `orientationchange` event. It is not necessary for the  heavyweight
+        window to be the topmost window.
+
+        Almost all real-world applications will have a heavyweight windows or a
+        tab group. This is only likely to be an issue if you create a test case or test
+        application that adds an orientation change listener from `app.js`
+        without opening a heavyweight window.
+
+        Android and Mobile Web do not support the "reverse" orientations,
+        `UPSIDE_PORTRAIT` and `LANDSCAPE_RIGHT`.
     properties:
       - name: orientation
         type: Number
-        summary: Orientation of the current window.  Value will be one of the following - <Titanium.UI.PORTRAIT>, <Titanium.UI.UPSIDE_PORTRAIT> (Android, iPad, iPhone only), <Titanium.UI.LANDSCAPE_LEFT>, <Titanium.UI.LANDSCAPE_RIGHT> (Android, iPad, iPhone only) or <Titanium.UI.UNKNOWN>
+        summary: |
+            Orientation of the current window.  Value is one of the following: 
+            <Titanium.UI.PORTRAIT>, <Titanium.UI.UPSIDE_PORTRAIT>, <Titanium.UI.LANDSCAPE_LEFT>, 
+            <Titanium.UI.LANDSCAPE_RIGHT> (Android, iPad, iPhone only) or
+            <Titanium.UI.UNKNOWN>.
 
   - name: shake
     summary: fired when the device is shaken
