@@ -244,6 +244,8 @@ public class TiC
 	public static final String PROPERTY_MESSENGER_RECEIVER = "messengerReceiver";
 	public static final String PROPERTY_MIMETYPE = "mimeType";
 	public static final String PROPERTY_MIN_ROW_HEIGHT = "minRowHeight";
+	public static final String PROPERTY_MIN_UPDATE_DISTANCE = "minUpdateDistance";
+	public static final String PROPERTY_MIN_UPDATE_TIME = "minUpdateTime";
 	public static final String PROPERTY_MINUTE_INTERVAL = "minuteInterval";
 	public static final String PROPERTY_MODAL = "modal";
 	public static final String PROPERTY_NAME = "name";
