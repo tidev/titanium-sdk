@@ -9,10 +9,6 @@ description: |
     content. If a scrollable region fits within the size of its scroll view, the view will not 
     scroll.
     
-    #### Scrolling and Dragging
-    
-    This view supports two types of gesturedrag is when your finger is still on the scroll view and you are physically dragging it versus the scrolling which is due to momentum (you scrolled the view with your finger, lifted your finger and the view cotinues to move)
-    
     #### Android
     
     On Android, a scroll view can only scroll in one direction, either vertical or horizontal, 
@@ -122,9 +118,8 @@ events:
     properties:
       - name: decelerate
         summary: |
-            Indicates whether scrolling will continue but decelerate in an upward direction, now 
-            that the drag gesture has been released by the touch. If `false`, scrolling will stop 
-            immediately.
+            Indicates whether scrolling will continue but decelerate, now that the drag gesture has 
+            been released by the touch. If `false`, scrolling will stop immediately.
         type: Boolean
 properties:
   - name: contentHeight
@@ -162,7 +157,7 @@ properties:
   - name: horizontalBounce
     summary: Determines whether horizontal scroll bounce of the scrollable region is enabled.
     description: |
-        By the default value of `true`, dragging in the horizontal direction is always allowed and 
+        With the default value of `true`, dragging in the horizontal direction is always allowed and 
         also bounces.
         
         Set to `false` to disable horizontal scroll bounce if the horizontal content is smaller than 
@@ -210,7 +205,7 @@ properties:
   - name: verticalBounce
     summary: Determines whether vertical scroll bounce of the scrollable region is enabled.
     description: |
-        By the default value of `true`, dragging in the vertical direction is always allowed and 
+        With the default value of `true`, dragging in the vertical direction is always allowed and 
         also bounces.
         
         Set to `false` to disable vertical scroll bounce if the vertical content is smaller than 
