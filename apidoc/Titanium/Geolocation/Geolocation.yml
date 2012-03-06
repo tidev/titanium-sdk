@@ -3,24 +3,30 @@ name: Titanium.Geolocation
 summary: The top level Geolocation module. The Geolocation module is used for accessing device location based information.
 extends: Titanium.Module
 since: "0.1"
+platforms: [android, iphone, ipad, mobileweb]
 methods:
+
   - name: forwardGeocoder
-    summary: tries to resolve an address to a location.
+    summary: Resolves an address to a location.
     parameters:
       - name: address
         summary: address to resolve.
         type: String
       - name: callback
-        summary: function to invoke on success or failure. The event object contains the properties described as the `place` dictionary in <Titanium.Geolocation.reverseGeocoder>.
+        summary: Function to invoke on success or failure. 
+            The event object contains the properties described as the `place` dictionary in 
+            <Titanium.Geolocation.reverseGeocoder>.
         type: Callback<Object>
     platforms: [android, iphone, ipad]
+
   - name: getCurrentHeading
-    summary: retrieve the current compass heading.
+    summary: Retrieve the current compass heading.
     parameters:
       - name: callback
-        summary: function to invoke on success or failure of obtaining the current heading. See heading event in <Titanium.Geolocation>.
+        summary: Function to invoke on success or failure of obtaining the current heading. See heading event in <Titanium.Geolocation>.
         type: Callback<Object>
     platforms: [android, iphone, ipad]
+
   - name: getCurrentPosition
     summary: retrieve the last known location from the device. On Android, the radios are not turned on to update the location. On iOS the radios MAY be used if the location is too "old".
     parameters:
@@ -28,18 +34,21 @@ methods:
         summary: function to invoke on success or failure of obtaining the current location. See location event in <Titanium.Geolocation>.
         type: Callback<Object>
   - name: reverseGeocoder
-    summary: tries to resolve a location to an address.
+    summary: Tries to resolve a location to an address.
+    description: |
+        The callback receives a <ReverseGeocodeResponse> object. If the request
+        is successful, the object includes one or more addresses that are possible matches
+        for the requested coordinates.
     parameters:
       - name: latitude
-        summary: latitude to search
+        summary: Latitude to search, specified in decimal degrees.
         type: Number
       - name: longitude
-        summary: longitude to search
+        summary: Longitude to search, specified in decimal degrees.
         type: Number
       - name: callback
-        summary: |
-            function to invoke on success or failure. The event object passed contains a `places` array of zero or more place dictionaries. Each `place` dictionary contains the following properties: `street`, `street1`, `city`, `region1`, `region2`, `postalCode`, `country`, `countryCode`, `longitude`, `latitude`, `displayAddress`, `address`.
-        type: Callback<Object>
+        summary: Function to invoke on success or failure. 
+        type: Callback<ReverseGeocodeResponse>
     platforms: [android, iphone, ipad]
   - name: setShowCalibration
     summary: configure the calibration UI. set the false to disable the calibration display.
@@ -210,3 +219,99 @@ properties:
     summary: returns true if the calibration UI can show
     type: Boolean
     platforms: [iphone, ipad]
+
+
+---
+name: ReverseGeocodeResponse
+summary: |
+    Simple object returned in the callback from the 
+    [reverseGeocoder](Titanium.Geolocation.reverseGeocoder) method.
+
+properties:
+
+  - name: success
+    summary: Indicates whether the request succeeded.
+    type: Boolean 
+
+  - name: places
+    summary: An array of reverse-geocoded addresses matching the requested location.
+    type: Array<GeocodedAddress>
+
+---
+name: GeocodedAddress
+summary: |
+    Simple object representing a place, returned in the callback from the 
+    [reverseGeocoder](Titanium.Geolocation.reverseGeocoder) method.
+
+properties:
+
+  - name: street
+    summary: Street name, without street address.
+    type: String
+    platforms: [android, iphone, ipad]
+
+  - name: street1
+    summary: Street name.
+    type: String
+    platforms: [android]
+
+  - name: city
+    summary: City name.
+    type: String
+    platforms: [android, iphone, ipad]
+
+  - name: region1
+    summary: First line of region.
+    type: String
+    platforms: [android]
+
+  - name: region2
+    summary: 
+    type: String
+    platforms: [android]
+
+  - name: postalCode
+    summary: Postal code. On iOS, use `zipcode`.
+    type: String
+    platforms: [android]
+
+  - name: zipcode
+    summary: Postal code. On Android, use `postalCode`.
+    type: String
+    platforms: [iphone, ipad]
+
+  - name: country
+    summary: Country name.
+    type: String
+    platforms: [android, iphone, ipad]
+
+  - name: countryCode
+    summary: Country code. On iOS, use `country_code`.
+    type: String. 
+    platforms: [android]
+
+  - name: country_code
+    summary: Country code. Same as `country_code`.
+    type: String
+    platforms: [android, iphone, ipad]
+
+  - name: longitude
+    summary: Longitude of the geocoded point.
+    type: String
+    platforms: [android, iphone, ipad]
+
+  - name: latitude
+    summary: Latitude of the geocoded point.
+    type: String
+    platforms: [android, iphone, ipad]
+
+  - name: displayAddress
+    summary: Display address. Identical to `address`.
+    type: String
+    platforms: [android]
+
+  - name: address
+    summary: Full address.
+    type: String
+    platforms: [android, iphone, ipad]
+
