@@ -90,7 +90,7 @@ var ind2=Titanium.UI.createProgressBar({
 // PLACE INDICATOR IN NAV BAR
 //
 var ind3=Titanium.UI.createProgressBar({
-	width:Ti.UI.SIZE,
+	width:100,
 	min:0,
 	max:10,
 	value:0,
