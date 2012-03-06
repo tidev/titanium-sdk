@@ -551,6 +551,7 @@ def main(args):
 		print
 		print "  install       install the app to itunes for testing on iphone"
 		print "  simulator     build and run on the iphone simulator"
+		print "  adhoc         build for adhoc distribution"
 		print "  distribute    build final distribution bundle"
 		print "  xcode         build from within xcode"
 		print "  run           build and run app from project folder"
@@ -706,7 +707,7 @@ def main(args):
 					debugport = None
 				else:
 					debughost,debugport = debughost.split(":")
-		elif command == 'install':
+		elif command in ['install', 'adhoc']:
 			iphone_version = check_iphone_sdk(iphone_version)
 			link_version = iphone_version
 			appuuid = dequote(args[6].decode("utf-8"))
@@ -721,8 +722,12 @@ def main(args):
 					debugport=None
 				else:
 					debughost,debugport = debughost.split(":")
-			target = 'Debug'
-			deploytype = 'test'
+			if command == 'install':
+				target = 'Debug'
+				deploytype = 'test'
+			elif command == 'adhoc':
+				target = 'Release'
+				deploytype = 'production'
 		
 		# setup up the useful directories we need in the script
 		build_out_dir = os.path.abspath(os.path.join(iphone_dir,'build'))
@@ -1419,13 +1424,12 @@ def main(args):
 					
 				###########################################################################	
 				# END OF SIMULATOR COMMAND	
-				###########################################################################	
-				
+				###########################################################################			
 				
 				#
-				# this command is run for installing an app on device
+				# this command is run for installing an app on device or packaging for adhoc distribution
 				#
-				elif command == 'install':
+				elif command in ['install', 'adhoc']:
 
 					debugstr = ''
 					if debughost:
@@ -1433,14 +1437,20 @@ def main(args):
 						
 					args += [
 						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=test TI_TEST=1 %s %s" % (debugstr, kroll_coverage),
-						"PROVISIONING_PROFILE=%s" % appuuid,
-						"CODE_SIGN_IDENTITY=iPhone Developer: %s" % dist_name,
-						"DEPLOYMENT_POSTPROCESSING=YES"
+						"PROVISIONING_PROFILE=%s" % appuuid
 					]
-					execute_xcode("iphoneos%s" % iphone_version,args,False)
 
-					print "[INFO] Installing application in iTunes ... one moment"
-					sys.stdout.flush()
+					if command == 'install':
+						args += ["CODE_SIGN_IDENTITY=iPhone Developer: %s" % dist_name]
+					elif command == 'adhoc':
+						args += ["CODE_SIGN_IDENTITY=iPhone Distribution: %s" % dist_name]
+					args += ["DEPLOYMENT_POSTPROCESSING=YES"]
+
+					execute_xcode("iphoneos%s" % iphone_version,args,False)
+					
+					if command == 'install':
+						print "[INFO] Installing application in iTunes ... one moment"
+						sys.stdout.flush()
 
 					if os.path.exists("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication"):
 						o.write("+ Preparing to run /Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication\n")
@@ -1460,32 +1470,34 @@ def main(args):
 						o.write("+ IPA didn't exist at %s\n" % ipa)
 						o.write("+ Will try and open %s\n" % app_dir)
 						ipa = app_dir
+					
+					if command == 'install':
+						# to force iTunes to install our app, we simply open the IPA
+						# file in itunes
+						cmd = "open -b com.apple.itunes \"%s\"" % ipa
+						o.write("+ Executing the command: %s\n" % cmd)
+						os.system(cmd)
+						o.write("+ After executing the command: %s\n" % cmd)
 
-					# to force iTunes to install our app, we simply open the IPA
-					# file in itunes
-					cmd = "open -b com.apple.itunes \"%s\"" % ipa
-					o.write("+ Executing the command: %s\n" % cmd)
-					os.system(cmd)
-					o.write("+ After executing the command: %s\n" % cmd)
+						# now run our applescript to tell itunes to sync to get
+						# the application on the phone
+						ass = os.path.join(template_dir,'itunes_sync.scpt')
+						cmd = "osascript \"%s\"" % ass
+						o.write("+ Executing the command: %s\n" % cmd)
+						os.system(cmd)
+						o.write("+ After executing the command: %s\n" % cmd)
 
-					# now run our applescript to tell itunes to sync to get
-					# the application on the phone
-					ass = os.path.join(template_dir,'itunes_sync.scpt')
-					cmd = "osascript \"%s\"" % ass
-					o.write("+ Executing the command: %s\n" % cmd)
-					os.system(cmd)
-					o.write("+ After executing the command: %s\n" % cmd)
+						print "[INFO] iTunes sync initiated"
 
-					print "[INFO] iTunes sync initiated"
-
-					o.write("Finishing build\n")
+						o.write("Finishing build\n")
+					
 					sys.stdout.flush()
 					script_ok = True
 					
 					run_postbuild()
 					
 				###########################################################################	
-				# END OF INSTALL COMMAND	
+				# END OF INSTALL/ADHOC COMMAND	
 				###########################################################################	
 
 				#

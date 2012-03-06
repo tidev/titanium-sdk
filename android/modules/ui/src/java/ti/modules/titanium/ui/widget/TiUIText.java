@@ -290,7 +290,9 @@ public class TiUIText extends TiUIView
 		if (DBG) {
 			Log.d(LCAT, "ActionID: " + actionId + " KeyEvent: " + (keyEvent != null ? keyEvent.getKeyCode() : null));
 		}
-		if (actionId != EditorInfo.IME_ACTION_GO && actionId != EditorInfo.IME_ACTION_SEND) {
+		//This is to prevent 'return' event from being fired twice when return key is hit. In other words, when return key is clicked
+		//this callback is triggered twice: the first time with actionId = EditorInfo.IME_NULL, the 2nd time with the corresponding return key actionId.
+		if (actionId != EditorInfo.IME_NULL) {
 			proxy.fireEvent("return", data);
 		}
 

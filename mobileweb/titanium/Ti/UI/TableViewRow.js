@@ -18,7 +18,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 			this.leftView = UI.createView({
 				left: 0,
 				top: 0,
-				width: "auto", 
+				width: UI.SIZE, 
 				height: "100%",
 				layout: "horizontal"
 			}),
@@ -29,30 +29,30 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 			this.leftImageView = UI.createImageView();
 			this.leftView.add(this.leftImageView); 
 
-			this.titleLabel = UI.createLabel({ width: "auto", height: "100%" });
+			this.titleLabel = UI.createLabel({ width: UI.SIZE, height: "100%" });
 			this.leftView.add(this.titleLabel);
 
 			this.add(this.rightImageView = UI.createImageView({
 				right: 0,
-				top: 0,
-				width: "auto", 
-				height: "100%"
+				center: {y: "50%"},
+				width: UI.SIZE, 
+				height: UI.SIZE
 			}));
 		},
 
-		_defaultHeight: "auto",
-		_defaultWidth: "100%",
+		_defaultWidth: UI.FILL,
+
+		_defaultHeight: UI.SIZE,
+		
 		_tableRowHeight: undef,
+		
 		_tableViewSection: null,
+		
 		_handleTouchEvent: function(type, e) {
 			if (type === "click" || type === "singletap") {
 				this._tableViewSection && this._tableViewSection._tableView && (this._tableViewSection._tableView._tableViewRowClicked = this);
 			}
 			View.prototype._handleTouchEvent.apply(this,arguments);
-		},
-
-		_doLayout: function(){
-			View.prototype._doLayout.apply(this,arguments);
 		},
 
 		_doBackground: function(evt) {
@@ -75,7 +75,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 			hasCheck: {
 				set: function(value, oldValue) {
 					if (value !== oldValue && !isDef(this.rightImage) && !this.hasChild) {
-						this.rightImageView.image = value ? checkImage : undef;
+						this.rightImageView.image = value ? checkImage : "";
 					}
 					return value;
 				}
@@ -83,7 +83,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 			hasChild: {
 				set: function(value, oldValue) {
 					if (value !== oldValue && !isDef(this.rightImage)) {
-						this.rightImageView.image = value ? childImage : undef;
+						this.rightImageView.image = value ? childImage : "";
 					}
 					return value;
 				}
@@ -91,7 +91,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 			hasDetail: {
 				set: function(value, oldValue) {
 					if (value !== oldValue && !isDef(this.rightImage) && !this.hasChild && !this.hasCheck) {
-						this.rightImageView.image = value ? detailImage : undef;
+						this.rightImageView.image = value ? detailImage : "";
 					}
 					return value;
 				}

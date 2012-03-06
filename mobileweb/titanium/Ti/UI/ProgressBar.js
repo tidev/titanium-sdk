@@ -1,4 +1,5 @@
-define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style"], function(declare, Widget, FontWidget, lang, dom, style) {
+define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style", "Ti/UI"], 
+	function(declare, Widget, FontWidget, lang, dom, style, UI) {
 
 	var setStyle = style.set;
 
@@ -24,23 +25,12 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 				}, this._contentContainer);
 			},
 			
-			_doLayout: function(originX, originY, parentWidth, parentHeight, defaultHorizontalAlignment, defaultVerticalAlignment, isParentAutoWidth, isParentAutoHeight) {
-				var props = this.properties.__values__;
-				if (!isParentAutoWidth && !isParentAutoHeight) {
-					props.width = "100%";
-					props.height = "100%";
-				} else if (!isParentAutoWidth) {
-					props.width = "100%";
-					props.height = "auto";
-				} else if (!isParentAutoHeight) {
-					props.width = "auto";
-					props.height = "100%";
-				} else {
-					props.width = "auto";
-					props.height = "auto";
-				}
+			_doLayout: function(params) {
+				var values = this.properties.__values__;
+				values.width = params.isParentSize.width ? UI.SIZE : "100%";
+				values.height = params.isParentSize.height ? UI.SIZE : "100%";
 				
-				Widget.prototype._doLayout.apply(this,arguments);
+				return Widget.prototype._doLayout.call(this,params);
 			},
 			
 			_getContentSize: function(width, height) {
@@ -58,54 +48,41 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 	return declare("Ti.UI.ProgressBar", Widget, {
 		
 		constructor: function() {
-			this.add(this._contentContainer = Ti.UI.createView({
-				width: "auto",
-				height: "auto",
+			this.add(this._contentContainer = UI.createView({
+				width: UI.SIZE,
+				height: UI.SIZE,
 				left: 0,
 				top: 0,
 				layout: "vertical"
 			}));
 			this._contentContainer._layout._defaultHorizontalLayout = "left";
-			this._contentContainer.add(this._message = Ti.UI.createLabel());
+			this._contentContainer.add(this._message = UI.createLabel());
 			this._contentContainer.add(this._progressBar = new InternalProgressBar());
 		},
 			
-		_doLayout: function(originX, originY, parentWidth, parentHeight, defaultHorizontalAlignment, defaultVerticalAlignment, isParentAutoWidth, isParentAutoHeight) {
-			var props = this._contentContainer.properties.__values__,
-				hasAutoWidth = this.width === "auto" || !lang.isDef(this.width),
-				hasAutoHeight = this.height === "auto" || !lang.isDef(this.height);
-			if (!hasAutoWidth && !hasAutoHeight) {
-				props.width = "100%";
-				props.height = "100%";
-			} else if (!hasAutoWidth) {
-				props.width = "100%";
-				props.height = "auto";
-			} else if (!hasAutoHeight) {
-				props.width = "auto";
-				props.height = "100%";
-			} else {
-				props.width = "auto";
-				props.height = "auto";
-			}
+		_doLayout: function() {
+			var props = this._contentContainer.properties.__values__;
+			props.width = this.width === UI.SIZE || !lang.isDef(this.width) ? UI.SIZE : "100%";
+			props.height = this.height === UI.SIZE || !lang.isDef(this.height) ? UI.SIZE : "100%";
 			
-			if (this._message._getContentSize("auto","auto").width === 0) {
+			if (this._message._getContentSize().width === 0) {
 				this._message.properties.__values__.height = 0;
 				this._progressBar.properties.__values__.top = 0;
 			} else {
-				this._message.properties.__values__.height = "auto";
+				this._message.properties.__values__.height = UI.SIZE;
 				this._progressBar.properties.__values__.top = 2;
 			}
 			
-			Widget.prototype._doLayout.apply(this,arguments);
+			return Widget.prototype._doLayout.apply(this,arguments);
 		},
 		
 		_updateSize: function() {
 			this._progressBar._setPosition((this.value - this.min) / (this.max - this.min));
 		},
 
-		_defaultWidth: "auto",
+		_defaultWidth: UI.SIZE,
 
-		_defaultHeight: "auto",
+		_defaultHeight: UI.SIZE,
 		
 		properties: {
 			color: {
