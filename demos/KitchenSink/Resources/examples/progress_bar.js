@@ -90,12 +90,12 @@ var ind2=Titanium.UI.createProgressBar({
 // PLACE INDICATOR IN NAV BAR
 //
 var ind3=Titanium.UI.createProgressBar({
-	width:100,
+	width:Ti.UI.SIZE,
 	min:0,
 	max:10,
 	value:0,
 	color:'#fff',
-	message:'Downloading 0 of 10',
+	message:'Downloading 0 of 10  ',
 	font:{fontSize:14, fontWeight:'bold'},
 	style:Titanium.UI.iPhone.ProgressBarStyle.PLAIN
 });
