@@ -254,6 +254,11 @@
 
 #pragma mark UIViewController methods
 
+-(void)dismissKeyboard
+{
+	[keyboardFocusedProxy blur:nil];
+}
+
 -(void)loadView
 {
 	TiRootView *rootView = [[TiRootView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
