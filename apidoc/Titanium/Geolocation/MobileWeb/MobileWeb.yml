@@ -9,35 +9,28 @@ properties:
     summary: The time within which location requests must succeed, in milliseconds.
     default: Infinity
     type: Number
-properties:
   - name: maximumLocationAge
     summary: The maximum age of cached locations acceptible for location requests, in milliseconds.
     default: 0
     type: Number
-properties:
   - name: maximumHeadingAge
     summary: The maximum age of cached locations acceptible for heading requests, in milliseconds.
     default: 1000
     type: Number
-properties:
   - name: forwardGeocoderTimeout
     summary: The time within which forward geocoder requests must succeed, in milliseconds.
     type: Number
-properties:
   - name: reverseGeocoderTimeout
     summary: The time within which reverse geocoder requests must succeed, in milliseconds.
     type: Number
-properties:
   - name: ERROR_PERMISSION_DENIED
     summary: The user denied the app permission to access location information.
     type: Number
     permission: read-only
-properties:
   - name: ERROR_POSITION_UNAVAILABLE
     summary: The location could not be determined.
     type: Number
     permission: read-only
-properties:
   - name: ERROR_TIMEOUT
     summary: The location service timed out trying to get the location.
     type: Number
