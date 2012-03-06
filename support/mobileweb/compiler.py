@@ -321,7 +321,7 @@ class Compiler(object):
 		# minify all javascript, html, and css files
 		if self.minify:
 			# TODO: only minify non-project code (i.e. Titanium and Ti+ modules)
-			subprocess.call('java -Xms256m -Xmx256m -cp "%s:%s" -Djava.awt.headless=true minify "%s"' % (os.path.join(self.sdk_path, 'minify'), os.path.join(self.sdk_path, 'closureCompiler', 'compiler.jar'), self.build_path), shell=True)
+			subprocess.call('java -Xms256m -Xmx256m -cp "%s%s%s" -Djava.awt.headless=true minify "%s"' % (os.path.join(self.sdk_path, 'minify'), os.pathsep, os.path.join(self.sdk_path, 'closureCompiler', 'compiler.jar'), self.build_path), shell=True)
 			# elif ext == '.json':
 			#	TODO: minify json
 			# elif ext == '.css':
@@ -455,7 +455,7 @@ class Compiler(object):
 	def build_icons(self, src):
 		print '[INFO] Generating app icons...'
 		favicon = os.path.join(self.build_path, 'favicon.png')
-		s = 'java -Xms256m -Xmx256m -cp "%s:%s" -Dquiet=true -Djava.awt.headless=true resize "%s"' % (os.path.join(self.sdk_path, 'imageResizer'), os.path.join(self.sdk_path, 'imageResizer', 'imgscalr-lib-4.2.jar'), src)
+		s = 'java -Xms256m -Xmx256m -cp "%s%s%s" -Dquiet=true -Djava.awt.headless=true resize "%s"' % (os.path.join(self.sdk_path, 'imageResizer'), os.pathsep, os.path.join(self.sdk_path, 'imageResizer', 'imgscalr-lib-4.2.jar'), src)
 		s += ' "%s" %d %d' % (favicon, 16, 16)
 		s += ' "%s" %d %d' % (os.path.join(self.build_path, 'apple-touch-icon-precomposed.png'), 57, 57)
 		s += ' "%s" %d %d' % (os.path.join(self.build_path, 'apple-touch-icon-57x57-precomposed.png'), 57, 57)
