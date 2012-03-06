@@ -48,6 +48,13 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/Network"], function(Evented, lang, Netw
 			callback && callback(currentLocation);
 		}
 	}
+	function createLocationArguments() {
+		return {
+			enableHighAccuracy: api.accuracy === api.ACCURACY_BEST,
+			timeout: api.MobileWeb.locationTimeout,
+			maximumAge: api.MobileWeb.maximumLocationAge
+		}
+	}
 	
 	api = lang.setObject("Ti.Geolocation", Evented, {
 		
@@ -56,11 +63,7 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/Network"], function(Evented, lang, Netw
 				navigator.geolocation.getCurrentPosition(
 					createLocationCallback(callback),
 					createLocationCallback(callback),
-					{
-						enableHighAccuracy: api.accuracy === api.ACCURACY_BEST,
-						timeout: api.MobileWeb.timeout,
-						maximumAge: api.MobileWeb.maximumLocationAge
-					}
+					createLocationArguments()
 				);
 			}
 		},
@@ -83,6 +86,7 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/Network"], function(Evented, lang, Netw
 				onload : function(e) {
 					var responseParts = this.responseText.split(",");
 					callback({
+						success: true,
 						places: [{
 							latitude: parseFloat(responseParts[2]),
 							longitude: parseFloat(responseParts[3])
@@ -90,8 +94,9 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/Network"], function(Evented, lang, Netw
 					});
 				},
 				onerror : function(e) {
-					var result = e;
-					// TODO
+					callback({
+						success: false
+					});
 				},
 				timeout : api.MobileWeb.forwardGeocoderTimeout
 			});
@@ -110,7 +115,9 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/Network"], function(Evented, lang, Netw
 					callback(JSON.parse(this.responseText));
 				},
 				onerror : function(e) {
-					var result = e;
+					callback({
+						success: false
+					});
 				},
 				timeout : api.MobileWeb.forwardGeocoderTimeout
 			});
@@ -138,11 +145,7 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/Network"], function(Evented, lang, Netw
 							locationWatchId = navigator.geolocation.watchPosition(
 								createLocationCallback(),
 								createLocationCallback(),
-								{
-									enableHighAccuracy: api.accuracy === api.ACCURACY_BEST,
-									timeout: api.MobileWeb.timeout,
-									maximumAge: api.MobileWeb.maximumLocationAge
-								}
+								createLocationArguments()
 							);
 						}
 					}
@@ -188,7 +191,7 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/Network"], function(Evented, lang, Netw
 			},
 			
 			MobileWeb: {
-				timeout: Infinity,
+				locationTimeout: Infinity,
 				maximumLocationAge: 0,
 				maximumHeadingAge: 1000,
 				forwardGeocoderTimeout: undef,
