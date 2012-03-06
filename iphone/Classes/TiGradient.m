@@ -245,7 +245,7 @@
 			CGFloat endRadiusPixels;
 			switch (startRadius.type)
 			{
-				case TiDimensionTypePixels:
+				case TiDimensionTypeDip:
 					startRadiusPixels = startRadius.value;
 					break;
 				case TiDimensionTypePercent:
@@ -257,7 +257,7 @@
 			
 			switch (endRadius.type)
 			{
-				case TiDimensionTypePixels:
+				case TiDimensionTypeDip:
 					endRadiusPixels = endRadius.value;
 					break;
 				case TiDimensionTypePercent:

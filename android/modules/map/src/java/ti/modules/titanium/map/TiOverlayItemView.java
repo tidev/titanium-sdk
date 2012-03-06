@@ -60,7 +60,7 @@ public class TiOverlayItemView extends FrameLayout
 
 		RelativeLayout.LayoutParams params = null;
 
-		leftPane = new TiCompositeLayout(context);
+		leftPane = new TiCompositeLayout(context, null);
 		leftPane.setId(100);
 		leftPane.setTag("leftPane");
 		params = createBaseParams();
@@ -110,7 +110,7 @@ public class TiOverlayItemView extends FrameLayout
 		params.addRule(RelativeLayout.ALIGN_TOP);
 		layout.addView(textLayout, params);
 
-		rightPane = new TiCompositeLayout(context);
+		rightPane = new TiCompositeLayout(context, null);
 		rightPane.setId(103);
 		rightPane.setTag("rightPane");
 		params = createBaseParams();

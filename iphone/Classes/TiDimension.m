@@ -6,10 +6,13 @@
  */
 
 #import "TiDimension.h"
+#import "TiUtils.h"
 
 
-const TiDimension TiDimensionZero = {TiDimensionTypePixels, 0};
+const TiDimension TiDimensionZero = {TiDimensionTypeDip, 0};
 const TiDimension TiDimensionAuto = {TiDimensionTypeAuto, 0};
+const TiDimension TiDimensionAutoSize = {TiDimensionTypeAutoSize, 0};
+const TiDimension TiDimensionAutoFill = {TiDimensionTypeAutoFill, 0};
 const TiDimension TiDimensionUndefined = {TiDimensionTypeUndefined, 0};
 
 TiDimension TiDimensionMake(TiDimensionType type, CGFloat value)
@@ -26,4 +29,27 @@ TiDimension TiDimensionMake(TiDimensionType type, CGFloat value)
 	dimension.value = value;
 	return dimension;
 }
+
+CGFloat convertInchToPixels(CGFloat value)
+{
+    return [TiUtils dpi]*value;
+}
+
+CGFloat convertPixelsToDip(CGFloat value)
+{
+    if ([TiUtils isRetinaDisplay]) {
+        return value/2;
+    }
+    return value;
+}
+
+CGFloat convertDipToInch(CGFloat value)
+{
+    if ([TiUtils isRetinaDisplay]) {
+        return (value*2)/[TiUtils dpi];
+    }
+    return value/[TiUtils dpi];
+}
+
+
 
