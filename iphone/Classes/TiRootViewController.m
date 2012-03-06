@@ -506,11 +506,23 @@
 {
 	[super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }
+-(BOOL)isCurrentWindowModal{
+    for (TiWindowProxy * thisWindow in [windowProxies reverseObjectEnumerator])
+	{
+        if ([thisWindow closing] == NO) {
+            if([thisWindow modalFlagValue] == YES){
+                return YES;
+            }
+            else{
+                return NO;
+            }
+        }
+    }
+}
 -(BOOL)isModal {
     //For detecting windows that are opened modally.
     BOOL modalFlag = NO;
-    TiWindowProxy *thisProxy = [windowProxies lastObject];
-    if([thisProxy modalFlagValue] == YES){
+    if([self isCurrentWindowModal] == YES){
         return YES;
     }
     
@@ -550,28 +562,36 @@
 	 *	way. So we give it a shot, and if that's not enough, consult the
 	 *	rotation history and manually force the rotation.
 	 */
-	TiOrientationFlags oldFlags = allowedOrientations;
-	allowedOrientations = [self orientationFlags];	
+    TiOrientationFlags oldFlags = allowedOrientations;
+    allowedOrientations = [self orientationFlags];	
     
-	if ([self respondsToSelector:@selector(presentingViewController)]) {
-		[UIViewController attemptRotationToDeviceOrientation];
-	}
-    //Check if the view was opened modally, then we shouldnot be handling the rotation.
-    if([self isModal] == YES){
-        return;
+    if ([self respondsToSelector:@selector(presentingViewController)]) {
+        [UIViewController attemptRotationToDeviceOrientation];
     }
     UIInterfaceOrientation newOrientation = [self lastValidOrientation];	
+    //Check if the view was opened modally, then we shouldnot be handling the rotation.
+    if([self isModal] == YES){
+        //TODO: Needs to look at how we do orientations, tracking windowOrientation
+        //for getting the actual window orientation doesnot seem like the correct for tracking it.
+        windowOrientation = newOrientation;
+        return;
+    }   
+    
     if ((newOrientation == windowOrientation) &&
         (oldFlags & allowedOrientations))
-	{
+    {
         // If it's the case that the window orientation doesn't match the status bar orientation,
         // move the status bar into the right place.
         if (windowOrientation != [[UIApplication sharedApplication] statusBarOrientation]) {
             [[UIApplication sharedApplication] setStatusBarOrientation:windowOrientation animated:NO];
         }
-	}
-    
-	[self manuallyRotateToOrientation:newOrientation duration:duration];
+                
+        if (TI_ORIENTATION_ALLOWED(allowedOrientations, orientationHistory[0])) {
+             //Nothing to do here.
+            return;
+        }
+    }
+    [self manuallyRotateToOrientation:newOrientation duration:duration];
 }
 
 
@@ -859,11 +879,14 @@
 {
 	for (TiWindowProxy * thisWindow in [windowProxies reverseObjectEnumerator])
 	{
-		TiOrientationFlags result = [thisWindow orientationFlags];
-		if (result != TiOrientationNone)
-		{
-			return result;
-		}
+        if ([thisWindow closing] == NO) {
+            TiOrientationFlags result = [thisWindow orientationFlags];
+            if (result != TiOrientationNone)
+            {
+                return result;
+            }
+       }
+        
 	}
 	
 	return [self getDefaultOrientations];
