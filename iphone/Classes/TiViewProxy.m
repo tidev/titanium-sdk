@@ -141,6 +141,9 @@
 		{
 			[children addObject:arg];
 		}
+        //Turn on clipping because I have children
+        [self view].clipsToBounds = YES;
+        
 		pthread_rwlock_unlock(&childrenLock);
 		[arg setParent:self];
 		[self contentsWillChange];
