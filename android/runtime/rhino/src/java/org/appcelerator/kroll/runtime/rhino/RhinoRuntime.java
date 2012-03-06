@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -87,6 +87,31 @@ public class RhinoRuntime extends KrollRuntime implements ErrorReporter
 			} else {
 				Context.reportError(e.getMessage());
 			}
+		} finally {
+			Context.exit();
+		}
+	}
+
+	@Override
+	public Object doEvalString(String source, String filename)
+	{
+		Context context = enterContext();
+
+		try {
+			Object result = context.evaluateString(globalScope, source, filename, 1, null);
+			return TypeConverter.jsObjectToJavaObject(result, globalScope);
+
+		} catch (Exception e) {
+			if (e instanceof RhinoException) {
+				RhinoException re = (RhinoException) e;
+				Context.reportRuntimeError(re.getMessage(), re.sourceName(), re.lineNumber(), re.lineSource(),
+					re.columnNumber());
+
+			} else {
+				Context.reportError(e.getMessage());
+			}
+			return null;
+
 		} finally {
 			Context.exit();
 		}

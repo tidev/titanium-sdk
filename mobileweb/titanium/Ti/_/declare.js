@@ -10,6 +10,7 @@
 define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 	var is = require.is,
 		mix = require.mix,
+		counter = 0,
 		classCounters = {};
 
 	// C3 Method Resolution Order (see http://www.python.org/download/releases/2.3/mro/)
@@ -27,7 +28,9 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 			base = bases[i];
 			if (!base) {
 				throw new Error('Unknown base class for "' + className + '" [' + i + ']');
-			} else if(!is(base, "Function")) {
+			} else if (is(base, "Object")) {
+				base = bases[i] = makeFunction(base);
+			} else if (!is(base, "Function")) {
 				throw new Error('Base class not a function for "' + className + '" [' + i + ']');
 			}
 			lin = base._meta ? base._meta.bases : [base];
@@ -78,7 +81,7 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 		}
 
 		if (clsCount) {
-			throw new Error('Can\'t build consistent linearization for ' + className + '"');
+			throw new Error('Can\'t build consistent linearization for "' + className + '"');
 		}
 
 		// calculate the superclass offset
@@ -148,6 +151,16 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 		};
 	}
 
+	function makeFunction(obj) {
+		var fn = new Function;
+		mix(fn.prototype, obj);
+		fn._meta = {
+			bases: [fn],
+			hidden: obj
+		};
+		return fn;
+	}
+
 	function mixClass(dest, src) {
 		for (var p in src) {
 			if (src.hasOwnProperty(p) && !/^(constructor|properties|constants|__values__)$/.test(p)) {
@@ -194,9 +207,7 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 			t = superclass._meta;
 			bases = bases.concat(t ? t.bases : superclass);
 		} else if (superclassType === "Object") {
-			ctor = new Function;
-			mix(ctor.prototype, superclass);
-			bases[0] = superclass = ctor;
+			bases[1] = superclass = makeFunction(superclass);
 		} else {
 			superclass = 0;
 		}
@@ -249,9 +260,6 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 			},
 			prototype: proto
 		});
-
-		// now mix in just the properties and constants
-		//lang.mixProps(proto, definition);
 
 		// add "standard" methods to the prototype
 		mix(proto, {

@@ -21,9 +21,9 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			set(contentContainer.domNode,"overflow","hidden");
 			
 			// Use horizontal layouts so that the default location is always (0,0)
-			contentContainer.add(this._header = UI.createView({height: 'auto', layout: 'vertical'}));
-			contentContainer.add(this._sections = UI.createView({height: 'auto', layout: 'vertical'}));
-			contentContainer.add(this._footer = UI.createView({height: 'auto', layout: 'vertical'}));
+			contentContainer.add(this._header = UI.createView({height: UI.SIZE, layout: "vertical"}));
+			contentContainer.add(this._sections = UI.createView({height: UI.SIZE, layout: "vertical"}));
+			contentContainer.add(this._footer = UI.createView({height: UI.SIZE, layout: "vertical"}));
 			
 			this.data = [];
 			
@@ -98,9 +98,11 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		
 		_doLayout: function() {
 			
-			this._contentContainer.properties.__values__.width = this.width === "auto" ? "auto" : "100%";
-			this._contentContainer.properties.__values__.height = this.height === "auto" ? "auto" : "100%"; 
-			View.prototype._doLayout.apply(this,arguments);
+			var values = this._contentContainer.properties.__values__;
+			values.width = this.width === UI.SIZE ? UI.SIZE : "100%";
+			values.height = this.height === UI.SIZE ? UI.SIZE : "100%"; 
+			
+			return View.prototype._doLayout.apply(this,arguments);
 		},
 		
 		_fireScrollEvent: function(x,y) {
@@ -144,9 +146,11 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				y: y
 			});
 		},
+
+		_defaultWidth: UI.FILL,
+
+		_defaultHeight: UI.FILL,
 		
-		_defaultWidth: "100%",
-		_defaultHeight: "100%",
 		_getContentOffset: function(){
 			return {x: this._contentContainer.scrollLeft, y: this._contentContainer.scrollTop};
 		},
@@ -190,7 +194,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				backgroundColor: "darkGrey",
 				color: "white",
 				width: "100%",
-				height: "auto",
+				height: UI.SIZE,
 				left: 0,
 				font: {fontSize: 22}
 			});

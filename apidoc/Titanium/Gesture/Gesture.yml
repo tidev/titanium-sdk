@@ -9,19 +9,19 @@ properties:
     type: Boolean
     summary: True if current window is considered portrait by the device, false otherwise
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: landscape
     type: Boolean
     summary: True if current window is considered landscape by the device, false otherwise
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: orientation
     type: Number
-    summary: Orientation of the current window.  Value will be one of the following - <Titanium.UI.PORTRAIT>, <Titanium.UI.UPSIDE_PORTRAIT>, <Titanium.UI.LANDSCAPE_LEFT>, <Titanium.UI.LANDSCAPE_RIGHT> or <Titanium.UI.UNKNOWN>
+    summary: Orientation of the current window.  Value will be one of the following - <Titanium.UI.PORTRAIT>, <Titanium.UI.UPSIDE_PORTRAIT> (Android, iPad, iPhone only), <Titanium.UI.LANDSCAPE_LEFT>, <Titanium.UI.LANDSCAPE_RIGHT> (Android, iPad, iPhone only) or <Titanium.UI.UNKNOWN>
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
 
 events:
   - name: orientationchange
@@ -29,7 +29,7 @@ events:
     properties:
       - name: orientation
         type: Number
-        summary: Orientation of the current window.  Value will be one of the following - <Titanium.UI.PORTRAIT>, <Titanium.UI.UPSIDE_PORTRAIT>, <Titanium.UI.LANDSCAPE_LEFT>, <Titanium.UI.LANDSCAPE_RIGHT> or <Titanium.UI.UNKNOWN>
+        summary: Orientation of the current window.  Value will be one of the following - <Titanium.UI.PORTRAIT>, <Titanium.UI.UPSIDE_PORTRAIT> (Android, iPad, iPhone only), <Titanium.UI.LANDSCAPE_LEFT>, <Titanium.UI.LANDSCAPE_RIGHT> (Android, iPad, iPhone only) or <Titanium.UI.UNKNOWN>
 
   - name: shake
     summary: fired when the device is shaken
