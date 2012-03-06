@@ -118,6 +118,13 @@ public class TableViewModel
 					if (headerTitle != null) {
 						viewModel.add(itemForHeader(index, section, headerTitle, null));
 					}
+					if (section.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
+						TiViewProxy viewHeader = (TiViewProxy) section.getProperty(TiC.PROPERTY_HEADER_VIEW);
+						Item item = new Item(index);
+						item.proxy = viewHeader;
+						item.className = TableViewProxy.CLASSNAME_HEADERVIEW;
+						viewModel.add(item);
+					}
 					for (TableViewRowProxy row : section.getRows()) {
 						Item item = new Item(index);
 						item.sectionIndex = sectionIndex;
