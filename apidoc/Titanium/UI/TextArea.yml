@@ -78,15 +78,20 @@ properties:
     summary: Font to use for text.
     type: Font
   - name: keyboardToolbar
-    summary: Array of toolbar button objects to be used when the keyboard is displayed.
-    type: Array<Object>
+    summary: Array of toolbar button objects or a [toolbar](Titanium.UI.iOS.Toolbar) to be used when the keyboard is displayed.
+    description: |
+        As of 1.9.0, because iOS disallows a view (including toolbar buttons) to be in two places at
+        once, developers desiring textAreas or [textFields](Titanium.UI.textField) to share a toolbar
+        can instead use a single [toolbar](Titanium.UI.iOS.Toolbar) instead of having arrays sharing
+        toolbar buttons.
+    type: [Array<Ti.UI.View>, <Ti.UI.Toolbar>]
     platforms: [iphone,ipad]
   - name: keyboardToolbarColor
-    summary: Color of the keyboard toolbar.
+    summary: Color of the keyboard toolbar if keyboardToolbar is an array.
     type: String
     platforms: [iphone,ipad]
   - name: keyboardToolbarHeight
-    summary: Height of the keyboard toolbar.
+    summary: Height of the keyboard toolbar if keyboardToolbar is an array.
     type: Number
     platforms: [iphone,ipad]
   - name: keyboardType
