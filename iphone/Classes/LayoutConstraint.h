@@ -19,6 +19,9 @@
 -(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth;
 -(CGFloat)autoHeightForWidth:(CGFloat)width;
 
+-(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth;
+-(CGFloat)contentHeightForWidth:(CGFloat)width;
+
 
 -(CGFloat)verifyWidth:(CGFloat)suggestedWidth;
 -(CGFloat)verifyHeight:(CGFloat)suggestedHeight;
