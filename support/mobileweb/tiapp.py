@@ -319,29 +319,34 @@ class TiAppXML(object):
 				local_objects['parse_'+child.nodeName](child)
 
 	def parse_mobileweb(self, node):
-		def parse_filesystem(node):
-			val = node.getAttribute('externalStorage')
-			if val is not None:
+		def parse_filesystem_backend(node):
+			val = getText(node.childNodes)
+			if val is not None and val != '':
+				self.mobileweb['filesystem']['backend'] = val
+		
+		def parse_filesystem_registry(node):
+			val = getText(node.childNodes)
+			if val is not None and val != '':
 				self.mobileweb['filesystem']['registry'] = val
 		
-		def parse_image(node):
-			val = node.getAttribute('src')
-			if val is not None:
+		def parse_preload_image(node):
+			val = getText(node.childNodes)
+			if val is not None and val != '':
 				self.mobileweb['preload']['images'].append(val)
 		
-		def parse_require(node):
-			val = node.getAttribute('src')
-			if val is not None:
+		def parse_precache_require(node):
+			val = getText(node.childNodes)
+			if val is not None and val != '':
 				self.mobileweb['precache']['requires'].append(val)
 		
-		def parse_include(node):
-			val = node.getAttribute('src')
-			if val is not None:
+		def parse_precache_include(node):
+			val = getText(node.childNodes)
+			if val is not None and val != '':
 				self.mobileweb['precache']['includes'].append(val)
 		
 		local_objects = locals()
 		parse_tags = {
-			'filesystem': None,
+			'filesystem': ['backend', 'registry'],
 			'preload': ['image'],
 			'precache': ['require', 'include']
 		}
@@ -353,7 +358,7 @@ class TiAppXML(object):
 				else:
 					for child_child in child.childNodes:
 						if child_child.nodeName in parse_tags[child.nodeName]:
-							local_objects['parse_'+child_child.nodeName](child_child)
+							local_objects['parse_'+child.nodeName+'_'+child_child.nodeName](child_child)
 
 	def has_app_property(self, property):
 		return property in self.app_properties
