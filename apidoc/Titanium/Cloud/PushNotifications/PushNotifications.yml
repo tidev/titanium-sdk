@@ -1,0 +1,121 @@
+name: Titanium.Cloud.PushNotifications
+summary: Provides methods for accessing ACS push notification channels.
+description: Please refer to [configure push notifications for iOS](http://cloud.appcelerator.com/docs/ios#pushn)
+    and [configure push notifications for Android](http://cloud.appcelerator.com/docs/android#pushn) to set up your app
+    for push notifications. To receive push notifications on Android, please refer to the <Titanium.Push> module.
+extends: Titanium.Module
+excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
+
+methods:
+  - name: subscribe
+    summary: Subscribe a mobile device to a push notification channel.
+    description: |
+        See [Push Notifications: Subscribe](http://cloud.appcelerator.com/docs/api/v1/push_notifications/subscribe)
+        for the request parameters supported by this method.
+    parameters:
+
+      - name: parameters
+        summary: An ordinary JavaScript object which contains parameters to pass. 
+        type: Object
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsResponse>
+
+  - name: unsubscribe
+    summary: Unsubscribe a mobile device from a push notification channel.
+    description: |
+        See [Push Notifications: Unsubscribe](http://cloud.appcelerator.com/docs/api/v1/push_notifications/unsubscribe)
+        for the request parameters supported by this method.
+    parameters:
+
+      - name: parameters
+        summary: An ordinary JavaScript object which contains parameters to pass.
+        type: Object
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsResponse>
+
+  - name: notify
+    summary: Send a push notification to a channel.
+    description: |
+        See [Push Notifications: Notify](http://cloud.appcelerator.com/docs/api/v1/push_notifications/notify)
+        for the request parameters supported by this method.
+    parameters:
+
+      - name: parameters
+        summary: An ordinary JavaScript object which contains parameters to pass.
+        type: Object
+
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsResponse>
+
+examples:
+  - title: Subscribe to Channel Example
+    example: |
+        This example subscribes to a push notification channel and checks the response.
+            Cloud.PushNotifications.subscribe({
+                channel: 'friend_request',
+                device_token: myPushDeviceToken
+            }, function (e) {
+                if (e.success) {
+                    alert('Success');
+                } else {
+                    alert('Error:\\n' +
+                        ((e.error && e.message) || JSON.stringify(e))
+                }
+            });
+
+  - title: Unsubscribe to Channel Example
+    example: |
+        This example unsubscribes from a push notification channel and checks the response.
+            Cloud.PushNotifications.unsubscribe({
+                channel: 'friend_request',
+                device_token: myPushDeviceToken
+            }, function (e) {
+                if (e.success) {
+                    alert('Success');
+                } else {
+                    alert('Error:\\n' +
+                        ((e.error && e.message) || JSON.stringify(e))
+                }
+            });
+
+  - title: Notify Channel Example
+    example: |
+        This example sends a push notification to a channel and checks the response.
+            Cloud.PushNotifications.notify({
+                channel: 'friend_request',
+                payload: 'Welcome to push notifications'
+            }, function (e) {
+                if (e.success) {
+                    alert('Success');
+                } else {
+                    alert('Error:\\n' +
+                        ((e.error && e.message) || JSON.stringify(e))
+                }
+            });
+---
+name: CloudPushNotificationsResponse
+summary: The callback to be fired when the requested operation finishes
+properties:
+  - name: success
+    summary: Set to `true` if the request succeeded.
+    type: Boolean
+  - name: error
+    summary: Set to `true` if the request failed.
+    type: Boolean
+  - name: meta
+    summary: A dictionary object containing meta data, if any.
+    description: Only included if 'success' is 'true'.
+    type: Object
+  - name: code
+    summary: Error code, if any.
+    description: Only included if `error` is true.
+    type: Number
+  - name: message
+    summary: Error message, if any.
+    description: Only included if `error` is `true`.
+    type: String
