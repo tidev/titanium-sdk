@@ -160,6 +160,11 @@ methods:
   - name: repaint
     summary: Forces the web view to repaint its contents.
     platforms: [iphone, ipad]
+    
+  - name: release
+    summary: Releases memory when the web view is no longer needed.
+    since: "2.0.0"
+    platforms: [android]
 
   - name: resume
     summary: Resume native webview plugins. 
