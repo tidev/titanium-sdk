@@ -20,8 +20,8 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/dom", "Ti/_/css", "Ti/_/style",
 		
 		_getContentSize: function(width, height) {
 			return {
-				width: this._measureText(this.value, this.textArea, width).width,
-				height: this._measureText(this.value, this.textArea, width).height
+				width: this._measureText(this.value, this._field, width).width,
+				height: this._measureText(this.value, this._field, width).height
 			};
 		},
 
