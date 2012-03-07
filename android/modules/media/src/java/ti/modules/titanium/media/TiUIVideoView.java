@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -37,6 +37,9 @@ public class TiUIVideoView extends TiUIView
 	public TiUIVideoView(TiViewProxy proxy)
 	{
 		super(proxy);
+		TiCompositeLayout.LayoutParams params = getLayoutParams();
+		params.autoFillsHeight = true;
+		params.autoFillsWidth = true;
 	}
 
 	/**
@@ -60,7 +63,7 @@ public class TiUIVideoView extends TiUIView
 	private void initView()
 	{
 		if (nativeView == null) {
-			TiCompositeLayout layout = new TiCompositeLayout(videoView.getContext());
+			TiCompositeLayout layout = new TiCompositeLayout(videoView.getContext(), proxy);
 			layout.addView(videoView, new TiCompositeLayout.LayoutParams());
 			setNativeView(layout);
 		}

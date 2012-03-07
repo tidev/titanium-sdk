@@ -88,6 +88,20 @@ NSString * const kTiRemoteControlNotification = @"TiRemoteControl";
 
 NSString * const kTiLocalNotification = @"TiLocalNotification";
 
+NSString* const kTiBehaviorSize = @"SIZE";
+NSString* const kTiBehaviorFill = @"FILL";
+NSString* const kTiBehaviorAuto = @"auto";
+NSString* const kTiUnitPixel = @"px";
+NSString* const kTiUnitCm = @"cm";
+NSString* const kTiUnitMm = @"mm";
+NSString* const kTiUnitInch = @"in";
+NSString* const kTiUnitDip = @"dip";
+NSString* const kTiUnitDipAlternate = @"dp";
+NSString* const kTiUnitSystem = @"system";
+NSString* const kTiUnitPercent = @"%";
+
+
+
 BOOL TiExceptionIsSafeOnMainThread = NO;
 
 void TiExceptionThrowWithNameAndReason(NSString * exceptionName, NSString * message)

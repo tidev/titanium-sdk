@@ -55,6 +55,7 @@ public class TableViewProxy extends TiViewProxy
 
 	public static final String CLASSNAME_DEFAULT = "__default__";
 	public static final String CLASSNAME_HEADER = "__header__";
+	public static final String CLASSNAME_HEADERVIEW = "__headerView__";
 	public static final String CLASSNAME_NORMAL = "__normal__";
 
 	class RowResult

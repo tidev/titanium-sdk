@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -41,7 +41,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -225,19 +224,19 @@ public class TiUIHelper
 			if (m.matches()) {
 				if (m.groupCount() == 2) {
 					String unit = m.group(2);
-					if ("px".equals(unit)) {
+					if (TiDimension.UNIT_PX.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_PX;
-					} else if ("pt".equals(unit)) {
+					} else if (TiDimension.UNIT_PT.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_PT;
-					} else if ("dp".equals(unit) || "dip".equals(unit)) {
+					} else if (TiDimension.UNIT_DP.equals(unit) || TiDimension.UNIT_DIP.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_DIP;
-					} else if ("sp".equals(unit) || "sip".equals(unit)) {
+					} else if (TiDimension.UNIT_SP.equals(unit) || TiDimension.UNIT_SIP.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_SP;
-					} else if ("pt".equals(unit)) {
-						units = TypedValue.COMPLEX_UNIT_PT;
-					} else if ("mm".equals(unit)) {
+					} else if (TiDimension.UNIT_MM.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_MM;
-					} else if ("in".equals(unit)) {
+					} else if (TiDimension.UNIT_CM.equals(unit)) {
+						units = TiDimension.COMPLEX_UNIT_CM;
+					} else if (TiDimension.UNIT_IN.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_IN;
 					} else {
 						if (DBG) {

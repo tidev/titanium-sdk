@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,10 +12,12 @@ import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
@@ -35,6 +37,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.OpenableColumns;
 import android.view.View;
 
 @Kroll.proxy(propertyAccessors={
@@ -70,8 +73,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	private static final int MSG_ANIMATE = MSG_FIRST_ID + 108;
 	private static final int MSG_TOIMAGE = MSG_FIRST_ID + 109;
 	private static final int MSG_GETSIZE = MSG_FIRST_ID + 110;
-	private static final int MSG_GETCENTER = MSG_FIRST_ID + 111;
-
+	private static final int MSG_GETRECT = MSG_FIRST_ID + 111;
+	private static final int MSG_FINISH_LAYOUT = MSG_FIRST_ID + 112;
+	private static final int MSG_UPDATE_LAYOUT = MSG_FIRST_ID + 113;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
@@ -83,6 +87,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	protected TiAnimationBuilder pendingAnimation;
 	private KrollDict langConversionTable;
 	private boolean isDecorView = false;
+	private AtomicBoolean layoutStarted = new AtomicBoolean();
 	
 	public TiViewProxy()
 	{
@@ -306,16 +311,17 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			case MSG_GETSIZE : {
 				AsyncResult result = (AsyncResult) msg.obj;
 				KrollDict d = null;
+				d = new KrollDict();
+				d.put(TiC.PROPERTY_X, 0);
+				d.put(TiC.PROPERTY_Y, 0);
 				if (view != null) {
 					View v = view.getNativeView();
 					if (v != null) {
-						d = new KrollDict();
 						d.put(TiC.PROPERTY_WIDTH, v.getWidth());
 						d.put(TiC.PROPERTY_HEIGHT, v.getHeight());
 					}
 				}
-				if (d == null) {
-					d = new KrollDict();
+				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
 					d.put(TiC.PROPERTY_WIDTH, 0);
 					d.put(TiC.PROPERTY_HEIGHT, 0);
 				}
@@ -323,24 +329,35 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				result.setResult(d);
 				return true;
 			}
-			case MSG_GETCENTER : {
+			case MSG_GETRECT: {
 				AsyncResult result = (AsyncResult) msg.obj;
 				KrollDict d = null;
+				d = new KrollDict();
 				if (view != null) {
 					View v = view.getNativeView();
 					if (v != null) {
-						d = new KrollDict();
-						d.put(TiC.EVENT_PROPERTY_X, (double)v.getLeft() + (double)v.getWidth() / 2);
-						d.put(TiC.EVENT_PROPERTY_Y, (double)v.getTop() + (double)v.getHeight() / 2);
+						d.put(TiC.PROPERTY_WIDTH, v.getWidth());
+						d.put(TiC.PROPERTY_HEIGHT, v.getHeight());
+						d.put(TiC.PROPERTY_X, v.getLeft());
+						d.put(TiC.PROPERTY_Y, v.getTop());
 					}
 				}
-				if (d == null) {
-					d = new KrollDict();
-					d.put(TiC.EVENT_PROPERTY_X, 0);
-					d.put(TiC.EVENT_PROPERTY_Y, 0);
+				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
+					d.put(TiC.PROPERTY_WIDTH, 0);
+					d.put(TiC.PROPERTY_HEIGHT, 0);
+					d.put(TiC.PROPERTY_X, 0);
+					d.put(TiC.PROPERTY_Y, 0);
 				}
 
 				result.setResult(d);
+				return true;
+			}
+			case MSG_FINISH_LAYOUT : {
+				handleFinishLayout();
+				return true;
+			}
+			case MSG_UPDATE_LAYOUT : {
+				handleUpdateLayout((KrollDict) msg.obj);
 				return true;
 			}
 		}
@@ -355,6 +372,12 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	*/
 
 	@Kroll.getProperty @Kroll.method
+	public KrollDict getRect()
+	{
+		return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETRECT), getActivity());
+	}
+
+	@Kroll.getProperty @Kroll.method
 	public KrollDict getSize()
 	{
 		return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETSIZE), getActivity());
@@ -366,9 +389,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (hasProperty(TiC.PROPERTY_WIDTH)) {
 			return getProperty(TiC.PROPERTY_WIDTH);
 		}
-		
-		KrollDict size = getSize();
-		return size.getInt(TiC.PROPERTY_WIDTH);
+
+		return KrollRuntime.UNDEFINED;
 	}
 
 	@Kroll.setProperty(retain=false) @Kroll.method
@@ -383,9 +405,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		if (hasProperty(TiC.PROPERTY_HEIGHT)) {
 			return getProperty(TiC.PROPERTY_HEIGHT);
 		}
-		
-		KrollDict size = getSize();
-		return size.getInt(TiC.PROPERTY_HEIGHT);
+
+		return KrollRuntime.UNDEFINED;
 	}
 
 	@Kroll.setProperty(retain=false) @Kroll.method
@@ -395,9 +416,14 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	@Kroll.getProperty @Kroll.method
-	public KrollDict getCenter()
+	public Object getCenter()
 	{
-		return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETCENTER), getActivity());
+		Object dict = KrollRuntime.UNDEFINED;
+		if (hasProperty(TiC.PROPERTY_CENTER)) {
+			dict = getProperty(TiC.PROPERTY_CENTER);
+		}
+
+		return dict;
 	}
 
 	public void clearView()
@@ -795,6 +821,28 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			}
 		}
 	}
+	
+	/** 
+	 * Return true if any view in the hierarchy has the event listener.
+	 */
+	public boolean hierarchyHasListener(String eventName)
+	{
+		boolean hasListener = hasListeners(eventName);
+		
+		// Check whether the parent has the listener or not
+		if (!hasListener) {
+			TiViewProxy parent = getParent();
+			if (parent != null) {
+				boolean parentHasListener = parent.hierarchyHasListener(eventName);
+				hasListener = hasListener || parentHasListener;
+				if (hasListener) {
+					return hasListener;
+				}
+			}
+		}
+		
+		return hasListener;
+	}
 
 	public void setClickable(boolean clickable)
 	{
@@ -928,5 +976,63 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		destPoint.put(TiC.PROPERTY_X, pointWindowX - destLocation[0]);
 		destPoint.put(TiC.PROPERTY_Y, pointWindowY - destLocation[1]);
 		return destPoint;
+	}
+
+	@Kroll.method
+	public void startLayout()
+	{
+		layoutStarted.set(true);
+	}
+
+	@Kroll.method
+	public void finishLayout()
+	{
+		// Don't force a layout if startLayout() was never called
+		if (!isLayoutStarted()) {
+			return;
+		}
+		if (TiApplication.isUIThread()) {
+			handleFinishLayout();
+		} else {
+			getMainHandler().sendEmptyMessage(MSG_FINISH_LAYOUT);
+		}
+		layoutStarted.set(false);
+	}
+
+	@Kroll.method
+	public void updateLayout(KrollDict params)
+	{
+		layoutStarted.set(true);
+		if (TiApplication.isUIThread()) {
+			handleUpdateLayout(params);
+		} else {
+			getMainHandler().obtainMessage(MSG_UPDATE_LAYOUT, params).sendToTarget();
+		}
+		layoutStarted.set(false);
+	}
+
+	private void handleFinishLayout()
+	{
+		if (view.iszIndexChanged()) {
+			view.forceLayoutNativeView(true);
+			view.setzIndexChanged(false);
+		} else {
+			view.forceLayoutNativeView(false);
+		}
+	}
+
+	private void handleUpdateLayout(KrollDict params)
+	{
+		for (String key : params.keySet()) {
+			setPropertyAndFire(key, params.get(key));
+		}
+		handleFinishLayout();
+	}
+
+	// This is used to check if the user has called startLayout(). We mainly use this to perform a check before running
+	// deprecated behavior. (i.e. performing layout when a property has changed, and the user didn't call startLayout)
+	public boolean isLayoutStarted()
+	{
+		return layoutStarted.get();
 	}
 }

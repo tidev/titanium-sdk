@@ -171,7 +171,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 
 			if (invalidLaunchDetected) {
 				Log.e(TAG, "Android issue 2373 detected (missing intent CATEGORY_LAUNCHER or FLAG_ACTIVITY_RESET_TASK_IF_NEEDED), restarting app. " + this);
-				layout = new TiCompositeLayout(this);
+				layout = new TiCompositeLayout(this, window);
 				setContentView(layout);
 				TiProperties systemProperties = getTiApp().getSystemProperties();
 				int backgroundColor = TiColorHelper.parseColor(systemProperties.getString("ti.android.bug2373.backgroundColor", "black"));
