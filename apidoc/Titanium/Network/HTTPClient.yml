@@ -27,7 +27,7 @@ description: |
         httpResponse = this.responseText;
         status = this.status;
     
-    #### Platform Implementation Notes
+    #### Mobile Web Platform Implementation Notes
     
     Mobile Web is limited by the same-origin policy. According to W3C: "User agents 
     commonly apply same-origin restrictions to network requests. These restrictions 
@@ -41,8 +41,8 @@ description: |
     There are two solutions to get around this problem:
       
     * Configure the destination server to support Cross-Origin Resource Sharing.
-    * Use [Ti.Network.httpURLFormatter](Ti.Network) in conjunction 
-      with a proxy on the applications server
+    * Use [Ti.Network.httpURLFormatter](Titanium.Network.httpURLFormatter) in conjunction 
+      with a proxy on the server hosting the application.
     
     More information about Cross-Origin Resource Sharing can be found on the 
     [W3C Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) specification page.
