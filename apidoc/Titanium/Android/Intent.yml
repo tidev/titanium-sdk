@@ -17,6 +17,14 @@ methods:
       - name: flags
         summary: the flags to add to the existing set.
         type: Number
+  - name: getBlobExtra
+    summary: Get a <Titanium.Blob> property from this Intent
+    returns:
+        type: <Titanium.Blob>
+    parameters:
+      - name: name
+        summary: The <Titanium.Blob> extra to get, most commonly <Titanium.Android.EXTRA_STREAM>.
+        type: String
   - name: getBooleanExtra
     summary: Get a boolean property from this Intent
     returns:
@@ -140,3 +148,21 @@ examples:
                 type: "image/*"
             });
             intent.addCategory(Ti.Android.CATEGORY_DEFAULT);
+            
+  - title: Create an ImageView from an image SEND Intent 
+    example: |
+    
+            var intent = Ti.Android.currentActivity.getIntent();
+            var iname = Ti.Android.EXTRA_STREAM;
+            if (intent.hasExtra(iname)) {
+                var blob = intent.getBlobExtra(iname);  
+                var image = Ti.UI.createImageView({
+                    image: blob,
+                    height: 300,
+                    width: 300,
+                    left: 0,
+                    top: 0
+                });
+            } else {
+                Ti.API.info('No extra named "' + iname + '" found in Intent');
+            }
