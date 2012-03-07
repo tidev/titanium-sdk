@@ -327,6 +327,12 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 	env->DeleteGlobalRef(V8Runtime::javaInstance);
 
 	V8Runtime::javaInstance = NULL;
+
+	// Whereas most calls to IdleNotification get kicked off via Java (the looper's
+	// idle event in V8Runtime.java), we can't count on that running anymore at this point.
+	// So as our last act, run IdleNotification until it returns true so we can clean up all
+	// the stuff we just released references for above.
+	while (!v8::V8::IdleNotification());
 }
 
 jint JNI_OnLoad(JavaVM *vm, void *reserved)
