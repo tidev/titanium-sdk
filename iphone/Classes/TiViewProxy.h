@@ -122,7 +122,8 @@ enum
 }
 
 #pragma mark public API
-/**
+
+/*
  Provides access to z-index value.
  */
 @property(nonatomic,readwrite,assign) int vzIndex;
@@ -487,6 +488,9 @@ enum
  */
 -(void)refreshPosition;
 
+/**
+ Puts the view in the layout queue for rendering.
+ */
 -(void)willEnqueue;
 
 //Unlike the other layout actions, this one is done by the parent of the one called by refreshView.
@@ -497,15 +501,34 @@ enum
 #pragma mark Layout commands that need refactoring out
 
 -(void)determineSandboxBounds;
+
+/**
+ Tells the view to layout its children.
+ @param optimize Internal use only. Always specify _NO_.
+ */
 -(void)layoutChildren:(BOOL)optimize;
+
+/**
+ Tells the view to layout its childrent only if there were any layout chnages.
+ */
 -(void)layoutChildrenIfNeeded;
+
 -(void)layoutChild:(TiViewProxy*)child optimize:(BOOL)optimize;
 
+/**
+ Tells the view to adjust its size and position according to the current layout constraints.
+ */
 -(void)relayout;
+
 -(void)insertIntoView:(UIView*)view bounds:(CGRect)bounds;
 -(void)reposition;	//Todo: Replace
 
 -(BOOL)willBeRelaying;	//Todo: Replace
+
+/**
+ Tells the view that its child view size will change.
+ @param child The child view
+ */
 -(void)childWillResize:(TiViewProxy *)child;	//Todo: Replace
 
 @end

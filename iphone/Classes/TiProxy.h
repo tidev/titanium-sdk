@@ -132,15 +132,35 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(id)_initWithPageContext:(id<TiEvaluator>)context;
 -(id)_initWithPageContext:(id<TiEvaluator>)context args:(NSArray*)args;
 -(void)_initWithProperties:(NSDictionary*)properties;
+
+/**
+ Whether or not the proxy has listeners for the specified event type.
+ @param type The event type.
+ @return _YES_ if the proxy has any listeners for the specified event type, _NO_ otherwise.
+ */
 -(BOOL)_hasListeners:(NSString*)type;
--(void)_fireEventToListener:(NSString*)type withObject:(id)obj listener:(KrollCallback*)listener thisObject:(TiProxy*)thisObject_;
+
+/**
+ Tells the proxy to fire an event of the specified type to a listener.
+ @param type The event type.
+ @param obj The event properties.
+ @param listener The listener to fire event for.
+ @param thisObject The object representing 'this' in the context of the event handler.
+ */
+-(void)_fireEventToListener:(NSString*)type withObject:(id)obj listener:(KrollCallback*)listener thisObject:(TiProxy*)thisObject;
+
 -(id)_proxy:(TiProxyBridgeType)type;
 -(void)contextWasShutdown:(id<TiEvaluator>)context;
 -(TiHost*)_host;
 -(NSURL*)_baseURL;
 -(void)_setBaseURL:(NSURL*)url;
 -(void)_destroy;
+
+/**
+ Called to perform the proxy initial configuration.
+ */
 -(void)_configure;
+
 -(void)_dispatchWithObjectOnUIThread:(NSArray*)args;
 -(void)didReceiveMemoryWarning:(NSNotification*)notification;
 -(TiProxy*)currentWindow;
@@ -210,10 +230,17 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 #pragma mark Public 
 
 /**
- Returns all properties set on the proxy.
+ Returns an enumeration of keys of all properties set on the proxy object.
+ @return The enumeration of property keys.
  */
 -(id<NSFastEnumeration>)allKeys;
 
+/**
+ Returns the order of properties on the proxy object.
+ 
+ Should be overrided in the views where the order in which keys are applied matters.
+ @return The array of property keys.
+ */
 -(NSArray *)keySequence;
 
 +(void)throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location;
@@ -227,9 +254,31 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)yn;
 -(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)yn;
 
+/**
+ Returns a dictionary of all properties set on the proxy object.
+ @return The dictionary containing all properties.
+ */
 -(NSDictionary*)allProperties;
+
+/**
+ Initializes a new property on the proxy object.
+ @param name The property name.
+ @param value The initial value to set on the property.
+ */
 -(void)initializeProperty:(NSString*)name defaultValue:(id)value;
+
+/**
+ Sets or replaces the property on the proxy object.
+ @param value The new value.
+ @param key The property key.
+ @param notify The flag to send value chnage notification to model delegate.
+ */
 -(void)replaceValue:(id)value forKey:(NSString*)key notification:(BOOL)notify;
+
+/**
+ Removes the property on the proxy object.
+ @param key The property key.
+ */
 -(void)deleteKey:(NSString*)key;
 
 -(id)sanitizeURL:(id)value;
