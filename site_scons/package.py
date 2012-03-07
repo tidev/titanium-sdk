@@ -32,7 +32,7 @@ p = subprocess.Popen([gitCmd,"show","--abbrev-commit"],stderr=subprocess.PIPE, s
 githash = p.communicate()[0][7:].split('\n')[0].strip()
 
 ignoreExtensions = ['.pbxuser','.perspectivev3','.pyc']
-ignoreDirs = ['.DS_Store','.git','.gitignore','libTitanium.a','titanium.jar','build','bridge.txt']
+ignoreDirs = ['.DS_Store','.git','.gitignore','libTitanium.a','titanium.jar','build','bridge.txt', 'packaged']
 
 def ignore(file):
 	 for f in ignoreDirs:
@@ -78,6 +78,34 @@ def zip_dir(zf,dir,basepath,subs=None,cb=None):
 				zf.writestr(to_,c)
 			else:		
 				zf.write(from_, to_)
+
+def zip2zip(src_zip, dest_zip, prepend_path=None):
+	for zinfo in src_zip.infolist():
+		f = src_zip.open(zinfo)
+		new_name = zinfo.filename
+		if prepend_path and not prepend_path.endswith("/"):
+			prepend_path = "%s/" % prepend_path
+		if prepend_path:
+			new_name = "%s%s" % (prepend_path, new_name)
+		zinfo.filename = new_name
+		dest_zip.writestr(zinfo, f.read())
+
+def zip_packaged_modules(zf, source_dir, dest_prefix):
+	if not dest_prefix.endswith("/"):
+		dest_prefix = dest_prefix + "/"
+	for root, dirs, files in os.walk(source_dir):
+		for name in ignoreDirs:
+			if name in dirs:
+				dirs.remove(name)
+		for fname in files:
+			if not fname.lower().endswith(".zip"):
+				continue
+			source_zip = zipfile.ZipFile(os.path.join(root, fname), "r")
+			prepend = "%s%s" % (dest_prefix, root.replace(source_dir, "").replace("\\", "/"))
+			try:
+				zip2zip(source_zip, zf, prepend)
+			finally:
+				source_zip.close()
 
 def zip_android(zf, basepath):
 	android_dist_dir = os.path.join(top_dir, 'dist', 'android')
@@ -302,6 +330,7 @@ githash=%s
 		jsca = generate_jsca()
 		zf.writestr('%s/api.jsca' % basepath, jsca)
 	
+	zip_packaged_modules(zf, os.path.join(template_dir, "module", "packaged"), "modules")
 	zip_dir(zf,all_dir,basepath)
 	zip_dir(zf,template_dir,basepath)
 	if android: zip_android(zf,basepath)
