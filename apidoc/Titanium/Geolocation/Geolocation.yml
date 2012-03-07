@@ -61,7 +61,7 @@ events:
         summary: if success is false, returns a string of the error description
       - name: heading
         summary: |
-            heading results dictionary with the following sub-pro perties: `magneticHeading`, `trueHeading` (iPhone, iPad only), `accuracy`, `x` (iPhone, iPad only), `y` (iPhone, iPad only), `z` (iPhone, iPad only), `timestamp`.
+            heading results dictionary with the following sub-properties: `magneticHeading`, `trueHeading` (iPhone, iPad only), `accuracy`, `x` (iPhone, iPad only), `y` (iPhone, iPad only), `z` (iPhone, iPad only), `timestamp`.
     platforms: [android, iphone, ipad, mobileweb]
   - name: location
     summary: fired when a location event is received
