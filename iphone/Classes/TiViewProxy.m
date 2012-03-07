@@ -1830,6 +1830,14 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
         UIView *parentView = [parent parentViewForChild:self];
         CGSize referenceSize = (parentView != nil) ? parentView.bounds.size : sandboxBounds.size;
+        
+        if (parent) {
+            //Always use sandbox bounds if parent is not absolute layout
+            if (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle)) {
+                referenceSize = sandboxBounds.size;
+            }
+        }
+
 		sizeCache.size = SizeConstraintViewWithSizeAddingResizing(&layoutProperties,self, referenceSize, &autoresizeCache);
 
 		positionCache = PositionConstraintGivenSizeBoundsAddingResizing(&layoutProperties, self, sizeCache.size,
@@ -1968,7 +1976,32 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	if(TiLayoutRuleIsVertical(layoutProperties.layoutStyle))
 	{
 		bounds.origin.y += verticalLayoutBoundary;
-		bounds.size.height = [child minimumParentHeightForWidth:bounds.size.width];
+        CGFloat boundingValue = bounds.size.height-verticalLayoutBoundary;
+        if (boundingValue < 0) {
+            boundingValue = 0;
+        }
+        CGFloat offset = TiDimensionCalculateValue([child layoutProperties]->top, boundingValue)
+        + TiDimensionCalculateValue([child layoutProperties]->bottom, boundingValue);
+        TiDimension constraint = [child layoutProperties]->height;
+        if (TiDimensionIsDip(constraint)) {
+            bounds.size.height = constraint.value + offset;
+        }
+        else if (TiDimensionIsPercent(constraint))
+        {
+            bounds.size.height = TiDimensionCalculateValue(constraint, bounds.size.height) + offset;
+        }
+        else if (TiDimensionIsAutoFill(constraint))
+        {
+            bounds.size.height = boundingValue;
+        }
+        else if ( (TiDimensionIsAuto(constraint) || TiDimensionIsUndefined(constraint)) && TiDimensionIsAutoFill([child defaultAutoHeightBehavior:nil]) )
+        {
+            bounds.size.height = boundingValue;
+        }
+        else 
+        {
+            bounds.size.height = [child minimumParentHeightForWidth:bounds.size.width];
+        }
 		verticalLayoutBoundary += bounds.size.height;
 	}
 	else if(TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle))
