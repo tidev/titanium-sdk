@@ -879,7 +879,7 @@ public abstract class TiUIView
 			new SimpleOnGestureListener() {
 				@Override
 				public boolean onDoubleTap(MotionEvent e) {
-					if (proxy.hasListeners(TiC.EVENT_DOUBLE_TAP) || proxy.hasListeners(TiC.EVENT_DOUBLE_CLICK)) {
+					if (proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_TAP) || proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_CLICK)) {
 						boolean handledTap = proxy.fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
 						boolean handledClick = proxy.fireEvent(TiC.EVENT_DOUBLE_CLICK, dictFromEvent(e));
 						return handledTap || handledClick;
@@ -889,7 +889,7 @@ public abstract class TiUIView
 				@Override
 				public boolean onSingleTapConfirmed(MotionEvent e) {
 					if (DBG) { Log.d(LCAT, "TAP, TAP, TAP on " + proxy); }
-					if (proxy.hasListeners(TiC.EVENT_SINGLE_TAP)) {
+					if (proxy.hierarchyHasListener(TiC.EVENT_SINGLE_TAP)) {
 						return proxy.fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
 						// Moved click handling to the onTouch listener, because a single tap is not the
 						// same as a click.  A single tap is a quick tap only, whereas clicks can be held
@@ -909,11 +909,13 @@ public abstract class TiUIView
 					if (DBG){
 						Log.d(LCAT, "LONGPRESS on " + proxy);
 					}
-					if (proxy.hasListeners(TiC.EVENT_LONGPRESS)) {
+					
+					if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
 						proxy.fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
 					}
 				}
 			});
+		
 		touchable.setOnTouchListener(new OnTouchListener() {
 			public boolean onTouch(View view, MotionEvent event) {
 				if (event.getAction() == MotionEvent.ACTION_UP) {
