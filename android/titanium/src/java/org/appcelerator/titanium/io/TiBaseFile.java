@@ -75,10 +75,16 @@ public abstract class TiBaseFile
 		this.binary = false;
 	}
 
+	/**
+	 * @return true if the file is a File, false otherwise.
+	 */
 	public boolean isFile() {
 		return typeFile;
 	}
 
+	/**
+	 * @return true if the file is a directory, false otherwise.
+	 */
 	public boolean isDirectory() {
 		return typeDir;
 	}
@@ -104,10 +110,16 @@ public abstract class TiBaseFile
 		return modeWrite;
 	}
 
+	/**
+	 * @return true if the file is hidden, false otherwise.
+	 */
 	public boolean isHidden() {
 		return flagHidden;
 	}
 
+	/**
+	 * @return true if the file is a symbolic link, false otherwise.
+	 */
 	public boolean isSymbolicLink() {
 		return flagSymbolicLink;
 	}
@@ -202,6 +214,9 @@ public abstract class TiBaseFile
 		return null;
 	}
 
+	/**
+	 * @return a list of all files and directories in this directory.
+	 */
 	public List<String> getDirectoryListing() {
 		logNotSupported("getDirectoryListing");
 		return null;
@@ -249,11 +264,17 @@ public abstract class TiBaseFile
 		return moved;
 	}
 
+	/**
+	 * @return the file's name.
+	 */
 	public String name() {
 		logNotSupported("name");
 		return null;
 	}
 
+	/**
+	 * @return the file's path.
+	 */
 	public String nativePath() {
 		logNotSupported("nativePath");
 		return null;

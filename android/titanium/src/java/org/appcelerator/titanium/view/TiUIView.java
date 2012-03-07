@@ -91,6 +91,10 @@ public abstract class TiUIView
 
 	private boolean zIndexChanged = false;
 
+	/**
+	 * Constructs a TiUIView object with the associated proxy.
+	 * @param proxy the associated proxy.
+	 */
 	public TiUIView(TiViewProxy proxy)
 	{
 		if (idGenerator == null) {
@@ -176,6 +180,9 @@ public abstract class TiUIView
 		this.parent = parent;
 	}
 
+	/**
+	 * @return the view's layout params.
+	 */
 	public LayoutParams getLayoutParams()
 	{
 		return layoutParams;

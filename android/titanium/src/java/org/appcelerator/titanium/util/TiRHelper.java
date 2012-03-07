@@ -23,6 +23,9 @@ public class TiRHelper {
 	private static String clsPrefixAndroid     = "android.R$";
 	private static String clsPrefixApplication = null;
 	
+	/**
+	 * The exception thrown by TiRHelper when a particular resource is not found.
+	 */
 	public static final class ResourceNotFoundException extends ClassNotFoundException {
 		private static final long serialVersionUID = 119234857198273641L;
 		
@@ -47,6 +50,7 @@ public class TiRHelper {
 		return new String[] { className, fieldName };
 	}
 	
+
 	protected static int getResource(String prefix, String path) throws ResourceNotFoundException {
 		Integer i = valCache.get(path);
 		if (i != null) return i;
@@ -78,6 +82,13 @@ public class TiRHelper {
 		return i;
 	}
 	
+	/**
+	 * Searches for the resource given its path.
+	 * @param path the resource's path.
+	 * @param includeSystemResources whether to throw an exception when the resource is not found.
+	 * @return the resource.
+	 * @throws ResourceNotFoundException the thrown exception.
+	 */
 	public static int getResource(String path, boolean includeSystemResources) throws ResourceNotFoundException {
 		Integer i = valCache.get(path);
 		if (i != null) return i;
@@ -95,7 +106,12 @@ public class TiRHelper {
 		}
 	}
 
-	
+	/**
+	 * Search for the resource given its path. No exception will be thrown if the resource cannot be locatd.
+	 * @param path the resource's path
+	 * @return the resource.
+	 * @throws ResourceNotFoundException the thrown exception.
+	 */
 	public static int getResource(String path) throws ResourceNotFoundException
 	{
 		return getResource(path, true);

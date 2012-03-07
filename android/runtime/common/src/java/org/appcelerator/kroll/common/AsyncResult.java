@@ -20,10 +20,17 @@ public class AsyncResult extends Semaphore
 	protected Object arg;
 	protected Throwable exception;
 	
+	/**
+	 * Constructs an AsyncResult with no argument.
+	 */
 	public AsyncResult() {
 		this(null);
 	}
 
+	/**
+	 * Constructs an AsyncResult with an argument.
+	 * @param arg the passed in argument
+	 */
 	public AsyncResult(Object arg) {
 		super(0);
 		this.arg = arg;
@@ -55,6 +62,9 @@ public class AsyncResult extends Semaphore
 		this.release();
 	}
 
+	/**
+	 * @return the result, blocking the current thread until another thread calls {@link #getResult()}
+	 */
 	public Object getResult()
 	{
 		try {

@@ -18,6 +18,9 @@ import android.util.Config;
  */
 public class TiConfig
 {
+	/**
+	 * This constant can be set with property 'debug' in tiapp.xml. If sets to true, internal debugging logs is displayed
+	 */
 	public static boolean LOGD = Config.DEBUG;
 	public static boolean LOGV = Config.DEBUG;
 	public static boolean DEBUG = Config.DEBUG;

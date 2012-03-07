@@ -43,6 +43,9 @@ public class KrollModule extends KrollProxy
 		return customModuleInfoList;
 	}
 
+	/**
+	 * Constructs a new KrollModule object.
+	 */
 	public KrollModule()
 	{
 		super();
@@ -131,6 +134,10 @@ public class KrollModule extends KrollProxy
 	}
 	
 	// TODO @Override
+	/**
+	 * Implementing classes can use this method to examine the properties passed into the proxy.
+	 * @param properties  a set of properties to process.
+	 */
 	public void processProperties(KrollDict properties) {
 	}
 	

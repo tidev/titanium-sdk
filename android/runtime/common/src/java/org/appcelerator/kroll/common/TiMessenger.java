@@ -91,11 +91,19 @@ public class TiMessenger implements Handler.Callback
 		return threadLocalMessenger.get();
 	}
 
+	/**
+	 * @return the main TiMessenger instance. This is used for sending messages to the Main thread.
+	 * See {@link #sendBlockingMainMessage(Message, Object)} for more details.
+	 */
 	public static TiMessenger getMainMessenger()
 	{
 		return mainMessenger;
 	}
 
+	/**
+	 * @return the KrollRuntime TiMessenger instance. This is used for sending messages to the KrollRuntime thread.
+	 * See {@link #sendBlockingRuntimeMessage(Message, Object) for more details
+	 */
 	public static TiMessenger getRuntimeMessenger()
 	{
 		return runtimeMessenger;
@@ -180,6 +188,9 @@ public class TiMessenger implements Handler.Callback
 		handler = new Handler(this);
 	}
 
+	/**
+	 * @return the native looper. See {@link android.os.Looper} for more details.
+	 */
 	public Looper getLooper()
 	{
 		return looper;

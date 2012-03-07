@@ -24,6 +24,12 @@ public class TiFileFactory
 	private static final String LCAT = "TiFileFactory";
 	private static final boolean DBG = TiConfig.LOGD;
 
+	/**
+	 * A wrapper function. Refer to {@link #createTitaniumFile(String[], boolean)} for more details.
+	 * @param path the path of the file
+	 * @param stream this is not being used
+	 * @return a TiBaseFile instance
+	 */
 	public static TiBaseFile createTitaniumFile(String path, boolean stream)
 	{
 		String[] parts = { path };

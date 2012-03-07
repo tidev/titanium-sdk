@@ -56,6 +56,9 @@ import android.view.View;
 	"focusable", "touchEnabled", "visible", "enabled", "opacity",
 	"softKeyboardOnFocus", "transform"
 })
+/**
+ * The parent class of view proxies.
+ */
 public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 {
 	private static final String LCAT = "TiViewProxy";
@@ -89,6 +92,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	private boolean isDecorView = false;
 	private AtomicBoolean layoutStarted = new AtomicBoolean();
 	
+	/**
+	 * Constructs a new TiViewProxy instance.
+	 */
 	public TiViewProxy()
 	{
 		langConversionTable = getLangConversionTable();
@@ -239,6 +245,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return options;
 	}
 
+	/**
+	 * @return a table mapping of landid keys to actual keys used to specify things such as titleid vs title
+	 * for localization purposes.
+	 */
 	protected KrollDict getLangConversionTable()
 	{
 		// subclasses override to return a table mapping of langid keys to actual keys
@@ -434,6 +444,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		view = null;
 	}
 
+	/**
+	 * @return the TiUIView associated with this proxy.
+	 */
 	public TiUIView peekView()
 	{
 		return view;
@@ -450,6 +463,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return getOrCreateView();
 	}
 
+	/**
+	 * Creates or retrieves the view associated with this proxy.
+	 * @return a TiUIView instance.
+	 */
 	public TiUIView getOrCreateView()
 	{
 		if (activity == null || view != null) {
@@ -523,6 +540,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		setModelListener(null);
 	}
 
+	/**
+	 * Implementing classes should use this method to create and return the appropriate view.
+	 * @param activity the context activity.
+	 * @return a TiUIView instance.
+	 */
 	public abstract TiUIView createView(Activity activity);
 
 	@Kroll.method

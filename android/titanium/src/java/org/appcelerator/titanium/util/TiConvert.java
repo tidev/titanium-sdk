@@ -452,6 +452,12 @@ public class TiConvert
 		return toDouble(hashMap.get(key));
 	}
 
+	/**
+	 * Converts a vlaue into a String. If value is null, a default value is returned.
+	 * @param value the value to convert.
+	 * @param defaultString the default value.
+	 * @return a String.
+	 */
 	public static String toString(Object value, String defaultString)
 	{
 		String result = toString(value);
@@ -483,6 +489,11 @@ public class TiConvert
 		return toString(hashMap.get(key));
 	}
 
+	/**
+	 * Converts an Object array into a String array.
+	 * @param parts the object array to convert
+	 * @return a String array.
+	 */
 	public static String[] toStringArray(Object[] parts)
 	{
 		String[] sparts = (parts != null ? new String[parts.length] : new String[0]);
