@@ -101,7 +101,10 @@ def zip_packaged_modules(zf, source_dir, dest_prefix):
 			if not fname.lower().endswith(".zip"):
 				continue
 			source_zip = zipfile.ZipFile(os.path.join(root, fname), "r")
-			prepend = "%s%s" % (dest_prefix, root.replace(source_dir, "").replace("\\", "/"))
+			rel_path = root.replace(source_dir, "").replace("\\", "/")
+			if rel_path.startswith("/"):
+				rel_path = rel_path[1:]
+			prepend = "%s%s" % (dest_prefix, rel_path)
 			try:
 				zip2zip(source_zip, zf, prepend)
 			finally:
