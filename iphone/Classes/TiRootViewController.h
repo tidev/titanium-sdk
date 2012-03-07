@@ -62,7 +62,7 @@
  */
 @property(nonatomic,readonly) BOOL keyboardVisible;
 
-/**
+/*
  Returns image view being displayed while application's view is loading.
  */
 @property(nonatomic,readonly) UIImageView * defaultImageView;
@@ -78,13 +78,13 @@
  */
 -(void)dismissDefaultImageView;
 
-/**
+/*
  Provides access to background color of the view represented by the root view controller.
  @see backgroundImage
  */
 @property(nonatomic,readwrite,retain)	UIColor * backgroundColor;
 
-/**
+/*
  Provides access to background image of the view represented by the root view controller.
  @see backgroundColor
  */
@@ -119,7 +119,14 @@
 
 -(void)refreshOrientationWithDuration:(NSTimeInterval) duration;
 -(NSTimeInterval)suggestedRotationDuration;
+
+/**
+ Tells the controller to perform rotation to the specified orientation.
+ @param newOrientation The new orientation.
+ @param duration The rotation animation duration.
+ */
 -(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration;
+
 -(UIInterfaceOrientation)lastValidOrientation;
 
 /**

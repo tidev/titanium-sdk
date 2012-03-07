@@ -11,18 +11,43 @@
 #import "TiUIView.h"
 #import "TiViewController.h"
 
+/**
+ Titanium orientation flags.
+ */
 typedef enum
 {
 	TiOrientationNone = 0,
 	TiOrientationAny = 0xFFFF,
 	
+    /**
+     Portrait orientation flag.
+     */
 	TiOrientationPortrait			= 1 << UIInterfaceOrientationPortrait,
-	TiOrientationPortraitUpsideDown	= 1 << UIInterfaceOrientationPortraitUpsideDown,
-	TiOrientationLandscapeLeft		= 1 << UIInterfaceOrientationLandscapeLeft,
-	TiOrientationLandscapeRight		= 1 << UIInterfaceOrientationLandscapeRight,
 
-	TiOrientationLandscapeOnly		= TiOrientationLandscapeLeft | TiOrientationLandscapeRight,
-	TiOrientationPortraitOnly		= TiOrientationPortrait | TiOrientationPortraitUpsideDown,
+    /**
+     Upside-down portrait orientation flag.
+     */
+	TiOrientationPortraitUpsideDown	= 1 << UIInterfaceOrientationPortraitUpsideDown,
+	
+    /**
+     Landscape left orientation flag.
+     */
+    TiOrientationLandscapeLeft		= 1 << UIInterfaceOrientationLandscapeLeft,
+	
+    /**
+     Landscape right orientation flag.
+     */
+    TiOrientationLandscapeRight		= 1 << UIInterfaceOrientationLandscapeRight,
+
+    /**
+     Landscape (left or right) orientation flag.
+     */
+    TiOrientationLandscapeOnly		= TiOrientationLandscapeLeft | TiOrientationLandscapeRight,
+	
+    /**
+     Portrait (normal or upside-down) orientation flag.
+     */
+    TiOrientationPortraitOnly		= TiOrientationPortrait | TiOrientationPortraitUpsideDown,
 	
 } TiOrientationFlags;
 
@@ -122,13 +147,13 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 -(void)open:(id)args;
 -(void)close:(id)args;
 
-/**
+/*
  Returns the tab group the proxy's window is attached to if any.
  @return The tab group proxy the window is attached to.
  */
 -(TiProxy*)tabGroup;
 
-/**
+/*
  The tab in tab group the proxy's window is associated with if any.
  @return The tab  proxy the window is accosiated with
  */
@@ -136,11 +161,22 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 
 #pragma mark Internal
 -(void)attachViewToTopLevelWindow;
+
+/**
+ Tells the window proxy when its window is opened.
+ */
 -(void)windowReady;
+
 -(BOOL)handleFocusEvents;
 -(BOOL)_isChildOfTab;
 -(void)_associateTab:(UIViewController*)controller_ navBar:(UINavigationController*)navbar_ tab:(TiProxy<TiTab>*)tab_;
--(void)prepareForNavView:(UINavigationController*)navController_;
+
+/**
+ Tells the window proxy to do a preparation to be added to UINavigationController.
+ @param navController The navigation view controller the window proxy will be added to.
+ */
+-(void)prepareForNavView:(UINavigationController*)navController;
+
 -(BOOL)modalFlagValue;
 
 /**
