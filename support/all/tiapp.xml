@@ -16,6 +16,7 @@
     <navbar-hidden>false</navbar-hidden>
     <analytics>true</analytics>
     <guid></guid>
+    <property name="ti.ui.defaultunit">system</property>
 	<iphone>
 		<orientations device="iphone">
 			<orientation>Ti.UI.PORTRAIT</orientation>

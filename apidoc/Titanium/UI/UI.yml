@@ -123,6 +123,21 @@ methods:
         optional: true
     returns:
         type: Titanium.UI.2DMatrix
+  - name: convertUnits
+    summary: Converts one type of unit to another using the metrics of the main Display.
+    parameters:
+      - name: convertFromValue
+        summary: |
+            A measurement and optional unit to convert from, i.e. 160, "120dip".  Percentages are not allowed.
+        type: String
+      - name: convertToUnits
+        summary: |
+            The desired unit for the conversion result. Use one of the unit constants in <Titanium.UI>.
+        type: String
+    returns:
+        type: Number
+        description: Returns the converted amount in the units of convertToUnits. If percentages are passed in, 0 is returned.
+    since: "2.0.0"
 properties:
   - name: ANIMATION_CURVE_EASE_IN
     summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
@@ -400,6 +415,12 @@ properties:
     summary: Constant value for face-up orientation.
     type: Number
     permission: read-only
+  - name: FILL
+    summary: FILL behavior for UI layout.
+    since: "2.0.0"
+    type: String
+    description: The FILL behavior means the view will grow its size to fill its parent.
+    permission: read-only
   - name: INPUT_BORDERSTYLE_BEZEL
     summary: Use a bezel-style border on the input field.
     platforms: [android, iphone, ipad]
@@ -601,17 +622,26 @@ properties:
         on iOS devices, the default label is "return"; on Android devices it is "Go".
     type: Number
     permission: read-only
+  - name: SIZE
+    summary: SIZE behavior for UI layout.
+    since: "2.0.0"
+    type: String
+    description: The SIZE behavior means the view will constrain its size fit its contents.
+    permission: read-only
   - name: TEXT_ALIGNMENT_CENTER
     summary: Center align text.
-    type: Number
+    type: [Number, String]
+    description: This constant is a string on android, and a number on iOS and mobileweb.
     permission: read-only
   - name: TEXT_ALIGNMENT_LEFT
     summary: Left align text.
-    type: Number
+    type: [Number, String]
+    description: This constant is a string on android, and a number on iOS and mobileweb.
     permission: read-only
   - name: TEXT_ALIGNMENT_RIGHT
     summary: Right align text.
-    type: Number
+    type: [Number, String]
+    description: This constant is a string on android, and a number on iOS and mobileweb.
     permission: read-only
   - name: TEXT_AUTOCAPITALIZATION_ALL
     summary: Auto-capitalize all text in the input field.
@@ -633,15 +663,43 @@ properties:
     permission: read-only
   - name: TEXT_VERTICAL_ALIGNMENT_BOTTOM
     summary: Align text to the bottom of the view.
-    type: Number
+    type: [Number, String]
+    description: This constant is a string on android, and a number on iOS and mobileweb.
     permission: read-only
   - name: TEXT_VERTICAL_ALIGNMENT_CENTER
     summary: Vertically align text to the center of the view.
-    type: Number
+    type: [Number, String]
+    description: This constant is a string on android, and a number on iOS and mobileweb.
     permission: read-only
   - name: TEXT_VERTICAL_ALIGNMENT_TOP
     summary: Align text to the top of the view.
-    type: Number
+    type: [Number, String]
+    description: This constant is a string on android, and a number on iOS and mobileweb.
+    permission: read-only
+  - name: UNIT_CM
+    summary: Unit constant representing units in centimeters.
+    since: "2.0.0"
+    type: String
+    permission: read-only
+  - name: UNIT_DIP
+    summary: Unit constant representing units in density-independent pixels.
+    since: "2.0.0"
+    type: String
+    permission: read-only
+  - name: UNIT_IN
+    summary: Unit constant representing units in inches.
+    since: "2.0.0"
+    type: String
+    permission: read-only
+  - name: UNIT_MM
+    summary: Unit constant representing units in millimeters.
+    since: "2.0.0"
+    type: String
+    permission: read-only
+  - name: UNIT_PX
+    summary: Unit constant representing units in pixels.
+    since: "2.0.0"
+    type: String
     permission: read-only
   - name: UNKNOWN
     summary: Orientation constant representing an unknown orientation.

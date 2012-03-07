@@ -32,10 +32,8 @@ define(["Ti/_", "Ti/_/string", "Ti/Filesystem"], function(_, string, Filesystem)
 				return "url(" + url.toString() + ")";
 			}
 			var match = url && url.match(/^(.+):\/\//),
-				file = match && ~Filesystem.protocols.indexOf(match[1]) && Filesystem.getFile(url),
-				isFile = file && file.exists();
-			url = isFile ? url : "";
-			return isFile
+				file = match && ~Filesystem.protocols.indexOf(match[1]) && Filesystem.getFile(url);
+			return file && file.exists()
 				? "url(" + file.read().toString() + ")"
 				: !url || url === "none"
 					? ""

@@ -523,6 +523,20 @@ extern NSString * const kTiGestureShakeNotification;
 extern NSString * const kTiRemoteControlNotification;
 
 extern NSString * const kTiLocalNotification;
+    
+extern NSString* const kTiBehaviorSize;
+extern NSString* const kTiBehaviorFill;
+extern NSString* const kTiBehaviorAuto;
+extern NSString* const kTiUnitPixel;
+extern NSString* const kTiUnitCm;
+extern NSString* const kTiUnitMm;
+extern NSString* const kTiUnitInch;
+extern NSString* const kTiUnitDip;
+extern NSString* const kTiUnitDipAlternate;
+extern NSString* const kTiUnitSystem;
+extern NSString* const kTiUnitPercent;
+    
+
 
 #ifndef ASI_AUTOUPDATE_NETWORK_INDICATOR
 	#define ASI_AUTOUPDATE_NETWORK_INDICATOR 0

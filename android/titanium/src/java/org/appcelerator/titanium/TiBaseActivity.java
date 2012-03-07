@@ -124,6 +124,7 @@ public abstract class TiBaseActivity extends Activity
 	public void setWindowProxy(TiWindowProxy proxy)
 	{
 		this.window = proxy;
+		layout.setProxy(proxy);
 		updateTitle();
 	}
 	
@@ -270,7 +271,8 @@ public abstract class TiBaseActivity extends Activity
 			arrangement = LayoutArrangement.VERTICAL;
 		}
 
-		return new TiCompositeLayout(this, arrangement);
+		// set to null for now, this will get set correctly in setWindowProxy()
+		return new TiCompositeLayout(this, arrangement, null);
 	}
 
 	protected void setFullscreen(boolean fullscreen)
