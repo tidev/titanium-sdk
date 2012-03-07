@@ -69,7 +69,7 @@ tableview.addEventListener('click', function(e)
 
 	if (rowdata.auto === true)
 	{
-		webview = Ti.UI.createWebView({height:'auto',width:'auto'});
+		webview = Ti.UI.createWebView({height:Ti.UI.SIZE,width:Ti.UI.SIZE});
 	}
 	else
 	{

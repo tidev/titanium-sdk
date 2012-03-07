@@ -410,7 +410,7 @@ public class TiUIScrollableView extends TiUIView
 	{
 		public TiViewPagerLayout(Context context)
 		{
-			super(context);
+			super(context, proxy);
 			setFocusable(true);
 			setFocusableInTouchMode(true);
 			setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
