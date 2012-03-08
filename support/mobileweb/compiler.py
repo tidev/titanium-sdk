@@ -552,6 +552,7 @@ class Compiler(object):
 			'Ti/Filesystem/File',
 			'Ti/Filesystem/FileStream',
 			'Ti/IOStream',
+			'Ti/Locale',
 			'Ti/Media',
 			'Ti/Media/VideoPlayer',
 			'Ti/Network',
