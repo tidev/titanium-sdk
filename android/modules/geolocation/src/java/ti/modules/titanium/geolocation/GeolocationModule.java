@@ -31,7 +31,82 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 
-
+/*
+ * GeolocationModule exposes all common methods and properties relating to geolocation behavior 
+ * associated with Ti.Geolocation to the Titanium developer.  Only cross platform API points should 
+ * be exposed through this class as Android only API points or types should be put in a Android module 
+ * under this module.
+ * 
+ * The GeolocationModule provides management for 3 different location behavior modes (detailed 
+ * descriptions will follow below):
+ * <ul>
+ * 	<li>legacy - existing behavior found in Titanium Mobile 1.7 and 1.8. <b>DEPRECATED</b></li>
+ * 	<li>simple - replacement for the old legacy mode that allows for better parity across platforms</li>
+ * 	<li>manual - Android specific mode that exposes full control over the providers and rules</li>
+ * </ul>
+ * 
+ * <p>
+ * <b>Legacy location mode</b>:<br>
+ * This mode operates on receiving location updates from a single active provider at a time.  Settings 
+ * used to pick and register a provider with the OS are pulled from the PROPERTY_ACCURACY, PROPERTY_FREQUENCY
+ * and PROPERTY_PREFERRED_PROVIDER properties on the module.
+ * <p>
+ * The valid accuracy properties for this location mode are ACCURACY_BEST, ACCURACY_NEAREST_TEN_METERS, 
+ * ACCURACY_HUNDRED_METERS, ACCURACY_KILOMETER and ACCURACY_THREE_KILOMETERS.  The accuracy property is a 
+ * double value that will be used by the OS as a way to determine how many meters should change in location 
+ * before a new update is sent.  Accuracy properties other than this will either be ignored or change the 
+ * current location behavior mode.  The frequency property is a double value that is used by the OS to determine 
+ * how much time in milliseconds should pass before a new update is sent.  
+ * <p>
+ * The OS uses some fuzzy logic to determine the update frequency and these values are treated as no more than 
+ * suggestions.  For example:  setting the frequency to 0 milliseconds and the accuracy to 10 meters may not 
+ * result in a update being sent as fast as possible which is what frequency of 0 ms indicates.  This is due to 
+ * the OS not sending updates till the accuracy property is satisfied.  If the desired behavior is to get updates 
+ * purely based on time then the suggested mechanism would be to set the accuracy to 0 meters and then set the 
+ * frequency to the desired update interval in milliseconds.
+ * 
+ * <p>
+ * <b>Simple location mode</b>:<br>
+ * This mode operates on receiving location updates from multiple sources.  The simple mode has two states - high 
+ * accuracy and low accuracy.  The difference in these two modes is that low accuracy has the passive and network 
+ * providers registered by default where the high accuracy state enables the gps provider in addition to the passive 
+ * and network providers.  The simple mode utilizes location rules for filtering location updates to try and fall back 
+ * gracefully (when in high accuracy state) to the network and passive providers if a gps update has not been received 
+ * recently.  
+ * <p>
+ * No specific controls for time or distance (better terminology in line with native Android docs but these 
+ * are called frequency and accuracy in legacy mode) are exposed to the Titanium developer as the details of this mode 
+ * are supposed to be driven by Appcelerator based on our observations.  If greater control on the part of the Titanium 
+ * developer is needed then the manual behavior mode can and should be used.
+ * 
+ * <p>
+ * <b>Manual location mode</b>:<br>
+ * This mode put full control over providers and rules in the hands of the Titanium developer.  The developer will be 
+ * responsible for registering location providers, setting time and distance settings per provider and defining the rule 
+ * set if any rules are desired.
+ * <p>
+ * In this mode, the developer would create a Ti.Geolocation.Android.LocationProvider object for each provider they want 
+ * to use and add this to the list of manual providers via addLocationProvider(LocationProviderProxy).  In order to set 
+ * rules, the developer will have to create a Ti.Geolocation.Android.LocationRule object per rule and then add register 
+ * those via addLocationRule(LocationRuleProxy).  These rules will be applied to any location updates that come from the 
+ * registered providers.  Further information on the LocationProvider and LocationRule objects can be found by looking at 
+ * those specific classes.
+ * 
+ * <p>
+ * <b>General location behavior</b>:<br>
+ * The GeolocationModule is capable of switching modes at any time and keeping setting per mode separated.  Changing modes 
+ * is usually done by updating the Ti.Geolocation.accuracy property. Based on the new value of the accuracy property, the 
+ * legacy or simple modes may be enabled (and turn off the previous mode).  For enabling the manual mode, this is done by 
+ * adding or removing location providers or updating existing location providers.  NOTE:  updating the location rules will 
+ * not update the mode.
+ * <p>
+ * In regards to actually "turning on" the providers by registering them with the OS - this is triggered by the presence of 
+ * "location" event listeners on the GeolocationModule.  When the first listener is added, providers start being registered 
+ * with the OS.  When there are no listeners then all the providers are de-registered.  Changes made to location providers or
+ * accuracy, frequency properties or even changing modes are respected and kept but don't actually get applied on the OS until 
+ * the listener count is greater than 0.
+ * 
+ */
 @Kroll.module(propertyAccessors={
 	TiC.PROPERTY_ACCURACY,
 	TiC.PROPERTY_FREQUENCY,
@@ -85,7 +160,9 @@ public class GeolocationModule extends KrollModule
 	private boolean compassListenersRegistered = false;
 	private Location currentLocation;
 
-
+	/*
+	 * Constructor
+	 */
 	public GeolocationModule()
 	{
 		super();
