@@ -1,21 +1,67 @@
 define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], function(declare, dom, lang, UI, View) {
 
-	var stack = [],
-		sessId = Math.random(),
-		hist = window.history || {},
-		ps = hist.pushState;
-
-	ps && require.on(window, "popstate", function(evt) {
-		var n = stack.length,
-			win = n && stack[n-1],
-			widgetId;
-
-		if (evt && evt.state && evt.state.sessId === sessId && (widgetId = evt.state.id)) {
-			if (n > 1 && stack[n-2].widgetId === widgetId) {
-				win.close();
-				UI._setWindow(win = stack[stack.length-1]);
-				win.fireEvent("focus", win._state);
+	var sessionId = Math.random(),historyStack = [],
+		pageNum = 1,
+		hist = window.history,
+		POP_STATE_WAITING_FOR_OPERATION = -1,
+		POP_STATE_UNDOING_OPERATION = -2,
+		POP_STATE_PUSHING = -3,
+		POP_STATE_REWINDING_HISTORY = -4,
+		POP_STATE_RESETTING = -5,
+		historyPopState = POP_STATE_WAITING_FOR_OPERATION,
+		prefix = location.href;
+	
+	function pushToHistory(widget) {
+		historyPopState = POP_STATE_PUSHING;
+		historyStack.push(widget);
+		location.href = prefix + "#" + (widget.title || widget.widgetId);
+	}
+	
+	function removeFromHistory(widget) {
+		if (historyStack.length > 0 && historyPopState === POP_STATE_WAITING_FOR_OPERATION) {
+			var historyStackIndex = historyStack.indexOf(widget);
+			if (historyStackIndex !== -1) {
+				historyStack.splice(historyStackIndex,historyStack.length - historyStackIndex);
+				historyPopState = POP_STATE_REWINDING_HISTORY;
+				hist.go(-historyStack.length - 1);
 			}
+		}
+	}
+	
+	window.addEventListener("popstate", function(e) {
+		switch(historyPopState) {
+			case POP_STATE_WAITING_FOR_OPERATION: 
+				// We need to undo the previous operation and redo it
+				var listItem = window.location.href.split("#")[1];
+				if (listItem) {
+					historyPopState = POP_STATE_UNDOING_OPERATION;
+					hist.forward();
+				}
+				break;
+			case POP_STATE_UNDOING_OPERATION:
+				var widget = historyStack[historyStack.length - 1];
+				historyPopState = POP_STATE_WAITING_FOR_OPERATION;
+				widget.close();
+				break;
+			case POP_STATE_PUSHING: 
+				historyPopState = POP_STATE_WAITING_FOR_OPERATION;
+				break;
+			case POP_STATE_REWINDING_HISTORY:
+				historyPopState = POP_STATE_RESETTING;
+				location.href = prefix + "#_history_reset";
+				break;
+			case POP_STATE_RESETTING: 
+				historyPopState = 0;
+				hist.back();
+				break;
+			default: 
+				if (historyPopState < historyStack.length) {
+					var widget = historyStack[historyPopState++];
+					location.href = prefix + "#" + (widget.title || widget.widgetId);
+				} else {
+					historyPopState = POP_STATE_WAITING_FOR_OPERATION;
+				}
+				break;
 		}
 	});
 
@@ -33,17 +79,11 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], functio
 		},
 
 		open: function(args) {
-			var len = stack.length,
-				active = len && stack[len-1];
-
 			if (!this._opened) {
 				this._opened = 1;
 				UI._addWindow(this, 1).show();
-
-				active && active.fireEvent("blur", active._state);
-				ps && history[active ? "pushState" : "replaceState"]({ id: this.widgetId, sessId: sessId }, "", "");
-				stack.push(this);
-				this._stackIdx = len;
+				
+				pushToHistory(this);
 
 				this.fireEvent("open");
 				this.fireEvent("focus", this._state);
@@ -54,18 +94,15 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], functio
 			if (this._opened) {
 				this._opened = 0;
 				UI._removeWindow(this);
-
-				this._stackIdx !== null && this._stackIdx < stack.length && stack.splice(this._stackIdx, 1);
-				this._stackIdx = null;
-				UI._setWindow(stack[stack.length-1]);
-
-				this.fireEvent("blur", this._state);
+				
+				removeFromHistory(this);
+				
 				this.fireEvent("close");
 			}
 		},
 
 		setWindowTitle: function(title) {
-			stack[stack.length-1] === this && (document.title = title || require.config.project.name);
+			historyStack[historyStack.length-1] === this && (document.title = title || require.config.project.name);
 			return title;
 		}
 
