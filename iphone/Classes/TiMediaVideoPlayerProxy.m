@@ -684,10 +684,9 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)setFullscreen:(id)value
 {
-	ENSURE_UI_THREAD(setFullscreen,value);
-	if (movie != nil) {
+	if (movie != nil && sizeDetermined) {
 		BOOL fs = [TiUtils boolValue:value];
-		[movie setFullscreen:fs];
+        TiThreadPerformOnMainThread(^{[movie setFullscreen:fs];}, NO);
 	}
 	
 	if ([value isEqual:[loadProperties valueForKey:@"fullscreen"]])
@@ -932,13 +931,13 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)handleNaturalSizeAvailableNotification:(NSNotification*)note
 {
+	sizeDetermined = YES;
 	[self setFullscreen:[loadProperties valueForKey:@"fullscreen"]];
 	if ([self _hasListeners:@"naturalSizeAvailable"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self naturalSize] forKey:@"naturalSize"];
 		[self fireEvent:@"naturalSizeAvailable" withObject:event];
 	}
-	sizeDetermined = YES;
 }
 
 -(void)handleLoadStateChangeNotification:(NSNotification*)note
