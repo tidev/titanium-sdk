@@ -97,11 +97,7 @@
 
 -(void)removeFromTabGroup
 {
-	if (current!=nil)
-	{
-		TiWindowProxy *currentWindow = [current window];
-		[self closeWindow:currentWindow animated:YES removeTab:YES];
-	}
+    [self closeWindow:[current window] animated:YES removeTab:YES];
 }
 
 -(void)closeTab
@@ -319,6 +315,10 @@
     UIViewController *windowController = [[window controller] retain];
     if (closingCurrentWindow) {
         [self setTabGroup:nil];
+        if ((windowController == nil) && (window == nil)) {
+            // tab was never focused so its controller was never added to the stack
+            windowController = [rootController retain];
+        }
     }
 
 	// Manage the navigation controller stack

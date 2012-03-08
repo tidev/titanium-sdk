@@ -86,9 +86,10 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 			}
 		}, document.body);
 		
-		
 		["Date", "Time", "DateTime"].forEach(function(type) {
-			inputRuler.type = type;
+			try {
+				inputRuler.type = type;
+			} catch(e) {}
 			inputSizes[type] = {
 				width: inputRuler.clientWidth + 2 * borderRadius,
 				height: inputRuler.clientHeight + 2 * borderRadius

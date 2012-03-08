@@ -26,6 +26,10 @@
 	RELEASE_TO_NIL(backgroundLayer);
 	[super dealloc];
 }
+-(CGFloat)autoHeightForWidth:(CGFloat)width
+{
+    return [[self searchBar] sizeThatFits:CGSizeZero].height;
+}
 
 -(UISearchBar*)searchBar
 {
