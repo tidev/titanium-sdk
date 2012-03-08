@@ -26,9 +26,27 @@ description: |
 
         httpResponse = this.responseText;
         status = this.status;
-
-    Mobile web requires cross-domain origin policies to be configured on the web servers 
-    in order for cross-domain connections to work.
+    
+    #### Mobile Web Platform Implementation Notes
+    
+    Mobile Web is limited by the same-origin policy. According to W3C: "User agents 
+    commonly apply same-origin restrictions to network requests. These restrictions 
+    prevent a client-side Web application running from one origin from obtaining 
+    data retrieved from another origin, and also limit unsafe HTTP requests that can 
+    be automatically launched toward destinations that differ from the running 
+    application's origin."  This means that browsers cannot request information from 
+    a domain that the app itself does not reside on. If you are hosting the app at 
+    foo.example.com, then requests to any domain other than *.example.com will fail.
+    
+    There are two solutions to get around this problem:
+      
+    * Configure the destination server to support Cross-Origin Resource Sharing.
+    * Use [Ti.Network.httpURLFormatter](Titanium.Network.httpURLFormatter) in conjunction 
+      with a proxy on the server hosting the application.
+    
+    More information about Cross-Origin Resource Sharing can be found on the 
+    [W3C Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) specification page.
+    
 extends: Titanium.Proxy
 since: "0.1"
 methods:
