@@ -5,23 +5,28 @@ extends: Titanium.Proxy
 platforms: [iphone, ipad]
 since: "0.9"
 createable: false
+
 properties:
   - name: CURL_DOWN
     summary: Curl downwards during a transition animation
     type: Number
     permission: read-only
+    
   - name: CURL_UP
     summary: Curl upwards during a transition animation
     type: Number
     permission: read-only
+    
   - name: FLIP_FROM_LEFT
     summary: Flip from left to right during a transition animation
     type: Number
     permission: read-only
+    
   - name: FLIP_FROM_RIGHT
     summary: Flip from right to left during a transition animation
     type: Number
     permission: read-only
+    
   - name: NONE
     summary: No animation
     type: Number

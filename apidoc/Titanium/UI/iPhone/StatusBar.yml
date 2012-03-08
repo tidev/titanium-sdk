@@ -5,20 +5,26 @@ extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]
 createable: false
+
 properties:
   - name: DEFAULT
     summary: The default status bar style
     type: Number
     permission: read-only
+    
   - name: GRAY
     summary: The gray colored status bar style
     type: Number
     permission: read-only
+    
   - name: OPAQUE_BLACK
     summary: The opaque black status bar style.
     type: Number
     permission: read-only
+    
   - name: TRANSLUCENT_BLACK
-    summary: The translucent black status bar style. This style provides some level of transparency to the device background.
+    summary: |
+        The translucent black status bar style. This style provides some level of transparency to 
+        the device background.
     type: Number
     permission: read-only

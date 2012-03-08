@@ -5,6 +5,7 @@ extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]
 createable: false
+
 properties:
   - name: BIG
     summary: A large white spinning indicator.
