@@ -521,6 +521,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			view = null;
 		}
 		setModelListener(null);
+		KrollRuntime.suggestGC();
 	}
 
 	public abstract TiUIView createView(Activity activity);
