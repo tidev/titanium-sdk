@@ -1218,6 +1218,14 @@
     [tableview reloadData];
 }
 
+- (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
+{
+    if (searchActivated && ([searchBar.text length] == 0)) {
+        searchActivated = NO;
+        [tableview reloadData];
+    }
+}
+
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
 	[self setSearchString:searchText];
@@ -1236,8 +1244,10 @@
 {
 	// called when cancel button pressed
 	[searchBar setText:nil];
-    searchActivated = NO;
-    [tableview reloadData];
+    if (searchActivated) {
+        searchActivated = NO;
+        [tableview reloadData];
+    }
 }
 
 #pragma mark Section Header / Footer
