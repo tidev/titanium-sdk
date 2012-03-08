@@ -570,12 +570,12 @@ public class TiCompositeLayout extends ViewGroup
 		public boolean autoWidth = true;
 		
 		/**
-		 * If this is true, and {@link #autoWidth} is true, then the current view's width will be equivalent to its parent's.
+		 * If this is true, and {@link #autoWidth} is true, then the current view will fill available parent width.
 		 */
 		public boolean autoFillsWidth = false;
 		
 		/**
-		 * If this is true, and {@link #autoHeight} is true, then the current view's height will be equivalent to its parent's.
+		 * If this is true, and {@link #autoHeight} is true, then the current view will fill available parent height.
 		 */
 		public boolean autoFillsHeight = false;
 

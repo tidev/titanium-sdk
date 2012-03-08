@@ -277,7 +277,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/** 
-	 * @return the path of the file where this proxy is created in Javascript.
+	 * @return the absolute URL of the location in code where the proxy was created in Javascript.
 	 */
 	public TiUrl getCreationUrl()
 	{
