@@ -45,6 +45,7 @@
 		<string>Classes/TiBuffer.h</string>
 		<string>Classes/WebFont.h</string>
 		<string>Classes/Webcolor.h</string>
+		<string>Classes/TiRect.h</string>
 		<string>Classes/TiPoint.h</string>
 		<string>Classes/TiColor.h</string>
 		<string>Classes/Ti2DMatrix.h</string>

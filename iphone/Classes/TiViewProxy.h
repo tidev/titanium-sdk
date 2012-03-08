@@ -509,7 +509,7 @@ enum
 -(void)layoutChildren:(BOOL)optimize;
 
 /**
- Tells the view to layout its childrent only if there were any layout chnages.
+ Tells the view to layout its children only if there were any layout changes.
  */
 -(void)layoutChildrenIfNeeded;
 

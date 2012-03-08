@@ -72,7 +72,7 @@
  */
 @property(nonatomic,readonly) UIInterfaceOrientation windowOrientation;
 
-/**
+/*
  Tells the controller to hides and release the default image view.
  @see defaultImageView
  */

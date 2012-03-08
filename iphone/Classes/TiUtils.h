@@ -455,20 +455,20 @@ typedef enum {
 +(BOOL)isIPad;
 
 /**
- Whether or not the current OS version is equal or greather than 4.2.
- @return _YES_ if the current OS version is equal or greather than 4.2, _NO_ otherwise.
+ Whether or not the current OS version is equal to or greater than 4.2.
+ @return _YES_ if the current OS version is equal to or greater than 4.2, _NO_ otherwise.
  */
 +(BOOL)isIOS4_2OrGreater;
 
 /**
- Whether or not the current OS version is equal greather than 5.0.
- @return _YES_ if the current OS version is equal greather than 5.0, _NO_ otherwise.
+ Whether or not the current OS version isequal to or greater than 5.0.
+ @return _YES_ if the current OS version is equal to or greater thann 5.0, _NO_ otherwise.
  */
 +(BOOL)isIOS5OrGreater;
 
 /**
- Whether or not the current device is iPhone 4.
- @return _YES_ if the current device is iPhone 4, _NO_ otherwise.
+ Whether or not the current device is an iPhone 4.
+ @return _YES_ if the current device is an iPhone 4, _NO_ otherwise.
  */
 +(BOOL)isIPhone4;
 
