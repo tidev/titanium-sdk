@@ -432,7 +432,7 @@ class Builder(object):
 				sys.exit()
 		
 		# this will create an AVD on demand or re-use existing one if already created
-		if avd_name == "":
+		if avd_name == None:
 			avd_name = self.create_avd(avd_id,avd_skin)
 
 		# start the emulator
@@ -2072,19 +2072,19 @@ if __name__ == "__main__":
 
 	try:
 		if command == 'run-emulator':
-			s.run_emulator(avd_id, avd_skin, "", [])
+			s.run_emulator(avd_id, avd_skin, None, [])
 		elif command == 'run':
 			s.build_and_run(False, avd_id)
 		elif command == 'emulator':
 			avd_id = dequote(sys.argv[6])
 			if avd_id.isdigit():
-				avd_name = ""
+				avd_name = None
 				avd_skin = dequote(sys.argv[7])
 				add_args = sys.argv[8:]
 			else:
 				avd_name = sys.argv[6]
-				avd_id = ""
-				avd_skin = ""
+				avd_id = None
+				avd_skin = None
 				add_args = sys.argv[7:]
 			s.run_emulator(avd_id, avd_skin, avd_name, add_args)
 		elif command == 'simulator':
