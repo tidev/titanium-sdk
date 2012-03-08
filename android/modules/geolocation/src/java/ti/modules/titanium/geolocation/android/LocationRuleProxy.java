@@ -9,6 +9,7 @@ package ti.modules.titanium.geolocation.android;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -17,45 +18,58 @@ import android.location.Location;
 
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_PROVIDER,
-	TiC.PROPERTY_TIME,
-	TiC.PROPERTY_ACCURACY
+	TiC.PROPERTY_ACCURACY,
+	TiC.PROPERTY_TIME
 })
 public class LocationRuleProxy extends KrollProxy
 {
 	public LocationRuleProxy(Object[] creationArgs)
 	{
 		super();
+
 		handleCreationArgs(null, creationArgs);
+	}
+
+	public LocationRuleProxy(String provider, Double accuracy, Double time)
+	{
+		super();
+
+		setProperty(TiC.PROPERTY_PROVIDER, provider);
+		setProperty(TiC.PROPERTY_ACCURACY, accuracy);
+		setProperty(TiC.PROPERTY_TIME, time);
 	}
 
 	public boolean check(Location currentLocation, Location newLocation)
 	{
-		boolean isTrue = true;
+		boolean passed = true;
 
 		String provider = TiConvert.toString(properties.get(TiC.PROPERTY_PROVIDER));
 		if(provider != null) {
-			if(provider != newLocation.getProvider()) {
-				isTrue = false;
+			if(!(provider.equals(newLocation.getProvider()))) {
+				passed = false;
 			}
 		}
 
-		double time = TiConvert.toDouble(properties.get(TiC.PROPERTY_TIME));
-		if(time > 0) {
+		Object rawAccuracy = properties.get(TiC.PROPERTY_ACCURACY);
+		if(rawAccuracy != null) {
+			double accuracyValue = TiConvert.toDouble(rawAccuracy);
+			if(accuracyValue < newLocation.getAccuracy()) {
+				passed = false;
+			}
+		}
+
+		Object rawTime = properties.get(TiC.PROPERTY_TIME);
+		if(rawTime != null) {
+			double timeValue = TiConvert.toDouble(rawTime);
+
 			// make sure the update breaks the time threshold on the diff of the
 			// current and new location
-			if(time > (newLocation.getTime() - currentLocation.getTime())) {
-				isTrue = false;
+			if(timeValue < (newLocation.getTime() - currentLocation.getTime())) {
+				passed = false;
 			}
 		}
 
-		float accuracy = TiConvert.toFloat(properties.get(TiC.PROPERTY_ACCURACY));
-		if(accuracy > 0) {
-			if(accuracy > newLocation.getAccuracy()) {
-				isTrue = false;
-			}
-		}
-
-		return isTrue;
+		return passed;
 	}
 }
 

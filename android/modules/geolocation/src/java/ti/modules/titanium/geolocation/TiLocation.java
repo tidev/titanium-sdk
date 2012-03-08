@@ -96,7 +96,7 @@ public class TiLocation implements Handler.Callback
 	{
 		if (msg.what == MSG_LOOKUP) {
 			AsyncTask<Object, Void, Integer> task = getLookUpTask();
-			task.execute(msg.getData().getString(TiC.PROPERTY_URL), msg.getData().getString(TiC.PROPERTY_DIRECTION), ((Object[])msg.obj)[0], ((Object[])msg.obj)[1]);
+			task.execute(msg.getData().getString(TiC.PROPERTY_URL), msg.getData().getString(TiC.PROPERTY_DIRECTION), msg.obj);
 
 			return true;
 		}
@@ -217,7 +217,6 @@ public class TiLocation implements Handler.Callback
 		return url;
 	}
 
-	// TODO - cleanup
 	private AsyncTask<Object, Void, Integer> getLookUpTask()
 	{
 		AsyncTask<Object, Void, Integer> task = new AsyncTask<Object, Void, Integer>() {

@@ -28,7 +28,7 @@ public class LocationProviderProxy extends KrollProxy
 	public static final int STATE_UNAVAILABLE = 3;
 	public static final int STATE_AVAILABLE = 4;
 	public static final int STATE_UNKNOWN = 5;
-	public static final float defaultMinUpdateDistance = 1.0F;
+	public static final double defaultMinUpdateDistance = 1.0;
 	public static final double defaultMinUpdateTime = 5000;
 
 	private static final String TAG = "LocationProviderProxy";
@@ -55,7 +55,7 @@ public class LocationProviderProxy extends KrollProxy
 		this.providerListener = providerListener;
 	}
 
-	public LocationProviderProxy(String name, float minUpdateDistance, double minUpdateTime, LocationProviderListener providerListener)
+	public LocationProviderProxy(String name, double minUpdateDistance, double minUpdateTime, LocationProviderListener providerListener)
 	{
 		super();
 
@@ -124,34 +124,29 @@ public class LocationProviderProxy extends KrollProxy
 	}
 
 	@Kroll.setProperty
-	public void setName(Object value)
+	public void setName(String value)
 	{
 		Log.e(TAG, "not allowed to set the name of a provider after creation");
 	}
 
 	@Kroll.getProperty
-	public float getMinUpdateDistance()
+	public double getMinUpdateDistance()
 	{
 		Object property = getProperty(TiC.PROPERTY_MIN_UPDATE_DISTANCE);
-		if(property == null || !(property instanceof Float)) {
+		if(property == null || !(property instanceof Double)) {
 			Log.e(TAG, "invalid value [" + property + "] found for minUpdateDistance, returning default");
 
 			return defaultMinUpdateDistance;
 		}
 
-		return (Float) property;
+		return (Double) property;
 	}
 
 	@Kroll.setProperty
-	public void setMinUpdateDistance(Object value)
+	public void setMinUpdateDistance(double value)
 	{
-		if(value instanceof Float) {
-			setProperty(TiC.PROPERTY_MIN_UPDATE_DISTANCE, value);
-			providerListener.onProviderUpdated(this);
-
-		} else {
-			Log.e(TAG, "value for minUpdateDistance has to be a float value, not setting new value of [" + value + "]");
-		}
+		setProperty(TiC.PROPERTY_MIN_UPDATE_DISTANCE, value);
+		providerListener.onProviderUpdated(this);
 	}
 
 	@Kroll.getProperty
@@ -168,15 +163,10 @@ public class LocationProviderProxy extends KrollProxy
 	}
 
 	@Kroll.setProperty
-	public void setMinUpdateTime(Object value)
+	public void setMinUpdateTime(double value)
 	{
-		if(value instanceof Double) {
-			setProperty(TiC.PROPERTY_MIN_UPDATE_TIME, value);
-			providerListener.onProviderUpdated(this);
-
-		} else {
-			Log.e(TAG, "value for minUpdateTime has to be a integer value, not setting new value of [" + value + "]");
-		}
+		setProperty(TiC.PROPERTY_MIN_UPDATE_TIME, value);
+		providerListener.onProviderUpdated(this);
 	}
 }
 
