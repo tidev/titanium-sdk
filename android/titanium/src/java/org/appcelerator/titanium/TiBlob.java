@@ -103,7 +103,7 @@ public class TiBlob extends KrollProxy
 			data = bos.toByteArray();
 		}
 
-		TiBlob blob = new TiBlob(TYPE_IMAGE, data, "image/bitmap");
+		TiBlob blob = new TiBlob(TYPE_IMAGE, data, "image/png");
 		blob.width = image.getWidth();
 		blob.height = image.getHeight();
 		return blob;

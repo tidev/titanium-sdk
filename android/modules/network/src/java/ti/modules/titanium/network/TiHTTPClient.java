@@ -1001,7 +1001,12 @@ public class TiHTTPClient
 				boolean queryStringAltered = false;
 				for (String key : data.keySet()) {
 					Object value = data.get(key);
-
+					//fileType can only accept an int, or a string representation of an int.
+					//so if users input a number for fileType, we need to convert it to int before processing. 
+					if (key.equals("fileType") && (value instanceof Number)) {
+						Number tempValue = (Number) value;
+						value = tempValue.intValue();
+					}
 					if (isPostOrPut && (value != null)) {
 						// if the value is a proxy, we need to get the actual file object
 						if (value instanceof TiFileProxy) {
