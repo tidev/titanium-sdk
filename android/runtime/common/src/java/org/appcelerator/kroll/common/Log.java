@@ -59,6 +59,15 @@ public class Log
 		return debug(String.format(format, args));
 	}
 	
+	/**
+	 * Sends a 'verbose' log message, with the thread name and time stamp pre-appended.
+	 * For more information regarding formatting, refer to {@link #w(String, String)}.
+	 * This method is thread safe.
+	 * @param tag  used to identify the source of the message.
+	 * @param msg  the message to log.
+	 * @return     an integer that is dependent on the content and tag of the log. 
+	 *             Two different msgs would have two different return values.
+	 */
 	public static int v(String tag, String msg) {
 		msg = onThread(msg);
 		return android.util.Log.v(tag, msg);
@@ -68,6 +77,16 @@ public class Log
 		return v(tag, msg);
 	}
 	
+	/**
+	 * Sends a 'verbose' log message, with the thread name and time stamp pre-appended, and log the exception.
+	 * For more information regarding formatting, refer to {@link #w(String, String)}.
+	 * This method is thread safe.
+	 * @param tag  used to identify the source of the message.
+	 * @param msg  the message to log.
+	 * @param t    the exception to log.
+	 * @return     an integer that is dependent on the content and tag of the log. 
+	 *             Two different msgs would have two different return values.
+	 */
 	public static int v(String tag, String msg, Throwable t) {
 		msg = onThread(msg);
 		return android.util.Log.v(tag, msg, t);
