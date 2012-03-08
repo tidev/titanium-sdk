@@ -43,6 +43,17 @@ public class TiCompositeLayout extends ViewGroup
 
 	private WeakReference<TiViewProxy> proxy;
 
+	// We need these two constructors for backwards compatibility with modules
+	public TiCompositeLayout(Context context)
+	{
+		this(context, LayoutArrangement.DEFAULT, null);
+	}
+
+	public TiCompositeLayout(Context context, LayoutArrangement arrangement)
+	{
+		this(context, LayoutArrangement.DEFAULT, null);
+	}
+
 	public TiCompositeLayout(Context context, TiViewProxy proxy)
 	{
 		this(context, LayoutArrangement.DEFAULT, proxy);
