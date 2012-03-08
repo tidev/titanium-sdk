@@ -350,6 +350,10 @@ properties:
         as it receives focus and how the window behaves in order to accomodate it while keeping its 
         contents in view.
     description: |
+        In order for this property to take effect on an emulator, its Android Virtual Device (AVD) 
+        must be configured with the `Keyboard Support` setting set to `No`. Note that it is always 
+        recommended to test an application on a physical device to understand its true behavior.
+        
         This property is capable of representing two settings from the following two groups of 
         settings using the [bitwise OR](http://en.wikipedia.org/wiki/Bitwise_operation#OR) operation. 
         
@@ -385,29 +389,29 @@ properties:
                   fullscreen: false,
                   title: 'Click window to test'
                 });
-                
+
                 // use bitwise OR to combine two settings for the windowSoftInputMode property
-                var softInput = Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE | SOFT_INPUT_ADJUST_RESIZE;
-                
+                var softInput = Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE | Ti.UI.Android.SOFT_INPUT_ADJUST_PAN;
+
                 win1.addEventListener('click', function(){
-                  var win2 = Ti.UI.createWindow({
-                    backgroundColor: 'red',
-                    fullscreen: false,
-                    windowSoftInputMode: softInput
-                  });
-                
-                  var textArea = Ti.UI.createTextArea({
-                    value : 'I am a textarea',
-                    height : 500,
-                    width : 300,
-                    top : 60
-                  });
-                  win2.add(textArea);
-                  win2.open();
+                var win2 = Ti.UI.createWindow({
+                  backgroundColor: 'red',
+                  fullscreen: false,
+                  windowSoftInputMode: softInput
                 });
-                
+
+                var textArea = Ti.UI.createTextArea({
+                  value : 'I am a textarea',
+                  height : 200,
+                  width : 300,
+                  top : 200
+                });
+                win2.add(textArea);
+                win2.open();
+                });
+
                 win1.open();
-                
+
   - name: windowPixelFormat
     summary: Set the pixel format for the Activity's Window.
     description: |

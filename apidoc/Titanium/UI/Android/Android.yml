@@ -26,6 +26,7 @@ methods:
         See the example for a demonstration, and the official Android Developer documentation for 
         the [preferences.xml](http://developer.android.com/resources/samples/ApiDemos/res/xml/preferences.html) 
         format.
+        
 properties:
   - name: LINKIFY_ALL
     summary: Auto-link all supported types for <Titanium.UI.Label>.
@@ -255,7 +256,7 @@ properties:
         Use the system-default behavior to determine how the soft input area (ie software keyboard) 
         is accomodated by the current heavyweight window when it receives focus (default.)
     description: |
-        Depends on the `AndroidManifest.xml` setting if defined or system-default otherwise, to 
+        Depends on the `AndroidManifest.xml` setting if defined or system-default otherwise to 
         determine how to accomodate the soft keyboard when visible.
         
         Used with the <Titanium.UI.Window.windowSoftInputMode> property.
@@ -273,6 +274,9 @@ properties:
         Always hide the soft input area (ie software keyboard) when the current heavyweight window 
         receives focus.
     description: |
+        Note that the unresolved bug [#7115](https://code.google.com/p/android/issues/detail?id=7115) 
+        on the Official Android Project website affects this functionality.
+        
         Used with the <Titanium.UI.Window.windowSoftInputMode> property.
         
         One of the group of soft input visibility constants, 
