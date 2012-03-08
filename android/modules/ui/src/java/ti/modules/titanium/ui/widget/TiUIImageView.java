@@ -103,7 +103,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				final Drawable fDrawable = d;
 				
 				// setImageDrawable has to run in the UI thread since it updates the UI
-				TiUIHelper.runUiDelayedIfBlock(new Runnable()
+				TiMessenger.getMainMessenger().post(new Runnable()
 				{
 					@Override
 					public void run()
