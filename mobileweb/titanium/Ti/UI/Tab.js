@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/UI"],
-	function(declare, lang, View, dom, UI) {
+define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI"],
+	function(declare, lang, View, dom, Locale, UI) {
 
 	return declare("Ti.UI.Tab", View, {
 
@@ -84,13 +84,8 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/UI"],
 			},
 
 			titleid: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Tab#.titleid" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Tab#.titleid" is not implemented yet.');
+					this.title = Locale.getString(value);
 					return value;
 				}
 			},

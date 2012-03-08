@@ -992,8 +992,8 @@
 	}
 
 	req.toUrl = toUrl;
-	req.config = cfg;
 	mix(req, fnMixin = {
+		config: cfg,
 		each: each,
 		evaluate: evaluate,
 		has: has,

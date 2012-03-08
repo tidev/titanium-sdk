@@ -47,7 +47,7 @@ properties:
   - name: font
     summary: Font used for the message text.
     type: Font
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
 
   - name: height
     summary: |
@@ -68,7 +68,7 @@ properties:
   - name: message
     summary: Message text.
     type: String
-    platforms: [android]
+    platforms: [android, mobileweb]
     
   - name: messageid
     summary: Key identifying a string in the locale file to use for the message text. 
