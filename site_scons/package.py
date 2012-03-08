@@ -90,9 +90,7 @@ def zip2zip(src_zip, dest_zip, prepend_path=None):
 		zinfo.filename = new_name
 		dest_zip.writestr(zinfo, f.read())
 
-def zip_packaged_modules(zf, source_dir, dest_prefix):
-	if not dest_prefix.endswith("/"):
-		dest_prefix = dest_prefix + "/"
+def zip_packaged_modules(zf, source_dir):
 	for root, dirs, files in os.walk(source_dir):
 		for name in ignoreDirs:
 			if name in dirs:
@@ -104,9 +102,8 @@ def zip_packaged_modules(zf, source_dir, dest_prefix):
 			rel_path = root.replace(source_dir, "").replace("\\", "/")
 			if rel_path.startswith("/"):
 				rel_path = rel_path[1:]
-			prepend = "%s%s" % (dest_prefix, rel_path)
 			try:
-				zip2zip(source_zip, zf, prepend)
+				zip2zip(source_zip, zf, rel_path)
 			finally:
 				source_zip.close()
 
@@ -333,7 +330,7 @@ githash=%s
 		jsca = generate_jsca()
 		zf.writestr('%s/api.jsca' % basepath, jsca)
 	
-	zip_packaged_modules(zf, os.path.join(template_dir, "module", "packaged"), "modules")
+	zip_packaged_modules(zf, os.path.join(template_dir, "module", "packaged"))
 	zip_dir(zf,all_dir,basepath)
 	zip_dir(zf,template_dir,basepath)
 	if android: zip_android(zf,basepath)

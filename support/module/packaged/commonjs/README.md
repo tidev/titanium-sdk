@@ -1,1 +1,0 @@
-Place any packaged CommonJS modules (zip files) that should be distributed with the Mobile SDK into this folder.  The contents of the zip files will then be packaged in the Mobile SDK distribution zip file under "modules/commonjs".
