@@ -3,7 +3,7 @@ name: Titanium.Codec
 summary: A module for converting Numbers and Strings to and from a <Titanium.Buffer>.
 extends: Titanium.Module
 since: "1.7"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 
 properties:
   - name: CHARSET_ASCII
@@ -92,11 +92,15 @@ properties:
 methods:
   - name: getNativeByteOrder
     summary: Get the OS native byte order (either <Titanium.Codec.BIG_ENDIAN> or <Titanium.Codec.LITTLE_ENDIAN>)
+    description: |
+        On Mobile Web, this property always returns <Titanium.Codec.LITTLE_ENDIAN>.
     returns:
         type: Number
         summary: The OS native byte order
   - name: encodeNumber
     summary: Encodes the Number `source` into `dest` using the passed in data `type`.
+    description: |
+        On Mobile Web, `position` is not supported.
     parameters:
       - name: options
         summary: encodeNumber named options
@@ -131,6 +135,8 @@ methods:
     summary: |
         Decodes the `source` buffer (starting at the optional `position`) using the passed in data `type`.
         Throws an Exception if `source` is null, or `position` is greater than `source.length`
+    description: |
+        On Mobile Web, `position` and `byteOrder` is not supported.
     parameters:
       - name: options
         summary: decodeNumber named options
@@ -165,6 +171,8 @@ methods:
         Throws an Exception if `charset` is not a valid character set,
         `source` is null, or either `sourcePosition`, `sourceLength`, or
         `sourcePosition`+`sourceLength` is greater than `source.length`.
+    description: |
+        On Mobile Web, `charset` is not supported. All strings are treated as UTF-8.
     parameters:
       - name: options
         summary: encodeString named options
@@ -201,6 +209,8 @@ methods:
         using the supplied character set `charset`. Throws an Exception if `charset` is not
         a valid character set, `source` is null, or either `position`, `length`, or
         `position`+`length` is greater than `source.length`.
+    description: |
+        On Mobile Web, `charset` is not supported. All strings are treated as UTF-8.
     parameters:
       - name: options
         summary: decodeString named options
@@ -247,6 +257,7 @@ properties:
     summary: The position in dest to set the encoded data
     optional: true
     default: 0
+    platforms: [android, iphone, ipad]
   - name: byteOrder
     type: Number
     summary: The byte order to encode with
@@ -273,11 +284,13 @@ properties:
     summary: The position in `source` to start at
     optional: true
     default: 0
+    platforms: [android, iphone, ipad]
   - name: byteOrder
     type: Number
     summary: The byte order to decode with
     optional: true
     default: Return value of <Titanium.Codec.getNativeByteOrder>
+    platforms: [android, iphone, ipad]
 
 ---
 name: EncodeStringDict

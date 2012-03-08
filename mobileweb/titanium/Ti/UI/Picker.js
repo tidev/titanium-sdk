@@ -36,11 +36,12 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 				});
 			},
 			
-			_doLayout: function(originX, originY, parentWidth, parentHeight, defaultHorizontalAlignment, defaultVerticalAlignment, isParentAutoWidth, isParentAutoHeight) {
+			_doLayout: function(params) {
 				var values = this.properties.__values__;
-				values.width = isParentAutoWidth ? "auto" : "100%";
-				values.height = isParentAutoHeight ? "auto" : "100%";
-				Widget.prototype._doLayout.apply(this,arguments);
+				values.width = params.isParentSize.width ? UI.SIZE : "100%";
+				values.height = params.isParentSize.height ? UI.SIZE : "100%";
+				
+				return Widget.prototype._doLayout.call(this,params);
 			},
 		
 			_getContentSize: function(width, height) {
@@ -85,9 +86,10 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 			}
 		}, document.body);
 		
-		
 		["Date", "Time", "DateTime"].forEach(function(type) {
-			inputRuler.type = type;
+			try {
+				inputRuler.type = type;
+			} catch(e) {}
 			inputSizes[type] = {
 				width: inputRuler.clientWidth + 2 * borderRadius,
 				height: inputRuler.clientHeight + 2 * borderRadius
@@ -111,8 +113,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 			this._columns.push(column);
 			column._parentPicker = this;
 			var numColumns = this._columns.length,
-				width = this.width === "auto" ? "auto" : 100 / numColumns + "%",
-				height = this.height === "auto" ? "auto" : "100%";
+				width = this.width === UI.SIZE ? UI.SIZE : 100 / numColumns + "%",
+				height = this.height === UI.SIZE ? UI.SIZE : "100%";
 			for (var i = 0; i < numColumns; i++) {
 				var column = this._columns[i];
 				column.width = width;
@@ -126,7 +128,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 					row: e.row,
 					rowIndex: e.rowIndex
 				};
-				if (this.type === Ti.UI.PICKER_TYPE_PLAIN) {
+				if (this.type === UI.PICKER_TYPE_PLAIN) {
 					var selectedValue = []
 					for(var i in this._columns) {
 						var selectedRow = this._columns[i].selectedRow;
@@ -152,6 +154,10 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 				this._columns[i]._setTallestRowHeight(tallestColumnHeight);
 			}
 		},
+
+		_defaultWidth: UI.SIZE,
+
+		_defaultHeight: UI.SIZE,
 		
 		add: function(value) {
 			if (is(value,"Array")) {
@@ -234,20 +240,20 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 							View.prototype.add.call(self,dateTimeInput);
 						}
 						switch(value) {
-							case Ti.UI.PICKER_TYPE_DATE:
+							case UI.PICKER_TYPE_DATE:
 								createInput("Date");
 								break;
-							case Ti.UI.PICKER_TYPE_TIME:
+							case UI.PICKER_TYPE_TIME:
 								createInput("Time");
 								break;
-							case Ti.UI.PICKER_TYPE_DATE_AND_TIME: 
+							case UI.PICKER_TYPE_DATE_AND_TIME: 
 								createInput("DateTime");
 								break;
 						}
 					}
 					return value;
 				},
-				value: Ti.UI.PICKER_TYPE_PLAIN
+				value: UI.PICKER_TYPE_PLAIN
 			},
 			
 			value: {

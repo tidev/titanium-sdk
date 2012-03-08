@@ -4,10 +4,8 @@ var win = Ti.UI.currentWindow;
 // center of the screen by using the size property to set it
 
 var view = Ti.UI.createView({
-	size:{
-		width:100,
-		height:100
-	},
+	width:100,
+	height:100,
 	backgroundColor:"red"
 });
 
@@ -34,6 +32,9 @@ var button = Ti.UI.createButton({
 win.add(button);
 
 button.addEventListener('click',function() {
-    view.size = {width:150,height:150};
+	view.updateLayout({
+		width:150,
+		height:150
+	});
     label.text = "Box should now be 150x150";
 });

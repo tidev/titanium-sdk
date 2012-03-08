@@ -23,7 +23,7 @@ define(["Ti/_/lang"], function(lang) {
 		getAbsolutePath: function(path) {
 			/^app\:\/\//.test(path) && (path = path.substring(6));
 			/^\//.test(path) && (path = path.substring(1));
-			return /^\/\//.test(path) || path.indexOf("://") > 0 ? path : location.pathname.replace(/(.*)\/.*/, "$1") + "/" + path;
+			return /^\/\//.test(path) || ~path.indexOf("://") ? path : location.pathname.replace(/(.*)\/.*/, "$1") + "/" + path;
 		},
 		uuid: function() {
 			/**

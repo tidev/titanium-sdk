@@ -223,10 +223,10 @@ events:
 
       - name: globalPoint
         summary: |
-            Dictionary with properties `x` and `y` describing the location of the event in screen 
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
         platforms: [iphone, ipad]
-        type: Point
+        type: Dictionary
         deprecated:
             since: "1.8.0"
 
@@ -238,6 +238,15 @@ events:
     summary: Fired when the device detects a double click against the view.
     platforms: [mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        platforms: [iphone, ipad]
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -279,9 +288,11 @@ events:
         type: Number
         
       - name: globalPoint
-        summary: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
         platforms: [iphone, ipad]
-        type: Point
+        type: Dictionary
         deprecated:
             since: "1.8.0"
 
@@ -293,6 +304,15 @@ events:
     summary: Fired when the device detects a double tap against this view.
     platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        platforms: [iphone, ipad]
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+            
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -354,9 +374,11 @@ events:
         type: Number
 
       - name: globalPoint
-        summary: Dictionary with properties `x` and `y` describing the location of the event in screen coordinates.
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
         platforms: [iphone, ipad]
-        type: Point
+        type: Dictionary
         deprecated:
             since: "1.8.0"
 
@@ -397,9 +419,11 @@ events:
         type: Number
 
       - name: globalPoint
-        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
         platforms: [iphone, ipad]
-        type: Point
+        type: Dictionary
         deprecated:
             since: "1.8.0"
         
@@ -435,9 +459,11 @@ events:
         type: Dictionary
         
       - name: globalPoint
-        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
         platforms: [iphone, ipad]
-        type: Point
+        type: Dictionary
         deprecated:
             since: "1.8.0"
         
@@ -465,6 +491,15 @@ events:
         summary: Direction of the swipe--either 'left' or 'right'.
         type: String
         
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        platforms: [iphone, ipad]
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+
       - name: y
         summary: Y coordinate of the event's endpoint from the `source` view's coordinate system.
         type: Number
@@ -480,6 +515,15 @@ events:
         up state.
     platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        platforms: [iphone, ipad]
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -492,6 +536,15 @@ events:
     summary: Fired when a touch gesture is complete.
     platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        platforms: [iphone, ipad]
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -504,6 +557,15 @@ events:
     summary: Fired as soon as the device detects a touch gesture against this view.
     platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        platforms: [iphone, ipad]
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -516,6 +578,15 @@ events:
     summary: Fired when the device detects a two-finger tap against the view.
     platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        platforms: [iphone, ipad]
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number

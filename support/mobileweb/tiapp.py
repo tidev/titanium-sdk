@@ -65,6 +65,18 @@ class TiAppXML(object):
 		self.android = {}
 		self.android_manifest = {}
 		self.iphone = {}
+		self.mobileweb = {
+			'filesystem': {
+				'registry': 'preload'
+			},
+			'preload': {
+				'images': []
+			},
+			'precache': {
+				'requires': [],
+				'includes': []
+			}
+		}
 		
 		root = self.dom.documentElement
 		children = root.childNodes
@@ -100,6 +112,8 @@ class TiAppXML(object):
 					self.parse_android(child)
 				elif child.nodeName == 'iphone':
 					self.parse_iphone(child)
+				elif child.nodeName == 'mobileweb':
+					self.parse_mobileweb(child)
 				elif child.nodeName == 'property':
 					name = child.getAttribute('name')
 					type = child.getAttribute('type') or 'string'
@@ -303,6 +317,48 @@ class TiAppXML(object):
 		for child in node.childNodes:
 			if child.nodeName in parse_tags:
 				local_objects['parse_'+child.nodeName](child)
+
+	def parse_mobileweb(self, node):
+		def parse_filesystem_backend(node):
+			val = getText(node.childNodes)
+			if val is not None and val != '':
+				self.mobileweb['filesystem']['backend'] = val
+		
+		def parse_filesystem_registry(node):
+			val = getText(node.childNodes)
+			if val is not None and val != '':
+				self.mobileweb['filesystem']['registry'] = val
+		
+		def parse_preload_image(node):
+			val = getText(node.childNodes)
+			if val is not None and val != '':
+				self.mobileweb['preload']['images'].append(val)
+		
+		def parse_precache_require(node):
+			val = getText(node.childNodes)
+			if val is not None and val != '':
+				self.mobileweb['precache']['requires'].append(val)
+		
+		def parse_precache_include(node):
+			val = getText(node.childNodes)
+			if val is not None and val != '':
+				self.mobileweb['precache']['includes'].append(val)
+		
+		local_objects = locals()
+		parse_tags = {
+			'filesystem': ['backend', 'registry'],
+			'preload': ['image'],
+			'precache': ['require', 'include']
+		}
+		
+		for child in node.childNodes:
+			if child.nodeName in parse_tags:
+				if parse_tags[child.nodeName] is None:
+					local_objects['parse_'+child.nodeName](child)
+				else:
+					for child_child in child.childNodes:
+						if child_child.nodeName in parse_tags[child.nodeName]:
+							local_objects['parse_'+child.nodeName+'_'+child_child.nodeName](child_child)
 
 	def has_app_property(self, property):
 		return property in self.app_properties
