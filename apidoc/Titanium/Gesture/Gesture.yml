@@ -105,8 +105,8 @@ events:
       - name: timestamp
         type: Number
         summary: |
-            Time interval since previous shake event, or 0 if no shake gesture is in
-            progress.
+            Time interval since previous shake event. On iOS, this value is 0 for the first
+            shake event in a series.
 
       - name: x
         type: Number
