@@ -85,6 +85,7 @@ events:
     summary: Fired  when audio playback is interrupted by the device. 
     description: |
         Typically called during an interruption due to an incoming phone call.
+    platforms: [iphone, ipad]
 
   - name: resume
     summary: Fired when audio playback is resumed after an interruption.
@@ -92,6 +93,7 @@ events:
       - name: interruption
         summary: Indicates if the resume was from an interruption.
         type: Boolean
+    platforms: [iphone, ipad]
 
 properties:
   - name: allowBackground
@@ -104,7 +106,11 @@ properties:
     accessors: false
 
   - name: duration
-    summary: Duration of the audio resource, in milliseconds.
+    summary: Duration of the audio resource.
+    description: |
+        On iOS, playback time is reported in seconds.
+
+        On Android, time is reported in milliseconds.
     type: Number
     permission: read-only
 
@@ -132,7 +138,11 @@ properties:
     accessors: false
 
   - name: time
-    summary: Current playback position of the audio, in milliseconds.
+    summary: Current playback position of the audio.
+    description: |
+        On iOS, playback time is reported in seconds.
+
+        On Android, time is reported in milliseconds.
     type: Number
 
   - name: url
