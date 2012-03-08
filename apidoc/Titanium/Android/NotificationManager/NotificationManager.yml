@@ -36,14 +36,16 @@ examples:
 
         <i>&lt;app_id&gt;.&lt;Appname&gt;</i><b>Activity</b> 
         
-        where <i>&lt;app_id&gt;</i> is the application's app ID, and &lt;Appname&gt;</i>
+        where <i>&lt;app_id&gt;</i> is the application's app ID, and <i>&lt;Appname&gt;</i>
         is the application's name, with the first letter capitalized and all other letters
         lowercase.
 
         For example, in this case the test application has the app ID
-        `com.appcelerator.notificationsample` and app name `NotificationSample`. Note the
-        capitalization in the sample.
-        
+        `com.appcelerator.notificationsample` and app name `NotificationSample`, so the 
+        activity class name is:
+
+            com.appcelerator.notificationsample.NotificationsampleActivity
+
         You can also find the activity's class name by looking in the `build/android` folder of your 
         Titanium project.
 
