@@ -140,6 +140,15 @@ void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish)
 	}
 }
 
+// NOTE: This method of batch-processing is actually fairly expensive
+// for us, and doesn't take full advantage of GCD scheduling (and requires
+// lots of mutexing). Unfortunately for now it seems to be necessary, as:
+// * We are required to complete all scheduled main thread GCD operations
+//   as "suspend" is fired
+
+// There may be other ways to do this (dispatch source on the main loop that
+// pulls from a private queue, for example) but in and of itself this could be
+// expensive (still have to semaphore the queue) and requires further research.
 
 NSMutableArray * TiThreadBlockQueue = nil;
 pthread_mutex_t TiThreadBlockMutex;
@@ -152,16 +161,11 @@ void TiThreadInitalize()
 	TiThreadBlockQueue = [[NSMutableArray alloc] initWithCapacity:10];
 }
 
-#define DISABLE_BATCH_PROCESSING
-
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 {
 	BOOL alreadyOnMainThread = [NSThread isMainThread];
 	BOOL usesWaitSemaphore = waitForFinish && !alreadyOnMainThread;
-#ifdef DISABLE_BATCH_PROCESSING
-	//Interim fix until we figure out scheduling issues.
-	usesWaitSemaphore = NO;
-#endif
+
 	__block dispatch_semaphore_t waitSemaphore;
 	if (usesWaitSemaphore) {
 		waitSemaphore = dispatch_semaphore_create(0);
@@ -183,30 +187,6 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 			dispatch_semaphore_signal(waitSemaphore);
 		}
 	};
-	
-#ifdef DISABLE_BATCH_PROCESSING
-	if (waitForFinish)
-	{
-		if (alreadyOnMainThread)
-		{
-			wrapperBlock();
-		}
-		else
-		{
-			dispatch_sync(dispatch_get_main_queue(), (dispatch_block_t)wrapperBlock);
-		}
-	}
-	else
-	{
-		dispatch_async(dispatch_get_main_queue(), (dispatch_block_t)wrapperBlock);
-	}
-	
-	if (caughtException != nil) {
-		[caughtException autorelease];
-		[caughtException raise];
-	}
-	return;
-#endif
 	
 	void (^wrapperBlockCopy)() = [wrapperBlock copy];
 	
@@ -267,6 +247,14 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 
 BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhenEmpty, void * reserved )
 {
+    static BOOL running = NO;
+    
+    // Keep the block processor from being re-entrant
+    if (running) {
+        return NO;
+    }
+    
+    running = YES;
 	struct timeval doneTime;
 	gettimeofday(&doneTime, NULL);
 	float timeoutSeconds = floorf(timeout);
@@ -320,5 +308,7 @@ BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhe
 		pthread_mutex_unlock(&TiThreadBlockMutex);
 
 	} while (shouldContinue);
+    
+    running = NO;
 	return isEmpty;
 }
