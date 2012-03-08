@@ -1,7 +1,7 @@
 define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], function(declare, dom, lang, UI, View) {
 
-	var sessionId = Math.random(),historyStack = [],
-		pageNum = 1,
+	var sessionId = Math.random(),
+		historyStack = [],
 		hist = window.history,
 		POP_STATE_WAITING_FOR_OPERATION = -1,
 		POP_STATE_UNDOING_OPERATION = -2,
@@ -9,13 +9,16 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], functio
 		POP_STATE_REWINDING_HISTORY = -4,
 		POP_STATE_RESETTING = -5,
 		historyPopState = POP_STATE_WAITING_FOR_OPERATION,
-		prefix = location.href.split("#")[0], // Strip off any hash incase the user reloaded the page and a hash currently exists
+		startingHistoryLength = hist.length,
+		prefix = location.href.split("#"), // Strip off any hash incase the user reloaded the page and a hash currently exists
+		startingHash = prefix[1],
+		prefix = prefix[0],
 		widgetToClose;
 	
 	function pushToHistory(widget) {
 		historyPopState = POP_STATE_PUSHING;
 		historyStack.push(widget);
-		location.href = prefix + "#" + widget.widgetId;
+		location.href = prefix + "#" + sessionId + "," + widget.widgetId;
 	}
 	
 	function removeFromHistory(widget, recursive) {
@@ -24,17 +27,38 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], functio
 			if (historyStackIndex !== -1) {
 				historyStack.splice(historyStackIndex,recursive ? historyStack.length - historyStackIndex : 1);
 				historyPopState = POP_STATE_REWINDING_HISTORY;
-				hist.go(-historyStack.length - 1);
+				hist.go(-historyStack.length - (hist.length - startingHistoryLength - historyStack.length));
 			}
 		}
 	}
 	
 	window.addEventListener("hashchange", function(e) {
+		function hashIteration(){
+			if (historyPopState < historyStack.length) {
+				// Check if we need to skip the first state. Some browsers will view the first window as the root (i.e. they skip the hashless version), meaning we need to skip it too
+				var widget = historyStack[historyPopState++],
+					newLocation = prefix + "#" + sessionId + "," + widget.widgetId;
+				if (location.href === newLocation) {
+					hashIteration();
+				} else {
+					location.href = newLocation;
+				}
+			} else {
+				var currentWidget = historyStack[historyPopState - 1];
+				currentWidget && (document.title = currentWidget.title || require.config.app.name);
+				historyPopState = POP_STATE_WAITING_FOR_OPERATION;
+			}
+		}
+		if (historyPopState >= 0) {
+			hashIteration();
+			return;
+		}
 		switch(historyPopState) {
 			case POP_STATE_WAITING_FOR_OPERATION: 
 				// We need to undo the previous operation and redo it
 				var listItem = window.location.href.split("#")[1];
-				if (prefix === window.location.href) {
+				listItem && (listItem = listItem.split(",")[1]);
+				if (hist.length === startingHistoryLength) {
 					listItem = historyStack[0].widgetId;
 				}
 				if (listItem) {
@@ -67,17 +91,9 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], functio
 				historyPopState = POP_STATE_RESETTING;
 				location.href = prefix + "#history_reset";
 				break;
-			case POP_STATE_RESETTING: 
+			case POP_STATE_RESETTING:
 				historyPopState = 0;
 				hist.back();
-				break;
-			default: 
-				if (historyPopState < historyStack.length) {
-					var widget = historyStack[historyPopState++];
-					location.href = prefix + "#" + widget.widgetId;
-				} else {
-					historyPopState = POP_STATE_WAITING_FOR_OPERATION;
-				}
 				break;
 		}
 	});
@@ -112,10 +128,6 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], functio
 				this._opened = 0;
 				UI._removeWindow(this);
 				
-				if (this === historyStack[historyStack.length - 1]) {
-					var newTopWindow = historyStack[historyStack.length - 2];
-					newTopWindow && this.setWindowTitle(newTopWindow.title);
-				}
 				if (historyPopState === POP_STATE_WAITING_FOR_OPERATION) {
 					removeFromHistory(this);
 				}
@@ -125,7 +137,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], functio
 		},
 
 		setWindowTitle: function(title) {
-			historyStack[historyStack.length - 1] === this && (document.title = title || require.config.app.name);
+			document.title = title || require.config.app.name;
 			return title;
 		}
 
