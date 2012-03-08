@@ -9,7 +9,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], functio
 		POP_STATE_REWINDING_HISTORY = -4,
 		POP_STATE_RESETTING = -5,
 		historyPopState = POP_STATE_WAITING_FOR_OPERATION,
-		prefix = location.href,
+		prefix = location.href.split("#")[0], // Strip off any hash incase the user reloaded the page and a hash currently exists
 		widgetToClose;
 	
 	function pushToHistory(widget) {
@@ -112,6 +112,10 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], functio
 				this._opened = 0;
 				UI._removeWindow(this);
 				
+				if (this === historyStack[historyStack.length - 1]) {
+					var newTopWindow = historyStack[historyStack.length - 2];
+					newTopWindow && this.setWindowTitle(newTopWindow.title);
+				}
 				if (historyPopState === POP_STATE_WAITING_FOR_OPERATION) {
 					removeFromHistory(this);
 				}
@@ -121,7 +125,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], functio
 		},
 
 		setWindowTitle: function(title) {
-			historyStack[historyStack.length-1] === this && (document.title = title || require.config.project.name);
+			historyStack[historyStack.length - 1] === this && (document.title = title || require.config.project.name);
 			return title;
 		}
 
