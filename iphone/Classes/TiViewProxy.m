@@ -547,6 +547,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		[myview.layer renderInContext:UIGraphicsGetCurrentContext()];
 		UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
 		[blob setImage:image];
+        [blob setMimeType:@"image/png" type:TiBlobTypeImage];
 		UIGraphicsEndImageContext();
 		if (callback != nil)
 		{
