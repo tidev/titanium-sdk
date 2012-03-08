@@ -32,6 +32,7 @@ import android.content.pm.ActivityInfo;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.Message;
+import android.view.View;
 
 @Kroll.proxy(propertyAccessors={
 	TiC.PROPERTY_EXIT_ON_CLOSE,
@@ -392,6 +393,14 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (waitingForOpen != null && waitingForOpen.get() == this)
 		{
 			waitingForOpen = null;
+		}
+
+		View nativeView = view.getNativeView();
+
+		// Make sure we draw the view during the layout pass. This does not seem to cause another layout pass. We need
+		// to force the view to be drawn due to TIMOB-7685
+		if (nativeView != null) {
+			nativeView.postInvalidate();
 		}
 	}
 
