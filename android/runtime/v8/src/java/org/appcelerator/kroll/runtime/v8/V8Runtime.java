@@ -15,7 +15,6 @@ import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiDeployData;
 
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -40,12 +39,16 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		boolean useGlobalRefs = true;
 		TiDeployData deployData = getKrollApplication().getDeployData();
 
+		/* TODO: Disabling this workaround for emulator to resolve issues
+		 *       seen in TIMOB-7779. Once it has been determined this workaround
+		 *       will never be needed it should be removed (TIMOB-7706).
 		if (Build.PRODUCT.equals("sdk") || Build.PRODUCT.equals("google_sdk") || Build.FINGERPRINT.startsWith("generic")) {
 			if (DBG) {
 				Log.d(TAG, "Emulator detected, storing global references in a global Map");
 			}
 			useGlobalRefs = false;
 		}
+		*/
 
 		if (!libLoaded) {
 			System.loadLibrary("stlport_shared");
