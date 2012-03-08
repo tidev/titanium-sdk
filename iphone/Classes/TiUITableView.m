@@ -1973,7 +1973,7 @@ if(ourTableView != tableview)	\
 				size += viewLayout->height.value;
 				break;
 			case TiDimensionTypeAuto:
-				size += [viewProxy autoHeightForWidth:[tableview bounds].size.width];
+				size += [viewProxy autoHeightForSize:[tableview bounds].size];
 				break;
 			default:
 				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
@@ -2021,7 +2021,7 @@ if(ourTableView != tableview)	\
 				size += viewLayout->height.value;
 				break;
 			case TiDimensionTypeAuto:
-				size += [viewProxy autoHeightForWidth:[tableview bounds].size.width];
+				size += [viewProxy autoHeightForSize:[tableview bounds].size];
 				break;
 			default:
 				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;

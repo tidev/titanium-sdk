@@ -13,11 +13,11 @@
 
 @optional
 
--(CGFloat)minimumParentWidthForWidth:(CGFloat)suggestedWidth;
--(CGFloat)minimumParentHeightForWidth:(CGFloat)suggestedWidth;
+-(CGFloat)minimumParentWidthForSize:(CGSize)size;
+-(CGFloat)minimumParentHeightForSize:(CGSize)size;
 
--(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth;
--(CGFloat)autoHeightForWidth:(CGFloat)width;
+-(CGFloat)autoWidthForSize:(CGSize)size;
+-(CGFloat)autoHeightForSize:(CGSize)size;
 
 -(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth;
 -(CGFloat)contentHeightForWidth:(CGFloat)width;
