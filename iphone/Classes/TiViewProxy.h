@@ -515,10 +515,7 @@ enum
 #define USE_VIEW_FOR_METHOD(resultType,methodname,inputType)	\
 -(resultType) methodname: (inputType)value	\
 {	\
-    if ([self viewAttached]) { \
-        return [[self view] methodname:value];	\
-    } \
-    return 0.0; \
+    return [[self view] methodname:value];	\
 }
 
 #define USE_VIEW_FOR_VERIFY_WIDTH	USE_VIEW_FOR_METHOD(CGFloat,verifyWidth,CGFloat)
