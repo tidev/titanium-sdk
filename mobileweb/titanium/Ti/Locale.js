@@ -1,46 +1,56 @@
-define("Ti/Locale", ["Ti/_/Evented"], function(Evented) {
+define(["require", "Ti/_/lang", "Ti/_/Evented"], function(require, lang, Evented) {
 
-	(function(api){
-		// Interfaces
-		Ti._5.EventDriven(api);
-	
-		var lang = navigator.language.replace(/^([^\-\_]+)[\-\_](.+)?$/, function(o, l, c){ return l.toLowerCase() + (c && "-" + c.toUpperCase()); }),
-			langParts = lang.split("-");
-	
-		// Properties
-		Ti._5.propReadOnly(api, {
-			currentCountry: langParts[1] || "",
-			currentLanguage: langParts[0] || "",
-			currentLocale: lang
-		});
-	
-		// Methods
-		api.formatTelephoneNumber = function() {
-			console.debug('Method "Titanium.Locale.formatTelephoneNumber" is not implemented yet.');
-		};
-		api.getCurrencyCode = function() {
-			console.debug('Method "Titanium.Locale.getCurrencyCode" is not implemented yet.');
-		};
-		api.getCurrencySymbol = function() {
-			console.debug('Method "Titanium.Locale.getCurrencySymbol" is not implemented yet.');
-		};
-		api.getLocaleCurrencySymbol = function() {
-			console.debug('Method "Titanium.Locale.getLocaleCurrencySymbol" is not implemented yet.');
-		};
-		api.getString = function(str, hintText) {
-			var data = {};
-			if(typeof data[api.currentLanguage] != 'undefined' && typeof data[api.currentLanguage][str] != 'undefined') {
-				return data[api.currentLanguage][str];
-			} else if (typeof hintText != 'undefined'){
-				return hintText;
-			}
-			return str;
-		};
-	})(Ti._5.createClass("Ti.Locale"));
-	
-	// L = Ti.Locale.getString;
-	Object.defineProperty(window, "L", { value: Ti.Locale.getString, enumarable: true });
-	
+	var locale = navigator.language.replace(/^([^\-\_]+)[\-\_](.+)?$/, function(o, l, c){ return l.toLowerCase() + (c && "-" + c.toUpperCase()); }),
+		languageParts = locale.split("-"),
+		language = languageParts[0];
+		strings = {},
+		cfg = require.config,
+		app = cfg.app;
+
+	document.title = app.name = app.names[language] || app.name;
+
+	try {
+		~cfg.locales.indexOf(language) && (strings =  require("./Locale/" + language + "/i18n"));
+	} catch (e) {}
+
+	function getString(key, hint) {
+		return strings[key] || hint || key;
+	}
+
+	Object.defineProperty(window, "L", { value: getString, enumarable: true });
+
+	return lang.setObject("Ti.Locale", Evented, {
+
+		constants: {
+			currentCountry: languageParts[1] || "",
+			currentLanguage: languageParts[0] || "",
+			currentLocale: locale
+		},
+
+		formatTelephoneNumber: function(s) {
+			return s;
+		},
+
+		getCurrencyCode: function(locale) {
+			// locale = "en-US" => "USD"
+			return "";
+		},
+
+		getCurrencySymbol: function(currencyCode) {
+			// currencyCode = "en-US" => "$"
+			return "";
+		},
+
+		getLocaleCurrencySymbol: function(locale) {
+			// locale = "en-US" => "$"
+			return "";
+		},
+
+		getString: getString
+
+	});
+
+/*
 	(function(api){
 		// format a date into a locale specific date format. Optionally pass a second argument (string) as either "short" (default), "medium" or "long" for controlling the date format.
 		api.formatDate = function(dt, fmt) {
@@ -66,5 +76,5 @@ define("Ti/Locale", ["Ti/_/Evented"], function(Evented) {
 			return dec;
 		};
 	})(String);
-
+*/
 });
