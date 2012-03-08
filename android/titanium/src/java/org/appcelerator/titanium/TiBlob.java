@@ -36,22 +36,22 @@ public class TiBlob extends KrollProxy
 	private static final boolean DBG = TiConfig.LOGD;
 
 	/**
-	 * The image type for blob.
+	 * Represents a Blob that contains image data.
 	 */
 	public static final int TYPE_IMAGE = 0;
 	
 	/**
-	 * The file type for blob.
+	 * Represents a Blob that contains file data.
 	 */
 	public static final int TYPE_FILE = 1;
 	
 	/**
-	 * The data type for blob.
+	 * Represents a Blob that contains data.
 	 */
 	public static final int TYPE_DATA = 2;
 	
 	/**
-	 * The string type for blob.
+	 * Represents a Blob that contains String data.
 	 */
 	public static final int TYPE_STRING = 3;
 

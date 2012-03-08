@@ -28,7 +28,7 @@ public class KrollDict
 	private static final int INITIAL_SIZE = 5;
 
 	/**
-	 * Constructs a KrollDict with {@link #INITIAL_SIZE} capacity.
+	 * Constructs a KrollDict with a default capacity.
 	 */
 	public KrollDict() {
 		this(INITIAL_SIZE);

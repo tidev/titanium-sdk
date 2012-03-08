@@ -29,7 +29,7 @@ public class AsyncResult extends Semaphore
 
 	/**
 	 * Constructs an AsyncResult with an argument.
-	 * @param arg the passed in argument
+	 * @param arg the general user data for a {@link android.os.Message Message}.
 	 */
 	public AsyncResult(Object arg) {
 		super(0);
@@ -53,7 +53,7 @@ public class AsyncResult extends Semaphore
 	}
 	
 	/**
-	 * Sets an exception to be thrown to the code that is blocking on {@link #getResult()}, and releases the lock.
+	 * Sets an exception to be thrown to the code that is blocking on {@link #setResult(Object)}, and releases the lock.
 	 * @param exception a thrown exception. It can be thrown from any place that handles an AsyncResult.
 	 */
 	public void setException(Throwable exception) {

@@ -246,8 +246,24 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	/**
-	 * @return a table mapping of landid keys to actual keys used to specify things such as titleid vs title
-	 * for localization purposes.
+	 * @return the language conversion table used to load localized values for certain properties from the locale files.
+	 *	For each localizable property, such as "title," the proxy should define a second property, such as "titleid", used to specify a 
+	 *	localization key for that property. If the user specifies a localization key in "titleid", the corresponding localized text from the locale file 
+	 *	is used for "title."
+	 *
+	 *	Subclasses should override this method to return a table mapping localizable properties to the corresponding localization key properties.
+	 *
+	 *	For example, if the proxy has two properties, "title" and "text", and the corresponding localization key properties are "titleid" and "textid", this might look like:
+	 *	</br>
+	 * 
+	 *	<pre><code>protected KrollDict getLangConversionTable() 
+	 *{	
+	 *	KrollDict table = new KrollDict();
+	 *	table.put("title", "titleid"); 
+	 *	table.put("text", "textid"); 
+	 *	return table; 
+	 *} </pre> </code>
+	 *
 	 */
 	protected KrollDict getLangConversionTable()
 	{
