@@ -4,7 +4,7 @@
 #
 import os, re, sys, optparse
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),"../..", "android")))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "common")))
 
 try:
 	import json

@@ -191,7 +191,13 @@ public class TiTableView extends FrameLayout
 				}
 			}
 			if (v == null) {
-				if (item.className.equals(TableViewProxy.CLASSNAME_HEADER)) {
+				if (item.className.equals(TableViewProxy.CLASSNAME_HEADERVIEW)) {
+					TiViewProxy vproxy = item.proxy;
+					View headerView = layoutHeaderOrFooter(vproxy);
+					v = new TiTableViewHeaderItem(proxy.getActivity(), headerView);
+					v.setClassName(TableViewProxy.CLASSNAME_HEADERVIEW);
+					return v;
+				} else if (item.className.equals(TableViewProxy.CLASSNAME_HEADER)) {
 					v = new TiTableViewHeaderItem(proxy.getActivity());
 					v.setClassName(TableViewProxy.CLASSNAME_HEADER);
 				} else if (item.className.equals(TableViewProxy.CLASSNAME_NORMAL)) {
@@ -409,14 +415,14 @@ public class TiTableView extends FrameLayout
 			if (params.autoFillsHeight) {
 				height = AbsListView.LayoutParams.FILL_PARENT;
 			}
-		} else {
+		} else if (params.optionHeight != null) {
 			height = params.optionHeight.getAsPixels(listView);
 		}
 		if (params.autoWidth) {
 			if (params.autoFillsWidth) {
 				width = AbsListView.LayoutParams.FILL_PARENT;
 			}
-		} else {
+		} else if (params.optionWidth != null) {
 			width = params.optionWidth.getAsPixels(listView);
 		}
 		AbsListView.LayoutParams p = new AbsListView.LayoutParams(width, height);

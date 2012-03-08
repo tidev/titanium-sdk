@@ -6,21 +6,21 @@ since: "0.8"
 platforms: [android, iphone, ipad]
 methods:
   - name: createGroup
-    summary: create and return an instance of <a href="Titanium.Contacts.Group.html">Titanium.Contacts.Group</a>
+    summary: create and return an instance of <Titanium.Contacts.Group>
     returns:
         type: Titanium.Contacts.Group
     parameters:
       - name: parameters
-        summary: (optional) a dictionary object properties defined in <a href="Titanium.Contacts.Group.html">Titanium.Contacts.Group</a>
+        summary: (optional) a dictionary object properties defined in <Titanium.Contacts.Group>
         type: Titanium.Contacts.Group
     platforms: [iphone, ipad]
   - name: createPerson
-    summary: create and return an instance of <a href="Titanium.Contacts.Person.html">Titanium.Contacts.Person</a>
+    summary: create and return an instance of <Titanium.Contacts.Person>
     returns:
         type: Titanium.Contacts.Person
     parameters:
       - name: parameters
-        summary: (optional) a dictionary object properties defined in <a href="Titanium.Contacts.Person.html">Titanium.Contacts.Person</a>
+        summary: (optional) a dictionary object properties defined in <Titanium.Contacts.Person>
         type: Titanium.Contacts.Person
     platforms: [ipad,iphone]
   - name: getAllGroups
@@ -115,4 +115,4 @@ properties:
     permission: read-only
 description: Contacts on Android are currently only read-only, so methods such as `createPerson`, `removePerson`, etc., are not supported.
     
-    <Titanium.Contacts.Person> objects which have been removed from the database are invalidated after a save operation, whether from creating a new contact or explicitly calling <Titanium.Contacts.save()>.  Using them may result in unpredictable behavior, including crashes.
+    <Titanium.Contacts.Person> objects which have been removed from the database are invalidated after a save operation, whether from creating a new contact or explicitly calling <Titanium.Contacts.save>.  Using them may result in unpredictable behavior, including crashes.

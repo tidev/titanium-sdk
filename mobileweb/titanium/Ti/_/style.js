@@ -1,5 +1,7 @@
-define(["Ti/_", "Ti/_/string"], function(_, string) {
-	var vp = require.config.vendorPrefixes.dom;
+define(["Ti/_", "Ti/_/string", "Ti/Filesystem"], function(_, string, Filesystem) {
+
+	var vp = require.config.vendorPrefixes.dom,
+		is = require.is;
 
 	function set(node, name, value) {
 		var i = 0,
@@ -11,7 +13,7 @@ define(["Ti/_", "Ti/_/string"], function(_, string) {
 					x = vp[i++];
 					x += x ? uc || (uc = string.capitalize(name)) : name;
 					if (x in node.style) {
-						require.each(require.is(value, "Array") ? value : [value], function(v) { node.style[x] = v; });
+						require.each(is(value, "Array") ? value : [value], function(v) { node.style[x] = v; });
 						return value;
 					}
 				}
@@ -25,12 +27,23 @@ define(["Ti/_", "Ti/_/string"], function(_, string) {
 	}
 
 	return {
-		url: function(url) {
-			return !url || url === "none" ? "" : /^url\(/.test(url) ? url : "url(" + _.getAbsolutePath(url) + ")";
+		url: function(/*String|Blob*/url) {
+			if (url && url.declaredClass === "Ti.Blob") {
+				return "url(" + url.toString() + ")";
+			}
+			var match = url && url.match(/^(.+):\/\//),
+				file = match && ~Filesystem.protocols.indexOf(match[1]) && Filesystem.getFile(url);
+			return file && file.exists()
+				? "url(" + file.read().toString() + ")"
+				: !url || url === "none"
+					? ""
+					: /^url\(/.test(url)
+						? url
+						: "url(" + _.getAbsolutePath(url) + ")";
 		},
 
 		get: function(node, name) {
-			if (require.is(name, "Array")) {
+			if (is(name, "Array")) {
 				for (var i = 0; i < name.length; i++) {
 					name[i] = node.style[name[i]];
 				}

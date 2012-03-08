@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,7 +8,6 @@ package org.appcelerator.kroll;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,6 +32,12 @@ import android.os.Message;
 
 
 @Kroll.proxy(name = "KrollProxy", propertyAccessors = { KrollProxy.PROPERTY_HAS_JAVA_LISTENER })
+/**
+ * This is the parent class of all proxies. A proxy is a dynamic object that can be created or 
+ * queried by the user through a module or another proxy's API. When you create a native view with 
+ * <a href="http://developer.appcelerator.com/apidoc/mobile/latest/Titanium.UI.createView-method.html">Titanium.UI.createView </a>, 
+ * the view object is a proxy itself.
+ */
 public class KrollProxy implements Handler.Callback, KrollProxySupport
 {
 	private static final boolean DBG = TiConfig.LOGD;
@@ -159,6 +164,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		this.activity = new WeakReference<Activity>(activity);
 	}
 
+	/**
+	 * @return the activity associated with this proxy. It can be null.
+	 */
 	public Activity getActivity()
 	{
 		if (activity == null) {
@@ -168,7 +176,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Handle the arguments passed into the "create" method for this proxy.
+	 * Handles the arguments passed into the "create" method for this proxy.
 	 * If your proxy simply needs to handle a KrollDict, see {@link KrollProxy#handleCreationDict(KrollDict)}
 	 * @param args
 	 */
@@ -191,7 +199,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Handles initialization of the proxy's default property values
+	 * Handles initialization of the proxy's default property values.
 	 */
 	protected void handleDefaultValues()
 	{
@@ -203,7 +211,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Handle the creation {@link KrollDict} passed into the create method for this proxy.
+	 * Handles the creation {@link KrollDict} passed into the create method for this proxy.
 	 * This is usually the first (and sometimes only) argument to the proxy's create method.
 	 * 
 	 * To set default property values, add them to the {@link KrollProxy#defaultValues map}
@@ -246,6 +254,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		this.krollObject = object;
 	}
 
+	/**
+	 * @return the KrollObject associated with this proxy if it exists. Otherwise create it in the KrollRuntime thread.
+	 */
 	public KrollObject getKrollObject()
 	{
 		if (krollObject == null) {
@@ -347,13 +358,20 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		// no-op
 	}
 
+	/**
+	 * @param name  the lookup key.
+	 * @return  true if the proxy contains this property, false otherwise.
+	 */
 	public boolean hasProperty(String name)
 	{
 		return properties.containsKey(name);
 	}
 
 	/**
+	 * Returns the property value given its key.
 	 * Properties are cached on the Proxy and updated from JS for relevant annotated APIs
+	 * @param name  the lookup key.
+	 * @return the property object or null if a property for the given key does not exist.
 	 */
 	public Object getProperty(String name)
 	{
@@ -375,7 +393,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * This internally sets the named property as well as updating the actual JS object
+	 * This sets the named property as well as updating the actual JS object.
 	 */
 	public void setProperty(String name, Object value)
 	{
@@ -396,6 +414,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		getKrollObject().setProperty(name, value);
 	}
 
+	/**
+	 * Fires an event asynchronously via KrollRuntime thread, which can be intercepted on JS side.
+	 * @param event the event to be fired.
+	 * @param data  the data to be sent.
+	 * @return whether this proxy has an eventListener for this event.
+	 */
 	public boolean fireEvent(String event, Object data)
 	{
 		Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_EVENT, data);
@@ -405,6 +429,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		return hasListeners(event);
 	}
 
+	/**
+	 * Fires an event synchronously via KrollRuntime thread, which can be intercepted on JS side.
+	 * @param event the event to be fired.
+	 * @param data  the data to be sent.
+	 * @return whether this proxy has an eventListener for this event.
+	 */
 	public boolean fireSyncEvent(String event, Object data)
 	{
 		if (KrollRuntime.getInstance().isRuntimeThread()) {
@@ -477,6 +507,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		return false;
 	}
 
+	/**
+	 * Same behavior as {@link #setProperty(String, Object)}, but also invokes
+	 * {@link KrollProxyListener#propertyChanged(String, Object, Object, KrollProxy)}.
+	 * @param name the property name.
+	 * @param value the property value.
+	 */
 	public void setPropertyAndFire(String name, Object value)
 	{
 		Object current = getProperty(name);
@@ -537,11 +573,18 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		return null;
 	}
 
+	/**
+	 * Returns a KrollDict object that contains all current properties associated with this proxy.
+	 * @return KrollDict properties object.
+	 */
 	public KrollDict getProperties()
 	{
 		return properties;
 	}
 
+	/**
+	 * @return the KrollModule that this proxy was created in.
+	 */
 	public KrollModule getCreatedInModule()
 	{
 		return createdInModule;
@@ -715,6 +758,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		}
 	}
 
+	/**
+	 * Resolves the passed in scheme / path, and uses the Proxy's creationUrl if the path is relative.
+	 * @param scheme the scheme of Url.
+	 * @param path   the path of Url.
+	 * @return a string representation of URL given its components.
+	 */
 	public String resolveUrl(String scheme, String path)
 	{
 		return TiUrl.resolve(creationUrl.baseUrl, path, scheme);
@@ -734,6 +783,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		return error;
 	}
 
+	/**
+	 * Releases the KrollObject, freeing memory.
+	 */
 	public void release()
 	{
 		if (krollObject != null) {

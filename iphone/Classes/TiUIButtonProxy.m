@@ -119,13 +119,13 @@
     [super removeBarButtonView];
 }
 
--(void)setToolbar:(TiToolbar*)toolbar_
+-(void)setToolbar:(id<TiToolbar>)toolbar_
 {
 	RELEASE_TO_NIL(toolbar);
 	toolbar = [toolbar_ retain];
 }
 
--(TiToolbar*)toolbar
+-(id<TiToolbar>)toolbar
 {
 	return toolbar;
 }
@@ -145,6 +145,17 @@
 	[super fireEvent:type withObject:obj withSource:source propagate:propagate];
 }
 
+-(TiDimension)defaultAutoWidthBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+-(TiDimension)defaultAutoHeightBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+
+USE_VIEW_FOR_AUTO_HEIGHT
+USE_VIEW_FOR_AUTO_WIDTH
 
 @end
 

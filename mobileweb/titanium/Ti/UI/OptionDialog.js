@@ -1,4 +1,4 @@
-define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI"], function(declare, Evented, UI) {
+define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI", "Ti/_/css"], function(declare, Evented, UI, css) {
 
 	var undef;
 
@@ -20,7 +20,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI"], function(declare, Evented, UI)
 			// Create the options dialog itself
 			var optionsDialog = UI.createView({
 				width: "100%",
-				height: "auto",
+				height: UI.SIZE,
 				bottom: 0,
 				backgroundColor: "white",
 				layout: "vertical",
@@ -35,7 +35,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI"], function(declare, Evented, UI)
 				left: 5,
 				right: 5,
 				top: 5,
-				height: "auto",
+				height: UI.SIZE,
 				textAlign: UI.TEXT_ALIGNMENT_CENTER
 			}));
 			
@@ -46,14 +46,14 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI"], function(declare, Evented, UI)
 					right: 5,
 					top: 5,
 					bottom: bottom,
-					height: "auto",
+					height: UI.SIZE,
 					title: title,
 					index: index
 				});
 				if (index === self.destructive) {
-					button.domNode.className += " TiUIButtonDestructive";
+					css.add(button.domNode, "TiUIElementGradientDestructive");
 				} else if (index === self.cancel) {
-					button.domNode.className += " TiUIButtonCancel";
+					css.add(button.domNode, "TiUIElementGradientCancel");
 				}
 				optionsDialog.add(button);
 				button.addEventListener("singletap",function(){

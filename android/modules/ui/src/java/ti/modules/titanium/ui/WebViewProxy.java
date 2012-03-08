@@ -6,10 +6,12 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -41,7 +43,7 @@ public class WebViewProxy extends ViewProxy
 	private static String fpassword;
 
 	private Message postCreateMessage;
-
+	
 	public WebViewProxy()
 	{
 		super();
@@ -98,6 +100,13 @@ public class WebViewProxy extends ViewProxy
 			return getWebView().getJSValue("document.documentElement.outerHTML");
 		}
 		return (String) getProperty(TiC.PROPERTY_HTML);
+	}
+	
+	@Kroll.method
+	public void setHtml(String html, @Kroll.argument(optional=true)KrollDict d)
+	{
+		setProperty(TiC.PROPERTY_HTML, html);
+		getWebView().setHtml(html, d);
 	}
 
 	@Override
@@ -273,5 +282,19 @@ public class WebViewProxy extends ViewProxy
 	public void setPostCreateMessage(Message postCreate)
 	{
 		this.postCreateMessage = postCreate;
+	}
+	
+	/**
+	 * Don't release the web view when it's removed. TIMOB-7008
+	 */
+	@Override
+	public void releaseViews()
+	{
+	}
+	
+	@Kroll.method
+	public void release()
+	{
+		super.releaseViews();
 	}
 }

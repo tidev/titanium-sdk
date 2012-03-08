@@ -31,7 +31,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				style: {
 					textAlign: "left",
 					textOverflow: "ellipsis",
-					overflowX: "hidden",
+					overflow: "hidden",
 					width: "100%",
 					maxHeight: "100%",
 					userSelect: "none",
@@ -45,14 +45,14 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			this.wordWrap = true;
 		},
 
-		_defaultWidth: "auto",
+		_defaultWidth: UI.SIZE,
 
-		_defaultHeight: "auto",
+		_defaultHeight: UI.SIZE,
 		
 		_getContentSize: function(width, height) {
 			return {
-				width: width === "auto" ? this._measureText(this.text, this.textContainerDiv, width).width : width,
-				height: height === "auto" ? this._measureText(this.text, this.textContainerDiv, width).height : height
+				width: this._measureText(this.text, this.textContainerDiv, width).width,
+				height: this._measureText(this.text, this.textContainerDiv, width).height
 			};
 		},
 		
@@ -74,12 +74,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		},
 
 		properties: {
-			color: {
-				set: function(value) {
-					this.textContainerDiv.style.color = value;
-					return value;
-				}
-			},
 			ellipsize: {
 				set: function(value) {
 					set(this.textContainerDiv,"textOverflow", !!value ? "ellipsis" : "clip");
@@ -90,7 +84,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			html: {
 				set: function(value) {
 					this.textContainerDiv.innerHTML = value;
-					this._hasAutoDimensions() && this._triggerParentLayout();
+					this._hasSizeDimensions() && this._triggerParentLayout();
 					return value;
 				}
 			},
@@ -137,7 +131,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					value.match("<br/>$") && (value += "&nbsp;");
 					
 					this.textContainerDiv.innerHTML = value;
-					this._hasAutoDimensions() && this._triggerParentLayout();
+					this._hasSizeDimensions() && this._triggerParentLayout();
 					return value;
 				}
 			},

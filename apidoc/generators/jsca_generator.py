@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2010-2011 Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2010-2012 Appcelerator, Inc. All Rights Reserved.
 # Licensed under the Apache Public License (version 2)
 
 import os, sys, re
@@ -13,9 +13,9 @@ from common import dict_has_non_empty_member, strip_tags, not_real_titanium_type
 android_support_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "support", "android"))
 sys.path.append(android_support_dir)
 
-# We package the python markdown module already in /support/module/support/markdown.
-module_support_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "support", "module", "support"))
-sys.path.append(module_support_dir)
+# We package markdown and simplejson in support/common.
+common_support_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "support", "common"))
+sys.path.append(common_support_dir)
 from markdown import markdown
 
 from tilogger import *

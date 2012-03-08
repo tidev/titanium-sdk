@@ -1,0 +1,16 @@
+---
+name: Titanium.Platform.Android
+summary: |
+    The Android-specific Platform module, used to access the device's platform-related functionality.
+extends: Titanium.Module
+since: "1.8.2"
+platforms: [android]
+
+properties:
+  - name: API_LEVEL
+    summary: Android API level identifier of the Operating System.
+    description: |
+        See the official Android Developers documentation for more information about 
+        [API levels](http://developer.android.com/guide/appendix/api-levels.html).
+    type: Number
+    permission: read-only

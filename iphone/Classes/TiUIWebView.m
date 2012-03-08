@@ -152,14 +152,13 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
     [super frameSizeChanged:frame bounds:bounds];
 	if (webview!=nil)
 	{
+		[webview stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.body.style.minWidth='%fpx';document.body.style.minHeight='%fpx';",bounds.size.width-8,bounds.size.height-16]];
 		[TiUtils setView:webview positionRect:bounds];
 		
 		if (spinner!=nil)
 		{
 			spinner.center = self.center;
-		}
-		
-		[[self webview] stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.body.style.minWidth='%fpx';document.body.style.minHeight='%fpx';",bounds.size.width-8,bounds.size.height-16]];
+		}		
 	}
 }
 
@@ -609,6 +608,13 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
 	NSURL * newUrl = [request URL];
+
+	if ([self.proxy _hasListeners:@"beforeload"])
+	{
+		NSDictionary *event = newUrl == nil ? nil : [NSDictionary dictionaryWithObject:[newUrl absoluteString] forKey:@"url"];
+		[self.proxy fireEvent:@"beforeload" withObject:event];
+	}
+
 	NSString * scheme = [[newUrl scheme] lowercaseString];
 	if ([scheme hasPrefix:@"http"] || [scheme hasPrefix:@"app"] || [scheme hasPrefix:@"file"] || [scheme hasPrefix:@"ftp"])
 	{
@@ -640,11 +646,6 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
-	if ([self.proxy _hasListeners:@"beforeload"])
-	{
-		NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[url absoluteString] forKey:@"url"];
-		[self.proxy fireEvent:@"beforeload" withObject:event];
-	}
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView

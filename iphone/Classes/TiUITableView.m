@@ -293,18 +293,18 @@
 
 -(CGFloat)tableRowHeight:(CGFloat)height
 {
-	if (TiDimensionIsPixels(rowHeight))
+	if (TiDimensionIsDip(rowHeight))
 	{
 		if (rowHeight.value > height)
 		{
 			height = rowHeight.value;
 		}
 	}
-	if (TiDimensionIsPixels(minRowHeight))
+	if (TiDimensionIsDip(minRowHeight))
 	{
 		height = MAX(minRowHeight.value,height);
 	}
-	if (TiDimensionIsPixels(maxRowHeight))
+	if (TiDimensionIsDip(maxRowHeight))
 	{
 		height = MIN(maxRowHeight.value,height);
 	}
@@ -346,7 +346,7 @@
 		tableview.delegate = self;
 		tableview.dataSource = self;
 		tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-		if (TiDimensionIsPixels(rowHeight))
+		if (TiDimensionIsDip(rowHeight))
 		{
 			[tableview setRowHeight:rowHeight.value];
 		}		
@@ -1506,7 +1506,7 @@
 -(void)setRowHeight_:(id)height
 {
 	rowHeight = [TiUtils dimensionValue:height];
-	if (TiDimensionIsPixels(rowHeight))
+	if (TiDimensionIsDip(rowHeight))
 	{
 		[tableview setRowHeight:rowHeight.value];
 	}	
@@ -1757,35 +1757,38 @@ if(ourTableView != tableview)	\
 
 - (void)tableView:(UITableView *)ourTableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
 {
-	RETURN_IF_SEARCH_TABLE_VIEW();
-	int fromSectionIndex = [sourceIndexPath section];
-	int toSectionIndex = [destinationIndexPath section];
-	
-	TiUITableViewSectionProxy *fromSection = [self sectionForIndex:fromSectionIndex];
-	TiUITableViewSectionProxy *toSection = fromSectionIndex!=toSectionIndex ? [self sectionForIndex:toSectionIndex] : fromSection;
-	
-	TiUITableViewRowProxy *fromRow = [fromSection rowAtIndex:[sourceIndexPath row]];
-	TiUITableViewRowProxy *toRow = [toSection rowAtIndex:[destinationIndexPath row]];
-	
-	// hold during the move in case the array is the last guy holding the retain count
-	[fromRow retain];
-	[toRow retain];
-	
-	[[fromSection rows] removeObjectAtIndex:[sourceIndexPath row]];
-	[[toSection rows] insertObject:fromRow atIndex:[destinationIndexPath row]];
-	
-	// rewire our properties
-	fromRow.section = toSection;
-	toRow.section = fromSection;
-	
-	fromRow.row = [destinationIndexPath row];
-	toRow.row = [sourceIndexPath row];
-	
-	// now we can release from our retain above
-	[fromRow autorelease];
-	[toRow autorelease];
-	
-	[self triggerActionForIndexPath:destinationIndexPath fromPath:sourceIndexPath tableView:ourTableView wasAccessory:NO search:NO name:@"move"];
+    RETURN_IF_SEARCH_TABLE_VIEW();
+    int fromSectionIndex = [sourceIndexPath section];
+    int toSectionIndex = [destinationIndexPath section];
+    int fromRowIndex = [sourceIndexPath row];
+    int toRowIndex = [destinationIndexPath row];
+    
+    if ((fromSectionIndex == toSectionIndex) && (fromRowIndex == toRowIndex)) {
+        //No need to fire a move event if the row never moved
+        return;
+    }
+    
+    TiUITableViewSectionProxy *fromSection = [self sectionForIndex:fromSectionIndex];
+    TiUITableViewSectionProxy *toSection = fromSectionIndex!=toSectionIndex ? [self sectionForIndex:toSectionIndex] : fromSection;
+    TiUITableViewRowProxy *fromRow = [fromSection rowAtIndex:fromRowIndex];
+    // hold during the move in case the array is the last guy holding the retain count
+    [fromRow retain];
+    [fromSection remove:fromRow];
+    if ( ([toSection rows] == nil) || ([[toSection rows] count] <= toRowIndex) ){
+        [toSection add:fromRow];
+    }
+    else {
+        [[toSection rows] insertObject:fromRow atIndex:toRowIndex];
+        [toSection rememberProxy:fromRow];
+    }
+    fromRow.section = toSection;
+    [toSection reorderRows];
+    if (fromSectionIndex != toSectionIndex) {
+        [fromSection reorderRows];
+    }
+    // now we can release from our retain above
+    [fromRow autorelease];
+    [self triggerActionForIndexPath:destinationIndexPath fromPath:sourceIndexPath tableView:ourTableView wasAccessory:NO search:NO name:@"move"];
 }
 
 #pragma mark Collation
@@ -1966,7 +1969,7 @@ if(ourTableView != tableview)	\
 		LayoutConstraint *viewLayout = [viewProxy layoutProperties];
 		switch (viewLayout->height.type)
 		{
-			case TiDimensionTypePixels:
+			case TiDimensionTypeDip:
 				size += viewLayout->height.value;
 				break;
 			case TiDimensionTypeAuto:
@@ -2014,7 +2017,7 @@ if(ourTableView != tableview)	\
 		LayoutConstraint *viewLayout = [viewProxy layoutProperties];
 		switch (viewLayout->height.type)
 		{
-			case TiDimensionTypePixels:
+			case TiDimensionTypeDip:
 				size += viewLayout->height.value;
 				break;
 			case TiDimensionTypeAuto:
@@ -2059,21 +2062,6 @@ if(ourTableView != tableview)	\
         
         OffsetScrollViewForRect(tableview,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y,responderRect);
     }
-}
-
--(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop forView:(TiUIView *)firstResponderView
-{
-	int lastSectionIndex = [(TiUITableViewProxy *)[self proxy] sectionCount]-1;
-	ENSURE_CONSISTENCY(lastSectionIndex>=0);
-
-	lastFocusedView = firstResponderView;
-	CGRect responderRect = [self convertRect:[firstResponderView bounds] fromView:firstResponderView];
-	CGPoint offsetPoint = [tableview contentOffset];
-	responderRect.origin.x += offsetPoint.x;
-	responderRect.origin.y += offsetPoint.y;
-
-	CGRect minimumContentRect = [tableview rectForSection:lastSectionIndex];
-	ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(tableview,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y,responderRect);
 }
 
 #pragma Scroll View Delegate

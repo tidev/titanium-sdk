@@ -97,10 +97,15 @@
 
 -(void)removeFromTabGroup
 {
+    [self closeWindow:[current window] animated:YES removeTab:YES];
+}
+
+-(void)closeTab
+{
 	if (current!=nil)
 	{
 		TiWindowProxy *currentWindow = [current window];
-		[self close:currentWindow];
+		[self closeWindow:currentWindow animated:YES removeTab:NO];
 	}
 }
 
@@ -294,15 +299,27 @@
 								([[args objectAtIndex:1] isKindOfClass:[NSDictionary class]])) ? [args objectAtIndex:1] : nil;
 
 	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
+    [self closeWindow:window animated:animated removeTab:NO];
+}
+
+- (void)closeWindow:(TiWindowProxy *)window animated:(BOOL)animated removeTab:(BOOL)removeTab
+{
     BOOL closingCurrentWindow = ([current window] == window);
 	if (closingCurrentWindow)
 	{
-		if ([[rootController navigationController] popViewControllerAnimated:animated] != nil) {
+        [[rootController navigationController] popViewControllerAnimated:animated];
+		if (!removeTab) {
             return;
         }
 	}
     UIViewController *windowController = [[window controller] retain];
-	[self setTabGroup:nil];
+    if (closingCurrentWindow) {
+        [self setTabGroup:nil];
+        if ((windowController == nil) && (window == nil)) {
+            // tab was never focused so its controller was never added to the stack
+            windowController = [rootController retain];
+        }
+    }
 
 	// Manage the navigation controller stack
 	UINavigationController* navController = [rootController navigationController];

@@ -6,6 +6,9 @@
  */
 package org.appcelerator.kroll;
 
+/**
+ * @deprecated
+ */
 public interface KrollProperty {
 
 	public boolean supportsGet(String name);

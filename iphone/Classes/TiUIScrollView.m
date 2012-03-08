@@ -83,7 +83,7 @@
 
 	switch (contentWidth.type)
 	{
-		case TiDimensionTypePixels:
+		case TiDimensionTypeDip:
 		{
 			newContentSize.width = MAX(newContentSize.width,contentWidth.value);
 			break;
@@ -100,7 +100,7 @@
 
 	switch (contentHeight.type)
 	{
-		case TiDimensionTypePixels:
+		case TiDimensionTypeDip:
 		{
 			minimumContentHeight = contentHeight.value;
 			break;
@@ -260,14 +260,6 @@
         CGRect responderRect = [wrapperView convertRect:[firstResponderView bounds] fromView:firstResponderView];
         OffsetScrollViewForRect(scrollView,keyboardTop,minimumContentHeight,responderRect);
     }
-}
-
--(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop forView:(TiUIView *)firstResponderView
-{
-	lastFocusedView = firstResponderView;
-	CGRect responderRect = [wrapperView convertRect:[firstResponderView bounds] fromView:firstResponderView];
-	
-	ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(scrollView,keyboardTop,minimumContentHeight,responderRect);
 }
 
 @end

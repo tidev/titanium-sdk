@@ -46,6 +46,7 @@ public class TiC
 	public static final String EVENT_PAUSE = "pause";
 	public static final String EVENT_PLAYBACK_STATE = "playbackState";
 	public static final String EVENT_PRELOAD = "preload";
+	public static final String EVENT_POST_LAYOUT = "postlayout";
 	public static final String EVENT_PROPERTY_CLICKSOURCE = "clicksource";
 	public static final String EVENT_PROPERTY_CURRENT_PLAYBACK_TIME = "currentPlaybackTime";
 	public static final String EVENT_PROPERTY_DETAIL = "detail";
@@ -95,7 +96,9 @@ public class TiC
 	public static final String INTENT_PROPERTY_START_MODE = "startMode";
 	public static final String INTENT_PROPERTY_USE_ACTIVITY_WINDOW = "useActivityWindow";
 	public static final String INTENT_PROPERTY_WINDOW_ID = "windowId";
+	public static final String LAYOUT_FILL = "fill";
 	public static final String LAYOUT_HORIZONTAL = "horizontal";
+	public static final String LAYOUT_SIZE = "size";
 	public static final String LAYOUT_VERTICAL = "vertical";
 	public static final String MSG_PROPERTY_EVENT_NAME = "eventName";
 	public static final String MSG_PROPERTY_FILENAME = "filename";
@@ -131,6 +134,7 @@ public class TiC
 	public static final String PROPERTY_BACKGROUND_SELECTED_COLOR = "backgroundSelectedColor";
 	public static final String PROPERTY_BACKGROUND_SELECTED_IMAGE = "backgroundSelectedImage";
 	public static final String PROPERTY_BASE_URL = "baseUrl";
+	public static final String PROPERTY_BASE_URL_WEBVIEW = "baseURL";
 	public static final String PROPERTY_BORDER_COLOR = "borderColor";
 	public static final String PROPERTY_BORDER_PREFIX = "border";
 	public static final String PROPERTY_BORDER_RADIUS = "borderRadius";
@@ -241,6 +245,7 @@ public class TiC
 	public static final String PROPERTY_MESSAGEID = "messageid";
 	public static final String PROPERTY_MESSENGER = "messenger";
 	public static final String PROPERTY_MESSENGER_RECEIVER = "messengerReceiver";
+	public static final String PROPERTY_MIMETYPE = "mimeType";
 	public static final String PROPERTY_MIN_ROW_HEIGHT = "minRowHeight";
 	public static final String PROPERTY_MINUTE_INTERVAL = "minuteInterval";
 	public static final String PROPERTY_MODAL = "modal";

@@ -1,211 +1,152 @@
-define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style"], function(declare, Widget, dom, css, style) {
+define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/UI"], 
+	function(declare, Widget, dom, css, style, lang, UI) {
 
-	var set = style.set;
+	var setStyle = style.set,
+		unitize = dom.unitize;
 
 	return declare("Ti.UI.Slider", Widget, {
 
 		constructor: function(args) {
-			this.slider = dom.create("input", {
-				className: css.clean("TiUISliderSlider")
+			this._track = dom.create("div", {
+				className: "TiUISliderTrack"
+			}, this.domNode);
+			
+			this._thumb = dom.create("div", {
+				className: "TiUIElementGradient TiUISliderThumb"
+			}, this.domNode);
+			
+			var initialPosition,
+				initialValue,
+				self = this;
+			this.addEventListener("touchstart", function(e) {
+				initialPosition = e.x;
+				initialValue = self.value;
 			});
-			this.slider.type = "range";
-			this.domNode.appendChild(this.slider);
-			set(this.slider,"width","100%");
-			set(this.slider,"height","100%");
-			this.slider.min = 0;
-			this.slider.max = 100;
-			this.slider.value = 0;
+			this.addEventListener("touchmove", function(e) {
+				self.value = (e.x - initialPosition) * (self.max - self.min) / (self.domNode.clientWidth - 30) + initialValue;
+			});
 		},
 		
-		_defaultWidth: "100%",
+		_doLayout: function() {
+			var dimensions = Widget.prototype._doLayout.apply(this,arguments);
+			this._updateSize();
+			return dimensions;	
+		},
 		
-		_defaultHeight: "auto",
+		_updateSize: function() {
+			this._thumbLocation = Math.round((this.domNode.clientWidth - 30) * this.value / (this.max - this.min))
+			setStyle(this._thumb, "transform", "translateX(" + this._thumbLocation + "px)");
+		},
+		
+		_constrainValue: function(value) {
+			var minVal = lang.val(this.minRange, this.min),
+				maxVal = lang.val(this.maxRange, this.max);
+			value < minVal && (value = minVal);
+			value > maxVal && (value = maxVal);
+			return value;
+		},
+		
+		_defaultWidth: UI.FILL,
+		
+		_defaultHeight: UI.SIZE,
 		
 		_getContentSize: function(width, height) {
+			// There is nothing to measure, or that has "dimensions" to return, so we just return sensible yet arbitrary defaults.
 			return {
-				width: this.slider.clientWidth,
-				height: this.slider.clientHeight
-			};
+				width: 200,
+				height: 40
+			}
 		},
 		
 		_setTouchEnabled: function(value) {
-			Widget.prototype._setTouchEnabled.apply(this,arguments);
-			this.slider && set(this.slider,"pointerEvents", value ? "auto" : "none");
+			Widget.prototype._setTouchEnabled.apply(this, arguments);
+			var cssVal = value ? "auto" : "none";
+			setStyle(this._track, "pointerEvents", cssVal);
+			setStyle(this._thumb, "pointerEvents", cssVal);
 		},
 
 		properties: {
-			disabledLeftTrackImage: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Slider#.disabledLeftTrackImage" is not implemented yet.');
+						
+			enabled: {
+				set: function(value, oldValue) {
+					
+					if (value !== oldValue) {
+						if (!value) {
+							css.remove(this._thumb,"TiUIElementGradient");
+							setStyle(this._thumb,"backgroundColor","#aaa");
+						} else {
+							css.add(this._thumb,"TiUIElementGradient");
+							setStyle(this._thumb,"backgroundColor","");
+						}
+						this._setTouchEnabled(value);
+					}
 					return value;
 				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Slider#.disabledLeftTrackImage" is not implemented yet.');
-					return value;
-				}
-			},
-			
-			disabledRightTrackImage: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Slider#.disabledRightTrackImage" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Slider#.disabledRightTrackImage" is not implemented yet.');
-					return value;
-				}
-			},
-			
-			disabledThumbImage: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Slider#.disabledThumbImage" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Slider#.disabledThumbImage" is not implemented yet.');
-					return value;
-				}
-			},
-			
-			highlightedLeftTrackImage: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Slider#.highlightedLeftTrackImage" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Slider#.highlightedLeftTrackImage" is not implemented yet.');
-					return value;
-				}
-			},
-			
-			highlightedRightTrackImage: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Slider#.highlightedRightTrackImage" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Slider#.highlightedRightTrackImage" is not implemented yet.');
-					return value;
-				}
-			},
-			
-			highlightedThumbImage: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Slider#.highlightedThumbImage" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Slider#.highlightedThumbImage" is not implemented yet.');
-					return value;
-				}
-			},
-			
-			leftTrackImage: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Slider#.leftTrackImage" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Slider#.leftTrackImage" is not implemented yet.');
-					return value;
-				}
+				value: true
 			},
 			
 			max: {
-				get: function(value) {
-					return this.slider.max;
-				},
 				set: function(value) {
-					this.slider.max = value;
+					value < this.min && (value = this.min);
 					return value;
+				},
+				post: function() {
+					this.value = this._constrainValue(this.value);
+					this._updateSize();
+				},
+				value: 100
+			},
+			
+			maxRange: {
+				set: function(value) {
+					value > this.max && (value = this.max);
+					return value;
+				},
+				post: function() {
+					this.value = this._constrainValue(this.value);
+					this._updateSize();
 				}
 			},
 			
 			min: {
-				get: function(value) {
-					return this.slider.min;
-				},
 				set: function(value) {
-					this.slider.min = value;
+					value > this.max && (value = this.max);
 					return value;
-				}
+				},
+				post: function() {
+					this.value = this._constrainValue(this.value);
+					this._updateSize();
+				},
+				value: 0
 			},
 			
-			rightTrackImage: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Slider#.rightTrackImage" is not implemented yet.');
+			minRange: {
+				set: function(value) {
+					value < this.min && (value = this.min);
 					return value;
 				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Slider#.rightTrackImage" is not implemented yet.');
-					return value;
-				}
-			},
-			
-			selectedLeftTrackImage: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Slider#.selectedLeftTrackImage" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Slider#.selectedLeftTrackImage" is not implemented yet.');
-					return value;
-				}
-			},
-			
-			selectedRightTrackImage: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Slider#.selectedRightTrackImage" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Slider#.selectedRightTrackImage" is not implemented yet.');
-					return value;
-				}
-			},
-			
-			selectedThumbImage: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Slider#.selectedThumbImage" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Slider#.selectedThumbImage" is not implemented yet.');
-					return value;
-				}
-			},
-			
-			thumbImage: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Slider#.thumbImage" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Slider#.thumbImage" is not implemented yet.');
-					return value;
+				post: function() {
+					this.value = this._constrainValue(this.value);
+					this._updateSize();
 				}
 			},
 			
 			value: {
-				get: function(value) {
-					return this.slider.value;
-				},
-				set: function(value) {
-					this.slider.value = value;
+				set: function(value, oldValue) {
+					value = this._constrainValue(value);
+					if (value !== oldValue) {
+						this.fireEvent("change", {
+							value: value,
+							x: -1,
+							y: -1
+						});
+					}
 					return value;
-				}
+				},
+				post: function() {
+					this._updateSize();
+				},
+				value: 0
 			}
 		}
 

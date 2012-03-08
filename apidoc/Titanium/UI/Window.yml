@@ -351,7 +351,7 @@ properties:
     description: |
         Specify one of [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN),
         [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE),
-        or [SOFT_INPUT_ADJUST_UNSPECIFIED](Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED).
+        or [SOFT_INPUT_ADJUST_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED).
 
         For more information see the Android API Reference: 
         [Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
@@ -362,7 +362,7 @@ properties:
     summary: Set the pixel format for the Activity's Window.
     description: |
         The property is ignored on a Titanium "lightweight" Window. Use one of the
-        <Ti.UI.Android>.PIXEL_FORMAT constants to set the format.
+        <Titanium.UI.Android>.PIXEL_FORMAT constants to set the format.
 
         For more information on pixel formats, see 
         [Android SDK Window.setFormat](http://developer.android.com/reference/android/view/Window.html#setFormat(int))

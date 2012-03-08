@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,7 +15,6 @@ import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiDeployData;
 
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -40,12 +39,16 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		boolean useGlobalRefs = true;
 		TiDeployData deployData = getKrollApplication().getDeployData();
 
+		/* TODO: Disabling this workaround for emulator to resolve issues
+		 *       seen in TIMOB-7779. Once it has been determined this workaround
+		 *       will never be needed it should be removed (TIMOB-7706).
 		if (Build.PRODUCT.equals("sdk") || Build.PRODUCT.equals("google_sdk") || Build.FINGERPRINT.startsWith("generic")) {
 			if (DBG) {
 				Log.d(TAG, "Emulator detected, storing global references in a global Map");
 			}
 			useGlobalRefs = false;
 		}
+		*/
 
 		if (!libLoaded) {
 			System.loadLibrary("stlport_shared");
@@ -117,6 +120,12 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	}
 
 	@Override
+	public Object doEvalString(String source, String filename)
+	{
+		return nativeEvalString(source, filename);
+	}
+
+	@Override
 	public void initObject(KrollProxySupport proxy)
 	{
 		V8Object.nativeInitObject(proxy.getClass(), proxy);
@@ -155,6 +164,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	// JNI method prototypes
 	private native void nativeInit(boolean useGlobalRefs, int debuggerPort, boolean DBG);
 	private native void nativeRunModule(String source, String filename, KrollProxySupport activityProxy);
+	private native Object nativeEvalString(String source, String filename);
 	private native void nativeProcessDebugMessages();
 	private native void nativeIdle();
 	private native void nativeDispose();

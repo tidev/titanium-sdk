@@ -4,8 +4,9 @@ define(["Ti/_/declare", "Ti/Gesture", "Ti/_/UI/SuperView", "Ti/UI"], function(de
 
 	return declare("Ti.UI.Window", SuperView, {
 	
-		_defaultWidth: "100%",
-		_defaultHeight: "100%",
+		_defaultWidth: UI.FILL,
+
+		_defaultHeight: UI.FILL,
 
 		postscript: function() {
 			if (this.url) {
@@ -23,7 +24,7 @@ define(["Ti/_/declare", "Ti/Gesture", "Ti/_/UI/SuperView", "Ti/UI"], function(de
 					backgroundImage: UI.backgroundImage
 				})).show();
 			}
-			SuperView.prototype.open.apply(this, args);
+			SuperView.prototype.open.call(this, args);
 		},
 
 		close: function(args) {
@@ -32,7 +33,7 @@ define(["Ti/_/declare", "Ti/Gesture", "Ti/_/UI/SuperView", "Ti/UI"], function(de
 				UI._removeWindow(mw).destroy();
 				this._modalWin = null;
 			}
-			SuperView.prototype.close.apply(this, args);
+			SuperView.prototype.close.call(this, args);
 		},
 
 		constants: {

@@ -6,14 +6,12 @@
 import os, sys, re
 apiDocDir = os.path.abspath(os.path.dirname(__file__))
 
-# We package the python markdown module already in the sdk source tree,
-# namely in /support/module/support/markdown.  So go ahead and  use it
-# rather than rely on it being easy_installed.
-moduleSupportDir = os.path.abspath(os.path.join(apiDocDir, '..', 'support', 'module', 'support'))
-if os.path.exists(moduleSupportDir):
-	sys.path.append(moduleSupportDir)
+# We package markdown in support/common.
+commonSupportDir = os.path.abspath(os.path.join(apiDocDir, '..', 'support', 'common'))
+if os.path.exists(commonSupportDir):
+	sys.path.append(commonSupportDir)
 
-import codecs, optparse
+import codecs, optparse, platform
 import markdown
 
 try:
@@ -490,8 +488,11 @@ def main(args):
 		default=None, help='specific TDoc2 file to validate (overrides -d/--dir)')
 	parser.add_option('-p', '--parse-only', dest='parseOnly',
 		action='store_true', default=False, help='only check yaml parse-ability')
+	format_default = "pretty"
+	if "windows" in platform.system().lower() or "cygwin" in platform.system().lower():
+		format_default = "simple"
 	parser.add_option('-s', '--style', dest='format',
-		default='pretty', help='output style: pretty (default) or simple.')
+		default=format_default, help='output style: pretty (default) or simple.')
 	parser.add_option('-e', '--errors-only', dest='errorsOnly',
 		action='store_true', default=False, help='only emit failed validations')
 	parser.add_option('--warn-summary', dest='validateSummary',

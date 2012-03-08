@@ -27,16 +27,16 @@
 
 #pragma mark public API
 
-@synthesize zIndex, parentVisible;
--(void)setZIndex:(int)newZindex
+@synthesize vzIndex, parentVisible;
+-(void)setVzIndex:(int)newZindex
 {
-	if(newZindex == zIndex)
+	if(newZindex == vzIndex)
 	{
 		return;
 	}
 
-	zIndex = newZindex;
-	[self replaceValue:NUMINT(zIndex) forKey:@"zIndex" notification:NO];
+	vzIndex = newZindex;
+	[self replaceValue:NUMINT(vzIndex) forKey:@"vzIndex" notification:NO];
 	[self willChangeZIndex];
 }
 
@@ -60,11 +60,63 @@
 	[self replaceValue:newVisible forKey:@"visible" notification:YES];
 }
 
-
--(TiPoint*)center
-{
-	return [[[TiPoint alloc] initWithPoint:[self view].center] autorelease];
+-(void)setTempProperty:(id)propVal forKey:(id)propName {
+    if (layoutPropDictionary == nil) {
+        layoutPropDictionary = [[NSMutableDictionary alloc] init];
+    }
+    
+    if (propVal != nil && propName != nil) {
+        [layoutPropDictionary setObject:propVal forKey:propName];
+    }
 }
+
+-(void)processTempProperties:(NSDictionary*)arg
+{
+    //arg will be non nil when called from updateLayout
+    if (arg != nil) {
+        NSEnumerator *enumerator = [arg keyEnumerator];
+        id key;
+        while ((key = [enumerator nextObject])) {
+            [self setTempProperty:[arg objectForKey:key] forKey:key];
+        }
+    }
+    
+    if (layoutPropDictionary != nil) {
+        [self setValuesForKeysWithDictionary:layoutPropDictionary];
+        RELEASE_TO_NIL(layoutPropDictionary);
+    }
+}
+
+-(void)startLayout:(id)arg
+{
+    updateStarted = YES;
+    allowLayoutUpdate = NO;
+}
+-(void)finishLayout:(id)arg
+{
+    updateStarted = NO;
+    allowLayoutUpdate = YES;
+    [self processTempProperties:nil];
+    allowLayoutUpdate = NO;
+}
+-(void)updateLayout:(id)arg
+{
+    id val = nil;
+    if ([arg isKindOfClass:[NSArray class]]) {
+        val = [arg objectAtIndex:0];
+    }
+    else
+    {
+        val = arg;
+    }
+    updateStarted = NO;
+    allowLayoutUpdate = YES;
+    ENSURE_TYPE_OR_NIL(val, NSDictionary);
+    [self processTempProperties:val];
+    allowLayoutUpdate = NO;
+    
+}
+
 
 -(void)add:(id)arg
 {
@@ -89,6 +141,9 @@
 		{
 			[children addObject:arg];
 		}
+        //Turn on clipping because I have children
+        [self view].clipsToBounds = YES;
+        
 		pthread_rwlock_unlock(&childrenLock);
 		[arg setParent:self];
 		[self contentsWillChange];
@@ -224,19 +279,49 @@
 	[self animate:arg];
 }
 
+#define CHECK_LAYOUT_UPDATE(layoutName,value) \
+if (ENFORCE_BATCH_UPDATE) { \
+    if (updateStarted) { \
+        [self setTempProperty:value forKey:@#layoutName]; \
+        return; \
+    } \
+    else if(!allowLayoutUpdate){ \
+        return; \
+    } \
+}
+
+#define LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(methodName,layoutName,converter,postaction)	\
+-(void)methodName:(id)value	\
+{	\
+    CHECK_LAYOUT_UPDATE(layoutName,value) \
+    TiDimension result = converter(value);\
+    if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {\
+        layoutProperties.layoutName = result;\
+    }\
+    else {\
+        if (!TiDimensionIsUndefined(result)) {\
+            NSLog(@"[WARN] Invalid value %@ specified for property %@",[TiUtils stringValue:value],@#layoutName); \
+        } \
+        layoutProperties.layoutName = TiDimensionUndefined;\
+    }\
+    [self replaceValue:value forKey:@#layoutName notification:YES];	\
+    postaction; \
+}
+
 #define LAYOUTPROPERTIES_SETTER(methodName,layoutName,converter,postaction)	\
 -(void)methodName:(id)value	\
 {	\
-	layoutProperties.layoutName = converter(value);	\
-	[self replaceValue:value forKey:@#layoutName notification:YES];	\
-	postaction; \
+    CHECK_LAYOUT_UPDATE(layoutName,value) \
+    layoutProperties.layoutName = converter(value);	\
+    [self replaceValue:value forKey:@#layoutName notification:YES];	\
+    postaction; \
 }
 
-LAYOUTPROPERTIES_SETTER(setTop,top,TiDimensionFromObject,[self willChangePosition])
-LAYOUTPROPERTIES_SETTER(setBottom,bottom,TiDimensionFromObject,[self willChangePosition])
+LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(setTop,top,TiDimensionFromObject,[self willChangePosition])
+LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(setBottom,bottom,TiDimensionFromObject,[self willChangePosition])
 
-LAYOUTPROPERTIES_SETTER(setLeft,left,TiDimensionFromObject,[self willChangePosition])
-LAYOUTPROPERTIES_SETTER(setRight,right,TiDimensionFromObject,[self willChangePosition])
+LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(setLeft,left,TiDimensionFromObject,[self willChangePosition])
+LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(setRight,right,TiDimensionFromObject,[self willChangePosition])
 
 LAYOUTPROPERTIES_SETTER(setWidth,width,TiDimensionFromObject,[self willChangeSize])
 LAYOUTPROPERTIES_SETTER(setHeight,height,TiDimensionFromObject,[self willChangeSize])
@@ -251,8 +336,19 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 -(void)setValue:(id)value forUndefinedKey:(NSString *)key
 {
     if ([key isEqualToString:[@"lay" stringByAppendingString:@"out"]]) {
+        //CAN NOT USE THE MACRO 
+        if (ENFORCE_BATCH_UPDATE) {
+            if (updateStarted) {
+                [self setTempProperty:value forKey:key]; \
+                return;
+            }
+            else if(!allowLayoutUpdate){
+                return;
+            }
+        }
         layoutProperties.layoutStyle = TiLayoutRuleFromObject(value);
         [self replaceValue:value forKey:[@"lay" stringByAppendingString:@"out"] notification:YES];
+        
         [self willChangeLayout];
         return;
     }
@@ -261,43 +357,113 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(TiRect*)size
 {
-	TiRect *rect = [[[TiRect alloc] init] autorelease];
-	[self makeViewPerformSelector:@selector(fillBoundsToRect:) withObject:rect createIfNeeded:YES waitUntilDone:YES];
-	return rect;
+	TiRect *rect = [[TiRect alloc] init];
+    if ([self viewAttached]) {
+        [self makeViewPerformSelector:@selector(fillBoundsToRect:) withObject:rect createIfNeeded:YES waitUntilDone:YES];
+    }
+    else {
+        [rect setRect:CGRectZero];
+    }
+    return [rect autorelease];
 }
 
--(id)width
+-(TiRect*)rect
 {
-	CGFloat value = [TiUtils floatValue:[self valueForUndefinedKey:@"width"] def:0];
-	if (value!=0) return NUMFLOAT(value);
-	return [self size].width;
+    TiRect *rect = [[TiRect alloc] init];
+	if ([self viewAttached]) {
+        __block CGRect viewRect;
+        __block CGPoint viewPosition;
+        __block CGAffineTransform viewTransform;
+        __block CGPoint viewAnchor;
+        TiThreadPerformOnMainThread(^{
+            TiUIView * ourView = [self view];
+            viewRect = [ourView bounds];
+            viewPosition = [ourView center];
+            viewTransform = [ourView transform];
+            viewAnchor = [[ourView layer] anchorPoint];
+        }, YES);
+        viewRect.origin = CGPointMake(-viewAnchor.x*viewRect.size.width, -viewAnchor.y*viewRect.size.height);
+        viewRect = CGRectApplyAffineTransform(viewRect, viewTransform);
+        viewRect.origin.x += viewPosition.x;
+        viewRect.origin.y += viewPosition.y;
+        [rect setRect:viewRect];
+    }
+    else {
+        [rect setRect:CGRectZero];
+    }
+    return [rect autorelease];
 }
 
--(id)height
+-(id)zIndex
 {
-	CGFloat value = [TiUtils floatValue:[self valueForUndefinedKey:@"height"] def:0];
-	if (value!=0) return NUMFLOAT(value);
-	return [self size].height;
+    return [self valueForUndefinedKey:@"zindex_"];
 }
 
--(void)setSize:(id)value
+-(void)setZIndex:(id)value
 {
-	ENSURE_DICT(value);
-	layoutProperties.width = TiDimensionFromObject([value objectForKey:@"width"]);
- 	layoutProperties.height = TiDimensionFromObject([value objectForKey:@"height"]);
-	[self willChangeSize];
+    CHECK_LAYOUT_UPDATE(zIndex, value);
+    
+    if ([value respondsToSelector:@selector(intValue)]) {
+        [self setVzIndex:[TiUtils intValue:value]];
+        [self replaceValue:value forKey:@"zindex_" notification:NO];
+    }
+}
+
+-(NSMutableDictionary*)center
+{
+    NSMutableDictionary* result = [[[NSMutableDictionary alloc] init] autorelease];
+    id xVal = [self valueForUndefinedKey:@"centerX_"];
+    if (xVal != nil) {
+        [result setObject:xVal forKey:@"x"];
+    }
+    id yVal = [self valueForUndefinedKey:@"centerY_"];
+    if (yVal != nil) {
+        [result setObject:yVal forKey:@"y"];
+    }
+    
+    if ([[result allKeys] count] > 0) {
+        return result;
+    }
+    return nil;
 }
 
 -(void)setCenter:(id)value
 {
+    CHECK_LAYOUT_UPDATE(center, value);
+
+    
 	if ([value isKindOfClass:[NSDictionary class]])
 	{
-		layoutProperties.centerX = TiDimensionFromObject([value objectForKey:@"x"]);
-		layoutProperties.centerY = TiDimensionFromObject([value objectForKey:@"y"]);
+        TiDimension result;
+        id obj = [value objectForKey:@"x"];
+        if (obj != nil) {
+            [self replaceValue:obj forKey:@"centerX_" notification:NO];
+            result = TiDimensionFromObject(obj);
+            if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
+                layoutProperties.centerX = result;
+            }
+            else {
+                layoutProperties.centerX = TiDimensionUndefined;
+            }
+        }
+        obj = [value objectForKey:@"y"];
+        if (obj != nil) {
+            [self replaceValue:obj forKey:@"centerY_" notification:NO];
+            result = TiDimensionFromObject(obj);
+            if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
+                layoutProperties.centerY = result;
+            }
+            else {
+                layoutProperties.centerY = TiDimensionUndefined;
+            }
+        }
+        
+        
+
 	} else if ([value isKindOfClass:[TiPoint class]]) {
         CGPoint p = [value point];
-		layoutProperties.centerX = TiDimensionPixels(p.x);
-		layoutProperties.centerY = TiDimensionPixels(p.y);
+		layoutProperties.centerX = TiDimensionDip(p.x);
+		layoutProperties.centerY = TiDimensionDip(p.y);
     } else {
 		layoutProperties.centerX = TiDimensionUndefined;
 		layoutProperties.centerY = TiDimensionUndefined;
@@ -561,16 +727,18 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 {
 	CGFloat result = TiDimensionCalculateValue(layoutProperties.left, 0)
 			+ TiDimensionCalculateValue(layoutProperties.right, 0);
-	if (TiDimensionIsPixels(layoutProperties.width))
+	if (TiDimensionIsDip(layoutProperties.width))
 	{
 		result += layoutProperties.width.value;
 	}
-	else if(TiDimensionIsAuto(layoutProperties.width))
+	else if (TiDimensionIsPercent(layoutProperties.width)) 
+	{
+		result = TiDimensionCalculateValue(layoutProperties.width, suggestedWidth);
+	}
+	else
 	{
 		result += [self autoWidthForWidth:suggestedWidth - result];
-	} else if (TiDimensionIsPercent(layoutProperties.width)) {
-        result = TiDimensionCalculateValue(layoutProperties.width, suggestedWidth);
-    }
+	}
 	return result;
 }
 
@@ -579,13 +747,13 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	CGFloat result = TiDimensionCalculateValue(layoutProperties.top, 0)
 			+ TiDimensionCalculateValue(layoutProperties.bottom, 0);
 
-	if (TiDimensionIsPixels(layoutProperties.height))
+	if (TiDimensionIsDip(layoutProperties.height))
 	{
 		result += layoutProperties.height.value;
 	}
-	else if(TiDimensionIsAuto(layoutProperties.height))
+	else
 	{
-		if (TiDimensionIsPixels(layoutProperties.width))
+		if (TiDimensionIsDip(layoutProperties.width))
 		{
 			suggestedWidth = layoutProperties.width.value;
 		}
@@ -972,6 +1140,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 
 -(void)_initWithProperties:(NSDictionary*)properties
 {
+    [self startLayout:nil];
 	if (properties!=nil)
 	{
 		NSString *objectId = [properties objectForKey:@"id"];
@@ -1039,6 +1208,8 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		}
 	}
 	[super _initWithProperties:properties];
+    [self finishLayout:nil];
+
 }
 
 -(void)dealloc
@@ -1407,8 +1578,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 -(void)contentsWillChange
 {
-	if (TiDimensionIsAuto(layoutProperties.width) ||
-			TiDimensionIsAuto(layoutProperties.height))
+	if (TiDimensionIsAuto(layoutProperties.width) || TiDimensionIsAuto(layoutProperties.height) 
+        || TiDimensionIsAutoSize(layoutProperties.width) || TiDimensionIsAutoSize(layoutProperties.height))
 	{
 		[self willChangeSize];
 	}
@@ -1429,8 +1600,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	{
 		[self willChangeSize];
 	}
-	if(!TiDimensionIsPixels(layoutProperties.centerX) ||
-			!TiDimensionIsPixels(layoutProperties.centerY))
+	if(!TiDimensionIsDip(layoutProperties.centerX) ||
+			!TiDimensionIsDip(layoutProperties.centerY))
 	{
 		[self willChangePosition];
 	}
@@ -1606,7 +1777,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 {
 	
 	int result = 0;
-	int childZindex = [childProxy zIndex];
+	int childZindex = [childProxy vzIndex];
 	BOOL earlierSibling = YES;
 	UIView * ourView = [self parentViewForChild:childProxy];
 	
@@ -1634,9 +1805,9 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 			continue;
 		}
 		
-		int thisChildZindex = [thisChildProxy zIndex];
+		int thisChildZindex = [thisChildProxy vzIndex];
 		if((thisChildZindex < childZindex) ||
-				(earlierSibling && (thisChildZindex == zIndex)))
+				(earlierSibling && (thisChildZindex == childZindex)))
 		{
 			result ++;
 		}
@@ -1661,7 +1832,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         CGSize referenceSize = (parentView != nil) ? parentView.bounds.size : sandboxBounds.size;
 		sizeCache.size = SizeConstraintViewWithSizeAddingResizing(&layoutProperties,self, referenceSize, &autoresizeCache);
 
-		positionCache = PositionConstraintGivenSizeBoundsAddingResizing(&layoutProperties, sizeCache.size,
+		positionCache = PositionConstraintGivenSizeBoundsAddingResizing(&layoutProperties, self, sizeCache.size,
 		[[view layer] anchorPoint], referenceSize, sandboxBounds.size, &autoresizeCache);
 
 		positionCache.x += sizeCache.origin.x + sandboxBounds.origin.x;
@@ -1675,6 +1846,10 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 
 		repositioning = NO;
+        
+        if ([self _hasListeners:@"postlayout"]) {
+            [self fireEvent:@"postlayout" withObject:nil];
+        }
 	}
 #ifdef VERBOSE
 	else
@@ -1709,6 +1884,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		// if not visible, ignore layout
 		if (view.hidden)
 		{
+			OSAtomicTestAndClearBarrier(TiRefreshViewEnqueued, &dirtyflags);
 			return;
 		}
 		
@@ -1829,7 +2005,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		{	
 			//TODO: Optimize!
 			int insertPosition = 0;
-			int childZIndex = [child zIndex];
+			int childZIndex = [child vzIndex];
 			
 			pthread_rwlock_rdlock(&childrenLock);
 			int childProxyIndex = [children indexOfObject:child];
@@ -1842,7 +2018,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 					continue;
 				}
 				
-				int thisZIndex=[(TiViewProxy *)[thisView proxy] zIndex];
+				int thisZIndex=[(TiViewProxy *)[thisView proxy] vzIndex];
 				if (childZIndex < thisZIndex) //We've found our stop!
 				{
 					break;
@@ -1909,6 +2085,16 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	{
 		OSAtomicTestAndClearBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
 	}
+}
+
+
+-(TiDimension)defaultAutoWidthBehavior:(id)unused
+{
+    return TiDimensionAutoFill;
+}
+-(TiDimension)defaultAutoHeightBehavior:(id)unused
+{
+    return TiDimensionAutoFill;
 }
 
 @end

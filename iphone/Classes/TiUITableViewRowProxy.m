@@ -300,6 +300,16 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)setValue:(id)value forUndefinedKey:(NSString *)key
 {
     if ([key isEqualToString:[@"lay" stringByAppendingString:@"out"]]) {
+        //CAN NOT USE THE MACRO 
+        if (ENFORCE_BATCH_UPDATE) {
+            if (updateStarted) {
+                [self setTempProperty:value forKey:key]; \
+                return;
+            }
+            else if(!allowLayoutUpdate){
+                return;
+            }
+        }
         layoutProperties.layoutStyle = TiLayoutRuleFromObject(value);
         [self replaceValue:value forKey:[@"lay" stringByAppendingString:@"out"] notification:YES];
         return;
@@ -341,12 +351,12 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 
 -(CGFloat)rowHeight:(CGFloat)width
 {
-	if (TiDimensionIsPixels(height))
+	if (TiDimensionIsDip(height))
 	{
 		return height.value;
 	}
 	CGFloat result = 0;
-	if (TiDimensionIsAuto(height))
+	if (TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height))
 	{
 		result = [self autoHeightForWidth:width];
 	}
@@ -877,7 +887,10 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	}
 }
 
-
+-(TiDimension)defaultAutoHeightBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
 @end
 
 #endif

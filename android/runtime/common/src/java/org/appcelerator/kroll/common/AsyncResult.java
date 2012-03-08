@@ -8,6 +8,10 @@ package org.appcelerator.kroll.common;
 
 import java.util.concurrent.Semaphore;
 
+/**
+ * This is a semaphore that blocks the current thread when getResult() is called until another thread calls setResult().
+ * See {@link TiMessenger#sendBlockingMainMessage(android.os.Message, Object)} for an example use case.
+ */
 public class AsyncResult extends Semaphore
 {
 	private static final long serialVersionUID = 1L;
@@ -25,15 +29,26 @@ public class AsyncResult extends Semaphore
 		this.arg = arg;
 	}
 
+	/**
+	 * @return the arg object that is passed into the constructor.
+	 */
 	public Object getArg() {
 		return arg;
 	}
 
+	/**
+	 * Sets the result asynchronously, releasing the lock.
+	 * @param result the resulting object.
+	 */
 	public void setResult(Object result) {
 		this.result = result;
 		this.release();
 	}
 	
+	/**
+	 * Sets an exception to be thrown to the code that is blocking on {@link #getResult()}, and releases the lock.
+	 * @param exception a thrown exception. It can be thrown from any place that handles an AsyncResult.
+	 */
 	public void setException(Throwable exception) {
 		this.result = null;
 		this.exception = exception;

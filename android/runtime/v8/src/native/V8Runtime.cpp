@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -218,6 +218,33 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRu
 	}
 }
 
+JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeEvalString
+	(JNIEnv *env, jobject self, jstring source, jstring filename)
+{
+	ENTER_V8(V8Runtime::globalContext);
+	titanium::JNIScope jniScope(env);
+
+	Handle<Value> jsSource = TypeConverter::javaStringToJsString(source);
+	if (jsSource.IsEmpty() || !jsSource->IsString()) {
+		LOGE(TAG, "Error converting Javascript string, aborting evalString");
+		return NULL;
+	}
+
+	Handle<Value> jsFilename = TypeConverter::javaStringToJsString(filename);
+
+	TryCatch tryCatch;
+	Handle<Script> script = Script::Compile(jsSource->ToString(), jsFilename);
+	Local<Value> result = script->Run();
+
+	if (tryCatch.HasCaught()) {
+		V8Util::openJSErrorDialog(tryCatch);
+		V8Util::reportException(tryCatch, true);
+		return NULL;
+	}
+
+	return TypeConverter::jsValueToJavaObject(result);
+}
+
 JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeProcessDebugMessages(JNIEnv *env, jobject self)
 {
 	v8::Debug::ProcessDebugMessages();
@@ -261,7 +288,8 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 			// WrappedContext is simply a C++ wrapper for the V8 Context object,
 			// and is used to expose the Context to javascript. See ScriptsModule for
 			// implementation details
-			WrappedContext *wrappedContext = NativeObject::Unwrap<WrappedContext>(moduleContext->ToObject());
+			WrappedContext *wrappedContext = WrappedContext::Unwrap(moduleContext->ToObject());
+			ASSERT(wrappedContext != NULL);
 
 			// Detach each context's global object, and dispose the context
 			wrappedContext->GetV8Context()->DetachGlobal();

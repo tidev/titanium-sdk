@@ -24,6 +24,7 @@
 	NSMutableArray *views;
 	TiFile *tempFile;
 	KrollCallback *thumbnailCallback;
+	int callbackRequestCount;
 	
 	NSMutableDictionary* loadProperties; // Used to set properties when the player is created
 	BOOL sizeDetermined;
@@ -55,7 +56,7 @@
 -(void)configurePlayer;
 -(void)restart;
 -(void)stop:(id)args;
-
+-(void)play:(id)args;
 @end
 
 #endif
