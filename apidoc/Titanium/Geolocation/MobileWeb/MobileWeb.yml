@@ -23,15 +23,3 @@ properties:
   - name: reverseGeocoderTimeout
     summary: The time within which reverse geocoder requests must succeed, in milliseconds.
     type: Number
-  - name: ERROR_PERMISSION_DENIED
-    summary: The user denied the app permission to access location information.
-    type: Number
-    permission: read-only
-  - name: ERROR_POSITION_UNAVAILABLE
-    summary: The location could not be determined.
-    type: Number
-    permission: read-only
-  - name: ERROR_TIMEOUT
-    summary: The location service timed out trying to get the location.
-    type: Number
-    permission: read-only

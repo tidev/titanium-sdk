@@ -165,16 +165,6 @@ properties:
     osver:
         ios:
             min: "4.0"
-  - name: ERROR_PERMISSION_DENIED
-    summary: error constant
-    platforms: [mobileweb]
-    type: Number
-    permission: read-only
-  - name: ERROR_POSITION_UNAVAILABLE
-    summary: error constant
-    platforms: [mobileweb]
-    type: Number
-    permission: read-only
   - name: ERROR_TIMEOUT
     summary: error constant
     platforms: [mobileweb]

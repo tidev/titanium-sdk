@@ -184,6 +184,12 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/Network"], function(Evented, lang, Netw
 			
 			ACCURACY_LOW: 2,
 			
+			ERROR_DENIED: 1,
+			
+			ERROR_LOCATION_UNKNOWN: 2,
+			
+			ERROR_TIMEOUT: 3,
+			
 			locationServicesEnabled: {
 				get: function() {
 					return !!navigator.geolocation;
@@ -195,10 +201,7 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/Network"], function(Evented, lang, Netw
 				maximumLocationAge: 0,
 				maximumHeadingAge: 1000,
 				forwardGeocoderTimeout: undef,
-				reverseGeocoderTimeout: undef,
-				ERROR_PERMISSION_DENIED: 1,
-				ERROR_POSITION_UNAVAILABLE: 2,
-				ERROR_TIMEOUT: 3
+				reverseGeocoderTimeout: undef
 			}
 			
 		},
