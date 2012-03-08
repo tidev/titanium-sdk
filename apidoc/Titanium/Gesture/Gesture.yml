@@ -4,16 +4,52 @@ summary: The top level Gestures module.  The Gesture module is responsible for h
 extends: Titanium.Module
 since: "0.8"
 
+methods:
+
+  - name: isLandscape
+    summary: |
+        Returns true if current window is considered lanscape by the device, false
+        otherwise.
+    returns:
+        type: Boolean
+    platforms: [android, iphone, ipad]
+
+  - name: isPortrait
+    summary: |
+        Returns true if current window is considered portrait by the device, false
+        otherwise.
+    returns:
+        type: Boolean
+    platforms: [android, iphone, ipad]
+
+  - name: getLandscape
+    summary: |
+        Returns true if current window is considered lanscape by the device, false
+        otherwise.
+    returns:
+        type: Boolean
+    platforms: [mobileweb]
+
+  - name: getPortrait
+    summary: |
+        Returns true if current window is considered portrait by the device, false
+        otherwise.
+    returns:
+        type: Boolean
+    platforms: [mobileweb]
+
 properties:
   - name: portrait
     type: Boolean
-    summary: True if current window is considered portrait by the device, false otherwise
+    summary: True if current window is considered portrait by the device, false otherwise.
+    description: On iOS, use [isPortrait](Titanium.Gesture.isPortrait).
     permission: read-only
     platforms: [android, iphone, ipad, mobileweb]
 
   - name: landscape
     type: Boolean
-    summary: True if current window is considered landscape by the device, false otherwise
+    summary: True if current window is considered landscape by the device, false otherwise.
+    description: On iOS, use [isLandscape](Titanium.Gesture.isLandscape).
     permission: read-only
     platforms: [android, iphone, ipad, mobileweb]
 
@@ -26,7 +62,8 @@ properties:
         <Titanium.UI.UNKNOWN>.
 
         On iOS, returns the current orientation of the *device*, regardless of the screen
-        orientation. 
+        orientation. To determine the current screen orientation on iOS, use
+        <Titanium.UI.orientation>.
 
         On Android and Mobile Web, returns the orientation of the current window, and
         never reports the "reverse" orientations (`LANDSCAPE_RIGHT` and `UPSIDE_PORTRAIT`).
