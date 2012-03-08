@@ -241,6 +241,11 @@ examples:
         Create a picker to allow an existing calendar to be selected and, when a button is clicked, 
         generate details of all events in that calendar for the current year .
         
+            var calendars = [];
+            var selectedCalendarName;
+            var selectedCalendarId;
+            var pickerData = [];
+            
             var win = Ti.UI.createWindow({
               backgroundColor: 'white',
               exitOnClose: true,
@@ -249,170 +254,146 @@ examples:
               title: 'Calendar Demo'
             });
             
-            function getCalendars(selectableCalendars) {
-              var calendars = [];
-              var thisCalendar = {};
-              var isCalendarSelected = false;
-              for (var i = 0, ilen = selectableCalendars.length; i < ilen; i++) {
-                thisCalendar = { name: selectableCalendars[i].name, id: selectableCalendars[i].id, selected: false };
-                if( Ti.App.Properties.hasProperty('selectedCalendarName') && (Ti.App.Properties.getString('selectedCalendarName') === selectableCalendars[i].name) ){
-                  thisCalendar.selected = true;
-                  isCalendarSelected = true;
-                }
-                calendars.push(thisCalendar);
-              }
-              // if not already set by user, save the first calendar as the user default
-              if(!isCalendarSelected){
-                Ti.App.Properties.setString('selectedCalendarName', selectableCalendars[0].name);
-                Ti.App.Properties.setInt('selectedCalendarId', selectableCalendars[0].id);
-                calendars[0].selected = true;
-              }
-              return calendars;
-            }
-            
-            var pickerData = [];
-            var calendars = getCalendars(Ti.Android.Calendar.selectableCalendars);
-            var selectedPickerIndex = -1;
-            
-            for (var i = 0, ilen = calendars.length; i < ilen; i++) {
-              pickerData.push(Ti.UI.createPickerRow({
-                title: calendars[i].name
-              }));
-              // record the user default calendar, to be used for picker setSelectedRow
-              if(calendars[i].selected){
-                selectedPickerIndex = i;
-              }
-            }
-            
-            var picker = Ti.UI.createPicker({
-              top:20
-            });
-            
-            picker.add(pickerData);
-            win.add(picker);
-            
-            picker.addEventListener('change', function(e){
-              for (var i = 0, ilen = calendars.length; i < ilen; i++) {
-                if(calendars[i].name === e.row.title){
-                  // save user default calendar
-                  Ti.App.Properties.setString('selectedCalendarName', calendars[i].name);
-                  Ti.App.Properties.setInt('selectedCalendarId', calendars[i].id);
-                }
-              }
-            });
-            
-            var button = Ti.UI.createButton({
-              title: 'View events',
-              top: 20
-            });
-            win.add(button);
-            
             var scrollView = Ti.UI.createScrollView({
               backgroundColor: '#eee',
               height: 500,
               top: 20
             });
-            win.add(scrollView);
             
             var label = Ti.UI.createLabel({
               backgroundColor: 'white',
-              color: 'black',
-              text: 'Click button to view calendar events'
+              text: 'Click on the button to display the events for the selected calendar',
+              textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
+              top: 20
             });
             scrollView.add(label);
             
-            button.addEventListener('click', function(e){
-              label.text = 'Generating...';
+            var selectableCalendars = Ti.Android.Calendar.selectableCalendars;
+            for (var i = 0, ilen = selectableCalendars.length; i < ilen; i++) {
+              calendars.push({ name: selectableCalendars[i].name, id: selectableCalendars[i].id });
+              pickerData.push( Ti.UI.createPickerRow({ title: calendars[i].name }) );
+              if(i === 0){
+                selectedCalendarName = selectableCalendars[i].name;
+                selectedCalendarId = selectableCalendars[i].id;
+              }
+            }
+            var selectableCalendars = null;
+            
+            if(!calendars.length){
+              label.text = 'No calendars available. Select at least one in the native calendar before using this app';
+            } else {
+              label.text = 'Click button to view calendar events';
               
-              var selectedCalendarName = Ti.App.Properties.getString('selectedCalendarName');
-              var selectedCalendarId = Ti.App.Properties.getInt('selectedCalendarId');
-              var currentYear = new Date().getFullYear();
+              var picker = Ti.UI.createPicker({
+                top:20
+              });
               
-              var consoleString = '';
+              picker.add(pickerData);
+              win.add(picker);
               
-              function print(s) {
-                Ti.API.info(s);
-                if (consoleString.length > 0) {
-                  consoleString = consoleString + '\n';
+              picker.addEventListener('change', function(e){
+                for (var i = 0, ilen = calendars.length; i < ilen; i++) {
+                  if(calendars[i].name === e.row.title){
+                    selectedCalendarName = calendars[i].name;
+                    selectedCalendarId = calendars[i].id;
+                  }
                 }
-                consoleString = consoleString + s;
-              }
+              });
               
-              var calendar = Ti.Android.Calendar.getCalendarById(selectedCalendarId);
+              var button = Ti.UI.createButton({
+                title: 'View events',
+                top: 20
+              });
+              win.add(button);
               
-              function printReminder(r) {
-                var typetext = '[method unknown]';
-                if (r.method == Ti.Android.Calendar.METHOD_EMAIL) {
-                  typetext = 'Email';
-                } else if (r.method == Ti.Android.Calendar.METHOD_SMS) {
-                  typetext = 'SMS';
-                } else if (r.method == Ti.Android.Calendar.METHOD_ALERT) {
-                  typetext = 'Alert';
-                } else if (r.method == Ti.Android.Calendar.METHOD_DEFAULT) {
-                  typetext = '[default reminder method]';
-                }
-                print(typetext + ' reminder to be sent ' + r.minutes + ' minutes before the event');
-              }
-              
-              function printAlert(a) {
-                print('Alert id ' + a.id + ' begin ' + a.begin + '; end ' + a.end + '; alarmTime ' + a.alarmTime + '; minutes ' + a.minutes);
-              }
-              
-              function printEvent(event) {
-                if (event.allDay) {
-                  print('Event: ' + event.title + '; ' + event.begin.toLocaleDateString() + ' (all day)');
-                } else {
-                  print('Event: ' + event.title + '; ' + event.begin.toLocaleDateString() + ' ' + event.begin.toLocaleTimeString()+ '-' + event.end.toLocaleTimeString());
+              button.addEventListener('click', function(e){
+                label.text = 'Generating...';
+                
+                var currentYear = new Date().getFullYear();
+                
+                var consoleString = '';
+                
+                function print(s) {
+                  if (consoleString.length) {
+                    consoleString = consoleString + '\n';
+                  }
+                  consoleString = consoleString + s;
                 }
                 
-                var reminders = event.reminders;
-                if (reminders && reminders.length) {
-                  print('There is/are ' + reminders.length + ' reminder(s)');
-                  for (var i = 0; i < reminders.length; i++) {
-                    printReminder(reminders[i]);
+                var calendar = Ti.Android.Calendar.getCalendarById(selectedCalendarId);
+                
+                function printReminder(r) {
+                  var typetext = '[method unknown]';
+                  if (r.method == Ti.Android.Calendar.METHOD_EMAIL) {
+                    typetext = 'Email';
+                  } else if (r.method == Ti.Android.Calendar.METHOD_SMS) {
+                    typetext = 'SMS';
+                  } else if (r.method == Ti.Android.Calendar.METHOD_ALERT) {
+                    typetext = 'Alert';
+                  } else if (r.method == Ti.Android.Calendar.METHOD_DEFAULT) {
+                    typetext = '[default reminder method]';
+                  }
+                  print(typetext + ' reminder to be sent ' + r.minutes + ' minutes before the event');
+                }
+                
+                function printAlert(a) {
+                  print('Alert id ' + a.id + ' begin ' + a.begin + '; end ' + a.end + '; alarmTime ' + a.alarmTime + '; minutes ' + a.minutes);
+                }
+                
+                function printEvent(event) {
+                  if (event.allDay) {
+                    print('Event: ' + event.title + '; ' + event.begin.toLocaleDateString() + ' (all day)');
+                  } else {
+                    print('Event: ' + event.title + '; ' + event.begin.toLocaleDateString() + ' ' + event.begin.toLocaleTimeString()+ '-' + event.end.toLocaleTimeString());
+                  }
+                  
+                  var reminders = event.reminders;
+                  if (reminders && reminders.length) {
+                    print('There is/are ' + reminders.length + ' reminder(s)');
+                    for (var i = 0; i < reminders.length; i++) {
+                      printReminder(reminders[i]);
+                    }
+                  }
+                  
+                  print('hasAlarm? ' + event.hasAlarm);
+                  var alerts = event.alerts;
+                  if (alerts && alerts.length) {
+                    for (var i = 0; i < alerts.length; i++) {
+                      printAlert(alerts[i]);
+                    }
+                  }
+                  
+                  var status = event.status;
+                  if (status == Ti.Android.Calendar.STATUS_TENTATIVE) {
+                    print('This event is tentative');
+                  }
+                  if (status == Ti.Android.Calendar.STATUS_CONFIRMED) {
+                    print('This event is confirmed');
+                  }
+                  if (status == Ti.Android.Calendar.STATUS_CANCELED) {
+                    print('This event was canceled');
                   }
                 }
                 
-                print('hasAlarm? ' + event.hasAlarm);
-                var alerts = event.alerts;
-                if (alerts && alerts.length) {
-                  for (var i = 0; i < alerts.length; i++) {
-                    printAlert(alerts[i]);
-                  }
-                }
-                
-                var status = event.status;
-                if (status == Ti.Android.Calendar.STATUS_TENTATIVE) {
-                  print('This event is tentative');
-                }
-                if (status == Ti.Android.Calendar.STATUS_CONFIRMED) {
-                  print('This event is confirmed');
-                }
-                if (status == Ti.Android.Calendar.STATUS_CANCELED) {
-                  print('This event was canceled');
-                }
-              }
-              
-              var events = calendar.getEventsInYear(currentYear);
-              if (events && events.length) {
-                print(events.length + ' event(s) in ' + currentYear);
-                print('');
-                for (var i = 0; i < events.length; i++) {
-                  printEvent(events[i]);
+                var events = calendar.getEventsInYear(currentYear);
+                if (events && events.length) {
+                  print(events.length + ' event(s) in ' + currentYear);
                   print('');
+                  for (var i = 0; i < events.length; i++) {
+                    printEvent(events[i]);
+                    print('');
+                  }
+                } else {
+                  print('No events');
                 }
-              } else {
-                print('No events');
-              }
-              
-              label.text = consoleString;
-            });
+                
+                label.text = consoleString;
+              });
+            }
+            
+            win.add(scrollView);
             
             win.open();
-            
-            if(selectedPickerIndex > -1){
-              picker.setSelectedRow(0, selectedPickerIndex);
-            }
 
   - title: Create an Event and Reminder
     example: |

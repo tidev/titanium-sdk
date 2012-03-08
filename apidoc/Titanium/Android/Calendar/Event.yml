@@ -89,8 +89,8 @@ properties:
     
   - name: hasExtendedProperties
     summary: |
-        Indicates whether [extendedProperties](Titanium.Android.Calendar.extendedProperties) exists 
-        for this event.
+        Indicates whether [extendedProperties](Titanium.Android.Calendar.Event.extendedProperties) 
+        exists for this event.
     type: Boolean
     permission: read-only
     
