@@ -28,7 +28,10 @@ public class TiCompositeLayout extends ViewGroup
 	implements OnHierarchyChangeListener
 {
 	/**
-	 * The supported layout arrangements.
+	 * The supported layout arrangements:
+	 * DEFAULT: The default Titanium layout arrangement.
+	 * VERTICAL: The layout arrangement for Views and Windows that set layout: "vertical".
+	 * HORIZONTAL: The layout arrangement for Views and Windows that set layout: "horizontal".
 	 */
 	public enum LayoutArrangement {DEFAULT, VERTICAL, HORIZONTAL}
 

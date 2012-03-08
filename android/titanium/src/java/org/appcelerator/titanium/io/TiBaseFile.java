@@ -76,14 +76,14 @@ public abstract class TiBaseFile
 	}
 
 	/**
-	 * @return true if the file is a File, false otherwise.
+	 * @return true if the file is a File, false otherwise. See {@link java.io.File#isFile()} for more details.
 	 */
 	public boolean isFile() {
 		return typeFile;
 	}
 
 	/**
-	 * @return true if the file is a directory, false otherwise.
+	 * @return true if the file is a directory, false otherwise. See {@link java.io.File#isDirectory()} for more details.
 	 */
 	public boolean isDirectory() {
 		return typeDir;

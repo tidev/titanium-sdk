@@ -83,11 +83,13 @@ public class TiRHelper {
 	}
 	
 	/**
-	 * Searches for the resource given its path.
+	 * Searches for an Android compiled resource given its path. These resources are traditionally accessed via a resource ID
+	 * (either from the application's resource bundle, or Android's internal resource bundle)
 	 * @param path the resource's path.
-	 * @param includeSystemResources whether to throw an exception when the resource is not found.
-	 * @return the resource.
-	 * @throws ResourceNotFoundException the thrown exception.
+	 * @param includeSystemResources indicates whether or not {@link #getResource(String, boolean)} will look in the system's (Android)
+	 * resource bundle, if the resource is not found in the application's resource bundle.
+	 * @return the resource, if found.
+	 * @throws ResourceNotFoundException the exception thrown when the resource is not found in either location listed above.
 	 */
 	public static int getResource(String path, boolean includeSystemResources) throws ResourceNotFoundException {
 		Integer i = valCache.get(path);
@@ -107,10 +109,11 @@ public class TiRHelper {
 	}
 
 	/**
-	 * Search for the resource given its path. No exception will be thrown if the resource cannot be locatd.
+	 * Searches for an Android compiled resource given its path. Refer to {@link #getResource(String, boolean)} for more details.
 	 * @param path the resource's path
-	 * @return the resource.
-	 * @throws ResourceNotFoundException the thrown exception.
+	 * @return the resource, if found.
+	 * @throws ResourceNotFoundException the exception thrown when the resource is not found in either
+	 * the application's resource bundle, or Android's internal resource bundle.
 	 */
 	public static int getResource(String path) throws ResourceNotFoundException
 	{
