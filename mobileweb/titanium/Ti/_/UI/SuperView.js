@@ -125,7 +125,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], functio
 		},
 
 		setWindowTitle: function(title) {
-			historyStack[historyStack.length - 1] === this && (document.title = title || require.config.project.name);
+			historyStack[historyStack.length - 1] === this && (document.title = title || require.config.app.name);
 			return title;
 		}
 
