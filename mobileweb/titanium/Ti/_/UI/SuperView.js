@@ -73,7 +73,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], function(declare, l
 							break;
 						}
 					}
-					if (-~historyStackIndex) {
+					if (!~historyStackIndex) {
 						historyPopState = POP_STATE_WAITING_FOR_OPERATION;
 						return;
 					}
