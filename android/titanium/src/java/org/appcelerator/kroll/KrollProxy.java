@@ -85,11 +85,20 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		this();
 	}
 
+	/**
+	 * The default KrollProxy constructor. Equivalent to <code>KrollProxy("")</code>
+	 * @module.api
+	 */
 	public KrollProxy()
 	{
 		this("");
 	}
 
+	/**
+	 * Constructs a KrollProxy, using the passed in creation URL.
+	 * @param baseCreationUrl the creation URL for this proxy, which can be used to resolve relative paths
+	 * @module.api
+	 */
 	public KrollProxy(String baseCreationUrl)
 	{
 		creationUrl = new TiUrl(baseCreationUrl);
@@ -166,6 +175,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 	/**
 	 * @return the activity associated with this proxy. It can be null.
+	 * @module.api
 	 */
 	public Activity getActivity()
 	{
@@ -179,6 +189,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * Handles the arguments passed into the "create" method for this proxy.
 	 * If your proxy simply needs to handle a KrollDict, see {@link KrollProxy#handleCreationDict(KrollDict)}
 	 * @param args
+	 * @module.api
 	 */
 	public void handleCreationArgs(KrollModule createdInModule, Object[] args)
 	{
@@ -200,6 +211,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 	/**
 	 * Handles initialization of the proxy's default property values.
+	 * @module.api
 	 */
 	protected void handleDefaultValues()
 	{
@@ -216,6 +228,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * 
 	 * To set default property values, add them to the {@link KrollProxy#defaultValues map}
 	 * @param dict
+	 * @module.api
 	 */
 	public void handleCreationDict(KrollDict dict)
 	{
@@ -256,6 +269,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 	/**
 	 * @return the KrollObject associated with this proxy if it exists. Otherwise create it in the KrollRuntime thread.
+	 * @module.api
 	 */
 	public KrollObject getKrollObject()
 	{
@@ -278,6 +292,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 	/** 
 	 * @return the absolute URL of the location in code where the proxy was created in Javascript.
+	 * @module.api
 	 */
 	public TiUrl getCreationUrl()
 	{
@@ -364,6 +379,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	/**
 	 * @param name  the lookup key.
 	 * @return  true if the proxy contains this property, false otherwise.
+	 * @module.api
 	 */
 	public boolean hasProperty(String name)
 	{
@@ -375,6 +391,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * Properties are cached on the Proxy and updated from JS for relevant annotated APIs
 	 * @param name  the lookup key.
 	 * @return the property object or null if a property for the given key does not exist.
+	 * @module.api
 	 */
 	public Object getProperty(String name)
 	{
@@ -397,6 +414,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 	/**
 	 * This sets the named property as well as updating the actual JS object.
+	 * @module.api
 	 */
 	public void setProperty(String name, Object value)
 	{
@@ -422,6 +440,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * @param event the event to be fired.
 	 * @param data  the data to be sent.
 	 * @return whether this proxy has an eventListener for this event.
+	 * @module.api
 	 */
 	public boolean fireEvent(String event, Object data)
 	{
@@ -437,6 +456,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * @param event the event to be fired.
 	 * @param data  the data to be sent.
 	 * @return whether this proxy has an eventListener for this event.
+	 * @module.api
 	 */
 	public boolean fireSyncEvent(String event, Object data)
 	{
@@ -497,6 +517,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	/**
 	 * @param event the event to check
 	 * @return whether the associated KrollObject has an event listener for the passed in event.
+	 * @module.api
 	 */
 	public boolean hasListeners(String event)
 	{
@@ -519,6 +540,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * {@link KrollProxyListener#propertyChanged(String, Object, Object, KrollProxy)}.
 	 * @param name the property name.
 	 * @param value the property value.
+	 * @module.api
 	 */
 	public void setPropertyAndFire(String name, Object value)
 	{
@@ -583,6 +605,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	/**
 	 * Returns a KrollDict object that contains all current properties associated with this proxy.
 	 * @return KrollDict properties object.
+	 * @module.api
 	 */
 	public KrollDict getProperties()
 	{
@@ -681,6 +704,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	/**
 	 * Associates this proxy with the passed in {@link KrollProxyListener}.
 	 * @param modelListener the passed in KrollProxyListener.
+	 * @module.api
 	 */
 	public void setModelListener(KrollProxyListener modelListener)
 	{
@@ -774,6 +798,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * @param scheme the scheme of Url.
 	 * @param path   the path of Url.
 	 * @return a string representation of URL given its components.
+	 * @module.api
 	 */
 	public String resolveUrl(String scheme, String path)
 	{
@@ -796,6 +821,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 	/**
 	 * Releases the KrollObject, freeing memory.
+	 * @module.api
 	 */
 	public void release()
 	{

@@ -94,6 +94,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	
 	/**
 	 * Constructs a new TiViewProxy instance.
+	 * @module.api
 	 */
 	public TiViewProxy()
 	{
@@ -263,6 +264,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	 *	table.put("text", "textid"); 
 	 *	return table; 
 	 *} </pre> </code>
+	 * @module.api
 	 *
 	 */
 	protected KrollDict getLangConversionTable()
@@ -462,6 +464,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	/**
 	 * @return the TiUIView associated with this proxy.
+	 * @module.api
 	 */
 	public TiUIView peekView()
 	{
@@ -482,6 +485,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	/**
 	 * Creates or retrieves the view associated with this proxy.
 	 * @return a TiUIView instance.
+	 * @module.api
 	 */
 	public TiUIView getOrCreateView()
 	{
@@ -561,9 +565,15 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	 * Implementing classes should use this method to create and return the appropriate view.
 	 * @param activity the context activity.
 	 * @return a TiUIView instance.
+	 * @module.api
 	 */
 	public abstract TiUIView createView(Activity activity);
 
+	/**
+	 * Adds a child to this view proxy.
+	 * @param child The child view proxy to add.
+	 * @module.api
+	 */
 	@Kroll.method
 	public void add(TiViewProxy child)
 	{
@@ -606,6 +616,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 	}
 
+	/**
+	 * Removes a view from this view proxy, releasing the underlying native view if it exists.
+	 * @param child The child to remove.
+	 * @module.api
+	 */
 	@Kroll.method
 	public void remove(TiViewProxy child)
 	{
@@ -804,6 +819,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return handled;
 	}
 
+	/**
+	 * @return The parent view proxy of this view proxy.
+	 * @module.api
+	 */
 	@Kroll.getProperty @Kroll.method
 	public TiViewProxy getParent()
 	{
@@ -830,6 +849,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 	}
 
+	/**
+	 * @return An array of the children view proxies of this view.
+	 * @module.api
+	 */
 	@Kroll.getProperty @Kroll.method
 	public TiViewProxy[] getChildren()
 	{

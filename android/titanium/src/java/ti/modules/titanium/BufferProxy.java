@@ -137,6 +137,10 @@ public class BufferProxy extends KrollProxy
 		}
 	}
 
+	/**
+	 * @return The native buffer for this proxy
+	 * @module.api
+	 */
 	public byte[] getBuffer()
 	{
 		return buffer;
@@ -191,6 +195,7 @@ public class BufferProxy extends KrollProxy
 	 * @param sourceOffset the offset position of the sourceBuffer.
 	 * @param sourceLength the length of the sourceBuffer.
 	 * @return number of bytes written, -1 if no data is available.
+	 * @module.api
 	 */
 	public int write(int position, byte[] sourceBuffer, int sourceOffset, int sourceLength)
 	{
@@ -356,12 +361,22 @@ public class BufferProxy extends KrollProxy
 		return TiBlob.blobFromData(buffer);
 	}
 
+	/**
+	 * @return The length of this buffer in bytes
+	 * @module.api
+	 */
 	@Kroll.getProperty @Kroll.method
 	public int getLength()
 	{
 		return buffer.length;
 	}
 
+	/**
+	 * Sets the length of this buffer proxy by either growing or shrinking
+	 * the allocated buffer space
+	 * @param length The new length of this buffer proxy in bytes
+	 * @module.api
+	 */
 	@Kroll.setProperty @Kroll.method
 	public void setLength(int length)
 	{

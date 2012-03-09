@@ -28,12 +28,23 @@ public class TiCompositeLayout extends ViewGroup
 	implements OnHierarchyChangeListener
 {
 	/**
-	 * The supported layout arrangements:
-	 * DEFAULT: The default Titanium layout arrangement.
-	 * VERTICAL: The layout arrangement for Views and Windows that set layout: "vertical".
-	 * HORIZONTAL: The layout arrangement for Views and Windows that set layout: "horizontal".
+	 * Supported layout arrangements
+	 * @module.api
 	 */
-	public enum LayoutArrangement {DEFAULT, VERTICAL, HORIZONTAL}
+	public enum LayoutArrangement {
+		/**
+		 * The default Titanium layout arrangement.
+		 */
+		DEFAULT,
+		/**
+		 * The layout arrangement for Views and Windows that set layout: "vertical".
+		 */
+		VERTICAL,
+		/**
+		 * The layout arrangement for Views and Windows that set layout: "horizontal".
+		 */
+		HORIZONTAL
+	}
 
 	protected static final String TAG = "TiCompositeLayout";
 	protected static final boolean DBG = TiConfig.LOGD && false;
@@ -571,14 +582,16 @@ public class TiCompositeLayout extends ViewGroup
 
 		public boolean autoHeight = true;
 		public boolean autoWidth = true;
-		
+
 		/**
 		 * If this is true, and {@link #autoWidth} is true, then the current view will fill available parent width.
+		 * @module.api
 		 */
 		public boolean autoFillsWidth = false;
-		
+
 		/**
 		 * If this is true, and {@link #autoHeight} is true, then the current view will fill available parent height.
+		 * @module.api
 		 */
 		public boolean autoFillsHeight = false;
 
