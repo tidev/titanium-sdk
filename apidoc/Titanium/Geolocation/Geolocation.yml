@@ -13,20 +13,21 @@ methods:
       - name: callback
         summary: function to invoke on success or failure. The event object contains the properties described as the `place` dictionary in <Titanium.Geolocation.reverseGeocoder>.
         type: Callback<Object>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: getCurrentHeading
     summary: retrieve the current compass heading.
     parameters:
       - name: callback
         summary: function to invoke on success or failure of obtaining the current heading. See heading event in <Titanium.Geolocation>.
         type: Callback<Object>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: getCurrentPosition
     summary: retrieve the last known location from the device. On Android, the radios are not turned on to update the location. On iOS the radios MAY be used if the location is too "old".
     parameters:
       - name: callback
         summary: function to invoke on success or failure of obtaining the current location. See location event in <Titanium.Geolocation>.
         type: Callback<Object>
+    platforms: [android, iphone, ipad, mobileweb]
   - name: reverseGeocoder
     summary: tries to resolve a location to an address.
     parameters:
@@ -40,10 +41,10 @@ methods:
         summary: |
             function to invoke on success or failure. The event object passed contains a `places` array of zero or more place dictionaries. Each `place` dictionary contains the following properties: `street`, `street1`, `city`, `region1`, `region2`, `postalCode`, `country`, `countryCode`, `longitude`, `latitude`, `displayAddress`, `address`.
         type: Callback<Object>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: setShowCalibration
     summary: configure the calibration UI. set the false to disable the calibration display.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
 events:
   - name: calibration
     summary: fired when the device detects interface and requires calibration. when this event is fired, the calibration UI is being displayed to the end user.
@@ -60,14 +61,14 @@ events:
         summary: if success is false, returns a string of the error description
       - name: heading
         summary: |
-            heading results dictionary with the following sub-pro perties: `magneticHeading`, `trueHeading`, `accuracy`, `x`, `y`, `z`, `timestamp`.
-    platforms: [android, iphone, ipad]
+            heading results dictionary with the following sub-properties: `magneticHeading`, `trueHeading` (iPhone, iPad only), `accuracy`, `x` (iPhone, iPad only), `y` (iPhone, iPad only), `z` (iPhone, iPad only), `timestamp`.
+    platforms: [android, iphone, ipad, mobileweb]
   - name: location
     summary: fired when a location event is received
     properties:
       - name: code
-        summary: if success is false, the error code if available
-        platforms: [iphone, ipad]
+        summary: if success is false, the error code if available.
+        platforms: [iphone, ipad, mobileweb]
       - name: success
         summary: boolean to indicate if the location event was successfully received or an error occurred
       - name: provider
@@ -104,45 +105,45 @@ properties:
     summary: authorization constant
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
   - name: AUTHORIZATION_DENIED
     summary: authorization constant (user disabled authorization)
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
   - name: AUTHORIZATION_RESTRICTED
     summary: authorization constant (system disabled authorization)
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
   - name: AUTHORIZATION_UNKNOWN
     summary: authorization constant
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
   - name: ERROR_DENIED
     summary: error constant
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
   - name: ERROR_HEADING_FAILURE
     summary: error constant
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
   - name: ERROR_LOCATION_UNKNOWN
     summary: error constant
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
   - name: ERROR_NETWORK
     summary: error constant
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     type: Number
     permission: read-only
   - name: ERROR_REGION_MONITORING_DELAYED
     summary: error constant
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     permission: read-only
     osver:
         ios:
@@ -152,7 +153,7 @@ properties:
     summary: error constant
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     osver:
         ios:
             min: "4.0"
@@ -160,20 +161,25 @@ properties:
     summary: error constant
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     osver:
         ios:
             min: "4.0"
+  - name: ERROR_TIMEOUT
+    summary: error constant
+    platforms: [mobileweb]
+    type: Number
+    permission: read-only
   - name: PROVIDER_GPS
     summary: The GPS location provider
     type: String
     permission: read-only
-    platforms: [android, mobileweb]
+    platforms: [android]
   - name: PROVIDER_NETWORK
     summary: The Network location provider
     type: String
     permission: read-only
-    platforms: [android, mobileweb]
+    platforms: [android]
   - name: distanceFilter
     summary: The minimum change of position (in meters) before a 'location' event is fired. Default is 0, meaning that location events are continuously generated.
     type: Number
