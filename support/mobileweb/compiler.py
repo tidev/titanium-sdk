@@ -560,6 +560,7 @@ class Compiler(object):
 			'Ti/Platform',
 			'Ti/Platform/DisplayCaps',
 			'Ti/Gesture',
+			'Ti/Geolocation',
 			'Ti/XML',
 			'Ti/UI/View',
 			'Ti/Media/VideoPlayer',

@@ -276,6 +276,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		KrollRuntime.getInstance().initObject(this);
 	}
 
+	/** 
+	 * @return the absolute URL of the location in code where the proxy was created in Javascript.
+	 */
 	public TiUrl getCreationUrl()
 	{
 		return creationUrl;
@@ -491,6 +494,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		TiMessenger.getMainMessenger().sendMessage(msg);
 	}
 
+	/**
+	 * @param event the event to check
+	 * @return whether the associated KrollObject has an event listener for the passed in event.
+	 */
 	public boolean hasListeners(String event)
 	{
 		return getKrollObject().hasListeners(event);
@@ -671,6 +678,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		modelListener.listenerRemoved(event, count, this);
 	}
 
+	/**
+	 * Associates this proxy with the passed in {@link KrollProxyListener}.
+	 * @param modelListener the passed in KrollProxyListener.
+	 */
 	public void setModelListener(KrollProxyListener modelListener)
 	{
 		// Double-setting the same modelListener can potentially have weird side-effects.
