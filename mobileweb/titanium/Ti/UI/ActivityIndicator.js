@@ -1,4 +1,5 @@
-define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style", "Ti/UI"], function(declare, FontWidget, dom, style, UI) {
+define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style", "Ti/Locale", "Ti/UI"],
+	function(declare, FontWidget, dom, style, Locale, UI) {
 
 	var setStyle = style.set;
 
@@ -114,13 +115,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style", "Ti/UI"]
 			},
 			
 			messageid: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ActivityIndicator#.messageid" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.ActivityIndicator#.messageid" is not implemented yet.');
+					this.message = Locale.getString(value);
 					return value;
 				}
 			}

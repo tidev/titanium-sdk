@@ -1,4 +1,5 @@
-define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI", "Ti/_/css"], function(declare, Evented, UI, css) {
+define(["Ti/_/css", "Ti/_/declare", "Ti/_/Evented", "Ti/Locale", "Ti/UI"],
+	function(css, declare, Evented, Locale, UI) {
 
 	var undef;
 
@@ -117,12 +118,8 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI", "Ti/_/css"], function(declare, 
 			message: "",
 			
 			messageid: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.AlertDialog#.messageid" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.AlertDialog#.messageid" is not implemented yet.');
+					this.message = Locale.getString(value);
 					return value;
 				}
 			},
@@ -130,12 +127,8 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI", "Ti/_/css"], function(declare, 
 			ok: "OK",
 			
 			okid: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.AlertDialog#.okid" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.AlertDialog#.okid" is not implemented yet.');
+					this.ok = Locale.getString(value);
 					return value;
 				}
 			},
@@ -143,12 +136,8 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI", "Ti/_/css"], function(declare, 
 			title: "",
 			
 			titleid: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.AlertDialog#.titleid" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.AlertDialog#.titleid" is not implemented yet.');
+					this.title = Locale.getString(value);
 					return value;
 				}
 			}
