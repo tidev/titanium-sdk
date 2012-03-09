@@ -21,9 +21,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.OnHierarchyChangeListener;
 
+/**
+ * Base layout class for all Titanium views. 
+ */
 public class TiCompositeLayout extends ViewGroup
 	implements OnHierarchyChangeListener
 {
+	/**
+	 * The supported layout arrangements:
+	 * DEFAULT: The default Titanium layout arrangement.
+	 * VERTICAL: The layout arrangement for Views and Windows that set layout: "vertical".
+	 * HORIZONTAL: The layout arrangement for Views and Windows that set layout: "horizontal".
+	 */
 	public enum LayoutArrangement {DEFAULT, VERTICAL, HORIZONTAL}
 
 	protected static final String TAG = "TiCompositeLayout";
@@ -43,11 +52,22 @@ public class TiCompositeLayout extends ViewGroup
 
 	private WeakReference<TiViewProxy> proxy;
 
+	/**
+	 * Constructs a new TiCompositeLayout object.
+	 * @param context the associated context.
+	 * @param proxy the associated proxy.
+	 */
 	public TiCompositeLayout(Context context, TiViewProxy proxy)
 	{
 		this(context, LayoutArrangement.DEFAULT, proxy);
 	}
 
+	/**
+	 * Contructs a new TiCompositeLayout object.
+	 * @param context the associated context.
+	 * @param arrangement the associated LayoutArrangement
+	 * @param proxy the associated proxy.
+	 */
 	public TiCompositeLayout(Context context, LayoutArrangement arrangement, TiViewProxy proxy)
 	{
 		super(context);
@@ -551,7 +571,15 @@ public class TiCompositeLayout extends ViewGroup
 
 		public boolean autoHeight = true;
 		public boolean autoWidth = true;
+		
+		/**
+		 * If this is true, and {@link #autoWidth} is true, then the current view will fill available parent width.
+		 */
 		public boolean autoFillsWidth = false;
+		
+		/**
+		 * If this is true, and {@link #autoHeight} is true, then the current view will fill available parent height.
+		 */
 		public boolean autoFillsHeight = false;
 
 		public LayoutParams() {

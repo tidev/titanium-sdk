@@ -234,6 +234,13 @@ public class TiTabActivity extends TabActivity
 	}
 
 	@Override
+	protected void onStop()
+	{
+		super.onStop();
+		KrollRuntime.suggestGC();
+	}
+
+	@Override
 	protected void onDestroy()
 	{
 		TiApplication.removeFromActivityStack(this);
@@ -269,6 +276,7 @@ public class TiTabActivity extends TabActivity
 		}
 
 		KrollRuntime.decrementActivityRefCount();
+		KrollRuntime.suggestGC();
 		handler = null;
 	}
 
