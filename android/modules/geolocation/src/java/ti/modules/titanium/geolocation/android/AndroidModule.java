@@ -20,6 +20,15 @@ import ti.modules.titanium.geolocation.GeolocationModule;
 import ti.modules.titanium.geolocation.TiLocation;
 
 
+/**
+ * AndroidModule exposes all Android specific methods and properties relating to geolocation behavior 
+ * associated with Ti.Geolocation.Android to the Titanium developer.  Cross platform API points should 
+ * be exposed through GeolocationModule (Ti.Geolocation).
+ * 
+ * <p>
+ * The main purpose of this class beyond providing a Android specific namespace under Ti.Geolocation is 
+ * to support managing manual location providers and location rules.
+ */
 @Kroll.module(parentModule=GeolocationModule.class)
 public class AndroidModule extends KrollModule
 {
@@ -31,6 +40,9 @@ public class AndroidModule extends KrollModule
 	private static GeolocationModule geolocationModule;
 
 
+	/**
+	 * Constructor
+	 */
 	public AndroidModule()
 	{
 		super();
@@ -38,7 +50,14 @@ public class AndroidModule extends KrollModule
 		geolocationModule = GeolocationModule.getInstance();
 	}
 
-	// mimic the generated create function
+	/**
+	 * Creates a new instance of a location provider.  Mimics that normal proxy mechanism 
+	 * provided via annotations.  This is needed due to a flaw in how the annotation driven 
+	 * proxy creation works in the sub module.
+	 * 
+	 * @param creationArgs		creation arguments for the proxy that are passed in from Javascript
+	 * @return					new instance of a location provider
+	 */
 	@Kroll.method
 	public LocationProviderProxy createLocationProvider(Object creationArgs[])
 	{
@@ -61,13 +80,28 @@ public class AndroidModule extends KrollModule
 		}
 	}
 
-	// mimic the generated create function
+	/**
+	 * Creates a new instance of a location rule.  Mimics that normal proxy mechanism 
+	 * provided via annotations.  This is needed due to a flaw in how the annotation driven 
+	 * proxy creation works in the sub module.
+	 * 
+	 * @param creationArgs		creation arguments for the proxy that are passed in from Javascript
+	 * @return					new instance of a location rule
+	 */
 	@Kroll.method
 	public LocationRuleProxy createLocationRule(Object creationArgs[])
 	{
 		return new LocationRuleProxy(creationArgs);
 	}
 
+	/**
+	 * Adds the specified location provider to the list of manual location providers.  If a location 
+	 * provider with the same "name" property already exists in the list of manual location 
+	 * providers then the existing provider will be removed and the specified one will be added in it's
+	 * place.
+	 * 
+	 * @param locationProvider		the location provider to add
+	 */
 	@Kroll.method
 	public void addLocationProvider(LocationProviderProxy locationProvider)
 	{
@@ -101,6 +135,11 @@ public class AndroidModule extends KrollModule
 		}
 	}
 
+	/**
+	 * Removed the specified location provider from the list of manual location providers.
+	 * 
+	 * @param locationProvider		the location provider to remove
+	 */
 	@Kroll.method
 	public void removeLocationProvider(LocationProviderProxy locationProvider)
 	{
@@ -113,12 +152,22 @@ public class AndroidModule extends KrollModule
 		}
 	}
 
+	/**
+	 * Adds the specified location rule to the list of manual location rules.
+	 * 
+	 * @param locationRule		the location rule to add
+	 */
 	@Kroll.method
 	public void addLocationRule(LocationRuleProxy locationRule)
 	{
 		manualLocationRules.add(locationRule);
 	}
 
+	/**
+	 * Removed the specified location rule from the list of manual location rules.
+	 * 
+	 * @param locationRule		the location rule to remove
+	 */
 	@Kroll.method
 	public void removeLocationRule(LocationRuleProxy locationRule)
 	{
