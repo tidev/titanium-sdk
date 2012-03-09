@@ -68,6 +68,7 @@ methods:
     
   - name: toBlob
     summary: Returns the image as a Blob object.
+    platforms: [android, iphone, ipad]
 
 events:
   - name: change

@@ -10,10 +10,11 @@ description: |
     The macro `L` can be used as an alias for the <Titanium.Locale.getString> method.
 extends: Titanium.Module
 since: "1.5"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 methods:
   - name: formatTelephoneNumber
     summary: format a telephone number according to the current locale.
+    platforms: [android, iphone, ipad]
     returns:
         type: String
     parameters:
@@ -62,13 +63,15 @@ methods:
 properties:
   - name: currentCountry
     summary: return the current (default) ISO 2-letter country code for the device.
+    platforms: [android, mobileweb]
     type: String
+    permission: read-only
   - name: currentLanguage
     summary: return the current language for the device based on the user's settings
     type: String
     permission: read-only
   - name: currentLocale
     summary: return the current locale string for the device based on the user's settings (e.g., en-US).
-    platforms: [android]
+    platforms: [android, mobileweb]
     type: String
     permission: read-only
