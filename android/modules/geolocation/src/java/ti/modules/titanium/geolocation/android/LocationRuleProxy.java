@@ -23,15 +23,17 @@ import android.location.Location;
  * 	<li>accuracy - the accuracy value compared against the accuracy value of a location.  
  * 		if the location accuracy value is less than (lower is better) the accuracy value 
  * 		for the rule then the comparison will pass</li>
- * 	<li>time - the time value compared against the time value of a location.  if the 
- * 		location time value is greater (higher is better) than the time value for the 
- * 		rule then the comparison will pass</li>
+ * 	<li>minAge - time value that is expected to be less than the time in milliseconds
+ * 		since the last good location update</li>
+ * 	<li>maxAge - time value that is expected to be greater than the time in milliseconds
+ * 		since the last good location update</li>
  * </ul>
  */
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_PROVIDER,
 	TiC.PROPERTY_ACCURACY,
-	TiC.PROPERTY_TIME
+	TiC.PROPERTY_MIN_AGE,
+	TiC.PROPERTY_MAX_AGE
 })
 public class LocationRuleProxy extends KrollProxy
 {
@@ -55,16 +57,19 @@ public class LocationRuleProxy extends KrollProxy
 	 * @param provider			location service that the provider should be associated with
 	 * @param accuracy			the accuracy value that will be compared against the accuracy 
 	 * 							value of a location
-	 * @param time				the time value that will be compared against the time 
-	 * 							value of a location
+	 * @param minAge			time value that is expected to be less than the time in milliseconds
+	 * 							since the last good location update
+	 * @param maxAge			time value that is expected to be greater than the time in milliseconds
+	 * 							since the last good location update
 	 */
-	public LocationRuleProxy(String provider, Double accuracy, Double time)
+	public LocationRuleProxy(String provider, Double accuracy, Double minAge, Double maxAge)
 	{
 		super();
 
 		setProperty(TiC.PROPERTY_PROVIDER, provider);
 		setProperty(TiC.PROPERTY_ACCURACY, accuracy);
-		setProperty(TiC.PROPERTY_TIME, time);
+		setProperty(TiC.PROPERTY_MIN_AGE, minAge);
+		setProperty(TiC.PROPERTY_MAX_AGE, maxAge);
 	}
 
 	/**
@@ -98,13 +103,18 @@ public class LocationRuleProxy extends KrollProxy
 			}
 		}
 
-		Object rawTime = properties.get(TiC.PROPERTY_TIME);
-		if(rawTime != null) {
-			double timeValue = TiConvert.toDouble(rawTime);
+		Object rawMinAge = properties.get(TiC.PROPERTY_MIN_AGE);
+		if(rawMinAge != null) {
+			double minAgeValue = TiConvert.toDouble(rawMinAge);
+			if(minAgeValue > (newLocation.getTime() - currentLocation.getTime())) {
+				passed = false;
+			}
+		}
 
-			// make sure the update breaks the time threshold on the diff of the
-			// current and new location
-			if(timeValue < (newLocation.getTime() - currentLocation.getTime())) {
+		Object rawMaxAge = properties.get(TiC.PROPERTY_MAX_AGE);
+		if(rawMaxAge != null) {
+			double maxAgeValue = TiConvert.toDouble(rawMaxAge);
+			if(maxAgeValue > (newLocation.getTime() - currentLocation.getTime())) {
 				passed = false;
 			}
 		}

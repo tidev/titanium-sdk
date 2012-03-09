@@ -236,6 +236,7 @@ public class TiC
 	public static final String PROPERTY_LONGITUDE_DELTA = "longitudeDelta";
 	public static final String PROPERTY_MAGNETIC_HEADING = "magneticHeading";
 	public static final String PROPERTY_MAP_TYPE = "mapType";
+	public static final String PROPERTY_MAX_AGE = "maxAge";
 	public static final String PROPERTY_MEDIA_CONTROL_STYLE = "mediaControlStyle";
 	public static final String PROPERTY_MENU = EVENT_PROPERTY_MENU;
 	public static final String PROPERTY_MESSAGE = "message";
@@ -243,6 +244,7 @@ public class TiC
 	public static final String PROPERTY_MESSENGER = "messenger";
 	public static final String PROPERTY_MESSENGER_RECEIVER = "messengerReceiver";
 	public static final String PROPERTY_MIMETYPE = "mimeType";
+	public static final String PROPERTY_MIN_AGE = "minAge";
 	public static final String PROPERTY_MIN_ROW_HEIGHT = "minRowHeight";
 	public static final String PROPERTY_MIN_UPDATE_DISTANCE = "minUpdateDistance";
 	public static final String PROPERTY_MIN_UPDATE_TIME = "minUpdateTime";

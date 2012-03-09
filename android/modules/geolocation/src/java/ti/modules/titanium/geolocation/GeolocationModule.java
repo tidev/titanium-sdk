@@ -107,6 +107,7 @@ import android.location.LocationProvider;
  * accuracy, frequency properties or even changing modes are respected and kept but don't actually get applied on the OS until 
  * the listener count is greater than 0.
  */
+// TODO deprecate the frequency and preferredProvider property
 @Kroll.module(propertyAccessors={
 	TiC.PROPERTY_ACCURACY,
 	TiC.PROPERTY_FREQUENCY,
@@ -115,14 +116,14 @@ import android.location.LocationProvider;
 public class GeolocationModule extends KrollModule
 	implements LocationProviderListener
 {
-	@Kroll.constant public static final String PROVIDER_PASSIVE = LocationManager.PASSIVE_PROVIDER;
-	@Kroll.constant public static final String PROVIDER_NETWORK = LocationManager.NETWORK_PROVIDER;
-	@Kroll.constant public static final String PROVIDER_GPS = LocationManager.GPS_PROVIDER;
-	@Kroll.constant public static final int ACCURACY_BEST = 0;
-	@Kroll.constant public static final int ACCURACY_NEAREST_TEN_METERS = 1;
-	@Kroll.constant public static final int ACCURACY_HUNDRED_METERS = 2;
-	@Kroll.constant public static final int ACCURACY_KILOMETER = 3;
-	@Kroll.constant public static final int ACCURACY_THREE_KILOMETERS = 4;
+	@Kroll.constant @Deprecated public static final String PROVIDER_PASSIVE = LocationManager.PASSIVE_PROVIDER;
+	@Kroll.constant @Deprecated public static final String PROVIDER_NETWORK = LocationManager.NETWORK_PROVIDER;
+	@Kroll.constant @Deprecated public static final String PROVIDER_GPS = LocationManager.GPS_PROVIDER;
+	@Kroll.constant @Deprecated public static final int ACCURACY_BEST = 0;
+	@Kroll.constant @Deprecated public static final int ACCURACY_NEAREST_TEN_METERS = 1;
+	@Kroll.constant @Deprecated public static final int ACCURACY_HUNDRED_METERS = 2;
+	@Kroll.constant @Deprecated public static final int ACCURACY_KILOMETER = 3;
+	@Kroll.constant @Deprecated public static final int ACCURACY_THREE_KILOMETERS = 4;
 	@Kroll.constant public static final int ACCURACY_HIGH = 5;
 	@Kroll.constant public static final int ACCURACY_LOW = 6;
 
@@ -143,7 +144,7 @@ public class GeolocationModule extends KrollModule
 	private static final double SIMPLE_LOCATION_GPS_DISTANCE = 3.0;
 	private static final double SIMPLE_LOCATION_GPS_TIME = 3000;
 	private static final double SIMPLE_LOCATION_NETWORK_DISTANCE_RULE = 200;
-	private static final double SIMPLE_LOCATION_NETWORK_TIME_RULE = 60000;
+	private static final double SIMPLE_LOCATION_NETWORK_MIN_AGE_RULE = 60000;
 
 	private static GeolocationModule geolocationModule;
 	@Deprecated private static HashMap<String, LocationProviderProxy> legacyLocationProviders = new HashMap<String, LocationProviderProxy>();
@@ -155,6 +156,7 @@ public class GeolocationModule extends KrollModule
 	private static int simpleLocationAccuracyProperty = ACCURACY_LOW;
 	private static ArrayList<LocationRuleProxy> simpleLocationRules = new ArrayList<LocationRuleProxy>();
 	private static LocationRuleProxy simpleLocationGpsRule;
+	private static LocationRuleProxy simpleLocationNetworkRule;
 
 	private TiCompass tiCompass;
 	private boolean compassListenersRegistered = false;
@@ -185,10 +187,9 @@ public class GeolocationModule extends KrollModule
 		simpleLocationProviders.put(PROVIDER_NETWORK, new LocationProviderProxy(PROVIDER_NETWORK, SIMPLE_LOCATION_NETWORK_DISTANCE, SIMPLE_LOCATION_NETWORK_TIME, this));
 		simpleLocationProviders.put(PROVIDER_PASSIVE, new LocationProviderProxy(PROVIDER_PASSIVE, SIMPLE_LOCATION_PASSIVE_DISTANCE, SIMPLE_LOCATION_PASSIVE_TIME, this));
 
-		simpleLocationRules.add(new LocationRuleProxy(PROVIDER_NETWORK, SIMPLE_LOCATION_NETWORK_DISTANCE_RULE, SIMPLE_LOCATION_NETWORK_TIME_RULE));
-
-		// create this now but we don't want to include this in the rule set unless the simple GPS provider is enabled
-		simpleLocationGpsRule = new LocationRuleProxy(PROVIDER_GPS, null, null);
+		// create these now but we don't want to include these in the rule set unless the simple GPS provider is enabled
+		simpleLocationGpsRule = new LocationRuleProxy(PROVIDER_GPS, null, null, null);
+		simpleLocationNetworkRule = new LocationRuleProxy(PROVIDER_NETWORK, SIMPLE_LOCATION_NETWORK_DISTANCE_RULE, SIMPLE_LOCATION_NETWORK_MIN_AGE_RULE, null);
 	}
 
 	/**
@@ -230,9 +231,8 @@ public class GeolocationModule extends KrollModule
 		String message = providerName;
 
 		// TODO this is trash.  deprecate the existing mechanism of bundling status updates with the
-		// location event and create a new "locationState" (or whatever) event like there should
-		// have been in the first place.  for the time being, this solution kills my soul slightly
-		// less than the previous one
+		// location event and create a new "locationState" (or whatever) event.  for the time being, 
+		// this solution kills my soul slightly less than the previous one
 		switch(state) {
 			case LocationProviderProxy.STATE_DISABLED:
 				message += "is disabled";
@@ -352,6 +352,7 @@ public class GeolocationModule extends KrollModule
 					if((accuracyProperty == ACCURACY_HIGH) && (gpsProvider == null)) {
 						gpsProvider = new LocationProviderProxy(PROVIDER_GPS, SIMPLE_LOCATION_GPS_DISTANCE, SIMPLE_LOCATION_GPS_TIME, this);
 						simpleLocationProviders.put(PROVIDER_GPS, gpsProvider);
+						simpleLocationRules.add(simpleLocationNetworkRule);
 						simpleLocationRules.add(simpleLocationGpsRule);
 
 						if((locationBehaviorMode == SIMPLE_BEHAVIOR_MODE) && (numLocationListeners > 0)) {
@@ -360,6 +361,7 @@ public class GeolocationModule extends KrollModule
 
 					} else if((accuracyProperty == ACCURACY_LOW) && (gpsProvider != null)) {
 						simpleLocationProviders.remove(PROVIDER_GPS);
+						simpleLocationRules.remove(simpleLocationNetworkRule);
 						simpleLocationRules.remove(simpleLocationGpsRule);
 
 						if((locationBehaviorMode == SIMPLE_BEHAVIOR_MODE) && (numLocationListeners > 0)) {
