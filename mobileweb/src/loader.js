@@ -607,7 +607,7 @@
 								: null
 						)
 					)
-				|| _t.cjs.exports;
+				|| _t.cjs.module.exports || _t.cjs.exports;
 
 			// we might have just executed code above that could have caused a couple
 			// define()'s to queue up
@@ -992,8 +992,8 @@
 	}
 
 	req.toUrl = toUrl;
-	req.config = cfg;
 	mix(req, fnMixin = {
+		config: cfg,
 		each: each,
 		evaluate: evaluate,
 		has: has,

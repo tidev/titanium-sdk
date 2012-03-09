@@ -955,6 +955,10 @@
 
 - (void)updateSearchResultIndexes
 {
+	if ([searchString length]==0) {
+        RELEASE_TO_NIL(searchResultIndexes);
+		return;
+	}
 	NSEnumerator * searchResultIndexEnumerator;
 	if(searchResultIndexes == nil)
 	{
@@ -1210,18 +1214,22 @@
 {
 	// called when text starts editing
 	[self showSearchScreen:nil];
+    searchActivated = YES;
+    [tableview reloadData];
+}
+
+- (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
+{
+    if (searchActivated && ([searchBar.text length] == 0)) {
+        searchActivated = NO;
+        [tableview reloadData];
+    }
 }
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
 	[self setSearchString:searchText];
 	// called when text changes (including clear)
-	if([searchText length]==0)
-	{
-		// Redraw visible cells
-        [tableview reloadRowsAtIndexPaths:[tableview indexPathsForVisibleRows] withRowAnimation:UITableViewRowAnimationNone];
-		return;
-	}
 	[self updateSearchResultIndexes];
 }
 
@@ -1236,6 +1244,10 @@
 {
 	// called when cancel button pressed
 	[searchBar setText:nil];
+    if (searchActivated) {
+        searchActivated = NO;
+        [tableview reloadData];
+    }
 }
 
 #pragma mark Section Header / Footer
@@ -1569,6 +1581,12 @@
 if(ourTableView != tableview)	\
 {	\
 	return result;	\
+}
+
+#define RETURN_IF_SEARCH_IS_ACTIVE(result)	\
+if(searchActivated)	\
+{	\
+return result;	\
 }
 
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section
@@ -1960,6 +1978,7 @@ if(ourTableView != tableview)	\
 - (CGFloat)tableView:(UITableView *)ourTableView heightForHeaderInSection:(NSInteger)section
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(0.0);
+    RETURN_IF_SEARCH_IS_ACTIVE(0.0);
 	TiUITableViewSectionProxy *sectionProxy = nil;
 	TiUIView *view = [self sectionView:section forLocation:@"headerView" section:&sectionProxy];
 	TiViewProxy *viewProxy = (TiViewProxy *)[view proxy];
@@ -2007,6 +2026,7 @@ if(ourTableView != tableview)	\
 - (CGFloat)tableView:(UITableView *)ourTableView heightForFooterInSection:(NSInteger)section
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(0.0);
+    RETURN_IF_SEARCH_IS_ACTIVE(0.0);
 	TiUITableViewSectionProxy *sectionProxy = nil;
 	TiUIView *view = [self sectionView:section forLocation:@"footerView" section:&sectionProxy];
 	TiViewProxy *viewProxy = (TiViewProxy *)[view proxy];

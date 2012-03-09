@@ -175,7 +175,10 @@
 		}
 		case TiBlobTypeImage:
 		{
-			return UIImageJPEGRepresentation(image,1.0);
+            if ([@"image/png" isEqualToString:mimetype]) {
+                return UIImagePNGRepresentation(image);
+            }
+            return UIImageJPEGRepresentation(image,1.0);
 		}
 		default: {
 			break;

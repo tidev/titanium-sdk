@@ -4,7 +4,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 	var setStyle = style.set,
 		undef,
 		on = require.on,
-		InternalImageView = (declare(Widget, {
+		InternalImageView = declare(Widget, {
 			
 			domType: "img",
 			
@@ -60,7 +60,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 					set: function(value) {
 						if (value) {
 							setStyle(this.domNode,"display", "inherit");
-							this.domNode.src = value;
+							this.domNode.src = require.cache(value) || value;
 							on(this.domNode,"load", this, function() {
 								this.fireEvent("load", {});
 								this._triggerLayout();
@@ -84,7 +84,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 					}
 				}
 			}
-		}));
+		});
 
 	return declare("Ti.UI.ImageView", Widget, {
 

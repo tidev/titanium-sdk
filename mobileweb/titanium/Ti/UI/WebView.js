@@ -123,8 +123,12 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 		},
 
 		evalJS: function(js) {
-			var w = this._getWindow();
-			return js && w && w.eval && w.eval(js);
+			var w = this._getWindow(),
+				r = null;
+			try {
+				r = js && w && w.eval && w.eval(js);
+			} catch (e) {}
+			return r;
 		},
 
 		goBack: function() {

@@ -191,7 +191,13 @@ public class TiTableView extends FrameLayout
 				}
 			}
 			if (v == null) {
-				if (item.className.equals(TableViewProxy.CLASSNAME_HEADER)) {
+				if (item.className.equals(TableViewProxy.CLASSNAME_HEADERVIEW)) {
+					TiViewProxy vproxy = item.proxy;
+					View headerView = layoutHeaderOrFooter(vproxy);
+					v = new TiTableViewHeaderItem(proxy.getActivity(), headerView);
+					v.setClassName(TableViewProxy.CLASSNAME_HEADERVIEW);
+					return v;
+				} else if (item.className.equals(TableViewProxy.CLASSNAME_HEADER)) {
 					v = new TiTableViewHeaderItem(proxy.getActivity());
 					v.setClassName(TableViewProxy.CLASSNAME_HEADER);
 				} else if (item.className.equals(TableViewProxy.CLASSNAME_NORMAL)) {
