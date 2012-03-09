@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
-	function(declare, FontWidget, dom, css, style, lang, UI) {
+define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/Locale", "Ti/UI"],
+	function(declare, FontWidget, dom, css, style, lang, Locale, UI) {
 
 	var set = style.set,
 		undef,
@@ -102,7 +102,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			},
 			text: {
 				set: function(value) {
-					
 					// Convert \t and \n to &nbsp;'s and <br/>'s
 					var lineStartIndex = 0,
 						currentIndex = 0,
@@ -149,13 +148,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				value: UI.TEXT_ALIGNMENT_LEFT
 			},
 			textid: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Label#.textid" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Label#.textid" is not implemented yet.');
+					this.text = Locale.getString(value);
 					return value;
 				}
 			},

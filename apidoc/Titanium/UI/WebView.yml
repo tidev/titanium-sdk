@@ -160,6 +160,11 @@ methods:
   - name: repaint
     summary: Forces the web view to repaint its contents.
     platforms: [iphone, ipad]
+    
+  - name: release
+    summary: Releases memory when the web view is no longer needed.
+    since: "2.0.0"
+    platforms: [android]
 
   - name: resume
     summary: Resume native webview plugins. 
@@ -240,7 +245,8 @@ properties:
     description: |
         Android only supports loading data from a `Blob`, not a `File`.
 
-        For Mobile Web, setting new content will reset the `url` and the WebView's history.
+        For Mobile Web, setting new content will reset the `url` and the WebView's history. The WebView's
+        "onload" event will have already fired prior to the data being set inside the WebView.
 
         See also: [url](Titanium.UI.WebView.url) and [html](Titanium.UI.WebView.html).
     type: [Titanium.Blob, Titanium.Filesystem.File]
@@ -257,7 +263,8 @@ properties:
         For iOS, see [setHtml](Titanium.UI.WebView.setHtml) for additional parameters that can be
         specified when setting HTML content.
 
-        For Mobile Web, setting new content will reset the `url` and the WebView's history.
+        For Mobile Web, setting new content will reset the `url` and the WebView's history. The WebView's
+        "onload" event will have already fired prior to the data being set inside the WebView.
     type: String
 
   - name: loading

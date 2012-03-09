@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,6 +18,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
@@ -171,6 +172,11 @@ public class TiConvert
 		boolean dirty = false;
 		Object width = null;
 		Object height = null;
+
+		// Set auto width/height to false to trigger undefined behavior
+		layoutParams.autoWidth = false;
+		layoutParams.autoHeight = false;
+
 		if (hashMap.containsKey(TiC.PROPERTY_SIZE)) {
 			HashMap<String, Object> size = (HashMap<String, Object>) hashMap.get(TiC.PROPERTY_SIZE);
 			width = size.get(TiC.PROPERTY_WIDTH);
@@ -203,15 +209,29 @@ public class TiConvert
 		}
 
 		if (width != null || hashMap.containsKey(TiC.PROPERTY_WIDTH)) {
-			if (width == null)
-			{
+			if (width == null) {
 				width = hashMap.get(TiC.PROPERTY_WIDTH);
 			}
 
-			if (width == null || width.equals(TiC.SIZE_AUTO)) {
+			if (width == null) {
+				layoutParams.optionWidth = null;
+				layoutParams.autoWidth = false;
+
+			} else if (width.equals(TiC.SIZE_AUTO)) {
 				layoutParams.optionWidth = null;
 				layoutParams.autoWidth = true;
 
+			} else if (width.equals(TiC.LAYOUT_FILL)) {
+				// fill
+				layoutParams.optionWidth = null;
+				layoutParams.autoWidth = true;
+				layoutParams.autoFillsWidth = true;
+
+			} else if (width.equals(TiC.LAYOUT_SIZE)) {
+				// size
+				layoutParams.optionWidth = null;
+				layoutParams.autoWidth = true;
+				layoutParams.autoFillsWidth = false;
 			} else {
 				layoutParams.optionWidth = toTiDimension(width, TiDimension.TYPE_WIDTH);
 				layoutParams.autoWidth = false;
@@ -220,15 +240,29 @@ public class TiConvert
 		}
 
 		if (height != null || hashMap.containsKey(TiC.PROPERTY_HEIGHT)) {
-			if (height == null)
-			{
+			if (height == null) {
 				height = hashMap.get(TiC.PROPERTY_HEIGHT);
 			}
 
-			if (height == null || height.equals(TiC.SIZE_AUTO)) {
+			if (height == null) {
+				layoutParams.optionHeight = null;
+				layoutParams.autoHeight = false;
+
+			} else if (height.equals(TiC.SIZE_AUTO)) {
 				layoutParams.optionHeight = null;
 				layoutParams.autoHeight = true;
 
+			} else if (height.equals(TiC.LAYOUT_FILL)) {
+				// fill
+				layoutParams.optionHeight = null;
+				layoutParams.autoHeight = true;
+				layoutParams.autoFillsHeight = true;
+
+			} else if (height.equals(TiC.LAYOUT_SIZE)) {
+				// size
+				layoutParams.optionHeight = null;
+				layoutParams.autoHeight = true;
+				layoutParams.autoFillsHeight = false;
 			} else {
 				layoutParams.optionHeight = toTiDimension(height, TiDimension.TYPE_HEIGHT);
 				layoutParams.autoHeight = false;
@@ -257,6 +291,7 @@ public class TiConvert
 	public static void updateLayoutCenter(Object value, LayoutParams layoutParams)
 	{
 		if (value instanceof HashMap) {
+			@SuppressWarnings("rawtypes")
 			HashMap center = (HashMap) value;
 			Object x = center.get(TiC.PROPERTY_X);
 			Object y = center.get(TiC.PROPERTY_Y);
@@ -417,6 +452,12 @@ public class TiConvert
 		return toDouble(hashMap.get(key));
 	}
 
+	/**
+	 * Converts a vlaue into a String. If value is null, a default value is returned.
+	 * @param value the value to convert.
+	 * @param defaultString the default value.
+	 * @return a String.
+	 */
 	public static String toString(Object value, String defaultString)
 	{
 		String result = toString(value);
@@ -448,6 +489,11 @@ public class TiConvert
 		return toString(hashMap.get(key));
 	}
 
+	/**
+	 * Converts an Object array into a String array.
+	 * @param parts the object array to convert
+	 * @return a String array.
+	 */
 	public static String[] toStringArray(Object[] parts)
 	{
 		String[] sparts = (parts != null ? new String[parts.length] : new String[0]);
@@ -483,7 +529,7 @@ public class TiConvert
 	public static TiDimension toTiDimension(Object value, int valueType)
 	{
 		if (value instanceof Number) {
-			value = value.toString() + "px";
+			value = value.toString() + TiApplication.getInstance().getDefaultUnit();
 		}
 
 		return toTiDimension((String) value, valueType);

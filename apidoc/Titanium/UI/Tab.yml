@@ -116,7 +116,7 @@ properties:
          platform-specific, using [TabGroup.setActiveTab](Titanium.UI.TabGroup.setActiveTab) 
          is recommended instead.
     type: Boolean
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: badge
     summary: Badge value for this tab. `null` indicates no badge.
     type: String

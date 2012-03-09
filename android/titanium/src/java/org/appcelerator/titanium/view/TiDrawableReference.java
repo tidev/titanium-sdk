@@ -143,6 +143,12 @@ public class TiDrawableReference
 		return ref;
 	}
 
+	/**
+	 * Resolves the url, then creates and returns a TiDrawableReference instance.
+	 * @param proxy the activity proxy.
+	 * @param url the url to resolve.
+	 * @return A ready instance of TiDrawableReference.
+	 */
 	public static TiDrawableReference fromUrl(KrollProxy proxy, String url)
 	{
 		return fromUrl(proxy.getActivity(), proxy.resolveUrl(null, url));

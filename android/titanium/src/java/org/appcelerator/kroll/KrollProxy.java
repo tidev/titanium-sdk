@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,7 +8,6 @@ package org.appcelerator.kroll;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -277,6 +276,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		KrollRuntime.getInstance().initObject(this);
 	}
 
+	/** 
+	 * @return the absolute URL of the location in code where the proxy was created in Javascript.
+	 */
 	public TiUrl getCreationUrl()
 	{
 		return creationUrl;
@@ -492,6 +494,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		TiMessenger.getMainMessenger().sendMessage(msg);
 	}
 
+	/**
+	 * @param event the event to check
+	 * @return whether the associated KrollObject has an event listener for the passed in event.
+	 */
 	public boolean hasListeners(String event)
 	{
 		return getKrollObject().hasListeners(event);
@@ -690,6 +696,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		modelListener.listenerRemoved(event, count, this);
 	}
 
+	/**
+	 * Associates this proxy with the passed in {@link KrollProxyListener}.
+	 * @param modelListener the passed in KrollProxyListener.
+	 */
 	public void setModelListener(KrollProxyListener modelListener)
 	{
 		// Double-setting the same modelListener can potentially have weird side-effects.

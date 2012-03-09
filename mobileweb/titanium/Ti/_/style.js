@@ -13,7 +13,7 @@ define(["Ti/_", "Ti/_/string", "Ti/Filesystem"], function(_, string, Filesystem)
 					x = vp[i++];
 					x += x ? uc || (uc = string.capitalize(name)) : name;
 					if (x in node.style) {
-						require.each(is(value, "Array") ? value : [value], function(v) { node.style[x] = v; });
+						(is(value, "Array") ? value : [value]).forEach(function(v) { node.style[x] = v; });
 						return value;
 					}
 				}
@@ -32,16 +32,14 @@ define(["Ti/_", "Ti/_/string", "Ti/Filesystem"], function(_, string, Filesystem)
 				return "url(" + url.toString() + ")";
 			}
 			var match = url && url.match(/^(.+):\/\//),
-				file = match && ~Filesystem.protocols.indexOf(match[1]) && Filesystem.getFile(url),
-				isFile = file && file.exists();
-			url = isFile ? url : "";
-			return isFile
+				file = match && ~Filesystem.protocols.indexOf(match[1]) && Filesystem.getFile(url);
+			return file && file.exists()
 				? "url(" + file.read().toString() + ")"
 				: !url || url === "none"
 					? ""
 					: /^url\(/.test(url)
 						? url
-						: "url(" + _.getAbsolutePath(url) + ")";
+						: "url(" + (require.cache(url) || _.getAbsolutePath(url)) + ")";
 		},
 
 		get: function(node, name) {
