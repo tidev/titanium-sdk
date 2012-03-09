@@ -22,6 +22,12 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 			},
 
 			_doLayout: function(params) {
+				// We have to remove the old style to get the image to scale to its default size,
+				// otherwise we are just reading in whatever we set in the last doLayout(), which is
+				// 0 if the image was not loaded...thus always clamping it to 0.
+				this.domNode.style.width = "";
+				this.domNode.style.height = "";
+				
 				var imageRatio = this.domNode.width / this.domNode.height,
 					boundingHeight = params.boundingSize.height,
 					boundingWidth = params.boundingSize.width,
