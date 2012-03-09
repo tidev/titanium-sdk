@@ -1924,16 +1924,10 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
         UIView *parentView = [parent parentViewForChild:self];
         CGSize referenceSize = (parentView != nil) ? parentView.bounds.size : sandboxBounds.size;
-#ifdef DEBUG        
-        BOOL log = NO;
-#endif        
-        if (parent) {
+       if (parent) {
             //Always use sandbox bounds if parent is not absolute layout
             if (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle)) {
                 referenceSize = sandboxBounds.size;
-#ifdef DEBUG        
-                log = YES;
-#endif        
             }
         }
 
@@ -1944,13 +1938,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 		positionCache.x += sizeCache.origin.x + sandboxBounds.origin.x;
 		positionCache.y += sizeCache.origin.y + sandboxBounds.origin.y;
-#ifdef DEBUG        
-        if(log){
-            NSLog(@"MY SANDBOX IS %.1f %.1f %.1f %.1f",sandboxBounds.origin.x, sandboxBounds.origin.y, sandboxBounds.size.width,sandboxBounds.size.height);
-            NSLog(@"MY SIZE CACHE IS %.1f %.1f",sizeCache.size.width,sizeCache.size.height);
-            NSLog(@"MY POS CACHE IS %.1f %.1f",positionCache.x,positionCache.y);
-        }
-#endif
+
 		[view setAutoresizingMask:autoresizeCache];
 		[view setCenter:positionCache];
 		[view setBounds:sizeCache];
@@ -2293,9 +2281,6 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	// layout out ourself
     if(!TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle))
     {
-#ifdef DEBUG        
-        NSLog(@"MY BOUNDS ARE %.1f %.1f",bounds.size.width,bounds.size.height);
-#endif
         bounds = [self computeChildSandbox:child withBounds:bounds];
     }
 	if (optimize==NO)
