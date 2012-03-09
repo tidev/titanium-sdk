@@ -1,4 +1,4 @@
-define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], function(declare, dom, lang, UI, View) {
+define(["Ti/_/declare", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], function(declare, lang, UI, View) {
 
 	var sessionId = Math.random(),
 		historyStack = [],
@@ -24,7 +24,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], functio
 	function removeFromHistory(widget, recursive) {
 		if (historyPopState === POP_STATE_WAITING_FOR_OPERATION) {
 			var historyStackIndex = historyStack.indexOf(widget);
-			if (historyStackIndex !== -1) {
+			if (~historyStackIndex) {
 				historyStack.splice(historyStackIndex,recursive ? historyStack.length - historyStackIndex : 1);
 				historyPopState = POP_STATE_REWINDING_HISTORY;
 				hist.go(-historyStack.length - (hist.length - startingHistoryLength - historyStack.length));
