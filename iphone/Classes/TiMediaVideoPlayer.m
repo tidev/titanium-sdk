@@ -61,6 +61,9 @@
     RELEASE_TO_NIL(spinner);
     RELEASE_TO_NIL(controller);
 
+    if (controller_ == nil) {
+        return;
+    }
     controller = [controller_ retain];
 	
 	[TiUtils setView:[controller view] positionRect:self.bounds];
