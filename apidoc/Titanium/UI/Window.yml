@@ -8,25 +8,27 @@ methods:
   - name: close
     summary: Closes the window.
     parameters:
-      - name: options
-        summary: Optional animation or display properties to use when closing the window.
-        type: Object
+      - name: params
+        summary: Animation or display properties to use when closing the window.
+        type: Dictionary<Titanium.UI.Animation>
         optional: true
+    
   - name: hideTabBar
     summary: Hides the tab bar. Must be called before opening the window.
     description: |
         To hide the tab bar when opening a window as a child of a tab, call
         `hideTabBar` or set `tabBarHidden` to `true` **before** opening the window.
-
+        
         If the window is not a child of a tab, this method has no effect.
     platforms: [iphone,ipad]
   - name: open
     summary: Opens the window.
     parameters:
-      - name: options
-        summary: Optional animation or display properties to use when opening the window.
-        type: Object
+      - name: params
+        summary: Animation or display properties to use when opening the window.
+        type: openWindowParams
         optional: true
+
 events:
   - name: android:back
     platforms: [android]
@@ -659,5 +661,36 @@ examples:
                backgroundColor:'red'
             });
             window.open({fullscreen:true});
+        
+---
+name: openWindowParams
+summary: Dictionary of options for the <Titanium.UI.Window.open> method.
+since: 1.9.0
+platforms: [iphone, ipad]
 
-
+properties:
+  - name: modal
+    summary: Determines whether the window is modal.
+    type: Boolean
+    default: false
+    optional: true
+    
+  - name: modalTransitionStyle
+    summary: Transition style of this modal window.
+    description: |
+        One of the modal window transition style constants 
+        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_COVER_VERTICAL>, 
+        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE>, 
+        <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL>, 
+        or <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_PARTIAL_CURL>.
+    type: Number
+    
+  - name: modalStyle
+    summary: Presentation style of this modal window.
+    description: |
+        One of the modal window presentation style constants 
+        <Titanium.UI.iPhone.MODAL_PRESENTATION_CURRENT_CONTEXT>, 
+        <Titanium.UI.iPhone.MODAL_PRESENTATION_FORMSHEET>, 
+        <Titanium.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN>, 
+        or <Titanium.UI.iPhone.MODAL_PRESENTATION_PAGESHEET>.
+    type: Number
