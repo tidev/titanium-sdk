@@ -1,4 +1,4 @@
-define(["Ti/_/declare", "Ti/Gesture", "Ti/_/UI/SuperView", "Ti/UI"], function(declare, Gesture, SuperView, UI) {
+define(["Ti/_/declare", "Ti/Gesture", "Ti/Locale", "Ti/_/UI/SuperView", "Ti/UI"], function(declare, Gesture, Locale, SuperView, UI) {
 
 	var undef;
 
@@ -56,12 +56,8 @@ define(["Ti/_/declare", "Ti/Gesture", "Ti/_/UI/SuperView", "Ti/UI"], function(de
 			},
 
 			titleid: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.Window#.titleid" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Window#.titleid" is not implemented yet.');
+					this.title = Locale.getString(value);
 					return value;
 				}
 			}
