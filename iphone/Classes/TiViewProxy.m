@@ -872,12 +872,19 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	LayoutConstraint barButtonLayout = layoutProperties;
 	if (TiDimensionIsUndefined(barButtonLayout.width))
 	{
-		barButtonLayout.width = TiDimensionAuto;
+		barButtonLayout.width = TiDimensionAutoSize;
+        
 	}
 	if (TiDimensionIsUndefined(barButtonLayout.height))
 	{
-		barButtonLayout.height = TiDimensionAuto;
+		barButtonLayout.height = TiDimensionAutoSize;
 	}
+    if ( (bounds.width == 0) && !(TiDimensionIsDip(barButtonLayout.width) ) ) {
+        bounds.width = [self autoWidthForSize:CGSizeMake(1000, 1000)];
+    }
+    if ( (bounds.height == 0) && !(TiDimensionIsDip(barButtonLayout.height) ) ) {
+        bounds.height = [self autoHeightForSize:CGSizeMake(bounds.width, 1000)];
+    }
 	CGRect barBounds;
 	barBounds.origin = CGPointZero;
 	barBounds.size = SizeConstraintViewWithSizeAddingResizing(&barButtonLayout, self, bounds, NULL);
