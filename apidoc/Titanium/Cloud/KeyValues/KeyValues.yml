@@ -95,6 +95,7 @@ examples:
   - title: Set a Key-Value Example
     example: |
         This example sets a key-value and checks the response.
+
             Cloud.KeyValues.set({
                 name: 'welcome_message',
                 value: 'Welcome to Appcelerator Cloud Services'
@@ -110,6 +111,7 @@ examples:
   - title: Get a Key-Value Example
     example: |
         This example gets a key-value and checks the response.
+
             Cloud.KeyValues.get({
                 name: 'welcome_message'
             }, function (e) {
@@ -127,6 +129,7 @@ examples:
   - title: Append a Key-Value Example
     example: |
         This example appends a value to a key-value and checks the response.
+
             Cloud.KeyValues.append({
                 name: 'welcome_message',
                 value: ', take a look around'
@@ -146,6 +149,7 @@ examples:
   - title: Increment a Key-Value Example
     example: |
         This example increments a key-value and checks the response.
+
             Cloud.KeyValues.increment({
                 name: 'score',
                 value: 1
@@ -165,6 +169,7 @@ examples:
   - title: Remove a Key-Value Example
     example: |
         This example deletes a key-value and checks the response.
+
             Cloud.KeyValues.remove({
                 name: 'welcome_message'
             }, function (e) {

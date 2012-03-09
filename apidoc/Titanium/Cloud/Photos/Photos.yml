@@ -110,6 +110,7 @@ examples:
   - title: Create Photo Example
     example: |
         This example creates a new photo and checks the response.
+
             Cloud.Photos.create({
                 photo: Titanium.Filesystem.getFile('photo.jpg')
             }, function (e) {
@@ -129,6 +130,7 @@ examples:
   - title: Show a Photo Example
     example: |
         This example retrieves information about a photo and checks the response.
+
             Cloud.Photos.show({
                 photo_id: savedPhotoId
             }, function (e) {
@@ -147,6 +149,7 @@ examples:
   - title: Search for Photos Example
     example: |
         This example searches for photos and checks the response.
+
             Cloud.Photos.search({
                 user_id: savedUserId
             }, function (e) {
@@ -169,6 +172,7 @@ examples:
   - title: Query for Photos Example
     example: |
         This example requests a list of photos and checks the response.
+
             Cloud.Photos.query({
                 page: 1,
                 per_page: 20,
@@ -198,6 +202,7 @@ examples:
   - title: Update a Photo Example
     example: |
         This example updates a photo and checks the response.
+
             Cloud.Photos.update({
                 photo_id: savedPhotoId,
                 photo: Titanium.Filesystem.getFile('newphoto.jpg'),
@@ -218,6 +223,7 @@ examples:
   - title: Remove a Photo Example
     example: |
         This example deletes a photo and checks the response.
+
             Cloud.Photos.remove({
                 photo_id: savedPhotoId
             }, function (e) {

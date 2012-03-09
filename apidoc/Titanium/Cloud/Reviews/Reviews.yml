@@ -92,6 +92,7 @@ examples:
   - title: Create Review Example
     example: |
         This example creates a new review and checks the response.
+
             Cloud.Reviews.create({
                 post_id: savedPostId,
                 rating: 1,
@@ -113,6 +114,7 @@ examples:
   - title: Show a Review Example
     example: |
         This example retrieves information about a review and checks the response.
+
             Cloud.Reviews.show({
                 post_id: savedPostId,
                 review_id: savedReviewId
@@ -133,6 +135,7 @@ examples:
   - title: Query for Reviews Example
     example: |
         This example requests a list of reviews and checks the response.
+
             Cloud.Reviews.query({
                 page: 1,
                 per_page: 20,
@@ -160,6 +163,7 @@ examples:
   - title: Update a Review Example
     example: |
         This example updates a review and checks the response.
+
             Cloud.Reviews.update({
                 post_id: savedPostId,
                 review_id: savedReviewId,
@@ -182,6 +186,7 @@ examples:
   - title: Remove a Review Example
     example: |
         This example deletes a review and checks the response.
+
             Cloud.Reviews.remove({
                 post_id: savedPostId,
                 review_id: savedReviewId

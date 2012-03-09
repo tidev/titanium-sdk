@@ -60,6 +60,7 @@ examples:
   - title: Create Chat Message Example
     example: |
         This example sends a chat message to a list of users and checks the response.
+
             Cloud.Chats.create({
                 to_ids: ids.join(','),
                 message: 'Good morning'
@@ -81,6 +82,7 @@ examples:
   - title: Query for Chat Message Example
     example: |
         This example requests a list of chat messages and checks the response.
+
             Cloud.Chats.query({
                 participate_ids: ids.join(','),
                 where: {
@@ -104,6 +106,7 @@ examples:
   - title: Get Chat Groups Example
     example: |
         This example requests a lists of chat groups that the current user belongs to and checks the response.
+
             Cloud.Chats.getChatGroups(function (e) {
                 if (e.success) {
                     for (var i = 0; i < e.chats.length; i++) {

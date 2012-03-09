@@ -94,6 +94,7 @@ examples:
   - title: Create Custom Object Example
     example: |
         This example creates a new custom object and checks the response.
+
             Cloud.Objects.create({
                 classname: 'cars',
                 fields: {
@@ -119,6 +120,7 @@ examples:
   - title: Show Custom Objects Example
     example: |
         This example requests information about custom objects and checks the response.
+
             Cloud.Objects.show({
                 classname: 'cars',
                 ids: [ savedCar1.id, savedCar2.id ]
@@ -143,6 +145,7 @@ examples:
   - title: Update Custom Object Example
     example: |
         This example updates a custom object and checks the response.
+
             Cloud.Objects.update({
                 classname: 'cars',
                 id: savedCar1.id,
@@ -169,6 +172,7 @@ examples:
   - title: Remove Custom Object Example
     example: |
         This example deletes a custom object and checks the response.
+
             Cloud.Objects.remove({
                 classname: 'cars',
                 id: savedCar1.id
@@ -184,6 +188,7 @@ examples:
   - title: Query for Custom Objects Example
     example: |
         This example requests information about custom objects and checks the response.
+
             Cloud.Objects.query({
                 classname: 'cars',
                 page: 1,

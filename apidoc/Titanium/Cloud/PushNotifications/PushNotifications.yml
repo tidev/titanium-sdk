@@ -56,6 +56,7 @@ examples:
   - title: Subscribe to Channel Example
     example: |
         This example subscribes to a push notification channel and checks the response.
+
             Cloud.PushNotifications.subscribe({
                 channel: 'friend_request',
                 device_token: myPushDeviceToken
@@ -71,6 +72,7 @@ examples:
   - title: Unsubscribe to Channel Example
     example: |
         This example unsubscribes from a push notification channel and checks the response.
+
             Cloud.PushNotifications.unsubscribe({
                 channel: 'friend_request',
                 device_token: myPushDeviceToken
@@ -86,6 +88,7 @@ examples:
   - title: Notify Channel Example
     example: |
         This example sends a push notification to a channel and checks the response.
+
             Cloud.PushNotifications.notify({
                 channel: 'friend_request',
                 payload: 'Welcome to push notifications'

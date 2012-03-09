@@ -172,6 +172,7 @@ examples:
   - title: Create User Example
     example: |
         This example creates a new user and checks the response.
+
             Cloud.Users.create({
                 email: 'test@mycompany.com',
                 first_name: 'test_firstname',
@@ -194,6 +195,7 @@ examples:
   - title: Log in User Example
     example: |
         This example logs a user in and checks the response.
+
             Cloud.Users.login({
                 login: 'test@mycompany.com',
                 password: 'test_password'
@@ -213,6 +215,7 @@ examples:
   - title: Show User Example
     example: |
         This example requests information about a user and checks the response.
+
             Cloud.Users.show({
                 user_id: savedUserInfo.id
             }, function (e) {
@@ -231,6 +234,7 @@ examples:
   - title: Show Current User Example
     example: |
         This example requests information about the currently logged in user and checks the response.
+
             Cloud.Users.showMe(function (e) {
                 if (e.success) {
                     var user = e.users[0];
@@ -247,6 +251,7 @@ examples:
   - title: Search for Users Example
     example: |
         This example requests information about particular users and checks the response.
+
             Cloud.Users.search({
                 q: 'test'
             }, function (e) {
@@ -268,6 +273,7 @@ examples:
   - title: Query for Users Example
     example: |
         This example requests information about specific users and checks the response.
+
             Cloud.Users.query({
                 page: 1,
                 per_page: 10,
@@ -295,6 +301,7 @@ examples:
   - title: Update User Example
     example: |
         This example updates information about the currently logged in user and checks the response.
+
             Cloud.Users.update({
                 email: 'joeuser@mycompany.com',
                 first_name: 'joe',
@@ -319,6 +326,7 @@ examples:
   - title: Logout User Example
     example: |
         This example logs out the current user and checks the response.
+
             Cloud.Users.logout(function (e) {
                 if (e.success) {
                     alert('Success: Logged out');
@@ -331,6 +339,7 @@ examples:
   - title: Remove User Example
     example: |
         This example deletes the current user and checks the response.
+
             Cloud.Users.remove(function (e) {
                 if (e.success) {
                     alert('Success: Removed');
@@ -343,6 +352,7 @@ examples:
   - title: Request Reset Password User Example
     example: |
         This example requests a password reset for a user and checks the response.
+
             Cloud.Users.requestResetPassword({
                 email: 'joeuser@mycompany.com'
             }, function (e) {

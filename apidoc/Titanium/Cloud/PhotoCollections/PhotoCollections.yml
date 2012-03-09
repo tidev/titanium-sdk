@@ -126,6 +126,7 @@ examples:
   - title: Create Photo Collection Example
     example: |
         This example creates a new photo collection and checks the response.
+
             Cloud.PhotoCollections.create({
                 name: 'Party Pictures'
             }, function (e) {
@@ -145,6 +146,7 @@ examples:
   - title: Show a Photo Collection Example
     example: |
         This example retrieves information about a photo collection and checks the response.
+
             Cloud.PhotoCollections.show({
                 collection_id: savedPhotoCollectionId
             }, function (e) {
@@ -164,6 +166,7 @@ examples:
   - title: Search for Photo Collections Example
     example: |
         This example searches for collections and checks the response.
+
             Cloud.PhotoCollections.search({
                 user_id: savedUserId
             }, function (e) {
@@ -187,6 +190,7 @@ examples:
   - title: Show Photo Subcollections Example
     example: |
         This example requests a list of photo subcollections and checks the response.
+
             Cloud.PhotoCollections.showSubcollections({
                 page: 1,
                 per_page: 20,
@@ -212,6 +216,7 @@ examples:
   - title: Show Photo Collection Photos Example
     example: |
         This example requests a list of photos in a photo collections and checks the response.
+
             Cloud.PhotoCollections.showPhotos({
                 page: 1,
                 per_page: 20,
@@ -241,6 +246,7 @@ examples:
   - title: Update a Photo Collection Example
     example: |
         This example updates a photo collection and checks the response.
+
             Cloud.PhotoCollections.update({
                 collection_id: savedPhotoCollectionId,
                 cover_photo_id: savedPhotoId
@@ -261,6 +267,7 @@ examples:
   - title: Remove a Photo Collection Example
     example: |
         This example deletes a photo collection and checks the response.
+
             Cloud.PhotoCollections.remove({
                 collection_id: savedPhotoCollectionId
             }, function (e) {
