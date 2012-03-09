@@ -523,6 +523,7 @@
 
 		// if we're already loaded or the definition has been cached, then just return now
 		if (_t.loaded || cached) {
+			delete defCache[_t.name];
 			return onLoad(cached);
 		}
 
