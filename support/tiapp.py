@@ -468,18 +468,22 @@ class TiAppXML(object):
 			plist = st + version + fn
 			
 		# replace the CFBundleShortVersionString in case it's changed
-		i = plist.index('CFBundleShortVersionString')
-		if i:
-			i = plist.index('<string>',i+1)
-			e = plist.index('</string>',i+1)
-			st = plist[0:i+8]
-			fn = plist[e:]
-			CFBundleShortVersionString = self.properties['version']
-			app_version_ = CFBundleShortVersionString.split('.')
-			if(len(app_version_) > 3):
-				CFBundleShortVersionString = app_version_[0]+'.'+app_version_[1]+'.'+app_version_[2]
-			plist = st + CFBundleShortVersionString + fn
-			
+		try:
+			i = plist.index('CFBundleShortVersionString')
+			if i:
+				i = plist.index('<string>',i+1)
+				e = plist.index('</string>',i+1)
+				st = plist[0:i+8]
+				fn = plist[e:]
+				CFBundleShortVersionString = self.properties['version']
+				app_version_ = CFBundleShortVersionString.split('.')
+				if(len(app_version_) > 3):
+					CFBundleShortVersionString = app_version_[0]+'.'+app_version_[1]+'.'+app_version_[2]
+				plist = st + CFBundleShortVersionString + fn
+		except ValueError:
+			print "[WARN] You appear to be using a custom Info.plist that does not contain the required CFBundleShortVersionString key."
+			print "[WARN] This will cause problems with App Store submissions if not corrected."
+		
 		i = plist.rindex('</dict>')	
 		if i:
 			before = plist[0:i]
