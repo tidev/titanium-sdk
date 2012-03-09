@@ -349,7 +349,11 @@ NSArray* moviePlayerKeys = nil;
 
 -(NSNumber*)mediaControlStyle
 {
-	return NUMINT([movie controlStyle]);
+    if (movie != nil) {
+        return NUMINT([movie controlStyle]);
+    } else {
+        RETURN_FROM_LOAD_PROPERTIES(@"mediaControlStyle",NUMINT(MPMovieControlStyleDefault));
+    }
 }
 
 -(void)setMedia:(id)media_
@@ -715,7 +719,6 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)stop:(id)args
 {
-	ENSURE_UI_THREAD(stop, args);
 	playing = NO;
 	[movie stop];
 	RELEASE_TO_NIL_AUTORELEASE(movie);
@@ -723,8 +726,6 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)play:(id)args
 {
-	ENSURE_UI_THREAD(play, args);
-	
 	if (playing) {
 		return;
 	}
@@ -748,7 +749,6 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)pause:(id)args
 {
-	ENSURE_UI_THREAD(pause,args)	
 	if (!playing) {
 		return;
 	}
@@ -771,7 +771,6 @@ NSArray* moviePlayerKeys = nil;
 -(void)add:(id)viewProxy
 {
 	ENSURE_SINGLE_ARG(viewProxy,TiViewProxy);
-	ENSURE_UI_THREAD(add,viewProxy);
 	if (views==nil)
 	{
 		views = TiCreateNonRetainingArray();
