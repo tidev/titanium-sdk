@@ -228,6 +228,10 @@ public class TiProperties
 
 	}
 
+	/**
+	 * @param key the lookup list key.
+	 * @return true if the list property exists in preferences
+	 */
 	public boolean hasListProperty(String key) {
 		return hasProperty(key+".0");
 	}

@@ -30,7 +30,19 @@ public interface KrollProxyListener
 	public void processProperties(KrollDict properties);
 	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy);
 	
-	
+	/**
+	 * This method is called when an event listener is added for a specific event.
+	 * @param type the added event listener
+	 * @param count the count of event listeners.
+	 * @param proxy the proxy that added the listener.
+	 */
 	public void listenerAdded(String type, int count, KrollProxy proxy);
+	
+	/**
+	 * This method is called when an event listener is removed for a specific event.
+	 * @param type the removed event listener
+	 * @param count the count of event listeners.
+	 * @param proxy the proxy that removed the listener.
+	 */
 	public void listenerRemoved(String type, int count, KrollProxy proxy);
 }

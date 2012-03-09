@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -57,6 +57,11 @@ public class TiBackgroundDrawable extends StateListDrawable {
 	public void draw(Canvas canvas) {
 		if (border != null) {
 			paint.setColor(border.color);
+
+			if (border.alpha > NOT_SET) {
+				paint.setAlpha(border.alpha);
+			}
+
 			if (border.radius > 0) {
 				canvas.drawRoundRect(outerRect, border.radius, border.radius, paint);
 			} else {
@@ -198,6 +203,7 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		private float radius = 0;
 		private float width = 0;
 		private int style = SOLID;
+		private int alpha = NOT_SET;
 		public int getColor() {
 			return color;
 		}
@@ -221,6 +227,12 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		}
 		public void setStyle(int style) {
 			this.style = style;
+		}
+		public void setAlpha(int alpha) {
+			this.alpha = alpha;
+		}
+		public int getAlpha() {
+			return alpha;
 		}
 	}
 
@@ -254,6 +266,9 @@ public class TiBackgroundDrawable extends StateListDrawable {
 	{
 		super.setAlpha(alpha);
 		this.alpha = alpha;
+		if (border != null) {
+			border.setAlpha(alpha);
+		}
 	}
 
 //	public Drawable getBackgroundDrawable() {

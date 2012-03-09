@@ -1,162 +1,216 @@
-define("Ti/Geolocation", ["Ti/_/Evented"], function(Evented) {
+define(["Ti/_/Evented", "Ti/_/lang", "Ti/Network"], function(Evented, lang, Network) {
 	
-	(function(api){
-		// Interfaces
-		Ti._5.EventDriven(api);
+	var api,
+		on = require.on,
+		compassSupport = false,
+		currentHeading,
+		removeHeadingEventListener,
+		locationWatchId,
+		currentLocation,
+		numHeadingEventListeners = 0,
+		numLocationEventListeners = 0,
+		isDef = lang.isDef,
+		undef;
 	
-		var undef;
-	
-		// Properties
-		Ti._5.propReadOnly(api, {
-			ACCURACY_BEST: 0,
-			ACCURACY_HUNDRED_METERS: 2,
-			ACCURACY_KILOMETER: 3,
-			ACCURACY_NEAREST_TEN_METERS: 1,
-			ACCURACY_THREE_KILOMETERS: 4,
-	
-			AUTHORIZATION_AUTHORIZED: 4,
-			AUTHORIZATION_DENIED: 1,
-			AUTHORIZATION_RESTRICTED: 2,
-			AUTHORIZATION_UNKNOWN: 0,
-	
-			ERROR_DENIED: 1,
-			ERROR_HEADING_FAILURE: 2,
-			ERROR_LOCATION_UNKNOWN: 3,
-			ERROR_NETWORK: 0,
-			ERROR_REGION_MONITORING_DELAYED: 4,
-			ERROR_REGION_MONITORING_DENIED: 5,
-			ERROR_REGION_MONITORING_FAILURE: 6,
-	
-			PROVIDER_GPS: 1,
-			PROVIDER_NETWORK: 2
+	function singleShotHeading(callback) {
+		var removeOrientation = on(window,"deviceorientation",function(e) {
+			removeOrientation();
+			callback(e);
 		});
+	}
+	singleShotHeading(function(e) {
+		isDef(e.webkitCompassHeading) && (compassSupport = true);
+	});
+	function createHeadingCallback(callback) {
+		return function(e) {
+			currentHeading = {
+				heading: {
+					accuracy: e.webkitCompassAccuracy,
+					magneticHeading: e.webkitCompassHeading
+				},
+				success: true,
+				timestamp: (new Date()).getTime()
+				
+			};
+			api.fireEvent("heading", currentHeading);
+			callback && callback(currentHeading);
+		}
+	}
 	
-		Ti._5.prop(api, {
-			accuracy: api.ACCURACY_BEST,
-			locationServicesAuthorization: undef,
-			locationServicesEnabled: undef,
-			preferredProvider: undef,
-			purpose: undef,
-			showCalibration: true
-		});
+	function createLocationCallback(callback) {
+		return function(e) {
+			var success = "coords" in e;
+			currentLocation = {
+				success: success
+			};
+			success ? (currentLocation.coords = e.coords) : (currentLocation.code = e.code);
+			api.fireEvent("location", currentLocation);
+			callback && callback(currentLocation);
+		}
+	}
+	function createLocationArguments() {
+		return {
+			enableHighAccuracy: api.accuracy === api.ACCURACY_BEST,
+			timeout: api.MobileWeb.locationTimeout,
+			maximumAge: api.MobileWeb.maximumLocationAge
+		}
+	}
 	
-		// Methods
-		api.getCurrentPosition = function(callbackFunc) {
-			if (_lastPosition && require.is(callbackFunc, "Function")) {
-				callbackFunc(_lastPosition);
+	api = lang.setObject("Ti.Geolocation", Evented, {
+		
+		getCurrentPosition: function(callback) {
+			if (api.locationServicesEnabled) {
+				navigator.geolocation.getCurrentPosition(
+					createLocationCallback(callback),
+					createLocationCallback(callback),
+					createLocationArguments()
+				);
+			}
+		},
+		
+		getCurrentHeading: function(callback) {
+			if (compassSupport) {
+				if (currentHeading && (new Date()).getTime() - currentHeading.timestamp < api.maximumHeadingAge) {
+					callback(currentHeading);
+				} else {
+					singleShotHeading(createHeadingCallback(callback));
+				}
+			}
+		},
+		
+		forwardGeocoder: function(address, callback) {
+			if (!require.is(address,"String")) {
 				return;
 			}
-			if (_lastError) {
-				require.is(callbackFunc, "Function") && callbackFunc(_lastError);
-				return;
-			}
-			navigator.geolocation.getCurrentPosition(
-				function(oPos){
-					require.is(callbackFunc, "Function") && callbackFunc({
-						code: 0,
-						coords: {
-							latitude : oPos.coords.latitude,
-							longitude : oPos.coords.longitude,
-							altitude : oPos.coords.altitude,
-							heading : oPos.coords.heading,
-							accuracy : oPos.coords.accuracy,
-							speed : oPos.coords.speed,
-							altitudeAccuracy : oPos.coords.altitudeAccuracy,
-							timestamp : oPos.timestamp
-						},
-						error: "",
-						success: true
+			var client = Ti.Network.createHTTPClient({
+				onload : function(e) {
+					var responseParts = this.responseText.split(",");
+					callback({
+						success: true,
+						places: [{
+							latitude: parseFloat(responseParts[2]),
+							longitude: parseFloat(responseParts[3])
+						}]
 					});
 				},
-				function(oError){
-					require.is(callbackFunc, "Function") && callbackFunc({
-						coords: null,
-						error: oError.message,
-						message: oError.message,
+				onerror : function(e) {
+					callback({
 						success: false
 					});
 				},
-				{
-					enableHighAccuracy : _accuracy < 3 || api.ACCURACY_BEST === _accuracy
-				}
-			);
-		};
-	
-		var _watchId,
-			_oldAddEventListener = api.addEventListener, // WARNING: this may cause problems
-			_lastPosition = null,
-			_lastError = null;
-	
-		api.addEventListener = function(eventType, callback){
-			_oldAddEventListener(eventType, callback);
-			if(eventType == "location"){
-				_watchId = navigator.geolocation.watchPosition(
-					function(oPos){
-						_lastError = null;
-	
-						api.fireEvent("location", _lastPosition = {
-							code: 0,
-							coords : {
-								latitude : oPos.coords.latitude,
-								longitude : oPos.coords.longitude,
-								altitude : oPos.coords.altitude,
-								heading : oPos.coords.heading,
-								accuracy : oPos.coords.accuracy,
-								speed : oPos.coords.speed,
-								altitudeAccuracy : oPos.coords.altitudeAccuracy,
-								timestamp : oPos.timestamp
-							},
-							error: "",
-							provider: null,
-							success: true
-						});
-						/*
-						if (oPos.heading) {
-							api.fireEvent("heading", oPos);
+				timeout : api.MobileWeb.forwardGeocoderTimeout
+			});
+			client.open("GET", "http://api.appcelerator.com/p/v1/geo?d=f&" + 
+				// TODO "c=" + Locale.getCurrentCountry() + 
+				"q=" + escape(address));
+			client.send();
+		},
+		
+		reverseGeocoder: function(latitude, longitude, callback) {
+			if (!isDef(latitude) || !isDef(longitude)) {
+				return;
+			}
+			var client = Ti.Network.createHTTPClient({
+				onload : function(e) {
+					callback(JSON.parse(this.responseText));
+				},
+				onerror : function(e) {
+					callback({
+						success: false
+					});
+				},
+				timeout : api.MobileWeb.forwardGeocoderTimeout
+			});
+			client.open("GET", "http://api.appcelerator.com/p/v1/geo?d=r&" + 
+				// TODO "c=" + Locale.getCurrentCountry() + 
+				"q=" + latitude + "," + longitude);
+			client.send();
+		},
+		
+		// Hook in to add/remove event listener so that we can disable the geo and compass intervals
+		addEventListener: function(name, handler) {
+			switch(name) {
+				case "heading": 
+					if (compassSupport) {
+						numHeadingEventListeners++;
+						if (numHeadingEventListeners === 1) {
+							removeHeadingEventListener = on(window,"deviceorientation",createHeadingCallback());
 						}
-						*/
-					},
-					function(oError){
-						_lastPosition = null;
-	
-						api.fireEvent("location", _lastError = {
-							coords: null,
-							error: oError.message,
-							message: oError.message,
-							provider: null,
-							success: false
-						});
-						/*
-						if (oPos.heading) {
-							api.fireEvent("heading", oPos);
-						}
-						*/
-					},
-					{
-						enableHighAccuracy : _accuracy < 3 || api.ACCURACY_BEST === _accuracy
 					}
-				);
+					break;
+				case "location": {
+					if (api.locationServicesEnabled) {
+						numLocationEventListeners++;
+						if (numLocationEventListeners === 1) {
+							locationWatchId = navigator.geolocation.watchPosition(
+								createLocationCallback(),
+								createLocationCallback(),
+								createLocationArguments()
+							);
+						}
+					}
+					break;
+				}
 			}
-		};
-		var _oldRemoveEventlistener = api.removeEventListener; // WARNING: this may cause problems
-		api.removeEventListener = function(eventName, cb){
-			_oldRemoveEventlistener(eventName, cb);
-			if(eventName == "location"){
-				navigator.geolocation.clearWatch(_watchId);
+			Evented.addEventListener.call(this,name,handler);
+		},
+		
+		removeEventListener: function(name, handler) {
+			switch(name) {
+				case "heading": 
+					if (compassSupport) {
+						numHeadingEventListeners--;
+						if (numHeadingEventListeners === 0) {
+							removeHeadingEventListener();
+						}
+					}
+					break;
+				case "location": {
+					if (api.locationServicesEnabled) {
+						numLocationEventListeners--;
+						if (numHeadingEventListeners < 1) {
+							navigator.geolocation.clearWatch(locationWatchId);
+						}
+					}
+					break;
+				}
 			}
-		};
+			Evented.removeEventListener.call(this,name,handler);
+		},
+		
+		constants: {
+			
+			ACCURACY_BEST: 1,
+			
+			ACCURACY_LOW: 2,
+			
+			ERROR_DENIED: 1,
+			
+			ERROR_LOCATION_UNKNOWN: 2,
+			
+			ERROR_TIMEOUT: 3,
+			
+			locationServicesEnabled: {
+				get: function() {
+					return !!navigator.geolocation;
+				}
+			},
+			
+			MobileWeb: {
+				locationTimeout: Infinity,
+				maximumLocationAge: 0,
+				maximumHeadingAge: 1000,
+				forwardGeocoderTimeout: undef,
+				reverseGeocoderTimeout: undef
+			}
+			
+		},
 	
-		api.forwardGeocoder = function(address, callbackFunc) {};
-		api.getCurrentHeading = function(callbackFunc) {};
-		api.reverseGeocoder = function(latitude, longitude, callbackFunc) {};
-		api.setShowCalibration = function(val) {
-			/*
-			if ("undefined" == typeof val) {
-				val = true;
-			}
-			*/
-			api.showCalibration = !!val;
-		};
-	})(Ti._5.createClass("Ti.Geolocation"));
+		properties: {
+			accuracy: 2
+		}
+	
+	});
+	return api;
 
 });

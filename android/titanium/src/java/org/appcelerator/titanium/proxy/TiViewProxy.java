@@ -56,6 +56,9 @@ import android.view.View;
 	"focusable", "touchEnabled", "visible", "enabled", "opacity",
 	"softKeyboardOnFocus", "transform"
 })
+/**
+ * The parent class of view proxies.
+ */
 public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 {
 	private static final String LCAT = "TiViewProxy";
@@ -89,6 +92,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	private boolean isDecorView = false;
 	private AtomicBoolean layoutStarted = new AtomicBoolean();
 	
+	/**
+	 * Constructs a new TiViewProxy instance.
+	 */
 	public TiViewProxy()
 	{
 		langConversionTable = getLangConversionTable();
@@ -239,6 +245,26 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return options;
 	}
 
+	/**
+	 * @return the language conversion table used to load localized values for certain properties from the locale files.
+	 *	For each localizable property, such as "title," the proxy should define a second property, such as "titleid", used to specify a 
+	 *	localization key for that property. If the user specifies a localization key in "titleid", the corresponding localized text from the locale file 
+	 *	is used for "title."
+	 *
+	 *	Subclasses should override this method to return a table mapping localizable properties to the corresponding localization key properties.
+	 *
+	 *	For example, if the proxy has two properties, "title" and "text", and the corresponding localization key properties are "titleid" and "textid", this might look like:
+	 *	</br>
+	 * 
+	 *	<pre><code>protected KrollDict getLangConversionTable() 
+	 *{	
+	 *	KrollDict table = new KrollDict();
+	 *	table.put("title", "titleid"); 
+	 *	table.put("text", "textid"); 
+	 *	return table; 
+	 *} </pre> </code>
+	 *
+	 */
 	protected KrollDict getLangConversionTable()
 	{
 		// subclasses override to return a table mapping of langid keys to actual keys
@@ -434,6 +460,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		view = null;
 	}
 
+	/**
+	 * @return the TiUIView associated with this proxy.
+	 */
 	public TiUIView peekView()
 	{
 		return view;
@@ -450,6 +479,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return getOrCreateView();
 	}
 
+	/**
+	 * Creates or retrieves the view associated with this proxy.
+	 * @return a TiUIView instance.
+	 */
 	public TiUIView getOrCreateView()
 	{
 		if (activity == null || view != null) {
@@ -521,8 +554,14 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			view = null;
 		}
 		setModelListener(null);
+		KrollRuntime.suggestGC();
 	}
 
+	/**
+	 * Implementing classes should use this method to create and return the appropriate view.
+	 * @param activity the context activity.
+	 * @return a TiUIView instance.
+	 */
 	public abstract TiUIView createView(Activity activity);
 
 	@Kroll.method
@@ -820,6 +859,28 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				setClickable(false);
 			}
 		}
+	}
+	
+	/** 
+	 * Return true if any view in the hierarchy has the event listener.
+	 */
+	public boolean hierarchyHasListener(String eventName)
+	{
+		boolean hasListener = hasListeners(eventName);
+		
+		// Check whether the parent has the listener or not
+		if (!hasListener) {
+			TiViewProxy parent = getParent();
+			if (parent != null) {
+				boolean parentHasListener = parent.hierarchyHasListener(eventName);
+				hasListener = hasListener || parentHasListener;
+				if (hasListener) {
+					return hasListener;
+				}
+			}
+		}
+		
+		return hasListener;
 	}
 
 	public void setClickable(boolean clickable)
