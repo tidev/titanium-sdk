@@ -2105,14 +2105,20 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         {
             if (!TiDimensionIsUndefined([child layoutProperties]->top) && !TiDimensionIsUndefined([child layoutProperties]->centerY) ) {
                 CGFloat height = 2 * ( TiDimensionCalculateValue([child layoutProperties]->centerY, bounds.size.height) - TiDimensionCalculateValue([child layoutProperties]->top, bounds.size.height) );
+                height -= verticalLayoutBoundary;
+                bounds.size.height = height;
                 verticalLayoutBoundary += height + offset;
             }
             else if (!TiDimensionIsUndefined([child layoutProperties]->top) && !TiDimensionIsUndefined([child layoutProperties]->bottom) ) {
                 CGFloat height = TiDimensionCalculateMargins([child layoutProperties]->top, [child layoutProperties]->bottom, bounds.size.height);
+                height -= verticalLayoutBoundary;
+                bounds.size.height = height;
                 verticalLayoutBoundary += height + offset;
             }
             else if (!TiDimensionIsUndefined([child layoutProperties]->centerY) && !TiDimensionIsUndefined([child layoutProperties]->bottom) ) {
                 CGFloat height = 2 * ( bounds.size.height - TiDimensionCalculateValue([child layoutProperties]->bottom, bounds.size.height) - TiDimensionCalculateValue([child layoutProperties]->centerY, bounds.size.height));
+                height -= verticalLayoutBoundary;
+                bounds.size.height = height;
                 verticalLayoutBoundary += height + offset;
             }
             else if (followsFillBehavior) {
