@@ -346,18 +346,72 @@ properties:
 
   - name: windowSoftInputMode
     summary: |
-        Determines how the window is treated when a soft input method (such as a
-        virtual keyboard) is displayed.
+        Determines whether a heavyweight window's soft input area (ie software keyboard) is visible 
+        as it receives focus and how the window behaves in order to accomodate it while keeping its 
+        contents in view.
     description: |
-        Specify one of [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN),
-        [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE),
-        or [SOFT_INPUT_ADJUST_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED).
-
-        For more information see the Android API Reference: 
+        In order for this property to take effect on an emulator, its Android Virtual Device (AVD) 
+        must be configured with the `Keyboard Support` setting set to `No`. Note that it is always 
+        recommended to test an application on a physical device to understand its true behavior.
+        
+        This property is capable of representing two settings from the following two groups of 
+        settings using the [bitwise OR](http://en.wikipedia.org/wiki/Bitwise_operation#OR) operation. 
+        
+        One of the group of soft input *visibility* constants, 
+        [SOFT_INPUT_STATE_ALWAYS_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_HIDDEN), 
+        [SOFT_INPUT_STATE_ALWAYS_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE), 
+        [SOFT_INPUT_STATE_HIDDEN](Titanium.UI.Android.SOFT_INPUT_STATE_HIDDEN), 
+        [SOFT_INPUT_STATE_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_STATE_UNSPECIFIED), 
+        or [SOFT_INPUT_STATE_VISIBLE](Titanium.UI.Android.SOFT_INPUT_STATE_VISIBLE).
+        
+        One of the group of soft input *adjustment* constants, 
+        [SOFT_INPUT_ADJUST_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED), 
+        [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE), 
+        or [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN).
+        
+        Note that in Javascript, bitwise OR is achieved using the single pipe operand. See the 
+        example for a demonstration.
+        
+        For more information, see the official Android Developers website API Reference for 
         [Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
     platforms: [android]
     type: Number
     availability: creation
+    examples:
+      - title: Soft Input Visibility and Adjustment
+        example: |
+            Create a white window and respond to a click of it to open a red window containing a 
+            text area. Show the software keyboard automatically as the red window opens.
+                
+                var win1 = Ti.UI.createWindow({
+                  backgroundColor: 'white',
+                  exitOnClose: true,
+                  fullscreen: false,
+                  title: 'Click window to test'
+                });
+
+                // use bitwise OR to combine two settings for the windowSoftInputMode property
+                var softInput = Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE | Ti.UI.Android.SOFT_INPUT_ADJUST_PAN;
+
+                win1.addEventListener('click', function(){
+                var win2 = Ti.UI.createWindow({
+                  backgroundColor: 'red',
+                  fullscreen: false,
+                  windowSoftInputMode: softInput
+                });
+
+                var textArea = Ti.UI.createTextArea({
+                  value : 'I am a textarea',
+                  height : 200,
+                  width : 300,
+                  top : 200
+                });
+                win2.add(textArea);
+                win2.open();
+                });
+
+                win1.open();
+
   - name: windowPixelFormat
     summary: Set the pixel format for the Activity's Window.
     description: |
@@ -435,7 +489,7 @@ description: |
     Now, you can create a new Window - let's call it `foo.js` - in your `app.js`.
 
         var w = Titanium.UI.createWindow({
-        	url:'foo.js'
+          url:'foo.js'
         });
 
     To _give_ your new window access to `message`, you would need to assign it to a
@@ -460,13 +514,13 @@ description: |
 
         Titanium.UI.currentWindow.addEventListener('foo',function(e)
         {
-        	Titanium.API.info("foo event received = "+JSON.stringify(e));
+          Titanium.API.info("foo event received = "+JSON.stringify(e));
         });
 
     You could now fire the event from `app.js` like this:
 
         var window = Titanium.UI.createWindow({
-        	url:'bar.js'
+          url:'bar.js'
         });
         window.open();
         window.fireEvent('foo',{a:'b'});
@@ -505,14 +559,14 @@ description: |
 
         // create a window with the initial transform scaled to 0
         var w = Titanium.UI.createWindow({
-        	backgroundColor:'#336699',
-        	borderWidth:8,
-        	borderColor:'#999',
-        	height:400,
-        	width:300,
-        	borderRadius:10,
-        	opacity:0.92,
-        	transform:t
+          backgroundColor:'#336699',
+          borderWidth:8,
+          borderColor:'#999',
+          height:400,
+          width:300,
+          borderRadius:10,
+          opacity:0.92,
+          transform:t
         });
 
         // create first transform to go beyond normal size
@@ -526,8 +580,8 @@ description: |
         a.addEventListener('complete', function()
         {
             // we can use the identity transform to take it back to it's real size
-        	var t2 = Titanium.UI.create2DMatrix();
-        	w.animate({transform:t2, duration:200});
+          var t2 = Titanium.UI.create2DMatrix();
+          w.animate({transform:t2, duration:200});
         });
 
     #### iPad Modal Windows
@@ -551,9 +605,9 @@ description: |
 
         var window = Titanium.UI.createWindow();
         window.open({
-        	modal:true,
-        	modalTransitionStyle: Ti.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,
-        	modalStyle: Ti.UI.iPhone.MODAL_PRESENTATION_FORMSHEET
+          modal:true,
+          modalTransitionStyle: Ti.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,
+          modalStyle: Ti.UI.iPhone.MODAL_PRESENTATION_FORMSHEET
         })
 
     #### Android Heavyweight and Lightweight Windows
@@ -591,8 +645,8 @@ description: |
     button is pressed, pass `exitOnClose: true` as one of the creation arguments, as shown here:
 
         var win = Titanium.UI.createWindow({
-        	title: 'My Root Window',
-        	exitOnClose: true
+          title: 'My Root Window',
+          exitOnClose: true
         });
 
 

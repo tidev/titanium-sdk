@@ -68,7 +68,6 @@ run_drillbit = "drillbit" in COMMAND_LINE_TARGETS or ARGUMENTS.get("drillbit",0)
 if clean and os.path.exists('iphone/iphone/build'):
 	shutil.rmtree('iphone/iphone/build')
 
-# TEMP until android is merged
 build_type = 'full'
 build_dirs = ['iphone', 'android', 'mobileweb']
 force_iphone = False
