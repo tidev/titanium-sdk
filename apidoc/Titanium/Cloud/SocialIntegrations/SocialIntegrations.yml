@@ -57,7 +57,7 @@ methods:
         type: Callback<CloudSocialIntegrationsResponse>
 
   - name: searchFacebookFriends
-    summary: ???.
+    summary: Returns a list of the current user's Facebook friends who are also using this application.
     description: |
         See [Social Integration: Find Facebook Friends](http://cloud.appcelerator.com/docs/api/v1/social/facebook_friends)
         for the request parameters supported by this method.
