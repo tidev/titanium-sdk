@@ -6,6 +6,7 @@ var require = {
 		guid: "${app_guid | jsQuoteEscapeFilter}",
 		id: "${app_name | jsQuoteEscapeFilter}",
 		name: "${app_name | jsQuoteEscapeFilter}",
+		names: ${app_names},
 		publisher: "${app_publisher | jsQuoteEscapeFilter}",
 		url: "${app_url | jsQuoteEscapeFilter}",
 		version: "${app_version | jsQuoteEscapeFilter}"
@@ -33,6 +34,7 @@ var require = {
 		},
 		"opera": typeof opera === "undefined" || opera.toString() != "[object Opera]"
 	},
+	locales: ${locales},
 	packages: ${packages},
 	project: {
 		id: "${project_id | jsQuoteEscapeFilter}",
@@ -44,7 +46,6 @@ var require = {
 		filesystem: {
 			registry: "${ti_fs_registry}"
 		},
-		preload: ${preload},
 		version: "${ti_version | jsQuoteEscapeFilter}"
 	},
 	vendorPrefixes: {
