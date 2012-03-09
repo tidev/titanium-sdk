@@ -39,7 +39,7 @@
 
 @end
 
-@interface TiUITableView : TiUIView<UISearchDisplayDelegate,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiScrollableView> {
+@interface TiUITableView : TiUIView<UISearchDisplayDelegate,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiScrolling> {
 @private
 	UITableView *tableview;
 	BOOL moving;
