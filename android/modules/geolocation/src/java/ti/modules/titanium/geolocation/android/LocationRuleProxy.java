@@ -104,7 +104,7 @@ public class LocationRuleProxy extends KrollProxy
 		}
 
 		Object rawMinAge = properties.get(TiC.PROPERTY_MIN_AGE);
-		if(rawMinAge != null) {
+		if((rawMinAge != null) && (currentLocation != null)) {
 			double minAgeValue = TiConvert.toDouble(rawMinAge);
 			if(minAgeValue > (newLocation.getTime() - currentLocation.getTime())) {
 				passed = false;
@@ -112,7 +112,7 @@ public class LocationRuleProxy extends KrollProxy
 		}
 
 		Object rawMaxAge = properties.get(TiC.PROPERTY_MAX_AGE);
-		if(rawMaxAge != null) {
+		if((rawMaxAge != null) && (currentLocation != null)) {
 			double maxAgeValue = TiConvert.toDouble(rawMaxAge);
 			if(maxAgeValue > (newLocation.getTime() - currentLocation.getTime())) {
 				passed = false;
