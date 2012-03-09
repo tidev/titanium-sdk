@@ -44,7 +44,7 @@
 	return [self sizeForFont:suggestedWidth].width;
 }
 
--(CGFloat)contentoHeightForWidth:(CGFloat)width
+-(CGFloat)contentHeightForWidth:(CGFloat)width
 {
 	CGSize fontSize = [self sizeForFont:width];
 	CGSize progressSize = [progress sizeThatFits:fontSize];
