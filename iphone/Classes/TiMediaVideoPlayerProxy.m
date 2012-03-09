@@ -194,16 +194,16 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)viewDidDetach
 {
-	if (playing) {
-		[movie stop];
-	}
+	[movie stop];
 	RELEASE_TO_NIL(movie);
 	reallyAttached = NO;
 }
 
 -(void)windowWillClose
 {
-    [movie.view removeFromSuperview];
+    [super windowWillClose];
+    [movie stop];
+    [(TiMediaVideoPlayer*)self.view setMovie:nil];
 }
 
 #pragma mark Public APIs
