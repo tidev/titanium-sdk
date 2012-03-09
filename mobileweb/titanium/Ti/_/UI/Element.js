@@ -151,12 +151,7 @@ define(
 		
 		_markedForLayout: false,
 		
-		_triggerLayout: function(force) {
-			
-			if (this._markedForLayout && !force) {
-				return;
-			}
-			
+		_isAttachedToActiveWin: function() {
 			// If this element is not attached to an active window, skip the calculation
 			var isAttachedToActiveWin = false,
 				node = this;
@@ -167,7 +162,17 @@ define(
 				}
 				node = node._parent;
 			}
-			if (!isAttachedToActiveWin) {
+			return isAttachedToActiveWin;
+		},
+		
+		_triggerLayout: function(force) {
+			
+			if (this._markedForLayout && !force) {
+				return;
+			}
+			
+			// If this element is not attached to an active window, skip the calculation
+			if (!this._isAttachedToActiveWin()) {
 				return;
 			}
 			
@@ -268,22 +273,6 @@ define(
 				this._measuredBorderSize = dimensions.borderSize;
 				setStyle(this.domNode, styles);
 			
-				try{
-					var computedStyle = window.getComputedStyle(this.domNode);
-					if (styles.left && computedStyle["left"] != styles.left) {
-						throw "Invalid layout";
-					}
-					if (styles.top && computedStyle["top"] != styles.top) {
-						throw "Invalid layout";
-					}
-					if (styles.width && computedStyle["width"] != styles.width) {
-						throw "Invalid layout";
-					}
-					if (styles.height && computedStyle["height"] != styles.height) {
-						throw "Invalid layout";
-					}
-				} catch(e) {}
-				
 				this._markedForLayout = false;
 				
 				// Run the post-layout animation, if needed
@@ -325,18 +314,6 @@ define(
 			
 			is(width,"Number") && (width = Math.max(width,0));
 			is(height,"Number") && (height = Math.max(height,0));
-				
-			function validate() {
-				try{
-					if(is(left,"Number") && isNaN(left) || 
-						is(top,"Number") && isNaN(top) || 
-						is(width,"Number") && (isNaN(width) || width < 0) || 
-						is(height,"Number") && (isNaN(height) || height < 0)) {
-					 	throw "Invalid layout";
-					}
-				} catch(e) {}
-			}
-			validate();
 
 			// Unfortunately css precidence doesn't match the titanium, so we have to handle precedence and default setting ourselves
 			if (isDef(width)) {
@@ -418,7 +395,6 @@ define(
 					}
 				}
 			}
-			validate();
 			
 			function getBorderSize() {
 				
@@ -480,7 +456,6 @@ define(
 				}
 				height -= borderSize.top + borderSize.bottom;
 			}
-			validate();
 
 			if (this._getContentSize) {
 				var contentSize = this._getContentSize();
@@ -496,7 +471,6 @@ define(
 				width === UI.SIZE && (width = computedSize.width);
 				height === UI.SIZE && (height = computedSize.height);
 			}
-			validate();
 			
 			if (calculateWidthAfterChildren) {
 				if (isDef(right) && !isDef(left)) {
@@ -508,7 +482,6 @@ define(
 					top = bottom - height;
 				}
 			}
-			validate();
 
 			// Set the default top/left if need be
 			if (left === "calculateDefault") {
@@ -533,7 +506,6 @@ define(
 					top = 0;
 				}
 			}
-			validate();
 			
 			// Calculate the "padding" and apply the origin
 			var leftPadding = left,
@@ -544,17 +516,6 @@ define(
 			left += origin.x;
 			top += origin.y;
 
-			if(!is(left,"Number") || isNaN(left) || 
-				!is(top,"Number") || isNaN(top) || 
-				!is(rightPadding,"Number") || isNaN(rightPadding) || 
-				!is(bottomPadding,"Number") || isNaN(bottomPadding) || 
-				!is(width,"Number") || isNaN(width) || 
-				!is(height,"Number") || isNaN(height)) {
-			 	try{
-			 		throw "Invalid layout";
-			 	} catch(e) {}
-			}
-			
 			return {
 				left: Math.round(left),
 				top: Math.round(top),
@@ -564,6 +525,39 @@ define(
 				height: Math.round(Math.max(height,0)),
 				borderSize: borderSize
 			};
+		},
+		
+		convertPointToView: function(point, destinationView) {
+			
+			// Make sure that both nodes are connected to the root
+			if (!this._isAttachedToActiveWin() || !destinationView._isAttachedToActiveWin()) {
+				return null;
+			}
+			
+			if (!point || !is(point.x,"Number") || !is(point.y,"Number")) {
+				throw new Error("Invalid point");
+			}
+			
+			if (!destinationView.domNode) {
+				throw new Error("Invalid destination view");
+			}
+			
+			function getAbsolutePosition(node, point, additive) {
+				var x = point.x,
+					y = point.y,
+					multiplier = (additive ? 1 : -1);
+					
+				while(node) {
+					x += multiplier * node.domNode.offsetLeft;
+					y += multiplier * node.domNode.offsetTop;
+					node = node._parent;
+				}
+					
+				return {x: x, y: y};
+			}
+			
+			// Find this node's location relative to the root
+			return getAbsolutePosition(destinationView,getAbsolutePosition(this,point,true),false);
 		},
 
 		// This method returns the offset of the content relative to the parent's location. 
