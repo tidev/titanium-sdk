@@ -53,7 +53,7 @@ public class TiVideoActivity extends Activity
 			getWindow().setBackgroundDrawable(d);
 		}
 
-		layout = new TiCompositeLayout(this, null);
+		layout = new TiCompositeLayout(this);
 		layout.addView(new TiVideoView8(this), new TiCompositeLayout.LayoutParams());
 
 		setContentView(layout);
