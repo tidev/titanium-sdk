@@ -137,6 +137,10 @@ public class TiLocation implements Handler.Callback
 
 		for (String provider : knownProviders) {
 			Location lastKnownLocation = locationManager.getLastKnownLocation(provider);
+			if(lastKnownLocation == null) {
+				continue;
+			}
+
 			if ((latestKnownLocation == null) || (lastKnownLocation.getTime() > latestKnownLocation.getTime())) {
 				latestKnownLocation = lastKnownLocation;
 			}
