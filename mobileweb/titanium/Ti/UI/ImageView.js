@@ -227,7 +227,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 							setStyle(img.domNode, "display", "none");
 							imgs.push(img);
 							this.add(img);
-						});
+						}, this);
 					}
 					this._images = imgs;
 					return value;
