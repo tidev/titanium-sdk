@@ -42,6 +42,8 @@
 
 /**
  Provides access to the data byte order.
+ 
+ The byte order values are: 1 - little-endian, 2 - big-endian.
  */
 @property(nonatomic,retain) NSNumber* byteOrder;
 

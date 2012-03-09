@@ -236,10 +236,10 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(id<NSFastEnumeration>)allKeys;
 
 /**
- Returns the properties must be set first, and in a specific order, on the proxy object.
- Properties which are not in this list are set in an undefined order.
+ Returns an array of properties that must be set on the proxy object in a specific order, ordered from first to last.
+ Any properties which are not in this list are set after the listed properties, and are set in undefined order.
  
- Should be overrided in the views where the order in which keys are applied matters.
+ Override this method if the order in which properties are set is significant.
  @return The array of property keys.
  */
 -(NSArray *)keySequence;

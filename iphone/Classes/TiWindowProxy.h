@@ -172,7 +172,9 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args);
 -(void)_associateTab:(UIViewController*)controller_ navBar:(UINavigationController*)navbar_ tab:(TiProxy<TiTab>*)tab_;
 
 /**
- Tells the window proxy to do a preparation to be added to UINavigationController.
+ Prepares the window proxy to be added to a UINavigationController.
+ 
+ Called in place of open for windows that belong to navigation groups.
  @param navController The navigation view controller the window proxy will be added to.
  */
 -(void)prepareForNavView:(UINavigationController*)navController;

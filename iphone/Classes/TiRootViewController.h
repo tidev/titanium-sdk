@@ -121,7 +121,7 @@
 -(NSTimeInterval)suggestedRotationDuration;
 
 /**
- Tells the controller to perform rotation to the specified orientation.
+ Tells the controller to rotate to the specified orientation.
  @param newOrientation The new orientation.
  @param duration The rotation animation duration.
  */
