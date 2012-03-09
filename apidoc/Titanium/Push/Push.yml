@@ -19,7 +19,6 @@ description: |
 platforms: [android]
 since: "2.0.0"
 extends: Titanium.Module
-excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 properties:
   - name: deviceToken
     summary: A token which uniquely identifies this installation of the application.
@@ -123,27 +122,25 @@ events:
     description: |
         If your application is not running when a push is received, the push will be saved in a queue until the next
         time you add an event listener for this.
-        
+
         This will only be fired once per push notification.
-        
+
         This event will be fired at different times depending on your settings and the application's present state
         (foreground, background, or not running at all). When [focusAppOnPush](Titanium.Push.focusAppOnPush) is true, this
         will fire as soon as you receive a push. When [showTrayNotification](Titanium.Push.showTrayNotification) is true, this
         will fire as soon as the user touches the tray notification to focus your application. Or, if
         [showTrayNotificationsWhenFocused](Titanium.Push.showTrayNotificationsWhenFocused) is false, and your application is
-        in the foreground, it will be called right away. If both [focusAppOnPush](Titanium.Push.focusAppOnPush) 
+        in the foreground, it will be called right away. If both [focusAppOnPush](Titanium.Push.focusAppOnPush)
         and [showTrayNotification](Titanium.Push.showTrayNotification) are false, this will fire the next time your
         application is launched and you add an event listener for it.
-        
+
         You can use the [trayClickLaunchedApp](Titanium.Push.trayClickLaunchedApp) and
         [trayClickFocusedApp](Titanium.Push.trayClickFocusedApp) events to distinguish between the various ways
         a push notification can return a user to your application.
-properties:
-  - name: payload
-    summary: A JSON string of your data payload.
-    description: |
-        Use JSON.parse to turn this in to an object you can use.
-    type: String
+    properties:
+      - name: payload
+        summary: A JSON string of your data payload. Use JSON.parse to turn this in to an object you can use.
+        type: String
 examples:
   - title: Listening for Push Notifications
     example: |

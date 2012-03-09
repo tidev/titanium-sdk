@@ -43,16 +43,16 @@ description: |
 
     The value for each setting that will be used is based on the following rules:
 
-        * OAuth is preferred over apiKey. If both the OAuth key and OAuth secret are provided then OAuth will be used; otherwise, apiKey will be used.
-        * If a deployment-specific setting is provided (production or development) then that value will be used for the current deployment environment.
-        * Properties set in the application JavaScript will override any settings in `tiapp.xml`
+    * OAuth is preferred over apiKey. If both the OAuth key and OAuth secret are provided then OAuth will be used; otherwise, apiKey will be used.
+    * If a deployment-specific setting is provided (production or development) then that value will be used for the current deployment environment.
+    * Properties set in the application JavaScript will override any settings in `tiapp.xml`
 
     Order of precedence is as follows:
 
-        1. Application JavaScript deployment-specific property (e.g. Cloud.apiKeyDevelopment)
-        2. Application JavaScript property (e.g. Cloud.apiKey)
-        3. `tiapp.xml` deployment-specific setting (e.g. acs-api-key-development)
-        4. `tiapp.xml` setting (e.g. acs-api-key)
+    1. Application JavaScript deployment-specific property (e.g. Cloud.apiKeyDevelopment)
+    2. Application JavaScript property (e.g. Cloud.apiKey)
+    3. `tiapp.xml` deployment-specific setting (e.g. acs-api-key-development)
+    4. `tiapp.xml` setting (e.g. acs-api-key)
 
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
@@ -128,6 +128,7 @@ examples:
   - title: Override Base URL Example
     example: |
         This example overrides the base URL.
+
             Cloud.baseURL = '\<ACS CLOUD SERVICES URL\>';
             Cloud.baseURLDevelopment = '\<ACS CLOUD SERVICES DEVELOPMENT URL\>';
             Cloud.baseURLProduction = '\<ACS CLOUD SERVICES PRODUCTION URL\>';
@@ -135,6 +136,7 @@ examples:
   - title: Override API Key Example
     example: |
         This example overrides the API key.
+
             Cloud.apiKey = '\<YOUR APP API KEY\>';
             Cloud.apiKeyDevelopment = '\<YOUR DEVELOPMENT API KEY\>';
             Cloud.apiKeyProduction = '\<YOUR PRODUCTION API KEY\>';
@@ -142,6 +144,7 @@ examples:
   - title: Override OAuth Example
     example: |
         This example overrides the consumer key and secret.
+
             Cloud.consumerKey = '\<YOUR CONSUMER KEY\>';
             Cloud.consumerSecret = '\<YOUR CONSUMER SECRET\>';
             Cloud.consumerKeyDevelopment = '\<YOUR DEVELOPMENT CONSUMER KEY\>';

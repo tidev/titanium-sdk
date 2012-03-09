@@ -76,6 +76,7 @@ examples:
   - title: Create a Checkin Example
     example: |
         This example creates a checkin and checks the response.
+
             Cloud.Checkins.create({
                 place_id: myPlaceId,
                 message: 'What a great view!',
@@ -95,6 +96,7 @@ examples:
   - title: Query for Checkins Example
     example: |
         This example requests information about checkins and checks the response.
+
             Cloud.Checkins.query({
                 page: 1,
                 per_page: 20,
@@ -118,6 +120,7 @@ examples:
   - title: Show Checkin Example
     example: |
         This example requests information about a checkin and checks the response.
+
             Cloud.Checkins.show({
                 checkin_id: myCheckinId
             }, function (e) {
@@ -136,6 +139,7 @@ examples:
   - title: Remove Checkin Example
     example: |
         This example deletes a checkin and checks the response.
+
             Cloud.Checkins.remove({
                 checkin_id: myCheckinId
             }, function (e) {

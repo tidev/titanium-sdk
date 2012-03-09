@@ -60,6 +60,7 @@ examples:
   - title: Create a Status Example
     example: |
         This example creates a status and checks the response.
+
             Cloud.Statuses.create({
                 place_id: myPlaceId,
                 message: 'What a great view!',
@@ -79,6 +80,7 @@ examples:
   - title: Search Status Example
     example: |
         This example requests information about a user's status and checks the response.
+
             Cloud.Statuses.search({
                 user_id: someUserId
             }, function (e) {
@@ -100,6 +102,7 @@ examples:
   - title: Query Status Example
     example: |
         This example requests information about statuses and checks the response.
+
             Cloud.Statuses.query({
                 page: 1,
                 per_page: 20,

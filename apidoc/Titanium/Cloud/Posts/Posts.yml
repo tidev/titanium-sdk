@@ -93,6 +93,7 @@ examples:
   - title: Create Post Example
     example: |
         This example creates a new post and checks the response.
+
             Cloud.Posts.create({
                 content: 'Man Walks On Moon',
                 title: 'News of the day',
@@ -114,6 +115,7 @@ examples:
   - title: Show a Post Example
     example: |
         This example retrieves information about a post and checks the response.
+
             Cloud.Posts.show({
                 post_id: savedPostId
             }, function (e) {
@@ -133,6 +135,7 @@ examples:
   - title: Query for Posts Example
     example: |
         This example requests a list of posts and checks the response.
+
             Cloud.Posts.query({
                 page: 1,
                 per_page: 20,
@@ -160,6 +163,7 @@ examples:
   - title: Update a Post Example
     example: |
         This example updates a post and checks the response.
+
             Cloud.Posts.update({
                 post_id: savedPostId,
                 title: 'Lunar Eclipse'
@@ -180,6 +184,7 @@ examples:
   - title: Remove a Post Example
     example: |
         This example deletes a post and checks the response.
+
             Cloud.Posts.remove({
                 post_id: savedPostId
             }, function (e) {

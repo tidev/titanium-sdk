@@ -73,6 +73,7 @@ examples:
   - title: Log in External Account Example
     example: |
         This example logs a user in using an external account and checks the response
+
             Cloud.SocialIntegrations.externalAccountLogin({
                 type: 'facebook',
                 token: Ti.Facebook.accessToken
@@ -92,6 +93,7 @@ examples:
   - title: Link in External Account Example
     example: |
         This example links an external account and checks the response
+
             Cloud.SocialIntegrations.externalAccountLink({
                 type: 'facebook',
                 token: Ti.Facebook.accessToken
@@ -111,6 +113,7 @@ examples:
   - title: Search for Facebook Friends Example
     example: |
         This example retrieves a list of Facebook Friends and checks the response
+
             Cloud.SocialIntegrations.searchFacebookFriends({function (e) {
                 if (e.success) {
                     alert('Success:\\n' +

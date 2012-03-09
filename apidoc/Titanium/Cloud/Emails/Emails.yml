@@ -27,6 +27,7 @@ examples:
   - title: Send Email Example
     example: |
         This example sends an Email and checks the response.
+
             Cloud.Emails.send({
                 template: 'welcome',
                 recipients: 'joe@company.com'

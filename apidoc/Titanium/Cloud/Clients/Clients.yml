@@ -26,6 +26,7 @@ examples:
   - title: Geolocate a Client Example
     example: |
         This example locates a client and checks the response.
+
             Cloud.Clients.geolocate({
                 ip_address: clientIPAddress
             }, function (e) {
