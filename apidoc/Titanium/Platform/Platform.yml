@@ -64,6 +64,7 @@ properties:
     
   - name: BATTERY_STATE_FULL
     summary: Constant to indicate that the battery is fully charged.
+    description: On Mobile Web, `BATTERY_STATE_FULL` is defined, but will never be a valid state.
     type: Number
     permission: read-only
     
@@ -100,18 +101,21 @@ properties:
     permission: read-only
     
   - name: batteryMonitoring
-    summary: Indicates whether battery monitoring is enabled.
+    summary: Determines whether battery monitoring is enabled.
+    default: false
     type: Boolean
-    permission: read-only
     
   - name: batteryState
     summary: Indicates the state of the battery. Accessible only when `batteryMonitoring` is enabled.
     description: |
         Returns one of the following constants from <Titanium.Platform>:  
-        `BATTERY_STATE_CHARGING`,  
-        `BATTERY_STATE_FULL`,  
-        `BATTERY_STATE_UNKNOWN`  
+        `BATTERY_STATE_CHARGING`,
+        `BATTERY_STATE_FULL`,
+        `BATTERY_STATE_UNKNOWN`
         or `BATTERY_STATE_UNPLUGGED`.
+        
+        On Mobile Web, battery state will either be charging, unplugged, or unknown. Full charge state
+        is not supported.
     type: Number
     permission: read-only
     

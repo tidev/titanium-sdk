@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
-	function(declare, FontWidget, dom, css, style, lang, UI) {
+define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/Locale", "Ti/UI"],
+	function(declare, FontWidget, dom, css, style, lang, Locale, UI) {
 
 	var setStyle = style.set,
 		postDoBackground = {
@@ -171,13 +171,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				}
 			},
 			titleid: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Button#.titleid" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Button#.titleid" is not implemented yet.');
+					this.title = Locale.getString(value);
 					return value;
 				}
 			}

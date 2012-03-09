@@ -13,7 +13,7 @@
  */
 
 define(
-	["Ti/_", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/Buffer", "Ti/Platform", "Ti/_/include"],
+	["Ti/_", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/Buffer", "Ti/Platform", "Ti/Locale", "Ti/_/include"],
 	function(_, analytics, App, Evented, lang, ready, style, Buffer, Platform) {
 
 	var global = window,
@@ -333,11 +333,7 @@ define(
 
 		// load app.js when ti and dom is ready
 		ready(function() {
-			require(cfg.ti.preload.map(function(i) {
-				return "Ti/_/image!" + i;
-			}), function() {
-				require(cfg.main || ["app.js"]);
-			});
+			require(cfg.main || ["app.js"]);
 		});
 	});
 

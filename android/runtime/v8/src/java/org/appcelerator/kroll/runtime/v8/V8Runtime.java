@@ -8,6 +8,7 @@ package org.appcelerator.kroll.runtime.v8;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollExternalModule;
 import org.appcelerator.kroll.KrollProxySupport;
@@ -27,11 +28,14 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final String NAME = "v8";
 	private static final int MSG_PROCESS_DEBUG_MESSAGES = KrollRuntime.MSG_LAST_ID + 100;
+	private static final int MAX_V8_IDLE_INTERVAL = 30 * 1000; // ms
 
 	private boolean libLoaded = false;
 
 	private HashMap<String, Class<? extends KrollExternalModule>> externalModules = new HashMap<String, Class<? extends KrollExternalModule>>();
 	private ArrayList<String> loadedLibs = new ArrayList<String>();
+	private AtomicBoolean shouldGC = new AtomicBoolean(false);
+	private long lastV8Idle;
 
 	@Override
 	public void initRuntime()
@@ -74,7 +78,21 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 			@Override
 			public boolean queueIdle()
 			{
-				nativeIdle();
+				boolean willGC = shouldGC.getAndSet(false);
+				if (!willGC) {
+					// This means we haven't specifically been told to do
+					// a V8 GC (which is just a call to nativeIdle()), but nevertheless
+					// if more than the recommended time has passed since the last
+					// call to nativeIdle(), we'll want to do it anyways.
+					willGC = ((System.currentTimeMillis() - lastV8Idle) > MAX_V8_IDLE_INTERVAL);
+				}
+				if (willGC) {
+					boolean gcWantsMore = !nativeIdle();
+					lastV8Idle = System.currentTimeMillis();
+					if (gcWantsMore) {
+						shouldGC.set(true);
+					}
+				}
 				return true;
 			}
 		});
@@ -161,12 +179,18 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		externalModules.put(libName, moduleClass);
 	}
 
+	@Override
+	public void setGCFlag()
+	{
+		shouldGC.set(true);
+	}
+
 	// JNI method prototypes
 	private native void nativeInit(boolean useGlobalRefs, int debuggerPort, boolean DBG);
 	private native void nativeRunModule(String source, String filename, KrollProxySupport activityProxy);
 	private native Object nativeEvalString(String source, String filename);
 	private native void nativeProcessDebugMessages();
-	private native void nativeIdle();
+	private native boolean nativeIdle();
 	private native void nativeDispose();
 }
 

@@ -35,9 +35,24 @@ public class TiBlob extends KrollProxy
 	private static final String LCAT = "TiBlob";
 	private static final boolean DBG = TiConfig.LOGD;
 
+	/**
+	 * Represents a Blob that contains image data.
+	 */
 	public static final int TYPE_IMAGE = 0;
+	
+	/**
+	 * Represents a Blob that contains file data.
+	 */
 	public static final int TYPE_FILE = 1;
+	
+	/**
+	 * Represents a Blob that contains data.
+	 */
 	public static final int TYPE_DATA = 2;
+	
+	/**
+	 * Represents a Blob that contains String data.
+	 */
 	public static final int TYPE_STRING = 3;
 
 	private int type;
@@ -278,6 +293,9 @@ public class TiBlob extends KrollProxy
 		return mimetype;
 	}
 
+	/**
+	 * @return the blob's data.
+	 */
 	public Object getData()
 	{
 		return data;

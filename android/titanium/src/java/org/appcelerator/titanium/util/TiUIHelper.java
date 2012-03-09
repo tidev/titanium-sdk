@@ -756,6 +756,11 @@ public class TiUIHelper
 		}
 	}
 	
+	/**
+	 * Creates and returns a bitmap for the specified resource ID.
+	 * @param res_id the bitmap id.
+	 * @return a new bitmap instance.
+	 */
 	public static Bitmap getResourceBitmap(int res_id)
 	{
 		BitmapFactory.Options opts = new BitmapFactory.Options();

@@ -6,7 +6,10 @@
  */
 package org.appcelerator.titanium;
 
-// Global Titanium constants- Try to keep these sorted alphabetically
+/**
+ * A comprehensive list of global Titanium events and properties constants.
+ * These are sorted alphabetically.
+ */
 public class TiC
 {
 	public static final int API_LEVEL_HONEYCOMB = 11;

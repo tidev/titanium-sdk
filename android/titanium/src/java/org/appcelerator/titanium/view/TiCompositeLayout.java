@@ -21,9 +21,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.OnHierarchyChangeListener;
 
+/**
+ * Base layout class for all Titanium views. 
+ */
 public class TiCompositeLayout extends ViewGroup
 	implements OnHierarchyChangeListener
 {
+	/**
+	 * The supported layout arrangements:
+	 * DEFAULT: The default Titanium layout arrangement.
+	 * VERTICAL: The layout arrangement for Views and Windows that set layout: "vertical".
+	 * HORIZONTAL: The layout arrangement for Views and Windows that set layout: "horizontal".
+	 */
 	public enum LayoutArrangement {DEFAULT, VERTICAL, HORIZONTAL}
 
 	protected static final String TAG = "TiCompositeLayout";
@@ -54,11 +63,22 @@ public class TiCompositeLayout extends ViewGroup
 		this(context, LayoutArrangement.DEFAULT, null);
 	}
 
+	/**
+	 * Constructs a new TiCompositeLayout object.
+	 * @param context the associated context.
+	 * @param proxy the associated proxy.
+	 */
 	public TiCompositeLayout(Context context, TiViewProxy proxy)
 	{
 		this(context, LayoutArrangement.DEFAULT, proxy);
 	}
 
+	/**
+	 * Contructs a new TiCompositeLayout object.
+	 * @param context the associated context.
+	 * @param arrangement the associated LayoutArrangement
+	 * @param proxy the associated proxy.
+	 */
 	public TiCompositeLayout(Context context, LayoutArrangement arrangement, TiViewProxy proxy)
 	{
 		super(context);
@@ -431,7 +451,7 @@ public class TiCompositeLayout extends ViewGroup
 				} else {
 					computePosition(this, params.optionLeft, params.optionCenterX, params.optionRight, childMeasuredWidth, left, right, horizontal);
 					if (isVerticalArrangement()) {
-						computeVerticalLayoutPosition(currentHeight, params.optionTop, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
+						computeVerticalLayoutPosition(currentHeight, params.optionTop, params.optionBottom, childMeasuredHeight, top, bottom, vertical, b);
 					} else {
 						computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
 					}
@@ -501,13 +521,15 @@ public class TiCompositeLayout extends ViewGroup
 	}
 
 	private void computeVerticalLayoutPosition(int currentHeight,
-		TiDimension optionTop, TiDimension optionBottom, int measuredHeight, int layoutTop, int layoutBottom, int[] pos)
+		TiDimension optionTop, TiDimension optionBottom, int measuredHeight, int layoutTop, int layoutBottom, int[] pos, int maxBottom)
 	{
 		int top = layoutTop + currentHeight;
 		if (optionTop != null) {
 			top += optionTop.getAsPixels(this);
 		}
-		int bottom = top + measuredHeight;
+		//cap the bottom to make sure views don't go off-screen when user supplies a height value that is >= screen height and this view is
+		//below another view in vertical layout.
+		int bottom = Math.min(top + measuredHeight, maxBottom);
 		pos[0] = top;
 		pos[1] = bottom;
 	}
@@ -562,7 +584,15 @@ public class TiCompositeLayout extends ViewGroup
 
 		public boolean autoHeight = true;
 		public boolean autoWidth = true;
+		
+		/**
+		 * If this is true, and {@link #autoWidth} is true, then the current view will fill available parent width.
+		 */
 		public boolean autoFillsWidth = false;
+		
+		/**
+		 * If this is true, and {@link #autoHeight} is true, then the current view will fill available parent height.
+		 */
 		public boolean autoFillsHeight = false;
 
 		public LayoutParams() {
