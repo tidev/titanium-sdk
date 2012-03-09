@@ -18,7 +18,7 @@ describe("Ti.Android tests", {
 	},
 
 	//https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2492-android-custom-js-activities-dont-correctly-pre-parse-the-url-attribute
-	jsActivityUrl: asyncTest(function() {
+	jsActivityUrl: asyncTest(function(callback) {
 		var intent = Ti.Android.createIntent({
 			action: Ti.Android.ACTION_MAIN,
 			url: 'jsActivity.js'
@@ -28,6 +28,7 @@ describe("Ti.Android tests", {
 			Ti.API.debug(JSON.stringify(e));
 			valueOf(e.resultCode).shouldBe(Ti.Android.RESULT_OK);
 		}));
+		callback.passed();
 	}),
 
 	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2564-android-expose-pendingintent-flag_-constants-in-android-module
