@@ -30,9 +30,10 @@ methods:
         type: String
         
       - name: value
-        summary: Comma-separated list of one or more values to substitute into the `formatString`.
+        summary: |
+            Comma-separated list of one or more values to substitute into the `formatString`. 
+            Optional on Android.
         type: [ String, Number ]
-        optional: true
         
   - name: formatCurrency
     summary: |
@@ -77,17 +78,18 @@ methods:
         type: Number
 
       - name: locale
-        summary: Locale string. For example, `en-US` for US English (Android only.)
+        summary: Locale string. For example, `en-US` for US English.
         type: String
         optional: true
 
       - name: pattern
-        summary: Format pattern (Android only.)
+        summary: Format pattern.
         type: String
         optional: true
 
   - name: formatTime
     summary: Formats a date into the time format of the locale configured for the system.
+    description: On Android, this method returns the short format.
     returns:
         type: String
         summary: Formatted, localized string.
@@ -95,3 +97,9 @@ methods:
       - name: date
         summary: Date to format.
         type: Date
+
+      - name: format
+        summary: Date format to use. One of 'short', 'medium', or 'long' (iOS only.)
+        type: String
+        optional: true
+        default: 'short'
