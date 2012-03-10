@@ -28,7 +28,7 @@
 	[super dealloc];
 }
 
-+(NSString*)currentLocale
++(NSString*)defaultLocale
 {
 	TiLocale *l = [TiLocale instance];
 	if (l.currentLocale == nil)
