@@ -8,7 +8,7 @@
 
 #import "TiUIView.h"
 
-@interface TiUIScrollView : TiUIView<TiUIScrollView,UIScrollViewDelegate> {
+@interface TiUIScrollView : TiUIView<TiScrolling,UIScrollViewDelegate> {
 
 @private
 	UIScrollView * scrollView;
