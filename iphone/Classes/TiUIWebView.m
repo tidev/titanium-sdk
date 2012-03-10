@@ -584,7 +584,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 // not fit within the bounds of its specialized scroll box, UNLESS you are sizing the view to 320px (full width).
 // 'auto' width setting for web views is NOT RECOMMENDED as a result.  'auto' height is OK, and necessary
 // when placing webviews with other elements.
--(CGFloat)autoHeightForWidth:(CGFloat)value
+-(CGFloat)contentHeightForWidth:(CGFloat)value
 {
 	CGRect oldBounds = [[self webview] bounds];
 	[webview setBounds:CGRectMake(0, 0, MAX(value,10), 1)];
@@ -593,7 +593,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	return result;
 }
 
--(CGFloat)autoWidthForWidth:(CGFloat)value
+-(CGFloat)contentWidthForWidth:(CGFloat)value
 {
     CGRect oldBounds = [[self webview] bounds];
     CGFloat currentHeight = [[webview stringByEvaluatingJavaScriptFromString:@"document.height"] floatValue];
