@@ -521,6 +521,10 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 				<param name="-padDefaultIsExclude"/>
 			</doclet>
 
+			<link href="http://java.sun.com/javase/6/docs/api/"/>
+			<link href="http://developer.android.com/reference/" offline="true"
+				packagelistLoc="${ti.build.dir}/android-reference/"/>
+
 			<sourcefiles>
 				<fileset dir="${titanium.project.dir}/src/java" defaultexcludes="yes">
 					<include name="**/*.java"/>
