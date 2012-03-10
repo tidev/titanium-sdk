@@ -1786,11 +1786,16 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	if (windowOpened && [self viewAttached])
 	{
 		CGRect oldFrame = [[self view] frame];
-		if(![self suppressesRelayout])
-		{
+        BOOL relayout = ![self suppressesRelayout];
+        if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle))) {
+            //Do not mess up the sandbox in vertical/horizontal layouts
+            relayout = NO;
+        }
+        if(relayout)
+        {
             [self determineSandboxBounds];
-			[self relayout];
-		}
+            [self relayout];
+        }
 		[self layoutChildren:NO];
 		if (!CGRectEqualToRect(oldFrame, [[self view] frame])) {
 			[parent childWillResize:self];
@@ -2364,7 +2369,10 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 			[ourView insertSubview:childView atIndex:insertPosition];
 			pthread_rwlock_unlock(&childrenLock); // must release before calling resize
 			
-			[self childWillResize:child];
+            if ( !CGSizeEqualToSize(child.sandboxBounds.size, bounds.size) ) {
+                //Child will not resize if sandbox size does not change
+                [self childWillResize:child];
+            }
 		}
 	}
 	[child setSandboxBounds:bounds];
