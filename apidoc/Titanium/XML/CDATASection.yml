@@ -5,9 +5,15 @@ summary: |
     Used to include blocks of literal text containing characters that would otherwise need
     to be escaped.
 description: |
-    The text contained in the CDATA section is stored in the [data](Titanium.XML.CDATASection.data) property.
-
-    This conforms to the [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-667469212)
-    defintion of a `CDATASection`.
+    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-667469212) on
+    Android and iOS with some non-standard extensions. Exposes the 
+    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-667469212) implementation on Mobile Web. On Mobile
+    Web, there is no CDATASection object. A string containing the data is used directly instead.
 createable: false
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
+properties:
+  - name: data
+    type: Titanium.XML.DocumentType
+    summary: <em>Non-standard</em>. The data in the CDATA section
+    permission: read-only
+    platforms: [android, iphone, ipad]
