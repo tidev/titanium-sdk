@@ -45,7 +45,7 @@ DEFINE_EXCEPTIONS
 	[super dealloc];
 }
 
--(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
+-(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
 	if (autoWidth > 0)
 	{
@@ -66,7 +66,7 @@ DEFINE_EXCEPTIONS
 	return 0;
 }
 
--(CGFloat)autoHeightForWidth:(CGFloat)width_
+-(CGFloat)contentHeightForWidth:(CGFloat)width_
 {
 	if (autoHeight > 0)
 	{

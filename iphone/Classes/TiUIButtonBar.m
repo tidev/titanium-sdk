@@ -221,12 +221,12 @@
 	}
 }
 
--(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
+-(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
 	return [[self segmentedControl] sizeThatFits:CGSizeZero].width;
 }
 
--(CGFloat)autoHeightForWidth:(CGFloat)width
+-(CGFloat)contentHeightForWidth:(CGFloat)width
 {
 	return [[self segmentedControl] sizeThatFits:CGSizeZero].height;
 }
