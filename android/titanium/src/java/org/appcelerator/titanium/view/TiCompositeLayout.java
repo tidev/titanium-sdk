@@ -64,11 +64,23 @@ public class TiCompositeLayout extends ViewGroup
 	private WeakReference<TiViewProxy> proxy;
 
 	// We need these two constructors for backwards compatibility with modules
+
+	/**
+	 * Constructs a new TiCompositeLayout object.
+	 * @param context the associated context.
+	 * @module.api
+	 */
 	public TiCompositeLayout(Context context)
 	{
 		this(context, LayoutArrangement.DEFAULT, null);
 	}
 
+	/**
+	 * Contructs a new TiCompositeLayout object.
+	 * @param context the associated context.
+	 * @param arrangement the associated LayoutArrangement
+	 * @module.api
+	 */
 	public TiCompositeLayout(Context context, LayoutArrangement arrangement)
 	{
 		this(context, LayoutArrangement.DEFAULT, null);
@@ -579,6 +591,9 @@ public class TiCompositeLayout extends ViewGroup
 		return MeasureSpec.EXACTLY;
 	}
 
+	/**
+	 * A TiCompositeLayout specific version of {@link android.view.ViewGroup.LayoutParams}
+	 */
 	public static class LayoutParams extends ViewGroup.LayoutParams {
 		protected int index;
 

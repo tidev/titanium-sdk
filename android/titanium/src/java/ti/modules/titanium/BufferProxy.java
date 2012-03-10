@@ -22,7 +22,9 @@ import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.codec.CodecModule;
 
-
+/**
+ * A proxy that wraps a primitive byte array buffer
+ */
 @Kroll.proxy(creatableInModule=TitaniumModule.class, propertyAccessors = {
 	TiC.PROPERTY_BYTE_ORDER,
 	TiC.PROPERTY_TYPE,
@@ -48,21 +50,6 @@ public class BufferProxy extends KrollProxy
 	{
 		buffer = existingBuffer;
 	}
-
-	// We need to handle the "raw" create call so Kroll doesn't convert
-	// the passed in arguments to an array (they have a "length" attribute)
-	//@Override
-	/*TODO public Object handleCreate(KrollInvocation invocation, Object[] args)
-	{
-		this.createdInModule = (KrollModule) invocation.getProxy();
-		if (args.length > 0 && args[0] instanceof Scriptable) {
-			KrollDict dict = new KrollScriptableDict((Scriptable) args[0]);
-			handleCreationDict(dict);
-		} else {
-			buffer = new byte[0];
-		}
-		return KrollConverter.getInstance().convertNative(invocation, this);
-	}*/
 
 	@Override
 	public void handleCreationArgs(KrollModule createdInModule, Object[] args)

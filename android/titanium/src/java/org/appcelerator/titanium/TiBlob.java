@@ -26,10 +26,10 @@ import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 
-@Kroll.proxy
 /** 
  * A Titanium Blob object. A Blob can represent any opaque data or input stream.
  */
+@Kroll.proxy
 public class TiBlob extends KrollProxy
 {
 	private static final String LCAT = "TiBlob";

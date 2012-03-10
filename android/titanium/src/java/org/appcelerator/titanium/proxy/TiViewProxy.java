@@ -40,6 +40,9 @@ import android.os.Message;
 import android.provider.OpenableColumns;
 import android.view.View;
 
+/**
+ * The parent class of view proxies.
+ */
 @Kroll.proxy(propertyAccessors={
 	// background properties
 	"backgroundImage", "backgroundSelectedImage", "backgroundFocusedImage",
@@ -56,9 +59,6 @@ import android.view.View;
 	"focusable", "touchEnabled", "visible", "enabled", "opacity",
 	"softKeyboardOnFocus", "transform"
 })
-/**
- * The parent class of view proxies.
- */
 public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 {
 	private static final String LCAT = "TiViewProxy";

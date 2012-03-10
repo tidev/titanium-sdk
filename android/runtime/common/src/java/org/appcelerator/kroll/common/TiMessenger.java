@@ -103,7 +103,7 @@ public class TiMessenger implements Handler.Callback
 
 	/**
 	 * @return the KrollRuntime TiMessenger instance. This is used for sending messages to the KrollRuntime thread.
-	 * See {@link #sendBlockingRuntimeMessage(Message, Object) for more details.
+	 * See {@link #sendBlockingRuntimeMessage(Message, Object)} for more details.
 	 * @module.api
 	 */
 	public static TiMessenger getRuntimeMessenger()
