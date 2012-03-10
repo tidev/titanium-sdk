@@ -3,9 +3,10 @@ name: Titanium.Map.Annotation
 summary: Represents a labeled point of interest on the map that the user can click on.
 description: |
     The `Annotation` object gives you low-level control over annotations that can be added to 
-    [map view](Titanium.Map.View). 
+    [map view](Titanium.Map.View). An annotation must have its `latitude` and `longitude`
+    properties set to appear on a map.
 
-    An annotation can have a title, a subtitle, and two inset buttons or views on the left
+    An annotation can also have a title, a subtitle, and two inset buttons or views on the left
     and right side of the title. All of these items are optional.
 
     The controls on the left and right side of the annotation can be specified in one of two
@@ -57,6 +58,14 @@ properties:
         The image can be specified using a local URL or an image `Blob`.
     type: [String, Titanium.Blob]
     default: If not specified, a standard map pin image is used.
+
+  - name: latitude 
+    summary: Latitude of the annotation, in decimal degrees.
+    type: Number
+
+  - name: longitude
+    summary: Longitude of the annotation, in decimal degrees.
+    type: Number
 
   - name: leftButton
     summary: |
