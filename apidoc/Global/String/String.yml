@@ -75,7 +75,17 @@ methods:
       - name: value
         summary: Value to format.
         type: Number
-        
+
+      - name: locale
+        summary: Locale string. For example, `en-US` for US English (Android only.)
+        type: String
+        optional: true
+
+      - name: pattern
+        summary: Format pattern (Android only.)
+        type: String
+        optional: true
+
   - name: formatTime
     summary: Formats a date into the time format of the locale configured for the system.
     returns:
