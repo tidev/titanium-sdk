@@ -214,7 +214,17 @@ properties:
 
         `orientationModes` must be set **before** opening the window.
 
+        To determine the current orientation of the *window*, see
+        [Window.orientation](Titanium.UI.Window.orientation).
+        To determine the current orientation of the *device*, see
+        [Gesture.orientation](Titanium.Gesture.orientation). 
+        To be notified when the device's current orientation changes, add a listener for the 
+        <Titanium.Gesture.orientationchange> event.
+
         #### Android Orientation Modes
+
+        On Android, `orientationModes` only takes effect when specified on a heavyweight
+        window.
 
         On Android, orientation behavior is dependent on the Android SDK level
         of the device itself. Devices running Android 2.3 and above support "sensor portait
@@ -275,9 +285,15 @@ properties:
   - name: orientation
     summary: Current orientation of the window.
     description: |
-        Value will be one of the orientation constants defined in <Titanium.UI>. See
+        Value will be one of the orientation constants defined in <Titanium.UI>. 
+        
+        To determine the current orientation of the *device*, see
+        [Gesture.orientation](Titanium.Gesture.orientation), instead.
+        
+        See
         the discussion of the [orientationModes](Titanium.UI.Window.orientationModes)
-        property for more information.
+        property for more information on how the screen orientation is determined.
+    platforms: [android]
     type: Number
 
   - name: rightNavButton
