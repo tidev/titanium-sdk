@@ -85,10 +85,12 @@ properties:
     platforms: [iphone, ipad]
     
   - name: style
-    summary: The style for the activity indicator. 
+    summary: The style for the activity indicator.
     description: |
-        The style can be set to one of the constants defined in 
-        <Titanium.UI.iPhone.ActivityIndicatorStyle>.
+        One of the activity indicator style constants 
+        <Titanium.UI.iPhone.ActivityIndicatorStyle.DARK>, 
+        <Titanium.UI.iPhone.ActivityIndicatorStyle.BIG>, 
+        or <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN>.
     type: Number
     default: <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN>
     platforms: [iphone, ipad]
