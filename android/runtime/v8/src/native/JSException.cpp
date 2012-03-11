@@ -23,6 +23,8 @@ Handle<Value> JSException::fromJavaException(jthrowable javaException)
 		return GetJNIEnvironmentError();
 	}
 
+	env->ExceptionDescribe();
+
 	bool deleteRef = false;
 	if (!javaException) {
 		javaException = env->ExceptionOccurred();
@@ -30,7 +32,7 @@ Handle<Value> JSException::fromJavaException(jthrowable javaException)
 		deleteRef = true;
 	}
 
-	//env->ExceptionDescribe();
+	env->ExceptionDescribe();
 
 	jstring message = (jstring) env->CallObjectMethod(javaException, JNIUtil::throwableGetMessageMethod);
 	if (!message) {

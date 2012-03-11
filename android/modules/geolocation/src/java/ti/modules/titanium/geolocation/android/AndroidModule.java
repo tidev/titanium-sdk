@@ -9,12 +9,19 @@ package ti.modules.titanium.geolocation.android;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
+
+import android.location.LocationManager;
+import android.os.Handler;
+import android.os.Message;
 
 import ti.modules.titanium.geolocation.GeolocationModule;
 import ti.modules.titanium.geolocation.TiLocation;
@@ -31,13 +38,23 @@ import ti.modules.titanium.geolocation.TiLocation;
  */
 @Kroll.module(parentModule=GeolocationModule.class)
 public class AndroidModule extends KrollModule
+	implements Handler.Callback
 {
+	@Kroll.constant public static final String PROVIDER_PASSIVE = LocationManager.PASSIVE_PROVIDER;
+	@Kroll.constant public static final String PROVIDER_NETWORK = LocationManager.NETWORK_PROVIDER;
+	@Kroll.constant public static final String PROVIDER_GPS = LocationManager.GPS_PROVIDER;
+
 	public static HashMap<String, LocationProviderProxy> manualLocationProviders = new HashMap<String, LocationProviderProxy>();
 	public static ArrayList<LocationRuleProxy> manualLocationRules = new ArrayList<LocationRuleProxy>();
+	public static boolean manualMode = false;
+
+	protected static final int MSG_ADD_LOCATION_PROVIDER = KrollModule.MSG_LAST_ID + 100;
+	protected static final int MSG_REMOVE_LOCATION_PROVIDER = KrollModule.MSG_LAST_ID + 101;
+	protected static final int MSG_LAST_ID = MSG_REMOVE_LOCATION_PROVIDER;
 
 	private static final String TAG = "AndroidModule";
 
-	private static GeolocationModule geolocationModule;
+	private static AndroidModule androidModule;
 
 
 	/**
@@ -47,7 +64,70 @@ public class AndroidModule extends KrollModule
 	{
 		super();
 
-		geolocationModule = GeolocationModule.getInstance();
+		androidModule = this;
+	}
+
+	/**
+	 * @see org.appcelerator.kroll.KrollProxy#handleMessage(android.os.Message)
+	 */
+	@Override
+	public boolean handleMessage(Message msg)
+	{
+		switch (msg.what) {
+			case MSG_ADD_LOCATION_PROVIDER: {
+				Object locationProvider = msg.obj;
+				doAddLocationProvider((LocationProviderProxy) locationProvider);
+
+				return true;
+			}
+			case MSG_REMOVE_LOCATION_PROVIDER: {
+				Object locationProvider = msg.obj;
+				doRemoveLocationProvider((LocationProviderProxy) locationProvider);
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks if the manual location providers are being used instead of the simple 
+	 * or legacy providers
+	 * 
+	 * @return			<code>true</code> if the manual location providers are being 
+	 * 					used, <code>false</code> if not
+	 */
+	@Kroll.getProperty
+	public boolean getManualMode()
+	{
+		return manualMode;
+	}
+
+	/**
+	 * Sets whether the manual location providers should be used in place of the 
+	 * simple or legacy providers
+	 * 
+	 * @param manualMode			<code>boolean</code> value to indicate whether 
+	 * 								the manual providers should be used
+	 */
+	@Kroll.setProperty
+	public void setManualMode(boolean manualMode)
+	{
+		if(AndroidModule.manualMode != manualMode) {
+			AndroidModule.manualMode = manualMode;
+			if(manualMode) {
+				GeolocationModule.enableLocationProviders(manualLocationProviders);
+
+			} else {
+				if(GeolocationModule.legacyModeActive) {
+					GeolocationModule.enableLocationProviders(GeolocationModule.legacyLocationProviders);
+
+				} else {
+					GeolocationModule.enableLocationProviders(GeolocationModule.simpleLocationProviders);
+				}
+			}
+		}
 	}
 
 	/**
@@ -95,6 +175,23 @@ public class AndroidModule extends KrollModule
 	}
 
 	/**
+	 * Wrapper to ensure task executes on the runtime thread
+	 * 
+	 * @param locationProvider		the location provider to add
+	 */
+	@Kroll.method
+	public void addLocationProvider(LocationProviderProxy locationProvider)
+	{
+		if (KrollRuntime.getInstance().isRuntimeThread()) {
+			doAddLocationProvider(locationProvider);
+
+		} else {
+			Message message = androidModule.getRuntimeHandler().obtainMessage(MSG_ADD_LOCATION_PROVIDER, locationProvider);
+			message.sendToTarget();
+		}
+	}
+
+	/**
 	 * Adds the specified location provider to the list of manual location providers.  If a location 
 	 * provider with the same "name" property already exists in the list of manual location 
 	 * providers then the existing provider will be removed and the specified one will be added in it's
@@ -102,8 +199,7 @@ public class AndroidModule extends KrollModule
 	 * 
 	 * @param locationProvider		the location provider to add
 	 */
-	@Kroll.method
-	public void addLocationProvider(LocationProviderProxy locationProvider)
+	private void doAddLocationProvider(LocationProviderProxy locationProvider)
 	{
 		String providerName = TiConvert.toString(locationProvider.getProperty(TiC.PROPERTY_NAME));
 		if (!(TiLocation.isProvider(providerName))) {
@@ -120,18 +216,33 @@ public class AndroidModule extends KrollModule
 		} else {
 			manualLocationProviders.remove(providerName);
 
-			if((GeolocationModule.locationBehaviorMode == GeolocationModule.MANUAL_BEHAVIOR_MODE) && (GeolocationModule.numLocationListeners > 0)) {
+			if(manualMode && (GeolocationModule.numLocationListeners > 0)) {
 				TiLocation.locationManager.removeUpdates(existingLocationProvider);
 			}
 
 			manualLocationProviders.put(providerName, locationProvider);
 		}
 
-		if((GeolocationModule.locationBehaviorMode == GeolocationModule.MANUAL_BEHAVIOR_MODE) && (GeolocationModule.numLocationListeners > 0)) {
-			geolocationModule.registerLocationProvider(locationProvider);
+		if(manualMode && (GeolocationModule.numLocationListeners > 0)) {
+			GeolocationModule.registerLocationProvider(locationProvider);
+
+		}
+	}
+
+	/**
+	 * Wrapper to ensure task executes on the runtime thread
+	 * 
+	 * @param locationProvider		the location provider to remove
+	 */
+	@Kroll.method
+	public void removeLocationProvider(LocationProviderProxy locationProvider)
+	{
+		if (KrollRuntime.getInstance().isRuntimeThread()) {
+			doRemoveLocationProvider(locationProvider);
 
 		} else {
-			geolocationModule.enableLocationBehaviorMode(GeolocationModule.MANUAL_BEHAVIOR_MODE);
+			Message message = androidModule.getRuntimeHandler().obtainMessage(MSG_REMOVE_LOCATION_PROVIDER, locationProvider);
+			message.sendToTarget();
 		}
 	}
 
@@ -140,15 +251,11 @@ public class AndroidModule extends KrollModule
 	 * 
 	 * @param locationProvider		the location provider to remove
 	 */
-	@Kroll.method
-	public void removeLocationProvider(LocationProviderProxy locationProvider)
+	private void doRemoveLocationProvider(LocationProviderProxy locationProvider)
 	{
-		manualLocationProviders.remove(locationProvider);
-		if((GeolocationModule.locationBehaviorMode == GeolocationModule.MANUAL_BEHAVIOR_MODE) && (GeolocationModule.numLocationListeners > 0)) {
+		manualLocationProviders.remove(locationProvider.getName());
+		if(manualMode && (GeolocationModule.numLocationListeners > 0)) {
 			TiLocation.locationManager.removeUpdates(locationProvider);
-
-		} else {
-			geolocationModule.enableLocationBehaviorMode(GeolocationModule.MANUAL_BEHAVIOR_MODE);
 		}
 	}
 
