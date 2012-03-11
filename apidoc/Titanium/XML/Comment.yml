@@ -9,9 +9,3 @@ description: |
     [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-1728279322) implementation on Mobile Web.
 createable: false
 platforms: [android, iphone, ipad, mobileweb]
-properties:
-  - name: data
-    type: Titanium.XML.DocumentType
-    summary: <em>Non-standard</em>. The data in the Comment section
-    permission: read-only
-    platforms: [android, iphone, ipad]
