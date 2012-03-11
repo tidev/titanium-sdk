@@ -6,6 +6,8 @@
  */
 package org.appcelerator.titanium;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
@@ -41,6 +43,12 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	private static final int MSG_FINISH = 100;
 	private static final int RESTART_DELAY = 500;
 	private static final int FINISH_DELAY = 500;
+
+	// Constants for Kindle fire fix for android 2373 (TIMOB-7843)
+	private static final AtomicInteger creationCounter = new AtomicInteger();
+	private static final int KINDLE_FIRE_RESTART_FLAGS = (Intent.FLAG_ACTIVITY_NEW_TASK
+		| Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+	private static final String KINDLE_MODEL = "kindle";
 
 	protected TiUrl url;
 
@@ -97,6 +105,18 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+
+		int count = creationCounter.getAndIncrement();
+
+		// For kindle fire, we want to prevent subsequent instances of the app from launching if it's following the
+		// restart workaround for android 2373
+		if (count > 0 && getIntent().getFlags() == KINDLE_FIRE_RESTART_FLAGS
+			&& Build.MODEL.toLowerCase().contains(KINDLE_MODEL) && !isTaskRoot()) {
+			activityOnCreate(savedInstanceState);
+			finish();
+			return;
+		}
+
 		TiApplication tiApp = getTiApp();
 
 		if (!tiApp.isRestartPending()) {
