@@ -240,7 +240,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   - name: NOTIFICATION_TYPE_NEWSSTAND
-    description: Constant value for the push notification Newsstand type. Only available on iOS5 and later
+    summary: Constant value for a Newsstand style push notification. Only available on iOS5 and later
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
