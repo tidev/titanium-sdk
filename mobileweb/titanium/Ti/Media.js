@@ -44,14 +44,6 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 			console.debug('Method "Titanium.Media.createAudioPlayer" is not implemented yet.');
 		},
 
-		createAudioRecorder: function() {
-			console.debug('Method "Titanium.Media.createAudioRecorder" is not implemented yet.');
-		},
-
-		createItem: function() {
-			console.debug('Method "Titanium.Media.createItem" is not implemented yet.');
-		},
-
 		createSound: function() {
 			console.debug('Method "Titanium.Media.createSound" is not implemented yet.');
 		},

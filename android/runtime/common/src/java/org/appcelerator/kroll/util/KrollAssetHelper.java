@@ -51,7 +51,12 @@ public class KrollAssetHelper
 			if (path != null && path.startsWith("Resources/")) {
 				Log.d(TAG, "Fetching \"" + resourcePath + "\" with Fastdev...");
 				InputStream stream = TiFastDev.getInstance().openInputStream(resourcePath);
-				return KrollStreamHelper.toString(stream);
+				String asset = KrollStreamHelper.toString(stream);
+				if (!asset.equals("NOT_FOUND")) {
+					return asset;
+				} else {
+					Log.d(TAG, "File not found with Fastdev.");
+				}
 			}
 		}
 

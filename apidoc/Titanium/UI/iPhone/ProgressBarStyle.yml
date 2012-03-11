@@ -1,19 +1,23 @@
 ---
 name: Titanium.UI.iPhone.ProgressBarStyle
-summary: A set of constants for the bar styles used on the `style` property of <Titanium.UI.ProgressBar>.
+summary: |
+    A set of constants for the bar styles used on the `style` property of <Titanium.UI.ProgressBar>.
 extends: Titanium.Proxy
 platforms: [iphone, ipad]
 since: "0.8"
 createable: false
+
 properties:
   - name: BAR
     summary: The style of progress view that is used in a toolbar.
     type: Number
     permission: read-only
+    
   - name: DEFAULT
     summary: he standard progress-view style. This is the default.
     type: Number
     permission: read-only
+    
   - name: PLAIN
     summary: The standard progress-view style. Same as `DEFAULT`.
     type: Number

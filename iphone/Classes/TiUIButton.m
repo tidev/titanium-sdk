@@ -329,12 +329,12 @@
 	}
 }
 
--(CGFloat)autoWidthForWidth:(CGFloat)value
+-(CGFloat)contentWidthForWidth:(CGFloat)value
 {
 	return [[self button] sizeThatFits:CGSizeMake(value, 0)].width;
 }
 
--(CGFloat)autoHeightForWidth:(CGFloat)value
+-(CGFloat)contentHeightForWidth:(CGFloat)value
 {
 	return [[self button] sizeThatFits:CGSizeMake(value, 0)].height;
 }
