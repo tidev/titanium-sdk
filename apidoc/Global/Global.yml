@@ -6,22 +6,20 @@ description: |
     
     #### JSON
     
-    Titanium has a built-in JSON parser with two main functions, `parse` and `stringify`.
-    
-    * `JSON.parse` safely evaluate a string encoded as JavaScript into a JavaScript object.  
-    * `JSON.stringify` encode a JavaScript object into a string.
+    Titanium provides a built-in [JSON](Global.JSON) object two functions, `parse` and `stringify`.
+
+    #### String Utilities
+
+    Titanium includes several extra utility functions for formatting text, attached to the
+    global [String](Global.String) object.
     
     #### Timers
     
-    Titanium has built-in support for one-off and repeating timers with two main functions, 
-    `setTimeout` and `setInterval`.
+    Titanium has built-in support for one-off and repeating timers:
     
-    * [setTimeout](Global.setTimeout) takes 2 arguments, function and timeout in milliseconds, after 
-    which the function is executed and returns an identifier for the timer that can be used to cancel 
-    it with [clearTimeout](Global.clearTimeout).
-    * [setInterval](Global.setInterval) takes 2 arguments, function and timeout in milliseconds, for 
-    how often the function is executed until cancelled and returns an identifier for the timer that 
-    can be used to cancel it with [clearInterval](Global.clearInterval).
+    *    Use [setTimeout](Global.setTimeout) to start a one-off timer.
+
+    *    Use [setInterval](Global.setInterval) to start a repeating timer.
     
     #### Alert
     
@@ -55,17 +53,17 @@ methods:
 
         
   - name: clearInterval
-    summary: Clear an interval timer from being fired.
+    summary: Cancels an interval timer.
     parameters:
       - name: timerId
-        summary: Unique timer identifier returned by <Global.setInterval>
+        summary: Unique timer identifier returned by [setInterval](Global.setInterval).
         type: Number
         
   - name: clearTimeout
-    summary: Clear a timeout timer from being fired.
+    summary: Cancels a one-time timer.
     parameters:
       - name: timerId
-        summary: Unique timer identifier returned by <Global.setTimeout>
+        summary: Unique timer identifier returned by [setTimeout](Global.setTimeout).
         type: Number
         
   - name: decodeURIComponent
@@ -193,6 +191,9 @@ methods:
         Note that although the interval is not guaranteed to be exact, the interval between calls 
         will be no less than the specified delay.
         
+        Returns a unique timer identifier that can be passed to [clearInterval](Global.clearInterval) 
+        to cancel this timer.
+        
         For more information, see the MDN website for 
         [setInterval](https://developer.mozilla.org/en/DOM/window.setInterval).
     returns:
@@ -222,11 +223,14 @@ methods:
   - name: setTimeout
     summary: Executes code or a function after a delay.
     description: |
-        Note that although the timeout is not guaranteed to be exact, the interval between calls 
-        will be no less than the specified delay.
+        Note that although the timeout is not guaranteed to be exact, the delay before the
+        function is invoked will be no less than the specified delay.
+
+        Returns a unique timer identifier that can be passed to [clearTimeout](Global.clearTimeout) 
+        to cancel this timer.
         
         For more information, see the MDN website for 
-        [setInterval](https://developer.mozilla.org/en/DOM/window.setTimeout).
+        [setTimeout](https://developer.mozilla.org/en/DOM/window.setTimeout).
     returns:
         summary: Unique timer identifier.
         type: Number
