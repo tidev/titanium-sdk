@@ -12,7 +12,7 @@ description: |
 extends: Titanium.XML.Node
 createable: false
 since: "0.9"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 properties:
   - name: doctype
     type: Titanium.XML.DocumentType
