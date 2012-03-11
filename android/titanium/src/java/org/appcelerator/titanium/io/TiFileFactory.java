@@ -24,6 +24,13 @@ public class TiFileFactory
 	private static final String LCAT = "TiFileFactory";
 	private static final boolean DBG = TiConfig.LOGD;
 
+	/**
+	 * Identical to {@link #createTitaniumFile(String[], boolean)} except that the path is passed in as a single
+	 * string instead of an array of path components.
+	 * @param path the path of the file
+	 * @param stream this is not being used
+	 * @return a TiBaseFile instance
+	 */
 	public static TiBaseFile createTitaniumFile(String path, boolean stream)
 	{
 		String[] parts = { path };

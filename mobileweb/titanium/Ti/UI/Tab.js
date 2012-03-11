@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom"],
-	function(declare, lang, View, dom) {
+define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI"],
+	function(declare, lang, View, dom, Locale, UI) {
 
 	return declare("Ti.UI.Tab", View, {
 
@@ -58,10 +58,11 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom"],
 			});
 		},
 
-		_defaultWidth: "auto",
-		_defaultHeight: "auto",
+		_defaultWidth: UI.FILL,
+		
+		_defaultHeight: UI.FILL,
+		
 		_tabGroup: null,
-		_tabWidth: "100%",
 
 		properties: {
 			active: {
@@ -83,25 +84,10 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom"],
 			},
 
 			titleid: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Tab#.titleid" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Tab#.titleid" is not implemented yet.');
+					this.title = Locale.getString(value);
 					return value;
 				}
-			},
-
-			// Override width and height
-			width: function(value) {
-				return this._tabWidth;
-			},
-
-			// Override width and height
-			height: function(value) {
-				return "100%";
 			},
 
 			window: {

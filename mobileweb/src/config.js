@@ -1,22 +1,29 @@
 var require = {
 	app: {
+		analytics: ${app_analytics | jsQuoteEscapeFilter},
 		copyright: "${app_copyright | jsQuoteEscapeFilter}",
 		description: "${app_description | jsQuoteEscapeFilter}",
 		guid: "${app_guid | jsQuoteEscapeFilter}",
 		id: "${app_name | jsQuoteEscapeFilter}",
 		name: "${app_name | jsQuoteEscapeFilter}",
+		names: ${app_names},
 		publisher: "${app_publisher | jsQuoteEscapeFilter}",
 		url: "${app_url | jsQuoteEscapeFilter}",
-		version: "${app_version | jsQuoteEscapeFilter}",
-		analytics: ${app_analytics | jsQuoteEscapeFilter}
+		version: "${app_version | jsQuoteEscapeFilter}"
 	},
 	deployType: "${deploy_type | jsQuoteEscapeFilter}",
 	has: {
 		"analytics-use-xhr": false,
 		"declare-property-methods": true,
+		"js-btoa": function(g) {
+			return "btoa" in g;
+		},
 		"json-stringify": function(g) {
-	        return ("JSON" in window) && JSON.toString() == "[object Function]" && JSON.stringify({a:0}, function(k,v){return v||1;}) !== '{"a":1}'
-    	},
+			return ("JSON" in g) && typeof JSON.stringify === "function" && JSON.stringify({a:0}, function(k,v){return v||1;}) === '{"a":1}';
+		},
+		"native-localstorage": function(g) {
+			return "localStorage" in g && "setItem" in localStorage;
+		},
 		"object-defineproperty": function() {
 			return (function (odp, obj) {
 				try {
@@ -27,6 +34,7 @@ var require = {
 		},
 		"opera": typeof opera === "undefined" || opera.toString() != "[object Opera]"
 	},
+	locales: ${locales},
 	packages: ${packages},
 	project: {
 		id: "${project_id | jsQuoteEscapeFilter}",
@@ -35,6 +43,9 @@ var require = {
 	ti: {
 		buildHash: "${ti_githash | jsQuoteEscapeFilter}",
 		buildDate: "${ti_timestamp | jsQuoteEscapeFilter}",
+		filesystem: {
+			registry: "${ti_fs_registry}"
+		},
 		version: "${ti_version | jsQuoteEscapeFilter}"
 	},
 	vendorPrefixes: {

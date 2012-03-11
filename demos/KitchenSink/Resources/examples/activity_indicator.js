@@ -7,7 +7,7 @@ win.backgroundColor = '#13386c';
 var actInd = Titanium.UI.createActivityIndicator({
 	bottom:10, 
 	height:50,
-	width:10,
+	width:50,
 	style:Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN
 });
 

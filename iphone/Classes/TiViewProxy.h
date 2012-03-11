@@ -44,6 +44,9 @@
 
 #pragma mark dirtyflags used by TiViewProxy
 #define NEEDS_LAYOUT_CHILDREN	1
+//Set this flag to true to disable instant updates
+static const BOOL ENFORCE_BATCH_UPDATE = NO;
+
 
 enum
 {
@@ -70,7 +73,7 @@ enum
 
 #pragma mark Layout properties
 	LayoutConstraint layoutProperties;
-	int zIndex;
+	int vzIndex;
 	BOOL hidden;	//This is the boolean version of ![TiUtils boolValue:visible def:yes]
 		//And has nothing to do with whether or not it's onscreen or 
 
@@ -111,15 +114,19 @@ enum
 	BOOL viewInitialized;
 	BOOL repositioning;
 	BOOL isUsingBarButtonItem;
+    //This flag is set to true on startLayout() call and false on finishLayout() call
+    BOOL updateStarted;
+    BOOL allowLayoutUpdate;
+    
+    NSMutableDictionary *layoutPropDictionary;
 }
 
 #pragma mark public API
 
-/**
+/*
  Provides access to z-index value.
  */
-@property(nonatomic,readwrite,assign) int zIndex;
-
+@property(nonatomic,readwrite,assign) int vzIndex;
 /**
  Provides access to visibility of parent view proxy.
  */
@@ -129,6 +136,13 @@ enum
  Returns children view proxies for the proxy.
  */
 @property(nonatomic,readonly) NSArray *children;
+
+-(void)startLayout:(id)arg;
+-(void)finishLayout:(id)arg;
+-(void)updateLayout:(id)arg;
+-(void)setTempProperty:(id)propVal forKey:(id)propName;
+-(void)processTempProperties:(NSDictionary*)arg;
+
 
 /**
  Tells the view proxy to add a child proxy.
@@ -166,20 +180,20 @@ enum
 -(void)setRight:(id)value;
 -(void)setWidth:(id)value;
 -(void)setHeight:(id)value;
+-(void)setZIndex:(id)value;
+-(id)zIndex;
+
 // See the code for setValue:forUndefinedKey: for why we can't have this
 //-(void)setLayout:(id)value;
 -(void)setMinWidth:(id)value;
 -(void)setMinHeight:(id)value;
 
--(void)setSize:(id)value;
 -(void)setCenter:(id)value;
-
--(TiPoint*)center;
+-(NSMutableDictionary*)center;
 -(id)animatedCenter;
 
 -(void)setBackgroundGradient:(id)arg;
 -(TiBlob*)toImage:(id)args;
-
 
 #pragma mark nonpublic accessors not related to Housecleaning
 
@@ -394,13 +408,6 @@ enum
  @param animation The completed animation
  */
 -(void)animationCompleted:(TiAnimation*)animation;
-
-/**
- Tells the view attached to the view proxy to perform the specified action.
- @param action The action to perform.
- */
--(void)makeViewPerformAction:(TiAction *)action;
-
 /**
  Tells the view attached to the view proxy to perform a selector with given arguments.
  @param selector The selector to perform.
@@ -481,6 +488,9 @@ enum
  */
 -(void)refreshPosition;
 
+/**
+ Puts the view in the layout queue for rendering.
+ */
 -(void)willEnqueue;
 
 //Unlike the other layout actions, this one is done by the parent of the one called by refreshView.
@@ -491,15 +501,35 @@ enum
 #pragma mark Layout commands that need refactoring out
 
 -(void)determineSandboxBounds;
--(void)layoutChildren:(BOOL)optimize;
--(void)layoutChildrenIfNeeded;
--(void)layoutChild:(TiViewProxy*)child optimize:(BOOL)optimize;
 
+/**
+ Tells the view to layout its children.
+ @param optimize Internal use only. Always specify _NO_.
+ */
+-(void)layoutChildren:(BOOL)optimize;
+
+/**
+ Tells the view to layout its children only if there were any layout changes.
+ */
+-(void)layoutChildrenIfNeeded;
+
+-(void)layoutChild:(TiViewProxy*)child optimize:(BOOL)optimize;
+-(CGRect)computeChildSandbox:(TiViewProxy*)child withBounds:(CGRect)bounds;
+
+/**
+ Tells the view to adjust its size and position according to the current layout constraints.
+ */
 -(void)relayout;
+
 -(void)insertIntoView:(UIView*)view bounds:(CGRect)bounds;
 -(void)reposition;	//Todo: Replace
 
 -(BOOL)willBeRelaying;	//Todo: Replace
+
+/**
+ Tells the view that its child view size will change.
+ @param child The child view
+ */
 -(void)childWillResize:(TiViewProxy *)child;	//Todo: Replace
 
 @end
@@ -508,13 +538,13 @@ enum
 #define USE_VIEW_FOR_METHOD(resultType,methodname,inputType)	\
 -(resultType) methodname: (inputType)value	\
 {	\
-	return [[self view] methodname:value];	\
+    return [[self view] methodname:value];	\
 }
 
 #define USE_VIEW_FOR_VERIFY_WIDTH	USE_VIEW_FOR_METHOD(CGFloat,verifyWidth,CGFloat)
 #define USE_VIEW_FOR_VERIFY_HEIGHT	USE_VIEW_FOR_METHOD(CGFloat,verifyHeight,CGFloat)
-#define USE_VIEW_FOR_AUTO_WIDTH		USE_VIEW_FOR_METHOD(CGFloat,autoWidthForWidth,CGFloat)
-#define USE_VIEW_FOR_AUTO_HEIGHT	USE_VIEW_FOR_METHOD(CGFloat,autoHeightForWidth,CGFloat)
+#define USE_VIEW_FOR_CONTENT_WIDTH	USE_VIEW_FOR_METHOD(CGFloat,contentWidthForWidth,CGFloat)
+#define USE_VIEW_FOR_CONTENT_HEIGHT	USE_VIEW_FOR_METHOD(CGFloat,contentHeightForWidth,CGFloat)
 
 #define DECLARE_VIEW_CLASS_FOR_NEWVIEW(viewClass)	\
 -(TiUIView*)newView	\

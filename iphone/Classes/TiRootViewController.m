@@ -254,6 +254,11 @@
 
 #pragma mark UIViewController methods
 
+-(void)dismissKeyboard
+{
+	[keyboardFocusedProxy blur:nil];
+}
+
 -(void)loadView
 {
 	TiRootView *rootView = [[TiRootView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
@@ -506,7 +511,55 @@
 {
 	[super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }
-
+-(BOOL)isCurrentWindowModal{
+    for (TiWindowProxy * thisWindow in [windowProxies reverseObjectEnumerator])
+	{
+        if ([thisWindow closing] == NO) {
+            if([thisWindow modalFlagValue] == YES){
+                return YES;
+            }
+            else{
+                return NO;
+            }
+        }
+    }
+}
+-(BOOL)isModal {
+    //For detecting windows that are opened modally.
+    BOOL modalFlag = NO;
+    if([self isCurrentWindowModal] == YES){
+        return YES;
+    }
+    
+    //For modal views that was added by the TiApp.mm (ApplicationDelegate)
+    
+    //TODO: modalViewController is being deprecated should use presentedViewcontroller.
+    id modalvc= self.modalViewController;
+    UIViewController *parentController = [modalvc parentViewController];
+    //TODO: As of iOS 5, Apple is phasing out the modal concept in exchange for
+    //'presenting', making all non-Ti modal view controllers claim to have
+    //no parent view controller.
+    
+    if(parentController==nil && [modalvc respondsToSelector:@selector(presentingViewController)]){
+        parentController = [modalvc presentingViewController];
+    }
+    
+    if(parentController == self){
+        modalFlag = YES;
+    }
+    
+    if(modalvc != nil){
+        if ([modalvc isKindOfClass:[UINavigationController class]] && 
+            ![modalvc isKindOfClass:[MFMailComposeViewController class]] &&
+            modalFlag == YES ) 
+        {
+            //Since this is a window opened from inside a modalviewcontroller we need
+            //to let this be oriented by ourselves.
+            modalFlag = NO;
+        }
+    }
+    return modalFlag;
+}
 -(void)refreshOrientationWithDuration:(NSTimeInterval) duration
 {	/*
 	 *	Apple gives us a wonderful method, attemptRotation... in iOS 5 below
@@ -514,28 +567,36 @@
 	 *	way. So we give it a shot, and if that's not enough, consult the
 	 *	rotation history and manually force the rotation.
 	 */
-	TiOrientationFlags oldFlags = allowedOrientations;
-	allowedOrientations = [self orientationFlags];	
-
-	if ([self respondsToSelector:@selector(presentingViewController)]) {
-		[UIViewController attemptRotationToDeviceOrientation];
-	}
-	UIInterfaceOrientation newOrientation = [self lastValidOrientation];	
-	if ((newOrientation == windowOrientation) &&
-		(oldFlags & allowedOrientations))
-	{
+    TiOrientationFlags oldFlags = allowedOrientations;
+    allowedOrientations = [self orientationFlags];	
+    
+    if ([self respondsToSelector:@selector(presentingViewController)]) {
+        [UIViewController attemptRotationToDeviceOrientation];
+    }
+    UIInterfaceOrientation newOrientation = [self lastValidOrientation];	
+    //Check if the view was opened modally, then we shouldnot be handling the rotation.
+    if([self isModal] == YES){
+        //TODO: Needs to look at how we do orientations, tracking windowOrientation
+        //for getting the actual window orientation doesnot seem like the correct for tracking it.
+        windowOrientation = newOrientation;
+        return;
+    }   
+    
+    if ((newOrientation == windowOrientation) &&
+        (oldFlags & allowedOrientations))
+    {
         // If it's the case that the window orientation doesn't match the status bar orientation,
         // move the status bar into the right place.
         if (windowOrientation != [[UIApplication sharedApplication] statusBarOrientation]) {
             [[UIApplication sharedApplication] setStatusBarOrientation:windowOrientation animated:NO];
         }
+                
         if (TI_ORIENTATION_ALLOWED(allowedOrientations, orientationHistory[0])) {
-            //Nothing to do here.
+             //Nothing to do here.
             return;
         }
-	}
-	
-	[self manuallyRotateToOrientation:newOrientation duration:duration];
+    }
+    [self manuallyRotateToOrientation:newOrientation duration:duration];
 }
 
 
@@ -823,11 +884,14 @@
 {
 	for (TiWindowProxy * thisWindow in [windowProxies reverseObjectEnumerator])
 	{
-		TiOrientationFlags result = [thisWindow orientationFlags];
-		if (result != TiOrientationNone)
-		{
-			return result;
-		}
+        if ([thisWindow closing] == NO) {
+            TiOrientationFlags result = [thisWindow orientationFlags];
+            if (result != TiOrientationNone)
+            {
+                return result;
+            }
+       }
+        
 	}
 	
 	return [self getDefaultOrientations];
@@ -928,7 +992,7 @@
 		
 		while (possibleScrollView != nil)
 		{
-			if ([possibleScrollView conformsToProtocol:@protocol(TiUIScrollView)])
+			if ([possibleScrollView conformsToProtocol:@protocol(TiScrolling)])
 			{
 				if(confirmedScrollViews == nil)
 				{
@@ -942,8 +1006,8 @@
 			possibleScrollView = [possibleScrollView superview];
 		}
 
-		[(UIView<TiUIScrollView> *)[confirmedScrollViews objectAtIndex:0] keyboardDidShowAtHeight:keyboardHeight];
-		for (UIView<TiUIScrollView> * confirmedScrollView in confirmedScrollViews)
+		[(UIView<TiScrolling> *)[confirmedScrollViews objectAtIndex:0] keyboardDidShowAtHeight:keyboardHeight];
+		for (UIView<TiScrolling> * confirmedScrollView in confirmedScrollViews)
 		{
 			[confirmedScrollView scrollToShowView:scrolledView withKeyboardHeight:keyboardHeight];
 		}
@@ -1101,12 +1165,12 @@
 		UIView * ourView = [self viewForKeyboardAccessory];
 		CGFloat keyboardHeight = [ourView convertRect:endFrame fromView:nil].origin.y;
 		UIView * possibleScrollView = [scrolledView superview];
-		UIView<TiUIScrollView> * confirmedScrollView = nil;
+		UIView<TiScrolling> * confirmedScrollView = nil;
 		while (possibleScrollView != nil)
 		{
-			if ([possibleScrollView conformsToProtocol:@protocol(TiUIScrollView)])
+			if ([possibleScrollView conformsToProtocol:@protocol(TiScrolling)])
 			{
-				confirmedScrollView = (UIView<TiUIScrollView>*)possibleScrollView;
+				confirmedScrollView = (UIView<TiScrolling>*)possibleScrollView;
 			}
 			possibleScrollView = [possibleScrollView superview];
 		}

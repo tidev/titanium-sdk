@@ -353,6 +353,10 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	return [self argOrWindowProperty:@"modal" args:args];
 }
 
+-(BOOL)modalFlagValue
+{
+    return modalFlag;
+}
 -(BOOL)isFullscreen:(id)args
 {
 	return [self argOrWindowProperty:@"fullscreen" args:args];

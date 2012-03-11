@@ -7,7 +7,7 @@
  * <http://dojotoolkit.org>
  */
 
-define(function(lang) {
+define(function() {
 	var doc = document,
 		readyStates = { "loaded": 1, "complete": 1 },
 		isReady = !!readyStates[doc.readyState],

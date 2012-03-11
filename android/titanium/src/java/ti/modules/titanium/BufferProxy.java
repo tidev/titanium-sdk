@@ -184,6 +184,14 @@ public class BufferProxy extends KrollProxy
 		}
 	}
 
+	/**
+	 * Writes data from sourceBuffer into this.
+	 * @param position the offset position of this buffer.
+	 * @param sourceBuffer the source buffer to write from.
+	 * @param sourceOffset the offset position of the sourceBuffer.
+	 * @param sourceLength the length of the sourceBuffer.
+	 * @return number of bytes written, -1 if no data is available.
+	 */
 	public int write(int position, byte[] sourceBuffer, int sourceOffset, int sourceLength)
 	{
 		if ((position + sourceLength) > buffer.length) {

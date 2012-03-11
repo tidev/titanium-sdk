@@ -83,14 +83,14 @@
 
 	switch (contentWidth.type)
 	{
-		case TiDimensionTypePixels:
+		case TiDimensionTypeDip:
 		{
 			newContentSize.width = MAX(newContentSize.width,contentWidth.value);
 			break;
 		}
 		case TiDimensionTypeAuto:
 		{
-			newContentSize.width = MAX(newContentSize.width,[(TiViewProxy *)[self proxy] autoWidthForWidth:0.0]);
+			newContentSize.width = MAX(newContentSize.width,[(TiViewProxy *)[self proxy] autoWidthForSize:newContentSize]);
 			break;
 		}
 		default: {
@@ -100,14 +100,14 @@
 
 	switch (contentHeight.type)
 	{
-		case TiDimensionTypePixels:
+		case TiDimensionTypeDip:
 		{
 			minimumContentHeight = contentHeight.value;
 			break;
 		}
 		case TiDimensionTypeAuto:
 		{
-			minimumContentHeight=[(TiViewProxy *)[self proxy] autoHeightForWidth:newContentSize.width];
+			minimumContentHeight=[(TiViewProxy *)[self proxy] autoHeightForSize:newContentSize];
 			break;
 		}
 		default:

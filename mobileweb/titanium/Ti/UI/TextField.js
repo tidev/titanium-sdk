@@ -23,14 +23,14 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 			});
 		},
 
-        _defaultWidth: "auto",
+        _defaultWidth: UI.SIZE,
 
-        _defaultHeight: "auto",
+        _defaultHeight: UI.SIZE,
 		
 		_getContentSize: function(width, height) {
 			return {
-				width: width === "auto" ? this._measureText(this.value, this._field, width).width : width,
-				height: height === "auto" ? this._measureText(this.value, this._field, width).height : height
+				width: this._measureText(this.value, this._field, width).width,
+				height: this._measureText(this.value, this._field, width).height
 			};
 		},
 
@@ -68,6 +68,8 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 					var n = this.domNode,
 						s = "TiUITextFieldBorderStyle";
 					if (value !== oldValue) {
+						// This code references constants Ti.UI.INPUT_BORDERSTYLE_NONE, 
+						// Ti.UI.INPUT_BORDERSTYLE_LINE, Ti.UI.INPUT_BORDERSTYLE_BEZEL, and Ti.UI.INPUT_BORDERSTYLE_ROUNDED
 						css.remove(n, s + borderStyles[oldValue]);
 						css.add(n, s + borderStyles[value]);
 					}

@@ -1,15 +1,32 @@
 ---
 name: Titanium.Platform
 summary: |
-  The top-level Platform module.  The Platform module is used to access the
-  device's platform-related functionality.
+  The top-level Platform module.  The Platform module is used to access the device's platform-related 
+  functionality.
 extends: Titanium.Module
 since: "0.1"
+
+events:
+  - name: battery
+    summary: Fired when the battery state changes. This is measured in 5% increments on iPhone/iPad.
+    properties:
+      - name: state
+        summary: |
+            The battery state. One of <Titanium.Platform.BATTERY_STATE_CHARGING>, 
+            <Titanium.Platform.BATTERY_STATE_FULL>, 
+            <Titanium.Platform.BATTERY_STATE_UNKNOWN>, 
+            or <Titanium.Platform.BATTERY_STATE_UNPLUGGED>.
+        type: Number
+        
+      - name: level
+        summary: Percentage battery power level.
+        type: Number
+    platforms: [android, iphone, ipad]
+    
 methods:
   - name: canOpenURL
     summary: |
-      Returns whether the system is configured with a default application to handle
-      this URL's protocol.
+      Returns whether the system is configured with a default application to handle the URL's protocol.
     returns:
         type: Boolean
     platforms: [iphone, ipad, mobileweb]
@@ -17,10 +34,12 @@ methods:
       - name: url
         summary: The url to check.
         type: String
+        
   - name: createUUID
     summary: Creates a globally-unique identifier.
     returns:
         type: String
+        
   - name: openURL
     summary: |
         Opens this URL using the system's default application for its protocol.
@@ -30,141 +49,163 @@ methods:
       - name: url
         summary: The url to open.
         type: String
+        
   - name: is24HourTimeFormat
-    summary: |
-        Returns whether the system settings are configured to show times in
-        24-hour format.
+    summary: Returns whether the system settings are configured to show times in 24-hour format.
     returns:
         type: Boolean
     platforms: [android, iphone, ipad]
-events:
-  - name: battery
-    summary: |
-        Fired when the battery state changes. This is measured in 5% increments
-        on iPhone/iPad.
-    properties:
-      - name: state
-        summary: The battery state.
-      - name: level
-        summary: The battery level.
-    platforms: [android, iphone, ipad]
+    
 properties:
   - name: BATTERY_STATE_CHARGING
-    summary: |
-        Constant to indicate that the system is plugged in and currently being
-        charged.
+    summary: Constant to indicate that the system is plugged in and currently being charged.
     type: Number
     permission: read-only
+    
   - name: BATTERY_STATE_FULL
     summary: Constant to indicate that the battery is fully charged.
+    description: On Mobile Web, `BATTERY_STATE_FULL` is defined, but will never be a valid state.
     type: Number
     permission: read-only
+    
   - name: BATTERY_STATE_UNKNOWN
     summary: Constant to indicate that the battery state is not known or monitoring is disabled.
     type: Number
     permission: read-only
+    
   - name: BATTERY_STATE_UNPLUGGED
     summary: Constant to indicate that the system is unplugged.
     type: Number
     permission: read-only
+    
   - name: address
     summary: The system's WIFI IP address. No other network types are supported.
     type: String
     permission: read-only
+    
   - name: architecture
     summary: The system's processor architecture.
     type: String
     permission: read-only
+    
   - name: availableMemory
-    summary: |
-        The system's unused memory, measured in megabytes on iOS and bytes on Android.
+    summary: The system's unused memory, measured in megabytes on iOS and bytes on Android.
     type: Number
     permission: read-only
+    
   - name: batteryLevel
     summary: |
-        The battery level in percent, accessible only when `batteryMonitoring` is enabled.
-        This is measured in 5% increments on iPhone/iPad.
+        The battery level in percent, accessible only when `batteryMonitoring` is enabled. Measured 
+        in 5% increments on iPhone/iPad.
     type: Number
     permission: read-only
+    
   - name: batteryMonitoring
-    summary: Indicates whether battery monitoring is enabled.
+    summary: Determines whether battery monitoring is enabled.
+    default: false
     type: Boolean
-    permission: read-only
+    
   - name: batteryState
-    summary: |
-        Constant to indicate the state of the battery, accessible only when
-        `batteryMonitoring` is enabled.
+    summary: Indicates the state of the battery. Accessible only when `batteryMonitoring` is enabled.
     description: |
         Returns one of the following constants from <Titanium.Platform>:  
-        `BATTERY_STATE_CHARGING`,  
-        `BATTERY_STATE_FULL`,  
-        `BATTERY_STATE_UNKNOWN`  
+        `BATTERY_STATE_CHARGING`,
+        `BATTERY_STATE_FULL`,
+        `BATTERY_STATE_UNKNOWN`
         or `BATTERY_STATE_UNPLUGGED`.
+        
+        On Mobile Web, battery state will either be charging, unplugged, or unknown. Full charge state
+        is not supported.
     type: Number
     permission: read-only
+    
   - name: displayCaps
     summary: |
         Returns the DisplayCaps object.
     description: |
-        Note that he `displayCaps` property begins with a lowercase letter, 
-        which is in contrast to the `DisplayCaps` object that it returns.
+        Note that the `displayCaps` property begins with a lowercase letter, which differentiates it 
+        from the `DisplayCaps` object that it returns.
     type: Titanium.Platform.DisplayCaps
     permission: read-only
+    
   - name: id
     summary: The system's globally-unique ID (UUID).
     type: String
     permission: read-only
     deprecated:
         since: "1.8.0"
+        
   - name: locale
     summary: The system's default language.
     type: String
     permission: read-only
+    
   - name: macaddress
     summary: The system's network interface mac address.
     type: String
     permission: read-only
+    
   - name: model
     summary: The model of the device.
     type: String
     permission: read-only
     platforms: [android, iphone, ipad]
+    
   - name: name
     summary: The name of the platform.
     type: String
     permission: read-only
+    
   - name: netmask
     summary: The system's WIFI network mask. No other network types are supported.
     type: String
     permission: read-only
+    
   - name: osname
     summary: |
-        The short name of the system's Operating System. For example, iPhone
-        will return `iphone`, iPad will return `ipad`, Android will return `android`
-        and Mobile Web will return `mobileweb`.
+        The short name of the system's Operating System. For example, iPhone will return `iphone`, 
+        iPad will return `ipad`, Android will return `android` and Mobile Web will return `mobileweb`.
     type: String
     permission: read-only
+    
   - name: ostype
     summary: The Operating System architecture. On Android, this is `32bit`.
     type: String
     permission: read-only
+    
   - name: processorCount
     summary: The number of processing cores.
     type: Number
     permission: read-only
+    
   - name: runtime
     summary: The short name of the JavaScript runtime in use.
     description: |
-      On iOS this returns "javascriptcore", on Android either "v8" or "rhino".
-      On Mobile Web the return value depends on the browser that is being used.
+      On iOS this is "javascriptcore", on Android either "v8" or "rhino" and on Mobile Web it is 
+      determined by the browser used.
     type: String
     permission: read-only
+    
   - name: username
     summary: |
       The system name, if set. On iOS, this can be found in Settings > General > About > Name.
     type: String
     permission: read-only
+    
   - name: version
     summary: The system's OS version.
     type: String
     permission: read-only
+
+examples:
+  - title: Battery Event Example
+    example: |
+        Obtaining battery data when the battery state changes.
+        
+            Titanium.Platform.addEventListener('battery', function(e){
+              Ti.API.info('The battery state has changed to ' + e.state);
+              Ti.API.info('The battery level is ' + e.level);
+              Ti.API.info('The battery event source is ' + e.source);
+              Ti.API.info('The battery event name ' + e.type);
+            });
+    

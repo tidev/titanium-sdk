@@ -64,4 +64,24 @@
 	rect.size.height = [h floatValue];
 }
 
+-(id)left
+{
+	return [NSNumber numberWithFloat:rect.origin.x];
+}
+
+-(id)right
+{
+	return [NSNumber numberWithFloat:(rect.origin.x + rect.size.width)];
+}
+
+-(id)top
+{
+	return [NSNumber numberWithFloat:rect.origin.y];
+}
+
+-(id)bottom
+{
+	return [NSNumber numberWithFloat:(rect.origin.y + rect.size.height)];
+}
+
 @end

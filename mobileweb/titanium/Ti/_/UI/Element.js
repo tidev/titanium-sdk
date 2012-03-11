@@ -4,7 +4,8 @@ define(
 	"Ti/_/Gestures/Swipe","Ti/_/Gestures/TouchCancel","Ti/_/Gestures/TouchEnd","Ti/_/Gestures/TouchMove",
 	"Ti/_/Gestures/TouchStart","Ti/_/Gestures/TwoFingerTap"],
 	function(browser, css, declare, dom, event, lang, style, Evented, UI,
-		DoubleTap, LongPress, Pinch, SingleTap, Swipe, TouchCancel, TouchEnd, TouchMove, TouchStart, TwoFingerTap) {
+		DoubleTap, LongPress, Pinch, SingleTap, Swipe, TouchCancel, TouchEnd,
+		TouchMove, TouchStart, TwoFingerTap) {
 
 	var undef,
 		unitize = dom.unitize,
@@ -150,12 +151,7 @@ define(
 		
 		_markedForLayout: false,
 		
-		_triggerLayout: function(force) {
-			
-			if (this._markedForLayout && !force) {
-				return;
-			}
-			
+		_isAttachedToActiveWin: function() {
 			// If this element is not attached to an active window, skip the calculation
 			var isAttachedToActiveWin = false,
 				node = this;
@@ -166,13 +162,23 @@ define(
 				}
 				node = node._parent;
 			}
-			if (!isAttachedToActiveWin) {
+			return isAttachedToActiveWin;
+		},
+		
+		_triggerLayout: function(force) {
+			
+			if (this._markedForLayout && !force) {
+				return;
+			}
+			
+			// If this element is not attached to an active window, skip the calculation
+			if (!this._isAttachedToActiveWin()) {
 				return;
 			}
 			
 			// Find the top most node that needs to be layed out.
 			var rootLayoutNode = this;
-			while(rootLayoutNode._parent != null && rootLayoutNode._hasAutoDimensions()) {
+			while(rootLayoutNode._parent != null && rootLayoutNode._hasSizeDimensions()) {
 				rootLayoutNode = rootLayoutNode._parent;
 			}
 			rootLayoutNode._markedForLayout = true;
@@ -185,9 +191,9 @@ define(
 			this._parent && this._parent._triggerLayout();
 		},
 		
-		_hasAutoDimensions: function() {
-			return (this.width === "auto" || (!isDef(this.width) && this._defaultWidth === "auto")) || 
-				(this.height === "auto" || (!isDef(this.height) && this._defaultHeight === "auto"));
+		_hasSizeDimensions: function() {
+			return (this.width === UI.SIZE || (!isDef(this.width) && this._defaultWidth === UI.SIZE)) || 
+				(this.height === UI.SIZE || (!isDef(this.height) && this._defaultHeight === UI.SIZE));
 		},
 		
 		startLayout: function() {
@@ -206,97 +212,116 @@ define(
 			}
 			this.finishLayout();
 		},
+		
+		_layoutParams: {
+		 	origin: {
+		 		x: 0,
+		 		y: 0
+		 	},
+		 	isParentSize: {
+		 		width: 0,
+		 		height: 0
+		 	},
+		 	boundingSize: {
+		 		width: 0,
+		 		height: 0
+		 	},
+		 	alignment: {
+		 		horizontal: "center",
+		 		vertical: "center"
+		 	}
+	 	},
 
-		_doLayout: function(originX, originY, parentWidth, parentHeight, defaultHorizontalAlignment, defaultVerticalAlignment, isParentAutoWidth, isParentAutoHeight) {
+		_doLayout: function(params) {
 			
-			this._originX = originX;
-			this._originY = originY;
-			this._defaultHorizontalAlignment = defaultHorizontalAlignment;
-			this._defaultVerticalAlignment = defaultVerticalAlignment;
-			this._isParentAutoWidth = isParentAutoWidth;
-			this._isParentAutoHeight = isParentAutoHeight;
-
-			var dimensions = this._computeDimensions(
-					parentWidth,
-					parentHeight,
-					this.left,
-					this.top,
-					this.right,
-					this.bottom,
-					this.center && this.center.x,
-					this.center && this.center.y,
-					this.width,
-					this.height,
-					this.borderWidth,
-					true
-				),
-				styles;
-
-			// Set and store the dimensions
-			styles = {
-				zIndex: this.zIndex | 0
-			};
-			var rect  = this.rect,
-				size  = this.size;
-			if (this._measuredLeft != dimensions.left) {
+			this._layoutParams = params;
+			
+			var dimensions = this._computeDimensions({
+					layoutParams: params,
+					position: {
+						left: this.left,
+						top: this.top,
+						right: this.right,
+						bottom: this.bottom,
+						center: this.center
+					},
+					size: {
+						width: this.width,
+						height: this.height
+					},
+					layoutChildren: params.layoutChildren
+				});
+				
+			if (params.positionElement) {
+				
+				// Set and store the dimensions
+				var styles = {
+						zIndex: this.zIndex | 0
+					},
+					rect  = this.rect,
+					size  = this.size;
 				rect.x = this._measuredLeft = dimensions.left;
 				isDef(this._measuredLeft) && (styles.left = unitize(this._measuredLeft));
-			}
-			if (this._measuredTop != dimensions.top) {
 				rect.y = this._measuredTop = dimensions.top;
 				isDef(this._measuredTop) && (styles.top = unitize(this._measuredTop));
-			}
-			if (this._measuredWidth != dimensions.width) {
 				size.width = rect.width = this._measuredWidth = dimensions.width;
 				isDef(this._measuredWidth) && (styles.width = unitize(this._measuredWidth));
-			}
-			if (this._measuredHeight != dimensions.height) {
 				size.height = rect.height = this._measuredHeight = dimensions.height;
 				isDef(this._measuredHeight) && (styles.height = unitize(this._measuredHeight));
+				this._measuredRightPadding = dimensions.rightPadding;
+				this._measuredBottomPadding = dimensions.bottomPadding;
+				this._measuredBorderSize = dimensions.borderSize;
+				setStyle(this.domNode, styles);
+			
+				this._markedForLayout = false;
+				
+				// Run the post-layout animation, if needed
+				if (this._doAnimationAfterLayout) {
+					this._doAnimationAfterLayout = false;
+					this._doAnimation();
+				}
+				
+				// Recompute the gradient, if it exists
+				this.backgroundGradient && this._computeGradient();
+				
+				this.fireEvent("postlayout");
 			}
-			this._measuredRightPadding = dimensions.rightPadding;
-			this._measuredBottomPadding = dimensions.bottomPadding;
-			this._measuredBorderWidth = dimensions.borderWidth;
-			this._measuredBorderSize = dimensions.borderSize;
-			setStyle(this.domNode, styles);
 			
-			this._markedForLayout = false;
-			
-			// Run the post-layout animation, if needed
-			if (this._doAnimationAfterLayout) {
-				this._doAnimationAfterLayout = false;
-				this._doAnimation();
-			}
-			
-			// Recompute the gradient, if it exists
-			this.backgroundGradient && this._computeGradient();
-			
-			this.fireEvent("postlayout");
+			return dimensions;
 		},
 
-		_computeDimensions: function(parentWidth, parentHeight, left, top, originalRight, originalBottom, centerX, centerY, width, height, borderWidth, layoutChildren) {
+		_computeDimensions: function(params) {
 			
-			// Compute as many sizes as possible, should be everything except auto
-			left = computeSize(left, parentWidth, 1);
-			top = computeSize(top, parentHeight, 1);
-			originalRight = computeSize(originalRight, parentWidth);
-			originalBottom = computeSize(originalBottom, parentHeight);
-			centerX = centerX && computeSize(centerX, parentWidth, 1);
-			centerY = centerY && computeSize(centerY, parentHeight, 1);
-			width = computeSize(width, parentWidth);
-			height = computeSize(height, parentHeight);
+			var layoutParams = params.layoutParams,
+				boundingWidth = layoutParams.boundingSize.width,
+				boundingHeight = layoutParams.boundingSize.height,
+				position = params.position,
+				size  = params.size,
+				
+				// Compute as many sizes as possible, should be everything except SIZE values for width and height and undefined values
+				left = computeSize(position.left, boundingWidth, 1),
+				top = computeSize(position.top, boundingHeight, 1),
+				originalRight = computeSize(position.right, boundingWidth),
+				originalBottom = computeSize(position.bottom, boundingHeight),
+				centerX = position.center && computeSize(position.center.x, boundingWidth, 1),
+				centerY = position.center && computeSize(position.center.y, boundingHeight, 1),
+				width = computeSize(size.width, boundingWidth),
+				height = computeSize(size.height, boundingHeight),
 
-			// Convert right/bottom coordinates to be with respect to (0,0)
-			var right = isDef(originalRight) ? (parentWidth - originalRight) : undef,
-				bottom = isDef(originalBottom) ? (parentHeight - originalBottom) : undef;
+				// Convert right/bottom coordinates to be with respect to (0,0)
+				right = isDef(originalRight) ? (boundingWidth - originalRight) : undef,
+				bottom = isDef(originalBottom) ? (boundingHeight - originalBottom) : undef;
+			
+			is(width,"Number") && (width = Math.max(width,0));
+			is(height,"Number") && (height = Math.max(height,0));
 
 			// Unfortunately css precidence doesn't match the titanium, so we have to handle precedence and default setting ourselves
 			if (isDef(width)) {
 				if (isDef(left)) {
 					right = undef;
 				} else if (isDef(centerX)){
-					if (width === "auto") {
-						left = "calculateAuto";
+					if (width === UI.SIZE) {
+						left = "calculateDefault";
 					} else {
 						left = centerX - width / 2;
 						right = undef;
@@ -305,7 +330,7 @@ define(
 					// Do nothing
 				} else {
 					// Set the default position
-					left = "calculateAuto";
+					left = "calculateDefault";
 				}
 			} else {
 				if (isDef(centerX)) {
@@ -316,16 +341,16 @@ define(
 						width = (right - centerX) * 2;
 					} else {
 						// Set the default width
-						width = computeSize(this._defaultWidth,parentWidth);
+						width = computeSize(this._defaultWidth,boundingWidth);
 					}
 				} else {
 					if (isDef(left) && isDef(right)) {
 						// Do nothing
 					} else {
-						width = computeSize(this._defaultWidth,parentWidth);
+						width = computeSize(this._defaultWidth,boundingWidth);
 						if(!isDef(left) && !isDef(right)) {
 							// Set the default position
-							left = "calculateAuto";
+							left = "calculateDefault";
 						}
 					}
 				}
@@ -334,8 +359,8 @@ define(
 				if (isDef(top)) {
 					bottom = undef;
 				} else if (isDef(centerY)){
-					if(height === "auto") {
-						top = "calculateAuto";
+					if(height === UI.SIZE) {
+						top = "calculateDefault";
 					} else {
 						top = centerY - height / 2;
 						bottom = undef;
@@ -344,7 +369,7 @@ define(
 					// Do nothing
 				} else {
 					// Set the default position
-					top = "calculateAuto";
+					top = "calculateDefault";
 				}
 			} else {
 				if (isDef(centerY)) {
@@ -355,40 +380,55 @@ define(
 						height = (bottom - centerY) * 2;
 					} else {
 						// Set the default height
-						height = computeSize(this._defaultHeight,parentHeight);
+						height = computeSize(this._defaultHeight,boundingHeight);
 					}
 				} else {
 					if (isDef(top) && isDef(bottom)) {
 						// Do nothing
 					} else {
 						// Set the default height
-						height = computeSize(this._defaultHeight,parentHeight);
+						height = computeSize(this._defaultHeight,boundingHeight);
 						if(!isDef(top) && !isDef(bottom)) {
 							// Set the default position
-							top = "calculateAuto";
+							top = "calculateDefault";
 						}
 					}
 				}
 			}
 			
 			function getBorderSize() {
+				
+				function getValue(value) {
+					var value = parseInt(computedStyle[value]);
+					return isNaN(value) ? 0 : value;
+				}
+					
 				return {
-					left: parseInt(computedStyle["border-left-width"]) + parseInt(computedStyle["padding-left"]),
-					right: parseInt(computedStyle["border-right-width"]) + parseInt(computedStyle["padding-right"]),
-					top: parseInt(computedStyle["border-top-width"]) + parseInt(computedStyle["padding-top"]),
-					bottom: parseInt(computedStyle["border-bottom-width"]) + parseInt(computedStyle["padding-bottom"])
+					left: getValue("border-left-width") + getValue("padding-left"),
+					top: getValue("border-top-width") + getValue("padding-top"),
+					right: getValue("border-right-width") + getValue("padding-right"),
+					bottom: getValue("border-bottom-width") + getValue("padding-bottom")
 				};
 			}
 			
 			// Calculate the border
-			var computedStyle = window.getComputedStyle(this.domNode);
+			var computedStyle = window.getComputedStyle(this.domNode),
 				borderSize = getBorderSize();
 
-			// Calculate the width/left properties if width is NOT auto
-			var calculateWidthAfterAuto = false,
-				calculateHeightAfterAuto = false;
-			if (width !== "auto") {
-				if (isDef(right)) {
+			// Calculate the width/left properties if width is NOT SIZE
+			var calculateWidthAfterChildren = false,
+				calculateHeightAfterChildren = false;
+			if (width === UI.SIZE) {
+				calculateWidthAfterChildren = true;
+			} else {
+				if (width === UI.FILL) {
+					if (isDef(left)) {
+						left === "calculateDefault" && (left = 0);
+						width = boundingWidth - left;
+					} else if (isDef(right)) {
+						width = right;
+					}
+				} else if (isDef(right)) {
 					if (isDef(left)) {
 						width = right - left;
 					} else {
@@ -396,11 +436,18 @@ define(
 					}
 				}
 				width -= borderSize.left + borderSize.right;
-			} else {
-				calculateWidthAfterAuto = true;
 			}
-			if (height !== "auto") {
-				if (isDef(bottom)) {
+			if (height === UI.SIZE) {
+				calculateHeightAfterChildren = true;
+			} else {
+				if (height === UI.FILL) {
+					if (isDef(top)) {
+						top === "calculateDefault" && (top = 0);
+						height = boundingHeight - top;
+					} else if (isDef(bottom)) {
+						height = bottom;
+					}
+				} else if (isDef(bottom)) {
 					if (isDef(top)) {
 						height = bottom - top;
 					} else {
@@ -408,58 +455,51 @@ define(
 					}
 				}
 				height -= borderSize.top + borderSize.bottom;
-			} else {
-				calculateHeightAfterAuto = true;
 			}
 
 			if (this._getContentSize) {
-				if (width === "auto" || height === "auto") {
-					var contentSize = this._getContentSize(width,height);
-					width == "auto" && (width = contentSize.width);
-					height == "auto" && (height = contentSize.height);
-				}
+				var contentSize = this._getContentSize();
+				width === UI.SIZE && (width = contentSize.width);
+				height === UI.SIZE && (height = contentSize.height);
 			} else {
 				var computedSize;
-				if (layoutChildren) {
-					computedSize = this._layout._doLayout(this,is(width,"Number") ? width : parentWidth,is(height,"Number") ? height : parentHeight, !is(width,"Number"), !is(height,"Number"));
+				if (params.layoutChildren) {
+					computedSize = this._layout._doLayout(this,is(width,"Number") ? width : boundingWidth,is(height,"Number") ? height : boundingHeight, !is(width,"Number"), !is(height,"Number"));
 				} else {
 					computedSize = this._layout._computedSize;
 				}
-				width == "auto" && (width = computedSize.width);
-				height == "auto" && (height = computedSize.height);
+				width === UI.SIZE && (width = computedSize.width);
+				height === UI.SIZE && (height = computedSize.height);
 			}
 			
-			// I have no idea why we have to recalculate, but for some reason the recursion is screwing with the values.
-			borderSize = getBorderSize();
-			
-			if (calculateWidthAfterAuto) {
+			if (calculateWidthAfterChildren) {
 				if (isDef(right) && !isDef(left)) {
 					left = right - width;
 				}
 			}
-			if (calculateHeightAfterAuto) {
+			if (calculateHeightAfterChildren) {
 				if (isDef(bottom) && !isDef(top)) {
 					top = bottom - height;
 				}
 			}
 
 			// Set the default top/left if need be
-			if (left === "calculateAuto") {
-				if (!this._isParentAutoWidth) {
-					switch(this._defaultHorizontalAlignment) {
-						case "center": left = computeSize("50%",parentWidth) - borderSize.left - (is(width,"Number") ? width : 0) / 2; break;
-						case "right": left = parentWidth - borderSize.left - borderSize.right - (is(width,"Number") ? width : 0) / 2; break;
+			if (left === "calculateDefault") {
+				if (!layoutParams.isParentSize.width) {
+					switch(layoutParams.alignment.horizontal) {
+						case "center": left = computeSize("50%",boundingWidth) - borderSize.left - (is(width,"Number") ? width : 0) / 2; break;
+						case "right": left = boundingWidth - borderSize.left - borderSize.right - (is(width,"Number") ? width : 0) / 2; break;
 						default: left = 0; // left
 					}
 				} else {
 					left = 0;
 				}
 			}
-			if (top === "calculateAuto") {
-				if (!this._isParentAutoHeight) {
-					switch(this._defaultVerticalAlignment) {
-						case "center": top = computeSize("50%",parentHeight) - borderSize.top - (is(height,"Number") ? height : 0) / 2; break;
-						case "bottom": top = parentWidth - borderSize.top - borderSize.bottom - (is(height,"Number") ? height : 0) / 2; break;
+			if (top === "calculateDefault") {
+				if (!layoutParams.isParentSize.height) {
+					switch(layoutParams.alignment.vertical) {
+						case "center": top = computeSize("50%",boundingHeight) - borderSize.top - (is(height,"Number") ? height : 0) / 2; break;
+						case "bottom": top = boundingWidth - borderSize.top - borderSize.bottom - (is(height,"Number") ? height : 0) / 2; break;
 						default: top = 0; // top
 					}
 				} else {
@@ -467,30 +507,57 @@ define(
 				}
 			}
 			
-			// Calculate the "padding"
+			// Calculate the "padding" and apply the origin
 			var leftPadding = left,
 				topPadding = top,
 				rightPadding = is(originalRight,"Number") ? originalRight : 0,
-				bottomPadding = is(originalBottom,"Number") ? originalBottom : 0;
+				bottomPadding = is(originalBottom,"Number") ? originalBottom : 0,
+				origin = layoutParams.origin;
+			left += origin.x;
+			top += origin.y;
 
-			// Apply the origin translation
-			left += this._originX;
-			top += this._originY;
-
-			if(!is(left,"Number") || !is(top,"Number") || !is(rightPadding,"Number")
-				 || !is(bottomPadding,"Number") || !is(width,"Number") || !is(height,"Number")) {
-			 	throw "Invalid layout";
-			}
-			
 			return {
-				left: left,
-				top:top,
-				rightPadding: rightPadding,
-				bottomPadding: bottomPadding,
-				width: width,
-				height: height,
+				left: Math.round(left),
+				top: Math.round(top),
+				rightPadding: Math.round(rightPadding),
+				bottomPadding: Math.round(bottomPadding),
+				width: Math.round(Math.max(width,0)),
+				height: Math.round(Math.max(height,0)),
 				borderSize: borderSize
 			};
+		},
+		
+		convertPointToView: function(point, destinationView) {
+			
+			// Make sure that both nodes are connected to the root
+			if (!this._isAttachedToActiveWin() || !destinationView._isAttachedToActiveWin()) {
+				return null;
+			}
+			
+			if (!point || !is(point.x,"Number") || !is(point.y,"Number")) {
+				throw new Error("Invalid point");
+			}
+			
+			if (!destinationView.domNode) {
+				throw new Error("Invalid destination view");
+			}
+			
+			function getAbsolutePosition(node, point, additive) {
+				var x = point.x,
+					y = point.y,
+					multiplier = (additive ? 1 : -1);
+					
+				while(node) {
+					x += multiplier * node.domNode.offsetLeft;
+					y += multiplier * node.domNode.offsetTop;
+					node = node._parent;
+				}
+					
+				return {x: x, y: y};
+			}
+			
+			// Find this node's location relative to the root
+			return getAbsolutePosition(destinationView,getAbsolutePosition(this,point,true),false);
 		},
 
 		// This method returns the offset of the content relative to the parent's location. 
@@ -750,12 +817,10 @@ define(
 
 		show: function() {
 			this.visible = true;
-			//this.fireEvent("ti:shown");
 		},
 
 		hide: function() {
 			this.visible = false;
-			//obj.fireEvent("ti:hidden");
 		},
 
 		animate: function(anim, callback) {
@@ -785,19 +850,21 @@ define(
 					// TODO set border width here
 
 					// Set the position and size properties
-					var dimensions = this._computeDimensions(
-						this._parent ? this._parent._measuredWidth : "auto", 
-						this._parent ? this._parent._measuredHeight : "auto", 
-						val(anim.left, this.left),
-						val(anim.top, this.top),
-						val(anim.right, this.right),
-						val(anim.bottom, this.bottom),
-						isDef(anim.center) ? anim.center.x : isDef(this.center) ? this.center.x : undef,
-						isDef(anim.center) ? anim.center.y : isDef(this.center) ? this.center.y : undef,
-						val(anim.width, this.width),
-						val(anim.height, this.height),
-						false
-					);
+					var dimensions = this._computeDimensions({
+						layoutParams: this._layoutParams,
+						position: {
+							left: val(anim.left, this.left),
+							top: val(anim.top, this.top),
+							right: val(anim.right, this.right),
+							bottom: val(anim.bottom, this.bottom),
+							center: anim.center || this.center
+						},
+						size: {
+							width: val(anim.width, this.width),
+							height: val(anim.height, this.height)
+						},
+						layoutChildren: false
+					});
 
 					setStyle(this.domNode, {
 						left: unitize(dimensions.left),

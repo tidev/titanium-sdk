@@ -45,7 +45,7 @@ DEFINE_EXCEPTIONS
 	[super dealloc];
 }
 
--(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
+-(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
 	if (autoWidth > 0)
 	{
@@ -66,7 +66,7 @@ DEFINE_EXCEPTIONS
 	return 0;
 }
 
--(CGFloat)autoHeightForWidth:(CGFloat)width_
+-(CGFloat)contentHeightForWidth:(CGFloat)width_
 {
 	if (autoHeight > 0)
 	{
@@ -209,13 +209,8 @@ DEFINE_EXCEPTIONS
 
 -(void)fireLoadEventWithState:(NSString *)stateString
 {
-	if (![self.proxy _hasListeners:@"load"])
-	{
-		return;
-	}
-
-	NSDictionary *event = [NSDictionary dictionaryWithObject:stateString forKey:@"state"];
-	[self.proxy fireEvent:@"load" withObject:event];
+    TiUIImageViewProxy* ourProxy = (TiUIImageViewProxy*)self.proxy;
+    [ourProxy propagateLoadEvent:stateString];
 }
 
 -(UIImage*)scaleImageIfRequired:(UIImage*)theimage
@@ -356,8 +351,13 @@ DEFINE_EXCEPTIONS
 		{
 			[spinner removeFromSuperview];
 		}
-		
 		[view addSubview:newImageView];
+        if (autoWidth < newImageView.bounds.size.width){
+            autoWidth = newImageView.bounds.size.width;
+        }
+        if (autoHeight < newImageView.bounds.size.height) {
+            autoHeight = newImageView.bounds.size.height;
+        }
 		[newImageView release];
 		view.hidden = YES;
 		

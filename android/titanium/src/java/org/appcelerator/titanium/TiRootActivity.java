@@ -33,7 +33,7 @@ public class TiRootActivity extends TiLaunchActivity
 	{
 		TiApplication tiApp = getTiApp();
 
-		if (checkMissingLauncher(savedInstanceState)) {
+		if (checkInvalidLaunch(savedInstanceState)) {
 			// Android bug 2373 detected and we're going to restart.
 			return;
 		}

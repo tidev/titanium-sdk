@@ -1,240 +1,251 @@
-define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang"], 
-	function(declare, Widget, dom, css, style, lang) {
-		
+define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"], 
+	function(declare, lang, style, Widget, UI) {
+
 	var setStyle = style.set,
 		undef,
 		on = require.on,
-		InternalImageView = (declare(Widget, {
-			
+		InternalImageView = declare(Widget, {
+
 			domType: "img",
-			
+			onload: null,
+			onerror: null,
+
 			constructor: function() {
 				this.domNode.ondragstart = function() { return false; }; // Prevent images from being dragged
 			},
-			
+
 			_getContentSize: function() {
 				return {
 					width: this.domNode.width,
 					height: this.domNode.height
 				}
 			},
-			
-			_doLayout: function(originX, originY, parentWidth, parentHeight, defaultHorizontalAlignment, defaultVerticalAlignment, isParentAutoWidth, isParentAutoHeight) {
+
+			_doLayout: function(params) {
+				// We have to remove the old style to get the image to scale to its default size,
+				// otherwise we are just reading in whatever we set in the last doLayout(), which is
+				// 0 if the image was not loaded...thus always clamping it to 0.
+				this.domNode.style.width = "";
+				this.domNode.style.height = "";
+				
 				var imageRatio = this.domNode.width / this.domNode.height,
-					self = this;
-				
+					boundingHeight = params.boundingSize.height,
+					boundingWidth = params.boundingSize.width,
+					values = this.properties.__values__,
+					isParentWidthSize = params.isParentSize.width,
+					isParentHeightSize = params.isParentSize.height;
+
 				function setByHeight() {
-					self.properties.__values__.width = parentHeight * imageRatio;
-					self.properties.__values__.height = parentHeight;
+					values.width = boundingHeight * imageRatio;
+					values.height = boundingHeight;
 				}
-				
+
 				function setByWidth() {
-					self.properties.__values__.width = parentWidth;
-					self.properties.__values__.height = parentWidth / imageRatio;
+					values.width = boundingWidth;
+					values.height = boundingWidth / imageRatio;
 				}
-				
-				if (!isParentAutoWidth && !isParentAutoHeight) {
-					if (parentWidth / parentHeight > imageRatio) {
+
+				if (!isParentWidthSize && !isParentHeightSize) {
+					if (boundingWidth / boundingHeight > imageRatio) {
 						setByHeight();
 					} else {
 						setByWidth();
 					}
-				} else if (!isParentAutoWidth) {
+				} else if (!isParentWidthSize) {
 					setByWidth();
-				} else if (!isParentAutoHeight) {
+				} else if (!isParentHeightSize) {
 					setByHeight();
 				} else {
-					this.properties.__values__.width = "auto";
-					this.properties.__values__.height = "auto";
+					values.width = UI.SIZE;
+					values.height = UI.SIZE;
 				}
-				Widget.prototype._doLayout.apply(this,arguments);
+
+				return Widget.prototype._doLayout.call(this,params);
 			},
-			
+
 			properties: {
 				src: {
 					set: function(value) {
+						var node = this.domNode,
+							disp = "none";
+							onerror = lang.hitch(this, function(e) {
+								this._triggerLayout();
+								this.onerror && this.onerror(e);
+							});
+
 						if (value) {
-							setStyle(this.domNode,"display", "inherit");
-							this.domNode.src = value;
-							on(this.domNode,"load", this, function() {
-								this.fireEvent("load", {});
+							disp = "inherit";
+							on(node, "load", this, function() {
 								this._triggerLayout();
+								this.onload && this.onload();
 							});
-							on(this.domNode,"error", this, function() {
-								this.fireEvent("error", {
-									image: value
-								});
-								this._triggerLayout();
-							});
-							on(this.domNode,"abort", this, function() {
-								this.fireEvent("error", {
-									image: value
-								});
-								this._triggerLayout();
-							});
-						} else {
-							setStyle(this.domNode,"display", "none");
+							on(node, "error", onerror);
+							on(node, "abort", onerror);
+							node.src = require.cache(value) || value;
 						}
+
+						setStyle(node, "display", disp);
 						return value;
 					}
 				}
 			}
-		}));
+		});
+
+	function createImage(src, onload, onerror) {
+		switch (src && src.declaredClass) {
+			case "Ti.Filesystem.File":
+				src = src.read();
+			case "Ti.Blob":
+				src = src.toString();
+		}
+		return new InternalImageView({
+			onload: onload,
+			onerror: onerror,
+			src: src
+		});
+	}
 
 	return declare("Ti.UI.ImageView", Widget, {
 
-		_defaultWidth: "auto",
-		
-		_defaultHeight: "auto",
-		
+		_defaultWidth: UI.SIZE,
+
+		_defaultHeight: UI.SIZE,
+
 		_slideshowCount: 0,
-		
+
 		_setSlideshowInterval: function() {
-			var self = this;
+			var self = this,
+				imgs = self._images;
 			clearInterval(this._slideshowTimer);
+
 			this._slideshowTimer = setInterval(function(){
-				setStyle(self._images[self._currentIndex].domNode,"display","none");
 				var rollover = false;
+
+				setStyle(imgs[self._currentIndex].domNode, "display", "none");
+
 				if (self.reverse) {
-					self._currentIndex--;
-					if (self._currentIndex === 0) {
+					if (--self._currentIndex === 0) {
 						self._currentIndex = self.images.length - 1;
 						rollover = true;
 					}
-				} else {
-					self._currentIndex++;
-					if (self._currentIndex === self.images.length) {
-						self._currentIndex = 0;
-						rollover = true;
-					}
+				} else if (++self._currentIndex === self.images.length) {
+					self._currentIndex = 0;
+					rollover = true;
 				}
-				setStyle(self._images[self._currentIndex].domNode,"display","inherit");
-				
-				if (self.repeatCount > 0 && rollover) {
-					self._slideshowCount++;
-					if (self._slideshowCount === self.repeatCount) {
-						self.stop();
-						return;
-					}
+
+				setStyle(imgs[self._currentIndex].domNode, "display", "inherit");
+
+				if (self.repeatCount && rollover && ++self._slideshowCount === self.repeatCount) {
+					self.stop();
+					return;
 				}
-				
+
 				self.fireEvent("change", {
 					index: self._currentIndex
 				});
 			}, this.duration);
 		},
-		
+
 		start: function(){
 			if (this._images) {
-				this.constants.__values__.animating = true;
-				this.constants.__values__.paused = false;
+				this._setState(1, 0);
 				this._slideshowCount = 0;
 				this._setSlideshowInterval();
-				this.fireEvent("start", {});
+				this.fireEvent("start");
 			}
 		},
-		
+
 		stop: function(){
-			if (this._images) {
+			var imgs = this._images;
+			if (imgs) {
 				clearInterval(this._slideshowTimer);
-				if (this._images.length > 0) {
+				if (imgs.length) {
 					var start = 0;
-					if (this.reverse) {
-						start = this._images.length - 1;
-					}
-					this._currentIndex && setStyle(this._images[this._currentIndex].domNode,"display","none");
-					setStyle(this._images[start].domNode,"display","inherit");
+					this.reverse && (start = imgs.length - 1);
+					this._currentIndex && setStyle(imgs[this._currentIndex].domNode, "display", "none");
+					setStyle(imgs[start].domNode, "display", "inherit");
 					this._currentIndex = start;
 				}
-				this.constants.__values__.animating = false;
-				this.constants.__values__.paused = false;
-				this.fireEvent("stop", {});
+				this._setState(0, 0);
+				this.fireEvent("stop");
 			}
 		},
-		
+
 		pause: function(){
 			if (this._images) {
 				clearInterval(this._slideshowTimer);
-				this.constants.__values__.paused = true;
-				this.constants.__values__.animating = false;
-				this.fireEvent("pause", {});
+				this._setState(1, 0);
+				this.fireEvent("pause");
 			}
 		},
-		
+
 		resume: function() {
 			if (this._images) {
 				this._setSlideshowInterval();
-				this.constants.__values__.paused = false;
-				this.constants.__values__.animating = true;
+				this._setState(0, 1);
 			}
 		},
-		
-		constants: {
-			
-			animating: false, 
-			
-			paused: false
-			
+
+		_setState: function(paused, animating) {
+			this.constants.paused = !!paused;
+			this.constants.animating = !!animating;
 		},
-		
+
+		constants: {
+			animating: false, 
+			paused: false
+		},
+
 		properties: {
-			
 			duration: 30,
-			
+
 			image: {
 				set: function(value) {
 					this._removeAllChildren();
 					this._images = undef;
-					var image = new InternalImageView({src: value});
-					image.addEventListener("load",lang.hitch(this,function() {
+					this.add(createImage(value, function() {
 						this.fireEvent("load", {
 							state: "image"
 						});
-					}));
-					image.addEventListener("error",lang.hitch(this,function(e) {
+					}, function(e) {
 						this.fireEvent("error", e);
 					}));
-					this.add(image);
 					return value;
 				}
 			},
-			
+
 			images: {
 				set: function(value) {
+					var imgs = undef,
+						counter = 0,
+						errored = 0;
 					this._removeAllChildren();
-					this._images = undef;
-					if (require.is(value,"Array") && value.length > 0) {
-						this._images = [];
-						var loadCount = 0,
-							errorEncountered = false;
-						for(var i in value) {
-							var image = new InternalImageView({src: value[i]})
-							setStyle(image.domNode,"display","none");
-							image.addEventListener("load",lang.hitch(this,function(e) {
-								loadCount++;
-								if (!errorEncountered && loadCount == value.length) {
-									this.fireEvent("load", {
-										state: "images"
-									});
-								}
-							}));
-							image.addEventListener("error",lang.hitch(this,function(e) {
-								this.fireEvent("error", e);
-								errorEncountered = true;
-							}));
-							this._images.push(image);
-							this.add(image);
-						}
+					if (require.is(value, "Array")) {
+						imgs = [];
+						value.forEach(function(val) {
+							var img = createImage(val, function() {
+								!errored && ++counter === value.length && this.fireEvent("load", {
+									state: "image"
+								});
+							}, function(e) {
+								errored || (errored = 1) && this.fireEvent("error", e);
+							});
+							setStyle(img.domNode, "display", "none");
+							imgs.push(img);
+							this.add(img);
+						}, this);
 					}
+					this._images = imgs;
 					return value;
 				},
+
 				post: function() {
 					this.stop();
 				}
 			},
-			
+
 			repeatCount: 0,
-			
+
 			reverse: false
 		}
 

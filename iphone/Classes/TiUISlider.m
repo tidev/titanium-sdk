@@ -22,12 +22,17 @@
 	[super dealloc];
 }
 
+-(void)layoutSubviews
+{
+    [super layoutSubviews];
+    [sliderView setFrame:[self bounds]];
+}
+
 -(UISlider*)sliderView
 {
 	if (sliderView==nil)
 	{
 		sliderView = [[UISlider alloc] initWithFrame:[self bounds]];
-		[sliderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
 		
 		// We have to do this to force the slider subviews to appear, in the case where value<=min==0.
 		// If the slider doesn't register a value change (or already have its subviews drawn in a nib) then
