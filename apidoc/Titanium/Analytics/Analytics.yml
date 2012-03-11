@@ -21,20 +21,26 @@ excludes: { methods: [ addEventListener, fireEvent, removeEventListener ] }
 since: "0.1"
 methods:
 
-# This should probably not be exposed.
-#
-#  - name: addEvent
-#    summary: send a generic event for the application session
-#    parameters:
-#      - name: type
-#        summary: the event type
-#        type: String
-#      - name: name
-#        summary: the event name
-#        type: String
-#      - name: data
-#        summary: event data or null if not specified. the object must be serializable as JSON
-#        type: Object
+  - name: addEvent
+    summary: |
+        Sends a generic event for this application session.
+        **Not displayed in Analytics UI**.
+    parameters:
+
+      - name: type
+        summary: Event type.
+        type: String
+
+      - name: name
+        summary: Event name.
+        type: String
+
+      - name: data
+        summary: |
+            Extra data related to the event. Must be serializable as JSON.
+        type: Object
+        optional: true
+        default: null
 
   - name: featureEvent
     summary: Sends a feature event for this application session.
@@ -69,6 +75,8 @@ methods:
       - name: name
         summary: Event name.
         type: String
+        optional: true
+        default: ""
 
       - name: data
         summary: Extra data related to the event. The object must be serializable as JSON.
@@ -139,7 +147,7 @@ methods:
 examples:
   - title: Custom Feature Event
     example: |
-        This examples shows how to send a feature event during an application session to indicate 
+        This example shows how to send a feature event during an application session to indicate 
         some feature that you would like to track was used.
         
             Titanium.Analytics.featureEvent('app.feature.blah');
