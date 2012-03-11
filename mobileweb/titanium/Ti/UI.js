@@ -86,13 +86,23 @@ define(
 		_triggerLayout: function(force) {
 			if (force) {
 				clearTimeout(this._layoutTimer);
+				var startTime = (new Date()).getTime();
+				this._elementLayoutCount = 0;
+				this._layoutCount++;
 				this._layoutMarkedNodes(this._container);
+				console.debug("Forced layout " + this._layoutCount + ": " + this._elementLayoutCount + 
+					" elements completed in " + ((new Date().getTime() - startTime)) + "ms");
 				this._layoutInProgress = false;
 			} else {
 				if (!this._layoutInProgress) {
 					this._layoutInProgress = true;
 					this._layoutTimer = setTimeout(lang.hitch(this, function(){
+						var startTime = (new Date()).getTime();
+						this._elementLayoutCount = 0;
+						this._layoutCount++;
 						this._layoutMarkedNodes(this._container);
+						console.debug("Layout " + this._layoutCount + ": " + this._elementLayoutCount + 
+							" elements completed in " + ((new Date().getTime() - startTime)) + "ms");
 						this._layoutInProgress = false;
 						this._layoutTimer = null;
 					}), 25);
@@ -142,6 +152,10 @@ define(
 				layoutChildren: true
 		 	});
 		},
+		
+		_elementLayoutCount: 0,
+		
+		_layoutCount: 0,
 
 		properties: {
 			backgroundColor: {

@@ -196,6 +196,10 @@ define(
 				(this.height === UI.SIZE || (!isDef(this.height) && this._defaultHeight === UI.SIZE));
 		},
 		
+		_hasPercentageDimensions: function() {
+			
+		},
+		
 		startLayout: function() {
 			this._batchUpdateInProgress = true;
 		},
@@ -253,21 +257,16 @@ define(
 				});
 				
 			if (params.positionElement) {
+				UI._elementLayoutCount++;
 				
 				// Set and store the dimensions
 				var styles = {
-						zIndex: this.zIndex | 0
-					},
-					rect  = this.rect,
-					size  = this.size;
-				rect.x = this._measuredLeft = dimensions.left;
-				isDef(this._measuredLeft) && (styles.left = unitize(this._measuredLeft));
-				rect.y = this._measuredTop = dimensions.top;
-				isDef(this._measuredTop) && (styles.top = unitize(this._measuredTop));
-				size.width = rect.width = this._measuredWidth = dimensions.width;
-				isDef(this._measuredWidth) && (styles.width = unitize(this._measuredWidth));
-				size.height = rect.height = this._measuredHeight = dimensions.height;
-				isDef(this._measuredHeight) && (styles.height = unitize(this._measuredHeight));
+					zIndex: this.zIndex | 0
+				};
+				styles.left = unitize(this._measuredLeft = dimensions.left);
+				styles.top = unitize(this._measuredTop = dimensions.top);
+				styles.width = unitize(this._measuredWidth = dimensions.width);
+				styles.height = unitize(this._measuredHeight = dimensions.height);
 				this._measuredRightPadding = dimensions.rightPadding;
 				this._measuredBottomPadding = dimensions.bottomPadding;
 				this._measuredBorderSize = dimensions.borderSize;
@@ -326,9 +325,7 @@ define(
 						left = centerX - width / 2;
 						right = undef;
 					}
-				} else if (isDef(right)) {
-					// Do nothing
-				} else {
+				} else if (!isDef(right)){
 					// Set the default position
 					left = "calculateDefault";
 				}
@@ -344,9 +341,7 @@ define(
 						width = computeSize(this._defaultWidth,boundingWidth);
 					}
 				} else {
-					if (isDef(left) && isDef(right)) {
-						// Do nothing
-					} else {
+					if (!isDef(left) || !isDef(right)) {
 						width = computeSize(this._defaultWidth,boundingWidth);
 						if(!isDef(left) && !isDef(right)) {
 							// Set the default position
@@ -365,9 +360,7 @@ define(
 						top = centerY - height / 2;
 						bottom = undef;
 					}
-				} else if (isDef(bottom)) {
-					// Do nothing
-				} else {
+				} else if (!isDef(bottom)) {
 					// Set the default position
 					top = "calculateDefault";
 				}
@@ -383,9 +376,7 @@ define(
 						height = computeSize(this._defaultHeight,boundingHeight);
 					}
 				} else {
-					if (isDef(top) && isDef(bottom)) {
-						// Do nothing
-					} else {
+					if (!isDef(top) || !isDef(bottom)) {
 						// Set the default height
 						height = computeSize(this._defaultHeight,boundingHeight);
 						if(!isDef(top) && !isDef(bottom)) {
@@ -396,24 +387,19 @@ define(
 				}
 			}
 			
-			function getBorderSize() {
-				
-				function getValue(value) {
-					var value = parseInt(computedStyle[value]);
-					return isNaN(value) ? 0 : value;
-				}
+			// Calculate the border
+			function getValue(value) {
+				var value = parseInt(computedStyle[value]);
+				return isNaN(value) ? 0 : value;
+			}
 					
-				return {
+			var computedStyle = window.getComputedStyle(this.domNode),
+				borderSize = {
 					left: getValue("border-left-width") + getValue("padding-left"),
 					top: getValue("border-top-width") + getValue("padding-top"),
 					right: getValue("border-right-width") + getValue("padding-right"),
 					bottom: getValue("border-bottom-width") + getValue("padding-bottom")
 				};
-			}
-			
-			// Calculate the border
-			var computedStyle = window.getComputedStyle(this.domNode),
-				borderSize = getBorderSize();
 
 			// Calculate the width/left properties if width is NOT SIZE
 			var calculateWidthAfterChildren = false,
@@ -508,17 +494,13 @@ define(
 			}
 			
 			// Calculate the "padding" and apply the origin
-			var leftPadding = left,
-				topPadding = top,
-				rightPadding = is(originalRight,"Number") ? originalRight : 0,
+			var rightPadding = is(originalRight,"Number") ? originalRight : 0,
 				bottomPadding = is(originalBottom,"Number") ? originalBottom : 0,
 				origin = layoutParams.origin;
-			left += origin.x;
-			top += origin.y;
 
 			return {
-				left: Math.round(left),
-				top: Math.round(top),
+				left: Math.round(left + origin.x),
+				top: Math.round(top + origin.y),
 				rightPadding: Math.round(rightPadding),
 				bottomPadding: Math.round(bottomPadding),
 				width: Math.round(Math.max(width,0)),
@@ -930,8 +912,26 @@ define(
 		_measuredHeight: 0,
 		
 		constants: {
-			size: undef,
-			rect: undef
+			size: {
+				get: function() {
+					return {
+						x: 0,
+						y: 0,
+						width: this._measuredWidth,
+						height: this._measuredHeight
+					};
+				}
+			},
+			rect: {
+				get: function() {
+					return {
+						x: this._measuredTop,
+						y: this._measuredLeft,
+						width: this._measuredWidth,
+						height: this._measuredHeight
+					};
+				}
+			}
 		},
 
 		properties: {
