@@ -38,6 +38,10 @@ public class TiRootActivity extends TiLaunchActivity
 			return;
 		}
 
+		if (checkInvalidKindleFireRelaunch(savedInstanceState)) {
+			return;
+		}
+
 		if (tiApp.isRestartPending() || TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
 			super.onCreate(savedInstanceState); // Will take care of scheduling restart and finishing.
 			return;
@@ -96,6 +100,10 @@ public class TiRootActivity extends TiLaunchActivity
 	protected void onDestroy()
 	{
 		super.onDestroy();
+		if (invalidKindleFireRelaunch) {
+			return;
+		}
+
 		if (DBG) {
 			Log.d(LCAT, "root activity onDestroy, activity = " + this);
 		}

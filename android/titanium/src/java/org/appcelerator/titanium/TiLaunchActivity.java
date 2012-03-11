@@ -58,6 +58,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	private PendingIntent restartPendingIntent = null;
 	private AlarmManager restartAlarmManager = null;
 	private int restartDelay = 0;
+	protected boolean invalidKindleFireRelaunch = false;
 
 	/**
 	 * @return The Javascript URL that this Activity should run
@@ -102,18 +103,32 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		}
 	}
 
+	// For kindle fire, we want to prevent subsequent instances of the activity from launching if it's following the
+	// restart workaround for android 2373. For whatever reason, the Fire always tries to re-launch the launch activity
+	// (i.e., a new instance of it) whenever the user selects the application from the application drawer (or shelf, whatever
+	// it is) after the app has been restarted because of 2373 detection. We detect here when that new instance of the launch
+	// activity is coming into existence, so that we can kill it off (finish()) right away.
+	protected boolean checkInvalidKindleFireRelaunch(Bundle savedInstanceState)
+	{
+		invalidKindleFireRelaunch = false;
+		int count = creationCounter.getAndIncrement();
+		if (count > 0 && getIntent().getFlags() == KINDLE_FIRE_RESTART_FLAGS
+			&& Build.MODEL.toLowerCase().contains(KINDLE_MODEL) && !isTaskRoot()) {
+			invalidKindleFireRelaunch = true;
+		}
+
+		if (invalidKindleFireRelaunch) {
+			activityOnCreate(savedInstanceState);
+			finish();
+		}
+
+		return invalidKindleFireRelaunch;
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
-
-		int count = creationCounter.getAndIncrement();
-
-		// For kindle fire, we want to prevent subsequent instances of the app from launching if it's following the
-		// restart workaround for android 2373
-		if (count > 0 && getIntent().getFlags() == KINDLE_FIRE_RESTART_FLAGS
-			&& Build.MODEL.toLowerCase().contains(KINDLE_MODEL) && !isTaskRoot()) {
-			activityOnCreate(savedInstanceState);
-			finish();
+		if (invalidKindleFireRelaunch || checkInvalidKindleFireRelaunch(savedInstanceState)) {
 			return;
 		}
 
@@ -292,6 +307,10 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onRestart()
 	{
+		if (invalidKindleFireRelaunch) {
+			activityOnRestart();
+			return;
+		}
 		super.onRestart();
 
 		TiApplication tiApp = getTiApp();
@@ -312,6 +331,10 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onPause()
 	{
+		if (invalidKindleFireRelaunch) {
+			activityOnPause();
+			return;
+		}
 		if (getTiApp().isRestartPending()) {
 			super.onPause(); // Will take care of finish() if needed.
 			return;
@@ -334,7 +357,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			return;
 		}
 
-		if (invalidLaunchDetected) {
+		if (invalidLaunchDetected || invalidKindleFireRelaunch) {
 			activityOnStop();
 			return;
 		}
@@ -349,7 +372,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			return;
 		}
 
-		if (invalidLaunchDetected) {
+		if (invalidLaunchDetected || invalidKindleFireRelaunch) {
 			activityOnStart();
 			return;
 		}
@@ -359,6 +382,10 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onResume()
 	{
+		if (invalidKindleFireRelaunch) {
+			activityOnResume();
+			return;
+		}
 		if (getTiApp().isRestartPending()) {
 			super.onResume();
 			return;
@@ -376,6 +403,11 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onDestroy()
 	{
+		if (invalidKindleFireRelaunch) {
+			activityOnDestroy();
+			return;
+		}
+
 		TiApplication tiApp = getTiApp();
 
 		if (tiApp.isRestartPending() || invalidLaunchDetected) {
