@@ -1,4 +1,4 @@
-define(["Ti/_/Evented", "Ti/_/lang", "Ti/XML/Document"], function(Evented, lang, XMLDocument) {
+define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 
 	return lang.setObject("Ti.XML", Evented, {
 		
