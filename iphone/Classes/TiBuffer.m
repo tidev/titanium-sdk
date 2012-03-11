@@ -323,14 +323,6 @@ NSArray* bufferKeySequence = nil;
     return NUMINT([data length]);
 }
 
-- (void)setByteOrder:(NSNumber *)order
-{
-    if (byteOrder != order) {
-        [byteOrder release];
-        byteOrder = [order retain];
-    }
-}
-
 #pragma mark "operator[] overload" (Array behavior)
 
 -(void)setValue:(id)value forUndefinedKey:(NSString *)key

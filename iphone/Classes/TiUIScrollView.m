@@ -90,7 +90,7 @@
 		}
 		case TiDimensionTypeAuto:
 		{
-			newContentSize.width = MAX(newContentSize.width,[(TiViewProxy *)[self proxy] autoWidthForWidth:0.0]);
+			newContentSize.width = MAX(newContentSize.width,[(TiViewProxy *)[self proxy] autoWidthForSize:newContentSize]);
 			break;
 		}
 		default: {
@@ -107,7 +107,7 @@
 		}
 		case TiDimensionTypeAuto:
 		{
-			minimumContentHeight=[(TiViewProxy *)[self proxy] autoHeightForWidth:newContentSize.width];
+			minimumContentHeight=[(TiViewProxy *)[self proxy] autoHeightForSize:newContentSize];
 			break;
 		}
 		default:

@@ -192,12 +192,12 @@ typedef enum {
 					   delegate:(NSObject<ImageLoaderDelegate>*)delegate 
 					   userInfo:(NSDictionary*)userInfo;
 
-/**
+/*
  Tells the image loader to suspend its activities.
  */
 -(void)suspend;
 
-/**
+/*
  Tells the image loader to resume its activities.
  */
 -(void)resume;
