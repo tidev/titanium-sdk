@@ -30,18 +30,22 @@ description: |
     *   Register to receive location updates by adding an event listener for the
         [location](Titanium.Geolocation.location) event.
 
-    Location services stay enabled for as long as a listener is registered for the
+    **NOTE:** Location services stay enabled for as long as a listener is registered for the
     `location` event, so be sure to remove the event listener when you do not require
     location updates.
 
-    #### Location Services on iOS
+    #### Configurating Location Updates on iOS
 
     In iOS, the accuracy (and power consumption) of location services is primarily
     determined by the [accuracy](Titanium.Geolocation.accuracy) setting. This can be set
-    to any of the accuracy constants from [ACCURACY_BEST](Titanium.Geolocation.ACCURACY_BEST) 
-    (highest accuracy and power consumption) to
-    [ACCURACY_THREE_KILOMETERS](Titanium.Geolocation.ACCURACY_THREE_KILOMETERS) (lowest
-    accuracy and power consumption). 
+    to one of the following values:
+    
+    *   [ACCURACY_BEST](Titanium.Geolocation.ACCURACY_BEST) (highest accuracy and power consumption)
+    *   [ACCURACY_NEAREST_TEN_METERS](Titanium.Geolocation.ACCURACY_NEAREST_TEN_METERS) 
+    *   [ACCURACY_HUNDRED_METERS](Titanium.Geolocation.ACCURACY_HUNDRED_METERS) 
+    *   [ACCURACY_KILOMETER](Titanium.Geolocation.ACCURACY_KILOMETER) 
+    *   [ACCURACY_THREE_KILOMETERS](Titanium.Geolocation.ACCURACY_THREE_KILOMETERS) (lowest
+        accuracy and power consumption). 
     
     (Note that the constants [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH) and
     [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW) are Android-specific and may not be
@@ -55,16 +59,36 @@ description: |
     [distanceFilter](Titanium.Geolocation.distanceFilter) property to eliminate position
     updates when the user is not moving.
 
-    #### Location Services on Android
+    #### Configurating Location Updates on Android
     
     Prior to Titanium Mobile 2.0, Titanium attempted to follow the iOS model on Android,
     but this didn't fit the native Android model well. In Release 2.0, three different
-    location service models are supported on Android:
+    location service mode are supported on Android:
 
-    *   *Legacy mode* is the mode that existed prior to 2.0, where accuracy is specified
-        using the iOS `ACCURACY` constants, and users can specify a preferred location
-        provider using the [preferredProvider](Titanium.Geolocation.preferredProvider)
-        property. This mode is deprecated and should not be used for new development.
+    *   *Legacy mode* is the mode that existed prior to 2.0. Legacy mode is 
+        used when you set the `accuracy` property to one of the iOS 
+        `ACCURACY` constants:
+
+        *   [ACCURACY_BEST](Titanium.Geolocation.ACCURACY_BEST) (highest accuracy and power consumption)
+        *   [ACCURACY_NEAREST_TEN_METERS](Titanium.Geolocation.ACCURACY_NEAREST_TEN_METERS) 
+        *   [ACCURACY_HUNDRED_METERS](Titanium.Geolocation.ACCURACY_HUNDRED_METERS) 
+        *   [ACCURACY_KILOMETER](Titanium.Geolocation.ACCURACY_KILOMETER) 
+        *   [ACCURACY_THREE_KILOMETERS](Titanium.Geolocation.ACCURACY_THREE_KILOMETERS) (lowest
+            accuracy and power consumption). 
+            
+        This mode is deprecated and should not be used for new development. 
+
+        In this mode, the specified `accuracy` value determines the 
+        *minimum distance between location updates*. If `accuracy` is set to
+        `ACCURACY_BEST`, no distance filter is used on updates.
+        
+        In legacy mode, only a single location provider (GPS, network, or passive) is
+        enabled at a time. You can specify a the location provider using the 
+        [preferredProvider](Titanium.Geolocation.preferredProvider) property.
+        
+        You can also specifying a desired update frequency using the
+        [frequency](Titanium.Geolocation.frequency) property. The `preferredProvider`
+        and `frequency` properties are not used in any other mode.
 
     *   *Manual mode* gives developers low-level control of location updates, including
         enabling individual location providers and filtering updates, for the best
@@ -75,12 +99,18 @@ description: |
         undemanding location applications without requiring developers to
         write a lot of Android-specific code. 
         
-        In simple mode, you set the [accuracy](Titanium.Geolocation.accuracy) property to 
+        Setting the [accuracy](Titanium.Geolocation.accuracy) property to 
         either [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH) or 
-        [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW), and the platform handles the
-        rest.
+        [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW) enables simple mode.
 
-    #### Location Services on Mobile Web
+        In this mode the platform handles enabling and disabling location providers and
+        filtering location updates.
+
+        Setting the [preferredProvider](Titanium.Geolocation.preferredProvider) or
+        [frequency](Titanium.Geolocation.frequency) properties will trigger a switch from
+        simple mode to legacy mode.
+
+    #### Configuring Location Updates on Mobile Web
 
     Location services on Mobile Web operate similarly to the *simple mode* operations on
     Android. Setting [accuracy](Titanium.Geolocation.accuracy) property to 
@@ -96,7 +126,6 @@ extends: Titanium.Module
 since: "0.1"
 platforms: [android, iphone, ipad, mobileweb]
 methods:
-
   - name: forwardGeocoder
     summary: Resolves an address to a location.
     parameters:
@@ -269,6 +298,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [android]
+    since: "2.0.0"
 
   - name: ACCURACY_LOW
     summary: |
@@ -279,6 +309,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [android]
+    since: "2.0.0"
 
   - name: AUTHORIZATION_AUTHORIZED
     summary: |
@@ -375,24 +406,44 @@ properties:
 
   - name: PROVIDER_GPS
     summary: |
-        Use with [preferredProvider](Titanium.Geolocation.preferredProvider) to
-        specify the GPS location provider.
+        Specifies the GPS location provider.
+    description: |
+        Used with [preferredProvider](Titanium.Geolocation.preferredProvider), 
+        [LocationProvider.name](Titanium.Geolocation.Android.LocationProvider),
+        [LocationRule.provider](Titanium.Geolocation.Android.LocationRule).
+
+        In general, the GPS provider has the highest power consumption and the 
+        highest accuracy, but this may vary. In some circumstances, the network 
+        provider may be more reliable.
     type: String
     permission: read-only
     platforms: [android]
 
   - name: PROVIDER_NETWORK
     summary: |
-        Use with [preferredProvider](Titanium.Geolocation.preferredProvider) to
-        specify the network location provider.
+        Specifies the network location provider.
+    description: |
+        Used with [preferredProvider](Titanium.Geolocation.preferredProvider), 
+        [LocationProvider.name](Titanium.Geolocation.Android.LocationProvider),
+        [LocationRule.provider](Titanium.Geolocation.Android.LocationRule).
+
+        Generally requires less power than the GPS provider and provides less accurate
+        results, but may produce very accurate results in densely-populated areas
+        with many cell towers and WiFi networks.
     type: String
     permission: read-only
     platforms: [android]
 
   - name: PROVIDER_PASSIVE
     summary: |
-        Use with [preferredProvider](Titanium.Geolocation.preferredProvider) to
-        specify the passive location provider.
+        Specifies the passive location provider.
+    description: |
+        Used with [preferredProvider](Titanium.Geolocation.preferredProvider), 
+        [LocationProvider.name](Titanium.Geolocation.Android.LocationProvider),
+        [LocationRule.provider](Titanium.Geolocation.Android.LocationRule).
+
+        This provider only uses cached location information, so it does not use
+        any power, but makes no guarantee that the location results are recent.
     type: String
     permission: read-only
     platforms: [android]
@@ -426,6 +477,22 @@ properties:
     type: Number
     default: 0
     platforms: [iphone, ipad]
+
+  - name: frequency
+    summary: Requested frequency for location updates, in milliseconds.
+    description: |
+        Setting a frequency valuep enables legacy location mode on Android.
+        Note that only a single provider can be active at one time in legacy mode.
+
+        Android legacy mode operation is deprecated. For new development, use
+        either simple mode or manual mode.
+
+        Note that the frequency value is used as a guideline: there are no guarantees
+        that the device will provide updates at the specified frequency.
+        
+        A lower frequency value generally increases power consumption. 
+        A value of 0 means that updates should be generated as quickly as possible.
+    type: Number
 
   - name: headingFilter
     summary: Minimum heading change (in degrees) before a `heading` event is fired. 
@@ -462,15 +529,25 @@ properties:
   - name: preferredProvider
     summary: |
         Determines the preferred location provider, either
-        [PROVIDER_NETWORK](Titanium.Geolocation.PROVIDER_NETWORK] or
-        [PROVIDER_GPS](Titanium.Geolocation.PROVIDER_GPS).
+        [PROVIDER_GPS](Titanium.Geolocation.PROVIDER_GPS),
+        [PROVIDER_NETWORK](Titanium.Geolocation.PROVIDER_NETWORK],
+        or [PROVIDER_PASSIVE](Titanium.Geolocation.PROVIDER_PASSIVE).
     description: |
         Setting a preferred provider enables legacy location mode on Android.
+        Note that only a single provider can be active at one time in legacy mode.
+
+        Android legacy mode operation is deprecated. For new development, use
+        either simple mode or manual mode.
+
+        The preferred provider affects power consumption. In general, `PROVIDER_GPS` 
+        requires the most power, and `PROVIDER_PASSIVE` requires the least.
 
         If `undefined`, the preferred provider is auto-detected.
     type: String
     platforms: [android]
     default: <Titanium.Geolocation.PROVIDER_NETWORK>
+    deprecated:
+        since: "2.0.0"
 
   - name: purpose
     summary: |
