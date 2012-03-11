@@ -124,9 +124,7 @@ public abstract class TiBaseActivity extends Activity
 	public void setWindowProxy(TiWindowProxy proxy)
 	{
 		this.window = proxy;
-		if (layout != null) {
-			layout.setProxy(proxy);
-		}
+		layout.setProxy(proxy);
 		updateTitle();
 	}
 	
