@@ -59,7 +59,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], function(declare, l
 				var listItem = window.location.href.split("#")[1];
 				listItem && (listItem = listItem.split(",")[1]);
 				if (hist.length === startingHistoryLength) {
-					listItem = historyStack[0].widgetId;
+					historyStack[0] && (listItem = historyStack[0].widgetId);
 				}
 				if (listItem) {
 					var historyStackIndex = -1,
