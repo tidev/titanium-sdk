@@ -468,17 +468,28 @@ class TiAppXML(object):
 			plist = st + version + fn
 			
 		# replace the CFBundleShortVersionString in case it's changed
-		i = plist.index('CFBundleShortVersionString')
-		if i:
-			i = plist.index('<string>',i+1)
-			e = plist.index('</string>',i+1)
-			st = plist[0:i+8]
-			fn = plist[e:]
+		try:
+			i = plist.index('CFBundleShortVersionString')
+			if i:
+				i = plist.index('<string>',i+1)
+				e = plist.index('</string>',i+1)
+				st = plist[0:i+8]
+				fn = plist[e:]
+				CFBundleShortVersionString = self.properties['version']
+				app_version_ = CFBundleShortVersionString.split('.')
+				if(len(app_version_) > 3):
+					CFBundleShortVersionString = app_version_[0]+'.'+app_version_[1]+'.'+app_version_[2]
+				plist = st + CFBundleShortVersionString + fn
+		except ValueError:
+			print "[WARN] The project seems to be having custom info.plist which does not contain  the `CFBundleShortVersionString` key"
+			print "[INFO] Generating the missing `CFBundleShortVersionString` key"
+			propertyName = 'CFBundleShortVersionString'
 			CFBundleShortVersionString = self.properties['version']
 			app_version_ = CFBundleShortVersionString.split('.')
 			if(len(app_version_) > 3):
 				CFBundleShortVersionString = app_version_[0]+'.'+app_version_[1]+'.'+app_version_[2]
-			plist = st + CFBundleShortVersionString + fn
+			propertyValue = "<string>"+CFBundleShortVersionString+'</string>'
+			self.infoplist_properties[propertyName] = propertyValue
 			
 		i = plist.rindex('</dict>')	
 		if i:

@@ -29,6 +29,7 @@ public class KrollDict
 
 	/**
 	 * Constructs a KrollDict with a default capacity.
+	 * @module.api
 	 */
 	public KrollDict() {
 		this(INITIAL_SIZE);
@@ -61,7 +62,12 @@ public class KrollDict
 		}
 		return value;
 	}
-	
+
+	/**
+	 * Constructs a KrollDict by copying an existing Map
+	 * @param map the existing map to copy
+	 * @module.api
+	 */
 	public KrollDict(Map<? extends String, ? extends Object> map) {
 		super(map);
 	}
@@ -69,6 +75,7 @@ public class KrollDict
 	/**
 	 * Constructs a KrollDict with the specified capacity.
 	 * @param size the specified capacity.
+	 * @module.api
 	 */
 	public KrollDict(int size) {
 		super(size);

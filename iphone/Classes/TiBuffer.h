@@ -36,17 +36,16 @@
 -(NSString*)toString:(id)_void;
 
 /**
- Returns the buffer length.
+ Provides access to the buffer length.
  */
-@property(nonatomic,readonly) NSNumber* length;
+@property(nonatomic,assign) NSNumber* length;
 
 /**
- Returns data byte order.
+ Provides access to the data byte order.
+ 
+ The byte order values are: 1 - little-endian, 2 - big-endian.
  */
-@property(nonatomic,readonly) NSNumber* byteOrder;
-
--(void)setLength:(NSNumber*)length;
--(void)setByteOrder:(NSNumber *)order;
+@property(nonatomic,retain) NSNumber* byteOrder;
 
 // SPECIAL NOTES:
 // Ti.Buffer objects have an 'overloaded' Ti.Buffer[x] operation for x==int (making them behave like arrays).

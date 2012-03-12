@@ -67,6 +67,7 @@ public class Log
 	 * @param msg  the message to log.
 	 * @return     an integer that is dependent on the content and tag of the log. 
 	 *             Two different msgs would have two different return values.
+	 * @module.api
 	 */
 	public static int v(String tag, String msg) {
 		msg = onThread(msg);
@@ -86,6 +87,7 @@ public class Log
 	 * @param t    the exception to log.
 	 * @return     an integer that is dependent on the content and tag of the log. 
 	 *             Two different msgs would have two different return values.
+	 * @module.api
 	 */
 	public static int v(String tag, String msg, Throwable t) {
 		msg = onThread(msg);
@@ -104,6 +106,7 @@ public class Log
 	 * @param msg  the message to log.
 	 * @return     an integer that is dependent on the content and tag of the log. 
 	 *             Two different msgs would have two different return values.
+	 * @module.api
 	 */
 	public static int d(String tag, String msg) {
 		msg = onThread(msg);
@@ -123,6 +126,7 @@ public class Log
 	 * @param t    the exception to log.
 	 * @return     an integer that is dependent on the content and tag of the log. 
 	 *             Two different msgs would have two different return values.
+	 * @module.api
 	 */
 	public static int d(String tag, String msg, Throwable t) {
 		msg = onThread(msg);
@@ -141,6 +145,7 @@ public class Log
 	 * @param msg  the message to log.
 	 * @return     an integer that is dependent on the content and tag of the log. 
 	 *             Two different msgs would have two different return values.
+	 * @module.api
 	 */
 	public static int i(String tag, String msg) {
 		msg = onThread(msg);
@@ -160,6 +165,7 @@ public class Log
 	 * @param t    the exception to log.
 	 * @return     an integer that is dependent on the content and tag of the log. 
 	 *             Two different msgs would have two different return values.
+	 * @module.api
 	 */
 	public static int i(String tag, String msg, Throwable t) {
 		msg = onThread(msg);
@@ -178,6 +184,7 @@ public class Log
 	 * @param msg  the message to log.
 	 * @return     an integer that is dependent on the content and tag of the log. 
 	 *             Two different msgs would have two different return values.
+	 * @module.api
 	 */
 	public static int w(String tag, String msg) {
 		msg = onThread(msg);
@@ -197,6 +204,7 @@ public class Log
 	 * @param t    an exception to log.
 	 * @return     an integer that is dependent on the content and tag of the log. 
 	 *             Two different msgs would have two different return values.
+	 * @module.api
 	 */
 	public static int w(String tag, String msg, Throwable t) {
 		msg = onThread(msg);
@@ -215,6 +223,7 @@ public class Log
 	 * @param msg  the message to log.
 	 * @return     an integer that is dependent on the content and tag of the log. 
 	 *             Two different msgs would have two different return values.
+	 * @module.api
 	 */
 	public static int e(String tag, String msg) {
 		msg = onThread(msg);
@@ -234,6 +243,7 @@ public class Log
 	 * @param t    the exception to log.
 	 * @return     an integer that is dependent on the content and tag of the log. 
 	 *             Two different msgs would have two different return values.
+	 * @module.api
 	 */
 	public static int e(String tag, String msg, Throwable t) {
 		msg = onThread(msg);

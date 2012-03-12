@@ -3,11 +3,12 @@ name: Titanium.XML.DOMImplementation
 extends: Titanium.Proxy
 summary: The <Titanium.XML.DOMImplementation> interface provides a number of methods for
     performing operations that are independent of any particular instance of the document object
-    model. This conforms to the [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
-    defintion of a DOM DOMImplementation.
+    model.Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-102161490) 
+    on Android and iOS. Exposes the 
+    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-102161490) implementation on Mobile Web.
 since: "1.8"
 createable: false
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 methods:
   - name: createDocument
     summary: Creates an <Titanium.XML.Document> object of the specified type with its document

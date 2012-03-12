@@ -45,7 +45,7 @@ properties:
     summary: an Item object which indicates the currently playing media
     type: Object
   - name: playbackState
-    summary: the playback state; one of <Titanium.Media.MUSIC_PLAYER_STATE_STOPPED>, <Titanium.Media.MUSIC_PLAYER_STATE_PLAYING>, <Titanium.Media.MUSIC_PLAYER_STATE_PAUSED>, <Titanium.Media.MUSIC_PLAYER_STATE_INTERRUPTED>, <Titanium.Media.MUSIC_PLAYER_STATE_SKEEK_FORWARD>, <Titanium.Media.MUSIC_PLAYER_STATE_SEEK_BACKWARD>
+    summary: the playback state; one of <Titanium.Media.MUSIC_PLAYER_STATE_STOPPED>, <Titanium.Media.MUSIC_PLAYER_STATE_PLAYING>, <Titanium.Media.MUSIC_PLAYER_STATE_PAUSED>, <Titanium.Media.MUSIC_PLAYER_STATE_INTERRUPTED>, <Titanium.Media.MUSIC_PLAYER_STATE_SEEK_FORWARD>, <Titanium.Media.MUSIC_PLAYER_STATE_SEEK_BACKWARD>
     type: Number
   - name: repeatMode
     summary: the repeat setting; one of <Titanium.Media.MUSIC_PLAYER_REPEAT_DEFAULT>, <Titanium.Media.MUSIC_PLAYER_REPEAT_NONE>, <Titanium.Media.MUSIC_PLAYER_REPEAT_ONE>, <Titanium.Media.MUSIC_PLAYER_REPEAT_ALL>

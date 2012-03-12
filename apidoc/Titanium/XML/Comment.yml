@@ -4,10 +4,8 @@ extends: Titanium.XML.CharacterData
 summary: |
     Represents the contents of an XML comment.
 description: |
-    The text contained in the comment is stored in the [data](Titanium.XML.Comment.data) property.
-
-    This conforms to the [DOM Level
-    2](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1728279322)
-    defintion of a `Comment`.
+    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1728279322) on
+    Android and iOS with some non-standard extensions. Exposes the 
+    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-1728279322) implementation on Mobile Web.
 createable: false
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
