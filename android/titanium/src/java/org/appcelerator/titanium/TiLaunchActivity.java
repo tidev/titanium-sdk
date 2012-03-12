@@ -6,6 +6,8 @@
  */
 package org.appcelerator.titanium;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
@@ -42,6 +44,12 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	private static final int RESTART_DELAY = 500;
 	private static final int FINISH_DELAY = 500;
 
+	// Constants for Kindle fire fix for android 2373 (TIMOB-7843)
+	private static final AtomicInteger creationCounter = new AtomicInteger();
+	private static final int KINDLE_FIRE_RESTART_FLAGS = (Intent.FLAG_ACTIVITY_NEW_TASK
+		| Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+	private static final String KINDLE_MODEL = "kindle";
+
 	protected TiUrl url;
 
 	// For restarting due to android bug 2373 detection.
@@ -50,6 +58,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	private PendingIntent restartPendingIntent = null;
 	private AlarmManager restartAlarmManager = null;
 	private int restartDelay = 0;
+	protected boolean invalidKindleFireRelaunch = false;
 
 	/**
 	 * @return The Javascript URL that this Activity should run
@@ -94,9 +103,35 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		}
 	}
 
+	// For kindle fire, we want to prevent subsequent instances of the activity from launching if it's following the
+	// restart workaround for android 2373. For whatever reason, the Fire always tries to re-launch the launch activity
+	// (i.e., a new instance of it) whenever the user selects the application from the application drawer (or shelf, whatever
+	// it is) after the app has been restarted because of 2373 detection. We detect here when that new instance of the launch
+	// activity is coming into existence, so that we can kill it off (finish()) right away.
+	protected boolean checkInvalidKindleFireRelaunch(Bundle savedInstanceState)
+	{
+		invalidKindleFireRelaunch = false;
+		int count = creationCounter.getAndIncrement();
+		if (count > 0 && getIntent().getFlags() == KINDLE_FIRE_RESTART_FLAGS
+			&& Build.MODEL.toLowerCase().contains(KINDLE_MODEL) && !isTaskRoot()) {
+			invalidKindleFireRelaunch = true;
+		}
+
+		if (invalidKindleFireRelaunch) {
+			activityOnCreate(savedInstanceState);
+			finish();
+		}
+
+		return invalidKindleFireRelaunch;
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		if (invalidKindleFireRelaunch || checkInvalidKindleFireRelaunch(savedInstanceState)) {
+			return;
+		}
+
 		TiApplication tiApp = getTiApp();
 
 		if (!tiApp.isRestartPending()) {
@@ -272,6 +307,10 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onRestart()
 	{
+		if (invalidKindleFireRelaunch) {
+			activityOnRestart();
+			return;
+		}
 		super.onRestart();
 
 		TiApplication tiApp = getTiApp();
@@ -292,6 +331,10 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onPause()
 	{
+		if (invalidKindleFireRelaunch) {
+			activityOnPause();
+			return;
+		}
 		if (getTiApp().isRestartPending()) {
 			super.onPause(); // Will take care of finish() if needed.
 			return;
@@ -314,7 +357,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			return;
 		}
 
-		if (invalidLaunchDetected) {
+		if (invalidLaunchDetected || invalidKindleFireRelaunch) {
 			activityOnStop();
 			return;
 		}
@@ -329,7 +372,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			return;
 		}
 
-		if (invalidLaunchDetected) {
+		if (invalidLaunchDetected || invalidKindleFireRelaunch) {
 			activityOnStart();
 			return;
 		}
@@ -339,6 +382,10 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onResume()
 	{
+		if (invalidKindleFireRelaunch) {
+			activityOnResume();
+			return;
+		}
 		if (getTiApp().isRestartPending()) {
 			super.onResume();
 			return;
@@ -356,6 +403,11 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onDestroy()
 	{
+		if (invalidKindleFireRelaunch) {
+			activityOnDestroy();
+			return;
+		}
+
 		TiApplication tiApp = getTiApp();
 
 		if (tiApp.isRestartPending() || invalidLaunchDetected) {
