@@ -9,4 +9,12 @@ module_dir = os.path.dirname(template_dir)
 sys.path.append(module_dir)
 import module
 
-class mobileweb(module.ModulePlatform): pass
+def rmdir(path):
+	if os.path.exists(path):
+		shutil.rmtree(path, True)
+
+class mobileweb(module.ModulePlatform):
+	def finished(self):
+		rmdir(os.path.join(self.project_dir, 'assets'))
+		rmdir(os.path.join(self.project_dir, 'hooks'))
+		rmdir(os.path.join(self.project_dir, 'platform'))
