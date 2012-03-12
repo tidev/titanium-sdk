@@ -24,6 +24,7 @@ public class TiConfig
 	* <pre>
 	* &lt;property name="ti.android.debug" type="bool"&gt;true&lt;/property&gt;
 	* </pre>
+	* @module.api
 	*/
 	public static boolean LOGD = Config.DEBUG;
 	public static boolean LOGV = Config.DEBUG;

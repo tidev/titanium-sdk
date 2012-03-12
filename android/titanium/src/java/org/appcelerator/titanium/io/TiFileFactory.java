@@ -30,6 +30,7 @@ public class TiFileFactory
 	 * @param path the path of the file
 	 * @param stream this is not being used
 	 * @return a TiBaseFile instance
+	 * @module.api
 	 */
 	public static TiBaseFile createTitaniumFile(String path, boolean stream)
 	{
@@ -44,6 +45,7 @@ public class TiFileFactory
 	 * @param parts A String Array containing parts of a file path.
 	 * @param stream this is not being used.
 	 * @return a TiBaseFile instance.
+	 * @module.api
 	 */
 	public static TiBaseFile createTitaniumFile(String[] parts, boolean stream)
 	{
@@ -132,6 +134,7 @@ public class TiFileFactory
 	 * @param privateStorage  determines the location of the data directory. If this is true, the location is internal(app-data://),
 	 * and external (SD) otherwise.
 	 * @return  the data directory.
+	 * @module.api
 	 */
 	public static File getDataDirectory (boolean privateStorage)
 	{
