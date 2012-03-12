@@ -30,6 +30,11 @@
 	</iphone>
 	<android xmlns:android="http://schemas.android.com/apk/res/android">
 	</android>
+	<mobileweb>
+		<theme>titanium</theme>
+		<precache>
+		</precache>
+	</mobileweb>
 	<modules>
 	</modules>
 </ti:app>
