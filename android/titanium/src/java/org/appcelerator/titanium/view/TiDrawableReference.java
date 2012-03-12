@@ -135,6 +135,7 @@ public class TiDrawableReference
 	 * @param activity the referenced activity.
 	 * @param blob the referenced blob.
 	 * @return A ready instance of TiDrawableReference.
+	 * @module.api
 	 */
 	public static TiDrawableReference fromBlob(Activity activity, TiBlob blob)
 	{
@@ -148,6 +149,7 @@ public class TiDrawableReference
 	 * @param proxy the activity proxy.
 	 * @param url the url to resolve.
 	 * @return A ready instance of TiDrawableReference.
+	 * @module.api
 	 */
 	public static TiDrawableReference fromUrl(KrollProxy proxy, String url)
 	{
@@ -159,6 +161,7 @@ public class TiDrawableReference
 	 * @param activity the referenced activity.
 	 * @param url the resource's url.
 	 * @return A ready instance of TiDrawableReference.
+	 * @module.api
 	 */
 	public static TiDrawableReference fromUrl(Activity activity, String url)
 	{
@@ -204,6 +207,7 @@ public class TiDrawableReference
 	 * @param activity the referenced activity.
 	 * @param object the referenced object.
 	 * @return A ready instance of TiDrawableReference.
+	 * @module.api
 	 */
 	public static TiDrawableReference fromObject(Activity activity, Object object)
 	{
@@ -258,7 +262,8 @@ public class TiDrawableReference
 
 	/**
 	 * Gets the bitmap from the resource without respect to sampling/scaling.
-	 * @return Bitmap, or null if any problem getting it.  Check logcat if null.
+	 * @return Bitmap, or null if errors occurred while trying to load or fetch it.
+	 * @module.api
 	 */
 	public Bitmap getBitmap()
 	{

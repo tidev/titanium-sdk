@@ -23,12 +23,14 @@ public interface TiActivitySupport
 	 * @param code  the request code, a code that represents the launched activity. This code will be returned in
 	 * {@link TiActivityResultHandler#onResult(android.app.Activity, int, int, Intent)} when the activity exits. 
 	 * @param handler the callback handler.
+	 * @module.api
 	 */
 	public void launchActivityForResult(Intent intent, int code, TiActivityResultHandler handler);
 	
 	/**
 	 * @return a code that represents the launched activity. This must be unique to differentiate launched activities that 
 	 * use the same callback handler.
+	 * @module.api
 	 */
 	public int getUniqueResultCode();
 }

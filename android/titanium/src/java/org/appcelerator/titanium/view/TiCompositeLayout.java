@@ -28,12 +28,23 @@ public class TiCompositeLayout extends ViewGroup
 	implements OnHierarchyChangeListener
 {
 	/**
-	 * The supported layout arrangements:
-	 * DEFAULT: The default Titanium layout arrangement.
-	 * VERTICAL: The layout arrangement for Views and Windows that set layout: "vertical".
-	 * HORIZONTAL: The layout arrangement for Views and Windows that set layout: "horizontal".
+	 * Supported layout arrangements
+	 * @module.api
 	 */
-	public enum LayoutArrangement {DEFAULT, VERTICAL, HORIZONTAL}
+	public enum LayoutArrangement {
+		/**
+		 * The default Titanium layout arrangement.
+		 */
+		DEFAULT,
+		/**
+		 * The layout arrangement for Views and Windows that set layout: "vertical".
+		 */
+		VERTICAL,
+		/**
+		 * The layout arrangement for Views and Windows that set layout: "horizontal".
+		 */
+		HORIZONTAL
+	}
 
 	protected static final String TAG = "TiCompositeLayout";
 	protected static final boolean DBG = TiConfig.LOGD && false;
@@ -53,11 +64,23 @@ public class TiCompositeLayout extends ViewGroup
 	private WeakReference<TiViewProxy> proxy;
 
 	// We need these two constructors for backwards compatibility with modules
+
+	/**
+	 * Constructs a new TiCompositeLayout object.
+	 * @param context the associated context.
+	 * @module.api
+	 */
 	public TiCompositeLayout(Context context)
 	{
 		this(context, LayoutArrangement.DEFAULT, null);
 	}
 
+	/**
+	 * Contructs a new TiCompositeLayout object.
+	 * @param context the associated context.
+	 * @param arrangement the associated LayoutArrangement
+	 * @module.api
+	 */
 	public TiCompositeLayout(Context context, LayoutArrangement arrangement)
 	{
 		this(context, LayoutArrangement.DEFAULT, null);
@@ -568,6 +591,9 @@ public class TiCompositeLayout extends ViewGroup
 		return MeasureSpec.EXACTLY;
 	}
 
+	/**
+	 * A TiCompositeLayout specific version of {@link android.view.ViewGroup.LayoutParams}
+	 */
 	public static class LayoutParams extends ViewGroup.LayoutParams {
 		protected int index;
 
@@ -584,14 +610,16 @@ public class TiCompositeLayout extends ViewGroup
 
 		public boolean autoHeight = true;
 		public boolean autoWidth = true;
-		
+
 		/**
 		 * If this is true, and {@link #autoWidth} is true, then the current view will fill available parent width.
+		 * @module.api
 		 */
 		public boolean autoFillsWidth = false;
-		
+
 		/**
 		 * If this is true, and {@link #autoHeight} is true, then the current view will fill available parent height.
+		 * @module.api
 		 */
 		public boolean autoFillsHeight = false;
 

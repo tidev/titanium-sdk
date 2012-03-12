@@ -94,6 +94,7 @@ public abstract class TiUIView
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
 	 * @param proxy the associated proxy.
+	 * @module.api
 	 */
 	public TiUIView(TiViewProxy proxy)
 	{
@@ -155,6 +156,7 @@ public abstract class TiUIView
 
 	/**
 	 * @return the view proxy.
+	 * @module.api
 	 */
 	public TiViewProxy getProxy()
 	{
@@ -164,6 +166,7 @@ public abstract class TiUIView
 	/**
 	 * Sets the view proxy.
 	 * @param proxy the proxy to set.
+	 * @module.api
 	 */
 	public void setProxy(TiViewProxy proxy)
 	{
@@ -182,6 +185,7 @@ public abstract class TiUIView
 
 	/**
 	 * @return the view's layout params.
+	 * @module.api
 	 */
 	public LayoutParams getLayoutParams()
 	{
@@ -190,6 +194,7 @@ public abstract class TiUIView
 
 	/**
 	 * @return the Android native view.
+	 * @module.api
 	 */
 	public View getNativeView()
 	{
@@ -199,6 +204,7 @@ public abstract class TiUIView
 	/**
 	 * Sets the nativeView to view.
 	 * @param view the view to set
+	 * @module.api
 	 */
 	protected void setNativeView(View view)
 	{

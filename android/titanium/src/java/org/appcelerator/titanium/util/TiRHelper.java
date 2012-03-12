@@ -25,6 +25,7 @@ public class TiRHelper {
 	
 	/**
 	 * The exception thrown by TiRHelper when a particular resource is not found.
+	 * @module.api
 	 */
 	public static final class ResourceNotFoundException extends ClassNotFoundException {
 		private static final long serialVersionUID = 119234857198273641L;
@@ -90,6 +91,7 @@ public class TiRHelper {
 	 * resource bundle, if the resource is not found in the application's resource bundle.
 	 * @return the resource, if found.
 	 * @throws ResourceNotFoundException the exception thrown when the resource is not found in either location listed above.
+	 * @module.api
 	 */
 	public static int getResource(String path, boolean includeSystemResources) throws ResourceNotFoundException {
 		Integer i = valCache.get(path);
@@ -114,6 +116,7 @@ public class TiRHelper {
 	 * @return the resource, if found.
 	 * @throws ResourceNotFoundException the exception thrown when the resource is not found in either
 	 * the application's resource bundle, or Android's internal resource bundle.
+	 * @module.api
 	 */
 	public static int getResource(String path) throws ResourceNotFoundException
 	{
