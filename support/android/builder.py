@@ -157,10 +157,12 @@ def copy_all(source_folder, dest_folder, ignore_dirs=[], ignore_files=[], ignore
 				os.makedirs(to_directory)
 			shutil.copyfile(from_, to_)
 
-def remove_orphaned_files(source_folder, target_folder):
+def remove_orphaned_files(source_folder, target_folder, ignore=[]):
 	is_res = source_folder.endswith('Resources') or source_folder.endswith('Resources' + os.sep)
 	for root, dirs, files in os.walk(target_folder):
 		for f in files:
+			if f in ignore:
+				continue
 			full = os.path.join(root, f)
 			rel = full.replace(target_folder, '')
 			if rel[0] == os.sep:
@@ -528,6 +530,15 @@ class Builder(object):
 			platform_folder = os.path.join(module.path, 'platform', 'android')
 			if os.path.exists(platform_folder):
 				copy_all(platform_folder, self.project_dir, one_time_msg="Copying platform-specific files for '%s' module" % module.manifest.name)
+
+	def copy_commonjs_modules(self):
+		info('Copying CommonJS modules...')
+		for module in self.modules:
+			if module.js is None:
+				continue
+			module_name = os.path.basename(module.js)
+			self.non_orphans.append(module_name)
+			shutil.copy(module.js, self.assets_resources_dir)
 
 	def copy_project_platform_folder(self, ignore_dirs=[], ignore_files=[]):
 		if not os.path.exists(self.platform_dir):
@@ -1640,6 +1651,7 @@ class Builder(object):
 		self.build_only = build_only
 		self.device_args = device_args
 		self.postbuild_modules = []
+		self.non_orphans = []
 		if install:
 			if self.device_args == None:
 				self.device_args = ['-d']
@@ -1776,8 +1788,8 @@ class Builder(object):
 			self.assets_dir = os.path.join(self.project_dir,'bin','assets')
 			self.assets_resources_dir = os.path.join(self.assets_dir,'Resources')
 			
-			if not os.path.exists(self.assets_dir):
-				os.makedirs(self.assets_dir)
+			if not os.path.exists(self.assets_resources_dir):
+				os.makedirs(self.assets_resources_dir)
 			
 			shutil.copy(self.project_tiappxml, self.assets_dir)
 			finalxml = os.path.join(self.assets_dir,'tiapp.xml')
@@ -1810,6 +1822,13 @@ class Builder(object):
 				self.debugger_port = int(hostport[1])
 			debugger_enabled = self.debugger_host != None and len(self.debugger_host) > 0
 
+			# Detect which modules are being used.
+			# We need to know this info in a few places, so the info is saved
+			# in self.missing_modules and self.modules
+			detector = ModuleDetector(self.top_dir)
+			self.missing_modules, self.modules = detector.find_app_modules(self.tiapp, 'android')
+
+			self.copy_commonjs_modules()
 			self.copy_project_resources()
 
 			last_build_info = None
@@ -1865,12 +1884,6 @@ class Builder(object):
 
 			self.warn_dupe_drawable_folders()
 
-			# Detect which modules are being used.
-			# We need to know this info in a few places, so the info is saved
-			# in self.missing_modules and self.modules
-			detector = ModuleDetector(self.top_dir)
-			self.missing_modules, self.modules = detector.find_app_modules(self.tiapp, 'android')
-
 			self.copy_module_platform_folders()
 
 			special_resources_dir = os.path.join(self.top_dir,'platform','android')
@@ -1897,7 +1910,7 @@ class Builder(object):
 			if build_only:
 				self.google_apis_supported = True
 
-			remove_orphaned_files(resources_dir, os.path.join(self.project_dir, 'bin', 'assets', 'Resources'))
+			remove_orphaned_files(resources_dir, self.assets_resources_dir, self.non_orphans)
 
 			generated_classes_built = self.build_generated_classes()
 

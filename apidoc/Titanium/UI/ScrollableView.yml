@@ -277,6 +277,15 @@ properties:
     platforms: [android, mobileweb]
     availability: creation
     
+  - name: scrollingEnabled
+    summary: |
+        Determines whether scrolling is enabled on the Scrollable view.
+        If this property is not set, scrolling is enabled.
+    type: Boolean
+    platforms: [iphone,ipad]
+    default: undefined (scrolling enabled)
+    since: "2.0"
+    
   - name: views
     summary: Sets the views within this Scrollable View.
     type: Array<Titanium.UI.View>

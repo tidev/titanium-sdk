@@ -91,6 +91,11 @@ public abstract class TiUIView
 
 	private boolean zIndexChanged = false;
 
+	/**
+	 * Constructs a TiUIView object with the associated proxy.
+	 * @param proxy the associated proxy.
+	 * @module.api
+	 */
 	public TiUIView(TiViewProxy proxy)
 	{
 		if (idGenerator == null) {
@@ -151,6 +156,7 @@ public abstract class TiUIView
 
 	/**
 	 * @return the view proxy.
+	 * @module.api
 	 */
 	public TiViewProxy getProxy()
 	{
@@ -160,6 +166,7 @@ public abstract class TiUIView
 	/**
 	 * Sets the view proxy.
 	 * @param proxy the proxy to set.
+	 * @module.api
 	 */
 	public void setProxy(TiViewProxy proxy)
 	{
@@ -176,6 +183,10 @@ public abstract class TiUIView
 		this.parent = parent;
 	}
 
+	/**
+	 * @return the view's layout params.
+	 * @module.api
+	 */
 	public LayoutParams getLayoutParams()
 	{
 		return layoutParams;
@@ -183,6 +194,7 @@ public abstract class TiUIView
 
 	/**
 	 * @return the Android native view.
+	 * @module.api
 	 */
 	public View getNativeView()
 	{
@@ -192,6 +204,7 @@ public abstract class TiUIView
 	/**
 	 * Sets the nativeView to view.
 	 * @param view the view to set
+	 * @module.api
 	 */
 	protected void setNativeView(View view)
 	{
@@ -429,6 +442,7 @@ public abstract class TiUIView
 			boolean hasImage = hasImage(d);
 			boolean hasColorState = hasColorState(d);
 			boolean hasBorder = hasBorder(d);
+			boolean nativeViewNull = (nativeView == null);
 
 			boolean requiresCustomBackground = hasImage || hasColorState || hasBorder;
 
@@ -441,7 +455,7 @@ public abstract class TiUIView
 
 				if (d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
 					Integer bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
-					if (nativeView != null) {
+					if (!nativeViewNull) {
 						nativeView.setBackgroundColor(bgColor);
 						nativeView.postInvalidate();
 					}
@@ -449,7 +463,7 @@ public abstract class TiUIView
 					if (key.equals(TiC.PROPERTY_OPACITY)) {
 						setOpacity(TiConvert.toFloat(newValue));
 					}
-					if (nativeView != null) {
+					if (!nativeViewNull) {
 						nativeView.setBackgroundDrawable(null);
 						nativeView.postInvalidate();
 					}
@@ -465,10 +479,7 @@ public abstract class TiUIView
 				if (!hasColorState) {
 					if (d.get(TiC.PROPERTY_BACKGROUND_COLOR) != null) {
 						bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
-						if (newBackground
-							|| (key.equals(TiC.PROPERTY_OPACITY)
-							|| key.equals(TiC.PROPERTY_BACKGROUND_COLOR)))
-						{
+						if (newBackground || (key.equals(TiC.PROPERTY_OPACITY) || key.equals(TiC.PROPERTY_BACKGROUND_COLOR))) {
 							background.setBackgroundColor(bgColor);
 						}
 					}
@@ -487,9 +498,15 @@ public abstract class TiUIView
 						handleBorderProperty(key, newValue);
 					}
 				}
+
 				applyCustomBackground();
+
+				if (key.equals(TiC.PROPERTY_OPACITY)) {
+					setOpacity(TiConvert.toFloat(newValue));
+				}
+
 			}
-			if (nativeView != null) {
+			if (!nativeViewNull) {
 				nativeView.postInvalidate();
 			}
 		} else if (key.equals(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
@@ -542,10 +559,6 @@ public abstract class TiUIView
 			bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
 			nativeView.setBackgroundColor(bgColor);
 		}
-		if (d.containsKey(TiC.PROPERTY_OPACITY) && !nativeViewNull) {
-			setOpacity(TiConvert.toFloat(d, TiC.PROPERTY_OPACITY));
-			
-		}
 		
 		if (d.containsKey(TiC.PROPERTY_VISIBLE) && !nativeViewNull) {
 			nativeView.setVisibility(TiConvert.toBoolean(d, TiC.PROPERTY_VISIBLE) ? View.VISIBLE : View.INVISIBLE);
@@ -567,6 +580,11 @@ public abstract class TiUIView
 		}
 
 		initializeBorder(d, bgColor);
+
+		if (d.containsKey(TiC.PROPERTY_OPACITY) && !nativeViewNull) {
+			setOpacity(TiConvert.toFloat(d, TiC.PROPERTY_OPACITY));
+
+		}
 
 		if (d.containsKey(TiC.PROPERTY_TRANSFORM)) {
 			Ti2DMatrix matrix = (Ti2DMatrix) d.get(TiC.PROPERTY_TRANSFORM);

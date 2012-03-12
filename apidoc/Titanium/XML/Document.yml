@@ -1,15 +1,18 @@
 ---
 name: Titanium.XML.Document
 summary: The DOM Document returned from <Titanium.XML.parseString>.
-    Implements the [DOM Level 2 API](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#i-Document).
 description: |
+    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#i-Document) on
+    Android and iOS. Exposes the 
+    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#i-Document) implementation on Mobile Web.
+    
     As of version 3.1, Android still does not truly support DTDs.  A document with a DTD can be
     parsed, however it is not validated, none of its default attributes will automatically be put
     into the tree, etc.  [Google is aware of the issue](http://code.google.com/p/android/issues/detail?id=7395).
 extends: Titanium.XML.Node
 createable: false
 since: "0.9"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 properties:
   - name: doctype
     type: Titanium.XML.DocumentType

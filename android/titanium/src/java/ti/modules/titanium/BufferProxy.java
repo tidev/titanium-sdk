@@ -22,7 +22,9 @@ import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.codec.CodecModule;
 
-
+/**
+ * A proxy that wraps a primitive byte array buffer
+ */
 @Kroll.proxy(creatableInModule=TitaniumModule.class, propertyAccessors = {
 	TiC.PROPERTY_BYTE_ORDER,
 	TiC.PROPERTY_TYPE,
@@ -48,21 +50,6 @@ public class BufferProxy extends KrollProxy
 	{
 		buffer = existingBuffer;
 	}
-
-	// We need to handle the "raw" create call so Kroll doesn't convert
-	// the passed in arguments to an array (they have a "length" attribute)
-	//@Override
-	/*TODO public Object handleCreate(KrollInvocation invocation, Object[] args)
-	{
-		this.createdInModule = (KrollModule) invocation.getProxy();
-		if (args.length > 0 && args[0] instanceof Scriptable) {
-			KrollDict dict = new KrollScriptableDict((Scriptable) args[0]);
-			handleCreationDict(dict);
-		} else {
-			buffer = new byte[0];
-		}
-		return KrollConverter.getInstance().convertNative(invocation, this);
-	}*/
 
 	@Override
 	public void handleCreationArgs(KrollModule createdInModule, Object[] args)
@@ -137,6 +124,10 @@ public class BufferProxy extends KrollProxy
 		}
 	}
 
+	/**
+	 * @return The native buffer for this proxy
+	 * @module.api
+	 */
 	public byte[] getBuffer()
 	{
 		return buffer;
@@ -184,6 +175,15 @@ public class BufferProxy extends KrollProxy
 		}
 	}
 
+	/**
+	 * Writes data from sourceBuffer into this.
+	 * @param position the offset position of this buffer.
+	 * @param sourceBuffer the source buffer to write from.
+	 * @param sourceOffset the offset position of the sourceBuffer.
+	 * @param sourceLength the length of the sourceBuffer.
+	 * @return number of bytes written, -1 if no data is available.
+	 * @module.api
+	 */
 	public int write(int position, byte[] sourceBuffer, int sourceOffset, int sourceLength)
 	{
 		if ((position + sourceLength) > buffer.length) {
@@ -348,12 +348,22 @@ public class BufferProxy extends KrollProxy
 		return TiBlob.blobFromData(buffer);
 	}
 
+	/**
+	 * @return The length of this buffer in bytes
+	 * @module.api
+	 */
 	@Kroll.getProperty @Kroll.method
 	public int getLength()
 	{
 		return buffer.length;
 	}
 
+	/**
+	 * Sets the length of this buffer proxy by either growing or shrinking
+	 * the allocated buffer space
+	 * @param length The new length of this buffer proxy in bytes
+	 * @module.api
+	 */
 	@Kroll.setProperty @Kroll.method
 	public void setLength(int length)
 	{

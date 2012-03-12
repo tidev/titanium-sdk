@@ -1,10 +1,10 @@
-define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI", "Ti/_/css"], function(declare, Evented, UI, css) {
+define(["Ti/_/declare", "Ti/_/Evented", "Ti/Locale", "Ti/UI", "Ti/_/css"], function(declare, Evented, Locale, UI, css) {
 
 	var undef;
 
 	return declare("Ti.UI.OptionDialog", Evented, {
+
 		show: function() {
-			
 			// Create the window and a background to dim the current view
 			var optionsWindow = this._optionsWindow = UI.createWindow();
 			var dimmingView = UI.createView({
@@ -111,12 +111,8 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI", "Ti/_/css"], function(declare, 
 			title: "",
 			
 			titleid: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.optionsDialog#.titleid" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.optionsDialog#.titleid" is not implemented yet.');
+					this.title = Locale.getString(value);
 					return value;
 				}
 			}

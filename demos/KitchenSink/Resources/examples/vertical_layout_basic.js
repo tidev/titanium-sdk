@@ -9,7 +9,7 @@ header.add(headerLabel);
 win.add(header);
 
 // BODY
-var body = Ti.UI.createView({height:'auto', layout:'vertical', backgroundColor:'#fff'});
+var body = Ti.UI.createView({height:Ti.UI.SIZE, layout:'vertical', backgroundColor:'#fff'});
 
 var bodyView1 = Ti.UI.createView({backgroundColor:'#336699', height:100, left:10, right:10});
 var bodyView2 = Ti.UI.createView({backgroundColor:'#ff0000', height:50, left:10, right:10, top:10});

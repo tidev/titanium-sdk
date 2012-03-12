@@ -40,6 +40,12 @@ description: |
     or [rename](Titanium.Filesystem.File.rename), you can no longer access it with the 
     original `File` object. You must use `getFile` to get a handle to the new path.
 
+    #### Resource Files
+
+    The `Resources` directory and all the files in it are read-only. On Android, resource
+    files are stored in the resource bundle and do not have all of the properties of
+    normal files. In particular, they do not have creation or modification timestamps.
+
 extends: Titanium.Proxy
 since: "0.1"
 platforms: [android, iphone, ipad, mobileweb]
@@ -131,6 +137,8 @@ methods:
     platforms: [iphone, ipad, mobileweb]
   - name: createTimestamp
     summary: Returns the creation timestamp for the file identified by this file object.
+    description: |
+        On Android, returns 0 for resource files.
     returns:
         type: Number
   - name: deleteDirectory
@@ -191,6 +199,8 @@ methods:
     platforms: [android, mobileweb]
   - name: modificationTimestamp
     summary: Returns the last modification time for this file.
+    description: |
+        On Android, returns 0 for resource files.
     returns:
         type: Number
   - name: move

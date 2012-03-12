@@ -59,7 +59,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		leftImage.setVisibility(GONE);
 		addView(leftImage, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 
-		this.content = new TiCompositeLayout(activity, null);
+		this.content = new TiCompositeLayout(activity);
 		content.setMinimumHeight(48);
 		addView(content, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 
