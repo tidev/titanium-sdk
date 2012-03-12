@@ -97,14 +97,6 @@ define(
 			self._nodesToLayout.push(node);
 			function startLayout() {
 				
-				function printTree(node) {
-					console.debug(node.widgetId + ": " + node._markedForLayout);
-					for(var i in node.children) {
-						printTree(node.children[i]);
-					}
-				}
-				printTree(self._container);
-				
 				self._elementLayoutCount = 0;
 				self._layoutCount++;
 				var startTime = (new Date()).getTime(),
@@ -112,100 +104,94 @@ define(
 					layoutNode,
 					node,
 					parent,
+					previousParent,
 					children,
 					child,
 					isParentWidthSize,
 					isParentHeightSize,
 					recursionStack,
 					rootNodesToLayout = [],
-					layoutParams;
-					
-				lang.breakpoint();
+					layoutParams,
+					layoutRootNode = false;
 					
 				// Determine which nodes need to be re-layed out
 				for (var i in nodes) {
 					layoutNode = nodes[i];
-					if (!layoutNode._markedForLayout) {
 						
-						// Mark all of the children for update that need to be updated
-						recursionStack = [layoutNode];
-						while (recursionStack.length > 0) {
-							node = recursionStack.pop();
-							if (!node._markedForLayout) {
-								node._markedForLayout = true;
-								children = node.children;
-								for (var i in children) {
-									child = children[i];
-									if (node.layout !== "composite" || child._isDependentOnParent || !child._hasBeenLayedOut) {
-										recursionStack.push(child);
-									}
-								}
+					// Mark all of the children for update that need to be updated
+					recursionStack = [layoutNode];
+					while (recursionStack.length > 0) {
+						node = recursionStack.pop();
+						node._markedForLayout = true;
+						children = node.children;
+						for (var i in children) {
+							child = children[i];
+							if (node.layout !== "composite" || child._isDependentOnParent || !child._hasBeenLayedOut) {
+								recursionStack.push(child);
 							}
 						}
+					}
+					
+					// Go up and mark any other nodes that need to be marked
+					parent = layoutNode;
+					while(1) {
+						if (!parent._parent) {
+							layoutRootNode = true;
+							break;
+						} else if(!parent._parent._hasSizeDimensions()) {
+							!parent._parent._markedForLayout && rootNodesToLayout.push(parent._parent);
+							break;
+						}
 						
-						// Go up and mark any other nodes that need to be marked
-						parent = layoutNode._parent;
-						if (parent && !parent._markedForLayout) {
-							recursionStack = [parent];
-							while (recursionStack.length > 0) {
-								node = recursionStack.pop();
-								children = node.children;
-								for (var i in children) {
-									child = children[i];
-									if (!child._markedForLayout && (node.layout !== "composite" || child._isDependentOnParent)) {
-										child._markedForLayout = true;
-										recursionStack.push(child);
-									}
-								}
-								if (node._parent && !node._parent._markedForLayout && node._parent._hasSizeDimensions()) {
-									recursionStack.push(node._parent);
-								} else {
-									rootNodesToLayout.push(node);
+						previousParent = parent;
+						parent = parent._parent;
+						recursionStack = [parent];
+						while (recursionStack.length > 0) {
+							node = recursionStack.pop();
+							children = node.children;
+							for (var i in children) {
+								child = children[i];
+								if (child !== previousParent && (node.layout !== "composite" || child._isDependentOnParent)) {
+									child._markedForLayout = true;
+									recursionStack.push(child);
 								}
 							}
-						} else {
-							rootNodesToLayout.push(layoutNode);
 						}
 					}
 				}
 				
 				// Layout all nodes that need it
+				if (layoutRootNode) {
+					var container = self._container;
+					container._doLayout({
+					 	origin: {
+					 		x: 0,
+					 		y: 0
+					 	},
+					 	isParentSize: {
+					 		width: false,
+					 		height: false
+					 	},
+					 	boundingSize: {
+					 		width: window.innerWidth,
+					 		height: window.innerHeight
+					 	},
+					 	alignment: {
+					 		horizontal: "center",
+					 		vertical: "center"
+					 	},
+					 	positionElement: true,
+					 	layoutChildren: true
+				 	});
+				}
 				for (var i in rootNodesToLayout) {
 					node = rootNodesToLayout[i];
-					if (node._markedForLayout) {
-						layoutParams = node._layoutParams
-						if (layoutParams) {
-							layoutParams.positionElement = true;
-							layoutParams.layoutChildren = true;
-							node._doLayout(layoutParams);
-						} else {
-							node._doLayout({
-							 	origin: {
-							 		x: 0,
-							 		y: 0
-							 	},
-							 	isParentSize: {
-							 		width: !!(parent && parent.width === Ti.UI.SIZE),
-							 		height: !!(parent && parent.height === Ti.UI.SIZE)
-							 	},
-							 	boundingSize: {
-							 		width: parent ? parent._measuredWidth : window.innerWidth,
-							 		height: parent ? parent._measuredHeight : window.innerHeight
-							 	},
-							 	alignment: {
-							 		horizontal: parent ? parent._layout._defaultHorizontalAlignment : "center",
-							 		vertical: parent ? parent._layout._defaultVerticalAlignment : "center"
-							 	},
-							 	positionElement: true,
-							 	layoutChildren: true
-						 	});
-						}
-					}
+					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node.width === Ti.UI.SIZE, node.height === Ti.UI.SIZE);
 				}
-				self._nodesToLayout = [];
 				
 				console.debug("Layout " + self._layoutCount + ": " + self._elementLayoutCount + 
 					" elements layed out in " + ((new Date().getTime() - startTime)) + "ms");
+					
 				self._layoutInProgress = false;
 				self._layoutTimer = null;
 				self._nodesToLayout = [];
