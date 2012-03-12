@@ -65,6 +65,7 @@ jmethodID JNIUtil::setToArrayMethod = NULL;
 jmethodID JNIUtil::dateInitMethod = NULL;
 jmethodID JNIUtil::dateGetTimeMethod = NULL;
 jmethodID JNIUtil::doubleInitMethod = NULL;
+jmethodID JNIUtil::integerInitMethod = NULL;
 jmethodID JNIUtil::booleanInitMethod = NULL;
 jmethodID JNIUtil::booleanBooleanValueMethod = NULL;
 jmethodID JNIUtil::longInitMethod = NULL;
@@ -300,6 +301,7 @@ void JNIUtil::initCache()
 	dateInitMethod = getMethodID(dateClass, "<init>", "(J)V", false);
 	dateGetTimeMethod = getMethodID(dateClass, "getTime", "()J", false);
 
+	integerInitMethod = getMethodID(integerClass, "<init>", "(I)V", false);
 	doubleInitMethod = getMethodID(doubleClass, "<init>", "(D)V", false);
 	booleanInitMethod = getMethodID(booleanClass, "<init>", "(Z)V", false);
 	booleanBooleanValueMethod = getMethodID(booleanClass, "booleanValue", "()Z", false);
