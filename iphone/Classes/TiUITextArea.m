@@ -150,7 +150,7 @@
 	return TRUE;
 }
 
--(CGFloat)autoWidthForWidth:(CGFloat)value
+-(CGFloat)contentWidthForWidth:(CGFloat)value
 {
     if (![self hasText]) {
         return 0.0;
@@ -162,7 +162,7 @@
     return [txt sizeWithFont:ourView.font forWidth:value lineBreakMode:UILineBreakModeWordWrap].width+10;
 }
 
--(CGFloat)autoHeightForWidth:(CGFloat)value
+-(CGFloat)contentHeightForWidth:(CGFloat)value
 {
     if (![self hasText]) {
         return 0.0;

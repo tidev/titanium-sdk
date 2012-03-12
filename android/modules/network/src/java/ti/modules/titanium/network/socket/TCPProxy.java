@@ -209,7 +209,6 @@ public class TCPProxy extends KrollProxy implements TiStream
 					int timeout = TiConvert.toInt(timeoutProperty);
 
 					clientSocket = new Socket();
-					clientSocket.setSoTimeout(timeout);
 					clientSocket.connect(new InetSocketAddress(host, TiConvert.toInt(getProperty("port"))), timeout);
 
 				} else {

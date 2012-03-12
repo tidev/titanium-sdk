@@ -5,11 +5,12 @@ summary: >
     Represents an element in a DOM document, a <Titanium.XML.Node> 
     defined by a start-tag and end-tag (or an empty tag). Elements may have
     [attributes](Titanium.XML.Attr) associated with them.
-    This conforms to the 
-    [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
-    definition of a DOM Element.
+    
+    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-745549614) 
+    on Android and iOS with some non-standard extensions. Exposes the 
+    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-745549614) implementation on Mobile Web.
 createable: false
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 methods:
   - name: getAttribute
     summary: Retrieves an attribute value by name, returning it as a string.
@@ -217,6 +218,12 @@ properties:
     type: String
     permission: read-only
   - name: text
+    summary: <em>Non-standard</em>. Retrieves all child text nodes as one String
+    type: String
+    permission: read-only
+    platforms: [android, iphone, ipad]
+  - name: textContent
     summary: Retrieves all child text nodes as one String
     type: String
     permission: read-only
+    platforms: [mobileweb]

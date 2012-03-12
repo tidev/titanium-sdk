@@ -500,6 +500,9 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	</target>
 
 	<target name="build.titanium.javadoc">
+		<path id="published.doclet.path">
+			<fileset file="${ti.build.dir}/lib/publishedApiDoclet1.5-0.4.jar"/>
+		</path>
 		<mkdir dir="${dist.dir}/javadoc"/>
 		<property file="${ti.build.dir}/javadoc.properties" prefix="javadoc" prefixValues="true"/>
 
@@ -511,6 +514,16 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			version="true"
 			use="true"
 			windowtitle="${javadoc.windowTitle}">
+
+			<doclet name="de.kruis.padoclet.PublishedApiDoclet">
+				<path refid="published.doclet.path"/>
+				<param name="-padIncludeTag" value="module.api"/>
+				<param name="-padDefaultIsExclude"/>
+			</doclet>
+
+			<link href="http://java.sun.com/javase/6/docs/api/"/>
+			<link href="http://developer.android.com/reference/" offline="true"
+				packagelistLoc="${ti.build.dir}/android-reference/"/>
 
 			<sourcefiles>
 				<fileset dir="${titanium.project.dir}/src/java" defaultexcludes="yes">

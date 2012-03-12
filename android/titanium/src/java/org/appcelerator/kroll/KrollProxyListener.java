@@ -20,17 +20,33 @@ public interface KrollProxyListener
 	 * @param oldValue  the old value.
 	 * @param newValue  the new value.
 	 * @param proxy  the associated proxy.
+	 * @module.api
 	 */
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy);
 	
 	/**
 	 * Implementing classes can use this method to examine the properties passed into the proxy.
 	 * @param properties  a set of properties to process.
+	 * @module.api
 	 */
 	public void processProperties(KrollDict properties);
 	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy);
 	
-	
+	/**
+	 * This method is called when an event listener is added for a specific event.
+	 * @param type the added event listener
+	 * @param count the count of event listeners.
+	 * @param proxy the proxy that added the listener.
+	 * @module.api
+	 */
 	public void listenerAdded(String type, int count, KrollProxy proxy);
+	
+	/**
+	 * This method is called when an event listener is removed for a specific event.
+	 * @param type the removed event listener
+	 * @param count the count of event listeners.
+	 * @param proxy the proxy that removed the listener.
+	 * @module.api
+	 */
 	public void listenerRemoved(String type, int count, KrollProxy proxy);
 }

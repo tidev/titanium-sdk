@@ -91,11 +91,21 @@ public class TiMessenger implements Handler.Callback
 		return threadLocalMessenger.get();
 	}
 
+	/**
+	 * @return the main TiMessenger instance. This is used for sending messages to the Main thread.
+	 * See {@link #sendBlockingMainMessage(Message, Object)} for more details.
+	 * @module.api
+	 */
 	public static TiMessenger getMainMessenger()
 	{
 		return mainMessenger;
 	}
 
+	/**
+	 * @return the KrollRuntime TiMessenger instance. This is used for sending messages to the KrollRuntime thread.
+	 * See {@link #sendBlockingRuntimeMessage(Message, Object)} for more details.
+	 * @module.api
+	 */
 	public static TiMessenger getRuntimeMessenger()
 	{
 		return runtimeMessenger;
@@ -129,6 +139,7 @@ public class TiMessenger implements Handler.Callback
 	 * queue while blocking on the passed in AsyncResult. The blocking is done on the Main thread.
 	 * @param message  the message to send.
 	 * @return  The getResult() value of the AsyncResult put on the message.
+	 * @module.api
 	 */
 	public static Object sendBlockingMainMessage(Message message)
 	{
@@ -142,6 +153,7 @@ public class TiMessenger implements Handler.Callback
 	 * @param message   the message to send.
 	 * @param asyncArg  argument to be added to the AsyncResult.
 	 * @return  The getResult() value of the AsyncResult put on the message.
+	 * @module.api
 	 */
 	public static Object sendBlockingMainMessage(Message message, Object asyncArg)
 	{
@@ -154,6 +166,7 @@ public class TiMessenger implements Handler.Callback
 	 * queue while blocking on the passed in AsyncResult. The blocking is done on the KrollRuntime thread.
 	 * @param message  the message to send.
 	 * @return  The getResult() value of the AsyncResult put on the message.
+	 * @module.api
 	 */
 	public static Object sendBlockingRuntimeMessage(Message message)
 	{
@@ -167,6 +180,7 @@ public class TiMessenger implements Handler.Callback
 	 * @param message   the message to send.
 	 * @param asyncArg  the argument to be added to AsyncResult.
 	 * @return  The getResult() value of the AsyncResult put on the message.
+	 * @module.api
 	 */
 	public static Object sendBlockingRuntimeMessage(Message message, Object asyncArg)
 	{
@@ -180,6 +194,10 @@ public class TiMessenger implements Handler.Callback
 		handler = new Handler(this);
 	}
 
+	/**
+	 * @return the native looper. See {@link android.os.Looper} for more details.
+	 * @module.api
+	 */
 	public Looper getLooper()
 	{
 		return looper;
