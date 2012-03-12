@@ -12,8 +12,10 @@ description: |
 
     **NOTE** Although the analytics module allows you to transmit other types of 
     events, such as navigation events and timed events, *data regarding these events 
-    is **not** accessible through the Analytics UI.* These events should be supported 
-    in a future version of the Analytics product.
+    is **not** accessible through the Analytics UI.* 
+    
+    Navigation events will be supported in a future version of the Analytics product. 
+    There is no plan to support the other event types, and they and should not be used.
 
 extends: Titanium.Module
 # technically these methods exist, but they serve no purpose and confuse the doc.
@@ -25,6 +27,8 @@ methods:
     summary: |
         Sends a generic event for this application session.
         **Not displayed in Analytics UI**.
+    deprecated: 
+        since: "2.0.0"
     parameters:
 
       - name: type
@@ -88,6 +92,8 @@ methods:
     summary: |
         Sends a settings event for this application session.
         **Not displayed in Analytics UI**.
+    deprecated: 
+        since: "2.0.0"
     parameters:
 
       - name: name
@@ -104,6 +110,8 @@ methods:
     summary: |
         Send a timed event for this application session.
         **Not displayed in Analytics UI**.
+    deprecated: 
+        since: "2.0.0"
     parameters:
 
       - name: name
@@ -132,6 +140,8 @@ methods:
     summary: 
         Sends a user event for this application session.
         **Not displayed in Analytics UI**.
+    deprecated: 
+        since: "2.0.0"
     parameters:
 
       - name: name
