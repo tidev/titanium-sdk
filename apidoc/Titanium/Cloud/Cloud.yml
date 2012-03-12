@@ -106,23 +106,17 @@ properties:
   - name: onsendstream
     summary: Function to be called at regular intervals as the request data is being transmitted.
     description: |
-        Must be set before calling any ACS method.
-
-        The `progress` property of the event will contain a value from 0.0-1.0 with the progress of
-        the upload.
-
-        The `url` property of the event will contain the url for the request.
-    type: Callback<Object>
+        Set this property before calling any ACS method for which you want to track the transmission.
+                
+        When you are done tracking the transmission, set this to null.
+    type: Callback<CloudStreamProgress>
   - name: ondatastream
     summary: Function to be called at regular intervals as the request data is being received.
     description: |
-        Must be set before calling an ACS method.
-
-        The `progress` property of the event will contain a value from 0.0-1.0 with
-        the progress of the request.
-
-        The `url` property of the event will contain the url for the request.
-    type: Callback<Object>
+        Set this property before calling any ACS method for which you want to track the transmission.
+        
+        When you are done tracking the transmission, set this to null.
+    type: Callback<CloudStreamProgress>
 
 examples:
   - title: Override Base URL Example
@@ -151,3 +145,13 @@ examples:
             Cloud.consumerSecretDevelopment = '\<YOUR DEVELOPMENT CONSUMER SECRET\>';
             Cloud.consumerKeyProduction = '\<YOUR PRODUCTION CONSUMER KEY\>';
             Cloud.consumerSecretDevelopment = '\<YOUR PRODUCTION CONSUMER SECRET\>';
+---
+name: CloudStreamProgress
+summary: Argument passed to the callback as a request is transmitted or received.
+properties:
+  - name: progress
+    summary: A value from 0.0-1.0 with the progress of the exchange.
+    type: Number
+  - name: url
+    summary: The URL for the request, to help you identify it.
+    type: String

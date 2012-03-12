@@ -42,26 +42,9 @@ examples:
             });
 ---
 name: CloudClientsResponse
-summary: The callback to be fired when the requested operation finishes
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: CloudResponse
 properties:
-  - name: success
-    summary: Set to `true` if the request succeeded.
-    type: Boolean
-  - name: error
-    summary: Set to `true` if the request failed.
-    type: Boolean
-  - name: meta
-    summary: A dictionary object containing meta data, if any.
-    description: Only included if 'success' is 'true'.
-    type: Object
-  - name: code
-    summary: Error code, if any.
-    description: Only included if `error` is true.
-    type: Number
-  - name: message
-    summary: Error message, if any.
-    description: Only included if `error` is `true`.
-    type: String
   - name: ip_address
     summary: IP address of client
     description: Only included if `success` is `true`.

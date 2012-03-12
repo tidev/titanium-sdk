@@ -282,26 +282,9 @@ examples:
 
 ---
 name: CloudPhotoCollectionsResponse
-summary: The callback to be fired when the requested operation finishes
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: CloudResponse
 properties:
-  - name: success
-    summary: Set to `true` if the request succeeded.
-    type: Boolean
-  - name: error
-    summary: Set to `true` if the request failed.
-    type: Boolean
-  - name: meta
-    summary: A dictionary object containing meta data, if any.
-    description: Only included if 'success' is 'true'.
-    type: Object
-  - name: code
-    summary: Error code, if any.
-    description: Only included if `error` is true.
-    type: Number
-  - name: message
-    summary: Error message, if any.
-    description: Only included if `success` is `true`.
-    type: String
   - name: collections
     summary: Array of `collections` objects, if any
     description: Only included if `success` is `true`.
@@ -309,26 +292,9 @@ properties:
 
 ---
 name: CloudPhotoCollectionsPhotosResponse
-summary: The callback to be fired when the requested operation finishes
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: CloudResponse
 properties:
-  - name: success
-    summary: Set to `true` if the request succeeded.
-    type: Boolean
-  - name: error
-    summary: Set to `true` if the request failed.
-    type: Boolean
-  - name: meta
-    summary: A dictionary object containing meta data, if any.
-    description: Only included if 'success' is 'true'.
-    type: Object
-  - name: code
-    summary: Error code, if any.
-    description: Only included if `error` is true.
-    type: Number
-  - name: message
-    summary: Error message, if any.
-    description: Only included if `success` is `true`.
-    type: String
   - name: photos
     summary: Array of `photos` objects, if any
     description: Only included if `success` is `true`.
