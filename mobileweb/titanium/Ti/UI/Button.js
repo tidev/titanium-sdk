@@ -166,7 +166,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			title: {
 				set: function(value) {
 					this._buttonTitle.innerHTML = value;
-					this._hasSizeDimensions() && this._triggerParentLayout();
+					this._hasSizeDimensions() && this._triggerLayout();
 					return value;
 				}
 			},

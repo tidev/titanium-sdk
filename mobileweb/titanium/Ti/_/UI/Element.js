@@ -28,7 +28,16 @@ define(
 		},
 		postLayoutProp = {
 			post: function() {
-				this._parent && this._parent._triggerLayout();
+				function isPercent(value) {
+					return is(value, "String") && !~value.indexOf("%");
+				}
+				var centerX = this.center && this.center.x,
+					centerY = this.center && this.center.y
+				this._isDependentOnParent = !!(isPercent(this.width) || isPercent(this.height) || isPercent(this.top) || isPercent(this.bottom) || 
+					isPercent(this.left) || isPercent(this.right) || isPercent(centerX) || isPercent(centerY) || 
+					(!isDef(this.left) && !isDef(centerX) && !isDef(this.right) && this._parent && this._parent._layout._defaultHorizontalAlignment !== "left") ||
+					(!isDef(this.top) && !isDef(centerY) && !isDef(this.bottom) && this._parent && this._parent._layout._defaultVerticalAlignment !== "top"));
+				this._triggerLayout();
 			}
 		};
 
@@ -166,29 +175,7 @@ define(
 		},
 		
 		_triggerLayout: function(force) {
-			
-			if (this._markedForLayout && !force) {
-				return;
-			}
-			
-			// If this element is not attached to an active window, skip the calculation
-			if (!this._isAttachedToActiveWin()) {
-				return;
-			}
-			
-			// Find the top most node that needs to be layed out.
-			var rootLayoutNode = this;
-			while(rootLayoutNode._parent != null && rootLayoutNode._hasSizeDimensions()) {
-				rootLayoutNode = rootLayoutNode._parent;
-			}
-			rootLayoutNode._markedForLayout = true;
-			
-			// Let the UI know that a layout needs to be performed if this is not part of a batch update
-			(!this._batchUpdateInProgress || force) && UI._triggerLayout(force);
-		},
-		
-		_triggerParentLayout: function() {
-			this._parent && this._parent._triggerLayout();
+			this._isAttachedToActiveWin() && (!this._batchUpdateInProgress || force) && UI._triggerLayout(this, force);
 		},
 		
 		_hasSizeDimensions: function() {
@@ -196,9 +183,9 @@ define(
 				(this.height === UI.SIZE || (!isDef(this.height) && this._defaultHeight === UI.SIZE));
 		},
 		
-		_hasPercentageDimensions: function() {
-			
-		},
+		_hasBeenLayedOut: false,
+		
+		_isDependentOnParent: true,
 		
 		startLayout: function() {
 			this._batchUpdateInProgress = true;
@@ -273,6 +260,7 @@ define(
 				setStyle(this.domNode, styles);
 			
 				this._markedForLayout = false;
+				this._hasBeenLayedOut = true;
 				
 				// Run the post-layout animation, if needed
 				if (this._doAnimationAfterLayout) {
