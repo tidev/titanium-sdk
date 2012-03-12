@@ -415,9 +415,11 @@ class Builder(object):
 		info("Launching Android emulator...one moment")
 		debug("From: " + self.sdk.get_emulator())
 		debug("SDCard: " + self.sdcard)
-		debug("AVD ID: " + avd_id)
-		debug("AVD Skin: " + avd_skin)
-		debug("AVD Name: " + avd_name)
+		if avd_name == None:
+			debug("AVD ID: " + avd_id)
+			debug("AVD Skin: " + avd_skin)
+		else:
+			debug("AVD Name: " + avd_name)
 		debug("SDK: " + sdk_dir)
 		
 		# make sure adb is running on windows, else XP can lockup the python
