@@ -4,7 +4,6 @@ import os, sys, time, datetime, codecs, shutil, subprocess, re, math, base64
 from stat import *
 from tiapp import *
 from xml.dom.minidom import parseString
-from pkg_resources import parse_version
 
 # mako and simplejson are in support/common
 this_dir = os.path.dirname(os.path.abspath(__file__))
@@ -28,6 +27,11 @@ HEADER = """/**
  * This generated source code is Copyright (c) 2010-%d by Appcelerator, Inc. All Rights Reserved.
  */
 """ % year
+
+def compare_versions(version1, version2):
+	def normalize(v):
+		return [int(x) for x in re.sub(r'(\.0+)*$','', v).split(".")]
+	return cmp(normalize(version1), normalize(version2))
 
 class Compiler(object):
 
@@ -153,7 +157,7 @@ class Compiler(object):
 						key,value = line.split(':')
 						manifest[key.strip()] = value.strip()
 					
-					if 'minsdk' in manifest and cmp(parse_version(manifest['minsdk']), parse_version(sdk_version)):
+					if 'minsdk' in manifest and compare_versions(manifest['minsdk'], sdk_version):
 						print '[ERROR] Ti+ module "%s" requires a minimum SDK version of %s: current version %s' % (module['id'], manifest['minsdk'], sdk_version)
 						sys.exit(1)
 					

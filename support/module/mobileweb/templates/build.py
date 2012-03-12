@@ -4,7 +4,7 @@
 #
 
 version = '__VERSION__'
-sdk_path = '__SDK__'
+sdk_path = r'__SDK__'
 
 import os, sys, time, datetime, string, math, zipfile, codecs, re, shutil, subprocess, base64
 from datetime import date
