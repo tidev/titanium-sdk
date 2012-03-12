@@ -4,6 +4,7 @@ import os, sys, time, datetime, codecs, shutil, subprocess, re, math, base64
 from stat import *
 from tiapp import *
 from xml.dom.minidom import parseString
+from pkg_resources import parse_version
 
 # mako and simplejson are in support/common
 this_dir = os.path.dirname(os.path.abspath(__file__))
@@ -137,6 +138,23 @@ class Compiler(object):
 					module_package_json_file = os.path.join(module_dir, 'package.json')
 					if not os.path.exists(module_package_json_file):
 						print '[ERROR] Ti+ module "%s" is invalid: missing package.json' % module['id']
+						sys.exit(1)
+					
+					module_manifest_file = os.path.join(module_dir, 'manifest')
+					if not os.path.exists(module_manifest_file):
+						print '[ERROR] Ti+ module "%s" is invalid: missing manifest' % module['id']
+						sys.exit(1)
+					
+					manifest = {}
+					for line in open(module_manifest_file).readlines():
+						line = line.strip()
+						if line[0:1] == '#': continue
+						if line.find(':') < 0: continue
+						key,value = line.split(':')
+						manifest[key.strip()] = value.strip()
+					
+					if 'minsdk' in manifest and cmp(parse_version(manifest['minsdk']), parse_version(sdk_version)):
+						print '[ERROR] Ti+ module "%s" requires a minimum SDK version of %s: current version %s' % (module['id'], manifest['minsdk'], sdk_version)
 						sys.exit(1)
 					
 					module_package_json = simplejson.load(codecs.open(module_package_json_file, 'r', 'utf-8'))
