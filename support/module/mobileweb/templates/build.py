@@ -9,7 +9,7 @@ sdk_path = '__SDK__'
 import os, sys, time, datetime, string, math, zipfile, codecs, re, shutil, subprocess, base64
 from datetime import date
 from xml.dom.minidom import parseString
-sys.path.append(os.path.join(os.path.dirname(sdk_path), "common"))
+sys.path.append(os.path.join(sdk_path, "common"))
 import simplejson
 
 try:
