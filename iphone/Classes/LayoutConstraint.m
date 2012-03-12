@@ -88,9 +88,10 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
                 break;
             }
             //If it comes here it has to follow SIZE behavior
-            if ([autoSizer respondsToSelector:@selector(autoWidthForWidth:)])
+            if ([autoSizer respondsToSelector:@selector(autoWidthForSize:)])
             {
-                width = [autoSizer autoWidthForWidth:width];
+                CGFloat desiredWidth = [autoSizer autoWidthForSize:CGSizeMake(width, referenceSize.height)];
+                width = width < desiredWidth?width:desiredWidth;
             }
             else if(resultResizing != NULL)
             {
@@ -150,9 +151,9 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
                 break;
             }
             //If it comes here it has to follow size behavior
-            if ([autoSizer respondsToSelector:@selector(autoHeightForWidth:)])
+            if ([autoSizer respondsToSelector:@selector(autoHeightForSize:)])
             {
-                height = [autoSizer autoHeightForWidth:width];
+                height = [autoSizer autoHeightForSize:CGSizeMake(width, height)];
             }
             else if(resultResizing != NULL)
             {

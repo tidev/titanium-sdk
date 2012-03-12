@@ -34,7 +34,7 @@
 -(BOOL)isJSModule;
 -(NSData*)moduleJS;
 
-/**
+/*
  Converts a resource name in to a URL.
  @param name The name of the resource.
  @return The URL of the resource

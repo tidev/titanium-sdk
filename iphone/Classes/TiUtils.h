@@ -431,6 +431,11 @@ typedef enum {
 
 +(CGRect)centerRect:(CGRect)smallerRect inRect:(CGRect)largerRect;
 
+/**
+ Sets the view's bounds and center coordinates.
+ @param view The view to make changes on.
+ @param frameRect The rectangle containing bounds to apply to the view.
+ */
 +(void)setView:(UIView *)view positionRect:(CGRect)frameRect;
 
 +(CGRect)viewPositionRect:(UIView *)view;
@@ -449,10 +454,22 @@ typedef enum {
  */
 +(BOOL)isIPad;
 
+/**
+ Whether or not the current OS version is equal to or greater than 4.2.
+ @return _YES_ if the current OS version is equal to or greater than 4.2, _NO_ otherwise.
+ */
 +(BOOL)isIOS4_2OrGreater;
 
+/**
+ Whether or not the current OS version is equal to or greater than 5.0.
+ @return _YES_ if the current OS version is equal to or greater thann 5.0, _NO_ otherwise.
+ */
 +(BOOL)isIOS5OrGreater;
 
+/**
+ Whether or not the current device is an iPhone 4.
+ @return _YES_ if the current device is an iPhone 4, _NO_ otherwise.
+ */
 +(BOOL)isIPhone4;
 
 /**
