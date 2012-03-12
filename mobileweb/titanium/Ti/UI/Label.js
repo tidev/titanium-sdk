@@ -41,7 +41,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 			this._addStyleableDomNode(this.textContainerDiv);
 			
-			this.touchEnabled = false;
 			this.wordWrap = true;
 		},
 
