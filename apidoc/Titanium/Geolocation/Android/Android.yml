@@ -15,7 +15,7 @@ description: |
 
     2.  Enabling location providers.
 
-    3.  Adding location rules.
+    3.  Adding location rules (optional).
 
     As with the other modes, you register for location updates using the main
     <Titanium.Geolocation> module. Location updates are generated as long as 
@@ -49,10 +49,10 @@ description: |
     *   [Geolocation.frequency](Titanium.Geolocation.frequency)
     *   [Geolocation.preferredProvider](Titanium.Geolocation.preferredProvider)
 
-    When `manualMode` is `false`, **any** configurations set through 
-    <Titanium.Geolocation.Android> are ignored, and the `accuracy`,
-    `frequency` and `preferredProvider` settings from <Titanium.Geolocation>
-    are used to configure location updates.
+    When `manualMode` is `false`, the `accuracy`, `frequency` and `preferredProvider` 
+    settings from <Titanium.Geolocation> are used to configure location updates.
+    Any location providers and location rules set in <Titanium.Geolocation.Android> 
+    are retained, but they have no effect.
 
     #### Location Providers
         
@@ -100,7 +100,8 @@ description: |
     location rules to reduce the number of location update events, and ensure that 
     the events you do receive are as accurate and recent as your application requires.
 
-    By reducing the number of location events that are passed from the native code
+    You are not required to set any location rules. However, by reducing the number of 
+    location events that are passed from the native code
     to the JavaScript layer, location rules can improve both performance and battery
     life.
 
