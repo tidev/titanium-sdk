@@ -48,15 +48,30 @@ The `example` directory contains a skeleton application test harness that can be
 used for testing and providing an example of usage to the users of your module.
 
 
-INSTALL YOUR MODULE
+BUILDING YOUR MODULE
 --------------------
 
-1. Run `build.py` which creates your distribution
-2. cd to `/Library/Application Support/Titanium`
-3. copy this zip file into the folder of your Titanium SDK
+Simply run `build.py` which creates your distribution.
+
+
+INSTALL YOUR MODULE
+-------------------
+
+Mac OS X
+--------
+Copy the distribution zip file into the `/Library/Application Support/Titanium` folder
+
+Linux
+-----
+Copy the distribution zip file into the `~/.titanium` folder
+
+Windows
+-------
+Copy the distribution zip file into the `C:\ProgramData\Titanium` folder
+
 
 REGISTER YOUR MODULE
----------------------
+--------------------
 
 Register your module with your application by editing `tiapp.xml` and adding your module.
 Example:
@@ -65,8 +80,9 @@ Example:
 	<module version="0.1">__MODULE_ID__</module>
 </modules>
 
-When you run your project, the compiler will know automatically compile in your module
-dependencies and copy appropriate image assets into the application.
+When you run your project, the compiler will combine your module along with its dependencies
+and assets into the application.
+
 
 USING YOUR MODULE IN CODE
 -------------------------
