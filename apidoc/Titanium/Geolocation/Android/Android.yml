@@ -22,20 +22,34 @@ description: |
     an event listener is registered for the `location` event.  When you are not 
     using location updates, you should remove any registered event listeners.
 
+    In manual mode, the application is responsible for dynamically updating the settings
+    to acheive its required accuracy while limiting battery usage. For example, an
+    application might do any of the following:
+
+    *   If the application isn't getting updates frequently enough, it can adjust its
+        provider settings to provide more updates, or relax its location rules to allow
+        less accurate updates through. 
+
+    *   If the application isn't receiving accurate enough updates from one provider, it 
+        can add another provider to try to improve results.
+
+    *   If the application is getting sufficiently accurate results from the network 
+        provider, it can disable the GPS provider to save power.
+
     #### Enabling Manual Configuration Mode
 
-    To enable manual configuration mode, set the [manualConfig](Titanium.Geolocation.Android.manualConfig) 
+    To enable manual configuration mode, set the [manualMode](Titanium.Geolocation.Android.manualMode) 
     property to `true`. In manual configuration mode, the location providers and location
     rules set through this module control the generation of location updates.
     
-    When `manualConfig` is `true`, the following configuration settings in the
+    When `manualMode` is `true`, the following configuration settings in the
     <Titanium.Geolocation> module are ignored:
 
     *   [Geolocation.accuracy](Titanium.Geolocation.accuracy)
     *   [Geolocation.frequency](Titanium.Geolocation.frequency)
     *   [Geolocation.preferredProvider](Titanium.Geolocation.preferredProvider)
 
-    When `manualConfig` is `false`, **any** configurations set through 
+    When `manualMode` is `false`, **any** configurations set through 
     <Titanium.Geolocation.Android> are ignored, and the `accuracy`,
     `frequency` and `preferredProvider` settings from <Titanium.Geolocation>
     are used to configure location updates.
@@ -113,7 +127,7 @@ description: |
 
     *   `accuracy`. Minimum accuracy required for a location update. Accuracy is
         expressed as the maximum allowable error, in meters. Updates with reported
-        accuracy values greater than this are filtered out.
+        accuracy values greater than this are filtered out. 
 
     *   `minAge`. Controls the frequency of location updates. Do not forward an update unless
          at least `minAge` milliseconds have passed since the last good location
@@ -126,12 +140,16 @@ description: |
     are added is not significant. For a `location` event to be generated, the location
     update must pass all of the active rules.
 
+    Note that some combinations of rules may make it very difficult to get location
+    updates. In particular, very low values for either `accuracy` or `maxAge` may prevent 
+    results from getting through. 
+
 since: "2.0.0"
 extends: Titanium.Module
 
 properties:
 
-  - name: manualConfig
+  - name: manualMode
     summary: Set to `true` to enable manual configuration of location updates through this module.
     description: |
         If `true`, location updates are controlled by the location providers and location rules 

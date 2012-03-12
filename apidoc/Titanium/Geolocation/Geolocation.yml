@@ -63,7 +63,7 @@ description: |
     
     Prior to Titanium Mobile 2.0, Titanium attempted to follow the iOS model on Android,
     but this didn't fit the native Android model well. In Release 2.0, three different
-    location service mode are supported on Android:
+    location service mode are supported on Android: *legacy*, *manual*, and *simple*.
 
     *   *Legacy mode* is the mode that existed prior to 2.0. Legacy mode is 
         used when you set the `accuracy` property to one of the iOS 
@@ -92,8 +92,11 @@ description: |
 
     *   *Manual mode* gives developers low-level control of location updates, including
         enabling individual location providers and filtering updates, for the best
-        combination of accuracy and battery life. For details on configuring location
-        services in manual mode, see <Titanium.Geolocation.Android>. 
+        combination of accuracy and battery life. 
+
+        Manual mode is used when the <Titanium.Geolocation.Android.manualMode> flag is set
+        to `true`. In manual mode, the `accuracy` property is not used, and all
+        configuration is done through the <Titanium.Geolocation.Android> module.
 
     *   *Simple mode* provides a compromise mode that provides adaquate support for 
         undemanding location applications without requiring developers to
@@ -105,10 +108,6 @@ description: |
 
         In this mode the platform handles enabling and disabling location providers and
         filtering location updates.
-
-        Setting the [preferredProvider](Titanium.Geolocation.preferredProvider) or
-        [frequency](Titanium.Geolocation.frequency) properties will trigger a switch from
-        simple mode to legacy mode.
 
     #### Configuring Location Updates on Mobile Web
 
