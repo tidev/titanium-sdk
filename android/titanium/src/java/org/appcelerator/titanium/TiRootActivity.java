@@ -33,8 +33,12 @@ public class TiRootActivity extends TiLaunchActivity
 	{
 		TiApplication tiApp = getTiApp();
 
-		if (checkMissingLauncher(savedInstanceState)) {
+		if (checkInvalidLaunch(savedInstanceState)) {
 			// Android bug 2373 detected and we're going to restart.
+			return;
+		}
+
+		if (checkInvalidKindleFireRelaunch(savedInstanceState)) {
 			return;
 		}
 
@@ -96,6 +100,10 @@ public class TiRootActivity extends TiLaunchActivity
 	protected void onDestroy()
 	{
 		super.onDestroy();
+		if (invalidKindleFireRelaunch) {
+			return;
+		}
+
 		if (DBG) {
 			Log.d(LCAT, "root activity onDestroy, activity = " + this);
 		}
