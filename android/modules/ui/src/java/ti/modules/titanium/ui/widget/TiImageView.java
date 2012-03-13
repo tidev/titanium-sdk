@@ -232,7 +232,7 @@ public class TiImageView extends ViewGroup
 			od.setCallback(null);
 			if (od instanceof BitmapDrawable && recycle) {
 				Bitmap bitmap = ((BitmapDrawable) od).getBitmap();
-				//check if bitmap exists before recycling (it may not if the user creates a imageView without passing in an image or defaultImage)
+				//check if bitmap exists before recycling (it may not if the user creates an imageView without passing in an image or defaultImage)
 				if (bitmap != null) {
 					bitmap.recycle();
 				}
