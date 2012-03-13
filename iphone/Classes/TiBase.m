@@ -102,6 +102,7 @@ NSString* const kTiUnitPercent = @"%";
 
 
 
+
 BOOL TiExceptionIsSafeOnMainThread = NO;
 
 void TiExceptionThrowWithNameAndReason(NSString * exceptionName, NSString * message)
@@ -242,6 +243,8 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 		[caughtException raise];
 	}
 }
+//Initializing krollContextCounter to zero.
+int krollContextCounter = 0;
 
 BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhenEmpty, void * reserved )
 {
@@ -285,7 +288,7 @@ BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhe
 				shouldContinue = timercmp(&nowTime, &doneTime, <);
 			}
 			
-			if (shouldContinue && isEmpty) {
+			if (shouldContinue && isEmpty && (krollContextCounter >0)) {
 				struct timespec doneTimeSpec;
 				TIMEVAL_TO_TIMESPEC(&doneTime,&doneTimeSpec);
 				/*
@@ -296,7 +299,23 @@ BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhe
 				pthread_cond_timedwait(&TiThreadBlockCondition, &TiThreadBlockMutex, &doneTimeSpec);
 			}
 		pthread_mutex_unlock(&TiThreadBlockMutex);
-	} while (shouldContinue);
-
+	} while (shouldContinue && (krollContextCounter >0));
 	return isEmpty;
+}
+
+//KrollCounter Helper function
+
+void incrementKrollCounter(){
+    OSAtomicIncrement32Barrier(&krollContextCounter);
+}
+
+void decrementKrollCounter(){
+    
+    int currentContextCount = OSAtomicDecrement32Barrier(&krollContextCounter);
+    if(currentContextCount == 0)
+    {
+        pthread_mutex_lock(&TiThreadBlockMutex);
+        pthread_cond_signal(&TiThreadBlockCondition);
+        pthread_mutex_unlock(&TiThreadBlockMutex);
+    }
 }
