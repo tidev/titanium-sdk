@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -87,32 +87,32 @@ public class LocationRuleProxy extends KrollProxy
 	public boolean check(Location currentLocation, Location newLocation)
 	{
 		String provider = TiConvert.toString(properties.get(TiC.PROPERTY_PROVIDER));
-		if(provider != null) {
-			if(!(provider.equals(newLocation.getProvider()))) {
+		if (provider != null) {
+			if (!(provider.equals(newLocation.getProvider()))) {
 				return false;
 			}
 		}
 
 		Object rawAccuracy = properties.get(TiC.PROPERTY_ACCURACY);
-		if(rawAccuracy != null) {
+		if (rawAccuracy != null) {
 			double accuracyValue = TiConvert.toDouble(rawAccuracy);
-			if(accuracyValue < newLocation.getAccuracy()) {
+			if (accuracyValue < newLocation.getAccuracy()) {
 				return false;
 			}
 		}
 
 		Object rawMinAge = properties.get(TiC.PROPERTY_MIN_AGE);
-		if((rawMinAge != null) && (currentLocation != null)) {
+		if ((rawMinAge != null) && (currentLocation != null)) {
 			double minAgeValue = TiConvert.toDouble(rawMinAge);
-			if(minAgeValue > (newLocation.getTime() - currentLocation.getTime())) {
+			if (minAgeValue > (newLocation.getTime() - currentLocation.getTime())) {
 				return false;
 			}
 		}
 
 		Object rawMaxAge = properties.get(TiC.PROPERTY_MAX_AGE);
-		if((rawMaxAge != null) && (currentLocation != null)) {
+		if ((rawMaxAge != null) && (currentLocation != null)) {
 			double maxAgeValue = TiConvert.toDouble(rawMaxAge);
-			if(maxAgeValue > (newLocation.getTime() - currentLocation.getTime())) {
+			if (maxAgeValue > (newLocation.getTime() - currentLocation.getTime())) {
 				return false;
 			}
 		}

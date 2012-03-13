@@ -18,7 +18,6 @@ import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
@@ -135,6 +134,7 @@ public class GeolocationModule extends KrollModule
 	@Kroll.constant @Deprecated public static final int ACCURACY_THREE_KILOMETERS = 6;
 
 	public TiLocation tiLocation;
+	public AndroidModule androidModule;
 	public int numLocationListeners = 0;
 	public HashMap<String, LocationProviderProxy> simpleLocationProviders = new HashMap<String, LocationProviderProxy>();
 	@Deprecated public HashMap<String, LocationProviderProxy> legacyLocationProviders = new HashMap<String, LocationProviderProxy>();
@@ -143,20 +143,19 @@ public class GeolocationModule extends KrollModule
 	protected static final int MSG_ENABLE_LOCATION_PROVIDERS = KrollModule.MSG_LAST_ID + 100;
 	protected static final int MSG_LAST_ID = MSG_ENABLE_LOCATION_PROVIDERS;
 
-	private final String TAG = "GeolocationModule";
-	private final boolean DBG = TiConfig.LOGD;
-	private final double SIMPLE_LOCATION_PASSIVE_DISTANCE = 0.0;
-	private final double SIMPLE_LOCATION_PASSIVE_TIME = 0;
-	private final double SIMPLE_LOCATION_NETWORK_DISTANCE = 10.0;
-	private final double SIMPLE_LOCATION_NETWORK_TIME = 10000;
-	private final double SIMPLE_LOCATION_GPS_DISTANCE = 3.0;
-	private final double SIMPLE_LOCATION_GPS_TIME = 3000;
-	private final double SIMPLE_LOCATION_NETWORK_DISTANCE_RULE = 200;
-	private final double SIMPLE_LOCATION_NETWORK_MIN_AGE_RULE = 60000;
+	private static final String TAG = "GeolocationModule";
+	private static final boolean DBG = TiConfig.LOGD;
+	private static final double SIMPLE_LOCATION_PASSIVE_DISTANCE = 0.0;
+	private static final double SIMPLE_LOCATION_PASSIVE_TIME = 0;
+	private static final double SIMPLE_LOCATION_NETWORK_DISTANCE = 10.0;
+	private static final double SIMPLE_LOCATION_NETWORK_TIME = 10000;
+	private static final double SIMPLE_LOCATION_GPS_DISTANCE = 3.0;
+	private static final double SIMPLE_LOCATION_GPS_TIME = 3000;
+	private static final double SIMPLE_LOCATION_NETWORK_DISTANCE_RULE = 200;
+	private static final double SIMPLE_LOCATION_NETWORK_MIN_AGE_RULE = 60000;
 
 	private TiCompass tiCompass;
 	private boolean compassListenersRegistered = false;
-	private AndroidModule androidModuleInstance;
 	private ArrayList<LocationRuleProxy> simpleLocationRules = new ArrayList<LocationRuleProxy>();
 	private LocationRuleProxy simpleLocationGpsRule;
 	private LocationRuleProxy simpleLocationNetworkRule;
@@ -327,7 +326,7 @@ public class GeolocationModule extends KrollModule
 	 */
 	public void onProviderUpdated(LocationProviderProxy locationProvider)
 	{
-		if(getManualMode() && (numLocationListeners > 0)) {
+		if (getManualMode() && (numLocationListeners > 0)) {
 			tiLocation.locationManager.removeUpdates(locationProvider);
 			registerLocationProvider(locationProvider);
 		}
@@ -339,17 +338,17 @@ public class GeolocationModule extends KrollModule
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		if(key.equals(TiC.PROPERTY_ACCURACY)) {
+		if (key.equals(TiC.PROPERTY_ACCURACY)) {
 			// accuracy property is what triggers a shift between simple and legacy modes. the 
 			// android only manual mode is indicated by the AndroidModule.manualMode value which 
 			// has no impact on the legacyModeActive flag.  IE: when determining the current mode, 
 			// both flags must be checked
 			propertyChangedAccuracy(newValue);
 
-		} else if(key.equals(TiC.PROPERTY_FREQUENCY)) {
+		} else if (key.equals(TiC.PROPERTY_FREQUENCY)) {
 			propertyChangedFrequency(newValue);
 
-		} else if(key.equals(TiC.PROPERTY_PREFERRED_PROVIDER)) {
+		} else if (key.equals(TiC.PROPERTY_PREFERRED_PROVIDER)) {
 			propertyChangedPreferredProvider(newValue);
 		}
 	}
@@ -363,13 +362,13 @@ public class GeolocationModule extends KrollModule
 	{
 		// is legacy mode enabled (registered with OS, not just selected via the accuracy property)
 		boolean legacyModeEnabled = false;
-		if(legacyModeActive && (!getManualMode()) && (numLocationListeners > 0)) {
+		if (legacyModeActive && (!getManualMode()) && (numLocationListeners > 0)) {
 			legacyModeEnabled = true;
 		}
 
 		// is simple mode enabled (registered with OS, not just selected via the accuracy property)
 		boolean simpleModeEnabled = false;
-		if(!legacyModeActive && !(getManualMode()) && (numLocationListeners > 0)) {
+		if (!legacyModeActive && !(getManualMode()) && (numLocationListeners > 0)) {
 			simpleModeEnabled = true;
 		}
 
@@ -377,9 +376,9 @@ public class GeolocationModule extends KrollModule
 
 		// is this a legacy accuracy property?
 		Double accuracyLookupResult = legacyLocationAccuracyMap.get(accuracyProperty);
-		if(accuracyLookupResult != null) {
+		if (accuracyLookupResult != null) {
 			// has the value changed from the last known good value?
-			if(accuracyProperty != legacyLocationAccuracyProperty) {
+			if (accuracyProperty != legacyLocationAccuracyProperty) {
 				legacyLocationAccuracyProperty = accuracyProperty;
 
 				for (String providerKey : legacyLocationProviders.keySet()) {
@@ -387,46 +386,46 @@ public class GeolocationModule extends KrollModule
 					locationProvider.setProperty(TiC.PROPERTY_MIN_UPDATE_DISTANCE, accuracyLookupResult);
 				}
 
-				if(legacyModeEnabled) {
+				if (legacyModeEnabled) {
 					enableLocationProviders(legacyLocationProviders);
 				}
 			}
 
-			if(simpleModeEnabled) {
+			if (simpleModeEnabled) {
 				enableLocationProviders(legacyLocationProviders);
 			}
 
 			legacyModeActive = true;
 
 		// is this a simple accuracy property?
-		} else if((accuracyProperty == ACCURACY_HIGH) || (accuracyProperty == ACCURACY_LOW)) {
+		} else if ((accuracyProperty == ACCURACY_HIGH) || (accuracyProperty == ACCURACY_LOW)) {
 			// has the value changed from the last known good value?
-			if(accuracyProperty != simpleLocationAccuracyProperty) {
+			if (accuracyProperty != simpleLocationAccuracyProperty) {
 				simpleLocationAccuracyProperty = accuracyProperty;
 				LocationProviderProxy gpsProvider = simpleLocationProviders.get(PROVIDER_GPS);
 
-				if((accuracyProperty == ACCURACY_HIGH) && (gpsProvider == null)) {
+				if ((accuracyProperty == ACCURACY_HIGH) && (gpsProvider == null)) {
 					gpsProvider = new LocationProviderProxy(PROVIDER_GPS, SIMPLE_LOCATION_GPS_DISTANCE, SIMPLE_LOCATION_GPS_TIME, this);
 					simpleLocationProviders.put(PROVIDER_GPS, gpsProvider);
 					simpleLocationRules.add(simpleLocationNetworkRule);
 					simpleLocationRules.add(simpleLocationGpsRule);
 
-					if(simpleModeEnabled) {
+					if (simpleModeEnabled) {
 						registerLocationProvider(gpsProvider);
 					}
 
-				} else if((accuracyProperty == ACCURACY_LOW) && (gpsProvider != null)) {
+				} else if ((accuracyProperty == ACCURACY_LOW) && (gpsProvider != null)) {
 					simpleLocationProviders.remove(PROVIDER_GPS);
 					simpleLocationRules.remove(simpleLocationNetworkRule);
 					simpleLocationRules.remove(simpleLocationGpsRule);
 
-					if(simpleModeEnabled) {
+					if (simpleModeEnabled) {
 						tiLocation.locationManager.removeUpdates(gpsProvider);
 					}
 				}
 			}
 
-			if(legacyModeEnabled) {
+			if (legacyModeEnabled) {
 				enableLocationProviders(simpleLocationProviders);
 			}
 
@@ -443,12 +442,12 @@ public class GeolocationModule extends KrollModule
 	{
 		// is legacy mode enabled (registered with OS, not just selected via the accuracy property)
 		boolean legacyModeEnabled = false;
-		if(legacyModeActive && !getManualMode() && (numLocationListeners > 0)) {
+		if (legacyModeActive && !getManualMode() && (numLocationListeners > 0)) {
 			legacyModeEnabled = true;
 		}
 
 		double frequencyProperty = TiConvert.toDouble(newValue) * 1000;
-		if(frequencyProperty != legacyLocationFrequency) {
+		if (frequencyProperty != legacyLocationFrequency) {
 			legacyLocationFrequency = frequencyProperty;
 
 			Iterator<String> iterator = legacyLocationProviders.keySet().iterator();
@@ -457,7 +456,7 @@ public class GeolocationModule extends KrollModule
 				locationProvider.setProperty(TiC.PROPERTY_MIN_UPDATE_TIME, legacyLocationFrequency);
 			}
 
-			if(legacyModeEnabled) {
+			if (legacyModeEnabled) {
 				enableLocationProviders(legacyLocationProviders);
 			}
 		}
@@ -472,32 +471,32 @@ public class GeolocationModule extends KrollModule
 	{
 		// is legacy mode enabled (registered with OS, not just selected via the accuracy property)
 		boolean legacyModeEnabled = false;
-		if(legacyModeActive && !getManualMode() && (numLocationListeners > 0)) {
+		if (legacyModeActive && !getManualMode() && (numLocationListeners > 0)) {
 			legacyModeEnabled = true;
 		}
 
 		String preferredProviderProperty = TiConvert.toString(newValue);
-		if(!(preferredProviderProperty.equals(PROVIDER_NETWORK)) && (!(preferredProviderProperty.equals(PROVIDER_GPS)))) {
+		if (!(preferredProviderProperty.equals(PROVIDER_NETWORK)) && (!(preferredProviderProperty.equals(PROVIDER_GPS)))) {
 			return;
 		}
 
-		if(!(preferredProviderProperty.equals(legacyLocationPreferredProvider))) {
+		if (!(preferredProviderProperty.equals(legacyLocationPreferredProvider))) {
 			LocationProviderProxy oldProvider = legacyLocationProviders.get(legacyLocationPreferredProvider);
 			LocationProviderProxy newProvider = legacyLocationProviders.get(preferredProviderProperty);
 
-			if(oldProvider != null) {
+			if (oldProvider != null) {
 				legacyLocationProviders.remove(legacyLocationPreferredProvider);
 
-				if(legacyModeEnabled) {
+				if (legacyModeEnabled) {
 					tiLocation.locationManager.removeUpdates(oldProvider);
 				}
 			}
 
-			if(newProvider == null) {
+			if (newProvider == null) {
 				newProvider = new LocationProviderProxy(preferredProviderProperty, legacyLocationAccuracyMap.get(legacyLocationAccuracyProperty), legacyLocationFrequency, this);
 				legacyLocationProviders.put(preferredProviderProperty, newProvider);
 
-				if(legacyModeEnabled) {
+				if (legacyModeEnabled) {
 					registerLocationProvider(newProvider);
 				}
 			}
@@ -520,21 +519,20 @@ public class GeolocationModule extends KrollModule
 
 		} else if (TiC.EVENT_LOCATION.equals(event)) {
 			numLocationListeners++;
-			if(numLocationListeners == 1) {
+			if (numLocationListeners == 1) {
 				HashMap<String, LocationProviderProxy> locationProviders = legacyLocationProviders;
 
-				AndroidModule androidModule = getAndroidModule();
-				if((androidModule != null) && (androidModule.manualMode)) {
+				if (getManualMode()) {
 					locationProviders = androidModule.manualLocationProviders;
 
-				} else if(!legacyModeActive) {
+				} else if (!legacyModeActive) {
 					locationProviders = simpleLocationProviders;
 				}
 				enableLocationProviders(locationProviders);
 
 				// fire off an initial location fix if one is available
 				Location lastKnownLocation = tiLocation.getLastKnownLocation();
-				if(lastKnownLocation != null) {
+				if (lastKnownLocation != null) {
 					fireEvent(TiC.EVENT_LOCATION, buildLocationEvent(lastKnownLocation, tiLocation.locationManager.getProvider(lastKnownLocation.getProvider())));
 				}
 			}
@@ -557,7 +555,7 @@ public class GeolocationModule extends KrollModule
 
 		} else if (TiC.EVENT_LOCATION.equals(event)) {
 			numLocationListeners--;
-			if(numLocationListeners == 0) {
+			if (numLocationListeners == 0) {
 				disableLocationProviders();
 			}
 		}
@@ -588,26 +586,6 @@ public class GeolocationModule extends KrollModule
 	}
 
 	/**
-	 * Attempts to return the instance of the Android geolocation module that has been registered with
-	 * the application
-	 * 
-	 * @return 				instance of the Android module if it has been registered yet with the 
-	 * 						application, null otherwise
-	 */
-	private AndroidModule getAndroidModule()
-	{
-		if(this.androidModuleInstance == null) {
-			AndroidModule androidModuleInstance = (AndroidModule) TiApplication.getInstance().getModuleByName("geolocation.android");
-
-			// new value can still be null, just a shortcut for making sure we don't keep looking up 
-			// once we have a valid instance
-			this.androidModuleInstance = androidModuleInstance;
-		}
-
-		return this.androidModuleInstance;
-	}
-
-	/**
 	 * Checks if the Android manual location behavior mode is currently enabled
 	 * 
 	 * @return 				<code>true</code> if currently in manual mode, <code>
@@ -616,8 +594,7 @@ public class GeolocationModule extends KrollModule
 	 */
 	private boolean getManualMode()
 	{
-		AndroidModule androidModule = getAndroidModule();
-		if(androidModule == null) {
+		if (androidModule == null) {
 			return false;
 
 		} else {
@@ -672,7 +649,7 @@ public class GeolocationModule extends KrollModule
 	 */
 	private void doEnableLocationProviders(HashMap<String, LocationProviderProxy> locationProviders)
 	{
-		if(numLocationListeners > 0) {
+		if (numLocationListeners > 0) {
 			disableLocationProviders();
 
 			Iterator<String> iterator = locationProviders.keySet().iterator();
@@ -698,7 +675,6 @@ public class GeolocationModule extends KrollModule
 			tiLocation.locationManager.removeUpdates(locationProvider);
 		}
 
-		AndroidModule androidModule = getAndroidModule();
 		if (androidModule != null) {
 			for (LocationProviderProxy locationProvider : androidModule.manualLocationProviders.values()) {
 				tiLocation.locationManager.removeUpdates(locationProvider);
@@ -812,11 +788,10 @@ public class GeolocationModule extends KrollModule
 	{
 		boolean passed = false;
 
-		AndroidModule androidModule = getAndroidModule();
-		if((androidModule != null) && (androidModule.manualMode)) {
-			if(androidModule.manualLocationRules.size() > 0) {
+		if (getManualMode()) {
+			if (androidModule.manualLocationRules.size() > 0) {
 				for(LocationRuleProxy rule : androidModule.manualLocationRules) {
-					if(rule.check(currentLocation, newLocation)) {
+					if (rule.check(currentLocation, newLocation)) {
 						passed = true;
 
 						break;
@@ -827,9 +802,9 @@ public class GeolocationModule extends KrollModule
 				passed = true; // no rules set, always accept
 			}
 
-		} else if(!legacyModeActive) {
+		} else if (!legacyModeActive) {
 			for(LocationRuleProxy rule : simpleLocationRules) {
-				if(rule.check(currentLocation, newLocation)) {
+				if (rule.check(currentLocation, newLocation)) {
 					passed = true;
 
 					break;

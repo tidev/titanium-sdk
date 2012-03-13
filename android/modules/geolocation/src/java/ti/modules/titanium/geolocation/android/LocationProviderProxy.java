@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -45,7 +45,8 @@ public class LocationProviderProxy extends KrollProxy
 	public static final int STATE_AVAILABLE = 4;
 	public static final int STATE_UNKNOWN = 5;
 
-	private final String TAG = "LocationProviderProxy";
+	private static final String TAG = "LocationProviderProxy";
+
 	private final double defaultMinUpdateDistance = 0.0;
 	private final double defaultMinUpdateTime = 0;
 
@@ -167,7 +168,7 @@ public class LocationProviderProxy extends KrollProxy
 	public String getName()
 	{
 		Object property = getProperty(TiC.PROPERTY_NAME);
-		if(property == null) {
+		if (property == null) {
 			Log.e(TAG, "no name found for location provider");
 
 			return ""; // this shouldnt be possible
@@ -196,7 +197,7 @@ public class LocationProviderProxy extends KrollProxy
 	public double getMinUpdateDistance()
 	{
 		Object property = getProperty(TiC.PROPERTY_MIN_UPDATE_DISTANCE);
-		if(property == null || !(property instanceof Double)) {
+		if (property == null || !(property instanceof Double)) {
 			Log.e(TAG, "invalid value [" + property + "] found for minUpdateDistance, returning default");
 
 			return defaultMinUpdateDistance;
@@ -226,7 +227,7 @@ public class LocationProviderProxy extends KrollProxy
 	public double getMinUpdateTime()
 	{
 		Object property = getProperty(TiC.PROPERTY_MIN_UPDATE_TIME);
-		if(property == null || !(property instanceof Double)) {
+		if (property == null || !(property instanceof Double)) {
 			Log.e(TAG, "invalid value [" + property + "] found for minUpdateTime, returning default");
 
 			return defaultMinUpdateTime;

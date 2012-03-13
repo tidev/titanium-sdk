@@ -50,7 +50,7 @@ public class AndroidModule extends KrollModule
 	protected static final int MSG_REMOVE_LOCATION_PROVIDER = KrollModule.MSG_LAST_ID + 101;
 	protected static final int MSG_LAST_ID = MSG_REMOVE_LOCATION_PROVIDER;
 
-	private final String TAG = "AndroidModule";
+	private static final String TAG = "AndroidModule";
 
 	private GeolocationModule geolocationModule;
 	private TiLocation tiLocation;
@@ -64,6 +64,7 @@ public class AndroidModule extends KrollModule
 		super("geolocation.android");
 
 		geolocationModule = (GeolocationModule) TiApplication.getInstance().getModuleByName("geolocation");
+		geolocationModule.androidModule = this;
 		tiLocation = geolocationModule.tiLocation;
 	}
 
@@ -114,13 +115,13 @@ public class AndroidModule extends KrollModule
 	@Kroll.setProperty
 	public void setManualMode(boolean manualMode)
 	{
-		if(this.manualMode != manualMode) {
+		if (this.manualMode != manualMode) {
 			this.manualMode = manualMode;
-			if(manualMode) {
+			if (manualMode) {
 				geolocationModule.enableLocationProviders(manualLocationProviders);
 
 			} else {
-				if(geolocationModule.legacyModeActive) {
+				if (geolocationModule.legacyModeActive) {
 					geolocationModule.enableLocationProviders(geolocationModule.legacyLocationProviders);
 
 				} else {
@@ -143,16 +144,16 @@ public class AndroidModule extends KrollModule
 	{
 		String name = null;
 
-		if((creationArgs.length > 0) && (creationArgs[0] instanceof HashMap)) {
+		if ((creationArgs.length > 0) && (creationArgs[0] instanceof HashMap)) {
 			Object nameProperty = ((HashMap) creationArgs[0]).get(TiC.PROPERTY_NAME);
-			if(nameProperty instanceof String) {
-				if(tiLocation.isProvider((String) nameProperty)) {
+			if (nameProperty instanceof String) {
+				if (tiLocation.isProvider((String) nameProperty)) {
 					name = (String) nameProperty;
 				}
 			}
 		}
 
-		if(name != null) {
+		if (name != null) {
 			return new LocationProviderProxy(creationArgs, geolocationModule);
 
 		} else {
@@ -210,20 +211,20 @@ public class AndroidModule extends KrollModule
 
 		// if doesn't exist, add new - otherwise update properties
 		LocationProviderProxy existingLocationProvider = manualLocationProviders.get(providerName);
-		if(existingLocationProvider == null) {
+		if (existingLocationProvider == null) {
 			manualLocationProviders.put(providerName, locationProvider);
 
 		} else {
 			manualLocationProviders.remove(providerName);
 
-			if(manualMode && (geolocationModule.numLocationListeners > 0)) {
+			if (manualMode && (geolocationModule.numLocationListeners > 0)) {
 				tiLocation.locationManager.removeUpdates(existingLocationProvider);
 			}
 
 			manualLocationProviders.put(providerName, locationProvider);
 		}
 
-		if(manualMode && (geolocationModule.numLocationListeners > 0)) {
+		if (manualMode && (geolocationModule.numLocationListeners > 0)) {
 			geolocationModule.registerLocationProvider(locationProvider);
 
 		}
@@ -254,7 +255,7 @@ public class AndroidModule extends KrollModule
 	private void doRemoveLocationProvider(LocationProviderProxy locationProvider)
 	{
 		manualLocationProviders.remove(locationProvider.getName());
-		if(manualMode && (geolocationModule.numLocationListeners > 0)) {
+		if (manualMode && (geolocationModule.numLocationListeners > 0)) {
 			tiLocation.locationManager.removeUpdates(locationProvider);
 		}
 	}
@@ -279,7 +280,7 @@ public class AndroidModule extends KrollModule
 	public void removeLocationRule(LocationRuleProxy locationRule)
 	{
 		int locationRuleIndex = manualLocationRules.indexOf(locationRule);
-		if(locationRuleIndex > -1) {
+		if (locationRuleIndex > -1) {
 			manualLocationRules.remove(locationRuleIndex);
 		}
 	}

@@ -52,9 +52,9 @@ public class TiLocation implements Handler.Callback
 
 	public LocationManager locationManager;
 
-	private final String TAG = "TiLocation";
-	private final boolean DBG = TiConfig.LOGD;
-	private final String BASE_GEO_URL = "http://api.appcelerator.net/p/v1/geo?";
+	private static final String TAG = "TiLocation";
+	private static final boolean DBG = TiConfig.LOGD;
+	private static final String BASE_GEO_URL = "http://api.appcelerator.net/p/v1/geo?";
 
 	private String mobileId;
 	private String appGuid;
@@ -116,7 +116,7 @@ public class TiLocation implements Handler.Callback
 
 		// don't count the passive provider
 		for(String name : providerNames) {
-			if(name.equals(LocationManager.NETWORK_PROVIDER) || name.equals(LocationManager.GPS_PROVIDER)) {
+			if (name.equals(LocationManager.NETWORK_PROVIDER) || name.equals(LocationManager.GPS_PROVIDER)) {
 				return true;
 			}
 		}
@@ -130,7 +130,7 @@ public class TiLocation implements Handler.Callback
 
 		for (String provider : knownProviders) {
 			Location lastKnownLocation = locationManager.getLastKnownLocation(provider);
-			if(lastKnownLocation == null) {
+			if (lastKnownLocation == null) {
 				continue;
 			}
 
@@ -160,7 +160,7 @@ public class TiLocation implements Handler.Callback
 			String geocoderUrl = buildGeocoderURL(TiC.PROPERTY_FORWARD, mobileId, appGuid, sessionId, address, countryCode);
 			if (geocoderUrl != null) {
 				Message message = runtimeHandler.obtainMessage(MSG_LOOKUP);
-				message.getData().putString(TiC.PROPERTY_DIRECTION, "forward");
+				message.getData().putString(TiC.PROPERTY_DIRECTION, TiC.PROPERTY_FORWARD);
 				message.getData().putString(TiC.PROPERTY_URL, geocoderUrl);
 
 				message.obj = responseHandler;
@@ -177,7 +177,7 @@ public class TiLocation implements Handler.Callback
 		String geocoderUrl = buildGeocoderURL(TiC.PROPERTY_REVERSE, mobileId, appGuid, sessionId, latitude + "," + longitude, countryCode);
 		if (geocoderUrl != null) {
 			Message message = runtimeHandler.obtainMessage(MSG_LOOKUP);
-			message.getData().putString(TiC.PROPERTY_DIRECTION, "reverse");
+			message.getData().putString(TiC.PROPERTY_DIRECTION, TiC.PROPERTY_REVERSE);
 			message.getData().putString(TiC.PROPERTY_URL, geocoderUrl);
 
 			message.obj = responseHandler;
