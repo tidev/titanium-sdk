@@ -41,7 +41,6 @@ def ignore(file):
 	 return False
 
 def generate_jsca():
-	 return ''
 	 process_args = [sys.executable, os.path.join(doc_dir, 'docgen.py'), '-f', 'jsca', '--stdout']
 	 print "Generating JSCA..."
 	 print " ".join(process_args)
