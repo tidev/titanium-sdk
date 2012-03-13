@@ -66,6 +66,13 @@
 	return map;
 }
 
+- (NSArray *)customAnnotations
+{
+    NSMutableArray *annotations = [NSMutableArray arrayWithArray:self.map.annotations];
+    [annotations removeObject:self.map.userLocation];
+    return annotations;
+}
+
 -(void)willFirePropertyChanges
 {
 	regionFits = [TiUtils boolValue:[self.proxy valueForKey:@"regionFit"]];
@@ -161,7 +168,7 @@
 	{
 		// for pre 0.9, we supporting removing by passing the annotation title
 		NSString *title = [TiUtils stringValue:args];
-		for (id<MKAnnotation>an in [NSArray arrayWithArray:[self map].annotations])
+		for (id<MKAnnotation>an in [NSArray arrayWithArray:self.customAnnotations])
 		{
 			if ([title isEqualToString:an.title])
 			{
@@ -188,14 +195,14 @@
 -(void)removeAllAnnotations:(id)args
 {
 	ENSURE_UI_THREAD(removeAllAnnotations,args);
-	[[self map] removeAnnotations:[[self map] annotations]];
+	[self.map removeAnnotations:self.customAnnotations];
 }
 
 -(void)setAnnotations_:(id)value
 {
 	ENSURE_TYPE_OR_NIL(value,NSArray);
 	ENSURE_UI_THREAD(setAnnotations_,value)
-	[[self map] removeAnnotations:[[self map] annotations]];
+	[self.map removeAnnotations:self.customAnnotations];
 	if (value != nil) {
 		[[self map] addAnnotations:[self annotationsFromArgs:value]];
 	}
