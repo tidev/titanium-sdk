@@ -53,26 +53,28 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 				var child = children[i],
 					isWidthFill = child.width === UI.FILL;
 				
-				child._doLayout({
-				 	origin: {
-				 		x: currentLeft,
-				 		y: 0
-				 	},
-				 	isParentSize: {
-				 		width: isWidthSize,
-				 		height: isHeightSize
-				 	},
-				 	boundingSize: {
-				 		width: isWidthFill ? availableWidth : width,
-				 		height: height
-				 	},
-				 	alignment: {
-				 		horizontal: this._defaultHorizontalAlignment,
-				 		vertical: this._defaultVerticalAlignment
-				 	},
-				 	positionElement: true,
-				 	layoutChildren: !childrenWithFillWidth || isWidthFill
-			 	});
+				if (child._markedForLayout) {
+					child._doLayout({
+					 	origin: {
+					 		x: currentLeft,
+					 		y: 0
+					 	},
+					 	isParentSize: {
+					 		width: isWidthSize,
+					 		height: isHeightSize
+					 	},
+					 	boundingSize: {
+					 		width: isWidthFill ? availableWidth : width,
+					 		height: height
+					 	},
+					 	alignment: {
+					 		horizontal: this._defaultHorizontalAlignment,
+					 		vertical: this._defaultVerticalAlignment
+					 	},
+					 	positionElement: true,
+					 	layoutChildren: !childrenWithFillWidth || isWidthFill
+				 	});
+			 	}
 				
 				// Update the size of the component
 				currentLeft = child._measuredLeft + child._measuredWidth + child._measuredBorderSize.left + child._measuredBorderSize.right + child._measuredRightPadding;

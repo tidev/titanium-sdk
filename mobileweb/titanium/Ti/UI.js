@@ -107,11 +107,8 @@ define(
 					previousParent,
 					children,
 					child,
-					isParentWidthSize,
-					isParentHeightSize,
 					recursionStack,
 					rootNodesToLayout = [],
-					layoutParams,
 					layoutRootNode = false;
 					
 				// Determine which nodes need to be re-layed out
