@@ -52,6 +52,14 @@ define(function() {
 		isDef: function(it) {
 			return !is(it, "Undefined");
 		},
+		
+		breakpoint: function(conditional, value) {
+			if (!conditional || value) {
+				try {
+					throw "Breakpoint";
+				} catch(e) {}
+			}
+		},
 
 		mixProps: function(dest, src, everything) {
 			var d, i, p, v, special = { properties: 1, constants: 0 };

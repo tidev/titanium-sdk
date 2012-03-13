@@ -6,7 +6,8 @@ define(
 		isIOS = /(iPhone|iPad)/.test(navigator.userAgent),
 		modules = "2DMatrix,ActivityIndicator,AlertDialog,Animation,Button,EmailDialog,ImageView,Label,OptionDialog,Picker,PickerColumn,PickerRow,ProgressBar,ScrollableView,ScrollView,Slider,Switch,Tab,TabGroup,TableView,TableViewRow,TableViewSection,TextArea,TextField,View,WebView,Window",
 		creators = {},
-		setStyle = style.set;
+		setStyle = style.set,
+		undef;
 
 	body.addEventListener('touchmove', function(e) {
 		e.preventDefault();
@@ -72,6 +73,8 @@ define(
 		
 		_layoutSemaphore: 0,
 		
+		_nodesToLayout: [],
+		
 		_startLayout: function() {
 			this._layoutSemaphore++;
 		},
@@ -83,64 +86,128 @@ define(
 			}
 		},
 		
-		_triggerLayout: function(force) {
-			if (force) {
-				clearTimeout(this._layoutTimer);
-				this._layoutMarkedNodes(this._container);
-				this._layoutInProgress = false;
-			} else {
-				if (!this._layoutInProgress) {
-					this._layoutInProgress = true;
-					this._layoutTimer = setTimeout(lang.hitch(this, function(){
-						this._layoutMarkedNodes(this._container);
-						this._layoutInProgress = false;
-						this._layoutTimer = null;
-					}), 25);
-				}
-			}
-		},
+		_elementLayoutCount: 0,
 		
-		_layoutMarkedNodes: function(node) {
-			if (node._markedForLayout) {
-				var parent = node._parent,
-					isParentWidthSize = parent && parent.width === Ti.UI.SIZE, 
-					isParentHeightSize = parent && parent.height === Ti.UI.SIZE;
-				node._layout && node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, !!isParentWidthSize, !!isParentHeightSize);
-			} else {
-				for (var i in node.children) {
-					this._layoutMarkedNodes(node.children[i]);
+		_layoutCount: 0,
+		
+		_triggerLayout: function(node, force) {
+			var self = this;
+			if (~self._nodesToLayout.indexOf(node)) {
+				return;
+			}
+			self._nodesToLayout.push(node);
+			function startLayout() {
+				
+				self._elementLayoutCount = 0;
+				self._layoutCount++;
+				var startTime = (new Date()).getTime(),
+					nodes = self._nodesToLayout,
+					layoutNode,
+					node,
+					parent,
+					previousParent,
+					children,
+					child,
+					recursionStack,
+					rootNodesToLayout = [],
+					layoutRootNode = false;
+					
+				// Determine which nodes need to be re-layed out
+				for (var i in nodes) {
+					layoutNode = nodes[i];
+						
+					// Mark all of the children for update that need to be updated
+					recursionStack = [layoutNode];
+					while (recursionStack.length > 0) {
+						node = recursionStack.pop();
+						node._markedForLayout = true;
+						children = node.children;
+						for (var i in children) {
+							child = children[i];
+							if (node.layout !== "composite" || child._isDependentOnParent || !child._hasBeenLayedOut) {
+								recursionStack.push(child);
+							}
+						}
+					}
+					
+					// Go up and mark any other nodes that need to be marked
+					parent = layoutNode;
+					while(1) {
+						if (!parent._parent) {
+							layoutRootNode = true;
+							break;
+						} else if(!parent._parent._hasSizeDimensions()) {
+							!parent._parent._markedForLayout && rootNodesToLayout.push(parent._parent);
+							break;
+						}
+						
+						previousParent = parent;
+						parent = parent._parent;
+						recursionStack = [parent];
+						while (recursionStack.length > 0) {
+							node = recursionStack.pop();
+							children = node.children;
+							for (var i in children) {
+								child = children[i];
+								if (child !== previousParent && (node.layout !== "composite" || child._isDependentOnParent)) {
+									child._markedForLayout = true;
+									recursionStack.push(child);
+								}
+							}
+						}
+					}
 				}
-				// Run the post-layout animation, if needed
-				if (node._doAnimationAfterLayout) {
-					node._doAnimationAfterLayout = false;
-					node._doAnimation();
+				
+				// Layout all nodes that need it
+				if (layoutRootNode) {
+					var container = self._container;
+					container._doLayout({
+					 	origin: {
+					 		x: 0,
+					 		y: 0
+					 	},
+					 	isParentSize: {
+					 		width: false,
+					 		height: false
+					 	},
+					 	boundingSize: {
+					 		width: window.innerWidth,
+					 		height: window.innerHeight
+					 	},
+					 	alignment: {
+					 		horizontal: "center",
+					 		vertical: "center"
+					 	},
+					 	positionElement: true,
+					 	layoutChildren: true
+				 	});
 				}
+				for (var i in rootNodesToLayout) {
+					node = rootNodesToLayout[i];
+					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node.width === Ti.UI.SIZE, node.height === Ti.UI.SIZE);
+				}
+				
+				console.debug("Layout " + self._layoutCount + ": " + self._elementLayoutCount + 
+					" elements layed out in " + ((new Date().getTime() - startTime)) + "ms");
+					
+				self._layoutInProgress = false;
+				self._layoutTimer = null;
+				self._nodesToLayout = [];
+			}
+			if (force) {
+				clearTimeout(self._layoutTimer);
+				self._layoutInProgress = true;
+				startLayout();
+			} else if (self._nodesToLayout.length === 1) {
+				self._layoutInProgress = true;
+				self._layoutTimer = setTimeout(function(){ startLayout(); }, 25);
 			}
 		},
 		
 		_recalculateLayout: function() {
-			var width = this._container.width = window.innerWidth,
-				height = this._container.height = window.innerHeight;
-			this._container._doLayout({
-			 	origin: {
-			 		x: 0,
-			 		y: 0
-			 	},
-			 	isParentSize: {
-			 		width: false,
-			 		height: false
-			 	},
-			 	boundingSize: {
-			 		width: width,
-			 		height: height
-			 	},
-			 	alignment: {
-			 		horizontal: "center",
-			 		vertical: "center"
-			 	},
-			 	positionElement: true,
-				layoutChildren: true
-		 	});
+			var container = this._container;
+			container.width = window.innerWidth;
+			container.height = window.innerHeight;
 		},
 
 		properties: {
@@ -154,14 +221,7 @@ define(
 					return setStyle(body, "backgroundImage", value ? style.url(value) : "");
 				}
 			},
-			currentTab: {
-				get: function() {
-					return (this.currentWindow || {}).activeTab;
-				},
-				set: function(value) {
-					return (this.currentWindow || {}).activeTab = value;
-				}
-			}
+			currentTab: undef
 		},
 		
 		convertUnits: function(convertFromValue, convertToUnits) {

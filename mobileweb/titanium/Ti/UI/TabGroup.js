@@ -109,6 +109,7 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 
 			tab.active = true;
 			this._activeTab = tab;
+			UI.currentTab = tab;
 			tab["window"] && this._tabContentContainer.add(tab["window"]);
 			this._state = {
 				index: tabs.indexOf(tab),
