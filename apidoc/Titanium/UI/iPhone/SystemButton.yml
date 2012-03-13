@@ -5,39 +5,50 @@ extends: Titanium.Proxy
 since: "0.8"
 platforms: [iphone, ipad]
 createable: false
+
 properties:
   - name: ACTION
     summary: action icon. Usable in nav bars and toolbars only.
     type: Number
     permission: read-only
+    
   - name: ACTIVITY
-    summary: special style that shows an activity indicator. when visible, the activity indicator is already started.
+    summary: |
+        special style that shows an activity indicator. when visible, the activity indicator is 
+        already started.
     type: Number
     permission: read-only
+    
   - name: ADD
     summary: add icon. Usable in nav bars and toolbars only.
     type: Number
     permission: read-only
+    
   - name: BOOKMARKS
     summary: bookmarks icon. Usable in nav bars and toolbars only.
     type: Number
     permission: read-only
+    
   - name: CAMERA
     summary: camera icon. Usable in nav bars and toolbars only.
     type: Number
     permission: read-only
+    
   - name: CANCEL
     summary: cancel icon. localized. Usable in nav bars and toolbars only.
     type: Number
     permission: read-only
+    
   - name: COMPOSE
     summary: compose icon. Usable in nav bars and toolbars only.
     type: Number
     permission: read-only
+    
   - name: CONTACT_ADD
     summary: green style plus (+) icon
     type: Number
     permission: read-only
+    
   - name: DISCLOSURE
     summary: disclosure style icon
     type: Number
@@ -46,66 +57,86 @@ properties:
     summary: done icon. localized. Usable in nav bars and toolbars only.
     type: Number
     permission: read-only
+    
   - name: EDIT
     summary: edit icon. localized. Usable in nav bars and toolbars only.
     type: Number
     permission: read-only
+    
   - name: FAST_FORWARD
     summary: fast forward icon. Usable in nav bars and toolbars only.
     type: Number
     permission: read-only
+    
   - name: FIXED_SPACE
-    summary: Blank space to add between other items. Only the `width` property is used when this value is set.
+    summary: |
+        Blank space to add between other items. Only the `width` property is used when this value 
+        is set.
     type: Number
     permission: read-only
+    
   - name: FLEXIBLE_SPACE
-    summary: Blank space to add between other items. The space is distributed equally between the other items. Other item properties are ignored when this value is set.
+    summary: |
+        Blank space to add between other items. The space is distributed equally between the other 
+        items. Other item properties are ignored when this value is set.
     type: Number
     permission: read-only
+    
   - name: INFO_DARK
     summary: a dark style info circle icon
     type: Number
     permission: read-only
+    
   - name: INFO_LIGHT
     summary: a light style info circle icon
     type: Number
     permission: read-only
+    
   - name: ORGANIZE
     summary: organize icon. Usable in nav bars and toolbars only.
     type: Number
     permission: read-only
+    
   - name: PAUSE
     summary: pause icon. Usable in nav bars and toolbars only.
     type: Number
     permission: read-only
+    
   - name: PLAY
     summary: play icon. Usable in nav bars and toolbars only.
     type: Number
     permission: read-only
+    
   - name: REFRESH
     summary: refresh icon. Usable in nav bars and toolbars only.
     type: Number
     permission: read-only
+    
   - name: REPLY
     summary: reply icon. Usable in nav bars and toolbars only.
     type: Number
     permission: read-only
+    
   - name: REWIND
     summary: rewind icon. Usable in nav bars and toolbars only.
     type: Number
     permission: read-only
+    
   - name: SAVE
     summary: save icon. localized. Usable in nav bars and toolbars only.
     type: Number
     permission: read-only
+    
   - name: SPINNER
     summary: same as ACTIVITY
     type: Number
     permission: read-only
+    
   - name: STOP
     summary: stop icon. Usable in nav bars and toolbars only.
     type: Number
     permission: read-only
+    
   - name: TRASH
     summary: trash icon. Usable in nav bars and toolbars only.
     type: Number

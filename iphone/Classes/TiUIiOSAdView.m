@@ -32,14 +32,14 @@ extern NSString * const TI_APPLICATION_ANALYTICS;
 	return adview;
 }
 
--(CGFloat)autoHeightForWidth:(CGFloat)value
+-(CGFloat)contentHeightForWidth:(CGFloat)value
 {
 	ADBannerView *view = [self adview];
 	CGSize size = [ADBannerView sizeFromBannerContentSizeIdentifier:view.currentContentSizeIdentifier];
 	return size.height;
 }
 
--(CGFloat)autoWidthForWidth:(CGFloat)value
+-(CGFloat)contentWidthForWidth:(CGFloat)value
 {
 	ADBannerView *view = [self adview];
 	CGSize size = [ADBannerView sizeFromBannerContentSizeIdentifier:view.currentContentSizeIdentifier];

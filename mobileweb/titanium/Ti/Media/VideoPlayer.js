@@ -262,6 +262,11 @@ define(["Ti/_/declare", "Ti/Media", "Ti/UI/View"],
 			this._currentState === PLAYING && this._createVideo(1).pause();
 		},
 
+		destroy: function() {
+			this.release();
+			View.prototype.destroy.apply(this, arguments);
+		},
+
 		release: function() {
 			var i,
 				video = this._video,

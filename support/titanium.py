@@ -167,7 +167,17 @@ def create_mobileweb_project(project_dir, osname, args):
 		die("Aborting")
 
 def create_mobileweb_module(project_dir, osname, args):
-	die("Mobile Web modules are not supported yet")
+	script = os.path.join(template_dir, 'module', 'module.py')
+	name = get_required(args, 'name')
+	validate_project_name(name)
+	appid = get_required(args, 'id')
+	args = [script, '--name', name, '--id', appid, '--directory', project_dir, '--platform', osname]
+	retcode = fork(args, False)
+	if retcode == 0:
+		print "Created %s module project" % osname
+		return os.path.join(project_dir, name)
+	else:
+		die("Aborting")
 
 def create_mobile_project(osname, project_dir, args):
 	if is_ios(osname):

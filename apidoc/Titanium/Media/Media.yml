@@ -509,7 +509,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-  - name: MUSIC_PLAYER_STATE_SKEEK_FORWARD
+  - name: MUSIC_PLAYER_STATE_SEEK_FORWARD
     summary: Constant for forward seek state.
     type: Number
     permission: read-only

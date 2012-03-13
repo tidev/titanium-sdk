@@ -85,10 +85,31 @@ properties:
     default: <Titanium.Android.FLAG_AUTO_CANCEL>. 
 
   - name: icon
-    summary: A resource id or URL to an icon.
+    summary: 
+        Notification icon, specified as an Android resource ID, or a local URL to a
+        density-specific image.
     description: |
-        The URL must be an image located in
-        `Resources/android/images/`<density>, or an Android content URI.
+        If specified as a URL, the icon must be placed in one of the density-specific
+        folders under `Resources/android/images`. For example, if your icon is called
+        `my_icon.png`, you would create high- and medium-density versions of the icons
+        with the following paths:
+
+            Resources/android/images/res-hdpi/my_icon.png
+            Resources/android/images/res-mdpi/my_icon.png
+        
+        To access this icon, you'd use the URL '/images/my_icon.png'.
+
+        To access the same icon using an Android resource ID, place the icon in:
+
+            platform/android/res/drawable/my_icon.png
+         
+        This icon's resource ID can be referenced through the <Titanium.App.Android.R>
+        object:
+
+            icon: Ti.App.Android.R.drawable.my_icon,
+
+        See <Titanium.App.Android.R> for more information on accessing 
+        Android resources by ID.
     type: [Number,String]
 
   - name: ledARGB
