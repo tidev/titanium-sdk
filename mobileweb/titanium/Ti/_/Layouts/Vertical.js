@@ -20,7 +20,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 					var child = children[i];
 					if (child.height !== UI.FILL) {
 						if (child._markedForLayout) {
-							var dimensions = child._doLayout({
+							child._doLayout({
 								origin: {
 							 		x: 0,
 							 		y: 0
@@ -40,10 +40,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 								positionElement: false,
 						 		layoutChildren: true
 							});
-							availableHeight -= dimensions.height;
-						} else {
-							availableHeight -= child._measuredHeight;
 						}
+						availableHeight -= child._measuredHeight;
 					}
 				}
 			}

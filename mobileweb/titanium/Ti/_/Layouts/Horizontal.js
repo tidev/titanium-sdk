@@ -39,10 +39,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 								positionElement: false,
 						 		layoutChildren: true
 							});
-							availableWidth -= dimensions.width;
-						} else {
-							availableWidth -= child._measuredWidth;
 						}
+						availableWidth -= child._measuredWidth;
 					}
 				}
 			}

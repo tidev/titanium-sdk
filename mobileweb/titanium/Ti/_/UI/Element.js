@@ -262,12 +262,6 @@ define(
 				this._markedForLayout = false;
 				this._hasBeenLayedOut = true;
 				
-				// Run the post-layout animation, if needed
-				if (this._doAnimationAfterLayout) {
-					this._doAnimationAfterLayout = false;
-					this._doAnimation();
-				}
-				
 				// Recompute the gradient, if it exists
 				this.backgroundGradient && this._computeGradient();
 				
@@ -794,20 +788,7 @@ define(
 		},
 
 		animate: function(anim, callback) {
-			this._animationData = anim;
-			this._animationCallback = callback;
-			
-			if (UI._layoutInProgress) {
-				this._doAnimationAfterLayout = true;
-			} else {
-				this._doAnimation();
-			}
-		},
-		
-		_doAnimation: function() {
-			
-			var anim = this._animationData || {},
-				callback = this._animationCallback;
+			var anim = anim || {},
 				curve = curves[anim.curve] || "ease",
 				fn = lang.hitch(this, function() {
 					var transformCss = "";

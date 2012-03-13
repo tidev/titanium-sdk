@@ -3,8 +3,9 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare"], function(Base, declare) {
 	return declare("Ti._.Layouts.Composite", Base, {
 
 		_doLayout: function(element, width, height, isWidthSize, isHeightSize) {
-			var computedSize = this._computedSize = {width: 0, height: 0};
-			for(var i in element.children) {
+			var computedSize = this._computedSize = {width: 0, height: 0},
+				children = element.children;
+			for(var i = 0; i < children.length; i++) {
 				
 				// Layout the child
 				var child = element.children[i];
