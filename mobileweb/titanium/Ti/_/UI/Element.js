@@ -27,6 +27,12 @@ define(
 			post: "_doBackground"
 		},
 		postLayoutProp = {
+			set: function(value, oldValue) {
+				if (value !== oldValue) {
+					!this._batchUpdateInProgress && this._triggerLayout();
+				}
+				return value;
+			},
 			post: function() {
 				function isPercent(value) {
 					return is(value, "String") && !~value.indexOf("%");
@@ -37,7 +43,6 @@ define(
 					isPercent(this.left) || isPercent(this.right) || isPercent(centerX) || isPercent(centerY) || 
 					(!isDef(this.left) && !isDef(centerX) && !isDef(this.right) && this._parent && this._parent._layout._defaultHorizontalAlignment !== "left") ||
 					(!isDef(this.top) && !isDef(centerY) && !isDef(this.bottom) && this._parent && this._parent._layout._defaultVerticalAlignment !== "top"));
-				this._triggerLayout();
 			}
 		};
 
