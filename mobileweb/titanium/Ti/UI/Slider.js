@@ -23,7 +23,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 				initialValue = self.value;
 			});
 			this.addEventListener("touchmove", function(e) {
-				self.value = (e.x - initialPosition) * (self.max - self.min) / (self.domNode.clientWidth - 30) + initialValue;
+				self.value = Math.round((e.x - initialPosition) * (self.max - self.min) / (self.domNode.clientWidth - 30) + initialValue);
 			});
 		},
 		
@@ -34,7 +34,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 		},
 		
 		_updateSize: function() {
-			this._thumbLocation = Math.round((this.domNode.clientWidth - 30) * this.value / (this.max - this.min))
+			this._thumbLocation = Math.round((this.domNode.clientWidth - 30) * ((this.value - this.min) / (this.max - this.min)))
 			setStyle(this._thumb, "transform", "translateX(" + this._thumbLocation + "px)");
 		},
 		
