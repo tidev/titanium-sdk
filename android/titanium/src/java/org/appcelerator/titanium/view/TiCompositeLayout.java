@@ -316,7 +316,7 @@ public class TiCompositeLayout extends ViewGroup
 				childDimension = p.optionWidth.getAsPixels(this);
 			}
 		} else {
-			if (p.autoFillsWidth && !isHorizontalArrangement()) {
+			if (p.autoFillsWidth) {
 				childDimension = LayoutParams.FILL_PARENT;
 			}
 		}
@@ -332,7 +332,7 @@ public class TiCompositeLayout extends ViewGroup
 				childDimension = p.optionHeight.getAsPixels(this);
 			}
 		} else {
-			if (p.autoFillsHeight && !isVerticalArrangement()) {
+			if (p.autoFillsHeight) {
 				childDimension = LayoutParams.FILL_PARENT;
 			}
 		}
