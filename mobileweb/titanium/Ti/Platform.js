@@ -24,7 +24,7 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale"],
 			},
 
 			properties: {
-				batteryMonitoring: false,
+				batteryMonitoring: false
 			},
 
 			constants: {

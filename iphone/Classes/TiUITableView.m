@@ -1936,7 +1936,16 @@ return result;	\
 
 - (void)tableView:(UITableView *)ourTableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
 {
-	[self triggerActionForIndexPath:indexPath fromPath:nil tableView:ourTableView wasAccessory:YES search:NO name:@"click"];
+	BOOL search = NO;
+	if (allowsSelectionSet==NO || [ourTableView allowsSelection]==NO)
+	{
+		[ourTableView deselectRowAtIndexPath:indexPath animated:YES];
+	}
+	if(ourTableView != tableview)
+	{
+		search = YES;
+	}
+	[self triggerActionForIndexPath:indexPath fromPath:nil tableView:ourTableView wasAccessory:YES search:search name:@"click"];
 }
 
 - (NSInteger)tableView:(UITableView *)ourTableView indentationLevelForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -1992,7 +2001,7 @@ return result;	\
 				size += viewLayout->height.value;
 				break;
 			case TiDimensionTypeAuto:
-				size += [viewProxy autoHeightForWidth:[tableview bounds].size.width];
+				size += [viewProxy autoHeightForSize:[tableview bounds].size];
 				break;
 			default:
 				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
@@ -2041,7 +2050,7 @@ return result;	\
 				size += viewLayout->height.value;
 				break;
 			case TiDimensionTypeAuto:
-				size += [viewProxy autoHeightForWidth:[tableview bounds].size.width];
+				size += [viewProxy autoHeightForSize:[tableview bounds].size];
 				break;
 			default:
 				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;

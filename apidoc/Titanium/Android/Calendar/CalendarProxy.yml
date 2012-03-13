@@ -1,87 +1,104 @@
 ---
 name: Titanium.Android.Calendar.Calendar
-summary: An object which represents a single calendar in Android.
+summary: An object that represents a single calendar on Android.
 extends: Titanium.Proxy
 platforms: [android]
 since: "1.5"
 createable: false
+
 methods:
   - name: createEvent
-    summary: Add an event to the calendar. Returns the created <Titanium.Android.Calendar.Event>.
+    summary: Creates an event in this calendar.
     returns:
         type: Titanium.Android.Calendar.Event
     parameters:
       - name: properties
-        summary: An object defining the properties of the event.  These correspond to properties of <Titanium.Android.Calendar.Event>.
+        summary: Properties of the event
         type: Dictionary<Titanium.Android.Calendar.Event>
+        
   - name: getEventById
-    summary: Returns the <Titanium.Android.Calendar.Event> object for the event with the given integer id.
+    summary: Gets the event with the specified identifier.
     returns:
         type: Titanium.Android.Calendar.Event
     parameters:
       - name: id
-        summary: The integer id of the event to return.
+        summary: Identifier of the event.
         type: Number
+        
   - name: getEventsBetweenDates
-    summary: Returns an array of <Titanium.Android.Calendar.Event> objects with all events in the given date range.
+    summary: Gets events that occur between two dates.
     returns:
         type: Array<Titanium.Android.Calendar.Event>
     parameters:
       - name: date1
-        summary: The start date.
+        summary: Start date.
         type: Date
+        
       - name: date2
-        summary: The end date.
+        summary: End date.
         type: Date
+        
   - name: getEventsInDate
-    summary: Returns an array of <Titanium.Android.Calendar.Event> objects with all events on the given date.
+    summary: Gets events that occur on a specified date.
     returns:
         type: Array<Titanium.Android.Calendar.Event>
     parameters:
       - name: year
-        summary: The year of the desired date.
+        summary: Year of the events.
         type: Number
+        
       - name: month
-        summary: The month of the desired date.  The month is zero-based, therefore January is 0 and December is 11.
+        summary: Month of the events, as a zero-based integer with January at 0 and December at 11.
         type: Number
+        
       - name: day
-        summary: The day for which events should be returned.
+        summary: Day of the month of the events.
         type: Number
+        
   - name: getEventsInMonth
-    summary: Returns an array of <Titanium.Android.Calendar.Event> objects with all events in the given month.
+    summary: Gets events that occur during a specified month.
     returns:
         type: Array<Titanium.Android.Calendar.Event>
     parameters:
       - name: year
-        summary: The year of the desired month.
+        summary: Year of the events.
         type: Number
+        
       - name: month
-        summary: The month for which events should be returned.  The month is zero-based, therefore January is 0 and December is 11.
+        summary: Month of the events, as a zero-based integer with January at 0 and December at 11.
         type: Number
+        
   - name: getEventsInYear
-    summary: Returns an array of <Titanium.Android.Calendar.Event> objects with all events in the given year.
+    summary: Gets all events that occur during a specified year.
     returns:
         type: Array<Titanium.Android.Calendar.Event>
     parameters:
       - name: year
-        summary: The year for which all events should be returned.
+        summary: Year of the events.
         type: Number
+        
 properties:
   - name: hidden
-    summary: Whether the calendar is hidden.
+    summary: Indicates whether this calendar is hidden.
+    description: This property is `true` when this calendar is hidden.
     type: Boolean
     permission: read-only
-  - name: id
-    summary: The id of the calendar.
-    type: String
-    permission: read-only
-  - name: name
-    summary: The display name of the calendar.
-    type: String
-    permission: read-only
-  - name: selected
-    summary: Whether the calendar is selected.
-    type: Boolean
-    permission: read-only
-description: See <Titanium.Android.Calendar> for examples.
     
+  - name: id
+    summary: Identifier of this calendar.
+    type: String
+    permission: read-only
+    
+  - name: name
+    summary: Display name of this calendar.
+    type: String
+    permission: read-only
+    
+  - name: selected
+    summary: Indicates whether the calendar is selected.
+    description: |
+        Set to `true` when this calendar is selected.
+        
+        See <Titanium.Android.Calendar> for examples.
+    type: Boolean
+    permission: read-only

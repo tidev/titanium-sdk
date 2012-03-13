@@ -1047,6 +1047,10 @@ public abstract class TiBaseActivity extends Activity
 	{
 		super.onPause();
 	}
+	protected void activityOnRestart()
+	{
+		super.onRestart();
+	}
 	protected void activityOnResume()
 	{
 		super.onResume();

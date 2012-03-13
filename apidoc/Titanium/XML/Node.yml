@@ -3,10 +3,12 @@ name: Titanium.XML.Node
 extends: Titanium.Proxy
 summary: A single node in the [Document|Titanium.XML.Document] tree. 
 description: |
-    For full property and method description,
-    see the [DOM Level 2 API](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-1950641247).
+    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1950641247) 
+    on Android and iOS. Exposes the 
+    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-1950641247) implementation on Mobile Web.
+    For full property and method description, see the W3C specifications.
 createable: false
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 properties:
   - name: ELEMENT_NODE
     type: Number
