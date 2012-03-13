@@ -133,7 +133,9 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 			
 			value: {
 				set: function(value, oldValue) {
-					value = this._constrainValue(value);
+					return this._constrainValue(value);
+				},
+				post: function(value, oldValue) {
 					if (value !== oldValue) {
 						this.fireEvent("change", {
 							value: value,
@@ -141,9 +143,6 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 							y: -1
 						});
 					}
-					return value;
-				},
-				post: function() {
 					this._updateSize();
 				},
 				value: 0
