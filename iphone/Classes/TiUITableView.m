@@ -106,9 +106,9 @@
     if ( ([[event touchesForView:self.contentView] count] > 0) || ([[event touchesForView:self.accessoryView] count] > 0) 
         || ([[event touchesForView:self.imageView] count] > 0) ) {
         if ([proxy _hasListeners:@"touchstart"])
-		{
-			[proxy fireEvent:@"touchstart" withObject:[proxy createEventObject:nil] propagate:YES];
-		}
+        {
+            [proxy fireEvent:@"touchstart" withObject:[proxy createEventObject:nil] propagate:YES];
+        }
     }
     [super touchesBegan:touches withEvent:event];
 }
@@ -118,9 +118,9 @@
     if ( ([[event touchesForView:self.contentView] count] > 0) || ([[event touchesForView:self.accessoryView] count] > 0) 
         || ([[event touchesForView:self.imageView] count] > 0) ) {
         if ([proxy _hasListeners:@"touchend"])
-		{
-			[proxy fireEvent:@"touchend" withObject:[proxy createEventObject:nil] propagate:YES];
-		}
+        {
+            [proxy fireEvent:@"touchend" withObject:[proxy createEventObject:nil] propagate:YES];
+        }
     }
     [super touchesEnded:touches withEvent:event];
 }
