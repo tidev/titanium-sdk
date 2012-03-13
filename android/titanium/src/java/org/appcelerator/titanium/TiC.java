@@ -199,6 +199,7 @@ public class TiC
 	public static final String PROPERTY_FOOTER = "footer";
 	public static final String PROPERTY_FOOTER_TITLE = "footerTitle";
 	public static final String PROPERTY_FOOTER_VIEW = "footerView";
+	public static final String PROPERTY_FORWARD = "forward";
 	public static final String PROPERTY_FREQUENCY = "frequency";
 	public static final String PROPERTY_FROM = "from";
 	public static final String PROPERTY_FULLSCREEN = "fullscreen";
@@ -289,6 +290,7 @@ public class TiC
 	public static final String PROPERTY_REPEAT = "repeat";
 	public static final String PROPERTY_REPEAT_COUNT = "repeatCount";
 	public static final String PROPERTY_RETURN_KEY_TYPE = "returnKeyType";
+	public static final String PROPERTY_REVERSE = "reverse";
 	public static final String PROPERTY_RIGHT = "right";
 	public static final String PROPERTY_RIGHT_BUTTON = "rightButton";
 	public static final String PROPERTY_RIGHT_IMAGE = "rightImage";

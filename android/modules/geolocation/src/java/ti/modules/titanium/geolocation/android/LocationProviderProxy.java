@@ -44,10 +44,10 @@ public class LocationProviderProxy extends KrollProxy
 	public static final int STATE_UNAVAILABLE = 3;
 	public static final int STATE_AVAILABLE = 4;
 	public static final int STATE_UNKNOWN = 5;
-	public static final double defaultMinUpdateDistance = 0.0;
-	public static final double defaultMinUpdateTime = 0;
 
-	private static final String TAG = "LocationProviderProxy";
+	private final String TAG = "LocationProviderProxy";
+	private final double defaultMinUpdateDistance = 0.0;
+	private final double defaultMinUpdateTime = 0;
 
 	private LocationProviderListener providerListener;
 

@@ -86,12 +86,10 @@ public class LocationRuleProxy extends KrollProxy
 	 */
 	public boolean check(Location currentLocation, Location newLocation)
 	{
-		boolean passed = true;
-
 		String provider = TiConvert.toString(properties.get(TiC.PROPERTY_PROVIDER));
 		if(provider != null) {
 			if(!(provider.equals(newLocation.getProvider()))) {
-				passed = false;
+				return false;
 			}
 		}
 
@@ -99,7 +97,7 @@ public class LocationRuleProxy extends KrollProxy
 		if(rawAccuracy != null) {
 			double accuracyValue = TiConvert.toDouble(rawAccuracy);
 			if(accuracyValue < newLocation.getAccuracy()) {
-				passed = false;
+				return false;
 			}
 		}
 
@@ -107,7 +105,7 @@ public class LocationRuleProxy extends KrollProxy
 		if((rawMinAge != null) && (currentLocation != null)) {
 			double minAgeValue = TiConvert.toDouble(rawMinAge);
 			if(minAgeValue > (newLocation.getTime() - currentLocation.getTime())) {
-				passed = false;
+				return false;
 			}
 		}
 
@@ -115,11 +113,11 @@ public class LocationRuleProxy extends KrollProxy
 		if((rawMaxAge != null) && (currentLocation != null)) {
 			double maxAgeValue = TiConvert.toDouble(rawMaxAge);
 			if(maxAgeValue > (newLocation.getTime() - currentLocation.getTime())) {
-				passed = false;
+				return false;
 			}
 		}
 
-		return passed;
+		return true;
 	}
 }
 

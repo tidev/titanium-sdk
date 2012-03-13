@@ -50,20 +50,18 @@ public class TiLocation implements Handler.Callback
 	public static final int MSG_LOOKUP = MSG_FIRST_ID + 1;
 	public static final int MSG_LAST_ID = MSG_FIRST_ID + 2;
 
-	public static LocationManager locationManager;
+	public LocationManager locationManager;
 
-	private static final String TAG = "TiLocation";
-	private static final boolean DBG = TiConfig.LOGD;
-	private static final String BASE_GEO_URL = "http://api.appcelerator.net/p/v1/geo?";
+	private final String TAG = "TiLocation";
+	private final boolean DBG = TiConfig.LOGD;
+	private final String BASE_GEO_URL = "http://api.appcelerator.net/p/v1/geo?";
 
-	private static TiLocation instance;
-	private static String mobileId;
-	private static String appGuid;
-	private static String sessionId;
-	private static String countryCode;
-	private static long lastAnalyticsTimestamp = 0;
-	private static List<String> knownProviders;
-
+	private String mobileId;
+	private String appGuid;
+	private String sessionId;
+	private String countryCode;
+	private long lastAnalyticsTimestamp = 0;
+	private List<String> knownProviders;
 	private Handler runtimeHandler;
 
 
@@ -73,30 +71,25 @@ public class TiLocation implements Handler.Callback
 	}
 
 
-	static
+	public TiLocation()
 	{
-		// initialize static values once
 		locationManager = (LocationManager) TiApplication.getInstance().getSystemService(Context.LOCATION_SERVICE);
 		knownProviders = locationManager.getAllProviders();
 		mobileId = TiPlatformHelper.getMobileId();
 		appGuid = TiApplication.getInstance().getAppInfo().getGUID();
 		sessionId = TiPlatformHelper.getSessionId();
 		countryCode = Locale.getDefault().getCountry();
-
-		// create instance since we need a handler instance
-		instance = new TiLocation();
-	}
-
-	private TiLocation()
-	{
 		runtimeHandler = new Handler(TiMessenger.getRuntimeMessenger().getLooper(), this);
 	}
 
 	public boolean handleMessage(Message msg)
 	{
 		if (msg.what == MSG_LOOKUP) {
+			String urlValue = msg.getData().getString(TiC.PROPERTY_URL);
+			String directionValue = msg.getData().getString(TiC.PROPERTY_DIRECTION);
+
 			AsyncTask<Object, Void, Integer> task = getLookUpTask();
-			task.execute(msg.getData().getString(TiC.PROPERTY_URL), msg.getData().getString(TiC.PROPERTY_DIRECTION), msg.obj);
+			task.execute(urlValue, directionValue, msg.obj);
 
 			return true;
 		}
@@ -104,12 +97,12 @@ public class TiLocation implements Handler.Callback
 		return false;
 	}
 
-	public static boolean isProvider(String name)
+	public boolean isProvider(String name)
 	{
 		return knownProviders.contains(name);
 	}
 
-	public static boolean getLocationServicesEnabled()
+	public boolean getLocationServicesEnabled()
 	{
 		List<String> providerNames = locationManager.getProviders(true);
 
@@ -131,7 +124,7 @@ public class TiLocation implements Handler.Callback
 		return false;
 	}
 
-	public static Location getLastKnownLocation()
+	public Location getLastKnownLocation()
 	{
 		Location latestKnownLocation = null;
 
@@ -149,10 +142,10 @@ public class TiLocation implements Handler.Callback
 		return latestKnownLocation;
 	}
 
-	public static void doAnalytics(Location location)
+	public void doAnalytics(Location location)
 	{
 		long locationTime = location.getTime();
-		if (locationTime - lastAnalyticsTimestamp > GeolocationModule.MAX_GEO_ANALYTICS_FREQUENCY) {
+		if (locationTime - lastAnalyticsTimestamp > TiAnalyticsEventFactory.MAX_GEO_ANALYTICS_FREQUENCY) {
 			TiAnalyticsEvent event = TiAnalyticsEventFactory.createAppGeoEvent(location);
 			if (event != null) {
 				TiApplication.getInstance().postAnalyticsEvent(event);
@@ -161,12 +154,12 @@ public class TiLocation implements Handler.Callback
 		}
 	}
 
-	public static void forwardGeocode(String address, GeocodeResponseHandler responseHandler)
+	public void forwardGeocode(String address, GeocodeResponseHandler responseHandler)
 	{
 		if (address != null) {
-			String geocoderUrl = buildGeocoderURL("forward", mobileId, appGuid, sessionId, address, countryCode);
+			String geocoderUrl = buildGeocoderURL(TiC.PROPERTY_FORWARD, mobileId, appGuid, sessionId, address, countryCode);
 			if (geocoderUrl != null) {
-				Message message = instance.runtimeHandler.obtainMessage(MSG_LOOKUP);
+				Message message = runtimeHandler.obtainMessage(MSG_LOOKUP);
 				message.getData().putString(TiC.PROPERTY_DIRECTION, "forward");
 				message.getData().putString(TiC.PROPERTY_URL, geocoderUrl);
 
@@ -179,11 +172,11 @@ public class TiLocation implements Handler.Callback
 		}
 	}
 
-	public static void reverseGeocode(double latitude, double longitude, GeocodeResponseHandler responseHandler)
+	public void reverseGeocode(double latitude, double longitude, GeocodeResponseHandler responseHandler)
 	{
-		String geocoderUrl = buildGeocoderURL("reverse", mobileId, appGuid, sessionId, latitude + "," + longitude, countryCode);
+		String geocoderUrl = buildGeocoderURL(TiC.PROPERTY_REVERSE, mobileId, appGuid, sessionId, latitude + "," + longitude, countryCode);
 		if (geocoderUrl != null) {
-			Message message = instance.runtimeHandler.obtainMessage(MSG_LOOKUP);
+			Message message = runtimeHandler.obtainMessage(MSG_LOOKUP);
 			message.getData().putString(TiC.PROPERTY_DIRECTION, "reverse");
 			message.getData().putString(TiC.PROPERTY_URL, geocoderUrl);
 
@@ -195,7 +188,7 @@ public class TiLocation implements Handler.Callback
 		}
 	}
 
-	private static String buildGeocoderURL(String direction, String mid, String aguid, String sid, String query, String countryCode)
+	private String buildGeocoderURL(String direction, String mid, String aguid, String sid, String query, String countryCode)
 	{
 		String url = null;
 

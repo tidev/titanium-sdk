@@ -32,7 +32,7 @@ Handle<Value> JSException::fromJavaException(jthrowable javaException)
 		deleteRef = true;
 	}
 
-	env->ExceptionDescribe();
+	//env->ExceptionDescribe();
 
 	jstring message = (jstring) env->CallObjectMethod(javaException, JNIUtil::throwableGetMessageMethod);
 	if (!message) {

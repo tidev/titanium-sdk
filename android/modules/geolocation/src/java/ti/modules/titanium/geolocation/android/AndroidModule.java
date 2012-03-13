@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,22 +9,20 @@ package ti.modules.titanium.geolocation.android;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import org.appcelerator.kroll.KrollModule;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
+import ti.modules.titanium.geolocation.GeolocationModule;
+import ti.modules.titanium.geolocation.TiLocation;
 import android.location.LocationManager;
 import android.os.Handler;
 import android.os.Message;
-
-import ti.modules.titanium.geolocation.GeolocationModule;
-import ti.modules.titanium.geolocation.TiLocation;
 
 
 /**
@@ -44,17 +42,18 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final String PROVIDER_NETWORK = LocationManager.NETWORK_PROVIDER;
 	@Kroll.constant public static final String PROVIDER_GPS = LocationManager.GPS_PROVIDER;
 
-	public static HashMap<String, LocationProviderProxy> manualLocationProviders = new HashMap<String, LocationProviderProxy>();
-	public static ArrayList<LocationRuleProxy> manualLocationRules = new ArrayList<LocationRuleProxy>();
-	public static boolean manualMode = false;
+	public HashMap<String, LocationProviderProxy> manualLocationProviders = new HashMap<String, LocationProviderProxy>();
+	public ArrayList<LocationRuleProxy> manualLocationRules = new ArrayList<LocationRuleProxy>();
+	public boolean manualMode = false;
 
 	protected static final int MSG_ADD_LOCATION_PROVIDER = KrollModule.MSG_LAST_ID + 100;
 	protected static final int MSG_REMOVE_LOCATION_PROVIDER = KrollModule.MSG_LAST_ID + 101;
 	protected static final int MSG_LAST_ID = MSG_REMOVE_LOCATION_PROVIDER;
 
-	private static final String TAG = "AndroidModule";
+	private final String TAG = "AndroidModule";
 
-	private static AndroidModule androidModule;
+	private GeolocationModule geolocationModule;
+	private TiLocation tiLocation;
 
 
 	/**
@@ -62,9 +61,10 @@ public class AndroidModule extends KrollModule
 	 */
 	public AndroidModule()
 	{
-		super();
+		super("geolocation.android");
 
-		androidModule = this;
+		geolocationModule = (GeolocationModule) TiApplication.getInstance().getModuleByName("geolocation");
+		tiLocation = geolocationModule.tiLocation;
 	}
 
 	/**
@@ -114,17 +114,17 @@ public class AndroidModule extends KrollModule
 	@Kroll.setProperty
 	public void setManualMode(boolean manualMode)
 	{
-		if(AndroidModule.manualMode != manualMode) {
-			AndroidModule.manualMode = manualMode;
+		if(this.manualMode != manualMode) {
+			this.manualMode = manualMode;
 			if(manualMode) {
-				GeolocationModule.enableLocationProviders(manualLocationProviders);
+				geolocationModule.enableLocationProviders(manualLocationProviders);
 
 			} else {
-				if(GeolocationModule.legacyModeActive) {
-					GeolocationModule.enableLocationProviders(GeolocationModule.legacyLocationProviders);
+				if(geolocationModule.legacyModeActive) {
+					geolocationModule.enableLocationProviders(geolocationModule.legacyLocationProviders);
 
 				} else {
-					GeolocationModule.enableLocationProviders(GeolocationModule.simpleLocationProviders);
+					geolocationModule.enableLocationProviders(geolocationModule.simpleLocationProviders);
 				}
 			}
 		}
@@ -143,17 +143,17 @@ public class AndroidModule extends KrollModule
 	{
 		String name = null;
 
-		if(creationArgs[0] instanceof HashMap) {
+		if((creationArgs.length > 0) && (creationArgs[0] instanceof HashMap)) {
 			Object nameProperty = ((HashMap) creationArgs[0]).get(TiC.PROPERTY_NAME);
 			if(nameProperty instanceof String) {
-				if(TiLocation.isProvider((String) nameProperty)) {
+				if(tiLocation.isProvider((String) nameProperty)) {
 					name = (String) nameProperty;
 				}
 			}
 		}
 
 		if(name != null) {
-			return new LocationProviderProxy(creationArgs, GeolocationModule.getInstance());
+			return new LocationProviderProxy(creationArgs, geolocationModule);
 
 		} else {
 			throw new IllegalArgumentException("Invalid provider name, unable to create location provider");
@@ -186,7 +186,7 @@ public class AndroidModule extends KrollModule
 			doAddLocationProvider(locationProvider);
 
 		} else {
-			Message message = androidModule.getRuntimeHandler().obtainMessage(MSG_ADD_LOCATION_PROVIDER, locationProvider);
+			Message message = getRuntimeHandler().obtainMessage(MSG_ADD_LOCATION_PROVIDER, locationProvider);
 			message.sendToTarget();
 		}
 	}
@@ -202,7 +202,7 @@ public class AndroidModule extends KrollModule
 	private void doAddLocationProvider(LocationProviderProxy locationProvider)
 	{
 		String providerName = TiConvert.toString(locationProvider.getProperty(TiC.PROPERTY_NAME));
-		if (!(TiLocation.isProvider(providerName))) {
+		if (!(tiLocation.isProvider(providerName))) {
 			Log.e(TAG, "unable to add location provider [" + providerName + "], does not exist");
 
 			return;
@@ -216,15 +216,15 @@ public class AndroidModule extends KrollModule
 		} else {
 			manualLocationProviders.remove(providerName);
 
-			if(manualMode && (GeolocationModule.numLocationListeners > 0)) {
-				TiLocation.locationManager.removeUpdates(existingLocationProvider);
+			if(manualMode && (geolocationModule.numLocationListeners > 0)) {
+				tiLocation.locationManager.removeUpdates(existingLocationProvider);
 			}
 
 			manualLocationProviders.put(providerName, locationProvider);
 		}
 
-		if(manualMode && (GeolocationModule.numLocationListeners > 0)) {
-			GeolocationModule.registerLocationProvider(locationProvider);
+		if(manualMode && (geolocationModule.numLocationListeners > 0)) {
+			geolocationModule.registerLocationProvider(locationProvider);
 
 		}
 	}
@@ -241,7 +241,7 @@ public class AndroidModule extends KrollModule
 			doRemoveLocationProvider(locationProvider);
 
 		} else {
-			Message message = androidModule.getRuntimeHandler().obtainMessage(MSG_REMOVE_LOCATION_PROVIDER, locationProvider);
+			Message message = getRuntimeHandler().obtainMessage(MSG_REMOVE_LOCATION_PROVIDER, locationProvider);
 			message.sendToTarget();
 		}
 	}
@@ -254,8 +254,8 @@ public class AndroidModule extends KrollModule
 	private void doRemoveLocationProvider(LocationProviderProxy locationProvider)
 	{
 		manualLocationProviders.remove(locationProvider.getName());
-		if(manualMode && (GeolocationModule.numLocationListeners > 0)) {
-			TiLocation.locationManager.removeUpdates(locationProvider);
+		if(manualMode && (geolocationModule.numLocationListeners > 0)) {
+			tiLocation.locationManager.removeUpdates(locationProvider);
 		}
 	}
 
