@@ -237,8 +237,8 @@ Object.defineProperty(EventEmitter.prototype, "removeListener", {
 				}
 			} else {
 				for (var i = 0, length = list.length; i < length; i++) {
-					if (list.listener[i] === listener ||
-						(list.listener[i].listener && list.listener[i].listener === listener))
+					if (list[i] === listener || 
+						(list[i].listener && list[i].listener === listener))
 					{
 						position = i;
 						break;
@@ -246,17 +246,19 @@ Object.defineProperty(EventEmitter.prototype, "removeListener", {
 				}
 			}
 
-			if (position < 0) return this;
+			if (position < 0) {
+				return this;
+			}
 			list.splice(position, 1);
 			if (list.length == 0)
 				delete this._events[type];
-			count = list.length;
-		} else if (list.listener === listener ||
-			(list.listener.listener && list.listener.listener === listener) ||
+		} else if (list === listener ||
+			(list.listener && list.listener === listener) ||
 			listener == 0)
 		{
 			delete this._events[type];
 		}
+		count = list.length;
 		if (count == 0) {
 			this._hasListenersForEventType(type, false);
 		}
