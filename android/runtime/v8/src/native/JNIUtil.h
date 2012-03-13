@@ -87,6 +87,7 @@ public:
 	static jmethodID setToArrayMethod;
 	static jmethodID dateInitMethod;
 	static jmethodID dateGetTimeMethod;
+	static jmethodID integerInitMethod;
 	static jmethodID doubleInitMethod;
 	static jmethodID booleanInitMethod;
 	static jmethodID booleanBooleanValueMethod;
