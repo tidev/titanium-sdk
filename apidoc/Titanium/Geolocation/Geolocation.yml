@@ -702,7 +702,7 @@ properties:
 
   - name: countryCode
     summary: Country code. 
-    type: String. 
+    type: String
     platforms: [android]
 
   - name: country_code
@@ -887,7 +887,7 @@ properties:
 
   - name: countryCode
     summary: Country code. On iOS, use `country_code`.
-    type: String. 
+    type: String
     platforms: [android]
 
   - name: country_code
