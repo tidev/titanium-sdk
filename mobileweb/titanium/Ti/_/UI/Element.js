@@ -198,7 +198,7 @@ define(
 		
 		finishLayout: function() {
 			this._batchUpdateInProgress = false;
-			UI._triggerLayout(true);
+			UI._triggerLayout(this, true);
 		},
 		
 		updateLayout: function(params) {
@@ -884,6 +884,14 @@ define(
 		_measuredBottomPadding: 0,
 		_measuredWidth: 0,
 		_measuredHeight: 0,
+		_measuredBorderSize: {
+			value: {
+				left: 0,
+				top: 0,
+				right: 0,
+				bottom: 0
+			}
+		},
 		
 		constants: {
 			size: {
