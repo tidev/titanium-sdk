@@ -6,7 +6,8 @@ define(
 		isIOS = /(iPhone|iPad)/.test(navigator.userAgent),
 		modules = "2DMatrix,ActivityIndicator,AlertDialog,Animation,Button,EmailDialog,ImageView,Label,OptionDialog,Picker,PickerColumn,PickerRow,ProgressBar,ScrollableView,ScrollView,Slider,Switch,Tab,TabGroup,TableView,TableViewRow,TableViewSection,TextArea,TextField,View,WebView,Window",
 		creators = {},
-		setStyle = style.set;
+		setStyle = style.set,
+		undef;
 
 	body.addEventListener('touchmove', function(e) {
 		e.preventDefault();
@@ -220,14 +221,7 @@ define(
 					return setStyle(body, "backgroundImage", value ? style.url(value) : "");
 				}
 			},
-			currentTab: {
-				get: function() {
-					return (this.currentWindow || {}).activeTab;
-				},
-				set: function(value) {
-					return (this.currentWindow || {}).activeTab = value;
-				}
-			}
+			currentTab: undef
 		},
 		
 		convertUnits: function(convertFromValue, convertToUnits) {
