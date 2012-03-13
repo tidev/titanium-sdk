@@ -188,56 +188,54 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 		}
 	};
 	
+    
+    // If we're on the main thread and required to wait for completion, just
+    // run the block immediately. This behavior is consistent with
+    // -[NSObject performSelectorOnMainThread:withObject:waitUntilDone:], which
+    // our code may currently rely on the assumptions for.
+    
+    if (alreadyOnMainThread && waitForFinish) {
+        wrapperBlock();
+
+        if (caughtException != nil) {
+            [caughtException autorelease];
+            [caughtException raise];
+        }
+        
+        return;
+    }
+    
 	void (^wrapperBlockCopy)() = [wrapperBlock copy];
 	
-	
 	pthread_mutex_lock(&TiThreadBlockMutex);
-		if (!alreadyOnMainThread || !waitForFinish) {
-			[TiThreadBlockQueue addObject:wrapperBlockCopy];
-		}
+    [TiThreadBlockQueue addObject:wrapperBlockCopy];
     pthread_cond_signal(&TiThreadBlockCondition);
     pthread_mutex_unlock(&TiThreadBlockMutex);
 	
-	if (alreadyOnMainThread) {
-		// In order to maintain serial consistency, we have to stand in line
-		BOOL finished = TiThreadProcessPendingMainThreadBlocks(0.1, YES, nil);
-		if(waitForFinish)
-		{
-			//More or less. If things took too long, we cut.
-			wrapperBlockCopy();
-		}
-		[wrapperBlockCopy release];
-		if (caughtException != nil) {
-			[caughtException autorelease];
-			NSLog(@"[ERROR] %@",[caughtException reason]);
-			if (TiExceptionIsSafeOnMainThread) {
-				@throw caughtException;
-			}
-		}
-		return;
-	}
-
 	dispatch_block_t dispatchedMainBlock = (dispatch_block_t)^(){
 		TiThreadProcessPendingMainThreadBlocks(0.0, YES, nil);
 	};
-	dispatch_async(dispatch_get_main_queue(), (dispatch_block_t)dispatchedMainBlock);
-	if (waitForFinish)
-	{
-		/*
-		 *	The reason we use a semaphore instead of simply calling the block sychronously
-		 *	is that it is possible that a previous dispatchedMainBlock (Or manual call of
-		 *	TiThreadProcessPendingMainThreadBlocks) processes the wrapperBlockCopy we
-		 *	care about. In other words, sychronously waiting will lead to the thread
-		 *	blocking much longer than necessary, especially during the shutdown sequence.
-		 */
-		dispatch_time_t oneSecond = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC);
-		BOOL waiting = dispatch_semaphore_wait(waitSemaphore, oneSecond);
-		if (waiting) {
-			NSLog(@"[WARN] Timing out waiting on main thread. Possibly a deadlock? %@",CODELOCATION);
-			dispatch_semaphore_wait(waitSemaphore, DISPATCH_TIME_FOREVER);
-		}
-		dispatch_release(waitSemaphore);
-	}
+    
+    dispatch_async(dispatch_get_main_queue(), dispatchedMainBlock);
+    
+    if (waitForFinish)
+    {
+        /*
+         *	The reason we use a semaphore instead of simply calling the block sychronously
+         *	is that it is possible that a previous dispatchedMainBlock (Or manual call of
+         *	TiThreadProcessPendingMainThreadBlocks) processes the wrapperBlockCopy we
+         *	care about. In other words, sychronously waiting will lead to the thread
+         *	blocking much longer than necessary, especially during the shutdown sequence.
+         */
+        dispatch_time_t oneSecond = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC);
+        BOOL waiting = dispatch_semaphore_wait(waitSemaphore, oneSecond);
+        if (waiting) {
+            NSLog(@"[WARN] Timing out waiting on main thread. Possibly a deadlock? %@",CODELOCATION);
+            dispatch_semaphore_wait(waitSemaphore, DISPATCH_TIME_FOREVER);
+        }
+        dispatch_release(waitSemaphore);
+    }
+
 	[wrapperBlockCopy release];
 	if (caughtException != nil) {
 		[caughtException autorelease];
@@ -247,14 +245,6 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 
 BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhenEmpty, void * reserved )
 {
-    static BOOL running = NO;
-    
-    // Keep the block processor from being re-entrant
-    if (running) {
-        return NO;
-    }
-    
-    running = YES;
 	struct timeval doneTime;
 	gettimeofday(&doneTime, NULL);
 	float timeoutSeconds = floorf(timeout);
@@ -306,9 +296,7 @@ BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhe
 				pthread_cond_timedwait(&TiThreadBlockCondition, &TiThreadBlockMutex, &doneTimeSpec);
 			}
 		pthread_mutex_unlock(&TiThreadBlockMutex);
-
 	} while (shouldContinue);
-    
-    running = NO;
+
 	return isEmpty;
 }
