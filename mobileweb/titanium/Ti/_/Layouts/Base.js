@@ -9,7 +9,9 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom"], function(css, dec
 
 		destroy: function() {
 			css.remove(this.element.domNode, css.clean(this.declaredClass));
-		}
+		},
+		
+		_computedSize: {width: 0, height: 0}
 
 	});
 
