@@ -4,8 +4,8 @@ summary: An object which represents a contact record in the system address book.
 description: |
     This object contains two kinds of properties:
     
-    * single value - contains either a `string` type value, an array of `string` type values, or 
-    `null` if unset.
+    * single value - contains either a `string` or `number` type value, an array of `string` type 
+    values, or `null` if unset.
     * multi-value - contains a dictionary with typical keys of `home`, `work` and/or `other`. Each 
     key contains either a `string` type value, an array of `string` type values, or a dictionary 
     containing key/value pairs with `string` type values.
@@ -49,12 +49,16 @@ properties:
         
         * Keys: any of `home`, `work`, and/or `other`.
         * Values: arrays of dictionary types with six keys, `CountryCode`, `Street`, `City`, 
-        `County`, `Country` and `ZIP`, each with a `string` type value. The `CountryCode` key value 
-        may be one of the recognized two-character ISO 3166-1 country codes, and determines for 
-        format in which the contact is presented by the address book user interface. See the 
-        wikipedia section 
+        `County`, `Country` and `ZIP`, each with a `string` type value.
+        
+        The `CountryCode` key value may be one of the recognized two-character ISO 3166-1 country 
+        codes, and determines the format in which the contact is presented by the address book 
+        user interface. See the wikipedia section 
         [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
         for a comprehensive list of codes.
+        
+        Every new line in the `Street` value may be created using a backslash followed by a letter 
+        `n`, for example, `\n`.
     type: Dictionary
     
   - name: birthday
@@ -123,8 +127,10 @@ properties:
         
         * Keys: any of `home`, `work` and/or `other`.
         * Values: arrays of dictionary types with two keys, `service` and `username`, each with a 
-        `string` type value. The `service` key value may be one of `AIM`, `Facebook`, `GaduGadu`, 
-        `GoogleTalk`, `ICQ`, `MSN`, `QQ`, `Skype`, or `Yahoo`.
+        `string` type value.
+        
+        The `service` key value may be one of `AIM`, `Facebook`, `GaduGadu`, `GoogleTalk`, `ICQ`, 
+        `MSN`, `QQ`, `Skype`, or `Yahoo`.
     type: Dictionary
     platforms: [iphone, ipad]
     
