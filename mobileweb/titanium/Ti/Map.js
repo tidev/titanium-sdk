@@ -1,23 +1,26 @@
-define("Ti/Map", ["Ti/_/Evented"], function(Evented) {
-	
-	(function(api){
-		// Interfaces
-		Ti._5.EventDriven(api);
-	
-		// Properties
-		Ti._5.propReadOnly(api, {
-			HYBRID_TYPE: 0,
+define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
+
+	return lang.setObject("Ti.Map", Evented, {
+
+		constants: {
+			ANNOTATION_GREEN: 1,
+			ANNOTATION_PURPLE: 2,
+			ANNOTATION_RED: 0,
+			HYBRID_TYPE: 2,
 			SATELLITE_TYPE: 1,
-			STANDARD_TYPE: 2
-		});
-	
-		// Methods
-		api.createAnnotation = function(){
-			console.debug('Method "Titanium.Map.createAnnotation" is not implemented yet.');
-		};
-		api.createMapView = function(){
-			console.debug('Method "Titanium.Map.createMapView" is not implemented yet.');
-		};
-	})(Ti._5.createClass('Ti.Map'));
+			STANDARD_TYPE: 0
+		},
+
+		createAnnotation: function(args) {
+			var m = require("Ti/Map/Annotation");
+			return new m(args);
+		},
+
+		createMapView: function(args) {
+			var m = require("Ti/Map/View");
+			return new m(args);
+		}
+
+	});
 
 });

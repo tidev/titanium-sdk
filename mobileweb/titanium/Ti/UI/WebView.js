@@ -118,11 +118,11 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 		},
 
 		canGoBack: function() {
-			return this.url && this._getHistory().length;
+			return this.url && !!this._getHistory().length;
 		},
 
 		canGoForward: function() {
-			return this.url && this._getHistory().length;
+			return this.url && !!this._getHistory().length;
 		},
 
 		evalJS: function(js) {

@@ -13,7 +13,7 @@ var require = {
 	},
 	deployType: "${deploy_type | jsQuoteEscapeFilter}",
 	has: {
-		"analytics-use-xhr": false,
+		"analytics-use-xhr": ${has_analytics_use_xhr | jsQuoteEscapeFilter},
 		"declare-property-methods": true,
 		"js-btoa": function(g) {
 			return "btoa" in g;
@@ -43,9 +43,6 @@ var require = {
 	ti: {
 		buildHash: "${ti_githash | jsQuoteEscapeFilter}",
 		buildDate: "${ti_timestamp | jsQuoteEscapeFilter}",
-		filesystem: {
-			registry: "${ti_fs_registry}"
-		},
 		version: "${ti_version | jsQuoteEscapeFilter}"
 	},
 	vendorPrefixes: {
