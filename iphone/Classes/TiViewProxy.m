@@ -2235,7 +2235,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         BOOL childIsPercent = TiDimensionIsPercent([child layoutProperties]->height);
         if (childIsPercent)
         {
-            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offset,bounds.size.height)];
+            //For percent width is irrelevant
+            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(0,bounds.size.height)];
         }
         if (desiredWidth > boundingWidth) {
             if (horizontalLayoutBoundary == 0.0) {
