@@ -54,6 +54,7 @@
 -(void)zoom:(id)args;
 -(void)addRoute:(id)args;
 -(void)removeRoute:(id)args;
+-(void)firePinChangeDragState:(MKAnnotationView *) pinview newState:(MKAnnotationViewDragState)newState fromOldState:(MKAnnotationViewDragState)oldState;
 
 #pragma mark Framework
 -(void)refreshAnnotation:(TiMapAnnotationProxy*)proxy readd:(BOOL)yn;
