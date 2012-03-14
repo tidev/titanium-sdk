@@ -121,6 +121,10 @@
 
 -(CGRect)computeChildSandbox:(TiViewProxy*)child withBounds:(CGRect)bounds
 {
+    if ([self viewAttached]) {
+        //ScrollView calls this with wrapper view bounds. Make sure it is set to the right bound
+        bounds = [[self view] bounds];
+    }
     if(TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle))
     {
         //Horizontal Layout in scrollview is not a traditional horizontal layout. So need an override
@@ -142,17 +146,14 @@
         if (TiDimensionIsDip(constraint) || TiDimensionIsPercent(constraint))
         {
             //Percent or absolute of total width so leave the sandbox and just increment the boundary
-            bounds.size.width =  TiDimensionCalculateValue(constraint, boundingValue) + offset;
+            bounds.size.width =  TiDimensionCalculateValue(constraint, bounds.size.width) + offset;
             horizontalLayoutBoundary += bounds.size.width;
-            if (TiDimensionIsPercent(constraint)) {
-                bounds.size.width = boundingValue + offset;
-            }
         }
         else if (TiDimensionIsAutoFill(constraint))
         {
             //Fill up the remaining
-            bounds.size.width = boundingValue;
-            horizontalLayoutBoundary += bounds.size.width + offset;
+            bounds.size.width = boundingValue + offset;
+            horizontalLayoutBoundary += bounds.size.width;
         }
         else if (TiDimensionIsAutoSize(constraint))
         {
@@ -163,8 +164,8 @@
         {
             if (followsFillBehavior) {
                 //FILL behavior
-                bounds.size.width = boundingValue;
-                horizontalLayoutBoundary += bounds.size.width + offset;
+                bounds.size.width = boundingValue + offset;
+                horizontalLayoutBoundary += bounds.size.width;
             }
             else {
                 //SIZE behavior
@@ -180,8 +181,8 @@
                 horizontalLayoutBoundary += bounds.size.width;
             }
             else if (!TiDimensionIsUndefined([child layoutProperties]->left) && !TiDimensionIsUndefined([child layoutProperties]->right) ) {
-                bounds.size.width = boundingValue;
-                horizontalLayoutBoundary += boundingValue + offset;
+                bounds.size.width = boundingValue + offset;
+                horizontalLayoutBoundary += bounds.size.width;
             }
             else if (!TiDimensionIsUndefined([child layoutProperties]->centerX) && !TiDimensionIsUndefined([child layoutProperties]->right) ) {
                 CGFloat width = 2 * ( boundingValue - TiDimensionCalculateValue([child layoutProperties]->right, boundingValue) - TiDimensionCalculateValue([child layoutProperties]->centerX, boundingValue));
@@ -190,13 +191,13 @@
             }
             else if (followsFillBehavior) {
                 //FILL behavior
-                bounds.size.width = boundingValue;
-                horizontalLayoutBoundary += bounds.size.width + offset;
+                bounds.size.width = boundingValue + offset;
+                horizontalLayoutBoundary += bounds.size.width;
             }
             else {
                 //SIZE behavior
                 bounds.size.width = [child autoWidthForSize:CGSizeMake(boundingValue,bounds.size.height - offset2)] + offset;
-                horizontalLayoutBoundary += bounds.size.height;
+                horizontalLayoutBoundary += bounds.size.width;
             }
         }
         
