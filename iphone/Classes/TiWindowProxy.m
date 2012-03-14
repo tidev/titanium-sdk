@@ -135,10 +135,10 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	return win;
 }
 
-BEGIN_UI_THREAD_PROTECTED_VALUE(opened,NSNumber)
-	result = [NSNumber numberWithBool:opened];
-END_UI_THREAD_PROTECTED_VALUE(opened)
 
+-(NSNumber *) opened{
+    return [NSNumber numberWithBool:opened];
+}
 
 -(BOOL)handleFocusEvents
 {

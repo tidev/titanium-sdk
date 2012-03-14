@@ -546,8 +546,14 @@ extern NSString* const kTiUnitPercent;
 	#define REACHABILITY_20_API 1
 #endif
 
-#include "TiThreading.h"
 
+    
+#include "TiThreading.h"
+//Counter to keep track of KrollContext
+extern int krollContextCounter;
+void incrementKrollCounter();	
+void decrementKrollCounter();
+    
 /**
  *	TiThreadPerformOnMainThread should replace all Titanium instances of
  *	performSelectorOnMainThread, ESPECIALLY if wait is to be yes. That way,
