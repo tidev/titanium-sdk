@@ -6,11 +6,12 @@ description: |
     into the operating system specific localization formats. The `Locale` module provides 
     locale-specific strings which can be referenced at runtime.  Additionally, the module 
     contains a few methods and properties for querying device locale information.
-
+    
     The macro `L` can be used as an alias for the <Titanium.Locale.getString> method.
 extends: Titanium.Module
 since: "1.5"
 platforms: [android, iphone, ipad, mobileweb]
+
 methods:
   - name: formatTelephoneNumber
     summary: format a telephone number according to the current locale.
@@ -21,6 +22,7 @@ methods:
       - name: number
         summary: the phone number to format
         type: String
+        
   - name: getCurrencyCode
     summary: return a currency code for a given locale.
     platforms: [android]
@@ -30,6 +32,7 @@ methods:
       - name: locale
         summary: the locale for which you want to the currency code, e.g. getCurrencyCode('en-US') -> 'USD'
         type: String
+        
   - name: getCurrencySymbol
     summary: return a currency symbol for the given currency code.
     platforms: [android]
@@ -39,6 +42,7 @@ methods:
       - name: currencyCode
         summary: the currency for which you want the symbol, e.g. getCurrencySymbol('USD') -> '$'
         type: String
+        
   - name: getLocaleCurrencySymbol
     summary: return a currency symbol for the given locale.
     platforms: [android]
@@ -48,6 +52,7 @@ methods:
       - name: locale
         summary: the locale whose currency symbol you want, e.g. getLocaleCurrencySymbol('en-US') -> '$'
         type: String
+        
   - name: getString
     summary: return a localization string
     returns:
@@ -56,20 +61,24 @@ methods:
       - name: key
         summary: the key to use when mapping into the localization file
         type: String
+        
       - name: hint
         summary: the text to use if no key found in the localization file
         type: String
         optional: true
+
 properties:
   - name: currentCountry
     summary: return the current (default) ISO 2-letter country code for the device.
     platforms: [android, mobileweb]
     type: String
     permission: read-only
+    
   - name: currentLanguage
     summary: return the current language for the device based on the user's settings
     type: String
     permission: read-only
+    
   - name: currentLocale
     summary: return the current locale string for the device based on the user's settings (e.g., en-US).
     platforms: [android, mobileweb]
