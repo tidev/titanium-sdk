@@ -205,7 +205,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 				}
 				if (this._widestRowWidth !== widestRowWidth) {
 					this._widestRowWidth = widestRowWidth;
-					this._triggerParentLayout();
+					this._triggerLayout();
 				}
 			}
 		},
@@ -225,7 +225,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 		_setTallestRowHeight: function(height) {
 			if (this._tallestRowHeight !== height) {
 				this._tallestRowHeight = height;
-				this._triggerParentLayout();
+				this._triggerLayout();
 			}
 		},
 		
@@ -276,7 +276,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 						this.font = undef;
 						this.color = undef;
 						this._titleContainer.innerHTML = "";
-						this._hasSizeDimensions() && this._triggerParentLayout();
+						this._hasSizeDimensions() && this._triggerLayout();
 					} else {
 						var rowIndex = this._rows.indexOf(value);
 						if (rowIndex === -1) {
@@ -285,7 +285,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 						this.font = value.font;
 						this.color = lang.val(value.color, "");
 						this._titleContainer.innerHTML = value.title;
-						this._hasSizeDimensions() && this._triggerParentLayout();
+						this._hasSizeDimensions() && this._triggerLayout();
 					}
 					return value;
 				},

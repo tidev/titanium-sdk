@@ -482,18 +482,24 @@
 	row.table = self;
 	NSMutableArray *rows = [row.section rows];
 	
+    TiUITableViewRowProxy* oldRow = nil;
 	if ([rows count] > row.row) {
-		TiUITableViewRowProxy* oldRow = [rows objectAtIndex:row.row];
-		[oldRow retain];
-		oldRow.table = nil;
-		oldRow.section = nil;
-		oldRow.parent = nil;
-		[row.section forgetProxy:oldRow];
-		[oldRow release];
-	}	
-	[row.section rememberProxy:row];
-	[rows replaceObjectAtIndex:row.row withObject:row];
-	[row.section reorderRows];
+		oldRow = [rows objectAtIndex:row.row];
+        if (oldRow != row) {
+            [oldRow retain];
+            oldRow.table = nil;
+            oldRow.section = nil;
+            oldRow.parent = nil;
+            [row.section forgetProxy:oldRow];
+            [oldRow release];
+        }
+	}
+    
+    if (oldRow != row) {
+        [row.section rememberProxy:row];
+        [rows replaceObjectAtIndex:row.row withObject:row];
+        [row.section reorderRows];
+    }
 }
 
 -(void)insertRow:(TiUITableViewRowProxy*)row before:(TiUITableViewRowProxy*)before 
@@ -1936,7 +1942,16 @@ return result;	\
 
 - (void)tableView:(UITableView *)ourTableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
 {
-	[self triggerActionForIndexPath:indexPath fromPath:nil tableView:ourTableView wasAccessory:YES search:NO name:@"click"];
+	BOOL search = NO;
+	if (allowsSelectionSet==NO || [ourTableView allowsSelection]==NO)
+	{
+		[ourTableView deselectRowAtIndexPath:indexPath animated:YES];
+	}
+	if(ourTableView != tableview)
+	{
+		search = YES;
+	}
+	[self triggerActionForIndexPath:indexPath fromPath:nil tableView:ourTableView wasAccessory:YES search:search name:@"click"];
 }
 
 - (NSInteger)tableView:(UITableView *)ourTableView indentationLevelForRowAtIndexPath:(NSIndexPath *)indexPath

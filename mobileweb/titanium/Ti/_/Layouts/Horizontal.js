@@ -18,27 +18,29 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 				for (var i = 0; i < children.length; i++) {
 					var child = children[i];
 					if (child.width !== UI.FILL) {
-						var dimensions = child._doLayout({
-						 	origin: {
-						 		x: 0,
-						 		y: 0
-						 	},
-						 	isParentSize: {
-						 		width: isWidthSize,
-						 		height: isHeightSize
-						 	},
-						 	boundingSize: {
-						 		width: width,
-						 		height: height
-						 	},
-						 	alignment: {
-						 		horizontal: this._defaultHorizontalAlignment,
-						 		vertical: this._defaultVerticalAlignment
-						 	},
-							positionElement: false,
-					 		layoutChildren: true
-						});
-						availableWidth -= dimensions.width;
+						if (child._markedForLayout) {
+							var dimensions = child._doLayout({
+							 	origin: {
+							 		x: 0,
+							 		y: 0
+							 	},
+							 	isParentSize: {
+							 		width: isWidthSize,
+							 		height: isHeightSize
+							 	},
+							 	boundingSize: {
+							 		width: width,
+							 		height: height
+							 	},
+							 	alignment: {
+							 		horizontal: this._defaultHorizontalAlignment,
+							 		vertical: this._defaultVerticalAlignment
+							 	},
+								positionElement: false,
+						 		layoutChildren: true
+							});
+						}
+						availableWidth -= child._measuredWidth;
 					}
 				}
 			}
@@ -48,26 +50,29 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 				// Layout the child
 				var child = children[i],
 					isWidthFill = child.width === UI.FILL;
-				child._doLayout({
-				 	origin: {
-				 		x: currentLeft,
-				 		y: 0
-				 	},
-				 	isParentSize: {
-				 		width: isWidthSize,
-				 		height: isHeightSize
-				 	},
-				 	boundingSize: {
-				 		width: isWidthFill ? availableWidth : width,
-				 		height: height
-				 	},
-				 	alignment: {
-				 		horizontal: this._defaultHorizontalAlignment,
-				 		vertical: this._defaultVerticalAlignment
-				 	},
-				 	positionElement: true,
-				 	layoutChildren: !childrenWithFillWidth || isWidthFill
-			 	});
+				
+				if (child._markedForLayout) {
+					child._doLayout({
+					 	origin: {
+					 		x: currentLeft,
+					 		y: 0
+					 	},
+					 	isParentSize: {
+					 		width: isWidthSize,
+					 		height: isHeightSize
+					 	},
+					 	boundingSize: {
+					 		width: isWidthFill ? availableWidth : width,
+					 		height: height
+					 	},
+					 	alignment: {
+					 		horizontal: this._defaultHorizontalAlignment,
+					 		vertical: this._defaultVerticalAlignment
+					 	},
+					 	positionElement: true,
+					 	layoutChildren: !childrenWithFillWidth || isWidthFill
+				 	});
+			 	}
 				
 				// Update the size of the component
 				currentLeft = child._measuredLeft + child._measuredWidth + child._measuredBorderSize.left + child._measuredBorderSize.right + child._measuredRightPadding;
