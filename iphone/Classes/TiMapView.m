@@ -701,6 +701,23 @@
 		{
 			return;
 		}
+        /*Image Annotation don't have any animation of its own. 
+         *So in this case we do a custom animation, to place the 
+         *image annotation on top of the mapview.*/
+        if([thisView isKindOfClass:[TiMapImageAnnotationView class]])
+        {
+            TiMapAnnotationProxy *anntProxy = [self proxyForAnnotation:thisView];
+            if([anntProxy animatesDrop] && ![anntProxy placed])
+            {
+                CGRect viewFrame = thisView.frame;
+                thisView.frame = CGRectMake(viewFrame.origin.x, viewFrame.origin.y - self.frame.size.height, viewFrame.size.width, viewFrame.size.height);
+                [UIView animateWithDuration:0.4 
+                                      delay:0.0 
+                                    options:UIViewAnimationCurveEaseOut 
+                                 animations:^{thisView.frame = viewFrame;}
+                                 completion:nil];
+            }
+        }
 		TiMapAnnotationProxy * thisProxy = [self proxyForAnnotation:thisView];
 		[thisProxy setPlaced:YES];
 	}
