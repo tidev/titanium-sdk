@@ -691,11 +691,29 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	// TODO: count should be removed since we no longer report it.
 	//       These methods only gets called now when the first listener
 	//       is added or the last one has been removed.
+	/**
+	 * Called when a event listener is added to the proxy
+	 * 
+	 * @param event			the event that the listener has been added for
+	 * @param count			the number of listeners for this event.  should not be used as this value 
+	 * 						is not reported correctly
+	 * @param proxy			the proxy that the event was added to.  otherwise known as "this"
+	 * @return				<code>void</code>
+	 */
 	protected void eventListenerAdded(String event, int count, KrollProxy proxy)
 	{
 		modelListener.listenerAdded(event, count, this);
 	}
 
+	/**
+	 * Called when a event listener is removed from the proxy
+	 * 
+	 * @param event			the event that the listener has been removed for
+	 * @param count			the number of listeners for this event.  should not be used as this value 
+	 * 						is not reported correctly
+	 * @param proxy			the proxy that the event was removed from.  otherwise known as "this"
+	 * @return				<code>void</code>
+	 */
 	protected void eventListenerRemoved(String event, int count, KrollProxy proxy)
 	{
 		modelListener.listenerRemoved(event, count, this);
