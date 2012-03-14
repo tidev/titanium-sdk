@@ -19,7 +19,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 			view._setParent(this);
 			this.children.push(view);
 			this.containerNode.appendChild(view.domNode);
-			view._hasBeenLayedOut = false;
+			view._hasBeenLaidOut = false;
 			this._triggerLayout(this._isAttachedToActiveWin());
 		},
 

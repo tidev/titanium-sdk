@@ -998,14 +998,16 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(void)main
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	[[NSThread currentThread] setName:[self threadName]];
 	cachedThreadId = [NSThread currentThread];
 	pthread_rwlock_rdlock(&KrollGarbageCollectionLock);
 //	context = TiGlobalContextCreateInGroup([TiApp contextGroup],NULL);
 	context = TiGlobalContextCreate(NULL);
 	TiObjectRef globalRef = TiContextGetGlobalObject(context);
-		
+	
+    incrementKrollCounter();
 
     // TODO: We might want to be smarter than this, and do some KVO on the delegate's
     // 'debugMode' property or something... and start/stop the debugger as necessary.
@@ -1123,7 +1125,9 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 			if (suspended && ([queue count] == 0))
 			{
 				VerboseLog(@"Waiting: %@",self);
-				[condition wait];
+                decrementKrollCounter();
+                [condition wait];
+                incrementKrollCounter();
 				VerboseLog(@"Resumed! %@",self)
 			} 
 		}
@@ -1253,7 +1257,9 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		{
 			// wait only 10 seconds and then loop, this will allow us to garbage
 			// collect every so often
-			[condition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:10]];		
+            decrementKrollCounter();
+			[condition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:10]];
+            incrementKrollCounter();
 		}
 		[condition unlock]; 
 		
@@ -1311,6 +1317,8 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	// cause the global context to be released and all objects internally to be finalized
 	TiGlobalContextRelease(context);
 	
+    decrementKrollCounter();
+    
 	[kroll autorelease];
 	[pool release];
 }
