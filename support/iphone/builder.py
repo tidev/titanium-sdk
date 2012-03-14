@@ -562,7 +562,8 @@ def main(args):
 	sys.stdout.flush()
 	start_time = time.time()
 	command = args[1].decode("utf-8")
-	
+	run.ensure_dev_path()
+
 	target = 'Debug'
 	deploytype = 'development'
 	devicefamily = 'iphone'
@@ -1372,12 +1373,8 @@ def main(args):
 					else:
 						sim = subprocess.Popen("\"%s\" launch \"%s\" --sdk %s --family %s" % (iphonesim,app_dir,iphone_version,simtype),shell=True,cwd=template_dir)
 
-					# activate the simulator window - we use a OSA script to 
-					# cause the simulator window to come into the foreground (otherwise
-					# it will be behind Titanium Developer window)
-					ass = os.path.join(template_dir,'iphone_sim_activate.scpt')
-					cmd = "osascript \"%s\" 2>/dev/null" % ass
-					os.system(cmd)
+					# activate the simulator window
+					os.system("open -b com.apple.iphonesimulator")
 
 					end_time = time.time()-start_time
 
