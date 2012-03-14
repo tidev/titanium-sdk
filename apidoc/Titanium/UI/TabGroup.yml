@@ -223,3 +223,9 @@ properties:
     type: [Number,String]
     since: "1.9.0"
     platforms: [mobileweb]
+  - name: tabsAtTop
+    summary: Specifies whether the tabs should be at the top of the screen or the bottom
+    type: Boolean
+    since: "1.9.0"
+    platforms: [mobileweb]
+    availability: creation

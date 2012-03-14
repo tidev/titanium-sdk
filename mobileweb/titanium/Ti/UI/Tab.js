@@ -35,26 +35,22 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/
 		},
 
 		open: function(win, args) {
-			win = win || this.window;
-			this._windows.push(win);
-			win.activeTab = this;
-
-			// Apply a background if one is not already set
-			lang.isDef(win.backgroundColor) || (win.backgroundColor = "white");
-
-			// Open the window and animate it in
-			var originalOpacity = lang.isDef(win.opacity) ? win.opacity : 1;
-			win.opacity = 0;
-			win.open(args);
-			win.animate({opacity: originalOpacity, duration: 250}, function(){
-				win.opacity = originalOpacity;
-			});
+			if (this._tabGroup) {
+				win = win || this.window;
+				this._windows.push(win);
+				win.activeTab = this;
+				this._tabGroup._openWindowInTabContainer(win, args);
+			}
 		},
 
 		close: function(args) {
-			var win = this._windows.pop();
+			var self = this;
+				win = self._windows.pop();
 			win && win.animate({opacity: 0, duration: 250}, function(){
 				win.close(args);
+				if (self._windows.length === 0) {
+					self._tabGroup._closeLastWindow();
+				}
 			});
 		},
 

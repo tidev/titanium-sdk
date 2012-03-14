@@ -1,7 +1,8 @@
-define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"], 
-	function(declare, css, SuperView, View, UI, lang) {
+define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang", "Ti/_/style"], 
+	function(declare, css, SuperView, View, UI, lang, style) {
 
 	var is = require.is,
+		setStyle = style.set,
 		postUpdateTabsBackground = {
 			post: "_updateTabsBackground"
 		};
@@ -10,7 +11,7 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 
 		constructor: function(args){
 			
-			this.layout = "vertical";
+			var tabsAtTop = this._tabsAtTop = args.tabsAtTop;
 			
 			// Create the tabBarContainer class
 			var self = this;
@@ -31,21 +32,65 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 				}
 			});
 			
-			// Create the tab bar
-			this.add(this._tabBarContainer = new TabBarContainer({
+			// create the tab group container
+			this.add(this._tabGroupContainer = UI.createView({
 				left: 0,
+				top: 0,
 				right: 0,
-				layout: "horizontal"
+				bottom: 0,
+				layout: "vertical"
 			}));
-			this.tabHeight = "10%";
+			
+			// Create the tab bar
+			this._tabBarContainer = new TabBarContainer({
+				width: UI.FILL,
+				layout: "horizontal"
+			});
+			this.tabHeight = 50;
 
 			// Create the tab window container
-			this.add(this._tabContentContainer = UI.createView({
+			this._tabContentContainer = UI.createView({
+				width: UI.FILL,
+				height: UI.FILL
+			});
+			
+			if (tabsAtTop) {
+				this._tabGroupContainer.add(this._tabBarContainer);
+				this._tabGroupContainer.add(this._tabContentContainer);
+			} else {
+				this._tabGroupContainer.add(this._tabContentContainer);
+				this._tabGroupContainer.add(this._tabBarContainer);
+			}
+			
+			// Create the back button
+			this.add(this._backButtonContainer = Ti.UI.createView({
+				width: UI.FILL,
+				height: 0,
+				backgroundColor: this.tabsBackgroundColor
+			}));
+			this._backButtonContainer.add(this._backButton = UI.createButton({
+				title: "Back",
+				height: 39,
+				width: 100
+			}));
+			
+			// Create the window container, but don't add it yet
+			this._windowContainer = UI.createView({
 				left: 0,
 				right: 0,
-				top: 0,
-				height: UI.FILL
-			}));
+			});
+			
+			if (tabsAtTop) {
+				this._backButtonContainer.bottom = 0;
+				this._backButton.top = 2;
+				this._windowContainer.top = this.tabHeight;
+				this._windowContainer.bottom = 45;
+			} else {
+				this._backButtonContainer.top = 0;
+				this._backButton.bottom = 2;
+				this._windowContainer.bottom = this.tabHeight;
+				this._windowContainer.top = 45;
+			}
 
 			this.tabs = [];
 		},
@@ -118,6 +163,70 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 				tab: tab
 			};
 			this._updateTabsBackground();
+		},
+		
+		_openWindowInTabContainer: function(win, args) {
+			
+			var self = this;
+			function addWindow() {
+				
+				// Set the opacity to 0 (we are going to fade in)
+				var originalOpacity = lang.val(win.opacity, 1);
+				win.opacity = 0;
+				
+				function postWindowAddLayout() {
+					win.removeEventListener("postlayout",postWindowAddLayout);
+					setTimeout(function() {
+						win.animate({opacity: originalOpacity, duration: 200}, function(){
+							win.opacity = originalOpacity;
+						});
+					},1);
+				}
+				
+				// We add the window and wait for it to be drawn
+				win.addEventListener("postlayout",postWindowAddLayout);
+				self._windowContainer.add(win);
+			}
+			
+			if (!self._windowContainerOpen) {
+					
+				if (self._tabsAtTop) {
+					setStyle(self._backButtonContainer.domNode,"borderTop","1px solid " + self.tabDividerColor);
+				} else {
+					setStyle(self._backButtonContainer.domNode,"borderBottom","1px solid " + self.tabDividerColor);
+				}
+				
+				self._windowContainerOpen = true;
+				
+				function postContainerAddLayout() {
+					self._windowContainer.removeEventListener("postlayout",postContainerAddLayout);
+					
+					self._backButtonContainer.animate({height: 45, duration: 250}, function(){
+						
+						// Finish the back button animation
+						self._backButtonContainer.height = 45;
+						
+						// Apply a background if one is not already set
+						lang.isDef(win.backgroundColor) || (win.backgroundColor = "white");
+						
+						addWindow();
+					});
+				}
+			
+				// We add the container and wait for it to be drawn
+				self._windowContainer.addEventListener("postlayout",postContainerAddLayout);
+				self.add(self._windowContainer);
+			} else {
+				addWindow();
+			}
+		},
+		
+		_closeLastWindow: function() {
+			var self = this;
+			self.remove(self._windowContainer);
+			self._backButtonContainer.animate({height: 0, duration: 250}, function(){
+				self._backButtonContainer.height = 0;
+			});
 		},
 		
 		_updateTabBackground: function(tab) {
