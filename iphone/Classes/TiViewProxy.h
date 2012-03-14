@@ -6,6 +6,7 @@
  */
 #import "TiProxy.h"
 #import "TiUIView.h"
+#import "TiRect.h"
 #import <pthread.h>
 
 /**
@@ -123,6 +124,8 @@ enum
 
 #pragma mark public API
 
+@property(nonatomic,readonly) TiRect * size;
+@property(nonatomic,readonly) TiRect * rect;
 /*
  Provides access to z-index value.
  */

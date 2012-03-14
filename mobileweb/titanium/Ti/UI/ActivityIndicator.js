@@ -109,7 +109,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style", "Ti/Loca
 					}
 					setStyle(this._indicatorMessage,"paddingLeft", dom.unitize(this._messagePadding));
 					this._indicatorMessage.innerHTML = innerHTML;
-					this._hasSizeDimensions() && this._triggerParentLayout();
+					this._hasSizeDimensions() && this._triggerLayout();
 					return value;
 				}
 			},
