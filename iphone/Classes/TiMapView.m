@@ -744,6 +744,11 @@
 		{
 			annView.rightCalloutAccessoryView = right;
 		}
+
+		BOOL draggable = [TiUtils boolValue: [ann valueForUndefinedKey:@"draggable"]];
+		if (draggable && [[MKAnnotationView class] instancesRespondToSelector:NSSelectorFromString(@"isDraggable")])
+			[annView performSelector:NSSelectorFromString(@"setDraggable:") withObject:[NSNumber numberWithBool:YES]];
+
 		annView.userInteractionEnabled = YES;
 		annView.tag = [ann tag];
 		return annView;
