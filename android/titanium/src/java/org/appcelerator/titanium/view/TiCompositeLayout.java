@@ -486,8 +486,10 @@ public class TiCompositeLayout extends ViewGroup
 
 				int newWidth = horizontal[1] - horizontal[0];
 				int newHeight = vertical[1] - vertical[0];
-				if (newWidth != childMeasuredWidth
-					|| newHeight != childMeasuredHeight) {
+				// If the old child measurements do not match the new measurements that we calculated, 
+				// then update the child measurements accordingly
+				if (newWidth != child.getMeasuredWidth()
+					|| newHeight != child.getMeasuredHeight()) {
 					int newWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY);
 					int newHeightSpec = MeasureSpec.makeMeasureSpec(newHeight, MeasureSpec.EXACTLY);
 					child.measure(newWidthSpec, newHeightSpec);
