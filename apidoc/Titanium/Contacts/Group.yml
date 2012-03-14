@@ -1,6 +1,6 @@
 ---
 name: Titanium.Contacts.Group
-summary: An object which represents a group in the contacts address book.
+summary: An object which represents a group in the system contacts address book.
 description: See examples in <Titanium.Contacts> for more information.
 extends: Titanium.Proxy
 since: "1.4.0"

@@ -1,8 +1,12 @@
 ---
 name: Titanium.Contacts.Person
-summary: An object which represents a contact record in the system address book.
+summary: |
+    An object that represents a contact record for a person or organization in the system contacts 
+    address book.
 description: |
-    This object contains two kinds of properties:
+    A person object is created using <Titanium.Contacts.createPerson>.
+    
+    The following two kinds of properties exist for this object:
     
     * single value - contains either a `string` or `number` type value, an array of `string` type 
     values, or `null` if unset.
@@ -63,13 +67,13 @@ properties:
     
   - name: birthday
     summary: Date of birth of the person. Single value.
-    description: Date format is "yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000".
+    description: Date format is "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
     type: String
     platforms: [iphone, ipad]
     
   - name: created
     summary: Date and time that the person record was created. Single value.
-    description: Date format is "yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000".
+    description: Date format is "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
     type: String
     permission: read-only
     platforms: [iphone, ipad]
@@ -80,7 +84,9 @@ properties:
         Adding or modifying this property is not currently supported.
         
         * Keys: any of `anniversary` and/or `other`.
-        * Values: array of `string` type. Date format is "yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000".
+        * Values: array of `string` type.
+        
+        Date format is "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
     type: Dictionary
     platforms: [iphone, ipad]
     
@@ -170,7 +176,7 @@ properties:
     
   - name: modified
     summary: Date and time that the person record was last modified. Single value.
-    description: Date format is "yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000".  
+    description: Date format is "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
     type: String
     permission: read-only
     platforms: [iphone, ipad]

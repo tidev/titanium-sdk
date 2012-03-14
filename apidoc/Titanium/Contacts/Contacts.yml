@@ -1,16 +1,10 @@
 ---
 name: Titanium.Contacts
 summary: |
-    The top-level Contacts module.  The Contacts module is used for accessing the system address 
-    book (read-only on Android.)
+    The top-level Contacts module, used for accessing and modifying the system contacts address book.
 description: |
-    Contacts on Android are currently read-only, so methods such as `createPerson` and`removePerson` 
-    are not supported.
-    
-    Note that <Titanium.Contacts.Person> objects that have been removed from the database are 
-    invalidated after a save operation, which can be invoked by creating a new contact or explicitly 
-    calling <Titanium.Contacts.save>. Hence. using them may result in unpredictable behavior, 
-    including crashes.
+    On Android, contacts are currently read-only, and so methods such as `createPerson` and` 
+    removePerson` are not supported.
     
     See examples for more information.
 extends: Titanium.Module
@@ -33,8 +27,9 @@ methods:
         optional: true
     
   - name: createPerson
-    summary: Creates and returns an instance of <Titanium.Contacts.Person>.
-    description: This method must be followed by <Titanium.Contacts.save> to commit its changes.
+    summary: |
+        Creates and returns an instance of <Titanium.Contacts.Person>, and commits all pending 
+        changes to the underlying contacts database.
     returns:
         type: Titanium.Contacts.Person
     platforms: [ipad, iphone]
@@ -102,7 +97,12 @@ methods:
         
   - name: removePerson
     summary: Removes a contact from the address book.
-    description: This method must be followed by <Titanium.Contacts.save> to commit its changes.
+    description: |
+        This method must be followed by a save action to commit the data to the underlying database, 
+        which can be done explicitly using <Titanium.Contacts.save> or implicitly using 
+        <Titanium.Contacts.createPerson>. Although the <Titanium.Contacts.Person> object will still 
+        exist once committed, it will no longer be valid. Continuing to use it will result in 
+        unpredictable behavior, including crashes.
     platforms: [iphone, ipad]
     parameters:
       - name: person
@@ -114,7 +114,7 @@ methods:
     platforms: [iphone, ipad]
     
   - name: save
-    summary: Saves all changes to the address book.
+    summary: Commits all pending changes to the underlying contacts database.
     platforms: [iphone, ipad]
         
   - name: showContacts
@@ -226,7 +226,7 @@ examples:
               address:{
                 work:[
                   {
-                    CountryCode: 'gb',
+                    CountryCode: 'gb', // determines how the address is displayed
                     Street: '200 Brook Drive\nGreen Park',
                     City: 'Reading',
                     County: 'Berkshire',
@@ -234,8 +234,8 @@ examples:
                     ZIP: 'RG2 6UB'
                   },
                   {
-                    CountryCode: 'gb',
-                    Street: '1 St Pauls Road\nClarkenwell',
+                    CountryCode: 'gb', // determines how the address is displayed
+                    Street: '1 St Pauls Road\nClerkenwell',
                     City: 'City of London',
                     State: 'London',
                     Country: 'England',
@@ -244,7 +244,7 @@ examples:
                 ],
                 home:[
                   {
-                    CountryCode: 'gb',
+                    CountryCode: 'gb', // determines how the address is displayed
                     Street: '2 Boleyn Court',
                     City: 'London',
                     State: 'Greenwich',
@@ -257,32 +257,29 @@ examples:
               instantMessage:{
                 home:[
                   {
-                    service: 'aim',
+                    service: 'AIM',
                     username: 'leisureAIM'
                   },
                   {
-                    service: 'msn',
-                    username: 'paul@msn.com'
+                    service: 'MSN',
+                    username: 'no_paul_here@msn.com'
                   }
                 ],
                 work:[
                   {
-                    service: 'aim',
+                    service: 'AIM',
                     username: 'seriousAIM'
                   }
                 ]
               },
               organization: 'Appcelerator',
-              phone: {
+              phone:{
                 mobile: ['07900 000001', '07900 000002'],
-                work: ['+44 (0)118 925 6128'],
-                work2: ['+44 (0)118 925 6129']
+                work: ['+44 (0)118 925 6128', '+44 (0)118 000 0000']
               },
               url:{
                 homepage: ['www.google.com'],
-                work: ['www.appcelerator.com'],
-                secret: ['www.mysecret.com'],
-                secret2: ['www.mysecret2.com']
+                work: ['www.appcelerator.com', 'www.example.com']
               }
             });
             Ti.API.info('Contact saved');
