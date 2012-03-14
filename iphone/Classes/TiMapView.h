@@ -42,6 +42,7 @@
 
 @property (nonatomic, readonly) CLLocationDegrees longitudeDelta;
 @property (nonatomic, readonly) CLLocationDegrees latitudeDelta;
+@property (nonatomic, readonly) NSArray *customAnnotations;
 
 #pragma mark Public APIs
 -(void)addAnnotation:(id)args;
