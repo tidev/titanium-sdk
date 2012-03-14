@@ -122,8 +122,8 @@ define(
 						node = recursionStack.pop();
 						node._markedForLayout = true;
 						children = node.children;
-						for (var i in children) {
-							child = children[i];
+						for (var j in children) {
+							child = children[j];
 							if (node.layout !== "composite" || child._isDependentOnParent || !child._hasBeenLayedOut) {
 								recursionStack.push(child);
 							}
@@ -147,8 +147,8 @@ define(
 						while (recursionStack.length > 0) {
 							node = recursionStack.pop();
 							children = node.children;
-							for (var i in children) {
-								child = children[i];
+							for (var j in children) {
+								child = children[j];
 								if (child !== previousParent && (node.layout !== "composite" || child._isDependentOnParent)) {
 									child._markedForLayout = true;
 									recursionStack.push(child);
@@ -188,7 +188,7 @@ define(
 				}
 				
 				console.debug("Layout " + self._layoutCount + ": " + self._elementLayoutCount + 
-					" elements layed out in " + ((new Date().getTime() - startTime)) + "ms");
+					" elements laid out in " + ((new Date().getTime() - startTime)) + "ms");
 					
 				self._layoutInProgress = false;
 				self._layoutTimer = null;

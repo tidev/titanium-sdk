@@ -35,10 +35,10 @@ define(
 			},
 			post: function() {
 				function isPercent(value) {
-					return is(value, "String") && !~value.indexOf("%");
+					return /%$/.test("" + value);
 				}
 				var centerX = this.center && this.center.x,
-					centerY = this.center && this.center.y
+					centerY = this.center && this.center.y;
 				this._isDependentOnParent = !!(isPercent(this.width) || isPercent(this.height) || isPercent(this.top) || isPercent(this.bottom) || 
 					isPercent(this.left) || isPercent(this.right) || isPercent(centerX) || isPercent(centerY) || 
 					(!isDef(this.left) && !isDef(centerX) && !isDef(this.right) && this._parent && this._parent._layout._defaultHorizontalAlignment !== "left") ||
@@ -188,7 +188,7 @@ define(
 				(this.height === UI.SIZE || (!isDef(this.height) && this._defaultHeight === UI.SIZE));
 		},
 		
-		_hasBeenLayedOut: false,
+		_hasBeenLaidOut: false,
 		
 		_isDependentOnParent: true,
 		
@@ -265,7 +265,7 @@ define(
 				setStyle(this.domNode, styles);
 			
 				this._markedForLayout = false;
-				this._hasBeenLayedOut = true;
+				this._hasBeenLaidOut = true;
 				
 				// Recompute the gradient, if it exists
 				this.backgroundGradient && this._computeGradient();
