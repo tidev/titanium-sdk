@@ -217,53 +217,53 @@ Object.defineProperty(EventEmitter.prototype, "once", {
 });
 
 Object.defineProperty(EventEmitter.prototype, "removeListener", {
-	value: function(type, listener) {
-		if ('function' !== typeof listener) {
-			throw new Error('removeListener only takes instances of Function');
-		}
+    value: function (type, listener) {
+        if ('function' !== typeof listener) {
+            throw new Error('removeListener only takes instances of Function');
+        }
 
-		// does not use listeners(), so no side effect of creating _events[type]
-		if (!this._events || !this._events[type]) return this;
+        // does not use listeners(), so no side effect of creating _events[type]
+        if (!this._events || !this._events[type]) return this;
 
-		var list = this._events[type];
-		var count = 0;
-		if (isArray(list)) {
-			var position = -1;
-			// Also support listener indexes / ids
-			if (typeof listener === 'number') {
-				position = listener;
-				if (position > list.length || position < 0) {
-					return this;
-				}
-			} else {
-				for (var i = 0, length = list.length; i < length; i++) {
-					if (list.listener[i] === listener ||
-						(list.listener[i].listener && list.listener[i].listener === listener))
-					{
-						position = i;
-						break;
-					}
-				}
-			}
+        var list = this._events[type];
+        var count = 0;
+        if (isArray(list)) {
+            var position = -1;
+            // Also support listener indexes / ids
+            if (typeof listener === 'number') {
+                position = listener;
+                if (position > list.length || position < 0) {
+                    return this;
+                }
+            } else {
+                if (list.listener) {
+                    for (var i = 0, length = list.length; i < length; i++) {
+                        if (list.listener[i] === listener ||
+						(list.listener[i].listener && list.listener[i].listener === listener)) {
+                            position = i;
+                            break;
+                        }
+                    }
+                }
+            }
 
-			if (position < 0) return this;
-			list.splice(position, 1);
-			if (list.length == 0)
-				delete this._events[type];
-			count = list.length;
-		} else if (list.listener === listener ||
+            if (position < 0) return this;
+            list.splice(position, 1);
+            if (list.length == 0)
+                delete this._events[type];
+            count = list.length;
+        } else if (list.listener === listener ||
 			(list.listener.listener && list.listener.listener === listener) ||
-			listener == 0)
-		{
-			delete this._events[type];
-		}
-		if (count == 0) {
-			this._hasListenersForEventType(type, false);
-		}
+			listener == 0) {
+            delete this._events[type];
+        }
+        if (count == 0) {
+            this._hasListenersForEventType(type, false);
+        }
 
-		return this;
-	},
-	enumerable: false
+        return this;
+    },
+    enumerable: false
 });
 
 Object.defineProperty(EventEmitter.prototype, "removeEventListener", {
