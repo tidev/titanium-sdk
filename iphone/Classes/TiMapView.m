@@ -168,7 +168,7 @@
 	{
 		// for pre 0.9, we supporting removing by passing the annotation title
 		NSString *title = [TiUtils stringValue:args];
-		for (id<MKAnnotation>an in [NSArray arrayWithArray:self.customAnnotations])
+		for (id<MKAnnotation>an in self.customAnnotations)
 		{
 			if ([title isEqualToString:an.title])
 			{
