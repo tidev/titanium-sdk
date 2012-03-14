@@ -2232,16 +2232,17 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offset,boundingHeight)];
         }
         CGFloat desiredHeight;
+        BOOL childIsPercent = TiDimensionIsPercent([child layoutProperties]->height);
+        if (childIsPercent)
+        {
+            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offset,bounds.size.height)];
+        }
         if (desiredWidth > boundingWidth) {
             if (horizontalLayoutBoundary == 0.0) {
                 //This is start of row
                 bounds.origin.x = horizontalLayoutBoundary;
                 bounds.origin.y = verticalLayoutBoundary;
-                if (TiDimensionIsPercent([child layoutProperties]->height))
-                {
-                    desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offset,bounds.size.height)];
-                }
-                else 
+                if (!childIsPercent)
                 {
                     desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offset,boundingHeight)];
                 }
@@ -2268,11 +2269,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                 
                 if (!recalculateWidth) {
                     if (desiredWidth < boundingWidth) {
-                        if (TiDimensionIsPercent([child layoutProperties]->height))
-                        {
-                            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offset,bounds.size.height)];
-                        }
-                        else 
+                        if (!childIsPercent)
                         {
                             desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offset,boundingHeight)];
                         }                    
@@ -2283,11 +2280,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                     }
                     else {
                         //Will take up whole row
-                        if (TiDimensionIsPercent([child layoutProperties]->height))
-                        {
-                            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth - offset,bounds.size.height)];
-                        }
-                        else 
+                        if (!childIsPercent)
                         {
                             desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth - offset,boundingHeight)];
                         }                    
@@ -2297,11 +2290,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                 }
                 else if (followsFillBehavior) {
                     //Will take up whole row
-                    if (TiDimensionIsPercent([child layoutProperties]->height))
-                    {
-                        desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth - offset,bounds.size.height)];
-                    }
-                    else 
+                    if (!childIsPercent)
                     {
                         desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth - offset,boundingHeight)];
                     }                    
@@ -2311,11 +2300,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                 else {
                     desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offset,boundingHeight - offset2)];
                     if (desiredWidth < boundingWidth) {
-                        if (TiDimensionIsPercent([child layoutProperties]->height))
-                        {
-                            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offset,bounds.size.height)];
-                        }
-                        else 
+                        if (!childIsPercent)
                         {
                             desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offset,boundingHeight)];
                         }                    
@@ -2326,11 +2311,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                     }
                     else {
                         //Will take up whole row
-                        if (TiDimensionIsPercent([child layoutProperties]->height))
-                        {
-                            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth - offset,bounds.size.height)];
-                        }
-                        else 
+                        if (!childIsPercent)
                         {
                             desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth - offset,boundingHeight)];
                         }
@@ -2343,11 +2324,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         }
         else {
             //If it fits update the horizontal layout row height
-            if (TiDimensionIsPercent([child layoutProperties]->height))
-            {
-                desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offset,bounds.size.height)];
-            }
-            else 
+            if (!childIsPercent)
             {
                 desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offset,boundingHeight)];
             }
