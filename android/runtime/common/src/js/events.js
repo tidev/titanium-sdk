@@ -161,7 +161,6 @@ Object.defineProperty(EventEmitter.prototype, "addListener", {
 			// Optimize the case of one listener. Don't need the extra array object.
 			this._events[type] = listenerWrapper;
 		} else if (isArray(this._events[type])) {
-
 			// If we've already got an array, just append.
 			this._events[type].push(listenerWrapper);
 		} else {
@@ -227,6 +226,7 @@ Object.defineProperty(EventEmitter.prototype, "removeListener", {
 
 		var list = this._events[type];
 		var count = 0;
+		
 		if (isArray(list)) {
 			var position = -1;
 			// Also support listener indexes / ids
@@ -237,8 +237,7 @@ Object.defineProperty(EventEmitter.prototype, "removeListener", {
 				}
 			} else {
 				for (var i = 0, length = list.length; i < length; i++) {
-					if (list[i] === listener || 
-						(list[i].listener && list[i].listener === listener))
+					if (list[i].listener === listener)
 					{
 						position = i;
 						break;
@@ -249,16 +248,22 @@ Object.defineProperty(EventEmitter.prototype, "removeListener", {
 			if (position < 0) {
 				return this;
 			}
+			
 			list.splice(position, 1);
-			if (list.length == 0)
+			
+			if (list.length == 0) {
 				delete this._events[type];
-		} else if (list === listener ||
-			(list.listener && list.listener === listener) ||
-			listener == 0)
-		{
+			}
+			
+			count = list.length;
+			
+		} else if (list.listener === listener || listener == 0) {
 			delete this._events[type];
+			
+		} else {
+			return this;
 		}
-		count = list.length;
+		
 		if (count == 0) {
 			this._hasListenersForEventType(type, false);
 		}
