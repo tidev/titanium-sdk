@@ -369,7 +369,7 @@ CFHashCode	simpleHash(const void *value)
     [node setStringValue:data];
 }
 
--(id)text
+- (id)textContent
 {
 	return [node stringValue];
 }

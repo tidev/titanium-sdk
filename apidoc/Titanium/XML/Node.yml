@@ -78,6 +78,10 @@ properties:
     type: String
     summary: The content (value) of this node
     permission: read-only
+  - name: textContent
+    type: String
+    summary: The content (value) of all text nodes within this node
+    permission: read-only
   - name: nodeType
     type: Number
     summary: |
