@@ -59,6 +59,13 @@
 -(void)refreshAnnotation:(TiMapAnnotationProxy*)proxy readd:(BOOL)yn;
 -(void)fireClickEvent:(MKAnnotationView *) pinview source:(NSString *)source;
 
+// iOS 4.0+ only
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
+
+- (void)firePinChangeDragState:(MKAnnotationView *) pinview newState:(MKAnnotationViewDragState)newState fromOldState:(MKAnnotationViewDragState)oldState;
+
+#endif
+
 @end
 
 #endif

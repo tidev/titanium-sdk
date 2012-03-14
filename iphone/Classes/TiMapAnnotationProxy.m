@@ -117,6 +117,13 @@
 	return result;
 }
 
+// Create a method to set the coordinate of annotation
+- (void) setCoordinate:(CLLocationCoordinate2D)coordinate
+{
+	[self setValue:[NSNumber numberWithDouble:coordinate.latitude] forUndefinedKey:@"latitude"];
+	[self setValue:[NSNumber numberWithDouble:coordinate.longitude] forUndefinedKey:@"longitude"];
+}
+
 // Title and subtitle for use by selection UI.
 - (NSString *)title
 {
