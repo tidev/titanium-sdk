@@ -15,7 +15,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiLocationHelper;
 import org.appcelerator.titanium.util.TiSensorHelper;
 
 import android.hardware.GeomagneticField;
@@ -25,7 +24,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.SystemClock;
 
 
@@ -36,6 +34,7 @@ public class TiCompass
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private GeolocationModule geolocationModule;
+	private TiLocation tiLocation;
 	private Calendar baseTime = Calendar.getInstance();
 	private long sensorTimerStart = SystemClock.uptimeMillis();
 	private long lastEventInUpdate;
@@ -43,9 +42,10 @@ public class TiCompass
 	private GeomagneticField geomagneticField;
 
 
-	public TiCompass(GeolocationModule geolocationModule)
+	public TiCompass(GeolocationModule geolocationModule, TiLocation tiLocation)
 	{
 		this.geolocationModule = geolocationModule;
+		this.tiLocation = tiLocation;
 	}
 
 	public void registerListener()
@@ -170,18 +170,15 @@ public class TiCompass
 				}
 			};
 
-			LocationManager locationManager = TiLocationHelper.getLocationManager();
 			Criteria criteria = new Criteria();
 			
-			String provider = locationManager.getBestProvider(criteria, true);
+			String provider = tiLocation.locationManager.getBestProvider(criteria, true);
 			if (provider != null) {
-				Location location = locationManager.getLastKnownLocation(provider);
+				Location location = tiLocation.locationManager.getLastKnownLocation(provider);
 				if (location != null) {
 					geomagneticField = new GeomagneticField((float)location.getLatitude(), (float)location.getLongitude(), (float)(location.getAltitude()), System.currentTimeMillis());
 				}
 			}
-
-			locationManager = null;
 
 			TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, oneShotHeadingListener, SensorManager.SENSOR_DELAY_UI);
 		}
