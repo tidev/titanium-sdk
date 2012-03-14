@@ -82,6 +82,14 @@ properties:
     type: String
     summary: The content (value) of all text nodes within this node
     permission: read-only
+  - name: text
+    type: String
+    summary: |
+        The content (value) of all text nodes within this node.
+        Use [textContent](Titanium.XML.Node.textContent) instead.
+    permission: read-only
+    deprecated:
+        since: "2.0.0"
   - name: nodeType
     type: Number
     summary: |

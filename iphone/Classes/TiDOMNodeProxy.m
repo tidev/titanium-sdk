@@ -374,6 +374,11 @@ CFHashCode	simpleHash(const void *value)
 	return [node stringValue];
 }
 
+-(id)text
+{
+	return [node stringValue];
+}
+
 -(id)parentNode
 {
 	xmlNodePtr p = [node XMLNode]->parent;
