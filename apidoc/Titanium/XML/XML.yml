@@ -9,8 +9,7 @@ description: |
     
     Mobile Web directly exposes the [DOM Level 3](http://www.w3.org/TR/DOM-Level-3-Core/core.html) implementation 
     in the browser. New features introduced in DOM Level 3 are not documented here for brevity. For information on
-    these features, please use the W3C documentation. Getters and setters for properties are not supported on
-    Mobile Web.
+    these features, please use the W3C documentation.
 extends: Titanium.Module
 since: "0.9"
 methods:
