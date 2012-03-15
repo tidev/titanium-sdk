@@ -175,9 +175,10 @@ public class TiConvert
 		Object width = null;
 		Object height = null;
 
-		// Set auto width/height to false to trigger undefined behavior
-		layoutParams.autoWidth = false;
-		layoutParams.autoHeight = false;
+		// Don't use fill or size by default to trigger the undefined behavior. When we have undefined behavior, we try
+		// to calculate the height/width from the pins if possible.
+		layoutParams.sizeOrFillWidthEnabled = false;
+		layoutParams.sizeOrFillHeightEnabled = false;
 
 		if (hashMap.containsKey(TiC.PROPERTY_SIZE)) {
 			HashMap<String, Object> size = (HashMap<String, Object>) hashMap.get(TiC.PROPERTY_SIZE);
@@ -217,26 +218,26 @@ public class TiConvert
 
 			if (width == null) {
 				layoutParams.optionWidth = null;
-				layoutParams.autoWidth = false;
+				layoutParams.sizeOrFillWidthEnabled = false;
 
 			} else if (width.equals(TiC.SIZE_AUTO)) {
 				layoutParams.optionWidth = null;
-				layoutParams.autoWidth = true;
+				layoutParams.sizeOrFillWidthEnabled = true;
 
 			} else if (width.equals(TiC.LAYOUT_FILL)) {
 				// fill
 				layoutParams.optionWidth = null;
-				layoutParams.autoWidth = true;
+				layoutParams.sizeOrFillWidthEnabled = true;
 				layoutParams.autoFillsWidth = true;
 
 			} else if (width.equals(TiC.LAYOUT_SIZE)) {
 				// size
 				layoutParams.optionWidth = null;
-				layoutParams.autoWidth = true;
+				layoutParams.sizeOrFillWidthEnabled = true;
 				layoutParams.autoFillsWidth = false;
 			} else {
 				layoutParams.optionWidth = toTiDimension(width, TiDimension.TYPE_WIDTH);
-				layoutParams.autoWidth = false;
+				layoutParams.sizeOrFillWidthEnabled = false;
 			}
 			dirty = true;
 		}
@@ -248,26 +249,26 @@ public class TiConvert
 
 			if (height == null) {
 				layoutParams.optionHeight = null;
-				layoutParams.autoHeight = false;
+				layoutParams.sizeOrFillHeightEnabled = false;
 
 			} else if (height.equals(TiC.SIZE_AUTO)) {
 				layoutParams.optionHeight = null;
-				layoutParams.autoHeight = true;
+				layoutParams.sizeOrFillHeightEnabled = true;
 
 			} else if (height.equals(TiC.LAYOUT_FILL)) {
 				// fill
 				layoutParams.optionHeight = null;
-				layoutParams.autoHeight = true;
+				layoutParams.sizeOrFillHeightEnabled = true;
 				layoutParams.autoFillsHeight = true;
 
 			} else if (height.equals(TiC.LAYOUT_SIZE)) {
 				// size
 				layoutParams.optionHeight = null;
-				layoutParams.autoHeight = true;
+				layoutParams.sizeOrFillHeightEnabled = true;
 				layoutParams.autoFillsHeight = false;
 			} else {
 				layoutParams.optionHeight = toTiDimension(height, TiDimension.TYPE_HEIGHT);
-				layoutParams.autoHeight = false;
+				layoutParams.sizeOrFillHeightEnabled = false;
 			}
 			dirty = true;
 		}
