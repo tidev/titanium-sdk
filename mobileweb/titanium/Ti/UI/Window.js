@@ -27,7 +27,7 @@ define(["Ti/_/declare", "Ti/Gesture", "Ti/Locale", "Ti/_/UI/SuperView", "Ti/UI"]
 					if (value !== oldValue) {
 						if (value) {
 							var parentContainer = this._modalParentContainer = UI.createView();
-							parentContainer.add(this._modalDimmer = UI.createView({
+							parentContainer.add(UI.createView({
 								backgroundColor: "#000",
 								opacity: 0.5
 							}));
