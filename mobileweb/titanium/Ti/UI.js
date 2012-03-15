@@ -57,7 +57,7 @@ define(
 	return lang.setObject("Ti.UI", Evented, creators, {
 
 		_addWindow: function(win, set) {
-			this._container.add(win);
+			this._container.add(win.modal ? win._modalParentContainer : win);
 			set && this._setWindow(win);
 			return win;
 		},
@@ -67,7 +67,7 @@ define(
 		},
 
 		_removeWindow: function(win) {
-			this._container.remove(win);
+			this._container.remove(win.modal ? win._modalParentContainer : win);
 			return win;
 		},
 		
