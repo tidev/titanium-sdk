@@ -1,13 +1,10 @@
 ---
-name: Titanium.UI.iPhone.NavigationGroup
+name: Titanium.UI.MobileWeb.NavigationGroup
 summary: |
     A Navigation Group implements a specialized view that manages the navigation of hierarchical 
     content.
 description: |
     The navigation group is created with the method <Titanium.UI.MobileWeb.createNavigationGroup>.
-    
-    ![navgroup](http://img.skitch.com/20100406-rwe44533tkd94fdnbqqudxynpe.png)
-    
     The `window` property must be set initially in the constructor when creating a navigation group.
     All navigation groups must have a root window that cannot be removed.
 platforms: [MobileWeb]
