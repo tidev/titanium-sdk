@@ -650,28 +650,29 @@
 	if ([annotation isKindOfClass:[TiMapAnnotationProxy class]])
 	{
 		TiMapAnnotationProxy *ann = (TiMapAnnotationProxy*)annotation;
-		static NSString *identifier = @"timap";
+        id imagePath = [ann valueForUndefinedKey:@"image"];
+        UIImage *image = [TiUtils image:imagePath proxy:ann];
+        NSString *identifier = (image!=nil) ? @"timap-image":@"timap-pin";
 		MKAnnotationView *annView = nil;
 		
 		annView = (MKAnnotationView*) [mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
-		if (annView==nil)
-		{
-			id imagePath = [ann valueForUndefinedKey:@"image"];
-			if (imagePath!=nil)
-			{
-				UIImage *image = [TiUtils image:imagePath proxy:ann];
-				if (image!=nil)
-				{
-					annView=[[[TiMapImageAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier map:self image:image] autorelease];
-				}
-			}
-			// check to make sure not already created above
-			if (annView==nil)
-			{
-				annView=[[[TiMapPinAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier map:self] autorelease];
-			}
-		}
-		if ([annView isKindOfClass:[MKPinAnnotationView class]])
+		
+        if (annView==nil)
+        {
+            if ([identifier isEqualToString:@"timap-image"])
+            {
+                annView=[[[TiMapImageAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier map:self image:image] autorelease];
+            }
+            else
+            {
+                annView=[[[TiMapPinAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier map:self] autorelease];
+            }
+        }
+        if ([identifier isEqualToString:@"timap-image"])
+        {
+            annView.image = image;
+        }
+        if ([identifier isEqualToString:@"timap-pin"])
 		{
 			MKPinAnnotationView *pinview = (MKPinAnnotationView*)annView;
 			pinview.pinColor = [ann pinColor];
@@ -696,6 +697,7 @@
 	}
 	return nil;
 }
+
 
 // mapView:didAddAnnotationViews: is called after the annotation views have been added and positioned in the map.
 // The delegate can implement this method to animate the adding of the annotations views.
