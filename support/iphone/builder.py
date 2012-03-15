@@ -12,6 +12,7 @@ from projector import Projector
 from xml.dom.minidom import parseString
 from xml.etree.ElementTree import ElementTree
 from os.path import join, splitext, split, exists
+from tools import ensure_dev_path
 
 # the template_dir is the path where this file lives on disk
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
@@ -562,7 +563,7 @@ def main(args):
 	sys.stdout.flush()
 	start_time = time.time()
 	command = args[1].decode("utf-8")
-	run.ensure_dev_path()
+	ensure_dev_path()
 
 	target = 'Debug'
 	deploytype = 'development'
