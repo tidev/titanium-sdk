@@ -596,9 +596,6 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 			if (v8ObjectPointer != 0) {
 				Persistent<Object> v8Object = Persistent<Object>((Object *) v8ObjectPointer);
 				JavaObject *jo = NativeObject::Unwrap<JavaObject>(v8Object);
-				if (jo->isDetached()) {
-					jo->attach(javaObject);
-				}
 				return v8Object;
 			}
 		}

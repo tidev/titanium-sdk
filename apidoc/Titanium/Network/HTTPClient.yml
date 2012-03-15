@@ -53,7 +53,11 @@ methods:
   - name: abort
     summary: Cancels a pending request.
   - name: clearCookies
-    summary: Clears any cookies stored for this host.
+    summary: Clears any cookies stored for the host.
+    parameters:
+      - name: host
+        summary: The URL of the host/domain to clear cookies for.
+        type: String
     platforms: [android, iphone, ipad]
   - name: getResponseHeader
     summary: Returns the value of the specified response header.

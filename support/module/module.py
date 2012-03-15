@@ -204,8 +204,9 @@ class ModuleDetector(object):
 			if not os.path.isdir(platform_dir): continue
 			if platform in ['osx', 'win32', 'linux']: continue # skip desktop modules
 			
-			# recursive once in the platform directory so we can get versioned modules too
+			# iterate through the platform directory so we can get versioned modules too
 			for root, dirs, files in os.walk(platform_dir):
+				dirs.sort(reverse=True)
 				for module_dir in dirs:
 					module_dir = os.path.join(root, module_dir)
 					manifest_file = os.path.join(module_dir, 'manifest')

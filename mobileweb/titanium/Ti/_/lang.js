@@ -118,6 +118,33 @@ define(function() {
 			}
 			return dest;
 		},
+		
+		generateAccessors: function(definition, readOnlyProps, props) {
+			
+			function generateGetter(prop) {
+				var getterName = "get" + prop.substring(0, 1).toUpperCase() + prop.substring(1);
+				if (!(getterName in definition.prototype)) {
+					definition.prototype[getterName] = function() {
+						return this[prop];
+					}
+				}
+			}
+			
+			function generateSetter(prop) {
+				var setterName = "set" + prop.substring(0, 1).toUpperCase() + prop.substring(1);
+				if (!(setterName in definition.prototype)) {
+					definition.prototype[setterName] = function(value) {
+						return this[prop] = value;
+					}
+				}
+			}
+			
+			readOnlyProps && readOnlyProps.split(",").forEach(generateGetter);
+			props && props.split(",").forEach(function(prop) {
+				generateGetter(prop);
+				generateSetter(prop);
+			});
+		},
 
 		setObject: function(name) {
 			var parts = name.split("."),

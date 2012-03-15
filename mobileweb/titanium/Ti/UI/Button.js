@@ -32,7 +32,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				className: "TiUIButtonTitle",
 				style: {
 					whiteSpace: "nowrap",
-					pointerEvents: "none"
+					pointerEvents: "none",
+					userSelect: "none"
 				}
 			}, this._contentContainer);
 
