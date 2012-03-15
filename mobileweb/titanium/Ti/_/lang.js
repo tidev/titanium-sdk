@@ -139,20 +139,11 @@ define(function() {
 				}
 			}
 			
-			if (readOnlyProps && readOnlyProps !== "") {
-				readOnlyProps = readOnlyProps.split(",");
-				for (var i = 0; i < readOnlyProps.length; i++) {
-					generateGetter(readOnlyProps[i]);
-				}
-			}
-			
-			if (props && props !== "") {
-				props = props.split(",");
-				for (var i = 0; i < props.length; i++) {
-					generateGetter(props[i]);
-					generateSetter(props[i]);
-				}
-			}
+			readOnlyProps && readOnlyProps.split(",").forEach(generateGetter);
+			props && props.split(",").forEach(function(prop) {
+				generateGetter(prop);
+				generateSetter(prop);
+			});
 		},
 
 		setObject: function(name) {
