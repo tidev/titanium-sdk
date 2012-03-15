@@ -120,7 +120,6 @@ properties:
     type: String
   - name: window
     summary: Root level tab window.  All tabs must have at least one root level tab window.
-    description: 
     type: Titanium.UI.Window
 events: 
   - name: blur
