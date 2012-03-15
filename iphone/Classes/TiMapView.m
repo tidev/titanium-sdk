@@ -672,7 +672,7 @@
         {
             annView.image = image;
         }
-        if ([identifier isEqualToString:@"timap-pin"])
+        else
 		{
 			MKPinAnnotationView *pinview = (MKPinAnnotationView*)annView;
 			pinview.pinColor = [ann pinColor];
