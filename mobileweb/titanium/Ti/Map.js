@@ -8,7 +8,8 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 			ANNOTATION_RED: 0,
 			HYBRID_TYPE: 2,
 			SATELLITE_TYPE: 1,
-			STANDARD_TYPE: 0
+			STANDARD_TYPE: 0,
+			TERRAIN_TYPE: 3
 		},
 
 		createAnnotation: function(args) {
