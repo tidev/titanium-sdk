@@ -864,6 +864,8 @@ public class TiC
 	 */
 	public static final String PROPERTY_FOOTER_VIEW = "footerView";
 
+	public static final String PROPERTY_FORWARD = "forward";
+
 	/**
 	 * @module.api
 	 */
@@ -1079,6 +1081,8 @@ public class TiC
 	 */
 	public static final String PROPERTY_MAP_TYPE = "mapType";
 
+	public static final String PROPERTY_MAX_AGE = "maxAge";
+
 	/**
 	 * @module.api
 	 */
@@ -1113,6 +1117,10 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MIMETYPE = "mimeType";
+
+	public static final String PROPERTY_MIN_AGE = "minAge";
+	public static final String PROPERTY_MIN_UPDATE_DISTANCE = "minUpdateDistance";
+	public static final String PROPERTY_MIN_UPDATE_TIME = "minUpdateTime";
 
 	/**
 	 * @module.api
@@ -1293,6 +1301,8 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_RETURN_KEY_TYPE = "returnKeyType";
+
+	public static final String PROPERTY_REVERSE = "reverse";
 
 	/**
 	 * @module.api

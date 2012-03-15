@@ -41,12 +41,18 @@ public class DisplayCapsProxy extends KrollProxy
 
 	@Kroll.getProperty @Kroll.method
 	public int getPlatformWidth() {
-		return getDisplay().getWidth();
+		synchronized(dm) {
+			getDisplay().getMetrics(dm);
+			return dm.widthPixels;
+		}
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public int getPlatformHeight() {
-		return getDisplay().getHeight();
+		synchronized(dm) {
+			getDisplay().getMetrics(dm);
+			return dm.heightPixels;
+		}
 	}
 
 	@Kroll.getProperty @Kroll.method
