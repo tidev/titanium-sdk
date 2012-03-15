@@ -92,7 +92,8 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 		},
 		
 		createLoginButton: function(parameters) {
-			throw new Error('Method "Titanium.Facebook.createLoginButton" is not implemented yet.');
+			var LoginButton = require("Ti/Facebook/LoginButton");
+			return new LoginButton(parameters);
 		},
 		
 		dialog: function(action, params, callback) {
@@ -153,7 +154,12 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 		},
 		
 		constants: {
-			forceDialogAuth: true
+			
+			forceDialogAuth: true,
+			
+			BUTTON_STYLE_NORMAL: 1,
+			
+			BUTTON_STYLE_WIDE: 2
 		},
 		
 		properties: {
