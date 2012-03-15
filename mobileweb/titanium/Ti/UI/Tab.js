@@ -1,10 +1,11 @@
 define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI"],
 	function(declare, lang, View, dom, Locale, UI) {
+		
+	var undef;
 
 	return declare("Ti.UI.Tab", View, {
 
 		constructor: function(args) {
-			this._windows = [];
 
 			this._contentContainer = dom.create("div", {
 				className: "TiUITabContentContainer",
@@ -34,31 +35,25 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/
 			});
 		},
 
-		open: function(win, args) {
-			if (this._tabGroup) {
-				win = win || this.window;
-				this._windows.push(win);
-				win.activeTab = this;
-				this._tabGroup._openWindowInTabContainer(win, args);
-			}
-		},
-
-		close: function(args) {
-			var self = this;
-				win = self._windows.pop();
-			win && win.animate({opacity: 0, duration: 250}, function(){
-				win.close(args);
-				if (self._windows.length === 0) {
-					self._tabGroup._closeLastWindow();
-				}
-			});
-		},
-
 		_defaultWidth: UI.FILL,
 		
 		_defaultHeight: UI.FILL,
 		
 		_tabGroup: null,
+		
+		_tabNavigationGroup: null,
+		
+		open: function(win, options) {
+			if (this._tabNavigationGroup) {
+				this._tabNavigationGroup.open(win, options);
+			} else {
+				this.window = win;
+			}
+		},
+		
+		close: function(win, options) {
+			this._tabNavigationGroup.close(win, options);
+		},
 
 		properties: {
 			active: {
@@ -85,14 +80,15 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/
 					return value;
 				}
 			},
-
+			
 			window: {
-				get: function(value) {
-					var w = this._windows;
-					return value ? value : w.length ? w[0] : null;
-				},
 				set: function(value) {
-					this._windows.unshift(value);
+					var navBarAtTop = this._tabGroup ? this._tabGroup.tabsAtTop : undef;
+					this._tabNavigationGroup = UI.MobileWeb.createNavigationGroup({
+						window: value,
+						navBarAtTop: navBarAtTop
+					});
+					this.active && this._tabGroup.setActiveTab(this); // Force the new nav group to get attached
 					return value;
 				}
 			}

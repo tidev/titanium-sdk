@@ -228,4 +228,3 @@ properties:
     type: Boolean
     since: "1.9.0"
     platforms: [mobileweb]
-    availability: creation

@@ -11,10 +11,10 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 
 		constructor: function(args){
 			
-			var tabsAtBottom = this.constants.tabsAtBottom = (args && args.tabsAtBottom) || this.constants.tabsAtBottom;
+			var self = this,
+				tabsAtBottom = self.constants.tabsAtBottom = lang.val(args && args.tabsAtBottom, self.constants.tabsAtBottom);
 			
 			// Create the tabBarContainer class
-			var self = this;
 			var TabBarContainer = declare("Ti._.UI.TabGroup.TabBarContainer", View, {
 				_doLayout: function(params) {
 					
@@ -26,81 +26,34 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 						tabs[i]._defaultWidth = tabWidth;
 					}
 					 // Make the last tab consume the remaining space. Fractional widths look really bad in tabs.
-					tabs[i]._defaultWidth = params.boundingSize.width - totalDividerWidth - tabWidth * (numTabs - 1);
+					tabs[i] && (tabs[i]._defaultWidth = params.boundingSize.width - totalDividerWidth - tabWidth * (numTabs - 1));
 					
-					return View.prototype._doLayout.call(this,params);
+					return View.prototype._doLayout.apply(this,arguments)
 				}
 			});
 			
-			// create the tab group container
-			this.add(this._tabGroupContainer = UI.createView({
-				left: 0,
-				top: 0,
-				right: 0,
-				bottom: 0,
-				layout: "vertical"
-			}));
-			
 			// Create the tab bar
-			this._tabBarContainer = new TabBarContainer({
+			self._tabBarContainer = new TabBarContainer({
 				width: UI.FILL,
 				layout: "horizontal"
 			});
-			this.tabHeight = 50;
+			self.tabHeight = 75;
 
 			// Create the tab window container
-			this._tabContentContainer = UI.createView({
+			self._tabContentContainer = UI.createView({
 				width: UI.FILL,
 				height: UI.FILL
 			});
 			
-			if (tabsAtBottom) {
-				this._tabGroupContainer.add(this._tabContentContainer);
-				this._tabGroupContainer.add(this._tabBarContainer);
-			} else {
-				this._tabGroupContainer.add(this._tabBarContainer);
-				this._tabGroupContainer.add(this._tabContentContainer);
-			}
-			
-			// Create the back button
-			this.add(this._backButtonContainer = Ti.UI.createView({
-				width: UI.FILL,
-				height: 0,
-				backgroundColor: this.tabsBackgroundColor
-			}));
-			this._backButtonContainer.add(this._backButton = UI.createButton({
-				title: "Back",
-				height: 39,
-				width: 100
-			}));
-			
-			// Create the window container, but don't add it yet
-			this._windowContainer = UI.createView({
-				left: 0,
-				right: 0,
-			});
-			
-			if (tabsAtBottom) {
-				this._backButtonContainer.top = 0;
-				this._backButton.bottom = 2;
-				this._windowContainer.bottom = this.tabHeight;
-				this._windowContainer.top = 45;
-			} else {
-				this._backButtonContainer.bottom = 0;
-				this._backButton.top = 2;
-				this._windowContainer.top = this.tabHeight;
-				this._windowContainer.bottom = 45;
-			}
-
-			this.tabs = [];
+			// Add the windows ordered such that they respect tabsAtBottom
+			self.layout = "vertical";
+			self.tabs = [];
+			self.tabsAtBottom = args ? lang.val(args.tabsAtBottom, true) : true;
 		},
 
 		addTab: function(tab) {
 			// Initialize the tabs, if necessary
-			this.tabs = this.tabs || [];
-			
-			// Add the tab to the list
-			var tabs = this.tabs;
+			var tabs = this.tabs = this.tabs || [];
 			tabs.push(tab);
 			tab._tabGroup = this;
 
@@ -149,13 +102,14 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 			if (prev) {
 				prev.active = false;
 				prev._doBackground();
-				prev["window"] && this._tabContentContainer.remove(prev["window"]);
+				prev._tabNavigationGroup && this._tabContentContainer.remove(prev._tabNavigationGroup);
 			}
 
 			tab.active = true;
+			tab._tabNavigationGroup && (tab._tabNavigationGroup.navBarAtTop = this.tabsAtBottom);
 			this._activeTab = tab;
 			UI.currentTab = tab;
-			tab["window"] && this._tabContentContainer.add(tab["window"]);
+			tab._tabNavigationGroup && this._tabContentContainer.add(tab._tabNavigationGroup);
 			this._state = {
 				index: tabs.indexOf(tab),
 				previousIndex: prev ? tabs.indexOf(prev) : -1,
@@ -163,70 +117,6 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 				tab: tab
 			};
 			this._updateTabsBackground();
-		},
-		
-		_openWindowInTabContainer: function(win, args) {
-			
-			var self = this;
-			function addWindow() {
-				
-				// Set the opacity to 0 (we are going to fade in)
-				var originalOpacity = lang.val(win.opacity, 1);
-				win.opacity = 0;
-				
-				function postWindowAddLayout() {
-					win.removeEventListener("postlayout",postWindowAddLayout);
-					setTimeout(function() {
-						win.animate({opacity: originalOpacity, duration: 200}, function(){
-							win.opacity = originalOpacity;
-						});
-					},1);
-				}
-				
-				// We add the window and wait for it to be drawn
-				win.addEventListener("postlayout",postWindowAddLayout);
-				self._windowContainer.add(win);
-			}
-			
-			if (!self._windowContainerOpen) {
-					
-				if (self._tabsAtTop) {
-					setStyle(self._backButtonContainer.domNode,"borderTop","1px solid " + self.tabDividerColor);
-				} else {
-					setStyle(self._backButtonContainer.domNode,"borderBottom","1px solid " + self.tabDividerColor);
-				}
-				
-				self._windowContainerOpen = true;
-				
-				function postContainerAddLayout() {
-					self._windowContainer.removeEventListener("postlayout",postContainerAddLayout);
-					
-					self._backButtonContainer.animate({height: 45, duration: 250}, function(){
-						
-						// Finish the back button animation
-						self._backButtonContainer.height = 45;
-						
-						// Apply a background if one is not already set
-						lang.isDef(win.backgroundColor) || (win.backgroundColor = "white");
-						
-						addWindow();
-					});
-				}
-			
-				// We add the container and wait for it to be drawn
-				self._windowContainer.addEventListener("postlayout",postContainerAddLayout);
-				self.add(self._windowContainer);
-			} else {
-				addWindow();
-			}
-		},
-		
-		_closeLastWindow: function() {
-			var self = this;
-			self.remove(self._windowContainer);
-			self._backButtonContainer.animate({height: 0, duration: 250}, function(){
-				self._backButtonContainer.height = 0;
-			});
 		},
 		
 		_updateTabBackground: function(tab) {
@@ -261,10 +151,6 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 		_defaultWidth: UI.FILL,
 
 		_defaultHeight: UI.FILL,
-		
-		constants: {
-			tabsAtBottom: true
-		},
 
 		properties: {
 			activeTab: {
@@ -305,6 +191,27 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 					return value;
 				},
 				post: "_updateTabsBackground"
+			},
+			
+			tabsAtBottom: {
+				set: function(value, oldValue) {
+					if (value !== oldValue) {
+						
+						this._activeTab && this._activeTab._tabNavigationGroup && (this._activeTab._tabNavigationGroup.navBarAtTop = value);
+						
+						this.remove(this._tabContentContainer);
+						this.remove(this._tabBarContainer);
+						
+						if (value) {
+							this.add(this._tabContentContainer);
+							this.add(this._tabBarContainer);
+						} else {
+							this.add(this._tabBarContainer);
+							this.add(this._tabContentContainer);
+						}
+					}
+					return value;
+				}
 			},
 			
 			activeTabBackgroundColor: {

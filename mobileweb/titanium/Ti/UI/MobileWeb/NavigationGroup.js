@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style"],
-	function(declare, View, UI, style) {
+define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style", "Ti/_/lang"],
+	function(declare, View, UI, style, lang) {
 		
 	var undef;
 
@@ -14,8 +14,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style"],
 			if (!args.window) {
 				throw new Error("A window must be specified at creation time in Ti.UI.MobileWeb.NavigationGroup.");
 			}
-			var rootWindow = self.constants.window = args && args.window,
-				navBarAtBottom = self.constants.navBarAtBottom = (args && args.navBarAtBottom) || self.constants.navBarAtBottom;
+			var rootWindow = self.constants.window = args && args.window;
 			
 			// Create the nav controls
 			self.layout = "vertical";
@@ -44,19 +43,12 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style"],
 			});
 			self._contentContainer.add(rootWindow);
 			
-			// Add the contents to the screen
-			var borderLocation;
-			if (navBarAtBottom) {
-				self.add(self._contentContainer);
-				self.add(self._navBarContainer);
-				borderLocation = "borderTop"
-			} else {
-				self.add(self._navBarContainer);
-				self.add(self._contentContainer);
-				borderLocation = "borderBottom"
-			}
-			style.set(self._navBarContainer.domNode,borderLocation,"1px solid #555");
+			self.navBarAtTop = true;
 		},
+
+		_defaultWidth: UI.FILL,
+		
+		_defaultHeight: UI.FILL,
 		
 		open: function(win, options) {
 			
@@ -105,8 +97,32 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style"],
 		},
 		
 		constants: {
-			window: undef,
-			navBarAtTop: true
+			window: undef
+		},
+		
+		properties: {
+			navBarAtTop: {
+				set: function (value, oldValue) {
+					if (value !== oldValue) {
+						
+						this.remove(this._navBarContainer);
+						this.remove(this._contentContainer);
+						
+						var borderLocation;
+						if (value) {
+							this.add(this._navBarContainer);
+							this.add(this._contentContainer);
+							borderLocation = "borderBottom"
+						} else {
+							this.add(this._contentContainer);
+							this.add(this._navBarContainer);
+							borderLocation = "borderTop"
+						}
+						style.set(this._navBarContainer.domNode,borderLocation,"1px solid #555");
+					}
+					return value;
+				}
+			}
 		}
 		
 	});
