@@ -618,24 +618,25 @@ public class TiCompositeLayout extends ViewGroup
 		public boolean sizeOrFillWidthEnabled = true;
 
 		/**
-		 * If this is true, and {@link #sizeOrFillWidthEnabled} is true, then the current view will fill available
-		 * parent width. If this value is false and {@link #sizeOrFillWidthEnabled} is true, then we use the size
-		 * behavior, which constrains the view width to fit the width of its contents.
+		 * If this is true, and {@link #sizeOrFillWidthEnabled} is true, then the current view will follow the fill
+		 * behavior, which fills available parent width. If this value is false and {@link #sizeOrFillWidthEnabled} is
+		 * true, then we use the size behavior, which constrains the view width to fit the width of its contents.
 		 * 
 		 * @module.api
 		 */
 		public boolean autoFillsWidth = false;
 
 		/**
-		 * If this is true, and {@link #sizeOrFillHeightEnabled} is true, then the current view will fill available
-		 * parent height. If this value is false and {@link #sizeOrFillHeightEnabled} is true, then we use the size
-		 * behavior, which constrains the view height to fit the height of its contents.
+		 * If this is true, and {@link #sizeOrFillHeightEnabled} is true, then the current view will follow fill
+		 * behavior, which fills available parent height. If this value is false and {@link #sizeOrFillHeightEnabled} is
+		 * true, then we use the size behavior, which constrains the view height to fit the height of its contents.
 		 * 
 		 * @module.api
 		 */
 		public boolean autoFillsHeight = false;
 
-		public LayoutParams() {
+		public LayoutParams()
+		{
 			super(WRAP_CONTENT, WRAP_CONTENT);
 
 			index = Integer.MIN_VALUE;
