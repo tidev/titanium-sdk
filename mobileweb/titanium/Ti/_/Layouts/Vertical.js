@@ -19,8 +19,9 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 				for (var i = 0; i < children.length; i++) {
 					var child = children[i];
 					if (child.height !== UI.FILL) {
+						var childHeight;
 						if (child._markedForLayout) {
-							child._doLayout({
+							childHeight = child._doLayout({
 								origin: {
 							 		x: 0,
 							 		y: 0
@@ -39,9 +40,11 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 							 	},
 								positionElement: false,
 						 		layoutChildren: true
-							});
+							}).height;
+						} else {
+							childHeight = child._measuredHeight;
 						}
-						availableHeight -= child._measuredHeight;
+						availableHeight -= childHeight;
 					}
 				}
 			}
