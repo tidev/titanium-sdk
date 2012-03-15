@@ -367,6 +367,16 @@ public class TiUIWebView extends TiUIView
 		setHtmlInternal(html, baseUrl, mimeType);
 	}
 
+	/**
+	 * Loads HTML content into the web view.  Note that the "historyUrl" property 
+	 * must be set to non null in order for the web view history to work correctly 
+	 * when working with local files (IE:  goBack() and goForward() will not work if 
+	 * null is used)
+	 * 
+	 * @param html					HTML data to load into the web view
+	 * @param baseUrl				url to associate with the data being loaded
+	 * @param mimeType				mime type of the data being loaded
+	 */
 	private void setHtmlInternal(String html, String baseUrl, String mimeType)
 	{
 		// iOS parity: for whatever reason, when html is set directly, the iOS implementation
@@ -377,7 +387,7 @@ public class TiUIWebView extends TiUIView
 		}
 		if (html.contains(TiWebViewBinding.SCRIPT_INJECTION_ID)) {
 			// Our injection code is in there already, go ahead and show.
-			getWebView().loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", null);
+			getWebView().loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
 			return;
 		}
 
@@ -390,11 +400,11 @@ public class TiUIWebView extends TiUIView
 				sb.append(html.substring(0, tagEnd + 1));
 				sb.append(TiWebViewBinding.INJECTION_CODE);
 				sb.append(html.substring(tagEnd + 1));
-				getWebView().loadDataWithBaseURL(baseUrl, sb.toString(), mimeType, "utf-8", null);
+				getWebView().loadDataWithBaseURL(baseUrl, sb.toString(), mimeType, "utf-8", baseUrl);
 				return;
 			}
 		}
-		getWebView().loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", null);
+		getWebView().loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
 	}
 
 	public void setData(TiBlob blob)
