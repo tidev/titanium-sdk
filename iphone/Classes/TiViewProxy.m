@@ -637,11 +637,6 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
         contentWidth = [self contentWidthForWidth:suggestedWidth];
     }
     
-    CGFloat offset = TiDimensionCalculateValue(layoutProperties.left, suggestedWidth)
-    + TiDimensionCalculateValue(layoutProperties.right, suggestedWidth);
-    CGFloat offset2 = TiDimensionCalculateValue(layoutProperties.top, size.height)
-    + TiDimensionCalculateValue(layoutProperties.bottom, size.height);
-
 	BOOL isHorizontal = TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle);
 	CGFloat result = 0.0;
 	
@@ -665,7 +660,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
             thisWidth = sandBox.origin.x + sandBox.size.width;
         }
         else {
-            thisWidth = [thisChildProxy minimumParentWidthForSize:CGSizeMake(suggestedWidth - offset, size.height - offset2)];
+            thisWidth = [thisChildProxy minimumParentWidthForSize:size];
         }
         if(result<thisWidth)
         {
@@ -699,12 +694,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
     if ([self respondsToSelector:@selector(contentHeightForWidth:)]) {
         contentHeight = [self contentHeightForWidth:width];
     }
-    
-    CGFloat offset = TiDimensionCalculateValue(layoutProperties.left, width)
-    + TiDimensionCalculateValue(layoutProperties.right, width);
-    CGFloat offset2 = TiDimensionCalculateValue(layoutProperties.top, size.height)
-    + TiDimensionCalculateValue(layoutProperties.bottom, size.height);
-    
+        
     BOOL isAbsolute = TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle);
     
 	CGFloat result=0.0;
@@ -731,7 +721,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
             thisHeight = sandBox.origin.y + sandBox.size.height;
         }
         else {
-            thisHeight = [thisChildProxy minimumParentHeightForSize:CGSizeMake(width - offset, size.height - offset2)];
+            thisHeight = [thisChildProxy minimumParentHeightForSize:size];
         }
         if(result<thisHeight)
         {
