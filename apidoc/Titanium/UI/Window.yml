@@ -165,9 +165,10 @@ properties:
         bad visual/redraw behavior after the modal is dismissed, due to how
         iOS manages modal transitions.
         
-        Mobile Web note: All windows are fullscreen and modal, so setting this doesn't cause a
-        visible or behavioral change. All windows can be translucent or opaque based on the value
-        of `backgroundColor`
+        Mobile Web note: All windows are fullscreen and modal, and all windows can be translucent 
+        or opaque based on the value of `backgroundColor`. Setting the modal value applies a visual
+        style that is similar to iOS, but there is no behavioral difference between modal and 
+        non-modal windows. 
     type: Boolean
     default: false
 
