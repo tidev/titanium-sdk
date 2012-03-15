@@ -799,39 +799,42 @@ define(
 					var transformCss = "";
 
 					// Set the color and opacity properties
-					anim.backgroundColor !== undef && (obj.backgroundColor = anim.backgroundColor);
+					anim.backgroundColor !== undef && (this.backgroundColor = anim.backgroundColor);
 					anim.opacity !== undef && setStyle(this.domNode, "opacity", anim.opacity);
 					setStyle(this.domNode, "display", anim.visible !== undef && !anim.visible ? "none" : "");
 					
-					// TODO set border width here
-
 					// Set the position and size properties
-					var dimensions = this._computeDimensions({
-						layoutParams: this._layoutParams,
-						position: {
-							left: val(anim.left, this.left),
-							top: val(anim.top, this.top),
-							right: val(anim.right, this.right),
-							bottom: val(anim.bottom, this.bottom),
-							center: anim.center || this.center
-						},
-						size: {
-							width: val(anim.width, this.width),
-							height: val(anim.height, this.height)
-						},
-						layoutChildren: false
-					});
+					
+					if (!["left", "top", "right", "bottom", "center", "width", "height"].every(function(v) { return !isDef(anim[v]); })) {
+						// TODO set border width here
 
-					setStyle(this.domNode, {
-						left: unitize(dimensions.left),
-						top: unitize(dimensions.top),
-						width: unitize(dimensions.width),
-						height: unitize(dimensions.height),
-						borderLeftWidth: unitize(dimensions.borderSize.left),
-						borderTopWidth: unitize(dimensions.borderSize.top),
-						borderRightWidth: unitize(dimensions.borderSize.right),
-						borderBottomWidth: unitize(dimensions.borderSize.bottom)
-					});
+						var dimensions = this._computeDimensions({
+							layoutParams: this._layoutParams,
+							position: {
+								left: val(anim.left, this.left),
+								top: val(anim.top, this.top),
+								right: val(anim.right, this.right),
+								bottom: val(anim.bottom, this.bottom),
+								center: anim.center || this.center
+							},
+							size: {
+								width: val(anim.width, this.width),
+								height: val(anim.height, this.height)
+							},
+							layoutChildren: false
+						});
+	
+						setStyle(this.domNode, {
+							left: unitize(dimensions.left),
+							top: unitize(dimensions.top),
+							width: unitize(dimensions.width),
+							height: unitize(dimensions.height),
+							borderLeftWidth: unitize(dimensions.borderSize.left),
+							borderTopWidth: unitize(dimensions.borderSize.top),
+							borderRightWidth: unitize(dimensions.borderSize.right),
+							borderBottomWidth: unitize(dimensions.borderSize.bottom)
+						});
+					}
 
 					// Set the z-order
 					!isDef(anim.zIndex) && setStyle(this.domNode, "zIndex", anim.zIndex);
