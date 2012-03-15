@@ -199,15 +199,17 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 						
 						this._activeTab && this._activeTab._tabNavigationGroup && (this._activeTab._tabNavigationGroup.navBarAtTop = value);
 						
-						this.remove(this._tabContentContainer);
-						this.remove(this._tabBarContainer);
+						var tabContentContainer = this._tabContentContainer,
+							tabBarContainer = this._tabBarContainer;
+						this.remove(tabContentContainer);
+						this.remove(tabBarContainer);
 						
 						if (value) {
-							this.add(this._tabContentContainer);
-							this.add(this._tabBarContainer);
+							this.add(tabContentContainer);
+							this.add(tabBarContainer);
 						} else {
-							this.add(this._tabBarContainer);
-							this.add(this._tabContentContainer);
+							this.add(tabBarContainer);
+							this.add(tabContentContainer);
 						}
 					}
 					return value;

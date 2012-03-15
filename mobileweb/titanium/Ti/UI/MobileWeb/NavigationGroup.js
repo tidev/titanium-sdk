@@ -105,20 +105,22 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style", "Ti/_/lang"],
 				set: function (value, oldValue) {
 					if (value !== oldValue) {
 						
-						this.remove(this._navBarContainer);
-						this.remove(this._contentContainer);
+						var navBarContainer = this._navBarContainer,
+							contentContainer = this._contentContainer;
+						this.remove(navBarContainer);
+						this.remove(contentContainer);
 						
 						var borderLocation;
 						if (value) {
-							this.add(this._navBarContainer);
-							this.add(this._contentContainer);
+							this.add(navBarContainer);
+							this.add(contentContainer);
 							borderLocation = "borderBottom"
 						} else {
-							this.add(this._contentContainer);
-							this.add(this._navBarContainer);
+							this.add(contentContainer);
+							this.add(navBarContainer);
 							borderLocation = "borderTop"
 						}
-						style.set(this._navBarContainer.domNode,borderLocation,"1px solid #555");
+						style.set(navBarContainer.domNode,borderLocation,"1px solid #555");
 					}
 					return value;
 				}

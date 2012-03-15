@@ -83,12 +83,13 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/
 			
 			window: {
 				set: function(value) {
-					var navBarAtTop = this._tabGroup ? this._tabGroup.tabsAtTop : undef;
+					var tabGroup = this._tabGroup,
+						navBarAtTop = tabGroup ? tabGroup.tabsAtTop : undef;
 					this._tabNavigationGroup = UI.MobileWeb.createNavigationGroup({
 						window: value,
 						navBarAtTop: navBarAtTop
 					});
-					this.active && this._tabGroup.setActiveTab(this); // Force the new nav group to get attached
+					this.active && tabGroup.setActiveTab(this); // Force the new nav group to get attached
 					return value;
 				}
 			}
