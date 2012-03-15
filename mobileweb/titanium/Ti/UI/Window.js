@@ -18,21 +18,10 @@ define(["Ti/_/declare", "Ti/Gesture", "Ti/Locale", "Ti/_/UI/SuperView", "Ti/UI"]
 		},
 
 		open: function(args) {
-			if (this.modal) {
-				UI._addWindow(this._modalWin = UI.createView({
-					backgroundColor: UI.backgroundColor,
-					backgroundImage: UI.backgroundImage
-				})).show();
-			}
 			SuperView.prototype.open.call(this, args);
 		},
 
 		close: function(args) {
-			var mw = this._modalWin;
-			if (mw) {
-				UI._removeWindow(mw).destroy();
-				this._modalWin = null;
-			}
 			SuperView.prototype.close.call(this, args);
 		},
 
