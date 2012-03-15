@@ -25,7 +25,9 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/
 			this._tabTitle = dom.create("div", {
 				className: "TiUITabTitle",
 				style: {
-					whiteSpace: "nowrap"
+					whiteSpace: "nowrap",
+					pointerEvents: "none",
+					userSelect: "none"
 				}
 			}, this._contentContainer);
 
