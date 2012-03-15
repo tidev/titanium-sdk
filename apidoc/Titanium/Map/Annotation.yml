@@ -163,7 +163,7 @@ events:
         `title`, or `subtitle`. If the user deselects the annotation by clicking elsewhere
         in the map view, `clicksource` is `null`.
 
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
 
     properties:
 

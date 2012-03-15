@@ -16,7 +16,7 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 			return new m(args);
 		},
 
-		createMapView: function(args) {
+		createView: function(args) {
 			var m = require("Ti/Map/View");
 			return new m(args);
 		}

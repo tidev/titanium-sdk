@@ -13,8 +13,8 @@
  */
 
 define(
-	["Ti/_", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/Buffer", "Ti/Platform", "Ti/Locale", "Ti/_/include"],
-	function(_, analytics, App, Evented, lang, ready, style, Buffer, Platform) {
+	["Ti/_", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/Buffer", "Ti/Platform", "Ti/UI", "Ti/Locale", "Ti/_/include"],
+	function(_, analytics, App, Evented, lang, ready, style, Buffer, Platform, UI) {
 
 	var global = window,
 		cfg = require.config,
@@ -22,6 +22,11 @@ define(
 		is = require.is,
 		each = require.each,
 		has = require.has,
+		on = require.on,
+		loaded,
+		unloaded,
+		showingError,
+		waiting = [],
 		undef,
 		Ti = lang.setObject("Ti", Evented, {
 			constants: {
@@ -43,8 +48,24 @@ define(
 				each(files, function(f) {
 					require("Ti/_/include!" + f);
 				});
+			},
+
+			deferStart: function() {
+				if (loaded) {
+					console.warn("app.js already loaded!");
+				} else {
+					var n = Math.round(Math.random()*1e12);
+					waiting.push(n);
+					return function() {
+						var p = waiting.indexOf(n);
+						~p && waiting.splice(p, 1);
+						loaded = 1;
+						waiting.length || require(cfg.main || ["app.js"]);
+					};
+				}
 			}
-		});
+		}),
+		loadAppjs = Ti.deferStart();
 
 	// add has() tests
 	has.add("devmode", cfg.deployType === "development");
@@ -286,10 +307,77 @@ define(
 	Ti.parse = JSON.parse;
 	Ti.stringify = JSON.stringify;
 
-	require.on(global, "beforeunload", function() {
-		App.fireEvent("close");
-		analytics.add("ti.end", "ti.end");
-	});
+	function shutdown() {
+		if (!unloaded) {
+			unloaded = 1;
+			App.fireEvent("close");
+			analytics.add("ti.end", "ti.end");
+		}
+	}
+
+	on(global, "beforeunload", shutdown);
+	on(global, "unload", shutdown);
+
+	if (has("ti-show-errors")) {
+		on(global, "error", function(e) {
+			if (!showingError) {
+				showingError = 1;
+
+				var f = e.filename || "",
+					match = f.match(/:\/\/.+(\/.*)/),
+					filename = match ? match[1] : e.filename,
+					line = e.lineno,
+					win = UI.createWindow({
+						backgroundColor: "#f00",
+						top: "100%",
+						height: "100%",
+						layout: "vertical"
+					}),
+					view,
+					button,
+					makeLabel = function(text, height, color, fontSize) {
+						win.add(UI.createLabel({
+							color: color,
+							font: { fontSize: fontSize, fontWeight: "bold" },
+							height: height,
+							left: 10,
+							right: 10,
+							textAlign: UI.TEXT_ALIGNMENT_CENTER,
+							text: text
+						}));
+					};
+
+				makeLabel("Application Error", "15%", "#0f0", "24pt");
+				makeLabel(e.message.replace(/([^:]+:)/, "").trim() + (filename && filename !== "undefined" ? " at " + filename : "") + (line ? " (line " + line + ")" : ""), "45%", "#fff", "16pt");
+				win.add(view = UI.createView({ height: "12%" }));
+				view.add(button = UI.createButton({ title: "Dismiss" }));
+				win.addEventListener("close", function() { win.destroy(); });
+				button.addEventListener("click", function() {
+					win.animate({
+						duration: 500,
+						top: "100%"
+					}, function() {
+						win.close();
+						showingError = 0;
+					});
+				});
+				makeLabel("Error messages will only be displayed during development. When your app is packaged for final distribution, no error screen will appear. Test your code!", "28%", "#000", "10pt");
+
+				win.open();
+
+				// wait for the reflow
+				setTimeout(function() {
+					win.animate({
+						duration: 500,
+						top: 0
+					}, function() {
+						win.top = 0;
+						win.height = "100%";
+					});
+				}, 100);
+			}
+		});
+	}
 
 	ready(function() {
 		style.set(document.body, {
@@ -305,11 +393,11 @@ define(
 					mac_addr: null,
 					oscpu: null,
 					app_name: cfg.appName,
-					platform: Ti.Platform.name,
+					platform: Platform.name,
 					app_id: cfg.appId,
-					ostype: Ti.Platform.osname,
-					osarch: Ti.Platform.architecture,
-					model: Ti.Platform.model,
+					ostype: Platform.osname,
+					osarch: Platform.architecture,
+					model: Platform.model,
 					deploytype: cfg.deployType
 				});
 				localStorage.setItem("mobileweb_enrollSent", true)
@@ -332,9 +420,7 @@ define(
 		}
 
 		// load app.js when ti and dom is ready
-		ready(function() {
-			require(cfg.main || ["app.js"]);
-		});
+		ready(loadAppjs);
 	});
 
 	/**

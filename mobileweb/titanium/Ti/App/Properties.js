@@ -13,7 +13,7 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 				return parseInt(value);
 			},
 			"List": function(value) {
-				return value === undef ? value : require.is(value, "Array") ? value : [value];
+				return require.is(value, "Array") ? value : [value];
 			},
 			"String": function(value) {
 				return "" + value;
@@ -49,8 +49,7 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 
 	function getProp(prop, type, defaultValue) {
 		var value = getStorage(prop);
-		(value === undef || value === null) && (value = defaultValue);
-		return types[type] ? types[type](value) : value;
+		return value === undef ? defaultValue || null : types[type] ? types[type](value) : value;
 	}
 
 	function setProp(prop, type, value) {

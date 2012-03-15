@@ -276,6 +276,7 @@ class Compiler(object):
 			ti_timestamp          = self.package_json['titanium']['timestamp'],
 			ti_version            = sdk_version,
 			has_analytics_use_xhr = tiapp_xml['mobileweb']['analytics']['use-xhr'],
+			has_show_errors       = 'false' if deploytype == 'production' else 'true',
 			jsQuoteEscapeFilter   = lambda str: str.replace("\\\"","\\\\\\\"")
 		))
 		

@@ -4,8 +4,14 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Locale"], function(declare, Evented,
 
 	return declare("Ti.Map.Annotation", Evented, {
 
-		constructor: function() {
-			// wire up click event
+		onclick: function(mapview, idx, src) {
+			this.fireEvent("click", {
+				index: idx,
+				title: this.title,
+				map: mapview,
+				clicksource: src,
+				annotation: this
+			});
 		},
 
 		properties: {
@@ -15,6 +21,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Locale"], function(declare, Evented,
 			longitude: undef,	// number
 			leftButton: undef,	// number or string
 			leftView: undef,	// Ti.UI.View
+			pincolor: undef,	// ANNOTATION_RED or ANNOTATION_PURPLE or ANNOTATION_GREEN
 			rightButton: undef,	// number or string
 			rightView: undef,	// Ti.UI.View
 			subtitle: undef,	// string
@@ -23,7 +30,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Locale"], function(declare, Evented,
 					this.subtitle = Locale.getString(value);
 					return value;
 				}
-			}
+			},
 			title: undef,
 			titleid: {
 				set: function(value) {

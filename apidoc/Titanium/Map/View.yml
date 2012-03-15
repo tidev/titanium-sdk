@@ -119,7 +119,7 @@ methods:
     parameters:
       - name: annotation
         summary: Annotation to show, identified by an annotation title or a <Titanium.Map.Annotation> reference.
-        type: [String, Titanium.Map.Annotation, mobileweb]
+        type: [String, Titanium.Map.Annotation]
 
   - name: setLocation
     summary: Sets the map location and zoom level.
@@ -277,6 +277,7 @@ properties:
     summary: |
         Map type, either: <Titanium.Map.STANDARD_TYPE>, <Titanium.Map.SATELLITE_TYPE> or <Titanium.Map.HYBRID_TYPE>.
     type: Number
+
   - name: region
     summary: |
         A dictionary specifying the location and zoom level of the map.
