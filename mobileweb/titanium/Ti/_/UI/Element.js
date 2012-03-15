@@ -804,7 +804,8 @@ define(
 					setStyle(this.domNode, "display", anim.visible !== undef && !anim.visible ? "none" : "");
 					
 					// Set the position and size properties
-					if (anim.left || anim.top || anim.right || anim.bottom || anim.center || anim.width || anim.height) {
+					
+					if (!["left", "top", "right", "bottom", "center", "width", "height"].every(function(v) { return !isDef(anim[v]); })) {
 						// TODO set border width here
 
 						var dimensions = this._computeDimensions({
