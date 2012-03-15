@@ -351,8 +351,8 @@ public class TiCompositeLayout extends ViewGroup
 		// int childHeight = child.getMeasuredHeight();
 	}
 
-	// Try to calculate width from pins, if we couldn't calculate from pins or we don't need to, then return the measured
-	// width
+	// Try to calculate width from pins, if we couldn't calculate from pins or we don't need to, then return the
+	// measured width
 	private int calculateWidthFromPins(LayoutParams params, int parentLeft, int parentRight, int parentWidth,
 		int measuredWidth)
 	{
@@ -378,8 +378,8 @@ public class TiCompositeLayout extends ViewGroup
 		return width;
 	}
 
-	// Try to calculate height from pins, if we couldn't calculate from pins or we don't need to, then return the measured
-	// height
+	// Try to calculate height from pins, if we couldn't calculate from pins or we don't need to, then return the
+	// measured height
 	private int calculateHeightFromPins(LayoutParams params, int parentTop, int parentBottom, int parentHeight,
 		int measuredHeight)
 	{
@@ -489,8 +489,8 @@ public class TiCompositeLayout extends ViewGroup
 
 				int newWidth = horizontal[1] - horizontal[0];
 				int newHeight = vertical[1] - vertical[0];
-				// If the old child measurements do not match the new measurements that we calculated, 
-				// then update the child measurements accordingly
+				// If the old child measurements do not match the new measurements that we calculated, then update the
+				// child measurements accordingly
 				if (newWidth != child.getMeasuredWidth()
 					|| newHeight != child.getMeasuredHeight()) {
 					int newWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY);
@@ -555,8 +555,8 @@ public class TiCompositeLayout extends ViewGroup
 		if (optionTop != null) {
 			top += optionTop.getAsPixels(this);
 		}
-		//cap the bottom to make sure views don't go off-screen when user supplies a height value that is >= screen height and this view is
-		//below another view in vertical layout.
+		// cap the bottom to make sure views don't go off-screen when user supplies a height value that is >= screen
+		// height and this view is below another view in vertical layout.
 		int bottom = Math.min(top + measuredHeight, maxBottom);
 		pos[0] = top;
 		pos[1] = bottom;
@@ -618,13 +618,19 @@ public class TiCompositeLayout extends ViewGroup
 		public boolean sizeOrFillWidthEnabled = true;
 
 		/**
-		 * If this is true, and {@link #sizeOrFillWidthEnabled} is true, then the current view will fill available parent width.
+		 * If this is true, and {@link #sizeOrFillWidthEnabled} is true, then the current view will fill available
+		 * parent width. If this value is false and {@link #sizeOrFillWidthEnabled} is true, then we use the size
+		 * behavior, which constrains the view width to fit the width of its contents.
+		 * 
 		 * @module.api
 		 */
 		public boolean autoFillsWidth = false;
 
 		/**
-		 * If this is true, and {@link #sizeOrFillHeightEnabled} is true, then the current view will fill available parent height.
+		 * If this is true, and {@link #sizeOrFillHeightEnabled} is true, then the current view will fill available
+		 * parent height. If this value is false and {@link #sizeOrFillHeightEnabled} is true, then we use the size
+		 * behavior, which constrains the view height to fit the height of its contents.
+		 * 
 		 * @module.api
 		 */
 		public boolean autoFillsHeight = false;
