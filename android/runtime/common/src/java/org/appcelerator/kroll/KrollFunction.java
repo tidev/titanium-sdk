@@ -30,6 +30,7 @@ public interface KrollFunction
 	 * @param krollObject The object that represents <code>this</code> in Javascript.
 	 * @param args A single object argument for the function (for convenience)
 	 * @return the result of the executed function.
+	 * @module.api
 	 */
 	public Object call(KrollObject krollObject, HashMap args);
 	
@@ -38,6 +39,7 @@ public interface KrollFunction
 	 * @param krollObject The object that represents <code>this</code> in Javascript.
 	 * @param args the function's arguments.
 	 * @return the result of the executed function.
+	 * @module.api
 	 */
 	public Object call(KrollObject krollObject, Object[] args);
 	
@@ -45,6 +47,7 @@ public interface KrollFunction
 	 * Executes a function asynchronously. 
 	 * @param krollObject The object that represents <code>this</code> in Javascript.
 	 * @param args A single object argument for the function (for convenience)
+	 * @module.api
 	 */
 	public void callAsync(KrollObject krollObject, HashMap args);
 	
@@ -52,6 +55,7 @@ public interface KrollFunction
 	 * Executes a function asynchronously. 
 	 * @param krollObject The object that represents <code>this</code> in Javascript.
 	 * @param args the function's arguments.
+	 * @module.api
 	 */
 	public void callAsync(KrollObject krollObject, Object[] args);
 }

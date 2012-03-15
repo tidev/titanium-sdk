@@ -41,7 +41,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 			this._addStyleableDomNode(this.textContainerDiv);
 			
-			this.touchEnabled = false;
 			this.wordWrap = true;
 		},
 
@@ -84,7 +83,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			html: {
 				set: function(value) {
 					this.textContainerDiv.innerHTML = value;
-					this._hasSizeDimensions() && this._triggerParentLayout();
+					this._hasSizeDimensions() && this._triggerLayout();
 					return value;
 				}
 			},
@@ -130,7 +129,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					value.match("<br/>$") && (value += "&nbsp;");
 					
 					this.textContainerDiv.innerHTML = value;
-					this._hasSizeDimensions() && this._triggerParentLayout();
+					this._hasSizeDimensions() && this._triggerLayout();
 					return value;
 				}
 			},

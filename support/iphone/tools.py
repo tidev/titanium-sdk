@@ -42,6 +42,9 @@ def locate_modules(modules, project_dir, assets_dest_dir, log):
 	module_asset_dirs = []
 	
 	for module in modules:
+		if module.js:
+			# Skip CommonJS modules. These will be processed in a later pass.
+			continue
 		module_id = module.manifest.moduleid.lower()
 		module_version = module.manifest.version
 		module_lib_name = ('lib%s.a' % module_id).lower()

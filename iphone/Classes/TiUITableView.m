@@ -101,22 +101,34 @@
 	return [super hitTest:point withEvent:event];
 }
 
+-(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if ( ([[event touchesForView:self.contentView] count] > 0) || ([[event touchesForView:self.accessoryView] count] > 0) 
+        || ([[event touchesForView:self.imageView] count] > 0) ) {
+        if ([proxy _hasListeners:@"touchstart"])
+        {
+            [proxy fireEvent:@"touchstart" withObject:[proxy createEventObject:nil] propagate:YES];
+        }
+    }
+    [super touchesBegan:touches withEvent:event];
+}
+
+-(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if ( ([[event touchesForView:self.contentView] count] > 0) || ([[event touchesForView:self.accessoryView] count] > 0) 
+        || ([[event touchesForView:self.imageView] count] > 0) ) {
+        if ([proxy _hasListeners:@"touchend"])
+        {
+            [proxy fireEvent:@"touchend" withObject:[proxy createEventObject:nil] propagate:YES];
+        }
+    }
+    [super touchesEnded:touches withEvent:event];
+}
+
+
 -(void)setHighlighted:(BOOL)yn animated:(BOOL)animated
 {
 	[super setHighlighted:yn animated:animated];
-	if (yn) 
-	{
-		if ([proxy _hasListeners:@"touchstart"])
-		{
-			[proxy fireEvent:@"touchstart" withObject:[proxy createEventObject:nil] propagate:YES];
-		}
-	}
-	else
-	{
-		if ([proxy _hasListeners:@"touchend"]) {
-			[proxy fireEvent:@"touchend" withObject:[proxy createEventObject:nil] propagate:YES];
-		}
-	}
 	[self updateGradientLayer:yn|[self isSelected]];
 }
 
@@ -482,18 +494,24 @@
 	row.table = self;
 	NSMutableArray *rows = [row.section rows];
 	
+    TiUITableViewRowProxy* oldRow = nil;
 	if ([rows count] > row.row) {
-		TiUITableViewRowProxy* oldRow = [rows objectAtIndex:row.row];
-		[oldRow retain];
-		oldRow.table = nil;
-		oldRow.section = nil;
-		oldRow.parent = nil;
-		[row.section forgetProxy:oldRow];
-		[oldRow release];
-	}	
-	[row.section rememberProxy:row];
-	[rows replaceObjectAtIndex:row.row withObject:row];
-	[row.section reorderRows];
+		oldRow = [rows objectAtIndex:row.row];
+        if (oldRow != row) {
+            [oldRow retain];
+            oldRow.table = nil;
+            oldRow.section = nil;
+            oldRow.parent = nil;
+            [row.section forgetProxy:oldRow];
+            [oldRow release];
+        }
+	}
+    
+    if (oldRow != row) {
+        [row.section rememberProxy:row];
+        [rows replaceObjectAtIndex:row.row withObject:row];
+        [row.section reorderRows];
+    }
 }
 
 -(void)insertRow:(TiUITableViewRowProxy*)row before:(TiUITableViewRowProxy*)before 
@@ -1936,7 +1954,16 @@ return result;	\
 
 - (void)tableView:(UITableView *)ourTableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
 {
-	[self triggerActionForIndexPath:indexPath fromPath:nil tableView:ourTableView wasAccessory:YES search:NO name:@"click"];
+	BOOL search = NO;
+	if (allowsSelectionSet==NO || [ourTableView allowsSelection]==NO)
+	{
+		[ourTableView deselectRowAtIndexPath:indexPath animated:YES];
+	}
+	if(ourTableView != tableview)
+	{
+		search = YES;
+	}
+	[self triggerActionForIndexPath:indexPath fromPath:nil tableView:ourTableView wasAccessory:YES search:search name:@"click"];
 }
 
 - (NSInteger)tableView:(UITableView *)ourTableView indentationLevelForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -1992,7 +2019,7 @@ return result;	\
 				size += viewLayout->height.value;
 				break;
 			case TiDimensionTypeAuto:
-				size += [viewProxy autoHeightForWidth:[tableview bounds].size.width];
+				size += [viewProxy autoHeightForSize:[tableview bounds].size];
 				break;
 			default:
 				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
@@ -2041,7 +2068,7 @@ return result;	\
 				size += viewLayout->height.value;
 				break;
 			case TiDimensionTypeAuto:
-				size += [viewProxy autoHeightForWidth:[tableview bounds].size.width];
+				size += [viewProxy autoHeightForSize:[tableview bounds].size];
 				break;
 			default:
 				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;

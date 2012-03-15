@@ -796,10 +796,14 @@ def main(args):
 			detector = ModuleDetector(project_dir)
 			missing_modules, modules = detector.find_app_modules(ti, 'iphone')
 			module_lib_search_path, module_asset_dirs = locate_modules(modules, project_dir, app_dir, log)
+			common_js_modules = []
 
 			# search for modules that the project is using
 			# and make sure we add them to the compile
 			for module in modules:
+				if module.js:
+					common_js_modules.append(module)
+					continue
 				module_id = module.manifest.moduleid.lower()
 				module_version = module.manifest.version
 				module_lib_name = ('lib%s.a' % module_id).lower()
@@ -1129,7 +1133,15 @@ def main(args):
 				if len(module_asset_dirs)>0:
 					for e in module_asset_dirs:
 						copy_module_resources(e[0],e[1],True)
-				
+
+				# copy CommonJS modules
+				for module in common_js_modules:
+					#module_id = module.manifest.moduleid.lower()
+					#module_dir = os.path.join(app_dir, 'modules', module_id)
+					#if os.path.exists(module_dir) is False:
+					#	os.makedirs(module_dir)
+					shutil.copy(module.js, app_dir)
+
 				# copy any custom fonts in (only runs in simulator)
 				# since we need to make them live in the bundle in simulator
 				if len(custom_fonts)>0:

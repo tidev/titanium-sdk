@@ -28,12 +28,23 @@ public class TiCompositeLayout extends ViewGroup
 	implements OnHierarchyChangeListener
 {
 	/**
-	 * The supported layout arrangements:
-	 * DEFAULT: The default Titanium layout arrangement.
-	 * VERTICAL: The layout arrangement for Views and Windows that set layout: "vertical".
-	 * HORIZONTAL: The layout arrangement for Views and Windows that set layout: "horizontal".
+	 * Supported layout arrangements
+	 * @module.api
 	 */
-	public enum LayoutArrangement {DEFAULT, VERTICAL, HORIZONTAL}
+	public enum LayoutArrangement {
+		/**
+		 * The default Titanium layout arrangement.
+		 */
+		DEFAULT,
+		/**
+		 * The layout arrangement for Views and Windows that set layout: "vertical".
+		 */
+		VERTICAL,
+		/**
+		 * The layout arrangement for Views and Windows that set layout: "horizontal".
+		 */
+		HORIZONTAL
+	}
 
 	protected static final String TAG = "TiCompositeLayout";
 	protected static final boolean DBG = TiConfig.LOGD && false;
@@ -51,6 +62,29 @@ public class TiCompositeLayout extends ViewGroup
 	private boolean disableHorizontalWrap = false;
 
 	private WeakReference<TiViewProxy> proxy;
+
+	// We need these two constructors for backwards compatibility with modules
+
+	/**
+	 * Constructs a new TiCompositeLayout object.
+	 * @param context the associated context.
+	 * @module.api
+	 */
+	public TiCompositeLayout(Context context)
+	{
+		this(context, LayoutArrangement.DEFAULT, null);
+	}
+
+	/**
+	 * Contructs a new TiCompositeLayout object.
+	 * @param context the associated context.
+	 * @param arrangement the associated LayoutArrangement
+	 * @module.api
+	 */
+	public TiCompositeLayout(Context context, LayoutArrangement arrangement)
+	{
+		this(context, LayoutArrangement.DEFAULT, null);
+	}
 
 	/**
 	 * Constructs a new TiCompositeLayout object.
@@ -440,7 +474,7 @@ public class TiCompositeLayout extends ViewGroup
 				} else {
 					computePosition(this, params.optionLeft, params.optionCenterX, params.optionRight, childMeasuredWidth, left, right, horizontal);
 					if (isVerticalArrangement()) {
-						computeVerticalLayoutPosition(currentHeight, params.optionTop, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
+						computeVerticalLayoutPosition(currentHeight, params.optionTop, params.optionBottom, childMeasuredHeight, top, bottom, vertical, b);
 					} else {
 						computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
 					}
@@ -452,8 +486,10 @@ public class TiCompositeLayout extends ViewGroup
 
 				int newWidth = horizontal[1] - horizontal[0];
 				int newHeight = vertical[1] - vertical[0];
-				if (newWidth != childMeasuredWidth
-					|| newHeight != childMeasuredHeight) {
+				// If the old child measurements do not match the new measurements that we calculated, 
+				// then update the child measurements accordingly
+				if (newWidth != child.getMeasuredWidth()
+					|| newHeight != child.getMeasuredHeight()) {
 					int newWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY);
 					int newHeightSpec = MeasureSpec.makeMeasureSpec(newHeight, MeasureSpec.EXACTLY);
 					child.measure(newWidthSpec, newHeightSpec);
@@ -510,13 +546,15 @@ public class TiCompositeLayout extends ViewGroup
 	}
 
 	private void computeVerticalLayoutPosition(int currentHeight,
-		TiDimension optionTop, TiDimension optionBottom, int measuredHeight, int layoutTop, int layoutBottom, int[] pos)
+		TiDimension optionTop, TiDimension optionBottom, int measuredHeight, int layoutTop, int layoutBottom, int[] pos, int maxBottom)
 	{
 		int top = layoutTop + currentHeight;
 		if (optionTop != null) {
 			top += optionTop.getAsPixels(this);
 		}
-		int bottom = top + measuredHeight;
+		//cap the bottom to make sure views don't go off-screen when user supplies a height value that is >= screen height and this view is
+		//below another view in vertical layout.
+		int bottom = Math.min(top + measuredHeight, maxBottom);
 		pos[0] = top;
 		pos[1] = bottom;
 	}
@@ -555,6 +593,9 @@ public class TiCompositeLayout extends ViewGroup
 		return MeasureSpec.EXACTLY;
 	}
 
+	/**
+	 * A TiCompositeLayout specific version of {@link android.view.ViewGroup.LayoutParams}
+	 */
 	public static class LayoutParams extends ViewGroup.LayoutParams {
 		protected int index;
 
@@ -571,14 +612,16 @@ public class TiCompositeLayout extends ViewGroup
 
 		public boolean autoHeight = true;
 		public boolean autoWidth = true;
-		
+
 		/**
 		 * If this is true, and {@link #autoWidth} is true, then the current view will fill available parent width.
+		 * @module.api
 		 */
 		public boolean autoFillsWidth = false;
-		
+
 		/**
 		 * If this is true, and {@link #autoHeight} is true, then the current view will fill available parent height.
+		 * @module.api
 		 */
 		public boolean autoFillsHeight = false;
 

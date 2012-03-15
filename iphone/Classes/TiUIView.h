@@ -13,9 +13,9 @@
 @class TiUIView;
 
 /**
- The protocol for scroll view.
+ The protocol for scrolling.
  */
-@protocol TiUIScrollView
+@protocol TiScrolling
 
 /**
  Tells the scroll view that keyboard did show.
@@ -154,7 +154,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 -(void)setVirtualParentTransform:(CGAffineTransform)newTransform;
 -(void)setTransform_:(id)matrix;
 
-/**
+/*
  Tells the view to load an image.
  @param image The string referring the image.
  @return The loaded image.
@@ -164,7 +164,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 -(id)proxyValueForKey:(NSString *)key;
 -(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys;
 
-/**
+/*
  Tells the view to change its proxy to the new one provided.
  @param newProxy The new proxy to set on the view.
  */

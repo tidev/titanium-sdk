@@ -27,8 +27,22 @@ define(
 			post: "_doBackground"
 		},
 		postLayoutProp = {
+			set: function(value, oldValue) {
+				if (value !== oldValue) {
+					!this._batchUpdateInProgress && this._triggerLayout();
+				}
+				return value;
+			},
 			post: function() {
-				this._parent && this._parent._triggerLayout();
+				function isPercent(value) {
+					return /%$/.test("" + value);
+				}
+				var centerX = this.center && this.center.x,
+					centerY = this.center && this.center.y;
+				this._isDependentOnParent = !!(isPercent(this.width) || isPercent(this.height) || isPercent(this.top) || isPercent(this.bottom) || 
+					isPercent(this.left) || isPercent(this.right) || isPercent(centerX) || isPercent(centerY) || 
+					(!isDef(this.left) && !isDef(centerX) && !isDef(this.right) && this._parent && this._parent._layout._defaultHorizontalAlignment !== "left") ||
+					(!isDef(this.top) && !isDef(centerY) && !isDef(this.bottom) && this._parent && this._parent._layout._defaultVerticalAlignment !== "top"));
 			}
 		};
 
@@ -151,12 +165,7 @@ define(
 		
 		_markedForLayout: false,
 		
-		_triggerLayout: function(force) {
-			
-			if (this._markedForLayout && !force) {
-				return;
-			}
-			
+		_isAttachedToActiveWin: function() {
 			// If this element is not attached to an active window, skip the calculation
 			var isAttachedToActiveWin = false,
 				node = this;
@@ -167,23 +176,11 @@ define(
 				}
 				node = node._parent;
 			}
-			if (!isAttachedToActiveWin) {
-				return;
-			}
-			
-			// Find the top most node that needs to be layed out.
-			var rootLayoutNode = this;
-			while(rootLayoutNode._parent != null && rootLayoutNode._hasSizeDimensions()) {
-				rootLayoutNode = rootLayoutNode._parent;
-			}
-			rootLayoutNode._markedForLayout = true;
-			
-			// Let the UI know that a layout needs to be performed if this is not part of a batch update
-			(!this._batchUpdateInProgress || force) && UI._triggerLayout(force);
+			return isAttachedToActiveWin;
 		},
 		
-		_triggerParentLayout: function() {
-			this._parent && this._parent._triggerLayout();
+		_triggerLayout: function(force) {
+			this._isAttachedToActiveWin() && (!this._batchUpdateInProgress || force) && UI._triggerLayout(this, force);
 		},
 		
 		_hasSizeDimensions: function() {
@@ -191,13 +188,17 @@ define(
 				(this.height === UI.SIZE || (!isDef(this.height) && this._defaultHeight === UI.SIZE));
 		},
 		
+		_hasBeenLaidOut: false,
+		
+		_isDependentOnParent: true,
+		
 		startLayout: function() {
 			this._batchUpdateInProgress = true;
 		},
 		
 		finishLayout: function() {
 			this._batchUpdateInProgress = false;
-			UI._triggerLayout(true);
+			UI._triggerLayout(this, true);
 		},
 		
 		updateLayout: function(params) {
@@ -248,49 +249,23 @@ define(
 				});
 				
 			if (params.positionElement) {
+				UI._elementLayoutCount++;
 				
 				// Set and store the dimensions
 				var styles = {
-						zIndex: this.zIndex | 0
-					},
-					rect  = this.rect,
-					size  = this.size;
-				rect.x = this._measuredLeft = dimensions.left;
-				isDef(this._measuredLeft) && (styles.left = unitize(this._measuredLeft));
-				rect.y = this._measuredTop = dimensions.top;
-				isDef(this._measuredTop) && (styles.top = unitize(this._measuredTop));
-				size.width = rect.width = this._measuredWidth = dimensions.width;
-				isDef(this._measuredWidth) && (styles.width = unitize(this._measuredWidth));
-				size.height = rect.height = this._measuredHeight = dimensions.height;
-				isDef(this._measuredHeight) && (styles.height = unitize(this._measuredHeight));
+					zIndex: this.zIndex | 0
+				};
+				styles.left = unitize(this._measuredLeft = dimensions.left);
+				styles.top = unitize(this._measuredTop = dimensions.top);
+				styles.width = unitize(this._measuredWidth = dimensions.width);
+				styles.height = unitize(this._measuredHeight = dimensions.height);
 				this._measuredRightPadding = dimensions.rightPadding;
 				this._measuredBottomPadding = dimensions.bottomPadding;
 				this._measuredBorderSize = dimensions.borderSize;
 				setStyle(this.domNode, styles);
 			
-				try{
-					var computedStyle = window.getComputedStyle(this.domNode);
-					if (styles.left && computedStyle["left"] != styles.left) {
-						throw "Invalid layout";
-					}
-					if (styles.top && computedStyle["top"] != styles.top) {
-						throw "Invalid layout";
-					}
-					if (styles.width && computedStyle["width"] != styles.width) {
-						throw "Invalid layout";
-					}
-					if (styles.height && computedStyle["height"] != styles.height) {
-						throw "Invalid layout";
-					}
-				} catch(e) {}
-				
 				this._markedForLayout = false;
-				
-				// Run the post-layout animation, if needed
-				if (this._doAnimationAfterLayout) {
-					this._doAnimationAfterLayout = false;
-					this._doAnimation();
-				}
+				this._hasBeenLaidOut = true;
 				
 				// Recompute the gradient, if it exists
 				this.backgroundGradient && this._computeGradient();
@@ -325,18 +300,6 @@ define(
 			
 			is(width,"Number") && (width = Math.max(width,0));
 			is(height,"Number") && (height = Math.max(height,0));
-				
-			function validate() {
-				try{
-					if(is(left,"Number") && isNaN(left) || 
-						is(top,"Number") && isNaN(top) || 
-						is(width,"Number") && (isNaN(width) || width < 0) || 
-						is(height,"Number") && (isNaN(height) || height < 0)) {
-					 	throw "Invalid layout";
-					}
-				} catch(e) {}
-			}
-			validate();
 
 			// Unfortunately css precidence doesn't match the titanium, so we have to handle precedence and default setting ourselves
 			if (isDef(width)) {
@@ -349,9 +312,7 @@ define(
 						left = centerX - width / 2;
 						right = undef;
 					}
-				} else if (isDef(right)) {
-					// Do nothing
-				} else {
+				} else if (!isDef(right)){
 					// Set the default position
 					left = "calculateDefault";
 				}
@@ -367,9 +328,7 @@ define(
 						width = computeSize(this._defaultWidth,boundingWidth);
 					}
 				} else {
-					if (isDef(left) && isDef(right)) {
-						// Do nothing
-					} else {
+					if (!isDef(left) || !isDef(right)) {
 						width = computeSize(this._defaultWidth,boundingWidth);
 						if(!isDef(left) && !isDef(right)) {
 							// Set the default position
@@ -388,9 +347,7 @@ define(
 						top = centerY - height / 2;
 						bottom = undef;
 					}
-				} else if (isDef(bottom)) {
-					// Do nothing
-				} else {
+				} else if (!isDef(bottom)) {
 					// Set the default position
 					top = "calculateDefault";
 				}
@@ -406,9 +363,7 @@ define(
 						height = computeSize(this._defaultHeight,boundingHeight);
 					}
 				} else {
-					if (isDef(top) && isDef(bottom)) {
-						// Do nothing
-					} else {
+					if (!isDef(top) || !isDef(bottom)) {
 						// Set the default height
 						height = computeSize(this._defaultHeight,boundingHeight);
 						if(!isDef(top) && !isDef(bottom)) {
@@ -418,26 +373,20 @@ define(
 					}
 				}
 			}
-			validate();
 			
-			function getBorderSize() {
-				
-				function getValue(value) {
-					var value = parseInt(computedStyle[value]);
-					return isNaN(value) ? 0 : value;
-				}
+			// Calculate the border
+			function getValue(value) {
+				var value = parseInt(computedStyle[value]);
+				return isNaN(value) ? 0 : value;
+			}
 					
-				return {
+			var computedStyle = window.getComputedStyle(this.domNode),
+				borderSize = {
 					left: getValue("border-left-width") + getValue("padding-left"),
 					top: getValue("border-top-width") + getValue("padding-top"),
 					right: getValue("border-right-width") + getValue("padding-right"),
 					bottom: getValue("border-bottom-width") + getValue("padding-bottom")
 				};
-			}
-			
-			// Calculate the border
-			var computedStyle = window.getComputedStyle(this.domNode),
-				borderSize = getBorderSize();
 
 			// Calculate the width/left properties if width is NOT SIZE
 			var calculateWidthAfterChildren = false,
@@ -480,7 +429,6 @@ define(
 				}
 				height -= borderSize.top + borderSize.bottom;
 			}
-			validate();
 
 			if (this._getContentSize) {
 				var contentSize = this._getContentSize();
@@ -496,7 +444,6 @@ define(
 				width === UI.SIZE && (width = computedSize.width);
 				height === UI.SIZE && (height = computedSize.height);
 			}
-			validate();
 			
 			if (calculateWidthAfterChildren) {
 				if (isDef(right) && !isDef(left)) {
@@ -508,7 +455,6 @@ define(
 					top = bottom - height;
 				}
 			}
-			validate();
 
 			// Set the default top/left if need be
 			if (left === "calculateDefault") {
@@ -533,37 +479,54 @@ define(
 					top = 0;
 				}
 			}
-			validate();
 			
 			// Calculate the "padding" and apply the origin
-			var leftPadding = left,
-				topPadding = top,
-				rightPadding = is(originalRight,"Number") ? originalRight : 0,
+			var rightPadding = is(originalRight,"Number") ? originalRight : 0,
 				bottomPadding = is(originalBottom,"Number") ? originalBottom : 0,
 				origin = layoutParams.origin;
-			left += origin.x;
-			top += origin.y;
 
-			if(!is(left,"Number") || isNaN(left) || 
-				!is(top,"Number") || isNaN(top) || 
-				!is(rightPadding,"Number") || isNaN(rightPadding) || 
-				!is(bottomPadding,"Number") || isNaN(bottomPadding) || 
-				!is(width,"Number") || isNaN(width) || 
-				!is(height,"Number") || isNaN(height)) {
-			 	try{
-			 		throw "Invalid layout";
-			 	} catch(e) {}
-			}
-			
 			return {
-				left: Math.round(left),
-				top: Math.round(top),
+				left: Math.round(left + origin.x),
+				top: Math.round(top + origin.y),
 				rightPadding: Math.round(rightPadding),
 				bottomPadding: Math.round(bottomPadding),
 				width: Math.round(Math.max(width,0)),
 				height: Math.round(Math.max(height,0)),
 				borderSize: borderSize
 			};
+		},
+		
+		convertPointToView: function(point, destinationView) {
+			
+			// Make sure that both nodes are connected to the root
+			if (!this._isAttachedToActiveWin() || !destinationView._isAttachedToActiveWin()) {
+				return null;
+			}
+			
+			if (!point || !is(point.x,"Number") || !is(point.y,"Number")) {
+				throw new Error("Invalid point");
+			}
+			
+			if (!destinationView.domNode) {
+				throw new Error("Invalid destination view");
+			}
+			
+			function getAbsolutePosition(node, point, additive) {
+				var x = point.x,
+					y = point.y,
+					multiplier = (additive ? 1 : -1);
+					
+				while(node) {
+					x += multiplier * node.domNode.offsetLeft;
+					y += multiplier * node.domNode.offsetTop;
+					node = node._parent;
+				}
+					
+				return {x: x, y: y};
+			}
+			
+			// Find this node's location relative to the root
+			return getAbsolutePosition(destinationView,getAbsolutePosition(this,point,true),false);
 		},
 
 		// This method returns the offset of the content relative to the parent's location. 
@@ -830,20 +793,7 @@ define(
 		},
 
 		animate: function(anim, callback) {
-			this._animationData = anim;
-			this._animationCallback = callback;
-			
-			if (UI._layoutInProgress) {
-				this._doAnimationAfterLayout = true;
-			} else {
-				this._doAnimation();
-			}
-		},
-		
-		_doAnimation: function() {
-			
-			var anim = this._animationData || {},
-				callback = this._animationCallback;
+			var anim = anim || {},
 				curve = curves[anim.curve] || "ease",
 				fn = lang.hitch(this, function() {
 					var transformCss = "";
@@ -934,10 +884,36 @@ define(
 		_measuredBottomPadding: 0,
 		_measuredWidth: 0,
 		_measuredHeight: 0,
+		_measuredBorderSize: {
+			value: {
+				left: 0,
+				top: 0,
+				right: 0,
+				bottom: 0
+			}
+		},
 		
 		constants: {
-			size: undef,
-			rect: undef
+			size: {
+				get: function() {
+					return {
+						x: 0,
+						y: 0,
+						width: this._measuredWidth,
+						height: this._measuredHeight
+					};
+				}
+			},
+			rect: {
+				get: function() {
+					return {
+						x: this._measuredTop,
+						y: this._measuredLeft,
+						width: this._measuredWidth,
+						height: this._measuredHeight
+					};
+				}
+			}
 		},
 
 		properties: {

@@ -50,7 +50,7 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/Network"], function(Evented, lang, Netw
 	}
 	function createLocationArguments() {
 		return {
-			enableHighAccuracy: api.accuracy === api.ACCURACY_BEST,
+			enableHighAccuracy: api.accuracy === api.ACCURACY_HIGH,
 			timeout: api.MobileWeb.locationTimeout,
 			maximumAge: api.MobileWeb.maximumLocationAge
 		}
@@ -180,7 +180,7 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/Network"], function(Evented, lang, Netw
 		
 		constants: {
 			
-			ACCURACY_BEST: 1,
+			ACCURACY_HIGH: 1,
 			
 			ACCURACY_LOW: 2,
 			

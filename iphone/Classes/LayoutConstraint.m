@@ -40,6 +40,18 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
 {
 	//TODO: Refactor for elegance.
 	CGFloat width;
+    BOOL ignorePercent = NO;
+    CGSize parentSize = CGSizeZero;
+    
+    if ([autoSizer isKindOfClass:[TiViewProxy class]]) {
+        TiViewProxy* parent = [(TiViewProxy*)autoSizer parent];
+        if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle))) {
+            //Sandbox with percent values is garbage
+            ignorePercent = YES;
+            parentSize = [parent size].rect.size;
+        }      
+    }
+    
 
 	if(resultResizing != NULL)
 	{
@@ -48,9 +60,16 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
 
     switch (constraint->width.type)
     {
-        case TiDimensionTypePercent:
         case TiDimensionTypeDip:
             width = TiDimensionCalculateValue(constraint->width, referenceSize.width);
+            break;
+        case TiDimensionTypePercent:
+            if (ignorePercent) {
+                width = TiDimensionCalculateValue(constraint->width, parentSize.width);
+            }
+            else {
+                width = TiDimensionCalculateValue(constraint->width, referenceSize.width);
+            }
             break;
         case TiDimensionTypeUndefined:
             if (!TiDimensionIsUndefined(constraint->left) && !TiDimensionIsUndefined(constraint->centerX) ) {
@@ -88,9 +107,10 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
                 break;
             }
             //If it comes here it has to follow SIZE behavior
-            if ([autoSizer respondsToSelector:@selector(autoWidthForWidth:)])
+            if ([autoSizer respondsToSelector:@selector(autoWidthForSize:)])
             {
-                width = [autoSizer autoWidthForWidth:width];
+                CGFloat desiredWidth = [autoSizer autoWidthForSize:CGSizeMake(width, referenceSize.height)];
+                width = width < desiredWidth?width:desiredWidth;
             }
             else if(resultResizing != NULL)
             {
@@ -110,9 +130,16 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
 
     switch (constraint->height.type)
     {
-        case TiDimensionTypePercent:
         case TiDimensionTypeDip:
             height = TiDimensionCalculateValue(constraint->height, referenceSize.height);
+            break;
+        case TiDimensionTypePercent:
+            if (ignorePercent) {
+                height = TiDimensionCalculateValue(constraint->height, parentSize.height);
+            }
+            else {
+                height = TiDimensionCalculateValue(constraint->height, referenceSize.height);
+            }
             break;
         case TiDimensionTypeUndefined:
             if (!TiDimensionIsUndefined(constraint->top) && !TiDimensionIsUndefined(constraint->centerY) ) {
@@ -150,9 +177,9 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
                 break;
             }
             //If it comes here it has to follow size behavior
-            if ([autoSizer respondsToSelector:@selector(autoHeightForWidth:)])
+            if ([autoSizer respondsToSelector:@selector(autoHeightForSize:)])
             {
-                height = [autoSizer autoHeightForWidth:width];
+                height = [autoSizer autoHeightForSize:CGSizeMake(width, height)];
             }
             else if(resultResizing != NULL)
             {

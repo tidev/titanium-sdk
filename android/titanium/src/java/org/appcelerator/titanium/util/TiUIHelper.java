@@ -664,6 +664,7 @@ public class TiUIHelper
 	 * Creates and returns a Bitmap from an InputStream.
 	 * @param stream an InputStream to read bitmap data.
 	 * @return a new bitmap instance.
+	 * @module.api
 	 */
 	public static Bitmap createBitmap(InputStream stream)
 	{
@@ -745,6 +746,7 @@ public class TiUIHelper
 	 * Creates and returns a bitmap from its url.
 	 * @param url the bitmap url.
 	 * @return a new bitmap instance
+	 * @module.api
 	 */
 	public static Bitmap getResourceBitmap(String url)
 	{
@@ -760,6 +762,7 @@ public class TiUIHelper
 	 * Creates and returns a bitmap for the specified resource ID.
 	 * @param res_id the bitmap id.
 	 * @return a new bitmap instance.
+	 * @module.api
 	 */
 	public static Bitmap getResourceBitmap(int res_id)
 	{

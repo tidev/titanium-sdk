@@ -155,6 +155,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	/**
 	 * Retrieves the instance of TiApplication. There is one instance per Android application.
 	 * @return the instance of TiApplication.
+	 * @module.api
 	 */
 	public static TiApplication getInstance()
 	{
@@ -197,6 +198,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
 	 * time we need to grab the current activity.
 	 * @return the current activity
+	 * @module.api
 	 */
 	public static Activity getAppCurrentActivity()
 	{
@@ -212,6 +214,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
 	 * time we need to grab the root or current activity.
 	 * @return root activity if exists. If root activity doesn't exist, returns current activity if exists. Otherwise returns null.
+	 * @module.api
 	 */
 	public static Activity getAppRootOrCurrentActivity()
 	{
@@ -225,6 +228,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 	/**
 	 * @return the current activity if exists. Otherwise, the thread will wait for a valid activity to be visible.
+	 * @module.api
 	 */
 	public Activity getCurrentActivity()
 	{
@@ -501,6 +505,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	/**
 	 * @return the app's properties, which are listed in tiapp.xml.
 	 * App properties can also be set at runtime by the application in Javascript.
+	 * @module.api
 	 */
 	public TiProperties getAppProperties()
 	{
@@ -734,6 +739,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 	/**
 	 * @return true if the current thread is the main thread, false otherwise.
+	 * @module.api
 	 */
 	public static boolean isUIThread()
 	{

@@ -55,12 +55,12 @@
 	return size;
 }
 
--(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
+-(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
 	return [self sizeForFont:suggestedWidth].width;
 }
 
--(CGFloat)autoHeightForWidth:(CGFloat)width
+-(CGFloat)contentHeightForWidth:(CGFloat)width
 {
 	return [self sizeForFont:width].height;
 }
