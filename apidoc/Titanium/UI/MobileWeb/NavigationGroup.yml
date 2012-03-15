@@ -18,8 +18,9 @@ properties:
     availability: creation
     optional: false
   - name: navBarAtTop
-    summary: Specifies whether the navigation should be at the top of the screen or the bottom of the screen. Default is true (top).
+    summary: Specifies whether the navigation should be at the top of the screen or the bottom of the screen.
     type: Boolean
+    default: true
 
 methods:
   - name: close

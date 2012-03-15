@@ -799,7 +799,7 @@ define(
 					var transformCss = "";
 
 					// Set the color and opacity properties
-					anim.backgroundColor !== undef && (obj.backgroundColor = anim.backgroundColor);
+					anim.backgroundColor !== undef && (this.backgroundColor = anim.backgroundColor);
 					anim.opacity !== undef && setStyle(this.domNode, "opacity", anim.opacity);
 					setStyle(this.domNode, "display", anim.visible !== undef && !anim.visible ? "none" : "");
 					

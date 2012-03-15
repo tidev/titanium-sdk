@@ -15,18 +15,18 @@ description: |
     #### iOS and Mobile Web Platform Implementation Notes
 
     On iOS and Mobile Web, the tab maintains a stack of windows. On Mobile Web, the tab is 
-    really just a NavigationGroup. Windows on top of the stack can partially or totally 
-    obscure windows lower in the stack.  Calling [open](Titanium.UI.Tab.open) opens a new 
-    window on top of the window stack. When a window is closed, either by the user or by code, 
-    the window is removed from the stack, making the previous window visible. The root tab 
-    window cannot be removed. 
+    really just a [NavigationGroup](Titanium.UI.MobileWeb.NavigationGroup). Windows on top 
+    of the stack can partially or totally obscure windows lower in the stack.  Calling 
+    [open](Titanium.UI.Tab.open) opens a new window on top of the window stack. When a window 
+    is closed, either by the user or by code, the window is removed from the stack, making 
+    the previous window visible. The root tab window cannot be removed. 
     
     On iOS and Mobile Web the tab controls are generally kept on screen to allow a user to 
     navigate inside the app. Tab controls are hidden when the user is performing a modal 
-    task (for example, composing a message). In this case, the app should open the new 
-    window as modal and provide a button in the navigation bar to return to the previous 
-    screen. The tab controls can also be hidden by opening the new window with
-    [tabBarHidden](Titanium.UI.Window.tabBarHidden) set to `true`.
+    task (for example, composing a message). In this case, the app should provide a button 
+    in the navigation bar to return to the previous screen. On iOS, the window should also 
+    be opened as modal. On iOS, The tab controls can also be hidden by opening the new window 
+    with [tabBarHidden](Titanium.UI.Window.tabBarHidden) set to `true`.
     
     When closing a tab window in iOS and Mobile Web, you should always use the 
     [Tab.close](Titanium.UI.Tab.close) method to ensure that the tab group maintains its 
