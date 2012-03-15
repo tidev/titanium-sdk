@@ -85,6 +85,14 @@ methods:
     summary: |
         Returns a string, localized according to the current system locale using the appropriate 
         `/i18n/LANG/strings.xml` localization file.
+    description: |
+        This method is functionaly identical to its alias <Global.L>. For example, 
+        `Ti.Locale.getString('thisKey', 'missing key')` produces the same result as 
+        `L('thisKey', 'missing key')`.
+        
+        When using with <Global.String.format> to localize a phrase with multiple string 
+        substitution placeholders, add the `formatted="false"` directive to the relevant 
+        `strings.xml` element. See example for a demonstration.
     returns:
         type: String
     parameters:
@@ -99,8 +107,8 @@ methods:
     examples:
       - title: String Localization Demonstration
         example: |
-            Localize two strings, "hello" and "goodbye" (using the keys "hello" and "goodbye") for 
-            English and Spanish system locales.  
+            Localize two strings, "hello" and "goodbye" (using the keys "greeting" and "signoff") 
+            for English and Spanish system locales.  
             
             Note: use the device's system settings to change locales and test this code.
             
@@ -108,28 +116,33 @@ methods:
             
                 <?xml version="1.0" encoding="UTF-8"?>
                 <resources>
-                  <string name="hello">hello</string>
-                  <string name="goodbye">goodbye</string>
+                  <string name="phrase" formatted="false">You say %2$s and I say %1$s!</string>
+                  <string name="greeting">hello</string>
+                  <string name="signoff">goodbye</string>
                 </resources>
             
             #### `/i18n/es/strings.xml`
             
                 <?xml version="1.0" encoding="UTF-8"?>
                 <resources>
-                  <string name="hello">hola</string>
-                  <string name="goodbye">adios</string>
+                  <string name="phrase" formatted="false">You say %2$s and I say %1$s!</string>
+                  <string name="greeting">hola</string>
+                  <string name="signoff">adios</string>
                 </resources>
             
             #### `/Resources/app.js`
                 
-                var i18nError = '<no translation available for the current system locale>';
+                var i18nMissingMsg = '<no translation available>';
                 
-                // for English locales, displays "***** You say goodbye and I say hello! *****"
-                // for Spanish locales, displays "***** You say adios and I say hola! *****"
-                Ti.API.info('***** You say ' + Ti.Locale.getString('goodbye', i18nError) + ' and I say ' + Ti.Locale.getString('hello', i18nError) + '! *****');
+                // for English locales, displays "You say goodbye and I say hello!"
+                // for Spanish locales, displays "You say adios and I say hola!"
+                Ti.API.info('You say ' + Ti.Locale.getString('signoff', i18nMissingMsg) + ' and I say ' + Ti.Locale.getString('greeting', i18nMissingMsg) + '!');
                 
-                // displays phrase substituted with "<no translation available for the current system locale>" hint text
-                Ti.API.info('***** You say ' + Ti.Locale.getString('something', i18nError) + ' and I say ' + Ti.Locale.getString('somethingelse', i18nError) + '! *****');
+                // uses alias L() instead of Ti.Locale.getString()
+                // formatted="false" is used in the strings.xml element for multiple string substitution
+                // for English locales, displays "You say goodbye and I say hello!"
+                // for Spanish locales, displays "You say adios and I say hola!"
+                Ti.API.info(String.format(L('phrase'), L('greeting', i18nMissingMsg), L('signoff', i18nMissingMsg)));
 
 properties:
   - name: currentCountry
