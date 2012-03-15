@@ -99,6 +99,7 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 
 - (void)dealloc 
 {
+	delegate = nil;
 	if (editing)
 	{
 		[self endEditing];
@@ -107,7 +108,6 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 	[buttons release];
 	[scrollView release];
 	[pages release];
-	delegate = nil;
     [super dealloc];
 }
 
@@ -687,11 +687,14 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 {
     editHoldTimer = nil;
 
-	[self beginEditing];
-	
 	NSArray *data = timer.userInfo;
 	LauncherButton *button = [data objectAtIndex:0];
 	UIEvent *event = [data objectAtIndex:1];
+    if (button.item.userData == nil) {
+        return;
+    }
+	
+	[self beginEditing];
 	
 	button.selected = NO;
 	button.highlighted = NO;
