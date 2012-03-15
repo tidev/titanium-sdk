@@ -11,7 +11,7 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 
 		constructor: function(args){
 			
-			var tabsAtTop = this._tabsAtTop = args.tabsAtTop;
+			var tabsAtBottom = this.constants.tabsAtBottom = (args && args.tabsAtBottom) || this.constants.tabsAtBottom;
 			
 			// Create the tabBarContainer class
 			var self = this;
@@ -54,12 +54,12 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 				height: UI.FILL
 			});
 			
-			if (tabsAtTop) {
-				this._tabGroupContainer.add(this._tabBarContainer);
+			if (tabsAtBottom) {
 				this._tabGroupContainer.add(this._tabContentContainer);
+				this._tabGroupContainer.add(this._tabBarContainer);
 			} else {
-				this._tabGroupContainer.add(this._tabContentContainer);
 				this._tabGroupContainer.add(this._tabBarContainer);
+				this._tabGroupContainer.add(this._tabContentContainer);
 			}
 			
 			// Create the back button
@@ -80,16 +80,16 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 				right: 0,
 			});
 			
-			if (tabsAtTop) {
-				this._backButtonContainer.bottom = 0;
-				this._backButton.top = 2;
-				this._windowContainer.top = this.tabHeight;
-				this._windowContainer.bottom = 45;
-			} else {
+			if (tabsAtBottom) {
 				this._backButtonContainer.top = 0;
 				this._backButton.bottom = 2;
 				this._windowContainer.bottom = this.tabHeight;
 				this._windowContainer.top = 45;
+			} else {
+				this._backButtonContainer.bottom = 0;
+				this._backButton.top = 2;
+				this._windowContainer.top = this.tabHeight;
+				this._windowContainer.bottom = 45;
 			}
 
 			this.tabs = [];
@@ -261,6 +261,10 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 		_defaultWidth: UI.FILL,
 
 		_defaultHeight: UI.FILL,
+		
+		constants: {
+			tabsAtBottom: true
+		},
 
 		properties: {
 			activeTab: {
