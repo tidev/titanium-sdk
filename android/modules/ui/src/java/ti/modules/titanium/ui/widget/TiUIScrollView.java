@@ -110,7 +110,7 @@ public class TiUIScrollView extends TiUIView {
 			int contentWidth = getContentProperty(TiC.PROPERTY_CONTENT_WIDTH);
 			if (contentWidth == AUTO) {
 				int childMeasuredWidth = child.getMeasuredWidth();
-				if (!p.autoWidth && p.optionWidth != null) {
+				if (!p.sizeOrFillWidthEnabled && p.optionWidth != null) {
 					childMeasuredWidth = getDimensionValue(p.optionWidth, parentWidth);
 				}
 				if (p.optionLeft != null) {
@@ -137,7 +137,7 @@ public class TiUIScrollView extends TiUIView {
 
 			if (contentHeight == AUTO) {
 				int childMeasuredHeight = child.getMeasuredHeight();
-				if (!p.autoHeight && p.optionHeight != null) {
+				if (!p.sizeOrFillHeightEnabled && p.optionHeight != null) {
 					childMeasuredHeight = getDimensionValue(p.optionHeight, parentHeight);
 				}
 				if (p.optionTop != null) {
