@@ -6,6 +6,7 @@
 import os, subprocess, sys, glob, string
 import zipfile
 from datetime import date
+from tools import ensure_dev_path
 
 cwd = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 os.chdir(cwd)
@@ -17,27 +18,6 @@ module_defaults = {
 	'copyright' : 'Copyright (c) %s by Your Company' % str(date.today().year),
 }
 module_license_default = "TODO: place your license here and we'll include it in the module distribution"
-
-def ensure_dev_path():
-	rc = os.system("xcode-select -print-path >/dev/null 2>/dev/null")
-	if rc == 0 :
-		return
-	print 'XCode 4.3+ likely. Searching for developer folders.'
-	trypath = '/Developer'
-	if os.path.isdir(trypath):
-		os.putenv('DEVELOPER_DIR',trypath)
-		return
-	trypath = '/Applications/Xcode.app/Contents/Developer'
-	if os.path.isdir(trypath):
-		os.putenv('DEVELOPER_DIR',trypath)
-		return
-	spotlight_args = ['mdfind','kMDItemDisplayName==Xcode&&kMDItemKind==Application']
-	spotlight = subprocess.Popen(spotlight_args, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-	for line in spotlight.stdout.readlines():
-		trypath = line.rstrip()+'/Contents/Developer'
-		if os.path.isdir(trypath):
-			os.putenv('DEVELOPER_DIR',trypath)
-			return
 
 def find_sdk(config):
 	sdk = config['TITANIUM_SDK']

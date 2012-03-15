@@ -22,13 +22,14 @@ def main(args):
 	logname = args[1]
 	iphone_version = args[2]
 	
-	path = "~/Library/Application Support/iPhone Simulator/%s" % iphone_version
+	path = os.path.expanduser("~/Library/Application Support/iPhone Simulator/%s") % iphone_version
 	# i dunno, how many of these will they do?
 	for v in ('9','8','7','6','5','4','3','2','1'):
 		full_version = "%s.%s"%(iphone_version,v)
-		if os.path.exists(os.path.expanduser("~/Library/Application Support/iPhone Simulator/%s"%full_version)):
+		possible_path = os.path.expanduser("~/Library/Application Support/iPhone Simulator/%s"%full_version)
+		if os.path.exists(possible_path):
 			print "[INFO] Found %s patch installed" % full_version
-			path = "~/Library/Application Support/iPhone Simulator/%s" % full_version
+			path = possible_path
 			break
 
 	logfile_dir = os.path.expanduser(path)
