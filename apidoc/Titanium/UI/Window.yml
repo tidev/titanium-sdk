@@ -164,6 +164,10 @@ properties:
         window they are opened over do not support. Doing otherwise *may* cause
         bad visual/redraw behavior after the modal is dismissed, due to how
         iOS manages modal transitions.
+        
+        Mobile Web note: All windows are fullscreen and modal, so setting this doesn't cause a
+        visible or behavioral change. All windows can be translucent or opaque based on the value
+        of `backgroundColor`
     type: Boolean
     default: false
 
