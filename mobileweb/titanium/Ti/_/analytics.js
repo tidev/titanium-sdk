@@ -1,4 +1,4 @@
-define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
+define(["Ti/_", "Ti/_/dom", "Ti/_/lang", "Ti/Platform"], function(_, dom, lang, Platform) {
 
 	var global = window,
 		sessionId = sessionStorage.getItem("ti:sessionId"),
@@ -64,7 +64,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 						type: evt.eventType,
 						event: evt.eventEvent,
 						ts: evt.eventTimestamp,
-						mid: Ti.Platform.id,
+						mid: Platform.id,
 						sid: sessionId,
 						aguid: cfg.guid,
 						data: require.is(evt.eventPayload, "object") ? JSON.stringify(evt.eventPayload) : evt.eventPayload
