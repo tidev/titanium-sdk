@@ -81,6 +81,9 @@ events:
   - name: blur
     summary: Fired when the search bar loses focus.
 
+  - name: bookmark
+    summary: Fired when the bookmark button is pressed.
+      
   - name: cancel
     summary: Fired when the cancel button is pressed.
 
@@ -152,6 +155,12 @@ properties:
         [prompt](Titanium.UI.SearchBar.prompt) property.
     type: String
     platforms: [iphone, ipad]
+
+  - name: showBookmark
+    summary: Determines whether the bookmark button is displayed.
+    type: Boolean
+    platforms: [iphone, ipad]
+    default: false
 
   - name: showCancel
     summary: Determines whether the cancel button is displayed.
