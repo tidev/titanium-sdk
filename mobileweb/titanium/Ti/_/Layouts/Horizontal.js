@@ -18,8 +18,9 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 				for (var i = 0; i < children.length; i++) {
 					var child = children[i];
 					if (child.width !== UI.FILL) {
+						var childWidth;
 						if (child._markedForLayout) {
-							var dimensions = child._doLayout({
+							childWidth = child._doLayout({
 							 	origin: {
 							 		x: 0,
 							 		y: 0
@@ -38,9 +39,11 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 							 	},
 								positionElement: false,
 						 		layoutChildren: true
-							});
+							}).width;
+						} else {
+							childWidth = child._measuredWidth;
 						}
-						availableWidth -= child._measuredWidth;
+						availableWidth -= childWidth;
 					}
 				}
 			}
