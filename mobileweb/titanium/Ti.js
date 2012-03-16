@@ -304,7 +304,6 @@ define(
 				analytics.add("ti.enroll", "ti.enroll", {
 					app_name: App.name,
 					oscpu: 1,
-					osarch: Platform.architecture,
 					mac_addr: null,
 					deploytype: cfg.deployType,
 					ostype: Platform.osname,
