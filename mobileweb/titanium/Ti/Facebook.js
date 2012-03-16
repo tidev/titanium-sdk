@@ -1,125 +1,84 @@
-define("Ti/Facebook", ["Ti/_/Evented"], function(Evented) {
+define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 
-	(function(api){
-
-		var undef,
-			facebookInitialized = false,
-			loginAfterInitialization = false,
-			appid = null,
-			notLoggedInMessage = "not logged in",
-			facebookDiv = document.createElement("div"),
-			facebookScriptTagID = "facebook-jssdk",
-			facebookLoaded = false;
-	
-		// Interfaces
-		Ti._5.EventDriven(api);
-	
-		function initFacebook() {
-			FB.init({
-				appId: appid, // App ID
-				status: false, // do NOT check login status because we're gonna do it after init() anyways
-				cookie: true, // enable cookies to allow the server to access the session
-				oauth: true, // enable OAuth 2.0
-				xfbml: true  // parse XFBML
-			});
-			FB.getLoginStatus(function(response){
-				facebookInitialized = true;
-				(response.status == "connected" && initSession(response)) || loginAfterInitialization && loginInternal();
-			});
-		}
-	
-		function initSession(response) {
-			var ar = response.authResponse;
-			if (ar) {
-				// Set the various status members
-				loggedIn = true;
-				api.uid = ar.userID;
-				api.expirationDate = new Date((new Date()).getTime() + ar.expiresIn * 1000);
-	
-				// Set a timeout to match when the token expires
-				ar.expiresIn && setTimeout(function(){ 
-					api.logout();
-				}, ar.expiresIn * 1000);
-	
-				// Fire the login event
-				api.fireEvent("login", {
-					cancelled: false,
-					data: response,
-					success: true,
-					uid: api.uid
-				});
-	
-				return true;
-			}
-		}
-	
-		// Properties
-		Ti._5.prop(api, {
-			accessToken: undef,
-			appid: {
-				get: function(){return appid;},
-				set: function(val){
-					appid = val;
-					facebookLoaded && initFacebook();
-				}
-			},
-			expirationDate: undef,
-			forceDialogAuth: {
-				get: function(){return true;},
-				set: function(){}
-			},
-			loggedIn: false,
-			permissions: undef,
-			uid: undef
+	var undef,
+		facebookInitialized = false,
+		loginAfterInitialization = false,
+		appid = null,
+		notLoggedInMessage = "not logged in",
+		facebookDiv = document.createElement("div"),
+		facebookScriptTagID = "facebook-jssdk",
+		facebookLoaded = false,
+		api;
+		
+	function initFacebook() {
+		FB.init({
+			appId: appid, // App ID
+			status: false, // do NOT check login status because we're gonna do it after init() anyways
+			cookie: true, // enable cookies to allow the server to access the session
+			oauth: true, // enable OAuth 2.0
+			xfbml: true  // parse XFBML
 		});
-	
-		// Create the div required by Facebook
-		facebookDiv.id = "fb-root";
-		document.body.appendChild(facebookDiv);
-	
-		// Load the Facebook SDK Asynchronously.
-		if (!document.getElementById(facebookScriptTagID)) {
-			var facebookScriptTag = document.createElement("script"),
-				head = document.getElementsByTagName("head")[0];
-			facebookScriptTag.id = facebookScriptTagID; 
-			facebookScriptTag.async = true;
-			facebookScriptTag.src = "//connect.facebook.net/en_US/all.js";
-			head.insertBefore(facebookScriptTag, head.firstChild);
+		FB.getLoginStatus(function(response){
+			facebookInitialized = true;
+			(response.status == "connected" && initSession(response)) || loginAfterInitialization && loginInternal();
+		}, true);
+	}
+
+	function initSession(response) {
+		var authResponse = response.authResponse;
+		if (authResponse) {
+			// Set the various status members
+			api.loggedIn = true;
+			api.uid = authResponse.userID;
+			api.expirationDate = new Date((new Date()).getTime() + authResponse.expiresIn * 1000);
+			api.accessToken = authResponse.accessToken;
+
+			// Set a timeout to match when the token expires
+			authResponse.expiresIn && setTimeout(function(){ 
+				api.logout();
+			}, authResponse.expiresIn * 1000);
+
+			// Fire the login event
+			api.fireEvent("login", {
+				cancelled: false,
+				data: response,
+				success: true,
+				uid: api.uid
+			});
+
+			return true;
 		}
-	
-		window.fbAsyncInit = function() {
-			facebookLoaded = true;
-			appid && initFacebook();
-		};
-	
-		function processResponse(response, requestParamName, requestParamValue, callback) {
-			result = {source:api,success:false};
-			result[requestParamName] = requestParamValue;
-			if (!response || response.error) {
-				response && (result["error"] = response.error);
-			} else {
-				result["success"] = true;
-				result["result"] = JSON.stringify(response);
-			}
-			callback(result);
+	}
+
+	function processResponse(response, requestParamName, requestParamValue, callback) {
+		result = {source:api,success:false};
+		result[requestParamName] = requestParamValue;
+		if (!response || response.error) {
+			response && (result["error"] = response.error);
+		} else {
+			result["success"] = true;
+			result["result"] = JSON.stringify(response);
 		}
-			
-		function loginInternal() {
-			FB.login(function(response) {
-				initSession(response) || api.fireEvent("login", {
-					cancelled	: true,
-					data		: response,
-					error		: "user cancelled or an internal error occured.",
-					success		: false,
-					uid			: response.id
-				});
-			}, {"scope":api.permissions.join()});
-		}
-	
-		// Methods
-		api.authorize = function() {
+		callback(result);
+	}
+		
+	function loginInternal() {
+		FB.login(function(response) {
+			initSession(response) || api.fireEvent("login", {
+				cancelled	: true,
+				data		: response,
+				error		: "user cancelled or an internal error occured.",
+				success		: false,
+				uid			: response.id
+			});
+		}, {"scope":api.permissions.join()});
+	}
+
+	api = lang.setObject("Ti.Facebook", Evented, {
+		
+		authorize: function() {
 			// Sanity check
-			if (appid == null) {
+			if (!appid) {
 				throw new Error("App ID not set. Facebook authorization cancelled.");
 			}
 	
@@ -130,12 +89,15 @@ define("Ti/Facebook", ["Ti/_/Evented"], function(Evented) {
 			} else {
 				loginAfterInitialization = true;
 			}
-		};
-		api.createLoginButton = function(parameters) {
-			throw new Error('Method "Titanium.Facebook.createLoginButton" is not implemented yet.');
-		};
-		api.dialog = function(action, params, callback) {
-			if (loggedIn) {
+		},
+		
+		createLoginButton: function(parameters) {
+			var LoginButton = require("Ti/Facebook/LoginButton");
+			return new LoginButton(parameters);
+		},
+		
+		dialog: function(action, params, callback) {
+			if (api.loggedIn) {
 				params.method = action;
 				FB.ui(params,function(response){
 					processResponse(response,"action",action,callback);
@@ -148,17 +110,19 @@ define("Ti/Facebook", ["Ti/_/Evented"], function(Evented) {
 					source	: api
 				});
 			}
-		};
-		api.logout = function() {
-			loggedIn && FB.logout(function(response) {
-				loggedIn = false;
+		},
+		
+		logout: function() {
+			api.loggedIn && FB.logout(function(response) {
+				api.loggedIn = false;
 				api.fireEvent("logout", {
 					success	: true
 				});
 			});
-		};
-		api.request = function(method, params, callback) {
-			if (loggedIn) {
+		},
+		
+		request: function(method, params, callback) {
+			if (api.loggedIn) {
 				params.method = method;
 				params.urls = "facebook.com,developers.facebook.com";
 				FB.api(params,function(response){
@@ -172,9 +136,10 @@ define("Ti/Facebook", ["Ti/_/Evented"], function(Evented) {
 					source	: api
 				});
 			}
-		};
-		api.requestWithGraphPath = function(path, params, httpMethod, callback) {
-			if (loggedIn) {
+		},
+		
+		requestWithGraphPath: function(path, params, httpMethod, callback) {
+			if (api.loggedIn) {
 				FB.api(path,httpMethod,params,function(response){
 					processResponse(response,"path",path,callback);
 				});
@@ -186,7 +151,59 @@ define("Ti/Facebook", ["Ti/_/Evented"], function(Evented) {
 					source	: api
 				});
 			}
-		};
-	})(Ti._5.createClass("Ti.Facebook"));
+		},
+		
+		constants: {
+			
+			forceDialogAuth: true,
+			
+			BUTTON_STYLE_NORMAL: 1,
+			
+			BUTTON_STYLE_WIDE: 2
+		},
+		
+		properties: {
+			
+			accessToken: undef,
+			
+			appid: {
+				set: function(value){
+					appid = value;
+					facebookLoaded && initFacebook();
+					return value;
+				}
+			},
+			
+			expirationDate: undef,
+			
+			loggedIn: false,
+			
+			permissions: undef,
+			
+			uid: undef
+		}
+		
+	});
+	
+	// Create the div required by Facebook
+	facebookDiv.id = "fb-root";
+	document.body.appendChild(facebookDiv);
+
+	// Load the Facebook SDK Asynchronously.
+	if (!document.getElementById(facebookScriptTagID)) {
+		var facebookScriptTag = document.createElement("script"),
+			head = document.getElementsByTagName("head")[0];
+		facebookScriptTag.id = facebookScriptTagID; 
+		facebookScriptTag.async = true;
+		facebookScriptTag.src = "//connect.facebook.net/en_US/all.js";
+		head.insertBefore(facebookScriptTag, head.firstChild);
+	}
+
+	window.fbAsyncInit = function() {
+		facebookLoaded = true;
+		appid && initFacebook();
+	};
+	
+	return api;
 
 });

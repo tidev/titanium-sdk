@@ -419,9 +419,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 		{
 			if (rootViewAttached)
 			{
-				[[TiApp controller] willShowViewController:[self controller] animated:YES];
 				[self attachViewToTopLevelWindow];
-				[[TiApp controller] didShowViewController:[self controller] animated:YES];
 			}
 			if ([openAnimation isTransitionAnimation])
 			{

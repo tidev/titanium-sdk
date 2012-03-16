@@ -246,6 +246,8 @@ properties:
         authentication is used rather than SSO. See  the
         [Facebook Mobile Guide](http://developers.facebook.com/docs/guides/mobile) for 
         details of their Single-Sign-On scheme.
+        
+        This property is read-only on Mobile Web.
     type: Boolean
     default: true
 

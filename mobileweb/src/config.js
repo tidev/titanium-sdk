@@ -46,6 +46,7 @@ var require = {
 		filesystem: {
 			registry: "${ti_fs_registry}"
 		},
+		theme: "${ti_theme | jsQuoteEscapeFilter}",
 		version: "${ti_version | jsQuoteEscapeFilter}"
 	},
 	vendorPrefixes: {
