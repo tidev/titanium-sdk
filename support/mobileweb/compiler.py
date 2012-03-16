@@ -574,6 +574,7 @@ class Compiler(object):
 		# TODO: using an AST, scan the entire project's source and identify all dependencies
 		self.project_dependencies += [
 			'Ti',
+			'Ti/Accelerometer',
 			'Ti/API',
 			'Ti/App',
 			'Ti/App/Properties',
@@ -581,6 +582,7 @@ class Compiler(object):
 			'Ti/Buffer',
 			'Ti/Codec',
 			'Ti/Facebook',
+			'Ti/Facebook/Loginbutton',
 			'Ti/Filesystem',
 			'Ti/Filesystem/File',
 			'Ti/Filesystem/FileStream',
