@@ -123,7 +123,8 @@ void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish)
 	}
 	else
 	{
-		TiThreadPerformOnMainThread(^{[releasedObject release];}, waitForFinish);
+        __block id blockVar = releasedObject;
+		TiThreadPerformOnMainThread(^{[blockVar release];}, waitForFinish);
 	}
 }
 
@@ -137,7 +138,8 @@ void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish)
 	}
 	else
 	{
-		TiThreadPerformOnMainThread(^{[view removeFromSuperview];}, waitForFinish);
+        __block UIView* blockVar = view;
+		TiThreadPerformOnMainThread(^{[blockVar removeFromSuperview];}, waitForFinish);
 	}
 }
 
