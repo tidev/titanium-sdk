@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -76,7 +76,7 @@ public class TiCompositeLayout extends ViewGroup
 	}
 
 	/**
-	 * Contructs a new TiCompositeLayout object.
+	 * Constructs a new TiCompositeLayout object.
 	 * @param context the associated context.
 	 * @param arrangement the associated LayoutArrangement
 	 * @module.api
@@ -97,7 +97,7 @@ public class TiCompositeLayout extends ViewGroup
 	}
 
 	/**
-	 * Contructs a new TiCompositeLayout object.
+	 * Constructs a new TiCompositeLayout object.
 	 * @param context the associated context.
 	 * @param arrangement the associated LayoutArrangement
 	 * @param proxy the associated proxy.
@@ -319,7 +319,7 @@ public class TiCompositeLayout extends ViewGroup
 				childDimension = p.optionWidth.getAsPixels(this);
 			}
 		} else {
-			if (p.autoFillsWidth) {
+			if (p.autoFillsWidth || hasSizeFillWidthConflict(child, true)) {
 				childDimension = LayoutParams.FILL_PARENT;
 			}
 		}
@@ -336,7 +336,7 @@ public class TiCompositeLayout extends ViewGroup
 				childDimension = p.optionHeight.getAsPixels(this);
 			}
 		} else {
-			if (p.autoFillsHeight) {
+			if (p.autoFillsHeight || hasSizeFillHeightConflict(child, true)) {
 				childDimension = LayoutParams.FILL_PARENT;
 			}
 		}
@@ -586,6 +586,68 @@ public class TiCompositeLayout extends ViewGroup
 		// account for moving the item "down" to later line(s) if there has been wrapping.
 		vpos[0] = vpos[0] + horizontalLayoutTopBuffer;
 		vpos[1] = vpos[1] + horizontalLayoutTopBuffer;
+	}
+
+	// Determine whether we have a conflict where a parent has size behavior, and child has fill behavior.
+	private boolean hasSizeFillHeightConflict(View parent, boolean firstIteration)
+	{
+		if (parent instanceof TiCompositeLayout) {
+			TiCompositeLayout currentLayout = (TiCompositeLayout) parent;
+			LayoutParams currentParams = (LayoutParams) currentLayout.getLayoutParams();
+
+			// During the first iteration, the parent view needs to have size behavior.
+			if (firstIteration && (currentParams.autoFillsHeight || currentParams.optionHeight != null)) {
+				return false;
+			}
+
+			// We don't check for sizeOrFillHeightEnabled. The calculations during the measure phase (which includes
+			// this method) will be adjusted to undefined behavior accordingly during the layout phase.
+			// sizeOrFillHeightEnabled is used during the layout phase to determine whether we want to use the fill/size
+			// measurements that we got from the measure phase.
+			if (currentParams.autoFillsHeight && currentParams.optionHeight == null) {
+				return true;
+			} else if (currentParams.optionHeight == null) {
+				// If the child has size behavior, continue traversing through children and see if any of them have fill
+				// behavior
+				for (int i = 0; i < currentLayout.getChildCount(); ++i) {
+					if (hasSizeFillHeightConflict(currentLayout.getChildAt(i), false)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	// Determine whether we have a conflict where a parent has size behavior, and child has fill behavior.
+	private boolean hasSizeFillWidthConflict(View parent, boolean firstIteration)
+	{
+		if (parent instanceof TiCompositeLayout) {
+			TiCompositeLayout currentLayout = (TiCompositeLayout) parent;
+			LayoutParams currentParams = (LayoutParams) currentLayout.getLayoutParams();
+
+			// During the first iteration, the parent view needs to have size behavior.
+			if (firstIteration && (currentParams.autoFillsWidth || currentParams.optionWidth != null)) {
+				return false;
+			}
+
+			// We don't check for sizeOrFillWidthEnabled. The calculations during the measure phase (which includes this
+			// method) will be adjusted to undefined behavior accordingly during the layout phase.
+			// sizeOrFillWidthEnabled is used during the layout phase to determine whether we want to use the fill/size
+			// measurements that we got from the measure phase.
+			if (currentParams.autoFillsWidth && currentParams.optionWidth == null) {
+				return true;
+			} else if (currentParams.optionWidth == null) {
+				// If the child has size behavior, continue traversing through children and see if any of them have fill
+				// behavior
+				for (int i = 0; i < currentLayout.getChildCount(); ++i) {
+					if (hasSizeFillWidthConflict(currentLayout.getChildAt(i), false)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	protected int getWidthMeasureSpec(View child) {
