@@ -34,7 +34,8 @@ class TiAppXML(dict):
 			'map': {
 				'backend': 'Ti/_/Map/Google',
 				'apikey': ''
-			}
+			},
+			'theme': 'titanium'
 		}
 		self['precache'] = {
 			'images': [],

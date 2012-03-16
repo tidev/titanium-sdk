@@ -119,7 +119,7 @@ class Compiler(object):
 				self.modules_to_load.append(module)
 		
 		# determine theme
-		theme = tiapp_xml['theme'] if 'theme' in tiapp_xml else 'titanium'
+		theme = tiapp_xml['mobileweb']['theme']
 		if not os.path.exists(os.path.join(self.themes_path, theme)):
 			print '[ERROR] Theme "%s" does not exist' % theme
 			sys.exit(1)
@@ -278,7 +278,7 @@ class Compiler(object):
 			packages              = simplejson.dumps(self.packages, sort_keys=True),
 			project_id            = tiapp_xml['id'],
 			project_name          = tiapp_xml['name'],
-			ti_fs_registry        = tiapp_xml['filesystem']['registry'],
+			ti_fs_registry        = tiapp_xml['mobileweb']['filesystem']['registry'],
 			ti_theme              = theme,
 			ti_githash            = self.package_json['titanium']['githash'],
 			ti_timestamp          = self.package_json['titanium']['timestamp'],
