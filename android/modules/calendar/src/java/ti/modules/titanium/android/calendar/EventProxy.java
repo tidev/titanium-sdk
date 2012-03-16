@@ -205,7 +205,7 @@ public class EventProxy extends KrollProxy {
 	}
 
 	public static ArrayList<EventProxy> queryEventsBetweenDates(long date1, long date2, CalendarProxy calendar) {
-		if (Build.VERSION.SDK_INT >= 13)
+		if (Build.VERSION.SDK_INT >= 11)
 		{
 			return queryEventsBetweenDates(date1, date2, null, null);
 		}
