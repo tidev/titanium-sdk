@@ -381,10 +381,10 @@ public abstract class TiUIView
 			if (newValue != null) {
 				if (!newValue.equals(TiC.SIZE_AUTO)) {
 					layoutParams.optionHeight = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_HEIGHT);
-					layoutParams.autoHeight = false;
+					layoutParams.sizeOrFillHeightEnabled = false;
 				} else {
 					layoutParams.optionHeight = null;
-					layoutParams.autoHeight = true;
+					layoutParams.sizeOrFillHeightEnabled = true;
 				}
 			} else {
 				layoutParams.optionHeight = null;
@@ -394,10 +394,10 @@ public abstract class TiUIView
 			if (newValue != null) {
 				if (!newValue.equals(TiC.SIZE_AUTO)) {
 					layoutParams.optionWidth = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_WIDTH);
-					layoutParams.autoWidth = false;
+					layoutParams.sizeOrFillWidthEnabled = false;
 				} else {
 					layoutParams.optionWidth = null;
-					layoutParams.autoWidth = true;
+					layoutParams.sizeOrFillWidthEnabled = true;
 				}
 			} else {
 				layoutParams.optionWidth = null;

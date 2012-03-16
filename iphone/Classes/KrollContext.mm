@@ -56,8 +56,6 @@ static pthread_rwlock_t KrollGarbageCollectionLock;
 
 @end
 
-
-
 @implementation KrollInvocation
 
 -(id)initWithTarget:(id)target_ method:(SEL)method_ withObject:(id)obj_ condition:(NSCondition*)condition_
@@ -949,6 +947,16 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		return;
 	}
 	[self enqueue:invocation];
+}
+
+-(void)invokeBlockOnThread:(void (^)())block
+{
+    if ([self isKJSThread]) {
+        block();
+        return;
+    }
+    NSBlockOperation* blockOp = [NSBlockOperation blockOperationWithBlock:block];
+    [self enqueue:blockOp];
 }
 
 - (void)bindCallback:(NSString*)name callback:(TiObjectCallAsFunctionCallback)fn

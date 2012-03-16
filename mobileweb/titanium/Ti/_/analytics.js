@@ -1,28 +1,14 @@
-define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
+define(["Ti/_", "Ti/_/dom", "Ti/_/lang", "Ti/Platform"], function(_, dom, lang, Platform) {
 
 	var global = window,
 		sessionId = sessionStorage.getItem("ti:sessionId"),
-		midName = "ti_mid",
 		doc = document,
-		matches = doc.cookie.match(new RegExp("(?:^|; )" + midName + "=([^;]*)")),
-		mid = matches ? decodeURIComponent(matches[1]) : undefined,
 		cfg = require.config,
 		analyticsEnabled = cfg.app.analytics,
 		analyticsStorageName = "ti:analyticsEvents",
 		analyticsEventSeq = 1,
 		analyticsLastSent = null,
 		analyticsUrl = "https://api.appcelerator.net/p/v2/mobile-web-track";
-
-	mid || (mid = localStorage.getItem(midName));
-	mid || localStorage.setItem(midName, mid = _.uuid());
-
-	require.on(window, "beforeunload", function() {
-		var d = new Date();
-		d.setTime(d.getTime() + 63072e7); // forever in mobile terms
-		doc.cookie = midName + "=" + encodeURIComponent(mid) + "; expires=" + d.toUTCString();
-
-		localStorage.setItem(midName, mid);
-	});
 
 	sessionId || sessionStorage.setItem("ti:sessionId", sessionId = _.uuid());
 
@@ -78,7 +64,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 						type: evt.eventType,
 						event: evt.eventEvent,
 						ts: evt.eventTimestamp,
-						mid: mid,
+						mid: Platform.id,
 						sid: sessionId,
 						aguid: cfg.guid,
 						data: require.is(evt.eventPayload, "object") ? JSON.stringify(evt.eventPayload) : evt.eventPayload

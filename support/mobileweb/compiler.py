@@ -118,10 +118,16 @@ class Compiler(object):
 			if not module in areDeps:
 				self.modules_to_load.append(module)
 		
+		# determine theme
+		theme = tiapp_xml['theme'] if 'theme' in tiapp_xml else 'titanium'
+		if not os.path.exists(os.path.join(self.themes_path, theme)):
+			print '[ERROR] Theme "%s" does not exist' % theme
+			sys.exit(1)
+				
 		# check what we need to precache
 		precache_images = []
 		if 'Ti/UI/TableViewRow' in self.modules_map:
-			precache_images.append('/themes/titanium/UI/TableViewRow/child.png')
+			precache_images.append('/themes/' + theme + '/UI/TableViewRow/child.png')
 		if len(tiapp_xml['precache']['images']):
 			for img in tiapp_xml['precache']['images']:
 				precache_images.append(img)
@@ -272,6 +278,8 @@ class Compiler(object):
 			packages              = simplejson.dumps(self.packages, sort_keys=True),
 			project_id            = tiapp_xml['id'],
 			project_name          = tiapp_xml['name'],
+			ti_fs_registry        = tiapp_xml['filesystem']['registry'],
+			ti_theme              = theme,
 			ti_githash            = self.package_json['titanium']['githash'],
 			ti_timestamp          = self.package_json['titanium']['timestamp'],
 			ti_version            = sdk_version,
@@ -593,6 +601,7 @@ class Compiler(object):
 		# TODO: using an AST, scan the entire project's source and identify all dependencies
 		self.project_dependencies += [
 			'Ti',
+			'Ti/Accelerometer',
 			'Ti/API',
 			'Ti/App',
 			'Ti/App/Properties',
@@ -600,6 +609,7 @@ class Compiler(object):
 			'Ti/Buffer',
 			'Ti/Codec',
 			'Ti/Facebook',
+			'Ti/Facebook/Loginbutton',
 			'Ti/Filesystem',
 			'Ti/Filesystem/File',
 			'Ti/Filesystem/FileStream',

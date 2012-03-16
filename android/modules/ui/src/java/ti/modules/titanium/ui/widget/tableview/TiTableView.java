@@ -411,14 +411,14 @@ public class TiTableView extends FrameLayout
 
 		int width = AbsListView.LayoutParams.WRAP_CONTENT;
 		int height = AbsListView.LayoutParams.WRAP_CONTENT;
-		if (params.autoHeight) {
+		if (params.sizeOrFillHeightEnabled) {
 			if (params.autoFillsHeight) {
 				height = AbsListView.LayoutParams.FILL_PARENT;
 			}
 		} else if (params.optionHeight != null) {
 			height = params.optionHeight.getAsPixels(listView);
 		}
-		if (params.autoWidth) {
+		if (params.sizeOrFillWidthEnabled) {
 			if (params.autoFillsWidth) {
 				width = AbsListView.LayoutParams.FILL_PARENT;
 			}

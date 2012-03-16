@@ -535,7 +535,9 @@ describe("Ti.UI Layout tests", {
 		    contentHeight:'auto',
 		    contentWidth:'auto',
 		    showVerticalScrollIndicator:true,
-		    showHorizontalScrollIndicator:true
+		    showHorizontalScrollIndicator:true,
+		    width:Ti.UI.SIZE,
+		    height:Ti.UI.SIZE		
 		});
 		var scrollView2 = Titanium.UI.createScrollView({
 		    contentHeight:'auto',
@@ -629,6 +631,26 @@ describe("Ti.UI Layout tests", {
 		win.add(view3);
 		win.add(view2);
 		win.add(view1);
+		win.open();
+	}),
+	fillInVerticalLayout: asyncTest(function() {
+		var win = Ti.UI.createWindow({
+		});
+		var parent = Ti.UI.createView({
+			height: 50,
+			width: 40,
+			layout: 'vertical',
+		});
+		var child = Ti.UI.createView({
+		});
+		parent.add(child);
+		win.add(parent);
+		win.addEventListener("open", this.async(function(e) {
+			valueOf(parent.size.width).shouldBe(40);
+			valueOf(parent.size.height).shouldBe(50);
+			valueOf(child.size.width).shouldBe(40);
+			valueOf(child.size.height).shouldBe(50);
+		}));
 		win.open();
 	}),
 	fourPins: asyncTest(function() {

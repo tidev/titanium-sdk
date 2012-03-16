@@ -44,6 +44,10 @@ var require = {
 	ti: {
 		buildHash: "${ti_githash | jsQuoteEscapeFilter}",
 		buildDate: "${ti_timestamp | jsQuoteEscapeFilter}",
+		filesystem: {
+			registry: "${ti_fs_registry}"
+		},
+		theme: "${ti_theme | jsQuoteEscapeFilter}",
 		version: "${ti_version | jsQuoteEscapeFilter}"
 	},
 	vendorPrefixes: {
