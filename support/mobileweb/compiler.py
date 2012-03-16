@@ -118,10 +118,16 @@ class Compiler(object):
 			if not module in areDeps:
 				self.modules_to_load.append(module)
 		
+		# determine theme
+		theme = tiapp_xml['theme'] if 'theme' in tiapp_xml else 'titanium'
+		if not os.path.exists(os.path.join(self.themes_path, theme)):
+			print '[ERROR] Theme "%s" does not exist' % theme
+			sys.exit(1)
+				
 		# check what we need to precache
 		precache_images = []
 		if 'Ti/UI/TableViewRow' in self.modules_map:
-			precache_images.append('/themes/titanium/UI/TableViewRow/child.png')
+			precache_images.append('/themes/' + theme + '/UI/TableViewRow/child.png')
 		if len(tiapp_xml['precache']['images']):
 			for img in tiapp_xml['precache']['images']:
 				precache_images.append(img)
@@ -252,16 +258,17 @@ class Compiler(object):
 			app_guid        = tiapp_xml['guid'],
 			app_id          = tiapp_xml['id'],
 			app_name        = tiapp_xml['name'],
-			app_names		= simplejson.dumps(app_names),
+			app_names       = simplejson.dumps(app_names),
 			app_publisher   = tiapp_xml['publisher'],
 			app_url         = tiapp_xml['url'],
 			app_version     = tiapp_xml['version'],
 			deploy_type     = deploytype,
-			locales			= simplejson.dumps(locales),
+			locales         = simplejson.dumps(locales),
 			packages        = simplejson.dumps(self.packages, sort_keys=True),
 			project_id      = tiapp_xml['id'],
 			project_name    = tiapp_xml['name'],
 			ti_fs_registry  = tiapp_xml['filesystem']['registry'],
+			ti_theme        = theme,
 			ti_githash      = self.package_json['titanium']['githash'],
 			ti_timestamp    = self.package_json['titanium']['timestamp'],
 			ti_version      = sdk_version,
@@ -575,6 +582,7 @@ class Compiler(object):
 		self.project_dependencies += [
 			'Ti',
 			'Ti/Accelerometer',
+			'Ti/Analytics',
 			'Ti/API',
 			'Ti/App',
 			'Ti/App/Properties',
