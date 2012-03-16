@@ -12,23 +12,25 @@ description: |
     The behavior of tabs and tab groups follows the platform's native navigation style, 
     which varies significantly between platforms.
 
-    #### iOS Platform Implementation Notes
+    #### iOS and Mobile Web Platform Implementation Notes
 
-    On iOS the tab maintains a stack of windows. Windows on top of the 
-    stack can partially or totally obscure windows lower in the stack.  Calling 
-    [open](Titanium.UI.Tab.open) opens a new window on top of the window stack. When a 
-    window is closed, either by the user or by code, the window is removed from the stack, 
-    making the previous window visible. The root tab window cannot be removed. 
+    On iOS and Mobile Web, the tab maintains a stack of windows. On Mobile Web, the tab is 
+    really just a [NavigationGroup](Titanium.UI.MobileWeb.NavigationGroup). Windows on top 
+    of the stack can partially or totally obscure windows lower in the stack.  Calling 
+    [open](Titanium.UI.Tab.open) opens a new window on top of the window stack. When a window 
+    is closed, either by the user or by code, the window is removed from the stack, making 
+    the previous window visible. The root tab window cannot be removed. 
     
-    On iOS the tab controls are generally kept on screen to allow a user to navigate inside the app. 
-    Tab controls are hidden when the user is performing a modal task (for example, 
-    composing a message). In this case, the app should open the new window as modal and 
-    provide a button in the navigation bar to return to the previous screen. The tab
-    controls can also be hidden by opening the new window with
-    [tabBarHidden](Titanium.UI.Window.tabBarHidden) set to `true`.
+    On iOS and Mobile Web the tab controls are generally kept on screen to allow a user to 
+    navigate inside the app. Tab controls are hidden when the user is performing a modal 
+    task (for example, composing a message). In this case, the app should provide a button 
+    in the navigation bar to return to the previous screen. On iOS, the window should also 
+    be opened as modal. On iOS, The tab controls can also be hidden by opening the new window 
+    with [tabBarHidden](Titanium.UI.Window.tabBarHidden) set to `true`.
     
-    When closing a tab window in iOS, you should always use the [Tab.close](Titanium.UI.Tab.close)
-    method to ensure that the tab group maintains its navigation state.
+    When closing a tab window in iOS and Mobile Web, you should always use the 
+    [Tab.close](Titanium.UI.Tab.close) method to ensure that the tab group maintains its 
+    navigation state.
 
     #### Android Platform Implementation Notes
 
@@ -44,20 +46,6 @@ description: |
     [Tab.open](Titanium.UI.Tab.open) can be closed using `Tab.close`.
 
     As on iOS, the root tab window cannot be closed.
-    
-    #### Mobile Web Platform Implementation Notes
-
-    On Mobile Web, the tab maintains a stack of windows, as on iOS. However,
-    the tab controls are always hidden by the window, and the user can use the browser's back 
-    button to close the window.
-
-    On Mobile Web, Tab windows can be closed using either
-    [Tab.close](Titanium.UI.Tab.close) or [Window.close](Titanium.UI.Window.close).
-
-    On Mobile Web, the root tab window *can* be closed. If the root tab window is closed, 
-    the tab group's background color becomes visible where the window used to be. If 
-    the tab group doesn't have a background color set, whatever is underneath the tab
-    group becomes visible.
 extends: Titanium.UI.View
 since: "0.8"
 methods:
@@ -82,7 +70,7 @@ methods:
 
             myTab.close(tabWin);
 
-        On Android and Mobile Web, this method does **not** take a `window` parameter.
+        On Android, this method does **not** take a `window` parameter.
 
             myTab.close();
 
@@ -100,7 +88,7 @@ methods:
     parameters: 
       - name: window
         summary: |
-            Window to close. This parameter **must** be omitted on Android and Mobile Web.
+            Window to close. This parameter **must** be omitted on Android.
         type: Titanium.UI.Window
 
       - name: options
