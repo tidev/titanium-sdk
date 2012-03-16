@@ -192,7 +192,9 @@ properties:
         [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
         sections of wikipedia for reference.
         
-        On iOS, the system locale is always used.
+        On iOS, the system locale is always used. This disparity with Android can be fixed when the 
+        Apple bug explained in ticket [TIMOB-3446](https://jira.appcelerator.org/browse/TIMOB-3446) 
+        is resolved.
     type: String
     default: System Settings
     platforms: [android]
