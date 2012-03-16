@@ -2,16 +2,16 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI/Button", "Ti/Facebook", "Ti/_/lan
 	
 	var imagePrefix = "themes/titanium/Facebook/",
 		buttonImages = [
-			imagePrefix + "login.png", // Login normal
-			imagePrefix + "logout.png", // Logout normal
-			imagePrefix + "loginWide.png", // Login wide
-			imagePrefix + "logout.png" // Logout "wide" (really just normal)
+			"login.png", // Login normal
+			"logout.png", // Logout normal
+			"loginWide.png", // Login wide
+			"logout.png" // Logout "wide" (really just normal)
 		],
 		pressedButtonImages = [
-			imagePrefix + "loginPressed.png", // Login normal pressed
-			imagePrefix + "logoutPressed.png", // Logout normal pressed
-			imagePrefix + "loginWidePressed.png", // Login wide pressed
-			imagePrefix + "logoutPressed.png" // Logout "wide" pressed (really just normal)
+			"loginPressed.png", // Login normal pressed
+			"logoutPressed.png", // Logout normal pressed
+			"loginWidePressed.png", // Login wide pressed
+			"logoutPressed.png" // Logout "wide" pressed (really just normal)
 		];
 	
 	return declare("Ti.Facebook.LoginButton", Button, {
@@ -39,8 +39,8 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI/Button", "Ti/Facebook", "Ti/_/lan
 			var imageIndex = 0;
 			Facebook.loggedIn && (imageIndex++);
 			this.style === Facebook.BUTTON_STYLE_WIDE && (imageIndex += 2);
-			this.backgroundImage = buttonImages[imageIndex];
-			this.backgroundSelectedImage = pressedButtonImages[imageIndex];
+			this.backgroundImage = imagePrefix + buttonImages[imageIndex];
+			this.backgroundSelectedImage = imagePrefix + pressedButtonImages[imageIndex];
 			this._hasSizeDimensions() && this._triggerLayout();
 		},
 		
