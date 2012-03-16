@@ -16,7 +16,7 @@ import org.w3c.dom.Text;
 @Kroll.proxy(parentModule=XMLModule.class)
 public class TextProxy extends CharacterDataProxy
 {
-	private final static String TAG ="Text"; 
+	private final static String TAG = "Text"; 
 
 	private Text text;
 	public TextProxy(Text text)
@@ -70,25 +70,13 @@ public class TextProxy extends CharacterDataProxy
 		return getProxy(returnNode);
 	}
 	
-	/**
-	 * Accessor
-	 * 
-	 * @return String
-	 * 
-	 * @deprecated
-	 */
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty @Kroll.method @Deprecated
 	public String getText()
 	{
 		Log.w(TAG, "The text property of Text is deprecated, use textContent instead.");
 		return getTextContent();
 	}
 	
-	/**
-	 * Accessor
-	 * 
-	 * @return String
-	 */
 	@Kroll.getProperty @Kroll.method
 	public String getTextContent()
 	{
