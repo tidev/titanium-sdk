@@ -3,7 +3,8 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 	var undef,
 		lastShake = (new Date()).getTime(),
 		lastAccel = {};
-		api = lang.setObject("Ti.Accelerometer", Evented, {});
+		api = lang.setObject("Ti.Accelerometer", Evented, {}),
+		threshold = 0.2;
 	
 	require.on(window, "devicemotion", function(evt) {
 		var e = evt.acceleration || evt.accelerationIncludingGravity,
@@ -16,9 +17,9 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 			};
 		if (accel) {
 			if (lastAccel.x !== undef && (
-				Math.abs(lastAccel.x - accel.x) > 0.2 || 
-				Math.abs(lastAccel.y - accel.y) > 0.2 ||
-				Math.abs(lastAccel.z - accel.z) > 0.2
+				Math.abs(lastAccel.x - accel.x) > threshold || 
+				Math.abs(lastAccel.y - accel.y) > threshold ||
+				Math.abs(lastAccel.z - accel.z) > threshold
 			)) {
 				currentTime = (new Date()).getTime();
 				accel.timestamp = currentTime - lastShake;
