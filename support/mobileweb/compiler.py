@@ -574,6 +574,7 @@ class Compiler(object):
 		# TODO: using an AST, scan the entire project's source and identify all dependencies
 		self.project_dependencies += [
 			'Ti',
+			'Ti/Accelerometer',
 			'Ti/API',
 			'Ti/App',
 			'Ti/App/Properties',
