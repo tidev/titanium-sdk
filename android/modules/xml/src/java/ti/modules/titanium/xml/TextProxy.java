@@ -7,6 +7,7 @@
 package ti.modules.titanium.xml;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiContext;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
@@ -15,6 +16,7 @@ import org.w3c.dom.Text;
 @Kroll.proxy(parentModule=XMLModule.class)
 public class TextProxy extends CharacterDataProxy
 {
+	private final static String TAG ="Text"; 
 
 	private Text text;
 	public TextProxy(Text text)
@@ -67,9 +69,28 @@ public class TextProxy extends CharacterDataProxy
 		}
 		return getProxy(returnNode);
 	}
-
+	
+	/**
+	 * Accessor
+	 * 
+	 * @return String
+	 * 
+	 * @deprecated
+	 */
 	@Kroll.getProperty @Kroll.method
 	public String getText()
+	{
+		Log.w(TAG, "The text property of Text is deprecated, use textContent instead.");
+		return getTextContent();
+	}
+	
+	/**
+	 * Accessor
+	 * 
+	 * @return String
+	 */
+	@Kroll.getProperty @Kroll.method
+	public String getTextContent()
 	{
 		return this.text.getNodeValue();
 	}

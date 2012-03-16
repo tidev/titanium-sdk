@@ -404,6 +404,8 @@ describe("Ti.XML tests", {
 		var getTextResults = null;
 		valueOf(function() { getTextResults = textNode.getText(); }).shouldNotThrowException();
 		valueOf(getTextResults).shouldBe(textValue);
+		valueOf(function() { getTextResults = textNode.getTextContent(); }).shouldNotThrowException();
+		valueOf(getTextResults).shouldBe(textValue);
 		valueOf(function() { getTextResults2 = textNode.text; }).shouldNotThrowException();
 		valueOf(getTextResults2).shouldBe(textValue);
 	},
