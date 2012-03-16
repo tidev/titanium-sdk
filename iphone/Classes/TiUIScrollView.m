@@ -90,7 +90,7 @@
 		}
 		case TiDimensionTypeAuto:
 		{
-			newContentSize.width = MAX(newContentSize.width,[(TiViewProxy *)[self proxy] autoWidthForSize:newContentSize]);
+			newContentSize.width = MAX(newContentSize.width,[(TiViewProxy *)[self proxy] autoWidthForSize:[self bounds].size]);
 			break;
 		}
 		default: {
@@ -107,7 +107,7 @@
 		}
 		case TiDimensionTypeAuto:
 		{
-			minimumContentHeight=[(TiViewProxy *)[self proxy] autoHeightForSize:newContentSize];
+			minimumContentHeight=[(TiViewProxy *)[self proxy] autoHeightForSize:[self bounds].size];
 			break;
 		}
 		default:
@@ -163,6 +163,11 @@
 -(void)setDisableBounce_:(id)value
 {
 	[[self scrollView] setBounces:![TiUtils boolValue:value]];
+}
+
+-(void)setScrollsToTop_:(id)value
+{
+	[[self scrollView] setScrollsToTop:[TiUtils boolValue:value]];
 }
 
 -(void)setHorizontalBounce_:(id)value

@@ -123,6 +123,11 @@ textarea {
 		#fff 0%,
 		#fff 50%,
 		#bbb);
+	background: -webkit-gradient(
+		linear, 
+		left top, 
+		left bottom, 
+		from(#fff), to(#bbb));
 }
 
 .TiUIElementGradient:hover {
@@ -146,6 +151,11 @@ textarea {
 		#fff 0%,
 		#fff 50%,
 		#999);
+	background: -webkit-gradient(
+		linear, 
+		left top, 
+		left bottom, 
+		from(#fff), to(#999));
 }
 
 .TiUIElementGradient:active {
@@ -169,6 +179,11 @@ textarea {
 		#bbb 0%,
 		#fff 50%,
 		#fff);
+	background: -webkit-gradient(
+		linear, 
+		left top, 
+		left bottom, 
+		from(#bbb), to(#fff));
 }
 
 .TiUIElementGradientDestructive {
