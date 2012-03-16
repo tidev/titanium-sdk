@@ -290,9 +290,14 @@ public class TiUIText extends TiUIView
 		if (DBG) {
 			Log.d(LCAT, "ActionID: " + actionId + " KeyEvent: " + (keyEvent != null ? keyEvent.getKeyCode() : null));
 		}
-		//This is to prevent 'return' event from being fired twice when return key is hit. In other words, when return key is clicked
-		//this callback is triggered twice: the first time with actionId = EditorInfo.IME_NULL, the 2nd time with the corresponding return key actionId.
-		if (actionId != EditorInfo.IME_NULL) {
+		
+		//This is to prevent 'return' event from being fired twice when return key is hit. In other words, when return key is clicked,
+		//this callback is triggered twice (except for keys that are mapped to EditorInfo.IME_ACTION_NEXT or EditorInfo.IME_ACTION_DONE). The first check is to deal with those keys - filter out
+		//one of the two callbacks, and the next checks deal with 'Next' and 'Done' callbacks, respectively.
+		//Refer to TiUIText.handleReturnKeyType(int) for a list of return keys that are mapped to EditorInfo.IME_ACTION_NEXT and EditorInfo.IME_ACTION_DONE.
+		if ((actionId == EditorInfo.IME_NULL && keyEvent != null) || 
+				actionId == EditorInfo.IME_ACTION_NEXT || 
+				actionId == EditorInfo.IME_ACTION_DONE ) {
 			proxy.fireEvent("return", data);
 		}
 
