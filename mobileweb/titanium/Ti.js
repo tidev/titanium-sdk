@@ -348,7 +348,7 @@ define(
 					};
 
 				makeLabel("Application Error", "15%", "#0f0", "24pt");
-				makeLabel(e.message.replace(/([^:]+:)/, "").trim() + (filename && filename !== "undefined" ? " at " + filename : "") + (line ? " (line " + line + ")" : ""), "45%", "#fff", "16pt");
+				makeLabel((e.message || "Unknown error").replace(/([^:]+:)/, "").trim() + (filename && filename !== "undefined" ? " at " + filename : "") + (line ? " (line " + line + ")" : ""), "45%", "#fff", "16pt");
 				win.add(view = UI.createView({ height: "12%" }));
 				view.add(button = UI.createButton({ title: "Dismiss" }));
 				win.addEventListener("close", function() { win.destroy(); });

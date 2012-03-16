@@ -1,28 +1,39 @@
 define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Map", "Ti/UI/View"], function(declare, lang, Properties, Map, View) {
 
+	function mapType(type) {
+		var t = google.maps.MapTypeId;
+		switch (type) {
+			case Map.HYBRID_TYPE: return t.HYBRID;
+			case Map.SATELLITE_TYPE: return t.SATELLITE;
+			case Map.TERRAIN_TYPE: return t.TERRAIN;
+		}
+		return t.ROADMAP;
+	};
+
 	var isDef = lang.isDef,
-		deferStart = Ti.deferStart(),
-		mapTypeMap,
 		MapView = declare("Ti.Map.View", View, {
 
 			constructor: function() {
 				this.properties.annotations = [];
 				this._routes = [];
-				this.region = {
-					longitude: 0,
-					latitude: 0,
+				this.properties.__values__.region = {
+					longitude: -98.5795,
+					latitude: 39.828175,
 					longitudeDelta: 0,
 					latitudeDelta: 0
 				};
 			},
 
 			postscript: function() {
-				var m = google.maps;
-				this._map = new m.Map(this.domNode, {
-					zoom: 2,
-					center: new m.LatLng(this.region.latitude, this.region.longitude),
-					mapTypeId: this.mapType === Map.HYBRID_TYPE ? m.MapTypeId.ROADMAP
-				});
+				var m = google.maps,
+					opts = {
+						zoom: 2,
+						disableDefaultUI: true,
+						zoomControl: true,
+						center: new m.LatLng(this.region.latitude, this.region.longitude),
+						mapTypeId: mapType(this.mapType)
+					};
+				this._map = new m.Map(this.domNode, opts);
 			},
 
 			addAnnotation: function(/*Object|Ti.Map.Annotation*/annotation) {
@@ -137,24 +148,24 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Map", "Ti/UI/View"
 						return value.filter(function(a) { return a && a.declaredClass === "Ti.Map.Annotation"; });
 					}
 				},
-				mapType: Map.STANDARD_TYPE,
-				region: null,
+				mapType: {
+					set: function(value) {
+						this._map && this._map.setMapTypeId(mapType(value));
+						return value;
+					}
+				},
+				region: {
+					set: function(value, oldValue) {
+						return require.mix(oldValue, value);
+					}
+				},
 				regionFit: true,
 				userLocation: false
 			}
 
 		});
 
-	window.TiMapViewInit = function() {
-		var m = google.maps;
-		mapTypeMap = {
-			HYBRID_TYPE: m.MapTypeId.HYBRID,
-			SATELLITE_TYPE: m.MapTypeId.SATELLITE,
-			STANDARD_TYPE: m.MapTypeId.ROADMAP,
-			TERRAIN_TYPE: m.MapTypeId.TERRAIN
-		};
-		deferStart();
-	};
+	window.TiMapViewInit = Ti.deferStart();
 
 	require(["http://maps.googleapis.com/maps/api/js?key=" + Properties.getString("ti.map.apikey", "") + "&sensor=false&callback=TiMapViewInit"]);
 
