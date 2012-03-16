@@ -190,15 +190,17 @@ public class TiCompositeLayout extends ViewGroup
 	@Override
 	protected LayoutParams generateDefaultLayoutParams()
 	{
-		// Default is fill view
+		// Default behavior is size since optionWidth/optionHeight is null, and autoFillsWidth/autoFillsHeight is false.
+		// Some classes such as ViewProxy will set autoFillsWidth/autoFillsHeight to true in order to trigger the fill
+		// behavior by default.
 		LayoutParams params = new LayoutParams();
 		params.optionLeft = null;
 		params.optionRight = null;
 		params.optionTop = null;
 		params.optionBottom = null;
 		params.optionZIndex = NOT_SET;
-		params.autoHeight = true;
-		params.autoWidth = true;
+		params.sizeOrFillHeightEnabled = true;
+		params.sizeOrFillWidthEnabled = true;
 
 		return params;
 	}
@@ -308,6 +310,7 @@ public class TiCompositeLayout extends ViewGroup
 	protected void constrainChild(View child, int width, int wMode, int height, int hMode)
 	{
 		LayoutParams p = (LayoutParams) child.getLayoutParams();
+		// If autoFillsWidth is false, and optionWidth is null, then we use size behavior.
 		int childDimension = LayoutParams.WRAP_CONTENT;
 		if (p.optionWidth != null) {
 			if (p.optionWidth.isUnitPercent() && width > 0) {
@@ -316,7 +319,7 @@ public class TiCompositeLayout extends ViewGroup
 				childDimension = p.optionWidth.getAsPixels(this);
 			}
 		} else {
-			if (p.autoFillsWidth && !isHorizontalArrangement()) {
+			if (p.autoFillsWidth) {
 				childDimension = LayoutParams.FILL_PARENT;
 			}
 		}
@@ -324,6 +327,7 @@ public class TiCompositeLayout extends ViewGroup
 		int widthPadding = getViewWidthPadding(child, width);
 		int widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(width, wMode), widthPadding,
 			childDimension);
+		// If autoFillsHeight is false, and optionHeight is null, then we use size behavior.
 		childDimension = LayoutParams.WRAP_CONTENT;
 		if (p.optionHeight != null) {
 			if (p.optionHeight.isUnitPercent() && height > 0) {
@@ -332,7 +336,7 @@ public class TiCompositeLayout extends ViewGroup
 				childDimension = p.optionHeight.getAsPixels(this);
 			}
 		} else {
-			if (p.autoFillsHeight && !isVerticalArrangement()) {
+			if (p.autoFillsHeight) {
 				childDimension = LayoutParams.FILL_PARENT;
 			}
 		}
@@ -347,11 +351,14 @@ public class TiCompositeLayout extends ViewGroup
 		// int childHeight = child.getMeasuredHeight();
 	}
 
-	private int getUndefinedWidth(LayoutParams params, int parentLeft, int parentRight, int parentWidth)
+	// Try to calculate width from pins, if we couldn't calculate from pins or we don't need to, then return the
+	// measured width
+	private int calculateWidthFromPins(LayoutParams params, int parentLeft, int parentRight, int parentWidth,
+		int measuredWidth)
 	{
-		int width = -1;
+		int width = measuredWidth;
 
-		if (params.optionWidth != null || params.autoWidth) {
+		if (params.optionWidth != null || params.sizeOrFillWidthEnabled) {
 			return width;
 		}
 
@@ -371,12 +378,15 @@ public class TiCompositeLayout extends ViewGroup
 		return width;
 	}
 
-	private int getUndefinedHeight(LayoutParams params, int parentTop, int parentBottom, int parentHeight)
+	// Try to calculate height from pins, if we couldn't calculate from pins or we don't need to, then return the
+	// measured height
+	private int calculateHeightFromPins(LayoutParams params, int parentTop, int parentBottom, int parentHeight,
+		int measuredHeight)
 	{
-		int height = -1;
+		int height = measuredHeight;
 
 		// Return if we don't need undefined behavior
-		if (params.optionHeight != null || params.autoHeight) {
+		if (params.optionHeight != null || params.sizeOrFillHeightEnabled) {
 			return height;
 		}
 
@@ -451,18 +461,11 @@ public class TiCompositeLayout extends ViewGroup
 				(TiCompositeLayout.LayoutParams) child.getLayoutParams();
 			if (child.getVisibility() != View.GONE) {
 				// Dimension is required from Measure. Positioning is determined here.
-				
-				// Try using undefined behavior first
-				int childMeasuredHeight = getUndefinedHeight(params, top, bottom, getHeight());
-				int childMeasuredWidth = getUndefinedWidth(params, left, right, getWidth());
 
-				if (childMeasuredWidth == -1) {
-					childMeasuredWidth = child.getMeasuredWidth();
-				}
-
-				if (childMeasuredHeight == -1) {
-					childMeasuredHeight = child.getMeasuredHeight();
-				}
+				// Try to calculate width/height from pins, and default to measured width/height. We have to do this in
+				// onLayout since we can't get the correct top, bottom, left, and right values inside constrainChild().
+				int childMeasuredHeight = calculateHeightFromPins(params, top, bottom, getHeight(), child.getMeasuredHeight());
+				int childMeasuredWidth = calculateWidthFromPins(params, left, right, getWidth(), child.getMeasuredWidth());
 
 				if (isHorizontalArrangement()) {
 					if (i == 0)  {
@@ -486,8 +489,8 @@ public class TiCompositeLayout extends ViewGroup
 
 				int newWidth = horizontal[1] - horizontal[0];
 				int newHeight = vertical[1] - vertical[0];
-				// If the old child measurements do not match the new measurements that we calculated, 
-				// then update the child measurements accordingly
+				// If the old child measurements do not match the new measurements that we calculated, then update the
+				// child measurements accordingly
 				if (newWidth != child.getMeasuredWidth()
 					|| newHeight != child.getMeasuredHeight()) {
 					int newWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY);
@@ -552,8 +555,8 @@ public class TiCompositeLayout extends ViewGroup
 		if (optionTop != null) {
 			top += optionTop.getAsPixels(this);
 		}
-		//cap the bottom to make sure views don't go off-screen when user supplies a height value that is >= screen height and this view is
-		//below another view in vertical layout.
+		// cap the bottom to make sure views don't go off-screen when user supplies a height value that is >= screen
+		// height and this view is below another view in vertical layout.
 		int bottom = Math.min(top + measuredHeight, maxBottom);
 		pos[0] = top;
 		pos[1] = bottom;
@@ -610,22 +613,30 @@ public class TiCompositeLayout extends ViewGroup
 		public TiDimension optionHeight = null;
 		public Ti2DMatrix optionTransform = null;
 
-		public boolean autoHeight = true;
-		public boolean autoWidth = true;
+		// This are flags to determine whether we are using fill or size behavior
+		public boolean sizeOrFillHeightEnabled = true;
+		public boolean sizeOrFillWidthEnabled = true;
 
 		/**
-		 * If this is true, and {@link #autoWidth} is true, then the current view will fill available parent width.
+		 * If this is true, and {@link #sizeOrFillWidthEnabled} is true, then the current view will follow the fill
+		 * behavior, which fills available parent width. If this value is false and {@link #sizeOrFillWidthEnabled} is
+		 * true, then we use the size behavior, which constrains the view width to fit the width of its contents.
+		 * 
 		 * @module.api
 		 */
 		public boolean autoFillsWidth = false;
 
 		/**
-		 * If this is true, and {@link #autoHeight} is true, then the current view will fill available parent height.
+		 * If this is true, and {@link #sizeOrFillHeightEnabled} is true, then the current view will follow fill
+		 * behavior, which fills available parent height. If this value is false and {@link #sizeOrFillHeightEnabled} is
+		 * true, then we use the size behavior, which constrains the view height to fit the height of its contents.
+		 * 
 		 * @module.api
 		 */
 		public boolean autoFillsHeight = false;
 
-		public LayoutParams() {
+		public LayoutParams()
+		{
 			super(WRAP_CONTENT, WRAP_CONTENT);
 
 			index = Integer.MIN_VALUE;

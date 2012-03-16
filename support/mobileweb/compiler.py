@@ -598,6 +598,7 @@ class Compiler(object):
 			'Ti/UI/View',
 			'Ti/Media/VideoPlayer',
 			'Ti/UI',
+			'Ti/UI/MobileWeb',
 			'Ti/UI/TableViewRow',
 			'Ti/UI/Tab',
 			'Ti/UI/TabGroup',
@@ -624,6 +625,7 @@ class Compiler(object):
 			'Ti/UI/TextArea',
 			'Ti/UI/TextField',
 			'Ti/UI/WebView',
+			'Ti/UI/MobileWeb/NavigationGroup',
 			'Ti/Utils'
 		]
 	
