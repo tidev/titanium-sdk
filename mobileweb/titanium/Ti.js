@@ -301,22 +301,23 @@ define(
 			// enroll event
 			if (localStorage.getItem("mobileweb_enrollSent") === null) {
 				// setup enroll event
-				analytics.add('ti.enroll', 'ti.enroll', {
+				analytics.add("ti.enroll", "ti.enroll", {
+					app_name: App.name,
+					oscpu: 1,
+					osarch: Platform.architecture,
 					mac_addr: null,
-					oscpu: null,
-					app_name: cfg.appName,
-					platform: Ti.Platform.name,
-					app_id: cfg.appId,
-					ostype: Ti.Platform.osname,
-					osarch: Ti.Platform.architecture,
-					model: Ti.Platform.model,
-					deploytype: cfg.deployType
+					deploytype: cfg.deployType,
+					ostype: Platform.osname,
+					osarch: null,
+					app_id: App.id,
+					platform: Platform.name,
+					model: Platform.model
 				});
 				localStorage.setItem("mobileweb_enrollSent", true)
 			}
 
 			// app start event
-			analytics.add('ti.start', 'ti.start', {
+			analytics.add("ti.start", "ti.start", {
 				tz: (new Date()).getTimezoneOffset(),
 				deploytype: cfg.deployType,
 				os: Platform.osname,

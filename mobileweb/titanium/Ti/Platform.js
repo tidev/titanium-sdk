@@ -1,8 +1,9 @@
 define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale"],
 	function(_, browser, Evented, lang, Locale) {
 		
-	var midName = "ti_mid",
-		matches = document.cookie.match(new RegExp("(?:^|; )" + midName + "=([^;]*)")),
+	var doc = document,
+		midName = "ti:mid",
+		matches = doc.cookie.match(new RegExp("(?:^|; )" + midName + "=([^;]*)")),
 		mid = matches ? decodeURIComponent(matches[1]) : undefined,
 		unloaded,
 		on = require.on;
@@ -67,8 +68,8 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale"],
 				id: mid,
 				locale: Locale,
 				macaddress: undef,
-				model: undef,
-				name: nav.userAgent,
+				model: nav.userAgent,
+				name: "mobileweb",
 				netmask: undef,
 				osname: "mobileweb",
 				ostype: nav.platform,
