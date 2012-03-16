@@ -106,14 +106,14 @@ define(
 				value: UI.RETURNKEY_DEFAULT,
 				set: function(value) {
 					var title = "",
-						dest = this.domNode;
+						dest = this.domNode,
+						disp = "none";
 					if (value !== UI.RETURNKEY_DEFAULT) {
 						dest = this._form;
-						setStyle(this._form,"display","inherit");
+						disp = "inherit";
 						~[4,8,10].indexOf(value) && (title = "Search");
-					} else {
-						setStyle(this._form,"display","none");
 					}
+					setStyle(this._form,"display",disp);
 					this._field.title = title;
 					dom.place(this._field, dest);
 					return value;
