@@ -121,9 +121,8 @@ methods:
     summary: Displays a picker that allows a person to be selected.
     parameters:
       - name: params
-        summary: Argument containing parameters for this method.
+        summary: Argument containing parameters for this method. Optional on Android.
         type: showContactsParams
-        optional: true
 
 properties:
   - name: CONTACTS_KIND_ORGANIZATION
@@ -303,14 +302,17 @@ properties:
 - name: cancel
   summary: Function to call when selection is canceled.
   type: Callback<Object>
+  optional: true
   
 - name: selectedPerson
   summary: |
       Function to call when a person is selected. Must not be used with `selectedProperty` property.
   type: Callback<Object>
+  optional: true
   
 - name: selectedProperty
   summary: |
       Function to call when a property is selected. Must not be used with `selectedPerson` 
       property.
   type: Callback<Object>
+  optional: true

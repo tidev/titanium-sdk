@@ -113,6 +113,11 @@ properties:
     type: String
     permission: read-only
     
+  - name: id
+    summary: Record identifier of the person. Single value.
+    type: Number
+    platforms: [android]
+    
   - name: image
     summary: Image for the person. Single value.
     description: Set to `null` to remove the image. 
@@ -183,7 +188,7 @@ properties:
   - name: note
     summary: Notes for the person. Single value.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     
   - name: organization
     summary: Organization to which the person belongs. Single value.
