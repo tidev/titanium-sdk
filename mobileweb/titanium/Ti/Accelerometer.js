@@ -2,9 +2,9 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 	
 	var undef,
 		lastShake = (new Date()).getTime(),
-		lastAccel = {};
-		api = lang.setObject("Ti.Accelerometer", Evented, {}),
-		threshold = 0.2;
+		lastAccel = {},
+		threshold = 0.2,
+		api = lang.setObject("Ti.Accelerometer", Evented);
 	
 	require.on(window, "devicemotion", function(evt) {
 		var e = evt.acceleration || evt.accelerationIncludingGravity,
@@ -29,5 +29,7 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 			lastAccel = accel;
 		}
 	});
+	
+	return api;
 	
 });
