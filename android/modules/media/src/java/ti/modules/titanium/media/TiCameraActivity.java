@@ -31,6 +31,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	private SurfaceView preview;
 	private FrameLayout previewLayout;
 
+	public static boolean autohide = true;
 	public static TiViewProxy overlayProxy = null;
 	public static TiCameraActivity cameraActivity = null;
 
@@ -137,9 +138,10 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				outputStream = new FileOutputStream(cameraActivity.storageUri.getPath());
 				outputStream.write(data);
 				outputStream.close();
-
-				cameraActivity.setResult(Activity.RESULT_OK);
-				cameraActivity.finish();
+				if(autohide){
+					cameraActivity.setResult(Activity.RESULT_OK);
+					cameraActivity.finish();
+				}
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
