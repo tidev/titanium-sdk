@@ -1,5 +1,27 @@
 define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale"],
 	function(_, browser, Evented, lang, Locale) {
+		
+	var midName = "ti_mid",
+		matches = document.cookie.match(new RegExp("(?:^|; )" + midName + "=([^;]*)")),
+		mid = matches ? decodeURIComponent(matches[1]) : undefined,
+		unloaded,
+		on = require.on;
+
+	mid || (mid = localStorage.getItem(midName));
+	mid || localStorage.setItem(midName, mid = _.uuid());
+
+	function saveMid() {
+		if (!unloaded) {
+			unloaded = 1;
+			var d = new Date();
+			d.setTime(d.getTime() + 63072e7); // forever in mobile terms
+			doc.cookie = midName + "=" + encodeURIComponent(mid) + "; expires=" + d.toUTCString();
+			localStorage.setItem(midName, mid);
+		}
+	}
+ 
+	on(window, "beforeunload", saveMid);
+	on(window, "unload", saveMid);
 
 	var undef,
 		nav = navigator,
@@ -42,6 +64,7 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale"],
 					return this.batteryMonitoring && battery && battery.charging ? this.BATTERY_STATE_CHARGING : this.BATTERY_STATE_UNKNOWN;
 				},
 				isBrowser: true,
+				id: mid,
 				locale: Locale,
 				macaddress: undef,
 				model: undef,
