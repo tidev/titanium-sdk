@@ -13,10 +13,6 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI/Button", "Ti/Facebook", "Ti/_/lan
 			imagePrefix + "loginWidePressed.png", // Login wide pressed
 			imagePrefix + "logoutPressed.png" // Logout "wide" pressed (really just normal)
 		];
-		loginImage = imagePrefix + "login.png",
-		loginPressedImage = 
-		logoutImage = imagePrefix + "logoutImage.png",
-		logoutPressedImage = imagePrefix + "logoutPressedImage.png";
 	
 	return declare("Ti.Facebook.LoginButton", Button, {
 		
@@ -34,8 +30,8 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI/Button", "Ti/Facebook", "Ti/_/lan
 					Facebook.authorize();
 				}
 			});
-			Facebook.addEventListener("login", lang.hitch(this,this._updateImages));
-			Facebook.addEventListener("logout", lang.hitch(this,this._updateImages));
+			Facebook.addEventListener("login", lang.hitch(this,"_updateImages"));
+			Facebook.addEventListener("logout", lang.hitch(this,"_updateImages"));
 		},
 		
 		_updateImages: function() {
