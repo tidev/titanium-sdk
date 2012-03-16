@@ -67,7 +67,7 @@ methods:
       - name: replacer    
         summary: |
             Determines how object values are stringified for objects. See main text for usage.
-        type: [Function, Array<String>]
+        type: [Callback, Array<String>]
         optional: true
     
       - name: space       
@@ -113,7 +113,7 @@ methods:
         
       - name: reviver
         summary: Function to filter and transform the results. 
-        type: Function
+        type: Callback
         
     returns:
         type: Object
