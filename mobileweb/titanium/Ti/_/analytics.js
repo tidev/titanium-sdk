@@ -1,16 +1,17 @@
 define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 
 	var global = window,
-		sessionId = "sessionStorage" in global && sessionStorage.getItem("mobileweb_sessionId"),
+		sessionId = sessionStorage.getItem("ti:sessionId"),
 		midName = "ti_mid",
 		doc = document,
 		matches = doc.cookie.match(new RegExp("(?:^|; )" + midName + "=([^;]*)")),
 		mid = matches ? decodeURIComponent(matches[1]) : undefined,
 		cfg = require.config,
-		analyticsEnabled = cfg.analytics,
+		analyticsEnabled = cfg.app.analytics,
 		analyticsStorageName = "ti:analyticsEvents",
 		analyticsEventSeq = 1,
-		analyticsLastSent = null;
+		analyticsLastSent = null,
+		analyticsUrl = "https://api.appcelerator.net/p/v2/mobile-web-track";
 
 	mid || (mid = localStorage.getItem(midName));
 	mid || localStorage.setItem(midName, mid = _.uuid());
@@ -23,7 +24,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 		localStorage.setItem(midName, mid);
 	});
 
-	sessionId || sessionStorage.setItem("mobileweb_sessionId", sessionId = _.uuid());
+	sessionId || sessionStorage.setItem("ti:sessionId", sessionId = _.uuid());
 
 	return _.analytics = {
 
@@ -34,9 +35,6 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 					now = new Date(),
 					tz = now.getTimezoneOffset(),
 					atz = Math.abs(tz),
-					m = now.getMonth() + 1,
-					d = now.getDate(),
-					ts = now.getFullYear() + "-" + (m < 10 ? "0" + m : m) + "-" + (d < 10 ? "0" + d : d) + "T" + now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds() + "." + now.getMilliseconds() + (tz < 0 ? "-" : "+") + (atz < 100 ? "00" : (atz < 1000 ? "0" : "")) + atz,
 					formatZeros = function(v, n){
 						var d = (v+'').length;
 						return (d < n ? (new Array(++n - d)).join("0") : "") + v;
@@ -47,7 +45,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 					eventId: _.uuid(),
 					eventType: eventType,
 					eventEvent: eventEvent,
-					eventTimestamp: ts,
+					eventTimestamp: now.toISOString().replace('Z', (tz < 0 ? '-' : '+') + (atz < 100 ? "00" : (atz < 1000 ? "0" : "")) + atz),
 					eventPayload: data
 				});
 				localStorage.setItem(analyticsStorageName, JSON.stringify(storage));
@@ -120,7 +118,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 							} catch (e) {}
 						}
 					};
-					xhr.open("POST", "https://api.appcelerator.net/p/v2/mobileweb-track", true);
+					xhr.open("POST", analyticsUrl, true);
 					xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 					xhr.send(lang.urlEncode({ content: jsonStrs }));
 				} else {
@@ -136,7 +134,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 							}
 						}, body),
 						form = dom.create("form", {
-							action: "https://api.appcelerator.net/p/v2/mobileweb-track?callback=" + callback,
+							action: analyticsUrl + "?callback=" + callback,
 							method: "POST",
 							style: {
 								display: "none"

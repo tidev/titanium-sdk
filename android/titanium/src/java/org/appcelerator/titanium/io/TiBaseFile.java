@@ -23,6 +23,9 @@ import java.util.List;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 
+/**
+ * This is the parent class of all files/directories.
+ */
 public abstract class TiBaseFile
 {
 	private static final String LCAT = "TiBaseFile";
@@ -72,30 +75,58 @@ public abstract class TiBaseFile
 		this.binary = false;
 	}
 
+	/**
+	 * @return true if the file is a File, false otherwise. See {@link java.io.File#isFile()} for more details.
+	 * @module.api
+	 */
 	public boolean isFile() {
 		return typeFile;
 	}
 
+	/**
+	 * @return true if the file is a directory, false otherwise. See {@link java.io.File#isDirectory()} for more details.
+	 * @module.api
+	 */
 	public boolean isDirectory() {
 		return typeDir;
 	}
 
+	/**
+	 * @return  true if the file is executable, false otherwise.
+	 * @module.api
+	 */
 	public boolean isExecutable() {
 		return modeExecutable;
 	}
 
+	/**
+	 * @return  true if the file is read-only, false otherwise.
+	 * @module.api
+	 */
 	public boolean isReadonly() {
 		return modeRead && !modeWrite;
 	}
-
+	
+	/**
+	 * @return  true if the file is writable, false otherwise.
+	 * @module.api
+	 */
 	public boolean isWriteable() {
 		return modeWrite;
 	}
 
+	/**
+	 * @return true if the file is hidden, false otherwise.
+	 * @module.api
+	 */
 	public boolean isHidden() {
 		return flagHidden;
 	}
 
+	/**
+	 * @return true if the file is a symbolic link, false otherwise.
+	 * @module.api
+	 */
 	public boolean isSymbolicLink() {
 		return flagSymbolicLink;
 	}
@@ -180,6 +211,10 @@ public abstract class TiBaseFile
 		return false;
 	}
 
+	/**
+	 * @return Whether or not this file exists.
+	 * @module.api
+	 */
 	public boolean exists() {
 		logNotSupported("exists");
 		return false;
@@ -190,11 +225,19 @@ public abstract class TiBaseFile
 		return null;
 	}
 
+	/**
+	 * @return a list of all files and directories in this directory.
+	 * @module.api
+	 */
 	public List<String> getDirectoryListing() {
 		logNotSupported("getDirectoryListing");
 		return null;
 	}
 
+	/**
+	 * @return The parent directory of this file
+	 * @module.api
+	 */
 	public TiBaseFile getParent() {
 		logNotSupported("getParent");
 		return null;
@@ -237,11 +280,19 @@ public abstract class TiBaseFile
 		return moved;
 	}
 
+	/**
+	 * @return the file's name.
+	 * @module.api
+	 */
 	public String name() {
 		logNotSupported("name");
 		return null;
 	}
 
+	/**
+	 * @return the file's path.
+	 * @module.api
+	 */
 	public String nativePath() {
 		logNotSupported("nativePath");
 		return null;
@@ -405,7 +456,27 @@ public abstract class TiBaseFile
 		return outstream;
 	}
 
+	/**
+	 * Implementing subclasses should return an InputStream that can be used to retrieve
+	 * the contents of the file.
+	 * @return  the InputStream of the file.
+	 * @throws IOException the thrown exception.
+	 * @module.api
+	 */
 	public abstract InputStream getInputStream() throws IOException;
+	
+	/**
+	 * Implementing subclasses should return an OutputStream for writing to the file.
+	 * @return  the OutputStream of the file.
+	 * @throws IOException the thrown exception.
+	 * @module.api
+	 */
 	public abstract OutputStream getOutputStream() throws IOException;
+	
+	/**
+	 * Implementing subclasses should return the file object.
+	 * @return  the file object.
+	 * @module.api
+	 */
 	public abstract File getNativeFile();
 }

@@ -32,6 +32,7 @@
 		((UITextView *)textWidgetView).delegate = self;
 		[self addSubview:textWidgetView];
 		[(UITextView *)textWidgetView setContentInset:UIEdgeInsetsZero];
+		self.clipsToBounds = YES;
 		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 	}
 	return textWidgetView;
@@ -149,6 +150,43 @@
 	[(TiUITextAreaProxy *)self.proxy noteValueChange:curText];
 	return TRUE;
 }
+
+-(CGFloat)contentWidthForWidth:(CGFloat)value
+{
+    if (![self hasText]) {
+        return 0.0;
+    }
+    UITextView* ourView = (UITextView*)[self textWidgetView];
+    NSString* txt = ourView.text;
+    //sizeThatFits does not seem to work properly.
+    //Adding a constant 10 for now since the value returned is too small
+    return [txt sizeWithFont:ourView.font forWidth:value lineBreakMode:UILineBreakModeWordWrap].width+10;
+}
+
+-(CGFloat)contentHeightForWidth:(CGFloat)value
+{
+    if (![self hasText]) {
+        return 0.0;
+    }
+    UITextView* ourView = (UITextView*)[self textWidgetView];
+    NSString* txt = ourView.text;
+    //sizeThatFits does not seem to work properly
+    return [txt sizeWithFont:ourView.font forWidth:value lineBreakMode:UILineBreakModeWordWrap].height;
+}
+
+- (void)scrollViewDidScroll:(id)scrollView
+{
+    //Ensure that system messages that cause the scrollView to 
+    //scroll are ignored if scrollable is set to false
+    UITextView* ourView = (UITextView*)[self textWidgetView];
+    if (![ourView isScrollEnabled]) {
+        CGPoint origin = [scrollView contentOffset]; 
+        if ( (origin.x != 0) || (origin.y != 0) ) {
+            [scrollView setContentOffset:CGPointZero animated:NO];
+        }
+    }
+}
+
 
 @end
 

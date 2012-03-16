@@ -551,6 +551,7 @@ def main(args):
 		print
 		print "  install       install the app to itunes for testing on iphone"
 		print "  simulator     build and run on the iphone simulator"
+		print "  adhoc         build for adhoc distribution"
 		print "  distribute    build final distribution bundle"
 		print "  xcode         build from within xcode"
 		print "  run           build and run app from project folder"
@@ -706,7 +707,7 @@ def main(args):
 					debugport = None
 				else:
 					debughost,debugport = debughost.split(":")
-		elif command == 'install':
+		elif command in ['install', 'adhoc']:
 			iphone_version = check_iphone_sdk(iphone_version)
 			link_version = iphone_version
 			appuuid = dequote(args[6].decode("utf-8"))
@@ -721,8 +722,12 @@ def main(args):
 					debugport=None
 				else:
 					debughost,debugport = debughost.split(":")
-			target = 'Debug'
-			deploytype = 'test'
+			if command == 'install':
+				target = 'Debug'
+				deploytype = 'test'
+			elif command == 'adhoc':
+				target = 'Release'
+				deploytype = 'production'
 		
 		# setup up the useful directories we need in the script
 		build_out_dir = os.path.abspath(os.path.join(iphone_dir,'build'))
@@ -789,10 +794,14 @@ def main(args):
 			detector = ModuleDetector(project_dir)
 			missing_modules, modules = detector.find_app_modules(ti, 'iphone')
 			module_lib_search_path, module_asset_dirs = locate_modules(modules, project_dir, app_dir, log)
+			common_js_modules = []
 
 			# search for modules that the project is using
 			# and make sure we add them to the compile
 			for module in modules:
+				if module.js:
+					common_js_modules.append(module)
+					continue
 				module_id = module.manifest.moduleid.lower()
 				module_version = module.manifest.version
 				module_lib_name = ('lib%s.a' % module_id).lower()
@@ -1122,7 +1131,15 @@ def main(args):
 				if len(module_asset_dirs)>0:
 					for e in module_asset_dirs:
 						copy_module_resources(e[0],e[1],True)
-				
+
+				# copy CommonJS modules
+				for module in common_js_modules:
+					#module_id = module.manifest.moduleid.lower()
+					#module_dir = os.path.join(app_dir, 'modules', module_id)
+					#if os.path.exists(module_dir) is False:
+					#	os.makedirs(module_dir)
+					shutil.copy(module.js, app_dir)
+
 				# copy any custom fonts in (only runs in simulator)
 				# since we need to make them live in the bundle in simulator
 				if len(custom_fonts)>0:
@@ -1419,13 +1436,12 @@ def main(args):
 					
 				###########################################################################	
 				# END OF SIMULATOR COMMAND	
-				###########################################################################	
-				
+				###########################################################################			
 				
 				#
-				# this command is run for installing an app on device
+				# this command is run for installing an app on device or packaging for adhoc distribution
 				#
-				elif command == 'install':
+				elif command in ['install', 'adhoc']:
 
 					debugstr = ''
 					if debughost:
@@ -1433,14 +1449,20 @@ def main(args):
 						
 					args += [
 						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=test TI_TEST=1 %s %s" % (debugstr, kroll_coverage),
-						"PROVISIONING_PROFILE=%s" % appuuid,
-						"CODE_SIGN_IDENTITY=iPhone Developer: %s" % dist_name,
-						"DEPLOYMENT_POSTPROCESSING=YES"
+						"PROVISIONING_PROFILE=%s" % appuuid
 					]
-					execute_xcode("iphoneos%s" % iphone_version,args,False)
 
-					print "[INFO] Installing application in iTunes ... one moment"
-					sys.stdout.flush()
+					if command == 'install':
+						args += ["CODE_SIGN_IDENTITY=iPhone Developer: %s" % dist_name]
+					elif command == 'adhoc':
+						args += ["CODE_SIGN_IDENTITY=iPhone Distribution: %s" % dist_name]
+					args += ["DEPLOYMENT_POSTPROCESSING=YES"]
+
+					execute_xcode("iphoneos%s" % iphone_version,args,False)
+					
+					if command == 'install':
+						print "[INFO] Installing application in iTunes ... one moment"
+						sys.stdout.flush()
 
 					if os.path.exists("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication"):
 						o.write("+ Preparing to run /Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication\n")
@@ -1460,32 +1482,34 @@ def main(args):
 						o.write("+ IPA didn't exist at %s\n" % ipa)
 						o.write("+ Will try and open %s\n" % app_dir)
 						ipa = app_dir
+					
+					if command == 'install':
+						# to force iTunes to install our app, we simply open the IPA
+						# file in itunes
+						cmd = "open -b com.apple.itunes \"%s\"" % ipa
+						o.write("+ Executing the command: %s\n" % cmd)
+						os.system(cmd)
+						o.write("+ After executing the command: %s\n" % cmd)
 
-					# to force iTunes to install our app, we simply open the IPA
-					# file in itunes
-					cmd = "open -b com.apple.itunes \"%s\"" % ipa
-					o.write("+ Executing the command: %s\n" % cmd)
-					os.system(cmd)
-					o.write("+ After executing the command: %s\n" % cmd)
+						# now run our applescript to tell itunes to sync to get
+						# the application on the phone
+						ass = os.path.join(template_dir,'itunes_sync.scpt')
+						cmd = "osascript \"%s\"" % ass
+						o.write("+ Executing the command: %s\n" % cmd)
+						os.system(cmd)
+						o.write("+ After executing the command: %s\n" % cmd)
 
-					# now run our applescript to tell itunes to sync to get
-					# the application on the phone
-					ass = os.path.join(template_dir,'itunes_sync.scpt')
-					cmd = "osascript \"%s\"" % ass
-					o.write("+ Executing the command: %s\n" % cmd)
-					os.system(cmd)
-					o.write("+ After executing the command: %s\n" % cmd)
+						print "[INFO] iTunes sync initiated"
 
-					print "[INFO] iTunes sync initiated"
-
-					o.write("Finishing build\n")
+						o.write("Finishing build\n")
+					
 					sys.stdout.flush()
 					script_ok = True
 					
 					run_postbuild()
 					
 				###########################################################################	
-				# END OF INSTALL COMMAND	
+				# END OF INSTALL/ADHOC COMMAND	
 				###########################################################################	
 
 				#

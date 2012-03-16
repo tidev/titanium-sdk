@@ -1,4 +1,5 @@
-define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style"], function(declare, FontWidget, dom, style) {
+define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style", "Ti/Locale", "Ti/UI"],
+	function(declare, FontWidget, dom, style, Locale, UI) {
 
 	var setStyle = style.set;
 
@@ -84,15 +85,16 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style"], functio
 			setStyle(this._contentContainer,"display","none");
 		},
 		
-		_defaultWidth: "auto",
-		_defaultHeight: "auto",
+		_defaultWidth: UI.SIZE,
+		
+		_defaultHeight: UI.SIZE,
 		
 		_messagePadding: 0,
 		
 		_getContentSize: function(width, height) {
 			return {
-				width: width === "auto" ? 36 + this._measureText(this.message, this._indicatorMessage).width + this._messagePadding : width,
-				height: height === "auto" ? Math.max(this._measureText(this.message, this._indicatorMessage).height,36) : height
+				width: 36 + this._measureText(this.message, this._indicatorMessage).width + this._messagePadding,
+				height: Math.max(this._measureText(this.message, this._indicatorMessage).height,36)
 			};
 		},
 		
@@ -107,19 +109,14 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style"], functio
 					}
 					setStyle(this._indicatorMessage,"paddingLeft", dom.unitize(this._messagePadding));
 					this._indicatorMessage.innerHTML = innerHTML;
-					this._hasAutoDimensions() && this._triggerParentLayout();
+					this._hasSizeDimensions() && this._triggerLayout();
 					return value;
 				}
 			},
 			
 			messageid: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.ActivityIndicator#.messageid" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.ActivityIndicator#.messageid" is not implemented yet.');
+					this.message = Locale.getString(value);
 					return value;
 				}
 			}

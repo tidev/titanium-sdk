@@ -191,7 +191,13 @@ public class TiTableView extends FrameLayout
 				}
 			}
 			if (v == null) {
-				if (item.className.equals(TableViewProxy.CLASSNAME_HEADER)) {
+				if (item.className.equals(TableViewProxy.CLASSNAME_HEADERVIEW)) {
+					TiViewProxy vproxy = item.proxy;
+					View headerView = layoutHeaderOrFooter(vproxy);
+					v = new TiTableViewHeaderItem(proxy.getActivity(), headerView);
+					v.setClassName(TableViewProxy.CLASSNAME_HEADERVIEW);
+					return v;
+				} else if (item.className.equals(TableViewProxy.CLASSNAME_HEADER)) {
 					v = new TiTableViewHeaderItem(proxy.getActivity());
 					v.setClassName(TableViewProxy.CLASSNAME_HEADER);
 				} else if (item.className.equals(TableViewProxy.CLASSNAME_NORMAL)) {
@@ -405,18 +411,18 @@ public class TiTableView extends FrameLayout
 
 		int width = AbsListView.LayoutParams.WRAP_CONTENT;
 		int height = AbsListView.LayoutParams.WRAP_CONTENT;
-		if (params.autoHeight) {
+		if (params.sizeOrFillHeightEnabled) {
 			if (params.autoFillsHeight) {
 				height = AbsListView.LayoutParams.FILL_PARENT;
 			}
-		} else {
+		} else if (params.optionHeight != null) {
 			height = params.optionHeight.getAsPixels(listView);
 		}
-		if (params.autoWidth) {
+		if (params.sizeOrFillWidthEnabled) {
 			if (params.autoFillsWidth) {
 				width = AbsListView.LayoutParams.FILL_PARENT;
 			}
-		} else {
+		} else if (params.optionWidth != null) {
 			width = params.optionWidth.getAsPixels(listView);
 		}
 		AbsListView.LayoutParams p = new AbsListView.LayoutParams(width, height);
@@ -492,6 +498,11 @@ public class TiTableView extends FrameLayout
 		// To prevent undesired "focus" and "blur" events during layout caused
 		// by ListView temporarily taking focus, we will disable focus events until
 		// layout has finished.
+		// First check for a quick exit. listView can be null, such as if window closing.
+		if (listView == null) {
+			super.onLayout(changed, left, top, right, bottom);
+			return;
+		}
 		OnFocusChangeListener focusListener = null;
 		View focusedView = listView.findFocus();
 		if (focusedView != null) {

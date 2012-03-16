@@ -152,14 +152,13 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
     [super frameSizeChanged:frame bounds:bounds];
 	if (webview!=nil)
 	{
+		[webview stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.body.style.minWidth='%fpx';document.body.style.minHeight='%fpx';",bounds.size.width-8,bounds.size.height-16]];
 		[TiUtils setView:webview positionRect:bounds];
 		
 		if (spinner!=nil)
 		{
 			spinner.center = self.center;
-		}
-		
-		[[self webview] stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.body.style.minWidth='%fpx';document.body.style.minHeight='%fpx';",bounds.size.width-8,bounds.size.height-16]];
+		}		
 	}
 }
 
@@ -248,6 +247,23 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	{
 		[[self webview] setScalesPageToFit:NO];
 	}
+}
+
+-(UIScrollView*)scrollview
+{
+	UIWebView* webView = [self webview];
+	if ([webView respondsToSelector:@selector(scrollView)]) {
+		// as of iOS 5.0, we can return the scroll view
+		return [webView scrollView];
+	} else {
+		// in earlier versions, we need to find the scroll view
+		for (id subview in [webView subviews]) {
+			if ([subview isKindOfClass:[UIScrollView class]]) {
+				return (UIScrollView*)subview;
+			}
+		}
+	}
+	return nil;
 }
 
 
@@ -394,6 +410,18 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	BOOL scaling = [TiUtils boolValue:args];
 	scalingOverride = YES;
 	[[self webview] setScalesPageToFit:scaling];
+}
+
+-(void)setDisableBounce_:(id)value
+{
+	BOOL bounces = ![TiUtils boolValue:value];
+	[[self scrollview] setBounces:bounces];
+}
+
+-(void)setScrollsToTop_:(id)value
+{
+	BOOL scrollsToTop = [TiUtils boolValue:value];
+	[[self scrollview] setScrollsToTop:scrollsToTop];
 }
 
 #ifndef USE_BASE_URL
@@ -585,7 +613,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 // not fit within the bounds of its specialized scroll box, UNLESS you are sizing the view to 320px (full width).
 // 'auto' width setting for web views is NOT RECOMMENDED as a result.  'auto' height is OK, and necessary
 // when placing webviews with other elements.
--(CGFloat)autoHeightForWidth:(CGFloat)value
+-(CGFloat)contentHeightForWidth:(CGFloat)value
 {
 	CGRect oldBounds = [[self webview] bounds];
 	[webview setBounds:CGRectMake(0, 0, MAX(value,10), 1)];
@@ -594,7 +622,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	return result;
 }
 
--(CGFloat)autoWidthForWidth:(CGFloat)value
+-(CGFloat)contentWidthForWidth:(CGFloat)value
 {
     CGRect oldBounds = [[self webview] bounds];
     CGFloat currentHeight = [[webview stringByEvaluatingJavaScriptFromString:@"document.height"] floatValue];
@@ -609,6 +637,13 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
 	NSURL * newUrl = [request URL];
+
+	if ([self.proxy _hasListeners:@"beforeload"])
+	{
+		NSDictionary *event = newUrl == nil ? nil : [NSDictionary dictionaryWithObject:[newUrl absoluteString] forKey:@"url"];
+		[self.proxy fireEvent:@"beforeload" withObject:event];
+	}
+
 	NSString * scheme = [[newUrl scheme] lowercaseString];
 	if ([scheme hasPrefix:@"http"] || [scheme hasPrefix:@"app"] || [scheme hasPrefix:@"file"] || [scheme hasPrefix:@"ftp"])
 	{
@@ -616,6 +651,10 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 		if (ignoreNextRequest)
 		{
 			ignoreNextRequest = NO;
+            if ((navigationType == UIWebViewNavigationTypeOther) && ([scheme hasPrefix:@"app"] || [scheme hasPrefix:@"file"])) {
+                [webView loadRequest:request];
+                return NO;
+            }
 		}
 		else
 		{
@@ -640,11 +679,6 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
-	if ([self.proxy _hasListeners:@"beforeload"])
-	{
-		NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[url absoluteString] forKey:@"url"];
-		[self.proxy fireEvent:@"beforeload" withObject:event];
-	}
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView

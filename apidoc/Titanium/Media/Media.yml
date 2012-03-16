@@ -95,7 +95,7 @@ methods:
         To suppress the default controls, set `showControls` and `autohide` to `false`.
 
         If the `showControls` option is `false`, you must control the camera explicitly, using
-        the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.UI.hideCamera) 
+        the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera) 
         methods.
     platforms: [iphone, ipad, android]
     parameters:
@@ -136,7 +136,7 @@ methods:
         `success` callback.
     platforms: [iphone, ipad, android]
   - name: takeScreenshot
-    summary: Takes a screen shot of the visible UI on the device
+    summary: Takes a screen shot of the visible UI on the device.
     description: |
        This method is asynchronous. The screenshot is returned in the callback argument.
        The callback argument's `media` property contains the screenshot image as a 
@@ -206,7 +206,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FILEFORMAT_CAF
-    summary: Audio file format Apple Compressed Audio Format (CAF)
+    summary: Audio file format Apple Compressed Audio Format (CAF).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -509,7 +509,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-  - name: MUSIC_PLAYER_STATE_SKEEK_FORWARD
+  - name: MUSIC_PLAYER_STATE_SEEK_FORWARD
     summary: Constant for forward seek state.
     type: Number
     permission: read-only
@@ -575,7 +575,7 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad]
   - name: VIDEO_CONTROL_HIDDEN
-    summary: constant for video controls hidden
+    summary: Constant for video controls hidden.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
@@ -832,7 +832,7 @@ properties:
     type: Boolean
     default: true
   - name: animated 
-    summary: boolean if the dialog should be animated (defaults to true) upon showing and hiding
+    summary: Boolean if the dialog should be animated when showing and hiding.
     type: Boolean
     default: true
   - name: mediaTypes

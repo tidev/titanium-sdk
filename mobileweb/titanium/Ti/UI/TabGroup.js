@@ -1,6 +1,8 @@
-define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"], function(declare, css, SuperView, View, UI, lang) {
+define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang", "Ti/_/style"], 
+	function(declare, css, SuperView, View, UI, lang, style) {
 
 	var is = require.is,
+		setStyle = style.set,
 		postUpdateTabsBackground = {
 			post: "_updateTabsBackground"
 		};
@@ -9,49 +11,49 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 
 		constructor: function(args){
 			
-			this.layout = "vertical";
+			var self = this,
+				tabsAtBottom = self.constants.tabsAtBottom = lang.val(args && args.tabsAtBottom, self.constants.tabsAtBottom);
 			
 			// Create the tabBarContainer class
-			var self = this;
 			var TabBarContainer = declare("Ti._.UI.TabGroup.TabBarContainer", View, {
-				_doLayout: function(originX, originY, parentWidth, parentHeight, centerHDefault, centerVDefault) {
+				_doLayout: function(params) {
+					
 					var tabs = self.tabs,
 						numTabs = tabs.length,
-						tabWidth = Math.floor((parentWidth - (numTabs - 1) * self.tabDividerWidth) / numTabs);
+						totalDividerWidth = (numTabs - 1) * self.tabDividerWidth,
+						tabWidth = Math.floor((params.boundingSize.width - totalDividerWidth) / numTabs);
 					for (var i = 0; i < numTabs - 1; i++) {
-						tabs[i]._tabWidth = tabWidth;
+						tabs[i]._defaultWidth = tabWidth;
 					}
 					 // Make the last tab consume the remaining space. Fractional widths look really bad in tabs.
-					tabs[i]._tabWidth = parentWidth - (numTabs - 1) * self.tabDividerWidth - tabWidth * (numTabs - 1);
-					View.prototype._doLayout.apply(this,arguments);
+					tabs[i] && (tabs[i]._defaultWidth = params.boundingSize.width - totalDividerWidth - tabWidth * (numTabs - 1));
+					
+					return View.prototype._doLayout.apply(this,arguments)
 				}
 			});
 			
 			// Create the tab bar
-			this.add(this._tabBarContainer = new TabBarContainer({
-				left: 0,
-				right: 0,
+			self._tabBarContainer = new TabBarContainer({
+				width: UI.FILL,
 				layout: "horizontal"
-			}));
-			this.tabHeight = "10%";
+			});
+			self.tabHeight = 75;
 
 			// Create the tab window container
-			this.add(this._tabContentContainer = UI.createView({
-				left: 0,
-				right: 0,
-				top: 0,
-				bottom: 0
-			}));
-
-			this.tabs = [];
+			self._tabContentContainer = UI.createView({
+				width: UI.FILL,
+				height: UI.FILL
+			});
+			
+			// Add the windows ordered such that they respect tabsAtBottom
+			self.layout = "vertical";
+			self.tabs = [];
+			self.tabsAtBottom = args ? lang.val(args.tabsAtBottom, true) : true;
 		},
 
 		addTab: function(tab) {
 			// Initialize the tabs, if necessary
-			this.tabs = this.tabs || [];
-			
-			// Add the tab to the list
-			var tabs = this.tabs;
+			var tabs = this.tabs = this.tabs || [];
 			tabs.push(tab);
 			tab._tabGroup = this;
 
@@ -86,9 +88,9 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 		},
 		
 		_createTabDivider: function() {
-			return Ti.UI.createView({
+			return UI.createView({
 				width: this.tabDividerWidth,
-				height: "100%",
+				height: UI.FILL,
 				backgroundColor: this.tabDividerColor
 			});
 		},
@@ -100,12 +102,14 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 			if (prev) {
 				prev.active = false;
 				prev._doBackground();
-				prev["window"] && this._tabContentContainer.remove(prev["window"]);
+				prev._tabNavigationGroup && this._tabContentContainer.remove(prev._tabNavigationGroup);
 			}
 
 			tab.active = true;
+			tab._tabNavigationGroup && (tab._tabNavigationGroup.navBarAtTop = this.tabsAtBottom);
 			this._activeTab = tab;
-			tab["window"] && this._tabContentContainer.add(tab["window"]);
+			UI.currentTab = tab;
+			tab._tabNavigationGroup && this._tabContentContainer.add(tab._tabNavigationGroup);
 			this._state = {
 				index: tabs.indexOf(tab),
 				previousIndex: prev ? tabs.indexOf(prev) : -1,
@@ -144,9 +148,9 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 			}
 		},
 
-		_defaultWidth: "100%",
+		_defaultWidth: UI.FILL,
 
-		_defaultHeight: "100%",
+		_defaultHeight: UI.FILL,
 
 		properties: {
 			activeTab: {
@@ -187,6 +191,29 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 					return value;
 				},
 				post: "_updateTabsBackground"
+			},
+			
+			tabsAtBottom: {
+				set: function(value, oldValue) {
+					if (value !== oldValue) {
+						
+						this._activeTab && this._activeTab._tabNavigationGroup && (this._activeTab._tabNavigationGroup.navBarAtTop = value);
+						
+						var tabContentContainer = this._tabContentContainer,
+							tabBarContainer = this._tabBarContainer;
+						this.remove(tabContentContainer);
+						this.remove(tabBarContainer);
+						
+						if (value) {
+							this.add(tabContentContainer);
+							this.add(tabBarContainer);
+						} else {
+							this.add(tabBarContainer);
+							this.add(tabContentContainer);
+						}
+					}
+					return value;
+				}
 			},
 			
 			activeTabBackgroundColor: {

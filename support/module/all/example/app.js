@@ -5,12 +5,12 @@
 
 
 // open a single window
-var window = Ti.UI.createWindow({
+var win = Ti.UI.createWindow({
 	backgroundColor:'white'
 });
 var label = Ti.UI.createLabel();
-window.add(label);
-window.open();
+win.add(label);
+win.open();
 
 // TODO: write your module tests here
 var ___PROJECTNAME___ = require('__MODULE_ID__');
@@ -34,6 +34,6 @@ if (Ti.Platform.name == "android") {
 	proxy.printMessage("Hello world!");
 	proxy.message = "Hi world!.  It's me again.";
 	proxy.printMessage("Hello world!");
-	window.add(proxy);
+	win.add(proxy);
 }
 

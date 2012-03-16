@@ -158,6 +158,11 @@ class Module(object):
 		module_xml = self.get_resource('timodule.xml')
 		if os.path.exists(module_xml):
 			self.xml = TiAppXML(module_xml, parse_only=True)
+
+		self.js = None
+		module_js = self.get_resource('%s.js' % manifest.moduleid)
+		if os.path.exists(module_js):
+			self.js = module_js
 	
 	def get_resource(self, *path):
 		return os.path.join(self.path, *path)
@@ -199,8 +204,9 @@ class ModuleDetector(object):
 			if not os.path.isdir(platform_dir): continue
 			if platform in ['osx', 'win32', 'linux']: continue # skip desktop modules
 			
-			# recursive once in the platform directory so we can get versioned modules too
+			# iterate through the platform directory so we can get versioned modules too
 			for root, dirs, files in os.walk(platform_dir):
+				dirs.sort(reverse=True)
 				for module_dir in dirs:
 					module_dir = os.path.join(root, module_dir)
 					manifest_file = os.path.join(module_dir, 'manifest')
@@ -232,7 +238,10 @@ class ModuleDetector(object):
 		if 'modules' not in tiapp.properties: return missing, modules
 		
 		for module_dep in tiapp.properties['modules']:
-			if not self.is_any(module_dep, 'platform') and platform != module_dep['platform']:
+			module_platform = module_dep.get('platform')
+			if not self.is_any(module_dep, 'platform') and \
+			       module_platform != 'commonjs' and \
+			       module_platform != platform:
 				continue
 			version_desc = self.get_desc(module_dep, 'version')
 			platform_desc = self.get_desc(module_dep, 'platform')

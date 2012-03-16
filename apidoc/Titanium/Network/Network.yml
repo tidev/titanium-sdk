@@ -165,7 +165,7 @@ events:
       - name: reason
         summary: Human-readable text describing the reason for the change.
         type: String
-        platforms: [android]
+        platforms: [android, mobileweb]
 properties:
   - name: INADDR_ANY
     summary: |
@@ -173,7 +173,7 @@ properties:
         locally available network interfaces.
     type: String
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     deprecated:
         since: "1.7.0"
   - name: NETWORK_LAN
@@ -239,12 +239,17 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+  - name: NOTIFICATION_TYPE_NEWSSTAND
+    summary: Constant value for a Newsstand style push notification. Only available on iOS5 and later
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: READ_MODE
     summary: Constant value specifying read-only mode for sockets.
     description: Used with the deprecated <Titanium.Network.TCPSocket> only.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     deprecated: 
         since: "1.7.0"
   - name: READ_WRITE_MODE
@@ -252,7 +257,7 @@ properties:
     description: Used with the deprecated <Titanium.Network.TCPSocket> only.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     deprecated: 
         since: "1.7.0"
   - name: SOCKET_CLOSED
@@ -321,7 +326,7 @@ properties:
         Used with the deprecated <Titanium.Network.TCPSocket> only.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     deprecated: 
         since: "1.7.0"
   - name: TLS_VERSION_1_0
@@ -342,10 +347,6 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
     since: "1.8.0.1"
-  - name: address
-    summary: The IP address of the device's WiFi network interface.
-    type: String
-    platform: [iphone,ipad]
   - name: networkType
     summary: Network type value as a constant.
     description: |

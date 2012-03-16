@@ -1,11 +1,14 @@
 ---
 name: Titanium.XML.Node
 extends: Titanium.Proxy
-summary: >
-    A single node in the [Document|Titanium.XML.Document] tree. For full property and method description,
-    see the [DOM Level 2 API|http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-1950641247].
+summary: A single node in the [Document|Titanium.XML.Document] tree. 
+description: |
+    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1950641247) 
+    on Android and iOS. Exposes the 
+    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-1950641247) implementation on Mobile Web.
+    For full property and method description, see the W3C specifications.
 createable: false
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 properties:
   - name: ELEMENT_NODE
     type: Number
@@ -24,12 +27,12 @@ properties:
     value: 3
   - name: CDATA_SECTION_NODE
     type: Number
-    summary: The value of <nodeType> when this node is a CData section (a type of <Titanium.XML.Text>)
+    summary: The value of <nodeType> when this node is a <Titanium.XML.CDATASection> (a type of <Titanium.XML.Text>)
     permission: read-only
     value: 4
   - name: ENTITY_REFERENCE_NODE
     type: Number
-    summary: The value of <nodeType> when this node is an [Entity reference](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-11C98490) (a type of <Titanium.XML.Node>)
+    summary: The value of <nodeType> when this node is a <Titanium.XML.EntityReference> (a type of <Titanium.XML.Node>)
     permission: read-only
     value: 5
   - name: ENTITY_NODE
@@ -75,12 +78,24 @@ properties:
     type: String
     summary: The content (value) of this node
     permission: read-only
+  - name: textContent
+    type: String
+    summary: The content (value) of all text nodes within this node
+    permission: read-only
+  - name: text
+    type: String
+    summary: |
+        The content (value) of all text nodes within this node.
+        Use [textContent](Titanium.XML.Node.textContent) instead.
+    permission: read-only
+    deprecated:
+        since: "2.0.0"
   - name: nodeType
     type: Number
-    summary: >
-        This node's type. One of <ELEMENT_NODE>, <ATTRIBUTE_NODE>, <TEXT_NODE>, <CDATA_SECTION_NODE>,
-        <ENTITY_REFERENCE_NODE>, <ENTITY_NODE>, <PROCESSING_INSTRUCTION_NODE>, <COMMENT_NODE>,
-        <DOCUMENT_NODE>, <DOCUMENT_TYPE_NODE>, <DOCUMENT_FRAGMENT_NODE>, <NOTATION_NODE>
+    summary: |
+        This node's type. One of `ELEMENT_NODE`, `ATTRIBUTE_NODE`, `TEXT_NODE`, `CDATA_SECTION_NODE`,
+        `ENTITY_REFERENCE_NODE`, `ENTITY_NODE`, `PROCESSING_INSTRUCTION_NODE`, `COMMENT_NODE`,
+        `DOCUMENT_NODE`, `DOCUMENT_TYPE_NODE`, `DOCUMENT_FRAGMENT_NODE`, `NOTATION_NODE`.
     permission: read-only
   - name: parentNode
     type:  Titanium.XML.Node
@@ -153,6 +168,7 @@ methods:
     returns:
         type: Boolean
   - name: insertBefore
+    summary: Inserts the node `newChild` before the node `refChild`.
     parameters:
       - name: newChild
         type: Titanium.XML.Node

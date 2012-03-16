@@ -11,7 +11,7 @@ description: |
     Use the <Titanium.UI.createProgressBar> method to create a progress bar.
 extends: Titanium.UI.View
 since: "0.8"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 properties:
   - name: color
     summary: Color of the progress bar text.

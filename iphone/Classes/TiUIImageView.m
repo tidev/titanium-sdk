@@ -45,7 +45,7 @@ DEFINE_EXCEPTIONS
 	[super dealloc];
 }
 
--(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
+-(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
 	if (autoWidth > 0)
 	{
@@ -66,7 +66,7 @@ DEFINE_EXCEPTIONS
 	return 0;
 }
 
--(CGFloat)autoHeightForWidth:(CGFloat)width_
+-(CGFloat)contentHeightForWidth:(CGFloat)width_
 {
 	if (autoHeight > 0)
 	{
@@ -209,13 +209,8 @@ DEFINE_EXCEPTIONS
 
 -(void)fireLoadEventWithState:(NSString *)stateString
 {
-	if (![self.proxy _hasListeners:@"load"])
-	{
-		return;
-	}
-
-	NSDictionary *event = [NSDictionary dictionaryWithObject:stateString forKey:@"state"];
-	[self.proxy fireEvent:@"load" withObject:event];
+    TiUIImageViewProxy* ourProxy = (TiUIImageViewProxy*)self.proxy;
+    [ourProxy propagateLoadEvent:stateString];
 }
 
 -(UIImage*)scaleImageIfRequired:(UIImage*)theimage
@@ -356,8 +351,13 @@ DEFINE_EXCEPTIONS
 		{
 			[spinner removeFromSuperview];
 		}
-		
 		[view addSubview:newImageView];
+        if (autoWidth < newImageView.bounds.size.width){
+            autoWidth = newImageView.bounds.size.width;
+        }
+        if (autoHeight < newImageView.bounds.size.height) {
+            autoHeight = newImageView.bounds.size.height;
+        }
 		[newImageView release];
 		view.hidden = YES;
 		
@@ -418,6 +418,30 @@ DEFINE_EXCEPTIONS
 	placeholderLoading = NO;
 }
 
+-(void)loadDefaultImage:(CGSize)imageSize
+{
+    // use a placeholder image - which the dev can specify with the
+    // defaultImage property or we'll provide the Titanium stock one
+    // if not specified
+    NSURL *defURL = [TiUtils toURL:[self.proxy valueForKey:@"defaultImage"] proxy:self.proxy];
+    
+    if ((defURL == nil) && ![TiUtils boolValue:[self.proxy valueForKey:@"preventDefaultImage"] def:NO])
+    {	//This is a special case, because it IS built into the bundle despite being in the simulator.
+        NSString * filePath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"modules/ui/images/photoDefault.png"];
+        defURL = [NSURL fileURLWithPath:filePath];
+    }
+    
+    if (defURL!=nil)
+    {
+        UIImage *poster = [[ImageLoader sharedLoader] loadImmediateImage:defURL withSize:imageSize];
+        
+        // TODO: Use the full image size here?  Auto width/height is going to be changed once the image is loaded.
+        autoWidth = poster.size.width;
+        autoHeight = poster.size.height;
+        [self imageView].image = poster;
+    }
+}
+
 -(void)loadUrl:(id)img
 {
 	[self cancelPendingImageLoads];
@@ -427,42 +451,43 @@ DEFINE_EXCEPTIONS
 		[self removeAllImagesFromContainer];
 		
 		NSURL *url_ = [TiUtils toURL:[img absoluteString] proxy:self.proxy];
-		
-		// NOTE: Loading from URL means we can't pre-determine any % value.
+        
+        // NOTE: Loading from URL means we can't pre-determine any % value.
 		CGSize imageSize = CGSizeMake(TiDimensionCalculateValue(width, 0.0), 
 									  TiDimensionCalculateValue(height,0.0));
+        
 		if ([TiUtils boolValue:[[self proxy] valueForKey:@"hires"]])
 		{
 			imageSize.width *= 2;
 			imageSize.height *= 2;
 		}
-		
+        
+        // Skip the imageloader completely if this is obviously a file we can load off the fileystem.
+        // why were we ever doing that in the first place...?
+        if ([url_ isFileURL]) {
+            UIImage* image = [UIImage imageWithContentsOfFile:[url_ path]];
+            if (image != nil) {
+                CGSize fullSize = [image size];
+                autoWidth = fullSize.width;
+                autoHeight = fullSize.height;
+                [self imageView].image = image;
+            }
+            else {
+                [self loadDefaultImage:imageSize];
+            }
+            return;
+        }
+    
+        
 		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url_ withSize:imageSize];
 		if (image==nil)
 		{
-			// use a placeholder image - which the dev can specify with the
-			// defaultImage property or we'll provide the Titanium stock one
-			// if not specified
-			NSURL *defURL = [TiUtils toURL:[self.proxy valueForKey:@"defaultImage"] proxy:self.proxy];
-			
-			if ((defURL == nil) && ![TiUtils boolValue:[self.proxy valueForKey:@"preventDefaultImage"] def:NO])
-			{	//This is a special case, because it IS built into the bundle despite being in the simulator.
-				NSString * filePath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"modules/ui/images/photoDefault.png"];
-				defURL = [NSURL fileURLWithPath:filePath];
-			}
-			if (defURL!=nil)
-			{
-				UIImage *poster = [[ImageLoader sharedLoader] loadImmediateImage:defURL withSize:imageSize];
-				
-				// TODO: Use the full image size here?  Auto width/height is going to be changed once the image is loaded.
-				autoWidth = poster.size.width;
-				autoHeight = poster.size.height;
-				[self imageView].image = poster;
-			}
+            [self loadDefaultImage:imageSize];
 			placeholderLoading = YES;
 			[(TiUIImageViewProxy *)[self proxy] startImageLoad:url_];
 			return;
 		}
+        
 		if (image!=nil)
 		{
             [(TiUIImageViewProxy*)[self proxy] setImageURL:url_];
@@ -472,10 +497,6 @@ DEFINE_EXCEPTIONS
 			
 			[self imageView].image = image;
 			[self fireLoadEventWithState:@"url"];
-		}
-		else 
-		{
-			NSLog(@"[ERROR] couldn't find image for ImageView at: %@",img);
 		}
 	}
 }
@@ -518,31 +539,6 @@ DEFINE_EXCEPTIONS
 		
 		image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl withSize:CGSizeMake(TiDimensionCalculateValue(width, autoWidth),
 																						   TiDimensionCalculateValue(height, autoHeight))];
-	}
-	else if ([arg isKindOfClass:[NSString class]]) {
-		NSURL *url_ = [TiUtils toURL:arg proxy:self.proxy];
-
-//	TODO: Move this over into ImageLoader or some other way to more intellegently cache large files.
-		UIImage * testImage = [UIImage imageWithContentsOfFile:[url_ path]];
-		if (testImage != nil)
-		{
-			CGSize fullSize = [testImage size];
-			autoHeight = fullSize.height;
-			autoWidth = fullSize.width;
-			return testImage;
-		}
-//	END TODO
-
-		CGSize fullSize = [[ImageLoader sharedLoader] fullImageSize:url_];
-		autoHeight = fullSize.height;
-		autoWidth = fullSize.width;
-		
-		image = [[ImageLoader sharedLoader] loadImmediateImage:url_ withSize:CGSizeMake(TiDimensionCalculateValue(width, autoWidth), 
-																						TiDimensionCalculateValue(height, autoHeight))];
-        
-        if (image != nil) {
-            [(TiUIImageViewProxy*)[self proxy] setImageURL:url_];
-        }
 	}
 	else if ([arg isKindOfClass:[UIImage class]])
 	{
@@ -661,7 +657,7 @@ DEFINE_EXCEPTIONS
 	
 	BOOL replaceProperty = YES;
 	UIImage *image = nil;
-	
+    NSURL* imageURL = nil;
 	if ([arg isKindOfClass:[UIImage class]]) 
 	{
 		// called within this class
@@ -678,17 +674,14 @@ DEFINE_EXCEPTIONS
 	
 	if (image == nil) 
 	{
-		if ([arg isKindOfClass:[NSString class]])
-		{
-			[self loadUrl:[NSURL URLWithString:arg]];
-			return;
-		}
-		if ([arg isKindOfClass:[NSURL class]])
-		{
-			[self loadUrl:arg];
-			return;
-		}
-		[self throwException:@"invalid image type" subreason:[NSString stringWithFormat:@"expected either TiBlob or TiFile, was: %@",[arg class]] location:CODELOCATION];
+        NSURL* imageURL = [[self proxy] sanitizeURL:arg];
+        if (![imageURL isKindOfClass:[NSURL class]]) {
+            [self throwException:@"invalid image type" 
+                       subreason:[NSString stringWithFormat:@"expected TiBlob, String, TiFile, was: %@",[arg class]] 
+                        location:CODELOCATION];
+        }
+
+        [self loadUrl:imageURL];
 		return;
 	}
 	
@@ -792,6 +785,7 @@ DEFINE_EXCEPTIONS
 	{
 		image = [self scaleImageIfRequired:image];
 	}
+    
 	TiThreadPerformOnMainThread(^{
 		[self setURLImageOnUIThread:image];
 	}, NO);

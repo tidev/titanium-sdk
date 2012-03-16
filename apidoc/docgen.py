@@ -22,19 +22,17 @@ except:
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
-# We package mako already in support/android/mako.
-android_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "android"))
-sys.path.append(android_support_dir)
+# We package markdown and mako in support/common.
+common_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "common"))
+sys.path.append(common_support_dir)
+import markdown
 from mako.template import Template
 
-# TiLogger is also in support/android
+# TiLogger is in support/android
+android_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "android"))
+sys.path.append(android_support_dir)
 from tilogger import *
 log = TiLogger(None)
-
-# We package the python markdown module already in /support/module/support/markdown.
-module_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "module", "support"))
-sys.path.append(module_support_dir)
-import markdown
 
 DEFAULT_PLATFORMS = ["android", "iphone", "ipad", "mobileweb"]
 DEFAULT_SINCE = "0.8"

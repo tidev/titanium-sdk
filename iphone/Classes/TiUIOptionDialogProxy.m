@@ -34,6 +34,7 @@
 	[self rememberSelf];
 	ENSURE_UI_THREAD(show,args);
 	
+	showDialog = YES;
 	NSMutableArray *options = [self valueForKey:@"options"];
 	if (options==nil)
 	{
@@ -41,8 +42,13 @@
 		[options addObject:NSLocalizedString(@"OK",@"Alert OK Button")];
 	}
 	
+	if (actionSheet != nil) {
+		[actionSheet setDelegate:nil];
+		[actionSheet release];
+	}
 	actionSheet = [[UIActionSheet alloc] init];
 	[actionSheet setDelegate:self];
+
 	[actionSheet setTitle:[TiUtils stringValue:[self valueForKey:@"title"]]];
 	
 	for (id thisOption in options)
@@ -69,23 +75,16 @@
 		{
 			dialogRect = CGRectZero;
 		}
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateOptionDialog:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceRotationBegan:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
 		[self updateOptionDialogNow];
 		return;
 	}
 	[actionSheet showInView:[[TiApp controller] view]];
 }
 
-#pragma mark AlertView Delegate
-
-- (void)actionSheet:(UIActionSheet *)actionSheet_ clickedButtonAtIndex:(NSInteger)buttonIndex;
+-(void)completeWithButton:(int)buttonIndex
 {
-	if (buttonIndex == -2)
-	{
-		return;
-		//A -2 is used by us to indicate that this was programatically dismissed to properly
-		//place the option dialog during a roation.
-	}
+	showDialog = NO;
 	if ([self _hasListeners:@"click"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -100,7 +99,45 @@
 	[self release];
 }
 
--(void)updateOptionDialog:(NSNotification *)notification;
+-(void)hide:(id)args
+{
+	if(actionSheet == nil){
+		return;
+	}
+
+	id options = nil;
+	if ([args count]>0) {
+		options = [args objectAtIndex:0];
+	}
+	BOOL animatedhide = [TiUtils boolValue:@"animated" properties:options def:YES];
+
+	TiThreadPerformOnMainThread(^{
+		if ([actionSheet isVisible]) {
+			showDialog = NO;
+			[actionSheet dismissWithClickedButtonIndex:[actionSheet cancelButtonIndex] animated:animatedhide];
+		}
+		else if(showDialog) {
+			//This is to avoid double-releasing.
+			showDialog = NO;
+			[self completeWithButton:[actionSheet cancelButtonIndex]];
+		}
+	}, NO);
+}
+
+#pragma mark AlertView Delegate
+
+- (void)actionSheet:(UIActionSheet *)actionSheet_ didDismissWithButtonIndex:(NSInteger)buttonIndex;
+{
+	if (buttonIndex == -2)
+	{
+		return;
+		//A -2 is used by us to indicate that this was programatically dismissed to properly
+		//place the option dialog during a roation.
+	}
+	[self completeWithButton:buttonIndex];
+}
+
+-(void)deviceRotationBegan:(NSNotification *)notification
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateOptionDialogNow) object:nil];
     NSTimeInterval delay = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
@@ -118,6 +155,9 @@
 
 -(void)updateOptionDialogNow;
 {
+	if (!showDialog) {
+		return;
+	}
     accumulatedOrientationChanges = 0;
 	UIView *view = nil;
 	if (dialogView==nil)
@@ -135,9 +175,9 @@
 			return;
 		}
 		
-		if ([dialogView isKindOfClass:[TiToolbar class]])
+		if ([dialogView conformsToProtocol:@protocol(TiToolbar)])
 		{
-			UIToolbar *toolbar = [(TiToolbar*)dialogView toolbar];
+			UIToolbar *toolbar = [(id<TiToolbar>)dialogView toolbar];
 			[actionSheet showFromToolbar:toolbar];
 			return;
 		}

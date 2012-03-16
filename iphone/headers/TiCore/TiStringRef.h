@@ -2,7 +2,7 @@
  * Appcelerator Titanium License
  * This source code and all modifications done by Appcelerator
  * are licensed under the Apache Public License (version 2) and
- * are Copyright (c) 2009 by Appcelerator, Inc.
+ * are Copyright (c) 2009-2012 by Appcelerator, Inc.
  */
 
 /*
@@ -45,7 +45,7 @@ extern "C" {
 #endif
 
 #if !defined(WIN32) && !defined(_WIN32) && !defined(__WINSCW__) \
-    && !((defined(__CC_ARM) || defined(__ARMCC__)) && defined(__SYMBIAN32__)) /* RVCT */
+    && !((defined(__CC_ARM) || defined(__ARMCC__)) && !defined(__linux__)) /* RVCT */
 /*!
 @typedef TiChar
 @abstract A Unicode character.

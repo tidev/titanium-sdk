@@ -1,10 +1,13 @@
 ---
 name: Titanium.XML.Attr
 extends: Titanium.XML.Node
-summary: Proxy representing an attribute of an [Element](Titanium.XML.Element), as defined
-    in the [DOM Level 2 specification](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-637646024).
+summary: Represents an attribute of an [Element](Titanium.XML.Element).
+description: |
+    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-637646024) on
+    Android and iOS. Exposes the 
+    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-637646024) implementation on Mobile Web.
 createable: false
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 properties:
   - name: name
     type: String

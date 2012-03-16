@@ -101,22 +101,26 @@ define(["Ti/_", "Ti/_/style"], function(_, style) {
 		unitize: function(x) {
 			return isNaN(x-0) || x-0 != x ? x : x + "px"; // note: must be != and not !==
 		},
-
-		computeSize: function(x, totalLength, convertAutoToUndef) {
+		
+		computeSize: function(x, totalLength, convertSizeToUndef) {
+			if (is(x,"Number") && isNaN(x)) {
+				return 0;
+			}
 			var undef,
 				type = require.is(x);
-
 			if (type === "String") {
-				if (x === "auto") {
-					convertAutoToUndef && (x = undef);
+				var UI = require("Ti/UI");
+				if (x === UI.SIZE) {
+					convertSizeToUndef && (x = undef);
 				} else {
 					var value = parseFloat(x),
-						units = x.substring((value + "").length);
+						units = x.substring(x.length - 2);
+					units.indexOf("%") !== -1 && (units = "%");
 
 					switch(units) {
 						case "%":
-							if(totalLength == "auto") {
-								convertAutoToUndef ? undef : "auto";
+							if(totalLength == UI.SIZE) {
+								convertSizeToUndef ? undef : UI.SIZE;
 							} else if (!require.is(totalLength,"Number")) {
 								console.error("Could not compute percentage size/position of element.");
 								return;
@@ -126,15 +130,12 @@ define(["Ti/_", "Ti/_/style"], function(_, style) {
 							value *= 10;
 						case "cm":
 							return value * 0.0393700787 * _.dpi;
-						case "pc":
-							dpi /= 12;
-						case "pt":
-							dpi /= 72;
 						case "in":
 							return value * _.dpi;
 						case "px":
-						case "dp":
 							return value;
+						case "dp":
+							return value * _.dpi / 96;
 					}
 				}
 			} else if (type !== "Number") {

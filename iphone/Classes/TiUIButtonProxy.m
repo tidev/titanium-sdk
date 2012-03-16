@@ -16,6 +16,7 @@
 -(void)_destroy
 {
 	RELEASE_TO_NIL(button);
+    toolbar = nil;
 	[super _destroy];
 }
 
@@ -119,15 +120,14 @@
     [super removeBarButtonView];
 }
 
--(void)setToolbar:(TiToolbar*)toolbar_
+-(void)setToolbar:(id<TiToolbar>)toolbar_
 {
-	RELEASE_TO_NIL(toolbar);
-	toolbar = [toolbar_ retain];
+	toolbar = toolbar_;
 }
 
--(TiToolbar*)toolbar
+-(id<TiToolbar>)toolbar
 {
-	return toolbar;
+	return [[toolbar retain] autorelease];
 }
 
 -(BOOL)attachedToToolbar
@@ -145,6 +145,17 @@
 	[super fireEvent:type withObject:obj withSource:source propagate:propagate];
 }
 
+-(TiDimension)defaultAutoWidthBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+-(TiDimension)defaultAutoHeightBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+
+USE_VIEW_FOR_CONTENT_HEIGHT
+USE_VIEW_FOR_CONTENT_WIDTH
 
 @end
 

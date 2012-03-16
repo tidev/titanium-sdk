@@ -3,7 +3,7 @@ name: Titanium.Blob
 summary: The blob is an abstract data type that represents binary information, often obtained through HTTPClient or via files. It often is used to store text or the actual data of an image.
 extends: Titanium.Proxy
 since: "0.9"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 createable: false
 properties:
   - name: length
@@ -21,29 +21,40 @@ properties:
   - name: height
     type: Number
     summary: When this blob represents an image, this is the height of the image in pixels. Otherwise, this is 0.
+    description: |
+        On Mobile Web, the `height` is not available until the image loads. It is advised to set a timeout to wait for the image
+        to load before accessing the `height`.
     permission: read-only
   - name: width
     type: Number
     summary: When this blob represents an image, this is the width of the image in pixels. Otherwise, this is 0.
+    description: |
+        On Mobile Web, the `width` is not available until the image loads. It is advised to set a timeout to wait for the image
+        to load before accessing the `width`.
     permission: read-only
   - name: nativePath
     type: String
-    summary: When this blob represents a <Titanium.File>, this is the file URL that represents it
+    summary: When this blob represents a <Titanium.Filesystem.File>, this is the file URL that represents it
     permission: read-only
   - name: size
     type: Number
     summary: When this blob represents an image, this is the total number of pixels in the image.
         Otherwise it returns the number of bytes in the binary data.
-    platforms: [iphone, ipad]
+    description: |
+        On Mobile Web, always returns the number of bytes of the blob. Note that internally, binary data is stored base64 encoded
+        and `size` represents the number of bytes before base64 encoding.
+    platforms: [iphone, ipad, mobileweb]
     permission: read-only
 methods:
   - name: toString
     returns:
         type: String
     summary: Converts this blob to a String
+    description: |
+        On Mobile Web, if the blob is binary, `toString` returns a base64 encoded data URI.
   - name: append
     summary: Appends the data from another blob to this blob.
-    platforms: [android]
+    platforms: [android, mobileweb]
     parameters:
       - name: blob
         type: Titanium.Blob

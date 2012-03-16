@@ -63,6 +63,12 @@
     return [NSMutableDictionary dictionaryWithObjectsAndKeys:@"prompt",@"promptid",@"hintText",@"hinttextid",nil];
 }
 
+-(TiDimension)defaultAutoHeightBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+
+USE_VIEW_FOR_CONTENT_HEIGHT
 @end
 
 #endif

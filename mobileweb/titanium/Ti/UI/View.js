@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string", "Ti/_/Layouts", "Ti/_/style"],
-	function(declare, dom, Element, lang, string, Layouts, style) {
+define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string", "Ti/_/Layouts", "Ti/_/style", "Ti/UI"],
+	function(declare, dom, Element, lang, string, Layouts, style, UI) {
 		
 	var unitize = dom.unitize,
 		set = style.set,
@@ -11,7 +11,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 
 		constructor: function() {
 			this.children = [];
-			this.layout = "absolute";
+			this.layout = "composite";
 			this.containerNode = this.domNode;
 		},
 
@@ -19,7 +19,8 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 			view._setParent(this);
 			this.children.push(view);
 			this.containerNode.appendChild(view.domNode);
-			this._triggerLayout();
+			view._hasBeenLaidOut = false;
+			this._triggerLayout(this._isAttachedToActiveWin());
 		},
 
 		_setParent: function(view) {
@@ -218,15 +219,15 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 			}
 		},
 
-		_defaultWidth: "100%",
+		_defaultWidth: UI.FILL,
 
-		_defaultHeight: "100%",
+		_defaultHeight: UI.FILL,
 
 		properties: {
 			layout: {
 				set: function(value) {
-					var match = value.toLowerCase().match(/^(horizontal|vertical)$/),
-						value = match ? match[0] : "absolute";
+					var match = value.match(/^(horizontal|vertical)$/),
+						value = match ? match[0] : "composite";
 
 					if (this._layout) {
 						this._layout.destroy();

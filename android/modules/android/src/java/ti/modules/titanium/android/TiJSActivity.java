@@ -50,18 +50,6 @@ public abstract class TiJSActivity extends TiLaunchActivity
 	}
 
 	@Override
-	protected void contextCreated()
-	{
-		super.contextCreated();
-
-		TiActivityWindowProxy window = new TiActivityWindowProxy();
-		window.setActivity(this);
-	
-		TiBindingHelper.bindCurrentWindow(window);
-		setWindowProxy(window);
-	}
-
-	@Override
 	protected void scriptLoaded()
 	{
 		super.scriptLoaded();
@@ -71,6 +59,12 @@ public abstract class TiJSActivity extends TiLaunchActivity
 	@Override
 	protected void windowCreated()
 	{
+		// Set window proxy here to make sure layout != null
+		TiActivityWindowProxy win = new TiActivityWindowProxy();
+		win.setActivity(this);
+		TiBindingHelper.bindCurrentWindow(win);
+		setWindowProxy(win);
+		
 		// The UIWindow needs to be created before we run the script
 		activityWindow = new TiUIActivityWindow((TiActivityWindowProxy)window, this, layout);
 		super.windowCreated();

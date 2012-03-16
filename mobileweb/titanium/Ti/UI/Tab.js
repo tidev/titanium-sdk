@@ -1,13 +1,14 @@
-define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom"],
-	function(declare, lang, View, dom) {
+define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI"],
+	function(declare, lang, View, dom, Locale, UI) {
+		
+	var undef;
 
 	return declare("Ti.UI.Tab", View, {
 
 		constructor: function(args) {
-			this._windows = [];
 
 			this._contentContainer = dom.create("div", {
-				className: "TiUIButtonContentContainer",
+				className: "TiUITabContentContainer",
 				style: {
 					width: "100%",
 					height: "100%",
@@ -19,13 +20,15 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom"],
 			}, this.domNode);
 
 			this._tabIcon = dom.create("img", {
-				className: "TiUIButtonImage"
+				className: "TiUITabImage"
 			}, this._contentContainer);
 
 			this._tabTitle = dom.create("div", {
-				className: "TiUIButtonTitle",
+				className: "TiUITabTitle",
 				style: {
-					whiteSpace: "nowrap"
+					whiteSpace: "nowrap",
+					pointerEvents: "none",
+					userSelect: "none"
 				}
 			}, this._contentContainer);
 
@@ -34,34 +37,25 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom"],
 			});
 		},
 
-		open: function(win, args) {
-			win = win || this.window;
-			this._windows.push(win);
-			win.activeTab = this;
-
-			// Apply a background if one is not already set
-			lang.isDef(win.backgroundColor) || (win.backgroundColor = "white");
-
-			// Open the window and animate it in
-			var originalOpacity = lang.isDef(win.opacity) ? win.opacity : 1;
-			win.opacity = 0;
-			win.open(args);
-			win.animate({opacity: originalOpacity, duration: 250}, function(){
-				win.opacity = originalOpacity;
-			});
-		},
-
-		close: function(args) {
-			var win = this._windows.pop();
-			win && win.animate({opacity: 0, duration: 250}, function(){
-				win.close(args);
-			});
-		},
-
-		_defaultWidth: "auto",
-		_defaultHeight: "auto",
+		_defaultWidth: UI.FILL,
+		
+		_defaultHeight: UI.FILL,
+		
 		_tabGroup: null,
-		_tabWidth: "100%",
+		
+		_tabNavigationGroup: null,
+		
+		open: function(win, options) {
+			if (this._tabNavigationGroup) {
+				this._tabNavigationGroup.open(win, options);
+			} else {
+				this.window = win;
+			}
+		},
+		
+		close: function(win, options) {
+			this._tabNavigationGroup.close(win, options);
+		},
 
 		properties: {
 			active: {
@@ -83,34 +77,21 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom"],
 			},
 
 			titleid: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Tab#.titleid" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Tab#.titleid" is not implemented yet.');
+					this.title = Locale.getString(value);
 					return value;
 				}
 			},
-
-			// Override width and height
-			width: function(value) {
-				return this._tabWidth;
-			},
-
-			// Override width and height
-			height: function(value) {
-				return "100%";
-			},
-
+			
 			window: {
-				get: function(value) {
-					var w = this._windows;
-					return value ? value : w.length ? w[0] : null;
-				},
 				set: function(value) {
-					this._windows.unshift(value);
+					var tabGroup = this._tabGroup,
+						navBarAtTop = tabGroup ? tabGroup.tabsAtTop : undef;
+					this._tabNavigationGroup = UI.MobileWeb.createNavigationGroup({
+						window: value,
+						navBarAtTop: navBarAtTop
+					});
+					this.active && tabGroup.setActiveTab(this); // Force the new nav group to get attached
 					return value;
 				}
 			}

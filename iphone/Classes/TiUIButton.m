@@ -186,13 +186,13 @@
 		if (TiDimensionIsUndefined(layoutProperties->width) || TiDimensionIsAuto(layoutProperties->width))
 		{
 			layoutProperties->width.value = image.size.width;
-			layoutProperties->width.type = TiDimensionTypePixels;
+			layoutProperties->width.type = TiDimensionTypeDip;
 			reposition = YES;
 		}
 		if (TiDimensionIsUndefined(layoutProperties->height) || TiDimensionIsAuto(layoutProperties->height))
 		{
 			layoutProperties->height.value = image.size.height;
-			layoutProperties->height.type = TiDimensionTypePixels;
+			layoutProperties->height.type = TiDimensionTypeDip;
 		}
 		if (reposition)
 		{
@@ -329,12 +329,12 @@
 	}
 }
 
--(CGFloat)autoWidthForWidth:(CGFloat)value
+-(CGFloat)contentWidthForWidth:(CGFloat)value
 {
 	return [[self button] sizeThatFits:CGSizeMake(value, 0)].width;
 }
 
--(CGFloat)autoHeightForWidth:(CGFloat)value
+-(CGFloat)contentHeightForWidth:(CGFloat)value
 {
 	return [[self button] sizeThatFits:CGSizeMake(value, 0)].height;
 }

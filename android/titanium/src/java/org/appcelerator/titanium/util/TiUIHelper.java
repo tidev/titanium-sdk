@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -41,7 +41,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -74,6 +73,9 @@ import android.view.View.MeasureSpec;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
+/**
+ * A set of utility methods focused on UI and View operations.
+ */
 public class TiUIHelper
 {
 	private static final String LCAT = "TiUIHelper";
@@ -131,6 +133,11 @@ public class TiUIHelper
 			.setCancelable(false).create().show();
 	}
 
+	/**
+	 * Waits for the current activity to be ready, then invokes
+	 * {@link CurrentActivityListener#onCurrentActivityReady(Activity)}.
+	 * @param l the CurrentActivityListener.
+	 */
 	public static void waitForCurrentActivity(final CurrentActivityListener l)
 	{
 		// Some window opens are async, so we need to make sure we don't
@@ -158,6 +165,13 @@ public class TiUIHelper
 		}
 	}
 
+	/**
+	 * Creates and shows a dialog with an OK button given title and message.
+	 * The dialog's creation context is the current activity.
+	 * @param title  the title of dialog.
+	 * @param message  the dialog's message.
+	 * @param listener the click listener for click events.
+	 */
 	public static void doOkDialog(final String title, final String message, OnClickListener listener) {
 		if (listener == null) {
 			listener = new OnClickListener() {
@@ -210,19 +224,19 @@ public class TiUIHelper
 			if (m.matches()) {
 				if (m.groupCount() == 2) {
 					String unit = m.group(2);
-					if ("px".equals(unit)) {
+					if (TiDimension.UNIT_PX.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_PX;
-					} else if ("pt".equals(unit)) {
+					} else if (TiDimension.UNIT_PT.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_PT;
-					} else if ("dp".equals(unit) || "dip".equals(unit)) {
+					} else if (TiDimension.UNIT_DP.equals(unit) || TiDimension.UNIT_DIP.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_DIP;
-					} else if ("sp".equals(unit) || "sip".equals(unit)) {
+					} else if (TiDimension.UNIT_SP.equals(unit) || TiDimension.UNIT_SIP.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_SP;
-					} else if ("pt".equals(unit)) {
-						units = TypedValue.COMPLEX_UNIT_PT;
-					} else if ("mm".equals(unit)) {
+					} else if (TiDimension.UNIT_MM.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_MM;
-					} else if ("in".equals(unit)) {
+					} else if (TiDimension.UNIT_CM.equals(unit)) {
+						units = TiDimension.COMPLEX_UNIT_CM;
+					} else if (TiDimension.UNIT_IN.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_IN;
 					} else {
 						if (DBG) {
@@ -646,6 +660,12 @@ public class TiUIHelper
 		return image;
 	}
 
+	/**
+	 * Creates and returns a Bitmap from an InputStream.
+	 * @param stream an InputStream to read bitmap data.
+	 * @return a new bitmap instance.
+	 * @module.api
+	 */
 	public static Bitmap createBitmap(InputStream stream)
 	{
 		Rect pad = new Rect();
@@ -722,6 +742,12 @@ public class TiUIHelper
 		}
 	}
 	
+	/**
+	 * Creates and returns a bitmap from its url.
+	 * @param url the bitmap url.
+	 * @return a new bitmap instance
+	 * @module.api
+	 */
 	public static Bitmap getResourceBitmap(String url)
 	{
 		int id = getResourceId(url);
@@ -732,6 +758,12 @@ public class TiUIHelper
 		}
 	}
 	
+	/**
+	 * Creates and returns a bitmap for the specified resource ID.
+	 * @param res_id the bitmap id.
+	 * @return a new bitmap instance.
+	 * @module.api
+	 */
 	public static Bitmap getResourceBitmap(int res_id)
 	{
 		BitmapFactory.Options opts = new BitmapFactory.Options();
@@ -866,6 +898,11 @@ public class TiUIHelper
 		}
 	}
 	
+	/**
+	 * Shows/hides the soft keyboard.
+	 * @param view the current focused view.
+	 * @param show whether to show soft keyboard.
+	 */
 	public static void showSoftKeyboard(View view, boolean show) 
 	{
 		InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);

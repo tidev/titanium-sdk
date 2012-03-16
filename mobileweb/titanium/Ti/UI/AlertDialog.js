@@ -1,4 +1,5 @@
-define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI"], function(declare, Evented, UI) {
+define(["Ti/_/css", "Ti/_/declare", "Ti/_/Evented", "Ti/Locale", "Ti/UI"],
+	function(css, declare, Evented, Locale, UI) {
 
 	var undef;
 
@@ -20,7 +21,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI"], function(declare, Evented, UI)
 			// Create the alert dialog itself
 			var alertDialog = UI.createView({
 				width: "50%",
-				height: "auto",
+				height: UI.SIZE,
 				backgroundColor: "white",
 				layout: "vertical",
 				borderRadius: 3,
@@ -35,7 +36,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI"], function(declare, Evented, UI)
 				left: 5,
 				right: 5,
 				top: 5,
-				height: "auto",
+				height: UI.SIZE,
 				textAlign: UI.TEXT_ALIGNMENT_CENTER
 			}));
 			
@@ -45,7 +46,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI"], function(declare, Evented, UI)
 				left: 5,
 				right: 5,
 				top: 5,
-				height: "auto",
+				height: UI.SIZE,
 				textAlign: UI.TEXT_ALIGNMENT_CENTER
 			}));
 			
@@ -56,12 +57,12 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI"], function(declare, Evented, UI)
 					right: 5,
 					top: 5,
 					bottom: bottom,
-					height: "auto",
+					height: UI.SIZE,
 					title: title,
 					index: index
 				});
 				if (index === self.cancel) {
-					button.domNode.className += " TiUIButtonCancel";
+					css.add(button.domNode,"TiUIElementGradientCancel");
 				}
 				alertDialog.add(button);
 				button.addEventListener("singletap",function(){
@@ -117,12 +118,8 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI"], function(declare, Evented, UI)
 			message: "",
 			
 			messageid: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.AlertDialog#.messageid" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.AlertDialog#.messageid" is not implemented yet.');
+					this.message = Locale.getString(value);
 					return value;
 				}
 			},
@@ -130,12 +127,8 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI"], function(declare, Evented, UI)
 			ok: "OK",
 			
 			okid: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.AlertDialog#.okid" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.AlertDialog#.okid" is not implemented yet.');
+					this.ok = Locale.getString(value);
 					return value;
 				}
 			},
@@ -143,12 +136,8 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI"], function(declare, Evented, UI)
 			title: "",
 			
 			titleid: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.AlertDialog#.titleid" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.AlertDialog#.titleid" is not implemented yet.');
+					this.title = Locale.getString(value);
 					return value;
 				}
 			}

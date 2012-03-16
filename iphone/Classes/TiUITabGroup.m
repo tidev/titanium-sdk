@@ -75,6 +75,11 @@ DEFINE_EXCEPTIONS
 
 - (void)handleDidShowTab:(TiUITabProxy *)newFocus
 {
+    // Do nothing if no tabs are being focused or blurred (or the window is opening)
+    if ((focused == nil && newFocus == nil)) {
+        return;
+    }
+    
 	NSMutableDictionary * event = [NSMutableDictionary dictionaryWithCapacity:4];
 
 	NSArray * tabArray = [controller viewControllers];
@@ -106,7 +111,10 @@ DEFINE_EXCEPTIONS
 	[self.proxy replaceValue:focused forKey:@"activeTab" notification:NO];
     [focused replaceValue:[NSNumber numberWithBool:YES] forKey:@"active" notification:NO];
 
-	[self.proxy fireEvent:@"focus" withObject:event];
+    // If we're in the middle of opening, the focus happens once the tabgroup is opened
+    if (![(TiWindowProxy*)[self proxy] opening]) {
+        [self.proxy fireEvent:@"focus" withObject:event];
+    }
 	[focused handleDidFocus:event];
 }
 
@@ -366,7 +374,8 @@ DEFINE_EXCEPTIONS
 			[controllers addObject:[tabProxy controller]];
 			if ([TiUtils boolValue:[tabProxy valueForKey:@"active"]])
 			{
-				focused = tabProxy;
+                RELEASE_TO_NIL(focused);
+				focused = [tabProxy retain];
 			}
 		}
 
@@ -381,7 +390,7 @@ DEFINE_EXCEPTIONS
 	}
 	else
 	{
-		focused = nil;
+		RELEASE_TO_NIL(focused);
 		[self tabController].viewControllers = nil;
 	}
 
@@ -398,7 +407,9 @@ DEFINE_EXCEPTIONS
 	// on an open, make sure we send the focus event to initial tab
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focused,@"tab",NUMINT(0),@"index",NUMINT(-1),@"previousIndex",[NSNull null],@"previousTab",nil];
 	[self.proxy fireEvent:@"focus" withObject:event];
-	[focused handleDidFocus:event];
+    
+    // Tab has already been focused by the tab controller delegate
+	//[focused handleDidFocus:event];
 }
 
 -(void)close:(id)args
@@ -410,7 +421,7 @@ DEFINE_EXCEPTIONS
 		{
 			UINavigationController *navController = (UINavigationController*)c;
 			TiUITabProxy *tab = (TiUITabProxy*)navController.delegate;
-			[tab removeFromTabGroup];
+			[tab closeTab];
 		}
 		controller.viewControllers = nil;
 	}

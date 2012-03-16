@@ -135,10 +135,10 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	return win;
 }
 
-BEGIN_UI_THREAD_PROTECTED_VALUE(opened,NSNumber)
-	result = [NSNumber numberWithBool:opened];
-END_UI_THREAD_PROTECTED_VALUE(opened)
 
+-(NSNumber *) opened{
+    return [NSNumber numberWithBool:opened];
+}
 
 -(BOOL)handleFocusEvents
 {
@@ -353,6 +353,10 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	return [self argOrWindowProperty:@"modal" args:args];
 }
 
+-(BOOL)modalFlagValue
+{
+    return modalFlag;
+}
 -(BOOL)isFullscreen:(id)args
 {
 	return [self argOrWindowProperty:@"fullscreen" args:args];

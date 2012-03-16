@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -52,6 +52,10 @@ import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 
+/**
+ * This class is for Titanium View implementations, that correspond with TiViewProxy. 
+ * A TiUIView is responsible for creating and maintaining a native Android View instance.
+ */
 public abstract class TiUIView
 	implements KrollProxyListener, OnFocusChangeListener
 {
@@ -85,6 +89,13 @@ public abstract class TiUIView
 
 	private Method mSetLayerTypeMethod = null; // Honeycomb, for turning off hw acceleration.
 
+	private boolean zIndexChanged = false;
+
+	/**
+	 * Constructs a TiUIView object with the associated proxy.
+	 * @param proxy the associated proxy.
+	 * @module.api
+	 */
 	public TiUIView(TiViewProxy proxy)
 	{
 		if (idGenerator == null) {
@@ -95,6 +106,10 @@ public abstract class TiUIView
 		this.layoutParams = new TiCompositeLayout.LayoutParams();
 	}
 
+	/**
+	 * Adds a child view into the ViewGroup.
+	 * @param child the view to be added.
+	 */
 	public void add(TiUIView child)
 	{
 		if (child != null) {
@@ -112,6 +127,10 @@ public abstract class TiUIView
 		}
 	}
 
+	/**
+	 * Removes the child view from the ViewGroup, if child exists.
+	 * @param child the view to be removed.
+	 */
 	public void remove(TiUIView child)
 	{
 		if (child != null) {
@@ -127,16 +146,28 @@ public abstract class TiUIView
 		}
 	}
 
+	/**
+	 * @return list of views added.
+	 */
 	public List<TiUIView> getChildren()
 	{
 		return children;
 	}
 
+	/**
+	 * @return the view proxy.
+	 * @module.api
+	 */
 	public TiViewProxy getProxy()
 	{
 		return proxy;
 	}
 
+	/**
+	 * Sets the view proxy.
+	 * @param proxy the proxy to set.
+	 * @module.api
+	 */
 	public void setProxy(TiViewProxy proxy)
 	{
 		this.proxy = proxy;
@@ -152,16 +183,29 @@ public abstract class TiUIView
 		this.parent = parent;
 	}
 
+	/**
+	 * @return the view's layout params.
+	 * @module.api
+	 */
 	public LayoutParams getLayoutParams()
 	{
 		return layoutParams;
 	}
 
+	/**
+	 * @return the Android native view.
+	 * @module.api
+	 */
 	public View getNativeView()
 	{
 		return nativeView;
 	}
 
+	/**
+	 * Sets the nativeView to view.
+	 * @param view the view to set
+	 * @module.api
+	 */
 	protected void setNativeView(View view)
 	{
 		if (view.getId() == View.NO_ID) {
@@ -182,6 +226,9 @@ public abstract class TiUIView
 		this.layoutParams = layoutParams;
 	}
 
+	/**
+	 * Animates the view if there are pending animations.
+	 */
 	public void animate()
 	{
 		TiAnimationBuilder builder = proxy.getPendingAnimation();
@@ -243,11 +290,18 @@ public abstract class TiUIView
 		}
 	}
 
+	public void forceLayoutNativeView(boolean imformParent)
+	{
+		layoutNativeView(imformParent);
+	}
+
 	protected void layoutNativeView()
 	{
-		layoutNativeView(false);
+		if (!this.proxy.isLayoutStarted()) {
+			layoutNativeView(false);
+		}
 	}
-	
+
 	protected void layoutNativeView(boolean informParent)
 	{
 		if (nativeView != null) {
@@ -271,8 +325,19 @@ public abstract class TiUIView
 		}
 	}
 
+	public boolean iszIndexChanged()
+	{
+		return zIndexChanged;
+	}
+
+	public void setzIndexChanged(boolean zIndexChanged)
+	{
+		this.zIndexChanged = zIndexChanged;
+	}
+
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
+
 		if (key.equals(TiC.PROPERTY_LEFT)) {
 			if (newValue != null) {
 				layoutParams.optionLeft = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_LEFT);
@@ -316,10 +381,10 @@ public abstract class TiUIView
 			if (newValue != null) {
 				if (!newValue.equals(TiC.SIZE_AUTO)) {
 					layoutParams.optionHeight = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_HEIGHT);
-					layoutParams.autoHeight = false;
+					layoutParams.sizeOrFillHeightEnabled = false;
 				} else {
 					layoutParams.optionHeight = null;
-					layoutParams.autoHeight = true;
+					layoutParams.sizeOrFillHeightEnabled = true;
 				}
 			} else {
 				layoutParams.optionHeight = null;
@@ -329,10 +394,10 @@ public abstract class TiUIView
 			if (newValue != null) {
 				if (!newValue.equals(TiC.SIZE_AUTO)) {
 					layoutParams.optionWidth = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_WIDTH);
-					layoutParams.autoWidth = false;
+					layoutParams.sizeOrFillWidthEnabled = false;
 				} else {
 					layoutParams.optionWidth = null;
-					layoutParams.autoWidth = true;
+					layoutParams.sizeOrFillWidthEnabled = true;
 				}
 			} else {
 				layoutParams.optionWidth = null;
@@ -344,7 +409,11 @@ public abstract class TiUIView
 			} else {
 				layoutParams.optionZIndex = 0;
 			}
-			layoutNativeView(true);
+			if (!this.proxy.isLayoutStarted()) {
+				layoutNativeView(true);
+			} else {
+				setzIndexChanged(true);
+			}
 		} else if (key.equals(TiC.PROPERTY_FOCUSABLE)) {
 			boolean focusable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_FOCUSABLE));
 			nativeView.setFocusable(focusable);
@@ -373,6 +442,7 @@ public abstract class TiUIView
 			boolean hasImage = hasImage(d);
 			boolean hasColorState = hasColorState(d);
 			boolean hasBorder = hasBorder(d);
+			boolean nativeViewNull = (nativeView == null);
 
 			boolean requiresCustomBackground = hasImage || hasColorState || hasBorder;
 
@@ -385,7 +455,7 @@ public abstract class TiUIView
 
 				if (d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
 					Integer bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
-					if (nativeView != null){
+					if (!nativeViewNull) {
 						nativeView.setBackgroundColor(bgColor);
 						nativeView.postInvalidate();
 					}
@@ -393,7 +463,7 @@ public abstract class TiUIView
 					if (key.equals(TiC.PROPERTY_OPACITY)) {
 						setOpacity(TiConvert.toFloat(newValue));
 					}
-					if (nativeView != null) {
+					if (!nativeViewNull) {
 						nativeView.setBackgroundDrawable(null);
 						nativeView.postInvalidate();
 					}
@@ -409,10 +479,7 @@ public abstract class TiUIView
 				if (!hasColorState) {
 					if (d.get(TiC.PROPERTY_BACKGROUND_COLOR) != null) {
 						bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
-						if (newBackground
-							|| (key.equals(TiC.PROPERTY_OPACITY)
-							|| key.equals(TiC.PROPERTY_BACKGROUND_COLOR)))
-						{
+						if (newBackground || (key.equals(TiC.PROPERTY_OPACITY) || key.equals(TiC.PROPERTY_BACKGROUND_COLOR))) {
 							background.setBackgroundColor(bgColor);
 						}
 					}
@@ -431,9 +498,15 @@ public abstract class TiUIView
 						handleBorderProperty(key, newValue);
 					}
 				}
+
 				applyCustomBackground();
+
+				if (key.equals(TiC.PROPERTY_OPACITY)) {
+					setOpacity(TiConvert.toFloat(newValue));
+				}
+
 			}
-			if (nativeView != null) {
+			if (!nativeViewNull) {
 				nativeView.postInvalidate();
 			}
 		} else if (key.equals(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
@@ -473,7 +546,7 @@ public abstract class TiUIView
 		}
 		if (TiConvert.fillLayout(d, layoutParams) && !nativeViewNull) {
 			nativeView.requestLayout();
-			
+
 		}
 
 		Integer bgColor = null;
@@ -485,10 +558,6 @@ public abstract class TiUIView
 		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) && !nativeViewNull) {
 			bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
 			nativeView.setBackgroundColor(bgColor);
-		}
-		if (d.containsKey(TiC.PROPERTY_OPACITY) && !nativeViewNull) {
-			setOpacity(TiConvert.toFloat(d, TiC.PROPERTY_OPACITY));
-			
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_VISIBLE) && !nativeViewNull) {
@@ -511,6 +580,11 @@ public abstract class TiUIView
 		}
 
 		initializeBorder(d, bgColor);
+
+		if (d.containsKey(TiC.PROPERTY_OPACITY) && !nativeViewNull) {
+			setOpacity(TiConvert.toFloat(d, TiC.PROPERTY_OPACITY));
+
+		}
 
 		if (d.containsKey(TiC.PROPERTY_TRANSFORM)) {
 			Ti2DMatrix matrix = (Ti2DMatrix) d.get(TiC.PROPERTY_TRANSFORM);
@@ -583,6 +657,9 @@ public abstract class TiUIView
 		return imm;
 	}
 
+	/**
+	 * Focuses the view.
+	 */
 	public void focus()
 	{
 		if (nativeView != null) {
@@ -590,6 +667,9 @@ public abstract class TiUIView
 		}
 	}
 
+	/**
+	 * Blurs the view.
+	 */
 	public void blur()
 	{
 		if (nativeView != null) {
@@ -630,6 +710,9 @@ public abstract class TiUIView
 		}
 	}
 
+	/**
+	 * Shows the view, changing the view's visibility to View.VISIBLE.
+	 */
 	public void show()
 	{
 		if (nativeView != null) {
@@ -641,6 +724,9 @@ public abstract class TiUIView
 		}
 	}
 
+	/**
+	 * Hides the view, changing the view's visibility to View.INVISIBLE.
+	 */
 	public void hide()
 	{
 		if (nativeView != null) {
@@ -811,7 +897,7 @@ public abstract class TiUIView
 			new SimpleOnGestureListener() {
 				@Override
 				public boolean onDoubleTap(MotionEvent e) {
-					if (proxy.hasListeners(TiC.EVENT_DOUBLE_TAP) || proxy.hasListeners(TiC.EVENT_DOUBLE_CLICK)) {
+					if (proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_TAP) || proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_CLICK)) {
 						boolean handledTap = proxy.fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
 						boolean handledClick = proxy.fireEvent(TiC.EVENT_DOUBLE_CLICK, dictFromEvent(e));
 						return handledTap || handledClick;
@@ -821,7 +907,7 @@ public abstract class TiUIView
 				@Override
 				public boolean onSingleTapConfirmed(MotionEvent e) {
 					if (DBG) { Log.d(LCAT, "TAP, TAP, TAP on " + proxy); }
-					if (proxy.hasListeners(TiC.EVENT_SINGLE_TAP)) {
+					if (proxy.hierarchyHasListener(TiC.EVENT_SINGLE_TAP)) {
 						return proxy.fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
 						// Moved click handling to the onTouch listener, because a single tap is not the
 						// same as a click.  A single tap is a quick tap only, whereas clicks can be held
@@ -841,11 +927,13 @@ public abstract class TiUIView
 					if (DBG){
 						Log.d(LCAT, "LONGPRESS on " + proxy);
 					}
-					if (proxy.hasListeners(TiC.EVENT_LONGPRESS)) {
+					
+					if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
 						proxy.fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
 					}
 				}
 			});
+		
 		touchable.setOnTouchListener(new OnTouchListener() {
 			public boolean onTouch(View view, MotionEvent event) {
 				if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -900,11 +988,20 @@ public abstract class TiUIView
 		doSetClickable(touchable);
 	}
 
+	/**
+	 * Sets the nativeView's opacity.
+	 * @param opacity the opacity to set.
+	 */
 	public void setOpacity(float opacity)
 	{
 		setOpacity(nativeView, opacity);
 	}
 
+	/**
+	 * Sets the view's opacity.
+	 * @param view the view object.
+	 * @param opacity the opacity to set.
+	 */
 	protected void setOpacity(View view, float opacity)
 	{
 		if (view != null) {
@@ -916,6 +1013,7 @@ public abstract class TiUIView
 		}
 	}
 
+	
 	public void clearOpacity(View view)
 	{
 		Drawable d = view.getBackground();

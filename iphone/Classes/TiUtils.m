@@ -73,6 +73,23 @@ static void getAddrInternal(char* macAddress, const char* ifName) {
 
 @implementation TiUtils
 
++(int) dpi
+{
+	if ([TiUtils isIPad])
+	{
+        //TODO Update for iPAD retina specs dpi is 264
+		return 130;
+	}
+	else if ([TiUtils isRetinaDisplay])
+	{
+		return 320;
+	}
+	else
+	{
+		return 160;
+	}    
+}
+
 +(BOOL)isRetinaDisplay
 {
 	// since we call this alot, cache it
@@ -495,7 +512,7 @@ static void getAddrInternal(char* macAddress, const char* ifName) {
 			return [NSNull null];
 		case TiDimensionTypeAuto:
 			return @"auto";
-		case TiDimensionTypePixels:
+		case TiDimensionTypeDip:
 			return [NSNumber numberWithFloat:dimension.value];
 		default: {
 			break;

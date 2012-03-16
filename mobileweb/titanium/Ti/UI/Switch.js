@@ -8,15 +8,14 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
         unitize = dom.unitize;
 
 	return declare("Ti.UI.Switch", FontWidget, {
-		
-		domType: "button",
 
 		constructor: function(args) {
 			
 			// This container holds the flex boxes used to position the elements
 			this._contentContainer = dom.create("div", {
-				className: "TiUIButtonContentContainer",
-				style: {display: ["-webkit-box", "-moz-box"],
+				className: "TiUISwitchContentContainer",
+				style: {
+					display: ["-webkit-box", "-moz-box"],
 					boxOrient: "vertical",
 					boxPack: "center",
 					boxAlign: "stretch",
@@ -27,7 +26,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			
 			// Create the text box and a flex box to align it
 			this._titleContainer = dom.create("div", {
-				className: "TiUIButtonTextAligner",
+				className: "TiUISwitchTextAligner",
 				style: {
 					display: ["-webkit-box", "-moz-box"],
 					boxOrient: "vertical",
@@ -48,7 +47,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 			// Create the switch indicator and a flex box to contain it
 			this._indicatorContainer = dom.create("div", {
-				className: "TiUIButtonTextAligner",
+				className: "TiUISwitchTextAligner",
 				style: {
 					display: ["-webkit-box", "-moz-box"],
 					boxPack: "center",
@@ -67,21 +66,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				}
 			}, this._indicatorContainer);
 			this._switchIndicator.domNode += " TiUISwitchIndicator";
-			
-			// Add the enabled/disabled dimmer
-			this._disabledDimmer = dom.create("div", {
-				className: "TiUISwitchDisableDimmer",
-				style: {
-					pointerEvents: "none",
-					opacity: 0,
-					backgroundColor: "white",
-					width: "100%",
-					height: "100%",
-					position: "absolute",
-					top: 0,
-					left: 0
-				}
-			}, this.domNode);
 			
 			// Set the default look
 			this._setDefaultLook();
@@ -105,12 +89,15 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		_setDefaultLook: function() {
 			if (!this._hasDefaultLook) {
 				this._hasDefaultLook = true;
-				this.domNode.className += " TiUIButtonDefault";
-				setStyle(this.domNode,"padding","6px 6px");
+				css.add(this.domNode, "TiUIElementGradient");
 				this._previousBorderWidth = this.borderWidth;
 				this._previousBorderColor = this.borderColor;
 				this.borderWidth = 1;
-				this.borderColor = "#aaa";
+				this.borderColor = "#666";
+				setStyle(this.domNode, { 
+					borderRadius: "6px",
+					padding: "6px 6px"
+				});
 			}
 		},
 		
@@ -118,12 +105,12 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			if (this._hasDefaultLook) {
 				this._hasDefaultLook = false;
 				var className = this.domNode.className;
-				this.domNode.className = className.substring(0,className.length - " TiUIButtonDefault".length);
-				setStyle(this.domNode,"padding",0);
+				css.remove(this.domNode, "TiUIElementGradient");
 				this.borderWidth = this._previousBorderWidth;
 				this.borderColor = this._previousBorderColor;
-				setStyle(this._disabledDimmer,{
-					opacity: 0
+				setStyle(this.domNode, { 
+					borderRadius: "",
+					padding: ""
 				});
 			}
 		},
@@ -131,18 +118,17 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		_getContentSize: function(width, height) {
 			var defaultLookOffset = (this._hasDefaultLook ? 12 : 0);
 			return {
-				width: width === "auto" ? Math.max(this._measureText(this._switchTitle.innerHTML, this._switchTitle).width, this._switchIndicator.offsetWidth) + defaultLookOffset : width,
-				height: height === "auto" ? this._measureText(this._switchTitle.innerHTML, this._switchTitle).height + // Text height
+				width: Math.max(this._measureText(this._switchTitle.innerHTML, this._switchTitle).width, this._switchIndicator.offsetWidth) + defaultLookOffset,
+				height: this._measureText(this._switchTitle.innerHTML, this._switchTitle).height + // Text height
 						this._switchIndicator.offsetHeight + // Indicator height
 						3 + // Padding between the indicator and text
 						defaultLookOffset // Border of the default style
-						: height
 			};
 		},
 		
-		_defaultWidth: "auto",
+		_defaultWidth: UI.SIZE,
 		
-        _defaultHeight: "auto",
+        _defaultHeight: UI.SIZE,
 
 		properties: {
 			
@@ -163,25 +149,18 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 			backgroundSelectedImage: postDoBackground,
 			
-			color: {
-				set: function(value) {
-					setStyle(this._switchTitle, "color", value);
-					return value;
-				}
-			},
-			
 			enabled: {
 				set: function(value, oldValue) {
 					
 					if (value !== oldValue) {
-						if (!value) {
-							this._hasDefaultLook && setStyle(this._disabledDimmer,{
-								opacity: 0.5
-							});
-						} else {
-							this._hasDefaultLook && setStyle(this._disabledDimmer,{
-								opacity: 0
-							});
+						if (this._hasDefaultLook) {	
+							if (!value) {
+								css.remove(this.domNode,"TiUIElementGradient");
+								setStyle(this.domNode,"backgroundColor","#aaa");
+							} else {
+								css.add(this.domNode,"TiUIElementGradient");
+								setStyle(this.domNode,"backgroundColor","");
+							}
 						}
 						this._setTouchEnabled(value);
 					}
@@ -207,7 +186,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				set: function(value) {
 					if (!this.value) {
 						this._switchTitle.innerHTML = value;
-						this._hasAutoDimensions() && this._triggerParentLayout();
+						this._hasSizeDimensions() && this._triggerLayout();
 					}
 					return value;
 				},
@@ -218,7 +197,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				set: function(value) {
 					if (this.value) {
 						this._switchTitle.innerHTML = value;
-						this._hasAutoDimensions() && this._triggerParentLayout();
+						this._hasSizeDimensions() && this._triggerLayout();
 					}
 					return value;
 				},
@@ -230,12 +209,15 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					setStyle(this._switchIndicator,{
 						backgroundColor: value ? "#0f0" : "#aaa"
 					});
+					value = !!value;
 					this._switchTitle.innerHTML = value ? this.titleOn : this.titleOff;
-					this._hasAutoDimensions() && this._triggerParentLayout();
-					this.fireEvent("change",{
-						value: !!value
-					});
+					this._hasSizeDimensions() && this._triggerLayout();
 					return value;
+				},
+				post: function() {
+					this.fireEvent("change",{
+						value: this.value
+					});
 				}
 			},
 			

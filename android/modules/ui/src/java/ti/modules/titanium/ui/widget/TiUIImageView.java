@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -99,9 +98,20 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		protected void onPostExecute(Drawable d)
 		{
 			super.onPostExecute(d);
-
+			
 			if (d != null) {
-				setImageDrawable(d, token);
+				final Drawable fDrawable = d;
+				
+				// setImageDrawable has to run in the UI thread since it updates the UI
+				TiMessenger.getMainMessenger().post(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						setImageDrawable(fDrawable, token);
+					}
+				});
+				
 			} else {
 				if (DBG) {
 					String traceMsg = "Background image load returned null";

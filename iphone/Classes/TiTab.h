@@ -9,17 +9,34 @@
 @class TiProxy;
 @class TiWindowProxy;
 
+/**
+ The protocol for tabs.
+ */
 @protocol TiTab
 
 @required
 
 
+/**
+ Returns the tag group associated with the tab.
+ @return A tab group.
+ */
 -(TiProxy<TiTabGroup>*)tabGroup;
 
+/**
+ Returns the navigation controller associated with the tab.
+ @return A navigation controller.
+ */
 -(UINavigationController*)controller;
 
 -(void)open:(NSArray*)args;
 -(void)close:(NSArray*)args;
+
+/**
+ Tells the tab that its associated window is closing.
+ @param window The window being closed.
+ @param animated _YES_ if window close is anumated, _NO_ otherwise.
+ */
 -(void)windowClosing:(TiWindowProxy*)window animated:(BOOL)animated;
 
 @end

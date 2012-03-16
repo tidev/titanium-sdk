@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
-	function(declare, FontWidget, dom, css, style, lang, UI) {
+define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/Locale", "Ti/UI"],
+	function(declare, FontWidget, dom, css, style, lang, Locale, UI) {
 
 	var set = style.set,
 		undef,
@@ -31,7 +31,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				style: {
 					textAlign: "left",
 					textOverflow: "ellipsis",
-					overflowX: "hidden",
+					overflow: "hidden",
 					width: "100%",
 					maxHeight: "100%",
 					userSelect: "none",
@@ -41,18 +41,17 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 			this._addStyleableDomNode(this.textContainerDiv);
 			
-			this.touchEnabled = false;
 			this.wordWrap = true;
 		},
 
-		_defaultWidth: "auto",
+		_defaultWidth: UI.SIZE,
 
-		_defaultHeight: "auto",
+		_defaultHeight: UI.SIZE,
 		
 		_getContentSize: function(width, height) {
 			return {
-				width: width === "auto" ? this._measureText(this.text, this.textContainerDiv, width).width : width,
-				height: height === "auto" ? this._measureText(this.text, this.textContainerDiv, width).height : height
+				width: this._measureText(this.text, this.textContainerDiv, width).width,
+				height: this._measureText(this.text, this.textContainerDiv, width).height
 			};
 		},
 		
@@ -74,12 +73,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		},
 
 		properties: {
-			color: {
-				set: function(value) {
-					this.textContainerDiv.style.color = value;
-					return value;
-				}
-			},
 			ellipsize: {
 				set: function(value) {
 					set(this.textContainerDiv,"textOverflow", !!value ? "ellipsis" : "clip");
@@ -90,7 +83,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			html: {
 				set: function(value) {
 					this.textContainerDiv.innerHTML = value;
-					this._hasAutoDimensions() && this._triggerParentLayout();
+					this._hasSizeDimensions() && this._triggerLayout();
 					return value;
 				}
 			},
@@ -108,7 +101,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			},
 			text: {
 				set: function(value) {
-					
 					// Convert \t and \n to &nbsp;'s and <br/>'s
 					var lineStartIndex = 0,
 						currentIndex = 0,
@@ -137,7 +129,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					value.match("<br/>$") && (value += "&nbsp;");
 					
 					this.textContainerDiv.innerHTML = value;
-					this._hasAutoDimensions() && this._triggerParentLayout();
+					this._hasSizeDimensions() && this._triggerLayout();
 					return value;
 				}
 			},
@@ -155,13 +147,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				value: UI.TEXT_ALIGNMENT_LEFT
 			},
 			textid: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Label#.textid" is not implemented yet.');
-					return value;
-				},
 				set: function(value) {
-					console.debug('Property "Titanium.UI.Label#.textid" is not implemented yet.');
+					this.text = Locale.getString(value);
 					return value;
 				}
 			},

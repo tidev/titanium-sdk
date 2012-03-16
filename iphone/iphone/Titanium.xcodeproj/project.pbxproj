@@ -408,7 +408,6 @@
 		24D8E48C119B9D8A00F8CAA6 /* TiUIDashboardView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E2A116066B400AF54AF /* TiUIDashboardView.m */; };
 		24D8E48D119B9D8A00F8CAA6 /* TiUIDashboardItemProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50F8B1160792D00AF54AF /* TiUIDashboardItemProxy.m */; };
 		24D8E48E119B9D8A00F8CAA6 /* TiUIiPadDocumentViewerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DDF65E11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m */; };
-		24D8E48F119B9D8A00F8CAA6 /* TiToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DD042B116A6C58006FD6E1 /* TiToolbar.m */; };
 		24D8E490119B9D8A00F8CAA6 /* TiGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = B4DE7E4D11823E990006DDE1 /* TiGradient.m */; };
 		24D8E491119B9D8A00F8CAA6 /* ApplicationRouting.m in Sources */ = {isa = PBXBuildFile; fileRef = 24596692118E70D300519F79 /* ApplicationRouting.m */; };
 		24D8E492119B9D8A00F8CAA6 /* TiUIiPadSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 245972C511921D0D00519F79 /* TiUIiPadSplitWindow.m */; };
@@ -436,7 +435,6 @@
 		24D8E4AA119B9D8A00F8CAA6 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CFA111168C30084E2DE /* AVFoundation.framework */; };
 		24D8E4AB119B9D8A00F8CAA6 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24EB0A57111E1BAE001DC2D1 /* libxml2.dylib */; };
 		24D8E4AC119B9D8A00F8CAA6 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24597034118FF66300519F79 /* StoreKit.framework */; };
-		24DD042D116A6C58006FD6E1 /* TiToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DD042B116A6C58006FD6E1 /* TiToolbar.m */; };
 		24DDF66011646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DDF65E11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m */; };
 		24DEDAC7112371A500398D86 /* XMLModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DEDAC4112371A500398D86 /* XMLModule.m */; };
 		24E25CC3112A698C0083D43D /* AQRecorder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24E25CC0112A698C0083D43D /* AQRecorder.mm */; };
@@ -798,7 +796,6 @@
 		DABB376412E8CB280026A6EA /* TiUIDashboardView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E2A116066B400AF54AF /* TiUIDashboardView.m */; };
 		DABB376512E8CB280026A6EA /* TiUIDashboardItemProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50F8B1160792D00AF54AF /* TiUIDashboardItemProxy.m */; };
 		DABB376612E8CB280026A6EA /* TiUIiPadDocumentViewerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DDF65E11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m */; };
-		DABB376712E8CB280026A6EA /* TiToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DD042B116A6C58006FD6E1 /* TiToolbar.m */; };
 		DABB376812E8CB280026A6EA /* TiGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = B4DE7E4D11823E990006DDE1 /* TiGradient.m */; };
 		DABB376912E8CB280026A6EA /* ApplicationRouting.m in Sources */ = {isa = PBXBuildFile; fileRef = 24596692118E70D300519F79 /* ApplicationRouting.m */; };
 		DABB376A12E8CB280026A6EA /* TiUIiPadSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 245972C511921D0D00519F79 /* TiUIiPadSplitWindow.m */; };
@@ -1300,7 +1297,6 @@
 		24D5C75811E6364F00F097E2 /* libtiverify.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtiverify.a; path = ../lib/libtiverify.a; sourceTree = SOURCE_ROOT; };
 		24D8E4B1119B9D8A00F8CAA6 /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		24DD042A116A6C58006FD6E1 /* TiToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiToolbar.h; sourceTree = "<group>"; };
-		24DD042B116A6C58006FD6E1 /* TiToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiToolbar.m; sourceTree = "<group>"; };
 		24DD0455116A6F02006FD6E1 /* TiTabGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTabGroup.h; sourceTree = "<group>"; };
 		24DD0977116D8E07006FD6E1 /* TiToolbarButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiToolbarButton.h; sourceTree = "<group>"; };
 		24DDF65D11646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPadDocumentViewerProxy.h; sourceTree = "<group>"; };
@@ -2026,7 +2022,6 @@
 				24CA89A81111615D0084E2DE /* KrollBridge.h */,
 				24CA89A91111615D0084E2DE /* KrollBridge.mm */,
 				24DD042A116A6C58006FD6E1 /* TiToolbar.h */,
-				24DD042B116A6C58006FD6E1 /* TiToolbar.m */,
 				24DD0455116A6F02006FD6E1 /* TiTabGroup.h */,
 				24DD0977116D8E07006FD6E1 /* TiToolbarButton.h */,
 				24596A29118E88FE00519F79 /* TiTabController.h */,
@@ -3347,7 +3342,6 @@
 				24E50E30116066B400AF54AF /* TiUIDashboardView.m in Sources */,
 				24E50F911160792D00AF54AF /* TiUIDashboardItemProxy.m in Sources */,
 				24DDF66011646D51006FD6E1 /* TiUIiPadDocumentViewerProxy.m in Sources */,
-				24DD042D116A6C58006FD6E1 /* TiToolbar.m in Sources */,
 				B4DE7E4E11823E990006DDE1 /* TiGradient.m in Sources */,
 				24596694118E70D300519F79 /* ApplicationRouting.m in Sources */,
 				245972C611921D0D00519F79 /* TiUIiPadSplitWindow.m in Sources */,
@@ -3631,7 +3625,6 @@
 				24D8E48C119B9D8A00F8CAA6 /* TiUIDashboardView.m in Sources */,
 				24D8E48D119B9D8A00F8CAA6 /* TiUIDashboardItemProxy.m in Sources */,
 				24D8E48E119B9D8A00F8CAA6 /* TiUIiPadDocumentViewerProxy.m in Sources */,
-				24D8E48F119B9D8A00F8CAA6 /* TiToolbar.m in Sources */,
 				24D8E490119B9D8A00F8CAA6 /* TiGradient.m in Sources */,
 				24D8E491119B9D8A00F8CAA6 /* ApplicationRouting.m in Sources */,
 				24D8E492119B9D8A00F8CAA6 /* TiUIiPadSplitWindow.m in Sources */,
@@ -3913,7 +3906,6 @@
 				DABB376412E8CB280026A6EA /* TiUIDashboardView.m in Sources */,
 				DABB376512E8CB280026A6EA /* TiUIDashboardItemProxy.m in Sources */,
 				DABB376612E8CB280026A6EA /* TiUIiPadDocumentViewerProxy.m in Sources */,
-				DABB376712E8CB280026A6EA /* TiToolbar.m in Sources */,
 				DABB376812E8CB280026A6EA /* TiGradient.m in Sources */,
 				DABB376912E8CB280026A6EA /* ApplicationRouting.m in Sources */,
 				DABB376A12E8CB280026A6EA /* TiUIiPadSplitWindow.m in Sources */,
@@ -4015,6 +4007,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = Titanium.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
@@ -4053,6 +4046,7 @@
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = Titanium.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
@@ -4162,7 +4156,7 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PREPROCESSOR_DEFINITIONS = "TI_VERSION=$(TI_VERSION)";
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
-				GCC_VERSION = "";
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_ABOUT_RETURN_TYPE = NO;
 				GCC_WARN_MISSING_PARENTHESES = NO;
 				GCC_WARN_SHADOW = NO;
@@ -4207,7 +4201,7 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PREPROCESSOR_DEFINITIONS = "TI_VERSION=$(TI_VERSION)";
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
-				GCC_VERSION = "";
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_ABOUT_RETURN_TYPE = NO;
 				GCC_WARN_MISSING_PARENTHESES = NO;
 				GCC_WARN_SHADOW = NO;

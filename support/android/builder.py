@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Appcelerator Titanium Mobile
-# Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
 # Licensed under the terms of the Apache Public License
 # Please see the LICENSE included with this distribution for details.
 #
@@ -10,8 +10,7 @@
 # and debugging Titanium Mobile applications on Android
 #
 import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib, imp, inspect
-import run, avd, prereq, zipfile, tempfile, fnmatch, codecs, traceback, simplejson
-from mako.template import Template
+import run, avd, prereq, zipfile, tempfile, fnmatch, codecs, traceback
 from os.path import splitext
 from compiler import Compiler
 from os.path import join, splitext, split, exists
@@ -26,6 +25,8 @@ sys.path.append(top_support_dir)
 sys.path.append(os.path.join(top_support_dir, 'common'))
 sys.path.append(os.path.join(top_support_dir, 'module'))
 
+import simplejson
+from mako.template import Template
 from tiapp import *
 from android import Android
 from androidsdk import AndroidSDK
@@ -63,7 +64,8 @@ java_keywords = [
 	"catch", "extends", "int", "short", "try",
 	"char", "final", "interface", "static", "void",
 	"class", "finally", "long",	"strictfp", "volatile",
-	"const", "float", "native",	"super", "while"
+	"const", "float", "native",	"super", "while",
+	"true", "false", "null"
 ]
 
 
@@ -155,10 +157,12 @@ def copy_all(source_folder, dest_folder, ignore_dirs=[], ignore_files=[], ignore
 				os.makedirs(to_directory)
 			shutil.copyfile(from_, to_)
 
-def remove_orphaned_files(source_folder, target_folder):
+def remove_orphaned_files(source_folder, target_folder, ignore=[]):
 	is_res = source_folder.endswith('Resources') or source_folder.endswith('Resources' + os.sep)
 	for root, dirs, files in os.walk(target_folder):
 		for f in files:
+			if f in ignore:
+				continue
 			full = os.path.join(root, f)
 			rel = full.replace(target_folder, '')
 			if rel[0] == os.sep:
@@ -409,12 +413,15 @@ class Builder(object):
 			
 		return name
 	
-	def run_emulator(self,avd_id,avd_skin):
+	def run_emulator(self,avd_id,avd_skin,avd_name,add_args):
 		info("Launching Android emulator...one moment")
 		debug("From: " + self.sdk.get_emulator())
 		debug("SDCard: " + self.sdcard)
-		debug("AVD ID: " + avd_id)
-		debug("AVD Skin: " + avd_skin)
+		if avd_name == None:
+			debug("AVD ID: " + avd_id)
+			debug("AVD Skin: " + avd_skin)
+		else:
+			debug("AVD Name: " + avd_name)
 		debug("SDK: " + sdk_dir)
 		
 		# make sure adb is running on windows, else XP can lockup the python
@@ -429,7 +436,8 @@ class Builder(object):
 				sys.exit()
 		
 		# this will create an AVD on demand or re-use existing one if already created
-		avd_name = self.create_avd(avd_id,avd_skin)
+		if avd_name == None:
+			avd_name = self.create_avd(avd_id,avd_skin)
 
 		# start the emulator
 		emulator_cmd = [
@@ -446,6 +454,7 @@ class Builder(object):
 			'-partition-size',
 			'128' # in between nexusone and droid
 		]
+		emulator_cmd.extend(add_args);
 		debug(' '.join(emulator_cmd))
 		
 		p = subprocess.Popen(emulator_cmd)
@@ -521,6 +530,15 @@ class Builder(object):
 			platform_folder = os.path.join(module.path, 'platform', 'android')
 			if os.path.exists(platform_folder):
 				copy_all(platform_folder, self.project_dir, one_time_msg="Copying platform-specific files for '%s' module" % module.manifest.name)
+
+	def copy_commonjs_modules(self):
+		info('Copying CommonJS modules...')
+		for module in self.modules:
+			if module.js is None:
+				continue
+			module_name = os.path.basename(module.js)
+			self.non_orphans.append(module_name)
+			shutil.copy(module.js, self.assets_resources_dir)
 
 	def copy_project_platform_folder(self, ignore_dirs=[], ignore_files=[]):
 		if not os.path.exists(self.platform_dir):
@@ -702,6 +720,19 @@ class Builder(object):
 		if len(self.project_deltas) > 0 or not os.path.exists(index_json_path):
 			requireIndex.generateJSON(self.assets_dir, index_json_path)
 
+	def check_permissions_mapping(self, key, permissions_mapping, permissions_list):
+		try:
+			perms = permissions_mapping[key]
+			if perms:
+				for perm in perms: 
+					try:
+						permissions_list.index(perm)
+
+					except:
+						permissions_list.append(perm)
+		except:
+			pass
+
 	def generate_android_manifest(self,compiler):
 
 		self.generate_localizations()
@@ -718,15 +749,15 @@ class Builder(object):
 		# Enable mock location if in development or test mode.
 		if self.deploy_type == 'development' or self.deploy_type == 'test':
 			GEO_PERMISSION.append('ACCESS_MOCK_LOCATION')
-		
-		# this is our module method to permission(s) trigger - for each method on the left, require the permission(s) on the right
-		permission_mapping = {
+
+		# this is our module to permission(s) trigger - for each module on the left, require the permission(s) on the right
+		permissions_module_mapping = {
 			# GEO
-			'Geolocation.watchPosition' : GEO_PERMISSION,
-			'Geolocation.getCurrentPosition' : GEO_PERMISSION,
-			'Geolocation.watchHeading' : GEO_PERMISSION,
-			'Geolocation.getCurrentHeading' : GEO_PERMISSION,
-			
+			'geolocation' : GEO_PERMISSION,
+		}
+
+		# this is our module method to permission(s) trigger - for each method on the left, require the permission(s) on the right
+		permissions_method_mapping = {
 			# MEDIA
 			'Media.vibrate' : VIBRATE_PERMISSION,
 			'Media.showCamera' : CAMERA_PERMISSION,
@@ -795,19 +826,15 @@ class Builder(object):
 		}
 		
 		activities = []
-		
+
+		# figure out which permissions we need based on the used module
+		for mod in compiler.modules:
+			self.check_permissions_mapping(mod, permissions_module_mapping, permissions_required)
+
 		# figure out which permissions we need based on the used module methods
 		for mn in compiler.module_methods:
-			try:
-				perms = permission_mapping[mn]
-				if perms:
-					for perm in perms: 
-						try:
-							permissions_required.index(perm)
-						except:
-							permissions_required.append(perm)
-			except:
-				pass
+			self.check_permissions_mapping(mn, permissions_method_mapping, permissions_required)
+
 			try:
 				mappings = activity_mapping[mn]
 				try:
@@ -1633,6 +1660,7 @@ class Builder(object):
 		self.build_only = build_only
 		self.device_args = device_args
 		self.postbuild_modules = []
+		self.non_orphans = []
 		if install:
 			if self.device_args == None:
 				self.device_args = ['-d']
@@ -1769,8 +1797,8 @@ class Builder(object):
 			self.assets_dir = os.path.join(self.project_dir,'bin','assets')
 			self.assets_resources_dir = os.path.join(self.assets_dir,'Resources')
 			
-			if not os.path.exists(self.assets_dir):
-				os.makedirs(self.assets_dir)
+			if not os.path.exists(self.assets_resources_dir):
+				os.makedirs(self.assets_resources_dir)
 			
 			shutil.copy(self.project_tiappxml, self.assets_dir)
 			finalxml = os.path.join(self.assets_dir,'tiapp.xml')
@@ -1803,6 +1831,13 @@ class Builder(object):
 				self.debugger_port = int(hostport[1])
 			debugger_enabled = self.debugger_host != None and len(self.debugger_host) > 0
 
+			# Detect which modules are being used.
+			# We need to know this info in a few places, so the info is saved
+			# in self.missing_modules and self.modules
+			detector = ModuleDetector(self.top_dir)
+			self.missing_modules, self.modules = detector.find_app_modules(self.tiapp, 'android')
+
+			self.copy_commonjs_modules()
 			self.copy_project_resources()
 
 			last_build_info = None
@@ -1858,12 +1893,6 @@ class Builder(object):
 
 			self.warn_dupe_drawable_folders()
 
-			# Detect which modules are being used.
-			# We need to know this info in a few places, so the info is saved
-			# in self.missing_modules and self.modules
-			detector = ModuleDetector(self.top_dir)
-			self.missing_modules, self.modules = detector.find_app_modules(self.tiapp, 'android')
-
 			self.copy_module_platform_folders()
 
 			special_resources_dir = os.path.join(self.top_dir,'platform','android')
@@ -1890,7 +1919,7 @@ class Builder(object):
 			if build_only:
 				self.google_apis_supported = True
 
-			remove_orphaned_files(resources_dir, os.path.join(self.project_dir, 'bin', 'assets', 'Resources'))
+			remove_orphaned_files(resources_dir, self.assets_resources_dir, self.non_orphans)
 
 			generated_classes_built = self.build_generated_classes()
 
@@ -2003,7 +2032,7 @@ class Builder(object):
 
 if __name__ == "__main__":
 	def usage():
-		print "%s <command> <project_name> <sdk_dir> <project_dir> <app_id> [key] [password] [alias] [dir] [avdid] [avdsdk]" % os.path.basename(sys.argv[0])
+		print "%s <command> <project_name> <sdk_dir> <project_dir> <app_id> [key] [password] [alias] [dir] [avdid] [avdsdk] [emulator options]" % os.path.basename(sys.argv[0])
 		print
 		print "available commands: "
 		print
@@ -2067,13 +2096,21 @@ if __name__ == "__main__":
 
 	try:
 		if command == 'run-emulator':
-			s.run_emulator(avd_id, avd_skin)
+			s.run_emulator(avd_id, avd_skin, None, [])
 		elif command == 'run':
 			s.build_and_run(False, avd_id)
 		elif command == 'emulator':
 			avd_id = dequote(sys.argv[6])
-			avd_skin = dequote(sys.argv[7])
-			s.run_emulator(avd_id, avd_skin)
+			if avd_id.isdigit():
+				avd_name = None
+				avd_skin = dequote(sys.argv[7])
+				add_args = sys.argv[8:]
+			else:
+				avd_name = sys.argv[6]
+				avd_id = None
+				avd_skin = None
+				add_args = sys.argv[7:]
+			s.run_emulator(avd_id, avd_skin, avd_name, add_args)
 		elif command == 'simulator':
 			info("Building %s for Android ... one moment" % project_name)
 			avd_id = dequote(sys.argv[6])

@@ -52,17 +52,19 @@
 
 -(void)setMovie:(MPMoviePlayerController*)controller_
 {
-	if (controller!=nil)
-	{
-		if ([controller_ isEqual:controller])
-		{
-			// don't add the movie more than once if the same
-			return;
-		}
-		[[controller view] removeFromSuperview];
-	}
-	RELEASE_TO_NIL(controller);
-	controller = [controller_ retain];
+	if (controller_ == controller) {
+        // don't add the movie more than once if the same
+        return;
+    }
+	[[controller view] removeFromSuperview];
+    [spinner removeFromSuperview];
+    RELEASE_TO_NIL(spinner);
+    RELEASE_TO_NIL(controller);
+
+    if (controller_ == nil) {
+        return;
+    }
+    controller = [controller_ retain];
 	
 	[TiUtils setView:[controller view] positionRect:self.bounds];
 	[self addSubview:[controller view]];
@@ -105,10 +107,7 @@
 
 -(void)dealloc
 {
-	if (controller!=nil)
-	{
-		[[controller view] removeFromSuperview];
-	}
+	[[controller view] removeFromSuperview];
 	RELEASE_TO_NIL(controller);
 	RELEASE_TO_NIL(spinner);
 	[super dealloc];

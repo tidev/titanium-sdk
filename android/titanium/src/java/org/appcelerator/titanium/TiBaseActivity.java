@@ -45,6 +45,10 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 
+/**
+ * The base class for all non tab Titanium activities. To learn more about Activities, see the
+ * <a href="http://developer.android.com/reference/android/app/Activity.html">Android Activity documentation</a>.
+ */
 public abstract class TiBaseActivity extends Activity 
 	implements TiActivitySupport/*, ITiWindowHandler*/
 {
@@ -97,27 +101,45 @@ public abstract class TiBaseActivity extends Activity
 		public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig);
 	}
 
+	/**
+	 * @return the instance of TiApplication.
+	 */
 	public TiApplication getTiApp()
 	{
 		return (TiApplication) getApplication();
 	}
 
+	/**
+	 * @return the window proxy associated with this activity.
+	 */
 	public TiWindowProxy getWindowProxy()
 	{
 		return this.window;
 	}
 
+	/**
+	 * Sets the window proxy.
+	 * @param proxy
+	 */
 	public void setWindowProxy(TiWindowProxy proxy)
 	{
 		this.window = proxy;
+		layout.setProxy(proxy);
 		updateTitle();
 	}
 	
+	/**
+	 * Sets the view proxy.
+	 * @param proxy
+	 */
 	public void setViewProxy(TiViewProxy proxy)
 	{
 		this.view = proxy;
 	}
 
+	/**
+	 * @return activity proxy associated with this activity.
+	 */
 	public ActivityProxy getActivityProxy()
 	{
 		return activityProxy;
@@ -137,6 +159,9 @@ public abstract class TiBaseActivity extends Activity
 		this.activityProxy = proxy;
 	}
 
+	/**
+	 * @return the activity's current layout.
+	 */
 	public TiCompositeLayout getLayout()
 	{
 		return layout;
@@ -246,7 +271,8 @@ public abstract class TiBaseActivity extends Activity
 			arrangement = LayoutArrangement.VERTICAL;
 		}
 
-		return new TiCompositeLayout(this, arrangement);
+		// set to null for now, this will get set correctly in setWindowProxy()
+		return new TiCompositeLayout(this, arrangement, null);
 	}
 
 	protected void setFullscreen(boolean fullscreen)
@@ -304,6 +330,11 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When the activity is created, this method adds it to the activity stack and
+	 * fires a javascript 'create' event.
+	 * @param savedInstanceState Bundle of saved data.
+	 */
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		if (DBG) {
@@ -447,6 +478,9 @@ public abstract class TiBaseActivity extends Activity
 		return getSupportHelper().getUniqueResultCode();
 	}
 
+	/**
+	 * See TiActivitySupport.launchActivityForResult for more details.
+	 */
 	public void launchActivityForResult(Intent intent, int code, TiActivityResultHandler resultHandler)
 	{
 		getSupportHelper().launchActivityForResult(intent, code, resultHandler);
@@ -630,6 +664,10 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When this activity pauses, this method sets the current activity to null, fires a javascript 'pause' event,
+	 * and if the activity is finishing, remove all dialogs associated with it.
+	 */
 	protected void onPause() 
 	{
 		super.onPause();
@@ -672,6 +710,10 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When the activity resumes, this method updates the current activity to this and fires a javascript
+	 * 'resume' event.
+	 */
 	protected void onResume()
 	{
 		super.onResume();
@@ -708,6 +750,11 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When this activity starts, this method updates the current activity to this if necessary and
+	 * fire javascript 'start' and 'focus' events. Focus events will only fire if 
+	 * the activity is not a tab activity.
+	 */
 	protected void onStart()
 	{
 		super.onStart();
@@ -764,6 +811,10 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When this activity stops, this method fires the javascript 'blur' and 'stop' events. Blur events will only fire
+	 * if the activity is not a tab activity.
+	 */
 	protected void onStop()
 	{
 		super.onStop();
@@ -800,9 +851,14 @@ public abstract class TiBaseActivity extends Activity
 				}
 			}
 		}
+		KrollRuntime.suggestGC();
 	}
 
 	@Override
+	/**
+	 * When this activity restarts, this method updates the current activity to this and fires javascript 'restart'
+	 * event.
+	 */
 	protected void onRestart()
 	{
 		super.onRestart();
@@ -835,6 +891,10 @@ public abstract class TiBaseActivity extends Activity
 	}
 
 	@Override
+	/**
+	 * When this activity is destroyed, this method removes it from the activity stack, performs
+	 * clean up, and fires javascript 'destroy' event. 
+	 */
 	protected void onDestroy()
 	{
 		if (DBG) {
@@ -910,6 +970,7 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		KrollRuntime.decrementActivityRefCount();
+		KrollRuntime.suggestGC();
 	}
 
 	// called in order to ensure that the onDestroy call is only acted upon once.
@@ -958,6 +1019,9 @@ public abstract class TiBaseActivity extends Activity
 		}
 	}
 
+	/**
+	 * @return true if this activity is a tab activity, false otherwise.
+	 */
 	protected boolean isTabActivity()
 	{
 		boolean isTab = false;
@@ -982,6 +1046,10 @@ public abstract class TiBaseActivity extends Activity
 	protected void activityOnPause()
 	{
 		super.onPause();
+	}
+	protected void activityOnRestart()
+	{
+		super.onRestart();
 	}
 	protected void activityOnResume()
 	{

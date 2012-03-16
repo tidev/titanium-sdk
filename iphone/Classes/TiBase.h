@@ -67,6 +67,8 @@ void TiLogMessage(NSString* str, ...);
 #define degreesToRadians(x) (M_PI * x / 180.0)
 #define radiansToDegrees(x) (x * (180.0 / M_PI))
 
+// TODO: Need to update RELEASE_TO_NIL etc. to be friendly to rememberproxy/forgetproxy for concurrent
+// memory mgt.
 #define RELEASE_TO_NIL(x) { if (x!=nil) { [x release]; x = nil; } }
 #define RELEASE_TO_NIL_AUTORELEASE(x) { if (x!=nil) { [x autorelease]; x = nil; } }
 #define RELEASE_AND_REPLACE(x,y) { [x release]; x = [y retain]; }
@@ -521,6 +523,20 @@ extern NSString * const kTiGestureShakeNotification;
 extern NSString * const kTiRemoteControlNotification;
 
 extern NSString * const kTiLocalNotification;
+    
+extern NSString* const kTiBehaviorSize;
+extern NSString* const kTiBehaviorFill;
+extern NSString* const kTiBehaviorAuto;
+extern NSString* const kTiUnitPixel;
+extern NSString* const kTiUnitCm;
+extern NSString* const kTiUnitMm;
+extern NSString* const kTiUnitInch;
+extern NSString* const kTiUnitDip;
+extern NSString* const kTiUnitDipAlternate;
+extern NSString* const kTiUnitSystem;
+extern NSString* const kTiUnitPercent;
+    
+
 
 #ifndef ASI_AUTOUPDATE_NETWORK_INDICATOR
 	#define ASI_AUTOUPDATE_NETWORK_INDICATOR 0
@@ -530,29 +546,33 @@ extern NSString * const kTiLocalNotification;
 	#define REACHABILITY_20_API 1
 #endif
 
-#include "TiThreading.h"
 
-/*
+    
+#include "TiThreading.h"
+//Counter to keep track of KrollContext
+extern int krollContextCounter;
+void incrementKrollCounter();	
+void decrementKrollCounter();
+    
+/**
  *	TiThreadPerformOnMainThread should replace all Titanium instances of
  *	performSelectorOnMainThread, ESPECIALLY if wait is to be yes. That way,
  *	exceptional-case main thread activities can process them outside of the
  *	standard event loop.
  */
-
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish);
 
-/*
+/**
  *	The one mixed blessing about blocks is that they retain+autorelease the
  *	stack variables, and inside a method, that includes self. During a dealloc,
  *	this may be dangerous. In order to make life easier for everyone, two
  *	convenience functions are provided. By being a function, it removes self
  *	from being a stack variable. It also has some optimizations.
  */
-	
 void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish);
 void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish);
 
-/*	
+/**	
  *	Blocks sent to TiThreadPerformOnMainThread will be processed on the main
  *	thread. Most of the time, this is done using dispatch_async or
  *	dispatch_sync onto the main queue as needed. However, there are some cases
@@ -588,7 +608,6 @@ void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish);
  *
  *	Returns: Whether or not the queue was empty upon return.
  */
-
 BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhenEmpty, void * reserved );
 
 	

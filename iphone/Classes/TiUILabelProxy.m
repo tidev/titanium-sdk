@@ -12,9 +12,9 @@
 
 @implementation TiUILabelProxy
 
-USE_VIEW_FOR_AUTO_WIDTH
+USE_VIEW_FOR_CONTENT_WIDTH
 
--(CGFloat)autoHeightForWidth:(CGFloat)suggestedWidth
+-(CGFloat)contentHeightForWidth:(CGFloat)suggestedWidth
 {
 	NSString *value = [TiUtils stringValue:[self valueForKey:@"text"]];
 	id fontValue = [self valueForKey:@"font"];
@@ -56,6 +56,16 @@ USE_VIEW_FOR_AUTO_WIDTH
 {
     return [NSMutableDictionary dictionaryWithObject:@"text" forKey:@"textid"];
 }
+
+-(TiDimension)defaultAutoWidthBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+-(TiDimension)defaultAutoHeightBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+
 
 @end
 
