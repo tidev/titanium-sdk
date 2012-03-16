@@ -301,9 +301,9 @@ public class TiDimension
 	{
 		DisplayMetrics metrics = getDisplayMetrics(parent);
 		if (units == TypedValue.COMPLEX_UNIT_DIP) {
-			return ((metrics.density * this.value) / 160);
+			return (metrics.density * this.value);
 		} else if (units == TypedValue.COMPLEX_UNIT_SP) {
-			return ((metrics.scaledDensity * this.value) / 160);
+			return (metrics.scaledDensity * this.value);
 		}
 		return -1;
 	}
