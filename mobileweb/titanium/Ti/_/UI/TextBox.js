@@ -1,6 +1,8 @@
 define(
 	["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/style", "Ti/_/lang", "Ti/_/UI/FontWidget", "Ti/UI"],
 	function(declare, dom, event, style, lang, FontWidget, UI) {
+		
+	var setStyle = style.set;
 
 	return declare("Ti._.UI.TextBox", FontWidget, {
 
@@ -104,11 +106,14 @@ define(
 				value: UI.RETURNKEY_DEFAULT,
 				set: function(value) {
 					var title = "",
-						dest = this.domNode;
+						dest = this.domNode,
+						disp = "none";
 					if (value !== UI.RETURNKEY_DEFAULT) {
-						deset = this._form;
+						dest = this._form;
+						disp = "inherit";
 						~[4,8,10].indexOf(value) && (title = "Search");
 					}
+					setStyle(this._form,"display",disp);
 					this._field.title = title;
 					dom.place(this._field, dest);
 					return value;
@@ -119,7 +124,7 @@ define(
 
 			textAlign: {
 				set: function(value) {
-					style.set(this._field, "text-align", value === UI.TEXT_ALIGNMENT_RIGHT ? "right" : value === UI.TEXT_ALIGNMENT_CENTER ? "center" : "left");
+					setStyle(this._field, "text-align", value === UI.TEXT_ALIGNMENT_RIGHT ? "right" : value === UI.TEXT_ALIGNMENT_CENTER ? "center" : "left");
 					return value;
 				}
 			},

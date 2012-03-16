@@ -38,6 +38,7 @@
 @interface TiRootViewController ()
 
 - (UIView *)keyboardAccessoryViewForProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy withView:(UIView **)proxyView;
+-(UIView*)viewForKeyboardAccessory;
 
 -(void)updateBackground;
 -(void)updateOrientationHistory:(UIInterfaceOrientation)newOrientation;
