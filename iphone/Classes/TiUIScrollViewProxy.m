@@ -80,11 +80,6 @@
             contentHeight = [self contentHeightForWidth:size.width];
         }
         
-        CGFloat offset = TiDimensionCalculateValue(layoutProperties.left, size.width)
-        + TiDimensionCalculateValue(layoutProperties.right, size.width);
-        CGFloat offset2 = TiDimensionCalculateValue(layoutProperties.top, size.height)
-        + TiDimensionCalculateValue(layoutProperties.bottom, size.height);
-        
         CGFloat result=0.0;
         CGFloat thisHeight = 0.0;
         pthread_rwlock_rdlock(&childrenLock);
@@ -92,7 +87,7 @@
         
         for (TiViewProxy * thisChildProxy in array)
         {
-            thisHeight = [thisChildProxy minimumParentHeightForSize:CGSizeMake(size.width - offset, size.height - offset2)];
+            thisHeight = [thisChildProxy minimumParentHeightForSize:size];
             if(result<thisHeight) {
                 result = thisHeight;
             }

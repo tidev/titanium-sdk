@@ -535,7 +535,9 @@ describe("Ti.UI Layout tests", {
 		    contentHeight:'auto',
 		    contentWidth:'auto',
 		    showVerticalScrollIndicator:true,
-		    showHorizontalScrollIndicator:true
+		    showHorizontalScrollIndicator:true,
+		    width:Ti.UI.SIZE,
+		    height:Ti.UI.SIZE		
 		});
 		var scrollView2 = Titanium.UI.createScrollView({
 		    contentHeight:'auto',
