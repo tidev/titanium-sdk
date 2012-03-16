@@ -6,11 +6,12 @@ template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filena
 
 from pbxproj import PBXProj
 
-def ensure_dev_path():
+def ensure_dev_path(debug=True):
 	rc = os.system("xcode-select -print-path >/dev/null 2>/dev/null")
 	if rc == 0 :
 		return
-	print '[INFO] XCode 4.3+ likely. Searching for developer folders.'
+	if debug:
+		print '[INFO] XCode 4.3+ likely. Searching for developer folders.'
 	trypath = '/Developer'
 	if os.path.isdir(trypath):
 		os.putenv('DEVELOPER_DIR',trypath)

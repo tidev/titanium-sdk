@@ -2,7 +2,7 @@ import os,subprocess,types,sys
 from tools import ensure_dev_path
 
 def run(args,ignore_error=False,debug=True,out=None):
-	ensure_dev_path()
+	ensure_dev_path(debug)
 	if debug:
 		print "[DEBUG] executing command: %s" % " ".join(args)
 		sys.stdout.flush()

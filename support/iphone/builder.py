@@ -1387,7 +1387,8 @@ def main(args):
 						sim = subprocess.Popen("\"%s\" launch \"%s\" --sdk %s --family %s" % (iphonesim,app_dir,iphone_version,simtype),shell=True,cwd=template_dir)
 
 					# activate the simulator window
-					os.system("open -b com.apple.iphonesimulator")
+					command = 'osascript -e "tell application \\\"%s/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone Simulator.app\\\" to activate"'
+					os.system(command%xcodeselectpath)
 
 					end_time = time.time()-start_time
 
@@ -1534,7 +1535,12 @@ def main(args):
 
 					# open xcode + organizer after packaging
 					# Have to force the right xcode open...
-					xc_path = os.path.join(run.run(['xcode-select','-print-path'],True,False).rstrip(),'Applications','Xcode.app')
+					xc_path = run.run(['xcode-select','-print-path'],True,False).rstrip()
+					xc_app_index = xc_path.find('/Xcode.app/')
+					if (xc_app_index >= 0):
+						xc_path = xc_path[0:xc_app_index+10]
+					else:
+						xc_path = os.path.join(xc_path,'Applications','Xcode.app')
 					o.write("Launching xcode: %s\n" % xc_path)
 					os.system('open -a %s' % xc_path)
 					
