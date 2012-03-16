@@ -464,8 +464,12 @@ jobject TypeConverter::jsValueToJavaObject(v8::Local<v8::Value> jsValue, bool *i
 	}
 
 	if (jsValue->IsNumber()) {
-		jdouble javaDouble = TypeConverter::jsNumberToJavaDouble(jsValue->ToNumber());
 		*isNew = true;
+		if (jsValue->IsInt32()) {
+			jint javaInt = TypeConverter::jsNumberToJavaInt(jsValue->ToNumber());
+			return env->NewObject(JNIUtil::integerClass, JNIUtil::integerInitMethod, javaInt);
+		}
+		jdouble javaDouble = TypeConverter::jsNumberToJavaDouble(jsValue->ToNumber());
 		return env->NewObject(JNIUtil::doubleClass, JNIUtil::doubleInitMethod, javaDouble);
 
 	} else if (jsValue->IsBoolean()) {
@@ -592,9 +596,6 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 			if (v8ObjectPointer != 0) {
 				Persistent<Object> v8Object = Persistent<Object>((Object *) v8ObjectPointer);
 				JavaObject *jo = NativeObject::Unwrap<JavaObject>(v8Object);
-				if (jo->isDetached()) {
-					jo->attach(javaObject);
-				}
 				return v8Object;
 			}
 		}

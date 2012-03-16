@@ -413,12 +413,15 @@ class Builder(object):
 			
 		return name
 	
-	def run_emulator(self,avd_id,avd_skin,add_args):
+	def run_emulator(self,avd_id,avd_skin,avd_name,add_args):
 		info("Launching Android emulator...one moment")
 		debug("From: " + self.sdk.get_emulator())
 		debug("SDCard: " + self.sdcard)
-		debug("AVD ID: " + avd_id)
-		debug("AVD Skin: " + avd_skin)
+		if avd_name == None:
+			debug("AVD ID: " + avd_id)
+			debug("AVD Skin: " + avd_skin)
+		else:
+			debug("AVD Name: " + avd_name)
 		debug("SDK: " + sdk_dir)
 		
 		# make sure adb is running on windows, else XP can lockup the python
@@ -433,7 +436,8 @@ class Builder(object):
 				sys.exit()
 		
 		# this will create an AVD on demand or re-use existing one if already created
-		avd_name = self.create_avd(avd_id,avd_skin)
+		if avd_name == None:
+			avd_name = self.create_avd(avd_id,avd_skin)
 
 		# start the emulator
 		emulator_cmd = [
@@ -716,6 +720,19 @@ class Builder(object):
 		if len(self.project_deltas) > 0 or not os.path.exists(index_json_path):
 			requireIndex.generateJSON(self.assets_dir, index_json_path)
 
+	def check_permissions_mapping(self, key, permissions_mapping, permissions_list):
+		try:
+			perms = permissions_mapping[key]
+			if perms:
+				for perm in perms: 
+					try:
+						permissions_list.index(perm)
+
+					except:
+						permissions_list.append(perm)
+		except:
+			pass
+
 	def generate_android_manifest(self,compiler):
 
 		self.generate_localizations()
@@ -732,15 +749,15 @@ class Builder(object):
 		# Enable mock location if in development or test mode.
 		if self.deploy_type == 'development' or self.deploy_type == 'test':
 			GEO_PERMISSION.append('ACCESS_MOCK_LOCATION')
-		
-		# this is our module method to permission(s) trigger - for each method on the left, require the permission(s) on the right
-		permission_mapping = {
+
+		# this is our module to permission(s) trigger - for each module on the left, require the permission(s) on the right
+		permissions_module_mapping = {
 			# GEO
-			'Geolocation.watchPosition' : GEO_PERMISSION,
-			'Geolocation.getCurrentPosition' : GEO_PERMISSION,
-			'Geolocation.watchHeading' : GEO_PERMISSION,
-			'Geolocation.getCurrentHeading' : GEO_PERMISSION,
-			
+			'geolocation' : GEO_PERMISSION,
+		}
+
+		# this is our module method to permission(s) trigger - for each method on the left, require the permission(s) on the right
+		permissions_method_mapping = {
 			# MEDIA
 			'Media.vibrate' : VIBRATE_PERMISSION,
 			'Media.showCamera' : CAMERA_PERMISSION,
@@ -809,19 +826,15 @@ class Builder(object):
 		}
 		
 		activities = []
-		
+
+		# figure out which permissions we need based on the used module
+		for mod in compiler.modules:
+			self.check_permissions_mapping(mod, permissions_module_mapping, permissions_required)
+
 		# figure out which permissions we need based on the used module methods
 		for mn in compiler.module_methods:
-			try:
-				perms = permission_mapping[mn]
-				if perms:
-					for perm in perms: 
-						try:
-							permissions_required.index(perm)
-						except:
-							permissions_required.append(perm)
-			except:
-				pass
+			self.check_permissions_mapping(mn, permissions_method_mapping, permissions_required)
+
 			try:
 				mappings = activity_mapping[mn]
 				try:
@@ -2083,14 +2096,21 @@ if __name__ == "__main__":
 
 	try:
 		if command == 'run-emulator':
-			s.run_emulator(avd_id, avd_skin, [])
+			s.run_emulator(avd_id, avd_skin, None, [])
 		elif command == 'run':
 			s.build_and_run(False, avd_id)
 		elif command == 'emulator':
 			avd_id = dequote(sys.argv[6])
-			avd_skin = dequote(sys.argv[7])
-			add_args = sys.argv[8:]
-			s.run_emulator(avd_id, avd_skin, add_args)
+			if avd_id.isdigit():
+				avd_name = None
+				avd_skin = dequote(sys.argv[7])
+				add_args = sys.argv[8:]
+			else:
+				avd_name = sys.argv[6]
+				avd_id = None
+				avd_skin = None
+				add_args = sys.argv[7:]
+			s.run_emulator(avd_id, avd_skin, avd_name, add_args)
 		elif command == 'simulator':
 			info("Building %s for Android ... one moment" % project_name)
 			avd_id = dequote(sys.argv[6])

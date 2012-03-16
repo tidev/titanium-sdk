@@ -1001,7 +1001,6 @@ public class TiHTTPClient
 				boolean queryStringAltered = false;
 				for (String key : data.keySet()) {
 					Object value = data.get(key);
-
 					if (isPostOrPut && (value != null)) {
 						// if the value is a proxy, we need to get the actual file object
 						if (value instanceof TiFileProxy) {

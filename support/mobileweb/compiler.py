@@ -12,8 +12,8 @@ sys.path.append(common_dir)
 import mako.template
 import simplejson
 
-ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
-ignoreDirs = ['.git','.svn','_svn','CVS'];
+ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store']
+ignoreDirs = ['.git','.svn','_svn','CVS']
 
 year = datetime.datetime.now().year
 
@@ -27,6 +27,11 @@ HEADER = """/**
  * This generated source code is Copyright (c) 2010-%d by Appcelerator, Inc. All Rights Reserved.
  */
 """ % year
+
+def compare_versions(version1, version2):
+	def normalize(v):
+		return [int(x) for x in re.sub(r'(\.0+)*$','', v).split(".")]
+	return cmp(normalize(version1), normalize(version2))
 
 class Compiler(object):
 
@@ -126,7 +131,8 @@ class Compiler(object):
 			print '[INFO] Locating Ti+ modules...'
 			for module in tiapp_xml['modules']:
 				if module['platform'] == '' or module['platform'] == 'mobileweb':
-					module_dir = os.path.join(self.project_path, 'modules', module['id'], module['version'])
+					module_dir = os.path.join(self.project_path, 'modules', 'mobileweb', module['id'], module['version'])
+					
 					if not os.path.exists(module_dir):
 						module_dir = os.path.join(self.modules_path, module['id'], module['version'])
 						if not os.path.exists(module_dir):
@@ -138,14 +144,38 @@ class Compiler(object):
 						print '[ERROR] Ti+ module "%s" is invalid: missing package.json' % module['id']
 						sys.exit(1)
 					
+					module_manifest_file = os.path.join(module_dir, 'manifest')
+					if not os.path.exists(module_manifest_file):
+						print '[ERROR] Ti+ module "%s" is invalid: missing manifest' % module['id']
+						sys.exit(1)
+					
+					manifest = {}
+					for line in open(module_manifest_file).readlines():
+						line = line.strip()
+						if line[0:1] == '#': continue
+						if line.find(':') < 0: continue
+						key,value = line.split(':')
+						manifest[key.strip()] = value.strip()
+					
+					if 'minsdk' in manifest and compare_versions(manifest['minsdk'], sdk_version):
+						print '[ERROR] Ti+ module "%s" requires a minimum SDK version of %s: current version %s' % (module['id'], manifest['minsdk'], sdk_version)
+						sys.exit(1)
+					
 					module_package_json = simplejson.load(codecs.open(module_package_json_file, 'r', 'utf-8'))
 					main_file = module_package_json['main']
 					if main_file.endswith('.js'):
 						main_file = main_file[:-3]
-					main_file_path = os.path.join(module_dir, main_file + '.js')
+					
+					lib = ''
+					if 'directories' in module_package_json and 'lib' in module_package_json['directories']:
+						lib = module_package_json['directories']['lib']
+						if lib.startswith('/'):
+							lib = lib[1:]
+					
+					main_file_path = os.path.join(module_dir, lib, main_file + '.js')
 					
 					if not os.path.exists(main_file_path):
-						print '[ERROR] Ti+ module "%s" is invalid: missing main "%s"' % (module['id'], main_file + '.js')
+						print '[ERROR] Ti+ module "%s" is invalid: missing main "%s"' % (module['id'], main_file_path)
 						sys.exit(1)
 					
 					print '[INFO] Bundling Ti+ module "%s"' % module['id']
@@ -154,9 +184,12 @@ class Compiler(object):
 					self.modules_to_cache.append(main_file)
 					self.tiplus_modules_to_load.append(module['id'])
 					
+					if len(lib):
+						lib = '/' + lib
+					
 					self.packages.append({
 						'name': module['id'],
-						'location': './modules/' + module['id'],
+						'location': './modules/' + module['id'] + lib,
 						'main': main_file
 					})
 					
@@ -565,6 +598,7 @@ class Compiler(object):
 			'Ti/UI/View',
 			'Ti/Media/VideoPlayer',
 			'Ti/UI',
+			'Ti/UI/MobileWeb',
 			'Ti/UI/TableViewRow',
 			'Ti/UI/Tab',
 			'Ti/UI/TabGroup',
@@ -591,6 +625,7 @@ class Compiler(object):
 			'Ti/UI/TextArea',
 			'Ti/UI/TextField',
 			'Ti/UI/WebView',
+			'Ti/UI/MobileWeb/NavigationGroup',
 			'Ti/Utils'
 		]
 	
