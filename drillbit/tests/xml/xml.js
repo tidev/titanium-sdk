@@ -78,7 +78,7 @@ describe("Ti.XML tests", {
 		
 		var item = fooBarList.item(0);
 		valueOf(item.text).shouldBe("true");
-		valueOF(item.textContent).shouldBe("true");
+		valueOf(item.textContent).shouldBe("true");
 		valueOf(item.nodeName).shouldBe("FooBar");
 	},
 	
