@@ -9,9 +9,10 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -27,8 +28,8 @@ import android.webkit.WebView;
 	TiC.PROPERTY_SCALES_PAGE_TO_FIT,
 	TiC.PROPERTY_URL
 })
-public class WebViewProxy extends ViewProxy
-	implements Handler.Callback
+public class WebViewProxy extends ViewProxy 
+	implements Handler.Callback, OnLifecycleEvent
 {
 	private static final String TAG = "WebViewProxy";
 	private static final int MSG_FIRST_ID = ViewProxy.MSG_LAST_ID + 1;
@@ -57,6 +58,7 @@ public class WebViewProxy extends ViewProxy
 	@Override
 	public TiUIView createView(Activity activity)
 	{
+		((TiBaseActivity)activity).addOnLifecycleEventListener(this);
 		TiUIWebView webView = new TiUIWebView(this);
 		webView.focus();
 
@@ -297,4 +299,35 @@ public class WebViewProxy extends ViewProxy
 	{
 		super.releaseViews();
 	}
+
+	@Override
+	public void onStart(Activity activity) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onResume(Activity activity) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onPause(Activity activity) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStop(Activity activity) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onDestroy(Activity activity) {
+		getWebView().getWebView().destroy();
+	}
+	
+
 }
