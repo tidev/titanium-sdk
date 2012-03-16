@@ -36,24 +36,16 @@ since: "0.8"
 platforms: [android, iphone, ipad]
 
 properties:
-  - name: url
-    summary: URLs of webpages associated with the person. Multi-value.
-    description: |
-        On iOS:
-        
-        * Keys: any of `homepage`, `home`, `work`, and/or `other`.
-        * Values: array of `string` type.
-    type: Dictionary
-    platforms: [iphone, ipad]
-    
   - name: address
     summary: Addresses for the person. Multi-value. Read-only on Android.
     description: |
-        On iOS:
+        The format of the dictionary accepted by this property is as follows:
         
         * Keys: any of `home`, `work`, and/or `other`.
         * Values: arrays of dictionary types with six keys, `CountryCode`, `Street`, `City`, 
         `County`, `Country` and `ZIP`, each with a `string` type value.
+        
+        On iOS:
         
         The `CountryCode` key value may be one of the recognized two-character ISO 3166-1 country 
         codes, and determines the format in which the contact is presented by the address book 
@@ -83,6 +75,8 @@ properties:
     description: |
         Adding or modifying this property is not currently supported.
         
+        The format of the dictionary accepted by this property is as follows:
+        
         * Keys: any of `anniversary` and/or `other`.
         * Values: array of `string` type.
         
@@ -98,7 +92,7 @@ properties:
   - name: email
     summary: Email addresses for the person. Multi-value. Read-only on Android.
     description: |
-        On iOS:
+        The format of the dictionary accepted by this property is as follows:
         
         * Keys: any of `home`, `work`, and/or `other`.
         * Values: array of `string` type.
@@ -129,7 +123,7 @@ properties:
     summary: |
         Instant messenger names of the person. Multi-value.
     description: |
-        On iOS:
+        The format of the dictionary accepted by this property is as follows:
         
         * Keys: any of `home`, `work` and/or `other`.
         * Values: arrays of dictionary types with two keys, `service` and `username`, each with a 
@@ -199,7 +193,7 @@ properties:
   - name: phone
     summary: Phone numbers for the person. Multi-value. Read-only on Android.
     description: |
-        On iOS:
+        The format of the dictionary accepted by this property is as follows:
         
         * Keys: any of `home`, `work`, `other`, `mobile`, `pager`, `workFax`, `homeFax`, `main`, 
         and/or `iPhone`.
@@ -220,7 +214,7 @@ properties:
   - name: relatedNames
     summary: Names of people to which the person is related. Multi-value.
     description: |
-        On iOS:
+        The format of the dictionary accepted by this property is as follows:
         
         * Keys: any of `mother`, `father`, `parent`, `brother`, `sister`, `child`, `friend`, `spouse`, 
         `partner`, `assistant`, `manager`, and/or `other`.
@@ -231,3 +225,13 @@ properties:
   - name: suffix
     summary: Suffix for the person. Single value. Read-only on Android.
     type: String
+
+  - name: url
+    summary: URLs of webpages associated with the person. Multi-value.
+    description: |
+        The format of the dictionary accepted by this property is as follows:
+        
+        * Keys: any of `homepage`, `home`, `work`, and/or `other`.
+        * Values: array of `string` type.
+    type: Dictionary
+    platforms: [iphone, ipad]

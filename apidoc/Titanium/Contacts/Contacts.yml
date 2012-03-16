@@ -53,7 +53,7 @@ methods:
         type: Array<Titanium.Contacts.Person>    
     parameters:
       - name: limit
-        summary: Maximum number of people.
+        summary: Maximum number of people. Android only.
         type: Number
     
   - name: getGroupByID
@@ -120,29 +120,10 @@ methods:
   - name: showContacts
     summary: Displays a picker that allows a person to be selected.
     parameters:
-      - name: animated
-        summary: Determines whether to animate the show/hide of the contacts picker (iPhone, iPad only.)
-        type: Boolean
-
-      - name: fields
-        summary: Field names to show when selecting properties. By default, shows all available.
-        type: Array<String>
-
-      - name: cancel
-        summary: Function to call when selection is canceled.
-        type: Callback<Object>
-        
-      - name: selectedPerson
-        summary: |
-            Function to call when a person is selected. Mutually exclusive with `selectedProperty` 
-            property.
-        type: Callback<Object>
-        
-      - name: selectedProperty
-        summary: |
-            Function to call when a property is selected. Mutally exclusive with `selectedPerson` 
-            property.
-        type: Callback<Object>
+      - name: params
+        summary: Argument containing parameters for this method.
+        type: showContactsParams
+        optional: true
 
 properties:
   - name: CONTACTS_KIND_ORGANIZATION
@@ -302,3 +283,34 @@ examples:
               }
             });
             Ti.API.info('Contact saved');
+
+---
+name: showContactsParams
+summary: Dictionary of options for the <Titanium.Contacts.showContacts> method.
+platforms: [android, iphone, ipad]
+
+properties:
+- name: animated
+  summary: Determines whether to animate the show/hide of the contacts picker (iPhone, iPad only.)
+  type: Boolean
+  default: true
+  optional: true
+
+- name: fields
+  summary: Field names to show when selecting properties. By default, shows all available.
+  type: Array<String>
+
+- name: cancel
+  summary: Function to call when selection is canceled.
+  type: Callback<Object>
+  
+- name: selectedPerson
+  summary: |
+      Function to call when a person is selected. Must not be used with `selectedProperty` property.
+  type: Callback<Object>
+  
+- name: selectedProperty
+  summary: |
+      Function to call when a property is selected. Must not be used with `selectedPerson` 
+      property.
+  type: Callback<Object>
