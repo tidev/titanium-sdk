@@ -78,6 +78,7 @@ describe("Ti.XML tests", {
 		
 		var item = fooBarList.item(0);
 		valueOf(item.text).shouldBe("true");
+		valueOf(item.textContent).shouldBe("true");
 		valueOf(item.nodeName).shouldBe("FooBar");
 	},
 	
@@ -90,6 +91,7 @@ describe("Ti.XML tests", {
 		
 		var item = fooBarList.item(0);
 		valueOf(item.text).shouldBe("true");
+		valueOf(item.textContent).shouldBe("true");
 		valueOf(item.nodeName).shouldBe("FooBar");
 		
 		// test XPath against Document
@@ -404,7 +406,11 @@ describe("Ti.XML tests", {
 		var getTextResults = null;
 		valueOf(function() { getTextResults = textNode.getText(); }).shouldNotThrowException();
 		valueOf(getTextResults).shouldBe(textValue);
+		valueOf(function() { getTextResults = textNode.getTextContent(); }).shouldNotThrowException();
+		valueOf(getTextResults).shouldBe(textValue);
 		valueOf(function() { getTextResults2 = textNode.text; }).shouldNotThrowException();
+		valueOf(getTextResults2).shouldBe(textValue);
+		valueOf(function() { getTextResults2 = textNode.textContent; }).shouldNotThrowException();
 		valueOf(getTextResults2).shouldBe(textValue);
 	},
 
@@ -455,6 +461,7 @@ describe("Ti.XML tests", {
 		valueOf(section).shouldNotBeNull();
 		valueOf(section).shouldBeObject();
 		valueOf(section.text).shouldBe(data);
+		valueOf(section.textContent).shouldBe(data);
 	},
 	apiXmlDocumentCreateComment: function() {
 		var doc = Ti.XML.parseString("<test/>");
@@ -835,6 +842,7 @@ describe("Ti.XML tests", {
 
 		valueOf(function() { parentNode.normalize(); }).shouldNotThrowException();
 		valueOf(parentNode.getText()).shouldBe("My name is Opie.");
+		valueOf(parentNode.getTextContent()).shouldBe("My name is Opie.");
 		valueOf(parentNode.getChildNodes().length).shouldBe(1);
 	},
 
