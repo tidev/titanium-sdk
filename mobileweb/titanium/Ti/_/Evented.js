@@ -3,10 +3,9 @@ define(function() {
 	return {
 		destroy: function() {
 			for (var i in this) {
-				if (this.hasOwnProperty(i)) {
-					delete this[i];
-				}
+				delete this[i];
 			}
+			this._alive = 0;
 		},
 
 		addEventListener: function(name, handler) {

@@ -116,8 +116,8 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 				return;
 			}
 			this._rows.children[2 * index + 1]._tableViewSection = null;
-			this._rows.remove(this._rows.children[2 * index + 1]);
-			this._rows.remove(this._rows.children[2 * index + 1]);
+			this._rows.remove(this._rows.children[2 * index + 1]); // Remove the separator
+			this._rows.remove(this._rows.children[2 * index + 1]); // Remove the row
 			
 			// Remove the last separator, if there are no rows left
 			if (this._rows.children.length === 1) {
