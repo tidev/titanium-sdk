@@ -110,7 +110,6 @@
 	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
 	UIViewController *viewController = [window controller];
 	[window prepareForNavView:controller];
-	[self setVisibleProxy:window];
 	opening = YES;
 	[controller pushViewController:viewController animated:animated];
 }
@@ -146,7 +145,7 @@
 {
 	TiViewController *wincontroller = (TiViewController*)viewController;
 	TiWindowProxy *newWindow = (TiWindowProxy *)[wincontroller proxy];
-	
+	BOOL visibleProxyDidChange = NO;
 	if (newWindow!=visibleProxy)
 	{
 		if (visibleProxy != nil && visibleProxy!=root && opening==NO)
@@ -154,13 +153,16 @@
 			//TODO: This is an expedient fix, but NavGroup needs rewriting anyways
 			[(TiUIiPhoneNavigationGroupProxy*)[self proxy] close:[NSArray arrayWithObject:visibleProxy]];
 		}
+		visibleProxyDidChange = YES;
 		[self setVisibleProxy:newWindow];
 	}
 	[closingProxy close:nil];
 	[closingProxy release];
 	closingProxy = nil;
 	opening = NO;
-	[newWindow windowDidOpen];
+	if (visibleProxyDidChange) {
+		[newWindow windowDidOpen];
+	}
 }
 
 
