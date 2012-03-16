@@ -112,13 +112,6 @@
 	[search setTranslucent:[TiUtils barTranslucencyForColor:newBarColor]];
 }
 
--(void)setShowBookmark_:(id)value
-{
-	UISearchBar *search = [self searchBar];
-	[search setShowsBookmarkButton:[TiUtils boolValue:value]];
-	[search sizeToFit];
-}
-
 -(CALayer *)backgroundImageLayer
 {
 	if(backgroundLayer==nil)
@@ -208,13 +201,7 @@
 // called when bookmark button pressed
 - (void)searchBarBookmarkButtonClicked:(UISearchBar *)searchBar                   
 {	
-	NSString * text = [searchBar text];
-	[self.proxy replaceValue:text forKey:@"value" notification:NO];
-	
-	if ([self.proxy _hasListeners:@"bookmark"])
-	{
-		[self.proxy fireEvent:@"bookmark" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"]];
-	}
+	//TODO: update to the new event model
 	
 	if (delegate!=nil && [delegate respondsToSelector:@selector(searchBarBookmarkButtonClicked:)])
 	{
