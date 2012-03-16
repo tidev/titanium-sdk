@@ -387,22 +387,22 @@ define(
 			// enroll event
 			if (localStorage.getItem("mobileweb_enrollSent") === null) {
 				// setup enroll event
-				analytics.add('ti.enroll', 'ti.enroll', {
+				analytics.add("ti.enroll", "ti.enroll", {
+					app_name: App.name,
+					oscpu: 1,
 					mac_addr: null,
-					oscpu: null,
-					app_name: cfg.appName,
-					platform: Platform.name,
-					app_id: cfg.appId,
+					deploytype: cfg.deployType,
 					ostype: Platform.osname,
-					osarch: Platform.architecture,
-					model: Platform.model,
-					deploytype: cfg.deployType
+					osarch: null,
+					app_id: App.id,
+					platform: Platform.name,
+					model: Platform.model
 				});
 				localStorage.setItem("mobileweb_enrollSent", true)
 			}
 
 			// app start event
-			analytics.add('ti.start', 'ti.start', {
+			analytics.add("ti.start", "ti.start", {
 				tz: (new Date()).getTimezoneOffset(),
 				deploytype: cfg.deployType,
 				os: Platform.osname,

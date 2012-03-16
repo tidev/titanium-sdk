@@ -1,23 +1,31 @@
-define(["Ti/_", "Ti/_/dom", "Ti/_/lang", "Ti/Platform"], function(_, dom, lang, Platform) {
+define(["Ti/_", "Ti/_/dom", "Ti/_/lang", "Ti/App", "Ti/Platform"], function(_, dom, lang, App, Platform) {
 
 	var global = window,
 		sessionId = sessionStorage.getItem("ti:sessionId"),
-		doc = document,
 		cfg = require.config,
-		analyticsEnabled = cfg.app.analytics,
+		analyticsEnabled = App.analytics,
 		analyticsStorageName = "ti:analyticsEvents",
-		analyticsEventSeq = 1,
+		analyticsEventSeq = 0,
 		analyticsLastSent = null,
 		analyticsUrl = "https://api.appcelerator.net/p/v2/mobile-web-track";
 
 	sessionId || sessionStorage.setItem("ti:sessionId", sessionId = _.uuid());
 
+	function getStorage() {
+		var s = localStorage.getItem(analyticsStorageName);
+		return s ? JSON.parse(s) : []
+	}
+
+	function setStorage(data) {
+		localStorage.setItem(analyticsStorageName, JSON.stringify(data));
+	}	
+
 	return _.analytics = {
 
-		add: function(eventType, eventEvent, data, isUrgent) {
+		add: function(type, event, data, isUrgent) {
 			if (analyticsEnabled) {
 				// store event
-				var storage = localStorage.getItem(analyticsStorageName);
+				var storage = getStorage();
 					now = new Date(),
 					tz = now.getTimezoneOffset(),
 					atz = Math.abs(tz),
@@ -26,15 +34,14 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang", "Ti/Platform"], function(_, dom, lang, 
 						return (d < n ? (new Array(++n - d)).join("0") : "") + v;
 					};
 
-				storage = storage ? JSON.parse(storage) : [];
 				storage.push({
-					eventId: _.uuid(),
-					eventType: eventType,
-					eventEvent: eventEvent,
-					eventTimestamp: now.toISOString().replace('Z', (tz < 0 ? '-' : '+') + (atz < 100 ? "00" : (atz < 1000 ? "0" : "")) + atz),
-					eventPayload: data
+					id: _.uuid(),
+					type: type,
+					evt: event,
+					ts: now.toISOString().replace('Z', (tz < 0 ? '-' : '+') + (atz < 100 ? "00" : (atz < 1000 ? "0" : "")) + atz),
+					data: data
 				});
-				localStorage.setItem(analyticsStorageName, JSON.stringify(storage));
+				setStorage(storage);
 				this.send(isUrgent);
 			}
 		},
@@ -43,7 +50,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang", "Ti/Platform"], function(_, dom, lang, 
 			if (analyticsEnabled) {
 				var i,
 					evt,
-					storage = JSON.parse(localStorage.getItem(analyticsStorageName)),
+					storage = getStorage(),
 					now = (new Date()).getTime(),
 					jsonStrs = [],
 					ids = [];
@@ -56,33 +63,35 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang", "Ti/Platform"], function(_, dom, lang, 
 
 				for (i = 0; i < storage.length; i++) {
 					evt = storage[i];
-					ids.push(evt.eventId);
+					ids.push(evt.id);
 					jsonStrs.push(JSON.stringify({
+						id: evt.id,
+						mid: Platform.id,
+						rdu: null,
+						type: evt.type,
+						aguid: App.guid,
+						event: evt.evt,
 						seq: analyticsEventSeq++,
 						ver: "2",
-						id: evt.eventId,
-						type: evt.eventType,
-						event: evt.eventEvent,
-						ts: evt.eventTimestamp,
-						mid: Platform.id,
+						deploytype: cfg.deployType,
 						sid: sessionId,
-						aguid: cfg.guid,
-						data: require.is(evt.eventPayload, "object") ? JSON.stringify(evt.eventPayload) : evt.eventPayload
+						ts: evt.ts,
+						data: /(Array|Object)/.test(require.is(evt.data)) ? JSON.stringify(evt.data) : evt.data
 					}));
 				}
 
 				function onSuccess() {
 					// remove sent events on successful sent
 					var j, k, found,
-						storage = localStorage.getItem(analyticsStorageName),
-						ev,
+						storage = getStorage(),
+						id,
 						evs = [];
 
 					for (j = 0; j < storage.length; j++) {
-						ev = storage[j];
+						id = storage[j].id;
 						found = 0;
 						for (k = 0; k < ids.length; k++) {
-							if (ev.eventId == ids[k]) {
+							if (id == ids[k]) {
 								found = 1;
 								ids.splice(k, 1);
 								break;
@@ -91,7 +100,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang", "Ti/Platform"], function(_, dom, lang, 
 						found || evs.push(ev);
 					}
 
-					localStorage.setItem(analyticsStorageName, JSON.stringify(evs));
+					setStorage(evs);
 				}
 
 				if (require.has("ti-analytics-use-xhr")) {
@@ -108,7 +117,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang", "Ti/Platform"], function(_, dom, lang, 
 					xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 					xhr.send(lang.urlEncode({ content: jsonStrs }));
 				} else {
-					var body = doc.body,
+					var body = document.body,
 						rand = Math.floor(Math.random() * 1e6),
 						iframeName = "analytics" + rand,
 						callback = "mobileweb_jsonp" + rand,
@@ -141,8 +150,10 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang", "Ti/Platform"], function(_, dom, lang, 
 					// need to delay attaching of iframe events so they aren't prematurely called
 					setTimeout(function() {
 						function onIframeLoaded() {
-							dom.destroy(form);
-							dom.destroy(iframe);
+							setTimeout(function() {
+								dom.destroy(form);
+								dom.destroy(iframe);
+							}, 1);
 						}
 						iframe.onload = onIframeLoaded;
 						iframe.onerror = onIframeLoaded;

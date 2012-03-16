@@ -602,6 +602,7 @@ class Compiler(object):
 		self.project_dependencies += [
 			'Ti',
 			'Ti/Accelerometer',
+			'Ti/Analytics',
 			'Ti/API',
 			'Ti/App',
 			'Ti/App/Properties',
