@@ -72,8 +72,9 @@ properties:
     type: Number
   - name: clearOnEdit
     summary: |
-        Determines if the value of the field should be cleared when the user starts editing.
+        Determines if the value of the field should be cleared when the text area is focused.
     type: Boolean
+    default: false
     platforms: [android]
   - name: color
     summary: Text color, as a web color name or hex triplet.
@@ -104,7 +105,9 @@ properties:
     summary: Font to use for text.
     type: Font
   - name: hintText
-    summary: Hint text to display when the field is unfocused.
+    summary: Hint text to display when the field is empty.
+    description: |
+        The hint text is hidden when the user enters text into the text area.
     type: String
     default: No hint text.
     platforms: [android]
@@ -134,11 +137,6 @@ properties:
     type: Number
     platforms: [android,iphone,ipad]
     default: the platform's default keyboard
-  - name: passwordMask
-    summary: Set to `true` to hide entered characters. 
-    type: Boolean
-    default: false
-    platforms: [android]
   - name: returnKeyType
     summary: Specifies the text to display on the keyboard **Return** key when this text area is focused.
     description: |

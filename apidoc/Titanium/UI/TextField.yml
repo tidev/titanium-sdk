@@ -68,8 +68,10 @@ properties:
     type: Number
     platforms: [iphone, ipad]
   - name: clearOnEdit
-    summary: Determines if the value of the field is cleared when the user starts editing.
+    summary: |
+        Determines if the value of the field should be cleared when the text field is focused.
     type: Boolean
+    default: false
   - name: color
     summary: Text color, as a web color name or hex triplet.
     type: String
@@ -99,8 +101,11 @@ properties:
     summary: Font to use for text.
     type: Font
   - name: hintText
-    summary: Hint text to display when the field is unfocused.
+    summary: Hint text to display when the field is empty.
+    description: |
+        Hint text is dismissed when the user enters a character into the text area.
     type: String
+    default: No hint text.
   - name: keyboardToolbar
     summary: Array of toolbar button objects or a [toolbar](Titanium.UI.iOS.Toolbar) to be used when the keyboard is displayed.
     description: |
