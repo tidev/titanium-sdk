@@ -3,9 +3,10 @@
 # Appcelerator Titanium Module Packager
 #
 #
-import os, sys, glob, string
+import os, subprocess, sys, glob, string
 import zipfile
 from datetime import date
+from tools import ensure_dev_path
 
 cwd = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 os.chdir(cwd)
@@ -165,6 +166,7 @@ def glob_libfiles():
 	return files
 
 def build_module(manifest,config):
+	ensure_dev_path()
 	rc = os.system("xcodebuild -sdk iphoneos -configuration Release")
 	if rc != 0:
 		die("xcodebuild failed")
