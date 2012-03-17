@@ -13,15 +13,15 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI", "Ti/_/ready"], function(Evented, l
 					orientation: lastOrient = api.orientation
 				});
 			},
-			
+
 			isLandscape: function() {
 				return api.landscape;
 			},
-			
+
 			isPortrait: function() {
 				return api.portrait;
 			},
-			
+
 			properties: {
 				portrait: false,
 				landscape: false,
@@ -31,11 +31,7 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI", "Ti/_/ready"], function(Evented, l
 
 	function getWindowOrientation() {
 		var landscape = !!(window.innerWidth && (window.innerWidth > window.innerHeight));
-		if (landscape) {
-			api.orientation = UI.LANDSCAPE_LEFT;
-		} else {
-			api.orientation = UI.PORTRAIT;
-		}
+		api.orientation = landscape ? UI.LANDSCAPE_LEFT : UI.PORTRAIT;
 		api.landscape = landscape;
 		api.portrait = !landscape;
 		return api.orientation;
