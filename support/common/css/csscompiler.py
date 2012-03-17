@@ -199,11 +199,10 @@ class CSSCompiler(object):
 					elif prop.startswith('text-shadow'):
 						# support CSS text-shadow: x y color
 						if len(value.split()) == 3:
+							shadowoffset = {}
 							offset_x, offset_y, shadow_color = value.split()
 							if newdict[key][sel].has_key('shadowOffset'):
 								shadowoffset = newdict[key][sel]['shadowOffset']
-							else:
-								shadowoffset = {}
 							shadowoffset['x'] = offset_x
 							shadowoffset['y'] = offset_y
 							newdict[key][sel]['shadowOffset'] = shadowoffset
