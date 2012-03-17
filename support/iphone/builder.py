@@ -12,6 +12,7 @@ from projector import Projector
 from xml.dom.minidom import parseString
 from xml.etree.ElementTree import ElementTree
 from os.path import join, splitext, split, exists
+from tools import ensure_dev_path
 
 # the template_dir is the path where this file lives on disk
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
@@ -562,7 +563,8 @@ def main(args):
 	sys.stdout.flush()
 	start_time = time.time()
 	command = args[1].decode("utf-8")
-	
+	ensure_dev_path()
+
 	target = 'Debug'
 	deploytype = 'development'
 	devicefamily = 'iphone'
@@ -1214,6 +1216,11 @@ def main(args):
 						print "[INFO] Executing XCode build..."
 						print "[BEGIN_VERBOSE] Executing XCode Compiler  <span>[toggle output]</span>"
 
+					# h/t cbarber for this; occasionally the PCH header info gets out of sync
+					# with the PCH file if you do the "wrong thing" and xcode isn't
+					# smart enough to pick up these changes (since the PCH file hasn't 'changed').
+					run.run(['touch', '%s_Prefix.pch' % ti.properties['name']], debug=False)
+					
 					output = run.run(args,False,False,o)
 
 					if print_output:
@@ -1384,12 +1391,9 @@ def main(args):
 					else:
 						sim = subprocess.Popen("\"%s\" launch \"%s\" --sdk %s --family %s" % (iphonesim,app_dir,iphone_version,simtype),shell=True,cwd=template_dir)
 
-					# activate the simulator window - we use a OSA script to 
-					# cause the simulator window to come into the foreground (otherwise
-					# it will be behind Titanium Developer window)
-					ass = os.path.join(template_dir,'iphone_sim_activate.scpt')
-					cmd = "osascript \"%s\" 2>/dev/null" % ass
-					os.system(cmd)
+					# activate the simulator window
+					command = 'osascript -e "tell application \\\"%s/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone Simulator.app\\\" to activate"'
+					os.system(command%xcodeselectpath)
 
 					end_time = time.time()-start_time
 
@@ -1536,7 +1540,12 @@ def main(args):
 
 					# open xcode + organizer after packaging
 					# Have to force the right xcode open...
-					xc_path = os.path.join(run.run(['xcode-select','-print-path'],True,False).rstrip(),'Applications','Xcode.app')
+					xc_path = run.run(['xcode-select','-print-path'],True,False).rstrip()
+					xc_app_index = xc_path.find('/Xcode.app/')
+					if (xc_app_index >= 0):
+						xc_path = xc_path[0:xc_app_index+10]
+					else:
+						xc_path = os.path.join(xc_path,'Applications','Xcode.app')
 					o.write("Launching xcode: %s\n" % xc_path)
 					os.system('open -a %s' % xc_path)
 					
