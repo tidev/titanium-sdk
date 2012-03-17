@@ -1216,6 +1216,11 @@ def main(args):
 						print "[INFO] Executing XCode build..."
 						print "[BEGIN_VERBOSE] Executing XCode Compiler  <span>[toggle output]</span>"
 
+					# h/t cbarber for this; occasionally the PCH header info gets out of sync
+					# with the PCH file if you do the "wrong thing" and xcode isn't
+					# smart enough to pick up these changes (since the PCH file hasn't 'changed').
+					run.run(['touch', '%s_Prefix.pch' % ti.properties['name']], debug=False)
+					
 					output = run.run(args,False,False,o)
 
 					if print_output:
