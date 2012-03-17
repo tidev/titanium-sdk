@@ -90,6 +90,7 @@ class Compiler(object):
 		# copy all of the project's resources to the build directory
 		self.copy(self.themes_path, os.path.join(self.build_path, 'themes'))
 		self.copy(self.resources_path, self.build_path)
+		self.copy(os.path.join(self.resources_path, 'mobileweb'), self.build_path)
 		self.copy(self.ti_package_path, os.path.join(self.build_path, 'titanium'))
 		
 		# scan project for dependencies
