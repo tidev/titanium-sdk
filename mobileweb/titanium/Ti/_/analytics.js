@@ -102,8 +102,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang", "Ti/App", "Ti/Platform"], function(_, d
 					xhr.onreadystatechange = function() {
 						if (xhr.readyState === 4 && xhr.status === 200) {
 							try {
-								var response = eval('(' + xhr.responseText + ')');
-								response && response.success && onSuccess({ callback: rand, success: 1  });
+								onSuccess({ data: eval('(' + xhr.responseText + ')') });
 							} catch (e) {}
 						}
 					};
