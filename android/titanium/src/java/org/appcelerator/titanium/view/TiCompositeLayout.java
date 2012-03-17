@@ -62,6 +62,8 @@ public class TiCompositeLayout extends ViewGroup
 	private boolean disableHorizontalWrap = false;
 
 	private WeakReference<TiViewProxy> proxy;
+	private static final int HAS_SIZE_FILL_CONFLICT = 1;
+	private static final int NO_SIZE_FILL_CONFLICT = 2;
 
 	// We need these two constructors for backwards compatibility with modules
 
@@ -310,6 +312,10 @@ public class TiCompositeLayout extends ViewGroup
 	protected void constrainChild(View child, int width, int wMode, int height, int hMode)
 	{
 		LayoutParams p = (LayoutParams) child.getLayoutParams();
+
+		int sizeFillConflicts[] = { NOT_SET, NOT_SET };
+		boolean checkedForConflict = false;
+
 		// If autoFillsWidth is false, and optionWidth is null, then we use size behavior.
 		int childDimension = LayoutParams.WRAP_CONTENT;
 		if (p.optionWidth != null) {
@@ -319,8 +325,15 @@ public class TiCompositeLayout extends ViewGroup
 				childDimension = p.optionWidth.getAsPixels(this);
 			}
 		} else {
-			if (p.autoFillsWidth || hasSizeFillWidthConflict(child, true)) {
+			if (p.autoFillsWidth) {
 				childDimension = LayoutParams.FILL_PARENT;
+			} else {
+				// Look for sizeFill conflicts
+				hasSizeFillConflict(child, sizeFillConflicts, true);
+				checkedForConflict = true;
+				if (sizeFillConflicts[0] == HAS_SIZE_FILL_CONFLICT) {
+					childDimension = LayoutParams.FILL_PARENT;
+				}
 			}
 		}
 
@@ -336,8 +349,14 @@ public class TiCompositeLayout extends ViewGroup
 				childDimension = p.optionHeight.getAsPixels(this);
 			}
 		} else {
-			if (p.autoFillsHeight || hasSizeFillHeightConflict(child, true)) {
+			// If we already checked for conflicts before, we don't need to again
+			if (p.autoFillsHeight || (checkedForConflict && sizeFillConflicts[1] == HAS_SIZE_FILL_CONFLICT)) {
 				childDimension = LayoutParams.FILL_PARENT;
+			} else if (!checkedForConflict) {
+				hasSizeFillConflict(child, sizeFillConflicts, true);
+				if (sizeFillConflicts[1] == HAS_SIZE_FILL_CONFLICT) {
+					childDimension = LayoutParams.FILL_PARENT;
+				}
 			}
 		}
 
@@ -589,38 +608,7 @@ public class TiCompositeLayout extends ViewGroup
 	}
 
 	// Determine whether we have a conflict where a parent has size behavior, and child has fill behavior.
-	private boolean hasSizeFillHeightConflict(View parent, boolean firstIteration)
-	{
-		if (parent instanceof TiCompositeLayout) {
-			TiCompositeLayout currentLayout = (TiCompositeLayout) parent;
-			LayoutParams currentParams = (LayoutParams) currentLayout.getLayoutParams();
-
-			// During the first iteration, the parent view needs to have size behavior.
-			if (firstIteration && (currentParams.autoFillsHeight || currentParams.optionHeight != null)) {
-				return false;
-			}
-
-			// We don't check for sizeOrFillHeightEnabled. The calculations during the measure phase (which includes
-			// this method) will be adjusted to undefined behavior accordingly during the layout phase.
-			// sizeOrFillHeightEnabled is used during the layout phase to determine whether we want to use the fill/size
-			// measurements that we got from the measure phase.
-			if (currentParams.autoFillsHeight && currentParams.optionHeight == null) {
-				return true;
-			} else if (currentParams.optionHeight == null) {
-				// If the child has size behavior, continue traversing through children and see if any of them have fill
-				// behavior
-				for (int i = 0; i < currentLayout.getChildCount(); ++i) {
-					if (hasSizeFillHeightConflict(currentLayout.getChildAt(i), false)) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
-
-	// Determine whether we have a conflict where a parent has size behavior, and child has fill behavior.
-	private boolean hasSizeFillWidthConflict(View parent, boolean firstIteration)
+	private boolean hasSizeFillConflict(View parent, int[] conflicts, boolean firstIteration)
 	{
 		if (parent instanceof TiCompositeLayout) {
 			TiCompositeLayout currentLayout = (TiCompositeLayout) parent;
@@ -628,24 +616,43 @@ public class TiCompositeLayout extends ViewGroup
 
 			// During the first iteration, the parent view needs to have size behavior.
 			if (firstIteration && (currentParams.autoFillsWidth || currentParams.optionWidth != null)) {
-				return false;
+				conflicts[0] = NO_SIZE_FILL_CONFLICT;
+			}
+			if (firstIteration && (currentParams.autoFillsHeight || currentParams.optionHeight != null)) {
+				conflicts[1] = NO_SIZE_FILL_CONFLICT;
 			}
 
-			// We don't check for sizeOrFillWidthEnabled. The calculations during the measure phase (which includes this
-			// method) will be adjusted to undefined behavior accordingly during the layout phase.
-			// sizeOrFillWidthEnabled is used during the layout phase to determine whether we want to use the fill/size
+			// We don't check for sizeOrFillHeightEnabled. The calculations during the measure phase (which includes
+			// this method) will be adjusted to undefined behavior accordingly during the layout phase.
+			// sizeOrFillHeightEnabled is used during the layout phase to determine whether we want to use the fill/size
 			// measurements that we got from the measure phase.
-			if (currentParams.autoFillsWidth && currentParams.optionWidth == null) {
+			if (currentParams.autoFillsWidth && currentParams.optionWidth == null && conflicts[0] == NOT_SET) {
+				conflicts[0] = HAS_SIZE_FILL_CONFLICT;
+			}
+			if (currentParams.autoFillsHeight && currentParams.optionHeight == null && conflicts[1] == NOT_SET) {
+				conflicts[1] = HAS_SIZE_FILL_CONFLICT;
+			}
+
+			// Stop traversing if we've determined whether there is a conflict for both width and height
+			if (conflicts[0] != NOT_SET && conflicts[1] != NOT_SET) {
 				return true;
-			} else if (currentParams.optionWidth == null) {
-				// If the child has size behavior, continue traversing through children and see if any of them have fill
-				// behavior
-				for (int i = 0; i < currentLayout.getChildCount(); ++i) {
-					if (hasSizeFillWidthConflict(currentLayout.getChildAt(i), false)) {
-						return true;
-					}
+			}
+
+			// If the child has size behavior, continue traversing through children and see if any of them have fill
+			// behavior
+			for (int i = 0; i < currentLayout.getChildCount(); ++i) {
+				if (hasSizeFillConflict(currentLayout.getChildAt(i), conflicts, false)) {
+					break;
 				}
 			}
+		}
+
+		// Default to false if we couldn't find conflicts
+		if (conflicts[0] == NOT_SET) {
+			conflicts[0] = NO_SIZE_FILL_CONFLICT;
+		}
+		if (conflicts[1] == NOT_SET) {
+			conflicts[1] = NO_SIZE_FILL_CONFLICT;
 		}
 		return false;
 	}
