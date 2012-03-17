@@ -204,10 +204,10 @@ class CSSCompiler(object):
 								shadowoffset = newdict[key][sel]['shadowOffset']
 							else:
 								shadowoffset = {}
-								shadowoffset['x'] = offset_x
-								shadowoffset['y'] = offset_y
-								newdict[key][sel]['shadowOffset'] = shadowoffset
-								newdict[key][sel]['shadowColor'] = shadow_color
+							shadowoffset['x'] = offset_x
+							shadowoffset['y'] = offset_y
+							newdict[key][sel]['shadowOffset'] = shadowoffset
+							newdict[key][sel]['shadowColor'] = shadow_color
 					else:
 						newdict[key][sel][prop]=value
 		return newdict
