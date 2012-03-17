@@ -1,6 +1,5 @@
-define(["Ti/_/declare", "Ti/Gesture", "Ti/Locale", "Ti/_/UI/SuperView", "Ti/UI"], function(declare, Gesture, Locale, SuperView, UI) {
-
-	var undef;
+define(["Ti/_/declare", "Ti/_/lang", "Ti/Gesture", "Ti/Locale", "Ti/_/UI/SuperView", "Ti/UI"],
+	function(declare, lang, Gesture, Locale, SuperView, UI) {
 
 	return declare("Ti.UI.Window", SuperView, {
 	
@@ -17,8 +16,12 @@ define(["Ti/_/declare", "Ti/Gesture", "Ti/Locale", "Ti/_/UI/SuperView", "Ti/UI"]
 			}
 		},
 
+		_getTitle: function() {
+			return Locale.getString(this.titleid, this.title);
+		},
+
 		constants: {
-			url: undef
+			url: void 0
 		},
 
 		properties: {
@@ -33,13 +36,11 @@ define(["Ti/_/declare", "Ti/Gesture", "Ti/Locale", "Ti/_/UI/SuperView", "Ti/UI"]
 							}));
 							parentContainer.add(this._modalContentContainer = UI.createView({
 								width: UI.SIZE,
-								height: UI.SIZE,
+								height: UI.SIZE
 							}));
 							this._modalContentContainer.add(this);
 						} else if (this._modalParentContainer) {
-							if (this._modalParentContainer._opened) {
-								this._modalParentContainer.close();
-							}
+							this._modalParentContainer._opened && this._modalParentContainer.close();
 							this._modalContentContainer.remove(this);
 							this._modalParentContainer = null;
 							if (this._opened) {
@@ -58,18 +59,9 @@ define(["Ti/_/declare", "Ti/Gesture", "Ti/Locale", "Ti/_/UI/SuperView", "Ti/UI"]
 				}
 			},
 
-			title: {
-				set: function(value) {
-					return this.setWindowTitle(value);
-				}
-			},
+			title: void 0,
 
-			titleid: {
-				set: function(value) {
-					this.title = Locale.getString(value);
-					return value;
-				}
-			}
+			titleid: void 0
 		}
 
 	});

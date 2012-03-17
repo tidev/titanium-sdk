@@ -1,17 +1,16 @@
 define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI"],
 	function(declare, lang, View, dom, Locale, UI) {
-		
-	var undef;
+
+	var postTitle = {
+		post: "_setTitle"
+	};
 
 	return declare("Ti.UI.Tab", View, {
 
 		constructor: function(args) {
-
-			this._contentContainer = dom.create("div", {
+			var container = this._contentContainer = dom.create("div", {
 				className: "TiUITabContentContainer",
 				style: {
-					width: "100%",
-					height: "100%",
 					display: ["-webkit-box", "-moz-box"],
 					boxOrient: "horizontal",
 					boxPack: "center",
@@ -21,7 +20,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/
 
 			this._tabIcon = dom.create("img", {
 				className: "TiUITabImage"
-			}, this._contentContainer);
+			}, container);
 
 			this._tabTitle = dom.create("div", {
 				className: "TiUITabTitle",
@@ -30,7 +29,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/
 					pointerEvents: "none",
 					userSelect: "none"
 				}
-			}, this._contentContainer);
+			}, container);
 
 			require.on(this.domNode, "click", this, function(e) {
 				this._tabGroup && this._tabGroup.setActiveTab(this);
@@ -38,13 +37,13 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/
 		},
 
 		_defaultWidth: UI.FILL,
-		
+
 		_defaultHeight: UI.FILL,
-		
+
 		_tabGroup: null,
-		
+
 		_tabNavigationGroup: null,
-		
+
 		open: function(win, options) {
 			if (this._tabNavigationGroup) {
 				this._tabNavigationGroup.open(win, options);
@@ -52,9 +51,13 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/
 				this.window = win;
 			}
 		},
-		
+
 		close: function(win, options) {
 			this._tabNavigationGroup.close(win, options);
+		},
+
+		_setTitle: function() {
+			this._tabTitle.innerHTML = Locale._getString(this.titleid, this.title);
 		},
 
 		properties: {
@@ -70,28 +73,18 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/
 				}
 			},
 
-			title: {
-				set: function(value) {
-					return this._tabTitle.innerHTML = value;
-				}
-			},
+			title: postTitle,
 
-			titleid: {
-				set: function(value) {
-					this.title = Locale.getString(value);
-					return value;
-				}
-			},
-			
+			titleid: postTitle,
+
 			window: {
 				set: function(value) {
-					var tabGroup = this._tabGroup,
-						navBarAtTop = tabGroup ? tabGroup.tabsAtTop : undef;
+					var tabGroup = this._tabGroup;
 					this._tabNavigationGroup = UI.MobileWeb.createNavigationGroup({
 						window: value,
-						navBarAtTop: navBarAtTop
+						navBarAtTop: tabGroup && tabGroup.tabsAtTop
 					});
-					this.active && tabGroup.setActiveTab(this); // Force the new nav group to get attached
+					this.active && tabGroup && tabGroup.setActiveTab(this); // Force the new nav group to get attached
 					return value;
 				}
 			}
