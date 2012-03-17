@@ -642,16 +642,16 @@ public class TiCompositeLayout extends ViewGroup
 			// behavior
 			for (int i = 0; i < currentLayout.getChildCount(); ++i) {
 				if (hasSizeFillConflict(currentLayout.getChildAt(i), conflicts, false)) {
-					break;
+					return true;
 				}
 			}
 		}
 
 		// Default to false if we couldn't find conflicts
-		if (conflicts[0] == NOT_SET) {
+		if (firstIteration && conflicts[0] == NOT_SET) {
 			conflicts[0] = NO_SIZE_FILL_CONFLICT;
 		}
-		if (conflicts[1] == NOT_SET) {
+		if (firstIteration && conflicts[1] == NOT_SET) {
 			conflicts[1] = NO_SIZE_FILL_CONFLICT;
 		}
 		return false;
