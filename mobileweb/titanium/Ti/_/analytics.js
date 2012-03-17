@@ -103,7 +103,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang", "Ti/App", "Ti/Platform"], function(_, d
 					setStorage(evs);
 				}
 
-				if (require.has("analytics-use-xhr")) {
+				if (require.has("ti-analytics-use-xhr")) {
 					var xhr = new XmlHttpRequest;
 					xhr.onreadystatechange = function() {
 						if (xhr.readyState === 4 && xhr.status === 200) {

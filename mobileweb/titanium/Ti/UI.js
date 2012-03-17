@@ -2,16 +2,25 @@ define(
 	["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/_/dom"],
 	function(_, Evented, lang, ready, style, dom) {
 
-	var body = document.body,
-		isIOS = /(iPhone|iPad)/.test(navigator.userAgent),
+	var global = window,
+		body = document.body,
+		on = require.on,
 		modules = "2DMatrix,ActivityIndicator,AlertDialog,Animation,Button,EmailDialog,ImageView,Label,OptionDialog,Picker,PickerColumn,PickerRow,ProgressBar,ScrollableView,ScrollView,Slider,Switch,Tab,TabGroup,TableView,TableViewRow,TableViewSection,TextArea,TextField,View,WebView,Window",
 		creators = {},
 		setStyle = style.set,
+		handheld = navigator.userAgent.toLowerCase().match(/(iphone|android)/),
+		iphone = handheld && handheld[0] === "iphone",
+		targetHeight = {},
+		hidingAddressBar,
+		hideAddressBar = finishAddressBar = function() {
+			Ti.UI._recalculateLayout();
+			hidingAddressBar = 0;
+		},
 		undef;
 
-	body.addEventListener('touchmove', function(e) {
+	on(body, "touchmove", function(e) {
 		e.preventDefault();
-	}, false);
+	});
 
 	require.each(modules.split(','), function(name) {
 		creators['create' + name] = function(args) {
@@ -20,38 +29,60 @@ define(
 		};
 	});
 
-	function hideAddressBar() {
-		var x = 0;
-		if (isIOS && !window.location.hash) {
-			if (document.height <= window.outerHeight + 10) {
-				setStyle(body, "height", (window.outerHeight + 60) + "px");
-				x = 50;
-			}
-			setTimeout(function() {
-				window.scrollTo(0, 1);
-				window.scrollTo(0, 0);
-				Ti.UI._recalculateLayout();
-			}, x);
-		}
-	}
+	if (!navigator.standalone && handheld) {
+		hideAddressBar = function() {
+			if (!hidingAddressBar) {
+				hidingAddressBar = 1;
+				var isPortrait = require("Ti/Gesture").isPortrait | 0,
+					h = targetHeight[isPortrait],
+					timer;
 
-	if (isIOS) {
+				if (!h) {
+					if (iphone) {
+						h = global.innerHeight + 60;
+						if (global.screen.availHeight - h > 50) {
+							h += 50;
+						}
+					} else {
+						h = global.outerHeight / (global.devicePixelRatio || 0);
+					}
+					targetHeight[isPortrait] = h;
+				}
+
+				setStyle(body, "height", h + "px");
+
+				if (iphone) {
+					global.scrollTo(0, 0);
+					finishAddressBar();
+				} else {
+					timer = setInterval(function() {
+						global.scrollTo(0, -1);
+						if (global.innerHeight + 1 >= h) {
+							clearTimeout(timer);
+							finishAddressBar();
+						}
+					}, 50);
+				}
+			}
+		}
 		ready(hideAddressBar);
-		window.addEventListener("orientationchange", hideAddressBar);
+		on(global, "orientationchange", hideAddressBar);
+		on(global, "touchstart", hideAddressBar);
 	}
 
 	ready(10, function() {
-		body.appendChild((Ti.UI._container = Ti.UI.createView({
+		var node = (Ti.UI._container = Ti.UI.createView({
 			left: 0,
 			top: 0
-		})).domNode);
-		setStyle(Ti.UI._container.domNode,"overflow","hidden");
-		Ti.UI._recalculateLayout();
+		})).domNode;
+		setStyle(node, "overflow", "hidden");
+		body.appendChild(node);
+		hideAddressBar();
 	});
 
-	require.on(window, "resize", function() {
+	on(global, "resize", function() {
 		Ti.UI._recalculateLayout();
-		Ti.Gesture._updateOrientation();
+		require("Ti/Gesture")._updateOrientation();
 	});
 
 	return lang.setObject("Ti.UI", Evented, creators, {
@@ -171,8 +202,8 @@ define(
 					 		height: false
 					 	},
 					 	boundingSize: {
-					 		width: window.innerWidth,
-					 		height: window.innerHeight
+					 		width: global.innerWidth,
+					 		height: global.innerHeight
 					 	},
 					 	alignment: {
 					 		horizontal: "center",
@@ -206,8 +237,10 @@ define(
 		
 		_recalculateLayout: function() {
 			var container = this._container;
-			container.width = window.innerWidth;
-			container.height = window.innerHeight;
+			if (container) {
+				container.width = global.innerWidth;
+				container.height = global.innerHeight;
+			}
 		},
 
 		properties: {
@@ -276,9 +309,9 @@ define(
 			RETURNKEY_SEARCH: 8, // Search
 			RETURNKEY_SEND: 9, // Send
 			RETURNKEY_YAHOO: 10, // Search
-			TEXT_ALIGNMENT_CENTER: 1,
-			TEXT_ALIGNMENT_RIGHT: 2,
-			TEXT_ALIGNMENT_LEFT: 3,
+			TEXT_ALIGNMENT_CENTER: "center",
+			TEXT_ALIGNMENT_RIGHT: "right",
+			TEXT_ALIGNMENT_LEFT: "left",
 			TEXT_AUTOCAPITALIZATION_ALL: 3,
 			TEXT_AUTOCAPITALIZATION_NONE: 0,
 			TEXT_AUTOCAPITALIZATION_SENTENCES: 2,

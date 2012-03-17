@@ -124,7 +124,7 @@ define(
 
 			textAlign: {
 				set: function(value) {
-					setStyle(this._field, "text-align", value === UI.TEXT_ALIGNMENT_RIGHT ? "right" : value === UI.TEXT_ALIGNMENT_CENTER ? "center" : "left");
+					setStyle(this._field, "text-align", /(center|right)/.test(value) ? value : "left");
 					return value;
 				}
 			},
