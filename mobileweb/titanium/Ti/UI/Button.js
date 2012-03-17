@@ -106,7 +106,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		},
 
 		_updateTitle: function() {
-			this._buttonTitle.innerHTML = lang.val(this.title, Locale.getString(this.titleid, this.title));
+			this._buttonTitle.innerHTML = Locale._getString(this.titleid, this.title);
 			this._hasSizeDimensions() && this._triggerLayout();
 		},
 

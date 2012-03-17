@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI"],
-	function(declare, lang, View, dom, Locale, UI) {
+define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI"],
+	function(declare, View, dom, Locale, UI) {
 
 	var postTitle = {
 		post: "_setTitle"

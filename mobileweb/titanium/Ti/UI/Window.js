@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/lang", "Ti/Gesture", "Ti/Locale", "Ti/_/UI/SuperView", "Ti/UI"],
-	function(declare, lang, Gesture, Locale, SuperView, UI) {
+define(["Ti/_/declare", "Ti/Gesture", "Ti/Locale", "Ti/_/UI/SuperView", "Ti/UI"],
+	function(declare, Gesture, Locale, SuperView, UI) {
 
 	return declare("Ti.UI.Window", SuperView, {
 	
