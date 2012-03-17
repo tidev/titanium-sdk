@@ -1,24 +1,45 @@
-define("Ti/Map/Annotation", ["Ti/_/Evented"], function(Evented) {
+define(["Ti/_/declare", "Ti/_/Evented", "Ti/Locale"], function(declare, Evented, Locale) {
 
-	(function(api){
-		// Interfaces
-		Ti._5.EventDriven(api);
-	
-		// Properties
-		Ti._5.prop(api, {
-			animate: null,
-			image: null,
-			leftButton: null,
-			leftView: null,
-			pincolor: null,
-			rightButton: null,
-			rightView: null,
-			subtitle: null,
-			subtitleid: null,
-			title: null,
-			titleid: null
-		});
-	
-	})(Ti._5.createClass(Ti.Map.Annotation));
-	
+	var undef;
+
+	return declare("Ti.Map.Annotation", Evented, {
+
+		onclick: function(mapview, idx, src) {
+			this.fireEvent("click", {
+				index: idx,
+				title: this.title,
+				map: mapview,
+				clicksource: src,
+				annotation: this
+			});
+		},
+
+		properties: {
+			animate: false,
+			image: undef,		// string or Titanium.Blob
+			latitude: undef,	// number
+			longitude: undef,	// number
+			leftButton: undef,	// number or string
+			leftView: undef,	// Ti.UI.View
+			pincolor: undef,	// ANNOTATION_RED or ANNOTATION_PURPLE or ANNOTATION_GREEN
+			rightButton: undef,	// number or string
+			rightView: undef,	// Ti.UI.View
+			subtitle: undef,	// string
+			subtitleid: {
+				set: function(value) {
+					this.subtitle = Locale.getString(value);
+					return value;
+				}
+			},
+			title: undef,
+			titleid: {
+				set: function(value) {
+					this.title = Locale.getString(value);
+					return value;
+				}
+			}
+		}
+
+	});
+
 });

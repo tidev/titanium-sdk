@@ -147,7 +147,9 @@ static NSString* ARG_KEY = @"arg";
         success = [socket connectToHost:host onPort:[TiUtils intValue:port] error:&err];
     }
     else {
-        success = [socket connectToHost:host onPort:[port intValue] withTimeout:[timeout doubleValue] error:&err];
+        success = [socket connectToHost:host onPort:[port intValue] 
+                            withTimeout:[timeout doubleValue] / 1000
+                                  error:&err];
     }
     
     if (err || !success) {

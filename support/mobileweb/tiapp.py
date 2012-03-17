@@ -23,8 +23,19 @@ class TiAppXML(dict):
 		self['modules'] = []
 		self['build'] = {}
 		self['properties'] = {}
-		self['filesystem'] = {
-			'registry': 'ondemand'
+		self['mobileweb'] = {
+			'analytics': {
+				'use-xhr': 'false'
+			},
+			'filesystem': {
+				'backend': 'Ti/_/Filesystem/Local',
+				'registry': 'ondemand'
+			},
+			'map': {
+				'backend': 'Ti/_/Map/Google',
+				'apikey': ''
+			},
+			'theme': 'titanium'
 		}
 		self['precache'] = {
 			'images': [],
@@ -62,27 +73,27 @@ class TiAppXML(dict):
 										for build_param_node in build_node.childNodes:
 											if build_param_node.nodeType == 1:
 												self[node.nodeName][build_param_node.nodeName] = getText(build_param_node.childNodes)
-							elif node.nodeName in self:
-								if isinstance(self[node.nodeName], dict):
+							elif node.nodeName in self['mobileweb']:
+								if isinstance(self['mobileweb'][node.nodeName], dict):
 									for subnode in node.childNodes:
 										if subnode.nodeType == 1:
-											if subnode.nodeName in self[node.nodeName]:
-												if isinstance(self[node.nodeName][subnode.nodeName], dict):
+											if subnode.nodeName in self['mobileweb'][node.nodeName]:
+												if isinstance(self['mobileweb'][node.nodeName][subnode.nodeName], dict):
 													for subsubnode in subnode.childNodes:
 														if subsubnode.nodeType == 1:
-															self[node.nodeName][subnode.nodeName][subsubnode.nodeName] = getText(subsubnode.childNodes)
-												elif isinstance(self[node.nodeName][subnode.nodeName], list):
-													self[node.nodeName][subnode.nodeName].append(getText(subnode.childNodes))
+															self['mobileweb'][node.nodeName][subnode.nodeName][subsubnode.nodeName] = getText(subsubnode.childNodes)
+												elif isinstance(self['mobileweb'][node.nodeName][subnode.nodeName], list):
+													self['mobileweb'][node.nodeName][subnode.nodeName].append(getText(subnode.childNodes))
 												else:
-													self[node.nodeName][subnode.nodeName] = getText(subnode.childNodes)
+													self['mobileweb'][node.nodeName][subnode.nodeName] = getText(subnode.childNodes)
 											else:
-												self[node.nodeName][subnode.nodeName] = getText(subnode.childNodes)
-								elif isinstance(self[node.nodeName], list):
-									self[node.nodeName].append(getText(node.childNodes))
+												self['mobileweb'][node.nodeName][subnode.nodeName] = getText(subnode.childNodes)
+								elif isinstance(self['mobileweb'][node.nodeName], list):
+									self['mobileweb'][node.nodeName].append(getText(node.childNodes))
 								else:
-									self[node.nodeName] = getText(node.childNodes)
+									self['mobileweb'][node.nodeName] = getText(node.childNodes)
 							else:
-								self[node.nodeName] = getText(node.childNodes)
+								self['mobileweb'][node.nodeName] = getText(node.childNodes)
 				elif child.nodeName == 'property':
 					self['properties'][child.getAttribute('name')] = {
 						'type': child.getAttribute('type') or 'string',

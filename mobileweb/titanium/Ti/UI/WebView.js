@@ -42,6 +42,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 						scrolling: this.showScrollbars ? "auto" : "no",
 						src: url || require.toUrl("Ti/_/UI/blank.html"),
 						style: {
+							backgroundColor: "#fff",
 							width: "100%",
 							height: "100%"
 						}
@@ -118,11 +119,11 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 		},
 
 		canGoBack: function() {
-			return this.url && this._getHistory().length;
+			return this.url && !!this._getHistory().length;
 		},
 
 		canGoForward: function() {
-			return this.url && this._getHistory().length;
+			return this.url && !!this._getHistory().length;
 		},
 
 		evalJS: function(js) {

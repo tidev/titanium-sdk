@@ -645,7 +645,7 @@
 		var module = new ResourceDef(name, refModule, deps, rawDef),
 			moduleName = module.name;
 
-		if (refModule && name in refModule.cjs) {
+		if (refModule && refModule.cjs && name in refModule.cjs) {
 			module.def = refModule.cjs[name];
 			module.loaded = module.executed = 1;
 			return module;

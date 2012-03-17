@@ -44,7 +44,7 @@ excludes: {
     'swipe', 'touchstart', 'touchend', 'touchcancel', 'touchmove', 'twofingertap' ]
 }
 since: "0.8"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 methods:
 
   - name: addAnnotation
@@ -53,7 +53,7 @@ methods:
       - name: annotation
         summary: Either a dictionary of properties for the annotation or a <Titanium.Map.Annotation> instance.
         type: [Dictionary<Titanium.Map.Annotation>, Titanium.Map.Annotation]
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: addAnnotations
     summary: Adds one or more new annotations to the map.
@@ -63,7 +63,7 @@ methods:
             Array of [Annotation](Titanium.Map.Annotation) objects, or an array of
             dictionaries describing of properties for the annotation.
         type: [Array<Titanium.Map.Annotation>, Array<Dictionary<Titanium.Map.Annotation>>]
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: addRoute
     summary: Adds a route to the map.
@@ -71,7 +71,7 @@ methods:
       - name: route
         summary: Simple dictionary object describing the route.
         type: MapRouteType
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
 
   - name: deselectAnnotation
     summary: |
@@ -81,11 +81,11 @@ methods:
       - name: annotation
         summary: Annotation to deselect, identified by an annotation title or a <Titanium.Map.Annotation> reference.
         type: [String,Titanium.Map.Annotation]
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: removeAllAnnotations
     summary: Removes all annotations from the map.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: removeAnnotation
     summary: Removes an existing annotation from the map.
@@ -93,7 +93,7 @@ methods:
       - name: annotation
         summary: Annotation to remove, identified by an annotation title or a <Titanium.Map.Annotation> reference.
         type: [String, Titanium.Map.Annotation]
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: removeAnnotations
     summary: Removes one or more existing annotations from the map.
@@ -104,7 +104,7 @@ methods:
       - name: annotations
         summary: Array of annotations to remove.
         type: [Array<String>, Array<Titanium.Map.Annotation>]
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
 
   - name: removeRoute
     summary: Remove a previously added route. 
@@ -112,7 +112,7 @@ methods:
       - name: route
         summary: Same route object passed to [addRoute](Titanium.Map.View.addRoute).
         type: MapRouteType
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
 
   - name: selectAnnotation
     summary: Selects the annoation, showing the full annotation.
@@ -262,6 +262,12 @@ properties:
   - name: animate
     summary: Indicates if changes to the mapping region should be animated.
     type: Boolean
+    platforms: [android, iphone, ipad]
+
+  - name: animated
+    summary: Indicates if changes to the mapping region should be animated.
+    type: Boolean
+    platforms: [mobileweb]
 
   - name: annotations
     summary: An array of annotations to add to the map.
@@ -271,6 +277,7 @@ properties:
     summary: |
         Map type, either: <Titanium.Map.STANDARD_TYPE>, <Titanium.Map.SATELLITE_TYPE> or <Titanium.Map.HYBRID_TYPE>.
     type: Number
+
   - name: region
     summary: |
         A dictionary specifying the location and zoom level of the map.
