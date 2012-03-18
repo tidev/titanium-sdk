@@ -290,6 +290,11 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	return tableClass;
 }
 
+-(NSNumber*)height
+{
+    return [self valueForUndefinedKey:@"height"];
+}
+
 -(void)setHeight:(id)value
 {
 	height = [TiUtils dimensionValue:value];
