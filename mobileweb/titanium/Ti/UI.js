@@ -79,11 +79,13 @@ define(
 		body.appendChild(node);
 		hideAddressBar();
 	});
-
-	on(global, "resize", function() {
+	
+	function updateOrientation() {
 		Ti.UI._recalculateLayout();
 		require("Ti/Gesture")._updateOrientation();
-	});
+	}
+	on(global, "resize", updateOrientation);
+	on(global, "orientationchange", updateOrientation);
 
 	return lang.setObject("Ti.UI", Evented, creators, {
 

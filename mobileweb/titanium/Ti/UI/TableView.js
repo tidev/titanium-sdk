@@ -157,24 +157,28 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		
 		_handleTouchEvent: function(type, e) {
 			if (type === "click" || type === "singletap") {
-				e.row = this._tableViewRowClicked;
-				e.rowData = this._tableViewRowClicked;
-				var index = 0,
-					sections = this._sections.children;
-				for(var i = 0; i < sections.length; i+= 2) {
-					var localIndex = sections[i]._rows.children.indexOf(this._tableViewRowClicked);
-					if (localIndex !== -1) {
-						index += Math.floor(localIndex / 2);
-						break;
-					} else {
-						index += sections[i].rowCount;
+				if (this._tableViewRowClicked && this._tableViewSectionClicked) {
+					e.row = this._tableViewRowClicked;
+					e.rowData = this._tableViewRowClicked;
+					var index = 0,
+						sections = this._sections.children;
+					for(var i = 0; i < sections.length; i+= 2) {
+						var localIndex = sections[i]._rows.children.indexOf(this._tableViewRowClicked);
+						if (localIndex !== -1) {
+							index += Math.floor(localIndex / 2);
+							break;
+						} else {
+							index += sections[i].rowCount;
+						}
 					}
+					e.index = index;
+					e.section = this._tableViewSectionClicked;
+					e.searchMode = false; 
+					View.prototype._handleTouchEvent.apply(this,arguments); // This intentionally squelches the event if a row was not click
 				}
-				e.index = index;
-				e.section = this._tableViewSectionClicked;
-				e.searchMode = false;
+			} else {
+				View.prototype._handleTouchEvent.apply(this,arguments);
 			}
-			View.prototype._handleTouchEvent.apply(this,arguments);
 		},
 		
 		_tableViewRowClicked: null,
@@ -283,10 +287,12 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				set: function(value) {
 					if (is(value,'Array')) {
 						
+						var retval = [];
+						
 						// Remove all of the previous sections
 						this._sections._removeAllChildren();
 						
-						// Convert any object literals to TableViewRow instances, and update TableViewRow instances with row info
+						// Convert any object literals to TableViewRow instances
 						for (var i in value) {
 							if (!isDef(value[i].declaredClass) || (value[i].declaredClass != "Ti.UI.TableViewRow" && value[i].declaredClass != "Ti.UI.TableViewSection")) {
 								value[i] = UI.createTableViewRow(value[i]);
@@ -297,6 +303,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 						if (value.length == 0) {
 							this._sections.add(this._currentSection = UI.createTableViewSection({_tableView: this}));
 							this._sections.add(this._createSeparator());
+							retval.push(this._currentSection);
 						}
 			
 						// Add each element
@@ -306,17 +313,19 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 								if (i === 0) {
 									this._sections.add(this._currentSection = UI.createTableViewSection({_tableView: this}));
 									this._sections.add(this._createSeparator());
+									retval.push(this._currentSection);
 								}
 								this._currentSection.add(value[i]);
 							} else if (value[i].declaredClass === "Ti.UI.TableViewSection") {
 								value[i]._tableView = this;
 								this._sections.add(this._currentSection = value[i]);
 								this._sections.add(this._createSeparator());
+								retval.push(this._currentSection);
 							}
 						}
 						this._refreshSections();
 						
-						return value;
+						return retval;
 					} else {
 						// Data must be an array
 						return;

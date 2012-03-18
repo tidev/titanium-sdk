@@ -1,7 +1,7 @@
-define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style"],
-	function(declare, View, UI, style) {
-
-	var undef;
+define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style", "Ti/_/lang"],
+	function(declare, View, UI, style, lang) {
+		
+	var isDef = lang.isDef;
 
 	return declare("Ti.UI.MobileWeb.NavigationGroup", View, {
 
@@ -52,10 +52,14 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style"],
 		open: function(win, options) {
 			// Show the back button, if need be
 			var backButton = this._backButton;
+
 			backButton.opacity || backButton.animate({opacity: 1, duration: 250}, function() {
 				backButton.opacity = 1;
 				backButton.enabled = true;
 			});
+
+			// Set a default background
+			!isDef(win.backgroundColor) && !isDef(win.backgroundImage) && (win.backgroundColor = "#fff");
 
 			// Show the window
 			this._windows.push(win);
@@ -94,7 +98,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style"],
 		},
 
 		constants: {
-			window: undef
+			window: void 0
 		},
 
 		properties: {
