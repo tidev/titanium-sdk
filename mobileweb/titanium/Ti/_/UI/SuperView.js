@@ -1,12 +1,6 @@
-define(["Ti/_/declare", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], function(declare, lang, UI, View) {
+define(["Ti/_/declare", "Ti/UI", "Ti/UI/View"], function(declare, UI, View) {
 
 	return declare("Ti._.UI.SuperView", View, {
-
-		constructor: function() {
-			this.addEventListener("focus", lang.hitch(this, function() {
-				this.setWindowTitle(this.title);
-			}));
-		},
 
 		destroy: function() {
 			this.close();
@@ -28,11 +22,6 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI", "Ti/UI/View"], function(declare, l
 				UI._removeWindow(this);
 				this.fireEvent("close");
 			}
-		},
-
-		setWindowTitle: function(title) {
-			document.title = title || require.config.app.name;
-			return title;
 		}
 
 	});
