@@ -23,7 +23,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 		
 		_handleTouchEvent: function(type, e) {
 			if (type === "click" || type === "singletap") {
-				this._parent && this._parent._parent && (this._parent._parent._tableViewSectionClicked = this);
+				this._tableView && (this._tableView._tableViewSectionClicked = this);
 			}
 			Widget.prototype._handleTouchEvent.apply(this,arguments);
 		},
