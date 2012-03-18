@@ -2,7 +2,8 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 	function(declare, lang, Widget, style, TableViewSeparatorStyle, UI) {
 	
 	var is = require.is,
-		setStyle = style.set;
+		setStyle = style.set,
+		undef;
 
 	return declare("Ti.UI.TableViewSection", Widget, {
 		
@@ -23,7 +24,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 		
 		_handleTouchEvent: function(type, e) {
 			if (type === "click" || type === "singletap") {
-				this._parent && this._parent._parent && (this._parent._parent._tableViewSectionClicked = this);
+				this._tableView && (this._tableView._tableViewSectionClicked = this);
 			}
 			Widget.prototype._handleTouchEvent.apply(this,arguments);
 		},
@@ -56,11 +57,13 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 				// Update the row information
 				var rows = this._rows.children,
 					tableView = this._tableView; 
+					rowsData = this.constants.rows = [];
 				for (var i = 1; i < rows.length; i += 2) {
 					var row = rows[i];
 					row._defaultHeight = tableView.rowHeight;
 					setStyle(row.domNode, "minHeight", tableView.minRowHeight);
 					setStyle(row.domNode, "maxHeight", tableView.maxRowHeight);
+					rowsData.push(row);
 				}
 				
 				for (var i = 0; i < rows.length; i += 2) {
@@ -85,6 +88,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			this._rows._insertAt(this._createSeparator(), 2 * index + 2);
 			value._tableViewSection = this;
 			this.rowCount++;
+			this._refreshRows();
 		},
 		
 		add: function(value, index) {
@@ -123,6 +127,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			if (this._rows.children.length === 1) {
 				this._rows.remove(this._rows.children[0]);
 			}
+			this._refreshRows();
 		},
 		
 		remove: function(view) {
@@ -132,6 +137,10 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			}
 			
 			this._removeAt(index);
+		},
+		
+		constants: {
+			rows: undef
 		},
 					
 		properties: {
