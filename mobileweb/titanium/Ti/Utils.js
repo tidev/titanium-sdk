@@ -6,13 +6,20 @@
  * New BSD License
  * <http://dojotoolkit.org>
  *
+ * A JavaScript implementation of the RSA Data Security, Inc. MD5
  * Version 2.1a Copyright Paul Johnston 2000 - 2002.
  * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
  * BSD License
- * <http://pajhome.org.uk/crypt/md5>
+ * <http://pajhome.org.uk/crypt/md5/md5.html>
+ *
+ * A JavaScript implementation of the Secure Hash Algorithm, SHA-256
+ * Version 2.2 Copyright Angel Marin, Paul Johnston 2000 - 2009
+ * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
+ * BSD License
+ * <http://pajhome.org.uk/crypt/md5/sha256.html>
  */
  
- define(["Ti/_/encoding", "Ti/_/Evented", "Ti/_/lang"], function(encoding, Evented, lang) {
+ define(["Ti/_/encoding", "Ti/_/Evented", "Ti/_/lang", "Ti/Blob"], function(encoding, Evented, lang, Blob) {
 
 	function toWord(s, y) {
 		var wa = [],
@@ -45,6 +52,13 @@
 		return s.join('');
 	}
 
+	function padWords(x, len) {
+		x = toWord(x, 24);
+		x[len >> 5] |= 0x80 << (24 - len % 32);
+		x[((len + 64 >> 9) << 4) + 15] = len;
+		return x;
+	}
+
 	function addWords(a, b) {
 		var l = (a & 0xFFFF) + (b & 0xFFFF),
 			m = (a >> 16) + (b >> 16) + (l >> 16);
@@ -65,18 +79,51 @@
 	}
 	function KT(t) { return (t<20)?1518500249:(t<40)?1859775393:(t<60)?-1894007588:-899497514; }
 
+	function sha256_S (X, n) {return ( X >>> n ) | (X << (32 - n));}
+	function sha256_Gamma0256(x) {return (sha256_S(x, 7) ^ sha256_S(x, 18) ^ (x >>> 3));}
+	function sha256_Gamma1256(x) {return (sha256_S(x, 17) ^ sha256_S(x, 19) ^ (x >>> 10));}
+
+	var sha256_K = [
+		1116352408, 1899447441, -1245643825, -373957723, 961987163, 1508970993,
+		-1841331548, -1424204075, -670586216, 310598401, 607225278, 1426881987,
+		1925078388, -2132889090, -1680079193, -1046744716, -459576895, -272742522,
+		264347078, 604807628, 770255983, 1249150122, 1555081692, 1996064986,
+		-1740746414, -1473132947, -1341970488, -1084653625, -958395405, -710438585,
+		113926993, 338241895, 666307205, 773529912, 1294757372, 1396182291,
+		1695183700, 1986661051, -2117940946, -1838011259, -1564481375, -1474664885,
+		-1035236496, -949202525, -778901479, -694614492, -200395387, 275423344,
+		430227734, 506948616, 659060556, 883997877, 958139571, 1322822218,
+		1537002063, 1747873779, 1955562222, 2024104815, -2067236844, -1933114872,
+		-1866530822, -1538233109, -1090935817, -965641998
+	];
+
+	function isBlob(it) {
+		return it && it.declaredClass === "Ti.Blob";
+	}
+
+	function base64decode(input) {
+		return atob(encoding.utf8encode(input));
+	}
+
+	function getData(x) {
+		return isBlob(x) ? (x._isBinary ? base64decode(x._data) : x._data) : x;
+	}
+
 	return lang.setObject("Ti.Utils", Evented, {
 
-		base64decode: function(input) {
-			return btoa(encoding.utf8encode(input));
+		base64decode: function(/*String|Ti.Blob*/input) {
+			// if input is a binary blob, no sense in decoding it since it would just be re-encoded again
+			return isBlob(input) && input._isBinary ? input : new Blob({ data: base64decode(input._data || input) });
 		},
 
-		base64encode: function(input) {
-			return encoding.utf8decode(atob(input));
+		base64encode: function(/*String|Ti.Blob*/input) {
+			// if input is a binary blob, then it's already base64 encoded
+			return isBlob(input) && input._isBinary ? input : new Blob({ data: encoding.utf8decode(btoa(input._data || input)) });
 		},
 
-		md5HexDigest: function(x) {
-			var len = x.length * 8,
+		md5HexDigest: function(/*String|Ti.Blob*/x) {
+			var x = encoding.utf8encode(getData(x)),
+				len = x.length * 8,
 				a = 1732584193,
 				b = -271733879,
 				c = -1732584194,
@@ -168,20 +215,18 @@
 			return toHex([a,b,c,d]);
 		},
 
-		sha1: function(x) {
-			var len = x.length * 8,
-				i = 0,
-				j, k, l,
-				w = new Array(80),
+		sha1: function(/*String|Ti.Blob*/x) {
+			var x = encoding.utf8encode(getData(x)),
 				a = 1732584193,
 				b = -271733879,
 				c = -1732584194,
 				d = 271733878,
-				e = -1009589776;
+				e = -1009589776,
+				i = 0,
+				j, k, l,
+				w = new Array(80);
 
-			x = toWord(x, 24);
-			x[len >> 5] |= 0x80 << (24 - len % 32);
-			x[((len + 64 >> 9) << 4) + 15] = len;
+			x = padWords(x, x.length * 8);
 
 			for (l = x.length; i < l; i += 16) {
 				var olda = a, oldb = b, oldc = c, oldd = d, olde = e;
@@ -206,8 +251,50 @@
 			return toHex([a, b, c, d, e], 3);
 		},
 
-		sha256: function() {
-			//
+		sha256: function(/*String|Ti.Blob*/x) {
+			var x = encoding.utf8encode(getData(x)),
+				a = 1779033703,
+				b = -1150833019,
+				c = 1013904242,
+				d = -1521486534,
+				e = 1359893119,
+				f = -1694144372,
+				g = 528734635,
+				h = 1541459225,
+				i = 0,
+				j, l, T1, T2,
+				w = new Array(64);
+
+			x = padWords(x, x.length * 8);
+
+			for (l = x.length; i < l; i += 16) {
+				var olda = a, oldb = b, oldc = c, oldd = d, olde = e, oldf = f, oldg = g, oldh = h;
+
+				for (j = 0; j < 64; j++) {
+					w[j] = j < 16 ? x[i + j] : addWords(addWords(addWords(sha256_Gamma1256(w[j-2]), w[j-7]), sha256_Gamma0256(w[j-15])), w[j-16]);
+					T1 = addWords(addWords(addWords(addWords(h, sha256_S(e, 6) ^ sha256_S(e, 11) ^ sha256_S(e, 25)), (e & f) ^ ((~e) & g)), sha256_K[j]), w[j]);
+					T2 = addWords(sha256_S(a, 2) ^ sha256_S(a, 13) ^ sha256_S(a, 22), (a & b) ^ (a & c) ^ (b & c));
+					h = g;
+					g = f;
+					f = e;
+					e = addWords(d, T1);
+					d = c;
+					c = b;
+					b = a;
+					a = addWords(T1, T2);
+				}
+
+				a = addWords(a, olda);
+				b = addWords(b, oldb);
+				c = addWords(c, oldc);
+				d = addWords(d, oldd);
+				e = addWords(e, olde);
+				f = addWords(f, oldf);
+				g = addWords(g, oldg);
+				h = addWords(h, oldh);
+			}
+
+			return toHex([a, b, c, d, e, f, g, h], 3);
 		}
 
 	});
