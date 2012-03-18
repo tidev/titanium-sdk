@@ -222,6 +222,10 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 
 -(UIView *)gradientWrapperView;
 
+- (void)processTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
+- (void)processTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event;
+- (void)processTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
+- (void)processTouchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event;
 @end
 
 #pragma mark TO REMOVE, used only during transition.
