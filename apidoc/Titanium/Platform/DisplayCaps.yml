@@ -6,7 +6,8 @@ description: |
     On iPhone, the `density` property is `high` for retina devices or `medium` otherwise, 
     and the `dpi` property is `320` or `160` otherwise.
     
-    On iPad, the `density` property is `medium` and the `dpi` property is `130`.
+    On iPad, the `density` property is `high` for retina devices or `medium` otherwise,
+    and the `dpi` property is `260` or `130` otherwise.
     
     Note that the `displayCaps` property begins with a lowercase letter, which differentiates it 
     from the `DisplayCaps` object that it returns. Refer to the example to understand how it should 

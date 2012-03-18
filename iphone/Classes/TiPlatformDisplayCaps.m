@@ -18,7 +18,7 @@
 
 - (id)density
 {
-	if ([TiUtils isRetinaDisplay] && ![TiUtils isIPad])
+	if ([TiUtils isRetinaDisplay])
 	{
 		return @"high";
 	}
