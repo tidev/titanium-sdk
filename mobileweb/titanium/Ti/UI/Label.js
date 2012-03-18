@@ -9,7 +9,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		};
 
 	return declare("Ti.UI.Label", FontWidget, {
-		
+
 		constructor: function() {
 			// Create the aligner div. This sets up a flexbox to float the text to the middle
 			var aligner = this.textAlignerDiv = dom.create("div", {

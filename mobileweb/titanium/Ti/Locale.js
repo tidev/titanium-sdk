@@ -14,7 +14,7 @@ define(["require", "Ti/_/lang", "Ti/_/Evented"], function(require, lang, Evented
 	} catch (e) {}
 
 	function getString(key, hint) {
-		return strings[key] || hint || key;
+		return strings[key] || hint || key || "";
 	}
 
 	Object.defineProperty(window, "L", { value: getString, enumarable: true });
@@ -73,7 +73,7 @@ define(["require", "Ti/_/lang", "Ti/_/Evented"], function(require, lang, Evented
 		getString: getString,
 
 		_getString: function(key, hint) {
-			return lang.val(hint, getString(key, hint || ""));
+			return lang.val(hint, getString(key, hint));
 		}
 
 	});
