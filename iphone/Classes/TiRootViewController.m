@@ -383,11 +383,12 @@
 		[UIView setAnimationDuration:duration];
 	}
     
-    if (newOrientation != oldOrientation && isCurrentlyVisible)
+    if ((newOrientation != oldOrientation) && isCurrentlyVisible)
     {
-        [keyboardFocusedProxy blur:nil];
+        TiViewProxy<TiKeyboardFocusableView> *kfvProxy = [keyboardFocusedProxy retain];
+        [kfvProxy blur:nil];
         [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
-        [keyboardFocusedProxy focus:nil];
+        [kfvProxy focus:nil];
     }
 
 	UIView * ourView = [self view];
@@ -445,9 +446,13 @@
 		return;
 	}
 
+    TiViewProxy<TiKeyboardFocusableView> *kfvProxy = (newOrientation != [[UIApplication sharedApplication] statusBarOrientation]) ? [[keyboardFocusedProxy retain] autorelease] : nil;
+
     [self updateOrientationHistory:newOrientation];
     
 	[self performSelector:@selector(refreshOrientation) withObject:nil afterDelay:0.0];
+    [kfvProxy blur:nil];
+    [kfvProxy performSelector:@selector(focus:) withObject:nil afterDelay:0.0];
 }
 
 -(void)updateOrientationHistory:(UIInterfaceOrientation)newOrientation
