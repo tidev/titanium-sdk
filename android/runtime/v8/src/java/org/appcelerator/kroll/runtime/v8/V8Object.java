@@ -51,8 +51,14 @@ public class V8Object extends KrollObject
 	@Override
 	public void doRelease()
 	{
-		nativeRelease(ptr);
-		KrollRuntime.suggestGC();
+		if (ptr == 0) {
+			return;
+		}
+
+		if (nativeRelease(ptr)) {
+			ptr = 0;
+			KrollRuntime.suggestGC();
+		}
 	}
 
 	@Override
@@ -74,7 +80,7 @@ public class V8Object extends KrollObject
 
 	// JNI method prototypes
 	protected static native void nativeInitObject(Class<?> proxyClass, Object proxyObject);
-	private static native void nativeRelease(long ptr);
+	private static native boolean nativeRelease(long ptr);
 
 	private native void nativeSetProperty(long ptr, String name, Object value);
 	private native boolean nativeFireEvent(long ptr, String event, Object data);
