@@ -79,15 +79,9 @@
 	}
 	function KT(t) { return (t<20)?1518500249:(t<40)?1859775393:(t<60)?-1894007588:-899497514; }
 
-	// Main sha256 function, with its support functions
 	function sha256_S (X, n) {return ( X >>> n ) | (X << (32 - n));}
-	function sha256_R (X, n) {return ( X >>> n );}
-	function sha256_Ch(x, y, z) {return ((x & y) ^ ((~x) & z));}
-	function sha256_Maj(x, y, z) {return ((x & y) ^ (x & z) ^ (y & z));}
-	function sha256_Sigma0256(x) {return (sha256_S(x, 2) ^ sha256_S(x, 13) ^ sha256_S(x, 22));}
-	function sha256_Sigma1256(x) {return (sha256_S(x, 6) ^ sha256_S(x, 11) ^ sha256_S(x, 25));}
-	function sha256_Gamma0256(x) {return (sha256_S(x, 7) ^ sha256_S(x, 18) ^ sha256_R(x, 3));}
-	function sha256_Gamma1256(x) {return (sha256_S(x, 17) ^ sha256_S(x, 19) ^ sha256_R(x, 10));}
+	function sha256_Gamma0256(x) {return (sha256_S(x, 7) ^ sha256_S(x, 18) ^ (x >>> 3));}
+	function sha256_Gamma1256(x) {return (sha256_S(x, 17) ^ sha256_S(x, 19) ^ (x >>> 10));}
 
 	var sha256_K = [
 		1116352408, 1899447441, -1245643825, -373957723, 961987163, 1508970993,
@@ -278,8 +272,8 @@
 
 				for (j = 0; j < 64; j++) {
 					w[j] = j < 16 ? x[i + j] : addWords(addWords(addWords(sha256_Gamma1256(w[j-2]), w[j-7]), sha256_Gamma0256(w[j-15])), w[j-16]);
-					T1 = addWords(addWords(addWords(addWords(h, sha256_Sigma1256(e)), sha256_Ch(e, f, g)), sha256_K[j]), w[j]);
-					T2 = addWords(sha256_Sigma0256(a), sha256_Maj(a, b, c));
+					T1 = addWords(addWords(addWords(addWords(h, sha256_S(e, 6) ^ sha256_S(e, 11) ^ sha256_S(e, 25)), (e & f) ^ ((~e) & g)), sha256_K[j]), w[j]);
+					T2 = addWords(sha256_S(a, 2) ^ sha256_S(a, 13) ^ sha256_S(a, 22), (a & b) ^ (a & c) ^ (b & c));
 					h = g;
 					g = f;
 					f = e;
