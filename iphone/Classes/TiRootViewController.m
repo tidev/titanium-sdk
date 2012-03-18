@@ -385,7 +385,10 @@
     
     if ((newOrientation != oldOrientation) && isCurrentlyVisible)
     {
+        TiViewProxy<TiKeyboardFocusableView> *kfvProxy = [keyboardFocusedProxy retain];
+        [kfvProxy blur:nil];
         [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
+        [kfvProxy focus:nil];
     }
 
 	UIView * ourView = [self view];
