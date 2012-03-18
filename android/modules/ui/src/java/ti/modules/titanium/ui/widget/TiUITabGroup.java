@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.util.ArrayList;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -156,6 +158,41 @@ public class TiUITabGroup extends TiUIView
 		
 		previousTabID = currentTabID;
 
+	}
+	
+	public void setTabIndicatorSelected(Object t)
+	{
+		ArrayList<TabProxy> tabList = ((TabGroupProxy)proxy).getTabList();
+		
+		if (t != null && tabList != null) {	
+			int index = -1;
+			int len = tabList.size();
+			
+			if (t instanceof Number) {
+				index = TiConvert.toInt(t);
+				if (index >= len) {
+					return;
+				}
+			} else if (t instanceof TabProxy) {
+				TabProxy tab = (TabProxy) t;
+				for (int i=0; i<len; i++) {
+					if (tabList.get(i) == tab) {
+						index = i;
+						break;
+					}
+				}
+			} else {
+				Log.w(LCAT, "Attempt to set tab indicator using a non-supported argument. Ignoring");
+				return;
+			}
+			
+			if (index >= 0) {
+				View tabIndicator = tabHost.getTabWidget().getChildTabViewAt(index);
+				if (!tabIndicator.isSelected()) {
+					tabIndicator.setSelected(true);
+				}
+			}
+		}
 	}
 
 	public void changeActiveTab(Object t)

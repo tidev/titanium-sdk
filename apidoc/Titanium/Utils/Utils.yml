@@ -9,6 +9,10 @@ since: "0.9"
 methods:
   - name: base64decode
     summary: Returns the specified data decoded from Base64.
+    description: |
+        On Mobile Web, if `obj` is a [Titanium.Blob] containing binary data, then `obj` is
+        returned unmodified because the binary blob would be decoded only to be re-encoded
+        in the returned blob object.
     returns:
         type: Titanium.Blob
     parameters:
@@ -18,6 +22,9 @@ methods:
         
   - name: base64encode
     summary: Returns the specified data encoded to Base64.
+    description: |
+        On Mobile Web, if `obj` is a [Titanium.Blob] containing binary data, then `obj` is
+        returned unmodified because the binary blob is already base64 encoded.
     returns:
         type: Titanium.Blob
     parameters:
