@@ -157,24 +157,28 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		
 		_handleTouchEvent: function(type, e) {
 			if (type === "click" || type === "singletap") {
-				e.row = this._tableViewRowClicked;
-				e.rowData = this._tableViewRowClicked;
-				var index = 0,
-					sections = this._sections.children;
-				for(var i = 0; i < sections.length; i+= 2) {
-					var localIndex = sections[i]._rows.children.indexOf(this._tableViewRowClicked);
-					if (localIndex !== -1) {
-						index += Math.floor(localIndex / 2);
-						break;
-					} else {
-						index += sections[i].rowCount;
+				if (this._tableViewRowClicked && this._tableViewSectionClicked) {
+					e.row = this._tableViewRowClicked;
+					e.rowData = this._tableViewRowClicked;
+					var index = 0,
+						sections = this._sections.children;
+					for(var i = 0; i < sections.length; i+= 2) {
+						var localIndex = sections[i]._rows.children.indexOf(this._tableViewRowClicked);
+						if (localIndex !== -1) {
+							index += Math.floor(localIndex / 2);
+							break;
+						} else {
+							index += sections[i].rowCount;
+						}
 					}
+					e.index = index;
+					e.section = this._tableViewSectionClicked;
+					e.searchMode = false; 
+					View.prototype._handleTouchEvent.apply(this,arguments); // This intentionally squelches the event if a row was not click
 				}
-				e.index = index;
-				e.section = this._tableViewSectionClicked;
-				e.searchMode = false;
+			} else {
+				View.prototype._handleTouchEvent.apply(this,arguments);
 			}
-			View.prototype._handleTouchEvent.apply(this,arguments);
 		},
 		
 		_tableViewRowClicked: null,

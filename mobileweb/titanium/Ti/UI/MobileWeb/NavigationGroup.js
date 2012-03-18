@@ -1,7 +1,8 @@
 define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style", "Ti/_/lang"],
 	function(declare, View, UI, style, lang) {
 		
-	var undef;
+	var undef
+		isDef = lang.isDef;
 
 	return declare("Ti.UI.MobileWeb.NavigationGroup", View, {
 		
@@ -59,6 +60,11 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style", "Ti/_/lang"],
 					backButton.opacity = 1;
 					backButton.enabled = true;
 				});
+			}
+			
+			// Set a default background
+			if (!isDef(win.backgroundColor) && !isDef(win.backgroundImage)) {
+				win.backgroundColor = "#fff";
 			}
 			
 			// Show the window
