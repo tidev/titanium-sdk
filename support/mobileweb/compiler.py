@@ -383,6 +383,30 @@ class Compiler(object):
 		# 6) close the titanium.js
 		ti_js.close()
 		
+		# build the splash screen
+		splash_html = ''
+		splash_css = ''
+		if tiapp_xml['mobileweb']['splash']['enabled'] == 'true':
+			print '[INFO] Processing splash screen...'
+			splash_path = os.path.join(self.project_path, 'splash')
+			if not os.path.exists(splash_path):
+				splash_path = os.path.join(self.sdk_path, 'splash')
+			splash_html_file = os.path.join(splash_path, 'splash.html')
+			splash_css_file = os.path.join(splash_path, 'splash.css')
+			if not os.path.exists(splash_html_file):
+				print '[ERROR] Missing splash screen html file: %s' % splash_html_file
+				sys.exit(1)
+			splash_html = codecs.open(splash_html_file, 'r', 'utf-8').read()
+			if os.path.exists(splash_css_file):
+				splash_css = codecs.open(splash_css_file, 'r', 'utf-8').read()
+				if tiapp_xml['mobileweb']['splash']['inline-css-images']:
+					parts = splash_css.split('url(')
+					#for i in range(1, len(parts)):
+					#	parts[i] = 
+					#splash_css = 'url('.join(parts)
+		
+		print splash_css
+		
 		# build the titanium.css file
 		print '[INFO] Assembling titanium.css...'
 		self.ti_css_file = os.path.join(self.build_path, 'titanium.css')
