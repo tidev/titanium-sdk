@@ -22,9 +22,6 @@ description: |
     To create a custom layout, a view may be added and, in turn, a hierarchy of views added to that 
     child view.
     
-    On Android only, you can change the `message` property while the alert dialog is being displayed.
-    You cannot change the `title` and `ok` properties while the alert dialog is displayed.
-    
     #### iOS
     
     On iOS, the default alert dialog displays text information, via a title and message, with 
@@ -48,6 +45,9 @@ description: |
     #### Caveats
     
     Multiple alerts should not be shown at once.
+    
+    The `title` and `ok` properties cannot be changed while the alert dialog is being displayed. On
+    Android only, you can change the `message` property while the alert dialog is being displayed.
 extends: Titanium.Proxy
 since: "0.8"
 
