@@ -17,7 +17,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 			if (childrenWithFillWidth) {
 				for (var i = 0; i < children.length; i++) {
 					var child = children[i];
-					if (child.width !== UI.FILL) {
+					if (this.verifyChild(child,element) && child.width !== UI.FILL) {
 						var childWidth;
 						if (child._markedForLayout) {
 							childWidth = child._doLayout({

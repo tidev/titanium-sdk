@@ -154,7 +154,7 @@ define(
 
 		destroy: function() {
 			if (this._alive) {
-				this.parent && this.parent.remove(this);
+				this._parent && this._parent.remove(this);
 				if (this.domNode) {
 					dom.destroy(this.domNode);
 					this.domNode = null;
@@ -916,6 +916,9 @@ define(
 						height: this._measuredHeight
 					};
 				}
+			},
+			parent: function() {
+				return this._parent;
 			}
 		},
 
