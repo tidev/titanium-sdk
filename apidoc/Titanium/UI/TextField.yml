@@ -9,8 +9,6 @@ methods:
     summary: Forces the field to lose focus.
   - name: focus
     summary: Forces the field to gain focus.
-  - name: hasText
-    summary: Returns `true` if the field contains text, `false` if it is empty.
 events:
   - name: blur
     summary: Fired when the field loses focus.

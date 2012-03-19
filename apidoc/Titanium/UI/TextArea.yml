@@ -13,8 +13,6 @@ methods:
     summary: Forces the text area to lose focus.
   - name: focus
     summary: Forces the text area to gain focus.
-  - name: hasText
-    summary: Returns `true` if the text area contains text, `false` if it is empty.
 events:
   - name: blur
     summary: Fired when the text area loses focus.
@@ -54,7 +52,7 @@ properties:
   - name: autocorrect
     summary: If true, allows the input field to autocorrect misspelled words.
     type: Boolean
-    platforms: [android]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: autoLink
     summary: Automatically convert text within this area to clickable links. 
     description: Specify which type of items should be converted using the `AUTODETECT` constants defined in <Titanium.UI>.
