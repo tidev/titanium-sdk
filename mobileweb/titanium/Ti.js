@@ -35,7 +35,7 @@ define(
 				version: ver
 			},
 
-			properties: function(){
+			properties: {
 				userAgent: function() {
 					return navigator.userAgent;
 				}
