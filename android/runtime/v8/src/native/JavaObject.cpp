@@ -173,7 +173,7 @@ void JavaObject::wrap(Handle<Object> jsObject)
 
 void JavaObject::attach(jobject javaObject)
 {
-	ASSERT(javaObject_ == NULL);
+	ASSERT((javaObject && javaObject_ == NULL) || javaObject == NULL);
 	UPDATE_STATS(0, -1);
 
 	handle_.MakeWeak(this, DetachCallback);
