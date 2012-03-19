@@ -422,3 +422,47 @@ textarea {
 .TiUITextFieldBorderStyleRounded input {
 	border-radius: 5px;
 }
+
+.TiUIActivityIndicatorContentContainer {
+	display: none;
+	height: 100%;
+	width: 100%;
+}
+
+.TiUIActivityIndicatorIndicator {
+	height: 36px;
+	width: 36px;
+}
+
+.TiUIActivityIndicatorMessage {
+	white-space: nowrap;
+}
+
+.TiUIActivityIndicatorProng {
+	background-color: #fff;
+	border-radius: 1px;
+	height: 10px;
+	position: absolute;
+	width: 4px;
+}
+
+.TiUITabContentContainer {
+	height: 100%;
+	width: 100%;
+}
+
+.TiUILabelTextAligner {
+	height: 100%;
+	overflow: hidden;
+	width: 100%;
+}
+
+.TiUILabelTextContainer {
+	max-height: 100%;
+	overflow: hidden;
+	text-align: left;
+	text-overflow: ellipsis;
+	user-select: none;
+	white-space: nowrap;
+	width: 100%;
+}
