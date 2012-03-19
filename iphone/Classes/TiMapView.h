@@ -44,9 +44,14 @@
 @property (nonatomic, readonly) CLLocationDegrees latitudeDelta;
 @property (nonatomic, readonly) NSArray *customAnnotations;
 
+#pragma mark Private APIs
+-(TiMapAnnotationProxy*)annotationFromArg:(id)arg;
+-(NSArray*)annotationsFromArgs:(id)value;
+
 #pragma mark Public APIs
 -(void)addAnnotation:(id)args;
 -(void)addAnnotations:(id)args;
+-(void)setAnnotations_:(id)value;
 -(void)removeAnnotation:(id)args;
 -(void)removeAnnotations:(id)args;
 -(void)removeAllAnnotations:(id)args;
