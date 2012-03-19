@@ -158,7 +158,9 @@
 {
 	ENSURE_SINGLE_ARG(arg,NSObject)
 	if ([self viewAttached]) {
-		TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] addAnnotation:arg];}, NO);
+        TiMapAnnotationProxy* annProxy = [(TiMapView*)[self view] annotationFromArg:arg];
+        [self rememberProxy:annProxy];
+        TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] addAnnotation:arg];}, NO);
 	}
 	else 
 	{
@@ -181,7 +183,10 @@
 {
 	ENSURE_SINGLE_ARG(arg,NSArray)
 	if ([self viewAttached]) {
-		TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] addAnnotations:arg];}, NO);
+        for(TiMapAnnotationProxy* annProxy in [(TiMapView*)[self view] annotationsFromArgs:arg]){
+            [self rememberProxy:annProxy];
+        }
+        TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] addAnnotations:arg];}, NO);
 	}
 	else {
 		for (id annotation in arg) {
@@ -190,12 +195,31 @@
 	}
 }
 
+-(void)setAnnotations:(id)arg{
+    ENSURE_TYPE(arg,NSArray)
+    if([self viewAttached]){
+        TiMapView * mapView = (TiMapView *)[self view];
+        for(TiMapAnnotationProxy * annProxy in [mapView annotationsFromArgs:mapView.customAnnotations]){
+            [self forgetProxy:annProxy];
+        }
+        TiThreadPerformOnMainThread(^{
+            [(TiMapView*)[self view] setAnnotations_:arg];
+        }, NO);
+    }
+    else {
+        [self setAnnotations:arg];
+    }
+}
 -(void)removeAnnotation:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg,NSObject)
 	if ([self viewAttached]) 
 	{
-		TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] removeAnnotation:arg];}, NO);
+		
+        TiThreadPerformOnMainThread(^{
+            [(TiMapView*)[self view] removeAnnotation:arg];
+            [self forgetProxy:[(TiMapView *)[self view] annotationFromArg:arg]];
+        }, NO);
 	}
 	else 
 	{
@@ -218,7 +242,12 @@
 {
 	ENSURE_TYPE(arg,NSArray)
 	if ([self viewAttached]) {
-		TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] removeAnnotations:arg];}, NO);
+        TiThreadPerformOnMainThread(^{
+            [(TiMapView*)[self view] removeAnnotations:arg];
+            for(TiMapAnnotationProxy * annProxy in [(TiMapView *)[self view] annotationsFromArgs:arg]){
+                [self forgetProxy:annProxy];
+            }
+        }, NO);
 	}
 	else {
 		for (id annotation in arg) {
@@ -230,7 +259,12 @@
 -(void)removeAllAnnotations:(id)unused
 {
 	if ([self viewAttached]) {
-		TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] removeAllAnnotations:unused];}, NO);
+        TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] removeAllAnnotations:unused];}, NO);
+        TiMapView * mapView = (TiMapView *)[self view];
+        for(TiMapAnnotationProxy * annProxy in [mapView annotationsFromArgs:mapView.customAnnotations])
+        {
+            [self forgetProxy:annProxy];
+        }
 	}
 	else 
 	{
