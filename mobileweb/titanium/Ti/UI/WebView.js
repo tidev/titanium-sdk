@@ -222,10 +222,9 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 
 			url: { 
 				post: function(value) {
-					var undef,
-						values = this.properties.__values__;
-					values.data = undef;
-					values.html = undef;
+					var values = this.properties.__values__;
+					values.data = void 0;
+					values.html = void 0;
 					this._createIFrame();
 				}
 			}

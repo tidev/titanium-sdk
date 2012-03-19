@@ -27,6 +27,7 @@ class TiAppXML(dict):
 			'analytics': {
 				'use-xhr': 'false'
 			},
+			'disable-error-screen': 'false',
 			'filesystem': {
 				'backend': 'Ti/_/Filesystem/Local',
 				'registry': 'ondemand'
