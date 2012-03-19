@@ -137,6 +137,12 @@ properties:
         
   - name: locale
     summary: The system's default language.
+    description: |
+        Locale, as a combination of ISO 2-letter language and country codes. For example, 
+        `en-US` or `en-GB`. See the 
+        [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and 
+        [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
+        sections of wikipedia for reference.
     type: String
     permission: read-only
     
