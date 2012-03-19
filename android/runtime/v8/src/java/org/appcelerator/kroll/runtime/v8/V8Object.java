@@ -9,9 +9,13 @@ package org.appcelerator.kroll.runtime.v8;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollRuntime;
 
+import android.util.Log;
+
 
 public class V8Object extends KrollObject
 {
+	private static final String TAG = "V8Object";
+
 	private volatile long ptr;
 
 
@@ -39,12 +43,20 @@ public class V8Object extends KrollObject
 	@Override
 	public void setProperty(String name, Object value)
 	{
+		if (!KrollRuntime.isInitialized()) {
+			Log.w(TAG, "Runtime disposed, cannot set property '" + name + "'");
+			return;
+		}
 		nativeSetProperty(ptr, name, value);
 	}
 
 	@Override
 	public boolean fireEvent(String type, Object data)
 	{
+		if (!KrollRuntime.isInitialized()) {
+			Log.w(TAG, "Runtime disposed, cannot fire event '" + type + "'");
+			return false;
+		}
 		return nativeFireEvent(ptr, type, data);
 	}
 
