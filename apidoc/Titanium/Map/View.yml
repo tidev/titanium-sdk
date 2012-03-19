@@ -231,7 +231,7 @@ events:
 
   - name: complete
     summary: Fired when the map completes loading.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
 
   - name: error
     summary: Fired when the map receives a mapping error.
@@ -239,7 +239,7 @@ events:
 
   - name: loading
     summary: Fired when the map begins loading.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
 
   - name: regionChanged
     summary: Fired when the mapping region changes.
