@@ -1,6 +1,7 @@
-define(["Ti/_/declare", "Ti/_/Evented", "Ti/Platform", "Ti/UI"], function(declare, Evented, Platform, UI) {
+define(["Ti/_/declare", "Ti/_/Evented", "Ti/Platform"], function(declare, Evented, Platform) {
 
 	var isFF = Platform.runtime === "gecko",
+		api,
 		px = function(x) {
 			return isFF ? x + "px" : x;
 		};
@@ -25,7 +26,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Platform", "Ti/UI"], function(declar
 		};
 	}
 
-	var api = declare("Ti.UI.2DMatrix", Evented, {
+	return api = declare("Ti.UI.2DMatrix", Evented, {
 
 		properties: {
 			a: 1,
@@ -90,7 +91,5 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Platform", "Ti/UI"], function(declar
 		}
 
 	});
-	
-	return api;
 
 });
