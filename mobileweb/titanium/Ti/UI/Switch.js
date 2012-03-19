@@ -69,9 +69,10 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			
 			// Set the default look
 			this._setDefaultLook();
-			this.domNode.addEventListener("click",lang.hitch(this,function(){
-				this.value = !this.value;
-			}));
+			var self = this;
+			self.addEventListener("singletap",function(){
+				self.value = !self.value;
+			});
 			
 			this.value = false;
 		},
