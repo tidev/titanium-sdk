@@ -38,3 +38,13 @@
 	bottom: 15%;
 	width: 200px;
 }
+
+@media all and (min-height: 699px) {
+	#splash:before {
+		top: 25%;
+	}
+
+	#splash:after {
+		bottom: 25%;
+	}
+}
