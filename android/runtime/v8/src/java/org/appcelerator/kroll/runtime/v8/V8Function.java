@@ -27,7 +27,7 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 	protected static final int MSG_CALL_SYNC = V8Object.MSG_LAST_ID + 100;
 	protected static final int MSG_LAST_ID = MSG_CALL_SYNC;
 
-	private static final String LCAT = "V8Function";
+	private static final String TAG = "V8Function";
 
 
 	public V8Function(long pointer)
@@ -56,7 +56,7 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 	public Object callSync(KrollObject krollObject, Object[] args)
 	{
 		if (!KrollRuntime.isInitialized()) {
-			Log.w(LCAT, "Runtime disposed, cannot call function.");
+			Log.w(TAG, "Runtime disposed, cannot call function.");
 			return null;
 		}
 		return nativeInvoke(((V8Object) krollObject).getPointer(), getPointer(), args);

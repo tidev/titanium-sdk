@@ -14,7 +14,7 @@ import android.util.Log;
 
 public class V8Object extends KrollObject
 {
-	private static final String LCAT = "V8Object";
+	private static final String TAG = "V8Object";
 
 	private volatile long ptr;
 
@@ -44,7 +44,7 @@ public class V8Object extends KrollObject
 	public void setProperty(String name, Object value)
 	{
 		if (!KrollRuntime.isInitialized()) {
-			Log.w(LCAT, "Runtime disposed, cannot set property '" + name + "'");
+			Log.w(TAG, "Runtime disposed, cannot set property '" + name + "'");
 			return;
 		}
 		nativeSetProperty(ptr, name, value);
@@ -54,7 +54,7 @@ public class V8Object extends KrollObject
 	public boolean fireEvent(String type, Object data)
 	{
 		if (!KrollRuntime.isInitialized()) {
-			Log.w(LCAT, "Runtime disposed, cannot fire event '" + type + "'");
+			Log.w(TAG, "Runtime disposed, cannot fire event '" + type + "'");
 			return false;
 		}
 		return nativeFireEvent(ptr, type, data);
