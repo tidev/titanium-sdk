@@ -31,8 +31,9 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI"],
 				}
 			}, container);
 
-			require.on(this.domNode, "click", this, function(e) {
-				this._tabGroup && this._tabGroup.setActiveTab(this);
+			var self = this;
+			this.addEventListener("singletap", function(e) {
+				self._tabGroup && self._tabGroup.setActiveTab(self);
 			});
 		},
 
