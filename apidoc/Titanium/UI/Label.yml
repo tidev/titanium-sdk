@@ -81,6 +81,14 @@ properties:
     
   - name: text
     summary: Label text.
+    description: |
+        Use the backslash and letter `n` line feed character combination, ie `\n`, to force a new 
+        line.  
+        Use unicode characters, such as those included in (but not limited to) the 
+        [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols) 
+        section of wikipedia, to insert special characters and symbols.
+        
+        See the example in [label](Titanium.UI.Label) for a demonstration.
     type: String
     
   - name: textAlign
@@ -105,17 +113,38 @@ properties:
 examples:
   - title: Basic Label
     example: |
-        Create a label with a nice text shadow, 48px font that's aligned `center` and height `auto`.
+        Create one center-aligned label with a text shadow and specified-sized font and a second 
+        containing forced line breaks and unicode symbols.
         
-            var l2 = Titanium.UI.createLabel({
-            	text:'Appcelerator',
-            	height:'auto',
-            	width:'auto',
-            	shadowColor:'#aaa',
-            	shadowOffset:{x:5,y:5},
-            	color:'#900',
-            	font:{fontSize:48},
-            	textAlign:'center'
+            var win = Ti.UI.createWindow({
+              backgroundColor: 'white',
+              exitOnClose: true,
+              fullscreen: false,
+              layout: 'vertical',
+              title: 'Label Demo'
             });
-        
-        
+            
+            var label1 = Ti.UI.createLabel({
+              color: '#900',
+              font: { fontSize:48 },
+              shadowColor: '#aaa',
+              shadowOffset: {x:5, y:5},
+              text: 'A simple label',
+              textAlign: 'center',
+              top: 30,
+              height: 'auto',
+              width: 'auto'
+            });
+            
+            var label2 = Ti.UI.createLabel({
+              color:'blue',
+              text: 'A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n',
+              textAlign: 'left',
+              top: 30,
+              height: 200,
+              width: 300
+            });
+            
+            win.add(label1);
+            win.add(label2);
+            win.open();
