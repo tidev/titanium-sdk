@@ -55,7 +55,7 @@ properties:
         Used when the label is part of a view that can be highlighted, such as a 
         <Titanium.UI.TableViewRow>.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     
   - name: html
     summary: Simple HTML formatting.
@@ -113,7 +113,7 @@ properties:
 examples:
   - title: Basic Label
     example: |
-        Create one center-aligned label with a text shadow and specified-sized font and a second 
+        Create a center-aligned label with a text shadow and specified-size font, and another 
         containing forced line breaks and unicode symbols.
         
             var win = Ti.UI.createWindow({
