@@ -104,7 +104,8 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 						this.blocking.push("longpress");
 						lang.hitch(element,element._handleTouchEvent(this.name,{
 							x: (this._touchStartLocation[0].x + this._touchStartLocation[1].x) / 2,
-							y: (this._touchStartLocation[0].y + this._touchStartLocation[1].y) / 2
+							y: (this._touchStartLocation[0].y + this._touchStartLocation[1].y) / 2,
+							source: this.getSourceNode(e,element)
 						}));
 					}
 					this._touchStartLocation = null;
