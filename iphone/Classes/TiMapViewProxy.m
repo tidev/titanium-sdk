@@ -202,6 +202,9 @@
         for(TiMapAnnotationProxy * annProxy in [mapView annotationsFromArgs:mapView.customAnnotations]){
             [self forgetProxy:annProxy];
         }
+        for(TiMapAnnotationProxy* annProxy in [(TiMapView*)[self view] annotationsFromArgs:arg]){
+            [self rememberProxy:annProxy];
+        }
         TiThreadPerformOnMainThread(^{
             [(TiMapView*)[self view] setAnnotations_:arg];
         }, NO);
