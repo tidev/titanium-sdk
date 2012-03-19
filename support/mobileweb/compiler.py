@@ -383,13 +383,43 @@ class Compiler(object):
 		# 6) close the titanium.js
 		ti_js.close()
 		
+		# build the splash screen
+		splash_html = ''
+		splash_css = ''
+		if tiapp_xml['mobileweb']['splash']['enabled'] == 'true':
+			print '[INFO] Processing splash screen...'
+			splash_path = os.path.join(self.project_path, 'splash')
+			if not os.path.exists(splash_path):
+				splash_path = os.path.join(self.sdk_path, 'splash')
+			splash_html_file = os.path.join(splash_path, 'splash.html')
+			splash_css_file = os.path.join(splash_path, 'splash.css')
+			if os.path.exists(splash_html_file):
+				splash_html = codecs.open(splash_html_file, 'r', 'utf-8').read()
+			if os.path.exists(splash_css_file):
+				splash_css = codecs.open(splash_css_file, 'r', 'utf-8').read()
+				if tiapp_xml['mobileweb']['splash']['inline-css-images'] == 'true':
+					parts = splash_css.split('url(')
+					for i in range(1, len(parts)):
+						j = parts[i].find(')')
+						if j != -1:
+							img = parts[i][:j].replace('"', '').replace('\'', '').strip()
+							if img.find('data:') == -1:
+								if img[1] == '/':
+									img = img[1:]
+								img_path = os.path.join(splash_path, img)
+								if os.path.exists(img_path):
+									fname, ext = os.path.splitext(img_path.lower())
+									if ext in image_mime_types:
+										parts[i] = 'data:%s;base64,%s%s' % (image_mime_types[ext], base64.b64encode(open(img_path,'rb').read()), parts[i][j:])
+					splash_css = 'url('.join(parts)
+
 		# build the titanium.css file
 		print '[INFO] Assembling titanium.css...'
 		self.ti_css_file = os.path.join(self.build_path, 'titanium.css')
 		ti_css = codecs.open(self.ti_css_file, 'w', encoding='utf-8')
 		
 		# TODO: need to rewrite absolute paths for urls
-		ti_css.write(HEADER + '\n' + codecs.open(os.path.join(self.themes_path, 'common.css'), 'r', 'utf-8').read())
+		ti_css.write(HEADER + '\n' + splash_css + '\n' + codecs.open(os.path.join(self.themes_path, 'common.css'), 'r', 'utf-8').read())
 		
 		# TODO: get theme from tiapp.xml
 		theme = 'titanium'
@@ -475,6 +505,7 @@ class Compiler(object):
 			project_name       = tiapp_xml['name'] or '',
 			app_description    = tiapp_xml['description'] or '',
 			app_publisher      = tiapp_xml['publisher'] or '',
+			splash_screen      = splash_html,
 			ti_generator       = 'Appcelerator Titanium Mobile ' + sdk_version,
 			ti_statusbar_style = status_bar_style,
 			ti_css             = codecs.open(self.ti_css_file, 'r', 'utf-8').read(),
