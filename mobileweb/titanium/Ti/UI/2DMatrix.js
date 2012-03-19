@@ -25,7 +25,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Platform", "Ti/UI"], function(declar
 		};
 	}
 
-	return declare("Ti.UI.2DMatrix", Evented, {
+	var api = declare("Ti.UI.2DMatrix", Evented, {
 
 		properties: {
 			a: 1,
@@ -58,23 +58,23 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Platform", "Ti/UI"], function(declar
 				}
 			}
 
-			return new UI["2DMatrix"](mult(this, n[0][0], n[0][1], n[1][0], n[1][1], n[0][2], n[1][2]));
+			return new api(mult(this, n[0][0], n[0][1], n[1][0], n[1][1], n[0][2], n[1][2]));
 		},
 
 		multiply: function(other) {
-			return new UI["2DMatrix"](mult(this, other.a, other.b, other.c, other.d, other.tx, other.ty, other.rotation));
+			return new api(mult(this, other.a, other.b, other.c, other.d, other.tx, other.ty, other.rotation));
 		},
 
 		rotate: function(angle) {
-			return new UI["2DMatrix"]({ a: this.a, b: this.b, c: this.c, d: this.d, tx: this.tx, ty: this.ty, rotation: this.rotation + angle });
+			return new api({ a: this.a, b: this.b, c: this.c, d: this.d, tx: this.tx, ty: this.ty, rotation: this.rotation + angle });
 		},
 
 		scale: function(x, y) {
-			return new UI["2DMatrix"](mult(this, x, 0, 0, y, 0, 0));
+			return new api(mult(this, x, 0, 0, y, 0, 0));
 		},
 
 		translate: function(x, y) {
-			return new UI["2DMatrix"](mult(this, 0, 0, 0, 0, x, y));
+			return new api(mult(this, 0, 0, 0, 0, x, y));
 		},
 
 		toCSS: function() {
@@ -90,5 +90,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Platform", "Ti/UI"], function(declar
 		}
 
 	});
+	
+	return api;
 
 });
