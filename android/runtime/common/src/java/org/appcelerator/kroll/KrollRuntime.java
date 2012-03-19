@@ -131,6 +131,14 @@ public abstract class KrollRuntime implements Handler.Callback
 		}
 	}
 
+	public static boolean isInitialized()
+	{
+		if (instance != null) {
+			return instance.initialized.get();
+		}
+		return false;
+	}
+
 	public KrollApplication getKrollApplication()
 	{
 		if (krollApplication != null) {
