@@ -35,7 +35,11 @@ public class TiRootActivity extends TiLaunchActivity
 			// Android bug 2373 detected and we're going to restart.
 			return;
 		}
-		
+
+		if (checkInvalidKindleFireRelaunch(savedInstanceState)) {
+			return;
+		}
+
 		getTiApp().setCurrentActivity(this, this);
 		Log.checkpoint(LCAT, "checkpoint, on root activity create, savedInstanceState: " + savedInstanceState);
 		TiApplication app = getTiApp();
@@ -77,6 +81,9 @@ public class TiRootActivity extends TiLaunchActivity
 		super.onDestroy();
 		if (DBG) {
 			Log.d(LCAT, "root activity onDestroy, context = " + tiContext);
+		}
+		if (invalidKindleFireRelaunch) {
+			return;
 		}
 		if (tiContext != null) {
 			TiApplication app = tiContext.getTiApp();

@@ -8,6 +8,8 @@ package org.appcelerator.titanium;
 
 import java.io.IOException;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.util.Log;
@@ -39,11 +41,18 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	protected TiContext tiContext;
 	protected TiUrl url;
 
+	// Constants for Kindle fire fix for android 2373 (TIMOB-7843)
+	private static final AtomicInteger creationCounter = new AtomicInteger();
+	private static final int KINDLE_FIRE_RESTART_FLAGS = (Intent.FLAG_ACTIVITY_NEW_TASK
+		| Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+	private static final String KINDLE_MODEL = "kindle";
+
 	// For restarting due to android bug 2373 detection.
 	private AlertDialog invalidLaunchAlert;
 	private boolean invalidLaunchDetected = false;
 	private AlarmManager restartAlarmManager = null;
 	private PendingIntent restartPendingIntent = null;
+	protected boolean invalidKindleFireRelaunch = false;
 
 	/**
 	 * @return The Javascript URL that this Activity should run
@@ -87,9 +96,35 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		}
 	}
 
+	// For kindle fire, we want to prevent subsequent instances of the activity from launching if it's following the
+	// restart workaround for android 2373. For whatever reason, the Fire always tries to re-launch the launch activity
+	// (i.e., a new instance of it) whenever the user selects the application from the application drawer (or shelf, whatever
+	// it is) after the app has been restarted because of 2373 detection. We detect here when that new instance of the launch
+	// activity is coming into existence, so that we can kill it off (finish()) right away.
+	protected boolean checkInvalidKindleFireRelaunch(Bundle savedInstanceState)
+	{
+		invalidKindleFireRelaunch = false;
+		int count = creationCounter.getAndIncrement();
+		if (count > 0 && getIntent().getFlags() == KINDLE_FIRE_RESTART_FLAGS
+			&& Build.MODEL.toLowerCase().contains(KINDLE_MODEL) && !isTaskRoot()) {
+			invalidKindleFireRelaunch = true;
+		}
+
+		if (invalidKindleFireRelaunch) {
+			activityOnCreate(savedInstanceState);
+			finish();
+		}
+
+		return invalidKindleFireRelaunch;
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+
+		if (invalidKindleFireRelaunch || checkInvalidKindleFireRelaunch(savedInstanceState)) {
+			return;
+		}
 
 		if (checkInvalidLaunch(savedInstanceState)) {
 			return;
@@ -227,6 +262,10 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onRestart()
 	{
+		if (invalidKindleFireRelaunch) {
+			activityOnRestart();
+			return;
+		}
 		super.onRestart();
 		TiProperties systemProperties = getTiApp().getSystemProperties();
 		boolean restart = systemProperties.getBool("ti.android.root.reappears.restart", false);
@@ -239,7 +278,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onStart()
 	{
-		if (invalidLaunchDetected) {
+		if (invalidLaunchDetected || invalidKindleFireRelaunch) {
 			activityOnStart();
 			return;
 		}
@@ -252,6 +291,10 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onResume()
 	{
+		if (invalidKindleFireRelaunch) {
+			activityOnResume();
+			return;
+		}
 		if (invalidLaunchDetected) {
 			alertMissingLauncher();
 			activityOnResume();
@@ -265,6 +308,10 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onPause()
 	{
+		if (invalidKindleFireRelaunch) {
+			activityOnPause();
+			return;
+		}
 		if (invalidLaunchDetected) {
 			// Not in a good state. Let's get out.
 			doFinishForRestart();
@@ -279,7 +326,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onStop()
 	{
-		if (invalidLaunchDetected) {
+		if (invalidLaunchDetected || invalidKindleFireRelaunch) {
 			activityOnStop();
 			return;
 		} else if (tiContext != null) {
@@ -291,6 +338,10 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	@Override
 	protected void onDestroy()
 	{
+		if (invalidKindleFireRelaunch) {
+			activityOnDestroy();
+			return;
+		}
 		if (tiContext != null) {
 			tiContext.fireLifecycleEvent(this, TiContext.LIFECYCLE_ON_DESTROY);
 			TiApplication tiApp = tiContext.getTiApp();
