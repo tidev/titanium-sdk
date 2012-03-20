@@ -121,10 +121,9 @@ public class TiAnimationBuilder
 			Object centerPoint = options.get(TiC.PROPERTY_CENTER);
 			if (centerPoint instanceof HashMap) {
 				HashMap center = (HashMap) centerPoint;
-				if (center != null) {
-					centerX = TiConvert.toInt(center, TiC.PROPERTY_X);
-					centerY = TiConvert.toInt(center, TiC.PROPERTY_Y);
-				}
+				centerX = TiConvert.toInt(center, TiC.PROPERTY_X);
+				centerY = TiConvert.toInt(center, TiC.PROPERTY_Y);
+				
 			} else {
 				Log.e(LCAT, "Invalid argument type for center property. Ignoring");
 			}
