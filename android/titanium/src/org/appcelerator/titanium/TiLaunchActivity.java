@@ -104,8 +104,9 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	protected boolean checkInvalidKindleFireRelaunch(Bundle savedInstanceState)
 	{
 		invalidKindleFireRelaunch = false;
+		Intent intent = getIntent();
 		int count = creationCounter.getAndIncrement();
-		if (count > 0 && getIntent().getFlags() == KINDLE_FIRE_RESTART_FLAGS
+		if (count > 0 && intent != null && intent.getFlags() == KINDLE_FIRE_RESTART_FLAGS
 			&& Build.MODEL.toLowerCase().contains(KINDLE_MODEL) && !isTaskRoot()) {
 			invalidKindleFireRelaunch = true;
 		}
