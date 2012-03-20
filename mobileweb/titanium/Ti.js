@@ -36,7 +36,9 @@ define(
 			},
 
 			properties: {
-				userAgent: "Appcelerator Titanium/" + ver + " (" + navigator.userAgent + ")!"
+				userAgent: function() {
+					return navigator.userAgent;
+				}
 			},
 
 			createBuffer: function(args) {
