@@ -23,7 +23,8 @@ var f1 = Ti.UI.createTextField({
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 	top:0,
 	right:0,
-	width:200
+	width:200,
+	height:30
 });
 v1.add(l1);
 v1.add(f1);
@@ -44,7 +45,8 @@ var f2 = Ti.UI.createTextField({
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 	top:0,
 	right:0,
-	width:200
+	width:200,
+	height:30
 });
 v2.add(l2);
 v2.add(f2);
@@ -65,7 +67,8 @@ var f3 = Ti.UI.createTextField({
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 	top:0,
 	right:0,
-	width:200
+	width:200,
+	height:30
 });
 v3.add(l3);
 v3.add(f3);
@@ -86,7 +89,8 @@ var f4 = Ti.UI.createTextField({
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 	top:0,
 	right:0,
-	width:200
+	width:200,
+	height:30
 });
 v4.add(l4);
 v4.add(f4);
@@ -107,7 +111,8 @@ var f5 = Ti.UI.createTextField({
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 	top:0,
 	right:0,
-	width:200
+	width:200,
+	height:30
 });
 v5.add(l5);
 v5.add(f5);
@@ -128,7 +133,8 @@ var f6 = Ti.UI.createTextField({
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 	top:0,
 	right:0,
-	width:200
+	width:200,
+	height:30
 });
 v6.add(l6);
 v6.add(f6);
@@ -148,7 +154,8 @@ var f7 = Ti.UI.createTextField({
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 	top:0,
 	right:0,
-	width:200
+	width:200,
+	height:30
 });
 v7.add(l7);
 v7.add(f7);
