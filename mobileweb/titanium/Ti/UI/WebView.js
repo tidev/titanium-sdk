@@ -208,7 +208,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 				get: function(value) {
 					var doc = this._getDoc();
 					if (doc) {
-						return doc.all[0].innerHTML;
+						return doc.documentElement.innerHTML;
 					}
 				},
 				set: function(value) {
