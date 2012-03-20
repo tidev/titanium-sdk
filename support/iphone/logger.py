@@ -59,7 +59,7 @@ def main(args):
 	try:
 	  	for line in t:
 	  		print line
-			sys.stdout.flush()
+	  		sys.stdout.flush()
 	except:
 		sys.stdout.flush()
 		sys.exit(0)
