@@ -92,17 +92,7 @@
 
 -(TiMapAnnotationProxy*)annotationFromArg:(id)arg
 {
-	if ([arg isKindOfClass:[TiMapAnnotationProxy class]])
-	{
-		[(TiMapAnnotationProxy*)arg setDelegate:self];
-		[arg setPlaced:NO];
-		return arg;
-	}
-	ENSURE_TYPE(arg,NSDictionary);
-	TiMapAnnotationProxy *proxy = [[[TiMapAnnotationProxy alloc] _initWithPageContext:[self.proxy pageContext] args:[NSArray arrayWithObject:arg]] autorelease];
-
-	[proxy setDelegate:self];
-	return proxy;
+    return [(TiMapViewProxy*)[self proxy] annotationFromArg:arg];
 }
 
 -(NSArray*)annotationsFromArgs:(id)value
