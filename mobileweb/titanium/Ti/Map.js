@@ -15,13 +15,11 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 		},
 
 		createAnnotation: function(args) {
-			var m = require("Ti/Map/Annotation");
-			return new m(args);
+			return new (require("Ti/Map/Annotation"))(args);
 		},
 
 		createView: function(args) {
-			var m = require("Ti/Map/View");
-			return new m(args);
+			return new (require("Ti/Map/View"))(args);
 		}
 
 	});

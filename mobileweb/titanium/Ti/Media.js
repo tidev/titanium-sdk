@@ -49,8 +49,7 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 		},
 
 		createVideoPlayer: function(args) {
-			var VideoPlayer = require("Ti/Media/VideoPlayer");
-			return new VideoPlayer(args);
+			return new (require("Ti/Media/VideoPlayer"))(args);
 		}
 
 	});

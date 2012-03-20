@@ -1,4 +1,5 @@
-define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Map", "Ti/UI/View"], function(declare, lang, Properties, Map, View) {
+define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Geolocation", "Ti/Map", "Ti/UI/View"],
+	function(declare, lang, Properties, Geolocation, Map, View) {
 
 	function mapType(type) {
 		var t = gmaps.MapTypeId;
@@ -19,9 +20,11 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Map", "Ti/UI/View"
 			longitudeDelta: 63.235658
 		},
 		gmaps,
+		gevent,
 		activeInfoWindow,
 		// the order of the markers MUST match the ANNOTATION_* constants defined in Ti.Map
 		markers = ["red", "green", "purple"],
+		locationMarkerImage,
 		onload = Ti.deferStart(),
 		MapView = declare("Ti.Map.View", View, {
 
@@ -41,74 +44,31 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Map", "Ti/UI/View"
 						mapTypeId: mapType(this.mapType)
 					});
 
-				gmaps.event.addListener(gmap, "bounds_changed", lang.hitch(this, "_fitRegion"));
+				this._boundsEvt = gevent.addListener(gmap, "bounds_changed", lang.hitch(this, "_fitRegion"));
 				this._updateMap(region, 1);
-
-				this.annotations.forEach(function(a, i) {
-					var marker = markers[a.pincolor | 0],
-						title = a._getTitle(),
-						subtitle = a._getSubtitle(),
-						onInfoWindowClick = lang.hitch(this, function() {
-							a._onclick(this, i, "pin");
-						}),
-						opts = {
-							map: gmap,
-							icon: marker[0],
-							shadow: marker[1],
-							position: new gmaps.LatLng(a.latitude, a.longitude),
-							title: title
-						};
-
-					a.animate && (opts.animation = gmaps.Animation.DROP);
-					marker = a.marker = new gmaps.Marker(opts);
-
-					gmaps.event.addListener(marker, "click", lang.hitch(this, function() {
-						if (activeInfoWindow) {
-							activeInfoWindow.close();
-							onInfoWindowClick();
-						}
-
-						(activeInfoWindow = new gmaps.InfoWindow({
-							// image: void 0,			// string or Titanium.Blob
-							// leftButton: void 0,		// number or string
-							// leftView: void 0,		// Ti.UI.View
-							// rightButton: void 0,	// number or string
-							// rightView: void 0,		// Ti.UI.View
-							content: "<p><strong>" + title + "</strong></p><p>" + subtitle + "</p>"
-						})).open(gmap, marker);
-
-						gmaps.event.addListener(activeInfoWindow, "closeclick", onInfoWindowClick);
-
-						onInfoWindowClick();
-
-						this.fireEvent("click", {
-							annotation: a,
-							clicksource: "pin",
-							index: i,
-							latitude: a.latitude,
-							longitude: a.longitude,
-							map: this,
-							subtitle: subtitle,
-							title: title
-						});
-					}));
-
-					this.properties.__values__.annotations[i] = a;
-				}, this);
-
-				// TODO: userLocation???
+				this._updateUserLocation(this.userLocation);
+				this.annotations.forEach(this._createMarker, this);
 			},
 
-			addAnnotation: function(/*Object|Ti.Map.Annotation*/annotation) {
-				if (annotation) {
-					annotation.declaredClass === "Ti.Map.Annotation" || (annotation = new Annotation(annotation));
-					this.properties.annotations.push(annotation);
-					// TODO: create the google annotation
+			destroy: function() {
+				var gmap = this._gmap;
+				gevent.removeListener(this._boundsEvt);
+				this.removeAllAnnotations();
+				gmap.clearOverlays();
+				gevent.clearInstanceListeners(gmap);
+				this._gmap = null;
+				View.prototype.destroy.apply(this, arguments);
+			},
+
+			addAnnotation: function(/*Object|Ti.Map.Annotation*/a) {
+				if (a) {
+					a.declaredClass === "Ti.Map.Annotation" || (a = new Annotation(a));
+					this._createMarker(a, this.annotations.length);
 				}
 			},
 
 			addAnnotations: function(/*Array*/annotations) {
-				annotations && annotations.forEach(lang.hitch(this, "addAnnotation"));
+				annotations && annotations.forEach(this.addAnnotation, this);
 			},
 
 			addRoute: function(/*Object*/route) {
@@ -126,23 +86,24 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Map", "Ti/UI/View"
 			},
 
 			deselectAnnotation: function(/*String|Ti.Map.Annotation*/annotation) {
-				if (annotation = this._findAnnotation(annotation)) {
-					// TODO: hide the annotation
-				}
+				var idx = this._indexOfAnnotation(annotation);
+				~idx || activeInfoWindow && activeInfoWindow.idx === idx && activeInfoWindow.close();
 			},
 
 			removeAllAnnotations: function() {
-				this.properties.annotations = [];
-				// TODO: remove all google annotations
+				activeInfoWindow && activeInfoWindow.close();
+				this.removeAnnotations(this.annotations);
 			},
 
-			removeAnnotation: function(/*String|Ti.Map.Annotation*/annotation) {
+			removeAnnotation: function(/*String|Ti.Map.Annotation*/a) {
 				var anno = this.properties.annotations,
 					i = 0;
-				if (annotation = this._getAnnotationTitle(annotation)) {
+				if (a = this._getAnnotationTitle(a)) {
 					for (; i < anno.length; i++) {
-						if (anno[i].title === annotation) {
-							// TODO: remove the annotation
+						if (anno[i].title === a) {
+							activeInfoWindow && activeInfoWindow.marker.setMap(null) && (delete activeInfoWindow.marker);
+							gevent.removeListener(a.evt);
+							this.deselectAnnotation(a);
 							anno.splice(i--, 1);
 						}
 					}
@@ -162,15 +123,54 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Map", "Ti/UI/View"
 					for (; i < r.length; i++) {
 						if (r[i].name === route.name) {
 							route.pline.setMap(null);
+							delete route.pline;
 							r.splice(i--, 1);
 						}
 					}
 				}
 			},
 
-			selectAnnotation: function(/*String|Ti.Map.Annotation*/annotation) {
-				if (annotation = this._findAnnotation(annotation)) {
-					// TODO: show the annotation
+			selectAnnotation: function(/*String|Ti.Map.Annotation*/a) {
+				var idx = this._indexOfAnnotation(a);
+				if (~!idx) {
+					var onInfoWindowClick = lang.hitch(this, function(e) {
+							a._onclick(this, activeInfoWindow.idx, "pin");
+						}),
+						title = a._getTitle(),
+						subtitle = a._getSubtitle();
+
+					a = this.annotations[idx];
+
+					if (activeInfoWindow) {
+						onInfoWindowClick();
+						activeInfoWindow.close();
+					} else {
+						activeInfoWindow = new gmaps.InfoWindow({
+							// image: void 0,			// string or Titanium.Blob
+							// leftButton: void 0,		// number or string
+							// leftView: void 0,		// Ti.UI.View
+							// rightButton: void 0,	// number or string
+							// rightView: void 0,		// Ti.UI.View
+						});
+						gevent.addListener(activeInfoWindow, "closeclick", onInfoWindowClick);
+					}
+
+					activeInfoWindow.setContent("<p><strong>" + title + "</strong></p><p>" + subtitle + "</p>");
+					activeInfoWindow.open(this._gmap, a.marker);
+					activeInfoWindow.idx = idx;
+
+					onInfoWindowClick();
+
+					this.fireEvent("click", {
+						annotation: a,
+						clicksource: "pin",
+						index: idx,
+						latitude: a.latitude,
+						longitude: a.longitude,
+						map: this,
+						subtitle: subtitle,
+						title: title
+					});
 				}
 			},
 
@@ -187,21 +187,45 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Map", "Ti/UI/View"
 				gmap.setZoom(gmap.getZoom() + level);
 			},
 
+			_createMarker: function(a, i) {
+				var marker = markers[a.pincolor | 0],
+					opts = {
+						map: this._gmap,
+						icon: marker[0],
+						shadow: marker[1],
+						position: new gmaps.LatLng(a.latitude, a.longitude),
+						title: a._getTitle()
+					};
+
+				a.animate && (opts.animation = gmaps.Animation.DROP);
+				a.idx = i;
+				a.evt = gevent.addListener(a.marker = new gmaps.Marker(opts), "click", lang.hitch(this, function() {
+					this.selectAnnotation(a);
+				}));
+
+				this.properties.__values__.annotations[i] = a;
+			},
+
 			_getAnnotationTitle: function(/*String|Ti.Map.Annotation*/a) {
 				return a && require.is(a, "String") ? a : a.declaredClass === "Ti.Map.Annotation" ? a.title : 0;
 			},
 
-			_findAnnotation: function(/*String|Ti.Map.Annotation*/annotation) {
+			_indexOfAnnotation: function(/*String|Ti.Map.Annotation*/annotation) {
 				var anno = this.properties.annotations,
 					i = 0;
 				if (annotation = this._getAnnotationTitle(annotation)) {
 					for (; i < anno.length; i++) {
 						if (anno[i].title === annotation) {
-							return anno[i];
+							return i;
 						}
 					}
 				}
-				return null;
+				return -1;
+			},
+
+			_findAnnotation: function(/*String|Ti.Map.Annotation*/a) {
+				var idx;
+				return a.declaredClass === "Ti.Map.Annotation" ? a : ~(idx = this._indexOfAnnotation(a)) ? null : this.annotations[idx];
 			},
 
 			_fitRegion: function() {
@@ -244,6 +268,43 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Map", "Ti/UI/View"
 				}
 			},
 
+			_updateUserLocation: function(userLocation) {
+				var gmap = this._gmap;
+				if (gmap && (userLocation || this._locationInited)) {
+					this._locationInited = 1;
+
+					Geolocation[userLocation ? "addEventListener" : "removeEventListener"]("location", lang.hitch(this, function(e) {
+						var marker = this._locationMarker,
+							coords = e.coords,
+							code = e.code,
+							msg,
+							pos;
+
+						if (coords) {
+							pos = new gmaps.LatLng(coords.latitude, coords.longitude);
+							if (marker) {
+								marker.setPosition(pos);
+							} else {
+								this._locationMarker = new gmaps.Marker({
+									map: this._gmap,
+									icon: locationMarkerImage,
+									position: pos
+								});
+							}
+						} else if ("code" in e) {
+							Ti.API.warn("Geolocation error: " + (code === Geolocation.ERROR_DENIED ? "permission denied" : code === Geolocation.ERROR_TIMEOUT ? "timeout" : code === Geolocation.ERROR_LOCATION_UNKNOWN ? "position unavailable" : "unknown"));
+						}
+					}));
+
+					if (!Geolocation.locationServicesEnabled) {
+						Ti.API.warn("Geolocation services unavailable");
+						this.properties.__values__.userLocation = false;
+					} else if (!userLocation || this._locationMarker) {
+						this._locationMarker.setVisible(userLocation);
+					}
+				}
+			},
+
 			constants: {
 				latitudeDelta: 0,
 				longitudeDelta: 0
@@ -254,7 +315,10 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Map", "Ti/UI/View"
 				annotations: {
 					set: function(value) {
 						value = value.filter(function(a) { return a && a.declaredClass === "Ti.Map.Annotation"; });
-						// TODO: update annotations
+						if (this._gmap) {
+							this.removeAllAnnotations();
+							value.forEach(this._createMarker, this);
+						}
 						return value;
 					}
 				},
@@ -268,35 +332,43 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Map", "Ti/UI/View"
 					set: function(newValue, oldValue) {
 						return mix({}, defaultRegion, oldValue, newValue);
 					},
-					post: function(value) {
-						this._updateMap(value);
+					post: function(newValue, oldValue) {
+						newValue !== oldValue && this._updateMap(newValue);
 					},
 					value: null
 				},
 				regionFit: true,
-				userLocation: false
+				userLocation: {
+					post: function(value) {
+						this._updateUserLocation(value);
+					},
+					value: false
+				}
 			}
 
 		});
 
 	window.TiMapViewInit = function() {
 		gmaps = google.maps;
+		gevent = gmaps.event;
 
-		var prefix = "/themes/" + require.config.ti.theme + "/Map/marker_",
+		var prefix = "themes/" + require.config.ti.theme + "/Map/",
 			point = gmaps.Point;
 
 		function makeMarker(color, x1, x2) {
-			return new gmaps.MarkerImage(prefix + color + ".png", new gmaps.Size(x1, 34), new point(x2, 0), new point(10, 34));
+			return new gmaps.MarkerImage(prefix + "marker_" + color + ".png", new gmaps.Size(x1, 34), new point(x2, 0), new point(10, 34));
 		}
 
 		markers = markers.map(function(color) {
 			return [makeMarker(color, 20, 0), makeMarker(color, 37, 20)];
 		});
 
+		locationMarkerImage = new gmaps.MarkerImage(prefix + "location.png", new gmaps.Size(22, 22), new point(0, 0), new point(11, 11));
+
 		onload();
 	};
 
-	require(["http://maps.googleapis.com/maps/api/js?key=" + Properties.getString("ti.map.apikey", "") + "&sensor=false&callback=TiMapViewInit"]);
+	require(["http://maps.googleapis.com/maps/api/js?key=" + Properties.getString("ti.map.apikey", "") + "&sensor=true&callback=TiMapViewInit"]);
 
 	return MapView;
 

@@ -850,7 +850,7 @@ define(
 
 			anim.duration = anim.duration || 0;
 			anim.delay = anim.delay || 0;
-			anim.transform && setStyle("transform", "");
+			anim.transform && setStyle(this.domNode, "transform", "");
 			anim.start && anim.start();
 
 			if (anim.duration > 0) {
