@@ -11,13 +11,13 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 				
 			// Determine if any children have fill height
 			for (var i = 0; i < children.length; i++) {
-				children[i].width === UI.FILL && (childrenWithFillWidth = true);
+				children[i]._hasFillWidth() && (childrenWithFillWidth = true);
 			}
 			
 			if (childrenWithFillWidth) {
 				for (var i = 0; i < children.length; i++) {
 					var child = children[i];
-					if (this.verifyChild(child,element) && child.width !== UI.FILL) {
+					if (this.verifyChild(child,element) && !child._hasFillWidth()) {
 						var childWidth;
 						if (child._markedForLayout) {
 							childWidth = child._doLayout({
@@ -52,7 +52,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 				
 				// Layout the child
 				var child = children[i],
-					isWidthFill = child.width === UI.FILL;
+					isWidthFill = child._hasFillWidth();
 				
 				if (child._markedForLayout) {
 					child._doLayout({
