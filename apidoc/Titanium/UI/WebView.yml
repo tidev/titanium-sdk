@@ -266,7 +266,8 @@ properties:
         For Mobile Web, setting new content will reset the `url` and the WebView's history. The WebView's
         "onload" event will have already fired prior to the data being set inside the WebView. When 
         querying this value, mobile web may append certain default properties to tags, such as `marginwidth`
-        and `marginheight` on the `<body>` tag.
+        and `marginheight` on the `<body>` tag. This property returns undefined if the webview's source is
+        of a different domain than the app.
     type: String
 
   - name: loading
