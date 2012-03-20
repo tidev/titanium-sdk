@@ -9,6 +9,9 @@ description: |
     On iPad, the `density` property is `high` for retina devices or `medium` otherwise,
     and the `dpi` property is `260` or `130` otherwise.
     
+    Note that xCode versions prior to 4.3.1 do not have the correct tools to detect the iPAD3 
+    retina display. Apps must be built with xCode 4.3.1 or later to detect iPAD3 retina display.
+    
     Note that the `displayCaps` property begins with a lowercase letter, which differentiates it 
     from the `DisplayCaps` object that it returns. Refer to the example to understand how it should 
     be called.
