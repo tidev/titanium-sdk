@@ -264,7 +264,11 @@ properties:
         specified when setting HTML content.
 
         For Mobile Web, setting new content will reset the `url` and the WebView's history. The WebView's
-        "onload" event will have already fired prior to the data being set inside the WebView.
+        "onload" event will have already fired prior to the data being set inside the WebView. When 
+        querying this value, mobile web will pass in a formatted version of the html. The `<html>` tag is
+        stripped of, along with comments outside of the `<html>` tag. Some default attributes may be added
+        as well. For example, a web page with the code `<html><head></head><body>hello</body></html>` returns
+        `"<head></head><body marginwidth="0" marginheight="0">hello</body>"` in Safari.
     type: String
 
   - name: loading

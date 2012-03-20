@@ -34,7 +34,8 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 							Math.abs(this._firstTapLocation.y - y) < this._driftThreshold) {
 						var result = {
 							x: x,
-							y: y
+							y: y,
+							source: this.getSourceNode(e,element)
 						};
 						if (!element._isGestureBlocked(this.name)) {
 							this.blocking.push("singletap");

@@ -75,19 +75,18 @@ static void getAddrInternal(char* macAddress, const char* ifName) {
 
 +(int) dpi
 {
-	if ([TiUtils isIPad])
-	{
-        //TODO Update for iPAD retina specs dpi is 264
-		return 130;
-	}
-	else if ([TiUtils isRetinaDisplay])
-	{
-		return 320;
-	}
-	else
-	{
-		return 160;
-	}    
+    if ([TiUtils isIPad]) {
+        if ([TiUtils isRetinaDisplay]) {
+            return 260;
+        }
+        return 130;
+    }
+    else {    
+        if ([TiUtils isRetinaDisplay]) {
+            return 320;
+        }
+        return 160;
+    }    
 }
 
 +(BOOL)isRetinaDisplay

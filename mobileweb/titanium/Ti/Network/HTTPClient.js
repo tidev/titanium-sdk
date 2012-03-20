@@ -87,7 +87,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 				c.location = _.getAbsolutePath(httpURLFormatter ? httpURLFormatter(url) : url),
 				!!async
 			);
-			this._xhr.setRequestHeader("UserAgent", Ti.userAgent);
+			this._xhr.withCredentials = this.withCredentials
 		},
 
 		send: function(args){
@@ -117,7 +117,8 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 			onload: undef,
 			onreadystatechange: undef,
 			onsendstream: undef,
-			timeout: undef
+			timeout: undef,
+			withCredentials: false
 		},
 
 		constants: {

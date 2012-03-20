@@ -58,7 +58,7 @@ public class TiAnimationBuilder
 	protected TiAnimation animationProxy;
 	protected KrollFunction callback;
 	protected boolean relayoutChild = false, applyOpacity = false;
-	protected KrollDict options;
+	protected HashMap options;
 	protected View view;
 	protected TiViewProxy viewProxy;
 
@@ -69,18 +69,22 @@ public class TiAnimationBuilder
 		anchorY = Ti2DMatrix.DEFAULT_ANCHOR_VALUE;
 	}
 
-	public void applyOptions(HashMap optionsMap)
+	@SuppressWarnings({"unchecked","rawtypes"})
+	public void applyOptions(HashMap options)
 	{
-		if (optionsMap == null) {
+		if (options == null) {
 			return;
 		}
 
-		// TODO this sucks, fix it (don't construct a KrollDict, solve the problem)
-		KrollDict options = new KrollDict(optionsMap);
 		if (options.containsKey(TiC.PROPERTY_ANCHOR_POINT)) {
-			KrollDict point = (KrollDict) options.get(TiC.PROPERTY_ANCHOR_POINT);
-			anchorX = TiConvert.toFloat(point, TiC.PROPERTY_X);
-			anchorY = TiConvert.toFloat(point, TiC.PROPERTY_Y);
+			Object anchorPoint = options.get(TiC.PROPERTY_ANCHOR_POINT);
+			if (anchorPoint instanceof HashMap) {
+				HashMap point = (HashMap)anchorPoint;
+				anchorX = TiConvert.toFloat(point, TiC.PROPERTY_X);
+				anchorY = TiConvert.toFloat(point, TiC.PROPERTY_Y);
+			} else {
+				Log.e(LCAT, "invalid argument type for anchorPoint property. Ignoring");
+			}
 		}
 
 		if (options.containsKey(TiC.PROPERTY_TRANSFORM)) {
@@ -114,10 +118,14 @@ public class TiAnimationBuilder
 			right = TiConvert.toInt(options, TiC.PROPERTY_RIGHT);
 		}
 		if (options.containsKey(TiC.PROPERTY_CENTER)) {
-			KrollDict center = options.getKrollDict(TiC.PROPERTY_CENTER);
-			if (center != null) {
+			Object centerPoint = options.get(TiC.PROPERTY_CENTER);
+			if (centerPoint instanceof HashMap) {
+				HashMap center = (HashMap) centerPoint;
 				centerX = TiConvert.toInt(center, TiC.PROPERTY_X);
 				centerY = TiConvert.toInt(center, TiC.PROPERTY_Y);
+				
+			} else {
+				Log.e(LCAT, "Invalid argument type for center property. Ignoring");
 			}
 		}
 		if (options.containsKey(TiC.PROPERTY_WIDTH)) {

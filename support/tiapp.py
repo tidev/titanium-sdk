@@ -438,7 +438,7 @@ class TiAppXML(object):
 		tempiconslist = sorted(os.listdir(iconsdir1))
 		tempiconslist += sorted(os.listdir(iconsdir2))
 		iconslist = list(set(sorted(tempiconslist)))
-		iconorder = list([iconname+".png",iconname+"@2x.png",iconname+"-72.png",iconname+"-Small-50.png",iconname+"-Small.png",iconname+"-Small@2x.png"])
+		iconorder = list([iconname+".png",iconname+"@2x.png",iconname+"-72.png",iconname+"-72@2x.png",iconname+"-Small-50.png",iconname+"-Small-50@2x.png",iconname+"-Small.png",iconname+"-Small@2x.png"])
 		for type in iconorder:
 			for nexticon in iconslist:
 				if type == nexticon:
