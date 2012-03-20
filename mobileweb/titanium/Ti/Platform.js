@@ -1,10 +1,10 @@
-define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale"],
-	function(_, browser, Evented, lang, Locale) {
+define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale", "Ti/_/dom"],
+	function(_, browser, Evented, lang, Locale, dom) {
 		
 	var doc = document,
 		midName = "ti:mid",
 		matches = doc.cookie.match(new RegExp("(?:^|; )" + midName + "=([^;]*)")),
-		mid = matches ? decodeURIComponent(matches[1]) : undefined,
+		mid = matches ? decodeURIComponent(matches[1]) : void 0,
 		unloaded,
 		on = require.on;
 
@@ -24,26 +24,14 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale"],
 	on(window, "beforeunload", saveMid);
 	on(window, "unload", saveMid);
 
-	var undef,
-		nav = navigator,
+	var nav = navigator,
 		battery = nav.battery || nav.webkitBattery || nav.mozBattery,
 		Platform = lang.setObject("Ti.Platform", Evented, {
-
-			canOpenURL: function() {
-				return true;
-			},
 
 			createUUID: _.uuid,
 
 			openURL: function(url){
-				var m = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?/.exec(url);
-				if ( (/^([tel|sms|mailto])/.test(url) || /^([\/?#]|[\w\d-]+^:[\w\d]+^@)/.test(m[1])) && !/^(localhost)/.test(url) ) {
-					setTimeout(function() {
-						window.location.href = url;
-					}, 1);
-				} else {
-					window.open(url);
-				}
+				window.open(url);
 			},
 
 			properties: {
@@ -55,9 +43,9 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale"],
 				BATTERY_STATE_FULL: 2,
 				BATTERY_STATE_UNKNOWN: -1,
 				BATTERY_STATE_UNPLUGGED: 0,
-				address: undef,
-				architecture: undef,
-				availableMemory: undef,
+				address: void 0,
+				architecture: void 0,
+				availableMemory: void 0,
 				batteryLevel: function() {
 					return this.batteryMonitoring && battery ? battery.level * 100 : -1;
 				},
@@ -67,15 +55,15 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale"],
 				isBrowser: true,
 				id: mid,
 				locale: Locale,
-				macaddress: undef,
+				macaddress: void 0,
 				model: nav.userAgent,
 				name: "mobileweb",
-				netmask: undef,
+				netmask: void 0,
 				osname: "mobileweb",
 				ostype: nav.platform,
 				runtime: browser.runtime,
-				processorCount: undef,
-				username: undef,
+				processorCount: void 0,
+				username: void 0,
 				version: require.config.ti.version
 			}
 

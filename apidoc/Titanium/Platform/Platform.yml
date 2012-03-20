@@ -29,7 +29,7 @@ methods:
       Returns whether the system is configured with a default application to handle the URL's protocol.
     returns:
         type: Boolean
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     parameters:
       - name: url
         summary: The url to check.
