@@ -13,8 +13,6 @@ methods:
     summary: Forces the text area to lose focus.
   - name: focus
     summary: Forces the text area to gain focus.
-  - name: hasText
-    summary: Returns `true` if the text area contains text, `false` if it is empty.
 events:
   - name: blur
     summary: Fired when the text area loses focus.
@@ -51,6 +49,10 @@ properties:
         [KEYBOARD_APPEARANCE_DEFAULT](Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT).
     type: Number
     platforms: [iphone, ipad]
+  - name: autocorrect
+    summary: If true, allows the input field to autocorrect misspelled words.
+    type: Boolean
+    platforms: [android, iphone, ipad, mobileweb]
   - name: autoLink
     summary: Automatically convert text within this area to clickable links. 
     description: Specify which type of items should be converted using the `AUTODETECT` constants defined in <Titanium.UI>.
@@ -66,17 +68,47 @@ properties:
         [TEXT_AUTOCAPITALIZATION_ALL](Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL).
     platforms: [android,iphone,ipad]
     type: Number
+  - name: clearOnEdit
+    summary: |
+        Determines if the value of the field should be cleared when the text area is focused.
+    type: Boolean
+    default: false
+    platforms: [android]
+  - name: color
+    summary: Text color, as a web color name or hex triplet.
+    type: String
   - name: editable
-    summary: Is the text area editable?
+    summary: Determines if the text area can be edited.
     type: Boolean
     default: true
+  - name: ellipsize
+    summary: Determines if an ellipsis (...) should be used to indicate truncated text.
+    type: Boolean
+    default: false
+    platforms: [android]
   - name: enabled
-    summary: Is the text area enabled?
+    summary: Determines if the text area is enabled.
     type: Boolean
     default: true
+  - name: enableReturnKey
+    summary: |
+        Determines whether the return key is enabled automatically when there is text
+        in the text area.
+    description: |
+        If `true`, the return key is **disabled** when the text area is empty, and
+        automatically enabled as soon as the user types any text in the area.
+    type: Boolean
+    default: false
   - name: font
     summary: Font to use for text.
     type: Font
+  - name: hintText
+    summary: Hint text to display when the field is empty.
+    description: |
+        The hint text is hidden when the user enters text into the text area.
+    type: String
+    default: No hint text.
+    platforms: [android]
   - name: keyboardToolbar
     summary: Array of toolbar button objects or a [toolbar](Titanium.UI.iOS.Toolbar) to be used when the keyboard is displayed.
     description: |
@@ -111,7 +143,7 @@ properties:
     platforms: [android,iphone,ipad]
     default: the platform's default return key
   - name: suppressReturn
-    summary: Should the return key be suppressed during entry?
+    summary: Determines if the return key should be suppressed during text entry.
     type: Boolean
     platforms: [iphone,ipad,mobileweb]
   - name: textAlign
@@ -123,10 +155,20 @@ properties:
     summary: Value of the text area.
     type: String
   - name: scrollable
-    summary: Can the text area be scrolled?
+    summary: Determines if the the text area can be scrolled.
     platforms: [iphone, ipad]
     type: Boolean
     default: true
+  - name: verticalAlign
+    summary: |
+        Vertical alignment for the text field, specified using one of the 
+        vertical alignment constants from <Titanium.UI>: 
+        [TEXT_VERTICAL_ALIGNMENT_BOTTOM](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM), 
+        [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER), or 
+        [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
+    type: [Number,String]
+    default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP
+    platforms: [android]
 
 examples:
   - title: Basic Text Area with Customizations
