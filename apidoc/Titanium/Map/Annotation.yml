@@ -75,7 +75,7 @@ properties:
         On iOS, you can specify a system button icon using one of the
         [SystemButton](Titanium.UI.iPhone.SystemButton) constants:
             
-            myAnnotation.leftButton = Titanium.UI.iPhone.systemButton.INFO_LIGHT;
+            myAnnotation.leftButton = Titanium.UI.iPhone.SystemButton.INFO_LIGHT;
 
         Mutually exclusive with `leftView`.
     type: [Number,String]
@@ -85,6 +85,7 @@ properties:
     description: |
         Mutually exclusive with `leftButton`.
     type: Titanium.UI.View
+    platforms: [android, iphone, ipad]
 
   - name: pinImage
     summary: Use <Titanium.Map.Annotation.image> property instead.
@@ -117,6 +118,7 @@ properties:
     description: |
         Mutually exclusive with `rightButton`.
     type: Titanium.UI.View
+    platforms: [android, iphone, ipad]
 
   - name: subtitle
     summary: Secondary title of the annotation view.

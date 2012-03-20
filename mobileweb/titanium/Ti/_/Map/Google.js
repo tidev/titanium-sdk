@@ -150,9 +150,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Geolocation", "Ti/
 					}
 
 					// leftButton	number or string
-					// leftView		Ti.UI.View
 					// rightButton	number or string
-					// rightView	Ti.UI.View
 					activeInfoWindow.setContent("<div><strong>" + title + "</strong></div><div>" + subtitle + "</div>");
 					activeInfoWindow.open(this._gmap, a.marker);
 					activeInfoWindow.idx = idx;
