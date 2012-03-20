@@ -9,7 +9,8 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 				for (var i = 0; i < e.changedTouches.length; i++) {
 					lang.hitch(element,element._handleTouchEvent(this.name,{
 						x: e.changedTouches[i].clientX,
-						y: e.changedTouches[i].clientY
+						y: e.changedTouches[i].clientY,
+						source: this.getSourceNode(e,element)
 					}));
 				}
 			}
