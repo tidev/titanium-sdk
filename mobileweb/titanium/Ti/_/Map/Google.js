@@ -13,6 +13,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Geolocation", "Ti/
 
 	var isDef = lang.isDef,
 		mix = require.mix,
+		handleTouchEvent = View.prototype._handleTouchEvent,
 		defaultRegion = {
 			latitude: 39.828175,
 			longitude: -98.5795,
@@ -132,14 +133,23 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Geolocation", "Ti/
 
 			selectAnnotation: function(/*String|Ti.Map.Annotation*/a) {
 				var idx = this._indexOfAnnotation(a);
-				if (~!idx) {
-					var onInfoWindowClick = lang.hitch(this, function(e) {
+				if (~!idx && (!activeInfoWindow || activeInfoWindow.idx !== idx)) {
+					var a = this.annotations[idx],
+						onInfoWindowClick = function(e) {
 							a._onclick(this, activeInfoWindow.idx, "pin");
-						}),
+						},
 						title = a._getTitle(),
-						subtitle = a._getSubtitle();
-
-					a = this.annotations[idx];
+						subtitle = a._getSubtitle(),
+						e = {
+							annotation: a,
+							clicksource: "pin",
+							index: idx,
+							latitude: a.latitude,
+							longitude: a.longitude,
+							map: this,
+							subtitle: subtitle,
+							title: title
+						};
 
 					if (activeInfoWindow) {
 						onInfoWindowClick();
@@ -149,24 +159,20 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Geolocation", "Ti/
 						gevent.addListener(activeInfoWindow, "closeclick", onInfoWindowClick);
 					}
 
-					// leftButton	number or string
-					// rightButton	number or string
-					activeInfoWindow.setContent("<div><strong>" + title + "</strong></div><div>" + subtitle + "</div>");
+					activeInfoWindow.setContent(
+						'<div class="TiMapAnnotation">' +
+						(a.leftButton ? '<img class="TiMapAnnotationLeftImage" src="' + a.leftButton + '">' : '') +
+						(a.rightButton ? '<img class="TiMapAnnotationRightImage" src="' + a.rightButton + '" style="float:right">' : '') +
+						'<div class="TiMapAnnotationContent"><h1>' + title + '</h2><p>' + subtitle + '</p></div></div>'
+					);
 					activeInfoWindow.open(this._gmap, a.marker);
 					activeInfoWindow.idx = idx;
 
-					onInfoWindowClick();
-
-					this.fireEvent("click", {
-						annotation: a,
-						clicksource: "pin",
-						index: idx,
-						latitude: a.latitude,
-						longitude: a.longitude,
-						map: this,
-						subtitle: subtitle,
-						title: title
-					});
+					setTimeout(lang.hitch(this, function() {
+						onInfoWindowClick();
+						handleTouchEvent.call(this, "singletap", e);
+						handleTouchEvent.call(this, "click", e);
+					}), 1);
 				}
 			},
 
@@ -265,8 +271,8 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Geolocation", "Ti/
 				var gmap = this._gmap;
 				if (gmap) {
 					var animated = !dontAnimate && this.animated,
-						latD = region.latitudeDelta / 2,
-						lngD = region.longitudeDelta / 2;
+						latD = region.latitudeDelta / 2.0,
+						lngD = region.longitudeDelta / 2.0;
 					gmap[animated ? "panTo" : "setCenter"](new gmaps.LatLng(region.latitude, region.longitude));
 					gmap[animated ? "panToBounds" : "fitBounds"](new gmaps.LatLngBounds(
 						new gmaps.LatLng(region.latitude - latD, region.longitude - lngD),
@@ -310,6 +316,10 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Geolocation", "Ti/
 						this._locationMarker.setVisible(userLocation);
 					}
 				}
+			},
+
+			_handleTouchEvent: function(type, e) {
+				/(click|singletap)/.test(type) || View.prototype._handleTouchEvent.apply(this,arguments);
 			},
 
 			constants: {

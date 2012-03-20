@@ -466,3 +466,33 @@ textarea {
 	white-space: nowrap;
 	width: 100%;
 }
+
+.TiMapAnnotation {
+	margin-right: 10px;
+}
+
+.TiMapAnnotationLeftImage {
+	float: left;
+	margin: 0 8px 8px 0;
+}
+
+.TiMapAnnotationRightImage {
+	float: right;
+	margin: 0 0 8px 8px;
+}
+
+.TiMapAnnotationContent {
+	overflow: hidden;
+}
+
+.TiMapAnnotation h1 {
+	font-size: 14px;
+	font-weight: bold;
+	margin-top: 0;
+}
+
+.TiMapAnnotation p {
+	font-size: 12px;
+	margin: 5px 0;
+}
+

@@ -3,8 +3,6 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Locale"], function(declare, Evented,
 	return declare("Ti.Map.Annotation", Evented, {
 
 		_onclick: function(mapview, idx, src) {
-			// TODO: mixin custom props
-
 			this.fireEvent("click", {
 				annotation: this,
 				clicksource: src,
@@ -27,11 +25,9 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Locale"], function(declare, Evented,
 			image: void 0,			// string or Titanium.Blob
 			latitude: void 0,		// number
 			longitude: void 0,		// number
-			leftButton: void 0,		// number or string
-			leftView: void 0,		// Ti.UI.View
+			leftButton: void 0,		// string
 			pincolor: void 0,		// ANNOTATION_RED or ANNOTATION_PURPLE or ANNOTATION_GREEN
-			rightButton: void 0,	// number or string
-			rightView: void 0,		// Ti.UI.View
+			rightButton: void 0,	// string
 			subtitle: void 0,		// string
 			subtitleid: void 0,
 			title: void 0,
