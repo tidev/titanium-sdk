@@ -141,7 +141,7 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 
 -(void)addConnectivityListener:(id)args
 {
-    DEPRECATED_REPLACED(@"addConnectivityListener", @"1.8", @"1.9", @"addEventListener('change',...)");
+    DEPRECATED_REPLACED(@"Network.addConnectivityListener", @"1.8", @"Ti.Network.addEventListener('change',...)");
 	id arg = [args objectAtIndex:0];
 	ENSURE_TYPE(arg,KrollCallback);
 	NSArray *newargs = [NSArray arrayWithObjects:@"change",arg,nil];
@@ -150,7 +150,7 @@ NSString* const INADDR_ANY_token = @"INADDR_ANY";
 
 -(void)removeConnectivityListener:(id)args
 {
-    DEPRECATED_REPLACED(@"removeConnectivityListener", @"1.8", @"1.9", @"removeEventListener('change',...)");    
+    DEPRECATED_REPLACED(@"Network.removeConnectivityListener", @"1.8", @"Ti.Network.removeEventListener('change',...)");    
 	id arg = [args objectAtIndex:0];
 	ENSURE_TYPE(arg,KrollCallback);
 	NSArray *newargs = [NSArray arrayWithObjects:@"change",arg,nil];
