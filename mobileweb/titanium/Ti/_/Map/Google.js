@@ -358,14 +358,15 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Geolocation", "Ti/
 		});
 
 	window.TiMapViewInit = function() {
-		var i,
-			prefix = "themes/" + require.config.ti.theme + "/Map/";
-
 		gmaps = google.maps;
 		gevent = gmaps.event;
 
+		var i,
+			prefix = "themes/" + require.config.ti.theme + "/Map/",
+			point = gmaps.Point;
+
 		function makeMarker(color, x1, x2) {
-			return new gmaps.MarkerImage(prefix + "marker_" + color + ".png", new gmaps.Size(x1, 34), new gmaps.Point(x2, 0), new gmaps.Point(10, 34));
+			return new gmaps.MarkerImage(prefix + "marker_" + color + ".png", new gmaps.Size(x1, 34), new point(x2, 0), new point(10, 34));
 		}
 
 		for (i in markers) {
