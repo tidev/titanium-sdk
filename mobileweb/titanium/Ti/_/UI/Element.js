@@ -41,10 +41,29 @@ define(
 					centerY = this.center && this.center.y;
 				this._isDependentOnParent = !!(isPercent(this.width) || isPercent(this.height) || isPercent(this.top) || isPercent(this.bottom) || 
 					isPercent(this.left) || isPercent(this.right) || isPercent(centerX) || isPercent(centerY) || 
+					this._hasFillWidth() || this._hasFillHeight() ||
 					(!isDef(this.left) && !isDef(centerX) && !isDef(this.right) && this._parent && this._parent._layout._defaultHorizontalAlignment !== "left") ||
 					(!isDef(this.top) && !isDef(centerY) && !isDef(this.bottom) && this._parent && this._parent._layout._defaultVerticalAlignment !== "top"));
 			}
 		};
+		
+	function getInheritedWidth(node) {
+		var nodeParent = node._parent,
+			parentWidth;
+		if (nodeParent) {
+			parentWidth = lang.val(nodeParent.width,nodeParent._defaultWidth);
+			return parentWidth === UI.INHERIT ? getInheritedWidth(nodeParent) : parentWidth;
+		}
+	}
+	
+	function getInheritedHeight(node) {
+		var nodeParent = node._parent,
+			parentHeight;
+		if (nodeParent) {
+			parentHeight = lang.val(nodeParent.height,nodeParent._defaultHeight);
+			return parentHeight === UI.INHERIT ? getInheritedHeight(nodeParent) : parentHeight;
+		}
+	}
 
 	return declare("Ti._.UI.Element", Evented, {
 
@@ -188,6 +207,44 @@ define(
 				(this.height === UI.SIZE || (!isDef(this.height) && this._defaultHeight === UI.SIZE));
 		},
 		
+		_hasFillWidth: function() {
+			var width = this.width;
+			if (isDef(width)) {
+				if (width === UI.INHERIT) {
+					return getInheritedWidth(this) === UI.FILL;
+				}
+				return width === UI.FILL;
+			}
+			if (isDef(this.left) + isDef(this.right) + !!(this.center && isDef(this.center.x)) > 1) {
+				return false;
+			}
+			if (this._defaultWidth === UI.FILL) {
+				return true;
+			}
+			if (this._defaultWidth === UI.INHERIT) {
+				return getInheritedWidth(this) === UI.FILL;
+			}
+		},
+		
+		_hasFillHeight: function() {
+			var height = this.height;
+			if (isDef(height)) {
+				if (height === UI.INHERIT) {
+					return getInheritedHeight(this) === UI.FILL;
+				}
+				return height === UI.FILL;
+			}
+			if (isDef(this.top) + isDef(this.bottom) + !!(this.center && isDef(this.center.y)) > 1) {
+				return false;
+			}
+			if (this._defaultHeight === UI.FILL) {
+				return true;
+			}
+			if (this._defaultHeight === UI.INHERIT) {
+				return getInheritedHeight(this) === UI.FILL;
+			}
+		},
+		
 		_hasBeenLaidOut: false,
 		
 		_isDependentOnParent: true,
@@ -278,15 +335,6 @@ define(
 
 		_computeDimensions: function(params) {
 			
-			function getInheritedValue(value, parameter, node) {
-				if (value !== UI.INHERIT) {
-					return value;
-				} else {
-					var nodeParent = node._parent;
-					return nodeParent && getInheritedValue(nodeParent[parameter], parameter, nodeParent);
-				}
-			}
-			
 			var layoutParams = params.layoutParams,
 				boundingWidth = layoutParams.boundingSize.width,
 				boundingHeight = layoutParams.boundingSize.height,
@@ -300,8 +348,8 @@ define(
 				originalBottom = computeSize(position.bottom, boundingHeight),
 				centerX = position.center && computeSize(position.center.x, boundingWidth, 1),
 				centerY = position.center && computeSize(position.center.y, boundingHeight, 1),
-				width = computeSize(getInheritedValue(size.width, "width", this), boundingWidth),
-				height = computeSize(getInheritedValue(size.height, "height", this), boundingHeight),
+				width = computeSize(size.width === UI.INHERIT ? getInheritedWidth(this) : size.width, boundingWidth),
+				height = computeSize(size.height === UI.INHERIT ? getInheritedHeight(this) : size.height, boundingHeight),
 
 				// Convert right/bottom coordinates to be with respect to (0,0)
 				right = isDef(originalRight) ? (boundingWidth - originalRight) : undef,
@@ -311,6 +359,7 @@ define(
 			is(height,"Number") && (height = Math.max(height,0));
 
 			// Unfortunately css precidence doesn't match the titanium, so we have to handle precedence and default setting ourselves
+			var defaultWidth = this._defaultWidth;
 			if (isDef(width)) {
 				if (isDef(left)) {
 					right = undef;
@@ -334,11 +383,11 @@ define(
 						width = (right - centerX) * 2;
 					} else {
 						// Set the default width
-						width = computeSize(this._defaultWidth,boundingWidth);
+						width = computeSize(defaultWidth === UI.INHERIT ? getInheritedWidth(this) : defaultWidth, boundingWidth);
 					}
 				} else {
 					if (!isDef(left) || !isDef(right)) {
-						width = computeSize(this._defaultWidth,boundingWidth);
+						width = computeSize(defaultWidth === UI.INHERIT ? getInheritedWidth(this) : defaultWidth, boundingWidth);
 						if(!isDef(left) && !isDef(right)) {
 							// Set the default position
 							left = "calculateDefault";
@@ -346,6 +395,7 @@ define(
 					}
 				}
 			}
+			var defaultHeight = this._defaultHeight;
 			if (isDef(height)) {
 				if (isDef(top)) {
 					bottom = undef;
@@ -369,12 +419,12 @@ define(
 						height = (bottom - centerY) * 2;
 					} else {
 						// Set the default height
-						height = computeSize(this._defaultHeight,boundingHeight);
+						height = computeSize(defaultHeight === UI.INHERIT ? getInheritedHeight(this) : defaultHeight, boundingHeight);
 					}
 				} else {
 					if (!isDef(top) || !isDef(bottom)) {
 						// Set the default height
-						height = computeSize(this._defaultHeight,boundingHeight);
+						height = computeSize(defaultHeight === UI.INHERIT ? getInheritedHeight(this) : defaultHeight, boundingHeight);
 						if(!isDef(top) && !isDef(bottom)) {
 							// Set the default position
 							top = "calculateDefault";
