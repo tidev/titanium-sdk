@@ -154,7 +154,6 @@ define(
 
 		destroy: function() {
 			if (this._alive) {
-				this._parent && this._parent.remove(this);
 				if (this.domNode) {
 					dom.destroy(this.domNode);
 					this.domNode = null;

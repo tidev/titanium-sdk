@@ -51,6 +51,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 		},
 
 		destroy: function() {
+			this._parent && View.prototype.remove.call(this._parent,this);
 			if (this.children) {
 				var c;
 				while (this.children.length) {
