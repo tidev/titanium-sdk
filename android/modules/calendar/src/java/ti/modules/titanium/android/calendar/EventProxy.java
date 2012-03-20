@@ -83,6 +83,12 @@ public class EventProxy extends KrollProxy {
 			new String[] { "event_id", "title", "description", "eventLocation", "begin", "end", "allDay", "hasAlarm", "eventStatus", "visibility"},
 			query, queryArgs, "startDay ASC, startMinute ASC");
 
+		if(eventCursor == null) {
+			Log.w(TAG, "unable to get any results when pulling events by date range");
+
+			return events;
+		}
+
 		while (eventCursor.moveToNext()) {
 			EventProxy event = new EventProxy();
 			event.id = eventCursor.getString(0);
