@@ -5,7 +5,6 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 		name: "pinch",
 		
 		_touchStartLocation: null,
-		_touchEndLocation: null,
 		_fingerDifferenceThresholdTimer: null,
 		_startDistance: null,
 		_previousDistance: null,

@@ -248,7 +248,7 @@ define(
 		properties: {
 			backgroundColor: {
 				set: function(value) {
-					return setStyle(body, "backgroundColor", value);
+					return this._container.backgroundColor = value;
 				}
 			},
 			backgroundImage: {
