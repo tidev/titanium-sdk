@@ -11,14 +11,18 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			this._indexedContent = [];
 
 			require.each(["_header", "_rows", "_footer"], lang.hitch(this, function(v) {
-				Widget.prototype.add.call(this, this[v] = UI.createView({ height: UI.SIZE, layout: "vertical" }));
+				Widget.prototype.add.call(this, this[v] = UI.createView({ 
+					height: UI.SIZE, 
+					width: UI.INHERIT, 
+					layout: "vertical"
+				}));
 			}));
 
 			// Create the parts out of Ti controls so we can make use of the layout system
 			this.layout = "vertical";
 		},
 
-		_defaultWidth: UI.FILL,
+		_defaultWidth: UI.INHERIT,
 
 		_defaultHeight: UI.SIZE,
 		
@@ -32,12 +36,14 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 		_tableView: null,
 		
 		_createSeparator: function() {
-			var showSeparator = this._tableView && this._tableView.separatorStyle === TableViewSeparatorStyle.SINGLE_LINE;
-			return UI.createView({
-				height: showSeparator ? 1 : 0,
-				width: "100%",
-				backgroundColor: showSeparator ? this._tableView.separatorColor : "transparent"
-			});
+			var showSeparator = this._tableView && this._tableView.separatorStyle === TableViewSeparatorStyle.SINGLE_LINE,
+				separator = UI.createView({
+					height: showSeparator ? 1 : 0,
+					width: UI.INHERIT,
+					backgroundColor: showSeparator ? this._tableView.separatorColor : "transparent"
+				});
+			setStyle(separator.domNode,"minWidth","100%"); // Temporary hack until TIMOB-8124 is completed.
+			return separator;
 		},
 		
 		_createDecorationLabel: function(text) {
@@ -45,7 +51,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 				text: text, 
 				backgroundColor: "darkGrey",
 				color: "white",
-				width: "100%",
+				width: UI.INHERIT,
 				height: UI.SIZE,
 				left: 0,
 				font: {fontSize: 18}
