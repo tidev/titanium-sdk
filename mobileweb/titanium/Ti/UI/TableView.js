@@ -234,7 +234,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			}
 		},
 		
-		_insert: function(value, index) {
+		_insertRow: function(value, index) {
 			var location = this._calculateLocation(index);
 			if (location) {
 				location.section.add(value,location.localIndex);
@@ -242,7 +242,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			this._refreshSections();
 		},
 		
-		_remove: function(index) {
+		_removeRow: function(index) {
 			var location = this._calculateLocation(index);
 			if (location) {
 				location.section._removeAt(location.localIndex);
@@ -255,20 +255,20 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		},
 		
 		deleteRow: function(index) {
-			this._remove(index);
+			this._removeRow(index);
 		},
 		
 		insertRowAfter: function(index, value) {
-			this._insert(value, index + 1);
+			this._insertRow(value, index + 1);
 		},
 		
 		insertRowBefore: function(index, value) {
-			this._insert(value, index);
+			this._insertRow(value, index);
 		},
 		
 		updateRow: function(index, row) {
-			this._remove(index);
-			this._insert(row, index);
+			this._removeRow(index);
+			this._insertRow(row, index);
 		},
 		
 		scrollToIndex: function(index) {

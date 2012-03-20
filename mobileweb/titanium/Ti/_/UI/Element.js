@@ -152,9 +152,52 @@ define(
 			};
 		},
 
+		_setParent: function(view) {
+			this._parent = view;
+		},
+		
+		_add: function(view) {
+			view._setParent(this);
+			this.children.push(view);
+			this.containerNode.appendChild(view.domNode);
+			view._hasBeenLaidOut = false;
+			this._triggerLayout(this._isAttachedToActiveWin());
+		},
+
+		_insertAt: function(view,index) {
+			if (index > this.children.length || index < 0) {
+				return;
+			} else if (index === this.children.length) {
+				this.add(view);
+			} else {
+				view._parent = this;
+				this.containerNode.insertBefore(view.domNode,this.children[index].domNode);
+				this.children.splice(index,0,view);
+				this._triggerLayout();
+			}
+		},
+
+		_remove: function(view) {
+			var p = this.children.indexOf(view);
+			if (p !== -1) {
+				this.children.splice(p, 1);
+				view._setParent();
+				dom.detach(view.domNode);
+				this._triggerLayout();
+			}
+		},
+
+		_removeAllChildren: function(view) {
+			var children = this.children;
+			while (children.length) {
+				this.remove(children[0]);
+			}
+			this._triggerLayout();
+		},
+
 		destroy: function() {
 			if (this._alive) {
-				this._parent && this._parent.remove(this);
+				this._parent && this._parent._remove(this);
 				if (this.domNode) {
 					dom.destroy(this.domNode);
 					this.domNode = null;
