@@ -27,7 +27,8 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 					this._touchStartLocation = null;
 					var result = {
 						x: x,
-						y: y
+						y: y,
+						source: this.getSourceNode(e,element)
 					};
 					if (!element._isGestureBlocked(this.name)) {
 						lang.hitch(element,element._handleTouchEvent("click",result));
