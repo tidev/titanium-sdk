@@ -3,6 +3,8 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Locale"], function(declare, Evented,
 	return declare("Ti.Map.Annotation", Evented, {
 
 		_onclick: function(mapview, idx, src) {
+			// TODO: mixin custom props
+
 			this.fireEvent("click", {
 				annotation: this,
 				clicksource: src,

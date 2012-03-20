@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Geolocation", "Ti/Map", "Ti/UI/View"],
-	function(declare, lang, Properties, Geolocation, Map, View) {
+define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Geolocation", "Ti/Map", "Ti/UI/View", "Ti/Utils"],
+	function(declare, lang, Properties, Geolocation, Map, View, Utils) {
 
 	function mapType(type) {
 		var t = gmaps.MapTypeId;
@@ -23,7 +23,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Geolocation", "Ti/
 		gevent,
 		activeInfoWindow,
 		// the order of the markers MUST match the ANNOTATION_* constants defined in Ti.Map
-		markers = ["red", "green", "purple"],
+		markers = { 0: "red", 1: "green", 2: "purple" },
 		locationMarkerImage,
 		onload = Ti.deferStart(),
 		MapView = declare("Ti.Map.View", View, {
@@ -145,17 +145,15 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Geolocation", "Ti/
 						onInfoWindowClick();
 						activeInfoWindow.close();
 					} else {
-						activeInfoWindow = new gmaps.InfoWindow({
-							// image: void 0,			// string or Titanium.Blob
-							// leftButton: void 0,		// number or string
-							// leftView: void 0,		// Ti.UI.View
-							// rightButton: void 0,	// number or string
-							// rightView: void 0,		// Ti.UI.View
-						});
+						activeInfoWindow = new gmaps.InfoWindow;
 						gevent.addListener(activeInfoWindow, "closeclick", onInfoWindowClick);
 					}
 
-					activeInfoWindow.setContent("<p><strong>" + title + "</strong></p><p>" + subtitle + "</p>");
+					// leftButton	number or string
+					// leftView		Ti.UI.View
+					// rightButton	number or string
+					// rightView	Ti.UI.View
+					activeInfoWindow.setContent("<div><strong>" + title + "</strong></div><div>" + subtitle + "</div>");
 					activeInfoWindow.open(this._gmap, a.marker);
 					activeInfoWindow.idx = idx;
 
@@ -189,17 +187,28 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Geolocation", "Ti/
 
 			_createMarker: function(a, i) {
 				var marker = markers[a.pincolor | 0],
-					opts = {
-						map: this._gmap,
-						icon: marker[0],
-						shadow: marker[1],
-						position: new gmaps.LatLng(a.latitude, a.longitude),
-						title: a._getTitle()
-					};
+					hash,
+					blob;
 
-				a.animate && (opts.animation = gmaps.Animation.DROP);
+				if (a.image) {
+					if (a.image.declaredClass === "Ti.Blob") {
+						marker = markers[hash = Utils.md5HexDigest(blob = a.image.toString())];
+						marker || (marker = markers[hash] = [new gmaps.MarkerImage(blob)]); //, new gmaps.Size(x1, 34), new point(x2, 0), new point(10, 34));
+					} else {
+						marker = markers[a.image];
+						marker || (marker = markers[a.image] = [new gmaps.MarkerImage(a.image)]);
+					}
+				}
+
 				a.idx = i;
-				a.evt = gevent.addListener(a.marker = new gmaps.Marker(opts), "click", lang.hitch(this, function() {
+				a.evt = gevent.addListener(a.marker = new gmaps.Marker({
+					map: this._gmap,
+					icon: marker[0],
+					shadow: marker[1],
+					position: new gmaps.LatLng(a.latitude, a.longitude),
+					title: a._getTitle(),
+					animation: a.animate && gmaps.Animation.DROP
+				}), "click", lang.hitch(this, function() {
 					this.selectAnnotation(a);
 				}));
 
@@ -349,19 +358,19 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/App/Properties", "Ti/Geolocation", "Ti/
 		});
 
 	window.TiMapViewInit = function() {
+		var i,
+			prefix = "themes/" + require.config.ti.theme + "/Map/";
+
 		gmaps = google.maps;
 		gevent = gmaps.event;
 
-		var prefix = "themes/" + require.config.ti.theme + "/Map/",
-			point = gmaps.Point;
-
 		function makeMarker(color, x1, x2) {
-			return new gmaps.MarkerImage(prefix + "marker_" + color + ".png", new gmaps.Size(x1, 34), new point(x2, 0), new point(10, 34));
+			return new gmaps.MarkerImage(prefix + "marker_" + color + ".png", new gmaps.Size(x1, 34), new gmaps.Point(x2, 0), new gmaps.Point(10, 34));
 		}
 
-		markers = markers.map(function(color) {
-			return [makeMarker(color, 20, 0), makeMarker(color, 37, 20)];
-		});
+		for (i in markers) {
+			markers[i] = [makeMarker(markers[i], 20, 0), makeMarker(markers[i], 37, 20)];
+		}
 
 		locationMarkerImage = new gmaps.MarkerImage(prefix + "location.png", new gmaps.Size(22, 22), new point(0, 0), new point(11, 11));
 
