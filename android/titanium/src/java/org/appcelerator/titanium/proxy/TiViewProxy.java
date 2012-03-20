@@ -45,9 +45,10 @@ import android.view.View;
  */
 @Kroll.proxy(propertyAccessors={
 	// background properties
-	"backgroundImage", "backgroundSelectedImage", "backgroundFocusedImage",
-	"backgroundDisabledImage", "backgroundColor", "backgroundSelectedColor",
-	"backgroundFocusedColor", "backgroundDisabledColor", "backgroundPadding",
+	"backgroundImage", "backgroundRepeat", "backgroundSelectedImage", 
+	"backgroundFocusedImage", "backgroundDisabledImage", "backgroundColor", 
+	"backgroundSelectedColor", "backgroundFocusedColor", "backgroundDisabledColor", 
+	"backgroundPadding",
 
 	// border properties
 	"borderColor", "borderRadius", "borderWidth",
