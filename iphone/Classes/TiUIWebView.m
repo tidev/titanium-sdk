@@ -651,10 +651,6 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 		if (ignoreNextRequest)
 		{
 			ignoreNextRequest = NO;
-            if ((navigationType == UIWebViewNavigationTypeOther) && ([scheme hasPrefix:@"app"] || [scheme hasPrefix:@"file"])) {
-                [webView loadRequest:request];
-                return NO;
-            }
 		}
 		else
 		{
