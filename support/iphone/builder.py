@@ -1238,7 +1238,7 @@ def main(args):
 						endidx = output.find("\n",idx)
 						if endidx > 0:
 							target_build_dir = dequote(output[idx+17:endidx].strip())
-							if target_build_dir!=build_dir:
+							if not os.path.samefile(target_build_dir,build_dir):
 								o.write("+ TARGET_BUILD_DIR = %s\n" % target_build_dir)
 								print "[ERROR] Your TARGET_BUILD_DIR is incorrectly set. Most likely you have configured in Xcode a customized build location. Titanium does not currently support this configuration."
 								print "[ERROR] Expected dir %s, was: %s" % (build_dir,target_build_dir)
