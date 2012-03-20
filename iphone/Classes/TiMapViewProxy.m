@@ -63,14 +63,11 @@
 	ENSURE_UI_THREAD_0_ARGS;
 	TiMapView * ourView = (TiMapView *)[self view];
 
-	if (annotationsToAdd!=nil)
-	{
-		[ourView addAnnotations:annotationsToAdd];
-	}
-	if (annotationsToRemove!=nil)
-	{
-		[ourView removeAnnotations:annotationsToRemove];
-	}
+	// NOTE: Because this happens on the main thread (always!) it may be too late
+    // for the remember/forget depending on GC timing, but we do the best we can.
+    [self addAnnotations:annotationsToAdd];
+    [self removeAnnotations:annotationsToRemove];
+
 	if (routesToAdd!=nil)
 	{
 		for (id arg in routesToAdd)
@@ -85,6 +82,7 @@
 			[ourView removeRoute:arg];
 		}
 	}
+    
 	[ourView selectAnnotation:selectedAnnotation];
 	if (zoomCount > 0) {
 		for (int i=0; i < zoomCount; i++) {
@@ -199,18 +197,32 @@
     ENSURE_TYPE(arg,NSArray)
     if([self viewAttached]){
         TiMapView * mapView = (TiMapView *)[self view];
-        for(TiMapAnnotationProxy * annProxy in [mapView annotationsFromArgs:mapView.customAnnotations]){
-            [self forgetProxy:annProxy];
+        NSArray* newAnnotations = [mapView annotationsFromArgs:arg];
+        NSArray* currentAnnotations = [mapView customAnnotations];
+        
+        // Because the annotations may contain an annotation proxy and not just
+        // descriptors for them, we have to check and make sure there is
+        // no overlap and remember/forget appropriately.
+        
+        for(TiMapAnnotationProxy * annProxy in currentAnnotations) {
+            if (![newAnnotations containsObject:annProxy]) {
+                [self forgetProxy:annProxy];
+            }
         }
-        for(TiMapAnnotationProxy* annProxy in [(TiMapView*)[self view] annotationsFromArgs:arg]){
-            [self rememberProxy:annProxy];
+        
+        for(TiMapAnnotationProxy* annProxy in newAnnotations) {
+            if (![currentAnnotations containsObject:annProxy]) {
+                [self rememberProxy:annProxy];
+            }
         }
+        
         TiThreadPerformOnMainThread(^{
             [(TiMapView*)[self view] setAnnotations_:arg];
         }, NO);
     }
     else {
-        [self setAnnotations:arg];
+        [annotationsToAdd removeAllObjects];
+        [annotationsToAdd addObjectsFromArray:arg];
     }
 }
 -(void)removeAnnotation:(id)arg
