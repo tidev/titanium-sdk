@@ -112,20 +112,21 @@
 {
 	if (button==nil)
 	{
-		id backgroundImage = [self.proxy valueForKey:@"backgroundImage"];
-        id backgroundImageS = [self.proxy valueForKey:@"backgroundSelectedImage"];
-        id backgroundImageD = [self.proxy valueForKey:@"backgroundDisabledImage"];
-        id backgroundImageF = [self.proxy valueForKey:@"backgroundFocusedImage"];
+		TiUIButtonProxy * ourProxy = (TiUIButtonProxy *)[self proxy];
+		id backgroundImage = [ourProxy valueForKey:@"backgroundImage"];
+        id backgroundImageS = [ourProxy valueForKey:@"backgroundSelectedImage"];
+        id backgroundImageD = [ourProxy valueForKey:@"backgroundDisabledImage"];
+        id backgroundImageF = [ourProxy valueForKey:@"backgroundFocusedImage"];
         
-        hasBackgroundForStateNormal = backgroundImage  != nil ? YES :NO;
-        hasBackgroundForStateDisabled = backgroundImageD != nil ? YES :NO;
-        hasBackgroundForStateSelected = backgroundImageS != nil ? YES :NO;
-        hasBackgroundForStateFocused = backgroundImageF != nil ? YES :NO;
+        hasBackgroundForStateNormal = backgroundImage  != nil;
+        hasBackgroundForStateDisabled = backgroundImageD != nil;
+        hasBackgroundForStateSelected = backgroundImageS != nil;
+        hasBackgroundForStateFocused = backgroundImageF != nil;
         
         BOOL hasImage = hasBackgroundForStateDisabled||hasBackgroundForStateNormal;
 		
         UIButtonType defaultType = (hasImage==YES) ? UIButtonTypeCustom : UIButtonTypeRoundedRect;
-		style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:defaultType];
+		style = [TiUtils intValue:[ourProxy valueForKey:@"style"] def:defaultType];
 		UIView *btn = [TiButtonUtil buttonWithType:style];
 		button = (UIButton*)[btn retain];
 		[self addSubview:button];
@@ -140,7 +141,12 @@
 			id test = hasBackgroundForStateNormal ? backgroundImage : backgroundImageD;
 			if (!hasBackgroundForStateSelected || [test isEqual:backgroundImageS] )
 			{
-				button.showsTouchWhenHighlighted = YES;
+				/*
+				 *	TIMOB-8054: SuppressGlow is to bring the old 1.7.x behavior while not
+				 *	regressing on 1.8 behavior. We should revisit the behavior if possible.
+				 */
+				BOOL useGlow = ![TiUtils boolValue:[ourProxy valueForKey:@"suppressGlow"] def:NO];
+				[button setShowsTouchWhenHighlighted:useGlow];
 			}
 		}
 		[button addTarget:self action:@selector(controlAction:forEvent:) forControlEvents:UIControlEventAllTouchEvents];
@@ -150,6 +156,34 @@
 }
 
 #pragma mark Public APIs
+
+-(void)setSuppressGlow_:(id)value
+{
+	/*
+	 *	TIMOB-8054: SuppressGlow is to bring the old 1.7.x behavior while not
+	 *	regressing on 1.8 behavior. The odd logic here is to replicate the
+	 *	1.8 decisions made during -[TiUIButton button]. We should revisit the
+	 *	behavior at a later date if needed.
+	 */
+	if (button == nil) {
+		return;
+	}
+	BOOL newSuppress = [TiUtils boolValue:value def:NO];
+	if (newSuppress || (style != UIButtonTypeCustom)) {
+		[button setShowsTouchWhenHighlighted:NO];
+		return;
+	}
+	if (!hasBackgroundForStateSelected){
+		[button setShowsTouchWhenHighlighted:YES];
+		return;
+	}
+	TiUIButtonProxy * ourProxy = (TiUIButtonProxy *)[self proxy];
+	id backgroundImageS = [ourProxy valueForKey:@"backgroundSelectedImage"];
+	NSString * testString = hasBackgroundForStateNormal?@"backgroundImage":@"backgroundDisabledImage";
+	id test = [ourProxy valueForKey:testString];
+	
+	[button setShowsTouchWhenHighlighted:[backgroundImageS isEqual:test]];
+}
 
 -(void)setStyle_:(id)style_
 {
