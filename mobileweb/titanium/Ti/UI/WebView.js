@@ -205,6 +205,12 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 			},
 
 			html: {
+				get: function(value) {
+					var doc = this._getDoc();
+					if (doc) {
+						return doc.documentElement.innerHTML;
+					}
+				},
 				set: function(value) {
 					this.properties.__values__.url = "";
 					this._createIFrame() && this._setContent(value);
