@@ -278,6 +278,15 @@ define(
 
 		_computeDimensions: function(params) {
 			
+			function getInheritedValue(value, parameter, node) {
+				if (value !== UI.INHERIT) {
+					return value;
+				} else {
+					var nodeParent = node._parent;
+					return nodeParent && getInheritedValue(nodeParent[parameter], parameter, nodeParent);
+				}
+			}
+			
 			var layoutParams = params.layoutParams,
 				boundingWidth = layoutParams.boundingSize.width,
 				boundingHeight = layoutParams.boundingSize.height,
@@ -291,8 +300,8 @@ define(
 				originalBottom = computeSize(position.bottom, boundingHeight),
 				centerX = position.center && computeSize(position.center.x, boundingWidth, 1),
 				centerY = position.center && computeSize(position.center.y, boundingHeight, 1),
-				width = computeSize(size.width, boundingWidth),
-				height = computeSize(size.height, boundingHeight),
+				width = computeSize(getInheritedValue(size.width, "width", this), boundingWidth),
+				height = computeSize(getInheritedValue(size.height, "height", this), boundingHeight),
 
 				// Convert right/bottom coordinates to be with respect to (0,0)
 				right = isDef(originalRight) ? (boundingWidth - originalRight) : undef,

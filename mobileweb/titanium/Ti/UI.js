@@ -327,6 +327,7 @@ define(
 			ANIMATION_CURVE_LINEAR: 4,
 			SIZE: "auto",
 			FILL: "fill",
+			INHERIT: "inherit",
 			UNIT_PX: "px",
 			UNIT_MM: "mm",
 			UNIT_CM: "cm",
