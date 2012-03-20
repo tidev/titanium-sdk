@@ -31,6 +31,11 @@ public class TiRootActivity extends TiLaunchActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		if (checkInvalidLaunch(savedInstanceState)) {
+			// Android bug 2373 detected and we're going to restart.
+			return;
+		}
+		
 		getTiApp().setCurrentActivity(this, this);
 		Log.checkpoint(LCAT, "checkpoint, on root activity create, savedInstanceState: " + savedInstanceState);
 		TiApplication app = getTiApp();
