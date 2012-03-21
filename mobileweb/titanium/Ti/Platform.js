@@ -1,5 +1,5 @@
-define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale", "Ti/_/dom"],
-	function(_, browser, Evented, lang, Locale, dom) {
+define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale", "Ti/_/dom", "Ti/UI"],
+	function(_, browser, Evented, lang, Locale, dom, UI) {
 		
 	var doc = document,
 		midName = "ti:mid",
@@ -31,7 +31,31 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale", "Ti/_/
 			createUUID: _.uuid,
 
 			openURL: function(url){
-				window.open(url);
+				var win,
+					backButton,
+					webview = UI.createWebView({
+						width: UI.FILL,
+						height: UI.FILL
+					});
+				if (!/^([tel|sms|mailto])/.test(url)) { 
+					win = UI.createWindow({
+						layout: "vertical",
+						backgroundColor: "#888"
+					});
+					win.add(webview);
+					backButton = UI.createButton({
+						top: 2,
+						title: "Close"
+					});
+					backButton.addEventListener("singletap", function(){
+						win.close();
+					});
+					win.add(backButton);
+					win.open();
+				}
+				setTimeout(function(){
+					webview.url = url;
+				}, 1);
 			},
 
 			properties: {
