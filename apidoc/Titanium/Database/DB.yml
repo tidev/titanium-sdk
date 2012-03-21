@@ -4,6 +4,7 @@ summary: The `Database` instance returned by <Titanium.Database.open> or <Titani
 extends: Titanium.Proxy
 since: "0.1"
 createable: false
+platforms: [android, iphone, ipad]
 methods:
   - name: close
     summary: |

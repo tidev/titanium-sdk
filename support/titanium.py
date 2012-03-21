@@ -157,7 +157,6 @@ def create_mobileweb_project(project_dir, osname, args):
 	name = get_required(args, 'name')
 	validate_project_name(name)
 	appid = get_required(args, 'id')
-	android_sdk = get_android_sdk(args)
 	args = [script, name, appid, project_dir, osname]
 	retcode = fork(args, True)
 	if retcode == 0:

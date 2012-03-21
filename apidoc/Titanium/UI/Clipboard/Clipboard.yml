@@ -3,6 +3,7 @@ name: Titanium.UI.Clipboard
 summary: A module used for accessing clipboard data.
 extends: Titanium.Module
 since: "1.5"
+platforms: [android, iphone, ipad]
 methods:
   - name: clearData
     summary: Clear data of the given mime-type from the clipboard. If no mime-type is given, clear all data from the clipboard.
