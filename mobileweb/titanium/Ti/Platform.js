@@ -6,7 +6,8 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale", "Ti/_/
 		matches = doc.cookie.match(new RegExp("(?:^|; )" + midName + "=([^;]*)")),
 		mid = matches ? decodeURIComponent(matches[1]) : void 0,
 		unloaded,
-		on = require.on;
+		on = require.on,
+		hiddenIFrame = dom.create("iframe",{id: "urlOpener", display: "none"},doc.body);
 
 	mid || (mid = localStorage.getItem(midName));
 	mid || localStorage.setItem(midName, mid = _.uuid());
@@ -33,34 +34,38 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale", "Ti/_/
 			is24HourTimeFormat: function() {
 				return false;
 			},
+			
+			canOpenUrl: function() {
+				return true;
+			},
 
 			openURL: function(url){
-				var win,
-					backButton,
-					webview = UI.createWebView({
-						width: UI.FILL,
-						height: UI.FILL
-					});
-				if (!/^([tel|sms|mailto])/.test(url)) { 
-					win = UI.createWindow({
-						layout: "vertical",
-						backgroundColor: "#888"
-					});
-					win.add(webview);
-					backButton = UI.createButton({
-						top: 2,
-						bottom: 2,
-						title: "Close"
-					});
+				if (/^([tel|sms|mailto])/.test(url)) {
+					hiddenIFrame.contentWindow.location.href = url;
+				} else { 
+					var win = UI.createWindow({
+							layout: "vertical",
+							backgroundColor: "#888"
+						}),
+						backButton = UI.createButton({
+							top: 2,
+							bottom: 2,
+							title: "Close"
+						}),
+						webview = UI.createWebView({
+							width: UI.FILL,
+							height: UI.FILL
+						});
 					backButton.addEventListener("singletap", function(){
 						win.close();
 					});
 					win.add(backButton);
+					win.add(webview);
 					win.open();
+					setTimeout(function(){
+						webview.url = url;
+					}, 1);
 				}
-				setTimeout(function(){
-					webview.url = url;
-				}, 1);
 			},
 
 			properties: {
