@@ -45,9 +45,10 @@ import android.view.View;
  */
 @Kroll.proxy(propertyAccessors={
 	// background properties
-	"backgroundImage", "backgroundSelectedImage", "backgroundFocusedImage",
-	"backgroundDisabledImage", "backgroundColor", "backgroundSelectedColor",
-	"backgroundFocusedColor", "backgroundDisabledColor", "backgroundPadding",
+	"backgroundImage", "backgroundRepeat", "backgroundSelectedImage", 
+	"backgroundFocusedImage", "backgroundDisabledImage", "backgroundColor", 
+	"backgroundSelectedColor", "backgroundFocusedColor", "backgroundDisabledColor", 
+	"backgroundPadding",
 
 	// border properties
 	"borderColor", "borderRadius", "borderWidth",
@@ -100,6 +101,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	{
 		langConversionTable = getLangConversionTable();
 		pendingAnimationLock = new Object();
+
+		defaultValues.put(TiC.PROPERTY_BACKGROUND_REPEAT, false);
 	}
 
 	/**

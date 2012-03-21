@@ -56,6 +56,7 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
@@ -452,6 +453,7 @@ public class TiUIHelper
 
 	public static StateListDrawable buildBackgroundDrawable(
 		String image,
+		boolean tileImage,
 		String color,
 		String selectedImage,
 		String selectedColor,
@@ -471,45 +473,58 @@ public class TiUIHelper
 		TiFileHelper tfh = new TiFileHelper(appContext);
 
 		if (image != null) {
-			bgDrawable = tfh.loadDrawable(image, false, true);
+			if (tileImage) {
+				InputStream inputStream;
+				try {
+					inputStream = tfh.openInputStream(image, false);
+					if (inputStream != null) {
+						BitmapDrawable tiledBackground = new BitmapDrawable(appContext.getResources(), inputStream);
+						tiledBackground.setTileModeX(Shader.TileMode.REPEAT);
+						tiledBackground.setTileModeY(Shader.TileMode.REPEAT);
+
+						bgDrawable = tiledBackground;
+					}
+
+				} catch (IOException e) {
+					Log.e(LCAT, "Exception occured when trying to open stream to specified background image: ", e);
+				}
+
+			} else {
+				bgDrawable = tfh.loadDrawable(image, false, true);
+			}
+
 		} else if (color != null) {
 			bgDrawable = new ColorDrawable(TiConvert.toColor(color));
 		}
 
 		if (selectedImage != null) {
 			bgSelectedDrawable = tfh.loadDrawable(selectedImage, false, true);
+
 		} else if (selectedColor != null) {
 			bgSelectedDrawable = new ColorDrawable(TiConvert.toColor(selectedColor));
-		} else {
-			if (image != null) {
-				bgSelectedDrawable = tfh.loadDrawable(image, false, true);
-			} else if (color != null) {
-				bgSelectedDrawable = new ColorDrawable(TiConvert.toColor(color));
-			}			
+
+		} else if (bgDrawable != null) {
+			bgSelectedDrawable = bgDrawable;			
 		}
 
 		if (focusedImage != null) {
 			bgFocusedDrawable = tfh.loadDrawable(focusedImage, false, true);
+
 		} else if (focusedColor != null) {
 			bgFocusedDrawable = new ColorDrawable(TiConvert.toColor(focusedColor));
-		} else {
-			if (image != null) {
-				bgFocusedDrawable = tfh.loadDrawable(image, false, true);
-			} else if (color != null) {
-				bgFocusedDrawable = new ColorDrawable(TiConvert.toColor(color));
-			}
+
+		} else if (bgDrawable != null) {
+			bgFocusedDrawable = bgDrawable;			
 		}
 
 		if (disabledImage != null) {
 			bgDisabledDrawable = tfh.loadDrawable(disabledImage, false, true);
+
 		} else if (disabledColor != null) {
 			bgDisabledDrawable = new ColorDrawable(TiConvert.toColor(disabledColor));
-		} else {
-			if (image != null) {
-				bgDisabledDrawable = tfh.loadDrawable(image, false, true);
-			} else if (color != null) {
-				bgDisabledDrawable = new ColorDrawable(TiConvert.toColor(color));
-			}
+
+		} else if (bgDrawable != null) {
+			bgDisabledDrawable = bgDrawable;			
 		}
 
 		if (bgDrawable != null || bgSelectedDrawable != null || bgFocusedDrawable != null || bgDisabledDrawable != null) {
