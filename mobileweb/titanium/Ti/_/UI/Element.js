@@ -489,6 +489,11 @@ define(
 					right: getValue("border-right-width") + getValue("padding-right"),
 					bottom: getValue("border-bottom-width") + getValue("padding-bottom")
 				};
+				
+			function constrainValue(value, minValue, maxValue) {
+				return (isDef(minValue) && minValue > value ? minValue : // Apply the min width 
+					isDef(maxValue) && maxValue < value ? maxValue : value); // Apply the max width
+			}
 
 			// Calculate the width/left properties if width is NOT SIZE
 			var calculateWidthAfterChildren = false,
@@ -510,7 +515,7 @@ define(
 						left = right - width;
 					}
 				}
-				width -= borderSize.left + borderSize.right;
+				width = constrainValue(width, this._minWidth, this._maxWidth) - borderSize.left - borderSize.right;
 			}
 			if (height === UI.SIZE) {
 				calculateHeightAfterChildren = true;
@@ -529,7 +534,7 @@ define(
 						top = bottom - height;
 					}
 				}
-				height -= borderSize.top + borderSize.bottom;
+				height = constrainValue(height, this._minHeight, this._maxHeight) - borderSize.top - borderSize.bottom;
 			}
 
 			if (this._getContentSize) {
@@ -543,8 +548,8 @@ define(
 				} else {
 					computedSize = this._layout._computedSize;
 				}
-				width === UI.SIZE && (width = computedSize.width);
-				height === UI.SIZE && (height = computedSize.height);
+				width === UI.SIZE && (width = constrainValue(computedSize.width, this._minWidth, this._maxWidth));
+				height === UI.SIZE && (height = constrainValue(computedSize.height, this._minHeight, this._maxHeight));
 			}
 			
 			if (calculateWidthAfterChildren) {
@@ -1133,6 +1138,10 @@ define(
 				}
 			},
 
+			_minHeight: postLayoutProp,
+
+			_maxHeight: postLayoutProp,
+
 			height: postLayoutProp,
 
 			left: postLayoutProp,
@@ -1172,6 +1181,10 @@ define(
 					return this._curTransform = value;
 				}
 			},
+
+			_minWidth: postLayoutProp,
+
+			_maxWidth: postLayoutProp,
 
 			width: postLayoutProp,
 
