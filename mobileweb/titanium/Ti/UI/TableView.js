@@ -1,7 +1,7 @@
 define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb/TableViewSeparatorStyle", "Ti/UI"], 
 	function(declare, View, style, lang, TableViewSeparatorStyle, UI) {
 
-	var set = style.set,
+	var setStyle = style.set,
 		is = require.is,
 		isDef = lang.isDef;
 		
@@ -11,19 +11,31 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			
 			// Content must go in a separate container so the scrollbar can exist outside of it
 			var contentContainer = this._contentContainer = UI.createView({
-				width: "100%",
-				height: "100%",
+				width: UI.INHERIT,
+				height: UI.INHERIT,
 				left: 0,
 				top: 0,
 				layout: 'vertical'
 			});
 			this.add(contentContainer);
-			set(contentContainer.domNode,"overflow","hidden");
+			setStyle(contentContainer.domNode,"overflow","hidden");
 			
 			// Use horizontal layouts so that the default location is always (0,0)
-			contentContainer.add(this._header = UI.createView({height: UI.SIZE, layout: "vertical"}));
-			contentContainer.add(this._sections = UI.createView({height: UI.SIZE, layout: "vertical"}));
-			contentContainer.add(this._footer = UI.createView({height: UI.SIZE, layout: "vertical"}));
+			contentContainer.add(this._header = UI.createView({
+				height: UI.SIZE, 
+				width: UI.INHERIT, 
+				layout: "vertical"
+			}));
+			contentContainer.add(this._sections = UI.createView({
+				height: UI.SIZE, 
+				width: UI.INHERIT, 
+				layout: "vertical"
+			}));
+			contentContainer.add(this._footer = UI.createView({
+				height: UI.SIZE, 
+				width: UI.INHERIT, 
+				layout: "vertical"
+			}));
 			
 			this.data = [];
 			
@@ -94,15 +106,6 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 					this._fireScrollEvent();
 				}
 			}));
-		},
-		
-		_doLayout: function() {
-			
-			var values = this._contentContainer.properties.__values__;
-			values.width = this.width === UI.SIZE ? UI.SIZE : "100%";
-			values.height = this.height === UI.SIZE ? UI.SIZE : "100%"; 
-			
-			return View.prototype._doLayout.apply(this,arguments);
 		},
 		
 		_fireScrollEvent: function(x,y) {
@@ -185,11 +188,13 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		_tableViewSectionClicked: null,
 		
 		_createSeparator: function() {
-			return UI.createView({
+			var separator = UI.createView({
 				height: 1,
-				width: "100%",
+				width: UI.INHERIT,
 				backgroundColor: "white"
 			});
+			setStyle(separator.domNode,"minWidth","100%"); // Temporary hack until TIMOB-8124 is completed.
+			return separator;
 		},
 		
 		_createDecorationLabel: function(text) {
@@ -197,7 +202,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				text: text, 
 				backgroundColor: "darkGrey",
 				color: "white",
-				width: "100%",
+				width: UI.INHERIT,
 				height: UI.SIZE,
 				left: 0,
 				font: {fontSize: 22}

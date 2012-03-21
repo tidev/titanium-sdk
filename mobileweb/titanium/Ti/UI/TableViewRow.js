@@ -16,8 +16,8 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 		
 		constructor: function(args) {
 			this.add(this._defaultControl = UI.createView({
-				width: "100%",
-				height: "100%",
+				width: UI.INHERIT,
+				height: UI.INHERIT,
 				layout: "horizontal"
 			}));
 			this._defaultControl._layout._defaultVerticalAlignment = "center";
@@ -28,7 +28,8 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 			})); 
 
 			this._defaultControl.add(this._titleLabel = UI.createLabel({
-				width: UI.FILL, height: "100%" 
+				width: UI.INHERIT,
+				height: UI.INHERIT 
 			}));
 
 			this._defaultControl.add(this._rightImageView = UI.createImageView({
@@ -39,7 +40,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 		
 		_usingDefaultControl: 1,
 
-		_defaultWidth: UI.FILL,
+		_defaultWidth: UI.INHERIT,
 
 		_defaultHeight: UI.SIZE,
 		
