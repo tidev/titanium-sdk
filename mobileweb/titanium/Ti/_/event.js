@@ -6,7 +6,8 @@ define({
 		}
 	},
 	off: function(handles) {
-		require.each(require.is(handles, "Array") ? handles : [handles], function(h) {
+		handles = require.is(handles, "Array") ? handles : [handles];
+		handles.forEach(function(h) {
 			h && h();
 		});
 		handles.splice(0);
