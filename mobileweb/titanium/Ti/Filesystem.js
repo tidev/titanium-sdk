@@ -10,7 +10,7 @@ define(["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/Filesystem/File"],
 			result = [],
 			lastSegment,
 			path = lang.toArray(arguments).filter(function(a) {
-				return a !== undefined;
+				return a !== void 0;
 			}).map(function(a) {
 				prefix || (prefix = a.match(re)) && (prefix = prefix[1] || "");
 				return a.replace(prefix, "").replace(/^\/|\/$/g, '');

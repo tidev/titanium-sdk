@@ -27,7 +27,6 @@ define(
 		unloaded,
 		showingError,
 		waiting = [],
-		undef,
 		Ti = lang.setObject("Ti", Evented, {
 			constants: {
 				buildDate: cfg.ti.buildDate,
@@ -181,7 +180,7 @@ define(
 	}
 
 	// console.*() shim	
-	console === undef && (console = {});
+	console === void 0 && (console = {});
 
 	// make sure "log" is always at the end
 	each(["debug", "info", "warn", "error", "log"], function (c) {
@@ -238,7 +237,7 @@ define(
 					return escapeString(it);
 				}
 				if (objtype === "function" || objtype === "undefined") {
-					return undef;
+					return void 0;
 				}
 	
 				// short-circuit for objects that support "json" serialization
