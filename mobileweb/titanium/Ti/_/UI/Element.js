@@ -603,7 +603,7 @@ define(
 				bottomPadding: Math.round(bottomPadding),
 				width: Math.round(Math.max(width,0)),
 				height: Math.round(Math.max(height,0)),
-				borderSize: borderSize,
+				borderSize: borderSize
 			};
 		},
 		
