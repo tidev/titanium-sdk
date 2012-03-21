@@ -257,6 +257,11 @@ public abstract class TiUIView
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_DISABLED_IMAGE);
 	}
 
+	private boolean hasRepeat(KrollDict d)
+	{
+		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_REPEAT);
+	}
+
 	private boolean hasBorder(KrollDict d)
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR) 
@@ -337,7 +342,6 @@ public abstract class TiUIView
 
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-
 		if (key.equals(TiC.PROPERTY_LEFT)) {
 			if (newValue != null) {
 				layoutParams.optionLeft = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_LEFT);
@@ -440,11 +444,12 @@ public abstract class TiUIView
 			KrollDict d = proxy.getProperties();
 
 			boolean hasImage = hasImage(d);
+			boolean hasRepeat = hasRepeat(d);
 			boolean hasColorState = hasColorState(d);
 			boolean hasBorder = hasBorder(d);
 			boolean nativeViewNull = (nativeView == null);
 
-			boolean requiresCustomBackground = hasImage || hasColorState || hasBorder;
+			boolean requiresCustomBackground = hasImage || hasRepeat || hasColorState || hasBorder;
 
 			if (!requiresCustomBackground) {
 				if (background != null) {
@@ -485,7 +490,7 @@ public abstract class TiUIView
 					}
 				}
 
-				if (hasImage || hasColorState) {
+				if (hasImage || hasRepeat || hasColorState) {
 					if (newBackground || key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX)) {
 						handleBackgroundImage(d);
 					}
@@ -622,6 +627,7 @@ public abstract class TiUIView
 				if (currentDrawable != null) {
 					if (reuseCurrentDrawable) {
 						background.setBackgroundDrawable(currentDrawable);
+						
 					} else {
 						nativeView.setBackgroundDrawable(null);
 						currentDrawable.setCallback(null);
@@ -774,7 +780,17 @@ public abstract class TiUIView
 				applyCustomBackground(false);
 			}
 
-			Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(bg, bgColor, bgSelected, bgSelectedColor, bgDisabled, bgDisabledColor, bgFocused, bgFocusedColor);
+			Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(
+					bg,
+					d.getBoolean(TiC.PROPERTY_BACKGROUND_REPEAT),
+					bgColor,
+					bgSelected,
+					bgSelectedColor,
+					bgDisabled,
+					bgDisabledColor,
+					bgFocused,
+					bgFocusedColor);
+
 			background.setBackgroundDrawable(bgDrawable);
 		}
 	}
