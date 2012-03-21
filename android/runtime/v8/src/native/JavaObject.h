@@ -64,6 +64,7 @@ public:
 	static bool useGlobalRefs;
 private:
 	jobject javaObject_;
+	jint refTableKey_;
 	bool isWeakRef_;
 
 	void newGlobalRef();
