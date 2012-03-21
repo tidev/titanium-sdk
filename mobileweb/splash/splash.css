@@ -24,7 +24,7 @@
 	left: 50%;
 	margin-left: -85px;
 	position: absolute;
-	top: 15%;
+	top: 22%;
 	width: 170px;
 }
 
@@ -37,6 +37,16 @@
 	position: absolute;
 	bottom: 15%;
 	width: 200px;
+}
+
+@media all and (max-height: 320px) {
+	#splash:before {
+		top: 15%;
+	}
+
+	#splash:after {
+		bottom: 12%;
+	}
 }
 
 @media all and (min-height: 699px) {

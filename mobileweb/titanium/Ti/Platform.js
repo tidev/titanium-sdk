@@ -35,6 +35,10 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale"],
 
 			createUUID: _.uuid,
 
+			is24HourTimeFormat: function() {
+				return false;
+			},
+
 			openURL: function(url){
 				var m = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?/.exec(url);
 				if ( (/^([tel|sms|mailto])/.test(url) || /^([\/?#]|[\w\d-]+^:[\w\d]+^@)/.test(m[1])) && !/^(localhost)/.test(url) ) {

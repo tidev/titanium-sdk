@@ -1,6 +1,6 @@
 define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI/Button", "Ti/Facebook", "Ti/_/lang"], function(declare, Evented, Button, Facebook, lang) {
 	
-	var imagePrefix = "themes/titanium/Facebook/",
+	var imagePrefix = "themes/" + require.config.ti.theme + "/Facebook/",
 		buttonImages = [
 			"login.png", // Login normal
 			"logout.png", // Logout normal

@@ -52,9 +52,11 @@ methods:
         
   - name: is24HourTimeFormat
     summary: Returns whether the system settings are configured to show times in 24-hour format.
+    description: |
+        On Mobile Web, this function always returns false.
     returns:
         type: Boolean
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
     
 properties:
   - name: BATTERY_STATE_CHARGING
