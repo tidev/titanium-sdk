@@ -40,7 +40,7 @@ class TiAppXML(dict):
 				'enabled': 'true',
 				'inline-css-images': 'true'
 			},
-			'theme': 'titanium'
+			'theme': 'default'
 		}
 		self['precache'] = {
 			'images': [],
