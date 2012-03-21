@@ -1,5 +1,14 @@
 define(["Ti/_/declare", "Ti/_/Evented", "Ti/Locale"], function(declare, Evented, Locale) {
 
+	var updateHook = {
+		post: function(newValue, oldValue, prop) {
+			this.fireEvent("update", {
+				property: prop,
+				value: newValue
+			});
+		}
+	};
+
 	return declare("Ti.Map.Annotation", Evented, {
 
 		_onclick: function(mapview, idx, src) {
@@ -12,6 +21,8 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Locale"], function(declare, Evented,
 			});
 		},
 
+		_update: function() {},
+
 		_getTitle: function() {
 			return Locale._getString(this.titleid, this.title);
 		},
@@ -22,16 +33,16 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Locale"], function(declare, Evented,
 
 		properties: {
 			animate: false,
-			image: void 0,			// string or Titanium.Blob
-			latitude: void 0,		// number
-			longitude: void 0,		// number
-			leftButton: void 0,		// string
-			pincolor: void 0,		// ANNOTATION_RED or ANNOTATION_PURPLE or ANNOTATION_GREEN
-			rightButton: void 0,	// string
-			subtitle: void 0,		// string
-			subtitleid: void 0,
-			title: void 0,
-			titleid: void 0
+			image: updateHook,
+			latitude: updateHook,
+			longitude: updateHook,
+			leftButton: updateHook,
+			pincolor: updateHook,
+			rightButton: updateHook,
+			subtitle: updateHook,
+			subtitleid: updateHook,
+			title: updateHook,
+			titleid: updateHook
 		}
 
 	});

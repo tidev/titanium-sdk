@@ -471,14 +471,19 @@ textarea {
 	margin-right: 10px;
 }
 
-.TiMapAnnotationLeftImage {
+.TiMapAnnotationLeftButton {
 	float: left;
 	margin: 0 8px 8px 0;
 }
 
-.TiMapAnnotationRightImage {
+.TiMapAnnotationRightButton {
 	float: right;
 	margin: 0 0 8px 8px;
+}
+
+.TiMapAnnotationLeftButton:active,
+.TiMapAnnotationRightButton:active {
+	opacity: 0.7;
 }
 
 .TiMapAnnotationContent {
