@@ -13,7 +13,6 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 		has = require.has,
 		is = require.is,
 		mix = require.mix,
-		undef,
 		zeros10 = "0000000000",
 		spaces10 = "          ",
 		specifiers = {
@@ -251,7 +250,7 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 				str += token;
 			} else {
 				if (mapped) {
-					assert(args[token.mapping] === undef, "Missing key " + token.mapping);
+					assert(args[token.mapping] === void 0, "Missing key " + token.mapping);
 				} else {
 					token.intmapping && (position = parseInt(token.intmapping) - 1);
 					assert(position < args.length, "Got " + args.length + " format arguments, insufficient for '" + format + "'");
@@ -298,7 +297,7 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 						}
 					}
 
-					assert(mixins !== undef, "Unexpected specifier '" + token.specifier + "'");
+					assert(mixins !== void 0, "Unexpected specifier '" + token.specifier + "'");
 
 					if (mixins.extend) {
 						mix(mixins, specifiers[mixins.extend]);

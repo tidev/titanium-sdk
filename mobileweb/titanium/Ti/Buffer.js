@@ -1,7 +1,6 @@
 define(["Ti/_/declare", "Ti/_/Evented", "Ti/Blob", "Ti/Codec"], function(declare, Evented, Blob, Codec) {
 
-	var Buffer,
-		undef;
+	var Buffer;
 
 	return Buffer = declare("Ti.Buffer", Evented, {
 

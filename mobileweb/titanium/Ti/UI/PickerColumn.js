@@ -3,7 +3,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 		
 	var setStyle = style.set,
 		contentPadding = 15,
-		undef,
 		on = require.on;
 
 	return declare("Ti.UI.PickerColumn", FontWidget, {
@@ -243,7 +242,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 			var rowIndex = this._rows.indexOf(row);
 			if (rowIndex !== -1) {
 				this._rows.splice(rowIndex,1);
-				row._parentColumn = undef;
+				row._parentColumn = void 0;
 				this._updateContentWidth();
 				this._parentPicker && this._parentPicker._updateColumnHeights();
 				if (this.selectedRow === row) {
@@ -273,8 +272,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 			selectedRow: {
 				set: function(value) {
 					if (!value) {
-						this.font = undef;
-						this.color = undef;
+						this.font = void 0;
+						this.color = void 0;
 						this._titleContainer.innerHTML = "";
 						this._hasSizeDimensions() && this._triggerLayout();
 					} else {

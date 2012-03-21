@@ -16,8 +16,7 @@ define(
 			Ti.UI._recalculateLayout();
 			hidingAddressBar = 0;
 		},
-		unitize = dom.unitize,
-		undef;
+		unitize = dom.unitize;
 
 	on(body, "touchmove", function(e) {
 		e.preventDefault();
@@ -25,8 +24,7 @@ define(
 
 	require.each(modules.split(','), function(name) {
 		creators['create' + name] = function(args) {
-			var m = require("Ti/UI/" + name);
-			return new m(args);
+			return new (require("Ti/UI/" + name))(args);
 		};
 	});
 
@@ -272,7 +270,7 @@ define(
 					return setStyle(body, "backgroundImage", value ? style.url(value) : "");
 				}
 			},
-			currentTab: undef
+			currentTab: void 0
 		},
 		
 		convertUnits: function(convertFromValue, convertToUnits) {
@@ -293,7 +291,7 @@ define(
 		},
 
 		constants: {
-			currentWindow: undefined,
+			currentWindow: void 0,
 			UNKNOWN: 0,
 			FACE_DOWN: 1,
 			FACE_UP: 2,

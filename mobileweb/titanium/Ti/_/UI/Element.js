@@ -7,8 +7,7 @@ define(
 		DoubleTap, LongPress, Pinch, SingleTap, Swipe, TouchCancel, TouchEnd,
 		TouchMove, TouchStart, TwoFingerTap) {
 
-	var undef,
-		unitize = dom.unitize,
+	var unitize = dom.unitize,
 		computeSize = dom.computeSize,
 		on = require.on,
 		setStyle = style.set,
@@ -362,6 +361,8 @@ define(
 				this._measuredRightPadding = dimensions.rightPadding;
 				this._measuredBottomPadding = dimensions.bottomPadding;
 				this._measuredBorderSize = dimensions.borderSize;
+				this._measuredEffectiveWidth = dimensions.effectiveWidth;
+				this._measuredEffectiveHeight = dimensions.effectiveHeight;
 				setStyle(this.domNode, styles);
 			
 				this._markedForLayout = false;
@@ -395,8 +396,13 @@ define(
 				height = computeSize(size.height === UI.INHERIT ? getInheritedHeight(this) : size.height, boundingHeight),
 
 				// Convert right/bottom coordinates to be with respect to (0,0)
-				right = isDef(originalRight) ? (boundingWidth - originalRight) : undef,
-				bottom = isDef(originalBottom) ? (boundingHeight - originalBottom) : undef;
+				right = layoutParams.rightIsMargin ? void 0 : isDef(originalRight) ? (boundingWidth - originalRight) : void 0,
+				bottom = layoutParams.bottomIsMargin ? void 0 : isDef(originalBottom) ? (boundingHeight - originalBottom) : void 0,
+				
+				// Calculate the "padding"
+				rightPadding = is(originalRight,"Number") ? originalRight : 0,
+				bottomPadding = is(originalBottom,"Number") ? originalBottom : 0,
+				origin = layoutParams.origin;
 			
 			is(width,"Number") && (width = Math.max(width,0));
 			is(height,"Number") && (height = Math.max(height,0));
@@ -405,13 +411,13 @@ define(
 			var defaultWidth = this._defaultWidth;
 			if (isDef(width)) {
 				if (isDef(left)) {
-					right = undef;
+					right = void 0;
 				} else if (isDef(centerX)){
 					if (width === UI.SIZE) {
 						left = "calculateDefault";
 					} else {
 						left = centerX - width / 2;
-						right = undef;
+						right = void 0;
 					}
 				} else if (!isDef(right)){
 					// Set the default position
@@ -421,7 +427,7 @@ define(
 				if (isDef(centerX)) {
 					if (isDef(left)) {
 						width = (centerX - left) * 2;
-						right = undef;
+						right = void 0;
 					} else if (isDef(right)) {
 						width = (right - centerX) * 2;
 					} else {
@@ -441,13 +447,13 @@ define(
 			var defaultHeight = this._defaultHeight;
 			if (isDef(height)) {
 				if (isDef(top)) {
-					bottom = undef;
+					bottom = void 0;
 				} else if (isDef(centerY)){
 					if(height === UI.SIZE) {
 						top = "calculateDefault";
 					} else {
 						top = centerY - height / 2;
-						bottom = undef;
+						bottom = void 0;
 					}
 				} else if (!isDef(bottom)) {
 					// Set the default position
@@ -457,7 +463,7 @@ define(
 				if (isDef(centerY)) {
 					if (isDef(top)) {
 						height = (centerY - top) * 2;
-						bottom = undef;
+						bottom = void 0;
 					} else if (isDef(bottom)) {
 						height = (bottom - centerY) * 2;
 					} else {
@@ -504,7 +510,7 @@ define(
 				if (width === UI.FILL) {
 					if (isDef(left)) {
 						left === "calculateDefault" && (left = 0);
-						width = boundingWidth - left;
+						width = boundingWidth - left - rightPadding;
 					} else if (isDef(right)) {
 						width = right;
 					}
@@ -523,7 +529,7 @@ define(
 				if (height === UI.FILL) {
 					if (isDef(top)) {
 						top === "calculateDefault" && (top = 0);
-						height = boundingHeight - top;
+						height = boundingHeight - top - bottomPadding;
 					} else if (isDef(bottom)) {
 						height = bottom;
 					}
@@ -587,12 +593,9 @@ define(
 				}
 			}
 			
-			// Calculate the "padding" and apply the origin
-			var rightPadding = is(originalRight,"Number") ? originalRight : 0,
-				bottomPadding = is(originalBottom,"Number") ? originalBottom : 0,
-				origin = layoutParams.origin;
-
 			return {
+				effectiveWidth: left + width + rightPadding + borderSize.left + borderSize.right,
+				effectiveHeight: top + height + bottomPadding + borderSize.top + borderSize.bottom,
 				left: Math.round(left + origin.x),
 				top: Math.round(top + origin.y),
 				rightPadding: Math.round(rightPadding),
@@ -817,21 +820,21 @@ define(
 			this.enabled && this.fireEvent(type, e);
 		},
 		
-		_defaultBackgroundColor: undef,
+		_defaultBackgroundColor: void 0,
 		
-		_defaultBackgroundImage: undef,
+		_defaultBackgroundImage: void 0,
 		
-		_defaultBackgroundDisabledColor: undef,
+		_defaultBackgroundDisabledColor: void 0,
 		
-		_defaultBackgroundDisabledImage: undef,
+		_defaultBackgroundDisabledImage: void 0,
 		
-		_defaultBackgroundFocusedColor: undef,
+		_defaultBackgroundFocusedColor: void 0,
 		
-		_defaultBackgroundFocusedImage: undef,
+		_defaultBackgroundFocusedImage: void 0,
 		
-		_defaultBackgroundSelectedColor: undef,
+		_defaultBackgroundSelectedColor: void 0,
 		
-		_defaultBackgroundSelectedImage: undef,
+		_defaultBackgroundSelectedImage: void 0,
 
 		_doBackground: function(evt) {
 			var evt = evt || {},
@@ -906,9 +909,9 @@ define(
 					var transformCss = "";
 
 					// Set the color and opacity properties
-					anim.backgroundColor !== undef && (this.backgroundColor = anim.backgroundColor);
-					anim.opacity !== undef && setStyle(this.domNode, "opacity", anim.opacity);
-					setStyle(this.domNode, "display", anim.visible !== undef && !anim.visible ? "none" : "");
+					anim.backgroundColor !== void 0 && (this.backgroundColor = anim.backgroundColor);
+					anim.opacity !== void 0 && setStyle(this.domNode, "opacity", anim.opacity);
+					setStyle(this.domNode, "display", anim.visible !== void 0 && !anim.visible ? "none" : "");
 					
 					// Set the position and size properties
 					
@@ -957,7 +960,7 @@ define(
 
 			anim.duration = anim.duration || 0;
 			anim.delay = anim.delay || 0;
-			anim.transform && setStyle("transform", "");
+			anim.transform && setStyle(this.domNode, "transform", "");
 			anim.start && anim.start();
 
 			if (anim.duration > 0) {

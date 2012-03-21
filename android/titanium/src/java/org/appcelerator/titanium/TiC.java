@@ -539,6 +539,8 @@ public class TiC
 	 */
 	public static final String PROPERTY_BACKGROUND_PREFIX = "background";
 
+	public static final String PROPERTY_BACKGROUND_REPEAT = "backgroundRepeat";
+
 	/**
 	 * @module.api
 	 */
