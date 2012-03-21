@@ -117,8 +117,9 @@ class Projector(object):
 				if splitext(file_)[-1] in fileTargets:
 					processed = self.process_file(from_,to_)	
 				if not processed:	
-				 	if os.path.exists(to_): os.remove(to_)
-					print "[DEBUG] copying: %s => %s" % (from_,to_)
+				 	if os.path.exists(to_):
+				 		os.remove(to_)
+				 	print "[DEBUG] copying: %s => %s" % (from_,to_)
 				 	copyfile(from_, to_)
 	
 	def process_xcode(self,content):
