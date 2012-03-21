@@ -2,7 +2,6 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 	function(declare, lang, style, Widget, UI) {
 
 	var setStyle = style.set,
-		undef,
 		on = require.on,
 		InternalImageView = declare(Widget, {
 
@@ -202,7 +201,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 			image: {
 				set: function(value) {
 					this._removeAllChildren();
-					this._images = undef;
+					this._images = void 0;
 					this.add(createImage(value, function() {
 						this.fireEvent("load", {
 							state: "image"
@@ -216,7 +215,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 
 			images: {
 				set: function(value) {
-					var imgs = undef,
+					var imgs = void 0,
 						counter = 0,
 						errored = 0;
 					this._removeAllChildren();

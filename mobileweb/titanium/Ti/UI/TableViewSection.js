@@ -2,8 +2,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 	function(declare, lang, Widget, style, TableViewSeparatorStyle, UI) {
 	
 	var is = require.is,
-		setStyle = style.set,
-		undef;
+		setStyle = style.set;
 
 	return declare("Ti.UI.TableViewSection", Widget, {
 		
@@ -146,7 +145,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 		},
 		
 		constants: {
-			rows: undef
+			rows: void 0
 		},
 					
 		properties: {

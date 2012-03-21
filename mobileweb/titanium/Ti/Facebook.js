@@ -1,7 +1,6 @@
 define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 
-	var undef,
-		facebookInitialized = false,
+	var facebookInitialized = false,
 		loginAfterInitialization = false,
 		appid = null,
 		notLoggedInMessage = "not logged in",
@@ -163,7 +162,7 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 		
 		properties: {
 			
-			accessToken: undef,
+			accessToken: void 0,
 			
 			appid: {
 				set: function(value){
@@ -173,13 +172,13 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 				}
 			},
 			
-			expirationDate: undef,
+			expirationDate: void 0,
 			
 			loggedIn: false,
 			
-			permissions: undef,
+			permissions: void 0,
 			
-			uid: undef
+			uid: void 0
 		}
 		
 	});
