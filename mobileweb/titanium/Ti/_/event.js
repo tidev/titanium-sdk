@@ -9,5 +9,6 @@ define({
 		require.each(require.is(handles, "Array") ? handles : [handles], function(h) {
 			h && h();
 		});
+		handles.splice(0);
 	}
 });

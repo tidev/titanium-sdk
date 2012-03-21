@@ -82,7 +82,7 @@ define(function() {
 										return getter ? getter.call(externalDest, valueDest[property]) : valueDest[property];
 									},
 									set: function(v) {
-										var args = [v, valueDest[property]];
+										var args = [v, valueDest[property], property];
 										args[0] = valueDest[property] = setter ? setter.apply(externalDest, args) : v;
 										post && post.apply(externalDest, args);
 									},
