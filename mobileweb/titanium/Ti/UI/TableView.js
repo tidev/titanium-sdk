@@ -3,7 +3,10 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 
 	var setStyle = style.set,
 		is = require.is,
-		isDef = lang.isDef;
+		isDef = lang.isDef,
+		refreshSections = function() {
+			this._refreshSections();
+		};
 		
 	return declare("Ti.UI.TableView", View, {
 		
@@ -375,38 +378,21 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				}
 			},
 			maxRowHeight: {
-				post: function(value) {
-					this._refreshSections();
-					return value;
-				},
-				value: "100%"
+				post: refreshSections
 			},
 			minRowHeight: {
-				post: function(value) {
-					this._refreshSections();
-					return value;
-				},
-				value: "0%"
+				post: refreshSections
 			},
 			rowHeight: {
-				post: function(value) {
-					this._refreshSections();
-					return value;
-				},
+				post: refreshSections,
 				value: "50px"
 			},
 			separatorColor: {
-				post: function(value) {
-					this._refreshSections();
-					return value;
-				},
+				post: refreshSections,
 				value: "lightGrey"
 			},
 			separatorStyle: {
-				post: function(value) {
-					this._refreshSections();
-					return value;
-				},
+				post: refreshSections,
 				value: TableViewSeparatorStyle.SINGLE_LINE
 			}
 		}
