@@ -11,7 +11,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 				
 			// Determine if any children have fill height
 			for (var i = 0; i < children.length; i++) {
-				children[i]._hasFillWidth() && (childrenWithFillHeight = true);
+				children[i]._hasFillHeight() && (childrenWithFillHeight = true);
 			}
 				
 			// Measure the children
@@ -38,11 +38,12 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 							 		horizontal: this._defaultHorizontalAlignment,
 							 		vertical: this._defaultVerticalAlignment
 							 	},
+							 	bottomIsMargin: true,
 								positionElement: false,
 						 		layoutChildren: true
-							}).height;
+							}).effectiveHeight;
 						} else {
-							childHeight = child._measuredHeight;
+							childHeight = child._measuredEffectiveHeight;
 						}
 						availableHeight -= childHeight;
 					}
@@ -73,6 +74,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 					 		horizontal: this._defaultHorizontalAlignment,
 					 		vertical: this._defaultVerticalAlignment
 					 	},
+						bottomIsMargin: true,
 					 	positionElement: true,
 					 	layoutChildren: !childrenWithFillHeight || isHeightFill
 				 	});

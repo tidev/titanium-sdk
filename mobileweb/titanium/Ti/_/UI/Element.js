@@ -362,6 +362,8 @@ define(
 				this._measuredRightPadding = dimensions.rightPadding;
 				this._measuredBottomPadding = dimensions.bottomPadding;
 				this._measuredBorderSize = dimensions.borderSize;
+				this._measuredEffectiveWidth = dimensions.effectiveWidth;
+				this._measuredEffectiveHeight = dimensions.effectiveHeight;
 				setStyle(this.domNode, styles);
 			
 				this._markedForLayout = false;
@@ -395,8 +397,13 @@ define(
 				height = computeSize(size.height === UI.INHERIT ? getInheritedHeight(this) : size.height, boundingHeight),
 
 				// Convert right/bottom coordinates to be with respect to (0,0)
-				right = isDef(originalRight) ? (boundingWidth - originalRight) : undef,
-				bottom = isDef(originalBottom) ? (boundingHeight - originalBottom) : undef;
+				right = layoutParams.rightIsMargin ? void 0 : isDef(originalRight) ? (boundingWidth - originalRight) : void 0,
+				bottom = layoutParams.bottomIsMargin ? void 0 : isDef(originalBottom) ? (boundingHeight - originalBottom) : void 0,
+				
+				// Calculate the "padding"
+				rightPadding = is(originalRight,"Number") ? originalRight : 0,
+				bottomPadding = is(originalBottom,"Number") ? originalBottom : 0,
+				origin = layoutParams.origin;
 			
 			is(width,"Number") && (width = Math.max(width,0));
 			is(height,"Number") && (height = Math.max(height,0));
@@ -504,7 +511,7 @@ define(
 				if (width === UI.FILL) {
 					if (isDef(left)) {
 						left === "calculateDefault" && (left = 0);
-						width = boundingWidth - left;
+						width = boundingWidth - left - rightPadding;
 					} else if (isDef(right)) {
 						width = right;
 					}
@@ -523,7 +530,7 @@ define(
 				if (height === UI.FILL) {
 					if (isDef(top)) {
 						top === "calculateDefault" && (top = 0);
-						height = boundingHeight - top;
+						height = boundingHeight - top - bottomPadding;
 					} else if (isDef(bottom)) {
 						height = bottom;
 					}
@@ -587,19 +594,16 @@ define(
 				}
 			}
 			
-			// Calculate the "padding" and apply the origin
-			var rightPadding = is(originalRight,"Number") ? originalRight : 0,
-				bottomPadding = is(originalBottom,"Number") ? originalBottom : 0,
-				origin = layoutParams.origin;
-
 			return {
+				effectiveWidth: left + width + rightPadding + borderSize.left + borderSize.right,
+				effectiveHeight: top + height + bottomPadding + borderSize.top + borderSize.bottom,
 				left: Math.round(left + origin.x),
 				top: Math.round(top + origin.y),
 				rightPadding: Math.round(rightPadding),
 				bottomPadding: Math.round(bottomPadding),
 				width: Math.round(Math.max(width,0)),
 				height: Math.round(Math.max(height,0)),
-				borderSize: borderSize
+				borderSize: borderSize,
 			};
 		},
 		
