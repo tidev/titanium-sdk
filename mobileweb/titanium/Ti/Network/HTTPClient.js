@@ -87,7 +87,9 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 				c.location = _.getAbsolutePath(httpURLFormatter ? httpURLFormatter(url) : url),
 				!!async
 			);
-			this._xhr.withCredentials = this.withCredentials
+			try {
+				this._xhr.withCredentials = this.withCredentials; // For some reason FF throws an exception when writing to this property
+			} catch(e) {}
 		},
 
 		send: function(args){
