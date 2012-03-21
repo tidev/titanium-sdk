@@ -588,28 +588,19 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	[self windowWillClose];
 
 	//TEMP hack until we can figure out split view issue
-	if (tempController!=nil)
-	{
-        if (modalFlag) {
-            BOOL animated = (args!=nil && [args isKindOfClass:[NSDictionary class]]) ? 
-                [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : 
-                YES;
-            
-            [tempController dismissModalViewControllerAnimated:animated];
-            
-            if (!animated)
-            {
-                [self removeTempController];
-            }
-            else 
-            {
-                [self performSelector:@selector(removeTempController) withObject:nil afterDelay:0.3];
-            }
-        }
-        else {
+    // appears to be a dead code
+	if ((tempController != nil) && modalFlag) {
+        BOOL animated = (args!=nil && [args isKindOfClass:[NSDictionary class]]) ? 
+            [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
+
+        [tempController dismissModalViewControllerAnimated:animated];
+
+        if (!animated) {
             [self removeTempController];
         }
-        
+        else {
+            [self performSelector:@selector(removeTempController) withObject:nil afterDelay:0.3];
+        }
 		return;
 	}
 	else
@@ -678,6 +669,9 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 		}
 	}
 	[myview release];
+    if (tempController != nil) {
+        [self removeTempController];
+    }
 	[self release];
 }
 

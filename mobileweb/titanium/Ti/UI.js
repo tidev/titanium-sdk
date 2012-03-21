@@ -16,6 +16,7 @@ define(
 			Ti.UI._recalculateLayout();
 			hidingAddressBar = 0;
 		},
+		unitize = dom.unitize,
 		undef;
 
 	on(body, "touchmove", function(e) {
@@ -71,12 +72,27 @@ define(
 	}
 
 	ready(10, function() {
-		var node = (Ti.UI._container = Ti.UI.createView({
-			left: 0,
-			top: 0
-		})).domNode;
+		var splashScreen = document.getElementById("splash"),
+			container = (Ti.UI._container = Ti.UI.createView({
+				left: 0,
+				top: 0
+			})),
+			node = container.domNode;
 		setStyle(node, "overflow", "hidden");
 		body.appendChild(node);
+		container.addEventListener("postlayout", function(){
+			setTimeout(function(){
+				setStyle(splashScreen,{
+					position: "absolute",
+					width: unitize(container._measuredWidth),
+					height: unitize(container._measuredHeight),
+					left: "0px",
+					top: "0px",
+					right: "",
+					bottom: ""
+				});
+			},10);
+		});
 		hideAddressBar();
 	});
 	
@@ -327,6 +343,7 @@ define(
 			ANIMATION_CURVE_LINEAR: 4,
 			SIZE: "auto",
 			FILL: "fill",
+			INHERIT: "inherit",
 			UNIT_PX: "px",
 			UNIT_MM: "mm",
 			UNIT_CM: "cm",

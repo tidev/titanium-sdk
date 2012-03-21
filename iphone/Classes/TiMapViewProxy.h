@@ -21,6 +21,8 @@
 @property (nonatomic, readonly) NSNumber* longitudeDelta;
 @property (nonatomic, readonly) NSNumber* latitudeDelta;
 
+-(TiMapAnnotationProxy*)annotationFromArg:(id)arg;
+
 -(void)addAnnotation:(id)args;
 -(void)addAnnotations:(id)args;
 -(void)removeAnnotation:(id)args;
