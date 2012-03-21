@@ -45,6 +45,7 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale", "Ti/_/
 					win.add(webview);
 					backButton = UI.createButton({
 						top: 2,
+						bottom: 2,
 						title: "Close"
 					});
 					backButton.addEventListener("singletap", function(){
