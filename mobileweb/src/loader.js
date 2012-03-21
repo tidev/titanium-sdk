@@ -226,7 +226,7 @@
 		// force: Boolean?
 		//		If true, forces the test to override an existing test.
 
-		if (hasCache[name] === undefined || force) {
+		if (hasCache[name] === void 0 || force) {
 			hasCache[name] = test;
 		}
 		return now && has(name);

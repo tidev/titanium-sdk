@@ -28,7 +28,7 @@ define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
 			transform: void 0,
 			visible: void 0,
 			width: void 0,
-			zIndex: undef
+			zIndex: void 0
 		}
 
 	});
