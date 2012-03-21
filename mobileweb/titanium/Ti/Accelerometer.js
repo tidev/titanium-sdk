@@ -1,7 +1,6 @@
 define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 	
-	var undef,
-		lastShake = (new Date()).getTime(),
+	var lastShake = (new Date()).getTime(),
 		lastAccel = {},
 		threshold = 0.2,
 		api = lang.setObject("Ti.Accelerometer", Evented);
@@ -16,7 +15,7 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 				source: evt.source
 			};
 		if (accel) {
-			if (lastAccel.x !== undef && (
+			if (lastAccel.x !== void 0 && (
 				Math.abs(lastAccel.x - accel.x) > threshold || 
 				Math.abs(lastAccel.y - accel.y) > threshold ||
 				Math.abs(lastAccel.z - accel.z) > threshold

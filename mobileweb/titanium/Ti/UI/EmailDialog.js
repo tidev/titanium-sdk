@@ -1,8 +1,6 @@
 define(["Ti/_", "Ti/_/declare", "Ti/_/Evented", "Ti/_/lang"],
 	function(_, declare, Evented, lang) {
 
-	var undef;
-
 	return declare("Ti.UI.EmailDialog", Evented, {
 
 		open: function() {
@@ -43,12 +41,12 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/Evented", "Ti/_/lang"],
 		},
 
 		properties: {
-		    bccRecipients: undef,
-		    ccRecipients: undef,
+		    bccRecipients: void 0,
+		    ccRecipients: void 0,
 		    html: false,
-		    messageBody: undef,
-		    subject: undef,
-		    toRecipients: undef
+		    messageBody: void 0,
+		    subject: void 0,
+		    toRecipients: void 0
 		}
 
 	});
