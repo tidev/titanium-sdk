@@ -1,6 +1,6 @@
 define(["require", "Ti/_/lang", "Ti/_/Evented"], function(require, lang, Evented) {
 
-	var locale = navigator.language.replace(/^([^\-\_]+)[\-\_](.+)?$/, function(o, l, c){ return l.toLowerCase() + (c && "-" + c.toUpperCase()); }),
+	var locale = lang.val(navigator.language,navigator.browserLanguage).replace(/^([^\-\_]+)[\-\_](.+)?$/, function(o, l, c){ return l.toLowerCase() + (c && "-" + c.toUpperCase()); }),
 		languageParts = locale.split("-"),
 		language = languageParts[0];
 		strings = {},

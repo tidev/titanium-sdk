@@ -1238,7 +1238,7 @@ def main(args):
 						endidx = output.find("\n",idx)
 						if endidx > 0:
 							target_build_dir = dequote(output[idx+17:endidx].strip())
-							if target_build_dir!=build_dir:
+							if not os.path.samefile(target_build_dir,build_dir):
 								o.write("+ TARGET_BUILD_DIR = %s\n" % target_build_dir)
 								print "[ERROR] Your TARGET_BUILD_DIR is incorrectly set. Most likely you have configured in Xcode a customized build location. Titanium does not currently support this configuration."
 								print "[ERROR] Expected dir %s, was: %s" % (build_dir,target_build_dir)
@@ -1468,10 +1468,13 @@ def main(args):
 						print "[INFO] Installing application in iTunes ... one moment"
 						sys.stdout.flush()
 
-					if os.path.exists("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication"):
-						o.write("+ Preparing to run /Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication\n")
-						output = run.run(["/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication",app_dir],True)
-						o.write("+ Finished running /Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication\n")
+					dev_path = run.run(['xcode-select','-print-path'],True,False).rstrip()
+					package_path = os.path.join(dev_path,'Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication')
+
+					if os.path.exists(package_path):
+						o.write("+ Preparing to run %s\n"%package_path)
+						output = run.run([package_path,app_dir],True)
+						o.write("+ Finished running %s\n"%package_path)
 						if output: o.write(output)
 
 					# for install, launch itunes with the app

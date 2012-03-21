@@ -812,7 +812,7 @@
 	{
 		[(TiWindowProxy *)[(id)newTopWindow proxy] _tabFocus];
 	}
-	
+    [self refreshOrientation];
 }
 
 -(UIViewController *)focusedViewController

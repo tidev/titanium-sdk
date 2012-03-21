@@ -80,32 +80,35 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 				
 			// Second or both fingers lifted off
 			} else if (touchesLength == 0 && (changedTouchesLength == 1 || changedTouchesLength == 2)) {
-				if (this._touchStartLocation && this._touchStartLocation.length == 2) {
+				if (this._touchStartLocation && this._touchStartLocation.length === 2) {
+					this._touchEndLocation || (this._touchEndLocation = []);
 					for(var i = 0; i < changedTouchesLength; i++) {
 						this._touchEndLocation.push({
 							x: x,
 							y: y
 						});
 					}
-					var distance1OK = Math.abs(this._touchStartLocation[0].x - this._touchEndLocation[0].x) < this._driftThreshold && 
-							Math.abs(this._touchStartLocation[0].y - this._touchEndLocation[0].y) < this._driftThreshold,
-						distance2OK = Math.abs(this._touchStartLocation[1].x - this._touchEndLocation[1].x) < this._driftThreshold && 
-							Math.abs(this._touchStartLocation[1].y - this._touchEndLocation[1].y) < this._driftThreshold;
-					// Check if the end points are swapped from the start points
-					if (!distance1OK || !distance2OK) {
-						distance1OK = Math.abs(this._touchStartLocation[0].x - this._touchEndLocation[1].x) < this._driftThreshold && 
-							Math.abs(this._touchStartLocation[0].y - this._touchEndLocation[1].y) < this._driftThreshold;
-						distance2OK = Math.abs(this._touchStartLocation[1].x - this._touchEndLocation[0].x) < this._driftThreshold && 
-							Math.abs(this._touchStartLocation[1].y - this._touchEndLocation[0].y) < this._driftThreshold;
-					}
-					if (distance1OK && distance2OK && !element._isGestureBlocked(this.name)) {
-						this.blocking.push("singletap");
-						this.blocking.push("doubletap");
-						this.blocking.push("longpress");
-						lang.hitch(element,element._handleTouchEvent(this.name,{
-							x: (this._touchStartLocation[0].x + this._touchStartLocation[1].x) / 2,
-							y: (this._touchStartLocation[0].y + this._touchStartLocation[1].y) / 2
-						}));
+					if (this._touchEndLocation.length === 2) {
+						var distance1OK = Math.abs(this._touchStartLocation[0].x - this._touchEndLocation[0].x) < this._driftThreshold && 
+								Math.abs(this._touchStartLocation[0].y - this._touchEndLocation[0].y) < this._driftThreshold,
+							distance2OK = Math.abs(this._touchStartLocation[1].x - this._touchEndLocation[1].x) < this._driftThreshold && 
+								Math.abs(this._touchStartLocation[1].y - this._touchEndLocation[1].y) < this._driftThreshold;
+						// Check if the end points are swapped from the start points
+						if (!distance1OK || !distance2OK) {
+							distance1OK = Math.abs(this._touchStartLocation[0].x - this._touchEndLocation[1].x) < this._driftThreshold && 
+								Math.abs(this._touchStartLocation[0].y - this._touchEndLocation[1].y) < this._driftThreshold;
+							distance2OK = Math.abs(this._touchStartLocation[1].x - this._touchEndLocation[0].x) < this._driftThreshold && 
+								Math.abs(this._touchStartLocation[1].y - this._touchEndLocation[0].y) < this._driftThreshold;
+						}
+						if (distance1OK && distance2OK && !element._isGestureBlocked(this.name)) {
+							this.blocking.push("singletap");
+							this.blocking.push("doubletap");
+							this.blocking.push("longpress");
+							lang.hitch(element,element._handleTouchEvent(this.name,{
+								x: (this._touchStartLocation[0].x + this._touchStartLocation[1].x) / 2,
+								y: (this._touchStartLocation[0].y + this._touchStartLocation[1].y) / 2
+							}));
+						}
 					}
 					this._touchStartLocation = null;
 				}

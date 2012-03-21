@@ -21,7 +21,7 @@ description: |
 
     An alternate method to authenticate API requests to ACS is to supply an app key with each request
 
-    Titanium Studio will create a pair of keys (Testing and Production) for each Titanium application depending on the
+    Titanium Studio will create a pair of keys (Development and Production) for each Titanium application depending on the
     user preference specified during new project creation. This pair of keys will be stored in `tiapp.xml` and one of the
     keys will be used during application build depending on the build type (development or production).
 
