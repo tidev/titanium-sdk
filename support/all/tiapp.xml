@@ -37,7 +37,7 @@
 			<enabled>true</enabled>
 			<inline-css-images>true</inline-css-images>
 		</splash>
-		<theme>titanium</theme>
+		<theme>default</theme>
 	</mobileweb>
 	<modules>
 	</modules>

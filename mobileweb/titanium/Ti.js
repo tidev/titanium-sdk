@@ -365,8 +365,7 @@ define(
 				});
 				makeLabel("Error messages will only be displayed during development. When your app is packaged for final distribution, no error screen will appear. Test your code!", "28%", "#000", "10pt");
 				
-				function postLayoutFunction() {
-					win.removeEventListener("postlayout", postLayoutFunction);
+				on.once(win,"postlayout", function() {
 					setTimeout(function() {
 						win.animate({
 							duration: 500,
@@ -375,10 +374,9 @@ define(
 							win.top = 0;
 							win.height = "100%";
 						});
-					}, 1);
-				}
-				win.addEventListener("postlayout", postLayoutFunction);
-
+					}, 100);
+				});
+				
 				win.open();
 			}
 		});
