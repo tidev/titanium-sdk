@@ -32,7 +32,10 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style", "Ti/_/lang"],
 				self.close();
 			});
 			self._navBarContainer.add(self._title = UI.createLabel({
-				text: rootWindow._getTitle()
+				text: rootWindow._getTitle(),
+				width: UI.FILL,
+				textAlign: UI.TEXT_ALIGNMENT_CENTER,
+				touchEnabled: false
 			}));
 			
 			// Create the content container
