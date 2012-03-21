@@ -25,8 +25,7 @@ define(
 
 	require.each(modules.split(','), function(name) {
 		creators['create' + name] = function(args) {
-			var m = require("Ti/UI/" + name);
-			return new m(args);
+			return new (require("Ti/UI/" + name))(args);
 		};
 	});
 

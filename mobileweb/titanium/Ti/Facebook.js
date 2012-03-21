@@ -92,8 +92,7 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 		},
 		
 		createLoginButton: function(parameters) {
-			var LoginButton = require("Ti/Facebook/LoginButton");
-			return new LoginButton(parameters);
+			return new (require("Ti/Facebook/LoginButton"))(parameters);
 		},
 		
 		dialog: function(action, params, callback) {

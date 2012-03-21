@@ -38,6 +38,23 @@ description: |
     In addition to annotations, iOS supports adding routes to a map view, using
     [addRoute](Titanium.Map.View.addRoute).
 
+    #### Mobile Web Platform Notes
+
+    For Mobile Web, the default map provider is Google. Google Maps does not require you to obtain an API key,
+    however it is encouraged that you use an API key so that you can monitor your Maps API usage. You can sign
+    up for the Maps API key on the Google Code web site:
+
+    * <a href="https://developers.google.com/maps/signup">developers.google.com/maps/signup</a>
+
+    If you get a Maps API key, edit your `tiapp.xml` file and add your new key as the
+    value for the `<mobileweb><map><apikey>` tag.
+
+        <mobileweb>
+        	<map>
+        		<apikey>[key goes here]</apikey>
+        	</map>
+        </mobileweb>
+
 extends: Titanium.UI.View
 excludes: {
     events: [ 'singletap', 'doubletap', 'dblclick', 'longclick', 'longpress', 'pinch',
@@ -195,7 +212,7 @@ events:
       - name: index
         summary: the annotation index.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, mobileweb]
 
       - name: title
         summary: Title of the annotation.
@@ -204,12 +221,12 @@ events:
       - name: subtitle
         summary: Subtitle of the annotation.
         type: String
-        platforms: [android]
+        platforms: [android, mobileweb]
         
       - name: map
         summary: The map view instance.
         type: Titanium.Map.View
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, mobileweb]
 
       - name: clicksource
         summary: Source of the click event, such as `pin`, or `leftButton`.
@@ -222,16 +239,16 @@ events:
       - name: latitude
         summary: Latitude of the clicked annotation.
         type: Number
-        platforms: [android]
+        platforms: [android, mobileweb]
     
       - name: longitude
         summary: Longitude of the clicked annotation.
         type: Number
-        platforms: [android]
+        platforms: [android, mobileweb]
 
   - name: complete
     summary: Fired when the map completes loading.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
 
   - name: error
     summary: Fired when the map receives a mapping error.
@@ -239,7 +256,7 @@ events:
 
   - name: loading
     summary: Fired when the map begins loading.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
 
   - name: regionChanged
     summary: Fired when the mapping region changes.
@@ -304,14 +321,14 @@ properties:
     summary: The amount of north-to-south distance displayed on the map, measured in decimal degrees.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
 
   - name: longitudeDelta
     summary: The amount of east-to-west distance displayed on the map, measured in decimal degrees.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
 
 ---

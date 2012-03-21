@@ -11,6 +11,7 @@ common_dir = os.path.join(os.path.dirname(this_dir), "common")
 sys.path.append(common_dir)
 import mako.template
 import simplejson
+from csspacker import CSSPacker
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store']
 ignoreDirs = ['.git','.svn','_svn','CVS']
@@ -285,7 +286,7 @@ class Compiler(object):
 			ti_timestamp          = self.package_json['titanium']['timestamp'],
 			ti_version            = sdk_version,
 			has_analytics_use_xhr = tiapp_xml['mobileweb']['analytics']['use-xhr'],
-			has_show_errors       = 'false' if deploytype == 'production' or tiapp_xml['mobileweb']['disable-error-screen'] == 'false' else 'true',
+			has_show_errors       = 'false' if deploytype == 'production' or tiapp_xml['mobileweb']['disable-error-screen'] == 'true' else 'true',
 			jsQuoteEscapeFilter   = lambda str: str.replace("\\\"","\\\\\\\"")
 		))
 		
@@ -415,14 +416,10 @@ class Compiler(object):
 
 		# build the titanium.css file
 		print '[INFO] Assembling titanium.css...'
-		self.ti_css_file = os.path.join(self.build_path, 'titanium.css')
-		ti_css = codecs.open(self.ti_css_file, 'w', encoding='utf-8')
+		ti_css = HEADER + '\n' + splash_css + '\n' + codecs.open(os.path.join(self.themes_path, 'common.css'), 'r', 'utf-8').read()
 		
 		# TODO: need to rewrite absolute paths for urls
-		ti_css.write(HEADER + '\n' + splash_css + '\n' + codecs.open(os.path.join(self.themes_path, 'common.css'), 'r', 'utf-8').read())
 		
-		# TODO: get theme from tiapp.xml
-		theme = 'titanium'
 		if len(theme):
 			theme_path = os.path.join(self.resources_path, 'themes', theme)
 			if not os.path.exists(theme_path):
@@ -436,7 +433,7 @@ class Compiler(object):
 					for filename in filenames:
 						fname, ext = os.path.splitext(filename.lower())
 						if ext == '.css':
-							ti_css.write(codecs.open(os.path.join(dirname, filename), 'r', 'utf-8').read())
+							ti_css += codecs.open(os.path.join(dirname, filename), 'r', 'utf-8').read()
 		
 		# detect any fonts and add font face rules to the css file
 		fonts = {}
@@ -448,10 +445,16 @@ class Compiler(object):
 						fonts[fname] = []
 					fonts[fname].append(os.path.join(dirname, filename)[len(self.resources_path):])
 		for font in fonts:
-			ti_css.write('@font-face{font-family:%s;src:url(%s);}\n' % (font, '),url('.join(fonts[font])))
+			ti_css += '@font-face{font-family:%s;src:url(%s);}\n' % (font, '),url('.join(fonts[font]))
 		
-		# close the titanium.css
-		ti_css.close()
+		# minify the css
+		if self.minify:
+			ti_css = CSSPacker(ti_css).pack()
+		
+		# write the titanium.css
+		ti_css_file = codecs.open(os.path.join(self.build_path, 'titanium.css'), 'w', encoding='utf-8')
+		ti_css_file.write(ti_css)
+		ti_css_file.close()
 		
 		# minify all javascript, html, and css files
 		if self.minify:
@@ -508,7 +511,7 @@ class Compiler(object):
 			splash_screen      = splash_html,
 			ti_generator       = 'Appcelerator Titanium Mobile ' + sdk_version,
 			ti_statusbar_style = status_bar_style,
-			ti_css             = codecs.open(self.ti_css_file, 'r', 'utf-8').read(),
+			ti_css             = ti_css,
 			ti_js              = codecs.open(self.ti_js_file, 'r', 'utf-8').read()
 		))
 		index_html_file.close()

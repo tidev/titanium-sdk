@@ -30,6 +30,10 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale", "Ti/_/
 
 			createUUID: _.uuid,
 
+			is24HourTimeFormat: function() {
+				return false;
+			},
+
 			openURL: function(url){
 				var win,
 					backButton,

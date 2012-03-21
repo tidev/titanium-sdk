@@ -50,8 +50,7 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 			},
 
 			createHTTPClient: function(args) {
-				var HTTPClient = require("Ti/Network/HTTPClient");
-				return new HTTPClient(args);
+				return new (require("Ti/Network/HTTPClient"))(args);
 			},
 
 			decodeURIComponent: function(value) {

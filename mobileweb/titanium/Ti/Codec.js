@@ -20,8 +20,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/Evented"], function(declare, lang, Ev
 
 		decodeString: function(args) {
 			(!args || !args.source) && paramError("source");
-			var Buffer = require("Ti/Buffer"),
-				b = args.source.buffer || "",
+			var b = args.source.buffer || "",
 				p = args.position | 0,
 				l = args.length;
 			return b.substring(p, l && p + l);
@@ -31,17 +30,15 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/Evented"], function(declare, lang, Ev
 			(!args || !args.source) && paramError("source");
 			args.dest || paramError("dest");
 			args.type || paramError("type");
-			var Buffer = require("Ti/Buffer");
-			return dest.append(new Buffer({ buffer: ""+parse(args.type, args.source.buffer) }));
+			return dest.append(new (require("Ti/Buffer"))({ buffer: ""+parse(args.type, args.source.buffer) }));
 		},
 
 		encodeString: function(args) {
 			(!args || !args.source) && paramError("source");
 			args.dest || paramError("dest");
-			var Buffer = require("Ti/Buffer"),
-				b = args.source.buffer || "",
+			var b = args.source.buffer || "",
 				p = args.destPosition | 0;
-			b = new Buffer({ buffer: b.substring(args.sourcePosition | 0, args.sourceLength || b.length) });
+			b = new (require("Ti/Buffer"))({ buffer: b.substring(args.sourcePosition | 0, args.sourceLength || b.length) });
 			return p ? dest.insert(b, p) : dest.append(b);
 		},
 
