@@ -29,14 +29,14 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale", "Ti/_/
 		battery = nav.battery || nav.webkitBattery || nav.mozBattery,
 		Platform = lang.setObject("Ti.Platform", Evented, {
 
+			canOpenURL: function(url) {
+				return !!url;
+			},
+
 			createUUID: _.uuid,
 
 			is24HourTimeFormat: function() {
 				return false;
-			},
-			
-			canOpenUrl: function() {
-				return true;
 			},
 
 			openURL: function(url){

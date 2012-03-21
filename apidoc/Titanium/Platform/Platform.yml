@@ -26,7 +26,10 @@ events:
 methods:
   - name: canOpenURL
     summary: |
-      Returns whether the system is configured with a default application to handle the URL's protocol.
+        Returns whether the system is configured with a default application to handle the URL's protocol.
+    description: |
+        On Mobile Web, this method always returns true, even if the browser can't open the specific URL, 
+        unless the URL is empty or undefined.
     returns:
         type: Boolean
     platforms: [iphone, ipad]
