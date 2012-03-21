@@ -7,8 +7,7 @@ define(
 		DoubleTap, LongPress, Pinch, SingleTap, Swipe, TouchCancel, TouchEnd,
 		TouchMove, TouchStart, TwoFingerTap) {
 
-	var undef,
-		unitize = dom.unitize,
+	var unitize = dom.unitize,
 		computeSize = dom.computeSize,
 		on = require.on,
 		setStyle = style.set,
@@ -412,13 +411,13 @@ define(
 			var defaultWidth = this._defaultWidth;
 			if (isDef(width)) {
 				if (isDef(left)) {
-					right = undef;
+					right = void 0;
 				} else if (isDef(centerX)){
 					if (width === UI.SIZE) {
 						left = "calculateDefault";
 					} else {
 						left = centerX - width / 2;
-						right = undef;
+						right = void 0;
 					}
 				} else if (!isDef(right)){
 					// Set the default position
@@ -428,7 +427,7 @@ define(
 				if (isDef(centerX)) {
 					if (isDef(left)) {
 						width = (centerX - left) * 2;
-						right = undef;
+						right = void 0;
 					} else if (isDef(right)) {
 						width = (right - centerX) * 2;
 					} else {
@@ -448,13 +447,13 @@ define(
 			var defaultHeight = this._defaultHeight;
 			if (isDef(height)) {
 				if (isDef(top)) {
-					bottom = undef;
+					bottom = void 0;
 				} else if (isDef(centerY)){
 					if(height === UI.SIZE) {
 						top = "calculateDefault";
 					} else {
 						top = centerY - height / 2;
-						bottom = undef;
+						bottom = void 0;
 					}
 				} else if (!isDef(bottom)) {
 					// Set the default position
@@ -464,7 +463,7 @@ define(
 				if (isDef(centerY)) {
 					if (isDef(top)) {
 						height = (centerY - top) * 2;
-						bottom = undef;
+						bottom = void 0;
 					} else if (isDef(bottom)) {
 						height = (bottom - centerY) * 2;
 					} else {
@@ -821,21 +820,21 @@ define(
 			this.enabled && this.fireEvent(type, e);
 		},
 		
-		_defaultBackgroundColor: undef,
+		_defaultBackgroundColor: void 0,
 		
-		_defaultBackgroundImage: undef,
+		_defaultBackgroundImage: void 0,
 		
-		_defaultBackgroundDisabledColor: undef,
+		_defaultBackgroundDisabledColor: void 0,
 		
-		_defaultBackgroundDisabledImage: undef,
+		_defaultBackgroundDisabledImage: void 0,
 		
-		_defaultBackgroundFocusedColor: undef,
+		_defaultBackgroundFocusedColor: void 0,
 		
-		_defaultBackgroundFocusedImage: undef,
+		_defaultBackgroundFocusedImage: void 0,
 		
-		_defaultBackgroundSelectedColor: undef,
+		_defaultBackgroundSelectedColor: void 0,
 		
-		_defaultBackgroundSelectedImage: undef,
+		_defaultBackgroundSelectedImage: void 0,
 
 		_doBackground: function(evt) {
 			var evt = evt || {},
@@ -910,9 +909,9 @@ define(
 					var transformCss = "";
 
 					// Set the color and opacity properties
-					anim.backgroundColor !== undef && (this.backgroundColor = anim.backgroundColor);
-					anim.opacity !== undef && setStyle(this.domNode, "opacity", anim.opacity);
-					setStyle(this.domNode, "display", anim.visible !== undef && !anim.visible ? "none" : "");
+					anim.backgroundColor !== void 0 && (this.backgroundColor = anim.backgroundColor);
+					anim.opacity !== void 0 && setStyle(this.domNode, "opacity", anim.opacity);
+					setStyle(this.domNode, "display", anim.visible !== void 0 && !anim.visible ? "none" : "");
 					
 					// Set the position and size properties
 					

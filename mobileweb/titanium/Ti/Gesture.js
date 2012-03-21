@@ -1,7 +1,6 @@
 define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI", "Ti/_/ready"], function(Evented, lang, UI, ready) {
 
-	var undef,
-		win = window,
+	var win = window,
 		on = require.on,
 		lastOrient = null,
 		lastShake = (new Date()).getTime(),
@@ -72,7 +71,7 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI", "Ti/_/ready"], function(Evented, l
 			};
 
 		if (accel) {
-			if (lastAccel.x !== undef) {
+			if (lastAccel.x !== void 0) {
 				x = Math.abs(lastAccel.x - accel.x) > 10;
 				y = Math.abs(lastAccel.y - accel.y) > 10;
 				z = Math.abs(lastAccel.z - accel.z) > 10;
