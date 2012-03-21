@@ -375,37 +375,30 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				}
 			},
 			maxRowHeight: {
-				post: function(value) {
+				post: function() {
 					this._refreshSections();
-					return value;
-				},
-				value: "100%"
+				}
 			},
 			minRowHeight: {
-				post: function(value) {
+				post: function() {
 					this._refreshSections();
-					return value;
-				},
-				value: "0%"
+				}
 			},
 			rowHeight: {
-				post: function(value) {
+				post: function() {
 					this._refreshSections();
-					return value;
 				},
 				value: "50px"
 			},
 			separatorColor: {
-				post: function(value) {
+				post: function() {
 					this._refreshSections();
-					return value;
 				},
 				value: "lightGrey"
 			},
 			separatorStyle: {
-				post: function(value) {
+				post: function() {
 					this._refreshSections();
-					return value;
 				},
 				value: TableViewSeparatorStyle.SINGLE_LINE
 			}
