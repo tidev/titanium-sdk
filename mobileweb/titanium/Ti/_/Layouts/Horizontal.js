@@ -37,11 +37,12 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 							 		horizontal: this._defaultHorizontalAlignment,
 							 		vertical: this._defaultVerticalAlignment
 							 	},
+							 	rightIsMargin: true,
 								positionElement: false,
 						 		layoutChildren: true
-							}).width;
+							}).effectiveWidth;
 						} else {
-							childWidth = child._measuredWidth;
+							childWidth = child._measuredEffectiveWidth;
 						}
 						availableWidth -= childWidth;
 					}
@@ -72,6 +73,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 					 		horizontal: this._defaultHorizontalAlignment,
 					 		vertical: this._defaultVerticalAlignment
 					 	},
+						rightIsMargin: true,
 					 	positionElement: true,
 					 	layoutChildren: !childrenWithFillWidth || isWidthFill
 				 	});
