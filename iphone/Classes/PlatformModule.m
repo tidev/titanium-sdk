@@ -200,13 +200,13 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 
 -(NSString*)macaddress
 {
-    // TODO: Because of how analytics grabs the macaddress via KVC, we cannot deprecate this property yet.
-//    DEPRECATED_REMOVED(@"Ti.Platform.macaddress", @"2.0.0", @"2.1.0");
-    return [self id];
+    DEPRECATED_REMOVED(@"Ti.Platform.macaddress", @"2.0.0", @"2.1.0");
+    return [TiUtils uniqueIdentifier];
 }
 
 -(id)id
 {
+    DEPRECATED_REPLACED_REMOVED(@"Ti.Platform.id", @"2.0.0", @"2.1.0", @"Ti.App.installId");
     return [TiUtils uniqueIdentifier];
 }
 

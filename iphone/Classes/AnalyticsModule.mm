@@ -309,16 +309,8 @@ NSString * const TI_DB_VERSION = @"1";
 	[dict setObject:[TiUtils UTCDate] forKey:@"ts"];
 	[dict setObject:[TiUtils createUUID] forKey:@"id"];
 	[dict setObject:NUMINT(sequence++) forKey:@"seq"];
-	[dict setObject:[TiUtils uniqueIdentifier] forKey:@"mid"];
-#if 0
-	// In 1.8, we'll be using this additional field for rotating IDs
-    if ([[UIDevice currentDevice] respondsToSelector:@selector(uniqueIdentifier)]) {
-    	NSString* uid = [[UIDevice currentDevice] uniqueIdentifier];
-    	if (uid) {
-	        [dict setObject:uid forKey:@"omid"];
-        }
-    }
-#endif
+	[dict setObject:[TiUtils uniqueIdentifier] forKey:@"iid "];
+
 	[dict setObject:TI_APPLICATION_GUID forKey:@"aguid"];
 	[dict setObject:TI_APPLICATION_DEPLOYTYPE forKey:@"deploytype"];
 	[dict setObject:name forKey:@"event"];
@@ -459,9 +451,6 @@ NSString * const TI_DB_VERSION = @"1";
 		
 		NSMutableDictionary *enrollment = [NSMutableDictionary dictionary];
 		
-        // TODO: We need to change this from being the macaddress (access possibly unallowed)
-        // to just being the app's UUID.
-		[enrollment setObject:[platform valueForKey:@"macaddress"] forKey:@"mac_addr"];
 		[enrollment setObject:[platform valueForKey:@"processorCount"] forKey:@"oscpu"];
 		[enrollment setObject:[platform valueForKey:@"ostype"] forKey:@"ostype"];
 		[enrollment setObject:[platform valueForKey:@"architecture"] forKey:@"osarch"];
