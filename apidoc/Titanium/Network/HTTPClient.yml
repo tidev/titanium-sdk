@@ -290,7 +290,7 @@ properties:
   - name: withCredentials
     summary: Tells the request to include any cookies and HTTP authentication information.
     description: |
-        This property must be set before open() is called.
+        This property must be set before open() is called. Setting this to true will force the request to be asynchronous.
     type: Boolean
     default: false
     platforms: [mobileweb]
