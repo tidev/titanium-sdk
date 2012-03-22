@@ -346,14 +346,20 @@
 
 -(CLLocationDegrees) longitudeDelta
 {
-    MKCoordinateRegion _region = [[self map] region];
-    return _region.span.longitudeDelta;
+    if (loaded) {
+        MKCoordinateRegion _region = [[self map] region];
+        return _region.span.longitudeDelta;
+    }
+    return 0.0;
 }
 
 -(CLLocationDegrees) latitudeDelta
 {
-    MKCoordinateRegion _region = [[self map] region];
-    return _region.span.latitudeDelta;
+    if (loaded) {
+        MKCoordinateRegion _region = [[self map] region];
+        return _region.span.latitudeDelta;
+    }
+    return 0.0;
 }
 
 
