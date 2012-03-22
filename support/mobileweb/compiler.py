@@ -52,7 +52,7 @@ class Compiler(object):
 		self.sdk_src_path = os.path.join(self.sdk_path, 'src')
 		self.themes_path = os.path.join(self.sdk_path, 'themes')
 		self.ti_package_path = os.path.join(self.sdk_path, 'titanium')
-		self.modules_path = os.path.abspath(os.path.join(self.sdk_path, '..', '..', '..', '..', 'modules', 'mobileweb'))
+		self.modules_path = os.path.abspath(os.path.join(self.sdk_path, '..', '..', '..', '..', 'modules'))
 		self.project_path = project_path
 		self.build_path = os.path.join(project_path, 'build', 'mobileweb')
 		self.resources_path = os.path.join(project_path, 'Resources')
@@ -140,23 +140,36 @@ class Compiler(object):
 			for module in tiapp_xml['modules']:
 				if module['platform'] == '' or module['platform'] == 'mobileweb':
 					if 'version' in module and module['version']:
+						# search <project dir>/modules/mobileweb/<module>/<version>/
 						module_dir = os.path.join(self.project_path, 'modules', 'mobileweb', module['id'], module['version'])
 						if not os.path.exists(module_dir):
-							module_dir = os.path.join(self.modules_path, module['id'], module['version'])
+							# search <project dir>/modules/commonjs/<module>/<version>/
+							module_dir = os.path.join(self.project_path, 'modules', 'commonjs', module['id'], module['version'])
 							if not os.path.exists(module_dir):
-								print '[ERROR] Unable to find Ti+ module "%s", v%s' % (module['id'], module['version'])
-								sys.exit(1)
+								# search <global module dir>/<module>/<version>/
+								module_dir = os.path.join(self.modules_path, 'mobileweb', module['id'], module['version'])
+								if not os.path.exists(module_dir):
+									# search <global commonjs dir>/<module>/<version>/
+									module_dir = os.path.join(self.modules_path, 'commonjs', module['id'], module['version'])
+									if not os.path.exists(module_dir):
+										print '[ERROR] Unable to find Ti+ module "%s", v%s' % (module['id'], module['version'])
+										sys.exit(1)
 					else:
-						module_path = os.path.join(self.project_path, 'modules', 'mobileweb', module['id'])
-						module_dir = None
-						module['version'] = '0.0.0'
-						for dir in os.listdir(module_path):
-							if compare_versions(module['version'], dir) == -1:
-								module['version'] = dir
-								module_dir = os.path.join(self.project_path, 'modules', 'mobileweb', module['id'], dir)
+						# no version number, gotta do it the hard way
+						# search <project dir>/modules/mobileweb/<module>/
+						module_dir = self.locate_module(os.path.join(self.project_path, 'modules', 'mobileweb', module['id']))
 						if module_dir is None:
-							print '[ERROR] Found Ti+ module "%s", but unable to find a version' % module['id']
-							sys.exit(1)
+							# search <project dir>/modules/commonjs/<module>/<version>/
+							module_dir = self.locate_module(os.path.join(self.project_path, 'modules', 'commonjs', module['id']))
+							if module_dir is None:
+								# search <global module dir>/<module>/<version>/
+								module_dir = self.locate_module(os.path.join(self.modules_path, 'mobileweb', module['id']))
+								if module_dir is None:
+									# search <global commonjs dir>/<module>/<version>/
+									module_dir = self.locate_module(os.path.join(self.modules_path, 'commonjs', module['id']))
+									if module_dir is None:
+										print '[ERROR] Unable to find Ti+ module "%s"' % module['id']
+										sys.exit(1)
 					
 					module_package_json_file = os.path.join(module_dir, 'package.json')
 					if not os.path.exists(module_package_json_file):
@@ -629,6 +642,15 @@ class Compiler(object):
 			print '[ERROR] Unable to open titanium package manifest "%s"' % package_json_file
 			sys.exit(1)
 		self.package_json = simplejson.load(codecs.open(package_json_file, 'r', 'utf-8'))
+	
+	def locate_module(self, path):
+		module_dir = None
+		module['version'] = '0.0.0'
+		for dir in os.listdir(path):
+			if compare_versions(module['version'], dir) == -1:
+				module['version'] = dir
+				module_dir = os.path.join(path, dir)
+		return module_dir
 	
 	def find_project_dependencies(self):
 		print '[INFO] Scanning project for dependencies...'
