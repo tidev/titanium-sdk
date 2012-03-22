@@ -157,7 +157,7 @@ properties:
         [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
     type: [Number,String]
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
-    platforms: [android]
+    platforms: [android, mobileweb]
 examples:
   - title: Simple Button Example
     example: |

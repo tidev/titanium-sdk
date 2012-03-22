@@ -19,7 +19,9 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					boxOrient: "horizontal",
 					boxPack: "center",
 					boxAlign: "center",
-					pointerEvents: "none"
+					pointerEvents: "none",
+					width: "100%",
+					height: "100%"
 				}
 			}, this.domNode);
 
@@ -166,7 +168,14 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				}
 			},
 			title: titlePost,
-			titleid: titlePost
+			titleid: titlePost,
+			verticalAlign: {
+				set: function(value) {
+					setStyle(this._contentContainer, "boxAlign", value === UI.TEXT_VERTICAL_ALIGNMENT_TOP ? "start" : value === UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM ? "end" : "center");
+					return value;
+				},
+				value: UI.TEXT_VERTICAL_ALIGNMENT_CENTER
+			}
 		}
 
 	});
