@@ -9,11 +9,19 @@ define(["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
 		},
 		
 		getSourceNode: function(evt, node) {
-			var sourceWidgetId = evt.target.getAttribute("data-widget-id"),
+			var currentNode = evt.target,
+				sourceWidgetId = currentNode.getAttribute("data-widget-id"),
 				nodeStack = [node],
-				currentNode,
 				i,
 				children;
+				
+			// Find the first fully fledged Ti component
+			while(!sourceWidgetId) {
+				currentNode = currentNode.parentNode;
+				sourceWidgetId = currentNode.getAttribute("data-widget-id");
+			}
+			
+			// Find the instance corresponding to the widget id
 			while(nodeStack.length > 0) {
 				currentNode = nodeStack.pop();
 				if (currentNode._alive) {
