@@ -1,12 +1,26 @@
-define(["Ti/_/declare", "Ti/Media", "Ti/UI/View"],
-	function(declare, Media, View) {
+define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/Media", "Ti/UI/View"],
+	function(declare, dom, event, lang, Media, View) {
 
-	var on = require.on,
+	var doc = document,
+		on = require.on,
+		prefixes = require.config.vendorPrefixes.dom,
 		STOPPED = 0,
 		STOPPING = 1,
 		PAUSED = 2,
 		PLAYING = 3,
-		nativeFullscreen,
+		requestFullScreen = "requestFullScreen",
+		exitFullScreen = "exitFullScreen",
+		nativeFullScreen = (function() {
+			for (var i = 0, prefix; i < prefixes.length; i++) {
+				prefix = prefixes[i].toLowerCase();
+				if (doc[prefix + "CancelFullScreen"]) {
+					requestFullScreen = prefix + "RequestFullScreen";
+					exitFullScreen = prefix + "ExitFullScreen";
+					return 1;
+				}
+			}
+			return !!doc.cancelFullScreen;
+		}()),
 		fakeFullscreen = true,
 		mimeTypes = {
 			"m4v": "video/mp4",
@@ -16,6 +30,10 @@ define(["Ti/_/declare", "Ti/Media", "Ti/UI/View"],
 			"ogv": "video/ogg",
 			"webm": "video/webm"
 		};
+
+	function isFullScreen(fs) {
+		return nativeFullScreen ? (!!doc.mozFullScreen || !!doc.webkitIsFullScreen) : !!fs;
+	}
 
 	return declare("Ti.Media.VideoPlayer", View, {
 
@@ -37,23 +55,17 @@ define(["Ti/_/declare", "Ti/Media", "Ti/UI/View"],
 				}
 			},
 			fullscreen: {
-				// TODO: Add check for Firefox <http://www.thecssninja.com/javascript/fullscreen>
-				value: (function(s) {
-					return s && s();
-				}(document.createElement("video").webkitDisplayingFullscreen)),
+				value: isFullScreen(),
 
 				set: function(value) {
 					var h,
 						v = this._video;
 
 					value = !!value;
-					if (nativeFullscreen) {
+					if (nativeFullScreen) {
 						try {
-							if (value) {
-								v.webkitEnterFullscreen();
-							} else {
-								v.webkitExitFullscreen();
-							}
+							value === isFullScreen() && (value = !value);
+							v[value ? requestFullScreen : exitFullScreen]();
 						} catch(ex) {}
 					} else if (fakeFullscreen) {
 						v.className = value ? "fullscreen" : "";
@@ -126,7 +138,7 @@ define(["Ti/_/declare", "Ti/Media", "Ti/UI/View"],
 			this.fireEvent("complete", {
 				reason: ended ? Media.VIDEO_FINISH_REASON_PLAYBACK_ENDED : Media.VIDEO_FINISH_REASON_USER_EXITED
 			});
-			ended && this.repeatMode === Media.VIDEO_REPEAT_MODE_ONE && setTimeout(function() { this._video.play(); }, 1);
+			ended && this.repeatMode === Media.VIDEO_REPEAT_MODE_ONE && setTimeout(lang.hitch(this, function() { this._video.play(); }), 1);
 		},
 
 		_stalled: function() {
@@ -134,13 +146,7 @@ define(["Ti/_/declare", "Ti/Media", "Ti/UI/View"],
 		},
 
 		_fullscreenChange: function(e) {
-			this.fullscreen && (this.fullscreen = !_fullscreen);
-		},
-
-		_metaDataLoaded: function() {
-			// TODO: Add check for Firefox <http://www.thecssninja.com/javascript/fullscreen>
-			nativeFullscreen = this._video.webkitSupportsFullscreen;
-			this._durationChange();
+			this.properties.__values__.fullscreen = !isFullScreen(this.fullscreen);
 		},
 
 		_durationChange: function() {
@@ -167,7 +173,7 @@ define(["Ti/_/declare", "Ti/Media", "Ti/UI/View"],
 		},
 
 		_createVideo: function(dontCreate) {
-			var i, src, match,
+			var i, match,
 				video = this._video,
 				url = this.url;
 
@@ -181,8 +187,9 @@ define(["Ti/_/declare", "Ti/Media", "Ti/UI/View"],
 
 			this.release();
 
-			video = this._video = document.createElement("video");
-			video.tabindex = 0;
+			video = this._video = dom.create("video", {
+				tabindex: 0
+			});
 
 			this.mediaControlStyle === Media.VIDEO_CONTROL_DEFAULT && (video.controls = 1);
 			this.scalingMode = Media.VIDEO_SCALING_ASPECT_FIT;
@@ -208,7 +215,7 @@ define(["Ti/_/declare", "Ti/Media", "Ti/UI/View"],
 				on(video, "loadeddata", this, function() {
 					this.fireEvent("load");
 				}),
-				on(video, "loadedmetadata", this, "_metaDataLoaded"),
+				on(video, "loadedmetadata", this, "_durationChange"),
 				on(video, "durationchange", this, "_durationChange"),
 				on(video, "timeupdate", this, function() {
 					this.constants.currentPlaybackTime = this._video.currentTime * 1000;
@@ -244,11 +251,11 @@ define(["Ti/_/declare", "Ti/Media", "Ti/UI/View"],
 			require.is(url, "Array") || (url = [url]);
 
 			for (i = 0; i < url.length; i++) {
-				src = document.createElement("source");
-				src.src = url[i];
 				match = url[i].match(/.+\.([^\/\.]+?)$/);
-				match && mimeTypes[match[1]] && (src.type = mimeTypes[match[1]]);
-				video.appendChild(src);
+				dom.create("source", {
+					src: url[i],
+					type: match && mimeTypes[match[1]]
+				}, video);
 			}
 
 			return video;
@@ -271,18 +278,22 @@ define(["Ti/_/declare", "Ti/Media", "Ti/UI/View"],
 			var i,
 				video = this._video,
 				parent = video && video.parentNode;
+			this._currentState = STOPPED;
+			this.constants.playing = false;
 			if (parent) {
-				require.each(this._handles, function(h) { h(); });
-				this._handles = [];
+				event.off(this._handles);
 				parent.removeChild(video);
 			}
 			this._video = null;
 		},
 
 		stop: function() {
+			var v = this._video;
 			this._currentState = STOPPING;
-			this._video.pause();
-			this._video.currentTime = 0;
+			if (v) {
+				v.pause();
+				v.currentTime = 0;
+			}
 		}
 
 	});
