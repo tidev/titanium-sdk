@@ -113,7 +113,7 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 		return;
 	}
 	CGSize imageSize = [backgroundImageCache size];
-	if((bounds.size.width>imageSize.width) && (bounds.size.height>imageSize.height)){
+	if((bounds.size.width>=imageSize.width) && (bounds.size.height>=imageSize.height)){
 		[button setBackgroundImage:backgroundImageCache forState:UIControlStateNormal];
 		return;
 	}
@@ -147,10 +147,7 @@ const UIControlEvents unHighlightingTouches = UIControlEventTouchCancel|UIContro
 {
 	if (button==nil)
 	{
-		id backgroundImage = [self.proxy valueForKey:@"backgroundImage"];
-        id backgroundImageD = [self.proxy valueForKey:@"backgroundDisabledImage"];
-		
-        BOOL hasImage = (backgroundImage!=nil)||(backgroundImageD!=nil);
+        BOOL hasImage = [self.proxy valueForKey:@"backgroundImage"]!=nil;
 		
         UIButtonType defaultType = (hasImage==YES) ? UIButtonTypeCustom : UIButtonTypeRoundedRect;
 		style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:defaultType];
