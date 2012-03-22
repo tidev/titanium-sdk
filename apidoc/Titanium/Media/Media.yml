@@ -6,7 +6,7 @@ description: |
     as playing audio or recording video.
 extends: Titanium.Module
 since: "0.1"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 methods:
   - name: beep
     summary: Plays a device beep notification.
@@ -149,7 +149,8 @@ methods:
   - name: vibrate
     summary: Makes the device vibrate.
     description: |
-        On Android, a `pattern` argument can be provided to specify a vibration pattern.
+        On Android and Mobile Web, a `pattern` argument can be provided to specify a
+        vibration pattern.
 
         The `pattern` is an array of Number values.  Each number in the array is 
         interpreted as a duration in milliseconds. The first number is the *delay* 
@@ -159,13 +160,15 @@ methods:
         [ 0, 500, 100, 500, 100, 500 ] 
 
         Would cause the vibration to start immediately (delay = 0), and perform three
-        long vibrations (500 ms) separated by short pauses (100ms). 
+        long vibrations (500 ms) separated by short pauses (100ms).
+        
+        On Mobile Web, calling `vibrate` without a `pattern` will stop the vibration.
     parameters: 
       - name: pattern
         summary: Array of values identifying a vibrate pattern (only used on Android).
         optional: true
         type: Array<Number>
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, mobileweb]
 events:
   - name: linechange
     summary: Fired when an audio line type change is detected.
