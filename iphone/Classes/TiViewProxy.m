@@ -2218,8 +2218,12 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             }
         }
         else {
+            //This block takes care of auto,SIZE and FILL. If it is size ensure followsFillBehavior is set to false
             recalculateWidth = YES;
             desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offset,boundingHeight - offset2)] + offset;
+            if (TiDimensionIsAutoSize(constraint)) {
+                followsFillBehavior = NO;
+            }
         }
         CGFloat desiredHeight;
         BOOL childIsFixedHeight = TiDimensionIsPercent([child layoutProperties]->height) || TiDimensionIsDip([child layoutProperties]->height);
