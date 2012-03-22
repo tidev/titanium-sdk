@@ -459,6 +459,8 @@ NSString * const TI_DB_VERSION = @"1";
 		
 		NSMutableDictionary *enrollment = [NSMutableDictionary dictionary];
 		
+        // TODO: We need to change this from being the macaddress (access possibly unallowed)
+        // to just being the app's UUID.
 		[enrollment setObject:[platform valueForKey:@"macaddress"] forKey:@"mac_addr"];
 		[enrollment setObject:[platform valueForKey:@"processorCount"] forKey:@"oscpu"];
 		[enrollment setObject:[platform valueForKey:@"ostype"] forKey:@"ostype"];
