@@ -694,7 +694,8 @@ class Compiler(object):
 			'Ti/UI/TextField',
 			'Ti/UI/WebView',
 			'Ti/UI/MobileWeb/NavigationGroup',
-			'Ti/Utils'
+			'Ti/Utils',
+			'Ti/Yahoo'
 		]
 	
 	def parse_deps(self, deps):
