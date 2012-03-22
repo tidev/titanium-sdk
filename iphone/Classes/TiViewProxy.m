@@ -2336,7 +2336,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                 bounds.size.width = boundingWidth;
                 horizontalLayoutBoundary = 0.0;
                 horizontalLayoutRowHeight = 0.0;
-                verticalLayoutBoundary += horizontalLayoutRowHeight;
+                verticalLayoutBoundary += bounds.size.height;
             }
             else
             {
