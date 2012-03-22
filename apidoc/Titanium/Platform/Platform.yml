@@ -134,11 +134,12 @@ properties:
     permission: read-only
     
   - name: id
-    summary: The system's globally-unique ID (UUID).
+    summary: The applications's globally-unique ID (UUID).
+    description: |
+        On Android, this may be the device's UDID. For iOS, this
+        is a unique identifier for this install of the application.
     type: String
     permission: read-only
-    deprecated:
-        since: "1.8.0"
         
   - name: locale
     summary: The system's default language.
@@ -152,7 +153,11 @@ properties:
     permission: read-only
     
   - name: macaddress
-    summary: The system's network interface mac address.
+    summary: The system's network interface mac address, or app UUID.
+    description: |
+        On iOS, this value is the app's UUID. Apple does not allow
+        access to any mac address information as it can be used for
+        unique device identification.
     type: String
     permission: read-only
     
