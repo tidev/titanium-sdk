@@ -14,12 +14,16 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI"],
 					display: ["-webkit-box", "-moz-box"],
 					boxOrient: "horizontal",
 					boxPack: "center",
-					boxAlign: "center"
+					boxAlign: "center",
+					pointerEvents: "none"
 				}
 			}, this.domNode);
 
 			this._tabIcon = dom.create("img", {
-				className: "TiUITabImage"
+				className: "TiUITabImage",
+				style: {
+					pointerEvents: "none"
+				}
 			}, container);
 
 			this._tabTitle = dom.create("div", {

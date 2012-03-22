@@ -52,7 +52,8 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 					borderRadius: "3px",
 					height: "0px",
 					bottom: "0px",
-					opacity: 0
+					opacity: 0,
+					pointerEvents: "none"
 				}
 			}, this.domNode);
 		},
@@ -72,7 +73,8 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 					borderRadius: "3px",
 					width: "0px",
 					right: "0px",
-					opacity: 0
+					opacity: 0,
+					pointerEvents: "none"
 				}
 			}, this.domNode);
 		},

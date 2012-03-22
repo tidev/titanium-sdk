@@ -34,7 +34,8 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/sty
 					style: {
 						transform: "translate(16px,0px) rotate(" + i * 30 + "deg)",
 						transformOrigin: "2px 18px",
-						opacity: opacity
+						opacity: opacity,
+						pointerEvents: "none"
 					}
 				}, this._indicatorIndicator));
 			}
