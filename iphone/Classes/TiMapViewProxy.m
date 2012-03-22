@@ -15,10 +15,11 @@
 
 -(NSArray *)keySequence
 {
-	return [NSArray arrayWithObjects:
-			@"animate",
-			@"location",
-			nil];
+    return [NSArray arrayWithObjects:
+            @"animate",
+            @"location",
+            @"regionFit",
+            nil];
 }
 
 -(void)_destroy
