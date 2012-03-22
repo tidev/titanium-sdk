@@ -357,6 +357,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	return TI_APPLICATION_ID;
 }
 
+-(id)installId
+{
+    return [TiUtils uniqueIdentifier];
+}
+
 -(id)id
 {
 	return TI_APPLICATION_ID;
