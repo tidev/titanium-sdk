@@ -17,13 +17,17 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				style: {
 					display: ["-webkit-box", "-moz-box"],
 					boxOrient: "vertical",
-					boxPack: "center"
+					boxPack: "center",
+					pointerEvents: "none"
 				}
 			}, this.domNode);
 
 			// Create the container div. This gets floated by the flexbox
 			this.textContainerDiv = dom.create("div", {
-				className: css.clean("TiUILabelTextContainer")
+				className: css.clean("TiUILabelTextContainer"),
+				style: {
+					pointerEvents: "none"
+				}
 			}, aligner);
 
 			this._addStyleableDomNode(this.textContainerDiv);

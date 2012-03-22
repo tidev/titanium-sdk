@@ -8,11 +8,17 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 
 		constructor: function(args) {
 			this._track = dom.create("div", {
-				className: "TiUISliderTrack"
+				className: "TiUISliderTrack",
+				style: {
+					pointerEvents: "none"
+				}
 			}, this.domNode);
 			
 			this._thumb = dom.create("div", {
-				className: "TiUIElementGradient TiUISliderThumb"
+				className: "TiUIElementGradient TiUISliderThumb",
+				style: {
+					pointerEvents: "none"
+				}
 			}, this.domNode);
 			
 			var initialPosition,

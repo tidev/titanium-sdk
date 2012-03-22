@@ -20,7 +20,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					boxPack: "center",
 					boxAlign: "stretch",
 					width: "100%",
-					height: "100%"
+					height: "100%",
+					pointerEvents: "none"
 				}
 			}, this.domNode)
 			
@@ -32,7 +33,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					boxOrient: "vertical",
 					boxPack: "center",
 					boxAlign: "center",
-					boxFlex: 1
+					boxFlex: 1,
+					pointerEvents: "none"
 				}
 			}, this._contentContainer);
 			this._switchTitle = dom.create("div", {
@@ -40,7 +42,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				style: {
 					whiteSpace: "nowrap",
 					pointerEvents: "none",
-					textAlign: "center"
+					textAlign: "center",
+					pointerEvents: "none"
 				}
 			}, this._titleContainer);
 			this._addStyleableDomNode(this._switchTitle);
@@ -52,7 +55,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					display: ["-webkit-box", "-moz-box"],
 					boxPack: "center",
 					boxAlign: "center",
-					marginTop: "3px"
+					marginTop: "3px",
+					pointerEvents: "none"
 				}
 			}, this._contentContainer);
 			this._switchIndicator = dom.create("div", {
@@ -62,7 +66,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					borderRadius: "4px",
 					border: "1px solid #888",
 					pointerEvents: "none",
-					width: "40px"
+					width: "40px",
+					pointerEvents: "none"
 				}
 			}, this._indicatorContainer);
 			this._switchIndicator.domNode += " TiUISwitchIndicator";

@@ -14,7 +14,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 						top: unitizedBorderRadius,
 						right: unitizedBorderRadius,
 						bottom: unitizedBorderRadius,
-						position: "absolute"
+						position: "absolute",
+						pointerEvents: "none"
 					}
 				}, this.domNode);
 				var currentValue = this._input.value,
@@ -81,7 +82,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 		var inputRuler = dom.create("input", {
 			style: {
 				height: "auto",
-				width: "auto"
+				width: "auto",
+				pointerEvents: "none"
 			}
 		}, document.body);
 		

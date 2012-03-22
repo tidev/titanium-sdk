@@ -39,7 +39,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					height: "1em",
 					width: "100%",
 					marginTop: "-0.5em",
-					textAlign: "center"
+					textAlign: "center",
+					pointerEvents: "none"
 				}
 			}, this.domNode);
 			this._addStyleableDomNode(titleContainer);
@@ -148,7 +149,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					width: "100%",
 					borderTop: "1px solid #666",
 					fontSize: "28px",
-						cursor: "pointer"
+					cursor: "pointer"
 				}
 			}, this.domNode);
 			downArrow.innerHTML = "\u2228";
