@@ -1,5 +1,5 @@
-define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network", "Ti/Blob"],
-	function(_, declare, lang, Evented, Network, Blob) {
+define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network", "Ti/Blob", "Ti/_/event"],
+	function(_, declare, lang, Evented, Network, Blob, event) {
 
 	var is = require.is,
 		on = require.on;
@@ -9,17 +9,18 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network", "Ti/B
 		constructor: function() {
 			var xhr = this._xhr = new XMLHttpRequest;
 
-			on(xhr, "error", this, "_onError");
-			on(xhr.upload, "error", this, "_onError");
-
-			on(xhr, "progress", this, function(evt) {
-				evt.progress = evt.lengthComputable ? evt.loaded / evt.total : false;
-				is(this.ondatastream, "Function") && this.ondatastream.call(this, evt);
-			});
-			on(xhr.upload, "progress", this, function(evt) {
-				evt.progress = evt.lengthComputable ? evt.loaded / evt.total : false;
-				is(this.onsendstream, "Function") && this.onsendstream.call(this, evt);
-			});
+			this._handles = [
+				on(xhr, "error", this, "_onError"),
+				on(xhr.upload, "error", this, "_onError"),
+				on(xhr, "progress", this, function(evt) {
+					evt.progress = evt.lengthComputable ? evt.loaded / evt.total : false;
+					is(this.ondatastream, "Function") && this.ondatastream.call(this, evt);
+				}),
+				on(xhr.upload, "progress", this, function(evt) {
+					evt.progress = evt.lengthComputable ? evt.loaded / evt.total : false;
+					is(this.onsendstream, "Function") && this.onsendstream.call(this, evt);
+				})
+			];
 
 			xhr.onreadystatechange = lang.hitch(this, function() {
 				var c = this.constants;
@@ -58,6 +59,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network", "Ti/B
 				this._xhr.abort();
 				this._xhr = null;
 			}
+			event.off(this._handles);
 			Evented.destroy.apply(this, arguments);
 		},
 
