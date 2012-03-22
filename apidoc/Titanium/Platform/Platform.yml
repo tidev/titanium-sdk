@@ -115,6 +115,8 @@ properties:
     description: |
         On Android, this may be the device's UDID. For iOS, this
         is a unique identifier for this install of the application.
+        
+        Currently the deprecation cycle applies to iOS only.
     type: String
     permission: read-only
   - name: locale
@@ -127,6 +129,8 @@ properties:
         On iOS, this value is the app's UUID. Apple does not allow
         access to any mac address information as it can be used for
         unique device identification.
+        
+        Currently the deprecation cycle applies to iOS only.
     type: String
     permission: read-only
   - name: model
