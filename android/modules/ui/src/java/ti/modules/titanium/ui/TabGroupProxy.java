@@ -313,8 +313,9 @@ public class TabGroupProxy extends TiWindowProxy
 		opened = true;
 		super.handlePostOpen();
 		fireEvent(TiC.EVENT_OPEN, null);
-		//fires open event to the current tab's window as well.
-		getActiveTab().getWindow().fireEvent(TiC.EVENT_OPEN, null);
+
+		// open event's for a tab window should be fired as part of the windowCreated callback that 
+		// is set as part of the fillIntentForTab call
 	}
 
 	@Override
