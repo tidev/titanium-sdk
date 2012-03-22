@@ -666,6 +666,7 @@ class Compiler(object):
 			'Ti/Map/Annotation',
 			'Ti/Media/VideoPlayer',
 			'Ti/UI',
+			'Ti/UI/Clipboard',
 			'Ti/UI/MobileWeb',
 			'Ti/UI/TableViewRow',
 			'Ti/UI/Tab',
