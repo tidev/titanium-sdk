@@ -355,6 +355,9 @@ return [NSNumber numberWithUnsignedInt:map];\
 return map;\
 }\
 
+#define DEPRECATED(api,in) \
+NSLog(@"[WARN] Ti%@.%@ DEPRECATED in %@",@"tanium",api,in);
+    
 #define DEPRECATED_REMOVED(api,in,removed) \
 NSLog(@"[WARN] Ti%@.%@ DEPRECATED in %@: REMOVED in %@",@"tanium",api,in,removed);
     

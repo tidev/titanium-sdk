@@ -1552,6 +1552,16 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 
 +(NSString*)uniqueIdentifier
 {
+    NSString* result = nil;
+    UIDevice* currentDevice = [UIDevice currentDevice];
+    if ([currentDevice respondsToSelector:@selector(uniqueIdentifier)]) {
+        result = [currentDevice uniqueIdentifier];
+    }
+    return result;
+}
+
++(NSString*)installIdentifier
+{
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     NSString* uid = [defaults stringForKey:kAppUUIDString];
     if (uid == nil) {
