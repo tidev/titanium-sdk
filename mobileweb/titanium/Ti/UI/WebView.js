@@ -9,6 +9,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 			App.addEventListener(this.widgetId + ":unload", lang.hitch(this, function() {
 				this._loading(1);
 			}));
+			this.backgroundColor = "#fff";
 		},
 
 		destroy: function() {
@@ -42,7 +43,6 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 						scrolling: this.showScrollbars ? "auto" : "no",
 						src: url || require.toUrl("Ti/_/UI/blank.html"),
 						style: {
-							backgroundColor: "#fff",
 							width: "100%",
 							height: "100%"
 						}

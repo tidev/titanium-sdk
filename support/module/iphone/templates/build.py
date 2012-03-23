@@ -6,7 +6,6 @@
 import os, subprocess, sys, glob, string
 import zipfile
 from datetime import date
-from tools import ensure_dev_path
 
 cwd = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 os.chdir(cwd)
@@ -53,9 +52,7 @@ def generate_doc(config):
 	if not os.path.exists(docdir):
 		print "Couldn't find documentation file at: %s" % docdir
 		return None
-	sdk = find_sdk(config)
-	common_support_dir = os.path.join(sdk, 'common')
-	sys.path.append(common_support_dir)
+		
 	try:
 		import markdown2 as markdown
 	except ImportError:
@@ -71,13 +68,9 @@ def generate_doc(config):
 
 def compile_js(manifest,config):
 	js_file = os.path.join(cwd,'assets','__MODULE_ID__.js')
-	if not os.path.exists(js_file): return
-	
-	sdk = find_sdk(config)
-	iphone_dir = os.path.join(sdk,'iphone')
-	sys.path.insert(0,iphone_dir)
+	if not os.path.exists(js_file): return	
+
 	from compiler import Compiler
-	sys.path.append(os.path.join(sdk, "common"))
 	try:
 		import json
 	except:
@@ -166,7 +159,9 @@ def glob_libfiles():
 	return files
 
 def build_module(manifest,config):
+	from tools import ensure_dev_path
 	ensure_dev_path()
+	
 	rc = os.system("xcodebuild -sdk iphoneos -configuration Release")
 	if rc != 0:
 		die("xcodebuild failed")
@@ -213,6 +208,11 @@ if __name__ == '__main__':
 	manifest,mf = validate_manifest()
 	validate_license()
 	config = read_ti_xcconfig()
+	
+	sdk = find_sdk(config)
+	sys.path.insert(0,os.path.join(sdk,'iphone'))
+	sys.path.append(os.path.join(sdk, "common"))
+	
 	compile_js(manifest,config)
 	build_module(manifest,config)
 	package_module(manifest,mf,config)

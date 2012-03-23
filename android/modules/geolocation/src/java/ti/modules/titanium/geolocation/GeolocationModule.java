@@ -610,11 +610,21 @@ public class GeolocationModule extends KrollModule
 	 */
 	public void registerLocationProvider(LocationProviderProxy locationProvider)
 	{
-		tiLocation.locationManager.requestLocationUpdates(
-				TiConvert.toString(locationProvider.getProperty(TiC.PROPERTY_NAME)), 
-				(long) locationProvider.getMinUpdateTime(),
-				(float) locationProvider.getMinUpdateDistance(),
-				locationProvider);
+		String provider = TiConvert.toString(locationProvider.getProperty(TiC.PROPERTY_NAME));
+
+		try {
+			tiLocation.locationManager.requestLocationUpdates(
+					provider, 
+					(long) locationProvider.getMinUpdateTime(),
+					(float) locationProvider.getMinUpdateDistance(),
+					locationProvider);
+
+		} catch (IllegalArgumentException e) {
+			Log.e(TAG, "unable to register [" + provider + "], provider is null");
+
+		} catch (SecurityException e) {
+			Log.e(TAG, "unable to register [" + provider + "], permission denied");
+		}
 	}
 
 	/**

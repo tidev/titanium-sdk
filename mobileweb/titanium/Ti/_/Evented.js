@@ -1,4 +1,6 @@
 define(function() {
+	
+	var is = require.is;
 
 	return {
 		destroy: function() {
@@ -31,17 +33,35 @@ define(function() {
 
 		fireEvent: function(name, eventData) {
 			var i = 0,
-				events = this.listeners && this.listeners[name],
-				l = events && events.length,
+				modifiers = this._modifiers && this._modifiers[name],
+				listeners = this.listeners && this.listeners[name],
+				l = modifiers && modifiers.length,
 				data = require.mix({
 					source: this,
 					type: name
 				}, eventData);
-
+				
 			while (i < l) {
-				events[i++].call(this, data);
+				modifiers[i++].call(this, data);
 			}
-		}
+
+			i = 0;
+			l = listeners && listeners.length;
+			while (i < l) {
+				listeners[i++].call(this, data);
+			}
+		},
+		
+		_addEventModifier: function(name, handler) {
+			this._modifiers || (this._modifiers = {});
+			if (is(name,"Array")) {
+				for (var i in name){
+					(this._modifiers[name[i]] = this._modifiers[name[i]] || []).push(handler);
+				}
+			} else {
+				(this._modifiers[name] = this._modifiers[name] || []).push(handler);
+			}
+		},
 	};
 
 });
