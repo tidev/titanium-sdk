@@ -52,9 +52,7 @@ def generate_doc(config):
 	if not os.path.exists(docdir):
 		print "Couldn't find documentation file at: %s" % docdir
 		return None
-	sdk = find_sdk(config)
-	common_support_dir = os.path.join(sdk, 'common')
-	sys.path.append(common_support_dir)
+		
 	try:
 		import markdown2 as markdown
 	except ImportError:
@@ -73,8 +71,6 @@ def compile_js(manifest,config):
 	if not os.path.exists(js_file): return	
 
 	from compiler import Compiler
-
-	sys.path.append(os.path.join(sdk, "common"))
 	try:
 		import json
 	except:
