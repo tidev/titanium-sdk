@@ -76,6 +76,12 @@ methods:
         type: Number
         optional: true
     
+  - name: fieldCount
+    summary: Returns the number of columns in this result set.
+    returns:
+        type: Number
+    platforms: [iphone, ipad]
+    
   - name: fieldName
     summary: Returns the field name for the specified field index.
     returns:
