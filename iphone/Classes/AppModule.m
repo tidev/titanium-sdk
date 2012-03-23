@@ -358,7 +358,7 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(id)installId
 {
-    return [TiUtils uniqueIdentifier];
+    return [TiUtils installIdentifier];
 }
 
 -(id)id
