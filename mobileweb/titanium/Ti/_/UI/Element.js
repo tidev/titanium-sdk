@@ -2,10 +2,10 @@ define(
 	["Ti/_/browser", "Ti/_/css", "Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/Evented",
 	"Ti/UI", "Ti/_/Gestures/DoubleTap","Ti/_/Gestures/LongPress","Ti/_/Gestures/Pinch","Ti/_/Gestures/SingleTap",
 	"Ti/_/Gestures/Swipe","Ti/_/Gestures/TouchCancel","Ti/_/Gestures/TouchEnd","Ti/_/Gestures/TouchMove",
-	"Ti/_/Gestures/TouchStart","Ti/_/Gestures/TwoFingerTap"],
+	"Ti/_/Gestures/TouchStart","Ti/_/Gestures/TwoFingerTap", "Ti/_/Promise"],
 	function(browser, css, declare, dom, event, lang, style, Evented, UI,
 		DoubleTap, LongPress, Pinch, SingleTap, Swipe, TouchCancel, TouchEnd,
-		TouchMove, TouchStart, TwoFingerTap) {
+		TouchMove, TouchStart, TwoFingerTap, Promise) {
 
 	var unitize = dom.unitize,
 		computeSize = dom.computeSize,
