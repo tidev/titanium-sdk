@@ -15,6 +15,7 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.content.Intent;
 
 @Kroll.proxy(creatableInModule=UIModule.class,
 propertyAccessors = {
@@ -26,6 +27,7 @@ public class TabProxy extends TiViewProxy
 {
 	private TiWindowProxy win;
 	private TabGroupProxy tabGroupProxy;
+	private int windowId;
 
 	public TabProxy()
 	{
@@ -99,6 +101,15 @@ public class TabProxy extends TiViewProxy
 		this.tabGroupProxy = tabGroupProxy;
 	}
 
+	public void setWindowId(int id)
+	{
+		windowId = id;
+	}
+	
+	public int getWindowId() 
+	{
+		return windowId;
+	}
 	@Override
 	public void releaseViews()
 	{
