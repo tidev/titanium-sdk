@@ -61,10 +61,10 @@ public class TextFieldProxy extends TiViewProxy
 	@Kroll.method
 	public Boolean hasText()
 	{
-		if (view == null)
-		{
-			return false;
+		Object text = getProperty(TiC.PROPERTY_VALUE);
+		if (text != null && text instanceof String) {
+			return (((String)text).length() > 0);
 		}
-		return ((TiUIText)view).hasText();
+		return false;
 	}
 }

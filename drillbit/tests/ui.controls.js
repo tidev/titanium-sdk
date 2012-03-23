@@ -21,31 +21,31 @@ describe("Ti.UI control tests", {
 		valueOf(hasText).shouldBe(false);
 		
 		var textArea2 = Ti.UI.createTextArea({
-			value: "This is the text."
+			value : 'I am a textarea'   
 		});
 		hasText = textArea2.hasText();
 		valueOf(hasText).shouldBe(true);
+		
+		var textArea3 = Ti.UI.createTextArea({
+			value : '',
+		});
+		hasText = textArea3.hasText();
+		valueOf(hasText).shouldBe(false);
 		
 		var	textField1 = Ti.UI.createTextField();
 		hasText = textField1.hasText();
 		valueOf(hasText).shouldBe(false);
 		
 		var textField2 = Ti.UI.createTextField({
-			value : 'I am a textarea',
-		    height : 70,
-		    width : 300,
-		    top : 60,
-		    font : {fontSize:20,fontFamily:'Marker Felt', fontWeight:'bold'},
-		    color : '#888',
-		    textAlign : 'left',
-		    appearance : Titanium.UI.KEYBOARD_APPEARANCE_ALERT, 
-		    keyboardType : Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION,
-		    returnKeyType : Titanium.UI.RETURNKEY_EMERGENCY_CALL,
-		    borderWidth : 2,
-		    borderColor : '#bbb',
-		    borderRadius : 5
+			value: "I am a textfield"
 		});
 		hasText = textField2.hasText();
 		valueOf(hasText).shouldBe(true);
+		
+		var textField3 = Ti.UI.createTextField({
+			value : '',
+		});
+		hasText = textField3.hasText();
+		valueOf(hasText).shouldBe(false);
 	} 
 });

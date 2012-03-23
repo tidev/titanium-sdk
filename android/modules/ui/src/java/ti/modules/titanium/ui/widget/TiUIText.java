@@ -484,10 +484,4 @@ public class TiUIText extends TiUIView
 				break;
 		}
 	}
-	
-	public Boolean hasText()
-	{
-		Editable temp = tv.getText();
-		return (temp != null && temp.length() > 0);
-	}
 }
