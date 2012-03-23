@@ -1,11 +1,11 @@
-name: Titanium.Push
-summary: Provides methods for accessing Android push notifications from ACS, or another MQTT server.
+name: Titanium.CloudPush
+summary: Provides methods for accessing Android push notifications from ACS using the MQTT protocol.
 description: |
     The MQTT protocol is a very lightweight, long lived connection to a server. It is perfect for keeping mobile devices
     in connection with a server, while not significantly degrading their battery life.
     
     In addition to communicating with an MQTT server, this module can also present tray notifications to the user.
-    Please refer to the [showTrayNotification](Titanium.Push.showTrayNotification) property to see more information
+    Please refer to the [showTrayNotification](Titanium.CloudPush.showTrayNotification) property to see more information
     about this.
     
     Note that this module is not included in the Titanium namespace, but it is bundled with the Titanium SDK as of
@@ -13,6 +13,25 @@ description: |
     
         var Push = require('ti.push');
     
+    Your app must prove that it is allowed to talk to ACS. This keeps your data secure by preventing anyone from
+    making requests to ACS that impersonate your app.
+
+    Titanium Studio will create a pair of keys (Development and Production) for each Titanium application depending on the
+    user preference specified during new project creation. This pair of keys will be stored in `tiapp.xml` and one of the
+    keys will be used during application build depending on the build type (development or production).
+
+    The supported properties in `tiapp.xml` are:
+
+        <property name="acs-api-key-development" type="string">YOUR DEVELOPMENT API KEY HERE</property>
+
+        <property name="acs-api-key-production" type="string">YOUR PRODUCTION API KEY HERE</property>
+
+        <property name="acs-api-key" type="string">YOUR API KEY HERE</property>
+
+    The value for each setting that will be used is based on the following rules:
+
+    * If a deployment-specific setting is provided (production or development) then that value will be used for the current deployment environment.
+
     *WARNING*: The default properties of this module are used until you set a property for the first time. Because the
     properties are persisted to the device settings (via <Titanium.App.Properties>), the most recent value you set will
     always be used.
@@ -41,7 +60,7 @@ properties:
         Also be aware that whenever your application is updated (through the market or through ADB installing a new
         APK), the push service will be stopped until the app is launched for the first time.
         
-        Listen for this module's [callback](Titanium.Push.callback) event to receive push notifications once this
+        Listen for this module's [callback](Titanium.CloudPush.callback) event to receive push notifications once this
         property is set to true.
     type: Boolean
     default: false
@@ -58,16 +77,16 @@ properties:
   - name: showAppOnTrayClick
     summary: Whether or not clicking the tray notification will bring your application to the foreground.
     description: |
-        This is only applicable if you have set [showTrayNotification](Titanium.Push.showTrayNotification) to true.
+        This is only applicable if you have set [showTrayNotification](Titanium.CloudPush.showTrayNotification) to true.
     type: Boolean
     default: true
   - name: showTrayNotificationsWhenFocused
     summary: Whether or not to show tray notifications when your application is in the foreground.
     description: |
-        Instead of showing a notification, the [callback](Titanium.Push.callback) event will be immediately fired
+        Instead of showing a notification, the [callback](Titanium.CloudPush.callback) event will be immediately fired
         instead.
         
-        This is only applicable if you have set [showTrayNotification](Titanium.Push.showTrayNotification) to true.
+        This is only applicable if you have set [showTrayNotification](Titanium.CloudPush.showTrayNotification) to true.
     type: Boolean
     default: false
   - name: focusAppOnPush
@@ -76,47 +95,19 @@ properties:
         Note that this behavior is rather disruptive to users, and is strongly discouraged.
     type: Boolean
     default: false
-  - name: host
-    summary: The host that will serve push notifications for your application via the MQTT protocol.
-    description: |
-        To use this module with ACS, you do not need to change this value.
-    type: String
-    default: api.cloud.appcelerator.com
-  - name: port
-    summary: The port on which your server is listening for MQTT connections.
-    description: |
-        To use this module with ACS, you do not need to change this value.
-    type: String
-    default: 1883
-  - name: keepAlive
-    summary: The number of seconds between keep-alive pings between the client and the server.
-    description: |
-        A lower number will mean greater battery drain but also shorter possible delays between push notifications. A
-        higher number will mean better battery life but a higher probability of disconnects and longer possible delays
-        between push notifications. Changing this value is not recommended.
-        
-        To use this module with ACS, you do not need to change this value.
-    type: Number
-    default: 1883
-  - name: suffixClientID
-    summary: The suffix for all communications with the MQTT server.
-    description: |
-        To use this module with ACS, you do not need to change this value.
-    type: String
-    default: CF
 events:
   - name: trayClickLaunchedApp
     summary: Fired when a tray notification is shown and the application is not running.
     description: |
         Touching it launches the app, and fires this event.
         
-        This is only applicable if you have set [showTrayNotification](Titanium.Push.showTrayNotification) to true.
+        This is only applicable if you have set [showTrayNotification](Titanium.CloudPush.showTrayNotification) to true.
   - name: trayClickFocusedApp
     summary: Fired when a tray notification is shown and the application is already running.
     description: |
         Touching it focuses the app, and fires this event.
         
-        This is only applicable if you have set [showTrayNotification](Titanium.Push.showTrayNotification) to true.
+        This is only applicable if you have set [showTrayNotification](Titanium.CloudPush.showTrayNotification) to true.
   - name: callback
     summary: Fired whenever a push notification is received.
     description: |
@@ -126,16 +117,16 @@ events:
         This will only be fired once per push notification.
 
         This event will be fired at different times depending on your settings and the application's present state
-        (foreground, background, or not running at all). When [focusAppOnPush](Titanium.Push.focusAppOnPush) is true, this
-        will fire as soon as you receive a push. When [showTrayNotification](Titanium.Push.showTrayNotification) is true, this
+        (foreground, background, or not running at all). When [focusAppOnPush](Titanium.CloudPush.focusAppOnPush) is true, this
+        will fire as soon as you receive a push. When [showTrayNotification](Titanium.CloudPush.showTrayNotification) is true, this
         will fire as soon as the user touches the tray notification to focus your application. Or, if
-        [showTrayNotificationsWhenFocused](Titanium.Push.showTrayNotificationsWhenFocused) is false, and your application is
-        in the foreground, it will be called right away. If both [focusAppOnPush](Titanium.Push.focusAppOnPush)
-        and [showTrayNotification](Titanium.Push.showTrayNotification) are false, this will fire the next time your
+        [showTrayNotificationsWhenFocused](Titanium.CloudPush.showTrayNotificationsWhenFocused) is false, and your application is
+        in the foreground, it will be called right away. If both [focusAppOnPush](Titanium.CloudPush.focusAppOnPush)
+        and [showTrayNotification](Titanium.CloudPush.showTrayNotification) are false, this will fire the next time your
         application is launched and you add an event listener for it.
 
-        You can use the [trayClickLaunchedApp](Titanium.Push.trayClickLaunchedApp) and
-        [trayClickFocusedApp](Titanium.Push.trayClickFocusedApp) events to distinguish between the various ways
+        You can use the [trayClickLaunchedApp](Titanium.CloudPush.trayClickLaunchedApp) and
+        [trayClickFocusedApp](Titanium.CloudPush.trayClickFocusedApp) events to distinguish between the various ways
         a push notification can return a user to your application.
     properties:
       - name: payload
