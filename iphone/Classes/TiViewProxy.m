@@ -2335,8 +2335,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                 //FILL that fits in left over space. Move to next row
                 bounds.size.width = boundingWidth;
                 horizontalLayoutBoundary = 0.0;
+                verticalLayoutBoundary += horizontalLayoutRowHeight;
                 horizontalLayoutRowHeight = 0.0;
-                verticalLayoutBoundary += bounds.size.height;
             }
             else
             {
