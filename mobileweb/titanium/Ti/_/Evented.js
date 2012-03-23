@@ -1,6 +1,4 @@
 define(function() {
-	
-	var is = require.is;
 
 	return {
 		destroy: function() {
@@ -12,7 +10,7 @@ define(function() {
 
 		addEventListener: function(name, handler) {
 			this.listeners || (this.listeners = {});
-			(this.listeners[name] = this.listeners[name] || []).push(handler)
+			(this.listeners[name] = this.listeners[name] || []).push(handler);
 		},
 
 		removeEventListener: function(name, handler) {
@@ -51,17 +49,13 @@ define(function() {
 				listeners[i++].call(this, data);
 			}
 		},
-		
+
 		_addEventModifier: function(name, handler) {
 			this._modifiers || (this._modifiers = {});
-			if (is(name,"Array")) {
-				for (var i in name){
-					(this._modifiers[name[i]] = this._modifiers[name[i]] || []).push(handler);
-				}
-			} else {
-				(this._modifiers[name] = this._modifiers[name] || []).push(handler);
-			}
-		},
+			(require.is(name, "Array") ? name : [name]).forEach(function(n) {
+				(this._modifiers[n] = this._modifiers[n] || []).push(handler);
+			}, this);
+		}
 	};
 
 });
