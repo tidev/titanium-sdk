@@ -2111,8 +2111,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
     NSUInteger i, count = [childArray count];
     
     //First measure the sandbox bounds
-    for (i=0; i<count; i++) {
-        id child = [childArray objectAtIndex:i];
+    for (id child in childArray) 
+    {
         TiRect * childRect = [[TiRect alloc] init];
         CGRect childBounds = CGRectZero;
         UIView * ourView = [self parentViewForChild:child];
