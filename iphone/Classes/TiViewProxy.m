@@ -152,7 +152,7 @@
 		}
 		
 		// only call layout if the view is attached
-        // Maybe need to call layout children instead for non absolute layout
+		// Maybe need to call layout children instead for non absolute layout
 		[self layoutChild:arg optimize:NO withMeasuredBounds:[[self size] rect]]; 
 	}
 	else
@@ -1058,7 +1058,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	
 	// If the window was previously opened, it may need to have
 	// its existing children redrawn
-    // Maybe need to call layout children instead for non absolute layout
+	// Maybe need to call layout children instead for non absolute layout
 	if (children != nil) {
 		for (TiViewProxy* child in children) {
 			[self layoutChild:child optimize:NO withMeasuredBounds:[[self size] rect]];
@@ -2113,7 +2113,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
     //First measure the sandbox bounds
     for (i=0; i<count; i++) {
         id child = [childArray objectAtIndex:i];
-        TiRect * childRect = [[[TiRect alloc] init] autorelease];
+        TiRect * childRect = [[TiRect alloc] init];
         CGRect childBounds = CGRectZero;
         UIView * ourView = [self parentViewForChild:child];
         if (ourView != nil)
@@ -2130,6 +2130,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         }
         [childRect setRect:childBounds];
         [measuredBounds insertObject:childRect atIndex:i];
+        [childRect release];
     }
     
     //If it is a horizontal layout ensure that all the children in a row have the
@@ -2175,8 +2176,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         if (endIndex == -1)
         {
             //LAST ROW
-            NSUInteger j;
-            for (j=startIndex; j<count; j++) 
+            for (i=startIndex; i<count; i++) 
             {
                 [(TiRect*)[measuredBounds objectAtIndex:i] setHeight:[NSNumber numberWithInt:maxHeight]];
             }
