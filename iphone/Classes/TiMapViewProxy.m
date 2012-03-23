@@ -63,28 +63,24 @@
 	ENSURE_UI_THREAD_0_ARGS;
 	TiMapView * ourView = (TiMapView *)[self view];
 
-	if (annotationsToAdd!=nil)
-	{
-		[ourView addAnnotations:annotationsToAdd];
-	}
-	if (annotationsToRemove!=nil)
-	{
-		[ourView removeAnnotations:annotationsToRemove];
-	}
-	if (routesToAdd!=nil)
-	{
-		for (id arg in routesToAdd)
-		{
-			[ourView addRoute:arg];
-		}
-	}
-	if (routesToRemove!=nil)
-	{
-		for (id arg in routesToRemove)
-		{
-			[ourView removeRoute:arg];
-		}
-	}
+    for (id arg in annotationsToAdd) {
+        [ourView addAnnotation:arg];
+    }
+    
+    for (id arg in annotationsToRemove) {
+        [ourView removeAnnotation:arg];
+    }
+
+    for (id arg in routesToAdd)
+    {
+        [ourView addRoute:arg];
+    }
+    
+    for (id arg in routesToRemove)
+    {
+        [ourView removeRoute:arg];
+    }
+    
 	[ourView selectAnnotation:selectedAnnotation];
 	if (zoomCount > 0) {
 		for (int i=0; i < zoomCount; i++) {
@@ -104,6 +100,21 @@
 	RELEASE_TO_NIL(routesToRemove);
 	
 	[super viewDidAttach];
+}
+
+-(TiMapAnnotationProxy*)annotationFromArg:(id)arg
+{
+	if ([arg isKindOfClass:[TiMapAnnotationProxy class]])
+	{
+		[(TiMapAnnotationProxy*)arg setDelegate:self];
+		[arg setPlaced:NO];
+		return arg;
+	}
+	ENSURE_TYPE(arg,NSDictionary);
+	TiMapAnnotationProxy *proxy = [[[TiMapAnnotationProxy alloc] _initWithPageContext:[self pageContext] args:[NSArray arrayWithObject:arg]] autorelease];
+    
+	[proxy setDelegate:self];
+	return proxy;
 }
 
 #pragma mark Public API
@@ -157,8 +168,11 @@
 -(void)addAnnotation:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg,NSObject)
+    TiMapAnnotationProxy* annProxy = [(TiMapView*)[self view] annotationFromArg:arg];
+    [self rememberProxy:annProxy];
+    
 	if ([self viewAttached]) {
-		TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] addAnnotation:arg];}, NO);
+        TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] addAnnotation:arg];}, NO);
 	}
 	else 
 	{
@@ -180,22 +194,82 @@
 -(void)addAnnotations:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg,NSArray)
+    NSMutableArray* newAnnotations = [NSMutableArray arrayWithCapacity:[arg count]];
+    for (id ann in arg) {
+        TiMapAnnotationProxy* annotation = [self annotationFromArg:ann];
+        [newAnnotations addObject:annotation];
+        [self rememberProxy:annotation];
+    }
+    
 	if ([self viewAttached]) {
-		TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] addAnnotations:arg];}, NO);
+        TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] addAnnotations:newAnnotations];}, NO);
 	}
 	else {
-		for (id annotation in arg) {
+		for (id annotation in newAnnotations) {
 			[self addAnnotation:annotation];
 		}
 	}
 }
 
+-(void)setAnnotations:(id)arg{
+    ENSURE_TYPE(arg,NSArray)
+    
+    NSMutableArray* newAnnotations = [NSMutableArray arrayWithCapacity:[arg count]];
+    for (id ann in arg) {
+        [newAnnotations addObject:[self annotationFromArg:ann]];
+    }
+    
+    BOOL attached = [self viewAttached];
+    NSArray* currentAnnotations = (attached) ? [(TiMapView*)[self view] customAnnotations] : annotationsToAdd;
+ 
+    // Because the annotations may contain an annotation proxy and not just
+    // descriptors for them, we have to check and make sure there is
+    // no overlap and remember/forget appropriately.
+    
+    for(TiMapAnnotationProxy * annProxy in currentAnnotations) {
+        if (![newAnnotations containsObject:annProxy]) {
+            [self forgetProxy:annProxy];
+        }
+    }
+    for(TiMapAnnotationProxy* annProxy in newAnnotations) {
+        if (![currentAnnotations containsObject:annProxy]) {
+            [self rememberProxy:annProxy];
+        }
+    }
+    
+    if(attached) {
+        TiThreadPerformOnMainThread(^{
+            [(TiMapView*)[self view] setAnnotations_:newAnnotations];
+        }, NO);
+    }
+    else {
+        RELEASE_TO_NIL(annotationsToAdd);
+        RELEASE_TO_NIL(annotationsToRemove);
+        
+        annotationsToAdd = [[NSMutableArray alloc] initWithArray:newAnnotations];
+    }
+}
+
+-(NSArray*)annotations
+{
+    return ([self viewAttached]) ? [(TiMapView*)[self view] customAnnotations] : annotationsToAdd;
+}
+
 -(void)removeAnnotation:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg,NSObject)
+    
+    // For legacy reasons, we can apparently allow the arg here to be a string (0.8 compatibility?!?)
+    // and so only need to convert/remember/forget if it is an annotation instead.
+    if ([arg isKindOfClass:[TiMapAnnotationProxy class]]) {
+        [self forgetProxy:arg];
+    }
+    
 	if ([self viewAttached]) 
 	{
-		TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] removeAnnotation:arg];}, NO);
+        TiThreadPerformOnMainThread(^{
+            [(TiMapView*)[self view] removeAnnotation:arg];
+        }, NO);
 	}
 	else 
 	{
@@ -217,8 +291,16 @@
 -(void)removeAnnotations:(id)arg
 {
 	ENSURE_TYPE(arg,NSArray)
+    for (id ann in arg) {
+        if ([ann isKindOfClass:[TiMapAnnotationProxy class]]) {
+            [self forgetProxy:ann];
+        }
+    }
+    
 	if ([self viewAttached]) {
-		TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] removeAnnotations:arg];}, NO);
+        TiThreadPerformOnMainThread(^{
+            [(TiMapView*)[self view] removeAnnotations:arg];
+        }, NO);
 	}
 	else {
 		for (id annotation in arg) {
@@ -230,18 +312,21 @@
 -(void)removeAllAnnotations:(id)unused
 {
 	if ([self viewAttached]) {
-		TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] removeAllAnnotations:unused];}, NO);
+        TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] removeAllAnnotations:unused];}, NO);
+        TiMapView * mapView = (TiMapView *)[self view];
+        for(TiMapAnnotationProxy * annProxy in [mapView annotationsFromArgs:mapView.customAnnotations])
+        {
+            [self forgetProxy:annProxy];
+        }
 	}
 	else 
 	{
-		if (annotationsToAdd!=nil)
-		{
-			[annotationsToAdd removeAllObjects];
-		}
-		if (annotationsToRemove!=nil)
-		{
-			[annotationsToRemove removeAllObjects];
-		}
+        for (TiMapAnnotationProxy* annotation in annotationsToAdd) {
+            [self forgetProxy:annotation];
+        }
+        
+        RELEASE_TO_NIL(annotationsToAdd);
+        RELEASE_TO_NIL(annotationsToRemove);
 	}
 }
 

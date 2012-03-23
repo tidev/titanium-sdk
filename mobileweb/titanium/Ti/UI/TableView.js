@@ -1,9 +1,12 @@
 define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb/TableViewSeparatorStyle", "Ti/UI"], 
 	function(declare, View, style, lang, TableViewSeparatorStyle, UI) {
 
-	var set = style.set,
+	var setStyle = style.set,
 		is = require.is,
-		isDef = lang.isDef;
+		isDef = lang.isDef,
+		refreshSections = function() {
+			this._refreshSections();
+		};
 		
 	return declare("Ti.UI.TableView", View, {
 		
@@ -11,19 +14,31 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			
 			// Content must go in a separate container so the scrollbar can exist outside of it
 			var contentContainer = this._contentContainer = UI.createView({
-				width: "100%",
-				height: "100%",
+				width: UI.INHERIT,
+				height: UI.INHERIT,
 				left: 0,
 				top: 0,
 				layout: 'vertical'
 			});
 			this.add(contentContainer);
-			set(contentContainer.domNode,"overflow","hidden");
+			setStyle(contentContainer.domNode,"overflow","hidden");
 			
 			// Use horizontal layouts so that the default location is always (0,0)
-			contentContainer.add(this._header = UI.createView({height: UI.SIZE, layout: "vertical"}));
-			contentContainer.add(this._sections = UI.createView({height: UI.SIZE, layout: "vertical"}));
-			contentContainer.add(this._footer = UI.createView({height: UI.SIZE, layout: "vertical"}));
+			contentContainer.add(this._header = UI.createView({
+				height: UI.SIZE, 
+				width: UI.INHERIT, 
+				layout: "vertical"
+			}));
+			contentContainer.add(this._sections = UI.createView({
+				height: UI.SIZE, 
+				width: UI.INHERIT, 
+				layout: "vertical"
+			}));
+			contentContainer.add(this._footer = UI.createView({
+				height: UI.SIZE, 
+				width: UI.INHERIT, 
+				layout: "vertical"
+			}));
 			
 			this.data = [];
 			
@@ -96,15 +111,6 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			}));
 		},
 		
-		_doLayout: function() {
-			
-			var values = this._contentContainer.properties.__values__;
-			values.width = this.width === UI.SIZE ? UI.SIZE : "100%";
-			values.height = this.height === UI.SIZE ? UI.SIZE : "100%"; 
-			
-			return View.prototype._doLayout.apply(this,arguments);
-		},
-		
 		_fireScrollEvent: function(x,y) {
 			// Calculate the visible items
 			var firstVisibleItem,
@@ -157,35 +163,41 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		
 		_handleTouchEvent: function(type, e) {
 			if (type === "click" || type === "singletap") {
-				e.row = this._tableViewRowClicked;
-				e.rowData = this._tableViewRowClicked;
-				var index = 0,
-					sections = this._sections.children;
-				for(var i = 0; i < sections.length; i+= 2) {
-					var localIndex = sections[i]._rows.children.indexOf(this._tableViewRowClicked);
-					if (localIndex !== -1) {
-						index += Math.floor(localIndex / 2);
-						break;
-					} else {
-						index += sections[i].rowCount;
+				if (this._tableViewRowClicked && this._tableViewSectionClicked) {
+					e.row = this._tableViewRowClicked;
+					e.rowData = this._tableViewRowClicked;
+					var index = 0,
+						sections = this._sections.children;
+					for(var i = 0; i < sections.length; i+= 2) {
+						var localIndex = sections[i]._rows.children.indexOf(this._tableViewRowClicked);
+						if (localIndex !== -1) {
+							index += Math.floor(localIndex / 2);
+							break;
+						} else {
+							index += sections[i].rowCount;
+						}
 					}
+					e.index = index;
+					e.section = this._tableViewSectionClicked;
+					e.searchMode = false; 
+					View.prototype._handleTouchEvent.apply(this,arguments); // This intentionally squelches the event if a row was not click
 				}
-				e.index = index;
-				e.section = this._tableViewSectionClicked;
-				e.searchMode = false;
+			} else {
+				View.prototype._handleTouchEvent.apply(this,arguments);
 			}
-			View.prototype._handleTouchEvent.apply(this,arguments);
 		},
 		
 		_tableViewRowClicked: null,
 		_tableViewSectionClicked: null,
 		
 		_createSeparator: function() {
-			return UI.createView({
+			var separator = UI.createView({
 				height: 1,
-				width: "100%",
+				width: UI.INHERIT,
 				backgroundColor: "white"
 			});
+			setStyle(separator.domNode,"minWidth","100%"); // Temporary hack until TIMOB-8124 is completed.
+			return separator;
 		},
 		
 		_createDecorationLabel: function(text) {
@@ -193,7 +205,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				text: text, 
 				backgroundColor: "darkGrey",
 				color: "white",
-				width: "100%",
+				width: UI.INHERIT,
 				height: UI.SIZE,
 				left: 0,
 				font: {fontSize: 22}
@@ -230,7 +242,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			}
 		},
 		
-		_insert: function(value, index) {
+		_insertRow: function(value, index) {
 			var location = this._calculateLocation(index);
 			if (location) {
 				location.section.add(value,location.localIndex);
@@ -238,7 +250,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			this._refreshSections();
 		},
 		
-		_remove: function(index) {
+		_removeRow: function(index) {
 			var location = this._calculateLocation(index);
 			if (location) {
 				location.section._removeAt(location.localIndex);
@@ -251,20 +263,20 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		},
 		
 		deleteRow: function(index) {
-			this._remove(index);
+			this._removeRow(index);
 		},
 		
 		insertRowAfter: function(index, value) {
-			this._insert(value, index + 1);
+			this._insertRow(value, index + 1);
 		},
 		
 		insertRowBefore: function(index, value) {
-			this._insert(value, index);
+			this._insertRow(value, index);
 		},
 		
 		updateRow: function(index, row) {
-			this._remove(index);
-			this._insert(row, index);
+			this._removeRow(index);
+			this._insertRow(row, index);
 		},
 		
 		scrollToIndex: function(index) {
@@ -283,10 +295,12 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				set: function(value) {
 					if (is(value,'Array')) {
 						
+						var retval = [];
+						
 						// Remove all of the previous sections
 						this._sections._removeAllChildren();
 						
-						// Convert any object literals to TableViewRow instances, and update TableViewRow instances with row info
+						// Convert any object literals to TableViewRow instances
 						for (var i in value) {
 							if (!isDef(value[i].declaredClass) || (value[i].declaredClass != "Ti.UI.TableViewRow" && value[i].declaredClass != "Ti.UI.TableViewSection")) {
 								value[i] = UI.createTableViewRow(value[i]);
@@ -297,6 +311,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 						if (value.length == 0) {
 							this._sections.add(this._currentSection = UI.createTableViewSection({_tableView: this}));
 							this._sections.add(this._createSeparator());
+							retval.push(this._currentSection);
 						}
 			
 						// Add each element
@@ -306,17 +321,19 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 								if (i === 0) {
 									this._sections.add(this._currentSection = UI.createTableViewSection({_tableView: this}));
 									this._sections.add(this._createSeparator());
+									retval.push(this._currentSection);
 								}
 								this._currentSection.add(value[i]);
 							} else if (value[i].declaredClass === "Ti.UI.TableViewSection") {
 								value[i]._tableView = this;
 								this._sections.add(this._currentSection = value[i]);
 								this._sections.add(this._createSeparator());
+								retval.push(this._currentSection);
 							}
 						}
 						this._refreshSections();
 						
-						return value;
+						return retval;
 					} else {
 						// Data must be an array
 						return;
@@ -361,38 +378,21 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				}
 			},
 			maxRowHeight: {
-				post: function(value) {
-					this._refreshSections();
-					return value;
-				},
-				value: "100%"
+				post: refreshSections
 			},
 			minRowHeight: {
-				post: function(value) {
-					this._refreshSections();
-					return value;
-				},
-				value: "0%"
+				post: refreshSections
 			},
 			rowHeight: {
-				post: function(value) {
-					this._refreshSections();
-					return value;
-				},
+				post: refreshSections,
 				value: "50px"
 			},
 			separatorColor: {
-				post: function(value) {
-					this._refreshSections();
-					return value;
-				},
+				post: refreshSections,
 				value: "lightGrey"
 			},
 			separatorStyle: {
-				post: function(value) {
-					this._refreshSections();
-					return value;
-				},
+				post: refreshSections,
 				value: TableViewSeparatorStyle.SINGLE_LINE
 			}
 		}

@@ -1,37 +1,48 @@
-define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
+define(["Ti/_", "Ti/_/dom", "Ti/_/lang", "Ti/App", "Ti/Platform"], function(_, dom, lang, App, Platform) {
 
 	var global = window,
 		sessionId = sessionStorage.getItem("ti:sessionId"),
-		midName = "ti_mid",
-		doc = document,
-		matches = doc.cookie.match(new RegExp("(?:^|; )" + midName + "=([^;]*)")),
-		mid = matches ? decodeURIComponent(matches[1]) : undefined,
+		is = require.is,
 		cfg = require.config,
-		analyticsEnabled = cfg.app.analytics,
+		analyticsEnabled = App.analytics,
 		analyticsStorageName = "ti:analyticsEvents",
-		analyticsEventSeq = 1,
+		analyticsEventSeq = 0,
 		analyticsLastSent = null,
-		analyticsUrl = "https://api.appcelerator.net/p/v2/mobile-web-track";
-
-	mid || (mid = localStorage.getItem(midName));
-	mid || localStorage.setItem(midName, mid = _.uuid());
-
-	require.on(window, "beforeunload", function() {
-		var d = new Date();
-		d.setTime(d.getTime() + 63072e7); // forever in mobile terms
-		doc.cookie = midName + "=" + encodeURIComponent(mid) + "; expires=" + d.toUTCString();
-
-		localStorage.setItem(midName, mid);
-	});
+		analyticsUrl = "https://api.appcelerator.net/p/v2/mobile-web-track",
+		pending = {};
 
 	sessionId || sessionStorage.setItem("ti:sessionId", sessionId = _.uuid());
 
+	function getStorage() {
+		var s = localStorage.getItem(analyticsStorageName);
+		return s ? JSON.parse(s) : []
+	}
+
+	function setStorage(data) {
+		localStorage.setItem(analyticsStorageName, JSON.stringify(data));
+	}	
+
+	function onSuccess(response) {
+		if (is(response.data, "Object") && response.data.success) {
+			var ids = pending[response.data.callback],
+				keepers = [];
+			if (ids) {
+				getStorage().forEach(function(evt) {
+					~ids.indexOf(evt.id) || keepers.push(evt);
+				});
+				setStorage(keepers);
+			}
+		}
+	}
+
+	require.on(global, "message", onSuccess);
+
 	return _.analytics = {
 
-		add: function(eventType, eventEvent, data, isUrgent) {
+		add: function(type, event, data, isUrgent) {
 			if (analyticsEnabled) {
 				// store event
-				var storage = localStorage.getItem(analyticsStorageName);
+				var storage = getStorage();
 					now = new Date(),
 					tz = now.getTimezoneOffset(),
 					atz = Math.abs(tz),
@@ -40,81 +51,58 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 						return (d < n ? (new Array(++n - d)).join("0") : "") + v;
 					};
 
-				storage = storage ? JSON.parse(storage) : [];
 				storage.push({
-					eventId: _.uuid(),
-					eventType: eventType,
-					eventEvent: eventEvent,
-					eventTimestamp: now.toISOString().replace('Z', (tz < 0 ? '-' : '+') + (atz < 100 ? "00" : (atz < 1000 ? "0" : "")) + atz),
-					eventPayload: data
+					id: _.uuid(),
+					type: type,
+					evt: event,
+					ts: now.toISOString().replace('Z', (tz < 0 ? '-' : '+') + (atz < 100 ? "00" : (atz < 1000 ? "0" : "")) + atz),
+					data: data
 				});
-				localStorage.setItem(analyticsStorageName, JSON.stringify(storage));
+
+				setStorage(storage);
 				this.send(isUrgent);
 			}
 		},
 
 		send: function(isUrgent) {
 			if (analyticsEnabled) {
-				var i,
-					evt,
-					storage = JSON.parse(localStorage.getItem(analyticsStorageName)),
+				var rand = Math.floor(Math.random() * 1e6),
 					now = (new Date()).getTime(),
-					jsonStrs = [],
-					ids = [];
+					ids = [],
+					jsonStrs = [];
 
-				if (storage === null || (!isUrgent && analyticsLastSent !== null && now - analyticsLastSent < 300000 /* 5 minutes */)) {
+				if (!isUrgent && analyticsLastSent !== null && now - analyticsLastSent < 60000 /* 1 minute */) {
 					return;
 				}
 
 				analyticsLastSent = now;
 
-				for (i = 0; i < storage.length; i++) {
-					evt = storage[i];
-					ids.push(evt.eventId);
+				getStorage().forEach(function(evt) {
+					ids.push(evt.id);
 					jsonStrs.push(JSON.stringify({
+						id: evt.id,
+						mid: Platform.id,
+						rdu: null,
+						type: evt.type,
+						aguid: App.guid,
+						event: evt.evt,
 						seq: analyticsEventSeq++,
 						ver: "2",
-						id: evt.eventId,
-						type: evt.eventType,
-						event: evt.eventEvent,
-						ts: evt.eventTimestamp,
-						mid: mid,
+						deploytype: cfg.deployType,
 						sid: sessionId,
-						aguid: cfg.guid,
-						data: require.is(evt.eventPayload, "object") ? JSON.stringify(evt.eventPayload) : evt.eventPayload
+						ts: evt.ts,
+						data: /(Array|Object)/.test(is(evt.data)) ? JSON.stringify(evt.data) : evt.data
 					}));
-				}
+				});
 
-				function onSuccess() {
-					// remove sent events on successful sent
-					var j, k, found,
-						storage = localStorage.getItem(analyticsStorageName),
-						ev,
-						evs = [];
-
-					for (j = 0; j < storage.length; j++) {
-						ev = storage[j];
-						found = 0;
-						for (k = 0; k < ids.length; k++) {
-							if (ev.eventId == ids[k]) {
-								found = 1;
-								ids.splice(k, 1);
-								break;
-							}
-						}
-						found || evs.push(ev);
-					}
-
-					localStorage.setItem(analyticsStorageName, JSON.stringify(evs));
-				}
+				pending[rand] = ids;
 
 				if (require.has("analytics-use-xhr")) {
 					var xhr = new XmlHttpRequest;
 					xhr.onreadystatechange = function() {
 						if (xhr.readyState === 4 && xhr.status === 200) {
 							try {
-								var response = eval('(' + xhr.responseText + ')');
-								response && response.success && onSuccess();
+								onSuccess({ data: eval('(' + xhr.responseText + ')') });
 							} catch (e) {}
 						}
 					};
@@ -122,10 +110,8 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 					xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 					xhr.send(lang.urlEncode({ content: jsonStrs }));
 				} else {
-					var body = doc.body,
-						rand = Math.floor(Math.random() * 1e6),
+					var body = document.body,
 						iframeName = "analytics" + rand,
-						callback = "mobileweb_jsonp" + rand,
 						iframe = dom.create("iframe", {
 							id: iframeName,
 							name: iframeName,
@@ -134,7 +120,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 							}
 						}, body),
 						form = dom.create("form", {
-							action: analyticsUrl + "?callback=" + callback,
+							action: analyticsUrl + "?callback=" + rand + "&output=html",
 							method: "POST",
 							style: {
 								display: "none"
@@ -148,15 +134,13 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang"], function(_, dom, lang) {
 						value: "[" + jsonStrs.join(",") + "]"
 					}, form);
 
-					global[callback] = function(response) {
-						response && response.success && onSuccess();
-					};
-
 					// need to delay attaching of iframe events so they aren't prematurely called
 					setTimeout(function() {
 						function onIframeLoaded() {
-							dom.destroy(form);
-							dom.destroy(iframe);
+							setTimeout(function() {
+								dom.destroy(form);
+								dom.destroy(iframe);
+							}, 1);
 						}
 						iframe.onload = onIframeLoaded;
 						iframe.onerror = onIframeLoaded;

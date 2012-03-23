@@ -535,7 +535,9 @@ describe("Ti.UI Layout tests", {
 		    contentHeight:'auto',
 		    contentWidth:'auto',
 		    showVerticalScrollIndicator:true,
-		    showHorizontalScrollIndicator:true
+		    showHorizontalScrollIndicator:true,
+		    width:Ti.UI.SIZE,
+		    height:Ti.UI.SIZE		
 		});
 		var scrollView2 = Titanium.UI.createScrollView({
 		    contentHeight:'auto',
@@ -648,6 +650,49 @@ describe("Ti.UI Layout tests", {
 			valueOf(parent.size.height).shouldBe(50);
 			valueOf(child.size.width).shouldBe(40);
 			valueOf(child.size.height).shouldBe(50);
+		}));
+		win.open();
+	}),
+	sizeFillConflict: asyncTest(function() {
+		var win = Ti.UI.createWindow({
+		});
+		var grandParent = Ti.UI.createView({
+			height : 300,
+			width : 200
+		});
+		var parent = Ti.UI.createView({
+			height : Ti.UI.SIZE
+		});
+		var child1 = Ti.UI.createView({
+			height : Ti.UI.SIZE
+		});
+		var child2 = Ti.UI.createView({
+			height : 50
+		});
+		var child3 = Ti.UI.createView({
+			width : 30
+		});
+
+		child1.add(child2);
+		child1.add(child3);
+		parent.add(child1);
+		grandParent.add(parent);
+		win.add(grandParent);
+		win.addEventListener("open", this.async(function(e) {
+			valueOf(grandParent.size.width).shouldBe(200);
+			valueOf(grandParent.size.height).shouldBe(300);
+
+			valueOf(parent.size.width).shouldBe(200);
+			valueOf(parent.size.height).shouldBe(300);
+
+			valueOf(child1.size.width).shouldBe(200);
+			valueOf(child1.size.height).shouldBe(300);
+
+			valueOf(child2.size.width).shouldBe(200);
+			valueOf(child2.size.height).shouldBe(50);
+
+			valueOf(child3.size.width).shouldBe(30);
+			valueOf(child3.size.height).shouldBe(300);
 		}));
 		win.open();
 	}),

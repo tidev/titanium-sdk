@@ -5,7 +5,9 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		postDoBackground = {
 			post: "_updateLook"
 		},
-		undef;
+		titlePost = {
+			post: "_updateTitle"
+		};
 
 	return declare("Ti.UI.Button", FontWidget, {
 
@@ -17,7 +19,9 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					boxOrient: "horizontal",
 					boxPack: "center",
 					boxAlign: "center",
-					pointerEvents: "none"
+					pointerEvents: "none",
+					width: "100%",
+					height: "100%"
 				}
 			}, this.domNode);
 
@@ -103,6 +107,11 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			setStyle(this._buttonTitle, "pointerEvents", cssVal);
 		},
 
+		_updateTitle: function() {
+			this._buttonTitle.innerHTML = Locale._getString(this.titleid, this.title);
+			this._hasSizeDimensions() && this._triggerLayout();
+		},
+
 		properties: {
 			
 			// Override the default background info so we can hook into it
@@ -151,31 +160,21 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					return value;
 				}
 			},
-			selectedColor: undef,
+			selectedColor: void 0,
 			textAlign: {
 				set: function(value) {
-					var cssValue = "";
-					switch(value) {
-						case UI.TEXT_ALIGNMENT_LEFT: cssValue = "start"; break;
-						case UI.TEXT_ALIGNMENT_CENTER: cssValue = "center"; break;
-						case UI.TEXT_ALIGNMENT_RIGHT: cssValue = "end"; break;
-					}
-					setStyle(this._contentContainer, "boxPack", cssValue);
+					setStyle(this._contentContainer, "boxPack", value === UI.TEXT_ALIGNMENT_LEFT ? "start" : value === UI.TEXT_ALIGNMENT_RIGHT ? "end" : "center");
 					return value;
 				}
 			},
-			title: {
+			title: titlePost,
+			titleid: titlePost,
+			verticalAlign: {
 				set: function(value) {
-					this._buttonTitle.innerHTML = value;
-					this._hasSizeDimensions() && this._triggerLayout();
+					setStyle(this._contentContainer, "boxAlign", value === UI.TEXT_VERTICAL_ALIGNMENT_TOP ? "start" : value === UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM ? "end" : "center");
 					return value;
-				}
-			},
-			titleid: {
-				set: function(value) {
-					this.title = Locale.getString(value);
-					return value;
-				}
+				},
+				value: UI.TEXT_VERTICAL_ALIGNMENT_CENTER
 			}
 		}
 

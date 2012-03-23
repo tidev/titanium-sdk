@@ -94,29 +94,53 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 				backgroundColor: this.tabDividerColor
 			});
 		},
+		
+		_handleFocusBlurEvent: function(type) {
+			var previousTab = this._previousTab,
+				activeTab = this._activeTab,
+				tabs = this.tabs,
+				data = {
+					index: tabs.indexOf(activeTab),
+					previousIndex: tabs.indexOf(previousTab),
+					tab: activeTab,
+					previousTab: previousTab
+				};
+			if (previousTab) {
+				previousTab.window && previousTab.window._handleBlurEvent();
+				previousTab.fireEvent("blur",data);
+			}
+			SuperView.prototype["_handle" + type + "Event"].call(this,data);
+			activeTab.window && activeTab.window._handleFocusEvent();
+			activeTab.fireEvent("focus",data);
+		},
+		
+		_handleFocusEvent: function() {
+			this._handleFocusBlurEvent("Focus");
+		},
+		
+		_handleBlurEvent: function() {
+			this._handleFocusBlurEvent("Blur");
+		},
 
 		_activateTab: function(tab) {
 			var tabs = this.tabs,
-				prev = this._activeTab;
-
-			if (prev) {
-				prev.active = false;
-				prev._doBackground();
-				prev._tabNavigationGroup && this._tabContentContainer.remove(prev._tabNavigationGroup);
+				prev = this._previousTab = this._activeTab;
+			
+			if (prev !== tab) {
+				if (prev) {
+					prev.active = false;
+					prev._doBackground();
+					prev._tabNavigationGroup && this._tabContentContainer.remove(prev._tabNavigationGroup);
+				}
+	
+				tab.active = true;
+				tab._tabNavigationGroup && (tab._tabNavigationGroup.navBarAtTop = this.tabsAtBottom);
+				this._activeTab = tab;
+				UI.currentTab = tab;
+				tab._tabNavigationGroup && this._tabContentContainer.add(tab._tabNavigationGroup);
+				this._handleFocusEvent();
+				this._updateTabsBackground();
 			}
-
-			tab.active = true;
-			tab._tabNavigationGroup && (tab._tabNavigationGroup.navBarAtTop = this.tabsAtBottom);
-			this._activeTab = tab;
-			UI.currentTab = tab;
-			tab._tabNavigationGroup && this._tabContentContainer.add(tab._tabNavigationGroup);
-			this._state = {
-				index: tabs.indexOf(tab),
-				previousIndex: prev ? tabs.indexOf(prev) : -1,
-				previousTab: prev,
-				tab: tab
-			};
-			this._updateTabsBackground();
 		},
 		
 		_updateTabBackground: function(tab) {

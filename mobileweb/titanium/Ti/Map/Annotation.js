@@ -1,24 +1,50 @@
-define("Ti/Map/Annotation", ["Ti/_/Evented"], function(Evented) {
+define(["Ti/_/declare", "Ti/_/Evented", "Ti/Locale"], function(declare, Evented, Locale) {
 
-	(function(api){
-		// Interfaces
-		Ti._5.EventDriven(api);
-	
-		// Properties
-		Ti._5.prop(api, {
-			animate: null,
-			image: null,
-			leftButton: null,
-			leftView: null,
-			pincolor: null,
-			rightButton: null,
-			rightView: null,
-			subtitle: null,
-			subtitleid: null,
-			title: null,
-			titleid: null
-		});
-	
-	})(Ti._5.createClass(Ti.Map.Annotation));
-	
+	var updateHook = {
+		post: function(newValue, oldValue, prop) {
+			this.fireEvent("update", {
+				property: prop,
+				value: newValue
+			});
+		}
+	};
+
+	return declare("Ti.Map.Annotation", Evented, {
+
+		_onclick: function(mapview, idx, src) {
+			this.fireEvent("click", {
+				annotation: this,
+				clicksource: src,
+				index: idx,
+				map: mapview,
+				title: this.title
+			});
+		},
+
+		_update: function() {},
+
+		_getTitle: function() {
+			return Locale._getString(this.titleid, this.title);
+		},
+
+		_getSubtitle: function() {
+			return Locale._getString(this.subtitleid, this.subtitle);
+		},
+
+		properties: {
+			animate: false,
+			image: updateHook,
+			latitude: updateHook,
+			longitude: updateHook,
+			leftButton: updateHook,
+			pincolor: updateHook,
+			rightButton: updateHook,
+			subtitle: updateHook,
+			subtitleid: updateHook,
+			title: updateHook,
+			titleid: updateHook
+		}
+
+	});
+
 });

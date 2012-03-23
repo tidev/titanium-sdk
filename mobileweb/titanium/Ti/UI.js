@@ -2,57 +2,104 @@ define(
 	["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/_/dom"],
 	function(_, Evented, lang, ready, style, dom) {
 
-	var body = document.body,
-		isIOS = /(iPhone|iPad)/.test(navigator.userAgent),
+	var global = window,
+		body = document.body,
+		on = require.on,
 		modules = "2DMatrix,ActivityIndicator,AlertDialog,Animation,Button,EmailDialog,ImageView,Label,OptionDialog,Picker,PickerColumn,PickerRow,ProgressBar,ScrollableView,ScrollView,Slider,Switch,Tab,TabGroup,TableView,TableViewRow,TableViewSection,TextArea,TextField,View,WebView,Window",
 		creators = {},
 		setStyle = style.set,
-		undef;
+		handheld = navigator.userAgent.toLowerCase().match(/(iphone|android)/),
+		iphone = handheld && handheld[0] === "iphone",
+		targetHeight = {},
+		hidingAddressBar,
+		hideAddressBar = finishAddressBar = function() {
+			Ti.UI._recalculateLayout();
+			hidingAddressBar = 0;
+		},
+		unitize = dom.unitize;
 
-	body.addEventListener('touchmove', function(e) {
+	on(body, "touchmove", function(e) {
 		e.preventDefault();
-	}, false);
+	});
 
 	require.each(modules.split(','), function(name) {
 		creators['create' + name] = function(args) {
-			var m = require("Ti/UI/" + name);
-			return new m(args);
+			return new (require("Ti/UI/" + name))(args);
 		};
 	});
 
-	function hideAddressBar() {
-		var x = 0;
-		if (isIOS && !window.location.hash) {
-			if (document.height <= window.outerHeight + 10) {
-				setStyle(body, "height", (window.outerHeight + 60) + "px");
-				x = 50;
-			}
-			setTimeout(function() {
-				window.scrollTo(0, 1);
-				window.scrollTo(0, 0);
-				Ti.UI._recalculateLayout();
-			}, x);
-		}
-	}
+	if (!navigator.standalone && handheld) {
+		hideAddressBar = function() {
+			if (!hidingAddressBar) {
+				hidingAddressBar = 1;
+				var isPortrait = require("Ti/Gesture").isPortrait | 0,
+					h = targetHeight[isPortrait],
+					timer;
 
-	if (isIOS) {
+				if (!h) {
+					if (iphone) {
+						h = global.innerHeight + 60;
+						if (global.screen.availHeight - h > 50) {
+							h += 50;
+						}
+					} else {
+						h = global.outerHeight / (global.devicePixelRatio || 0);
+					}
+					targetHeight[isPortrait] = h;
+				}
+
+				setStyle(body, "height", h + "px");
+
+				if (iphone) {
+					global.scrollTo(0, 0);
+					finishAddressBar();
+				} else {
+					timer = setInterval(function() {
+						global.scrollTo(0, -1);
+						if (global.innerHeight + 1 >= h) {
+							clearTimeout(timer);
+							finishAddressBar();
+						}
+					}, 50);
+				}
+			}
+		}
 		ready(hideAddressBar);
-		window.addEventListener("orientationchange", hideAddressBar);
+		on(global, "orientationchange", hideAddressBar);
+		on(global, "touchstart", hideAddressBar);
 	}
 
 	ready(10, function() {
-		body.appendChild((Ti.UI._container = Ti.UI.createView({
-			left: 0,
-			top: 0
-		})).domNode);
-		setStyle(Ti.UI._container.domNode,"overflow","hidden");
-		Ti.UI._recalculateLayout();
+		var splashScreen = document.getElementById("splash"),
+			container = (Ti.UI._container = Ti.UI.createView({
+				left: 0,
+				top: 0
+			})),
+			node = container.domNode;
+		setStyle(node, "overflow", "hidden");
+		body.appendChild(node);
+		container.addEventListener("postlayout", function(){
+			setTimeout(function(){
+				setStyle(splashScreen,{
+					position: "absolute",
+					width: unitize(container._measuredWidth),
+					height: unitize(container._measuredHeight),
+					left: "0px",
+					top: "0px",
+					right: "",
+					bottom: ""
+				});
+			},10);
+		});
+		hideAddressBar();
 	});
-
-	require.on(window, "resize", function() {
+	
+	function updateOrientation() {
 		Ti.UI._recalculateLayout();
-		Ti.Gesture._updateOrientation();
-	});
+		require("Ti/Gesture")._updateOrientation();
+	}
+	on(global, "resize", updateOrientation);
+	on(global, "orientationchange", updateOrientation);
 
 	return lang.setObject("Ti.UI", Evented, creators, {
 
@@ -171,8 +218,8 @@ define(
 					 		height: false
 					 	},
 					 	boundingSize: {
-					 		width: window.innerWidth,
-					 		height: window.innerHeight
+					 		width: global.innerWidth,
+					 		height: global.innerHeight
 					 	},
 					 	alignment: {
 					 		horizontal: "center",
@@ -187,8 +234,8 @@ define(
 					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node.width === Ti.UI.SIZE, node.height === Ti.UI.SIZE);
 				}
 				
-				console.debug("Layout " + self._layoutCount + ": " + self._elementLayoutCount + 
-					" elements laid out in " + ((new Date().getTime() - startTime)) + "ms");
+				//console.debug("Layout " + self._layoutCount + ": " + self._elementLayoutCount + 
+				//	" elements laid out in " + ((new Date().getTime() - startTime)) + "ms");
 					
 				self._layoutInProgress = false;
 				self._layoutTimer = null;
@@ -206,14 +253,16 @@ define(
 		
 		_recalculateLayout: function() {
 			var container = this._container;
-			container.width = window.innerWidth;
-			container.height = window.innerHeight;
+			if (container) {
+				container.width = global.innerWidth;
+				container.height = global.innerHeight;
+			}
 		},
 
 		properties: {
 			backgroundColor: {
 				set: function(value) {
-					return setStyle(body, "backgroundColor", value);
+					return this._container.backgroundColor = value;
 				}
 			},
 			backgroundImage: {
@@ -221,7 +270,7 @@ define(
 					return setStyle(body, "backgroundImage", value ? style.url(value) : "");
 				}
 			},
-			currentTab: undef
+			currentTab: void 0
 		},
 		
 		convertUnits: function(convertFromValue, convertToUnits) {
@@ -242,7 +291,7 @@ define(
 		},
 
 		constants: {
-			currentWindow: undefined,
+			currentWindow: void 0,
 			UNKNOWN: 0,
 			FACE_DOWN: 1,
 			FACE_UP: 2,
@@ -276,9 +325,9 @@ define(
 			RETURNKEY_SEARCH: 8, // Search
 			RETURNKEY_SEND: 9, // Send
 			RETURNKEY_YAHOO: 10, // Search
-			TEXT_ALIGNMENT_CENTER: 1,
-			TEXT_ALIGNMENT_RIGHT: 2,
-			TEXT_ALIGNMENT_LEFT: 3,
+			TEXT_ALIGNMENT_CENTER: "center",
+			TEXT_ALIGNMENT_RIGHT: "right",
+			TEXT_ALIGNMENT_LEFT: "left",
 			TEXT_AUTOCAPITALIZATION_ALL: 3,
 			TEXT_AUTOCAPITALIZATION_NONE: 0,
 			TEXT_AUTOCAPITALIZATION_SENTENCES: 2,
@@ -292,6 +341,7 @@ define(
 			ANIMATION_CURVE_LINEAR: 4,
 			SIZE: "auto",
 			FILL: "fill",
+			INHERIT: "inherit",
 			UNIT_PX: "px",
 			UNIT_MM: "mm",
 			UNIT_CM: "cm",

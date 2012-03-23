@@ -13,8 +13,8 @@
  */
 
 define(
-	["Ti/_", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/Buffer", "Ti/Platform", "Ti/Locale", "Ti/_/include"],
-	function(_, analytics, App, Evented, lang, ready, style, Buffer, Platform) {
+	["Ti/_", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/Buffer", "Ti/Platform", "Ti/UI", "Ti/Locale", "Ti/_/include"],
+	function(_, analytics, App, Evented, lang, ready, style, Buffer, Platform, UI) {
 
 	var global = window,
 		cfg = require.config,
@@ -22,7 +22,11 @@ define(
 		is = require.is,
 		each = require.each,
 		has = require.has,
-		undef,
+		on = require.on,
+		loaded,
+		unloaded,
+		showingError,
+		waiting = [],
 		Ti = lang.setObject("Ti", Evented, {
 			constants: {
 				buildDate: cfg.ti.buildDate,
@@ -31,7 +35,9 @@ define(
 			},
 
 			properties: {
-				userAgent: "Appcelerator Titanium/" + ver + " (" + navigator.userAgent + ")!"
+				userAgent: function() {
+					return navigator.userAgent;
+				}
 			},
 
 			createBuffer: function(args) {
@@ -43,8 +49,24 @@ define(
 				each(files, function(f) {
 					require("Ti/_/include!" + f);
 				});
+			},
+
+			deferStart: function() {
+				if (loaded) {
+					console.warn("app.js already loaded!");
+				} else {
+					var n = Math.round(Math.random()*1e12);
+					waiting.push(n);
+					return function() {
+						var p = waiting.indexOf(n);
+						~p && waiting.splice(p, 1);
+						loaded = 1;
+						waiting.length || require(cfg.main || ["app.js"]);
+					};
+				}
 			}
-		});
+		}),
+		loadAppjs = Ti.deferStart();
 
 	// add has() tests
 	has.add("devmode", cfg.deployType === "development");
@@ -158,7 +180,7 @@ define(
 	}
 
 	// console.*() shim	
-	console === undef && (console = {});
+	console === void 0 && (console = {});
 
 	// make sure "log" is always at the end
 	each(["debug", "info", "warn", "error", "log"], function (c) {
@@ -215,7 +237,7 @@ define(
 					return escapeString(it);
 				}
 				if (objtype === "function" || objtype === "undefined") {
-					return undef;
+					return void 0;
 				}
 	
 				// short-circuit for objects that support "json" serialization
@@ -286,10 +308,78 @@ define(
 	Ti.parse = JSON.parse;
 	Ti.stringify = JSON.stringify;
 
-	require.on(global, "beforeunload", function() {
-		App.fireEvent("close");
-		analytics.add("ti.end", "ti.end");
-	});
+	function shutdown() {
+		if (!unloaded) {
+			unloaded = 1;
+			App.fireEvent("close");
+			analytics.add("ti.end", "ti.end");
+		}
+	}
+
+	on(global, "beforeunload", shutdown);
+	on(global, "unload", shutdown);
+
+	if (has("ti-show-errors")) {
+		on(global, "error", function(e) {
+			if (!showingError) {
+				showingError = 1;
+
+				var f = e.filename || "",
+					match = f.match(/:\/\/.+(\/.*)/),
+					filename = match ? match[1] : e.filename,
+					line = e.lineno,
+					win = UI.createWindow({
+						backgroundColor: "#f00",
+						top: "100%",
+						height: "100%",
+						layout: "vertical"
+					}),
+					view,
+					button,
+					makeLabel = function(text, height, color, fontSize) {
+						win.add(UI.createLabel({
+							color: color,
+							font: { fontSize: fontSize, fontWeight: "bold" },
+							height: height,
+							left: 10,
+							right: 10,
+							textAlign: UI.TEXT_ALIGNMENT_CENTER,
+							text: text
+						}));
+					};
+
+				makeLabel("Application Error", "15%", "#0f0", "24pt");
+				makeLabel((e.message || "Unknown error").replace(/([^:]+:)/, "").trim() + (filename && filename !== "undefined" ? " at " + filename : "") + (line ? " (line " + line + ")" : ""), "45%", "#fff", "16pt");
+				win.add(view = UI.createView({ height: "12%" }));
+				view.add(button = UI.createButton({ title: "Dismiss" }));
+				win.addEventListener("close", function() { win.destroy(); });
+				button.addEventListener("click", function() {
+					win.animate({
+						duration: 500,
+						top: "100%"
+					}, function() {
+						win.close();
+						showingError = 0;
+					});
+				});
+				makeLabel("Error messages will only be displayed during development. When your app is packaged for final distribution, no error screen will appear. Test your code!", "28%", "#000", "10pt");
+				
+				on.once(win,"postlayout", function() {
+					setTimeout(function() {
+						win.animate({
+							duration: 500,
+							top: 0
+						}, function() {
+							win.top = 0;
+							win.height = "100%";
+						});
+					}, 100);
+				});
+				
+				win.open();
+			}
+		});
+	}
 
 	ready(function() {
 		style.set(document.body, {
@@ -301,22 +391,22 @@ define(
 			// enroll event
 			if (localStorage.getItem("mobileweb_enrollSent") === null) {
 				// setup enroll event
-				analytics.add('ti.enroll', 'ti.enroll', {
+				analytics.add("ti.enroll", "ti.enroll", {
+					app_name: App.name,
+					oscpu: 1,
 					mac_addr: null,
-					oscpu: null,
-					app_name: cfg.appName,
-					platform: Ti.Platform.name,
-					app_id: cfg.appId,
-					ostype: Ti.Platform.osname,
-					osarch: Ti.Platform.architecture,
-					model: Ti.Platform.model,
-					deploytype: cfg.deployType
+					deploytype: cfg.deployType,
+					ostype: Platform.osname,
+					osarch: null,
+					app_id: App.id,
+					platform: Platform.name,
+					model: Platform.model
 				});
 				localStorage.setItem("mobileweb_enrollSent", true)
 			}
 
 			// app start event
-			analytics.add('ti.start', 'ti.start', {
+			analytics.add("ti.start", "ti.start", {
 				tz: (new Date()).getTimezoneOffset(),
 				deploytype: cfg.deployType,
 				os: Platform.osname,
@@ -332,127 +422,8 @@ define(
 		}
 
 		// load app.js when ti and dom is ready
-		ready(function() {
-			require(cfg.main || ["app.js"]);
-		});
+		ready(loadAppjs);
 	});
-
-	/**
-	 * start of old code that will eventually go away
-	 */
-	Ti._5 = {
-		prop: function(obj, property, value, descriptor) {
-			if (is(property, "Object")) {
-				for (var i in property) {
-					Ti._5.prop(obj, i, property[i]);
-				}
-			} else {
-				var skipSet,
-					capitalizedName = property.substring(0, 1).toUpperCase() + property.substring(1);
-
-				// if we only have 3 args, so need to check if it's a default value or a descriptor
-				if (arguments.length === 3 && require.is(value, "Object") && (value.get || value.set)) {
-					descriptor = value;
-					// we don't have a default value, so skip the set
-					skipSet = 1;
-				}
-
-				// if we have a descriptor, then defineProperty
-				if (descriptor) {
-					if ("value" in descriptor) {
-						skipSet = 2;
-						if (descriptor.get || descriptor.set) {
-							// we have a value, but since there's a custom setter/getter, we can't have a value
-							value = descriptor.value;
-							delete descriptor.value;
-							value !== undef && (skipSet = 0);
-						} else {
-							descriptor.writable = true;
-						}
-					}
-					descriptor.configurable = true;
-					descriptor.enumerable = true;
-					Object.defineProperty(obj, property, descriptor);
-				}
-
-				// create the get/set functions
-				obj["get" + capitalizedName] = function(){ return obj[property]; };
-				(skipSet | 0) < 2 && (obj["set" + capitalizedName] = function(val){ return obj[property] = val; });
-
-				// if there's no default value or it's already been set with defineProperty(), then we skip setting it
-				skipSet || (obj[property] = value);
-			}
-		},
-		propReadOnly: function(obj, property, value) {
-			var i;
-			if (require.is(property, "Object")) {
-				for (i in property) {
-					Ti._5.propReadOnly(obj, i, property[i]);
-				}
-			} else {
-				Ti._5.prop(obj, property, undef, require.is(value, "Function") ? { get: value, value: undef } : { value: value });
-			}
-		},
-		createClass: function(className, value) {
-			var i,
-				classes = className.split("."),
-				klass,
-				parent = global;
-			for (i = 0; i < classes.length; i++) {
-				klass = classes[i];
-				parent[klass] === undef && (parent[klass] = i == classes.length - 1 && value !== undef ? value : new Object());
-				parent = parent[klass];
-			}
-			return parent;
-		},
-		EventDriven: function(obj) {
-			var listeners = null;
-
-			obj.addEventListener = function(eventName, handler){
-				listeners || (listeners = {});
-				(listeners[eventName] = listeners[eventName] || []).push(handler);
-			};
-
-			obj.removeEventListener = function(eventName, handler){
-				if (listeners) {
-					if (handler) {
-						var i = 0,
-							events = listeners[eventName],
-							l = events && events.length || 0;
-		
-						for (; i < l; i++) {
-							events[i] === handler && events.splice(i, 1);
-						}
-					} else {
-						delete listeners[eventName];
-					}
-				}
-			};
-
-			obj.hasListener = function(eventName) {
-				return listeners && listeners[eventName];
-			};
-
-			obj.fireEvent = function(eventName, eventData){
-				if (listeners) {
-					var i = 0,
-						events = listeners[eventName],
-						l = events && events.length,
-						data = require.mix({
-							source: obj,
-							type: eventName
-						}, eventData);
-		
-					while (i < l) {
-						events[i++].call(obj, data);
-					}
-				}
-			};
-		}
-	};
-	/**
-	 * end of old code that will eventually go away
-	 */
 
 	return Ti;
 

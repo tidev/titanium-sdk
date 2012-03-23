@@ -100,6 +100,7 @@ textarea {
 	border-width: 0px;
 	border-style: solid;
 	border-color: transparent;
+	overflow: hidden;
 }
 
 .TiUIElementGradient {
@@ -422,3 +423,82 @@ textarea {
 .TiUITextFieldBorderStyleRounded input {
 	border-radius: 5px;
 }
+
+.TiUIActivityIndicatorContentContainer {
+	display: none;
+	height: 100%;
+	width: 100%;
+}
+
+.TiUIActivityIndicatorIndicator {
+	height: 36px;
+	width: 36px;
+}
+
+.TiUIActivityIndicatorMessage {
+	white-space: nowrap;
+}
+
+.TiUIActivityIndicatorProng {
+	background-color: #fff;
+	border-radius: 1px;
+	height: 10px;
+	position: absolute;
+	width: 4px;
+}
+
+.TiUITabContentContainer {
+	height: 100%;
+	width: 100%;
+}
+
+.TiUILabelTextAligner {
+	height: 100%;
+	overflow: hidden;
+	width: 100%;
+}
+
+.TiUILabelTextContainer {
+	max-height: 100%;
+	overflow: hidden;
+	text-align: left;
+	text-overflow: ellipsis;
+	user-select: none;
+	white-space: nowrap;
+	width: 100%;
+}
+
+.TiMapAnnotation {
+	margin-right: 10px;
+}
+
+.TiMapAnnotationLeftButton {
+	float: left;
+	margin: 0 8px 8px 0;
+}
+
+.TiMapAnnotationRightButton {
+	float: right;
+	margin: 0 0 8px 8px;
+}
+
+.TiMapAnnotationLeftButton:active,
+.TiMapAnnotationRightButton:active {
+	opacity: 0.7;
+}
+
+.TiMapAnnotationContent {
+	overflow: hidden;
+}
+
+.TiMapAnnotation h1 {
+	font-size: 14px;
+	font-weight: bold;
+	margin-top: 0;
+}
+
+.TiMapAnnotation p {
+	font-size: 12px;
+	margin: 5px 0;
+}
+

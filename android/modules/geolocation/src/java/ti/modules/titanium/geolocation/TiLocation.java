@@ -129,7 +129,17 @@ public class TiLocation implements Handler.Callback
 		Location latestKnownLocation = null;
 
 		for (String provider : knownProviders) {
-			Location lastKnownLocation = locationManager.getLastKnownLocation(provider);
+			Location lastKnownLocation = null;
+			try {
+				lastKnownLocation = locationManager.getLastKnownLocation(provider);
+
+			} catch (IllegalArgumentException e) {
+				Log.e(TAG, "unable to get last know location for [" + provider + "], provider is null");
+
+			} catch (SecurityException e) {
+				Log.e(TAG, "unable to get last know location for [" + provider + "], permission denied");
+			}
+
 			if (lastKnownLocation == null) {
 				continue;
 			}

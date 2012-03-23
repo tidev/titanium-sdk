@@ -122,7 +122,7 @@
 		// returns:
 		//		Boolean if type is passed in
 		//		String of type if type is not passed in
-		var t = it === undefined ? "" : ({}).toString.call(it),
+		var t = it === void 0 ? "" : ({}).toString.call(it),
 			m = t.match(/^\[object (.+)\]$/),
 			v = m ? m[1] : "Undefined";
 		return type ? type === v : v;
@@ -226,7 +226,7 @@
 		// force: Boolean?
 		//		If true, forces the test to override an existing test.
 
-		if (hasCache[name] === undefined || force) {
+		if (hasCache[name] === void 0 || force) {
 			hasCache[name] = test;
 		}
 		return now && has(name);
@@ -475,36 +475,40 @@
 
 		var s,
 			x,
-			disconnector,
+			scriptTagLoadEvent,
+			scriptTagErrorEvent,
 			_t = this,
-			cached = defCache[_t.name],
-			fireCallbacks = function() {
-				each(_t.callbacks, function(c) { c(_t); });
-				_t.callbacks = [];
-			},
-			onLoad = function(rawDef) {
-				_t.loaded = 1;
-				if (_t.rawDef = rawDef) {
-					if (is(rawDef, "String")) {
-						// if rawDef is a string, then it's either a cached string or xhr response
-						if (/\.js$/.test(_t.url)) {
-							rawDef = evaluate(rawDef, _t.cjs);
-							_t.def = _t.rawDef = !isEmpty(rawDef.exports) ? rawDef.exports : (rawDef.module && !isEmpty(rawDef.module.exports) ? rawDef.module.exports : null);
-							_t.def === null && (_t.rawDef = rawDef);
-						} else {
-							_t.def = rawDef;
-							_t.executed = 1;
-						}
-					} else if (is(rawDef, "Function")) {
-						// if rawDef is a function, then it's a cached module definition
-						waiting[_t.name] = _t;
-						rawDef();
+			name = _t.name,
+			cached = defCache[name];
+
+		function fireCallbacks() {
+			each(_t.callbacks, function(c) { c(_t); });
+			_t.callbacks = [];
+		}
+
+		function onLoad(rawDef) {
+			_t.loaded = 1;
+			if (_t.rawDef = rawDef) {
+				if (is(rawDef, "String")) {
+					// if rawDef is a string, then it's either a cached string or xhr response
+					if (/\.js$/.test(_t.url)) {
+						rawDef = evaluate(rawDef, _t.cjs);
+						_t.def = _t.rawDef = !isEmpty(rawDef.exports) ? rawDef.exports : (rawDef.module && !isEmpty(rawDef.module.exports) ? rawDef.module.exports : null);
+						_t.def === null && (_t.rawDef = rawDef);
+					} else {
+						_t.def = rawDef;
+						_t.executed = 1;
 					}
+				} else if (is(rawDef, "Function")) {
+					// if rawDef is a function, then it's a cached module definition
+					waiting[name] = _t;
+					rawDef();
 				}
-				processDefQ(_t);
-				fireCallbacks();
-				return 1;
-			};
+			}
+			processDefQ(_t);
+			fireCallbacks();
+			return 1;
+		}
 
 		_t.sync = sync;
 		callback && _t.callbacks.push(callback);
@@ -517,19 +521,30 @@
 		}
 
 		// if we're already waiting, then we can just return and our callback will be fired
-		if (waiting[_t.name]) {
+		if (waiting[name]) {
 			return;
 		}
 
 		// if we're already loaded or the definition has been cached, then just return now
 		if (_t.loaded || cached) {
-			delete defCache[_t.name];
+			delete defCache[name];
 			return onLoad(cached);
 		}
 
 		// mark this module as waiting to be loaded so that anonymous modules can be
 		// identified
-		waiting[_t.name] = _t;
+		waiting[name] = _t;
+
+		function disconnect() {
+			scriptTagLoadEvent && scriptTagLoadEvent();
+			scriptTagErrorEvent && scriptTagErrorEvent();
+		}
+
+		function failed() {
+			modules[name] = 0;
+			delete waiting[name];
+			disconnect();
+		}
 
 		if (sync) {
 			x = new XMLHttpRequest();
@@ -539,7 +554,8 @@
 			if (x.status === 200) {
 				return onLoad(x.responseText);
 			} else {
-				throw new Error("Failed to load module \"" + _t.name + "\": " + x.status);
+				failed();
+				throw new Error("Failed to load module \"" + name + "\": " + x.status);
 			}
 		} else {
 			// insert the script tag, attach onload, wait
@@ -548,14 +564,16 @@
 			x.charset = "utf-8";
 			x.async = true;
 
-			disconnector = on(x, "load", function(e) {
+			scriptTagLoadEvent = on(x, "load", function(e) {
 				e = e || global.event;
 				var node = e.target || e.srcElement;
 				if (e.type === "load" || /complete|loaded/.test(node.readyState)) {
-					disconnector();
+					disconnect();
 					onLoad();
 				}
 			});
+
+			scriptTagErrorEvent = on(x, "error", failed);
 
 			// set the source url last
 			x.src = _t.url;
@@ -645,7 +663,7 @@
 		var module = new ResourceDef(name, refModule, deps, rawDef),
 			moduleName = module.name;
 
-		if (refModule && name in refModule.cjs) {
+		if (refModule && refModule.cjs && name in refModule.cjs) {
 			module.def = refModule.cjs[name];
 			module.loaded = module.executed = 1;
 			return module;

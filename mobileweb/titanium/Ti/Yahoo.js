@@ -1,12 +1,27 @@
-define("Ti/Yahoo", ["Ti/_/Evented"], function(Evented) {
+define(["Ti/_/Evented", "Ti/_/lang"],
+	function(Evented, lang) {
 
-	(function(api){
-		// Interfaces
-		Ti._5.EventDriven(api);
-		// Methods
-		api.yql = function(){
-			console.debug('Method "Titanium.Yahoo.yql" is not implemented yet.');
-		};
-	})(Ti._5.createClass('Ti.Yahoo'));
-	
+	return lang.setObject("Ti.Yahoo", Evented, {
+
+		yql: function(query, callback) {
+			require([
+				"http://query.yahooapis.com/v1/public/yql?format=json&callback=define&q="
+					+ encodeURIComponent(query)
+					.replace(/!/g,'%21')
+					.replace(/'/g,'%27')
+					.replace(/\(/,'%28')
+					.replace(/\)/,'%29')
+			], function(data) {
+				var data = data || {},
+					results = data.query && data.query.results;
+				require.is(callback, "Function") && callback({
+					success: !!results,
+					data: results,
+					message: data.error && data.error.description
+				});
+			});
+		}
+
+	});
+
 });

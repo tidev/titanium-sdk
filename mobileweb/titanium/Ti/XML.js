@@ -1,52 +1,54 @@
 define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 	
 	// Add getters and setters to the various prototypes
-	var elements = [[
-			Document,
+	[
+		[
+			"Document",
 			"doctype,implementation,documentElement,inputEncoding,xmlEncoding,domConfig",
 			"xmlStandalone,xmlVersion,strictErrorChecking,documentURI"
 		],[
-			Node,
+			"Node",
 			"nodeName,nodeType,parentNode,childNodes,firstChild,lastChild,previousSibling,nextSibling,attributes,ownerDocument,namespaceURI,localName,baseURI",
 			"textContent,nodeValue,prefix"
 		],[
-			NamedNodeMap,
-			"length",
+			"NamedNodeMap",
+			"length"
 		],[
-			CharacterData,
+			"CharacterData",
 			"length",
 			"data"
 		],[
-			Attr,
+			"Attr",
 			"name,specified,ownerElement,schemaTypeInfo,isId",
 			"value"
 		],[
-			Element,
+			"Element",
 			"tagName,schemaTypeInfo"
 		],[
-			Text,
+			"Text",
 			"isElementContentWhitespace,wholeText"
 		],[
-			DocumentType,
+			"DocumentType",
 			"name,entities,notations,publicId,systemId,internalSubset"
 		],[
-			Notation,
+			"Notation",
 			"publicId,systemId"
 		],[
-			NodeList,
+			"NodeList",
 			"length"
 		],[
-			Entity,
+			"Entity",
 			"publicId,systemId,notationName,inputEncoding,xmlEncoding,xmlVersion"
 		],[
-			ProcessingInstruction,
+			"ProcessingInstruction",
 			"target",
 			"data"
 		]
-	];
-	for(var i = 0; i < elements.length; i++) {
-		lang.generateAccessors(elements[i][0],elements[i][1],elements[i][2]);
-	}
+	].forEach(function(e) {
+		var f = window[e[0]];
+		f && lang.generateAccessors(f, e[1], e[2]);
+	});
+
 	Object.defineProperty(Element.prototype, "text", { 
 		get: function() { return this.textContent; },
 		enumerable: true
@@ -61,6 +63,7 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 		serializeToString: function(node) {
 			return (new XMLSerializer()).serializeToString(node);
 		}
+
 	});
 
 });

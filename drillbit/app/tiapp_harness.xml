@@ -24,8 +24,6 @@
 				android:name="org.appcelerator.titanium.drillbit.TestHarnessRunner">
 				<meta-data android:name="class" android:value="org.appcelerator.titanium.testharness.Test_harnessActivity"/>
 			</instrumentation>
-			<uses-permission android:name="android.permission.READ_CALENDAR" />
-    		<uses-permission android:name="android.permission.WRITE_CALENDAR" />
 		</manifest>
 	</android>
 	<property name="ti.android.enablecoverage" type="bool">true</property>

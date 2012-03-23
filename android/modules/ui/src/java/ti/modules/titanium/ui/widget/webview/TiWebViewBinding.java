@@ -80,6 +80,9 @@ public class TiWebViewBinding
 
 	public void destroy()
 	{
+		// remove any event listener that have already been added to the Ti.APP through
+		// this web view instance
+		appBinding.clearEventListeners();
 	}
 
 	private static StringBuilder readResourceFile(String fileName)
@@ -172,6 +175,7 @@ public class TiWebViewBinding
 	private class AppBinding
 	{
 		private KrollModule module;
+		private HashMap<String, Integer> appListeners = new HashMap<String, Integer>();
 
 		public AppBinding()
 		{
@@ -193,12 +197,24 @@ public class TiWebViewBinding
 
 		public int addEventListener(String event, int id)
 		{
-			return module.addEventListener(event, new WebViewCallback(id));
+			WebViewCallback callback = new WebViewCallback(id);
+
+			int result = module.addEventListener(event, callback);
+			appListeners.put(event, result);
+
+			return result;
 		}
 
 		public void removeEventListener(String event, int id)
 		{
 			module.removeEventListener(event, id);
+		}
+
+		public void clearEventListeners()
+		{
+			for (String event : appListeners.keySet()) {
+				removeEventListener(event, appListeners.get(event));
+			}
 		}
 	}
 }

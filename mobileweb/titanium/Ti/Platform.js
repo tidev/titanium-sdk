@@ -1,25 +1,70 @@
-define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale"],
-	function(_, browser, Evented, lang, Locale) {
+define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale", "Ti/_/dom", "Ti/UI"],
+	function(_, browser, Evented, lang, Locale, dom, UI) {
+		
+	var doc = document,
+		midName = "ti:mid",
+		matches = doc.cookie.match(new RegExp("(?:^|; )" + midName + "=([^;]*)")),
+		mid = matches ? decodeURIComponent(matches[1]) : void 0,
+		unloaded,
+		on = require.on,
+		hiddenIFrame = dom.create("iframe",{id: "urlOpener", display: "none"},doc.body);
 
-	var undef,
-		nav = navigator,
+	mid || (mid = localStorage.getItem(midName));
+	mid || localStorage.setItem(midName, mid = _.uuid());
+
+	function saveMid() {
+		if (!unloaded) {
+			unloaded = 1;
+			var d = new Date();
+			d.setTime(d.getTime() + 63072e7); // forever in mobile terms
+			doc.cookie = midName + "=" + encodeURIComponent(mid) + "; expires=" + d.toUTCString();
+			localStorage.setItem(midName, mid);
+		}
+	}
+ 
+	on(window, "beforeunload", saveMid);
+	on(window, "unload", saveMid);
+
+	var nav = navigator,
 		battery = nav.battery || nav.webkitBattery || nav.mozBattery,
 		Platform = lang.setObject("Ti.Platform", Evented, {
 
-			canOpenURL: function() {
-				return true;
+			canOpenURL: function(url) {
+				return !!url;
 			},
 
 			createUUID: _.uuid,
 
+			is24HourTimeFormat: function() {
+				return false;
+			},
+
 			openURL: function(url){
-				var m = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?/.exec(url);
-				if ( (/^([tel|sms|mailto])/.test(url) || /^([\/?#]|[\w\d-]+^:[\w\d]+^@)/.test(m[1])) && !/^(localhost)/.test(url) ) {
-					setTimeout(function() {
-						window.location.href = url;
+				if (/^([tel|sms|mailto])/.test(url)) {
+					hiddenIFrame.contentWindow.location.href = url;
+				} else { 
+					var win = UI.createWindow({
+							layout: "vertical",
+							backgroundColor: "#888"
+						}),
+						backButton = UI.createButton({
+							top: 2,
+							bottom: 2,
+							title: "Close"
+						}),
+						webview = UI.createWebView({
+							width: UI.FILL,
+							height: UI.FILL
+						});
+					backButton.addEventListener("singletap", function(){
+						win.close();
+					});
+					win.add(backButton);
+					win.add(webview);
+					win.open();
+					setTimeout(function(){
+						webview.url = url;
 					}, 1);
-				} else {
-					window.open(url);
 				}
 			},
 
@@ -32,9 +77,9 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale"],
 				BATTERY_STATE_FULL: 2,
 				BATTERY_STATE_UNKNOWN: -1,
 				BATTERY_STATE_UNPLUGGED: 0,
-				address: undef,
-				architecture: undef,
-				availableMemory: undef,
+				address: void 0,
+				architecture: void 0,
+				availableMemory: void 0,
 				batteryLevel: function() {
 					return this.batteryMonitoring && battery ? battery.level * 100 : -1;
 				},
@@ -42,16 +87,17 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale"],
 					return this.batteryMonitoring && battery && battery.charging ? this.BATTERY_STATE_CHARGING : this.BATTERY_STATE_UNKNOWN;
 				},
 				isBrowser: true,
+				id: mid,
 				locale: Locale,
-				macaddress: undef,
-				model: undef,
-				name: nav.userAgent,
-				netmask: undef,
+				macaddress: void 0,
+				model: nav.userAgent,
+				name: "mobileweb",
+				netmask: void 0,
 				osname: "mobileweb",
 				ostype: nav.platform,
 				runtime: browser.runtime,
-				processorCount: undef,
-				username: undef,
+				processorCount: void 0,
+				username: void 0,
 				version: require.config.ti.version
 			}
 

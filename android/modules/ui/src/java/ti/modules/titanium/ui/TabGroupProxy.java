@@ -305,7 +305,10 @@ public class TabGroupProxy extends TiWindowProxy
 				addTabToGroup(tg, tab);
 			}
 		}
+		
 		tg.changeActiveTab(initialActiveTab);
+		// Make sure the tab indicator is selected. We need to force it to be selected due to TIMOB-7832.
+		tg.setTabIndicatorSelected(initialActiveTab);
 
 		opened = true;
 		super.handlePostOpen();

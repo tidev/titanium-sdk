@@ -2,7 +2,6 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 	function(declare, View, Widget, UI, lang, dom, ready) {
 		
 	var is = require.is,
-		undef,
 		borderRadius = 6,
 		unitizedBorderRadius = dom.unitize(borderRadius),
 		inputSizes = {},
@@ -196,7 +195,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 					for(var i in this._columns) {
 						var column = this._columns[i];
 						column.removeEventListener(column._pickerChangeEventListener);
-						column._parentPicker = undef;
+						column._parentPicker = void 0;
 					}
 					this._columns = [];
 					
@@ -224,7 +223,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 			type: {
 				set: function(value, oldValue) {
 					if (value !== oldValue) {
-						this.columns = undef;
+						this.columns = void 0;
 						this._dateTimeInput = null;
 						var self = this;
 						function createInput(inputType) {

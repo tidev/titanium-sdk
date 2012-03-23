@@ -20,6 +20,7 @@ import java.util.Stack;
 
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
@@ -281,8 +282,12 @@ public class TitaniumModule extends KrollModule
 	public String stringFormat(String format, Object args[])
 	{
 		try {
-			// clean up formats for integers into doubles since thats how JS rolls
-			format = format.replaceAll("%d", "%1.0f");
+			// Rhino will always convert Number values to doubles.
+			// To prevent conversion errors we will change all decimal
+			// format arguments to floating point.
+			if (KrollRuntime.getInstance().getRuntimeName().equals("rhino")) {
+				format = format.replaceAll("%d", "%1.0f");
+			}
 
 			// in case someone passes an iphone formatter symbol, convert
 			format = format.replaceAll("%@", "%s");

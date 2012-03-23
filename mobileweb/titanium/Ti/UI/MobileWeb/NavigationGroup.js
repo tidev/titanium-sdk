@@ -1,12 +1,11 @@
 define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style", "Ti/_/lang"],
 	function(declare, View, UI, style, lang) {
 		
-	var undef;
+	var isDef = lang.isDef;
 
 	return declare("Ti.UI.MobileWeb.NavigationGroup", View, {
-		
+
 		constructor: function(args) {
-			
 			var self = this;
 			self._windows = [];
 			
@@ -33,7 +32,10 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style", "Ti/_/lang"],
 				self.close();
 			});
 			self._navBarContainer.add(self._title = UI.createLabel({
-				text: rootWindow.title
+				text: rootWindow._getTitle(),
+				width: UI.FILL,
+				textAlign: UI.TEXT_ALIGNMENT_CENTER,
+				touchEnabled: false
 			}));
 			
 			// Create the content container
@@ -49,57 +51,59 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style", "Ti/_/lang"],
 		_defaultWidth: UI.FILL,
 		
 		_defaultHeight: UI.FILL,
-		
+
 		open: function(win, options) {
-			
 			// Show the back button, if need be
 			var backButton = this._backButton;
-			if (!backButton.opacity) {
-				backButton.animate({opacity: 1, duration: 250}, function() {
-					backButton.opacity = 1;
-					backButton.enabled = true;
-				});
-			}
-			
+
+			backButton.opacity || backButton.animate({opacity: 1, duration: 250}, function() {
+				backButton.opacity = 1;
+				backButton.enabled = true;
+			});
+
+			// Set a default background
+			!isDef(win.backgroundColor) && !isDef(win.backgroundImage) && (win.backgroundColor = "#fff");
+
 			// Show the window
 			this._windows.push(win);
 			this._contentContainer.add(win);
-			this._title.text = win.title;
+			this._title.text = win._getTitle();
 		},
 		
 		close: function(win, options) {
-			
 			var windows = this._windows,
-				numWindows = windows.length,
-			win = win || windows[numWindows - 1];
-			var windowLocation = windows.indexOf(win)
+				topWindowIdx = windows.length - 1,
+				win = win || windows[topWindowIdx],
+				windowLocation = windows.indexOf(win),
+				backButton = this._backButton,
+				nextWindow = this.window;
+
 			if (!~windowLocation) {
 				return;
 			}
-			
+
 			// If the window is on top, we have to go to the previous window
-			if (windows[numWindows - 1] === win) {
-				if (numWindows > 1) {
-					this._title.text = windows[numWindows - 2].title;
+			if (windows[topWindowIdx] === win) {
+				if (topWindowIdx > 0) {
+					nextWindow = windows[topWindowIdx - 1];
 				} else {
-					this._title.text = this.window.title;
-					var backButton = this._backButton;
 					backButton.animate({opacity: 0, duration: 250}, function() {
 						backButton.opacity = 0;
 						backButton.enabled = false;
 					});
 				}
+				this._title.text = nextWindow._getTitle();
 			}
-			
+
 			// Remove the window
-			windows.splice(windowLocation,1);
+			windows.splice(windowLocation, 1);
 			this._contentContainer.remove(win);
 		},
-		
+
 		constants: {
-			window: undef
+			window: void 0
 		},
-		
+
 		properties: {
 			navBarAtTop: {
 				set: function (value, oldValue) {
@@ -126,7 +130,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style", "Ti/_/lang"],
 				}
 			}
 		}
-		
+
 	});
-	
+
 });

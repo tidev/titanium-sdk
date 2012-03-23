@@ -637,11 +637,6 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
         contentWidth = [self contentWidthForWidth:suggestedWidth];
     }
     
-    CGFloat offset = TiDimensionCalculateValue(layoutProperties.left, suggestedWidth)
-    + TiDimensionCalculateValue(layoutProperties.right, suggestedWidth);
-    CGFloat offset2 = TiDimensionCalculateValue(layoutProperties.top, size.height)
-    + TiDimensionCalculateValue(layoutProperties.bottom, size.height);
-
 	BOOL isHorizontal = TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle);
 	CGFloat result = 0.0;
 	
@@ -665,7 +660,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
             thisWidth = sandBox.origin.x + sandBox.size.width;
         }
         else {
-            thisWidth = [thisChildProxy minimumParentWidthForSize:CGSizeMake(suggestedWidth - offset, size.height - offset2)];
+            thisWidth = [thisChildProxy minimumParentWidthForSize:size];
         }
         if(result<thisWidth)
         {
@@ -699,12 +694,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
     if ([self respondsToSelector:@selector(contentHeightForWidth:)]) {
         contentHeight = [self contentHeightForWidth:width];
     }
-    
-    CGFloat offset = TiDimensionCalculateValue(layoutProperties.left, width)
-    + TiDimensionCalculateValue(layoutProperties.right, width);
-    CGFloat offset2 = TiDimensionCalculateValue(layoutProperties.top, size.height)
-    + TiDimensionCalculateValue(layoutProperties.bottom, size.height);
-    
+        
     BOOL isAbsolute = TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle);
     
 	CGFloat result=0.0;
@@ -731,7 +721,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
             thisHeight = sandBox.origin.y + sandBox.size.height;
         }
         else {
-            thisHeight = [thisChildProxy minimumParentHeightForSize:CGSizeMake(width - offset, size.height - offset2)];
+            thisHeight = [thisChildProxy minimumParentHeightForSize:size];
         }
         if(result<thisHeight)
         {
@@ -762,6 +752,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 {
     CGFloat suggestedWidth = size.width;
     BOOL followsFillBehavior = TiDimensionIsAutoFill([self defaultAutoWidthBehavior:nil]);
+    BOOL recheckForFill = NO;
     
     CGFloat offset = TiDimensionCalculateValue(layoutProperties.left, size.width)
     + TiDimensionCalculateValue(layoutProperties.right, size.width);
@@ -777,7 +768,8 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	}
 	else if (TiDimensionIsAutoFill(layoutProperties.width) || (TiDimensionIsAuto(layoutProperties.width) && followsFillBehavior) ) 
 	{
-		result = suggestedWidth;
+		recheckForFill = YES;
+		result += [self autoWidthForSize:CGSizeMake(size.width - offset, size.height - offset2)];
 	}
     else if (TiDimensionIsUndefined(layoutProperties.width))
     {
@@ -791,18 +783,17 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
             result += 2 * ( size.width - TiDimensionCalculateValue(layoutProperties.right, suggestedWidth) - TiDimensionCalculateValue(layoutProperties.centerX, suggestedWidth));
         }
         else {
-            if (followsFillBehavior) {
-                result = suggestedWidth;
-            }
-            else {
-                result += [self autoWidthForSize:CGSizeMake(size.width - offset, size.height - offset2)];
-            }
+            recheckForFill = followsFillBehavior;
+            result += [self autoWidthForSize:CGSizeMake(size.width - offset, size.height - offset2)];
         }       
     }
 	else
 	{
 		result += [self autoWidthForSize:CGSizeMake(size.width - offset, size.height - offset2)];
 	}
+    if (recheckForFill && (result < suggestedWidth) ) {
+        result = suggestedWidth;
+    }
 	return result;
 }
 
@@ -810,6 +801,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 {
     CGFloat suggestedHeight = size.height;
     BOOL followsFillBehavior = TiDimensionIsAutoFill([self defaultAutoHeightBehavior:nil]);
+    BOOL recheckForFill = NO;
 	    
     CGFloat offset = TiDimensionCalculateValue(layoutProperties.left, size.width)
     + TiDimensionCalculateValue(layoutProperties.right, size.width);
@@ -824,7 +816,8 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	}
     else if (TiDimensionIsAutoFill(layoutProperties.height) || (TiDimensionIsAuto(layoutProperties.height) && followsFillBehavior) ) 
 	{
-		result = suggestedHeight;
+		recheckForFill = YES;
+		result += [self autoHeightForSize:CGSizeMake(size.width - offset, size.height - offset2)];
 	}
     else if (TiDimensionIsUndefined(layoutProperties.height))
     {
@@ -838,18 +831,17 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
             result += 2 * ( suggestedHeight - TiDimensionCalculateValue(layoutProperties.bottom, suggestedHeight) - TiDimensionCalculateValue(layoutProperties.centerY, suggestedHeight));
         }
         else {
-            if (followsFillBehavior) {
-                result = suggestedHeight;
-            }
-            else {
-                result += [self autoHeightForSize:CGSizeMake(size.width - offset, size.height - offset2)];
-            }
+            recheckForFill = followsFillBehavior;
+            result += [self autoHeightForSize:CGSizeMake(size.width - offset, size.height - offset2)];
         }       
     }
 	else
 	{
 		result += [self autoHeightForSize:CGSizeMake(size.width - offset, size.height - offset2)];
 	}
+    if (recheckForFill && (result < suggestedHeight) ) {
+        result = suggestedHeight;
+    }
 	return result;
 }
 
@@ -1982,15 +1974,13 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
         UIView *parentView = [parent parentViewForChild:self];
         CGSize referenceSize = (parentView != nil) ? parentView.bounds.size : sandboxBounds.size;
-       if (parent) {
-            //Always use sandbox bounds if parent is not absolute layout
-            if (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle)) {
-                referenceSize = sandboxBounds.size;
-            }
+        if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle)) ) {
+            sizeCache.size = SizeConstraintViewWithSizeAddingResizing(&layoutProperties,self, sandboxBounds.size, &autoresizeCache);
         }
-
-		sizeCache.size = SizeConstraintViewWithSizeAddingResizing(&layoutProperties,self, referenceSize, &autoresizeCache);
-
+        else {
+            sizeCache.size = SizeConstraintViewWithSizeAddingResizing(&layoutProperties,self, referenceSize, &autoresizeCache);
+        }
+       
 		positionCache = PositionConstraintGivenSizeBoundsAddingResizing(&layoutProperties, self, sizeCache.size,
 		[[view layer] anchorPoint], referenceSize, sandboxBounds.size, &autoresizeCache);
 
@@ -2192,11 +2182,11 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         CGFloat boundingHeight = bounds.size.height-verticalLayoutBoundary;
         
         //LEFT + RIGHT
-        CGFloat offset = TiDimensionCalculateValue([child layoutProperties]->left, boundingWidth)
-        + TiDimensionCalculateValue([child layoutProperties]->right, boundingWidth);
+        CGFloat offset = TiDimensionCalculateValue([child layoutProperties]->left, bounds.size.width)
+        + TiDimensionCalculateValue([child layoutProperties]->right, bounds.size.width);
         //TOP + BOTTOM
-        CGFloat offset2 = TiDimensionCalculateValue([child layoutProperties]->top, boundingHeight)
-        + TiDimensionCalculateValue([child layoutProperties]->bottom, boundingHeight);
+        CGFloat offset2 = TiDimensionCalculateValue([child layoutProperties]->top, bounds.size.height)
+        + TiDimensionCalculateValue([child layoutProperties]->bottom, bounds.size.height);
         
         TiDimension constraint = [child layoutProperties]->width;
         
@@ -2216,7 +2206,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             else if (!TiDimensionIsUndefined([child layoutProperties]->left) && !TiDimensionIsUndefined([child layoutProperties]->right) ) {
                 recalculateWidth = YES;
                 followsFillBehavior = YES;
-                desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offset,boundingHeight)];
+                desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offset,boundingHeight - offset2)] + offset;
             }
             else if (!TiDimensionIsUndefined([child layoutProperties]->centerX) && !TiDimensionIsUndefined([child layoutProperties]->right) ) {
                 CGFloat height = 2 * ( boundingWidth - TiDimensionCalculateValue([child layoutProperties]->right, boundingWidth) - TiDimensionCalculateValue([child layoutProperties]->centerX, boundingWidth));
@@ -2224,30 +2214,35 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             }
             else {
                 recalculateWidth = YES;
-                desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offset,boundingHeight)];
+                desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offset,boundingHeight - offset2)] + offset;
             }
         }
         else {
+            //This block takes care of auto,SIZE and FILL. If it is size ensure followsFillBehavior is set to false
             recalculateWidth = YES;
-            desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offset,boundingHeight)];
+            desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offset,boundingHeight - offset2)] + offset;
+            if (TiDimensionIsAutoSize(constraint)) {
+                followsFillBehavior = NO;
+            }
         }
         CGFloat desiredHeight;
-        BOOL childIsPercent = TiDimensionIsPercent([child layoutProperties]->height);
-        if (childIsPercent)
+        BOOL childIsFixedHeight = TiDimensionIsPercent([child layoutProperties]->height) || TiDimensionIsDip([child layoutProperties]->height);
+        if (childIsFixedHeight)
         {
             //For percent width is irrelevant
             desiredHeight = [child minimumParentHeightForSize:CGSizeMake(0,bounds.size.height)];
+            bounds.size.height = desiredHeight;
         }
         if (desiredWidth > boundingWidth) {
             if (horizontalLayoutBoundary == 0.0) {
                 //This is start of row
                 bounds.origin.x = horizontalLayoutBoundary;
                 bounds.origin.y = verticalLayoutBoundary;
-                if (!childIsPercent)
+                if (!childIsFixedHeight)
                 {
                     desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offset,boundingHeight)];
+                    bounds.size.height = desiredHeight + offset2;
                 }
-                bounds.size.height = desiredHeight + offset2;
                 verticalLayoutBoundary += bounds.size.height;
                 horizontalLayoutRowHeight = 0.0;
             }
@@ -2262,61 +2257,55 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                 boundingWidth = bounds.size.width;
                 boundingHeight = bounds.size.height - verticalLayoutBoundary;
                 
-                offset = TiDimensionCalculateValue([child layoutProperties]->left, boundingWidth)
-                + TiDimensionCalculateValue([child layoutProperties]->right, boundingWidth);
-                
-                offset2 = TiDimensionCalculateValue([child layoutProperties]->top, boundingHeight)
-                + TiDimensionCalculateValue([child layoutProperties]->bottom, boundingHeight);
-                
                 if (!recalculateWidth) {
                     if (desiredWidth < boundingWidth) {
-                        if (!childIsPercent)
+                        if (!childIsFixedHeight)
                         {
                             desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offset,boundingHeight)];
+                            bounds.size.height = desiredHeight + offset2;
                         }                    
-                        bounds.size.height = desiredHeight + offset2;
                         horizontalLayoutBoundary += desiredWidth;
                         bounds.size.width = desiredWidth;
                         horizontalLayoutRowHeight = bounds.size.height;
                     }
                     else {
                         //Will take up whole row
-                        if (!childIsPercent)
+                        if (!childIsFixedHeight)
                         {
                             desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth - offset,boundingHeight)];
+                            bounds.size.height = desiredHeight + offset2;
                         }                    
-                        bounds.size.height = desiredHeight + offset2;
                         verticalLayoutBoundary += bounds.size.height;
                     }
                 }
                 else if (followsFillBehavior) {
                     //Will take up whole row
-                    if (!childIsPercent)
+                    if (!childIsFixedHeight)
                     {
                         desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth - offset,boundingHeight)];
+                        bounds.size.height = desiredHeight + offset2;
                     }                    
-                    bounds.size.height = desiredHeight + offset2;
                     verticalLayoutBoundary += bounds.size.height;
                 }
                 else {
-                    desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offset,boundingHeight - offset2)];
+                    desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offset,boundingHeight - offset2)] + offset;
                     if (desiredWidth < boundingWidth) {
-                        if (!childIsPercent)
+                        if (!childIsFixedHeight)
                         {
                             desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offset,boundingHeight)];
+                            bounds.size.height = desiredHeight + offset2;
                         }                    
-                        bounds.size.height = desiredHeight + offset2;
                         bounds.size.width = desiredWidth + offset;
                         horizontalLayoutBoundary = bounds.size.width;
                         horizontalLayoutRowHeight = bounds.size.height;
                     }
                     else {
                         //Will take up whole row
-                        if (!childIsPercent)
+                        if (!childIsFixedHeight)
                         {
                             desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth - offset,boundingHeight)];
+                            bounds.size.height = desiredHeight + offset2;
                         }
-                        bounds.size.height = desiredHeight + offset2;
                         verticalLayoutBoundary += bounds.size.height;
                     }
                 }
@@ -2325,19 +2314,20 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         }
         else {
             //If it fits update the horizontal layout row height
-            if (!childIsPercent)
+            if (!childIsFixedHeight)
             {
                 desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offset,boundingHeight)];
+                bounds.size.height = desiredHeight + offset2;
             }
             bounds.origin.x = horizontalLayoutBoundary;
             bounds.origin.y = verticalLayoutBoundary;
-            bounds.size.height = desiredHeight + offset2;
+            
             if (bounds.size.height > horizontalLayoutRowHeight) {
                 horizontalLayoutRowHeight = bounds.size.height;
             }
             if (!recalculateWidth) {
                 //DIP,PERCENT,UNDEFINED WITH ATLEAST 2 PINS one of them being centerX
-                bounds.size.width = desiredWidth + offset;
+                bounds.size.width = desiredWidth;
                 horizontalLayoutBoundary += bounds.size.width;
             }
             else if(followsFillBehavior)
@@ -2346,16 +2336,15 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                 bounds.size.width = boundingWidth;
                 horizontalLayoutBoundary = 0.0;
                 horizontalLayoutRowHeight = 0.0;
-                verticalLayoutBoundary += horizontalLayoutRowHeight;
+                verticalLayoutBoundary += bounds.size.height;
             }
             else
             {
                 //SIZE behavior
-                bounds.size.width = desiredWidth + offset;
+                bounds.size.width = desiredWidth;
                 horizontalLayoutBoundary += bounds.size.width;
             }
         }
-        
     }
     
     return bounds;

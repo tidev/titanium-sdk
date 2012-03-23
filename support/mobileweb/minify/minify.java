@@ -64,9 +64,14 @@ public class minify {
 			Arrays.sort(files);
 			for (int i = 0; i < files.length; i++) {
 				String dest = files[i].getAbsolutePath();
-				if (files[i].isDirectory()) {
+				if (files[i].isDirectory()
+					&& !files[i].getName().equals(".git")
+					&& !files[i].getName().equals(".svn")
+					&& !files[i].getName().equals("_svn")
+					&& !files[i].getName().equals("CSV")
+				) {
 					walk(files[i]);
-				} else if (dest.endsWith(".js")) {
+				} else if (!files[i].getName().startsWith("._") && files[i].getName().endsWith(".js")) {
 					String source = dest + ".uncompressed.js";
 					
 					System.out.println("[INFO] Minifying " + dest);

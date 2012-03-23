@@ -314,25 +314,25 @@ NSArray* moviePlayerKeys = nil;
 // < 3.2 functions for controls - deprecated
 -(void)setMovieControlMode:(NSNumber *)value
 {
-    DEPRECATED_REPLACED(@"Ti.Media.VideoPlayer.movieControlMode", @"1.8.0", @"1.9.0", @"Ti.Media.VideoPlayer.mediaControlStyle");    
+    DEPRECATED_REPLACED(@"Media.VideoPlayer.movieControlMode", @"1.8.0", @"Ti.Media.VideoPlayer.mediaControlStyle");    
 	[self setMediaControlStyle:value];
 }
 
 -(NSNumber*)movieControlMode
 {
-    DEPRECATED_REPLACED(@"Ti.Media.VideoPlayer.movieControlMode", @"1.8.0", @"1.9.0", @"Ti.Media.VideoPlayer.mediaControlStyle");        
+    DEPRECATED_REPLACED(@"Media.VideoPlayer.movieControlMode", @"1.8.0", @"Ti.Media.VideoPlayer.mediaControlStyle");        
 	return [self mediaControlStyle];
 }
 
 -(void)setMovieControlStyle:(NSNumber *)value
 {
-    DEPRECATED_REPLACED(@"Ti.Media.VideoPlayer.movieControlStyle", @"1.8.0", @"1.9.0", @"Ti.Media.VideoPlayer.mediaControlStyle");
+    DEPRECATED_REPLACED(@"Media.VideoPlayer.movieControlStyle", @"1.8.0", @"Ti.Media.VideoPlayer.mediaControlStyle");
     [self setMediaControlStyle:value];
 }
 
 -(NSNumber*)movieControlStyle
 {
-    DEPRECATED_REPLACED(@"Ti.Media.VideoPlayer.movieControlStyle", @"1.8.0", @"1.9.0", @"Ti.Media.VideoPlayer.mediaControlStyle");
+    DEPRECATED_REPLACED(@"Media.VideoPlayer.movieControlStyle", @"1.8.0", @"Ti.Media.VideoPlayer.mediaControlStyle");
     return [self mediaControlStyle];
 }
 

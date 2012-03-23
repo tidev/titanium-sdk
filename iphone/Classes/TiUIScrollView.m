@@ -10,6 +10,65 @@
 #import "TiUIScrollViewProxy.h"
 #import "TiUtils.h"
 
+@implementation TiUIScrollViewImpl
+
+-(void)setTouchHandler:(TiUIView*)handler
+{
+    //Assign only. No retain
+    touchHandler = handler;
+}
+
+- (BOOL)touchesShouldBegin:(NSSet *)touches withEvent:(UIEvent *)event inContentView:(UIView *)view
+{
+    //If the content view is of type TiUIView touch events will automatically propagate
+    //If it is not of type TiUIView we will fire touch events with ourself as source
+    if ([view isKindOfClass:[TiUIView class]]) {
+        touchedContentView= view;
+    }
+    else {
+        touchedContentView = nil;
+    }
+    return [super touchesShouldBegin:touches withEvent:event inContentView:view];
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+    //When userInteractionEnabled is false we do nothing since touch events are automatically
+    //propagated. If it is dragging,tracking or zooming do not do anything.
+    if (!self.dragging && !self.zooming && !self.tracking 
+        && self.userInteractionEnabled && (touchedContentView == nil) ) {
+        [touchHandler processTouchesBegan:touches withEvent:event];
+ 	}		
+	[super touchesBegan:touches withEvent:event];
+}
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+    if (!self.dragging && !self.zooming && !self.tracking 
+        && self.userInteractionEnabled && (touchedContentView == nil) ) {
+        [touchHandler processTouchesMoved:touches withEvent:event];
+    }		
+	[super touchesMoved:touches withEvent:event];
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+    if (!self.dragging && !self.zooming && !self.tracking 
+        && self.userInteractionEnabled && (touchedContentView == nil) ) {
+        [touchHandler processTouchesEnded:touches withEvent:event];
+    }		
+	[super touchesEnded:touches withEvent:event];
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+    if (!self.dragging && !self.zooming && !self.tracking 
+        && self.userInteractionEnabled && (touchedContentView == nil) ) {
+        [touchHandler processTouchesCancelled:touches withEvent:event];
+    }		
+	[super touchesCancelled:touches withEvent:event];
+}
+@end
+
 @implementation TiUIScrollView
 
 - (void) dealloc
@@ -33,16 +92,17 @@
 	return wrapperView;
 }
 
--(UIScrollView *)scrollView
+-(TiUIScrollViewImpl *)scrollView
 {
 	if(scrollView == nil)
 	{
-		scrollView = [[UIScrollView alloc] initWithFrame:[self bounds]];
+		scrollView = [[TiUIScrollViewImpl alloc] initWithFrame:[self bounds]];
 		[scrollView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		[scrollView setBackgroundColor:[UIColor clearColor]];
 		[scrollView setShowsHorizontalScrollIndicator:NO];
 		[scrollView setShowsVerticalScrollIndicator:NO];
 		[scrollView setDelegate:self];
+        [scrollView setTouchHandler:self];
 		[self addSubview:scrollView];
 	}
 	return scrollView;

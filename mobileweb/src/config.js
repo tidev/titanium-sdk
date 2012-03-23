@@ -13,7 +13,6 @@ var require = {
 	},
 	deployType: "${deploy_type | jsQuoteEscapeFilter}",
 	has: {
-		"analytics-use-xhr": false,
 		"declare-property-methods": true,
 		"js-btoa": function(g) {
 			return "btoa" in g;
@@ -32,7 +31,9 @@ var require = {
 				} catch (e) {}
 			}(Object.defineProperty, {}));
 		},
-		"opera": typeof opera === "undefined" || opera.toString() != "[object Opera]"
+		"opera": typeof opera === "undefined" || opera.toString() != "[object Opera]",
+		"ti-analytics-use-xhr": ${has_analytics_use_xhr | jsQuoteEscapeFilter},
+		"ti-show-errors": ${has_show_errors | jsQuoteEscapeFilter}
 	},
 	locales: ${locales},
 	packages: ${packages},
@@ -46,6 +47,7 @@ var require = {
 		filesystem: {
 			registry: "${ti_fs_registry}"
 		},
+		theme: "${ti_theme | jsQuoteEscapeFilter}",
 		version: "${ti_version | jsQuoteEscapeFilter}"
 	},
 	vendorPrefixes: {
