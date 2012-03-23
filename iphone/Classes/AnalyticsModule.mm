@@ -452,8 +452,6 @@ NSString * const TI_DB_VERSION = @"1";
 		
 		NSMutableDictionary *enrollment = [NSMutableDictionary dictionary];
 		
-        // TODO: remove/deprecate macaddress in enrollment info
-        [enrollment setObject:[TiUtils uniqueIdentifier] forKey:@"mac_addr"];
 		[enrollment setObject:[platform valueForKey:@"processorCount"] forKey:@"oscpu"];
 		[enrollment setObject:[platform valueForKey:@"ostype"] forKey:@"ostype"];
 		[enrollment setObject:[platform valueForKey:@"architecture"] forKey:@"osarch"];
