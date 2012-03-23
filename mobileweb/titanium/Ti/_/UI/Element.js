@@ -1139,7 +1139,7 @@ define(
 			focusable: {
 				value: false,
 				set: function(value) {
-					dom.attr[value ? "add" : "remove"](this._focus.node, "tabindex", 0);
+					dom.attr[value ? "set" : "remove"](this._focus.node, "tabindex", 0);
 					return value;
 				}
 			},
