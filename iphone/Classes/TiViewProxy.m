@@ -2129,7 +2129,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             childBounds.size.height = bounds.size.height;
         }
         [childRect setRect:childBounds];
-        [measuredBounds insertObject:childRect atIndex:i];
+        [measuredBounds addObject:childRect];
         [childRect release];
     }
     
