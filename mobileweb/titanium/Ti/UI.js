@@ -16,7 +16,7 @@ define(
 			Ti.UI._recalculateLayout();
 			hidingAddressBar = 0;
 		},
-		undef;
+		unitize = dom.unitize;
 
 	on(body, "touchmove", function(e) {
 		e.preventDefault();
@@ -24,8 +24,7 @@ define(
 
 	require.each(modules.split(','), function(name) {
 		creators['create' + name] = function(args) {
-			var m = require("Ti/UI/" + name);
-			return new m(args);
+			return new (require("Ti/UI/" + name))(args);
 		};
 	});
 
@@ -71,12 +70,27 @@ define(
 	}
 
 	ready(10, function() {
-		var node = (Ti.UI._container = Ti.UI.createView({
-			left: 0,
-			top: 0
-		})).domNode;
+		var splashScreen = document.getElementById("splash"),
+			container = (Ti.UI._container = Ti.UI.createView({
+				left: 0,
+				top: 0
+			})),
+			node = container.domNode;
 		setStyle(node, "overflow", "hidden");
 		body.appendChild(node);
+		container.addEventListener("postlayout", function(){
+			setTimeout(function(){
+				setStyle(splashScreen,{
+					position: "absolute",
+					width: unitize(container._measuredWidth),
+					height: unitize(container._measuredHeight),
+					left: "0px",
+					top: "0px",
+					right: "",
+					bottom: ""
+				});
+			},10);
+		});
 		hideAddressBar();
 	});
 	
@@ -220,8 +234,8 @@ define(
 					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node.width === Ti.UI.SIZE, node.height === Ti.UI.SIZE);
 				}
 				
-				console.debug("Layout " + self._layoutCount + ": " + self._elementLayoutCount + 
-					" elements laid out in " + ((new Date().getTime() - startTime)) + "ms");
+				//console.debug("Layout " + self._layoutCount + ": " + self._elementLayoutCount + 
+				//	" elements laid out in " + ((new Date().getTime() - startTime)) + "ms");
 					
 				self._layoutInProgress = false;
 				self._layoutTimer = null;
@@ -248,7 +262,7 @@ define(
 		properties: {
 			backgroundColor: {
 				set: function(value) {
-					return setStyle(body, "backgroundColor", value);
+					return this._container.backgroundColor = value;
 				}
 			},
 			backgroundImage: {
@@ -256,7 +270,7 @@ define(
 					return setStyle(body, "backgroundImage", value ? style.url(value) : "");
 				}
 			},
-			currentTab: undef
+			currentTab: void 0
 		},
 		
 		convertUnits: function(convertFromValue, convertToUnits) {
@@ -277,7 +291,7 @@ define(
 		},
 
 		constants: {
-			currentWindow: undefined,
+			currentWindow: void 0,
 			UNKNOWN: 0,
 			FACE_DOWN: 1,
 			FACE_UP: 2,
@@ -327,6 +341,7 @@ define(
 			ANIMATION_CURVE_LINEAR: 4,
 			SIZE: "auto",
 			FILL: "fill",
+			INHERIT: "inherit",
 			UNIT_PX: "px",
 			UNIT_MM: "mm",
 			UNIT_CM: "cm",

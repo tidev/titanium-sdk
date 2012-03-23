@@ -4,6 +4,7 @@ summary: The ResultSet instance returned by <Titanium.Database.DB.execute>.
 extends: Titanium.Proxy
 since: "0.1"
 createable: false
+platforms: [android, iphone, ipad]
 
 methods:
   - name: close

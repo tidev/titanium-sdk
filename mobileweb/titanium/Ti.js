@@ -27,7 +27,6 @@ define(
 		unloaded,
 		showingError,
 		waiting = [],
-		undef,
 		Ti = lang.setObject("Ti", Evented, {
 			constants: {
 				buildDate: cfg.ti.buildDate,
@@ -36,7 +35,9 @@ define(
 			},
 
 			properties: {
-				userAgent: "Appcelerator Titanium/" + ver + " (" + navigator.userAgent + ")!"
+				userAgent: function() {
+					return navigator.userAgent;
+				}
 			},
 
 			createBuffer: function(args) {
@@ -179,7 +180,7 @@ define(
 	}
 
 	// console.*() shim	
-	console === undef && (console = {});
+	console === void 0 && (console = {});
 
 	// make sure "log" is always at the end
 	each(["debug", "info", "warn", "error", "log"], function (c) {
@@ -236,7 +237,7 @@ define(
 					return escapeString(it);
 				}
 				if (objtype === "function" || objtype === "undefined") {
-					return undef;
+					return void 0;
 				}
 	
 				// short-circuit for objects that support "json" serialization
@@ -362,17 +363,19 @@ define(
 					});
 				});
 				makeLabel("Error messages will only be displayed during development. When your app is packaged for final distribution, no error screen will appear. Test your code!", "28%", "#000", "10pt");
-
-				win.addEventListener("postlayout", function() {
-					win.animate({
-						duration: 500,
-						top: 0
-					}, function() {
-						win.top = 0;
-						win.height = "100%";
-					});
+				
+				on.once(win,"postlayout", function() {
+					setTimeout(function() {
+						win.animate({
+							duration: 500,
+							top: 0
+						}, function() {
+							win.top = 0;
+							win.height = "100%";
+						});
+					}, 100);
 				});
-
+				
 				win.open();
 			}
 		});

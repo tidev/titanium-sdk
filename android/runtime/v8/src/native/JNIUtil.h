@@ -72,6 +72,7 @@ public:
 	static jclass krollAssetHelperClass;
 	static jclass krollLoggingClass;
 	static jclass tiJsErrorDialogClass;
+	static jclass referenceTableClass;
 
 	// Java methods
 	static jmethodID classGetNameMethod;
@@ -99,6 +100,12 @@ public:
 	static jfieldID v8ObjectPtrField;
 	static jmethodID v8ObjectInitMethod;
 	static jmethodID v8FunctionInitMethod;
+
+	static jmethodID referenceTableCreateReferenceMethod;
+	static jmethodID referenceTableDestroyReferenceMethod;
+	static jmethodID referenceTableMakeWeakReferenceMethod;
+	static jmethodID referenceTableClearWeakReferenceMethod;
+	static jmethodID referenceTableGetReferenceMethod;
 
 	static jint krollRuntimeDontIntercept;
 	static jmethodID krollInvocationInitMethod;

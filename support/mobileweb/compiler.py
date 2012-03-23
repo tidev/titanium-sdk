@@ -11,6 +11,7 @@ common_dir = os.path.join(os.path.dirname(this_dir), "common")
 sys.path.append(common_dir)
 import mako.template
 import simplejson
+from csspacker import CSSPacker
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store']
 ignoreDirs = ['.git','.svn','_svn','CVS']
@@ -51,7 +52,7 @@ class Compiler(object):
 		self.sdk_src_path = os.path.join(self.sdk_path, 'src')
 		self.themes_path = os.path.join(self.sdk_path, 'themes')
 		self.ti_package_path = os.path.join(self.sdk_path, 'titanium')
-		self.modules_path = os.path.abspath(os.path.join(self.sdk_path, '..', '..', '..', '..', 'modules', 'mobileweb'))
+		self.modules_path = os.path.abspath(os.path.join(self.sdk_path, '..', '..', '..', '..', 'modules'))
 		self.project_path = project_path
 		self.build_path = os.path.join(project_path, 'build', 'mobileweb')
 		self.resources_path = os.path.join(project_path, 'Resources')
@@ -139,23 +140,36 @@ class Compiler(object):
 			for module in tiapp_xml['modules']:
 				if module['platform'] == '' or module['platform'] == 'mobileweb':
 					if 'version' in module and module['version']:
+						# search <project dir>/modules/mobileweb/<module>/<version>/
 						module_dir = os.path.join(self.project_path, 'modules', 'mobileweb', module['id'], module['version'])
 						if not os.path.exists(module_dir):
-							module_dir = os.path.join(self.modules_path, module['id'], module['version'])
+							# search <project dir>/modules/commonjs/<module>/<version>/
+							module_dir = os.path.join(self.project_path, 'modules', 'commonjs', module['id'], module['version'])
 							if not os.path.exists(module_dir):
-								print '[ERROR] Unable to find Ti+ module "%s", v%s' % (module['id'], module['version'])
-								sys.exit(1)
+								# search <global module dir>/<module>/<version>/
+								module_dir = os.path.join(self.modules_path, 'mobileweb', module['id'], module['version'])
+								if not os.path.exists(module_dir):
+									# search <global commonjs dir>/<module>/<version>/
+									module_dir = os.path.join(self.modules_path, 'commonjs', module['id'], module['version'])
+									if not os.path.exists(module_dir):
+										print '[ERROR] Unable to find Ti+ module "%s", v%s' % (module['id'], module['version'])
+										sys.exit(1)
 					else:
-						module_path = os.path.join(self.project_path, 'modules', 'mobileweb', module['id'])
-						module_dir = None
-						module['version'] = '0.0.0'
-						for dir in os.listdir(module_path):
-							if compare_versions(module['version'], dir) == -1:
-								module['version'] = dir
-								module_dir = os.path.join(self.project_path, 'modules', 'mobileweb', module['id'], dir)
+						# no version number, gotta do it the hard way
+						# search <project dir>/modules/mobileweb/<module>/
+						module_dir = self.locate_module(os.path.join(self.project_path, 'modules', 'mobileweb', module['id']))
 						if module_dir is None:
-							print '[ERROR] Found Ti+ module "%s", but unable to find a version' % module['id']
-							sys.exit(1)
+							# search <project dir>/modules/commonjs/<module>/<version>/
+							module_dir = self.locate_module(os.path.join(self.project_path, 'modules', 'commonjs', module['id']))
+							if module_dir is None:
+								# search <global module dir>/<module>/<version>/
+								module_dir = self.locate_module(os.path.join(self.modules_path, 'mobileweb', module['id']))
+								if module_dir is None:
+									# search <global commonjs dir>/<module>/<version>/
+									module_dir = self.locate_module(os.path.join(self.modules_path, 'commonjs', module['id']))
+									if module_dir is None:
+										print '[ERROR] Unable to find Ti+ module "%s"' % module['id']
+										sys.exit(1)
 					
 					module_package_json_file = os.path.join(module_dir, 'package.json')
 					if not os.path.exists(module_package_json_file):
@@ -285,7 +299,7 @@ class Compiler(object):
 			ti_timestamp          = self.package_json['titanium']['timestamp'],
 			ti_version            = sdk_version,
 			has_analytics_use_xhr = tiapp_xml['mobileweb']['analytics']['use-xhr'],
-			has_show_errors       = 'false' if deploytype == 'production' or tiapp_xml['mobileweb']['disable-error-screen'] == 'false' else 'true',
+			has_show_errors       = 'false' if deploytype == 'production' or tiapp_xml['mobileweb']['disable-error-screen'] == 'true' else 'true',
 			jsQuoteEscapeFilter   = lambda str: str.replace("\\\"","\\\\\\\"")
 		))
 		
@@ -415,14 +429,10 @@ class Compiler(object):
 
 		# build the titanium.css file
 		print '[INFO] Assembling titanium.css...'
-		self.ti_css_file = os.path.join(self.build_path, 'titanium.css')
-		ti_css = codecs.open(self.ti_css_file, 'w', encoding='utf-8')
+		ti_css = HEADER + '\n' + splash_css + '\n' + codecs.open(os.path.join(self.themes_path, 'common.css'), 'r', 'utf-8').read()
 		
 		# TODO: need to rewrite absolute paths for urls
-		ti_css.write(HEADER + '\n' + splash_css + '\n' + codecs.open(os.path.join(self.themes_path, 'common.css'), 'r', 'utf-8').read())
 		
-		# TODO: get theme from tiapp.xml
-		theme = 'titanium'
 		if len(theme):
 			theme_path = os.path.join(self.resources_path, 'themes', theme)
 			if not os.path.exists(theme_path):
@@ -436,7 +446,7 @@ class Compiler(object):
 					for filename in filenames:
 						fname, ext = os.path.splitext(filename.lower())
 						if ext == '.css':
-							ti_css.write(codecs.open(os.path.join(dirname, filename), 'r', 'utf-8').read())
+							ti_css += codecs.open(os.path.join(dirname, filename), 'r', 'utf-8').read()
 		
 		# detect any fonts and add font face rules to the css file
 		fonts = {}
@@ -448,10 +458,16 @@ class Compiler(object):
 						fonts[fname] = []
 					fonts[fname].append(os.path.join(dirname, filename)[len(self.resources_path):])
 		for font in fonts:
-			ti_css.write('@font-face{font-family:%s;src:url(%s);}\n' % (font, '),url('.join(fonts[font])))
+			ti_css += '@font-face{font-family:%s;src:url(%s);}\n' % (font, '),url('.join(fonts[font]))
 		
-		# close the titanium.css
-		ti_css.close()
+		# minify the css
+		if self.minify:
+			ti_css = CSSPacker(ti_css).pack()
+		
+		# write the titanium.css
+		ti_css_file = codecs.open(os.path.join(self.build_path, 'titanium.css'), 'w', encoding='utf-8')
+		ti_css_file.write(ti_css)
+		ti_css_file.close()
 		
 		# minify all javascript, html, and css files
 		if self.minify:
@@ -508,7 +524,7 @@ class Compiler(object):
 			splash_screen      = splash_html,
 			ti_generator       = 'Appcelerator Titanium Mobile ' + sdk_version,
 			ti_statusbar_style = status_bar_style,
-			ti_css             = codecs.open(self.ti_css_file, 'r', 'utf-8').read(),
+			ti_css             = ti_css,
 			ti_js              = codecs.open(self.ti_js_file, 'r', 'utf-8').read()
 		))
 		index_html_file.close()
@@ -627,6 +643,15 @@ class Compiler(object):
 			sys.exit(1)
 		self.package_json = simplejson.load(codecs.open(package_json_file, 'r', 'utf-8'))
 	
+	def locate_module(self, path):
+		module_dir = None
+		module['version'] = '0.0.0'
+		for dir in os.listdir(path):
+			if compare_versions(module['version'], dir) == -1:
+				module['version'] = dir
+				module_dir = os.path.join(path, dir)
+		return module_dir
+	
 	def find_project_dependencies(self):
 		print '[INFO] Scanning project for dependencies...'
 		
@@ -663,6 +688,7 @@ class Compiler(object):
 			'Ti/Map/Annotation',
 			'Ti/Media/VideoPlayer',
 			'Ti/UI',
+			'Ti/UI/Clipboard',
 			'Ti/UI/MobileWeb',
 			'Ti/UI/TableViewRow',
 			'Ti/UI/Tab',
@@ -691,7 +717,8 @@ class Compiler(object):
 			'Ti/UI/TextField',
 			'Ti/UI/WebView',
 			'Ti/UI/MobileWeb/NavigationGroup',
-			'Ti/Utils'
+			'Ti/Utils',
+			'Ti/Yahoo'
 		]
 	
 	def parse_deps(self, deps):

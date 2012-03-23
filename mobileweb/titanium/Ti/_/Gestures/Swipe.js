@@ -82,7 +82,8 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 									y: y,
 									direction: direction,
 									_distance: x - this._touchStartLocation.x,
-									_finishedSwiping: finishedSwiping
+									_finishedSwiping: finishedSwiping,
+									source: this.getSourceNode(e,element)
 								}));
 							}
 						}

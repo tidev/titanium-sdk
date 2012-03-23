@@ -11,14 +11,14 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 				
 			// Determine if any children have fill height
 			for (var i = 0; i < children.length; i++) {
-				children[i].height === UI.FILL && (childrenWithFillHeight = true);
+				children[i]._hasFillHeight() && (childrenWithFillHeight = true);
 			}
 				
 			// Measure the children
 			if (childrenWithFillHeight) {
 				for (var i = 0; i < children.length; i++) {
 					var child = children[i];
-					if (this.verifyChild(child,element) && child.height !== UI.FILL) {
+					if (this.verifyChild(child,element) && !child._hasFillHeight()) {
 						var childHeight;
 						if (child._markedForLayout) {
 							childHeight = child._doLayout({
@@ -38,11 +38,12 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 							 		horizontal: this._defaultHorizontalAlignment,
 							 		vertical: this._defaultVerticalAlignment
 							 	},
+							 	bottomIsMargin: true,
 								positionElement: false,
 						 		layoutChildren: true
-							}).height;
+							}).effectiveHeight;
 						} else {
-							childHeight = child._measuredHeight;
+							childHeight = child._measuredEffectiveHeight;
 						}
 						availableHeight -= childHeight;
 					}
@@ -54,7 +55,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 				
 				// Layout the child
 				var child = children[i],
-					isHeightFill = child.height === UI.FILL;
+					isHeightFill = child._hasFillHeight();
 				if (child._markedForLayout) {
 					child._doLayout({
 					 	origin: {
@@ -73,6 +74,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 					 		horizontal: this._defaultHorizontalAlignment,
 					 		vertical: this._defaultVerticalAlignment
 					 	},
+						bottomIsMargin: true,
 					 	positionElement: true,
 					 	layoutChildren: !childrenWithFillHeight || isHeightFill
 				 	});

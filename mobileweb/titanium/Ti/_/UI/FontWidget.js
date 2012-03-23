@@ -63,7 +63,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti
 			});
 
 			// Return the computed style
-			return { width: emptyText ? 0 : textRuler.clientWidth, height: textRuler.clientHeight };
+			return { width: emptyText ? 0 : textRuler.clientWidth + 0.5, height: textRuler.clientHeight };
 		},
 
 		properties: {

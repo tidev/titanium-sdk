@@ -33,24 +33,24 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 
 			VIDEO_FINISH_REASON_PLAYBACK_ENDED: 0,
 			VIDEO_FINISH_REASON_PLAYBACK_ERROR: 1,
-			VIDEO_FINISH_REASON_USER_EXITED: 2
+			VIDEO_FINISH_REASON_USER_EXITED: 2,
+
+			MEDIA_TYPE_PHOTO: "public.image",
+			MEDIA_TYPE_VIDEO: "public.video"
 		},
 
-		beep: function() {
-			console.debug('Method "Titanium.Media.beep" is not implemented yet.');
-		},
+		//beep: function() {},
 
-		createAudioPlayer: function() {
-			console.debug('Method "Titanium.Media.createAudioPlayer" is not implemented yet.');
-		},
+		//createAudioPlayer: function() {},
 
-		createSound: function() {
-			console.debug('Method "Titanium.Media.createSound" is not implemented yet.');
-		},
+		//createSound: function() {},
 
 		createVideoPlayer: function(args) {
-			var VideoPlayer = require("Ti/Media/VideoPlayer");
-			return new VideoPlayer(args);
+			return new (require("Ti/Media/VideoPlayer"))(args);
+		},
+
+		vibrate: function(pattern) {
+			"vibrate" in navigator && navigator.vibrate(require.is(pattern, "Array") ? pattern : [pattern | 0]);
 		}
 
 	});

@@ -305,9 +305,9 @@ class Compiler(object):
 				variables = {}
 				mods.write(MODULE_IMPL_HEADER)
 				for module in modules:
-				    if module.js:
-					# CommonJS module
-					module_js.append({'from': module.js, 'path': 'modules/' + os.path.basename(module.js)})
+					if module.js:
+						# CommonJS module
+						module_js.append({'from': module.js, 'path': 'modules/' + os.path.basename(module.js)})
 					module_id = module.manifest.moduleid.lower()
 					module_name = module.manifest.name.lower()
 					module_version = module.manifest.version

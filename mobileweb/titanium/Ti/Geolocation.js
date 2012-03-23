@@ -9,8 +9,7 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/Network"], function(Evented, lang, Netw
 		currentLocation,
 		numHeadingEventListeners = 0,
 		numLocationEventListeners = 0,
-		isDef = lang.isDef,
-		undef;
+		isDef = lang.isDef;
 	
 	function singleShotHeading(callback) {
 		var removeOrientation = on(window,"deviceorientation",function(e) {
@@ -100,7 +99,7 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/Network"], function(Evented, lang, Netw
 				},
 				timeout : api.MobileWeb.forwardGeocoderTimeout
 			});
-			client.open("GET", "http://api.appcelerator.com/p/v1/geo?d=f&" + 
+			client.open("GET", "http://api.appcelerator.net/p/v1/geo?d=f&" + 
 				// TODO "c=" + Locale.getCurrentCountry() + 
 				"q=" + escape(address));
 			client.send();
@@ -121,7 +120,7 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/Network"], function(Evented, lang, Netw
 				},
 				timeout : api.MobileWeb.forwardGeocoderTimeout
 			});
-			client.open("GET", "http://api.appcelerator.com/p/v1/geo?d=r&" + 
+			client.open("GET", "http://api.appcelerator.net/p/v1/geo?d=r&" + 
 				// TODO "c=" + Locale.getCurrentCountry() + 
 				"q=" + latitude + "," + longitude);
 			client.send();
@@ -200,8 +199,8 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/Network"], function(Evented, lang, Netw
 				locationTimeout: Infinity,
 				maximumLocationAge: 0,
 				maximumHeadingAge: 1000,
-				forwardGeocoderTimeout: undef,
-				reverseGeocoderTimeout: undef
+				forwardGeocoderTimeout: void 0,
+				reverseGeocoderTimeout: void 0
 			}
 			
 		},

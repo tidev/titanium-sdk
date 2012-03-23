@@ -2,8 +2,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 	function(declare, lang, Widget, style, TableViewSeparatorStyle, UI) {
 	
 	var is = require.is,
-		setStyle = style.set,
-		undef;
+		setStyle = style.set;
 
 	return declare("Ti.UI.TableViewSection", Widget, {
 		
@@ -11,14 +10,18 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			this._indexedContent = [];
 
 			require.each(["_header", "_rows", "_footer"], lang.hitch(this, function(v) {
-				Widget.prototype.add.call(this, this[v] = UI.createView({ height: UI.SIZE, layout: "vertical" }));
+				Widget.prototype.add.call(this, this[v] = UI.createView({ 
+					height: UI.SIZE, 
+					width: UI.INHERIT, 
+					layout: "vertical"
+				}));
 			}));
 
 			// Create the parts out of Ti controls so we can make use of the layout system
 			this.layout = "vertical";
 		},
 
-		_defaultWidth: UI.FILL,
+		_defaultWidth: UI.INHERIT,
 
 		_defaultHeight: UI.SIZE,
 		
@@ -32,12 +35,14 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 		_tableView: null,
 		
 		_createSeparator: function() {
-			var showSeparator = this._tableView && this._tableView.separatorStyle === TableViewSeparatorStyle.SINGLE_LINE;
-			return UI.createView({
-				height: showSeparator ? 1 : 0,
-				width: "100%",
-				backgroundColor: showSeparator ? this._tableView.separatorColor : "transparent"
-			});
+			var showSeparator = this._tableView && this._tableView.separatorStyle === TableViewSeparatorStyle.SINGLE_LINE,
+				separator = UI.createView({
+					height: showSeparator ? 1 : 0,
+					width: UI.INHERIT,
+					backgroundColor: showSeparator ? this._tableView.separatorColor : "transparent"
+				});
+			setStyle(separator.domNode,"minWidth","100%"); // Temporary hack until TIMOB-8124 is completed.
+			return separator;
 		},
 		
 		_createDecorationLabel: function(text) {
@@ -45,7 +50,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 				text: text, 
 				backgroundColor: "darkGrey",
 				color: "white",
-				width: "100%",
+				width: UI.INHERIT,
 				height: UI.SIZE,
 				left: 0,
 				font: {fontSize: 18}
@@ -56,13 +61,13 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			if (this._tableView) {
 				// Update the row information
 				var rows = this._rows.children,
-					tableView = this._tableView; 
+					tableView = this._tableView,
 					rowsData = this.constants.rows = [];
 				for (var i = 1; i < rows.length; i += 2) {
 					var row = rows[i];
 					row._defaultHeight = tableView.rowHeight;
-					setStyle(row.domNode, "minHeight", tableView.minRowHeight);
-					setStyle(row.domNode, "maxHeight", tableView.maxRowHeight);
+					row._minHeight = tableView.minRowHeight;
+					row._maxHeight = tableView.maxRowHeight;
 					rowsData.push(row);
 				}
 				
@@ -140,7 +145,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 		},
 		
 		constants: {
-			rows: undef
+			rows: void 0
 		},
 					
 		properties: {

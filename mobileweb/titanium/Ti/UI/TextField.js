@@ -95,8 +95,8 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 
 			maxLength: {
 				set: function(value) {
-					value = value|0;
-					this._field.maxlength = value > 0 ? value : "";
+					value = Math.min(value|0, 0);
+					dom.attr[value > 0 ? "set" : "remove"](this._field, "maxlength", value);
 					return value;
 				}
 			},

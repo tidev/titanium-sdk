@@ -122,7 +122,7 @@
 		// returns:
 		//		Boolean if type is passed in
 		//		String of type if type is not passed in
-		var t = it === undefined ? "" : ({}).toString.call(it),
+		var t = it === void 0 ? "" : ({}).toString.call(it),
 			m = t.match(/^\[object (.+)\]$/),
 			v = m ? m[1] : "Undefined";
 		return type ? type === v : v;
@@ -226,7 +226,7 @@
 		// force: Boolean?
 		//		If true, forces the test to override an existing test.
 
-		if (hasCache[name] === undefined || force) {
+		if (hasCache[name] === void 0 || force) {
 			hasCache[name] = test;
 		}
 		return now && has(name);
