@@ -839,7 +839,7 @@ define(
 		_doBackground: function(evt) {
 			var evt = evt || {},
 				m = (evt.type || "").match(/mouse(over|out)/),
-				node = this._focus.node,
+				node = this.domNode,
 				bi = this.backgroundImage || this._defaultBackgroundImage || "none",
 				bc = this.backgroundColor || this._defaultBackgroundColor;
 
