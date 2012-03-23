@@ -3,13 +3,14 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/dom", "Ti/_/css", "Ti/_/style",
 
 	return declare("Ti.UI.TextArea", TextBox, {
 
-		domType: "textarea",
-
 		constructor: function(args) {
-			style.set(this._field = this.domNode, {
-				width: "100%",
-				height: "100%"
-			});
+			this._field = dom.create("textarea", {
+				autocomplete: "off",
+				style: {
+					width: "100%",
+					height: "100%"
+				}
+			}, this.domNode);
 
 			this._initTextBox();
 		},
