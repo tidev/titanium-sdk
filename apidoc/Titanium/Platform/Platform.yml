@@ -134,17 +134,20 @@ properties:
     permission: read-only
     
   - name: id
-    summary: The applications's globally-unique ID (UUID).
+    summary: The unique identifier for this device (UDID)
     description: |
-        On Android, this may be the device's UDID. For iOS, this
-        is a unique identifier for this install of the application.
+        Note that Apple has deprecated the ability to access the device's
+        UDID since iOS 5.0, and are expected to remove this capability
+        without notice as a result. As a result it is recommended to use
+        <Titanium.App.installId> instead to future-proof applications.
         
-        Currently the deprecation cycle applies to iOS only.
+        Although this property is deprecated, it may remain available
+        after Apple removes UDID capabilities and instead return `null`
+        on iOS.
     type: String
     permission: read-only
     deprecated:
         since: "2.0.0"
-        removed: "2.1.0"
         
   - name: locale
     summary: The system's default language.
@@ -158,18 +161,19 @@ properties:
     permission: read-only
     
   - name: macaddress
-    summary: The system's network interface mac address, or app UUID.
+    summary: The system's network interface mac address.
     description: |
-        On iOS, this value is the app's UUID. Apple does not allow
-        access to any mac address information as it can be used for
-        unique device identification.
+        Note that because Apple has deprecated access to the device's
+        UDID as of iOS 5.0, it is assumed they are also intending to block
+        access to the device's MAC addresses, as this is traditionally
+        the hardware information used to hash UDIDs.
         
-        Currently the deprecation cycle applies to iOS only.
+        As a result, this property may become deprecated or return `null`
+        on iOS without warning. It is recommended to use
+        <Titanium.App.installId>, or <Titanium.Platform.createUUID> instead
+        to get a unique identifier depending on app requirements.
     type: String
     permission: read-only
-    deprecated:
-        since: "2.0.0"
-        removed: "2.1.0"
     
   - name: model
     summary: The model of the device.

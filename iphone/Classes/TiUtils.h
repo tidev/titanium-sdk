@@ -507,6 +507,8 @@ typedef enum {
 
 +(NSString*)uniqueIdentifier;
 
++(NSString*)installIdentifier;
+
 +(NSString*)getResponseHeader:(NSString*)header fromHeaders:(NSDictionary*)responseHeaders;
 
 +(UIImage*)loadBackgroundImage:(id)image forProxy:(TiProxy*)proxy;

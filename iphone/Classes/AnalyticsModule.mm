@@ -305,11 +305,12 @@ NSString * const TI_DB_VERSION = @"1";
 	
 	NSMutableDictionary *dict = [NSMutableDictionary dictionary];
 	
+    [dict setObject:[TiUtils uniqueIdentifier] forKey:@"mid"];
 	[dict setObject:@"2" forKey:@"ver"];
 	[dict setObject:[TiUtils UTCDate] forKey:@"ts"];
 	[dict setObject:[TiUtils createUUID] forKey:@"id"];
 	[dict setObject:NUMINT(sequence++) forKey:@"seq"];
-	[dict setObject:[TiUtils uniqueIdentifier] forKey:@"iid "];
+	[dict setObject:[TiUtils installIdentifier] forKey:@"iid "];
 
 	[dict setObject:TI_APPLICATION_GUID forKey:@"aguid"];
 	[dict setObject:TI_APPLICATION_DEPLOYTYPE forKey:@"deploytype"];
@@ -451,6 +452,8 @@ NSString * const TI_DB_VERSION = @"1";
 		
 		NSMutableDictionary *enrollment = [NSMutableDictionary dictionary];
 		
+        // TODO: remove/deprecate macaddress in enrollment info
+        [enrollment setObject:[TiUtils uniqueIdentifier] forKey:@"mac_addr"];
 		[enrollment setObject:[platform valueForKey:@"processorCount"] forKey:@"oscpu"];
 		[enrollment setObject:[platform valueForKey:@"ostype"] forKey:@"ostype"];
 		[enrollment setObject:[platform valueForKey:@"architecture"] forKey:@"osarch"];
