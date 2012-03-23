@@ -32,6 +32,10 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/Evented", "Ti/_/lang"],
 				success: true
 			});
 		},
+		
+		isSupported: function() {
+			return true;
+		},
 
 		constants: {
 			CANCELLED: 0,
