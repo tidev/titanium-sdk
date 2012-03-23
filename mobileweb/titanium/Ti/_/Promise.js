@@ -35,7 +35,7 @@ define(["./declare", "./lang"], function(declare, lang) {
 				} else {
 					this._nextListener = this._head = listener;
 				}
-				this._finished && this._notify();
+				this._finished && this._notify(this._fired);
 				return listener.returnPromise; // this should probably be frozen
 			},
 
