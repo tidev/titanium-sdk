@@ -31,38 +31,8 @@ define(
 					!this._batchUpdateInProgress && this._triggerLayout();
 				}
 				return value;
-			},
-			post: function() {
-				function isPercent(value) {
-					return /%$/.test("" + value);
-				}
-				var centerX = this.center && this.center.x,
-					centerY = this.center && this.center.y;
-				this._isDependentOnParent = !!(isPercent(this.width) || isPercent(this.height) || isPercent(this.top) || isPercent(this.bottom) || 
-					isPercent(this.left) || isPercent(this.right) || isPercent(centerX) || isPercent(centerY) || 
-					this._hasFillWidth() || this._hasFillHeight() ||
-					(!isDef(this.left) && !isDef(centerX) && !isDef(this.right) && this._parent && this._parent._layout._defaultHorizontalAlignment !== "left") ||
-					(!isDef(this.top) && !isDef(centerY) && !isDef(this.bottom) && this._parent && this._parent._layout._defaultVerticalAlignment !== "top"));
 			}
 		};
-		
-	function getInheritedWidth(node) {
-		var nodeParent = node._parent,
-			parentWidth;
-		if (nodeParent) {
-			parentWidth = lang.val(nodeParent.width,nodeParent._defaultWidth);
-			return parentWidth === UI.INHERIT ? getInheritedWidth(nodeParent) : parentWidth;
-		}
-	}
-	
-	function getInheritedHeight(node) {
-		var nodeParent = node._parent,
-			parentHeight;
-		if (nodeParent) {
-			parentHeight = lang.val(nodeParent.height,nodeParent._defaultHeight);
-			return parentHeight === UI.INHERIT ? getInheritedHeight(nodeParent) : parentHeight;
-		}
-	}
 
 	return declare("Ti._.UI.Element", Evented, {
 
@@ -244,16 +214,36 @@ define(
 			this._isAttachedToActiveWin() && (!this._batchUpdateInProgress || force) && UI._triggerLayout(this, force);
 		},
 		
+		_getInheritedWidth: function() {
+			var parent = this._parent,
+				parentWidth;
+			if (parent) {
+				parentWidth = lang.val(parent.width,parent._defaultWidth);
+				return parentWidth === UI.INHERIT ? parent._getInheritedWidth() : parentWidth;
+			}
+		},
+		
+		_getInheritedHeight: function(node) {
+			var parent = this._parent,
+				parentHeight;
+			if (parent) {
+				parentHeight = lang.val(parent.height,parent._defaultHeight);
+				return parentHeight === UI.INHERIT ? parent._getInheritedHeight() : parentHeight;
+			}
+		},
+		
 		_hasSizeDimensions: function() {
-			return (this.width === UI.SIZE || (!isDef(this.width) && this._defaultWidth === UI.SIZE)) || 
-				(this.height === UI.SIZE || (!isDef(this.height) && this._defaultHeight === UI.SIZE));
+			var width = this._getInheritedWidth(),
+				height = this._getInheritedHeight()
+			return (this._width === UI.SIZE || width === UI.SIZE) || 
+				(this._height === UI.SIZE || height === UI.SIZE);
 		},
 		
 		_hasFillWidth: function() {
 			var width = this.width;
 			if (isDef(width)) {
 				if (width === UI.INHERIT) {
-					return getInheritedWidth(this) === UI.FILL;
+					return this._getInheritedWidth() === UI.FILL;
 				}
 				return width === UI.FILL;
 			}
@@ -264,7 +254,7 @@ define(
 				return true;
 			}
 			if (this._defaultWidth === UI.INHERIT) {
-				return getInheritedWidth(this) === UI.FILL;
+				return this._getInheritedWidth() === UI.FILL;
 			}
 		},
 		
@@ -272,7 +262,7 @@ define(
 			var height = this.height;
 			if (isDef(height)) {
 				if (height === UI.INHERIT) {
-					return getInheritedHeight(this) === UI.FILL;
+					return this._getInheritedHeight() === UI.FILL;
 				}
 				return height === UI.FILL;
 			}
@@ -283,13 +273,26 @@ define(
 				return true;
 			}
 			if (this._defaultHeight === UI.INHERIT) {
-				return getInheritedHeight(this) === UI.FILL;
+				return this._getInheritedHeight() === UI.FILL;
 			}
 		},
 		
 		_hasBeenLaidOut: false,
 		
-		_isDependentOnParent: true,
+		_isDependentOnParent: function(){
+			function isPercent(value) {
+				return /%$/.test("" + value);
+			}
+			var centerX = this.center && this.center.x,
+				centerY = this.center && this.center.y,
+				width = this._getInheritedWidth(),
+				height = this._getInheritedHeight();
+			return !!(isPercent(width) || isPercent(height) || isPercent(this.top) || isPercent(this.bottom) || 
+				isPercent(this.left) || isPercent(this.right) || isPercent(centerX) || isPercent(centerY) || 
+				this._hasFillWidth() || this._hasFillHeight() ||
+				(!isDef(this.left) && !isDef(centerX) && !isDef(this.right) && this._parent && this._parent._layout._defaultHorizontalAlignment !== "left") ||
+				(!isDef(this.top) && !isDef(centerY) && !isDef(this.bottom) && this._parent && this._parent._layout._defaultVerticalAlignment !== "top"));
+		},
 		
 		startLayout: function() {
 			this._batchUpdateInProgress = true;
@@ -392,8 +395,8 @@ define(
 				originalBottom = computeSize(position.bottom, boundingHeight),
 				centerX = position.center && computeSize(position.center.x, boundingWidth, 1),
 				centerY = position.center && computeSize(position.center.y, boundingHeight, 1),
-				width = computeSize(size.width === UI.INHERIT ? getInheritedWidth(this) : size.width, boundingWidth),
-				height = computeSize(size.height === UI.INHERIT ? getInheritedHeight(this) : size.height, boundingHeight),
+				width = computeSize(size.width === UI.INHERIT ? this._getInheritedWidth() : size.width, boundingWidth),
+				height = computeSize(size.height === UI.INHERIT ? this._getInheritedHeight() : size.height, boundingHeight),
 
 				// Convert right/bottom coordinates to be with respect to (0,0)
 				right = layoutParams.rightIsMargin ? void 0 : isDef(originalRight) ? (boundingWidth - originalRight) : void 0,
@@ -432,11 +435,11 @@ define(
 						width = (right - centerX) * 2;
 					} else {
 						// Set the default width
-						width = computeSize(defaultWidth === UI.INHERIT ? getInheritedWidth(this) : defaultWidth, boundingWidth);
+						width = computeSize(defaultWidth === UI.INHERIT ? this._getInheritedWidth() : defaultWidth, boundingWidth);
 					}
 				} else {
 					if (!isDef(left) || !isDef(right)) {
-						width = computeSize(defaultWidth === UI.INHERIT ? getInheritedWidth(this) : defaultWidth, boundingWidth);
+						width = computeSize(defaultWidth === UI.INHERIT ? this._getInheritedWidth() : defaultWidth, boundingWidth);
 						if(!isDef(left) && !isDef(right)) {
 							// Set the default position
 							left = "calculateDefault";
@@ -468,12 +471,12 @@ define(
 						height = (bottom - centerY) * 2;
 					} else {
 						// Set the default height
-						height = computeSize(defaultHeight === UI.INHERIT ? getInheritedHeight(this) : defaultHeight, boundingHeight);
+						height = computeSize(defaultHeight === UI.INHERIT ? this._getInheritedHeight() : defaultHeight, boundingHeight);
 					}
 				} else {
 					if (!isDef(top) || !isDef(bottom)) {
 						// Set the default height
-						height = computeSize(defaultHeight === UI.INHERIT ? getInheritedHeight(this) : defaultHeight, boundingHeight);
+						height = computeSize(defaultHeight === UI.INHERIT ? this._getInheritedHeight() : defaultHeight, boundingHeight);
 						if(!isDef(top) && !isDef(bottom)) {
 							// Set the default position
 							top = "calculateDefault";
