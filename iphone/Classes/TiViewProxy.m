@@ -2155,11 +2155,9 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                 {
                     //MOVED TO NEXT ROW
                     endIndex = i;
-                    NSUInteger j;
-                    for (j=startIndex; j<endIndex; j++) 
+                    for (int j=startIndex; j<endIndex; j++) 
                     {
-                        CGRect modifiedSandbox = (CGRect)[(TiRect*)[measuredBounds objectAtIndex:j] rect];
-                        modifiedSandbox.size.height = maxHeight;
+                        [(TiRect*)[measuredBounds objectAtIndex:j] setHeight:[NSNumber numberWithInt:maxHeight]];
                     }
                     startIndex = i;
                     endIndex = -1;
