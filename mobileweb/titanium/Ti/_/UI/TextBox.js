@@ -5,6 +5,12 @@ define(
 	var setStyle = style.set;
 
 	return declare("Ti._.UI.TextBox", FontWidget, {
+		
+		constructor: function(){
+			this._addEventModifier(["click", "singletap", "blur", "change", "focus", "return"], function(data) {
+				data.value = this.value;
+			});
+		},
 
 		_field: null,
 		
