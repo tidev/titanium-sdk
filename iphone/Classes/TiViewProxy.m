@@ -152,7 +152,8 @@
 		}
 		
 		// only call layout if the view is attached
-		[self layoutChild:arg optimize:NO]; 
+        // Maybe need to call layout children instead for non absolute layout
+		[self layoutChild:arg optimize:NO withMeasuredBounds:[[self size] rect]]; 
 	}
 	else
 	{
@@ -1057,9 +1058,10 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	
 	// If the window was previously opened, it may need to have
 	// its existing children redrawn
+    // Maybe need to call layout children instead for non absolute layout
 	if (children != nil) {
 		for (TiViewProxy* child in children) {
-			[self layoutChild:child optimize:NO];
+			[self layoutChild:child optimize:NO withMeasuredBounds:[[self size] rect]];
 			[child windowWillOpen];
 		}
 	}
@@ -2099,6 +2101,91 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 }
 
+-(NSArray*)measureChildren:(NSArray*)childArray
+{
+    if ([childArray count] == 0) {
+        return nil;
+    }
+    
+    NSMutableArray * measuredBounds = [NSMutableArray arrayWithCapacity:[childArray count]];
+    NSUInteger i, count = [childArray count];
+    
+    //First measure the sandbox bounds
+    for (i=0; i<count; i++) {
+        id child = [childArray objectAtIndex:i];
+        TiRect * childRect = [[[TiRect alloc] init] autorelease];
+        CGRect childBounds = CGRectZero;
+        UIView * ourView = [self parentViewForChild:child];
+        if (ourView != nil)
+        {
+            CGRect bounds = [ourView bounds];
+            if(!TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle))
+            {
+                bounds = [self computeChildSandbox:child withBounds:bounds];
+            }
+            childBounds.origin.x = bounds.origin.x;
+            childBounds.origin.y = bounds.origin.y;
+            childBounds.size.width = bounds.size.width;
+            childBounds.size.height = bounds.size.height;
+        }
+        [childRect setRect:childBounds];
+        [measuredBounds insertObject:childRect atIndex:i];
+    }
+    
+    //If it is a horizontal layout ensure that all the children in a row have the
+    //same height for the sandbox
+    if(TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle) && (count > 1) )
+    {
+        NSUInteger startIndex,endIndex,maxHeight, currentTop;
+        startIndex = endIndex = maxHeight = currentTop = -1;
+        for (i=0; i<count; i++) 
+        {
+            CGRect childSandbox = (CGRect)[(TiRect*)[measuredBounds objectAtIndex:i] rect];
+            if (startIndex == -1) 
+            {
+                //FIRST ELEMENT
+                startIndex = i;
+                maxHeight = childSandbox.size.height;
+                currentTop = childSandbox.origin.y;
+            }
+            else 
+            {
+                if (childSandbox.origin.y != currentTop) 
+                {
+                    //MOVED TO NEXT ROW
+                    endIndex = i;
+                    NSUInteger j;
+                    for (j=startIndex; j<endIndex; j++) 
+                    {
+                        CGRect modifiedSandbox = (CGRect)[(TiRect*)[measuredBounds objectAtIndex:j] rect];
+                        modifiedSandbox.size.height = maxHeight;
+                    }
+                    startIndex = i;
+                    endIndex = -1;
+                    maxHeight = childSandbox.size.height;
+                    currentTop = childSandbox.origin.y;
+                }
+                else if (childSandbox.size.height > maxHeight)
+                {
+                    //SAME ROW HEIGHT CHANGED
+                    maxHeight = childSandbox.size.height;
+                }
+            }
+        }
+        if (endIndex == -1)
+        {
+            //LAST ROW
+            NSUInteger j;
+            for (j=startIndex; j<count; j++) 
+            {
+                CGRect modifiedSandbox = (CGRect)[(TiRect*)[measuredBounds objectAtIndex:j] rect];
+                modifiedSandbox.size.height = maxHeight;
+            }
+        }
+    }
+    return measuredBounds;
+}
+
 -(CGRect)computeChildSandbox:(TiViewProxy*)child withBounds:(CGRect)bounds
 {
     if(TiLayoutRuleIsVertical(layoutProperties.layoutStyle))
@@ -2350,7 +2437,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
     return bounds;
 }
 
--(void)layoutChild:(TiViewProxy*)child optimize:(BOOL)optimize
+-(void)layoutChild:(TiViewProxy*)child optimize:(BOOL)optimize withMeasuredBounds:(CGRect)bounds
 {
 	IGNORE_IF_NOT_OPENED
 	
@@ -2360,14 +2447,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	{
 		return;
 	}
-
-	CGRect bounds = [ourView bounds];
 	
-	// layout out ourself
-    if(!TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle))
-    {
-        bounds = [self computeChildSandbox:child withBounds:bounds];
-    }
 	if (optimize==NO)
 	{
 		TiUIView *childView = [child view];
@@ -2447,11 +2527,18 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	pthread_rwlock_rdlock(&childrenLock);
 	NSArray * childrenArray = [[self children] copy];
 	pthread_rwlock_unlock(&childrenLock);
-	
-	for (id child in childrenArray)
-	{
-		[self layoutChild:child optimize:optimize];
-	}
+    
+    NSUInteger childCount = [childrenArray count];
+    if (childCount > 0) {
+        NSArray * measuredBounds = [[self measureChildren:childrenArray] retain];
+        NSUInteger childIndex;
+        for (childIndex = 0; childIndex < childCount; childIndex++) {
+            id child = [childrenArray objectAtIndex:childIndex];
+            CGRect childSandBox = (CGRect)[(TiRect*)[measuredBounds objectAtIndex:childIndex] rect];
+            [self layoutChild:child optimize:optimize withMeasuredBounds:childSandBox];
+        }
+        [measuredBounds release];
+    }
 	[childrenArray release];
 	
 	if (optimize==NO)

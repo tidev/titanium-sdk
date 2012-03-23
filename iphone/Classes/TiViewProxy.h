@@ -516,7 +516,8 @@ enum
  */
 -(void)layoutChildrenIfNeeded;
 
--(void)layoutChild:(TiViewProxy*)child optimize:(BOOL)optimize;
+-(void)layoutChild:(TiViewProxy*)child optimize:(BOOL)optimize withMeasuredBounds:(CGRect)bounds;
+-(NSArray*)measureChildren:(NSArray*)childArray;
 -(CGRect)computeChildSandbox:(TiViewProxy*)child withBounds:(CGRect)bounds;
 
 /**
