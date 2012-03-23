@@ -57,4 +57,14 @@ public class TextFieldProxy extends TiViewProxy
 	{
 		return new TiUIText(this, true);
 	}
+	
+	@Kroll.method
+	public Boolean hasText()
+	{
+		if (view == null)
+		{
+			return false;
+		}
+		return ((TiUIText)view).hasText();
+	}
 }

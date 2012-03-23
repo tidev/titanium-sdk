@@ -58,4 +58,14 @@ public class TextAreaProxy extends TiViewProxy
 	{
 		return new TiUIText(this, false);
 	}
+	
+	@Kroll.method
+	public Boolean hasText()
+	{
+		if (view == null)
+		{
+			return false;
+		}
+		return ((TiUIText)view).hasText();
+	}
 }
