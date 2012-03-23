@@ -18,6 +18,9 @@ define(["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
 			// Find the first fully fledged Ti component
 			while(!sourceWidgetId) {
 				currentNode = currentNode.parentNode;
+				if (!currentNode.getAttribute) {
+					return;
+				}
 				sourceWidgetId = currentNode.getAttribute("data-widget-id");
 			}
 			
