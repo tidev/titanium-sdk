@@ -2136,7 +2136,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
     //same height for the sandbox
     if(TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle) && (count > 1) )
     {
-        NSUInteger startIndex,endIndex,maxHeight, currentTop;
+        int startIndex,endIndex,maxHeight, currentTop;
         startIndex = endIndex = maxHeight = currentTop = -1;
         for (i=0; i<count; i++) 
         {
@@ -2178,8 +2178,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             NSUInteger j;
             for (j=startIndex; j<count; j++) 
             {
-                CGRect modifiedSandbox = (CGRect)[(TiRect*)[measuredBounds objectAtIndex:j] rect];
-                modifiedSandbox.size.height = maxHeight;
+                [(TiRect*)[measuredBounds objectAtIndex:i] setHeight:[NSNumber numberWithInt:maxHeight]];
             }
         }
     }
