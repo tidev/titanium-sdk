@@ -696,6 +696,108 @@ describe("Ti.UI Layout tests", {
 		}));
 		win.open();
 	}),
+	// Functional Test #1000 SystemMeasurement
+	systemMeasurement: asyncTest(function() {
+		var win = Ti.UI.createWindow({
+		});
+		var parent = Ti.UI.createView({
+			height: '50dip',
+			width: '40px',
+			layout: 'vertical',
+		});
+		var child = Ti.UI.createView({
+		});
+		parent.add(child);
+		win.add(parent);
+		win.addEventListener("open", this.async(function(e) {
+			if (Ti.Platform.osname === 'android') {
+				valueOf(parent.size.width).shouldBe(40);
+			} else if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad' ) {
+				valueOf(parent.size.height).shouldBe(50);
+			}
+		}));
+		win.open();
+	}),
+	// Functional Test #1001 #1002 #1003 #1004 #1005 #1006
+	unitMeasurements: asyncTest(function() {
+		var win = Ti.UI.createWindow({
+		});
+		var child = Ti.UI.createView({
+			height: '50mm',
+			width: '40cm',
+		});
+		var child1 = Ti.UI.createView({
+			height: '1in',
+			width: '100px',
+		});
+		var child2 = Ti.UI.createView({
+			height: '50dip',
+			width: '40dp',
+		});
+		var child3 = Ti.UI.createView({
+			//inavlid measurement
+			height: 'invalid',
+			width: 'inavlid'
+		});
+		
+		win.add(child);
+		win.add(child1);
+		win.add(child2);
+		win.addEventListener("open", this.async(function(e) {
+			valueOf(child.size.width).shouldNotBe(0);
+			valueOf(child.size.height).shouldNotBe(0);
+			
+			valueOf(child1.size.width).shouldNotBe(0);
+			valueOf(child1.size.height).shouldNotBe(0);
+			
+			valueOf(child2.size.width).shouldNotBe(0);
+			valueOf(child2.size.height).shouldNotBe(0);
+			
+			valueOf(child3.size.width).shouldBe(0);
+			valueOf(child3.size.height).shouldBe(0);
+		}));
+		win.open();
+	}),
+	// Functional Test #1087-#1097
+	convertUnits: function() {
+		// android
+		var dpi = Ti.Platform.displayCaps.dpi;
+
+		if (Ti.Platform.osname === 'android') {
+			// 1087 
+			valueOf(Ti.UI.convertUnits('1in', Ti.UI.UNIT_PX)).shouldBe(dpi);
+			valueOf(Ti.UI.convertUnits('100', Ti.UI.UNIT_PX)).shouldBe(100);
+			// 1092
+			valueOf(Ti.UI.convertUnits('25.4mm', Ti.UI.UNIT_PX)).shouldBe(dpi);
+			
+		} else if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad' ) {
+			// 1091
+			valueOf(Ti.UI.convertUnits('1in', Ti.UI.UNIT_DIP)).shouldBe(dpi);
+			valueOf(Ti.UI.convertUnits('100', Ti.UI.UNIT_DIP)).shouldBe(100);
+			valueOf(Ti.UI.convertUnits('25.4mm', Ti.UI.UNIT_DIP)).shouldBe(dpi);
+		}
+		
+		// 1088
+		valueOf(Math.round(Ti.UI.convertUnits(dpi.toString(), Ti.UI.UNIT_MM))).shouldBe(25);
+		// 1089
+		valueOf(Math.round(Ti.UI.convertUnits(dpi.toString(), Ti.UI.UNIT_CM))).shouldBe(3);
+		
+		// 1088
+		valueOf(Math.round(Ti.UI.convertUnits(dpi.toString(), Ti.UI.UNIT_MM))).shouldBe(25);
+		// 1089
+		valueOf(Math.round(Ti.UI.convertUnits(dpi.toString(), Ti.UI.UNIT_CM))).shouldBe(3);
+		// 1090
+		valueOf(Math.round(Ti.UI.convertUnits(dpi.toString(), Ti.UI.UNIT_IN))).shouldBe(1);
+		
+		// 1093
+		valueOf(Ti.UI.convertUnits('100cm', Ti.UI.UNIT_MM)).shouldBe(1000);
+		// 1094
+		valueOf(Ti.UI.convertUnits('100in', Ti.UI.UNIT_CM)).shouldBe(254);
+		
+		// 1097
+		valueOf(Ti.UI.convertUnits('abc', Ti.UI.UNIT_PX)).shouldBe(0);
+		
+	},
 	fourPins: asyncTest(function() {
 		var win = Ti.UI.createWindow({
 			width: 100, height: 100
