@@ -82,7 +82,7 @@ methods:
         container.
     parameters:
       - name: view
-        summary: View to add to this view's hierarchy
+        summary: View to add to this view's hierarchy.
         type: Titanium.UI.View
         
   - name: animate
@@ -137,7 +137,7 @@ methods:
 
   - name: startLayout
     since: "2.0.0"
-    summary: Starts a batch-update of the View's layout params
+    summary: Starts a batch-update of the View's layout params.
     description: |
         To prevent a layout pass each time a property is modified, use a layout delineated by startLayout() and finishLayout().  A startLayout() call will start the batch-update process, and a finish layout will end the batch-update process and trigger a layout pass.
             view.startLayout();
@@ -147,40 +147,32 @@ methods:
 
   - name: toImage
     summary: Returns an image of the rendered view, as a Blob.
+    description: |
+        The `honorScaleFactor` method is only supported on iOS.
     platforms: [android, iphone, ipad]
     returns:
         type: Titanium.Blob
     parameters:
-      - name: f
+      - name: callback
         summary: | 
             Function to be invoked upon completion. If non-null, this method will be 
             performed asynchronously. If null, it will be performed immediately.
-        type: Callback<Object>
-        optional: true
-        
-  - name: toImage
-    since: 1.9.0  
-    summary: Returns an image of the rendered view, as a Blob.
-    platforms: [iphone, ipad]
-    returns:
-        type: Titanium.Blob
-    parameters:
-      - name: f
-        summary: | 
-            Function to be invoked upon completion. If non-null, this method will be 
-            performed asynchronously. If null, it will be performed immediately.
-        type: Callback<Object>
+        type: Callback<Titanium.Blob>
         optional: true
       - name: honorScaleFactor
         summary: | 
             When set to true, the image is scaled based on scale factor of main screen.
-            When set to false the image in the blob has the same dimensions for retina and non retina devices.
+            When set to false the image in the blob has the same dimensions for retina and
+            non-retina devices. Only used on iOS.
         type: Boolean
         optional: true
-
+        default: false
+        
   - name: updateLayout
     since: "2.0.0"
-    summary: Performs a batch-update of all supplied layout params and schedules a layout pass after they have been updated
+    summary: |
+        Performs a batch-update of all supplied layout params and schedules a layout
+        pass after they have been updated.
     parameters:
       - name: params
         summary: |
