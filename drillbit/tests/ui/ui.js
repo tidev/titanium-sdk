@@ -403,6 +403,7 @@ describe("Ti.UI tests", {
 				});
 				var listener = this.async(function() {
 					Ti.API.debug("load event fired.");
+					valueOf(true).shouldBe(true);
 				});
 				btn.addEventListener("load", listener)
 				w.add( btn );
