@@ -16,7 +16,8 @@ define(
 			Ti.UI._recalculateLayout();
 			hidingAddressBar = 0;
 		},
-		unitize = dom.unitize;
+		unitize = dom.unitize,
+		showStats = false;
 
 	on(body, "touchmove", function(e) {
 		e.preventDefault();
@@ -157,7 +158,8 @@ define(
 					child,
 					recursionStack,
 					rootNodesToLayout = [],
-					layoutRootNode = false;
+					layoutRootNode = false,
+					breakAfterChildrenCalculations;
 					
 				// Determine which nodes need to be re-layed out
 				for (var i in nodes) {
@@ -171,7 +173,7 @@ define(
 						children = node.children;
 						for (var j in children) {
 							child = children[j];
-							if (node.layout !== "composite" || child._isDependentOnParent || !child._hasBeenLayedOut) {
+							if (node.layout !== "composite" || child._isDependentOnParent() || !child._hasBeenLayedOut) {
 								recursionStack.push(child);
 							}
 						}
@@ -180,12 +182,17 @@ define(
 					// Go up and mark any other nodes that need to be marked
 					parent = layoutNode;
 					while(1) {
+						breakAfterChildrenCalculations = false;
 						if (!parent._parent) {
 							layoutRootNode = true;
 							break;
 						} else if(!parent._parent._hasSizeDimensions()) {
-							!parent._parent._markedForLayout && rootNodesToLayout.push(parent._parent);
-							break;
+							!parent._parent._markedForLayout && !~rootNodesToLayout.indexOf(parent._parent) && rootNodesToLayout.push(parent._parent);
+							if (parent._parent.layout !== "composite") {
+								breakAfterChildrenCalculations = true;
+							} else {
+								break;
+							}
 						}
 						
 						previousParent = parent;
@@ -196,11 +203,14 @@ define(
 							children = node.children;
 							for (var j in children) {
 								child = children[j];
-								if (child !== previousParent && (node.layout !== "composite" || child._isDependentOnParent)) {
+								if (child !== previousParent && (node.layout !== "composite" || child._isDependentOnParent())) {
 									child._markedForLayout = true;
 									recursionStack.push(child);
 								}
 							}
+						}
+						if (breakAfterChildrenCalculations) {
+							break;
 						}
 					}
 				}
@@ -231,11 +241,11 @@ define(
 				}
 				for (var i in rootNodesToLayout) {
 					node = rootNodesToLayout[i];
-					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node.width === Ti.UI.SIZE, node.height === Ti.UI.SIZE);
+					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node._getInheritedWidth() === Ti.UI.SIZE, node._getInheritedHeight() === Ti.UI.SIZE);
 				}
 				
-				//console.debug("Layout " + self._layoutCount + ": " + self._elementLayoutCount + 
-				//	" elements laid out in " + ((new Date().getTime() - startTime)) + "ms");
+				showStats && console.debug("Layout " + self._layoutCount + ": " + self._elementLayoutCount + 
+					" elements laid out in " + ((new Date().getTime() - startTime)) + "ms");
 					
 				self._layoutInProgress = false;
 				self._layoutTimer = null;

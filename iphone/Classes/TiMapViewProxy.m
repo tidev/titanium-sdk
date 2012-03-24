@@ -15,10 +15,11 @@
 
 -(NSArray *)keySequence
 {
-	return [NSArray arrayWithObjects:
-			@"animate",
-			@"location",
-			nil];
+    return [NSArray arrayWithObjects:
+            @"animate",
+            @"location",
+            @"regionFit",
+            nil];
 }
 
 -(void)_destroy
@@ -168,7 +169,7 @@
 -(void)addAnnotation:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg,NSObject)
-    TiMapAnnotationProxy* annProxy = [(TiMapView*)[self view] annotationFromArg:arg];
+    TiMapAnnotationProxy* annProxy = [self annotationFromArg:arg];
     [self rememberProxy:annProxy];
     
 	if ([self viewAttached]) {
@@ -220,7 +221,15 @@
     }
     
     BOOL attached = [self viewAttached];
-    NSArray* currentAnnotations = (attached) ? [(TiMapView*)[self view] customAnnotations] : annotationsToAdd;
+    __block NSArray* currentAnnotations = nil;
+    if (attached) {
+        TiThreadPerformOnMainThread(^{
+            currentAnnotations = [[(TiMapView*)[self view] customAnnotations] retain];
+        }, YES);
+    }
+    else {
+        currentAnnotations = annotationsToAdd;
+    }
  
     // Because the annotations may contain an annotation proxy and not just
     // descriptors for them, we have to check and make sure there is
@@ -241,6 +250,7 @@
         TiThreadPerformOnMainThread(^{
             [(TiMapView*)[self view] setAnnotations_:newAnnotations];
         }, NO);
+        [currentAnnotations release];
     }
     else {
         RELEASE_TO_NIL(annotationsToAdd);
@@ -252,7 +262,16 @@
 
 -(NSArray*)annotations
 {
-    return ([self viewAttached]) ? [(TiMapView*)[self view] customAnnotations] : annotationsToAdd;
+    if ([self viewAttached]) {
+        __block NSArray* currentAnnotations = nil;
+        TiThreadPerformOnMainThread(^{
+            currentAnnotations = [[(TiMapView*)[self view] customAnnotations] retain];
+        }, YES);
+        return [currentAnnotations autorelease];
+    }
+    else {
+        return annotationsToAdd;
+    }
 }
 
 -(void)removeAnnotation:(id)arg
@@ -312,12 +331,18 @@
 -(void)removeAllAnnotations:(id)unused
 {
 	if ([self viewAttached]) {
-        TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] removeAllAnnotations:unused];}, NO);
-        TiMapView * mapView = (TiMapView *)[self view];
-        for(TiMapAnnotationProxy * annProxy in [mapView annotationsFromArgs:mapView.customAnnotations])
+        __block NSArray* currentAnnotations = nil;
+        TiThreadPerformOnMainThread(^{
+            currentAnnotations = [[(TiMapView*)[self view] customAnnotations] retain];
+        }, YES);
+        
+        for(id object in currentAnnotations)
         {
+            TiMapAnnotationProxy * annProxy = [self annotationFromArg:object];
             [self forgetProxy:annProxy];
         }
+        [currentAnnotations release];
+        TiThreadPerformOnMainThread(^{[(TiMapView*)[self view] removeAllAnnotations:unused];}, NO);
 	}
 	else 
 	{

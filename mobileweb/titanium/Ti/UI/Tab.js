@@ -12,7 +12,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI"],
 				className: "TiUITabContentContainer",
 				style: {
 					display: ["-webkit-box", "-moz-box"],
-					boxOrient: "horizontal",
+					boxOrient: "vertical",
 					boxPack: "center",
 					boxAlign: "center"
 				}

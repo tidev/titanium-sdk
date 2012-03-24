@@ -39,31 +39,37 @@
 
 -(void)render
 {
-	if (![NSThread isMainThread]) {
-		TiThreadPerformOnMainThread(^{[self render];}, NO);
-		return;
-	}  	  
-	if (region.center.latitude!=0 && region.center.longitude!=0)
-	{
-		[map setRegion:[map regionThatFits:region] animated:animate];
-	}
+    if (![NSThread isMainThread]) {
+        TiThreadPerformOnMainThread(^{[self render];}, NO);
+        return;
+    }  	  
+    if (region.center.latitude!=0 && region.center.longitude!=0)
+    {
+        if (regionFits) {
+            [map setRegion:[map regionThatFits:region] animated:animate];
+        }
+        else {
+            [map setRegion:region animated:animate];
+        }
+    }
 }
 
 -(MKMapView*)map
 {
-	if (map==nil)
-	{
-		map = [[MKMapView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
-		map.delegate = self;
-		map.userInteractionEnabled = YES;
-		map.showsUserLocation = YES; // defaults
-		map.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-		[self addSubview:map];
-		mapLine2View = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		mapName2Line = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-        
-	}
-	return map;
+    if (map==nil)
+    {
+        map = [[MKMapView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+        map.delegate = self;
+        map.userInteractionEnabled = YES;
+        map.showsUserLocation = YES; // defaults
+        map.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+        [self addSubview:map];
+        mapLine2View = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+        mapName2Line = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+        //Initialize loaded state to YES. This will automatically go to NO if the map needs to download new data
+        loaded = YES;
+    }
+    return map;
 }
 
 - (NSArray *)customAnnotations
@@ -86,8 +92,9 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	[TiUtils setView:[self map] positionRect:bounds];
+    [TiUtils setView:[self map] positionRect:bounds];
     [super frameSizeChanged:frame bounds:bounds];
+    [self render];
 }
 
 -(TiMapAnnotationProxy*)annotationFromArg:(id)arg
@@ -340,12 +347,20 @@
 
 -(CLLocationDegrees) longitudeDelta
 {
-	return region.span.longitudeDelta;
+    if (loaded) {
+        MKCoordinateRegion _region = [[self map] region];
+        return _region.span.longitudeDelta;
+    }
+    return 0.0;
 }
 
 -(CLLocationDegrees) latitudeDelta
 {
-	return region.span.latitudeDelta;
+    if (loaded) {
+        MKCoordinateRegion _region = [[self map] region];
+        return _region.span.latitudeDelta;
+    }
+    return 0.0;
 }
 
 
@@ -376,18 +391,6 @@
 	else 
 	{
 		region = [self regionFromDict:value];
-		if (regionFits)
-		{
-			MKCoordinateRegion fitRegion = [[self map] regionThatFits:region];
-			// this seems to happen sometimes where we get an invalid span back
-			if (fitRegion.span.latitudeDelta == 0 || fitRegion.span.longitudeDelta == 0)
-			{
-				// this seems to happen when you try and call this with the same region
-				// which means we can ignore (otherwise you'll get an NSInvalidException
-				return;
-			}
-			region = fitRegion;
-		}
 		[self render];
 	}
 }
@@ -399,9 +402,8 @@
 
 -(void)setRegionFit_:(id)value
 {
-	id aregion = [self.proxy valueForKey:@"region"];
-	regionFits = [TiUtils boolValue:value];
-	[self setRegion_:aregion];
+    regionFits = [TiUtils boolValue:value];
+    [self render];
 }
 
 -(void)setUserLocation_:(id)value

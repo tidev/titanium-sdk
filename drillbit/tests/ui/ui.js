@@ -391,18 +391,30 @@ describe("Ti.UI tests", {
 	}),
 	
 	// http://jira.appcelerator.org/browse/TIMOB-1333
-	imageLoadEvent: asyncTest(function(callback) {
-		var w = Ti.UI.createWindow();
-		var btn = Ti.UI.createImageView({
-			image: 'KS_nav_ui.png',
-			top: 1, width: 50, left: 1, height: 40
-		});
-		var listener = this.async(function() {
-		 	Ti.API.debug("load event fired.");
-		});
-		btn.addEventListener("load", listener)
-		w.add( btn );
-		w.open();
+	imageLoadEvent: asyncTest( {
+		start: function(callback) {
+			//TODO: Genericize this test for all platforms,
+			//and check to see what proper behavior/parity is.
+			if (Ti.Platform.osname === 'android') {
+				var w = Ti.UI.createWindow();
+				var btn = Ti.UI.createImageView({
+					image: 'KS_nav_ui.png',
+					top: 1, width: 50, left: 1, height: 40
+				});
+				var listener = this.async(function() {
+					Ti.API.debug("load event fired.");
+					valueOf(true).shouldBe(true);
+				});
+				btn.addEventListener("load", listener)
+				w.add( btn );
+				w.open();
+			} else {
+				Ti.API.info("Only testing load events on local resources in Android");
+				callback.passed();
+			}
+		},
+		timeout: 10000,
+		timeoutError: 'Timed out waiting for imageview to load an image'
 	}),
 
 	// http://jira.appcelerator.org/browse/TIMOB-6891
