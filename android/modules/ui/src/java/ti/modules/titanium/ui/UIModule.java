@@ -207,16 +207,18 @@ public class UIModule extends KrollModule implements Handler.Callback
 		// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
 		View view = getActivity().getWindow().getDecorView();
 
-		if (convertToUnits.equals(UNIT_PX)) {
-			result = dimension.getAsPixels(view);
-		} else if (convertToUnits.equals(UNIT_MM)) {
-			result = dimension.getAsMillimeters(view);
-		} else if (convertToUnits.equals(UNIT_CM)) {
-			result = dimension.getAsCentimeters(view);
-		} else if (convertToUnits.equals(UNIT_IN)) {
-			result = dimension.getAsInches(view);
-		} else if (convertToUnits.equals(UNIT_DIP)) {
-			result = dimension.getAsDIP(view);
+		if (view != null) {
+			if (convertToUnits.equals(UNIT_PX)) {
+				result = dimension.getAsPixels(view);
+			} else if (convertToUnits.equals(UNIT_MM)) {
+				result = dimension.getAsMillimeters(view);
+			} else if (convertToUnits.equals(UNIT_CM)) {
+				result = dimension.getAsCentimeters(view);
+			} else if (convertToUnits.equals(UNIT_IN)) {
+				result = dimension.getAsInches(view);
+			} else if (convertToUnits.equals(UNIT_DIP)) {
+				result = dimension.getAsDIP(view);
+			}
 		}
 
 		return result;
