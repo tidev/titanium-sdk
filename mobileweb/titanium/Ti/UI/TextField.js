@@ -19,7 +19,7 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 
 			this._initTextBox();
 			this._keyboardType();
-			this.borderStyle = UI.INPUT_BORDERSTYLE_NONE;
+			this.borderStyle = UI.INPUT_BORDERSTYLE_BEZEL;
 
 			require.on(f, "focus", this, function() {
 				this.clearOnEdit && (f.value = "");
@@ -32,8 +32,8 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 		
 		_getContentSize: function(width, height) {
 			return {
-				width: this._measureText(this.value, this._field, width).width,
-				height: this._measureText(this.value, this._field, width).height
+				width: this._measureText(this.value, this._field, width).width + 6,
+				height: this._measureText(this.value, this._field, width).height + 6
 			};
 		},
 
