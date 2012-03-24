@@ -233,7 +233,7 @@ public class TiDimension
 			return (int) this.value;
 		}
 
-		return (int) Math.round(((getPixels(parent) / metrics.densityDpi) * MM_INCH));
+		return (int) Math.round(((getPixels(parent) / getDisplayMetrics(parent).densityDpi) * MM_INCH));
 	}
 
 	public int getAsCentimeters(View parent)
@@ -242,7 +242,7 @@ public class TiDimension
 			return (int) this.value;
 		}
 
-		return (int) Math.round(((getPixels(parent) / metrics.densityDpi) * CM_INCH));
+		return (int) Math.round(((getPixels(parent) / getDisplayMetrics(parent).densityDpi) * CM_INCH));
 	}
 
 	public int getAsInches(View parent)
@@ -251,7 +251,7 @@ public class TiDimension
 			return (int) this.value;
 		}
 
-		return (int) Math.round((getPixels(parent) / metrics.densityDpi));
+		return (int) Math.round((getPixels(parent) / getDisplayMetrics(parent).densityDpi));
 	}
 
 	public int getAsDIP(View parent)
@@ -260,7 +260,7 @@ public class TiDimension
 			return (int) this.value;
 		}
 
-		return (int) Math.round((getPixels(parent) / metrics.density));
+		return (int) Math.round((getPixels(parent) / getDisplayMetrics(parent).density));
 	}
 
 	protected double getPercentPixels(View parent)
