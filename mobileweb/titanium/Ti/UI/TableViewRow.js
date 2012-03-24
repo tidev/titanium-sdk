@@ -28,7 +28,8 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 
 			this._defaultControl.add(this._titleLabel = UI.createLabel({
 				width: UI.INHERIT,
-				height: UI.INHERIT 
+				height: UI.INHERIT,
+				wordWrap: false
 			}));
 
 			this._defaultControl.add(this._rightImageView = UI.createImageView({
