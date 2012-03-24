@@ -56,19 +56,20 @@
 
 -(MKMapView*)map
 {
-	if (map==nil)
-	{
-		map = [[MKMapView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
-		map.delegate = self;
-		map.userInteractionEnabled = YES;
-		map.showsUserLocation = YES; // defaults
-		map.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-		[self addSubview:map];
-		mapLine2View = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-		mapName2Line = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-        
-	}
-	return map;
+    if (map==nil)
+    {
+        map = [[MKMapView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+        map.delegate = self;
+        map.userInteractionEnabled = YES;
+        map.showsUserLocation = YES; // defaults
+        map.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+        [self addSubview:map];
+        mapLine2View = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+        mapName2Line = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+        //Initialize loaded state to YES. This will automatically go to NO if the map needs to download new data
+        loaded = YES;
+    }
+    return map;
 }
 
 - (NSArray *)customAnnotations
