@@ -252,7 +252,7 @@
     if(attached) {
         TiThreadPerformOnMainThread(^{
             [(TiMapView*)[self view] setAnnotations_:newAnnotations];
-        }, NO);
+        }, YES);
         [currentAnnotations release];
     }
     else {
