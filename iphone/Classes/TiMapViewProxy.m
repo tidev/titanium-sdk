@@ -216,7 +216,7 @@
     ENSURE_TYPE(arg,NSArray)
     
     //Save the passed in args as a property in our dyndns
-    [self replaceValue:arg forKey:@"setAnnotations_" notification:NO];
+    [self replaceValue:arg forKey:@"annotations_" notification:NO];
     
     NSMutableArray* newAnnotations = [NSMutableArray arrayWithCapacity:[arg count]];
     for (id ann in arg) {
@@ -265,7 +265,7 @@
 
 -(NSArray*)annotations
 {
-    return [self valueForUndefinedKey:@"setAnnotations_"];
+    return [self valueForUndefinedKey:@"annotations_"];
 }
 
 -(void)removeAnnotation:(id)arg
