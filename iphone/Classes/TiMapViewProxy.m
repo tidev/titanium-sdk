@@ -215,6 +215,9 @@
 -(void)setAnnotations:(id)arg{
     ENSURE_TYPE(arg,NSArray)
     
+    //Save the passed in args as a property in our dyndns
+    [self replaceValue:arg forKey:@"setAnnotations_" notification:NO];
+    
     NSMutableArray* newAnnotations = [NSMutableArray arrayWithCapacity:[arg count]];
     for (id ann in arg) {
         [newAnnotations addObject:[self annotationFromArg:ann]];
@@ -262,16 +265,7 @@
 
 -(NSArray*)annotations
 {
-    if ([self viewAttached]) {
-        __block NSArray* currentAnnotations = nil;
-        TiThreadPerformOnMainThread(^{
-            currentAnnotations = [[(TiMapView*)[self view] customAnnotations] retain];
-        }, YES);
-        return [currentAnnotations autorelease];
-    }
-    else {
-        return annotationsToAdd;
-    }
+    return [self valueForUndefinedKey:@"setAnnotations_"];
 }
 
 -(void)removeAnnotation:(id)arg
