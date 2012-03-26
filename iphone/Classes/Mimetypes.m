@@ -36,7 +36,10 @@ static NSDictionary * mimeTypeFromExtensionDict = nil;
 	CFStringRef extension = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassFilenameExtension);
 	
 	//Release the UTI
-	CFRelease(uti);
+    //CFRelease should not be used on a NULL object.
+    if (uti != NULL) {
+        CFRelease(uti);
+    }
 	
 	if (extension == NULL) {
 		//Missing info is retrieved from dictionary
@@ -65,8 +68,11 @@ static NSDictionary * mimeTypeFromExtensionDict = nil;
 	CFStringRef mimetype = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType);
 
 	//Release the UTI
-	CFRelease(uti);
-	
+    //CFRelease should not be used on a NULL object.
+    if (uti != NULL) {
+        CFRelease(uti);
+    }
+		
 	if (mimetype == NULL) {
 		//Missing info is retrieved from dictionary
 		[Mimetypes initialize];

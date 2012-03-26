@@ -285,15 +285,15 @@ public class WebViewProxy extends ViewProxy
 	{
 		this.postCreateMessage = postCreate;
 	}
-	
+
 	/**
-	 * Don't release the web view when it's removed. TIMOB-7008
+	 * Don't release the web view when it's removed. TIMOB-7808
 	 */
 	@Override
 	public void releaseViews()
 	{
 	}
-	
+
 	@Kroll.method
 	public void release()
 	{
@@ -326,7 +326,18 @@ public class WebViewProxy extends ViewProxy
 
 	@Override
 	public void onDestroy(Activity activity) {
-		getWebView().getWebView().destroy();
+		TiUIWebView webView = (TiUIWebView) peekView();
+		if (webView == null) {
+			return;
+		}
+
+		WebView nativeWebView = webView.getWebView();
+		if (nativeWebView == null) {
+			return;
+		}
+
+		nativeWebView.destroy();
+		super.releaseViews();
 	}
 	
 

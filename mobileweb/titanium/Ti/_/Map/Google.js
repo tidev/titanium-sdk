@@ -102,11 +102,11 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/App/Propertie
 					i = 0,
 					idx = this._indexOfAnnotation(a);
 
-				if (!~idx) {
-					a = anno[idx];
-					theInfoWindow && theInfoWindow.marker.setMap(null) && (delete theInfoWindow.marker);
+				if (a = anno[idx]) {
+					theInfoWindow && this._hide(a);
 					gevent.removeListener(a.evt);
-					this._hide(a, 1);
+					a.marker.setMap(null);
+					delete a.marker;
 					a.destroy();
 					anno[idx] = null;
 				}
