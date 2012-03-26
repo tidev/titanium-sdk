@@ -27,10 +27,10 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 						});
 					}
 				}
-				this._input.addEventListener("click", function(e) {
+				on(this._input, "ontouchstart" in window ? "touchend" : "click", function() {
 					handleChange();
 				});
-				this._input.addEventListener("keyup", function(e) {
+				on(this._input, "keyup", function() {
 					handleChange();
 				});
 			},

@@ -353,7 +353,7 @@ define(
 				win.add(view = UI.createView({ height: "12%" }));
 				view.add(button = UI.createButton({ title: "Dismiss" }));
 				win.addEventListener("close", function() { win.destroy(); });
-				button.addEventListener("click", function() {
+				button.addEventListener("singletap", function() {
 					win.animate({
 						duration: 500,
 						top: "100%"
