@@ -124,7 +124,6 @@ define(
 			this.addEventListener("touchstart", bg);
 			this.addEventListener("touchend", bg);
 
-			// TODO: mixin JSS rules (http://jira.appcelerator.org/browse/TIMOB-6780)
 			var values = this.constants.__values__;
 			values.size = {
 				x: 0,
@@ -800,9 +799,9 @@ define(
 
 			cssVal += ")";
 
-			require.each(require.config.vendorPrefixes.css, lang.hitch(this,function(vendorPrefix) {
+			require.config.vendorPrefixes.css.forEach(function(vendorPrefix) {
 				setStyle(this.domNode, "backgroundImage", vendorPrefix + cssVal);
-			}));
+			}, this);
 		},
 		
 		_preventDefaultTouchEvent: true,

@@ -49,7 +49,7 @@ define(["Ti/_", "Ti/_/style"], function(_, style) {
 					forceProp = forcePropNames[propName],
 					attrId, h;
 
-				if (propName === "style" && !require.is(value, "String")) {
+				if (propName === "style" && !is(value, "String")) {
 					return style.set(node, value);
 				}
 
@@ -69,44 +69,17 @@ define(["Ti/_", "Ti/_/style"], function(_, style) {
 		};
 
 	return {
-		create: function(tag, attrs, refNode, pos) {
-			var doc = refNode ? refNode.ownerDocument : document;
-			is(tag, "String") && (tag = doc.createElement(tag));
-			attrs && attr.set(tag, attrs);
-			refNode && this.place(tag, refNode, pos);
-			return tag;
-		},
-
 		attr: attr,
 
-		place: function(node, refNode, pos) {
-			refNode.appendChild(node);
-			return node;
+		byId: function(id, doc) {
+			return (is(id, "String") ? (doc || window.document).getElementById(id) : id) || null;
 		},
 
-		detach: function(node) {
-			return node.parentNode && node.parentNode.removeChild(node);
-		},
-
-		destroy: function(node) {
-			try {
-				var destroyContainer = node.ownerDocument.createElement("div");
-				destroyContainer.appendChild(this.detach(node) || node);
-				destroyContainer.innerHTML = "";
-			} catch(e) {
-				/* squelch */
-			}
-		},
-
-		unitize: function(x) {
-			return isNaN(x-0) || x-0 != x ? x : x + "px"; // note: must be != and not !==
-		},
-		
 		computeSize: function(x, totalLength, convertSizeToUndef) {
 			if (is(x,"Number") && isNaN(x)) {
 				return 0;
 			}
-			var type = require.is(x);
+			var type = is(x);
 			if (type === "String") {
 				var UI = require("Ti/UI");
 				if (x === UI.SIZE) {
@@ -120,7 +93,7 @@ define(["Ti/_", "Ti/_/style"], function(_, style) {
 						case "%":
 							if(totalLength == UI.SIZE) {
 								convertSizeToUndef ? void 0 : UI.SIZE;
-							} else if (!require.is(totalLength,"Number")) {
+							} else if (!is(totalLength,"Number")) {
 								console.error("Could not compute percentage size/position of element.");
 								return;
 							} 
@@ -142,6 +115,37 @@ define(["Ti/_", "Ti/_/style"], function(_, style) {
 			}
 
 			return x;
+		},
+
+		create: function(tag, attrs, refNode, pos) {
+			var doc = refNode ? refNode.ownerDocument : document;
+			is(tag, "String") && (tag = doc.createElement(tag));
+			attrs && attr.set(tag, attrs);
+			refNode && this.place(tag, refNode, pos);
+			return tag;
+		},
+
+		detach: function(node) {
+			return node.parentNode && node.parentNode.removeChild(node);
+		},
+
+		destroy: function(node) {
+			try {
+				var destroyContainer = node.ownerDocument.createElement("div");
+				destroyContainer.appendChild(this.detach(node) || node);
+				destroyContainer.innerHTML = "";
+			} catch(e) {
+				/* squelch */
+			}
+		},
+
+		place: function(node, refNode, pos) {
+			refNode.appendChild(node);
+			return node;
+		},
+
+		unitize: function(x) {
+			return isNaN(x-0) || x-0 != x ? x : x + "px"; // note: must be != and not !==
 		}
 	};
 });
