@@ -305,12 +305,11 @@ NSString * const TI_DB_VERSION = @"1";
 	
 	NSMutableDictionary *dict = [NSMutableDictionary dictionary];
 	
-    [dict setObject:[TiUtils uniqueIdentifier] forKey:@"mid"];
 	[dict setObject:@"2" forKey:@"ver"];
 	[dict setObject:[TiUtils UTCDate] forKey:@"ts"];
 	[dict setObject:[TiUtils createUUID] forKey:@"id"];
 	[dict setObject:NUMINT(sequence++) forKey:@"seq"];
-	[dict setObject:[TiUtils installIdentifier] forKey:@"iid "];
+	[dict setObject:[TiUtils uniqueIdentifier] forKey:@"mid"];
 
 	[dict setObject:TI_APPLICATION_GUID forKey:@"aguid"];
 	[dict setObject:TI_APPLICATION_DEPLOYTYPE forKey:@"deploytype"];
