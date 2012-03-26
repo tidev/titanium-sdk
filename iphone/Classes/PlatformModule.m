@@ -200,16 +200,11 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 
 -(NSString*)macaddress
 {
-    DEPRECATED(@"Platform.macaddress", @"2.0.0");
-    
-    // NOTE: Even though this is not the actual macaddr, this is the historical value
-    // and changing it may screw up analytics.
     return [TiUtils uniqueIdentifier];
 }
 
 -(id)id
 {
-    DEPRECATED(@"Platform.id", @"2.0.0");
     return [TiUtils uniqueIdentifier];
 }
 
