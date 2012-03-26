@@ -9,6 +9,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 		
 		constructor: function() {
 			var self = this,
+				clickEventName = "ontouchstart" in window ? "touchend" : "click",
 				upArrow = this._upArrow = dom.create("div", {
 					className: "TiUIElementGradient",
 					style: {
@@ -23,7 +24,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					},
 					innerHTML: "\u2227"
 				}, this.domNode);
-			on(upArrow, "click", function(){
+			on(upArrow, clickEventName, function(){
 				var nextRow = self._rows.indexOf(self.selectedRow);
 				if (nextRow > 0) {
 					self.selectedRow = self._rows[nextRow - 1];
@@ -52,7 +53,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					width: "100%"
 				}
 			}, this.domNode);
-			on(titleClickArea, "click", function() {
+			on(titleClickArea, clickEventName, function() {
 				// Create the window and a background to dim the current view
 				var listWindow = UI.createWindow();
 				var dimmingView = UI.createView({
@@ -152,7 +153,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 				}
 			}, this.domNode);
 			downArrow.innerHTML = "\u2228";
-			downArrow.addEventListener("click", function(){
+			on(downArrow, clickEventName, function() {
 				var nextRow = self._rows.indexOf(self.selectedRow);
 				if (nextRow < self._rows.length - 1) {
 					self.selectedRow = self._rows[nextRow + 1];
