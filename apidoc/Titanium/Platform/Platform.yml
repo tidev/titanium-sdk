@@ -134,20 +134,17 @@ properties:
     permission: read-only
     
   - name: id
-    summary: The unique identifier for this device (UDID)
+    summary: The applications's globally-unique ID (UUID).
     description: |
-        Note that Apple has deprecated the ability to access the device's
-        UDID since iOS 5.0, and are expected to remove this capability
-        without notice as a result. As a result it is recommended to use
-        <Titanium.App.installId> instead to future-proof applications.
+        On Android, this may be the UDID (unique device ID). For iOS, this
+        is a unique identifier for this install of the application.
         
-        Although this property is deprecated, it may remain available
-        after Apple removes UDID capabilities and instead return `null`
-        on iOS.
+        Previously on iOS this may have been a UDID, but access to
+        this has been restricted by Apple. For more information, see
+        [Apple's -[UIDevice uniqueIdentifier](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIDevice_Class/DeprecationAppendix/AppendixADeprecatedAPI.html#//apple_ref/occ/instp/UIDevice/uniqueIdentifier)
+        documentation.
     type: String
     permission: read-only
-    deprecated:
-        since: "2.0.0"
         
   - name: locale
     summary: The system's default language.
@@ -161,17 +158,11 @@ properties:
     permission: read-only
     
   - name: macaddress
-    summary: The system's network interface mac address.
+    summary: The system's network interface mac address, or app UUID.
     description: |
-        Note that because Apple has deprecated access to the device's
-        UDID as of iOS 5.0, it is assumed they are also intending to block
-        access to the device's MAC addresses, as this is traditionally
-        the hardware information used to hash UDIDs.
-        
-        As a result, this property may become deprecated or return `null`
-        on iOS without warning. It is recommended to use
-        <Titanium.App.installId>, or <Titanium.Platform.createUUID> instead
-        to get a unique identifier depending on app requirements.
+        On iOS, this value is the app's UUID. Apple does not allow
+        access to any hardware identifier information as it can be used for
+        unique device identification, which they have prohibited.
     type: String
     permission: read-only
     
