@@ -1013,7 +1013,6 @@
 	req.toUrl = toUrl;
 	mix(req, fnMixin = {
 		config: cfg,
-		each: each,
 		evaluate: evaluate,
 		has: has,
 		is: is,

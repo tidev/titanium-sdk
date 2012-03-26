@@ -184,7 +184,7 @@ define(function() {
 				if (obj.hasOwnProperty(prop)) {
 					is(value = obj[prop], "Array") || (value = [value]);
 					prop = enc(prop) + "=";
-					require.each(value, function(v) {
+					value.forEach(function(v) {
 						pairs.push(prop + enc(v));
 					});
 				}

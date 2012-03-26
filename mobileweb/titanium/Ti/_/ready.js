@@ -44,7 +44,7 @@ define(function() {
 		if (!require.is(priority, "Number")) {
 			callback = context;
 			context = priority;
-			priority = 1000;
+			priority = 5;
 		}
 		fn = callback ? function(){ callback.call(context); } : context;
 		if (isReady) {
