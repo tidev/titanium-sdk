@@ -250,6 +250,8 @@ define(
 				self._layoutInProgress = false;
 				self._layoutTimer = null;
 				self._nodesToLayout = [];
+				
+				self.fireEvent("postlayout");
 			}
 			if (force) {
 				clearTimeout(self._layoutTimer);
