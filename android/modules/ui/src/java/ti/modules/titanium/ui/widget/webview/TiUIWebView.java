@@ -382,12 +382,15 @@ public class TiUIWebView extends TiUIView
 		// iOS parity: for whatever reason, when html is set directly, the iOS implementation
 		// explicitly sets the native webview's setScalesPageToFit to NO if the
 		// Ti scalesPageToFit property has _not_ been set.
+
+		WebView webView = getWebView();
 		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
-			getWebView().getSettings().setLoadWithOverviewMode(false);
+			webView.getSettings().setLoadWithOverviewMode(false);
 		}
+
 		if (html.contains(TiWebViewBinding.SCRIPT_INJECTION_ID)) {
 			// Our injection code is in there already, go ahead and show.
-			getWebView().loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
+			webView.loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
 			return;
 		}
 
@@ -395,16 +398,18 @@ public class TiUIWebView extends TiUIView
 		int tagEnd = -1;
 		if (tagStart >= 0) {
 			tagEnd = html.indexOf(">", tagStart + 1);
+
 			if (tagEnd > tagStart) {
 				StringBuilder sb = new StringBuilder(html.length() + 2500);
 				sb.append(html.substring(0, tagEnd + 1));
 				sb.append(TiWebViewBinding.INJECTION_CODE);
 				sb.append(html.substring(tagEnd + 1));
-				getWebView().loadDataWithBaseURL(baseUrl, sb.toString(), mimeType, "utf-8", baseUrl);
+				webView.loadDataWithBaseURL(baseUrl, sb.toString(), mimeType, "utf-8", baseUrl);
 				return;
 			}
 		}
-		getWebView().loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
+
+		webView.loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
 	}
 
 	public void setData(TiBlob blob)
