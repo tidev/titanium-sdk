@@ -601,27 +601,28 @@ class Compiler(object):
 		return [self.build_path, it]
 	
 	def copy(self, src_path, dest_path, ignore=None):
-		print '[INFO] Copying %s...' % src_path
-		if os.path.isdir(src_path):
-			for root, dirs, files in os.walk(src_path):
-				for name in ignoreDirs:
-					if name in dirs:
-						dirs.remove(name)
-				if ignore is not None:
-					for name in ignore:
+		if os.path.exists(src_path):
+			print '[INFO] Copying %s...' % src_path
+			if os.path.isdir(src_path):
+				for root, dirs, files in os.walk(src_path):
+					for name in ignoreDirs:
 						if name in dirs:
 							dirs.remove(name)
-				for file in files:
-					if file in ignoreFiles or file.startswith('._'):
-						continue
-					source = os.path.join(root, file)
-					dest = os.path.expanduser(source.replace(src_path, dest_path, 1))
-					dest_dir = os.path.expanduser(os.path.split(dest)[0])
-					if not os.path.exists(dest_dir):
-						os.makedirs(dest_dir)
-					shutil.copy(source, dest)
-		else:
-			shutil.copy(src_path, dest_path)
+					if ignore is not None and root == src_path:
+						for name in ignore:
+							if name in dirs:
+								dirs.remove(name)
+					for file in files:
+						if file in ignoreFiles or file.startswith('._'):
+							continue
+						source = os.path.join(root, file)
+						dest = os.path.expanduser(source.replace(src_path, dest_path, 1))
+						dest_dir = os.path.expanduser(os.path.split(dest)[0])
+						if not os.path.exists(dest_dir):
+							os.makedirs(dest_dir)
+						shutil.copy(source, dest)
+			else:
+				shutil.copy(src_path, dest_path)
 	
 	def compact_path(self, path):
 		result = []
