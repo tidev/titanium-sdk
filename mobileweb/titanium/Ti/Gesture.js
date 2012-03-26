@@ -1,59 +1,67 @@
-define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI", "Ti/_/ready"], function(Evented, lang, UI, ready) {
+define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI", "Ti/_/ready"],
+	function(Evented, lang, UI, ready) {
 
 	var win = window,
 		on = require.on,
-		lastOrient = null,
+		initiallyPortrait = win.orientation !== void 0 ? win.orientation === 0 : null,
+		isPortrait = function() {
+			var portrait = initiallyPortrait;
+			if (portrait !== null) {
+				initiallyPortrait = null;
+				return portrait;
+			}
+			return !(win.innerWidth && win.innerWidth > win.innerHeight);
+		},
+		getOrientation = function() {
+			return isPortrait() ? UI.PORTRAIT : UI.LANDSCAPE_LEFT;
+		},
+		lastOrientation = getOrientation(),
+		lastDeviceOrientation,
 		lastShake = (new Date()).getTime(),
 		lastAccel = {},
 		api = lang.setObject("Ti.Gesture", Evented, {
 			_updateOrientation: function() {
-				getWindowOrientation();
-				lastOrient !== api.orientation && api.fireEvent('orientationchange', {
-					orientation: lastOrient = api.orientation
-				});
+				var orientation = this.constants.__values__.orientation = getOrientation();
+				if (lastOrientation !== orientation) {
+					api.fireEvent('orientationchange', {
+						orientation: lastOrientation = orientation
+					});
+					return 1;
+				}
 			},
 
 			isLandscape: function() {
-				return api.landscape;
+				return this.landscape;
 			},
 
 			isPortrait: function() {
-				return api.portrait;
+				return this.portrait;
 			},
 
-			properties: {
-				portrait: false,
-				landscape: false,
+			constants: {
+				portrait: function() {
+					return isPortrait();
+				},
+				landscape: function() {
+					return !isPortrait();
+				},
 				orientation: UI.UNKNOWN
 			}
 		});
 
-	function getWindowOrientation() {
-		var landscape = !!(window.innerWidth && (window.innerWidth > window.innerHeight));
-		api.orientation = landscape ? UI.LANDSCAPE_LEFT : UI.PORTRAIT;
-		api.landscape = landscape;
-		api.portrait = !landscape;
-		return api.orientation;
-	}
-	ready(function() {
-		getWindowOrientation();
-	});
-
 	function deviceOrientation(evt) {
-		var orient = null,
+		var orient,
 			beta = Math.abs(evt.beta || evt.y|0 * 90),
 			gamma = Math.abs(evt.gamma || evt.x|0 * 90);
 
 		beta < 5 && gamma > 170 && (orient = UI.FACE_DOWN);
 		beta < 5 && gamma < 5 && (orient = UI.FACE_UP);
-		beta > 50 && 0 > beta && lastOrient != orient && (orient = UI.UPSIDE_PORTRAIT);
+		beta > 50 && 0 > beta && lastDeviceOrientation !== orient && (orient = UI.UPSIDE_PORTRAIT);
 
-		if (orient !== null && lastOrient !== orient) {
-			api.fireEvent('orientationchange', {
-				orientation: lastOrient = orient,
-				source: evt.source
-			});
-		}
+		lastDeviceOrientation !== orient && api.fireEvent('orientationchange', {
+			orientation: lastDeviceOrientation = orient,
+			source: evt.source
+		});
 	}
 
 	on(win, "MozOrientation", deviceOrientation);

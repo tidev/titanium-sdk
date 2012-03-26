@@ -8,101 +8,26 @@ define(
 		modules = "2DMatrix,ActivityIndicator,AlertDialog,Animation,Button,EmailDialog,ImageView,Label,OptionDialog,Picker,PickerColumn,PickerRow,ProgressBar,ScrollableView,ScrollView,Slider,Switch,Tab,TabGroup,TableView,TableViewRow,TableViewSection,TextArea,TextField,View,WebView,Window",
 		creators = {},
 		setStyle = style.set,
-		handheld = navigator.userAgent.toLowerCase().match(/(iphone|android)/),
+		unitize = dom.unitize,
+		showStats = false,
+		api,
+		handheld = navigator.userAgent.toLowerCase().match(/(iphone)/),
 		iphone = handheld && handheld[0] === "iphone",
 		targetHeight = {},
 		hidingAddressBar,
-		hideAddressBar = finishAddressBar = function() {
-			Ti.UI._recalculateLayout();
+		finishAddressBar = function() {
+			api._recalculateLayout();
 			hidingAddressBar = 0;
 		},
-		unitize = dom.unitize,
-		showStats = false;
+		hideAddressBar = finishAddressBar;
 
-	on(body, "touchmove", function(e) {
-		e.preventDefault();
-	});
-
-	require.each(modules.split(','), function(name) {
+	modules.split(',').forEach(function(name) {
 		creators['create' + name] = function(args) {
 			return new (require("Ti/UI/" + name))(args);
 		};
 	});
 
-	if (!navigator.standalone && handheld) {
-		hideAddressBar = function() {
-			if (!hidingAddressBar) {
-				hidingAddressBar = 1;
-				var isPortrait = require("Ti/Gesture").isPortrait | 0,
-					h = targetHeight[isPortrait],
-					timer;
-
-				if (!h) {
-					if (iphone) {
-						h = global.innerHeight + 60;
-						if (global.screen.availHeight - h > 50) {
-							h += 50;
-						}
-					} else {
-						h = global.outerHeight / (global.devicePixelRatio || 0);
-					}
-					targetHeight[isPortrait] = h;
-				}
-
-				setStyle(body, "height", h + "px");
-
-				if (iphone) {
-					global.scrollTo(0, 0);
-					finishAddressBar();
-				} else {
-					timer = setInterval(function() {
-						global.scrollTo(0, -1);
-						if (global.innerHeight + 1 >= h) {
-							clearTimeout(timer);
-							finishAddressBar();
-						}
-					}, 50);
-				}
-			}
-		}
-		ready(hideAddressBar);
-		on(global, "orientationchange", hideAddressBar);
-		on(global, "touchstart", hideAddressBar);
-	}
-
-	ready(10, function() {
-		var splashScreen = document.getElementById("splash"),
-			container = (Ti.UI._container = Ti.UI.createView({
-				left: 0,
-				top: 0
-			})),
-			node = container.domNode;
-		setStyle(node, "overflow", "hidden");
-		body.appendChild(node);
-		container.addEventListener("postlayout", function(){
-			setTimeout(function(){
-				setStyle(splashScreen,{
-					position: "absolute",
-					width: unitize(container._measuredWidth),
-					height: unitize(container._measuredHeight),
-					left: "0px",
-					top: "0px",
-					right: "",
-					bottom: ""
-				});
-			},10);
-		});
-		hideAddressBar();
-	});
-	
-	function updateOrientation() {
-		Ti.UI._recalculateLayout();
-		require("Ti/Gesture")._updateOrientation();
-	}
-	on(global, "resize", updateOrientation);
-	on(global, "orientationchange", updateOrientation);
-
-	return lang.setObject("Ti.UI", Evented, creators, {
+	api = lang.setObject("Ti.UI", Evented, creators, {
 
 		_addWindow: function(win, set) {
 			this._container.add(win.modal ? win._modalParentContainer : win);
@@ -118,37 +43,33 @@ define(
 			this._container.remove(win.modal ? win._modalParentContainer : win);
 			return win;
 		},
-		
+
 		_layoutSemaphore: 0,
-		
+
 		_nodesToLayout: [],
-		
+
 		_startLayout: function() {
 			this._layoutSemaphore++;
 		},
-		
+
 		_finishLayout: function() {
-			this._layoutSemaphore--;
-			if (this._layoutSemaphore === 0) {
-				this._triggerLayout(true);
-			}
+			--this._layoutSemaphore === 0 && this._triggerLayout(true);
 		},
-		
+
 		_elementLayoutCount: 0,
-		
+
 		_layoutCount: 0,
-		
+
 		_triggerLayout: function(node, force) {
 			var self = this;
 			if (~self._nodesToLayout.indexOf(node)) {
 				return;
 			}
 			self._nodesToLayout.push(node);
+
 			function startLayout() {
-				
-				self._elementLayoutCount = 0;
-				self._layoutCount++;
-				var startTime = (new Date()).getTime(),
+				var i, j,
+					startTime = (new Date()).getTime(),
 					nodes = self._nodesToLayout,
 					layoutNode,
 					node,
@@ -160,48 +81,51 @@ define(
 					rootNodesToLayout = [],
 					layoutRootNode = false,
 					breakAfterChildrenCalculations;
-					
+
+				self._elementLayoutCount = 0;
+				self._layoutCount++;
+
 				// Determine which nodes need to be re-layed out
-				for (var i in nodes) {
+				for (i in nodes) {
 					layoutNode = nodes[i];
-						
+
 					// Mark all of the children for update that need to be updated
 					recursionStack = [layoutNode];
 					while (recursionStack.length > 0) {
 						node = recursionStack.pop();
 						node._markedForLayout = true;
 						children = node.children;
-						for (var j in children) {
+						for (j in children) {
 							child = children[j];
 							if (node.layout !== "composite" || child._isDependentOnParent() || !child._hasBeenLayedOut) {
 								recursionStack.push(child);
 							}
 						}
 					}
-					
+
 					// Go up and mark any other nodes that need to be marked
 					parent = layoutNode;
-					while(1) {
+					while (1) {
 						breakAfterChildrenCalculations = false;
 						if (!parent._parent) {
 							layoutRootNode = true;
 							break;
 						} else if(!parent._parent._hasSizeDimensions()) {
 							!parent._parent._markedForLayout && !~rootNodesToLayout.indexOf(parent._parent) && rootNodesToLayout.push(parent._parent);
-							if (parent._parent.layout !== "composite") {
-								breakAfterChildrenCalculations = true;
-							} else {
+							if (parent._parent.layout === "composite") {
 								break;
 							}
+							breakAfterChildrenCalculations = true;
 						}
-						
+
 						previousParent = parent;
 						parent = parent._parent;
 						recursionStack = [parent];
+
 						while (recursionStack.length > 0) {
 							node = recursionStack.pop();
 							children = node.children;
-							for (var j in children) {
+							for (j in children) {
 								child = children[j];
 								if (child !== previousParent && (node.layout !== "composite" || child._isDependentOnParent())) {
 									child._markedForLayout = true;
@@ -209,16 +133,16 @@ define(
 								}
 							}
 						}
+
 						if (breakAfterChildrenCalculations) {
 							break;
 						}
 					}
 				}
-				
+
 				// Layout all nodes that need it
 				if (layoutRootNode) {
-					var container = self._container;
-					container._doLayout({
+					self._container._doLayout({
 					 	origin: {
 					 		x: 0,
 					 		y: 0
@@ -239,20 +163,22 @@ define(
 					 	layoutChildren: true
 				 	});
 				}
-				for (var i in rootNodesToLayout) {
+
+				for (i in rootNodesToLayout) {
 					node = rootNodesToLayout[i];
-					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node._getInheritedWidth() === Ti.UI.SIZE, node._getInheritedHeight() === Ti.UI.SIZE);
+					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node._getInheritedWidth() === api.SIZE, node._getInheritedHeight() === api.SIZE);
 				}
-				
+
 				showStats && console.debug("Layout " + self._layoutCount + ": " + self._elementLayoutCount + 
 					" elements laid out in " + ((new Date().getTime() - startTime)) + "ms");
-					
+
 				self._layoutInProgress = false;
 				self._layoutTimer = null;
 				self._nodesToLayout = [];
 				
 				self.fireEvent("postlayout");
 			}
+
 			if (force) {
 				clearTimeout(self._layoutTimer);
 				self._layoutInProgress = true;
@@ -262,7 +188,7 @@ define(
 				self._layoutTimer = setTimeout(function(){ startLayout(); }, 25);
 			}
 		},
-		
+
 		_recalculateLayout: function() {
 			var container = this._container;
 			if (container) {
@@ -284,19 +210,19 @@ define(
 			},
 			currentTab: void 0
 		},
-		
+
 		convertUnits: function(convertFromValue, convertToUnits) {
 			var intermediary = dom.computeSize(convertFromValue, 0, false);
 			switch(convertToUnits) {
-				case Ti.UI.UNIT_MM:
+				case api.UNIT_MM:
 					intermediary *= 10;
-				case Ti.UI.UNIT_CM:
+				case api.UNIT_CM:
 					return intermediary / ( 0.0393700787 * _.dpi * 10);
-				case Ti.UI.UNIT_IN:
+				case api.UNIT_IN:
 					return intermediary / _.dpi;
-				case Ti.UI.UNIT_DIP:
+				case api.UNIT_DIP:
 					return intermediary * 96 / _.dpi;
-				case Ti.UI.UNIT_PX:
+				case api.UNIT_PX:
 					return intermediary;
 				default: return 0;
 			}
@@ -362,5 +288,81 @@ define(
 		}
 
 	});
+
+	if (!navigator.standalone && handheld) {
+		hideAddressBar = function() {
+			if (!hidingAddressBar) {
+				hidingAddressBar = 1;
+				var isPortrait = require("Ti/Gesture").isPortrait | 1,
+					current = parseInt(body.style.height || 0),
+					h = targetHeight[isPortrait],
+					timer;
+
+				if (!h) {
+					if (iphone) {
+						h = global.innerHeight + 60;
+						if (global.screen.availHeight - h > 50) {
+							h += 50;
+						}
+					} else {
+						h = global.outerHeight / (global.devicePixelRatio || 1);
+					}
+					targetHeight[isPortrait] = h;
+				}
+
+				if (iphone || h !== current) {
+					setStyle(body, "height", h + "px");
+					if (!iphone) {
+						setStyle(body, "overflow", "visible");
+						global.scrollTo(0, 1);
+					}
+					global.scrollTo(0, 0);
+					finishAddressBar();
+				}
+			}
+		}
+		on(global, "touchstart", hideAddressBar);
+	}
+
+	ready(10, function() {
+		var splashScreen = dom.byId("splash"),
+			container = (api._container = api.createView({
+				left: 0,
+				top: 0
+			})),
+			node = container.domNode;
+
+		hideAddressBar();
+
+		setStyle(node, "overflow", "hidden");
+		dom.place(node, body);
+		on(container, "postlayout", function() {
+			setTimeout(function() {
+				setStyle(splashScreen, {
+					position: "absolute",
+					width: unitize(container._measuredWidth),
+					height: unitize(container._measuredHeight),
+					left: 0,
+					top: 0,
+					right: "",
+					bottom: ""
+				});
+			}, 10);
+		});
+
+		function viewportChanged(e) {
+			if (require("Ti/Gesture")._updateOrientation()) {
+				hideAddressBar();
+			} else {
+				api._recalculateLayout();
+			}
+		}
+
+		on(global, "orientationchange", viewportChanged);
+		on(global, "resize", viewportChanged);
+		on(body, "touchmove", function(e) { e.preventDefault(); });
+	});
+
+	return api;
 
 });

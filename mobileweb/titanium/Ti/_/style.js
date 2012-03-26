@@ -27,6 +27,31 @@ define(["Ti/_", "Ti/_/string", "Ti/Filesystem"], function(_, string, Filesystem)
 	}
 
 	return {
+		computedStyle: function(node) {
+			var s;
+			if (node.nodeType == 1) {
+				var dv = node.ownerDocument.defaultView;
+				s = dv.getComputedStyle(node, null);
+				if (!s && node.style) {
+					node.style.display = "";
+					s = dv.getComputedStyle(node, null);
+				}
+			}
+			return s || {};
+		},
+
+		get: function(node, name) {
+			if (is(name, "Array")) {
+				for (var i = 0; i < name.length; i++) {
+					name[i] = node.style[name[i]];
+				}
+				return name;
+			}
+			return node.style[name];
+		},
+
+		set: set,
+
 		url: function(/*String|Blob*/url) {
 			if (url && url.declaredClass === "Ti.Blob") {
 				return "url(" + url.toString() + ")";
@@ -40,18 +65,6 @@ define(["Ti/_", "Ti/_/string", "Ti/Filesystem"], function(_, string, Filesystem)
 					: /^url\(/.test(url)
 						? url
 						: "url(" + (require.cache(url) || _.getAbsolutePath(url)) + ")";
-		},
-
-		get: function(node, name) {
-			if (is(name, "Array")) {
-				for (var i = 0; i < name.length; i++) {
-					name[i] = node.style[name[i]];
-				}
-				return name;
-			}
-			return node.style[name];
-		},
-
-		set: set
+		}
 	};
 });

@@ -239,7 +239,7 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 		args.shift();
 		assert(!mapped || args.length, "Format has no mapped arguments");
 
-		require.each(tokens, function(token) {
+		tokens.forEach(function(token) {
 			var tf,
 				flags = {},
 				fi,
@@ -342,7 +342,7 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 
 				str += "" + token.arg;
 			}
-		});
+		}, this);
 
 		return str;
 	};

@@ -601,27 +601,28 @@ class Compiler(object):
 		return [self.build_path, it]
 	
 	def copy(self, src_path, dest_path, ignore=None):
-		print '[INFO] Copying %s...' % src_path
-		if os.path.isdir(src_path):
-			for root, dirs, files in os.walk(src_path):
-				for name in ignoreDirs:
-					if name in dirs:
-						dirs.remove(name)
-				if ignore is not None:
-					for name in ignore:
+		if os.path.exists(src_path):
+			print '[INFO] Copying %s...' % src_path
+			if os.path.isdir(src_path):
+				for root, dirs, files in os.walk(src_path):
+					for name in ignoreDirs:
 						if name in dirs:
 							dirs.remove(name)
-				for file in files:
-					if file in ignoreFiles or file.startswith('._'):
-						continue
-					source = os.path.join(root, file)
-					dest = os.path.expanduser(source.replace(src_path, dest_path, 1))
-					dest_dir = os.path.expanduser(os.path.split(dest)[0])
-					if not os.path.exists(dest_dir):
-						os.makedirs(dest_dir)
-					shutil.copy(source, dest)
-		else:
-			shutil.copy(src_path, dest_path)
+					if ignore is not None and root == src_path:
+						for name in ignore:
+							if name in dirs:
+								dirs.remove(name)
+					for file in files:
+						if file in ignoreFiles or file.startswith('._'):
+							continue
+						source = os.path.join(root, file)
+						dest = os.path.expanduser(source.replace(src_path, dest_path, 1))
+						dest_dir = os.path.expanduser(os.path.split(dest)[0])
+						if not os.path.exists(dest_dir):
+							os.makedirs(dest_dir)
+						shutil.copy(source, dest)
+			else:
+				shutil.copy(src_path, dest_path)
 	
 	def compact_path(self, path):
 		result = []
@@ -684,38 +685,33 @@ class Compiler(object):
 			'Ti/Filesystem',
 			'Ti/Filesystem/File',
 			'Ti/Filesystem/FileStream',
+			'Ti/Gesture',
+			'Ti/Geolocation',
 			'Ti/IOStream',
 			'Ti/Locale',
+			'Ti/Map',
+			'Ti/Map/View',
+			'Ti/Map/Annotation',
 			'Ti/Media',
 			'Ti/Media/VideoPlayer',
 			'Ti/Network',
 			'Ti/Network/HTTPClient',
 			'Ti/Platform',
 			'Ti/Platform/DisplayCaps',
-			'Ti/Gesture',
-			'Ti/Geolocation',
-			'Ti/XML',
-			'Ti/UI/View',
-			'Ti/Map',
-			'Ti/Map/View',
-			'Ti/Map/Annotation',
-			'Ti/Media/VideoPlayer',
 			'Ti/UI',
-			'Ti/UI/Clipboard',
-			'Ti/UI/MobileWeb',
-			'Ti/UI/TableViewRow',
-			'Ti/UI/Tab',
-			'Ti/UI/TabGroup',
 			'Ti/UI/Window',
 			'Ti/UI/2DMatrix',
 			'Ti/UI/ActivityIndicator',
 			'Ti/UI/AlertDialog',
 			'Ti/UI/Animation',
 			'Ti/UI/Button',
+			'Ti/UI/Clipboard',
 			'Ti/UI/EmailDialog',
 			'Ti/UI/ImageView',
 			'Ti/UI/Label',
 			'Ti/UI/OptionDialog',
+			'Ti/UI/MobileWeb',
+			'Ti/UI/MobileWeb/NavigationGroup',
 			'Ti/UI/Picker',
 			'Ti/UI/PickerColumn',
 			'Ti/UI/PickerRow',
@@ -724,13 +720,17 @@ class Compiler(object):
 			'Ti/UI/ScrollView',
 			'Ti/UI/Slider',
 			'Ti/UI/Switch',
-			'Ti/UI/TableViewSection',
+			'Ti/UI/Tab',
+			'Ti/UI/TabGroup',
 			'Ti/UI/TableView',
+			'Ti/UI/TableViewRow',
+			'Ti/UI/TableViewSection',
 			'Ti/UI/TextArea',
 			'Ti/UI/TextField',
+			'Ti/UI/View',
 			'Ti/UI/WebView',
-			'Ti/UI/MobileWeb/NavigationGroup',
 			'Ti/Utils',
+			'Ti/XML',
 			'Ti/Yahoo'
 		]
 	

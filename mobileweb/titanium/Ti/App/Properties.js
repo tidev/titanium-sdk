@@ -39,7 +39,10 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 		});
 
 	function getStorage(prop) {
-		storage || (storage = JSON.parse(localStorage.getItem(storageKey)) || {});
+		if (!storage) {
+			var value = localStorage.getItem(storageKey);
+			storage = (require.is(value, "String") && JSON.parse(value)) || {};
+		}
 		if (prop) {
 			return storage[prop];
 		}
