@@ -45,7 +45,7 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI", "Ti/_/ready"],
 				landscape: function() {
 					return !isPortrait();
 				},
-				orientation: UI.UNKNOWN
+				orientation: getOrientation()
 			}
 		});
 
