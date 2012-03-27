@@ -10,6 +10,7 @@
 #import "TiUIScrollableViewProxy.h"
 #import "TiUtils.h"
 #import "TiViewProxy.h"
+#import "TiUIWebView.h"
 
 @interface TiUIScrollableView(redefiningProxy)
 @property(nonatomic,readonly)	TiUIScrollableViewProxy * proxy;
@@ -298,7 +299,9 @@
     UIScrollView *sv = [self scrollview];
     for(UIView *view in [sv subviews]){
         for (TiUIView *sView in [view subviews]) {
-            [sView layoutSubviews];
+            if ([sView isKindOfClass:[TiUIWebView class]]) {
+                [sView layoutSubviews];
+            }            
         }
     }
     [super frameSizeChanged:frame bounds:visibleBounds];
