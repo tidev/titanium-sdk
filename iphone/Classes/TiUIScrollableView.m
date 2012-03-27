@@ -291,6 +291,16 @@
 		[scrollview setContentOffset:CGPointMake(lastPage*visibleBounds.size.width,0)];
         [self manageCache:[self currentPage]];
 	}
+    //TODO: This is a workaround for TIMOB-8298, since WebView
+    //doesnot receive the layoutSubviews from the UILayer we have
+    //to manually force it to resize. This should be changed out for 
+    // a better fix.
+    UIScrollView *sv = [self scrollview];
+    for(UIView *view in [sv subviews]){
+        for (TiUIView *sView in [view subviews]) {
+            [sView layoutSubviews];
+        }
+    }
     [super frameSizeChanged:frame bounds:visibleBounds];
 }
 
