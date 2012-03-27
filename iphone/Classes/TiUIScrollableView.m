@@ -299,11 +299,10 @@
     UIScrollView *sv = [self scrollview];
     for(UIView *view in [sv subviews]){
         for (TiUIView *sView in [view subviews]) {
-            if ([sView isKindOfClass:[TiUIWebView class]]) {
-                [sView layoutSubviews];
-            }            
+                [sView checkBounds];
         }
     }
+    
     [super frameSizeChanged:frame bounds:visibleBounds];
 }
 
