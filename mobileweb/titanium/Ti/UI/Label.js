@@ -11,44 +11,27 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 	return declare("Ti.UI.Label", FontWidget, {
 
 		constructor: function() {
-			// Create the aligner div. This sets up a flexbox to float the text to the middle
-			var aligner = this.textAlignerDiv = dom.create("div", {
-				className: css.clean("TiUILabelTextAligner"),
-				style: {
-					display: ["-webkit-box", "-moz-box"],
-					boxOrient: "vertical",
-					boxPack: "center"
-				}
-			}, this.domNode);
-
-			// Create the container div. This gets floated by the flexbox
-			this.textContainerDiv = dom.create("div", {
-				className: css.clean("TiUILabelTextContainer")
-			}, aligner);
-
-			this._addStyleableDomNode(this.textContainerDiv);
+			this._add(this._textContainer = UI.createView({
+				width: UI.INHERIT,
+				height: UI.SIZE
+			}));
 			
+			var self = this;
+			self._textContainer._getContentSize = function(width, height) {
+				var text = self._getText();
+				return {
+					width: self._measureText(text, self._textContainerDomNode, width).width,
+					height: self._measureText(text, self._textContainerDomNode, width).height
+				};
+			};
+			
+			this._addStyleableDomNode(this._textContainerDomNode = this._textContainer.domNode);
 			this.wordWrap = true;
 		},
 
 		_defaultWidth: UI.SIZE,
 
 		_defaultHeight: UI.SIZE,
-		
-		_getContentSize: function(width, height) {
-			var text = this._getText();
-			return {
-				width: this._measureText(text, this.textContainerDiv, width).width,
-				height: this._measureText(text, this.textContainerDiv, width).height
-			};
-		},
-
-		_setTouchEnabled: function(value) {
-			FontWidget.prototype._setTouchEnabled.apply(this,arguments);
-			var cssVal = value ? "auto" : "none"
-			setStyle(this.textAlignerDiv,"pointerEvents", cssVal);
-			setStyle(this.textContainerDiv,"pointerEvents", cssVal);
-		},
 
 		_getText: function() {
 			var i,
@@ -84,7 +67,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		},
 
 		_setText: function() {
-			this.textContainerDiv.innerHTML = this._getText();
+			this._textContainerDomNode.innerHTML = this._getText();
 			this._hasSizeDimensions() && this._triggerLayout();
 		},
 
@@ -102,14 +85,14 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		properties: {
 			ellipsize: {
 				set: function(value) {
-					setStyle(this.textContainerDiv,"textOverflow", !!value ? "ellipsis" : "clip");
+					setStyle(this._textContainerDomNode,"textOverflow", !!value ? "ellipsis" : "clip");
 					return value;
 				},
 				value: true
 			},
 			html: {
 				set: function(value) {
-					this.textContainerDiv.innerHTML = value;
+					this._textContainerDomNode.innerHTML = value;
 					this._hasSizeDimensions() && this._triggerLayout();
 					return value;
 				}
@@ -129,14 +112,14 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			text: textPost,
 			textAlign: {
 				set: function(value) {
-					setStyle(this.textContainerDiv, "textAlign", /(center|right)/.test(value) ? value : "left");
+					setStyle(this._textContainerDomNode, "textAlign", /(center|right)/.test(value) ? value : "left");
 					return value;
 				}
 			},
 			textid: textPost,
 			wordWrap: {
 				set: function(value) {
-					setStyle(this.textContainerDiv, "whiteSpace", !!value ? "normal" : "nowrap");
+					setStyle(this._textContainerDomNode, "whiteSpace", !!value ? "normal" : "nowrap");
 					return value;
 				}
 			}
