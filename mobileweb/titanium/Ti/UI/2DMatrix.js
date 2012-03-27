@@ -22,7 +22,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Platform"], function(declare, Evente
 			d: obj.c * b + obj.d * d,
 			tx: obj.a * tx + obj.b * ty + obj.tx,
 			ty: obj.c * tx + obj.d * ty + obj.ty,
-			rotation: obj.rotation + r
+			rotation: obj.rotation + (r | 0)
 		};
 	}
 

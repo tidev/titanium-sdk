@@ -179,7 +179,8 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
             //If it comes here it has to follow size behavior
             if ([autoSizer respondsToSelector:@selector(autoHeightForSize:)])
             {
-                height = [autoSizer autoHeightForSize:CGSizeMake(width, height)];
+                CGFloat desiredHeight = [autoSizer autoHeightForSize:CGSizeMake(width, height)];
+                height = height < desiredHeight?height:desiredHeight;
             }
             else if(resultResizing != NULL)
             {

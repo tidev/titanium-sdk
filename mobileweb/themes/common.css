@@ -502,3 +502,6 @@ textarea {
 	margin: 5px 0;
 }
 
+.TiUITableViewRow .TiUILabelTextAligner {
+	overflow: visible;
+}

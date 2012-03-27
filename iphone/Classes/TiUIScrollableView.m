@@ -291,6 +291,14 @@
 		[scrollview setContentOffset:CGPointMake(lastPage*visibleBounds.size.width,0)];
         [self manageCache:[self currentPage]];
 	}
+    //To make sure all subviews are properly resized.
+    UIScrollView *sv = [self scrollview];
+    for(UIView *view in [sv subviews]){
+        for (TiUIView *sView in [view subviews]) {
+                [sView checkBounds];
+        }
+    }
+    
     [super frameSizeChanged:frame bounds:visibleBounds];
 }
 

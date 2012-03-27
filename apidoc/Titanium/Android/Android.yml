@@ -1190,10 +1190,8 @@ properties:
     permission: read-only
 
   - name: FLAG_UPDATE_CURRENT
-    summary:  
+    summary: Corresponds to the Android `PendingIntent.FLAG_UPDATE_CURRENT` constant.
     description: |
-        Corresponds to the Android `PendingIntent.FLAG_UPDATE_CURRENT` constant.
-
         See [PendingIntent.FLAG_UPDATE_CURRENT in the Android API
         Reference](http://developer.android.com/reference/android/app/PendingIntent.html#FLAG_UPDATE_CURRENT).
     type: Number
