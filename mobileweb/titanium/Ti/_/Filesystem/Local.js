@@ -51,7 +51,7 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob"],
 	function getRemote(path) {
 		var xhr = new XMLHttpRequest;
 		xhr.overrideMimeType('text/plain; charset=x-user-defined');
-		xhr.open("GET", path, false);
+		xhr.open("GET", '.' + path, false);
 		xhr.send(null);
 		return xhr.status === 200 ? { data: xhr.responseText, mimeType: xhr.getResponseHeader("Content-Type") } : null;
 	}
@@ -65,7 +65,7 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob"],
 				'/': "tD\nr1"
 			};
 
-			require("/titanium/filesystem.registry").split(/\n|\|/).forEach(function(line, i) {
+			require("./titanium/filesystem.registry").split(/\n|\|/).forEach(function(line, i) {
 				var depth = 0,
 					line = line.split('\t'),
 					len = line.length,
