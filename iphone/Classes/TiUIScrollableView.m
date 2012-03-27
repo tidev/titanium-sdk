@@ -10,7 +10,6 @@
 #import "TiUIScrollableViewProxy.h"
 #import "TiUtils.h"
 #import "TiViewProxy.h"
-#import "TiUIWebView.h"
 
 @interface TiUIScrollableView(redefiningProxy)
 @property(nonatomic,readonly)	TiUIScrollableViewProxy * proxy;
