@@ -75,8 +75,7 @@ NSArray* moviePlayerKeys = nil;
 	}
 	
 	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
-	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-	[nc removeObserver:self];
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
 
 	RELEASE_TO_NIL(thumbnailCallback);
 	RELEASE_TO_NIL(tempFile);
@@ -195,6 +194,7 @@ NSArray* moviePlayerKeys = nil;
 -(void)viewDidDetach
 {
 	[movie stop];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 	RELEASE_TO_NIL(movie);
 	reallyAttached = NO;
 }
@@ -396,6 +396,7 @@ NSArray* moviePlayerKeys = nil;
 		[movie stop];
 		playing = NO;
 	}
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 	RELEASE_TO_NIL_AUTORELEASE(movie);
 	
 	if ([self viewAttached]) {
@@ -722,6 +723,7 @@ NSArray* moviePlayerKeys = nil;
     ENSURE_UI_THREAD(stop, args);
 	playing = NO;
 	[movie stop];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 	RELEASE_TO_NIL_AUTORELEASE(movie);
 }
 
