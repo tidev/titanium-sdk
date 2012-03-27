@@ -8,28 +8,20 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI"],
 	return declare("Ti.UI.Tab", View, {
 
 		constructor: function(args) {
-			var container = this._contentContainer = dom.create("div", {
-				className: "TiUITabContentContainer",
-				style: {
-					display: ["-webkit-box", "-moz-box"],
-					boxOrient: "vertical",
-					boxPack: "center",
-					boxAlign: "center"
-				}
-			}, this.domNode);
-
-			this._tabIcon = dom.create("img", {
-				className: "TiUITabImage"
-			}, container);
-
-			this._tabTitle = dom.create("div", {
-				className: "TiUITabTitle",
-				style: {
-					whiteSpace: "nowrap",
-					pointerEvents: "none",
-					userSelect: "none"
-				}
-			}, container);
+			
+			var container = UI.createView({
+				layout: "vertical",
+				width: "100%",
+				height: UI.SIZE
+			});
+			this._add(container);
+			
+			container.add(this._tabIcon = UI.createImageView({
+				height: UI.SIZE,
+				width: UI.SIZE
+			}));
+			
+			container.add(this._tabTitle = UI.createLabel());
 
 			var self = this;
 			this.addEventListener("singletap", function(e) {
@@ -58,7 +50,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI"],
 		},
 
 		_setTitle: function() {
-			this._tabTitle.innerHTML = Locale._getString(this.titleid, this.title);
+			this._tabTitle.text = Locale._getString(this.titleid, this.title);
 		},
 
 		properties: {
@@ -70,7 +62,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI"],
 
 			icon: {
 				set: function(value) {
-					return this._tabIcon.src = value;
+					return this._tabIcon.image = value;
 				}
 			},
 

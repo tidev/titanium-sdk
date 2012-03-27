@@ -16,16 +16,17 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				height: UI.SIZE
 			}));
 			
-			var self = this;
+			var self = this,
+				textContainerDomNode = this._textContainerDomNode = this._textContainer.domNode;
 			self._textContainer._getContentSize = function(width, height) {
 				var text = self._getText();
 				return {
-					width: self._measureText(text, self._textContainerDomNode, width).width,
-					height: self._measureText(text, self._textContainerDomNode, width).height
+					width: self._measureText(text, textContainerDomNode, width).width,
+					height: self._measureText(text, textContainerDomNode, width).height
 				};
 			};
 			
-			this._addStyleableDomNode(this._textContainerDomNode = this._textContainer.domNode);
+			this._addStyleableDomNode(textContainerDomNode);
 			this.wordWrap = true;
 		},
 
