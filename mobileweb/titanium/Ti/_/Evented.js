@@ -43,10 +43,14 @@ define(function() {
 				modifiers[i++].call(this, data);
 			}
 
-			i = 0;
-			l = listeners && listeners.length;
-			while (i < l) {
-				listeners[i++].call(this, data);
+			if (listeners) {
+				// We deep copy the listeners because the original list can change in the middle of a callback
+				listeners = [].concat(listeners);
+				i = 0;
+				l = listeners.length;
+				while (i < l) {
+					listeners[i++].call(this, data);
+				}
 			}
 		},
 
