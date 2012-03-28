@@ -1938,7 +1938,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	}
 	
 	pthread_rwlock_rdlock(&childrenLock);
-	for (TiViewProxy * thisChildProxy in self.children)
+	for (TiViewProxy * thisChildProxy in children)
 	{
 		if(thisChildProxy == childProxy)
 		{

@@ -138,6 +138,9 @@
 
 -(void)handleContentSize
 {
+	if (!needsHandleContentSize) {
+		return;
+	}
 	CGSize newContentSize = [self bounds].size;
 	CGFloat scale = [scrollView zoomScale];
 
