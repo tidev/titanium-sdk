@@ -681,7 +681,7 @@ class Compiler(object):
 			'Ti/Buffer',
 			'Ti/Codec',
 			'Ti/Facebook',
-			'Ti/Facebook/Loginbutton',
+			'Ti/Facebook/LoginButton',
 			'Ti/Filesystem',
 			'Ti/Filesystem/File',
 			'Ti/Filesystem/FileStream',
