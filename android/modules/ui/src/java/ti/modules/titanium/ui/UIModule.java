@@ -205,7 +205,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 		TiDimension dimension = new TiDimension(convertFromValue, TiDimension.TYPE_UNDEFINED);
 
 		// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
-		View view = getActivity().getWindow().getDecorView();
+		View view = TiApplication.getAppCurrentActivity().getWindow().getDecorView();
 
 		if (view != null) {
 			if (convertToUnits.equals(UNIT_PX)) {
