@@ -8,7 +8,8 @@ function addRow(addTextArea)
 	{
 		tf1 = Titanium.UI.createTextArea({
 			color:'#336699',
-			width:250
+			width:250,
+			height:35
 		});
 
 	}
