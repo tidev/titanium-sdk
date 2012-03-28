@@ -7,7 +7,7 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale", "Ti/_/
 		mid = matches ? decodeURIComponent(matches[1]) : void 0,
 		unloaded,
 		on = require.on,
-		hiddenIFrame = dom.create("iframe",{id: "urlOpener", display: "none"},doc.body);
+		hiddenIFrame = dom.create("iframe",{id: "urlOpener", style: {display: "none"} },doc.body);
 
 	mid || (mid = localStorage.getItem(midName));
 	mid || localStorage.setItem(midName, mid = _.uuid());
