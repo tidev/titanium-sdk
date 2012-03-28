@@ -14,7 +14,7 @@ methods:
         optional: true
   - name: hide
     platforms: [iphone, ipad]
-    since: 1.9.0
+    since: 1.8.3
     summary: cause the dialog to no longer be visible. This will trigger a click event as if the user pressed cancel.
     parameters:
       - name: animated
@@ -85,7 +85,7 @@ examples:
 ---
 name: hideOption
 summary: Optional parameter for [hide](Titanium.UI.OptionDialog.hide) method.
-since: 1.9.0
+since: 1.8.3
 platforms: [iphone, ipad]
 properties:
   - name: animated
