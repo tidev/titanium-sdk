@@ -186,7 +186,7 @@
 	wrapperBounds.size = newContentSize;
 	[wrapperView setFrame:wrapperBounds];
 	needsHandleContentSize = NO;
-	[(TiViewProxy *)[self proxy] layoutChildren:NO];
+	[(TiUIScrollViewProxy *)[self proxy] layoutChildrenAfterContentSize:NO];
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
