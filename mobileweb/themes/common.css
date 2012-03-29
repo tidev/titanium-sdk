@@ -423,21 +423,6 @@ textarea {
 	border-radius: 5px;
 }
 
-.TiUIActivityIndicatorContentContainer {
-	display: none;
-	height: 100%;
-	width: 100%;
-}
-
-.TiUIActivityIndicatorIndicator {
-	height: 36px;
-	width: 36px;
-}
-
-.TiUIActivityIndicatorMessage {
-	white-space: nowrap;
-}
-
 .TiUIActivityIndicatorProng {
 	background-color: #fff;
 	border-radius: 1px;

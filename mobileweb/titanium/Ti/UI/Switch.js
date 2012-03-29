@@ -11,62 +11,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 		constructor: function(args) {
 			
-			/*// This container holds the flex boxes used to position the elements
-			this._contentContainer = dom.create("div", {
-				className: "TiUISwitchContentContainer",
-				style: {
-					display: ["-webkit-box", "-moz-box"],
-					boxOrient: "vertical",
-					boxPack: "center",
-					boxAlign: "stretch",
-					width: "100%",
-					height: "100%"
-				}
-			}, this.domNode)
-			
-			// Create the text box and a flex box to align it
-			this._titleContainer = dom.create("div", {
-				className: "TiUISwitchTextAligner",
-				style: {
-					display: ["-webkit-box", "-moz-box"],
-					boxOrient: "vertical",
-					boxPack: "center",
-					boxAlign: "center",
-					boxFlex: 1
-				}
-			}, this._contentContainer);
-			this._switchTitle = dom.create("div", {
-				className: "TiUISwitchTitle",
-				style: {
-					whiteSpace: "nowrap",
-					pointerEvents: "none",
-					textAlign: "center"
-				}
-			}, this._titleContainer);
-			this._addStyleableDomNode(this._switchTitle);
-
-			// Create the switch indicator and a flex box to contain it
-			this._indicatorContainer = dom.create("div", {
-				className: "TiUISwitchTextAligner",
-				style: {
-					display: ["-webkit-box", "-moz-box"],
-					boxPack: "center",
-					boxAlign: "center",
-					marginTop: "3px"
-				}
-			}, this._contentContainer);
-			this._switchIndicator = dom.create("div", {
-				className: "TiUISwitchIndicator",
-				style: {
-					padding: "4px 4px",
-					borderRadius: "4px",
-					border: "1px solid #888",
-					pointerEvents: "none",
-					width: "40px"
-				}
-			}, this._indicatorContainer);
-			this._switchIndicator.domNode += " TiUISwitchIndicator";*/
-			
 			var contentContainer = this._contentContainer = UI.createView({
 				width: UI.INHERIT,
 				height: UI.INHERIT,
