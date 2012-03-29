@@ -413,8 +413,8 @@ events:
     summary: Fired when a layout cycle is finished.
     description: |
         This event is fired when the view and its ancestors have been laid out.
-        The [rect](Titanium.UI.View.rect) [size](Titanium.UI.View.size) values 
-        may be 
+        The [rect](Titanium.UI.View.rect) and [size](Titanium.UI.View.size) values 
+        should be usable when this event is fired.
 
         This event is typically triggered by either changing layout
         properties or by changing the orientation of the device. Note that changing the 
