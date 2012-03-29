@@ -63,6 +63,7 @@
 	NSString * filterAttribute;
 	NSString * searchString;
 	NSMutableArray * searchResultIndexes;
+    BOOL searchActivated;
 	BOOL filterCaseInsensitive;
 	BOOL allowsSelectionSet;
 	id	lastFocusedView; //DOES NOT RETAIN.	
