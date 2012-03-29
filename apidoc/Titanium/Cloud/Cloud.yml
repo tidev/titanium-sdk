@@ -79,33 +79,6 @@ properties:
         When you are done tracking the transmission, set this to null.
     type: Callback<CloudStreamProgress>
 
-examples:
-  - title: Override Base URL Example
-    example: |
-        This example overrides the base URL.
-
-            Cloud.baseURL = '\<ACS CLOUD SERVICES URL\>';
-            Cloud.baseURLDevelopment = '\<ACS CLOUD SERVICES DEVELOPMENT URL\>';
-            Cloud.baseURLProduction = '\<ACS CLOUD SERVICES PRODUCTION URL\>';
-
-  - title: Override API Key Example
-    example: |
-        This example overrides the API key.
-
-            Cloud.apiKey = '\<YOUR APP API KEY\>';
-            Cloud.apiKeyDevelopment = '\<YOUR DEVELOPMENT API KEY\>';
-            Cloud.apiKeyProduction = '\<YOUR PRODUCTION API KEY\>';
-
-  - title: Override OAuth Example
-    example: |
-        This example overrides the consumer key and secret.
-
-            Cloud.consumerKey = '\<YOUR CONSUMER KEY\>';
-            Cloud.consumerSecret = '\<YOUR CONSUMER SECRET\>';
-            Cloud.consumerKeyDevelopment = '\<YOUR DEVELOPMENT CONSUMER KEY\>';
-            Cloud.consumerSecretDevelopment = '\<YOUR DEVELOPMENT CONSUMER SECRET\>';
-            Cloud.consumerKeyProduction = '\<YOUR PRODUCTION CONSUMER KEY\>';
-            Cloud.consumerSecretDevelopment = '\<YOUR PRODUCTION CONSUMER SECRET\>';
 ---
 name: CloudStreamProgress
 summary: Argument passed to the callback as a request is transmitted or received.
