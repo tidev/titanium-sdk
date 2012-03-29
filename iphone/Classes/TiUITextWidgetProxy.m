@@ -91,7 +91,11 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 
 - (CGFloat) keyboardAccessoryHeight
 {
-	return MAX(keyboardAccessoryHeight,40);
+	CGFloat result = MAX(keyboardAccessoryHeight,40);
+	if ([[keyboardTiView proxy] respondsToSelector:@selector(verifyHeight:)]) {
+		result = [(TiViewProxy<LayoutAutosizing>*)[keyboardTiView proxy] verifyHeight:result];
+	}
+	return result;
 }
 
 -(void)setKeyboardToolbarHeight:(id)value
@@ -175,7 +179,8 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 
 	if ([value isKindOfClass:[TiViewProxy class]])
 	{
-		if (value == keyboardTiView)
+		TiUIView * valueView = [(TiViewProxy *)value view];
+		if (valueView == keyboardTiView)
 		{//Nothing to do here.
 			return;
 		}
@@ -186,7 +191,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 		RELEASE_TO_NIL(keyboardToolbarItems);
 		[keyboardUIToolbar setItems:nil];
 	
-		keyboardTiView = [value retain];
+		keyboardTiView = [valueView retain];
 //TODO: If we have focus while this happens, we need to signal an update.
 	}
 }

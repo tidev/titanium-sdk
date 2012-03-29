@@ -84,17 +84,22 @@ properties:
     summary: Hint text to display when the field is unfocused.
     type: String
   - name: keyboardToolbar
-    summary: Array of toolbar button objects to be used when the keyboard is displayed.
-    type: Array<Object>
+    summary: Array of toolbar button objects or a [toolbar](Titanium.UI.iOS.Toolbar) to be used when the keyboard is displayed.
+    description: |
+        As of 1.9.0, because iOS disallows a view (including toolbar buttons) to be in two places at
+        once, developers desiring textAreas or [textFields](Titanium.UI.TextField) to share a toolbar
+        can instead use a single [toolbar](Titanium.UI.iOS.Toolbar) instead of having arrays sharing
+        toolbar buttons.
+    type: [Array<Titanium.UI.View>, Titanium.UI.iOS.Toolbar]
     platforms: [iphone, ipad]
   - name: keyboardToolbarColor
-    summary: Color of the keyboard toolbar.
+    summary: Color of the keyboard toolbar if keyboardToolbar is an array.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone,ipad]
   - name: keyboardToolbarHeight
-    summary: Height of the keyboard toolbar.
+    summary: Height of the keyboard toolbar if keyboardToolbar is an array.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone,ipad]
   - name: keyboardType
     summary: Specifies the keyboard type to display when this field is focused, such as [KEYBOARD_EMAIL](Titanium.UI.KEYBOARD_EMAIL) or [KEYBOARD_NUMBER_PAD](Titanium.UI.KEYBOARD_NUMBER_PAD).
     description: |
