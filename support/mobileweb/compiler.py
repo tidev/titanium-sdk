@@ -559,7 +559,7 @@ class Compiler(object):
 					for inner in node.childNodes:
 						if inner.nodeType == node.TEXT_NODE:
 							val = val + inner.data
-					strings[name] = val.decode('string-escape').strip()
+					strings[name] = val.encode('utf-8').decode('string-escape').strip()
 		
 		return strings
 	
