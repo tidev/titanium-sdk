@@ -219,7 +219,8 @@ define(
 				parentWidth;
 			if (parent) {
 				parentWidth = lang.val(parent.width,parent._defaultWidth);
-				return parentWidth === UI.INHERIT ? parent._getInheritedWidth() : parentWidth;
+				parentWidth = parentWidth === UI.INHERIT ? parent._getInheritedWidth() : parentWidth
+				return this._forceInheritenceToFillOrSize ? parentWidth === UI.SIZE ? UI.SIZE : UI.FILL : parentWidth;
 			}
 		},
 		
@@ -228,15 +229,21 @@ define(
 				parentHeight;
 			if (parent) {
 				parentHeight = lang.val(parent.height,parent._defaultHeight);
-				return parentHeight === UI.INHERIT ? parent._getInheritedHeight() : parentHeight;
+				parentHeight = parentHeight === UI.INHERIT ? parent._getInheritedHeight() : parentHeight
+				return this._forceInheritenceToFillOrSize ? parentHeight === UI.SIZE ? UI.SIZE : UI.FILL : parentHeight;
 			}
 		},
 		
 		_hasSizeDimensions: function() {
-			var width = this._getInheritedWidth(),
-				height = this._getInheritedHeight()
-			return (this._width === UI.SIZE || width === UI.SIZE) || 
-				(this._height === UI.SIZE || height === UI.SIZE);
+			var widthOverride = isDef(this.left) + isDef(this.right) + isDef(this.center && this.center.x) > 1,
+				heightOverride = isDef(this.top) + isDef(this.bottom) + isDef(this.center && this.center.y) > 1,
+				isWidthSize,
+				isHeightSize,
+				width = lang.val(this.width,this._defaultWidth),
+				height = lang.val(this.height,this._defaultHeight);
+			(isDef(this.width) || !widthOverride) && (isWidthSize = (width === UI.INHERIT ? this._getInheritedWidth() : width) === UI.SIZE);
+			(isDef(this.width) || !heightOverride) && (isHeightSize = (width === UI.INHERIT ? this._getInheritedWidth() : width) === UI.SIZE);
+			return isWidthSize || isHeightSize;
 		},
 		
 		_hasFillWidth: function() {

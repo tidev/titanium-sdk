@@ -75,7 +75,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				this.borderColor = this._previousBorderColor;
 				css.remove(this.domNode, "TiUIElementGradient");
 				css.remove(this.domNode, "TiUIButtonDefault");
-				this._contentContainer.borderHeight = 0;
+				this._contentContainer.borderWidth = 0;
 			}
 		},
 

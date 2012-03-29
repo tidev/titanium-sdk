@@ -194,6 +194,7 @@ define(
 								break;
 							}
 						}
+						parent._markedForLayout = true;
 						
 						previousParent = parent;
 						parent = parent._parent;
