@@ -7,25 +7,46 @@ description: |
     
     #### Units and Coordinates
     
-    Sizes and coordinates are specified using platform-specific units. 
+    Sizes and coordinates can be specified using a variety of units. If a value is
+    specified as a number, it is interpreted as a value in the default unit for the
+    current system and/or the current project.
 
-    The default unit on Android is pixels, but users can specify other units, including 
-    pixels (px), points (pt), device-independent pixels (dp or dip), millimeters (mm) or 
-    inches (in). For example, '16pt' is interpreted as 16 points. Points on Android always 
-    refers to the typographical unit of 1/72 of an inch.
+    When a value is specified as string, the value can consist of:
     
-    Android's density-independent pixels (DIPs) maintain a consistent visual size independent 
-    of the display's density. One DIP corresponds to one pixel on a medium density display 
-    (160 DPI).
+    *  A number
+    *  A percentage, such as "10%, interpreted as a percentage of the parent's total size
+       in that dimension.
+    *  A number plus a unit specifier, such as "10px" or "1in". 
     
-    iOS accepts sizes in Apple "points," where one "point" corresponds to one pixel on 
-    non-Retina displays, and two pixels on Retina displays. This unit is roughly equivalent
-    to the Android density-independent pixel, and shouldn't be confused with the typographical
-    unit. 
+    The following units are supported:
     
-    Any unit specifier appended to a size or coordinate value on iOS is ignored: for example, 
-    '16in' is interpreted as 16 Apple "points", as is '16px' or '16mm'. 
+    <table cellpadding="6px" border="1" rules="all">
+    <tr>
+    <th align="left">Unit</th> <th align="left">Specifier</th> <th align="left">Note</th>
+    </tr>
+    <tr> <td>pixels</td> <td>px</td> <td></td> </tr>
+    <tr> <td>density-independent pixels</td> <td>dip</td> <td>Equivalent to Apple
+    "points."</td> </tr>
+    <tr> <td>inches</td> <td>in</td> <td></td> </tr>
+    <tr> <td>millimeters</td> <td>mm</td> <td></td>  </tr>
+    <tr> <td>points</td> <td>pt</td> <td>1/72 of an inch. Not to be confused with Apple
+    "points."</td>  </tr>
+    <tr> <td>picas</td> <td>pc</td> <td>1/6 of an inch. Mobile Web only.</td>  </tr>
+    <tr> <td>ems</td> <td>em</td> <td>Mobile Web only.</td>  </tr>
+    </table>
 
+    Density-independent pixels (DIPs) maintain a consistent visual size independent 
+    of the display's density. On Android, one DIP corresponds to one pixel on a medium density display 
+    (160 DPI). On iOS, one DIP corresponds to one pixel on a non-Retina display (163 DPI).
+    
+    Note that prior to Release 2.0, iOS ignored any specified unit, so code that specifies
+    a unit may operate differently on iOS in Release 2.0.
+
+    The default unit on Android and Mobile Web is pixels.
+
+    The default unit on iOS is density-independent pixels (DIPs), which are equivalent to
+    the Apple native "point."
+    
     Font sizes on iOS are treated differently than other sizes: font sizes are always 
     specified in typographical points.
     
@@ -34,11 +55,25 @@ description: |
     default unit is pixels. Note that in Mobile Web, the interpretation of these units 
     is browser-dependent.
 
-    Some [View](Titanium.UI.View) size fields, such as `height` and `width` accept the 
-    special value `'auto'` to specify that the value should be calculated based on the 
-    view's contents. Sizes and positions can also be specified as a percentage of the 
-    parent, for example, '50%'.
+    The [height](Titanium.UI.View.height) and [width](Titanium.UI.View.width) properties 
+    accept several special values:
+
+    *   <Titanium.UI.FILL> specifies that the view should fill the parent in this
+        dimension.
+    *   <Titanium.UI.SIZE> specifies that the view should adjust this size to fit its
+        contents, such as a label's text or a view's children.
+    *   'auto' specifies that the view should choose either `FILL` or `SIZE` behavior.
+        In 2.0, the behavior of the 'auto' value is specified by the UI Composite Layout
+        Spec. This value is not recommended for new development and will be deprecated in
+        the future.
     
+    Sizes and positions can also be specified as a percentage of the parent's size, for 
+    example, '50%'.
+    
+    For more details see: 
+
+    * [UI Composite Layout Spec](http://docs.appcelerator.com/titanium/2.0/index.html#!/guide/UI_Composite_Layout_Behavior_Spec)
+
     #### Size and Position
     
     Titanium views are positioned using the `left`, `right`, `top,` `bottom` and `center` 
@@ -52,8 +87,17 @@ description: |
     
     The [size](Titanium.UI.View.size) property is a read-only dimension
     with the properties `x`, `y`, `width` and `height`. It provides the *rendered* size
-     of the  view, and thus is only available once both it and its ancestors have been
+     of the  view, and is only available once both it and its ancestors have been
     fully drawn.
+
+    The [rect](Titanium.UI.View.rect) property is a read-only dimension
+    with the properties `x`, `y`, `width` and `height`. It provides the *rendered*
+    position and size of the  view, and is only available once both it and its ancestors have been
+    fully drawn.
+
+    To determine whether the `size` and `rect` values are available, add an event listener
+    for the [postlayout](Titanium.UI.View.postlayout) event, which is fired at the end of
+    a layout cycle.
 
 extends: Titanium.Proxy
 since: "0.9"
@@ -82,7 +126,7 @@ methods:
         container.
     parameters:
       - name: view
-        summary: View to add to this view's hierarchy
+        summary: View to add to this view's hierarchy.
         type: Titanium.UI.View
         
   - name: animate
@@ -119,9 +163,15 @@ methods:
 
   - name: finishLayout
     since: "2.0.0"
-    summary: Finishes a batch-update of the View's layout params and schedules a layout pass of the view tree.
-    description: Since the layout pass scheduled is asynchronous, rect and size values may not be available immediately after finishLayout() is called.  It may take some time for the layout pass to actually occur.
-
+    summary: |
+        Finishes a batch update of the View's layout properties and schedules a layout pass of the view tree.
+    description: |
+        Since the layout pass scheduled is asynchronous, the [rect](Titanium.UI.View.rect)
+        and [size](Titanium.UI.View.size) values may not be available immediately after `finishLayout` 
+        is called. 
+        
+        To be notified when the layout pass completes, add a listener for the
+        [postlayout](Titanium.UI.View.postlayout) event.
   - name: hide
     summary: Hides this view.
     
@@ -137,13 +187,20 @@ methods:
 
   - name: startLayout
     since: "2.0.0"
-    summary: Starts a batch-update of the View's layout params
+    summary: Starts a batch-update of the View's layout properties.
     description: |
-        To prevent a layout pass each time a property is modified, use a layout delineated by startLayout() and finishLayout().  A startLayout() call will start the batch-update process, and a finish layout will end the batch-update process and trigger a layout pass.
+        To prevent a layout pass each time a property is modified, use a layout delineated
+        by `startLayout` and [finishLayout](Titanium.UI.View.finishLayout).  A
+        `startLayout` call starts the batch-update process, and a `finishLayout` ends the 
+        batch-update process and triggers a layout pass.
             view.startLayout();
             view.top = 50;
             view.left = 50;
             view.finishLayout();
+
+        See also: [updateLayout](Titanium.UI.View.updateLayout),
+        [finishLayout](Titanium.UI.View.finishLayout), 
+        [postlayout](Titanium.UI.View.postlayout) event.
 
   - name: toImage
     summary: Returns an image of the rendered view, as a Blob.
@@ -180,25 +237,31 @@ methods:
 
   - name: updateLayout
     since: "2.0.0"
-    summary: Performs a batch-update of all supplied layout params and schedules a layout pass after they have been updated
+    summary: |
+        Performs a batch update of all supplied layout properties and schedules a
+        layout pass after they have been updated.
     parameters:
       - name: params
         summary: |
-          Dictionary of the layout params that should be updated.
+          Dictionary of layout properties to be updated.
         type: Object
     description: |
-        This is another way to perform a batch-update.  The updateLayout() method should be called with a dictionary of layout parameters to perform the batch-update.
+        This is another way to perform a batch update.  The `updateLayout` method is
+        called with a dictionary of layout properties to perform the batch update. For
+        example:
 
-        Instead of using startLayout() and finishLayout():
+            view.updateLayout({top:50, left:50});
+
+        This is equivalent to the following:
 
             view.startLayout();
             view.top = 50;
             view.left = 50;
             view.finishLayout();
-
-        updateLayout() can be used to accomplish the same task:
-
-            view.updateLayout({top:50, left:50});
+        
+        See also: [startLayout](Titanium.UI.View.startLayout), 
+        [finishLayout](Titanium.UI.View.finishLayout), 
+        [postlayout](Titanium.UI.View.postlayout) event.
 
   - name: convertPointToView
     summary: |
@@ -346,6 +409,22 @@ events:
     platforms: [iphone,ipad]
     since: "1.8.0"
     
+  - name: postlayout
+    summary: Fired when a layout cycle is finished.
+    description: |
+        This event is fired when the view and its ancestors have been laid out.
+        The [rect](Titanium.UI.View.rect) [size](Titanium.UI.View.size) values 
+        may be 
+
+        This event is typically triggered by either changing layout
+        properties or by changing the orientation of the device. Note that changing the 
+        layout of child views or ancestors can also trigger a relayout of this view.
+        On Mobile Web, this event can also be triggered by resizing the browser window.
+
+        Note that altering any layout parameters from the `postlayout` callback 
+        may result in an endless loop.
+    since: "2.0.0"
+
   - name: singletap
     summary: Fired when the device detects a single tap against the view.
     properties:
@@ -769,7 +848,9 @@ properties:
     summary: |
         The frame of the view (position relative to parent bounds) in system units.
     description: |
-        The correct values will only be available when rendering is fully complete.
+        The correct values will only be available when layout is complete.
+        To determine when layout is complete, add a listener for the
+        [postlayout](Titanium.UI.View.postlayout) event.
     type: Dimension
     since: "2.0.0"
     permission: read-only
@@ -778,7 +859,9 @@ properties:
     summary: |
         The bounds of the view in system units. x and y properties are always 0.
     description: |
-        The correct values will only be available when rendering is fully complete.
+        The correct values will only be available when layout is complete.
+        To determine when layout is complete, add a listener for the
+        [postlayout](Titanium.UI.View.postlayout) event.
     type: Dimension
     permission: read-only
     
