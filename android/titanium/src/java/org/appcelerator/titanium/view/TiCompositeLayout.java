@@ -17,6 +17,7 @@ import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
 import android.content.Context;
+import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.OnHierarchyChangeListener;
@@ -536,7 +537,10 @@ public class TiCompositeLayout extends ViewGroup
 	protected void onAnimationEnd()
 	{
 		super.onAnimationEnd();
-		invalidate();
+		// Force redraw for TIMOB-7412 (only for 3.0 and below)
+		if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB) {
+			invalidate();
+		}
 	}
 
 	// option0 is left/top, option1 is right/bottom
