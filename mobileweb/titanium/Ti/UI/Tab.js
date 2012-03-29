@@ -21,7 +21,11 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI"],
 				width: UI.SIZE
 			}));
 			
-			container.add(this._tabTitle = UI.createLabel());
+			container.add(this._tabTitle = UI.createLabel({
+				width: "100%",
+				wordWrap: true,
+				textAlign: UI.TEXT_ALIGNMENT_CENTER
+			}));
 
 			var self = this;
 			this.addEventListener("singletap", function(e) {

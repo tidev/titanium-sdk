@@ -13,7 +13,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		constructor: function() {
 			this._add(this._textContainer = UI.createView({
 				width: UI.INHERIT,
-				height: UI.SIZE
+				height: UI.SIZE,
+				center: {y: "50%"}
 			}));
 			
 			var self = this,

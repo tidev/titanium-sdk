@@ -7,20 +7,26 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 				currentLeft = 0,
 				children = element.children,
 				availableWidth = width,
-				childrenWithFillWidth = false;
+				tallestChildHeight = 0,
+				child,
+				childDimensions,
+				childWidth,
+				i,
+				precalculate = isHeightSize,
+				isWidthFill,
+				bottomMostEdge;
 				
 			// Determine if any children have fill height
-			for (var i = 0; i < children.length; i++) {
-				children[i]._hasFillWidth() && (childrenWithFillWidth = true);
+			for (i = 0; i < children.length; i++) {
+				children[i]._hasFillWidth() && (precalculate = true);
 			}
 			
-			if (childrenWithFillWidth) {
-				for (var i = 0; i < children.length; i++) {
-					var child = children[i];
+			if (precalculate) {
+				for (i = 0; i < children.length; i++) {
+					child = children[i];
 					if (this.verifyChild(child,element) && !child._hasFillWidth()) {
-						var childWidth;
 						if (child._markedForLayout) {
-							childWidth = child._doLayout({
+							childDimensions = child._doLayout({
 							 	origin: {
 							 		x: 0,
 							 		y: 0
@@ -40,8 +46,11 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 							 	rightIsMargin: true,
 								positionElement: false,
 						 		layoutChildren: true
-							}).effectiveWidth;
+							});
+							tallestChildHeight = Math.max(tallestChildHeight,childDimensions.effectiveHeight);
+							childWidth = childDimensions.effectiveWidth;
 						} else {
+							tallestChildHeight = Math.max(tallestChildHeight,child._measuredEffectiveHeight);
 							childWidth = child._measuredEffectiveWidth;
 						}
 						availableWidth -= childWidth;
@@ -49,11 +58,11 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 				}
 			}
 			
-			for(var i = 0; i < children.length; i++) {
+			for(i = 0; i < children.length; i++) {
 				
 				// Layout the child
-				var child = children[i],
-					isWidthFill = child._hasFillWidth();
+				child = children[i];
+				isWidthFill = child._hasFillWidth();
 				
 				if (child._markedForLayout) {
 					child._doLayout({
@@ -67,7 +76,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 					 	},
 					 	boundingSize: {
 					 		width: isWidthFill ? availableWidth : width,
-					 		height: height
+					 		height: height,
+					 		sizeHeight: tallestChildHeight
 					 	},
 					 	alignment: {
 					 		horizontal: this._defaultHorizontalAlignment,
@@ -75,13 +85,13 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 					 	},
 						rightIsMargin: true,
 					 	positionElement: true,
-					 	layoutChildren: !childrenWithFillWidth || isWidthFill
+					 	layoutChildren: !precalculate || isWidthFill
 				 	});
 			 	}
 				
 				// Update the size of the component
 				currentLeft = child._measuredLeft + child._measuredWidth + child._measuredBorderSize.left + child._measuredBorderSize.right + child._measuredRightPadding;
-				var bottomMostEdge = child._measuredTop + child._measuredHeight + child._measuredBorderSize.top + child._measuredBorderSize.bottom + child._measuredBottomPadding;
+				bottomMostEdge = child._measuredTop + child._measuredHeight + child._measuredBorderSize.top + child._measuredBorderSize.bottom + child._measuredBottomPadding;
 				currentLeft > computedSize.width && (computedSize.width = currentLeft);
 				bottomMostEdge > computedSize.height && (computedSize.height = bottomMostEdge);
 			}
