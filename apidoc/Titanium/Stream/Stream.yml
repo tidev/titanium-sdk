@@ -95,18 +95,20 @@ methods:
     summary: |
         Asynchronously reads data from an [IOStream](Titanium.IOStream) into a buffer.
     description: |
-        Reads data until the provided buffer is full, end of stream is detected, or the
-        requested number of bytes have been read. Does not resize the supplied buffer.
+        Reads data to from the stream and writes it to the buffer. The first byte is
+        written to `buffer[offset]`. Reads until the provided buffer is full, the end of 
+        the stream is detected, or the requested number of bytes have been read. Does not 
+        resize the supplied buffer.
+        
+        A request must include both `offset` and `length` parameters, or omit them both.
 
         If the stream is not readable, an error is reported:
 
-        * On iOS, an exception is thrown.
+        * On iOS, throws an exception.
 
-        * On Android, the callback is invoked with an error.
-
-        If `offset` and `length` are specified, writes data into the provided buffer 
-        starting at `offset` and reads at most `length` bytes. If `offset` is past
-        the last byte of the buffer, throws an exception.
+        * On Android, calls the callback with an error.
+        
+        If `offset` is past the last byte of the buffer, throws an exception.
 
     parameters:
 

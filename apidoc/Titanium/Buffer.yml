@@ -77,8 +77,8 @@ methods:
 
       - name: sourceLength
         summary: |
-            Number of bytes to data to read from `sourceBuffer`.
-            If specified, `sourceLength` must also be specified.
+            Number of bytes to read from `sourceBuffer`.
+            If specified, `sourceOffset` must also be specified.
         type: Number
         optional: true
         default: Length of `sourceBuffer`.
