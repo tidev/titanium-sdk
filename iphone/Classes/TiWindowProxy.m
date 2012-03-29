@@ -410,7 +410,9 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		[self view];
 		[self windowWillOpen];
 		[self windowReady];
-		
+		//This flag will track if window was opened with an animation to resolve the edge case 
+		//that the animation completes before the method ends. TIMOB-8030
+		BOOL hasAnimation = NO;
 		if (openAnimation!=nil)
 		{
 			if (rootViewAttached)
@@ -424,6 +426,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			}
 			openAnimation.delegate = self;
 			[openAnimation animate:self];
+			hasAnimation = YES;
 		}
 		if (fullscreenFlag)
 		{
@@ -482,7 +485,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 				[[TiApp app] showModalController:nc animated:animated];
 			}
 		}
-		if (openAnimation==nil)
+		if (hasAnimation == NO)
 		{
 			[self windowDidOpen];
 		}
