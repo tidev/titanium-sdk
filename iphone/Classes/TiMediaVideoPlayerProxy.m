@@ -497,7 +497,7 @@ NSArray* moviePlayerKeys = nil;
 	NSNumber* option = [args objectAtIndex:1];
 	thumbnailCallback = [[args objectAtIndex:2] retain];
 	
-	[[self player] requestThumbnailImagesAtTimes:array timeOption:[option intValue]];
+	[[self ensurePlayer] requestThumbnailImagesAtTimes:array timeOption:[option intValue]];
 
 }
 
