@@ -502,17 +502,19 @@ public class TiAnimationBuilder
 	{
 		public void onAnimationEnd(Animation a)
 		{
+			// There is an android bug where animations still occur after this method. We clear it from the view to
+			// correct this.
+			// (http://stackoverflow.com/questions/4750939/android-animation-is-not-finished-in-onanimationend)
+			view.clearAnimation();
+
 			if (relayoutChild) {
 				LayoutParams params = (LayoutParams) view.getLayoutParams();
 				TiConvert.fillLayout(options, params);
 				view.setLayoutParams(params);
-				view.clearAnimation();
 				relayoutChild = false;
 			}
 
 			if (applyOpacity) {
-				//There is an android bug where animations still occur after this method. We clear it from the view to correct this.
-				view.clearAnimation();
 				if (toOpacity.floatValue() == 0) {
 					view.setVisibility(View.INVISIBLE);
 					
