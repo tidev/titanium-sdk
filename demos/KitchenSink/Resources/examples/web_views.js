@@ -99,9 +99,13 @@ tableview.addEventListener('click', function(e)
 		var baseURL = 'http://www.google.com';
 		xhr.onload = function()
 		{
-			webview.setHtml(this.responseText, { baseURL: baseURL });
+			if (Titanium.Platform.name != 'android') { // TIMOB-7840
+				webview.setHtml(this.responseText, { baseURL: baseURL });
+			} else {
+				webview.html = this.responseText;
+			}
 		};
-
+		
 		// open the client
 		xhr.open('GET',baseURL);
 		
