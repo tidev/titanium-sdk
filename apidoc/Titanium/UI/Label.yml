@@ -109,6 +109,17 @@ properties:
     type: Boolean
     default: true
     platforms: [android, mobileweb]
+    
+  - name: verticalAlign
+    summary: |
+        Vertical text alignment, specified using one of the 
+        vertical alignment constants from <Titanium.UI>: 
+        [TEXT_VERTICAL_ALIGNMENT_BOTTOM](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM), 
+        [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER), or 
+        [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
+    type: [Number,String]
+    default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
+    platforms: [mobileweb]
 
 examples:
   - title: Basic Label

@@ -60,15 +60,19 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		_setDefaultLook: function() {
 			if (!this._hasDefaultLook) {
 				this._hasDefaultLook = true;
+				this._previousBorderWidth = this.borderWidth;
+				this._previousBorderColor = this.borderColor;
 				css.add(this.domNode, "TiUIElementGradient");
 				css.add(this.domNode, "TiUIButtonDefault");
-				this._contentContainer.borderWidth = 5;
+				this._contentContainer.borderWidth = 6;
 			}
 		},
 		
 		_clearDefaultLook: function() {
 			if (this._hasDefaultLook) {
 				this._hasDefaultLook = false;
+				this.borderWidth = this._previousBorderWidth;
+				this.borderColor = this._previousBorderColor;
 				css.remove(this.domNode, "TiUIElementGradient");
 				css.remove(this.domNode, "TiUIButtonDefault");
 				this._contentContainer.borderHeight = 0;

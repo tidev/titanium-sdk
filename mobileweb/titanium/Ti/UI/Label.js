@@ -124,7 +124,25 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					setStyle(this._textContainerDomNode, "whiteSpace", !!value ? "normal" : "nowrap");
 					return value;
 				}
-			}
+			},
+			verticalAlign: {
+				set: function(value) {
+					var top,
+						bottom,
+						center = this.center || {},
+						textContainer = this._textContainer;
+					switch(value) {
+						case UI.TEXT_VERTICAL_ALIGNMENT_TOP: top = 0; break;
+						case UI.TEXT_VERTICAL_ALIGNMENT_CENTER: center.y = "50%"; break;
+						case UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM: bottom = 0; break;
+					}
+					textContainer.top = top;
+					textContainer.center = center;
+					textContainer.bottom = bottom;
+					return value;
+				},
+				value: UI.TEXT_VERTICAL_ALIGNMENT_CENTER
+			},
 		}
 
 	});
