@@ -539,6 +539,10 @@ public class TiCompositeLayout extends ViewGroup
 		super.onAnimationEnd();
 		// Force redraw for TIMOB-7412 (only for 3.0 and below)
 		if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB) {
+			// There is an android bug where animations still occur after this method. We clear it from the view to
+			// correct this.
+			// (http://stackoverflow.com/questions/4750939/android-animation-is-not-finished-in-onanimationend)
+			clearAnimation();
 			invalidate();
 		}
 	}
