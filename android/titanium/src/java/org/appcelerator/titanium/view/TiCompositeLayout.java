@@ -539,7 +539,7 @@ public class TiCompositeLayout extends ViewGroup
 		super.onAnimationEnd();
 		if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB) {
 			// There is an android bug where animations still occur after this method. We clear it from the view to
-			// correct this.
+			// correct this. This fixes TIMOB-8324
 			// (http://stackoverflow.com/questions/4750939/android-animation-is-not-finished-in-onanimationend)
 			clearAnimation();
 			// We have to force an invalidate here for TIMOB-7412 (only for 3.0 and below). This is to prevent a
