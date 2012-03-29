@@ -512,6 +512,9 @@ public class TiAnimationBuilder
 			}
 
 			if (applyOpacity) {
+				// There is an android bug where animations still occur after this method. We clear it from the view to
+				// correct this.
+				view.clearAnimation();
 				if (toOpacity.floatValue() == 0) {
 					view.setVisibility(View.INVISIBLE);
 					
@@ -525,7 +528,6 @@ public class TiAnimationBuilder
 					aa.setFillAfter(true);
 					aa.setFillEnabled(true);
 					view.setLayoutParams(view.getLayoutParams());
-					view.clearAnimation();
 					view.startAnimation(aa);
 				}
 
