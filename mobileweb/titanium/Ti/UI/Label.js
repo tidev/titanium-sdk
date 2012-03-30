@@ -76,7 +76,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		_setTextShadow: function() {
 			var shadowColor = this.shadowColor && this.shadowColor !== "" ? this.shadowColor : void 0;
 			setStyle(
-				this.textContainerDiv,
+				this._textContainerDomNode,
 				"textShadow",
 				this.shadowOffset || shadowColor
 					? (this.shadowOffset ? unitize(this.shadowOffset.x) + " " + unitize(this.shadowOffset.y) : "0px 0px") + " 0.1em " + lang.val(shadowColor,"black")
@@ -100,15 +100,13 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				}
 			},
 			shadowColor: {
-				post: function(value) {
+				post: function() {
 					this._setTextShadow();
-					return value;
 				}
 			},
 			shadowOffset: {
-				post: function(value) {
+				post: function() {
 					this._setTextShadow();
-					return value;
 				}
 			},
 			text: textPost,
