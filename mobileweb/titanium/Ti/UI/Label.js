@@ -142,7 +142,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 					return value;
 				},
 				value: UI.TEXT_VERTICAL_ALIGNMENT_CENTER
-			},
+			}
 		}
 
 	});
