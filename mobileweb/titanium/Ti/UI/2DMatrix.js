@@ -71,7 +71,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Platform"], function(declare, Evente
 		},
 
 		scale: function(x, y) {
-			return new api(mult(this, x, 0, 0, y, 0, 0));
+			return new api(mult(this, x, 0, 0, y || x, 0, 0));
 		},
 
 		translate: function(x, y) {
