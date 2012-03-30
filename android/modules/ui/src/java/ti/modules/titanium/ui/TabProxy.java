@@ -115,6 +115,7 @@ public class TabProxy extends TiViewProxy
 	{
 		super.releaseViews();
 		if (win != null) {
+			win.setTabProxy(null);
 			win.setTabGroupProxy(null);
 			win.releaseViews();
 		}
