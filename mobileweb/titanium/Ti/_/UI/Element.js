@@ -242,7 +242,7 @@ define(
 				width = lang.val(this.width,this._defaultWidth),
 				height = lang.val(this.height,this._defaultHeight);
 			(isDef(this.width) || !widthOverride) && (isWidthSize = (width === UI.INHERIT ? this._getInheritedWidth() : width) === UI.SIZE);
-			(isDef(this.width) || !heightOverride) && (isHeightSize = (width === UI.INHERIT ? this._getInheritedWidth() : width) === UI.SIZE);
+			(isDef(this.height) || !heightOverride) && (isHeightSize = (width === UI.INHERIT ? this._getInheritedWidth() : width) === UI.SIZE);
 			return isWidthSize || isHeightSize;
 		},
 		

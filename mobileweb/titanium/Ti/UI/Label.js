@@ -20,7 +20,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			var self = this,
 				textContainerDomNode = this._textContainerDomNode = this._textContainer.domNode;
 			self._textContainer._getContentSize = function(width, height) {
-				var text = self._getText();
+				var text = self._textContainerDomNode.innerHTML;
 				return {
 					width: self._measureText(text, textContainerDomNode, width).width,
 					height: self._measureText(text, textContainerDomNode, width).height
