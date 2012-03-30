@@ -2,6 +2,7 @@ var require = {
 	app: {
 		analytics: ${app_analytics | jsQuoteEscapeFilter},
 		copyright: "${app_copyright | jsQuoteEscapeFilter}",
+		deployType: "${deploy_type | jsQuoteEscapeFilter}",
 		description: "${app_description | jsQuoteEscapeFilter}",
 		guid: "${app_guid | jsQuoteEscapeFilter}",
 		id: "${app_name | jsQuoteEscapeFilter}",
@@ -11,7 +12,6 @@ var require = {
 		url: "${app_url | jsQuoteEscapeFilter}",
 		version: "${app_version | jsQuoteEscapeFilter}"
 	},
-	deployType: "${deploy_type | jsQuoteEscapeFilter}",
 	has: {
 		"declare-property-methods": true,
 		"js-btoa": function(g) {
