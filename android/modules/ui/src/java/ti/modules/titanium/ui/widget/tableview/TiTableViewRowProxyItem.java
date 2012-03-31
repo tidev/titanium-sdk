@@ -60,7 +60,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		addView(leftImage, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 
 		this.content = new TiCompositeLayout(activity);
-		content.setMinimumHeight(48);
 		addView(content, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 
 		this.rightImage = new ImageView(activity);
@@ -324,6 +323,12 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		//int adjustedWidth = w;
 
 		if (content != null) {
+			
+			// If there is no view added to the row, we set a minimum height for the row.
+			if (!((TableViewRowProxy)item.proxy).hasControls()) {
+				content.setMinimumHeight(48);
+			}
+			
 			measureChild(content, MeasureSpec.makeMeasureSpec(adjustedWidth, wMode), heightMeasureSpec);
 			if(hMode == MeasureSpec.UNSPECIFIED) {
 				TableViewProxy table = ((TableViewRowProxy)item.proxy).getTable();
