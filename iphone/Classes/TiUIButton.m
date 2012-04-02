@@ -22,6 +22,7 @@
 {
 	[button removeTarget:self action:NULL forControlEvents:UIControlEventAllTouchEvents];
 	RELEASE_TO_NIL(button);
+	RELEASE_TO_NIL(viewGroupWrapper);
 	RELEASE_TO_NIL(backgroundImageCache)
 	RELEASE_TO_NIL(backgroundImageUnstretchedCache);
 	[super dealloc];
@@ -34,8 +35,8 @@
 		return nil;
 	}
 	
-	if([superResult isKindOfClass:[TiUIView class]] 
-	   && ![(TiUIView*)superResult touchEnabled]) {
+	if((viewGroupWrapper == superResult) || ([superResult isKindOfClass:[TiUIView class]] 
+	   && ![(TiUIView*)superResult touchEnabled])) {
 		return [self button];
 	}
 
@@ -51,12 +52,8 @@
 
 -(void)setHighlighting:(BOOL)isHiglighted
 {
-	TiUIButtonProxy * ourProxy = (TiUIButtonProxy *)[self proxy];
-	
-	NSArray * proxyChildren = [ourProxy children];
-	for (TiViewProxy * thisProxy in proxyChildren)
+	for (TiUIView * thisView in [viewGroupWrapper subviews])
 	{
-		TiUIView * thisView = [thisProxy view];
 		if ([thisView respondsToSelector:@selector(setHighlighted:)])
 		{
 			[(id)thisView setHighlighted:isHiglighted];
@@ -147,7 +144,29 @@
 		[button addTarget:self action:@selector(controlAction:forEvent:) forControlEvents:UIControlEventAllTouchEvents];
 		button.exclusiveTouch = YES;
 	}
+	if ((viewGroupWrapper != nil) && ([viewGroupWrapper	superview]!=button)) {
+		[viewGroupWrapper setFrame:[button bounds]];
+		[button addSubview:viewGroupWrapper];
+	}
 	return button;
+}
+
+-(UIView *) viewGroupWrapper
+{
+	if (viewGroupWrapper == nil) {
+		viewGroupWrapper = [[UIView alloc] initWithFrame:[self bounds]];
+		[viewGroupWrapper setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+	}
+	if (button != [viewGroupWrapper superview]) {
+		if (button != nil) {
+			[viewGroupWrapper setFrame:[button bounds]];
+			[button addSubview:viewGroupWrapper];
+		}
+		else {
+			[viewGroupWrapper removeFromSuperview];
+		}
+	}
+	return viewGroupWrapper;
 }
 
 #pragma mark Public APIs

@@ -62,10 +62,12 @@
 		return;
 	}
 
-	if (![(TiUIScrollView *)[self view] handleContentSizeIfNeeded])
-	{
-		[super layoutChildren:optimize];
-	}
+	[(TiUIScrollView *)[self view] handleContentSizeIfNeeded];
+}
+
+-(void)layoutChildrenAfterContentSize:(BOOL)optimize
+{
+	[super layoutChildren:optimize];	
 }
 
 -(CGFloat)autoHeightForSize:(CGSize)size
