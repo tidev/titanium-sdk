@@ -272,9 +272,9 @@ public class TiTabActivity extends TabActivity
 			return;
 		}
 		
-		//remove activityWindows reference from tabs.This is b/c activityWindow reference is only removed when a tab is created (but is added when a tab is added to a tabGroup).
-		//Furthermore, when a tabGroup opens, only one tab is created, and the rest won't be created unless clicked on. This introduce a memory leak when we have multiple tabs,
-		//and we open/close tabGroup without navigating through all the tabs.
+		//Remove activityWindows reference from tabs. ActivityWindow reference is only removed when a tab is created (but is added when a tab is added to a tabGroup).
+		//Furthermore, when a tabGroup opens, only the current tab is created (the rest won't create until clicked on). This introduces a memory leak when we have multiple tabs,
+		//and attempt to open/close tabGroup without navigating through all the tabs.
 		TabProxy[] tabs = proxy.getTabs();
 		for (int i = 0; i < tabs.length; ++i) {
 			TiActivityWindows.removeWindow(tabs[i].getWindowId());

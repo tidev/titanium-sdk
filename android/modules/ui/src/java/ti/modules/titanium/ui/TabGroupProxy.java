@@ -401,13 +401,12 @@ public class TabGroupProxy extends TiWindowProxy
 			}
 			
 			switch(msg.what) {
-			
-			case MSG_FINISH_OPEN:
-				TiTabActivity activity = (TiTabActivity) msg.obj;
-				tabGroupProxy.view = new TiUITabGroup(tabGroupProxy, activity);
-				tabGroupProxy.modelListener = tabGroupProxy.view;
-				tabGroupProxy.handlePostOpen(activity);
-				return true;
+				case MSG_FINISH_OPEN:
+					TiTabActivity activity = (TiTabActivity) msg.obj;
+					tabGroupProxy.view = new TiUITabGroup(tabGroupProxy, activity);
+					tabGroupProxy.modelListener = tabGroupProxy.view;
+					tabGroupProxy.handlePostOpen(activity);
+					return true;
 			}
 			return false;
 		}
