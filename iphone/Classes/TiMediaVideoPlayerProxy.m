@@ -418,8 +418,12 @@ NSArray* moviePlayerKeys = nil;
 -(void)setUrl:(id)url_
 {
 	ENSURE_UI_THREAD(setUrl,url_);
+    NSURL* newUrl = [TiUtils toURL:url_ proxy:self];
+    if ([url isEqual:newUrl]) {
+        return;
+    }
 	RELEASE_TO_NIL(url);
-	url = [[TiUtils toURL:url_ proxy:self] retain];
+	url = [newUrl retain];
     loaded = NO;
 	
 	if (movie!=nil)
