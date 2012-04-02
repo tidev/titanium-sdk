@@ -64,6 +64,7 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 			TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding);
 			TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding);
 			TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding);
+			TRYENCODING("windows-1255",12,CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingWindowsHebrew));
 			return NSUTF8StringEncoding;
 		}
 	}
@@ -91,6 +92,7 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 		TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding);
 		TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding);
 		TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding);
+		TRYENCODING("windows-1255",12,CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingWindowsHebrew));
 	}	
 	return NSUTF8StringEncoding;
 }
