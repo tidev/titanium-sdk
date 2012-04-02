@@ -33,6 +33,11 @@ public class TiActivityWindows
 		}
 	}
 
+	public static void removeWindow(int windowId) 
+	{
+		windows.remove(windowId);
+	}
+	
 	public static void dispose()
 	{
 		windows.clear();
