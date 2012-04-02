@@ -74,13 +74,13 @@ NSArray* moviePlayerKeys = nil;
 		[movie stop];
 	}
 	
-	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
-	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-	[nc removeObserver:self];
+    TiThreadPerformOnMainThread(^{
+        [[NSNotificationCenter defaultCenter] removeObserver:self];
+        RELEASE_TO_NIL(movie);
+    }, YES);
 
 	RELEASE_TO_NIL(thumbnailCallback);
 	RELEASE_TO_NIL(tempFile);
-	RELEASE_TO_NIL(movie);
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(loadProperties);
 	RELEASE_TO_NIL(playerLock);
@@ -158,6 +158,11 @@ NSArray* moviePlayerKeys = nil;
 	}
 }
 
+-(MPMoviePlayerController *)player
+{
+    return movie;
+}
+
 -(MPMoviePlayerController *)ensurePlayer
 {
 	[playerLock lock];
@@ -195,6 +200,7 @@ NSArray* moviePlayerKeys = nil;
 -(void)viewDidDetach
 {
 	[movie stop];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 	RELEASE_TO_NIL(movie);
 	reallyAttached = NO;
 }
@@ -396,11 +402,14 @@ NSArray* moviePlayerKeys = nil;
 		[movie stop];
 		playing = NO;
 	}
-	RELEASE_TO_NIL_AUTORELEASE(movie);
 	
 	if ([self viewAttached]) {
 		TiMediaVideoPlayer *video = (TiMediaVideoPlayer*)[self view];
-		[video setMovie:[self ensurePlayer]];
+        if (movie != nil) {
+            [movie setContentURL:url];
+        } else {
+            [self ensurePlayer];
+        }
 		[video frameSizeChanged:[video frame] bounds:[video bounds]];
 	}
 	
@@ -413,8 +422,12 @@ NSArray* moviePlayerKeys = nil;
 -(void)setUrl:(id)url_
 {
 	ENSURE_UI_THREAD(setUrl,url_);
+    NSURL* newUrl = [TiUtils toURL:url_ proxy:self];
+    if ([url isEqual:newUrl]) {
+        return;
+    }
 	RELEASE_TO_NIL(url);
-	url = [[TiUtils toURL:url_ proxy:self] retain];
+	url = [newUrl retain];
     loaded = NO;
 	
 	if (movie!=nil)
@@ -722,7 +735,6 @@ NSArray* moviePlayerKeys = nil;
     ENSURE_UI_THREAD(stop, args);
 	playing = NO;
 	[movie stop];
-	RELEASE_TO_NIL_AUTORELEASE(movie);
 }
 
 -(void)play:(id)args
