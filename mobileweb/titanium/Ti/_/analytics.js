@@ -88,7 +88,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang", "Ti/App", "Ti/Platform"], function(_, d
 						event: evt.evt,
 						seq: analyticsEventSeq++,
 						ver: "2",
-						deploytype: cfg.deployType,
+						deploytype: cfg.app.deployType,
 						sid: sessionId,
 						ts: evt.ts,
 						data: /(Array|Object)/.test(is(evt.data)) ? JSON.stringify(evt.data) : evt.data
