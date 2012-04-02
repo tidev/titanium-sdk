@@ -74,12 +74,13 @@ NSArray* moviePlayerKeys = nil;
 		[movie stop];
 	}
 	
-	WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
-	[[NSNotificationCenter defaultCenter] removeObserver:self];
+    TiThreadPerformOnMainThread(^{
+        [[NSNotificationCenter defaultCenter] removeObserver:self];
+        RELEASE_TO_NIL(movie);
+    }, YES);
 
 	RELEASE_TO_NIL(thumbnailCallback);
 	RELEASE_TO_NIL(tempFile);
-	RELEASE_TO_NIL(movie);
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(loadProperties);
 	RELEASE_TO_NIL(playerLock);
@@ -155,6 +156,11 @@ NSArray* moviePlayerKeys = nil;
 		TiMediaVideoPlayer *vp = (TiMediaVideoPlayer*)[self view];
 		[vp setMovie:movie];
 	}
+}
+
+-(MPMoviePlayerController *)player
+{
+    return movie;
 }
 
 -(MPMoviePlayerController *)ensurePlayer
@@ -396,8 +402,6 @@ NSArray* moviePlayerKeys = nil;
 		[movie stop];
 		playing = NO;
 	}
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-	RELEASE_TO_NIL_AUTORELEASE(movie);
 	
 	if ([self viewAttached]) {
 		TiMediaVideoPlayer *video = (TiMediaVideoPlayer*)[self view];
@@ -723,8 +727,6 @@ NSArray* moviePlayerKeys = nil;
     ENSURE_UI_THREAD(stop, args);
 	playing = NO;
 	[movie stop];
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-	RELEASE_TO_NIL_AUTORELEASE(movie);
 }
 
 -(void)play:(id)args
