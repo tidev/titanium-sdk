@@ -35,8 +35,8 @@
 		return nil;
 	}
 	
-	if([superResult isKindOfClass:[TiUIView class]] 
-	   && ![(TiUIView*)superResult touchEnabled]) {
+	if((viewGroupWrapper == superResult) || ([superResult isKindOfClass:[TiUIView class]] 
+	   && ![(TiUIView*)superResult touchEnabled])) {
 		return [self button];
 	}
 
@@ -52,8 +52,6 @@
 
 -(void)setHighlighting:(BOOL)isHiglighted
 {
-	TiUIButtonProxy * ourProxy = (TiUIButtonProxy *)[self proxy];
-	
 	for (TiUIView * thisView in [viewGroupWrapper subviews])
 	{
 		if ([thisView respondsToSelector:@selector(setHighlighted:)])
