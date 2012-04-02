@@ -405,7 +405,11 @@ NSArray* moviePlayerKeys = nil;
 	
 	if ([self viewAttached]) {
 		TiMediaVideoPlayer *video = (TiMediaVideoPlayer*)[self view];
-		[video setMovie:[self ensurePlayer]];
+        if (movie != nil) {
+            [movie setContentURL:url];
+        } else {
+            [self ensurePlayer];
+        }
 		[video frameSizeChanged:[video frame] bounds:[video bounds]];
 	}
 	
