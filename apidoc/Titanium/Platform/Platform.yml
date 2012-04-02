@@ -141,7 +141,7 @@ properties:
         
         Previously on iOS this may have been a UDID, but access to
         this has been restricted by Apple. For more information, see
-        [Apple's -[UIDevice uniqueIdentifier](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIDevice_Class/DeprecationAppendix/AppendixADeprecatedAPI.html#//apple_ref/occ/instp/UIDevice/uniqueIdentifier)
+        [Apple's uniqueIdentifier](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIDevice_Class/DeprecationAppendix/AppendixADeprecatedAPI.html#//apple_ref/occ/instp/UIDevice/uniqueIdentifier)
         documentation.
     type: String
     permission: read-only
