@@ -324,8 +324,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 		if (content != null) {
 			
-			// If there is no view added to the row, we set a minimum height for the row.
-			if (!((TableViewRowProxy)item.proxy).hasControls()) {
+			// If there is a child view, we don't set a minimum height for the row.
+			// Otherwise, we set a minimum height.
+			if (((TableViewRowProxy)item.proxy).hasControls()) {
+				content.setMinimumHeight(0);
+			} else {
 				content.setMinimumHeight(48);
 			}
 			
