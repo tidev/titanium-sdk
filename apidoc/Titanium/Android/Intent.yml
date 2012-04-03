@@ -197,18 +197,39 @@ examples:
 
   - title: Create an ImageView from an image SEND Intent 
     example: |
+            // This example requires that an intent filter be set up in a
+            // custom AndroidManifest.xml. The following intent filter should
+            // be added to your app's main activity. You can trigger this 
+            // intent filter by long pressing on an image in the Android gallery
+            // and selecting "share".
+            //
+            // <intent-filter>
+            //     <action android:name="android.intent.action.SEND" />
+            //     <category android:name="android.intent.category.DEFAULT" />
+            //     <data android:mimeType="image/*" />
+            // </intent-filter>
 
-            var intent = Ti.Android.currentActivity.getIntent();
-            var iname = Ti.Android.EXTRA_STREAM;
-            if (intent.hasExtra(iname)) {
-                var blob = intent.getBlobExtra(iname);
-                var image = Ti.UI.createImageView({
-                    image: blob,
-                    height: 300,
-                    width: 300,
-                    left: 0,
-                    top: 0
-                });
-            } else {
-                Ti.API.info('No extra named "' + iname + '" found in Intent');
-            }
+            var win = Ti.UI.createWindow({
+                backgroundColor: '#fff',
+                fullscreen: false,
+                exitOnClose: true
+            });
+            win.addEventListener('open', function(e) {
+                var intent = Ti.Android.currentActivity.getIntent();
+                var iname = Ti.Android.EXTRA_STREAM;
+             
+                if (intent && intent.hasExtra(iname)) {
+                    // Create ImageView from TiBlob
+                    var blob = intent.getBlobExtra(iname);  
+                    win.add(Ti.UI.createImageView({
+                        image: blob,
+                        height: 300,
+                        width: 300,
+                        left: 0,
+                        top: 0
+                    }));
+                } else {
+                    Ti.API.info('No extra named "' + iname + '" found in Intent');
+                }
+            });
+            win.open();
