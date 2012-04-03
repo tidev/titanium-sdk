@@ -31,6 +31,7 @@ HEADER = """/**
 
 def compare_versions(version1, version2):
 	def normalize(v):
+		v = '.'.join(v.split('.')[:3])
 		return [int(x) for x in re.sub(r'(\.0+)*$','', v).split(".")]
 	return cmp(normalize(version1), normalize(version2))
 
@@ -216,7 +217,7 @@ class Compiler(object):
 					print '[INFO] Bundling Ti+ module "%s"' % module['id']
 					
 					self.project_dependencies.append(main_file)
-					self.modules_to_cache.append(main_file)
+					self.modules_to_cache.append(module['id'] + '/' + main_file)
 					self.tiplus_modules_to_load.append(module['id'])
 					
 					if len(lib):
@@ -597,6 +598,8 @@ class Compiler(object):
 		parts = it.split('/')
 		for p in self.packages:
 			if p['name'] == parts[0]:
+				if p['name'] != 'Ti':
+					it = it.replace(p['name'] + '/', '')
 				return [self.compact_path(os.path.join(self.build_path, p['location'])), it]
 		return [self.build_path, it]
 	
