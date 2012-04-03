@@ -28,16 +28,9 @@ function showRequestResult(e) {
 }
 
 var login = Titanium.Facebook.createLoginButton({
-	top: 10
+	top: 10,
+	style: Ti.Facebook.BUTTON_STYLE_NORMAL
 });
-if(Titanium.Platform.name == 'iPhone OS')
-{
-	login.style = Ti.Facebook.BUTTON_STYLE_NORMAL;
-}
-else
-{
-	login.style ='normal';
-}
 win.add(login);
 
 var actionsView = Ti.UI.createView({
