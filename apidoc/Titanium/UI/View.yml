@@ -598,9 +598,11 @@ properties:
         whenever a view is resized.
         
         On iOS, the following views do not currently support tiled backgrounds:
+
         * <Titanium.UI.Button>
         * <Titanium.UI.TextField>
         * <Titanium.UI.Label>
+
     type: Boolean
     platforms: [android, iphone, ipad]
 
