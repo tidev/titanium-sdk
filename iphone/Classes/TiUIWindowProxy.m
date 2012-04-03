@@ -328,7 +328,7 @@
 	[self replaceValue:[self sanitizeURL:value] forKey:@"barImage" notification:NO];
 	if (controller!=nil)
 	{
-		TiThreadPerformOnMainThread(^{[self updateBarImage];}, [NSThread isMainThread]);
+		TiThreadPerformOnMainThread(^{[self updateBarImage];}, NO);
 	}
 }
 
