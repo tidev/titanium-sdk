@@ -416,7 +416,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	[TiUtils queueAnalytics:@"ti.background" name:@"ti.background" data:nil];
 
-	
+    //TIMOB-3432. Ensure url is cleared when app enters background.
+    [launchOptions removeObjectForKey:@"url"];
+
 	if (backgroundServices==nil)
 	{
 		return;
