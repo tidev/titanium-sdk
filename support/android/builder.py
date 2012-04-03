@@ -653,8 +653,8 @@ class Builder(object):
 		self.tiapp_changed = tiapp_delta is not None
 		full_copy = not os.path.exists(self.assets_resources_dir)
 
-		if self.tiapp_changed or self.force_rebuild or full_copy:
-			info("Detected tiapp.xml change (or assets deleted), forcing full re-build...")
+		if self.tiapp_changed or self.force_rebuild or full_copy or not self.is_app_installed():
+			info("Detected change in tiapp.xml, assets deleted, or application uninstalled. Forcing full re-build...")
 			# force a clean scan/copy when the tiapp.xml has changed
 			self.project_deltafy.clear_state()
 			self.project_deltas = self.project_deltafy.scan()
