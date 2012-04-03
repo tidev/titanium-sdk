@@ -365,7 +365,11 @@ if (isiOS4Plus())
 	var service = Ti.App.iOS.registerBackgroundService({url:'bg.js'});
 
 	Ti.API.info("registered background service = "+service);
-
+	
+	if(Ti.App.getArguments().url)
+	{
+		alert(Ti.App.getArguments().url);
+	}
 	// listen for a local notification event
 	Ti.App.iOS.addEventListener('notification',function(e)
 	{
@@ -375,6 +379,10 @@ if (isiOS4Plus())
 	// fired when an app resumes for suspension
 	Ti.App.addEventListener('resume',function(e){
 		Ti.API.info("app is resuming from the background");
+		if(Ti.App.getArguments().url)
+		{
+			alert(Ti.App.getArguments().url);
+		}
 	});
 	Ti.App.addEventListener('resumed',function(e){
 		Ti.API.info("app has resumed from the background");
