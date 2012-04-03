@@ -981,16 +981,25 @@ define(
 			anim.start && anim.start();
 
 			if (anim.duration > 0) {
-				// Create the transition, must be set before setting the other properties
-				setStyle(this.domNode, "transition", "all " + anim.duration + "ms " + curve + (anim.delay ? " " + anim.delay + "ms" : ""));
-				on.once(window, transitionEnd, lang.hitch(this, function(e) {
+				
+				function completeAnimation(){
 					if (!this._destroyed) {
 						// Clear the transform so future modifications in these areas are not animated
 						setStyle(this.domNode, "transition", "");
 						is(anim.complete, "Function") && anim.complete();
 						is(callback, "Function") && callback();
 					}
-				}));
+				}
+				
+				// Create the transition, must be set before setting the other properties
+				if (style.supports("transition", this.domNode)) {
+					setStyle(this.domNode, "transition", "all " + anim.duration + "ms " + curve + (anim.delay ? " " + anim.delay + "ms" : ""));
+					on.once(window, transitionEnd, lang.hitch(this, function(e) {
+						completeAnimation();
+					}));
+				} else {
+					setTimeout(completeAnimation,anim.duration);
+				}
 				setTimeout(fn, 0);
 			} else {
 				fn();
