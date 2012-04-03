@@ -153,7 +153,6 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 		
 		constants: {
 			
-			forceDialogAuth: true,
 			
 			BUTTON_STYLE_NORMAL: 1,
 			
@@ -173,6 +172,8 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 			},
 			
 			expirationDate: void 0,
+			
+			forceDialogAuth: true,
 			
 			loggedIn: false,
 			
