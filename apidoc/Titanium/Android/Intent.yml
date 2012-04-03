@@ -24,7 +24,7 @@ methods:
   - name: getBlobExtra
     summary: Get a <Titanium.Blob> property from this Intent
     returns:
-        type: <Titanium.Blob>
+        type: Titanium.Blob
     parameters:
       - name: name
         summary: The <Titanium.Blob> extra to get, most commonly <Titanium.Android.EXTRA_STREAM>.
