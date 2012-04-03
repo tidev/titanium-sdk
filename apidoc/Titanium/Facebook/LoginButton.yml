@@ -19,11 +19,9 @@ properties:
     description: |
         All versions of the button include the Facebook logo.
 
-        For iPhone use "Ti.Facebook.BUTTON_STYLE_WIDE" to show a wider version of the button that 
-        includes the text, "Login with Facebook". Use "Ti.Facebook.BUTTON_STYLE_NORMAL" to show a
-        narrower button that simply says, "Login". 
-
-        For Android use "wide" to show a wider version of the button that includes the
-        text, "Connect with Facebook". Use "normal" to show a narrower button that simply
-        says, "Connect".
+        Use [BUTTON_STYLE_WIDE](Titanium.Facebook.BUTTON_STYLE_WIDE) to show a wider version of the button 
+        that includes the text, "Login with Facebook" or "Connect with Facebook".
+        
+        Use [BUTTON_STYLE_NORMAL](Titanium.Facebook.BUTTON_STYLE_NORMAL) to show a
+        narrower button that simply says, "Login" or "Connect".
     type: String

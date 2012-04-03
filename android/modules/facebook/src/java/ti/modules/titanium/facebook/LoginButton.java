@@ -137,11 +137,20 @@ public class LoginButton extends TiUIView implements TiFacebookStateListener
 		facebook.addListener(this);
 
 		if (d.containsKey("style")) {
-			String style = TiConvert.toString(d, "style");
-			if (style.equals("wide")) {
-				wide = true;
-				updateButtonImage(false);
-			}
+			Object style = d.get("style");
+			if (style instanceof Number) {
+                int styleValue = TiConvert.toInt(style);
+				if (styleValue == facebook.BUTTON_STYLE_WIDE) {
+					wide = true;
+					updateButtonImage(false);
+				}
+			} else {
+				String styleName = TiConvert.toString(d, "style");
+				if (styleName.equals("wide")) {
+					wide = true;
+					updateButtonImage(false);
+				}
+            }
 		}
 	}
 
