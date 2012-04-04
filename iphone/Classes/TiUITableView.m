@@ -1053,7 +1053,7 @@
 		[proxy layoutChildren:NO];
 	}
 	
-	if ([tableview tableHeaderView]!=nil)
+	if ([[self tableView] tableHeaderView]!=nil)
 	{
 		TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"headerView"];
 		if (proxy!=nil)
