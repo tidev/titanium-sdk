@@ -201,6 +201,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_PROPERTY_DIRECTION = "direction";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PROPERTY_ERROR = "error";
 
 	/**
@@ -357,6 +362,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_STOP = "stop";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_SWIPE = "swipe";
 
 	/**
 	 * @module.api
