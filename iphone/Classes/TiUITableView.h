@@ -39,7 +39,7 @@
 
 @end
 
-@interface TiUITableView : TiUIView<UISearchDisplayDelegate,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiScrolling> {
+@interface TiUITableView : TiUIView<UISearchDisplayDelegate,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiUIScrollView,TiProxyObserver> {
 @private
 	UITableView *tableview;
 	BOOL moving;
@@ -70,6 +70,8 @@
 	UITableViewController *tableController;
 	UISearchDisplayController *searchController;
 	NSInteger frameChanges;
+    TiViewProxy* headerViewProxy;
+    TiViewProxy* footerViewProxy;
 }
 
 #pragma mark Framework
