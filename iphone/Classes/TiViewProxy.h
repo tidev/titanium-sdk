@@ -20,6 +20,16 @@
 
 @end
 
+/*
+ This Protocol will be implemented by objects that want to
+ monitor views not in the normal view heirarchy. 
+*/
+@protocol TiProxyObserver
+@optional
+-(void)proxyDidRelayout:(id)sender;
+
+@end
+
 
 #pragma mark dirtyflags used by TiViewProxy
 #define NEEDS_LAYOUT_CHILDREN	1
@@ -85,6 +95,8 @@ enum
 	BOOL viewInitialized;
 	BOOL repositioning;
 	BOOL isUsingBarButtonItem;
+    
+    id observer;
 }
 
 #pragma mark public API
@@ -92,6 +104,7 @@ enum
 @property(nonatomic,readwrite,assign) BOOL parentVisible; // For tableview magic ONLY
 @property(nonatomic,readonly) NSArray *children;
 
+-(void)setProxyObeserver:(id)arg;
 -(void)add:(id)arg;
 -(void)remove:(id)arg;
 -(void)show:(id)arg;

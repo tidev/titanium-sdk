@@ -60,6 +60,10 @@
 	[self replaceValue:newVisible forKey:@"visible" notification:YES];
 }
 
+-(void)setProxyObeserver:(id)arg
+{
+    observer = arg;
+}
 
 -(TiPoint*)center
 {
@@ -1656,6 +1660,10 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 
 		repositioning = NO;
+        
+        if ([observer respondsToSelector:@selector(proxyDidRelayout:)]) {
+            [observer proxyDidRelayout:self];
+        }
 	}
 #ifdef VERBOSE
 	else
