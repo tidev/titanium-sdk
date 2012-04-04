@@ -50,9 +50,11 @@
 @property(nonatomic,readwrite,assign) NSString *purpose;
 
 @property(nonatomic,readonly) NSNumber *ACCURACY_BEST;
+@property(nonatomic,readonly) NSNumber *ACCURACY_HIGH;
 @property(nonatomic,readonly) NSNumber *ACCURACY_NEAREST_TEN_METERS;
 @property(nonatomic,readonly) NSNumber *ACCURACY_HUNDRED_METERS;
 @property(nonatomic,readonly) NSNumber *ACCURACY_KILOMETER;
+@property(nonatomic,readonly) NSNumber *ACCURACY_LOW;
 @property(nonatomic,readonly) NSNumber *ACCURACY_THREE_KILOMETERS;
 
 // Authorization to use location, 4.2+ only
