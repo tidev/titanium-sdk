@@ -1,11 +1,18 @@
 describe("Ti.Facebook tests", {
     // https://jira.appcelerator.org/browse/TIMOB-6234
     buttonStyleConstants: function() {
+        valueOf(Ti.Facebook.BUTTON_STYLE_NORMAL).shouldBeNumber();
+        valueOf(Ti.Facebook.BUTTON_STYLE_WIDE).shouldBeNumber();
+
         valueOf(function() { 
-            Ti.Facebook.createLoginButton({ style: Titanium.Facebook.BUTTON_STYLE_NORMAL })
+            var button = Ti.Facebook.createLoginButton({ style: Ti.Facebook.BUTTON_STYLE_NORMAL });
+            valueOf(button.style).shouldBe(Ti.Facebook.BUTTON_STYLE_NORMAL);
         }).shouldNotThrowException();
+
         valueOf(function() { 
-            Ti.Facebook.createLoginButton({ style: Titanium.Facebook.BUTTON_STYLE_WIDE })
+            var button = Ti.Facebook.createLoginButton({ style: Ti.Facebook.BUTTON_STYLE_WIDE })
+            valueOf(button.style).shouldBe(Ti.Facebook.BUTTON_STYLE_WIDE);
         }).shouldNotThrowException();
+
     }
 });
