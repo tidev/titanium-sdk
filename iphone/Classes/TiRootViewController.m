@@ -389,6 +389,7 @@
         [kfvProxy blur:nil];
         [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
         [kfvProxy focus:nil];
+        [kfvProxy release];
     }
 
 	UIView * ourView = [self view];
@@ -450,9 +451,10 @@
 
     [self updateOrientationHistory:newOrientation];
     
-	[self performSelector:@selector(refreshOrientation) withObject:nil afterDelay:0.0];
-    [kfvProxy blur:nil];
-    [kfvProxy performSelector:@selector(focus:) withObject:nil afterDelay:0.0];
+    TiThreadPerformOnMainThread(^{
+        [self refreshOrientation];
+        [kfvProxy focus:nil];
+    }, NO);
 }
 
 -(void)updateOrientationHistory:(UIInterfaceOrientation)newOrientation
@@ -604,8 +606,6 @@
     }
     [self manuallyRotateToOrientation:newOrientation duration:duration];
 }
-
-
 
 -(CGRect)resizeView
 {
@@ -832,7 +832,10 @@
 	{
 		return;
 	}
-
+    
+    TiViewProxy<TiKeyboardFocusableView> *kfvProxy = [[keyboardFocusedProxy retain] autorelease];
+    [kfvProxy blur:nil];
+    
 	if ([windowProxies containsObject:window])
 	{
 		[[window retain] autorelease];
