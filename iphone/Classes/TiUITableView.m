@@ -1079,24 +1079,6 @@
 		}
 	}
 	
-    // Since the header proxy is not properly attached to a view proxy in the titanium
-    // system, we have to reposition it here.  Resetting the table header view
-    // is because there's a charming bug in UITableView that doesn't respect redisplay
-    // for headers/footers when the frame changes.
-    /*
-    UIView* headerView = [[self tableView] tableHeaderView];
-    if ([headerView isKindOfClass:[TiUIView class]]) {
-        [(TiViewProxy*)[(TiUIView*)headerView proxy] reposition];
-        [[self tableView] setTableHeaderView:headerView];
-    }
-    
-    // ... And we have to do the same thing for the footer.
-    UIView* footerView = [[self tableView] tableFooterView];
-    if ([footerView isKindOfClass:[TiUIView class]]) {
-        [(TiViewProxy*)[(TiUIView*)footerView proxy] reposition];
-        [[self tableView] setTableFooterView:footerView];
-    }
-	*/
     if (tableview!=nil && 
         !CGRectIsEmpty(self.bounds) && 
         [tableview superview]!=nil)
