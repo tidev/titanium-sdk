@@ -11,7 +11,13 @@ description: |
     Note that this module is not included in the Titanium namespace, but it is bundled with the Titanium SDK as of
     version 2.0.0. To use it, you must require it, like this:
     
-        var Push = require('ti.push');
+        var CloudPush = require('ti.cloudpush');
+    
+    This module must also be added to the modules section in your tiapp.xml. This can be done using the Modules list in
+    the Titanium Studio TiApp Editor, or by editing the XML directly and adding the following line to the modules
+    element:
+    
+        <module platform="android">ti.cloudpush</module>
     
     Your app must prove that it is allowed to talk to ACS. This keeps your data secure by preventing anyone from
     making requests to ACS that impersonate your app.
