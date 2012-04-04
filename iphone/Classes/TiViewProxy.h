@@ -42,6 +42,16 @@
 
 @end
 
+/*
+ This Protocol will be implemented by objects that want to
+ monitor views not in the normal view heirarchy. 
+*/
+@protocol TiProxyObserver
+@optional
+-(void)proxyDidRelayout:(id)sender;
+
+@end
+
 
 #pragma mark dirtyflags used by TiViewProxy
 #define NEEDS_LAYOUT_CHILDREN	1
@@ -120,6 +130,8 @@ enum
     BOOL allowLayoutUpdate;
     
     NSMutableDictionary *layoutPropDictionary;
+    
+    id observer;
 }
 
 #pragma mark public API
@@ -151,6 +163,7 @@ enum
  Tells the view proxy to add a child proxy.
  @param arg A single proxy to add or NSArray of proxies.
  */
+-(void)setProxyObeserver:(id)arg;
 -(void)add:(id)arg;
 
 /**
