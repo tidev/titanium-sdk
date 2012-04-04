@@ -13,17 +13,16 @@ description: |
 
     When a value is specified as string, the value can consist of:
     
-    *  A number
+    *  A number.
     *  A percentage, such as "10%", interpreted as a percentage of the parent's total size
        in that dimension.
     *  A number plus a unit specifier, such as "10px" or "1in". 
     
     The following units are supported:
     
-
     <table cellpadding="6px" border="1" rules="all">
     <tr>
-    <th align="left">Unit</th> <th align="left">Abbreviation</th> <th align="left">Note<th>
+    <th align="left">Unit</th> <th align="left">Specifier</th> <th align="left">Note<th>
     </tr>
     <tr> <td>pixels</td> <td>px</td> <td></td> </tr>
     <tr> <td>density-independent pixels</td> <td>dip</td> <td>Equivalent to Apple "points."</td> </tr>
@@ -31,44 +30,39 @@ description: |
     <tr> <td>millimeters</td> <td>mm</td> <td>Android, iOS only</td>  </tr>
     <tr> <td>centimeters</td> <td>cm</td> <td>Android, iOS only</td>  </tr>
     <tr> <td>points</td> <td>pt</td> 
-         <td>1/72 of an inch. Android only. Not to be confused with Apple "points."</td> </tr>
+         <td>Typographical points of 1/72 of an inch. On Android, you can specify sizes and 
+         coordinates in typographical points. On other platforms, this unit is only used
+         to specify font sizes.  Not to be confused with Apple "points."</td> </tr>
     </table>
 
+    The interpretation of the density-independent pixel (DIP) varies by platform:
 
-    <table cellpadding="6px" border="1" rules="all">
-    <tr>
-    <th align="left">Unit</th> <th align="left">Specifier</th> <th align="left">Note</th>
-    </tr>
-    <tr> <td>pixels</td> <td>px</td> <td></td> </tr>
-    <tr> <td>density-independent pixels</td> <td>dip</td> <td>Equivalent to Apple
-    "points."</td> </tr>
-    <tr> <td>inches</td> <td>in</td> <td></td> </tr>
-    <tr> <td>millimeters</td> <td>mm</td> <td></td>  </tr>
-    <tr> <td>points</td> <td>pt</td> <td>1/72 of an inch. Not to be confused with Apple
-    "points."</td>  </tr>
-    <tr> <td>picas</td> <td>pc</td> <td>1/6 of an inch. Mobile Web only.</td>  </tr>
-    <tr> <td>ems</td> <td>em</td> <td>Mobile Web only.</td>  </tr>
-    </table>
-
-    Density-independent pixels (DIPs) maintain a consistent visual size independent 
-    of the display's density. On Android, one DIP corresponds to one pixel on a medium density display 
-    (160 DPI). On iOS, one DIP corresponds to one pixel on a non-Retina display (163 DPI).
+    *   On Android, one DIP corresponds to one pixel on a 160DPI
+        display.
     
+    *   On iOS, one DIP corresponds to one pixel on a non-Retina display, which
+        is 163DPI for iPhone/iPod touch and 132DPI for the iPad. A DIP
+        corresponds to 2 pixels of width or height on a Retina display.
+    
+    *   On Mobile Web, both DIP and pixel are equal to one browser pixel, which may
+        not correspond to a pixel on the display. From testing, most browsers seem to
+        report a DPI value of 96DPI, regardless of the actual display density.
+    
+    The absolute measures, such as inches, are dependent on the device correctly reporting
+    its density. On Mobile Web, in particular, these values are unlikely to be exact.
+    
+    If no units are specified, a system-default unit is assumed. The system default unit is:
+    
+    *    Pixels on Android.
+    *    DIPs on iOS.
+    *    DIPs on Mobile Web (as described above, DIPs and pixels are interchangable on
+         Mobile Web).
+
     Note that prior to Release 2.0, iOS ignored any specified unit, so code that specifies
     a unit may operate differently on iOS in Release 2.0.
 
-    The default unit on Android and Mobile Web is pixels.
-
-    The default unit on iOS is density-independent pixels (DIPs), which are equivalent to
-    the Apple native "point."
-    
     Font sizes on iOS are treated differently than other sizes: font sizes are always 
-    specified in typographical points.
-    
-    Mobile Web accepts all of the standard web units, including 
-    pixels (px), ems (em), points (pt), picas (pc), millimeters (mm) or inches (in). The 
-    default unit is pixels. Note that in Mobile Web, the interpretation of these units 
-    is browser-dependent.
+    specified in typographical points. 
 
     The [height](Titanium.UI.View.height) and [width](Titanium.UI.View.width) properties 
     accept several special values:
