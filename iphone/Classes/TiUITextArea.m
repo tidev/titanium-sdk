@@ -164,22 +164,23 @@ Text area constrains the text event though the content offset and edge insets ar
     if (value - txtWidth >= TXT_OFFSET) {
         return (txtWidth + TXT_OFFSET);
     }
-    return txtWidth;
+    return txtWidth + 2 * self.layer.borderWidth;
 }
 
 -(CGFloat)contentHeightForWidth:(CGFloat)value
 {
-    if (![self hasText]) {
-        return 0.0;
-    }
     CGFloat constrainedWidth = value - TXT_OFFSET;
     if (constrainedWidth < 0) {
         constrainedWidth = 0;
     }
     UITextView* ourView = (UITextView*)[self textWidgetView];
     NSString* txt = ourView.text;
+    if (txt.length == 0) {
+        txt = @" ";
+    }
     //sizeThatFits does not seem to work properly
-    return [txt sizeWithFont:ourView.font constrainedToSize:CGSizeMake(constrainedWidth, 1E100) lineBreakMode:UILineBreakModeWordWrap].height;
+    CGFloat txtHeight = [txt sizeWithFont:ourView.font constrainedToSize:CGSizeMake(constrainedWidth, 1E100) lineBreakMode:UILineBreakModeWordWrap].height;
+    return txtHeight + 2 * self.layer.borderWidth;
 }
 
 - (void)scrollViewDidScroll:(id)scrollView
