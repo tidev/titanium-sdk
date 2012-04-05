@@ -69,7 +69,7 @@
     }
 }
 
--(void)setProxyObeserver:(id)arg
+-(void)setProxyObserver:(id)arg
 {
     observer = arg;
 }
