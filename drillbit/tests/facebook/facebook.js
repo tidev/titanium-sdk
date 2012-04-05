@@ -6,12 +6,10 @@ describe("Ti.Facebook tests", {
 
         valueOf(function() { 
             var button = Ti.Facebook.createLoginButton({ style: Ti.Facebook.BUTTON_STYLE_NORMAL });
-            valueOf(button.style).shouldBe(Ti.Facebook.BUTTON_STYLE_NORMAL);
         }).shouldNotThrowException();
 
         valueOf(function() { 
             var button = Ti.Facebook.createLoginButton({ style: Ti.Facebook.BUTTON_STYLE_WIDE })
-            valueOf(button.style).shouldBe(Ti.Facebook.BUTTON_STYLE_WIDE);
         }).shouldNotThrowException();
 
     }
