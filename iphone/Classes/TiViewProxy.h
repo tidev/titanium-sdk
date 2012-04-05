@@ -158,12 +158,12 @@ enum
 -(void)setTempProperty:(id)propVal forKey:(id)propName;
 -(void)processTempProperties:(NSDictionary*)arg;
 
+-(void)setProxyObserver:(id)arg;
 
 /**
  Tells the view proxy to add a child proxy.
  @param arg A single proxy to add or NSArray of proxies.
  */
--(void)setProxyObeserver:(id)arg;
 -(void)add:(id)arg;
 
 /**
