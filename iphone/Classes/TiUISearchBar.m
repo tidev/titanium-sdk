@@ -211,7 +211,13 @@
 // called when bookmark button pressed
 - (void)searchBarBookmarkButtonClicked:(UISearchBar *)searchBar                   
 {	
-	NSString * text = [searchBar text];
+	NSString * text = @"";
+	
+	if ([searchBar text]!=nil)
+	{
+		text = [searchBar text];
+	}
+	
 	[self.proxy replaceValue:text forKey:@"value" notification:NO];
 	
 	if ([self.proxy _hasListeners:@"bookmark"])
