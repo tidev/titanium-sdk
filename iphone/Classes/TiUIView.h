@@ -45,6 +45,9 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
  */
 @interface TiUIView : UIView<TiProxyDelegate,LayoutAutosizing> 
 {
+@protected
+    BOOL configurationSet;
+
 @private
 	TiProxy *proxy;
 	TiAnimation *animation;
