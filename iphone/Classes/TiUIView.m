@@ -272,6 +272,7 @@ DEFINE_EXCEPTIONS
 -(void)configurationSet
 {
 	// can be used to trigger things after all properties are set
+    configurationSet = YES;
 }
 
 -(void)setProxy:(TiProxy *)p
