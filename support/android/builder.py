@@ -602,7 +602,7 @@ class Builder(object):
 		
 		fileset = []
 		if self.force_rebuild or self.deploy_type == 'production' or \
-			(self.js_changed and not self.fastdev) or (self.fastdev and not self.is_app_installed()):
+			(self.js_changed and not self.fastdev) or self.fastdev:
 			for root, dirs, files in os.walk(os.path.join(self.top_dir, "Resources")):
 				remove_ignored_dirs(dirs)
 				for f in files:
