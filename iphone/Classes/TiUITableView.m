@@ -1311,14 +1311,12 @@
     TiThreadPerformOnMainThread(^{
         if (sender == headerViewProxy) {
             UIView* headerView = [[self tableView] tableHeaderView];
-            CGRect bounds = [headerView bounds];
-            [headerView setFrame:bounds];
+            [headerView setFrame:[headerView bounds]];
             [[self tableView] setTableHeaderView:headerView];
         }
         else if (sender == footerViewProxy) {
             UIView *footerView = [[self tableView] tableFooterView];
-            CGRect bounds = [footerView bounds];
-            [footerView setFrame:bounds];
+            [footerView setFrame:footerView bounds]];
             [[self tableView] setTableFooterView:footerView];
         }
     },NO);
