@@ -119,6 +119,7 @@ properties:
         install of the application. It is not modified by application updates;
         only when an application is initially installed, or removed and
         re-installed.
+    type: String
     platforms: [iphone, ipad]
     permission: read-only
     since: "2.0.0"
