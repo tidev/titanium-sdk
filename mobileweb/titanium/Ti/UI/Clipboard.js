@@ -3,7 +3,8 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 	var storageKey = "ti:clipboard",
 		plainText = "text/plain",
 		error = 'Missing required argument "type"',
-		cache = JSON.parse(localStorage.getItem(storageKey)) || {};
+		value = localStorage.getItem(storageKey),
+		cache = (require.is(value, "String") && JSON.parse(value)) || {};
 
 	function get(type) {
 		if (!type) {

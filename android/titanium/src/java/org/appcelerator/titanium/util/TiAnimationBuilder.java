@@ -502,6 +502,7 @@ public class TiAnimationBuilder
 	{
 		public void onAnimationEnd(Animation a)
 		{
+
 			if (relayoutChild) {
 				LayoutParams params = (LayoutParams) view.getLayoutParams();
 				TiConvert.fillLayout(options, params);
@@ -511,7 +512,8 @@ public class TiAnimationBuilder
 			}
 
 			if (applyOpacity) {
-				//There is an android bug where animations still occur after this method. We clear it from the view to correct this.
+				// There is an android bug where animations still occur after this method. We clear it from the view to
+				// correct this.
 				view.clearAnimation();
 				if (toOpacity.floatValue() == 0) {
 					view.setVisibility(View.INVISIBLE);

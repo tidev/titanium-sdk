@@ -31,6 +31,7 @@ HEADER = """/**
 
 def compare_versions(version1, version2):
 	def normalize(v):
+		v = '.'.join(v.split('.')[:3])
 		return [int(x) for x in re.sub(r'(\.0+)*$','', v).split(".")]
 	return cmp(normalize(version1), normalize(version2))
 
@@ -90,8 +91,11 @@ class Compiler(object):
 		
 		# copy all of the project's resources to the build directory
 		self.copy(self.themes_path, os.path.join(self.build_path, 'themes'))
-		self.copy(self.resources_path, self.build_path)
-		self.copy(os.path.join(self.resources_path, 'mobileweb'), self.build_path)
+		self.copy(self.resources_path, self.build_path, ['android', 'iphone'])
+		self.copy(os.path.join(self.resources_path, 'mobileweb'), self.build_path, ['apple_startup_images', 'splash'])
+		self.copy(os.path.join(self.resources_path, 'mobileweb', 'apple_startup_images', 'Default.jpg'), self.build_path)
+		self.copy(os.path.join(self.resources_path, 'mobileweb', 'apple_startup_images', 'Default-Portrait.jpg'), self.build_path)
+		self.copy(os.path.join(self.resources_path, 'mobileweb', 'apple_startup_images', 'Default-Landscape.jpg'), self.build_path)
 		self.copy(self.ti_package_path, os.path.join(self.build_path, 'titanium'))
 		
 		# scan project for dependencies
@@ -213,7 +217,7 @@ class Compiler(object):
 					print '[INFO] Bundling Ti+ module "%s"' % module['id']
 					
 					self.project_dependencies.append(main_file)
-					self.modules_to_cache.append(main_file)
+					self.modules_to_cache.append(module['id'] + '/' + main_file)
 					self.tiplus_modules_to_load.append(module['id'])
 					
 					if len(lib):
@@ -402,9 +406,11 @@ class Compiler(object):
 		splash_css = ''
 		if tiapp_xml['mobileweb']['splash']['enabled'] == 'true':
 			print '[INFO] Processing splash screen...'
-			splash_path = os.path.join(self.project_path, 'splash')
+			splash_path = os.path.join(self.project_path, 'Resources', 'mobileweb', 'splash')
+			splash_root_path = os.path.join(self.project_path, 'Resources')
 			if not os.path.exists(splash_path):
 				splash_path = os.path.join(self.sdk_path, 'splash')
+				splash_root_path = splash_path
 			splash_html_file = os.path.join(splash_path, 'splash.html')
 			splash_css_file = os.path.join(splash_path, 'splash.css')
 			if os.path.exists(splash_html_file):
@@ -419,8 +425,9 @@ class Compiler(object):
 							img = parts[i][:j].replace('"', '').replace('\'', '').strip()
 							if img.find('data:') == -1:
 								if img[1] == '/':
-									img = img[1:]
-								img_path = os.path.join(splash_path, img)
+									img_path = os.path.join(splash_root_path, img[1:])
+								else:
+									img_path = os.path.join(splash_path, img)
 								if os.path.exists(img_path):
 									fname, ext = os.path.splitext(img_path.lower())
 									if ext in image_mime_types:
@@ -553,7 +560,7 @@ class Compiler(object):
 					for inner in node.childNodes:
 						if inner.nodeType == node.TEXT_NODE:
 							val = val + inner.data
-					strings[name] = val.strip()
+					strings[name] = val.encode('utf-8').decode('string-escape').strip()
 		
 		return strings
 	
@@ -591,24 +598,34 @@ class Compiler(object):
 		parts = it.split('/')
 		for p in self.packages:
 			if p['name'] == parts[0]:
+				if p['name'] != 'Ti':
+					it = it.replace(p['name'] + '/', '')
 				return [self.compact_path(os.path.join(self.build_path, p['location'])), it]
 		return [self.build_path, it]
 	
-	def copy(self, src_path, dest_path):
-		print '[INFO] Copying %s...' % src_path
-		for root, dirs, files in os.walk(src_path):
-			for name in ignoreDirs:
-				if name in dirs:
-					dirs.remove(name)
-			for file in files:
-				if file in ignoreFiles or file.startswith('._'):
-					continue
-				source = os.path.join(root, file)
-				dest = os.path.expanduser(source.replace(src_path, dest_path, 1))
-				dest_dir = os.path.expanduser(os.path.split(dest)[0])
-				if not os.path.exists(dest_dir):
-					os.makedirs(dest_dir)
-				shutil.copy(source, dest)
+	def copy(self, src_path, dest_path, ignore=None):
+		if os.path.exists(src_path):
+			print '[INFO] Copying %s...' % src_path
+			if os.path.isdir(src_path):
+				for root, dirs, files in os.walk(src_path):
+					for name in ignoreDirs:
+						if name in dirs:
+							dirs.remove(name)
+					if ignore is not None and root == src_path:
+						for name in ignore:
+							if name in dirs:
+								dirs.remove(name)
+					for file in files:
+						if file in ignoreFiles or file.startswith('._'):
+							continue
+						source = os.path.join(root, file)
+						dest = os.path.expanduser(source.replace(src_path, dest_path, 1))
+						dest_dir = os.path.expanduser(os.path.split(dest)[0])
+						if not os.path.exists(dest_dir):
+							os.makedirs(dest_dir)
+						shutil.copy(source, dest)
+			else:
+				shutil.copy(src_path, dest_path)
 	
 	def compact_path(self, path):
 		result = []
@@ -667,7 +684,7 @@ class Compiler(object):
 			'Ti/Buffer',
 			'Ti/Codec',
 			'Ti/Facebook',
-			'Ti/Facebook/Loginbutton',
+			'Ti/Facebook/LoginButton',
 			'Ti/Filesystem',
 			'Ti/Filesystem/File',
 			'Ti/Filesystem/FileStream',

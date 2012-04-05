@@ -606,7 +606,7 @@ properties:
         On Mobile Web, video format support depends on the web browser. You can specify an
         array of URLs to videos of different formats. The web browser will select the first
         video URL in the array that it is able to play. This is not supported on iOS and Android.
-    type: [String,Array]
+    type: [String, Array<String>]
 
   - name: useApplicationAudioSession
     summary: |

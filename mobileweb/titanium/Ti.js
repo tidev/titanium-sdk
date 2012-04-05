@@ -18,6 +18,7 @@ define(
 
 	var global = window,
 		cfg = require.config,
+		deployType = cfg.app.deployType,
 		ver = cfg.ti.version,
 		is = require.is,
 		each = require.each,
@@ -69,7 +70,7 @@ define(
 		loadAppjs = Ti.deferStart();
 
 	// add has() tests
-	has.add("devmode", cfg.deployType === "development");
+	has.add("devmode", deployType === "development");
 
 	// Object.defineProperty() shim
 	if (!has("object-defineproperty")) {
@@ -353,7 +354,7 @@ define(
 				win.add(view = UI.createView({ height: "12%" }));
 				view.add(button = UI.createButton({ title: "Dismiss" }));
 				win.addEventListener("close", function() { win.destroy(); });
-				button.addEventListener("click", function() {
+				button.addEventListener("singletap", function() {
 					win.animate({
 						duration: 500,
 						top: "100%"
@@ -395,7 +396,7 @@ define(
 					app_name: App.name,
 					oscpu: 1,
 					mac_addr: null,
-					deploytype: cfg.deployType,
+					deploytype: deployType,
 					ostype: Platform.osname,
 					osarch: null,
 					app_id: App.id,
@@ -408,7 +409,7 @@ define(
 			// app start event
 			analytics.add("ti.start", "ti.start", {
 				tz: (new Date()).getTimezoneOffset(),
-				deploytype: cfg.deployType,
+				deploytype: deployType,
 				os: Platform.osname,
 				osver: Platform.ostype,
 				version: cfg.tiVersion,
