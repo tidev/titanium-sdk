@@ -1316,7 +1316,7 @@
         }
         else if (sender == footerViewProxy) {
             UIView *footerView = [[self tableView] tableFooterView];
-            [footerView setFrame:footerView bounds]];
+            [footerView setFrame:[footerView bounds]];
             [[self tableView] setTableFooterView:footerView];
         }
     },NO);
