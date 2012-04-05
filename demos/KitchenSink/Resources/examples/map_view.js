@@ -8,6 +8,8 @@ if (Titanium.Platform.name == 'android') {
 //
 // CREATE ANNOTATIONS
 //
+
+
 var mountainView = Titanium.Map.createAnnotation({
 	latitude:37.390749,
 	longitude:-122.081651,
@@ -41,6 +43,7 @@ var atlantaParams = {
 		myid:3 // CUSTOM ATTRIBUTE THAT IS PASSED INTO EVENT OBJECTS
 	};
 
+
 if (!isAndroid) {
 	atlantaParams.pincolor = Titanium.Map.ANNOTATION_PURPLE;
 } else {
@@ -57,13 +60,15 @@ var regionSV = {latitude:37.337681,longitude:-122.038193,animate:true,latitudeDe
 //
 // CREATE MAP VIEW
 //
+
+var presetAnnotations = [atlanta,apple];
 var mapview = Titanium.Map.createView({
 	mapType: Titanium.Map.STANDARD_TYPE,
 	region:{latitude:33.74511, longitude:-84.38993, latitudeDelta:0.5, longitudeDelta:0.5},
 	animate:true,
 	regionFit:true,
 	userLocation:true,
-	annotations:[atlanta,apple]
+	annotations:presetAnnotations
 });
 
 if (!isAndroid) {
@@ -95,7 +100,7 @@ var wireClickHandlers = function() {
 		mapview.setLocation(regionAtlanta);
 	
 		// activate annotation
-		mapview.selectAnnotation(mapview.annotations[0].title,true);
+		mapview.selectAnnotation(presetAnnotations[0].title,true);
 		Ti.API.error("CLICKED ATL");
 	});
 	
@@ -105,7 +110,7 @@ var wireClickHandlers = function() {
 		mapview.setLocation(regionSV);
 	
 		// activate annotation
-		mapview.selectAnnotation(mapview.annotations[1].title,true);
+		mapview.selectAnnotation(presetAnnotations[1].title,true);
 	});
 	
 	sat.addEventListener('click',function() {
@@ -148,8 +153,6 @@ if (!isAndroid) {
 		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED,
 		title:'ATL'
 	});
-	// activate annotation
-	mapview.selectAnnotation(mapview.annotations[0].title,true);
 	
 	// button to change to SV	
 	sv = Titanium.UI.createButton({
