@@ -855,6 +855,8 @@ public abstract class TiUIView
 		} else if (property.equals(TiC.PROPERTY_BORDER_WIDTH)) {
 			border.setWidth(TiConvert.toFloat(value));
 		}
+		//recalculate bounds since border is changed.
+		background.onBoundsChange(background.getBounds());
 		applyCustomBackground();
 	}
 
