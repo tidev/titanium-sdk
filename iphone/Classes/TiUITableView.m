@@ -1329,14 +1329,12 @@
     TiThreadPerformOnMainThread(^{
         if (sender == headerViewProxy) {
             UIView* headerView = [[self tableView] tableHeaderView];
-            CGRect bounds = [headerView bounds];
-            [headerView setFrame:bounds];
+            [headerView setFrame:[headerView bounds]];
             [[self tableView] setTableHeaderView:headerView];
         }
         else if (sender == footerViewProxy) {
             UIView *footerView = [[self tableView] tableFooterView];
-            CGRect bounds = [footerView bounds];
-            [footerView setFrame:bounds];
+            [footerView setFrame:footerView bounds]];
             [[self tableView] setTableFooterView:footerView];
         }
     },NO);
@@ -1345,7 +1343,7 @@
 -(void)setHeaderTitle_:(id)args
 {
     if (headerViewProxy != nil) {
-        [headerViewProxy setProxyObeserver:nil];
+        [headerViewProxy setProxyObserver:nil];
         headerViewProxy = nil;
     }
 	[[self tableView] setTableHeaderView:[self titleViewForText:[TiUtils stringValue:args] footer:NO]];
@@ -1354,7 +1352,7 @@
 -(void)setFooterTitle_:(id)args
 {
     if (footerViewProxy != nil) {
-        [footerViewProxy setProxyObeserver:nil];
+        [footerViewProxy setProxyObserver:nil];
         footerViewProxy = nil;
     }
 	[[self tableView] setTableFooterView:[self titleViewForText:[TiUtils stringValue:args] footer:YES]];
@@ -1369,15 +1367,15 @@
 		UITableView *table = [self tableView];
 		[table setTableHeaderView:view];
         if (headerViewProxy != nil) {
-            [headerViewProxy setProxyObeserver:nil];
+            [headerViewProxy setProxyObserver:nil];
         }
         headerViewProxy = args;
-        [headerViewProxy setProxyObeserver:self];
+        [headerViewProxy setProxyObserver:self];
 	}
 	else
 	{
         if (headerViewProxy != nil) {
-            [headerViewProxy setProxyObeserver:nil];
+            [headerViewProxy setProxyObserver:nil];
             headerViewProxy = nil;
         }
 		[[self tableView] setTableHeaderView:nil];
@@ -1393,15 +1391,15 @@
 		UIView *view = [args view];
 		[[self tableView] setTableFooterView:view];
         if (footerViewProxy != nil) {
-            [footerViewProxy setProxyObeserver:nil];
+            [footerViewProxy setProxyObserver:nil];
         }
         footerViewProxy = args;
-        [footerViewProxy setProxyObeserver:self];
+        [footerViewProxy setProxyObserver:self];
 	}
 	else
 	{
         if (footerViewProxy != nil) {
-            [footerViewProxy setProxyObeserver:nil];
+            [footerViewProxy setProxyObserver:nil];
             footerViewProxy = nil;
         }
 		[[self tableView] setTableFooterView:nil];
