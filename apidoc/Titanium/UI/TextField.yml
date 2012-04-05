@@ -42,6 +42,7 @@ properties:
         [KEYBOARD_APPEARANCE_ALERT](Titanium.UI.KEYBOARD_APPEARANCE_ALERT),
         or [KEYBOARD_APPEARANCE_DEFAULT](Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT).
     type: Number
+    default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
     platforms: [iphone, ipad]
     
   - name: autocapitalization
@@ -52,9 +53,8 @@ properties:
         [TEXT_AUTOCAPITALIZATION_WORDS](Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS), 
         [TEXT_AUTOCAPITALIZATION_SENTENCES](Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES),
         or [TEXT_AUTOCAPITALIZATION_ALL](Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL).
-        
-        For Mobile Web, `TEXT_AUTOCAPITALIZATION_WORDS` is unsupported.
     type: Number
+    default: <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>
     
   - name: autocorrect
     summary: Determines whether misspelled words input to this text field are automatically corrected.
@@ -70,10 +70,11 @@ properties:
         [INPUT_BORDERSTYLE_NONE](Titanium.UI.INPUT_BORDERSTYLE_NONE), 
         or [INPUT_BORDERSTYLE_ROUNDED](Titanium.UI.INPUT_BORDERSTYLE_ROUNDED).
     type: Number
+    default: <Titanium.UI.INPUT_BORDERSTYLE_NONE>
     platforms: [iphone, ipad, mobileweb]
     
   - name: clearButtonMode
-    summary: When to display the clear button. 
+    summary: Determines when the clear button is displayed.
     description: |
         One of the <Titanium.UI> button mode constants, 
         [INPUT_BUTTONMODE_ALWAYS](Titanium.UI.INPUT_BUTTONMODE_ALWAYS), 
@@ -81,6 +82,7 @@ properties:
         [INPUT_BUTTONMODE_ONBLUR](Titanium.UI.INPUT_BUTTONMODE_ONBLUR),
         or [INPUT_BUTTONMODE_ONFOCUS](Titanium.UI.INPUT_BUTTONMODE_ONFOCUS).
     type: Number
+    default: Titanium.UI.INPUT_BUTTONMODE_NEVER
     platforms: [iphone, ipad]
     
   - name: clearOnEdit
@@ -89,9 +91,10 @@ properties:
     default: false
     
   - name: color
-    summary: |
-        Color of the text in this text field as a 
-        [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name or hex triplet.
+    summary: Color of the text in this text field.
+    description: |
+        Value as a [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name 
+        or hex triplet.
     type: String
     
   - name: editable
@@ -143,15 +146,17 @@ properties:
     platforms: [iphone, ipad]
     
   - name: keyboardToolbarColor
-    summary: Color of the keyboard toolbar if keyboardToolbar is an array, as a 
-        [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name or hex triplet.
+    summary: Color of the keyboard toolbar if keyboardToolbar is an array.
+    description: |
+        Value as a [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name 
+        or hex triplet.
     type: String
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad]
     
   - name: keyboardToolbarHeight
     summary: Height of the keyboard toolbar if keyboardToolbar is an array.
     type: Number
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad]
     
   - name: keyboardType
     summary: Keyboard type to display when this text field is focused.
@@ -170,7 +175,7 @@ properties:
         When asking for a specific kind of user input, such as a phone number or email 
         address, you should always specify the appropriate keyboard type.
     type: Number
-    default: the platform's default keyboard
+    default: <Titanium.UI.KEYBOARD_DEFAULT>
     
   - name: leftButton
     summary: Left button view.
@@ -188,6 +193,7 @@ properties:
         [INPUT_BUTTONMODE_ONBLUR](Titanium.UI.INPUT_BUTTONMODE_ONBLUR),
         or [INPUT_BUTTONMODE_ONFOCUS](Titanium.UI.INPUT_BUTTONMODE_ONFOCUS).
     type: Number
+    default: <Titanium.UI.INPUT_BUTTONMODE_NEVER>
     platforms: [iphone, ipad]
     
   - name: leftButtonPadding
@@ -246,7 +252,7 @@ properties:
         
         Mobile Web on Android devices will only display "Go" regardless of this property's value.
     type: Number
-    default: the platform's default return key
+    default: <Titanium.UI.RETURNKEY_DEFAULT>
     
   - name: rightButton
     summary: Right button view. 
@@ -264,6 +270,7 @@ properties:
         [INPUT_BUTTONMODE_ONBLUR](Titanium.UI.INPUT_BUTTONMODE_ONBLUR),
         or [INPUT_BUTTONMODE_ONFOCUS](Titanium.UI.INPUT_BUTTONMODE_ONFOCUS).
     type: Number
+    default: Titanium.UI.INPUT_BUTTONMODE_NEVER
     platforms: [iphone, ipad]
     
   - name: rightButtonPadding
@@ -283,7 +290,7 @@ properties:
         [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), 
         [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), 
         or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
-    type: [String,Number]
+    type: [String, Number]
     default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>
     
   - name: value
@@ -298,7 +305,7 @@ properties:
         [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER),
         or [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
     type: [Number, String]
-    default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
+    default: <Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER>
     platforms: [iphone, ipad, android]
     
   - name: maxLength

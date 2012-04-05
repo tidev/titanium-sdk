@@ -56,6 +56,7 @@ properties:
         [KEYBOARD_APPEARANCE_ALERT](Titanium.UI.KEYBOARD_APPEARANCE_ALERT),
         or [KEYBOARD_APPEARANCE_DEFAULT](Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT).
     type: Number
+    default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
     platforms: [iphone, ipad]
     
   - name: autocapitalization
@@ -66,22 +67,29 @@ properties:
         [TEXT_AUTOCAPITALIZATION_WORDS](Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS), 
         [TEXT_AUTOCAPITALIZATION_SENTENCES](Titanium.UI.TEXT_AUTOCAPITALIZATION_SENTENCES),
         or [TEXT_AUTOCAPITALIZATION_ALL](Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL).
-    platforms: [android,iphone,ipad]
     type: Number
+    default: <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>
+    platforms: [android, iphone, ipad]
     
   - name: autocorrect
     summary: Determines whether misspelled words input to this text area are automatically corrected.
     type: Boolean
-    platforms: [android, iphone, ipad, mobileweb]
     default: false
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: autoLink
-    summary: Automatically convert text within this area to clickable links. 
+    summary: Automatically convert text to clickable links. 
     description: |
-        Specify which type of items should be converted using the `AUTODETECT` constants defined in 
-        <Titanium.UI>.
-    platforms: [iphone, ipad]
+        Use one of the <Titanium.UI.iOS> auto-detect constants, 
+        [AUTODETECT_ADDRESS](Titanium.UI.iOS.AUTODETECT_ADDRESS), 
+        [AUTODETECT_ALL](Titanium.UI.iOS.AUTODETECT_ALL), 
+        [AUTODETECT_CALENDAR](Titanium.UI.iOS.AUTODETECT_CALENDAR), 
+        [AUTODETECT_LINK](Titanium.UI.iOS.AUTODETECT_LINK), 
+        [AUTODETECT_NONE](Titanium.UI.iOS.AUTODETECT_NONE), 
+        or [AUTODETECT_PHONE](Titanium.UI.iOS.AUTODETECT_PHONE).
     type: Number
+    default: <Titanium.UI.iOS.AUTODETECT_NONE>
+    platforms: [iphone, ipad]
     
   - name: clearOnEdit
     summary: Determines whether the value of this text area should be cleared when it is focused.
@@ -90,9 +98,10 @@ properties:
     platforms: [android]
     
   - name: color
-    summary: |
-        Color of the text in this text area as a 
-        [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name or hex triplet.
+    summary: Color of the text in this text area.
+    description: |
+        Value as a [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name 
+        or hex triplet.
     type: String
     
   - name: editable
@@ -142,22 +151,20 @@ properties:
         can instead use a single [toolbar](Titanium.UI.iOS.Toolbar) instead of having arrays sharing
         toolbar buttons.
     type: [Array<Titanium.UI.View>, Titanium.UI.iOS.Toolbar]
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad]
     
   - name: keyboardToolbarColor
-    summary: |
-        Color of the keyboard toolbar if keyboardToolbar is an array, as a 
-        [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name or hex triplet.
+    summary: Color of the keyboard toolbar if keyboardToolbar is an array.
     description: |
-
-
+        Value as a [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name 
+        or hex triplet.
     type: String
     platforms: [iphone,ipad]
     
   - name: keyboardToolbarHeight
     summary: Height of the keyboard toolbar if keyboardToolbar is an array.
     type: Number
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad]
     
   - name: keyboardType
     summary: Keyboard type to display when this text area is focused.
@@ -176,8 +183,8 @@ properties:
         When asking for a specific kind of user input, such as a phone number or email 
         address, you should always specify the appropriate keyboard type.
     type: Number
+    default: <Titanium.UI.KEYBOARD_DEFAULT>
     platforms: [android, iphone, ipad]
-    default: the platform's default keyboard
     
   - name: returnKeyType
     summary: |
@@ -196,8 +203,8 @@ properties:
         [RETURNKEY_SEND](Titanium.UI.RETURNKEY_SEND), 
         or [RETURNKEY_YAHOO](Titanium.UI.RETURNKEY_YAHOO).
     type: Number
-    platforms: [android,iphone,ipad]
-    default: the platform's default return key
+    default: <Titanium.UI.RETURNKEY_DEFAULT>
+    platforms: [android, iphone, ipad]
     
   - name: suppressReturn
     summary: Determines if the return key should be suppressed during text entry.
@@ -220,9 +227,9 @@ properties:
     
   - name: scrollable
     summary: Determines whether this text area can be scrolled.
-    platforms: [iphone, ipad]
     type: Boolean
     default: true
+    platforms: [iphone, ipad]
     
   - name: verticalAlign
     summary: Vertical alignment within this text area.
@@ -231,8 +238,8 @@ properties:
         [TEXT_VERTICAL_ALIGNMENT_BOTTOM](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM), 
         [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER),
         or [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
-    type: [Number,String]
-    default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP
+    type: [Number, String]
+    default: <Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP>
     platforms: [android]
 
 examples:

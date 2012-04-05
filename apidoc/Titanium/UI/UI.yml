@@ -554,7 +554,7 @@ properties:
     platforms: [android, iphone, ipad]
     
   - name: KEYBOARD_APPEARANCE_DEFAULT
-    summary: Use the default keyboard appearance.
+    summary: Use the platform-specific default keyboard appearance.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
