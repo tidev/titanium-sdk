@@ -393,11 +393,16 @@ NSString * const TI_DB_VERSION = @"1";
 -(void)loadDB:(NSString*)path create:(BOOL)create
 {
 	[lock lock];
+    if ([database goodConnection]) {
+		[lock unlock];
+		return;
+    }
 	// make sure SQLite can run from multiple threads
 	sqlite3_enable_shared_cache(TRUE);
 
 	NSString *filepath = [NSString stringWithFormat:@"%@/analytics.db",path];
 	
+    RELEASE_TO_NIL(database);
 	database = [[PLSqliteDatabase alloc] initWithPath:filepath];
 	if (![database open])
 	{

@@ -536,6 +536,18 @@
 								[NSNumber numberWithDouble:region.span.longitudeDelta],@"longitudeDelta",nil];
 		[self.proxy fireEvent:@"regionChanged" withObject:props];
 	}
+    //SELECT ANNOTATION WILL NOT ALWAYS WORK IF THE MAPVIEW IS ANIMATING.
+    //THIS FORCES A RESELCTION OF THE ANNOTATIONS WITHOUT SENDING OUT EVENTS
+    //SEE TIMOB-8431 (IOS 4.3)
+    ignoreClicks = YES;
+    NSArray* currentSelectedAnnotations = [[mapView selectedAnnotations] retain];
+    for (id annotation in currentSelectedAnnotations) {
+        [mapView deselectAnnotation:annotation animated:NO];
+        [mapView selectAnnotation:annotation animated:NO];
+    }
+    [currentSelectedAnnotations release];
+    ignoreClicks = NO;
+     
 }
 
 - (void)mapViewWillStartLoadingMap:(MKMapView *)mapView

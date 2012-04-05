@@ -15,13 +15,16 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -147,9 +150,9 @@ public class UIModule extends KrollModule implements Handler.Callback
 
 	protected void doSetBackgroundColor(String color)
 	{
-		Window w = TiApplication.getInstance().getRootActivity().getWindow();
-		if (w != null) {
-			w.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor((String)color)));
+		TiRootActivity root = TiApplication.getInstance().getRootActivity();
+		if (root != null) {
+			root.setBackgroundColor(color != null ? TiColorHelper.parseColor(color) : Color.TRANSPARENT);
 		}
 	}
 
@@ -167,22 +170,21 @@ public class UIModule extends KrollModule implements Handler.Callback
 
 	protected void doSetBackgroundImage(Object image)
 	{
-		Window w = TiApplication.getInstance().getRootActivity().getWindow();
-		if (w != null) {
+		TiRootActivity root = TiApplication.getInstance().getRootActivity();
+		if (root != null) {
+			Drawable imageDrawable = null;
+
 			if (image instanceof Number) {
 				try {
-					w.setBackgroundDrawableResource(((Number)image).intValue());
+					imageDrawable = TiUIHelper.getResourceDrawable((Integer)image);
 				} catch (Resources.NotFoundException e) {
 					Log.w(LCAT , "Unable to set background drawable for root window.  An integer id was provided but no such drawable resource exists.");
 				}
-				return;
+			} else {
+				imageDrawable = TiUIHelper.getResourceDrawable(image);
 			}
-			// TODO - current activity should work just fine in this instance - verify?
-			Drawable d = TiUIHelper.getResourceDrawable(image);
 
-			if (d != null) {
-				w.setBackgroundDrawable(d);
-			}
+			root.setBackgroundImage(imageDrawable);
 		}
 	}
 

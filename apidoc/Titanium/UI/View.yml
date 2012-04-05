@@ -364,11 +364,11 @@ events:
         type: Number
     
   - name: swipe
-    summary: Fired when the device detects a swipe gesture (left or right) against the view.
-    platforms: [iphone,ipad,mobileweb]
+    summary: Fired when the device detects a swipe gesture against the view.
+    platforms: [android,iphone,ipad,mobileweb]
     properties:
       - name: direction
-        summary: Direction of the swipe--either 'left' or 'right'.
+        summary: Direction of the swipe--either 'left' or 'right'. Android also supports 'up' and 'down'.
         type: String
       - name: y
         summary: Y coordinate of the event's endpoint from the `source` view's coordinate system.
@@ -597,12 +597,14 @@ properties:
         large views or background images, as the tiling must be redone
         whenever a view is resized.
         
-        The following views do not currently support tiled backgrounds:
+        On iOS, the following views do not currently support tiled backgrounds:
+
         * <Titanium.UI.Button>
         * <Titanium.UI.TextField>
         * <Titanium.UI.Label>
+
     type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
 
   - name: backgroundLeftCap
     summary: Size of the left end cap.
