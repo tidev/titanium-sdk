@@ -11,12 +11,12 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network", "Ti/B
 
 			this._handles = [
 				on(xhr, "error", this, "_onError"),
-				on(xhr.upload, "error", this, "_onError"),
+				xhr.upload && on(xhr.upload, "error", this, "_onError"),
 				on(xhr, "progress", this, function(evt) {
 					evt.progress = evt.lengthComputable ? evt.loaded / evt.total : false;
 					is(this.ondatastream, "Function") && this.ondatastream.call(this, evt);
 				}),
-				on(xhr.upload, "progress", this, function(evt) {
+				xhr.upload && on(xhr.upload, "progress", this, function(evt) {
 					evt.progress = evt.lengthComputable ? evt.loaded / evt.total : false;
 					is(this.onsendstream, "Function") && this.onsendstream.call(this, evt);
 				})
