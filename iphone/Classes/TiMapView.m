@@ -25,7 +25,6 @@
 		map.delegate = nil;
 		RELEASE_TO_NIL(map);
 	}
-	RELEASE_TO_NIL(pendingAnnotationSelection);
     if (mapLine2View) {
         CFRelease(mapLine2View);
         mapLine2View = nil;
@@ -205,33 +204,13 @@
 	}
 }
 
--(void)flushPendingAnnotation
-{
-	if (pendingAnnotationSelection != nil) {
-		hitSelect = NO;
-		manualSelect = YES;
-		hitAnnotation = pendingAnnotationSelection;
-		[map selectAnnotation:pendingAnnotationSelection animated:animate];
-		if([map selectedAnnotations] != nil)
-		{
-			RELEASE_TO_NIL(pendingAnnotationSelection);
-		}
-	}
-}
 
--(void)selectOrSetPendingAnnotation:(id<MKAnnotation>)annotation
+-(void)setSelectedAnnotation:(id<MKAnnotation>)annotation
 {
-	if (loaded)
-	{
-		hitAnnotation = annotation;
-		hitSelect = NO;
-		manualSelect = YES;
-		[[self map] selectAnnotation:annotation animated:animate];
-	}
-	else {
-		[pendingAnnotationSelection release];
-		pendingAnnotationSelection = (TiMapAnnotationProxy*)[annotation retain];
-	}
+    hitAnnotation = annotation;
+    hitSelect = NO;
+    manualSelect = YES;
+    [[self map] selectAnnotation:annotation animated:animate];
 }
 
 -(void)selectAnnotation:(id)args
@@ -258,14 +237,14 @@
 			if ([title isEqualToString:an.title])
 			{
 				// TODO: Slide the view over to the selected annotation, and/or zoom so it's with all other selected.
-				[self selectOrSetPendingAnnotation:an];
+				[self setSelectedAnnotation:an];
 				break;
 			}
 		}
 	}
 	else if ([args isKindOfClass:[TiMapAnnotationProxy class]])
 	{
-		[self selectOrSetPendingAnnotation:args];
+		[self setSelectedAnnotation:args];
 	}
 }
 
@@ -282,24 +261,14 @@
 		{
 			if ([title isEqualToString:an.title])
 			{
-				if (loaded) {
-					[[self map] deselectAnnotation:an animated:animate];
-				}
-				else {
-					RELEASE_TO_NIL(pendingAnnotationSelection);
-				}
+				[[self map] deselectAnnotation:an animated:animate];
 				break;
 			}
 		}
 	}
 	else if ([args isKindOfClass:[TiMapAnnotationProxy class]])
 	{
-		if (loaded) {
-			[[self map] deselectAnnotation:args animated:animate];
-		}
-		else {
-			RELEASE_TO_NIL(pendingAnnotationSelection);
-		}
+		[[self map] deselectAnnotation:args animated:animate];
 	}
 }
 
@@ -523,8 +492,6 @@
 
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
-	[self flushPendingAnnotation];
-	
 	if ([self.proxy _hasListeners:@"regionChanged"])
 	{
 		region = [mapView region];
@@ -563,7 +530,6 @@
 {
 	ignoreClicks = YES;
 	loaded = YES;
-	[self flushPendingAnnotation];
 	if ([self.proxy _hasListeners:@"complete"])
 	{
 		[self.proxy fireEvent:@"complete" withObject:nil];
@@ -647,10 +613,6 @@
 // For MapKit provided annotations (eg. MKUserLocation) return nil to use the MapKit provided annotation view.
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation
 {
-	if(annotation == pendingAnnotationSelection)
-	{
-		[self performSelector:@selector(flushPendingAnnotation) withObject:nil afterDelay:0.0];
-	}
 	if ([annotation isKindOfClass:[TiMapAnnotationProxy class]])
 	{
 		TiMapAnnotationProxy *ann = (TiMapAnnotationProxy*)annotation;
