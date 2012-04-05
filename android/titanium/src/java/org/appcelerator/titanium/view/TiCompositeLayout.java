@@ -372,7 +372,7 @@ public class TiCompositeLayout extends ViewGroup
 
 	// Try to calculate width from pins, if we couldn't calculate from pins or we don't need to, then return the
 	// measured width
-	private int calculateWidthFromPins(LayoutParams params, int parentLeft, int parentRight, int parentWidth,
+	protected int calculateWidthFromPins(LayoutParams params, int parentLeft, int parentRight, int parentWidth,
 		int measuredWidth)
 	{
 		int width = measuredWidth;
@@ -399,7 +399,7 @@ public class TiCompositeLayout extends ViewGroup
 
 	// Try to calculate height from pins, if we couldn't calculate from pins or we don't need to, then return the
 	// measured height
-	private int calculateHeightFromPins(LayoutParams params, int parentTop, int parentBottom, int parentHeight,
+	protected int calculateHeightFromPins(LayoutParams params, int parentTop, int parentBottom, int parentHeight,
 		int measuredHeight)
 	{
 		int height = measuredHeight;
