@@ -95,7 +95,7 @@ methods:
     summary: |
         Asynchronously reads data from an [IOStream](Titanium.IOStream) into a buffer.
     description: |
-        Reads data to from the stream and writes it to the buffer. The first byte is
+        Reads data from the stream and writes it to the buffer. The first byte is
         written to `buffer[offset]`. Reads until the provided buffer is full, the end of 
         the stream is detected, or the requested number of bytes have been read. Does not 
         resize the supplied buffer.
