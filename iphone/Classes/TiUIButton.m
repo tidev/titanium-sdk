@@ -126,6 +126,13 @@
 	}
 }
 
+- (UIGestureRecognizer *)gestureRecognizerForEvent:(NSString *)event
+{
+    UIGestureRecognizer *gestureRecognizer = [super gestureRecognizerForEvent:event];
+    [gestureRecognizer setDelaysTouchesEnded:NO];
+    return gestureRecognizer;
+}
+
 -(UIButton*)button
 {
 	if (button==nil)
