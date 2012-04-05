@@ -601,9 +601,8 @@ class Builder(object):
 			shutil.copy(orig, dest)
 		
 		fileset = []
-
 		if self.force_rebuild or self.deploy_type == 'production' or \
-			(self.js_changed and not self.fastdev):
+			(self.js_changed and not self.fastdev) or (self.fastdev and not self.is_app_installed()):
 			for root, dirs, files in os.walk(os.path.join(self.top_dir, "Resources")):
 				remove_ignored_dirs(dirs)
 				for f in files:
@@ -653,8 +652,8 @@ class Builder(object):
 		self.tiapp_changed = tiapp_delta is not None
 		full_copy = not os.path.exists(self.assets_resources_dir)
 
-		if self.tiapp_changed or self.force_rebuild or full_copy or not self.is_app_installed():
-			info("Detected change in tiapp.xml, assets deleted, or application uninstalled. Forcing full re-build...")
+		if self.tiapp_changed or self.force_rebuild or full_copy:
+			info("Detected change in tiapp.xml, or assets deleted. Forcing full re-build...")
 			# force a clean scan/copy when the tiapp.xml has changed
 			self.project_deltafy.clear_state()
 			self.project_deltas = self.project_deltafy.scan()
