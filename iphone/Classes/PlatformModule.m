@@ -200,12 +200,12 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 
 -(NSString*)macaddress
 {
-    return [TiUtils uniqueIdentifier];
+    return [TiUtils appIdentifier];
 }
 
 -(id)id
 {
-    return [TiUtils uniqueIdentifier];
+    return [TiUtils appIdentifier];
 }
 
 - (NSString *)createUUID:(id)args

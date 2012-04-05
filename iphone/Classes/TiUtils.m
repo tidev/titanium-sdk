@@ -1550,7 +1550,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 	return [self convertToHex:(unsigned char*)&result length:CC_MD5_DIGEST_LENGTH];    
 }
 
-+(NSString*)uniqueIdentifier
++(NSString*)appIdentifier
 {
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     NSString* uid = [defaults stringForKey:kAppUUIDString];
