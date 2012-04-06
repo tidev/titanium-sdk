@@ -1172,7 +1172,8 @@
 	if(scrolledView != nil)	//If this isn't IN the toolbar, then we update the scrollviews to compensate.
 	{
 		UIView * ourView = [self viewForKeyboardAccessory];
-		CGFloat keyboardHeight = [ourView convertRect:endFrame fromView:nil].origin.y;
+        CGRect rect = [ourView convertRect:endFrame fromView:nil];
+		CGFloat keyboardHeight = rect.origin.y + rect.size.height;
 		UIView * possibleScrollView = [scrolledView superview];
 		UIView<TiScrolling> * confirmedScrollView = nil;
 		while (possibleScrollView != nil)

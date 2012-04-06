@@ -93,6 +93,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 {
 	if (![[self valueForKey:@"value"] isEqual:newValue])
 	{
+        [self contentsWillChange];
 		[self replaceValue:newValue forKey:@"value" notification:NO];
 		[self fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
 	}

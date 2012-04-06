@@ -41,15 +41,13 @@ description: |
     to one of the following values:
     
     *   [ACCURACY_BEST](Titanium.Geolocation.ACCURACY_BEST) (highest accuracy and power consumption)
+    *   [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH)
     *   [ACCURACY_NEAREST_TEN_METERS](Titanium.Geolocation.ACCURACY_NEAREST_TEN_METERS) 
     *   [ACCURACY_HUNDRED_METERS](Titanium.Geolocation.ACCURACY_HUNDRED_METERS) 
     *   [ACCURACY_KILOMETER](Titanium.Geolocation.ACCURACY_KILOMETER) 
+    *   [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW)
     *   [ACCURACY_THREE_KILOMETERS](Titanium.Geolocation.ACCURACY_THREE_KILOMETERS) (lowest
         accuracy and power consumption). 
-    
-    (Note that the constants [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH) and
-    [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW) are Android-specific and may not be
-    used with iOS.)
 
     Based on the accuracy you choose, iOS uses its own logic to select location providers
     and filter location updates to provide location updates that meet your accuracy
@@ -296,7 +294,7 @@ properties:
         Using this value on Android enables *simple mode* operation.
     type: Number
     permission: read-only
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     since: "2.0.0"
 
   - name: ACCURACY_LOW
@@ -307,7 +305,7 @@ properties:
         Using this value on Android enables *simple mode* operation.
     type: Number
     permission: read-only
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     since: "2.0.0"
 
   - name: AUTHORIZATION_AUTHORIZED
