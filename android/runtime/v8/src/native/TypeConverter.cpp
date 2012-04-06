@@ -628,6 +628,9 @@ v8::Handle<v8::Value> TypeConverter::javaObjectToJsValue(jobject javaObject)
 
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::booleanArrayClass)) {
 		return javaArrayToJsArray((jbooleanArray) javaObject);
+
+	} else if (env->IsSameObject(JNIUtil::undefinedObject, javaObject)) {
+		return v8::Undefined();
 	}
 
 	JNIUtil::logClassName("!!! Unable to convert unknown Java object class '%s' to Js value !!!",
