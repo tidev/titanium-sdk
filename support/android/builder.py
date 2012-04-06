@@ -601,7 +601,6 @@ class Builder(object):
 			shutil.copy(orig, dest)
 		
 		fileset = []
-
 		if self.force_rebuild or self.deploy_type == 'production' or \
 			(self.js_changed and not self.fastdev):
 			for root, dirs, files in os.walk(os.path.join(self.top_dir, "Resources")):
@@ -654,7 +653,7 @@ class Builder(object):
 		full_copy = not os.path.exists(self.assets_resources_dir)
 
 		if self.tiapp_changed or self.force_rebuild or full_copy:
-			info("Detected tiapp.xml change (or assets deleted), forcing full re-build...")
+			info("Detected change in tiapp.xml, or assets deleted. Forcing full re-build...")
 			# force a clean scan/copy when the tiapp.xml has changed
 			self.project_deltafy.clear_state()
 			self.project_deltas = self.project_deltafy.scan()
@@ -1860,7 +1859,7 @@ class Builder(object):
 					include_all_ti_modules = True
 			if self.tiapp_changed or (self.js_changed and not self.fastdev) or \
 					self.force_rebuild or self.deploy_type == "production" or \
-					(self.fastdev and (not self.app_installed or not built_all_modules)) or \
+					(self.fastdev and not built_all_modules) or \
 					(not self.fastdev and built_all_modules):
 				self.android.config['compile_js'] = self.compile_js
 				trace("Generating Java Classes")
