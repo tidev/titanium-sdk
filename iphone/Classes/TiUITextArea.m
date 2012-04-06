@@ -10,7 +10,6 @@
 #import "TiUITextAreaProxy.h"
 
 #import "TiUtils.h"
-#import "TiRange.h"
 #import "Webcolor.h"
 #import "TiApp.h"
 
@@ -123,8 +122,9 @@
 	if ([self.proxy _hasListeners:@"selected"])
 	{
 		NSRange range = tv.selectedRange;
-		TiRange *r = [[[TiRange alloc] initWithRange:range] autorelease];
-		NSDictionary *event = [NSDictionary dictionaryWithObject:r forKey:@"range"];
+        NSDictionary* rangeDict = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(range.location),@"location",
+                                   NUMINT(range.length),@"length", nil];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:rangeDict forKey:@"range"];
 		[self.proxy fireEvent:@"selected" withObject:event];
 	}
 }
