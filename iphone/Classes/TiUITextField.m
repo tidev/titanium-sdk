@@ -10,7 +10,6 @@
 #import "TiUITextFieldProxy.h"
 
 #import "TiUtils.h"
-#import "TiRange.h"
 #import "TiViewProxy.h"
 #import "TiApp.h"
 #import "TiUITextWidget.h"
