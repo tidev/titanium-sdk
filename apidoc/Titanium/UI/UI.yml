@@ -560,7 +560,7 @@ properties:
     platforms: [android, iphone, ipad]
     
   - name: KEYBOARD_ASCII
-    summary: Use an ASCII keyboard.
+    summary: Use an ASCII keyboard, with the standard keyboard layout.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
@@ -569,7 +569,7 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: KEYBOARD_DECIMAL_PAD
-    summary: Use a keyboard with decimal numbers only.
+    summary: Use a keyboard with decimal numbers only, with the pad keyboard layout.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
@@ -588,7 +588,7 @@ properties:
     permission: read-only
     
   - name: KEYBOARD_EMAIL
-    summary: Use a keyboard suitable for composing email.
+    summary: Use a keyboard suitable for composing email, with the standard keyboard layout.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
@@ -599,7 +599,7 @@ properties:
     permission: read-only
     
   - name: KEYBOARD_NAMEPHONE_PAD
-    summary: Use a keyboard suitable for entering names and phone numbers.
+    summary: Use a keyboard suitable for entering names and phone numbers, with the pad keyboard layout.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
@@ -608,7 +608,7 @@ properties:
     permission: read-only
     
   - name: KEYBOARD_NUMBERS_PUNCTUATION
-    summary: Use a keyboard with numbers and punctuation only.
+    summary: Use a keyboard with numbers and punctuation only, with the standard keyboard layout.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
@@ -617,7 +617,7 @@ properties:
     platforms: [android, iphone, ipad]
     
   - name: KEYBOARD_NUMBER_PAD
-    summary: Use a keyboard with a number pad only.
+    summary: Use a keyboard with a number pad only, with the pad keyboard layout.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
@@ -628,7 +628,7 @@ properties:
     permission: read-only
     
   - name: KEYBOARD_PHONE_PAD
-    summary: Use a keyboard with a phone-style number pad.
+    summary: Use a keyboard with a phone-style number pad, with the pad keyboard layout.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
@@ -639,7 +639,7 @@ properties:
     permission: read-only
     
   - name: KEYBOARD_URL
-    summary: Use an keyboard optimized for entering URLs.
+    summary: Use an keyboard optimized for entering URLs, with the standard keyboard layout.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
