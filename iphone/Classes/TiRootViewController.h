@@ -35,7 +35,8 @@
 //Orientation handling:
 	TiOrientationFlags	allowedOrientations;
 	UIInterfaceOrientation orientationHistory[4]; // Physical device orientation history
-
+    BOOL forceOrientation; // Force orientation flag
+    
 	UIInterfaceOrientation windowOrientation; // Current emulated orientation
 
 	BOOL isCurrentlyVisible;
