@@ -451,7 +451,15 @@
 
     [self updateOrientationHistory:newOrientation];
     
+    // TODO: We appear to do this in order to synchronize rotation animations with the keyboard.
+    // But there is an interesting edge case where the status bar sometimes updates its orientation,
+    // but does not animate, before we trigger the refresh. This means that the keyboard refuses to
+    // rotate with, if it's focused as first responder (and in fact having it focused as first
+    // responder may be part of what causes the race in conjunction with non-device orienting.
+    // See TIMOB-7998.)
+    
     TiThreadPerformOnMainThread(^{
+        [kfvProxy blur:nil];
         [self refreshOrientation];
         [kfvProxy focus:nil];
     }, NO);
