@@ -82,7 +82,7 @@ public class AudioPlayerProxy extends KrollProxy
 	}
 	
 	
-	@Kroll.getProperty
+	@Kroll.getProperty @Kroll.method
 	public String getUrl() {
 		return TiConvert.toString(getProperty(TiC.PROPERTY_URL));
 	}
