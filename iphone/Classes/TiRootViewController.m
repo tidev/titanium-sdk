@@ -383,7 +383,7 @@
 		[UIView setAnimationDuration:duration];
 	}
     
-    if ((newOrientation != oldOrientation) && isCurrentlyVisible)
+    if (forceOrientation || ((newOrientation != oldOrientation) && isCurrentlyVisible))
     {
         TiViewProxy<TiKeyboardFocusableView> *kfvProxy = [keyboardFocusedProxy retain];
         [kfvProxy blur:nil];
@@ -447,11 +447,12 @@
 		return;
 	}
 
-    TiViewProxy<TiKeyboardFocusableView> *kfvProxy = (newOrientation != [[UIApplication sharedApplication] statusBarOrientation]) ? [[keyboardFocusedProxy retain] autorelease] : nil;
+    UIInterfaceOrientation oldOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+    TiViewProxy<TiKeyboardFocusableView> *kfvProxy = (newOrientation != oldOrientation) ? [[keyboardFocusedProxy retain] autorelease] : nil;
 
     [self updateOrientationHistory:newOrientation];
     
-    // TODO: We appear to do this in order to synchronize rotation animations with the keyboard.
+    // We appear to do this in order to synchronize rotation animations with the keyboard.
     // But there is an interesting edge case where the status bar sometimes updates its orientation,
     // but does not animate, before we trigger the refresh. This means that the keyboard refuses to
     // rotate with, if it's focused as first responder (and in fact having it focused as first
@@ -459,9 +460,11 @@
     // See TIMOB-7998.)
     
     TiThreadPerformOnMainThread(^{
-        [kfvProxy blur:nil];
+        if ([[UIApplication sharedApplication] statusBarOrientation] != oldOrientation) {
+            forceOrientation = YES;
+        }
         [self refreshOrientation];
-        [kfvProxy focus:nil];
+        forceOrientation = NO;
     }, NO);
 }
 
