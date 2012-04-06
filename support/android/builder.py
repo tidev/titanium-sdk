@@ -602,7 +602,7 @@ class Builder(object):
 		
 		fileset = []
 		if self.force_rebuild or self.deploy_type == 'production' or \
-			self.js_changed or self.fastdev:
+			(self.js_changed and not self.fastdev):
 			for root, dirs, files in os.walk(os.path.join(self.top_dir, "Resources")):
 				remove_ignored_dirs(dirs)
 				for f in files:
@@ -1859,7 +1859,7 @@ class Builder(object):
 					include_all_ti_modules = True
 			if self.tiapp_changed or (self.js_changed and not self.fastdev) or \
 					self.force_rebuild or self.deploy_type == "production" or \
-					(self.fastdev and (not self.app_installed or not built_all_modules)) or \
+					(self.fastdev and not built_all_modules) or \
 					(not self.fastdev and built_all_modules):
 				self.android.config['compile_js'] = self.compile_js
 				trace("Generating Java Classes")
