@@ -580,7 +580,7 @@ properties:
     permission: read-only
 
   - name: KEYBOARD_DEFAULT
-    summary: Use the default keyboard.
+    summary: Use the default keyboard, depending on the platform.
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
