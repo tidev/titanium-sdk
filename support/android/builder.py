@@ -1860,7 +1860,7 @@ class Builder(object):
 					include_all_ti_modules = True
 			if self.tiapp_changed or (self.js_changed and not self.fastdev) or \
 					self.force_rebuild or self.deploy_type == "production" or \
-					(self.fastdev and (not self.app_installed or not built_all_modules)) or \
+					(self.fastdev and not built_all_modules) or \
 					(not self.fastdev and built_all_modules):
 				self.android.config['compile_js'] = self.compile_js
 				trace("Generating Java Classes")
