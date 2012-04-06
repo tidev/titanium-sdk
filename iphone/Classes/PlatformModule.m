@@ -23,7 +23,7 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 
 @implementation PlatformModule
 
-@synthesize name, model, version, architecture, macaddress, processorCount, username, ostype, availableMemory;
+@synthesize name, model, version, architecture, processorCount, username, ostype, availableMemory;
 
 #pragma mark Internal
 
@@ -48,8 +48,6 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 			// iphone is a constant for Ti.Platform.osname
 			[self replaceValue:@"iphone" forKey:@"osname" notification:NO]; 
 		}
-		
-		macaddress = [[TiUtils uniqueIdentifier] retain];
 		
 		NSString *themodel = [theDevice model];
 		
@@ -114,7 +112,6 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 	RELEASE_TO_NIL(model);
 	RELEASE_TO_NIL(version);
 	RELEASE_TO_NIL(architecture);
-	RELEASE_TO_NIL(macaddress);
 	RELEASE_TO_NIL(processorCount);
 	RELEASE_TO_NIL(username);
 	RELEASE_TO_NIL(address);
@@ -201,10 +198,14 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 	return [languages count] > 0 ? [languages objectAtIndex:0] : @"en";
 }
 
+-(NSString*)macaddress
+{
+    return [TiUtils appIdentifier];
+}
+
 -(id)id
 {
-	NSLog(@"[WARN] Ti%@.Platform.id DEPRECATED in 1.8.0", @"tanium");
-	return macaddress;
+    return [TiUtils appIdentifier];
 }
 
 - (NSString *)createUUID:(id)args
