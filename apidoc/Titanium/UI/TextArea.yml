@@ -14,31 +14,32 @@ events:
     summary: Fired when this text area loses focus.
     properties:
       - name: value
-        summary: Value of this text area at the time of the event.
+        summary: Value of this text area.
+        type: String
         
   - name: change
     summary: Fired when this text area value changes.
     properties:
       - name: value
         summary: New value of this text area.
+        type: String
     
   - name: focus
     summary: Fired when this text area gains focus.
     properties:
       - name: value
-        summary: Value of this text area at the time of the event.
-    
+        summary: Value of this text area.
+        type: String
+        
   - name: return
     summary: Fired when the return key is pressed on the keyboard.
-    properties:
-      - name: value
-        summary: Value of this text area at the time of the event.
-    
+        
   - name: selected
     summary: Fired when text in this text area is selected.
     properties:
       - name: range
-        summary: A range of text. The range is an object with the properties `location` and `length`.
+        summary: Dictionary that describes the position and length of the selected text.
+        type: textAreaSelectedParams
     platforms: [iphone, ipad]
 
 methods:
@@ -311,3 +312,17 @@ examples:
                 keyboardToolbarHeight : 40,
             });
 
+---
+name: textAreaSelectedParams
+summary: |
+    Dictionary object of parameters for the <Titanium.UI.TextArea.selected> event that describes 
+    position and length of the selected text.
+
+properties:
+  - name: location
+    summary: Starting position of selected text.
+    type: Number
+    
+  - name: length
+    summary: Number of characters selected.
+    type: Number

@@ -10,19 +10,22 @@ events:
     summary: Fired when the field loses focus.
     properties:
       - name: value
-        summary: Value of the field at the time of the event.
+        summary: Value of the field.
+        type: String
         
   - name: change
     summary: Fired when the field value changes.
     properties:
       - name: value
         summary: New value of the field.
+        type: String
         
   - name: focus
     summary: Fired when the field gains focus.
     properties:
       - name: value
-        summary: Value of the field at the time of the event.
+        summary: Value of the field.
+        type: String
         
   - name: return
     summary: Fired when the return key is pressed on the keyboard.
