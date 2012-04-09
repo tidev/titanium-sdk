@@ -104,7 +104,7 @@ enum
 @property(nonatomic,readwrite,assign) BOOL parentVisible; // For tableview magic ONLY
 @property(nonatomic,readonly) NSArray *children;
 
--(void)setProxyObeserver:(id)arg;
+-(void)setProxyObserver:(id)arg;
 -(void)add:(id)arg;
 -(void)remove:(id)arg;
 -(void)show:(id)arg;

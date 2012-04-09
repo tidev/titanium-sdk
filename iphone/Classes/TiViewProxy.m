@@ -60,7 +60,7 @@
 	[self replaceValue:newVisible forKey:@"visible" notification:YES];
 }
 
--(void)setProxyObeserver:(id)arg
+-(void)setProxyObserver:(id)arg
 {
     observer = arg;
 }
