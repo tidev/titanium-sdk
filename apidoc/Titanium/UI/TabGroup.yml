@@ -5,8 +5,7 @@ description: |
     Use the <Titanium.UI.createTabGroup> method to create a tab group.
     
     A tab group can contain one or more [Tab](Titanium.UI.Tab) objects, each of which has an 
-    associated tab button and a stack of windows. The user can switch between tabs by tapping a tab 
-    button. 
+    associated tab button that is used to bring it into focus.
     
     You can add tabs to the group using [addTab](Titanium.UI.TabGroup.addTab), and programmatically 
     switch to a specific tab using [setActiveTab](Titanium.UI.TabGroup.setActiveTab).
@@ -19,7 +18,9 @@ description: |
     cannot be removed from the tab group once added, and tabs cannot be reordered. 
     
     On iOS, more than one tab group may exist, and the may be opened and closed as required. 
-    Tabs can be removed, and the user may (optionally) be allowed to reorder tabs.
+    Each tab can contain a stack of windows, and the user can switch between them by tapping the 
+    tab's associated button. Tabs can be removed, and the user may (optionally) be allowed to 
+    reorder tabs.
     
     On iOS and Mobile Web, it is also possible to add tabs by updating the 
     [tabs](Titanium.UI.TabGroup.tabs) property, and to switch active tabs by setting the 
@@ -28,19 +29,30 @@ description: |
     
     If you use the iOS/Mobile Web-specific mechanisms, it is possible to add multiple active tabs 
     to a tab group. In this case, the result of which tab is initially selected is undefined.
+    
+    #### Further Reading
+    
+    If using tab groups on iOS, see the "Tab Bar" section of Apple's official 
+    [iOS UI Element Usage Guidelines ](https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/UIElementGuidelines/UIElementGuidelines.html#//apple_ref/doc/uid/TP40006556-CH13-SW52).
 extends: Titanium.UI.View
 since: "0.9"
 
 events:
   - name: blur
-    summary: Fired when the tab group loses focus.
+    summary: |
+        Fired when this tab group loses focus. On Android, fired when a tab in this tab group 
+        loses focus.
     properties:
       - name: index
-        summary: Index of the current active tab.
+        summary: |
+            Index of the current active tab. On iOS, a value of `undefined` indicates that the 
+            **More** tab was the active tab.
         type: Number
         
       - name: previousIndex
-        summary: Index of the previous active tab.
+        summary: |
+            Index of the previous active tab. On iOS, a value of `undefined` indicates that the 
+            **More** tab was the previous tab.
         type: Number
         
       - name: tab
@@ -48,14 +60,18 @@ events:
         type: Titanium.UI.Tab
         
       - name: previousTab
-        summary: Previous active tab.
+        summary: |
+            Previous active tab. On iOS, a value of `undefined` indicates that the **More** tab was 
+            the previous tab.
         type: Titanium.UI.Tab
         
   - name: close
     summary: Fired when the tab group is closed.
     
   - name: focus
-    summary: Fired when the tab group gains focus.
+    summary: |
+        Fired when this tab group gains focus. On Android, fired when a tab in this tab group 
+        gains focus.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -86,7 +102,12 @@ methods:
         
   - name: close
     summary: Closes the tab group and removes it from the UI.
-    
+
+  - name: getActiveTab
+    summary: Gets the currently-active tab.
+    returns:
+        type: Titanium.UI.Tab
+        
   - name: open
     summary: Opens the tab group and makes it visible.
     
@@ -125,11 +146,12 @@ properties:
     platforms: [iphone, ipad]
     
   - name: barColor
-    summary: |
-        Default navigation bar color (typically for the **More** tab).
+    summary: Default navigation bar color (typically for the **More** tab).
     description: |
         Value as a [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name 
         or hex triplet.
+        
+        A value of `transparent` results in a semi-opaque black bar style.
     type: String
     platforms: [iphone, ipad]
     
@@ -141,10 +163,7 @@ properties:
   - name: tabs
     summary: |
         Tabs managed by the tab group.
-    description: |
-        Use [getTabs](Titanium.UI.TabGroup.getTabs) for platforms that do not support this property.
     type: Array<Titanium.UI.Tab>
-    platforms: [iphone, ipad]
     
   - name: windowSoftInputMode
     summary: |
@@ -169,14 +188,14 @@ properties:
         
         A tab's [backgroundColor](Titanium.UI.Tab.backgroundColor) property takes precedence if set.
     type: String
-    platforms: [android, mobileweb]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: tabsBackgroundImage
     summary: Default background image for tabs.
     description: |
         A tab's [backgroundImage](Titanium.UI.Tab.backgroundImage) property takes precedence if set.
     type: String
-    platforms: [android, mobileweb]
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
     
   - name: tabsBackgroundDisabledColor
@@ -188,7 +207,7 @@ properties:
         A tab's [backgroundDisabledColor](Titanium.UI.Tab.backgroundDisabledColor) property takes 
         precedence if set.
     type: String
-    platforms: [android, mobileweb]
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
     
   - name: tabsBackgroundDisabledImage
@@ -197,7 +216,7 @@ properties:
         A tab's [backgroundDisabledImage](Titanium.UI.Tab.backgroundDisabledImage) property takes 
         precedence if set.
     type: String
-    platforms: [android, mobileweb]
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
     
   - name: tabsBackgroundFocusedColor
@@ -209,7 +228,7 @@ properties:
         A tab's [backgroundFocusedColor](Titanium.UI.Tab.backgroundFocusedColor) property takes 
         precedence if set.
     type: String
-    platforms: [android, mobileweb]
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
     
   - name: tabsBackgroundFocusedImage
@@ -218,7 +237,7 @@ properties:
         A tab's [backgroundFocusedImage](Titanium.UI.Tab.backgroundFocusedImage) property takes 
         precedence if set.
     type: String
-    platforms: [android, mobileweb]
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
     
   - name: tabsBackgroundSelectedColor
@@ -230,7 +249,7 @@ properties:
         A tab's [backgroundSelectedColor](Titanium.UI.Tab.backgroundSelectedColor) property takes 
         precedence if set.
     type: String
-    platforms: [android, mobileweb]
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
     
   - name: tabsBackgroundSelectedImage
@@ -239,7 +258,7 @@ properties:
         A tab's [backgroundSelectedImage](Titanium.UI.Tab.backgroundSelectedImage) property takes 
         precedence if set.
     type: String
-    platforms: [android, mobileweb]
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
     
   - name: activeTabBackgroundColor
@@ -250,7 +269,7 @@ properties:
         
         A tab's [backgroundColor](Titanium.UI.Tab.backgroundColor)  property takes precedence if set.
     type: String
-    platforms: [android, mobileweb]
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
     
   - name: activeTabBackgroundImage
@@ -258,7 +277,7 @@ properties:
     description: |
         A tab's [backgroundImage](Titanium.UI.Tab.backgroundImage) property takes precedence if set.
     type: String
-    platforms: [android, mobileweb]
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
     
   - name: activeTabBackgroundDisabledColor
@@ -270,7 +289,7 @@ properties:
         A tab's [backgroundDisabledColor](Titanium.UI.Tab.backgroundDisabledColor) property takes 
         precedence if set.
     type: String
-    platforms: [android, mobileweb]
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
     
   - name: activeTabBackgroundDisabledImage
@@ -291,7 +310,7 @@ properties:
         A tab's [backgroundFocusedColor](Titanium.UI.Tab.backgroundFocusedColor) property takes 
         precedence if set.
     type: String
-    platforms: [android, mobileweb]
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
     
   - name: activeTabBackgroundFocusedImage
@@ -300,7 +319,7 @@ properties:
         A tab's [backgroundFocusedImage](Titanium.UI.Tab.backgroundFocusedImage) property takes 
         precedence if set.
     type: String
-    platforms: [android, mobileweb]
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
     
   - name: activeTabBackgroundSelectedColor
@@ -312,7 +331,7 @@ properties:
         A tab's [backgroundSelectedColor](Titanium.UI.Tab.backgroundSelectedColor) property takes 
         precedence if set.
     type: String
-    platforms: [android, mobileweb]
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
     
   - name: activeTabBackgroundSelectedImage
@@ -330,7 +349,7 @@ properties:
         Value as a [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name 
         or hex triplet.
     type: String
-    platforms: [android, mobileweb]
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
     
   - name: tabDividerWidth
