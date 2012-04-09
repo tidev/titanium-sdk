@@ -178,9 +178,9 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 
 	public void setBackgroundFromProxy(KrollProxy proxy) {
 		Drawable background = null;
-		if (proxy.hasProperty(TiC.PROPERTY_BACKGROUND_IMAGE)) {
+		if (proxy.hasProperty(TiC.PROPERTY_BACKGROUND_IMAGE) && proxy.getProperty(TiC.PROPERTY_BACKGROUND_IMAGE) != null) {
 			background = getBackgroundImageDrawable(proxy, proxy.getProperty(TiC.PROPERTY_BACKGROUND_IMAGE).toString());
-		} else if (proxy.hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
+		} else if (proxy.hasProperty(TiC.PROPERTY_BACKGROUND_COLOR) && proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR) != null) {
 			Integer bgColor = TiConvert.toColor(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR).toString());
 			background = new ColorDrawable(bgColor);
 		}
