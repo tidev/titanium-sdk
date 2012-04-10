@@ -141,7 +141,7 @@
 	[newWindow windowWillOpen];
     //TIMOB-8559. PR 1819 caused a regression that exposed an IOS issue. In IOS 5 and later, the nav controller calls 
     //UIViewControllerDelegate methods, but not in IOS 4.X. As a result the parentVisible flag is never flipped to true
-    //and the window never lays out. Using method call to ensure window goes into layout queue.
+    //and the window never lays out. Using this method sets the flag and ensures window goes into layout queue.
     [newWindow parentWillShow];
 }
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
