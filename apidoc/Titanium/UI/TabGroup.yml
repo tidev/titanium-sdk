@@ -71,6 +71,7 @@ events:
         
   - name: close
     summary: Fired when the tab group is closed.
+    platforms: [iphone, ipad, mobileweb]
     
   - name: focus
     summary: |
