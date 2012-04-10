@@ -71,7 +71,8 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 	UITapGestureRecognizer*			doubleTapRecognizer;
 	UITapGestureRecognizer*			twoFingerTapRecognizer;
 	UIPinchGestureRecognizer*		pinchRecognizer;
-	UISwipeGestureRecognizer*		swipeRecognizer;
+	UISwipeGestureRecognizer*		leftSwipeRecognizer;
+	UISwipeGestureRecognizer*		rightSwipeRecognizer;
 	UILongPressGestureRecognizer*	longPressRecognizer;
 	
 	//Resizing handling
@@ -122,7 +123,8 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 @property(nonatomic,readonly)	UITapGestureRecognizer*			doubleTapRecognizer;
 @property(nonatomic,readonly)	UITapGestureRecognizer*			twoFingerTapRecognizer;
 @property(nonatomic,readonly)	UIPinchGestureRecognizer*		pinchRecognizer;
-@property(nonatomic,readonly)	UISwipeGestureRecognizer*		swipeRecognizer;
+@property(nonatomic,readonly)	UISwipeGestureRecognizer*		leftSwipeRecognizer;
+@property(nonatomic,readonly)	UISwipeGestureRecognizer*		rightSwipeRecognizer;
 @property(nonatomic,readonly)	UILongPressGestureRecognizer*	longPressRecognizer;
 
 - (UIGestureRecognizer *)gestureRecognizerForEvent:(NSString *)event;
