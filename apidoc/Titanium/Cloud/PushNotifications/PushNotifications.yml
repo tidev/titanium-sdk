@@ -1,10 +1,36 @@
 name: Titanium.Cloud.PushNotifications
 summary: Provides methods for accessing ACS push notification channels.
-description: Please refer to [configure push notifications for iOS](http://cloud.appcelerator.com/docs/ios#pushn)
-    and [configure push notifications for Android](http://cloud.appcelerator.com/docs/android#pushn) to set up your app
-    for push notifications. To receive push notifications on Android, please refer to the <Titanium.CloudPush> module.
+description: |
+    Please refer to [configure push notifications for iOS](http://cloud.appcelerator.com/docs/ios#pushn)
+    and [configure push notifications for Android](http://cloud.appcelerator.com/docs/android#pushn) to 
+    set up your app for push notifications. To receive push notifications on Android, please refer to 
+    the <Titanium.CloudPush> module.
+
+    The methods in this module are used to subscribe and unsubscribe from ACS push
+    notification channels, and to generate ACS push notifications. Push notifications
+    are received using platform-specific mechanisms:
+   
+    *   On iOS, push notifications are received through the standard iOS push notification
+        mechanism. When you register for push notifications, incoming push notifications
+        are passed to the `callback` callback. See
+        [Network.registerForPushNotifications](Titanium.Network.registerForPushNotifications)
+        for details.
+
+    *   On Android, push notifications are received through the <Titanium.CloudPush> module.
+        Add a listener for the [callback](Titanium.CloudPush.callback) event to receive push notifications.
+
+    To register for push notifications, you need to obtain an application-specific _device
+    token_. To obtain a device token:
+
+    *   On iOS, when you successfully register for push notifications, the device token is 
+        passed to the `success` callback.
+
+    *   On Android, use
+        [CloudPush.retrieveDeviceToken](Titanium.CloudPush.retrieveDeviceToken) to request
+        a device token. The device token is passed to the `success` callback.
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
+platforms: [android, iphone, ipad]
 
 methods:
   - name: subscribe
@@ -65,7 +91,7 @@ examples:
                     alert('Success');
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 
@@ -81,7 +107,7 @@ examples:
                     alert('Success');
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 
@@ -97,7 +123,7 @@ examples:
                     alert('Success');
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 ---

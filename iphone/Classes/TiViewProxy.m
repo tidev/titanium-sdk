@@ -890,6 +890,11 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	[TiUtils setView:barButtonView positionRect:barBounds];
 	[barButtonView setAutoresizingMask:UIViewAutoresizingNone];
 	
+    //Ensure all the child views are laid out as well
+    [self windowWillOpen];
+    [self setParentVisible:YES];
+    [self layoutChildren:NO];
+
 	return barButtonView;
 }
 
