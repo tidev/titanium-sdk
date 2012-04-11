@@ -223,37 +223,27 @@ methods:
 
   - name: toImage
     summary: Returns an image of the rendered view, as a Blob.
+    description: |
+        The `honorScaleFactor` method is only supported on iOS.
     platforms: [android, iphone, ipad]
     returns:
         type: Titanium.Blob
     parameters:
-      - name: f
+      - name: callback
         summary: | 
             Function to be invoked upon completion. If non-null, this method will be 
             performed asynchronously. If null, it will be performed immediately.
-        type: Callback<Object>
-        optional: true
-        
-  - name: toImage
-    since: 1.9.0  
-    summary: Returns an image of the rendered view, as a Blob.
-    platforms: [iphone, ipad]
-    returns:
-        type: Titanium.Blob
-    parameters:
-      - name: f
-        summary: | 
-            Function to be invoked upon completion. If non-null, this method will be 
-            performed asynchronously. If null, it will be performed immediately.
-        type: Callback<Object>
+        type: Callback<Titanium.Blob>
         optional: true
       - name: honorScaleFactor
         summary: | 
             When set to true, the image is scaled based on scale factor of main screen.
-            When set to false the image in the blob has the same dimensions for retina and non retina devices.
+            When set to false the image in the blob has the same dimensions for retina and
+            non-retina devices. Only used on iOS.
         type: Boolean
         optional: true
-
+        default: false
+        
   - name: updateLayout
     since: "2.0.0"
     summary: |

@@ -35,6 +35,8 @@ public:
 	static void throwOutOfMemoryError(const char *message);
 	static void throwNullPointerException(const char *message);
 
+	static jobject undefinedObject;
+
 	// Java classes
 	static jclass classClass;
 	static jclass objectClass;

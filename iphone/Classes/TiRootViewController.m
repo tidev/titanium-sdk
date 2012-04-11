@@ -383,12 +383,13 @@
 		[UIView setAnimationDuration:duration];
 	}
     
-    if ((newOrientation != oldOrientation) && isCurrentlyVisible)
+    if (forceOrientation || ((newOrientation != oldOrientation) && isCurrentlyVisible))
     {
         TiViewProxy<TiKeyboardFocusableView> *kfvProxy = [keyboardFocusedProxy retain];
         [kfvProxy blur:nil];
         [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
         [kfvProxy focus:nil];
+        [kfvProxy release];
     }
 
 	UIView * ourView = [self view];
@@ -446,13 +447,25 @@
 		return;
 	}
 
-    TiViewProxy<TiKeyboardFocusableView> *kfvProxy = (newOrientation != [[UIApplication sharedApplication] statusBarOrientation]) ? [[keyboardFocusedProxy retain] autorelease] : nil;
+    UIInterfaceOrientation oldOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+    TiViewProxy<TiKeyboardFocusableView> *kfvProxy = (newOrientation != oldOrientation) ? [[keyboardFocusedProxy retain] autorelease] : nil;
 
     [self updateOrientationHistory:newOrientation];
     
-	[self performSelector:@selector(refreshOrientation) withObject:nil afterDelay:0.0];
-    [kfvProxy blur:nil];
-    [kfvProxy performSelector:@selector(focus:) withObject:nil afterDelay:0.0];
+    // We appear to do this in order to synchronize rotation animations with the keyboard.
+    // But there is an interesting edge case where the status bar sometimes updates its orientation,
+    // but does not animate, before we trigger the refresh. This means that the keyboard refuses to
+    // rotate with, if it's focused as first responder (and in fact having it focused as first
+    // responder may be part of what causes the race in conjunction with non-device orienting.
+    // See TIMOB-7998.)
+    
+    TiThreadPerformOnMainThread(^{
+        if ([[UIApplication sharedApplication] statusBarOrientation] != oldOrientation) {
+            forceOrientation = YES;
+        }
+        [self refreshOrientation];
+        forceOrientation = NO;
+    }, NO);
 }
 
 -(void)updateOrientationHistory:(UIInterfaceOrientation)newOrientation
@@ -604,8 +617,6 @@
     }
     [self manuallyRotateToOrientation:newOrientation duration:duration];
 }
-
-
 
 -(CGRect)resizeView
 {
@@ -832,7 +843,10 @@
 	{
 		return;
 	}
-
+    
+    TiViewProxy<TiKeyboardFocusableView> *kfvProxy = [[keyboardFocusedProxy retain] autorelease];
+    [kfvProxy blur:nil];
+    
 	if ([windowProxies containsObject:window])
 	{
 		[[window retain] autorelease];
@@ -1169,7 +1183,8 @@
 	if(scrolledView != nil)	//If this isn't IN the toolbar, then we update the scrollviews to compensate.
 	{
 		UIView * ourView = [self viewForKeyboardAccessory];
-		CGFloat keyboardHeight = [ourView convertRect:endFrame fromView:nil].origin.y;
+        CGRect rect = [ourView convertRect:endFrame fromView:nil];
+		CGFloat keyboardHeight = rect.origin.y + rect.size.height;
 		UIView * possibleScrollView = [scrolledView superview];
 		UIView<TiScrolling> * confirmedScrollView = nil;
 		while (possibleScrollView != nil)
