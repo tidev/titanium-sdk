@@ -125,6 +125,14 @@
     [super touchesEnded:touches withEvent:event];
 }
 
+-(void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if ([proxy _hasListeners:@"touchcancel"]) {
+        [proxy fireEvent:@"touchcancel" withObject:[proxy createEventObject:nil] propagate:YES];
+    }
+    [super touchesCancelled:touches withEvent:event];
+}
+
 
 -(void)setHighlighted:(BOOL)yn animated:(BOOL)animated
 {
