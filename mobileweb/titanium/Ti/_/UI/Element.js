@@ -1016,7 +1016,28 @@ define(
 				}
 			}
 		},
-
+		
+		_measuredDimensions: {
+			width: {
+				x1: 0,
+				x2: 0
+			},
+			height: {
+				x1: 0,
+				x2: 0
+			},
+			left: {
+				x1: 0,
+				x2: 0,
+				x2: 0
+			},
+			top: {
+				x1: 0,
+				x2: 0,
+				x2: 0
+			}
+		},
+		
 		_measuredLeft: 0,
 		_measuredTop: 0,
 		_measuredRightPadding: 0,
