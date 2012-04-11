@@ -972,6 +972,7 @@ cleanup:
 		}
 		else if (state == AS_PAUSED)
 		{
+            AudioQueuePrime(audioQueue, 1, NULL);
 			err = AudioQueueStart(audioQueue, NULL);
 			if (err)
 			{
@@ -1263,6 +1264,7 @@ cleanup:
 			{
 				if (self.state == AS_BUFFERING)
 				{
+                    AudioQueuePrime(audioQueue, 1, NULL);
 					err = AudioQueueStart(audioQueue, NULL);
 					if (err)
 					{
@@ -1275,6 +1277,7 @@ cleanup:
 				{
 					self.state = AS_WAITING_FOR_QUEUE_TO_START;
 
+                    AudioQueuePrime(audioQueue, 1, NULL);
 					err = AudioQueueStart(audioQueue, NULL);
 					if (err)
 					{
