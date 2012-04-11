@@ -1035,12 +1035,15 @@
 		[proxy layoutChildren:NO];
 	}
 	
-	if ([tableview tableHeaderView]!=nil)
+	if ([[self tableView] tableHeaderView]!=nil)
 	{
 		TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"headerView"];
 		if (proxy!=nil)
 		{
 			[proxy windowWillOpen];
+            proxy.parentVisible=YES;
+            [proxy refreshSize];
+            [proxy willChangeSize];
 			[proxy layoutChildren:NO];
 		}
 	}
@@ -1051,26 +1054,12 @@
 		if (proxy!=nil)
 		{
 			[proxy windowWillOpen];
+            proxy.parentVisible=YES;
+            [proxy refreshSize];
+            [proxy willChangeSize];
 			[proxy layoutChildren:NO];
 		}
 	}
-	
-    // Since the header proxy is not properly attached to a view proxy in the titanium
-    // system, we have to reposition it here.  Resetting the table header view
-    // is because there's a charming bug in UITableView that doesn't respect redisplay
-    // for headers/footers when the frame changes.
-    UIView* headerView = [[self tableView] tableHeaderView];
-    if ([headerView isKindOfClass:[TiUIView class]]) {
-        [(TiViewProxy*)[(TiUIView*)headerView proxy] reposition];
-        [[self tableView] setTableHeaderView:headerView];
-    }
-    
-    // ... And we have to do the same thing for the footer.
-    UIView* footerView = [[self tableView] tableFooterView];
-    if ([footerView isKindOfClass:[TiUIView class]]) {
-        [(TiViewProxy*)[(TiUIView*)footerView proxy] reposition];
-        [[self tableView] setTableFooterView:footerView];
-    }
 	
     if (tableview!=nil && 
         !CGRectIsEmpty(self.bounds) && 
@@ -1317,13 +1306,39 @@
 	[[self tableView] setSeparatorColor:[color _color]];
 }
 
+-(void)proxyDidRelayout:(id)sender
+{
+    TiThreadPerformOnMainThread(^{
+        if ( (sender == headerViewProxy) && (headerViewProxy != nil) ) {
+            UIView* headerView = [[self tableView] tableHeaderView];
+            [headerView setFrame:[headerView bounds]];
+            [[self tableView] setTableHeaderView:headerView];
+        }
+        else if ( (sender == footerViewProxy) && (footerViewProxy != nil) ) {
+            UIView *footerView = [[self tableView] tableFooterView];
+            [footerView setFrame:[footerView bounds]];
+            [[self tableView] setTableFooterView:footerView];
+        }
+    },NO);
+}
+
 -(void)setHeaderTitle_:(id)args
 {
+    if (headerViewProxy != nil) {
+        [headerViewProxy setProxyObserver:nil];
+        [[self proxy] replaceValue:nil forKey:@"headerView" notification:NO];
+        headerViewProxy = nil;
+    }
 	[[self tableView] setTableHeaderView:[self titleViewForText:[TiUtils stringValue:args] footer:NO]];
 }
 
 -(void)setFooterTitle_:(id)args
 {
+    if (footerViewProxy != nil) {
+        [footerViewProxy setProxyObserver:nil];
+        [[self proxy] replaceValue:nil forKey:@"footerView" notification:NO];
+        footerViewProxy = nil;
+    }
 	[[self tableView] setTableFooterView:[self titleViewForText:[TiUtils stringValue:args] footer:YES]];
 }
 
@@ -1335,9 +1350,18 @@
 		TiUIView *view = (TiUIView*) [args view];
 		UITableView *table = [self tableView];
 		[table setTableHeaderView:view];
+        if (headerViewProxy != nil) {
+            [headerViewProxy setProxyObserver:nil];
+        }
+        headerViewProxy = args;
+        [headerViewProxy setProxyObserver:self];
 	}
 	else
 	{
+        if (headerViewProxy != nil) {
+            [headerViewProxy setProxyObserver:nil];
+            headerViewProxy = nil;
+        }
 		[[self tableView] setTableHeaderView:nil];
 	}
 }
@@ -1350,9 +1374,18 @@
 		[args windowWillOpen];
 		UIView *view = [args view];
 		[[self tableView] setTableFooterView:view];
+        if (footerViewProxy != nil) {
+            [footerViewProxy setProxyObserver:nil];
+        }
+        footerViewProxy = args;
+        [footerViewProxy setProxyObserver:self];
 	}
 	else
 	{
+        if (footerViewProxy != nil) {
+            [footerViewProxy setProxyObserver:nil];
+            footerViewProxy = nil;
+        }
 		[[self tableView] setTableFooterView:nil];
 	}
 }
