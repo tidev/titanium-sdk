@@ -14,6 +14,7 @@
 @private
 	NSMutableDictionary *appListeners;
 	TiAppPropertiesProxy *properties;
+    BOOL keyboardVisible;
 #ifdef USE_TI_APPIOS
 	TiProxy *iOS;
 #endif
@@ -41,6 +42,8 @@
 @property(nonatomic,readwrite,assign) NSNumber *idleTimerDisabled;
 @property(nonatomic,readonly) NSNumber *proximityState;
 @property(nonatomic,readwrite,assign) NSNumber *proximityDetection;
+
+@property(nonatomic,readonly) NSNumber* keyboardVisible;
 
 #ifdef USE_TI_APPIOS
 @property(nonatomic,readonly)			TiProxy* iOS;

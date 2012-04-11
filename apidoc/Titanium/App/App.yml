@@ -174,3 +174,9 @@ properties:
     summary: Application version, from `tiapp.xml`.
     type: String
     permission: read-only
+    
+  - name: keyboardVisible
+    summary: Indicates whether or not the soft keyboard is visible.
+    type: Boolean
+    permission: read-only
+    platforms: [iphone, ipad]
