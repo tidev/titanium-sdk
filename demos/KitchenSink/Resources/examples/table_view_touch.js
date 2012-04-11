@@ -3,7 +3,6 @@ var data = [];
 
 for (var x=0;x<4;x++)
 {
-	//var view = Ti.UI.createView();
 	var label = Ti.UI.createLabel({
 		text:'Row Label ' + x,
 		height:'auto',
@@ -12,7 +11,6 @@ for (var x=0;x<4;x++)
 		left:10
 	});
 	var row = Ti.UI.createTableViewRow({height:50});
-	//view.add(label);
 	row.add(label);
 	data.push(row);
 }
@@ -24,13 +22,16 @@ var tableview = Titanium.UI.createTableView({
 
 tableview.addEventListener('touchstart', function(e)
 {
-	e.row.children[0].color = '#fff';
+	e.row.children[0].color = 'red';
 });
 
-tableview.addEventListener('touchend', function(e)
-{
+function cleanup(e) {
 	e.row.children[0].color = '#336699';
-});
+}
+
+
+tableview.addEventListener('touchend', cleanup);
+tableview.addEventListener('touchcancel', cleanup);
 
 
 // add table view to the window
