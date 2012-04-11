@@ -8,6 +8,7 @@ package ti.modules.titanium.filesystem;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
@@ -90,6 +91,25 @@ public class FilesystemModule extends KrollModule
 	public String getApplicationDataDirectory()
 	{
 		return "appdata-private://";
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getApplicationCacheDirectory()
+	{
+		TiApplication app = TiApplication.getInstance();
+		if (app == null) {
+			return null;
+		}
+
+		File cacheDir = app.getCacheDir();
+
+		try {
+			return cacheDir.toURL().toString();
+
+		} catch (MalformedURLException e) {
+			Log.e(LCAT, "Exception converting cache directory to URL", e);
+			return null;
+		}
 	}
 
 	@Kroll.getProperty @Kroll.method
