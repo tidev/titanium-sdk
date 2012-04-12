@@ -24,6 +24,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.MeasureSpec;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ScrollView;
@@ -82,6 +83,27 @@ public class TiUIScrollView extends TiUIView
 				}
 			}
 			return AUTO;
+		}
+
+		@Override
+		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+		{
+			int wFromSpec = MeasureSpec.getSize(widthMeasureSpec);
+			int hFromSpec = MeasureSpec.getSize(heightMeasureSpec);
+
+			int measuredHeight = getMeasuredHeight(hFromSpec, 0);
+			int measuredWidth = getMeasuredWidth(wFromSpec, 0);
+
+			// If the content dimensions are greater than the parent dimensions, use the content dimensions
+			// instead to ensure the child views get measured correctly
+			if (wFromSpec == parentWidth && measuredWidth > wFromSpec) {
+				widthMeasureSpec = MeasureSpec.makeMeasureSpec(measuredWidth, MeasureSpec.EXACTLY);
+			}
+			if (hFromSpec == parentHeight && measuredHeight > hFromSpec) {
+				heightMeasureSpec = MeasureSpec.makeMeasureSpec(measuredHeight, MeasureSpec.EXACTLY);
+			}
+
+			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		}
 
 		@Override
