@@ -91,6 +91,7 @@ properties:
     type: String
     permission: read-only
     platforms: [android, iphone, ipad]
+    since: "1.8.3"
   - name: applicationDataDirectory
     summary: Path to the application's data directory.
     description: |
