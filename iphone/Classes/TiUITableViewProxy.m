@@ -50,8 +50,8 @@ NSArray * tableKeySequence;
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
-    [self replaceValue:NUMBOOL(NO) forKey:@"searchHidden" notification:YES];
-    [self replaceValue:NUMBOOL(YES) forKey:@"hideSearchOnSelection" notification:YES];
+    [self replaceValue:NUMBOOL(NO) forKey:@"searchHidden" notification:NO];
+    [self replaceValue:NUMBOOL(YES) forKey:@"hideSearchOnSelection" notification:NO];
     [super _initWithProperties:properties];
 }
 
