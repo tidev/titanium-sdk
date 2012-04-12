@@ -260,14 +260,6 @@
 	return self;
 }
 
--(void)configurationSet
-{
-    [super configurationSet];
-    
-    [[self proxy] initializeProperty:@"searchHidden" defaultValue:NUMBOOL(NO)];
-    [[self proxy] initializeProperty:@"hideSearchOnSelection" defaultValue:NUMBOOL(YES)];
-}
-
 -(void)dealloc
 {
 	if (searchField!=nil)
@@ -1166,23 +1158,7 @@
 
 - (IBAction) showSearchScreen: (id) sender
 {
-	if ([(TiUITableViewProxy *)[self proxy] sectionCount]>0)
-	{
-		[tableview scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]
-						 atScrollPosition:UITableViewScrollPositionBottom animated:NO];
-	}
-	
-	CGRect screenRect = [TiUtils viewPositionRect:tableview];
-	CGFloat searchHeight = [[tableview tableHeaderView] bounds].size.height;
-	
-	screenRect.origin.y += searchHeight;
-	screenRect.size.height -= searchHeight;
-	
-	UIView * wrapperView = [tableview superview];
-	
-	[UIView beginAnimations:@"searchy" context:nil];
-	[tableview setContentOffset:CGPointMake(0,0)];
-	[UIView commitAnimations];
+	[tableview setContentOffset:CGPointZero animated:YES];
 }
 
 -(void)updateSearchView
