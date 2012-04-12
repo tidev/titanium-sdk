@@ -906,7 +906,7 @@ since: "1.8"
 properties:
   - name: value
     summary: The value for the given predicate. See the descriptions
-        in <Titanium.Media.MediaQueryType> for information about which properties
+        in <MediaQueryType> for information about which properties
         require which values.
     type: [Number, String, Boolean]
   - name: exact
