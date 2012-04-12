@@ -98,6 +98,9 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 			return computedSize;
 		},
 		
+		_measureNode: function(node) {
+		},
+		
 		_defaultHorizontalAlignment: "left",
 		
 		_defaultVerticalAlignment: "top"

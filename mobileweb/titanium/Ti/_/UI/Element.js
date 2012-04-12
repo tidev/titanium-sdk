@@ -146,9 +146,10 @@ define(
 		
 		_add: function(view) {
 			view._setParent(this);
+			view._needsMeasuring = true;
+			
 			this.children.push(view);
 			this.containerNode.appendChild(view.domNode);
-			view._hasBeenLaidOut = false;
 			this._triggerLayout(this._isAttachedToActiveWin());
 		},
 
@@ -211,6 +212,7 @@ define(
 		},
 		
 		_triggerLayout: function(force) {
+			this._needsMeasuring = true;
 			this._isAttachedToActiveWin() && (!this._batchUpdateInProgress || force) && UI._triggerLayout(this, force);
 		},
 		
@@ -284,7 +286,7 @@ define(
 			}
 		},
 		
-		_hasBeenLaidOut: false,
+		_needsMeasuring: false,
 		
 		_isDependentOnParent: function(){
 			function isPercent(value) {
@@ -355,7 +357,10 @@ define(
 						height: this.height
 					},
 					layoutChildren: params.layoutChildren
-				});
+				}),
+				measuredDimensions = this._measuredDimensions;
+				
+			this._parent && this._parent.layout === "composite" && console.log(this.widgetId,dimensions.width, measuredDimensions.width.x1 * params.boundingSize.width + measuredDimensions.width.x2, dimensions.height, measuredDimensions.height.x1 * params.boundingSize.height + measuredDimensions.height.x2);
 				
 			if (params.positionElement) {
 				UI._elementLayoutCount++;
@@ -376,7 +381,6 @@ define(
 				setStyle(this.domNode, styles);
 			
 				this._markedForLayout = false;
-				this._hasBeenLaidOut = true;
 				
 				// Recompute the gradient, if it exists
 				this.backgroundGradient && this._computeGradient();

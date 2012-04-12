@@ -13,6 +13,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 				var child = element.children[i];
 				if (this.verifyChild(child,element)) {
 					if (child._markedForLayout) {
+						child._needsMeasuring && this._measureNode(child);
 						child._doLayout({
 						 	origin: {
 						 		x: 0,
