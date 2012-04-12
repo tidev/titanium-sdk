@@ -871,7 +871,7 @@ NSArray* moviePlayerKeys = nil;
 	}
 }
 
--(void)resizeRootView:(id)unused
+-(void)resizeRootView
 {
     TiThreadPerformOnMainThread(^{
         [[[TiApp app] controller] resizeViewForStatusBarHidden];
@@ -905,7 +905,7 @@ NSArray* moviePlayerKeys = nil;
 	}	
 	[[UIApplication sharedApplication] setStatusBarHidden:statusBarWasHidden];
     
-    [self performSelector:@selector(resizeRootView:) withObject:nil afterDelay:0.3];
+    [self performSelector:@selector(resizeRootView) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
 }
 
 -(void)handleSourceTypeNotification:(NSNotification*)note
