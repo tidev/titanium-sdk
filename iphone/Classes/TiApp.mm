@@ -178,6 +178,11 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     [window makeKeyAndVisible];
 }
 
+-(BOOL)windowIsKeyWindow:(UIWindow*)window_
+{
+    return (window == window_);
+}
+
 -(void)attachXHRBridgeIfRequired
 {
 #ifdef USE_TI_UIWEBVIEW
