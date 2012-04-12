@@ -1001,12 +1001,12 @@
 	CGRect focusedToolbarBounds = CGRectMake(0, 0, endingFrame.size.width, [keyboardFocusedProxy keyboardAccessoryHeight]);
 	[focusedToolbar setBounds:focusedToolbarBounds];
 
-	if(scrolledView != nil)	//If this isn't IN the toolbar, then we update the scrollviews to compensate.
+    CGFloat keyboardHeight = endingFrame.origin.y;
+    if(focusedToolbar != nil){
+        keyboardHeight -= focusedToolbarBounds.size.height;
+    }
+	if ((scrolledView != nil) && (keyboardHeight > 0))	//If this isn't IN the toolbar, then we update the scrollviews to compensate.
 	{
-		CGFloat keyboardHeight = endingFrame.origin.y;
-		if(focusedToolbar != nil){
-			keyboardHeight -= focusedToolbarBounds.size.height;
-		}
 		UIView * possibleScrollView = [scrolledView superview];
 		NSMutableArray * confirmedScrollViews = nil;
 		
@@ -1185,17 +1185,19 @@
 		UIView * ourView = [self viewForKeyboardAccessory];
         CGRect rect = [ourView convertRect:endFrame fromView:nil];
 		CGFloat keyboardHeight = rect.origin.y + rect.size.height;
-		UIView * possibleScrollView = [scrolledView superview];
-		UIView<TiScrolling> * confirmedScrollView = nil;
-		while (possibleScrollView != nil)
-		{
-			if ([possibleScrollView conformsToProtocol:@protocol(TiScrolling)])
-			{
-				confirmedScrollView = (UIView<TiScrolling>*)possibleScrollView;
-			}
-			possibleScrollView = [possibleScrollView superview];
-		}
-		[confirmedScrollView keyboardDidShowAtHeight:keyboardHeight];
+        if (keyboardHeight > 0) {
+            UIView * possibleScrollView = [scrolledView superview];
+            UIView<TiScrolling> * confirmedScrollView = nil;
+            while (possibleScrollView != nil)
+            {
+                if ([possibleScrollView conformsToProtocol:@protocol(TiScrolling)])
+                {
+                    confirmedScrollView = (UIView<TiScrolling>*)possibleScrollView;
+                }
+                possibleScrollView = [possibleScrollView superview];
+            }
+            [confirmedScrollView keyboardDidShowAtHeight:keyboardHeight];
+        }
 	}
 
 	if((doomedView == nil) || (leavingAccessoryView == doomedView)){
