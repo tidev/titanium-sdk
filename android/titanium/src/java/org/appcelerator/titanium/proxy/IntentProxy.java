@@ -281,21 +281,21 @@ public class IntentProxy extends KrollProxy
 	{
 		try {
 			Uri uri = (Uri) intent.getExtras().getParcelable(name);
-			InputStream is = TiApplication.getInstance().getContentResolver().openInputStream(uri);            
+			InputStream is = TiApplication.getInstance().getContentResolver().openInputStream(uri);
 
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			int len;
 			int size = 4096;
 			byte[] buf = new byte[size];
 			while ((len = is.read(buf, 0, size)) != -1) {
-			    bos.write(buf, 0, len);
+				bos.write(buf, 0, len);
 			}
 			buf = bos.toByteArray();
 
 			return TiBlob.blobFromData(buf);
 		} catch (Exception e) {
-		    android.util.Log.e(TAG, "getBlobExtra(): " + e.getMessage(), e);
-		    return null;
+			android.util.Log.e(TAG, "getBlobExtra(): " + e.getMessage(), e);
+			return null;
 		}
 	}
 

@@ -22,6 +22,7 @@ methods:
         type: Number
 
   - name: getBlobExtra
+    since: "2.1.0"
     summary: Get a <Titanium.Blob> property from this Intent
     returns:
         type: Titanium.Blob
