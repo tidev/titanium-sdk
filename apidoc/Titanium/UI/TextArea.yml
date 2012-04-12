@@ -33,6 +33,10 @@ events:
         
   - name: return
     summary: Fired when the return key is pressed on the keyboard.
+    properties:
+      - name: value
+        summary: Value of this text area.
+        type: String
         
   - name: selected
     summary: Fired when text in this text area is selected.

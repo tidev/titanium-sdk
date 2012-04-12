@@ -29,6 +29,10 @@ events:
         
   - name: return
     summary: Fired when the return key is pressed on the keyboard.
+    properties:
+      - name: value
+        summary: Value of this text area.
+        type: String
 
 methods:
   - name: blur
@@ -331,14 +335,16 @@ examples:
               layout: 'vertical',
               title: 'TextField Demo'
             });
+            
             var textField = Ti.UI.createTextField({
             	color: '#336699',
-            	height: 35,
+            	height: 60,
             	top: 10,
             	left: 10,
             	width: 250,
             	borderStyle: Ti.UI.INPUT_BORDERSTYLE_ROUNDED
             });
+            
             win.add(textField);
             win.open();
         
