@@ -102,8 +102,11 @@ public class TiBackgroundDrawable extends StateListDrawable {
 
 		outerRect.set(bounds);
 		int padding = 0;
+		int maxPadding = 0;
 		if (border != null) {
-			padding = (int)border.width;
+			//cap padding to current bounds
+			maxPadding = (int) Math.min(outerRect.right/2, outerRect.bottom/2);
+			padding = (int) Math.min((int)border.width, maxPadding);
 		}
 		innerRect.set(bounds.left+padding, bounds.top+padding, bounds.right-padding, bounds.bottom-padding);
 		if (background != null) {
@@ -256,6 +259,7 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		this.alpha = alpha;
 	}
 
+	
 //	public Drawable getBackgroundDrawable() {
 //		return background;
 //	}
