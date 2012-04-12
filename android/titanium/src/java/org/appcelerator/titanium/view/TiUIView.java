@@ -10,7 +10,6 @@ package org.appcelerator.titanium.view;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.Math;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1000,7 +999,7 @@ public abstract class TiUIView
 							// is to call performClick() which leads to invoking the click
 							// listener.  If we return true, that won't run, so we're doing it
 							// here instead.
-							touchable.performClick();
+							touchable.onTouchEvent(event);
 						}
 						return handled;
 					} else {
