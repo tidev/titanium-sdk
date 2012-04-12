@@ -220,7 +220,13 @@ define(
 			var parent = this._parent,
 				parentWidth;
 			if (parent) {
-				parentWidth = lang.val(parent.width,parent._defaultWidth);
+				if (isDef(parent.width)) {
+					parentWidth = parent.width;
+				} else if (isDef(parent.left) + isDef(parent.right) + !!(parent.center && isDef(parent.center.x)) < 2) {
+					parentWidth = parent._defaultWidth;
+				} else {
+					parentWidth = UI.FILL;
+				}
 				parentWidth = parentWidth === UI.INHERIT ? parent._getInheritedWidth() : parentWidth
 				return this._forceInheritenceToFillOrSize ? parentWidth === UI.SIZE ? UI.SIZE : UI.FILL : parentWidth;
 			}
@@ -230,7 +236,13 @@ define(
 			var parent = this._parent,
 				parentHeight;
 			if (parent) {
-				parentHeight = lang.val(parent.height,parent._defaultHeight);
+				if (isDef(parent.height)) {
+					parentHeight = parent.height;
+				} else if (isDef(parent.top) + isDef(parent.bottom) + !!(parent.center && isDef(parent.center.y)) < 2) {
+					parentHeight = parent._defaultHeight;
+				} else {
+					parentHeight = UI.FILL;
+				}
 				parentHeight = parentHeight === UI.INHERIT ? parent._getInheritedHeight() : parentHeight
 				return this._forceInheritenceToFillOrSize ? parentHeight === UI.SIZE ? UI.SIZE : UI.FILL : parentHeight;
 			}
