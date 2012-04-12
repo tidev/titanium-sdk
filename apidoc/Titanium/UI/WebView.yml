@@ -208,6 +208,16 @@ methods:
 
 events:
 
+  - name: shouldload
+    summary: Fired before the web view begins loading a frame.
+    description: |
+        This event is fired before the "beforeload" event. The primary functionality of this event
+        is prevent to load an incorrect page.
+
+        This event is used many times to intercept page redirect. For example: If you are entering
+        in a page that redirects automatically to another page, this event will be fired twice
+        (with two URLs - original and the redirect URL).
+
   - name: beforeload
     summary: Fired before the web view starts loading its content.
     description: |
