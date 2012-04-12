@@ -281,18 +281,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	}
 }
 
--(void)handleKeyboardState:(NSNotification*)notification
-{
-    keyboardVisible = ([[notification name] isEqualToString:UIKeyboardDidShowNotification]);
-}
-
 -(void)startup
 {
 	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willShutdown:) name:kTiWillShutdownNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willShutdownContext:) name:kTiContextShutdownNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleKeyboardState:) name:UIKeyboardDidShowNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleKeyboardState:) name:UIKeyboardDidHideNotification object:nil];
 	[super startup];
 }
 
@@ -436,7 +429,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(NSNumber*)keyboardVisible
 {
-    return NUMBOOL(keyboardVisible);
+    return NUMBOOL([[[TiApp app] controller] keyboardVisible]);
 }
 
 #if defined(USE_TI_APPIOS)

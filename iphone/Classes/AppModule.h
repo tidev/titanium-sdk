@@ -14,7 +14,6 @@
 @private
 	NSMutableDictionary *appListeners;
 	TiAppPropertiesProxy *properties;
-    BOOL keyboardVisible;
 #ifdef USE_TI_APPIOS
 	TiProxy *iOS;
 #endif
