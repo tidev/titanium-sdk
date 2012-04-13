@@ -105,6 +105,17 @@
 	}
 }
 
+-(BOOL)touchedContentViewWithEvent:(UIEvent *)event
+{
+    // The view hierarchy of the movie player controller's view is subject to change,
+    // and traversing it is dangerous. If we received a touch which isn't on a TiUIView,
+    // assume it falls into the movie player view hiearchy; this matches previous
+    // behavior as well.
+    
+    UITouch* touch = [[event allTouches] anyObject];
+    return (![[touch view] isKindOfClass:[TiUIView class]]);
+}
+
 -(void)dealloc
 {
 	[[controller view] removeFromSuperview];
