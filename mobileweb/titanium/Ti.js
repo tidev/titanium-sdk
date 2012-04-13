@@ -13,8 +13,8 @@
  */
 
 define(
-	["Ti/_", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/Buffer", "Ti/Platform", "Ti/UI", "Ti/Locale", "Ti/_/include"],
-	function(_, analytics, App, Evented, lang, ready, style, Buffer, Platform, UI) {
+	["Ti/_", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/Buffer", "Ti/Platform", "Ti/UI", "Ti/API", "Ti/Locale", "Ti/_/include"],
+	function(_, analytics, App, Evented, lang, ready, style, Buffer, Platform, UI, API) {
 
 	var global = window,
 		cfg = require.config,
@@ -54,7 +54,7 @@ define(
 
 			deferStart: function() {
 				if (loaded) {
-					console.warn("app.js already loaded!");
+					API.warn("app.js already loaded!");
 				} else {
 					var n = Math.round(Math.random()*1e12);
 					waiting.push(n);
@@ -180,21 +180,6 @@ define(
 		};
 	}
 
-	// console.*() shim	
-	console === void 0 && (console = {});
-
-	// make sure "log" is always at the end
-	each(["debug", "info", "warn", "error", "log"], function (c) {
-		console[c] || (console[c] = ("log" in console)
-			?	function () {
-					var a = Array.apply({}, arguments);
-					a.unshift(c + ":");
-					console.log(a.join(" "));
-				}
-			:	function () {}
-		);
-	});
-
 	// JSON.parse() and JSON.stringify() shim
 	if (!has("json-stringify")) {
 		function escapeString(s){
@@ -299,8 +284,7 @@ define(
 	Object.defineProperty(global, "Ti", { value: Ti, writable: false });
 	Object.defineProperty(global, "Titanium", { value: Ti, writable: false });
 
-	// print the Titanium version *after* the console shim
-	console.info("[INFO] Appcelerator Titanium " + ver + " Mobile Web");
+	API.info("Appcelerator Titanium " + ver + " Mobile Web");
 
 	// make sure we have some vendor prefixes defined
 	cfg.vendorPrefixes || (cfg.vendorPrefixes = ["", "Moz", "Webkit", "O", "ms"]);
