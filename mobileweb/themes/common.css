@@ -329,8 +329,7 @@ textarea {
 
 .TiUIButtonDefault {
 	border: 1px solid #666; 
-	border-radius: 10px;
-	padding: 10px 10px;
+	border-radius: 6px;
 }
 
 .TiUISliderTrack {
@@ -422,21 +421,6 @@ textarea {
 
 .TiUITextFieldBorderStyleRounded input {
 	border-radius: 5px;
-}
-
-.TiUIActivityIndicatorContentContainer {
-	display: none;
-	height: 100%;
-	width: 100%;
-}
-
-.TiUIActivityIndicatorIndicator {
-	height: 36px;
-	width: 36px;
-}
-
-.TiUIActivityIndicatorMessage {
-	white-space: nowrap;
 }
 
 .TiUIActivityIndicatorProng {

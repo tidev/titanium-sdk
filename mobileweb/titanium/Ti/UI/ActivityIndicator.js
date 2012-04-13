@@ -1,32 +1,29 @@
-define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/style", "Ti/Locale", "Ti/UI"],
-	function(declare, lang, FontWidget, dom, style, Locale, UI) {
+define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/style", "Ti/Locale", "Ti/UI"],
+	function(declare, lang, Widget, dom, style, Locale, UI) {
 
 	var opacity = 0.3,
-		setStyle = style.set,
-		postMessage = {
-			post: "_renderMessage"
-		};
+		setStyle = style.set;
 
-	return declare("Ti.UI.ActivityIndicator", FontWidget, {
+	return declare("Ti.UI.ActivityIndicator", Widget, {
 
 		constructor: function() {
 			var prongs = this._prongs = [],
-				container = this._contentContainer = dom.create("div", {
-					className: "TiUIActivityIndicatorContentContainer",
-					style: {
-						boxOrient: "horizontal",
-						boxPack: "center",
-						boxAlign: "center",
-						pointerEvents: "none"
-					}
-				}, this.domNode),
-				indicator = this._indicatorIndicator = dom.create("div", {
-					className: "TiUIActivityIndicatorIndicator",
-					style: {
-						pointerEvents: "none"
-					}
-				}, container),
-				i = 0;
+				i = 0,
+				contentContainer = this._contentContainer = UI.createView({
+					layout: "horizontal",
+					width: UI.SIZE,
+					height: UI.SIZE
+				});
+			contentContainer._layout._defaultVerticalAlignment = "center";
+			this._add(contentContainer);
+			contentContainer.hide();
+				
+			contentContainer._add(this._indicatorIndicator = UI.createView({
+				width: 36,
+				height: 36
+			}));
+				
+			contentContainer._add(this._indicatorMessage = UI.createLabel());
 
 			for (; i < 12; i++) {
 				prongs.push(dom.create("div", {
@@ -36,20 +33,13 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/sty
 						transformOrigin: "2px 18px",
 						opacity: opacity
 					}
-				}, this._indicatorIndicator));
+				}, this._indicatorIndicator.domNode));
 			}
-
-			this._addStyleableDomNode(this._indicatorMessage = dom.create("div", {
-				className: "TiUIActivityIndicatorMessage",
-				style: {
-					pointerEvents: "none"
-				}
-			}, container));
 		},
 
 		show: function() {
 			if (!this._visible) {
-				setStyle(this._contentContainer, "display", ["-webkit-box", "-moz-box"]);
+				this._contentContainer.show();
 				this._timer = setInterval(lang.hitch(this, "_animate"), 100);
 				this._visible = 1;
 			}
@@ -58,7 +48,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/sty
 		hide: function() {
 			clearTimeout(this._timer);
 			if (this._visible) {
-				setStyle(this._contentContainer, "display", "none");
+				this._contentContainer.hide();
 				this._visible = 0;
 			}
 		},
@@ -86,29 +76,31 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/sty
 
 		_messagePadding: 0,
 
-		_getContentSize: function(width, height) {
-			var msg = this._getMessage();
-			return {
-				width: 36 + this._measureText(msg, this._indicatorMessage).width + this._messagePadding,
-				height: Math.max(this._measureText(msg, this._indicatorMessage).height, 36)
-			};
-		},
-
-		_getMessage: function() {
-			return Locale._getString(this.messageid, this.message);
-		},
-
-		_renderMessage: function() {
-			var msg = this._getMessage();
-			this._messagePadding = msg ? 5 : 0;
-			setStyle(this._indicatorMessage, "paddingLeft", dom.unitize(this._messagePadding));
-			this._indicatorMessage.innerHTML = msg;
-			this._hasSizeDimensions() && this._triggerLayout();
-		},
-
 		properties: {
-			message: postMessage,
-			messageid: postMessage
+			color: {
+				set: function(value) {
+					return this._indicatorMessage.color = value;
+				}
+			},
+			font: {
+				set: function(value) {
+					return this._indicatorMessage.font = value;
+				}
+			},
+			message: {
+				set: function(value) {
+					var indicatorMessage = this._indicatorMessage;
+					indicatorMessage.left = value ? 5 : 0;
+					return indicatorMessage.text = value;
+				}
+			},
+			messageid: {
+				set: function(value) {
+					var indicatorMessage = this._indicatorMessage;
+					indicatorMessage.left = value ? 5 : 0;
+					return indicatorMessage.textid = value;
+				}
+			}
 		}
 
 	});
