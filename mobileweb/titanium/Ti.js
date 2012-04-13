@@ -21,9 +21,9 @@ define(
 		deployType = cfg.app.deployType,
 		ver = cfg.ti.version,
 		is = require.is,
-		each = require.each,
 		has = require.has,
 		on = require.on,
+		con = global.console,
 		loaded,
 		unloaded,
 		showingError,
@@ -47,7 +47,7 @@ define(
 
 			include: function(files) {
 				typeof files === "array" || (files = [].concat(Array.prototype.slice.call(arguments, 0)));
-				each(files, function(f) {
+				files.forEach(function(f) {
 					require("Ti/_/include!" + f);
 				});
 			},
@@ -180,16 +180,16 @@ define(
 		};
 	}
 
-	// console.*() shim	
-	console === void 0 && (console = {});
+	// console.*() shim
+	con === void 0 && (con = global.console = {});
 
 	// make sure "log" is always at the end
-	each(["debug", "info", "warn", "error", "log"], function (c) {
-		console[c] || (console[c] = ("log" in console)
+	["debug", "info", "warn", "error", "log"].forEach(function(c) {
+		con[c] || (con[c] = ("log" in con)
 			?	function () {
 					var a = Array.apply({}, arguments);
 					a.unshift(c + ":");
-					console.log(a.join(" "));
+					con.log(a.join(" "));
 				}
 			:	function () {}
 		);
