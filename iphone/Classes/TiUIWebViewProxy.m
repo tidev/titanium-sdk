@@ -107,6 +107,7 @@ USE_VIEW_FOR_CONTENT_WIDTH
 
 -(void)setHtml:(NSString*)content withObject:(id)property
 {
+    [self replaceValue:content forKey:@"html" notification:NO];
     TiThreadPerformOnMainThread(^{
         [(TiUIWebView *)[self view] setHtml_:content withObject:property];
     }, YES);

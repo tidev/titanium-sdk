@@ -37,15 +37,8 @@ Titanium.Facebook.addEventListener('logout', updateLoginStatus);
 //
 // Login Button
 //
-if(Titanium.Platform.name == 'iPhone OS'){
-	win.add(Titanium.Facebook.createLoginButton({
-		style:Ti.Facebook.BUTTON_STYLE_WIDE,
-		bottom:30
-	}));
-}
-else{
-	win.add(Titanium.Facebook.createLoginButton({
-		style:'wide',
-		bottom:30
-	}));
-}
+win.add(Titanium.Facebook.createLoginButton({
+	style:Ti.Facebook.BUTTON_STYLE_WIDE,
+	bottom:30
+}));
+

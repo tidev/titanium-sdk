@@ -112,6 +112,18 @@ properties:
     type: String
     permission: read-only
     
+  - name: installId
+    summary: The install ID for this application.
+    description: |
+        The application install ID is a unique identifier (UUID) for this
+        install of the application. It is not modified by application updates;
+        only when an application is initially installed, or removed and
+        re-installed.
+    type: String
+    platforms: [iphone, ipad]
+    permission: read-only
+    since: "2.0.0"
+    
   - name: idleTimerDisabled
     summary: Determines whether the screen is locked when the device is idle. 
     description: Set to `true` to disable the timer.
@@ -162,3 +174,9 @@ properties:
     summary: Application version, from `tiapp.xml`.
     type: String
     permission: read-only
+    
+  - name: keyboardVisible
+    summary: Indicates whether or not the soft keyboard is visible.
+    type: Boolean
+    permission: read-only
+    platforms: [iphone, ipad]

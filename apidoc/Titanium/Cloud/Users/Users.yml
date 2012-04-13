@@ -188,7 +188,7 @@ examples:
                         'last name: ' + user.last_name);
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 
@@ -208,7 +208,7 @@ examples:
                         'last name: ' + user.last_name);
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 
@@ -227,7 +227,7 @@ examples:
                         'last name: ' + user.last_name);
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 
@@ -244,7 +244,7 @@ examples:
                         'last name: ' + user.last_name);
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 
@@ -266,7 +266,7 @@ examples:
                      }
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 
@@ -294,7 +294,7 @@ examples:
                      }
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 
@@ -319,7 +319,7 @@ examples:
                         'last name: ' + user.last_name);
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 
@@ -332,7 +332,7 @@ examples:
                     alert('Success: Logged out');
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 
@@ -345,7 +345,7 @@ examples:
                     alert('Success: Removed');
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 
@@ -360,7 +360,7 @@ examples:
                     alert('Success: Reset Request Sent');
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 

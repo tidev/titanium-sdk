@@ -357,6 +357,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	return TI_APPLICATION_ID;
 }
 
+-(id)installId
+{
+    return [TiUtils appIdentifier];
+}
+
 -(id)id
 {
 	return TI_APPLICATION_ID;
@@ -420,6 +425,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 -(id)analytics
 {
 	return NUMBOOL(TI_APPLICATION_ANALYTICS);
+}
+
+-(NSNumber*)keyboardVisible
+{
+    return NUMBOOL([[[TiApp app] controller] keyboardVisible]);
 }
 
 #if defined(USE_TI_APPIOS)

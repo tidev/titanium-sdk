@@ -6,8 +6,10 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiActivityWindows;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -254,6 +256,13 @@ public class TiTabActivity extends TabActivity
 			}
 			return;
 		}
+		
+		if (proxy != null) {
+			KrollDict data = new KrollDict();
+			data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+			proxy.fireSyncEvent(TiC.EVENT_CLOSE, data);		
+			
+		}
 
 		if (!isFinishing())
 		{
@@ -270,6 +279,15 @@ public class TiTabActivity extends TabActivity
 			finish();
 			return;
 		}
+		
+		//Remove activityWindows reference from tabs. ActivityWindow reference is only removed when a tab is created (but is added when a tab is added to a tabGroup).
+		//Furthermore, when a tabGroup opens, only the current tab is created (the rest won't create until clicked on). This introduces a memory leak when we have multiple tabs,
+		//and attempt to open/close tabGroup without navigating through all the tabs.
+		TabProxy[] tabs = proxy.getTabs();
+		for (int i = 0; i < tabs.length; ++i) {
+			TiActivityWindows.removeWindow(tabs[i].getWindowId());
+		}
+		
 		if (proxy != null) {
 			proxy.closeFromActivity();
 			proxy = null;

@@ -28,7 +28,6 @@
 	BOOL ignoreClicks;
 	MKCoordinateRegion region;
 	
-	TiMapAnnotationProxy * pendingAnnotationSelection;
     // routes
     // dictionaries for object tracking and association
     CFMutableDictionaryRef mapLine2View;   // MKPolyline(route line) -> MKPolylineView(route view)

@@ -48,10 +48,18 @@ public class TiFileProxy extends KrollProxy
 		if (uri.getScheme() != null) {
 			scheme = uri.getScheme() + ":";
 			ArrayList<String> pb = new ArrayList<String>();
-			String s = parts[0].substring(scheme.length() + 2);
-			if (s != null && s.length() > 0) {
-				pb.add(s);
+
+			int schemeLength = scheme.length();
+			if (parts[0].charAt(schemeLength + 1) == '/') {
+				// Titanium specific schemes (like app://) use two slashes instead of one
+				String s = parts[0].substring(schemeLength + 2);
+				if (s != null && s.length() > 0) {
+					pb.add(s);
+				}
+			} else {
+				pb.add(uri.getPath());
 			}
+
 			for (int i = 1; i < parts.length; i++) {
 				pb.add(parts[i]);
 			}

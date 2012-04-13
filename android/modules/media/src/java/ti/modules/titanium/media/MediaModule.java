@@ -624,7 +624,13 @@ public class MediaModule extends KrollModule
 			}
 			BitmapFactory.Options opts = new BitmapFactory.Options();
 			opts.inJustDecodeBounds = true;
-			BitmapFactory.decodeStream(getActivity().getContentResolver().openInputStream(Uri.parse(fpath)),null, opts);
+
+			// We only need the ContentResolver so it doesn't matter if the root or current activity is used for
+			// accessing it
+			BitmapFactory.decodeStream(
+				TiApplication.getAppRootOrCurrentActivity().getContentResolver().openInputStream(Uri.parse(fpath)), null,
+				opts);
+
 			width = opts.outWidth;
 			height = opts.outHeight;
 		} catch (FileNotFoundException e) {

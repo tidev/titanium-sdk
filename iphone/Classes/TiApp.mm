@@ -416,7 +416,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	[TiUtils queueAnalytics:@"ti.background" name:@"ti.background" data:nil];
 
-	
 	if (backgroundServices==nil)
 	{
 		return;
@@ -449,10 +448,13 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     [sessionId release];
     sessionId = [[TiUtils createUUID] retain];
     
+    //TIMOB-3432. Ensure url is cleared when resume event is fired.
+    [launchOptions removeObjectForKey:@"url"];
+
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
 	
 	[TiUtils queueAnalytics:@"ti.foreground" name:@"ti.foreground" data:nil];
-	
+    
 	if (backgroundServices==nil)
 	{
 		return;

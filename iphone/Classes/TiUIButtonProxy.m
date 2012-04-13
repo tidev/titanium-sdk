@@ -107,7 +107,7 @@
 
 -(UIView *) parentViewForChild:(TiViewProxy *)child
 {
-	return [(TiUIButton *)[self view] button];
+	return [(TiUIButton *)[self view] viewGroupWrapper];
 }
 
 -(void)removeBarButtonView
