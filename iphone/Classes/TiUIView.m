@@ -795,7 +795,7 @@ DEFINE_EXCEPTIONS
 	if (twoFingerTapRecognizer == nil) {
 		twoFingerTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedTap:)];
 		[twoFingerTapRecognizer setNumberOfTouchesRequired:2];
-        [self configureGestureRecognizer:twoFingerTapRecognizer];
+		[self configureGestureRecognizer:twoFingerTapRecognizer];
 		[self addGestureRecognizer:twoFingerTapRecognizer];
 	}
 	return twoFingerTapRecognizer;
@@ -805,7 +805,7 @@ DEFINE_EXCEPTIONS
 {
 	if (pinchRecognizer == nil) {
 		pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPinch:)];
-        [self configureGestureRecognizer:pinchRecognizer];
+		[self configureGestureRecognizer:pinchRecognizer];
 		[self addGestureRecognizer:pinchRecognizer];
 	}
 	return pinchRecognizer;
@@ -816,7 +816,7 @@ DEFINE_EXCEPTIONS
 	if (leftSwipeRecognizer == nil) {
 		leftSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
 		[leftSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionLeft];
-        [self configureGestureRecognizer:leftSwipeRecognizer];
+		[self configureGestureRecognizer:leftSwipeRecognizer];
 		[self addGestureRecognizer:leftSwipeRecognizer];
 	}
 	return leftSwipeRecognizer;
