@@ -1,4 +1,4 @@
-define(["require", "Ti/_/lang", "Ti/_/Evented", "Ti/API"], function(require, lang, Evented, API) {
+define(["require", "Ti/_/lang", "Ti/_/Evented"], function(require, lang, Evented) {
 
 	var locale = lang.val(navigator.language,navigator.browserLanguage).replace(/^([^\-\_]+)[\-\_](.+)?$/, function(o, l, c){ return l.toLowerCase() + (c && "-" + c.toUpperCase()); }),
 		languageParts = locale.split("-"),
@@ -21,25 +21,25 @@ define(["require", "Ti/_/lang", "Ti/_/Evented", "Ti/API"], function(require, lan
 
 	// format a date into a locale specific date format. Optionally pass a second argument (string) as either "short" (default), "medium" or "long" for controlling the date format.
 	String.formatDate = function(dt, fmt) {
-		API.debug('Method "String.formatDate" is not implemented yet.');
+		console.debug('Method "String.formatDate" is not implemented yet.');
 		return dt.toString();
 	};
 
 	// format a date into a locale specific time format.
 	String.formatTime = function(dt) {
-		API.debug('Method "String.formatTime" is not implemented yet.');
+		console.debug('Method "String.formatTime" is not implemented yet.');
 		return dt.toString();
 	};
 
 	// format a number into a locale specific currency format.
 	String.formatCurrency = function(amt) {
-		API.debug('Method "String.formatCurrency" is not implemented yet.');
+		console.debug('Method "String.formatCurrency" is not implemented yet.');
 		return amt;
 	};
 
 	// format a number into a locale specific decimal format.
 	String.formatDecimal = function(dec) {
-		API.debug('Method "String.formatDecimal" is not implemented yet.');
+		console.debug('Method "String.formatDecimal" is not implemented yet.');
 		return dec;
 	};
 
