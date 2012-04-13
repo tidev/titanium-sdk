@@ -48,6 +48,13 @@ NSArray * tableKeySequence;
 	return self;
 }
 
+-(void)_initWithProperties:(NSDictionary *)properties
+{
+    [self replaceValue:NUMBOOL(NO) forKey:@"searchHidden" notification:NO];
+    [self replaceValue:NUMBOOL(YES) forKey:@"hideSearchOnSelection" notification:NO];
+    [super _initWithProperties:properties];
+}
+
 - (void) dealloc
 {
 	[sections makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
