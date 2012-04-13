@@ -33,6 +33,11 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 					values = this.properties.__values__,
 					isParentWidthSize = params.isParentSize.width,
 					isParentHeightSize = params.isParentSize.height;
+				
+				// Check divide by 0 case
+				if (isNaN(imageRatio)) {
+					imageRatio = this.domNode.width === 0 ? 1 : Infinity;
+				}
 
 				function setByHeight() {
 					values.width = boundingHeight * imageRatio;

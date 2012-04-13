@@ -7,14 +7,16 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 		_doLayout: function(element, width, height, isWidthSize, isHeightSize) {
 			var computedSize = this._computedSize = {width: 0, height: 0},
 				children = element.children,
+				child,
 				layoutCoefficients, childSize,
 				measuredWidth, measuredHeight, measuredLeft, measuredTop,
 				deferredLeftCalculations = [],
-				deferredRightCalculations = [];
-			for(var i = 0; i < children.length; i++) {
+				deferredTopCalculations = [],
+				i;
+			for(i = 0; i < children.length; i++) {
 				
 				// Layout the child
-				var child = element.children[i];
+				child = element.children[i];
 				if (this.verifyChild(child,element)) {
 					if (child._markedForLayout) {
 						
@@ -60,23 +62,21 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 							isNaN(layoutCoefficients.height.x1) && (measuredHeight = childSize.height);
 						}
 						
-						measuredLeft = layoutCoefficients.left.x1 * width + layoutCoefficients.left.x2 * measuredWidth + layoutCoefficients.left.x3;
-						measuredTop = layoutCoefficients.top.x1 * height + layoutCoefficients.top.x2 * measuredHeight + layoutCoefficients.top.x3;
-							
-						// Debugging
-						measuredWidth = Math.round(measuredWidth);
-						measuredHeight = Math.round(measuredHeight);
-						measuredLeft = Math.round(measuredLeft);
-						measuredTop = Math.round(measuredTop);
-						var	pass = child._measuredWidth === measuredWidth && child._measuredHeight === measuredHeight && child._measuredLeft === measuredLeft && child._measuredTop === measuredTop;
-							consoleOp = pass ? "log" : "error";
-						console[consoleOp](
-							child.widgetId + 
-							(pass ? " Passed" : " Failed" +
-							" width:(" + child._measuredWidth + "," + measuredWidth + ")" + 
-							" height:(" + child._measuredHeight + "," + measuredHeight + ")" + 
-							" left:(" + child._measuredLeft + "," + measuredLeft + ")" + 
-							" top:(" + child._measuredTop + "," + measuredTop + ")"));
+						if (isWidthSize && layoutCoefficients.left.x1 > 0) {
+							deferredLeftCalculations.push(child);
+						} else {
+							measuredLeft = layoutCoefficients.left.x1 * width + layoutCoefficients.left.x2 * measuredWidth + layoutCoefficients.left.x3;
+						}
+						if (isHeightSize && layoutCoefficients.top.x1 > 0) {
+							deferredTopCalculations.push(child);
+						} else {
+							measuredTop = layoutCoefficients.top.x1 * height + layoutCoefficients.top.x2 * measuredHeight + layoutCoefficients.top.x3;
+						}
+						
+						child._newMeasuredWidth = measuredWidth;
+						child._newMeasuredHeight = measuredHeight;
+						child._newMeasuredLeft = measuredLeft;
+						child._newMeasuredTop = measuredTop;
 						
 						/**** END OF NEW ALGORITHM ****/
 					}
@@ -88,6 +88,47 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 					bottomMostEdge > computedSize.height && (computedSize.height = bottomMostEdge);
 				}
 			}
+			
+			// Second pass, if necessary, to determine the left/right bounds
+			for(i in deferredLeftCalculations) {
+				child = deferredLeftCalculations[i];
+				layoutCoefficients = child._layoutCoefficients;
+				child._newMeasuredLeft = layoutCoefficients.left.x1 * rightMostEdge + layoutCoefficients.left.x2 * measuredWidth + layoutCoefficients.left.x3;
+			}
+			for(i in deferredTopCalculations) {
+				child = deferredTopCalculations[i];
+				layoutCoefficients = child._layoutCoefficients;
+				child._newMeasuredTop = layoutCoefficients.top.x1 * bottomMostEdge + layoutCoefficients.top.x2 * measuredHeight + layoutCoefficients.top.x3;
+			}
+							
+			// Debugging
+			for(i = 0; i < children.length; i++) {
+				var child = children[i];
+				measuredWidth = Math.round(child._newMeasuredWidth);
+				measuredHeight = Math.round(child._newMeasuredHeight);
+				measuredLeft = Math.round(child._newMeasuredLeft);
+				measuredTop = Math.round(child._newMeasuredTop);
+				var	pass = child._measuredWidth === measuredWidth && 
+					child._measuredHeight === measuredHeight && 
+					child._measuredLeft === measuredLeft && 
+					child._measuredTop === measuredTop;
+					consoleOp = pass ? "log" : "error";
+				console[consoleOp](
+					child.widgetId + 
+					(pass ? " Passed" : " Failed" +
+					" m width:(" + child._measuredWidth + "," + measuredWidth + ")" + 
+					" m height:(" + child._measuredHeight + "," + measuredHeight + ")" + 
+					" m left:(" + child._measuredLeft + "," + measuredLeft + ")" + 
+					" m top:(" + child._measuredTop + "," + measuredTop + ")\n" + 
+					" width:" + child.width + 
+					" height:" + child.height + 
+					" left:" + child.left + 
+					" right:" + child.right + 
+					" top:" + child.top + 
+					" bottom:" + child.bottom + 
+					" center:" + child.center));
+			}
+			
 			return computedSize;
 		},
 		
@@ -107,7 +148,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 				
 				centerX = node.center && node.center.x,
 				centerXType = getValueType(centerX),
-				centerXValue = parseFloat(centerX, centerXType),
+				centerXValue = computeValue(centerX, centerXType),
 				
 				right = node.right,
 				rightType = getValueType(right),
@@ -156,7 +197,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 				
 				x1 = 0;
 				x2 = 0;
-				if (sizeType ===  UI.SIZE) {
+				if (sizeType === UI.SIZE) {
 					x1 = x2 = NaN;
 				} else if (sizeType === UI.FILL) {
 					x1 = 1;
