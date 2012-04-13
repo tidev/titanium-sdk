@@ -1,6 +1,6 @@
 define(
-	["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/_/dom", "Ti/API"],
-	function(_, Evented, lang, ready, style, dom, API) {
+	["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/_/dom"],
+	function(_, Evented, lang, ready, style, dom) {
 
 	var global = window,
 		body = document.body,
@@ -245,7 +245,7 @@ define(
 					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node._getInheritedWidth() === Ti.UI.SIZE, node._getInheritedHeight() === Ti.UI.SIZE);
 				}
 				
-				showStats && API.debug("Layout " + self._layoutCount + ": " + self._elementLayoutCount + 
+				showStats && console.debug("Layout " + self._layoutCount + ": " + self._elementLayoutCount + 
 					" elements laid out in " + ((new Date().getTime() - startTime)) + "ms");
 					
 				self._layoutInProgress = false;

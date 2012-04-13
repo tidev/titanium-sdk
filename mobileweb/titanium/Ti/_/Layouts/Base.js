@@ -1,4 +1,4 @@
-define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/API", "Ti/_/lang", "Ti/UI"], function(css, declare, style, dom, API, lang, UI) {
+define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/lang", "Ti/UI"], function(css, declare, style, dom, lang, UI) {
 	
 	var isDef = lang.isDef;
 
@@ -15,7 +15,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/API", "Ti/_/la
 		
 		verifyChild: function(child, parent) {
 			if (!child._alive || !child.domNode) {
-				API.debug("WARNING: Attempting to layout element that has been destroyed.\n\t Removing the element from the parent.\n\t The parent has a widget ID of " + parent.widgetId + ".");
+				console.debug("WARNING: Attempting to layout element that has been destroyed.\n\t Removing the element from the parent.\n\t The parent has a widget ID of " + parent.widgetId + ".");
 				var children = parent.children;
 				children.splice(children.indexOf(child),1);
 				return;

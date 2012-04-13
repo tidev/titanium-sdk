@@ -1,5 +1,5 @@
-define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network", "Ti/Blob", "Ti/_/event", "Ti/API"],
-	function(_, declare, lang, Evented, Network, Blob, event, API) {
+define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network", "Ti/Blob", "Ti/_/event"],
+	function(_, declare, lang, Evented, Network, Blob, event) {
 
 	var is = require.is,
 		on = require.on;
@@ -117,7 +117,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network", "Ti/B
 						!this._completed && this._onError("Request timed out");
 					}
 				}, timeout)));
-			} catch (ex) {API.debug(ex)}
+			} catch (ex) {console.debug(ex)}
 		},
 
 		setRequestHeader: function(name, value) {

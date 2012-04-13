@@ -13,8 +13,8 @@
  */
 
 define(
-	["Ti/_", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/Buffer", "Ti/Platform", "Ti/UI", "Ti/API", "Ti/Locale", "Ti/_/include"],
-	function(_, analytics, App, Evented, lang, ready, style, Buffer, Platform, UI, API) {
+	["Ti/_", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/Buffer", "Ti/Platform", "Ti/UI", "Ti/Locale", "Ti/_/include"],
+	function(_, analytics, App, Evented, lang, ready, style, Buffer, Platform, UI) {
 
 	var global = window,
 		cfg = require.config,
@@ -54,7 +54,7 @@ define(
 
 			deferStart: function() {
 				if (loaded) {
-					API.warn("app.js already loaded!");
+					console.warn("app.js already loaded!");
 				} else {
 					var n = Math.round(Math.random()*1e12);
 					waiting.push(n);
@@ -299,7 +299,8 @@ define(
 	Object.defineProperty(global, "Ti", { value: Ti, writable: false });
 	Object.defineProperty(global, "Titanium", { value: Ti, writable: false });
 
-	API.info("Appcelerator Titanium " + ver + " Mobile Web");
+	// print the Titanium version *after* the console shim
+	console.info("[INFO] Appcelerator Titanium " + ver + " Mobile Web");
 
 	// make sure we have some vendor prefixes defined
 	cfg.vendorPrefixes || (cfg.vendorPrefixes = ["", "Moz", "Webkit", "O", "ms"]);
