@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiActivityWindows;
@@ -254,6 +255,13 @@ public class TiTabActivity extends TabActivity
 				finish();
 			}
 			return;
+		}
+		
+		if (proxy != null) {
+			KrollDict data = new KrollDict();
+			data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+			proxy.fireSyncEvent(TiC.EVENT_CLOSE, data);		
+			
 		}
 
 		if (!isFinishing())

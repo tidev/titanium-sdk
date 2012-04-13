@@ -630,20 +630,42 @@
 // Some controllers (like MPVideoPlayerController) manually hide/show the bar
 // based on whether or not they enter a "fullscreen" mode, and upon exiting,
 // the root view size needs to be adjusted based on any status bar differences.
--(CGRect)resizeViewForStatusBarHidden:(BOOL)statusBarHidden
+-(CGRect)resizeViewForStatusBarHidden
 {
-    CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
-    BOOL currentlyHiding = [[UIApplication sharedApplication] isStatusBarHidden];
-    if (statusBarHidden != currentlyHiding) {
-        // Modify the app frame before setting it manually
-        if (currentlyHiding) { // Bar was previously visible
-            appFrame.size.width -= TI_STATUSBAR_HEIGHT;
-        }
-        else { // Bar was previously invisible
-            appFrame.size.width += TI_STATUSBAR_HEIGHT;
-        }
+    CGRect screenBounds = [[UIScreen mainScreen] bounds];
+    CGPoint appCenter = CGPointMake(screenBounds.size.width/2.0f, screenBounds.size.height/2.0f);
+    CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
+    if (CGRectIsEmpty(statusBarFrame)) {
+        [[self view] setBounds:screenBounds];
+        [[self view] setCenter:appCenter];
     }
-    [[self view] setFrame:appFrame];    
+    else {
+        CGRect appBounds = CGRectZero;
+        switch ([[UIApplication sharedApplication] statusBarOrientation]) {
+            case UIInterfaceOrientationPortrait:
+                appCenter.y = appCenter.y + TI_STATUSBAR_HEIGHT/2;
+                appBounds.size.width = screenBounds.size.width;
+                appBounds.size.height = screenBounds.size.height - TI_STATUSBAR_HEIGHT;
+                break;
+            case UIInterfaceOrientationPortraitUpsideDown:
+                appCenter.y = appCenter.y - TI_STATUSBAR_HEIGHT/2;
+                appBounds.size.width = screenBounds.size.width;
+                appBounds.size.height = screenBounds.size.height - TI_STATUSBAR_HEIGHT;
+                break;
+            case UIInterfaceOrientationLandscapeLeft:
+                appCenter.x = appCenter.x + TI_STATUSBAR_HEIGHT/2;
+                appBounds.size.height = screenBounds.size.width - TI_STATUSBAR_HEIGHT;
+                appBounds.size.width = screenBounds.size.height;
+                break;
+            case UIInterfaceOrientationLandscapeRight:
+                appCenter.x = appCenter.x - TI_STATUSBAR_HEIGHT/2;
+                appBounds.size.height = screenBounds.size.width - TI_STATUSBAR_HEIGHT;
+                appBounds.size.width = screenBounds.size.height;
+                break;
+        }
+        [[self view] setBounds:appBounds];
+        [[self view] setCenter:appCenter];
+    }
     return [[self view] bounds];
 }
 
@@ -1001,12 +1023,12 @@
 	CGRect focusedToolbarBounds = CGRectMake(0, 0, endingFrame.size.width, [keyboardFocusedProxy keyboardAccessoryHeight]);
 	[focusedToolbar setBounds:focusedToolbarBounds];
 
-	if(scrolledView != nil)	//If this isn't IN the toolbar, then we update the scrollviews to compensate.
+    CGFloat keyboardHeight = endingFrame.origin.y;
+    if(focusedToolbar != nil){
+        keyboardHeight -= focusedToolbarBounds.size.height;
+    }
+	if ((scrolledView != nil) && (keyboardHeight > 0))	//If this isn't IN the toolbar, then we update the scrollviews to compensate.
 	{
-		CGFloat keyboardHeight = endingFrame.origin.y;
-		if(focusedToolbar != nil){
-			keyboardHeight -= focusedToolbarBounds.size.height;
-		}
 		UIView * possibleScrollView = [scrolledView superview];
 		NSMutableArray * confirmedScrollViews = nil;
 		
@@ -1185,17 +1207,19 @@
 		UIView * ourView = [self viewForKeyboardAccessory];
         CGRect rect = [ourView convertRect:endFrame fromView:nil];
 		CGFloat keyboardHeight = rect.origin.y + rect.size.height;
-		UIView * possibleScrollView = [scrolledView superview];
-		UIView<TiScrolling> * confirmedScrollView = nil;
-		while (possibleScrollView != nil)
-		{
-			if ([possibleScrollView conformsToProtocol:@protocol(TiScrolling)])
-			{
-				confirmedScrollView = (UIView<TiScrolling>*)possibleScrollView;
-			}
-			possibleScrollView = [possibleScrollView superview];
-		}
-		[confirmedScrollView keyboardDidShowAtHeight:keyboardHeight];
+        if (keyboardHeight > 0) {
+            UIView * possibleScrollView = [scrolledView superview];
+            UIView<TiScrolling> * confirmedScrollView = nil;
+            while (possibleScrollView != nil)
+            {
+                if ([possibleScrollView conformsToProtocol:@protocol(TiScrolling)])
+                {
+                    confirmedScrollView = (UIView<TiScrolling>*)possibleScrollView;
+                }
+                possibleScrollView = [possibleScrollView superview];
+            }
+            [confirmedScrollView keyboardDidShowAtHeight:keyboardHeight];
+        }
 	}
 
 	if((doomedView == nil) || (leavingAccessoryView == doomedView)){

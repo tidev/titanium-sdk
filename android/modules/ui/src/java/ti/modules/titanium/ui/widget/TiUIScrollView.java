@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -24,11 +24,13 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.MeasureSpec;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ScrollView;
 
-public class TiUIScrollView extends TiUIView {
+public class TiUIScrollView extends TiUIView
+{
 
 	public static final int TYPE_VERTICAL = 0;
 	public static final int TYPE_HORIZONTAL = 1;
@@ -40,28 +42,14 @@ public class TiUIScrollView extends TiUIView {
 	private int offsetX = 0, offsetY = 0;
 	private boolean setInitialOffset = false;
 
-
 	private class TiScrollViewLayout extends TiCompositeLayout
 	{
 		private static final int AUTO = Integer.MAX_VALUE;
-		protected int measuredWidth = 0, measuredHeight = 0;
 		private int parentWidth = 0, parentHeight = 0;
 
 		public TiScrollViewLayout(Context context, LayoutArrangement arrangement)
 		{
 			super(context, arrangement, proxy);
-		}
-
-		private LayoutParams getParams(View child)
-		{
-			return (LayoutParams)child.getLayoutParams();
-		}
-		
-		@Override
-		protected void onLayout(boolean changed, int l, int t, int r, int b)
-		{
-			super.onLayout(changed, l, t, r, b);
-			measuredHeight = measuredWidth = 0;
 		}
 
 		public void setParentWidth(int width)
@@ -72,13 +60,6 @@ public class TiUIScrollView extends TiUIView {
 		public void setParentHeight(int height)
 		{
 			parentHeight = height;
-		}
-
-		@Override
-		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
-		{
-			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-			setMeasuredDimension(Math.max(measuredWidth, getMeasuredWidth()), Math.max(measuredHeight, getMeasuredHeight()));
 		}
 
 		private int getContentProperty(String property)
@@ -104,81 +85,25 @@ public class TiUIScrollView extends TiUIView {
 			return AUTO;
 		}
 
-		private int calculateAbsoluteRight(View child)
-		{
-			LayoutParams p = getParams(child);
-			int contentWidth = getContentProperty(TiC.PROPERTY_CONTENT_WIDTH);
-			if (contentWidth == AUTO) {
-				int childMeasuredWidth = child.getMeasuredWidth();
-				if (!p.sizeOrFillWidthEnabled && p.optionWidth != null) {
-					childMeasuredWidth = getDimensionValue(p.optionWidth, parentWidth);
-				}
-				if (p.optionLeft != null) {
-					childMeasuredWidth += getDimensionValue(p.optionLeft, parentWidth);
-				}
-				if (p.optionRight != null) {
-					childMeasuredWidth += getDimensionValue(p.optionRight, parentWidth);
-				}
-
-				measuredWidth = Math.max(childMeasuredWidth, measuredWidth);
-				// Make parentWidth the minimum value
-				measuredWidth = Math.max(parentWidth, measuredWidth);
-			} else {
-				measuredWidth = contentWidth;
-			}
-
-			return measuredWidth;
-		}
-
-		private int calculateAbsoluteBottom(View child)
-		{
-			LayoutParams p = (LayoutParams) child.getLayoutParams();
-			int contentHeight = getContentProperty(TiC.PROPERTY_CONTENT_HEIGHT);
-
-			if (contentHeight == AUTO) {
-				int childMeasuredHeight = child.getMeasuredHeight();
-				if (!p.sizeOrFillHeightEnabled && p.optionHeight != null) {
-					childMeasuredHeight = getDimensionValue(p.optionHeight, parentHeight);
-				}
-				if (p.optionTop != null) {
-					childMeasuredHeight += getDimensionValue(p.optionTop, parentHeight);
-				}
-				if (p.optionBottom != null) {
-					childMeasuredHeight += getDimensionValue(p.optionBottom, parentHeight);
-				}
-
-				measuredHeight = Math.max(childMeasuredHeight, measuredHeight);
-				// Make parentHeight the minimum value
-				measuredHeight = Math.max(parentHeight, measuredHeight);
-			} else {
-				measuredHeight = contentHeight;
-			}
-			return measuredHeight;
-		}
-
-		private int getDimensionValue(TiDimension dimension, int parentValue)
-		{
-			// getAsPixels doesn't return the correct value for percentages, so we manually calculate the percentage
-			// values here
-			if (dimension.isUnitPercent()) {
-				return (int) ((dimension.getValue() / 100.0) * parentValue);
-			}
-			return dimension.getAsPixels(this);
-		}
-
 		@Override
-		protected void constrainChild(View child, int width, int wMode,
-				int height, int hMode)
+		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 		{
-			super.constrainChild(child, width, wMode, height, hMode);
-			
-			// We need to support an automatically growing contentArea, so this code is
-			// updates the measured dimensions as needed. absWidth, absHeight are
-			// left in for debugging purposes. ATM
-			@SuppressWarnings("unused")
-			int absWidth = calculateAbsoluteRight(child);
-			@SuppressWarnings("unused")
-			int absHeight = calculateAbsoluteBottom(child);
+			int wFromSpec = MeasureSpec.getSize(widthMeasureSpec);
+			int hFromSpec = MeasureSpec.getSize(heightMeasureSpec);
+
+			int measuredHeight = getMeasuredHeight(hFromSpec, 0);
+			int measuredWidth = getMeasuredWidth(wFromSpec, 0);
+
+			// If the content dimensions are greater than the parent dimensions, use the content dimensions
+			// instead to ensure the child views get measured correctly
+			if (wFromSpec == parentWidth && measuredWidth > wFromSpec) {
+				widthMeasureSpec = MeasureSpec.makeMeasureSpec(measuredWidth, MeasureSpec.EXACTLY);
+			}
+			if (hFromSpec == parentHeight && measuredHeight > hFromSpec) {
+				heightMeasureSpec = MeasureSpec.makeMeasureSpec(measuredHeight, MeasureSpec.EXACTLY);
+			}
+
+			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		}
 
 		@Override
@@ -187,7 +112,9 @@ public class TiUIScrollView extends TiUIView {
 			int contentWidth = getContentProperty(TiC.PROPERTY_CONTENT_WIDTH);
 			if (contentWidth == AUTO) {
 				return MeasureSpec.UNSPECIFIED;
-			} else return super.getWidthMeasureSpec(child);
+			} else {
+				return super.getWidthMeasureSpec(child);
+			}
 		}
 
 		@Override
@@ -196,7 +123,9 @@ public class TiUIScrollView extends TiUIView {
 			int contentHeight = getContentProperty(TiC.PROPERTY_CONTENT_HEIGHT);
 			if (contentHeight == AUTO) {
 				return MeasureSpec.UNSPECIFIED;
-			} else return super.getHeightMeasureSpec(child);
+			} else {
+				return super.getHeightMeasureSpec(child);
+			}
 		}
 
 		@Override
@@ -204,8 +133,11 @@ public class TiUIScrollView extends TiUIView {
 		{
 			int contentWidth = getContentProperty(TiC.PROPERTY_CONTENT_WIDTH);
 			if (contentWidth == AUTO) {
-				return maxWidth; //measuredWidth;
-			} else return contentWidth;
+				contentWidth = maxWidth; // measuredWidth;
+			}
+
+			// Force the minimum width of the content view to be the size of its parent (scroll view)
+			return Math.max(contentWidth, parentWidth);
 		}
 
 		@Override
@@ -213,9 +145,11 @@ public class TiUIScrollView extends TiUIView {
 		{
 			int contentHeight = getContentProperty(TiC.PROPERTY_CONTENT_HEIGHT);
 			if (contentHeight == AUTO) {
-				return maxHeight; //measuredHeight;
+				contentHeight = maxHeight; // measuredHeight;
 			}
-			else return contentHeight;
+
+			// Force the minimum height of the content view to be the size of its parent (scroll view)
+			return Math.max(contentHeight, parentHeight);
 		}
 	}
 
@@ -230,24 +164,22 @@ public class TiUIScrollView extends TiUIView {
 			setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
 
 			layout = new TiScrollViewLayout(context, arrangement);
-			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-				ViewGroup.LayoutParams.FILL_PARENT,
+			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
 				ViewGroup.LayoutParams.FILL_PARENT);
 			layout.setLayoutParams(params);
 			super.addView(layout, params);
 		}
 
 		@Override
-		public void addView(View child,
-				android.view.ViewGroup.LayoutParams params)
+		public void addView(View child, android.view.ViewGroup.LayoutParams params)
 		{
 			layout.addView(child, params);
 		}
-		
-		public void onDraw(Canvas canvas) 
+
+		public void onDraw(Canvas canvas)
 		{
 			super.onDraw(canvas);
-			//setting offset once when this view is visible
+			// setting offset once when this view is visible
 			if (!setInitialOffset) {
 				scrollTo(offsetX, offsetY);
 				setInitialOffset = true;
@@ -273,6 +205,24 @@ public class TiUIScrollView extends TiUIView {
 			layout.setParentHeight(MeasureSpec.getSize(heightMeasureSpec));
 			layout.setParentWidth(MeasureSpec.getSize(widthMeasureSpec));
 			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+			// This is essentially doing the same logic as if you did setFillViewPort(true). In native Android, they
+			// don't measure the child again if measured height of content view < scrollViewheight. But we want to do
+			// this in all cases since we allow the content view height to be greater than the scroll view. We force
+			// this to allow fill behavior: TIMOB-8243.
+			if (getChildCount() > 0) {
+				final View child = getChildAt(0);
+				int height = getMeasuredHeight();
+				final FrameLayout.LayoutParams lp = (LayoutParams) child.getLayoutParams();
+
+				int childWidthMeasureSpec = getChildMeasureSpec(widthMeasureSpec, getPaddingLeft() + getPaddingRight(),
+					lp.width);
+				height -= getPaddingTop();
+				height -= getPaddingBottom();
+				int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
+				child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+
+			}
 		}
 	}
 
@@ -284,29 +234,26 @@ public class TiUIScrollView extends TiUIView {
 		{
 			super(context);
 			setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
-			setFillViewport(true);
 			setScrollContainer(true);
 
 			layout = new TiScrollViewLayout(context, arrangement);
-			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-				ViewGroup.LayoutParams.FILL_PARENT,
+			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
 				ViewGroup.LayoutParams.FILL_PARENT);
 			layout.setLayoutParams(params);
 			super.addView(layout, params);
-			
+
 		}
 
 		@Override
-		public void addView(View child,
-				android.view.ViewGroup.LayoutParams params)
+		public void addView(View child, android.view.ViewGroup.LayoutParams params)
 		{
 			layout.addView(child, params);
 		}
-		
-		public void onDraw(Canvas canvas) 
+
+		public void onDraw(Canvas canvas)
 		{
 			super.onDraw(canvas);
-			//setting offset once this view is visible
+			// setting offset once this view is visible
 			if (!setInitialOffset) {
 				scrollTo(offsetX, offsetY);
 				setInitialOffset = true;
@@ -332,6 +279,25 @@ public class TiUIScrollView extends TiUIView {
 			layout.setParentHeight(MeasureSpec.getSize(heightMeasureSpec));
 			layout.setParentWidth(MeasureSpec.getSize(widthMeasureSpec));
 			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+			// This is essentially doing the same logic as if you did setFillViewPort(true). In native Android, they
+			// don't measure the child again if measured width of content view < scroll view width. But we want to do
+			// this in all cases since we allow the content view width to be greater than the scroll view. We force this
+			// to allow fill behavior: TIMOB-8243.
+			if (getChildCount() > 0) {
+				final View child = getChildAt(0);
+				int width = getMeasuredWidth();
+				final FrameLayout.LayoutParams lp = (LayoutParams) child.getLayoutParams();
+
+				int childHeightMeasureSpec = getChildMeasureSpec(heightMeasureSpec, getPaddingTop() + getPaddingBottom(),
+					lp.height);
+				width -= getPaddingLeft();
+				width -= getPaddingRight();
+				int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
+
+				child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+			}
+
 		}
 	}
 
@@ -343,29 +309,29 @@ public class TiUIScrollView extends TiUIView {
 		getLayoutParams().autoFillsWidth = true;
 	}
 
-	public void setContentOffset(int x , int y) 
+	public void setContentOffset(int x, int y)
 	{
 		KrollDict offset = new KrollDict();
-		offsetX = x; 
+		offsetX = x;
 		offsetY = y;
 		offset.put(TiC.EVENT_PROPERTY_X, offsetX);
 		offset.put(TiC.EVENT_PROPERTY_Y, offsetY);
 		getProxy().setProperty(TiC.PROPERTY_CONTENT_OFFSET, offset);
 	}
-	
-	public void setContentOffset(Object hashMap) 
+
+	public void setContentOffset(Object hashMap)
 	{
 		if (hashMap instanceof HashMap) {
-			HashMap contentOffset = (HashMap)hashMap;
+			HashMap contentOffset = (HashMap) hashMap;
 			offsetX = TiConvert.toInt(contentOffset, TiC.PROPERTY_X);
 			offsetY = TiConvert.toInt(contentOffset, TiC.PROPERTY_Y);
 		} else {
 			Log.e(LCAT, "contentOffset must be an instance of HashMap");
 		}
 	}
-	
+
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) 
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (DBG) {
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
@@ -376,7 +342,7 @@ public class TiUIScrollView extends TiUIView {
 		}
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
-	
+
 	@Override
 	public void processProperties(KrollDict d)
 	{
@@ -394,7 +360,7 @@ public class TiUIScrollView extends TiUIView {
 			Log.w(LCAT, "Both scroll bars cannot be shown. Defaulting to vertical shown");
 			showHorizontalScrollBar = false;
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_CONTENT_OFFSET)) {
 			Object offset = d.get(TiC.PROPERTY_CONTENT_OFFSET);
 			setContentOffset(offset);
@@ -429,10 +395,13 @@ public class TiUIScrollView extends TiUIView {
 			} else if (scrollType.equals(TiC.LAYOUT_HORIZONTAL)) {
 				type = TYPE_HORIZONTAL;
 			} else {
-				Log.w(LCAT, "scrollType value '" + TiConvert.toString(scrollType) + "' is invalid. Only 'vertical' and 'horizontal' are supported.");
+				Log.w(LCAT, "scrollType value '" + TiConvert.toString(scrollType)
+					+ "' is invalid. Only 'vertical' and 'horizontal' are supported.");
 			}
 		} else if (!deduced && type == TYPE_VERTICAL) {
-			Log.w(LCAT, "Scroll direction could not be determined based on the provided view properties. Default VERTICAL scroll direction being used. Use the 'scrollType' property to explicitly set the scrolling direction.");
+			Log.w(
+				LCAT,
+				"Scroll direction could not be determined based on the provided view properties. Default VERTICAL scroll direction being used. Use the 'scrollType' property to explicitly set the scrolling direction.");
 		}
 
 		// we create the view here since we now know the potential widget type
@@ -458,11 +427,9 @@ public class TiUIScrollView extends TiUIView {
 				view = new TiVerticalScrollView(getProxy().getActivity(), arrangement);
 		}
 		setNativeView(view);
-	
-		
+
 		nativeView.setHorizontalScrollBarEnabled(showHorizontalScrollBar);
 		nativeView.setVerticalScrollBarEnabled(showVerticalScrollBar);
-		
 
 		super.processProperties(d);
 	}
@@ -471,9 +438,9 @@ public class TiUIScrollView extends TiUIView {
 	{
 		View nativeView = getNativeView();
 		if (nativeView instanceof TiVerticalScrollView) {
-			return ((TiVerticalScrollView)nativeView).layout;
+			return ((TiVerticalScrollView) nativeView).layout;
 		} else {
-			return ((TiHorizontalScrollView)nativeView).layout;
+			return ((TiHorizontalScrollView) nativeView).layout;
 		}
 	}
 
@@ -487,10 +454,10 @@ public class TiUIScrollView extends TiUIView {
 	{
 		View view = getNativeView();
 		if (view instanceof TiHorizontalScrollView) {
-			TiHorizontalScrollView scrollView = (TiHorizontalScrollView)view;
+			TiHorizontalScrollView scrollView = (TiHorizontalScrollView) view;
 			scrollView.fullScroll(View.FOCUS_RIGHT);
 		} else if (view instanceof TiVerticalScrollView) {
-			TiVerticalScrollView scrollView = (TiVerticalScrollView)view;
+			TiVerticalScrollView scrollView = (TiVerticalScrollView) view;
 			scrollView.fullScroll(View.FOCUS_DOWN);
 		}
 	}
@@ -507,7 +474,7 @@ public class TiUIScrollView extends TiUIView {
 			}
 		}
 	}
-	
+
 	@Override
 	public void remove(TiUIView child)
 	{

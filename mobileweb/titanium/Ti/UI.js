@@ -194,6 +194,7 @@ define(
 								break;
 							}
 						}
+						parent._markedForLayout = true;
 						
 						previousParent = parent;
 						parent = parent._parent;
@@ -344,9 +345,9 @@ define(
 			TEXT_AUTOCAPITALIZATION_NONE: 0,
 			TEXT_AUTOCAPITALIZATION_SENTENCES: 2,
 			TEXT_AUTOCAPITALIZATION_WORDS: 1,
-			TEXT_VERTICAL_ALIGNMENT_BOTTOM: 2,
-			TEXT_VERTICAL_ALIGNMENT_CENTER: 1,
-			TEXT_VERTICAL_ALIGNMENT_TOP: 3,
+			TEXT_VERTICAL_ALIGNMENT_BOTTOM: "bottom",
+			TEXT_VERTICAL_ALIGNMENT_CENTER: "center",
+			TEXT_VERTICAL_ALIGNMENT_TOP: "top",
 			ANIMATION_CURVE_EASE_IN: 1,
 			ANIMATION_CURVE_EASE_IN_OUT: 2,
 			ANIMATION_CURVE_EASE_OUT: 3,

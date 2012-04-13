@@ -119,7 +119,10 @@ public class TiFile extends TiBaseFile
 		boolean deleted = true;
 
 		File[] files = d.listFiles();
-		
+		if (files == null) {
+			return false;
+		}
+
 		for (File f : files) {
 			if (f.isFile()) {
 				deleted = f.delete();
