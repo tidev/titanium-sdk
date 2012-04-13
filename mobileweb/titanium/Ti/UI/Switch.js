@@ -11,61 +11,30 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 		constructor: function(args) {
 			
-			// This container holds the flex boxes used to position the elements
-			this._contentContainer = dom.create("div", {
-				className: "TiUISwitchContentContainer",
-				style: {
-					display: ["-webkit-box", "-moz-box"],
-					boxOrient: "vertical",
-					boxPack: "center",
-					boxAlign: "stretch",
-					width: "100%",
-					height: "100%"
-				}
-			}, this.domNode)
+			var contentContainer = this._contentContainer = UI.createView({
+				width: UI.INHERIT,
+				height: UI.INHERIT,
+				layout: "vertical",
+				borderColor: "transparent"
+			});
+			contentContainer._forceInheritenceToFillOrSize = true;
+			this._add(contentContainer);
 			
-			// Create the text box and a flex box to align it
-			this._titleContainer = dom.create("div", {
-				className: "TiUISwitchTextAligner",
-				style: {
-					display: ["-webkit-box", "-moz-box"],
-					boxOrient: "vertical",
-					boxPack: "center",
-					boxAlign: "center",
-					boxFlex: 1
-				}
-			}, this._contentContainer);
-			this._switchTitle = dom.create("div", {
-				className: "TiUISwitchTitle",
-				style: {
-					whiteSpace: "nowrap",
-					pointerEvents: "none",
-					textAlign: "center"
-				}
-			}, this._titleContainer);
-			this._addStyleableDomNode(this._switchTitle);
-
-			// Create the switch indicator and a flex box to contain it
-			this._indicatorContainer = dom.create("div", {
-				className: "TiUISwitchTextAligner",
-				style: {
-					display: ["-webkit-box", "-moz-box"],
-					boxPack: "center",
-					boxAlign: "center",
-					marginTop: "3px"
-				}
-			}, this._contentContainer);
-			this._switchIndicator = dom.create("div", {
-				className: "TiUISwitchIndicator",
-				style: {
-					padding: "4px 4px",
-					borderRadius: "4px",
-					border: "1px solid #888",
-					pointerEvents: "none",
-					width: "40px"
-				}
-			}, this._indicatorContainer);
-			this._switchIndicator.domNode += " TiUISwitchIndicator";
+			contentContainer._add(this._switchTitle = UI.createLabel({
+				width: UI.INHERIT,
+				height: UI.INHERIT,
+				verticalAlign: UI.TEXT_VERTICAL_ALIGNMENT_CENTER,
+				textAlign: UI.TEXT_ALIGNMENT_CENTER
+			}));
+			this._switchTitle._forceInheritenceToFillOrSize = true;
+			
+			contentContainer._add(this._switchIndicator = UI.createView({
+				width: 40,
+				height: 10,
+				borderRadius: 4,
+				borderWidth: 1,
+				borderColor: "#888"
+			}));
 			
 			// Set the default look
 			this._setDefaultLook();
@@ -90,41 +59,23 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		_setDefaultLook: function() {
 			if (!this._hasDefaultLook) {
 				this._hasDefaultLook = true;
-				css.add(this.domNode, "TiUIElementGradient");
 				this._previousBorderWidth = this.borderWidth;
 				this._previousBorderColor = this.borderColor;
-				this.borderWidth = 1;
-				this.borderColor = "#666";
-				setStyle(this.domNode, { 
-					borderRadius: "6px",
-					padding: "6px 6px"
-				});
+				css.add(this.domNode, "TiUIElementGradient");
+				css.add(this.domNode, "TiUIButtonDefault");
+				this._contentContainer.borderWidth = 6;
 			}
 		},
 		
 		_clearDefaultLook: function() {
 			if (this._hasDefaultLook) {
 				this._hasDefaultLook = false;
-				var className = this.domNode.className;
-				css.remove(this.domNode, "TiUIElementGradient");
 				this.borderWidth = this._previousBorderWidth;
 				this.borderColor = this._previousBorderColor;
-				setStyle(this.domNode, { 
-					borderRadius: "",
-					padding: ""
-				});
+				css.remove(this.domNode, "TiUIElementGradient");
+				css.remove(this.domNode, "TiUIButtonDefault");
+				this._contentContainer.borderWidth = 0;
 			}
-		},
-		
-		_getContentSize: function(width, height) {
-			var defaultLookOffset = (this._hasDefaultLook ? 12 : 0);
-			return {
-				width: Math.max(this._measureText(this._switchTitle.innerHTML, this._switchTitle).width, this._switchIndicator.offsetWidth) + defaultLookOffset,
-				height: this._measureText(this._switchTitle.innerHTML, this._switchTitle).height + // Text height
-						this._switchIndicator.offsetHeight + // Indicator height
-						3 + // Padding between the indicator and text
-						defaultLookOffset // Border of the default style
-			};
 		},
 		
 		_defaultWidth: UI.SIZE,
@@ -172,13 +123,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			
 			textAlign: {
 				set: function(value) {
-					var cssValue = "";
-					switch(value) {
-						case UI.TEXT_VERTICAL_ALIGNMENT_TOP: cssValue = "start"; break;
-						case UI.TEXT_VERTICAL_ALIGNMENT_CENTER: cssValue = "center"; break;
-						case UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM: cssValue = "end"; break;
-					}
-					setStyle(this._titleContainer, "boxAlign", cssValue);
+					this._switchTitle.textAlign = value;
 					return value;
 				}
 			},
@@ -186,8 +131,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			titleOff: {
 				set: function(value) {
 					if (!this.value) {
-						this._switchTitle.innerHTML = value;
-						this._hasSizeDimensions() && this._triggerLayout();
+						this._switchTitle.text = value;
 					}
 					return value;
 				},
@@ -197,8 +141,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			titleOn: {
 				set: function(value) {
 					if (this.value) {
-						this._switchTitle.innerHTML = value;
-						this._hasSizeDimensions() && this._triggerLayout();
+						this._switchTitle.text = value;
 					}
 					return value;
 				},
@@ -207,12 +150,9 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			
             value: {
 				set: function(value) {
-					setStyle(this._switchIndicator,{
-						backgroundColor: value ? "#0f0" : "#aaa"
-					});
+					this._switchIndicator.backgroundColor = value ? "#0f0" : "#aaa";
 					value = !!value;
-					this._switchTitle.innerHTML = value ? this.titleOn : this.titleOff;
-					this._hasSizeDimensions() && this._triggerLayout();
+					this._switchTitle.text = value ? this.titleOn : this.titleOff;
 					return value;
 				},
 				post: function() {
@@ -224,13 +164,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			
 			verticalAlign: {
 				set: function(value) {
-					var cssValue = "";
-					switch(value) {
-						case UI.TEXT_VERTICAL_ALIGNMENT_TOP: cssValue = "start"; break;
-						case UI.TEXT_VERTICAL_ALIGNMENT_CENTER: cssValue = "center"; break;
-						case UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM: cssValue = "end"; break;
-					}
-					setStyle(this._titleContainer, "boxPack", cssValue);
+					this._switchTitle.verticalAlign = value;
 				},
 				value: UI.TEXT_VERTICAL_ALIGNMENT_CENTER
 			}
