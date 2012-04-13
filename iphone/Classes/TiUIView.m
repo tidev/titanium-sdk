@@ -1010,9 +1010,15 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+// For subclasses
+-(BOOL)touchedContentViewWithEvent:(UIEvent *)event
+{
+    return NO;
+}
+
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if ([[event touchesForView:self] count] > 0) {
+    if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
         [self processTouchesBegan:touches withEvent:event];
     }
     [super touchesBegan:touches withEvent:event];
@@ -1052,7 +1058,7 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if ([[event touchesForView:self] count] > 0) {
+    if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
         [self processTouchesMoved:touches withEvent:event];
     }
     [super touchesMoved:touches withEvent:event];
@@ -1079,7 +1085,7 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
 {
-    if ([[event touchesForView:self] count] > 0) {
+    if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
         [self processTouchesEnded:touches withEvent:event];
     }
     [super touchesEnded:touches withEvent:event];
@@ -1107,7 +1113,7 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event 
 {
-    if ([[event touchesForView:self] count] > 0) {
+    if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
         [self processTouchesCancelled:touches withEvent:event];
     }
     [super touchesCancelled:touches withEvent:event];
