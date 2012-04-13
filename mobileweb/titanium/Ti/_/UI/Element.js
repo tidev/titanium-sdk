@@ -124,8 +124,27 @@ define(
 			this.addEventListener("touchstart", bg);
 			this.addEventListener("touchend", bg);
 
-			// TODO: mixin JSS rules (http://jira.appcelerator.org/browse/TIMOB-6780)
 			var values = this.constants.__values__;
+			this._layoutCoefficients = {
+				width: {
+					x1: 0,
+					x2: 0
+				},
+				height: {
+					x1: 0,
+					x2: 0
+				},
+				left: {
+					x1: 0,
+					x2: 0,
+					x2: 0
+				},
+				top: {
+					x1: 0,
+					x2: 0,
+					x2: 0
+				}
+			}
 			values.size = {
 				x: 0,
 				y: 0,
@@ -369,10 +388,7 @@ define(
 						height: this.height
 					},
 					layoutChildren: params.layoutChildren
-				}),
-				measuredDimensions = this._measuredDimensions;
-				
-			this._parent && this._parent.layout === "composite" && console.log(this.widgetId,dimensions.width, measuredDimensions.width.x1 * params.boundingSize.width + measuredDimensions.width.x2, dimensions.height, measuredDimensions.height.x1 * params.boundingSize.height + measuredDimensions.height.x2);
+			});
 				
 			if (params.positionElement) {
 				UI._elementLayoutCount++;
@@ -1030,27 +1046,6 @@ define(
 				for (var i in this.children) {
 					this.children[i]._setTouchEnabled(value);
 				}
-			}
-		},
-		
-		_measuredDimensions: {
-			width: {
-				x1: 0,
-				x2: 0
-			},
-			height: {
-				x1: 0,
-				x2: 0
-			},
-			left: {
-				x1: 0,
-				x2: 0,
-				x2: 0
-			},
-			top: {
-				x1: 0,
-				x2: 0,
-				x2: 0
 			}
 		},
 		

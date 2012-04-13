@@ -6,14 +6,19 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 		
 		_doLayout: function(element, width, height, isWidthSize, isHeightSize) {
 			var computedSize = this._computedSize = {width: 0, height: 0},
-				children = element.children;
+				children = element.children,
+				layoutCoefficients, childSize,
+				measuredWidth, measuredHeight, measuredLeft, measuredTop,
+				deferredLeftCalculations = [],
+				deferredRightCalculations = [];
 			for(var i = 0; i < children.length; i++) {
 				
 				// Layout the child
 				var child = element.children[i];
 				if (this.verifyChild(child,element)) {
 					if (child._markedForLayout) {
-						child._needsMeasuring && this._measureNode(child);
+						
+						/**** START OF OLD ALGORITHM ****/
 						child._doLayout({
 						 	origin: {
 						 		x: 0,
@@ -34,6 +39,46 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 						 	positionElement: true,
 						 	layoutChildren: true
 					 	});
+						/**** END OF OLD ALGORITHM ****/
+						
+						/**** START OF NEW ALGORITHM ****/
+						child._needsMeasuring && this._measureNode(child);
+						
+						layoutCoefficients = child._layoutCoefficients,
+						measuredWidth = layoutCoefficients.width.x1 * width + layoutCoefficients.width.x2,
+						measuredHeight = layoutCoefficients.height.x1 * height + layoutCoefficients.height.x2;
+							
+						if (isNaN(layoutCoefficients.width.x1) || isNaN(layoutCoefficients.height.x1)) {
+							if (child._getContentSize) {
+								childSize = child._getContentSize();
+							} else {
+								childSize = child._layout._doLayout(child, width, height, true, true);
+							}
+							if (isNaN(layoutCoefficients.width.x1)) {
+								measuredWidth = childSize.width;
+							}
+							isNaN(layoutCoefficients.height.x1) && (measuredHeight = childSize.height);
+						}
+						
+						measuredLeft = layoutCoefficients.left.x1 * width + layoutCoefficients.left.x2 * measuredWidth + layoutCoefficients.left.x3;
+						measuredTop = layoutCoefficients.top.x1 * height + layoutCoefficients.top.x2 * measuredHeight + layoutCoefficients.top.x3;
+							
+						// Debugging
+						measuredWidth = Math.round(measuredWidth);
+						measuredHeight = Math.round(measuredHeight);
+						measuredLeft = Math.round(measuredLeft);
+						measuredTop = Math.round(measuredTop);
+						var	pass = child._measuredWidth === measuredWidth && child._measuredHeight === measuredHeight && child._measuredLeft === measuredLeft && child._measuredTop === measuredTop;
+							consoleOp = pass ? "log" : "error";
+						console[consoleOp](
+							child.widgetId + 
+							(pass ? " Passed" : " Failed" +
+							" width:(" + child._measuredWidth + "," + measuredWidth + ")" + 
+							" height:(" + child._measuredHeight + "," + measuredHeight + ")" + 
+							" left:(" + child._measuredLeft + "," + measuredLeft + ")" + 
+							" top:(" + child._measuredTop + "," + measuredTop + ")"));
+						
+						/**** END OF NEW ALGORITHM ****/
 					}
 					
 					// Update the size of the component
@@ -80,18 +125,16 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 				bottomType = getValueType(bottom),
 				bottomValue = computeValue(bottom, bottomType),
 				
-				value,
-				units,
 				x1, x2, x3,
-				measuredDimensions = node._measuredDimensions;
+				layoutCoefficients = node._layoutCoefficients;
 				
 			// Apply the default width and pre-process width and height
 			!isDef(width) && (isDef(left) + isDef(centerX) + isDef(right) < 2) && (width = node._defaultWidth);
 			!isDef(height) && (isDef(top) + isDef(centerY) + isDef(bottom) < 2) && (height = node._defaultHeight);
 			var widthType = getValueType(width),
-				widthValue = parseFloat(width, widthType),
+				widthValue = computeValue(width, widthType),
 				heightType = getValueType(height),
-				heightValue = parseFloat(height, heightType);
+				heightValue = computeValue(height, heightType);
 			
 			// Width/height rule evaluation
 			var paramsSet = {
@@ -114,8 +157,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 				x1 = 0;
 				x2 = 0;
 				if (sizeType ===  UI.SIZE) {
-					x1 = "defer";
-					x2 = "defer";
+					x1 = x2 = NaN;
 				} else if (sizeType === UI.FILL) {
 					x1 = 1;
 					if (startType === "%") {
@@ -171,8 +213,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 						x2 = 2 * (endValue - centerValue);
 					}
 				}
-				measuredDimensions[i].x1 = x1;
-				measuredDimensions[i].x2 = x2;
+				layoutCoefficients[i].x1 = x1;
+				layoutCoefficients[i].x2 = x2;
 			}
 			
 			// Left/top rule evaluation
@@ -221,9 +263,9 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 							x2 = -1;
 					}
 				}
-				measuredDimensions[i].x1 = x1;
-				measuredDimensions[i].x2 = x2;
-				measuredDimensions[i].x3 = x3;
+				layoutCoefficients[i].x1 = x1;
+				layoutCoefficients[i].x2 = x2;
+				layoutCoefficients[i].x3 = x3;
 			}
 		},
 		
