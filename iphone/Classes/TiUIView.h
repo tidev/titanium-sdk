@@ -228,6 +228,12 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 -(UIView *)gradientWrapperView;
 -(void)checkBounds;
 
+/**
+ Whether or not a view not normally picked up by the Titanium view hierarchy (such as wrapped iOS UIViews) was touched.
+ @return _YES_ if the view contains specialized content (such as a system view) which should register as a touch for this view, _NO_ otherwise.
+ */
+-(BOOL)touchedContentViewWithEvent:(UIEvent*)event;
+
 - (void)processTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
 - (void)processTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event;
 - (void)processTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
