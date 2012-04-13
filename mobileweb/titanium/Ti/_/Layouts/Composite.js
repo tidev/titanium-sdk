@@ -8,7 +8,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 			var computedSize = this._computedSize = {width: 0, height: 0},
 				children = element.children,
 				child,
-				layoutCoefficients, childSize,
+				layoutCoefficients, 
+				childSize,
 				measuredWidth, measuredHeight, measuredLeft, measuredTop,
 				deferredLeftCalculations = [],
 				deferredTopCalculations = [],
@@ -49,18 +50,14 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 						layoutCoefficients = child._layoutCoefficients,
 						measuredWidth = layoutCoefficients.width.x1 * width + layoutCoefficients.width.x2,
 						measuredHeight = layoutCoefficients.height.x1 * height + layoutCoefficients.height.x2;
-							
-						if (isNaN(layoutCoefficients.width.x1) || isNaN(layoutCoefficients.height.x1)) {
-							if (child._getContentSize) {
-								childSize = child._getContentSize();
-							} else {
-								childSize = child._layout._doLayout(child, width, height, true, true);
-							}
-							if (isNaN(layoutCoefficients.width.x1)) {
-								measuredWidth = childSize.width;
-							}
-							isNaN(layoutCoefficients.height.x1) && (measuredHeight = childSize.height);
+						
+						if (child._getContentSize) {
+							childSize = child._getContentSize();
+						} else {
+							childSize = child._layout._doLayout(child, width, height, true, true);
 						}
+						isNaN(layoutCoefficients.width.x1) && (measuredWidth = childSize.width);
+						isNaN(layoutCoefficients.height.x1) && (measuredHeight = childSize.height);
 						
 						if (isWidthSize && layoutCoefficients.left.x1 > 0) {
 							deferredLeftCalculations.push(child);
