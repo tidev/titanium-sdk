@@ -134,6 +134,11 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 	return fileURLify([NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]);
 }
 
+-(NSString*)applicationCacheDirectory
+{
+    return fileURLify([NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0]);
+}
+
 -(NSString*)tempDirectory
 {
 	return fileURLify(NSTemporaryDirectory());

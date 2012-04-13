@@ -218,8 +218,15 @@ define(
 			var parent = this._parent,
 				parentWidth;
 			if (parent) {
-				parentWidth = lang.val(parent.width,parent._defaultWidth);
-				return parentWidth === UI.INHERIT ? parent._getInheritedWidth() : parentWidth;
+				if (isDef(parent.width)) {
+					parentWidth = parent.width;
+				} else if (isDef(parent.left) + isDef(parent.right) + !!(parent.center && isDef(parent.center.x)) < 2) {
+					parentWidth = parent._defaultWidth;
+				} else {
+					parentWidth = UI.FILL;
+				}
+				parentWidth = parentWidth === UI.INHERIT ? parent._getInheritedWidth() : parentWidth
+				return this._forceInheritenceToFillOrSize ? parentWidth === UI.SIZE ? UI.SIZE : UI.FILL : parentWidth;
 			}
 		},
 		
@@ -227,16 +234,28 @@ define(
 			var parent = this._parent,
 				parentHeight;
 			if (parent) {
-				parentHeight = lang.val(parent.height,parent._defaultHeight);
-				return parentHeight === UI.INHERIT ? parent._getInheritedHeight() : parentHeight;
+				if (isDef(parent.height)) {
+					parentHeight = parent.height;
+				} else if (isDef(parent.top) + isDef(parent.bottom) + !!(parent.center && isDef(parent.center.y)) < 2) {
+					parentHeight = parent._defaultHeight;
+				} else {
+					parentHeight = UI.FILL;
+				}
+				parentHeight = parentHeight === UI.INHERIT ? parent._getInheritedHeight() : parentHeight
+				return this._forceInheritenceToFillOrSize ? parentHeight === UI.SIZE ? UI.SIZE : UI.FILL : parentHeight;
 			}
 		},
 		
 		_hasSizeDimensions: function() {
-			var width = this._getInheritedWidth(),
-				height = this._getInheritedHeight()
-			return (this._width === UI.SIZE || width === UI.SIZE) || 
-				(this._height === UI.SIZE || height === UI.SIZE);
+			var widthOverride = isDef(this.left) + isDef(this.right) + isDef(this.center && this.center.x) > 1,
+				heightOverride = isDef(this.top) + isDef(this.bottom) + isDef(this.center && this.center.y) > 1,
+				isWidthSize,
+				isHeightSize,
+				width = lang.val(this.width,this._defaultWidth),
+				height = lang.val(this.height,this._defaultHeight);
+			(isDef(this.width) || !widthOverride) && (isWidthSize = (width === UI.INHERIT ? this._getInheritedWidth() : width) === UI.SIZE);
+			(isDef(this.height) || !heightOverride) && (isHeightSize = (height === UI.INHERIT ? this._getInheritedHeight() : height) === UI.SIZE);
+			return isWidthSize || isHeightSize;
 		},
 		
 		_hasFillWidth: function() {
@@ -383,8 +402,9 @@ define(
 		_computeDimensions: function(params) {
 			
 			var layoutParams = params.layoutParams,
-				boundingWidth = layoutParams.boundingSize.width,
-				boundingHeight = layoutParams.boundingSize.height,
+				boundingSize = layoutParams.boundingSize,
+				boundingWidth = boundingSize.width,
+				boundingHeight = boundingSize.height,
 				position = params.position,
 				size  = params.size,
 				
@@ -409,6 +429,20 @@ define(
 			
 			is(width,"Number") && (width = Math.max(width,0));
 			is(height,"Number") && (height = Math.max(height,0));
+			
+			// Calculate the border
+			function getValue(value) {
+				var value = parseInt(computedStyle[value]);
+				return isNaN(value) ? 0 : value;
+			}
+					
+			var computedStyle = window.getComputedStyle(this.domNode),
+				borderSize = {
+					left: getValue("border-left-width"),
+					top: getValue("border-top-width"),
+					right: getValue("border-right-width"),
+					bottom: getValue("border-bottom-width")
+				};
 
 			// Unfortunately css precidence doesn't match the titanium, so we have to handle precedence and default setting ourselves
 			var defaultWidth = this._defaultWidth;
@@ -484,20 +518,6 @@ define(
 					}
 				}
 			}
-			
-			// Calculate the border
-			function getValue(value) {
-				var value = parseInt(computedStyle[value]);
-				return isNaN(value) ? 0 : value;
-			}
-					
-			var computedStyle = window.getComputedStyle(this.domNode),
-				borderSize = {
-					left: getValue("border-left-width") + getValue("padding-left"),
-					top: getValue("border-top-width") + getValue("padding-top"),
-					right: getValue("border-right-width") + getValue("padding-right"),
-					bottom: getValue("border-bottom-width") + getValue("padding-bottom")
-				};
 				
 			function constrainValue(value, minValue, maxValue) {
 				return (isDef(minValue) && minValue > value ? minValue : // Apply the min width 
@@ -521,7 +541,7 @@ define(
 					if (isDef(left)) {
 						width = right - left;
 					} else {
-						left = right - width;
+						left = right - width - borderSize.left - borderSize.right;
 					}
 				}
 				width = constrainValue(width, this._minWidth, this._maxWidth) - borderSize.left - borderSize.right;
@@ -540,7 +560,7 @@ define(
 					if (isDef(top)) {
 						height = bottom - top;
 					} else {
-						top = bottom - height;
+						top = bottom - height - borderSize.top - borderSize.bottom;
 					}
 				}
 				height = constrainValue(height, this._minHeight, this._maxHeight) - borderSize.top - borderSize.bottom;
@@ -563,36 +583,32 @@ define(
 			
 			if (calculateWidthAfterChildren) {
 				if (isDef(right) && !isDef(left)) {
-					left = right - width;
+					left = right - width - borderSize.left - borderSize.right;
 				}
 			}
 			if (calculateHeightAfterChildren) {
 				if (isDef(bottom) && !isDef(top)) {
-					top = bottom - height;
+					top = bottom - height - borderSize.top - borderSize.bottom;
 				}
 			}
 
 			// Set the default top/left if need be
 			if (left === "calculateDefault") {
-				if (!layoutParams.isParentSize.width) {
-					switch(layoutParams.alignment.horizontal) {
-						case "center": left = computeSize("50%",boundingWidth) - borderSize.left - (is(width,"Number") ? width : 0) / 2; break;
-						case "right": left = boundingWidth - borderSize.left - borderSize.right - (is(width,"Number") ? width : 0) / 2; break;
-						default: left = 0; // left
-					}
-				} else {
-					left = 0;
+				var normalizedWidth = is(width,"Number") ? width : 0,
+					localBoundingWidth = layoutParams.isParentSize.width ? lang.val(boundingSize.sizeWidth, width + borderSize.left + borderSize.right) : boundingWidth;
+				switch(layoutParams.alignment.horizontal) {
+					case "center": left = computeSize("50%",localBoundingWidth) - borderSize.left - normalizedWidth / 2; break;
+					case "right": left = localBoundingWidth - borderSize.left - borderSize.right - normalizedWidth / 2; break;
+					default: left = 0; // left
 				}
 			}
 			if (top === "calculateDefault") {
-				if (!layoutParams.isParentSize.height) {
-					switch(layoutParams.alignment.vertical) {
-						case "center": top = computeSize("50%",boundingHeight) - borderSize.top - (is(height,"Number") ? height : 0) / 2; break;
-						case "bottom": top = boundingWidth - borderSize.top - borderSize.bottom - (is(height,"Number") ? height : 0) / 2; break;
-						default: top = 0; // top
-					}
-				} else {
-					top = 0;
+				var normalizedHeight = is(height,"Number") ? height : 0,
+					localBoundingHeight = layoutParams.isParentSize.height ? lang.val(boundingSize.sizeHeight, height + borderSize.top + borderSize.bottom) : boundingHeight;
+				switch(layoutParams.alignment.vertical) {
+					case "center": top = computeSize("50%",localBoundingHeight) - borderSize.top - normalizedHeight / 2; break;
+					case "bottom": top = localBoundingHeight - borderSize.top - borderSize.bottom - normalizedHeight / 2; break;
+					default: top = 0; // top
 				}
 			}
 			

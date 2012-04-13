@@ -198,6 +198,7 @@ public class TabGroupProxy extends TiWindowProxy
 			}
 
 			Intent intent = new Intent(tta, TiActivity.class);
+			windowProxy.setParent(tab);
 			windowProxy.fillIntentForTab(intent, tab);
 			
 			tspec.setContent(intent);
