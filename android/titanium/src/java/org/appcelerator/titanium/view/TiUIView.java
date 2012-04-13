@@ -854,6 +854,8 @@ public abstract class TiUIView
 		} else if (property.equals(TiC.PROPERTY_BORDER_WIDTH)) {
 			border.setWidth(TiConvert.toFloat(value));
 		}
+		//recalculate bounds since border is changed.
+		background.onBoundsChange(background.getBounds());
 		applyCustomBackground();
 	}
 
@@ -903,11 +905,9 @@ public abstract class TiUIView
 		}
 	}
 
-	protected void registerForTouch(final View touchable)
+	protected void registerTouchEvents(final View touchable)
 	{
-		if (touchable == null) {
-			return;
-		}
+		
 		touchView = new WeakReference<View>(touchable);
 		final GestureDetector detector = new GestureDetector(touchable.getContext(),
 			new SimpleOnGestureListener() {
@@ -934,6 +934,23 @@ public abstract class TiUIView
 						// onSingleTapConfirmed is *not* called in the course of onTouchEvent.  It's
 						// called via Handler in GestureDetector. <-- See its Java source.
 						//return handledTap;// || handledClick;
+					}
+					return false;
+				}
+				@Override
+				public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
+				{
+					if (DBG){
+						Log.d(LCAT, "SWIPE on " + proxy);
+					}
+					if (proxy.hierarchyHasListener(TiC.EVENT_SWIPE)) {
+						KrollDict data = dictFromEvent(e2);
+						if (Math.abs(velocityX) > Math.abs(velocityY)) {
+							data.put(TiC.EVENT_PROPERTY_DIRECTION, velocityX > 0 ? "right" : "left");
+						} else {
+							data.put(TiC.EVENT_PROPERTY_DIRECTION, velocityY > 0 ? "down" : "up");
+						}
+						proxy.fireEvent(TiC.EVENT_SWIPE, data);
 					}
 					return false;
 				}
@@ -992,6 +1009,16 @@ public abstract class TiUIView
 				return handled;
 			}
 		});
+		
+	}
+	protected void registerForTouch(final View touchable)
+	{
+		if (touchable == null) {
+			return;
+		}
+		
+		registerTouchEvents(touchable);
+		
 		// Previously, we used the single tap handling above to fire our click event.  It doesn't
 		// work: a single tap is not the same as a click.  A click can be held for a while before
 		// lifting the finger; a single-tap is only generated from a quick tap (which will also cause

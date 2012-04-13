@@ -15,6 +15,9 @@
 namespace titanium {
 
 JavaVM* JNIUtil::javaVm = NULL;
+
+jobject JNIUtil::undefinedObject = NULL;
+
 jclass JNIUtil::classClass = NULL;
 jclass JNIUtil::objectClass = NULL;
 jclass JNIUtil::stringClass = NULL;
@@ -255,6 +258,7 @@ void JNIUtil::initCache()
 	LOG_TIMER(TAG, "initializing JNI cache");
 
 	JNIEnv *env = JNIScope::getEnv();
+
 	classClass = findClass("java/lang/Class");
 	objectClass = findClass("java/lang/Object");
 	numberClass = findClass("java/lang/Number");
@@ -352,6 +356,9 @@ void JNIUtil::initCache()
 	krollAssetHelperFileExistsMethod = getMethodID(krollAssetHelperClass, "fileExists", "(Ljava/lang/String;)Z", true);
 
 	krollLoggingLogWithDefaultLoggerMethod = getMethodID(krollLoggingClass, "logWithDefaultLogger", "(ILjava/lang/String;)V", true);
+
+	jfieldID undefinedObjectField = env->GetStaticFieldID(krollRuntimeClass, "UNDEFINED", "Ljava/lang/Object;");
+	undefinedObject = env->NewGlobalRef(env->GetStaticObjectField(krollRuntimeClass, undefinedObjectField));
 }
 
 } // namespace titanium

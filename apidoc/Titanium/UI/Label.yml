@@ -141,7 +141,7 @@ examples:
               shadowColor: '#aaa',
               shadowOffset: {x:5, y:5},
               text: 'A simple label',
-              textAlign: 'center',
+              textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
               top: 30,
               height: 'auto',
               width: 'auto'
@@ -150,7 +150,7 @@ examples:
             var label2 = Ti.UI.createLabel({
               color:'blue',
               text: 'A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n',
-              textAlign: 'left',
+              textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
               top: 30,
               height: 200,
               width: 300

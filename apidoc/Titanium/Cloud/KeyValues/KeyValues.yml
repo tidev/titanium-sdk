@@ -104,7 +104,7 @@ examples:
                     alert('Success');
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 
@@ -122,7 +122,7 @@ examples:
                         'value: ' + keyvalue.value);
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 
@@ -141,7 +141,7 @@ examples:
                          'value: ' + keyvalue.value);
                  } else {
                      alert('Error:\\n' +
-                         ((e.error && e.message) || JSON.stringify(e))
+                         ((e.error && e.message) || JSON.stringify(e)));
                  }
 
             });
@@ -161,7 +161,7 @@ examples:
                          'value: ' + keyvalue.value);
                  } else {
                      alert('Error:\\n' +
-                         ((e.error && e.message) || JSON.stringify(e))
+                         ((e.error && e.message) || JSON.stringify(e)));
                  }
 
             });
@@ -177,7 +177,7 @@ examples:
                      alert('Success');
                  } else {
                      alert('Error:\\n' +
-                         ((e.error && e.message) || JSON.stringify(e))
+                         ((e.error && e.message) || JSON.stringify(e)));
                  }
 
             });

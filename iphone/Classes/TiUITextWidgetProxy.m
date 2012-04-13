@@ -43,15 +43,22 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 }
 
 
--(BOOL)hasText
+-(NSNumber*)hasText:(id)unused
 {
-	if ([self viewAttached])
-	{
-		return [(TiUITextWidget*)[self view] hasText];
-	}
-	NSString *value = [self valueForKey:@"value"];
-	return value!=nil && [value length] > 0;
+    if ([self viewAttached]) {
+        __block BOOL viewHasText = NO;
+        TiThreadPerformOnMainThread(^{
+            viewHasText = [(TiUITextWidget*)[self view] hasText];
+        }, YES);
+        return [NSNumber numberWithBool:viewHasText];
+    }
+    else {
+        NSString *value = [self valueForKey:@"value"];
+        BOOL viewHasText = value!=nil && [value length] > 0;
+        return [NSNumber numberWithBool:viewHasText];
+    }
 }
+
 
 -(void)blur:(id)args
 {
@@ -86,6 +93,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 {
 	if (![[self valueForKey:@"value"] isEqual:newValue])
 	{
+        [self contentsWillChange];
 		[self replaceValue:newValue forKey:@"value" notification:NO];
 		[self fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
 	}

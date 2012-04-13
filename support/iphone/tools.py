@@ -4,8 +4,6 @@ import os, sys, codecs, shutil, filecmp
 # the template_dir is the path where this file lives on disk
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
-from pbxproj import PBXProj
-
 def ensure_dev_path(debug=True):
 	rc = os.system("xcode-select -print-path >/dev/null 2>/dev/null")
 	if rc == 0 :
@@ -83,6 +81,7 @@ def locate_modules(modules, project_dir, assets_dest_dir, log):
 	
 def link_modules(modules, name, proj_dir, relative=False):
 	if len(modules)>0:
+		from pbxproj import PBXProj
 		proj = PBXProj()
 		xcode_proj = os.path.join(proj_dir,'%s.xcodeproj'%name,'project.pbxproj')
 		current_xcode = open(xcode_proj).read()

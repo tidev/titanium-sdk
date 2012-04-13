@@ -421,7 +421,7 @@ def fastdev(args):
 def help(args=[],suppress_banner=False):
 	if not suppress_banner:
 		print "Appcelerator Titanium"
-		print "Copyright (c) 2010-2011 by Appcelerator, Inc."
+		print "Copyright (c) 2010-2012 by Appcelerator, Inc."
 		print
 	
 	if len(args)==0:

@@ -11,7 +11,13 @@ description: |
     Note that this module is not included in the Titanium namespace, but it is bundled with the Titanium SDK as of
     version 2.0.0. To use it, you must require it, like this:
     
-        var Push = require('ti.push');
+        var CloudPush = require('ti.cloudpush');
+    
+    This module must also be added to the modules section in your tiapp.xml. This can be done using the Modules list in
+    the Titanium Studio TiApp Editor, or by editing the XML directly and adding the following line to the modules
+    element:
+    
+        <module platform="android">ti.cloudpush</module>
     
     Your app must prove that it is allowed to talk to ACS. This keeps your data secure by preventing anyone from
     making requests to ACS that impersonate your app.
@@ -38,17 +44,17 @@ description: |
 platforms: [android]
 since: "2.0.0"
 extends: Titanium.Module
-properties:
-  - name: deviceToken
-    summary: A token which uniquely identifies this installation of the application.
+methods:
+  - name: retrieveDeviceToken
+    summary: Asynchronously retrieves the application specific device token.
     description: |
-        If you are using this module with the <Titanium.Cloud> module, this is the token that you will need to send when
-        you call <Titanium.Cloud.PushNotifications.subscribe> and <Titanium.Cloud.PushNotifications.unsubscribe>.
-        
-        Note that this token is unique to your application. If you have multiple applications installed on one device,
-        the tokens will be different for each of them.
-    type: String
-    permission: read-only
+        This token is used in calls to the Appcelerator Cloud Service's subscribe or unsubscribe to push notification
+        channels. This token is unique to each application and device.
+    parameters:
+      - name: config
+        summary: Dictionary specifying token retrieval related options. 
+        type: CloudPushNotificationConfig
+properties:
   - name: enabled
     summary: Whether or not this device will receive push notifications.
     description: |
@@ -136,8 +142,15 @@ examples:
   - title: Listening for Push Notifications
     example: |
         This example lets the user choose if push notifications should be enabled, and listens for several events.
-            var Push = require('ti.push');
-            Ti.API.info('Device Token: ' + Push.deviceToken);
+            var CloudPush = require('ti.cloudpush');
+            CloudPush.retrieveDeviceToken({
+                success: function deviceTokenSuccess(e) {
+                    Ti.API.info('Device Token: ' + e.deviceToken);
+                },
+                error: function deviceTokenError(e) {
+                    alert('Failed to register for push! ' + e.error);
+                }
+            });
             var win = Ti.UI.createWindow({
                 layout: 'vertical',
                 backgroundColor: 'white'
@@ -146,16 +159,47 @@ examples:
                 title: 'Enable Push Notifications'
             });
             enablePush.addEventListener('click', function () {
-                Push.enabled = true;
+                CloudPush.enabled = true;
             });
             win.add(enablePush);
-            Push.addEventListener('callback', function (evt) {
+            CloudPush.addEventListener('callback', function (evt) {
                 alert(evt.payload);
             });
-            Push.addEventListener('trayClickLaunchedApp', function (evt) {
+            CloudPush.addEventListener('trayClickLaunchedApp', function (evt) {
                 Ti.API.info('Tray Click Launched App (app was not running)');
             });
-            Push.addEventListener('trayClickFocusedApp', function (evt) {
+            CloudPush.addEventListener('trayClickFocusedApp', function (evt) {
                 Ti.API.info('Tray Click Focused App (app was already running)');
             });
             win.open();
+---
+name: CloudPushNotificationConfig
+summary: |
+    Simple object for specifying token retrieval options to [retrieveDeviceToken](Titanium.CloudPush.retrieveDeviceToken).
+properties:
+  - name: success 
+    summary: |
+        Callback function called when the push registration is successfully completed.
+    type: Callback<CloudPushNotificationSuccessArg>
+  - name: error
+    summary: |
+        Callback function called when an error occurs during registration.
+    type: Callback<CloudPushNotificationErrorArg>
+
+---
+name: CloudPushNotificationSuccessArg
+summary: |
+    A simple object passed to the [retrieveDeviceToken](Titanium.CloudPush.retrieveDeviceToken) success callback.
+properties: 
+  - name: deviceToken 
+    summary: The device token which this device was registered for.
+    type: String
+
+---
+name: CloudPushNotificationErrorArg
+summary: |
+    A simple object passed to the [retrieveDeviceToken](Titanium.CloudPush.retrieveDeviceToken) error callback.
+properties: 
+  - name: error 
+    summary: Description of the error.
+    type: String
