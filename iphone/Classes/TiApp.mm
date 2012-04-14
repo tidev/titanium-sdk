@@ -178,9 +178,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     [window makeKeyAndVisible];
 }
 
--(BOOL)windowIsKeyWindow:(UIWindow*)window_
+-(BOOL)windowIsKeyWindow
 {
-    return (window == window_);
+    return [window isKeyWindow];
 }
 
 -(void)attachXHRBridgeIfRequired

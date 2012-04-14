@@ -99,7 +99,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 
 +(TiContextGroupRef)contextGroup;
 
--(BOOL)windowIsKeyWindow:(UIWindow*)window_;
+-(BOOL)windowIsKeyWindow;
 
 -(void)attachXHRBridgeIfRequired;
 

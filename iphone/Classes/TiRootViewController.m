@@ -581,12 +581,9 @@
 }
 -(void)refreshOrientationWithDuration:(NSTimeInterval) duration
 {
-    if ([[[UIApplication sharedApplication] windows] count] > 1) {
-        //Short circuit the whole thing if I am not key window
-        if (![[TiApp app] windowIsKeyWindow:[[UIApplication sharedApplication] keyWindow]]) {
-            VerboseLog(@"[DEBUG] RETURNING BECAUSE WE ARE NOT KEY WINDOW");
-            return;
-        }
+    if (![[TiApp app] windowIsKeyWindow]) {
+        VerboseLog(@"[DEBUG] RETURNING BECAUSE WE ARE NOT KEY WINDOW");
+        return;
     }
 
 	/*
