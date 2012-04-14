@@ -21,7 +21,7 @@ public class CalendarProxy extends KrollProxy {
 
 	protected String id, name;
 	protected boolean selected, hidden;
-	private static final long DATE_RANGE_LIMIT = 2 * DateUtils.YEAR_IN_MILLIS - 3 * DateUtils.DAY_IN_MILLIS;
+	private static final long MAX_DATE_RANGE = 2 * DateUtils.YEAR_IN_MILLIS - 3 * DateUtils.DAY_IN_MILLIS;
 
 	public CalendarProxy(String id, String name, boolean selected, boolean hidden)
 	{
@@ -149,9 +149,9 @@ public class CalendarProxy extends KrollProxy {
 		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
 
 		// A workaround for TIMOB-8439
-		while (end - start > DATE_RANGE_LIMIT) {
-			events.addAll(EventProxy.queryEventsBetweenDates(start, start + DATE_RANGE_LIMIT, this));
-			start += DATE_RANGE_LIMIT;
+		while (end - start > MAX_DATE_RANGE) {
+			events.addAll(EventProxy.queryEventsBetweenDates(start, start + MAX_DATE_RANGE, this));
+			start += MAX_DATE_RANGE;
 		}
 
 		events.addAll(EventProxy.queryEventsBetweenDates(start, end, this));
