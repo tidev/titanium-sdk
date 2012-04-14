@@ -580,7 +580,13 @@
     return modalFlag;
 }
 -(void)refreshOrientationWithDuration:(NSTimeInterval) duration
-{	/*
+{
+    if (![[TiApp app] windowIsKeyWindow]) {
+        VerboseLog(@"[DEBUG] RETURNING BECAUSE WE ARE NOT KEY WINDOW");
+        return;
+    }
+
+	/*
 	 *	Apple gives us a wonderful method, attemptRotation... in iOS 5 below
 	 *	but sadly, it only updates the orientation if the UI can change that
 	 *	way. So we give it a shot, and if that's not enough, consult the
