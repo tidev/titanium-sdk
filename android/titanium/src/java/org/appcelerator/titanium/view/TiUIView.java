@@ -997,7 +997,7 @@ public abstract class TiUIView
 							// is to call performClick() which leads to invoking the click
 							// listener.  If we return true, that won't run, so we're doing it
 							// here instead.
-							touchable.performClick();
+							touchable.onTouchEvent(event);
 						}
 						return handled;
 					} else {

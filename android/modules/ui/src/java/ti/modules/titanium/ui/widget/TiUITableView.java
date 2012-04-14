@@ -197,4 +197,9 @@ public class TiUITableView extends TiUIView
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
+
+	@Override
+	public void registerForTouch() {
+		registerForTouch(tableView.getListView());
+	}
 }
