@@ -128,23 +128,35 @@ define(
 			this._layoutCoefficients = {
 				width: {
 					x1: 0,
-					x2: 0
+					x2: 0,
+					x3: 0
+				},
+				sandboxWidth: {
+					x1: 0,
+					x2: 0,
+					x3: 0
 				},
 				height: {
 					x1: 0,
-					x2: 0
+					x2: 0,
+					x3: 0
+				},
+				sandboxHeight: {
+					x1: 0,
+					x2: 0,
+					x3: 0
 				},
 				left: {
 					x1: 0,
 					x2: 0,
-					x2: 0
+					x3: 0
 				},
 				top: {
 					x1: 0,
 					x2: 0,
-					x2: 0
+					x3: 0
 				}
-			}
+			};
 			values.size = {
 				x: 0,
 				y: 0,

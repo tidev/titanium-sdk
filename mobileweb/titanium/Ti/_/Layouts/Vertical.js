@@ -1,4 +1,6 @@
-define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, UI) {
+define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Base, declare, UI, lang) {
+	
+	var isDef = lang.isDef;
 
 	return declare("Ti._.Layouts.Vertical", Base, {
 
@@ -14,7 +16,14 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 				i,
 				precalculate = isHeightSize,
 				isHeightFill,
-				rightMostEdge;
+				rightMostEdge,
+				layoutCoefficients, 
+				childSize,
+				measuredWidth, measuredHeight, measuredSandboxHeight, measuredLeft, measuredTop,
+				deferredLeftCalculations = [],
+				runningHeight;
+				
+			/**** START OF OLD ALGORITHM ****/
 				
 			// Determine if any children have fill height
 			for (i = 0; i < children.length; i++) {
@@ -97,10 +106,265 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI"], function(Base, declare, U
 				rightMostEdge > computedSize.width && (computedSize.width = rightMostEdge);
 				currentTop > computedSize.height && (computedSize.height = currentTop);
 			}
+			
+			/**** END OF OLD ALGORITHM ****/
+			
+			/**** START OF NEW ALGORITHM ****/
+			
+			runningHeight = 0;
+			for(i = 0; i < children.length; i++) {
+				
+				// Layout the child
+				child = element.children[i];
+				if (this.verifyChild(child,element)) {
+					//if (child._markedForLayout) {
+						child._needsMeasuring && this._measureNode(child);
+									
+						layoutCoefficients = child._layoutCoefficients,
+						measuredWidth = layoutCoefficients.width.x1 * width + layoutCoefficients.width.x2,
+						measuredHeight = layoutCoefficients.height.x1 * height + layoutCoefficients.height.x2 * (height - runningHeight) + layoutCoefficients.height.x3;
+						
+						if (child._getContentSize) {
+							childSize = child._getContentSize();
+						} else {
+							childSize = child._layout._doLayout(child, width, height, true, true);
+						}
+						isNaN(layoutCoefficients.width.x1) && (measuredWidth = childSize.width);
+						isNaN(layoutCoefficients.height.x1) && (measuredHeight = childSize.height);
+						
+						measuredSandboxHeight = layoutCoefficients.sandboxHeight.x1 * height + layoutCoefficients.sandboxHeight.x2 + measuredHeight;
+						
+						if (isWidthSize && layoutCoefficients.left.x1 > 0) {
+							deferredLeftCalculations.push(child);
+						} else {
+							measuredLeft = layoutCoefficients.left.x1 * width + layoutCoefficients.left.x2 * measuredWidth + layoutCoefficients.left.x3;
+						}
+						measuredTop = layoutCoefficients.top.x1 * height + layoutCoefficients.top.x2 + runningHeight;
+						
+						child._newMeasuredWidth = measuredWidth;
+						child._newMeasuredHeight = measuredHeight;
+						child._newMeasuredSandboxHeight = measuredSandboxHeight;
+						child._newMeasuredLeft = measuredLeft;
+						child._newMeasuredTop = measuredTop;
+					//}
+					runningHeight += child._newMeasuredSandboxHeight;
+				
+					// Update the size of the component
+					rightMostEdge = child._measuredWidth + child._measuredLeft + child._measuredBorderSize.left + child._measuredBorderSize.right + child._measuredRightPadding;
+					currentTop = child._measuredHeight + child._measuredTop + child._measuredBorderSize.top + child._measuredBorderSize.bottom + child._measuredBottomPadding;
+					rightMostEdge > computedSize.width && (computedSize.width = rightMostEdge);
+					currentTop > computedSize.height && (computedSize.height = currentTop);
+				}
+			}
+			
+			// Second pass, if necessary, to determine the left bounds
+			for(i in deferredLeftCalculations) {
+				child = deferredLeftCalculations[i];
+				layoutCoefficients = child._layoutCoefficients;
+				child._newMeasuredLeft = layoutCoefficients.left.x1 * rightMostEdge + layoutCoefficients.left.x2 * measuredWidth + layoutCoefficients.left.x3;
+			}
+							
+			// Debugging
+			for(i = 0; i < children.length; i++) {
+				var child = children[i];
+				measuredWidth = Math.round(child._newMeasuredWidth);
+				measuredHeight = Math.round(child._newMeasuredHeight);
+				measuredLeft = Math.round(child._newMeasuredLeft);
+				measuredTop = Math.round(child._newMeasuredTop);
+				var	pass = Math.abs(child._measuredWidth - measuredWidth) < 2 && 
+					Math.abs(child._measuredHeight - measuredHeight) < 2 && 
+					Math.abs(child._measuredLeft - measuredLeft) < 2 && 
+					Math.abs(child._measuredTop - measuredTop) < 2,
+					consoleOp = pass ? "log" : "error";
+				console[consoleOp](
+					child.widgetId + 
+					(pass ? " Passed" : " Failed" +
+					" m width:(" + child._measuredWidth + "," + measuredWidth + ")" + 
+					" m height:(" + child._measuredHeight + "," + measuredHeight + ")" + 
+					" m left:(" + child._measuredLeft + "," + measuredLeft + ")" + 
+					" m top:(" + child._measuredTop + "," + measuredTop + ")\n" + 
+					" width:" + child.width + 
+					" height:" + child.height + 
+					" left:" + child.left + 
+					" right:" + child.right + 
+					" top:" + child.top + 
+					" bottom:" + child.bottom + 
+					" center:" + child.center));
+			}
+			
+			/**** END OF NEW ALGORITHM ****/
+			
 			return computedSize;
 		},
 		
 		_measureNode: function(node) {
+			
+			// Pre-processing
+			var getValueType = this.getValueType,
+				computeValue = this.computeValue,
+			
+				width = node.width === UI.INHERIT ? node._getInheritedWidth() : node.width,
+				
+				height = node.height === UI.INHERIT ? node._getInheritedHeight() : node.height,
+				
+				left = node.left,
+				leftType = getValueType(left),
+				leftValue = computeValue(left, leftType),
+				
+				centerX = node.center && node.center.x,
+				centerXType = getValueType(centerX),
+				centerXValue = computeValue(centerX, centerXType),
+				
+				right = node.right,
+				rightType = getValueType(right),
+				rightValue = computeValue(right, rightType),
+				
+				top = node.top,
+				topType = getValueType(top),
+				topValue = computeValue(top, topType),
+				
+				bottom = node.bottom,
+				bottomType = getValueType(bottom),
+				bottomValue = computeValue(bottom, bottomType),
+				
+				x1, x2, x3,
+				layoutCoefficients = node._layoutCoefficients;
+				
+			// Apply the default width and pre-process width and height
+			!isDef(width) && (width = node._defaultWidth === UI.INHERIT ? node._getInheritedWidth() : node._defaultWidth);
+			!isDef(height) && (height = node._defaultHeight === UI.INHERIT ? node._getInheritedHeight() : node._defaultHeight);
+			var widthType = getValueType(width),
+				widthValue = computeValue(width, widthType),
+				heightType = getValueType(height),
+				heightValue = computeValue(height, heightType);
+			
+			// Width rule evaluation
+			x1 = x2 = 0;
+			if (widthType === UI.SIZE) {
+				x1 = x2 = NaN;
+			} else if (widthType === UI.FILL) {
+				x1 = 1;
+				if (leftType === "%") {
+					x1 -= leftValue;
+				} else if (leftType === "#") {
+					x2 = -leftValue;
+				} else if (rightType === "%") {
+					x1 -= rightValue;
+				} else if (rightType === "#") {
+					x2 = -rightValue;
+				}
+			} else if (widthType === "%") {
+				x1 = widthValue;
+			} else if (widthType === "#") {
+				x2 = widthValue;
+			} else if (leftType === "%") {
+				if (centerXType === "%") {
+					x1 = 2 * (centerXValue - leftValue);
+				} else if (centerXType === "#") {
+					x1 = -2 * leftValue;
+					x2 = 2 * centerXValue;
+				} else if (rightType === "%") {
+					x1 = 1 - leftValue - rightValue;
+				} else if (rightType === "#") {
+					x1 = 1 - leftValue;
+					x2 = -rightValue;
+				}
+			} else if (leftType === "#") {
+				if (centerXType === "%") {
+					x1 = 2 * centerXValue;
+					x2 = -2 * leftValue;
+				} else if (centerXType === "#") {
+					x2 = 2 * (centerXValue - leftValue);
+				} else if (rightType === "%") {
+					x1 = 1 - rightValue;
+					x2 = -leftValue;
+				} else if (rightType === "#") {
+					x1 = 1;
+					x2 = -rightValue - leftValue;
+				}
+			} else if (centerXType === "%") {
+				if (rightType === "%") {
+					x1 = 2 * (rightValue - centerXValue);
+				} else if (rightType === "#") {
+					x1 = -2 * centerXValue;
+					x2 = 2 * rightValue;
+				}
+			} else if (centerXType === "#") {
+				if (rightType === "%") {
+					x1 = 2 * rightValue;
+					x2 = -2 * centerXValue;
+				} else if (rightType === "#") {
+					x2 = 2 * (rightValue - centerXValue);
+				}
+			}
+			layoutCoefficients.width.x1 = x1;
+			layoutCoefficients.width.x2 = x2;
+			
+			// Height rule calculation
+			x1 = x2 = x3 = 0;
+			if (heightType === UI.SIZE) {
+				x1 = x2 = x3 = NaN;
+			} else if (heightType === UI.FILL) {
+				x2 = 1;
+				topType === "%" && (x1 = -topValue);
+				topType === "#" && (x3 = -topValue);
+				bottomType === "%" && (x1 = -bottomValue);
+				bottomType === "#" && (x3 = -bottomValue);
+			} else if (heightType === "%") {
+				x1 = heightValue;
+			} else if (heightType === "#") {
+				x3 = heightValue;
+			}
+			layoutCoefficients.height.x1 = x1;
+			layoutCoefficients.height.x2 = x2;
+			layoutCoefficients.height.x3 = x3;
+			
+			// Sandbox height rule calculation
+			x1 = x2 = 0;
+			topType === "%" && (x1 = topValue);
+			topType === "#" && (x2 = topValue);
+			bottomType === "%" && (x1 += bottomValue);
+			bottomType === "#" && (x2 += bottomValue);
+			layoutCoefficients.sandboxHeight.x1 = x1;
+			layoutCoefficients.sandboxHeight.x2 = x2;
+			
+			// Left rule calculation
+			x1 = x2 = x3 = 0;
+			if (leftType === "%") {
+				x1 = leftValue;
+			} else if(leftType === "#") {
+				x3 = leftValue;
+			} else if (centerXType === "%") {
+				x1 = centerXValue;
+				x2 = -0.5;
+			} else if (centerXType === "#") {
+				x2 = -0.5;
+				x3 = centerXValue;
+			} else if (rightType === "%") {
+				x1 = 1 - rightValue;
+				x2 = -1;
+			} else if (rightType === "#") {
+				x1 = 1;
+				x2 = -1;
+				x3 = -rightValue;
+			} else { 
+				switch(this._defaultHorizontalAlignment) {
+					case "center": 
+						x1 = 0.5;
+						x2 = -0.5;
+						break;
+					case "end":
+						x1 = 1;
+						x2 = -1;
+				}
+			}
+			layoutCoefficients.left.x1 = x1;
+			layoutCoefficients.left.x2 = x2;
+			layoutCoefficients.left.x3 = x3;
+			
+			// Top rule calculation
+			layoutCoefficients.top.x1 = topType === "%" ? topValue : 0;
+			layoutCoefficients.top.x2 = topType === "#" ? topValue : 0;
 		},
 		
 		_defaultHorizontalAlignment: "center",

@@ -86,16 +86,16 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 				}
 			}
 			
-			// Second pass, if necessary, to determine the left/right bounds
+			// Second pass, if necessary, to determine the left/top bounds
 			for(i in deferredLeftCalculations) {
 				child = deferredLeftCalculations[i];
-				layoutCoefficients = child._layoutCoefficients;
-				child._newMeasuredLeft = layoutCoefficients.left.x1 * rightMostEdge + layoutCoefficients.left.x2 * measuredWidth + layoutCoefficients.left.x3;
+				leftLayoutCoefficients = child._layoutCoefficients.left;
+				child._newMeasuredLeft = leftLayoutCoefficients.x1 * rightMostEdge + leftLayoutCoefficients.x2 * measuredWidth + leftLayoutCoefficients.x3;
 			}
 			for(i in deferredTopCalculations) {
 				child = deferredTopCalculations[i];
-				layoutCoefficients = child._layoutCoefficients;
-				child._newMeasuredTop = layoutCoefficients.top.x1 * bottomMostEdge + layoutCoefficients.top.x2 * measuredHeight + layoutCoefficients.top.x3;
+				topLayoutCoefficients = child._layoutCoefficients.top;
+				child._newMeasuredTop = topLayoutCoefficients.x1 * bottomMostEdge + topLayoutCoefficients.x2 * measuredHeight + topLayoutCoefficients.x3;
 			}
 							
 			// Debugging
@@ -105,10 +105,10 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 				measuredHeight = Math.round(child._newMeasuredHeight);
 				measuredLeft = Math.round(child._newMeasuredLeft);
 				measuredTop = Math.round(child._newMeasuredTop);
-				var	pass = child._measuredWidth === measuredWidth && 
-					child._measuredHeight === measuredHeight && 
-					child._measuredLeft === measuredLeft && 
-					child._measuredTop === measuredTop;
+				var	pass = Math.abs(child._measuredWidth - measuredWidth) < 2 && 
+					Math.abs(child._measuredHeight - measuredHeight) < 2 && 
+					Math.abs(child._measuredLeft - measuredLeft) < 2 && 
+					Math.abs(child._measuredTop - measuredTop) < 2,
 					consoleOp = pass ? "log" : "error";
 				console[consoleOp](
 					child.widgetId + 
@@ -192,8 +192,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 				endType = params[6];
 				endValue = params[7];
 				
-				x1 = 0;
-				x2 = 0;
+				x1 = x2 = 0;
 				if (sizeType === UI.SIZE) {
 					x1 = x2 = NaN;
 				} else if (sizeType === UI.FILL) {
@@ -270,9 +269,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 				endType = params[4];
 				endValue = params[5];
 					
-				x1 = 0;
-				x2 = 0;
-				x3 = 0;
+				x1 = x2 = x3 = 0;
 				if (startType === "%") {
 					x1 = startValue;
 				} else if(startType === "#") {
