@@ -293,7 +293,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 					x2 = -1;
 					x3 = -endValue;
 				} else { 
-					switch(this._defaultHorizontalAlignment) {
+					switch(i === "left" ? this._defaultHorizontalAlignment : this._defaultVerticalAlignment) {
 						case "center": 
 							x1 = 0.5;
 							x2 = -0.5;
