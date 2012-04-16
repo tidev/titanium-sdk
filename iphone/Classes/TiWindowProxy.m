@@ -160,14 +160,16 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 {
 	[super windowDidOpen];
 	
-	opening = NO;
 	[self forgetProxy:openAnimation];
 	RELEASE_TO_NIL(openAnimation);
 
-	if ([self _hasListeners:@"open"])
-	{
-		[self fireEvent:@"open" withObject:nil];
-	}
+    if (opening) {
+        opening = NO;
+        if ([self _hasListeners:@"open"])
+        {
+            [self fireEvent:@"open" withObject:nil];
+        }
+    }
 	
 	// we do it here in case we have a window that
 	// neither has tabs nor JS
