@@ -54,7 +54,12 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 						if (child._getContentSize) {
 							childSize = child._getContentSize();
 						} else {
-							childSize = child._layout._doLayout(child, width, height, true, true);
+							childSize = child._layout._doLayout(
+								child, 
+								isNaN(measuredWidth) ? width : measuredWidth, 
+								isNaN(measuredHeight) ? height : measuredHeight, 
+								isNaN(measuredWidth), 
+								isNaN(measuredHeight));
 						}
 						isNaN(layoutCoefficients.width.x1) && (measuredWidth = childSize.width);
 						isNaN(layoutCoefficients.height.x1) && (measuredHeight = childSize.height);
