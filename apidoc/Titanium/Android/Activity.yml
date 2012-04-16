@@ -1,15 +1,40 @@
 ---
 name: Titanium.Android.Activity
-summary: The Titanium binding of an [Android Activity](http://developer.android.com/reference/android/app/Activity.html)
+summary: The Titanium binding of an Android Activity.
+description: |
+    According to the Android API Reference, an activity is "a single, focused thing that a
+    user can do."
+
+    In almost all cases, an activity is associated with a window.  Activities are central
+    to the Android **Back** button navigation -- the **Back** button closes the current
+    activity and returns to whatever activity was open previously.
+
+    In Titanium, you can create either "lightweight" or a "heavyweight" windows, as
+    described on the <Titanium.UI.Window> reference page. A *heavyweight* window creates a 
+    new `Activity`. A *lightweight* window runs inside the same activity as the code that
+    created it. 
+
+    See: [android.app.Activity](http://developer.android.com/reference/android/app/Activity.html)
+    in the Android API Reference.
 extends: Titanium.Proxy
 platforms: [android]
 createable: false
 since: "1.5"
 methods:
   - name: finish
-    summary: Called when the activity is done and should be closed. Also see Android's documentation for [finish](http://developer.android.com/reference/android/app/Activity.html#finish())
+    summary: Closes this activity.
+    description: |
+        See also:
+        [finish](http://developer.android.com/reference/android/app/Activity.html#finish())
+        in the Android API Reference.
+
   - name: getString
-    summary: Get an Android or Application string using the passed-in Resource ID and optional format arguments. Also see Android's documentation for [getString](http://developer.android.com/reference/android/content/Context.html#getString(int)) and [String Resources](http://developer.android.com/guide/topics/resources/string-resource.html#String)
+    summary: Gets an Android or Application string using the specified Resource ID and optional format arguments. 
+    description: |
+        See also:
+        [getString](http://developer.android.com/reference/android/content/Context.html#getString(int))
+        and [String Resources](http://developer.android.com/guide/topics/resources/string-resource.html#String)
+        in the Android API Reference.
     returns:
         type: String
     parameters:
@@ -19,12 +44,18 @@ methods:
       - name: format
         summary: Optional format arguments for the String resource
         type: Array<Object>
+
   - name: setRequestedOrientation
-    summary: Set the requested Activity orientation. Also see Android's documentation for [setRequestedOrientation](http://developer.android.com/reference/android/app/Activity.html#setRequestedOrientation(int))
+    summary: Sets the requested Activity orientation. 
+    description: |
+        See also:
+        [setRequestedOrientation](http://developer.android.com/reference/android/app/Activity.html#setRequestedOrientation(int))
+        in the Android API Reference.
     parameters:
       - name: orientation
         summary: Can be one of <Titanium.Android.SCREEN_ORIENTATION_BEHIND>, <Titanium.Android.SCREEN_ORIENTATION_LANDSCAPE>, <Titanium.Android.SCREEN_ORIENTATION_NOSENSOR>, <Titanium.Android.SCREEN_ORIENTATION_PORTRAIT>, <Titanium.Android.SCREEN_ORIENTATION_SENSOR>, <Titanium.Android.SCREEN_ORIENTATION_UNSPECIFIED>, <Titanium.Android.SCREEN_ORIENTATION_USER>
         type: Number
+
   - name: setResult
     summary: Sets the result of this Activity using an Intent. This should be used in the case when the Activity responds to startActivityForResult. Also see Android's documentation for [setResult](http://developer.android.com/reference/android/app/Activity.html#setResult(int))
     parameters:
