@@ -805,10 +805,10 @@ properties:
 name: TableViewContentInsetOption
 summary: Optional parameter for [setContentInsets](Titanium.UI.TableView.setContentInsets) method.
 description: |
-    On iOS, the optional parameter `animated` to enable the animation while the content insets 
-    are updated. For example
+    On iOS, the optional parameters `animated` and `duration`to enable the animation and duration 
+    for animation while the content insets are updated. For example
 
-        setContentInset({top:50,bottom:100}, {animated:true})
+        setContentInset({top:50,bottom:100}, {animated:true, duration:3000})
 optional: true
 since: 2.1.0
 platforms: [iphone, ipad]
@@ -817,6 +817,9 @@ properties:
   - name: animated
     summary: Determines whether the table view's content inset change is animated.
     type: Boolean
+  - name: duration
+    summary: The duration in `milleseconds` for animation while the content inset is  being changed.
+    type: Number
 
 ---
 name: TableViewEdgeInsets

@@ -1606,7 +1606,8 @@
         [tableview setContentInset:insets];
     };
     if (animated) {
-        [UIView animateWithDuration:0.2 animations:setInset];
+        double duration = [TiUtils doubleValue:@"duration" properties:props def:500]/1000;
+        [UIView animateWithDuration:duration animations:setInset];
     }
     else {
         setInset();
