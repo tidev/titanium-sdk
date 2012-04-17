@@ -162,7 +162,6 @@ methods:
         summary: Determines whether the content inset change should be animated.
         type: TableViewContentInsetOption
         optional: true
-        default: false
     platforms: [iphone, ipad]
     since: 2.1.0
         
@@ -817,6 +816,7 @@ properties:
   - name: animated
     summary: Determines whether the table view's content inset change is animated.
     type: Boolean
+    default: false
   - name: duration
     summary: The duration in `milleseconds` for animation while the content inset is  being changed.
     type: Number
@@ -834,6 +834,15 @@ since: 2.1.0
 platforms: [iphone, ipad]
 
 properties:
-  - name: edgeInsets
-    summary: Dictionary of values specifying the `top` , `bottom`, `left`, `right` insets.
-    type: Dictionary
+  - name: top
+    summary: Value specifying the top insets for the enclosing scroll view of the table.
+    type: Number
+  - name: left
+    summary: Value specifying the left insets for the enclosing scroll view of the table.
+    type: Number
+  - name: right
+    summary: Value specifying the right insets for the enclosing scroll view of the table.
+    type: Number
+  - name: bottom
+    summary: Value specifying the bottom insets for the enclosing scroll view of the table.
+    type: Number
