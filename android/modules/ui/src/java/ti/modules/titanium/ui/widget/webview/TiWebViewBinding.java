@@ -160,9 +160,11 @@ public class TiWebViewBinding
 			String dataString;
 			if (data == null) {
 				dataString = "";
-			} else {
+			} else if (data instanceof HashMap) {
 				JSONObject json = TiConvert.toJSON((HashMap) data);
 				dataString = ", " + json.toString();
+			} else {
+				dataString = ", " + data;
 			}
 
 			String code = "Ti.executeListener(" + id + dataString + ");";
