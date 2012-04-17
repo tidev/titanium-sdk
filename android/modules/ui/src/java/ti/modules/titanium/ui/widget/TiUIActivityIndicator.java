@@ -11,13 +11,13 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -173,11 +173,15 @@ public class TiUIActivityIndicator extends TiUIView
 		} else if (location == DIALOG) {
 			incrementFactor = 1;
 			if (progressDialog == null) {
-				Context a = TiApplication.getInstance().getCurrentActivity();
+				Activity a = TiApplication.getInstance().getCurrentActivity();
 				if (a == null) {
 					a = TiApplication.getInstance().getRootActivity();
 				}
 				progressDialog = new ProgressDialog(a);
+				if (a instanceof TiBaseActivity) {
+					((TiBaseActivity) a).addDialog(progressDialog);
+					progressDialog.setOwnerActivity(a);
+				}
 			}
 
 			progressDialog.setMessage(message);
@@ -214,7 +218,11 @@ public class TiUIActivityIndicator extends TiUIView
 
 	protected void handleHide() {
 		if (progressDialog != null) {
-			progressDialog.dismiss();
+			Activity ownerActivity = progressDialog.getOwnerActivity();
+			if (ownerActivity != null && !ownerActivity.isFinishing()) {
+				((TiBaseActivity)ownerActivity).removeDialog(progressDialog);
+				progressDialog.dismiss();
+			}
 			progressDialog = null;
 		} else {
 			Activity parent = (Activity) proxy.getActivity();
