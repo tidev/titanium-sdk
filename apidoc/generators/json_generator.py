@@ -10,8 +10,8 @@ sys.path.append(os.path.abspath(os.path.join(this_dir, "..")))
 from common import dict_has_non_empty_member
 
 # Contains TiLogger:
-android_support_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "support", "android"))
-sys.path.append(android_support_dir)
+android_scripts_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "android", "scripts"))
+sys.path.append(android_scripts_dir)
 from tilogger import *
 
 
