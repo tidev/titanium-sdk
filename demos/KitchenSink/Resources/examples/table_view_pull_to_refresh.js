@@ -124,7 +124,7 @@ function endReloading()
 tableView.addEventListener('scroll',function(e)
 {
 	var offset = e.contentOffset.y;
-	if (offset <= -65.0 && !pulling)
+	if (offset < -65.0 && !pulling && !reloading)
 	{
 		var t = Ti.UI.create2DMatrix();
 		t = t.rotate(-180);
@@ -132,20 +132,16 @@ tableView.addEventListener('scroll',function(e)
 		arrow.animate({transform:t,duration:180});
 		statusLabel.text = "Release to refresh...";
 	}
-});
-
-tableView.addEventListener('scrollEnd',function(e)
-{
-	if (pulling && !reloading )
+	if(offset > -65.0 && pulling && !reloading)
 	{
 		reloading = true;
 		pulling = false;
 		arrow.hide();
-		actInd.show();
 		statusLabel.text = "Reloading...";
 		tableView.setContentInsets({top:60},{animated:true});
-		tableView.scrollToTop(-60,true);
 		arrow.transform=Ti.UI.create2DMatrix();
+		actInd.show();
 		beginReloading();
 	}
+	
 });
