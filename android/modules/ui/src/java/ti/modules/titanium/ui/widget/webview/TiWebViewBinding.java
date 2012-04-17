@@ -20,6 +20,7 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -159,11 +160,9 @@ public class TiWebViewBinding
 			String dataString;
 			if (data == null) {
 				dataString = "";
-			} else if (data instanceof HashMap) {
-				JSONObject json = new JSONObject((HashMap) data);
-				dataString = ", " + json.toString();
 			} else {
-				dataString = ", " + data;
+				JSONObject json = TiConvert.toJSON((HashMap) data);
+				dataString = ", " + json.toString();
 			}
 
 			String code = "Ti.executeListener(" + id + dataString + ");";
