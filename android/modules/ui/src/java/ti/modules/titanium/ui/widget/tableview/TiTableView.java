@@ -495,14 +495,15 @@ public class TiTableView extends FrameLayout
 
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-		// To prevent undesired "focus" and "blur" events during layout caused
-		// by ListView temporarily taking focus, we will disable focus events until
-		// layout has finished.
-		// First check for a quick exit. listView can be null, such as if window closing.
+		// The list view may be null if this view has been released (ex: window closed).
 		if (listView == null) {
 			super.onLayout(changed, left, top, right, bottom);
 			return;
 		}
+
+		// To prevent undesired "focus" and "blur" events during layout caused
+		// by ListView temporarily taking focus, we will disable focus events until
+		// layout has finished.
 		OnFocusChangeListener focusListener = null;
 		View focusedView = listView.findFocus();
 		if (focusedView != null) {
@@ -517,11 +518,12 @@ public class TiTableView extends FrameLayout
 
 		// Layout is finished, re-enable focus events.
 		if (focusListener != null) {
-			focusedView.setOnFocusChangeListener(focusListener);
-			// If the configuration changed, we manually fire the blur event
 			if (changed) {
-				focusListener.onFocusChange(focusedView, false);
+				// ListView will not restore focus if the size changed.
+				// This may be an Android bug (issue #9228).
+				focusedView.requestFocus();
 			}
+			focusedView.setOnFocusChangeListener(focusListener);
 		}
 	}
 }
