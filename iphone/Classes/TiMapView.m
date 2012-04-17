@@ -578,22 +578,6 @@
 	[self firePinChangeDragState:annotationView newState:newState fromOldState:oldState];
 }
 
-- (NSString *)annotationViewDragStateToString:(MKAnnotationViewDragState)state
-{
-	switch(state)
-	{
-		case MKAnnotationViewDragStateStarting:
-			return @"starting";
-		case MKAnnotationViewDragStateDragging:
-			return @"dragging";
-		case MKAnnotationViewDragStateCanceling:
-			return @"canceling";
-		case MKAnnotationViewDragStateEnding:
-			return @"ending";
-	}
-	return @"none";
-}
-
 - (void)firePinChangeDragState:(MKAnnotationView *) pinview newState:(MKAnnotationViewDragState)newState fromOldState:(MKAnnotationViewDragState)oldState 
 {
 	TiMapAnnotationProxy *viewProxy = [self proxyForAnnotation:pinview];
@@ -613,16 +597,14 @@
 		title = [NSNull null];
 
 	NSNumber * indexNumber = NUMINT([pinview tag]);
-	NSString * newStateValue = [self annotationViewDragStateToString:newState];
-	NSString * oldStateValue = [self annotationViewDragStateToString:oldState];
 
 	NSDictionary * event = [NSDictionary dictionaryWithObjectsAndKeys:
 								viewProxy,@"annotation",
 								ourProxy,@"map",
 								title,@"title",
 								indexNumber,@"index",
-								newStateValue,@"newState",
-								oldStateValue,@"oldState",
+								NUMINT(newState),@"newState",
+								NUMINT(oldState),@"oldState",
 								nil];
 
 	if (parentWants)
