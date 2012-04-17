@@ -8,7 +8,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 			var computedSize = this._computedSize = {width: 0, height: 0},
 				children = element.children,
 				child,
-				layoutCoefficients, 
+				layoutCoefficients, widthLayoutCoefficients, heightLayoutCoefficients, topLayoutCoefficients, leftLayoutCoefficients, 
 				childSize,
 				measuredWidth, measuredHeight, measuredLeft, measuredTop,
 				deferredLeftCalculations = [],
@@ -47,9 +47,14 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 						/**** START OF NEW ALGORITHM ****/
 						child._needsMeasuring && this._measureNode(child);
 						
-						layoutCoefficients = child._layoutCoefficients,
-						measuredWidth = layoutCoefficients.width.x1 * width + layoutCoefficients.width.x2,
-						measuredHeight = layoutCoefficients.height.x1 * height + layoutCoefficients.height.x2;
+						layoutCoefficients = child._layoutCoefficients;
+						widthLayoutCoefficients = layoutCoefficients.width;
+						heightLayoutCoefficients = layoutCoefficients.height;
+						leftLayoutCoefficients = layoutCoefficients.left;
+						topLayoutCoefficients = layoutCoefficients.top;
+						
+						measuredWidth = widthLayoutCoefficients.x1 * width + widthLayoutCoefficients.x2;
+						measuredHeight = heightLayoutCoefficients.x1 * height + heightLayoutCoefficients.x2;
 						
 						if (child._getContentSize) {
 							childSize = child._getContentSize();
@@ -61,18 +66,18 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 								isNaN(measuredWidth), 
 								isNaN(measuredHeight));
 						}
-						isNaN(layoutCoefficients.width.x1) && (measuredWidth = childSize.width);
-						isNaN(layoutCoefficients.height.x1) && (measuredHeight = childSize.height);
+						isNaN(widthLayoutCoefficients.x1) && (measuredWidth = childSize.width);
+						isNaN(heightLayoutCoefficients.x1) && (measuredHeight = childSize.height);
 						
-						if (isWidthSize && layoutCoefficients.left.x1 > 0) {
+						if (isWidthSize && leftLayoutCoefficients.x1 > 0) {
 							deferredLeftCalculations.push(child);
 						} else {
-							measuredLeft = layoutCoefficients.left.x1 * width + layoutCoefficients.left.x2 * measuredWidth + layoutCoefficients.left.x3;
+							measuredLeft = leftLayoutCoefficients.x1 * width + leftLayoutCoefficients.x2 * measuredWidth + leftLayoutCoefficients.x3;
 						}
-						if (isHeightSize && layoutCoefficients.top.x1 > 0) {
+						if (isHeightSize && topLayoutCoefficients.x1 > 0) {
 							deferredTopCalculations.push(child);
 						} else {
-							measuredTop = layoutCoefficients.top.x1 * height + layoutCoefficients.top.x2 * measuredHeight + layoutCoefficients.top.x3;
+							measuredTop = topLayoutCoefficients.x1 * height + topLayoutCoefficients.x2 * measuredHeight + topLayoutCoefficients.x3;
 						}
 						
 						child._newMeasuredWidth = measuredWidth;

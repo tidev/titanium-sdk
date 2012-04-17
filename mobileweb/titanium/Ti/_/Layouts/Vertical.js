@@ -17,7 +17,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 				precalculate = isHeightSize,
 				isHeightFill,
 				rightMostEdge,
-				layoutCoefficients, 
+				layoutCoefficients, widthLayoutCoefficients, heightLayoutCoefficients, topLayoutCoefficients, leftLayoutCoefficients, sandboxHeightCoefficients,
 				childSize,
 				measuredWidth, measuredHeight, measuredSandboxHeight, measuredLeft, measuredTop,
 				deferredLeftCalculations = [],
@@ -120,9 +120,15 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 					//if (child._markedForLayout) {
 						child._needsMeasuring && this._measureNode(child);
 									
-						layoutCoefficients = child._layoutCoefficients,
-						measuredWidth = layoutCoefficients.width.x1 * width + layoutCoefficients.width.x2,
-						measuredHeight = layoutCoefficients.height.x1 * height + layoutCoefficients.height.x2 * (height - runningHeight) + layoutCoefficients.height.x3;
+						layoutCoefficients = child._layoutCoefficients;
+						widthLayoutCoefficients = layoutCoefficients.width;
+						heightLayoutCoefficients = layoutCoefficients.height;
+						sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
+						leftLayoutCoefficients = layoutCoefficients.left;
+						topLayoutCoefficients = layoutCoefficients.top;
+						
+						measuredWidth = widthLayoutCoefficients.x1 * width + widthLayoutCoefficients.x2;
+						measuredHeight = heightLayoutCoefficients.x1 * height + heightLayoutCoefficients.x2 * (height - runningHeight) + heightLayoutCoefficients.x3;
 						
 						if (child._getContentSize) {
 							childSize = child._getContentSize();
@@ -134,17 +140,17 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 								isNaN(measuredWidth), 
 								isNaN(measuredHeight));
 						}
-						isNaN(layoutCoefficients.width.x1) && (measuredWidth = childSize.width);
-						isNaN(layoutCoefficients.height.x1) && (measuredHeight = childSize.height);
+						isNaN(widthLayoutCoefficients.x1) && (measuredWidth = childSize.width);
+						isNaN(heightLayoutCoefficients.x1) && (measuredHeight = childSize.height);
 						
-						measuredSandboxHeight = layoutCoefficients.sandboxHeight.x1 * height + layoutCoefficients.sandboxHeight.x2 + measuredHeight;
+						measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + measuredHeight;
 						
-						if (isWidthSize && layoutCoefficients.left.x1 > 0) {
+						if (isWidthSize && leftLayoutCoefficients.x1 > 0) {
 							deferredLeftCalculations.push(child);
 						} else {
-							measuredLeft = layoutCoefficients.left.x1 * width + layoutCoefficients.left.x2 * measuredWidth + layoutCoefficients.left.x3;
+							measuredLeft = leftLayoutCoefficients.x1 * width + leftLayoutCoefficients.x2 * measuredWidth + leftLayoutCoefficients.x3;
 						}
-						measuredTop = layoutCoefficients.top.x1 * height + layoutCoefficients.top.x2 + runningHeight;
+						measuredTop = topLayoutCoefficients.x1 * height + topLayoutCoefficients.x2 + runningHeight;
 						
 						child._newMeasuredWidth = measuredWidth;
 						child._newMeasuredHeight = measuredHeight;
@@ -165,8 +171,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 			// Second pass, if necessary, to determine the left bounds
 			for(i in deferredLeftCalculations) {
 				child = deferredLeftCalculations[i];
-				layoutCoefficients = child._layoutCoefficients;
-				child._newMeasuredLeft = layoutCoefficients.left.x1 * rightMostEdge + layoutCoefficients.left.x2 * measuredWidth + layoutCoefficients.left.x3;
+				leftLayoutCoefficients = child._layoutCoefficients.left;
+				child._newMeasuredLeft = leftLayoutCoefficients.x1 * rightMostEdge + leftLayoutCoefficients.x2 * measuredWidth + leftLayoutCoefficients.x3;
 			}
 							
 			// Debugging
@@ -233,7 +239,13 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 				bottomValue = computeValue(bottom, bottomType),
 				
 				x1, x2, x3,
-				layoutCoefficients = node._layoutCoefficients;
+				
+				layoutCoefficients = node._layoutCoefficients,
+				widthLayoutCoefficients = layoutCoefficients.width,
+				heightLayoutCoefficients = layoutCoefficients.height,
+				sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight,
+				leftLayoutCoefficients = layoutCoefficients.left,
+				topLayoutCoefficients = layoutCoefficients.top;
 				
 			// Apply the default width and pre-process width and height
 			!isDef(width) && (width = node._defaultWidth === UI.INHERIT ? node._getInheritedWidth() : node._defaultWidth);
@@ -302,8 +314,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 					x2 = 2 * (rightValue - centerXValue);
 				}
 			}
-			layoutCoefficients.width.x1 = x1;
-			layoutCoefficients.width.x2 = x2;
+			widthLayoutCoefficients.x1 = x1;
+			widthLayoutCoefficients.x2 = x2;
 			
 			// Height rule calculation
 			x1 = x2 = x3 = 0;
@@ -320,9 +332,9 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 			} else if (heightType === "#") {
 				x3 = heightValue;
 			}
-			layoutCoefficients.height.x1 = x1;
-			layoutCoefficients.height.x2 = x2;
-			layoutCoefficients.height.x3 = x3;
+			heightLayoutCoefficients.x1 = x1;
+			heightLayoutCoefficients.x2 = x2;
+			heightLayoutCoefficients.x3 = x3;
 			
 			// Sandbox height rule calculation
 			x1 = x2 = 0;
@@ -330,8 +342,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 			topType === "#" && (x2 = topValue);
 			bottomType === "%" && (x1 += bottomValue);
 			bottomType === "#" && (x2 += bottomValue);
-			layoutCoefficients.sandboxHeight.x1 = x1;
-			layoutCoefficients.sandboxHeight.x2 = x2;
+			sandboxHeightLayoutCoefficients.x1 = x1;
+			sandboxHeightLayoutCoefficients.x2 = x2;
 			
 			// Left rule calculation
 			x1 = x2 = x3 = 0;
@@ -363,18 +375,18 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 						x2 = -1;
 				}
 			}
-			layoutCoefficients.left.x1 = x1;
-			layoutCoefficients.left.x2 = x2;
-			layoutCoefficients.left.x3 = x3;
+			leftLayoutCoefficients.x1 = x1;
+			leftLayoutCoefficients.x2 = x2;
+			leftLayoutCoefficients.x3 = x3;
 			
 			// Top rule calculation
-			layoutCoefficients.top.x1 = topType === "%" ? topValue : 0;
-			layoutCoefficients.top.x2 = topType === "#" ? topValue : 0;
+			topLayoutCoefficients.x1 = topType === "%" ? topValue : 0;
+			topLayoutCoefficients.x2 = topType === "#" ? topValue : 0;
 		},
 		
 		_defaultHorizontalAlignment: "center",
 		
-		_defaultVerticalAlignment: "top"
+		_defaultVerticalAlignment: "start"
 
 	});
 

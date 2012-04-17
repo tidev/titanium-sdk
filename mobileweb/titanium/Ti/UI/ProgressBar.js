@@ -55,7 +55,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 				top: 0,
 				layout: "vertical"
 			}));
-			this._contentContainer._layout._defaultHorizontalLayout = "left";
+			this._contentContainer._layout._defaultHorizontalLayout = "start";
 			this._contentContainer.add(this._message = UI.createLabel());
 			this._contentContainer.add(this._progressBar = new InternalProgressBar());
 		},

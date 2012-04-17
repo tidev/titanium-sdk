@@ -154,7 +154,8 @@ define(
 				top: {
 					x1: 0,
 					x2: 0,
-					x3: 0
+					x3: 0,
+					x4: 0
 				}
 			};
 			values.size = {
@@ -350,8 +351,8 @@ define(
 			return !!(isPercent(width) || isPercent(height) || isPercent(this.top) || isPercent(this.bottom) || 
 				isPercent(this.left) || isPercent(this.right) || isPercent(centerX) || isPercent(centerY) || 
 				this._hasFillWidth() || this._hasFillHeight() ||
-				(!isDef(this.left) && !isDef(centerX) && !isDef(this.right) && this._parent && this._parent._layout._defaultHorizontalAlignment !== "left") ||
-				(!isDef(this.top) && !isDef(centerY) && !isDef(this.bottom) && this._parent && this._parent._layout._defaultVerticalAlignment !== "top"));
+				(!isDef(this.left) && !isDef(centerX) && !isDef(this.right) && this._parent && this._parent._layout._defaultHorizontalAlignment !== "start") ||
+				(!isDef(this.top) && !isDef(centerY) && !isDef(this.bottom) && this._parent && this._parent._layout._defaultVerticalAlignment !== "start"));
 		},
 		
 		startLayout: function() {
