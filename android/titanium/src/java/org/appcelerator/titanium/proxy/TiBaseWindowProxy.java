@@ -14,29 +14,38 @@ public class TiBaseWindowProxy extends TiWindowProxy
 {
 	private static final String TAG = "TiBaseWindow";
 
-	/*@Override
-	public TiUIView peekView()
-	{
-		if (view != null) {
-			return view;
-		}
+	private TiViewProxy wrappedViewProxy;
 
-		if (hasProperty(TiC.PROPERTY_VIEW)) {
-			TiViewProxy nativeViewProxy = (TiViewProxy) getProperty(TiC.PROPERTY_VIEW);
-			view = nativeViewProxy.peekView();
-			setModelListener(view);
-			return view;
-		} else {
-			Log.w(TAG, "No nativeView set!");
-			return null;
-		}
-	}*/
 
+	/**
+	 * Called to associate a view with a JS window wrapper 
+	 * 
+	 * @param viewProxy			real view that the JS wrapper represents
+	 */
 	@Kroll.method
 	public void setWindowView(TiViewProxy viewProxy) {
+		/* we need to associate the wrapped view with the JS window wrapper 
+		 * so we can correctly reference the "real" view later from the JS
+		 * window wrapper.  One example use is firing events to a window associated
+		 * with a tab (the tab only has a reference to the wrapper)
+		 */
+		wrappedViewProxy = viewProxy;
+
 		TiUIView view = viewProxy.peekView();
 		setView(view);
+
 		setModelListener(view);
+	}
+
+	/**
+	 * Returns the view that is wrapped by this object.  The caller is
+	 * expected to check the return value for null
+	 * 
+	 * @return		view proxy that is wrapped by this object
+	 * 
+	 */
+	public TiViewProxy getWrappedView() {
+		return wrappedViewProxy;
 	}
 
 	@Override

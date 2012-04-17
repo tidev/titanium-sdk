@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.proxy.TiBaseWindowProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
@@ -174,12 +175,16 @@ public class TiUITabGroup extends TiUIView
 		}
 
 		tabChangeEventData = tabGroupProxy.buildFocusEvent(currentTabID, previousTabID);
+
 		//fire focus on current tab as well as its window
 		currentTab.fireEvent(TiC.EVENT_FOCUS, tabChangeEventData);
-		currentTab.getWindow().fireEvent(TiC.EVENT_FOCUS, null);
 
+		TiViewProxy viewProxy = currentTab.getWindow();
+		if (viewProxy instanceof TiBaseWindowProxy) {
+			viewProxy = ((TiBaseWindowProxy) viewProxy).getWrappedView();
+		}
+		viewProxy.fireEvent(TiC.EVENT_FOCUS, null);
 
-		
 		previousTabID = currentTabID;
 
 	}
