@@ -145,7 +145,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 						
 						measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + measuredHeight;
 						
-						if (isWidthSize && leftLayoutCoefficients.x1 > 0) {
+						if (isWidthSize && leftLayoutCoefficients.x1 !== 0) {
 							deferredLeftCalculations.push(child);
 						} else {
 							measuredLeft = leftLayoutCoefficients.x1 * width + leftLayoutCoefficients.x2 * measuredWidth + leftLayoutCoefficients.x3;

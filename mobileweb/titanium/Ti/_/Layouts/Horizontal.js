@@ -175,14 +175,15 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 							sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
 							measuredHeight = child._newMeasuredHeight;
 							
-							if (topLayoutCoefficients.x2 > 0) {
+							if (topLayoutCoefficients.x2 !== 0) {
 								deferredTopCalculations.push(child);
+								measuredTop = 0; // Temporary for use in calculating row height
 							} else {
 								child._newMeasuredTop = measuredTop = topLayoutCoefficients.x1 * height + topLayoutCoefficients.x3 * measuredHeight + topLayoutCoefficients.x4 + runningHeight;
-							
-								child._measuredSandboxHeight = measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + measuredHeight + measuredTop;
-								rowHeight < measuredSandboxHeight && (rowHeight = measuredSandboxHeight);
 							}
+							
+							child._measuredSandboxHeight = measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + measuredHeight + measuredTop;
+							rowHeight < measuredSandboxHeight && (rowHeight = measuredSandboxHeight);
 						//}
 					
 						// Update the size of the component

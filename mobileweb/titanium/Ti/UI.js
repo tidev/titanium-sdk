@@ -76,7 +76,11 @@ define(
 				left: 0,
 				top: 0
 			})),
-			node = container.domNode;
+			node = container.domNode,
+			coefficients = container._layoutCoefficients; 
+		coefficients.width.x1 = 1;
+		coefficients.height.x1 = 1;
+		
 		setStyle(node, "overflow", "hidden");
 		body.appendChild(node);
 		container.addEventListener("postlayout", function(){
