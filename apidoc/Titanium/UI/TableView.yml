@@ -150,6 +150,21 @@ methods:
         summary: Animation properties. Only used on iOS. 
         type: TableViewAnimationProperties
         optional: true
+  - name: setContentInsets
+    summary: Sets the tableviews content insets.
+    description: |
+        The distance the content view is inset from the enclosing scroll view.
+    parameters:
+      - name: edgeInsets
+        summary: Dictionary of values specifying the `top` , `bottom`, `left`, `right` insets.
+        type: TableViewEdgeInsets
+      - name: animated
+        summary: Determines whether the content inset change should be animated.
+        type: TableViewContentInsetOption
+        optional: true
+        default: false
+    platforms: [iphone, ipad]
+    since: 2.1.0
         
   - name: selectRow
     summary: Programmatically selects a row.
@@ -785,3 +800,37 @@ properties:
   - name: index
     summary: Row index associated with this item.
     type: Number
+
+---
+name: TableViewContentInsetOption
+summary: Optional parameter for [setContentInsets](Titanium.UI.TableView.setContentInsets) method.
+description: |
+    On iOS, the optional parameter `animated` to enable the animation while the content insets 
+    are updated. For example
+
+        setContentInset({top:50,bottom:100}, {animated:true})
+optional: true
+since: 2.1.0
+platforms: [iphone, ipad]
+
+properties:
+  - name: animated
+    summary: Determines whether the table view's content inset change is animated.
+    type: Boolean
+
+---
+name: TableViewEdgeInsets
+summary: The parameter for [setContentInsets](Titanium.UI.TableView.setContentInsets) method.
+description: |
+    On iOS, the parameter `edgeInsets` can be specified to set the distance(`top`, `bottom`,
+    `right`, `left`) that the content view is inset from the enclosing scroll view of the table.
+    For example
+
+        setContentInset({top:50,bottom:10,right:10,left:10}, {animated:true})
+since: 2.1.0
+platforms: [iphone, ipad]
+
+properties:
+  - name: edgeInsets
+    summary: Dictionary of values specifying the `top` , `bottom`, `left`, `right` insets.
+    type: Dictionary

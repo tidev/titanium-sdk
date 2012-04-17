@@ -132,18 +132,11 @@ tableView.addEventListener('scroll',function(e)
 		arrow.animate({transform:t,duration:180});
 		statusLabel.text = "Release to refresh...";
 	}
-	else if (pulling && offset > -65.0 && offset < 0)
-	{
-		pulling = false;
-		var t = Ti.UI.create2DMatrix();
-		arrow.animate({transform:t,duration:180});
-		statusLabel.text = "Pull down to refresh...";
-	}
 });
 
 tableView.addEventListener('scrollEnd',function(e)
 {
-	if (pulling && !reloading && e.contentOffset.y <= -65.0)
+	if (pulling && !reloading )
 	{
 		reloading = true;
 		pulling = false;
@@ -151,6 +144,7 @@ tableView.addEventListener('scrollEnd',function(e)
 		actInd.show();
 		statusLabel.text = "Reloading...";
 		tableView.setContentInsets({top:60},{animated:true});
+		tableView.scrollToTop(-60,true);
 		arrow.transform=Ti.UI.create2DMatrix();
 		beginReloading();
 	}
