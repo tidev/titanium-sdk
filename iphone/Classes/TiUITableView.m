@@ -19,6 +19,12 @@
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
 
+@interface TiUITableView ()
+@property (nonatomic,copy,readwrite) NSString * searchString;
+- (void)updateSearchResultIndexes;
+- (CGFloat)computeRowWidth;
+@end
+
 @implementation TiUITableViewCell
 @synthesize hitPoint,proxy;
 #pragma mark Touch event handling
@@ -65,7 +71,7 @@
 {
     CGFloat width = 0;
     if ([proxy table] != nil) {
-        width = [proxy sizeWidthForDecorations:[[proxy table] tableView].bounds.size.width forceResizing:YES];        
+        width = [proxy sizeWidthForDecorations:[[proxy table] computeRowWidth] forceResizing:YES];        
     }
 	CGFloat height = [proxy rowHeight:width];
 	height = [[proxy table] tableRowHeight:height];
@@ -244,12 +250,6 @@
 }
 
 
-
-@end
-
-@interface TiUITableView ()
-@property (nonatomic,copy,readwrite) NSString * searchString;
-- (void)updateSearchResultIndexes;
 
 @end
 
