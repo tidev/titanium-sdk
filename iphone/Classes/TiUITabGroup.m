@@ -404,8 +404,14 @@ DEFINE_EXCEPTIONS
 	[view setFrame:[self bounds]];
 	[self addSubview:view];
 
-	// on an open, make sure we send the focus event to initial tab
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focused,@"tab",NUMINT(0),@"index",NUMINT(-1),@"previousIndex",[NSNull null],@"previousTab",nil];
+	// on an open, make sure we send the focus event to focused tab
+    NSArray * tabArray = [controller viewControllers];
+    int index = 0;
+    if (focused != nil)
+	{
+		index = [tabArray indexOfObject:[(TiUITabProxy *)focused controller]];
+	}
+	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focused,@"tab",NUMINT(index),@"index",NUMINT(-1),@"previousIndex",[NSNull null],@"previousTab",nil];
 	[self.proxy fireEvent:@"focus" withObject:event];
     
     // Tab has already been focused by the tab controller delegate
@@ -426,6 +432,7 @@ DEFINE_EXCEPTIONS
 		controller.viewControllers = nil;
 	}
 	RELEASE_TO_NIL(controller);
+    [focused replaceValue:NUMBOOL(NO) forKey:@"active" notification:NO];
 	RELEASE_TO_NIL(focused);
 }
 
