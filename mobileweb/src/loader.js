@@ -410,7 +410,7 @@
 					throw new Error("Irrational path \"" + name + "\"");
 				}
 
-				if (match = name.match(packageNameRegExp)) {
+				if (cfg.packages && (match = name.match(packageNameRegExp))) {
 					for (i = 0, len = cfg.packages.length, m = match[1]; i < len; i++) {
 						p = cfg.packages[i];
 						if (p.name === m) {
