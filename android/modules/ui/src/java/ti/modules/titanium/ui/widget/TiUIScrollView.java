@@ -135,7 +135,7 @@ public class TiUIScrollView extends TiUIView
 				contentWidth = maxWidth; // measuredWidth;
 			}		
 
-			// Sets the minimum width of the content view to be the size of its parent (scroll view)
+			// Return the content's width when it's greater than the scrollview's width
 			if (contentWidth > parentWidth) {
 				return contentWidth;
 			} else {
@@ -151,7 +151,7 @@ public class TiUIScrollView extends TiUIView
 				contentHeight = maxHeight; // measuredHeight;
 			}
 
-			// Sets the minimum height of the content view to be the size of its parent (scroll view)
+			// Returns the content's height when it's greater than the scrollview's height
 			if (contentHeight > parentHeight) {
 				return contentHeight;
 			} else {
