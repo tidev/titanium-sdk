@@ -93,7 +93,6 @@ public class TiHTTPClient
 {
 	private static final String LCAT = "TiHttpClient";
 	private static final boolean DBG = TiConfig.LOGD;
-	private static final int IS_BINARY_THRESHOLD = 30;
 	private static final int DEFAULT_MAX_BUFFER_SIZE = 512 * 1024;
 	private static final String PROPERTY_MAX_BUFFER_SIZE = "ti.android.httpclient.maxbuffersize";
 	private static final int PROTOCOL_DEFAULT_PORT = -1;
@@ -551,37 +550,17 @@ public class TiHTTPClient
 
 	public String getResponseText()
 	{
-		if (responseData != null && responseText == null)
-		{
-			byte[] data = responseData.getBytes();
+		if (responseData != null && responseText == null) {
 			if (charset == null) {
-				// Detect binary
-				int binaryCount = 0;
-				int len = data.length;
-
-				if (len > 0) {
-					for (int i = 0; i < len; i++) {
-						byte b = data[i];
-						if (b < 32 || b > 127 ) {
-							if (b != '\n' && b != '\r' && b != '\t' && b != '\b') {
-								binaryCount++;
-							}
-						}
-					}
-
-					if ((binaryCount * 100)/len >= IS_BINARY_THRESHOLD) {
-						return null;
-					}
-				}
-
-				charset = HTTP.DEFAULT_CONTENT_CHARSET;
+				charset = HTTP.UTF_8;
 			}
 
 			try {
-				responseText = new String(data, charset);
-
+				responseText = new String(responseData.getBytes(), charset);
 			} catch (UnsupportedEncodingException e) {
 				Log.e(LCAT, "Unable to convert to String using charset: " + charset);
+			} catch (OutOfMemoryError e) {
+				Log.e(LCAT, "Unable to get response text: out of memory");
 			}
 		}
 
