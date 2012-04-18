@@ -47,8 +47,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 								isNaN(measuredWidth), 
 								isNaN(measuredHeight));
 						}
-						isNaN(measuredWidth) && (measuredWidth = childSize.width);
-						isNaN(measuredHeight) && (measuredHeight = childSize.height);
+						isNaN(measuredWidth) && (measuredWidth = childSize.width + 2 * layoutCoefficients.borderWidth);
+						isNaN(measuredHeight) && (measuredHeight = childSize.height + 2 * layoutCoefficients.borderWidth);
 						
 						if (isWidthSize && leftLayoutCoefficients.x1 !== 0) {
 							deferredLeftCalculations.push(child);
@@ -139,6 +139,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				bottomType = getValueType(bottom),
 				bottomValue = computeValue(bottom, bottomType),
 				
+				borderWidth = node.borderWidth,
+				
 				x1, x2, x3,
 				
 				layoutCoefficients = node._layoutCoefficients,
@@ -148,6 +150,9 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight,
 				leftLayoutCoefficients = layoutCoefficients.left,
 				topLayoutCoefficients = layoutCoefficients.top;
+			
+			// Calculate border size
+			layoutCoefficients.borderWidth = computeValue(borderWidth, getValueType(borderWidth)) || 0;
 				
 			// Apply the default width and pre-process width and height
 			!isDef(width) && (width = node._defaultWidth === UI.INHERIT ? node._getInheritedWidth() : node._defaultWidth);
