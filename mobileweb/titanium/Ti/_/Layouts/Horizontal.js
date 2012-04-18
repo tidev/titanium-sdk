@@ -18,7 +18,9 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				runningHeight = 0, runningWidth = 0, 
 				rows = [[]], row,
 				rowHeights = [], rowHeight,
-				deferredTopCalculations = [];
+				deferredTopCalculations = [],
+				deferHeight,
+				sizeHeight;
 				
 			// Calculate horizontal size and position for the children
 			for(i = 0; i < children.length; i++) {
@@ -35,8 +37,11 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 					sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
 					leftLayoutCoefficients = layoutCoefficients.left;
 					
+					deferHeight = heightLayoutCoefficients.x2 === 0;
+					sizeHeight = !deferHeight && isNaN(measuredHeight);
+					
 					measuredWidth = widthLayoutCoefficients.x1 * width + widthLayoutCoefficients.x2 * (width - runningWidth) + widthLayoutCoefficients.x3;
-					measuredHeight = heightLayoutCoefficients.x1 * height + heightLayoutCoefficients.x2;
+					measuredHeight = deferHeight ? heightLayoutCoefficients.x1 * height + heightLayoutCoefficients.x3 : NaN;
 					
 					if (child._getContentSize) {
 						childSize = child._getContentSize();
@@ -44,12 +49,12 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						childSize = child._layout._doLayout(
 							child, 
 							isNaN(measuredWidth) ? width : measuredWidth, 
-							isNaN(measuredHeight) ? height : measuredHeight, 
+							sizeHeight ? height : measuredHeight, 
 							isNaN(measuredWidth), 
 							isNaN(measuredHeight));
 					}
 					isNaN(measuredWidth) && (measuredWidth = childSize.width);
-					isNaN(measuredHeight) && (measuredHeight = childSize.height);
+					sizeHeight && (measuredHeight = childSize.height);
 					
 					measuredSandboxWidth = sandboxWidthLayoutCoefficients.x1 * width + sandboxWidthLayoutCoefficients.x2 + measuredWidth;
 					
@@ -63,10 +68,10 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 					runningWidth += measuredSandboxWidth;
 					runningWidth > computedSize.width && (computedSize.width = runningWidth);
 					
-					child._newMeasuredWidth = measuredWidth;
-					child._newMeasuredHeight = measuredHeight; // Height is only set if auto, otherwise it is calculated in the next phase
-					child._newMeasuredSandboxWidth = measuredSandboxWidth;
-					child._newMeasuredLeft = measuredLeft;
+					child._measuredWidth = measuredWidth;
+					child._measuredHeight = measuredHeight;
+					child._measuredSandboxWidth = measuredSandboxWidth;
+					child._measuredLeft = measuredLeft;
 					//}
 				}
 			}
@@ -84,13 +89,14 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						layoutCoefficients = child._layoutCoefficients;
 						topLayoutCoefficients = layoutCoefficients.top;
 						sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
-						measuredHeight = child._newMeasuredHeight;
+						measuredHeight = child._measuredHeight;
+						isNaN(measuredHeight) && (measuredHeight = child._measuredHeight = heightLayoutCoefficients.x1 * height + heightLayoutCoefficients.x2 * (height - runningHeight) + heightLayoutCoefficients.x3);
 						
 						if (topLayoutCoefficients.x2 !== 0) {
 							deferredTopCalculations.push(child);
 							measuredTop = 0; // Temporary for use in calculating row height
 						} else {
-							child._newMeasuredTop = measuredTop = topLayoutCoefficients.x1 * height + topLayoutCoefficients.x3 * measuredHeight + topLayoutCoefficients.x4 + runningHeight;
+							child._measuredTop = measuredTop = topLayoutCoefficients.x1 * height + topLayoutCoefficients.x3 * measuredHeight + topLayoutCoefficients.x4 + runningHeight;
 						}
 						
 						child._measuredSandboxHeight = measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + measuredHeight + measuredTop;
@@ -101,7 +107,6 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				rowHeights.push(rowHeight);
 				runningHeight += rowHeight;
 			}
-			computedSize.height = runningHeight;
 			
 			// Second pass, if necessary, to determine the top values
 			runningHeight = 0;
@@ -113,14 +118,15 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				
 					if (this.verifyChild(child,element) && ~deferredTopCalculations.indexOf(child)) {
 						//if (child._markedForLayout) {
-							measuredHeight = child._newMeasuredHeight;
+							measuredHeight = child._measuredHeight;
 							topLayoutCoefficients = child._layoutCoefficients.top;
-							child._newMeasuredTop = topLayoutCoefficients.x1 * height + topLayoutCoefficients.x2 * rowHeight + topLayoutCoefficients.x3 * measuredHeight + topLayoutCoefficients.x4 + runningHeight;
+							child._measuredTop = topLayoutCoefficients.x1 * height + topLayoutCoefficients.x2 * rowHeight + topLayoutCoefficients.x3 * measuredHeight + topLayoutCoefficients.x4 + runningHeight;
 						//}
 					}
 				}
 				runningHeight += rowHeight;
 			}
+			computedSize.height = runningHeight;
 			
 			// Position the children
 			for(i = 0; i < children.length; i++) {
@@ -216,22 +222,21 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			sandboxWidthLayoutCoefficients.x2 = x2;
 			
 			// Height rule calculation
-			x1 = x2 = 0;
+			x1 = x2 = x3 = 0;
 			if (heightType === UI.SIZE) {
-				x1 = x2 = NaN;
+				x1 = x2 = x3 = NaN;
 			} else if (heightType === UI.FILL) {
-				x1 = 1;
+				x2 = 1;
 				topType === "%" && (x1 = -topValue);
-				topType === "#" && (x2 = -topValue);
-				bottomType === "%" && (x1 = -bottomValue);
-				bottomType === "#" && (x2 = -bottomValue);
+				topType === "#" && (x3 = -topValue);
 			} else if (heightType === "%") {
 				x1 = heightValue;
 			} else if (heightType === "#") {
-				x2 = heightValue;
+				x3 = heightValue;
 			}
 			heightLayoutCoefficients.x1 = x1;
 			heightLayoutCoefficients.x2 = x2;
+			heightLayoutCoefficients.x3 = x3;
 			
 			// Sandbox height rule calculation
 			sandboxHeightLayoutCoefficients.x1 = bottomType === "%" ? bottomValue : 0;
