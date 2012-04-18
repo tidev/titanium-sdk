@@ -136,25 +136,23 @@ tableView.addEventListener('scroll',function(e)
 	{
 		pulling = false;
 		var t = Ti.UI.create2DMatrix();
-		arrow.animate({transform:t, duration:180});
-		statusLabel.text = "Pull down to refresh..";
-	}
-     
+		arrow.animate({transform:t,duration:180});
+		statusLabel.text = "Pull down to refresh...";
+	}    
 });
 
 tableView.addEventListener('dragEnd', function()
 {	
-	if(pulling)
+	if(pulling && !reloading)
 	{
 		reloading = true;
 		pulling = false;
 		arrow.hide();
 		actInd.show();
-		statusLabel.text = "Reloading....";
+		statusLabel.text = "Reloading...";
 		tableView.setContentInsets({top:60},{animated:true});
 		tableView.scrollToTop(-60,true);
 		arrow.transform=Ti.UI.create2DMatrix();
-		actInd.show();
 		beginReloading();
 	}
 });
