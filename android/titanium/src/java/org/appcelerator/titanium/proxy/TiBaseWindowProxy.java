@@ -14,8 +14,6 @@ public class TiBaseWindowProxy extends TiWindowProxy
 {
 	private static final String TAG = "TiBaseWindow";
 
-	private TiViewProxy wrappedViewProxy;
-
 
 	/**
 	 * Called to associate a view with a JS window wrapper 
