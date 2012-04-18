@@ -545,9 +545,10 @@ public class TiConvert
 	{
 		if (value instanceof Number) {
 			value = value.toString() + TiApplication.getInstance().getDefaultUnit();
+		} else if (value instanceof String) {
+			return toTiDimension((String) value, valueType);
 		}
-
-		return toTiDimension((String) value, valueType);
+		return null;
 	}
 	/**
 	 * Takes a value out of a hash table then attempts to convert it using {@link #toTiDimension(Object, int)} for more details.
