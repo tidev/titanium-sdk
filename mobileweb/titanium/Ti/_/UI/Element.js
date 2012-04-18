@@ -391,7 +391,8 @@ define(
 		 	}
 	 	},
 
-		_doLayout: function(params) {
+		// TODO remove me
+		/*_doLayout: function(params) {
 			
 			this._layoutParams = params;
 			
@@ -664,7 +665,7 @@ define(
 				height: Math.round(Math.max(height,0)),
 				borderSize: borderSize
 			};
-		},
+		},*/
 		
 		convertPointToView: function(point, destinationView) {
 			

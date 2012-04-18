@@ -1,6 +1,7 @@
-define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Base, declare, UI, lang) {
+define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"], function(Base, declare, UI, lang, style) {
 	
-	var isDef = lang.isDef;
+	var isDef = lang.isDef,
+		setStyle = style.set;
 
 	return declare("Ti._.Layouts.Composite", Base, {
 		
@@ -8,138 +9,119 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 			var computedSize = this._computedSize = {width: 0, height: 0},
 				children = element.children,
 				child,
-				layoutCoefficients, widthLayoutCoefficients, heightLayoutCoefficients, topLayoutCoefficients, leftLayoutCoefficients, 
+				i,
+				layoutCoefficients, 
+				widthLayoutCoefficients, heightLayoutCoefficients, sandboxWidthLayoutCoefficients, sandboxHeightLayoutCoefficients, topLayoutCoefficients, leftLayoutCoefficients, 
 				childSize,
-				measuredWidth, measuredHeight, measuredLeft, measuredTop,
+				measuredWidth, measuredHeight, measuredSandboxHeight, measuredSandboxWidth, measuredLeft, measuredTop,
+				pixelUnits = "px",
 				deferredLeftCalculations = [],
-				deferredTopCalculations = [],
-				i;
+				deferredTopCalculations = [];
+			
+			// Calculate size and position for the children
 			for(i = 0; i < children.length; i++) {
 				
-				// Layout the child
 				child = element.children[i];
 				if (this.verifyChild(child,element)) {
-					if (child._markedForLayout) {
-						
-						/**** START OF OLD ALGORITHM ****/
-						child._doLayout({
-						 	origin: {
-						 		x: 0,
-						 		y: 0
-						 	},
-						 	isParentSize: {
-						 		width: isWidthSize,
-						 		height: isHeightSize
-						 	},
-						 	boundingSize: {
-						 		width: width,
-						 		height: height
-						 	},
-						 	alignment: {
-						 		horizontal: this._defaultHorizontalAlignment,
-						 		vertical: this._defaultVerticalAlignment
-						 	},
-						 	positionElement: true,
-						 	layoutChildren: true
-					 	});
-						/**** END OF OLD ALGORITHM ****/
-						
-						/**** START OF NEW ALGORITHM ****/
-						child._needsMeasuring && this._measureNode(child);
-						
-						layoutCoefficients = child._layoutCoefficients;
-						widthLayoutCoefficients = layoutCoefficients.width;
-						heightLayoutCoefficients = layoutCoefficients.height;
-						leftLayoutCoefficients = layoutCoefficients.left;
-						topLayoutCoefficients = layoutCoefficients.top;
-						
-						measuredWidth = widthLayoutCoefficients.x1 * width + widthLayoutCoefficients.x2;
-						measuredHeight = heightLayoutCoefficients.x1 * height + heightLayoutCoefficients.x2;
-						
-						if (child._getContentSize) {
-							childSize = child._getContentSize();
-						} else {
-							childSize = child._layout._doLayout(
-								child, 
-								isNaN(measuredWidth) ? width : measuredWidth, 
-								isNaN(measuredHeight) ? height : measuredHeight, 
-								isNaN(measuredWidth), 
-								isNaN(measuredHeight));
-						}
-						isNaN(widthLayoutCoefficients.x1) && (measuredWidth = childSize.width);
-						isNaN(heightLayoutCoefficients.x1) && (measuredHeight = childSize.height);
-						
-						if (isWidthSize && leftLayoutCoefficients.x1 !== 0) {
-							deferredLeftCalculations.push(child);
-						} else {
-							measuredLeft = leftLayoutCoefficients.x1 * width + leftLayoutCoefficients.x2 * measuredWidth + leftLayoutCoefficients.x3;
-						}
-						if (isHeightSize && topLayoutCoefficients.x1 !== 0) {
-							deferredTopCalculations.push(child);
-						} else {
-							measuredTop = topLayoutCoefficients.x1 * height + topLayoutCoefficients.x2 * measuredHeight + topLayoutCoefficients.x3;
-						}
-						
-						child._newMeasuredWidth = measuredWidth;
-						child._newMeasuredHeight = measuredHeight;
-						child._newMeasuredLeft = measuredLeft;
-						child._newMeasuredTop = measuredTop;
-						
-						/**** END OF NEW ALGORITHM ****/
+					//if (child._markedForLayout) {
+					child._needsMeasuring && this._measureNode(child);
+					
+					layoutCoefficients = child._layoutCoefficients;
+					widthLayoutCoefficients = layoutCoefficients.width;
+					heightLayoutCoefficients = layoutCoefficients.height;
+					sandboxWidthLayoutCoefficients = layoutCoefficients.sandboxWidth;
+					sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
+					leftLayoutCoefficients = layoutCoefficients.left;
+					topLayoutCoefficients = layoutCoefficients.top;
+					
+					measuredWidth = widthLayoutCoefficients.x1 * width + widthLayoutCoefficients.x2;
+					measuredHeight = heightLayoutCoefficients.x1 * height + heightLayoutCoefficients.x2;
+					
+					if (child._getContentSize) {
+						childSize = child._getContentSize();
+					} else {
+						childSize = child._layout._doLayout(
+							child, 
+							isNaN(measuredWidth) ? width : measuredWidth, 
+							isNaN(measuredHeight) ? height : measuredHeight, 
+							isNaN(measuredWidth), 
+							isNaN(measuredHeight));
+					}
+					isNaN(measuredWidth) && (measuredWidth = childSize.width);
+					isNaN(measuredHeight) && (measuredHeight = childSize.height);
+					
+					if (isWidthSize && leftLayoutCoefficients.x1 !== 0) {
+						deferredLeftCalculations.push(child);
+					} else {
+						measuredLeft = leftLayoutCoefficients.x1 * width + leftLayoutCoefficients.x2 * measuredWidth + leftLayoutCoefficients.x3;
+					}
+					if (isHeightSize && topLayoutCoefficients.x1 !== 0) {
+						deferredTopCalculations.push(child);
+					} else {
+						measuredTop = topLayoutCoefficients.x1 * height + topLayoutCoefficients.x2 * measuredHeight + topLayoutCoefficients.x3;
 					}
 					
+					child._measuredSandboxWidth = measuredSandboxWidth = sandboxWidthLayoutCoefficients.x1 * height + sandboxWidthLayoutCoefficients.x2 + measuredWidth + (isNaN(measuredLeft) ? 0 : measuredLeft);
+					child._measuredSandboxHeight = measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + measuredHeight + (isNaN(measuredTop) ? 0 : measuredTop);
+				
 					// Update the size of the component
-					var rightMostEdge = child._measuredWidth + child._measuredLeft + child._measuredBorderSize.left + child._measuredBorderSize.right + child._measuredRightPadding;
-					var bottomMostEdge = child._measuredHeight + child._measuredTop + child._measuredBorderSize.top + child._measuredBorderSize.bottom + child._measuredBottomPadding;
-					rightMostEdge > computedSize.width && (computedSize.width = rightMostEdge);
-					bottomMostEdge > computedSize.height && (computedSize.height = bottomMostEdge);
+					measuredSandboxWidth > computedSize.width && (computedSize.width = measuredSandboxWidth);
+					measuredSandboxHeight > computedSize.height && (computedSize.height = measuredSandboxHeight);
+					
+					child._measuredWidth = measuredWidth;
+					child._measuredHeight = measuredHeight;
+					child._measuredLeft = measuredLeft;
+					child._measuredTop = measuredTop;
+					//}
 				}
 			}
 			
-			// Second pass, if necessary, to determine the left/top bounds
+			// Second pass, if necessary, to determine the left/top values
 			for(i in deferredLeftCalculations) {
 				child = deferredLeftCalculations[i];
 				leftLayoutCoefficients = child._layoutCoefficients.left;
-				child._newMeasuredLeft = leftLayoutCoefficients.x1 * rightMostEdge + leftLayoutCoefficients.x2 * measuredWidth + leftLayoutCoefficients.x3;
+				sandboxWidthLayoutCoefficients = child._layoutCoefficients.sandboxWidth;
+				child._measuredLeft = measuredLeft = leftLayoutCoefficients.x1 * computedSize.width + leftLayoutCoefficients.x2 * measuredWidth + leftLayoutCoefficients.x3;
+				child._measuredSandboxWidth = measuredSandboxWidth = sandboxWidthLayoutCoefficients.x1 * height + sandboxWidthLayoutCoefficients.x2 + child._measuredWidth + measuredLeft;
+				
+				// Update the size of the component
+				measuredSandboxWidth = child._measuredSandboxWidth;
+				measuredSandboxWidth > computedSize.width && (computedSize.width = measuredSandboxWidth);
 			}
 			for(i in deferredTopCalculations) {
 				child = deferredTopCalculations[i];
 				topLayoutCoefficients = child._layoutCoefficients.top;
-				child._newMeasuredTop = topLayoutCoefficients.x1 * bottomMostEdge + topLayoutCoefficients.x2 * measuredHeight + topLayoutCoefficients.x3;
+				sandboxHeightLayoutCoefficients = child._layoutCoefficients.sandboxHeight;
+				child._measuredTop = measuredTop = topLayoutCoefficients.x1 * computedSize.height + topLayoutCoefficients.x2 * measuredHeight + topLayoutCoefficients.x3;
+				child._measuredSandboxHeight = measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + child._measuredHeight + measuredTop;
+				
+				// Update the size of the component
+				measuredSandboxHeight = child._measuredSandboxHeight;
+				measuredSandboxHeight > computedSize.height && (computedSize.height = measuredSandboxHeight);
 			}
-							
-			// Debugging
+			
+			// Position the children
 			for(i = 0; i < children.length; i++) {
-				var child = children[i];
-				measuredWidth = Math.round(child._newMeasuredWidth);
-				measuredHeight = Math.round(child._newMeasuredHeight);
-				measuredLeft = Math.round(child._newMeasuredLeft);
-				measuredTop = Math.round(child._newMeasuredTop);
-				var	pass = Math.abs(child._measuredWidth - measuredWidth) < 2 && 
-					Math.abs(child._measuredHeight - measuredHeight) < 2 && 
-					Math.abs(child._measuredLeft - measuredLeft) < 2 && 
-					Math.abs(child._measuredTop - measuredTop) < 2,
-					consoleOp = pass ? "log" : "error";
-				console[consoleOp](
-					child.widgetId + 
-					(pass ? " Passed" : " Failed" +
-					" m width:(" + child._measuredWidth + "," + measuredWidth + ")" + 
-					" m height:(" + child._measuredHeight + "," + measuredHeight + ")" + 
-					" m left:(" + child._measuredLeft + "," + measuredLeft + ")" + 
-					" m top:(" + child._measuredTop + "," + measuredTop + ")\n" + 
-					" width:" + child.width + 
-					" height:" + child.height + 
-					" left:" + child.left + 
-					" right:" + child.right + 
-					" top:" + child.top + 
-					" bottom:" + child.bottom + 
-					" center:" + child.center));
+				
+				UI._elementLayoutCount++;
+												
+				// Set and store the dimensions
+				child = children[i];
+				setStyle(child.domNode, {
+					zIndex: child.zIndex | 0,
+					left: child._measuredLeft + pixelUnits,
+					top: child._measuredTop + pixelUnits,
+					width: child._measuredWidth + pixelUnits,
+					height: child._measuredHeight + pixelUnits
+				});
 			}
 			
 			return computedSize;
 		},
 		
 		_measureNode: function(node) {
+			
+			node._needsMeasuring = false;
 			
 			// Pre-processing
 			var getValueType = this.getValueType,
@@ -174,7 +156,9 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 				bottomValue = computeValue(bottom, bottomType),
 				
 				x1, x2, x3,
-				layoutCoefficients = node._layoutCoefficients;
+				layoutCoefficients = node._layoutCoefficients,
+				sandboxWidthLayoutCoefficients = layoutCoefficients.sandboxWidth,
+				sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
 				
 			// Apply the default width and pre-process width and height
 			!isDef(width) && (isDef(left) + isDef(centerX) + isDef(right) < 2) && (width = node._defaultWidth);
@@ -312,6 +296,12 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 				layoutCoefficients[i].x2 = x2;
 				layoutCoefficients[i].x3 = x3;
 			}
+			
+			// Sandbox width/height rule evaluation
+			sandboxWidthLayoutCoefficients.x1 = rightType === "%" ? rightValue : 0;
+			sandboxWidthLayoutCoefficients.x2 = rightType === "#" ? rightValue : 0;
+			sandboxHeightLayoutCoefficients.x1 = bottomType === "%" ? bottomValue : 0;
+			sandboxHeightLayoutCoefficients.x2 = bottomType === "#" ? bottomValue : 0;
 		},
 		
 		_defaultHorizontalAlignment: "center",

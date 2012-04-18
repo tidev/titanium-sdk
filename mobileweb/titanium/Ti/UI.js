@@ -17,7 +17,7 @@ define(
 			hidingAddressBar = 0;
 		},
 		unitize = dom.unitize,
-		showStats = false;
+		showStats = true;
 
 	on(body, "touchmove", function(e) {
 		e.preventDefault();
@@ -166,7 +166,7 @@ define(
 					breakAfterChildrenCalculations;
 					
 				// Determine which nodes need to be re-layed out
-				for (var i in nodes) {
+				/*for (var i in nodes) {
 					layoutNode = nodes[i];
 						
 					// Mark all of the children for update that need to be updated
@@ -218,31 +218,19 @@ define(
 							break;
 						}
 					}
-				}
+				}*/
+				
+				// TODO Reinstate and fix optimization code
+				layoutRootNode = true;
 				
 				// Layout all nodes that need it
 				if (layoutRootNode) {
 					var container = self._container;
-					container._doLayout({
-					 	origin: {
-					 		x: 0,
-					 		y: 0
-					 	},
-					 	isParentSize: {
-					 		width: false,
-					 		height: false
-					 	},
-					 	boundingSize: {
-					 		width: global.innerWidth,
-					 		height: global.innerHeight
-					 	},
-					 	alignment: {
-					 		horizontal: "center",
-					 		vertical: "center"
-					 	},
-					 	positionElement: true,
-					 	layoutChildren: true
-				 	});
+					setStyle(self._container.domNode, {
+						width: container.width + "px",
+						height: container.height + "px",
+					});
+					container._layout._doLayout(container, container.width, container.height, false, false);
 				}
 				for (var i in rootNodesToLayout) {
 					node = rootNodesToLayout[i];
@@ -264,7 +252,7 @@ define(
 				startLayout();
 			} else if (self._nodesToLayout.length === 1) {
 				self._layoutInProgress = true;
-				self._layoutTimer = setTimeout(function(){ startLayout(); }, 25);
+				self._layoutTimer = setTimeout(function(){ startLayout(); }, 10);
 			}
 		},
 		
