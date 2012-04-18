@@ -134,7 +134,6 @@ tableView.addEventListener('scroll',function(e)
 	}
 	else if((offset > -65.0 && offset < 0 ) && pulling && !reloading)
 	{
-		Ti.API.info("inside scroll event... settting pulling to false")
 		pulling = false;
 		var t = Ti.UI.create2DMatrix();
 		arrow.animate({transform:t, duration:180});
@@ -143,12 +142,10 @@ tableView.addEventListener('scroll',function(e)
      
 });
 
-tableView.addEventListener('dragEnd', function(){
-	
-	Ti.API.info("-----INSIDE dragEnd..... PULL :"+pulling);
+tableView.addEventListener('dragEnd', function()
+{	
 	if(pulling)
 	{
-		
 		reloading = true;
 		pulling = false;
 		arrow.hide();
