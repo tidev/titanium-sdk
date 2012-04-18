@@ -132,16 +132,32 @@ tableView.addEventListener('scroll',function(e)
 		arrow.animate({transform:t,duration:180});
 		statusLabel.text = "Release to refresh...";
 	}
-	if(offset > -65.0 && pulling && !reloading)
+	else if((offset > -65.0 && offset < 0 ) && pulling && !reloading)
 	{
+		Ti.API.info("inside scroll event... settting pulling to false")
+		pulling = false;
+		var t = Ti.UI.create2DMatrix();
+		arrow.animate({transform:t, duration:180});
+		statusLabel.text = "Pull down to refresh..";
+	}
+     
+});
+
+tableView.addEventListener('dragEnd', function(){
+	
+	Ti.API.info("-----INSIDE dragEnd..... PULL :"+pulling);
+	if(pulling)
+	{
+		
 		reloading = true;
 		pulling = false;
 		arrow.hide();
-		statusLabel.text = "Reloading...";
+		actInd.show();
+		statusLabel.text = "Reloading....";
 		tableView.setContentInsets({top:60},{animated:true});
+		tableView.scrollToTop(-60,true);
 		arrow.transform=Ti.UI.create2DMatrix();
 		actInd.show();
 		beginReloading();
 	}
-	
 });
