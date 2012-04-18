@@ -190,7 +190,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 		properties: {
 			layout: {
 				set: function(value) {
-					var match = value.match(/^(horizontal|vertical)$/),
+					var match = value.match(/^(horizontal|vertical|constrainingHorizontal|constrainingVertical)$/),
 						value = match ? match[0] : "composite";
 
 					if (this._layout) {
