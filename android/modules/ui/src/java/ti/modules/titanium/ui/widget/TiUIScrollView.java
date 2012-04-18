@@ -135,7 +135,7 @@ public class TiUIScrollView extends TiUIView
 				contentWidth = maxWidth; // measuredWidth;
 			}		
 
-			// Return the content's width when it's greater than the scrollview's width
+			// Returns the content's width when it's greater than the scrollview's width
 			if (contentWidth > parentWidth) {
 				return contentWidth;
 			} else {
