@@ -181,7 +181,10 @@ public class TiUITabGroup extends TiUIView
 
 		TiViewProxy viewProxy = currentTab.getWindow();
 		if (viewProxy instanceof TiBaseWindowProxy) {
-			viewProxy = ((TiBaseWindowProxy) viewProxy).getWrappedView();
+			TiViewProxy wrappedViewProxy = ((TiBaseWindowProxy) viewProxy).getWrappedView();
+			if (wrappedViewProxy != null) {
+				viewProxy = wrappedViewProxy;
+			}
 		}
 		viewProxy.fireEvent(TiC.EVENT_FOCUS, null);
 

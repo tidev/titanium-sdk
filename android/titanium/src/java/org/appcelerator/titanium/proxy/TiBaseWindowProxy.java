@@ -24,16 +24,8 @@ public class TiBaseWindowProxy extends TiWindowProxy
 	 */
 	@Kroll.method
 	public void setWindowView(TiViewProxy viewProxy) {
-		/* we need to associate the wrapped view with the JS window wrapper 
-		 * so we can correctly reference the "real" view later from the JS
-		 * window wrapper.  One example use is firing events to a window associated
-		 * with a tab (the tab only has a reference to the wrapper)
-		 */
-		wrappedViewProxy = viewProxy;
-
 		TiUIView view = viewProxy.peekView();
 		setView(view);
-
 		setModelListener(view);
 	}
 
@@ -45,7 +37,7 @@ public class TiBaseWindowProxy extends TiWindowProxy
 	 * 
 	 */
 	public TiViewProxy getWrappedView() {
-		return wrappedViewProxy;
+		return view.getProxy();
 	}
 
 	@Override
