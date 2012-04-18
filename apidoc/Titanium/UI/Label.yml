@@ -35,7 +35,9 @@ properties:
     platforms: [iphone, ipad]
     
   - name: color
-    summary: Color of the label text.
+    summary: Color of the label text, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     
   - name: ellipsize
@@ -50,8 +52,10 @@ properties:
     type: Font
     
   - name: highlightedColor
-    summary: Color of the label when in the highlighted state. 
+    summary: Color of the label when in the highlighted state, as a color name or hex triplet.
     description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        
         Used when the label is part of a view that can be highlighted, such as a 
         <Titanium.UI.TableViewRow>.
     type: String
@@ -70,7 +74,9 @@ properties:
     platforms: [iphone, ipad]
     
   - name: shadowColor
-    summary: Text shadow color.
+    summary: Text shadow color, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     platforms: [iphone, ipad, mobileweb]
     

@@ -114,7 +114,9 @@ properties:
     type: [String, Titanium.Blob]
 
   - name: barColor
-    summary: Background color for the nav bar, specified as a hex color or color name.
+    summary: |
+        Background color for the nav bar, as a color name or hex triplet. For information about 
+        color values, see the "Colors" section of <Titanium.UI>.
     platforms: [iphone, ipad]
     type: String
 
