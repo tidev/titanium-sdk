@@ -545,7 +545,8 @@ public class TiConvert
 	{
 		if (value instanceof Number) {
 			value = value.toString() + TiApplication.getInstance().getDefaultUnit();
-		} else if (value instanceof String) {
+		}
+		if (value instanceof String) {
 			return toTiDimension((String) value, valueType);
 		}
 		return null;
