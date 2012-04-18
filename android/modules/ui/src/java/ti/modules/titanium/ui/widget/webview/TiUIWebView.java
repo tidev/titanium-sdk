@@ -84,9 +84,8 @@ public class TiUIWebView extends TiUIView
 		{
 			boolean handled = false;
 
-			// In Android WebView, all the click events are directly sent to WebKit. OnClickListener() has never
-			// been called.
-			// Therefore, we have to manually call performClick() when a click event is detected.
+			// In Android WebView, all the click events are directly sent to WebKit. As a result, OnClickListener() is
+			// never called. Therefore, we have to manually call performClick() when a click event is detected.
 			if (ev.getAction() == MotionEvent.ACTION_UP) {
 				Rect r = new Rect(0, 0, getWidth(), getHeight());
 				if (r.contains((int) ev.getX(), (int) ev.getY())) {
