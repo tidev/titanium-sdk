@@ -133,12 +133,11 @@ public class TiUIScrollView extends TiUIView
 			int contentWidth = getContentProperty(TiC.PROPERTY_CONTENT_WIDTH);
 			if (contentWidth == AUTO) {
 				contentWidth = maxWidth; // measuredWidth;
-			}
-			
+			}		
 
-			// Force the minimum width of the content view to be the size of its parent (scroll view)
+			// Sets the minimum width of the content view to be the size of its parent (scroll view)
 			if (contentWidth > parentWidth) {
-				return Math.max(contentWidth, parentWidth);
+				return contentWidth;
 			} else {
 				return resolveSize(maxWidth, widthSpec);
 			}
@@ -152,9 +151,9 @@ public class TiUIScrollView extends TiUIView
 				contentHeight = maxHeight; // measuredHeight;
 			}
 
-			// Force the minimum height of the content view to be the size of its parent (scroll view)
+			// Sets the minimum height of the content view to be the size of its parent (scroll view)
 			if (contentHeight > parentHeight) {
-				return Math.max(contentHeight, parentHeight);
+				return contentHeight;
 			} else {
 				return resolveSize(maxHeight, heightSpec);
 			}
