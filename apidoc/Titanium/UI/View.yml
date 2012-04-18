@@ -996,8 +996,9 @@ properties:
     type: Number
   - name: colors
     summary: |
-        An array of colors, as a color name or hex triplet. For information about color values, see 
-        the "Colors" section of <Titanium.UI>.
+        An array of colors, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: [ Array<String>, Array<GradientColorRef> ]
   - name: backfillStart
     summary: Set to `true` to continue filling with the starting color beyond the `startPoint`.
@@ -1014,8 +1015,9 @@ summary: A simple object consisting of a color and an offset.
 properties:
   - name: color
     summary: |
-        Color value at this point in the gradient, as a color name or hex triplet. For information 
-        about color values, see the "Colors" section of <Titanium.UI>.
+        Color value at this point in the gradient, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
   - name: offset
     summary: Offset of this color in the gradient, from 0 (start) to 1 (end).

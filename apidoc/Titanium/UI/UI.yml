@@ -108,8 +108,8 @@ description:  |
     
     Color properties may also be set to `transparent`.
     
-    If a color name is not recognized or is not provided for a property, the platform default color 
-    will be used, which is `yellow` on Android and `black` on iOS.
+    If a color name is not recognized or is not specified for a property, a default color of the 
+    particular UI element is applied.
 extends: Titanium.Module
 since: "0.4"
 

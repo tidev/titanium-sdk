@@ -401,8 +401,9 @@ properties:
 
   - name: color
     summary: |
-        Color to use when drawing the route, as a color name or hex triplet. For information about 
-        color values, see the "Colors" section of <Titanium.UI>.
+        Color to use when drawing the route, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
 
   - name: width
