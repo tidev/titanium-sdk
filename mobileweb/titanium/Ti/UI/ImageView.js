@@ -19,8 +19,9 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 					height: this.domNode.height
 				}
 			},
-
-			_doLayout: function(params) {
+			
+			_preLayout: function(boundingWidth, boundingHeight, isParentWidthSize, isParentHeightSize) {
+								
 				// We have to remove the old style to get the image to scale to its default size,
 				// otherwise we are just reading in whatever we set in the last doLayout(), which is
 				// 0 if the image was not loaded...thus always clamping it to 0.
@@ -28,11 +29,9 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 				this.domNode.style.height = "";
 				
 				var imageRatio = this.domNode.width / this.domNode.height,
-					boundingHeight = params.boundingSize.height,
-					boundingWidth = params.boundingSize.width,
 					values = this.properties.__values__,
-					isParentWidthSize = params.isParentSize.width,
-					isParentHeightSize = params.isParentSize.height;
+					oldWidth = values.width,
+					oldHeight = values.height;
 				
 				// Check divide by 0 case
 				if (isNaN(imageRatio)) {
@@ -63,8 +62,8 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 					values.width = UI.SIZE;
 					values.height = UI.SIZE;
 				}
-
-				return Widget.prototype._doLayout.call(this,params);
+				
+				return oldWidth !== values.width || oldHeight !== values.height;
 			},
 
 			properties: {

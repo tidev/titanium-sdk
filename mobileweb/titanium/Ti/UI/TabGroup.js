@@ -14,28 +14,10 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 			var self = this,
 				tabsAtBottom = self.constants.tabsAtBottom = lang.val(args && args.tabsAtBottom, self.constants.tabsAtBottom);
 			
-			// Create the tabBarContainer class
-			var TabBarContainer = declare("Ti._.UI.TabGroup.TabBarContainer", View, {
-				_doLayout: function(params) {
-					
-					var tabs = self.tabs,
-						numTabs = tabs.length,
-						totalDividerWidth = (numTabs - 1) * self.tabDividerWidth,
-						tabWidth = Math.floor((params.boundingSize.width - totalDividerWidth) / numTabs);
-					for (var i = 0; i < numTabs - 1; i++) {
-						tabs[i]._defaultWidth = tabWidth;
-					}
-					 // Make the last tab consume the remaining space. Fractional widths look really bad in tabs.
-					tabs[i] && (tabs[i]._defaultWidth = params.boundingSize.width - totalDividerWidth - tabWidth * (numTabs - 1));
-					
-					return View.prototype._doLayout.apply(this,arguments)
-				}
-			});
-			
 			// Create the tab bar
-			self._tabBarContainer = new TabBarContainer({
+			self._tabBarContainer = UI.createView({
 				width: UI.FILL,
-				layout: "horizontal"
+				layout: "constrainingHorizontal"
 			});
 			self.tabHeight = 75;
 
@@ -46,7 +28,7 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 			});
 			
 			// Add the windows ordered such that they respect tabsAtBottom
-			self.layout = "vertical";
+			self.layout = "constrainingVertical";
 			self.tabs = [];
 			self.tabsAtBottom = args ? lang.val(args.tabsAtBottom, true) : true;
 		},

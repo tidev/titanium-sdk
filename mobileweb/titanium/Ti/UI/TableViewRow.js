@@ -14,31 +14,31 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 		_indentionScale: 10,
 		
 		constructor: function(args) {
-			this.add(this._defaultControl = UI.createView({
+			this._contentAligner = UI.createView({
 				width: UI.INHERIT,
 				height: UI.INHERIT,
-				layout: "horizontal"
-			}));
-			this._defaultControl._layout._defaultVerticalAlignment = "center";
+				layout: "constrainingHorizontal"
+			});
+			this.add(this._contentAligner);
 			
-			this._defaultControl.add(this._leftImageView = UI.createImageView({
+			this._contentAligner.add(this._leftImageView = UI.createImageView({
 				width: UI.SIZE,
 				height: UI.SIZE
 			})); 
 
-			this._defaultControl.add(this._titleLabel = UI.createLabel({
+			this._contentAligner.add(this._titleLabel = UI.createLabel({
 				width: UI.INHERIT,
-				height: UI.INHERIT,
+				height: UI.SIZE,
 				wordWrap: false
 			}));
+			this._titleLabel._forceInheritenceToFillOrSize = true;
 
-			this._defaultControl.add(this._rightImageView = UI.createImageView({
-				width: UI.SIZE, 
+			this._contentAligner.add(this._rightImageView = UI.createImageView({
+				right: 0,
+				width: UI.SIZE,
 				height: UI.SIZE
 			}));
 		},
-		
-		_usingDefaultControl: 1,
 
 		_defaultWidth: UI.INHERIT,
 
