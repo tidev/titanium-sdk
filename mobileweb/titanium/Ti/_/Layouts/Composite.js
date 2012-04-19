@@ -47,8 +47,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 							isNaN(measuredWidth), 
 							isNaN(measuredHeight));
 					}
-					isNaN(measuredWidth) && (measuredWidth = childSize.width + 2 * layoutCoefficients.borderWidth);
-					isNaN(measuredHeight) && (measuredHeight = childSize.height + 2 * layoutCoefficients.borderWidth);
+					isNaN(measuredWidth) && (measuredWidth = childSize.width + child._borderLeftWidth + child._borderRightWidth);
+					isNaN(measuredHeight) && (measuredHeight = childSize.height + child._borderTopWidth + child._borderBottomWidth);
 					
 					if (isWidthSize && leftLayoutCoefficients.x1 !== 0) {
 						deferredLeftCalculations.push(child);
@@ -111,12 +111,12 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 					zIndex: child.zIndex | 0,
 					left: Math.round(child._measuredLeft) + pixelUnits,
 					top: Math.round(child._measuredTop) + pixelUnits,
-					width: Math.round(child._measuredWidth) + pixelUnits,
-					height: Math.round(child._measuredHeight) + pixelUnits
+					width: Math.round(child._measuredWidth - child._borderLeftWidth - child._borderRightWidth) + pixelUnits,
+					height: Math.round(child._measuredHeight - child._borderTopWidth - child._borderBottomWidth) + pixelUnits
 				});
 			}
 			
-			return computedSize;
+			return this._computedSize = computedSize;
 		},
 		
 		_measureNode: function(node) {
@@ -155,16 +155,11 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				bottomType = getValueType(bottom),
 				bottomValue = computeValue(bottom, bottomType),
 				
-				borderWidth = node.borderWidth,
-				
 				x1, x2, x3,
 				
 				layoutCoefficients = node._layoutCoefficients,
 				sandboxWidthLayoutCoefficients = layoutCoefficients.sandboxWidth,
 				sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
-			
-			// Calculate border size
-			layoutCoefficients.borderWidth = computeValue(borderWidth, getValueType(borderWidth)) || 0;
 				
 			// Apply the default width and pre-process width and height
 			!isDef(width) && (isDef(left) + isDef(centerX) + isDef(right) < 2) && (width = node._defaultWidth);

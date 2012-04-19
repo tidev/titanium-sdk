@@ -169,7 +169,8 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 			setStyle(this._downArrow, "borderBottomLeftRadius", left ? radius : "0px");
 			setStyle(this._upArrow, "borderTopRightRadius", right ? radius : "0px");
 			setStyle(this._downArrow, "borderBottomRightRadius", right ? radius : "0px");
-			setStyle(this.domNode,"borderRight", right ? "" : "1px solid #666");
+			this.borderWidth = [0, right ? 0 : 1, 0, 0];
+			this.borderColor = "#666";
 		},
 
 		_defaultWidth: UI.SIZE,

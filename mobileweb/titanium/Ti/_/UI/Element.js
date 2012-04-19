@@ -32,7 +32,8 @@ define(
 				}
 				return value;
 			}
-		};
+		},
+		pixelUnits = "px";
 
 	return declare("Ti._.UI.Element", Evented, {
 
@@ -156,8 +157,7 @@ define(
 					x2: 0,
 					x3: 0,
 					x4: 0
-				},
-				borderWidth: 0
+				}
 			};
 			values.size = {
 				x: 0,
@@ -372,25 +372,6 @@ define(
 			}
 			this.finishLayout();
 		},
-		
-		_layoutParams: {
-		 	origin: {
-		 		x: 0,
-		 		y: 0
-		 	},
-		 	isParentSize: {
-		 		width: 0,
-		 		height: 0
-		 	},
-		 	boundingSize: {
-		 		width: 0,
-		 		height: 0
-		 	},
-		 	alignment: {
-		 		horizontal: "center",
-		 		vertical: "center"
-		 	}
-	 	},
 
 		// TODO remove me
 		/*_doLayout: function(params) {
@@ -806,7 +787,7 @@ define(
 					if (!is(color.offset,"Number")) {
 						color.offset = i / (numColors - 1);
 					}
-					cssVal += "," + color.color + " " + Math.round(computeSize(100 * color.offset + "%", userGradientEnd - userGradientStart) + userGradientStart) + "px";
+					cssVal += "," + color.color + " " + Math.round(computeSize(100 * color.offset + "%", userGradientEnd - userGradientStart) + userGradientStart) + pixelUnits;
 				}
 				
 			} else if (type === "radial") {
@@ -839,7 +820,7 @@ define(
 					}
 				}
 				
-				cssVal += startPointX + "px " + startPointY + "px";
+				cssVal += startPointX + pixelUnits + " " + startPointY + pixelUnits;
 				
 				// Calculate the color stops
 				for (var i = 0; i < numColors; i++) {
@@ -853,7 +834,7 @@ define(
 					} else {
 						offset = mirrorGradient ? numColors % 2 === 1 && i === Math.floor(numColors / 2) ? color.offset : 1 - color.offset : color.offset;
 					}
-					cssVal += "," + color.color + " " + Math.round(computeSize(100 * offset + "%", endRadius - startRadius) + startRadius) + "px";
+					cssVal += "," + color.color + " " + Math.round(computeSize(100 * offset + "%", endRadius - startRadius) + startRadius) + pixelUnits;
 				}
 			}
 
@@ -897,6 +878,14 @@ define(
 		_defaultBackgroundSelectedColor: void 0,
 		
 		_defaultBackgroundSelectedImage: void 0,
+		
+		_borderLeftWidth: 0,
+		
+		_borderRightWidth: 0,
+		
+		_borderTopWidth: 0,
+		
+		_borderBottomWidth: 0,
 
 		_doBackground: function(evt) {
 			var evt = evt || {},
@@ -1188,8 +1177,24 @@ define(
 			},
 
 			borderWidth: {
-				set: function(value) {
-					setStyle(this.domNode, "borderWidth", unitize(value));
+				set: function(value, oldValue) {
+					
+					if (is(value,"Array")) {
+						if (value.length !== 4) {
+							return oldValue;
+						}
+						setStyle(this.domNode, {
+							borderLeftWidth: (this._borderLeftWidth = value[0]) + pixelUnits,
+							borderRightWidth: (this._borderRightWidth = value[1]) + pixelUnits,
+							borderTopWidth: (this._borderTopWidth = value[2]) + pixelUnits,
+							borderBottomWidth: (this._borderBottomWidth = value[3]) + pixelUnits
+						});
+					} else if(isNaN(value)) {
+						return oldValue;
+					} else {
+						setStyle(this.domNode, "borderWidth", value + pixelUnits);
+						this._borderLeftWidth = this._borderRightWidth = this._borderTopWidth = this._borderBottomWidth = value;
+					}
 					return value;
 				},
 				value: 0
