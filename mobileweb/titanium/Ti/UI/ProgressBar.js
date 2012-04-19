@@ -58,10 +58,10 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 		},
 			
 		_preLayout: function() {
-			var messagePropHeight = this._message.properties.__values__.height,
-				progressBarPropTop = this._progressBar.properties.__values__,
+			var messageProps = this._message.properties.__values__,
+				progressBarProps = this._progressBar.properties.__values__,
 				needsRecalculation;
-			if (this._message._getContentSize().width === 0) {
+			if (!!this._message.text) {
 				needsRecalculation = progressBarProps.top !== 0;
 				messageProps.height = 0;
 				progressBarProps.top = 0;
