@@ -3,7 +3,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 	var isDef = lang.isDef,
 		setStyle = style.set;
 
-	return declare("Ti._.Layouts.ConstrainingVertical", Base, {
+	return declare("Ti._.Layouts.ConstrainingHorizontal", Base, {
 
 		_doLayout: function(element, width, height, isWidthSize, isHeightSize) {
 			var computedSize = this._computedSize = {width: 0, height: 0},
@@ -31,7 +31,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						layoutCoefficients = child._layoutCoefficients;
 						widthLayoutCoefficients = layoutCoefficients.width;
 						
-						if (widthLayoutCoefficients.x2 === 0) {
+						if (widthLayoutCoefficients.x2 === 0 || isNaN(widthLayoutCoefficients.x2)) {
 							heightLayoutCoefficients = layoutCoefficients.height;
 							sandboxWidthLayoutCoefficients = layoutCoefficients.sandboxWidth;
 							sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
@@ -76,7 +76,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						layoutCoefficients = child._layoutCoefficients;
 						widthLayoutCoefficients = layoutCoefficients.width;
 						
-						if (widthLayoutCoefficients.x2 !== 0) {
+						if (widthLayoutCoefficients.x2 !== 0 && !isNaN(widthLayoutCoefficients.x2)) {
 							heightLayoutCoefficients = layoutCoefficients.height;
 							sandboxWidthLayoutCoefficients = layoutCoefficients.sandboxWidth;
 							sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
@@ -122,6 +122,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						if (isHeightSize && topLayoutCoefficients.x1 !== 0) {
 							deferredTopCalculations.push(child);
 						} else {
+							measuredHeight = child._measuredHeight;
 							measuredTop = topLayoutCoefficients.x1 * height + topLayoutCoefficients.x2 * measuredHeight + topLayoutCoefficients.x3;
 						}
 						measuredLeft = leftLayoutCoefficients.x1 * width + leftLayoutCoefficients.x2 + runningWidth;
@@ -133,20 +134,20 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						
 						runningWidth += child._measuredSandboxWidth;
 						
-						child._measuredSandboxWidth = measuredSandboxWidth;
 						child._measuredSandboxHeight = measuredSandboxHeight;
 						child._measuredLeft = measuredLeft;
 						child._measuredTop = measuredTop;
 					//}
 				}
 			}
-			computedSize.width = measuredSandboxWidth;
+			computedSize.width = runningWidth;
 			
 			// Second pass, if necessary, to determine the top values
 			for(i in deferredTopCalculations) {
 				child = deferredTopCalculations[i];
 				topLayoutCoefficients = child._layoutCoefficients.top;
 				sandboxHeightLayoutCoefficients = child._layoutCoefficients.sandboxHeight;
+				measuredHeight = child._measuredHeight;
 				child._measuredTop = measuredTop = topLayoutCoefficients.x1 * computedSize.height + topLayoutCoefficients.x2 * measuredHeight + topLayoutCoefficients.x3;
 				child._measuredSandboxHeight = measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + measuredHeight + (isNaN(measuredTop) ? 0 : measuredTop);
 				
@@ -164,10 +165,10 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				child = children[i];
 				setStyle(child.domNode, {
 					zIndex: child.zIndex | 0,
-					left: child._measuredLeft + pixelUnits,
-					top: child._measuredTop + pixelUnits,
-					width: child._measuredWidth + pixelUnits,
-					height: child._measuredHeight + pixelUnits
+					left: Math.round(child._measuredLeft) + pixelUnits,
+					top: Math.round(child._measuredTop) + pixelUnits,
+					width: Math.round(child._measuredWidth) + pixelUnits,
+					height: Math.round(child._measuredHeight) + pixelUnits
 				});
 			}
 			
@@ -362,9 +363,9 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			leftLayoutCoefficients.x2 = leftType === "#" ? leftValue : 0;
 		},
 		
-		_defaultHorizontalAlignment: "center",
+		_defaultHorizontalAlignment: "start",
 		
-		_defaultVerticalAlignment: "start"
+		_defaultVerticalAlignment: "center"
 
 	});
 

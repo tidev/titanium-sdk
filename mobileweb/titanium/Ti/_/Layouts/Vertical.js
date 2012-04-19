@@ -97,10 +97,10 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				child = children[i];
 				setStyle(child.domNode, {
 					zIndex: child.zIndex | 0,
-					left: child._measuredLeft + pixelUnits,
-					top: child._measuredTop + pixelUnits,
-					width: child._measuredWidth + pixelUnits,
-					height: child._measuredHeight + pixelUnits
+					left: Math.round(child._measuredLeft) + pixelUnits,
+					top: Math.round(child._measuredTop) + pixelUnits,
+					width: Math.round(child._measuredWidth) + pixelUnits,
+					height: Math.round(child._measuredHeight) + pixelUnits
 				});
 			}
 			

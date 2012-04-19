@@ -31,7 +31,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						layoutCoefficients = child._layoutCoefficients;
 						heightLayoutCoefficients = layoutCoefficients.height;
 						
-						if (heightLayoutCoefficients.x2 === 0) {
+						if (heightLayoutCoefficients.x2 === 0 || isNaN(heightLayoutCoefficients.x2)) {
 							widthLayoutCoefficients = layoutCoefficients.width;
 							sandboxWidthLayoutCoefficients = layoutCoefficients.sandboxWidth;
 							sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
@@ -54,10 +54,10 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 							
 							measuredSandboxHeight = child._measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + measuredHeight;
 							
+							runningHeight += measuredSandboxHeight;
+							
 							child._measuredWidth = measuredWidth;
 							child._measuredHeight = measuredHeight;
-							
-							runningHeight += measuredSandboxHeight;
 						} else {
 							fillCount++;
 						}
@@ -76,7 +76,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						layoutCoefficients = child._layoutCoefficients;
 						heightLayoutCoefficients = layoutCoefficients.height;
 						
-						if (heightLayoutCoefficients.x2 !== 0) {
+						if (heightLayoutCoefficients.x2 !== 0 && !isNaN(heightLayoutCoefficients.x2)) {
 							widthLayoutCoefficients = layoutCoefficients.width;
 							sandboxWidthLayoutCoefficients = layoutCoefficients.sandboxWidth;
 							sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
@@ -122,6 +122,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						if (isWidthSize && leftLayoutCoefficients.x1 !== 0) {
 							deferredLeftCalculations.push(child);
 						} else {
+							measuredWidth = child._measuredWidth;
 							measuredLeft = leftLayoutCoefficients.x1 * width + leftLayoutCoefficients.x2 * measuredWidth + leftLayoutCoefficients.x3;
 						}
 						measuredTop = topLayoutCoefficients.x1 * height + topLayoutCoefficients.x2 + runningHeight;
@@ -130,23 +131,23 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						
 						// Update the size of the component
 						measuredSandboxWidth > computedSize.width && (computedSize.width = measuredSandboxWidth);
-						computedSize.height += measuredSandboxHeight;
-						
-						child._measuredSandboxWidth = measuredSandboxWidth;
-						child._measuredSandboxHeight = measuredSandboxHeight;
-						child._measuredLeft = measuredLeft;
-						child._measuredTop = measuredTop;
 						
 						runningHeight += child._measuredSandboxHeight;
+						
+						child._measuredSandboxWidth = measuredSandboxWidth;
+						child._measuredLeft = measuredLeft;
+						child._measuredTop = measuredTop;
 					//}
 				}
 			}
+			computedSize.height = runningHeight;
 			
 			// Second pass, if necessary, to determine the left values
 			for(i in deferredLeftCalculations) {
 				child = deferredLeftCalculations[i];
 				leftLayoutCoefficients = child._layoutCoefficients.left;
 				sandboxWidthLayoutCoefficients = child._layoutCoefficients.sandboxWidth;
+				measuredWidth = child._measuredWidth;
 				child._measuredLeft = measuredLeft = leftLayoutCoefficients.x1 * computedSize.width + leftLayoutCoefficients.x2 * measuredWidth + leftLayoutCoefficients.x3;
 				child._measuredSandboxWidth = measuredSandboxWidth = sandboxWidthLayoutCoefficients.x1 * width + sandboxWidthLayoutCoefficients.x2 + measuredWidth + (isNaN(measuredLeft) ? 0 : measuredLeft);
 				
@@ -164,10 +165,10 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				child = children[i];
 				setStyle(child.domNode, {
 					zIndex: child.zIndex | 0,
-					left: child._measuredLeft + pixelUnits,
-					top: child._measuredTop + pixelUnits,
-					width: child._measuredWidth + pixelUnits,
-					height: child._measuredHeight + pixelUnits
+					left: Math.round(child._measuredLeft) + pixelUnits,
+					top: Math.round(child._measuredTop) + pixelUnits,
+					width: Math.round(child._measuredWidth) + pixelUnits,
+					height: Math.round(child._measuredHeight) + pixelUnits
 				});
 			}
 			
