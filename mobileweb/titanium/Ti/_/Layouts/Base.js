@@ -3,6 +3,8 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/lang", "Ti/U
 	var isDef = lang.isDef;
 
 	return declare("Ti._.Layouts.Base", null, {
+		
+		computedSize: {width: 0, height: 0},
 
 		constructor: function(element) {
 			this.element = element;
@@ -72,9 +74,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/lang", "Ti/U
 			} else {
 				node.borderWidth = [left, right, top, bottom];
 			}
-		},
-		
-		_computedSize: {width: 0, height: 0}
+		}
 
 	});
 
