@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -81,32 +82,9 @@ public class TableViewRowProxy extends TiViewProxy
 
 	public void setCreationProperties(KrollDict options)
 	{
-		if (options.containsKey(TiC.PROPERTY_HAS_CHECK)) {
-			setProperty(TiC.PROPERTY_HAS_CHECK, options.get(TiC.PROPERTY_HAS_CHECK));
-		}
-		if (options.containsKey(TiC.PROPERTY_HAS_CHILD)) {
-			setProperty(TiC.PROPERTY_HAS_CHILD, options.get(TiC.PROPERTY_HAS_CHILD));
-		}
-		if (options.containsKey(TiC.PROPERTY_CLASS_NAME)) {
-			setProperty(TiC.PROPERTY_CLASS_NAME, options.get(TiC.PROPERTY_CLASS_NAME));
-		}
-		if (options.containsKey(TiC.PROPERTY_LAYOUT)) {
-			setProperty(TiC.PROPERTY_LAYOUT, options.get(TiC.PROPERTY_LAYOUT));
-		}
-		if (options.containsKey(TiC.PROPERTY_LEFT_IMAGE)) {
-			setProperty(TiC.PROPERTY_LEFT_IMAGE, options.get(TiC.PROPERTY_LEFT_IMAGE));
-		}
-		if (options.containsKey(TiC.PROPERTY_RIGHT_IMAGE)) {
-			setProperty(TiC.PROPERTY_RIGHT_IMAGE, options.get(TiC.PROPERTY_RIGHT_IMAGE));
-		}
-		if (options.containsKey(TiC.PROPERTY_TITLE)) {
-			setProperty(TiC.PROPERTY_TITLE, options.get(TiC.PROPERTY_TITLE));
-		}
-		if (options.containsKey(TiC.PROPERTY_HEADER)) {
-			setProperty(TiC.PROPERTY_HEADER, options.get(TiC.PROPERTY_HEADER));
-		}
-		if (options.containsKey(TiC.PROPERTY_FOOTER)) {
-			setProperty(TiC.PROPERTY_FOOTER, options.get(TiC.PROPERTY_FOOTER));
+		Set<String> keySet = options.keySet();
+		for (String key : keySet) {
+			setProperty(key, options.get(key));
 		}
 	}
 
