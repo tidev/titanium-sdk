@@ -18,7 +18,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Locale", "T
 					backgroundColor: "white",
 					borderRadius: 3,
 					height: UI.SIZE,
-					layout: "vertical",
+					layout: UI._LAYOUT_CONSTRAINING_VERTICAL,
 					opacity: 0,
 					width: "50%"
 				}),

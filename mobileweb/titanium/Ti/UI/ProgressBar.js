@@ -25,14 +25,6 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 				}, this._contentContainer);
 			},
 			
-			_doLayout: function(params) {
-				var values = this.properties.__values__;
-				values.width = params.isParentSize.width ? UI.SIZE : "100%";
-				values.height = params.isParentSize.height ? UI.SIZE : "100%";
-				
-				return Widget.prototype._doLayout.call(this,params);
-			},
-			
 			_getContentSize: function(width, height) {
 				return {
 					width: 200,
@@ -49,31 +41,37 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 		
 		constructor: function() {
 			this.add(this._contentContainer = UI.createView({
-				width: UI.SIZE,
-				height: UI.SIZE,
+				width: UI.INHERIT,
+				height: UI.INHERIT,
 				left: 0,
 				top: 0,
-				layout: "vertical"
+				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
+			this._contentContainer._forceInheritenceToFillOrSize = true;
 			this._contentContainer._layout._defaultHorizontalLayout = "start";
 			this._contentContainer.add(this._message = UI.createLabel());
-			this._contentContainer.add(this._progressBar = new InternalProgressBar());
+			this._contentContainer.add(this._progressBar = new InternalProgressBar({
+				width: UI.INHERIT,
+				height: UI.INHERIT
+			}));
+			this._progressBar._forceInheritenceToFillOrSize = true;
 		},
 			
-		_doLayout: function() {
-			var props = this._contentContainer.properties.__values__;
-			props.width = this.width === UI.SIZE || !lang.isDef(this.width) ? UI.SIZE : "100%";
-			props.height = this.height === UI.SIZE || !lang.isDef(this.height) ? UI.SIZE : "100%";
-			
+		_preLayout: function() {
+			var messagePropHeight = this._message.properties.__values__.height,
+				progressBarPropTop = this._progressBar.properties.__values__,
+				needsRecalculation;
 			if (this._message._getContentSize().width === 0) {
-				this._message.properties.__values__.height = 0;
-				this._progressBar.properties.__values__.top = 0;
+				needsRecalculation = progressBarProps.top !== 0;
+				messageProps.height = 0;
+				progressBarProps.top = 0;
 			} else {
-				this._message.properties.__values__.height = UI.SIZE;
-				this._progressBar.properties.__values__.top = 2;
+				needsRecalculation = progressBarProps.top !== 2;
+				messageProps.height = UI.SIZE;
+				progressBarProps.top = 2;
 			}
 			
-			return Widget.prototype._doLayout.apply(this,arguments);
+			return needsRecalculation;
 		},
 		
 		_updateSize: function() {

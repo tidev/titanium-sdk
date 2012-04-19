@@ -114,9 +114,10 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
 			return this.contentOffset;
 		},
 		
-		_doLayout: function() {
+		_preLayout: function() {
+			var needsRecalculation = this._contentMeasurer.layout === this.layout
 			this._contentMeasurer.layout = this.layout;
-			return View.prototype._doLayout.apply(this,arguments);
+			return needsRecalculation;
 		},
 		
 		add: function(view) {

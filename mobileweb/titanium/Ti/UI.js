@@ -351,7 +351,14 @@ define(
 			UNIT_MM: "mm",
 			UNIT_CM: "cm",
 			UNIT_IN: "in",
-			UNIT_DIP: "dp" // We don't have DIPs, so we treat them as pixels
+			UNIT_DIP: "dp", // We don't have DIPs, so we treat them as pixels
+			
+			// Hidden constants
+			_LAYOUT_COMPOSITE: "composite",
+			_LAYOUT_VERTICAL: "vertical",
+			_LAYOUT_HORIZONTAL: "horizontal",
+			_LAYOUT_CONSTRAINING_VERTICAL: "constrainingVertical",
+			_LAYOUT_CONSTRAINING_HORIZONTAL: "constrainingHorizontal",
 		}
 
 	});

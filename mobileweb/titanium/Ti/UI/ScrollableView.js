@@ -106,9 +106,10 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 							left: unitize(i * width),
 							top: 0,
 							width: unitize(width),
-							height: "100%",
-							layout: "horizontal" // Do a horizontal to force the child to (0,0) without overwriting the original position values
+							height: "100%"
 						});
+						viewContainer._layout._defaultHorizontalPosition = "start";
+						viewContainer._layout._defaultVerticalPosition = "start";
 						setStyle(viewContainer.domNode,"overflow","hidden");
 						viewContainer.add(viewsToScroll[i]);
 						animationView.add(viewContainer);
@@ -281,8 +282,9 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 						top: 0,
 						width: unitize(width),
 						height: "100%",
-						layout: "horizontal" // Do a horizontal to force the child to (0,0) without overwriting the original position values
 					});
+					viewContainer._layout._defaultHorizontalPosition = "start";
+					viewContainer._layout._defaultVerticalPosition = "start";
 					setStyle(viewContainer.domNode,"overflow","hidden");
 					viewContainer.add(viewsToScroll[i]);
 					animationView.add(viewContainer);

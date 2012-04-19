@@ -14,7 +14,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			var contentContainer = this._contentContainer = UI.createView({
 				width: UI.INHERIT,
 				height: UI.INHERIT,
-				layout: "vertical",
+				layout: UI._LAYOUT_CONSTRAINING_VERTICAL,
 				borderColor: "transparent"
 			});
 			contentContainer._forceInheritenceToFillOrSize = true;

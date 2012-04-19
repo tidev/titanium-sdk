@@ -16,7 +16,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				height: UI.INHERIT,
 				left: 0,
 				top: 0,
-				layout: 'vertical'
+				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			});
 			this.add(contentContainer);
 			setStyle(contentContainer.domNode,"overflow","hidden");
@@ -25,17 +25,17 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			contentContainer.add(this._header = UI.createView({
 				height: UI.SIZE, 
 				width: UI.INHERIT, 
-				layout: "vertical"
+				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
 			contentContainer.add(this._sections = UI.createView({
 				height: UI.SIZE, 
 				width: UI.INHERIT, 
-				layout: "vertical"
+				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
 			contentContainer.add(this._footer = UI.createView({
 				height: UI.SIZE, 
 				width: UI.INHERIT, 
-				layout: "vertical"
+				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
 			
 			this.data = [];

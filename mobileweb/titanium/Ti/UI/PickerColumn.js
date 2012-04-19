@@ -71,7 +71,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					width: "75%",
 					height: UI.SIZE,
 					backgroundColor: "white",
-					layout: "vertical",
+					layout: UI._LAYOUT_CONSTRAINING_VERTICAL,
 					borderRadius: 3,
 					opacity: 0
 				});

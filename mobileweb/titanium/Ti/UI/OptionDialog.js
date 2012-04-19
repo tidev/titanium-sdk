@@ -19,7 +19,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Locale", "Ti/UI", "Ti/_
 					height: UI.SIZE,
 					bottom: 0,
 					backgroundColor: "white",
-					layout: "vertical",
+					layout: UI._LAYOUT_CONSTRAINING_VERTICAL,
 					opacity: 0
 				});
 
