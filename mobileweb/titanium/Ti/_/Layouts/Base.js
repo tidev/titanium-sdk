@@ -51,7 +51,28 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/lang", "Ti/U
 							return value;
 					}
 			}
-		},		
+		},
+		
+		updateBorder: function(node) {
+			
+			function getValue(value) {
+				value = parseInt(computedStyle[value]);
+				return isNaN(value) ? 0 : value;
+			}
+			
+			var computedStyle = window.getComputedStyle(node.domNode),
+				value,
+				left = getValue("border-left-width"),
+				right = getValue("border-right-width"),
+				top = getValue("border-top-width"),
+				bottom = getValue("border-bottom-width");
+				
+			if (left === right && left === top && left === bottom) {
+				node.borderWidth = left;
+			} else {
+				node.borderWidth = [left, right, top, bottom];
+			}
+		},
 		
 		_computedSize: {width: 0, height: 0}
 

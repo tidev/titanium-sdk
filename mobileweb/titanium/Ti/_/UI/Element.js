@@ -25,13 +25,14 @@ define(
 		postDoBackground = {
 			post: "_doBackground"
 		},
-		postLayoutProp = {
-			set: function(value, oldValue) {
-				if (value !== oldValue) {
-					!this._batchUpdateInProgress && this._triggerLayout();
-				}
-				return value;
+		postLayoutPropFunction = function(value, oldValue) {
+			if (value !== oldValue) {
+				!this._batchUpdateInProgress && this._triggerLayout();
 			}
+			return value;
+		},
+		postLayoutProp = {
+			set: postLayoutPropFunction
 		},
 		pixelUnits = "px";
 
@@ -1189,14 +1190,17 @@ define(
 							borderTopWidth: (this._borderTopWidth = value[2]) + pixelUnits,
 							borderBottomWidth: (this._borderBottomWidth = value[3]) + pixelUnits
 						});
+						this._borderSet = true;
 					} else if(isNaN(value)) {
 						return oldValue;
 					} else {
 						setStyle(this.domNode, "borderWidth", value + pixelUnits);
 						this._borderLeftWidth = this._borderRightWidth = this._borderTopWidth = this._borderBottomWidth = value;
+						this._borderSet = true;
 					}
 					return value;
 				},
+				post: postLayoutPropFunction,
 				value: 0
 			},
 

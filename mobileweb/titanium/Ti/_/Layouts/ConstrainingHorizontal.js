@@ -25,8 +25,14 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				
 				child = element.children[i];
 				if (this.verifyChild(child,element)) {
+					
+					// Border validation
+					if (!child._borderSet) {
+						this.updateBorder(child);
+					}
+					
 					//if (child._markedForLayout) {
-					((child._preLayout && child._preLayout(width, height, isWidthSize, isHeightSize)) || child._needsMeasuring) && this._measureNode(child);
+						((child._preLayout && child._preLayout(width, height, isWidthSize, isHeightSize)) || child._needsMeasuring) && this._measureNode(child);
 									
 						layoutCoefficients = child._layoutCoefficients;
 						widthLayoutCoefficients = layoutCoefficients.width;
