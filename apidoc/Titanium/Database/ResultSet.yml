@@ -5,6 +5,23 @@ extends: Titanium.Proxy
 since: "0.1"
 createable: false
 platforms: [android, iphone, ipad]
+description: |
+    A result set represents the results returned by a database query.
+
+    The [rowCount](Titanium.Database.ResultSet.rowCount) property identifies the number of
+    rows in the result set. The `ResultSet` object maintains an internal record of the 
+    current row. As shown in the example, you can use the 
+    [next](Titanium.Database.ResultSet.next) method to iterate through the rows in the set.
+    
+    Use the [field](Titanium.Database.ResultSet.field) or
+    [fieldByName](Titanium.Database.ResultSet.fieldByName) methods to query the fields for
+    the current row.
+
+    #### Platform Implementation Notes
+
+    Note that `fieldCount` is exposed as a *method* on iOS, but as a *property* on
+    Android. This is a known parity issue
+    ([TIMOB-2945](https://jira.appcelerator.org/browse/TIMOB-2945)).
 
 methods:
   - name: close
@@ -92,11 +109,6 @@ methods:
         summary: A zero-based column index for the field.
         type: Number
 
-  - name: getFieldCount
-    summary: Returns the number of columns in this result set.
-    returns:
-        type: Number
-        
   - name: getFieldName
     summary: Returns the field name for the specified field index.
     returns:
@@ -105,6 +117,7 @@ methods:
       - name: index
         summary: A zero-based column index for the field.
         type: Number
+    platforms: [android]
         
   - name: isValidRow
     summary: Returns whether the current row is valid.
@@ -139,8 +152,9 @@ properties:
 examples:
   - title: Using ResultSet
     example: |
-        The following code will install a database and execute SQL statements that will create a 
-        table, insert data into it, query the table and iterate through the returned ResultSet.
+        The following code will create a database and execute SQL statements that will create a 
+        table, insert data into it, query the table and iterate through the returned
+        `ResultSet`.
         
             var db = Ti.Database.open('mydb1Installed');
             db.execute('CREATE TABLE IF NOT EXISTS people (name TEXT, phone_number TEXT, city TEXT)');
@@ -158,7 +172,14 @@ examples:
             db.close();
             
             Ti.API.info('Row count: ' + rows.rowCount);
-            Ti.API.info('Field count: ' + rows.fieldCount);
+            var fieldCount;
+            // fieldCount is a property on Android.
+            if (Ti.Platform.name === 'android') {
+                fieldCount = rows.fieldCount;
+            } else {
+                fieldCount = rows.fieldCount();
+            }
+            Ti.API.info('Field count: ' + fieldCount);
             
             while (rows.isValidRow()){
               Ti.API.info('Person ---> ROWID: ' + rows.fieldByName('rowid') + ', name:' + rows.field(1) + ', phone_number: ' + rows.fieldByName('phone_number') + ', city: ' + rows.field(3));
