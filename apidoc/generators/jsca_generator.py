@@ -36,12 +36,14 @@ def markdown_to_html(s):
 	html = markdown(s)
 	# Any <Titanium.XX.XX> type of markdown links need to have their brackets removed so
 	# the code assist doesn't see them as tags and thus strip them, thereby losing the
-	# useful text within.
-	pattern = r"\<Titanium[^\>\s]*\>"
+	# useful text within.  Same for known pseudo-types.
+	pattern = r"\<[^\>\s]+\>"
 	matches = re.findall(pattern, html)
 	if matches:
 		for m in matches:
-			html = html.replace(m, m[1:-1])
+			tag_name = m[1:-1]
+			if tag_name.startswith("Titanium") or tag_name in all_annotated_apis:
+				html = html.replace(m, tag_name)
 	return html
 
 # Fixes illegal names like "2DMatrix" (not valid Javascript name)

@@ -268,14 +268,6 @@
 	return self;
 }
 
--(void)configurationSet
-{
-    [super configurationSet];
-    
-    [[self proxy] initializeProperty:@"searchHidden" defaultValue:NUMBOOL(NO)];
-    [[self proxy] initializeProperty:@"hideSearchOnSelection" defaultValue:NUMBOOL(YES)];
-}
-
 -(void)dealloc
 {
 	if (searchField!=nil)
@@ -1174,23 +1166,7 @@
 
 - (IBAction) showSearchScreen: (id) sender
 {
-	if ([(TiUITableViewProxy *)[self proxy] sectionCount]>0)
-	{
-		[tableview scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]
-						 atScrollPosition:UITableViewScrollPositionBottom animated:NO];
-	}
-	
-	CGRect screenRect = [TiUtils viewPositionRect:tableview];
-	CGFloat searchHeight = [[tableview tableHeaderView] bounds].size.height;
-	
-	screenRect.origin.y += searchHeight;
-	screenRect.size.height -= searchHeight;
-	
-	UIView * wrapperView = [tableview superview];
-	
-	[UIView beginAnimations:@"searchy" context:nil];
-	[tableview setContentOffset:CGPointMake(0,0)];
-	[UIView commitAnimations];
+	[tableview setContentOffset:CGPointZero animated:YES];
 }
 
 -(void)updateSearchView
@@ -1626,17 +1602,16 @@
 {
 	UIEdgeInsets insets = [TiUtils contentInsets:value];
 	BOOL animated = [TiUtils boolValue:@"animated" properties:props def:NO];
-	if (animated)
-	{
-		[UIView beginAnimations:nil context:nil];
-		double duration = [TiUtils doubleValue:@"duration" properties:props def:300]/1000;
-		[UIView setAnimationDuration:duration];
-	}
-	[[self tableView] setContentInset:insets];
-	if (animated)
-	{
-		[UIView commitAnimations];
-	}
+    void (^setInset)(void) = ^{
+        [tableview setContentInset:insets];
+    };
+    if (animated) {
+        double duration = [TiUtils doubleValue:@"duration" properties:props def:300]/1000;
+        [UIView animateWithDuration:duration animations:setInset];
+    }
+    else {
+        setInset();
+    }
 }
 
 #pragma mark Datasource 
@@ -2192,6 +2167,10 @@ return result;	\
 {
 	// suspend image loader while we're scrolling to improve performance
 	[[ImageLoader sharedLoader] suspend];
+    if([self.proxy _hasListeners:@"dragStart"])
+    {
+        [self.proxy fireEvent:@"dragStart" withObject:nil];
+    }
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate 
@@ -2201,14 +2180,11 @@ return result;	\
 		// resume image loader when we're done scrolling
 		[[ImageLoader sharedLoader] resume];
 	}
-	if ([self.proxy _hasListeners:@"scrollEnd"])
+	if ([self.proxy _hasListeners:@"dragEnd"])
 	{
-		NSMutableDictionary *event = [NSMutableDictionary dictionary];
-		[event setObject:[TiUtils pointToDictionary:scrollView.contentOffset] forKey:@"contentOffset"];
-		[event setObject:[TiUtils sizeToDictionary:scrollView.contentSize] forKey:@"contentSize"];
-		[event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
-		[self.proxy fireEvent:@"scrollEnd" withObject:event];
+		[self.proxy fireEvent:@"dragEnd" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil]]	;
 	}
+    
     // Update keyboard status to insure that any fields actively being edited remain in view
     if ([[[TiApp app] controller] keyboardVisible]) {
         [[[TiApp app] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
@@ -2219,6 +2195,14 @@ return result;	\
 {
 	// resume image loader when we're done scrolling
 	[[ImageLoader sharedLoader] resume];
+    if ([self.proxy _hasListeners:@"scrollEnd"])
+	{
+		NSMutableDictionary *event = [NSMutableDictionary dictionary];
+		[event setObject:[TiUtils pointToDictionary:scrollView.contentOffset] forKey:@"contentOffset"];
+		[event setObject:[TiUtils sizeToDictionary:scrollView.contentSize] forKey:@"contentSize"];
+		[event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
+		[self.proxy fireEvent:@"scrollEnd" withObject:event];
+	}
 }
 
 #pragma mark Search Display Controller Delegates

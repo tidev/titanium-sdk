@@ -3,6 +3,7 @@ var bootstrap = require("bootstrap");
 exports.bootstrap = function(Titanium) {
 	var Window = require("window").bootstrapWindow(Titanium);
 	require("tab").bootstrap(Titanium);
+	require("webview").bootstrap(Titanium);
 
 	// Since Rhino doesn't use lazy bootstrap directly,
 	// we need to just bite the bullet and assign these here

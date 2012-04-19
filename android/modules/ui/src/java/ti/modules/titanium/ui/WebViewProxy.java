@@ -63,11 +63,7 @@ public class WebViewProxy extends ViewProxy
 		webView.focus();
 
 		if (postCreateMessage != null) {
-			WebView.WebViewTransport transport = (WebView.WebViewTransport) postCreateMessage.obj;
-			if (transport != null) {
-				transport.setWebView(webView.getWebView());
-			}
-			postCreateMessage.sendToTarget();
+			sendPostCreateMessage(webView.getWebView(), postCreateMessage);
 			postCreateMessage = null;
 		}
 
@@ -281,9 +277,22 @@ public class WebViewProxy extends ViewProxy
 		return fpassword;
 	}
 
-	public void setPostCreateMessage(Message postCreate)
+	public void setPostCreateMessage(Message postCreateMessage)
 	{
-		this.postCreateMessage = postCreate;
+		if (view != null) {
+			sendPostCreateMessage(getWebView().getWebView(), postCreateMessage);
+		} else {
+			this.postCreateMessage = postCreateMessage;
+		}
+	}
+
+	private static void sendPostCreateMessage(WebView view, Message postCreateMessage)
+	{
+		WebView.WebViewTransport transport = (WebView.WebViewTransport) postCreateMessage.obj;
+		if (transport != null) {
+			transport.setWebView(view);
+		}
+		postCreateMessage.sendToTarget();
 	}
 
 	/**

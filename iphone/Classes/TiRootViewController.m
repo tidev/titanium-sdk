@@ -580,7 +580,13 @@
     return modalFlag;
 }
 -(void)refreshOrientationWithDuration:(NSTimeInterval) duration
-{	/*
+{
+    if (![[TiApp app] windowIsKeyWindow]) {
+        VerboseLog(@"[DEBUG] RETURNING BECAUSE WE ARE NOT KEY WINDOW");
+        return;
+    }
+
+	/*
 	 *	Apple gives us a wonderful method, attemptRotation... in iOS 5 below
 	 *	but sadly, it only updates the orientation if the UI can change that
 	 *	way. So we give it a shot, and if that's not enough, consult the
@@ -630,20 +636,42 @@
 // Some controllers (like MPVideoPlayerController) manually hide/show the bar
 // based on whether or not they enter a "fullscreen" mode, and upon exiting,
 // the root view size needs to be adjusted based on any status bar differences.
--(CGRect)resizeViewForStatusBarHidden:(BOOL)statusBarHidden
+-(CGRect)resizeViewForStatusBarHidden
 {
-    CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
-    BOOL currentlyHiding = [[UIApplication sharedApplication] isStatusBarHidden];
-    if (statusBarHidden != currentlyHiding) {
-        // Modify the app frame before setting it manually
-        if (currentlyHiding) { // Bar was previously visible
-            appFrame.size.width -= TI_STATUSBAR_HEIGHT;
-        }
-        else { // Bar was previously invisible
-            appFrame.size.width += TI_STATUSBAR_HEIGHT;
-        }
+    CGRect screenBounds = [[UIScreen mainScreen] bounds];
+    CGPoint appCenter = CGPointMake(screenBounds.size.width/2.0f, screenBounds.size.height/2.0f);
+    CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
+    if (CGRectIsEmpty(statusBarFrame)) {
+        [[self view] setBounds:screenBounds];
+        [[self view] setCenter:appCenter];
     }
-    [[self view] setFrame:appFrame];    
+    else {
+        CGRect appBounds = CGRectZero;
+        switch ([[UIApplication sharedApplication] statusBarOrientation]) {
+            case UIInterfaceOrientationPortrait:
+                appCenter.y = appCenter.y + TI_STATUSBAR_HEIGHT/2;
+                appBounds.size.width = screenBounds.size.width;
+                appBounds.size.height = screenBounds.size.height - TI_STATUSBAR_HEIGHT;
+                break;
+            case UIInterfaceOrientationPortraitUpsideDown:
+                appCenter.y = appCenter.y - TI_STATUSBAR_HEIGHT/2;
+                appBounds.size.width = screenBounds.size.width;
+                appBounds.size.height = screenBounds.size.height - TI_STATUSBAR_HEIGHT;
+                break;
+            case UIInterfaceOrientationLandscapeLeft:
+                appCenter.x = appCenter.x + TI_STATUSBAR_HEIGHT/2;
+                appBounds.size.height = screenBounds.size.width - TI_STATUSBAR_HEIGHT;
+                appBounds.size.width = screenBounds.size.height;
+                break;
+            case UIInterfaceOrientationLandscapeRight:
+                appCenter.x = appCenter.x - TI_STATUSBAR_HEIGHT/2;
+                appBounds.size.height = screenBounds.size.width - TI_STATUSBAR_HEIGHT;
+                appBounds.size.width = screenBounds.size.height;
+                break;
+        }
+        [[self view] setBounds:appBounds];
+        [[self view] setCenter:appCenter];
+    }
     return [[self view] bounds];
 }
 
