@@ -7,7 +7,6 @@
 package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
-import java.util.Set;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
