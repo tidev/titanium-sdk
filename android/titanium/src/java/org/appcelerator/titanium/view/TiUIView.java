@@ -1000,6 +1000,14 @@ public abstract class TiUIView
 			});
 		
 		touchable.setOnTouchListener(new OnTouchListener() {
+			int pointersDown = 0;
+			String[] multiTapEvents = {
+				TiC.EVENT_TWOFINGERTAP,
+				TiC.EVENT_THREEFINGERTAP,
+				TiC.EVENT_FOURFINGERTAP,
+				TiC.EVENT_FIVEFINGERTAP
+			};
+
 			public boolean onTouch(View view, MotionEvent event) {
 				if (event.getAction() == MotionEvent.ACTION_UP) {
 					lastUpEvent.put(TiC.EVENT_PROPERTY_X, (double)event.getX());
@@ -1013,7 +1021,19 @@ public abstract class TiUIView
 
 				boolean handled = detector.onTouchEvent(event);
 				if (handled) {
+					pointersDown = 0;
 					return true;
+				}
+
+				if (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP) {
+					pointersDown++;
+				} else if (event.getAction() == MotionEvent.ACTION_UP) {
+					if (pointersDown > 0 && pointersDown <= multiTapEvents.length) {
+						proxy.fireEvent(multiTapEvents[pointersDown-1], dictFromEvent(event));
+						pointersDown = 0;
+						return true;
+					}
+					pointersDown = 0;
 				}
 
 				String motionEvent = motionEvents.get(event.getAction());
