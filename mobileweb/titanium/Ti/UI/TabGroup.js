@@ -37,11 +37,11 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 			// Initialize the tabs, if necessary
 			var tabs = this.tabs = this.tabs || [];
 			tabs.push(tab);
-			tab._tabGroup = this;
+			tab._setTabGroup(this);
 
 			// Set the active tab if there are currently no tabs, otherwise add a divider
 			if (tabs.length === 1) {
-				this.properties.activeTab = tab;
+				this.activeTab = tab;
 			} else {
 				this._tabBarContainer.add(this._createTabDivider());
 			}
@@ -107,19 +107,20 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 		_activateTab: function(tab) {
 			var tabs = this.tabs,
 				prev = this._previousTab = this._activeTab;
-			
+
 			if (prev !== tab) {
 				if (prev) {
 					prev.active = false;
 					prev._doBackground();
 					prev._tabNavigationGroup && this._tabContentContainer.remove(prev._tabNavigationGroup);
 				}
-	
+
+				UI.currentTab = this._activeTab = tab;
 				tab.active = true;
-				tab._tabNavigationGroup && (tab._tabNavigationGroup.navBarAtTop = this.tabsAtBottom);
-				this._activeTab = tab;
-				UI.currentTab = tab;
-				tab._tabNavigationGroup && this._tabContentContainer.add(tab._tabNavigationGroup);
+				if (tab._tabNavigationGroup) {
+					tab._tabNavigationGroup.navBarAtTop = this.tabsAtBottom;
+					this._tabContentContainer.add(tab._tabNavigationGroup);
+				}
 				this._handleFocusEvent();
 				this._updateTabsBackground();
 			}
