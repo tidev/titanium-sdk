@@ -82,8 +82,7 @@ public class TableViewRowProxy extends TiViewProxy
 
 	public void setCreationProperties(KrollDict options)
 	{
-		Set<String> keySet = options.keySet();
-		for (String key : keySet) {
+		for (String key : options.keySet()) {
 			setProperty(key, options.get(key));
 		}
 	}
