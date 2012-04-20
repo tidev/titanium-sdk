@@ -868,7 +868,7 @@ public abstract class TiUIView
 		motionEvents.put(MotionEvent.ACTION_CANCEL, TiC.EVENT_TOUCH_CANCEL);
 	}
 
-	private KrollDict dictFromEvent(MotionEvent e)
+	protected KrollDict dictFromEvent(MotionEvent e)
 	{
 		KrollDict data = new KrollDict();
 		data.put(TiC.EVENT_PROPERTY_X, (double)e.getX());
