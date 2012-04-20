@@ -12,8 +12,6 @@ define(
 			});
 		},
 
-		_field: null,
-		
 		_preventDefaultTouchEvent: false,
 
 		_initTextBox: function() {
@@ -119,9 +117,9 @@ define(
 						disp = "inherit";
 						~[4,8,10].indexOf(value) && (title = "Search");
 					}
-					setStyle(this._form,"display",disp);
+					setStyle(this._form, "display", disp);
 					this._field.title = title;
-					dom.place(this._field, dest);
+					dom.place(this._fieldWrapper, dest);
 					return value;
 				}
 			},
