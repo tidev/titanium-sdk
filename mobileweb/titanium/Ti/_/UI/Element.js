@@ -229,8 +229,6 @@ define(
 			Evented.destroy.apply(this, arguments);
 		},
 		
-		_markedForLayout: false,
-		
 		_isAttachedToActiveWin: function() {
 			// If this element is not attached to an active window, skip the calculation
 			var isAttachedToActiveWin = false,
@@ -248,38 +246,6 @@ define(
 		_triggerLayout: function(force) {
 			this._needsMeasuring = true;
 			this._isAttachedToActiveWin() && (!this._batchUpdateInProgress || force) && UI._triggerLayout(this, force);
-		},
-		
-		_getInheritedWidth: function() {
-			var parent = this._parent,
-				parentWidth;
-			if (parent) {
-				if (isDef(parent.width)) {
-					parentWidth = parent.width;
-				} else if (isDef(parent.left) + isDef(parent.right) + !!(parent.center && isDef(parent.center.x)) < 2) {
-					parentWidth = parent._defaultWidth;
-				} else {
-					parentWidth = UI.FILL;
-				}
-				parentWidth = parentWidth === UI.INHERIT ? parent._getInheritedWidth() : parentWidth
-				return this._forceInheritenceToFillOrSize ? parentWidth === UI.SIZE ? UI.SIZE : UI.FILL : parentWidth;
-			}
-		},
-		
-		_getInheritedHeight: function(node) {
-			var parent = this._parent,
-				parentHeight;
-			if (parent) {
-				if (isDef(parent.height)) {
-					parentHeight = parent.height;
-				} else if (isDef(parent.top) + isDef(parent.bottom) + !!(parent.center && isDef(parent.center.y)) < 2) {
-					parentHeight = parent._defaultHeight;
-				} else {
-					parentHeight = UI.FILL;
-				}
-				parentHeight = parentHeight === UI.INHERIT ? parent._getInheritedHeight() : parentHeight
-				return this._forceInheritenceToFillOrSize ? parentHeight === UI.SIZE ? UI.SIZE : UI.FILL : parentHeight;
-			}
 		},
 		
 		_hasSizeDimensions: function() {
@@ -302,61 +268,6 @@ define(
 			return isHeightSize;
 		},
 		
-		_hasFillWidth: function() {
-			var width = this.width;
-			if (isDef(width)) {
-				if (width === UI.INHERIT) {
-					return this._getInheritedWidth() === UI.FILL;
-				}
-				return width === UI.FILL;
-			}
-			if (isDef(this.left) + isDef(this.right) + !!(this.center && isDef(this.center.x)) > 1) {
-				return false;
-			}
-			if (this._defaultWidth === UI.FILL) {
-				return true;
-			}
-			if (this._defaultWidth === UI.INHERIT) {
-				return this._getInheritedWidth() === UI.FILL;
-			}
-		},
-		
-		_hasFillHeight: function() {
-			var height = this.height;
-			if (isDef(height)) {
-				if (height === UI.INHERIT) {
-					return this._getInheritedHeight() === UI.FILL;
-				}
-				return height === UI.FILL;
-			}
-			if (isDef(this.top) + isDef(this.bottom) + !!(this.center && isDef(this.center.y)) > 1) {
-				return false;
-			}
-			if (this._defaultHeight === UI.FILL) {
-				return true;
-			}
-			if (this._defaultHeight === UI.INHERIT) {
-				return this._getInheritedHeight() === UI.FILL;
-			}
-		},
-		
-		_needsMeasuring: false,
-		
-		_isDependentOnParent: function(){
-			function isPercent(value) {
-				return /%$/.test("" + value);
-			}
-			var centerX = this.center && this.center.x,
-				centerY = this.center && this.center.y,
-				width = this._getInheritedWidth(),
-				height = this._getInheritedHeight();
-			return !!(isPercent(width) || isPercent(height) || isPercent(this.top) || isPercent(this.bottom) || 
-				isPercent(this.left) || isPercent(this.right) || isPercent(centerX) || isPercent(centerY) || 
-				this._hasFillWidth() || this._hasFillHeight() ||
-				(!isDef(this.left) && !isDef(centerX) && !isDef(this.right) && this._parent && this._parent._layout._defaultHorizontalAlignment !== "start") ||
-				(!isDef(this.top) && !isDef(centerY) && !isDef(this.bottom) && this._parent && this._parent._layout._defaultVerticalAlignment !== "start"));
-		},
-		
 		startLayout: function() {
 			this._batchUpdateInProgress = true;
 		},
@@ -373,282 +284,6 @@ define(
 			}
 			this.finishLayout();
 		},
-
-		// TODO remove me
-		/*_doLayout: function(params) {
-			
-			this._layoutParams = params;
-			
-			var dimensions = this._computeDimensions({
-					layoutParams: params,
-					position: {
-						left: this.left,
-						top: this.top,
-						right: this.right,
-						bottom: this.bottom,
-						center: this.center
-					},
-					size: {
-						width: this.width,
-						height: this.height
-					},
-					layoutChildren: params.layoutChildren
-			});
-				
-			if (params.positionElement) {
-				UI._elementLayoutCount++;
-				
-				// Set and store the dimensions
-				var styles = {
-					zIndex: this.zIndex | 0
-				};
-				styles.left = unitize(this._measuredLeft = dimensions.left);
-				styles.top = unitize(this._measuredTop = dimensions.top);
-				styles.width = unitize(this._measuredWidth = dimensions.width);
-				styles.height = unitize(this._measuredHeight = dimensions.height);
-				this._measuredRightPadding = dimensions.rightPadding;
-				this._measuredBottomPadding = dimensions.bottomPadding;
-				this._measuredBorderSize = dimensions.borderSize;
-				this._measuredEffectiveWidth = dimensions.effectiveWidth;
-				this._measuredEffectiveHeight = dimensions.effectiveHeight;
-				setStyle(this.domNode, styles);
-			
-				this._markedForLayout = false;
-				
-				// Recompute the gradient, if it exists
-				this.backgroundGradient && this._computeGradient();
-				
-				this.fireEvent("postlayout");
-			}
-			
-			return dimensions;
-		},
-
-		_computeDimensions: function(params) {
-			
-			var layoutParams = params.layoutParams,
-				boundingSize = layoutParams.boundingSize,
-				boundingWidth = boundingSize.width,
-				boundingHeight = boundingSize.height,
-				position = params.position,
-				size  = params.size,
-				
-				// Compute as many sizes as possible, should be everything except SIZE values for width and height and undefined values
-				left = computeSize(position.left, boundingWidth, 1),
-				top = computeSize(position.top, boundingHeight, 1),
-				originalRight = computeSize(position.right, boundingWidth),
-				originalBottom = computeSize(position.bottom, boundingHeight),
-				centerX = position.center && computeSize(position.center.x, boundingWidth, 1),
-				centerY = position.center && computeSize(position.center.y, boundingHeight, 1),
-				width = computeSize(size.width === UI.INHERIT ? this._getInheritedWidth() : size.width, boundingWidth),
-				height = computeSize(size.height === UI.INHERIT ? this._getInheritedHeight() : size.height, boundingHeight),
-
-				// Convert right/bottom coordinates to be with respect to (0,0)
-				right = layoutParams.rightIsMargin ? void 0 : isDef(originalRight) ? (boundingWidth - originalRight) : void 0,
-				bottom = layoutParams.bottomIsMargin ? void 0 : isDef(originalBottom) ? (boundingHeight - originalBottom) : void 0,
-				
-				// Calculate the "padding"
-				rightPadding = is(originalRight,"Number") ? originalRight : 0,
-				bottomPadding = is(originalBottom,"Number") ? originalBottom : 0,
-				origin = layoutParams.origin;
-			
-			is(width,"Number") && (width = Math.max(width,0));
-			is(height,"Number") && (height = Math.max(height,0));
-			
-			// Calculate the border
-			function getValue(value) {
-				var value = parseInt(computedStyle[value]);
-				return isNaN(value) ? 0 : value;
-			}
-					
-			var computedStyle = window.getComputedStyle(this.domNode),
-				borderSize = {
-					left: getValue("border-left-width"),
-					top: getValue("border-top-width"),
-					right: getValue("border-right-width"),
-					bottom: getValue("border-bottom-width")
-				};
-
-			// Unfortunately css precidence doesn't match the titanium, so we have to handle precedence and default setting ourselves
-			var defaultWidth = this._defaultWidth;
-			if (isDef(width)) {
-				if (isDef(left)) {
-					right = void 0;
-				} else if (isDef(centerX)){
-					if (width === UI.SIZE) {
-						left = "calculateDefault";
-					} else {
-						left = centerX - width / 2;
-						right = void 0;
-					}
-				} else if (!isDef(right)){
-					// Set the default position
-					left = "calculateDefault";
-				}
-			} else {
-				if (isDef(centerX)) {
-					if (isDef(left)) {
-						width = (centerX - left) * 2;
-						right = void 0;
-					} else if (isDef(right)) {
-						width = (right - centerX) * 2;
-					} else {
-						// Set the default width
-						width = computeSize(defaultWidth === UI.INHERIT ? this._getInheritedWidth() : defaultWidth, boundingWidth);
-					}
-				} else {
-					if (!isDef(left) || !isDef(right)) {
-						width = computeSize(defaultWidth === UI.INHERIT ? this._getInheritedWidth() : defaultWidth, boundingWidth);
-						if(!isDef(left) && !isDef(right)) {
-							// Set the default position
-							left = "calculateDefault";
-						}
-					}
-				}
-			}
-			var defaultHeight = this._defaultHeight;
-			if (isDef(height)) {
-				if (isDef(top)) {
-					bottom = void 0;
-				} else if (isDef(centerY)){
-					if(height === UI.SIZE) {
-						top = "calculateDefault";
-					} else {
-						top = centerY - height / 2;
-						bottom = void 0;
-					}
-				} else if (!isDef(bottom)) {
-					// Set the default position
-					top = "calculateDefault";
-				}
-			} else {
-				if (isDef(centerY)) {
-					if (isDef(top)) {
-						height = (centerY - top) * 2;
-						bottom = void 0;
-					} else if (isDef(bottom)) {
-						height = (bottom - centerY) * 2;
-					} else {
-						// Set the default height
-						height = computeSize(defaultHeight === UI.INHERIT ? this._getInheritedHeight() : defaultHeight, boundingHeight);
-					}
-				} else {
-					if (!isDef(top) || !isDef(bottom)) {
-						// Set the default height
-						height = computeSize(defaultHeight === UI.INHERIT ? this._getInheritedHeight() : defaultHeight, boundingHeight);
-						if(!isDef(top) && !isDef(bottom)) {
-							// Set the default position
-							top = "calculateDefault";
-						}
-					}
-				}
-			}
-				
-			function constrainValue(value, minValue, maxValue) {
-				return (isDef(minValue) && minValue > value ? minValue : // Apply the min width 
-					isDef(maxValue) && maxValue < value ? maxValue : value); // Apply the max width
-			}
-
-			// Calculate the width/left properties if width is NOT SIZE
-			var calculateWidthAfterChildren = false,
-				calculateHeightAfterChildren = false;
-			if (width === UI.SIZE) {
-				calculateWidthAfterChildren = true;
-			} else {
-				if (width === UI.FILL) {
-					if (isDef(left)) {
-						left === "calculateDefault" && (left = 0);
-						width = boundingWidth - left - rightPadding;
-					} else if (isDef(right)) {
-						width = right;
-					}
-				} else if (isDef(right)) {
-					if (isDef(left)) {
-						width = right - left;
-					} else {
-						left = right - width - borderSize.left - borderSize.right;
-					}
-				}
-				width = constrainValue(width, this._minWidth, this._maxWidth) - borderSize.left - borderSize.right;
-			}
-			if (height === UI.SIZE) {
-				calculateHeightAfterChildren = true;
-			} else {
-				if (height === UI.FILL) {
-					if (isDef(top)) {
-						top === "calculateDefault" && (top = 0);
-						height = boundingHeight - top - bottomPadding;
-					} else if (isDef(bottom)) {
-						height = bottom;
-					}
-				} else if (isDef(bottom)) {
-					if (isDef(top)) {
-						height = bottom - top;
-					} else {
-						top = bottom - height - borderSize.top - borderSize.bottom;
-					}
-				}
-				height = constrainValue(height, this._minHeight, this._maxHeight) - borderSize.top - borderSize.bottom;
-			}
-
-			if (this._getContentSize) {
-				var contentSize = this._getContentSize();
-				width === UI.SIZE && (width = contentSize.width);
-				height === UI.SIZE && (height = contentSize.height);
-			} else {
-				var computedSize;
-				if (params.layoutChildren) {
-					computedSize = this._layout._doLayout(this,is(width,"Number") ? width : boundingWidth,is(height,"Number") ? height : boundingHeight, !is(width,"Number"), !is(height,"Number"));
-				} else {
-					computedSize = this._layout._computedSize;
-				}
-				width === UI.SIZE && (width = constrainValue(computedSize.width, this._minWidth, this._maxWidth));
-				height === UI.SIZE && (height = constrainValue(computedSize.height, this._minHeight, this._maxHeight));
-			}
-			
-			if (calculateWidthAfterChildren) {
-				if (isDef(right) && !isDef(left)) {
-					left = right - width - borderSize.left - borderSize.right;
-				}
-			}
-			if (calculateHeightAfterChildren) {
-				if (isDef(bottom) && !isDef(top)) {
-					top = bottom - height - borderSize.top - borderSize.bottom;
-				}
-			}
-
-			// Set the default top/left if need be
-			if (left === "calculateDefault") {
-				var normalizedWidth = is(width,"Number") ? width : 0,
-					localBoundingWidth = layoutParams.isParentSize.width ? lang.val(boundingSize.sizeWidth, width + borderSize.left + borderSize.right) : boundingWidth;
-				switch(layoutParams.alignment.horizontal) {
-					case "center": left = computeSize("50%",localBoundingWidth) - borderSize.left - normalizedWidth / 2; break;
-					case "right": left = localBoundingWidth - borderSize.left - borderSize.right - normalizedWidth / 2; break;
-					default: left = 0; // left
-				}
-			}
-			if (top === "calculateDefault") {
-				var normalizedHeight = is(height,"Number") ? height : 0,
-					localBoundingHeight = layoutParams.isParentSize.height ? lang.val(boundingSize.sizeHeight, height + borderSize.top + borderSize.bottom) : boundingHeight;
-				switch(layoutParams.alignment.vertical) {
-					case "center": top = computeSize("50%",localBoundingHeight) - borderSize.top - normalizedHeight / 2; break;
-					case "bottom": top = localBoundingHeight - borderSize.top - borderSize.bottom - normalizedHeight / 2; break;
-					default: top = 0; // top
-				}
-			}
-			
-			return {
-				effectiveWidth: left + width + rightPadding + borderSize.left + borderSize.right,
-				effectiveHeight: top + height + bottomPadding + borderSize.top + borderSize.bottom,
-				left: Math.round(left + origin.x),
-				top: Math.round(top + origin.y),
-				rightPadding: Math.round(rightPadding),
-				bottomPadding: Math.round(bottomPadding),
-				width: Math.round(Math.max(width,0)),
-				height: Math.round(Math.max(height,0)),
-				borderSize: borderSize
-			};
-		},*/
 		
 		convertPointToView: function(point, destinationView) {
 			
@@ -1063,10 +698,15 @@ define(
 		},
 		
 		_measuredLeft: 0,
+		
 		_measuredTop: 0,
+		
 		_measuredWidth: 0,
+		
 		_measuredHeight: 0,
+		
 		_measuredSandboxWidth: 0,
+		
 		_measuredSandboxHeight: 0,
 		
 		constants: {

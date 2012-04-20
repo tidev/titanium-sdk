@@ -126,6 +126,47 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			return this._computedSize = computedSize;
 		},
 		
+		_getInheritedWidth: function(node) {
+			
+			var parent = node._parent,
+				parentWidth;
+			if (parent) {
+				if (isDef(parent.width)) {
+					parentWidth = parent.width;
+				} else if (isDef(parent.left) + isDef(parent.right) + !!(parent.center && isDef(parent.center.x)) < 2) {
+					parentWidth = parent._defaultWidth;
+				} else {
+					parentWidth = UI.FILL;
+				}
+				parentWidth = parentWidth === UI.INHERIT ? this._getInheritedWidth(parent) : parentWidth
+				return node._forceInheritenceToFillOrSize ? parentWidth === UI.SIZE ? UI.SIZE : UI.FILL : parentWidth;
+			}
+		},
+		
+		_getInheritedHeight: function(node) {
+			var parent = node._parent,
+				parentHeight;
+			if (parent) {
+				if (isDef(parent.height)) {
+					parentHeight = parent.height;
+				} else if (isDef(parent.top) + isDef(parent.bottom) + !!(parent.center && isDef(parent.center.y)) < 2) {
+					parentHeight = parent._defaultHeight;
+				} else {
+					parentHeight = UI.FILL;
+				}
+				parentHeight = parentHeight === UI.INHERIT ? this._getInheritedHeight(parent) : parentHeight
+				return node._forceInheritenceToFillOrSize ? parentHeight === UI.SIZE ? UI.SIZE : UI.FILL : parentHeight;
+			}
+		},
+		
+		_isDependentOnParent: function(node){
+			var layoutCoefficients = this._layoutCoefficients;
+			return (!isNaN(layoutCoefficients.width.x1) && layoutCoefficients.width.x1 !== 0) || // width
+				(!isNaN(layoutCoefficients.height.x1) && layoutCoefficients.height.x1 !== 0) || // height
+				layoutCoefficients.left.x1 !== 0 // left
+				layoutCoefficients.top.x1 !== 0; // top
+		},
+		
 		_measureNode: function(node) {
 			
 			node._needsMeasuring = false;
@@ -171,8 +212,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			// Apply the default width and pre-process width and height
 			!isDef(width) && (isDef(left) + isDef(centerX) + isDef(right) < 2) && (width = node._defaultWidth);
 			!isDef(height) && (isDef(top) + isDef(centerY) + isDef(bottom) < 2) && (height = node._defaultHeight);
-			width = width === UI.INHERIT ? node._getInheritedWidth() : width;
-			height = height === UI.INHERIT ? node._getInheritedHeight() : height;
+			width = width === UI.INHERIT ? this._getInheritedWidth(node) : width;
+			height = height === UI.INHERIT ? this._getInheritedHeight(node) : height;
 			var widthType = getValueType(width),
 				widthValue = computeValue(width, widthType),
 				heightType = getValueType(height),
