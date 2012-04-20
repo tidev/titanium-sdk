@@ -47,14 +47,12 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 				top: 0,
 				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
-			this._contentContainer._forceInheritenceToFillOrSize = true;
 			this._contentContainer._layout._defaultHorizontalLayout = "start";
 			this._contentContainer.add(this._message = UI.createLabel());
 			this._contentContainer.add(this._progressBar = new InternalProgressBar({
 				width: UI.INHERIT,
 				height: UI.INHERIT
 			}));
-			this._progressBar._forceInheritenceToFillOrSize = true;
 		},
 			
 		_preLayout: function() {

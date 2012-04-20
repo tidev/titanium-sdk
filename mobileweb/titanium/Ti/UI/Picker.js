@@ -224,7 +224,6 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 								width: UI.INHERIT,
 								height: UI.INHERIT
 							});
-							dateTimeInput._forceInheritenceToFillOrSize = true;
 							dateTimeInput.addEventListener("change", function(e) {
 								self.properties.__values__.value = e.value;
 								self.fireEvent("change",e);

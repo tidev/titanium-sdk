@@ -182,36 +182,38 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			return this._computedSize = computedSize;
 		},
 		
-		_getInheritedWidth: function(node) {
+		_getWidth: function(node) {
 			
-			var parent = node._parent,
-				parentWidth;
-			if (parent) {
-				if (isDef(parent.width)) {
-					parentWidth = parent.width;
-				} else if (isDef(parent.left) + isDef(parent.right) + !!(parent.center && isDef(parent.center.x)) < 2) {
-					parentWidth = parent._defaultWidth;
-				} else {
-					parentWidth = UI.FILL;
+			// Ge the width or default width, depending on which one is needed
+			var width = node.width;
+			!isDef(width) && (isDef(node.left) + isDef(node.center && node.center.x) + isDef(node.right) < 2) && (width = node._defaultWidth);
+			
+			// Check if the width is INHERIT, and if so fetch the inherited width
+			if (width === UI.INHERIT) {
+				if (node._parent._parent) {
+					return node._parent._parent._layout._getWidth(node._parent) === UI.SIZE ? UI.SIZE : UI.FILL;
+				} else { // This is the root level content container, which we know has a width of FILL
+					return UI.FILL;
 				}
-				parentWidth = parentWidth === UI.INHERIT ? this._getInheritedWidth(parent) : parentWidth
-				return node._forceInheritenceToFillOrSize ? parentWidth === UI.SIZE ? UI.SIZE : UI.FILL : parentWidth;
+			} else {
+				return width;
 			}
 		},
 		
-		_getInheritedHeight: function(node) {
-			var parent = node._parent,
-				parentHeight;
-			if (parent) {
-				if (isDef(parent.height)) {
-					parentHeight = parent.height;
-				} else if (isDef(parent.top) + isDef(parent.bottom) + !!(parent.center && isDef(parent.center.y)) < 2) {
-					parentHeight = parent._defaultHeight;
-				} else {
-					parentHeight = UI.FILL;
+		_getHeight: function(node) {
+			// Ge the height or default height, depending on which one is needed
+			var height = node.height;
+			!isDef(height) && (height = node._defaultHeight);
+			
+			// Check if the width is INHERIT, and if so fetch the inherited width
+			if (height === UI.INHERIT) {
+				if (node._parent._parent) {
+					return node._parent._parent._layout._getHeight(node._parent) === UI.SIZE ? UI.SIZE : UI.FILL;
+				} else { // This is the root level content container, which we know has a width of FILL
+					return UI.FILL;
 				}
-				parentHeight = parentHeight === UI.INHERIT ? this._getInheritedHeight(parent) : parentHeight
-				return node._forceInheritenceToFillOrSize ? parentHeight === UI.SIZE ? UI.SIZE : UI.FILL : parentHeight;
+			} else {
+				return height;
 			}
 		},
 		
@@ -223,9 +225,13 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			var getValueType = this.getValueType,
 				computeValue = this.computeValue,
 			
-				width = node.width,
+				width = this._getWidth(node),
+				widthType = getValueType(width),
+				widthValue = computeValue(width, widthType),
 				
-				height = node.height,
+				height = this._getHeight(node),
+				heightType = getValueType(height),
+				heightValue = computeValue(height, heightType),
 				
 				left = node.left,
 				leftType = getValueType(left),
@@ -256,16 +262,6 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight,
 				leftLayoutCoefficients = layoutCoefficients.left,
 				topLayoutCoefficients = layoutCoefficients.top;
-				
-			// Apply the default width and pre-process width and height
-			!isDef(width) && (isDef(left) + isDef(centerX) + isDef(right) < 2) && (width = node._defaultWidth);
-			!isDef(height) && (height = node._defaultHeight);
-			width = width === UI.INHERIT ? this._getInheritedWidth(node) : width;
-			height = height === UI.INHERIT ? this._getInheritedHeight(node) : height;
-			var widthType = getValueType(width),
-				widthValue = computeValue(width, widthType),
-				heightType = getValueType(height),
-				heightValue = computeValue(height, heightType);
 			
 			// Width rule evaluation
 			x1 = x2 = 0;

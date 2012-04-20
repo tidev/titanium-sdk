@@ -17,7 +17,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				layout: UI._LAYOUT_CONSTRAINING_VERTICAL,
 				borderColor: "transparent"
 			});
-			contentContainer._forceInheritenceToFillOrSize = true;
 			this._add(contentContainer);
 			
 			contentContainer._add(this._switchTitle = UI.createLabel({
@@ -26,7 +25,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				verticalAlign: UI.TEXT_VERTICAL_ALIGNMENT_CENTER,
 				textAlign: UI.TEXT_ALIGNMENT_CENTER
 			}));
-			this._switchTitle._forceInheritenceToFillOrSize = true;
 			
 			contentContainer._add(this._switchIndicator = UI.createView({
 				width: 40,

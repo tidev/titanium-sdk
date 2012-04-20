@@ -31,7 +31,6 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 				height: UI.SIZE,
 				wordWrap: false
 			}));
-			this._titleLabel._forceInheritenceToFillOrSize = true;
 
 			this._contentAligner.add(this._rightImageView = UI.createImageView({
 				right: 0,
