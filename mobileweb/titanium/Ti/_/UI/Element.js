@@ -1064,18 +1064,10 @@ define(
 		
 		_measuredLeft: 0,
 		_measuredTop: 0,
-		_measuredRightPadding: 0,
-		_measuredBottomPadding: 0,
 		_measuredWidth: 0,
 		_measuredHeight: 0,
-		_measuredBorderSize: {
-			value: {
-				left: 0,
-				top: 0,
-				right: 0,
-				bottom: 0
-			}
-		},
+		_measuredSandboxWidth: 0,
+		_measuredSandboxHeight: 0,
 		
 		constants: {
 			size: {
