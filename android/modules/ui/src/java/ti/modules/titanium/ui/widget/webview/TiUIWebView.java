@@ -89,7 +89,7 @@ public class TiUIWebView extends TiUIView
 			if (ev.getAction() == MotionEvent.ACTION_UP) {
 				Rect r = new Rect(0, 0, getWidth(), getHeight());
 				if (r.contains((int) ev.getX(), (int) ev.getY())) {
-					handled = getProxy().fireEvent(TiC.EVENT_CLICK, dictFromEvent(ev));
+					handled = proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(ev));
 				}
 			}
 
