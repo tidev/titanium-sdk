@@ -79,6 +79,13 @@ public class TableViewRowProxy extends TiViewProxy
 		}
 	}
 
+	public void setCreationProperties(KrollDict options)
+	{
+		for (String key : options.keySet()) {
+			setProperty(key, options.get(key));
+		}
+	}
+
 	@Override
 	public TiUIView createView(Activity activity) {
 		return null;
