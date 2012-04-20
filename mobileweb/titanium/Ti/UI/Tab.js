@@ -32,8 +32,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI"],
 				textAlign: UI.TEXT_ALIGNMENT_CENTER
 			}));
 
-			require.on(this, "singletap", this,  function(e) {
-				this._tabGroup && this._tabGroup.setActiveTab(this);
+			require.on(this, "singletap", this, function(e) {
+				this._tabGroup && (this._tabGroup.activeTab = this);
 			});
 
 			win.tab = this;

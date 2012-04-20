@@ -63,10 +63,10 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 			} else {
 				this._tabBarContainer.add(this._createTabDivider());
 			}
-			
+
 			// Add the tab to the UI
 			this._tabBarContainer.add(tab);
-			
+
 			// Update the background on the tab
 			this._updateTabBackground(tab);
 		},
@@ -86,7 +86,7 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 				tab === this._activeTab && this._activateTab(tabs[0]);
 			}
 		},
-		
+
 		_createTabDivider: function() {
 			return UI.createView({
 				width: this.tabDividerWidth,
@@ -94,10 +94,11 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 				backgroundColor: this.tabDividerColor
 			});
 		},
-		
+
 		_handleFocusBlurEvent: function(type) {
 			var previousTab = this._previousTab,
 				activeTab = this._activeTab,
+				win = activeTab.window,
 				tabs = this.tabs,
 				data = {
 					index: tabs.indexOf(activeTab),
@@ -105,17 +106,25 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 					tab: activeTab,
 					previousTab: previousTab
 				};
+
 			if (previousTab) {
 				previousTab.window && previousTab.window._handleBlurEvent();
-				previousTab.fireEvent("blur",data);
+				previousTab.fireEvent("blur", data);
 			}
-			SuperView.prototype["_handle" + type + "Event"].call(this,data);
-			activeTab.window && activeTab.window._handleFocusEvent();
-			activeTab.fireEvent("focus",data);
+
+			SuperView.prototype["_handle" + type + "Event"].call(this, data);
+
+			if (win) {
+				win._opened || win.fireEvent("open");
+				win._opened = 1;
+				win._handleFocusEvent();
+			}
+
+			activeTab.fireEvent("focus", data);
 		},
 		
 		_handleFocusEvent: function() {
-			this._handleFocusBlurEvent("Focus");
+			this._opened && this._handleFocusBlurEvent("Focus");
 		},
 		
 		_handleBlurEvent: function() {
@@ -124,10 +133,10 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 
 		_activateTab: function(tab) {
 			var tabs = this.tabs,
-				prev = this._previousTab = this._activeTab;
+				prev = this._activeTab;
 
 			if (prev !== tab) {
-				if (prev) {
+				if (this._previousTab = prev) {
 					prev.active = false;
 					prev._doBackground();
 					prev._tabNavigationGroup && this._tabContentContainer.remove(prev._tabNavigationGroup);
@@ -139,6 +148,7 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 					tab._tabNavigationGroup.navBarAtTop = this.tabsAtBottom;
 					this._tabContentContainer.add(tab._tabNavigationGroup);
 				}
+
 				this._handleFocusEvent();
 				this._updateTabsBackground();
 			}
@@ -146,14 +156,13 @@ define(["Ti/_/declare", "Ti/_/css", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", 
 		
 		_updateTabBackground: function(tab) {
 			var prefix = tab.active ? "activeTab" : "tabs";
-			tab._defaultBackgroundColor = this[prefix + "BackgroundColor"];
-			tab._defaultBackgroundImage = this[prefix + "BackgroundImage"];
-			tab._defaultBackgroundFocusedColor = this[prefix + "BackgroundFocusedColor"];
-			tab._defaultBackgroundFocusedImage = this[prefix + "BackgroundFocusedImage"];
-			tab._defaultBackgroundDisabledColor = this[prefix + "BackgroundDisabledColor"];
-			tab._defaultBackgroundDisabledImage = this[prefix + "BackgroundDisabledImage"];
-			tab._defaultBackgroundSelectedColor = this[prefix + "BackgroundSelectedColor"];
-			tab._defaultBackgroundSelectedImage = this[prefix + "BackgroundSelectedImage"];
+
+			["", "Focused", "Disabled", "Selected"].forEach(function(s) {
+				s = "Background" + s;
+				tab["_default" + s + "Color"] = this[prefix + s + "Color"];
+				tab["_default" + s + "Image"] = this[prefix + s + "Image"];
+			}, this);
+
 			tab._doBackground();
 		},
 		

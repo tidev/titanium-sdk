@@ -28,11 +28,11 @@ define(["Ti/_/declare", "Ti/UI", "Ti/UI/View"], function(declare, UI, View) {
 		},
 		
 		_handleFocusEvent: function(args) {
-			this.fireEvent("focus",args);
+			this.fireEvent("focus", args);
 		},
 		
 		_handleBlurEvent: function(args) {
-			this.fireEvent("blur",args);
+			this.fireEvent("blur", args);
 		}
 
 	});

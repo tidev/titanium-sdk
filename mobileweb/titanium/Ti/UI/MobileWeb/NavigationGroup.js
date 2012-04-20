@@ -54,23 +54,33 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style", "Ti/_/lang"],
 		_defaultHeight: UI.FILL,
 
 		open: function(win, options) {
-			// Show the back button, if need be
-			var backButton = this._backButton;
+			if (!win._opened) {
+				// Show the back button, if need be
+				var backButton = this._backButton,
+					windows = this._windows,
+					winLen = windows.length;
 
-			backButton.opacity || backButton.animate({opacity: 1, duration: 250}, function() {
-				backButton.opacity = 1;
-				backButton.enabled = true;
-			});
+				backButton.opacity || backButton.animate({opacity: 1, duration: 250}, function() {
+					backButton.opacity = 1;
+					backButton.enabled = true;
+				});
 
-			// Set a default background
-			!isDef(win.backgroundColor) && !isDef(win.backgroundImage) && (win.backgroundColor = "#fff");
+				// Set a default background
+				!isDef(win.backgroundColor) && !isDef(win.backgroundImage) && (win.backgroundColor = "#fff");
 
-			// Show the window
-			this._windows.push(win);
-			this._contentContainer.add(win);
-			this._title.text = win._getTitle();
+				(winLen ? windows[winLen-1] : this.window).fireEvent("blur");
+
+				// Show the window
+				windows.push(win);
+				this._contentContainer.add(win);
+				this._title.text = win._getTitle();
+
+				win.fireEvent("open");
+				win.fireEvent("focus");
+				win._opened = 1;
+			}
 		},
-		
+
 		close: function(win, options) {
 			var windows = this._windows,
 				topWindowIdx = windows.length - 1,
@@ -99,6 +109,11 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style", "Ti/_/lang"],
 			// Remove the window
 			windows.splice(windowLocation, 1);
 			this._contentContainer.remove(win);
+
+			win.fireEvent("blur");
+			win.fireEvent("close");
+			win._opened = 0;
+			(topWindowIdx ? windows[topWindowIdx] : this.window).fireEvent("focus");
 		},
 
 		constants: {
