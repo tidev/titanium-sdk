@@ -102,11 +102,10 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 							}
 							isNaN(measuredWidth) && (measuredWidth = childSize.width + child._borderLeftWidth + child._borderRightWidth);
 							isNaN(measuredHeight) && (measuredHeight = childSize.height + child._borderTopWidth + child._borderBottomWidth);
-							
-							measuredSandboxWidth = child._measuredSandboxWidth = sandboxWidthLayoutCoefficients.x1 * width + sandboxWidthLayoutCoefficients.x2 + measuredWidth;
-							
 							child._measuredWidth = measuredWidth;
 							child._measuredHeight = measuredHeight;
+							
+							measuredSandboxWidth = child._measuredSandboxWidth = sandboxWidthLayoutCoefficients.x1 * width + sandboxWidthLayoutCoefficients.x2 + measuredWidth;
 						}
 					//}
 				}
@@ -120,46 +119,46 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				if (this.verifyChild(child,element)) {
 					//if (child._markedForLayout) {
 						layoutCoefficients = child._layoutCoefficients;
-						sandboxWidthLayoutCoefficients = layoutCoefficients.sandboxWidth;
 						sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
-						leftLayoutCoefficients = layoutCoefficients.left;
 						topLayoutCoefficients = layoutCoefficients.top;
+						leftLayoutCoefficients = layoutCoefficients.left;
 						
 						if (isHeightSize && topLayoutCoefficients.x1 !== 0) {
 							deferredTopCalculations.push(child);
 						} else {
 							measuredHeight = child._measuredHeight;
-							measuredTop = topLayoutCoefficients.x1 * height + topLayoutCoefficients.x2 * measuredHeight + topLayoutCoefficients.x3;
+							
+							measuredTop = child._measuredTop = topLayoutCoefficients.x1 * height + topLayoutCoefficients.x2 * measuredHeight + topLayoutCoefficients.x3;
+							measuredSandboxHeight = child._measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + measuredHeight + (isNaN(measuredTop) ? 0 : measuredTop);
+							measuredSandboxHeight > computedSize.height && (computedSize.height = measuredSandboxHeight);
 						}
-						measuredLeft = leftLayoutCoefficients.x1 * width + leftLayoutCoefficients.x2 + runningWidth;
-						
-						measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + measuredHeight + (isNaN(measuredTop) ? 0 : measuredTop);
-						
-						// Update the size of the component
-						measuredSandboxHeight > computedSize.height && (computedSize.height = measuredSandboxHeight);
-						
+						measuredLeft = child._measuredLeft = leftLayoutCoefficients.x1 * width + leftLayoutCoefficients.x2 + runningWidth;
 						runningWidth += child._measuredSandboxWidth;
-						
-						child._measuredSandboxHeight = measuredSandboxHeight;
-						child._measuredLeft = measuredLeft;
-						child._measuredTop = measuredTop;
 					//}
 				}
 			}
 			computedSize.width = runningWidth;
 			
+			// Calculate the preliminary sandbox heights (missing top, since one of these heights may end up impacting all the tops)
+			for(i in deferredTopCalculations) {
+				child = deferredTopCalculations[i];
+				sandboxHeightLayoutCoefficients = child._layoutCoefficients.sandboxHeight;
+				measuredSandboxHeight = child._measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + child._measuredHeight;
+				measuredSandboxHeight > computedSize.height && (computedSize.height = measuredSandboxHeight);
+			}
+			
 			// Second pass, if necessary, to determine the top values
 			for(i in deferredTopCalculations) {
 				child = deferredTopCalculations[i];
+				
 				topLayoutCoefficients = child._layoutCoefficients.top;
 				sandboxHeightLayoutCoefficients = child._layoutCoefficients.sandboxHeight;
 				measuredHeight = child._measuredHeight;
-				child._measuredTop = measuredTop = topLayoutCoefficients.x1 * computedSize.height + topLayoutCoefficients.x2 * measuredHeight + topLayoutCoefficients.x3;
-				child._measuredSandboxHeight = measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + measuredHeight + (isNaN(measuredTop) ? 0 : measuredTop);
-				
-				// Update the size of the component
 				measuredSandboxHeight = child._measuredSandboxHeight;
+				
 				measuredSandboxHeight > computedSize.height && (computedSize.height = measuredSandboxHeight);
+				measuredTop = child._measuredTop = topLayoutCoefficients.x1 * computedSize.height + topLayoutCoefficients.x2 * measuredHeight + topLayoutCoefficients.x3;
+				child._measuredSandboxHeight += (isNaN(measuredTop) ? 0 : measuredTop);
 			}
 			
 			// Position the children

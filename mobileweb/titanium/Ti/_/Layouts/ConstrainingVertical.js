@@ -32,7 +32,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 					}
 					
 					//if (child._markedForLayout) {
-					((child._preLayout && child._preLayout(width, height, isWidthSize, isHeightSize)) || child._needsMeasuring) && this._measureNode(child);
+						((child._preLayout && child._preLayout(width, height, isWidthSize, isHeightSize)) || child._needsMeasuring) && this._measureNode(child);
 									
 						layoutCoefficients = child._layoutCoefficients;
 						heightLayoutCoefficients = layoutCoefficients.height;
@@ -102,11 +102,10 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 							}
 							isNaN(measuredWidth) && (measuredWidth = childSize.width + child._borderLeftWidth + child._borderRightWidth);
 							isNaN(measuredHeight) && (measuredHeight = childSize.height + child._borderTopWidth + child._borderBottomWidth);
-							
-							measuredSandboxHeight = child._measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + measuredHeight;
-							
 							child._measuredWidth = measuredWidth;
 							child._measuredHeight = measuredHeight;
+							
+							measuredSandboxHeight = child._measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + measuredHeight;
 						}
 					//}
 				}
@@ -121,45 +120,45 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 					//if (child._markedForLayout) {
 						layoutCoefficients = child._layoutCoefficients;
 						sandboxWidthLayoutCoefficients = layoutCoefficients.sandboxWidth;
-						sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
-						leftLayoutCoefficients = layoutCoefficients.left;
 						topLayoutCoefficients = layoutCoefficients.top;
+						leftLayoutCoefficients = layoutCoefficients.left;
 						
 						if (isWidthSize && leftLayoutCoefficients.x1 !== 0) {
 							deferredLeftCalculations.push(child);
 						} else {
 							measuredWidth = child._measuredWidth;
-							measuredLeft = leftLayoutCoefficients.x1 * width + leftLayoutCoefficients.x2 * measuredWidth + leftLayoutCoefficients.x3;
+							
+							measuredLeft = child._measuredLeft = leftLayoutCoefficients.x1 * width + leftLayoutCoefficients.x2 * measuredWidth + leftLayoutCoefficients.x3;
+							measuredSandboxWidth = child._measuredSandboxWidth = sandboxWidthLayoutCoefficients.x1 * width + sandboxWidthLayoutCoefficients.x2 + measuredWidth + (isNaN(measuredLeft) ? 0 : measuredLeft);
+							measuredSandboxWidth > computedSize.width && (computedSize.width = measuredSandboxWidth);
 						}
-						measuredTop = topLayoutCoefficients.x1 * height + topLayoutCoefficients.x2 + runningHeight;
-						
-						measuredSandboxWidth = sandboxWidthLayoutCoefficients.x1 * width + sandboxWidthLayoutCoefficients.x2 + measuredWidth + (isNaN(measuredLeft) ? 0 : measuredLeft);
-						
-						// Update the size of the component
-						measuredSandboxWidth > computedSize.width && (computedSize.width = measuredSandboxWidth);
-						
+						measuredTop = child._measuredTop = topLayoutCoefficients.x1 * height + topLayoutCoefficients.x2 + runningHeight;
 						runningHeight += child._measuredSandboxHeight;
-						
-						child._measuredSandboxWidth = measuredSandboxWidth;
-						child._measuredLeft = measuredLeft;
-						child._measuredTop = measuredTop;
 					//}
 				}
 			}
 			computedSize.height = runningHeight;
 			
+			// Calculate the preliminary sandbox widths (missing left, since one of these widths may end up impacting all the lefts)
+			for(i in deferredLeftCalculations) {
+				child = deferredLeftCalculations[i];
+				sandboxWidthLayoutCoefficients = child._layoutCoefficients.sandboxWidth;
+				measuredSandboxWidth = child._measuredSandboxWidth = sandboxWidthLayoutCoefficients.x1 * width + sandboxWidthLayoutCoefficients.x2 + child._measuredWidth;
+				measuredSandboxWidth > computedSize.width && (computedSize.width = measuredSandboxWidth);
+			}
+			
 			// Second pass, if necessary, to determine the left values
 			for(i in deferredLeftCalculations) {
 				child = deferredLeftCalculations[i];
+				
 				leftLayoutCoefficients = child._layoutCoefficients.left;
 				sandboxWidthLayoutCoefficients = child._layoutCoefficients.sandboxWidth;
 				measuredWidth = child._measuredWidth;
-				child._measuredLeft = measuredLeft = leftLayoutCoefficients.x1 * computedSize.width + leftLayoutCoefficients.x2 * measuredWidth + leftLayoutCoefficients.x3;
-				child._measuredSandboxWidth = measuredSandboxWidth = sandboxWidthLayoutCoefficients.x1 * width + sandboxWidthLayoutCoefficients.x2 + measuredWidth + (isNaN(measuredLeft) ? 0 : measuredLeft);
-				
-				// Update the size of the component
 				measuredSandboxWidth = child._measuredSandboxWidth;
+				
 				measuredSandboxWidth > computedSize.width && (computedSize.width = measuredSandboxWidth);
+				measuredLeft = child._measuredLeft = leftLayoutCoefficients.x1 * computedSize.width + leftLayoutCoefficients.x2 * measuredWidth + leftLayoutCoefficients.x3;
+				child._measuredSandboxWidth += (isNaN(measuredLeft) ? 0 : measuredLeft);
 			}
 			
 			// Position the children

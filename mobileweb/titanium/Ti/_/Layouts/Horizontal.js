@@ -41,7 +41,6 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 					widthLayoutCoefficients = layoutCoefficients.width;
 					heightLayoutCoefficients = layoutCoefficients.height;
 					sandboxWidthLayoutCoefficients = layoutCoefficients.sandboxWidth;
-					sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
 					leftLayoutCoefficients = layoutCoefficients.left;
 					
 					measuredWidth = widthLayoutCoefficients.x1 * width + widthLayoutCoefficients.x2 * (width - runningWidth) + widthLayoutCoefficients.x3;
@@ -60,16 +59,19 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						}
 						isNaN(measuredWidth) && (measuredWidth = childSize.width + child._borderLeftWidth + child._borderRightWidth);
 						isNaN(heightLayoutCoefficients.x1) && (measuredHeight = childSize.height + child._borderTopWidth + child._borderBottomWidth);
+						
 						child._childrenLaidOut = true;
 						if (heightLayoutCoefficients.x2 !== 0 && !isNaN(heightLayoutCoefficients.x2)) {
-							console.warn("Child of width SIZE and height FILL detected in a horizontal layout. Performance degradation will occur.");
+							console.warn("Child of width SIZE and height FILL detected in a horizontal layout. Performance degradation may occur.");
 							child._childrenLaidOut = false;
 						}
 					} else {
 						child._childrenLaidOut = false;
 					}
+					child._measuredWidth = measuredWidth;
+					child._measuredHeight = measuredHeight;
 					
-					measuredSandboxWidth = sandboxWidthLayoutCoefficients.x1 * width + sandboxWidthLayoutCoefficients.x2 + measuredWidth;
+					measuredSandboxWidth = child._measuredSandboxWidth = sandboxWidthLayoutCoefficients.x1 * width + sandboxWidthLayoutCoefficients.x2 + measuredWidth;
 					
 					measuredLeft = leftLayoutCoefficients.x1 * width + leftLayoutCoefficients.x2 + runningWidth;
 					if (!isWidthSize && Math.floor(measuredSandboxWidth + runningWidth) > Math.ceil(width)) {
@@ -77,14 +79,10 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						measuredLeft -= runningWidth;
 						runningWidth = 0;
 					}
+					child._measuredLeft = measuredLeft;
 					rows[rows.length - 1].push(child);
 					runningWidth += measuredSandboxWidth;
 					runningWidth > computedSize.width && (computedSize.width = runningWidth);
-					
-					child._measuredWidth = measuredWidth;
-					child._measuredHeight = measuredHeight;
-					child._measuredSandboxWidth = measuredSandboxWidth;
-					child._measuredLeft = measuredLeft;
 					//}
 				}
 			}
@@ -141,7 +139,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				for (j = 0; j < row.length; j++) {
 					child = row[j];
 				
-					if (this.verifyChild(child,element) && ~deferredTopCalculations.indexOf(child)) {
+					if (~deferredTopCalculations.indexOf(child) && this.verifyChild(child,element) ) {
 						//if (child._markedForLayout) {
 							measuredHeight = child._measuredHeight;
 							topLayoutCoefficients = child._layoutCoefficients.top;
