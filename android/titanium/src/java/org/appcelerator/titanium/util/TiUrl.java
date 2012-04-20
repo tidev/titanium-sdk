@@ -322,7 +322,7 @@ public class TiUrl
 		}
 		catch (Exception e)
 		{
-			Log.e(TAG, "Exception in encodeURI srgString= " + argString, e);
+			Log.e(TAG, "Exception in getCleanUri argString= " + argString, e);
 			return null;
 		}
 	}
