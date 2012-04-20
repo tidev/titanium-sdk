@@ -197,28 +197,24 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 		_tallestRowHeight: 0,
 		
 		_updateContentWidth: function() {
-			if (this._hasSizeDimensions()) {
-				var widestRowWidth = 0;
-				for(var i in this._rows) {
-					var row = this._rows[i];
-					widestRowWidth = Math.max(widestRowWidth, row._measureText(row.title, row.domNode).width);
-				}
-				if (this._widestRowWidth !== widestRowWidth) {
-					this._widestRowWidth = widestRowWidth;
-				}
+			var widestRowWidth = 0;
+			for(var i in this._rows) {
+				var row = this._rows[i];
+				widestRowWidth = Math.max(widestRowWidth, row._measureText(row.title, row.domNode).width);
+			}
+			if (this._widestRowWidth !== widestRowWidth) {
+				this._widestRowWidth = widestRowWidth;
 			}
 		},
 		
 		_getTallestRowHeight: function() {
-			if (this._hasSizeDimensions()) {
-				var widestRowWidth = 0,
-					tallestRowHeight = 0;
-				for(var i in this._rows) {
-					var row = this._rows[i];
-					tallestRowHeight = Math.max(tallestRowHeight, row._measureText(row.title, row.domNode).height);
-				}
-				return tallestRowHeight;
+			var widestRowWidth = 0,
+				tallestRowHeight = 0;
+			for(var i in this._rows) {
+				var row = this._rows[i];
+				tallestRowHeight = Math.max(tallestRowHeight, row._measureText(row.title, row.domNode).height);
 			}
+			return tallestRowHeight;
 		},
 		
 		_setTallestRowHeight: function(height) {

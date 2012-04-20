@@ -249,23 +249,7 @@ define(
 		},
 		
 		_hasSizeDimensions: function() {
-			return this._hasSizeWidth() || this._hasSizeHeight();
-		},
-		
-		_hasSizeWidth: function() {
-			var widthOverride = isDef(this.left) + isDef(this.right) + isDef(this.center && this.center.x) > 1,
-				isWidthSize,
-				width = lang.val(this.width,this._defaultWidth);
-			(isDef(this.width) || !widthOverride) && (isWidthSize = (width === UI.INHERIT ? this._getInheritedWidth() : width) === UI.SIZE);
-			return isWidthSize;
-		},
-		
-		_hasSizeHeight: function() {
-			var heightOverride = isDef(this.top) + isDef(this.bottom) + isDef(this.center && this.center.y) > 1,
-				isHeightSize,
-				height = lang.val(this.height,this._defaultHeight);
-			(isDef(this.height) || !heightOverride) && (isHeightSize = (height === UI.INHERIT ? this._getInheritedHeight() : height) === UI.SIZE);
-			return isHeightSize;
+			return isNaN(this._layoutCoefficients.width.x1) || isNaN(this._layoutCoefficients.height.x1);
 		},
 		
 		startLayout: function() {
