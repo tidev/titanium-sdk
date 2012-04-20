@@ -17,7 +17,7 @@ define(
 			hidingAddressBar = 0;
 		},
 		unitize = dom.unitize,
-		showStats = true;
+		showStats = false;
 
 	on(body, "touchmove", function(e) {
 		e.preventDefault();
