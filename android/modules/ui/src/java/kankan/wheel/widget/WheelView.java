@@ -655,7 +655,8 @@ public class WheelView extends View {
 
 		case MotionEvent.ACTION_MOVE:
 			float delta = event.getY() - lastYTouch;
-			int count = (int) (visibleItems * delta / getHeight());
+			//A nasty hack for timob-8470 b/c touch events seem to not register in area above the first row when put in a scrollview.
+			int count = (int) (visibleItems * delta * 3 / getHeight());
 			int pos = currentItem - count;
 			pos = Math.max(pos, 0);
 			pos = Math.min(pos, adapter.getItemsCount() - 1);
