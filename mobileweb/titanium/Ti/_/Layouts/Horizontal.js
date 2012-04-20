@@ -191,9 +191,9 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			var getValueType = this.getValueType,
 				computeValue = this.computeValue,
 			
-				width = node.width === UI.INHERIT ? node._getInheritedWidth() : node.width,
+				width = node.width,
 				
-				height = node.height === UI.INHERIT ? node._getInheritedHeight() : node.height,
+				height = node.height,
 				
 				left = node.left,
 				leftType = getValueType(left),
@@ -222,8 +222,10 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				topLayoutCoefficients = layoutCoefficients.top;
 				
 			// Apply the default width and pre-process width and height
-			!isDef(width) && (width = node._defaultWidth === UI.INHERIT ? node._getInheritedWidth() : node._defaultWidth);
-			!isDef(height) && (height = node._defaultHeight === UI.INHERIT ? node._getInheritedHeight() : node._defaultHeight);
+			!isDef(width) && (width = node._defaultWidth);
+			!isDef(height) && (height = node._defaultHeight);
+			width = width === UI.INHERIT ? node._getInheritedWidth() : width;
+			height = height === UI.INHERIT ? node._getInheritedHeight() : height;
 			var widthType = getValueType(width),
 				widthValue = computeValue(width, widthType),
 				heightType = getValueType(height),
