@@ -80,6 +80,8 @@
 	 * Utility functions
 	 *****************************************************************************/
 
+	function noop() {}
+
 	function _mix(dest, src) {
 		for (var p in src) {
 			src.hasOwnProperty(p) && (dest[p] = src[p]);
@@ -299,6 +301,42 @@
 		});
 		return h;
 	};
+
+	/******************************************************************************
+	 * Promise
+	 *****************************************************************************/
+
+	function Promise() {
+		this.thens = [];
+	}
+
+	mix(Promise.prototype, {
+
+		then: function(resolved, rejected) {
+			this.thens.push([resolved, rejected]);
+			return this;
+		},
+
+		resolve: function(val) {
+			this._complete(0, val);
+		},
+
+		reject: function(ex) {
+			this._complete(1, ex);
+		},
+
+		_complete: function(failed, result) {
+			this.then = failed ? function (resolved, rejected) { rejected && rejected(result); }
+			                   : function (resolved) { resolved && resolved(result); };
+			this._complete = noop;
+			this.thens.forEach(function(t) {
+				var cb = t[failed];
+				cb && cb(result);
+			});
+			this.thens = 0;
+		}
+
+	});
 
 	/******************************************************************************
 	 * Configuration processing
