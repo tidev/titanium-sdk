@@ -32,8 +32,10 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.WebViewProxy;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -75,6 +77,28 @@ public class TiUIWebView extends TiUIView
 				client.getBinding().destroy();
 			}
 			super.destroy();
+		}
+
+		@Override
+		public boolean onTouchEvent(MotionEvent ev)
+		{
+			boolean handled = false;
+
+			// In Android WebView, all the click events are directly sent to WebKit. As a result, OnClickListener() is
+			// never called. Therefore, we have to manually call performClick() when a click event is detected.
+			if (ev.getAction() == MotionEvent.ACTION_UP) {
+				Rect r = new Rect(0, 0, getWidth(), getHeight());
+				if (r.contains((int) ev.getX(), (int) ev.getY())) {
+					handled = performClick();
+				}
+			}
+
+			if (handled) {
+				return true;
+			}
+
+			// If performClick() can not handle the event, we pass it to WebKit.
+			return super.onTouchEvent(ev);
 		}
 	}
 

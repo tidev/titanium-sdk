@@ -294,7 +294,7 @@ properties:
         Using this value on Android enables *simple mode* operation.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
     since: "2.0.0"
 
   - name: ACCURACY_LOW
@@ -305,7 +305,7 @@ properties:
         Using this value on Android enables *simple mode* operation.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
     since: "2.0.0"
 
   - name: AUTHORIZATION_AUTHORIZED

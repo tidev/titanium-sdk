@@ -19,6 +19,12 @@
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
 
+@interface TiUITableView ()
+@property (nonatomic,copy,readwrite) NSString * searchString;
+- (void)updateSearchResultIndexes;
+- (CGFloat)computeRowWidth;
+@end
+
 @implementation TiUITableViewCell
 @synthesize hitPoint,proxy;
 #pragma mark Touch event handling
@@ -65,7 +71,7 @@
 {
     CGFloat width = 0;
     if ([proxy table] != nil) {
-        width = [proxy sizeWidthForDecorations:[[proxy table] tableView].bounds.size.width forceResizing:YES];        
+        width = [proxy sizeWidthForDecorations:[[proxy table] computeRowWidth] forceResizing:YES];        
     }
 	CGFloat height = [proxy rowHeight:width];
 	height = [[proxy table] tableRowHeight:height];
@@ -244,12 +250,6 @@
 }
 
 
-
-@end
-
-@interface TiUITableView ()
-@property (nonatomic,copy,readwrite) NSString * searchString;
-- (void)updateSearchResultIndexes;
 
 @end
 
@@ -1602,17 +1602,16 @@
 {
 	UIEdgeInsets insets = [TiUtils contentInsets:value];
 	BOOL animated = [TiUtils boolValue:@"animated" properties:props def:NO];
-	if (animated)
-	{
-		[UIView beginAnimations:nil context:nil];
-		double duration = [TiUtils doubleValue:@"duration" properties:props def:300]/1000;
-		[UIView setAnimationDuration:duration];
-	}
-	[[self tableView] setContentInset:insets];
-	if (animated)
-	{
-		[UIView commitAnimations];
-	}
+    void (^setInset)(void) = ^{
+        [tableview setContentInset:insets];
+    };
+    if (animated) {
+        double duration = [TiUtils doubleValue:@"duration" properties:props def:300]/1000;
+        [UIView animateWithDuration:duration animations:setInset];
+    }
+    else {
+        setInset();
+    }
 }
 
 #pragma mark Datasource 
@@ -1998,16 +1997,44 @@ return result;	\
 	return indent == nil ? 0 : [TiUtils intValue:indent];
 }
 
-- (CGFloat)tableView:(UITableView *)ourTableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+-(CGFloat)computeRowWidth
 {
+    CGFloat rowWidth = tableview.bounds.size.width;
+    
+    // Apple does not provide a good way to get information about the index sidebar size
+    // in the event that it exists - it silently resizes row content which is "flexible width"
+    // but this is not useful for us. This is a problem when we have Ti.UI.SIZE/FILL behavior
+    // on row contents, which rely on the height of the row to be accurately precomputed.
+    //
+    // The following is unreliable since it uses a private API name, but one which has existed
+    // since iOS 3.0. The alternative is to grab a specific subview of the tableview itself,
+    // which is more fragile.
+    
+    NSArray* subviews = [tableview subviews];
+    if ([subviews count] > 0) {
+        // Obfuscate private class name
+        Class indexview = NSClassFromString([@"UITableView" stringByAppendingString:@"Index"]);
+        for (UIView* view in subviews) {
+            if ([view isKindOfClass:indexview]) {
+                rowWidth -= [view frame].size.width;
+            }
+        }
+    }
+    
+    return rowWidth;
+}
+
+- (CGFloat)tableView:(UITableView *)ourTableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{    
 	NSIndexPath* index = indexPath;
 	if (ourTableView != tableview) {
 		index = [self indexPathFromSearchIndex:[indexPath row]];
 	}
 	
 	TiUITableViewRowProxy *row = [self rowForIndexPath:index];
-	
-	CGFloat width = [row sizeWidthForDecorations:tableview.bounds.size.width forceResizing:YES];
+    
+
+	CGFloat width = [row sizeWidthForDecorations:[self computeRowWidth] forceResizing:YES];
 	CGFloat height = [row rowHeight:width];
 	height = [self tableRowHeight:height];
 	return height < 1 ? tableview.rowHeight : height;
@@ -2168,6 +2195,10 @@ return result;	\
 {
 	// suspend image loader while we're scrolling to improve performance
 	[[ImageLoader sharedLoader] suspend];
+    if([self.proxy _hasListeners:@"dragStart"])
+    {
+        [self.proxy fireEvent:@"dragStart" withObject:nil];
+    }
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate 
@@ -2177,14 +2208,11 @@ return result;	\
 		// resume image loader when we're done scrolling
 		[[ImageLoader sharedLoader] resume];
 	}
-	if ([self.proxy _hasListeners:@"scrollEnd"])
+	if ([self.proxy _hasListeners:@"dragEnd"])
 	{
-		NSMutableDictionary *event = [NSMutableDictionary dictionary];
-		[event setObject:[TiUtils pointToDictionary:scrollView.contentOffset] forKey:@"contentOffset"];
-		[event setObject:[TiUtils sizeToDictionary:scrollView.contentSize] forKey:@"contentSize"];
-		[event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
-		[self.proxy fireEvent:@"scrollEnd" withObject:event];
+		[self.proxy fireEvent:@"dragEnd" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil]]	;
 	}
+    
     // Update keyboard status to insure that any fields actively being edited remain in view
     if ([[[TiApp app] controller] keyboardVisible]) {
         [[[TiApp app] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
@@ -2195,6 +2223,14 @@ return result;	\
 {
 	// resume image loader when we're done scrolling
 	[[ImageLoader sharedLoader] resume];
+    if ([self.proxy _hasListeners:@"scrollEnd"])
+	{
+		NSMutableDictionary *event = [NSMutableDictionary dictionary];
+		[event setObject:[TiUtils pointToDictionary:scrollView.contentOffset] forKey:@"contentOffset"];
+		[event setObject:[TiUtils sizeToDictionary:scrollView.contentSize] forKey:@"contentSize"];
+		[event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
+		[self.proxy fireEvent:@"scrollEnd" withObject:event];
+	}
 }
 
 #pragma mark Search Display Controller Delegates

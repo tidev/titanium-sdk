@@ -24,7 +24,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.MeasureSpec;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ScrollView;
@@ -127,17 +126,21 @@ public class TiUIScrollView extends TiUIView
 				return super.getHeightMeasureSpec(child);
 			}
 		}
-
+		
 		@Override
 		protected int getMeasuredWidth(int maxWidth, int widthSpec)
 		{
 			int contentWidth = getContentProperty(TiC.PROPERTY_CONTENT_WIDTH);
 			if (contentWidth == AUTO) {
 				contentWidth = maxWidth; // measuredWidth;
-			}
+			}		
 
-			// Force the minimum width of the content view to be the size of its parent (scroll view)
-			return Math.max(contentWidth, parentWidth);
+			// Returns the content's width when it's greater than the scrollview's width
+			if (contentWidth > parentWidth) {
+				return contentWidth;
+			} else {
+				return resolveSize(maxWidth, widthSpec);
+			}
 		}
 
 		@Override
@@ -148,9 +151,13 @@ public class TiUIScrollView extends TiUIView
 				contentHeight = maxHeight; // measuredHeight;
 			}
 
-			// Force the minimum height of the content view to be the size of its parent (scroll view)
-			return Math.max(contentHeight, parentHeight);
-		}
+			// Returns the content's height when it's greater than the scrollview's height
+			if (contentHeight > parentHeight) {
+				return contentHeight;
+			} else {
+				return resolveSize(maxHeight, heightSpec);
+			}
+		} 
 	}
 
 	// same code, different super-classes

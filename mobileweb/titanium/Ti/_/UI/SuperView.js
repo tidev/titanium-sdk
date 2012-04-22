@@ -17,7 +17,9 @@ define(["Ti/_/declare", "Ti/UI", "Ti/UI/View"], function(declare, UI, View) {
 		},
 
 		close: function(args) {
-			if (this._opened) {
+			if (this.tab) {
+				this.tab.close(this);
+			} else if (this._opened) {
 				this._opened = 0;
 				UI._removeWindow(this);
 				this.fireEvent("close");

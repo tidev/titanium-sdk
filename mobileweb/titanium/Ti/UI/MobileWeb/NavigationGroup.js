@@ -44,7 +44,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style", "Ti/_/lang"],
 				height: UI.FILL
 			});
 			self._contentContainer.add(rootWindow);
-			
+
+			// invoke the navBarAtTop setter
 			self.navBarAtTop = true;
 		},
 
