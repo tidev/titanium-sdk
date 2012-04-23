@@ -732,6 +732,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				} catch (URISyntaxException e) {
 					Log.e(LCAT, "URISyntaxException for url " + imageref.getUrl(), e);
 					getAsync = false;
+				} catch (NullPointerException e) {
+					Log.e(LCAT, "NullPointerException for url " + imageref.getUrl(), e);
+					getAsync = false;
 				}
 				if (getAsync) {
 					imageref.getBitmapAsync(downloadListener);
@@ -844,6 +847,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				}
 
 			} catch (URISyntaxException e) {
+				setDefaultImageSource(defaultImage);
+			} catch (NullPointerException e) {
 				setDefaultImageSource(defaultImage);
 			}
 		}
