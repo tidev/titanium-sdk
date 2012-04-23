@@ -16,14 +16,10 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/lang", "Ti/U
 			css.remove(this.element.domNode, css.clean(this.declaredClass));
 		},
 		
-		verifyChild: function(child, parent) {
-			if (!child._alive || !child.domNode) {
-				console.debug("WARNING: Attempting to layout element that has been destroyed.\n\t Removing the element from the parent.\n\t The parent has a widget ID of " + parent.widgetId + ".");
-				var children = parent.children;
-				children.splice(children.indexOf(child),1);
-				return;
-			}
-			return 1;
+		handleInvalidState: function(child, parent) {
+			console.debug("WARNING: Attempting to layout element that has been destroyed.\n\t Removing the element from the parent.\n\t The parent has a widget ID of " + parent.widgetId + ".");
+			var children = parent.children;
+			children.splice(children.indexOf(child),1);
 		},
 		
 		getValueType: function(value) {
@@ -60,7 +56,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/lang", "Ti/U
 				center: center,
 				width: val(animation.width,node.width),
 				height: val(animation.height,node.height),
-			},animationCoefficients);
+			},animationCoefficients, this);
 			
 			results = this._doAnimationLayout(node, animationCoefficients);
 			

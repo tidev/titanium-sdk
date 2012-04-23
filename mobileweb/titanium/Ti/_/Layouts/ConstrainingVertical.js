@@ -6,7 +6,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 	return declare("Ti._.Layouts.ConstrainingVertical", Base, {
 
 		_doLayout: function(element, width, height, isWidthSize, isHeightSize) {
-			var computedSize = this._computedSize = {width: 0, height: 0},
+			var computedSize = {width: 0, height: 0},
 				children = element.children,
 				child,
 				i,
@@ -18,21 +18,28 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				deferredPositionCalculations = [],
 				deferredLeftCalculations = [],
 				runningHeight = 0,
-				fillCount = 0;
+				fillCount = 0,
+				len,
+				verifyChild = this.verifyChild,
+				updateBorder = this.updateBorder,
+				measureNode = this._measureNode;
 				
 			// Calculate size for the non-FILL children
-			for(i = 0; i < children.length; i++) {
+			len = children.length;
+			for(i = 0; i < len; i++) {
 				
 				child = element.children[i];
-				if (this.verifyChild(child,element)) {
+				if (!child._alive || !child.domNode) {
+					this.handleInvalidState(child,element);
+				} else {
 					
 					// Border validation
 					if (!child._borderSet) {
-						this.updateBorder(child);
+						updateBorder(child);
 					}
 					
 					if (child._markedForLayout) {
-						((child._preLayout && child._preLayout(width, height, isWidthSize, isHeightSize)) || child._needsMeasuring) && this._measureNode(child, child._layoutCoefficients);
+						((child._preLayout && child._preLayout(width, height, isWidthSize, isHeightSize)) || child._needsMeasuring) && measureNode(child, child._layoutCoefficients, this);
 									
 						layoutCoefficients = child._layoutCoefficients;
 						heightLayoutCoefficients = layoutCoefficients.height;
@@ -73,51 +80,50 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			
 			// Calculate size for the FILL children
 			runningHeight = (height - runningHeight) / fillCount; // Temporary repurposing of runningHeight
-			for(i = 0; i < children.length; i++) {
+			for(i = 0; i < len; i++) {
 				
 				child = element.children[i];
-				if (this.verifyChild(child,element)) {
-					if (child._markedForLayout) {
-									
-						layoutCoefficients = child._layoutCoefficients;
-						heightLayoutCoefficients = layoutCoefficients.height;
+				
+				if (child._markedForLayout) {
+								
+					layoutCoefficients = child._layoutCoefficients;
+					heightLayoutCoefficients = layoutCoefficients.height;
+					
+					if (heightLayoutCoefficients.x2 !== 0 && !isNaN(heightLayoutCoefficients.x2)) {
+						widthLayoutCoefficients = layoutCoefficients.width;
+						sandboxWidthLayoutCoefficients = layoutCoefficients.sandboxWidth;
+						sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
 						
-						if (heightLayoutCoefficients.x2 !== 0 && !isNaN(heightLayoutCoefficients.x2)) {
-							widthLayoutCoefficients = layoutCoefficients.width;
-							sandboxWidthLayoutCoefficients = layoutCoefficients.sandboxWidth;
-							sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
-							
-							measuredWidth = widthLayoutCoefficients.x1 * width + widthLayoutCoefficients.x2;
-							measuredHeight = heightLayoutCoefficients.x1 * height + heightLayoutCoefficients.x2 * runningHeight + heightLayoutCoefficients.x3;
-							
-							if (child._getContentSize) {
-								childSize = child._getContentSize();
-							} else {
-								childSize = child._layout._doLayout(
-									child, 
-									isNaN(measuredWidth) ? width : measuredWidth, 
-									isNaN(measuredHeight) ? height : measuredHeight, 
-									isNaN(measuredWidth), 
-									isNaN(measuredHeight));
-							}
-							isNaN(measuredWidth) && (measuredWidth = childSize.width + child._borderLeftWidth + child._borderRightWidth);
-							isNaN(measuredHeight) && (measuredHeight = childSize.height + child._borderTopWidth + child._borderBottomWidth);
-							child._measuredWidth = measuredWidth;
-							child._measuredHeight = measuredHeight;
-							
-							measuredSandboxHeight = child._measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + measuredHeight;
+						measuredWidth = widthLayoutCoefficients.x1 * width + widthLayoutCoefficients.x2;
+						measuredHeight = heightLayoutCoefficients.x1 * height + heightLayoutCoefficients.x2 * runningHeight + heightLayoutCoefficients.x3;
+						
+						if (child._getContentSize) {
+							childSize = child._getContentSize();
+						} else {
+							childSize = child._layout._doLayout(
+								child, 
+								isNaN(measuredWidth) ? width : measuredWidth, 
+								isNaN(measuredHeight) ? height : measuredHeight, 
+								isNaN(measuredWidth), 
+								isNaN(measuredHeight));
 						}
+						isNaN(measuredWidth) && (measuredWidth = childSize.width + child._borderLeftWidth + child._borderRightWidth);
+						isNaN(measuredHeight) && (measuredHeight = childSize.height + child._borderTopWidth + child._borderBottomWidth);
+						child._measuredWidth = measuredWidth;
+						child._measuredHeight = measuredHeight;
+						
+						measuredSandboxHeight = child._measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + measuredHeight;
 					}
 				}
 			}
 			
 			// Calculate position for the children
 			runningHeight = 0
-			for(i = 0; i < children.length; i++) {
+			for(i = 0; i < len; i++) {
 				
 				child = element.children[i];
 				child._measuredRunningHeight = runningHeight;
-				if (this.verifyChild(child,element) && child._markedForLayout) {
+				if (child._markedForLayout) {
 					layoutCoefficients = child._layoutCoefficients;
 					sandboxWidthLayoutCoefficients = layoutCoefficients.sandboxWidth;
 					topLayoutCoefficients = layoutCoefficients.top;
@@ -139,7 +145,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			computedSize.height = runningHeight;
 			
 			// Calculate the preliminary sandbox widths (missing left, since one of these widths may end up impacting all the lefts)
-			for(i in deferredLeftCalculations) {
+			len = deferredLeftCalculations.length;
+			for(i = 0; i < len; i++) {
 				child = deferredLeftCalculations[i];
 				sandboxWidthLayoutCoefficients = child._layoutCoefficients.sandboxWidth;
 				measuredSandboxWidth = child._measuredSandboxWidth = sandboxWidthLayoutCoefficients.x1 * width + sandboxWidthLayoutCoefficients.x2 + child._measuredWidth;
@@ -147,7 +154,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			}
 			
 			// Second pass, if necessary, to determine the left values
-			for(i in deferredLeftCalculations) {
+			for(i = 0; i < len; i++) {
 				child = deferredLeftCalculations[i];
 				
 				leftLayoutCoefficients = child._layoutCoefficients.left;
@@ -161,7 +168,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			}
 			
 			// Position the children
-			for(i = 0; i < children.length; i++) {
+			len = children.length;
+			for(i = 0; i < len; i++) {
 				child = children[i];
 				if (child._markedForLayout) {
 					UI._elementLayoutCount++;
@@ -245,19 +253,19 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			}
 		},
 		
-		_measureNode: function(node, layoutCoefficients) {
+		_measureNode: function(node, layoutCoefficients, self) {
 			
 			node._needsMeasuring = false;
 			
 			// Pre-processing
-			var getValueType = this.getValueType,
-				computeValue = this.computeValue,
+			var getValueType = self.getValueType,
+				computeValue = self.computeValue,
 			
-				width = this._getWidth(node),
+				width = self._getWidth(node),
 				widthType = getValueType(width),
 				widthValue = computeValue(width, widthType),
 				
-				height = this._getHeight(node),
+				height = self._getHeight(node),
 				heightType = getValueType(height),
 				heightValue = computeValue(height, heightType),
 				
@@ -404,7 +412,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				x2 = -1;
 				x3 = -rightValue;
 			} else { 
-				switch(this._defaultHorizontalAlignment) {
+				switch(self._defaultHorizontalAlignment) {
 					case "center": 
 						x1 = 0.5;
 						x2 = -0.5;

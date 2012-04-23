@@ -265,7 +265,9 @@ define(
 		
 		updateLayout: function(params) {
 			this.startLayout();
-			for(var i in params) {
+			var i,
+				len = params.length;
+			for(i = 0; i < len; i++) {
 				this[i] = params[i];
 			}
 			this.finishLayout();

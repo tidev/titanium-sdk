@@ -6,7 +6,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 	return declare("Ti._.Layouts.ConstrainingHorizontal", Base, {
 
 		_doLayout: function(element, width, height, isWidthSize, isHeightSize) {
-			var computedSize = this._computedSize = {width: 0, height: 0},
+			var computedSize = {width: 0, height: 0},
 				children = element.children,
 				child,
 				i,
@@ -18,21 +18,28 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				deferredPositionCalculations = [],
 				deferredTopCalculations = [],
 				runningWidth = 0,
-				fillCount = 0;
+				fillCount = 0,
+				len,
+				verifyChild = this.verifyChild,
+				updateBorder = this.updateBorder,
+				measureNode = this._measureNode;
 				
 			// Calculate size for the non-FILL children
-			for(i = 0; i < children.length; i++) {
+			len = children.length;
+			for(i = 0; i < len; i++) {
 				
 				child = element.children[i];
-				if (this.verifyChild(child,element)) {
+				if (!child._alive || !child.domNode) {
+					this.handleInvalidState(child,element);
+				} else {
 					
 					// Border validation
 					if (!child._borderSet) {
-						this.updateBorder(child);
+						updateBorder(child);
 					}
 					
 					if (child._markedForLayout) {
-						((child._preLayout && child._preLayout(width, height, isWidthSize, isHeightSize)) || child._needsMeasuring) && this._measureNode(child, child._layoutCoefficients);
+						((child._preLayout && child._preLayout(width, height, isWidthSize, isHeightSize)) || child._needsMeasuring) && measureNode(child, child._layoutCoefficients, this);
 									
 						layoutCoefficients = child._layoutCoefficients;
 						widthLayoutCoefficients = layoutCoefficients.width;
@@ -73,75 +80,72 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			
 			// Calculate size for the FILL children
 			runningWidth = (width - runningWidth) / fillCount; // Temporary repurposing of runningHeight
-			for(i = 0; i < children.length; i++) {
+			for(i = 0; i < len; i++) {
 				
 				child = element.children[i];
-				if (this.verifyChild(child,element)) {
-					if (child._markedForLayout) {
+				if (child._markedForLayout) {
 									
-						layoutCoefficients = child._layoutCoefficients;
-						widthLayoutCoefficients = layoutCoefficients.width;
+					layoutCoefficients = child._layoutCoefficients;
+					widthLayoutCoefficients = layoutCoefficients.width;
+					
+					if (widthLayoutCoefficients.x2 !== 0 && !isNaN(widthLayoutCoefficients.x2)) {
+						heightLayoutCoefficients = layoutCoefficients.height;
+						sandboxWidthLayoutCoefficients = layoutCoefficients.sandboxWidth;
+						sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
 						
-						if (widthLayoutCoefficients.x2 !== 0 && !isNaN(widthLayoutCoefficients.x2)) {
-							heightLayoutCoefficients = layoutCoefficients.height;
-							sandboxWidthLayoutCoefficients = layoutCoefficients.sandboxWidth;
-							sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
-							
-							measuredHeight = heightLayoutCoefficients.x1 * height + heightLayoutCoefficients.x2;
-							measuredWidth = widthLayoutCoefficients.x1 * width + widthLayoutCoefficients.x2 * runningWidth + widthLayoutCoefficients.x3;
-							
-							if (child._getContentSize) {
-								childSize = child._getContentSize();
-							} else {
-								childSize = child._layout._doLayout(
-									child, 
-									isNaN(measuredWidth) ? width : measuredWidth, 
-									isNaN(measuredHeight) ? height : measuredHeight, 
-									isNaN(measuredWidth), 
-									isNaN(measuredHeight));
-							}
-							isNaN(measuredWidth) && (measuredWidth = childSize.width + child._borderLeftWidth + child._borderRightWidth);
-							isNaN(measuredHeight) && (measuredHeight = childSize.height + child._borderTopWidth + child._borderBottomWidth);
-							child._measuredWidth = measuredWidth;
-							child._measuredHeight = measuredHeight;
-							
-							measuredSandboxWidth = child._measuredSandboxWidth = sandboxWidthLayoutCoefficients.x1 * width + sandboxWidthLayoutCoefficients.x2 + measuredWidth;
+						measuredHeight = heightLayoutCoefficients.x1 * height + heightLayoutCoefficients.x2;
+						measuredWidth = widthLayoutCoefficients.x1 * width + widthLayoutCoefficients.x2 * runningWidth + widthLayoutCoefficients.x3;
+						
+						if (child._getContentSize) {
+							childSize = child._getContentSize();
+						} else {
+							childSize = child._layout._doLayout(
+								child, 
+								isNaN(measuredWidth) ? width : measuredWidth, 
+								isNaN(measuredHeight) ? height : measuredHeight, 
+								isNaN(measuredWidth), 
+								isNaN(measuredHeight));
 						}
+						isNaN(measuredWidth) && (measuredWidth = childSize.width + child._borderLeftWidth + child._borderRightWidth);
+						isNaN(measuredHeight) && (measuredHeight = childSize.height + child._borderTopWidth + child._borderBottomWidth);
+						child._measuredWidth = measuredWidth;
+						child._measuredHeight = measuredHeight;
+						
+						measuredSandboxWidth = child._measuredSandboxWidth = sandboxWidthLayoutCoefficients.x1 * width + sandboxWidthLayoutCoefficients.x2 + measuredWidth;
 					}
 				}
 			}
 			
 			// Calculate position for the children
-			runningWidth = 0
-			for(i = 0; i < children.length; i++) {
+			runningWidth = 0;
+			for(i = 0; i < len; i++) {
 				
 				child = element.children[i];
 				child._measuredRunningWidth = runningWidth;
-				if (this.verifyChild(child,element)) {
-					if (child._markedForLayout) {
-						layoutCoefficients = child._layoutCoefficients;
-						sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
-						topLayoutCoefficients = layoutCoefficients.top;
-						leftLayoutCoefficients = layoutCoefficients.left;
+				if (child._markedForLayout) {
+					layoutCoefficients = child._layoutCoefficients;
+					sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
+					topLayoutCoefficients = layoutCoefficients.top;
+					leftLayoutCoefficients = layoutCoefficients.left;
+					
+					if (isHeightSize && topLayoutCoefficients.x1 !== 0) {
+						deferredTopCalculations.push(child);
+					} else {
+						measuredHeight = child._measuredHeight;
 						
-						if (isHeightSize && topLayoutCoefficients.x1 !== 0) {
-							deferredTopCalculations.push(child);
-						} else {
-							measuredHeight = child._measuredHeight;
-							
-							measuredTop = child._measuredTop = topLayoutCoefficients.x1 * height + topLayoutCoefficients.x2 * measuredHeight + topLayoutCoefficients.x3;
-							measuredSandboxHeight = child._measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + measuredHeight + (isNaN(measuredTop) ? 0 : measuredTop);
-							measuredSandboxHeight > computedSize.height && (computedSize.height = measuredSandboxHeight);
-						}
-						measuredLeft = child._measuredLeft = leftLayoutCoefficients.x1 * width + leftLayoutCoefficients.x2 + runningWidth;
+						measuredTop = child._measuredTop = topLayoutCoefficients.x1 * height + topLayoutCoefficients.x2 * measuredHeight + topLayoutCoefficients.x3;
+						measuredSandboxHeight = child._measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + measuredHeight + (isNaN(measuredTop) ? 0 : measuredTop);
+						measuredSandboxHeight > computedSize.height && (computedSize.height = measuredSandboxHeight);
 					}
-					runningWidth += child._measuredSandboxWidth;
+					measuredLeft = child._measuredLeft = leftLayoutCoefficients.x1 * width + leftLayoutCoefficients.x2 + runningWidth;
 				}
+				runningWidth += child._measuredSandboxWidth;
 			}
 			computedSize.width = runningWidth;
 			
 			// Calculate the preliminary sandbox heights (missing top, since one of these heights may end up impacting all the tops)
-			for(i in deferredTopCalculations) {
+			len = deferredTopCalculations.length;
+			for(i = 0; i < len; i++) {
 				child = deferredTopCalculations[i];
 				sandboxHeightLayoutCoefficients = child._layoutCoefficients.sandboxHeight;
 				measuredSandboxHeight = child._measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + child._measuredHeight;
@@ -149,7 +153,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			}
 			
 			// Second pass, if necessary, to determine the top values
-			for(i in deferredTopCalculations) {
+			for(i = 0; i < len; i++) {
 				child = deferredTopCalculations[i];
 				
 				topLayoutCoefficients = child._layoutCoefficients.top;
@@ -163,7 +167,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			}
 			
 			// Position the children
-			for(i = 0; i < children.length; i++) {
+			len = children.length;
+			for(i = 0; i < len; i++) {
 				child = children[i];
 				if (child._markedForLayout) {
 					UI._elementLayoutCount++;
@@ -247,19 +252,19 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			}
 		},
 		
-		_measureNode: function(node, layoutCoefficients) {
+		_measureNode: function(node, layoutCoefficients, self) {
 			
 			node._needsMeasuring = false;
 			
 			// Pre-processing
-			var getValueType = this.getValueType,
-				computeValue = this.computeValue,
+			var getValueType = self.getValueType,
+				computeValue = self.computeValue,
 			
-				width = this._getWidth(node),
+				width = self._getWidth(node),
 				widthType = getValueType(width),
 				widthValue = computeValue(width, widthType),
 				
-				height = this._getHeight(node),
+				height = self._getHeight(node),
 				heightType = getValueType(height),
 				heightValue = computeValue(height, heightType),
 				
@@ -406,7 +411,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				x2 = -1;
 				x3 = -bottomValue;
 			} else { 
-				switch(this._defaultVerticalAlignment) {
+				switch(self._defaultVerticalAlignment) {
 					case "center": 
 						x1 = 0.5;
 						x2 = -0.5;

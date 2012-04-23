@@ -7,7 +7,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 	return declare("Ti._.Layouts.Composite", Base, {
 		
 		_doLayout: function(element, width, height, isWidthSize, isHeightSize) {
-			var computedSize = this._computedSize = {width: 0, height: 0},
+			var computedSize = {width: 0, height: 0},
 				children = element.children,
 				child,
 				i,
@@ -16,21 +16,28 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				childSize,
 				measuredWidth, measuredHeight, measuredSandboxHeight, measuredSandboxWidth, measuredLeft, measuredTop,
 				deferredLeftCalculations = [],
-				deferredTopCalculations = [];
+				deferredTopCalculations = [],
+				len,
+				verifyChild = this.verifyChild,
+				updateBorder = this.updateBorder,
+				measureNode = this._measureNode;
 			
 			// Calculate size and position for the children
-			for(i = 0; i < children.length; i++) {
+			len = children.length;
+			for(i = 0; i < len; i++) {
 				
 				child = element.children[i];
-				if (this.verifyChild(child,element)) {
+				if (!child._alive || !child.domNode) {
+					this.handleInvalidState(child,element);
+				} else {
 					
 					// Border validation
 					if (!child._borderSet) {
-						this.updateBorder(child);
+						updateBorder(child);
 					}
 					
 					if (child._markedForLayout) {
-						((child._preLayout && child._preLayout(width, height, isWidthSize, isHeightSize)) || child._needsMeasuring) && this._measureNode(child, child._layoutCoefficients);
+						((child._preLayout && child._preLayout(width, height, isWidthSize, isHeightSize)) || child._needsMeasuring) && measureNode(child, child._layoutCoefficients, this);
 						
 						layoutCoefficients = child._layoutCoefficients;
 						widthLayoutCoefficients = layoutCoefficients.width;
@@ -83,7 +90,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			}
 			
 			// Second pass, if necessary, to determine the left/top values
-			for(i in deferredLeftCalculations) {
+			len = deferredLeftCalculations.length;
+			for(i = 0; i < len; i++) {
 				child = deferredLeftCalculations[i];
 				leftLayoutCoefficients = child._layoutCoefficients.left;
 				sandboxWidthLayoutCoefficients = child._layoutCoefficients.sandboxWidth;
@@ -94,7 +102,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				measuredSandboxWidth = child._measuredSandboxWidth;
 				measuredSandboxWidth > computedSize.width && (computedSize.width = measuredSandboxWidth);
 			}
-			for(i in deferredTopCalculations) {
+			len = deferredTopCalculations.length;
+			for(i = 0; i < len; i++) {
 				child = deferredTopCalculations[i];
 				topLayoutCoefficients = child._layoutCoefficients.top;
 				sandboxHeightLayoutCoefficients = child._layoutCoefficients.sandboxHeight;
@@ -107,7 +116,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			}
 			
 			// Position the children
-			for(i = 0; i < children.length; i++) {
+			len = children.length
+			for(i = 0; i < len; i++) {
 				child = children[i];
 				if (child._markedForLayout) {
 					UI._elementLayoutCount++;
@@ -186,19 +196,19 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			}
 		},
 		
-		_measureNode: function(node, layoutCoefficients) {
+		_measureNode: function(node, layoutCoefficients, self) {
 			
 			node._needsMeasuring = false;
 			
 			// Pre-processing
-			var getValueType = this.getValueType,
-				computeValue = this.computeValue,
+			var getValueType = self.getValueType,
+				computeValue = self.computeValue,
 			
-				width = this._getWidth(node),
+				width = self._getWidth(node),
 				widthType = getValueType(width),
 				widthValue = computeValue(width, widthType),
 				
-				height = this._getHeight(node),
+				height = self._getHeight(node),
 				heightType = getValueType(height),
 				heightValue = computeValue(height, heightType),
 				
@@ -345,7 +355,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 					x2 = -1;
 					x3 = -endValue;
 				} else { 
-					switch(i === "left" ? this._defaultHorizontalAlignment : this._defaultVerticalAlignment) {
+					switch(i === "left" ? self._defaultHorizontalAlignment : self._defaultVerticalAlignment) {
 						case "center": 
 							x1 = 0.5;
 							x2 = -0.5;

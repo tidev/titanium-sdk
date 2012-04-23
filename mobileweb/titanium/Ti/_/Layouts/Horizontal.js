@@ -6,7 +6,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 	return declare("Ti._.Layouts.Horizontal", Base, {
 
 		_doLayout: function(element, width, height, isWidthSize, isHeightSize) {
-			var computedSize = this._computedSize = {width: 0, height: 0},
+			var computedSize = {width: 0, height: 0},
 				children = element.children,
 				child,
 				i, j,
@@ -21,22 +21,29 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				deferredTopCalculations = [],
 				deferHeight,
 				sizeHeight,
-				verticalAlignmentOffset = 0;
+				verticalAlignmentOffset = 0,
+				len, rowLen,
+				verifyChild = this.verifyChild,
+				updateBorder = this.updateBorder,
+				measureNode = this._measureNode;
 				
 			// Calculate horizontal size and position for the children
-			for(i = 0; i < children.length; i++) {
+			len = children.length
+			for(i = 0; i < len; i++) {
 				
 				child = element.children[i];
-				if (this.verifyChild(child,element)) {
+				if (!child._alive || !child.domNode) {
+					this.handleInvalidState(child,element);
+				} else {
 					
 					// Border validation
 					if (!child._borderSet) {
-						this.updateBorder(child);
+						updateBorder(child);
 					}
 					child._measuredRunningWidth = runningWidth;
 					
 					if (child._markedForLayout) {
-						((child._preLayout && child._preLayout(width, height, isWidthSize, isHeightSize)) || child._needsMeasuring) && this._measureNode(child, child._layoutCoefficients);
+						((child._preLayout && child._preLayout(width, height, isWidthSize, isHeightSize)) || child._needsMeasuring) && measureNode(child, child._layoutCoefficients, this);
 									
 						layoutCoefficients = child._layoutCoefficients;
 						widthLayoutCoefficients = layoutCoefficients.width;
@@ -89,14 +96,15 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			}
 			
 			// Calculate vertical size and position for the children
-			runningHeight = 0;
-			for(i = 0; i < rows.length; i++) {
+			len = rows.length
+			for(i = 0; i < len; i++) {
 				row = rows[i];
 				rowHeight = 0;
-				for (j = 0; j < row.length; j++) {
+				rowLen = row.length
+				for (j = 0; j < rowLen; j++) {
 					child = row[j];
 					
-					if (this.verifyChild(child,element) && child._markedForLayout) {
+					if (child._markedForLayout) {
 						layoutCoefficients = child._layoutCoefficients;
 						topLayoutCoefficients = layoutCoefficients.top;
 						heightLayoutCoefficients = layoutCoefficients.height;
@@ -132,14 +140,16 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			
 			// Second pass, if necessary, to determine the top values
 			runningHeight = 0;
-			for(i = 0; i < rows.length; i++) {
+			len = rows.length;
+			for(i = 0; i < len; i++) {
 				row = rows[i];
 				rowHeight = rowHeights[i];
-				for (j = 0; j < row.length; j++) {
+				rowLen = row.length;
+				for (j = 0; j < rowLen; j++) {
 					child = row[j];
 					child._measuredRunningHeight = runningHeight;
 					child._measuredRowHeight = rowHeight;
-					if (~deferredTopCalculations.indexOf(child) && this.verifyChild(child,element) && child._markedForLayout) {
+					if (~deferredTopCalculations.indexOf(child) && child._markedForLayout) {
 						measuredHeight = child._measuredHeight;
 						topLayoutCoefficients = child._layoutCoefficients.top;
 						child._measuredTop = topLayoutCoefficients.x1 * height + topLayoutCoefficients.x2 * rowHeight + topLayoutCoefficients.x3 * measuredHeight + topLayoutCoefficients.x4 + runningHeight;
@@ -160,7 +170,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			}
 			
 			// Position the children
-			for(i = 0; i < children.length; i++) {
+			len = children.length
+			for(i = 0; i < len; i++) {
 				child = children[i];
 				if (child._markedForLayout) {
 					UI._elementLayoutCount++;
@@ -247,19 +258,19 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			}
 		},
 		
-		_measureNode: function(node, layoutCoefficients) {
+		_measureNode: function(node, layoutCoefficients, self) {
 			
 			node._needsMeasuring = false;
 			
 			// Pre-processing
-			var getValueType = this.getValueType,
-				computeValue = this.computeValue,
+			var getValueType = self.getValueType,
+				computeValue = self.computeValue,
 			
-				width = this._getWidth(node),
+				width = self._getWidth(node),
 				widthType = getValueType(width),
 				widthValue = computeValue(width, widthType),
 				
-				height = this._getHeight(node),
+				height = self._getHeight(node),
 				heightType = getValueType(height),
 				heightValue = computeValue(height, heightType),
 				
@@ -348,7 +359,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			} else if(topType === "#") {
 				x4 = topValue;
 			} else { 
-				switch(this._defaultRowAlignment) {
+				switch(self._defaultRowAlignment) {
 					case "center": 
 						x2 = 0.5;
 						x3 = -0.5;
