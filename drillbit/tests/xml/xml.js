@@ -441,6 +441,7 @@ describe("Ti.XML tests", {
 		// Per spec, value in new attribute should be empty string
 		valueOf(attr.value).shouldNotBeNull();
 		valueOf(attr.value).shouldBeExactly("");
+		valueOf(attr.ownerDocument).shouldBe(doc);
 
 		attr = null;
 		valueOf(doc.createAttributeNS).shouldBeFunction();
@@ -452,6 +453,7 @@ describe("Ti.XML tests", {
 		valueOf(attr.prefix).shouldBe("prefix");
 		valueOf(attr.value).shouldNotBeNull();
 		valueOf(attr.value).shouldBeExactly("");
+		valueOf(attr.ownerDocument).shouldBe(doc);
 	},
 	apiXmlDocumentCreateCDATASection: function() {
 		var doc = Ti.XML.parseString("<test/>");
@@ -462,6 +464,7 @@ describe("Ti.XML tests", {
 		valueOf(section).shouldBeObject();
 		valueOf(section.text).shouldBe(data);
 		valueOf(section.textContent).shouldBe(data);
+		valueOf(section.ownerDocument).shouldBe(doc);
 	},
 	apiXmlDocumentCreateComment: function() {
 		var doc = Ti.XML.parseString("<test/>");
@@ -471,6 +474,7 @@ describe("Ti.XML tests", {
 		valueOf(comment).shouldNotBeNull();
 		valueOf(comment).shouldBeObject();
 		valueOf(comment.data).shouldBe(data);
+		valueOf(comment.ownerDocument).shouldBe(doc);
 	},
 	apiXmlDocumentCreateDocumentFragment: function() {
 		var doc = Ti.XML.parseString("<test/>");
@@ -478,6 +482,7 @@ describe("Ti.XML tests", {
 		var frag = doc.createDocumentFragment();
 		valueOf(frag).shouldNotBeNull();
 		valueOf(frag).shouldBeObject();
+		valueOf(frag.ownerDocument).shouldBe(doc);
 	},
 	apiXmlDocumentCreateElement: function() {
 		var doc = Ti.XML.parseString("<test/>");
@@ -489,6 +494,7 @@ describe("Ti.XML tests", {
 		valueOf(elem.localName).shouldBeNull();
 		valueOf(elem.prefix).shouldBeNull();
 		valueOf(elem.namespaceURI).shouldBeNull();
+		valueOf(elem.ownerDocument).shouldBe(doc);
 	},
 	apiXmlDocumentCreateElementNS: function() {
 		var doc = Ti.XML.parseString("<test/>");
@@ -500,6 +506,7 @@ describe("Ti.XML tests", {
 		valueOf(elem.localName).shouldBe("myelement");
 		valueOf(elem.prefix).shouldBe("prefix");
 		valueOf(elem.namespaceURI).shouldBe("http://example.com");
+		valueOf(elem.ownerDocument).shouldBe(doc);
 	},
 	apiXmlDocumentCreateEntityReference: function() {
 		var doc = Ti.XML.parseString("<test/>");
@@ -508,6 +515,7 @@ describe("Ti.XML tests", {
 		valueOf(entity).shouldNotBeNull();
 		valueOf(entity).shouldBeObject();
 		valueOf(entity.nodeName).shouldBe("myentity");
+		valueOf(entity.ownerDocument).shouldBe(doc);
 	},
 	apiXmlDocumentCreateProcessingInstruction: function() {
 		var doc = Ti.XML.parseString("<test/>");
@@ -517,6 +525,7 @@ describe("Ti.XML tests", {
 		valueOf(instruction).shouldBeObject();
 		valueOf(instruction.target).shouldBe("a");
 		valueOf(instruction.data).shouldBe("b");
+		valueOf(instruction.ownerDocument).shouldBe(doc);
 	},
 	apiXmlDocumentCreateTextNode: function() {
 		var doc = Ti.XML.parseString("<test/>");
@@ -526,6 +535,7 @@ describe("Ti.XML tests", {
 		valueOf(text).shouldNotBeNull();
 		valueOf(text).shouldBeObject();
 		valueOf(text.data).shouldBe(value);
+		valueOf(text.ownerDocument).shouldBe(doc);
 	},
 	apiXmlDocumentGetElementById: function() {
 		var doc = Ti.XML.parseString(this.testSource["nodes.xml"]);
