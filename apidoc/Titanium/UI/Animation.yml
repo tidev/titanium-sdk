@@ -144,6 +144,7 @@ properties:
     type: Number
   - name: zIndex
     summary: Value of the `zIndex` property at the end of the animation.
+    description: Refer to <Titanium.UI.View.zIndex> for an explanation of z-index.
     type: Number
     platforms: [iphone, ipad, mobileweb]
     
