@@ -95,18 +95,19 @@ description:  |
     Many UI components have properties that control their color.
     
     Colors may be specified as a hex triplet to determine the red, green and blue channels. Thus, 
-    `'#000000'` is specified for black, `'#ff0000'` for red, `'#00ff00'` for green, `'#0000ff'` for blue, 
-    and `'#ffffff'` for white, etc. A channel may be abbreviated when its two hex digits are identical, 
-    such as `'#000'`, `'#f00'`, `'#0f0#'`, `'#00f'` and `'#fff'` for the above colors, respectively.
+    `'#000000'` is specified for black, `'#ff0000'` for red, `'#00ff00'` for green, `'#0000ff'` for 
+    blue, and `'#ffffff'` for white, etc. A channel may be abbreviated when its two hex digits are 
+    identical, such as `'#000'`, `'#f00'`, `'#0f0#'`, `'#00f'` and `'#fff'` for the above colors, 
+    respectively.
     
-    On iOS, an additional alpha channel is supported as a prefix to the hex triplet. So, to make 
+    An additional alpha channel is supported as a prefix to the hex triplet. So, to make 
     the purple-like color `'#ff00ff'` semi-opaque, you could use an alpha value of `'55'`, giving, 
     `'#55ff00ff'` or `'#5f0f'`.
     
     iOS also accepts colors specified in the form, `(red,green,blue)` and `(red,green,blue,alpha)`, 
-    with the color channels represented by integers between `0` and `255` and the alpha channel by 
-    a float between `0` and `1.0` and . For example, an opaque purple could be obtained using 
-    `'(255,0,255)'` and a semi-opaque purple using `'(255,0,255,0.3)'`.
+    with the color channels represented by integer numbers between `0` and `255` and the alpha 
+    channel by a float number between `0` and `1.0`. For example, an opaque purple could be obtained 
+    using `'(255,0,255)'` and a semi-opaque purple using `'(255,0,255,0.3)'`.
     
     Alternatively, the following set of color names are recognized.
     
@@ -119,8 +120,9 @@ description:  |
     
     All color properties also accept a value of `'transparent'`.
     
-    If a color name is not recognized or is not specified for a property, the default color of the 
-    particular UI element is applied.
+    If a color property is undefined, the default color of the particular UI element is applied. 
+    If a color value is not valid on iOS, the default color is applied, whereas on Android, the color 
+    yellow is applied.
     
     Note that while the pound symbol is not mandatory on iOS when using the hex triplet format, it 
     is recommended to provide compatibility with other platforms.
@@ -1018,8 +1020,9 @@ examples:
             var colorArray = [
               '#ff00ff', '#f0f', 'f0f', 'ff00ff', '(255,0,255)',
               'transparent', '#55ff00ff', '#5f0f', '55ff00ff', '5f0f', '(255,0,255,0.3)',
-              'aqua', 'black', 'blue', 'brown', 'cyan', 'darkgray', 'fuchsia', 'gray', 'green', 'lightgray', 'lime',
-              'magenta', 'maroon', 'navy', 'olive', 'orange', 'pink', 'purple', 'red', 'silver', 'teal', 'white', 'yellow',
+              'aqua', 'black', 'blue', 'brown', 'cyan', 'darkgray', 'fuchsia', 'gray', 'green', 
+              'lightgray', 'lime', 'magenta', 'maroon', 'navy', 'olive', 'orange', 
+              'pink', 'purple', 'red', 'silver', 'teal', 'white', 'yellow'
             ];
             var win = Ti.UI.createWindow({
               backgroundColor: 'black',
@@ -1041,7 +1044,8 @@ examples:
             }
             var table = Ti.UI.createTableView({
               data: rows,
-              backgroundColor: 'stripped' // available for tableview only. Supported on iphone and ipod touch only
+              backgroundColor: 'white'
             });
             win.add(table);
             win.open();
+        
