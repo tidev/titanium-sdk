@@ -19,8 +19,7 @@ exports.bootstrap = function(Titanium) {
 		}
 
 		this.setWindow(window);
-		options.tabOpen = true;
-
+        
 		window.open(options);
 	}
 
