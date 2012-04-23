@@ -31,7 +31,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						this.updateBorder(child);
 					}
 					
-					//if (child._markedForLayout) {
+					if (child._markedForLayout) {
 						((child._preLayout && child._preLayout(width, height, isWidthSize, isHeightSize)) || child._needsMeasuring) && this._measureNode(child);
 									
 						layoutCoefficients = child._layoutCoefficients;
@@ -67,7 +67,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						} else {
 							fillCount++;
 						}
-					//}
+					}
 				}
 			}
 			
@@ -77,7 +77,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				
 				child = element.children[i];
 				if (this.verifyChild(child,element)) {
-					//if (child._markedForLayout) {
+					if (child._markedForLayout) {
 									
 						layoutCoefficients = child._layoutCoefficients;
 						widthLayoutCoefficients = layoutCoefficients.width;
@@ -107,7 +107,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 							
 							measuredSandboxWidth = child._measuredSandboxWidth = sandboxWidthLayoutCoefficients.x1 * width + sandboxWidthLayoutCoefficients.x2 + measuredWidth;
 						}
-					//}
+					}
 				}
 			}
 			
@@ -117,7 +117,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				
 				child = element.children[i];
 				if (this.verifyChild(child,element)) {
-					//if (child._markedForLayout) {
+					if (child._markedForLayout) {
 						layoutCoefficients = child._layoutCoefficients;
 						sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
 						topLayoutCoefficients = layoutCoefficients.top;
@@ -134,7 +134,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						}
 						measuredLeft = child._measuredLeft = leftLayoutCoefficients.x1 * width + leftLayoutCoefficients.x2 + runningWidth;
 						runningWidth += child._measuredSandboxWidth;
-					//}
+					}
 				}
 			}
 			computedSize.width = runningWidth;
@@ -163,19 +163,20 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			
 			// Position the children
 			for(i = 0; i < children.length; i++) {
-				
-				UI._elementLayoutCount++;
-				
-				// Set and store the dimensions
 				child = children[i];
-				setStyle(child.domNode, {
-					zIndex: child.zIndex | 0,
-					left: Math.round(child._measuredLeft) + pixelUnits,
-					top: Math.round(child._measuredTop) + pixelUnits,
-					width: Math.round(child._measuredWidth - child._borderLeftWidth - child._borderRightWidth) + pixelUnits,
-					height: Math.round(child._measuredHeight - child._borderTopWidth - child._borderBottomWidth) + pixelUnits
-				});
-				child.fireEvent("postlayout");
+				if (child._markedForLayout) {
+					UI._elementLayoutCount++;
+					child = children[i];
+					setStyle(child.domNode, {
+						zIndex: child.zIndex | 0,
+						left: Math.round(child._measuredLeft) + pixelUnits,
+						top: Math.round(child._measuredTop) + pixelUnits,
+						width: Math.round(child._measuredWidth - child._borderLeftWidth - child._borderRightWidth) + pixelUnits,
+						height: Math.round(child._measuredHeight - child._borderTopWidth - child._borderBottomWidth) + pixelUnits
+					});
+					child._markedForLayout = false;
+					child.fireEvent("postlayout");
+				}
 			}
 			
 			return this._computedSize = computedSize;
@@ -214,6 +215,17 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			} else {
 				return height;
 			}
+		},
+		
+		_isDependentOnParent: function(node){
+			var layoutCoefficients = node._layoutCoefficients;
+			return (!isNaN(layoutCoefficients.width.x1) && layoutCoefficients.width.x1 !== 0) ||
+				(!isNaN(layoutCoefficients.width.x2) && layoutCoefficients.width.x2 !== 0) || // width
+				(!isNaN(layoutCoefficients.height.x1) && layoutCoefficients.height.x1 !== 0) || // height
+				layoutCoefficients.sandboxWidth.x1 !== 0 || // sandbox width
+				layoutCoefficients.sandboxHeight.x1 !== 0 || // sandbox height
+				layoutCoefficients.left.x1 !== 0 // left
+				layoutCoefficients.top.x1 !== 0; // top
 		},
 		
 		_measureNode: function(node) {

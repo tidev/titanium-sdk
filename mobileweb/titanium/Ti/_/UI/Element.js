@@ -180,11 +180,11 @@ define(
 		
 		_add: function(view) {
 			view._setParent(this);
-			view._needsMeasuring = true;
 			
 			this.children.push(view);
 			this.containerNode.appendChild(view.domNode);
-			this._triggerLayout(this._isAttachedToActiveWin());
+			
+			view._triggerLayout();
 		},
 
 		_insertAt: function(view,index) {
@@ -242,6 +242,8 @@ define(
 			}
 			return isAttachedToActiveWin;
 		},
+		
+		_needsMeasuring: true,
 		
 		_triggerLayout: function(force) {
 			this._needsMeasuring = true;

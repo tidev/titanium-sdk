@@ -163,10 +163,11 @@ define(
 					recursionStack,
 					rootNodesToLayout = [],
 					layoutRootNode = false,
-					breakAfterChildrenCalculations;
+					breakAfterChildrenCalculations,
+					container = self._container;
 					
 				// Determine which nodes need to be re-layed out
-				/*for (var i in nodes) {
+				for (var i in nodes) {
 					layoutNode = nodes[i];
 						
 					// Mark all of the children for update that need to be updated
@@ -177,7 +178,7 @@ define(
 						children = node.children;
 						for (var j in children) {
 							child = children[j];
-							if (node.layout !== "composite" || child._isDependentOnParent() || !child._hasBeenLayedOut) {
+							if (node.layout !== "composite" || child._needsMeasuring || node._layout._isDependentOnParent(child)) {
 								recursionStack.push(child);
 							}
 						}
@@ -185,43 +186,45 @@ define(
 					
 					// Go up and mark any other nodes that need to be marked
 					parent = layoutNode;
-					while(1) {
-						breakAfterChildrenCalculations = false;
-						if (!parent._parent) {
-							layoutRootNode = true;
-							break;
-						} else if(!parent._parent._hasSizeDimensions()) {
-							!parent._parent._markedForLayout && !~rootNodesToLayout.indexOf(parent._parent) && rootNodesToLayout.push(parent._parent);
-							if (parent._parent.layout !== "composite") {
+					if (layoutNode === container) {
+						layoutRootNode = true;
+					} else {
+						while(1) {
+							
+							parent._markedForLayout = true;
+							previousParent = parent;
+							parent = parent._parent;
+							
+							// Check if this parent is the stopping point
+							breakAfterChildrenCalculations = false;
+							if (parent === container) {
+								layoutRootNode = true;
+								break;
+							} else if(!parent._hasSizeDimensions() && !parent._needsMeasuring) {
+								!parent._markedForLayout && !~rootNodesToLayout.indexOf(parent) && rootNodesToLayout.push(parent);
 								breakAfterChildrenCalculations = true;
-							} else {
+							}
+							
+							// Recurse through the children of the parent
+							recursionStack = [parent];
+							while (recursionStack.length > 0) {
+								node = recursionStack.pop();
+								children = node.children;
+								for (var j in children) {
+									child = children[j];
+									if (child !== previousParent){// && (node.layout !== "composite" || child._needsMeasuring || node._layout._isDependentOnParent(child))) {
+										child._markedForLayout = true;
+										recursionStack.push(child);
+									}
+								}
+							}
+							
+							if (breakAfterChildrenCalculations) {
 								break;
 							}
 						}
-						parent._markedForLayout = true;
-						
-						previousParent = parent;
-						parent = parent._parent;
-						recursionStack = [parent];
-						while (recursionStack.length > 0) {
-							node = recursionStack.pop();
-							children = node.children;
-							for (var j in children) {
-								child = children[j];
-								if (child !== previousParent && (node.layout !== "composite" || child._isDependentOnParent())) {
-									child._markedForLayout = true;
-									recursionStack.push(child);
-								}
-							}
-						}
-						if (breakAfterChildrenCalculations) {
-							break;
-						}
 					}
-				}*/
-				
-				// TODO Reinstate and fix optimization code
-				layoutRootNode = true;
+				}
 				
 				// Layout all nodes that need it
 				if (layoutRootNode) {
@@ -234,7 +237,7 @@ define(
 				}
 				for (var i in rootNodesToLayout) {
 					node = rootNodesToLayout[i];
-					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node._getInheritedWidth() === Ti.UI.SIZE, node._getInheritedHeight() === Ti.UI.SIZE);
+					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node._parent._layout._getWidth(node) === Ti.UI.SIZE, node._parent._layout._getHeight(node) === Ti.UI.SIZE);
 				}
 				
 				showStats && console.debug("Layout " + self._layoutCount + ": " + self._elementLayoutCount + 
