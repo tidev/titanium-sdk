@@ -45,7 +45,6 @@ import android.os.Message;
 
 public class TiLocation implements Handler.Callback
 {
-	public static final int ERR_POSITION_UNAVAILABLE = 2;
 	public static final int MSG_FIRST_ID = 100;
 	public static final int MSG_LOOKUP = MSG_FIRST_ID + 1;
 	public static final int MSG_LAST_ID = MSG_FIRST_ID + 2;

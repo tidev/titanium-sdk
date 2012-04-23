@@ -248,7 +248,7 @@ public class GeolocationModule extends KrollModule
 	 */
 	public void onProviderStateChanged(String providerName, int state)
 	{
-		String message = providerName;
+		String message = (providerName == null)?"Provider":providerName;
 
 		// TODO this is trash.  deprecate the existing mechanism of bundling status updates with the
 		// location event and create a new "locationState" (or whatever) event.  for the time being, 
@@ -726,7 +726,7 @@ public class GeolocationModule extends KrollModule
 			} else {
 				Log.e(TAG, "unable to get current position, location is null");
 				callback.call(this.getKrollObject(), new Object[] {
-					TiConvert.toErrorObject(TiLocation.ERR_POSITION_UNAVAILABLE, "location is currently unavailable.")
+					TiConvert.toErrorObject(LocationProviderProxy.ERR_POSITION_UNAVAILABLE, "location is currently unavailable.")
 				});
 			}
 		}
