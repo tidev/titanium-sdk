@@ -591,11 +591,10 @@ public class TiConvert
 	//Error
 	public static HashMap<String, Object> toErrorObject(int code, String msg)
 	{
-		HashMap<String, Object> d = new HashMap<String, Object>(1);
-		HashMap<String, Object> e = new HashMap<String, Object>();
-		e.put(TiC.ERROR_PROPERTY_CODE, code);
-		e.put(TiC.ERROR_PROPERTY_MESSAGE, msg);
-		d.put(TiC.EVENT_PROPERTY_ERROR, e);
+		HashMap<String, Object> d = new HashMap<String, Object>(3);
+		d.put(TiC.ERROR_PROPERTY_CODE, code);
+		d.put(TiC.EVENT_PROPERTY_ERROR, msg);
+		d.put(TiC.PROPERTY_SUCCESS, false);
 
 		return d;
 	}
