@@ -33,9 +33,10 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 					if (!child._borderSet) {
 						this.updateBorder(child);
 					}
+					child._measuredRunningWidth = runningWidth;
 					
 					if (child._markedForLayout) {
-						((child._preLayout && child._preLayout(width, height, isWidthSize, isHeightSize)) || child._needsMeasuring) && this._measureNode(child);
+						((child._preLayout && child._preLayout(width, height, isWidthSize, isHeightSize)) || child._needsMeasuring) && this._measureNode(child, child._layoutCoefficients);
 									
 						layoutCoefficients = child._layoutCoefficients;
 						widthLayoutCoefficients = layoutCoefficients.width;
@@ -94,7 +95,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				rowHeight = 0;
 				for (j = 0; j < row.length; j++) {
 					child = row[j];
-				
+					
 					if (this.verifyChild(child,element) && child._markedForLayout) {
 						layoutCoefficients = child._layoutCoefficients;
 						topLayoutCoefficients = layoutCoefficients.top;
@@ -136,7 +137,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				rowHeight = rowHeights[i];
 				for (j = 0; j < row.length; j++) {
 					child = row[j];
-				
+					child._measuredRunningHeight = runningHeight;
+					child._measuredRowHeight = rowHeight;
 					if (~deferredTopCalculations.indexOf(child) && this.verifyChild(child,element) && child._markedForLayout) {
 						measuredHeight = child._measuredHeight;
 						topLayoutCoefficients = child._layoutCoefficients.top;
@@ -225,7 +227,27 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				layoutCoefficients.top.x1 !== 0; // top
 		},
 		
-		_measureNode: function(node) {
+		_doAnimationLayout: function(node, animationCoefficients) {
+			
+			var parentWidth = node._parent._measuredWidth,
+				parentHeight = node._parent._measuredHeight,
+				nodeWidth = node._measuredWidth,
+				nodeHeight = node._measuredHeight,
+				runningWidth = node._measuredRunningWidth,
+				runningHeight = node._measuredRunningHeight,
+				rowHeight = node._measuredRowHeight,
+				width = animationCoefficients.width.x1 * parentWidth + animationCoefficients.width.x2 * (parentWidth - runningWidth) + animationCoefficients.width.x3,
+				height = animationCoefficients.height.x1 * parentHeight + animationCoefficients.height.x2 * (parentHeight - runningHeight) + animationCoefficients.height.x3;
+			
+			return {
+				width: width,
+				height: height,
+				left: animationCoefficients.left.x1 * parentWidth + animationCoefficients.left.x2  + runningWidth,
+				top: animationCoefficients.top.x1 * parentHeight + animationCoefficients.top.x2 * rowHeight + animationCoefficients.top.x3 * nodeHeight + animationCoefficients.top.x4 + runningHeight
+			}
+		},
+		
+		_measureNode: function(node, layoutCoefficients) {
 			
 			node._needsMeasuring = false;
 			
@@ -259,7 +281,6 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				
 				x1, x2, x3, x4,
 				
-				layoutCoefficients = node._layoutCoefficients,
 				widthLayoutCoefficients = layoutCoefficients.width,
 				heightLayoutCoefficients = layoutCoefficients.height,
 				sandboxWidthLayoutCoefficients = layoutCoefficients.sandboxWidth,

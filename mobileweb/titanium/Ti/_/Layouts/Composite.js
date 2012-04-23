@@ -1,7 +1,8 @@
 define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"], function(Base, declare, UI, lang, style) {
 	
 	var isDef = lang.isDef,
-		setStyle = style.set;
+		setStyle = style.set,
+		pixelUnits = "px";
 
 	return declare("Ti._.Layouts.Composite", Base, {
 		
@@ -14,7 +15,6 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				widthLayoutCoefficients, heightLayoutCoefficients, sandboxWidthLayoutCoefficients, sandboxHeightLayoutCoefficients, topLayoutCoefficients, leftLayoutCoefficients, 
 				childSize,
 				measuredWidth, measuredHeight, measuredSandboxHeight, measuredSandboxWidth, measuredLeft, measuredTop,
-				pixelUnits = "px",
 				deferredLeftCalculations = [],
 				deferredTopCalculations = [];
 			
@@ -30,7 +30,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 					}
 					
 					if (child._markedForLayout) {
-						((child._preLayout && child._preLayout(width, height, isWidthSize, isHeightSize)) || child._needsMeasuring) && this._measureNode(child);
+						((child._preLayout && child._preLayout(width, height, isWidthSize, isHeightSize)) || child._needsMeasuring) && this._measureNode(child, child._layoutCoefficients);
 						
 						layoutCoefficients = child._layoutCoefficients;
 						widthLayoutCoefficients = layoutCoefficients.width;
@@ -169,7 +169,24 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				layoutCoefficients.top.x1 !== 0; // top
 		},
 		
-		_measureNode: function(node) {
+		_doAnimationLayout: function(node, animationCoefficients) {
+			
+			var parentWidth = node._parent._measuredWidth,
+				parentHeight = node._parent._measuredHeight,
+				nodeWidth = node._measuredWidth,
+				nodeHeight = node._measuredHeight,
+				width = animationCoefficients.width.x1 * parentWidth + animationCoefficients.width.x2,
+				height = animationCoefficients.height.x1 * parentHeight + animationCoefficients.height.x2;
+			
+			return {
+				width: width,
+				height: height,
+				left: animationCoefficients.left.x1 * parentWidth + animationCoefficients.left.x2 * width + animationCoefficients.left.x3,
+				top: animationCoefficients.top.x1 * parentHeight + animationCoefficients.top.x2 * height + animationCoefficients.top.x3
+			}
+		},
+		
+		_measureNode: function(node, layoutCoefficients) {
 			
 			node._needsMeasuring = false;
 			
@@ -211,7 +228,6 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				
 				x1, x2, x3,
 				
-				layoutCoefficients = node._layoutCoefficients,
 				sandboxWidthLayoutCoefficients = layoutCoefficients.sandboxWidth,
 				sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
 			

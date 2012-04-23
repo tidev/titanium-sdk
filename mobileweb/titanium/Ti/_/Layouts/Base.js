@@ -1,6 +1,7 @@
 define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/lang", "Ti/UI"], function(css, declare, style, dom, lang, UI) {
 	
-	var isDef = lang.isDef;
+	var isDef = lang.isDef,
+		val = lang.val;
 
 	return declare("Ti._.Layouts.Base", null, {
 		
@@ -28,6 +29,48 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/lang", "Ti/U
 		getValueType: function(value) {
 			var match = isDef(value) && (value + "").match(/^([+-]?(((\d+(\.)?)|(\d*\.\d+))([eE][+-]?\d+)?))?(.*)$/);
 			return match && (match[8] !== UI.SIZE && match[8] !== UI.FILL && match[8] !== "%" ? "#" : match[8]);
+		},
+		
+		calculateAnimation: function(node, animation) {
+			var animationCoefficients = node._animationCoefficients,
+				center,
+				results,
+				pixelUnits = "px";
+				
+			node.center || animation.center && (center = {});
+			if (center) {
+				center.x = val(animation.center && animation.center.x, node.center && node.center.x);
+				center.y = val(animation.center && animation.center.y, node.center && node.center.y);
+			}
+			
+			!animationCoefficients && (animationCoefficients = node._animationCoefficients = {
+				width: {},
+				sandboxWidth: {},
+				height: {},
+				sandboxHeight: {},
+				left: {},
+				top: {}
+			});
+			
+			this._measureNode({
+				left: val(animation.left,node.left),
+				right: val(animation.right,node.right),
+				top: val(animation.top,node.top),
+				bottom: val(animation.bottom,node.bottom),
+				center: center,
+				width: val(animation.width,node.width),
+				height: val(animation.height,node.height),
+			},animationCoefficients);
+			
+			results = this._doAnimationLayout(node, animationCoefficients);
+			
+			style.set(node.domNode, {
+				zIndex: node.zIndex | 0,
+				left: Math.round(results.left) + pixelUnits,
+				top: Math.round(results.top) + pixelUnits,
+				width: Math.round(results.width - node._borderLeftWidth - node._borderRightWidth) + pixelUnits,
+				height: Math.round(results.height - node._borderTopWidth - node._borderBottomWidth) + pixelUnits
+			});
 		},
 		
 		computeValue: function(dimension, valueType) {
