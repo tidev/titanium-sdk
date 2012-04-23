@@ -345,7 +345,7 @@ public class WebViewProxy extends ViewProxy
 			return;
 		}
 
-		nativeWebView.destroy();
+		nativeWebView.stopLoading();
 		super.releaseViews();
 	}
 	
