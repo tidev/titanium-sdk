@@ -291,11 +291,10 @@ public class TiUrl
 		}
 	}
 	
-	public static Uri getCleanUri(String argString) {
-		try
-		{
-			if (argString == null)
-			{
+	public static Uri getCleanUri(String argString) 
+	{
+		try {
+			if (argString == null) {
 				return null;
 			}
 			
@@ -319,9 +318,7 @@ public class TiUrl
 			builder.encodedAuthority(encodedAuthority);
 			builder.encodedPath(Uri.encode(Uri.decode(base.getPath()), "/"));
 			return builder.build();
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			Log.e(TAG, "Exception in getCleanUri argString= " + argString, e);
 			return null;
 		}
