@@ -92,24 +92,38 @@ description:  |
     
     #### Colors
     
-    Many UI components have properties that control their color in various respects.
+    Many UI components have properties that control their color.
     
-    Colors may be specified as a hex triplet, such as `#ffffff` for white, `#000000` for black, 
-    `#ff0000` for red, `#00ff00` for green and `#0000ff` for blue, etc.
+    Colors may be specified as a hex triplet to determine the red, green and blue channels. Thus, 
+    `'#000000'` is specified for black, `'#ff0000'` for red, `'#00ff00'` for green, `'#0000ff'` for blue, 
+    and `'#ffffff'` for white, etc. A channel may be abbreviated when its two hex digits are identical, 
+    such as `'#000'`, `'#f00'`, `'#0f0#'`, `'#00f'` and `'#fff'` for the above colors, respectively.
+    
+    On iOS, an additional alpha channel is supported as a prefix to the hex triplet. So, to make 
+    the purple-like color `'#ff00ff'` semi-opaque, you could use an alpha value of `'55'`, giving, 
+    `'#55ff00ff'` or `'#5f0f'`.
+    
+    iOS also accepts colors specified in the form, `(red,green,blue)` and `(alpha,red,green,blue)`, 
+    with the alpha channel represented by a float between `0` and `1.0` and the color channels by 
+    integers between `0` and `255`. For example, an opaque purple could be obtained using `'(255,0,255)'` 
+    and a semi-opaque purple using `'(0.3,255,0,255)'`.
     
     Alternatively, the following set of color names are recognized.
     
-    `aqua`, `black`, `blue`, `brown`, `cyan`, `darkgray`, `fuchsia`, `gray`, `green`, `lightgray`, 
-    `lime`, `magenta`, `maroon`, `navy`, `olive`, `orange`, `pink`, `purple`, `red`, `silver`, 
-    `teal`, `white`, `yellow`.
+    `'aqua'`, `'black'`, `'blue'`, `'brown'`, `'cyan'`, `'darkgray'`, `'fuchsia'`, `'gray'`, 
+    `'green'`, `'lightgray'`, `'lime'`, `'magenta'`, `'maroon'`, `'navy'`, `'olive'`, `'orange'`, 
+    `'pink'`, `'purple'`, `'red'`, `'silver'`, `'teal'`, `'white'`, `'yellow'`.
     
-    Note that, currently, Android does not support the color name `brown` and iOS does not support 
-    `aqua`, `fuchsia`, `lime` or `maroon`
+    Note that, currently, Android does not support the color name `'brown'` and iOS does not support 
+    `'aqua'`, `'fuchsia'`, `'lime'` or `'maroon'`
     
-    Color properties may also be set to `transparent`.
+    All color properties also accept a value of `'transparent'`.
     
-    If a color name is not recognized or is not specified for a property, a default color of the 
+    If a color name is not recognized or is not specified for a property, the default color of the 
     particular UI element is applied.
+    
+    Note that while the pound symbol is not mandatory on iOS when using the hex triplet format, it 
+    is recommended to provide compatibility with other platforms.
 extends: Titanium.Module
 since: "0.4"
 
