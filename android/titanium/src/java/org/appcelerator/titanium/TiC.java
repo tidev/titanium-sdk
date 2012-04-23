@@ -171,6 +171,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_PINCH = "pinch";	
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PLAYBACK_STATE = "playbackState";
 
 	/**
@@ -286,6 +291,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_PROPERTY_SCALE = "scale";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PROPERTY_SEARCH_MODE = "searchMode";
 
 	/**
@@ -317,6 +327,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_PROPERTY_TYPE = "type";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_VELOCITY = "velocity";
 
 	/**
 	 * @module.api

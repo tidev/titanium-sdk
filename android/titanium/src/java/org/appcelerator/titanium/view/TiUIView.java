@@ -38,6 +38,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.ScaleGestureDetector;
+import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -909,6 +911,32 @@ public abstract class TiUIView
 	{
 		
 		touchView = new WeakReference<View>(touchable);
+
+		final ScaleGestureDetector scaleDetector = new ScaleGestureDetector(touchable.getContext(),
+			new SimpleOnScaleGestureListener() {
+				// protect from divide by zero errors
+				long minTimeDelta = 1;
+				float minStartSpan = 1.0f;
+				float startSpan;
+				@Override
+				public boolean onScale(ScaleGestureDetector sgd) {
+					if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
+						float timeDelta = sgd.getTimeDelta() == 0 ? minTimeDelta : sgd.getTimeDelta();
+						KrollDict data = new KrollDict();
+						data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
+						data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
+						data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+						return proxy.fireEvent(TiC.EVENT_PINCH, data);
+					}
+					return false;
+				}
+				@Override
+				public boolean onScaleBegin(ScaleGestureDetector sgd) {
+					startSpan = sgd.getCurrentSpan() == 0 ? minStartSpan : sgd.getCurrentSpan();
+					return true;
+				}
+			});
+
 		final GestureDetector detector = new GestureDetector(touchable.getContext(),
 			new SimpleOnGestureListener() {
 				@Override
@@ -973,6 +1001,12 @@ public abstract class TiUIView
 					lastUpEvent.put(TiC.EVENT_PROPERTY_X, (double)event.getX());
 					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, (double)event.getY());
 				}
+				
+				scaleDetector.onTouchEvent(event);
+				if (scaleDetector.isInProgress()) {
+					return true;
+				}
+
 				boolean handled = detector.onTouchEvent(event);
 				if (handled) {
 					return true;
