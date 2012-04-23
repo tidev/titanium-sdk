@@ -296,6 +296,8 @@ public class TiTableView extends FrameLayout
 				boolean fireScroll = scrollValid;
 				if (!fireScroll && visibleItemCount > 0)
 				{
+					//Items in a list can be selected with a track ball in which case
+					//we must check to see if the first visibleItem has changed.
 					fireScroll = (lastValidfirstItem != firstVisibleItem);
 				}
 				if(fireScroll)
