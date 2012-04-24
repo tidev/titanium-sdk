@@ -208,20 +208,25 @@ public class TiCompositeLayout extends ViewGroup
 		return params;
 	}
 
+	private int getAsPercentageValue(double percentage, int value)
+	{
+		return (int) Math.round((percentage / 100.0) * value);
+	}
+
 	protected int getViewWidthPadding(View child, int parentWidth)
 	{
 		LayoutParams p = (LayoutParams) child.getLayoutParams();
 		int padding = 0;
 		if (p.optionLeft != null) {
 			if (p.optionLeft.isUnitPercent()) {
-				padding += (int) ((p.optionLeft.getValue() / 100.0) * parentWidth);
+				padding += getAsPercentageValue(p.optionLeft.getValue(), parentWidth);
 			} else {
 				padding += p.optionLeft.getAsPixels(this);
 			}
 		}
 		if (p.optionRight != null) {
 			if (p.optionRight.isUnitPercent()) {
-				padding += (int) ((p.optionRight.getValue() / 100.0) * parentWidth);
+				padding += getAsPercentageValue(p.optionRight.getValue(), parentWidth);
 			} else {
 				padding += p.optionRight.getAsPixels(this);
 			}
@@ -235,14 +240,14 @@ public class TiCompositeLayout extends ViewGroup
 		int padding = 0;
 		if (p.optionTop != null) {
 			if (p.optionTop.isUnitPercent()) {
-				padding += (int) ((p.optionTop.getValue() / 100.0) * parentHeight);
+				padding += getAsPercentageValue(p.optionTop.getValue(), parentHeight);
 			} else {
 				padding += p.optionTop.getAsPixels(this);
 			}
 		}
 		if (p.optionBottom != null) {
 			if (p.optionBottom.isUnitPercent()) {
-				padding += (int) ((p.optionBottom.getValue() / 100.0) * parentHeight);
+				padding += getAsPercentageValue(p.optionBottom.getValue(), parentHeight);
 			} else {
 				padding += p.optionBottom.getAsPixels(this);
 			}
@@ -321,7 +326,7 @@ public class TiCompositeLayout extends ViewGroup
 		int childDimension = LayoutParams.WRAP_CONTENT;
 		if (p.optionWidth != null) {
 			if (p.optionWidth.isUnitPercent() && width > 0) {
-				childDimension = (int) ((p.optionWidth.getValue() / 100.0) * width);
+				childDimension = getAsPercentageValue(p.optionWidth.getValue(), width);
 			} else {
 				childDimension = p.optionWidth.getAsPixels(this);
 			}
@@ -345,7 +350,7 @@ public class TiCompositeLayout extends ViewGroup
 		childDimension = LayoutParams.WRAP_CONTENT;
 		if (p.optionHeight != null) {
 			if (p.optionHeight.isUnitPercent() && height > 0) {
-				childDimension = (int) ((p.optionHeight.getValue() / 100.0) * height);
+				childDimension = getAsPercentageValue(p.optionHeight.getValue(), height);
 			} else {
 				childDimension = p.optionHeight.getAsPixels(this);
 			}
