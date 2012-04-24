@@ -118,6 +118,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 				if (child._markedForLayout) {
 					UI._elementLayoutCount++;
 					style = child.domNode.style;
+					style.zIndex = child.zIndex;
 					style.left = round(child._measuredLeft) + pixelUnits;
 					style.top = round(child._measuredTop) + pixelUnits;
 					style.width = round(child._measuredWidth - child._borderLeftWidth - child._borderRightWidth) + pixelUnits;
