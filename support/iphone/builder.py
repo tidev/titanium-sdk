@@ -906,7 +906,7 @@ def main(args):
 
 			# this code simply tries and detect if we're building a different
 			# version of the project (or same version but built from different git hash)
-			# and if so, make sure we force rebuild so to propograte any code changes in
+			# and if so, make sure we force rebuild so to propagate any code changes in
 			# source code (either upgrade or downgrade)
 			if os.path.exists(app_dir):
 				if os.path.exists(version_file):
@@ -1141,7 +1141,14 @@ def main(args):
 					#if os.path.exists(module_dir) is False:
 					#	os.makedirs(module_dir)
 					shutil.copy(module.js, app_dir)
-
+				
+				# copy artworks, if appropriate
+				if command in ['adhoc', 'install']:
+					artworks = ['iTunesArtwork', 'iTunesArtwork@2x']
+					for artwork in artworks:
+						if os.path.exists(os.path.join(project_dir, artwork)):
+							shutil.copy(os.path.join(project_dir, artwork), app_dir)
+				
 				# copy any custom fonts in (only runs in simulator)
 				# since we need to make them live in the bundle in simulator
 				if len(custom_fonts)>0:
