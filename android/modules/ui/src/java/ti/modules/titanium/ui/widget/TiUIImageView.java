@@ -930,6 +930,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	{
 		return animating.get() && !paused;
 	}
+	
+	public boolean isPaused()
+	{
+		return paused;
+	}
 
 	public boolean isReverse()
 	{

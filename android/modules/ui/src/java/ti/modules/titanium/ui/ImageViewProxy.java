@@ -119,6 +119,11 @@ public class ImageViewProxy extends ViewProxy
 	}
 	
 	@Kroll.getProperty @Kroll.method
+	public boolean getPaused() {
+		return getImageView().isPaused();
+	}
+	
+	@Kroll.getProperty @Kroll.method
 	public boolean getReverse() {
 		return getImageView().isReverse();
 	}
