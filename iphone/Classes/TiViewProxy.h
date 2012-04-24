@@ -256,7 +256,7 @@ enum
  Subclasses may override.
  @return _NO_ if the view proxy can have non Ti-Views in its view heirarchy
  */
--(BOOL)optimizeSubviewTraversal;
+-(BOOL)optimizeSubviewInsertion;
 
 /**
  Whether or not the view proxy needs to suppress relayout.

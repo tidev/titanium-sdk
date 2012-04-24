@@ -68,7 +68,7 @@ NSArray* moviePlayerKeys = nil;
 	[super _initWithProperties:properties];
 }
 
--(BOOL)optimizeSubviewTraversal
+-(BOOL)optimizeSubviewInsertion
 {
     return NO;
 }

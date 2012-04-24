@@ -1014,7 +1014,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 }
 
 #pragma mark Methods subclasses should override for behavior changes
--(BOOL)optimizeSubviewTraversal
+-(BOOL)optimizeSubviewInsertion
 {
     return YES;
 }
@@ -1940,7 +1940,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	BOOL earlierSibling = YES;
 	UIView * ourView = [self parentViewForChild:childProxy];
 
-    if (![self optimizeSubviewTraversal]) {
+    if (![self optimizeSubviewInsertion]) {
         for (UIView* subview in [ourView subviews]) 
         {
             if (![subview isKindOfClass:[TiUIView class]]) {
@@ -2472,11 +2472,11 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 			pthread_rwlock_rdlock(&childrenLock);
 			int childProxyIndex = [children indexOfObject:child];
             
-			BOOL optimizeTraversal = [self optimizeSubviewTraversal];
+			BOOL optimizeInsertion = [self optimizeSubviewInsertion];
 
 			for (TiUIView * thisView in [ourView subviews])
 			{
-				if ( (!optimizeTraversal) && (![thisView isKindOfClass:[TiUIView class]]) )
+				if ( (!optimizeInsertion) && (![thisView isKindOfClass:[TiUIView class]]) )
 				{
 					insertPosition ++;
 					continue;
