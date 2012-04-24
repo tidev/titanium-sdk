@@ -28,36 +28,23 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 				this.domNode.style.width = "";
 				this.domNode.style.height = "";
 				
-				var imageRatio = this.domNode.width / this.domNode.height,
+				var imageRatio = this._imageRatio,
 					values = this.properties.__values__,
 					oldWidth = values.width,
 					oldHeight = values.height;
-				
-				// Check divide by 0 case
-				if (isNaN(imageRatio)) {
-					imageRatio = this.domNode.width === 0 ? 1 : Infinity;
-				}
 
-				function setByHeight() {
-					values.width = boundingHeight * imageRatio;
-					values.height = boundingHeight;
-				}
-
-				function setByWidth() {
-					values.width = boundingWidth;
-					values.height = boundingWidth / imageRatio;
-				}
-
+				values.width = boundingHeight;
+				values.height = boundingHeight;
 				if (!isParentWidthSize && !isParentHeightSize) {
 					if (boundingWidth / boundingHeight > imageRatio) {
-						setByHeight();
+						values.width *= imageRatio;
 					} else {
-						setByWidth();
+						values.height /= imageRatio;
 					}
 				} else if (!isParentWidthSize) {
-					setByWidth();
+					values.height /= imageRatio;
 				} else if (!isParentHeightSize) {
-					setByHeight();
+					values.width *= imageRatio;
 				} else {
 					values.width = UI.SIZE;
 					values.height = UI.SIZE;
@@ -65,6 +52,8 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 				
 				return oldWidth !== values.width || oldHeight !== values.height;
 			},
+			
+			_imageRatio: 1,
 
 			properties: {
 				src: {
@@ -79,6 +68,12 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 						if (value) {
 							disp = "inherit";
 							on(node, "load", this, function() {
+								this.domNode.style.width = "";
+								this.domNode.style.height = "";
+								var imageRatio = this.domNode.width / this.domNode.height;
+								isNaN(imageRatio) && (imageRatio = this.domNode.width === 0 ? 1 : Infinity);
+								this._imageRatio = imageRatio;
+								
 								this.container._triggerLayout();
 								this.onload && this.onload();
 							});
