@@ -35,12 +35,12 @@ static NSArray* webKeySequence;
 
 -(NSArray *)keySequence
 {
-	if (webKeySequence == nil)
-	{
+    if (webKeySequence == nil)
+    {
         //URL has to be processed first since the spinner depends on URL being remote
-		webKeySequence = [[NSArray arrayWithObjects:@"url",nil] retain];
-	}
-	return webKeySequence;
+        webKeySequence = [[NSArray arrayWithObjects:@"url",nil] retain];
+    }
+    return webKeySequence;
 }
 
 -(BOOL)shouldDetachViewForSpace
