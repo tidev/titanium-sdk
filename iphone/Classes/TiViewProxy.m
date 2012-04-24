@@ -1014,7 +1014,10 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 }
 
 #pragma mark Methods subclasses should override for behavior changes
-
+-(BOOL)optimizeSubviewTraversal
+{
+    return YES;
+}
 -(BOOL)suppressesRelayout
 {
 	return NO;
@@ -1937,6 +1940,14 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	BOOL earlierSibling = YES;
 	UIView * ourView = [self parentViewForChild:childProxy];
 
+    if (![self optimizeSubviewTraversal]) {
+        for (UIView* subview in [ourView subviews]) 
+        {
+            if (![subview isKindOfClass:[TiUIView class]]) {
+                result++;
+            }
+        }
+    }
 	pthread_rwlock_rdlock(&childrenLock);
 	for (TiViewProxy * thisChildProxy in children)
 	{
@@ -2460,9 +2471,17 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 			
 			pthread_rwlock_rdlock(&childrenLock);
 			int childProxyIndex = [children indexOfObject:child];
+            
+			BOOL optimizeTraversal = [self optimizeSubviewTraversal];
 
 			for (TiUIView * thisView in [ourView subviews])
-			{				
+			{
+				if ( (!optimizeTraversal) && (![thisView isKindOfClass:[TiUIView class]]) )
+				{
+					insertPosition ++;
+					continue;
+				}
+                
 				int thisZIndex=[(TiViewProxy *)[thisView proxy] vzIndex];
 				if (childZIndex < thisZIndex) //We've found our stop!
 				{

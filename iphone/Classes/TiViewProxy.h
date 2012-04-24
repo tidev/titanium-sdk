@@ -251,6 +251,14 @@ enum
 #pragma mark Methods subclasses should override for behavior changes
 
 /**
+ Whether or not the view proxy can have non Ti-Views which have to be pushed to the bottom when adding children.
+ 
+ Subclasses may override.
+ @return _NO_ if the view proxy can have non Ti-Views in its view heirarchy
+ */
+-(BOOL)optimizeSubviewTraversal;
+
+/**
  Whether or not the view proxy needs to suppress relayout.
  
  Subclasses may override.

@@ -68,6 +68,11 @@ NSArray* moviePlayerKeys = nil;
 	[super _initWithProperties:properties];
 }
 
+-(BOOL)optimizeSubviewTraversal
+{
+    return NO;
+}
+
 -(void)_destroy
 {
 	if (playing) {
