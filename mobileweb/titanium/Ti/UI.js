@@ -212,7 +212,7 @@ define(
 								children = node.children;
 								for (var j in children) {
 									child = children[j];
-									if (child !== previousParent){// && (node.layout !== "composite" || child._needsMeasuring || node._layout._isDependentOnParent(child))) {
+									if (child !== previousParent && (node.layout !== "composite" || child._needsMeasuring || node._layout._isDependentOnParent(child))) {
 										child._markedForLayout = true;
 										recursionStack.push(child);
 									}

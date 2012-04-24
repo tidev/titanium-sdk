@@ -1,7 +1,10 @@
 define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"], function(Base, declare, UI, lang, style) {
 
 	var isDef = lang.isDef,
-		setStyle = style.set;
+		setStyle = style.set,
+		round = Math.round,
+		floor = Math.floor,
+		ceil = Math.ceil;
 
 	return declare("Ti._.Layouts.Horizontal", Base, {
 
@@ -82,7 +85,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						measuredSandboxWidth = child._measuredSandboxWidth = sandboxWidthLayoutCoefficients.x1 * width + sandboxWidthLayoutCoefficients.x2 + measuredWidth;
 						
 						measuredLeft = leftLayoutCoefficients.x1 * width + leftLayoutCoefficients.x2 + runningWidth;
-						if (!isWidthSize && Math.floor(measuredSandboxWidth + runningWidth) > Math.ceil(width)) {
+						if (!isWidthSize && floor(measuredSandboxWidth + runningWidth) > ceil(width)) {
 							rows.push([]);
 							measuredLeft -= runningWidth;
 							runningWidth = 0;
@@ -178,10 +181,10 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 					child = children[i];
 					setStyle(child.domNode, {
 						zIndex: child.zIndex | 0,
-						left: Math.round(child._measuredLeft) + pixelUnits,
-						top: Math.round(verticalAlignmentOffset + child._measuredTop) + pixelUnits,
-						width: Math.round(child._measuredWidth - child._borderLeftWidth - child._borderRightWidth) + pixelUnits,
-						height: Math.round(child._measuredHeight - child._borderTopWidth - child._borderBottomWidth) + pixelUnits
+						left: round(child._measuredLeft) + pixelUnits,
+						top: round(verticalAlignmentOffset + child._measuredTop) + pixelUnits,
+						width: round(child._measuredWidth - child._borderLeftWidth - child._borderRightWidth) + pixelUnits,
+						height: round(child._measuredHeight - child._borderTopWidth - child._borderBottomWidth) + pixelUnits
 					});
 					child._markedForLayout = false;
 					child.fireEvent("postlayout");
