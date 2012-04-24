@@ -36,6 +36,7 @@
 		relativeRegExp = /^\./,
 		packageNameRegExp = /([^\/]+)\/?(.*)/,
 		urlRegExp = /^url\:(.+)/,
+		isRegExp = /^\[object (.+)\]$/,
 
 		// the global config settings
 		cfg = global.require || {},
@@ -125,11 +126,11 @@
 		//		Boolean if type is passed in
 		//		String of type if type is not passed in
 		var t = it === void 0 ? "" : ({}).toString.call(it),
-			m = t.match(/^\[object (.+)\]$/),
+			m = t.match(isRegExp),
 			v = m ? m[1] : "Undefined";
 		return type ? type === v : v;
 	}
-	
+
 	function isEmpty(it) {
 		// summary:
 		//		Checks if an object is empty.
@@ -212,7 +213,7 @@
 		return hasCache[name];
 	}
 
-	has.add = function(name, test, now, force){
+	has.add = function hasAdd(name, test, now, force){
 		// summary:
 		//		Adds a feature test.
 		//
@@ -307,33 +308,35 @@
 	 *****************************************************************************/
 
 	function Promise() {
-		this.thens = [];
+		this.thens = arguments.length ? [arguments] : [];
 	}
 
 	mix(Promise.prototype, {
 
-		then: function(resolved, rejected) {
-			this.thens.push([resolved, rejected]);
+		then: function promiseThen() {
+			this.thens.push(arguments);
 			return this;
 		},
 
-		resolve: function(val) {
-			this._complete(0, val);
+		resolve: function promiseResolve() {
+			this._complete(0, arguments);
 		},
 
-		reject: function(ex) {
+		reject: function promiseReject(ex) {
 			this._complete(1, ex);
 		},
 
-		_complete: function(failed, result) {
-			this.then = failed ? function (resolved, rejected) { rejected && rejected(result); }
-			                   : function (resolved) { resolved && resolved(result); };
+		_complete: function promiseComplete(fnIdx, result) {
+			this.then = fnIdx ? function promiseCompleteReject(resolved, rejected) { rejected && rejected(result); }
+			                   : function promiseCompleteResolve(resolved) { resolved && resolved.apply(null, result); };
 			this._complete = noop;
-			this.thens.forEach(function(t) {
-				var cb = t[failed];
-				cb && cb(result);
-			});
-			this.thens = 0;
+
+			for (var i = 0, thens = this.thens, len = thens.length, fn; i < len;) {
+				fn = thens[i++][fnIdx];
+				fn && fn.apply(null, result);
+			}
+
+			delete this.thens;
 		}
 
 	});
@@ -431,7 +434,6 @@
 		_t.name = name;
 		_t.deps = deps || [];
 		_t.plugin = null;
-		_t.callbacks = [];
 
 		if (!match && (notModule || (isRelative && !refModule))) {
 			_t.url = name;
@@ -482,7 +484,7 @@
 			args[2] = _t;
 			return req.apply(null, args);
 		}
-		scopedRequire.toUrl = function() {
+		scopedRequire.toUrl = function scopedToUrl() {
 			var args = Array.prototype.slice.call(arguments, 0);
 			_t.plugin === null && (args[1] = _t);
 			return toUrl.apply(null, args);
@@ -500,16 +502,17 @@
 		};
 	}
 
-	ResourceDef.prototype.load = function(sync, callback) {
+	ResourceDef.prototype.loadAndExecute = function loadAndExecute(sync, callback) {
 		// summary:
 		//		Retreives a remote script and inject it either by XHR (sync) or attaching
-		//		a script tag to the DOM (async).
+		//		a script tag to the DOM (async). Once the resource is loaded, it will be
+		//		executed.
 		//
 		// sync: Boolean
 		//		If true, uses XHR, otherwise uses a script tag.
 		//
 		// callback: Function?
-		//		A function to call when sync is false and the script tag loads.
+		//		A function to call when sync is false and the script tag loads and executes.
 
 		var s,
 			x,
@@ -519,16 +522,13 @@
 			name = _t.name,
 			cached = defCache[name];
 
-		function fireCallbacks() {
-			each(_t.callbacks, function(c) { c(_t); });
-			_t.callbacks = [];
-		}
-
 		function onLoad(rawDef) {
 			_t.loaded = 1;
+			// if rawDef is undefined, then we're loading async
 			if (_t.rawDef = rawDef) {
 				if (is(rawDef, "String")) {
-					// if rawDef is a string, then it's either a cached string or xhr response
+					// if rawDef is a string, then it's either a cached string or xhr response.
+					// the string could contain an AMD module or CommonJS module
 					if (/\.js$/.test(_t.url)) {
 						rawDef = evaluate(rawDef, _t.cjs);
 						_t.def = _t.rawDef = !isEmpty(rawDef.exports) ? rawDef.exports : (rawDef.module && !isEmpty(rawDef.module.exports) ? rawDef.module.exports : null);
@@ -543,35 +543,10 @@
 					rawDef();
 				}
 			}
-			processDefQ(_t);
-			fireCallbacks();
-			return 1;
+
+			// we need to process the definition queue just in case the rawDef fired define()
+			processDefQ(_t) || _t.execute();
 		}
-
-		_t.sync = sync;
-		callback && _t.callbacks.push(callback);
-
-		// if we don't have a url, then I suppose we're loaded
-		if (_t.executed || !_t.url) {
-			_t.loaded = 1;
-			fireCallbacks();
-			return;
-		}
-
-		// if we're already waiting, then we can just return and our callback will be fired
-		if (waiting[name]) {
-			return;
-		}
-
-		// if we're already loaded or the definition has been cached, then just return now
-		if (_t.loaded || cached) {
-			delete defCache[name];
-			return onLoad(cached);
-		}
-
-		// mark this module as waiting to be loaded so that anonymous modules can be
-		// identified
-		waiting[name] = _t;
 
 		function disconnect() {
 			scriptTagLoadEvent && scriptTagLoadEvent();
@@ -584,13 +559,37 @@
 			disconnect();
 		}
 
-		if (sync) {
+		(_t._postLoadExecutePromise || (_t._postLoadExecutePromise = new Promise)).then(callback);
+
+		// if we don't have a url, then I suppose we're loaded
+		if (_t.executed || !_t.url) {
+			_t.loaded = 1;
+			_t.execute();
+			return;
+		}
+
+		// if we're already waiting, then we can just return and our callback will be fired
+		if (waiting[name]) {
+			return;
+		}
+
+		// if we're already loaded or the definition has been cached, then just return now
+		if (_t.loaded || cached) {
+			delete defCache[name];
+			onLoad(cached);
+		}
+
+		// mark this module as waiting to be loaded so that anonymous modules can be
+		// identified
+		waiting[name] = _t;
+
+		if (_t.sync = sync) {
 			x = new XMLHttpRequest();
 			x.open("GET", _t.url, false);
 			x.send(null);
 
 			if (x.status === 200) {
-				return onLoad(x.responseText);
+				onLoad(x.responseText);
 			} else {
 				failed();
 				throw new Error("Failed to load module \"" + name + "\": " + x.status);
@@ -602,7 +601,7 @@
 			x.charset = "utf-8";
 			x.async = true;
 
-			scriptTagLoadEvent = on(x, "load", function(e) {
+			scriptTagLoadEvent = on(x, "load", function onScriptTagLoad(e) {
 				e = e || global.event;
 				var node = e.target || e.srcElement;
 				if (e.type === "load" || /complete|loaded/.test(node.readyState)) {
@@ -621,30 +620,35 @@
 		}
 	};
 
-	ResourceDef.prototype.execute = function(callback) {
+	ResourceDef.prototype.execute = function execute(callback) {
 		// summary:
 		//		Executes the resource's rawDef which defines the module.
 		//
 		// callback: Function?
 		//		A function to call after the module has been executed.
 
-		var _t = this;
+		var _t = this,
+			promise = _t._postLoadExecutePromise,
+			resolve = promise.resolve;
+
+		callback && promise.then(callback);
 
 		if (_t.executed) {
-			callback && callback();
+			resolve.call(promise, _t);
 			return;
 		}
 
 		// first need to make sure we have all the deps loaded
-		req(_t, function() {
+		req(_t, function onExecuteDepsLoaded() {
 			var i,
 				p,
 				r = _t.rawDef,
-				q = defQ.slice(0), // backup the defQ
-				finish = function() {
-					_t.executed = 1;
-					callback && callback();
-				};
+				q = defQ.slice(0); // backup the defQ
+
+			function finish() {
+				_t.executed = 1;
+				resolve.call(promise, _t);
+			}
 
 			// need to wipe out the defQ
 			defQ = [];
@@ -684,7 +688,7 @@
 				}
 
 				// if the plugin has a load function, then invoke it!
-				p.load && p.load(_t.pluginArgs, _t.cjs.require, function(v) {
+				p.load && p.load(_t.pluginArgs, _t.cjs.require, function onPluginRun(v) {
 					_t.def = v;
 					finish();
 				}, _t.pluginCfg);
@@ -720,7 +724,8 @@
 		//		be sitting in the defQ waiting to be executed.
 
 		var m,
-			q = defQ.slice(0);
+			q = defQ.slice(0),
+			r = 0;
 		defQ = [];
 
 		while (q.length) {
@@ -736,6 +741,7 @@
 				module.rawDef = m.rawDef;
 				module.refModule = m.refModule;
 				module.execute();
+				r = 1;
 			} else {
 				modules[m.name] = m;
 				m.execute();
@@ -743,6 +749,7 @@
 		}
 
 		delete waiting[module.name];
+		return r;
 	}
 
 	function def(name, deps, rawDef) {
@@ -872,12 +879,12 @@
 		//		|		};
 		//		|	});
 
-		var i = ["require"],
+		var i = ["require", "exports", "module"],
 			module;
 
 		if (!rawDef) {
 			rawDef = deps || name;
-			rawDef.length === 1 || (i = i.concat(["exports", "module"]));
+			//rawDef.length === 1 || (i = i.concat(["exports", "module"]));
 			if (typeof name !== "string") {
 				deps = deps ? name : i;
 				name = 0;
@@ -988,11 +995,8 @@
 			count,
 			type = is(deps),
 			s = type === "String",
-			promise = new Promise;
-
-		promise.then(callback);
-
-		callback = callback || noop;
+			promise = new Promise(callback),
+			resolve = promise.resolve;
 
 		if (type === "Object") {
 			refModule = deps;
@@ -1004,28 +1008,32 @@
 			sync = 1;
 		}
 
+var blah = [];
+deps.forEach(function(f){
+	blah.push(is(f, "String") ? f : "Object");
+});
+console.debug("require([" + blah.join(', ') + "])");
+
 		for (l = count = deps.length; i < l;) {
-			(function(j) {
-				deps[j] && getResourceDef(deps[j], refModule).load(!!sync, function(m) {
-					m.execute(function() {
-						deps[j] = m.def;
-						if (--count === 0) {
-							callback.apply(null, deps);
-							count = -1; // prevent success from being called the 2nd time below
-						}
-					});
+			(function requireDepClosure(j) {
+				deps[j] && getResourceDef(deps[j], refModule).loadAndExecute(!!sync, function onLoadAndExecute(m) {
+					deps[j] = m.def;
+					if (--count === 0) {
+						resolve.apply(promise, deps);
+						count = -1; // prevent success from being called the 2nd time below
+					}
 				});
 			}(i++));
 		}
 
-		count === 0 && callback.apply(null, deps);
+		count === 0 && resolve.apply(promise, deps);
 		return s ? deps[0] : promise;
 	}
 
 	req.toUrl = toUrl;
 	mix(req, fnMixin = {
 		config: cfg,
-		each: each,
+		each: each, // TODO: Remove this once require.each() has been removed from code base
 		evaluate: evaluate,
 		has: has,
 		is: is,
@@ -1033,7 +1041,7 @@
 		on: on
 	});
 
-	req.cache = function(subject) {
+	req.cache = function requireCache(subject) {
 		// summary:
 		//		Copies module definitions into the definition cache.
 		//

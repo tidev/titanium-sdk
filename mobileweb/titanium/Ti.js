@@ -12,6 +12,7 @@
  * <http://dojotoolkit.org>
  */
 
+debugger;
 define(
 	["Ti/_", "Ti/_/analytics", "Ti/App", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/Buffer", "Ti/Platform", "Ti/UI", "Ti/Locale", "Ti/_/include"],
 	function(_, analytics, App, Evented, lang, ready, style, Buffer, Platform, UI) {
@@ -53,6 +54,7 @@ define(
 			},
 
 			deferStart: function() {
+console.debug("DEFER START!");
 				if (loaded) {
 					console.warn("app.js already loaded!");
 				} else {

@@ -313,6 +313,13 @@ class Compiler(object):
 		# 3) cache the dependencies
 		ti_js.write('require.cache({\n');
 		first = True
+		
+		
+		
+		self.modules_to_cache = {}
+		
+		
+		
 		for x in self.modules_to_cache:
 			is_cjs = False
 			if x.startswith('commonjs:'):
@@ -396,7 +403,7 @@ class Compiler(object):
 		# 5) write require() to load all Ti modules
 		self.modules_to_load.sort()
 		self.modules_to_load += self.tiplus_modules_to_load
-		ti_js.write('require(%s);' % simplejson.dumps(self.modules_to_load))
+		ti_js.write('require(["Ti"], function(blah){console.debug(blah);});\nrequire(%s);' % simplejson.dumps(self.modules_to_load))
 		
 		# 6) close the titanium.js
 		ti_js.close()
