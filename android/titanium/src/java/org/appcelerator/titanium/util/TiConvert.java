@@ -382,6 +382,23 @@ public class TiConvert
 	}
 
 	/**
+	 * If value is a Double, Integer, Long or String, converts it to Integer. Otherwise
+	 * returns default value.
+	 * @param value the value to convert.
+	 * @param def the default value to return
+	 * @return an int value.
+	 * @module.api
+	 */
+	public static int toInt(Object value, int def)
+	{
+		try {
+			return toInt(value);
+		} catch (NumberFormatException e) {
+			return def;
+		}
+	}
+
+	/**
 	 * Takes a value out of a hash table then attempts to convert it using {@link #toInt(Object)}.
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
