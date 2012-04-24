@@ -96,6 +96,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 		constructor: function() {
 			this.layout = "constrainingHorizontal";
 			this._columns = [];
+			this._getBorderFromCSS();
 		},
 		
 		_currentColumn: null,

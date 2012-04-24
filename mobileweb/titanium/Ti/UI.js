@@ -81,6 +81,7 @@ define(
 		coefficients.width.x1 = 1;
 		coefficients.height.x1 = 1;
 		
+		node.id = "TiUIContainer";
 		setStyle(node, "overflow", "hidden");
 		body.appendChild(node);
 		container.addEventListener("postlayout", function(){
@@ -241,7 +242,7 @@ define(
 				}
 				
 				showStats && console.debug("Layout " + self._layoutCount + ": " + self._elementLayoutCount + 
-					" elements laid out in " + ((new Date().getTime() - startTime)) + "ms");
+					" elements (out of " + document.getElementById("TiUIContainer").getElementsByTagName("*").length + " total) laid out in " + ((new Date().getTime() - startTime)) + "ms");
 					
 				self._layoutInProgress = false;
 				self._layoutTimer = null;

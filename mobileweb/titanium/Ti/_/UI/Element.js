@@ -201,9 +201,10 @@ define(
 		},
 
 		_remove: function(view) {
-			var p = this.children.indexOf(view);
+			var children = this.children;
+				p = children.indexOf(view);
 			if (p !== -1) {
-				this.children.splice(p, 1);
+				children.splice(p, 1);
 				view._setParent();
 				dom.detach(view.domNode);
 				this._triggerLayout();
@@ -510,6 +511,26 @@ define(
 		_borderTopWidth: 0,
 		
 		_borderBottomWidth: 0,
+		
+		_getBorderFromCSS: function() {
+			setTimeout(lang.hitch(this, function () {
+				var computedStyle = window.getComputedStyle(this.domNode),
+					left = parseInt(computedStyle["border-left-width"]),
+					right = parseInt(computedStyle["border-right-width"]),
+					top = parseInt(computedStyle["border-top-width"]),
+					bottom = parseInt(computedStyle["border-bottom-width"]);
+				isNaN(left) && (left = 0);
+				isNaN(right) && (right = 0);
+				isNaN(top) && (top = 0);
+				isNaN(bottom) && (bottom = 0);
+				
+				if (left === right && left === top && left === bottom) {
+					this.borderWidth = left;
+				} else {
+					this.borderWidth = [left, right, top, bottom];
+				}
+			}), 1);
+		},
 
 		_doBackground: function(evt) {
 			var evt = evt || {},

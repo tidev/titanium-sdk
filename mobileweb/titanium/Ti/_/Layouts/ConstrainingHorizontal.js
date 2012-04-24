@@ -34,11 +34,6 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 					this.handleInvalidState(child,element);
 				} else {
 					
-					// Border validation
-					if (!child._borderSet) {
-						updateBorder(child);
-					}
-					
 					if (child._markedForLayout) {
 						((child._preLayout && child._preLayout(width, height, isWidthSize, isHeightSize)) || child._needsMeasuring) && measureNode(child, child._layoutCoefficients, this);
 									
