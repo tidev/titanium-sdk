@@ -198,7 +198,7 @@ define(
 							
 							// Check if this parent is the stopping point
 							breakAfterChildrenCalculations = false;
-							if (parent === container) {
+							if (!parent || parent === container) {
 								layoutRootNode = true;
 								break;
 							} else if(!parent._hasSizeDimensions() && !parent._needsMeasuring) {
