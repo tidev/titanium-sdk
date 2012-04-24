@@ -21,7 +21,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				len,
 				verifyChild = this.verifyChild,
 				updateBorder = this.updateBorder,
-				measureNode = this._measureNode;
+				measureNode = this._measureNode,
+				style;
 				
 			// Calculate size and position for the children
 			len = children.length;
@@ -108,13 +109,11 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				if (child._markedForLayout) {
 					UI._elementLayoutCount++;
 					child = children[i];
-					setStyle(child.domNode, {
-						zIndex: child.zIndex | 0,
-						left: round(child._measuredLeft) + pixelUnits,
-						top: round(child._measuredTop) + pixelUnits,
-						width: round(child._measuredWidth - child._borderLeftWidth - child._borderRightWidth) + pixelUnits,
-						height: round(child._measuredHeight - child._borderTopWidth - child._borderBottomWidth) + pixelUnits
-					});
+					style = child.domNode.style;
+					style.left = round(child._measuredLeft) + pixelUnits;
+					style.top = round(child._measuredTop) + pixelUnits;
+					style.width = round(child._measuredWidth - child._borderLeftWidth - child._borderRightWidth) + pixelUnits;
+					style.height = round(child._measuredHeight - child._borderTopWidth - child._borderBottomWidth) + pixelUnits;
 					child._markedForLayout = false;
 					child.fireEvent("postlayout");
 				}
