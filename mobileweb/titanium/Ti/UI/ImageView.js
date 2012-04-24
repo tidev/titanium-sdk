@@ -28,23 +28,25 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 				this.domNode.style.width = "";
 				this.domNode.style.height = "";
 				
-				var imageRatio = this._imageRatio,
-					values = this.properties.__values__,
+				var imageRatio = this.domNode.width / this.domNode.height,
+					values = this.properties.__values__
 					oldWidth = values.width,
 					oldHeight = values.height;
 
-				values.width = boundingHeight;
-				values.height = boundingHeight;
 				if (!isParentWidthSize && !isParentHeightSize) {
 					if (boundingWidth / boundingHeight > imageRatio) {
-						values.width *= imageRatio;
+						values.width = boundingHeight * imageRatio;
+						values.height = boundingHeight;
 					} else {
-						values.height /= imageRatio;
+						values.width = boundingWidth;
+						values.height = boundingWidth / imageRatio;
 					}
 				} else if (!isParentWidthSize) {
-					values.height /= imageRatio;
+					values.width = boundingWidth;
+					values.height = boundingWidth / imageRatio;
 				} else if (!isParentHeightSize) {
-					values.width *= imageRatio;
+					values.width = boundingHeight * imageRatio;
+					values.height = boundingHeight;
 				} else {
 					values.width = UI.SIZE;
 					values.height = UI.SIZE;
