@@ -33,6 +33,7 @@ import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiDownloadManager;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
 import android.content.pm.ApplicationInfo;
@@ -625,9 +626,11 @@ public class TiDrawableReference
 		}
 		
 		try {
-			TiDownloadManager.getInstance().download(new URI(url), listener);
+			TiDownloadManager.getInstance().download(new URI(TiUrl.getCleanUri(url).toString()), listener);
 		} catch (URISyntaxException e) {
 			Log.e(LCAT, "URI Invalid: " + url, e);
+		} catch (NullPointerException e) {
+			Log.e(LCAT, "NullPointerException: " + url, e);
 		}
 	}
 
