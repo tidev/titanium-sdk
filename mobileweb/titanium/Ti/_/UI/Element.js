@@ -599,14 +599,12 @@ define(
 		},
 
 		animate: function(anim, callback) {
-			if (this._isAttachedToActiveWin()) {
-				if (UI._layoutInProgress) {
-					on.once(UI,"postlayout", lang.hitch(this,function(){
-						this._doAnimation(anim,callback);
-					}));
-				} else {
+			if (UI._layoutInProgress || !this._isAttachedToActiveWin()) {
+				on.once(UI,"postlayout", lang.hitch(this,function(){
 					this._doAnimation(anim,callback);
-				}
+				}));
+			} else {
+				this._doAnimation(anim,callback);
 			}
 		},
 		
