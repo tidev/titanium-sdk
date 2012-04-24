@@ -15,6 +15,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -49,23 +50,66 @@ public class TiUIButton extends TiUIView
 	{
 		super.processProperties(d);
 
-		Button btn = (Button)getNativeView();
+		Button btn = (Button) getNativeView();
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
 			Object value = d.get(TiC.PROPERTY_IMAGE);
-			Bitmap bitmap;
+			Bitmap bitmap = null;
+			BitmapDrawable image;
 			if (value instanceof String) {
 				try {
 					String url = getProxy().resolveUrl(null, (String) value);
 					TiBaseFile file = TiFileFactory.createTitaniumFile(new String[] { url }, false);
 					bitmap = TiUIHelper.createBitmap(file.getInputStream());
-
-					btn.setBackgroundDrawable(new BitmapDrawable(btn.getResources(), bitmap));
 				} catch (IOException e) {
 					Log.e(LCAT, "Error setting button image", e);
 				}
 			} else if (value instanceof TiBlob) {
 				bitmap = TiUIHelper.createBitmap(((TiBlob) value).getInputStream());
-				btn.setBackgroundDrawable(new BitmapDrawable(btn.getResources(), bitmap));
+			}
+
+			if (bitmap != null) {
+				image = new BitmapDrawable(btn.getResources(), bitmap);
+
+				TiDimension optionH = layoutParams.optionHeight;
+				TiDimension optionW = layoutParams.optionWidth;
+				int buttonHeight;
+				int buttonWidth;
+				int paddingTop = btn.getPaddingTop();
+				int paddingBottom = btn.getPaddingBottom();
+				int paddingLeft = btn.getPaddingLeft();
+				int paddingRight = btn.getPaddingRight();
+				int imgIntrisicHeight = image.getIntrinsicHeight();
+				int imgIntrisicWidth = image.getIntrinsicWidth();
+
+				if (optionH == null && optionW != null) {
+					buttonWidth = optionW.getIntValue() - paddingLeft - paddingRight;
+					if (imgIntrisicWidth > buttonWidth) {
+						bitmap = Bitmap.createScaledBitmap(bitmap, buttonWidth, imgIntrisicHeight * buttonWidth
+							/ imgIntrisicWidth, true);
+						image = new BitmapDrawable(btn.getResources(), bitmap);
+					}
+				} else if (optionH != null && optionW == null) {
+					buttonHeight = optionH.getIntValue() - paddingTop - paddingBottom;
+					if (imgIntrisicHeight > buttonHeight) {
+						bitmap = Bitmap.createScaledBitmap(bitmap, imgIntrisicWidth * buttonHeight / imgIntrisicHeight,
+							buttonHeight, true);
+						image = new BitmapDrawable(btn.getResources(), bitmap);
+					}
+				} else if (optionH != null && optionW != null) {
+					buttonHeight = optionH.getIntValue() - paddingTop - paddingBottom;
+					buttonWidth = optionW.getIntValue() - paddingLeft - paddingRight;
+					if (imgIntrisicWidth > buttonWidth || imgIntrisicHeight > buttonHeight) {
+						bitmap = Bitmap.createScaledBitmap(
+							bitmap,
+							Math.min(Math.min(imgIntrisicWidth, buttonWidth), imgIntrisicWidth * buttonHeight
+								/ imgIntrisicHeight),
+							Math.min(Math.min(imgIntrisicHeight, buttonHeight), imgIntrisicHeight * buttonWidth
+								/ imgIntrisicWidth), true);
+						image = new BitmapDrawable(btn.getResources(), bitmap);
+					}
+				}
+
+				btn.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
