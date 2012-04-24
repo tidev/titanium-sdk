@@ -276,7 +276,7 @@ public class TiTableView extends FrameLayout
 			@Override
 			public void onScrollStateChanged(AbsListView view, int scrollState)
 			{
-				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE){
+				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
 					scrollValid = false;
 					KrollDict eventArgs = new KrollDict();
 					KrollDict size = new KrollDict();
@@ -285,7 +285,7 @@ public class TiTableView extends FrameLayout
 					eventArgs.put("size", size);
 					fProxy.fireEvent("scrollEnd", eventArgs);
 				}
-				else if (scrollState == OnScrollListener.SCROLL_STATE_TOUCH_SCROLL){
+				else if (scrollState == OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
 					scrollValid = true;
 				}
 			}
@@ -294,14 +294,12 @@ public class TiTableView extends FrameLayout
 			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
 			{
 				boolean fireScroll = scrollValid;
-				if (!fireScroll && visibleItemCount > 0)
-				{
+				if (!fireScroll && visibleItemCount > 0) {
 					//Items in a list can be selected with a track ball in which case
 					//we must check to see if the first visibleItem has changed.
 					fireScroll = (lastValidfirstItem != firstVisibleItem);
 				}
-				if(fireScroll)
-				{
+				if(fireScroll) {
 					lastValidfirstItem = firstVisibleItem;
 					KrollDict eventArgs = new KrollDict();
 					eventArgs.put("firstVisibleItem", firstVisibleItem);
