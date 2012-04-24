@@ -434,6 +434,23 @@ public class TiConvert
 	}
 
 	/**
+	 * If value is a Double, Integer, Long or String, converts it to Float. Otherwise
+	 * returns default value.
+	 * @param value the value to convert.
+	 * @param def the default value to return
+	 * @return an float value.
+	 * @module.api
+	 */
+	public static float toFloat(Object value, float def)
+	{
+		try {
+			return toFloat(value);
+		} catch (NumberFormatException e) {
+			return def;
+		}
+	}
+
+	/**
 	 * Takes a value out of a hash table then attempts to convert it using {@link #toFloat(Object)} for more details.
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
@@ -443,6 +460,19 @@ public class TiConvert
 	public static float toFloat(HashMap<String, Object> hashMap, String key)
 	{
 		return toFloat(hashMap.get(key));
+	}
+
+	/**
+	 * Takes a value out of a hash table then attempts to convert it using {@link #toFloat(Object)} for more details.
+	 * @param hashMap the hash map to search.
+	 * @param key the lookup key.
+	 * @param def the default value to return.
+	 * @return a float value.
+	 * @module.api
+	 */
+	public static float toFloat(HashMap<String, Object> hashMap, String key, float def)
+	{
+		return toFloat(hashMap.get(key), def);
 	}
 
 	/**
