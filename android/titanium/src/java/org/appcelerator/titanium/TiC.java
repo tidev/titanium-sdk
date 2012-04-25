@@ -844,6 +844,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_FOCUSABLE_IN_TOUCH = "focusableInTouch";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FONT = "font";
 
 	/**

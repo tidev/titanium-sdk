@@ -76,28 +76,76 @@ public class TiUIText extends TiUIView
 
 	protected TiEditText tv;
 	
-	public class TiEditText extends EditText 
+	public class TiEditText extends EditText
 	{
-		public TiEditText(Context context) 
+		private boolean isFocused = false;
+		private boolean isPreviouslyblurred = false;
+
+		public TiEditText(Context context)
 		{
 			super(context);
 		}
-		
-		/** 
-		 * Check whether the called view is a text editor, in which case it would make sense to 
+
+		/**
+		 * Check whether the called view is a text editor, in which case it would make sense to
 		 * automatically display a soft input window for it.
 		 */
 		@Override
-		public boolean onCheckIsTextEditor () {
+		public boolean onCheckIsTextEditor()
+		{
 			if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)
-					&& TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
-					return false;
+				&& TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
+				return false;
 			}
-			if (proxy.hasProperty(TiC.PROPERTY_EDITABLE)
-					&& !(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_EDITABLE)))) {
+			if (proxy.hasProperty(TiC.PROPERTY_EDITABLE) && !(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_EDITABLE)))) {
 				return false;
 			}
 			return true;
+		}
+
+		@Override
+		public boolean requestFocus(int direction, Rect previouslyFocusedRect)
+		{
+			isFocused = super.requestFocus(direction, previouslyFocusedRect);
+
+			if (!isFocused) {
+				return false;
+			}
+
+			if (isFocused && !isPreviouslyblurred) {
+				return true;
+			}
+
+			onFocusChanged(true, direction, previouslyFocusedRect);
+			refreshDrawableState();
+			return true;
+
+		}
+
+		@Override
+		public void clearFocus()
+		{
+			if (isFocused) {
+				onFocusChanged(false, 0, null);
+				refreshDrawableState();
+			}
+			isFocused = false;
+			isPreviouslyblurred = true;
+		}
+
+		@Override
+		public boolean isFocused()
+		{
+			return isFocused;
+		}
+
+		@Override
+		protected void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect)
+		{
+			if (!isFocused && !focused) {
+				return;
+			}
+			super.onFocusChanged(focused, direction, previouslyFocusedRect);
 		}
 	}
 
@@ -130,6 +178,9 @@ public class TiUIText extends TiUIView
 	{
 		super.processProperties(d);
 
+		if (d.containsKey(TiC.PROPERTY_FOCUSABLE_IN_TOUCH)) {
+			tv.setFocusableInTouchMode(d.getBoolean(TiC.PROPERTY_FOCUSABLE_IN_TOUCH));
+		}
 		if (d.containsKey(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(d.getBoolean(TiC.PROPERTY_ENABLED));
 		}
@@ -179,7 +230,9 @@ public class TiUIText extends TiUIView
 		if (DBG) {
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
 		}
-		if (key.equals(TiC.PROPERTY_ENABLED)) {
+		if (key.equals(TiC.PROPERTY_FOCUSABLE_IN_TOUCH)) {
+			tv.setFocusableInTouchMode(TiConvert.toBoolean(newValue));
+		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			tv.setText((String) newValue);
