@@ -629,6 +629,8 @@ public class TiDrawableReference
 			TiDownloadManager.getInstance().download(new URI(TiUrl.getCleanUri(url).toString()), listener);
 		} catch (URISyntaxException e) {
 			Log.e(LCAT, "URI Invalid: " + url, e);
+		} catch (NullPointerException e) {
+			Log.e(LCAT, "NullPointerException: " + url, e);
 		}
 	}
 
