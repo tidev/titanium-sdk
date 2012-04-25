@@ -84,6 +84,7 @@ import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiResourceFile;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
+import org.appcelerator.titanium.util.TiUrl;
 
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
@@ -720,30 +721,6 @@ public class TiHTTPClient
 		return result;
 	}
 
-	private static Uri getCleanUri(String uri)
-	{
-		Uri base = Uri.parse(uri);
-
-		Uri.Builder builder = base.buildUpon();
-		builder.encodedQuery(Uri.encode(Uri.decode(base.getQuery()), "&="));
-		String encodedAuthority = Uri.encode(Uri.decode(base.getAuthority()),"/:@");
-		int firstAt = encodedAuthority.indexOf('@');
-		if (firstAt >= 0) {
-			int lastAt = encodedAuthority.lastIndexOf('@');
-			if (lastAt > firstAt) {
-				// We have a situation that might be like this:
-				// http://user@domain.com:password@api.mickey.com
-				// i.e., the user name is user@domain.com, and the host
-				// is api.mickey.com.  We need all at-signs prior to the final one (which
-				// indicates the host) to be encoded.
-				encodedAuthority = Uri.encode(encodedAuthority.substring(0, lastAt), "/:") + encodedAuthority.substring(lastAt);
-			}
-		}
-		builder.encodedAuthority(encodedAuthority);
-		builder.encodedPath(Uri.encode(Uri.decode(base.getPath()), "/"));
-		return builder.build();
-	}
-
 	public void open(String method, String url)
 	{
 		if (DBG) {
@@ -764,7 +741,7 @@ public class TiHTTPClient
 		}
 
 		if (autoEncodeUrl) {
-			this.uri = getCleanUri(url);
+			this.uri = TiUrl.getCleanUri(url);
 
 		} else {
 			this.uri = Uri.parse(url);
