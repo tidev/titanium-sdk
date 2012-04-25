@@ -14,6 +14,8 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.view.View;
+
 public class TiView extends TiUIView
 {
 
@@ -30,6 +32,14 @@ public class TiView extends TiUIView
 			}
 		}
 		setNativeView(new TiCompositeLayout(proxy.getActivity(), arrangement, proxy));
+	}
+
+	@Override
+	protected void setOpacity(View view, float opacity)
+	{
+		super.setOpacity(view, opacity);
+		TiCompositeLayout layout = (TiCompositeLayout) nativeView;
+		layout.setAlphaCompat(opacity);
 	}
 
 	@Override
