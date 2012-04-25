@@ -8,11 +8,14 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.view.TiUIView;
+
+import ti.modules.titanium.ui.widget.TiUITabGroup;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -25,6 +28,8 @@ propertyAccessors = {
 })
 public class TabProxy extends TiViewProxy
 {
+	private static final String TAG = "TabProxy";
+
 	private TiWindowProxy win;
 	private TabGroupProxy tabGroupProxy;
 	private int windowId;
@@ -61,6 +66,22 @@ public class TabProxy extends TiViewProxy
 		if (window instanceof TiWindowProxy) {
 			setWindow((TiWindowProxy) window);
 		}
+	}
+
+	@Override
+	public boolean fireEvent(String eventName, Object data)
+	{
+		if (eventName == TiC.EVENT_BLUR || eventName == TiC.EVENT_FOCUS) {
+			TiUIView tabGroupView = tabGroupProxy.peekView();
+			if (tabGroupView instanceof TiUITabGroup) {
+				data = ((TiUITabGroup) tabGroupView).getTabChangeEvent();
+
+			} else {
+				Log.e(TAG, "unable to populate <" + eventName + "> event, view is incorrect type!");
+			}
+		}
+
+		return super.fireEvent(eventName, data);
 	}
 
 	@Kroll.method @Kroll.setProperty

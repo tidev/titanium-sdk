@@ -251,8 +251,9 @@ properties:
     
   - name: pagingControlColor
     summary: |
-        Color of the paging control, in 
-        [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name or hex format.
+        Color of the paging control, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     default: black
     platforms: [iphone,ipad]
