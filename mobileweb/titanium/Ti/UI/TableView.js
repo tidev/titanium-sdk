@@ -262,7 +262,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			if (!this._currentSection) {
 				this._sections.add(this._currentSection = UI.createTableViewSection({_tableView: this}));
 				this._sections.add(this._createSeparator());
-				retval.push(this._currentSection);
+				this.data.push(this._currentSection);
 			}
 			this._currentSection.add(value);
 			this._refreshSections();
