@@ -128,6 +128,10 @@ public class TiUITabGroup extends TiUIView
 		}
 	}
 
+	public KrollDict getTabChangeEvent() {
+		return tabChangeEventData;
+	}
+
 	@Override
 	protected KrollDict getFocusEventObject(boolean hasFocus)
 	{
@@ -144,50 +148,47 @@ public class TiUITabGroup extends TiUIView
 		// ignore focus change for tab group.
 		// we can simply fire focus/blur from onTabChanged (to avoid chicken/egg event problems)
 	}
-	
-	@Override
-	public void onTabChanged(String id)
+
+	private TiViewProxy getTabWindow(TabProxy tab)
 	{
-		TabGroupProxy tabGroupProxy = ((TabGroupProxy) proxy);
-
-		TabProxy previousTab = null;
-		currentTabID = tabHost.getCurrentTab();
-		
-		if (DBG) {
-			Log.d(LCAT,"Tab change from " + previousTabID + " to " + currentTabID);
-		}
-		
-		TabProxy currentTab = tabGroupProxy.getTabList().get(currentTabID);
-		proxy.setProperty(TiC.PROPERTY_ACTIVE_TAB, currentTab);
-
-		
-
-		if (previousTabID != -1) {
-			previousTab = tabGroupProxy.getTabList().get(previousTabID);
-		}
-
-		if (tabChangeEventData != null) {
-			//fire blur on previous tab as well as its window
-			if (previousTab != null) {
-				previousTab.fireEvent(TiC.EVENT_BLUR, tabChangeEventData);
-				previousTab.getWindow().fireEvent(TiC.EVENT_BLUR, null);
-			}
-		}
-
-		tabChangeEventData = tabGroupProxy.buildFocusEvent(currentTabID, previousTabID);
-
-		//fire focus on current tab as well as its window
-		currentTab.fireEvent(TiC.EVENT_FOCUS, tabChangeEventData);
-
-		TiViewProxy viewProxy = currentTab.getWindow();
+		TiViewProxy viewProxy = tab.getWindow();
 		if (viewProxy instanceof TiBaseWindowProxy) {
 			TiViewProxy wrappedViewProxy = ((TiBaseWindowProxy) viewProxy).getWrappedView();
 			if (wrappedViewProxy != null) {
 				viewProxy = wrappedViewProxy;
 			}
 		}
-		viewProxy.fireEvent(TiC.EVENT_FOCUS, null);
 
+		return viewProxy;
+	}
+
+	@Override
+	public void onTabChanged(String id)
+	{
+		TabGroupProxy tabGroupProxy = ((TabGroupProxy) proxy);
+		TabProxy previousTab = null;
+
+		currentTabID = tabHost.getCurrentTab();
+		
+		if (DBG) {
+			Log.d(LCAT,"Tab change from " + previousTabID + " to " + currentTabID);
+		}
+
+		TabProxy currentTab = tabGroupProxy.getTabList().get(currentTabID);
+		proxy.setProperty(TiC.PROPERTY_ACTIVE_TAB, currentTab);
+
+		if (previousTabID != -1) {
+			previousTab = tabGroupProxy.getTabList().get(previousTabID);
+		}
+
+		if (tabChangeEventData != null) {
+			if (previousTab != null) {
+				getTabWindow(previousTab).fireEvent(TiC.EVENT_BLUR, null);
+			}
+		}
+
+		tabChangeEventData = tabGroupProxy.buildFocusEvent(currentTabID, previousTabID);
+		getTabWindow(currentTab).fireEvent(TiC.EVENT_FOCUS, null);
 		previousTabID = currentTabID;
 
 	}

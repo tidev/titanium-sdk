@@ -23,7 +23,9 @@ events:
         type: Boolean
 properties:
   - name: color
-    summary: Color to use for switch text.
+    summary: Color to use for switch text, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     platforms: [android, mobileweb]
   - name: enabled

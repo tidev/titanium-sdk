@@ -605,18 +605,6 @@ public class TiConvert
 		return url;
 	}
 
-	//Error
-	public static HashMap<String, Object> toErrorObject(int code, String msg)
-	{
-		HashMap<String, Object> d = new HashMap<String, Object>(1);
-		HashMap<String, Object> e = new HashMap<String, Object>();
-		e.put(TiC.ERROR_PROPERTY_CODE, code);
-		e.put(TiC.ERROR_PROPERTY_MESSAGE, msg);
-		d.put(TiC.EVENT_PROPERTY_ERROR, e);
-
-		return d;
-	}
-
 	/**
 	 * Casts and returns value as TiBlob.
 	 * @param value must be of type TiBlob.
