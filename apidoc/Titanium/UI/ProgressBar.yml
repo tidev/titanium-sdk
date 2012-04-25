@@ -14,7 +14,9 @@ since: "0.8"
 platforms: [android, iphone, ipad, mobileweb]
 properties:
   - name: color
-    summary: Color of the progress bar text.
+    summary: Color of the progress bar text, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
   - name: font
     summary: Font for the progress bar text.

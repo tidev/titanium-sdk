@@ -64,7 +64,11 @@ properties:
     summary: Specifies if the animation should be replayed in reverse upon completion.
     type: Boolean
   - name: backgroundColor
-    summary: Value of the `backgroundColor` property at the end of the animation.
+    summary: |
+        Value of the `backgroundColor` property at the end of the animation, as a color name 
+        or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     platforms: [android, iphone, ipad, mobileweb]
   - name: bottom
@@ -74,7 +78,10 @@ properties:
     summary: Value of the `center` property at the end of the animation.
     type: Object
   - name: color
-    summary: Value of the `color` property at the end of the animation.
+    summary: |
+        Value of the `color` property at the end of the animation, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     platforms: [iphone, ipad, mobileweb]
   - name: curve

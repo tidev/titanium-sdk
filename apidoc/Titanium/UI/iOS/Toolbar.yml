@@ -18,9 +18,12 @@ description: |
 extends: Titanium.UI.View
 since: "0.8"
 platforms: [iphone, ipad]
+
 properties:
   - name: barColor
-    summary: Background color for the toolbar.
+    summary: Background color for the toolbar, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
   - name: items
     summary: An array of buttons (or other widgets) contained in the toolbar.
