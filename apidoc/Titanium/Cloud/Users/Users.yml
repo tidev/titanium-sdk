@@ -7,19 +7,21 @@ methods:
   - name: hasStoredSession
     summary: Checks if there is a stored user session.
     description: |
-        This will be true after successfully calling
-        <Titanium.Cloud.Users.create> or <Titanium.Cloud.Users.login>, and false after successfully calling
+        This will be true after successfully calling <Titanium.Cloud.Users.create> or
+        <Titanium.Cloud.Users.login>, and false after successfully calling
         <Titanium.Cloud.Users.logout>.
     returns:
         type: Boolean
   - name: retrieveStoredSession
     summary: Returns any stored user session string, or null.
     description: |
-        All calls that you make using the Cloud module automatically use this string. This string only needs to be used
-        when you want to manually make calls to the ACS servers using the <Titanium.Network.HTTPClient>.
+        All calls that you make using the Cloud module automatically use this string. This string
+        only needs to be used when you want to manually make calls to the ACS servers using the
+        <Titanium.Network.HTTPClient>.
         
-        This will return a string identifier after successfully calling <Titanium.Cloud.Users.create> or
-        <Titanium.Cloud.Users.login>, and null after successfully calling <Titanium.Cloud.Users.logout>.
+        This will return a string identifier after successfully calling
+        <Titanium.Cloud.Users.create> or <Titanium.Cloud.Users.login>, and null after successfully
+        calling <Titanium.Cloud.Users.logout>.
     returns:
         type: String
   - name: create
