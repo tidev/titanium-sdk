@@ -73,7 +73,7 @@ public class TabProxy extends TiViewProxy
 	{
 		if (eventName == TiC.EVENT_BLUR || eventName == TiC.EVENT_FOCUS) {
 			TiUIView tabGroupView = tabGroupProxy.peekView();
-			if (tabGroupView != null || tabGroupView instanceof TiUITabGroup) {
+			if (tabGroupView instanceof TiUITabGroup) {
 				data = ((TiUITabGroup) tabGroupView).getTabChangeEvent();
 
 			} else {
