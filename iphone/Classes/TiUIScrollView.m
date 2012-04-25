@@ -70,6 +70,7 @@
 @end
 
 @implementation TiUIScrollView
+@synthesize contentWidth;
 
 - (void) dealloc
 {
