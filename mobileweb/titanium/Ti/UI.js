@@ -105,7 +105,6 @@ define(
 		require("Ti/Gesture")._updateOrientation();
 	}
 	on(global, "resize", updateOrientation);
-	on(global, "orientationchange", updateOrientation);
 
 	return lang.setObject("Ti.UI", Evented, creators, {
 
@@ -165,10 +164,12 @@ define(
 					rootNodesToLayout = [],
 					layoutRootNode = false,
 					breakAfterChildrenCalculations,
-					container = self._container;
+					container = self._container,
+					i,
+					len = nodes.length;
 					
 				// Determine which nodes need to be re-layed out
-				for (var i in nodes) {
+				for (i = 0; i < len; i++) {
 					layoutNode = nodes[i];
 						
 					// Mark all of the children for update that need to be updated
@@ -185,11 +186,11 @@ define(
 						}
 					}
 					
-					// Go up and mark any other nodes that need to be marked
-					parent = layoutNode;
 					if (layoutNode === container) {
 						layoutRootNode = true;
 					} else {
+						// Go up and mark any other nodes that need to be marked
+						parent = layoutNode;
 						while(1) {
 							
 							parent._markedForLayout = true;
@@ -229,12 +230,15 @@ define(
 				
 				// Layout all nodes that need it
 				if (layoutRootNode) {
-					var container = self._container;
-					setStyle(self._container.domNode, {
-						width: container.width + "px",
-						height: container.height + "px",
+					var container = self._container,
+						props = container.properties.__values__,
+						width = props.width = global.innerWidth,
+						height = props.height = global.innerHeight;
+					setStyle(container.domNode, {
+						width: width + "px",
+						height: height + "px"
 					});
-					container._layout._doLayout(container, container.width, container.height, false, false);
+					container._layout._doLayout(container, width, height, false, false);
 				}
 				for (var i in rootNodesToLayout) {
 					node = rootNodesToLayout[i];
