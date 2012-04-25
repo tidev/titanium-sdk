@@ -103,10 +103,9 @@ properties:
     platforms: [android]
     
   - name: color
-    summary: Color of the text in this text area.
+    summary: Color of the text in this text area, as a color name or hex triplet.
     description: |
-        Value as a [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name 
-        or hex triplet.
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     
   - name: editable
@@ -159,10 +158,9 @@ properties:
     platforms: [iphone, ipad]
     
   - name: keyboardToolbarColor
-    summary: Color of the keyboard toolbar if keyboardToolbar is an array.
+    summary: Color of the keyboard toolbar if keyboardToolbar is an array, as a color name or hex triplet.
     description: |
-        Value as a [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name 
-        or hex triplet.
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     platforms: [iphone,ipad]
     
