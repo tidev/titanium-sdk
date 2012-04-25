@@ -208,7 +208,7 @@ public class TiCompositeLayout extends ViewGroup
 		return params;
 	}
 
-	private int getAsPercentageValue(double percentage, int value)
+	private static int getAsPercentageValue(double percentage, int value)
 	{
 		return (int) Math.round((percentage / 100.0) * value);
 	}
