@@ -726,7 +726,7 @@ public class GeolocationModule extends KrollModule
 			} else {
 				Log.e(TAG, "unable to get current position, location is null");
 				callback.call(this.getKrollObject(), new Object[] {
-					TiConvert.toErrorObject(LocationProviderProxy.ERR_POSITION_UNAVAILABLE, "location is currently unavailable.")
+					TiConvert.toErrorObject(TiLocation.ERR_POSITION_UNAVAILABLE, "location is currently unavailable.")
 				});
 			}
 		}

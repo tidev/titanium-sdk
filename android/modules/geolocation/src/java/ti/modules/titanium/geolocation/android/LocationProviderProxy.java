@@ -44,7 +44,6 @@ public class LocationProviderProxy extends KrollProxy
 	public static final int STATE_UNAVAILABLE = 3;
 	public static final int STATE_AVAILABLE = 4;
 	public static final int STATE_UNKNOWN = 5;
-	public static final int ERR_POSITION_UNAVAILABLE = 6;
 
 	private static final String TAG = "LocationProviderProxy";
 
