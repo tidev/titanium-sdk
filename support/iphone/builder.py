@@ -1143,7 +1143,7 @@ def main(args):
 					shutil.copy(module.js, app_dir)
 				
 				# copy artworks, if appropriate
-				if command in ['adhoc', 'install']:
+				if command in ['adhoc', 'install', 'distribute']:
 					artworks = ['iTunesArtwork', 'iTunesArtwork@2x']
 					for artwork in artworks:
 						if os.path.exists(os.path.join(project_dir, artwork)):
