@@ -248,7 +248,7 @@ public class GeolocationModule extends KrollModule
 	 */
 	public void onProviderStateChanged(String providerName, int state)
 	{
-		String message = (providerName == null)?"Provider":providerName;
+		String message = providerName;
 
 		// TODO this is trash.  deprecate the existing mechanism of bundling status updates with the
 		// location event and create a new "locationState" (or whatever) event.  for the time being, 
