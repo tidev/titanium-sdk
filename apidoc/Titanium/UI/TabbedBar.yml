@@ -3,13 +3,13 @@ name: Titanium.UI.TabbedBar
 summary: Use <Titanium.UI.iOS.TabbedBar> instead.
 description: |
     This object has been deprecated and moved to <Titanium.UI.iOS.TabbedBar>.
-
+    
     A tabbed bar is a button bar that
     maintains a state (visually distinguished as a pressed or selected look).
     It is closely related to the `ButtonBar` control. See the description of 
     [ButtonBar](Titanium.UI.ButtonBar) for information on styling tabbed bars and buttons
     bars.
-
+    
     Use the <Titanium.UI.createTabbedBar> method to create a Tabbed Bar.
 extends: Titanium.UI.View
 platforms: [iphone, ipad]
@@ -45,7 +45,7 @@ properties:
         Specify one of the constants defined in 
         [Titanium.UI.iPhone.SystemButtonStyle](Titanium.UI.iPhone.SystemButtonStyle),
         either `PLAIN`, `BORDERED`, or `BAR`.
-
+        
         The `BAR` style specifies a more compact style and allows the bar's background
         color or gradient to show through.
     type: Number

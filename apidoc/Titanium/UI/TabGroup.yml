@@ -151,10 +151,10 @@ properties:
     platforms: [iphone, ipad]
     
   - name: barColor
-    summary: Default navigation bar color (typically for the **More** tab).
+    summary: |
+        Default navigation bar color (typically for the **More** tab), as a color name or hex triplet.
     description: |
-        Value as a [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name 
-        or hex triplet.
+        For information about color values, see the "Colors" section of <Titanium.UI>.
         
         A value of `transparent` results in a semi-opaque black bar style.
     type: String
@@ -186,10 +186,9 @@ properties:
     platforms: [android]
     
   - name: tabsBackgroundColor
-    summary: Default background color for tabs.
+    summary: Default background color for tabs, as a color name or hex triplet.
     description: |
-        Value as a [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name 
-        or hex triplet.
+        For information about color values, see the "Colors" section of <Titanium.UI>.
         
         A tab's [backgroundColor](Titanium.UI.Tab.backgroundColor) property takes precedence if set.
     type: String
@@ -204,10 +203,9 @@ properties:
     since: "1.9.0"
     
   - name: tabsBackgroundDisabledColor
-    summary: Default background disabled color for tabs.
+    summary: Default background disabled color for tabs, as a color name or hex triplet.
     description: |
-        Value as a [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name 
-        or hex triplet.
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
         
         A tab's [backgroundDisabledColor](Titanium.UI.Tab.backgroundDisabledColor) property takes 
         precedence if set.
@@ -225,10 +223,9 @@ properties:
     since: "1.9.0"
     
   - name: tabsBackgroundFocusedColor
-    summary: Default background focused color for tabs.
+    summary: Default background focused color for tabs, as a color name or hex triplet.
     description: |
-        Value as a [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name 
-        or hex triplet.
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
         
         A tab's [backgroundFocusedColor](Titanium.UI.Tab.backgroundFocusedColor) property takes 
         precedence if set.
@@ -246,10 +243,9 @@ properties:
     since: "1.9.0"
     
   - name: tabsBackgroundSelectedColor
-    summary: Default background selected color for tabs.
+    summary: Default background selected color for tabs, as a color name or hex triplet.
     description: |
-        Value as a [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name 
-        or hex triplet.
+        For information about color values, see the "Colors" section of <Titanium.UI>.
         
         A tab's [backgroundSelectedColor](Titanium.UI.Tab.backgroundSelectedColor) property takes 
         precedence if set.
@@ -267,10 +263,9 @@ properties:
     since: "1.9.0"
     
   - name: activeTabBackgroundColor
-    summary: Default background color for the active tab.
+    summary: Default background color for the active tab, as a color name or hex triplet.
     description: |
-        Value as a [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name 
-        or hex triplet.
+        For information about color values, see the "Colors" section of <Titanium.UI>.
         
         A tab's [backgroundColor](Titanium.UI.Tab.backgroundColor)  property takes precedence if set.
     type: String
@@ -286,10 +281,9 @@ properties:
     since: "1.9.0"
     
   - name: activeTabBackgroundDisabledColor
-    summary: Default background disabled color for the active tab.
+    summary: Default background disabled color for the active tab, as a color name or hex triplet.
     description: |
-        Value as a [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name 
-        or hex triplet.
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
         
         A tab's [backgroundDisabledColor](Titanium.UI.Tab.backgroundDisabledColor) property takes 
         precedence if set.
@@ -307,10 +301,9 @@ properties:
     since: "1.9.0"
     
   - name: activeTabBackgroundFocusedColor
-    summary: Default background focused color for the active tab.
+    summary: Default background focused color for the active tab, as a color name or hex triplet.
     description: |
-        Value as a [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name 
-        or hex triplet.
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
         
         A tab's [backgroundFocusedColor](Titanium.UI.Tab.backgroundFocusedColor) property takes 
         precedence if set.
@@ -328,10 +321,9 @@ properties:
     since: "1.9.0"
     
   - name: activeTabBackgroundSelectedColor
-    summary: Default background selected color for the active tab.
+    summary: Default background selected color for the active tab, as a color name or hex triplet.
     description: |
-        Value as a [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name 
-        or hex triplet.
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
         
         A tab's [backgroundSelectedColor](Titanium.UI.Tab.backgroundSelectedColor) property takes 
         precedence if set.
@@ -349,10 +341,9 @@ properties:
     since: "1.9.0"
     
   - name: tabDividerColor
-    summary: Color of the divider between tabs.
+    summary: Color of the divider between tabs, as a color name or hex triplet.
     description: |
-        Value as a [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name 
-        or hex triplet.
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"

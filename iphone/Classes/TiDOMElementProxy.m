@@ -494,7 +494,7 @@
         if(nodeToRemove == nil)
         {
             [self throwException:@"no node found to remove" subreason:nil location:CODELOCATION];
-            return;
+            return nil;
         }
         else
         {
@@ -510,7 +510,7 @@
     else
     {
         [self throwException:@"no node found to remove" subreason:nil location:CODELOCATION];
-        return;
+        return nil;
     }
 }
 
@@ -527,7 +527,7 @@
 	xmlNodePtr refNodePtr = [[refChild node]XMLNode];
 	xmlNodePtr newNodePtr = [[newChild node]XMLNode];
 	if (newNodePtr == refNodePtr)
-		return;
+		return newChild;
 	
 	TiDOMNodeListProxy* nodeList = [self childNodes];
 	
@@ -585,7 +585,7 @@
 	xmlNodePtr refNodePtr = [[refChild node]XMLNode];
 	xmlNodePtr newNodePtr = [[newChild node]XMLNode];
 	if (newNodePtr == refNodePtr)
-		return;
+		return refChild;
 	
 	TiDOMNodeListProxy* nodeList = [self childNodes];
 	

@@ -105,7 +105,9 @@ properties:
         state only.
     type: String
   - name: color
-    summary: Default button text color.
+    summary: Default button text color, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
   - name: enabled
     summary: Set to `true` to enable the button, `false` to disable the button.
@@ -125,7 +127,9 @@ properties:
         Support for using <Titanium.Blob> for this property is only available on iOS.
     type: [String, Titanium.Blob]
   - name: selectedColor
-    summary: Button text color used to indicate the selected state.
+    summary: Button text color used to indicate the selected state, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     platforms: [iphone,ipad,mobileweb]
   - name: style
