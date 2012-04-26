@@ -344,7 +344,6 @@ class TiAppXML(object):
 				'CFBundleIdentifier', 'CFBundleInfoDictionaryVersion', 'CFBundleName', 'CFBundlePackageType', 'CFBundleSignature',
 				'CFBundleVersion', 'CFBundleShortVersionString', 'LSRequiresIPhoneOS']
 		
-		self.ios['plist'] = {}
 		for child in node.childNodes:
 			if child.nodeName == 'plist':
 				plist_dict = child.getElementsByTagName('dict')[0]
@@ -467,7 +466,10 @@ class TiAppXML(object):
 				
 				self.infoplist_properties[propertyName]=propertyValue
 		
-		plist_props = self.ios['plist']
+		plist_props = {}
+		if 'plist' in self.ios:
+			plist_props = self.ios['plist']
+		
 		for prop in plist_props:
 			if prop[0] != '+':
 				self.infoplist_properties[prop] = plist_props[prop]
