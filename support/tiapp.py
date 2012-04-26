@@ -340,6 +340,10 @@ class TiAppXML(object):
 		            rc.append(node.data)
 		    return ''.join(rc)
 		
+		ignore_keys = ['CFBundleDevelopmentRegion', 'CFBundleDisplayName', 'CFBundleExecutable', 'CFBundleIconFile',
+				'CFBundleIdentifier', 'CFBundleInfoDictionaryVersion', 'CFBundleName', 'CFBundlePackageType', 'CFBundleSignature',
+				'CFBundleVersion', 'CFBundleShortVersionString', 'LSRequiresIPhoneOS']
+		
 		for child in node.childNodes:
 			if child.nodeName == 'plist':
 				plist_dict = child.getElementsByTagName('dict')[0]
@@ -348,8 +352,17 @@ class TiAppXML(object):
 				for e in plist_dict.childNodes:
 					if e.nodeName == 'key':
 						keyName = getText(e.childNodes)
+						if keyName in ignore_keys:
+							print "[WARN] Skipping key %s from tiapp.xml <plist>" % keyName
+							keyName = ''
 					elif e.nodeType == e.ELEMENT_NODE and keyName != '':
-						plist[keyName] = e.toxml('utf-8')
+						if keyName == 'CFBundleURLTypes':
+							types_string = ''
+							for ee in e.getElementsByTagName('dict'):
+								types_string = types_string + ee.toxml('utf-8')
+							plist['+'+keyName] = types_string
+						else:
+							plist[keyName] = e.toxml('utf-8')
 						keyName = ''
 				self.ios['plist'] = plist
 
@@ -453,10 +466,20 @@ class TiAppXML(object):
 		
 		plist_props = self.ios['plist']
 		for prop in plist_props:
-			self.infoplist_properties[prop] = plist_props[prop]
+			if prop[0] != '+':
+				self.infoplist_properties[prop] = plist_props[prop]
 		
 		plist = codecs.open(file,'r','utf-8','replace').read()
 		plist = plist.replace('__APPICON__',iconname)
+
+		if '+CFBundleURLTypes' in plist_props:
+			i = plist.index('CFBundleURLTypes')
+			if i:
+				i = plist.index('<array>',i+1)
+				st = plist[0:i+8]
+				fn = plist[i+8:]
+				plist = st + plist_props['+CFBundleURLTypes'] + fn
+			
 
 		#Creating proper CFBundleIconFiles rather than hard coding the values in there
 		propertyName = 'CFBundleIconFiles'
@@ -494,7 +517,7 @@ class TiAppXML(object):
 			fn = plist[e:]
 			version = self.properties['version']
 			plist = st + version + fn
-			
+						
 		# replace the CFBundleShortVersionString in case it's changed
 		try:
 			i = plist.index('CFBundleShortVersionString')
