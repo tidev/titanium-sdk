@@ -2,17 +2,17 @@ var require = {
 	app: {
 		analytics: ${app_analytics | jsQuoteEscapeFilter},
 		copyright: "${app_copyright | jsQuoteEscapeFilter}",
+		deployType: "${deploy_type | jsQuoteEscapeFilter}",
 		description: "${app_description | jsQuoteEscapeFilter}",
 		guid: "${app_guid | jsQuoteEscapeFilter}",
 		id: "${app_name | jsQuoteEscapeFilter}",
 		name: "${app_name | jsQuoteEscapeFilter}",
+		names: ${app_names},
 		publisher: "${app_publisher | jsQuoteEscapeFilter}",
 		url: "${app_url | jsQuoteEscapeFilter}",
 		version: "${app_version | jsQuoteEscapeFilter}"
 	},
-	deployType: "${deploy_type | jsQuoteEscapeFilter}",
 	has: {
-		"analytics-use-xhr": false,
 		"declare-property-methods": true,
 		"js-btoa": function(g) {
 			return "btoa" in g;
@@ -31,8 +31,11 @@ var require = {
 				} catch (e) {}
 			}(Object.defineProperty, {}));
 		},
-		"opera": typeof opera === "undefined" || opera.toString() != "[object Opera]"
+		"opera": typeof opera === "undefined" || opera.toString() != "[object Opera]",
+		"ti-analytics-use-xhr": ${has_analytics_use_xhr | jsQuoteEscapeFilter},
+		"ti-show-errors": ${has_show_errors | jsQuoteEscapeFilter}
 	},
+	locales: ${locales},
 	packages: ${packages},
 	project: {
 		id: "${project_id | jsQuoteEscapeFilter}",
@@ -44,7 +47,7 @@ var require = {
 		filesystem: {
 			registry: "${ti_fs_registry}"
 		},
-		preload: ${preload},
+		theme: "${ti_theme | jsQuoteEscapeFilter}",
 		version: "${ti_version | jsQuoteEscapeFilter}"
 	},
 	vendorPrefixes: {

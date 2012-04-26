@@ -110,7 +110,6 @@
 	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
 	UIViewController *viewController = [window controller];
 	[window prepareForNavView:controller];
-	[self setVisibleProxy:window];
 	opening = YES;
 	[controller pushViewController:viewController animated:animated];
 }
@@ -139,14 +138,17 @@
 {
     TiWindowProxy *newWindow = (TiWindowProxy *)[(TiViewController*)viewController proxy];
 	[newWindow setupWindowDecorations];
-	
 	[newWindow windowWillOpen];
+    //TIMOB-8559. PR 1819 caused a regression that exposed an IOS issue. In IOS 5 and later, the nav controller calls 
+    //UIViewControllerDelegate methods, but not in IOS 4.X. As a result the parentVisible flag is never flipped to true
+    //and the window never lays out. Using this method sets the flag and ensures window goes into layout queue.
+    [newWindow parentWillShow];
 }
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
 	TiViewController *wincontroller = (TiViewController*)viewController;
 	TiWindowProxy *newWindow = (TiWindowProxy *)[wincontroller proxy];
-	
+	BOOL visibleProxyDidChange = NO;
 	if (newWindow!=visibleProxy)
 	{
 		if (visibleProxy != nil && visibleProxy!=root && opening==NO)
@@ -154,13 +156,16 @@
 			//TODO: This is an expedient fix, but NavGroup needs rewriting anyways
 			[(TiUIiPhoneNavigationGroupProxy*)[self proxy] close:[NSArray arrayWithObject:visibleProxy]];
 		}
+		visibleProxyDidChange = YES;
 		[self setVisibleProxy:newWindow];
 	}
 	[closingProxy close:nil];
 	[closingProxy release];
 	closingProxy = nil;
 	opening = NO;
-	[newWindow windowDidOpen];
+	if (visibleProxyDidChange) {
+		[newWindow windowDidOpen];
+	}
 }
 
 

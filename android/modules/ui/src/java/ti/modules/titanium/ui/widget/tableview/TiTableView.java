@@ -270,10 +270,14 @@ public class TiTableView extends FrameLayout
 		final KrollProxy fProxy = proxy;
 		listView.setOnScrollListener(new OnScrollListener()
 		{
+			private boolean scrollValid = false;
+			private int lastValidfirstItem = 0;
+			
 			@Override
 			public void onScrollStateChanged(AbsListView view, int scrollState)
 			{
-				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE){
+				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
+					scrollValid = false;
 					KrollDict eventArgs = new KrollDict();
 					KrollDict size = new KrollDict();
 					size.put("width", TiTableView.this.getWidth());
@@ -281,20 +285,32 @@ public class TiTableView extends FrameLayout
 					eventArgs.put("size", size);
 					fProxy.fireEvent("scrollEnd", eventArgs);
 				}
+				else if (scrollState == OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+					scrollValid = true;
+				}
 			}
 
 			@Override
 			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
 			{
-				KrollDict eventArgs = new KrollDict();
-				eventArgs.put("firstVisibleItem", firstVisibleItem);
-				eventArgs.put("visibleItemCount", visibleItemCount);
-				eventArgs.put("totalItemCount", totalItemCount);
-				KrollDict size = new KrollDict();
-				size.put("width", TiTableView.this.getWidth());
-				size.put("height", TiTableView.this.getHeight());
-				eventArgs.put("size", size);
-				fProxy.fireEvent("scroll", eventArgs);
+				boolean fireScroll = scrollValid;
+				if (!fireScroll && visibleItemCount > 0) {
+					//Items in a list can be selected with a track ball in which case
+					//we must check to see if the first visibleItem has changed.
+					fireScroll = (lastValidfirstItem != firstVisibleItem);
+				}
+				if(fireScroll) {
+					lastValidfirstItem = firstVisibleItem;
+					KrollDict eventArgs = new KrollDict();
+					eventArgs.put("firstVisibleItem", firstVisibleItem);
+					eventArgs.put("visibleItemCount", visibleItemCount);
+					eventArgs.put("totalItemCount", totalItemCount);
+					KrollDict size = new KrollDict();
+					size.put("width", TiTableView.this.getWidth());
+					size.put("height", TiTableView.this.getHeight());
+					eventArgs.put("size", size);
+					fProxy.fireEvent(TiC.EVENT_SCROLL, eventArgs);
+				}
 			}
 		});
 
@@ -411,14 +427,14 @@ public class TiTableView extends FrameLayout
 
 		int width = AbsListView.LayoutParams.WRAP_CONTENT;
 		int height = AbsListView.LayoutParams.WRAP_CONTENT;
-		if (params.autoHeight) {
+		if (params.sizeOrFillHeightEnabled) {
 			if (params.autoFillsHeight) {
 				height = AbsListView.LayoutParams.FILL_PARENT;
 			}
 		} else if (params.optionHeight != null) {
 			height = params.optionHeight.getAsPixels(listView);
 		}
-		if (params.autoWidth) {
+		if (params.sizeOrFillWidthEnabled) {
 			if (params.autoFillsWidth) {
 				width = AbsListView.LayoutParams.FILL_PARENT;
 			}

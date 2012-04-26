@@ -2,9 +2,8 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 	function(declare, lang, View, dom, css, style, UI) {
 
 	var setStyle = style.set,
-		undef,
 		isDef = lang.isDef,
-		imagePrefix = "themes/titanium/UI/TableViewRow/"
+		imagePrefix = "themes/" + require.config.ti.theme + "/UI/TableViewRow/"
 		checkImage = imagePrefix + "check.png",
 		childImage = imagePrefix + "child.png",
 		detailImage = imagePrefix + "detail.png";
@@ -15,36 +14,37 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 		_indentionScale: 10,
 		
 		constructor: function(args) {
-			this.leftView = UI.createView({
-				left: 0,
-				top: 0,
-				width: UI.SIZE, 
-				height: "100%",
+			this.add(this._defaultControl = UI.createView({
+				width: UI.INHERIT,
+				height: UI.INHERIT,
 				layout: "horizontal"
-			}),
+			}));
+			this._defaultControl._layout._defaultVerticalAlignment = "center";
+			
+			this._defaultControl.add(this._leftImageView = UI.createImageView({
+				width: UI.SIZE,
+				height: UI.SIZE
+			})); 
 
-			setStyle(this.leftView.domNode, "boxAlign", "center");
-			this.add(this.leftView);
+			this._defaultControl.add(this._titleLabel = UI.createLabel({
+				width: UI.INHERIT,
+				height: UI.INHERIT,
+				wordWrap: false
+			}));
 
-			this.leftImageView = UI.createImageView();
-			this.leftView.add(this.leftImageView); 
-
-			this.titleLabel = UI.createLabel({ width: UI.SIZE, height: "100%" });
-			this.leftView.add(this.titleLabel);
-
-			this.add(this.rightImageView = UI.createImageView({
-				right: 0,
-				center: {y: "50%"},
+			this._defaultControl.add(this._rightImageView = UI.createImageView({
 				width: UI.SIZE, 
 				height: UI.SIZE
 			}));
 		},
+		
+		_usingDefaultControl: 1,
 
-		_defaultWidth: UI.FILL,
+		_defaultWidth: UI.INHERIT,
 
 		_defaultHeight: UI.SIZE,
 		
-		_tableRowHeight: undef,
+		_tableRowHeight: void 0,
 		
 		_tableViewSection: null,
 		
@@ -57,25 +57,25 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 
 		_doBackground: function(evt) {
 			if (this._touching) {
-				this.titleLabel.color = this.selectedColor;
+				this._titleLabel.color = this.selectedColor;
 			} else {
-				this.titleLabel.color = this.color;
+				this._titleLabel.color = this.color;
 			}
 			View.prototype._doBackground.apply(this,arguments);
 		},
 
 		properties: {
-			className: undef,
+			className: void 0,
 			color: {
 				set: function(value) {
-					this.titleLabel.color = value;
+					this._titleLabel.color = value;
 					return value;
 				}
 			},
 			hasCheck: {
 				set: function(value, oldValue) {
 					if (value !== oldValue && !isDef(this.rightImage) && !this.hasChild) {
-						this.rightImageView.image = value ? checkImage : "";
+						this._rightImageView.image = value ? checkImage : "";
 					}
 					return value;
 				}
@@ -83,7 +83,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 			hasChild: {
 				set: function(value, oldValue) {
 					if (value !== oldValue && !isDef(this.rightImage)) {
-						this.rightImageView.image = value ? childImage : "";
+						this._rightImageView.image = value ? childImage : "";
 					}
 					return value;
 				}
@@ -91,36 +91,36 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 			hasDetail: {
 				set: function(value, oldValue) {
 					if (value !== oldValue && !isDef(this.rightImage) && !this.hasChild && !this.hasCheck) {
-						this.rightImageView.image = value ? detailImage : "";
+						this._rightImageView.image = value ? detailImage : "";
 					}
 					return value;
 				}
 			},
 			indentionLevel: {
 				set: function(value) {
-					this.leftView.left = value * this._indentionScale;
+					this._leftImageView.left = value * this._indentionScale;
 					return value;
 				},
 				value: 0
 			},
 			leftImage: {
 				set: function(value) {
-					this.leftImageView.image = value;
+					this._leftImageView.image = value;
 					return value;
 				}
 			},
 			rightImage: {
 				set: function(value, oldValue) {
 					if (value !== oldValue) {
-						this.rightImageView.image = value;
+						this._rightImageView.image = value;
 					}
 					return value;
 				}
 			},
-			selectedColor: undef,
+			selectedColor: void 0,
 			title: {
 				set: function(value) {
-					this.titleLabel.text = value;
+					this._titleLabel.text = value;
 					return value;
 				}
 			},
@@ -128,7 +128,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 			// Pass through to the label
 			font: {
 				set: function(value) {
-					this.titleLabel.font = value;
+					this._titleLabel.font = value;
 					return value;
 				}
 			}

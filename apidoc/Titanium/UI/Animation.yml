@@ -64,7 +64,11 @@ properties:
     summary: Specifies if the animation should be replayed in reverse upon completion.
     type: Boolean
   - name: backgroundColor
-    summary: Value of the `backgroundColor` property at the end of the animation.
+    summary: |
+        Value of the `backgroundColor` property at the end of the animation, as a color name 
+        or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     platforms: [android, iphone, ipad, mobileweb]
   - name: bottom
@@ -74,7 +78,10 @@ properties:
     summary: Value of the `center` property at the end of the animation.
     type: Object
   - name: color
-    summary: Value of the `color` property at the end of the animation.
+    summary: |
+        Value of the `color` property at the end of the animation, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     platforms: [iphone, ipad, mobileweb]
   - name: curve
@@ -127,7 +134,12 @@ properties:
   - name: transition
     summary: Transition type to use during a transition animation.
     description: |
-        Specify one of the constants from <Titanium.UI.iPhone.AnimationStyle>.
+        One of the activity indicator style constants 
+        <Titanium.UI.iPhone.AnimationStyle.CURL_DOWN>, 
+        <Titanium.UI.iPhone.AnimationStyle.CURL_UP>, 
+        <Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT>, 
+        <Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT>, 
+        or <Titanium.UI.iPhone.AnimationStyle.NONE>.
     type: Number
     platforms: [iphone, ipad]
   - name: visible
@@ -139,6 +151,7 @@ properties:
     type: Number
   - name: zIndex
     summary: Value of the `zIndex` property at the end of the animation.
+    description: Refer to <Titanium.UI.View.zIndex> for an explanation of z-index.
     type: Number
     platforms: [iphone, ipad, mobileweb]
     
@@ -168,7 +181,7 @@ examples:
         the view, then returns it to its original size and position. The
         entire animation is repeated three times.
 
-        	var box = Ti.UI.createView({
+          var box = Ti.UI.createView({
                 backgroundColor : 'red',
                 height : '100',
                 width : '100'

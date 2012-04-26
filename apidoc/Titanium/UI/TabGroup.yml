@@ -2,37 +2,101 @@
 name: Titanium.UI.TabGroup
 summary: A tabbed group of windows.
 description: |
-    The Tab Group allows you to manage a tabbed UI of one or more windows. 
     Use the <Titanium.UI.createTabGroup> method to create a tab group.
-
-    A tab group can contain one or more [Tab](Titanium.UI.Tab) objects, each of which 
-    has an associated tab button and a stack of windows. The user can switch between
-    tabs by tapping a tab button. 
-
-    You can add tabs to the group using [addTab](Titanium.UI.TabGroup.addTab),
-    and switch active tabs by calling 
-    [setActiveTab](Titanium.UI.TabGroup.setActiveTab). 
+    
+    A tab group can contain one or more [Tab](Titanium.UI.Tab) objects, each of which has an 
+    associated tab control that is used to bring it into focus.
+    
+    You can add tabs to the group using [addTab](Titanium.UI.TabGroup.addTab), and programmatically 
+    switch to a specific tab using [setActiveTab](Titanium.UI.TabGroup.setActiveTab).
     
     #### Platform Implementation Notes
-    When using a tab group, note the following differences between platforms: 
     
-    On Android, tabs cannot be removed from the tab group once added, and the 
-    tabs cannot be reordered. 
+    When using a tab group, note the following differences between platforms.
     
-    On iOS, tabs can be removed, and the user may (optionally) 
-    be allowed to reorder tabs.
-
+    The tab group controls are positioned at the top of the display on Android and at the bottom 
+    on iOS.
+    
+    On Android, only one tab group may exist at one time. A tab group may be closed to allow a new 
+    one to be opened later, but the root of the application must be a heavyweight window to prevent 
+    it exiting. Tabs cannot be removed from the tab group once added, and tabs cannot be reordered.
+    
+    On iOS, more than one tab group may exist, and the may be opened and closed as required. 
+    Each tab can contain a stack of windows, and the user can switch between them by tapping the 
+    tab's associated control. Tabs can be removed, and the user may (optionally) be allowed to 
+    reorder tabs.
+    
     On iOS and Mobile Web, it is also possible to add tabs by updating the 
-    [tabs](Titanium.UI.TabGroup.tabs) property, and to switch active tabs by setting 
-    the [active](Titanium.UI.Tab.active) property on one of the tabs to `true`. Since 
-    these mechanisms are platform-specific, it is recommended that you use `addTab` 
-    and `setActiveTab` instead.
+    [tabs](Titanium.UI.TabGroup.tabs) property, and to switch active tabs by setting the 
+    [active](Titanium.UI.Tab.active) property on one of the tabs to `true`. Since these mechanisms 
+    are platform-specific, it is recommended that you use `addTab` and `setActiveTab` instead.
     
     If you use the iOS/Mobile Web-specific mechanisms, it is possible to add multiple active tabs 
-    to a tab group. In this case, the result of which tab is initially selected is 
-    undefined.
+    to a tab group. In this case, the result of which tab is initially selected is undefined.
+    
+    #### Further Reading
+    
+    If using tab groups on iOS, see the "Tab Bar" section of Apple's official 
+    [iOS UI Element Usage Guidelines ](https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/UIElementGuidelines/UIElementGuidelines.html#//apple_ref/doc/uid/TP40006556-CH13-SW52).
 extends: Titanium.UI.View
 since: "0.9"
+
+events:
+  - name: blur
+    summary: |
+        Fired when this tab group loses focus. On Android, fired when a tab in this tab group 
+        loses focus.
+    properties:
+      - name: index
+        summary: |
+            Index of the current active tab. On iOS, a value of `undefined` indicates that the 
+            **More** tab was the active tab.
+        type: Number
+        
+      - name: previousIndex
+        summary: |
+            Index of the previous active tab. On iOS, a value of `undefined` indicates that the 
+            **More** tab was the previous tab.
+        type: Number
+        
+      - name: tab
+        summary: Active tab.
+        type: Titanium.UI.Tab
+        
+      - name: previousTab
+        summary: |
+            Previous active tab. On iOS, a value of `undefined` indicates that the **More** tab was 
+            the previous tab.
+        type: Titanium.UI.Tab
+        
+  - name: close
+    summary: Fired when the tab group is closed.
+    platforms: [iphone, ipad, mobileweb]
+    
+  - name: focus
+    summary: |
+        Fired when this tab group gains focus. On Android, fired when a tab in this tab group 
+        gains focus.
+    properties:
+      - name: index
+        summary: Index of the current active tab.
+        type: Number
+        
+      - name: previousIndex
+        summary: Index of the previous active tab.
+        type: Number
+        
+      - name: tab
+        summary: Active tab.
+        type: Titanium.UI.Tab
+        
+      - name: previousTab
+        summary: Previous active tab.
+        type: Titanium.UI.Tab
+        
+  - name: open
+    summary: Fired when the tab group is opened.
+
 methods:
   - name: addTab
     summary: Adds a tab to the tab group.
@@ -40,186 +104,274 @@ methods:
       - name: tab
         summary: Tab to add.
         type: Titanium.UI.Tab
+        
   - name: close
     summary: Closes the tab group and removes it from the UI.
+
+  - name: getActiveTab
+    summary: Gets the currently-active tab.
+    returns:
+        type: Titanium.UI.Tab
+        
   - name: open
     summary: Opens the tab group and makes it visible.
+    
   - name: removeTab
     summary: Removes a tab from the tab group.
-    platforms: [iphone,ipad,mobileweb]
+    platforms: [iphone, ipad, mobileweb]
     parameters:
       - name: tab
         summary: Tab to remove.
         type: Titanium.UI.Tab
+        
   - name: setActiveTab
     summary: Selects the currently active tab in a tab group.
     parameters:
       - name: indexOrObject
-        summary: Tab object to switch to, or the index of the tab object to switch to. 
-        type: [Number,Titanium.UI.Tab]
+        summary: Index or object of the tab to switch to.
+        type: [Number, Titanium.UI.Tab]
+        
   - name: getTabs
-    summary: Returns an array of tab objects that are managed by the tab group.
+    summary: Gets all tabs that are managed by the tab group.
     returns: 
         type: Array<Titanium.UI.Tab>
-events:
-  - name: blur
-    summary: Fired when the tab group loses focus.
-    properties:
-      - name: index
-        summary: Index of the current active tab.
-        type: Number
-      - name: previousIndex
-        summary: Index of the previous active tab.
-        type: Number
-      - name: tab
-        summary: Active tab.
-        type: Titanium.UI.Tab
-      - name: previousTab
-        summary: Previous active tab.
-        type: Titanium.UI.Tab
-  - name: close
-    summary: Fired when the tab group is closed.
-  - name: focus
-    summary: Fired when the tab group gains focus.
-    properties:
-      - name: index
-        summary: Index of the current active tab.
-        type: Number
-      - name: previousIndex
-        summary: Index of the previous active tab.
-        type: Number
-      - name: tab
-        summary: Active tab.
-        type: Titanium.UI.Tab
-      - name: previousTab
-        summary: Previous active tab.
-        type: Titanium.UI.Tab
-  - name: open
-    summary: fired when the tab group is opened
+
 properties:
   - name: activeTab
     summary: Active tab.
     type: Titanium.UI.Tab
+    
   - name: allowUserCustomization
-    summary: Set to `true` to allow the user to reorder tabs in the tab group, `false` to prevent reordering. When customization is enabled, the user can reorder tabs using the **Edit**  button on the **More** tab.
-    platforms: [iphone,ipad]
+    summary: |
+        Allow the user to reorder tabs in the tab group using the **Edit** button on the **More** 
+        tab.
+    description: Set to `false` to prevent tab reordering.
     type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+    
   - name: barColor
-    summary: Default navigation bar color (typically for the **More** tab).
+    summary: |
+        Default navigation bar color (typically for the **More** tab), as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+        
+        A value of `transparent` results in a semi-opaque black bar style.
     type: String
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad]
+    
   - name: editButtonTitle
     summary: Title for the edit button on the **More** tab.
-    platforms: [iphone,ipad]
     type: String
+    platforms: [iphone, ipad]
+    
   - name: tabs
     summary: |
-        Array of tab objects that are managed by the tab group. This property is not supported across all platforms: use [getTabs](Titanium.UI.TabGroup.getTabs) instead.
+        Tabs managed by the tab group.
     type: Array<Titanium.UI.Tab>
-    platforms: [iphone,ipad]
+    
   - name: windowSoftInputMode
     summary: |
-        Determines how the tab group is treated when a soft input method (such as a virtual keyboard) is displayed. One of [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN), [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE), or [SOFT_INPUT_ADJUST_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED). For more information see the Android API Reference: [Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
+        Determines how the tab group is treated when a soft input method (such as a virtual keyboard) 
+        is displayed.
+    description: |
+        One of [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN), 
+        [SOFT_INPUT_ADJUST_RESIZE](Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE), 
+        or [SOFT_INPUT_ADJUST_UNSPECIFIED](Titanium.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED).
+        
+        For more information see the official Android API Reference, 
+        [Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
     type: Number
-    platforms: [android]
     availability: creation
+    platforms: [android]
+    
   - name: tabsBackgroundColor
-    summary: The default background color for tabs. If [backgroundColor](Titanium.UI.Tab.backgroundColor) is explicitly set on an individual tab, that value takes precidence.
+    summary: Default background color for tabs, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+        
+        A tab's [backgroundColor](Titanium.UI.Tab.backgroundColor) property takes precedence if set.
     type: String
-    platforms: [android, mobileweb]
+    platforms: [iphone, ipad, mobileweb]
+    
   - name: tabsBackgroundImage
-    summary: The default background image for tabs. If [backgroundImage](Titanium.UI.Tab.backgroundImage) is explicitly set on an individual tab, that value takes precidence.
+    summary: Default background image for tabs.
+    description: |
+        A tab's [backgroundImage](Titanium.UI.Tab.backgroundImage) property takes precedence if set.
     type: String
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
-    platforms: [android, mobileweb]
+    
   - name: tabsBackgroundDisabledColor
-    summary: The default background disabled color for tabs. If [backgroundDisabledColor](Titanium.UI.Tab.backgroundDisabledColor) is explicitly set on an individual tab, that value takes precidence.
+    summary: Default background disabled color for tabs, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        
+        A tab's [backgroundDisabledColor](Titanium.UI.Tab.backgroundDisabledColor) property takes 
+        precedence if set.
     type: String
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
-    platforms: [android, mobileweb]
+    
   - name: tabsBackgroundDisabledImage
-    summary: The default background disabled image for tabs. If [backgroundDisabledImage](Titanium.UI.Tab.backgroundDisabledImage) is explicitly set on an individual tab, that value takes precidence.
+    summary: Default background disabled image for tabs.
+    description: |
+        A tab's [backgroundDisabledImage](Titanium.UI.Tab.backgroundDisabledImage) property takes 
+        precedence if set.
     type: String
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
-    platforms: [android, mobileweb]
+    
   - name: tabsBackgroundFocusedColor
-    summary: The default background focused color for tabs. If [backgroundFocusedColor](Titanium.UI.Tab.backgroundFocusedColor) is explicitly set on an individual tab, that value takes precidence.
+    summary: Default background focused color for tabs, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        
+        A tab's [backgroundFocusedColor](Titanium.UI.Tab.backgroundFocusedColor) property takes 
+        precedence if set.
     type: String
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
-    platforms: [android, mobileweb]
+    
   - name: tabsBackgroundFocusedImage
-    summary: The default background focused image for tabs. If [backgroundFocusedImage](Titanium.UI.Tab.backgroundFocusedImage) is explicitly set on an individual tab, that value takes precidence.
+    summary: Default background focused image for tabs.
+    description: |
+        A tab's [backgroundFocusedImage](Titanium.UI.Tab.backgroundFocusedImage) property takes 
+        precedence if set.
     type: String
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
-    platforms: [android, mobileweb]
+    
   - name: tabsBackgroundSelectedColor
-    summary: The default background selected color for tabs. If [backgroundSelectedColor](Titanium.UI.Tab.backgroundSelectedColor) is explicitly set on an individual tab, that value takes precidence.
+    summary: Default background selected color for tabs, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+        
+        A tab's [backgroundSelectedColor](Titanium.UI.Tab.backgroundSelectedColor) property takes 
+        precedence if set.
     type: String
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
-    platforms: [android, mobileweb]
+    
   - name: tabsBackgroundSelectedImage
-    summary: The default background selected image for tabs. If [backgroundSelectedImage](Titanium.UI.Tab.backgroundSelectedImage) is explicitly set on an individual tab, that value takes precidence.
+    summary: Default background selected image for tabs.
+    description: |
+        A tab's [backgroundSelectedImage](Titanium.UI.Tab.backgroundSelectedImage) property takes 
+        precedence if set.
     type: String
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
-    platforms: [android, mobileweb]
+    
   - name: activeTabBackgroundColor
-    summary: The default background color for the active tab. If [backgroundColor](Titanium.UI.Tab.backgroundColor) is explicitly set on an individual tab, that value takes precidence.
+    summary: Default background color for the active tab, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+        
+        A tab's [backgroundColor](Titanium.UI.Tab.backgroundColor)  property takes precedence if set.
     type: String
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
-    platforms: [android, mobileweb]
+    
   - name: activeTabBackgroundImage
-    summary: The default background image for the active tab. If [backgroundImage](Titanium.UI.Tab.backgroundImage) is explicitly set on an individual tab, that value takes precidence.
+    summary: Default background image for the active tab.
+    description: |
+        A tab's [backgroundImage](Titanium.UI.Tab.backgroundImage) property takes precedence if set.
     type: String
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
-    platforms: [android, mobileweb]
+    
   - name: activeTabBackgroundDisabledColor
-    summary: The default background disabled color for the active tab. If [backgroundDisabledColor](Titanium.UI.Tab.backgroundDisabledColor) is explicitly set on an individual tab, that value takes precidence.
+    summary: Default background disabled color for the active tab, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        
+        A tab's [backgroundDisabledColor](Titanium.UI.Tab.backgroundDisabledColor) property takes 
+        precedence if set.
     type: String
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
-    platforms: [android, mobileweb]
+    
   - name: activeTabBackgroundDisabledImage
-    summary: The default background disabled image for the active tab. If [backgroundDisabledImage](Titanium.UI.Tab.backgroundDisabledImage) is explicitly set on an individual tab, that value takes precidence.
+    summary: Default background disabled image for the active tab.
+    description: |
+        A tab's [backgroundDisabledImage](Titanium.UI.Tab.backgroundDisabledImage) property takes 
+        precedence if set.
     type: String
-    since: "1.9.0"
     platforms: [android, mobileweb]
+    since: "1.9.0"
+    
   - name: activeTabBackgroundFocusedColor
-    summary: The default background focused color for the active tab. If [backgroundFocusedColor](Titanium.UI.Tab.backgroundFocusedColor) is explicitly set on an individual tab, that value takes precidence.
+    summary: Default background focused color for the active tab, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        
+        A tab's [backgroundFocusedColor](Titanium.UI.Tab.backgroundFocusedColor) property takes 
+        precedence if set.
     type: String
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
-    platforms: [android, mobileweb]
+    
   - name: activeTabBackgroundFocusedImage
-    summary: The default background focused image for the active tab. If [backgroundFocusedImage](Titanium.UI.Tab.backgroundFocusedImage) is explicitly set on an individual tab, that value takes precidence.
+    summary: Default background focused image for the active tab.
+    description: |
+        A tab's [backgroundFocusedImage](Titanium.UI.Tab.backgroundFocusedImage) property takes 
+        precedence if set.
     type: String
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
-    platforms: [android, mobileweb]
+    
   - name: activeTabBackgroundSelectedColor
-    summary: The default background selected color for the active tab. If [backgroundSelectedColor](Titanium.UI.Tab.backgroundSelectedColor) is explicitly set on an individual tab, that value takes precidence.
+    summary: Default background selected color for the active tab, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        
+        A tab's [backgroundSelectedColor](Titanium.UI.Tab.backgroundSelectedColor) property takes 
+        precedence if set.
     type: String
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
-    platforms: [android, mobileweb]
+    
   - name: activeTabBackgroundSelectedImage
-    summary: The default background selected image for the active tab. If [backgroundSelectedImage](Titanium.UI.Tab.backgroundSelectedImage) is explicitly set on an individual tab, that value takes precidence.
+    summary: Default background selected image for the active tab.
+    description: |
+        A tab's [backgroundSelectedImage](Titanium.UI.Tab.backgroundSelectedImage) property takes 
+        precedence if set.
     type: String
-    since: "1.9.0"
     platforms: [android, mobileweb]
+    since: "1.9.0"
+    
   - name: tabDividerColor
-    summary: The color of the divider between tabs
+    summary: Color of the divider between tabs, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
+    platforms: [iphone, ipad, mobileweb]
     since: "1.9.0"
-    platforms: [android, mobileweb]
+    
   - name: tabDividerWidth
-    summary: The width of the divider between tabs.
+    summary: Width of the divider between tabs.
     description: |
         This width is relative to the tabgroup's parent. Can be either a float value or 
-        a dimension string (for example, '50%' or 'auto').
-    type: [Number,String]
-    since: "1.9.0"
+        a dimension string (for example, `'50%'` or `'auto'`).
+    type: [Number, String]
     platforms: [android, mobileweb]
+    since: "1.9.0"
+    
   - name: tabHeight
-    summary: The height of the tabs.
+    summary: Height of the tabs.
     description: |
         This height is relative to the tabgroup's parent. Can be either a float value or 
-        a dimension string (for example, '50%' or 'auto').
-    type: [Number,String]
-    since: "1.9.0"
+        a dimension string (for example, `'50%'` or `'auto'`).
+    type: [Number, String]
     platforms: [mobileweb]
+    since: "1.9.0"
+    
+  - name: tabsAtBottom
+    summary: |
+        Determines whether the tabs should be positioned at the top rather than the bottom of the 
+        screen.
+    description: Set to `false` to position tabs at the top of the screen.
+    type: Boolean
+    default: true
+    platforms: [mobileweb]
+    since: "1.9.0"

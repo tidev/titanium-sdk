@@ -32,8 +32,10 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.WebViewProxy;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -75,6 +77,28 @@ public class TiUIWebView extends TiUIView
 				client.getBinding().destroy();
 			}
 			super.destroy();
+		}
+
+		@Override
+		public boolean onTouchEvent(MotionEvent ev)
+		{
+			boolean handled = false;
+
+			// In Android WebView, all the click events are directly sent to WebKit. As a result, OnClickListener() is
+			// never called. Therefore, we have to manually call performClick() when a click event is detected.
+			if (ev.getAction() == MotionEvent.ACTION_UP) {
+				Rect r = new Rect(0, 0, getWidth(), getHeight());
+				if (r.contains((int) ev.getX(), (int) ev.getY())) {
+					handled = proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(ev));
+				}
+			}
+
+			if (handled) {
+				return true;
+			}
+
+			// If performClick() can not handle the event, we pass it to WebKit.
+			return super.onTouchEvent(ev);
 		}
 	}
 
@@ -367,17 +391,30 @@ public class TiUIWebView extends TiUIView
 		setHtmlInternal(html, baseUrl, mimeType);
 	}
 
+	/**
+	 * Loads HTML content into the web view.  Note that the "historyUrl" property 
+	 * must be set to non null in order for the web view history to work correctly 
+	 * when working with local files (IE:  goBack() and goForward() will not work if 
+	 * null is used)
+	 * 
+	 * @param html					HTML data to load into the web view
+	 * @param baseUrl				url to associate with the data being loaded
+	 * @param mimeType				mime type of the data being loaded
+	 */
 	private void setHtmlInternal(String html, String baseUrl, String mimeType)
 	{
 		// iOS parity: for whatever reason, when html is set directly, the iOS implementation
 		// explicitly sets the native webview's setScalesPageToFit to NO if the
 		// Ti scalesPageToFit property has _not_ been set.
+
+		WebView webView = getWebView();
 		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
-			getWebView().getSettings().setLoadWithOverviewMode(false);
+			webView.getSettings().setLoadWithOverviewMode(false);
 		}
+
 		if (html.contains(TiWebViewBinding.SCRIPT_INJECTION_ID)) {
 			// Our injection code is in there already, go ahead and show.
-			getWebView().loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", null);
+			webView.loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
 			return;
 		}
 
@@ -385,16 +422,18 @@ public class TiUIWebView extends TiUIView
 		int tagEnd = -1;
 		if (tagStart >= 0) {
 			tagEnd = html.indexOf(">", tagStart + 1);
+
 			if (tagEnd > tagStart) {
 				StringBuilder sb = new StringBuilder(html.length() + 2500);
 				sb.append(html.substring(0, tagEnd + 1));
 				sb.append(TiWebViewBinding.INJECTION_CODE);
 				sb.append(html.substring(tagEnd + 1));
-				getWebView().loadDataWithBaseURL(baseUrl, sb.toString(), mimeType, "utf-8", null);
+				webView.loadDataWithBaseURL(baseUrl, sb.toString(), mimeType, "utf-8", baseUrl);
 				return;
 			}
 		}
-		getWebView().loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", null);
+
+		webView.loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
 	}
 
 	public void setData(TiBlob blob)

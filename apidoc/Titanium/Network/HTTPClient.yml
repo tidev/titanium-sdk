@@ -26,16 +26,38 @@ description: |
 
         httpResponse = this.responseText;
         status = this.status;
-
-    Mobile web requires cross-domain origin policies to be configured on the web servers 
-    in order for cross-domain connections to work.
+    
+    #### Mobile Web Platform Implementation Notes
+    
+    Mobile Web is limited by the same-origin policy. According to W3C: "User agents 
+    commonly apply same-origin restrictions to network requests. These restrictions 
+    prevent a client-side Web application running from one origin from obtaining 
+    data retrieved from another origin, and also limit unsafe HTTP requests that can 
+    be automatically launched toward destinations that differ from the running 
+    application's origin."  This means that browsers cannot request information from 
+    a domain that the app itself does not reside on. If you are hosting the app at 
+    foo.example.com, then requests to any domain other than *.example.com will fail.
+    
+    There are two solutions to get around this problem:
+      
+    * Configure the destination server to support Cross-Origin Resource Sharing.
+    * Use [Ti.Network.httpURLFormatter](Titanium.Network.httpURLFormatter) in conjunction 
+      with a proxy on the server hosting the application.
+    
+    More information about Cross-Origin Resource Sharing can be found on the 
+    [W3C Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) specification page.
+    
 extends: Titanium.Proxy
 since: "0.1"
 methods:
   - name: abort
     summary: Cancels a pending request.
   - name: clearCookies
-    summary: Clears any cookies stored for this host.
+    summary: Clears any cookies stored for the host.
+    parameters:
+      - name: host
+        summary: The URL of the host/domain to clear cookies for.
+        type: String
     platforms: [android, iphone, ipad]
   - name: getResponseHeader
     summary: Returns the value of the specified response header.
@@ -265,6 +287,13 @@ properties:
     type: Boolean
     default: False when running in the simulator or on device in testing mode, and true if built for release in distribution mode.
     platforms: [android, iphone, ipad]
+  - name: withCredentials
+    summary: Tells the request to include any cookies and HTTP authentication information.
+    description: |
+        This property must be set before open() is called. Setting this to true will force the request to be asynchronous.
+    type: Boolean
+    default: false
+    platforms: [mobileweb]
   - name: tlsVersion
     summary: Sets the TLS version to use for handshakes. 
     description: |

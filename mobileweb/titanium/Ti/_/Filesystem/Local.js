@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob"],
-	function(declare, encoding, lang, API, Blob) {
+define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob"],
+	function(_, declare, encoding, lang, API, Blob) {
 
 	var reg,
 		regDate = (new Date()).getTime(),
@@ -34,37 +34,10 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob"],
 		metaPrefix = "ti:fs:meta:",
 		blobPrefix = "ti:fs:blob:",
 		pathRegExp = /(\/)?([^\:]*)(\:\/\/)?(.*)/,
-		mimeTypes = "application/octet-stream,text/plain,text/html,text/css,text/xml,text/mathml,image/gif,image/jpeg,image/png,image/x-icon,image/svg+xml,application/x-javascript,application/json,application/pdf,application/x-opentype,audio/mpeg,video/mpeg,video/quicktime,video/x-flv,video/x-ms-wmv,video/x-msvideo,video/ogg,video/mp4,video/webm".split(','),
-		mimeExtentions = {
-			txt: 1,
-			html: 2,
-			htm: 2,
-			css: 3,
-			xml: 4,
-			mml: 5,
-			gif: 6,
-			jpeg: 7,
-			jpg: 7,
-			png: 8,
-			ico: 9,
-			svg: 10,
-			js: 11,
-			json: 12,
-			pdf: 13,
-			otf: 14,
-			mp3: 15,
-			mpeg: 16,
-			mpg: 16,
-			mov: 17,
-			flv: 18,
-			wmv: 19,
-			avi: 20,
-			ogg: 21,
-			ogv: 21,
-			mp4: 22,
-			m4v: 22,
-			webm: 23
-		};
+
+		// important! add new mime types to the end of array and then figure out the index to assign to each extension
+		mimeTypes = "application/octet-stream,text/plain,text/html,text/css,text/xml,text/mathml,image/gif,image/jpeg,image/png,image/x-icon,image/svg+xml,application/x-javascript,application/json,application/pdf,application/x-opentype,audio/mpeg,video/mpeg,video/quicktime,video/x-flv,video/x-ms-wmv,video/x-msvideo,video/ogg,video/mp4,video/webm,text/csv".split(','),
+		mimeExtentions = { txt: 1, html: 2, htm: 2, css: 3, xml: 4, mml: 5, gif: 6, jpeg: 7, jpg: 7, png: 8, ico: 9, svg: 10, js: 11, json: 12, pdf: 13, otf: 14, mp3: 15, mpeg: 16, mpg: 16, mov: 17, flv: 18, wmv: 19, avi: 20, ogg: 21, ogv: 21, mp4: 22, m4v: 22, webm: 23, csv: 24 };
 
 	function getLocal(path, meta) {
 		return ls.getItem("ti:fs:" + (meta ? "meta:" : "blob:") + path);
@@ -78,7 +51,7 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob"],
 	function getRemote(path) {
 		var xhr = new XMLHttpRequest;
 		xhr.overrideMimeType('text/plain; charset=x-user-defined');
-		xhr.open("GET", path, false);
+		xhr.open("GET", '.' + path, false);
 		xhr.send(null);
 		return xhr.status === 200 ? { data: xhr.responseText, mimeType: xhr.getResponseHeader("Content-Type") } : null;
 	}
@@ -92,7 +65,7 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob"],
 				'/': "tD\nr1"
 			};
 
-			require("/titanium/filesystem.registry").split(/\n|\|/).forEach(function(line, i) {
+			require("./titanium/filesystem.registry").split(/\n|\|/).forEach(function(line, i) {
 				var depth = 0,
 					line = line.split('\t'),
 					len = line.length,
@@ -416,7 +389,8 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob"],
 				var path = this.nativePath,
 					obj,
 					data = this._remote ? (obj = getRemote(path)).data : getLocal(path) || "",
-					type = obj && obj.mimeType || this._mimeType || mimeTypes[mimeExtentions[this.extension()] || 0],
+					defaultMimeType =  mimeTypes[mimeExtentions[this.extension()] || 0],
+					type = obj && obj.mimeType || this._mimeType || defaultMimeType,
 					i = 0,
 					len = data.length,
 					binaryData = '',
@@ -424,11 +398,11 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob"],
 						file: this,
 						data: data,
 						length: len,
-						mimeType: type,
+						mimeType: type = type === "application/octet-stream" && type !== defaultMimeType ? defaultMimeType : type,
 						nativePath: path
 					};
 
-				if (this._remote && /^(application|image|audio|video)\//.test(type)) {
+				if (this._remote && _.isBinaryMimeType(type)) {
 					while (i < len) {
 						binaryData += String.fromCharCode(data.charCodeAt(i++) & 0xff);
 					}

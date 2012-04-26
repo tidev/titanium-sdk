@@ -3,13 +3,13 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 		
 	var setStyle = style.set,
 		contentPadding = 15,
-		undef,
 		on = require.on;
 
 	return declare("Ti.UI.PickerColumn", FontWidget, {
 		
 		constructor: function() {
 			var self = this,
+				clickEventName = "ontouchstart" in window ? "touchend" : "click",
 				upArrow = this._upArrow = dom.create("div", {
 					className: "TiUIElementGradient",
 					style: {
@@ -24,7 +24,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					},
 					innerHTML: "\u2227"
 				}, this.domNode);
-			on(upArrow, "click", function(){
+			on(upArrow, clickEventName, function(){
 				var nextRow = self._rows.indexOf(self.selectedRow);
 				if (nextRow > 0) {
 					self.selectedRow = self._rows[nextRow - 1];
@@ -53,7 +53,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					width: "100%"
 				}
 			}, this.domNode);
-			on(titleClickArea, "click", function() {
+			on(titleClickArea, clickEventName, function() {
 				// Create the window and a background to dim the current view
 				var listWindow = UI.createWindow();
 				var dimmingView = UI.createView({
@@ -153,7 +153,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 				}
 			}, this.domNode);
 			downArrow.innerHTML = "\u2228";
-			downArrow.addEventListener("click", function(){
+			on(downArrow, clickEventName, function() {
 				var nextRow = self._rows.indexOf(self.selectedRow);
 				if (nextRow < self._rows.length - 1) {
 					self.selectedRow = self._rows[nextRow + 1];
@@ -205,7 +205,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 				}
 				if (this._widestRowWidth !== widestRowWidth) {
 					this._widestRowWidth = widestRowWidth;
-					this._triggerParentLayout();
+					this._triggerLayout();
 				}
 			}
 		},
@@ -225,7 +225,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 		_setTallestRowHeight: function(height) {
 			if (this._tallestRowHeight !== height) {
 				this._tallestRowHeight = height;
-				this._triggerParentLayout();
+				this._triggerLayout();
 			}
 		},
 		
@@ -243,7 +243,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 			var rowIndex = this._rows.indexOf(row);
 			if (rowIndex !== -1) {
 				this._rows.splice(rowIndex,1);
-				row._parentColumn = undef;
+				row._parentColumn = void 0;
 				this._updateContentWidth();
 				this._parentPicker && this._parentPicker._updateColumnHeights();
 				if (this.selectedRow === row) {
@@ -273,10 +273,10 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 			selectedRow: {
 				set: function(value) {
 					if (!value) {
-						this.font = undef;
-						this.color = undef;
+						this.font = void 0;
+						this.color = void 0;
 						this._titleContainer.innerHTML = "";
-						this._hasSizeDimensions() && this._triggerParentLayout();
+						this._hasSizeDimensions() && this._triggerLayout();
 					} else {
 						var rowIndex = this._rows.indexOf(value);
 						if (rowIndex === -1) {
@@ -285,7 +285,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 						this.font = value.font;
 						this.color = lang.val(value.color, "");
 						this._titleContainer.innerHTML = value.title;
-						this._hasSizeDimensions() && this._triggerParentLayout();
+						this._hasSizeDimensions() && this._triggerLayout();
 					}
 					return value;
 				},

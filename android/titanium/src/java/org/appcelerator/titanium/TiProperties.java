@@ -44,6 +44,7 @@ public class TiProperties
 	 * @param key the lookup key.
 	 * @param def the default value.
 	 * @return mapping of key, or default value.
+	 * @module.api
 	 */
 	public String getString(String key, String def)
 	{
@@ -62,6 +63,7 @@ public class TiProperties
 	 * Otherwise, its value will be overwritten.
 	 * @param key the key to set.
 	 * @param value the value to set.
+	 * @module.api
 	 */
 	public void setString(String key, String value)
 	{
@@ -85,6 +87,7 @@ public class TiProperties
 	 * @param key the lookup key.
 	 * @param def the default value.
 	 * @return mapping of key, or default value.
+	 * @module.api
 	 */
 	public int getInt(String key, int def)
 	{
@@ -98,6 +101,7 @@ public class TiProperties
 	 * Maps the specified key with an int value. If key exists, its value will be overwritten.
 	 * @param key the key to set.
 	 * @param value the value to set.
+	 * @module.api
 	 */
 	public void setInt(String key, int value)
 	{
@@ -115,6 +119,7 @@ public class TiProperties
 	 * @param key the lookup key.
 	 * @param def the default value.
 	 * @return mapping of key, or default value.
+	 * @module.api
 	 */
 	public double getDouble(String key, double def)
 	{
@@ -138,6 +143,7 @@ public class TiProperties
 	 * overwritten.
 	 * @param key the key to set.
 	 * @param value the value to set.
+	 * @module.api
 	 */
 	public void setDouble(String key, double value)
 	{
@@ -155,6 +161,7 @@ public class TiProperties
 	 * @param key the lookup key.
 	 * @param def the default value.
 	 * @return mapping of key, or default value.
+	 * @module.api
 	 */
 	public boolean getBool(String key, boolean def)
 	{
@@ -169,6 +176,7 @@ public class TiProperties
 	 * overwritten.
 	 * @param key the key to set.
 	 * @param value the value to set.
+	 * @module.api
 	 */
 	public void setBool(String key, boolean value)
 	{
@@ -186,6 +194,7 @@ public class TiProperties
 	 * @param key the lookup key.
 	 * @param def the default value.
 	 * @return mapping of key, or default value.
+	 * @module.api
 	 */
 	public String[] getList(String key, String def[])
 	{
@@ -210,6 +219,7 @@ public class TiProperties
 	 * If key exists, its value will be overwritten.
 	 * @param key the key to set.
 	 * @param value the value to set.
+	 * @module.api
 	 */
 	public void setList(String key, String[] value)
 	{
@@ -228,6 +238,11 @@ public class TiProperties
 
 	}
 
+	/**
+	 * @param key the lookup list key.
+	 * @return true if the list property exists in preferences
+	 * @module.api
+	 */
 	public boolean hasListProperty(String key) {
 		return hasProperty(key+".0");
 	}
@@ -236,6 +251,7 @@ public class TiProperties
 	 * Returns whether key exists in preferences.
 	 * @param key the lookup key.
 	 * @return true if key exists in preferences.
+	 * @module.api
 	 */
 	public boolean hasProperty(String key)
 	{
@@ -245,6 +261,7 @@ public class TiProperties
 	/**
 	 * Returns an array of keys whose values are lists.
 	 * @return an array of keys.
+	 * @module.api
 	 */
 	public String[] listProperties()
 	{
@@ -267,6 +284,7 @@ public class TiProperties
 	/**
 	 * Removes the key from preferences if it exists.
 	 * @param key the key to remove.
+	 * @module.api
 	 */
 	public void removeProperty(String key)
 	{

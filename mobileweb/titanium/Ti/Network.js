@@ -2,35 +2,28 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 
 	var conn = navigator.connection,
 		online = navigator.onLine,
-		api = lang.setObject("Ti.Network", Evented, {
+		Network = lang.setObject("Ti.Network", Evented, {
 
 			constants: {
-				INADDR_ANY: null,
 				NETWORK_LAN: 1,
 				NETWORK_MOBILE: 3,
 				NETWORK_NONE: 0,
 				NETWORK_UNKNOWN: -1,
 				NETWORK_WIFI: 2,
-				NOTIFICATION_TYPE_ALERT: 0,
-				NOTIFICATION_TYPE_BADGE: 1,
-				NOTIFICATION_TYPE_SOUND: 2,
-				READ_MODE: 0,
-				READ_WRITE_MODE: 2,
-				WRITE_MODE: 1,
 				networkType: function() {
 					if (!online) {
-						return api.NETWORK_NONE;
+						return Network.NETWORK_NONE;
 					}		
 					if (conn && conn.type == conn.WIFI) {
-						return api.NETWORK_WIFI;
+						return Network.NETWORK_WIFI;
 					}
 					if (conn && conn.type == conn.ETHERNET) {
-						return api.NETWORK_LAN;
+						return Network.NETWORK_LAN;
 					}
 					if (conn && (conn.type == conn.CELL_2G || conn.type == conn.CELL_3G)) {
-						return api.NETWORK_MOBILE;
+						return Network.NETWORK_MOBILE;
 					}
-					return api.NETWORK_UNKNOWN;
+					return Network.NETWORK_UNKNOWN;
 				},
 				networkTypeName: function() {
 					if (!online) {
@@ -57,8 +50,7 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 			},
 
 			createHTTPClient: function(args) {
-				var HTTPClient = require("Ti/Network/HTTPClient");
-				return new HTTPClient(args);
+				return new (require("Ti/Network/HTTPClient"))(args);
 			},
 
 			decodeURIComponent: function(value) {
@@ -71,30 +63,20 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 
 		});
 
-	require.on(window, "online", function(evt) {
-		if (!online) {
-			online = true;
-			api.fireEvent("change", {
-				networkType		: api.networkType,
-				networkTypeName	: api.networkTypeName,
-				online			: true,
-				source			: evt.target,
-				type			: evt.type
-			});
-		}
-	});
+	function onlineChange(evt) {
+		evt.type === "online" && !online && (online = 1);
+		evt.type === "offline" && online && (online = 0);
 
-	require.on(window, "offline", function(evt) {
-		if (online) {
-			online = false;
-			api.fireEvent("change", {
-				networkType		: api.networkType,
-				networkTypeName	: api.networkTypeName,
-				online			: false,
-				source			: evt.target,
-				type			: evt.type
-			});
-		}
-	});
+		Network.fireEvent("change", {
+			networkType		: Network.networkType,
+			networkTypeName	: Network.networkTypeName,
+			online			: online
+		});
+	}
+
+	require.on(window, "online", onlineChange);
+	require.on(window, "offline", onlineChange);
+
+	return Network;
 
 });

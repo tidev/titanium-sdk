@@ -23,6 +23,10 @@ public class TiRHelper {
 	private static String clsPrefixAndroid     = "android.R$";
 	private static String clsPrefixApplication = null;
 	
+	/**
+	 * The exception thrown by TiRHelper when a particular resource is not found.
+	 * @module.api
+	 */
 	public static final class ResourceNotFoundException extends ClassNotFoundException {
 		private static final long serialVersionUID = 119234857198273641L;
 		
@@ -47,6 +51,7 @@ public class TiRHelper {
 		return new String[] { className, fieldName };
 	}
 	
+
 	protected static int getResource(String prefix, String path) throws ResourceNotFoundException {
 		Integer i = valCache.get(path);
 		if (i != null) return i;
@@ -78,6 +83,16 @@ public class TiRHelper {
 		return i;
 	}
 	
+	/**
+	 * Searches for an Android compiled resource given its path. These resources are traditionally accessed via a resource ID
+	 * (either from the application's resource bundle, or Android's internal resource bundle)
+	 * @param path the resource's path.
+	 * @param includeSystemResources indicates whether or not {@link #getResource(String, boolean)} will look in the system's (Android)
+	 * resource bundle, if the resource is not found in the application's resource bundle.
+	 * @return the resource, if found.
+	 * @throws ResourceNotFoundException the exception thrown when the resource is not found in either location listed above.
+	 * @module.api
+	 */
 	public static int getResource(String path, boolean includeSystemResources) throws ResourceNotFoundException {
 		Integer i = valCache.get(path);
 		if (i != null) return i;
@@ -95,7 +110,14 @@ public class TiRHelper {
 		}
 	}
 
-	
+	/**
+	 * Searches for an Android compiled resource given its path. Refer to {@link #getResource(String, boolean)} for more details.
+	 * @param path the resource's path
+	 * @return the resource, if found.
+	 * @throws ResourceNotFoundException the exception thrown when the resource is not found in either
+	 * the application's resource bundle, or Android's internal resource bundle.
+	 * @module.api
+	 */
 	public static int getResource(String path) throws ResourceNotFoundException
 	{
 		return getResource(path, true);

@@ -39,7 +39,7 @@
 
 @end
 
-@interface TiUITableView : TiUIView<UISearchDisplayDelegate,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiUIScrollView> {
+@interface TiUITableView : TiUIView<UISearchDisplayDelegate,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiScrolling,TiProxyObserver> {
 @private
 	UITableView *tableview;
 	BOOL moving;
@@ -63,12 +63,15 @@
 	NSString * filterAttribute;
 	NSString * searchString;
 	NSMutableArray * searchResultIndexes;
+    BOOL searchActivated;
 	BOOL filterCaseInsensitive;
 	BOOL allowsSelectionSet;
 	id	lastFocusedView; //DOES NOT RETAIN.	
 	UITableViewController *tableController;
 	UISearchDisplayController *searchController;
 	NSInteger frameChanges;
+    TiViewProxy* headerViewProxy;
+    TiViewProxy* footerViewProxy;
 }
 
 #pragma mark Framework

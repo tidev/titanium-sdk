@@ -20,6 +20,7 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -80,6 +81,9 @@ public class TiWebViewBinding
 
 	public void destroy()
 	{
+		// remove any event listener that have already been added to the Ti.APP through
+		// this web view instance
+		appBinding.clearEventListeners();
 	}
 
 	private static StringBuilder readResourceFile(String fileName)
@@ -157,10 +161,10 @@ public class TiWebViewBinding
 			if (data == null) {
 				dataString = "";
 			} else if (data instanceof HashMap) {
-				JSONObject json = new JSONObject((HashMap) data);
-				dataString = ", " + json.toString();
+				JSONObject json = TiConvert.toJSON((HashMap) data);
+				dataString = ", " + String.valueOf(json);
 			} else {
-				dataString = ", " + data;
+				dataString = ", " + String.valueOf(data);
 			}
 
 			String code = "Ti.executeListener(" + id + dataString + ");";
@@ -172,6 +176,7 @@ public class TiWebViewBinding
 	private class AppBinding
 	{
 		private KrollModule module;
+		private HashMap<String, Integer> appListeners = new HashMap<String, Integer>();
 
 		public AppBinding()
 		{
@@ -193,12 +198,24 @@ public class TiWebViewBinding
 
 		public int addEventListener(String event, int id)
 		{
-			return module.addEventListener(event, new WebViewCallback(id));
+			WebViewCallback callback = new WebViewCallback(id);
+
+			int result = module.addEventListener(event, callback);
+			appListeners.put(event, result);
+
+			return result;
 		}
 
 		public void removeEventListener(String event, int id)
 		{
 			module.removeEventListener(event, id);
+		}
+
+		public void clearEventListeners()
+		{
+			for (String event : appListeners.keySet()) {
+				removeEventListener(event, appListeners.get(event));
+			}
 		}
 	}
 }

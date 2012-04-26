@@ -29,9 +29,14 @@ public class AppModule extends KrollModule
 		TiApplication.getInstance().removeAppEventProxy(this);
 	}
 
-	@Kroll.getProperty(name="id") @Kroll.method
-	public String getID() {
+	@Kroll.getProperty @Kroll.method
+	public String getId() {
 		return appInfo.getId();
+	}
+
+	@Kroll.method
+	public String getID() {
+		return getId();
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -49,9 +54,14 @@ public class AppModule extends KrollModule
 		return appInfo.getPublisher();
 	}
 
-	@Kroll.getProperty(name="url") @Kroll.method
-	public String getURL() {
+	@Kroll.getProperty @Kroll.method
+	public String getUrl() {
 		return appInfo.getUrl();
+	}
+
+	@Kroll.method
+	public String getURL() {
+		return getUrl();
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -64,9 +74,14 @@ public class AppModule extends KrollModule
 		return appInfo.getCopyright();
 	}
 
-	@Kroll.getProperty(name="guid") @Kroll.method
-	public String getGUID() {
+	@Kroll.getProperty @Kroll.method
+	public String getGuid() {
 		return appInfo.getGUID();
+	}
+
+	@Kroll.method
+	public String getGUID() {
+		return getGuid();
 	}
 	
 	@Kroll.getProperty @Kroll.method

@@ -10,6 +10,7 @@ import java.lang.ref.SoftReference;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 
 import android.util.DisplayMetrics;
@@ -34,19 +35,27 @@ public class DisplayCapsProxy extends KrollProxy
 
 	private Display getDisplay() {
 		if (softDisplay == null || softDisplay.get() == null) {
-			softDisplay = new SoftReference<Display>(getActivity().getWindowManager().getDefaultDisplay());
+			// we only need the window manager so it doesn't matter if the root or current activity is used
+			// for accessing it
+			softDisplay = new SoftReference<Display>(TiApplication.getAppRootOrCurrentActivity().getWindowManager().getDefaultDisplay());
 		}
 		return softDisplay.get();
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public int getPlatformWidth() {
-		return getDisplay().getWidth();
+		synchronized(dm) {
+			getDisplay().getMetrics(dm);
+			return dm.widthPixels;
+		}
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public int getPlatformHeight() {
-		return getDisplay().getHeight();
+		synchronized(dm) {
+			getDisplay().getMetrics(dm);
+			return dm.heightPixels;
+		}
 	}
 
 	@Kroll.getProperty @Kroll.method

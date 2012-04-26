@@ -36,8 +36,14 @@ public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 }
 """
 
+# Limit Java const String length to 32k.
+JAVA_STR_MAX_LEN = 32 * 1024
+
 def to_java_string(s):
-  return '"%s"' % s
+  chunks = []
+  for offset in xrange(0, len(s), JAVA_STR_MAX_LEN):
+    chunks.append('new String("%s")' % s[offset:offset + JAVA_STR_MAX_LEN])
+  return '+'.join(chunks)
 
 def to_java_map(map_var, keys_values):
   """Generate code to put a list of key-value pairs into a Java Map instance.

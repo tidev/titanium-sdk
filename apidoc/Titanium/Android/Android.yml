@@ -86,30 +86,6 @@ methods:
         type: Dictionary<Titanium.Android.PendingIntent>
         optional: true
 
-  - name: createPendingIntent
-    summary: |
-        Creates a [PendingIntent](Titanium.Android.PendingIntent) to be used inside a
-        [Notification](Titanium.Android.Notification).
-    description: |
-        If `FLAG_NO_CREATE` is specified and no matching pending intent exists, returns
-        `null`.
-    returns:
-        type: Titanium.Android.PendingIntent
-    parameters:
-
-      - name: intent
-        summary: The `Intent` to be executed when the user clicks on the notification.
-        type: Titanium.Android.Intent
-
-      - name: flags
-        default: 0
-        optional: true
-        summary: |
-            Can be any of <Titanium.Android.FLAG_CANCEL_CURRENT>,
-            <Titanium.Android.FLAG_NO_CREATE>, <Titanium.Android.FLAG_ONE_SHOT>,
-            <Titanium.Android.FLAG_UPDATE_CURRENT>. Any of the `FILL_IN` constants may
-            also be specified. Specify multiple values as a bitwise OR of the values.
-        type: Number
 
   - name: createService
     summary: Create a <Titanium.Android.Service> so you can start/stop it and listen for events from it.
@@ -1190,10 +1166,8 @@ properties:
     permission: read-only
 
   - name: FLAG_UPDATE_CURRENT
-    summary:  
+    summary: Corresponds to the Android `PendingIntent.FLAG_UPDATE_CURRENT` constant.
     description: |
-        Corresponds to the Android `PendingIntent.FLAG_UPDATE_CURRENT` constant.
-
         See [PendingIntent.FLAG_UPDATE_CURRENT in the Android API
         Reference](http://developer.android.com/reference/android/app/PendingIntent.html#FLAG_UPDATE_CURRENT).
     type: Number

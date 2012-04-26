@@ -1,12 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium.view;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.TreeSet;
 
@@ -17,14 +18,38 @@ import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.OnHierarchyChangeListener;
 
+/**
+ * Base layout class for all Titanium views. 
+ */
 public class TiCompositeLayout extends ViewGroup
 	implements OnHierarchyChangeListener
 {
-	public enum LayoutArrangement {DEFAULT, VERTICAL, HORIZONTAL}
+	/**
+	 * Supported layout arrangements
+	 * @module.api
+	 */
+	public enum LayoutArrangement {
+		/**
+		 * The default Titanium layout arrangement.
+		 */
+		DEFAULT,
+		/**
+		 * The layout arrangement for Views and Windows that set layout: "vertical".
+		 */
+		VERTICAL,
+		/**
+		 * The layout arrangement for Views and Windows that set layout: "horizontal".
+		 */
+		HORIZONTAL
+	}
 
 	protected static final String TAG = "TiCompositeLayout";
 	protected static final boolean DBG = TiConfig.LOGD && false;
@@ -41,13 +66,52 @@ public class TiCompositeLayout extends ViewGroup
 	private int horizontalLayoutLineHeight = 0;
 	private boolean disableHorizontalWrap = false;
 
-	private WeakReference<TiViewProxy> proxy;
+	private float alpha = 1.0f;
+	private Method setAlphaMethod;
 
+	private WeakReference<TiViewProxy> proxy;
+	private static final int HAS_SIZE_FILL_CONFLICT = 1;
+	private static final int NO_SIZE_FILL_CONFLICT = 2;
+
+	// We need these two constructors for backwards compatibility with modules
+
+	/**
+	 * Constructs a new TiCompositeLayout object.
+	 * @param context the associated context.
+	 * @module.api
+	 */
+	public TiCompositeLayout(Context context)
+	{
+		this(context, LayoutArrangement.DEFAULT, null);
+	}
+
+	/**
+	 * Constructs a new TiCompositeLayout object.
+	 * @param context the associated context.
+	 * @param arrangement the associated LayoutArrangement
+	 * @module.api
+	 */
+	public TiCompositeLayout(Context context, LayoutArrangement arrangement)
+	{
+		this(context, LayoutArrangement.DEFAULT, null);
+	}
+
+	/**
+	 * Constructs a new TiCompositeLayout object.
+	 * @param context the associated context.
+	 * @param proxy the associated proxy.
+	 */
 	public TiCompositeLayout(Context context, TiViewProxy proxy)
 	{
 		this(context, LayoutArrangement.DEFAULT, proxy);
 	}
 
+	/**
+	 * Constructs a new TiCompositeLayout object.
+	 * @param context the associated context.
+	 * @param arrangement the associated LayoutArrangement
+	 * @param proxy the associated proxy.
+	 */
 	public TiCompositeLayout(Context context, LayoutArrangement arrangement, TiViewProxy proxy)
 	{
 		super(context);
@@ -136,17 +200,24 @@ public class TiCompositeLayout extends ViewGroup
 	@Override
 	protected LayoutParams generateDefaultLayoutParams()
 	{
-		// Default is fill view
+		// Default behavior is size since optionWidth/optionHeight is null, and autoFillsWidth/autoFillsHeight is false.
+		// Some classes such as ViewProxy will set autoFillsWidth/autoFillsHeight to true in order to trigger the fill
+		// behavior by default.
 		LayoutParams params = new LayoutParams();
 		params.optionLeft = null;
 		params.optionRight = null;
 		params.optionTop = null;
 		params.optionBottom = null;
 		params.optionZIndex = NOT_SET;
-		params.autoHeight = true;
-		params.autoWidth = true;
+		params.sizeOrFillHeightEnabled = true;
+		params.sizeOrFillWidthEnabled = true;
 
 		return params;
+	}
+
+	private static int getAsPercentageValue(double percentage, int value)
+	{
+		return (int) Math.round((percentage / 100.0) * value);
 	}
 
 	protected int getViewWidthPadding(View child, int parentWidth)
@@ -155,14 +226,14 @@ public class TiCompositeLayout extends ViewGroup
 		int padding = 0;
 		if (p.optionLeft != null) {
 			if (p.optionLeft.isUnitPercent()) {
-				padding += (int) ((p.optionLeft.getValue() / 100.0) * parentWidth);
+				padding += getAsPercentageValue(p.optionLeft.getValue(), parentWidth);
 			} else {
 				padding += p.optionLeft.getAsPixels(this);
 			}
 		}
 		if (p.optionRight != null) {
 			if (p.optionRight.isUnitPercent()) {
-				padding += (int) ((p.optionRight.getValue() / 100.0) * parentWidth);
+				padding += getAsPercentageValue(p.optionRight.getValue(), parentWidth);
 			} else {
 				padding += p.optionRight.getAsPixels(this);
 			}
@@ -176,14 +247,14 @@ public class TiCompositeLayout extends ViewGroup
 		int padding = 0;
 		if (p.optionTop != null) {
 			if (p.optionTop.isUnitPercent()) {
-				padding += (int) ((p.optionTop.getValue() / 100.0) * parentHeight);
+				padding += getAsPercentageValue(p.optionTop.getValue(), parentHeight);
 			} else {
 				padding += p.optionTop.getAsPixels(this);
 			}
 		}
 		if (p.optionBottom != null) {
 			if (p.optionBottom.isUnitPercent()) {
-				padding += (int) ((p.optionBottom.getValue() / 100.0) * parentHeight);
+				padding += getAsPercentageValue(p.optionBottom.getValue(), parentHeight);
 			} else {
 				padding += p.optionBottom.getAsPixels(this);
 			}
@@ -254,32 +325,51 @@ public class TiCompositeLayout extends ViewGroup
 	protected void constrainChild(View child, int width, int wMode, int height, int hMode)
 	{
 		LayoutParams p = (LayoutParams) child.getLayoutParams();
+
+		int sizeFillConflicts[] = { NOT_SET, NOT_SET };
+		boolean checkedForConflict = false;
+
+		// If autoFillsWidth is false, and optionWidth is null, then we use size behavior.
 		int childDimension = LayoutParams.WRAP_CONTENT;
 		if (p.optionWidth != null) {
 			if (p.optionWidth.isUnitPercent() && width > 0) {
-				childDimension = (int) ((p.optionWidth.getValue() / 100.0) * width);
+				childDimension = getAsPercentageValue(p.optionWidth.getValue(), width);
 			} else {
 				childDimension = p.optionWidth.getAsPixels(this);
 			}
 		} else {
-			if (p.autoFillsWidth && !isHorizontalArrangement()) {
+			if (p.autoFillsWidth) {
 				childDimension = LayoutParams.FILL_PARENT;
+			} else {
+				// Look for sizeFill conflicts
+				hasSizeFillConflict(child, sizeFillConflicts, true);
+				checkedForConflict = true;
+				if (sizeFillConflicts[0] == HAS_SIZE_FILL_CONFLICT) {
+					childDimension = LayoutParams.FILL_PARENT;
+				}
 			}
 		}
 
 		int widthPadding = getViewWidthPadding(child, width);
 		int widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(width, wMode), widthPadding,
 			childDimension);
+		// If autoFillsHeight is false, and optionHeight is null, then we use size behavior.
 		childDimension = LayoutParams.WRAP_CONTENT;
 		if (p.optionHeight != null) {
 			if (p.optionHeight.isUnitPercent() && height > 0) {
-				childDimension = (int) ((p.optionHeight.getValue() / 100.0) * height);
+				childDimension = getAsPercentageValue(p.optionHeight.getValue(), height);
 			} else {
 				childDimension = p.optionHeight.getAsPixels(this);
 			}
 		} else {
-			if (p.autoFillsHeight && !isVerticalArrangement()) {
+			// If we already checked for conflicts before, we don't need to again
+			if (p.autoFillsHeight || (checkedForConflict && sizeFillConflicts[1] == HAS_SIZE_FILL_CONFLICT)) {
 				childDimension = LayoutParams.FILL_PARENT;
+			} else if (!checkedForConflict) {
+				hasSizeFillConflict(child, sizeFillConflicts, true);
+				if (sizeFillConflicts[1] == HAS_SIZE_FILL_CONFLICT) {
+					childDimension = LayoutParams.FILL_PARENT;
+				}
 			}
 		}
 
@@ -293,11 +383,14 @@ public class TiCompositeLayout extends ViewGroup
 		// int childHeight = child.getMeasuredHeight();
 	}
 
-	private int getUndefinedWidth(LayoutParams params, int parentLeft, int parentRight, int parentWidth)
+	// Try to calculate width from pins, if we couldn't calculate from pins or we don't need to, then return the
+	// measured width
+	private int calculateWidthFromPins(LayoutParams params, int parentLeft, int parentRight, int parentWidth,
+		int measuredWidth)
 	{
-		int width = -1;
+		int width = measuredWidth;
 
-		if (params.optionWidth != null || params.autoWidth) {
+		if (params.optionWidth != null || params.sizeOrFillWidthEnabled) {
 			return width;
 		}
 
@@ -317,12 +410,15 @@ public class TiCompositeLayout extends ViewGroup
 		return width;
 	}
 
-	private int getUndefinedHeight(LayoutParams params, int parentTop, int parentBottom, int parentHeight)
+	// Try to calculate height from pins, if we couldn't calculate from pins or we don't need to, then return the
+	// measured height
+	private int calculateHeightFromPins(LayoutParams params, int parentTop, int parentBottom, int parentHeight,
+		int measuredHeight)
 	{
-		int height = -1;
+		int height = measuredHeight;
 
 		// Return if we don't need undefined behavior
-		if (params.optionHeight != null || params.autoHeight) {
+		if (params.optionHeight != null || params.sizeOrFillHeightEnabled) {
 			return height;
 		}
 
@@ -397,18 +493,11 @@ public class TiCompositeLayout extends ViewGroup
 				(TiCompositeLayout.LayoutParams) child.getLayoutParams();
 			if (child.getVisibility() != View.GONE) {
 				// Dimension is required from Measure. Positioning is determined here.
-				
-				// Try using undefined behavior first
-				int childMeasuredHeight = getUndefinedHeight(params, top, bottom, getHeight());
-				int childMeasuredWidth = getUndefinedWidth(params, left, right, getWidth());
 
-				if (childMeasuredWidth == -1) {
-					childMeasuredWidth = child.getMeasuredWidth();
-				}
-
-				if (childMeasuredHeight == -1) {
-					childMeasuredHeight = child.getMeasuredHeight();
-				}
+				// Try to calculate width/height from pins, and default to measured width/height. We have to do this in
+				// onLayout since we can't get the correct top, bottom, left, and right values inside constrainChild().
+				int childMeasuredHeight = calculateHeightFromPins(params, top, bottom, getHeight(), child.getMeasuredHeight());
+				int childMeasuredWidth = calculateWidthFromPins(params, left, right, getWidth(), child.getMeasuredWidth());
 
 				if (isHorizontalArrangement()) {
 					if (i == 0)  {
@@ -420,7 +509,7 @@ public class TiCompositeLayout extends ViewGroup
 				} else {
 					computePosition(this, params.optionLeft, params.optionCenterX, params.optionRight, childMeasuredWidth, left, right, horizontal);
 					if (isVerticalArrangement()) {
-						computeVerticalLayoutPosition(currentHeight, params.optionTop, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
+						computeVerticalLayoutPosition(currentHeight, params.optionTop, params.optionBottom, childMeasuredHeight, top, bottom, vertical, b);
 					} else {
 						computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, childMeasuredHeight, top, bottom, vertical);
 					}
@@ -432,8 +521,10 @@ public class TiCompositeLayout extends ViewGroup
 
 				int newWidth = horizontal[1] - horizontal[0];
 				int newHeight = vertical[1] - vertical[0];
-				if (newWidth != childMeasuredWidth
-					|| newHeight != childMeasuredHeight) {
+				// If the old child measurements do not match the new measurements that we calculated, then update the
+				// child measurements accordingly
+				if (newWidth != child.getMeasuredWidth()
+					|| newHeight != child.getMeasuredHeight()) {
 					int newWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY);
 					int newHeightSpec = MeasureSpec.makeMeasureSpec(newHeight, MeasureSpec.EXACTLY);
 					child.measure(newWidthSpec, newHeightSpec);
@@ -458,7 +549,15 @@ public class TiCompositeLayout extends ViewGroup
 	protected void onAnimationEnd()
 	{
 		super.onAnimationEnd();
-		invalidate();
+		if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB) {
+			// There is an android bug where animations still occur after this method. We clear it from the view to
+			// correct this. This fixes TIMOB-8324
+			// (http://stackoverflow.com/questions/4750939/android-animation-is-not-finished-in-onanimationend)
+			clearAnimation();
+			// We have to force an invalidate here for TIMOB-7412 (only for 3.0 and below). This is to prevent a
+			// background color of a view from being transparent after an animation.
+			invalidate();
+		}
 	}
 
 	// option0 is left/top, option1 is right/bottom
@@ -489,14 +588,89 @@ public class TiCompositeLayout extends ViewGroup
 		}
 	}
 
+	/*
+	 * Set the opacity of the view using View.setAlpha if available.
+	 *
+	 * @param alpha the opacity of the view
+	 * @return true if opacity was set, otherwise false if View.setAlpha failed or was not available.
+	 */
+	private boolean nativeSetAlpha(float alpha)
+	{
+		if (Build.VERSION.SDK_INT < 11) {
+			// Only available in API level 11 or higher.
+			return false;
+		}
+
+		if (setAlphaMethod == null) {
+			try {
+				setAlphaMethod = getClass().getMethod("setAlpha", float.class);
+			} catch (NoSuchMethodException e) {
+				Log.w(TAG, "Unable to find setAlpha() method.", e);
+				return false;
+			}
+		}
+
+		try {
+			setAlphaMethod.invoke(this, alpha);
+		} catch (Exception e) {
+			Log.e(TAG, "Failed to call setAlpha().", e);
+			return false;
+		}
+
+		return true;
+	}
+
+	/*
+	 * Set the alpha of the view. Provides backwards compatibility
+	 * with older versions of Android which don't support View.setAlpha().
+	 *
+	 * @param alpha the opacity of the view
+	 */
+	public void setAlphaCompat(float alpha)
+	{
+		// Try using the native setAlpha() method first.
+		if (nativeSetAlpha(alpha)) {
+			return;
+		}
+
+		// If setAlpha() is not supported on this platform,
+		// use the backwards compatibility workaround.
+		// See dispatchDraw() for details.
+		this.alpha = alpha;
+	}
+
+	@Override
+	protected void dispatchDraw(Canvas canvas)
+	{
+		// To support alpha in older versions of Android (API level less than 11),
+		// create a new layer to draw the children. Specify the alpha value to use
+		// later when we transfer this layer back onto the canvas.
+		if (alpha < 1.0f) {
+			Rect bounds = new Rect();
+			getDrawingRect(bounds);
+			canvas.saveLayerAlpha(new RectF(bounds), Math.round(alpha * 255), Canvas.ALL_SAVE_FLAG);
+		}
+
+		super.dispatchDraw(canvas);
+
+		if (alpha < 1.0f) {
+			// Restore the canvas once the children have been drawn to the layer.
+			// This will draw the layer's offscreen bitmap onto the canvas using
+			// the alpha value we specified earlier.
+			canvas.restore();
+		}
+	}
+
 	private void computeVerticalLayoutPosition(int currentHeight,
-		TiDimension optionTop, TiDimension optionBottom, int measuredHeight, int layoutTop, int layoutBottom, int[] pos)
+		TiDimension optionTop, TiDimension optionBottom, int measuredHeight, int layoutTop, int layoutBottom, int[] pos, int maxBottom)
 	{
 		int top = layoutTop + currentHeight;
 		if (optionTop != null) {
 			top += optionTop.getAsPixels(this);
 		}
-		int bottom = top + measuredHeight;
+		// cap the bottom to make sure views don't go off-screen when user supplies a height value that is >= screen
+		// height and this view is below another view in vertical layout.
+		int bottom = Math.min(top + measuredHeight, maxBottom);
 		pos[0] = top;
 		pos[1] = bottom;
 	}
@@ -527,6 +701,56 @@ public class TiCompositeLayout extends ViewGroup
 		vpos[1] = vpos[1] + horizontalLayoutTopBuffer;
 	}
 
+	// Determine whether we have a conflict where a parent has size behavior, and child has fill behavior.
+	private boolean hasSizeFillConflict(View parent, int[] conflicts, boolean firstIteration)
+	{
+		if (parent instanceof TiCompositeLayout) {
+			TiCompositeLayout currentLayout = (TiCompositeLayout) parent;
+			LayoutParams currentParams = (LayoutParams) currentLayout.getLayoutParams();
+
+			// During the first iteration, the parent view needs to have size behavior.
+			if (firstIteration && (currentParams.autoFillsWidth || currentParams.optionWidth != null)) {
+				conflicts[0] = NO_SIZE_FILL_CONFLICT;
+			}
+			if (firstIteration && (currentParams.autoFillsHeight || currentParams.optionHeight != null)) {
+				conflicts[1] = NO_SIZE_FILL_CONFLICT;
+			}
+
+			// We don't check for sizeOrFillHeightEnabled. The calculations during the measure phase (which includes
+			// this method) will be adjusted to undefined behavior accordingly during the layout phase.
+			// sizeOrFillHeightEnabled is used during the layout phase to determine whether we want to use the fill/size
+			// measurements that we got from the measure phase.
+			if (currentParams.autoFillsWidth && currentParams.optionWidth == null && conflicts[0] == NOT_SET) {
+				conflicts[0] = HAS_SIZE_FILL_CONFLICT;
+			}
+			if (currentParams.autoFillsHeight && currentParams.optionHeight == null && conflicts[1] == NOT_SET) {
+				conflicts[1] = HAS_SIZE_FILL_CONFLICT;
+			}
+
+			// Stop traversing if we've determined whether there is a conflict for both width and height
+			if (conflicts[0] != NOT_SET && conflicts[1] != NOT_SET) {
+				return true;
+			}
+
+			// If the child has size behavior, continue traversing through children and see if any of them have fill
+			// behavior
+			for (int i = 0; i < currentLayout.getChildCount(); ++i) {
+				if (hasSizeFillConflict(currentLayout.getChildAt(i), conflicts, false)) {
+					return true;
+				}
+			}
+		}
+
+		// Default to false if we couldn't find conflicts
+		if (firstIteration && conflicts[0] == NOT_SET) {
+			conflicts[0] = NO_SIZE_FILL_CONFLICT;
+		}
+		if (firstIteration && conflicts[1] == NOT_SET) {
+			conflicts[1] = NO_SIZE_FILL_CONFLICT;
+		}
+		return false;
+	}
+
 	protected int getWidthMeasureSpec(View child) {
 		return MeasureSpec.EXACTLY;
 	}
@@ -535,6 +759,9 @@ public class TiCompositeLayout extends ViewGroup
 		return MeasureSpec.EXACTLY;
 	}
 
+	/**
+	 * A TiCompositeLayout specific version of {@link android.view.ViewGroup.LayoutParams}
+	 */
 	public static class LayoutParams extends ViewGroup.LayoutParams {
 		protected int index;
 
@@ -549,12 +776,30 @@ public class TiCompositeLayout extends ViewGroup
 		public TiDimension optionHeight = null;
 		public Ti2DMatrix optionTransform = null;
 
-		public boolean autoHeight = true;
-		public boolean autoWidth = true;
+		// This are flags to determine whether we are using fill or size behavior
+		public boolean sizeOrFillHeightEnabled = true;
+		public boolean sizeOrFillWidthEnabled = true;
+
+		/**
+		 * If this is true, and {@link #sizeOrFillWidthEnabled} is true, then the current view will follow the fill
+		 * behavior, which fills available parent width. If this value is false and {@link #sizeOrFillWidthEnabled} is
+		 * true, then we use the size behavior, which constrains the view width to fit the width of its contents.
+		 * 
+		 * @module.api
+		 */
 		public boolean autoFillsWidth = false;
+
+		/**
+		 * If this is true, and {@link #sizeOrFillHeightEnabled} is true, then the current view will follow fill
+		 * behavior, which fills available parent height. If this value is false and {@link #sizeOrFillHeightEnabled} is
+		 * true, then we use the size behavior, which constrains the view height to fit the height of its contents.
+		 * 
+		 * @module.api
+		 */
 		public boolean autoFillsHeight = false;
 
-		public LayoutParams() {
+		public LayoutParams()
+		{
 			super(WRAP_CONTENT, WRAP_CONTENT);
 
 			index = Integer.MIN_VALUE;

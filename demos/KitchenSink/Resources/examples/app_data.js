@@ -3,6 +3,7 @@ var win = Titanium.UI.currentWindow;
 var data = '';
 
 data+= 'ID: ' + Titanium.App.getID() + '\n';
+data+= 'Install: ' + Titanium.App.installId + '\n';
 data+= 'Name: ' + Titanium.App.getName() + '\n';
 data+= 'Version: ' + Titanium.App.getVersion() + '\n';
 data+= 'Publisher: ' + Titanium.App.getPublisher() + '\n';

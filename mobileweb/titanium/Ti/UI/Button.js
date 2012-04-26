@@ -1,58 +1,44 @@
-define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
-	function(declare, FontWidget, dom, css, style, lang, UI) {
+define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/Locale", "Ti/UI"],
+	function(declare, FontWidget, dom, css, style, lang, Locale, UI) {
 
 	var setStyle = style.set,
 		postDoBackground = {
 			post: "_updateLook"
 		},
-		undef;
+		titlePost = {
+			post: "_updateTitle"
+		};
 
 	return declare("Ti.UI.Button", FontWidget, {
 
 		constructor: function() {
-			this._contentContainer = dom.create("div", {
-				className: "TiUIButtonContentContainer",
-				style: {
-					display: ["-webkit-box", "-moz-box"],
-					boxOrient: "horizontal",
-					boxPack: "center",
-					boxAlign: "center",
-					pointerEvents: "none"
-				}
-			}, this.domNode);
-
-			this._buttonImage = dom.create("img", {
-				className: "TiUIButtonImage",
-				style: {
-					pointerEvents: "none"
-				}
-			}, this._contentContainer);
-
-			this._buttonTitle = dom.create("div", {
-				className: "TiUIButtonTitle",
-				style: {
-					whiteSpace: "nowrap",
-					pointerEvents: "none"
-				}
-			}, this._contentContainer);
-
-			this._addStyleableDomNode(this._buttonTitle);
+			var contentContainer = this._contentContainer = UI.createView({
+				width: UI.SIZE,
+				height: UI.SIZE,
+				layout: "horizontal",
+				borderColor: "transparent"
+			});
+			contentContainer._layout._defaultVerticalAlignment = "center";
+			this._add(contentContainer);
+			contentContainer._add(this._buttonImage = UI.createImageView());
+			contentContainer.add(this._buttonTitle = UI.createLabel());
+			this._addStyleableDomNode(this._buttonTitle.domNode);
 			
 			this._setDefaultLook();
 			
 			this.addEventListener("touchstart",function(){
 				if (this.selectedColor) {
-					setStyle(this._buttonTitle,"color",this.selectedColor);
+					this._buttonTitle.color = this.selectedColor;
 				}
 			});
 			this.addEventListener("touchend",function(){
 				if (this.selectedColor) {
-					setStyle(this._buttonTitle,"color",this.color || "black");
+					this._buttonTitle.color = this.color || "black";
 				}
 			});
 			this.domNode.addEventListener("mouseout",lang.hitch(this,function(){
 				if (this.selectedColor) {
-					setStyle(this._buttonTitle,"color",this.color || "black");
+					this._buttonTitle.color = this.color || "black";
 				}
 			}));
 		},
@@ -74,32 +60,28 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 		_setDefaultLook: function() {
 			if (!this._hasDefaultLook) {
 				this._hasDefaultLook = true;
+				this._previousBorderWidth = this.borderWidth;
+				this._previousBorderColor = this.borderColor;
 				css.add(this.domNode, "TiUIElementGradient");
 				css.add(this.domNode, "TiUIButtonDefault");
+				this._contentContainer.borderWidth = 6;
 			}
 		},
 		
 		_clearDefaultLook: function() {
 			if (this._hasDefaultLook) {
 				this._hasDefaultLook = false;
+				this.borderWidth = this._previousBorderWidth;
+				this.borderColor = this._previousBorderColor;
 				css.remove(this.domNode, "TiUIElementGradient");
 				css.remove(this.domNode, "TiUIButtonDefault");
+				this._contentContainer.borderWidth = 0;
 			}
 		},
-		
-		_getContentSize: function(width, height) {
-			return {
-				width: this._buttonImage.width + this._measureText(this.title, this._buttonTitle).width,
-				height: Math.max(this._buttonImage.height, this._measureText(this.title, this._buttonTitle).height)
-			};
-		},
 
-		_setTouchEnabled: function(value) {
-			FontWidget.prototype._setTouchEnabled.apply(this, arguments);
-			var cssVal = value ? "auto" : "none";
-			setStyle(this._contentContainer, "pointerEvents", cssVal);
-			setStyle(this._buttonImage, "pointerEvents", cssVal);
-			setStyle(this._buttonTitle, "pointerEvents", cssVal);
+		_updateTitle: function() {
+			this._buttonTitle.text = Locale._getString(this.titleid, this.title);
+			this._hasSizeDimensions() && this._triggerLayout();
 		},
 
 		properties: {
@@ -143,43 +125,47 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			
 			image: {
 				set: function(value) {
-					require.on(this._buttonImage, "load", lang.hitch(this, function () {
-						this._hasSizeDimensions() && this._triggerLayout();
-					}));
-					this._buttonImage.src = value;
+					this._buttonImage.image = value;
 					return value;
 				}
 			},
-			selectedColor: undef,
+			selectedColor: void 0,
 			textAlign: {
 				set: function(value) {
-					var cssValue = "";
+					var left,
+						right,
+						center = this.center || {},
+						contentContainer = this._contentContainer;
 					switch(value) {
-						case UI.TEXT_ALIGNMENT_LEFT: cssValue = "start"; break;
-						case UI.TEXT_ALIGNMENT_CENTER: cssValue = "center"; break;
-						case UI.TEXT_ALIGNMENT_RIGHT: cssValue = "end"; break;
+						case UI.TEXT_ALIGNMENT_LEFT: left = 0; break;
+						case UI.TEXT_ALIGNMENT_CENTER: center.x = "50%"; break;
+						case UI.TEXT_ALIGNMENT_RIGHT: right = 0; break;
 					}
-					setStyle(this._contentContainer, "boxPack", cssValue);
+					contentContainer.left = left;
+					contentContainer.center = center;
+					contentContainer.right = right;
 					return value;
 				}
 			},
-			title: {
+			title: titlePost,
+			titleid: titlePost,
+			verticalAlign: {
 				set: function(value) {
-					this._buttonTitle.innerHTML = value;
-					this._hasSizeDimensions() && this._triggerParentLayout();
-					return value;
-				}
-			},
-			titleid: {
-				get: function(value) {
-					// TODO
-					console.debug('Property "Titanium.UI.Button#.titleid" is not implemented yet.');
+					var top,
+						bottom,
+						center = this.center || {},
+						contentContainer = this._contentContainer;
+					switch(value) {
+						case UI.TEXT_VERTICAL_ALIGNMENT_TOP: top = 0; break;
+						case UI.TEXT_VERTICAL_ALIGNMENT_CENTER: center.y = "50%"; break;
+						case UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM: bottom = 0; break;
+					}
+					contentContainer.top = top;
+					contentContainer.center = center;
+					contentContainer.bottom = bottom;
 					return value;
 				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.Button#.titleid" is not implemented yet.');
-					return value;
-				}
+				value: UI.TEXT_VERTICAL_ALIGNMENT_CENTER
 			}
 		}
 

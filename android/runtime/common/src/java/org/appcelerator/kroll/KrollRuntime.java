@@ -124,6 +124,21 @@ public abstract class KrollRuntime implements Handler.Callback
 		return instance;
 	}
 
+	public static void suggestGC()
+	{
+		if (instance != null) {
+			instance.setGCFlag();
+		}
+	}
+
+	public static boolean isInitialized()
+	{
+		if (instance != null) {
+			return instance.initialized.get();
+		}
+		return false;
+	}
+
 	public KrollApplication getKrollApplication()
 	{
 		if (krollApplication != null) {
@@ -329,6 +344,11 @@ public abstract class KrollRuntime implements Handler.Callback
 	public void setEvaluator(KrollEvaluator eval)
 	{
 		evaluator = eval;
+	}
+
+	public void setGCFlag()
+	{
+		// No-op in Rhino, V8 should override.
 	}
 
 	public abstract void doDispose();

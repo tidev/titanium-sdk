@@ -369,6 +369,11 @@ CFHashCode	simpleHash(const void *value)
     [node setStringValue:data];
 }
 
+- (id)textContent
+{
+	return [node stringValue];
+}
+
 -(id)text
 {
 	return [node stringValue];
@@ -444,9 +449,15 @@ CFHashCode	simpleHash(const void *value)
 -(id)ownerDocument
 {
 	xmlDocPtr p = [node XMLNode]->doc;
-	if (p==NULL) 
+	if (p == NULL) 
 	{
-		return [NSNull null];
+		if ([self document] != nil) {
+			p = [[self document] docNode];
+		}
+		if (p == NULL) {
+			VerboseLog(@"[DEBUG]ownerDocument property is NULL for node %@",[self class]);
+			return [NSNull null];
+		}
 	}
     TiDOMDocumentProxy *proxy = [TiDOMNodeProxy nodeForXMLNode:(xmlNodePtr)p];
     if (proxy == nil)

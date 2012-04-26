@@ -33,6 +33,20 @@ extends: Titanium.UI.View
 since: "0.9"
 
 methods:
+  - name: add
+    summary: Adds a child to this view's hierarchy.
+    description: |
+        Adding children to an `ImageView` is not supported on Android.
+
+        If you need to add something on top of an image view, consider using 
+        another view as a container for both the image view and views you want 
+        to appear on top of it.
+    parameters:
+      - name: view
+        summary: View to add to this view's hierarchy.
+        type: Titanium.UI.View
+    platforms: [iphone, ipad, mobileweb]
+
   - name: pause
     summary: Pauses a running animation. Use `resume` method to continue.
     description:  This method only works if multiple images are specified.
@@ -54,6 +68,7 @@ methods:
     
   - name: toBlob
     summary: Returns the image as a Blob object.
+    platforms: [android, iphone, ipad]
 
 events:
   - name: change

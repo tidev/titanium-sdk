@@ -139,7 +139,7 @@ def create_android_project(project_dir, osname, args):
 def create_android_module(project_dir, osname, args):
 	script = os.path.join(template_dir, 'module', 'module.py')
 	
-	name = get_required(args, 'name')
+	name = get_required(args, 'name').lower()
 	validate_project_name(name)
 	appid = get_required(args, 'id')
 	android_sdk = get_android_sdk(args)
@@ -157,7 +157,6 @@ def create_mobileweb_project(project_dir, osname, args):
 	name = get_required(args, 'name')
 	validate_project_name(name)
 	appid = get_required(args, 'id')
-	android_sdk = get_android_sdk(args)
 	args = [script, name, appid, project_dir, osname]
 	retcode = fork(args, True)
 	if retcode == 0:
@@ -167,7 +166,17 @@ def create_mobileweb_project(project_dir, osname, args):
 		die("Aborting")
 
 def create_mobileweb_module(project_dir, osname, args):
-	die("Mobile Web modules are not supported yet")
+	script = os.path.join(template_dir, 'module', 'module.py')
+	name = get_required(args, 'name')
+	validate_project_name(name)
+	appid = get_required(args, 'id')
+	args = [script, '--name', name, '--id', appid, '--directory', project_dir, '--platform', osname]
+	retcode = fork(args, False)
+	if retcode == 0:
+		print "Created %s module project" % osname
+		return os.path.join(project_dir, name)
+	else:
+		die("Aborting")
 
 def create_mobile_project(osname, project_dir, args):
 	if is_ios(osname):
@@ -315,6 +324,38 @@ def dyn_run(args,project_cb,module_cb):
 def run(args):
 	dyn_run(args, run_project_args, run_module_args)
 
+def clean_build(project_dir,platform):
+	project_build_dir = os.path.join(project_dir,'build',platform)
+	for root, dirs, files in os.walk(project_build_dir, topdown=False):
+		for name in files:
+			os.remove(os.path.join(root, name))
+		for name in dirs:
+			os.rmdir(os.path.join(root, name))
+
+def clean_platform(project_dir,platform):
+	if platform == 'android':
+		clean_build(project_dir,'android')
+	elif is_ios(platform):
+		clean_build(project_dir,'iphone')
+	elif platform == 'mobileweb':
+		clean_build(project_dir,'mobileweb')
+
+def clean(args):
+	project_dir = get_required(args,'dir')
+	tiapp_xml = os.path.join(project_dir,'tiapp.xml')
+	touch_tiapp_xml(tiapp_xml)
+	
+	platform = get_optional(args,'platform')
+	if type(platform) == types.NoneType:
+		clean_build(project_dir,'android')
+		clean_build(project_dir,'iphone')
+		clean_build(project_dir,'mobileweb')
+	elif type(platform) == types.ListType:
+		for osname in platform:
+			clean_platform(project_dir,osname)
+	else:
+		clean_platform(project_dir,platform)
+
 def install_project_args(args,script,project_dir,platform):
 	tiapp_xml = os.path.join(project_dir,'tiapp.xml')
 	ti = TiAppXML(tiapp_xml)
@@ -380,7 +421,7 @@ def fastdev(args):
 def help(args=[],suppress_banner=False):
 	if not suppress_banner:
 		print "Appcelerator Titanium"
-		print "Copyright (c) 2010-2011 by Appcelerator, Inc."
+		print "Copyright (c) 2010-2012 by Appcelerator, Inc."
 		print
 	
 	if len(args)==0:
@@ -389,6 +430,7 @@ def help(args=[],suppress_banner=False):
 		print "  create      - create a project"
 #		print "  build       - build/compile project"
 		print "  run         - run an existing project"
+		print "  clean       - clean builds"
 		print "  emulator    - start the emulator (android)"
 		print "  docgen      - generate html docs for a module (android)"
 		print "  fastdev     - management for the Android fastdev server"
@@ -415,6 +457,10 @@ def help(args=[],suppress_banner=False):
 			print "Usage: %s run [--dir=d]" % os.path.basename(sys.argv[0])
 			print 
 			print "  --dir=d    project directory"
+		elif cmd == 'clean':
+			print "Usage: %s clean [--platform=p1,p2]" % os.path.basename(sys.argv[0])
+			print
+			print "  --platform=p1,p2    	platform: iphone, ipad, android, mobileweb, etc. If omitted, all platforms will be cleaned."
 		elif cmd == 'install':
 			print "Usage: %s install [--dir=d]" % os.path.basename(sys.argv[0])
 			print 

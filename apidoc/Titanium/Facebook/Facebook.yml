@@ -90,7 +90,7 @@ description: |
     Due to how the facebook login process works on iOS, your app will need to have the following 
     in your tiapp.xml if you target those platforms:
     
-        <property name="ti.facebook.appid">your_facebook_app_id_here</property>
+        <property name="ti.facebook.appid">your_facebook_app_id_here</property >
     
     You must still set Ti.Facebook.appid within your app itself to use the facebook module.  
     This property is used only for configuring your app to interface with the facebook 
@@ -224,6 +224,20 @@ events:
     summary: Fired at session logout.
 
 properties:
+  - name: BUTTON_STYLE_NORMAL
+    summary: |
+        Use with [LoginButton.style](Titanium.Facebook.LoginButton.style) to specify
+        the default login button reading "Connect" or "Login".
+    type: Number
+    permission: read-only
+
+  - name: BUTTON_STYLE_WIDE
+    summary: |
+        Use with [LoginButton.style](Titanium.Facebook.LoginButton.style) to specify
+        a wide login button reading "Connect with Facebook" or "Login with Facebook".
+    type: Number
+    permission: read-only
+
   - name: accessToken
     summary: OAuth token set after a successful `authorize`.
     type: String
@@ -246,6 +260,8 @@ properties:
         authentication is used rather than SSO. See  the
         [Facebook Mobile Guide](http://developers.facebook.com/docs/guides/mobile) for 
         details of their Single-Sign-On scheme.
+        
+        This property is read-only on Mobile Web.
     type: Boolean
     default: true
 
@@ -328,18 +344,10 @@ examples:
             	alert('Logged out');
             });
                 
-            // Use wide button style -- constant not supported on Android yet.
-            var buttonStyle;
-            if(Ti.Platform.name === 'android') {
-                buttonStyle = 'wide';
-            } else {
-                buttonStyle = Ti.Facebook.BUTTON_STYLE_WIDE;
-            }
-            
             // Add the button.  Note that it doesn't need a click event listener.
             win2.add(Ti.Facebook.createLoginButton({
                 top : 50,
-                style : buttonStyle,
+                style : Ti.Facebook.BUTTON_STYLE_WIDE
             }));
 
         The specified button style ('wide' or `BUTTON_STYLE_WIDE`) shows a wide version of the 

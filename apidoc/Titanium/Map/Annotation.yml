@@ -3,9 +3,10 @@ name: Titanium.Map.Annotation
 summary: Represents a labeled point of interest on the map that the user can click on.
 description: |
     The `Annotation` object gives you low-level control over annotations that can be added to 
-    [map view](Titanium.Map.View). 
+    [map view](Titanium.Map.View). An annotation must have its `latitude` and `longitude`
+    properties set to appear on a map.
 
-    An annotation can have a title, a subtitle, and two inset buttons or views on the left
+    An annotation can also have a title, a subtitle, and two inset buttons or views on the left
     and right side of the title. All of these items are optional.
 
     The controls on the left and right side of the annotation can be specified in one of two
@@ -43,7 +44,7 @@ description: |
     Use the <Titanium.Map.createAnnotation> method to create an annotation.
 extends: Titanium.Proxy
 since: "0.9"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 
 properties:
 
@@ -58,6 +59,14 @@ properties:
     type: [String, Titanium.Blob]
     default: If not specified, a standard map pin image is used.
 
+  - name: latitude 
+    summary: Latitude of the annotation, in decimal degrees.
+    type: Number
+
+  - name: longitude
+    summary: Longitude of the annotation, in decimal degrees.
+    type: Number
+
   - name: leftButton
     summary: |
         Left button image on the annotation, specified as an image URL or an iOS
@@ -66,7 +75,7 @@ properties:
         On iOS, you can specify a system button icon using one of the
         [SystemButton](Titanium.UI.iPhone.SystemButton) constants:
             
-            myAnnotation.leftButton = Titanium.UI.iPhone.systemButton.INFO_LIGHT;
+            myAnnotation.leftButton = Titanium.UI.iPhone.SystemButton.INFO_LIGHT;
 
         Mutually exclusive with `leftView`.
     type: [Number,String]
@@ -76,6 +85,7 @@ properties:
     description: |
         Mutually exclusive with `leftButton`.
     type: Titanium.UI.View
+    platforms: [android, iphone, ipad]
 
   - name: pinImage
     summary: Use <Titanium.Map.Annotation.image> property instead.
@@ -108,6 +118,7 @@ properties:
     description: |
         Mutually exclusive with `rightButton`.
     type: Titanium.UI.View
+    platforms: [android, iphone, ipad]
 
   - name: subtitle
     summary: Secondary title of the annotation view.
@@ -116,7 +127,7 @@ properties:
   - name: subtitleid
     summary: Key in the locale file to use for the subtitle property.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
 
   - name: title
     summary: Primary title of the annotation view.
@@ -125,7 +136,7 @@ properties:
   - name: titleid
     summary: Key in the locale file to use for the title property.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
 
 events:
   - name: click
@@ -154,7 +165,7 @@ events:
         `title`, or `subtitle`. If the user deselects the annotation by clicking elsewhere
         in the map view, `clicksource` is `null`.
 
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
 
     properties:
 

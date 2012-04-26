@@ -26,10 +26,13 @@ events:
 methods:
   - name: canOpenURL
     summary: |
-      Returns whether the system is configured with a default application to handle the URL's protocol.
+        Returns whether the system is configured with a default application to handle the URL's protocol.
+    description: |
+        On Mobile Web, this method always returns true, even if the browser can't open the specific URL, 
+        unless the URL is empty or undefined.
     returns:
         type: Boolean
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     parameters:
       - name: url
         summary: The url to check.
@@ -52,9 +55,11 @@ methods:
         
   - name: is24HourTimeFormat
     summary: Returns whether the system settings are configured to show times in 24-hour format.
+    description: |
+        On Mobile Web, this function always returns false.
     returns:
         type: Boolean
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
     
 properties:
   - name: BATTERY_STATE_CHARGING
@@ -64,6 +69,7 @@ properties:
     
   - name: BATTERY_STATE_FULL
     summary: Constant to indicate that the battery is fully charged.
+    description: On Mobile Web, `BATTERY_STATE_FULL` is defined, but will never be a valid state.
     type: Number
     permission: read-only
     
@@ -100,18 +106,21 @@ properties:
     permission: read-only
     
   - name: batteryMonitoring
-    summary: Indicates whether battery monitoring is enabled.
+    summary: Determines whether battery monitoring is enabled.
+    default: false
     type: Boolean
-    permission: read-only
     
   - name: batteryState
     summary: Indicates the state of the battery. Accessible only when `batteryMonitoring` is enabled.
     description: |
         Returns one of the following constants from <Titanium.Platform>:  
-        `BATTERY_STATE_CHARGING`,  
-        `BATTERY_STATE_FULL`,  
-        `BATTERY_STATE_UNKNOWN`  
+        `BATTERY_STATE_CHARGING`,
+        `BATTERY_STATE_FULL`,
+        `BATTERY_STATE_UNKNOWN`
         or `BATTERY_STATE_UNPLUGGED`.
+        
+        On Mobile Web, battery state will either be charging, unplugged, or unknown. Full charge state
+        is not supported.
     type: Number
     permission: read-only
     
@@ -125,19 +134,35 @@ properties:
     permission: read-only
     
   - name: id
-    summary: The system's globally-unique ID (UUID).
+    summary: The applications's globally-unique ID (UUID).
+    description: |
+        On Android, this may be the UDID (unique device ID). For iOS, this
+        is a unique identifier for this install of the application.
+        
+        Previously on iOS this may have been a UDID, but access to
+        this has been restricted by Apple. For more information, see
+        [Apple's uniqueIdentifier](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIDevice_Class/DeprecationAppendix/AppendixADeprecatedAPI.html#//apple_ref/occ/instp/UIDevice/uniqueIdentifier)
+        documentation.
     type: String
     permission: read-only
-    deprecated:
-        since: "1.8.0"
         
   - name: locale
     summary: The system's default language.
+    description: |
+        Locale, as a combination of ISO 2-letter language and country codes. For example, 
+        `en-US` or `en-GB`. See the 
+        [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and 
+        [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
+        sections of wikipedia for reference.
     type: String
     permission: read-only
     
   - name: macaddress
-    summary: The system's network interface mac address.
+    summary: The system's network interface mac address, or app UUID.
+    description: |
+        On iOS, this value is the app's UUID. Apple does not allow
+        access to any hardware identifier information as it can be used for
+        unique device identification, which they have prohibited.
     type: String
     permission: read-only
     

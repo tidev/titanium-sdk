@@ -2,61 +2,110 @@ define(
 	["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/_/dom"],
 	function(_, Evented, lang, ready, style, dom) {
 
-	var body = document.body,
-		isIOS = /(iPhone|iPad)/.test(navigator.userAgent),
+	var global = window,
+		body = document.body,
+		on = require.on,
 		modules = "2DMatrix,ActivityIndicator,AlertDialog,Animation,Button,EmailDialog,ImageView,Label,OptionDialog,Picker,PickerColumn,PickerRow,ProgressBar,ScrollableView,ScrollView,Slider,Switch,Tab,TabGroup,TableView,TableViewRow,TableViewSection,TextArea,TextField,View,WebView,Window",
 		creators = {},
-		setStyle = style.set;
+		setStyle = style.set,
+		handheld = navigator.userAgent.toLowerCase().match(/(iphone|android)/),
+		iphone = handheld && handheld[0] === "iphone",
+		targetHeight = {},
+		hidingAddressBar,
+		hideAddressBar = finishAddressBar = function() {
+			Ti.UI._recalculateLayout();
+			hidingAddressBar = 0;
+		},
+		unitize = dom.unitize,
+		showStats = false;
 
-	body.addEventListener('touchmove', function(e) {
+	on(body, "touchmove", function(e) {
 		e.preventDefault();
-	}, false);
+	});
 
 	require.each(modules.split(','), function(name) {
 		creators['create' + name] = function(args) {
-			var m = require("Ti/UI/" + name);
-			return new m(args);
+			return new (require("Ti/UI/" + name))(args);
 		};
 	});
 
-	function hideAddressBar() {
-		var x = 0;
-		if (isIOS && !window.location.hash) {
-			if (document.height <= window.outerHeight + 10) {
-				setStyle(body, "height", (window.outerHeight + 60) + "px");
-				x = 50;
-			}
-			setTimeout(function() {
-				window.scrollTo(0, 1);
-				window.scrollTo(0, 0);
-				Ti.UI._recalculateLayout();
-			}, x);
-		}
-	}
+	if (!navigator.standalone && handheld) {
+		hideAddressBar = function() {
+			if (!hidingAddressBar) {
+				hidingAddressBar = 1;
+				var isPortrait = require("Ti/Gesture").isPortrait | 0,
+					h = targetHeight[isPortrait],
+					timer;
 
-	if (isIOS) {
+				if (!h) {
+					if (iphone) {
+						h = global.innerHeight + 60;
+						if (global.screen.availHeight - h > 50) {
+							h += 50;
+						}
+					} else {
+						h = global.outerHeight / (global.devicePixelRatio || 0);
+					}
+					targetHeight[isPortrait] = h;
+				}
+
+				setStyle(body, "height", h + "px");
+
+				if (iphone) {
+					global.scrollTo(0, 0);
+					finishAddressBar();
+				} else {
+					timer = setInterval(function() {
+						global.scrollTo(0, -1);
+						if (global.innerHeight + 1 >= h) {
+							clearTimeout(timer);
+							finishAddressBar();
+						}
+					}, 50);
+				}
+			}
+		}
 		ready(hideAddressBar);
-		window.addEventListener("orientationchange", hideAddressBar);
+		on(global, "orientationchange", hideAddressBar);
+		on(global, "touchstart", hideAddressBar);
 	}
 
 	ready(10, function() {
-		body.appendChild((Ti.UI._container = Ti.UI.createView({
-			left: 0,
-			top: 0
-		})).domNode);
-		setStyle(Ti.UI._container.domNode,"overflow","hidden");
-		Ti.UI._recalculateLayout();
+		var splashScreen = document.getElementById("splash"),
+			container = (Ti.UI._container = Ti.UI.createView({
+				left: 0,
+				top: 0
+			})),
+			node = container.domNode;
+		setStyle(node, "overflow", "hidden");
+		body.appendChild(node);
+		container.addEventListener("postlayout", function(){
+			setTimeout(function(){
+				setStyle(splashScreen,{
+					position: "absolute",
+					width: unitize(container._measuredWidth),
+					height: unitize(container._measuredHeight),
+					left: "0px",
+					top: "0px",
+					right: "",
+					bottom: ""
+				});
+			},10);
+		});
+		hideAddressBar();
 	});
-
-	require.on(window, "resize", function() {
+	
+	function updateOrientation() {
 		Ti.UI._recalculateLayout();
-		Ti.Gesture._updateOrientation();
-	});
+		require("Ti/Gesture")._updateOrientation();
+	}
+	on(global, "resize", updateOrientation);
+	on(global, "orientationchange", updateOrientation);
 
 	return lang.setObject("Ti.UI", Evented, creators, {
 
 		_addWindow: function(win, set) {
-			this._container.add(win);
+			this._container.add(win.modal ? win._modalParentContainer : win);
 			set && this._setWindow(win);
 			return win;
 		},
@@ -66,11 +115,13 @@ define(
 		},
 
 		_removeWindow: function(win) {
-			this._container.remove(win);
+			this._container.remove(win.modal ? win._modalParentContainer : win);
 			return win;
 		},
 		
 		_layoutSemaphore: 0,
+		
+		_nodesToLayout: [],
 		
 		_startLayout: function() {
 			this._layoutSemaphore++;
@@ -83,70 +134,148 @@ define(
 			}
 		},
 		
-		_triggerLayout: function(force) {
-			if (force) {
-				clearTimeout(this._layoutTimer);
-				this._layoutMarkedNodes(this._container);
-				this._layoutInProgress = false;
-			} else {
-				if (!this._layoutInProgress) {
-					this._layoutInProgress = true;
-					this._layoutTimer = setTimeout(lang.hitch(this, function(){
-						this._layoutMarkedNodes(this._container);
-						this._layoutInProgress = false;
-						this._layoutTimer = null;
-					}), 25);
-				}
-			}
-		},
+		_elementLayoutCount: 0,
 		
-		_layoutMarkedNodes: function(node) {
-			if (node._markedForLayout) {
-				var parent = node._parent,
-					isParentWidthSize = parent && parent.width === Ti.UI.SIZE, 
-					isParentHeightSize = parent && parent.height === Ti.UI.SIZE;
-				node._layout && node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, !!isParentWidthSize, !!isParentHeightSize);
-			} else {
-				for (var i in node.children) {
-					this._layoutMarkedNodes(node.children[i]);
+		_layoutCount: 0,
+		
+		_triggerLayout: function(node, force) {
+			var self = this;
+			if (~self._nodesToLayout.indexOf(node)) {
+				return;
+			}
+			self._nodesToLayout.push(node);
+			function startLayout() {
+				
+				self._elementLayoutCount = 0;
+				self._layoutCount++;
+				var startTime = (new Date()).getTime(),
+					nodes = self._nodesToLayout,
+					layoutNode,
+					node,
+					parent,
+					previousParent,
+					children,
+					child,
+					recursionStack,
+					rootNodesToLayout = [],
+					layoutRootNode = false,
+					breakAfterChildrenCalculations;
+					
+				// Determine which nodes need to be re-layed out
+				for (var i in nodes) {
+					layoutNode = nodes[i];
+						
+					// Mark all of the children for update that need to be updated
+					recursionStack = [layoutNode];
+					while (recursionStack.length > 0) {
+						node = recursionStack.pop();
+						node._markedForLayout = true;
+						children = node.children;
+						for (var j in children) {
+							child = children[j];
+							if (node.layout !== "composite" || child._isDependentOnParent() || !child._hasBeenLayedOut) {
+								recursionStack.push(child);
+							}
+						}
+					}
+					
+					// Go up and mark any other nodes that need to be marked
+					parent = layoutNode;
+					while(1) {
+						breakAfterChildrenCalculations = false;
+						if (!parent._parent) {
+							layoutRootNode = true;
+							break;
+						} else if(!parent._parent._hasSizeDimensions()) {
+							!parent._parent._markedForLayout && !~rootNodesToLayout.indexOf(parent._parent) && rootNodesToLayout.push(parent._parent);
+							if (parent._parent.layout !== "composite") {
+								breakAfterChildrenCalculations = true;
+							} else {
+								break;
+							}
+						}
+						parent._markedForLayout = true;
+						
+						previousParent = parent;
+						parent = parent._parent;
+						recursionStack = [parent];
+						while (recursionStack.length > 0) {
+							node = recursionStack.pop();
+							children = node.children;
+							for (var j in children) {
+								child = children[j];
+								if (child !== previousParent && (node.layout !== "composite" || child._isDependentOnParent())) {
+									child._markedForLayout = true;
+									recursionStack.push(child);
+								}
+							}
+						}
+						if (breakAfterChildrenCalculations) {
+							break;
+						}
+					}
 				}
-				// Run the post-layout animation, if needed
-				if (node._doAnimationAfterLayout) {
-					node._doAnimationAfterLayout = false;
-					node._doAnimation();
+				
+				// Layout all nodes that need it
+				if (layoutRootNode) {
+					var container = self._container;
+					container._doLayout({
+					 	origin: {
+					 		x: 0,
+					 		y: 0
+					 	},
+					 	isParentSize: {
+					 		width: false,
+					 		height: false
+					 	},
+					 	boundingSize: {
+					 		width: global.innerWidth,
+					 		height: global.innerHeight
+					 	},
+					 	alignment: {
+					 		horizontal: "center",
+					 		vertical: "center"
+					 	},
+					 	positionElement: true,
+					 	layoutChildren: true
+				 	});
 				}
+				for (var i in rootNodesToLayout) {
+					node = rootNodesToLayout[i];
+					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node._getInheritedWidth() === Ti.UI.SIZE, node._getInheritedHeight() === Ti.UI.SIZE);
+				}
+				
+				showStats && console.debug("Layout " + self._layoutCount + ": " + self._elementLayoutCount + 
+					" elements laid out in " + ((new Date().getTime() - startTime)) + "ms");
+					
+				self._layoutInProgress = false;
+				self._layoutTimer = null;
+				self._nodesToLayout = [];
+				
+				self.fireEvent("postlayout");
+			}
+			if (force) {
+				clearTimeout(self._layoutTimer);
+				self._layoutInProgress = true;
+				startLayout();
+			} else if (self._nodesToLayout.length === 1) {
+				self._layoutInProgress = true;
+				self._layoutTimer = setTimeout(function(){ startLayout(); }, 25);
 			}
 		},
 		
 		_recalculateLayout: function() {
-			var width = this._container.width = window.innerWidth,
-				height = this._container.height = window.innerHeight;
-			this._container._doLayout({
-			 	origin: {
-			 		x: 0,
-			 		y: 0
-			 	},
-			 	isParentSize: {
-			 		width: false,
-			 		height: false
-			 	},
-			 	boundingSize: {
-			 		width: width,
-			 		height: height
-			 	},
-			 	alignment: {
-			 		horizontal: "center",
-			 		vertical: "center"
-			 	},
-			 	positionElement: true,
-				layoutChildren: true
-		 	});
+			var container = this._container;
+			if (container) {
+				container.width = global.innerWidth;
+				container.height = global.innerHeight;
+			}
 		},
 
 		properties: {
 			backgroundColor: {
 				set: function(value) {
-					return setStyle(body, "backgroundColor", value);
+					return this._container.backgroundColor = value;
 				}
 			},
 			backgroundImage: {
@@ -154,14 +283,7 @@ define(
 					return setStyle(body, "backgroundImage", value ? style.url(value) : "");
 				}
 			},
-			currentTab: {
-				get: function() {
-					return (this.currentWindow || {}).activeTab;
-				},
-				set: function(value) {
-					return (this.currentWindow || {}).activeTab = value;
-				}
-			}
+			currentTab: void 0
 		},
 		
 		convertUnits: function(convertFromValue, convertToUnits) {
@@ -182,7 +304,7 @@ define(
 		},
 
 		constants: {
-			currentWindow: undefined,
+			currentWindow: void 0,
 			UNKNOWN: 0,
 			FACE_DOWN: 1,
 			FACE_UP: 2,
@@ -216,22 +338,23 @@ define(
 			RETURNKEY_SEARCH: 8, // Search
 			RETURNKEY_SEND: 9, // Send
 			RETURNKEY_YAHOO: 10, // Search
-			TEXT_ALIGNMENT_CENTER: 1,
-			TEXT_ALIGNMENT_RIGHT: 2,
-			TEXT_ALIGNMENT_LEFT: 3,
+			TEXT_ALIGNMENT_CENTER: "center",
+			TEXT_ALIGNMENT_RIGHT: "right",
+			TEXT_ALIGNMENT_LEFT: "left",
 			TEXT_AUTOCAPITALIZATION_ALL: 3,
 			TEXT_AUTOCAPITALIZATION_NONE: 0,
 			TEXT_AUTOCAPITALIZATION_SENTENCES: 2,
 			TEXT_AUTOCAPITALIZATION_WORDS: 1,
-			TEXT_VERTICAL_ALIGNMENT_BOTTOM: 2,
-			TEXT_VERTICAL_ALIGNMENT_CENTER: 1,
-			TEXT_VERTICAL_ALIGNMENT_TOP: 3,
+			TEXT_VERTICAL_ALIGNMENT_BOTTOM: "bottom",
+			TEXT_VERTICAL_ALIGNMENT_CENTER: "center",
+			TEXT_VERTICAL_ALIGNMENT_TOP: "top",
 			ANIMATION_CURVE_EASE_IN: 1,
 			ANIMATION_CURVE_EASE_IN_OUT: 2,
 			ANIMATION_CURVE_EASE_OUT: 3,
 			ANIMATION_CURVE_LINEAR: 4,
 			SIZE: "auto",
 			FILL: "fill",
+			INHERIT: "inherit",
 			UNIT_PX: "px",
 			UNIT_MM: "mm",
 			UNIT_CM: "cm",

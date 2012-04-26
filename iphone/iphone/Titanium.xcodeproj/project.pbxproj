@@ -150,7 +150,6 @@
 		24CA8BAE111161FE0084E2DE /* TiUIActivityIndicatorProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A9C111161FD0084E2DE /* TiUIActivityIndicatorProxy.m */; };
 		24CA8BAF111161FE0084E2DE /* TiUIActivityIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A9E111161FD0084E2DE /* TiUIActivityIndicator.m */; };
 		24CA8BB5111161FE0084E2DE /* TiRect.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AAC111161FD0084E2DE /* TiRect.m */; };
-		24CA8BB6111161FE0084E2DE /* TiRange.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AAE111161FD0084E2DE /* TiRange.m */; };
 		24CA8BB7111161FE0084E2DE /* TiProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB0111161FD0084E2DE /* TiProxy.m */; };
 		24CA8BB8111161FE0084E2DE /* TiPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB2111161FD0084E2DE /* TiPoint.m */; };
 		24CA8BB9111161FE0084E2DE /* TiNetworkHTTPClientResultProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB4111161FD0084E2DE /* TiNetworkHTTPClientResultProxy.m */; };
@@ -311,7 +310,6 @@
 		24D8E424119B9D8A00F8CAA6 /* TiUIActivityIndicatorProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A9C111161FD0084E2DE /* TiUIActivityIndicatorProxy.m */; };
 		24D8E425119B9D8A00F8CAA6 /* TiUIActivityIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A9E111161FD0084E2DE /* TiUIActivityIndicator.m */; };
 		24D8E426119B9D8A00F8CAA6 /* TiRect.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AAC111161FD0084E2DE /* TiRect.m */; };
-		24D8E427119B9D8A00F8CAA6 /* TiRange.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AAE111161FD0084E2DE /* TiRange.m */; };
 		24D8E428119B9D8A00F8CAA6 /* TiProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB0111161FD0084E2DE /* TiProxy.m */; };
 		24D8E429119B9D8A00F8CAA6 /* TiPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB2111161FD0084E2DE /* TiPoint.m */; };
 		24D8E42A119B9D8A00F8CAA6 /* TiNetworkHTTPClientResultProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB4111161FD0084E2DE /* TiNetworkHTTPClientResultProxy.m */; };
@@ -699,7 +697,6 @@
 		DABB36FF12E8CB280026A6EA /* TiUIActivityIndicatorProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A9C111161FD0084E2DE /* TiUIActivityIndicatorProxy.m */; };
 		DABB370012E8CB280026A6EA /* TiUIActivityIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A9E111161FD0084E2DE /* TiUIActivityIndicator.m */; };
 		DABB370112E8CB280026A6EA /* TiRect.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AAC111161FD0084E2DE /* TiRect.m */; };
-		DABB370212E8CB280026A6EA /* TiRange.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AAE111161FD0084E2DE /* TiRange.m */; };
 		DABB370312E8CB280026A6EA /* TiProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB0111161FD0084E2DE /* TiProxy.m */; };
 		DABB370412E8CB280026A6EA /* TiPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB2111161FD0084E2DE /* TiPoint.m */; };
 		DABB370512E8CB280026A6EA /* TiNetworkHTTPClientResultProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB4111161FD0084E2DE /* TiNetworkHTTPClientResultProxy.m */; };
@@ -1177,8 +1174,6 @@
 		24CA8AAB111161FD0084E2DE /* TiTab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiTab.h; path = ../Classes/TiTab.h; sourceTree = SOURCE_ROOT; };
 		24CA8AAC111161FD0084E2DE /* TiRect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiRect.m; path = ../Classes/TiRect.m; sourceTree = SOURCE_ROOT; };
 		24CA8AAD111161FD0084E2DE /* TiRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiRect.h; path = ../Classes/TiRect.h; sourceTree = SOURCE_ROOT; };
-		24CA8AAE111161FD0084E2DE /* TiRange.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiRange.m; path = ../Classes/TiRange.m; sourceTree = SOURCE_ROOT; };
-		24CA8AAF111161FD0084E2DE /* TiRange.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiRange.h; path = ../Classes/TiRange.h; sourceTree = SOURCE_ROOT; };
 		24CA8AB0111161FD0084E2DE /* TiProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiProxy.m; path = ../Classes/TiProxy.m; sourceTree = SOURCE_ROOT; };
 		24CA8AB1111161FD0084E2DE /* TiProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiProxy.h; path = ../Classes/TiProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8AB2111161FD0084E2DE /* TiPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiPoint.m; path = ../Classes/TiPoint.m; sourceTree = SOURCE_ROOT; };
@@ -1946,8 +1941,6 @@
 				24CA8A21111161FD0084E2DE /* TiUtils.h */,
 				24CA8AAC111161FD0084E2DE /* TiRect.m */,
 				24CA8AAD111161FD0084E2DE /* TiRect.h */,
-				24CA8AAE111161FD0084E2DE /* TiRange.m */,
-				24CA8AAF111161FD0084E2DE /* TiRange.h */,
 				24CA8AB2111161FD0084E2DE /* TiPoint.m */,
 				24CA8AB3111161FD0084E2DE /* TiPoint.h */,
 				24CA8AD1111161FD0084E2DE /* TiDimension.m */,
@@ -3245,7 +3238,6 @@
 				24CA8BAE111161FE0084E2DE /* TiUIActivityIndicatorProxy.m in Sources */,
 				24CA8BAF111161FE0084E2DE /* TiUIActivityIndicator.m in Sources */,
 				24CA8BB5111161FE0084E2DE /* TiRect.m in Sources */,
-				24CA8BB6111161FE0084E2DE /* TiRange.m in Sources */,
 				24CA8BB7111161FE0084E2DE /* TiProxy.m in Sources */,
 				24CA8BB8111161FE0084E2DE /* TiPoint.m in Sources */,
 				24CA8BB9111161FE0084E2DE /* TiNetworkHTTPClientResultProxy.m in Sources */,
@@ -3528,7 +3520,6 @@
 				24D8E424119B9D8A00F8CAA6 /* TiUIActivityIndicatorProxy.m in Sources */,
 				24D8E425119B9D8A00F8CAA6 /* TiUIActivityIndicator.m in Sources */,
 				24D8E426119B9D8A00F8CAA6 /* TiRect.m in Sources */,
-				24D8E427119B9D8A00F8CAA6 /* TiRange.m in Sources */,
 				24D8E428119B9D8A00F8CAA6 /* TiProxy.m in Sources */,
 				24D8E429119B9D8A00F8CAA6 /* TiPoint.m in Sources */,
 				24D8E42A119B9D8A00F8CAA6 /* TiNetworkHTTPClientResultProxy.m in Sources */,
@@ -3809,7 +3800,6 @@
 				DABB36FF12E8CB280026A6EA /* TiUIActivityIndicatorProxy.m in Sources */,
 				DABB370012E8CB280026A6EA /* TiUIActivityIndicator.m in Sources */,
 				DABB370112E8CB280026A6EA /* TiRect.m in Sources */,
-				DABB370212E8CB280026A6EA /* TiRange.m in Sources */,
 				DABB370312E8CB280026A6EA /* TiProxy.m in Sources */,
 				DABB370412E8CB280026A6EA /* TiPoint.m in Sources */,
 				DABB370512E8CB280026A6EA /* TiNetworkHTTPClientResultProxy.m in Sources */,
@@ -4007,6 +3997,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = Titanium.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
@@ -4045,6 +4036,7 @@
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = Titanium.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
@@ -4154,7 +4146,7 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PREPROCESSOR_DEFINITIONS = "TI_VERSION=$(TI_VERSION)";
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
-				GCC_VERSION = "";
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_ABOUT_RETURN_TYPE = NO;
 				GCC_WARN_MISSING_PARENTHESES = NO;
 				GCC_WARN_SHADOW = NO;
@@ -4199,7 +4191,7 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PREPROCESSOR_DEFINITIONS = "TI_VERSION=$(TI_VERSION)";
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
-				GCC_VERSION = "";
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_ABOUT_RETURN_TYPE = NO;
 				GCC_WARN_MISSING_PARENTHESES = NO;
 				GCC_WARN_SHADOW = NO;

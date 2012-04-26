@@ -62,10 +62,147 @@
 		return;
 	}
 
-	if (![(TiUIScrollView *)[self view] handleContentSizeIfNeeded])
-	{
-		[super layoutChildren:optimize];
-	}
+	[(TiUIScrollView *)[self view] handleContentSizeIfNeeded];
+}
+
+-(void)layoutChildrenAfterContentSize:(BOOL)optimize
+{
+	[super layoutChildren:optimize];	
+}
+
+-(CGFloat)autoHeightForSize:(CGSize)size
+{
+    if(TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle))
+    {
+        //Horizontal Layout in scrollview is not a traditional horizontal layout. So need an override
+
+        //This is the content width, which is implemented by widgets
+        CGFloat contentHeight = -1.0;
+        if ([self respondsToSelector:@selector(contentHeightForWidth:)]) {
+            contentHeight = [self contentHeightForWidth:size.width];
+        }
+        
+        CGFloat result=0.0;
+        CGFloat thisHeight = 0.0;
+        pthread_rwlock_rdlock(&childrenLock);
+        NSArray* array = windowOpened ? children : pendingAdds;
+        
+        for (TiViewProxy * thisChildProxy in array)
+        {
+            thisHeight = [thisChildProxy minimumParentHeightForSize:size];
+            if(result<thisHeight) {
+                result = thisHeight;
+            }
+        }
+        pthread_rwlock_unlock(&childrenLock);
+        
+        if (result < contentHeight) {
+            result = contentHeight;
+        }
+        
+        if([self respondsToSelector:@selector(verifyHeight:)])
+        {
+            result = [self verifyHeight:result];
+        }
+        
+        if (result == 0)
+        {
+            NSLog(@"[WARN] %@ has an auto height value of 0, meaning this view may not be visible.",self);
+        }
+        return result;
+    }
+    else {
+        return [super autoHeightForSize:size];
+    }
+}
+
+-(CGRect)computeChildSandbox:(TiViewProxy*)child withBounds:(CGRect)bounds
+{
+    if ([self viewAttached]) {
+        //ScrollView calls this with wrapper view bounds. Make sure it is set to the right bound
+        bounds = [[self view] bounds];
+    }
+    if(TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle))
+    {
+        //Horizontal Layout in scrollview is not a traditional horizontal layout. So need an override
+        BOOL followsFillBehavior = TiDimensionIsAutoFill([child defaultAutoWidthBehavior:nil]);
+        bounds.origin.x = horizontalLayoutBoundary;
+        CGFloat boundingValue = bounds.size.width-horizontalLayoutBoundary;
+        if (boundingValue < 0) {
+            boundingValue = 0;
+        }
+        //TOP + BOTTOM
+        CGFloat offset2 = TiDimensionCalculateValue([child layoutProperties]->top, bounds.size.height)
+        + TiDimensionCalculateValue([child layoutProperties]->bottom, bounds.size.height);
+        //LEFT + RIGHT
+        CGFloat offset = TiDimensionCalculateValue([child layoutProperties]->left, boundingValue)
+        + TiDimensionCalculateValue([child layoutProperties]->right, boundingValue);
+        
+        TiDimension constraint = [child layoutProperties]->width;
+        
+        if (TiDimensionIsDip(constraint) || TiDimensionIsPercent(constraint))
+        {
+            //Percent or absolute of total width so leave the sandbox and just increment the boundary
+            bounds.size.width =  TiDimensionCalculateValue(constraint, bounds.size.width) + offset;
+            horizontalLayoutBoundary += bounds.size.width;
+        }
+        else if (TiDimensionIsAutoFill(constraint))
+        {
+            //Fill up the remaining
+            bounds.size.width = boundingValue + offset;
+            horizontalLayoutBoundary += bounds.size.width;
+        }
+        else if (TiDimensionIsAutoSize(constraint))
+        {
+            bounds.size.width = [child autoWidthForSize:CGSizeMake(boundingValue,bounds.size.height - offset2)] + offset;
+            horizontalLayoutBoundary += bounds.size.width;
+        }
+        else if (TiDimensionIsAuto(constraint) )
+        {
+            if (followsFillBehavior) {
+                //FILL behavior
+                bounds.size.width = boundingValue + offset;
+                horizontalLayoutBoundary += bounds.size.width;
+            }
+            else {
+                //SIZE behavior
+                bounds.size.width = [child autoWidthForSize:CGSizeMake(boundingValue,bounds.size.height - offset2)] + offset;
+                horizontalLayoutBoundary += bounds.size.width;
+            }
+        }
+        else if (TiDimensionIsUndefined(constraint))
+        {
+            if (!TiDimensionIsUndefined([child layoutProperties]->left) && !TiDimensionIsUndefined([child layoutProperties]->centerX) ) {
+                CGFloat width = 2 * ( TiDimensionCalculateValue([child layoutProperties]->centerX, boundingValue) - TiDimensionCalculateValue([child layoutProperties]->left, boundingValue) );
+                bounds.size.width = width + offset;
+                horizontalLayoutBoundary += bounds.size.width;
+            }
+            else if (!TiDimensionIsUndefined([child layoutProperties]->left) && !TiDimensionIsUndefined([child layoutProperties]->right) ) {
+                bounds.size.width = boundingValue + offset;
+                horizontalLayoutBoundary += bounds.size.width;
+            }
+            else if (!TiDimensionIsUndefined([child layoutProperties]->centerX) && !TiDimensionIsUndefined([child layoutProperties]->right) ) {
+                CGFloat width = 2 * ( boundingValue - TiDimensionCalculateValue([child layoutProperties]->right, boundingValue) - TiDimensionCalculateValue([child layoutProperties]->centerX, boundingValue));
+                bounds.size.width = width + offset;
+                horizontalLayoutBoundary += bounds.size.width;
+            }
+            else if (followsFillBehavior) {
+                //FILL behavior
+                bounds.size.width = boundingValue + offset;
+                horizontalLayoutBoundary += bounds.size.width;
+            }
+            else {
+                //SIZE behavior
+                bounds.size.width = [child autoWidthForSize:CGSizeMake(boundingValue,bounds.size.height - offset2)] + offset;
+                horizontalLayoutBoundary += bounds.size.width;
+            }
+        }
+        
+        return bounds;
+    }
+    else {
+        return [super computeChildSandbox:child withBounds:bounds];
+    }
 }
 
 -(void)childWillResize:(TiViewProxy *)child

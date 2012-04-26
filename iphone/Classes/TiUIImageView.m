@@ -45,7 +45,7 @@ DEFINE_EXCEPTIONS
 	[super dealloc];
 }
 
--(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
+-(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
 	if (autoWidth > 0)
 	{
@@ -66,7 +66,7 @@ DEFINE_EXCEPTIONS
 	return 0;
 }
 
--(CGFloat)autoHeightForWidth:(CGFloat)width_
+-(CGFloat)contentHeightForWidth:(CGFloat)width_
 {
 	if (autoHeight > 0)
 	{
@@ -471,6 +471,7 @@ DEFINE_EXCEPTIONS
                 autoWidth = fullSize.width;
                 autoHeight = fullSize.height;
                 [self imageView].image = image;
+                [self fireLoadEventWithState:@"url"];
             }
             else {
                 [self loadDefaultImage:imageSize];

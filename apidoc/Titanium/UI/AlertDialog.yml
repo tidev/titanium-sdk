@@ -45,6 +45,9 @@ description: |
     #### Caveats
     
     Multiple alerts should not be shown at once.
+    
+    The `title` and `ok` properties cannot be changed while the alert dialog is being displayed. On
+    Android only, you can change the `message` property while the alert dialog is being displayed.
 extends: Titanium.Proxy
 since: "0.8"
 
@@ -98,7 +101,7 @@ properties:
     summary: Key identifying a string in the locale file to use for the message text.
     type: String
     accessors: false
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: title
     summary: Title of the dialog.
@@ -109,7 +112,7 @@ properties:
     summary: Key identifying a string in the locale file to use for the title text. 
     type: String
     accessors: false
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: ok
     summary: Text for the `OK` button.
@@ -124,7 +127,7 @@ properties:
         If `buttonNames` is defined, this property is ignored.
     type: String
     accessors: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
 
 examples:
   - title: Single-button Alert Dialog (using alias)

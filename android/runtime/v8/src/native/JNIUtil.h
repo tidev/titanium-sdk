@@ -35,6 +35,8 @@ public:
 	static void throwOutOfMemoryError(const char *message);
 	static void throwNullPointerException(const char *message);
 
+	static jobject undefinedObject;
+
 	// Java classes
 	static jclass classClass;
 	static jclass objectClass;
@@ -72,6 +74,7 @@ public:
 	static jclass krollAssetHelperClass;
 	static jclass krollLoggingClass;
 	static jclass tiJsErrorDialogClass;
+	static jclass referenceTableClass;
 
 	// Java methods
 	static jmethodID classGetNameMethod;
@@ -87,6 +90,7 @@ public:
 	static jmethodID setToArrayMethod;
 	static jmethodID dateInitMethod;
 	static jmethodID dateGetTimeMethod;
+	static jmethodID integerInitMethod;
 	static jmethodID doubleInitMethod;
 	static jmethodID booleanInitMethod;
 	static jmethodID booleanBooleanValueMethod;
@@ -98,6 +102,12 @@ public:
 	static jfieldID v8ObjectPtrField;
 	static jmethodID v8ObjectInitMethod;
 	static jmethodID v8FunctionInitMethod;
+
+	static jmethodID referenceTableCreateReferenceMethod;
+	static jmethodID referenceTableDestroyReferenceMethod;
+	static jmethodID referenceTableMakeWeakReferenceMethod;
+	static jmethodID referenceTableClearWeakReferenceMethod;
+	static jmethodID referenceTableGetReferenceMethod;
 
 	static jint krollRuntimeDontIntercept;
 	static jmethodID krollInvocationInitMethod;

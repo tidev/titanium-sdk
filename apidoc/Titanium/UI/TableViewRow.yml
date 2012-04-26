@@ -3,22 +3,22 @@ name: Titanium.UI.TableViewRow
 summary: An individual row for a [TableView](Titanium.UI.TableView). 
 description: |
     Use the <Titanium.UI.createTableViewRow> method to create a table view row.
-
+    
     A table view row represents a single item in a `TableView`. The row's contents can be as simple 
     as a single line of text, or the row can be a completely customized with its own child views.
-
+    
     A basic table view row includes properties for setting:
-
+    
     * Row title to display the text content on the row.
     * Optional images on the left and right sides of the row.
     * Optional system decorations, such as checkboxes.
-
+    
     The usual view properties may also be set, such as background color and background image.
-
+    
     If a custom layout is needed, such as multiple lines of text, different fonts, or additional 
     images or controls, child views may be added to the row. In this case, row `title` property 
     should not be set.
-
+    
     In order to enable good performance, each group of rows with the same layout should be given a 
     `className` of the same value. The content of the elements inside the rows may be different so, 
     for example, if the text is the only thing different between two cells but the layout is the 
@@ -27,9 +27,9 @@ description: |
     As events automatically bubble/propogate to parent views, a listener may be placed on the table 
     view to detect events fired from the rows. The benefit is that it is not necessary to 
     explicitly create a listener for every individual row.
-
+    
     #### Platform Implementation Notes
-
+    
     The `top`, `left` and other positional parameters are not used for their usual purposes, because 
     the table view row is automatically positioned by its parent.
     
@@ -40,10 +40,9 @@ description: |
     
     On Mobile Web, they are used to relatively position the row, treating the `TableView` as if it 
     were a horizontal layout.
-
+    
     Also, note that the selected text color, `selectedColor`, can only be set on iOS and 
     Mobile Web. On Android, the text color does not change when the row is selected.
-
 extends: Titanium.UI.View
 since: "0.9"
 excludes:
@@ -68,8 +67,10 @@ properties:
     type: String
     
   - name: color
-    summary: Default text color of the row when not selected.
+    summary: Default text color of the row when not selected, as a color name or hex triplet.
     description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        
         On Android, `selectedColor` is not supported, so the text is always displayed in this color.
     type: String
     
@@ -136,7 +137,9 @@ properties:
     type: String
     
   - name: selectedBackgroundColor
-    summary: Background color to render when the row is selected.
+    summary: Background color to render when the row is selected, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     
   - name: selectedBackgroundImage
@@ -144,7 +147,9 @@ properties:
     type: String
     
   - name: selectedColor
-    summary: Color of the row text when the row is selected.
+    summary: Color of the row text when the row is selected, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     platforms: [iphone,ipad]
     

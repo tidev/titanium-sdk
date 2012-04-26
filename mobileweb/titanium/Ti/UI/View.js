@@ -16,37 +16,11 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 		},
 
 		add: function(view) {
-			view._setParent(this);
-			this.children.push(view);
-			this.containerNode.appendChild(view.domNode);
-			this._triggerLayout();
-		},
-
-		_setParent: function(view) {
-			this._parent = view;
-		},
-
-		_insertAt: function(view,index) {
-			if (index > this.children.length || index < 0) {
-				return;
-			} else if (index === this.children.length) {
-				this.add(view);
-			} else {
-				view._parent = this;
-				this.containerNode.insertBefore(view.domNode,this.children[index].domNode);
-				this.children.splice(index,0,view);
-				this._triggerLayout();
-			}
+			this._add(view);
 		},
 
 		remove: function(view) {
-			var p = this.children.indexOf(view);
-			if (p !== -1) {
-				this.children.splice(p, 1);
-				view._setParent();
-				dom.detach(view.domNode);
-				this._triggerLayout();
-			}
+			this._remove(view);
 		},
 
 		destroy: function() {
@@ -56,17 +30,8 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 					c = this.children.splice(0, 1);
 					c[0].destroy();
 				}
-				this._parent && View.prototype.remove.call(this._parent, this);
 			}
 			Element.prototype.destroy.apply(this, arguments);
-		},
-
-		_removeAllChildren: function(view) {
-			var children = this.children;
-			while (children.length) {
-				this.remove(children[0]);
-			}
-			this._triggerLayout();
 		},
 
 		_getScrollableContentWidth: function() {

@@ -1,0 +1,205 @@
+name: Titanium.CloudPush
+summary: Provides methods for accessing Android push notifications from ACS using the MQTT protocol.
+description: |
+    The MQTT protocol is a very lightweight, long lived connection to a server. It is perfect for keeping mobile devices
+    in connection with a server, while not significantly degrading their battery life.
+    
+    In addition to communicating with an MQTT server, this module can also present tray notifications to the user.
+    Please refer to the [showTrayNotification](Titanium.CloudPush.showTrayNotification) property to see more information
+    about this.
+    
+    Note that this module is not included in the Titanium namespace, but it is bundled with the Titanium SDK as of
+    version 2.0.0. To use it, you must require it, like this:
+    
+        var CloudPush = require('ti.cloudpush');
+    
+    This module must also be added to the modules section in your tiapp.xml. This can be done using the Modules list in
+    the Titanium Studio TiApp Editor, or by editing the XML directly and adding the following line to the modules
+    element:
+    
+        <module platform="android">ti.cloudpush</module>
+    
+    Your app must prove that it is allowed to talk to ACS. This keeps your data secure by preventing anyone from
+    making requests to ACS that impersonate your app.
+
+    Titanium Studio will create a pair of keys (Development and Production) for each Titanium application depending on the
+    user preference specified during new project creation. This pair of keys will be stored in `tiapp.xml` and one of the
+    keys will be used during application build depending on the build type (development or production).
+
+    The supported properties in `tiapp.xml` are:
+
+        <property name="acs-api-key-development" type="string">YOUR DEVELOPMENT API KEY HERE</property>
+
+        <property name="acs-api-key-production" type="string">YOUR PRODUCTION API KEY HERE</property>
+
+        <property name="acs-api-key" type="string">YOUR API KEY HERE</property>
+
+    The value for each setting that will be used is based on the following rules:
+
+    * If a deployment-specific setting is provided (production or development) then that value will be used for the current deployment environment.
+
+    *WARNING*: The default properties of this module are used until you set a property for the first time. Because the
+    properties are persisted to the device settings (via <Titanium.App.Properties>), the most recent value you set will
+    always be used.
+platforms: [android]
+since: "2.0.0"
+extends: Titanium.Module
+methods:
+  - name: retrieveDeviceToken
+    summary: Asynchronously retrieves the application specific device token.
+    description: |
+        This token is used in calls to the Appcelerator Cloud Service's subscribe or unsubscribe to push notification
+        channels. This token is unique to each application and device.
+    parameters:
+      - name: config
+        summary: Dictionary specifying token retrieval related options. 
+        type: CloudPushNotificationConfig
+properties:
+  - name: enabled
+    summary: Whether or not this device will receive push notifications.
+    description: |
+        You must ask your users before enabling this. Note that once enabled, the application will be able to receive
+        notifications at any time, even after the device reboots, regardless of if your application has been run
+        recently or not. But if the user intentionally kills your application and its services in their task manager,
+        push notifications will be disabled and this property will automatically be set to false.
+        
+        Also be aware that whenever your application is updated (through the market or through ADB installing a new
+        APK), the push service will be stopped until the app is launched for the first time.
+        
+        Listen for this module's [callback](Titanium.CloudPush.callback) event to receive push notifications once this
+        property is set to true.
+    type: Boolean
+    default: false
+  - name: showTrayNotification
+    summary: Whether or not to show a tray notification when a new push is received.
+    description: |
+        If your payload is only a string, it will be used as the contentText and tickerText, and your application's name
+        will be used as the contentTitle with a system icon.
+        
+        Note that in your payload, you can customize this tray notification using any of the properties of a
+        <Titanium.Android.Notification>, except for contentIntent and deleteIntent (those are automatically set).
+    type: Boolean
+    default: true
+  - name: showAppOnTrayClick
+    summary: Whether or not clicking the tray notification will bring your application to the foreground.
+    description: |
+        This is only applicable if you have set [showTrayNotification](Titanium.CloudPush.showTrayNotification) to true.
+    type: Boolean
+    default: true
+  - name: showTrayNotificationsWhenFocused
+    summary: Whether or not to show tray notifications when your application is in the foreground.
+    description: |
+        Instead of showing a notification, the [callback](Titanium.CloudPush.callback) event will be immediately fired
+        instead.
+        
+        This is only applicable if you have set [showTrayNotification](Titanium.CloudPush.showTrayNotification) to true.
+    type: Boolean
+    default: false
+  - name: focusAppOnPush
+    summary: Whether or not your application is brought to the foreground whenever a new push is received.
+    description: |
+        Note that this behavior is rather disruptive to users, and is strongly discouraged.
+    type: Boolean
+    default: false
+events:
+  - name: trayClickLaunchedApp
+    summary: Fired when a tray notification is shown and the application is not running.
+    description: |
+        Touching it launches the app, and fires this event.
+        
+        This is only applicable if you have set [showTrayNotification](Titanium.CloudPush.showTrayNotification) to true.
+  - name: trayClickFocusedApp
+    summary: Fired when a tray notification is shown and the application is already running.
+    description: |
+        Touching it focuses the app, and fires this event.
+        
+        This is only applicable if you have set [showTrayNotification](Titanium.CloudPush.showTrayNotification) to true.
+  - name: callback
+    summary: Fired whenever a push notification is received.
+    description: |
+        If your application is not running when a push is received, the push will be saved in a queue until the next
+        time you add an event listener for this.
+
+        This will only be fired once per push notification.
+
+        This event will be fired at different times depending on your settings and the application's present state
+        (foreground, background, or not running at all). When [focusAppOnPush](Titanium.CloudPush.focusAppOnPush) is true, this
+        will fire as soon as you receive a push. When [showTrayNotification](Titanium.CloudPush.showTrayNotification) is true, this
+        will fire as soon as the user touches the tray notification to focus your application. Or, if
+        [showTrayNotificationsWhenFocused](Titanium.CloudPush.showTrayNotificationsWhenFocused) is false, and your application is
+        in the foreground, it will be called right away. If both [focusAppOnPush](Titanium.CloudPush.focusAppOnPush)
+        and [showTrayNotification](Titanium.CloudPush.showTrayNotification) are false, this will fire the next time your
+        application is launched and you add an event listener for it.
+
+        You can use the [trayClickLaunchedApp](Titanium.CloudPush.trayClickLaunchedApp) and
+        [trayClickFocusedApp](Titanium.CloudPush.trayClickFocusedApp) events to distinguish between the various ways
+        a push notification can return a user to your application.
+    properties:
+      - name: payload
+        summary: A JSON string of your data payload. Use JSON.parse to turn this in to an object you can use.
+        type: String
+examples:
+  - title: Listening for Push Notifications
+    example: |
+        This example lets the user choose if push notifications should be enabled, and listens for several events.
+            var CloudPush = require('ti.cloudpush');
+            CloudPush.retrieveDeviceToken({
+                success: function deviceTokenSuccess(e) {
+                    Ti.API.info('Device Token: ' + e.deviceToken);
+                },
+                error: function deviceTokenError(e) {
+                    alert('Failed to register for push! ' + e.error);
+                }
+            });
+            var win = Ti.UI.createWindow({
+                layout: 'vertical',
+                backgroundColor: 'white'
+            });
+            var enablePush = Ti.UI.createButton({
+                title: 'Enable Push Notifications'
+            });
+            enablePush.addEventListener('click', function () {
+                CloudPush.enabled = true;
+            });
+            win.add(enablePush);
+            CloudPush.addEventListener('callback', function (evt) {
+                alert(evt.payload);
+            });
+            CloudPush.addEventListener('trayClickLaunchedApp', function (evt) {
+                Ti.API.info('Tray Click Launched App (app was not running)');
+            });
+            CloudPush.addEventListener('trayClickFocusedApp', function (evt) {
+                Ti.API.info('Tray Click Focused App (app was already running)');
+            });
+            win.open();
+---
+name: CloudPushNotificationConfig
+summary: |
+    Simple object for specifying token retrieval options to [retrieveDeviceToken](Titanium.CloudPush.retrieveDeviceToken).
+properties:
+  - name: success 
+    summary: |
+        Callback function called when the push registration is successfully completed.
+    type: Callback<CloudPushNotificationSuccessArg>
+  - name: error
+    summary: |
+        Callback function called when an error occurs during registration.
+    type: Callback<CloudPushNotificationErrorArg>
+
+---
+name: CloudPushNotificationSuccessArg
+summary: |
+    A simple object passed to the [retrieveDeviceToken](Titanium.CloudPush.retrieveDeviceToken) success callback.
+properties: 
+  - name: deviceToken 
+    summary: The device token which this device was registered for.
+    type: String
+
+---
+name: CloudPushNotificationErrorArg
+summary: |
+    A simple object passed to the [retrieveDeviceToken](Titanium.CloudPush.retrieveDeviceToken) error callback.
+properties: 
+  - name: error 
+    summary: Description of the error.
+    type: String

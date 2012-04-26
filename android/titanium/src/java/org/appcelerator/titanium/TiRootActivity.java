@@ -13,14 +13,56 @@ import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiRHelper;
 
 import android.content.res.Configuration;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
+import android.view.Window;
 
 public class TiRootActivity extends TiLaunchActivity
 	implements TiActivitySupport
 {
 	private static final String LCAT = "TiRootActivity";
 	private static final boolean DBG = TiConfig.LOGD;
+
+	private Drawable[] backgroundLayers = {null, null};
+
+	public void setBackgroundColor(int color)
+	{
+		Window window = getWindow();
+		if (window == null) {
+			return;
+		}
+
+		Drawable colorDrawable = new ColorDrawable(color);
+		backgroundLayers[0] = colorDrawable;
+
+		if (backgroundLayers[1] != null) {
+			window.setBackgroundDrawable(new LayerDrawable(backgroundLayers));
+		} else {
+			window.setBackgroundDrawable(colorDrawable);
+		}
+	}
+
+	public void setBackgroundImage(Drawable image)
+	{
+		Window window = getWindow();
+		if (window == null) {
+			return;
+		}
+
+		backgroundLayers[1] = image;
+		if (image == null) {
+			window.setBackgroundDrawable(backgroundLayers[0]);
+			return;
+		}
+
+		if (backgroundLayers[0] != null) {
+			window.setBackgroundDrawable(new LayerDrawable(backgroundLayers));
+		} else {
+			window.setBackgroundDrawable(image);
+		}
+	}
 
 	@Override
 	public String getUrl()
@@ -33,8 +75,12 @@ public class TiRootActivity extends TiLaunchActivity
 	{
 		TiApplication tiApp = getTiApp();
 
-		if (checkMissingLauncher(savedInstanceState)) {
+		if (checkInvalidLaunch(savedInstanceState)) {
 			// Android bug 2373 detected and we're going to restart.
+			return;
+		}
+
+		if (checkInvalidKindleFireRelaunch(savedInstanceState)) {
 			return;
 		}
 
@@ -96,6 +142,10 @@ public class TiRootActivity extends TiLaunchActivity
 	protected void onDestroy()
 	{
 		super.onDestroy();
+		if (invalidKindleFireRelaunch) {
+			return;
+		}
+
 		if (DBG) {
 			Log.d(LCAT, "root activity onDestroy, activity = " + this);
 		}

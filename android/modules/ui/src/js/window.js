@@ -233,6 +233,10 @@ exports.bootstrapWindow = function(Titanium) {
 		} else {
 			this.window = this.getActivityDecorView();
 			this.view = new UI.View(this._properties);
+			
+			// Add children before the view is added
+			this.addChildren();
+			
 			this.window.add(this.view);
 		}
 
@@ -243,16 +247,18 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 
 		this.setWindowView(this.view);
-		this.addChildren();
 
 		if (needsOpen) {
 			this.window.on("windowCreated", function () {
+				// Add children before the view is set
+				self.addChildren();
+				
 				self.postOpen();
 				self.fireEvent("open");
 			});
-
+			
 			this.window.open(options);
-
+			
 		} else {
 			this.postOpen();
 			this.fireEvent("open");
@@ -276,6 +282,7 @@ exports.bootstrapWindow = function(Titanium) {
 		var self = this;
 		this.window.on("open", function () {
 			self.postOpen();
+			self.fireEvent("open");
 		});
 	}
 

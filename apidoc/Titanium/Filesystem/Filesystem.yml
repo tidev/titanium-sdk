@@ -86,6 +86,12 @@ properties:
     summary: Constant for write mode for file operations.
     type: Number
     permission: read-only
+  - name: applicationCacheDirectory
+    summary: Path to the application's internal cache directory.
+    type: String
+    permission: read-only
+    platforms: [android, iphone, ipad]
+    since: "1.8.3"
   - name: applicationDataDirectory
     summary: Path to the application's data directory.
     description: |

@@ -40,11 +40,15 @@ import android.os.Message;
 import android.provider.OpenableColumns;
 import android.view.View;
 
+/**
+ * The parent class of view proxies.
+ */
 @Kroll.proxy(propertyAccessors={
 	// background properties
-	"backgroundImage", "backgroundSelectedImage", "backgroundFocusedImage",
-	"backgroundDisabledImage", "backgroundColor", "backgroundSelectedColor",
-	"backgroundFocusedColor", "backgroundDisabledColor", "backgroundPadding",
+	"backgroundImage", "backgroundRepeat", "backgroundSelectedImage", 
+	"backgroundFocusedImage", "backgroundDisabledImage", "backgroundColor", 
+	"backgroundSelectedColor", "backgroundFocusedColor", "backgroundDisabledColor", 
+	"backgroundPadding",
 
 	// border properties
 	"borderColor", "borderRadius", "borderWidth",
@@ -89,10 +93,16 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	private boolean isDecorView = false;
 	private AtomicBoolean layoutStarted = new AtomicBoolean();
 	
+	/**
+	 * Constructs a new TiViewProxy instance.
+	 * @module.api
+	 */
 	public TiViewProxy()
 	{
 		langConversionTable = getLangConversionTable();
 		pendingAnimationLock = new Object();
+
+		defaultValues.put(TiC.PROPERTY_BACKGROUND_REPEAT, false);
 	}
 
 	/**
@@ -118,7 +128,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			if (idPropertyName.equals(thisIdPropertyName)) {
 				try {
 					String localText = getLocalizedText(idPropertyValue);
-					setPropertyAndFire(propertyName, localText);
+					//If key exists, overwrite the text.
+					if (localText != null) {
+						setPropertyAndFire(propertyName, localText);
+					}
 				} catch (ResourceNotFoundException e) {
 					Log.w(LCAT, "Localized text key '" + idPropertyValue + "' is invalid.");
 				}
@@ -239,6 +252,27 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return options;
 	}
 
+	/**
+	 * @return the language conversion table used to load localized values for certain properties from the locale files.
+	 *	For each localizable property, such as "title," the proxy should define a second property, such as "titleid", used to specify a 
+	 *	localization key for that property. If the user specifies a localization key in "titleid", the corresponding localized text from the locale file 
+	 *	is used for "title."
+	 *
+	 *	Subclasses should override this method to return a table mapping localizable properties to the corresponding localization key properties.
+	 *
+	 *	For example, if the proxy has two properties, "title" and "text", and the corresponding localization key properties are "titleid" and "textid", this might look like:
+	 *	</br>
+	 * 
+	 *	<pre><code>protected KrollDict getLangConversionTable() 
+	 *{	
+	 *	KrollDict table = new KrollDict();
+	 *	table.put("title", "titleid"); 
+	 *	table.put("text", "textid"); 
+	 *	return table; 
+	 *} </pre> </code>
+	 * @module.api
+	 *
+	 */
 	protected KrollDict getLangConversionTable()
 	{
 		// subclasses override to return a table mapping of langid keys to actual keys
@@ -357,7 +391,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				return true;
 			}
 			case MSG_UPDATE_LAYOUT : {
-				handleUpdateLayout((KrollDict) msg.obj);
+				handleUpdateLayout((HashMap) msg.obj);
 				return true;
 			}
 		}
@@ -434,6 +468,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		view = null;
 	}
 
+	/**
+	 * @return the TiUIView associated with this proxy.
+	 * @module.api
+	 */
 	public TiUIView peekView()
 	{
 		return view;
@@ -450,6 +488,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return getOrCreateView();
 	}
 
+	/**
+	 * Creates or retrieves the view associated with this proxy.
+	 * @return a TiUIView instance.
+	 * @module.api
+	 */
 	public TiUIView getOrCreateView()
 	{
 		if (activity == null || view != null) {
@@ -521,10 +564,22 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			view = null;
 		}
 		setModelListener(null);
+		KrollRuntime.suggestGC();
 	}
 
+	/**
+	 * Implementing classes should use this method to create and return the appropriate view.
+	 * @param activity the context activity.
+	 * @return a TiUIView instance.
+	 * @module.api
+	 */
 	public abstract TiUIView createView(Activity activity);
 
+	/**
+	 * Adds a child to this view proxy.
+	 * @param child The child view proxy to add.
+	 * @module.api
+	 */
 	@Kroll.method
 	public void add(TiViewProxy child)
 	{
@@ -567,6 +622,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 	}
 
+	/**
+	 * Removes a view from this view proxy, releasing the underlying native view if it exists.
+	 * @param child The child to remove.
+	 * @module.api
+	 */
 	@Kroll.method
 	public void remove(TiViewProxy child)
 	{
@@ -765,6 +825,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return handled;
 	}
 
+	/**
+	 * @return The parent view proxy of this view proxy.
+	 * @module.api
+	 */
 	@Kroll.getProperty @Kroll.method
 	public TiViewProxy getParent()
 	{
@@ -791,6 +855,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 	}
 
+	/**
+	 * @return An array of the children view proxies of this view.
+	 * @module.api
+	 */
 	@Kroll.getProperty @Kroll.method
 	public TiViewProxy[] getChildren()
 	{
@@ -1000,13 +1068,21 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	@Kroll.method
-	public void updateLayout(KrollDict params)
+	public void updateLayout(Object params)
 	{
+		HashMap<String, Object> paramsMap;
+
+		if (!(params instanceof HashMap)) {
+			Log.e(LCAT, "argument for updateLayout must be a dictionary");
+			return;
+		}
+		paramsMap = (HashMap) params;
+
 		layoutStarted.set(true);
 		if (TiApplication.isUIThread()) {
-			handleUpdateLayout(params);
+			handleUpdateLayout(paramsMap);
 		} else {
-			getMainHandler().obtainMessage(MSG_UPDATE_LAYOUT, params).sendToTarget();
+			getMainHandler().obtainMessage(MSG_UPDATE_LAYOUT, paramsMap).sendToTarget();
 		}
 		layoutStarted.set(false);
 	}
@@ -1021,7 +1097,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 	}
 
-	private void handleUpdateLayout(KrollDict params)
+	private void handleUpdateLayout(HashMap<String, Object> params)
 	{
 		for (String key : params.keySet()) {
 			setPropertyAndFire(key, params.get(key));

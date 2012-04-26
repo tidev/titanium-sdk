@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollDict;
@@ -57,6 +59,7 @@ import android.util.DisplayMetrics;
  */
 public abstract class TiApplication extends Application implements Handler.Callback, KrollApplication
 {
+	private static final String SYSTEM_UNIT = "system";
 	private static final String LCAT = "TiApplication";
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final long STATS_WAIT = 300000;
@@ -92,6 +95,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	private boolean needsStartEvent;
 	private boolean needsEnrollEvent;
 	private String buildVersion = "", buildTimestamp = "", buildHash = "";
+	private String defaultUnit;
 	private TiResponseCache responseCache;
 	private BroadcastReceiver externalStorageReceiver;
 
@@ -155,6 +159,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	/**
 	 * Retrieves the instance of TiApplication. There is one instance per Android application.
 	 * @return the instance of TiApplication.
+	 * @module.api
 	 */
 	public static TiApplication getInstance()
 	{
@@ -197,6 +202,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
 	 * time we need to grab the current activity.
 	 * @return the current activity
+	 * @module.api
 	 */
 	public static Activity getAppCurrentActivity()
 	{
@@ -212,6 +218,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
 	 * time we need to grab the root or current activity.
 	 * @return root activity if exists. If root activity doesn't exist, returns current activity if exists. Otherwise returns null.
+	 * @module.api
 	 */
 	public static Activity getAppRootOrCurrentActivity()
 	{
@@ -225,6 +232,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 	/**
 	 * @return the current activity if exists. Otherwise, the thread will wait for a valid activity to be visible.
+	 * @module.api
 	 */
 	public Activity getCurrentActivity()
 	{
@@ -321,7 +329,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		proxyMap = new HashMap<String, SoftReference<KrollProxy>>(5);
 
 		appProperties = new TiProperties(getApplicationContext(), APPLICATION_PREFERENCES_NAME, false);
-		systemProperties = new TiProperties(getApplicationContext(), "system", true);
+		systemProperties = new TiProperties(getApplicationContext(), SYSTEM_UNIT, true);
 
 		if (getDeployType().equals(DEPLOY_TYPE_DEVELOPMENT)) {
 			deployData = new TiDeployData(this);
@@ -501,6 +509,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	/**
 	 * @return the app's properties, which are listed in tiapp.xml.
 	 * App properties can also be set at runtime by the application in Javascript.
+	 * @module.api
 	 */
 	public TiProperties getAppProperties()
 	{
@@ -673,7 +682,16 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 	public String getDefaultUnit()
 	{
-		return getSystemProperties().getString(PROPERTY_DEFAULT_UNIT, "system");
+		if (defaultUnit == null) {
+			defaultUnit = getSystemProperties().getString(PROPERTY_DEFAULT_UNIT, SYSTEM_UNIT);
+			// Check to make sure default unit is valid, otherwise use system
+			Pattern unitPattern = Pattern.compile("system|px|dp|dip|mm|cm|in");
+			Matcher m = unitPattern.matcher(defaultUnit);
+			if (!m.matches()) {
+				defaultUnit = SYSTEM_UNIT;
+			}
+		}
+		return defaultUnit;
 	}
 
 	public int getThreadStackSize()
@@ -734,6 +752,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 
 	/**
 	 * @return true if the current thread is the main thread, false otherwise.
+	 * @module.api
 	 */
 	public static boolean isUIThread()
 	{

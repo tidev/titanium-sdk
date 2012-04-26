@@ -22,6 +22,9 @@
 {
 	[button removeTarget:self action:NULL forControlEvents:UIControlEventAllTouchEvents];
 	RELEASE_TO_NIL(button);
+	RELEASE_TO_NIL(viewGroupWrapper);
+	RELEASE_TO_NIL(backgroundImageCache)
+	RELEASE_TO_NIL(backgroundImageUnstretchedCache);
 	[super dealloc];
 }
 
@@ -32,8 +35,8 @@
 		return nil;
 	}
 	
-	if([superResult isKindOfClass:[TiUIView class]] 
-	   && ![(TiUIView*)superResult touchEnabled]) {
+	if((viewGroupWrapper == superResult) || ([superResult isKindOfClass:[TiUIView class]] 
+	   && ![(TiUIView*)superResult touchEnabled])) {
 		return [self button];
 	}
 
@@ -49,12 +52,8 @@
 
 -(void)setHighlighting:(BOOL)isHiglighted
 {
-	TiUIButtonProxy * ourProxy = (TiUIButtonProxy *)[self proxy];
-	
-	NSArray * proxyChildren = [ourProxy children];
-	for (TiViewProxy * thisProxy in proxyChildren)
+	for (TiUIView * thisView in [viewGroupWrapper subviews])
 	{
-		TiUIView * thisView = [thisProxy view];
 		if ([thisView respondsToSelector:@selector(setHighlighted:)])
 		{
 			[(id)thisView setHighlighted:isHiglighted];
@@ -62,10 +61,29 @@
 	}
 }
 
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+-(void)updateBackgroundImage
 {
+	CGRect bounds = [self bounds];
 	[button setFrame:bounds];
-    [super frameSizeChanged:frame bounds:bounds];
+	if ((backgroundImageCache == nil) || CGSizeEqualToSize(bounds.size, CGSizeZero)) {
+		[button setBackgroundImage:nil forState:UIControlStateNormal];
+		return;
+	}
+	CGSize imageSize = [backgroundImageCache size];
+	if((bounds.size.width>=imageSize.width) && (bounds.size.height>=imageSize.height)){
+		[button setBackgroundImage:backgroundImageCache forState:UIControlStateNormal];
+		return;
+	}
+	if (backgroundImageUnstretchedCache == nil) {
+		backgroundImageUnstretchedCache = [[UIImage alloc] initWithCGImage:[backgroundImageCache CGImage] scale:[backgroundImageCache scale] orientation:[backgroundImageCache imageOrientation]];
+	}
+	[button setBackgroundImage:backgroundImageUnstretchedCache forState:UIControlStateNormal];	
+}
+
+-(void)layoutSubviews
+{
+	[super layoutSubviews];
+	[self updateBackgroundImage];
 }
 
 - (void)controlAction:(id)sender forEvent:(UIEvent *)event
@@ -112,41 +130,43 @@
 {
 	if (button==nil)
 	{
-		id backgroundImage = [self.proxy valueForKey:@"backgroundImage"];
-        id backgroundImageS = [self.proxy valueForKey:@"backgroundSelectedImage"];
-        id backgroundImageD = [self.proxy valueForKey:@"backgroundDisabledImage"];
-        id backgroundImageF = [self.proxy valueForKey:@"backgroundFocusedImage"];
-        
-        hasBackgroundForStateNormal = backgroundImage  != nil ? YES :NO;
-        hasBackgroundForStateDisabled = backgroundImageD != nil ? YES :NO;
-        hasBackgroundForStateSelected = backgroundImageS != nil ? YES :NO;
-        hasBackgroundForStateFocused = backgroundImageF != nil ? YES :NO;
-        
-        BOOL hasImage = hasBackgroundForStateDisabled||hasBackgroundForStateNormal;
+        BOOL hasImage = [self.proxy valueForKey:@"backgroundImage"]!=nil;
 		
         UIButtonType defaultType = (hasImage==YES) ? UIButtonTypeCustom : UIButtonTypeRoundedRect;
 		style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:defaultType];
 		UIView *btn = [TiButtonUtil buttonWithType:style];
 		button = (UIButton*)[btn retain];
 		[self addSubview:button];
-		[TiUtils setView:button positionRect:self.bounds];
 		if (style==UIButtonTypeCustom)
 		{
 			[button setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
-			//Enable Touch Highlight with Custom Button Type 
-			//when no selectedstate background image is specified 
-			//or selectedstate background image is same as main backgroundImage
-			
-			id test = hasBackgroundForStateNormal ? backgroundImage : backgroundImageD;
-			if (!hasBackgroundForStateSelected || [test isEqual:backgroundImageS] )
-			{
-				button.showsTouchWhenHighlighted = YES;
-			}
 		}
 		[button addTarget:self action:@selector(controlAction:forEvent:) forControlEvents:UIControlEventAllTouchEvents];
 		button.exclusiveTouch = YES;
 	}
+	if ((viewGroupWrapper != nil) && ([viewGroupWrapper	superview]!=button)) {
+		[viewGroupWrapper setFrame:[button bounds]];
+		[button addSubview:viewGroupWrapper];
+	}
 	return button;
+}
+
+-(UIView *) viewGroupWrapper
+{
+	if (viewGroupWrapper == nil) {
+		viewGroupWrapper = [[UIView alloc] initWithFrame:[self bounds]];
+		[viewGroupWrapper setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+	}
+	if (button != [viewGroupWrapper superview]) {
+		if (button != nil) {
+			[viewGroupWrapper setFrame:[button bounds]];
+			[button addSubview:viewGroupWrapper];
+		}
+		else {
+			[viewGroupWrapper removeFromSuperview];
+		}
+	}
+	return viewGroupWrapper;
 }
 
 #pragma mark Public APIs
@@ -217,45 +237,26 @@
 
 -(void)setBackgroundImage_:(id)value
 {
-	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateNormal];
+	[backgroundImageCache release];
+	RELEASE_TO_NIL(backgroundImageUnstretchedCache);
+	backgroundImageCache = [[self loadImage:value] retain];
     self.backgroundImage = value;
-    
-    //Match android behavior. Setting a background image sets it for all states unless overridden
-    //TIMOB-5803
-    if(!hasBackgroundForStateDisabled)
-        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateDisabled];
-    if(!hasBackgroundForStateFocused)
-        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateSelected];
-    if(!hasBackgroundForStateSelected)
-        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
-    
-}
-
--(void)setBackgroundDisabledImage_:(id)value
-{
-	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateDisabled];
-    
-    //Match android behavior. Setting a background image for disabled only sets it for all states unless overridden
-    //TIMOB-5803
-    if(!hasBackgroundForStateNormal)
-    {
-        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateNormal];
-        self.backgroundImage = value;
-    }
-    if(!hasBackgroundForStateFocused)
-        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateSelected];
-    if(!hasBackgroundForStateSelected)
-        [[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
-}
-
--(void)setBackgroundFocusedImage_:(id)value
-{
-	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateSelected];
+	[self updateBackgroundImage];
 }
 
 -(void)setBackgroundSelectedImage_:(id)value
 {
 	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
+}
+
+-(void)setBackgroundDisabledImage_:(id)value
+{
+	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateDisabled];
+}
+
+-(void)setBackgroundFocusedImage_:(id)value
+{
+	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateSelected];
 }
 
 -(void)setBackgroundColor_:(id)value
@@ -329,12 +330,12 @@
 	}
 }
 
--(CGFloat)autoWidthForWidth:(CGFloat)value
+-(CGFloat)contentWidthForWidth:(CGFloat)value
 {
 	return [[self button] sizeThatFits:CGSizeMake(value, 0)].width;
 }
 
--(CGFloat)autoHeightForWidth:(CGFloat)value
+-(CGFloat)contentHeightForWidth:(CGFloat)value
 {
 	return [[self button] sizeThatFits:CGSizeMake(value, 0)].height;
 }

@@ -26,7 +26,7 @@
 	RELEASE_TO_NIL(backgroundLayer);
 	[super dealloc];
 }
--(CGFloat)autoHeightForWidth:(CGFloat)width
+-(CGFloat)contentHeightForWidth:(CGFloat)width
 {
     return [[self searchBar] sizeThatFits:CGSizeZero].height;
 }
@@ -72,6 +72,13 @@
 -(void)setValue_:(id)value
 {
 	[[self searchBar] setText:[TiUtils stringValue:value]];
+}
+
+-(void)setShowBookmark_:(id)value
+{
+	UISearchBar *search = [self searchBar];
+	[search setShowsBookmarkButton:[TiUtils boolValue:value]];
+	[search sizeToFit];
 }
 
 -(void)setShowCancel_:(id)value
@@ -201,11 +208,22 @@
 	}
 }
 
-
 // called when bookmark button pressed
 - (void)searchBarBookmarkButtonClicked:(UISearchBar *)searchBar                   
 {	
-	//TODO: update to the new event model
+	NSString * text = @"";
+	
+	if ([searchBar text]!=nil)
+	{
+		text = [searchBar text];
+	}
+	
+	[self.proxy replaceValue:text forKey:@"value" notification:NO];
+	
+	if ([self.proxy _hasListeners:@"bookmark"])
+	{
+		[self.proxy fireEvent:@"bookmark" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"]];
+	}
 	
 	if (delegate!=nil && [delegate respondsToSelector:@selector(searchBarBookmarkButtonClicked:)])
 	{

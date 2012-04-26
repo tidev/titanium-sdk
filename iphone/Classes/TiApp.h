@@ -90,7 +90,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  */
 +(TiApp*)app;
 
-/**
+/*
  Convenience method to returns root view controller for TiApp instance.
  @return The application's root view controller.
  @see controller
@@ -98,6 +98,8 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 +(TiRootViewController*)controller;
 
 +(TiContextGroupRef)contextGroup;
+
+-(BOOL)windowIsKeyWindow;
 
 -(void)attachXHRBridgeIfRequired;
 

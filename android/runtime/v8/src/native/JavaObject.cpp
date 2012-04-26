@@ -9,6 +9,7 @@
 #include "EventEmitter.h"
 #include "JavaObject.h"
 #include "JNIUtil.h"
+#include "ReferenceTable.h"
 
 #include <v8.h>
 
@@ -39,6 +40,7 @@ static struct {
 JavaObject::JavaObject(jobject javaObject)
 	: EventEmitter()
 	, javaObject_(NULL)
+	, refTableKey_(0)
 	, isWeakRef_(false)
 {
 	UPDATE_STATS(1, 1);
@@ -52,9 +54,9 @@ void JavaObject::newGlobalRef()
 {
 	JNIEnv *env = JNIUtil::getJNIEnv();
 	ASSERT(env != NULL);
-	ASSERT(javaObject_ != NULL);
 
 	if (useGlobalRefs) {
+		ASSERT(javaObject_ != NULL);
 		jobject globalRef = env->NewGlobalRef(javaObject_);
 		if (isWeakRef_) {
 			env->DeleteWeakGlobalRef(javaObject_);
@@ -62,18 +64,8 @@ void JavaObject::newGlobalRef()
 		}
 		javaObject_ = globalRef;
 	} else {
-		// We store a single global reference to an object list that holds our actual ref list for the emulator
-		// (or whenever the reference limit is artificially limited)
-		if (!objectMap) {
-			objectMap = env->NewGlobalRef(
-				env->NewObject(JNIUtil::hashMapClass, JNIUtil::hashMapInitMethod, 2000));
-		}
-		jobject longObject = env->NewObject(JNIUtil::longClass, JNIUtil::longInitMethod, (jlong) this);
-		jobject r = env->CallObjectMethod(objectMap, JNIUtil::hashMapPutMethod, longObject, javaObject_);
-		env->DeleteLocalRef(r);
-		env->DeleteLocalRef(longObject);
-
-		// This will be requeried from getJavaObject()
+		ASSERT(refTableKey_ == 0);
+		refTableKey_ = ReferenceTable::createReference(javaObject_);
 		javaObject_ = NULL;
 	}
 }
@@ -93,18 +85,15 @@ jobject JavaObject::getJavaObject()
 
 		return javaObject_;
 	} else {
-		// Pull from the global object list. This is inefficient, but it's probably
-		// the only workaround for hard limits on the JNI global reference count
-		JNIEnv *env = JNIUtil::getJNIEnv();
-		if (!env) {
-			LOGE(TAG, "Failed to get JNI environment.");
-			return NULL;
+		if (isWeakRef_) {
+			jobject javaObject = ReferenceTable::clearWeakReference(refTableKey_);
+			if (javaObject == NULL) {
+				LOGE(TAG, "Java object reference has been invalidated.");
+			}
+			isWeakRef_ = false;
+			return javaObject;
 		}
-
-		jobject longObject = env->NewObject(JNIUtil::longClass, JNIUtil::longInitMethod, (jlong) this);
-		jobject javaObject = env->CallObjectMethod(objectMap, JNIUtil::hashMapGetMethod, longObject);
-		env->DeleteLocalRef(longObject);
-		return javaObject;
+		return ReferenceTable::getReference(refTableKey_);
 	}
 }
 
@@ -118,11 +107,11 @@ void JavaObject::weakGlobalRef()
 		jweak weakRef = env->NewWeakGlobalRef(javaObject_);
 		env->DeleteGlobalRef(javaObject_);
 		javaObject_ = weakRef;
-		isWeakRef_ = true;
+	} else {
+		ReferenceTable::makeWeakReference(refTableKey_);
 	}
 
-	// TODO: Implement weak references when using
-	// our emulator global reference hack.
+	isWeakRef_ = true;
 }
 
 void JavaObject::deleteGlobalRef()
@@ -139,12 +128,8 @@ void JavaObject::deleteGlobalRef()
 		}
 		javaObject_ = NULL;
 	} else {
-		// Clear from the global object list
-		if (objectMap) {
-			jobject longObject = env->NewObject(JNIUtil::longClass, JNIUtil::longInitMethod, (jlong) this);
-			env->CallObjectMethod(objectMap, JNIUtil::hashMapRemoveMethod, longObject);
-			env->DeleteLocalRef(longObject);
-		}
+		ReferenceTable::destroyReference(refTableKey_);
+		refTableKey_ = 0;
 	}
 }
 
@@ -152,7 +137,7 @@ JavaObject::~JavaObject()
 {
 	UPDATE_STATS(-1, isDetached() ? -1 : 0);
 
-	if (javaObject_) {
+	if (javaObject_ || refTableKey_ > 0) {
 		deleteGlobalRef();
 	}
 }
@@ -173,9 +158,11 @@ void JavaObject::wrap(Handle<Object> jsObject)
 
 void JavaObject::attach(jobject javaObject)
 {
+	ASSERT((javaObject && javaObject_ == NULL) || javaObject == NULL);
 	UPDATE_STATS(0, -1);
 
 	handle_.MakeWeak(this, DetachCallback);
+	handle_.MarkIndependent();
 
 	if (javaObject) {
 		javaObject_ = javaObject;
@@ -195,18 +182,7 @@ void JavaObject::detach()
 
 bool JavaObject::isDetached()
 {
-	// Fast check if using real global references.
-	if (useGlobalRefs) {
-		return javaObject_ == NULL || isWeakRef_;
-	}
-
-	jobject javaObject = getJavaObject();
-	if (javaObject == NULL) {
-		return true;
-	}
-	JNIEnv *env = JNIUtil::getJNIEnv();
-	env->DeleteLocalRef(javaObject);
-	return false;
+	return (javaObject_ == NULL && refTableKey_ == 0) || isWeakRef_;
 }
 
 }

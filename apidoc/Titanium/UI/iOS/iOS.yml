@@ -37,54 +37,48 @@ properties:
     permission: read-only
 
   - name: AUTODETECT_ADDRESS
-    summary: |
-        Use with [TextArea.autoLink](Titanium.UI.TextArea.autoLink) to
-        convert strings formatted as addresses into clickable links.
-    platforms: [iphone, ipad]
+    summary: Convert strings formatted as addresses into clickable links.
+    description: Use with the <Titanium.UI.TextArea.autoLink> property.
+    type: Number
     osver: {ios: {min: "4.0"}}
     permission: read-only
-    type: Number
+    platforms: [iphone, ipad]
 
   - name: AUTODETECT_ALL
-    summary: |
-        Use with [TextArea.autoLink](Titanium.UI.TextArea.autoLink) to
-        convert all detectable types of data into clickable links.
-    platforms: [iphone, ipad]
+    summary: Convert all detectable types of data into clickable links.
+    description: Use with the <Titanium.UI.TextArea.autoLink> property.
     type: Number
     permission: read-only
+    platforms: [iphone, ipad]
 
   - name: AUTODETECT_CALENDAR
-    summary: |
-        Use with [TextArea.autoLink](Titanium.UI.TextArea.autoLink) to
-        convert strings formatted as calendar events into clickable links.
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "4.0"}}
+    summary: Convert strings formatted as calendar events into clickable links.
+    description: Use with the <Titanium.UI.TextArea.autoLink> property.
     type: Number
+    osver: {ios: {min: "4.0"}}
     permission: read-only
+    platforms: [iphone, ipad]
 
   - name: AUTODETECT_LINK
-    summary: |
-        Use with [TextArea.autoLink](Titanium.UI.TextArea.autoLink) to
-        convert strings formatted as URLs into clickable links.
-    platforms: [iphone, ipad]
+    summary: Convert strings formatted as URLs into clickable links.
+    description: Use with the <Titanium.UI.TextArea.autoLink> property.
     type: Number
     permission: read-only
+    platforms: [iphone, ipad]
 
   - name: AUTODETECT_NONE
-    summary: |
-        Use with [TextArea.autoLink](Titanium.UI.TextArea.autoLink) to
-        disable converting strings into clickable links.
-    platforms: [iphone, ipad]
+    summary: Disable converting strings into clickable links.
+    description: Use with the <Titanium.UI.TextArea.autoLink> property.
     type: Number
     permission: read-only
+    platforms: [iphone, ipad]
 
   - name: AUTODETECT_PHONE
-    summary: |
-        Use with [TextArea.autoLink](Titanium.UI.TextArea.autoLink) to
-        convert strings formatted as phone numbers into clickable links.
-    platforms: [iphone, ipad]
+    summary: Convert strings formatted as phone numbers into clickable links.
+    description: Use with the <Titanium.UI.TextArea.autoLink> property.
     type: Number
     permission: read-only
+    platforms: [iphone, ipad]
 
   - name: BLEND_MODE_CLEAR
     summary: |

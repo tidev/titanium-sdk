@@ -9,9 +9,10 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -27,8 +28,8 @@ import android.webkit.WebView;
 	TiC.PROPERTY_SCALES_PAGE_TO_FIT,
 	TiC.PROPERTY_URL
 })
-public class WebViewProxy extends ViewProxy
-	implements Handler.Callback
+public class WebViewProxy extends ViewProxy 
+	implements Handler.Callback, OnLifecycleEvent
 {
 	private static final String TAG = "WebViewProxy";
 	private static final int MSG_FIRST_ID = ViewProxy.MSG_LAST_ID + 1;
@@ -57,15 +58,12 @@ public class WebViewProxy extends ViewProxy
 	@Override
 	public TiUIView createView(Activity activity)
 	{
+		((TiBaseActivity)activity).addOnLifecycleEventListener(this);
 		TiUIWebView webView = new TiUIWebView(this);
 		webView.focus();
 
 		if (postCreateMessage != null) {
-			WebView.WebViewTransport transport = (WebView.WebViewTransport) postCreateMessage.obj;
-			if (transport != null) {
-				transport.setWebView(webView.getWebView());
-			}
-			postCreateMessage.sendToTarget();
+			sendPostCreateMessage(webView.getWebView(), postCreateMessage);
 			postCreateMessage = null;
 		}
 
@@ -279,22 +277,77 @@ public class WebViewProxy extends ViewProxy
 		return fpassword;
 	}
 
-	public void setPostCreateMessage(Message postCreate)
+	public void setPostCreateMessage(Message postCreateMessage)
 	{
-		this.postCreateMessage = postCreate;
+		if (view != null) {
+			sendPostCreateMessage(getWebView().getWebView(), postCreateMessage);
+		} else {
+			this.postCreateMessage = postCreateMessage;
+		}
 	}
-	
+
+	private static void sendPostCreateMessage(WebView view, Message postCreateMessage)
+	{
+		WebView.WebViewTransport transport = (WebView.WebViewTransport) postCreateMessage.obj;
+		if (transport != null) {
+			transport.setWebView(view);
+		}
+		postCreateMessage.sendToTarget();
+	}
+
 	/**
-	 * Don't release the web view when it's removed. TIMOB-7008
+	 * Don't release the web view when it's removed. TIMOB-7808
 	 */
 	@Override
 	public void releaseViews()
 	{
 	}
-	
+
 	@Kroll.method
 	public void release()
 	{
 		super.releaseViews();
 	}
+
+	@Override
+	public void onStart(Activity activity) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onResume(Activity activity) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onPause(Activity activity) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStop(Activity activity) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onDestroy(Activity activity) {
+		TiUIWebView webView = (TiUIWebView) peekView();
+		if (webView == null) {
+			return;
+		}
+
+		WebView nativeWebView = webView.getWebView();
+		if (nativeWebView == null) {
+			return;
+		}
+
+		nativeWebView.stopLoading();
+		super.releaseViews();
+	}
+	
+
 }

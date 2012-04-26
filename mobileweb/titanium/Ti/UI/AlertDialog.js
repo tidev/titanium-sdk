@@ -1,36 +1,35 @@
-define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI", "Ti/_/css"], function(declare, Evented, UI, css) {
-
-	var undef;
+define(["Ti/_/css", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Locale", "Ti/UI"],
+	function(css, declare, lang, Evented, Locale, UI) {
 
 	return declare("Ti.UI.AlertDialog", Evented, {
+
 		show: function() {
-			
 			// Create the window and a background to dim the current view
-			var alertWindow = this._alertWindow = UI.createWindow();
-			var dimmingView = UI.createView({
-				backgroundColor: "black",
-				opacity: 0,
-				left: 0,
-				top: 0,
-				right: 0,
-				bottom: 0
-			});
+			var alertWindow = this._alertWindow = UI.createWindow(),
+				dimmingView = UI.createView({
+					backgroundColor: "black",
+					opacity: 0,
+					left: 0,
+					top: 0,
+					right: 0,
+					bottom: 0
+				}),
+				alertDialog = UI.createView({
+					backgroundColor: "white",
+					borderRadius: 3,
+					height: UI.SIZE,
+					layout: "vertical",
+					opacity: 0,
+					width: "50%"
+				}),
+				buttons = this.buttonNames || [];
+
 			alertWindow.add(dimmingView);
-			
-			// Create the alert dialog itself
-			var alertDialog = UI.createView({
-				width: "50%",
-				height: UI.SIZE,
-				backgroundColor: "white",
-				layout: "vertical",
-				borderRadius: 3,
-				opacity: 0
-			});
 			alertWindow.add(alertDialog);
-			
+
 			// Add the title
 			alertDialog.add(UI.createLabel({
-				text: this.title,
+				text: Locale._getString(this.titleid, this.title),
 				font: {fontWeight: "bold"},
 				left: 5,
 				right: 5,
@@ -38,58 +37,43 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI", "Ti/_/css"], function(declare, 
 				height: UI.SIZE,
 				textAlign: UI.TEXT_ALIGNMENT_CENTER
 			}));
-			
+
 			// Add the message
 			alertDialog.add(UI.createLabel({
-				text: this.message,
+				text: Locale._getString(this.messageid, this.message),
 				left: 5,
 				right: 5,
 				top: 5,
 				height: UI.SIZE,
 				textAlign: UI.TEXT_ALIGNMENT_CENTER
 			}));
-			
-			var self = this;
-			function addButton(title, index, bottom) {
+
+			buttons.length || buttons.push(Locale._getString(this.okid, this.ok || "OK"));
+
+			buttons.forEach(function(title, i) {
 				var button = UI.createButton({
 					left: 5,
 					right: 5,
 					top: 5,
-					bottom: bottom,
+					bottom: i === buttons.length - 1 ? 5 : 0,
 					height: UI.SIZE,
 					title: title,
-					index: index
+					index: i
 				});
-				if (index === self.cancel) {
-					css.add(button.domNode,"TiUIElementGradientCancel");
-				}
+				i === this.cancel && css.add(button.domNode, "TiUIElementGradientCancel");
 				alertDialog.add(button);
-				button.addEventListener("singletap",function(){
+				button.addEventListener("singletap", lang.hitch(this, function(){
 					alertWindow.close();
-					self._alertWindow = undef;
-					self.fireEvent("click",{
-						index: index,
-						cancel: self.cancel === index
+					this._alertWindow = void 0;
+					this.fireEvent("click", {
+						index: i,
+						cancel: this.cancel === i
 					});
-				});
-			}
-			
-			// Add the buttons
-			if (require.is(this.buttonNames,"Array")) {
-				var buttonNames = this.buttonNames,
-					i = 0;
-				for (; i < buttonNames.length; i++) {
-					addButton(buttonNames[i], i, i === buttonNames.length - 1 ? 5 : 0);
-				}
-			} else {
-				addButton(this.ok, 0, 5);
-			}
-			
-			// Show the alert dialog
-			alertWindow.open();
-			
+				}));
+			}, this);
+
 			// Animate the background after waiting for the first layout to occur
-			setTimeout(function(){
+			alertWindow.addEventListener("postlayout", function() {
 				dimmingView.animate({
 					opacity: 0.5,
 					duration: 200
@@ -99,59 +83,25 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/UI", "Ti/_/css"], function(declare, 
 						duration: 200
 					});
 				});
-			},30);
+			});
+
+			// Show the alert dialog
+			alertWindow.open();
 		},
 
 		hide: function() {
-			if (this._alertWindow) {
-				this._alertWindow.close();
-			}
+			this._alertWindow && this._alertWindow.close();
 		},
-		
+
 		properties: {
-			
-			buttonNames: undef,
-			
+			buttonNames: void 0,
 			cancel: -1,
-			
-			message: "",
-			
-			messageid: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.AlertDialog#.messageid" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.AlertDialog#.messageid" is not implemented yet.');
-					return value;
-				}
-			},
-			
-			ok: "OK",
-			
-			okid: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.AlertDialog#.okid" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.AlertDialog#.okid" is not implemented yet.');
-					return value;
-				}
-			},
-			
-			title: "",
-			
-			titleid: {
-				get: function(value) {
-					console.debug('Property "Titanium.UI.AlertDialog#.titleid" is not implemented yet.');
-					return value;
-				},
-				set: function(value) {
-					console.debug('Property "Titanium.UI.AlertDialog#.titleid" is not implemented yet.');
-					return value;
-				}
-			}
+			message: void 0,
+			messageid: void 0,
+			ok: void 0,
+			okid: void 0,
+			title: void 0,
+			titleid: void 0
 		}
 
 	});

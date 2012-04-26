@@ -290,6 +290,11 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	return tableClass;
 }
 
+-(id)height
+{
+    return [self valueForUndefinedKey:@"height"];
+}
+
 -(void)setHeight:(id)value
 {
 	height = [TiUtils dimensionValue:value];
@@ -358,7 +363,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	CGFloat result = 0;
 	if (TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height))
 	{
-		result = [self autoHeightForWidth:width];
+		result = [self minimumParentHeightForSize:CGSizeMake(width, [self table].bounds.size.height)];
 	}
     if (TiDimensionIsPercent(height) && [self table] != nil) {
         result = TiDimensionCalculateValue(height, [self table].bounds.size.height);

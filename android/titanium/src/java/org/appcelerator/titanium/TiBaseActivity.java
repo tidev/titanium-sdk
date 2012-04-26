@@ -77,6 +77,7 @@ public abstract class TiBaseActivity extends Activity
 	private ArrayList<Dialog> dialogs = new ArrayList<Dialog>();
 
 	public TiWindowProxy lwWindow;
+	public boolean isResumed = false;
 
 
 	// could use a normal ConfigurationChangedListener but since only orientation changes are
@@ -671,6 +672,7 @@ public abstract class TiBaseActivity extends Activity
 	protected void onPause() 
 	{
 		super.onPause();
+		isResumed = false;
 
 		if (DBG) {
 			Log.d(TAG, "Activity " + this + " onPause");
@@ -747,6 +749,8 @@ public abstract class TiBaseActivity extends Activity
 				}
 			}
 		}
+
+		isResumed = true;
 	}
 
 	@Override
@@ -851,6 +855,7 @@ public abstract class TiBaseActivity extends Activity
 				}
 			}
 		}
+		KrollRuntime.suggestGC();
 	}
 
 	@Override
@@ -867,11 +872,11 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		TiApplication tiApp = getTiApp();
-
 		if (tiApp.isRestartPending()) {
 			if (!isFinishing()) {
 				finish();
 			}
+
 			return;
 		}
 
@@ -969,6 +974,7 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		KrollRuntime.decrementActivityRefCount();
+		KrollRuntime.suggestGC();
 	}
 
 	// called in order to ensure that the onDestroy call is only acted upon once.
@@ -1044,6 +1050,10 @@ public abstract class TiBaseActivity extends Activity
 	protected void activityOnPause()
 	{
 		super.onPause();
+	}
+	protected void activityOnRestart()
+	{
+		super.onRestart();
 	}
 	protected void activityOnResume()
 	{

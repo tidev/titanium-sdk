@@ -1,12 +1,9 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-#
-# Project Compiler
-#
 
-import os, sys, time, datetime, codecs, shutil, subprocess, re, math
+import os, sys, time, datetime, codecs, shutil, subprocess, re, math, base64
 from stat import *
 from tiapp import *
+from xml.dom.minidom import parseString
 
 # mako and simplejson are in support/common
 this_dir = os.path.dirname(os.path.abspath(__file__))
@@ -14,9 +11,10 @@ common_dir = os.path.join(os.path.dirname(this_dir), "common")
 sys.path.append(common_dir)
 import mako.template
 import simplejson
+from csspacker import CSSPacker
 
-ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
-ignoreDirs = ['.git','.svn','_svn','CVS'];
+ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store']
+ignoreDirs = ['.git','.svn','_svn','CVS']
 
 year = datetime.datetime.now().year
 
@@ -30,6 +28,12 @@ HEADER = """/**
  * This generated source code is Copyright (c) 2010-%d by Appcelerator, Inc. All Rights Reserved.
  */
 """ % year
+
+def compare_versions(version1, version2):
+	def normalize(v):
+		v = '.'.join(v.split('.')[:3])
+		return [int(x) for x in re.sub(r'(\.0+)*$','', v).split(".")]
+	return cmp(normalize(version1), normalize(version2))
 
 class Compiler(object):
 
@@ -49,10 +53,11 @@ class Compiler(object):
 		self.sdk_src_path = os.path.join(self.sdk_path, 'src')
 		self.themes_path = os.path.join(self.sdk_path, 'themes')
 		self.ti_package_path = os.path.join(self.sdk_path, 'titanium')
-		self.modules_path = os.path.abspath(os.path.join(self.sdk_path, '..', '..', '..', '..', 'modules', 'mobileweb'))
+		self.modules_path = os.path.abspath(os.path.join(self.sdk_path, '..', '..', '..', '..', 'modules'))
 		self.project_path = project_path
 		self.build_path = os.path.join(project_path, 'build', 'mobileweb')
 		self.resources_path = os.path.join(project_path, 'Resources')
+		self.i18n_path = os.path.join(project_path, 'i18n')
 		self.ti_js_file = os.path.join(self.build_path, 'titanium.js')
 		
 		sdk_version = os.path.basename(os.path.abspath(os.path.join(self.sdk_path, '..')))
@@ -73,8 +78,8 @@ class Compiler(object):
 		})
 		
 		# read the tiapp.xml
-		tiapp_xml = TiAppXML(os.path.join(self.project_path, 'tiapp.xml'))
-		print '[INFO] Compiling Mobile Web project "%s" [%s]' % (tiapp_xml.properties['name'], deploytype)
+		tiapp_xml = TiAppXML(os.path.join(self.project_path, 'tiapp.xml'), deploytype)
+		print '[INFO] Compiling Mobile Web project "%s" [%s]' % (tiapp_xml['name'], deploytype)
 		
 		# create the build directory
 		if os.path.exists(self.build_path):
@@ -86,7 +91,11 @@ class Compiler(object):
 		
 		# copy all of the project's resources to the build directory
 		self.copy(self.themes_path, os.path.join(self.build_path, 'themes'))
-		self.copy(self.resources_path, self.build_path)
+		self.copy(self.resources_path, self.build_path, ['android', 'iphone'])
+		self.copy(os.path.join(self.resources_path, 'mobileweb'), self.build_path, ['apple_startup_images', 'splash'])
+		self.copy(os.path.join(self.resources_path, 'mobileweb', 'apple_startup_images', 'Default.jpg'), self.build_path)
+		self.copy(os.path.join(self.resources_path, 'mobileweb', 'apple_startup_images', 'Default-Portrait.jpg'), self.build_path)
+		self.copy(os.path.join(self.resources_path, 'mobileweb', 'apple_startup_images', 'Default-Landscape.jpg'), self.build_path)
 		self.copy(self.ti_package_path, os.path.join(self.build_path, 'titanium'))
 		
 		# scan project for dependencies
@@ -96,11 +105,11 @@ class Compiler(object):
 		self.find_modules_to_cache()
 		self.modules_to_cache.append('Ti/_/image')
 		self.modules_to_cache.append('Ti/_/include')
-		if len(tiapp_xml.mobileweb['precache']['requires']):
-			for req in tiapp_xml.mobileweb['precache']['requires']:
+		if len(tiapp_xml['precache']['requires']):
+			for req in tiapp_xml['precache']['requires']:
 				self.modules_to_cache.append('commonjs:' + req)
-		if len(tiapp_xml.mobileweb['precache']['includes']):
-			for inc in tiapp_xml.mobileweb['precache']['includes']:
+		if len(tiapp_xml['precache']['includes']):
+			for inc in tiapp_xml['precache']['includes']:
 				self.modules_to_cache.append('url:' + inc)
 		
 		# find only the top most modules to be required
@@ -115,48 +124,108 @@ class Compiler(object):
 			if not module in areDeps:
 				self.modules_to_load.append(module)
 		
-		# check what we need to preload
-		preload = []
+		# determine theme
+		theme = tiapp_xml['mobileweb']['theme']
+		if not os.path.exists(os.path.join(self.themes_path, theme)):
+			print '[ERROR] Theme "%s" does not exist' % theme
+			sys.exit(1)
+				
+		# check what we need to precache
+		precache_images = []
 		if 'Ti/UI/TableViewRow' in self.modules_map:
-			preload.append('/themes/titanium/UI/TableViewRow/child.png')
-		if len(tiapp_xml.mobileweb['preload']['images']):
-			for img in tiapp_xml.mobileweb['preload']['images']:
-				preload.append(img)
+			precache_images.append('/themes/' + theme + '/UI/TableViewRow/child.png')
+		if len(tiapp_xml['precache']['images']):
+			for img in tiapp_xml['precache']['images']:
+				precache_images.append(img)
 		
 		# detect Ti+ modules
-		if len(tiapp_xml.properties['modules']):
+		if len(tiapp_xml['modules']):
 			print '[INFO] Locating Ti+ modules...'
-			for module in tiapp_xml.properties['modules']:
+			for module in tiapp_xml['modules']:
 				if module['platform'] == '' or module['platform'] == 'mobileweb':
-					module_dir = os.path.join(self.modules_path, module['id'], module['version'])
-					if not os.path.exists(module_dir):
-						print '[ERROR] Unable to find Ti+ module "%s", v%s' % (module['id'], module['version'])
-						sys.exit(1)
+					if 'version' in module and module['version']:
+						# search <project dir>/modules/mobileweb/<module>/<version>/
+						module_dir = os.path.join(self.project_path, 'modules', 'mobileweb', module['id'], module['version'])
+						if not os.path.exists(module_dir):
+							# search <project dir>/modules/commonjs/<module>/<version>/
+							module_dir = os.path.join(self.project_path, 'modules', 'commonjs', module['id'], module['version'])
+							if not os.path.exists(module_dir):
+								# search <global module dir>/<module>/<version>/
+								module_dir = os.path.join(self.modules_path, 'mobileweb', module['id'], module['version'])
+								if not os.path.exists(module_dir):
+									# search <global commonjs dir>/<module>/<version>/
+									module_dir = os.path.join(self.modules_path, 'commonjs', module['id'], module['version'])
+									if not os.path.exists(module_dir):
+										print '[ERROR] Unable to find Ti+ module "%s", v%s' % (module['id'], module['version'])
+										sys.exit(1)
+					else:
+						# no version number, gotta do it the hard way
+						# search <project dir>/modules/mobileweb/<module>/
+						module_dir = self.locate_module(os.path.join(self.project_path, 'modules', 'mobileweb', module['id']))
+						if module_dir is None:
+							# search <project dir>/modules/commonjs/<module>/<version>/
+							module_dir = self.locate_module(os.path.join(self.project_path, 'modules', 'commonjs', module['id']))
+							if module_dir is None:
+								# search <global module dir>/<module>/<version>/
+								module_dir = self.locate_module(os.path.join(self.modules_path, 'mobileweb', module['id']))
+								if module_dir is None:
+									# search <global commonjs dir>/<module>/<version>/
+									module_dir = self.locate_module(os.path.join(self.modules_path, 'commonjs', module['id']))
+									if module_dir is None:
+										print '[ERROR] Unable to find Ti+ module "%s"' % module['id']
+										sys.exit(1)
 					
 					module_package_json_file = os.path.join(module_dir, 'package.json')
 					if not os.path.exists(module_package_json_file):
 						print '[ERROR] Ti+ module "%s" is invalid: missing package.json' % module['id']
 						sys.exit(1)
 					
+					module_manifest_file = os.path.join(module_dir, 'manifest')
+					if not os.path.exists(module_manifest_file):
+						print '[ERROR] Ti+ module "%s" is invalid: missing manifest' % module['id']
+						sys.exit(1)
+					
+					manifest = {}
+					for line in open(module_manifest_file).readlines():
+						line = line.strip()
+						if line[0:1] == '#': continue
+						if line.find(':') < 0: continue
+						key,value = line.split(':')
+						manifest[key.strip()] = value.strip()
+					
+					if 'minsdk' in manifest and compare_versions(manifest['minsdk'], sdk_version):
+						print '[ERROR] Ti+ module "%s" requires a minimum SDK version of %s: current version %s' % (module['id'], manifest['minsdk'], sdk_version)
+						sys.exit(1)
+					
 					module_package_json = simplejson.load(codecs.open(module_package_json_file, 'r', 'utf-8'))
 					main_file = module_package_json['main']
 					if main_file.endswith('.js'):
 						main_file = main_file[:-3]
-					main_file_path = os.path.join(module_dir, main_file + '.js')
+					
+					lib = ''
+					if 'directories' in module_package_json and 'lib' in module_package_json['directories']:
+						lib = module_package_json['directories']['lib']
+						if lib.startswith('/'):
+							lib = lib[1:]
+					
+					main_file_path = os.path.join(module_dir, lib, main_file + '.js')
 					
 					if not os.path.exists(main_file_path):
-						print '[ERROR] Ti+ module "%s" is invalid: missing main "%s"' % (module['id'], main_file + '.js')
+						print '[ERROR] Ti+ module "%s" is invalid: missing main "%s"' % (module['id'], main_file_path)
 						sys.exit(1)
 					
 					print '[INFO] Bundling Ti+ module "%s"' % module['id']
 					
 					self.project_dependencies.append(main_file)
-					self.modules_to_cache.append(main_file)
+					self.modules_to_cache.append(module['id'] + '/' + main_file)
 					self.tiplus_modules_to_load.append(module['id'])
+					
+					if len(lib):
+						lib = '/' + lib
 					
 					self.packages.append({
 						'name': module['id'],
-						'location': './modules/' + module['id'],
+						'location': './modules/' + module['id'] + lib,
 						'main': main_file
 					})
 					
@@ -184,6 +253,28 @@ class Compiler(object):
 		
 		# TODO: minify the project's code first
 		
+		app_names = {}
+		locales = []
+		if os.path.exists(self.i18n_path):
+			print '[INFO] Processing i18n strings...'
+			for dir in os.listdir(self.i18n_path):
+				app = self.load_i18n(os.path.join(self.i18n_path, dir, 'app.xml'))
+				if app is not None and 'appname' in app:
+					app_names[dir] = app['appname']
+				strings = self.load_i18n(os.path.join(self.i18n_path, dir, 'strings.xml'))
+				if strings is not None:
+					locales.append(dir)
+					locale_path = os.path.join(self.build_path, 'titanium', 'Ti', 'Locale', dir)
+					try:
+						os.makedirs(locale_path)
+					except:
+						pass
+					i18n_file = codecs.open(os.path.join(locale_path, 'i18n.js'), 'w', encoding='utf-8')
+					i18n_file.write('define(%s);' % simplejson.dumps(strings))
+					i18n_file.close()
+					if dir in tiapp_xml['precache']['locales']:
+						self.modules_to_cache.append('Ti/Locale/%s/i18n' % dir)
+		
 		# build the titanium.js
 		print '[INFO] Assembling titanium.js...'
 		ti_js = codecs.open(self.ti_js_file, 'w', encoding='utf-8')
@@ -191,25 +282,29 @@ class Compiler(object):
 		
 		# 1) read in the config.js and fill in the template
 		ti_js.write(mako.template.Template(codecs.open(os.path.join(self.sdk_src_path, 'config.js'), 'r', 'utf-8').read()).render(
-			app_analytics=tiapp_xml.properties['analytics'],
-			app_copyright=tiapp_xml.properties['copyright'],
-			app_description=tiapp_xml.properties['description'],
-			app_guid=tiapp_xml.properties['guid'],
-			app_id=tiapp_xml.properties['id'],
-			app_name=tiapp_xml.properties['name'],
-			app_publisher=tiapp_xml.properties['publisher'],
-			app_url=tiapp_xml.properties['url'],
-			app_version=tiapp_xml.properties['version'],
-			deploy_type=deploytype,
-			packages=simplejson.dumps(self.packages, sort_keys=True),
-			preload=simplejson.dumps(preload, sort_keys=True),
-			project_id=tiapp_xml.properties['id'],
-			project_name=tiapp_xml.properties['name'],
-			ti_fs_registry=tiapp_xml.mobileweb['filesystem']['registry'],
-			ti_githash=self.package_json['titanium']['githash'],
-			ti_timestamp=self.package_json['titanium']['timestamp'],
-			ti_version=sdk_version,
-			jsQuoteEscapeFilter=lambda str: str.replace("\\\"","\\\\\\\"")
+			app_analytics         = tiapp_xml['analytics'],
+			app_copyright         = tiapp_xml['copyright'],
+			app_description       = tiapp_xml['description'],
+			app_guid              = tiapp_xml['guid'],
+			app_id                = tiapp_xml['id'],
+			app_name              = tiapp_xml['name'],
+			app_names             = simplejson.dumps(app_names),
+			app_publisher         = tiapp_xml['publisher'],
+			app_url               = tiapp_xml['url'],
+			app_version           = tiapp_xml['version'],
+			deploy_type           = deploytype,
+			locales               = simplejson.dumps(locales),
+			packages              = simplejson.dumps(self.packages, sort_keys=True),
+			project_id            = tiapp_xml['id'],
+			project_name          = tiapp_xml['name'],
+			ti_fs_registry        = tiapp_xml['mobileweb']['filesystem']['registry'],
+			ti_theme              = theme,
+			ti_githash            = self.package_json['titanium']['githash'],
+			ti_timestamp          = self.package_json['titanium']['timestamp'],
+			ti_version            = sdk_version,
+			has_analytics_use_xhr = tiapp_xml['mobileweb']['analytics']['use-xhr'],
+			has_show_errors       = 'false' if deploytype == 'production' or tiapp_xml['mobileweb']['disable-error-screen'] == 'true' else 'true',
+			jsQuoteEscapeFilter   = lambda str: str.replace("\\\"","\\\\\\\"")
 		))
 		
 		# 2) copy in the loader
@@ -253,22 +348,50 @@ class Compiler(object):
 				ti_js.write('"%s":function(){\n/* %s */\ndefine(function(require, exports, module){\n%s\n});\n}' % (x, file_path.replace(self.build_path, ''), codecs.open(file_path, 'r', 'utf-8').read()))
 			else:
 				ti_js.write('"%s":function(){\n/* %s */\n\n%s\n}' % (x, file_path.replace(self.build_path, ''), codecs.open(file_path, 'r', 'utf-8').read()))
+		
+		image_mime_types = {
+			'.png': 'image/png',
+			'.gif': 'image/gif',
+			'.jpg': 'image/jpg',
+			'.jpeg': 'image/jpg'
+		}
+		for x in precache_images:
+			x = x.replace('\\', '/')
+			y = x
+			if y.startswith(os.sep):
+				y = '.' + y
+			img = os.path.join(self.resources_path, os.sep.join(y.split('/')))
+			if os.path.exists(img):
+				fname, ext = os.path.splitext(img.lower())
+				if ext in image_mime_types:
+					if not first:
+						ti_js.write(',\n')
+					first = False
+					ti_js.write('"url:%s":"data:%s;base64,%s"' % (x, image_mime_types[ext], base64.b64encode(open(img,'rb').read())))
+		
 		ti_js.write('});\n')
 		
 		# 4) write the ti.app.properties
-		if len(tiapp_xml.app_properties):
-			s = ''
-			for name in tiapp_xml.app_properties:
-				prop = tiapp_xml.app_properties[name]
-				if prop['type'] == 'bool':
-					s += 'p.setBool("' + name + '",' + prop['value'] + ');\n'
-				elif prop['type'] == 'int':
-					s += 'p.setInt("' + name + '",' + prop['value'] + ');\n'
-				elif prop['type'] == 'double':
-					s += 'p.setDouble("' + name + '",' + prop['value'] + ');\n'
-				else:
-					s += 'p.setString("' + name + '","' + str(prop['value']).replace('"', '\\"') + '");\n'
-			ti_js.write('require("Ti/App/Properties", function(p) {\n%s});\n' % s)
+		def addProp(prop, val):
+			tiapp_xml['properties'][prop] = {
+				'type': 'string',
+				'value': val
+			}
+		addProp('ti.fs.backend', tiapp_xml['mobileweb']['filesystem']['backend'])
+		addProp('ti.map.backend', tiapp_xml['mobileweb']['map']['backend'])
+		addProp('ti.map.apikey', tiapp_xml['mobileweb']['map']['apikey'])
+		s = ''
+		for name in tiapp_xml['properties']:
+			prop = tiapp_xml['properties'][name]
+			if prop['type'] == 'bool':
+				s += 'p.setBool("' + name + '",' + prop['value'] + ');\n'
+			elif prop['type'] == 'int':
+				s += 'p.setInt("' + name + '",' + prop['value'] + ');\n'
+			elif prop['type'] == 'double':
+				s += 'p.setDouble("' + name + '",' + prop['value'] + ');\n'
+			else:
+				s += 'p.setString("' + name + '","' + str(prop['value']).replace('"', '\\"') + '");\n'
+		ti_js.write('require("Ti/App/Properties", function(p) {\n%s});\n' % s)
 		
 		# 5) write require() to load all Ti modules
 		self.modules_to_load.sort()
@@ -278,16 +401,45 @@ class Compiler(object):
 		# 6) close the titanium.js
 		ti_js.close()
 		
+		# build the splash screen
+		splash_html = ''
+		splash_css = ''
+		if tiapp_xml['mobileweb']['splash']['enabled'] == 'true':
+			print '[INFO] Processing splash screen...'
+			splash_path = os.path.join(self.project_path, 'Resources', 'mobileweb', 'splash')
+			splash_root_path = os.path.join(self.project_path, 'Resources')
+			if not os.path.exists(splash_path):
+				splash_path = os.path.join(self.sdk_path, 'splash')
+				splash_root_path = splash_path
+			splash_html_file = os.path.join(splash_path, 'splash.html')
+			splash_css_file = os.path.join(splash_path, 'splash.css')
+			if os.path.exists(splash_html_file):
+				splash_html = codecs.open(splash_html_file, 'r', 'utf-8').read()
+			if os.path.exists(splash_css_file):
+				splash_css = codecs.open(splash_css_file, 'r', 'utf-8').read()
+				if tiapp_xml['mobileweb']['splash']['inline-css-images'] == 'true':
+					parts = splash_css.split('url(')
+					for i in range(1, len(parts)):
+						j = parts[i].find(')')
+						if j != -1:
+							img = parts[i][:j].replace('"', '').replace('\'', '').strip()
+							if img.find('data:') == -1:
+								if img[1] == '/':
+									img_path = os.path.join(splash_root_path, img[1:])
+								else:
+									img_path = os.path.join(splash_path, img)
+								if os.path.exists(img_path):
+									fname, ext = os.path.splitext(img_path.lower())
+									if ext in image_mime_types:
+										parts[i] = 'data:%s;base64,%s%s' % (image_mime_types[ext], base64.b64encode(open(img_path,'rb').read()), parts[i][j:])
+					splash_css = 'url('.join(parts)
+
 		# build the titanium.css file
 		print '[INFO] Assembling titanium.css...'
-		self.ti_css_file = os.path.join(self.build_path, 'titanium.css')
-		ti_css = codecs.open(self.ti_css_file, 'w', encoding='utf-8')
+		ti_css = HEADER + '\n' + splash_css + '\n' + codecs.open(os.path.join(self.themes_path, 'common.css'), 'r', 'utf-8').read()
 		
 		# TODO: need to rewrite absolute paths for urls
-		ti_css.write(HEADER + '\n' + codecs.open(os.path.join(self.themes_path, 'common.css'), 'r', 'utf-8').read())
 		
-		# TODO: get theme from tiapp.xml
-		theme = 'titanium'
 		if len(theme):
 			theme_path = os.path.join(self.resources_path, 'themes', theme)
 			if not os.path.exists(theme_path):
@@ -301,7 +453,7 @@ class Compiler(object):
 					for filename in filenames:
 						fname, ext = os.path.splitext(filename.lower())
 						if ext == '.css':
-							ti_css.write(codecs.open(os.path.join(dirname, filename), 'r', 'utf-8').read())
+							ti_css += codecs.open(os.path.join(dirname, filename), 'r', 'utf-8').read()
 		
 		# detect any fonts and add font face rules to the css file
 		fonts = {}
@@ -313,10 +465,16 @@ class Compiler(object):
 						fonts[fname] = []
 					fonts[fname].append(os.path.join(dirname, filename)[len(self.resources_path):])
 		for font in fonts:
-			ti_css.write('@font-face{font-family:%s;src:url(%s);}\n' % (font, '),url('.join(fonts[font])))
+			ti_css += '@font-face{font-family:%s;src:url(%s);}\n' % (font, '),url('.join(fonts[font]))
 		
-		# close the titanium.css
-		ti_css.close()
+		# minify the css
+		if self.minify:
+			ti_css = CSSPacker(ti_css).pack()
+		
+		# write the titanium.css
+		ti_css_file = codecs.open(os.path.join(self.build_path, 'titanium.css'), 'w', encoding='utf-8')
+		ti_css_file.write(ti_css)
+		ti_css_file.close()
 		
 		# minify all javascript, html, and css files
 		if self.minify:
@@ -330,7 +488,7 @@ class Compiler(object):
 			#	TODO: minify html
 		
 		# create the favicon and apple touch icons
-		icon_file = os.path.join(self.resources_path, tiapp_xml.properties['icon'])
+		icon_file = os.path.join(self.resources_path, tiapp_xml['icon'])
 		fname, ext = os.path.splitext(icon_file.lower())
 		if os.path.exists(icon_file) and (ext == '.png' or ext == '.jpg' or ext == '.gif'):
 			self.build_icons(icon_file)
@@ -347,15 +505,15 @@ class Compiler(object):
 		filesystem_registry_file.close()
 		
 		# if we're preloading the filesystem registry, write it to the require cache
-		if tiapp_xml.mobileweb['filesystem']['registry'] == 'preload':
+		if tiapp_xml['mobileweb']['filesystem']['registry'] == 'preload':
 			ti_js = codecs.open(self.ti_js_file, 'a', encoding='utf-8')
 			ti_js.write('require.cache({"url:/titanium/filesystem.registry":"' + filesystem_registry.strip().replace('\n', '|') + '"});')
 			ti_js.close()
 		
 		# get status bar style
 		status_bar_style = 'default'
-		if 'statusbar-style' in tiapp_xml.properties:
-			status_bar_style = tiapp_xml.properties['statusbar-style']
+		if 'statusbar-style' in tiapp_xml:
+			status_bar_style = tiapp_xml['statusbar-style']
 			if status_bar_style == 'opaque_black' or status_bar_style == 'opaque':
 				status_bar_style = 'black'
 			elif status_bar_style == 'translucent_black' or status_bar_style == 'transparent' or status_bar_style == 'translucent':
@@ -366,14 +524,15 @@ class Compiler(object):
 		# populate index.html
 		index_html_file = codecs.open(os.path.join(self.build_path, 'index.html'), 'w', encoding='utf-8')
 		index_html_file.write(mako.template.Template(codecs.open(os.path.join(self.sdk_src_path, 'index.html'), 'r', 'utf-8').read().strip()).render(
-			ti_header=HTML_HEADER,
-			project_name=tiapp_xml.properties['name'],
-			app_description=tiapp_xml.properties['description'],
-			app_publisher=tiapp_xml.properties['publisher'],
-			ti_generator="Appcelerator Titanium Mobile " + sdk_version,
-			ti_statusbar_style=status_bar_style,
-			ti_css=codecs.open(self.ti_css_file, 'r', 'utf-8').read(),
-			ti_js=codecs.open(self.ti_js_file, 'r', 'utf-8').read()
+			ti_header          = HTML_HEADER,
+			project_name       = tiapp_xml['name'] or '',
+			app_description    = tiapp_xml['description'] or '',
+			app_publisher      = tiapp_xml['publisher'] or '',
+			splash_screen      = splash_html,
+			ti_generator       = 'Appcelerator Titanium Mobile ' + sdk_version,
+			ti_statusbar_style = status_bar_style,
+			ti_css             = ti_css,
+			ti_js              = codecs.open(self.ti_js_file, 'r', 'utf-8').read()
 		))
 		index_html_file.close()
 		
@@ -384,6 +543,26 @@ class Compiler(object):
 			print '[INFO] Finished in %s minutes %s seconds' % (int(total_minutes), int(total_seconds))
 		else:
 			print '[INFO] Finished in %s seconds' % int(total_time)
+	
+	def load_i18n(self, xml_file):
+		if not os.path.exists(xml_file):
+			return None
+		
+		strings = {}
+		dom = parseString(codecs.open(xml_file,'r','utf-8','replace').read().encode('utf-8'))
+		root = dom.documentElement
+		
+		for node in root.childNodes:
+			if node.nodeType == 1 and node.nodeName == 'string':
+				name = node.getAttribute('name')
+				if name is not '':
+					val = ''
+					for inner in node.childNodes:
+						if inner.nodeType == node.TEXT_NODE:
+							val = val + inner.data
+					strings[name] = val.encode('utf-8').decode('string-escape').strip()
+		
+		return strings
 	
 	def walk_fs(self, path, depth):
 		s = ''
@@ -419,24 +598,34 @@ class Compiler(object):
 		parts = it.split('/')
 		for p in self.packages:
 			if p['name'] == parts[0]:
+				if p['name'] != 'Ti':
+					it = it.replace(p['name'] + '/', '')
 				return [self.compact_path(os.path.join(self.build_path, p['location'])), it]
 		return [self.build_path, it]
 	
-	def copy(self, src_path, dest_path):
-		print '[INFO] Copying %s...' % src_path
-		for root, dirs, files in os.walk(src_path):
-			for name in ignoreDirs:
-				if name in dirs:
-					dirs.remove(name)
-			for file in files:
-				if file in ignoreFiles or file.startswith('._'):
-					continue
-				source = os.path.join(root, file)
-				dest = os.path.expanduser(source.replace(src_path, dest_path, 1))
-				dest_dir = os.path.expanduser(os.path.split(dest)[0])
-				if not os.path.exists(dest_dir):
-					os.makedirs(dest_dir)
-				shutil.copy(source, dest)
+	def copy(self, src_path, dest_path, ignore=None):
+		if os.path.exists(src_path):
+			print '[INFO] Copying %s...' % src_path
+			if os.path.isdir(src_path):
+				for root, dirs, files in os.walk(src_path):
+					for name in ignoreDirs:
+						if name in dirs:
+							dirs.remove(name)
+					if ignore is not None and root == src_path:
+						for name in ignore:
+							if name in dirs:
+								dirs.remove(name)
+					for file in files:
+						if file in ignoreFiles or file.startswith('._'):
+							continue
+						source = os.path.join(root, file)
+						dest = os.path.expanduser(source.replace(src_path, dest_path, 1))
+						dest_dir = os.path.expanduser(os.path.split(dest)[0])
+						if not os.path.exists(dest_dir):
+							os.makedirs(dest_dir)
+						shutil.copy(source, dest)
+			else:
+				shutil.copy(src_path, dest_path)
 	
 	def compact_path(self, path):
 		result = []
@@ -471,12 +660,23 @@ class Compiler(object):
 			sys.exit(1)
 		self.package_json = simplejson.load(codecs.open(package_json_file, 'r', 'utf-8'))
 	
+	def locate_module(self, path):
+		module_dir = None
+		module['version'] = '0.0.0'
+		for dir in os.listdir(path):
+			if compare_versions(module['version'], dir) == -1:
+				module['version'] = dir
+				module_dir = os.path.join(path, dir)
+		return module_dir
+	
 	def find_project_dependencies(self):
 		print '[INFO] Scanning project for dependencies...'
 		
 		# TODO: using an AST, scan the entire project's source and identify all dependencies
 		self.project_dependencies += [
 			'Ti',
+			'Ti/Accelerometer',
+			'Ti/Analytics',
 			'Ti/API',
 			'Ti/App',
 			'Ti/App/Properties',
@@ -484,10 +684,12 @@ class Compiler(object):
 			'Ti/Buffer',
 			'Ti/Codec',
 			'Ti/Facebook',
+			'Ti/Facebook/LoginButton',
 			'Ti/Filesystem',
 			'Ti/Filesystem/File',
 			'Ti/Filesystem/FileStream',
 			'Ti/IOStream',
+			'Ti/Locale',
 			'Ti/Media',
 			'Ti/Media/VideoPlayer',
 			'Ti/Network',
@@ -495,10 +697,16 @@ class Compiler(object):
 			'Ti/Platform',
 			'Ti/Platform/DisplayCaps',
 			'Ti/Gesture',
+			'Ti/Geolocation',
 			'Ti/XML',
 			'Ti/UI/View',
+			'Ti/Map',
+			'Ti/Map/View',
+			'Ti/Map/Annotation',
 			'Ti/Media/VideoPlayer',
 			'Ti/UI',
+			'Ti/UI/Clipboard',
+			'Ti/UI/MobileWeb',
 			'Ti/UI/TableViewRow',
 			'Ti/UI/Tab',
 			'Ti/UI/TabGroup',
@@ -525,7 +733,9 @@ class Compiler(object):
 			'Ti/UI/TextArea',
 			'Ti/UI/TextField',
 			'Ti/UI/WebView',
-			'Ti/Utils'
+			'Ti/UI/MobileWeb/NavigationGroup',
+			'Ti/Utils',
+			'Ti/Yahoo'
 		]
 	
 	def parse_deps(self, deps):
@@ -552,7 +762,7 @@ class Compiler(object):
 			self.modules_to_cache.append(module)
 	
 	def parse_module(self, module, ref):
-		if module in self.require_cache:
+		if module in self.require_cache or module == 'require':
 			return
 		
 		parts = module.split('!')

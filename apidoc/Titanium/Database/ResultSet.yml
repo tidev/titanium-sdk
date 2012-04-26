@@ -4,6 +4,25 @@ summary: The ResultSet instance returned by <Titanium.Database.DB.execute>.
 extends: Titanium.Proxy
 since: "0.1"
 createable: false
+platforms: [android, iphone, ipad]
+description: |
+    A result set represents the results returned by a database query.
+
+    The [rowCount](Titanium.Database.ResultSet.rowCount) property identifies the number of
+    rows in the result set. The `ResultSet` object maintains an internal record of the 
+    current row. As shown in the example, you can use the 
+    [next](Titanium.Database.ResultSet.next) method to iterate through the rows in the set.
+    
+    Use the [field](Titanium.Database.ResultSet.field) or
+    [fieldByName](Titanium.Database.ResultSet.fieldByName) methods to query the fields for
+    the current row.
+
+    #### Platform Implementation Notes
+
+    Note that `fieldCount` is exposed as a *method* on iOS, but as a *property* on
+    Android. This is a known parity issue
+    ([TIMOB-2945](https://jira.appcelerator.org/browse/TIMOB-2945)).
+
 methods:
   - name: close
     summary: |
@@ -16,16 +35,16 @@ methods:
         and casts it to the specified type (String, Integer, Float or Double.)
     description: |
         All of the numeric types (Integer, Float or Double) are returned as JavaScript Number objects.  
-
+        
         If no `type` parameter is specified, the returned data type depends on the data in the column.  
-
+        
         * If the data in the column is TEXT, the data is returned as a String.
         * If the data in the column is any kind of number, the data is returned as a Number.
         * If the data in the column is a BLOB, the data is returned as a <Titanium.Blob> object.  
-
+        
         When a `type` is specified and the data cannot be converted to the specified type, an 
         exception is thrown.  
-
+        
         Returns null if the value in the table is NULL.
     returns:
       - type: String
@@ -49,16 +68,16 @@ methods:
         and casts it to the specified type (String, Integer, Float or Double.)
     description: |
         All of the numeric types (Integer, Float or Double) are returned as JavaScript Number objects.  
-
+        
         If no `type` parameter is specified, the returned data type depends on the data in the column.  
-
+        
         * If the data in the column is TEXT, the data is returned as a String.
         * If the data in the column is any kind of number, the data is returned as a Number.
         * If the data in the column is a BLOB, the data is returned as a <Titanium.Blob> object.  
-
+        
         When a `type` is specified and the data cannot be converted to the specified type, an 
         exception is thrown.  
-
+        
         Returns null if the value in the table is NULL.        
     returns:
       - type: String
@@ -79,6 +98,7 @@ methods:
     summary: Returns the number of columns in this result set.
     returns:
         type: Number
+    platforms: [iphone, ipad]
     
   - name: fieldName
     summary: Returns the field name for the specified field index.
@@ -88,7 +108,17 @@ methods:
       - name: index
         summary: A zero-based column index for the field.
         type: Number
-    
+
+  - name: getFieldName
+    summary: Returns the field name for the specified field index.
+    returns:
+        type: String
+    parameters:
+      - name: index
+        summary: A zero-based column index for the field.
+        type: Number
+    platforms: [android]
+        
   - name: isValidRow
     summary: Returns whether the current row is valid.
     returns:
@@ -100,7 +130,14 @@ methods:
         or `false` otherwise.
     returns:
         type: Boolean
+
 properties:
+  - name: fieldCount
+    summary: The number of columns in this result set.
+    type: Number
+    permission: read-only
+    platforms: [android]
+
   - name: rowCount
     summary: The number of rows in this result set.
     type: Number
@@ -111,12 +148,14 @@ properties:
     type: Boolean
     permission: read-only
     platforms: [iphone,ipad]
+
 examples:
   - title: Using ResultSet
     example: |
-        The following code will install a database and execute SQL statements that will create a 
-        table, insert data into it, query the table and iterate through the returned ResultSet.
-
+        The following code will create a database and execute SQL statements that will create a 
+        table, insert data into it, query the table and iterate through the returned
+        `ResultSet`.
+        
             var db = Ti.Database.open('mydb1Installed');
             db.execute('CREATE TABLE IF NOT EXISTS people (name TEXT, phone_number TEXT, city TEXT)');
             db.execute('DELETE FROM people');
@@ -125,15 +164,24 @@ examples:
             var thisPhoneNo = '1-617-000-0000';
             var thisCity = 'Mountain View';
             db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', thisName, thisPhoneNo, thisCity);
-
+            
             var personArray = ['Paul','020 7000 0000', 'London'];
             db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', personArray);
-
+            
             var rows = db.execute('SELECT rowid,name,phone_number,city FROM people');
             db.close();
-
-            while (rows.isValidRow())
-            {
+            
+            Ti.API.info('Row count: ' + rows.rowCount);
+            var fieldCount;
+            // fieldCount is a property on Android.
+            if (Ti.Platform.name === 'android') {
+                fieldCount = rows.fieldCount;
+            } else {
+                fieldCount = rows.fieldCount();
+            }
+            Ti.API.info('Field count: ' + fieldCount);
+            
+            while (rows.isValidRow()){
               Ti.API.info('Person ---> ROWID: ' + rows.fieldByName('rowid') + ', name:' + rows.field(1) + ', phone_number: ' + rows.fieldByName('phone_number') + ', city: ' + rows.field(3));
               rows.next();
             }
@@ -141,4 +189,3 @@ examples:
         
         Note that the above `SELECT` query contains the [rowid](http://www.sqlite.org/lang_createtable.html#rowid)
         field, which contains an SQLite-specific unique identifier for each row.
-      

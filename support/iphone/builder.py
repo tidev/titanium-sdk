@@ -12,6 +12,7 @@ from projector import Projector
 from xml.dom.minidom import parseString
 from xml.etree.ElementTree import ElementTree
 from os.path import join, splitext, split, exists
+from tools import ensure_dev_path
 
 # the template_dir is the path where this file lives on disk
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
@@ -562,7 +563,8 @@ def main(args):
 	sys.stdout.flush()
 	start_time = time.time()
 	command = args[1].decode("utf-8")
-	
+	ensure_dev_path()
+
 	target = 'Debug'
 	deploytype = 'development'
 	devicefamily = 'iphone'
@@ -794,10 +796,14 @@ def main(args):
 			detector = ModuleDetector(project_dir)
 			missing_modules, modules = detector.find_app_modules(ti, 'iphone')
 			module_lib_search_path, module_asset_dirs = locate_modules(modules, project_dir, app_dir, log)
+			common_js_modules = []
 
 			# search for modules that the project is using
 			# and make sure we add them to the compile
 			for module in modules:
+				if module.js:
+					common_js_modules.append(module)
+					continue
 				module_id = module.manifest.moduleid.lower()
 				module_version = module.manifest.version
 				module_lib_name = ('lib%s.a' % module_id).lower()
@@ -900,7 +906,7 @@ def main(args):
 
 			# this code simply tries and detect if we're building a different
 			# version of the project (or same version but built from different git hash)
-			# and if so, make sure we force rebuild so to propograte any code changes in
+			# and if so, make sure we force rebuild so to propagate any code changes in
 			# source code (either upgrade or downgrade)
 			if os.path.exists(app_dir):
 				if os.path.exists(version_file):
@@ -1127,6 +1133,21 @@ def main(args):
 				if len(module_asset_dirs)>0:
 					for e in module_asset_dirs:
 						copy_module_resources(e[0],e[1],True)
+
+				# copy CommonJS modules
+				for module in common_js_modules:
+					#module_id = module.manifest.moduleid.lower()
+					#module_dir = os.path.join(app_dir, 'modules', module_id)
+					#if os.path.exists(module_dir) is False:
+					#	os.makedirs(module_dir)
+					shutil.copy(module.js, app_dir)
+				
+				# copy artworks, if appropriate
+				if command in ['adhoc', 'install', 'distribute']:
+					artworks = ['iTunesArtwork', 'iTunesArtwork@2x']
+					for artwork in artworks:
+						if os.path.exists(os.path.join(project_dir, artwork)):
+							shutil.copy(os.path.join(project_dir, artwork), app_dir)
 				
 				# copy any custom fonts in (only runs in simulator)
 				# since we need to make them live in the bundle in simulator
@@ -1202,6 +1223,11 @@ def main(args):
 						print "[INFO] Executing XCode build..."
 						print "[BEGIN_VERBOSE] Executing XCode Compiler  <span>[toggle output]</span>"
 
+					# h/t cbarber for this; occasionally the PCH header info gets out of sync
+					# with the PCH file if you do the "wrong thing" and xcode isn't
+					# smart enough to pick up these changes (since the PCH file hasn't 'changed').
+					run.run(['touch', '%s_Prefix.pch' % ti.properties['name']], debug=False)
+					
 					output = run.run(args,False,False,o)
 
 					if print_output:
@@ -1219,7 +1245,7 @@ def main(args):
 						endidx = output.find("\n",idx)
 						if endidx > 0:
 							target_build_dir = dequote(output[idx+17:endidx].strip())
-							if target_build_dir!=build_dir:
+							if not os.path.samefile(target_build_dir,build_dir):
 								o.write("+ TARGET_BUILD_DIR = %s\n" % target_build_dir)
 								print "[ERROR] Your TARGET_BUILD_DIR is incorrectly set. Most likely you have configured in Xcode a customized build location. Titanium does not currently support this configuration."
 								print "[ERROR] Expected dir %s, was: %s" % (build_dir,target_build_dir)
@@ -1372,12 +1398,9 @@ def main(args):
 					else:
 						sim = subprocess.Popen("\"%s\" launch \"%s\" --sdk %s --family %s" % (iphonesim,app_dir,iphone_version,simtype),shell=True,cwd=template_dir)
 
-					# activate the simulator window - we use a OSA script to 
-					# cause the simulator window to come into the foreground (otherwise
-					# it will be behind Titanium Developer window)
-					ass = os.path.join(template_dir,'iphone_sim_activate.scpt')
-					cmd = "osascript \"%s\" 2>/dev/null" % ass
-					os.system(cmd)
+					# activate the simulator window
+					command = 'osascript -e "tell application \\\"%s/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone Simulator.app\\\" to activate"'
+					os.system(command%xcodeselectpath)
 
 					end_time = time.time()-start_time
 
@@ -1452,10 +1475,13 @@ def main(args):
 						print "[INFO] Installing application in iTunes ... one moment"
 						sys.stdout.flush()
 
-					if os.path.exists("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication"):
-						o.write("+ Preparing to run /Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication\n")
-						output = run.run(["/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication",app_dir],True)
-						o.write("+ Finished running /Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication\n")
+					dev_path = run.run(['xcode-select','-print-path'],True,False).rstrip()
+					package_path = os.path.join(dev_path,'Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication')
+
+					if os.path.exists(package_path):
+						o.write("+ Preparing to run %s\n"%package_path)
+						output = run.run([package_path,app_dir],True)
+						o.write("+ Finished running %s\n"%package_path)
 						if output: o.write(output)
 
 					# for install, launch itunes with the app
@@ -1524,7 +1550,12 @@ def main(args):
 
 					# open xcode + organizer after packaging
 					# Have to force the right xcode open...
-					xc_path = os.path.join(run.run(['xcode-select','-print-path'],True,False).rstrip(),'Applications','Xcode.app')
+					xc_path = run.run(['xcode-select','-print-path'],True,False).rstrip()
+					xc_app_index = xc_path.find('/Xcode.app/')
+					if (xc_app_index >= 0):
+						xc_path = xc_path[0:xc_app_index+10]
+					else:
+						xc_path = os.path.join(xc_path,'Applications','Xcode.app')
 					o.write("Launching xcode: %s\n" % xc_path)
 					os.system('open -a %s' % xc_path)
 					

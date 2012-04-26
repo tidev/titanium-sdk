@@ -1,20 +1,26 @@
-define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
-	function(_, declare, lang, Evented, Network) {
+define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network", "Ti/Blob", "Ti/_/event"],
+	function(_, declare, lang, Evented, Network, Blob, event) {
 
 	var is = require.is,
-		on = require.on,
-		undef;
+		on = require.on;
 
 	return declare("Ti.Network.HTTPClient", Evented, {
 
 		constructor: function() {
 			var xhr = this._xhr = new XMLHttpRequest;
 
-			on(xhr, "error", this, "_onError");
-			on(xhr.upload, "error", this, "_onError");
-
-			on(xhr, "progress", this, "_onProgress");
-			on(xhr.upload, "progress", this, "_onProgress");
+			this._handles = [
+				on(xhr, "error", this, "_onError"),
+				xhr.upload && on(xhr.upload, "error", this, "_onError"),
+				on(xhr, "progress", this, function(evt) {
+					evt.progress = evt.lengthComputable ? evt.loaded / evt.total : false;
+					is(this.ondatastream, "Function") && this.ondatastream.call(this, evt);
+				}),
+				xhr.upload && on(xhr.upload, "progress", this, function(evt) {
+					evt.progress = evt.lengthComputable ? evt.loaded / evt.total : false;
+					is(this.onsendstream, "Function") && this.onsendstream.call(this, evt);
+				})
+			];
 
 			xhr.onreadystatechange = lang.hitch(this, function() {
 				var c = this.constants;
@@ -28,7 +34,16 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 						this._completed = 1;
 						c.readyState = this.DONE;
 						if (xhr.status == 200) {
-							c.responseText = c.responseData = xhr.responseText;
+							if (this.file) {
+								Filesystem.getFile(Filesystem.applicationDataDirectory,
+									this.file).write(xhr.responseText);
+							}
+							c.responseText = xhr.responseText;
+							c.responseData = new Blob({
+								data: xhr.responseText,
+								length: xhr.responseText.length,
+								mimeType: xhr.getResponseHeader("Content-Type")
+							});
 							c.responseXML = xhr.responseXML;
 							is(this.onload, "Function") && this.onload.call(this);
 						} else {
@@ -44,6 +59,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 				this._xhr.abort();
 				this._xhr = null;
 			}
+			event.off(this._handles);
 			Evented.destroy.apply(this, arguments);
 		},
 
@@ -53,11 +69,6 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 			error.error || (error.error = error.message || this._xhr.status);
 			parseInt(error.error) || (error.error = "Can't reach host");
 			is(this.onerror, "Function") && this.onerror.call(this, error);
-		},
-
-		_onProgress: function(evt) {
-			evt.progress = evt.lengthComputable ? evt.loaded / evt.total : false;
-			is(this.onsendstream, "Function") && this.onsendstream.call(this, evt);
 		},
 
 		abort: function() {
@@ -80,14 +91,16 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 
 		open: function(method, url, async) {
 			var httpURLFormatter = Ti.Network.httpURLFormatter,
-				c = this.constants;
+				c = this.constants,
+				wc = this.withCredentials,
+				async = wc ? true : !!async;
 			this.abort();
 			this._xhr.open(
 				c.connectionType = method,
 				c.location = _.getAbsolutePath(httpURLFormatter ? httpURLFormatter(url) : url),
-				!!async
+				async
 			);
-			this._xhr.setRequestHeader("UserAgent", Ti.userAgent);
+			wc && (this._xhr.withCredentials = wc);
 		},
 
 		send: function(args){
@@ -104,7 +117,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 						!this._completed && this._onError("Request timed out");
 					}
 				}, timeout)));
-			} catch (ex) {}
+			} catch (ex) {console.debug(ex)}
 		},
 
 		setRequestHeader: function(name, value) {
@@ -112,12 +125,13 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 		},
 
 		properties: {
-			ondatastream: undef,
-			onerror: undef,
-			onload: undef,
-			onreadystatechange: undef,
-			onsendstream: undef,
-			timeout: undef
+			ondatastream: void 0,
+			onerror: void 0,
+			onload: void 0,
+			onreadystatechange: void 0,
+			onsendstream: void 0,
+			timeout: void 0,
+			withCredentials: false
 		},
 
 		constants: {
@@ -135,17 +149,17 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network"],
 				return this.readyState >= this.OPENED;
 			},
 
-			connectionType: undef,
+			connectionType: void 0,
 
-			location: undef,
+			location: void 0,
 
 			readyState: this.UNSENT,
 
-			responseData: undef,
+			responseData: void 0,
 
-			responseText: undef,
+			responseText: void 0,
 
-			responseXML: undef,
+			responseXML: void 0,
 
 			status: function() {
 				return this._xhr.status;

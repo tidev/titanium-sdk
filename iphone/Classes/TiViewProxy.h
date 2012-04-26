@@ -6,6 +6,7 @@
  */
 #import "TiProxy.h"
 #import "TiUIView.h"
+#import "TiRect.h"
 #import <pthread.h>
 
 /**
@@ -38,6 +39,16 @@
  Returns keyboard accessory height.
  */
 @property(nonatomic,readonly) CGFloat keyboardAccessoryHeight;
+
+@end
+
+/*
+ This Protocol will be implemented by objects that want to
+ monitor views not in the normal view heirarchy. 
+*/
+@protocol TiProxyObserver
+@optional
+-(void)proxyDidRelayout:(id)sender;
 
 @end
 
@@ -119,10 +130,15 @@ enum
     BOOL allowLayoutUpdate;
     
     NSMutableDictionary *layoutPropDictionary;
+    
+    id observer;
 }
 
 #pragma mark public API
-/**
+
+@property(nonatomic,readonly) TiRect * size;
+@property(nonatomic,readonly) TiRect * rect;
+/*
  Provides access to z-index value.
  */
 @property(nonatomic,readwrite,assign) int vzIndex;
@@ -142,6 +158,7 @@ enum
 -(void)setTempProperty:(id)propVal forKey:(id)propName;
 -(void)processTempProperties:(NSDictionary*)arg;
 
+-(void)setProxyObserver:(id)arg;
 
 /**
  Tells the view proxy to add a child proxy.
@@ -487,6 +504,9 @@ enum
  */
 -(void)refreshPosition;
 
+/**
+ Puts the view in the layout queue for rendering.
+ */
 -(void)willEnqueue;
 
 //Unlike the other layout actions, this one is done by the parent of the one called by refreshView.
@@ -497,15 +517,36 @@ enum
 #pragma mark Layout commands that need refactoring out
 
 -(void)determineSandboxBounds;
--(void)layoutChildren:(BOOL)optimize;
--(void)layoutChildrenIfNeeded;
--(void)layoutChild:(TiViewProxy*)child optimize:(BOOL)optimize;
 
+/**
+ Tells the view to layout its children.
+ @param optimize Internal use only. Always specify _NO_.
+ */
+-(void)layoutChildren:(BOOL)optimize;
+
+/**
+ Tells the view to layout its children only if there were any layout changes.
+ */
+-(void)layoutChildrenIfNeeded;
+
+-(void)layoutChild:(TiViewProxy*)child optimize:(BOOL)optimize withMeasuredBounds:(CGRect)bounds;
+-(NSArray*)measureChildren:(NSArray*)childArray;
+-(CGRect)computeChildSandbox:(TiViewProxy*)child withBounds:(CGRect)bounds;
+
+/**
+ Tells the view to adjust its size and position according to the current layout constraints.
+ */
 -(void)relayout;
+
 -(void)insertIntoView:(UIView*)view bounds:(CGRect)bounds;
 -(void)reposition;	//Todo: Replace
 
 -(BOOL)willBeRelaying;	//Todo: Replace
+
+/**
+ Tells the view that its child view size will change.
+ @param child The child view
+ */
 -(void)childWillResize:(TiViewProxy *)child;	//Todo: Replace
 
 @end
@@ -514,13 +555,13 @@ enum
 #define USE_VIEW_FOR_METHOD(resultType,methodname,inputType)	\
 -(resultType) methodname: (inputType)value	\
 {	\
-	return [[self view] methodname:value];	\
+    return [[self view] methodname:value];	\
 }
 
 #define USE_VIEW_FOR_VERIFY_WIDTH	USE_VIEW_FOR_METHOD(CGFloat,verifyWidth,CGFloat)
 #define USE_VIEW_FOR_VERIFY_HEIGHT	USE_VIEW_FOR_METHOD(CGFloat,verifyHeight,CGFloat)
-#define USE_VIEW_FOR_AUTO_WIDTH		USE_VIEW_FOR_METHOD(CGFloat,autoWidthForWidth,CGFloat)
-#define USE_VIEW_FOR_AUTO_HEIGHT	USE_VIEW_FOR_METHOD(CGFloat,autoHeightForWidth,CGFloat)
+#define USE_VIEW_FOR_CONTENT_WIDTH	USE_VIEW_FOR_METHOD(CGFloat,contentWidthForWidth,CGFloat)
+#define USE_VIEW_FOR_CONTENT_HEIGHT	USE_VIEW_FOR_METHOD(CGFloat,contentHeightForWidth,CGFloat)
 
 #define DECLARE_VIEW_CLASS_FOR_NEWVIEW(viewClass)	\
 -(TiUIView*)newView	\

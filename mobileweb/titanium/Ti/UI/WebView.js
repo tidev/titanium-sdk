@@ -9,6 +9,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 			App.addEventListener(this.widgetId + ":unload", lang.hitch(this, function() {
 				this._loading(1);
 			}));
+			this.backgroundColor = "#fff";
 		},
 
 		destroy: function() {
@@ -32,7 +33,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 				var url = this.url,
 					match = this.url.match(/(https?)\:\/\/([^\:\/]*)(:?\d*)(.*)/),
 					loc = window.location,
-					isSameDomain = match && match[0] + ":" === loc.protocol && match[1] + match[2] === window.location.host,
+					isSameDomain = !match || (match[0] + ":" === loc.protocol && match[1] + match[2] === window.location.host),
 					iframe = this._iframe = dom.create("iframe", {
 						frameborder: 0,
 						marginwidth: 0,
@@ -40,7 +41,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 						hspace: 0,
 						vspace: 0,
 						scrolling: this.showScrollbars ? "auto" : "no",
-						src: url,
+						src: url || require.toUrl("Ti/_/UI/blank.html"),
 						style: {
 							width: "100%",
 							height: "100%"
@@ -68,6 +69,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 						if (i > 0) {
 							url = cw.location.href;
 							this.evalJS(bridge.replace("WEBVIEW_ID", this.widgetId + ":unload"));
+							this.html && this._setContent(this.html);
 						} else {
 							API.warn("Unable to inject WebView bridge into cross-domain URL, ignore browser security message");
 						}
@@ -85,6 +87,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 						});
 					})
 				];
+
+				return 1;
 			}
 		},
 
@@ -92,7 +96,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 			Widget.prototype._setParent.apply(this, arguments);
 
 			// we are being added to a parent, need to manually fire
-			this.url && this._createIFrame();
+			(this.url || this.html) && this._createIFrame();
 		},
 
 		_getWindow: function() {
@@ -115,16 +119,20 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 		},
 
 		canGoBack: function() {
-			return this.url && this._getHistory().length;
+			return this.url && !!this._getHistory().length;
 		},
 
 		canGoForward: function() {
-			return this.url && this._getHistory().length;
+			return this.url && !!this._getHistory().length;
 		},
 
 		evalJS: function(js) {
-			var w = this._getWindow();
-			return js && w && w.eval && w.eval(js);
+			var w = this._getWindow(),
+				r = null;
+			try {
+				r = js && w && w.eval && w.eval(js);
+			} catch (e) {}
+			return r;
 		},
 
 		goBack: function() {
@@ -172,8 +180,6 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 
 		_setContent: function(value) {
 			try {
-				this.properties.__values__.url = "";
-				this._createIFrame();
 				var doc = this._getDoc();
 				doc.open();
 				doc.write(value);
@@ -185,13 +191,30 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 		properties: {
 			data: {
 				set: function(value) {
-					return this._setContent(value);
+					var data = value;
+					switch (data && data.declaredClass) {
+						case "Ti.Filesystem.File":
+							data = data.read();
+						case "Ti.Blob":
+							data = data.toString();
+						default:
+							this.html = data;
+					}
+					return value;
 				}
 			},
 
 			html: {
+				get: function(value) {
+					var doc = this._iframe && this._getDoc();
+					if (doc) {
+						return doc.documentElement.innerHTML;
+					}
+				},
 				set: function(value) {
-					return this._setContent(value);
+					this.properties.__values__.url = "";
+					this._createIFrame() && this._setContent(value);
+					return value;
 				}
 			},
 
@@ -205,6 +228,9 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 
 			url: { 
 				post: function(value) {
+					var values = this.properties.__values__;
+					values.data = void 0;
+					values.html = void 0;
 					this._createIFrame();
 				}
 			}

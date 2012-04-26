@@ -135,10 +135,10 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	return win;
 }
 
-BEGIN_UI_THREAD_PROTECTED_VALUE(opened,NSNumber)
-	result = [NSNumber numberWithBool:opened];
-END_UI_THREAD_PROTECTED_VALUE(opened)
 
+-(NSNumber *) opened{
+    return [NSNumber numberWithBool:opened];
+}
 
 -(BOOL)handleFocusEvents
 {
@@ -160,14 +160,16 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 {
 	[super windowDidOpen];
 	
-	opening = NO;
 	[self forgetProxy:openAnimation];
 	RELEASE_TO_NIL(openAnimation);
 
-	if ([self _hasListeners:@"open"])
-	{
-		[self fireEvent:@"open" withObject:nil];
-	}
+    if (opening) {
+        opening = NO;
+        if ([self _hasListeners:@"open"])
+        {
+            [self fireEvent:@"open" withObject:nil];
+        }
+    }
 	
 	// we do it here in case we have a window that
 	// neither has tabs nor JS
@@ -414,14 +416,14 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		[self view];
 		[self windowWillOpen];
 		[self windowReady];
-		
+		//This flag will track if window was opened with an animation to resolve the edge case 
+		//that the animation completes before the method ends. TIMOB-8030
+		BOOL hasAnimation = NO;
 		if (openAnimation!=nil)
 		{
 			if (rootViewAttached)
 			{
-				[[TiApp controller] willShowViewController:[self controller] animated:YES];
 				[self attachViewToTopLevelWindow];
-				[[TiApp controller] didShowViewController:[self controller] animated:YES];
 			}
 			if ([openAnimation isTransitionAnimation])
 			{
@@ -430,6 +432,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			}
 			openAnimation.delegate = self;
 			[openAnimation animate:self];
+			hasAnimation = YES;
 		}
 		if (fullscreenFlag)
 		{
@@ -488,7 +491,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 				[[TiApp app] showModalController:nc animated:animated];
 			}
 		}
-		if (openAnimation==nil)
+		if (hasAnimation == NO)
 		{
 			[self windowDidOpen];
 		}
@@ -590,28 +593,19 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	[self windowWillClose];
 
 	//TEMP hack until we can figure out split view issue
-	if (tempController!=nil)
-	{
-        if (modalFlag) {
-            BOOL animated = (args!=nil && [args isKindOfClass:[NSDictionary class]]) ? 
-                [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : 
-                YES;
-            
-            [tempController dismissModalViewControllerAnimated:animated];
-            
-            if (!animated)
-            {
-                [self removeTempController];
-            }
-            else 
-            {
-                [self performSelector:@selector(removeTempController) withObject:nil afterDelay:0.3];
-            }
-        }
-        else {
+    // appears to be a dead code
+	if ((tempController != nil) && modalFlag) {
+        BOOL animated = (args!=nil && [args isKindOfClass:[NSDictionary class]]) ? 
+            [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
+
+        [tempController dismissModalViewControllerAnimated:animated];
+
+        if (!animated) {
             [self removeTempController];
         }
-        
+        else {
+            [self performSelector:@selector(removeTempController) withObject:nil afterDelay:0.3];
+        }
 		return;
 	}
 	else
@@ -680,6 +674,9 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		}
 	}
 	[myview release];
+    if (tempController != nil) {
+        [self removeTempController];
+    }
 	[self release];
 }
 

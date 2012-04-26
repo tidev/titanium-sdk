@@ -2,13 +2,12 @@ define(
 	["Ti/_/browser", "Ti/_/css", "Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/Evented",
 	"Ti/UI", "Ti/_/Gestures/DoubleTap","Ti/_/Gestures/LongPress","Ti/_/Gestures/Pinch","Ti/_/Gestures/SingleTap",
 	"Ti/_/Gestures/Swipe","Ti/_/Gestures/TouchCancel","Ti/_/Gestures/TouchEnd","Ti/_/Gestures/TouchMove",
-	"Ti/_/Gestures/TouchStart","Ti/_/Gestures/TwoFingerTap"],
+	"Ti/_/Gestures/TouchStart","Ti/_/Gestures/TwoFingerTap", "Ti/_/Promise"],
 	function(browser, css, declare, dom, event, lang, style, Evented, UI,
 		DoubleTap, LongPress, Pinch, SingleTap, Swipe, TouchCancel, TouchEnd,
-		TouchMove, TouchStart, TwoFingerTap) {
+		TouchMove, TouchStart, TwoFingerTap, Promise) {
 
-	var undef,
-		unitize = dom.unitize,
+	var unitize = dom.unitize,
 		computeSize = dom.computeSize,
 		on = require.on,
 		setStyle = style.set,
@@ -27,8 +26,11 @@ define(
 			post: "_doBackground"
 		},
 		postLayoutProp = {
-			post: function() {
-				this._parent && this._parent._triggerLayout();
+			set: function(value, oldValue) {
+				if (value !== oldValue) {
+					!this._batchUpdateInProgress && this._triggerLayout();
+				}
+				return value;
 			}
 		};
 
@@ -138,9 +140,52 @@ define(
 			};
 		},
 
+		_setParent: function(view) {
+			this._parent = view;
+		},
+		
+		_add: function(view) {
+			view._setParent(this);
+			this.children.push(view);
+			this.containerNode.appendChild(view.domNode);
+			view._hasBeenLaidOut = false;
+			this._triggerLayout(this._isAttachedToActiveWin());
+		},
+
+		_insertAt: function(view,index) {
+			if (index > this.children.length || index < 0) {
+				return;
+			} else if (index === this.children.length) {
+				this.add(view);
+			} else {
+				view._parent = this;
+				this.containerNode.insertBefore(view.domNode,this.children[index].domNode);
+				this.children.splice(index,0,view);
+				this._triggerLayout();
+			}
+		},
+
+		_remove: function(view) {
+			var p = this.children.indexOf(view);
+			if (p !== -1) {
+				this.children.splice(p, 1);
+				view._setParent();
+				dom.detach(view.domNode);
+				this._triggerLayout();
+			}
+		},
+
+		_removeAllChildren: function(view) {
+			var children = this.children;
+			while (children.length) {
+				this.remove(children[0]);
+			}
+			this._triggerLayout();
+		},
+
 		destroy: function() {
 			if (this._alive) {
-				this.parent && this.parent.remove(this);
+				this._parent && this._parent._remove(this);
 				if (this.domNode) {
 					dom.destroy(this.domNode);
 					this.domNode = null;
@@ -151,12 +196,7 @@ define(
 		
 		_markedForLayout: false,
 		
-		_triggerLayout: function(force) {
-			
-			if (this._markedForLayout && !force) {
-				return;
-			}
-			
+		_isAttachedToActiveWin: function() {
 			// If this element is not attached to an active window, skip the calculation
 			var isAttachedToActiveWin = false,
 				node = this;
@@ -167,28 +207,110 @@ define(
 				}
 				node = node._parent;
 			}
-			if (!isAttachedToActiveWin) {
-				return;
-			}
-			
-			// Find the top most node that needs to be layed out.
-			var rootLayoutNode = this;
-			while(rootLayoutNode._parent != null && rootLayoutNode._hasSizeDimensions()) {
-				rootLayoutNode = rootLayoutNode._parent;
-			}
-			rootLayoutNode._markedForLayout = true;
-			
-			// Let the UI know that a layout needs to be performed if this is not part of a batch update
-			(!this._batchUpdateInProgress || force) && UI._triggerLayout(force);
+			return isAttachedToActiveWin;
 		},
 		
-		_triggerParentLayout: function() {
-			this._parent && this._parent._triggerLayout();
+		_triggerLayout: function(force) {
+			this._isAttachedToActiveWin() && (!this._batchUpdateInProgress || force) && UI._triggerLayout(this, force);
+		},
+		
+		_getInheritedWidth: function() {
+			var parent = this._parent,
+				parentWidth;
+			if (parent) {
+				if (isDef(parent.width)) {
+					parentWidth = parent.width;
+				} else if (isDef(parent.left) + isDef(parent.right) + !!(parent.center && isDef(parent.center.x)) < 2) {
+					parentWidth = parent._defaultWidth;
+				} else {
+					parentWidth = UI.FILL;
+				}
+				parentWidth = parentWidth === UI.INHERIT ? parent._getInheritedWidth() : parentWidth
+				return this._forceInheritenceToFillOrSize ? parentWidth === UI.SIZE ? UI.SIZE : UI.FILL : parentWidth;
+			}
+		},
+		
+		_getInheritedHeight: function(node) {
+			var parent = this._parent,
+				parentHeight;
+			if (parent) {
+				if (isDef(parent.height)) {
+					parentHeight = parent.height;
+				} else if (isDef(parent.top) + isDef(parent.bottom) + !!(parent.center && isDef(parent.center.y)) < 2) {
+					parentHeight = parent._defaultHeight;
+				} else {
+					parentHeight = UI.FILL;
+				}
+				parentHeight = parentHeight === UI.INHERIT ? parent._getInheritedHeight() : parentHeight
+				return this._forceInheritenceToFillOrSize ? parentHeight === UI.SIZE ? UI.SIZE : UI.FILL : parentHeight;
+			}
 		},
 		
 		_hasSizeDimensions: function() {
-			return (this.width === UI.SIZE || (!isDef(this.width) && this._defaultWidth === UI.SIZE)) || 
-				(this.height === UI.SIZE || (!isDef(this.height) && this._defaultHeight === UI.SIZE));
+			var widthOverride = isDef(this.left) + isDef(this.right) + isDef(this.center && this.center.x) > 1,
+				heightOverride = isDef(this.top) + isDef(this.bottom) + isDef(this.center && this.center.y) > 1,
+				isWidthSize,
+				isHeightSize,
+				width = lang.val(this.width,this._defaultWidth),
+				height = lang.val(this.height,this._defaultHeight);
+			(isDef(this.width) || !widthOverride) && (isWidthSize = (width === UI.INHERIT ? this._getInheritedWidth() : width) === UI.SIZE);
+			(isDef(this.height) || !heightOverride) && (isHeightSize = (height === UI.INHERIT ? this._getInheritedHeight() : height) === UI.SIZE);
+			return isWidthSize || isHeightSize;
+		},
+		
+		_hasFillWidth: function() {
+			var width = this.width;
+			if (isDef(width)) {
+				if (width === UI.INHERIT) {
+					return this._getInheritedWidth() === UI.FILL;
+				}
+				return width === UI.FILL;
+			}
+			if (isDef(this.left) + isDef(this.right) + !!(this.center && isDef(this.center.x)) > 1) {
+				return false;
+			}
+			if (this._defaultWidth === UI.FILL) {
+				return true;
+			}
+			if (this._defaultWidth === UI.INHERIT) {
+				return this._getInheritedWidth() === UI.FILL;
+			}
+		},
+		
+		_hasFillHeight: function() {
+			var height = this.height;
+			if (isDef(height)) {
+				if (height === UI.INHERIT) {
+					return this._getInheritedHeight() === UI.FILL;
+				}
+				return height === UI.FILL;
+			}
+			if (isDef(this.top) + isDef(this.bottom) + !!(this.center && isDef(this.center.y)) > 1) {
+				return false;
+			}
+			if (this._defaultHeight === UI.FILL) {
+				return true;
+			}
+			if (this._defaultHeight === UI.INHERIT) {
+				return this._getInheritedHeight() === UI.FILL;
+			}
+		},
+		
+		_hasBeenLaidOut: false,
+		
+		_isDependentOnParent: function(){
+			function isPercent(value) {
+				return /%$/.test("" + value);
+			}
+			var centerX = this.center && this.center.x,
+				centerY = this.center && this.center.y,
+				width = this._getInheritedWidth(),
+				height = this._getInheritedHeight();
+			return !!(isPercent(width) || isPercent(height) || isPercent(this.top) || isPercent(this.bottom) || 
+				isPercent(this.left) || isPercent(this.right) || isPercent(centerX) || isPercent(centerY) || 
+				this._hasFillWidth() || this._hasFillHeight() ||
+				(!isDef(this.left) && !isDef(centerX) && !isDef(this.right) && this._parent && this._parent._layout._defaultHorizontalAlignment !== "left") ||
+				(!isDef(this.top) && !isDef(centerY) && !isDef(this.bottom) && this._parent && this._parent._layout._defaultVerticalAlignment !== "top"));
 		},
 		
 		startLayout: function() {
@@ -197,7 +319,7 @@ define(
 		
 		finishLayout: function() {
 			this._batchUpdateInProgress = false;
-			UI._triggerLayout(true);
+			UI._triggerLayout(this, true);
 		},
 		
 		updateLayout: function(params) {
@@ -248,49 +370,25 @@ define(
 				});
 				
 			if (params.positionElement) {
+				UI._elementLayoutCount++;
 				
 				// Set and store the dimensions
 				var styles = {
-						zIndex: this.zIndex | 0
-					},
-					rect  = this.rect,
-					size  = this.size;
-				rect.x = this._measuredLeft = dimensions.left;
-				isDef(this._measuredLeft) && (styles.left = unitize(this._measuredLeft));
-				rect.y = this._measuredTop = dimensions.top;
-				isDef(this._measuredTop) && (styles.top = unitize(this._measuredTop));
-				size.width = rect.width = this._measuredWidth = dimensions.width;
-				isDef(this._measuredWidth) && (styles.width = unitize(this._measuredWidth));
-				size.height = rect.height = this._measuredHeight = dimensions.height;
-				isDef(this._measuredHeight) && (styles.height = unitize(this._measuredHeight));
+					zIndex: this.zIndex | 0
+				};
+				styles.left = unitize(this._measuredLeft = dimensions.left);
+				styles.top = unitize(this._measuredTop = dimensions.top);
+				styles.width = unitize(this._measuredWidth = dimensions.width);
+				styles.height = unitize(this._measuredHeight = dimensions.height);
 				this._measuredRightPadding = dimensions.rightPadding;
 				this._measuredBottomPadding = dimensions.bottomPadding;
 				this._measuredBorderSize = dimensions.borderSize;
+				this._measuredEffectiveWidth = dimensions.effectiveWidth;
+				this._measuredEffectiveHeight = dimensions.effectiveHeight;
 				setStyle(this.domNode, styles);
 			
-				try{
-					var computedStyle = window.getComputedStyle(this.domNode);
-					if (styles.left && computedStyle["left"] != styles.left) {
-						throw "Invalid layout";
-					}
-					if (styles.top && computedStyle["top"] != styles.top) {
-						throw "Invalid layout";
-					}
-					if (styles.width && computedStyle["width"] != styles.width) {
-						throw "Invalid layout";
-					}
-					if (styles.height && computedStyle["height"] != styles.height) {
-						throw "Invalid layout";
-					}
-				} catch(e) {}
-				
 				this._markedForLayout = false;
-				
-				// Run the post-layout animation, if needed
-				if (this._doAnimationAfterLayout) {
-					this._doAnimationAfterLayout = false;
-					this._doAnimation();
-				}
+				this._hasBeenLaidOut = true;
 				
 				// Recompute the gradient, if it exists
 				this.backgroundGradient && this._computeGradient();
@@ -304,8 +402,9 @@ define(
 		_computeDimensions: function(params) {
 			
 			var layoutParams = params.layoutParams,
-				boundingWidth = layoutParams.boundingSize.width,
-				boundingHeight = layoutParams.boundingSize.height,
+				boundingSize = layoutParams.boundingSize,
+				boundingWidth = boundingSize.width,
+				boundingHeight = boundingSize.height,
 				position = params.position,
 				size  = params.size,
 				
@@ -316,42 +415,48 @@ define(
 				originalBottom = computeSize(position.bottom, boundingHeight),
 				centerX = position.center && computeSize(position.center.x, boundingWidth, 1),
 				centerY = position.center && computeSize(position.center.y, boundingHeight, 1),
-				width = computeSize(size.width, boundingWidth),
-				height = computeSize(size.height, boundingHeight),
+				width = computeSize(size.width === UI.INHERIT ? this._getInheritedWidth() : size.width, boundingWidth),
+				height = computeSize(size.height === UI.INHERIT ? this._getInheritedHeight() : size.height, boundingHeight),
 
 				// Convert right/bottom coordinates to be with respect to (0,0)
-				right = isDef(originalRight) ? (boundingWidth - originalRight) : undef,
-				bottom = isDef(originalBottom) ? (boundingHeight - originalBottom) : undef;
+				right = layoutParams.rightIsMargin ? void 0 : isDef(originalRight) ? (boundingWidth - originalRight) : void 0,
+				bottom = layoutParams.bottomIsMargin ? void 0 : isDef(originalBottom) ? (boundingHeight - originalBottom) : void 0,
+				
+				// Calculate the "padding"
+				rightPadding = is(originalRight,"Number") ? originalRight : 0,
+				bottomPadding = is(originalBottom,"Number") ? originalBottom : 0,
+				origin = layoutParams.origin;
 			
 			is(width,"Number") && (width = Math.max(width,0));
 			is(height,"Number") && (height = Math.max(height,0));
-				
-			function validate() {
-				try{
-					if(is(left,"Number") && isNaN(left) || 
-						is(top,"Number") && isNaN(top) || 
-						is(width,"Number") && (isNaN(width) || width < 0) || 
-						is(height,"Number") && (isNaN(height) || height < 0)) {
-					 	throw "Invalid layout";
-					}
-				} catch(e) {}
+			
+			// Calculate the border
+			function getValue(value) {
+				var value = parseInt(computedStyle[value]);
+				return isNaN(value) ? 0 : value;
 			}
-			validate();
+					
+			var computedStyle = window.getComputedStyle(this.domNode),
+				borderSize = {
+					left: getValue("border-left-width"),
+					top: getValue("border-top-width"),
+					right: getValue("border-right-width"),
+					bottom: getValue("border-bottom-width")
+				};
 
 			// Unfortunately css precidence doesn't match the titanium, so we have to handle precedence and default setting ourselves
+			var defaultWidth = this._defaultWidth;
 			if (isDef(width)) {
 				if (isDef(left)) {
-					right = undef;
+					right = void 0;
 				} else if (isDef(centerX)){
 					if (width === UI.SIZE) {
 						left = "calculateDefault";
 					} else {
 						left = centerX - width / 2;
-						right = undef;
+						right = void 0;
 					}
-				} else if (isDef(right)) {
-					// Do nothing
-				} else {
+				} else if (!isDef(right)){
 					// Set the default position
 					left = "calculateDefault";
 				}
@@ -359,18 +464,16 @@ define(
 				if (isDef(centerX)) {
 					if (isDef(left)) {
 						width = (centerX - left) * 2;
-						right = undef;
+						right = void 0;
 					} else if (isDef(right)) {
 						width = (right - centerX) * 2;
 					} else {
 						// Set the default width
-						width = computeSize(this._defaultWidth,boundingWidth);
+						width = computeSize(defaultWidth === UI.INHERIT ? this._getInheritedWidth() : defaultWidth, boundingWidth);
 					}
 				} else {
-					if (isDef(left) && isDef(right)) {
-						// Do nothing
-					} else {
-						width = computeSize(this._defaultWidth,boundingWidth);
+					if (!isDef(left) || !isDef(right)) {
+						width = computeSize(defaultWidth === UI.INHERIT ? this._getInheritedWidth() : defaultWidth, boundingWidth);
 						if(!isDef(left) && !isDef(right)) {
 							// Set the default position
 							left = "calculateDefault";
@@ -378,19 +481,18 @@ define(
 					}
 				}
 			}
+			var defaultHeight = this._defaultHeight;
 			if (isDef(height)) {
 				if (isDef(top)) {
-					bottom = undef;
+					bottom = void 0;
 				} else if (isDef(centerY)){
 					if(height === UI.SIZE) {
 						top = "calculateDefault";
 					} else {
 						top = centerY - height / 2;
-						bottom = undef;
+						bottom = void 0;
 					}
-				} else if (isDef(bottom)) {
-					// Do nothing
-				} else {
+				} else if (!isDef(bottom)) {
 					// Set the default position
 					top = "calculateDefault";
 				}
@@ -398,19 +500,17 @@ define(
 				if (isDef(centerY)) {
 					if (isDef(top)) {
 						height = (centerY - top) * 2;
-						bottom = undef;
+						bottom = void 0;
 					} else if (isDef(bottom)) {
 						height = (bottom - centerY) * 2;
 					} else {
 						// Set the default height
-						height = computeSize(this._defaultHeight,boundingHeight);
+						height = computeSize(defaultHeight === UI.INHERIT ? this._getInheritedHeight() : defaultHeight, boundingHeight);
 					}
 				} else {
-					if (isDef(top) && isDef(bottom)) {
-						// Do nothing
-					} else {
+					if (!isDef(top) || !isDef(bottom)) {
 						// Set the default height
-						height = computeSize(this._defaultHeight,boundingHeight);
+						height = computeSize(defaultHeight === UI.INHERIT ? this._getInheritedHeight() : defaultHeight, boundingHeight);
 						if(!isDef(top) && !isDef(bottom)) {
 							// Set the default position
 							top = "calculateDefault";
@@ -418,26 +518,11 @@ define(
 					}
 				}
 			}
-			validate();
-			
-			function getBorderSize() {
 				
-				function getValue(value) {
-					var value = parseInt(computedStyle[value]);
-					return isNaN(value) ? 0 : value;
-				}
-					
-				return {
-					left: getValue("border-left-width") + getValue("padding-left"),
-					top: getValue("border-top-width") + getValue("padding-top"),
-					right: getValue("border-right-width") + getValue("padding-right"),
-					bottom: getValue("border-bottom-width") + getValue("padding-bottom")
-				};
+			function constrainValue(value, minValue, maxValue) {
+				return (isDef(minValue) && minValue > value ? minValue : // Apply the min width 
+					isDef(maxValue) && maxValue < value ? maxValue : value); // Apply the max width
 			}
-			
-			// Calculate the border
-			var computedStyle = window.getComputedStyle(this.domNode),
-				borderSize = getBorderSize();
 
 			// Calculate the width/left properties if width is NOT SIZE
 			var calculateWidthAfterChildren = false,
@@ -448,7 +533,7 @@ define(
 				if (width === UI.FILL) {
 					if (isDef(left)) {
 						left === "calculateDefault" && (left = 0);
-						width = boundingWidth - left;
+						width = boundingWidth - left - rightPadding;
 					} else if (isDef(right)) {
 						width = right;
 					}
@@ -456,10 +541,10 @@ define(
 					if (isDef(left)) {
 						width = right - left;
 					} else {
-						left = right - width;
+						left = right - width - borderSize.left - borderSize.right;
 					}
 				}
-				width -= borderSize.left + borderSize.right;
+				width = constrainValue(width, this._minWidth, this._maxWidth) - borderSize.left - borderSize.right;
 			}
 			if (height === UI.SIZE) {
 				calculateHeightAfterChildren = true;
@@ -467,7 +552,7 @@ define(
 				if (height === UI.FILL) {
 					if (isDef(top)) {
 						top === "calculateDefault" && (top = 0);
-						height = boundingHeight - top;
+						height = boundingHeight - top - bottomPadding;
 					} else if (isDef(bottom)) {
 						height = bottom;
 					}
@@ -475,12 +560,11 @@ define(
 					if (isDef(top)) {
 						height = bottom - top;
 					} else {
-						top = bottom - height;
+						top = bottom - height - borderSize.top - borderSize.bottom;
 					}
 				}
-				height -= borderSize.top + borderSize.bottom;
+				height = constrainValue(height, this._minHeight, this._maxHeight) - borderSize.top - borderSize.bottom;
 			}
-			validate();
 
 			if (this._getContentSize) {
 				var contentSize = this._getContentSize();
@@ -493,77 +577,85 @@ define(
 				} else {
 					computedSize = this._layout._computedSize;
 				}
-				width === UI.SIZE && (width = computedSize.width);
-				height === UI.SIZE && (height = computedSize.height);
+				width === UI.SIZE && (width = constrainValue(computedSize.width, this._minWidth, this._maxWidth));
+				height === UI.SIZE && (height = constrainValue(computedSize.height, this._minHeight, this._maxHeight));
 			}
-			validate();
 			
 			if (calculateWidthAfterChildren) {
 				if (isDef(right) && !isDef(left)) {
-					left = right - width;
+					left = right - width - borderSize.left - borderSize.right;
 				}
 			}
 			if (calculateHeightAfterChildren) {
 				if (isDef(bottom) && !isDef(top)) {
-					top = bottom - height;
+					top = bottom - height - borderSize.top - borderSize.bottom;
 				}
 			}
-			validate();
 
 			// Set the default top/left if need be
 			if (left === "calculateDefault") {
-				if (!layoutParams.isParentSize.width) {
-					switch(layoutParams.alignment.horizontal) {
-						case "center": left = computeSize("50%",boundingWidth) - borderSize.left - (is(width,"Number") ? width : 0) / 2; break;
-						case "right": left = boundingWidth - borderSize.left - borderSize.right - (is(width,"Number") ? width : 0) / 2; break;
-						default: left = 0; // left
-					}
-				} else {
-					left = 0;
+				var normalizedWidth = is(width,"Number") ? width : 0,
+					localBoundingWidth = layoutParams.isParentSize.width ? lang.val(boundingSize.sizeWidth, width + borderSize.left + borderSize.right) : boundingWidth;
+				switch(layoutParams.alignment.horizontal) {
+					case "center": left = computeSize("50%",localBoundingWidth) - borderSize.left - normalizedWidth / 2; break;
+					case "right": left = localBoundingWidth - borderSize.left - borderSize.right - normalizedWidth / 2; break;
+					default: left = 0; // left
 				}
 			}
 			if (top === "calculateDefault") {
-				if (!layoutParams.isParentSize.height) {
-					switch(layoutParams.alignment.vertical) {
-						case "center": top = computeSize("50%",boundingHeight) - borderSize.top - (is(height,"Number") ? height : 0) / 2; break;
-						case "bottom": top = boundingWidth - borderSize.top - borderSize.bottom - (is(height,"Number") ? height : 0) / 2; break;
-						default: top = 0; // top
-					}
-				} else {
-					top = 0;
+				var normalizedHeight = is(height,"Number") ? height : 0,
+					localBoundingHeight = layoutParams.isParentSize.height ? lang.val(boundingSize.sizeHeight, height + borderSize.top + borderSize.bottom) : boundingHeight;
+				switch(layoutParams.alignment.vertical) {
+					case "center": top = computeSize("50%",localBoundingHeight) - borderSize.top - normalizedHeight / 2; break;
+					case "bottom": top = localBoundingHeight - borderSize.top - borderSize.bottom - normalizedHeight / 2; break;
+					default: top = 0; // top
 				}
-			}
-			validate();
-			
-			// Calculate the "padding" and apply the origin
-			var leftPadding = left,
-				topPadding = top,
-				rightPadding = is(originalRight,"Number") ? originalRight : 0,
-				bottomPadding = is(originalBottom,"Number") ? originalBottom : 0,
-				origin = layoutParams.origin;
-			left += origin.x;
-			top += origin.y;
-
-			if(!is(left,"Number") || isNaN(left) || 
-				!is(top,"Number") || isNaN(top) || 
-				!is(rightPadding,"Number") || isNaN(rightPadding) || 
-				!is(bottomPadding,"Number") || isNaN(bottomPadding) || 
-				!is(width,"Number") || isNaN(width) || 
-				!is(height,"Number") || isNaN(height)) {
-			 	try{
-			 		throw "Invalid layout";
-			 	} catch(e) {}
 			}
 			
 			return {
-				left: Math.round(left),
-				top: Math.round(top),
+				effectiveWidth: left + width + rightPadding + borderSize.left + borderSize.right,
+				effectiveHeight: top + height + bottomPadding + borderSize.top + borderSize.bottom,
+				left: Math.round(left + origin.x),
+				top: Math.round(top + origin.y),
 				rightPadding: Math.round(rightPadding),
 				bottomPadding: Math.round(bottomPadding),
 				width: Math.round(Math.max(width,0)),
 				height: Math.round(Math.max(height,0)),
 				borderSize: borderSize
 			};
+		},
+		
+		convertPointToView: function(point, destinationView) {
+			
+			// Make sure that both nodes are connected to the root
+			if (!this._isAttachedToActiveWin() || !destinationView._isAttachedToActiveWin()) {
+				return null;
+			}
+			
+			if (!point || !is(point.x,"Number") || !is(point.y,"Number")) {
+				throw new Error("Invalid point");
+			}
+			
+			if (!destinationView.domNode) {
+				throw new Error("Invalid destination view");
+			}
+			
+			function getAbsolutePosition(node, point, additive) {
+				var x = point.x,
+					y = point.y,
+					multiplier = (additive ? 1 : -1);
+					
+				while(node) {
+					x += multiplier * node.domNode.offsetLeft;
+					y += multiplier * node.domNode.offsetTop;
+					node = node._parent;
+				}
+					
+				return {x: x, y: y};
+			}
+			
+			// Find this node's location relative to the root
+			return getAbsolutePosition(destinationView,getAbsolutePosition(this,point,true),false);
 		},
 
 		// This method returns the offset of the content relative to the parent's location. 
@@ -747,26 +839,26 @@ define(
 			this.enabled && this.fireEvent(type, e);
 		},
 		
-		_defaultBackgroundColor: undef,
+		_defaultBackgroundColor: void 0,
 		
-		_defaultBackgroundImage: undef,
+		_defaultBackgroundImage: void 0,
 		
-		_defaultBackgroundDisabledColor: undef,
+		_defaultBackgroundDisabledColor: void 0,
 		
-		_defaultBackgroundDisabledImage: undef,
+		_defaultBackgroundDisabledImage: void 0,
 		
-		_defaultBackgroundFocusedColor: undef,
+		_defaultBackgroundFocusedColor: void 0,
 		
-		_defaultBackgroundFocusedImage: undef,
+		_defaultBackgroundFocusedImage: void 0,
 		
-		_defaultBackgroundSelectedColor: undef,
+		_defaultBackgroundSelectedColor: void 0,
 		
-		_defaultBackgroundSelectedImage: undef,
+		_defaultBackgroundSelectedImage: void 0,
 
 		_doBackground: function(evt) {
 			var evt = evt || {},
 				m = (evt.type || "").match(/mouse(over|out)/),
-				node = this._focus.node,
+				node = this.domNode,
 				bi = this.backgroundImage || this._defaultBackgroundImage || "none",
 				bc = this.backgroundColor || this._defaultBackgroundColor;
 
@@ -830,58 +922,58 @@ define(
 		},
 
 		animate: function(anim, callback) {
-			this._animationData = anim;
-			this._animationCallback = callback;
-			
 			if (UI._layoutInProgress) {
-				this._doAnimationAfterLayout = true;
+				on.once(UI,"postlayout", lang.hitch(this,function(){
+					this._doAnimation(anim,callback);
+				}));
 			} else {
-				this._doAnimation();
+				this._doAnimation(anim,callback);
 			}
 		},
 		
-		_doAnimation: function() {
-			
-			var anim = this._animationData || {},
-				callback = this._animationCallback;
+		_doAnimation: function(anim, callback) {
+			var anim = anim || {},
 				curve = curves[anim.curve] || "ease",
 				fn = lang.hitch(this, function() {
 					var transformCss = "";
 
 					// Set the color and opacity properties
-					anim.backgroundColor !== undef && (obj.backgroundColor = anim.backgroundColor);
-					anim.opacity !== undef && setStyle(this.domNode, "opacity", anim.opacity);
-					setStyle(this.domNode, "display", anim.visible !== undef && !anim.visible ? "none" : "");
+					anim.backgroundColor !== void 0 && (this.backgroundColor = anim.backgroundColor);
+					anim.opacity !== void 0 && setStyle(this.domNode, "opacity", anim.opacity);
+					setStyle(this.domNode, "display", anim.visible !== void 0 && !anim.visible ? "none" : "");
 					
-					// TODO set border width here
-
 					// Set the position and size properties
-					var dimensions = this._computeDimensions({
-						layoutParams: this._layoutParams,
-						position: {
-							left: val(anim.left, this.left),
-							top: val(anim.top, this.top),
-							right: val(anim.right, this.right),
-							bottom: val(anim.bottom, this.bottom),
-							center: anim.center || this.center
-						},
-						size: {
-							width: val(anim.width, this.width),
-							height: val(anim.height, this.height)
-						},
-						layoutChildren: false
-					});
+					
+					if (!["left", "top", "right", "bottom", "center", "width", "height"].every(function(v) { return !isDef(anim[v]); })) {
+						// TODO set border width here
 
-					setStyle(this.domNode, {
-						left: unitize(dimensions.left),
-						top: unitize(dimensions.top),
-						width: unitize(dimensions.width),
-						height: unitize(dimensions.height),
-						borderLeftWidth: unitize(dimensions.borderSize.left),
-						borderTopWidth: unitize(dimensions.borderSize.top),
-						borderRightWidth: unitize(dimensions.borderSize.right),
-						borderBottomWidth: unitize(dimensions.borderSize.bottom)
-					});
+						var dimensions = this._computeDimensions({
+							layoutParams: this._layoutParams,
+							position: {
+								left: val(anim.left, this.left),
+								top: val(anim.top, this.top),
+								right: val(anim.right, this.right),
+								bottom: val(anim.bottom, this.bottom),
+								center: anim.center || this.center
+							},
+							size: {
+								width: val(anim.width, this.width),
+								height: val(anim.height, this.height)
+							},
+							layoutChildren: false
+						});
+	
+						setStyle(this.domNode, {
+							left: unitize(dimensions.left),
+							top: unitize(dimensions.top),
+							width: unitize(dimensions.width),
+							height: unitize(dimensions.height),
+							borderLeftWidth: unitize(dimensions.borderSize.left),
+							borderTopWidth: unitize(dimensions.borderSize.top),
+							borderRightWidth: unitize(dimensions.borderSize.right),
+							borderBottomWidth: unitize(dimensions.borderSize.bottom)
+						});
+					}
 
 					// Set the z-order
 					!isDef(anim.zIndex) && setStyle(this.domNode, "zIndex", anim.zIndex);
@@ -897,20 +989,29 @@ define(
 
 			anim.duration = anim.duration || 0;
 			anim.delay = anim.delay || 0;
-			anim.transform && setStyle("transform", "");
+			anim.transform && setStyle(this.domNode, "transform", "");
 			anim.start && anim.start();
 
 			if (anim.duration > 0) {
-				// Create the transition, must be set before setting the other properties
-				setStyle(this.domNode, "transition", "all " + anim.duration + "ms " + curve + (anim.delay ? " " + anim.delay + "ms" : ""));
-				on.once(window, transitionEnd, lang.hitch(this, function(e) {
+				
+				function completeAnimation(){
 					if (!this._destroyed) {
 						// Clear the transform so future modifications in these areas are not animated
 						setStyle(this.domNode, "transition", "");
 						is(anim.complete, "Function") && anim.complete();
 						is(callback, "Function") && callback();
 					}
-				}));
+				}
+				
+				// Create the transition, must be set before setting the other properties
+				if (style.supports("transition", this.domNode)) {
+					setStyle(this.domNode, "transition", "all " + anim.duration + "ms " + curve + (anim.delay ? " " + anim.delay + "ms" : ""));
+					on.once(window, transitionEnd, lang.hitch(this, function(e) {
+						completeAnimation();
+					}));
+				} else {
+					setTimeout(completeAnimation,anim.duration);
+				}
 				setTimeout(fn, 0);
 			} else {
 				fn();
@@ -934,10 +1035,39 @@ define(
 		_measuredBottomPadding: 0,
 		_measuredWidth: 0,
 		_measuredHeight: 0,
+		_measuredBorderSize: {
+			value: {
+				left: 0,
+				top: 0,
+				right: 0,
+				bottom: 0
+			}
+		},
 		
 		constants: {
-			size: undef,
-			rect: undef
+			size: {
+				get: function() {
+					return {
+						x: 0,
+						y: 0,
+						width: this._measuredWidth,
+						height: this._measuredHeight
+					};
+				}
+			},
+			rect: {
+				get: function() {
+					return {
+						x: this._measuredTop,
+						y: this._measuredLeft,
+						width: this._measuredWidth,
+						height: this._measuredHeight
+					};
+				}
+			},
+			parent: function() {
+				return this._parent;
+			}
 		},
 
 		properties: {
@@ -1044,10 +1174,14 @@ define(
 			focusable: {
 				value: false,
 				set: function(value) {
-					dom.attr[value ? "add" : "remove"](this._focus.node, "tabindex", 0);
+					dom.attr[value ? "set" : "remove"](this._focus.node, "tabindex", 0);
 					return value;
 				}
 			},
+
+			_minHeight: postLayoutProp,
+
+			_maxHeight: postLayoutProp,
 
 			height: postLayoutProp,
 
@@ -1088,6 +1222,10 @@ define(
 					return this._curTransform = value;
 				}
 			},
+
+			_minWidth: postLayoutProp,
+
+			_maxWidth: postLayoutProp,
 
 			width: postLayoutProp,
 
