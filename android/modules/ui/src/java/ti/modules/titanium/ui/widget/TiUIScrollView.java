@@ -90,11 +90,13 @@ public class TiUIScrollView extends TiUIView
 			int wFromSpec = MeasureSpec.getSize(widthMeasureSpec);
 			int hFromSpec = MeasureSpec.getSize(heightMeasureSpec);
 
-			int measuredHeight = getMeasuredHeight(hFromSpec, 0);
-			int measuredWidth = getMeasuredWidth(wFromSpec, 0);
+			// Use the measured dimensions from a previous measure pass if they are greater than the value we get from
+			// getMeasuredWidth() and getMeasuredHeight(). TIMOB-8891
+			int measuredHeight = Math.max(getMeasuredHeight(hFromSpec, 0), getMeasuredHeight());
+			int measuredWidth = Math.max(getMeasuredWidth(wFromSpec, 0), getMeasuredWidth());
 
-			// If the content dimensions are greater than the parent dimensions, use the content dimensions
-			// instead to ensure the child views get measured correctly
+			// If the measured dimensions are greater than the parent dimensions, use the measured dimensions instead to
+			// ensure the child views get measured correctly
 			if (wFromSpec == parentWidth && measuredWidth > wFromSpec) {
 				widthMeasureSpec = MeasureSpec.makeMeasureSpec(measuredWidth, MeasureSpec.EXACTLY);
 			}
@@ -126,7 +128,7 @@ public class TiUIScrollView extends TiUIView
 				return super.getHeightMeasureSpec(child);
 			}
 		}
-		
+
 		@Override
 		protected int getMeasuredWidth(int maxWidth, int widthSpec)
 		{
