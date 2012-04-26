@@ -344,6 +344,7 @@ class TiAppXML(object):
 				'CFBundleIdentifier', 'CFBundleInfoDictionaryVersion', 'CFBundleName', 'CFBundlePackageType', 'CFBundleSignature',
 				'CFBundleVersion', 'CFBundleShortVersionString', 'LSRequiresIPhoneOS']
 		
+		self.ios['plist'] = {}
 		for child in node.childNodes:
 			if child.nodeName == 'plist':
 				plist_dict = child.getElementsByTagName('dict')[0]
