@@ -113,7 +113,6 @@
 {
 	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAuto(contentHeight) ||
         TiDimensionIsAutoSize(contentWidth) || TiDimensionIsAutoSize(contentHeight) ||
-        TiDimensionIsAutoFill(contentWidth) || TiDimensionIsAutoFill(contentHeight) ||
         TiDimensionIsUndefined(contentWidth) || TiDimensionIsUndefined(contentHeight))
 	{
 		[self setNeedsHandleContentSize];

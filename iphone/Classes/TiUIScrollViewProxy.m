@@ -168,7 +168,7 @@
         
         TiDimension constraint = [child layoutProperties]->width;
         
-        if (TiDimensionIsDip(constraint))
+        if (TiDimensionIsDip(constraint) || TiDimensionIsPercent(constraint))
         {
             //Absolute of total width so leave the sandbox and just increment the boundary
             bounds.size.width =  TiDimensionCalculateValue(constraint, bounds.size.width) + offset;
