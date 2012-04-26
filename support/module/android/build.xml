@@ -13,13 +13,14 @@
 			<pathelement location="${ti.module.support.dir}/android/ant-contrib-1.0b3.jar" />
 		</classpath>
 	</taskdef>
-
+	
 	<property name="src" location="${ti.module.root}/src"/>
 	<property name="build" location="${ti.module.root}/build"/>
 	<property name="gen" location="${build}/generated"/>
 	<property name="genjson" location="${build}/generated/json"/>
 	<property name="genjava" location="${build}/generated/java"/>
 	<property name="genjni" location="${build}/generated/jni"/>
+	<property name="genjni.local" location="${genjni}-local"/>
 	<property name="classes" location="${build}/classes"/>
 	<property name="docs" location="${build}/docs"/>
 	<property name="dist" location="${ti.module.root}/dist"/>
@@ -147,9 +148,10 @@
 	</target>
 
 	<target name="pre.compile">
+		<available file="${ti.module.root}/jni" type="dir" property="jni.local"/>
 	</target>
 
-	<target name="compile" depends="process.annotations,generate.bindings,pre.compile,ndk.build" description="Compile this module's source code">
+	<target name="compile" depends="process.annotations,generate.bindings,pre.compile,ndk.build,ndk.build.local" description="Compile this module's source code">
 		<javac 
 			destdir="${classes}"
 			debug="${javac.debug}"
@@ -187,12 +189,31 @@
 			</condition>
 		</sequential>
 	</macrodef>
-
+	
+	<macrodef name="build.ndk">
+		<attribute name="gendir"/>
+		<sequential>
+			<condition property="ndk.build" 
+				value="${ndk.path}/ndk-build.cmd" 
+				else="${ndk.path}/ndk-build">
+				<os family="windows"/>
+			</condition>
+			
+			<property name="mobilesdk.dir" location="${titanium.platform}/.."/>
+			<property name="ndk.verbose" value="0"/>
+	
+			<exec executable="${ndk.build}" dir="@{gendir}" failonerror="true">
+				<arg value="TI_MOBILE_SDK=${mobilesdk.dir}"/>
+				<arg value="NDK_PROJECT_PATH=@{gendir}"/>
+				<arg value="NDK_APPLICATION_MK=@{gendir}/Application.mk"/>
+				<arg value="PYTHON=${python.exec}"/>
+				<arg value="V=${ndk.verbose}"/>
+			</exec>
+		</sequential>
+	</macrodef>
+	
 	<target name="ndk.build">
 		<check.ndk/>
-		<condition property="ndk.build" value="${ndk.path}/ndk-build.cmd" else="${ndk.path}/ndk-build">
-			<os family="windows"/>
-		</condition>
 
 		<mkdir dir="${genjni}"/>
 		<property name="module.generated.dir"
@@ -221,22 +242,31 @@
 			file="${module.generated.dir}/Android.mk">
 			<filterset refid="ndk.filter"/>
 		</copy>
-
-		<property name="mobilesdk.dir" location="${titanium.platform}/.."/>
-		<property name="ndk.verbose" value="0"/>
-
-		<exec executable="${ndk.build}" dir="${gen}" failonerror="true">
-			<arg value="TI_MOBILE_SDK=${mobilesdk.dir}"/>
-			<arg value="NDK_PROJECT_PATH=${gen}"/>
-			<arg value="NDK_APPLICATION_MK=${gen}/Application.mk"/>
-			<arg value="PYTHON=${python.exec}"/>
-			<arg value="V=${ndk.verbose}"/>
-		</exec>
+		
+		<build.ndk gendir="${gen}"/>
 
 		<copy todir="${libs}">
 			<fileset dir="${gen}/libs">
 				<include name="**/*"/>
 				<exclude name="**/libstlport_shared.so"/>
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="ndk.build.local" if="${jni.local}">
+		<check.ndk/>
+		<mkdir dir="${genjni.local}"/>
+		<copy todir="${genjni.local}">
+			<fileset dir="${ti.module.root}/jni">
+				<include name="**"/>
+			</fileset>
+		</copy>
+		
+		<build.ndk gendir="${genjni.local}"/>
+
+		<copy todir="${libs}">
+			<fileset dir="${genjni.local}/libs">
+				<include name="**/*.so"/>
 			</fileset>
 		</copy>
 	</target>
