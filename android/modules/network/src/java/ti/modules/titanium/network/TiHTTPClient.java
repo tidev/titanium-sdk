@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.http.Header;
@@ -553,7 +555,15 @@ public class TiHTTPClient
 	{
 		if (responseData != null && responseText == null) {
 			if (charset == null) {
-				charset = HTTP.UTF_8;
+				//find charset from meta tag
+				String text = responseData.toString();
+				Pattern pattern = Pattern.compile("<meta[^>]*charset=\"*([\\p{Alnum}-.:_]+)\"*");
+				Matcher matcher = pattern.matcher(text);
+				if(matcher.find()){
+					charset = matcher.group(1);
+				}else{
+					charset = HTTP.UTF_8;
+				}
 			}
 
 			try {
