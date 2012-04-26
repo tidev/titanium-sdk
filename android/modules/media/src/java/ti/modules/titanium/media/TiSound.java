@@ -534,9 +534,7 @@ public class TiSound
 	public void processProperties(KrollDict d)
 	{
 		if (d.containsKey(SoundProxy.PROPERTY_VOLUME)) {
-			setVolume(TiConvert.toFloat(d, SoundProxy.PROPERTY_VOLUME));
-		} else {
-			setVolume(0.5f);
+			setVolume(TiConvert.toFloat(d, SoundProxy.PROPERTY_VOLUME, 0.5f));
 		}
 	}
 
@@ -544,7 +542,7 @@ public class TiSound
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (SoundProxy.PROPERTY_VOLUME.equals(key)) {
-			setVolume(TiConvert.toFloat(newValue));
+			setVolume(TiConvert.toFloat(newValue, .5f));
 		} else if (TiC.PROPERTY_TIME.equals(key)) {
 			setTime(TiConvert.toInt(newValue));
 		}
