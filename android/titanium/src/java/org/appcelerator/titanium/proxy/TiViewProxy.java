@@ -128,7 +128,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			if (idPropertyName.equals(thisIdPropertyName)) {
 				try {
 					String localText = getLocalizedText(idPropertyValue);
-					setPropertyAndFire(propertyName, localText);
+					//If key exists, overwrite the text.
+					if (localText != null) {
+						setPropertyAndFire(propertyName, localText);
+					}
 				} catch (ResourceNotFoundException e) {
 					Log.w(LCAT, "Localized text key '" + idPropertyValue + "' is invalid.");
 				}

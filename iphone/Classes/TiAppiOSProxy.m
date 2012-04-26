@@ -50,7 +50,7 @@
 	NSString* urlString = [[TiUtils toURL:[a objectForKey:@"url"] proxy:self]absoluteString];
 	
 	if ([urlString length] == 0) {
-		return;
+		return nil;
 	}
 	
 	if (backgroundServices == nil) {
