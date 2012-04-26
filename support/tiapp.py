@@ -340,7 +340,7 @@ class TiAppXML(object):
 		            rc.append(node.data)
 		    return ''.join(rc)
 		
-		ignore_keys = ['CFBundleDevelopmentRegion', 'CFBundleDisplayName', 'CFBundleExecutable', 'CFBundleIconFile',
+		ignore_keys = ['CFBundleDisplayName', 'CFBundleExecutable', 'CFBundleIconFile',
 				'CFBundleIdentifier', 'CFBundleInfoDictionaryVersion', 'CFBundleName', 'CFBundlePackageType', 'CFBundleSignature',
 				'CFBundleVersion', 'CFBundleShortVersionString', 'LSRequiresIPhoneOS']
 		
@@ -362,6 +362,8 @@ class TiAppXML(object):
 							for ee in e.getElementsByTagName('dict'):
 								types_string = types_string + ee.toxml('utf-8')
 							plist['+'+keyName] = types_string
+						elif keyName == 'CFBundleDevelopmentRegion':
+							plist['+'+keyName] = e.toxml('utf-8');
 						else:
 							plist[keyName] = e.toxml('utf-8')
 						keyName = ''
@@ -480,7 +482,16 @@ class TiAppXML(object):
 				st = plist[0:i+8]
 				fn = plist[i+8:]
 				plist = st + plist_props['+CFBundleURLTypes'] + fn
-			
+		
+		# replace the development region from plist section
+		if '+CFBundleDevelopmentRegion' in plist_props:
+			i = plist.index('CFBundleDevelopmentRegion')
+			if i:
+				i = plist.index('<string>',i+1)
+				e = plist.index('</string>',i+1)
+				st = plist[0:i]
+				fn = plist[e+9:]
+				plist = st + plist_props['+CFBundleDevelopmentRegion'] + fn
 
 		#Creating proper CFBundleIconFiles rather than hard coding the values in there
 		propertyName = 'CFBundleIconFiles'
