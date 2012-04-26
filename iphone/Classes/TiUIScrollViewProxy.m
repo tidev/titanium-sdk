@@ -72,7 +72,20 @@
 
 -(CGFloat)autoHeightForSize:(CGSize)size
 {
-    if(TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle))
+    BOOL flexibleContentWidth = YES;
+    if ([self viewAttached]) {
+        TiDimension contentWidth = [(TiUIScrollView*)[self view] contentWidth];
+        flexibleContentWidth = !TiDimensionIsDip(contentWidth);
+        
+        // If the content width is NOT flexible, then the size needs to be adjusted
+        if (!flexibleContentWidth) {
+            // Note that if the contentWidth is smaller than the view bounds, it is enforced to
+            // be the view width. See -[TiUIScrollView handleContentSize:].
+            size.width = MAX(TiDimensionCalculateValue(contentWidth, size.width), size.width);
+        }
+    }
+    
+    if(TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle) && flexibleContentWidth)
     {
         //Horizontal Layout in scrollview is not a traditional horizontal layout. So need an override
 
@@ -118,15 +131,30 @@
 
 -(CGRect)computeChildSandbox:(TiViewProxy*)child withBounds:(CGRect)bounds
 {
+    BOOL flexibleContentWidth = YES;
     if ([self viewAttached]) {
         //ScrollView calls this with wrapper view bounds. Make sure it is set to the right bound
         bounds = [[self view] bounds];
+        
+        TiDimension contentWidth = [(TiUIScrollView*)[self view] contentWidth];
+        flexibleContentWidth = !TiDimensionIsDip(contentWidth);
+        
+        // If the content width is NOT flexible, then the bounds need to be adjusted so that they fit the
+        // actual content width, rather than the wrapper view bounds.
+        if (!flexibleContentWidth) {
+            // Note that if the contentWidth is smaller than the view bounds, it is enforced to
+            // be the view width. See -[TiUIScrollView handleContentSize:].
+            bounds.size.width = MAX(TiDimensionCalculateValue(contentWidth, bounds.size.width), bounds.size.width);
+        }
     }
-    if(TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle))
+    
+    // We only do this if the content width is "flexible" (horizontal will stretch forever.)
+    if(TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle) && flexibleContentWidth)
     {
         //Horizontal Layout in scrollview is not a traditional horizontal layout. So need an override
         BOOL followsFillBehavior = TiDimensionIsAutoFill([child defaultAutoWidthBehavior:nil]);
         bounds.origin.x = horizontalLayoutBoundary;
+        bounds.origin.y = verticalLayoutBoundary;
         CGFloat boundingValue = bounds.size.width-horizontalLayoutBoundary;
         if (boundingValue < 0) {
             boundingValue = 0;
@@ -142,7 +170,7 @@
         
         if (TiDimensionIsDip(constraint) || TiDimensionIsPercent(constraint))
         {
-            //Percent or absolute of total width so leave the sandbox and just increment the boundary
+            //Absolute of total width so leave the sandbox and just increment the boundary
             bounds.size.width =  TiDimensionCalculateValue(constraint, bounds.size.width) + offset;
             horizontalLayoutBoundary += bounds.size.width;
         }
