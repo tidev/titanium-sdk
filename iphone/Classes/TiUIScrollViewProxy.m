@@ -75,7 +75,7 @@
     BOOL flexibleContentWidth = YES;
     if ([self viewAttached]) {
         TiDimension contentWidth = [(TiUIScrollView*)[self view] contentWidth];
-        flexibleContentWidth = !(TiDimensionIsDip(contentWidth) || TiDimensionIsPercent(contentWidth));
+        flexibleContentWidth = !TiDimensionIsDip(contentWidth);
         
         // If the content width is NOT flexible, then the size needs to be adjusted
         if (!flexibleContentWidth) {
@@ -137,7 +137,7 @@
         bounds = [[self view] bounds];
         
         TiDimension contentWidth = [(TiUIScrollView*)[self view] contentWidth];
-        flexibleContentWidth = !(TiDimensionIsDip(contentWidth) || TiDimensionIsPercent(contentWidth));
+        flexibleContentWidth = !TiDimensionIsDip(contentWidth);
         
         // If the content width is NOT flexible, then the bounds need to be adjusted so that they fit the
         // actual content width, rather than the wrapper view bounds.
@@ -168,9 +168,9 @@
         
         TiDimension constraint = [child layoutProperties]->width;
         
-        if (TiDimensionIsDip(constraint) || TiDimensionIsPercent(constraint))
+        if (TiDimensionIsDip(constraint))
         {
-            //Percent or absolute of total width so leave the sandbox and just increment the boundary
+            //Absolute of total width so leave the sandbox and just increment the boundary
             bounds.size.width =  TiDimensionCalculateValue(constraint, bounds.size.width) + offset;
             horizontalLayoutBoundary += bounds.size.width;
         }
