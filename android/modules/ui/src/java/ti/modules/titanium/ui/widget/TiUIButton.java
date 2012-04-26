@@ -40,7 +40,7 @@ public class TiUIButton extends TiUIView
 			Log.d(LCAT, "Creating a button");
 		}
 		Button btn = new Button(proxy.getActivity());
-		btn.setPadding(8, 0, 8, 0);
+		btn.setPadding(8, 2, 8, 8);
 		btn.setGravity(Gravity.CENTER);
 		setNativeView(btn);
 	}
