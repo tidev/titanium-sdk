@@ -194,7 +194,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	{
 		for (KrollCallback *callback in [NSArray arrayWithArray:singleHeading])
 		{
-			KrollContext *ctx = (id<TiEvaluator>)[callback context];
+			KrollContext *ctx = (KrollContext*)[callback context];
 			if ([bridge krollContext] == ctx)
 			{
 				[singleHeading removeObject:callback];
@@ -210,7 +210,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	{
 		for (KrollCallback *callback in [NSArray arrayWithArray:singleLocation])
 		{
-			KrollContext *ctx = (id<TiEvaluator>)[callback context];
+			KrollContext *ctx = (KrollContext*)[callback context];
 			if ([bridge krollContext] == ctx)
 			{
 				[singleLocation removeObject:callback];
