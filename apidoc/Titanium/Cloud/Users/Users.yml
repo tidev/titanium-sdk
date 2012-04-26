@@ -4,26 +4,6 @@ extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 
 methods:
-  - name: hasStoredSession
-    summary: Checks if there is a stored user session.
-    description: |
-        True is returned after successfully calling <Titanium.Cloud.Users.create> or
-        <Titanium.Cloud.Users.login>, and false after successfully calling
-        <Titanium.Cloud.Users.logout>.
-    returns:
-        type: Boolean
-  - name: retrieveStoredSession
-    summary: Returns the stored user session identifier.
-    description: |
-        A value is returned after successfully calling <Titanium.Cloud.Users.create> or
-        <Titanium.Cloud.Users.login>, and null after successfully calling
-        <Titanium.Cloud.Users.logout>.
-        
-        All calls made using the Cloud module automatically use this value and, thus, it only needs
-        to be used when manually making calls to the ACS servers using
-        <Titanium.Network.HTTPClient>.
-    returns:
-        type: String
   - name: create
     summary: Create a new user.
     description: |
