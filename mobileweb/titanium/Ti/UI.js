@@ -148,7 +148,7 @@ define(
 			
 				self._elementLayoutCount = 0;
 				self._layoutCount++;
-				var layoutInstrumentationTest = require.has("instrumentation") && instrumentation.startTest("Layout " + self._layoutCount),
+				var layoutInstrumentationTest = require.has("instrumentation") && instrumentation.startTest("Layout " + self._layoutCount, "Layout"),
 					nodes = self._nodesToLayout,
 					layoutNode,
 					node,

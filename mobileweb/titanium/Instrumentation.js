@@ -6,11 +6,12 @@ var instrumentation = {
 	
 	startTime: (new Date()).getTime(),
 	
-	startTest: function(name) {
+	startTest: function(name, category) {
 		var newTestID = this.currentTestID++,
 			newTest = { 
 				testID: newTestID,
-				name: name
+				name: name,
+				category: category
 			};
 		this.tests[newTestID] = newTest;
 		newTest.startTime = new Date();
@@ -27,7 +28,6 @@ var instrumentation = {
 			test.timeSinceLaunch = stopTime - this.startTime;
 			test.duration = test.stopTime.getTime() - test.startTime.getTime();
 			this.logTest(testID);
-			return test.duration;
 		}
 	},
 	
@@ -36,7 +36,8 @@ var instrumentation = {
 			var test = this.tests[testID];
 			console.debug("[INSTRUMENTATION] Test " + (test.name ? "'" + test.name + "'" : i) + " completed\n" +
 				"\tDuration: " + test.duration + " ms\n" +
-				"\tTime since app launched: " + test.timeSinceLaunch + " ms" + 
+				"\tTime since app launched: " + test.timeSinceLaunch + " ms" +
+				(test.category ? "\n\tCategory: " + test.category : "") + 
 				(test.customInformation ? "\n\tMore Info: " + (typeof test.customInformation === "object" ? JSON.stringify(test.customInformation) : test.customInformation) : ""));
 		}
 	},

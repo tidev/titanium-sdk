@@ -79,8 +79,8 @@ define(
 			function processTouchEvent(eventType, evt) {
 				var i,
 					gestureRecognizers = touchRecognizers[eventType],
-					eventType = "Touch" + eventType + "Event",
 					touches = evt.changedTouches;
+				eventType = "Touch" + eventType + "Event";
 				if (this._preventDefaultTouchEvent) {
 					this._preventDefaultTouchEvent && evt.preventDefault && evt.preventDefault();
 					for (i in touches) {
