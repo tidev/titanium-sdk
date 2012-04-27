@@ -1,1 +1,1 @@
-External module support.
+External module build support.

@@ -146,6 +146,10 @@ def zip_android(zf, basepath):
 	zf.write(js2c_py, '%s/module/android/js2c.py' % basepath)
 	zf.write(jsmin_py, '%s/module/android/jsmin.py' % basepath)
 
+	# add module bootstrap and build.xml
+	zf.write(os.path.join(top_dir, 'module', 'android', 'bootstrap.py'), '%s/module/android/bootstrap.py' % basepath)
+	zf.write(os.path.join(top_dir, 'module', 'android', 'build.xml'), '%s/module/android/build.xml' % basepath)
+
 	js_jar = os.path.join(android_runtime_rhino_dir, 'lib', 'js.jar')
 	zf.write(js_jar, '%s/android/%s' % (basepath, 'js.jar'))
 
@@ -331,7 +335,7 @@ githash=%s
 		jsca = generate_jsca()
 		zf.writestr('%s/api.jsca' % basepath, jsca)
 	
-	zip_packaged_modules(zf, os.path.join(template_dir, "module", "packaged"))
+	zip_packaged_modules(zf, os.path.join(top_dir, "module", "packaged"))
 	zip_dir(zf,all_dir,basepath)
 	zip_dir(zf,template_dir,basepath)
 	if android: zip_android(zf,basepath)
