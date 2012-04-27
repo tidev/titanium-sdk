@@ -73,5 +73,7 @@ properties:
     type: Number
     default: Titanium.UI.iOS.BLEND_MODE_SOURCE_IN
   - name: tint
-    summary: Color to combine with the image.
+    summary: Color to combine with the image, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String

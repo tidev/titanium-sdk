@@ -10,6 +10,7 @@ this_dir = os.path.dirname(os.path.abspath(__file__))
 common_dir = os.path.join(os.path.dirname(this_dir), "common")
 sys.path.append(common_dir)
 import mako.template
+from mako import runtime
 import simplejson
 from csspacker import CSSPacker
 
@@ -34,6 +35,10 @@ def compare_versions(version1, version2):
 		v = '.'.join(v.split('.')[:3])
 		return [int(x) for x in re.sub(r'(\.0+)*$','', v).split(".")]
 	return cmp(normalize(version1), normalize(version2))
+
+class AppcTemplate(mako.template.Template):
+	def render(self, *args, **data):
+		return runtime._render(self, self.callable_, args, data, as_unicode=True)
 
 class Compiler(object):
 
@@ -269,7 +274,7 @@ class Compiler(object):
 						os.makedirs(locale_path)
 					except:
 						pass
-					i18n_file = codecs.open(os.path.join(locale_path, 'i18n.js'), 'w', encoding='utf-8')
+					i18n_file = codecs.open(os.path.join(locale_path, 'i18n.js'), 'w', 'utf-8')
 					i18n_file.write('define(%s);' % simplejson.dumps(strings))
 					i18n_file.close()
 					if dir in tiapp_xml['precache']['locales']:
@@ -277,11 +282,11 @@ class Compiler(object):
 		
 		# build the titanium.js
 		print '[INFO] Assembling titanium.js...'
-		ti_js = codecs.open(self.ti_js_file, 'w', encoding='utf-8')
+		ti_js = codecs.open(self.ti_js_file, 'w', 'utf-8')
 		ti_js.write(HEADER + '\n')
 		
 		# 1) read in the config.js and fill in the template
-		ti_js.write(mako.template.Template(codecs.open(os.path.join(self.sdk_src_path, 'config.js'), 'r', 'utf-8').read()).render(
+		ti_js.write(AppcTemplate(codecs.open(os.path.join(self.sdk_src_path, 'config.js'), 'r', 'utf-8').read(), input_encoding='utf-8', output_encoding='utf-8').render(
 			app_analytics         = tiapp_xml['analytics'],
 			app_copyright         = tiapp_xml['copyright'],
 			app_description       = tiapp_xml['description'],
@@ -472,7 +477,7 @@ class Compiler(object):
 			ti_css = CSSPacker(ti_css).pack()
 		
 		# write the titanium.css
-		ti_css_file = codecs.open(os.path.join(self.build_path, 'titanium.css'), 'w', encoding='utf-8')
+		ti_css_file = codecs.open(os.path.join(self.build_path, 'titanium.css'), 'w', 'utf-8')
 		ti_css_file.write(ti_css)
 		ti_css_file.close()
 		
@@ -500,13 +505,13 @@ class Compiler(object):
 		# create the filesystem registry
 		print '[INFO] Building filesystem registry...'
 		filesystem_registry = 'ts\t' + str(int(os.path.getctime(self.build_path)) * 1000) + '\n' + self.walk_fs(self.build_path, 0)
-		filesystem_registry_file = codecs.open(os.path.join(self.build_path, 'titanium', 'filesystem.registry'), 'w', encoding='utf-8')
+		filesystem_registry_file = codecs.open(os.path.join(self.build_path, 'titanium', 'filesystem.registry'), 'w', 'utf-8')
 		filesystem_registry_file.write(filesystem_registry)
 		filesystem_registry_file.close()
 		
 		# if we're preloading the filesystem registry, write it to the require cache
 		if tiapp_xml['mobileweb']['filesystem']['registry'] == 'preload':
-			ti_js = codecs.open(self.ti_js_file, 'a', encoding='utf-8')
+			ti_js = codecs.open(self.ti_js_file, 'a', 'utf-8')
 			ti_js.write('require.cache({"url:/titanium/filesystem.registry":"' + filesystem_registry.strip().replace('\n', '|') + '"});')
 			ti_js.close()
 		
@@ -522,8 +527,8 @@ class Compiler(object):
 				status_bar_style = 'default'
 		
 		# populate index.html
-		index_html_file = codecs.open(os.path.join(self.build_path, 'index.html'), 'w', encoding='utf-8')
-		index_html_file.write(mako.template.Template(codecs.open(os.path.join(self.sdk_src_path, 'index.html'), 'r', 'utf-8').read().strip()).render(
+		index_html_file = codecs.open(os.path.join(self.build_path, 'index.html'), 'w', 'utf-8')
+		index_html_file.write(AppcTemplate(codecs.open(os.path.join(self.sdk_src_path, 'index.html'), 'r', 'utf-8').read().strip(), input_encoding='utf-8', output_encoding='utf-8').render(
 			ti_header          = HTML_HEADER,
 			project_name       = tiapp_xml['name'] or '',
 			app_description    = tiapp_xml['description'] or '',
@@ -549,7 +554,7 @@ class Compiler(object):
 			return None
 		
 		strings = {}
-		dom = parseString(codecs.open(xml_file,'r','utf-8','replace').read().encode('utf-8'))
+		dom = parseString(codecs.open(xml_file, 'r', 'utf-8', 'replace').read().encode('utf-8'))
 		root = dom.documentElement
 		
 		for node in root.childNodes:

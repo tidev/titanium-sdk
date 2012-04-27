@@ -7,6 +7,7 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/dom", "Ti/_/css", "Ti/_/style",
 			this._field = this._fieldWrapper = dom.create("textarea", {
 				autocomplete: "off",
 				style: {
+					backgroundColor: "transparent",
 					position: "absolute",
 					left: 0,
 					right: 0,

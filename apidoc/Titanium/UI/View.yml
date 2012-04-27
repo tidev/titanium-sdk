@@ -578,11 +578,15 @@ properties:
     permission: read-only
     
   - name: backgroundColor
-    summary: Background color of the view.
+    summary: Background color of the view, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     
   - name: backgroundDisabledColor
-    summary: Disabled background color of the view.
+    summary: Disabled background color of the view, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     platforms: [android]
     type: String
     
@@ -592,8 +596,11 @@ properties:
     type: String
     
   - name: backgroundFocusedColor
-    summary: Focused background color of the view.
-    description: For normal views, the focused color is only used if `focusable` is `true`.
+    summary: Focused background color of the view, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        
+        For normal views, the focused color is only used if `focusable` is `true`.
     platforms: [android]
     type: String
     
@@ -710,8 +717,11 @@ properties:
     platforms: [iphone, ipad]
     
   - name: backgroundSelectedColor
-    summary: Selected background color of the view.
-    description: focusable must be true for normal views.
+    summary: Selected background color of the view, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        
+        `focusable` must be true for normal views.
     platforms: [android, mobileweb]
     type: String
     
@@ -736,7 +746,9 @@ properties:
     platforms: [iphone, ipad]
     
   - name: borderColor
-    summary: Border color of the view.
+    summary: Border color of the view, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     
   - name: borderRadius
@@ -987,7 +999,10 @@ properties:
     summary: For a radial gradient, the radius at the `endPoint`.
     type: Number
   - name: colors
-    summary: An array of colors.
+    summary: |
+        An array of colors, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: [ Array<String>, Array<GradientColorRef> ]
   - name: backfillStart
     summary: Set to `true` to continue filling with the starting color beyond the `startPoint`.
@@ -1003,7 +1018,10 @@ name: GradientColorRef
 summary: A simple object consisting of a color and an offset.
 properties:
   - name: color
-    summary: Color value at this point in the gradient.
+    summary: |
+        Color value at this point in the gradient, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
   - name: offset
     summary: Offset of this color in the gradient, from 0 (start) to 1 (end).

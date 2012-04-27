@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.view;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.TreeSet;
 
@@ -17,6 +18,9 @@ import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +65,9 @@ public class TiCompositeLayout extends ViewGroup
 	private int horizontalLayoutCurrentLeft = 0;
 	private int horizontalLayoutLineHeight = 0;
 	private boolean disableHorizontalWrap = false;
+
+	private float alpha = 1.0f;
+	private Method setAlphaMethod;
 
 	private WeakReference<TiViewProxy> proxy;
 	private static final int HAS_SIZE_FILL_CONFLICT = 1;
@@ -208,20 +215,25 @@ public class TiCompositeLayout extends ViewGroup
 		return params;
 	}
 
+	private static int getAsPercentageValue(double percentage, int value)
+	{
+		return (int) Math.round((percentage / 100.0) * value);
+	}
+
 	protected int getViewWidthPadding(View child, int parentWidth)
 	{
 		LayoutParams p = (LayoutParams) child.getLayoutParams();
 		int padding = 0;
 		if (p.optionLeft != null) {
 			if (p.optionLeft.isUnitPercent()) {
-				padding += (int) ((p.optionLeft.getValue() / 100.0) * parentWidth);
+				padding += getAsPercentageValue(p.optionLeft.getValue(), parentWidth);
 			} else {
 				padding += p.optionLeft.getAsPixels(this);
 			}
 		}
 		if (p.optionRight != null) {
 			if (p.optionRight.isUnitPercent()) {
-				padding += (int) ((p.optionRight.getValue() / 100.0) * parentWidth);
+				padding += getAsPercentageValue(p.optionRight.getValue(), parentWidth);
 			} else {
 				padding += p.optionRight.getAsPixels(this);
 			}
@@ -235,14 +247,14 @@ public class TiCompositeLayout extends ViewGroup
 		int padding = 0;
 		if (p.optionTop != null) {
 			if (p.optionTop.isUnitPercent()) {
-				padding += (int) ((p.optionTop.getValue() / 100.0) * parentHeight);
+				padding += getAsPercentageValue(p.optionTop.getValue(), parentHeight);
 			} else {
 				padding += p.optionTop.getAsPixels(this);
 			}
 		}
 		if (p.optionBottom != null) {
 			if (p.optionBottom.isUnitPercent()) {
-				padding += (int) ((p.optionBottom.getValue() / 100.0) * parentHeight);
+				padding += getAsPercentageValue(p.optionBottom.getValue(), parentHeight);
 			} else {
 				padding += p.optionBottom.getAsPixels(this);
 			}
@@ -321,7 +333,7 @@ public class TiCompositeLayout extends ViewGroup
 		int childDimension = LayoutParams.WRAP_CONTENT;
 		if (p.optionWidth != null) {
 			if (p.optionWidth.isUnitPercent() && width > 0) {
-				childDimension = (int) ((p.optionWidth.getValue() / 100.0) * width);
+				childDimension = getAsPercentageValue(p.optionWidth.getValue(), width);
 			} else {
 				childDimension = p.optionWidth.getAsPixels(this);
 			}
@@ -345,7 +357,7 @@ public class TiCompositeLayout extends ViewGroup
 		childDimension = LayoutParams.WRAP_CONTENT;
 		if (p.optionHeight != null) {
 			if (p.optionHeight.isUnitPercent() && height > 0) {
-				childDimension = (int) ((p.optionHeight.getValue() / 100.0) * height);
+				childDimension = getAsPercentageValue(p.optionHeight.getValue(), height);
 			} else {
 				childDimension = p.optionHeight.getAsPixels(this);
 			}
@@ -573,6 +585,79 @@ public class TiCompositeLayout extends ViewGroup
 			int offset = (dist - measuredSize) / 2;
 			pos[0] = layoutPosition0 + offset;
 			pos[1] = pos[0] + measuredSize;
+		}
+	}
+
+	/*
+	 * Set the opacity of the view using View.setAlpha if available.
+	 *
+	 * @param alpha the opacity of the view
+	 * @return true if opacity was set, otherwise false if View.setAlpha failed or was not available.
+	 */
+	private boolean nativeSetAlpha(float alpha)
+	{
+		if (Build.VERSION.SDK_INT < 11) {
+			// Only available in API level 11 or higher.
+			return false;
+		}
+
+		if (setAlphaMethod == null) {
+			try {
+				setAlphaMethod = getClass().getMethod("setAlpha", float.class);
+			} catch (NoSuchMethodException e) {
+				Log.w(TAG, "Unable to find setAlpha() method.", e);
+				return false;
+			}
+		}
+
+		try {
+			setAlphaMethod.invoke(this, alpha);
+		} catch (Exception e) {
+			Log.e(TAG, "Failed to call setAlpha().", e);
+			return false;
+		}
+
+		return true;
+	}
+
+	/*
+	 * Set the alpha of the view. Provides backwards compatibility
+	 * with older versions of Android which don't support View.setAlpha().
+	 *
+	 * @param alpha the opacity of the view
+	 */
+	public void setAlphaCompat(float alpha)
+	{
+		// Try using the native setAlpha() method first.
+		if (nativeSetAlpha(alpha)) {
+			return;
+		}
+
+		// If setAlpha() is not supported on this platform,
+		// use the backwards compatibility workaround.
+		// See dispatchDraw() for details.
+		this.alpha = alpha;
+	}
+
+	@Override
+	protected void dispatchDraw(Canvas canvas)
+	{
+		// To support alpha in older versions of Android (API level less than 11),
+		// create a new layer to draw the children. Specify the alpha value to use
+		// later when we transfer this layer back onto the canvas.
+		if (alpha < 1.0f) {
+			Rect bounds = new Rect();
+			getDrawingRect(bounds);
+			canvas.saveLayerAlpha(new RectF(bounds), Math.round(alpha * 255), Canvas.ALL_SAVE_FLAG);
+		}
+
+		super.dispatchDraw(canvas);
+
+		if (alpha < 1.0f) {
+			// Restore the canvas once the children have been drawn to the layer.
+			// This will draw the layer's offscreen bitmap onto the canvas using
+			// the alpha value we specified earlier.
+			canvas.restore();
 		}
 	}
 

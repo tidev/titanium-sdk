@@ -856,6 +856,38 @@ describe("Ti.UI Layout tests", {
 		win.add(scrollView);
 		win.open();
 	}),
+	//TIMOB-8891
+	scrollViewWithLargeVerticalLayoutChild: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+		var scrollView = Ti.UI.createScrollView({
+		    contentHeight:'auto',
+		    backgroundColor: 'green'
+		});
+		win.add(scrollView);
+
+		var innerView = Ti.UI.createView({
+		    height:Ti.UI.SIZE, // works if set to 1000
+		    layout:'vertical',
+		    left:0,
+		    top:0,
+		    right:0
+		});
+		scrollView.add(innerView);
+		var colors = ['red', 'blue', 'pink', 'white', 'black'];
+		var max = 10;
+		for(var i = 0; i < max; i++){
+		    innerView.add(Ti.UI.createView({
+		        backgroundColor: colors[i%colors.length],
+		        height: 100,
+		        top: 20
+		    }));
+		}
+		win.addEventListener("open", this.async(function(e) {
+			valueOf(innerView.size.height).shouldBe(1200);
+			valueOf(innerView.size.width).shouldBe(scrollView.size.width);
+		}));
+		win.open();
+	}),
 	// Functional Test #1087-#1097
 	convertUnits: function() {
 		// android

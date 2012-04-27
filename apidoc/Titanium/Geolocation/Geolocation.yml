@@ -212,19 +212,18 @@ events:
       - name: code
         summary: if `success` is false, the error code if available.
         type: Number
-        platforms: [iphone, ipad, mobileweb]
-
+        
       - name: success
         summary: Indicates if location data was successfully retrieved.
         type: Boolean
 
       - name: provider
         platforms: [android]
-        summary: Object describing the location provider generating this update.
+        summary: If `success` is true, object describing the location provider generating this update.
         type: LocationProviderDict
 
       - name: coords
-        summary: Location data for this update.
+        summary: If `success` is true, actual location data for this update.
         type: LocationCoordinates
 
       - name: error
@@ -574,7 +573,6 @@ properties:
   - name: code
     summary: if `success` is false, the error code if available.
     type: Number
-    platforms: [iphone, ipad, mobileweb]
 
   - name: success
     summary: Indicates if location data was successfully retrieved.
@@ -582,11 +580,11 @@ properties:
 
   - name: provider
     platforms: [android]
-    summary: Object describing the location provider generating this update.
+    summary: If `success` is true, object describing the location provider generating this update.
     type: LocationProviderDict
 
   - name: coords
-    summary: Location data for this update.
+    summary: If `success` is true, actual location data for this update.
     type: LocationCoordinates
 
   - name: error
