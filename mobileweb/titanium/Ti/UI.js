@@ -16,8 +16,7 @@ define(
 			Ti.UI._recalculateLayout();
 			hidingAddressBar = 0;
 		},
-		unitize = dom.unitize,
-		showStats = false;
+		unitize = dom.unitize;
 
 	on(body, "touchmove", function(e) {
 		e.preventDefault();
@@ -77,6 +76,7 @@ define(
 				top: 0
 			})),
 			node = container.domNode;
+		node.id = "TiUIContainer";
 		setStyle(node, "overflow", "hidden");
 		body.appendChild(node);
 		container.addEventListener("postlayout", function(){
@@ -145,10 +145,10 @@ define(
 			}
 			self._nodesToLayout.push(node);
 			function startLayout() {
-				
+			
 				self._elementLayoutCount = 0;
 				self._layoutCount++;
-				var startTime = (new Date()).getTime(),
+				var layoutInstrumentationTest = require.has("instrumentation") && instrumentation.startTest("Layout " + self._layoutCount),
 					nodes = self._nodesToLayout,
 					layoutNode,
 					node,
@@ -245,8 +245,10 @@ define(
 					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node._getInheritedWidth() === Ti.UI.SIZE, node._getInheritedHeight() === Ti.UI.SIZE);
 				}
 				
-				showStats && console.debug("Layout " + self._layoutCount + ": " + self._elementLayoutCount + 
-					" elements laid out in " + ((new Date().getTime() - startTime)) + "ms");
+				if (layoutInstrumentationTest) {
+					instrumentation.stopTest(layoutInstrumentationTest, self._elementLayoutCount + " out of " + document.getElementById("TiUIContainer").getElementsByTagName("*").length + " elements laid out.");
+					instrumentation.issueReports();
+				}
 					
 				self._layoutInProgress = false;
 				self._layoutTimer = null;

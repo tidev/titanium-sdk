@@ -281,6 +281,7 @@ class Compiler(object):
 		ti_js.write(HEADER + '\n')
 		
 		# 1) read in the config.js and fill in the template
+		enableInstrumentation = tiapp_xml['mobileweb']['instrumentation'] == 'true' if 'instrumentation' in tiapp_xml['mobileweb'] else False
 		ti_js.write(mako.template.Template(codecs.open(os.path.join(self.sdk_src_path, 'config.js'), 'r', 'utf-8').read()).render(
 			app_analytics         = tiapp_xml['analytics'],
 			app_copyright         = tiapp_xml['copyright'],
@@ -304,6 +305,7 @@ class Compiler(object):
 			ti_version            = sdk_version,
 			has_analytics_use_xhr = tiapp_xml['mobileweb']['analytics']['use-xhr'],
 			has_show_errors       = 'false' if deploytype == 'production' or tiapp_xml['mobileweb']['disable-error-screen'] == 'true' else 'true',
+			has_instrumentation   = 'true' if enableInstrumentation else 'false',
 			jsQuoteEscapeFilter   = lambda str: str.replace("\\\"","\\\\\\\"")
 		))
 		
@@ -524,6 +526,7 @@ class Compiler(object):
 		# populate index.html
 		index_html_file = codecs.open(os.path.join(self.build_path, 'index.html'), 'w', encoding='utf-8')
 		index_html_file.write(mako.template.Template(codecs.open(os.path.join(self.sdk_src_path, 'index.html'), 'r', 'utf-8').read().strip()).render(
+			instrumentation_header = '<script src="titanium/instrumentation.js"></script>' if enableInstrumentation else '',
 			ti_header          = HTML_HEADER,
 			project_name       = tiapp_xml['name'] or '',
 			app_description    = tiapp_xml['description'] or '',

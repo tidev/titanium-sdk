@@ -62,7 +62,13 @@ define(
 						var p = waiting.indexOf(n);
 						~p && waiting.splice(p, 1);
 						loaded = 1;
-						waiting.length || require(cfg.main || ["app.js"]);
+						if (!waiting.length) {
+							if (has("instrumentation")) {
+								instrumentation.stopTest(instrumentation.appLoadTest);
+								instrumentation.issueReports();
+							}
+							require(cfg.main || ["app.js"]);
+						}
 					};
 				}
 			}
