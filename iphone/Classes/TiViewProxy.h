@@ -252,7 +252,7 @@ enum
 
 /**
  Whether or not the view proxy can have non Ti-Views which have to be pushed to the bottom when adding children.
- 
+ **This method is only meant for legacy classes. New classes must implement the proper wrapperView code**
  Subclasses may override.
  @return _NO_ if the view proxy can have non Ti-Views in its view heirarchy
  */
