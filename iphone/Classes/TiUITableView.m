@@ -16,6 +16,7 @@
 #import "TiUITableViewProxy.h"
 #import "TiApp.h"
 #import "TiLayoutQueue.h"
+#import "TiRootController.h"
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
 
@@ -582,6 +583,10 @@
 	
 	NSMutableArray * sections = [(TiUITableViewProxy *)[self proxy] sections];
     BOOL reloadSearch = NO;
+
+	TiViewProxy<TiKeyboardFocusableView> * chosenField = [[[TiApp controller] keyboardFocusedProxy] retain];
+	BOOL oldSuppress = [chosenField suppressFocusEvents];
+	[chosenField setSuppressFocusEvents:YES];
 	switch (action.type)
 	{
 		case TiUITableViewActionRowReload:
@@ -750,6 +755,9 @@
             break;
         }
 	}
+	[chosenField focus:nil];
+	[chosenField setSuppressFocusEvents:oldSuppress];
+	[chosenField release];
 
 	if ([searchController isActive]) {
 		[self updateSearchResultIndexes];
