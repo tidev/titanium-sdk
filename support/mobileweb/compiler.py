@@ -529,14 +529,9 @@ class Compiler(object):
 				status_bar_style = 'default'
 		
 		# populate index.html
-<<<<<<< HEAD
-		index_html_file = codecs.open(os.path.join(self.build_path, 'index.html'), 'w', encoding='utf-8')
-		index_html_file.write(mako.template.Template(codecs.open(os.path.join(self.sdk_src_path, 'index.html'), 'r', 'utf-8').read().strip()).render(
-			instrumentation_header = '<script src="titanium/instrumentation.js"></script>' if enableInstrumentation else '',
-=======
 		index_html_file = codecs.open(os.path.join(self.build_path, 'index.html'), 'w', 'utf-8')
 		index_html_file.write(AppcTemplate(codecs.open(os.path.join(self.sdk_src_path, 'index.html'), 'r', 'utf-8').read().strip(), input_encoding='utf-8', output_encoding='utf-8').render(
->>>>>>> master
+			instrumentation_header = '<script src="titanium/instrumentation.js"></script>' if enableInstrumentation else '',
 			ti_header          = HTML_HEADER,
 			project_name       = tiapp_xml['name'] or '',
 			app_description    = tiapp_xml['description'] or '',
