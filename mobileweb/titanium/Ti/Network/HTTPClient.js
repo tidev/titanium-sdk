@@ -47,7 +47,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network", "Ti/B
 								mimeType: xhr.getResponseHeader("Content-Type")
 							});
 							c.responseXML = xhr.responseXML;
-							has("instrumentation") && (instrumentation.stopTest(this.requestInstrumentationTest, this.location)),
+							has("ti-instrumentation") && (instrumentation.stopTest(this._requestInstrumentationTest, this.location)),
 							  is(this.onload, "Function") && this.onload.call(this);
 						} else {
 							xhr.status / 100 | 0 > 3 && this._onError();
@@ -110,7 +110,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network", "Ti/B
 			try {
 				var timeout = this.timeout | 0;
 				this._completed = false;
-				has("instrumentation") && (this.requestInstrumentationTest = instrumentation.startTest("HTTP Request " + (++requestCount), "HTTP Request")),
+				has("ti-instrumentation") && (this._requestInstrumentationTest = instrumentation.startTest("HTTP Request " + (++requestCount), "HTTP Request")),
 				args = is(args, "Object") ? lang.urlEncode(args) : args;
 				args && this._xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 				this._xhr.send(args);

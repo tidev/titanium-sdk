@@ -78,10 +78,10 @@ define(
 
 			require.has("devmode") && args && args._debug && dom.attr.set(node, "data-debug", args._debug);
 			function processTouchEvent(eventType, evt) {
+				has("ti-instrumentation") && (this._gestureInstrumentationTest = instrumentation.startTest("Gesture Processing " + ++gestureCount, "Gesture Processing"));
 				var i,
 					gestureRecognizers = touchRecognizers[eventType],
-					touches = evt.changedTouches,
-					gestureInstrumentationTest = has("instrumentation") && instrumentation.startTest("Gesture Processing " + ++gestureCount, "Gesture Processing");
+					touches = evt.changedTouches;
 				eventType = "Touch" + eventType + "Event";
 				if (this._preventDefaultTouchEvent) {
 					this._preventDefaultTouchEvent && evt.preventDefault && evt.preventDefault();
@@ -100,7 +100,7 @@ define(
 				for (i in gestureRecognizers) {
 					gestureRecognizers[i]["finalize" + eventType]();
 				}
-				gestureInstrumentationTest && instrumentation.stopTest(gestureInstrumentationTest, "Processing widget " + self.widgetId);
+				has("ti-instrumentation") && instrumentation.stopTest(this._gestureInstrumentationTest, "Processing widget " + self.widgetId);
 			}
 
 			this._touching = false;

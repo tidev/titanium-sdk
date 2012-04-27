@@ -16,7 +16,8 @@ define(
 			Ti.UI._recalculateLayout();
 			hidingAddressBar = 0;
 		},
-		unitize = dom.unitize;
+		unitize = dom.unitize,
+		has = require.has;
 
 	on(body, "touchmove", function(e) {
 		e.preventDefault();
@@ -148,8 +149,7 @@ define(
 			
 				self._elementLayoutCount = 0;
 				self._layoutCount++;
-				var layoutInstrumentationTest = require.has("instrumentation") && instrumentation.startTest("Layout " + self._layoutCount, "Layout"),
-					nodes = self._nodesToLayout,
+				var nodes = self._nodesToLayout,
 					layoutNode,
 					node,
 					parent,
@@ -160,6 +160,7 @@ define(
 					rootNodesToLayout = [],
 					layoutRootNode = false,
 					breakAfterChildrenCalculations;
+			   has("ti-instrumentation") && (this._layoutInstrumentationTest = instrumentation.startTest("Layout " + self._layoutCount, "Layout"));
 					
 				// Determine which nodes need to be re-layed out
 				for (var i in nodes) {
@@ -245,7 +246,7 @@ define(
 					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node._getInheritedWidth() === Ti.UI.SIZE, node._getInheritedHeight() === Ti.UI.SIZE);
 				}
 				
-				layoutInstrumentationTest && instrumentation.stopTest(layoutInstrumentationTest, 
+				has("ti-instrumentation") && instrumentation.stopTest(this._layoutInstrumentationTest, 
 					self._elementLayoutCount + " out of approximately " + document.getElementById("TiUIContainer").getElementsByTagName("*").length + " elements laid out.");
 					
 				self._layoutInProgress = false;

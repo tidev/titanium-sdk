@@ -1,4 +1,4 @@
-var instrumentation = {
+instrumentation = {
 	
 	tests: [],
 	
