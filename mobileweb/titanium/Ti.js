@@ -63,10 +63,7 @@ define(
 						~p && waiting.splice(p, 1);
 						loaded = 1;
 						if (!waiting.length) {
-							if (has("instrumentation")) {
-								instrumentation.stopTest(instrumentation.appLoadTest);
-								instrumentation.issueReports();
-							}
+							has("instrumentation") && instrumentation.stopTest(instrumentation.systemLoadTimeTest);
 							require(cfg.main || ["app.js"]);
 						}
 					};

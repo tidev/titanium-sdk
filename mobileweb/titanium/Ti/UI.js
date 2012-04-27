@@ -245,10 +245,8 @@ define(
 					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node._getInheritedWidth() === Ti.UI.SIZE, node._getInheritedHeight() === Ti.UI.SIZE);
 				}
 				
-				if (layoutInstrumentationTest) {
-					instrumentation.stopTest(layoutInstrumentationTest, self._elementLayoutCount + " out of " + document.getElementById("TiUIContainer").getElementsByTagName("*").length + " elements laid out.");
-					instrumentation.issueReports();
-				}
+				layoutInstrumentationTest && instrumentation.stopTest(layoutInstrumentationTest, 
+					self._elementLayoutCount + " out of approximately " + document.getElementById("TiUIContainer").getElementsByTagName("*").length + " elements laid out.");
 					
 				self._layoutInProgress = false;
 				self._layoutTimer = null;

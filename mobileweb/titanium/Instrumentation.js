@@ -25,23 +25,38 @@ var instrumentation = {
 			test.customInformation = customInformation;
 			stopTime = test.stopTime.getTime()
 			test.timeSinceLaunch = stopTime - this.startTime;
-			return test.duration = test.stopTime.getTime() - test.startTime.getTime();
+			test.duration = test.stopTime.getTime() - test.startTime.getTime();
+			this.logTest(testID);
+			return test.duration;
 		}
+	},
+	
+	logTest: function(testID) {
+		if ((testID in this.tests)) {
+			var test = this.tests[testID];
+			console.debug("[INSTRUMENTATION] Test " + (test.name ? "'" + test.name + "'" : i) + " completed\n" +
+				"\tDuration: " + test.duration + " ms\n" +
+				"\tTime since app launched: " + test.timeSinceLaunch + " ms" + 
+				(test.customInformation ? "\n\tMore Info: " + (typeof test.customInformation === "object" ? JSON.stringify(test.customInformation) : test.customInformation) : ""));
+		}
+	},
+	
+	cancelTest: function(testID) {
+		(testID in this.tests) && tests.splice(testID,1);
 	},
 
 	issueReports: function() {
-		var i,
+		var testID,
 			tests = this.tests,
 			testsLength = tests.length,
 			test;
-		for (i in tests) {
-			test = tests[i];
+		for (testID in tests) {
+			test = tests[testID];
 			if (test.stopTime) {
-				console.debug("[INSTRUMENTATION] Test " + (test.name ? "'" + test.name + "'" : i) + " completed in " + test.duration + " ms (" + test.timeSinceLaunch + " ms since app launched)." + 
-					(test.customInformation ? " " + (typeof test.customInformation === "object" ? JSON.stringify(test.customInformation) : test.customInformation) : ""));
-				tests.splice(tests.indexOf(test),1);
+				this.logTest(testID);
+				tests.splice(testID,1);
 			}
 		}
 	}
 };
-instrumentation.appLoadTest = instrumentation.startTest("App Load Time");
+instrumentation.systemLoadTimeTest = instrumentation.startTest("System Load Time");
