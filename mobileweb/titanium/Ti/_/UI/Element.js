@@ -33,8 +33,7 @@ define(
 				}
 				return value;
 			}
-		},
-		gestureCount = 0;
+		};
 
 	return declare("Ti._.UI.Element", Evented, {
 
@@ -78,7 +77,7 @@ define(
 
 			require.has("devmode") && args && args._debug && dom.attr.set(node, "data-debug", args._debug);
 			function processTouchEvent(eventType, evt) {
-				has("ti-instrumentation") && (this._gestureInstrumentationTest = instrumentation.startTest("Gesture Processing " + ++gestureCount, "Gesture Processing"));
+				has("ti-instrumentation") && (this._gestureInstrumentationTest = instrumentation.startTest("Gesture Processing"));
 				var i,
 					gestureRecognizers = touchRecognizers[eventType],
 					touches = evt.changedTouches;

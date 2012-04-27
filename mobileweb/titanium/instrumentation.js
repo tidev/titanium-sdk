@@ -2,18 +2,23 @@ instrumentation = {
 	
 	tests: [],
 	
+	counters: {},
+	
 	currentTestID: 1,
 	
 	startTime: (new Date()).getTime(),
 	
-	startTest: function(name, category) {
+	startTest: function(category) {
 		var newTestID = this.currentTestID++,
 			newTest = { 
 				testID: newTestID,
-				name: name,
 				category: category
 			};
 		this.tests[newTestID] = newTest;
+		if (category) {
+			!(category in this.counters) && (this.counters[category] = 0);
+			this.counters[category]++;
+		}
 		newTest.startTime = new Date();
 		return newTestID;
 	},
@@ -33,11 +38,11 @@ instrumentation = {
 	
 	logTest: function(testID) {
 		if ((testID in this.tests)) {
-			var test = this.tests[testID];
-			console.debug("[INSTRUMENTATION] Test " + (test.name ? "'" + test.name + "'" : i) + " completed\n" +
+			var test = this.tests[testID],
+				category = test.category;
+			console.debug("[INSTRUMENTATION] Test " + (category ? "'" + category + " " + this.counters[category] + "'" : testID) + " completed\n" +
 				"\tDuration: " + test.duration + " ms\n" +
 				"\tTime since app launched: " + test.timeSinceLaunch + " ms" +
-				(test.category ? "\n\tCategory: " + test.category : "") + 
 				(test.customInformation ? "\n\tMore Info: " + (typeof test.customInformation === "object" ? JSON.stringify(test.customInformation) : test.customInformation) : ""));
 		}
 	},

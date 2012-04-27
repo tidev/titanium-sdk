@@ -137,8 +137,6 @@ define(
 		
 		_elementLayoutCount: 0,
 		
-		_layoutCount: 0,
-		
 		_triggerLayout: function(node, force) {
 			var self = this;
 			if (~self._nodesToLayout.indexOf(node)) {
@@ -148,7 +146,6 @@ define(
 			function startLayout() {
 			
 				self._elementLayoutCount = 0;
-				self._layoutCount++;
 				var nodes = self._nodesToLayout,
 					layoutNode,
 					node,
@@ -160,7 +157,7 @@ define(
 					rootNodesToLayout = [],
 					layoutRootNode = false,
 					breakAfterChildrenCalculations;
-			   has("ti-instrumentation") && (this._layoutInstrumentationTest = instrumentation.startTest("Layout " + self._layoutCount, "Layout"));
+			   has("ti-instrumentation") && (this._layoutInstrumentationTest = instrumentation.startTest("Layout"));
 					
 				// Determine which nodes need to be re-layed out
 				for (var i in nodes) {
