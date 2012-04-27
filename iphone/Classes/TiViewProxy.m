@@ -808,6 +808,9 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
     CGFloat suggestedHeight = size.height;
     BOOL followsFillBehavior = TiDimensionIsAutoFill([self defaultAutoHeightBehavior:nil]);
     BOOL recheckForFill = NO;
+    
+    //Ensure that autoHeightForSize is called with the lowest limiting bound
+    CGFloat desiredWidth = MIN([self minimumParentWidthForSize:size],size.width);
 	    
     CGFloat offset = TiDimensionCalculateValue(layoutProperties.left, size.width)
     + TiDimensionCalculateValue(layoutProperties.right, size.width);
@@ -823,7 +826,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
     else if (TiDimensionIsAutoFill(layoutProperties.height) || (TiDimensionIsAuto(layoutProperties.height) && followsFillBehavior) ) 
 	{
 		recheckForFill = YES;
-		result += [self autoHeightForSize:CGSizeMake(size.width - offset, size.height - offset2)];
+		result += [self autoHeightForSize:CGSizeMake(desiredWidth - offset, size.height - offset2)];
 	}
     else if (TiDimensionIsUndefined(layoutProperties.height))
     {
@@ -838,12 +841,12 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
         }
         else {
             recheckForFill = followsFillBehavior;
-            result += [self autoHeightForSize:CGSizeMake(size.width - offset, size.height - offset2)];
+            result += [self autoHeightForSize:CGSizeMake(desiredWidth - offset, size.height - offset2)];
         }       
     }
 	else
 	{
-		result += [self autoHeightForSize:CGSizeMake(size.width - offset, size.height - offset2)];
+		result += [self autoHeightForSize:CGSizeMake(desiredWidth - offset, size.height - offset2)];
 	}
     if (recheckForFill && (result < suggestedHeight) ) {
         result = suggestedHeight;
@@ -2197,6 +2200,10 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         if (boundingValue < 0) {
             boundingValue = 0;
         }
+
+        //Ensure that autoHeightForSize is called with the lowest limiting bound
+        CGFloat desiredWidth = MIN([child minimumParentWidthForSize:bounds.size],bounds.size.width);
+
         //TOP + BOTTOM
         CGFloat offset = TiDimensionCalculateValue([child layoutProperties]->top, boundingValue)
         + TiDimensionCalculateValue([child layoutProperties]->bottom, boundingValue);
@@ -2219,7 +2226,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         }
         else if (TiDimensionIsAutoSize(constraint))
         {
-            bounds.size.height = [child autoHeightForSize:CGSizeMake(bounds.size.width - offset2,boundingValue)] + offset;
+            bounds.size.height = [child autoHeightForSize:CGSizeMake(desiredWidth - offset2,boundingValue)] + offset;
             verticalLayoutBoundary += bounds.size.height;
         }
         else if (TiDimensionIsAuto(constraint) )
@@ -2231,7 +2238,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             }
             else {
                 //SIZE behavior
-                bounds.size.height = [child autoHeightForSize:CGSizeMake(bounds.size.width - offset2,boundingValue)] + offset;
+                bounds.size.height = [child autoHeightForSize:CGSizeMake(desiredWidth - offset2,boundingValue)] + offset;
                 verticalLayoutBoundary += bounds.size.height;
             }
         }
@@ -2258,7 +2265,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             }
             else {
                 //SIZE behavior
-                bounds.size.height = [child autoHeightForSize:CGSizeMake(bounds.size.width - offset2,boundingValue)] + offset;
+                bounds.size.height = [child autoHeightForSize:CGSizeMake(desiredWidth - offset2,boundingValue)] + offset;
                 verticalLayoutBoundary += bounds.size.height;
             }
         }
