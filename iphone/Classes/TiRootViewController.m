@@ -607,6 +607,27 @@
         return;
     }   
     
+    /*Find out if we are inside a modal view controller . 
+     *TODO : There is currently a ticket open TIMOB-8902 to expose the 
+     *navigation controller of the modal window so that windows can 
+     *be added to it, instead of adding it here. when that ticket is resolved.
+     *this entire logic should be removed.
+     */
+    
+    BOOL isInsideModalWindow = NO;
+    for (TiWindowProxy * thisWindow in [windowProxies reverseObjectEnumerator])
+	{
+        if ([thisWindow closing] == NO) {
+            if([thisWindow modalFlagValue] == YES){
+                isInsideModalWindow = YES;
+                NSLog(@"[WARN] Trying to open a new window from within a Modal Window is unsupported.");
+                
+            }
+            
+        }
+    }
+    
+
     if ((newOrientation == windowOrientation) &&
         (oldFlags & allowedOrientations))
     {
@@ -616,7 +637,7 @@
             [[UIApplication sharedApplication] setStatusBarOrientation:windowOrientation animated:NO];
         }
                 
-        if (TI_ORIENTATION_ALLOWED(allowedOrientations, orientationHistory[0])) {
+        if (TI_ORIENTATION_ALLOWED(allowedOrientations, orientationHistory[0]) && (isInsideModalWindow == NO)) {
              //Nothing to do here.
             return;
         }
