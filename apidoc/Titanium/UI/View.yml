@@ -22,7 +22,7 @@ description: |
     
     <table cellpadding="6px" border="1" rules="all">
     <tr>
-    <th align="left">Unit</th> <th align="left">Specifier</th> <th align="left">Note<th>
+    <th align="left">Unit</th> <th align="left">Specifier</th> <th align="left">Note</th>
     </tr>
     <tr> <td>pixels</td> <td>px</td> <td></td> </tr>
     <tr> <td>density-independent pixels</td> <td>dip</td> <td>Equivalent to Apple "points."</td> </tr>
@@ -58,12 +58,34 @@ description: |
     *    DIPs on Mobile Web (as described above, DIPs and pixels are interchangable on
          Mobile Web).
 
-    Note that prior to Release 2.0, iOS ignored any specified unit, so code that specifies
-    a unit may operate differently on iOS in Release 2.0.
+    The default unit can be overriden on a per-application level by setting the
+    `ti.ui.defaultunit` property in `tiapp.xml`. For example, to use DIPs as the 
+    default on all platforms, set `defaultunit` to `dip`:
 
+        <property name="ti.ui.defaultunit" type="string">dip</property>
+    
+    The value for `ti.ui.defaultunit` can be any of the unit specifiers defined above, or 
+    `system` to specify that the platform's default unit should be used.
+
+    Note that prior to Release 2.0, iOS ignored any specified unit, so code that specifies
+    a unit may operate differently on iOS in Release 2.0. If you set the
+    `ti.ui.defaultunit` property to anything other than `system` or `dip`, your
+    application should detect and handle Retina displays manually.
+   
     Font sizes on iOS are treated differently than other sizes: font sizes are always 
     specified in typographical points. 
 
+    For more details see: 
+
+    * [UI Composite Layout Spec](http://docs.appcelerator.com/titanium/2.0/index.html#!/guide/UI_Composite_Layout_Behavior_Spec)
+
+    #### Size and Position
+    
+    Titanium views are positioned using the `left`, `right`, `top,` `bottom` and `center` 
+    properties, and sized using the `width` and `height` properties. These are
+    input properties, set by the user to specify layout, and not modified by the 
+    system to indicate actual calculated positions and sizes. 
+    
     The [height](Titanium.UI.View.height) and [width](Titanium.UI.View.width) properties 
     accept several special values:
 
@@ -78,18 +100,7 @@ description: |
     
     Sizes and positions can also be specified as a percentage of the parent's size, for 
     example, '50%'.
-    
-    For more details see: 
 
-    * [UI Composite Layout Spec](http://docs.appcelerator.com/titanium/2.0/index.html#!/guide/UI_Composite_Layout_Behavior_Spec)
-
-    #### Size and Position
-    
-    Titanium views are positioned using the `left`, `right`, `top,` `bottom` and `center` 
-    properties, and sized using the `width` and `height` properties. These are
-    input properties, set by the user to specify layout, and not modified by the 
-    system to indicate actual calculated positions and sizes. 
-    
     How these properties are interpreted depends on the value of the view's `layout` 
     property. See the description of the [layout](Titanium.UI.View.layout) property 
     for details.
