@@ -1437,13 +1437,13 @@ class Builder(object):
 		for jar_file in self.android_jars:
 			add_resource_jar(jar_file)
 
-		def add_native_libs(libs_dir):
+		def add_native_libs(libs_dir, exclude=[]):
 			if os.path.exists(libs_dir):
 				for abi_dir in os.listdir(libs_dir):
 					libs_abi_dir = os.path.join(libs_dir, abi_dir)
 					if not os.path.isdir(libs_abi_dir): continue
 					for file in os.listdir(libs_abi_dir):
-						if file.endswith('.so'):
+						if file.endswith('.so') and file not in exclude:
 							native_lib = os.path.join(libs_abi_dir, file)
 							path_in_zip = '/'.join(['lib', abi_dir, file])
 							if is_modified(native_lib) or not zip_contains(apk_zip, path_in_zip):
@@ -1451,13 +1451,19 @@ class Builder(object):
 								debug("installing native lib: %s" % native_lib)
 								apk_zip.write(native_lib, path_in_zip)
 
+		# add module native libraries
+		for module in self.modules:
+			exclude_libs = []
+			if self.runtime != 'v8':
+				# Don't need the v8 version of the module itself.
+				# (But of course we do want any other native libraries
+				# that the module developer may have packaged.)
+				exclude_libs.append('lib%s.so' % module.manifest.moduleid)
+			add_native_libs(module.get_resource('libs'), exclude_libs)
+
 		if self.runtime == 'v8':
 			# add any native libraries : libs/**/*.so -> lib/**/*.so
 			add_native_libs(os.path.join(self.project_dir, 'libs'))
-
-			# add module native libraries
-			for module in self.modules:
-				add_native_libs(module.get_resource('libs'))
 
 			# add sdk runtime native libraries
 			debug("installing native SDK libs")

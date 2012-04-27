@@ -1850,8 +1850,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         if(relayout)
         {
             [self determineSandboxBounds];
-            [self relayout];
         }
+        [self relayout];
 		[self layoutChildren:NO];
 		if (!CGRectEqualToRect(oldFrame, [[self view] frame])) {
 			[parent childWillResize:self];

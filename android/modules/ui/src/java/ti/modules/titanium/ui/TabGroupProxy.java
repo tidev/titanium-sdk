@@ -355,7 +355,6 @@ public class TabGroupProxy extends TiWindowProxy
 		return e;
 	}
 
-
 	private void fillIntent(Activity activity, Intent intent)
 	{
 		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {

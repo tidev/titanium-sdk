@@ -38,9 +38,9 @@ properties:
     
   - name: color
     summary: |
-        Color of the message text in 
-        [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name or hex triplet.
-
+        Color of the message text, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
     platforms: [iphone, ipad, mobileweb]
     

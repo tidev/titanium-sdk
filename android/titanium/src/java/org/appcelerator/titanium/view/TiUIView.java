@@ -466,7 +466,7 @@ public abstract class TiUIView
 					}
 				} else {
 					if (key.equals(TiC.PROPERTY_OPACITY)) {
-						setOpacity(TiConvert.toFloat(newValue));
+						setOpacity(TiConvert.toFloat(newValue, 1f));
 					}
 					if (!nativeViewNull) {
 						nativeView.setBackgroundDrawable(null);
@@ -507,7 +507,7 @@ public abstract class TiUIView
 				applyCustomBackground();
 
 				if (key.equals(TiC.PROPERTY_OPACITY)) {
-					setOpacity(TiConvert.toFloat(newValue));
+					setOpacity(TiConvert.toFloat(newValue, 1f));
 				}
 
 			}
@@ -587,7 +587,7 @@ public abstract class TiUIView
 		initializeBorder(d, bgColor);
 
 		if (d.containsKey(TiC.PROPERTY_OPACITY) && !nativeViewNull) {
-			setOpacity(TiConvert.toFloat(d, TiC.PROPERTY_OPACITY));
+			setOpacity(TiConvert.toFloat(d, TiC.PROPERTY_OPACITY, 1f));
 
 		}
 
@@ -813,7 +813,7 @@ public abstract class TiUIView
 				TiBackgroundDrawable.Border border = background.getBorder();
 
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
-					float radius = TiConvert.toFloat(d, TiC.PROPERTY_BORDER_RADIUS);
+					float radius = TiConvert.toFloat(d, TiC.PROPERTY_BORDER_RADIUS, 0f);
 					if (radius > 0f && HONEYCOMB_OR_GREATER) {
 						disableHWAcceleration();
 					}
@@ -828,7 +828,7 @@ public abstract class TiUIView
 						}
 					}
 					if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-						border.setWidth(TiConvert.toFloat(d, TiC.PROPERTY_BORDER_WIDTH));
+						border.setWidth(TiConvert.toFloat(d, TiC.PROPERTY_BORDER_WIDTH, 0f));
 					}
 				}
 				//applyCustomBackground();
@@ -846,13 +846,13 @@ public abstract class TiUIView
 		if (property.equals(TiC.PROPERTY_BORDER_COLOR)) {
 			border.setColor(TiConvert.toColor(value.toString()));
 		} else if (property.equals(TiC.PROPERTY_BORDER_RADIUS)) {
-			float radius = TiConvert.toFloat(value);
+			float radius = TiConvert.toFloat(value, 0f);
 			if (radius > 0f && HONEYCOMB_OR_GREATER) {
 				disableHWAcceleration();
 			}
 			border.setRadius(radius);
 		} else if (property.equals(TiC.PROPERTY_BORDER_WIDTH)) {
-			border.setWidth(TiConvert.toFloat(value));
+			border.setWidth(TiConvert.toFloat(value, 0f));
 		}
 		//recalculate bounds since border is changed.
 		background.onBoundsChange(background.getBounds());
