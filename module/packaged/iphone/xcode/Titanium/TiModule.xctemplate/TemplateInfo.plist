@@ -1,0 +1,8 @@
+{
+	"CounterpartTemplateFile" = "class.h";
+	Description = "A Titanium module class file, with an optional header which includes the \"TiModule.h\" header.";
+	MainTemplateFile = "class.m";
+	Platforms = (
+		"com.apple.platform.iphoneos",
+	);
+}
