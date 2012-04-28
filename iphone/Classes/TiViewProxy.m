@@ -42,18 +42,15 @@
 @synthesize children;
 -(NSArray*)children
 {
-    NSArray* copy = nil;
-    
 	pthread_rwlock_rdlock(&childrenLock);
 	if (windowOpened==NO && children==nil && pendingAdds!=nil)
 	{
-		copy = [pendingAdds mutableCopy];
+		NSArray *copy = [pendingAdds mutableCopy];
+		pthread_rwlock_unlock(&childrenLock);
+		return [copy autorelease];
 	}
-    else {
-        copy = [children mutableCopy];
-    }
 	pthread_rwlock_unlock(&childrenLock);
-	return [copy autorelease];
+	return children;
 }
 
 -(void)setVisible:(NSNumber *)newVisible withObject:(id)args
