@@ -4,7 +4,7 @@
 #
 import os, re, sys, optparse
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "common")))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "thirdpary")))
 
 try:
 	import json
@@ -359,8 +359,6 @@ def main():
 	thisDir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 	sdkDir = os.path.abspath(os.path.join(thisDir, "..", ".."))
 	sys.path.append(sdkDir)
-
-	from manifest import Manifest
 
 	if len(sys.argv) < 6:
 		print >>sys.stderr, "Usage: %s <runtime> <moduleId> <moduleName> <moduleJSON> <outDir>" % sys.argv[0]

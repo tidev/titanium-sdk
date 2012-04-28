@@ -13,10 +13,10 @@ import os, re, sys, optparse
 thisDir = os.path.abspath(os.path.dirname(__file__))
 genDir = os.path.join(os.path.dirname(thisDir), "generated")
 androidDir = os.path.abspath(os.path.join(thisDir, "..", "..", ".."))
+sdkRootDir = os.path.dirname(androidDir)
 
-# Scripts supporting the build, specifically bootstrap.py.
-androidScriptDir = os.path.abspath(os.path.join(androidDir, "scripts"))
-sys.path.append(androidScriptDir)
+# For bootstrap.py
+sys.path.append(os.path.join(sdkRootDir, "module", "android"))
 import bootstrap
 
 # Third-party python modules.
