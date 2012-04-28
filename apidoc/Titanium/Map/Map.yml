@@ -5,6 +5,47 @@ extends: Titanium.Module
 since: "0.8"
 platforms: [android, iphone, ipad, mobileweb]
 properties:
+
+  - name: ANNOTATION_DRAG_STATE_NONE
+    summary: |
+        Used in the [pinchangedragstate](Titanium.Map.View.pinchangedragstate) event 
+        to indicate that the annotation is not being dragged.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+
+  - name: ANNOTATION_DRAG_STATE_START
+    summary: |
+        Used in the [pinchangedragstate](Titanium.Map.View.pinchangedragstate) event 
+        to indicate that the user started dragging the annotation.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+
+  - name: ANNOTATION_DRAG_STATE_DRAG
+    summary: |
+        Used in the [pinchangedragstate](Titanium.Map.View.pinchangedragstate) event 
+        to indicate that the user moved the annotation.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+
+  - name: ANNOTATION_DRAG_STATE_CANCEL
+    summary: |
+        Used in the [pinchangedragstate](Titanium.Map.View.pinchangedragstate) event 
+        to indicate that the user canceled the drag action.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+
+  - name: ANNOTATION_DRAG_STATE_END
+    summary: |
+        Used in the [pinchangedragstate](Titanium.Map.View.pinchangedragstate) event 
+        to indicate that the user finished moving the annotation.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+
   - name: ANNOTATION_GREEN
     summary: |
         Color constant used to set a map annotation to green via the 

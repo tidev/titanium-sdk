@@ -52,6 +52,12 @@ properties:
     summary: Boolean to indicate whether the pin should animate when dropped.
     type: Boolean
 
+  - name: draggable
+    summary: Determines whether the pin can be dragged by the user.
+    type: Boolean
+    default: false
+    platforms: [iphone, ipad]
+
   - name: image
     summary: Image to use for the the pin.
     description: |
