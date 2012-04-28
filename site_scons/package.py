@@ -146,9 +146,7 @@ def zip_android(zf, basepath):
 	zf.write(js2c_py, '%s/module/android/js2c.py' % basepath)
 	zf.write(jsmin_py, '%s/module/android/jsmin.py' % basepath)
 
-	# add module bootstrap and build.xml
-	zf.write(os.path.join(top_dir, 'module', 'android', 'bootstrap.py'), '%s/module/android/bootstrap.py' % basepath)
-	zf.write(os.path.join(top_dir, 'module', 'android', 'build.xml'), '%s/module/android/build.xml' % basepath)
+	zip_dir(zf, os.path.join(top_dir, 'module', 'android'), '%s/module/android' % basepath)
 
 	js_jar = os.path.join(android_runtime_rhino_dir, 'lib', 'js.jar')
 	zf.write(js_jar, '%s/android/%s' % (basepath, 'js.jar'))
