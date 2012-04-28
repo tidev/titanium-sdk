@@ -310,8 +310,8 @@
 		</delete>
 	</target>
 	
-	<property name="titanium.py" location="${titanium.platform}/../titanium.py"/>
-	<property name="titanium.bat" location="${titanium.platform}/../titanium.bat"/>
+	<property name="titanium.py" location="${titanium.tools}/titanium.py"/>
+	<property name="titanium.bat" location="${titanium.tools}/titanium.bat"/>
 
 	<macrodef name="titanium">
 		<attribute name="command"/>
