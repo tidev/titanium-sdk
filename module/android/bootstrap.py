@@ -4,7 +4,7 @@
 #
 import os, re, sys, optparse
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "thirdpary")))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "thirdparty")))
 
 try:
 	import json
