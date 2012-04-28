@@ -918,18 +918,22 @@ public abstract class TiUIView
 				long minTimeDelta = 1;
 				float minStartSpan = 1.0f;
 				float startSpan;
+
 				@Override
 				public boolean onScale(ScaleGestureDetector sgd) {
 					if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
 						float timeDelta = sgd.getTimeDelta() == 0 ? minTimeDelta : sgd.getTimeDelta();
+						
 						KrollDict data = new KrollDict();
 						data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
 						data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
 						data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+
 						return proxy.fireEvent(TiC.EVENT_PINCH, data);
 					}
 					return false;
 				}
+				
 				@Override
 				public boolean onScaleBegin(ScaleGestureDetector sgd) {
 					startSpan = sgd.getCurrentSpan() == 0 ? minStartSpan : sgd.getCurrentSpan();
