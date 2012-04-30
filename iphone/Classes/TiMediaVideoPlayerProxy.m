@@ -68,6 +68,15 @@ NSArray* moviePlayerKeys = nil;
 	[super _initWithProperties:properties];
 }
 
+/**
+ Legacy class that needs to do the subView insertion checks.
+ TODO: Implement wrapperView code.
+*/
+-(BOOL)optimizeSubviewInsertion
+{
+    return NO;
+}
+
 -(void)_destroy
 {
 	if (playing) {
