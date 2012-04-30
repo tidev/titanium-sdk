@@ -615,7 +615,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)redelegateViews:(TiViewProxy *)proxy toView:(UIView *)touchDelegate;
 {
 	[[proxy view] setTouchDelegate:touchDelegate];
-	for (TiViewProxy * childProxy in [proxy children])
+    NSArray* children = [proxy children];
+	for (TiViewProxy * childProxy in children)
 	{
 		[self redelegateViews:childProxy toView:touchDelegate];
 	}
@@ -651,7 +652,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	// to be initialized. on subsequent repaints of a re-used
 	// table cell, the updateChildren below will be called instead
 	configuredChildren = YES;
-	if (self.children!=nil)
+	if ([[self children] count] > 0)
 	{
 		UIView *contentView = cell.contentView;
 		CGRect rect = [contentView frame];
@@ -676,7 +677,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		[rowContainerView setBackgroundColor:[UIColor clearColor]];
 		[rowContainerView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		
-		for (TiViewProxy *proxy in self.children)
+        NSArray* subviews = [self children];
+		for (TiViewProxy *proxy in subviews)
 		{
 			if (!CGRectEqualToRect([proxy sandboxBounds], rect)) {
 				[proxy setSandboxBounds:rect];
@@ -716,7 +718,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)willShow
 {
 	pthread_rwlock_rdlock(&childrenLock);
-	for (TiViewProxy* child in [self children]) {
+    NSArray* subproxies = [self children];
+	for (TiViewProxy* child in subproxies) {
 		[child setParentVisible:YES];
 	}
 	pthread_rwlock_unlock(&childrenLock);

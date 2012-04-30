@@ -658,7 +658,8 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
     CGFloat thisWidth = 0.0;
 
 	pthread_rwlock_rdlock(&childrenLock);
-	for (TiViewProxy * thisChildProxy in self.children)
+    NSArray* subproxies = [self children];
+	for (TiViewProxy * thisChildProxy in subproxies)
 	{
         if (isHorizontal) {
             sandBox = CGRectZero;
@@ -960,7 +961,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		[view configurationSet];
 
 		pthread_rwlock_rdlock(&childrenLock);
-		NSArray * childrenArray = [[self children] copy];
+		NSArray * childrenArray = [[self children] retain];
 		pthread_rwlock_unlock(&childrenLock);
 		
 		for (id child in childrenArray)
@@ -2520,7 +2521,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 //TODO: This is really expensive, but what can you do? Laying out the child needs the lock again.
 	pthread_rwlock_rdlock(&childrenLock);
-	NSArray * childrenArray = [[self children] copy];
+	NSArray * childrenArray = [[self children] retain];
 	pthread_rwlock_unlock(&childrenLock);
     
     NSUInteger childCount = [childrenArray count];
