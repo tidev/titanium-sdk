@@ -536,7 +536,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
 		{
 			CGFloat width = [self autoWidthForSize:CGSizeMake(1000,1000)];
-			CGFloat height = [self autoHeightForSize:CGSizeMake(width,1000)];
+			CGFloat height = [self autoHeightForSize:CGSizeMake(width,0)];
 			if (width > 0 && height > 0)
 			{
 				size = CGSizeMake(width, height);
@@ -1014,7 +1014,10 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 }
 
 #pragma mark Methods subclasses should override for behavior changes
-
+-(BOOL)optimizeSubviewInsertion
+{
+    return YES;
+}
 -(BOOL)suppressesRelayout
 {
 	return NO;
@@ -1850,8 +1853,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         if(relayout)
         {
             [self determineSandboxBounds];
-            [self relayout];
         }
+        [self relayout];
 		[self layoutChildren:NO];
 		if (!CGRectEqualToRect(oldFrame, [[self view] frame])) {
 			[parent childWillResize:self];
@@ -1937,6 +1940,14 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	BOOL earlierSibling = YES;
 	UIView * ourView = [self parentViewForChild:childProxy];
 
+    if (![self optimizeSubviewInsertion]) {
+        for (UIView* subview in [ourView subviews]) 
+        {
+            if (![subview isKindOfClass:[TiUIView class]]) {
+                result++;
+            }
+        }
+    }
 	pthread_rwlock_rdlock(&childrenLock);
 	for (TiViewProxy * thisChildProxy in children)
 	{
@@ -2460,9 +2471,17 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 			
 			pthread_rwlock_rdlock(&childrenLock);
 			int childProxyIndex = [children indexOfObject:child];
+            
+			BOOL optimizeInsertion = [self optimizeSubviewInsertion];
 
 			for (TiUIView * thisView in [ourView subviews])
-			{				
+			{
+				if ( (!optimizeInsertion) && (![thisView isKindOfClass:[TiUIView class]]) )
+				{
+					insertPosition ++;
+					continue;
+				}
+                
 				int thisZIndex=[(TiViewProxy *)[thisView proxy] vzIndex];
 				if (childZIndex < thisZIndex) //We've found our stop!
 				{
