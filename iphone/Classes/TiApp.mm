@@ -183,6 +183,14 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     return [window isKeyWindow];
 }
 
+-(UIView *) topMostView
+{
+    UIWindow  *topWindow = [[[UIApplication sharedApplication].windows sortedArrayUsingComparator: 
+                             ^NSComparisonResult(UIWindow * win1, UIWindow * win2){
+                                 return win1.windowLevel - win2.windowLevel;
+                             }] lastObject];
+    return [[topWindow subviews] lastObject];
+}
 -(void)attachXHRBridgeIfRequired
 {
 #ifdef USE_TI_UIWEBVIEW
