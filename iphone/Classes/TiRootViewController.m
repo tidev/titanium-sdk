@@ -621,7 +621,7 @@
             if([thisWindow modalFlagValue] == YES){
                 isInsideModalWindow = YES;
                 NSLog(@"[WARN] Trying to open a new window from within a Modal Window is unsupported.");
-                
+                break;
             }
             
         }
