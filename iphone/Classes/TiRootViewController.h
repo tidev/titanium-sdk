@@ -154,5 +154,6 @@
  */
 
 -(void)dismissKeyboard;
+@property(nonatomic,readonly) TiViewProxy<TiKeyboardFocusableView> * keyboardFocusedProxy;
 
 @end

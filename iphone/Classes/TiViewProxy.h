@@ -23,6 +23,12 @@
 - (void)focus:(id)args;
 
 /**
+ Tells the view to stop generating focus/blur events. This should not be
+ JS-accessable, and is meant to handle tableview and layout issues.
+ */
+@property(nonatomic,readwrite,assign)	BOOL suppressFocusEvents;
+
+/**
  Tells the view to blur.
  @param args Unused.
  */
