@@ -812,6 +812,7 @@ public abstract class TiBaseActivity extends Activity
 				}
 			}
 		}
+		previousOrientation = getResources().getConfiguration().orientation;
 	}
 
 	@Override
