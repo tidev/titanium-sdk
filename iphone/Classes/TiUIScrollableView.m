@@ -492,7 +492,17 @@
 	//switch page control at 50% across the center - this visually looks better
     CGFloat pageWidth = scrollview.frame.size.width;
     int page = currentPage;
-    int nextPage = floor((scrollview.contentOffset.x - pageWidth / 2) / pageWidth) + 1;
+    float nextPageAsFloat = ((scrollview.contentOffset.x - pageWidth / 2) / pageWidth) + 0.5;
+    int nextPage = floor(nextPageAsFloat - 0.5) + 1;
+    
+	if ([self.proxy _hasListeners:@"scrolling"])
+	{
+		[self.proxy fireEvent:@"scrolling" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                       NUMINT(nextPage), @"currentPage",
+                                                       NUMFLOAT(nextPageAsFloat), @"currentPageAsFloat",
+                                                       [[self proxy] viewAtIndex:nextPage], @"view", nil]]; 
+
+	}
 	if (page != nextPage) {
 		[pageControl setCurrentPage:nextPage];
 		currentPage = nextPage;
