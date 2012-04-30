@@ -161,7 +161,6 @@
 	// happen after the JS context is fully up and ready
 	if (contextReady && context!=nil)
 	{
-		[self fireFocus:YES];
 		return YES;
 	}
 	
