@@ -201,7 +201,7 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 		titanium::Proxy::getProperty,
 		titanium::Proxy::onPropertyChanged,
 		Handle<Value>(), DEFAULT);
-	DEFINE_PROTOTYPE_METHOD(proxyTemplate, "${getter}", titanium::Proxy::getProperty);
+	DEFINE_PROTOTYPE_METHOD_DATA(proxyTemplate, "${getter}", titanium::Proxy::getProperty, String::NewSymbol("${name}"));
 	DEFINE_PROTOTYPE_METHOD_DATA(proxyTemplate, "${setter}", titanium::Proxy::onPropertyChanged, String::NewSymbol("${name}"));
 	</@Proxy.listPropertyAccessors>
 
