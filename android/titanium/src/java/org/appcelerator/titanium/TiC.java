@@ -116,22 +116,12 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_FIVEFINGERTAP = "fivefingertap";
-
-	/**
-	 * @module.api
-	 */
 	public static final String EVENT_FOCUS = "focus";
 
 	/**
 	 * @module.api
 	 */
 	public static final String EVENT_FOCUSED = "focused";
-
-	/**
-	 * @module.api
-	 */
-	public static final String EVENT_FOURFINGERTAP = "fourfingertap";
 
 	/**
 	 * @module.api
@@ -392,11 +382,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_SWIPE = "swipe";
-
-	/**
-	 * @module.api
-	 */
-	public static final String EVENT_THREEFINGERTAP = "threefingertap";
 
 	/**
 	 * @module.api
