@@ -191,7 +191,9 @@ public class MediaModule extends KrollModule
 			if (saveToPhotoGallery) {
 				imageDir = new File(PHOTO_DCIM_CAMERA);
 				if (!imageDir.exists()) {
-					imageDir.mkdirs();
+					if (!imageDir.mkdirs()) {
+						Log.w(LCAT, "Attempt to create '" + imageDir.getAbsolutePath() +  "' failed silently.");
+					}
 				}
 
 			} else {
@@ -199,8 +201,7 @@ public class MediaModule extends KrollModule
 					String name = TiApplication.getInstance().getAppInfo().getName();
 					imageDir = new File(PHOTO_DCIM_CAMERA, name);
 					if (!imageDir.exists()) {
-						imageDir.mkdirs();
-						if (!imageDir.exists()) {
+						if (!imageDir.mkdirs()) {
 							Log.w(LCAT, "Attempt to create '" + imageDir.getAbsolutePath() +  "' failed silently.");
 						}
 					}
@@ -217,11 +218,12 @@ public class MediaModule extends KrollModule
 			if (errorCallback != null) {
 				errorCallback.callAsync(getKrollObject(), createErrorResponse(UNKNOWN_ERROR, e.getMessage()));
 			}
-
-			return;
 		}
 
-		String imageUrl = "file://" + imageFile.getAbsolutePath();
+		String imageUrl = null;
+		if (imageDir.exists()) {
+			imageUrl = "file://" + imageFile.getAbsolutePath();
+		}
 		TiIntentWrapper cameraIntent = new TiIntentWrapper(new Intent());
 
 		if(TiCameraActivity.overlayProxy == null) {
@@ -250,7 +252,7 @@ public class MediaModule extends KrollModule
 			}
 		}
 
-		if (!isHTCCameraApp) {
+		if (!isHTCCameraApp && imageUrl != null) {
 			cameraIntent.getIntent().putExtra(MediaStore.EXTRA_OUTPUT, Uri.parse(imageUrl));
 		}
 
