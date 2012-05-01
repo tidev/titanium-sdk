@@ -1058,8 +1058,8 @@ define(
 			rect: {
 				get: function() {
 					return {
-						x: this._measuredTop,
-						y: this._measuredLeft,
+						x: this._measuredLeft,
+						y: this._measuredTop,
 						width: this._measuredWidth,
 						height: this._measuredHeight
 					};
