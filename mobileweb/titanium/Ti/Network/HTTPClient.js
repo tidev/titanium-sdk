@@ -46,8 +46,8 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network", "Ti/B
 								mimeType: xhr.getResponseHeader("Content-Type")
 							});
 							c.responseXML = xhr.responseXML;
-							has("ti-instrumentation") && (instrumentation.stopTest(this._requestInstrumentationTest, this.location)),
-							  is(this.onload, "Function") && this.onload.call(this);
+							has("ti-instrumentation") && (instrumentation.stopTest(this._requestInstrumentationTest, this.location));
+							is(this.onload, "Function") && this.onload.call(this);
 						} else {
 							xhr.status / 100 | 0 > 3 && this._onError();
 						}
