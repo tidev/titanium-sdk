@@ -185,11 +185,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(UIView *) topMostView
 {
-    UIWindow  *topWindow = [[[UIApplication sharedApplication].windows sortedArrayUsingComparator: 
-                             ^NSComparisonResult(UIWindow * win1, UIWindow * win2){
-                                 return win1.windowLevel - win2.windowLevel;
-                             }] lastObject];
-    return [[topWindow subviews] lastObject];
+    UIWindow  *currentKeyWindow_ = [[UIApplication sharedApplication] keyWindow];
+    return [[currentKeyWindow_ subviews] lastObject];
 }
 -(void)attachXHRBridgeIfRequired
 {
