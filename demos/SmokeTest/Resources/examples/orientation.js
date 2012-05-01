@@ -163,8 +163,6 @@ b3.addEventListener('click', function()
 		Titanium.UI.UPSIDE_PORTRAIT, 
 		Titanium.UI.LANDSCAPE_LEFT, 
 		Titanium.UI.LANDSCAPE_RIGHT, 
-		Titanium.UI.FACE_UP, 
-		Titanium.UI.FACE_DOWN
 	];
 	
 	var close = Titanium.UI.createButton({
