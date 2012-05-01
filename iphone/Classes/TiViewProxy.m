@@ -53,7 +53,7 @@
         copy = [children mutableCopy];
     }
 	pthread_rwlock_unlock(&childrenLock);
-	return [copy autorelease];
+	return ((copy != nil) ? [copy autorelease] : [NSMutableArray array]);
 }
 
 -(void)setVisible:(NSNumber *)newVisible withObject:(id)args
