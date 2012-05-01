@@ -33,13 +33,13 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 				break;
 #if DEBUG
 			case UIDeviceOrientationUnknown:
-				NSLog(@"[WARN] Orientation modes cannot use Ti.Gesture.UNKNOWN. Ignoring.");
+				NSLog(@"[WARN] Ti.Gesture.UNKNOWN / Ti.UI.UNKNOWN is an invalid orientation mode.");
 				break;
 			case UIDeviceOrientationFaceDown:
-				NSLog(@"[WARN] Orientation modes cannot use Ti.Gesture.FACE_DOWN. Ignoring.");
+				NSLog(@"[WARN] Ti.Gesture.FACE_DOWN / Ti.UI.FACE_DOWN is an invalid orientation mode.");
 				break;
 			case UIDeviceOrientationFaceUp:
-				NSLog(@"[WARN] Orientation modes cannot use Ti.Gesture.FACE_UP. Ignoring.");
+				NSLog(@"[WARN] Ti.Gesture.FACE_UP / Ti.UI.FACE_UP is an invalid orientation mode.");
 				break;
 #endif
 			default:
