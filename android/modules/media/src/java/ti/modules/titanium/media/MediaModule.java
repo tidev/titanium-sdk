@@ -252,7 +252,7 @@ public class MediaModule extends KrollModule
 			}
 		}
 
-		if (!isHTCCameraApp) {
+		if (!isHTCCameraApp && imageUrl != null) {
 			cameraIntent.getIntent().putExtra(MediaStore.EXTRA_OUTPUT, Uri.parse(imageUrl));
 		}
 
