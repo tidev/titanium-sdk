@@ -163,11 +163,18 @@ public class TiMapView extends TiUIView
 	{
 		ArrayList<AnnotationProxy> annotations;
 		TitaniumOverlayListener listener;
+		Drawable defaultMarker;
 
 		public TitaniumOverlay(Drawable defaultDrawable, TitaniumOverlayListener listener)
 		{
 			super(defaultDrawable);
+			this.defaultMarker = defaultDrawable;
 			this.listener = listener;
+		}
+
+		public Drawable getDefaultMarker()
+		{
+			return defaultMarker;
 		}
 
 		public void setAnnotations(ArrayList<AnnotationProxy> annotations)
@@ -492,7 +499,11 @@ public class TiMapView extends TiUIView
 		if (view != null && itemView != null && item != null) {
 			itemView.setItem(index, item);
 			//Make sure the annotation is always on top of the marker
-			int y = -1*item.getMarker(TiOverlayItem.ITEM_STATE_FOCUSED_MASK).getIntrinsicHeight();
+			Drawable marker = item.getMarker(TiOverlayItem.ITEM_STATE_FOCUSED_MASK);
+			if (marker == null) {
+				marker = overlay.getDefaultMarker();
+			}
+			int y = -1 * marker.getIntrinsicHeight();
 			MapView.LayoutParams params = new MapView.LayoutParams(LayoutParams.WRAP_CONTENT,
 					LayoutParams.WRAP_CONTENT, item.getPoint(), 0, y, MapView.LayoutParams.BOTTOM_CENTER);
 			params.mode = MapView.LayoutParams.MODE_MAP;
