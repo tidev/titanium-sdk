@@ -85,29 +85,6 @@ public class TiUIScrollView extends TiUIView
 		}
 
 		@Override
-		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
-		{
-			int wFromSpec = MeasureSpec.getSize(widthMeasureSpec);
-			int hFromSpec = MeasureSpec.getSize(heightMeasureSpec);
-
-			// Use the measured dimensions from a previous measure pass if they are greater than the value we get from
-			// getMeasuredWidth() and getMeasuredHeight(). TIMOB-8891
-			int measuredHeight = Math.max(getMeasuredHeight(hFromSpec, 0), getMeasuredHeight());
-			int measuredWidth = Math.max(getMeasuredWidth(wFromSpec, 0), getMeasuredWidth());
-
-			// If the measured dimensions are greater than the parent dimensions, use the measured dimensions instead to
-			// ensure the child views get measured correctly
-			if (wFromSpec == parentWidth && measuredWidth > wFromSpec) {
-				widthMeasureSpec = MeasureSpec.makeMeasureSpec(measuredWidth, MeasureSpec.EXACTLY);
-			}
-			if (hFromSpec == parentHeight && measuredHeight > hFromSpec) {
-				heightMeasureSpec = MeasureSpec.makeMeasureSpec(measuredHeight, MeasureSpec.EXACTLY);
-			}
-
-			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-		}
-
-		@Override
 		protected int getWidthMeasureSpec(View child)
 		{
 			int contentWidth = getContentProperty(TiC.PROPERTY_CONTENT_WIDTH);
@@ -228,6 +205,10 @@ public class TiUIScrollView extends TiUIView
 					lp.width);
 				height -= getPaddingTop();
 				height -= getPaddingBottom();
+
+				// If we measure the child height to be greater than the parent height, use it in subsequent
+				// calculations to make sure the children are measured correctly the second time around.
+				height = Math.max(child.getMeasuredHeight(), height);
 				int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
 				child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
 
@@ -302,6 +283,10 @@ public class TiUIScrollView extends TiUIView
 					lp.height);
 				width -= getPaddingLeft();
 				width -= getPaddingRight();
+
+				// If we measure the child width to be greater than the parent width, use it in subsequent
+				// calculations to make sure the children are measured correctly the second time around.
+				width = Math.max(child.getMeasuredWidth(), width);
 				int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
 
 				child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
