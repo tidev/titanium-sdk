@@ -521,6 +521,15 @@
 	}
 }
 
+-(void)_updateTitleView
+{
+    //Called from the view when the screen rotates. 
+    //Resize titleControl based on navbar bounds
+    TiThreadPerformOnMainThread(^{
+        [self updateTitleView];
+    }, NO);
+}
+
 -(void)updateTitleView
 {
 	UIView * newTitleView = nil;
@@ -529,24 +538,38 @@
 		return; // No need to update the title if not in a nav controller
 	}
 	
-	UINavigationItem * ourNavItem = [controller navigationItem];
+    UINavigationItem * ourNavItem = [controller navigationItem];
+    UINavigationBar * ourNB = [[controller navigationController] navigationBar];
+    CGRect barFrame = [ourNB bounds];
+    CGSize availableTitleSize = CGSizeZero;
+    availableTitleSize.width = barFrame.size.width - (2*TI_NAVBAR_BUTTON_WIDTH);
+    availableTitleSize.height = barFrame.size.height;
 
-	TiViewProxy * titleControl = [self valueForKey:@"titleControl"];
+    TiViewProxy * titleControl = [self valueForKey:@"titleControl"];
 
-	UIView * oldView = [ourNavItem titleView];
-	if ([oldView isKindOfClass:[TiUIView class]])
-	{
-		TiViewProxy * oldProxy = (TiViewProxy *)[(TiUIView *)oldView proxy];
-		if (oldProxy == titleControl)
-		{
-			return;	//No need to update?
-		}
-		[oldProxy removeBarButtonView];
-	}
+    UIView * oldView = [ourNavItem titleView];
+    if ([oldView isKindOfClass:[TiUIView class]]) {
+        TiViewProxy * oldProxy = (TiViewProxy *)[(TiUIView *)oldView proxy];
+        if (oldProxy == titleControl) {
+            //relayout titleControl
+            CGRect barBounds;
+            barBounds.origin = CGPointZero;
+            barBounds.size = SizeConstraintViewWithSizeAddingResizing(titleControl.layoutProperties, titleControl, availableTitleSize, NULL);
+            
+            [TiUtils setView:oldView positionRect:barBounds];
+            [oldView setAutoresizingMask:UIViewAutoresizingNone];
+            
+            //layout the titleControl children
+            [titleControl layoutChildren:NO];
+            
+            return;
+        }
+        [oldProxy removeBarButtonView];
+    }
 
 	if ([titleControl isKindOfClass:[TiViewProxy class]])
 	{
-		newTitleView = [titleControl barButtonViewForSize:[TiUtils navBarTitleViewSize]];
+		newTitleView = [titleControl barButtonViewForSize:availableTitleSize];
 	}
 	else
 	{
