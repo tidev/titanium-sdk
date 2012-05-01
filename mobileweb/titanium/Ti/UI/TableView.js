@@ -259,6 +259,11 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		},
 
 		appendRow: function(value) {
+			if (!this._currentSection) {
+				this._sections.add(this._currentSection = UI.createTableViewSection({_tableView: this}));
+				this._sections.add(this._createSeparator());
+				this.data.push(this._currentSection);
+			}
 			this._currentSection.add(value);
 			this._refreshSections();
 		},
@@ -300,6 +305,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 						
 						// Remove all of the previous sections
 						this._sections._removeAllChildren();
+						this._currentSection = void 0;
 						
 						// Convert any object literals to TableViewRow instances
 						for (var i in value) {
@@ -307,19 +313,12 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 								value[i] = UI.createTableViewRow(value[i]);
 							}
 						}
-						
-						// If there is no data, we still need to create a default section
-						if (value.length == 0) {
-							this._sections.add(this._currentSection = UI.createTableViewSection({_tableView: this}));
-							this._sections.add(this._createSeparator());
-							retval.push(this._currentSection);
-						}
 			
 						// Add each element
 						for (var i = 0; i < value.length; i++) {
 							if (value[i].declaredClass === "Ti.UI.TableViewRow") {
-								// Check if the first item is a row, meaning we need a default section
-								if (i === 0) {
+								// Check if we need a default section
+								if (!this._currentSection) {
 									this._sections.add(this._currentSection = UI.createTableViewSection({_tableView: this}));
 									this._sections.add(this._createSeparator());
 									retval.push(this._currentSection);

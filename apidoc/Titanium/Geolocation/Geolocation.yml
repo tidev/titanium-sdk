@@ -201,7 +201,7 @@ events:
 
       - name: heading
         summary: Dictionary object containing the heading data.
-        type: HeadingResults
+        type: HeadingData
 
     platforms: [android, iphone, ipad, mobileweb]
 
