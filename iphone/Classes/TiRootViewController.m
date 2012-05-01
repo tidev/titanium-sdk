@@ -46,7 +46,7 @@
 @property (nonatomic,readwrite,assign)	UIInterfaceOrientation windowOrientation;
 
 -(TiOrientationFlags)getDefaultOrientations;
-
+@property(nonatomic,readonly) TiViewProxy<TiKeyboardFocusableView> * keyboardFocusedProxy;
 
 @end
 
@@ -254,6 +254,8 @@
 }
 
 #pragma mark UIViewController methods
+
+@synthesize keyboardFocusedProxy;
 
 -(void)dismissKeyboard
 {
