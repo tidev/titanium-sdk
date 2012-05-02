@@ -58,12 +58,14 @@ description: |
     *    DIPs on Mobile Web (as described above, DIPs and pixels are interchangable on
          Mobile Web).
 
-    The default unit can be overriden on a per-application level by setting the
+    On Android and iOS, the default unit can be overriden on a per-application level by setting the
     `ti.ui.defaultunit` property in `tiapp.xml`. For example, to use DIPs as the 
     default on all platforms, set `defaultunit` to `dip`:
 
         <property name="ti.ui.defaultunit" type="string">dip</property>
     
+    (This property is not supported on Mobile Web.)
+
     The value for `ti.ui.defaultunit` can be any of the unit specifiers defined above, or 
     `system` to specify that the platform's default unit should be used.
 
