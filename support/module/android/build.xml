@@ -56,6 +56,8 @@
 		<javac 
 			srcdir="${src}" 
 			destdir="${classes}"
+			source="1.5"
+			target="1.5"
 			debug="${javac.debug}"
 			includeantruntime="false">
 				<compilerarg value="-processor"/>
@@ -155,6 +157,8 @@
 		<javac 
 			destdir="${classes}"
 			debug="${javac.debug}"
+			source="1.5"
+			target="1.5"
 			includeantruntime="false">
 			<src path="${src}" />
 			<src path="${genjava}" />
