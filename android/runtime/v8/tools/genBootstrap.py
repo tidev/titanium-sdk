@@ -8,33 +8,30 @@
 # Generates javascript bootstrapping code for Titanium Mobile
 #
 
-import os, re, sys
+import os, re, sys, optparse
 
 thisDir = os.path.abspath(os.path.dirname(__file__))
+genDir = os.path.join(os.path.dirname(thisDir), "generated")
 androidDir = os.path.abspath(os.path.join(thisDir, "..", "..", ".."))
+sdkRootDir = os.path.dirname(androidDir)
 
-# We package simplejson in the support/common directory.
-commonSupportDir = os.path.abspath(os.path.join(androidDir, "..", "support", "common"))
-sys.path.append(commonSupportDir)
+# For bootstrap.py
+sys.path.append(os.path.join(sdkRootDir, "module", "android"))
+import bootstrap
+
+# Third-party python modules.
+thirdPartyDir = os.path.abspath(os.path.join(androidDir, "..", "thirdparty"))
+sys.path.append(thirdPartyDir)
 
 try:
 	import json
 except:
 	import simplejson as json
 
-import optparse
-
-thisDir = os.path.abspath(os.path.dirname(__file__))
-genDir = os.path.join(os.path.dirname(thisDir), "generated")
+jsonDir = os.path.abspath(os.path.join(androidDir, "..", "dist", "android", "json"))
 
 if not os.path.exists(genDir):
 	os.makedirs(genDir)
-
-androidModuleDir = os.path.abspath(os.path.join(androidDir, "..", "support", "module", "android"))
-jsonDir = os.path.abspath(os.path.join(androidDir, "..", "dist", "android", "json"))
-
-sys.path.append(androidModuleDir)
-import bootstrap
 
 def loadBindings():
 	bindingPaths = []

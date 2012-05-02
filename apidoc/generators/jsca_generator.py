@@ -10,12 +10,12 @@ sys.path.append(os.path.abspath(os.path.join(this_dir, "..")))
 
 from common import dict_has_non_empty_member, strip_tags, not_real_titanium_types, to_ordered_dict
 
-android_support_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "support", "android"))
-sys.path.append(android_support_dir)
+android_scripts_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "android", "scripts"))
+sys.path.append(android_scripts_dir)
 
-# We package markdown and simplejson in support/common.
-common_support_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "support", "common"))
-sys.path.append(common_support_dir)
+# Third-party modules.
+thirdparty_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "thirdparty"))
+sys.path.append(thirdparty_dir)
 from markdown import markdown
 
 from tilogger import *

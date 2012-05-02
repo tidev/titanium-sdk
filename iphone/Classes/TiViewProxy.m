@@ -899,7 +899,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
     //Ensure all the child views are laid out as well
     [self windowWillOpen];
     [self setParentVisible:YES];
-    [self layoutChildren:NO];
+    [self willShow];
 
 	return barButtonView;
 }

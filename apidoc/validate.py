@@ -6,10 +6,9 @@
 import os, sys, re
 apiDocDir = os.path.abspath(os.path.dirname(__file__))
 
-# We package markdown in support/common.
-commonSupportDir = os.path.abspath(os.path.join(apiDocDir, '..', 'support', 'common'))
-if os.path.exists(commonSupportDir):
-	sys.path.append(commonSupportDir)
+thirdPartyDir = os.path.abspath(os.path.join(apiDocDir, '..', 'thirdparty'))
+if os.path.exists(thirdPartyDir):
+	sys.path.append(thirdPartyDir)
 
 import codecs, optparse, platform
 import markdown

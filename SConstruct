@@ -13,7 +13,7 @@ from SCons.Script import *
 # this is used by other python scripts too
 cwd = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(path.join(cwd,"build"))
-sys.path.append(path.join(cwd,"support","android"))
+sys.path.append(path.join(cwd,"android","scripts"))
 import titanium_version, ant
 from androidsdk import AndroidSDK
 version = titanium_version.version

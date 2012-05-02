@@ -40,8 +40,6 @@ build_type = ARGUMENTS.get("BUILD_TYPE", None)
 iphone_dir = os.path.abspath(os.path.join(os.path.dirname(sys._getframe(0).f_code.co_filename),'../','support','iphone'))
 sys.path.append(iphone_dir)
 
-import run,prereq
-
 def fetch():
 	print "You don't seem to have the appropriate thirdparty files. I'll fetch them."
 	print "This could take awhile.. Might want to grab a cup of Joe or make fun of Nolan."

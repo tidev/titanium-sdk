@@ -22,15 +22,14 @@ except:
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
-# We package markdown and mako in support/common.
-common_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "common"))
-sys.path.append(common_support_dir)
+# Third-party modules markdown and mako.
+thirdparty_dir = os.path.abspath(os.path.join(this_dir, "..", "thirdparty"))
+sys.path.append(thirdparty_dir)
 import markdown
 from mako.template import Template
 
-# TiLogger is in support/android
-android_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "android"))
-sys.path.append(android_support_dir)
+android_scripts_dir = os.path.abspath(os.path.join(this_dir, "..", "android", "scripts"))
+sys.path.append(android_scripts_dir)
 from tilogger import *
 log = TiLogger(None)
 
