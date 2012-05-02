@@ -45,7 +45,7 @@ public class MapRouteType {
 		    Point point2 = new Point();
 		    projection.toPixels(gp2, point2);
 		    paint.setStrokeWidth(width);
-		    paint.setAlpha(120);
+		    paint.setAlpha(255);
 		    canvas.drawLine(point.x, point.y, point2.x, point2.y, paint);
 		    super.draw(canvas, mapView, shadow);
 		}
