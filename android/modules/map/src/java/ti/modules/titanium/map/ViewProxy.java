@@ -51,6 +51,7 @@ public class ViewProxy extends TiViewProxy
 
 	private TiMapView mapView;
 	private ArrayList<AnnotationProxy> annotations;
+	private ArrayList<MapRouteType> routes;
 	private ArrayList<TiMapView.SelectedAnnotation> selectedAnnotations;
 	
 	public ViewProxy()
@@ -63,6 +64,7 @@ public class ViewProxy extends TiViewProxy
 		//tiContext.addOnLifecycleEventListener(this);
 
 		annotations = new ArrayList<AnnotationProxy>();
+		routes = new ArrayList<MapRouteType>();
 		selectedAnnotations = new ArrayList<TiMapView.SelectedAnnotation>();
 	}
 
@@ -136,7 +138,7 @@ public class ViewProxy extends TiViewProxy
 		Intent intent = new Intent(tiApp, TiMapActivity.class);
 		mapWindow = lam.startActivity("TIMAP", intent);
 		lam.dispatchResume();
-		mapView = new TiMapView(this, mapWindow, annotations, selectedAnnotations);
+		mapView = new TiMapView(this, mapWindow, annotations, routes, selectedAnnotations);
 
 		Object location = getProperty(TiC.PROPERTY_LOCATION);
 		if (location != null)
@@ -152,6 +154,7 @@ public class ViewProxy extends TiViewProxy
 		}
 
 		mapView.updateAnnotations();
+		mapView.updateRoute();
 
 		return mapView;
 	}
@@ -181,6 +184,40 @@ public class ViewProxy extends TiViewProxy
 		}
 	}
 
+	@Kroll.method
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	public void addRoute(Object route)
+	{
+		if (route instanceof HashMap) {
+			HashMap routeMap = ((HashMap)route);
+			Object routeArray = routeMap.get("points");
+			if (routeArray instanceof Object[]) {
+				Object[] routes = (Object[]) routeArray;
+				MapPointType[] pointsType = new MapPointType[routes.length];
+				for (int i = 0; i < routes.length; i++) {
+					if (routes[i] instanceof HashMap) {
+						HashMap tempRoute = (HashMap)routes[i];
+						MapPointType mp = new MapPointType(TiConvert.toDouble(tempRoute, "latitude"), TiConvert.toDouble(tempRoute, "longitude"));
+						pointsType[i] = mp;
+					}
+					
+				}
+				MapRouteType mr = new MapRouteType(pointsType, TiConvert.toColor(routeMap, "color"), TiConvert.toInt(routeMap, "width"), TiConvert.toString(routeMap, "name"));
+				if (mapView == null) {
+					this.routes.add(mr);
+				} else {
+					mapView.addRoute(mr);
+				}
+			}		
+		}
+		
+		if (mapView != null) {
+			mapView.updateRoute();
+		}
+		
+	}
+	
+	
 	@Kroll.method
 	public void addAnnotations(Object annotations)
 	{

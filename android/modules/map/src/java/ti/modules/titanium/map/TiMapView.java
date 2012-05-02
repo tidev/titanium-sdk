@@ -28,6 +28,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.map.MapRouteType.RouteOverlay;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -95,6 +96,7 @@ public class TiMapView extends TiUIView
 	private MyLocationOverlay myLocation;
 	private TiOverlayItemView itemView;
 	private ArrayList<AnnotationProxy> annotations;
+	private ArrayList<MapRouteType> routes;
 	private ArrayList<SelectedAnnotation> selectedAnnotations;
 	private Handler handler;
 
@@ -159,6 +161,7 @@ public class TiMapView extends TiUIView
 		}
 	}
 
+	
 	class TitaniumOverlay extends ItemizedOverlay<TiOverlayItem>
 	{
 		ArrayList<AnnotationProxy> annotations;
@@ -304,7 +307,7 @@ public class TiMapView extends TiUIView
 			return handled;
 		}
 	}
-
+	
 	public static class SelectedAnnotation
 	{
 		String title;
@@ -319,13 +322,14 @@ public class TiMapView extends TiUIView
 		}
 	}
 	
-	public TiMapView(TiViewProxy proxy, Window mapWindow, ArrayList<AnnotationProxy> annotations, ArrayList<SelectedAnnotation>selectedAnnotations)
+	public TiMapView(TiViewProxy proxy, Window mapWindow, ArrayList<AnnotationProxy> annotations, ArrayList<MapRouteType> routes, ArrayList<SelectedAnnotation>selectedAnnotations)
 	{
 		super(proxy);
 
 		this.mapWindow = mapWindow;
 		this.handler = new Handler(Looper.getMainLooper(), this);
 		this.annotations = annotations;
+		this.routes = routes;
 		this.selectedAnnotations = selectedAnnotations;
 
 		TiApplication app = TiApplication.getInstance();
@@ -517,6 +521,40 @@ public class TiMapView extends TiUIView
 		handler.obtainMessage(MSG_UPDATE_ANNOTATIONS).sendToTarget();
 	}
 
+	public ArrayList<MapRouteType> getRoutes() 
+	{
+		return routes;
+	}
+	
+	public void addRoute(MapRouteType mr) 
+	{
+		//check if route exists - by name
+		String rname = mr.getName();
+		for (int i = 0; i < routes.size(); i++) {
+			if (rname.equals(routes.get(i).getName())) {
+				return;
+			}
+		}
+		routes.add(mr);
+	}
+	
+	public void updateRoute() 
+	{
+		int i = 0;
+		
+		while (i < routes.size()) {
+			MapRouteType mr = routes.get(i);
+			ArrayList<RouteOverlay> o = mr.getRoutes();			
+			List<Overlay> overlaysList = view.getOverlays();
+			for (int j = 0; j < o.size(); j++) {
+				if (!overlaysList.contains(o.get(j))) {
+					overlaysList.add(o.get(j));
+				}
+			}
+			i++;
+		}
+	}
+	
 	public void doUpdateAnnotations()
 	{
 		if (itemView != null && view != null && view.indexOfChild(itemView) != -1 ) {
