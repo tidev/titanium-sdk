@@ -465,8 +465,11 @@ describe("Ti.UI tests", {
 	childrenArrayEmpty: function() {
 		var view = Ti.UI.createView();
 		valueOf(view).shouldNotBeNull();
+		valueOf(view).shouldBeObject();
+		
 		valueOf(view.children).shouldNotBeNull();
 		valueOf(view.children).shouldNotBeUndefined();
+		valueOf(view.children).shouldBeObject();
 		valueOf(view.children).shouldBe(0);
 	}
 });
