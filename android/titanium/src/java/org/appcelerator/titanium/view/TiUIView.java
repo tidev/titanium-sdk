@@ -92,6 +92,7 @@ public abstract class TiUIView
 	private Method mSetLayerTypeMethod = null; // Honeycomb, for turning off hw acceleration.
 
 	private boolean zIndexChanged = false;
+	private boolean didScale = false;
 
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
@@ -923,6 +924,7 @@ public abstract class TiUIView
 				public boolean onScale(ScaleGestureDetector sgd) {
 					if (proxy.hierarchyHasListener(TiC.EVENT_PINCH)) {
 						float timeDelta = sgd.getTimeDelta() == 0 ? minTimeDelta : sgd.getTimeDelta();
+						didScale = true;
 						
 						KrollDict data = new KrollDict();
 						data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
@@ -1007,9 +1009,10 @@ public abstract class TiUIView
 					lastUpEvent.put(TiC.EVENT_PROPERTY_X, (double)event.getX());
 					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, (double)event.getY());
 				}
-				
+
 				scaleDetector.onTouchEvent(event);
 				if (scaleDetector.isInProgress()) {
+					pointersDown = 0;
 					return true;
 				}
 
@@ -1020,7 +1023,12 @@ public abstract class TiUIView
 				}
 
 				if (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP) {
-					pointersDown++;
+					if (didScale) {
+						didScale = false;
+						pointersDown = 0;
+					} else {
+						pointersDown++;
+					}
 				} else if (event.getAction() == MotionEvent.ACTION_UP) {
 					if (pointersDown == 1) {
 						proxy.fireEvent(TiC.EVENT_TWOFINGERTAP, dictFromEvent(event));
