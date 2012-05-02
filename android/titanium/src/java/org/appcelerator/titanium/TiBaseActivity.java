@@ -812,6 +812,9 @@ public abstract class TiBaseActivity extends Activity
 				}
 			}
 		}
+		// store current configuration orientation
+		// This fixed bug with double orientation chnage firing when activity starts in landscape 
+		previousOrientation = getResources().getConfiguration().orientation;
 	}
 
 	@Override
