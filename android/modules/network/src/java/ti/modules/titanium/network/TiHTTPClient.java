@@ -24,8 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.http.Header;
@@ -91,6 +89,10 @@ import org.appcelerator.titanium.util.TiUrl;
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
 import android.net.Uri;
+
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
 
 public class TiHTTPClient
 {
@@ -559,9 +561,9 @@ public class TiHTTPClient
 				String text = responseData.toString();
 				Pattern pattern = Pattern.compile("<meta[^>]*charset=\"*([\\p{Alnum}-.:_]+)\"*");
 				Matcher matcher = pattern.matcher(text);
-				if(matcher.find()){
+				if (matcher.find()) {
 					charset = matcher.group(1);
-				}else{
+				} else {
 					charset = HTTP.UTF_8;
 				}
 			}
