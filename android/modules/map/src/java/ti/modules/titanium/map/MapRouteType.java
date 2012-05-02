@@ -26,7 +26,8 @@ public class MapRouteType {
 		private int color;
 		private int width;
 		
-		public RouteOverlay(GeoPoint gp1, GeoPoint gp2, int color, int width) {
+		public RouteOverlay(GeoPoint gp1, GeoPoint gp2, int color, int width) 
+		{
 			this.gp1 = gp1;
 			this.gp2 = gp2;
 			this.color = color;
@@ -34,7 +35,8 @@ public class MapRouteType {
 		}
 		
 		@Override
-		public void draw(Canvas canvas, MapView mapView, boolean shadow) {
+		public void draw(Canvas canvas, MapView mapView, boolean shadow) 
+		{
 		    Projection projection = mapView.getProjection();
 		    Paint paint = new Paint();
 		    Point point = new Point();
@@ -60,11 +62,13 @@ public class MapRouteType {
 		generateRoutes();
 	}
 	
-	public MapPointType[] getPoints() {
+	public MapPointType[] getPoints() 
+	{
 		return points;
 	}
 	
-	public ArrayList<RouteOverlay> getRoutes() {
+	public ArrayList<RouteOverlay> getRoutes() 
+	{
 		return routes;
 	}
 	
@@ -83,7 +87,8 @@ public class MapRouteType {
 		return width;
 	}
 	
-	private void generateRoutes() {
+	private void generateRoutes() 
+	{
 		
 		for (int i = 0; i < points.length - 1; i++) {
 			MapPointType mr1 = points[i];
