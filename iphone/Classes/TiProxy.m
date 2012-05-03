@@ -227,13 +227,15 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 {
 	if (self = [self init])
 	{
-		pageContext = (id)context; // do not retain 
+		pageContext = (id)context; // do not retain
+		executionContext = context; //To ensure there is an execution context during _configure.
 		if([[self class] shouldRegisterOnInit]) // && ![NSThread isMainThread])
 		{
 			[pageContext registerProxy:self];
 			// allow subclasses to configure themselves
 		}
 		[self _configure];
+		executionContext = nil;
 	}
 	return self;
 }
