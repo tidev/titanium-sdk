@@ -205,7 +205,8 @@
 		}
 	}
 	else {
-		GDataXMLNode* resultNode = (GDataXMLNode*)[GDataXMLElement attributeWithName:localName stringValue:val];
+		[element releaseCachedValues];
+		xmlNodePtr curNode = [element XMLNode];
 
 		xmlChar *href;
 		xmlChar *pre;
@@ -224,8 +225,9 @@
 		
 		xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
 									 href, pre);
-		[resultNode XMLNode]->ns = theNewNs;
-		[element addAttribute: resultNode];
+		xmlAttrPtr newAttr = xmlNewNsProp(curNode, theNewNs, (xmlChar*)[localName UTF8String], (xmlChar*)[val UTF8String]);
+
+        
 	}
 }
 
@@ -429,6 +431,7 @@
 			[self throwException:@"mismatched documents" subreason:nil location:CODELOCATION];
 			return [NSNull null];
 		}
+       
 		GDataXMLNode * attributeNode = [element attributeForLocalName:[GDataXMLNode localNameForName:name] URI:theURI];
 		if (attributeNode != nil) {
 			[attributeNode retain];
@@ -458,9 +461,16 @@
 		if(oldNodePtr != NULL) {
 			[TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
 		}
-		//This adds by copying
-		[element addAttribute: [attProxy node]];
-		attributeNode = [element attributeForName:name];
+		//Duplicate methodology in setAttributeNS
+		[element releaseCachedValues];
+		xmlNodePtr curNode = [element XMLNode];
+		xmlNodePtr curAttr = [[attProxy node] XMLNode];
+		xmlNsPtr theNewNs = xmlCopyNamespace(curAttr->ns);
+		NSString* localName = [GDataXMLNode localNameForName:name];
+		NSString* val = [[attProxy node] stringValue];
+        
+		xmlAttrPtr newAttr = xmlNewNsProp(curNode, theNewNs, (xmlChar*)[localName UTF8String], (xmlChar*)[val UTF8String]);
+		attributeNode = [element attributeForLocalName:localName URI:theURI];
 		[attProxy setNode:attributeNode];
 		[attProxy setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
 		[TiDOMNodeProxy setNode:attProxy forXMLNode:[attributeNode XMLNode]];
