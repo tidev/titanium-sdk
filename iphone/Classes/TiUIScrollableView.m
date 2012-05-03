@@ -63,6 +63,38 @@
 	return pageControl;
 }
 
+
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event 
+{
+    id value = [self.proxy valueForKey:@"hitRect"];
+
+    if (value != nil) 
+    {
+        CGRect hitRect = [TiUtils rectValue:value];
+        // As long as we're inside of hitRect..
+        if (CGRectContainsPoint(hitRect, point))
+        {
+            UIView * test = [super hitTest:point withEvent:event];
+
+            // If it misses super's hitTest then it's outside of the
+            // scrollview.  Just return scrollview; at least the scrolling
+            // events can be processed, though no touches will go through
+            // to the view inside of scrollview. otherwise just return 
+            // whatever super got.
+
+            return test == nil ? scrollview : test;
+        }
+        else
+        {
+            return nil;
+        }
+    }
+    else 
+    {
+        return [super hitTest:point withEvent:event];
+    }
+}
+
 -(UIScrollView*)scrollview 
 {
 	if (scrollview==nil)
