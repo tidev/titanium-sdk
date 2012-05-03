@@ -675,28 +675,28 @@
 {
     ENSURE_SINGLE_ARG(args, TiDOMNodeProxy);
     TiDOMNodeProxy * newChild = (TiDOMNodeProxy*)args;
-    xmlNodePtr oldNodePtr = [[newChild node]XMLNode];
+    xmlNodePtr oldNodePtr = [[newChild node] XMLNode];
     xmlNodePtr parent = [element XMLNode];
     xmlNodePtr resultPtr = xmlAddChild(parent, oldNodePtr);
     
     if (resultPtr != NULL) {
-        [[self node]releaseCachedValues];
+        [[self node] releaseCachedValues];
         //Child added successfully
         if (resultPtr == oldNodePtr) {
             //Child pointer not modified
-            [[newChild node]setShouldFreeXMLNode:NO];
+            [[newChild node] setShouldFreeXMLNode:NO];
             return newChild;
         }
         else {
             //Child pointer modified
-            [[newChild node]setShouldFreeXMLNode:YES];
+            [[newChild node] setShouldFreeXMLNode:YES];
             if (oldNodePtr != NULL) {
                 [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
             }
             TiDOMNodeProxy* result = [TiDOMNodeProxy nodeForXMLNode:resultPtr];
             if (result == nil) {
                 GDataXMLNode * resultNode = [GDataXMLNode nodeBorrowingXMLNode:resultPtr];
-                id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+                id context = ([self executionContext]==nil) ? [self pageContext] : [self executionContext];
                 result = [self makeNode:resultNode context:context];
             }
             return result;
