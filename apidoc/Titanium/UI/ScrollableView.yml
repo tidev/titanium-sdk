@@ -119,8 +119,8 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-    
-  - name: scroll
+
+  - name: scrollEnd
     summary: Fired when the current view is changed.
     properties:
       - name: currentPage
@@ -139,7 +139,7 @@ events:
       - name: view
         summary: The current view.
         type: Object
-    
+
   - name: singletap
     summary: Fired when the device detects a single tap against this view.
     platforms: [iphone, ipad]
@@ -227,7 +227,7 @@ events:
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
 
-  - name: scrolling
+  - name: scroll
     summary: Fired when the view is being scrolled
     platforms: [iphone, ipad]
     properties:
