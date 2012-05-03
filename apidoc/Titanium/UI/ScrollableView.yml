@@ -122,6 +122,8 @@ events:
 
   - name: scrollEnd
     summary: Fired when the current view is changed.
+    platforms: [iphone, ipad, android]
+
     properties:
       - name: currentPage
         summary: Index of the current view of <Titanium.UI.ScrollableView.views>.
@@ -137,7 +139,7 @@ events:
             since: "1.8.0"
         
       - name: view
-        summary: The current view.
+        summary: The currently visible view.
         type: Object
 
   - name: singletap
@@ -229,10 +231,10 @@ events:
 
   - name: scroll
     summary: Fired when the view is being scrolled
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
     properties:
       - name: currentPage
-        summary: Current page that the view is scrolled to.  This is 
+        summary: Current page that the view is scrolled to.
         type: Number
 
       - name: currentPageAsFloat
@@ -240,6 +242,18 @@ events:
            Current page that the view is scrolled to as a float. So, for
            example, if the user is holding the `ScrollableView` in between
            the first and second page, this will have a value of `0.5`
+
+      - name: view
+        summary: The currently visible view.
+        type: Object
+
+   - name: dragEnd
+     summary: Fired when the scrolling drag gesture on the view has been completed
+     platforms: [android]
+     properties:
+      - name: currentPage
+        summary: Current page that the view is scrolled to.
+        type: Number
 
       - name: view
         summary: The currently visible view.
