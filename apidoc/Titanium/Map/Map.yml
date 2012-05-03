@@ -13,6 +13,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+    since: "2.1.0"
 
   - name: ANNOTATION_DRAG_STATE_START
     summary: |
@@ -21,6 +22,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+    since: "2.1.0"
 
   - name: ANNOTATION_DRAG_STATE_DRAG
     summary: |
@@ -29,6 +31,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+    since: "2.1.0"
 
   - name: ANNOTATION_DRAG_STATE_CANCEL
     summary: |
@@ -37,6 +40,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+    since: "2.1.0"
 
   - name: ANNOTATION_DRAG_STATE_END
     summary: |
@@ -45,6 +49,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+    since: "2.1.0"
 
   - name: ANNOTATION_GREEN
     summary: |

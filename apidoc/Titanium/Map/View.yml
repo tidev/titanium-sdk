@@ -297,6 +297,7 @@ events:
             [ANNOTATION_DRAG_STATE_END](Titanium.Map.ANNOTATION_DRAG_STATE_END).
         type: Number
     platforms: [iphone, ipad]
+    since: "2.1.0"
 
   - name: regionChanged
     summary: Fired when the mapping region changes.

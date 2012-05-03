@@ -50,13 +50,18 @@ properties:
 
   - name: animate
     summary: Boolean to indicate whether the pin should animate when dropped.
+    description: |
+        Must be set before the annotation is added to the map view.
     type: Boolean
 
   - name: draggable
     summary: Determines whether the pin can be dragged by the user.
+    description: |
+        Must be set before the annotation is added to the map view.
     type: Boolean
     default: false
     platforms: [iphone, ipad]
+    since: "2.1.0"
 
   - name: image
     summary: Image to use for the the pin.
