@@ -663,34 +663,38 @@
 
 -(id)appendChild:(id)args
 {
-	ENSURE_SINGLE_ARG(args, TiDOMNodeProxy);
-	TiDOMNodeProxy * newChild = (TiDOMNodeProxy*)args;
-	xmlNodePtr oldNodePtr = [[newChild node]XMLNode];
-	GDataXMLNode* resultElement = [element addChild:[newChild node]];
-
-	if (resultElement != nil)
-	{
-		//No longer part of tree set to free node since add child adds by creating copy
-		[[newChild node]setShouldFreeXMLNode:YES];
-		if (oldNodePtr != NULL)
-		{
-			[TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
-		}
-		if ([newChild isKindOfClass:[TiDOMElementProxy class]])
-		{
-			[(TiDOMElementProxy*)newChild setElement:(GDataXMLElement*)resultElement];
-		}
-		else
-		{
-			[newChild setNode:resultElement];
-		}
-		[TiDOMNodeProxy setNode:newChild forXMLNode:[resultElement XMLNode]];
-		return newChild;
-	}
-	else
-	{
-		return [NSNull null];
-	}
+    ENSURE_SINGLE_ARG(args, TiDOMNodeProxy);
+    TiDOMNodeProxy * newChild = (TiDOMNodeProxy*)args;
+    xmlNodePtr oldNodePtr = [[newChild node]XMLNode];
+    xmlNodePtr parent = [element XMLNode];
+    xmlNodePtr resultPtr = xmlAddChild(parent, oldNodePtr);
+    
+    if (resultPtr != NULL) {
+        [[self node]releaseCachedValues];
+        //Child added successfully
+        if (resultPtr == oldNodePtr) {
+            //Child pointer not modified
+            [[newChild node]setShouldFreeXMLNode:NO];
+            return newChild;
+        }
+        else {
+            //Child pointer modified
+            [[newChild node]setShouldFreeXMLNode:YES];
+            if (oldNodePtr != NULL) {
+                [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
+            }
+            TiDOMNodeProxy* result = [TiDOMNodeProxy nodeForXMLNode:resultPtr];
+            if (result == nil) {
+                GDataXMLNode * resultNode = [GDataXMLNode nodeBorrowingXMLNode:resultPtr];
+                id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+                result = [self makeNode:resultNode context:context];
+            }
+            return result;
+        }
+    }
+    else {
+        return [NSNull null];
+    }
 }
 
 -(id)attributes
