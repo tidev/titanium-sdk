@@ -74,6 +74,7 @@ methods:
 
   - name: getStringExtra
     summary: Get a string property from this Intent.
+    description: Can also be used to get the string representation of a [parcelable extra](http://developer.android.com/reference/android/content/Intent.html#getParcelableExtra(java.lang.String)), which is useful since we do not support `getParcelableExtra` due to the inability to translate all of its possible return types to Javascript.
     returns:
         type: String
     parameters:

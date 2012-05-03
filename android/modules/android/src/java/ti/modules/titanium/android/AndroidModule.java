@@ -254,7 +254,7 @@ public class AndroidModule extends KrollModule
 	public IntentProxy createServiceIntent(Object[] args)
 	{
 		IntentProxy intent = new IntentProxy();
-		intent.setType(IntentProxy.TYPE_SERVICE);
+		intent.setInternalType(IntentProxy.TYPE_SERVICE);
 		intent.handleCreationArgs(this, args);
 		Object startMode = intent.getProperty(TiC.INTENT_PROPERTY_START_MODE);
 		if (startMode != null) {
@@ -266,7 +266,7 @@ public class AndroidModule extends KrollModule
 	public IntentProxy createBroadcastIntent(Object[] args)
 	{
 		IntentProxy intent = new IntentProxy();
-		intent.setType(IntentProxy.TYPE_BROADCAST);
+		intent.setInternalType(IntentProxy.TYPE_BROADCAST);
 		intent.handleCreationArgs(this, args);
 		return intent;
 	}

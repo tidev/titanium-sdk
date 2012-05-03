@@ -183,6 +183,11 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     return [window isKeyWindow];
 }
 
+-(UIView *) topMostView
+{
+    UIWindow  *currentKeyWindow_ = [[UIApplication sharedApplication] keyWindow];
+    return [[currentKeyWindow_ subviews] lastObject];
+}
 -(void)attachXHRBridgeIfRequired
 {
 #ifdef USE_TI_UIWEBVIEW
