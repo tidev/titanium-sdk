@@ -62,7 +62,8 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
-	for (TiViewProxy * thisProxy in [self children])
+    NSArray* childProxies = [self children];
+	for (TiViewProxy * thisProxy in childProxies)
 	{
 		if ([thisProxy respondsToSelector:@selector(willAnimateRotationToInterfaceOrientation:duration:)])
 		{
@@ -236,7 +237,8 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	//TODO: Since windowDidClose also calls detachView, is this necessary?
 	[self detachView];
 	// notify our child that his window is closing
-	for (TiViewProxy *child in self.children)
+    NSArray* childProxies = [self children];
+	for (TiViewProxy *child in childProxies)
 	{
 		[child windowDidClose];
 	}
