@@ -225,7 +225,7 @@
 		
 		xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
 									 href, pre);
-		xmlAttrPtr newAttr = xmlNewNsProp(curNode, theNewNs, (xmlChar*)[localName UTF8String], (xmlChar*)[val UTF8String]);
+		xmlNewNsProp(curNode, theNewNs, (xmlChar*)[localName UTF8String], (xmlChar*)[val UTF8String]);
 
         
 	}
@@ -469,7 +469,7 @@
 		NSString* localName = [GDataXMLNode localNameForName:name];
 		NSString* val = [[attProxy node] stringValue];
         
-		xmlAttrPtr newAttr = xmlNewNsProp(curNode, theNewNs, (xmlChar*)[localName UTF8String], (xmlChar*)[val UTF8String]);
+		xmlNewNsProp(curNode, theNewNs, (xmlChar*)[localName UTF8String], (xmlChar*)[val UTF8String]);
 		attributeNode = [element attributeForLocalName:localName URI:theURI];
 		[attProxy setNode:attributeNode];
 		[attProxy setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
