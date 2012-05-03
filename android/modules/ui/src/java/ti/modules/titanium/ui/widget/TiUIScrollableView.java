@@ -70,32 +70,58 @@ public class TiUIScrollableView extends TiUIView
 		pager.setAdapter(adapter);
 		pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener()
 		{
+			private int mCurIndex;
+			private boolean isValidScroll = false;
+
+			@Override
+			public void onPageScrollStateChanged(int scrollState)
+			{
+				if ((scrollState == ViewPager.SCROLL_STATE_IDLE) && isValidScroll) {
+					int oldIndex = mCurIndex;
+
+					if (mCurIndex >= 0) {
+						if (oldIndex >=0 && oldIndex != mCurIndex && oldIndex < mViews.size()) {
+							// Don't know what these focused and unfocused
+							// events are good for, but they were in our previous
+							// scrollable implementation.
+							// cf. https://github.com/appcelerator/titanium_mobile/blob/20335d8603e2708b59a18bafbb91b7292278de8e/android/modules/ui/src/ti/modules/titanium/ui/widget/TiScrollableView.java#L260
+							TiEventHelper.fireFocused(mViews.get(oldIndex));
+						}
+
+						TiEventHelper.fireUnfocused(mViews.get(mCurIndex));
+						if (oldIndex >= 0) {
+							// oldIndex will be -1 if the view has just
+							// been created and is setting currentPage
+							// to something other than 0. In that case we
+							// don't want a scrollEnd to fire.
+							((ScrollableViewProxy)proxy).fireScrollEnd(mCurIndex, mViews.get(mCurIndex));
+						}
+					}
+
+					// If we don't use this state variable to check if it's a valid
+					// scroll, this event will fire when the view is first created
+					// because on creation, the scroll state is initialized to 
+					// `idle` and this handler is called.
+					isValidScroll = false;
+				}
+			}
+
 			@Override
 			public void onPageSelected(int position)
 			{
 				super.onPageSelected(position);
-				int oldIndex = mCurIndex;
-				mCurIndex = position;
-				if (mCurIndex >= 0) {
-					if (oldIndex >=0 && oldIndex != mCurIndex && oldIndex < mViews.size()) {
-						// Don't know what these focused and unfocused
-						// events are good for, but they were in our previous
-						// scrollable implementation.
-						// cf. https://github.com/appcelerator/titanium_mobile/blob/20335d8603e2708b59a18bafbb91b7292278de8e/android/modules/ui/src/ti/modules/titanium/ui/widget/TiScrollableView.java#L260
-						TiEventHelper.fireFocused(mViews.get(oldIndex));
-					}
-					TiEventHelper.fireUnfocused(mViews.get(mCurIndex));
-					if (oldIndex >= 0) {
-						// oldIndex will be -1 if the view has just
-						// been created and is setting currentPage
-						// to something other than 0. In that case we
-						// don't want a scroll to fire.
-						((ScrollableViewProxy)proxy).fireScroll(mCurIndex);
-					}
-				}
+				((ScrollableViewProxy)proxy).fireDragEnd(mCurIndex, mViews.get(mCurIndex));
 				if (shouldShowPager()) {
 					showPager();
 				}
+			}
+
+			@Override
+			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
+			{
+				isValidScroll = true;
+				mCurIndex = position;
+				((ScrollableViewProxy)proxy).fireScroll(position, positionOffset, mViews.get(mCurIndex));
 			}
 		});
 		return pager;
