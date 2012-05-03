@@ -75,19 +75,14 @@
         if (CGRectContainsPoint(hitRect, point))
         {
             UIView * test = [super hitTest:point withEvent:event];
-            if (test == nil)
-            {
-                // If it misses super's hitTest then it's outside of the
-                // scrollview.  Just return scrollview; at least the scrolling
-                // events can be processed, though no touches will go through
-                // to the view inside of scrollview
-                return scrollview;
-            } 
-            else 
-            {
-                // otherwise just return whatever super got
-                return test;
-            }
+
+            // If it misses super's hitTest then it's outside of the
+            // scrollview.  Just return scrollview; at least the scrolling
+            // events can be processed, though no touches will go through
+            // to the view inside of scrollview. otherwise just return 
+            // whatever super got.
+
+            return test == nil ? scrollview : test;
         }
         else
         {
