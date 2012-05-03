@@ -67,7 +67,6 @@
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event 
 {
     id value = [self.proxy valueForKey:@"hitRect"];
-    UIView * test = [super hitTest:point withEvent:event];
 
     if (value != nil) 
     {
@@ -75,6 +74,7 @@
         // As long as we're inside of hitRect..
         if (CGRectContainsPoint(hitRect, point))
         {
+            UIView * test = [super hitTest:point withEvent:event];
             if (test == nil)
             {
                 // If it misses super's hitTest then it's outside of the
@@ -89,12 +89,15 @@
                 return test;
             }
         }
+        else
+        {
+            return nil;
+        }
     }
     else 
     {
-        return test;
+        return [super hitTest:point withEvent:event];
     }
-    return nil;
 }
 
 -(UIScrollView*)scrollview 
