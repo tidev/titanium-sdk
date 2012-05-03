@@ -24,7 +24,7 @@ describe("iPhone.UI tests", {
       var scrollingEvents = [];
 
       // Catch all scrolling events, then validate them
-      scrollableView.addEventListener('scrolling', function (e) {
+      scrollableView.addEventListener('scroll', function (e) {
          scrollingEvents.push(e);
       });
 
@@ -32,7 +32,7 @@ describe("iPhone.UI tests", {
 
       // This is fired when the scrollToView has completed; time to validate
       // our events!
-      scrollableView.addEventListener('scroll', function (scrollEvent) {
+      scrollableView.addEventListener('scrollEnd', function (scrollEvent) {
          var numEvents = scrollingEvents.length;
 
          try {
