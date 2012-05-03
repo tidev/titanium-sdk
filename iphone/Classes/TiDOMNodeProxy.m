@@ -148,6 +148,13 @@ CFHashCode	simpleHash(const void *value)
 				return;
 			}
 		}
+		else if ( [prefix isEqualToString:@"xmlns"] ) {
+			if (![theURI isEqualToString:@"http://www.w3.org/2000/xmlns/"]) {
+				*error = @"Invalid URI for prefix";
+				*suberror = [NSString stringWithFormat:@"%@:%@",prefix,theURI];
+				return;
+			}
+		}
 		else {
 			//Check prefix validity
 			if (![TiDOMValidator checkNamespacePrefix:prefix]) {
