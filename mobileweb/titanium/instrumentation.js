@@ -19,27 +19,26 @@ instrumentation = {
 			!(category in this.counters) && (this.counters[category] = 0);
 			this.counters[category]++;
 		}
-		newTest.startTime = new Date();
+		newTest.startTime = (new Date()).getTime();
 		return newTestID;
 	},
 
 	stopTest: function(testID, customInformation) {
-		if ((testID in this.tests)) {
+		if (this.tests[testID]) {
 			var test = this.tests[testID],
-				stopTime;
-			test.stopTime = new Date();
+				stopTime = test.stopTime = (new Date()).getTime();
 			test.customInformation = customInformation;
-			stopTime = test.stopTime.getTime()
 			test.timeSinceLaunch = stopTime - this.startTime;
-			test.duration = test.stopTime.getTime() - test.startTime.getTime();
+			test.duration = stopTime - test.startTime;
 			this.logTest(testID);
 		}
 	},
 	
 	logTest: function(testID) {
-		if ((testID in this.tests)) {
-			var test = this.tests[testID],
-				category = test.category;
+		var test = this.tests[testID],
+			category;
+		if (test) {
+			category = test.category;
 			console.debug("[INSTRUMENTATION] Test " + (category ? "'" + category + " " + this.counters[category] + "'" : testID) + " completed\n" +
 				"\tDuration: " + test.duration + " ms\n" +
 				"\tTime since app launched: " + test.timeSinceLaunch + " ms" +
@@ -48,19 +47,19 @@ instrumentation = {
 	},
 	
 	cancelTest: function(testID) {
-		(testID in this.tests) && tests.splice(testID,1);
+		(this.tests[testID]) && (this.tests[testID] = 0);
 	},
 
 	issueReports: function() {
-		var testID,
-			tests = this.tests,
-			testsLength = tests.length,
-			test;
-		for (testID in tests) {
-			test = tests[testID];
-			if (test.stopTime) {
-				this.logTest(testID);
-				tests.splice(testID,1);
+		var tests = this.tests,
+			len = tests.length,
+			test,
+			i = 0;
+		for (; i < len; i++) {
+			test = tests[i];
+			if (test && test.stopTime) {
+				this.logTest(i);
+				tests[i] = 0;
 			}
 		}
 	}
