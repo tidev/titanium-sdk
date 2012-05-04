@@ -22,7 +22,7 @@ description: |
     
     <table cellpadding="6px" border="1" rules="all">
     <tr>
-    <th align="left">Unit</th> <th align="left">Specifier</th> <th align="left">Note<th>
+    <th align="left">Unit</th> <th align="left">Specifier</th> <th align="left">Note</th>
     </tr>
     <tr> <td>pixels</td> <td>px</td> <td></td> </tr>
     <tr> <td>density-independent pixels</td> <td>dip</td> <td>Equivalent to Apple "points."</td> </tr>
@@ -827,40 +827,81 @@ properties:
         *   `composite` (or `absolute`). Default layout. A child view is positioned based
             on its positioning properties or "pins"  (`top`, `bottom`, `left`, `right`
             and `center`). If no positioning  properties are specified, the child is
-            centered.
-
-            For vertical positioning, the positioning properties are used as follows:
-
-            If the child includes a `top` value, the child is positioned `top` units from
-            the top of the parent's bounding box. 
-
-            If the child includes a `center.y` value but not a `top` value, the child is
-            positioned so that its vertical center is at `center.y` in the parent's
-            coordinate space.
-
-            If the child includes a `bottom` value but not a `top` or `center.y` value,
-            the child is positioned `bottom` units from the bottom of the parent's
-            bounding box.
-
-            If none of the vertical positioning properties are set, the child is centered
-            vertically within the parent's bounding box.
-
-            Horizontal positioning works like vertical positioning, except that the
-            precedence is `left`, `center.x`, `right`.
+            centered. 
             
-            If no position is set explicitly, children are centered. For example, if a 
-            child specifies a `top` of 20 and does not specify any other position properties,
-            the child is positioned 20 units from the parent's top, and centered horizontally.
-
-            If the `height` and `width` properties are set, the set values are used. If
-            the child's height or width is not specified explicitly, it may be calculated
+            The child is always sized based on its `width` and `height` properties, if these are
+            specified.  If the child's height or width is *not* specified explicitly, it may be calculated
             implicitly from the positioning properties. For example, if both `left` and
             `center.x` are specified, they can be used to calculate the width of the child
-            control.
+            control. 
 
+            Because the size and position properties can conflict, there is a specific precedence
+            order for the layout properties.  For vertical positioning, the precedence
+            order is: `height`, `top`, `center.y`, `bottom`.
+
+            The following table summarizes the various combinations of properties that can
+            be used for vertical positioning, in order from highest precedence to lowest.
+            (For example, if `height`, `center.y` and `bottom` are all specified, the
+            `height` and `center.y` values take precedence.)
+
+            <table cellpadding="6px" border="1" rules="all">
+            <tr>
+            <th>Scenario</th><th>Behavior</th>
+            </tr>
+            <tr>
+            <td>`height` & `top` specified</td><td>Child positioned `top` unit from
+            parent's top, using specified `height`; 
+            any `center.y` and `bottom` values are ignored.</td>
+            </tr>
+            <tr>
+            <td>`height` & `center.y` specified</td><td>Child positioned with center at
+            `center.y`, using specified `height`; any `bottom` value is ignored.</td>
+            </tr>
+            <tr>
+            <td>`height` & `bottom` specified</td><td>Child positioned `bottom` units from
+            parent's bottom, using specified `height`.</td>
+            </tr>
+            <tr>
+            <td>`top` & `center.y` specified</td><td>Child positioned with top edge `top` units from
+            parent's top and center at `center.y`. Height is determined implicitly; 
+            any `bottom` value is ignored.</td>
+            </tr>
+            <tr>
+            <td>`top` & `bottom` specified</td><td>Child positioned with top edge `top` units from
+            parent's top and bottom edge `bottom` units from parent's bottom. Height is determined 
+            implicitly. </td>
+            </tr>
+            <tr>
+            <td>Only `top` specified</td><td>Child positioned `top` units from parent's
+            top, and uses the default height calculation for the view type.</td>
+            </tr>
+            <tr>
+            <td>`center.y` and `bottom` specified</td><td>Child positioned with center at 
+            `center.y` and bottom edge `bottom` units from parent's bottom. height is determined 
+            implicitly.</td>
+            </tr>
+            <tr>
+            <td>Only `center.y` specified</td><td>Child positioned with center at
+            `center.y`, and uses the default height calculation for the view type.</td>
+            </tr>
+            <tr>
+            <td>Only `bottom` specified</td><td>Child positioned with bottom edge `bottom`
+            units from parent's bottom, and uses the default height calculation for the view type.</td>
+            </tr>
+            <tr>
+            <td>`height`, `top`, `center.y` and `bottom` unspecified</td><td>Child
+            centered vertically in the parent and uses the default height calculation 
+            for the child view type.</td>
+            </tr>
+            </table>
+            
+            Horizontal positioning works like vertical positioning, except that the
+            precedence is `width`, `left`, `center.x`, `right`.
+            
             For complete details on composite layout rules, see
             [Transitioning to the New UI Layout System](http://docs.appcelerator.com/titanium/2.0/index.html#!/guide/Transitioning_to_the_New_UI_Layout_System)
             in the Titanium Mobile Guides.
+
 
          *  `vertical`. Children are laid out vertically from top to bottom. The first child 
             is laid out `top` units from its parent's bounding box. Each subsequent child is 
@@ -869,6 +910,7 @@ properties:
 
             Each child is positioned horizontally as in the composite layout mode.
 
+
          *  `horizontal`. Somewhat like the vertical layout, except children are laid out horizontally
             from left to right, _in rows_. If a child requires more horizontal space than
             exists in the current row, it is wrapped to a new row. The height of each row
@@ -876,16 +918,26 @@ properties:
 
             On iOS and Mobile Web (Release 2.1.0 and later), the first row is placed 
             at the top of the parent view, and successive rows are placed below the first
-            row. Each child is positioned vertically _within its row_ as in the absolute 
-            layout mode. That is, the `top` and `bottom` values, if specified, are
-            interpreted relative to the *row*, not the parent view.
+            row. Each child is positioned vertically _within its row_ somewhat like
+            composite layout mode. In particular:
 
+            *   If neither `top` or `bottom` is specified, the child is centered in the
+                row.
+
+            *   If either `top` or `bottom` is specified, the child is aligned to either
+                the top or bottom of the row, with the specified amount of padding.
+
+            *   If *both* `top` and `bottom` is specified for a given child, the behavior 
+                is undefined.
+
+            *   The `center` property is ignored in this mode.
+            
             On Android, the first row is centered vertically in the parent view, and
             successive rows are placed below the first row as on iOS. However, the `top` 
             and `bottom` values are interpreted relative to the parent view.
 
             On Mobile Web _prior to_ Release 2.1.0, the horizontal layout does not wrap. 
-    default: absolute layout
+    default: Composite layout
 
   - name: opacity
     summary: Opacity of this view, from 0.0 (transparent) to 1.0 (opaque).
