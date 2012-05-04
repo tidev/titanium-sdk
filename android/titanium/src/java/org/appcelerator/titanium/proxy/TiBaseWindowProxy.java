@@ -35,7 +35,7 @@ public class TiBaseWindowProxy extends TiWindowProxy
 	 * 
 	 */
 	public TiViewProxy getWrappedView() {
-		return view.getProxy();
+		return view != null ? view.getProxy() : null;
 	}
 
 	@Override
