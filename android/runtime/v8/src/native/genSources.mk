@@ -48,4 +48,4 @@ $(GENERATED_DIR)/KrollNativeBindings.cpp: $(THIS_DIR)/KrollNativeBindings.gperf
 
 JAVAH := javah
 $(JNI_PREFIX)%.h:
-	$(JAVAH) -classpath $(DIST_DIR)/kroll-v8.jar:$(DIST_DIR)/kroll-common.jar:$(ANDROID_PLATFORM)/android.jar -d $(GENERATED_DIR) $(subst .h,,$(subst _,.,$(patsubst $(GENERATED_DIR)/%,%,$(@F))))
+	$(JAVAH) -classpath $(DIST_DIR)/kroll-v8.jar -classpath $(DIST_DIR)/kroll-common.jar -classpath $(ANDROID_PLATFORM)/android.jar -d $(GENERATED_DIR) $(subst .h,,$(subst _,.,$(patsubst $(GENERATED_DIR)/%,%,$(@F))))
