@@ -87,7 +87,7 @@ methods:
       - name: route
         summary: Simple dictionary object describing the route.
         type: MapRouteType
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: deselectAnnotation
     summary: |

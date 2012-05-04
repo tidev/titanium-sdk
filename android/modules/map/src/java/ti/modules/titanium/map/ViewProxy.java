@@ -185,33 +185,30 @@ public class ViewProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	@SuppressWarnings({"rawtypes", "unchecked"})
-	public void addRoute(Object route)
+	public void addRoute(KrollDict routeMap)
 	{
-		if (route instanceof HashMap) {
-			HashMap routeMap = ((HashMap)route);
-			Object routeArray = routeMap.get("points");
-			if (routeArray instanceof Object[]) {
-				Object[] routes = (Object[]) routeArray;
-				MapPoint[] pointsType = new MapPoint[routes.length];
-				for (int i = 0; i < routes.length; i++) {
-					
-					if (routes[i] instanceof HashMap) {
-						HashMap tempRoute = (HashMap)routes[i];
-						MapPoint mp = new MapPoint(TiConvert.toDouble(tempRoute, "latitude"), TiConvert.toDouble(tempRoute, "longitude"));
-						pointsType[i] = mp;
-					}
+		Object routeArray = routeMap.get("points");
+		if (routeArray instanceof Object[]) {
+			Object[] routes = (Object[]) routeArray;
+			MapPoint[] pointsType = new MapPoint[routes.length];
+			for (int i = 0; i < routes.length; i++) {
+
+				if (routes[i] instanceof HashMap) {
+					HashMap tempRoute = (HashMap)routes[i];
+					MapPoint mp = new MapPoint(TiConvert.toDouble(tempRoute, "latitude"), TiConvert.toDouble(tempRoute, "longitude"));
+					pointsType[i] = mp;
 				}
-				
-				MapRoute mr = new MapRoute(pointsType, TiConvert.toColor(routeMap, "color"), TiConvert.toInt(routeMap, "width"), TiConvert.toString(routeMap, "name"));
-				
-				if (mapView == null) {
-					this.routes.add(mr);
-				} else {
-					mapView.addRoute(mr);
-				}
-			}		
-		}
+			}
+
+			MapRoute mr = new MapRoute(pointsType, TiConvert.toColor(routeMap, "color"), TiConvert.toInt(routeMap, "width"), TiConvert.toString(routeMap, "name"));
+
+			if (mapView == null) {
+				this.routes.add(mr);
+			} else {
+				mapView.addRoute(mr);
+			}
+		}		
+		
 		
 		if (mapView != null) {
 			mapView.updateRoute();
