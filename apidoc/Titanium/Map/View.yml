@@ -386,7 +386,7 @@ properties:
 ---
 name: MapRouteType
 summary: Simple object defining a map route.
-platforms: [iphone,ipad]
+platforms: [android, iphone, ipad, mobileweb]
 properties:
 
   - name: name
