@@ -87,7 +87,8 @@ methods:
       - name: route
         summary: Simple dictionary object describing the route.
         type: MapRouteType
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
+    since: { android: "2.1.0" }
 
   - name: deselectAnnotation
     summary: |
@@ -128,7 +129,8 @@ methods:
       - name: route
         summary: Same route object passed to [addRoute](Titanium.Map.View.addRoute).
         type: MapRouteType
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
+    since: { android: "2.1.0" }
 
   - name: selectAnnotation
     summary: Selects the annoation, showing the full annotation.
@@ -428,7 +430,7 @@ properties:
 ---
 name: MapRouteType
 summary: Simple object defining a map route.
-platforms: [iphone,ipad]
+platforms: [android, iphone, ipad, mobileweb]
 properties:
 
   - name: name
