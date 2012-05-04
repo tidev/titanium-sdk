@@ -135,7 +135,7 @@ public class TableViewModel
 						item.sectionIndex = sectionIndex;
 						item.indexInSection = indexInSection;
 						item.proxy = row;
-						item.rowData = row.getProperties().get("rowData");
+						item.rowData = row.getProperties().get(TiC.PROPERTY_ROW_DATA);
 						item.className = classNameForRow(row);
 
 						viewModel.add(item);
