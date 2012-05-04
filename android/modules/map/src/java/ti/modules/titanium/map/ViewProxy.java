@@ -209,14 +209,35 @@ public class ViewProxy extends TiViewProxy
 			}
 		}		
 		
-		
-		if (mapView != null) {
-			mapView.updateRoute();
-		}
-		
 	}
 	
-	
+	@Kroll.method
+	public void removeRoute(KrollDict route)
+	{
+		//We remove the route by "name" for parity with iOS
+		Object routeName = route.get("name");
+		if (routeName instanceof String) {
+			String name = (String)routeName;
+			MapRoute mr = null;
+			for (int i = 0; i < routes.size(); i++) {
+				mr = routes.get(i);
+				if (mr.getName().equals(name)) {
+					break;
+				}
+			}
+
+			//if the route exists, remove it
+			if (mr != null) {
+
+				if (mapView == null) {
+					routes.remove(mr);
+				} else {
+					mapView.removeRoute(mr);
+				}
+			}
+		}
+	}
+
 	@Kroll.method
 	public void addAnnotations(Object annotations)
 	{

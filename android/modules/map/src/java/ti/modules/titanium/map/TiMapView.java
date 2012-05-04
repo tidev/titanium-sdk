@@ -531,11 +531,39 @@ public class TiMapView extends TiUIView
 		//check if route exists - by name
 		String rname = mr.getName();
 		for (int i = 0; i < routes.size(); i++) {
+
 			if (rname.equals(routes.get(i).getName())) {
 				return;
 			}
 		}
 		routes.add(mr);
+		ArrayList<RouteOverlay> o = mr.getRoutes();
+		List<Overlay> overlaysList = view.getOverlays();
+		for (int j = 0; j < o.size(); j++) {
+			RouteOverlay ro = o.get(j);
+			if (!overlaysList.contains(ro)) {
+				overlaysList.add(ro);
+			}
+		}
+	}
+
+	public void removeRoute(MapRoute mr)
+	{
+		String rname = mr.getName();
+		for (int i = 0; i < routes.size(); i++) {
+			MapRoute maproute = routes.get(i);
+			if (rname.equals(maproute.getName())) {
+				routes.remove(maproute);
+				ArrayList<RouteOverlay> o = maproute.getRoutes();
+				List<Overlay> overlaysList = view.getOverlays();
+				for (int j = 0; j < o.size(); j++) {
+					RouteOverlay ro = o.get(j);
+					if (overlaysList.contains(ro)) {
+						overlaysList.remove(ro);
+					}
+				}
+			}
+		}
 	}
 	
 	public void updateRoute() 
@@ -547,8 +575,9 @@ public class TiMapView extends TiUIView
 			ArrayList<RouteOverlay> o = mr.getRoutes();			
 			List<Overlay> overlaysList = view.getOverlays();
 			for (int j = 0; j < o.size(); j++) {
-				if (!overlaysList.contains(o.get(j))) {
-					overlaysList.add(o.get(j));
+				RouteOverlay ro = o.get(j);
+				if (!overlaysList.contains(ro)) {
+					overlaysList.add(ro);
 				}
 			}
 			i++;
