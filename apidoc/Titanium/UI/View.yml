@@ -75,6 +75,8 @@ description: |
         In 2.0, the behavior of the 'auto' value is specified by the UI Composite Layout
         Spec. This value is not recommended for new development and will be deprecated in
         the future.
+
+        On Mobile Web, 'auto' always selects `SIZE` behavior.
     
     Sizes and positions can also be specified as a percentage of the parent's size, for 
     example, '50%'.
@@ -556,7 +558,7 @@ events:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
-    since: { android: "2.1.0" }
+
 properties:
   - name: anchorPoint
     summary: Anchor point where animation should occur, relative to the view's boundaries. 
@@ -796,6 +798,8 @@ properties:
              view. The use of 'auto' is deprecated, and should be replaced with the `SIZE` or
              `FILL` constants if it is necessary to set the view's behavior explicitly.
 
+             On Mobile Web, 'auto' always selects `SIZE` behavior.
+
         This is an input property for specifying the view's height dimension. To determine 
         the view's size once rendered, use the [rect](Titanium.UI.View.rect) or
         [size](Titanium.UI.View.size) properties.
@@ -978,6 +982,8 @@ properties:
         *    'auto'.  Represents the default sizing behavior for a given type of
              view. The use of 'auto' is deprecated, and should be replaced with the `SIZE` or
              `FILL` constants if it is necessary to set the view's behavior explicitly.
+
+             On Mobile Web, 'auto' always selects `SIZE` behavior.
 
         This is an input property for specifying the view's width dimension. To determine 
         the view's size once rendered, use the [rect](Titanium.UI.View.rect) or
