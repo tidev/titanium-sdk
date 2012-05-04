@@ -562,6 +562,7 @@ public class TiMapView extends TiUIView
 						overlaysList.remove(ro);
 					}
 				}
+				return;
 			}
 		}
 	}
