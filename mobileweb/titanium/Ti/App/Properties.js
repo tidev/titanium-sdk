@@ -14,6 +14,9 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 			"List": function(value) {
 				return require.is(value, "Array") ? value : [value];
 			},
+			"Object": function(value) {
+				return value;
+			},
 			"String": function(value) {
 				return "" + value;
 			}
