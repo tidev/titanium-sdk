@@ -273,6 +273,7 @@ DEFINE_EXCEPTIONS
 -(void)configurationSet
 {
 	// can be used to trigger things after all properties are set
+    configurationSet = YES;
 }
 
 -(void)setProxy:(TiProxy *)p
@@ -1139,33 +1140,40 @@ DEFINE_EXCEPTIONS
 
 -(UIGestureRecognizer *)gestureRecognizerForEvent:(NSString *)event
 {
-	ENSURE_UI_THREAD_1_ARG(event);
-    [self updateTouchHandling];
-	
-	if ([event isEqualToString:@"singletap"]) {
-		[[self singleTapRecognizer] setEnabled:YES];
-		return;
+    if ([event isEqualToString:@"singletap"]) {
+        return [self singleTapRecognizer];
     }
-	if ([event isEqualToString:@"doubletap"]) {
-		[[self doubleTapRecognizer] setEnabled:YES];
-		return;
+    if ([event isEqualToString:@"doubletap"]) {
+        return [self doubleTapRecognizer];
     }
-	if ([event isEqualToString:@"twofingertap"]) {
-		[[self twoFingerTapRecognizer] setEnabled:YES];
-		return;
+    if ([event isEqualToString:@"twofingertap"]) {
+        return [self twoFingerTapRecognizer];
     }
-	if ([event isEqualToString:@"swipe"]) {
-		[[self leftSwipeRecognizer] setEnabled:YES];
-		[[self rightSwipeRecognizer] setEnabled:YES];
-		return;
+    if ([event isEqualToString:@"lswipe"]) {
+        return [self leftSwipeRecognizer];
+    }
+    if ([event isEqualToString:@"rswipe"]) {
+        return [self rightSwipeRecognizer];
     }
     if ([event isEqualToString:@"pinch"]) {
-		[[self pinchRecognizer] setEnabled:YES];
-		return;
+        return [self pinchRecognizer];
     }
-	if ([event isEqualToString:@"longpress"]) {
-		[[self longPressRecognizer] setEnabled:YES];
-		return;
+    if ([event isEqualToString:@"longpress"]) {
+        return [self longPressRecognizer];
+    }
+    return nil;
+}
+
+-(void)handleListenerAddedWithEvent:(NSString *)event
+{
+	ENSURE_UI_THREAD_1_ARG(event);
+    [self updateTouchHandling];
+    if ([event isEqualToString:@"swipe"]) {
+        [[self gestureRecognizerForEvent:@"rswipe"] setEnabled:YES];
+        [[self gestureRecognizerForEvent:@"lswipe"] setEnabled:YES];
+    }
+    else {
+        [[self gestureRecognizerForEvent:event] setEnabled:YES];
     }
 }
 
@@ -1176,30 +1184,12 @@ DEFINE_EXCEPTIONS
 	// since we might be removing one but we still have others
 
 	[self updateTouchHandling];
-	if ([event isEqualToString:@"singletap"]) {
-		[singleTapRecognizer setEnabled:NO];
-		return;
+    if ([event isEqualToString:@"swipe"]) {
+        [[self gestureRecognizerForEvent:@"rswipe"] setEnabled:NO];
+        [[self gestureRecognizerForEvent:@"lswipe"] setEnabled:NO];
     }
-	if ([event isEqualToString:@"doubletap"]) {
-		[doubleTapRecognizer setEnabled:NO];
-		return;
-    }
-	if ([event isEqualToString:@"twofingertap"]) {
-		[twoFingerTapRecognizer setEnabled:NO];
-		return;
-    }
-	if ([event isEqualToString:@"swipe"]) {
-		[leftSwipeRecognizer setEnabled:NO];
-		[rightSwipeRecognizer setEnabled:NO];
-		return;
-    }
-    if ([event isEqualToString:@"pinch"]) {
-		[pinchRecognizer setEnabled:NO];
-		return;
-    }
-	if ([event isEqualToString:@"longpress"]) {
-		[longPressRecognizer setEnabled:NO];
-		return;
+    else {
+        [[self gestureRecognizerForEvent:event] setEnabled:NO];
     }
 }
 
