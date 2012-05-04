@@ -127,7 +127,8 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 @property(nonatomic,readonly)	UISwipeGestureRecognizer*		rightSwipeRecognizer;
 @property(nonatomic,readonly)	UILongPressGestureRecognizer*	longPressRecognizer;
 
-- (UIGestureRecognizer *)gestureRecognizerForEvent:(NSString *)event;
+-(void)configureGestureRecognizer:(UIGestureRecognizer*)gestureRecognizer;
+-(UIGestureRecognizer *)gestureRecognizerForEvent:(NSString *)event;
 
 /**
  Returns CA layer for the background of the view.
