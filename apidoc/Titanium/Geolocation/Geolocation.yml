@@ -41,15 +41,13 @@ description: |
     to one of the following values:
     
     *   [ACCURACY_BEST](Titanium.Geolocation.ACCURACY_BEST) (highest accuracy and power consumption)
+    *   [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH)
     *   [ACCURACY_NEAREST_TEN_METERS](Titanium.Geolocation.ACCURACY_NEAREST_TEN_METERS) 
     *   [ACCURACY_HUNDRED_METERS](Titanium.Geolocation.ACCURACY_HUNDRED_METERS) 
     *   [ACCURACY_KILOMETER](Titanium.Geolocation.ACCURACY_KILOMETER) 
+    *   [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW)
     *   [ACCURACY_THREE_KILOMETERS](Titanium.Geolocation.ACCURACY_THREE_KILOMETERS) (lowest
         accuracy and power consumption). 
-    
-    (Note that the constants [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH) and
-    [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW) are Android-specific and may not be
-    used with iOS.)
 
     Based on the accuracy you choose, iOS uses its own logic to select location providers
     and filter location updates to provide location updates that meet your accuracy
@@ -203,7 +201,7 @@ events:
 
       - name: heading
         summary: Dictionary object containing the heading data.
-        type: HeadingResults
+        type: HeadingData
 
     platforms: [android, iphone, ipad, mobileweb]
 
@@ -214,19 +212,18 @@ events:
       - name: code
         summary: if `success` is false, the error code if available.
         type: Number
-        platforms: [iphone, ipad, mobileweb]
-
+        
       - name: success
         summary: Indicates if location data was successfully retrieved.
         type: Boolean
 
       - name: provider
         platforms: [android]
-        summary: Object describing the location provider generating this update.
+        summary: If `success` is true, object describing the location provider generating this update.
         type: LocationProviderDict
 
       - name: coords
-        summary: Location data for this update.
+        summary: If `success` is true, actual location data for this update.
         type: LocationCoordinates
 
       - name: error
@@ -296,7 +293,7 @@ properties:
         Using this value on Android enables *simple mode* operation.
     type: Number
     permission: read-only
-    platforms: [android]
+    platforms: [android, iphone, ipad, mobileweb]
     since: "2.0.0"
 
   - name: ACCURACY_LOW
@@ -307,7 +304,7 @@ properties:
         Using this value on Android enables *simple mode* operation.
     type: Number
     permission: read-only
-    platforms: [android]
+    platforms: [android, iphone, ipad, mobileweb]
     since: "2.0.0"
 
   - name: AUTHORIZATION_AUTHORIZED
@@ -576,7 +573,6 @@ properties:
   - name: code
     summary: if `success` is false, the error code if available.
     type: Number
-    platforms: [iphone, ipad, mobileweb]
 
   - name: success
     summary: Indicates if location data was successfully retrieved.
@@ -584,11 +580,11 @@ properties:
 
   - name: provider
     platforms: [android]
-    summary: Object describing the location provider generating this update.
+    summary: If `success` is true, object describing the location provider generating this update.
     type: LocationProviderDict
 
   - name: coords
-    summary: Location data for this update.
+    summary: If `success` is true, actual location data for this update.
     type: LocationCoordinates
 
   - name: error

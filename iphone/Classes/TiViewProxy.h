@@ -23,6 +23,12 @@
 - (void)focus:(id)args;
 
 /**
+ Tells the view to stop generating focus/blur events. This should not be
+ JS-accessable, and is meant to handle tableview and layout issues.
+ */
+@property(nonatomic,readwrite,assign)	BOOL suppressFocusEvents;
+
+/**
  Tells the view to blur.
  @param args Unused.
  */
@@ -39,6 +45,16 @@
  Returns keyboard accessory height.
  */
 @property(nonatomic,readonly) CGFloat keyboardAccessoryHeight;
+
+@end
+
+/*
+ This Protocol will be implemented by objects that want to
+ monitor views not in the normal view heirarchy. 
+*/
+@protocol TiProxyObserver
+@optional
+-(void)proxyDidRelayout:(id)sender;
 
 @end
 
@@ -120,6 +136,8 @@ enum
     BOOL allowLayoutUpdate;
     
     NSMutableDictionary *layoutPropDictionary;
+    
+    id observer;
 }
 
 #pragma mark public API
@@ -146,6 +164,7 @@ enum
 -(void)setTempProperty:(id)propVal forKey:(id)propName;
 -(void)processTempProperties:(NSDictionary*)arg;
 
+-(void)setProxyObserver:(id)arg;
 
 /**
  Tells the view proxy to add a child proxy.
@@ -236,6 +255,14 @@ enum
 -(NSMutableDictionary*)langConversionTable;
 
 #pragma mark Methods subclasses should override for behavior changes
+
+/**
+ Whether or not the view proxy can have non Ti-Views which have to be pushed to the bottom when adding children.
+ **This method is only meant for legacy classes. New classes must implement the proper wrapperView code**
+ Subclasses may override.
+ @return _NO_ if the view proxy can have non Ti-Views in its view heirarchy
+ */
+-(BOOL)optimizeSubviewInsertion;
 
 /**
  Whether or not the view proxy needs to suppress relayout.

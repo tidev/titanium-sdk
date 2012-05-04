@@ -35,7 +35,9 @@ properties:
     platforms: [iphone, ipad]
     
   - name: color
-    summary: Color of the label text.
+    summary: Color of the label text, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     
   - name: ellipsize
@@ -50,8 +52,10 @@ properties:
     type: Font
     
   - name: highlightedColor
-    summary: Color of the label when in the highlighted state. 
+    summary: Color of the label when in the highlighted state, as a color name or hex triplet.
     description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        
         Used when the label is part of a view that can be highlighted, such as a 
         <Titanium.UI.TableViewRow>.
     type: String
@@ -70,7 +74,9 @@ properties:
     platforms: [iphone, ipad]
     
   - name: shadowColor
-    summary: Text shadow color.
+    summary: Text shadow color, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     platforms: [iphone, ipad, mobileweb]
     
@@ -109,6 +115,17 @@ properties:
     type: Boolean
     default: true
     platforms: [android, mobileweb]
+    
+  - name: verticalAlign
+    summary: |
+        Vertical text alignment, specified using one of the 
+        vertical alignment constants from <Titanium.UI>: 
+        [TEXT_VERTICAL_ALIGNMENT_BOTTOM](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM), 
+        [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER), or 
+        [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
+    type: [Number,String]
+    default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
+    platforms: [mobileweb]
 
 examples:
   - title: Basic Label
@@ -130,7 +147,7 @@ examples:
               shadowColor: '#aaa',
               shadowOffset: {x:5, y:5},
               text: 'A simple label',
-              textAlign: 'center',
+              textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
               top: 30,
               height: 'auto',
               width: 'auto'
@@ -139,7 +156,7 @@ examples:
             var label2 = Ti.UI.createLabel({
               color:'blue',
               text: 'A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n',
-              textAlign: 'left',
+              textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
               top: 30,
               height: 200,
               width: 300

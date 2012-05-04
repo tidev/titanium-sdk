@@ -66,6 +66,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_CANCEL = "cancel";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_CHANGE = "change";
 
 	/**
@@ -171,6 +176,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_PINCH = "pinch";	
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PLAYBACK_STATE = "playbackState";
 
 	/**
@@ -197,6 +207,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_PROPERTY_DETAIL = "detail";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_DIRECTION = "direction";
 
 	/**
 	 * @module.api
@@ -281,6 +296,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_PROPERTY_SCALE = "scale";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PROPERTY_SEARCH_MODE = "searchMode";
 
 	/**
@@ -312,6 +332,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_PROPERTY_TYPE = "type";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_VELOCITY = "velocity";
 
 	/**
 	 * @module.api
@@ -357,6 +382,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_STOP = "stop";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_SWIPE = "swipe";
 
 	/**
 	 * @module.api
@@ -610,6 +640,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CANCEL = "cancel";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CANCELABLE = "cancelable";
 
 	/**
 	 * @module.api

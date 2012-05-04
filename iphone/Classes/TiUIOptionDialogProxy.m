@@ -79,29 +79,31 @@
 		[self updateOptionDialogNow];
 		return;
 	}
-	[actionSheet showInView:[[TiApp controller] view]];
+	[actionSheet showInView:[[TiApp app] topMostView]];
 }
 
 -(void)completeWithButton:(int)buttonIndex
 {
-	showDialog = NO;
-	if ([self _hasListeners:@"click"])
-	{
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-							   [NSNumber numberWithInt:buttonIndex],@"index",
-							   [NSNumber numberWithInt:[actionSheet cancelButtonIndex]],@"cancel",
-							   [NSNumber numberWithInt:[actionSheet destructiveButtonIndex]],@"destructive",
-							   nil];
-		[self fireEvent:@"click" withObject:event];
-	}
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
-	[self forgetSelf];
-	[self release];
+    if (showDialog) {
+        showDialog = NO;
+        if ([self _hasListeners:@"click"])
+        {
+            NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                                   [NSNumber numberWithInt:buttonIndex],@"index",
+                                   [NSNumber numberWithInt:[actionSheet cancelButtonIndex]],@"cancel",
+                                   [NSNumber numberWithInt:[actionSheet destructiveButtonIndex]],@"destructive",
+                                   nil];
+            [self fireEvent:@"click" withObject:event];
+        }
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+        [self forgetSelf];
+        [self release];
+    }
 }
 
 -(void)hide:(id)args
 {
-	if(actionSheet == nil){
+	if(actionSheet == nil || !showDialog){
 		return;
 	}
 
@@ -111,17 +113,14 @@
 	}
 	BOOL animatedhide = [TiUtils boolValue:@"animated" properties:options def:YES];
 
-	TiThreadPerformOnMainThread(^{
-		if ([actionSheet isVisible]) {
-			showDialog = NO;
-			[actionSheet dismissWithClickedButtonIndex:[actionSheet cancelButtonIndex] animated:animatedhide];
-		}
-		else if(showDialog) {
-			//This is to avoid double-releasing.
-			showDialog = NO;
-			[self completeWithButton:[actionSheet cancelButtonIndex]];
-		}
-	}, NO);
+    TiThreadPerformOnMainThread(^{
+        if ([actionSheet isVisible]) {
+            [actionSheet dismissWithClickedButtonIndex:[actionSheet cancelButtonIndex] animated:animatedhide];
+        }
+        else if(showDialog) {
+            [self completeWithButton:[actionSheet cancelButtonIndex]];
+        }
+    }, NO);
 }
 
 #pragma mark AlertView Delegate

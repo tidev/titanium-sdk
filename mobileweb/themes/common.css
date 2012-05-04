@@ -66,6 +66,10 @@ input[type="search"]::-webkit-search-cancel-button {
 	-webkit-appearance: none;
 }
 
+::-webkit-input-placeholder{color:#666;}
+input:-moz-placeholder{color:#666;}
+:-ms-input-placeholder{color:#666 !important;}
+
 button::-moz-focus-inner,
 input::-moz-focus-inner {
 	border: 0;
@@ -329,8 +333,7 @@ textarea {
 
 .TiUIButtonDefault {
 	border: 1px solid #666; 
-	border-radius: 10px;
-	padding: 10px 10px;
+	border-radius: 6px;
 }
 
 .TiUISliderTrack {
@@ -422,21 +425,6 @@ textarea {
 
 .TiUITextFieldBorderStyleRounded input {
 	border-radius: 5px;
-}
-
-.TiUIActivityIndicatorContentContainer {
-	display: none;
-	height: 100%;
-	width: 100%;
-}
-
-.TiUIActivityIndicatorIndicator {
-	height: 36px;
-	width: 36px;
-}
-
-.TiUIActivityIndicatorMessage {
-	white-space: nowrap;
 }
 
 .TiUIActivityIndicatorProng {

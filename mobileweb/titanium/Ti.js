@@ -21,9 +21,9 @@ define(
 		deployType = cfg.app.deployType,
 		ver = cfg.ti.version,
 		is = require.is,
-		each = require.each,
 		has = require.has,
 		on = require.on,
+		con = global.console,
 		loaded,
 		unloaded,
 		showingError,
@@ -47,7 +47,7 @@ define(
 
 			include: function(files) {
 				typeof files === "array" || (files = [].concat(Array.prototype.slice.call(arguments, 0)));
-				each(files, function(f) {
+				files.forEach(function(f) {
 					require("Ti/_/include!" + f);
 				});
 			},
@@ -180,16 +180,16 @@ define(
 		};
 	}
 
-	// console.*() shim	
-	console === void 0 && (console = {});
+	// console.*() shim
+	con === void 0 && (con = global.console = {});
 
 	// make sure "log" is always at the end
-	each(["debug", "info", "warn", "error", "log"], function (c) {
-		console[c] || (console[c] = ("log" in console)
+	["debug", "info", "warn", "error", "log"].forEach(function(c) {
+		con[c] || (con[c] = ("log" in con)
 			?	function () {
 					var a = Array.apply({}, arguments);
 					a.unshift(c + ":");
-					console.log(a.join(" "));
+					con.log(a.join(" "));
 				}
 			:	function () {}
 		);
@@ -336,21 +336,23 @@ define(
 						layout: "vertical"
 					}),
 					view,
-					button,
-					makeLabel = function(text, height, color, fontSize) {
-						win.add(UI.createLabel({
-							color: color,
-							font: { fontSize: fontSize, fontWeight: "bold" },
-							height: height,
-							left: 10,
-							right: 10,
-							textAlign: UI.TEXT_ALIGNMENT_CENTER,
-							text: text
-						}));
-					};
+					button;
+
+				function makeLabel(text, height, color, fontSize) {
+					win.add(UI.createLabel({
+						color: color,
+						font: { fontSize: fontSize, fontWeight: "bold" },
+						height: height,
+						left: 10,
+						right: 10,
+						textAlign: UI.TEXT_ALIGNMENT_CENTER,
+						text: text
+					}));
+				}
 
 				makeLabel("Application Error", "15%", "#0f0", "24pt");
-				makeLabel((e.message || "Unknown error").replace(/([^:]+:)/, "").trim() + (filename && filename !== "undefined" ? " at " + filename : "") + (line ? " (line " + line + ")" : ""), "45%", "#fff", "16pt");
+				makeLabel((e.message || "Unknown error").trim() + (filename && filename !== "undefined" ? " at " + filename : "") + (line ? " (line " + line + ")" : ""), "45%", "#fff", "16pt");
+
 				win.add(view = UI.createView({ height: "12%" }));
 				view.add(button = UI.createButton({ title: "Dismiss" }));
 				win.addEventListener("close", function() { win.destroy(); });
@@ -363,6 +365,7 @@ define(
 						showingError = 0;
 					});
 				});
+
 				makeLabel("Error messages will only be displayed during development. When your app is packaged for final distribution, no error screen will appear. Test your code!", "28%", "#000", "10pt");
 				
 				on.once(win,"postlayout", function() {

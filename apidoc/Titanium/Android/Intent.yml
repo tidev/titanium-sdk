@@ -21,6 +21,16 @@ methods:
         summary: Bitwise OR of the flags to add to the existing set.
         type: Number
 
+  - name: getBlobExtra
+    since: "2.1.0"
+    summary: Get a <Titanium.Blob> property from this Intent
+    returns:
+        type: Titanium.Blob
+    parameters:
+      - name: name
+        summary: The <Titanium.Blob> extra to get, most commonly <Titanium.Android.EXTRA_STREAM>.
+        type: String
+
   - name: getBooleanExtra
     summary: Get a boolean property from this Intent.
     returns:
@@ -64,6 +74,7 @@ methods:
 
   - name: getStringExtra
     summary: Get a string property from this Intent.
+    description: Can also be used to get the string representation of a [parcelable extra](http://developer.android.com/reference/android/content/Intent.html#getParcelableExtra(java.lang.String)), which is useful since we do not support `getParcelableExtra` due to the inability to translate all of its possible return types to Javascript.
     returns:
         type: String
     parameters:
@@ -185,3 +196,41 @@ examples:
                 type: "image/*"
             });
             intent.addCategory(Ti.Android.CATEGORY_DEFAULT);
+
+  - title: Create an ImageView from an image SEND Intent 
+    example: |
+        This example requires that an intent filter be set up in a
+        custom AndroidManifest.xml. The following intent filter should
+        be added to your app's main activity. You can trigger this 
+        intent filter by long pressing on an image in the Android gallery
+        and selecting "share".
+        AndroidManifest.xml
+            &lt;intent-filter&gt;
+                &lt;action android:name="android.intent.action.SEND" /&gt;
+                &lt;category android:name="android.intent.category.DEFAULT" /&gt;
+                &lt;data android:mimeType="image/*" /&gt;
+            &lt;/intent-filter&gt;
+        Sample code
+            var win = Ti.UI.createWindow({
+                backgroundColor: '#fff',
+                fullscreen: false,
+                exitOnClose: true
+            });
+            win.addEventListener('open', function(e) {
+                var intent = Ti.Android.currentActivity.getIntent();
+                var iname = Ti.Android.EXTRA_STREAM;
+                if (intent && intent.hasExtra(iname)) {
+                    // Create ImageView from TiBlob
+                    var blob = intent.getBlobExtra(iname);
+                    win.add(Ti.UI.createImageView({
+                        image: blob,
+                        height: 300,
+                        width: 300,
+                        left: 0,
+                        top: 0
+                    }));
+                } else {
+                    Ti.API.info('No extra named "' + iname + '" found in Intent');
+                }
+            });        
+            win.open();

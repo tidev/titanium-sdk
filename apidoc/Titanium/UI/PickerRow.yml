@@ -21,7 +21,9 @@ methods:
 
 properties:
   - name: color
-    summary: Color of the item text.
+    summary: Color of the item text, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     platforms: [mobileweb]
   - name: fontSize

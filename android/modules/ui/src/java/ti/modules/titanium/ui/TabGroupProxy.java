@@ -180,14 +180,12 @@ public class TabGroupProxy extends TiWindowProxy
 		TiBaseWindowProxy baseWindow = (TiBaseWindowProxy) tab.getProperty(TiC.PROPERTY_WINDOW);
 		if (baseWindow != null) {
 			windowProxy.handleCreationDict(baseWindow.getProperties());
+			tab.setWindow(baseWindow);  // hooks up the tab and the JS window wrapper
 			baseWindow.getKrollObject().setWindow(windowProxy);
 
 		} else {
 			Log.w(LCAT, "window property was not set on tab");
 		}
-
-		baseWindow.setTabGroupProxy(this);
-		baseWindow.setTabProxy(tab);
 
 		if (tag != null && windowProxy != null) {
 			TabSpec tspec = tg.newTab(tag);
@@ -198,6 +196,7 @@ public class TabGroupProxy extends TiWindowProxy
 			}
 
 			Intent intent = new Intent(tta, TiActivity.class);
+			windowProxy.setParent(tab);
 			windowProxy.fillIntentForTab(intent, tab);
 			
 			tspec.setContent(intent);
@@ -355,7 +354,6 @@ public class TabGroupProxy extends TiWindowProxy
 
 		return e;
 	}
-
 
 	private void fillIntent(Activity activity, Intent intent)
 	{

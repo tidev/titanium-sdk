@@ -224,6 +224,20 @@ events:
     summary: Fired at session logout.
 
 properties:
+  - name: BUTTON_STYLE_NORMAL
+    summary: |
+        Use with [LoginButton.style](Titanium.Facebook.LoginButton.style) to specify
+        the default login button reading "Connect" or "Login".
+    type: Number
+    permission: read-only
+
+  - name: BUTTON_STYLE_WIDE
+    summary: |
+        Use with [LoginButton.style](Titanium.Facebook.LoginButton.style) to specify
+        a wide login button reading "Connect with Facebook" or "Login with Facebook".
+    type: Number
+    permission: read-only
+
   - name: accessToken
     summary: OAuth token set after a successful `authorize`.
     type: String
@@ -330,18 +344,10 @@ examples:
             	alert('Logged out');
             });
                 
-            // Use wide button style -- constant not supported on Android yet.
-            var buttonStyle;
-            if(Ti.Platform.name === 'android') {
-                buttonStyle = 'wide';
-            } else {
-                buttonStyle = Ti.Facebook.BUTTON_STYLE_WIDE;
-            }
-            
             // Add the button.  Note that it doesn't need a click event listener.
             win2.add(Ti.Facebook.createLoginButton({
                 top : 50,
-                style : buttonStyle,
+                style : Ti.Facebook.BUTTON_STYLE_WIDE
             }));
 
         The specified button style ('wide' or `BUTTON_STYLE_WIDE`) shows a wide version of the 

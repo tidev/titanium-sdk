@@ -251,8 +251,9 @@ properties:
     
   - name: pagingControlColor
     summary: |
-        Color of the paging control, in 
-        [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name or hex format.
+        Color of the paging control, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     default: black
     platforms: [iphone,ipad]
@@ -289,6 +290,27 @@ properties:
   - name: views
     summary: Sets the views within this Scrollable View.
     type: Array<Titanium.UI.View>
+
+  - name: clipViews
+    summary: |
+        Determines whether the content which is being scrolled will be clipped to the frame of
+        the view.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+    availability: creation
+
+  - name: hitRect
+    summary: |
+        Sets a rect to perform hit testing on to determine if touches have occurred on this
+        view.
+    description: |
+        By setting this to some rect, one can override the normal hit testing.  Note that the
+        x and y specified are relative to the position of the view.
+    type: Dimension
+    default: undefined (hit against size of view)
+    platforms: [iphone, ipad]
+    since: "2.1"
 
 examples:
   - title: Simple Scrollable View with 3 Views

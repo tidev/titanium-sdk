@@ -28,7 +28,6 @@
 	BOOL ignoreClicks;
 	MKCoordinateRegion region;
 	
-	TiMapAnnotationProxy * pendingAnnotationSelection;
     // routes
     // dictionaries for object tracking and association
     CFMutableDictionaryRef mapLine2View;   // MKPolyline(route line) -> MKPolylineView(route view)
@@ -60,6 +59,7 @@
 -(void)zoom:(id)args;
 -(void)addRoute:(id)args;
 -(void)removeRoute:(id)args;
+-(void)firePinChangeDragState:(MKAnnotationView *) pinview newState:(MKAnnotationViewDragState)newState fromOldState:(MKAnnotationViewDragState)oldState;
 
 #pragma mark Framework
 -(void)refreshAnnotation:(TiMapAnnotationProxy*)proxy readd:(BOOL)yn;

@@ -32,6 +32,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -724,10 +725,15 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				}
 				boolean getAsync = true;
 				try {
-					URI uri = new URI(imageref.getUrl());
+					String imageUrl = TiUrl.getCleanUri(imageref.getUrl()).toString();
+					
+					URI uri = new URI(imageUrl);
 					getAsync = !TiResponseCache.peek(uri);
 				} catch (URISyntaxException e) {
 					Log.e(LCAT, "URISyntaxException for url " + imageref.getUrl(), e);
+					getAsync = false;
+				} catch (NullPointerException e) {
+					Log.e(LCAT, "NullPointerException for url " + imageref.getUrl(), e);
 					getAsync = false;
 				}
 				if (getAsync) {
@@ -830,7 +836,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				Object image = d.get(TiC.PROPERTY_IMAGE);
 
 				if (image instanceof String) {
-					String imageUrl = (String) image;
+					String imageUrl = TiUrl.getCleanUri((String)image).toString();
 					URI imageUri = new URI(imageUrl);
 					if (URLUtil.isNetworkUrl(imageUrl) && !TiResponseCache.peek(imageUri)) {
 						setDefaultImageSource(defaultImage);
@@ -841,6 +847,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				}
 
 			} catch (URISyntaxException e) {
+				setDefaultImageSource(defaultImage);
+			} catch (NullPointerException e) {
 				setDefaultImageSource(defaultImage);
 			}
 		}
@@ -929,6 +937,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	public boolean isAnimating()
 	{
 		return animating.get() && !paused;
+	}
+	
+	public boolean isPaused()
+	{
+		return paused;
 	}
 
 	public boolean isReverse()

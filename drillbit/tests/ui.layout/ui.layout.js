@@ -758,6 +758,170 @@ describe("Ti.UI Layout tests", {
 		}));
 		win.open();
 	}),
+	// Scrollview
+	scrollViewAutoContentHeight: asyncTest(function() {
+		var win = Ti.UI.createWindow({
+		});
+		var scrollView = Titanium.UI.createScrollView({
+		    contentHeight:'auto',
+		    contentWidth:'auto',
+		    showVerticalScrollIndicator:true,
+		    showHorizontalScrollIndicator:true
+		});
+		var view2 = Ti.UI.createView({
+		});
+		scrollView.add(view2);
+		win.addEventListener("open", this.async(function(e) {
+			valueOf(view2.size.width).shouldBe(scrollView.size.width);
+			valueOf(view2.size.height).shouldBe(scrollView.size.height);
+		}));
+		win.add(scrollView);
+		win.open();
+	}),
+	scrollViewLargeContentHeight: asyncTest(function() {
+		var win = Ti.UI.createWindow({
+		});
+		var scrollView = Titanium.UI.createScrollView({
+		    contentHeight:'2000',
+		    contentWidth:'auto',
+		    showVerticalScrollIndicator:true,
+		    showHorizontalScrollIndicator:true
+		});
+		var view2 = Ti.UI.createView({
+		});
+		scrollView.add(view2);
+		win.addEventListener("open", this.async(function(e) {
+			valueOf(view2.size.width).shouldBe(scrollView.size.width);
+			valueOf(view2.size.height).shouldBe(2000);
+		}));
+		win.add(scrollView);
+		win.open();
+	}),
+	scrollViewMinimumContentHeight: asyncTest(function() {
+		var win = Ti.UI.createWindow({
+		});
+		var scrollView = Titanium.UI.createScrollView({
+		    contentHeight:'50',
+		    contentWidth:'auto',
+		    showVerticalScrollIndicator:true,
+		    showHorizontalScrollIndicator:true
+		});
+		var view2 = Ti.UI.createView({
+		});
+		scrollView.add(view2);
+		win.addEventListener("open", this.async(function(e) {
+			valueOf(view2.size.width).shouldBe(scrollView.size.width);
+			valueOf(view2.size.height).shouldBe(scrollView.size.height);
+		}));
+		win.add(scrollView);
+		win.open();
+	}),
+	horizontalScrollViewMinimumContentHeight: asyncTest(function() {
+		var win = Ti.UI.createWindow({
+		});
+		var scrollView = Titanium.UI.createScrollView({
+		    contentHeight:'auto',
+		    contentWidth:'50',
+		    showVerticalScrollIndicator:true,
+		    showHorizontalScrollIndicator:true,
+				scrollType:'horizontal'
+		});
+		var view2 = Ti.UI.createView({
+		});
+		scrollView.add(view2);
+		win.addEventListener("open", this.async(function(e) {
+			valueOf(view2.size.width).shouldBe(scrollView.size.width);
+			valueOf(view2.size.height).shouldBe(scrollView.size.height);
+		}));
+		win.add(scrollView);
+		win.open();
+	}),
+	horizontalScrollViewLargeContentHeight: asyncTest(function() {
+		var win = Ti.UI.createWindow({
+		});
+		var scrollView = Titanium.UI.createScrollView({
+		    contentHeight:'auto',
+		    contentWidth:'50',
+		    showVerticalScrollIndicator:true,
+		    showHorizontalScrollIndicator:true,
+				scrollType:'horizontal'
+		});
+		var view2 = Ti.UI.createView({
+		});
+		scrollView.add(view2);
+		win.addEventListener("open", this.async(function(e) {
+			valueOf(view2.size.width).shouldBe(scrollView.size.width);
+			valueOf(view2.size.height).shouldBe(scrollView.size.height);
+		}));
+		win.add(scrollView);
+		win.open();
+	}),
+	//TIMOB-8362
+	scrollViewWithSIZE: asyncTest(function() {
+		var win = Ti.UI.createWindow({
+			backgroundColor : '#7B6700',
+			layout : 'vertical',
+		});
+		var NavBarView = Ti.UI.createView({
+			height : '25',
+			top : 0,
+			backgroundColor : 'green',
+			width : '100%'
+		});
+		var scrollView = Ti.UI.createScrollView({
+			height : Ti.UI.SIZE,
+			width: Ti.UI.SIZE,
+			scrollType : 'vertical',
+			layout : 'vertical',
+			backgroundColor : 'red',
+
+		});
+		var button = Ti.UI.createButton({
+			title : 'Click',
+			width : '100',
+			height : '50'
+		});
+		scrollView.add(button);
+		win.add(NavBarView);
+		win.add(scrollView);
+		win.addEventListener("open", this.async(function(e) {
+			valueOf(scrollView.size.height).shouldBe(50);
+			valueOf(scrollView.size.width).shouldBe(100);
+		}));
+		win.open();
+	}),
+	//TIMOB-8891
+	scrollViewWithLargeVerticalLayoutChild: asyncTest(function() {
+		var win = Ti.UI.createWindow();
+		var scrollView = Ti.UI.createScrollView({
+		    contentHeight:'auto',
+		    backgroundColor: 'green'
+		});
+		win.add(scrollView);
+
+		var innerView = Ti.UI.createView({
+		    height:Ti.UI.SIZE, // works if set to 1000
+		    layout:'vertical',
+		    left:0,
+		    top:0,
+		    right:0
+		});
+		scrollView.add(innerView);
+		var colors = ['red', 'blue', 'pink', 'white', 'black'];
+		var max = 10;
+		for(var i = 0; i < max; i++){
+		    innerView.add(Ti.UI.createView({
+		        backgroundColor: colors[i%colors.length],
+		        height: 100,
+		        top: 20
+		    }));
+		}
+		win.addEventListener("open", this.async(function(e) {
+			valueOf(innerView.size.height).shouldBe(1200);
+			valueOf(innerView.size.width).shouldBe(scrollView.size.width);
+		}));
+		win.open();
+	}),
 	// Functional Test #1087-#1097
 	convertUnits: function() {
 		// android

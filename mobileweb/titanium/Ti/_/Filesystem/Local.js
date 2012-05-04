@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob"],
-	function(declare, encoding, lang, API, Blob) {
+define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob"],
+	function(_, declare, encoding, lang, API, Blob) {
 
 	var reg,
 		regDate = (new Date()).getTime(),
@@ -402,7 +402,7 @@ define(["Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob"],
 						nativePath: path
 					};
 
-				if (this._remote && /^(application|image|audio|video)\//.test(type)) {
+				if (this._remote && _.isBinaryMimeType(type)) {
 					while (i < len) {
 						binaryData += String.fromCharCode(data.charCodeAt(i++) & 0xff);
 					}

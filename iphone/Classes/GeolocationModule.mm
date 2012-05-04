@@ -194,7 +194,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	{
 		for (KrollCallback *callback in [NSArray arrayWithArray:singleHeading])
 		{
-			KrollContext *ctx = (id<TiEvaluator>)[callback context];
+			KrollContext *ctx = (KrollContext*)[callback context];
 			if ([bridge krollContext] == ctx)
 			{
 				[singleHeading removeObject:callback];
@@ -210,7 +210,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	{
 		for (KrollCallback *callback in [NSArray arrayWithArray:singleLocation])
 		{
-			KrollContext *ctx = (id<TiEvaluator>)[callback context];
+			KrollContext *ctx = (KrollContext*)[callback context];
 			if ([bridge krollContext] == ctx)
 			{
 				[singleLocation removeObject:callback];
@@ -452,7 +452,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
 							direction, @"d",
 							aguid,@"aguid",
-							[TiUtils uniqueIdentifier],@"mid",
+							[TiUtils appIdentifier],@"mid",
 							sid,@"sid",
 							address,@"q",
 							[[NSLocale currentLocale] objectForKey: NSLocaleCountryCode],@"c",
@@ -606,10 +606,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 }
 
 MAKE_SYSTEM_PROP_DBL(ACCURACY_BEST,kCLLocationAccuracyBest);
+MAKE_SYSTEM_PROP_DBL(ACCURACY_HIGH,kCLLocationAccuracyBest);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_NEAREST_TEN_METERS,kCLLocationAccuracyNearestTenMeters);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_HUNDRED_METERS,kCLLocationAccuracyHundredMeters);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_KILOMETER,kCLLocationAccuracyKilometer);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_THREE_KILOMETERS,kCLLocationAccuracyThreeKilometers);
+MAKE_SYSTEM_PROP_DBL(ACCURACY_LOW, kCLLocationAccuracyThreeKilometers);
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_2
 MAKE_SYSTEM_PROP(AUTHORIZATION_UNKNOWN, kCLAuthorizationStatusNotDetermined);

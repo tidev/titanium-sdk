@@ -2,15 +2,18 @@ var win = Titanium.UI.currentWindow;
 var buttonFont = {fontSize:18};
 
 //
-// SUPPORTED ORIENTATION MODES
+// SUPPORTED WINDOW ORIENTATION MODES
 //
 //	Titanium.UI.PORTRAIT (1)
 //	Titanium.UI.UPSIDE_PORTRAIT (2)
 //	Titanium.UI.LANDSCAPE_LEFT (3)
 //	Titanium.UI.LANDSCAPE_RIGHT (4)
+
+//
+//	ADDITIONAL TI GESTURE ORIENTATION MODES
 //	Titanium.UI.FACE_UP (5)
 //	Titanium.UI.FACE_DOWN (6)
-//	Titanium.UI.UNKNOWN (7)
+//	Titanium.UI.UNKNOWN (7) (Occurs only during application startup)
 //
 
 // initialize to all modes
@@ -19,8 +22,6 @@ win.orientationModes = [
 	Titanium.UI.UPSIDE_PORTRAIT,
 	Titanium.UI.LANDSCAPE_LEFT,
 	Titanium.UI.LANDSCAPE_RIGHT,
-	Titanium.UI.FACE_UP,
-	Titanium.UI.FACE_DOWN
 ]; 
 
 
@@ -147,8 +148,6 @@ b4.addEventListener('click', function()
 		Titanium.UI.UPSIDE_PORTRAIT, 
 		Titanium.UI.LANDSCAPE_LEFT, 
 		Titanium.UI.LANDSCAPE_RIGHT, 
-		Titanium.UI.FACE_UP, 
-		Titanium.UI.FACE_DOWN
 	];
 
 	var close = Titanium.UI.createButton({

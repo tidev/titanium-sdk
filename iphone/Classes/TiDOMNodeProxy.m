@@ -148,6 +148,13 @@ CFHashCode	simpleHash(const void *value)
 				return;
 			}
 		}
+		else if ( [prefix isEqualToString:@"xmlns"] ) {
+			if (![theURI isEqualToString:@"http://www.w3.org/2000/xmlns/"]) {
+				*error = @"Invalid URI for prefix";
+				*suberror = [NSString stringWithFormat:@"%@:%@",prefix,theURI];
+				return;
+			}
+		}
 		else {
 			//Check prefix validity
 			if (![TiDOMValidator checkNamespacePrefix:prefix]) {
@@ -449,9 +456,15 @@ CFHashCode	simpleHash(const void *value)
 -(id)ownerDocument
 {
 	xmlDocPtr p = [node XMLNode]->doc;
-	if (p==NULL) 
+	if (p == NULL) 
 	{
-		return [NSNull null];
+		if ([self document] != nil) {
+			p = [[self document] docNode];
+		}
+		if (p == NULL) {
+			VerboseLog(@"[DEBUG]ownerDocument property is NULL for node %@",[self class]);
+			return [NSNull null];
+		}
 	}
     TiDOMDocumentProxy *proxy = [TiDOMNodeProxy nodeForXMLNode:(xmlNodePtr)p];
     if (proxy == nil)

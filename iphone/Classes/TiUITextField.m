@@ -10,7 +10,6 @@
 #import "TiUITextFieldProxy.h"
 
 #import "TiUtils.h"
-#import "TiRange.h"
 #import "TiViewProxy.h"
 #import "TiApp.h"
 #import "TiUITextWidget.h"
@@ -527,17 +526,11 @@
 
 -(CGFloat)contentWidthForWidth:(CGFloat)value
 {
-    if (![self hasText]) {
-        return 0.0;
-    }
 	return [[self textWidgetView] sizeThatFits:CGSizeMake(value, 0)].width;
 }
 
 -(CGFloat)contentHeightForWidth:(CGFloat)value
 {
-    if (![self hasText]) {
-        return 0.0;
-    }
 	return [[self textWidgetView] sizeThatFits:CGSizeMake(value, 0)].height;
 }
 

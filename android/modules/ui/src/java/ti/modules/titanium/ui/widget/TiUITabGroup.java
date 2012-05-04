@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.proxy.TiBaseWindowProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
@@ -23,6 +24,7 @@ import ti.modules.titanium.ui.TiTabActivity;
 import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
 import android.widget.TabHost;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabHost.TabSpec;
@@ -66,6 +68,39 @@ public class TiUITabGroup extends TiUIView
 		return tabHost.newTabSpec(id);
 	}
 
+	protected void registerTouchForTabGroup(final View touchable, final TabProxy tabProxy)
+	{
+		if (touchable == null) {
+			return;
+		}
+		
+		registerTouchEvents(touchable);
+
+		final int tabCount = tabHost.getTabWidget().getTabCount();
+		
+		boolean clickable = touchable.isClickable();
+		if (!clickable) {
+			touchable.setOnClickListener(null); // This will set clickable to true in the view, so make sure it stays here so the next line turns it off.
+			touchable.setClickable(false);
+			touchable.setOnLongClickListener(null);
+			touchable.setLongClickable(false);
+		} else if ( ! (touchable instanceof AdapterView) ) {
+			// n.b.: AdapterView throws if click listener set.
+			// n.b.: setting onclicklistener automatically sets clickable to true.
+			touchable.setOnClickListener(new OnClickListener()
+			{
+				public void onClick(View v)
+				{
+					// We have to set the current tab here to restore the widget's default behavior since
+					// setOnClickListener seems to overwrite it
+					tabHost.setCurrentTab(tabCount - 1);
+					tabProxy.fireEvent(TiC.EVENT_CLICK, null);
+				}
+			});
+			setOnLongClickListener(touchable);
+		}
+	}
+	
 	public void addTab(TabSpec tab, final TabProxy tabProxy)
 	{
 		tabHost.addTab(tab);
@@ -82,17 +117,7 @@ public class TiUITabGroup extends TiUIView
 		}
 		final int tabCount = tabHost.getTabWidget().getTabCount();
 		if (tabCount > 0) {
-			tabHost.getTabWidget().getChildTabViewAt(tabCount - 1).setOnClickListener(new OnClickListener()
-			{
-				@Override
-				public void onClick(View v)
-				{
-					// We have to set the current tab here to restore the widget's default behavior since
-					// setOnClickListener seems to overwrite it
-					tabHost.setCurrentTab(tabCount - 1);
-					tabProxy.fireEvent(TiC.EVENT_CLICK, null);
-				}
-			});
+			registerTouchForTabGroup(tabHost.getTabWidget().getChildTabViewAt(tabCount - 1), tabProxy);
 		}
 	}
 
@@ -101,6 +126,10 @@ public class TiUITabGroup extends TiUIView
 		if (tabHost != null) {
 			tabHost.setCurrentTab(index);
 		}
+	}
+
+	public KrollDict getTabChangeEvent() {
+		return tabChangeEventData;
 	}
 
 	@Override
@@ -119,43 +148,53 @@ public class TiUITabGroup extends TiUIView
 		// ignore focus change for tab group.
 		// we can simply fire focus/blur from onTabChanged (to avoid chicken/egg event problems)
 	}
-	
+
+	private TiViewProxy getTabWindow(TabProxy tab)
+	{
+		TiViewProxy viewProxy = tab.getWindow();
+		if (viewProxy instanceof TiBaseWindowProxy) {
+			TiViewProxy wrappedViewProxy = ((TiBaseWindowProxy) viewProxy).getWrappedView();
+			if (wrappedViewProxy != null) {
+				viewProxy = wrappedViewProxy;
+			}
+		}
+
+		return viewProxy;
+	}
+
 	@Override
 	public void onTabChanged(String id)
 	{
 		TabGroupProxy tabGroupProxy = ((TabGroupProxy) proxy);
-
 		TabProxy previousTab = null;
+
 		currentTabID = tabHost.getCurrentTab();
 		
 		if (DBG) {
 			Log.d(LCAT,"Tab change from " + previousTabID + " to " + currentTabID);
 		}
-		
+
 		TabProxy currentTab = tabGroupProxy.getTabList().get(currentTabID);
 		proxy.setProperty(TiC.PROPERTY_ACTIVE_TAB, currentTab);
-
-		
 
 		if (previousTabID != -1) {
 			previousTab = tabGroupProxy.getTabList().get(previousTabID);
 		}
 
 		if (tabChangeEventData != null) {
-			//fire blur on previous tab as well as its window
 			if (previousTab != null) {
-				previousTab.fireEvent(TiC.EVENT_BLUR, tabChangeEventData);
-				previousTab.getWindow().fireEvent(TiC.EVENT_BLUR, null);
+				TiViewProxy previousTabWindow = getTabWindow(previousTab);
+				if (previousTabWindow != null) {
+					previousTabWindow.fireEvent(TiC.EVENT_BLUR, null);
+				}
 			}
 		}
 
 		tabChangeEventData = tabGroupProxy.buildFocusEvent(currentTabID, previousTabID);
-		//fire focus on current tab as well as its window
-		currentTab.fireEvent(TiC.EVENT_FOCUS, tabChangeEventData);
-		currentTab.getWindow().fireEvent(TiC.EVENT_FOCUS, null);
-
-
-		
+		TiViewProxy currentTabWindow = getTabWindow(currentTab);
+		if (currentTabWindow != null) {
+			currentTabWindow.fireEvent(TiC.EVENT_FOCUS, null);
+		}
 		previousTabID = currentTabID;
 
 	}

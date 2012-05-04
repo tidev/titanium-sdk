@@ -52,6 +52,20 @@ define(["Ti/_", "Ti/_/string", "Ti/Filesystem"], function(_, string, Filesystem)
 			return node.style[name];
 		},
 
-		set: set
+		set: set,
+		
+		supports: function(name, node) {
+			var i = 0,
+				x,
+				uc;
+			
+			while (i < vp.length) {
+				x = vp[i++];
+				x += x ? uc || (uc = string.capitalize(name)) : name;
+				if (x in node.style) {
+					return true;
+				}
+			}
+		}
 	};
 });

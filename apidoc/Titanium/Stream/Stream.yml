@@ -90,49 +90,26 @@ methods:
       - name: params
         summary: Parameter object, for specifying the source object and mode.
         type: CreateStreamArgs
+
+  - name: read
+    summary: |
+        Asynchronously reads data from an [IOStream](Titanium.IOStream) into a buffer.
+    description: |
+        Reads data from the stream and writes it to the buffer. The first byte is
+        written to `buffer[offset]`. Reads until the provided buffer is full, the end of 
+        the stream is detected, or the requested number of bytes have been read. Does not 
+        resize the supplied buffer.
         
-  - name: read
-    summary: Asynchronously reads data from an [IOStream](Titanium.IOStream).
-    description: |
-        Reads data until the provided buffer is full, or end of stream is detected.
-        Does not resize the supplied buffer.
+        A request must include both `offset` and `length` parameters, or omit them both.
 
         If the stream is not readable, an error is reported:
 
-        * On iOS, an exception is thrown.
+        * On iOS, throws an exception.
 
-        * On Android, the callback is invoked with an error.
+        * On Android, calls the callback with an error.
+        
+        If `offset` is past the last byte of the buffer, throws an exception.
 
-    parameters:
-
-      - name: sourceStream
-        summary: Stream to read from.
-        type: Titanium.IOStream
-
-      - name: buffer
-        summary: Buffer to read into.
-        type: Titanium.Buffer
-
-      - name: resultsCallback
-        summary: Function to call with the results of the read operation.
-        type: Callback<ReadCallbackArgs>
-
-  - name: read
-    summary: |
-        Asynchronously reads data from an [IOStream](Titanium.IOStream), with length
-        and offset.
-    description: |
-        Attempts to read `length` bytes from the stream.
-
-        If the stream is not readable, an error is reported:
-
-        * On iOS, an exception is thrown.
-
-        * On Android, the callback is invoked with an error.
-
-        Writes data into the provided buffer starting at `offset`, and continuing until the provided 
-        buffer is full, or the specified number of bytes have been read, or end of stream
-        is reached. Does *not* resize the supplied buffer.
     parameters:
 
       - name: sourceStream
@@ -144,89 +121,80 @@ methods:
         type: Titanium.Buffer
 
       - name: offset
-        summary: Offset to start reading stream data from, in bytes.
+        summary: |
+            Offset to start reading stream data from, in bytes.
+            If specified, `length` must be specified as well.
         type: Number
+        optional: true
+        default: 0
 
       - name: length
-        summary: Number of bytes of data to read from the stream.
+        summary: |
+            Number of bytes of data to read from the stream.
+            If specified, `offset` must be specified as well.
         type: Number
+        optional: true
+        default: All available data or the length of the buffer, whichever is smaller.
 
       - name: resultsCallback
         summary: Function to call with the results of the read operation.
         type: Callback<ReadCallbackArgs>
 
   - name: readAll
-    summary: Reads all data from an [IOStream](Titanium.IOStream).
+    summary: Reads all data from the specified [IOStream](Titanium.IOStream).
     description: |
-        Returns a newly-allocated buffer.
+        Reads data from the stream, either synchronously or asynchronously.
 
         Throws an exception if a read error is encountered or data can't be written to the 
         buffer.
+
+        If the optional `buffer` and `resultsCallback` arguments are specified, the read operation 
+        takes place asynchronously, and the results are passed to the callback.
+        The data is written to the provided buffer, which is resized if necessary.
+        
+        If the `buffer` and `resultsCallback` arguments are omitted, a new buffer is
+        allocated and returned.
+        
+    parameters:
+
+      - name: sourceStream
+        summary: Stream to read from.
+        type: Titanium.IOStream
+
+      - name: buffer
+        summary: |
+            Buffer to read into. If specified, `resultsCallback` must be specified as
+            well.
+        type: Titanium.Buffer
+        optional: true
+
+      - name: resultsCallback
+        summary: |
+            Function to call with the results of the read operation.
+            If specified, `resultsCallback` must be specified as well.
+        type: Callback<ReadCallbackArgs>
+        optional: true
+
     returns:
-        type: Titanium.Buffer
-    parameters:
-
-      - name: sourceStream
-        summary: Stream to read from.
-        type: Titanium.IOStream
-
-  - name: readAll
-    summary: |
-        Asynchronously reads all data from the specified
-        [IOStream](Titanium.IOStream).
-    description: |
-        Writes data from the stream to the provided buffer, resizing it if necessary.
-
-        Throws an exception if a read error is encountered or data can't be written to the 
-        buffer.
-    parameters:
-
-      - name: sourceStream
-        summary: Stream to read from.
-        type: Titanium.IOStream
-
-      - name: buffer
-        summary: Buffer to read into.
-        type: Titanium.Buffer
-
-      - name: resultsCallback
-        summary: Function to call with the results of the read operation.
-        type: Callback<ReadCallbackArgs>
+      - type: Titanium.Buffer
+      - type: void
 
   - name: write
-    summary: Asynchronously writes all data from a buffer to an [IOStream](Titanium.IOStream).
+    summary: Asynchronously writes data from a buffer to an [IOStream](Titanium.IOStream).
     description: |
+        Data is read from the buffer and written to the stream. 
+
+        If the `offset` and `length` arguments are specified, data is read from the buffer
+        starting at `offset`, up to `offset+length-1` or the end of the buffer, whichever
+        comes first.
+        
+        If `offset` and `length` are omitted, the entire buffer is written to the stream.
+
         If the output stream is not writable, an error is reported:
 
         * On iOS, an exception is thrown.
 
         * On Android, the callback is invoked with an error.
-    parameters:
-
-      - name: outputStream
-        summary: Stream to write to.
-        type: Titanium.IOStream
-
-      - name: buffer
-        summary: Buffer to write from.
-        type: Titanium.Buffer
-
-      - name: resultsCallback
-        summary: Function to call with the results of the read operation.
-        type: Callback<WriteCallbackArgs>
-
-  - name: write
-    summary: Asynchronously writes a range of data from a buffer to an [IOStream](Titanium.IOStream).
-    description: |
-        If the output stream is not writable, an error is reported:
-
-        * On iOS, an exception is thrown.
-
-        * On Android, the callback is invoked with an error.
-
-        Data is read from the buffer and written to the stream. Data is read starting
-        from position `offset` in the buffer, and continuing until `length` bytes have 
-        been written, the end of buffer is reached, or the stream returns an error.
 
     parameters:
 
@@ -239,12 +207,19 @@ methods:
         type: Titanium.Buffer
 
       - name: offset
-        summary: Offset to start writing buffer data from.
+        summary: |
+            Offset to start writing buffer data from.
+            If specified, `length` must be specified as well.
         type: Number
+        optional: true
+        default: 0
 
       - name: length
-        summary: Bytes of data to write.
+        summary: |
+            Bytes of data to write. If specified, `offset` must be specified as well.
         type: Number
+        optional: true
+        default: Length of the supplied buffer.
 
       - name: resultsCallback
         summary: Function to call with the results of the write operation.
@@ -253,45 +228,19 @@ methods:
   - name: writeStream
     summary: Writes all data from an input stream to an output stream.
     description: |
-        Synchronous. Request will block until all data has been written.
 
-        Returns the total number of bytes written.
+        If the optional `resultsCallback` argument is supplied, the operation is 
+        performed asynchronously.
+        
+        If the callback is omitted, this method is synchronous, and blocks until all data has been written.  
+        The synchronous version Returns the total number of bytes written.
 
         If no data can be read from the input stream because the input
         stream is at end of stream, behavior varies by platform:
 
         *   iOS throws an exception.
 
-        *   Android returns 0.
-
-    returns:
-        type: Number
-        summary: Number of bytes written.
-    parameters:
-
-      - name: inputStream
-        summary: Stream to read from.
-        type: Titanium.IOStream
-
-      - name: outputStream
-        summary: Stream to write to.
-        type: Titanium.IOStream
-
-      - name: maxChunkSize
-        summary: |
-            Maximum number of bytes to copy from `inputStream` to `outputStream` in a 
-            single operation.
-        type: Number
-
-  - name: writeStream
-    summary: Asynchronously writes all data from an input stream to an output stream.
-    description: |
-        If no data can be read from the input stream because the input
-        stream is at end of stream, behavior varies by platform:
-
-        *   iOS throws an exception.
-
-        *   Android calls the callback with `bytesProcessed` set to 0.
+        *   Android returns 0, or calls the callback with `bytesProcessed` set to 0.
 
     parameters:
 
@@ -312,6 +261,7 @@ methods:
       - name: resultsCallback
         summary: Function to call with the results of the `writeStream` operation.
         type: Callback<WriteStreamCallbackArgs>
+        optional: true
 
   - name: pump
     summary: Reads data from input stream and passes it to a handler method.

@@ -36,11 +36,18 @@ properties:
     type: [Number, String]
     platforms: [iphone, ipad]
     
+  - name: cancelable
+    summary: |
+        When `true` allows the user to cancel the activity indicator dialog by
+        pressing the BACK button.
+    type: Boolean
+    platforms: [android]
+
   - name: color
     summary: |
-        Color of the message text in 
-        [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name or hex triplet.
-
+        Color of the message text, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
     platforms: [iphone, ipad, mobileweb]
     
@@ -110,6 +117,14 @@ properties:
         display the message and to position the view correctly.
     type: String
     platforms: [iphone, ipad]
+
+events:
+  - name: cancel
+    summary: Fired when the user has canceled the activity indicator dialog.
+    description: |
+        The user triggers this event by pressing the BACK button when the dialog is visible.
+        The dialog will be hidden and this event dispatched.
+    platforms: [android]
     
 examples:
   - title: Simple Activity Indicator

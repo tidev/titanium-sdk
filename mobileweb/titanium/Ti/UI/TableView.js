@@ -4,10 +4,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 	var setStyle = style.set,
 		is = require.is,
 		isDef = lang.isDef,
-		refreshSections = function() {
-			this._refreshSections();
-		};
-		
+		regexpClickTap = /^(click|singletap)$/;
+
 	return declare("Ti.UI.TableView", View, {
 		
 		constructor: function(args) {
@@ -162,14 +160,17 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		},
 		
 		_handleTouchEvent: function(type, e) {
-			if (type === "click" || type === "singletap") {
-				if (this._tableViewRowClicked && this._tableViewSectionClicked) {
-					e.row = this._tableViewRowClicked;
-					e.rowData = this._tableViewRowClicked;
-					var index = 0,
-						sections = this._sections.children;
-					for(var i = 0; i < sections.length; i+= 2) {
-						var localIndex = sections[i]._rows.children.indexOf(this._tableViewRowClicked);
+			var i = 0,
+				index = 0,
+				localIndex,
+				sections = this._sections.children,
+				row = this._tableViewRowClicked,
+				section = this._tableViewSectionClicked;
+
+			if (row && section) {
+				if (regexpClickTap.test(type)) {
+					for (; i < sections.length; i += 2) {
+						localIndex = sections[i]._rows.children.indexOf(row);
 						if (localIndex !== -1) {
 							index += Math.floor(localIndex / 2);
 							break;
@@ -177,19 +178,19 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 							index += sections[i].rowCount;
 						}
 					}
+					e.row = e.rowData = row;
 					e.index = index;
-					e.section = this._tableViewSectionClicked;
+					e.section = section;
 					e.searchMode = false; 
-					View.prototype._handleTouchEvent.apply(this,arguments); // This intentionally squelches the event if a row was not click
 				}
-			} else {
-				View.prototype._handleTouchEvent.apply(this,arguments);
+
+				View.prototype._handleTouchEvent.apply(this, arguments);
+
+				this._tableViewRowClicked = null;
+				this._tableViewSectionClicked = null;
 			}
 		},
-		
-		_tableViewRowClicked: null,
-		_tableViewSectionClicked: null,
-		
+
 		_createSeparator: function() {
 			var separator = UI.createView({
 				height: 1,
@@ -258,6 +259,11 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		},
 
 		appendRow: function(value) {
+			if (!this._currentSection) {
+				this._sections.add(this._currentSection = UI.createTableViewSection({_tableView: this}));
+				this._sections.add(this._createSeparator());
+				this.data.push(this._currentSection);
+			}
 			this._currentSection.add(value);
 			this._refreshSections();
 		},
@@ -299,6 +305,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 						
 						// Remove all of the previous sections
 						this._sections._removeAllChildren();
+						this._currentSection = void 0;
 						
 						// Convert any object literals to TableViewRow instances
 						for (var i in value) {
@@ -306,19 +313,12 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 								value[i] = UI.createTableViewRow(value[i]);
 							}
 						}
-						
-						// If there is no data, we still need to create a default section
-						if (value.length == 0) {
-							this._sections.add(this._currentSection = UI.createTableViewSection({_tableView: this}));
-							this._sections.add(this._createSeparator());
-							retval.push(this._currentSection);
-						}
 			
 						// Add each element
 						for (var i = 0; i < value.length; i++) {
 							if (value[i].declaredClass === "Ti.UI.TableViewRow") {
-								// Check if the first item is a row, meaning we need a default section
-								if (i === 0) {
+								// Check if we need a default section
+								if (!this._currentSection) {
 									this._sections.add(this._currentSection = UI.createTableViewSection({_tableView: this}));
 									this._sections.add(this._createSeparator());
 									retval.push(this._currentSection);
@@ -378,21 +378,21 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				}
 			},
 			maxRowHeight: {
-				post: refreshSections
+				post: "_refreshSections"
 			},
 			minRowHeight: {
-				post: refreshSections
+				post: "_refreshSections"
 			},
 			rowHeight: {
-				post: refreshSections,
+				post: "_refreshSections",
 				value: "50px"
 			},
 			separatorColor: {
-				post: refreshSections,
+				post: "_refreshSections",
 				value: "lightGrey"
 			},
 			separatorStyle: {
-				post: refreshSections,
+				post: "_refreshSections",
 				value: TableViewSeparatorStyle.SINGLE_LINE
 			}
 		}

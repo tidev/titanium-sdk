@@ -16,8 +16,15 @@
 #import "TiUITableViewProxy.h"
 #import "TiApp.h"
 #import "TiLayoutQueue.h"
+#import "TiRootController.h"
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
+
+@interface TiUITableView ()
+@property (nonatomic,copy,readwrite) NSString * searchString;
+- (void)updateSearchResultIndexes;
+- (CGFloat)computeRowWidth;
+@end
 
 @implementation TiUITableViewCell
 @synthesize hitPoint,proxy;
@@ -65,7 +72,7 @@
 {
     CGFloat width = 0;
     if ([proxy table] != nil) {
-        width = [proxy sizeWidthForDecorations:[[proxy table] tableView].bounds.size.width forceResizing:YES];        
+        width = [proxy sizeWidthForDecorations:[[proxy table] computeRowWidth] forceResizing:YES];        
     }
 	CGFloat height = [proxy rowHeight:width];
 	height = [[proxy table] tableRowHeight:height];
@@ -123,6 +130,14 @@
         }
     }
     [super touchesEnded:touches withEvent:event];
+}
+
+-(void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if ([proxy _hasListeners:@"touchcancel"]) {
+        [proxy fireEvent:@"touchcancel" withObject:[proxy createEventObject:nil] propagate:YES];
+    }
+    [super touchesCancelled:touches withEvent:event];
 }
 
 
@@ -239,12 +254,6 @@
 
 @end
 
-@interface TiUITableView ()
-@property (nonatomic,copy,readwrite) NSString * searchString;
-- (void)updateSearchResultIndexes;
-
-@end
-
 @implementation TiUITableView
 #pragma mark Internal 
 @synthesize searchString;
@@ -258,14 +267,6 @@
 		searchString = @"";
 	}
 	return self;
-}
-
--(void)configurationSet
-{
-    [super configurationSet];
-    
-    [[self proxy] initializeProperty:@"searchHidden" defaultValue:NUMBOOL(NO)];
-    [[self proxy] initializeProperty:@"hideSearchOnSelection" defaultValue:NUMBOOL(YES)];
 }
 
 -(void)dealloc
@@ -582,6 +583,10 @@
 	
 	NSMutableArray * sections = [(TiUITableViewProxy *)[self proxy] sections];
     BOOL reloadSearch = NO;
+
+	TiViewProxy<TiKeyboardFocusableView> * chosenField = [[[TiApp controller] keyboardFocusedProxy] retain];
+	BOOL oldSuppress = [chosenField suppressFocusEvents];
+	[chosenField setSuppressFocusEvents:YES];
 	switch (action.type)
 	{
 		case TiUITableViewActionRowReload:
@@ -750,6 +755,9 @@
             break;
         }
 	}
+	[chosenField focus:nil];
+	[chosenField setSuppressFocusEvents:oldSuppress];
+	[chosenField release];
 
 	if ([searchController isActive]) {
 		[self updateSearchResultIndexes];
@@ -1053,12 +1061,15 @@
 		[proxy layoutChildren:NO];
 	}
 	
-	if ([tableview tableHeaderView]!=nil)
+	if ([[self tableView] tableHeaderView]!=nil)
 	{
 		TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"headerView"];
 		if (proxy!=nil)
 		{
 			[proxy windowWillOpen];
+            proxy.parentVisible=YES;
+            [proxy refreshSize];
+            [proxy willChangeSize];
 			[proxy layoutChildren:NO];
 		}
 	}
@@ -1069,26 +1080,12 @@
 		if (proxy!=nil)
 		{
 			[proxy windowWillOpen];
+            proxy.parentVisible=YES;
+            [proxy refreshSize];
+            [proxy willChangeSize];
 			[proxy layoutChildren:NO];
 		}
 	}
-	
-    // Since the header proxy is not properly attached to a view proxy in the titanium
-    // system, we have to reposition it here.  Resetting the table header view
-    // is because there's a charming bug in UITableView that doesn't respect redisplay
-    // for headers/footers when the frame changes.
-    UIView* headerView = [[self tableView] tableHeaderView];
-    if ([headerView isKindOfClass:[TiUIView class]]) {
-        [(TiViewProxy*)[(TiUIView*)headerView proxy] reposition];
-        [[self tableView] setTableHeaderView:headerView];
-    }
-    
-    // ... And we have to do the same thing for the footer.
-    UIView* footerView = [[self tableView] tableFooterView];
-    if ([footerView isKindOfClass:[TiUIView class]]) {
-        [(TiViewProxy*)[(TiUIView*)footerView proxy] reposition];
-        [[self tableView] setTableFooterView:footerView];
-    }
 	
     if (tableview!=nil && 
         !CGRectIsEmpty(self.bounds) && 
@@ -1177,23 +1174,7 @@
 
 - (IBAction) showSearchScreen: (id) sender
 {
-	if ([(TiUITableViewProxy *)[self proxy] sectionCount]>0)
-	{
-		[tableview scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]
-						 atScrollPosition:UITableViewScrollPositionBottom animated:NO];
-	}
-	
-	CGRect screenRect = [TiUtils viewPositionRect:tableview];
-	CGFloat searchHeight = [[tableview tableHeaderView] bounds].size.height;
-	
-	screenRect.origin.y += searchHeight;
-	screenRect.size.height -= searchHeight;
-	
-	UIView * wrapperView = [tableview superview];
-	
-	[UIView beginAnimations:@"searchy" context:nil];
-	[tableview setContentOffset:CGPointMake(0,0)];
-	[UIView commitAnimations];
+	[tableview setContentOffset:CGPointZero animated:YES];
 }
 
 -(void)updateSearchView
@@ -1335,13 +1316,39 @@
 	[[self tableView] setSeparatorColor:[color _color]];
 }
 
+-(void)proxyDidRelayout:(id)sender
+{
+    TiThreadPerformOnMainThread(^{
+        if ( (sender == headerViewProxy) && (headerViewProxy != nil) ) {
+            UIView* headerView = [[self tableView] tableHeaderView];
+            [headerView setFrame:[headerView bounds]];
+            [[self tableView] setTableHeaderView:headerView];
+        }
+        else if ( (sender == footerViewProxy) && (footerViewProxy != nil) ) {
+            UIView *footerView = [[self tableView] tableFooterView];
+            [footerView setFrame:[footerView bounds]];
+            [[self tableView] setTableFooterView:footerView];
+        }
+    },NO);
+}
+
 -(void)setHeaderTitle_:(id)args
 {
+    if (headerViewProxy != nil) {
+        [headerViewProxy setProxyObserver:nil];
+        [[self proxy] forgetProxy:headerViewProxy];
+        headerViewProxy = nil;
+    }
 	[[self tableView] setTableHeaderView:[self titleViewForText:[TiUtils stringValue:args] footer:NO]];
 }
 
 -(void)setFooterTitle_:(id)args
 {
+    if (footerViewProxy != nil) {
+        [footerViewProxy setProxyObserver:nil];
+        [[self proxy] forgetProxy:footerViewProxy];
+        footerViewProxy = nil;
+    }
 	[[self tableView] setTableFooterView:[self titleViewForText:[TiUtils stringValue:args] footer:YES]];
 }
 
@@ -1353,9 +1360,21 @@
 		TiUIView *view = (TiUIView*) [args view];
 		UITableView *table = [self tableView];
 		[table setTableHeaderView:view];
+        if (headerViewProxy != nil) {
+            [headerViewProxy setProxyObserver:nil];
+            [[self proxy] forgetProxy:headerViewProxy];
+        }
+        headerViewProxy = args;
+        [headerViewProxy setProxyObserver:self];
+        [[self proxy] rememberProxy:headerViewProxy];
 	}
 	else
 	{
+        if (headerViewProxy != nil) {
+            [headerViewProxy setProxyObserver:nil];
+            [[self proxy] forgetProxy:headerViewProxy];
+            headerViewProxy = nil;
+        }
 		[[self tableView] setTableHeaderView:nil];
 	}
 }
@@ -1368,9 +1387,21 @@
 		[args windowWillOpen];
 		UIView *view = [args view];
 		[[self tableView] setTableFooterView:view];
+        if (footerViewProxy != nil) {
+            [footerViewProxy setProxyObserver:nil];
+            [[self proxy] forgetProxy:footerViewProxy];
+        }
+        footerViewProxy = args;
+        [footerViewProxy setProxyObserver:self];
+        [[self proxy] rememberProxy:footerViewProxy];
 	}
 	else
 	{
+        if (footerViewProxy != nil) {
+            [footerViewProxy setProxyObserver:nil];
+            [[self proxy] forgetProxy:footerViewProxy];
+            footerViewProxy = nil;
+        }
 		[[self tableView] setTableFooterView:nil];
 	}
 }
@@ -1579,17 +1610,16 @@
 {
 	UIEdgeInsets insets = [TiUtils contentInsets:value];
 	BOOL animated = [TiUtils boolValue:@"animated" properties:props def:NO];
-	if (animated)
-	{
-		[UIView beginAnimations:nil context:nil];
-		double duration = [TiUtils doubleValue:@"duration" properties:props def:300]/1000;
-		[UIView setAnimationDuration:duration];
-	}
-	[[self tableView] setContentInset:insets];
-	if (animated)
-	{
-		[UIView commitAnimations];
-	}
+    void (^setInset)(void) = ^{
+        [tableview setContentInset:insets];
+    };
+    if (animated) {
+        double duration = [TiUtils doubleValue:@"duration" properties:props def:300]/1000;
+        [UIView animateWithDuration:duration animations:setInset];
+    }
+    else {
+        setInset();
+    }
 }
 
 #pragma mark Datasource 
@@ -1975,16 +2005,44 @@ return result;	\
 	return indent == nil ? 0 : [TiUtils intValue:indent];
 }
 
-- (CGFloat)tableView:(UITableView *)ourTableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+-(CGFloat)computeRowWidth
 {
+    CGFloat rowWidth = tableview.bounds.size.width;
+    
+    // Apple does not provide a good way to get information about the index sidebar size
+    // in the event that it exists - it silently resizes row content which is "flexible width"
+    // but this is not useful for us. This is a problem when we have Ti.UI.SIZE/FILL behavior
+    // on row contents, which rely on the height of the row to be accurately precomputed.
+    //
+    // The following is unreliable since it uses a private API name, but one which has existed
+    // since iOS 3.0. The alternative is to grab a specific subview of the tableview itself,
+    // which is more fragile.
+    
+    NSArray* subviews = [tableview subviews];
+    if ([subviews count] > 0) {
+        // Obfuscate private class name
+        Class indexview = NSClassFromString([@"UITableView" stringByAppendingString:@"Index"]);
+        for (UIView* view in subviews) {
+            if ([view isKindOfClass:indexview]) {
+                rowWidth -= [view frame].size.width;
+            }
+        }
+    }
+    
+    return rowWidth;
+}
+
+- (CGFloat)tableView:(UITableView *)ourTableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{    
 	NSIndexPath* index = indexPath;
 	if (ourTableView != tableview) {
 		index = [self indexPathFromSearchIndex:[indexPath row]];
 	}
 	
 	TiUITableViewRowProxy *row = [self rowForIndexPath:index];
-	
-	CGFloat width = [row sizeWidthForDecorations:tableview.bounds.size.width forceResizing:YES];
+    
+
+	CGFloat width = [row sizeWidthForDecorations:[self computeRowWidth] forceResizing:YES];
 	CGFloat height = [row rowHeight:width];
 	height = [self tableRowHeight:height];
 	return height < 1 ? tableview.rowHeight : height;
@@ -2145,6 +2203,10 @@ return result;	\
 {
 	// suspend image loader while we're scrolling to improve performance
 	[[ImageLoader sharedLoader] suspend];
+    if([self.proxy _hasListeners:@"dragStart"])
+    {
+        [self.proxy fireEvent:@"dragStart" withObject:nil];
+    }
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate 
@@ -2154,14 +2216,11 @@ return result;	\
 		// resume image loader when we're done scrolling
 		[[ImageLoader sharedLoader] resume];
 	}
-	if ([self.proxy _hasListeners:@"scrollEnd"])
+	if ([self.proxy _hasListeners:@"dragEnd"])
 	{
-		NSMutableDictionary *event = [NSMutableDictionary dictionary];
-		[event setObject:[TiUtils pointToDictionary:scrollView.contentOffset] forKey:@"contentOffset"];
-		[event setObject:[TiUtils sizeToDictionary:scrollView.contentSize] forKey:@"contentSize"];
-		[event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
-		[self.proxy fireEvent:@"scrollEnd" withObject:event];
+		[self.proxy fireEvent:@"dragEnd" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil]]	;
 	}
+    
     // Update keyboard status to insure that any fields actively being edited remain in view
     if ([[[TiApp app] controller] keyboardVisible]) {
         [[[TiApp app] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
@@ -2172,6 +2231,14 @@ return result;	\
 {
 	// resume image loader when we're done scrolling
 	[[ImageLoader sharedLoader] resume];
+    if ([self.proxy _hasListeners:@"scrollEnd"])
+	{
+		NSMutableDictionary *event = [NSMutableDictionary dictionary];
+		[event setObject:[TiUtils pointToDictionary:scrollView.contentOffset] forKey:@"contentOffset"];
+		[event setObject:[TiUtils sizeToDictionary:scrollView.contentSize] forKey:@"contentSize"];
+		[event setObject:[TiUtils sizeToDictionary:tableview.bounds.size] forKey:@"size"];
+		[self.proxy fireEvent:@"scrollEnd" withObject:event];
+	}
 }
 
 #pragma mark Search Display Controller Delegates
