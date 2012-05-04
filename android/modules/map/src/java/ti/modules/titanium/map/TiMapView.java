@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -28,7 +28,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.map.MapRouteType.RouteOverlay;
+import ti.modules.titanium.map.MapRoute.RouteOverlay;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -96,7 +96,7 @@ public class TiMapView extends TiUIView
 	private MyLocationOverlay myLocation;
 	private TiOverlayItemView itemView;
 	private ArrayList<AnnotationProxy> annotations;
-	private ArrayList<MapRouteType> routes;
+	private ArrayList<MapRoute> routes;
 	private ArrayList<SelectedAnnotation> selectedAnnotations;
 	private Handler handler;
 
@@ -322,7 +322,7 @@ public class TiMapView extends TiUIView
 		}
 	}
 	
-	public TiMapView(TiViewProxy proxy, Window mapWindow, ArrayList<AnnotationProxy> annotations, ArrayList<MapRouteType> routes, ArrayList<SelectedAnnotation>selectedAnnotations)
+	public TiMapView(TiViewProxy proxy, Window mapWindow, ArrayList<AnnotationProxy> annotations, ArrayList<MapRoute> routes, ArrayList<SelectedAnnotation>selectedAnnotations)
 	{
 		super(proxy);
 
@@ -521,12 +521,12 @@ public class TiMapView extends TiUIView
 		handler.obtainMessage(MSG_UPDATE_ANNOTATIONS).sendToTarget();
 	}
 
-	public ArrayList<MapRouteType> getRoutes() 
+	public ArrayList<MapRoute> getRoutes() 
 	{
 		return routes;
 	}
 	
-	public void addRoute(MapRouteType mr) 
+	public void addRoute(MapRoute mr) 
 	{
 		//check if route exists - by name
 		String rname = mr.getName();
@@ -543,7 +543,7 @@ public class TiMapView extends TiUIView
 		int i = 0;
 		
 		while (i < routes.size()) {
-			MapRouteType mr = routes.get(i);
+			MapRoute mr = routes.get(i);
 			ArrayList<RouteOverlay> o = mr.getRoutes();			
 			List<Overlay> overlaysList = view.getOverlays();
 			for (int j = 0; j < o.size(); j++) {

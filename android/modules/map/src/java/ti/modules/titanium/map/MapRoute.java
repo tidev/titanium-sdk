@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package ti.modules.titanium.map;
 
 import java.util.ArrayList;
@@ -11,15 +17,20 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.Projection;
 
+/**
+ * Simple object defining a map route. 
+ */
+public class MapRoute {
 
-public class MapRouteType {
-
-	private MapPointType[] points;
+	private MapPoint[] points;
 	private ArrayList<RouteOverlay> routes;
 	private int color;
 	private int width;
 	private String name;
 	
+	/**
+	 *  Android overlay that draw routes on the map view.
+	 */
 	public class RouteOverlay extends Overlay {
 		private GeoPoint gp1;
 		private GeoPoint gp2;
@@ -51,7 +62,7 @@ public class MapRouteType {
 		}
 	}
 	
-	public MapRouteType(MapPointType[] points, int color, int width, String name)  
+	public MapRoute(MapPoint[] points, int color, int width, String name)  
 	{
 		this.color = color;
 		this.width = width;
@@ -62,7 +73,7 @@ public class MapRouteType {
 		generateRoutes();
 	}
 	
-	public MapPointType[] getPoints() 
+	public MapPoint[] getPoints() 
 	{
 		return points;
 	}
@@ -91,8 +102,8 @@ public class MapRouteType {
 	{
 		
 		for (int i = 0; i < points.length - 1; i++) {
-			MapPointType mr1 = points[i];
-			MapPointType mr2 = points[i+1];
+			MapPoint mr1 = points[i];
+			MapPoint mr2 = points[i+1];
 			GeoPoint gp1 = new GeoPoint(scaleToGoogle(mr1.getLatitude()), scaleToGoogle(mr1.getLongitude()));
 			GeoPoint gp2 = new GeoPoint(scaleToGoogle(mr2.getLatitude()), scaleToGoogle(mr2.getLongitude()));
 			RouteOverlay o = new RouteOverlay (gp1, gp2, getColor(), getWidth());
