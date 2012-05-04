@@ -94,15 +94,15 @@ description: |
     property. See the description of the [layout](Titanium.UI.View.layout) property 
     for details.
     
-    The [size](Titanium.UI.View.size) property is a read-only dimension
-    with the properties `x`, `y`, `width` and `height`. It provides the *rendered* size
-     of the  view, and is only available once both it and its ancestors have been
+    The [rect](Titanium.UI.View.rect) property is a read-only dictionary
+    with the properties `x`, `y`, `width` and `height`. It provides the *rendered*
+    size and position of the  view, and is only available once both it and its ancestors have been
     fully drawn.
 
-    The [rect](Titanium.UI.View.rect) property is a read-only dimension
-    with the properties `x`, `y`, `width` and `height`. It provides the *rendered*
-    position and size of the  view, and is only available once both it and its ancestors have been
-    fully drawn.
+    The [size](Titanium.UI.View.size) property is a read-only dictionary
+    with the properties `x`, `y`, `width` and `height`. It provides the *rendered* size
+     of the  view, and is only available once both it and its ancestors have been
+    fully drawn. 
 
     To determine whether the `size` and `rect` values are available, add an event listener
     for the [postlayout](Titanium.UI.View.postlayout) event, which is fired at the end of
@@ -151,7 +151,7 @@ methods:
         the actual position of the view.
         
         The [rect](Titanium.UI.View.rect) property can be used to determine the actual
-        position of the view. Note that on Mobile Web, the `rect` property is not updated
+        size and position of the view. Note that on Mobile Web, the `rect` property is not updated
         after animation. This is a known issue
         [TIMOB-8930](https://jira.appcelerator.org/browse/TIMOB-8930).
 
@@ -556,6 +556,7 @@ events:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
+    since: { android: "2.1.0" }
 properties:
   - name: anchorPoint
     summary: Anchor point where animation should occur, relative to the view's boundaries. 
@@ -795,8 +796,8 @@ properties:
              view. The use of 'auto' is deprecated, and should be replaced with the `SIZE` or
              `FILL` constants if it is necessary to set the view's behavior explicitly.
 
-        This is an input property for specifying the view's height dimension. To determine the view's 
-        size once rendered, use the [rect](Titanium.UI.View.rect) or
+        This is an input property for specifying the view's height dimension. To determine 
+        the view's size once rendered, use the [rect](Titanium.UI.View.rect) or
         [size](Titanium.UI.View.size) properties.
     type: [Number,String]
     
@@ -869,7 +870,17 @@ properties:
             exists in the current row, it is wrapped to a new row. The height of each row
             is equal to the maximum height of the children in that row.
 
-            Each child is positioned vertically _within its row_ as in the absolute layout mode.
+            On iOS and Mobile Web (Release 2.1.0 and later), the first row is placed 
+            at the top of the parent view, and successive rows are placed below the first
+            row. Each child is positioned vertically _within its row_ as in the absolute 
+            layout mode. That is, the `top` and `bottom` values, if specified, are
+            interpreted relative to the *row*, not the parent view.
+
+            On Android, the first row is centered vertically in the parent view, and
+            successive rows are placed below the first row as on iOS. However, the `top` 
+            and `bottom` values are interpreted relative to the parent view.
+
+            On Mobile Web _prior to_ Release 2.1.0, the horizontal layout does not wrap. 
     default: absolute layout
 
   - name: opacity
@@ -890,8 +901,13 @@ properties:
     
   - name: rect
     summary: |
-        The frame of the view (position relative to parent bounds) in system units.
+        The bounding box of the view relative to its parent, in system units.
     description: |
+        The view's bounding box is defined by its size and position. 
+
+        The view's size is `rect.width` x `rect.height`. The view's top-left position 
+        relative to its parent is (`rect.x` , `rect.y`).
+
         The correct values will only be available when layout is complete.
         To determine when layout is complete, add a listener for the
         [postlayout](Titanium.UI.View.postlayout) event.
@@ -901,10 +917,13 @@ properties:
 
   - name: size
     summary: |
-        The size of the view in system units. x and y properties are always 0.
+        The size of the view in system units. 
     description: |
-        To find the position of the view, use the [rect](Titanium.UI.View.rect) property
-        instead.
+        Although property returns a <Dimension> dictionary, only the `width` and `height`
+        properties are valid. The position properties--`x` and `y`--are always 0.
+
+        To find the position _and_ size of the view, use the [rect](Titanium.UI.View.rect) 
+        property instead.
 
         The correct values will only be available when layout is complete.
         To determine when layout is complete, add a listener for the
@@ -960,8 +979,8 @@ properties:
              view. The use of 'auto' is deprecated, and should be replaced with the `SIZE` or
              `FILL` constants if it is necessary to set the view's behavior explicitly.
 
-        This is an input property for specifying the view's width dimension. To determine the view's 
-        size once rendered, use the [rect](Titanium.UI.View.rect) or
+        This is an input property for specifying the view's width dimension. To determine 
+        the view's size once rendered, use the [rect](Titanium.UI.View.rect) or
         [size](Titanium.UI.View.size) properties.
 
     type: [Number,String]

@@ -293,8 +293,8 @@ properties:
 
   - name: clipViews
     summary: |
-        Determines whether the content which is being scrolled will be clipped to the frame of
-        the view.
+        Determines whether the content which is being scrolled will be clipped to the
+        bounding box of the view.
     type: Boolean
     default: true
     platforms: [iphone, ipad]
