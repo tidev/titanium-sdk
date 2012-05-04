@@ -257,6 +257,48 @@ events:
     summary: Fired when the map begins loading.
     platforms: [iphone, ipad, mobileweb]
 
+  - name: pinchangedragstate
+    summary: Fired when the user interacts with a draggable annotation.
+    properties:
+
+      - name: annotation
+        summary: Annotation being dragged.
+        type: Titanium.Map.Annotation
+
+      - name: map
+        summary: This map view.
+        type: Titanium.Map.View
+        
+      - name: title
+        summary: Annotation title.
+        type: String
+
+      - name: index
+        summary: Index of the annotation.
+        type: Number
+
+      - name: newState
+        summary: |
+            New drag state for the annotation, one of
+            [ANNOTATION_DRAG_STATE_NONE](Titanium.Map.ANNOTATION_DRAG_STATE_NONE),
+            [ANNOTATION_DRAG_STATE_START](Titanium.Map.ANNOTATION_DRAG_STATE_START),
+            [ANNOTATION_DRAG_STATE_DRAG](Titanium.Map.ANNOTATION_DRAG_STATE_DRAG),
+            [ANNOTATION_DRAG_STATE_CANCEL](Titanium.Map.ANNOTATION_DRAG_STATE_CANCEL) or
+            [ANNOTATION_DRAG_STATE_END](Titanium.Map.ANNOTATION_DRAG_STATE_END).
+        type: Number
+
+      - name: oldState
+        summary: |
+            Previous drag state for the annotation, one of
+            [ANNOTATION_DRAG_STATE_NONE](Titanium.Map.ANNOTATION_DRAG_STATE_NONE),
+            [ANNOTATION_DRAG_STATE_START](Titanium.Map.ANNOTATION_DRAG_STATE_START),
+            [ANNOTATION_DRAG_STATE_DRAG](Titanium.Map.ANNOTATION_DRAG_STATE_DRAG),
+            [ANNOTATION_DRAG_STATE_CANCEL](Titanium.Map.ANNOTATION_DRAG_STATE_CANCEL) or
+            [ANNOTATION_DRAG_STATE_END](Titanium.Map.ANNOTATION_DRAG_STATE_END).
+        type: Number
+    platforms: [iphone, ipad]
+    since: "2.1.0"
+
   - name: regionChanged
     summary: Fired when the mapping region changes.
     properties:
