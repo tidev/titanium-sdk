@@ -1337,7 +1337,7 @@ class Builder(object):
 		javac_command = [self.javac, '-encoding', 'utf8',
 			'-classpath', classpath, '-d', self.classes_dir, '-proc:none',
 			'-sourcepath', self.project_src_dir,
-			'-sourcepath', self.project_gen_dir, '-source', '1.5', '-target', '1.5']
+			'-sourcepath', self.project_gen_dir, '-target', '1.6', '-source', '1.6']
 		(src_list_osfile, src_list_filename) = tempfile.mkstemp()
 		src_list_file = os.fdopen(src_list_osfile, 'w')
 		src_list_file.write("\n".join(src_list))

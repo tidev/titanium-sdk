@@ -10,6 +10,14 @@ if [ "$ANDROID_NDK" = "" ]; then
 	exit 1
 fi
 
+if [ "$ANDROID_PLATFORM" = "" ]; then
+	if [ "$ANDROID_SDK" = "" ]; then
+		echo "Error: The path to the Android SDK platform must be set in the ANDROID_PLATFORM environment variable (e.g. /opt/android-sdk-macosx/platforms/android-8)"
+		exit 1
+	fi
+	export ANDROID_PLATFORM="$(cd "$ANDROID_SDK"; pwd)/platforms/android-8"
+fi
+
 THIS_DIR=$(cd "$(dirname "$0")"; pwd)
 
 ARGS=

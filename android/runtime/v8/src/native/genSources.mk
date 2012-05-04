@@ -1,6 +1,6 @@
 #
 # Appcelerator Titanium Mobile
-# Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
 # Licensed under the terms of the Apache Public License
 # Please see the LICENSE included with this distribution for details.
 #
@@ -48,4 +48,4 @@ $(GENERATED_DIR)/KrollNativeBindings.cpp: $(THIS_DIR)/KrollNativeBindings.gperf
 
 JAVAH := javah
 $(JNI_PREFIX)%.h:
-	$(JAVAH) -classpath $(DIST_DIR)/kroll-v8.jar -d $(GENERATED_DIR) $(subst .h,,$(subst _,.,$(patsubst $(GENERATED_DIR)/%,%,$(@F))))
+	$(JAVAH) -classpath $(DIST_DIR)/kroll-v8.jar:$(DIST_DIR)/kroll-common.jar:$(ANDROID_PLATFORM)/android.jar -d $(GENERATED_DIR) $(subst .h,,$(subst _,.,$(patsubst $(GENERATED_DIR)/%,%,$(@F))))

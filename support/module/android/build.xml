@@ -2,6 +2,7 @@
 	<property name="ti.module.root" location="${basedir}"/>
 
 	<property file="${ti.module.root}/build.properties"/>
+	<property name="android.jar" location="${android.platform}/android.jar"/>
 	<property name="ti.module.support.dir" location="${titanium.platform}/../module"/>
 
 	<!-- the manifest format seems to be compatible w/ the properties format -->
@@ -38,7 +39,7 @@
 			<include name="*.jar"/>
 			<include name="modules/titanium-*.jar"/>
 		</fileset>
-		<pathelement path="${android.platform}/android.jar"/>
+		<pathelement path="${android.jar}"/>
 		<pathelement path="${google.apis}/libs/maps.jar"/>
 	</path>
 
@@ -56,8 +57,8 @@
 		<javac 
 			srcdir="${src}" 
 			destdir="${classes}"
-			source="1.5"
-			target="1.5"
+			target="1.6"
+			source="1.6"
 			debug="${javac.debug}"
 			includeantruntime="false">
 				<compilerarg value="-processor"/>
@@ -157,8 +158,8 @@
 		<javac 
 			destdir="${classes}"
 			debug="${javac.debug}"
-			source="1.5"
-			target="1.5"
+			target="1.6"
+			source="1.6"
 			includeantruntime="false">
 			<src path="${src}" />
 			<src path="${genjava}" />

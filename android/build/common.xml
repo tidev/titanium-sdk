@@ -1,7 +1,7 @@
 <!-- 
 Appcelerator Titanium Mobile
 
-Copyright (c) 2010, 2011 by Appcelerator, Inc. All Rights Reserved.
+Copyright (c) 2010-2012 by Appcelerator, Inc. All Rights Reserved.
 Licensed under the terms of the Apache Public License
 Please see the LICENSE included with this distribution for details.
 
@@ -121,8 +121,10 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		</else>
 	</if>
 
+	<property name="android.jar" location="${android.platform}/android.jar"/>
+
 	<path id="android">
-		<pathelement path="${android.platform}/android.jar"/>
+		<pathelement path="${android.jar}"/>
 		<pathelement path="${google.apis}/libs/maps.jar"/>
 	</path>
 
@@ -167,6 +169,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<javac destdir="@{build.dir}"
 				includes="@{includes}"
 				excludes="@{excludes}"
+				target="1.6"
 				source="1.6"
 				debug="@{debug}"
 				includeantruntime="false">
@@ -387,6 +390,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<property name="ndk.build.args" value=""/>
 		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
 			<env key="ANDROID_NDK" file="${android.ndk}"/>
+			<env key="ANDROID_PLATFORM" file="${android.platform}"/>
 			<arg value="TI_DEBUG=${ti.debug}"/>
 			<arg line="${ndk.build.args}"/>
 		</exec>
@@ -398,7 +402,10 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<target name="build.kroll.common.jar">
 		<property name="kroll.common.classes.dir" location="${dist.classes.dir}/kroll-common"/>
 		<mkdir dir="${kroll.common.classes.dir}"/>
-		<javac srcdir="${kroll.common.project.dir}/src/java" destdir="${kroll.common.classes.dir}" debug="true">
+		<javac srcdir="${kroll.common.project.dir}/src/java"
+			destdir="${kroll.common.classes.dir}" debug="true"
+			source="1.6" target="1.6"
+			includeantruntime="false">
 			<classpath refid="android"/>
 		</javac>
 
@@ -409,7 +416,9 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<import file="${kroll.rhino.project.dir}/build.xml"/>
 	<macrodef name="compile.kroll.rhino.bindings">
 		<sequential>
-			<javac destdir="${kroll.rhino.gen.classes.dir}" debug="true">
+			<javac destdir="${kroll.rhino.gen.classes.dir}"
+				debug="true" target="1.6" source="1.6"
+				includeantruntime="false">
 				<classpath refid="android"/>
 				<classpath refid="rhino"/>
 				<classpath>
@@ -434,7 +443,8 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<mkdir dir="${kroll.rhino.classes.dir}"/>
 		<mkdir dir="${kroll.rhino.gen.classes.dir}"/>
 
-		<javac destdir="${kroll.rhino.classes.dir}" debug="true">
+		<javac destdir="${kroll.rhino.classes.dir}" debug="true"
+			target="1.6" source="1.6" includeantruntime="false">
 			<classpath refid="android"/>
 			<classpath refid="rhino"/>
 			<classpath>
@@ -477,7 +487,8 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<target name="build.kroll.v8.jar" depends="build.kroll.common.jar">
 		<property name="kroll.v8.classes.dir" location="${dist.classes.dir}/kroll-v8"/>
 		<mkdir dir="${kroll.v8.classes.dir}"/>
-		<javac srcdir="${kroll.v8.project.dir}/src/java" destdir="${kroll.v8.classes.dir}" debug="true">
+		<javac srcdir="${kroll.v8.project.dir}/src/java" destdir="${kroll.v8.classes.dir}" debug="true"
+			target="1.6" source="1.6" includeantruntime="false">
 			<classpath refid="android"/>
 			<classpath>
 				<fileset file="${dist.dir}/kroll-common.jar"/>
@@ -699,7 +710,14 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<macrodef name="build.ti.ant.tasks">
 		<sequential>
 			<mkdir dir="${dist.classes.dir}/ant-tasks"/>
-			<javac srcdir="${ti.build.dir}/src" destdir="${dist.classes.dir}/ant-tasks" includes="**/*.java" classpathref="ti.build.lib.path" includeantruntime="false" debug="true"/>
+			<javac srcdir="${ti.build.dir}/src"
+				destdir="${dist.classes.dir}/ant-tasks"
+				includes="**/*.java"
+				classpathref="ti.build.lib.path"
+				includeantruntime="false"
+				debug="true"
+				target="1.6"
+				source="1.6"/>
 			<jar basedir="${dist.classes.dir}/ant-tasks" destfile="${dist.dir}/ant-tasks.jar"/>
 		</sequential>
 	</macrodef>
