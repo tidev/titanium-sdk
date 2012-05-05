@@ -69,6 +69,11 @@
     }
 }
 
+-(void)setProxyObserver:(id)arg
+{
+    observer = arg;
+}
+
 -(void)processTempProperties:(NSDictionary*)arg
 {
     //arg will be non nil when called from updateLayout
@@ -2003,6 +2008,10 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 		repositioning = NO;
         
+        if ([observer respondsToSelector:@selector(proxyDidRelayout:)]) {
+            [observer proxyDidRelayout:self];
+        }
+
         if ([self _hasListeners:@"postlayout"]) {
             [self fireEvent:@"postlayout" withObject:nil];
         }
