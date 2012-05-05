@@ -371,6 +371,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_SCROLLEND = "scrollEnd";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_DRAGEND = "dragEnd";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_SINGLE_TAP = "singletap";
 
 	/**

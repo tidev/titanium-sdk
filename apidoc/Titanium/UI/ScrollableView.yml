@@ -119,9 +119,11 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-    
-  - name: scroll
+
+  - name: scrollEnd
     summary: Fired when the current view is changed.
+    platforms: [iphone, ipad, android]
+
     properties:
       - name: currentPage
         summary: Index of the current view of <Titanium.UI.ScrollableView.views>.
@@ -137,9 +139,9 @@ events:
             since: "1.8.0"
         
       - name: view
-        summary: The current view.
+        summary: The currently visible view.
         type: Object
-    
+
   - name: singletap
     summary: Fired when the device detects a single tap against this view.
     platforms: [iphone, ipad]
@@ -226,6 +228,36 @@ events:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
+
+  - name: scroll
+    summary: Fired when the view is being scrolled
+    platforms: [iphone, ipad, android]
+    properties:
+      - name: currentPage
+        summary: Current page that the view is scrolled to.
+        type: Number
+
+      - name: currentPageAsFloat
+        summary: |
+           Current page that the view is scrolled to as a float. So, for
+           example, if the user is holding the `ScrollableView` in between
+           the first and second page, this will have a value of `0.5`
+
+      - name: view
+        summary: The currently visible view.
+        type: Object
+
+   - name: dragEnd
+     summary: Fired when the scrolling drag gesture on the view has been completed
+     platforms: [android]
+     properties:
+      - name: currentPage
+        summary: Current page that the view is scrolled to.
+        type: Number
+
+      - name: view
+        summary: The currently visible view.
+        type: Object
 
 properties:
   - name: cacheSize
