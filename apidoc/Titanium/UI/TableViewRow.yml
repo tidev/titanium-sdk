@@ -49,121 +49,6 @@ excludes:
     properties: []
     methods: [animate]
     events: [dblclick, doubletap, longpress, pinch, singletap, swipe, touchend, touchmove, twofingertap]
-    
-properties:
-  - name: className
-    summary: Class name for the row. 
-    description: |
-        A class name represents a unique row layout. 
-        
-        A table view row must have a unique class name if the row layout is unique. However, 
-        use the same name for rows that have the same structural layout (even if the content is 
-        different) to provide maximum rendering performance.
-
-        For example, if some rows include images and some rows do not, you would have two class
-        names, one for image rows and one for plain rows.
-        
-        This property exists on Mobile Web, but is ignored.
-    type: String
-    
-  - name: color
-    summary: Default text color of the row when not selected, as a color name or hex triplet.
-    description: |
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
-        
-        On Android, `selectedColor` is not supported, so the text is always displayed in this color.
-    type: String
-    
-  - name: editable
-    summary: Determines whether this row can be deleted when the table is in edit mode.
-    type: Boolean
-    platforms: [iphone, ipad]
-    default: true
-    
-  - name: font
-    summary: Font to use for the row title.
-    description: |
-        If the table uses different fonts on different rows, the font properites may become 
-        associated with the wrong row as the table scrolls. This is a known issue.
-    type: Font
-    default: System default font.
-    
-  - name: hasCheck
-    summary: Render a system-provided check mark in the right image area of the row.
-    type: Boolean
-    default: false
-    
-  - name: hasChild
-    summary: Render a system provided arrow in the right image area of the row.
-    description: |
-        The `hasChild` flag is used to indicate to the user that clicking on the row displays more 
-        detailed information.  
-        
-        On iOS, this is specifically used when clicking on the row navigates to the next table view 
-        in a heirarchy of table views.
-    type: Boolean
-    default: false
-    
-  - name: hasDetail
-    summary: Render a system-provided detail disclosure button in the right image area of the row.
-    description: |
-        The `hasDetail` flag is used to indicate to the user that more details are
-        available on the row.  
-        
-        Specifically on iOS the detail disclosure button indicates that clicking on the row results 
-        in a detail view of that item. 
-
-        The `detail` property in the click event is set to `true` if the click occurred on
-        the detail button itself, `false` if the click occurs anywhere else in the row.
-        
-        For rows that have `hasDetail` set to false, the `detail` flag is always `false`.
-    type: Boolean
-    default: false
-    platforms: [iphone,ipad]
-    
-  - name: indentionLevel
-    summary: Indention level for the row.
-    description: Indentation values greater than 0 indent the row text.
-    type: Number
-    default: 0
-    platforms: [iphone, ipad]
-    
-  - name: leftImage
-    summary: Image to render in the left image area of the row, specified as a local path or URL.
-    type: String
-    
-  - name: rightImage
-    summary: Image to render in the right image area of the row, specified as a local path or URL.
-    type: String
-    
-  - name: selectedBackgroundColor
-    summary: Background color to render when the row is selected, as a color name or hex triplet.
-    description: |
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
-    type: String
-    
-  - name: selectedBackgroundImage
-    summary: Background image to render when the row is selected.
-    type: String
-    
-  - name: selectedColor
-    summary: Color of the row text when the row is selected, as a color name or hex triplet.
-    description: |
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
-    type: String
-    platforms: [iphone,ipad]
-    
-  - name: selectionStyle
-    summary: Selection style constant to control the selection color. 
-    description: |
-        Specify one of the constants from <Titanium.UI.iPhone.TableViewCellSelectionStyle>.
-    type: Number
-    platforms: [iphone,ipad]
-    
-  - name: title
-    summary: Text to display on the row. 
-    description: Do not specify if using views as children of the row.
-    type: String
 
 events:
   - name: click
@@ -179,8 +64,9 @@ events:
         type: Titanium.UI.TableViewSection
         
       - name: detail
-        summary: Boolean to indicate if the detail button was clicked. Only `true` if 
-            `row.hasDetail` is `true` and the detail button was clicked.
+        summary: |
+            Indicates whether the detail button was clicked. Only `true` if `row.hasDetail` is 
+            `true` and the detail button was clicked.
         type: Boolean
         
       - name: searchMode
@@ -241,6 +127,153 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+
+properties:
+  - name: className
+    summary: Class name for the row. 
+    description: |
+        A class name represents a unique row layout. 
+        
+        A table view row must have a unique class name if the row layout is unique. However, 
+        use the same name for rows that have the same structural layout (even if the content is 
+        different) to provide maximum rendering performance.
+
+        For example, if some rows include images and some rows do not, you would have two class
+        names, one for image rows and one for plain rows.
+        
+        This property exists on Mobile Web, but is ignored.
+    type: String
+    
+  - name: color
+    summary: Default text color of the row when not selected, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        
+        On Android, `selectedColor` is not supported, so the text is always displayed in this color.
+    type: String
+    
+  - name: editable
+    summary: |
+        Determines whether this row may be deleted by the user when the table's `editing` and/or 
+        `moving` modes are active.
+    description: |
+        This `editable` property may be inherited from its parent table's 
+        [editable](Titanium.UI.TableView.editable) property.
+        
+        See the <Titanium.UI.TableView> description section for a full explanation of the TableView's 
+        row `editing` and `moving` modes.
+    type: Boolean
+    default: |
+        Depends on `editing` and `moving` mode, and inherited 
+        [editable](Titanium.UI.TableView.editable) value.
+    platforms: [iphone, ipad]
+    
+  - name: font
+    summary: Font to use for the row title.
+    description: |
+        If the table uses different fonts on different rows, the font properites may become 
+        associated with the wrong row as the table scrolls. This is a known issue.
+    type: Font
+    default: System default font.
+    
+  - name: hasCheck
+    summary: |
+        Determines whether a system-provided checkmark is displayed on the right-hand side of 
+        the row.
+    type: Boolean
+    default: false
+    
+  - name: hasChild
+    summary: |
+        Determines whether a system-provided arrow is displayed on the right-hand side of the row.
+    description: |
+        The `hasChild` flag is used to indicate to the user that clicking on the row displays more 
+        detailed information.  
+        
+        On iOS, this is specifically used when clicking on the row navigates to the next table view 
+        in a heirarchy of table views.
+    type: Boolean
+    default: false
+    
+  - name: hasDetail
+    summary: |
+        Determines whether a system-provided detail disclosure button is displayed on the right-hand 
+        side of the row.
+    description: |
+        The `hasDetail` flag is used to indicate to the user that more details are
+        available on the row.  
+        
+        Specifically on iOS the detail disclosure button indicates that clicking on the row results 
+        in a detail view of that item. 
+        
+        The `detail` property in the click event is set to `true` if the click occurred on
+        the detail button itself, `false` if the click occurs anywhere else in the row.
+        
+        For rows that have `hasDetail` set to false, the `detail` flag is always `false`.
+    type: Boolean
+    default: false
+    platforms: [iphone,ipad]
+    
+  - name: indentionLevel
+    summary: Indention level for the row.
+    description: Indentation values greater than 0 indent the row text.
+    type: Number
+    default: 0
+    platforms: [iphone, ipad]
+    
+  - name: leftImage
+    summary: Image to render in the left image area of the row, specified as a local path or URL.
+    type: String
+
+  - name: moveable
+    summary: |
+        Determines whether this row may be moved by the user when the table's `editing` and/or 
+        `moving` modes are active.
+    description: |
+        This `moveable` property may be inherited from its parent table's 
+        [moveable](Titanium.UI.TableView.moveable) property.
+        
+        See the <Titanium.UI.TableView> description section for a full explanation of the TableView's 
+        row `editing` and `moving` modes.
+    type: Boolean
+    default: |
+        Depends on `editing` and `moving` mode, and inherited 
+        [editable](Titanium.UI.TableView.editable) value.
+    platforms: [iphone, ipad]
+
+  - name: rightImage
+    summary: Image to render in the right image area of the row, specified as a local path or URL.
+    type: String
+    
+  - name: selectedBackgroundColor
+    summary: Background color to render when the row is selected, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+    
+  - name: selectedBackgroundImage
+    summary: Background image to render when the row is selected.
+    type: String
+    
+  - name: selectedColor
+    summary: Color of the row text when the row is selected, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+    platforms: [iphone,ipad]
+    
+  - name: selectionStyle
+    summary: Selection style constant to control the selection color. 
+    description: |
+        Specify one of the constants from <Titanium.UI.iPhone.TableViewCellSelectionStyle>.
+    type: Number
+    platforms: [iphone,ipad]
+    
+  - name: title
+    summary: Text to display on the row. 
+    description: Do not specify if using views as children of the row.
+    type: String
+
     
 
 examples:
