@@ -7,6 +7,12 @@ describe("Ti.Properties tests", {
 			{name:'Name 3', address:'3 Main St'},
 			{name:'Name 4', address:'4 Main St'}	
 		];
+		var object = {
+			name1:'1 Main St',
+			name2:'2 Main St',
+			name3:'3 Main St',
+			name4:'4 Main St'
+		};
 
 		//
 		// Test Default handling
@@ -23,12 +29,20 @@ describe("Ti.Properties tests", {
 		defaultList = [];
 		valueOf(JSON.stringify(Ti.App.Properties.getList('whatever',defaultList))).shouldBe(JSON.stringify(defaultList));
 
+		// First Object Test
+		var defaultObject = {Cat:"Dog"};
+		valueOf(JSON.stringify(Ti.App.Properties.getObject('whatever',defaultObject))).shouldBe(JSON.stringify(defaultObject));
+		// Second Object Test
+		defaultObject = {};
+		valueOf(JSON.stringify(Ti.App.Properties.getObject('whatever',defaultObject))).shouldBe(JSON.stringify(defaultObject));
+
 		//No Defaults
 		valueOf(Ti.App.Properties.getBool('whatever')).shouldBeNull();
 		valueOf(Ti.App.Properties.getDouble('whatever')).shouldBeNull();
 		valueOf(Ti.App.Properties.getInt('whatever')).shouldBeNull();
 		valueOf(Ti.App.Properties.getString('whatever')).shouldBeNull();
 		valueOf(Ti.App.Properties.getList('whatever')).shouldBeNull();
+		valueOf(Ti.App.Properties.getObject('whatever')).shouldBeNull();
 
 		//
 		// Round-trip tests
@@ -44,17 +58,25 @@ describe("Ti.Properties tests", {
 		// stored as a float and comes back with some lost precision
 		var d = Ti.App.Properties.getDouble('Double')
 		valueOf(Number(d).toPrecision(5)).shouldBe(Number(10.6).toPrecision(5));
+		
 		Titanium.App.Properties.setList('MyList',array);
-
 		var list = Titanium.App.Properties.getList('MyList');
 		for (var i=0;i<list.length;i++)
 		{
 			valueOf(list[i].name).shouldBe(array[i].name);
 			valueOf(list[i].address).shouldBe(array[i].address);
 		}
+		
+		Titanium.App.Properties.setObject('MyObject',object);
+		var myObject = Titanium.App.Properties.getObject('MyObject');
+		for (var k in object)
+		{
+			valueOf(myObject.hasOwnProperty(k) && object.hasOwnProperty(k)).shouldBe(true);
+			valueOf(myObject[k]).shouldBe(object[k]);
+		}
 
-		// We set 5 properties above, so make sure listProperties() includes them.
-		var propnames = ['String', 'Int', 'Bool', 'Double', 'MyList'];
+		// We set 6 properties above, so make sure listProperties() includes them.
+		var propnames = ['String', 'Int', 'Bool', 'Double', 'MyList', 'MyObject'];
 		var proplist = Ti.App.Properties.listProperties();
 		valueOf(proplist.length).shouldBeGreaterThanEqual(propnames.length);
 		for (var j = 0; j < propnames.length; j++) {

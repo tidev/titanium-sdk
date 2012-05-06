@@ -12,18 +12,20 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
 public class TiUIActivityIndicator extends TiUIView
-	implements Handler.Callback
+	implements Handler.Callback, DialogInterface.OnCancelListener
 {
 	private static final String LCAT = "TiUIActivityIndicator";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -96,15 +98,18 @@ public class TiUIActivityIndicator extends TiUIView
 		if (DBG) {
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
 		}
+
 		if (key.equals("message")) {
 			if (visible) {
 				if (progressDialog != null) {
 					progressDialog.setMessage((String) newValue);
+
 				} else {
 					Activity parent = (Activity) this.proxy.getActivity();
 					parent.setTitle((String) newValue);
 				}
 			}
+
 		} else if (key.equals("value")) {
 			if (visible) {
 				int value = TiConvert.toInt(newValue);
@@ -112,6 +117,12 @@ public class TiUIActivityIndicator extends TiUIView
 
 				handler.obtainMessage(MSG_PROGRESS, thePos, -1).sendToTarget();
 			}
+
+		} else if (key.equals(TiC.PROPERTY_CANCELABLE)) {
+			if (progressDialog != null) {
+				progressDialog.setCancelable(TiConvert.toBoolean(newValue));
+			}
+
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -182,10 +193,11 @@ public class TiUIActivityIndicator extends TiUIView
 					((TiBaseActivity) a).addDialog(progressDialog);
 					progressDialog.setOwnerActivity(a);
 				}
+				progressDialog.setOnCancelListener(this);
 			}
 
 			progressDialog.setMessage(message);
-			progressDialog.setCancelable(false);
+			progressDialog.setCancelable(proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELABLE, false));
 
 			if (type == INDETERMINANT) {
 				progressDialog.setIndeterminate(true);
@@ -233,5 +245,11 @@ public class TiUIActivityIndicator extends TiUIView
 			statusBarTitle = null;
 		}
 		visible = false;
+	}
+
+	@Override
+	public void onCancel(DialogInterface dialog) {
+		visible = false;
+		proxy.fireEvent(TiC.EVENT_CANCEL, null);
 	}
 }
