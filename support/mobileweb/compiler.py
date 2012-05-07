@@ -314,10 +314,14 @@ class Compiler(object):
 			jsQuoteEscapeFilter   = lambda str: str.replace("\\\"","\\\\\\\"")
 		))
 		
-		# 2) copy in the loader
+		# 2) copy in instrumentation if it's enabled
+		if enableInstrumentation:
+			ti_js.write(codecs.open(os.path.join(self.sdk_src_path, 'instrumentation.js'), 'r', 'utf-8').read())
+		
+		# 3) copy in the loader
 		ti_js.write(codecs.open(os.path.join(self.sdk_src_path, 'loader.js'), 'r', 'utf-8').read())
 		
-		# 3) cache the dependencies
+		# 4) cache the dependencies
 		ti_js.write('require.cache({\n');
 		first = True
 		for x in self.modules_to_cache:
@@ -531,7 +535,6 @@ class Compiler(object):
 		# populate index.html
 		index_html_file = codecs.open(os.path.join(self.build_path, 'index.html'), 'w', 'utf-8')
 		index_html_file.write(AppcTemplate(codecs.open(os.path.join(self.sdk_src_path, 'index.html'), 'r', 'utf-8').read().strip(), input_encoding='utf-8', output_encoding='utf-8').render(
-			instrumentation_header = '<script src="titanium/instrumentation.js"></script>' if enableInstrumentation else '',
 			ti_header          = HTML_HEADER,
 			project_name       = tiapp_xml['name'] or '',
 			app_description    = tiapp_xml['description'] or '',

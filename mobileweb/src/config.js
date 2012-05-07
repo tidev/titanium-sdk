@@ -34,7 +34,9 @@ var require = {
 		"opera": typeof opera === "undefined" || opera.toString() != "[object Opera]",
 		"ti-analytics-use-xhr": ${has_analytics_use_xhr | jsQuoteEscapeFilter},
 		"ti-show-errors": ${has_show_errors | jsQuoteEscapeFilter},
-		"ti-instrumentation": ${has_instrumentation | jsQuoteEscapeFilter} && g.instrumentation
+		"ti-instrumentation": function(g) {
+				return ${has_instrumentation | jsQuoteEscapeFilter} && g.instrumentation;
+		}
 	},
 	locales: ${locales},
 	packages: ${packages},
