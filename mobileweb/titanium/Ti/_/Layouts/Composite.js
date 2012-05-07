@@ -234,12 +234,14 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 				sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight,
 			
 				// Width/height rule evaluation
-				paramsSet = {
-					width: [widthType, widthValue, leftType, leftValue, centerXType, centerXValue, rightType, rightValue],
-					height: [heightType, heightValue, topType, topValue, centerYType, centerYValue, bottomType, bottomValue]
-				},
-				params, sizeType, sizeValue, startType, startValue, centerType, centerValue, endType, endValue;
-			for (var i in paramsSet) {
+				paramsSet = [
+					[widthType, widthValue, leftType, leftValue, centerXType, centerXValue, rightType, rightValue],
+					[heightType, heightValue, topType, topValue, centerYType, centerYValue, bottomType, bottomValue]
+				],
+				params, sizeType, sizeValue, startType, startValue, centerType, centerValue, endType, endValue,
+				i = 0,
+				type;
+			for (; i < 2; i++) {
 				
 				params = paramsSet[i];
 				sizeType = params[0];
@@ -309,16 +311,16 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 						x2 = 2 * (endValue - centerValue);
 					}
 				}
-				layoutCoefficients[i].x1 = x1;
-				layoutCoefficients[i].x2 = x2;
+				layoutCoefficients[type = i === 0 ? "width" : "height"].x1 = x1;
+				layoutCoefficients[type].x2 = x2;
 			}
 			
 			// Left/top rule evaluation
-			paramsSet = {
-				left: [leftType, leftValue, centerXType, centerXValue, rightType, rightValue],
-				top: [topType, topValue, centerYType, centerYValue, bottomType, bottomValue]
-			};
-			for (var i in paramsSet) {
+			paramsSet = [
+				[leftType, leftValue, centerXType, centerXValue, rightType, rightValue],
+				[topType, topValue, centerYType, centerYValue, bottomType, bottomValue]
+			];
+			for (i = 0; i < 2; i++) {
 				
 				params = paramsSet[i];
 				startType = params[0];
@@ -357,9 +359,9 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 							x2 = -1;
 					}
 				}
-				layoutCoefficients[i].x1 = x1;
-				layoutCoefficients[i].x2 = x2;
-				layoutCoefficients[i].x3 = x3;
+				layoutCoefficients[type = i === 0 ? "left" : "top"].x1 = x1;
+				layoutCoefficients[type].x2 = x2;
+				layoutCoefficients[type].x3 = x3;
 			}
 			
 			// Sandbox width/height rule evaluation
