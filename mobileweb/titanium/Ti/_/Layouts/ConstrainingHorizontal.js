@@ -10,7 +10,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			var computedSize = {width: 0, height: 0},
 				children = element.children,
 				child,
-				i,
+				i = 0,
 				layoutCoefficients, 
 				widthLayoutCoefficients, heightLayoutCoefficients, sandboxWidthLayoutCoefficients, sandboxHeightLayoutCoefficients, topLayoutCoefficients, leftLayoutCoefficients, 
 				childSize,
@@ -20,14 +20,13 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				deferredTopCalculations = [],
 				runningWidth = 0,
 				fillCount = 0,
-				len,
+				len = children.length,
 				verifyChild = this.verifyChild,
 				updateBorder = this.updateBorder,
 				measureNode = this._measureNode,
 				style;
 				
 			// Calculate size for the non-FILL children
-			len = children.length;
 			for(i = 0; i < len; i++) {
 				
 				child = element.children[i];
@@ -194,12 +193,11 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			if (width === UI.INHERIT) {
 				if (node._parent._parent) {
 					return node._parent._parent._layout._getWidth(node._parent) === UI.SIZE ? UI.SIZE : UI.FILL;
-				} else { // This is the root level content container, which we know has a width of FILL
-					return UI.FILL;
 				}
-			} else {
-				return width;
+				// This is the root level content container, which we know has a width of FILL
+				return UI.FILL;
 			}
+			return width;
 		},
 		
 		_getHeight: function(node) {
@@ -211,12 +209,11 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			if (height === UI.INHERIT) {
 				if (node._parent._parent) {
 					return node._parent._parent._layout._getHeight(node._parent) === UI.SIZE ? UI.SIZE : UI.FILL;
-				} else { // This is the root level content container, which we know has a width of FILL
-					return UI.FILL;
 				}
-			} else {
-				return height;
+				// This is the root level content container, which we know has a width of FILL
+				return UI.FILL;
 			}
+			return height;
 		},
 		
 		_isDependentOnParent: function(node){
@@ -226,7 +223,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				(!isNaN(layoutCoefficients.height.x1) && layoutCoefficients.height.x1 !== 0) || // height
 				layoutCoefficients.sandboxWidth.x1 !== 0 || // sandbox width
 				layoutCoefficients.sandboxHeight.x1 !== 0 || // sandbox height
-				layoutCoefficients.left.x1 !== 0 // left
+				layoutCoefficients.left.x1 !== 0 || // left
 				layoutCoefficients.top.x1 !== 0; // top
 		},
 		
