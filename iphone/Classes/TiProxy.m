@@ -227,13 +227,15 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 {
 	if (self = [self init])
 	{
-		pageContext = (id)context; // do not retain 
+		pageContext = (id)context; // do not retain
+		executionContext = context; //To ensure there is an execution context during _configure.
 		if([[self class] shouldRegisterOnInit]) // && ![NSThread isMainThread])
 		{
 			[pageContext registerProxy:self];
 			// allow subclasses to configure themselves
 		}
 		[self _configure];
+		executionContext = nil;
 	}
 	return self;
 }
@@ -274,7 +276,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 {
 	if(OSAtomicDecrement32(&bridgeCount)<0)
 	{
-		NSLog(@"[FATAL] BridgeCount for %@ is now at %d",self,bridgeCount);
+		NSLog(@"[WARN] BridgeCount for %@ is now at %d",self,bridgeCount);
 	}
 	if(oldBridge == pageContext) {
 		pageKrollObject = nil;
@@ -340,6 +342,10 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 {
 	if (self = [self _initWithPageContext:context_])
 	{
+		// If we are being created with a page context, assume that this is also
+		// the execution context during creation so that recursively-made
+		// proxies have the same page context.
+		executionContext = context_;
 		id a = nil;
 		int count = [args count];
 		
@@ -354,6 +360,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		}
 		
 		[self _initWithProperties:a];
+		executionContext = nil;
 	}
 	return self;
 }
@@ -421,13 +428,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	[self _destroy];
 	pthread_rwlock_destroy(&listenerLock);
 	pthread_rwlock_destroy(&dynpropsLock);
-/*
-	//BridgeCount will be 1 on TopTiModule and TiUIWindow, so we should not
-	//Warn of this just yet.
-	if (bridgeCount > 0) {
-		NSLog(@"[FATAL] BridgeCount of %@ is %d during dealloc.",self,bridgeCount);
-	}
-*/
 	[super dealloc];
 }
 
@@ -582,7 +582,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		
 	if(![bridge usesProxy:self])
 	{
-		NSLog(@"[ERROR] Adding an event listener to a proxy that isn't already in the context");
+		NSLog(@"[DEBUG] Proxy may be missing its javascript representation.");
 	}
 	
 	return [bridge krollObjectForProxy:self];
@@ -599,7 +599,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	
 	if(![ourBridge usesProxy:self])
 	{
-		NSLog(@"[ERROR] Adding an event listener to a proxy that isn't already in the context");
+		NSLog(@"[DEBUG] Proxy may be missing its javascript representation.");
 	}
 
 	return [ourBridge krollObjectForProxy:self];
@@ -627,7 +627,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	}
 	if (bridgeCount < 1)
 	{
-		NSLog(@"[DEBUG] Orphaned %@ is trying to remember %@.",self,rememberedProxy);
+		NSLog(@"[DEBUG] Proxy %@ is missing its javascript representation needed to remember %@.",self,rememberedProxy);
 		return;
 	}
 	
@@ -666,7 +666,9 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	}
 	if (bridgeCount < 1)
 	{
-		NSLog(@"[DEBUG] Orphaned %@ is trying to forget %@.",self,forgottenProxy);
+		//While this may be of concern and there used to be a
+		//warning here, too many false alarms were raised during
+		//multi-context cleanups.
 		return;
 	}
 
