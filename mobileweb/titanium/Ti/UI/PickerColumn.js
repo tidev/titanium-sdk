@@ -197,8 +197,10 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 		_tallestRowHeight: 0,
 		
 		_updateContentWidth: function() {
-			var widestRowWidth = 0;
-			for(var i in this._rows) {
+			var widestRowWidth = 0,
+				i = 0,
+				len = this._rows.length;
+			for(; i < len; i++) {
 				var row = this._rows[i];
 				widestRowWidth = Math.max(widestRowWidth, row._measureText(row.title, row.domNode).width);
 			}
@@ -209,8 +211,10 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 		
 		_getTallestRowHeight: function() {
 			var widestRowWidth = 0,
-				tallestRowHeight = 0;
-			for(var i in this._rows) {
+				tallestRowHeight = 0,
+				i = 0,
+				len = this._rows.length;
+			for(; i < len; i++) {
 				var row = this._rows[i];
 				tallestRowHeight = Math.max(tallestRowHeight, row._measureText(row.title, row.domNode).height);
 			}

@@ -29,7 +29,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 				this.domNode.style.height = "";
 				
 				var imageRatio = this.domNode.width / this.domNode.height,
-					values = this.properties.__values__
+					values = this.properties.__values__,
 					oldWidth = values.width,
 					oldHeight = values.height;
 

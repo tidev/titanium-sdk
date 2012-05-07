@@ -256,7 +256,7 @@ define(
 				startLayout();
 			} else if (self._nodesToLayout.length === 1) {
 				self._layoutInProgress = true;
-				self._layoutTimer = setTimeout(function(){ startLayout(); }, 10);
+				self._layoutTimer = setTimeout(startLayout, 10);
 			}
 		},
 		
