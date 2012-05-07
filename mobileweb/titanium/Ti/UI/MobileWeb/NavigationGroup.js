@@ -1,49 +1,50 @@
-define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style", "Ti/_/lang"],
-	function(declare, View, UI, style, lang) {
+define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
+	function(css, declare, View, UI, lang) {
 		
-	var isDef = lang.isDef;
+	var isDef = lang.isDef,
+		navGroupCss = "TiUINavigationGroup";
 
 	return declare("Ti.UI.MobileWeb.NavigationGroup", View, {
 
 		constructor: function(args) {
-			var self = this;
+			var self = this,
+				rootWindow = self.constants.window = args && args.window,
+				navBar = self._navBarContainer = UI.createView({
+					width: UI.FILL,
+					height: 50
+				});
+
 			self._windows = [];
-			
-			// Process the creation time args
-			if (!args.window) {
-				throw new Error("A window must be specified at creation time in Ti.UI.MobileWeb.NavigationGroup.");
-			}
-			var rootWindow = self.constants.window = args && args.window;
-			
+
 			// Create the nav controls
 			self.layout = "vertical";
-			self._navBarContainer = UI.createView({
-				width: UI.FILL,
-				height: 50,
-				backgroundColor: "#888"
-			});
-			self._navBarContainer.add(self._backButton = UI.createButton({
+
+			css.add(navBar.domNode, navGroupCss);
+
+			self._navBarContainer._add(self._backButton = UI.createButton({
 				title: "Back",
 				left: 5,
 				opacity: 0,
 				enabled: true
 			}));
-			self._backButton.addEventListener("singletap", function(){
+
+			self._backButton.addEventListener("singletap", function() {
 				self.close();
 			});
-			self._navBarContainer.add(self._title = UI.createLabel({
-				text: rootWindow._getTitle(),
+
+			self._navBarContainer._add(self._title = UI.createLabel({
 				width: UI.FILL,
 				textAlign: UI.TEXT_ALIGNMENT_CENTER,
 				touchEnabled: false
 			}));
-			
+
 			// Create the content container
 			self._contentContainer = UI.createView({
 				width: UI.FILL,
 				height: UI.FILL
 			});
-			self._contentContainer.add(rootWindow);
+
+			rootWindow && self._contentContainer._add(rootWindow);
 
 			// invoke the navBarAtTop setter
 			self.navBarAtTop = true;
@@ -52,6 +53,10 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style", "Ti/_/lang"],
 		_defaultWidth: UI.FILL,
 		
 		_defaultHeight: UI.FILL,
+
+		_updateTitle: function() {
+			this._title.text = (this.window && this.window._getTitle()) || (this._tab && this._tab._getTitle()) || "";
+		},
 
 		open: function(win, options) {
 			if (!win._opened) {
@@ -72,7 +77,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style", "Ti/_/lang"],
 
 				// Show the window
 				windows.push(win);
-				this._contentContainer.add(win);
+				this._contentContainer._add(win);
 				this._title.text = win._getTitle();
 
 				win.fireEvent("open");
@@ -89,31 +94,29 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style", "Ti/_/lang"],
 				backButton = this._backButton,
 				nextWindow = this.window;
 
-			if (!~windowLocation) {
-				return;
-			}
-
-			// If the window is on top, we have to go to the previous window
-			if (windows[topWindowIdx] === win) {
-				if (topWindowIdx > 0) {
-					nextWindow = windows[topWindowIdx - 1];
-				} else {
-					backButton.animate({opacity: 0, duration: 250}, function() {
-						backButton.opacity = 0;
-						backButton.enabled = false;
-					});
+			if (~windowLocation) {
+				// If the window is on top, we have to go to the previous window
+				if (windows[topWindowIdx] === win) {
+					if (topWindowIdx > 0) {
+						nextWindow = windows[topWindowIdx - 1];
+					} else {
+						backButton.animate({opacity: 0, duration: 250}, function() {
+							backButton.opacity = 0;
+							backButton.enabled = false;
+						});
+					}
+					this._title.text = nextWindow._getTitle();
 				}
-				this._title.text = nextWindow._getTitle();
+
+				// Remove the window
+				windows.splice(windowLocation, 1);
+				this._contentContainer.remove(win);
+
+				win.fireEvent("blur");
+				win.fireEvent("close");
+				win._opened = 0;
+				(topWindowIdx ? windows[topWindowIdx] : this.window).fireEvent("focus");
 			}
-
-			// Remove the window
-			windows.splice(windowLocation, 1);
-			this._contentContainer.remove(win);
-
-			win.fireEvent("blur");
-			win.fireEvent("close");
-			win._opened = 0;
-			(topWindowIdx ? windows[topWindowIdx] : this.window).fireEvent("focus");
 		},
 
 		constants: {
@@ -124,24 +127,17 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style", "Ti/_/lang"],
 			navBarAtTop: {
 				set: function (value, oldValue) {
 					if (value !== oldValue) {
-						
-						var navBarContainer = this._navBarContainer,
-							contentContainer = this._contentContainer;
-						this.remove(navBarContainer);
-						this.remove(contentContainer);
-						
-						var borderLocation;
-						if (value) {
-							this.add(navBarContainer);
-							this.add(contentContainer);
-							borderLocation = "borderBottom"
-						} else {
-							this.add(contentContainer);
-							this.add(navBarContainer);
-							borderLocation = "borderTop"
-						}
-						style.set(navBarContainer.domNode,borderLocation,"1px solid #555");
+						var containers = [this._contentContainer, this._navBarContainer],
+							node = this._navBarContainer.domNode;
+
+						containers.forEach(this._remove, this);
+						value && containers.reverse();
+						containers.forEach(this._add, this);
+
+						css.remove(node, navGroupCss + (value ? "Top" : "Bottom"));
+						css.add(node, navGroupCss + (value ? "Bottom" : "Top"));
 					}
+
 					return value;
 				}
 			}

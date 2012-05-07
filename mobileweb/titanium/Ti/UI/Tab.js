@@ -1,18 +1,16 @@
-define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI"],
-	function(declare, View, dom, Locale, UI) {
+define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI", "Ti/UI/MobileWeb"],
+	function(declare, View, dom, Locale, UI, MobileWeb) {
 
 	var postTitle = {
-		post: "_setTitle"
+		post: function() {
+			this._tabTitle.text = this._getTitle();
+		}
 	};
 
 	return declare("Ti.UI.Tab", View, {
 
 		constructor: function(args) {
-			if (!args || !args.window) {
-				throw "Invalid arguments: missing window in tab constructor";
-			}
-
-			var win = this._win = args.window,
+			var win = this._win = args && args.window,
 				container = UI.createView({
 					layout: "vertical",
 					width: "100%",
@@ -32,14 +30,16 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI"],
 				textAlign: UI.TEXT_ALIGNMENT_CENTER
 			}));
 
-			require.on(this, "singletap", this, function(e) {
-				this._tabGroup && (this._tabGroup.activeTab = this);
-			});
+			if (win) {
+				require.on(this, "singletap", this, function(e) {
+					this._tabGroup && (this._tabGroup.activeTab = this);
+				});
 
-			win.tab = this;
-			win.tabGroup = this._tabGroup;
+				win.tab = this;
+				win.tabGroup = this._tabGroup;
+			}
 
-			this._tabNavigationGroup = UI.MobileWeb.createNavigationGroup({ window: win });
+			this._tabNavigationGroup = MobileWeb.createNavigationGroup({ window: win, _tab: this });
 		},
 
 		_defaultWidth: UI.FILL,
@@ -56,14 +56,14 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI"],
 			this._tabNavigationGroup.close(win, options);
 		},
 
-		_setTitle: function() {
-			this._tabTitle.text = Locale._getString(this.titleid, this.title);
+		_getTitle: function() {
+			return Locale._getString(this.titleid, this.title);
 		},
 
 		_setTabGroup: function(tg) {
 			this._tabGroup = tg;
 			this._tabNavigationGroup.navBarAtTop = tg.tabsAtTop;
-			this._win.tabGroup = tg;
+			this._win && (this._win.tabGroup = tg);
 		},
 
 		properties: {

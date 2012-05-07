@@ -3,7 +3,8 @@ define(
 	function(_, Evented, lang, ready, style, dom) {
 
 	var global = window,
-		body = document.body,
+		doc = document,
+		body = doc.body,
 		on = require.on,
 		modules = "2DMatrix,ActivityIndicator,AlertDialog,Animation,Button,EmailDialog,ImageView,Label,OptionDialog,Picker,PickerColumn,PickerRow,ProgressBar,ScrollableView,ScrollView,Slider,Switch,Tab,TabGroup,TableView,TableViewRow,TableViewSection,TextArea,TextField,View,WebView,Window",
 		creators = {},
@@ -16,6 +17,7 @@ define(
 			Ti.UI._recalculateLayout();
 			hidingAddressBar = 0;
 		},
+		splashScreen,
 		unitize = dom.unitize,
 		showStats = false;
 
@@ -71,30 +73,29 @@ define(
 	}
 
 	ready(10, function() {
-		var splashScreen = document.getElementById("splash"),
-			container = (Ti.UI._container = Ti.UI.createView({
+		var container = (Ti.UI._container = Ti.UI.createView({
 				left: 0,
 				top: 0
 			})),
 			node = container.domNode;
 		setStyle(node, "overflow", "hidden");
 		body.appendChild(node);
-		container.addEventListener("postlayout", function(){
+		(splashScreen = doc.getElementById("splash")) && container.addEventListener("postlayout", function(){
 			setTimeout(function(){
 				setStyle(splashScreen,{
 					position: "absolute",
 					width: unitize(container._measuredWidth),
 					height: unitize(container._measuredHeight),
-					left: "0px",
-					top: "0px",
-					right: "",
-					bottom: ""
+					left: 0,
+					top: 0,
+					right: '',
+					bottom: ''
 				});
-			},10);
+			}, 10);
 		});
 		hideAddressBar();
 	});
-	
+
 	function updateOrientation() {
 		Ti.UI._recalculateLayout();
 		require("Ti/Gesture")._updateOrientation();
@@ -107,6 +108,10 @@ define(
 		_addWindow: function(win, set) {
 			this._container.add(win.modal ? win._modalParentContainer : win);
 			set && this._setWindow(win);
+
+			// as soon as we add a window or tabgroup, we can destroy the splash screen
+			splashScreen && dom.destroy(splashScreen);
+
 			return win;
 		},
 
@@ -118,34 +123,35 @@ define(
 			this._container.remove(win.modal ? win._modalParentContainer : win);
 			return win;
 		},
-		
+
 		_layoutSemaphore: 0,
-		
+
 		_nodesToLayout: [],
-		
+
 		_startLayout: function() {
 			this._layoutSemaphore++;
 		},
-		
+
 		_finishLayout: function() {
-			this._layoutSemaphore--;
-			if (this._layoutSemaphore === 0) {
+			if (--this._layoutSemaphore === 0) {
 				this._triggerLayout(true);
 			}
 		},
-		
+
 		_elementLayoutCount: 0,
-		
+
 		_layoutCount: 0,
-		
+
 		_triggerLayout: function(node, force) {
 			var self = this;
+
 			if (~self._nodesToLayout.indexOf(node)) {
 				return;
 			}
+
 			self._nodesToLayout.push(node);
+
 			function startLayout() {
-				
 				self._elementLayoutCount = 0;
 				self._layoutCount++;
 				var startTime = (new Date()).getTime(),
@@ -244,16 +250,17 @@ define(
 					node = rootNodesToLayout[i];
 					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node._getInheritedWidth() === Ti.UI.SIZE, node._getInheritedHeight() === Ti.UI.SIZE);
 				}
-				
+
 				showStats && console.debug("Layout " + self._layoutCount + ": " + self._elementLayoutCount + 
 					" elements laid out in " + ((new Date().getTime() - startTime)) + "ms");
-					
+
 				self._layoutInProgress = false;
 				self._layoutTimer = null;
 				self._nodesToLayout = [];
 				
 				self.fireEvent("postlayout");
 			}
+
 			if (force) {
 				clearTimeout(self._layoutTimer);
 				self._layoutInProgress = true;
@@ -263,7 +270,7 @@ define(
 				self._layoutTimer = setTimeout(function(){ startLayout(); }, 25);
 			}
 		},
-		
+
 		_recalculateLayout: function() {
 			var container = this._container;
 			if (container) {
@@ -285,7 +292,7 @@ define(
 			},
 			currentTab: void 0
 		},
-		
+
 		convertUnits: function(convertFromValue, convertToUnits) {
 			var intermediary = dom.computeSize(convertFromValue, 0, false);
 			switch(convertToUnits) {

@@ -445,6 +445,8 @@ class Compiler(object):
 		
 		# TODO: need to rewrite absolute paths for urls
 		
+		# TODO: code below does NOT inline imports, nor remove them... do NOT use imports until themes are fleshed out
+		
 		if len(theme):
 			theme_path = os.path.join(self.resources_path, 'themes', theme)
 			if not os.path.exists(theme_path):
@@ -693,6 +695,8 @@ class Compiler(object):
 			'Ti/Filesystem',
 			'Ti/Filesystem/File',
 			'Ti/Filesystem/FileStream',
+			'Ti/Gesture',
+			'Ti/Geolocation',
 			'Ti/IOStream',
 			'Ti/Locale',
 			'Ti/Media',
@@ -701,29 +705,21 @@ class Compiler(object):
 			'Ti/Network/HTTPClient',
 			'Ti/Platform',
 			'Ti/Platform/DisplayCaps',
-			'Ti/Gesture',
-			'Ti/Geolocation',
-			'Ti/XML',
-			'Ti/UI/View',
 			'Ti/Map',
 			'Ti/Map/View',
 			'Ti/Map/Annotation',
-			'Ti/Media/VideoPlayer',
 			'Ti/UI',
-			'Ti/UI/Clipboard',
-			'Ti/UI/MobileWeb',
-			'Ti/UI/TableViewRow',
-			'Ti/UI/Tab',
-			'Ti/UI/TabGroup',
-			'Ti/UI/Window',
 			'Ti/UI/2DMatrix',
 			'Ti/UI/ActivityIndicator',
 			'Ti/UI/AlertDialog',
 			'Ti/UI/Animation',
 			'Ti/UI/Button',
+			'Ti/UI/Clipboard',
 			'Ti/UI/EmailDialog',
 			'Ti/UI/ImageView',
 			'Ti/UI/Label',
+			'Ti/UI/MobileWeb',
+			'Ti/UI/MobileWeb/NavigationGroup',
 			'Ti/UI/OptionDialog',
 			'Ti/UI/Picker',
 			'Ti/UI/PickerColumn',
@@ -733,13 +729,18 @@ class Compiler(object):
 			'Ti/UI/ScrollView',
 			'Ti/UI/Slider',
 			'Ti/UI/Switch',
-			'Ti/UI/TableViewSection',
+			'Ti/UI/Tab',
+			'Ti/UI/TabGroup',
 			'Ti/UI/TableView',
+			'Ti/UI/TableViewRow',
+			'Ti/UI/TableViewSection',
 			'Ti/UI/TextArea',
 			'Ti/UI/TextField',
+			'Ti/UI/View',
 			'Ti/UI/WebView',
-			'Ti/UI/MobileWeb/NavigationGroup',
+			'Ti/UI/Window',
 			'Ti/Utils',
+			'Ti/XML',
 			'Ti/Yahoo'
 		]
 	
