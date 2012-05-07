@@ -17,7 +17,7 @@ def check_java():
 			(out,err) = subprocess.Popen(['javac','-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 		
 		# javac prints it's version on stderr
-		MIN_JAVAC = ["1", "9", "0"]
+		MIN_JAVAC = ["1", "6", "0"]
 		version = err.replace("javac ", "").strip()
 		version_split = version.split(".")
 		if version_split < MIN_JAVAC:
