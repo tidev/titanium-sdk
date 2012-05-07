@@ -74,6 +74,20 @@ methods:
         summary: Default value to return if property does not exist.
         type: Array<Object>
         optional: true
+         
+  - name: getObject
+    summary: Returns the value of a property as an object.
+    returns:
+        type: Object
+    parameters:
+      - name: property
+        summary: Name of property.
+        type: String
+        
+      - name: default
+        summary: Default value to return if property does not exist.
+        type: Object
+        optional: true
         
   - name: getString
     summary: Returns the value of a property as a string data type.
@@ -164,6 +178,19 @@ methods:
       - name: value
         summary: Property value.
         type: Array<Object>
+        
+  - name: setObject
+    summary: |
+        Sets the value of a property as an object data type. The property will be created if it 
+        does not exist.
+    parameters:
+      - name: property
+        summary: Name of property.
+        type: String
+        
+      - name: value
+        summary: Property value.
+        type: Object
         
   - name: setString
     summary: |

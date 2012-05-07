@@ -856,6 +856,40 @@ describe("Ti.UI Layout tests", {
 		win.add(scrollView);
 		win.open();
 	}),
+	//TIMOB-8362
+	scrollViewWithSIZE: asyncTest(function() {
+		var win = Ti.UI.createWindow({
+			backgroundColor : '#7B6700',
+			layout : 'vertical',
+		});
+		var NavBarView = Ti.UI.createView({
+			height : '25',
+			top : 0,
+			backgroundColor : 'green',
+			width : '100%'
+		});
+		var scrollView = Ti.UI.createScrollView({
+			height : Ti.UI.SIZE,
+			width: Ti.UI.SIZE,
+			scrollType : 'vertical',
+			layout : 'vertical',
+			backgroundColor : 'red',
+
+		});
+		var button = Ti.UI.createButton({
+			title : 'Click',
+			width : '100',
+			height : '50'
+		});
+		scrollView.add(button);
+		win.add(NavBarView);
+		win.add(scrollView);
+		win.addEventListener("open", this.async(function(e) {
+			valueOf(scrollView.size.height).shouldBe(50);
+			valueOf(scrollView.size.width).shouldBe(100);
+		}));
+		win.open();
+	}),
 	//TIMOB-8891
 	scrollViewWithLargeVerticalLayoutChild: asyncTest(function() {
 		var win = Ti.UI.createWindow();

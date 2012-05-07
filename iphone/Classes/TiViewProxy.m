@@ -42,15 +42,18 @@
 @synthesize children;
 -(NSArray*)children
 {
+    NSArray* copy = nil;
+    
 	pthread_rwlock_rdlock(&childrenLock);
 	if (windowOpened==NO && children==nil && pendingAdds!=nil)
 	{
-		NSArray *copy = [pendingAdds mutableCopy];
-		pthread_rwlock_unlock(&childrenLock);
-		return [copy autorelease];
+		copy = [pendingAdds mutableCopy];
 	}
+    else {
+        copy = [children mutableCopy];
+    }
 	pthread_rwlock_unlock(&childrenLock);
-	return children;
+	return ((copy != nil) ? [copy autorelease] : [NSMutableArray array]);
 }
 
 -(void)setVisible:(NSNumber *)newVisible withObject:(id)args
@@ -536,7 +539,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
 		{
 			CGFloat width = [self autoWidthForSize:CGSizeMake(1000,1000)];
-			CGFloat height = [self autoHeightForSize:CGSizeMake(width,1000)];
+			CGFloat height = [self autoHeightForSize:CGSizeMake(width,0)];
 			if (width > 0 && height > 0)
 			{
 				size = CGSizeMake(width, height);
@@ -658,7 +661,8 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
     CGFloat thisWidth = 0.0;
 
 	pthread_rwlock_rdlock(&childrenLock);
-	for (TiViewProxy * thisChildProxy in self.children)
+    NSArray* subproxies = [self children];
+	for (TiViewProxy * thisChildProxy in subproxies)
 	{
         if (isHorizontal) {
             sandBox = CGRectZero;
@@ -808,6 +812,9 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
     CGFloat suggestedHeight = size.height;
     BOOL followsFillBehavior = TiDimensionIsAutoFill([self defaultAutoHeightBehavior:nil]);
     BOOL recheckForFill = NO;
+    
+    //Ensure that autoHeightForSize is called with the lowest limiting bound
+    CGFloat desiredWidth = MIN([self minimumParentWidthForSize:size],size.width);
 	    
     CGFloat offset = TiDimensionCalculateValue(layoutProperties.left, size.width)
     + TiDimensionCalculateValue(layoutProperties.right, size.width);
@@ -823,7 +830,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
     else if (TiDimensionIsAutoFill(layoutProperties.height) || (TiDimensionIsAuto(layoutProperties.height) && followsFillBehavior) ) 
 	{
 		recheckForFill = YES;
-		result += [self autoHeightForSize:CGSizeMake(size.width - offset, size.height - offset2)];
+		result += [self autoHeightForSize:CGSizeMake(desiredWidth - offset, size.height - offset2)];
 	}
     else if (TiDimensionIsUndefined(layoutProperties.height))
     {
@@ -838,12 +845,12 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
         }
         else {
             recheckForFill = followsFillBehavior;
-            result += [self autoHeightForSize:CGSizeMake(size.width - offset, size.height - offset2)];
+            result += [self autoHeightForSize:CGSizeMake(desiredWidth - offset, size.height - offset2)];
         }       
     }
 	else
 	{
-		result += [self autoHeightForSize:CGSizeMake(size.width - offset, size.height - offset2)];
+		result += [self autoHeightForSize:CGSizeMake(desiredWidth - offset, size.height - offset2)];
 	}
     if (recheckForFill && (result < suggestedHeight) ) {
         result = suggestedHeight;
@@ -960,7 +967,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		[view configurationSet];
 
 		pthread_rwlock_rdlock(&childrenLock);
-		NSArray * childrenArray = [[self children] copy];
+		NSArray * childrenArray = [[self children] retain];
 		pthread_rwlock_unlock(&childrenLock);
 		
 		for (id child in childrenArray)
@@ -1014,7 +1021,10 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 }
 
 #pragma mark Methods subclasses should override for behavior changes
-
+-(BOOL)optimizeSubviewInsertion
+{
+    return YES;
+}
 -(BOOL)suppressesRelayout
 {
 	return NO;
@@ -1937,6 +1947,14 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	BOOL earlierSibling = YES;
 	UIView * ourView = [self parentViewForChild:childProxy];
 
+    if (![self optimizeSubviewInsertion]) {
+        for (UIView* subview in [ourView subviews]) 
+        {
+            if (![subview isKindOfClass:[TiUIView class]]) {
+                result++;
+            }
+        }
+    }
 	pthread_rwlock_rdlock(&childrenLock);
 	for (TiViewProxy * thisChildProxy in children)
 	{
@@ -2197,6 +2215,10 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         if (boundingValue < 0) {
             boundingValue = 0;
         }
+
+        //Ensure that autoHeightForSize is called with the lowest limiting bound
+        CGFloat desiredWidth = MIN([child minimumParentWidthForSize:bounds.size],bounds.size.width);
+
         //TOP + BOTTOM
         CGFloat offset = TiDimensionCalculateValue([child layoutProperties]->top, boundingValue)
         + TiDimensionCalculateValue([child layoutProperties]->bottom, boundingValue);
@@ -2219,7 +2241,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         }
         else if (TiDimensionIsAutoSize(constraint))
         {
-            bounds.size.height = [child autoHeightForSize:CGSizeMake(bounds.size.width - offset2,boundingValue)] + offset;
+            bounds.size.height = [child autoHeightForSize:CGSizeMake(desiredWidth - offset2,boundingValue)] + offset;
             verticalLayoutBoundary += bounds.size.height;
         }
         else if (TiDimensionIsAuto(constraint) )
@@ -2231,7 +2253,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             }
             else {
                 //SIZE behavior
-                bounds.size.height = [child autoHeightForSize:CGSizeMake(bounds.size.width - offset2,boundingValue)] + offset;
+                bounds.size.height = [child autoHeightForSize:CGSizeMake(desiredWidth - offset2,boundingValue)] + offset;
                 verticalLayoutBoundary += bounds.size.height;
             }
         }
@@ -2258,7 +2280,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             }
             else {
                 //SIZE behavior
-                bounds.size.height = [child autoHeightForSize:CGSizeMake(bounds.size.width - offset2,boundingValue)] + offset;
+                bounds.size.height = [child autoHeightForSize:CGSizeMake(desiredWidth - offset2,boundingValue)] + offset;
                 verticalLayoutBoundary += bounds.size.height;
             }
         }
@@ -2460,9 +2482,17 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 			
 			pthread_rwlock_rdlock(&childrenLock);
 			int childProxyIndex = [children indexOfObject:child];
+            
+			BOOL optimizeInsertion = [self optimizeSubviewInsertion];
 
 			for (TiUIView * thisView in [ourView subviews])
-			{				
+			{
+				if ( (!optimizeInsertion) && (![thisView isKindOfClass:[TiUIView class]]) )
+				{
+					insertPosition ++;
+					continue;
+				}
+                
 				int thisZIndex=[(TiViewProxy *)[thisView proxy] vzIndex];
 				if (childZIndex < thisZIndex) //We've found our stop!
 				{
@@ -2520,7 +2550,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 //TODO: This is really expensive, but what can you do? Laying out the child needs the lock again.
 	pthread_rwlock_rdlock(&childrenLock);
-	NSArray * childrenArray = [[self children] copy];
+	NSArray * childrenArray = [[self children] retain];
 	pthread_rwlock_unlock(&childrenLock);
     
     NSUInteger childCount = [childrenArray count];

@@ -1,15 +1,15 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium.proxy;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.io.InputStream;
-import java.io.ByteArrayOutputStream;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -17,20 +17,17 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.TiBlob;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.content.ContentResolver;
 
 @Kroll.proxy(propertyAccessors = {
-	TiC.PROPERTY_ACTION,
 	TiC.PROPERTY_CLASS_NAME,
 	TiC.PROPERTY_PACKAGE_NAME,
-	TiC.PROPERTY_TYPE,
 	TiC.PROPERTY_URL
 })
 /**
@@ -249,7 +246,26 @@ public class IntentProxy extends KrollProxy
 	@Kroll.method
 	public String getStringExtra(String name)
 	{
-		return intent.getStringExtra(name);
+		if (!intent.hasExtra(name)) {
+			return null;
+		}
+
+		String result = intent.getStringExtra(name);
+		if (result == null) {
+			// One more try as parcelable extra, such as when it's a Uri.
+			// We can't really support getParcelableExtra(name) by itself,
+			// since the type of object coming out of it is unknown and
+			// might not make its way successfully over to Javascript.
+			// By getting it as a string, we at least allow people to grab
+			// Uris (Intent.STREAM) stored as parcelable extras, which is a
+			// very common use case.
+			Object parcelable = intent.getParcelableExtra(name);
+			if (parcelable != null) {
+				result = parcelable.toString();
+			}
+		}
+
+		return result;
 	}
 
 	@Kroll.method
@@ -313,23 +329,47 @@ public class IntentProxy extends KrollProxy
 		return intent;
 	}
 
+	@Kroll.method @Kroll.getProperty
+	public String getType()
+	{
+		return intent.getType();
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setType(String type)
+	{
+		intent.setType(type);
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public String getAction()
+	{
+		return intent.getAction();
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setAction(String action)
+	{
+		intent.setAction(action);
+	}
+
 	/**
-	 * @return intent type.
+	 * @return intent type for internal purposes (TYPE_ACTIVITY, etc.)
 	 */
-	public int getType()
+	public int getInternalType()
 	{
 		return type;
 	}
 
 	/**
 	 * Sets the intent type.
-	 * @param type the intent type to set.
+	 * @param type the intent type for internal purposes (TYPE_ACTIVITY etc.)
 	 */
-	public void setType(int type)
+	public void setInternalType(int type)
 	{
 		this.type = type;
 	}
-	
+
 	@Kroll.method
 	public boolean hasExtra(String name)
 	{

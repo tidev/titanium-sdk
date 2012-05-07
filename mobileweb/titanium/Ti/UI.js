@@ -17,7 +17,7 @@ define(
 			hidingAddressBar = 0;
 		},
 		unitize = dom.unitize,
-		showStats = false;
+		has = require.has;
 
 	on(body, "touchmove", function(e) {
 		e.preventDefault();
@@ -80,7 +80,6 @@ define(
 			coefficients = container._layoutCoefficients; 
 		coefficients.width.x1 = 1;
 		coefficients.height.x1 = 1;
-		
 		node.id = "TiUIContainer";
 		setStyle(node, "overflow", "hidden");
 		body.appendChild(node);
@@ -140,8 +139,6 @@ define(
 		
 		_elementLayoutCount: 0,
 		
-		_layoutCount: 0,
-		
 		_triggerLayout: function(node, force) {
 			var self = this;
 			if (~self._nodesToLayout.indexOf(node)) {
@@ -149,11 +146,9 @@ define(
 			}
 			self._nodesToLayout.push(node);
 			function startLayout() {
-				
+			
 				self._elementLayoutCount = 0;
-				self._layoutCount++;
-				var startTime = (new Date()).getTime(),
-					nodes = self._nodesToLayout,
+				var nodes = self._nodesToLayout,
 					layoutNode,
 					node,
 					parent,
@@ -167,6 +162,7 @@ define(
 					container = self._container,
 					i,
 					len = nodes.length;
+			   has("ti-instrumentation") && (this._layoutInstrumentationTest = instrumentation.startTest("Layout"));
 					
 				// Determine which nodes need to be re-layed out
 				for (i = 0; i < len; i++) {
@@ -245,8 +241,8 @@ define(
 					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node._parent._layout._getWidth(node) === Ti.UI.SIZE, node._parent._layout._getHeight(node) === Ti.UI.SIZE);
 				}
 				
-				showStats && console.debug("Layout " + self._layoutCount + ": " + self._elementLayoutCount + 
-					" elements (out of " + document.getElementById("TiUIContainer").getElementsByTagName("*").length + " total) laid out in " + ((new Date().getTime() - startTime)) + "ms");
+				has("ti-instrumentation") && instrumentation.stopTest(this._layoutInstrumentationTest, 
+					self._elementLayoutCount + " out of approximately " + document.getElementById("TiUIContainer").getElementsByTagName("*").length + " elements laid out.");
 					
 				self._layoutInProgress = false;
 				self._layoutTimer = null;

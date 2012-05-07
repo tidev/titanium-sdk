@@ -205,7 +205,8 @@
 		}
 	}
 	else {
-		GDataXMLNode* resultNode = (GDataXMLNode*)[GDataXMLElement attributeWithName:localName stringValue:val];
+		[element releaseCachedValues];
+		xmlNodePtr curNode = [element XMLNode];
 
 		xmlChar *href;
 		xmlChar *pre;
@@ -224,8 +225,9 @@
 		
 		xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
 									 href, pre);
-		[resultNode XMLNode]->ns = theNewNs;
-		[element addAttribute: resultNode];
+		xmlNewNsProp(curNode, theNewNs, (xmlChar*)[localName UTF8String], (xmlChar*)[val UTF8String]);
+
+        
 	}
 }
 
@@ -429,6 +431,7 @@
 			[self throwException:@"mismatched documents" subreason:nil location:CODELOCATION];
 			return [NSNull null];
 		}
+       
 		GDataXMLNode * attributeNode = [element attributeForLocalName:[GDataXMLNode localNameForName:name] URI:theURI];
 		if (attributeNode != nil) {
 			[attributeNode retain];
@@ -458,9 +461,16 @@
 		if(oldNodePtr != NULL) {
 			[TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
 		}
-		//This adds by copying
-		[element addAttribute: [attProxy node]];
-		attributeNode = [element attributeForName:name];
+		//Duplicate methodology in setAttributeNS
+		[element releaseCachedValues];
+		xmlNodePtr curNode = [element XMLNode];
+		xmlNodePtr curAttr = [[attProxy node] XMLNode];
+		xmlNsPtr theNewNs = xmlCopyNamespace(curAttr->ns);
+		NSString* localName = [GDataXMLNode localNameForName:name];
+		NSString* val = [[attProxy node] stringValue];
+        
+		xmlNewNsProp(curNode, theNewNs, (xmlChar*)[localName UTF8String], (xmlChar*)[val UTF8String]);
+		attributeNode = [element attributeForLocalName:localName URI:theURI];
 		[attProxy setNode:attributeNode];
 		[attProxy setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
 		[TiDOMNodeProxy setNode:attProxy forXMLNode:[attributeNode XMLNode]];
@@ -663,34 +673,38 @@
 
 -(id)appendChild:(id)args
 {
-	ENSURE_SINGLE_ARG(args, TiDOMNodeProxy);
-	TiDOMNodeProxy * newChild = (TiDOMNodeProxy*)args;
-	xmlNodePtr oldNodePtr = [[newChild node]XMLNode];
-	GDataXMLNode* resultElement = [element addChild:[newChild node]];
-
-	if (resultElement != nil)
-	{
-		//No longer part of tree set to free node since add child adds by creating copy
-		[[newChild node]setShouldFreeXMLNode:YES];
-		if (oldNodePtr != NULL)
-		{
-			[TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
-		}
-		if ([newChild isKindOfClass:[TiDOMElementProxy class]])
-		{
-			[(TiDOMElementProxy*)newChild setElement:(GDataXMLElement*)resultElement];
-		}
-		else
-		{
-			[newChild setNode:resultElement];
-		}
-		[TiDOMNodeProxy setNode:newChild forXMLNode:[resultElement XMLNode]];
-		return newChild;
-	}
-	else
-	{
-		return [NSNull null];
-	}
+    ENSURE_SINGLE_ARG(args, TiDOMNodeProxy);
+    TiDOMNodeProxy * newChild = (TiDOMNodeProxy*)args;
+    xmlNodePtr oldNodePtr = [[newChild node] XMLNode];
+    xmlNodePtr parent = [element XMLNode];
+    xmlNodePtr resultPtr = xmlAddChild(parent, oldNodePtr);
+    
+    if (resultPtr != NULL) {
+        [[self node] releaseCachedValues];
+        //Child added successfully
+        if (resultPtr == oldNodePtr) {
+            //Child pointer not modified
+            [[newChild node] setShouldFreeXMLNode:NO];
+            return newChild;
+        }
+        else {
+            //Child pointer modified
+            [[newChild node] setShouldFreeXMLNode:YES];
+            if (oldNodePtr != NULL) {
+                [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
+            }
+            TiDOMNodeProxy* result = [TiDOMNodeProxy nodeForXMLNode:resultPtr];
+            if (result == nil) {
+                GDataXMLNode * resultNode = [GDataXMLNode nodeBorrowingXMLNode:resultPtr];
+                id context = ([self executionContext]==nil) ? [self pageContext] : [self executionContext];
+                result = [self makeNode:resultNode context:context];
+            }
+            return result;
+        }
+    }
+    else {
+        return [NSNull null];
+    }
 }
 
 -(id)attributes

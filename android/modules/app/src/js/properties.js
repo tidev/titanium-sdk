@@ -22,15 +22,15 @@ exports.bootstrap = function(Titanium) {
 		Properties[getter] = propertyGetter(Properties[getter]);
 	});
 
-	Properties.getList = function(key, defaultValue) {
+	Properties.getList = Properties.getObject = function(key, defaultValue) {
 		if (!Properties.hasProperty(key)) {
 			return nullOrDefaultValue(defaultValue);
 		}
 
 		return JSON.parse(Properties.getString(key));
-	}
+	};
 
-	Properties.setList = function(key, list) {
-		Properties.setString(key, JSON.stringify(list));
-	}
-}
+	Properties.setList = Properties.setObject = function(key, val) {
+		Properties.setString(key, JSON.stringify(val));
+	};
+};
