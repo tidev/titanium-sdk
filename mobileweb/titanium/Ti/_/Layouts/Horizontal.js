@@ -241,13 +241,11 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				nodeHeight = node._measuredHeight,
 				runningWidth = node._measuredRunningWidth,
 				runningHeight = node._measuredRunningHeight,
-				rowHeight = node._measuredRowHeight,
-				width = animationCoefficients.width.x1 * parentWidth + animationCoefficients.width.x2 * (parentWidth - runningWidth) + animationCoefficients.width.x3,
-				height = animationCoefficients.height.x1 * parentHeight + animationCoefficients.height.x2 * (parentHeight - runningHeight) + animationCoefficients.height.x3;
+				rowHeight = node._measuredRowHeight;
 			
 			return {
-				width: width,
-				height: height,
+				width: animationCoefficients.width.x1 * parentWidth + animationCoefficients.width.x2 * (parentWidth - runningWidth) + animationCoefficients.width.x3,
+				height: animationCoefficients.height.x1 * parentHeight + animationCoefficients.height.x2 * (parentHeight - runningHeight) + animationCoefficients.height.x3,
 				left: animationCoefficients.left.x1 * parentWidth + animationCoefficients.left.x2  + runningWidth,
 				top: animationCoefficients.top.x1 * parentHeight + animationCoefficients.top.x2 * rowHeight + animationCoefficients.top.x3 * nodeHeight + animationCoefficients.top.x4 + runningHeight
 			}
