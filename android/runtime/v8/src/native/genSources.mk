@@ -14,6 +14,14 @@ ANDROID_DIR := ../../../..
 TOOLS_DIR := $(THIS_DIR)/../../tools
 JS2C := $(TOOLS_DIR)/js2c.py
 
+# Colon versus semi-colon for classpath separator
+CP_SEP := :
+OSNAME := $(OS)
+
+ifeq ($(OSNAME), Windows_NT)
+CP_SEP := ;
+endif
+
 GEN_BOOTSTRAP := $(THIS_DIR)/../../tools/genBootstrap.py
 
 ABS_PROXY_SOURCES := $(wildcard $(GENERATED_DIR)/org.*.cpp) \
@@ -48,4 +56,4 @@ $(GENERATED_DIR)/KrollNativeBindings.cpp: $(THIS_DIR)/KrollNativeBindings.gperf
 
 JAVAH := javah
 $(JNI_PREFIX)%.h:
-	$(JAVAH) -classpath $(DIST_DIR)/kroll-v8.jar -classpath $(DIST_DIR)/kroll-common.jar -classpath $(ANDROID_PLATFORM)/android.jar -d $(GENERATED_DIR) $(subst .h,,$(subst _,.,$(patsubst $(GENERATED_DIR)/%,%,$(@F))))
+	$(JAVAH) -classpath $(DIST_DIR)/kroll-v8.jar$(CP_SEP)$(DIST_DIR)/kroll-common.jar$(CP_SEP)$(ANDROID_PLATFORM)/android.jar -d $(GENERATED_DIR) $(subst .h,,$(subst _,.,$(patsubst $(GENERATED_DIR)/%,%,$(@F))))
