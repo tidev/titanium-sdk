@@ -10,12 +10,24 @@ if [ "$ANDROID_NDK" = "" ]; then
 	exit 1
 fi
 
+# We setup the path to the android platform in SConstruct and pass it along to here
+# via common.xml. But if you call ndk-build.sh directly, you don't get that benefit,
+# so we try to work it out here.
 if [ "$ANDROID_PLATFORM" = "" ]; then
+
 	if [ "$ANDROID_SDK" = "" ]; then
-		echo "Error: The path to the Android SDK platform must be set in the ANDROID_PLATFORM environment variable (e.g. /opt/android-sdk-macosx/platforms/android-8)"
-		exit 1
+
+		ADB=`which adb`
+		if [ -n $ADB ]; then
+			ANDROID_SDK=$(dirname $(dirname $ADB))
+		fi
+
+		if [ "$ANDROID_SDK" = "" ]; then
+			echo "Error: The path to the Android SDK platform must be set in the ANDROID_PLATFORM environment variable (e.g. /opt/android-sdk-macosx/platforms/android-8)"
+			exit 1
+		fi
 	fi
-	export ANDROID_PLATFORM="$(cd "$ANDROID_SDK"; pwd)/platforms/android-8"
+	export ANDROID_PLATFORM="$(cd "$ANDROID_SDK"; pwd:)/platforms/android-8"
 fi
 
 THIS_DIR=$(cd "$(dirname "$0")"; pwd)
