@@ -62,7 +62,10 @@ define(
 						var p = waiting.indexOf(n);
 						~p && waiting.splice(p, 1);
 						loaded = 1;
-						waiting.length || require(cfg.main || ["app.js"]);
+						if (!waiting.length) {
+							has("ti-instrumentation") && instrumentation.stopTest(instrumentation.systemLoadTimeTest);
+							require(cfg.main || ["app.js"]);
+						}
 					};
 				}
 			}

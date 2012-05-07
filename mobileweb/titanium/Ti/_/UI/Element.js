@@ -14,6 +14,7 @@ define(
 		isDef = lang.isDef,
 		val = lang.val,
 		is = require.is,
+		has = require.has,
 		transitionEvents = {
 			webkit: "webkitTransitionEnd",
 			trident: "msTransitionEnd",
@@ -75,12 +76,12 @@ define(
 				bg = lang.hitch(this, "_doBackground");
 
 			require.has("devmode") && args && args._debug && dom.attr.set(node, "data-debug", args._debug);
-
 			function processTouchEvent(eventType, evt) {
+				has("ti-instrumentation") && (this._gestureInstrumentationTest = instrumentation.startTest("Gesture Processing"));
 				var i,
 					gestureRecognizers = touchRecognizers[eventType],
-					eventType = "Touch" + eventType + "Event",
 					touches = evt.changedTouches;
+				eventType = "Touch" + eventType + "Event";
 				if (this._preventDefaultTouchEvent) {
 					this._preventDefaultTouchEvent && evt.preventDefault && evt.preventDefault();
 					for (i in touches) {
@@ -98,6 +99,7 @@ define(
 				for (i in gestureRecognizers) {
 					gestureRecognizers[i]["finalize" + eventType]();
 				}
+				has("ti-instrumentation") && instrumentation.stopTest(this._gestureInstrumentationTest, "Processing widget " + self.widgetId);
 			}
 
 			this._touching = false;
