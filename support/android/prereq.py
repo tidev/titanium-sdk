@@ -17,11 +17,11 @@ def check_java():
 			(out,err) = subprocess.Popen(['javac','-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 		
 		# javac prints it's version on stderr
-		MIN_JAVAC = ["1", "6"]
+		MIN_JAVAC = ["1", "9", "0"]
 		version = err.replace("javac ", "").strip()
 		version_split = version.split(".")
 		if version_split < MIN_JAVAC:
-			status = "JDK version %s detected, but at least 1.6 is required" % version
+			status = "JDK version %s detected, but at least %s is required" % (version, ".".join(MIN_JAVAC))
 			failed = True
 	except Exception,e:
 		status = "Missing Java SDK. Please make sure Java SDK is on your PATH (exception: %s)" % e
