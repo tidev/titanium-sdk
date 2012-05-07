@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # Appcelerator Titanium Mobile
-# Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
 # Licensed under the terms of the Apache Public License
 # Please see the LICENSE included with this distribution for details.
 
@@ -27,7 +27,7 @@ if [ "$ANDROID_PLATFORM" = "" ]; then
 			exit 1
 		fi
 	fi
-	export ANDROID_PLATFORM="$(cd "$ANDROID_SDK"; pwd:)/platforms/android-8"
+	export ANDROID_PLATFORM="$(cd "$ANDROID_SDK"; pwd)/platforms/android-8"
 fi
 
 THIS_DIR=$(cd "$(dirname "$0")"; pwd)
