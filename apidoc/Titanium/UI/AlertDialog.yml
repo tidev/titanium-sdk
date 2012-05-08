@@ -57,10 +57,14 @@ events:
     properties:
       - name: cancel
         summary: |
-            Indicates whether the cancel button was clicked. If this is the case, Android returns 
-            `true`. On iOS, the [cancel](Titanium.UI.AlertDialog.cancel) property is returned, which 
-            will typically not change regardless of the button clicked. See the `Three-button Alert 
-            Dialog` example for a demonstration of this in action.
+            On Android, indicates whether the cancel button was clicked, in which case returns 
+            `true`. 
+            
+            On iOS, the value of the [cancel](Titanium.UI.AlertDialog.cancel) property is 
+            returned, if defined, or `-1` otherwise. 
+            
+            See the `Three-button Alert Dialog` example for a cross-platform workaround for this 
+            parity issue.
         type: Boolean (Android), Number (iOS)
         
       - name: index
@@ -92,7 +96,9 @@ properties:
     availability: creation
 
   - name: cancel
-    summary: Index to define the button cancel button, returned by the `click` event.
+    summary: Index to define the button cancel button.
+    description: |
+        On iOS, set to `-1` to disable the cancel option.
     type: Number
     
   - name: message
