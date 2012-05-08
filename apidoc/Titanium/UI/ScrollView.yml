@@ -52,8 +52,14 @@ methods:
         optional: true
         
   - name: scrollToBottom
-    summary: Moves the bottom of the scrollable region into the viewable area.
-    platforms: [android]
+    summary: Moves the end of the scrollable region into the viewable area.
+    description: |
+        On Android the scrollToBottom moves the scrollable region to the `bottom-end` of the viewable area
+        if the scrollview's scrollType is `vertical` and moves to the `right-end` of the viewable area 
+        if otherwise. On iOS scrollToBottom moves the scrollable region to the `botton right end` of 
+        the viewable area.
+    platforms: [android, iphone, ipad]
+    since: {iphone: "2.1.0", ipad: "2.1.0"}
         
 events:
   - name: scale
