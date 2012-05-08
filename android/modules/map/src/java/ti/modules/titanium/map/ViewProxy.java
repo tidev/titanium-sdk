@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -51,6 +51,7 @@ public class ViewProxy extends TiViewProxy
 
 	private TiMapView mapView;
 	private ArrayList<AnnotationProxy> annotations;
+	private ArrayList<MapRoute> routes;
 	private ArrayList<TiMapView.SelectedAnnotation> selectedAnnotations;
 	
 	public ViewProxy()
@@ -63,6 +64,7 @@ public class ViewProxy extends TiViewProxy
 		//tiContext.addOnLifecycleEventListener(this);
 
 		annotations = new ArrayList<AnnotationProxy>();
+		routes = new ArrayList<MapRoute>();
 		selectedAnnotations = new ArrayList<TiMapView.SelectedAnnotation>();
 	}
 
@@ -136,7 +138,7 @@ public class ViewProxy extends TiViewProxy
 		Intent intent = new Intent(tiApp, TiMapActivity.class);
 		mapWindow = lam.startActivity("TIMAP", intent);
 		lam.dispatchResume();
-		mapView = new TiMapView(this, mapWindow, annotations, selectedAnnotations);
+		mapView = new TiMapView(this, mapWindow, annotations, routes, selectedAnnotations);
 
 		Object location = getProperty(TiC.PROPERTY_LOCATION);
 		if (location != null)
@@ -152,6 +154,7 @@ public class ViewProxy extends TiViewProxy
 		}
 
 		mapView.updateAnnotations();
+		mapView.updateRoute();
 
 		return mapView;
 	}
@@ -178,6 +181,60 @@ public class ViewProxy extends TiViewProxy
 		annotations.add(annotation);
 		if(mapView != null) {
 			mapView.updateAnnotations();
+		}
+	}
+
+	@Kroll.method
+	public void addRoute(KrollDict routeMap)
+	{
+		Object routeArray = routeMap.get("points");
+		if (routeArray instanceof Object[]) {
+			Object[] routes = (Object[]) routeArray;
+			MapPoint[] pointsType = new MapPoint[routes.length];
+			for (int i = 0; i < routes.length; i++) {
+
+				if (routes[i] instanceof HashMap) {
+					HashMap tempRoute = (HashMap)routes[i];
+					MapPoint mp = new MapPoint(TiConvert.toDouble(tempRoute, "latitude"), TiConvert.toDouble(tempRoute, "longitude"));
+					pointsType[i] = mp;
+				}
+			}
+
+			MapRoute mr = new MapRoute(pointsType, TiConvert.toColor(routeMap, "color"), TiConvert.toInt(routeMap, "width"), TiConvert.toString(routeMap, "name"));
+
+			if (mapView == null) {
+				this.routes.add(mr);
+			} else {
+				mapView.addRoute(mr);
+			}
+		}		
+		
+	}
+	
+	@Kroll.method
+	public void removeRoute(KrollDict route)
+	{
+		//We remove the route by "name" for parity with iOS
+		Object routeName = route.get("name");
+		if (routeName instanceof String) {
+			String name = (String)routeName;
+			MapRoute mr = null;
+			for (int i = 0; i < routes.size(); i++) {
+				mr = routes.get(i);
+				if (mr.getName().equals(name)) {
+					break;
+				}
+			}
+
+			//if the route exists, remove it
+			if (mr != null) {
+
+				if (mapView == null) {
+					routes.remove(mr);
+				} else {
+					mapView.removeRoute(mr);
+				}
+			}
 		}
 	}
 

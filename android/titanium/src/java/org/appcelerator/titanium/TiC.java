@@ -66,6 +66,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_CANCEL = "cancel";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_CHANGE = "change";
 
 	/**
@@ -432,6 +437,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SCROLLINGENABLED = "scrollingEnabled";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ACTION = "action";
 
 	/**
@@ -635,6 +645,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CANCEL = "cancel";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CANCELABLE = "cancelable";
 
 	/**
 	 * @module.api

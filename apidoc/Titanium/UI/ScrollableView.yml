@@ -277,19 +277,40 @@ properties:
     default: 3000
     platforms: [android, mobileweb]
     availability: creation
-    
+
   - name: scrollingEnabled
     summary: |
         Determines whether scrolling is enabled on the Scrollable view.
         If this property is not set, scrolling is enabled.
     type: Boolean
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad, android]
     default: undefined (scrolling enabled)
-    since: "2.0"
-    
+    since: { android: "2.1", iphone: "2.0", ipad: "2.0" }
+
   - name: views
     summary: Sets the views within this Scrollable View.
     type: Array<Titanium.UI.View>
+
+  - name: clipViews
+    summary: |
+        Determines whether the content which is being scrolled will be clipped to the frame of
+        the view.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+    availability: creation
+
+  - name: hitRect
+    summary: |
+        Sets a rect to perform hit testing on to determine if touches have occurred on this
+        view.
+    description: |
+        By setting this to some rect, one can override the normal hit testing.  Note that the
+        x and y specified are relative to the position of the view.
+    type: Dimension
+    default: undefined (hit against size of view)
+    platforms: [iphone, ipad]
+    since: "2.1"
 
 examples:
   - title: Simple Scrollable View with 3 Views

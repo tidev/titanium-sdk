@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -28,6 +28,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.map.MapRoute.RouteOverlay;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -95,6 +96,7 @@ public class TiMapView extends TiUIView
 	private MyLocationOverlay myLocation;
 	private TiOverlayItemView itemView;
 	private ArrayList<AnnotationProxy> annotations;
+	private ArrayList<MapRoute> routes;
 	private ArrayList<SelectedAnnotation> selectedAnnotations;
 	private Handler handler;
 
@@ -159,6 +161,7 @@ public class TiMapView extends TiUIView
 		}
 	}
 
+	
 	class TitaniumOverlay extends ItemizedOverlay<TiOverlayItem>
 	{
 		ArrayList<AnnotationProxy> annotations;
@@ -304,7 +307,7 @@ public class TiMapView extends TiUIView
 			return handled;
 		}
 	}
-
+	
 	public static class SelectedAnnotation
 	{
 		String title;
@@ -319,13 +322,14 @@ public class TiMapView extends TiUIView
 		}
 	}
 	
-	public TiMapView(TiViewProxy proxy, Window mapWindow, ArrayList<AnnotationProxy> annotations, ArrayList<SelectedAnnotation>selectedAnnotations)
+	public TiMapView(TiViewProxy proxy, Window mapWindow, ArrayList<AnnotationProxy> annotations, ArrayList<MapRoute> routes, ArrayList<SelectedAnnotation>selectedAnnotations)
 	{
 		super(proxy);
 
 		this.mapWindow = mapWindow;
 		this.handler = new Handler(Looper.getMainLooper(), this);
 		this.annotations = annotations;
+		this.routes = routes;
 		this.selectedAnnotations = selectedAnnotations;
 
 		TiApplication app = TiApplication.getInstance();
@@ -517,6 +521,70 @@ public class TiMapView extends TiUIView
 		handler.obtainMessage(MSG_UPDATE_ANNOTATIONS).sendToTarget();
 	}
 
+	public ArrayList<MapRoute> getRoutes() 
+	{
+		return routes;
+	}
+	
+	public void addRoute(MapRoute mr) 
+	{
+		//check if route exists - by name
+		String rname = mr.getName();
+		for (int i = 0; i < routes.size(); i++) {
+
+			if (rname.equals(routes.get(i).getName())) {
+				return;
+			}
+		}
+		routes.add(mr);
+		ArrayList<RouteOverlay> o = mr.getRoutes();
+		List<Overlay> overlaysList = view.getOverlays();
+		for (int j = 0; j < o.size(); j++) {
+			RouteOverlay ro = o.get(j);
+			if (!overlaysList.contains(ro)) {
+				overlaysList.add(ro);
+			}
+		}
+	}
+
+	public void removeRoute(MapRoute mr)
+	{
+		String rname = mr.getName();
+		for (int i = 0; i < routes.size(); i++) {
+			MapRoute maproute = routes.get(i);
+			if (rname.equals(maproute.getName())) {
+				routes.remove(maproute);
+				ArrayList<RouteOverlay> o = maproute.getRoutes();
+				List<Overlay> overlaysList = view.getOverlays();
+				for (int j = 0; j < o.size(); j++) {
+					RouteOverlay ro = o.get(j);
+					if (overlaysList.contains(ro)) {
+						overlaysList.remove(ro);
+					}
+				}
+				return;
+			}
+		}
+	}
+	
+	public void updateRoute() 
+	{
+		int i = 0;
+		
+		while (i < routes.size()) {
+			MapRoute mr = routes.get(i);
+			ArrayList<RouteOverlay> o = mr.getRoutes();			
+			List<Overlay> overlaysList = view.getOverlays();
+			for (int j = 0; j < o.size(); j++) {
+				RouteOverlay ro = o.get(j);
+				if (!overlaysList.contains(ro)) {
+					overlaysList.add(ro);
+				}
+			}
+			i++;
+		}
+	}
+	
 	public void doUpdateAnnotations()
 	{
 		if (itemView != null && view != null && view.indexOfChild(itemView) != -1 ) {

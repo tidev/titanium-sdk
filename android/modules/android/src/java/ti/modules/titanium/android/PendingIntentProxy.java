@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -66,7 +66,7 @@ public class PendingIntentProxy extends KrollProxy
 		if (pendingIntentContext == null || intent == null) {
 			throw new IllegalStateException("Creation arguments must contain intent");
 		}
-		switch (intent.getType()) {
+		switch (intent.getInternalType()) {
 			case IntentProxy.TYPE_ACTIVITY : {
 				pendingIntent = PendingIntent.getActivity(
 					pendingIntentContext, 0, intent.getIntent(), flags);
