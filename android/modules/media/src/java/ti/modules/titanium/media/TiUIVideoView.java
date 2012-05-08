@@ -135,6 +135,10 @@ public class TiUIVideoView extends TiUIView
 
 		// Proxy holds the media control style directly.
 		setMediaControlStyle(getPlayerProxy().getMediaControlStyle());
+
+		if (d.containsKey(TiC.PROPERTY_VOLUME)) {
+			videoView.setVolume(TiConvert.toFloat(d, TiC.PROPERTY_VOLUME, 1.0f));
+		}
 	}
 
 	@Override
@@ -152,8 +156,12 @@ public class TiUIVideoView extends TiUIView
 				Log.w(TAG, "contentURL is deprecated, use url instead");
 				proxy.setProperty(TiC.PROPERTY_URL, newValue);
 			}
+
 		} else if (key.equals(TiC.PROPERTY_SCALING_MODE)) {
 			videoView.setScalingMode(TiConvert.toInt(newValue));
+		} else if (key.equals(TiC.PROPERTY_VOLUME)) {
+			videoView.setVolume(TiConvert.toFloat(newValue));
+
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
