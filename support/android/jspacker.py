@@ -13,6 +13,8 @@ package ${package_name};
 import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
+import java.nio.CharBuffer;
+import java.nio.ByteBuffer;
 import java.lang.reflect.Method;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 
