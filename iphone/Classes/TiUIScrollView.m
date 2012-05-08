@@ -208,13 +208,13 @@
 -(void)scrollToBottom_
 {
     /*
-     * Calculate the bottom Height and width and sets the offset from the 
+     * Calculate the bottom height & width and, sets the offset from the 
      * content view’s origin that corresponds to the receiver’s origin.
      */ 
     
     NSNumber *bottomHeight = NUMFLOAT([self scrollView].contentSize.height - [self scrollView].bounds.size.height);
     NSNumber *bottomWidth = NUMFLOAT([self scrollView].contentSize.width - [self scrollView].bounds.size.width);
-    NSDictionary *bottom = [NSDictionary dictionaryWithObjectsAndKeys:bottomHeight,@"y",bottomWidth,@"x", nil];
+    NSDictionary *bottom = [NSDictionary dictionaryWithObjectsAndKeys:bottomWidth, @"x",bottomHeight, @"y",  nil];
     
     [self setContentOffset_:bottom withObject:nil];
     
