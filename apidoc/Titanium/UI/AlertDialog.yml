@@ -57,12 +57,14 @@ events:
     properties:
       - name: cancel
         summary: |
-            Indicates whether the button pressed was the cancel button, defined by the `cancel` 
-            property.
-        type: Boolean
+            Indicates whether the cancel button was clicked. If this is the case, Android returns 
+            `true`. On iOS, the [cancel](Titanium.UI.AlertDialog.cancel) property is returned, which 
+            will typically not change regardless of the button clicked. See the `Three-button Alert 
+            Dialog` example for a demonstration of this in action.
+        type: Boolean (Android), Number (iOS)
         
       - name: index
-        summary: Index of the button that was pressed.
+        summary: Index of the button that was clicked.
         type: Number
 methods:
   - name: show
@@ -171,7 +173,8 @@ examples:
         
   - title: Three-button Alert Dialog
     example: |
-        Create a three-button alert dialog, which is invoked when the app window is clicked.        
+        Create a three-button alert dialog, which is invoked when the app window is clicked. 
+        Output a message to the log when the cancel button is clicked.
         
             Ti.UI.setBackgroundColor('white');
             var win = Ti.UI.createWindow({  
@@ -180,15 +183,22 @@ examples:
               exitOnClose: true,
               fullscreen: false
             });
-
             win.addEventListener('click', function(e){
               var dialog = Ti.UI.createAlertDialog({
                 cancel: 1,
                 buttonNames: ['Confirm', 'Cancel', 'Help'],
                 message: 'Would you like to delete the file?',
                 title: 'Delete'
-              }).show();
+              });
+              dialog.addEventListener('click', function(e){
+                if (e.index === e.source.cancel){
+                  Ti.API.info('The cancel button was clicked');
+                }
+                Ti.API.info('e.cancel: ' + e.cancel);
+                Ti.API.info('e.source.cancel: ' + e.source.cancel);
+                Ti.API.info('e.index: ' + e.index);
+              });
+              dialog.show();
             });
             win.open();
-
 
