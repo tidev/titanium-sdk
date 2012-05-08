@@ -247,14 +247,14 @@ events:
         summary: The currently visible view.
         type: Object
 
-   - name: dragEnd
-     summary: Fired when the scrolling drag gesture on the view has been completed
-     platforms: [android]
-     properties:
+  - name: dragEnd
+    summary: Fired when the scrolling drag gesture on the view has been completed
+    platforms: [android]
+    properties:
       - name: currentPage
         summary: Current page that the view is scrolled to.
         type: Number
-
+ 
       - name: view
         summary: The currently visible view.
         type: Object
