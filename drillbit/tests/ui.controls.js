@@ -50,7 +50,7 @@ describe("Ti.UI control tests", {
 	},
 
   scrollableViewScrollEvents_as_async: function (callback) {
-    // functional test for [TC-827]: `scrolling` event for `ScrollableView`
+    // functional test for TIMOB-8933, TIMOB-9061: `scroll` event and `scrollEnd` event
     var win = Ti.UI.createWindow({layout:'horizontal'});
 
     var view1 = Ti.UI.createView({ backgroundColor:'#123', width: 250 });
