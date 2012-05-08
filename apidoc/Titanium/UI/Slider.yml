@@ -165,10 +165,11 @@ properties:
         On Android and Mobile Web, the selectable values can be limited using the
         [minRange](Titanium.UI.Slider.minRange) and [maxRange](Titanium.UI.Slider.maxRange)
         properties.
-
-        On Android, `min` and `max` must be set in order for the slider to work.
+        
+        On Android this must be an integer value.
     type: Number
-
+    default: 1. (property value might be undefined)
+    
   - name: maxRange
     summary: Upper limit on the slider value that can be selected.
     description: |
@@ -177,6 +178,8 @@ properties:
         The total displayed range of the slider is still from `min` to `max`.
 
         If `undefined`, the slider can go all the way to `max`.
+        
+        On Android this must be an integer value.
     type: Number
     platforms: [android, mobileweb]
     default: undefined
@@ -191,8 +194,9 @@ properties:
         [minRange](Titanium.UI.Slider.minRange) and [maxRange](Titanium.UI.Slider.maxRange)
         properties.
 
-        On Android, `min` and `max` must be set in order for the slider to work.
+        On Android this must be an integer value.
     type: Number
+    default: 0. (property value might be undefined)
 
   - name: minRange
     summary: Lower limit on the slider value that can be selected. 
@@ -202,6 +206,8 @@ properties:
         The total displayed range of the slider is still from `min` to `max`.
 
         If `undefined`, the slider can go all the way to `min`.
+        
+        On Android this must be an integer value.
     platforms: [android, mobileweb]
     type: Number
     default: undefined
