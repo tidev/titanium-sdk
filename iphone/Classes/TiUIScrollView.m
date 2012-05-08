@@ -218,7 +218,7 @@
     CGFloat svBottomInsets = currScrollView.contentInset.bottom;
     
     CGFloat bottomHeight = svContentSize.height - svBoundSize.height + svBottomInsets;
-    CGFloat bottomWidth =svContentSize.width - svBoundSize.width;
+    CGFloat bottomWidth = svContentSize.width - svBoundSize.width;
 
     CGPoint newOffset = CGPointMake(bottomWidth,bottomHeight);
     
