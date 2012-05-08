@@ -203,7 +203,7 @@ define(
 		},
 
 		_remove: function(view) {
-			var children = this.children;
+			var children = this.children,
 				p = children.indexOf(view);
 			if (p !== -1) {
 				children.splice(p, 1);
@@ -268,9 +268,9 @@ define(
 		
 		updateLayout: function(params) {
 			this.startLayout();
-			var i,
+			var i = 0,
 				len = params.length;
-			for(i = 0; i < len; i++) {
+			for(; i < len; i++) {
 				this[i] = params[i];
 			}
 			this.finishLayout();

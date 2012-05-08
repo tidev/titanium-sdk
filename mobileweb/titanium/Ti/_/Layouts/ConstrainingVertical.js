@@ -19,6 +19,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				deferredPositionCalculations = [],
 				deferredLeftCalculations = [],
 				runningHeight = 0,
+				remainingSpace,
 				fillCount = 0,
 				len = children.length,
 				verifyChild = this.verifyChild,
@@ -75,7 +76,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			}
 			
 			// Calculate size for the FILL children
-			runningHeight = (height - runningHeight) / fillCount; // Temporary repurposing of runningHeight
+			remainingSpace = height - runningHeight;
+			runningHeight = Math.floor(remainingSpace / fillCount); // Temporary repurposing of runningHeight
 			for(i = 0; i < len; i++) {
 				
 				child = element.children[i];
@@ -91,7 +93,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
 						
 						measuredWidth = widthLayoutCoefficients.x1 * width + widthLayoutCoefficients.x2;
-						measuredHeight = heightLayoutCoefficients.x1 * height + heightLayoutCoefficients.x2 * runningHeight + heightLayoutCoefficients.x3;
+						measuredHeight = heightLayoutCoefficients.x1 * height + heightLayoutCoefficients.x2 * (i < len - 1 ? runningHeight : remainingSpace - runningHeight * (fillCount - 1)) + heightLayoutCoefficients.x3;
 						
 						if (child._getContentSize) {
 							childSize = child._getContentSize();
