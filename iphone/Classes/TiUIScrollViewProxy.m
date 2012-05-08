@@ -257,9 +257,8 @@
 
 -(void)scrollToBottom:(id)args
 {
-    TiUIScrollView * currentScrollview =(TiUIScrollView *)[self view];
     TiThreadPerformOnMainThread(^{
-        [(TiUIScrollView *)[self view] scrollToBottom_];
+        [(TiUIScrollView *)[self view] scrollToBottom];
     }, YES);
 }
 

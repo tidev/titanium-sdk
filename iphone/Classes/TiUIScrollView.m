@@ -205,18 +205,24 @@
     [super frameSizeChanged:frame bounds:visibleBounds];
 }
 
--(void)scrollToBottom_
+-(void)scrollToBottom
 {
     /*
      * Calculate the bottom height & width and, sets the offset from the 
      * content view’s origin that corresponds to the receiver’s origin.
      */ 
+    UIScrollView *currScrollView = [self scrollView];
     
-    NSNumber *bottomHeight = NUMFLOAT([self scrollView].contentSize.height - [self scrollView].bounds.size.height);
-    NSNumber *bottomWidth = NUMFLOAT([self scrollView].contentSize.width - [self scrollView].bounds.size.width);
-    NSDictionary *bottom = [NSDictionary dictionaryWithObjectsAndKeys:bottomWidth, @"x",bottomHeight, @"y",  nil];
+    CGSize svContentSize = currScrollView.contentSize;
+    CGSize svBoundSize = currScrollView.bounds.size;
+    CGFloat svBottomInsets = currScrollView.contentInset.bottom;
     
-    [self setContentOffset_:bottom withObject:nil];
+    CGFloat bottomHeight = svContentSize.height - svBoundSize.height + svBottomInsets;
+    CGFloat bottomWidth =svContentSize.width - svBoundSize.width;
+
+    CGPoint newOffset = CGPointMake(bottomWidth,bottomHeight);
+    
+    [currScrollView setContentOffset:newOffset animated:YES];
     
 }
 
