@@ -33,30 +33,19 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 	NSString * newpath;
 	id first = [args objectAtIndex:0];
 	if ([first hasPrefix:@"file://localhost/"])
-	{
-		NSURL * fileUrl = [NSURL URLWithString:first];
-		//Why not just crop? Because the url may have some things escaped that need to be unescaped.
-		newpath =[fileUrl path];
+	{   
+		newpath = first;
 	}
 	else if ([first characterAtIndex:0]!='/')
 	{
-		NSURL* url = [NSURL URLWithString:[self resourcesDirectory]];
-        newpath = [[url path] stringByAppendingPathComponent:[self resolveFile:first]];
+        newpath = [[self resourcesDirectory] stringByAppendingString:[self resolveFile:first]];
 	}
 	else 
-	{
-		newpath = [self resolveFile:first];
+	{   
+        first = [first substringFromIndex:1];
+		newpath = [[self resourcesDirectory] stringByAppendingString:[self resolveFile:first]];
 	}
-	
-	if ([args count] > 1)
-	{
-		for (int c=1;c<[args count];c++)
-		{
-			newpath = [newpath stringByAppendingPathComponent:[self resolveFile:[args objectAtIndex:c]]];
-		}
-	}
-    
-    return [newpath stringByStandardizingPath];
+    return newpath;
 }
 
 -(id)createTempFile:(id)args
