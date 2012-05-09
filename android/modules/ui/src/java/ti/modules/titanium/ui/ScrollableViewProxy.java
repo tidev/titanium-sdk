@@ -229,7 +229,7 @@ public class ScrollableViewProxy extends TiViewProxy
 			KrollDict options = new KrollDict();
 			options.put("view", currentView);
 			options.put("currentPage", currentPage);
-			options.put("currentPageAsFloat", currentPageAsFloat + currentPage);
+			options.put("currentPageAsFloat", currentPageAsFloat);
 			fireEvent(TiC.EVENT_SCROLL, options);
 		}
 	}

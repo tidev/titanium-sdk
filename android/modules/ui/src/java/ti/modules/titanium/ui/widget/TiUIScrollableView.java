@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget;
 
 import java.util.ArrayList;
+import java.lang.Math;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -103,25 +104,39 @@ public class TiUIScrollableView extends TiUIView
 					// because on creation, the scroll state is initialized to 
 					// `idle` and this handler is called.
 					isValidScroll = false;
+				} else if (scrollState == ViewPager.SCROLL_STATE_SETTLING) {
+					((ScrollableViewProxy)proxy).fireDragEnd(mCurIndex, mViews.get(mCurIndex));
+					if (shouldShowPager()) {
+						showPager();
+					}
 				}
 			}
 
 			@Override
-			public void onPageSelected(int position)
-			{
-				super.onPageSelected(position);
-				((ScrollableViewProxy)proxy).fireDragEnd(mCurIndex, mViews.get(mCurIndex));
-				if (shouldShowPager()) {
-					showPager();
-				}
-			}
-
-			@Override
-			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
+			public void onPageScrolled(int positionRoundedDown, float positionOffset, int positionOffsetPixels)
 			{
 				isValidScroll = true;
-				mCurIndex = position;
-				((ScrollableViewProxy)proxy).fireScroll(position, positionOffset, mViews.get(mCurIndex));
+
+				// When we touch and drag the view and hold it inbetween the second
+				// and third sub-view, this function will have been called with values
+				// similar to:
+				//		positionRoundedDown:	1
+				//		positionOffset:			 0.5
+				// ie, the first parameter is always rounded down; the second parameter
+				// is always just an offset between the current and next view, it does
+				// not take into account the current view.
+
+				// If we add positionRoundedDown to positionOffset, positionOffset will
+				// have the 'correct' value; ie, will be a natural number when we're on
+				// one particular view, something.5 when inbetween views, etc.
+				float positionFloat = positionOffset + positionRoundedDown;
+
+				// `positionFloat` can now be used to calculate the correct value for
+				// the current index. We add 0.5 so that positionFloat will be rounded
+				// half up; ie, if it has a value of 1.5, it will be rounded up to 2; if
+				// it has a value of 1.4, it will be rounded down to 1.
+				mCurIndex = (int) Math.floor(positionFloat + 0.5);
+				((ScrollableViewProxy)proxy).fireScroll(mCurIndex, positionFloat, mViews.get(mCurIndex));
 			}
 		});
 		return pager;
