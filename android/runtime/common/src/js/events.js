@@ -42,7 +42,7 @@ Object.defineProperty(EventEmitter.prototype, "callHandler", {
 		if (data instanceof Object) {
 			data.type = type;
 		} else if (!data) {
-			data = { type: type };
+			data = { type: type, source: this };
 		}
 		if (handler.self && (data.source == handler.self.view)) {
 			data.source = handler.self;
