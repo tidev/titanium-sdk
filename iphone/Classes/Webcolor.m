@@ -7,7 +7,7 @@
 
 #import "Webcolor.h"
 #import "TiBase.h"
-
+#import "TiUtils.h"
 
 UIColor * checkmarkColor = nil;
 NSMutableDictionary * colorLookup = nil;
@@ -54,7 +54,9 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 					   [UIColor brownColor],@"brown",
 					   [UIColor clearColor],@"transparent",
 					   [UIColor groupTableViewBackgroundColor],@"stripped",
-					   
+					   [UIColor scrollViewTexturedBackgroundColor],@"scrollview_textured",
+					   [UIColor viewFlipsideBackgroundColor],@"view_flipside",
+                       
 					   // these are also defined by the W3C HTML spec so we support them
 					   [Webcolor colorForHex:@"0ff"],@"aqua",
 					   [Webcolor colorForHex:@"f0f"],@"fuchsia",
@@ -76,6 +78,12 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 					   black,@"ff000000",
 					   nil];
 	}
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
+	if ([TiUtils isIOS5OrGreater])
+	{
+		[colorLookup setObject:[UIColor underPageBackgroundColor] forKey:@"under_page"];
+	}
+#endif
 	if ([colorName hasPrefix:@"#"]) 
 	{
 		colorName = [colorName substringFromIndex:1];
