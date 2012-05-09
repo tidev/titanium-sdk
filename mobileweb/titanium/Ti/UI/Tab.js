@@ -2,15 +2,18 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI", "Ti/UI/M
 	function(declare, View, dom, Locale, UI, MobileWeb) {
 
 	var postTitle = {
-		post: function() {
-			this._tabTitle.text = this._getTitle();
-		}
-	};
+			post: function() {
+				this._tabTitle.text = this._getTitle();
+			}
+		},
+		UISIZE = UI.SIZE;
 
 	return declare("Ti.UI.Tab", View, {
 
 		constructor: function(args) {
-			var win = this._win = args && args.window,
+			this._windows = [];
+
+			var win = args && args.window,
 				container = UI.createView({
 					layout: "vertical",
 					width: "100%",

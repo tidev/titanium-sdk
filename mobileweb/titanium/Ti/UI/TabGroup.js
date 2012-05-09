@@ -146,6 +146,7 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 
 				UI.currentTab = this._activeTab = tab;
 				tab.active = true;
+
 				if (tab._tabNavigationGroup) {
 					tab._tabNavigationGroup.navBarAtTop = this.tabsAtBottom;
 					tab._tabNavigationGroup._updateTitle();
@@ -170,15 +171,17 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 		},
 
 		_updateTabsBackground: function() {
-			var tabs = this.tabs;
-			for (var i = 0; i < tabs.length; i++) {
+			var tabs = this.tabs,
+				i = 0;
+			for (; i < tabs.length; i++) {
 				this._updateTabBackground(tabs[i]);
 			}
 		},
 
 		_updateDividers: function(){
-			var tabs = this._tabBarContainer.children;
-			for(var i = 1; i < tabs.length; i += 2) {
+			var tabs = this._tabBarContainer.children,
+				i = 1;
+			for(; i < tabs.length; i += 2) {
 				var tab = tabs[i];
 				tab.width = this.tabDividerWidth;
 				tab.backgroundColor = this.tabDividerColor;
