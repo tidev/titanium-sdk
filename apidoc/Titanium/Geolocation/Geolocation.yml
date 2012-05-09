@@ -247,6 +247,7 @@ properties:
         recommended. 
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
 
   - name: ACCURACY_HUNDRED_METERS
     summary: |
@@ -257,6 +258,7 @@ properties:
         recommended. 
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
 
   - name: ACCURACY_KILOMETER
     summary: |
@@ -267,6 +269,7 @@ properties:
         recommended. 
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
 
   - name: ACCURACY_NEAREST_TEN_METERS
     summary: |
@@ -277,6 +280,7 @@ properties:
         recommended. 
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
 
   - name: ACCURACY_THREE_KILOMETERS
     summary: |
@@ -287,6 +291,7 @@ properties:
         recommended. 
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
 
   - name: ACCURACY_HIGH
     summary: |
