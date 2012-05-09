@@ -25,8 +25,10 @@ exports.bootstrapWindow = function(Titanium) {
 
 	// A collection of windows we need to keep alive.
 	var windows = [];
-		
+	Window.prototype.lastFocusedWindow = null;
+	var addingFirstTab = true;
 	Window.prototype.isActivity = false;
+	Window.prototype.isFocus = false;
 
 	// set constants for representing states for the window
 	Window.prototype.state = {closed: 0, opening: 1, opened: 2, closing: 3};
@@ -197,9 +199,16 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 		this.currentState = this.state.opening;
-
 		rememberWindowAndAddCloseListener(this);
-		
+		this.isFocus = true;
+		for (var i = 0; i < windows.length; i++) {
+			var win = windows[i];
+			if (win.isFocus && win != this) {
+				this.lastFocusedWindow = win;
+				win.isFocus = false;
+				break;
+			}
+		}
 		
 		if (!options) {
 			options = {};
@@ -365,6 +374,15 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 		this.currentState = this.state.closing;
 
+		if (this.isFocus) {
+			this.lastFocusedWindow.isFocus = true;
+			if (!this.isActivity) {
+				this.lastFocusedWindow.window.fireEvent("focus");
+			}
+			this.isFocus = false;
+
+		}
+
 		if (this.isActivity) {
 			var self = this;
 			this.window.close(options);
@@ -375,11 +393,9 @@ exports.bootstrapWindow = function(Titanium) {
 				// make sure to remove the children otherwise when the window is opened a second time
 				// the children views wont be added again to the native view
 				this.removeChildren();
-
 				this.window.remove(this.view);
 				this.window = null;
 			}
-
 			this.currentState = this.state.closed;
 			this.fireEvent("close");
 		}
@@ -526,6 +542,18 @@ exports.bootstrapWindow = function(Titanium) {
 		var self = window;
 		window.on('addedToTab', function () {
 			rememberWindowAndAddCloseListener(self);
+			if (addingFirstTab) {
+				self.isFocus = true;
+				for (var i = 0; i < windows.length; i++) {
+					var win = windows[i];
+					if (win.isFocus && win != this) {
+						self.lastFocusedWindow = win;
+						win.isFocus = false;
+						break;
+					} 
+				}
+				addingFirstTab = false;
+			}
 		});
 
 		return window;
