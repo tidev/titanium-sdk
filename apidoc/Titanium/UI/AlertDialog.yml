@@ -57,8 +57,8 @@ events:
     properties:
       - name: cancel
         summary: |
-            On Android, indicates whether the cancel button was clicked, in which case returns 
-            `true`. 
+            On Android and Mobile Web, indicates whether the cancel button was clicked, in which 
+            case returns `true`. 
             
             On iOS, the value of the [cancel](Titanium.UI.AlertDialog.cancel) property is 
             returned, if defined, or `-1` otherwise. 
@@ -98,7 +98,7 @@ properties:
   - name: cancel
     summary: Index to define the button cancel button.
     description: |
-        On iOS, set to `-1` to disable the cancel option.
+        On iOS and Mobile Web, set to `-1` to disable the cancel option.
     type: Number
     
   - name: message

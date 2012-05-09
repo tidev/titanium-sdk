@@ -73,8 +73,8 @@ events:
             On Android, indicates whether the cancel button was clicked, in which case returns 
             `true`. 
             
-            On iOS, the value of the [cancel](Titanium.UI.AlertDialog.cancel) property is 
-            returned, if defined, or `-1` otherwise. 
+            On iOS and Mobile Web, the value of the [cancel](Titanium.UI.AlertDialog.cancel) 
+            property is returned, if defined, or `-1` otherwise. 
         type: Boolean (Android), Number (iOS)
         
       - name: destructive
