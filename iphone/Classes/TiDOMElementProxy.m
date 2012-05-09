@@ -82,27 +82,29 @@
 -(id)getElementsByTagNameNS:(id)args
 {
     ENSURE_ARG_COUNT(args, 2);
-    NSString * theURI;
-	NSString * localName;
-	ENSURE_ARG_AT_INDEX(theURI, args, 0, NSString);
-	ENSURE_ARG_AT_INDEX(localName, args, 1, NSString);
+    NSString * theURI = [args objectAtIndex:0];
+    NSString * localName = [args objectAtIndex:1];
     
-	NSError *error = nil;
+    ENSURE_STRING_OR_NIL(theURI);
+    ENSURE_STRING(localName);
+    
+    if (theURI == nil) {
+        return [self getElementsByTagName:localName];
+    }
+    
+    NSError *error = nil;
     //PARAMETER IS SPECIFIED AS LOCAL NAME
     NSString *xpath = [NSString stringWithFormat:@"self::node()/descendant::*[local-name()='%@' and namespace-uri()='%@']",localName, theURI];
 
     NSArray *nodes = [element nodesForXPath:xpath error:&error];
-	if (error==nil)
-	{
-		id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-		return [self makeNodeListProxyFromArray:nodes context:context];
-	}
-	else
-	{
-		[self throwException:[error description] subreason:nil location:CODELOCATION];
+    if (error==nil) {
+        id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+        return [self makeNodeListProxyFromArray:nodes context:context];
+    }
+    else {
+        [self throwException:[error description] subreason:nil location:CODELOCATION];
         return nil;
-	}
-	
+    }
 }
 
 
@@ -119,14 +121,19 @@
 
 -(id)getAttributeNS:(id)args
 {
-	ENSURE_ARG_COUNT(args, 2);
-    NSString * theURI;
-	NSString * localName;
-	ENSURE_ARG_AT_INDEX(theURI, args, 0, NSString);
-	ENSURE_ARG_AT_INDEX(localName, args, 1, NSString);
+    ENSURE_ARG_COUNT(args, 2);
+    NSString * theURI = [args objectAtIndex:0];
+    NSString * localName = [args objectAtIndex:1];
+    
+    ENSURE_STRING_OR_NIL(theURI);
+    ENSURE_STRING(localName);
+    
+    if (theURI == nil) {
+        return [self getAttribute:localName];
+    }
+    
     GDataXMLNode *_node = [element attributeForLocalName:localName URI:theURI];
-    if(_node != nil)
-    {
+    if(_node != nil) {
         return [_node stringValue];
     }
     return @"";
@@ -169,66 +176,71 @@
 
 -(void)setAttributeNS:(id)args
 {
-	ENSURE_ARG_COUNT(args, 3);
-	NSString *theURI;
-	NSString *name;
-	NSString *val;
+    ENSURE_ARG_COUNT(args, 3);
+    NSString *theURI = [args objectAtIndex:0];
+    NSString *name = [args objectAtIndex:1];
+    NSString *val = [args objectAtIndex:2];
+    
+    ENSURE_STRING_OR_NIL(theURI);
+    ENSURE_STRING(name);
+    ENSURE_STRING_OR_NIL(val);
 
-	ENSURE_ARG_OR_NIL_AT_INDEX(theURI, args, 0, NSString);
-	ENSURE_ARG_AT_INDEX(name, args, 1, NSString);
-	ENSURE_ARG_OR_NIL_AT_INDEX(val, args, 2, NSString);
+    NSString* prefix = [GDataXMLNode prefixForName:name];
+    
+    if (theURI == nil && prefix == nil) {
+        return [self setAttribute:[NSArray arrayWithObjects:name,val, nil]];
+    }
 	
-	NSString *error = nil;
-	NSString *suberror = nil;
+    NSString *error = nil;
+    NSString *suberror = nil;
 	
-	[self validateAttributeParameters:name withUri:theURI reason:&error subreason:&suberror];
-	if (error != nil) {
-		[self throwException:error subreason:suberror location:CODELOCATION];
-	}
-
-	NSString* prefix = [GDataXMLNode prefixForName:name];
-	NSString* localName = [GDataXMLNode localNameForName:name];
-
-	if (val == nil) {
-		val = @"";
-	}
+    [self validateAttributeParameters:name withUri:theURI reason:&error subreason:&suberror];
+    if (error != nil) {
+        [self throwException:error subreason:suberror location:CODELOCATION];
+    }
 	
-	GDataXMLNode * attributeNode = [element attributeForLocalName:[GDataXMLNode localNameForName:name] URI:theURI];
-	if (attributeNode != nil) {
-		xmlNodePtr oldNodePtr = [attributeNode XMLNode];
-		TiDOMAttrProxy* result = [TiDOMNodeProxy nodeForXMLNode:oldNodePtr];
-		if (result != nil) {
-			[result setValue:val];
-		}
-		else {
-			[attributeNode setStringValue:val];
-		}
-	}
-	else {
-		[element releaseCachedValues];
-		xmlNodePtr curNode = [element XMLNode];
+    NSString* localName = [GDataXMLNode localNameForName:name];
 
-		xmlChar *href;
-		xmlChar *pre;
-		
-		if (theURI != nil)
-			href = (xmlChar*)[theURI UTF8String];
-		else
-			href = NULL;
-		
-		if ([prefix length] > 0) {
-			pre = (xmlChar*)[prefix UTF8String];
-		} else {
-			// default namespace is represented by a nil prefix
-			pre = NULL;
-		}
-		
-		xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
-									 href, pre);
-		xmlNewNsProp(curNode, theNewNs, (xmlChar*)[localName UTF8String], (xmlChar*)[val UTF8String]);
+    if (val == nil) {
+        val = @"";
+    }
+	
+    GDataXMLNode * attributeNode = [element attributeForLocalName:[GDataXMLNode localNameForName:name] URI:theURI];
+    if (attributeNode != nil) {
+        xmlNodePtr oldNodePtr = [attributeNode XMLNode];
+        TiDOMAttrProxy* result = [TiDOMNodeProxy nodeForXMLNode:oldNodePtr];
+        if (result != nil) {
+            [result setValue:val];
+        }
+        else {
+            [attributeNode setStringValue:val];
+        }
+    }
+    else {
+        [element releaseCachedValues];
+        xmlNodePtr curNode = [element XMLNode];
 
-        
-	}
+        xmlChar *href;
+        xmlChar *pre;
+		
+        if (theURI != nil) {
+            href = (xmlChar*)[theURI UTF8String];
+        }
+        else {
+            href = NULL;
+        }
+		
+        if ([prefix length] > 0) {
+            pre = (xmlChar*)[prefix UTF8String];
+        } else {
+            // default namespace is represented by a nil prefix
+            pre = NULL;
+        }
+		
+        xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
+                                     href, pre);
+        xmlNewNsProp(curNode, theNewNs, (xmlChar*)[localName UTF8String], (xmlChar*)[val UTF8String]);
+    }
 }
 
 
@@ -261,36 +273,38 @@
 
 -(void)removeAttributeNS:(id)args
 {
-	ENSURE_ARG_COUNT(args, 2);
+    ENSURE_ARG_COUNT(args, 2);
     
-	NSString *theURI = [args objectAtIndex:0];
-	ENSURE_STRING_OR_NIL(theURI);
+    NSString *theURI = [args objectAtIndex:0];
+    ENSURE_STRING_OR_NIL(theURI);
     
-	NSString *name = [args objectAtIndex:1];
-	ENSURE_STRING_OR_NIL(name);
+    NSString *name = [args objectAtIndex:1];
+    ENSURE_STRING_OR_NIL(name);
     
-	if(theURI != nil && name != nil)
-	{
-		GDataXMLNode * attributeNode = [element attributeForLocalName:name URI:theURI];
-		if (attributeNode != nil)
-		{
-			xmlNodePtr oldNodePtr = [attributeNode XMLNode];
-			TiDOMAttrProxy* result = [TiDOMNodeProxy nodeForXMLNode:oldNodePtr];
+    if (theURI == nil) {
+        [self removeAttribute:name];
+    }
+    else if(name != nil)
+    {
+        GDataXMLNode * attributeNode = [element attributeForLocalName:name URI:theURI];
+        if (attributeNode != nil) {
+            xmlNodePtr oldNodePtr = [attributeNode XMLNode];
+            TiDOMAttrProxy* result = [TiDOMNodeProxy nodeForXMLNode:oldNodePtr];
 			
-			//Retain it here so that the node does not get freed when cached values are released
-			[attributeNode retain];
-			//Switch the flag here so that the node is freed only when the object is freed
-			[attributeNode setShouldFreeXMLNode:YES];
-			[element removeChild:attributeNode];
-			if (result != nil) {
-				[[result node]setShouldFreeXMLNode:NO];
-				[result setNode:attributeNode];
-				[result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
-			}
-			//Release now and this will free the underlying memory if result is nil
-			[attributeNode release];
-		}
-	}
+            //Retain it here so that the node does not get freed when cached values are released
+            [attributeNode retain];
+            //Switch the flag here so that the node is freed only when the object is freed
+            [attributeNode setShouldFreeXMLNode:YES];
+            [element removeChild:attributeNode];
+            if (result != nil) {
+                [[result node]setShouldFreeXMLNode:NO];
+                [result setNode:attributeNode];
+                [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
+            }
+            //Release now and this will free the underlying memory if result is nil
+            [attributeNode release];
+        }
+    }
 }
 
 
@@ -321,16 +335,18 @@
 {
     ENSURE_ARG_COUNT(args, 2);
     
-	NSString *theURI = [args objectAtIndex:0];
-	ENSURE_STRING_OR_NIL(theURI);
+    NSString *theURI = [args objectAtIndex:0];
+    ENSURE_STRING_OR_NIL(theURI);
     
-	NSString *name = [args objectAtIndex:1];
-	ENSURE_STRING_OR_NIL(name);
-    if(theURI != nil && name != nil)
-    {
+    NSString *name = [args objectAtIndex:1];
+    ENSURE_STRING_OR_NIL(name);
+    
+    if (theURI == nil) {
+        return [self getAttributeNode:name];
+    }
+    else if(name != nil) {
         GDataXMLNode * attributeNode = [element attributeForLocalName:name URI:theURI];
-        if(attributeNode != nil)
-        {
+        if(attributeNode != nil) {
             xmlNodePtr resultPtr = [attributeNode XMLNode];
             id resultNode = [TiDOMNodeProxy nodeForXMLNode:resultPtr];
             if(resultNode != nil)
