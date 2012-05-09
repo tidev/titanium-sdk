@@ -109,23 +109,20 @@ def main(args, update_platforms=False):
 		run_args = [sys.executable, mobileweb_gen, name, appid, directory]
 		run(run_args)
 
-	# copy LICENSE and README
 	if not update_platforms:
+		# copy LICENSE and README
 		for file in ['LICENSE','README']:
 			out_path = os.path.join(project_dir, file)
 			shutil.copy(os.path.join(all_dir, file), out_path)
-
-	# copy RESOURCES
-	if not update_platforms:
-		for file in ['app.js']:
-			out_path = os.path.join(resources_dir, file)
-			shutil.copy(os.path.join(all_dir, file), out_path)
-
-	# copy IMAGES
-	if not update_platforms:
+		# copy IMAGES
 		for file in ['KS_nav_ui.png', 'KS_nav_views.png']:
 			out_path = os.path.join(resources_dir, file)
 			shutil.copy(os.path.join(all_dir, file), out_path)
+
+	app_js_out = os.path.join(resources_dir, 'app.js')
+	if not update_platforms or not os.path.exists(app_js_out):
+		# copy APP.JS
+		shutil.copy(os.path.join(all_dir, 'app.js'), app_js_out)
 
 if __name__ == '__main__':
 	(options, args) = parser.parse_args()
