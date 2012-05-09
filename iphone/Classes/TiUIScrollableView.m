@@ -304,9 +304,22 @@
 // Looks a little ugly, though...
 -(void)setFrame:(CGRect)frame_
 {
+    int curChacheSize = cacheSize;
     lastPage = [self currentPage];
+    
+    CGFloat pageWidth = frame_.size.width;
+    int nextPage = floor((scrollview.contentOffset.x - pageWidth / 2) / pageWidth) + 1;
+    
+    int minCacheSize = ABS(lastPage - nextPage)*2 + 1;
+    
+    if (minCacheSize < cacheSize) {
+        minCacheSize = cacheSize;
+    }
+
+    cacheSize = minCacheSize;
     [super setFrame:frame_];
-	[self setCurrentPage_:[NSNumber numberWithInt:lastPage]];
+    cacheSize = curChacheSize;
+    [self setCurrentPage_:[NSNumber numberWithInt:lastPage]];
 }
 
 -(void)setBounds:(CGRect)bounds_
