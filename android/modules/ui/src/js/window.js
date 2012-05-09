@@ -26,7 +26,6 @@ exports.bootstrapWindow = function(Titanium) {
 	// A collection of windows we need to keep alive.
 	var windows = [];
 	Window.prototype.lastFocusedWindow = null;
-	var addingFirstTab = true;
 	Window.prototype.isActivity = false;
 	Window.prototype.isFocus = false;
 
@@ -186,6 +185,19 @@ exports.bootstrapWindow = function(Titanium) {
 			});
 		}
 	}
+	
+	// Helper method to maintain focus state of all living windows. Only one window can be focused at a time.
+	var switchFocus = function(window) {
+		window.isFocus = true;
+		for (var i = 0; i < windows.length; i++) {
+			var win = windows[i];
+			if (win.isFocus && win != window) {
+				window.lastFocusedWindow = win;
+				win.isFocus = false;
+				break;
+			}
+		}
+	}
 
 	Window.prototype.open = function(options) {
 		var self = this;
@@ -200,15 +212,7 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 		this.currentState = this.state.opening;
 		rememberWindowAndAddCloseListener(this);
-		this.isFocus = true;
-		for (var i = 0; i < windows.length; i++) {
-			var win = windows[i];
-			if (win.isFocus && win != this) {
-				this.lastFocusedWindow = win;
-				win.isFocus = false;
-				break;
-			}
-		}
+		switchFocus(this);
 		
 		if (!options) {
 			options = {};
@@ -373,11 +377,11 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 		this.currentState = this.state.closing;
-
-		if (this.isFocus) {
+		if (this.isFocus && this.lastFocusedWindow) {
 			this.lastFocusedWindow.isFocus = true;
 			if (!this.isActivity) {
 				this.lastFocusedWindow.window.fireEvent("focus");
+				this.window.fireEvent("blur");
 			}
 			this.isFocus = false;
 
@@ -540,20 +544,11 @@ exports.bootstrapWindow = function(Titanium) {
 		window._children = [];
 		window._postOpenChildren = [];
 		var self = window;
+		window.on('focus', function () {
+			switchFocus(self);
+		});
 		window.on('addedToTab', function () {
 			rememberWindowAndAddCloseListener(self);
-			if (addingFirstTab) {
-				self.isFocus = true;
-				for (var i = 0; i < windows.length; i++) {
-					var win = windows[i];
-					if (win.isFocus && win != this) {
-						self.lastFocusedWindow = win;
-						win.isFocus = false;
-						break;
-					} 
-				}
-				addingFirstTab = false;
-			}
 		});
 
 		return window;
