@@ -59,8 +59,8 @@ methods:
 
 properties:
   - name: images
-    summary: Array of images to display in the view.
-    type: [Array<String>,Array<Titanium.Blob>, Array<Titanium.Filesystem.File>, Array<CoverFlowImageType>]
+    summary: Images to display in the view.
+    type: [Array<String>, Array<Titanium.Blob>, Array<Titanium.Filesystem.File>, Array<CoverFlowImageType>]
     
   - name: selected
     summary: Index to make selected.
@@ -72,8 +72,8 @@ examples:
         Create a simple cover flow view.
         
             var view = Titanium.UI.iOS.createCoverFlowView({
-            	images:['a.png','b.png','c.png'],
-            	backgroundColor:'#000'
+            	backgroundColor:'#000',
+            	images:['a.png','b.png','c.png']
             });
             window.add(view);
 
@@ -83,8 +83,8 @@ summary: Simple object for defining a single image in a cover flow view.
 description: |
     If supplied, the `width` and `height` values must be exact values, not `'auto'`.
     
-    If the size specified is different from the size of the image, the  image is cropped and/or 
-    scaled to fit the specified size.
+    If the size specified is different to the size of the image, the image is cropped and/or scaled 
+    to fit the specified size.
 properties:
   - name: image
     summary: Image to use, as a local file URL, `Blob`, or `File`.
