@@ -129,7 +129,7 @@ description:  |
     If a color value is not valid on iOS, the default color is applied, whereas, on Android, the 
     color yellow is applied.
     
-    Besides these colors, iOS also supports the following native system background textures.
+    Besides the above mentioned colors, iOS also supports the following native system background colors.
     
     * **[COLOR_SCROLL_BACKGROUND](Titanium.UI.iOS.COLOR_SCROLL_BACKGROUND)** 
     * **[COLOR_VIEW_FLIPSIDE_BACKGROUND](Titanium.UI.iOS.COLOR_VIEW_FLIPSIDE_BACKGROUND)** 
