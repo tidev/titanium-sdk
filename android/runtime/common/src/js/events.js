@@ -69,9 +69,9 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 			}
 		}*/
 
-        if (this._hasJavaListener) {
-            this._onEventFired( type,  arguments[1] || {});
-        }
+		if (this._hasJavaListener) {
+			this._onEventFired( type,  arguments[1] || {});
+		}
 
 		if (!this._events) {
 			//kroll.log(TAG, "no events for " + type + ", not emitting");
@@ -156,7 +156,7 @@ Object.defineProperty(EventEmitter.prototype, "addListener", {
 		var listenerWrapper = {};
 		listenerWrapper.listener = listener;
 		listenerWrapper.self = view;
-        
+
 		if (!this._events[type]) {
 			// Optimize the case of one listener. Don't need the extra array object.
 			this._events[type] = listenerWrapper;
