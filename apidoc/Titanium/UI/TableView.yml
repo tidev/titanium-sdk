@@ -25,6 +25,7 @@ description: |
     
     There are two UI controls available for deleting table view rows, depending on the combination 
     of editing and moving modes enabled:
+    
     * "red icon delete" - a circular red icon is displayed on the left-hand side of a row, which 
     reveals a delete button on the right-hand side of that row when clicked.
     * "swipe delete" - without either of the table editing or moving modes enabled, a left or right 
@@ -68,38 +69,12 @@ events:
     summary: Fired when a table row is clicked by the user.
     platforms: [android, iphone, ipad, mobileweb]
     properties:
-      - name: index
-        summary: Row index.
-        type: Number
-        
-      - name: section
-        summary: Table view section object, if the clicked row is contained in a section.
-        type: Titanium.UI.TableViewSection
-        
       - name: detail
         summary: |
             Indicates whether the detail button was clicked. Only `true` if `row.hasDetail` is 
             `true` and the detail button was clicked.
         type: Boolean
         
-      - name: searchMode
-        summary: Indicates whether the table is in search mode.
-        type: Boolean
-        
-      - name: rowData
-        summary: |
-            Properties of the row.  Use this property rather than `row` to access any custom row 
-            properties.
-        type: Dictionary<Titanium.UI.TableViewRow>
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        type: Number
-        
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        type: Number
-
       - name: globalPoint
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
@@ -108,11 +83,37 @@ events:
         type: Dictionary
         deprecated:
             since: "1.8.0"
-
+        
+      - name: index
+        summary: Row index.
+        type: Number
+        
       - name: row
         summary: Table view row object.
         type: Titanium.UI.TableViewRow
 
+      - name: rowData
+        summary: |
+            Properties of the row.  Use this property rather than `row` to access any custom row 
+            properties.
+        type: Dictionary<Titanium.UI.TableViewRow>
+        
+      - name: searchMode
+        summary: Indicates whether the table is in search mode.
+        type: Boolean
+        
+      - name: section
+        summary: Table view section object, if the clicked row is contained in a section.
+        type: Titanium.UI.TableViewSection
+        
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
   - name: dblclick
     summary: Fired when the device detects a double click against the view.
     platforms: [mobileweb]
@@ -126,47 +127,21 @@ events:
         deprecated:
             since: "1.8.0"
         
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        type: Number
-        
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
 
-  - name: delete
-    summary: Fired when a table row is deleted by the user.
-    platforms: [iphone, ipad, mobileweb]
-    properties:
-      - name: index
-        summary: Row index.
-        type: Number
-        
-      - name: section
-        summary: Table view section object, if the deleted row is contained in a section.
-        type: Titanium.UI.TableViewSection
-        
-      - name: detail
-        summary: Indicates whether the delete button was clicked. Always `false` for this event.
-        type: Boolean
-        
-      - name: searchMode
-        summary: Indicates whether the table is in search mode. Always `false` for this event.
-        type: Boolean
-        
-      - name: rowData
-        summary: |
-            Properties of the row. Use this property rather than `row` to access any custom row 
-            properties.
-        type: Dictionary<Titanium.UI.TableViewRow>
-        
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        type: Number
+  - name: delete
+    summary: Fired when a table row is deleted by the user.
+    platforms: [iphone, ipad, mobileweb]
+    properties:
+      - name: detail
+        summary: Indicates whether the delete button was clicked. Always `false` for this event.
+        type: Boolean
         
       - name: globalPoint
         summary: |
@@ -176,11 +151,37 @@ events:
         type: Dictionary
         deprecated:
             since: "1.8.0"
-
+        
+      - name: index
+        summary: Row index.
+        type: Number
+        
       - name: row
         summary: Table view row object.
         type: Titanium.UI.TableViewRow
-
+      
+      - name: rowData
+        summary: |
+            Properties of the row. Use this property rather than `row` to access any custom row 
+            properties.
+        type: Dictionary<Titanium.UI.TableViewRow>
+        
+      - name: searchMode
+        summary: Indicates whether the table is in search mode. Always `false` for this event.
+        type: Boolean
+        
+      - name: section
+        summary: Table view section object, if the deleted row is contained in a section.
+        type: Titanium.UI.TableViewSection
+        
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+    
   - name: doubletap
     summary: Fired when the device detects a double tap against this view.
     platforms: [iphone, ipad, mobileweb]
@@ -193,7 +194,7 @@ events:
         type: Dictionary
         deprecated:
             since: "1.8.0"
-            
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -213,6 +214,7 @@ events:
         A `longpress` and a `longclick` can occur together.  
         
         In contrast to a `longclick`, this event returns the `x` and `y` coordinates of the touch.
+    platforms: [android, iphone, ipad]
     properties:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
@@ -221,42 +223,11 @@ events:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
-    platforms: [android, iphone, ipad]
 
   - name: move
     summary: Fired when a table row is moved by the user.
     platforms: [iphone, ipad, mobileweb]
     properties:
-      - name: index
-        summary: Row index.
-        type: Number
-        
-      - name: section
-        summary: Table view section object, if the deleted row is contained in a section.
-        type: Titanium.UI.TableViewSection
-        
-      - name: detail
-        summary: Boolean to indicate if the right area was clicked. Always `false` for this event.
-        type: Boolean
-        
-      - name: searchMode
-        summary: Boolean to indicate if the table is in search mode. Always `false` for this event.
-        type: Boolean
-        
-      - name: rowData
-        summary: |
-            Properties of the row. Use this property rather than `row` to access any custom row 
-            properties.
-        type: Dictionary<Titanium.UI.TableViewRow>
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        type: Number
-        
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        type: Number
-
       - name: globalPoint
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
@@ -265,17 +236,79 @@ events:
         type: Dictionary
         deprecated:
             since: "1.8.0"
-
+        
+      - name: detail
+        summary: Boolean to indicate if the right area was clicked. Always `false` for this event.
+        type: Boolean
+        
+      - name: index
+        summary: Row index.
+        type: Number
+        
+      - name: searchMode
+        summary: Boolean to indicate if the table is in search mode. Always `false` for this event.
+        type: Boolean
+        
+      - name: section
+        summary: Table view section object, if the deleted row is contained in a section.
+        type: Titanium.UI.TableViewSection
+      
       - name: row
         summary: Table view row object.
         type: Titanium.UI.TableViewRow
+      
+      - name: rowData
+        summary: |
+            Properties of the row. Use this property rather than `row` to access any custom row 
+            properties.
+        type: Dictionary<Titanium.UI.TableViewRow>
+        
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
 
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
   - name: scroll
     summary: Fired when the table view is scrolled.
     platforms: [android, iphone, ipad, mobileweb]
     properties:
+      - name: contentOffset
+        summary: Dictionary with `x` and `y` properties containing the content offset.
+        platforms: [iphone, ipad, mobileweb]
+        type: Point
+        
+      - name: contentSize
+        summary: |
+            Dictionary with `width` and `height` properties containing the size of the content 
+            (regardless of the display size in the case of scrolling).
+        platforms: [iphone, ipad, mobileweb]
+        type: Dictionary
+        
       - name: firstVisibleItem
         summary: Row index of the topmost visible row in the view.
+        platforms: [android, mobileweb]
+        type: Number
+        
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        platforms: [iphone, ipad]
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        
+      - name: size
+        summary: |
+            Dictionary with `width` and `height` properties containing the size of the visible 
+            table view
+        type: Dictionary
+        
+      - name: totalItemCount
+        summary: Total number of rows in the view.
         platforms: [android, mobileweb]
         type: Number
         
@@ -284,69 +317,29 @@ events:
         platforms: [android, mobileweb]
         type: Number
         
-      - name: contentOffset
-        summary: Dictionary with `x` and `y` properties containing the content offset.
-        platforms: [iphone, ipad, mobileweb]
-        type: Point
-        
-      - name: totalItemCount
-        summary: Total number of rows in the view.
-        platforms: [android, mobileweb]
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
         
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-        
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        type: Number
-
-      - name: globalPoint
-        summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        platforms: [iphone, ipad]
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        
-      - name: contentSize
-        summary: |
-            Dictionary with `width` and `height` properties containing the size of the content 
-            (regardless of the display size in the case of scrolling).
-        platforms: [iphone, ipad, mobileweb]
-        type: Dictionary
-            
-      - name: size
-        summary: |
-            Dictionary with `width` and `height` properties containing the size of the visible 
-            table view
-        type: Dictionary
         
   - name: scrollEnd
     summary: fired when the table view stops scrolling
     platforms: [android, iphone,ipad, mobileweb]
     properties:
-      - name: contentOffset
-        summary: Dictionary with `x` and `y` properties containing the content offset.
-        platforms: [iphone, ipad, mobileweb]
-        type: Point
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        type: Number
-        
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        type: Number
-        
       - name: contentSize
         summary: |
             Dictionary with `width` and `height` properties containing the size of the content 
             (regardless of the display size in the case of scrolling).
         platforms: [iphone, ipad, mobileweb]
         type: Dictionary
+        
+      - name: contentOffset
+        summary: Dictionary with `x` and `y` properties containing the content offset.
+        platforms: [iphone, ipad, mobileweb]
+        type: Point
         
       - name: globalPoint
         summary: |
@@ -362,19 +355,27 @@ events:
             Dictionary with `width` and `height` properties containing the size of the visible 
             table view.
         type: Dictionary
-
-  - name: singletap
-    platforms: [iphone, ipad, mobileweb]
-    summary: Fired when the device detects a single tap against the view.
-    properties:
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        type: Number
         
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
-
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+  - name: singletap
+    platforms: [iphone, ipad, mobileweb]
+    summary: Fired when the device detects a single tap against the view.
+    properties:
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
   - name: swipe
     summary: Fired when the device detects a swipe gesture (left or right) against the view.
     platforms: [mobileweb]
@@ -391,13 +392,13 @@ events:
         type: Dictionary
         deprecated:
             since: "1.8.0"
-
-      - name: y
-        summary: Y coordinate of the event's endpoint from the `source` view's coordinate system.
-        type: Number
         
       - name: x
         summary: X coordinate of the event's endpoint from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event's endpoint from the `source` view's coordinate system.
         type: Number
         
   - name: touchcancel
@@ -465,7 +466,7 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-
+    
   - name: twofingertap
     summary: Fired when the device detects a two-finger tap against the view.
     platforms: [iphone, ipad, mobileweb]
@@ -479,12 +480,12 @@ events:
         deprecated:
             since: "1.8.0"
         
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        type: Number
-            
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
         
   - name: dragStart
@@ -750,12 +751,11 @@ properties:
     
   - name: editable
     summary: |
-        Determines the rows' default editable setting, effective when the `editing` and/or `moveable` 
-        modes are activated.
+        Determines the rows' default editable behavior, which allows them to be deleted by the user 
+        when the table is in `editing` or `moving` mode.
     description: |
-        The [editable](Titanium.UI.TableViewRow.editable) property applies to each row, or may be 
-        inherited by its parent table, allowing it to be deleted by the user when the table is in 
-        `editing` or `moving` mode.
+        This property determines the default behavior of child rows, but may be overridden by 
+        a row's [editable](Titanium.UI.TableViewRow.editable) property.
         
         See the <Titanium.UI.TableView> description section for a full explanation of the TableView's 
         `editing` and `moving` modes.
@@ -861,12 +861,11 @@ properties:
 
   - name: moveable
     summary: |
-        Determines the default `moveable` setting for rows, effective when the `editing` and/or 
-        `moveable` modes are active.
+        Determines the rows' default moveable behavior, which allows them to be re-ordered by the 
+        user when the table is in `editing` or `moving` mode.
     description: |
-        The [moveable](Titanium.UI.TableViewRow.moveable) property applies to each row, or may be 
-        inherited from its parent table, allowing the row to be deleted by the user when the table 
-        is in `editing` or `moving` mode.
+        This property determines the default behavior of child rows, but may be overridden by a 
+        row's [moveable](Titanium.UI.TableViewRow.moveable) property.
         
         See the <Titanium.UI.TableView> description section for a full explanation of the TableView's 
         `editing` and `moving` modes.

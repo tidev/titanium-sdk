@@ -55,47 +55,69 @@ events:
     summary: Fired when a table row is clicked by the user.
     platforms: [android, iphone, ipad, mobileweb]
     properties:
-      - name: index
-        summary: Row index.
-        type: Number
-        
-      - name: section
-        summary: Table view section object, if the clicked row is contained in a section.
-        type: Titanium.UI.TableViewSection
-        
       - name: detail
         summary: |
             Indicates whether the detail button was clicked. Only `true` if `row.hasDetail` is 
             `true` and the detail button was clicked.
         type: Boolean
         
-      - name: searchMode
-        summary: Boolean to indicate if the table is in search mode.
-        type: Boolean
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        platforms: [iphone, ipad]
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
         
-      - name: rowData
-        summary: Dictionary containing the properties set on the row.
-        type: Dictionary<Titanium.UI.TableViewRow>
-        
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        type: Number
-        
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
+      - name: index
+        summary: Row index.
         type: Number
         
       - name: row
         summary: Table view row object.
         type: Titanium.UI.TableViewRow
     
+      - name: rowData
+        summary: Dictionary containing the properties set on the row.
+        type: Dictionary<Titanium.UI.TableViewRow>
+        
+      - name: searchMode
+        summary: Boolean to indicate if the table is in search mode.
+        type: Boolean
+        
+      - name: section
+        summary: Table view section object, if the clicked row is contained in a section.
+        type: Titanium.UI.TableViewSection
+        
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
   - name: touchcancel
     summary: Fired when a touch gesture is interrupted by the device.
     description: |
         Generated in various circumstances, including an incoming call to allow the UI to clean 
-        up state.
+        up state. 
+        
+        Be aware that a row touch event and a table [scroll](Titanium.UI.TableView.scroll) event 
+        cannot occur concurrently. If a table begins to scroll during a touch event, a row 
+        `touchcancel` event will be fired before the `scroll` event begins.
     platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        platforms: [iphone, ipad]
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -108,6 +130,15 @@ events:
     summary: Fired when a touch gesture is complete.
     platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        platforms: [iphone, ipad]
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -118,8 +149,21 @@ events:
         
   - name: touchstart
     summary: Fired as soon as the device detects a touch gesture against this view.
+    description: |
+        Be aware that a row touch event and a table [scroll](Titanium.UI.TableView.scroll) event 
+        cannot occur concurrently. If a table begins to scroll during a touch event, a row 
+        `touchcancel` event will be fired before the `scroll` event begins.
     platforms: [iphone, ipad, mobileweb]
     properties:
+      - name: globalPoint
+        summary: |
+            Coordinates `x` and `y` describing the location of the event in terms of screen 
+            coordinates.
+        platforms: [iphone, ipad]
+        type: Dictionary
+        deprecated:
+            since: "1.8.0"
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -154,18 +198,17 @@ properties:
     
   - name: editable
     summary: |
-        Determines whether this row may be deleted by the user when the table's `editing` and/or 
-        `moving` modes are active.
+        Determines the rows' editable behavior, which allows them to be deleted by the user when the 
+        table is in `editing` or `moving` mode.
     description: |
-        This `editable` property may be inherited from its parent table's 
-        [editable](Titanium.UI.TableView.editable) property.
+        If this property is not explicitly set, it will return `undefined` and the row's editable 
+        behavior will be determined by its parent table's [editable](Titanium.UI.TableView.editable) 
+        property.
         
         See the <Titanium.UI.TableView> description section for a full explanation of the TableView's 
         row `editing` and `moving` modes.
     type: Boolean
-    default: |
-        Depends on `editing` and `moving` mode, and inherited 
-        [editable](Titanium.UI.TableView.editable) value.
+    default: undefined
     platforms: [iphone, ipad]
     
   - name: font
@@ -227,18 +270,17 @@ properties:
 
   - name: moveable
     summary: |
-        Determines whether this row may be moved by the user when the table's `editing` and/or 
-        `moving` modes are active.
+        Determines the rows' moveable behavior, which allows them to be re-ordered by the user when 
+        the table is in `editing` or `moving` mode.
     description: |
-        This `moveable` property may be inherited from its parent table's 
-        [moveable](Titanium.UI.TableView.moveable) property.
+        If this property is not explicitly set, it will return `undefined` and the row's moveable 
+        behavior will be determined by its parent table's [moveable](Titanium.UI.TableView.moveable) 
+        property.
         
         See the <Titanium.UI.TableView> description section for a full explanation of the TableView's 
         row `editing` and `moving` modes.
     type: Boolean
-    default: |
-        Depends on `editing` and `moving` mode, and inherited 
-        [editable](Titanium.UI.TableView.editable) value.
+    default: undefined
     platforms: [iphone, ipad]
 
   - name: rightImage
