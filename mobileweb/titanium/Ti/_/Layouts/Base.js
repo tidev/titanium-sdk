@@ -33,7 +33,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/lang", "Ti/U
 				results,
 				pixelUnits = "px";
 				
-			node.center || animation.center && (center = {});
+			(node.center || animation.center) && (center = {});
 			if (center) {
 				center.x = val(animation.center && animation.center.x, node.center && node.center.x);
 				center.y = val(animation.center && animation.center.y, node.center && node.center.y);
@@ -48,7 +48,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/lang", "Ti/U
 				top: {}
 			});
 			
-			this._measureNode({
+			this._measureNode(node, {
 				left: val(animation.left,node.left),
 				right: val(animation.right,node.right),
 				top: val(animation.top,node.top),

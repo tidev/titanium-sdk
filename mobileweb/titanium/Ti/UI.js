@@ -80,10 +80,12 @@ define(
 			coefficients = container._layoutCoefficients; 
 		coefficients.width.x1 = 1;
 		coefficients.height.x1 = 1;
+		container._measuredTop = 0;
+		container._measuredLeft = 0;
 		node.id = "TiUIContainer";
 		setStyle(node, "overflow", "hidden");
 		body.appendChild(node);
-		container.addEventListener("postlayout", function(){
+		container.addEventListener("postlayout", function() {
 			setTimeout(function(){
 				setStyle(splashScreen,{
 					position: "absolute",
@@ -228,8 +230,11 @@ define(
 				if (layoutRootNode) {
 					var container = self._container,
 						props = container.properties.__values__,
-						width = props.width = global.innerWidth,
-						height = props.height = global.innerHeight;
+						width = container._measuredWidth = props.width = global.innerWidth,
+						height = container._measuredHeight = props.height = global.innerHeight;
+					container._measuredSandboxWidth = width;
+					container._measuredSandboxHeight = height;
+					container.fireEvent("postlayout");
 					setStyle(container.domNode, {
 						width: width + "px",
 						height: height + "px"
@@ -238,7 +243,7 @@ define(
 				}
 				for (var i in rootNodesToLayout) {
 					node = rootNodesToLayout[i];
-					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node._parent._layout._getWidth(node) === Ti.UI.SIZE, node._parent._layout._getHeight(node) === Ti.UI.SIZE);
+					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node._parent._layout._getWidth(node, node.width) === Ti.UI.SIZE, node._parent._layout._getHeight(node, node.height) === Ti.UI.SIZE);
 				}
 				
 				has("ti-instrumentation") && instrumentation.stopTest(this._layoutInstrumentationTest, 

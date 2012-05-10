@@ -36,7 +36,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				} else {
 					
 					if (child._markedForLayout) {
-						((child._preLayout && child._preLayout(width, height, isWidthSize, isHeightSize)) || child._needsMeasuring) && measureNode(child, child._layoutCoefficients, this);
+						((child._preLayout && child._preLayout(width, height, isWidthSize, isHeightSize)) || child._needsMeasuring) && measureNode(child, child, child._layoutCoefficients, this);
 									
 						layoutCoefficients = child._layoutCoefficients;
 						widthLayoutCoefficients = layoutCoefficients.width;
@@ -185,16 +185,15 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			return this._computedSize = computedSize;
 		},
 		
-		_getWidth: function(node) {
+		_getWidth: function(node, width) {
 			
-			// Ge the width or default width, depending on which one is needed
-			var width = node.width;
+			// Get the width or default width, depending on which one is needed
 			!isDef(width) && (width = node._defaultWidth);
 			
 			// Check if the width is INHERIT, and if so fetch the inherited width
 			if (width === UI.INHERIT) {
 				if (node._parent._parent) {
-					return node._parent._parent._layout._getWidth(node._parent) === UI.SIZE ? UI.SIZE : UI.FILL;
+					return node._parent._parent._layout._getWidth(node._parent, node._parent.width) === UI.SIZE ? UI.SIZE : UI.FILL;
 				}
 				// This is the root level content container, which we know has a width of FILL
 				return UI.FILL;
@@ -202,15 +201,15 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			return width;
 		},
 		
-		_getHeight: function(node) {
-			// Ge the height or default height, depending on which one is needed
-			var height = node.height;
+		_getHeight: function(node, height) {
+			
+			// Get the height or default height, depending on which one is needed
 			!isDef(height) && (isDef(node.top) + isDef(node.center && node.center.y) + isDef(node.bottom) < 2) && (height = node._defaultHeight);
 			
 			// Check if the width is INHERIT, and if so fetch the inherited width
 			if (height === UI.INHERIT) {
 				if (node._parent._parent) {
-					return node._parent._parent._layout._getHeight(node._parent) === UI.SIZE ? UI.SIZE : UI.FILL;
+					return node._parent._parent._layout._getHeight(node._parent, node._parent.height) === UI.SIZE ? UI.SIZE : UI.FILL;
 				}
 				// This is the root level content container, which we know has a width of FILL
 				return UI.FILL;
@@ -246,7 +245,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			}
 		},
 		
-		_measureNode: function(node, layoutCoefficients, self) {
+		_measureNode: function(node, layoutProperties, layoutCoefficients, self) {
 			
 			node._needsMeasuring = false;
 			
@@ -254,31 +253,31 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			var getValueType = self.getValueType,
 				computeValue = self.computeValue,
 			
-				width = self._getWidth(node),
+				width = self._getWidth(node, layoutProperties.width),
 				widthType = getValueType(width),
 				widthValue = computeValue(width, widthType),
 				
-				height = self._getHeight(node),
+				height = self._getHeight(node, layoutProperties.height),
 				heightType = getValueType(height),
 				heightValue = computeValue(height, heightType),
 				
-				left = node.left,
+				left = layoutProperties.left,
 				leftType = getValueType(left),
 				leftValue = computeValue(left, leftType),
 				
-				right = node.right,
+				right = layoutProperties.right,
 				rightType = getValueType(right),
 				rightValue = computeValue(right, rightType),
 				
-				top = node.top,
+				top = layoutProperties.top,
 				topType = getValueType(top),
 				topValue = computeValue(top, topType),
 				
-				centerY = node.center && node.center.y,
+				centerY = layoutProperties.center && layoutProperties.center.y,
 				centerYType = getValueType(centerY),
 				centerYValue = computeValue(centerY, centerYType),
 				
-				bottom = node.bottom,
+				bottom = layoutProperties.bottom,
 				bottomType = getValueType(bottom),
 				bottomValue = computeValue(bottom, bottomType),
 				
