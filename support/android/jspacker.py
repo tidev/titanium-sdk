@@ -2,7 +2,6 @@
 
 import run
 import sys, string, os
-from base64 import b64encode
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 titanium_prep = os.path.abspath(os.path.join(template_dir,'titanium_prep.jar'))
@@ -18,6 +17,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.lang.reflect.Method;
 import org.appcelerator.kroll.util.KrollAssetHelper;
+import org.appcelerator.kroll.common.Log;
 
 public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 {
@@ -48,6 +48,7 @@ ${init_assets}
       Method method = clazz.getMethod("filterDataInRange", new Class[] {data.getClass(), int.class, int.class});
       return (byte[])method.invoke(clazz, new Object[] { data, offset, length });
     } catch (Exception e) {
+      Log.e("AssetCryptImpl", "Unable to load asset data.", e);
     }
     return new byte[0];
   }
