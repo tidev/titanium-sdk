@@ -84,22 +84,26 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				this._fireScrollEvent(e.x,e.y);
 			}));
 			this.domNode.addEventListener("mousewheel",function(e) {
+				
+				// Start the scroll bar
 				self._startScrollBars({
 					y: contentContainer.domNode.scrollTop / (getContentHeight() - self._measuredHeight)
 				},
 				{
 					y: contentContainer._measuredHeight / (getContentHeight())
 				});
+				
+				// Set the scroll position
+				contentContainer.domNode.scrollLeft -= e.wheelDeltaX;
+				contentContainer.domNode.scrollTop -= e.wheelDeltaY;
+				
+				// Immediately update the position
+				self._updateScrollBars({
+					y: (contentContainer.domNode.scrollTop - e.wheelDeltaY) / (getContentHeight() - self._measuredHeight)
+				});
 				setTimeout(function(){
-					contentContainer.domNode.scrollLeft -= e.wheelDeltaX;
-					contentContainer.domNode.scrollTop -= e.wheelDeltaY;
-					self._updateScrollBars({
-						y: (contentContainer.domNode.scrollTop - e.wheelDeltaY) / (getContentHeight() - self._measuredHeight)
-					});
-					setTimeout(function(){
-						self._endScrollBars();
-					},10);
-				},10);
+					self._endScrollBars();
+				},200);
 			});
 			
 			require.on(contentContainer.domNode,"scroll",lang.hitch(this,function(e){
