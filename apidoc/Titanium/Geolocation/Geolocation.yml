@@ -67,8 +67,8 @@ description: |
         undemanding location applications without requiring developers to
         write a lot of Android-specific code. To use simple mode:
 
-        1.   Leave the <Titanium.Geolocation.Android.manualMode> flag set to `false` (which is
-             its default value).
+        1.   Leave the <Titanium.Geolocation.Android.manualMode> flag set to `false` (the 
+             default value).
         
         2.   Set the [accuracy](Titanium.Geolocation.accuracy) property to 
              either [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH) or 
@@ -81,9 +81,6 @@ description: |
         Manual mode is used when the <Titanium.Geolocation.Android.manualMode> flag is set
         to `true`. In manual mode, the `accuracy` property is not used, and all
         configuration is done through the <Titanium.Geolocation.Android> module.
-
-        Note that *simple mode* uses the same basic mechanism as manual mode, except 
-        the platform handles enabling and disabling location providers and filtering location updates.
 
     *   *Legacy mode* is the mode that existed prior to 2.0. Legacy mode is 
         used when the `manualMode` flag is `false` and the `accuracy` property is 
