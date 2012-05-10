@@ -4,15 +4,12 @@ summary: The AdView is a view for display Apple iAds.
 description: The Ad view is created by the <Titanium.UI.iOS.createAdView> method.
 extends: Titanium.UI.View
 since: "1.4"
-platforms: ["iphone", "ipad"]
+platforms: [iphone, ipad]
 
 events:
   - name: action
-    summary: called when a banner action is performed.
+    summary: Fired when a banner action is performed.
     properties:
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        
       - name: globalPoint
         summary: Properties x and y describing the point of the event in screen coordinates.
         platforms: [iphone, ipad]
@@ -21,45 +18,47 @@ events:
             
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
         
   - name: error
-    summary: called when a banner could not be loaded.
+    summary: Fired when a banner could not be loaded.
     properties:
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        
-      - name: x
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        
-      - name: message
-        summary: the error message.
-        
-      - name: globalPoint
-        summary: |
-            a dictionary with properties x and y describing the point of the event in screen 
-            coordinates.
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
-            
-  - name: load
-    summary: called when a banner is loaded and displayed.
-    properties:
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        
       - name: globalPoint
         summary: Properties x and y describing the point of the event in screen coordinates.
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
-            
+        
+      - name: message
+        summary: Error message.
+        
+      - name: x
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+    
+  - name: load
+    summary: Fired when a banner is loaded and displayed.
+    properties:
+      - name: globalPoint
+        summary: Properties x and y describing the point of the event in screen coordinates.
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
+        
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
 
 methods:
   - name: cancelAction
-    summary: |
+    summary: Cancel a banner to uncover the user interface.
+    description: |
         A banner view action can cover your application's user interface. However, your application 
         continues to run, and receives events normally. If your application receives an event that 
         requires the user's attention, it can programmatically cancel the action and uncover its 
@@ -68,7 +67,7 @@ methods:
 
 properties:
   - name: adSize
-    summary: The size of the advertisement when minimized.
+    summary: Size of the advertisement when minimized.
     description: |
         Apple only allows setting ads as specific sizes, meaning that traditional view sizing does 
         not affect ads. Ads always display in full-screen mode when a user clicks on them. 
