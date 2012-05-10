@@ -168,10 +168,28 @@ properties:
     
   - name: model
     summary: The model of the device.
+    description: |
+        An identifier of the hardware model of the device. For example, `HTC Sensation Z710e`.
+        
+        Virtual devices will also return a value. For example, `sdk` for the standard Android SDK 
+        and `google_sdk` for the enhanced Android Google APIs SDK running in an emulator, and 
+        `Simulator` for iOS running in a simulator.
+        
+        Mobile Web will return the browser Agent information, such as 
+        `Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0` for 
+        Firefox 12 running on Ubuntu.
     type: String
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+    examples:
+      - title: Testing for a Virtual Device
+        example: |
+            Determine whether the application is running on a virtual device.
+                if (Ti.Platform.model === 'Simulator' || Ti.Platform.model.indexOf('sdk') !== -1 ){
+                  alert('Accelerometer does not work on a virtual device');
+                } else {
+                  // Add Accelerometer event listener
+                }
   - name: name
     summary: The name of the platform.
     type: String
