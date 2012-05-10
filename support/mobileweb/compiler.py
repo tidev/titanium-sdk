@@ -286,6 +286,7 @@ class Compiler(object):
 		ti_js.write(HEADER + '\n')
 		
 		# 1) read in the config.js and fill in the template
+		enableInstrumentation = tiapp_xml['mobileweb']['instrumentation'] == 'true' if 'instrumentation' in tiapp_xml['mobileweb'] else False
 		ti_js.write(AppcTemplate(codecs.open(os.path.join(self.sdk_src_path, 'config.js'), 'r', 'utf-8').read(), input_encoding='utf-8', output_encoding='utf-8').render(
 			app_analytics         = tiapp_xml['analytics'],
 			app_copyright         = tiapp_xml['copyright'],
@@ -309,13 +310,18 @@ class Compiler(object):
 			ti_version            = sdk_version,
 			has_analytics_use_xhr = tiapp_xml['mobileweb']['analytics']['use-xhr'],
 			has_show_errors       = 'false' if deploytype == 'production' or tiapp_xml['mobileweb']['disable-error-screen'] == 'true' else 'true',
+			has_instrumentation   = 'true' if enableInstrumentation else 'false',
 			jsQuoteEscapeFilter   = lambda str: str.replace("\\\"","\\\\\\\"")
 		))
 		
-		# 2) copy in the loader
+		# 2) copy in instrumentation if it's enabled
+		if enableInstrumentation:
+			ti_js.write(codecs.open(os.path.join(self.sdk_src_path, 'instrumentation.js'), 'r', 'utf-8').read())
+		
+		# 3) copy in the loader
 		ti_js.write(codecs.open(os.path.join(self.sdk_src_path, 'loader.js'), 'r', 'utf-8').read())
 		
-		# 3) cache the dependencies
+		# 4) cache the dependencies
 		ti_js.write('require.cache({\n');
 		first = True
 		for x in self.modules_to_cache:
