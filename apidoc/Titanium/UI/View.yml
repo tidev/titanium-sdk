@@ -877,7 +877,7 @@ properties:
             </tr>
             <tr>
             <td>`center.y` and `bottom` specified</td><td>Child positioned with center at 
-            `center.y` and bottom edge `bottom` units from parent's bottom. height is determined 
+            `center.y` and bottom edge `bottom` units from parent's bottom. Height is determined 
             implicitly.</td>
             </tr>
             <tr>
@@ -889,7 +889,7 @@ properties:
             units from parent's bottom, and uses the default height calculation for the view type.</td>
             </tr>
             <tr>
-            <td>`height`, `top`, `center.y` and `bottom` unspecified</td><td>Child
+            <td>`height`, `top`, `center.y`, and `bottom` unspecified</td><td>Child
             centered vertically in the parent and uses the default height calculation 
             for the child view type.</td>
             </tr>
