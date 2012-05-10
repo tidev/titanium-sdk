@@ -17,7 +17,7 @@
 	{
 		NSString *mainBundlePath = [[NSBundle mainBundle] bundlePath];
 		NSString *plistPath = [mainBundlePath stringByAppendingPathComponent:@"stylesheet.plist"];
-		NSLog(@"[DEBUG] reading stylesheet from: %@",plistPath);
+		DebugLog(@"[DEBUG] reading stylesheet from: %@",plistPath);
 		NSDictionary *dictionary = [[NSDictionary alloc] initWithContentsOfFile:plistPath];
 		classesDict = [[dictionary objectForKey:@"classes"] retain];
 		classesDictByDensity = [[dictionary objectForKey:@"classes_density"] retain];

@@ -830,7 +830,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	else 
 	{
 		RELEASE_TO_NIL(editor);
-		NSLog(@"[ERROR] unsupported video media. %@",[media class]);
+		NSLog(@"[ERROR] Unsupported video media: %@",[media class]);
 		return;
 	}
 	
@@ -1253,13 +1253,13 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(void)setDefaultAudioSessionMode:(NSNumber*)mode
 {
-	NSLog(@"[WARN] Deprecated; use 'audioSessionMode'");
+	DebugLog(@"[WARN] Deprecated; use 'audioSessionMode'");
     [[TiMediaAudioSession sharedSession] setSessionMode:[mode unsignedIntValue]];
 } 
 
 -(NSNumber*)defaultAudioSessionMode
 {
-	NSLog(@"[WARN] Deprecated; use 'audioSessionMode'");	
+	DebugLog(@"[WARN] Deprecated; use 'audioSessionMode'");	
     return [NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]];
 }
 

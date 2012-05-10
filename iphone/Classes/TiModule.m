@@ -149,7 +149,7 @@
 		resultClass = NSClassFromString(className);
 		if (resultClass==nil)
 		{
-			NSLog(@"[WARN] attempted to load: %@",className);
+			DebugLog(@"[WARN] attempted to load: %@",className);
 			@throw [NSException exceptionWithName:@"org.appcelerator.module" 
 										   reason:[NSString stringWithFormat:@"invalid method (%@) passed to %@",name,[self class]] 
 										 userInfo:nil];

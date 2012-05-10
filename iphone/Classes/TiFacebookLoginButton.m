@@ -63,12 +63,12 @@
 	if ([style isEqualToString:@"wide"]) 
 	{
 		buttonStyle = FB_LOGIN_BUTTON_WIDE;
-		NSLog(@"[WARN] Styling Options 'wide' will be DEPRECATED in 1.8.0 in favour of Ti.Facebook.BUTTON_STYLE_WIDE: REMOVED in 1.9) ");
+		DebugLog(@"[WARN] Styling Options 'wide' will be DEPRECATED in 1.8.0 in favour of Ti.Facebook.BUTTON_STYLE_WIDE: REMOVED in 1.9) ");
 		
 	}
 	if([style isEqualToString:@"normal"]) {
 		buttonStyle = FB_LOGIN_BUTTON_NORMAL;
-		NSLog(@"[WARN] Styling Options 'normal' will be DEPRECATED in 1.8.0 in favour of Ti.Facebook.BUTTON_STYLE_NORMAL: REMOVED in 1.9) ");
+		DebugLog(@"[WARN] Styling Options 'normal' will be DEPRECATED in 1.8.0 in favour of Ti.Facebook.BUTTON_STYLE_NORMAL: REMOVED in 1.9) ");
 	}
 	
 	

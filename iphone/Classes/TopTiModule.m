@@ -53,9 +53,7 @@
 		// only allow includes that are local to our execution context url
 		// for security, refuse to load non-compiled in Javascript code
 		NSURL *url = [TiUtils toURL:file relativeToURL:rootURL];
-#ifdef DEBUG
-		NSLog(@"[DEBUG] include url: %@",[url absoluteString]);
-#endif
+		DebugLog(@"[DEBUG] include url: %@",[url absoluteString]);
 		[context setCurrentURL:url];
 		[context evalFile:[url absoluteString]];
 	}
@@ -69,7 +67,7 @@
 {
 	for (id file in jsfiles)
 	{
-		NSLog(@"[DEBUG] absolute url: %@", file);
+		DebugLog(@"[DEBUG] absolute url: %@", file);
 
 		NSURL *url = nil;
 		if (![file hasPrefix:@"file:"]) {
@@ -77,7 +75,7 @@
 		} else {
 			url = [[NSURL fileURLWithPath:file] standardizedURL];
 		}
-		NSLog(@"[DEBUG] include absolute url: %@", [url absoluteString]);
+		DebugLog(@"[DEBUG] include absolute url: %@", [url absoluteString]);
 		[[self executionContext] evalFile:[url absoluteString]];
 	}
 }

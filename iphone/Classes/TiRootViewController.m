@@ -622,7 +622,7 @@
         if ([thisWindow closing] == NO) {
             if([thisWindow modalFlagValue] == YES){
                 isInsideModalWindow = YES;
-                NSLog(@"[WARN] Trying to open a new window from within a Modal Window is unsupported.");
+                DebugLog(@"[WARN] Trying to open a new window from within a Modal Window is unsupported.");
                 break;
             }
             
@@ -1214,7 +1214,7 @@
 	WARN_IF_BACKGROUND_THREAD_OBJ
 	if (blurredProxy != keyboardFocusedProxy)
 	{
-		NSLog(@"[WARN] Blurred for %@<%X>, despite %@<%X> being the focus.",blurredProxy,blurredProxy,keyboardFocusedProxy,keyboardFocusedProxy);
+		DeveloperLog(@"[WARN] Blurred for %@<%X>, despite %@<%X> being the focus.",blurredProxy,blurredProxy,keyboardFocusedProxy,keyboardFocusedProxy);
 		return;
 	}
 	RELEASE_TO_NIL_AUTORELEASE(keyboardFocusedProxy);
@@ -1227,7 +1227,7 @@
 
 	if(doomedView != accessoryView)
 	{
-		NSLog(@"[WARN] Trying to blur out %@, but %@ is the one with focus.",doomedView,accessoryView);
+		DeveloperLog(@"[WARN] Trying to blur out %@, but %@ is the one with focus.",doomedView,accessoryView);
 		return;
 	}
 
@@ -1258,7 +1258,7 @@
 	
 	if(leavingAccessoryView != nil)
 	{
-		NSLog(@"[WARN] Trying to blur out %@, but %@ is already leaving focus.",accessoryView,leavingAccessoryView);
+		DeveloperLog(@"[WARN] Trying to blur out %@, but %@ is already leaving focus.",accessoryView,leavingAccessoryView);
         [leavingAccessoryView removeFromSuperview];
 		RELEASE_TO_NIL_AUTORELEASE(leavingAccessoryView);
 	}
@@ -1279,12 +1279,12 @@
 	WARN_IF_BACKGROUND_THREAD_OBJ
 	if (visibleProxy == keyboardFocusedProxy)
 	{
-		NSLog(@"[WARN] Focused for %@<%X>, despite it already being the focus.",keyboardFocusedProxy,keyboardFocusedProxy);
+		DeveloperLog(@"[WARN] Focused for %@<%X>, despite it already being the focus.",keyboardFocusedProxy,keyboardFocusedProxy);
 		return;
 	}
 	if (nil != keyboardFocusedProxy)
 	{
-		NSLog(@"[WARN] Focused for %@<%X>, despite %@<%X> already being the focus.",visibleProxy,visibleProxy,keyboardFocusedProxy,keyboardFocusedProxy);
+		DeveloperLog(@"[WARN] Focused for %@<%X>, despite %@<%X> already being the focus.",visibleProxy,visibleProxy,keyboardFocusedProxy,keyboardFocusedProxy);
 		[self didKeyboardBlurOnProxy:keyboardFocusedProxy];
 	}
 	
@@ -1303,7 +1303,7 @@
 	{
 		if(enteringAccessoryView != nil)
 		{
-			NSLog(@"[WARN] Moving in view %@, despite %@ already in line to move in.",newView,enteringAccessoryView);
+			DebugLog(@"[WARN] Moving in view %@, despite %@ already in line to move in.",newView,enteringAccessoryView);
 			[enteringAccessoryView release];
 		}
 		

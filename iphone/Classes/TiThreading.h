@@ -66,13 +66,13 @@ return [self _sync_##method:nil];\
 #define WARN_IF_BACKGROUND_THREAD	\
 if(![NSThread isMainThread])	\
 {	\
-	NSLog(@"[WARN] %@ not running on the main thread.",CODELOCATION);	\
+	DeveloperLog(@"[WARN] %@ not running on the main thread.",CODELOCATION);	\
 }	\
 
 #define WARN_IF_BACKGROUND_THREAD_OBJ	\
 if(![NSThread isMainThread])	\
 {	\
-	NSLog(@"[WARN] %@%@ was not running on the main thread.",NSStringFromClass([self class]),CODELOCATION);	\
+	DeveloperLog(@"[WARN] %@%@ was not running on the main thread.",NSStringFromClass([self class]),CODELOCATION);	\
 }	\
 
 #else

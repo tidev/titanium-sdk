@@ -202,7 +202,7 @@
 	else
 	{
 		pthread_rwlock_unlock(&childrenLock);
-		NSLog(@"[WARN] called remove for %@ on %@, but %@ isn't a child or has already been removed",arg,self,arg);
+		DebugLog(@"[WARN] called remove for %@ on %@, but %@ isn't a child or has already been removed",arg,self,arg);
 		return;
 	}
 
@@ -308,7 +308,7 @@ if (ENFORCE_BATCH_UPDATE) { \
     }\
     else {\
         if (!TiDimensionIsUndefined(result)) {\
-            NSLog(@"[WARN] Invalid value %@ specified for property %@",[TiUtils stringValue:value],@#layoutName); \
+            DebugLog(@"[WARN] Invalid value %@ specified for property %@",[TiUtils stringValue:value],@#layoutName); \
         } \
         layoutProperties.layoutName = TiDimensionUndefined;\
     }\
@@ -1362,7 +1362,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	}
 	else
 	{
-		NSLog(@"[WARN] No TiView for Proxy: %@, couldn't find class: %@",self,proxyName);
+		DeveloperLog(@"[WARN] No TiView for Proxy: %@, couldn't find class: %@",self,proxyName);
 	}
 	return [[TiUIView alloc] initWithFrame:[self appFrame]];
 }
@@ -2037,7 +2037,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 {
 	if (newSuperview==view)
 	{
-		NSLog(@"[ERROR] invalid call to insertIntoView, new super view is same as myself");
+		DebugLog(@"[ERROR] invalid call to insertIntoView, new super view is same as myself");
 		return;
 	}
 	ApplyConstraintToViewWithBounds(&layoutProperties, [self view], bounds);
@@ -2521,10 +2521,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	[child setSandboxBounds:bounds];
 	if ([[child view] animating])
 	{
-#ifdef DEBUG
-	// changing the layout while animating is bad, ignore for now
-		NSLog(@"[DEBUG] ignoring new layout while animating in layout Child..");
-#endif
+        // changing the layout while animating is bad, ignore for now
+		DebugLog(@"[DEBUG] ignoring new layout while animating in layout Child..");
 	}
 	else
 	{

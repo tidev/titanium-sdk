@@ -611,14 +611,10 @@ DEFINE_EXCEPTIONS
 	
 	if ([self.proxy isKindOfClass:[TiViewProxy class]] && [(TiViewProxy*)self.proxy viewReady]==NO)
 	{
-#ifdef DEBUG
-		NSLog(@"[DEBUG] animated called and we're not ready ... (will try again) %@",self);
-#endif		
+		DebugLog(@"[DEBUG] animated called and we're not ready ... (will try again) %@",self);
 		if (animationDelayGuard++ > 5)
 		{
-#ifdef DEBUG
-			NSLog(@"[DEBUG] animation guard triggered, we exceeded the timeout on waiting for view to become ready");
-#endif		
+			DebugLog(@"[DEBUG] animation guard triggered, we exceeded the timeout on waiting for view to become ready");
 			return;
 		}
 		[self performSelector:@selector(animate:) withObject:newAnimation afterDelay:0.01];
@@ -636,7 +632,7 @@ DEFINE_EXCEPTIONS
 	}	
 	else
 	{
-		NSLog(@"[WARN] animate called with %@ but couldn't make an animation object",newAnimation);
+		DebugLog(@"[WARN] animate called with %@ but couldn't make an animation object",newAnimation);
 	}
 }
 
