@@ -214,7 +214,7 @@ events:
         A `longpress` and a `longclick` can occur together.  
         
         In contrast to a `longclick`, this event returns the `x` and `y` coordinates of the touch.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
     properties:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
@@ -406,6 +406,14 @@ events:
     description: |
         Generated in various circumstances, including an incoming call to allow the UI to clean 
         up state.
+        
+        On Android and iOS, be aware that a row or table touch event and a table 
+        [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins 
+        to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
+        before the `scroll` event begins.
+        
+        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        will fire immediately following the scroll.
     platforms: [iphone, ipad, mobileweb]
     properties:
       - name: globalPoint
@@ -427,6 +435,14 @@ events:
         
   - name: touchend
     summary: Fired when a touch gesture is complete.
+    description: |
+        On Android and iOS, be aware that a row or table touch event and a table 
+        [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins 
+        to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
+        before the `scroll` event begins.
+        
+        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        will fire immediately following the scroll.
     platforms: [iphone, ipad, mobileweb]
     properties:
       - name: globalPoint
@@ -448,7 +464,14 @@ events:
         
   - name: touchstart
     summary: Fired as soon as the device detects a touch gesture against this view.
-    platforms: [iphone, ipad, mobileweb]
+    description: |
+        On Android and iOS, be aware that a row or table touch event and a table 
+        [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins 
+        to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
+        before the `scroll` event begins.
+        
+        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        will fire immediately following the scroll.    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: globalPoint
         summary: |
@@ -521,12 +544,11 @@ methods:
         parameter.
     parameters:
       - name: row
-        summary: If appending a single row, this should contain only the row being appended.
-            If appending multiple rows, this should be an array of the rows being appended.
+        summary: Row to add to the table.
         type: [Titanium.UI.TableViewRow, Dictionary<Titanium.UI.TableViewRow>, Array<Titanium.UI.TableViewRow>, Array<Dictionary<Titanium.UI.TableViewRow>>]
         
       - name: properties
-        summary: Animation properties, only used on iOS.
+        summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
     
@@ -540,7 +562,7 @@ methods:
         type: Number
         
       - name: properties
-        summary: Animation properties. Only used on iOS.
+        summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
     
@@ -571,7 +593,7 @@ methods:
         type: [Titanium.UI.TableViewRow, Dictionary<Titanium.UI.TableViewRow>]
         
       - name: properties
-        summary: Animation properties. Only used on iOS.
+        summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
         
@@ -594,7 +616,7 @@ methods:
         type: [Titanium.UI.TableViewRow, Dictionary<Titanium.UI.TableViewRow>]
         
       - name: properties
-        summary: Animation properties. Only used on iOS.
+        summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
     
@@ -645,7 +667,7 @@ methods:
         type: Number
         
       - name: properties
-        summary: Animation properties. Only used on iOS. 
+        summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
     
@@ -691,7 +713,7 @@ methods:
         type: [ Array<Titanium.UI.TableViewRow>, Array<Dictionary<Titanium.UI.TableViewRow>>, Array<Titanium.UI.TableViewSection> ]
         
       - name: properties
-        summary: Animation properties. Only used on iOS.
+        summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
 
   - name: setHeaderPullView

@@ -104,9 +104,13 @@ events:
         Generated in various circumstances, including an incoming call to allow the UI to clean 
         up state. 
         
-        Be aware that a row touch event and a table [scroll](Titanium.UI.TableView.scroll) event 
-        cannot occur concurrently. If a table begins to scroll during a touch event, a row 
-        `touchcancel` event will be fired before the `scroll` event begins.
+        On Android and iOS, be aware that a row or table touch event and a table 
+        [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins 
+        to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
+        before the `scroll` event begins.
+        
+        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        will fire immediately following the scroll.
     platforms: [iphone, ipad, mobileweb]
     properties:
       - name: globalPoint
@@ -128,6 +132,14 @@ events:
         
   - name: touchend
     summary: Fired when a touch gesture is complete.
+    description: |
+        On Android and iOS, be aware that a row or table touch event and a table 
+        [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins 
+        to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
+        before the `scroll` event begins.
+        
+        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        will fire immediately following the scroll.
     platforms: [iphone, ipad, mobileweb]
     properties:
       - name: globalPoint
@@ -150,9 +162,13 @@ events:
   - name: touchstart
     summary: Fired as soon as the device detects a touch gesture against this view.
     description: |
-        Be aware that a row touch event and a table [scroll](Titanium.UI.TableView.scroll) event 
-        cannot occur concurrently. If a table begins to scroll during a touch event, a row 
-        `touchcancel` event will be fired before the `scroll` event begins.
+        On Android and iOS, be aware that a row or table touch event and a table 
+        [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins 
+        to scroll during a touch event, the appropriate row or table `touchcancel` event fire 
+        before the `scroll` event begins.
+        
+        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend` 
+        will fire immediately following the scroll.
     platforms: [iphone, ipad, mobileweb]
     properties:
       - name: globalPoint
