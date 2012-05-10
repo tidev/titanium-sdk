@@ -66,29 +66,37 @@ methods:
         type: Boolean
 events:
   - name: click
-    summary: fired when the user presses the button
+    summary: Fired when the user clicks the menu item.
+
 properties:
+
   - name: enabled
     summary: set the enabled state of the item
     type: Boolean
+
   - name: groupId
     summary: groupId for this item
     type: Number
     permission: read-only
+
   - name: itemId
     summary: itemId for this item
     type: Number
     permission: read-only
+
   - name: order
     summary: integer used for controlling sort order
     type: Number
     permission: read-only
+
   - name: title
     summary: item title
     type: String
+
   - name: titleCondensed
     summary: condensed item title
     type: String
+
   - name: visible
     summary: set the visible state of the item
     type: Boolean

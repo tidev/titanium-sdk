@@ -1,21 +1,27 @@
 ---
 name: Titanium.Android.Menu
-summary: The Titanium binding of an [Android Menu](http://developer.android.com/reference/android/view/Menu.html)
+summary: The Titanium binding of an Android Options Menu.
+description: |
+    Currently, `Menu` only supports menus displayed when the **Menu** button is pressed, 
+    not the newer Action Bar style menu display.
+
+    See also: [Menu](http://developer.android.com/reference/android/view/Menu.html)
+    in the Android Developer Reference.
 extends: Titanium.Proxy
 platforms: [android]
 createable: false
 since: "1.5"
 methods:
   - name: add
-    summary: creates a <Titanium.Android.MenuItem> from the passed creation options.
+    summary: Creates a <Titanium.Android.MenuItem> from the passed creation options.
     returns:
         type: Titanium.Android.MenuItem
     parameters:
       - name: options
-        summary: creation options. Supported options are itemId, groupId, title, and order.
+        summary: Creation options. Supported options are itemId, groupId, title, and order.
         type: Object
   - name: clear
-    summary: clear all items from the menu. You should release all references you have retained to <Titanium.Android.MenuItem> previously created.
+    summary: Clear all items from the menu. You should release all references you have retained to <Titanium.Android.MenuItem> previously created.
   - name: close
     summary: close the menu if visible
   - name: findItem
