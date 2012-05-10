@@ -254,6 +254,14 @@
 	[self setContentOffset:offset withObject:Nil];
 	[offset release];
 }
+
+-(void)scrollToBottom:(id)args
+{
+    TiThreadPerformOnMainThread(^{
+        [(TiUIScrollView *)[self view] scrollToBottom];
+    }, YES);
+}
+
 -(void) setContentOffset:(id)value withObject:(id)animated
 {
     TiThreadPerformOnMainThread(^{
