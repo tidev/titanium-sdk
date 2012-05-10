@@ -2011,15 +2011,6 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             [observer proxyDidRelayout:self];
         }
 
-#ifdef DEBUG
-        if ((sizeCache.size.width == 0) && !TiDimensionIsDip(layoutProperties->width)) {
-            DebugLog(@"[WARN] Computed width for %@ is 0; view may not be visible", self);
-        }
-        if ((sizeCache.size.height == 0) && !TiDimensionIsDip(layoutProperties->height)) {
-            DebugLog(@"[WARN] Computed height for %@ is 0; view may not be visible", self);
-        }
-#endif
-        
         if ([self _hasListeners:@"postlayout"]) {
             [self fireEvent:@"postlayout" withObject:nil];
         }
