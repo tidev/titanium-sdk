@@ -15,9 +15,10 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					style: {
 						textAlign: "center",
 						position: "absolute",
-						top: "0px",
+						top: 0,
 						height: "40px",
-						width: "100%",
+						left: 0,
+						right: 0,
 						borderBottom: "1px solid #666",
 						fontSize: "28px",
 						cursor: "pointer"

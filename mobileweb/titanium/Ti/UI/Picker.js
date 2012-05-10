@@ -108,7 +108,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 				width = this.width === UI.SIZE ? UI.SIZE : 100 / numColumns + "%",
 				height = this.height === UI.SIZE ? UI.SIZE : "100%";
 			for (var i = 0; i < numColumns; i++) {
-				var column = this._columns[i];
+				column = this._columns[i]; // Repurposing of the column variable
 				column.width = width;
 				column.height = height;
 				column._setCorners(i === 0, i === numColumns - 1, unitizedBorderRadius);

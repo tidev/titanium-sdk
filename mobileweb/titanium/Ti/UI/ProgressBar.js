@@ -10,8 +10,11 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 					className: "TiUIProgressBarContainer",
 					style: {
 						pointerEvents: "none",
-						width: "100%",
-						height: "100%",
+						left: 0,
+						right: 0,
+						top: 0,
+						bottom: 0,
+						position: "absolute",
 						overflow: "hidden"
 					}
 				}, this.domNode);

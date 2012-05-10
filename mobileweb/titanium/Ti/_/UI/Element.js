@@ -521,22 +521,20 @@ define(
 					right = parseInt(computedStyle["border-right-width"]),
 					top = parseInt(computedStyle["border-top-width"]),
 					bottom = parseInt(computedStyle["border-bottom-width"]);
-				isNaN(left) && (left = 0);
-				isNaN(right) && (right = 0);
-				isNaN(top) && (top = 0);
-				isNaN(bottom) && (bottom = 0);
 				
-				if (left === right && left === top && left === bottom) {
-					this.borderWidth = left;
-				} else {
-					this.borderWidth = [left, right, top, bottom];
+				if (!(isNaN(left) || isNaN(right) || isNaN(top) || isNaN(bottom))) {
+						if (left === right && left === top && left === bottom) {
+							this.borderWidth = left;
+						} else {
+							this.borderWidth = [left, right, top, bottom];
+						}
 				}
 			}), 1);
 		},
 
 		_doBackground: function(evt) {
-			var evt = evt || {},
-				m = (evt.type || "").match(/mouse(over|out)/),
+			evt = evt || {};
+			var m = (evt.type || "").match(/mouse(over|out)/),
 				node = this.domNode,
 				bi = this.backgroundImage || this._defaultBackgroundImage || "none",
 				bc = this.backgroundColor || this._defaultBackgroundColor;
@@ -612,8 +610,8 @@ define(
 		
 		_doAnimation: function(anim, callback) {
 			
-			var anim = anim || {},
-				curve = curves[anim.curve] || "ease",
+			anim = anim || {};
+			var curve = curves[anim.curve] || "ease",
 				self = this,
 				fn = function() {
 					var transformCss = "";
