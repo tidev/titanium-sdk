@@ -687,11 +687,6 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	{
 		result = [self verifyWidth:result];
 	}
-
-	if (result == 0)
-	{
-		NSLog(@"[WARN] %@ has an auto width value of 0, meaning this view may not be visible.",self);
-	}
     
     return result;
 }
@@ -750,11 +745,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	{
 		result = [self verifyHeight:result];
 	}
-	
-	if (result == 0)
-	{
-		NSLog(@"[WARN] %@ has an auto height value of 0, meaning this view may not be visible.",self);
-	}
+
 	return result;
 }
 
@@ -2020,6 +2011,15 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             [observer proxyDidRelayout:self];
         }
 
+#ifdef DEBUG
+        if ((sizeCache.size.width == 0) && !TiDimensionIsDip(layoutProperties->width)) {
+            DebugLog(@"[WARN] Computed width for %@ is 0; view may not be visible", self);
+        }
+        if ((sizeCache.size.height == 0) && !TiDimensionIsDip(layoutProperties->height)) {
+            DebugLog(@"[WARN] Computed height for %@ is 0; view may not be visible", self);
+        }
+#endif
+        
         if ([self _hasListeners:@"postlayout"]) {
             [self fireEvent:@"postlayout" withObject:nil];
         }
@@ -2027,7 +2027,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 #ifdef VERBOSE
 	else
 	{
-		NSLog(@"[INFO] %@ Calling Relayout from within relayout.",self);
+		DeveloperLog(@"[INFO] %@ Calling Relayout from within relayout.",self);
 	}
 #endif
 
