@@ -205,6 +205,7 @@ void ASReadStreamCallBackBC
 	if (self != nil)
 	{
 		url = [aURL retain];
+		volume = 1.0;
         bufferSize = 0;
 	}
 	return self;
@@ -806,6 +807,45 @@ cleanup:
 }
 
 //
+// volume
+//
+// returns the current playback volume.
+//
+- (double)volume
+{
+	@synchronized(self)
+	{
+		if ((audioQueue != nil) && ![self isFinishing])
+		{
+			AudioQueueParameterValue result;
+			OSStatus error = AudioQueueGetParameter(audioQueue,kAudioQueueParam_Volume,&result);
+			if (error == noErr)
+			{
+				volume = (double)result;
+			}
+		}
+	}
+	return volume;
+}
+
+//
+// setVolume
+//
+// returns the current playback volume.
+//
+- (void)setVolume:(double)value
+{
+	volume = value;
+	@synchronized(self)
+	{
+		if ((audioQueue != nil) && ![self isFinishing])
+		{
+			OSStatus err = AudioQueueSetParameter(audioQueue,kAudioQueueParam_Volume,(AudioQueueParameterValue)value);
+		}
+	}
+}
+
+//
 // pause
 //
 // A togglable pause function.
@@ -1162,6 +1202,9 @@ cleanup:
 				[self failWithErrorCode:AS_AUDIO_QUEUE_CREATION_FAILED];
 				return;
 			}
+			
+			// set the volume
+			err = AudioQueueSetParameter(audioQueue, kAudioQueueParam_Volume, (AudioQueueParameterValue)volume);
 			
 			// start the queue if it has not been started already
 			// listen to the "isRunning" property

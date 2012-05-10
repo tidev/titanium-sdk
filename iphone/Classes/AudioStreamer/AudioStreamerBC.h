@@ -60,6 +60,7 @@
 	NSUInteger dataOffset;
 	UInt32 bitRate;
 
+	double volume;
 	bool seekNeeded;
 	double seekTime;
 	double sampleRate;
