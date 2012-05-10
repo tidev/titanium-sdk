@@ -54,23 +54,6 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 				height: UI.INHERIT
 			}));
 		},
-			
-		_preLayout: function() {
-			var messageProps = this._message.properties.__values__,
-				progressBarProps = this._progressBar.properties.__values__,
-				needsRecalculation;
-			if (!!this._message.text) {
-				needsRecalculation = progressBarProps.top !== 0;
-				messageProps.height = 0;
-				progressBarProps.top = 0;
-			} else {
-				needsRecalculation = progressBarProps.top !== 2;
-				messageProps.height = UI.SIZE;
-				progressBarProps.top = 2;
-			}
-			
-			return needsRecalculation;
-		},
 		
 		_updateSize: function() {
 			this._progressBar._setPosition((this.value - this.min) / (this.max - this.min));
