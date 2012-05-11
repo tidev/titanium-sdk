@@ -93,22 +93,19 @@ describe("Ti.UI control tests", {
       try {
         valueOf(endEvent.currentPage).shouldBe(1);
 
-        // Check the first and last events
-        valueOf(scrollingEvents[0].currentPage).shouldBe(0);
-        valueOf(scrollingEvents[0].view).shouldBe(view1);
-
-        valueOf(scrollingEvents[numEvents - 1].currentPage).shouldBe(1);
-        valueOf(scrollingEvents[numEvents - 1].view).shouldBe(view2);
-
         // On Android, sometimes, we don't collect enough events to have some that 
         // are within these checks.  If that appears to be the case, don't run these
         // checks.
         if (numEvents > 5) {
+          valueOf(scrollingEvents[0].currentPage).shouldBe(0);
+          valueOf(scrollingEvents[0].view).shouldBe(view1);
+
           valueOf(scrollingEvents[0].currentPageAsFloat).shouldBeLessThan(0.8);
           valueOf(scrollingEvents[numEvents - 1].currentPageAsFloat).shouldBeGreaterThan(0.2);
         }
 
         valueOf(scrollingEvents[numEvents - 1].currentPage).shouldBe(1);
+        valueOf(scrollingEvents[numEvents - 1].view).shouldBe(view2);
 
         callback.passed();
         Ti.API.debug('passed');
@@ -117,5 +114,6 @@ describe("Ti.UI control tests", {
         callback.failed(exception);
       }
     });
+
   }
 });
