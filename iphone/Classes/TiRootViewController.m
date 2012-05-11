@@ -1180,6 +1180,13 @@
 - (void)keyboardDidShow:(NSNotification*)notification
 {
 	startFrame = endFrame;
+    //The endingFrame is not always correctly calculated when rotating.
+    //This method call ensures correct calculation at the end
+    //See TIMOB-8720 for a test case
+    if (!updatingAccessoryView) {
+        updatingAccessoryView = YES;
+        [self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
+    }
 }
 
 - (UIView *)keyboardAccessoryViewForProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy withView:(UIView **)proxyView
