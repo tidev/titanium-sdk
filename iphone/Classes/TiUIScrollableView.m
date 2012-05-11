@@ -33,6 +33,10 @@
         cacheSize = 3;
         pageControlHeight=20;
         pageControlBackgroundColor = [[UIColor blackColor] retain];
+        pagingControlOnTop = NO;
+        overlayEnabled = NO;
+        pagingControlAlpha = 1.0;
+        showPageControl = YES;
 	}
 	return self;
 }
@@ -43,11 +47,22 @@
 
 -(CGRect)pageControlRect
 {
-	CGRect boundsRect = [self bounds];
-	return CGRectMake(boundsRect.origin.x, 
-					  boundsRect.origin.y + boundsRect.size.height - pageControlHeight,
-					  boundsRect.size.width, 
-					  pageControlHeight);
+	
+    if (!pagingControlOnTop) {
+        CGRect boundsRect = [self bounds];
+        return CGRectMake(boundsRect.origin.x, 
+                          boundsRect.origin.y + boundsRect.size.height - pageControlHeight,
+                          boundsRect.size.width, 
+                          pageControlHeight);
+    }
+    else {
+        CGRect boundsRect = [self bounds];
+        CGRect finalRect = CGRectMake(0,0,
+                          boundsRect.size.width, 
+                          pageControlHeight);
+        return finalRect;
+    }
+    
 }
 
 -(UIPageControl*)pagecontrol 
@@ -128,6 +143,8 @@
         [pg setNumberOfPages:[[self proxy] viewCount]];
         [pg setBackgroundColor:pageControlBackgroundColor];
 		pg.currentPage = currentPage;
+        pg.alpha = pagingControlAlpha;
+        pg.backgroundColor = pageControlBackgroundColor;
 	}	
 }
 
@@ -241,8 +258,19 @@
 	CGRect viewBounds;
 	viewBounds.size.width = visibleBounds.size.width;
 	viewBounds.size.height = visibleBounds.size.height - (showPageControl ? pageControlHeight : 0);
-	viewBounds.origin = CGPointMake(0, 0);
-	
+    if(overlayEnabled && showPageControl ) {
+        viewBounds.size.height = visibleBounds.size.height;
+        viewBounds.origin = CGPointMake(0, 0);
+    }
+    else {
+        viewBounds.size.height = visibleBounds.size.height - (showPageControl ? pageControlHeight : 0);
+        if(!pagingControlOnTop){
+            viewBounds.origin = CGPointMake(0, 0);
+        }
+        else {
+            viewBounds.origin = CGPointMake(0, pageControlHeight);
+        }
+    }
 	UIScrollView *sv = [self scrollview];
 	
     int page = [self currentPage];
@@ -397,6 +425,7 @@
 -(void)setPageControlHeight_:(id)arg
 {
 	// for 0.8 backwards compat, renamed all for consistency
+     DEPRECATED_REPLACED(@"ScrollableView.PageControlHeight()", @"2.1.0", @"Ti.ScrollableView.PagingControlHeight()");
 	[self setPagingControlHeight_:arg];
 }
 
@@ -409,6 +438,34 @@
         if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count]>0)) {
             [[self pagecontrol] setBackgroundColor:pageControlBackgroundColor];
         }
+    }
+}
+-(void)setPagingControlAlpha_:(id)args
+{
+    pagingControlAlpha = [TiUtils floatValue:args def:1.0];
+    if(pagingControlAlpha > 1.0 || pagingControlAlpha < 0.0 ){
+        pagingControlAlpha = 1.0;
+    }
+    if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count]>0)) {
+        [[self pagecontrol] setAlpha:pagingControlAlpha];
+    }
+    
+}
+-(void)setPagingControlOnTop_:(id)args
+{
+    pagingControlOnTop = [TiUtils boolValue:args def:NO];
+    if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count]>0)) {
+        //No need to readd. Just set up the correct frame bounds
+        [self refreshScrollView:[self bounds] readd:NO];
+    }
+}
+
+-(void)setOverlayEnabled_:(id)args
+{
+    overlayEnabled = [TiUtils boolValue:args def:NO];
+    if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count]>0)) {
+        //No need to readd. Just set up the correct frame bounds
+        [self refreshScrollView:[self bounds] readd:NO];
     }
 }
 

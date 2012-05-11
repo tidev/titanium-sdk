@@ -277,7 +277,28 @@ properties:
     default: 3000
     platforms: [android, mobileweb]
     availability: creation
-
+    
+  - name: pagingControlAlpha
+    summary: Alpha value of the paging control.
+    type: float
+    default: 1.0
+    since: 2.1.0
+    platforms: [iphone,ipad]
+    
+  - name: pagingControlOnTop
+    summary: Determines whether the paging control to be displayed, is at the top of the view.
+    type: Boolean
+    default: false
+    since: 2.1.0
+    platforms: [iphone,ipad]
+    
+  - name: overlayEnabled
+    summary: Paging control is added as an overlay to the scrollable view (on top). 
+    type: Boolean
+    default: false
+    since 2.1.0
+    platforms: [iphone,ipad]
+    
   - name: scrollingEnabled
     summary: |
         Determines whether scrolling is enabled on the Scrollable view.
