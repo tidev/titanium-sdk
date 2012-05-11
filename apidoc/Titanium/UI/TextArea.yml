@@ -266,25 +266,20 @@ examples:
         This example creates a highly customized text area.
         
             var win = Ti.UI.createWindow({
-              backgroundColor: 'white',
-              exitOnClose: true,
-              fullscreen: false,
-              layout: 'vertical',
-              title: 'TextArea Demo'
+              backgroundColor: 'white'
             });
             var textArea = Ti.UI.createTextArea({
-              appearance : Ti.UI.KEYBOARD_APPEARANCE_ALERT,
-              borderWidth : 2,
-              borderColor : '#bbb',
-              borderRadius : 5,
-              color : '#888',
-              font : {fontSize:20, fontFamily:'Marker Felt', fontWeight:'bold'},
-              keyboardType : Ti.UI.KEYBOARD_NUMBERS_PUNCTUATION,
-              returnKeyType : Ti.UI.RETURNKEY_EMERGENCY_CALL,
-              textAlign : 'left',
-              value : 'I am a textarea',
-              top : 60,
-              width : 300, height : 70
+              borderWidth: 2,
+              borderColor: '#bbb',
+              borderRadius: 5,
+              color: '#888',
+              font: {fontSize:20, fontWeight:'bold'},
+              keyboardType: Ti.UI.KEYBOARD_NUMBER_PAD,
+              returnKeyType: Ti.UI.RETURNKEY_GO,
+              textAlign: 'left',
+              value: 'I am a textarea',
+              top: 60,
+              width: 300, height : 70
             });
             win.add(textArea);
             win.open();
@@ -332,7 +327,6 @@ name: textAreaSelectedParams
 summary: |
     Dictionary object of parameters for the <Titanium.UI.TextArea.selected> event that describes 
     position and length of the selected text.
-
 properties:
   - name: location
     summary: Starting position of selected text.
