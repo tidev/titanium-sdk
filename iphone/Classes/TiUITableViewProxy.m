@@ -35,6 +35,7 @@ NSArray * tableKeySequence;
 	return [sections count];
 }
 
+USE_VIEW_FOR_CONTENT_HEIGHT
 
 #pragma mark Internal
 

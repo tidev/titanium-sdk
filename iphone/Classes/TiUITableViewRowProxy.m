@@ -627,8 +627,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 -(void)redelegateViews:(TiViewProxy *)proxy toView:(UIView *)touchDelegate;
 {
 	[[proxy view] setTouchDelegate:touchDelegate];
-    NSArray* children = [proxy children];
-	for (TiViewProxy * childProxy in children)
+    NSArray* subproxies = [proxy children];
+	for (TiViewProxy * childProxy in subproxies)
 	{
 		[self redelegateViews:childProxy toView:touchDelegate];
 	}

@@ -816,6 +816,8 @@ public class TiMapView extends TiUIView
 
 	public void doUserLocation(boolean userLocation)
 	{
+		this.userLocation = userLocation;
+
 		if (view != null) {
 			if (userLocation) {
 				if (myLocation == null) {

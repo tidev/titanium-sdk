@@ -1328,16 +1328,15 @@ class Builder(object):
 			# kroll-apt.jar is needed for modules
 			classpath = os.pathsep.join([classpath, self.kroll_apt_jar])
 
+		classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-verify.jar')])
 		if self.deploy_type != 'production':
-			classpath = os.pathsep.join([classpath,
-				os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'),
-				os.path.join(self.support_dir, 'lib', 'titanium-debug.jar')])
+			classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-debug.jar')])
 
 		debug("Building Java Sources: " + " ".join(src_list))
 		javac_command = [self.javac, '-encoding', 'utf8',
 			'-classpath', classpath, '-d', self.classes_dir, '-proc:none',
 			'-sourcepath', self.project_src_dir,
-			'-sourcepath', self.project_gen_dir]
+			'-sourcepath', self.project_gen_dir, '-target', '1.6', '-source', '1.6']
 		(src_list_osfile, src_list_filename) = tempfile.mkstemp()
 		src_list_file = os.fdopen(src_list_osfile, 'w')
 		src_list_file.write("\n".join(src_list))
@@ -1509,7 +1508,14 @@ class Builder(object):
 		else:
 			app_apk = os.path.join(self.project_dir, 'bin', 'app.apk')	
 
-		output = run.run([self.jarsigner, '-storepass', self.keystore_pass, '-keystore', self.keystore, '-signedjar', app_apk, unsigned_apk, self.keystore_alias])
+		output = run.run([self.jarsigner,
+			'-sigalg', 'MD5withRSA',
+			'-digestalg', 'SHA1',
+			'-storepass', self.keystore_pass,
+			'-keystore', self.keystore,
+			'-signedjar', app_apk,
+			unsigned_apk,
+			self.keystore_alias])
 		run.check_output_for_error(output, r'RuntimeException: (.*)', True)
 		run.check_output_for_error(output, r'^jarsigner: (.*)', True)
 
@@ -1951,8 +1957,8 @@ class Builder(object):
 				dex_args += self.android_jars
 				dex_args += self.module_jars
 
+				dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'))
 				if self.deploy_type != 'production':
-					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'))
 					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-debug.jar'))
 					# the verifier depends on Ti.Network classes, so we may need to inject it
 					has_network_jar = False
