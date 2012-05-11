@@ -71,8 +71,8 @@ public class TiUIScrollableView extends TiUIView
 		pager.setAdapter(adapter);
 		pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener()
 		{
-			private int mCurIndex;
 			private boolean isValidScroll = false;
+			private boolean justFiredDragEnd = false;
 
 			@Override
 			public void onPageScrollStateChanged(int scrollState)
@@ -97,6 +97,10 @@ public class TiUIScrollableView extends TiUIView
 							// don't want a scrollEnd to fire.
 							((ScrollableViewProxy)proxy).fireScrollEnd(mCurIndex, mViews.get(mCurIndex));
 						}
+
+						if (shouldShowPager()) {
+							showPager();
+						}
 					}
 
 					// If we don't use this state variable to check if it's a valid
@@ -106,6 +110,27 @@ public class TiUIScrollableView extends TiUIView
 					isValidScroll = false;
 				} else if (scrollState == ViewPager.SCROLL_STATE_SETTLING) {
 					((ScrollableViewProxy)proxy).fireDragEnd(mCurIndex, mViews.get(mCurIndex));
+
+					// Note that we just fired a dragEnd so the `onPageSelected`
+					// handler below doesn't fire a `scrollEnd`.  Read below comment.
+					justFiredDragEnd = true;
+				}
+			}
+
+			@Override
+			public void onPageSelected(int page)
+			{
+
+				// If we didn't just fire a `dragEnd` event then this is the case
+				// where a user drags the view and settles it on a different view.
+				// Since the OS settling logic is never run, the
+				// `onPageScrollStateChanged` handler is never run, and therefore
+				// we forgot to inform the Javascripters that the user just scrolled
+				// their thing.
+
+				if (!justFiredDragEnd) {
+					((ScrollableViewProxy)proxy).fireScrollEnd(mCurIndex, mViews.get(mCurIndex));
+
 					if (shouldShowPager()) {
 						showPager();
 					}
@@ -137,6 +162,10 @@ public class TiUIScrollableView extends TiUIView
 				// it has a value of 1.4, it will be rounded down to 1.
 				mCurIndex = (int) Math.floor(positionFloat + 0.5);
 				((ScrollableViewProxy)proxy).fireScroll(mCurIndex, positionFloat, mViews.get(mCurIndex));
+
+				// Note that we didn't just fire a dragEnd.  See the above comment
+				// in `onPageSelected`.
+				justFiredDragEnd = false;
 			}
 		});
 		return pager;
