@@ -17,7 +17,7 @@ define(
 			hidingAddressBar = 0;
 		},
 		unitize = dom.unitize,
-		showStats = false;
+		has = require.has;
 
 	on(body, "touchmove", function(e) {
 		e.preventDefault();
@@ -77,6 +77,7 @@ define(
 				top: 0
 			})),
 			node = container.domNode;
+		node.id = "TiUIContainer";
 		setStyle(node, "overflow", "hidden");
 		body.appendChild(node);
 		container.addEventListener("postlayout", function(){
@@ -136,8 +137,6 @@ define(
 		
 		_elementLayoutCount: 0,
 		
-		_layoutCount: 0,
-		
 		_triggerLayout: function(node, force) {
 			var self = this;
 			if (~self._nodesToLayout.indexOf(node)) {
@@ -145,11 +144,9 @@ define(
 			}
 			self._nodesToLayout.push(node);
 			function startLayout() {
-				
+			
 				self._elementLayoutCount = 0;
-				self._layoutCount++;
-				var startTime = (new Date()).getTime(),
-					nodes = self._nodesToLayout,
+				var nodes = self._nodesToLayout,
 					layoutNode,
 					node,
 					parent,
@@ -160,6 +157,7 @@ define(
 					rootNodesToLayout = [],
 					layoutRootNode = false,
 					breakAfterChildrenCalculations;
+			   has("ti-instrumentation") && (this._layoutInstrumentationTest = instrumentation.startTest("Layout"));
 					
 				// Determine which nodes need to be re-layed out
 				for (var i in nodes) {
@@ -245,8 +243,8 @@ define(
 					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node._getInheritedWidth() === Ti.UI.SIZE, node._getInheritedHeight() === Ti.UI.SIZE);
 				}
 				
-				showStats && console.debug("Layout " + self._layoutCount + ": " + self._elementLayoutCount + 
-					" elements laid out in " + ((new Date().getTime() - startTime)) + "ms");
+				has("ti-instrumentation") && instrumentation.stopTest(this._layoutInstrumentationTest, 
+					self._elementLayoutCount + " out of approximately " + document.getElementById("TiUIContainer").getElementsByTagName("*").length + " elements laid out.");
 					
 				self._layoutInProgress = false;
 				self._layoutTimer = null;

@@ -550,12 +550,12 @@
     if ([oldView isKindOfClass:[TiUIView class]]) {
         TiViewProxy * oldProxy = (TiViewProxy *)[(TiUIView *)oldView proxy];
         if (oldProxy == titleControl) {
-            //relayout titleControl
+            //resize titleControl
             CGRect barBounds;
             barBounds.origin = CGPointZero;
             barBounds.size = SizeConstraintViewWithSizeAddingResizing(titleControl.layoutProperties, titleControl, availableTitleSize, NULL);
             
-            [TiUtils setView:oldView positionRect:barBounds];
+            [oldView setBounds:barBounds];
             [oldView setAutoresizingMask:UIViewAutoresizingNone];
             
             //layout the titleControl children
