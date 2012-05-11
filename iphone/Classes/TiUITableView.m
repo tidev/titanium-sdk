@@ -293,7 +293,6 @@
 	RELEASE_TO_NIL(searchScreenView);
 	RELEASE_TO_NIL(filterAttribute);
 	RELEASE_TO_NIL(searchResultIndexes);
-	RELEASE_TO_NIL(initialSelection);
 	RELEASE_TO_NIL(tableHeaderPullView);
 	[searchString release];
 	[super dealloc];
@@ -1899,18 +1898,26 @@ return result;	\
 
 -(void)selectRow:(id)args
 {
-	NSInteger index = [TiUtils intValue:[args objectAtIndex:0]];
-	NSIndexPath *path = [self indexPathFromInt:index];
-	if (initiallyDisplayed==NO)
-	{
-		RELEASE_TO_NIL(initialSelection);
-		initialSelection = [path retain];
-		return;
-	}
-	NSDictionary *dict = [args count] > 1 ? [args objectAtIndex:1] : nil;
-	BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
-	int scrollPosition = [TiUtils intValue:@"position" properties:dict def:UITableViewScrollPositionMiddle];
-	[[self tableView] selectRowAtIndexPath:path animated:animated scrollPosition:scrollPosition];
+    NSInteger index = [TiUtils intValue:[args objectAtIndex:0]];
+    NSIndexPath *path = [self indexPathFromInt:index];
+    if (path == nil) {
+        NSLog(@"[WARN] invalid index specified for selectRow");
+        return;
+    }
+    TiUITableViewRowProxy* rowProxy = [self rowForIndexPath:path];
+    
+    if ([rowProxy callbackCell] == nil) {
+        //Not displayed at present. Go ahead and scroll to row and reperform selectRow after delay
+        [[self tableView] scrollToRowAtIndexPath:path atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
+        NSDictionary *dict = [NSDictionary dictionaryWithObject:NUMBOOL(NO) forKey:@"animated"];
+        NSArray *newArgs = [NSArray arrayWithObjects:NUMINT(index),dict,nil];
+        [self performSelector:@selector(selectRow:) withObject:newArgs afterDelay:.1];
+        return;
+    }
+    NSDictionary *dict = [args count] > 1 ? [args objectAtIndex:1] : nil;
+    BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
+    int scrollPosition = [TiUtils intValue:@"position" properties:dict def:UITableViewScrollPositionMiddle];
+    [[self tableView] selectRowAtIndexPath:path animated:animated scrollPosition:scrollPosition];
 }
 
 -(void)deselectRow:(id)args
@@ -1959,27 +1966,6 @@ return result;	\
 	}
 	UIColor * cellColor = [Webcolor webColorNamed:color];
 	cell.backgroundColor = (cellColor != nil)?cellColor:[UIColor whiteColor];
-	
-	if (tableview == ourTableView) {
-		TiUITableViewSectionProxy *section = [self sectionForIndex:[indexPath section]];
-		if (initiallyDisplayed==NO && [indexPath section]==[(TiUITableViewProxy *)[self proxy] sectionCount]-1 && [indexPath row]==[section rowCount]-1)
-		{
-			// we need to track when we've initially rendered the last row
-			initiallyDisplayed = YES;
-			
-			// trigger the initial selection
-			if (initialSelection!=nil)
-			{
-				// we seem to have to do this after this has fully completed so we 
-				// just spin off and do this just a few ms later
-				NSInteger index = [self indexForIndexPath:initialSelection];
-				NSDictionary *dict = [NSDictionary dictionaryWithObject:NUMBOOL(NO) forKey:@"animated"];
-				NSArray *args = [NSArray arrayWithObjects:NUMINT(index),dict,nil];
-				[self performSelector:@selector(selectRow:) withObject:args afterDelay:0.09];
-				RELEASE_TO_NIL(initialSelection);
-			}
-		}
-	}
 }
 
 - (NSString *)tableView:(UITableView *)ourTableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
