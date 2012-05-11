@@ -42,7 +42,7 @@ Object.defineProperty(EventEmitter.prototype, "callHandler", {
 		// Create event object, copy any custom event data,
 		// and setting the "type" and "source" properties.
 		var event = { type: type, source: this };
-		if (data instanceof Object) {
+		if (Object.prototype.toString.call(data) === "[object Object]") {
 			kroll.extend(event, data);
 		}
 
