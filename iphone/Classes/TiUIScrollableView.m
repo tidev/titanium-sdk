@@ -304,22 +304,11 @@
 // Looks a little ugly, though...
 -(void)setFrame:(CGRect)frame_
 {
-    int curChacheSize = cacheSize;
     lastPage = [self currentPage];
-    
-    CGFloat pageWidth = frame_.size.width;
-    int nextPage = floor((scrollview.contentOffset.x - pageWidth / 2) / pageWidth) + 1;
-    
-    int minCacheSize = ABS(lastPage - nextPage)*2 + 1;
-    
-    if (minCacheSize < cacheSize) {
-        minCacheSize = cacheSize;
-    }
-
-    cacheSize = minCacheSize;
+    enforceCacheRecalculation = YES;
     [super setFrame:frame_];
-    cacheSize = curChacheSize;
     [self setCurrentPage_:[NSNumber numberWithInt:lastPage]];
+    enforceCacheRecalculation = NO;
 }
 
 -(void)setBounds:(CGRect)bounds_
@@ -538,12 +527,22 @@
     CGFloat pageWidth = scrollview.frame.size.width;
     int page = currentPage;
     int nextPage = floor((scrollview.contentOffset.x - pageWidth / 2) / pageWidth) + 1;
-	if (page != nextPage) {
-		[pageControl setCurrentPage:nextPage];
-		currentPage = nextPage;
-		[self.proxy replaceValue:NUMINT(currentPage) forKey:@"currentPage" notification:NO];
+    if (page != nextPage) {
+        int curCacheSize = cacheSize;
+        int minCacheSize = cacheSize;
+        if (enforceCacheRecalculation) {
+            minCacheSize = ABS(page - nextPage)*2 + 1;
+            if (minCacheSize < cacheSize) {
+                minCacheSize = cacheSize;
+            }
+        }
+        cacheSize = minCacheSize;
+        [pageControl setCurrentPage:nextPage];
+        currentPage = nextPage;
+        [self.proxy replaceValue:NUMINT(currentPage) forKey:@"currentPage" notification:NO];
         [self manageCache:currentPage];
-	}
+        cacheSize = curCacheSize;
+    }
 }
 
 -(void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
