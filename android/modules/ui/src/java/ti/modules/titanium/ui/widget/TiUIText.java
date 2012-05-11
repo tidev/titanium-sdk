@@ -431,7 +431,7 @@ public class TiUIText extends TiUIView
 		if (passwordMask) {
 			tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
 			textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_PASSWORD;
-			//turn off text UI in landscape mode in 4.0 b/c Android numeric passwords show in landscape.
+			//turn off text UI in landscape mode in 4.0 b/c Android numeric passwords are not masked correctly in landscape mode.
 			if (Build.VERSION.SDK_INT == TiC.API_LEVEL_ICE_CREAM_SANDWICH && (type == KEYBOARD_NUMBERS_PUNCTUATION || 
 					type == KEYBOARD_DECIMAL_PAD || type == KEYBOARD_NUMBER_PAD)) {
 				tv.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
