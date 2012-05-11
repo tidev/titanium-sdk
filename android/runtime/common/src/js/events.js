@@ -39,15 +39,17 @@ Object.defineProperty(EventEmitter.prototype, "callHandler", {
 			return;
 		}
 
-		if (data instanceof Object) {
-			data.type = type;
-		} else if (!data) {
-			data = { type: type };
+		// Create event object, copy any custom event data,
+		// and setting the "type" and "source" properties.
+		var event = { type: type, source: this };
+		if (Object.prototype.toString.call(data) === "[object Object]") {
+			kroll.extend(event, data);
 		}
-		if (handler.self && (data.source == handler.self.view)) {
-			data.source = handler.self;
+
+		if (handler.self && (event.source == handler.self.view)) {
+			event.source = handler.self;
 		}
-		handler.listener.call(this, data);
+		handler.listener.call(this, event);
 	},
 	enumerable: false
 });
@@ -69,9 +71,9 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 			}
 		}*/
 
-        if (this._hasJavaListener) {
-            this._onEventFired( type,  arguments[1] || {});
-        }
+		if (this._hasJavaListener) {
+			this._onEventFired( type,  arguments[1] || {});
+		}
 
 		if (!this._events) {
 			//kroll.log(TAG, "no events for " + type + ", not emitting");
@@ -156,7 +158,7 @@ Object.defineProperty(EventEmitter.prototype, "addListener", {
 		var listenerWrapper = {};
 		listenerWrapper.listener = listener;
 		listenerWrapper.self = view;
-        
+
 		if (!this._events[type]) {
 			// Optimize the case of one listener. Don't need the extra array object.
 			this._events[type] = listenerWrapper;
