@@ -121,7 +121,7 @@ events:
         type: Number
 
   - name: scrollEnd
-    summary: Fired when the view has stopped moving completely and a different view is visible.
+    summary: Fired when the view has stopped moving completely.
     platforms: [iphone, ipad, android]
     since: "2.1.0"
 
@@ -222,7 +222,7 @@ events:
         type: Number
 
   - name: scroll
-    summary: Fired repeatedly as the view is being scrolled
+    summary: Fired repeatedly as the view is being scrolled.
     platforms: [iphone, ipad, android]
     since: "2.1.0"
     properties:
@@ -243,7 +243,7 @@ events:
         type: Titanium.UI.View
 
   - name: dragEnd
-    summary: Fired when the scrolling drag gesture on the view has been completed
+    summary: Fired when the scrolling drag gesture on the view has been completed.
     platforms: [android]
     since: "2.1.0"
     properties:
