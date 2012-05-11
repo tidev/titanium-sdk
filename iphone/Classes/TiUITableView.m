@@ -1103,6 +1103,23 @@
 	}
 }
 
+-(CGFloat)contentHeightForWidth:(CGFloat)suggestedWidth
+{
+    CGFloat height = 0.0;
+    NSUInteger sectionCount = [self numberOfSectionsInTableView:tableview];
+    for (NSUInteger section=0; section < sectionCount; section++) {
+        height += [self tableView:tableview heightForHeaderInSection:section];
+        height += [self tableView:tableview heightForFooterInSection:section];
+        
+        NSUInteger rowCount = [self tableView:tableview numberOfRowsInSection:section];
+        for (NSUInteger row=0; row < rowCount; row++) {
+            height += [self tableView:tableview heightForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:section]];
+        }
+    }
+    
+    return height;
+}
+
 #pragma mark Searchbar-related IBActions
 
 -(void)hideSearchScreen:(id)sender
@@ -1695,7 +1712,7 @@ return result;	\
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)ourTableView
 {
 	RETURN_IF_SEARCH_TABLE_VIEW(1);
-// One quirk of UITableView is that it really hates having 0 sections. Instead, supply 1 section, no rows.
+    // One quirk of UITableView is that it really hates having 0 sections. Instead, supply 1 section, no rows.
 	int result = [(TiUITableViewProxy *)[self proxy] sectionCount];
 	return MAX(1,result);
 }
@@ -2067,7 +2084,7 @@ return result;	\
 	TiUITableViewSectionProxy *sectionProxy = nil;
 	TiUIView *view = [self sectionView:section forLocation:@"headerView" section:&sectionProxy];
 	TiViewProxy *viewProxy = (TiViewProxy *)[view proxy];
-	CGFloat size = 0;
+	CGFloat size = 0.0;
 	if (viewProxy!=nil)
 	{
 		LayoutConstraint *viewLayout = [viewProxy layoutProperties];
