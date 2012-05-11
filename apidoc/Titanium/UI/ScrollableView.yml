@@ -296,7 +296,7 @@ properties:
     summary: Paging control is added as an overlay to the scrollable view (on top). 
     type: Boolean
     default: false
-    since 2.1.0
+    since: 2.1.0
     platforms: [iphone,ipad]
     
   - name: scrollingEnabled
