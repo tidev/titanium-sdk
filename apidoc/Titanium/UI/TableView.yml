@@ -471,7 +471,8 @@ events:
         before the `scroll` event begins.
         
         On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend` 
-        will fire immediately following the scroll.    platforms: [iphone, ipad, mobileweb]
+        will fire immediately following the scroll.
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: globalPoint
         summary: |
@@ -536,18 +537,18 @@ methods:
     summary: Appends one or more rows to the table.
     description: |
         Appends a single row or an array of rows to the end of the table.
-        Each row can be passed as a [TableViewRow](Titanium.UI.TableViewRow) object,
-        or as dictionary specifying the properties for a table row, in which case
-        the `TableView` will create `TableViewRow` objects as needed.
         
-        On iOS, the row(s) can be inserted with animation by specifying a `properties`
-        parameter.
+        Each row can be passed as a [TableViewRow](Titanium.UI.TableViewRow) object, or as 
+        dictionary specifying the properties for a table row, in which case this `TableView` will 
+        create `TableViewRow` objects as needed. 
+        
+        On iOS, the row(s) can be inserted with animation by specifying a `properties` parameter.
     parameters:
       - name: row
-        summary: Row to add to the table.
+        summary: Row or rows to add to the table.
         type: [Titanium.UI.TableViewRow, Dictionary<Titanium.UI.TableViewRow>, Array<Titanium.UI.TableViewRow>, Array<Dictionary<Titanium.UI.TableViewRow>>]
         
-      - name: properties
+      - name: animation
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
@@ -561,7 +562,7 @@ methods:
         summary: Index of the row to delete.
         type: Number
         
-      - name: properties
+      - name: animation
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
@@ -577,12 +578,11 @@ methods:
   - name: insertRowAfter
     summary: Inserts a row after another row.
     description: |
-        The row can be passed as a [TableViewRow](Titanium.UI.TableViewRow) object,
-        or as dictionary specifying the properties for a table row, in which case
-        the `TableView` will create a `TableViewRow` object as needed.
-
-        On iOS, the row(s) can be inserted with animation by specifying a `properties`
-        parameter.
+        Each row can be passed as a [TableViewRow](Titanium.UI.TableViewRow) object, or as 
+        dictionary specifying the properties for a table row, in which case this `TableView` will 
+        create `TableViewRow` objects as needed. 
+        
+        On iOS, the row(s) can be inserted with animation by specifying a `properties` parameter.
     parameters:
       - name: index
         summary: Index of the row to insert after.
@@ -592,7 +592,7 @@ methods:
         summary: Row to insert.
         type: [Titanium.UI.TableViewRow, Dictionary<Titanium.UI.TableViewRow>]
         
-      - name: properties
+      - name: animation
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
@@ -600,12 +600,11 @@ methods:
   - name: insertRowBefore
     summary: Inserts a row before another row.
     description: |
-        The row can be passed as a [TableViewRow](Titanium.UI.TableViewRow) object,
-        or as dictionary specifying the properties for a table row, in which case
-        the `TableView` will create a `TableViewRow` object as needed.
+        Each row can be passed as a [TableViewRow](Titanium.UI.TableViewRow) object, or as 
+        dictionary specifying the properties for a table row, in which case this `TableView` will 
+        create `TableViewRow` objects as needed. 
         
-        On iOS, the row(s) can be inserted with animation by specifying a `properties`
-        parameter.
+        On iOS, the row(s) can be inserted with animation by specifying a `properties` parameter.
     parameters:
       - name: index
         summary: Index of the row to insert before.
@@ -615,7 +614,7 @@ methods:
         summary: Row to insert.
         type: [Titanium.UI.TableViewRow, Dictionary<Titanium.UI.TableViewRow>]
         
-      - name: properties
+      - name: animation
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
@@ -630,7 +629,7 @@ methods:
         summary: Row index to scroll to.
         type: Number
         
-      - name: properties
+      - name: animation
         summary: Animation properties. Only used on iOS.
         type: TableViewAnimationProperties
         optional: true
@@ -666,7 +665,7 @@ methods:
         summary: Y position for the top of the table view.
         type: Number
         
-      - name: properties
+      - name: animation
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
@@ -702,8 +701,9 @@ methods:
   - name: setData
     summary: Sets the data in the table.
     description: |
-        Each row can be passed either as a `TableViewRow` object, or as a dictionary of 
-        `TableViewRow` properties.
+        Each row can be passed as a [TableViewRow](Titanium.UI.TableViewRow) object, or as 
+        dictionary specifying the properties for a table row, in which case this `TableView` will 
+        create `TableViewRow` objects as needed. 
         
         `setData` can also be used to add [TableViewSection](Titanium.UI.TableViewSection)s to a 
         table view.
@@ -712,7 +712,7 @@ methods:
         summary: Rows or sections to add to this table.
         type: [ Array<Titanium.UI.TableViewRow>, Array<Dictionary<Titanium.UI.TableViewRow>>, Array<Titanium.UI.TableViewSection> ]
         
-      - name: properties
+      - name: animation
         summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
 
@@ -736,7 +736,7 @@ methods:
         summary: Row data to update.
         type: Titanium.UI.TableViewRow
         
-      - name: properties
+      - name: animation
         summary: Animation properties. Only used on iOS.
         type: TableViewAnimationProperties
 
