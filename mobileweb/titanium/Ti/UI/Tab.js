@@ -6,25 +6,23 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI", "Ti/UI/M
 				this._tabTitle.text = this._getTitle();
 			}
 		},
-		UISIZE = UI.SIZE;
+		UI_SIZE = UI.SIZE;
 
 	return declare("Ti.UI.Tab", View, {
 
 		constructor: function(args) {
-			this._windows = [];
-
 			var win = args && args.window,
 				container = UI.createView({
 					layout: "vertical",
 					width: "100%",
-					height: UI.SIZE
+					height: UI_SIZE
 				});
 
 			this._add(container);
 
 			container.add(this._tabIcon = UI.createImageView({
-				height: UI.SIZE,
-				width: UI.SIZE
+				height: UI_SIZE,
+				width: UI_SIZE
 			}));
 
 			container.add(this._tabTitle = UI.createLabel({
@@ -34,12 +32,11 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI", "Ti/UI/M
 			}));
 
 			if (win) {
+				this._windows.push(win);
+
 				require.on(this, "singletap", this, function(e) {
 					this._tabGroup && (this._tabGroup.activeTab = this);
 				});
-
-				win.tab = this;
-				win.tabGroup = this._tabGroup;
 			}
 
 			this._tabNavigationGroup = MobileWeb.createNavigationGroup({ window: win, _tab: this });
@@ -50,8 +47,6 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI", "Ti/UI/M
 		_defaultHeight: UI.FILL,
 
 		open: function(win, options) {
-			win.tab = this;
-			win.tabGroup = this._tabGroup;
 			this._tabNavigationGroup.open(win, options);
 		},
 

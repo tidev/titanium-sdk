@@ -2,21 +2,20 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 	function(css, declare, View, UI, lang) {
 		
 	var isDef = lang.isDef,
+		UI_FILL = UI.FILL,
 		navGroupCss = "TiUINavigationGroup";
 
 	return declare("Ti.UI.MobileWeb.NavigationGroup", View, {
 
 		constructor: function(args) {
 			var self = this,
-				rootWindow = self.constants.window = args && args.window,
+				win = self.constants.window = args && args.window,
+				tab = args && args._tab,
 				navBar = self._navBarContainer = UI.createView({
-					width: UI.FILL,
+					width: UI_FILL,
 					height: 50
 				});
 
-			self._windows = [];
-
-			// Create the nav controls
 			self.layout = "vertical";
 
 			css.add(navBar.domNode, navGroupCss);
@@ -33,38 +32,45 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 			});
 
 			self._navBarContainer._add(self._title = UI.createLabel({
-				width: UI.FILL,
+				width: UI_FILL,
 				textAlign: UI.TEXT_ALIGNMENT_CENTER,
 				touchEnabled: false
 			}));
 
 			// Create the content container
 			self._contentContainer = UI.createView({
-				width: UI.FILL,
-				height: UI.FILL
+				width: UI_FILL,
+				height: UI_FILL
 			});
 
-			rootWindow && self._contentContainer._add(rootWindow);
+			// init window stack and add window
+			self._windows = [];
+			win && this._addWindow(win);
 
 			// invoke the navBarAtTop setter
 			self.navBarAtTop = true;
 		},
 
-		_defaultWidth: UI.FILL,
-		
-		_defaultHeight: UI.FILL,
+		_defaultWidth: UI_FILL,
+
+		_defaultHeight: UI_FILL,
 
 		_updateTitle: function() {
 			this._title.text = (this.window && this.window._getTitle()) || (this._tab && this._tab._getTitle()) || "";
 		},
 
+		_addWindow: function(win) {
+			var tab = this._tab;
+			tab && (win.tabGroup = (win.tab = tab)._tabGroup);
+			this._windows.push(win);
+			this._contentContainer._add(win);
+		},
+
 		open: function(win, options) {
 			if (!win._opened) {
-				// Show the back button, if need be
-				var backButton = this._backButton,
-					windows = this._windows,
-					winLen = windows.length;
+				var backButton = this._backButton;
 
+				// Show the back button, if need be
 				backButton.opacity || backButton.animate({opacity: 1, duration: 250}, function() {
 					backButton.opacity = 1;
 					backButton.enabled = true;
@@ -73,11 +79,10 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 				// Set a default background
 				!isDef(win.backgroundColor) && !isDef(win.backgroundImage) && (win.backgroundColor = "#fff");
 
-				(winLen ? windows[winLen-1] : this.window).fireEvent("blur");
+				this._windows[this._windows.length - 1].fireEvent("blur");
 
 				// Show the window
-				windows.push(win);
-				this._contentContainer._add(win);
+				this._addWindow(win);
 				this._title.text = win._getTitle();
 
 				win.fireEvent("open");

@@ -2,6 +2,7 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 	function(declare, SuperView, View, UI, lang) {
 
 	var is = require.is,
+		UI_FILL = UI.FILL,
 		postUpdateTabsBackground = {
 			post: "_updateTabsBackground"
 		};
@@ -36,15 +37,15 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 
 			// Create the tab bar
 			self._tabBarContainer = new TabBarContainer({
-				width: UI.FILL,
+				width: UI_FILL,
 				layout: "horizontal"
 			});
 			self.tabHeight = 75;
 
 			// Create the tab window container
 			self._tabContentContainer = UI.createView({
-				width: UI.FILL,
-				height: UI.FILL
+				width: UI_FILL,
+				height: UI_FILL
 			});
 
 			// Add the windows ordered such that they respect tabsAtBottom
@@ -92,7 +93,7 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 		_createTabDivider: function() {
 			return UI.createView({
 				width: this.tabDividerWidth,
-				height: UI.FILL,
+				height: UI_FILL,
 				backgroundColor: this.tabDividerColor
 			});
 		},
@@ -188,9 +189,9 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 			}
 		},
 
-		_defaultWidth: UI.FILL,
+		_defaultWidth: UI_FILL,
 
-		_defaultHeight: UI.FILL,
+		_defaultHeight: UI_FILL,
 
 		properties: {
 			activeTab: {
