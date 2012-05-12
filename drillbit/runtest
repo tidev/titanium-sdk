@@ -1,3 +1,4 @@
 ./drillbit/drillbit.py --platforms=iphone --tests=buffer --results-dir=/work/temp0511a --iphone-version=5.0 --autorun --autoclose
 ./drillbit/drillbit.py --platforms=iphone --tests=codec  --results-dir=/work/temp0511a --iphone-version=5.0 --autorun --autoclose
+./drillbit/drillbit.py --platforms=iphone --tests=codec  --results-dir=/work/temp0511a --iphone-version=5.0 --autorun --autoclose
 
