@@ -165,7 +165,6 @@ examples:
             });
             
             var basicSwitch = Ti.UI.createSwitch({
-              color: 'black',
               titleOn:'Notifications Enabled',
               titleOff:'Notifications Disabled',
               value:true,
@@ -187,7 +186,6 @@ examples:
             });
             
             var basicSwitch = Ti.UI.createSwitch({
-              color: 'black',
               style: Ti.UI.Android.SWITCH_STYLE_CHECKBOX,
               textAlign:Ti.UI.TEXT_ALIGNMENT_CENTER,
               title:'Notifications',
