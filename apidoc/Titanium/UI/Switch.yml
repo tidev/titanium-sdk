@@ -68,10 +68,11 @@ properties:
         [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), 
         [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), 
         or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
-    type: [String,Number]
+    type: [String, Number]
     default: |
-        <Titanium.UI.TEXT_ALIGNMENT_CENTER> (toggle button), 
-        <Titanium.UI.TEXT_ALIGNMENT_LEFT> (checkbox)
+        <Titanium.UI.TEXT_ALIGNMENT_CENTER> (toggle button, Android), 
+        <Titanium.UI.TEXT_ALIGNMENT_LEFT> (checkbox, Android), 
+        <Titanium.UI.TEXT_ALIGNMENT_CENTER> (Mobile Web)
     platforms: [android, mobileweb]
     
   - name: title
