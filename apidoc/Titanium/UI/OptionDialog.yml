@@ -118,7 +118,7 @@ properties:
         the last option, otherwise the last entry in [options](Titanium.UI.OptionDialog.options) 
         will not be displayed.
     type: Number
-    default: undefined (Android), -1 (iOS)
+    default: undefined (Android), -1 (iOS, Mobile Web)
 
   - name: destructive
     summary: Index to define the destructive option, indicated by a visual cue when rendered.
