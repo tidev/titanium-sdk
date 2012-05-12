@@ -14,7 +14,6 @@
 #ifdef USE_TI_MEDIA
 
 #import "AudioStreamer.h"
-#import "AudioStreamerBC.h"
 #import "AudioStreamerCUR.h"
 #import "TiUtils.h"
 

@@ -928,6 +928,9 @@ cleanup:
 			{
 				volume = (double)result;
 			}
+			else {
+				NSLog(@"[WARN] An error %u occurred while fetching the volume of a stream.",(unsigned int)error);
+			}
 		}
 	}
 	return volume;
@@ -936,7 +939,7 @@ cleanup:
 //
 // setVolume
 //
-// returns the current playback volume.
+// sets the current playback volume.
 //
 - (void)setVolume:(double)value
 {
@@ -945,7 +948,10 @@ cleanup:
 	{
 		if ((audioQueue != nil) && ![self isFinishing])
 		{
-			OSStatus err = AudioQueueSetParameter(audioQueue,kAudioQueueParam_Volume,(AudioQueueParameterValue)value);
+			OSStatus error = AudioQueueSetParameter(audioQueue,kAudioQueueParam_Volume,(AudioQueueParameterValue)value);
+			if (error != noErr) {
+				NSLog(@"[WARN] An error %u occurred while setting the volume of a stream.",(unsigned int)error);
+			}
 		}
 	}
 }
