@@ -1,4 +1,5 @@
-./drillbit/drillbit.py --platforms=iphone --tests=apps --results-dir=/work/temp0511a --iphone-version=5.0 --autorun
-./drillbit/drillbit.py --platforms=iphone --tests=buffer  --results-dir=/work/temp0511a --iphone-version=5.0 --autorun
-./drillbit/drillbit.py --platforms=iphone --tests=codec  --results-dir=/work/temp0511a --iphone-version=5.0 --autorun
+./drillbit/drillbit.py --platforms=iphone --tests=apps --results-dir=/work/temp0511c --iphone-version=5.0 --autorun
+./drillbit/drillbit.py --platforms=iphone --tests=buffer  --results-dir=/work/temp0511c --iphone-version=5.0 --autorun
+./drillbit/drillbit.py --platforms=iphone --tests=codec  --results-dir=/work/temp0511c --iphone-version=5.0 --autorun
+./drillbit/drillbit.py --platforms=iphone --tests=database  --results-dir=/work/temp0511c --iphone-version=5.0 --autorun
 
