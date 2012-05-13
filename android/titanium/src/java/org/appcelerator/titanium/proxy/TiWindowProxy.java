@@ -66,6 +66,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected TiViewProxy tab;
 	protected boolean inTab;
 	protected PostOpenListener postOpenListener;
+	protected boolean windowActivityCreated = false;
 
 
 	public static interface PostOpenListener
@@ -227,11 +228,18 @@ public abstract class TiWindowProxy extends TiViewProxy
 		return TiUIHelper.viewToImage(new KrollDict(), getActivity().getWindow().getDecorView());
 	}
 
-	// only exists to expose a way for the activity to update the orientation based on
-	// the modes already set on the window
-	public void updateOrientation()
+	/*
+	 * Called when the window's activity has been created.
+	 */
+	public void onWindowActivityCreated()
 	{
-		setOrientationModes (orientationModes);
+		windowActivityCreated = true;
+
+		// Make sure the activity opens according to any orientation modes 
+		// set on the window before the activity was actually created.
+		if (orientationModes != null) {
+			setOrientationModes(orientationModes);
+		}
 	}
 
 	@Kroll.setProperty @Kroll.method
@@ -332,7 +340,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 			}
 
 			Activity activity = getActivity();
-			if (activity != null)
+
+			// Wait until the window activity is created before setting orientation modes.
+			if (activity != null && windowActivityCreated)
 			{
 				if (activityOrientationMode != -1)
 				{
