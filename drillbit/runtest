@@ -3,4 +3,5 @@
 ./drillbit/drillbit.py --platforms=iphone --tests=codec --results-dir=/work/temp0511c --iphone-version=5.0 --autorun
 ./drillbit/drillbit.py --platforms=iphone --tests=database --results-dir=/work/temp0511c --iphone-version=5.0 --autorun
 ./drillbit/drillbit.py --platforms=iphone --tests=filesystem --results-dir=/work/temp0511c --iphone-version=5.0 --autorun
+./drillbit/drillbit.py --platforms=iphone --tests=json --results-dir=/work/temp0511c --iphone-version=5.0 --autorun
 
