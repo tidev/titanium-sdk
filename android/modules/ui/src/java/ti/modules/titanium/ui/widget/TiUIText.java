@@ -367,6 +367,8 @@ public class TiUIText extends TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_PASSWORD_MASK)) {
 			passwordMask = TiConvert.toBoolean(d, TiC.PROPERTY_PASSWORD_MASK);
+			//turn off autocorrect for passwords.
+			autocorrect = 0;
 		}
 
 		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE)) {
