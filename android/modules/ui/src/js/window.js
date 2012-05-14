@@ -260,7 +260,7 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 
 		this.setWindowView(this.view);
-		 switchFocus(this);
+		switchFocus(this);
 
 		if (needsOpen) {
 			this.window.on("windowCreated", function () {
