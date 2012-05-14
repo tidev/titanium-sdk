@@ -286,7 +286,9 @@ properties:
     platforms: [iphone,ipad]
     
   - name: pagingControlOnTop
-    summary: Determines whether the paging control to be displayed, is at the top of the view.
+    summary: |
+        Determines whether the paging control is displayed on the top (true) or bottom (false) 
+        of the view.
     type: Boolean
     default: false
     since: 2.1.0

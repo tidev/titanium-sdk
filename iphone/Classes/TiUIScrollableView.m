@@ -443,10 +443,13 @@
 -(void)setPagingControlAlpha_:(id)args
 {
     pagingControlAlpha = [TiUtils floatValue:args def:1.0];
-    if(pagingControlAlpha > 1.0 || pagingControlAlpha < 0.0 ){
-        pagingControlAlpha = 1.0;
+    if(pagingControlAlpha > 1.0){
+        pagingControlAlpha = 1;
+    }    
+    if(pagingControlAlpha < 0.0 ){
+        pagingControlAlpha = 0;
     }
-    if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count]>0)) {
+    if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count] > 0)) {
         [[self pagecontrol] setAlpha:pagingControlAlpha];
     }
     
@@ -454,7 +457,7 @@
 -(void)setPagingControlOnTop_:(id)args
 {
     pagingControlOnTop = [TiUtils boolValue:args def:NO];
-    if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count]>0)) {
+    if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count] > 0)) {
         //No need to readd. Just set up the correct frame bounds
         [self refreshScrollView:[self bounds] readd:NO];
     }
@@ -463,7 +466,7 @@
 -(void)setOverlayEnabled_:(id)args
 {
     overlayEnabled = [TiUtils boolValue:args def:NO];
-    if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count]>0)) {
+    if (showPageControl && (scrollview!=nil) && ([[scrollview subviews] count] > 0)) {
         //No need to readd. Just set up the correct frame bounds
         [self refreshScrollView:[self bounds] readd:NO];
     }
