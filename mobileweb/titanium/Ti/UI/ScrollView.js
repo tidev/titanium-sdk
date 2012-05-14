@@ -12,7 +12,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
 				left: 0,
 				top: 0
 			});
-			View.prototype.add.call(this,contentContainer);
+			this._add(contentContainer);
 			style.set(contentContainer.domNode,"overflow","hidden");
 			
 			contentContainer.add(this._contentMeasurer = UI.createView({
