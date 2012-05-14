@@ -7,6 +7,7 @@
 
 #import "TiUIiOSProxy.h"
 #import "TiUtils.h"
+#import "Webcolor.h"
 
 #ifdef USE_TI_UIIOS
  
@@ -29,13 +30,6 @@
 #endif
 
 @implementation TiUIiOSProxy
-
-NSString * const IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND = @"scrollview_textured";
-NSString * const IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND = @"view_flipside";
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
-NSString * const IOS_COLOR_UNDER_PAGE_BACKGROUND = @"under_page";
-#endif
 
 #ifdef USE_TI_UIIOSADVIEW
 
