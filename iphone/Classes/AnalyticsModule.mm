@@ -56,7 +56,7 @@ NSString * const TI_DB_VERSION = @"1";
 		}
 		@catch (NSException * e) 
 		{
-			NSLog(@"[ERROR] database error on shutdown: %@",e);
+			NSLog(@"[ERROR] Analytics: database error on shutdown: %@",e);
 		}
 	}
 	RELEASE_TO_NIL(database);
@@ -102,7 +102,7 @@ NSString * const TI_DB_VERSION = @"1";
 	
 	if (count == TI_DB_WARN_ON_ATTEMPT_COUNT)
 	{
-		DebugLog(@"[WARN] %d analytics events attempted with no luck",count);
+		DebugLog(@"[WARN] Analytics: %d transmission attempts failed.",count);
 	}
 	
 	NSString *sql = count == 0 ? @"insert into last_attempt VALUES (?,?)" : @"update last_attempt set date = ?, attempts = ?";
@@ -116,7 +116,7 @@ NSString * const TI_DB_VERSION = @"1";
 	if (retryTimer==nil)
 	{
 		// start our re-attempt timer
-		DeveloperLog(@"[DEBUG] attempt to send analytics event but no network. will try again in %d seconds",TI_DB_RETRY_INTERVAL_IN_SEC);
+		DeveloperLog(@"[DEBUG] Attempted to send analytics event. No network; will try again in %d seconds.",TI_DB_RETRY_INTERVAL_IN_SEC);
 		retryTimer = [[NSTimer timerWithTimeInterval:TI_DB_RETRY_INTERVAL_IN_SEC target:self selector:@selector(backgroundFlushEventQueue) userInfo:nil repeats:YES] retain];
 		[[NSRunLoop mainRunLoop] addTimer:retryTimer forMode:NSDefaultRunLoopMode];
 	}
@@ -570,7 +570,7 @@ NSString * const TI_DB_VERSION = @"1";
 	}
 	else
 	{
-		DebugLog(@"[ERROR] invalid analytics event received. excepted dictionary. was: %@",[userInfo class]);
+		DebugLog(@"[ERROR] Invalid analytics event received. Expected dictionary, got: %@",[userInfo class]);
 	}
 }
 

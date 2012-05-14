@@ -131,7 +131,7 @@ static XHRBridge *xhrBridge = nil;
 		return;
 	}
 
-	DebugLog(@"[DEBUG] app protocol, loading: %@",url);
+	DebugLog(@"[DEBUG] Requested resource via app protocol, loading: %@",url);
 		
 	// see if it's a compiled resource
 	NSData *data = [TiUtils loadAppResource:url];

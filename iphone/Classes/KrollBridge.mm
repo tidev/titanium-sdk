@@ -68,12 +68,12 @@ NSString * TitaniumModuleRequireFormat = @"(function(exports){"
 #if KROLLBRIDGE_MEMORY_DEBUG==1
 -(id)retain
 {
-	NSLog(@"[DEBUG] RETAIN: %@ (%d)",self,[self retainCount]+1);
+	NSLog(@"[MEMRORY DEBUG] RETAIN: %@ (%d)",self,[self retainCount]+1);
 	return [super retain];
 }
 -(oneway void)release 
 {
-	NSLog(@"[DEBUG] RELEASE: %@ (%d)",self,[self retainCount]-1);
+	NSLog(@"[MEMORY DEBUG] RELEASE: %@ (%d)",self,[self retainCount]-1);
 	[super release];
 }
 #endif
@@ -269,12 +269,12 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 #if KROLLBRIDGE_MEMORY_DEBUG==1
 -(id)retain
 {
-	NSLog(@"[DEBUG] RETAIN: %@ (%d)",self,[self retainCount]+1);
+	NSLog(@"[MEMORY DEBUG] RETAIN: %@ (%d)",self,[self retainCount]+1);
 	return [super retain];
 }
 -(oneway void)release 
 {
-	NSLog(@"[DEBUG] RELEASE: %@ (%d)",self,[self retainCount]-1);
+	NSLog(@"[MEMORY DEBUG] RELEASE: %@ (%d)",self,[self retainCount]-1);
 	[super release];
 }
 #endif
@@ -310,7 +310,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 -(void)dealloc
 {
 #if KROLLBRIDGE_MEMORY_DEBUG==1
-	NSLog(@"[DEBUG] DEALLOC: %@",self);
+	NSLog(@"[MEMORY DEBUG] DEALLOC: %@",self);
 #endif
 		
 	[self removeProxies];
@@ -486,7 +486,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 {
 	if (![listener isKindOfClass:[KrollCallback class]])
 	{
-		DebugLog(@"[ERROR] listener callback is of a non-supported type: %@",[listener class]);
+		DebugLog(@"[ERROR] Listener callback is of a non-supported type: %@",[listener class]);
 		return;
 	}
 
@@ -512,7 +512,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 -(void)shutdown:(NSCondition*)condition
 {
 #if KROLLBRIDGE_MEMORY_DEBUG==1
-	NSLog(@"[DEBUG] DESTROY: %@",self);
+	NSLog(@"[MEMORY DEBUG] DESTROY: %@",self);
 #endif
 	
 	if (shutdown==NO)

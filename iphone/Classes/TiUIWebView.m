@@ -518,7 +518,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 				}
 				else 
 				{
-					DebugLog(@"[WARN] I have no idea what the appropriate text encoding is for: %@. Please report this to Appcelerator support.",url);
+					DebugLog(@"[WARN] Could not determine correct text encoding for content: %@.",url);
 				}
 			}
 			if ((error!=nil && [error code]==261) || [mimeType isEqualToString:(NSString*)svgMimeType])

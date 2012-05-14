@@ -202,7 +202,7 @@
 	else
 	{
 		pthread_rwlock_unlock(&childrenLock);
-		DebugLog(@"[WARN] called remove for %@ on %@, but %@ isn't a child or has already been removed",arg,self,arg);
+		DebugLog(@"[WARN] Called remove for %@ on %@, but %@ isn't a child or has already been removed.",arg,self,arg);
 		return;
 	}
 
@@ -2024,20 +2024,6 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 }
 
--(void)insertIntoView:(UIView*)newSuperview bounds:(CGRect)bounds
-{
-	if (newSuperview==view)
-	{
-		DebugLog(@"[ERROR] invalid call to insertIntoView, new super view is same as myself");
-		return;
-	}
-	ApplyConstraintToViewWithBounds(&layoutProperties, [self view], bounds);
-	if([view superview]!=newSuperview)	//TODO: Refactor out.
-	{
-		[newSuperview addSubview:view];
-	}
-}
-
 -(void)layoutChildrenIfNeeded
 {
 	IGNORE_IF_NOT_OPENED
@@ -2513,7 +2499,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	if ([[child view] animating])
 	{
         // changing the layout while animating is bad, ignore for now
-		DebugLog(@"[DEBUG] ignoring new layout while animating in layout Child..");
+        DebugLog(@"[WARN] New layout set while view %@ animating: Will relayout after animation.", child);
 	}
 	else
 	{

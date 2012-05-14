@@ -245,7 +245,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	if ([bridge isKindOfClass:[KrollBridge class]])
 	{
-		DebugLog(@"[DEBUG] application booted in %f ms", ([NSDate timeIntervalSinceReferenceDate]-started) * 1000);
+		DebugLog(@"[DEBUG] Application booted in %f ms", ([NSDate timeIntervalSinceReferenceDate]-started) * 1000);
 		fflush(stderr);
 		TiThreadPerformOnMainThread(^{[self validator];}, YES);
 	}
@@ -514,7 +514,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		[[NSUserDefaults standardUserDefaults] setObject:remoteDeviceUUID forKey:@"APNSRemoteDeviceUUID"];
 		NSDictionary *userInfo = [NSDictionary dictionaryWithObject:remoteDeviceUUID forKey:@"deviceid"];
 		[[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteDeviceUUIDNotification object:self userInfo:userInfo];
-		DebugLog(@"[DEBUG] registered new device ready for remote push notifications: %@",remoteDeviceUUID);
+		DebugLog(@"[DEBUG] Registered new device for remote push notifications: %@",remoteDeviceUUID);
 	}
 	
 	if (remoteNotificationDelegate!=nil)

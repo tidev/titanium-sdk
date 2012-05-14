@@ -415,7 +415,7 @@ NSArray * tableKeySequence;
 		
 	if ([sections count]==0)
 	{
-		DebugLog(@"[WARN] no rows found in table, ignoring delete");
+		DebugLog(@"[WARN] No rows found in table, ignoring delete");
 		return;
 	}
 	
@@ -424,7 +424,7 @@ NSArray * tableKeySequence;
 	
 	if (section==nil || row == nil)
 	{
-		DebugLog(@"[WARN] no row found for index: %d",index);
+		DebugLog(@"[WARN] No row found for index: %d",index);
 		return;
 	}
 	
@@ -521,7 +521,7 @@ NSArray * tableKeySequence;
 	{
 		//No table, we have to do the data update ourselves.
 		//TODO: Implement. Better yet, refactor.
-		DebugLog(@"[WARN] Table view was not in place before insertRowBefore was called. (Tell Blain or Steve to fix it!)");
+		DebugLog(@"[WARN] Table view was not in place before insertRowBefore was called.");
 	}
 
 }
@@ -598,7 +598,7 @@ NSArray * tableKeySequence;
 	{
 		//No table, we have to do the data update ourselves.
 		//TODO: Implement. Better yet, refactor.
-		DebugLog(@"[WARN] Table view was not in place before insertRowAfter was called. (Tell Blain or Steve to fix it!)");
+		DebugLog(@"[WARN] Table view was not in place before insertRowAfter was called.");
 	}
 
 }

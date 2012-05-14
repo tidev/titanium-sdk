@@ -274,13 +274,6 @@
     });
 }
 
-// For backwards compatibility
--(void)setSound:(id)sound
-{
-	DebugLog(@"[WARN] Deprecated; use 'url'");
-	[self setUrl:sound];
-}
-
 -(NSURL*)url
 {
 	return url;

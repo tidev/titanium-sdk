@@ -145,7 +145,8 @@ static TiValueRef MakeTimer(TiContextRef context, TiObjectRef jsFunction, TiValu
 	double duration = TiValueToNumber(context, durationRef, &exception);
 	if (exception!=NULL)
 	{
-		DebugLog(@"[ERROR] timer duration conversion failed");
+		DebugLog(@"[ERROR] Conversion of timer duration to number failed.");
+        return TiValueMakeUndefined(context);
 	}
 	KrollTimer *timer = [[KrollTimer alloc] initWithContext:globalContext function:fnRef jsThis:jsThis duration:duration onetime:onetime kroll:ctx timerId:timerID];
 	[ctx registerTimer:timer timerId:timerID];

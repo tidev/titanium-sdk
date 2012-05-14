@@ -359,14 +359,14 @@ DEFINE_EXCEPTIONS
 	vm_statistics_data_t vmStats;
 	mach_msg_type_number_t infoCount = HOST_VM_INFO_COUNT;
 	kern_return_t kernReturn = host_statistics(mach_host_self(), HOST_VM_INFO, (host_info_t)&vmStats, &infoCount);
-	NSLog(@"[DEBUG] %d pages free before clearing image cache.",vmStats.free_count);
+	NSLog(@"[CACHE DEBUG] %d pages free before clearing image cache.",vmStats.free_count);
 #endif
     
     [cache removeAllObjects];
     
 #ifdef DEBUG_IMAGE_CACHE
 	kernReturn = host_statistics(mach_host_self(), HOST_VM_INFO, (host_info_t)&vmStats, &infoCount);
-	NSLog(@"[DEBUG] %d pages free after clearing image cache.",vmStats.free_count);
+	NSLog(@"[CACHE DEBUG] %d pages free after clearing image cache.",vmStats.free_count);
 #endif
 
 
@@ -416,7 +416,7 @@ DEFINE_EXCEPTIONS
     }
 	
 #ifdef DEBUG_IMAGE_CACHE
-    NSLog(@"[DEBUG] Caching: %@",newEntry);
+    NSLog(@"[CACHE DEBUG] Caching: %@",newEntry);
 #endif
     
     [cache setObject:newEntry forKey:urlString];
@@ -806,7 +806,7 @@ DEFINE_EXCEPTIONS
 -(void)cache:(NSCache *)cache willEvictObject:(id)obj
 {
 #ifdef DEBUG_IMAGE_CACHE
-    NSLog(@"[DEBUG] Purging image cache object %@", obj);
+    NSLog(@"[CACHE DEBUG] Purging image cache object %@", obj);
 #endif
 }
 

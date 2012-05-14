@@ -585,7 +585,7 @@ static char ctrl[0x24];
         
         if (![self scanValue:&v error:error]) {
 			if(error){
-				DeveloperLog(@"[DEBUG] error in parser = %@",*error);
+				DeveloperLog(@"[DEBUG] Error in parser: %@",*error);
 				*error = errWithUnderlier(EPARSE, error, @"Expected value while parsing array");
 			}
             return NO;
@@ -808,7 +808,7 @@ static char ctrl[0x24];
             return NO;
             
         } else {
-            DeveloperLog(@"[ERROR] should not be able to get here in SBJSON.m");
+            DeveloperLog(@"[ERROR] Should not be able to get here in SBJSON.m");
         }
     } while (*c);
     
