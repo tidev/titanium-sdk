@@ -25,8 +25,10 @@ exports.bootstrapWindow = function(Titanium) {
 
 	// A collection of windows we need to keep alive.
 	var windows = [];
+	//TODO: to be removed after LW window stack is implemented
 	Window.prototype.lastFocusedWindow = null;
 	Window.prototype.isActivity = false;
+	//TODO: to be removed after LW window stack is implemented
 	Window.prototype.isFocus = false;
 
 	// set constants for representing states for the window
