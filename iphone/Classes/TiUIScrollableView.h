@@ -24,7 +24,7 @@
 
     // See the code for why we need this...
     int lastPage;
-    
+    BOOL enforceCacheRecalculation;
     int cacheSize;
 }
 
