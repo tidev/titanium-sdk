@@ -134,341 +134,339 @@ since: "0.4"
 
 methods:
   - name: create2DMatrix
-    summary: Creates are returns an instance of <Titanium.UI.2DMatrix>.
-    parameters:
-      - name: parameters
-        summary: |
-            A dictionary object specifying the initial transformation of the object.
-        type: MatrixCreationDict
-        optional: true
+    summary: Creates and returns an instance of <Titanium.UI.2DMatrix>.
     returns:
         type: Titanium.UI.2DMatrix
+    parameters:
+      - name: parameters
+        summary: Initial transformation of the matrix.
+        type: MatrixCreationDict
+        optional: true
         
   - name: convertUnits
-    summary: Converts one type of unit to another using the metrics of the main Display.
+    summary: Converts one type of unit to another using the metrics of the main display.
+    description: As this method does not support percentages, `0` is returned if they are specified.
+    returns:
+        type: Number
+    since: "2.0.0"
     parameters:
       - name: convertFromValue
         summary: |
-            A measurement and optional unit to convert from, i.e. 160, "120dip".  Percentages are 
-            not allowed.
+            Measurement and optional unit to convert from, i.e. 160, "120dip".  Percentages are 
+            not accepted.
         type: String
+        
       - name: convertToUnits
         summary: |
-            The desired unit for the conversion result. Use one of the unit constants in <Titanium.UI>.
+            Desired unit for the conversion result. Use one of the unit constants in <Titanium.UI>.
         type: String
-    returns:
-        type: Number
-        description: |
-            Returns the converted amount in the units of convertToUnits. If percentages are passed 
-            in, 0 is returned.
-        since: "2.0.0"
 
 properties:
   - name: ANIMATION_CURVE_EASE_IN
     summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: ANIMATION_CURVE_EASE_IN_OUT
     summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: ANIMATION_CURVE_EASE_OUT
     summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: ANIMATION_CURVE_LINEAR
     summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: AUTODETECT_ADDRESS
     summary: Use the text auto-detection constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "4.0"}}
-    permission: read-only
     type: Number
     deprecated:
         since: "1.8.0"
+    osver: {ios: {min: "4.0"}}
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: AUTODETECT_ALL
     summary: Use the text auto-detection constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: AUTODETECT_CALENDAR
     summary: Use the text auto-detection constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "4.0"}}
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    osver: {ios: {min: "4.0"}}
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: AUTODETECT_LINK
     summary: Use the text auto-detection constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: AUTODETECT_NONE
     summary: Use the text auto-detection constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: AUTODETECT_PHONE
     summary: Use the text auto-detection constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_CLEAR
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [android, iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [android, iphone, ipad]
     
   - name: BLEND_MODE_COLOR
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_COLOR_BURN
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_COLOR_DODGE
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_COPY
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_DARKEN
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_DESTINATION_ATOP
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_DESTINATION_IN
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_DESTINATION_OUT
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_DESTINATION_OVER
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_DIFFERENCE
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_EXCLUSION
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_HARD_LIGHT
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_HUE
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_LIGHTEN
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
     deprecated:
         since: "1.8.0"
     permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_LUMINOSITY
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_MULTIPLY
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_NORMAL
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_OVERLAY
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_PLUS_DARKER
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_PLUS_LIGHTER
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_SATURATION
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_SCREEN
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_SOFT_LIGHT
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_SOURCE_ATOP
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_SOURCE_IN
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_SOURCE_OUT
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_XOR
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
-    platforms: [iphone, ipad]
     type: Number
-    permission: read-only
     deprecated:
         since: "1.8.0"
+    permission: read-only
+    platforms: [iphone, ipad]
     
   - name: FACE_DOWN
     summary: Constant value for face-down orientation.
@@ -482,22 +480,22 @@ properties:
     
   - name: FILL
     summary: FILL behavior for UI layout.
-    since: "2.0.0"
-    type: String
     description: The FILL behavior means the view will grow its size to fill its parent.
+    type: String
     permission: read-only
+    since: "2.0.0"
     
   - name: INHERIT
     summary: INHERIT behavior for UI layout.
-    since: "2.0.0"
-    type: String
     description: |
         The INHERIT behavior means the view will use the `width` or `height` of the parent, as 
         specified by the user. For example, if the parent `width` is set to `50%`, then a child 
         with a width of `INHERIT` will inherit the width of `50%`, making it `25%` of the parent's 
         parent's width.
+    type: String
     permission: read-only
     platforms: [mobileweb]
+    since: "2.0.0"
     
   - name: INPUT_BORDERSTYLE_BEZEL
     summary: Use a bezel-style border on the input field.
@@ -534,7 +532,7 @@ properties:
         and <Titanium.UI.TextField.rightButtonMode> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
     
   - name: INPUT_BUTTONMODE_NEVER
     summary: Never show buttons on the input field.
@@ -544,7 +542,7 @@ properties:
         and <Titanium.UI.TextField.rightButtonMode> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
     
   - name: INPUT_BUTTONMODE_ONBLUR
     summary: Show buttons on the input field when it loses focus.
@@ -554,7 +552,7 @@ properties:
         and <Titanium.UI.TextField.rightButtonMode> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
     
   - name: INPUT_BUTTONMODE_ONFOCUS
     summary: Show buttons on the input field when it gains focus.
@@ -564,19 +562,19 @@ properties:
         and <Titanium.UI.TextField.rightButtonMode> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
     
   - name: KEYBOARD_APPEARANCE_ALERT
     summary: Use a keyboard appearance suitable for entering text on an alert.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
     
   - name: KEYBOARD_APPEARANCE_DEFAULT
     summary: Use the platform-specific default keyboard appearance.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
     
   - name: KEYBOARD_ASCII
     summary: Use an ASCII keyboard, with the standard keyboard layout.
@@ -597,6 +595,7 @@ properties:
         `KEYBOARD_DEFAULT`.
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
 
   - name: KEYBOARD_DEFAULT
     summary: Use the default keyboard, depending on the platform.
@@ -622,9 +621,9 @@ properties:
     description: |
         Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType> 
         properties.
-    platforms: [android, iphone, ipad]
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
     
   - name: KEYBOARD_NUMBERS_PUNCTUATION
     summary: Use a keyboard with numbers and punctuation only, with the standard keyboard layout.
@@ -687,9 +686,9 @@ properties:
     
   - name: NOTIFICATION_DURATION_SHORT
     summary: Specifies a short duration for an Android Toast notification (<Titanium.UI.Notification>).
+    type: Number
     permission: read-only
     platforms: [android]
-    type: Number
     
   - name: PICKER_TYPE_COUNT_DOWN_TIMER
     summary: Use a picker with a countdown timer appearance, showing hours and minutes.
@@ -730,9 +729,11 @@ properties:
     description: |
         Use with the <Titanium.UI.TextField.returnKeyType> and 
         <Titanium.UI.TextArea.returnKeyType> properties.
+
+        On Android devices, the default return key displays a graphical arrow.
         
         On Mobile Web, the default return key label depends on the mobile browser. For Mobile Web
-        on iOS devices, the default label is "return"; on Android devices it is "Go".
+        on iOS devices, the default label is "return".
     type: Number
     permission: read-only
     
@@ -767,9 +768,6 @@ properties:
     description: |
         Use with the <Titanium.UI.TextField.returnKeyType> and 
         <Titanium.UI.TextArea.returnKeyType> properties.
-        
-        On Mobile Web, the default return key label depends on the mobile browser. For Mobile Web
-        on iOS devices, the default label is "return"; on Android devices it is "Go".
     type: Number
     permission: read-only
     
@@ -805,9 +803,6 @@ properties:
     description: |
         Use with the <Titanium.UI.TextField.returnKeyType> and 
         <Titanium.UI.TextArea.returnKeyType> properties.
-        
-        On Mobile Web, the default return key label depends on the mobile browser. For Mobile Web
-        on iOS devices, the default label is "return"; on Android devices it is "Go".
     type: Number
     permission: read-only
     
@@ -825,9 +820,6 @@ properties:
     description: |
         Use with the <Titanium.UI.TextField.returnKeyType> and 
         <Titanium.UI.TextArea.returnKeyType> properties.
-        
-        On Mobile Web, the default return key label depends on the mobile browser. For Mobile Web
-        on iOS devices, the default label is "return"; on Android devices it is "Go".
     type: Number
     permission: read-only
     
@@ -936,9 +928,9 @@ properties:
     
   - name: UNIT_CM
     summary: Unit constant representing units in centimeters.
-    since: "2.0.0"
     type: String
     permission: read-only
+    since: "2.0.0"
     
   - name: UNIT_DIP
     summary: Unit constant representing units in density-independent pixels.
@@ -1023,8 +1015,9 @@ examples:
             var colorArray = [
               '#ff00ff', '#f0f', 'rgb(255,0,255)',
               'transparent', '#55ff00ff', '#5f0f', 'rgba(255,0,255,0.3)',
-              'aqua', 'black', 'blue', 'brown', 'cyan', 'darkgray', 'fuchsia', 'gray', 'green', 'lightgray', 'lime',
-              'magenta', 'maroon', 'navy', 'olive', 'orange', 'pink', 'purple', 'red', 'silver', 'teal', 'white', 'yellow',
+              'aqua', 'black', 'blue', 'brown', 'cyan', 'darkgray', 'fuchsia', 'gray', 'green', 
+              'lightgray', 'lime', 'magenta', 'maroon', 'navy', 'olive', 'orange', 'pink', 
+              'purple', 'red', 'silver', 'teal', 'white', 'yellow',
             ];
             var win = Ti.UI.createWindow({
               backgroundColor: 'black',
