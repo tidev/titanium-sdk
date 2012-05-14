@@ -212,7 +212,6 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 		this.currentState = this.state.opening;
 		rememberWindowAndAddCloseListener(this);
-		switchFocus(this);
 		
 		if (!options) {
 			options = {};
@@ -231,6 +230,7 @@ exports.bootstrapWindow = function(Titanium) {
 		if (!this.isActivity && "tabOpen" in this._properties && options.tabOpen) {
 			this.isActivity = true;
 		}
+        
 
 		// Set any cached properties on the properties given to the "true" view
 		if (this.propertyCache) {
@@ -260,6 +260,7 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 
 		this.setWindowView(this.view);
+		 switchFocus(this);
 
 		if (needsOpen) {
 			this.window.on("windowCreated", function () {
@@ -380,8 +381,8 @@ exports.bootstrapWindow = function(Titanium) {
 		if (this.isFocus && this.lastFocusedWindow) {
 			this.lastFocusedWindow.isFocus = true;
 			if (!this.isActivity) {
+				this.view.fireEvent("blur");
 				this.lastFocusedWindow.window.fireEvent("focus");
-				this.window.fireEvent("blur");
 			}
 			this.isFocus = false;
 
