@@ -186,7 +186,7 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 	}
 	
-	// Helper method to maintain focus state of all living windows. Only one window can be focused at a time.
+	//TODO: to be removed after LW window stack is implemented
 	var switchFocus = function(window) {
 		window.isFocus = true;
 		for (var i = 0; i < windows.length; i++) {
@@ -260,6 +260,7 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 
 		this.setWindowView(this.view);
+		//TODO: to be removed after LW window stack is implemented
 		switchFocus(this);
 
 		if (needsOpen) {
@@ -378,6 +379,7 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 		this.currentState = this.state.closing;
+		//TODO: to be removed after LW window stack is implemented
 		if (this.isFocus && this.lastFocusedWindow) {
 			this.lastFocusedWindow.isFocus = true;
 			if (!this.isActivity) {
@@ -545,9 +547,11 @@ exports.bootstrapWindow = function(Titanium) {
 		window._children = [];
 		window._postOpenChildren = [];
 		var self = window;
+		//TODO: to be removed after LW window stack is implemented
 		window.on('focus', function () {
 			switchFocus(self);
 		});
+
 		window.on('addedToTab', function () {
 			rememberWindowAndAddCloseListener(self);
 		});
