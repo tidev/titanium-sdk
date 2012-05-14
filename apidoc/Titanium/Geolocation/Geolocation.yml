@@ -61,11 +61,30 @@ description: |
     
     Prior to Titanium Mobile 2.0, Titanium attempted to follow the iOS model on Android,
     but this didn't fit the native Android model well. In Release 2.0, three different
-    location service mode are supported on Android: *legacy*, *manual*, and *simple*.
+    location service modes are supported on Android: *simple*, *manual*, and *legacy*.
+
+    *   *Simple mode* provides a compromise mode that provides adaquate support for 
+        undemanding location applications without requiring developers to
+        write a lot of Android-specific code. To use simple mode:
+
+        1.   Leave the <Titanium.Geolocation.Android.manualMode> flag set to `false` (the 
+             default value).
+        
+        2.   Set the [accuracy](Titanium.Geolocation.accuracy) property to 
+             either [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH) or 
+             [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW).
+
+    *   *Manual mode* gives developers low-level control of location updates, including
+        enabling individual location providers and filtering updates, for the best
+        combination of accuracy and battery life. 
+
+        Manual mode is used when the <Titanium.Geolocation.Android.manualMode> flag is set
+        to `true`. In manual mode, the `accuracy` property is not used, and all
+        configuration is done through the <Titanium.Geolocation.Android> module.
 
     *   *Legacy mode* is the mode that existed prior to 2.0. Legacy mode is 
-        used when you set the `accuracy` property to one of the iOS 
-        `ACCURACY` constants:
+        used when the `manualMode` flag is `false` and the `accuracy` property is 
+        set to one of the iOS `ACCURACY` constants:
 
         *   [ACCURACY_BEST](Titanium.Geolocation.ACCURACY_BEST) (highest accuracy and power consumption)
         *   [ACCURACY_NEAREST_TEN_METERS](Titanium.Geolocation.ACCURACY_NEAREST_TEN_METERS) 
@@ -87,25 +106,6 @@ description: |
         You can also specifying a desired update frequency using the
         [frequency](Titanium.Geolocation.frequency) property. The `preferredProvider`
         and `frequency` properties are not used in any other mode.
-
-    *   *Manual mode* gives developers low-level control of location updates, including
-        enabling individual location providers and filtering updates, for the best
-        combination of accuracy and battery life. 
-
-        Manual mode is used when the <Titanium.Geolocation.Android.manualMode> flag is set
-        to `true`. In manual mode, the `accuracy` property is not used, and all
-        configuration is done through the <Titanium.Geolocation.Android> module.
-
-    *   *Simple mode* provides a compromise mode that provides adaquate support for 
-        undemanding location applications without requiring developers to
-        write a lot of Android-specific code. 
-        
-        Setting the [accuracy](Titanium.Geolocation.accuracy) property to 
-        either [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH) or 
-        [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW) enables simple mode.
-
-        In this mode the platform handles enabling and disabling location providers and
-        filtering location updates.
 
     #### Configuring Location Updates on Mobile Web
 
@@ -244,6 +244,7 @@ properties:
         recommended. 
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
 
   - name: ACCURACY_HUNDRED_METERS
     summary: |
@@ -254,6 +255,7 @@ properties:
         recommended. 
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
 
   - name: ACCURACY_KILOMETER
     summary: |
@@ -264,6 +266,7 @@ properties:
         recommended. 
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
 
   - name: ACCURACY_NEAREST_TEN_METERS
     summary: |
@@ -274,6 +277,7 @@ properties:
         recommended. 
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
 
   - name: ACCURACY_THREE_KILOMETERS
     summary: |
@@ -284,6 +288,7 @@ properties:
         recommended. 
     type: Number
     permission: read-only
+    platforms: [android, iphone, ipad]
 
   - name: ACCURACY_HIGH
     summary: |
@@ -447,22 +452,25 @@ properties:
   - name: accuracy
     summary: Specifies the requested accuracy for location updates.
     description: |
-        Use of this property varies by platform.
+        For basic location updates on all platforms, set `accuracy` to either:
 
-        For iOS, specify one of ACCURACY_BEST, ACCURACY_NEAREST_TEN_METERS,
-        ACCURACY_HUNDRED_METERS, ACCURACY_KILOMETER, ACCURACY_THREE_KILOMETERS.
+        *   [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH) for higher-quality location
+            updates, with the higher power consumption.
+        *   [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW) for lower-quality location
+            updates with lower power consumption.
 
-        For Android in *legacy mode*, specify one of the iOS accuracy constants. This
-        usage is deprecated.
+        For finer-grained control on iOS, specify one of `ACCURACY_BEST`, 
+        `ACCURACY_NEAREST_TEN_METERS`, `ACCURACY_HUNDRED_METERS`, `ACCURACY_KILOMETER`, or
+        `ACCURACY_THREE_KILOMETERS`. 
 
-        For Android in *simple mode*, specify either ACCURACY_HIGH or ACCURACY_LOW.
+        For finer-grained control on Android, use *manual mode*, instead of specifing an accuracy. 
+        This mode requires more active management on the part of the application, but it 
+        is recommended to maximize accuracy and battery life.
+        See <Titanium.Geolocation.Android> for details on using manual mode.
 
-        For Android in *manual mode*, do not specify an accuracy. Use location providers
-        and location rules to control geolocation behavior as described in
-        <Titanium.Geolocation.Android>.
-
-        For Mobile Web, specify either ACCURACY_HIGH or ACCURACY_LOW.
-
+        Note that for backwards compatibility, Android supports using the iOS accuracy constants. 
+        This usage is deprecated. Applications using one of the iOS constants should
+        migrate to using `ACCURACY_HIGH`, `ACCURACY_LOW`, or Android manual mode.
     type: Number
 
   - name: distanceFilter
