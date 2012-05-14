@@ -69,8 +69,13 @@ events:
         platforms: [android]
         
       - name: cancel
-        summary: Index of the cancel option if defined or `-1` otherwise.
-        type: Number
+        summary: |
+            On Android and Mobile Web, indicates whether the cancel button was clicked, in which 
+            case returns `true`. 
+            
+            On iOS and Mobile Web, the value of the [cancel](Titanium.UI.OptionDialog.cancel) 
+            property is returned, if defined, or `-1` otherwise. 
+        type: Boolean (Android), Number (iOS, Mobile Web)
         
       - name: destructive
         summary: Index of the destructive option if defined or `-1` otherwise.
@@ -105,19 +110,20 @@ properties:
     platforms: [android]
     
   - name: cancel
-    summary: Index to define the cancel option, returned by the `click` event.
+    summary: Index to define the cancel option.
     description: |
-        Set to `-1` to disable the cancel option.
+        On iOS, set to `-1` to disable the cancel option.
         
         On iPad, when the cancel option is enabled by having a valid option index, it must be 
         the last option, otherwise the last entry in [options](Titanium.UI.OptionDialog.options) 
         will not be displayed.
     type: Number
-    default: -1
+    default: undefined (Android), -1 (iOS, Mobile Web)
 
   - name: destructive
     summary: Index to define the destructive option, indicated by a visual cue when rendered.
     type: Number
+    default: -1
     platforms: [iphone, ipad, mobileweb]
     availability: creation
     
