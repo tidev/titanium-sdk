@@ -325,15 +325,11 @@ public class TiUIText extends TiUIView
 		int type = KEYBOARD_ASCII;
 		boolean passwordMask = false;
 		boolean editable = true;
-		int autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
+		int autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
 		int autoCapValue = 0;
 
-		if (d.containsKey(TiC.PROPERTY_AUTOCORRECT)) {
-			if(TiConvert.toBoolean(d, TiC.PROPERTY_AUTOCORRECT)) {
-				autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
-			} else {
-				autocorrect = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
-			}
+		if (d.containsKey(TiC.PROPERTY_AUTOCORRECT) && !TiConvert.toBoolean(d, TiC.PROPERTY_AUTOCORRECT)) {
+			autocorrect = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
 		}
 
 		if (d.containsKey(TiC.PROPERTY_EDITABLE)) {
@@ -367,8 +363,6 @@ public class TiUIText extends TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_PASSWORD_MASK)) {
 			passwordMask = TiConvert.toBoolean(d, TiC.PROPERTY_PASSWORD_MASK);
-			//turn off autocorrect for passwords.
-			autocorrect = 0;
 		}
 
 		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE)) {
@@ -377,10 +371,9 @@ public class TiUIText extends TiUIView
 
 		int typeModifiers = autocorrect | autoCapValue;
 		int textTypeAndClass = typeModifiers;
-		// For some reason you can't set both TYPE_CLASS_TEXT and
-		// TYPE_TEXT_FLAG_NO_SUGGESTIONS together.
-		if (autocorrect != InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS) {
-			// Go ahead and tack on text class
+		// For some reason you can't set both TYPE_CLASS_TEXT and TYPE_TEXT_FLAG_NO_SUGGESTIONS together.
+		// Also, we need TYPE_CLASS_TEXT for passwords.
+		if (autocorrect != InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS || passwordMask) {
 			textTypeAndClass = textTypeAndClass | InputType.TYPE_CLASS_TEXT;
 		}
 		tv.setCursorVisible(true);
