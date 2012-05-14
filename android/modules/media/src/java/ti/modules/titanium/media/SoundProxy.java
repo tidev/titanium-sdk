@@ -20,15 +20,13 @@ import ti.modules.titanium.filesystem.FileProxy;
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule=MediaModule.class, propertyAccessors = {
-	SoundProxy.PROPERTY_VOLUME
+	TiC.PROPERTY_VOLUME
 })
 public class SoundProxy extends KrollProxy
 	implements org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent
 {
 	private static final String LCAT = "SoundProxy";
 	private static final boolean DBG = TiConfig.LOGD;
-
-	public static final String PROPERTY_VOLUME = "volume";
 
 	protected TiSound snd;
 
@@ -40,7 +38,7 @@ public class SoundProxy extends KrollProxy
 		// TODO needs to happen post-activity assignment
 		//((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
 		
-		defaultValues.put(PROPERTY_VOLUME, 0.5);
+		defaultValues.put(TiC.PROPERTY_VOLUME, 1.0f);
 		defaultValues.put(TiC.PROPERTY_TIME, 0d);
 	}
 
