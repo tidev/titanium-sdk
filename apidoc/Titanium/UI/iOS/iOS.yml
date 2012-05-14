@@ -324,7 +324,7 @@ properties:
     type: String
     permission: read-only
     since: "1.8.1"
-<<<<<<< HEAD
+
     
   - name: COLOR_SCROLLVIEW_BACKGROUND
     summary: Returns the iOS system pattern color used to render the area behind scrollable content.
@@ -344,6 +344,3 @@ properties:
     permission: read-only
     since: "2.1.0"
     osver: {iOS: {min: "5.0"}}
-
-=======
->>>>>>> 04ed8f5567d526f94bf1899cc66bf7a456b2b530
