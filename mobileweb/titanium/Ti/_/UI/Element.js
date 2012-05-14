@@ -614,6 +614,12 @@ define(
 			var curve = curves[anim.curve] || "ease",
 				self = this,
 				fn = function() {
+					
+					// It is possible for the asynchronicity of animations to leave us in a state where the element was removed from its parent mid-animation
+					if (!self._parent) {
+						return;
+					}
+					
 					var transformCss = "";
 
 					// Set the color and opacity properties

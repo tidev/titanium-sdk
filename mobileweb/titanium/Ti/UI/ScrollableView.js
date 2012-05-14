@@ -42,7 +42,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 				width: UI.SIZE,
 				height: "100%",
 				top: 0,
-				touchEnabled: false
+				touchEnabled: false,
+				layout: "constrainingHorizontal"
 			}));
 
 			// State variables
@@ -350,11 +351,11 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 				var indicator = UI.createView({
 					width: diameter,
 					height: diameter,
-					top: diameter / 2,
-					left: i * 2 * diameter,
-					backgroundColor: i === newIndex ? "white" : "grey"
+					left: 5,
+					right: 5,
+					backgroundColor: i === newIndex ? "white" : "grey",
+					borderRadius: unitize(diameter / 2)
 				});
-				setStyle(indicator.domNode,"borderRadius",unitize(diameter / 2));
 				this._pagingControlContentContainer.add(indicator);
 			}
 			!hidePagingControl && this._showPagingControl();
