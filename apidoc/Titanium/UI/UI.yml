@@ -492,10 +492,10 @@ properties:
     since: "2.0.0"
     type: String
     description: |
-        The INHERIT behavior means the view will use the `width` or `height` of the parent, as 
-        specified by the user. For example, if the parent `width` is set to `50%`, then a child 
-        with a width of `INHERIT` will inherit the width of `50%`, making it `25%` of the parent's 
-        parent's width.
+        The INHERIT behavior allows the width/height of a view to be determined by the 
+        parent. If a parent has a size of <Titanium.UI.SIZE>, then the child will inherit 
+        a size of <Titanium.UI.SIZE>. Otherwise, the child inherits a size of 
+        <Ti.UI.FILL>.
     permission: read-only
     platforms: [mobileweb]
     

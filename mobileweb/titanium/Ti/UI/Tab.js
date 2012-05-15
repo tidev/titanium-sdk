@@ -14,7 +14,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI"],
 
 			var win = this._win = args.window,
 				container = UI.createView({
-					layout: "vertical",
+					layout: UI._LAYOUT_CONSTRAINING_VERTICAL,
 					width: "100%",
 					height: UI.SIZE
 				});
