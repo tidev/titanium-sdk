@@ -1,4 +1,4 @@
-define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/lang", "Ti/UI"], function(css, declare, style, dom, lang, UI) {
+define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/_"], function(css, declare, style, dom, lang, UI, _) {
 	
 	var isDef = lang.isDef,
 		val = lang.val;
