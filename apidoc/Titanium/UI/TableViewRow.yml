@@ -4,25 +4,25 @@ summary: An individual row for a [TableView](Titanium.UI.TableView).
 description: |
     Use the <Titanium.UI.createTableViewRow> method to create a table view row.
     
-    A table view row represents a single item in a `TableView`. The row's contents can be as simple 
-    as a single line of text, or the row can be a completely customized with its own child views.
+    A table view row represents a single item in a [TableView](Titanium.UI.TableView). The row's 
+    contents can be as simple as a single line of text, or the row can be a completely customized 
+    with its own child views.
     
-    A basic table view row includes properties for setting:
+    A simple table view row provides properties for setting:
     
-    * Row title to display the text content on the row.
-    * Optional images on the left and right sides of the row.
-    * Optional system decorations, such as checkboxes.
-    
-    The usual view properties may also be set, such as background color and background image.
+    * Row title to display the text content in the row.
+    * Background color and background image.
+    * Images on the left and right sides of the row.
+    * System decorations, such as checkboxes.
     
     If a custom layout is needed, such as multiple lines of text, different fonts, or additional 
-    images or controls, child views may be added to the row. In this case, row `title` property 
-    should not be set.
+    images or controls, child views may be added to the row. In this case, the row's `title` 
+    property should not be set.
     
-    In order to enable good performance, each group of rows with the same layout should be given a 
-    `className` of the same value. The content of the elements inside the rows may be different so, 
-    for example, if the text is the only thing different between two cells but the layout is the 
-    same, both row instances should have the same value for `className`.
+    When rows contain child views, improved performance may be obtained by giving rows with the same 
+    layout a [className](Titanium.UI.TableViewRow) of the same value. The content of the rows may 
+    be different without the need for a new class name, though. For example, if the text is the only 
+    difference between two rows, both row instances should have identical class names.
     
     As events automatically bubble/propogate to parent views, a listener may be placed on the table 
     view to detect events fired from the rows. The benefit is that it is not necessary to 
@@ -43,12 +43,23 @@ description: |
     
     Also, note that the selected text color, `selectedColor`, can only be set on iOS and 
     Mobile Web. On Android, the text color does not change when the row is selected.
+    
+    #### Row Swipe Gestures
+    
+    A common requirement is to enable the user to interact with table rows using swipe gestures. 
+    As this event is not available for the `TableViewRow` object, it will not "bubble up" to the 
+    `TableView`, where a <Titanium.UI.TableView.swipe> is recognized. 
+    
+    A typical solution is to use a standard view as a container, or wrapper, for all each row's child 
+    views, because it recognizes <Titanium.UI.View.swipe> events and allows them to pass to the table. 
+    Each child view should have touch events disabled, so that the container view provides a reliable 
+    source for these events. Refer to the "Row Swipe Gestures" example for a demonstration. 
 extends: Titanium.UI.View
 since: "0.9"
 excludes:
-    properties: []
-    methods: [animate]
     events: [dblclick, doubletap, longpress, pinch, singletap, swipe, touchend, touchmove, twofingertap]
+    methods: [animate]
+    properties: []
 
 events:
   - name: click
@@ -65,10 +76,10 @@ events:
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: index
         summary: Row index.
@@ -146,10 +157,10 @@ events:
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -175,10 +186,10 @@ events:
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -197,7 +208,7 @@ properties:
         A table view row must have a unique class name if the row layout is unique. However, 
         use the same name for rows that have the same structural layout (even if the content is 
         different) to provide maximum rendering performance.
-
+        
         For example, if some rows include images and some rows do not, you would have two class
         names, one for image rows and one for plain rows.
         
@@ -332,16 +343,75 @@ properties:
     description: Do not specify if using views as children of the row.
     type: String
 
-    
-
 examples:
   - title: Simple Table View Row example
     example: |
-        In this simple example, we create a table view row with a red square in the cell.
+        Create a table view row containing a red square view.
         
             var row = Titanium.UI.createTableViewRow();
-            var view = Titanium.UI.createView({backgroundColor:'red',width:20,height:20});
+            var view = Titanium.UI.createView({
+              backgroundColor:'red',
+              width: 20, height: 20
+            });
             row.height = 'auto';
             row.add(view);
+  - title: Row Swipe Gestures
+    example: |
+        Create a table of rows. When a row is swiped, output its ID to the log. 
         
-        
+            var tableData = [];
+            
+            var win = Ti.UI.createWindow({ backgroundColor: 'white' });
+            
+            var table = Ti.UI.createTableView({ objName: 'table' });
+            
+            for (var i = 0; i <= 20; i++){
+              var row = Ti.UI.createTableViewRow({
+                className: 'row',
+                objName: 'row',
+                touchEnabled: true,
+                height: 100
+              });
+              
+              var enabledWrapperView = Ti.UI.createView({
+                backgroundColor:'#008FD5',
+                objName: 'enabledWrapperView',
+                rowID: i,
+                width: Ti.UI.FILL, height: '100%'
+              });
+              
+              var disabledWrapperView = Ti.UI.createView({
+                backgroundColor:'#A2E0FF',
+                objName: 'disabledWarpperView',
+                touchEnabled: false,
+                width: 300, height: '80%'
+              });
+              enabledWrapperView.add(disabledWrapperView);
+              
+              var label = Ti.UI.createLabel({
+                backgroundColor:'#313F48',
+                color: 'white',
+                objName: 'label',
+                text: i,
+                touchEnabled: false,
+                left: 0,
+                width: 200
+              });
+              disabledWrapperView.add(label);
+              
+              row.add(enabledWrapperView);
+              tableData.push(row);
+            }
+            
+            table.setData(tableData);
+            
+            table.addEventListener('swipe', function(e){
+              if (e.source && e.source.objName !== 'table'){
+                Ti.API.info('Row swiped: ' + e.source);
+                Ti.API.info('Row swiped: ' + e.source.objName);
+                Ti.API.info('Row ID : ' + e.source.rowID);
+              }
+            });
+            
+            win.add(table);
+            win.open();

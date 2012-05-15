@@ -1,25 +1,45 @@
 ---
 name: Titanium.UI.TableView
-summary: A Table View allows you to create a scrollable table of content in a list-based fashion.
+summary: |
+    A table view is a container for [TableViewRow](Titanium.UI.TableViewRow) objects that are used 
+    to present information in a vertically-scrolling view.
 description: |
-    A table view can contain a set of [TableViewRow](Titanium.UI.TableViewRow)s, each displaying 
-    an item of data. The default `TableViewRow` has properties for adding text, as well as 
-    optional images on the left and right sides, and various system-provided indicators, 
-    such as check marks. Table view rows can also be fully customized by adding child views, 
-    such as labels, buttons, or image views.
+    Use the <Titanium.UI.createTableView> method to create a table view. 
     
-    When adding rows to a table view, each row can be passed as a 
-    [TableViewRow](Titanium.UI.TableViewRow) object using the the <Titanium.UI.createTableViewRow> 
-    method. Alternatively, a simple dictionary specifying the properties for a table row can be used, 
-    in which case `TableViewRow` objects are created as needed.
+    Rows may be created and added to a table in two ways.
     
-    Use the <Titanium.UI.createTableView> method to create a table view.
+    The simplest approach is to pass dictionaries of `TableViewRow` properties, such as 
+    [backgroundColor](Titanium.UI.TableViewRow.backgroundColor), 
+    [color](Titanium.UI.TableViewRow.color), and [title](Titanium.UI.TableViewRow.title), to the 
+    [createTableView](Titanium.UI.createTableView) method, which causes the rows to be implictly 
+    created. Refer to the "Simple Table View with Basic Rows" example.
+    
+    For more control over the layout of each row, however, [TableViewRow](Titanium.UI.TableViewRow) 
+    objects can be created explicitly using the <Titanium.UI.createTableViewRow> method and passed 
+    to the table view. Child views, such as [labels](Titanium.UI.Label), 
+    [images](Titanium.UI.ImageView), and [buttons](Titanium.UI.Button), may be added to each row. 
+    See the "Table View with Composite Layout" example.
+    
+    As a table view inherently scrolls, it creates a very poor user experience when it contains 
+    other scrolling views, such as a [ScrollableView](Titanium.UI.ScrollableView) or 
+    [TextArea](Titanium.UI.TextArea). Thus, this layout is strongly discouraged. 
+    
+    #### TextFields in Tables with SOFT_INPUT_ADJUST_PAN (Android)
+    
+    When a [TextField](Titanium.UI.TextField) is added to a row near the bottom of a `TableView`, 
+    in a window that is configured with 
+    [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN) so that the software keyboard 
+    covers non-text fields when displayed, the keyboard is likely to completely obscure the text 
+    field also. This is a known problem caused by the native Android ListView behavior. 
+    
+    To mitigate this, a `ScrollView` may be used instead of a table view, as demonstrated in the 
+    [ScrollView](Titanium.UI.ScrollView), "Scroll View as a Table View", example. 
     
     #### Row Editing and Moving Modes (iOS only)
     
-    Table views have an `editing` and a `moving` mode that may be activated to using their respective 
-    [editing](Titanium.UI.TableView.editing) and [moving](Titanium.UI.TableView.moving) properties. 
-    These allow rows to be deleted or re-ordered by the user, depending on each row's 
+    On iOS, table views have an `editing` and a `moving` mode that may be activated to using their 
+    respective [editing](Titanium.UI.TableView.editing) and [moving](Titanium.UI.TableView.moving) 
+    properties. These allow rows to be deleted or re-ordered by the user, depending on each row's 
     [editable](Titanium.UI.TableViewRow.editable) and [moveable](Titanium.UI.TableViewRow.moveable) 
     property that are either explicitly set or inherited from the table.
     
@@ -60,7 +80,7 @@ description: |
 extends: Titanium.UI.View
 since: "0.8"
 excludes: {
-    events: [delete, pinch, swipe, touchmove],
+    events: [delete, pinch, touchmove],
     properties: [backgroundSelectedColor, backgroundSelectedImage]
 }
 
@@ -79,10 +99,10 @@ events:
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: index
         summary: Row index.
@@ -122,14 +142,14 @@ events:
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: x
-        type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
 
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
@@ -147,10 +167,10 @@ events:
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: index
         summary: Row index.
@@ -190,10 +210,10 @@ events:
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -232,10 +252,10 @@ events:
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: detail
         summary: Boolean to indicate if the right area was clicked. Always `false` for this event.
@@ -277,29 +297,29 @@ events:
     properties:
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
-        platforms: [iphone, ipad, mobileweb]
         type: Point
+        platforms: [iphone, ipad, mobileweb]
         
       - name: contentSize
         summary: |
             Dictionary with `width` and `height` properties containing the size of the content 
             (regardless of the display size in the case of scrolling).
-        platforms: [iphone, ipad, mobileweb]
         type: Dictionary
+        platforms: [iphone, ipad, mobileweb]
         
       - name: firstVisibleItem
         summary: Row index of the topmost visible row in the view.
-        platforms: [android, mobileweb]
         type: Number
+        platforms: [android, mobileweb]
         
       - name: globalPoint
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: size
         summary: |
@@ -309,13 +329,13 @@ events:
         
       - name: totalItemCount
         summary: Total number of rows in the view.
-        platforms: [android, mobileweb]
         type: Number
+        platforms: [android, mobileweb]
         
       - name: visibleItemCount
         summary: Number of rows currently visible in the view.
-        platforms: [android, mobileweb]
         type: Number
+        platforms: [android, mobileweb]
         
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -333,22 +353,22 @@ events:
         summary: |
             Dictionary with `width` and `height` properties containing the size of the content 
             (regardless of the display size in the case of scrolling).
-        platforms: [iphone, ipad, mobileweb]
         type: Dictionary
+        platforms: [iphone, ipad, mobileweb]
         
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
-        platforms: [iphone, ipad, mobileweb]
         type: Point
+        platforms: [iphone, ipad, mobileweb]
         
       - name: globalPoint
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: size
         summary: |
@@ -365,8 +385,8 @@ events:
         type: Number
         
   - name: singletap
-    platforms: [iphone, ipad, mobileweb]
     summary: Fired when the device detects a single tap against the view.
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -378,20 +398,20 @@ events:
         
   - name: swipe
     summary: Fired when the device detects a swipe gesture (left or right) against the view.
-    platforms: [mobileweb]
+    since: { android: "2.1.0", iphone: "2.1.0", ipad: "2.1.0", mobileweb: "1.8.2" } 
     properties:
       - name: direction
-        summary: Direction of the swipe, either 'left' or 'right'.
+        summary: Direction of the swipe, either `left` or `right`.
         type: String
         
       - name: globalPoint
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: x
         summary: X coordinate of the event's endpoint from the `source` view's coordinate system.
@@ -420,10 +440,10 @@ events:
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -449,10 +469,10 @@ events:
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -478,10 +498,10 @@ events:
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -499,10 +519,10 @@ events:
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -688,15 +708,14 @@ methods:
         type: TableViewContentInsetOption
         optional: true
     platforms: [iphone, ipad]
-    since: 2.1.0
-        
+    since: "2.1.0"
+    
   - name: selectRow
     summary: Programmatically selects a row.
     parameters:
       - name: row
         summary: Row index to select.
         type: Number
-    platforms: [iphone, ipad]
     
   - name: setData
     summary: Sets the data in the table.
@@ -723,7 +742,7 @@ methods:
         summary: View to display.
         type: Titanium.UI.View
     platforms: [iphone, ipad]
-    since: 2.1.0
+    since: "2.1.0"
 
   - name: updateRow
     summary: Updates an existing row, optionally with animation
@@ -836,7 +855,7 @@ properties:
         guide describes one way a `headerPullView` may be untilized.
     type: Titanium.UI.View
     platforms: [iphone, ipad]
-    since: 2.1.0
+    since: "2.1.0"
     
   - name: hideSearchOnSelection
     summary: Determines whether the search field should hide on completion.
