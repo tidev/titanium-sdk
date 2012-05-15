@@ -1085,21 +1085,6 @@
 			[proxy layoutChildren:NO];
 		}
 	}
-	
-    if (tableview!=nil && 
-        !CGRectIsEmpty(self.bounds) && 
-        [tableview superview]!=nil)
-	{
-		
-		if([NSThread isMainThread])
-		{
-			[tableview reloadData];
-		}
-		else
-		{
-			TiThreadPerformOnMainThread(^{[tableview reloadData];}, NO);
-		}
-	}
 }
 
 -(CGFloat)contentHeightForWidth:(CGFloat)suggestedWidth
