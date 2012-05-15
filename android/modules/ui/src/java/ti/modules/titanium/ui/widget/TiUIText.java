@@ -20,6 +20,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Build;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils.TruncateAt;
@@ -324,15 +325,11 @@ public class TiUIText extends TiUIView
 		int type = KEYBOARD_ASCII;
 		boolean passwordMask = false;
 		boolean editable = true;
-		int autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
+		int autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
 		int autoCapValue = 0;
 
-		if (d.containsKey(TiC.PROPERTY_AUTOCORRECT)) {
-			if(TiConvert.toBoolean(d, TiC.PROPERTY_AUTOCORRECT)) {
-				autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
-			} else {
-				autocorrect = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
-			}
+		if (d.containsKey(TiC.PROPERTY_AUTOCORRECT) && !TiConvert.toBoolean(d, TiC.PROPERTY_AUTOCORRECT)) {
+			autocorrect = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
 		}
 
 		if (d.containsKey(TiC.PROPERTY_EDITABLE)) {
@@ -374,10 +371,9 @@ public class TiUIText extends TiUIView
 
 		int typeModifiers = autocorrect | autoCapValue;
 		int textTypeAndClass = typeModifiers;
-		// For some reason you can't set both TYPE_CLASS_TEXT and
-		// TYPE_TEXT_FLAG_NO_SUGGESTIONS together.
-		if (autocorrect != InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS) {
-			// Go ahead and tack on text class
+		// For some reason you can't set both TYPE_CLASS_TEXT and TYPE_TEXT_FLAG_NO_SUGGESTIONS together.
+		// Also, we need TYPE_CLASS_TEXT for passwords.
+		if (autocorrect != InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS || passwordMask) {
 			textTypeAndClass = textTypeAndClass | InputType.TYPE_CLASS_TEXT;
 		}
 		tv.setCursorVisible(true);
@@ -430,6 +426,12 @@ public class TiUIText extends TiUIView
 		if (passwordMask) {
 			tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
 			textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_PASSWORD;
+			//turn off text UI in landscape mode in 4.0 b/c Android numeric passwords are not masked correctly in landscape mode.
+			if (Build.VERSION.SDK_INT == TiC.API_LEVEL_ICE_CREAM_SANDWICH && (type == KEYBOARD_NUMBERS_PUNCTUATION || 
+					type == KEYBOARD_DECIMAL_PAD || type == KEYBOARD_NUMBER_PAD)) {
+				tv.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+			}
+
 		} else {
 			if (tv.getTransformationMethod() instanceof PasswordTransformationMethod) {
 				tv.setTransformationMethod(null);

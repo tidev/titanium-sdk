@@ -437,6 +437,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SCROLLINGENABLED = "scrollingEnabled";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ACTION = "action";
 
 	/**
@@ -1680,6 +1685,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_VIEWS = "views";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_VOLUME = "volume";
 
 	/**
 	 * @module.api
