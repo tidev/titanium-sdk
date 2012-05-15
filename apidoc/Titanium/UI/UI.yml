@@ -128,6 +128,13 @@ description:  |
     If a color property is undefined, the default color of the particular UI element is applied. 
     If a color value is not valid on iOS, the default color is applied, whereas, on Android, the 
     color yellow is applied.
+    
+    Besides the above mentioned colors, iOS also supports the following native system background colors.
+    
+    * **[COLOR_SCROLLVIEW_BACKGROUND](Titanium.UI.iOS.COLOR_SCROLLVIEW_BACKGROUND)** 
+    * **[COLOR_VIEW_FLIPSIDE_BACKGROUND](Titanium.UI.iOS.COLOR_VIEW_FLIPSIDE_BACKGROUND)** 
+    * **[COLOR_UNDER_PAGE_BACKROUND](Titanium.UI.iOS.COLOR_UNDER_PAGE_BACKROUND)** - only 
+    available on `iOS SDK 5.0 and above`.
 
 extends: Titanium.Module
 since: "0.4"

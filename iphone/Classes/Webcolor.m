@@ -7,7 +7,14 @@
 
 #import "Webcolor.h"
 #import "TiBase.h"
+#import "TiUtils.h"
 
+NSString * const IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND = @"scrollview_textured";
+NSString * const IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND = @"view_flipside";
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
+NSString * const IOS_COLOR_UNDER_PAGE_BACKGROUND = @"under_page";
+#endif
 
 UIColor * checkmarkColor = nil;
 NSMutableDictionary * colorLookup = nil;
@@ -54,7 +61,9 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 					   [UIColor brownColor],@"brown",
 					   [UIColor clearColor],@"transparent",
 					   [UIColor groupTableViewBackgroundColor],@"stripped",
-					   
+					   [UIColor scrollViewTexturedBackgroundColor],IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND,
+					   [UIColor viewFlipsideBackgroundColor],IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND,
+                       
 					   // these are also defined by the W3C HTML spec so we support them
 					   [Webcolor colorForHex:@"0ff"],@"aqua",
 					   [Webcolor colorForHex:@"f0f"],@"fuchsia",
@@ -76,6 +85,12 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 					   black,@"ff000000",
 					   nil];
 	}
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
+	if ([TiUtils isIOS5OrGreater])
+	{
+		[colorLookup setObject:[UIColor underPageBackgroundColor] forKey:IOS_COLOR_UNDER_PAGE_BACKGROUND];
+	}
+#endif
 	if ([colorName hasPrefix:@"#"]) 
 	{
 		colorName = [colorName substringFromIndex:1];
