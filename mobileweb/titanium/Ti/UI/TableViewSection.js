@@ -13,12 +13,12 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 				Widget.prototype.add.call(this, this[v] = UI.createView({ 
 					height: UI.SIZE, 
 					width: UI.INHERIT, 
-					layout: "vertical"
+					layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 				}));
 			}));
 
 			// Create the parts out of Ti controls so we can make use of the layout system
-			this.layout = "vertical";
+			this.layout = UI._LAYOUT_CONSTRAINING_VERTICAL;
 		},
 
 		_defaultWidth: UI.INHERIT,

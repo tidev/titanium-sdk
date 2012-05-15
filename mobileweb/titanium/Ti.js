@@ -336,7 +336,7 @@ define(
 						backgroundColor: "#f00",
 						top: "100%",
 						height: "100%",
-						layout: "vertical"
+						layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 					}),
 					view,
 					button;

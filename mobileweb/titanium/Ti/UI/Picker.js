@@ -5,6 +5,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 		borderRadius = 6,
 		unitizedBorderRadius = dom.unitize(borderRadius),
 		inputSizes = {},
+		on = require.on,
 		DateTimeInput = declare(Widget, {
 			
 			constructor: function() {
@@ -33,14 +34,6 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 				on(this._input, "keyup", function() {
 					handleChange();
 				});
-			},
-			
-			_doLayout: function(params) {
-				var values = this.properties.__values__;
-				values.width = params.isParentSize.width ? UI.SIZE : "100%";
-				values.height = params.isParentSize.height ? UI.SIZE : "100%";
-				
-				return Widget.prototype._doLayout.call(this,params);
 			},
 		
 			_getContentSize: function(width, height) {
@@ -80,8 +73,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 	ready(function() {
 		var inputRuler = dom.create("input", {
 			style: {
-				height: "auto",
-				width: "auto"
+				height: UI.SIZE,
+				width: UI.SIZE
 			}
 		}, document.body);
 		
@@ -101,9 +94,9 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 	return declare("Ti.UI.Picker", View, {
 		
 		constructor: function() {
-			this.layout = "horizontal";
-			this._layout._defaultVerticalAlignment = "center";
+			this.layout = "constrainingHorizontal";
 			this._columns = [];
+			this._getBorderFromCSS();
 		},
 		
 		_currentColumn: null,
@@ -115,7 +108,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 				width = this.width === UI.SIZE ? UI.SIZE : 100 / numColumns + "%",
 				height = this.height === UI.SIZE ? UI.SIZE : "100%";
 			for (var i = 0; i < numColumns; i++) {
-				var column = this._columns[i];
+				column = this._columns[i]; // Repurposing of the column variable
 				column.width = width;
 				column.height = height;
 				column._setCorners(i === 0, i === numColumns - 1, unitizedBorderRadius);
@@ -228,7 +221,9 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 						var self = this;
 						function createInput(inputType) {
 							var dateTimeInput = self._dateTimeInput = new DateTimeInput({
-								type: inputType
+								type: inputType,
+								width: UI.INHERIT,
+								height: UI.INHERIT
 							});
 							dateTimeInput.addEventListener("change", function(e) {
 								self.properties.__values__.value = e.value;
