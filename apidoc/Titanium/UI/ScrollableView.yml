@@ -295,7 +295,13 @@ properties:
     platforms: [iphone,ipad]
     
   - name: overlayEnabled
-    summary: Paging control is added as an overlay to the scrollable view (on top). 
+    summary: |
+        Determines whether the paging control is added as an overlay to the scrollable view.
+    description: |
+        If this property is set, the scrollable view will take up the entire height available in the
+        current view and the paging control will be place over the scrollable view. It is advisable 
+        to set appropriate value for [pagingControlAlpha](Titanium.UI.ScrollableView.pagingControlAlpha) 
+        along with this property, so that the underlying scrollable view content can be seen properly.
     type: Boolean
     default: false
     since: 2.1.0
