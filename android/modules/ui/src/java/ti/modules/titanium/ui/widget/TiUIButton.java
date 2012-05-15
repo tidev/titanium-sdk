@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,7 +15,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -40,7 +39,7 @@ public class TiUIButton extends TiUIView
 			Log.d(LCAT, "Creating a button");
 		}
 		Button btn = new Button(proxy.getActivity());
-		btn.setPadding(8, 2, 8, 8);
+		btn.setPadding(8, 0, 8, 0);
 		btn.setGravity(Gravity.CENTER);
 		setNativeView(btn);
 	}
@@ -54,7 +53,6 @@ public class TiUIButton extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
 			Object value = d.get(TiC.PROPERTY_IMAGE);
 			Bitmap bitmap = null;
-			BitmapDrawable image;
 			if (value instanceof String) {
 				try {
 					String url = getProxy().resolveUrl(null, (String) value);
@@ -68,47 +66,7 @@ public class TiUIButton extends TiUIView
 			}
 
 			if (bitmap != null) {
-				image = new BitmapDrawable(btn.getResources(), bitmap);
-
-				TiDimension optionH = layoutParams.optionHeight;
-				TiDimension optionW = layoutParams.optionWidth;
-				int buttonHeight;
-				int buttonWidth;
-				int paddingTop = btn.getPaddingTop();
-				int paddingBottom = btn.getPaddingBottom();
-				int paddingLeft = btn.getPaddingLeft();
-				int paddingRight = btn.getPaddingRight();
-				int imgIntrisicHeight = image.getIntrinsicHeight();
-				int imgIntrisicWidth = image.getIntrinsicWidth();
-
-				if (optionH == null && optionW != null) {
-					buttonWidth = optionW.getIntValue() - paddingLeft - paddingRight;
-					if (imgIntrisicWidth > buttonWidth) {
-						bitmap = Bitmap.createScaledBitmap(bitmap, buttonWidth, imgIntrisicHeight * buttonWidth
-							/ imgIntrisicWidth, true);
-						image = new BitmapDrawable(btn.getResources(), bitmap);
-					}
-				} else if (optionH != null && optionW == null) {
-					buttonHeight = optionH.getIntValue() - paddingTop - paddingBottom;
-					if (imgIntrisicHeight > buttonHeight) {
-						bitmap = Bitmap.createScaledBitmap(bitmap, imgIntrisicWidth * buttonHeight / imgIntrisicHeight,
-							buttonHeight, true);
-						image = new BitmapDrawable(btn.getResources(), bitmap);
-					}
-				} else if (optionH != null && optionW != null) {
-					buttonHeight = optionH.getIntValue() - paddingTop - paddingBottom;
-					buttonWidth = optionW.getIntValue() - paddingLeft - paddingRight;
-					if (imgIntrisicWidth > buttonWidth || imgIntrisicHeight > buttonHeight) {
-						bitmap = Bitmap.createScaledBitmap(
-							bitmap,
-							Math.min(Math.min(imgIntrisicWidth, buttonWidth), imgIntrisicWidth * buttonHeight
-								/ imgIntrisicHeight),
-							Math.min(Math.min(imgIntrisicHeight, buttonHeight), imgIntrisicHeight * buttonWidth
-								/ imgIntrisicWidth), true);
-						image = new BitmapDrawable(btn.getResources(), bitmap);
-					}
-				}
-
+				BitmapDrawable image = new BitmapDrawable(btn.getResources(), bitmap);
 				btn.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
 			}
 		}

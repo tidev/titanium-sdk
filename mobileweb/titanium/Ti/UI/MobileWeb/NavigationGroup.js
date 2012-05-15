@@ -16,7 +16,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 					height: 50
 				});
 
-			self.layout = "vertical";
+			self.layout = UI._LAYOUT_CONSTRAINING_VERTICAL;
 
 			css.add(navBar.domNode, navGroupCss);
 
@@ -28,7 +28,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 			}));
 
 			self._backButton.addEventListener("singletap", function() {
-				self.close();
+				self.close(self._windows[self._windows.length-1]);
 			});
 
 			self._navBarContainer._add(self._title = UI.createLabel({
@@ -56,7 +56,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 		_defaultHeight: UI_FILL,
 
 		_updateTitle: function() {
-			this._title.text = (this.window && this.window._getTitle()) || (this._tab && this._tab._getTitle()) || "";
+			this._title.text = (this._windows[this._windows.length-1]._getTitle()) || (this._tab && this._tab._getTitle()) || "";
 		},
 
 		_addWindow: function(win) {
@@ -93,35 +93,55 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 
 		close: function(win, options) {
 			var windows = this._windows,
-				topWindowIdx = windows.length - 1,
-				win = win || windows[topWindowIdx],
-				windowLocation = windows.indexOf(win),
-				backButton = this._backButton,
-				nextWindow = this.window;
+				windowIdx = windows.indexOf(win);
 
-			if (~windowLocation) {
-				// If the window is on top, we have to go to the previous window
-				if (windows[topWindowIdx] === win) {
-					if (topWindowIdx > 0) {
-						nextWindow = windows[topWindowIdx - 1];
-					} else {
-						backButton.animate({opacity: 0, duration: 250}, function() {
-							backButton.opacity = 0;
-							backButton.enabled = false;
-						});
-					}
-					this._title.text = nextWindow._getTitle();
-				}
+			console.debug(windowIdx);
 
-				// Remove the window
-				windows.splice(windowLocation, 1);
-				this._contentContainer.remove(win);
-
+			// make sure the window exists and it's not the root
+			if (windowIdx > 0) {
+				windows.splice(windowIdx, 1);
 				win.fireEvent("blur");
+				this._contentContainer.remove(win);
 				win.fireEvent("close");
 				win._opened = 0;
-				(topWindowIdx ? windows[topWindowIdx] : this.window).fireEvent("focus");
+
+				// hide the back button if we're back at the root
+				windows.length <= 1 && this._backButton.animate({ opacity: 0, duration: 250 }, function() {
+					this.opacity = 0;
+					this.enabled = false;
+				});
+
+				win = windows[windows.length - 1];
+				this._title.text = win._getTitle();
+				win.fireEvent("focus");
 			}
+		},
+
+		_reset: function() {
+			var windows = this._windows,
+				win,
+				i = windows.length - 1,
+				l = i;
+
+			this._backButton.animate({opacity: 0, duration: 250}, function() {
+				this.opacity = 0;
+				this.enabled = false;
+			});
+
+			while (1) {
+				win = windows[i];
+				if (!i) {
+					break;
+				}
+				i-- === l && win.fireEvent("blur");
+				this._contentContainer.remove(win);
+				win.fireEvent("close");
+				win._opened = 0;
+			}
+
+			windows.splice(1);
+			this._title.text = win._getTitle();
+			win.fireEvent("focus");
 		},
 
 		constants: {

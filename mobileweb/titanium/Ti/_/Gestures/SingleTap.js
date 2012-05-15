@@ -15,6 +15,7 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 					x: e.changedTouches[0].clientX,
 					y: e.changedTouches[0].clientY
 				}
+				this._driftedOutsideThreshold = false;
 			}
 		},
 		
@@ -23,7 +24,7 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 				var x = e.changedTouches[0].clientX,
 					y = e.changedTouches[0].clientY;
 				if (Math.abs(this._touchStartLocation.x - x) < this._driftThreshold && 
-						Math.abs(this._touchStartLocation.y - y) < this._driftThreshold) {
+						Math.abs(this._touchStartLocation.y - y) < this._driftThreshold && !this._driftedOutsideThreshold) {
 					this._touchStartLocation = null;
 					var result = {
 						x: x,
@@ -35,6 +36,13 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 						lang.hitch(element,element._handleTouchEvent(this.name,result));
 					}
 				}
+			}
+		},
+		
+		processTouchMoveEvent: function(e, element) {
+			if (Math.abs(this._touchStartLocation.x - e.changedTouches[0].clientX) > this._driftThreshold || 
+					Math.abs(this._touchStartLocation.y - e.changedTouches[0].clientY) > this._driftThreshold) {
+				this._driftedOutsideThreshold = true;
 			}
 		},
 		

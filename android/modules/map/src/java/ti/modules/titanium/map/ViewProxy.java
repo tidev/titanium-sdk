@@ -121,6 +121,7 @@ public class ViewProxy extends TiViewProxy
 				public void onDestroy(Activity activity)
 				{
 					if (activity != null && activity.equals(rootActivity)) {
+						destroyMapActivity();
 						lam = null;
 					}
 				}
@@ -404,12 +405,7 @@ public class ViewProxy extends TiViewProxy
 	}
 
 	public void onDestroy(Activity activity) {
-		if (lam != null && !destroyed) {
-			destroyed = true;
-			lam.dispatchDestroy(true);
-			lam.destroyActivity("TIMAP", true);
-		}
-		mapWindow = null;
+		destroyMapActivity();
 	}
 
 	public void onPause(Activity activity)
@@ -442,5 +438,14 @@ public class ViewProxy extends TiViewProxy
 	{
 		super.releaseViews();
 		onDestroy(null);
+	}
+
+	private void destroyMapActivity()
+	{
+		if (lam != null && !destroyed) {
+			destroyed = true;
+			lam.dispatchDestroy(true);
+		}
+		mapWindow = null;
 	}
 }

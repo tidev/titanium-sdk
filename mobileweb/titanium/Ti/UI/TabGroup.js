@@ -11,7 +11,7 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 
 		constructor: function(args){
 			var self = this,
-				tabsAtBottom = self.constants.tabsAtBottom = lang.val(args && args.tabsAtBottom, self.constants.tabsAtBottom);
+				tabsAtBottom = self.constants.tabsAtBottom = lang.val(args && args.tabsAtBottom, self.constants.tabsAtBottom),
 				TabBarContainer = declare(View, {
 					// set a declared class here so that it's not defined globally, yet we still are able
 					// to set a widget id and css class on the dom node.
@@ -38,7 +38,7 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 			// Create the tab bar
 			self._tabBarContainer = new TabBarContainer({
 				width: UI_FILL,
-				layout: "horizontal"
+				layout: UI._LAYOUT_CONSTRAINING_HORIZONTAL
 			});
 			self.tabHeight = 75;
 
@@ -49,7 +49,7 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 			});
 
 			// Add the windows ordered such that they respect tabsAtBottom
-			self.layout = "vertical";
+			self.layout = "constrainingVertical";
 			self.tabs = [];
 			self.tabsAtBottom = lang.val(args && args.tabsAtBottom, true);
 		},
