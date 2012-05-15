@@ -552,6 +552,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	// create Titanium global object
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     
+    // Load the "Titanium" object into the global scope
 	NSString *basePath = (url==nil) ? [TiHost resourcePath] : [[[url path] stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"."];
 	titanium = [[TitaniumObject alloc] initWithContext:kroll host:host context:self baseURL:[NSURL fileURLWithPath:basePath]];
 	
@@ -566,6 +567,11 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	TiObjectSetProperty(jsContext, globalRef, prop2, tiRef, NULL, NULL);
 	TiStringRelease(prop);
 	TiStringRelease(prop2);	
+    
+    // Load the "console" object into the global scope, as an alias to "Ti.API"
+    console = [[KrollObject alloc] initWithTarget:[titanium valueForKey:@"API"] context:kroll];
+    prop = TiStringCreateWithCFString((CFStringRef)@"console");
+    TiObjectSetProperty(jsContext, globalRef, prop, [KrollObject toValue:kroll value:console], kTiPropertyAttributeNone, NULL);
 	
 	//if we have a preload dictionary, register those static key/values into our namespace
 	if (preload!=nil)
@@ -624,6 +630,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	TiThreadPerformOnMainThread(^{[self unregisterForMemoryWarning];}, NO);
 	[self removeProxies];
 	RELEASE_TO_NIL(titanium);
+    RELEASE_TO_NIL(console);
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(preload);
 	[self autorelease]; // Safe to release now that the context is done
