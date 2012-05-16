@@ -502,7 +502,7 @@ properties:
         The INHERIT behavior allows the width/height of a view to be determined by the 
         parent. If a parent has a size of <Titanium.UI.SIZE>, then the child will inherit 
         a size of <Titanium.UI.SIZE>. Otherwise, the child inherits a size of 
-        <Ti.UI.FILL>.
+        <Titanium.UI.FILL>.
     permission: read-only
     platforms: [mobileweb]
     
