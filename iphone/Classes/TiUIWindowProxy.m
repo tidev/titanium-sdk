@@ -522,10 +522,14 @@
 
 -(void)_updateTitleView
 {
-    //Called from the view when the screen rotates. 
-    //Resize titleControl based on navbar bounds
     TiThreadPerformOnMainThread(^{
-        [self updateTitleView];
+        if (animating || controller == nil || [controller navigationController] == nil) {
+            return; // No need to update the title if not in a nav controller
+        }
+        if ([[self valueForKey:@"titleControl"] isKindOfClass:[TiViewProxy class]]) {
+            [self updateTitleView];
+        }
+        [self updateBarImage];
     }, NO);
 }
 
