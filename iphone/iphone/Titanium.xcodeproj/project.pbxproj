@@ -560,7 +560,6 @@
 		DA4E12D711C0A55F00A55BAB /* TiContactsGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = DA4E12D611C0A55F00A55BAB /* TiContactsGroup.m */; };
 		DA864E3211A2314A00B9CD68 /* TiMediaMusicPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = DA864E3111A2314A00B9CD68 /* TiMediaMusicPlayer.m */; };
 		DA9BE36F127F8F6C000FE9E1 /* UIImageExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9BE36E127F8F6C000FE9E1 /* UIImageExtras.m */; };
-		DA9FF583128A1F3600457759 /* AudioStreamerBC.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9FF580128A1F3600457759 /* AudioStreamerBC.m */; };
 		DA9FF584128A1F3600457759 /* AudioStreamerCUR.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9FF582128A1F3600457759 /* AudioStreamerCUR.m */; };
 		DAA17BE411C15A0000957ED1 /* TiContactsGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = DA4E12D611C0A55F00A55BAB /* TiContactsGroup.m */; };
 		DAA4B2AE134E3DBD00AB6011 /* libti_ios_debugger.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DAA4B2AD134E3DBD00AB6011 /* libti_ios_debugger.a */; };
@@ -823,7 +822,6 @@
 		DABB378712E8CB280026A6EA /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
 		DABB378812E8CB280026A6EA /* TiPublicAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = B473FBA3126FB2DF00E29C73 /* TiPublicAPI.m */; };
 		DABB378912E8CB280026A6EA /* TiThreading.m in Sources */ = {isa = PBXBuildFile; fileRef = B473FB67126F8F7900E29C73 /* TiThreading.m */; };
-		DABB378A12E8CB280026A6EA /* AudioStreamerBC.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9FF580128A1F3600457759 /* AudioStreamerBC.m */; };
 		DABB378B12E8CB280026A6EA /* AudioStreamerCUR.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9FF582128A1F3600457759 /* AudioStreamerCUR.m */; };
 		DABB378C12E8CB280026A6EA /* UIImageExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9BE36E127F8F6C000FE9E1 /* UIImageExtras.m */; };
 		DABB378E12E8CB280026A6EA /* TiAppiOSProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24ADC5111299F60C0014DB75 /* TiAppiOSProxy.m */; };
@@ -867,7 +865,6 @@
 		DABB37B512E8CB280026A6EA /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24597034118FF66300519F79 /* StoreKit.framework */; };
 		DABB37B612E8CB280026A6EA /* libTiCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 242E8E3011BA39FD0046A0D0 /* libTiCore.a */; };
 		DABB37B712E8CB280026A6EA /* libtiverify.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 24D5C75811E6364F00F097E2 /* libtiverify.a */; };
-		DABDEB07128B5A8F00C85FEA /* AudioStreamerBC.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9FF580128A1F3600457759 /* AudioStreamerBC.m */; };
 		DABDEB08128B5A8F00C85FEA /* AudioStreamerCUR.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9FF582128A1F3600457759 /* AudioStreamerCUR.m */; };
 		DABF3ECF134D210400836137 /* TiBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ECE134D210400836137 /* TiBuffer.m */; };
 		DABF3ED0134D210400836137 /* TiBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ECE134D210400836137 /* TiBuffer.m */; };
@@ -1457,8 +1454,6 @@
 		DA864E3111A2314A00B9CD68 /* TiMediaMusicPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMediaMusicPlayer.m; sourceTree = "<group>"; };
 		DA9BE36D127F8F6C000FE9E1 /* UIImageExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIImageExtras.h; sourceTree = "<group>"; };
 		DA9BE36E127F8F6C000FE9E1 /* UIImageExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIImageExtras.m; sourceTree = "<group>"; };
-		DA9FF57F128A1F3600457759 /* AudioStreamerBC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioStreamerBC.h; sourceTree = "<group>"; };
-		DA9FF580128A1F3600457759 /* AudioStreamerBC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioStreamerBC.m; sourceTree = "<group>"; };
 		DA9FF581128A1F3600457759 /* AudioStreamerCUR.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioStreamerCUR.h; sourceTree = "<group>"; };
 		DA9FF582128A1F3600457759 /* AudioStreamerCUR.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioStreamerCUR.m; sourceTree = "<group>"; };
 		DAA4B2AD134E3DBD00AB6011 /* libti_ios_debugger.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libti_ios_debugger.a; path = ../lib/libti_ios_debugger.a; sourceTree = "<group>"; };
@@ -1780,8 +1775,6 @@
 		24CA8927111161050084E2DE /* AudioStreamer */ = {
 			isa = PBXGroup;
 			children = (
-				DA9FF57F128A1F3600457759 /* AudioStreamerBC.h */,
-				DA9FF580128A1F3600457759 /* AudioStreamerBC.m */,
 				DA9FF581128A1F3600457759 /* AudioStreamerCUR.h */,
 				DA9FF582128A1F3600457759 /* AudioStreamerCUR.m */,
 				24CA8928111161050084E2DE /* AudioStreamer.h */,
@@ -3365,7 +3358,6 @@
 				B473FBA4126FB2DF00E29C73 /* TiPublicAPI.m in Sources */,
 				B480501F1278AB010030AA3F /* TiThreading.m in Sources */,
 				DA9BE36F127F8F6C000FE9E1 /* UIImageExtras.m in Sources */,
-				DA9FF583128A1F3600457759 /* AudioStreamerBC.m in Sources */,
 				DA9FF584128A1F3600457759 /* AudioStreamerCUR.m in Sources */,
 				24ADC5121299F60C0014DB75 /* TiAppiOSProxy.m in Sources */,
 				24ADC5161299F6AA0014DB75 /* TiAppiOSBackgroundServiceProxy.m in Sources */,
@@ -3646,7 +3638,6 @@
 				D4AB36F6123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */,
 				B473FBA5126FB2DF00E29C73 /* TiPublicAPI.m in Sources */,
 				B48050201278AB170030AA3F /* TiThreading.m in Sources */,
-				DABDEB07128B5A8F00C85FEA /* AudioStreamerBC.m in Sources */,
 				DABDEB08128B5A8F00C85FEA /* AudioStreamerCUR.m in Sources */,
 				B4E9A913128E24FB006A111B /* UIImageExtras.m in Sources */,
 				24ADC5131299F60C0014DB75 /* TiAppiOSProxy.m in Sources */,
@@ -3926,7 +3917,6 @@
 				DABB378712E8CB280026A6EA /* TiUIClipboardProxy.m in Sources */,
 				DABB378812E8CB280026A6EA /* TiPublicAPI.m in Sources */,
 				DABB378912E8CB280026A6EA /* TiThreading.m in Sources */,
-				DABB378A12E8CB280026A6EA /* AudioStreamerBC.m in Sources */,
 				DABB378B12E8CB280026A6EA /* AudioStreamerCUR.m in Sources */,
 				DABB378C12E8CB280026A6EA /* UIImageExtras.m in Sources */,
 				DABB378E12E8CB280026A6EA /* TiAppiOSProxy.m in Sources */,
