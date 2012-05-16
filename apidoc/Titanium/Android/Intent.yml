@@ -17,7 +17,7 @@ methods:
         type: String
 
   - name: addFlags
-    summary: Adds to the existing flags on the Intent.
+    summary: Adds to the existing flags on the `Intent`.
     description: |
         The specified flag are combined with the existing flags using a bitwise OR.
     parameters:
@@ -27,7 +27,7 @@ methods:
 
   - name: getBlobExtra
     since: "2.1.0"
-    summary: Get a <Titanium.Blob> property from this Intent.
+    summary: Get a <Titanium.Blob> property from this `Intent`.
     returns:
         type: Titanium.Blob
     parameters:
@@ -45,12 +45,12 @@ methods:
         type: String
 
   - name: getData
-    summary: Get the Data URI from this Intent.
+    summary: Get the Data URI from this `Intent`.
     returns: 
         type: String
 
   - name: getDoubleExtra
-    summary: Get a double property from this Intent.
+    summary: Get a double property from this `Intent`.
     returns:
         type: Number
     parameters:
@@ -59,7 +59,7 @@ methods:
         type: String
 
   - name: getIntExtra
-    summary: Get an int property from this Intent.
+    summary: Get an int property from this `Intent`.
     returns:
         type: Number
     parameters:
@@ -68,7 +68,7 @@ methods:
         type: String
 
   - name: getLongExtra
-    summary: Get a long property from this Intent.
+    summary: Get a long property from this `Intent`.
     returns:
         type: Number
     parameters:
@@ -77,7 +77,7 @@ methods:
         type: String
 
   - name: getStringExtra
-    summary: Get a string property from this Intent.
+    summary: Get a string property from this `Intent`.
     description: |
         Can also be used to get the string representation of a property that's stored
         as an Android `Parcel`, such as a URI.
@@ -96,7 +96,7 @@ methods:
         type: String
 
   - name: hasExtra
-    summary: Returns `true` if this Intent has the specified property.
+    summary: Returns `true` if this `Intent` has the specified property.
     returns:
         type: Boolean
     parameters:
@@ -105,7 +105,7 @@ methods:
         type: String
 
   - name: putExtra
-    summary: Puts an extra property on this Intent.
+    summary: Puts an extra property on this `Intent`.
     parameters:
 
       - name: name
@@ -118,7 +118,7 @@ methods:
 
   - name: putExtraUri
     summary: 
-        Put a URI property on this Intent (useful for <Titanium.Android.EXTRA_STREAM>).  
+        Put a URI property on this `Intent` (useful for <Titanium.Android.EXTRA_STREAM>).  
     parameters: 
 
       - name: name
@@ -126,7 +126,7 @@ methods:
         type: String
 
       - name: value
-        summary: The URI string.
+        summary: The URI, as a string.
         type: String
 
 properties:
@@ -140,7 +140,9 @@ properties:
     availability: creation
 
   - name: className
-    summary: The Java class name of the activity associated with this intent (`packageName` must also be set).
+    summary: |
+        The Java class name of the activity associated with this intent
+        ([packageName](Titanium.Android.Intent.packageName) must also be set).
     type: String
     availability: creation
 

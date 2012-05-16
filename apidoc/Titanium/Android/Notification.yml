@@ -66,8 +66,17 @@ properties:
     type: String
 
   - name: contentView
-    summary: View to display in the notification.
-    type: Titanium.Android.RemoteView
+    summary: Custom layout to display in the notification.
+    description: |
+        Calling [setLatestEventInfo](Titanium.Android.Notification.setLatestEventInfo) or
+        setting the `contentText` or `contentTitle` properties causes the notification to use
+        the default notification layout, overriding any custom layout set through
+        `contentView`.
+
+        If you use a custom layout, you can use the
+        [RemoteViews](Titanium.Android.RemoteViews) methods to update the displayed
+        notification.
+    type: Titanium.Android.RemoteViews
     permission: write-only
 
   - name: defaults
