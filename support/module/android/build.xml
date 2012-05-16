@@ -1,3 +1,82 @@
+<!--
+
+The default target is "dist", assuming the module creator didn't change
+the build.xml in her module root folder.
+
+The "dist" target compiles the module and places it in the zip file
+for distribution. The chain of target dependencies looks like this:
+
+dist
+  - pre.dist
+  - compile
+    - process.annotations
+	  - init
+	- generate.bindings
+	  - generate.rhino.bindings
+	  - generate.v8.bindings
+	- pre.compile
+	- ndk.build
+	- ndk.build.local
+
+"compile" and its dependencies are the interesting part.
+
+Compilation occurs as follows:
+
+(1) (process.annotations) javac creates the Java .class files while also invoking
+our custom annotation processor KrollJSONGenerator (see https://github.com/appcelerator/titanium_mobile/blob/master/android/kroll-apt/src/java/org/appcelerator/kroll/annotations/generator/KrollJSONGenerator.java.)
+
+KrollJSONGenerator processes the @Kroll.module, etc., annotations in the
+module's classes and produces JSON files with loads of metadata about
+the module, proxies, methods, etc. That metadata ends up down in the
+build/generated/org/appcelerator/titanium/bindings/[module_name].json
+file and is later packaged in the module jar as well as being used
+by subsequent steps in this compilation process.
+
+(2) (generate.bindings and its rhino & v8 dependencies) This step
+uses the KrollBindingGenerator stand-alone java program to create
+the binding layer and bootstraps for the module.  (see https://github.com/appcelerator/titanium_mobile/blob/master/android/kroll-apt/src/java/org/appcelerator/kroll/annotations/generator/KrollBindingGenerator.java.)
+
+It takes the JSON file created in step (1) above and, using the metadata therein,
+produces .cpp and .h files (for V8) down in build/generated/jni, and [Proxy/Module]Prototype.java
+(for rhino) down in build/generated/java.
+
+It then uses bootstrap.py (see https://github.com/appcelerator/titanium_mobile/blob/master/support/module/android/bootstrap.py) to produce [Name]Bootstrap.java, [Name]Bootstrap.cpp,
+bootstrap.js and KrollGeneratedBindings.gperf.
+
+(3) (ndk.build) This step runs the stock Android NDK ndk-build command
+after setting up the appropriate environment for it. It copies the
+template Application.mk to build/generated, the template Android.mk
+to build/generated/jni and replaces the tokens therein with correct
+values. For those template files see:
+
+https://github.com/appcelerator/titanium_mobile/blob/master/support/module/android/generated/Application.mk
+and
+https://github.com/appcelerator/titanium_mobile/blob/master/support/module/android/generated/Android.mk
+
+It then launches the stock ndk-build script from the Android NDK
+directory.
+
+(4) (ndk.build.local) This step runs only if the module developer
+has their own jni code (in a jni/ directory off of the module root
+directory) to be compiled. It simply calls stock ndk-build on it.
+
+(5) (last parts of compile) This step uses javac to compile
+all the .java that has been generated via the other steps,
+placing the results down in build/classes. It also copies
+over the metadata JSON file (created in (1) down into
+build/classes so it will easily get added to the module
+jar later.
+
+Post-Compilation:
+
+The last steps of the "dist" target are responsible for packaging up
+the module jar (including putting anything in assets/ into the jar),
+then zipping it together with the manifest, any docs, other libs in
+the lib folder as well as example/* and platform/* and the
+timodule.xml.
+
+-->
+
 <project name="build-module">
 	<property name="ti.module.root" location="${basedir}"/>
 
@@ -8,6 +87,7 @@
 	<!-- the manifest format seems to be compatible w/ the properties format -->
 	<property file="${ti.module.root}/manifest" prefix="manifest"/>
 
+	<!-- we use some special tasks that aren't part of stock ant -->
 	<taskdef classname="org.appcelerator.titanium.ant.StringTask" name="ti.string" classpath="${ti.module.support.dir}/android/ant-tasks.jar"/>
 	<taskdef resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
