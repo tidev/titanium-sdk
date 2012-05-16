@@ -135,7 +135,15 @@ properties:
     
   - name: hintText
     summary: Hint text to display when the field is empty.
-    description: Hint text is hidden when the user enters text into this text field.
+    description: |
+        Hint text is hidden when the user enters text into this text field.
+        
+        Use the backslash and letter `n` line feed character combination, ie `\n`, to force a new 
+        line. 
+        
+        Use unicode characters, such as those included in (but not limited to) the 
+        [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols) 
+        section of wikipedia, to insert special characters and symbols.
     type: String
     default: No hint text.
     
@@ -300,7 +308,14 @@ properties:
     default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>
     
   - name: value
-    summary: Value of this text field.
+    summary: Value of this text field, which may be set programmatically and modified by the user.
+    description: |
+        Use the backslash and letter `n` line feed character combination, ie `\n`, to force a new 
+        line. 
+        
+        Use unicode characters, such as those included in (but not limited to) the 
+        [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols) 
+        section of wikipedia, to insert special characters and symbols.
     type: String
     
   - name: verticalAlign
@@ -328,20 +343,14 @@ examples:
     example: |
         Create a simple text field with a round border style.
             var win = Ti.UI.createWindow({
-              backgroundColor: 'white',
-              exitOnClose: true,
-              fullscreen: false,
-              layout: 'vertical',
-              title: 'TextField Demo'
+              backgroundColor: 'white'
             });
             
             var textField = Ti.UI.createTextField({
-            	color: '#336699',
-            	height: 60,
-            	top: 10,
-            	left: 10,
-            	width: 250,
-            	borderStyle: Ti.UI.INPUT_BORDERSTYLE_ROUNDED
+              borderStyle: Ti.UI.INPUT_BORDERSTYLE_ROUNDED,
+              color: '#336699',
+              top: 10, left: 10,
+              width: 250, height: 60
             });
             
             win.add(textField);
@@ -373,12 +382,11 @@ examples:
             });
             
             var textfield = Titanium.UI.createTextField({
-                hintText : 'Focus to see keyboard with toolbar',
-                height : 35,
-                width : 300,
-                top : 10,
                 borderStyle : Titanium.UI.INPUT_BORDERSTYLE_BEZEL,
+                hintText : 'Focus to see keyboard with toolbar',
                 keyboardToolbar : [cancel, flexSpace, camera, flexSpace, send],
                 keyboardToolbarColor : '#999',
                 keyboardToolbarHeight : 40,
+                top : 10,
+                width : 300, height : 35
             });

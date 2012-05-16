@@ -277,7 +277,36 @@ properties:
     default: 3000
     platforms: [android, mobileweb]
     availability: creation
-
+    
+  - name: pagingControlAlpha
+    summary: Alpha value of the paging control.
+    type: Number
+    default: 1.0
+    since: 2.1.0
+    platforms: [iphone,ipad]
+    
+  - name: pagingControlOnTop
+    summary: |
+        Determines whether the paging control is displayed on the top (true) or bottom (false) 
+        of the view.
+    type: Boolean
+    default: false
+    since: 2.1.0
+    platforms: [iphone,ipad]
+    
+  - name: overlayEnabled
+    summary: |
+        Determines whether the paging control is added as an overlay to the scrollable view.
+    description: |
+        If this property is set, the scrollable view will take up the entire height available in the
+        current view and the paging control will be place over the scrollable view. It is advisable 
+        to set appropriate value for [pagingControlAlpha](Titanium.UI.ScrollableView.pagingControlAlpha) 
+        along with this property, so that the underlying scrollable view content can be seen properly.
+    type: Boolean
+    default: false
+    since: 2.1.0
+    platforms: [iphone,ipad]
+    
   - name: scrollingEnabled
     summary: |
         Determines whether scrolling is enabled on the Scrollable view.
@@ -293,8 +322,8 @@ properties:
 
   - name: clipViews
     summary: |
-        Determines whether the content which is being scrolled will be clipped to the frame of
-        the view.
+        Determines whether the content which is being scrolled will be clipped to the
+        bounding box of the view.
     type: Boolean
     default: true
     platforms: [iphone, ipad]

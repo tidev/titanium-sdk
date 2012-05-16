@@ -268,6 +268,12 @@ properties:
   - name: url
     summary: URL for the audio stream.
     type: String
+  - name: volume
+    summary: Volume of the audio, from 0.0 (muted) to 1.0 (loudest).
+    description: |
+        This volume setting only affects this media, it does not set the device's overall volume level.
+    type: Number
+    since: "2.1.0"
   - name: waiting
     summary: Boolean indicating if the playback is waiting for audio data from the network.
     description: |

@@ -57,12 +57,18 @@ events:
     properties:
       - name: cancel
         summary: |
-            Indicates whether the button pressed was the cancel button, defined by the `cancel` 
-            property.
-        type: Boolean
+            On Android and Mobile Web, indicates whether the cancel button was clicked, in which 
+            case returns `true`. 
+            
+            On iOS, the value of the [cancel](Titanium.UI.AlertDialog.cancel) property is 
+            returned, if defined, or `-1` otherwise. 
+            
+            See the `Three-button Alert Dialog` example for a cross-platform workaround for this 
+            parity issue.
+        type: Boolean (Android, Mobile Web), Number (iOS)
         
       - name: index
-        summary: Index of the button that was pressed.
+        summary: Index of the button that was clicked.
         type: Number
 methods:
   - name: show
@@ -90,8 +96,11 @@ properties:
     availability: creation
 
   - name: cancel
-    summary: Index to define the button cancel button, returned by the `click` event.
+    summary: Index to define the cancel button.
+    description: |
+        On iOS and Mobile Web, set to `-1` to disable the cancel option.
     type: Number
+    default: undefined (Android), -1 (iOS, Mobile Web)
     
   - name: message
     summary: Dialog message.
@@ -171,7 +180,8 @@ examples:
         
   - title: Three-button Alert Dialog
     example: |
-        Create a three-button alert dialog, which is invoked when the app window is clicked.        
+        Create a three-button alert dialog, which is invoked when the app window is clicked. 
+        Output a message to the log when the cancel button is clicked.
         
             Ti.UI.setBackgroundColor('white');
             var win = Ti.UI.createWindow({  
@@ -180,15 +190,22 @@ examples:
               exitOnClose: true,
               fullscreen: false
             });
-
             win.addEventListener('click', function(e){
               var dialog = Ti.UI.createAlertDialog({
                 cancel: 1,
                 buttonNames: ['Confirm', 'Cancel', 'Help'],
                 message: 'Would you like to delete the file?',
                 title: 'Delete'
-              }).show();
+              });
+              dialog.addEventListener('click', function(e){
+                if (e.index === e.source.cancel){
+                  Ti.API.info('The cancel button was clicked');
+                }
+                Ti.API.info('e.cancel: ' + e.cancel);
+                Ti.API.info('e.source.cancel: ' + e.source.cancel);
+                Ti.API.info('e.index: ' + e.index);
+              });
+              dialog.show();
             });
             win.open();
-
 

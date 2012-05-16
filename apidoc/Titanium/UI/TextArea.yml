@@ -140,7 +140,15 @@ properties:
     
   - name: hintText
     summary: Hint text to display when the field is empty.
-    description: Hint text is hidden when the user enters text into this text area.
+    description: |
+        Hint text is hidden when the user enters text into this text area.
+        
+        Use the backslash and letter `n` line feed character combination, ie `\n`, to force a new 
+        line. 
+        
+        Use unicode characters, such as those included in (but not limited to) the 
+        [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols) 
+        section of wikipedia, to insert special characters and symbols.
     type: String
     default: No hint text.
     platforms: [android]
@@ -225,7 +233,14 @@ properties:
     default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>
     
   - name: value
-    summary: Value of this text area.
+    summary: Value of this text area, which may be set programmatically and modified by the user.
+    description: |
+        Use the backslash and letter `n` line feed character combination, ie `\n`, to force a new 
+        line. 
+        
+        Use unicode characters, such as those included in (but not limited to) the 
+        [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols) 
+        section of wikipedia, to insert special characters and symbols.
     type: String
     
   - name: scrollable
@@ -251,26 +266,20 @@ examples:
         This example creates a highly customized text area.
         
             var win = Ti.UI.createWindow({
-              backgroundColor: 'white',
-              exitOnClose: true,
-              fullscreen: false,
-              layout: 'vertical',
-              title: 'TextArea Demo'
+              backgroundColor: 'white'
             });
             var textArea = Ti.UI.createTextArea({
-              value : 'I am a textarea',
-              height : 70,
-              width : 300,
-              top : 60,
-              font : {fontSize:20, fontFamily:'Marker Felt', fontWeight:'bold'},
-              color : '#888',
-              textAlign : 'left',
-              appearance : Ti.UI.KEYBOARD_APPEARANCE_ALERT,
-              keyboardType : Ti.UI.KEYBOARD_NUMBERS_PUNCTUATION,
-              returnKeyType : Ti.UI.RETURNKEY_EMERGENCY_CALL,
-              borderWidth : 2,
-              borderColor : '#bbb',
-              borderRadius : 5
+              borderWidth: 2,
+              borderColor: '#bbb',
+              borderRadius: 5,
+              color: '#888',
+              font: {fontSize:20, fontWeight:'bold'},
+              keyboardType: Ti.UI.KEYBOARD_NUMBER_PAD,
+              returnKeyType: Ti.UI.RETURNKEY_GO,
+              textAlign: 'left',
+              value: 'I am a textarea',
+              top: 60,
+              width: 300, height : 70
             });
             win.add(textArea);
             win.open();
@@ -286,12 +295,12 @@ examples:
         Example using a custom keyboard toolbar:
         
             var send = Ti.UI.createButton({
-                title : 'Send',
                 style : Ti.UI.iPhone.SystemButtonStyle.DONE,
+                title : 'Send'
             });
             
             var camera = Ti.UI.createButton({
-                systemButton : Ti.UI.iPhone.SystemButton.CAMERA,
+                systemButton : Ti.UI.iPhone.SystemButton.CAMERA
             });
             
             var cancel = Ti.UI.createButton({
@@ -303,15 +312,14 @@ examples:
             });
             
             var textarea = Ti.UI.createTextArea({
-                color : '#000',
-                value : 'Focus to see keyboard with toolbar',
-                height : 120,
-                width : 300,
-                top : 10,
                 borderColor : '#000',
+                color : '#000',
                 keyboardToolbar : [cancel, flexSpace, camera, flexSpace, send],
                 keyboardToolbarColor : '#999',
                 keyboardToolbarHeight : 40,
+                value : 'Focus to see keyboard with toolbar',
+                top : 10,
+                width : 300, height : 120
             });
 
 ---
@@ -319,7 +327,6 @@ name: textAreaSelectedParams
 summary: |
     Dictionary object of parameters for the <Titanium.UI.TextArea.selected> event that describes 
     position and length of the selected text.
-
 properties:
   - name: location
     summary: Starting position of selected text.

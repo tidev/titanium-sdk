@@ -120,9 +120,7 @@ properties:
     summary: Image to display on the button, specified as a local
         path, URL or (on iOS only) a `Blob`.
     description: |
-        On iOS and Mobile Web, the image is displayed to the left of the title. 
-        
-        On Android, this property is identical to `backgroundImage`.
+        The image is displayed to the left of the title.
 
         Support for using <Titanium.Blob> for this property is only available on iOS.
     type: [String, Titanium.Blob]

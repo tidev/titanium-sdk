@@ -418,12 +418,8 @@ public abstract class TiBaseActivity extends Activity
 		// for later use
 		originalOrientationMode = getRequestedOrientation();
 
-		// make sure the activity opens according to any orientation modes 
-		// set on the window before the activity was actually created 
 		if (window != null) {
-			if (window.getOrientationModes() != null) {
-				window.updateOrientation();
-			}
+			window.onWindowActivityCreated();
 		}
 	}
 

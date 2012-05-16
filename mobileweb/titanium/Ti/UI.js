@@ -76,11 +76,16 @@ define(
 				left: 0,
 				top: 0
 			})),
-			node = container.domNode;
+			node = container.domNode,
+			coefficients = container._layoutCoefficients; 
+		coefficients.width.x1 = 1;
+		coefficients.height.x1 = 1;
+		container._measuredTop = 0;
+		container._measuredLeft = 0;
 		node.id = "TiUIContainer";
 		setStyle(node, "overflow", "hidden");
 		body.appendChild(node);
-		container.addEventListener("postlayout", function(){
+		container.addEventListener("postlayout", function() {
 			setTimeout(function(){
 				setStyle(splashScreen,{
 					position: "absolute",
@@ -101,7 +106,6 @@ define(
 		require("Ti/Gesture")._updateOrientation();
 	}
 	on(global, "resize", updateOrientation);
-	on(global, "orientationchange", updateOrientation);
 
 	return lang.setObject("Ti.UI", Evented, creators, {
 
@@ -156,11 +160,14 @@ define(
 					recursionStack,
 					rootNodesToLayout = [],
 					layoutRootNode = false,
-					breakAfterChildrenCalculations;
+					breakAfterChildrenCalculations,
+					container = self._container,
+					i,
+					len = nodes.length;
 			   has("ti-instrumentation") && (this._layoutInstrumentationTest = instrumentation.startTest("Layout"));
 					
 				// Determine which nodes need to be re-layed out
-				for (var i in nodes) {
+				for (i = 0; i < len; i++) {
 					layoutNode = nodes[i];
 						
 					// Mark all of the children for update that need to be updated
@@ -171,76 +178,72 @@ define(
 						children = node.children;
 						for (var j in children) {
 							child = children[j];
-							if (node.layout !== "composite" || child._isDependentOnParent() || !child._hasBeenLayedOut) {
+							if (node.layout !== "composite" || child._needsMeasuring || node._layout._isDependentOnParent(child)) {
 								recursionStack.push(child);
 							}
 						}
 					}
 					
-					// Go up and mark any other nodes that need to be marked
-					parent = layoutNode;
-					while(1) {
-						breakAfterChildrenCalculations = false;
-						if (!parent._parent) {
-							layoutRootNode = true;
-							break;
-						} else if(!parent._parent._hasSizeDimensions()) {
-							!parent._parent._markedForLayout && !~rootNodesToLayout.indexOf(parent._parent) && rootNodesToLayout.push(parent._parent);
-							if (parent._parent.layout !== "composite") {
-								breakAfterChildrenCalculations = true;
-							} else {
+					if (layoutNode === container) {
+						layoutRootNode = true;
+					} else {
+						// Go up and mark any other nodes that need to be marked
+						parent = layoutNode;
+						while(1) {
+							
+							parent._markedForLayout = true;
+							previousParent = parent;
+							parent = parent._parent;
+							
+							// Check if this parent is the stopping point
+							breakAfterChildrenCalculations = false;
+							if (!parent || parent === container) {
+								layoutRootNode = true;
 								break;
+							} else if(!parent._hasSizeDimensions() && !parent._needsMeasuring) {
+								!parent._markedForLayout && !~rootNodesToLayout.indexOf(parent) && rootNodesToLayout.push(parent);
+								breakAfterChildrenCalculations = true;
 							}
-						}
-						parent._markedForLayout = true;
-						
-						previousParent = parent;
-						parent = parent._parent;
-						recursionStack = [parent];
-						while (recursionStack.length > 0) {
-							node = recursionStack.pop();
-							children = node.children;
-							for (var j in children) {
-								child = children[j];
-								if (child !== previousParent && (node.layout !== "composite" || child._isDependentOnParent())) {
-									child._markedForLayout = true;
-									recursionStack.push(child);
+							
+							// Recurse through the children of the parent
+							recursionStack = [parent];
+							while (recursionStack.length > 0) {
+								node = recursionStack.pop();
+								children = node.children;
+								for (var j in children) {
+									child = children[j];
+									if (child !== previousParent && (node.layout !== "composite" || child._needsMeasuring || node._layout._isDependentOnParent(child))) {
+										child._markedForLayout = true;
+										recursionStack.push(child);
+									}
 								}
 							}
-						}
-						if (breakAfterChildrenCalculations) {
-							break;
+							
+							if (breakAfterChildrenCalculations) {
+								break;
+							}
 						}
 					}
 				}
 				
 				// Layout all nodes that need it
 				if (layoutRootNode) {
-					var container = self._container;
-					container._doLayout({
-					 	origin: {
-					 		x: 0,
-					 		y: 0
-					 	},
-					 	isParentSize: {
-					 		width: false,
-					 		height: false
-					 	},
-					 	boundingSize: {
-					 		width: global.innerWidth,
-					 		height: global.innerHeight
-					 	},
-					 	alignment: {
-					 		horizontal: "center",
-					 		vertical: "center"
-					 	},
-					 	positionElement: true,
-					 	layoutChildren: true
-				 	});
+					var container = self._container,
+						props = container.properties.__values__,
+						width = container._measuredWidth = props.width = global.innerWidth,
+						height = container._measuredHeight = props.height = global.innerHeight;
+					container._measuredSandboxWidth = width;
+					container._measuredSandboxHeight = height;
+					container.fireEvent("postlayout");
+					setStyle(container.domNode, {
+						width: width + "px",
+						height: height + "px"
+					});
+					container._layout._doLayout(container, width, height, false, false);
 				}
 				for (var i in rootNodesToLayout) {
 					node = rootNodesToLayout[i];
-					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node._getInheritedWidth() === Ti.UI.SIZE, node._getInheritedHeight() === Ti.UI.SIZE);
+					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node._parent._layout._getWidth(node, node.width) === Ti.UI.SIZE, node._parent._layout._getHeight(node, node.height) === Ti.UI.SIZE);
 				}
 				
 				has("ti-instrumentation") && instrumentation.stopTest(this._layoutInstrumentationTest, 
@@ -258,7 +261,7 @@ define(
 				startLayout();
 			} else if (self._nodesToLayout.length === 1) {
 				self._layoutInProgress = true;
-				self._layoutTimer = setTimeout(function(){ startLayout(); }, 25);
+				self._layoutTimer = setTimeout(startLayout, 10);
 			}
 		},
 		
@@ -357,7 +360,14 @@ define(
 			UNIT_MM: "mm",
 			UNIT_CM: "cm",
 			UNIT_IN: "in",
-			UNIT_DIP: "dp" // We don't have DIPs, so we treat them as pixels
+			UNIT_DIP: "dp", // We don't have DIPs, so we treat them as pixels
+			
+			// Hidden constants
+			_LAYOUT_COMPOSITE: "composite",
+			_LAYOUT_VERTICAL: "vertical",
+			_LAYOUT_HORIZONTAL: "horizontal",
+			_LAYOUT_CONSTRAINING_VERTICAL: "constrainingVertical",
+			_LAYOUT_CONSTRAINING_HORIZONTAL: "constrainingHorizontal",
 		}
 
 	});

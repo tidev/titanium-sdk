@@ -1689,6 +1689,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_VOLUME = "volume";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_WHEN = "when";
 
 	/**
