@@ -649,12 +649,47 @@ public class TiMapView extends TiUIView
 			proxy.setProperty(TiC.PROPERTY_ANNOTATIONS, d.get(TiC.PROPERTY_ANNOTATIONS));
 			Object [] annotations = (Object[]) d.get(TiC.PROPERTY_ANNOTATIONS);
 			for(int i = 0; i < annotations.length; i++) {
-				AnnotationProxy ap = (AnnotationProxy) annotations[i];
-				this.annotations.add(ap);
+				AnnotationProxy ap = annotationProxyForObject(annotations[i]);
+				if (ap != null) {
+					this.annotations.add(ap);
+				}
 			}
 			doSetAnnotations(this.annotations);
 		}
 		super.processProperties(d);
+	}
+	
+	private AnnotationProxy annotationProxyForObject(Object ann)
+	{
+		if (ann == null) {
+			Log.e(LCAT, "unable to create annotation proxy for null object passed in.");
+			return null;
+		}
+		AnnotationProxy annProxy = null;
+		if (ann instanceof AnnotationProxy) {
+			annProxy = (AnnotationProxy) ann;
+		}
+		else {
+			KrollDict annotationDict = null;
+			if (ann instanceof KrollDict) {
+				annotationDict = (KrollDict) ann;
+			} else if (ann instanceof HashMap) {
+				annotationDict = new KrollDict((HashMap) ann);
+			}
+			
+			if (annotationDict != null) {
+				annProxy = new AnnotationProxy();
+				annProxy.setCreationUrl(proxy.getCreationUrl().getNormalizedUrl());
+				annProxy.handleCreationDict(annotationDict);
+				annProxy.setActivity(proxy.getActivity());
+			}
+		}
+		
+		if (annProxy == null) {
+			Log.e(LCAT, "unable to create annotation proxy for object, likely an error in the type of the object passed in...");
+		}
+		
+		return annProxy;
 	}
 
 	@Override
