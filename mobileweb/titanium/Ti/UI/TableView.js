@@ -16,7 +16,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				height: UI.INHERIT,
 				left: 0,
 				top: 0,
-				layout: 'vertical'
+				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			});
 			this.add(contentContainer);
 			setStyle(contentContainer.domNode,"overflow","hidden");
@@ -25,17 +25,17 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			contentContainer.add(this._header = UI.createView({
 				height: UI.SIZE, 
 				width: UI.INHERIT, 
-				layout: "vertical"
+				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
 			contentContainer.add(this._sections = UI.createView({
 				height: UI.SIZE, 
 				width: UI.INHERIT, 
-				layout: "vertical"
+				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
 			contentContainer.add(this._footer = UI.createView({
 				height: UI.SIZE, 
 				width: UI.INHERIT, 
-				layout: "vertical"
+				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
 			
 			this.data = [];
@@ -84,22 +84,26 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				this._fireScrollEvent(e.x,e.y);
 			}));
 			this.domNode.addEventListener("mousewheel",function(e) {
+				
+				// Start the scroll bar
 				self._startScrollBars({
 					y: contentContainer.domNode.scrollTop / (getContentHeight() - self._measuredHeight)
 				},
 				{
 					y: contentContainer._measuredHeight / (getContentHeight())
 				});
+				
+				// Set the scroll position
+				contentContainer.domNode.scrollLeft -= e.wheelDeltaX;
+				contentContainer.domNode.scrollTop -= e.wheelDeltaY;
+				
+				// Immediately update the position
+				self._updateScrollBars({
+					y: (contentContainer.domNode.scrollTop - e.wheelDeltaY) / (getContentHeight() - self._measuredHeight)
+				});
 				setTimeout(function(){
-					contentContainer.domNode.scrollLeft -= e.wheelDeltaX;
-					contentContainer.domNode.scrollTop -= e.wheelDeltaY;
-					self._updateScrollBars({
-						y: (contentContainer.domNode.scrollTop - e.wheelDeltaY) / (getContentHeight() - self._measuredHeight)
-					});
-					setTimeout(function(){
-						self._endScrollBars();
-					},10);
-				},10);
+					self._endScrollBars();
+				},200);
 			});
 			
 			require.on(contentContainer.domNode,"scroll",lang.hitch(this,function(e){
@@ -166,9 +170,9 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				sections = this._sections.children,
 				row = this._tableViewRowClicked,
 				section = this._tableViewSectionClicked;
-
-			if (row && section) {
-				if (regexpClickTap.test(type)) {
+			if (type === "click" || type === "singletap") {
+				if (row && section) {
+					
 					for (; i < sections.length; i += 2) {
 						localIndex = sections[i]._rows.children.indexOf(row);
 						if (localIndex !== -1) {
@@ -182,12 +186,14 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 					e.index = index;
 					e.section = section;
 					e.searchMode = false; 
+	
+					View.prototype._handleTouchEvent.apply(this, arguments);
+	
+					this._tableViewRowClicked = null;
+					this._tableViewSectionClicked = null;
 				}
-
+			} else {
 				View.prototype._handleTouchEvent.apply(this, arguments);
-
-				this._tableViewRowClicked = null;
-				this._tableViewSectionClicked = null;
 			}
 		},
 

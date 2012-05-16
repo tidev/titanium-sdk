@@ -10,11 +10,10 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/style",
 			var prongs = this._prongs = [],
 				i = 0,
 				contentContainer = this._contentContainer = UI.createView({
-					layout: "horizontal",
+					layout: UI._LAYOUT_CONSTRAINING_HORIZONTAL,
 					width: UI.SIZE,
 					height: UI.SIZE
 				});
-			contentContainer._layout._defaultVerticalAlignment = "center";
 			this._add(contentContainer);
 			contentContainer.hide();
 				

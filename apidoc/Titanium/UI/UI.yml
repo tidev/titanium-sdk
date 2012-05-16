@@ -128,6 +128,13 @@ description:  |
     If a color property is undefined, the default color of the particular UI element is applied. 
     If a color value is not valid on iOS, the default color is applied, whereas, on Android, the 
     color yellow is applied.
+    
+    Besides the above mentioned colors, iOS also supports the following native system background colors.
+    
+    * **[COLOR_SCROLLVIEW_BACKGROUND](Titanium.UI.iOS.COLOR_SCROLLVIEW_BACKGROUND)** 
+    * **[COLOR_VIEW_FLIPSIDE_BACKGROUND](Titanium.UI.iOS.COLOR_VIEW_FLIPSIDE_BACKGROUND)** 
+    * **[COLOR_UNDER_PAGE_BACKROUND](Titanium.UI.iOS.COLOR_UNDER_PAGE_BACKROUND)** - only 
+    available on `iOS SDK 5.0 and above`.
 
 extends: Titanium.Module
 since: "0.4"
@@ -488,11 +495,9 @@ properties:
   - name: INHERIT
     summary: INHERIT behavior for UI layout.
     description: |
-        The INHERIT behavior means the view will use the `width` or `height` of the parent, as 
-        specified by the user. For example, if the parent `width` is set to `50%`, then a child 
-        with a width of `INHERIT` will inherit the width of `50%`, making it `25%` of the parent's 
-        parent's width.
-    type: String
+        The INHERIT behavior allows the width/height of a view to be determined by the 
+        parent. If a parent has a size of <Titanium.UI.SIZE>, then the child will inherit 
+        a size of <Titanium.UI.SIZE>. Otherwise, the child inherits a size of <Titanium.UI.FILL>.
     permission: read-only
     platforms: [mobileweb]
     since: "2.0.0"
