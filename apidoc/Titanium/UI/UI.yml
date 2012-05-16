@@ -175,7 +175,7 @@ properties:
     deprecated:
         since: "1.8.0"
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: ANIMATION_CURVE_EASE_IN_OUT
     summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
@@ -183,7 +183,7 @@ properties:
     deprecated:
         since: "1.8.0"
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: ANIMATION_CURVE_EASE_OUT
     summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
@@ -191,7 +191,7 @@ properties:
     deprecated:
         since: "1.8.0"
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: ANIMATION_CURVE_LINEAR
     summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
@@ -199,7 +199,7 @@ properties:
     deprecated:
         since: "1.8.0"
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: AUTODETECT_ADDRESS
     summary: Use the text auto-detection constants in <Titanium.UI.iOS> instead.
@@ -257,7 +257,7 @@ properties:
     deprecated:
         since: "1.8.0"
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
     
   - name: BLEND_MODE_COLOR
     summary: Use the blend mode constants in <Titanium.UI.iOS> instead.
@@ -498,6 +498,7 @@ properties:
         The INHERIT behavior allows the width/height of a view to be determined by the 
         parent. If a parent has a size of <Titanium.UI.SIZE>, then the child will inherit 
         a size of <Titanium.UI.SIZE>. Otherwise, the child inherits a size of <Titanium.UI.FILL>.
+    type: String
     permission: read-only
     platforms: [mobileweb]
     since: "2.0.0"
@@ -507,14 +508,12 @@ properties:
     description: Use with the <Titanium.UI.TextField.borderStyle> property.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
     
   - name: INPUT_BORDERSTYLE_LINE
     summary: Use a simple line border on the input field.
     description: Use with the <Titanium.UI.TextField.borderStyle> property.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
     
   - name: INPUT_BORDERSTYLE_NONE
     summary: Use no border on the input field.
@@ -527,7 +526,6 @@ properties:
     description: Use with the <Titanium.UI.TextField.borderStyle> property.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
     
   - name: INPUT_BUTTONMODE_ALWAYS
     summary: Always show buttons on the input field.
@@ -537,7 +535,7 @@ properties:
         and <Titanium.UI.TextField.rightButtonMode> properties.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     
   - name: INPUT_BUTTONMODE_NEVER
     summary: Never show buttons on the input field.
@@ -547,7 +545,7 @@ properties:
         and <Titanium.UI.TextField.rightButtonMode> properties.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     
   - name: INPUT_BUTTONMODE_ONBLUR
     summary: Show buttons on the input field when it loses focus.
@@ -567,7 +565,7 @@ properties:
         and <Titanium.UI.TextField.rightButtonMode> properties.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     
   - name: KEYBOARD_APPEARANCE_ALERT
     summary: Use a keyboard appearance suitable for entering text on an alert.
