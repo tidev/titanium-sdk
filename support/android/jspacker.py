@@ -10,7 +10,10 @@ if platform.system() == "Windows":
 elif platform.system() == "Darwin":
     titanium_prep = 'titanium_prep.macos'
 elif platform.system() == "Linux":
-    titanium_prep = 'titanium_prep.linux'
+    if platform.architecture() == '64bit':
+	titanium_prep = 'titanium_prep.linux64'
+    else:
+	titanium_prep = 'titanium_prep.linux32'
 titanium_prep = os.path.abspath(os.path.join(template_dir,titanium_prep))
 
 JAVA_TEMPLATE = """\
