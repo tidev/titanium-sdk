@@ -1056,6 +1056,7 @@
     if(focusedToolbar != nil){
         keyboardHeight -= focusedToolbarBounds.size.height;
     }
+    
 	if ((scrolledView != nil) && (keyboardHeight > 0))	//If this isn't IN the toolbar, then we update the scrollviews to compensate.
 	{
 		UIView * possibleScrollView = [scrolledView superview];
@@ -1172,14 +1173,27 @@
 	}
 }
 
+- (void)adjustKeyboardHeight:(NSNumber*)_keyboardVisible
+{
+    if ( (updatingAccessoryView == NO) && ([TiUtils boolValue:_keyboardVisible] == keyboardVisible) ) {
+        updatingAccessoryView = YES;
+        [self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
+    }
+}
+
 - (void)keyboardDidHide:(NSNotification*)notification 
 {
 	startFrame = endFrame;
+    [self performSelector:@selector(adjustKeyboardHeight:) withObject:[NSNumber numberWithBool:NO] afterDelay:leaveDuration];
 }
 
 - (void)keyboardDidShow:(NSNotification*)notification
 {
 	startFrame = endFrame;
+    //The endingFrame is not always correctly calculated when rotating.
+    //This method call ensures correct calculation at the end
+    //See TIMOB-8720 for a test case
+    [self performSelector:@selector(adjustKeyboardHeight:) withObject:[NSNumber numberWithBool:YES] afterDelay:enterDuration];
 }
 
 - (UIView *)keyboardAccessoryViewForProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy withView:(UIView **)proxyView
@@ -1212,6 +1226,7 @@
 -(void)didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)blurredProxy;
 {
 	WARN_IF_BACKGROUND_THREAD_OBJ
+    
 	if (blurredProxy != keyboardFocusedProxy)
 	{
 		NSLog(@"[WARN] Blurred for %@<%X>, despite %@<%X> being the focus.",blurredProxy,blurredProxy,keyboardFocusedProxy,keyboardFocusedProxy);
@@ -1277,6 +1292,7 @@
 -(void)didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy;
 {
 	WARN_IF_BACKGROUND_THREAD_OBJ
+    
 	if (visibleProxy == keyboardFocusedProxy)
 	{
 		NSLog(@"[WARN] Focused for %@<%X>, despite it already being the focus.",keyboardFocusedProxy,keyboardFocusedProxy);

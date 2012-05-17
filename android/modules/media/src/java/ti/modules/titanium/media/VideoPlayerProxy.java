@@ -32,7 +32,8 @@ import android.os.Message;
 import android.os.Messenger;
 
 @Kroll.proxy(creatableInModule = MediaModule.class, propertyAccessors = {
-	"url", "initialPlaybackTime", "duration", "contentURL", "autoplay", "endPlaybackTime", "playableDuration"
+	"url", "initialPlaybackTime", "duration", "contentURL", "autoplay", "endPlaybackTime", "playableDuration",
+	TiC.PROPERTY_VOLUME
 })
 public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifecycleEvent
 {
@@ -77,6 +78,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	public VideoPlayerProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_VOLUME, 1.0f);
 	}
 
 	public VideoPlayerProxy(TiContext tiContext)

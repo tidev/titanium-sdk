@@ -8,6 +8,13 @@
 	var TAG = "kroll";
 	var global = this;
 
+	// Works identical to Object.hasOwnProperty, except
+	// also works if the given object does not have the method
+	// on its prototype or it has been masked.
+	function hasOwnProperty(object, property) {
+		return Object.hasOwnProperty.call(object, property);
+	}
+
 	kroll.extend = function(thisObject, otherObject)
 	{
 		if (!otherObject) {
@@ -16,7 +23,7 @@
 		}
 
 		for (var name in otherObject) {
-			if (otherObject.hasOwnProperty(name)) {
+			if (hasOwnProperty(otherObject, name)) {
 				thisObject[name] = otherObject[name];
 			}
 		}

@@ -7,30 +7,30 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 	return declare("Ti.UI.Slider", Widget, {
 
 		constructor: function(args) {
-			this._track = dom.create("div", {
-				className: "TiUISliderTrack"
-			}, this.domNode);
-			
-			this._thumb = dom.create("div", {
-				className: "TiUIElementGradient TiUISliderThumb"
-			}, this.domNode);
-			
 			var initialPosition,
 				initialValue,
 				self = this;
-			this.addEventListener("touchstart", function(e) {
+			
+			self._track = dom.create("div", {
+				className: "TiUISliderTrack"
+			}, self.domNode);
+			
+			self._thumb = dom.create("div", {
+				className: "TiUIElementGradient TiUISliderThumb"
+			}, self.domNode);
+			
+			require.on(self, "touchstart", function(e) {
 				initialPosition = e.x;
 				initialValue = self.value;
 			});
-			this.addEventListener("touchmove", function(e) {
+			require.on(self, "touchmove", function(e) {
 				self.value = Math.round((e.x - initialPosition) * (self.max - self.min) / (self.domNode.clientWidth - 32) + initialValue);
 			});
-		},
-		
-		_doLayout: function() {
-			var dimensions = Widget.prototype._doLayout.apply(this,arguments);
-			this._updateSize();
-			return dimensions;	
+			
+			require.on(self, "postlayout", function() {
+				self._updateSize();
+			});
+			
 		},
 		
 		_updateSize: function() {

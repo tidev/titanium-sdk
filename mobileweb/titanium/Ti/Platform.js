@@ -44,7 +44,7 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale", "Ti/_/
 					hiddenIFrame.contentWindow.location.href = url;
 				} else { 
 					var win = UI.createWindow({
-							layout: "vertical",
+							layout: UI._LAYOUT_CONSTRAINING_VERTICAL,
 							backgroundColor: "#888"
 						}),
 						backButton = UI.createButton({
