@@ -36,6 +36,16 @@
     return [contentOffset autorelease];
 }
 
+-(void)windowWillOpen
+{
+    [super windowWillOpen];
+    //Since layout children is overridden in scrollview need to make sure that 
+    //a full layout occurs atleast once if view is attached
+    if ([self viewAttached]) {
+        [self contentsWillChange];
+    }
+}
+
 -(void)contentsWillChange
 {
 	if ([self viewAttached])
