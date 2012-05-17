@@ -140,6 +140,12 @@ properties:
         Text alignment, specified using one of the <Titanium.UI> text alignment constants: [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
     type: [String,Number]
     default: <Titanium.UI.TEXT_ALIGNMENT_CENTER>
+  - name: tintColor
+    summary: Button background color in the context of a Nav Bar.
+    description: |
+        Allows setting the button color independent of the barColor of the containing Nav Bar. iOS 5.0 or greater only. Will be ignored on older versions of iOS.
+    type: String
+    platforms: [iphone,ipad]
   - name: title
     summary: Button title.
     type: String
