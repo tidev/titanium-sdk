@@ -185,7 +185,7 @@ public class TiUITabGroup extends TiUIView
 			if (previousTab != null) {
 				TiViewProxy previousTabWindow = getTabWindow(previousTab);
 				if (previousTabWindow != null) {
-					previousTabWindow.fireEvent(TiC.EVENT_BLUR, null);
+					previousTabWindow.fireEvent("preblur", null);
 				}
 			}
 		}
@@ -193,7 +193,7 @@ public class TiUITabGroup extends TiUIView
 		tabChangeEventData = tabGroupProxy.buildFocusEvent(currentTabID, previousTabID);
 		TiViewProxy currentTabWindow = getTabWindow(currentTab);
 		if (currentTabWindow != null) {
-			currentTabWindow.fireEvent(TiC.EVENT_FOCUS, null);
+			currentTabWindow.fireEvent("prefocus", null);
 		}
 		previousTabID = currentTabID;
 

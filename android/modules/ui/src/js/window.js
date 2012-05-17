@@ -26,7 +26,6 @@ exports.bootstrapWindow = function(Titanium) {
 	// A collection of windows we need to keep alive.
 	var windows = [];
 	//TODO: to be removed after LW window stack is implemented
-	Window.prototype.lastFocusedWindow = null;
 	Window.prototype.isActivity = false;
 	//TODO: to be removed after LW window stack is implemented
 	Window.prototype.isFocus = false;
@@ -194,9 +193,27 @@ exports.bootstrapWindow = function(Titanium) {
 		for (var i = 0; i < windows.length; i++) {
 			var win = windows[i];
 			if (win.isFocus && win != window) {
-				window.lastFocusedWindow = win;
 				win.isFocus = false;
 				break;
+			}
+		}
+	}
+	
+	//attach LW window to the focused HW window 
+	var attachToParent = function(w) {
+		for (var i = 0; i < windows.length; i++) {
+			var win = windows[i];
+			if (win.isFocus && win != w) {
+				if (win.isActivity) {
+					win.LWstack.push(w);
+					w.HWparent = win;
+				} else {
+					var parent = win.HWparent;
+					if (parent) {
+						parent.LWstack.push(w);
+						w.HWparent = parent;
+					}
+				}
 			}
 		}
 	}
@@ -214,7 +231,6 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 		this.currentState = this.state.opening;
 		rememberWindowAndAddCloseListener(this);
-		
 		if (!options) {
 			options = {};
 
@@ -241,6 +257,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		var needsOpen = false;
 		if (this.isActivity) {
+			this.LWstack = [];
 			this.window = new ActivityWindow(this._properties);
 			this.view = this.window;
 			needsOpen = true;
@@ -251,8 +268,11 @@ exports.bootstrapWindow = function(Titanium) {
 			
 			// Add children before the view is added
 			this.addChildren();
-			
 			this.window.add(this.view);
+			attachToParent(this);
+			if (this.HWparent && this.HWparent.tab) {
+				this.HWparent.fireEvent("blur");
+			}
 		}
 
 		// handle orientation - don't put this in post open otherwise the orientation
@@ -382,14 +402,20 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 		this.currentState = this.state.closing;
 		//TODO: to be removed after LW window stack is implemented
-		if (this.isFocus && this.lastFocusedWindow) {
-			this.lastFocusedWindow.isFocus = true;
+		if (this.isFocus) {
 			if (!this.isActivity) {
 				this.view.fireEvent("blur");
-				this.lastFocusedWindow.window.fireEvent("focus");
+				var stack = this.HWparent.LWstack;
+				stack.splice(stack.indexOf(this), 1);
+				if (stack.length > 0) {
+					stack[stack.length - 1].view.fireEvent("focus");
+					stack[stack.length - 1].isFocus = true;
+				} else {
+					this.HWparent.fireEvent("focus");
+					this.HWparent.isFocus = true;
+				}
 			}
 			this.isFocus = false;
-
 		}
 
 		if (this.isActivity) {
@@ -549,9 +575,30 @@ exports.bootstrapWindow = function(Titanium) {
 		window._children = [];
 		window._postOpenChildren = [];
 		var self = window;
-		//TODO: to be removed after LW window stack is implemented
-		window.on('focus', function () {
-			switchFocus(self);
+		
+		window.on('prefocus', function() {
+			if (!self.isActivity) {
+				self.isActivity = true;
+				self.tab = true;
+				self.LWstack = [];
+			}
+			if (self.isActivity && self.LWstack.length > 0) {
+				var currentWin = self.LWstack[self.LWstack.length-1]
+				currentWin.view.fireEvent("focus");
+				switchFocus(currentWin);
+			} else {
+				self.fireEvent("focus");
+				switchFocus(self);
+			}
+		});
+		
+		window.on('preblur', function() {
+			if (self.LWstack && self.LWstack.length > 0) {
+				var currentWin = self.LWstack[self.LWstack.length-1]
+				currentWin.view.fireEvent("blur");
+			} else {
+				self.fireEvent("blur");
+			}
 		});
 
 		window.on('addedToTab', function () {
