@@ -500,6 +500,56 @@ NSArray* moviePlayerKeys = nil;
 	}
 }
 
+-(NSNumber *)volume
+{
+#if DEBUG
+	@try {
+		if (![[self useApplicationAudioSession] boolValue]) {
+			NSLog(@"[WARN] Ti.Media.VideoPlayer's volume can only be applied if Ti.Media.VideoPlayer's useApplicationAudioSession is true.");
+		}
+	}
+	@catch (NSException *exception) {
+		/*
+		 *	This does not even merit an NSLog. Movie will claim
+		 *	that it can handle useApplicationAudioSession, and then
+		 *	throw an exception when you actually try it.
+		 */
+	}
+#endif
+
+	__block double volume = 1.0;
+	TiThreadPerformOnMainThread(^{
+		volume = (double)[[MPMusicPlayerController applicationMusicPlayer] volume];
+	}, YES);
+	
+	return NUMDOUBLE(volume);
+}
+
+-(void)setVolume:(NSNumber *)newVolume
+{
+#if DEBUG
+	@try {
+		if (![[self useApplicationAudioSession] boolValue]) {
+			NSLog(@"[WARN] Ti.Media.VideoPlayer's volume can only be applied if Ti.Media.VideoPlayer's useApplicationAudioSession is true.");
+		}
+	}
+	@catch (NSException *exception) {
+		/*
+		 *	This does not even merit an NSLog. Movie will claim
+		 *	that it can handle useApplicationAudioSession, and then
+		 *	throw an exception when you actually try it.
+		 */
+	}
+#endif
+	
+	double volume = [TiUtils doubleValue:newVolume def:-1.0];
+	ENSURE_VALUE_RANGE(volume, 0.0, 1.0);
+
+	TiThreadPerformOnMainThread(^{
+		[[MPMusicPlayerController applicationMusicPlayer] setVolume:volume];
+	}, NO);
+}
+
 -(void)cancelAllThumbnailImageRequests:(id)value
 {
 	TiThreadPerformOnMainThread(^{[movie cancelAllThumbnailImageRequests];}, NO);

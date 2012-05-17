@@ -621,6 +621,17 @@ properties:
     type: Boolean
     default: true
 
+  - name: volume
+    summary: |
+        Volume of the audio portion of the video. 
+    description: |
+        On iOS, this adjusts the volume of the application's session as well, and will
+        not work if useApplicationAudioSession has been set false.
+    platforms: [iphone, ipad]
+    type: Number
+    default: 1.0
+    since: "2.1"
+
 ---
 name: ThumbnailResponse
 summary: |
