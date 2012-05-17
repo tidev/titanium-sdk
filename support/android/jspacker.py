@@ -6,7 +6,7 @@ import sys, string, platform, os
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
 if platform.system() == "Windows":
-    titanium_prep = 'titanium_prep.win'
+    titanium_prep = 'titanium_prep.win.exe'
 elif platform.system() == "Darwin":
     titanium_prep = 'titanium_prep.macos'
 elif platform.system() == "Linux":
