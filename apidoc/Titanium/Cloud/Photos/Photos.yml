@@ -123,7 +123,7 @@ examples:
                         'updated_at: ' + photo.updated_at);
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 
@@ -142,7 +142,7 @@ examples:
                         'updated_at: ' + photo.updated_at);
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 
@@ -165,7 +165,7 @@ examples:
                     }
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 
@@ -195,7 +195,7 @@ examples:
                     }
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 
@@ -216,7 +216,7 @@ examples:
                         'updated_at: ' + photo.updated_at);
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 
@@ -231,7 +231,7 @@ examples:
                     alert('Success');
                 } else {
                     alert('Error:\\n' +
-                        ((e.error && e.message) || JSON.stringify(e))
+                        ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
 

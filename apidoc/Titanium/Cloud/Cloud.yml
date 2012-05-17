@@ -55,6 +55,27 @@ extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 since: "2.0"
 platforms: [android, iphone, ipad]
+methods:
+  - name: hasStoredSession
+    summary: Checks if there is a stored user session.
+    description: |
+        True is returned after successfully calling <Titanium.Cloud.Users.create> or
+        <Titanium.Cloud.Users.login>, and false after successfully calling
+        <Titanium.Cloud.Users.logout>.
+    returns:
+        type: Boolean
+  - name: retrieveStoredSession
+    summary: Returns the stored user session identifier.
+    description: |
+        A value is returned after successfully calling <Titanium.Cloud.Users.create> or
+        <Titanium.Cloud.Users.login>, and null after successfully calling
+        <Titanium.Cloud.Users.logout>.
+        
+        All calls made using the Cloud module automatically use this value and, thus, it only needs
+        to be used when manually making calls to the ACS servers using
+        <Titanium.Network.HTTPClient>.
+    returns:
+        type: String
 properties:
   - name: useSecure
     summary: Indicates whether to use SSL when sending requests to ACS.
@@ -79,33 +100,6 @@ properties:
         When you are done tracking the transmission, set this to null.
     type: Callback<CloudStreamProgress>
 
-examples:
-  - title: Override Base URL Example
-    example: |
-        This example overrides the base URL.
-
-            Cloud.baseURL = '\<ACS CLOUD SERVICES URL\>';
-            Cloud.baseURLDevelopment = '\<ACS CLOUD SERVICES DEVELOPMENT URL\>';
-            Cloud.baseURLProduction = '\<ACS CLOUD SERVICES PRODUCTION URL\>';
-
-  - title: Override API Key Example
-    example: |
-        This example overrides the API key.
-
-            Cloud.apiKey = '\<YOUR APP API KEY\>';
-            Cloud.apiKeyDevelopment = '\<YOUR DEVELOPMENT API KEY\>';
-            Cloud.apiKeyProduction = '\<YOUR PRODUCTION API KEY\>';
-
-  - title: Override OAuth Example
-    example: |
-        This example overrides the consumer key and secret.
-
-            Cloud.consumerKey = '\<YOUR CONSUMER KEY\>';
-            Cloud.consumerSecret = '\<YOUR CONSUMER SECRET\>';
-            Cloud.consumerKeyDevelopment = '\<YOUR DEVELOPMENT CONSUMER KEY\>';
-            Cloud.consumerSecretDevelopment = '\<YOUR DEVELOPMENT CONSUMER SECRET\>';
-            Cloud.consumerKeyProduction = '\<YOUR PRODUCTION CONSUMER KEY\>';
-            Cloud.consumerSecretDevelopment = '\<YOUR PRODUCTION CONSUMER SECRET\>';
 ---
 name: CloudStreamProgress
 summary: Argument passed to the callback as a request is transmitted or received.
