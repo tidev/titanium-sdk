@@ -25,17 +25,19 @@ description: |
     images or controls can be created by adding child views to the row. In this case, the row's 
     `title` property should not be set.
     
-    When rows contain child views, improved performance may be obtained by giving rows with the same 
-    layout a [className](Titanium.UI.TableViewRow) of the same value. The content of the rows may 
-    be different without the need for a new class name, though. For example, if the text is the only 
-    difference between two rows, both row instances should have identical class names.
-    
     As events automatically bubble/propogate to parent views, a listener may be placed on the table 
     view to detect events fired from the rows. The benefit is that it is not necessary to 
     explicitly create a listener for every individual row.
     
     See the [TableView](Titanium.UI.TableView) description and examples section for more information 
     about creating table rows.
+    
+    #### Improved Table Performance (Android and iOS)
+    
+    When rows contain child views, improved performance may be obtained by giving rows with the same 
+    layout a [className](Titanium.UI.TableViewRow) of the same value. The content of the rows may 
+    be different without the need for a new class name, though. For example, if the text is the only 
+    difference between two rows, both row instances should have identical class names.
     
     #### Platform Implementation Notes
     
@@ -53,7 +55,7 @@ description: |
     Also, note that the selected text color, `selectedColor`, can only be set on iOS and 
     Mobile Web. On Android, the text color does not change when the row is selected.
     
-    #### Row Swipe Gestures
+    #### Row Swipe Gestures (Android and iOS)
     
     A common requirement is to enable the user to interact with table rows using swipe gestures. 
     As this event is not available for the `TableViewRow` object, it will not "bubble up" to the 
@@ -66,7 +68,7 @@ description: |
 extends: Titanium.UI.View
 since: "0.9"
 excludes:
-    events: [dblclick, doubletap, longpress, pinch, singletap, swipe, touchend, touchmove, twofingertap]
+    events: [dblclick, doubletap, longpress, pinch, singletap, touchend, touchmove, twofingertap]
     methods: [animate]
     properties: []
 
@@ -116,6 +118,30 @@ events:
         
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+    
+  - name: swipe
+    summary: Fired when the device detects a swipe gesture against the view.
+    platforms: [mobileweb]
+    properties:
+      - name: direction
+        summary: Direction of the swipe--either 'left' or 'right'. Android also supports 'up' and 'down'.
+        type: String
+        
+      - name: globalPoint
+        summary: |
+            Dictionary with properties `x` and `y` describing the location of the event's endpoint 
+            in screen coordinates.
+        deprecated:
+            since: "1.8.0"
+        platforms: [iphone, ipad]
+        
+      - name: x
+        summary: X coordinate of the event's endpoint from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event's endpoint from the `source` view's coordinate system.
         type: Number
         
   - name: touchcancel

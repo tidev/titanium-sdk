@@ -94,7 +94,7 @@ description: |
 extends: Titanium.UI.View
 since: "0.8"
 excludes: {
-    events: [delete, pinch, touchmove],
+    events: [delete],
     properties: [backgroundSelectedColor, backgroundSelectedImage]
 }
 
@@ -304,7 +304,23 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+    
+  - name: pinch
+    summary: Fired when the device detects a pinch gesture.
+    description: |
+        A pinch is a touch and expand or contract 
+        with two fingers.  The event occurs continuously until a finger is lifted again.  
+    platforms: [mobileweb]
+    since: "1.8.0"
+    properties:
+      - name: scale
+        summary: The scale factor relative to the points of the two touches in screen coordinates.
+        type: Number
         
+      - name: velocity
+        summary: The velocity of the pinch in scale factor per second.
+        type: Number
+    
   - name: scroll
     summary: Fired when the table view is scrolled.
     platforms: [android, iphone, ipad, mobileweb]
@@ -488,6 +504,27 @@ events:
             since: "1.8.0"
         platforms: [iphone, ipad]
         
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+  - name: touchmove
+    summary: Fired as soon as the device detects movement of a touch.
+    description: |
+        Event coordinates are always relative to the view in which the initial touch occurred
+    properties:
+      - name: globalPoint
+        summary: |
+            Dictionary with properties `x` and `y` describing the location 
+            of the event in screen coordinates.
+        platforms: [mobileweb]
+        deprecated:
+            since: "1.8.0"
+            
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
