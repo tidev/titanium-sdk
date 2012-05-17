@@ -1,26 +1,40 @@
 ---
 name: Titanium.UI.TableView
 summary: |
-    A table view is a container for [TableViewRow](Titanium.UI.TableViewRow) objects that are used 
-    to present information in a vertically-scrolling view.
+    A table view is used to present information, organized in sections and rows, in a 
+    vertically-scrolling view.
 description: |
-    Use the <Titanium.UI.createTableView> method to create a table view. 
+    Use the <Titanium.UI.createTableView> method to create a `TableView`.
     
-    Rows may be created and added to a table in two ways.
+    A `TableView` object is a container for [TableViewSection](Titanium.UI.TableViewSection) 
+    objects that are, in turn, containers for [TableViewRow](Titanium.UI.TableViewRow) objects. 
+    
+    #### Creating Tables
+    
+    Tables may be created in the following ways.
     
     The simplest approach is to pass dictionaries of `TableViewRow` properties, such as 
     [backgroundColor](Titanium.UI.TableViewRow.backgroundColor), 
     [color](Titanium.UI.TableViewRow.color), and [title](Titanium.UI.TableViewRow.title), to the 
     [createTableView](Titanium.UI.createTableView) method, which causes the rows to be implictly 
-    created. Refer to the "Simple Table View with Basic Rows" example.
+    created, added to a single [TableViewSection](Titanium.UI.TableViewSection), and then added to 
+    the `TableView`. Refer to the "Simple Table View with Basic Rows" example.
     
     For more control over the layout of each row, however, [TableViewRow](Titanium.UI.TableViewRow) 
-    objects can be created explicitly using the <Titanium.UI.createTableViewRow> method and passed 
-    to the table view. Child views, such as [labels](Titanium.UI.Label), 
-    [images](Titanium.UI.ImageView), and [buttons](Titanium.UI.Button), may be added to each row. 
-    See the "Table View with Composite Layout" example.
+    objects can be created explicitly using the <Titanium.UI.createTableViewRow> method. Child views, 
+    such as [labels](Titanium.UI.Label), [images](Titanium.UI.ImageView), and 
+    [buttons](Titanium.UI.Button), may be added to each row. When passed passed to the table view, a 
+    single [TableViewSection](Titanium.UI.TableViewSection) is automatically created to hold the 
+    rows. See the "Table View with Composite Layout" example.
     
-    As a table view inherently scrolls, it creates a very poor user experience when it contains 
+    Lastly, sets of rows may be explicitly created and added to a their own 
+    [TableViewSection](Titanium.UI.TableViewSection) objects, which are then added to a `TableView`, 
+    to enable the rows to be organized. Headers and footers titles or views must be configured 
+    in order for the sections to be visible.
+    
+    #### Tables and Scroll Views
+    
+    As a table view inherently scrolls, it creates a very poor user experience when one contains 
     other scrolling views, such as a [ScrollableView](Titanium.UI.ScrollableView) or 
     [TextArea](Titanium.UI.TextArea). Thus, this layout is strongly discouraged. 
     
@@ -986,14 +1000,46 @@ properties:
     platforms: [iphone, ipad]
 
 examples:
-  - title: Simple Table View with Basic Rows
+  - title: Simple Table View
     example: |
-        The most basic example of a table view.
+        A basic table view.
         
-            var data = [{title:"Row 1"},{title:"Row 2"}];
-            var table = Ti.UI.createTableView({data:data});
+            Ti.UI.backgroundColor = 'white';
+            var win = Ti.UI.createWindow();
+            
+            var tableData = [ {title: 'Apples'}, {title: 'Bananas'}, {title: 'Carrots'}, {title: 'Potatoes'} ];
+            
+            var table = Ti.UI.createTableView({
+              data: tableData
+            });
             win.add(table);
-    
+            win.open();
+        
+  - title: Table View Sections
+    example: |
+        A table containing two sections with header titles, each with two rows.
+        
+            Ti.UI.backgroundColor = 'white';
+            var win = Ti.UI.createWindow();
+            
+            var sectionFruit = Ti.UI.createTableViewSection({ headerTitle: 'Fruit' });
+            var row1 = Ti.UI.createTableViewRow({ title: 'Apples' });
+            var row2 = Ti.UI.createTableViewRow({ title: 'Bananas' });
+            sectionFruit.add(row1);
+            sectionFruit.add(row2);
+            
+            var sectionVeg = Ti.UI.createTableViewSection({ headerTitle: 'Vegetables' });
+            var row3 = Ti.UI.createTableViewRow({ title: 'Carrots' });
+            var row4 = Ti.UI.createTableViewRow({ title: 'Potatoes' });
+            sectionVeg.add(row3);
+            sectionVeg.add(row4);
+            
+            var table = Ti.UI.createTableView({
+              data: [sectionFruit, sectionVeg]
+            });
+            win.add(table);
+            win.open();
+        
   - title: Table View with Composite Layout
     example: |
         A table created using rows that contain a custom child-view layout.

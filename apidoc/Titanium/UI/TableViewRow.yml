@@ -1,23 +1,29 @@
 ---
 name: Titanium.UI.TableViewRow
-summary: An individual row for a [TableView](Titanium.UI.TableView). 
+summary: |
+    A table view row is an individual item in a table, organized into table view sections.
 description: |
-    Use the <Titanium.UI.createTableViewRow> method to create a table view row.
+    Use the <Titanium.UI.createTableViewRow> method to create a table view row. These may be 
+    explicitly added to [TableViewSection](Titanium.UI.TableViewSection) objects, which are applied 
+    to a [TableView](Titanium.UI.TableView). If a table section is not specified, one will be 
+    automatically created. 
     
-    A table view row represents a single item in a [TableView](Titanium.UI.TableView). The row's 
-    contents can be as simple as a single line of text, or the row can be a completely customized 
-    with its own child views.
+    A row's contents can be as simple as a single line of text, or comprised of a completely 
+    customized layout of child views. 
     
-    A simple table view row provides properties for setting:
+    #### Creating Table View Rows
+    
+    Rows may be created using the properties directly available on the `TableViewRow` object, to 
+    achieve the following:
     
     * Row title to display the text content in the row.
     * Background color and background image.
     * Images on the left and right sides of the row.
     * System decorations, such as checkboxes.
     
-    If a custom layout is needed, such as multiple lines of text, different fonts, or additional 
-    images or controls, child views may be added to the row. In this case, the row's `title` 
-    property should not be set.
+    Alternatively, custom layouts of multiple lines of text, different fonts, and additional 
+    images or controls can be created by adding child views to the row. In this case, the row's 
+    `title` property should not be set.
     
     When rows contain child views, improved performance may be obtained by giving rows with the same 
     layout a [className](Titanium.UI.TableViewRow) of the same value. The content of the rows may 
@@ -27,6 +33,9 @@ description: |
     As events automatically bubble/propogate to parent views, a listener may be placed on the table 
     view to detect events fired from the rows. The benefit is that it is not necessary to 
     explicitly create a listener for every individual row.
+    
+    See the [TableView](Titanium.UI.TableView) description and examples section for more information 
+    about creating table rows.
     
     #### Platform Implementation Notes
     
