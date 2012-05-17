@@ -57,6 +57,8 @@ events:
     properties:
       - name: cancel
         summary: |
+            Boolean type on Android; Number on iOS and Mobile Web. 
+            
             On Android and Mobile Web, indicates whether the cancel button was clicked, in which 
             case returns `true`. 
             
@@ -65,11 +67,12 @@ events:
             
             See the `Three-button Alert Dialog` example for a cross-platform workaround for this 
             parity issue.
-        type: Boolean (Android, Mobile Web), Number (iOS)
+        type: [Boolean, Number]
         
       - name: index
         summary: Index of the button that was clicked.
         type: Number
+
 methods:
   - name: show
     summary: Shows this dialog.
@@ -208,4 +211,3 @@ examples:
               dialog.show();
             });
             win.open();
-
