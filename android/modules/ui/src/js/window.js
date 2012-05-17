@@ -199,7 +199,7 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 	}
 	
-	//attach LW window to the focused HW window 
+	//attach LW child window to the focused HW window's stack
 	var attachToParent = function(w) {
 		for (var i = 0; i < windows.length; i++) {
 			var win = windows[i];
@@ -414,8 +414,9 @@ exports.bootstrapWindow = function(Titanium) {
 				var stack = this.HWparent.LWstack;
 				stack.splice(stack.indexOf(this), 1);
 				if (stack.length > 0) {
-					stack[stack.length - 1].view.fireEvent("focus");
-					stack[stack.length - 1].isFocus = true;
+					var child = stack[stack.length - 1];
+					child.view.fireEvent("focus");
+					child.isFocus = true;
 				} else {
 					this.HWparent.fireEvent("focus");
 					this.HWparent.isFocus = true;
@@ -588,7 +589,7 @@ exports.bootstrapWindow = function(Titanium) {
 				self.LWstack = [];
 			}
 			if (self.isActivity && self.LWstack.length > 0) {
-				var currentWin = self.LWstack[self.LWstack.length-1]
+				var currentWin = self.LWstack[self.LWstack.length-1];
 				currentWin.view.fireEvent("focus");
 				switchFocus(currentWin);
 			} else {
@@ -599,7 +600,7 @@ exports.bootstrapWindow = function(Titanium) {
 		
 		window.on('preblur', function() {
 			if (self.LWstack && self.LWstack.length > 0) {
-				var currentWin = self.LWstack[self.LWstack.length-1]
+				var currentWin = self.LWstack[self.LWstack.length-1];
 				currentWin.view.fireEvent("blur");
 			} else {
 				self.fireEvent("blur");
