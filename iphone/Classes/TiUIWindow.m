@@ -31,12 +31,8 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
     [super frameSizeChanged:frame bounds:bounds];
-    //If we have a titleControl it needs to be resized for new navbar bounds
-    id titleControlProxy = [[self proxy] valueForKey:@"titleControl"];
-    if ([titleControlProxy isKindOfClass:[TiViewProxy class]]) {
-        //Need the delay so that we get the right navbar bounds
-        [(TiUIWindowProxy*)[self proxy] performSelector:@selector(_updateTitleView) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration] ];
-    }
+    //Need the delay so that we get the right navbar bounds
+    [(TiUIWindowProxy*)[self proxy] performSelector:@selector(_updateTitleView) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration] ];
 }
 
 

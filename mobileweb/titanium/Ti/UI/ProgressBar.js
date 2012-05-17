@@ -10,8 +10,11 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 					className: "TiUIProgressBarContainer",
 					style: {
 						pointerEvents: "none",
-						width: "100%",
-						height: "100%",
+						left: 0,
+						right: 0,
+						top: 0,
+						bottom: 0,
+						position: "absolute",
 						overflow: "hidden"
 					}
 				}, this.domNode);
@@ -23,14 +26,6 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 						height: "100%"
 					}
 				}, this._contentContainer);
-			},
-			
-			_doLayout: function(params) {
-				var values = this.properties.__values__;
-				values.width = params.isParentSize.width ? UI.SIZE : "100%";
-				values.height = params.isParentSize.height ? UI.SIZE : "100%";
-				
-				return Widget.prototype._doLayout.call(this,params);
 			},
 			
 			_getContentSize: function(width, height) {
@@ -49,31 +44,18 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 		
 		constructor: function() {
 			this.add(this._contentContainer = UI.createView({
-				width: UI.SIZE,
-				height: UI.SIZE,
+				width: UI.INHERIT,
+				height: UI.INHERIT,
 				left: 0,
 				top: 0,
-				layout: "vertical"
+				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
-			this._contentContainer._layout._defaultHorizontalLayout = "left";
+			this._contentContainer._layout._defaultHorizontalLayout = "start";
 			this._contentContainer.add(this._message = UI.createLabel());
-			this._contentContainer.add(this._progressBar = new InternalProgressBar());
-		},
-			
-		_doLayout: function() {
-			var props = this._contentContainer.properties.__values__;
-			props.width = this.width === UI.SIZE || !lang.isDef(this.width) ? UI.SIZE : "100%";
-			props.height = this.height === UI.SIZE || !lang.isDef(this.height) ? UI.SIZE : "100%";
-			
-			if (this._message._getContentSize().width === 0) {
-				this._message.properties.__values__.height = 0;
-				this._progressBar.properties.__values__.top = 0;
-			} else {
-				this._message.properties.__values__.height = UI.SIZE;
-				this._progressBar.properties.__values__.top = 2;
-			}
-			
-			return Widget.prototype._doLayout.apply(this,arguments);
+			this._contentContainer.add(this._progressBar = new InternalProgressBar({
+				width: UI.INHERIT,
+				height: UI.INHERIT
+			}));
 		},
 		
 		_updateSize: function() {

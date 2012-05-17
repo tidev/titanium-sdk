@@ -16,7 +16,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/style", "Ti/_/lang"],
 			var rootWindow = self.constants.window = args && args.window;
 			
 			// Create the nav controls
-			self.layout = "vertical";
+			self.layout = UI._LAYOUT_CONSTRAINING_VERTICAL;
 			self._navBarContainer = UI.createView({
 				width: UI.FILL,
 				height: 50,

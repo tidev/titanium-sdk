@@ -15,10 +15,9 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			var contentContainer = this._contentContainer = UI.createView({
 				width: UI.SIZE,
 				height: UI.SIZE,
-				layout: "horizontal",
+				layout: UI._LAYOUT_CONSTRAINING_HORIZONTAL,
 				borderColor: "transparent"
 			});
-			contentContainer._layout._defaultVerticalAlignment = "center";
 			this._add(contentContainer);
 			contentContainer._add(this._buttonImage = UI.createImageView());
 			contentContainer.add(this._buttonTitle = UI.createLabel());
@@ -65,6 +64,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				css.add(this.domNode, "TiUIElementGradient");
 				css.add(this.domNode, "TiUIButtonDefault");
 				this._contentContainer.borderWidth = 6;
+				this._getBorderFromCSS();
 			}
 		},
 		

@@ -16,9 +16,11 @@
 	BOOL showPageControl;
 	UIColor *pageControlBackgroundColor;
 	CGFloat pageControlHeight;
+    CGFloat pagingControlAlpha;
 	BOOL handlingPageControlEvent;
     BOOL scrollingEnabled;
-        
+    BOOL pagingControlOnTop;
+    BOOL overlayEnabled;
     // Have to correct for an apple goof; rotation stops scrolling, AND doesn't move to the next page.
     BOOL rotatedWhileScrolling;
 
@@ -26,6 +28,7 @@
     int lastPage;
     BOOL enforceCacheRecalculation;
     int cacheSize;
+    
 }
 
 -(void)manageRotation;

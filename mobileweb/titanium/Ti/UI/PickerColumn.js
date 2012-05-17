@@ -15,9 +15,10 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					style: {
 						textAlign: "center",
 						position: "absolute",
-						top: "0px",
+						top: 0,
 						height: "40px",
-						width: "100%",
+						left: 0,
+						right: 0,
 						borderBottom: "1px solid #666",
 						fontSize: "28px",
 						cursor: "pointer"
@@ -71,7 +72,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					width: "75%",
 					height: UI.SIZE,
 					backgroundColor: "white",
-					layout: "vertical",
+					layout: UI._LAYOUT_CONSTRAINING_VERTICAL,
 					borderRadius: 3,
 					opacity: 0
 				});
@@ -169,18 +170,18 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 			setStyle(this._downArrow, "borderBottomLeftRadius", left ? radius : "0px");
 			setStyle(this._upArrow, "borderTopRightRadius", right ? radius : "0px");
 			setStyle(this._downArrow, "borderBottomRightRadius", right ? radius : "0px");
-			setStyle(this.domNode,"borderRight", right ? "" : "1px solid #666");
+			this.borderWidth = [0, right ? 0 : 1, 0, 0];
+			this.borderColor = "#666";
 		},
 
 		_defaultWidth: UI.SIZE,
 
 		_defaultHeight: UI.SIZE,
 		
-		_doLayout: function() {
+		_preLayout: function() {
 			this._updateContentWidth();
 			this._parentPicker && this._parentPicker._updateColumnHeights();
-			
-			return FontWidget.prototype._doLayout.apply(this,arguments);
+			return true;
 		},
 		
 		_getContentSize: function(width, height) {
@@ -197,29 +198,28 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 		_tallestRowHeight: 0,
 		
 		_updateContentWidth: function() {
-			if (this._hasSizeDimensions()) {
-				var widestRowWidth = 0;
-				for(var i in this._rows) {
-					var row = this._rows[i];
-					widestRowWidth = Math.max(widestRowWidth, row._measureText(row.title, row.domNode).width);
-				}
-				if (this._widestRowWidth !== widestRowWidth) {
-					this._widestRowWidth = widestRowWidth;
-					this._triggerLayout();
-				}
+			var widestRowWidth = 0,
+				i = 0,
+				len = this._rows.length;
+			for(; i < len; i++) {
+				var row = this._rows[i];
+				widestRowWidth = Math.max(widestRowWidth, row._measureText(row.title, row.domNode).width);
+			}
+			if (this._widestRowWidth !== widestRowWidth) {
+				this._widestRowWidth = widestRowWidth;
 			}
 		},
 		
 		_getTallestRowHeight: function() {
-			if (this._hasSizeDimensions()) {
-				var widestRowWidth = 0,
-					tallestRowHeight = 0;
-				for(var i in this._rows) {
-					var row = this._rows[i];
-					tallestRowHeight = Math.max(tallestRowHeight, row._measureText(row.title, row.domNode).height);
-				}
-				return tallestRowHeight;
+			var widestRowWidth = 0,
+				tallestRowHeight = 0,
+				i = 0,
+				len = this._rows.length;
+			for(; i < len; i++) {
+				var row = this._rows[i];
+				tallestRowHeight = Math.max(tallestRowHeight, row._measureText(row.title, row.domNode).height);
 			}
+			return tallestRowHeight;
 		},
 		
 		_setTallestRowHeight: function(height) {
