@@ -245,6 +245,7 @@ public class TiTabActivity extends TabActivity
 	protected void onStop()
 	{
 		super.onStop();
+		proxy.getActiveTab().getWindow().fireEvent("preblur", null);
 		KrollRuntime.suggestGC();
 	}
 

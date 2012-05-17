@@ -270,8 +270,14 @@ exports.bootstrapWindow = function(Titanium) {
 			this.addChildren();
 			this.window.add(this.view);
 			attachToParent(this);
-			if (this.HWparent && this.HWparent.isTab) {
-				this.HWparent.fireEvent("blur");
+			var winParent = this.HWparent;
+			if (winParent) {
+				var stackLength = winParent.LWstack.length;
+				if (stackLength > 1) {
+					winParent.LWstack[stackLength - 2].view.fireEvent("blur");
+				} else {
+					winParent.fireEvent("blur");
+				}
 			}
 		}
 
@@ -579,7 +585,6 @@ exports.bootstrapWindow = function(Titanium) {
 		window.on('prefocus', function() {
 			if (!self.isActivity) {
 				self.isActivity = true;
-				self.isTab = true;
 				self.LWstack = [];
 			}
 			if (self.isActivity && self.LWstack.length > 0) {
