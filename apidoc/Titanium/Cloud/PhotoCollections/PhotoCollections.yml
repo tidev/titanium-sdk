@@ -7,126 +7,124 @@ methods:
   - name: create
     summary: Creates a photo collection.
     description: |
+        Requires user login. 
+        
         See [Photo Collections: Create a Photo Collection](http://cloud.appcelerator.com/docs/api/v1/collections/create)
         for the request parameters supported by this method.
-
+        
         Data is returned in the `collections` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass. 
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudPhotoCollectionsResponse>
-
-  - name: show
-    summary: Retrieves details about a photo collection.
+  
+  - name: remove
+    summary: Deletes an empty collection.
     description: |
-        See [Photo Collections: Show a Photo Collection](http://cloud.appcelerator.com/docs/api/v1/collections/show)
+        Requires user login. 
+        
+        See [Photo Collections: Delete a Photo Collection](http://cloud.appcelerator.com/docs/api/v1/collections/delete)
         for the request parameters supported by this method.
-
-        Data is returned in the `collections` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudPhotoCollectionsResponse>
-
+  
   - name: search
     summary: Retrieves a list of top-level collections owned by a user.
     description: |
         See [Photo Collections: Search Photo Collections](http://cloud.appcelerator.com/docs/api/v1/collections/search)
         for the request parameters supported by this method.
-
+        
         Data is returned in the `collections` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudPhotoCollectionsResponse>
-
-  - name: showSubCollections
-    summary: Retrieves a list of subcollections of a collection.
+  
+  - name: show
+    summary: Retrieves details about a photo collection.
     description: |
-        See [Collections: Show Subcollections](http://cloud.appcelerator.com/docs/api/v1/collections/subcollections)
+        See [Photo Collections: Show a Photo Collection](http://cloud.appcelerator.com/docs/api/v1/collections/show)
         for the request parameters supported by this method.
-
+        
         Data is returned in the `collections` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudPhotoCollectionsResponse>
-
+  
   - name: showPhotos
     summary: Retrieves photos in a collection.
     description: |
         See [PhotoCollections: Show Photos](http://cloud.appcelerator.com/docs/api/v1/collections/photos)
         for the request parameters supported by this method.
-
+        
         Data is returned in the `photos` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudPhotoCollectionsPhotosResponse>
-
-  - name: update
-    summary: Updates a photo collection.
+  
+  - name: showSubCollections
+    summary: Retrieves a list of subcollections of a collection.
     description: |
-        See [Photo Collections: Update a Photo Collection](http://cloud.appcelerator.com/docs/api/v1/collections/update)
+        See [Collections: Show Subcollections](http://cloud.appcelerator.com/docs/api/v1/collections/subcollections)
         for the request parameters supported by this method.
-
+        
         Data is returned in the `collections` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudPhotoCollectionsResponse>
-
-  - name: remove
-    summary: Deletes an empty collection.
+  
+  - name: update
+    summary: Updates a photo collection.
     description: |
-        See [Photo Collections: Delete a Photo Collection](http://cloud.appcelerator.com/docs/api/v1/collections/delete)
+        Requires user login. 
+        
+        See [Photo Collections: Update a Photo Collection](http://cloud.appcelerator.com/docs/api/v1/collections/update)
         for the request parameters supported by this method.
-
+        
+        Data is returned in the `collections` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudPhotoCollectionsResponse>
 
 examples:
-  - title: Create Photo Collection Example
+  - title: Create Photo Collection
     example: |
         This example creates a new photo collection and checks the response.
-
+        
             Cloud.PhotoCollections.create({
                 name: 'Party Pictures'
             }, function (e) {
@@ -142,11 +140,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Show a Photo Collection Example
+  
+  - title: Show a Photo Collection
     example: |
         This example retrieves information about a photo collection and checks the response.
-
+        
             Cloud.PhotoCollections.show({
                 collection_id: savedPhotoCollectionId
             }, function (e) {
@@ -162,11 +160,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Search for Photo Collections Example
+  
+  - title: Search for Photo Collections
     example: |
         This example searches for collections and checks the response.
-
+        
             Cloud.PhotoCollections.search({
                 user_id: savedUserId
             }, function (e) {
@@ -186,11 +184,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Show Photo Subcollections Example
+  
+  - title: Show Photo Subcollections
     example: |
         This example requests a list of photo subcollections and checks the response.
-
+        
             Cloud.PhotoCollections.showSubcollections({
                 page: 1,
                 per_page: 20,
@@ -212,11 +210,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Show Photo Collection Photos Example
+  
+  - title: Show Photo Collection Photos
     example: |
         This example requests a list of photos in a photo collections and checks the response.
-
+        
             Cloud.PhotoCollections.showPhotos({
                 page: 1,
                 per_page: 20,
@@ -242,11 +240,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Update a Photo Collection Example
+  
+  - title: Update a Photo Collection
     example: |
         This example updates a photo collection and checks the response.
-
+        
             Cloud.PhotoCollections.update({
                 collection_id: savedPhotoCollectionId,
                 cover_photo_id: savedPhotoId
@@ -263,11 +261,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Remove a Photo Collection Example
+  
+  - title: Remove a Photo Collection
     example: |
         This example deletes a photo collection and checks the response.
-
+        
             Cloud.PhotoCollections.remove({
                 collection_id: savedPhotoCollectionId
             }, function (e) {
@@ -279,16 +277,15 @@ examples:
                 }
             });
 
-
 ---
 name: CloudPhotoCollectionsResponse
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
 extends: CloudResponse
 properties:
   - name: collections
-    summary: Array of `collections` objects, if any
+    summary: Set of `collections` objects, if any exist.
     description: Only included if `success` is `true`.
-    type: Array<Object>
+    type: Array<Dictionary>
 
 ---
 name: CloudPhotoCollectionsPhotosResponse
@@ -296,6 +293,6 @@ summary: Argument passed to the callback when a request finishes successfully or
 extends: CloudResponse
 properties:
   - name: photos
-    summary: Array of `photos` objects, if any
+    summary: Set of `photos` objects, if any exist.
     description: Only included if `success` is `true`.
-    type: Array<Object>
+    type: Array<Dictionary>
