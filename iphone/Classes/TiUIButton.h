@@ -22,6 +22,7 @@
 -(UIButton*)button;
 
 -(void)setEnabled_:(id)value;
+-(void)setTintColor_:(id)value;
 
 @end
 
