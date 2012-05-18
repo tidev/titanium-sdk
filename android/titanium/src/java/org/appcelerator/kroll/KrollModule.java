@@ -222,6 +222,7 @@ public class KrollModule extends KrollProxy
 		}
 
 		if (jsModClass != null) {
+
 			if (jsModInstance == null) {
 				try {
 					jsModInstance = jsModClass.newInstance();
@@ -231,6 +232,7 @@ public class KrollModule extends KrollProxy
 					return null;
 				}
 			}
+
 		}
 
 		if (jsModInstance != null) {
