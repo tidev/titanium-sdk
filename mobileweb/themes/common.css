@@ -12,6 +12,7 @@ html {
 }
 
 body {
+	background-color: #000;
 	display: block;
 	margin: 0;
 	overflow: hidden;

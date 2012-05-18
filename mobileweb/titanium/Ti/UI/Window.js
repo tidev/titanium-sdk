@@ -1,11 +1,14 @@
 define(["Ti/_/declare", "Ti/Gesture", "Ti/Locale", "Ti/_/UI/SuperView", "Ti/UI"],
 	function(declare, Gesture, Locale, SuperView, UI) {
 
+	var UI_FILL = UI.FILL,
+		UI_SIZE = UI.SIZE;
+
 	return declare("Ti.UI.Window", SuperView, {
 	
-		_defaultWidth: UI.FILL,
+		_defaultWidth: UI_FILL,
 
-		_defaultHeight: UI.FILL,
+		_defaultHeight: UI_FILL,
 
 		postscript: function() {
 			if (this.url) {
@@ -35,8 +38,8 @@ define(["Ti/_/declare", "Ti/Gesture", "Ti/Locale", "Ti/_/UI/SuperView", "Ti/UI"]
 								opacity: 0.5
 							}));
 							parentContainer.add(this._modalContentContainer = UI.createView({
-								width: UI.SIZE,
-								height: UI.SIZE
+								width: UI_SIZE,
+								height: UI_SIZE
 							}));
 							this._modalContentContainer.add(this);
 						} else if (this._modalParentContainer) {
