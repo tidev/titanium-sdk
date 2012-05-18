@@ -31,8 +31,14 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
     [super frameSizeChanged:frame bounds:bounds];
+    
     //Need the delay so that we get the right navbar bounds
-    [(TiUIWindowProxy*)[self proxy] performSelector:@selector(_updateTitleView) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration] ];
+    TiProxy* windowProxy = [self proxy];
+    if ([windowProxy respondsToSelector:@selector(_updateTitleView)]) {
+        [windowProxy performSelector:@selector(_updateTitleView) 
+                           withObject:nil 
+                           afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration] ];
+    }
 }
 
 
