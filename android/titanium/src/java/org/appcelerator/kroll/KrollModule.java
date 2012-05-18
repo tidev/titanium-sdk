@@ -8,13 +8,15 @@ package org.appcelerator.kroll;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
-import org.appcelerator.titanium.TiRootActivity;
 
 import android.app.Activity;
 
@@ -26,6 +28,11 @@ public class KrollModule extends KrollProxy
 	implements KrollProxyListener, OnLifecycleEvent
 {
 	private static final String TAG = "KrollModule";
+
+	// CommonJS -> Native module support.
+	private AtomicBoolean isJSModule = null; // Using Atomic b/c will use null state as signal that we haven't checked yet.
+	private Class<? extends KrollAssetHelper.AssetCrypt> jsModClass = null;
+	private KrollAssetHelper.AssetCrypt jsModInstance = null;
 
 	@Deprecated
 	protected TiContext tiContext;
@@ -174,5 +181,62 @@ public class KrollModule extends KrollProxy
 		for (KrollPropertyChange change : changes) {
 			propertyChanged(change.getName(), change.getOldValue(), change.getNewValue(), proxy);
 		}
+	}
+
+	/**
+	 * Checks to see if compiled/encrypted Javascript exists for
+	 * this module, namely an instance of AssetCryptImpl in the
+	 * package. If yes, then this is a Kroll module that is actually
+	 * carrying a CommonJS module in it.
+	 */
+	@SuppressWarnings("unchecked")
+	public boolean isCommonJSModule()
+	{
+		if (isJSModule != null) {
+			return isJSModule.get();
+		}
+
+		isJSModule = new AtomicBoolean(false);
+		// Use reflection to see if class named
+		// [package].AssetCryptImpl exists. That's the class
+		// into which the commonjs is encrypted/packed into.
+		String jsModClassname = this.getClass().getPackage().getName() + ".AssetCryptImpl";
+		try {
+			jsModClass = (Class<? extends KrollAssetHelper.AssetCrypt>) Class.forName(jsModClassname);
+			isJSModule.set(true);
+		} catch (ClassNotFoundException e) {
+			// It's no problem, it just means this module is not carrying CommonJS code.
+		}
+		return isJSModule.get();
+	}
+
+	/**
+	 * Calls readAsset on the AssetCryptImpl holding the encrypted Javascript code
+	 * so the decrypted Javascript can be fetched.
+	 * @return Decrypted, clear-text Javascript code or null if not a CommonJS module.
+	 */
+	public String getCommonJSCode()
+	{
+		if (!isCommonJSModule()) {
+			return null;
+		}
+
+		if (jsModClass != null) {
+			if (jsModInstance == null) {
+				try {
+					jsModInstance = jsModClass.newInstance();
+				} catch (Exception e) {
+					Log.e(TAG, "Error instantiating " + jsModClass.getName(), e);
+					isJSModule.set(false);
+					return null;
+				}
+			}
+		}
+
+		if (jsModInstance != null) {
+			return jsModInstance.readAsset(this.getClass().getPackage().getName() + ".js");
+		}
+
+		return null;
 	}
 }
