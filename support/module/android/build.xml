@@ -15,6 +15,7 @@ dist
 	  - generate.rhino.bindings
 	  - generate.v8.bindings
 	- pre.compile
+	- js.compile
 	- ndk.build
 	- ndk.build.local
 
@@ -43,7 +44,14 @@ produces .cpp and .h files (for V8) down in build/generated/jni, and [Proxy/Modu
 It then uses bootstrap.py (see https://github.com/appcelerator/titanium_mobile/blob/master/support/module/android/bootstrap.py) to produce [Name]Bootstrap.java, [Name]Bootstrap.cpp,
 bootstrap.js and KrollGeneratedBindings.gperf.
 
-(3) (ndk.build) This step runs the stock Android NDK ndk-build command
+(3) (js.compile) If the file assets/[moduleid].js is located, then
+this "native module" that is being built is actually just carrying around
+a CommonJS module. So if that file is found, it goes through our
+jspacker.py and gets encrypted and placed into a Java class file just
+like we do for JS files in production mode when compiling a normal Titanium
+Android project.
+
+(4) (ndk.build) This step runs the stock Android NDK ndk-build command
 after setting up the appropriate environment for it. It copies the
 template Application.mk to build/generated, the template Android.mk
 to build/generated/jni and replaces the tokens therein with correct
@@ -56,11 +64,11 @@ https://github.com/appcelerator/titanium_mobile/blob/master/support/module/andro
 It then launches the stock ndk-build script from the Android NDK
 directory.
 
-(4) (ndk.build.local) This step runs only if the module developer
+(5) (ndk.build.local) This step runs only if the module developer
 has their own jni code (in a jni/ directory off of the module root
 directory) to be compiled. It simply calls stock ndk-build on it.
 
-(5) (last parts of compile) This step uses javac to compile
+(6) (last parts of compile) This step uses javac to compile
 all the .java that has been generated via the other steps,
 placing the results down in build/classes. It also copies
 over the metadata JSON file (created in (1) down into
@@ -70,7 +78,8 @@ jar later.
 Post-Compilation:
 
 The last steps of the "dist" target are responsible for packaging up
-the module jar (including putting anything in assets/ into the jar),
+the module jar (including putting anything in assets/ into the jar, except
+for the CommonJS module, if any, since that gets compiled),
 then zipping it together with the manifest, any docs, other libs in
 the lib folder as well as example/* and platform/* and the
 timodule.xml.
@@ -108,7 +117,8 @@ timodule.xml.
 	<property name="lib" location="${ti.module.root}/lib"/>
 	<property name="jni" location="${ti.module.root}/jni"/>
 	<property name="libs" location="${ti.module.root}/libs"/>
-
+	<property name="assets" location="${ti.module.root}/assets"/>
+	<property name="jsmodule" location="${assets}/${manifest.moduleid}.js"/>
 	<property name="javac.debug" value="true"/>
 
 	<path id="project.classpath">
@@ -232,9 +242,10 @@ timodule.xml.
 
 	<target name="pre.compile">
 		<available file="${ti.module.root}/jni" type="dir" property="jni.local"/>
+		<available file="${jsmodule}" type="file" property="isJSModule"/>
 	</target>
 
-	<target name="compile" depends="process.annotations,generate.bindings,pre.compile,ndk.build,ndk.build.local" description="Compile this module's source code">
+	<target name="compile" depends="process.annotations,generate.bindings,pre.compile,js.compile,ndk.build,ndk.build.local" description="Compile this module's source code">
 		<javac 
 			destdir="${classes}"
 			debug="${javac.debug}"
@@ -338,6 +349,22 @@ timodule.xml.
 		</copy>
 	</target>
 	
+	<target name="js.compile" if="${isJSModule}">
+		<echo>CommonJS module ${jsmodule} found. Compiling.</echo>
+		<property name="jspacker.py" location="${titanium.platform}/jspacker.py"/>
+		<python file="${jspacker.py}">
+			<!-- assets dir -->
+			<arg value="${assets}"/>
+			<!-- commonjs file -->
+			<arg value="${jsmodule}"/>
+			<!-- package -->
+			<arg value="${manifest.moduleid}"/>
+			<!-- output dir -->
+			<arg value="${genjava}"/>
+		</python>
+
+	</target>
+
 	<target name="ndk.build.local" if="${jni.local}">
 		<check.ndk/>
 		<mkdir dir="${genjni.local}"/>
@@ -381,7 +408,7 @@ timodule.xml.
 		<property name="module.jar" location="${dist}/${ant.project.name}.jar"/>
 		<jar destfile="${module.jar}">
 			<fileset dir="${classes}"/>
-			<fileset dir="${ti.module.root}" includes="assets/**" excludes="assets/README"/>
+			<fileset dir="${ti.module.root}" includes="assets/**" excludes="assets/README assets/${manifest.moduleid}.js"/>
 		</jar>
 		<antcall target="post.jar"/>
 		<property name="zip.prefix" value="modules/android/${module.id}/${manifest.version}"/>
