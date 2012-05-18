@@ -582,12 +582,10 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	NSString *toEncode = [NSString stringWithFormat:@"%@:%@",username,password];
 	const char *data = [toEncode UTF8String];
 	size_t len = [toEncode length];
-	
-	size_t outsize = EstimateBas64EncodedDataSize(len);
-	char *base64Result = malloc(sizeof(char)*outsize);
-    size_t theResultLength = outsize;
-	
-    bool result = Base64EncodeData(data, len, base64Result, &theResultLength);
+
+	char *base64Result;
+    size_t theResultLength;
+	bool result = Base64AllocAndEncodeData(data, len, &base64Result, &theResultLength);
 	if (result)
 	{
 		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
@@ -599,9 +597,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 		{
 			[self setUrl_:[NSArray arrayWithObject:[url absoluteString]]];
 		}
-		return;
 	}    
-	free(base64Result);
 }
 
 -(NSString*)stringByEvaluatingJavaScriptFromString:(NSString *)code

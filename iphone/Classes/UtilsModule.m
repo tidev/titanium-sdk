@@ -11,9 +11,33 @@
 #import "Base64Transcoder.h"
 #import "TiBlob.h"
 #import "TiFile.h"
-#import "TiUtils.h"
 #import <CommonCrypto/CommonDigest.h>
 #import <CommonCrypto/CommonHMAC.h>
+
+bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, char **outOutputDataPtr, size_t *outOutputDataSize)
+{
+	//outsize is the same as *outOutputDataSize, but is a local copy.
+	size_t outSize = EstimateBas64EncodedDataSize(inInputDataSize);
+	char *outData = NULL;
+	if (outSize > 0) {
+		outData = malloc(sizeof(char)*outSize);
+	}
+	if (outData == NULL) {
+		*outOutputDataSize = 0;
+		*outOutputDataPtr = NULL;
+		return NO;
+	}
+	bool result = Base64EncodeData(inInputData, inInputDataSize, outData, &outSize);
+	if (!result) {
+		free(outData);
+		*outOutputDataSize = 0;
+		*outOutputDataPtr = NULL;
+		return NO;
+	}
+	*outOutputDataSize = outSize;
+	*outOutputDataPtr = outData;
+	return YES;
+}
 
 @implementation UtilsModule
 
@@ -50,18 +74,15 @@
 		len = [str length];
 	}
 
-	size_t outsize = EstimateBas64EncodedDataSize(len);
-	char *base64Result = malloc(sizeof(char)*outsize);
-    size_t theResultLength = outsize;
-	
-    bool result = Base64EncodeData(data, len, base64Result, &theResultLength);
+	char *base64Result;
+    size_t theResultLength;
+	bool result = Base64AllocAndEncodeData(data, len, &base64Result, &theResultLength);
 	if (result)
 	{
 		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
 		free(base64Result);
 		return [[[TiBlob alloc] initWithData:theData mimetype:@"application/octet-stream"] autorelease];
 	}    
-	free(base64Result);
 	return nil;
 }
 
@@ -75,16 +96,23 @@
 	size_t len = [str length];
 	
 	size_t outsize = EstimateBas64DecodedDataSize(len);
-	char *base64Result = malloc(sizeof(char)*outsize);
-    size_t theResultLength = outsize;
-	
-    bool result = Base64DecodeData(data, len, base64Result, &theResultLength);
+	char *base64Result = NULL;
+	if(len>0){
+		base64Result = malloc(sizeof(char)*outsize);
+	}
+
+	if (base64Result==NULL) {
+		return nil;
+	}
+
+	size_t theResultLength = outsize;	
+	bool result = Base64DecodeData(data, len, base64Result, &theResultLength);
 	if (result)
 	{
 		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
 		free(base64Result);
 		return [[[TiBlob alloc] initWithData:theData mimetype:@"application/octet-stream"] autorelease];
-	}    
+	}
 	free(base64Result);
 	return nil;
 }
