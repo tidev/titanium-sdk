@@ -149,12 +149,16 @@
         TiBuffer* tempBuffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
         NSRange subdataRange = NSMakeRange(position,MIN(size,length-position));
         
-        void* bytes = malloc(subdataRange.length);
-        [data getBytes:bytes range:subdataRange];
-        [tempBuffer setData:[NSMutableData dataWithBytesNoCopy:bytes length:subdataRange.length freeWhenDone:YES]];
-        
         int bytesWritten = 0;
         @try {
+			void* bytes = malloc(subdataRange.length);
+			if (bytes == NULL) {
+				[self throwException:TiExceptionMemoryFailure subreason:@"Failed to allocate for stream" location:CODELOCATION];
+			}
+			
+			[data getBytes:bytes range:subdataRange];
+			[tempBuffer setData:[NSMutableData dataWithBytesNoCopy:bytes length:subdataRange.length freeWhenDone:YES]];
+			
             bytesWritten = [output writeFromBuffer:tempBuffer offset:0 length:subdataRange.length callback:nil];
         }
         @catch (NSException* e) {
@@ -205,6 +209,11 @@
 
         int bytesToWrite = MIN(size, length-position);
         void* destination = malloc(bytesToWrite);
+		if (destination == NULL) {
+			NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",[NSNull null],@"buffer",NUMINT(-1),@"bytesProcessed",NUMINT(totalBytes),@"totalBytesProcessed", NUMINT(1),@"errorState",@"Memory allocation failure",@"errorDescription", nil];
+			[self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];
+			break;
+		}
         memcpy(destination, source+position, bytesToWrite);
         [tempBuffer setData:[NSMutableData dataWithBytesNoCopy:destination length:bytesToWrite freeWhenDone:YES]];
 

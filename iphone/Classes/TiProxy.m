@@ -34,6 +34,7 @@ NSString * const TiExceptionInternalInconsistency = @"Value was not the value ex
 //Rare exceptions to indicate a bug in the titanium code (Eg, method that a subclass should have implemented)
 NSString * const TiExceptionUnimplementedFunction = @"Subclass did not implement required method";
 
+NSString * const TiExceptionMemoryFailure = @"Memory allocation failed";
 
 
 SEL SetterForKrollProperty(NSString * key)
