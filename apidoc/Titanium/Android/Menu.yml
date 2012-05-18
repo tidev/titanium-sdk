@@ -87,7 +87,7 @@ methods:
 
   - name: setGroupEnabled
     summary: |
-        Enables or disables a group of menu items by identified by a 
+        Enables or disables a group of menu items identified by a 
         [groupId](Titanium.Android.MenuItem.groupId).
     parameters:
 
