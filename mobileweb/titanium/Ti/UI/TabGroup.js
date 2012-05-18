@@ -15,24 +15,7 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 				TabBarContainer = declare(View, {
 					// set a declared class here so that it's not defined globally, yet we still are able
 					// to set a widget id and css class on the dom node.
-					declaredClass: "Ti.UI.TabBarContainer",
-
-					_doLayout: function(params) {
-						var tabs = self.tabs,
-							i = 0,
-							numTabs = tabs.length - 1,
-							totalDividerWidth = numTabs * self.tabDividerWidth,
-							tabWidth = Math.floor((params.boundingSize.width - totalDividerWidth) / (numTabs + 1));
-
-						while (i < numTabs) {
-							tabs[i++]._defaultWidth = tabWidth;
-						}
-
-						// Make the last tab consume the remaining space. Fractional widths look really bad in tabs.
-						tabs[i] && (tabs[i]._defaultWidth = params.boundingSize.width - totalDividerWidth - tabWidth * numTabs);
-
-						return View.prototype._doLayout.apply(this, arguments)
-					}
+					declaredClass: "Ti.UI.TabBarContainer"
 				});
 
 			// Create the tab bar
