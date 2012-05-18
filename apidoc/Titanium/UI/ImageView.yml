@@ -8,6 +8,11 @@ description: |
     
     Specifying either a `width` or `height` property for this view will scale its image(s) with 
     the aspect ratio maintained, up to a maximum size that does not exceed its parent view.
+
+    #### Loading Images from HTTPS URLs
+
+    `ImageView` does not support loading images from secure (HTTPS) URLs. To use an image from a 
+    secure URL, retrieve the image directly using [HTTPClient](Titanium.Network.HTTPClient). 
     
     #### Android 9-Patch Scaled Images
     
@@ -168,15 +173,26 @@ properties:
     summary: Image to display.
     description: |
         Image to display, defined using a local filesystem path, a `File` object, a remote URL, 
-        or a `Blob` object containing image data. `Blob` and `File` objects are not supported on 
-        Mobile Web.
+        or a `Blob` object containing image data. 
+        
+        `Blob` and `File` objects are not supported on Mobile Web.
+
+        For remote URLs, note that `ImageView` does not support loading images from secure
+        (HTTPS) URLs. To use an image from a secure URL, retrieve the image directly using 
+        [HTTPClient](Titanium.Network.HTTPClient). 
     type: [ String, Titanium.Blob, Titanium.Filesystem.File ]
 
   - name: images
     summary: | 
         Array of images to animate, defined using local filesystem paths, `File` objects, 
-        remote URLs (Android only), or `Blob` objects containing image data. `Blob` and `File` 
-        objects are not supported on Mobile Web.
+        remote URLs (Android only), or `Blob` objects containing image data. 
+    description: |
+        `Blob` and `File` objects are not supported on Mobile Web.
+
+        For remote URLs, note that `ImageView` does not support loading images from secure
+        (HTTPS) URLs. To use an image from a secure URL, retrieve the image directly using 
+        [HTTPClient](Titanium.Network.HTTPClient). 
+
     type: [ Array<String>, Array<Titanium.Blob>, Array<Titanium.Filesystem.File> ]
     
   - name: paused
