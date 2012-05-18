@@ -57,7 +57,7 @@ events:
     properties:
       - name: cancel
         summary: |
-            Boolean type on Android; Number on iOS and Mobile Web. 
+            Boolean type on Android and Mobile Web; Number on iOS. 
             
             On Android and Mobile Web, indicates whether the cancel button was clicked, in which 
             case returns `true`. 

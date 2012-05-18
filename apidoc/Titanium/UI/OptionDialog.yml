@@ -72,7 +72,7 @@ events:
         summary: |
             Boolean type on Android; Number on iOS and Mobile Web. 
             
-            On Android and Mobile Web, indicates whether the cancel button was clicked, in which 
+            On Android, indicates whether the cancel button was clicked, in which 
             case returns `true`. 
             
             On iOS and Mobile Web, the value of the [cancel](Titanium.UI.OptionDialog.cancel) 
