@@ -13,7 +13,7 @@ description: |
     due to its familiar and intuitive API schema. 
     
     For a more detailed overview of ACS and how to configure an application to use it, refer to the 
-    [Integrating with Appcelerator Cloud Services](https://wiki.appcelerator.org/display/guides2/Integrating+with+Appcelerator+Cloud+Services) 
+    [Integrating with Appcelerator Cloud Services](http://docs.appcelerator.com/titanium/2.0/#!/guide/Integrating_with_Appcelerator_Cloud_Services) 
     and [ACS Quickstart](http://cloud.appcelerator.com/docs/quickstart) guides. 
     
     #### Beta ACS APIs
