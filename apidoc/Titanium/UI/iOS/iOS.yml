@@ -324,3 +324,23 @@ properties:
     type: String
     permission: read-only
     since: "1.8.1"
+
+    
+  - name: COLOR_SCROLLVIEW_BACKGROUND
+    summary: Returns the iOS system pattern color used to render the area behind scrollable content.
+    type: String
+    permission: read-only
+    since: "2.1.0"
+    
+  - name: COLOR_VIEW_FLIPSIDE_BACKGROUND
+    summary: Returns the iOS system color used for the back side of a view while it is being flipped.
+    type: String
+    permission: read-only
+    since: "2.1.0"
+
+  - name: COLOR_UNDER_PAGE_BACKROUND
+    summary: Returns the iOS system pattern color used to render the background of a page.
+    type: String
+    permission: read-only
+    since: "2.1.0"
+    osver: {iOS: {min: "5.0"}}

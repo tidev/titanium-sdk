@@ -108,7 +108,15 @@
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-	[TiLayoutQueue addViewProxy:self];
+    //Update the barImage here as well. Might have the wrong bounds but that will be corrected 
+    //in the call from frameSizeChanged in TiUIWindow. Avoids the visual glitch
+    if ( (!animating) && (controller != nil) && ([controller navigationController] != nil) ) {
+        id barImageValue = [self valueForKey:@"barImage"];
+        if ((barImageValue != nil) && (barImageValue != [NSNull null])) {
+            [self updateBarImage];
+        }
+    }
+    [TiLayoutQueue addViewProxy:self];
 }
 
 -(void)_destroy
@@ -523,9 +531,18 @@
 -(void)_updateTitleView
 {
     //Called from the view when the screen rotates. 
-    //Resize titleControl based on navbar bounds
+    //Resize titleControl and barImage based on navbar bounds
+    if (animating || controller == nil || [controller navigationController] == nil) {
+        return; // No need to update the title if not in a nav controller
+    }
     TiThreadPerformOnMainThread(^{
-        [self updateTitleView];
+        if ([[self valueForKey:@"titleControl"] isKindOfClass:[TiViewProxy class]]) {
+            [self updateTitleView];
+        }
+        id barImageValue = [self valueForKey:@"barImage"];
+        if ((barImageValue != nil) && (barImageValue != [NSNull null])) {
+            [self updateBarImage];
+        }
     }, NO);
 }
 
