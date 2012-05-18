@@ -1517,6 +1517,10 @@ cleanup:
 			}
 			
 			AudioFormatListItem *formatList = malloc(formatListSize);
+			if (formatList == NULL) {
+				[self failWithErrorCode:AS_FILE_STREAM_GET_PROPERTY_FAILED];
+				return;
+			}
 	        err = AudioFileStreamGetProperty(inAudioFileStream, kAudioFileStreamProperty_FormatList, &formatListSize, formatList);
 			if (err)
 			{
