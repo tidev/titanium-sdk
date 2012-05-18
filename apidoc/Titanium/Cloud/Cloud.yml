@@ -2,15 +2,33 @@
 name: Titanium.Cloud
 summary: The top level Cloud module.
 description: |
-    The Cloud module is used for connecting your application with Appcelerator Cloud Services (ACS).
+    Appcelerator Cloud Services (ACS) provides a wide array of automatically-scaled data storage 
+    and web services, such as user logins, photo uploads, checkins, status updates, and push 
+    notifications, without the need to learn multiple third-party SDKs or do any 
+    server-side programming. Remote calls to ACS are done via a single 
+    [REST API](http://cloud.appcelerator.com/docs/docmenu_info), which may be used with almost any 
+    web technology that has access to an HTTP client.
     
-    Note that this module is not included in the Titanium namespace, but it is bundled with the 
-    Titanium SDK as of version 2.0.0. To use it, you must require it, like this: 
+    The `Titanium.Cloud` module makes accessing ACS as simple as using any of Titanium's other APIs, 
+    due to its familiar and intuitive API schema. 
+    
+    For a more detailed overview of ACS and how to configure an application to use it, refer to the 
+    [Integrating with Appcelerator Cloud Services](https://wiki.appcelerator.org/display/guides2/Integrating+with+Appcelerator+Cloud+Services) 
+    and [ACS Quickstart](http://cloud.appcelerator.com/docs/quickstart) guides. 
+    
+    #### Beta ACS APIs
+    
+    Be aware that ACS APIs that are in pre-release form (marked "Beta" in the 
+    [ACS documentation](http://cloud.appcelerator.com/docs/docmenu_info)) may be subject to change. 
+    During this period, while they are not supported directly by the Titanium.Cloud module, 
+    they may be accessed using the REST API. 
+    
+    #### Using the Titanium.Cloud Module
+    
+    This module is not included in the Titanium namespace, but it is bundled with the 
+    Titanium SDK as of version 2.0.0. To use it, it must be registered like this: 
     
         var Cloud = require('ti.cloud');
-    
-    See [Getting Started: Quickstart Guide](http://cloud.appcelerator.com/docs/quickstart) for 
-    required steps to set up your application for ACS. 
     
     Your app must prove that it is allowed to talk to ACS. This keeps your data secure by 
     preventing anyone from making requests to ACS that impersonate your app. ACS provides secure 
