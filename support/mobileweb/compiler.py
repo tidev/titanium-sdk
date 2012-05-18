@@ -147,20 +147,26 @@ class Compiler(object):
 		if len(tiapp_xml['modules']):
 			print '[INFO] Locating Ti+ modules...'
 			for module in tiapp_xml['modules']:
-				if module['platform'] == '' or module['platform'] == 'mobileweb':
+				if module['platform'] in ['', 'mobileweb', 'commonjs']:
+					is_commonjs = False
+					
 					if 'version' in module and module['version']:
 						# search <project dir>/modules/mobileweb/<module>/<version>/
 						module_dir = os.path.join(self.project_path, 'modules', 'mobileweb', module['id'], module['version'])
 						if not os.path.exists(module_dir):
 							# search <project dir>/modules/commonjs/<module>/<version>/
 							module_dir = os.path.join(self.project_path, 'modules', 'commonjs', module['id'], module['version'])
-							if not os.path.exists(module_dir):
+							if os.path.exists(module_dir):
+								is_commonjs = True
+							else:
 								# search <global module dir>/<module>/<version>/
 								module_dir = os.path.join(self.modules_path, 'mobileweb', module['id'], module['version'])
 								if not os.path.exists(module_dir):
 									# search <global commonjs dir>/<module>/<version>/
 									module_dir = os.path.join(self.modules_path, 'commonjs', module['id'], module['version'])
-									if not os.path.exists(module_dir):
+									if os.path.exists(module_dir):
+										is_commonjs = True
+									else:
 										print '[ERROR] Unable to find Ti+ module "%s", v%s' % (module['id'], module['version'])
 										sys.exit(1)
 					else:
@@ -170,13 +176,17 @@ class Compiler(object):
 						if module_dir is None:
 							# search <project dir>/modules/commonjs/<module>/<version>/
 							module_dir = self.locate_module(os.path.join(self.project_path, 'modules', 'commonjs', module['id']))
-							if module_dir is None:
+							if module_dir is not None:
+								is_commonjs = True
+							else:
 								# search <global module dir>/<module>/<version>/
 								module_dir = self.locate_module(os.path.join(self.modules_path, 'mobileweb', module['id']))
 								if module_dir is None:
 									# search <global commonjs dir>/<module>/<version>/
 									module_dir = self.locate_module(os.path.join(self.modules_path, 'commonjs', module['id']))
-									if module_dir is None:
+									if module_dir is not None:
+										is_commonjs = True
+									else:
 										print '[ERROR] Unable to find Ti+ module "%s"' % module['id']
 										sys.exit(1)
 					
@@ -222,7 +232,15 @@ class Compiler(object):
 					print '[INFO] Bundling Ti+ module "%s"' % module['id']
 					
 					self.project_dependencies.append(main_file)
-					self.modules_to_cache.append(module['id'] + '/' + main_file)
+					
+					module_name = module['id']
+					if module['id'] != main_file:
+						module_name += '/' + main_file
+					if is_commonjs:
+						self.modules_to_cache.append('commonjs:' + module_name)
+					else:
+						self.modules_to_cache.append(module_name)
+
 					self.tiplus_modules_to_load.append(module['id'])
 					
 					if len(lib):
