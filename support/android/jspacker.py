@@ -95,14 +95,18 @@ class Crypt(object):
 
     output.close()
 
-"""
+usage_text="""
+usage: %s asset_dir sources package target
+
 Package a set of JavaScript assets into a generated AssetCrypt Java class.
 
 asset_dir - absolute path to assets folder that contains the sources.
 sources - list of paths for each JavaScript asset.
+          (When passed as command-line arg, separate with colon.)
 package - The Java package name for the generated class.
 target - path to where the java class will be written.
-"""
+""" % os.path.basename(__file__)
+
 def pack(asset_dir, sources, package, target):
   asset_dir_len = len(asset_dir)
   def rel_asset_path(path):
@@ -118,3 +122,9 @@ def pack(asset_dir, sources, package, target):
   # Generate Java code and output to target file.
   crypt.generate_code(asset_dir, package, str(target))
 
+if __name__ == '__main__':
+	args = sys.argv[1:]
+	if len(args) != 4:
+		print >> sys.stderr, usage_text
+		sys.exit(1)
+	pack(args[0], args[1].split(":"), args[2], args[3])
