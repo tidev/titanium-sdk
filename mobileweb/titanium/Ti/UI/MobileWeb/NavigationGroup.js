@@ -56,7 +56,8 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 		_defaultHeight: UI_FILL,
 
 		_updateTitle: function() {
-			this._title.text = (this._windows[this._windows.length-1]._getTitle()) || (this._tab && this._tab._getTitle()) || "";
+			var len = this._windows.length;
+			this._title.text = (len && this._windows[len - 1]._getTitle()) || (this._tab && this._tab._getTitle()) || "";
 		},
 
 		_addWindow: function(win) {
@@ -66,7 +67,13 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 			this._contentContainer._add(win);
 		},
 
-		open: function(win, options) {
+		_getTopWindow: function() {
+			var windows = this._windows,
+				len = windows.length;
+			return len ? windows[windows.length - 1] : null;
+		},
+
+		open: function(win) {
 			if (!win._opened) {
 				var backButton = this._backButton;
 
@@ -80,22 +87,19 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 				!isDef(win.backgroundColor) && !isDef(win.backgroundImage) && (win.backgroundColor = "#fff");
 
 				this._windows[this._windows.length - 1].fireEvent("blur");
+				this._title.text = win._getTitle();
 
 				// Show the window
 				this._addWindow(win);
-				this._title.text = win._getTitle();
-
-				win.fireEvent("open");
-				win.fireEvent("focus");
+				win._opened || win.fireEvent("open");
 				win._opened = 1;
+				win.fireEvent("focus");
 			}
 		},
 
-		close: function(win, options) {
+		close: function(win) {
 			var windows = this._windows,
 				windowIdx = windows.indexOf(win);
-
-			console.debug(windowIdx);
 
 			// make sure the window exists and it's not the root
 			if (windowIdx > 0) {
@@ -105,15 +109,17 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 				win.fireEvent("close");
 				win._opened = 0;
 
-				// hide the back button if we're back at the root
-				windows.length <= 1 && this._backButton.animate({ opacity: 0, duration: 250 }, function() {
-					this.opacity = 0;
-					this.enabled = false;
-				});
+				if (windowIdx > 0) {
+					// hide the back button if we're back at the root
+					windows.length <= 1 && this._backButton.animate({ opacity: 0, duration: 250 }, function() {
+						this.opacity = 0;
+						this.enabled = false;
+					});
 
-				win = windows[windows.length - 1];
-				this._title.text = win._getTitle();
-				win.fireEvent("focus");
+					win = windows[windows.length - 1];
+					this._title.text = win._getTitle();
+					win.fireEvent("focus");
+				}
 			}
 		},
 

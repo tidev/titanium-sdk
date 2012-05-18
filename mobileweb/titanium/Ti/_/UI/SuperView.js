@@ -22,15 +22,15 @@ define(["Ti/_/declare", "Ti/UI", "Ti/UI/View"], function(declare, UI, View) {
 			} else if (this._opened) {
 				this._opened = 0;
 				UI._removeWindow(this);
+				this._handleBlurEvent(1);
 				this.fireEvent("close");
-				this._handleBlurEvent();
 			}
 		},
-		
+
 		_handleFocusEvent: function(args) {
-			this.fireEvent("focus", args);
+			this._opened && this.fireEvent("focus", args);
 		},
-		
+
 		_handleBlurEvent: function(args) {
 			this.fireEvent("blur", args);
 		}

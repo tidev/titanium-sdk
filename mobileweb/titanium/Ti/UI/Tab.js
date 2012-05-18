@@ -6,6 +6,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI", "Ti/UI/M
 				this._tabTitle.text = this._getTitle();
 			}
 		},
+		UI_FILL = UI.FILL,
 		UI_SIZE = UI.SIZE;
 
 	return declare("Ti.UI.Tab", View, {
@@ -33,20 +34,20 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI", "Ti/UI/M
 			}));
 
 			win && require.on(this, "singletap", this, function(e) {
-				var tg = this._tabGroup;
-				if (tg) {
-					if (tg.activeTab === this) {
+				var tabGroup = this._tabGroup;
+				if (tabGroup) {
+					if (tabGroup.activeTab === this) {
 						navGroup._reset();
 					} else {
-						tg.activeTab = this;
+						tabGroup.activeTab = this;
 					}
 				}
 			});
 		},
 
-		_defaultWidth: UI.FILL,
+		_defaultWidth: UI_FILL,
 
-		_defaultHeight: UI.FILL,
+		_defaultHeight: UI_FILL,
 
 		open: function(win, options) {
 			this._tabNavigationGroup.open(win, options);
@@ -56,20 +57,55 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI", "Ti/UI/M
 			this._tabNavigationGroup.close(win, options);
 		},
 
+		_focus: function() {
+			this.fireEvent("focus", this._tabGroup._getEventData());
+			var win = this._tabNavigationGroup._getTopWindow();
+			if (win) {
+				if (this._tabGroup && this._tabGroup._opened && !win._opened) {
+					win._opened = 1;
+					win.fireEvent("open");
+				}
+				win._handleFocusEvent();
+			}
+		},
+
+		_blur: function() {
+			var win = this._tabNavigationGroup._getTopWindow();
+			win && win._handleBlurEvent();
+			this.fireEvent("blur", this._tabGroup._getEventData());
+		},
+
 		_getTitle: function() {
 			return Locale._getString(this.titleid, this.title);
 		},
 
-		_setTabGroup: function(tg) {
-			this._tabGroup = tg;
-			this._tabNavigationGroup.navBarAtTop = tg.tabsAtTop;
-			this._win && (this._win.tabGroup = tg);
+		_setTabGroup: function(tabGroup) {
+			this._tabGroup = tabGroup;
+			this._tabNavigationGroup.navBarAtTop = tabGroup.tabsAtTop;
+			this._win && (this._win.tabGroup = tabGroup);
+		},
+
+		_setNavBarAtTop: function(value) {
+			this._tabNavigationGroup.navBarAtTop = value;
 		},
 
 		properties: {
 			active: {
 				get: function(value) {
 					return this._tabGroup && this._tabGroup.activeTab === this;
+				},
+				post: function(value) {
+					var tabGroup = this._tabGroup,
+						navGroup = this._tabNavigationGroup;
+					if (value) {
+						navGroup.navBarAtTop = tabGroup.tabsAtBottom;
+						navGroup._updateTitle();
+						tabGroup._addTabContents(navGroup);
+						tabGroup._opened && this._focus();
+					} else {
+						tabGroup._removeTabContents(navGroup);
+						tabGroup._opened && this._blur();
+					}
 				}
 			},
 

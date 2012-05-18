@@ -49,7 +49,7 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 			});
 
 			// Add the windows ordered such that they respect tabsAtBottom
-			self.layout = "constrainingVertical";
+			self.layout = UI._LAYOUT_CONSTRAINING_VERTICAL;
 			self.tabs = [];
 			self.tabsAtBottom = lang.val(args && args.tabsAtBottom, true);
 		},
@@ -72,6 +72,14 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 
 			// Update the background on the tab
 			this._updateTabBackground(tab);
+		},
+
+		_addTabContents: function(contents) {
+			this._tabContentContainer._add(contents);
+		},
+
+		_removeTabContents: function(contents) {
+			this._tabContentContainer._remove(contents);
 		},
 
 		removeTab: function(tab) {
@@ -98,63 +106,62 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 			});
 		},
 
-		_handleFocusBlurEvent: function(type) {
-			var previousTab = this._previousTab,
-				activeTab = this._activeTab,
-				win = activeTab && activeTab.window,
-				tabs = this.tabs,
-				data = {
-					index: tabs.indexOf(activeTab),
-					previousIndex: tabs.indexOf(previousTab),
-					tab: activeTab,
-					previousTab: previousTab
-				};
+		close: function() {
+			this._previousTab = null;
+			SuperView.prototype.close.call(this);
+		},
 
-			if (previousTab) {
-				previousTab.window && previousTab.window._handleBlurEvent();
-				previousTab.fireEvent("blur", data);
-			}
+		_getEventData: function() {
+			var tabs = this.tabs,
+				previousTab = this._previousTab,
+				activeTab = this._activeTab;
 
-			SuperView.prototype["_handle" + type + "Event"].call(this, data);
-
-			if (win) {
-				win._opened || win.fireEvent("open");
-				win._opened = 1;
-				win._handleFocusEvent();
-			}
-
-			activeTab && activeTab.fireEvent("focus", data);
+			return {
+				index: activeTab && tabs.indexOf(activeTab),
+				previousIndex: previousTab && tabs.indexOf(previousTab),
+				tab: activeTab,
+				previousTab: previousTab
+			};
 		},
 
 		_handleFocusEvent: function() {
-			this._opened && this._handleFocusBlurEvent("Focus");
+			// TabGroup was just opened or a window was closed and the TabGroup regained focus
+
+			var previousTab = this._previousTab,
+				activeTab = this._activeTab;
+
+			previousTab && previousTab._blur();
+
+			this._focused || this._opened && this.fireEvent("focus", this._getEventData());
+			this._focused = 1;
+
+			this._opened && activeTab && activeTab._focus();
 		},
 
-		_handleBlurEvent: function() {
-			this._handleFocusBlurEvent("Blur");
+		_handleBlurEvent: function(closing) {
+			// TabGroup is about to be closed or a window was opened
+
+			closing && this.tabs.forEach(function(tab) {
+				tab._blur();
+			});
+
+			this._focused && this._opened && this.fireEvent("blur", this._getEventData());
+			this._focused = 0;
 		},
 
-		_activateTab: function(tab) {
+		_activateTab: function(activeTab) {
 			var tabs = this.tabs,
-				prev = this._activeTab;
+				previousTab = this._activeTab;
 
-			if (prev !== tab) {
-				if (this._previousTab = prev) {
-					prev.active = false;
-					prev._doBackground();
-					prev._tabNavigationGroup && this._tabContentContainer.remove(prev._tabNavigationGroup);
+			if (previousTab !== activeTab) {
+				if (this._previousTab = previousTab) {
+					previousTab.active = false;
+					previousTab._doBackground();
 				}
 
-				UI.currentTab = this._activeTab = tab;
-				tab.active = true;
+				UI.currentTab = this._activeTab = activeTab;
+				activeTab.active = true;
 
-				if (tab._tabNavigationGroup) {
-					tab._tabNavigationGroup.navBarAtTop = this.tabsAtBottom;
-					tab._tabNavigationGroup._updateTitle();
-					this._tabContentContainer.add(tab._tabNavigationGroup);
-				}
-
-				this._handleFocusEvent();
 				this._updateTabsBackground();
 			}
 		},
@@ -235,20 +242,20 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 			tabsAtBottom: {
 				set: function(value, oldValue) {
 					if (value !== oldValue) {
-						
-						this._activeTab && this._activeTab._tabNavigationGroup && (this._activeTab._tabNavigationGroup.navBarAtTop = value);
-						
 						var tabContentContainer = this._tabContentContainer,
 							tabBarContainer = this._tabBarContainer;
-						this.remove(tabContentContainer);
-						this.remove(tabBarContainer);
-						
+
+						this._activeTab && this._activeTab._setNavBarAtTop(value);
+
+						this._remove(tabContentContainer);
+						this._remove(tabBarContainer);
+
 						if (value) {
-							this.add(tabContentContainer);
-							this.add(tabBarContainer);
+							this._add(tabContentContainer);
+							this._add(tabBarContainer);
 						} else {
-							this.add(tabBarContainer);
-							this.add(tabContentContainer);
+							this._add(tabBarContainer);
+							this._add(tabContentContainer);
 						}
 					}
 					return value;
