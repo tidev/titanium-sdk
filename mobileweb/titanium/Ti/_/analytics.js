@@ -1,3 +1,14 @@
+/*
+
+TODO
+- make sure ti.end is sent onbeforeunload or on next page load
+- make sure ti.end has the correct sequence number
+- generate a new session id for every ti.start
+- flush analytics every 60 seconds
+- session storage bug in Firefox 11
+
+*/
+
 define(["Ti/_", "Ti/_/dom", "Ti/_/lang", "Ti/App", "Ti/Platform"], function(_, dom, lang, App, Platform) {
 
 	var global = window,
@@ -88,7 +99,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang", "Ti/App", "Ti/Platform"], function(_, d
 						event: evt.evt,
 						seq: analyticsEventSeq++,
 						ver: "2",
-						deploytype: cfg.app.deployType,
+						deploytype: App.deployType,
 						sid: sessionId,
 						ts: evt.ts,
 						data: /(Array|Object)/.test(is(evt.data)) ? JSON.stringify(evt.data) : evt.data

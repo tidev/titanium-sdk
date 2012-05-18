@@ -18,7 +18,7 @@ define(
 
 	var global = window,
 		cfg = require.config,
-		deployType = cfg.app.deployType,
+		deployType = App.deployType,
 		ver = cfg.ti.version,
 		is = require.is,
 		has = require.has,
@@ -394,7 +394,7 @@ define(
 			padding: 0
 		});
 
-		if (cfg.app.analytics) {
+		if (App.analytics) {
 			// enroll event
 			if (localStorage.getItem("mobileweb_enrollSent") === null) {
 				// setup enroll event
@@ -414,13 +414,16 @@ define(
 
 			// app start event
 			analytics.add("ti.start", "ti.start", {
+				app_name: App.name,
 				tz: (new Date()).getTimezoneOffset(),
 				deploytype: deployType,
 				os: Platform.osname,
 				osver: Platform.ostype,
-				version: cfg.tiVersion,
+				version: cfg.ti.version,
+				platform: Platform.name,
+				model: Platform.model,
 				un: null,
-				app_version: cfg.appVersion,
+				app_version: App.version,
 				nettype: null
 			});
 
