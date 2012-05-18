@@ -32,7 +32,7 @@ HEADER = """/**
 
 def compare_versions(version1, version2):
 	def normalize(v):
-		v = '.'.join(v.split('.')[:3])
+		v = '.'.join(map((lambda s:re.sub(r'[^\d]+(.*)$','',s)), v.split('.')[:3]))
 		return [int(x) for x in re.sub(r'(\.0+)*$','', v).split(".")]
 	return cmp(normalize(version1), normalize(version2))
 
@@ -208,7 +208,7 @@ class Compiler(object):
 						key,value = line.split(':')
 						manifest[key.strip()] = value.strip()
 					
-					if 'minsdk' in manifest and compare_versions(manifest['minsdk'], sdk_version):
+					if 'minsdk' in manifest and compare_versions(manifest['minsdk'], sdk_version) == 1:
 						print '[ERROR] Ti+ module "%s" requires a minimum SDK version of %s: current version %s' % (module['id'], manifest['minsdk'], sdk_version)
 						sys.exit(1)
 					
