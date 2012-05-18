@@ -862,7 +862,7 @@ properties:
 name: MusicLibraryResponseType
 summary: |
     Simple object passed to the [openMusicLibrary](Titanium.Media.openMusicLibrary)
-    success method.
+    `success` callback function.
 properties:
   - name: representative
     summary: A single representative of the selected items.

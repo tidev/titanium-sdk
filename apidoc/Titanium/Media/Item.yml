@@ -2,12 +2,12 @@
 name: Titanium.Media.Item
 summary: A representation of a media item returned by [openMusicLibrary](Titanium.Media.openMusicLibrary) or [queryMusicLibrary](Titanium.Media.queryMusicLibrary).
 description: |
-    This is a read-only object that describes single media item, not a playlist. 
+    This is a read-only object that describes a single media item, not a playlist. 
     Titanium does not support access to playlists.
     
     `Item` objects cannot be created explicitly.  The 
     [openMusicLibrary](Titanium.Media.openMusicLibrary) returns `Item` objects in its
-    `success` function, while [queryMusicLibrary](Titanium.Media.queryMusicLibrary)
+    `success` callback function, while [queryMusicLibrary](Titanium.Media.queryMusicLibrary)
     returns an array of `Item` objects.
 extends: Titanium.Proxy
 since: "1.4.0"
@@ -81,13 +81,12 @@ properties:
     summary: |
         The type of the media. 
     description: |
-        One of
+        Specify one of the following constants from <Titanium.Media>:
         [MUSIC_MEDIA_TYPE_ALL](Titanium.Media.MUSIC_MEDIA_TYPE_ALL),
         [MUSIC_MEDIA_TYPE_ANY_AUDIO](Titanium.Media.MUSIC_MEDIA_TYPE_ANY_AUDIO),
         [MUSIC_MEDIA_TYPE_AUDIOBOOK](Titanium.Media.MUSIC_MEDIA_TYPE_AUDIOBOOK),
         [MUSIC_MEDIA_TYPE_MUSIC](Titanium.Media.MUSIC_MEDIA_TYPE_MUSIC), or
         [MUSIC_MEDIA_TYPE_PODCAST](Titanium.Media.MUSIC_MEDIA_TYPE_PODCAST).
-        constants from <Titanium.Media>.
 
         At least in theory, a single item can have more than one media type, in which case the
         value represents a bitwise-OR of all the applicable media types.
