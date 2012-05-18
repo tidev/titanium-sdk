@@ -21,6 +21,7 @@ import org.appcelerator.kroll.runtime.rhino.js.rhino;
 import org.appcelerator.kroll.runtime.rhino.js.sha1;
 import org.appcelerator.kroll.runtime.rhino.js.tab;
 import org.appcelerator.kroll.runtime.rhino.js.titanium;
+import org.appcelerator.kroll.runtime.rhino.js.console;
 import org.appcelerator.kroll.runtime.rhino.js.ui;
 import org.appcelerator.kroll.runtime.rhino.js.url;
 import org.appcelerator.kroll.runtime.rhino.js.vm;
@@ -76,6 +77,7 @@ public class KrollBindings
 		addJsBinding("sha1", sha1.class);
 		addJsBinding("tab", tab.class);
 		addJsBinding("titanium", titanium.class);
+		addJsBinding("console", console.class);
 		addJsBinding("ui", ui.class);
 		addJsBinding("url", url.class);
 		addJsBinding("vm", vm.class);
