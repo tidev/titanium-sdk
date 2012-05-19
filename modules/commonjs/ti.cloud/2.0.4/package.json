@@ -1,0 +1,9 @@
+{
+    "description": "Appcelerator Cloud Services", 
+    "directories": {
+        "lib": "."
+    }, 
+    "main": "ti.cloud", 
+    "name": "ti.cloud", 
+    "version": "2.0.4"
+}
