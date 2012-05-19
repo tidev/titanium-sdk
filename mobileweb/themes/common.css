@@ -332,6 +332,10 @@ textarea {
 		#666);
 }
 
+.TiUIButton {
+	-webkit-tap-highlight-color: transparent;
+}
+
 .TiUIButtonDefault {
 	border: 1px solid #666; 
 	border-radius: 6px;
