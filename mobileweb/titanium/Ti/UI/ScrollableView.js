@@ -282,7 +282,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 						left: unitize(i * width),
 						top: 0,
 						width: unitize(width),
-						height: "100%",
+						height: "100%"
 					});
 					viewContainer._layout._defaultHorizontalPosition = "start";
 					viewContainer._layout._defaultVerticalPosition = "start";
