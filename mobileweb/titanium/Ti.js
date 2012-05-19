@@ -396,7 +396,7 @@ define(
 
 		if (App.analytics) {
 			// enroll event
-			if (localStorage.getItem("mobileweb_enrollSent") === null) {
+			if (localStorage.getItem("ti:enrolled") === null) {
 				// setup enroll event
 				analytics.add("ti.enroll", "ti.enroll", {
 					app_name: App.name,
@@ -409,12 +409,11 @@ define(
 					platform: Platform.name,
 					model: Platform.model
 				});
-				localStorage.setItem("mobileweb_enrollSent", true)
+				localStorage.setItem("ti:enrolled", true)
 			}
 
 			// app start event
 			analytics.add("ti.start", "ti.start", {
-				app_name: App.name,
 				tz: (new Date()).getTimezoneOffset(),
 				deploytype: deployType,
 				os: Platform.osname,
