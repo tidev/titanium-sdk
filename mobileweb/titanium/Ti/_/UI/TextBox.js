@@ -87,6 +87,10 @@ define(
 			return !this._field.value.length;
 		},
 
+		selectAll: function() {
+			this._field.select();
+		},
+
 		properties: {
 			autocapitalization: {
 				value: UI.TEXT_AUTOCAPITALIZATION_SENTENCES,

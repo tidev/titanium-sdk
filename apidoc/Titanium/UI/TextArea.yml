@@ -52,6 +52,15 @@ methods:
     
   - name: focus
     summary: Forces this text area to gain focus.
+    
+  - name: selectAll
+    summary: Selects all of the text in the field.
+    
+  - name: selectAll
+    since: "2.1.0"
+    summary: Selects all of the text in the field.
+    description: |
+      Focuses on the field first, then selects the text
 
 properties:
   - name: appearance
