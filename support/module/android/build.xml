@@ -413,6 +413,14 @@ timodule.xml.
 		<antcall target="post.jar"/>
 		<property name="zip.prefix" value="modules/android/${module.id}/${manifest.version}"/>
 		<antcall target="docgen"/>
+		<property name="android.py" location="${ti.module.support.dir}/android/android.py"/>
+
+		<!-- If applicable, will set commonjs: key value in manifest -->
+		<python file="${android.py}">
+			<arg value="--check-manifest"/>
+			<arg value="${ti.module.root}"/>
+		</python>
+
 		<zip destfile="${dist}/${module.id}-android-${manifest.version}.zip">
 			<zipfileset file="${module.jar}" prefix="${zip.prefix}"/>
 			<zipfileset file="manifest" prefix="${zip.prefix}"/>
