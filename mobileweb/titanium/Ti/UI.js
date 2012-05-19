@@ -378,7 +378,7 @@ define(
 			_LAYOUT_VERTICAL: "vertical",
 			_LAYOUT_HORIZONTAL: "horizontal",
 			_LAYOUT_CONSTRAINING_VERTICAL: "constrainingVertical",
-			_LAYOUT_CONSTRAINING_HORIZONTAL: "constrainingHorizontal",
+			_LAYOUT_CONSTRAINING_HORIZONTAL: "constrainingHorizontal"
 		}
 
 	});
