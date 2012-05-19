@@ -103,6 +103,7 @@ public final class ${config['classname']}Application extends TiApplication
 		${onAppCreate(module)} \
 
 		<% manifest = module['manifest'] %>
+		<% isJSMod = (module.has_key('is_native_js_module') and module['is_native_js_module']) %>
 		% if runtime == "rhino":
 		KrollBindings.addExternalBinding("${manifest.moduleid}", ${module['class_name']}Prototype.class);
 		${manifest.moduleid}.${manifest.name}GeneratedBindings.init();
@@ -115,6 +116,10 @@ public final class ${config['classname']}Application extends TiApplication
 
 		% if manifest.has_property("licensekey"):
 		moduleInfo.setLicenseKey("${manifest.licensekey}");
+		% endif
+
+		% if isJSMod:
+		moduleInfo.setIsJSModule(true);
 		% endif
 
 		KrollModule.addCustomModuleInfo(moduleInfo);
