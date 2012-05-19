@@ -30,19 +30,25 @@ public class KrollModule extends KrollProxy
 	private static final String TAG = "KrollModule";
 
 	// CommonJS -> Native module support.
-	private AtomicBoolean isJSModule = null; // Using Atomic b/c will use null state as signal that we haven't checked yet.
-	private Class<? extends KrollAssetHelper.AssetCrypt> jsModClass = null;
-	private KrollAssetHelper.AssetCrypt jsModInstance = null;
+	private KrollAssetHelper.AssetCrypt jsCryptInstance = null;
 
 	@Deprecated
 	protected TiContext tiContext;
 
 	protected static ArrayList<KrollModuleInfo> customModuleInfoList = new ArrayList<KrollModuleInfo>();
 
+	/**
+	 * An easy lookup list of custom modules that are carrying CommonJS.
+	 */
+	protected static ArrayList<String> nativeCommonJSModules = new ArrayList<String>();
+
 
 	public static void addCustomModuleInfo(KrollModuleInfo customModuleInfo)
 	{
 		customModuleInfoList.add(customModuleInfo);
+		if (customModuleInfo.isJSModule) {
+			nativeCommonJSModules.add(customModuleInfo.id.toLowerCase());
+		}
 	}
 
 	public static ArrayList<KrollModuleInfo> getCustomModuleInfoList()
@@ -184,30 +190,12 @@ public class KrollModule extends KrollProxy
 	}
 
 	/**
-	 * Checks to see if compiled/encrypted Javascript exists for
-	 * this module, namely an instance of AssetCryptImpl in the
-	 * package. If yes, then this is a Kroll module that is actually
-	 * carrying a CommonJS module in it.
+	 * Checks to see if module is actually a custom native module carrying
+	 * CommonJS code.
 	 */
-	@SuppressWarnings("unchecked")
 	public boolean isCommonJSModule()
 	{
-		if (isJSModule != null) {
-			return isJSModule.get();
-		}
-
-		isJSModule = new AtomicBoolean(false);
-		// Use reflection to see if class named
-		// [package].AssetCryptImpl exists. That's the class
-		// into which the commonjs is encrypted/packed into.
-		String jsModClassname = this.getClass().getPackage().getName() + ".AssetCryptImpl";
-		try {
-			jsModClass = (Class<? extends KrollAssetHelper.AssetCrypt>) Class.forName(jsModClassname);
-			isJSModule.set(true);
-		} catch (ClassNotFoundException e) {
-			// It's no problem, it just means this module is not carrying CommonJS code.
-		}
-		return isJSModule.get();
+		return KrollModule.nativeCommonJSModules.contains(this.getClass().getPackage().getName().toLowerCase());
 	}
 
 	/**
@@ -215,30 +203,51 @@ public class KrollModule extends KrollProxy
 	 * so the decrypted Javascript can be fetched.
 	 * @return Decrypted, clear-text Javascript code or null if not a CommonJS module.
 	 */
+	@SuppressWarnings("unchecked")
 	public String getCommonJSCode()
 	{
 		if (!isCommonJSModule()) {
 			return null;
 		}
 
-		if (jsModClass != null) {
+		if (jsCryptInstance == null) {
+			Class<? extends KrollAssetHelper.AssetCrypt> jsCryptClass = null;
 
-			if (jsModInstance == null) {
-				try {
-					jsModInstance = jsModClass.newInstance();
-				} catch (Exception e) {
-					Log.e(TAG, "Error instantiating " + jsModClass.getName(), e);
-					isJSModule.set(false);
-					return null;
-				}
+			// Use reflection to get class named
+			// [package].AssetCryptImpl. That's the class
+			// into which the commonjs is encrypted/packed into.
+			String jsCryptClassName = this.getClass().getPackage().getName() + ".AssetCryptImpl";
+			try {
+				jsCryptClass = (Class<? extends KrollAssetHelper.AssetCrypt>) Class.forName(jsCryptClassName);
+			} catch (ClassNotFoundException e) {
+				Log.e(TAG, "JavaScript source for module " + this.getClass().getName() + " could not be found.", e);
+				return null;
 			}
 
+			if (jsCryptClass == null) {
+				Log.w(TAG, "JavaScript source for module " + this.getClass().getName() + " could not be found, " +
+					"though no exception was raised.");
+				return null;
+			}
+
+			// Now create an instance so you can get the code out of it.
+			try {
+				jsCryptInstance = jsCryptClass.newInstance();
+			} catch (Exception e) {
+				Log.e(TAG, "Error instantiating " + jsCryptClass.getName(), e);
+				return null;
+			}
 		}
 
-		if (jsModInstance != null) {
-			return jsModInstance.readAsset(this.getClass().getPackage().getName() + ".js");
+		if (jsCryptInstance != null) {
+			return jsCryptInstance.readAsset(this.getClass().getPackage().getName() + ".js");
 		}
 
 		return null;
+	}
+
+	public static boolean isCommonJSModule(String id)
+	{
+		return nativeCommonJSModules.contains(id.toLowerCase());
 	}
 }
