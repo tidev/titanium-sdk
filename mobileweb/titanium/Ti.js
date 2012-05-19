@@ -18,7 +18,7 @@ define(
 
 	var global = window,
 		cfg = require.config,
-		deployType = cfg.app.deployType,
+		deployType = App.deployType,
 		ver = cfg.ti.version,
 		is = require.is,
 		has = require.has,
@@ -394,9 +394,9 @@ define(
 			padding: 0
 		});
 
-		if (cfg.app.analytics) {
+		if (App.analytics) {
 			// enroll event
-			if (localStorage.getItem("mobileweb_enrollSent") === null) {
+			if (localStorage.getItem("ti:enrolled") === null) {
 				// setup enroll event
 				analytics.add("ti.enroll", "ti.enroll", {
 					app_name: App.name,
@@ -409,7 +409,7 @@ define(
 					platform: Platform.name,
 					model: Platform.model
 				});
-				localStorage.setItem("mobileweb_enrollSent", true)
+				localStorage.setItem("ti:enrolled", true)
 			}
 
 			// app start event
@@ -418,9 +418,11 @@ define(
 				deploytype: deployType,
 				os: Platform.osname,
 				osver: Platform.ostype,
-				version: cfg.tiVersion,
+				version: cfg.ti.version,
+				platform: Platform.name,
+				model: Platform.model,
 				un: null,
-				app_version: cfg.appVersion,
+				app_version: App.version,
 				nettype: null
 			});
 
