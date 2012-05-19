@@ -65,3 +65,53 @@ class android(module.ModulePlatform):
 	def finished(self):
 		os.mkdir(os.path.join(self.project_dir, 'lib'))
 		os.makedirs(os.path.join(self.project_dir, 'build', '.apt_generated'))
+
+# Currently just checks to see if "commonjs" key in manifest file
+# is set properly.
+def check_manifest(module_dir):
+	truthy = ("true", "True", 1, "1", "Yes", "yes")
+	manifest_file = os.path.join(module_dir, "manifest")
+	if not os.path.exists(manifest_file):
+		print >> sys.stderr, "Manifest %s does not exist"
+		sys.exit(1)
+
+	with open(manifest_file, "r") as f:
+		lines = f.readlines()
+	id_lines = [l for l in lines if l.strip().startswith("moduleid:")]
+	if not id_lines:
+		print >> sys.stderr, "[ERROR] Manifest %s does not contain moduleid key." % manifest_file
+		sys.exit(1)
+
+	moduleid = id_lines[0].split(":")[1].strip()
+
+	commonjs_lines = [l for l in lines if l.strip().startswith("commonjs:")]
+
+	curval = False
+	if commonjs_lines:
+		curval = commonjs_lines[0].split(":")[1].strip() in truthy
+
+	is_commonjs = os.path.exists(os.path.join(module_dir, "assets", "%s.js" % moduleid))
+
+	if (is_commonjs and not curval) or (not is_commonjs and curval):
+		# Need to re-write the key-value
+		for l in commonjs_lines:
+			lines.remove(l)
+		lines.append("commonjs: %s\n" % ("true" if is_commonjs else "false")) # Trying to avoid locale-specific true/false
+		with open(manifest_file, "w") as f:
+			f.writelines(lines)
+		print "[DEBUG] manifest re-written to set commonjs value"
+
+if __name__ == "__main__":
+	from optparse import OptionParser
+	parser = OptionParser()
+	parser.add_option("-c", "--check-manifest", dest="check_manifest_in_dir",
+			help="Check manifest for module")
+	(options, args) = parser.parse_args()
+	if options.check_manifest_in_dir:
+		check_manifest(os.path.abspath(os.path.expanduser(options.check_manifest_in_dir)))
+	else:
+		# check_manifest is the only thing so far, so
+		# nothing to do.
+		parser.print_help()
+		sys.exit(1)
+
