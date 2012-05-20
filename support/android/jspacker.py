@@ -82,7 +82,7 @@ class Crypt(object):
     """Generate the Java class source and write to target file.
 
     package - The Java package name for this class.
-    taget_file - Path to output generate Java source file.
+    target_file - Path to output generate Java source file.
     """
     package_dir = os.path.join(*package.split('.'))
     target_dir = os.path.join(target_file, package_dir)
