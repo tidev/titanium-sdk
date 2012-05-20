@@ -4,11 +4,12 @@
 # Android Module Project Create Script
 #
 import os, sys, shutil
+from string import Template
 module_android_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-module_dir = os.path.dirname(module_android_dir)
-sys.path.append(module_dir)
+module_support_dir = os.path.dirname(module_android_dir)
+sys.path.append(module_support_dir)
 
-sdk_dir = os.path.dirname(module_dir)
+sdk_dir = os.path.dirname(module_support_dir)
 sdk_android_dir = os.path.join(sdk_dir, 'android')
 sys.path.append(sdk_android_dir)
 
@@ -66,9 +67,11 @@ class android(module.ModulePlatform):
 		os.mkdir(os.path.join(self.project_dir, 'lib'))
 		os.makedirs(os.path.join(self.project_dir, 'build', '.apt_generated'))
 
-# Currently just checks to see if "commonjs" key in manifest file
-# is set properly.
-def check_manifest(module_dir):
+# Checks to see if a CommonJS file exists
+# and sets the "commonjs" key in manifest file
+# properly, and prepares a source code provider class (Java)
+# template.
+def prepare_commonjs(module_dir):
 	truthy = ("true", "True", 1, "1", "Yes", "yes")
 	manifest_file = os.path.join(module_dir, "manifest")
 	if not os.path.exists(manifest_file):
@@ -101,16 +104,32 @@ def check_manifest(module_dir):
 			f.writelines(lines)
 		print "[DEBUG] manifest re-written to set commonjs value"
 
+	if is_commonjs:
+		with open(os.path.join(module_android_dir, "generated", "CommonJsSourceProvider.java"), "r") as f:
+			source_provider_template = Template(f.read())
+		source_provider_class = source_provider_template.substitute(moduleid=moduleid)
+		output_folder = os.path.join(module_dir, "build", "generated", "java")
+		if not os.path.exists(output_folder):
+			os.makedirs(output_folder)
+		with open(os.path.join(output_folder, "CommonJsSourceProvider.java"), "w") as f:
+			f.write(source_provider_class)
+
 if __name__ == "__main__":
+	usage = "Usage: %s [module_directory]" % os.path.basename(__file__)
 	from optparse import OptionParser
-	parser = OptionParser()
-	parser.add_option("-c", "--check-manifest", dest="check_manifest_in_dir",
-			help="Check manifest for module")
+	parser = OptionParser(usage=usage)
+	parser.add_option("-p", "--prepare-commonjs", dest="prepare_commonjs",
+			action="store_true",
+			help="Prepares the CommonJS module (if any) found within the module project for compilation.")
 	(options, args) = parser.parse_args()
-	if options.check_manifest_in_dir:
-		check_manifest(os.path.abspath(os.path.expanduser(options.check_manifest_in_dir)))
+	if options.prepare_commonjs:
+		if len(args) == 0:
+			module_dir = os.path.abspath(os.getcwd())
+		else:
+			module_dir = os.path.abspath(os.path.expanduser(args[0]))
+		prepare_commonjs(module_dir)
 	else:
-		# check_manifest is the only thing so far, so
+		# prepare-commonjs is the only thing so far, so
 		# nothing to do.
 		parser.print_help()
 		sys.exit(1)

@@ -111,6 +111,7 @@ timodule.xml.
 	<property name="genjava" location="${build}/generated/java"/>
 	<property name="genjni" location="${build}/generated/jni"/>
 	<property name="genjni.local" location="${genjni}-local"/>
+	<property name="genjs" location="${build}/generated/js"/>
 	<property name="classes" location="${build}/classes"/>
 	<property name="docs" location="${build}/docs"/>
 	<property name="dist" location="${ti.module.root}/dist"/>
@@ -118,7 +119,8 @@ timodule.xml.
 	<property name="jni" location="${ti.module.root}/jni"/>
 	<property name="libs" location="${ti.module.root}/libs"/>
 	<property name="assets" location="${ti.module.root}/assets"/>
-	<property name="jsmodule" location="${assets}/${manifest.moduleid}.js"/>
+	<property name="jsmodule.source" location="${assets}/${manifest.moduleid}.js"/>
+	<property name="jsmodule.compiled" location="${genjs}/${manifest.moduleid}.js"/>
 	<property name="javac.debug" value="true"/>
 
 	<path id="project.classpath">
@@ -242,7 +244,16 @@ timodule.xml.
 
 	<target name="pre.compile">
 		<available file="${ti.module.root}/jni" type="dir" property="jni.local"/>
-		<available file="${jsmodule}" type="file" property="isJSModule"/>
+		<available file="${jsmodule.source}" type="file" property="isJSModule"/>
+		<!-- If applicable, will set commonjs key value in manifest and
+		prepare a Java class that will hand-off the source code to that JavaScript
+		at runtime of the Titanium application the module is used in.-->
+		<property name="android.py" location="${ti.module.support.dir}/android/android.py"/>
+		<python file="${android.py}">
+			<arg value="--prepare-commonjs"/>
+			<arg value="${ti.module.root}"/>
+		</python>
+
 	</target>
 
 	<target name="compile" depends="process.annotations,generate.bindings,pre.compile,js.compile,ndk.build,ndk.build.local" description="Compile this module's source code">
@@ -350,13 +361,25 @@ timodule.xml.
 	</target>
 	
 	<target name="js.compile" if="${isJSModule}">
-		<echo>CommonJS module ${jsmodule} found. Compiling.</echo>
+		<echo>CommonJS module ${jsmodule.source} found. Compiling.</echo>
+		<mkdir dir="${genjs}"/>
+
+		<!-- Closure compiler -->
+		<java jar="${titanium.platform}/lib/closure-compiler.jar" fork="true" failonerror="true">
+			<arg value="--js"/>
+			<arg value="${jsmodule.source}"/>
+			<arg value="--js_output_file"/>
+			<arg value="${jsmodule.compiled}"/>
+			<arg value="--jscomp_off=internetExplorerChecks"/>
+		</java>
+
+		<!-- Packer -->
 		<property name="jspacker.py" location="${titanium.platform}/jspacker.py"/>
 		<python file="${jspacker.py}">
-			<!-- assets dir -->
-			<arg value="${assets}"/>
+			<!-- generated/js dir -->
+			<arg value="${genjs}"/>
 			<!-- commonjs file -->
-			<arg value="${jsmodule}"/>
+			<arg value="${jsmodule.compiled}"/>
 			<!-- package -->
 			<arg value="${manifest.moduleid}"/>
 			<!-- output dir -->
@@ -413,13 +436,6 @@ timodule.xml.
 		<antcall target="post.jar"/>
 		<property name="zip.prefix" value="modules/android/${module.id}/${manifest.version}"/>
 		<antcall target="docgen"/>
-		<property name="android.py" location="${ti.module.support.dir}/android/android.py"/>
-
-		<!-- If applicable, will set commonjs: key value in manifest -->
-		<python file="${android.py}">
-			<arg value="--check-manifest"/>
-			<arg value="${ti.module.root}"/>
-		</python>
 
 		<zip destfile="${dist}/${module.id}-android-${manifest.version}.zip">
 			<zipfileset file="${module.jar}" prefix="${zip.prefix}"/>
