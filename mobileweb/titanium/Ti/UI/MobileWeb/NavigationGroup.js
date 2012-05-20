@@ -78,7 +78,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 				var backButton = this._backButton;
 
 				// Show the back button, if need be
-				backButton.opacity || backButton.animate({opacity: 1, duration: 250}, function() {
+				backButton.animate({opacity: 1, duration: 250}, function() {
 					backButton.opacity = 1;
 					backButton.enabled = true;
 				});
