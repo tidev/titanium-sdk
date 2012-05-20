@@ -103,8 +103,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 			return new InternalImageView({
 				onload: onload,
 				onerror: onerror,
-				src: src,
-				container: this
+				src: src
 			});
 		},
 
