@@ -11,7 +11,8 @@ sys.path.append(module_support_dir)
 
 sdk_dir = os.path.dirname(module_support_dir)
 sdk_android_dir = os.path.join(sdk_dir, 'android')
-sys.path.append(sdk_android_dir)
+sys.path.insert(0,sdk_android_dir)
+sys.path.append(os.path.join(sdk_dir, "common"))
 
 import module, androidsdk
 
@@ -93,7 +94,9 @@ def prepare_commonjs(module_dir):
 	if commonjs_lines:
 		curval = commonjs_lines[0].split(":")[1].strip() in truthy
 
-	is_commonjs = os.path.exists(os.path.join(module_dir, "assets", "%s.js" % moduleid))
+	commonjs_filename = os.path.join(module_dir, "assets", "%s.js" % moduleid)
+
+	is_commonjs = os.path.exists(commonjs_filename)
 
 	if (is_commonjs and not curval) or (not is_commonjs and curval):
 		# Need to re-write the key-value
@@ -113,6 +116,20 @@ def prepare_commonjs(module_dir):
 			os.makedirs(output_folder)
 		with open(os.path.join(output_folder, "CommonJsSourceProvider.java"), "w") as f:
 			f.write(source_provider_class)
+
+		# Determine which Titanium modules are used within the CommonJS code.
+		# We piggy-back on the functionality in compiler.py for this.
+		from compiler import Compiler
+		c = Compiler(None, None, None, None, None, None)
+		with open(commonjs_filename, "r") as f:
+			c.extract_modules(f.read())
+		if c.modules:
+			import simplejson
+			output_folder = os.path.join(module_dir, "build", "generated", "json")
+			if not os.path.exists(output_folder):
+				os.makedirs(output_folder)
+			with open(os.path.join(output_folder, "metadata.json"), "w") as f:
+				simplejson.dump({"exports": list(c.modules)}, f)
 
 if __name__ == "__main__":
 	usage = "Usage: %s [module_directory]" % os.path.basename(__file__)
