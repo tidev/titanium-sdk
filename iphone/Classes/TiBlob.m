@@ -249,7 +249,10 @@
 
 -(NSString*)nativePath
 {
-	return [[NSURL fileURLWithPath:path] absoluteString];
+    if (path != nil) {
+	    return [[NSURL fileURLWithPath:path] absoluteString];
+    }
+    return [NSNull null];
 }
 
 -(NSNumber*)length
