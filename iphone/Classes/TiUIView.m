@@ -832,6 +832,26 @@ DEFINE_EXCEPTIONS
 	}
 	return rightSwipeRecognizer;
 }
+-(UISwipeGestureRecognizer*)upSwipeRecognizer;
+{
+	if (upSwipeRecognizer == nil) {
+		upSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
+		[upSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionUp];
+		[self configureGestureRecognizer:upSwipeRecognizer];
+		[self addGestureRecognizer:upSwipeRecognizer];
+	}
+	return upSwipeRecognizer;
+}
+-(UISwipeGestureRecognizer*)downSwipeRecognizer;
+{
+	if (downSwipeRecognizer == nil) {
+		downSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
+		[downSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionDown];
+		[self configureGestureRecognizer:downSwipeRecognizer];
+		[self addGestureRecognizer:downSwipeRecognizer];
+	}
+	return downSwipeRecognizer;
+}
 
 -(UILongPressGestureRecognizer*)longPressRecognizer;
 {
@@ -1161,6 +1181,12 @@ DEFINE_EXCEPTIONS
     if ([event isEqualToString:@"rswipe"]) {
         return [self rightSwipeRecognizer];
     }
+    if ([event isEqualToString:@"uswipe"]) {
+        return [self upSwipeRecognizer];
+    }
+    if ([event isEqualToString:@"dswipe"]) {
+        return [self downSwipeRecognizer];
+    }
     if ([event isEqualToString:@"pinch"]) {
         return [self pinchRecognizer];
     }
@@ -1175,6 +1201,8 @@ DEFINE_EXCEPTIONS
 	ENSURE_UI_THREAD_1_ARG(event);
     [self updateTouchHandling];
     if ([event isEqualToString:@"swipe"]) {
+        [[self gestureRecognizerForEvent:@"uswipe"] setEnabled:YES];
+        [[self gestureRecognizerForEvent:@"dswipe"] setEnabled:YES];
         [[self gestureRecognizerForEvent:@"rswipe"] setEnabled:YES];
         [[self gestureRecognizerForEvent:@"lswipe"] setEnabled:YES];
     }
