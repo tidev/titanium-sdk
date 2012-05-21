@@ -12,6 +12,7 @@ html {
 }
 
 body {
+	background-color: #000;
 	display: block;
 	margin: 0;
 	overflow: hidden;
@@ -329,6 +330,10 @@ textarea {
 		#333 0%,
 		#666 50%,
 		#666);
+}
+
+.TiUIButton {
+	-webkit-tap-highlight-color: transparent;
 }
 
 .TiUIButtonDefault {
