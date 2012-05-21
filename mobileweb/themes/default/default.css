@@ -1,0 +1,15 @@
+.TiUITabBarContainer {
+	background-color: #aaa;
+}
+
+.TiUINavigationGroup {
+	background-color: #888;
+}
+
+.TiUINavigationGroupTop {
+	border-top: 1px solid #555;
+}
+
+.TiUINavigationGroupBottom {
+	border-bottom: 1px solid #555;
+}

@@ -55,7 +55,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/lang", "Ti/U
 				bottom: val(animation.bottom,node.bottom),
 				center: center,
 				width: val(animation.width,node.width),
-				height: val(animation.height,node.height),
+				height: val(animation.height,node.height)
 			},animationCoefficients, this);
 			
 			results = this._doAnimationLayout(node, animationCoefficients);
