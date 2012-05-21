@@ -264,11 +264,16 @@ const CFOptionFlags writeStreamEventFlags =
     NSMutableData* data = [[[NSMutableData alloc] init] autorelease];
     while ([input hasBytesAvailable]) {
         uint8_t* buffer = (uint8_t*)malloc(bufferSize * sizeof(uint8_t));
-        NSInteger bytesRead = [input read:buffer maxLength:bufferSize];
+        NSInteger bytesRead = -1;
+		if (buffer != NULL) {
+			bytesRead = [input read:buffer maxLength:bufferSize];
+		}
 
         // Not clear whether the failure condition is 0 or -1 from documentation
         if (bytesRead == 0 || bytesRead == -1) {
-            free(buffer);
+			if (buffer != NULL) {
+				free(buffer);
+			}
             [self handleError:input];
             return;
         }
