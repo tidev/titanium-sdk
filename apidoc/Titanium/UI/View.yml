@@ -449,7 +449,7 @@ methods:
         animation. This is a known issue [TIMOB-8930](https://jira.appcelerator.org/browse/TIMOB-8930).
 
     parameters:
-      - name: obj
+      - name: animation
         summary: |
             Either a dictionary of animation properties or an 
             [Animation](Titanium.UI.Animation) object.
@@ -566,9 +566,6 @@ methods:
     summary: |
         Translates a point from this view's coordinate system to another view's coordinate system.
     description: |
-        If both views are connected in the native view hierarchies, returns the point, converted 
-        to `destinationView`'s coordinate system.
-        
         Returns `null` if either view is not in the view hierarchy. 
         
         Keep in mind that views may be removed from the view hierarchy if their window is blurred 
@@ -578,7 +575,7 @@ methods:
         the return value.
     returns:
         type: Point
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
     parameters:
       - name: point
         summary: |
@@ -1152,12 +1149,16 @@ properties:
     type: [ Array<String>, Array<GradientColorRef> ]
     
   - name: backfillStart
-    summary: Set to `true` to continue filling with the starting color beyond the `startPoint`.
+    summary: |
+        Set to `true` to continue filling with the starting color beyond the `startPoint`. 
+        (Android, iOS only.)
     type: Boolean
     default: false
     
   - name: backfillEnd
-    summary: Set to `true` to continue filling with the final color beyond the `endPoint`.
+    summary: |
+        Set to `true` to continue filling with the final color beyond the `endPoint`. 
+        (Android, iOS only.)
     type: Boolean
     default: false
 
