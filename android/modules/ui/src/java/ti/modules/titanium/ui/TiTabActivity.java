@@ -221,7 +221,7 @@ public class TiTabActivity extends TabActivity
 	protected void onRestart()
 	{
 		super.onRestart();
-		proxy.getActiveTab().getWindow().fireEvent("focus", null);
+		proxy.getActiveTab().getWindow().fireEvent("prefocus", null);
 		
 	}
 	@Override
@@ -245,6 +245,7 @@ public class TiTabActivity extends TabActivity
 	protected void onStop()
 	{
 		super.onStop();
+		proxy.getActiveTab().getWindow().fireEvent("preblur", null);
 		KrollRuntime.suggestGC();
 	}
 
