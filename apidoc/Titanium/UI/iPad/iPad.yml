@@ -2,10 +2,7 @@
 name: Titanium.UI.iPad
 summary: iPad specific UI capabilities.  
 description: |
-    All properties, methods and events in this namespace will only work on the Apple iPad-related 
-    devices. 
-    
-    To develop for iPad, the Apple iPhone SDK is needed. 
+    All properties, methods and events in this namespace will only work on the Apple iPad devices. 
     
     For iPad UI programming guidelines, please review the [iPad Human Interface Guidelines]
     (http://developer.apple.com/iphone/library/documentation/General/Conceptual/iPadHIG/Introduction/Introduction.html).
