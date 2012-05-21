@@ -1894,7 +1894,7 @@ class Builder(object):
 								self.project_gen_dir,
 								self.project_dir, 
 								include_all_modules=include_all_ti_modules)
-			compiler.compile(compile_bytecode=self.compile_js)
+			compiler.compile(compile_bytecode=self.compile_js, external_modules=self.modules)
 			self.compiled_files = compiler.compiled_files
 			self.android_jars = compiler.jar_libraries
 			self.merge_internal_module_resources()

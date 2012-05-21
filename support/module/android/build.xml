@@ -270,7 +270,7 @@ timodule.xml.
 			<classpath refid="project.classpath" />
 		</javac>
 		<copy todir="${classes}">
-			<fileset dir="${genjson}" includes="**/*.json"/>
+			<fileset dir="${genjson}" includes="**/*.json" excludes="metadata.json"/>
 		</copy>
 		<antcall target="post.compile"/>
 	</target>
@@ -420,6 +420,12 @@ timodule.xml.
 		</zip>
 	</target>
 
+	<target name="zip.metadata" if="isJSModule">
+		<zip destfile="${dist}/${module.id}-android-${manifest.version}.zip" update="true">
+			<zipfileset file="${genjson}/metadata.json" prefix="${zip.prefix}"/>
+		</zip>
+	</target>
+
 	<target name="pre.dist">
 	</target>
 
@@ -448,6 +454,7 @@ timodule.xml.
 			<zipfileset dir="${ti.module.root}" includes="example/**" prefix="${zip.prefix}"/>
 		</zip>
 		<antcall target="zip.libs"/>
+		<antcall target="zip.metadata"/>
 		<delete dir="${lib.expand.dir}" includeemptydirs="true" failonerror="false" deleteonexit="true"/>
 		<antcall target="post.dist"/>
 	</target>
