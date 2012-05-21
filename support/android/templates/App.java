@@ -64,6 +64,8 @@ public final class ${config['classname']}Application extends TiApplication
 		## Don't do binding/bootstrap stuff if it's just a module carrying CommonJS
 		% if not isJSMod:
 		runtime.addExternalModule("${manifest.moduleid}", ${manifest.moduleid}.${className}Bootstrap.class);
+		% else:
+		runtime.addExternalCommonJsModule("${manifest.moduleid}", ${manifest.moduleid}.CommonJsSourceProvider.class);
 		% endif
 		% endfor
 

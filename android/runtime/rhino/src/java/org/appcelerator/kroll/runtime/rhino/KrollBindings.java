@@ -53,7 +53,9 @@ public class KrollBindings
 	private static HashMap<String, Script> jsBindings = new HashMap<String, Script>();
 	private static HashMap<String, Class<? extends Proxy>> externalBindings = new HashMap<String, Class<? extends Proxy>>();
 	private static HashMap<String, Class<? extends KrollSourceCodeProvider>>
-		externalCommonJsSource = new HashMap<String, Class<? extends KrollSourceCodeProvider>>();
+		externalCommonJsModules = new HashMap<String, Class<? extends KrollSourceCodeProvider>>();
+	private static HashMap<String, KrollSourceCodeProvider> loadedCommonJsSourceProviders =
+		new HashMap<String, KrollSourceCodeProvider>();
 
 	private static void addJsBinding(String name, Class<?> jsBinding)
 	{
@@ -218,7 +220,7 @@ public class KrollBindings
 
 	public static boolean isExternalCommonJsModule(String request)
 	{
-		return externalCommonJsSource.containsKey(request.toLowerCase());
+		return externalCommonJsModules.containsKey(request);
 	}
 
 	public static String getExternalCommonJsModule(String request)
@@ -227,10 +229,15 @@ public class KrollBindings
 			return null;
 		}
 
-		Class<? extends KrollSourceCodeProvider> providerClass = externalCommonJsSource.get(request.toLowerCase());
+		if (loadedCommonJsSourceProviders.containsKey(request)) {
+			return loadedCommonJsSourceProviders.get(request).getSourceCode();
+		}
+
+		Class<? extends KrollSourceCodeProvider> providerClass = externalCommonJsModules.get(request);
 		KrollSourceCodeProvider providerInstance = null;
 		try {
 			providerInstance = providerClass.newInstance();
+			loadedCommonJsSourceProviders.put(request, providerInstance);
 		} catch (Exception e) {
 			Log.e(TAG, "Cannot instantiate KrollSourceCodeProvider for module " + request, e);
 			return null;
@@ -245,6 +252,6 @@ public class KrollBindings
 
 	public static void addExternalCommonJsModule(String id, Class<? extends KrollSourceCodeProvider> jsSourceProvider)
 	{
-		externalCommonJsSource.put(id.toLowerCase(), jsSourceProvider);
+		externalCommonJsModules.put(id, jsSourceProvider);
 	}
 }
