@@ -115,7 +115,7 @@ examples:
     example: |
         This example retrieves a list of Facebook Friends and checks the response
         
-            Cloud.SocialIntegrations.searchFacebookFriends({function (e) {
+            Cloud.SocialIntegrations.searchFacebookFriends(function (e){
                 if (e.success) {
                     alert('Success:\\n' +
                         'Count: ' + e.users.length);
