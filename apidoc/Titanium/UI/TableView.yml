@@ -40,11 +40,12 @@ description: |
     
     #### TextFields in Tables with SOFT_INPUT_ADJUST_PAN (Android)
     
-    When a [TextField](Titanium.UI.TextField) is added to a row near the bottom of a `TableView`, 
+    When a [TextField](Titanium.UI.TextField) is placed in a row near the bottom of a `TableView`, 
     in a window that is configured with 
-    [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN) so that the software keyboard 
-    covers non-text fields when displayed, the keyboard is likely to completely obscure the text 
-    field also. This is a known problem caused by the native Android ListView behavior. 
+    [SOFT_INPUT_ADJUST_PAN](Titanium.UI.Android.SOFT_INPUT_ADJUST_PAN), it is expected for the 
+    text field to automatically move to a visible position after it is focused and the software 
+    keyboard displayed. However, due to a known problem caused by native Android's ListView behavior, 
+    the keyboard is likely to completely obscure the text field. 
     
     To mitigate this, a `ScrollView` may be used instead of a table view, as demonstrated in the 
     [ScrollView](Titanium.UI.ScrollView), "Scroll View as a Table View", example. 
@@ -516,15 +517,8 @@ events:
     summary: Fired as soon as the device detects movement of a touch.
     description: |
         Event coordinates are always relative to the view in which the initial touch occurred
+    platforms: [mobileweb]
     properties:
-      - name: globalPoint
-        summary: |
-            Dictionary with properties `x` and `y` describing the location 
-            of the event in screen coordinates.
-        platforms: [mobileweb]
-        deprecated:
-            since: "1.8.0"
-            
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
