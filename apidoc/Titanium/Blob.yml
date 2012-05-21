@@ -3,7 +3,7 @@ name: Titanium.Blob
 summary: A container for binary data.
 description: |
     A `Blob` represents a chunk of binary information, often obtained through 
-    [HTTPClient](Titanium.Network.HTTPClient) or by reading a [File](Titanium.Filesystem.File). 
+    an [HTTPClient](Titanium.Network.HTTPClient) or by reading a [File](Titanium.Filesystem.File). 
 
     Blobs are often used to store text or image data. 
     The `Blob` object includes a number of properties and methods specific to image blobs.
@@ -86,7 +86,11 @@ properties:
         If this blob represents a [File](Titanium.Filesystem.File), this is the file URL
         that represents it.
     description: |
-        If this blob doesn't represent a file, `nativePath` is `null`.
+        If this blob doesn't represent a file, the value of `nativePath` is not defined. 
+
+        Currently attempting to refer to `nativePath` on a non-file blob throws an
+        exception on iOS. This is a known issue 
+        [TIMOB-9175](https://jira.appcelerator.org/browse/TIMOB-9175).
     permission: read-only
 
   - name: size
