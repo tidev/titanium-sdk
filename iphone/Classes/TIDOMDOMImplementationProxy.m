@@ -102,22 +102,7 @@
     xmlNodePtr rootPtr = xmlNewNode(theNewNs, (xmlChar*)[localName UTF8String]);
     xmlDocPtr doc = xmlNewDoc(NULL);
     xmlDocSetRootElement(doc, rootPtr);
-    
-    GDataXMLDocument * theDocument = [[[GDataXMLDocument alloc]initWithDocument:doc]autorelease];
-    //Since this is the root element the prefix and uri must be carried as attributes by this node
-    if ([prefix length] > 0) {
-        //Define the prefix prop under the xmlns namespace
-        xmlNsPtr theNewAttrNs = xmlNewNs(NULL, // parent node
-                                     (xmlChar*)[@"http://www.w3.org/2000/xmlns/" UTF8String], 
-                                     (xmlChar*)[@"xmlns" UTF8String]);
-        xmlNewNsProp(rootPtr, theNewAttrNs, (xmlChar*)[prefix UTF8String], (xmlChar*)[theURI UTF8String]);
-    }
-    else if ([theURI length] >0) {
-        GDataXMLElement *root = [theDocument rootElement];
-        //Define default xmlns prop
-        GDataXMLNode *attr = [GDataXMLNode attributeWithName:@"xmlns" stringValue:theURI];
-        [root addAttribute:attr];
-    }
+
     if (docType != nil) {
         GDataXMLNode *docTypeNode = [docType node];
         xmlNodePtr ret = xmlAddChild((xmlNodePtr)doc, [docTypeNode XMLNode]);
@@ -126,6 +111,8 @@
             [docTypeNode setShouldFreeXMLNode:NO];
         }
     }
+    xmlReconciliateNs(doc, rootPtr);
+    GDataXMLDocument * theDocument = [[[GDataXMLDocument alloc]initWithDocument:doc]autorelease];
     id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
     TiDOMDocumentProxy * result = [[[TiDOMDocumentProxy alloc] _initWithPageContext:context] autorelease];
     [result setNode:[theDocument rootElement]];
