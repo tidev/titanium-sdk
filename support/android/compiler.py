@@ -110,7 +110,7 @@ class Compiler(object):
 	def extract_from_namespace(self, name, line):
 		modules = set()
 		methods = set()
-		symbols = re.findall(r'%s\.(\w+)' % name, line)
+		symbols = sorted(set(re.findall(r'%s\.(\w+)' % name, line)))
 		if len(symbols) == 0:
 			return modules, methods
 
