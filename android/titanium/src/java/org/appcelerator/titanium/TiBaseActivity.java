@@ -85,7 +85,7 @@ public abstract class TiBaseActivity extends Activity
 	public void addWindowToStack(TiBaseWindowProxy proxy)
 	{
 		if (windowStack.contains(proxy)) {
-			Log.e(TAG, "Error 37!!!");
+			Log.e(TAG, "Error 37! Window already exists in stack");
 			return;
 		}
 		boolean isEmpty = windowStack.empty();
@@ -707,13 +707,10 @@ public abstract class TiBaseActivity extends Activity
 			return;
 		}
 
-		if (window != null) {
-			if (!windowStack.empty()) {
-				windowStack.peek().fireEvent(TiC.EVENT_BLUR, null);
-			}
-
+		if (!windowStack.empty()) {
+			windowStack.peek().fireEvent(TiC.EVENT_BLUR, null);
 		}
-		
+	
 		TiApplication.updateActivityTransitionState(true);
 		tiApp.setCurrentActivity(this, null);
 
