@@ -416,7 +416,7 @@ methods:
         Other types of views should be added to a top-level container in order to be displayed on 
         screen.
         
-        The special containers [NavigationGroup](Titanium.UI.iPhone.NavigationGroup for iPhone, 
+        The special containers [NavigationGroup](Titanium.UI.iPhone.NavigationGroup) for iPhone, 
         [NavigationGroup](Titanium.UI.MobileWeb.NavigationGroup) for Mobile Web, 
         [SplitWindow](Titanium.UI.iPad.SplitWindow) for iPad, [TabGroup](Titanium.UI.TabGroup), 
         and [Tab](Titanium.UI.Tab) manage windows that are referred to as *children* of the 
