@@ -110,7 +110,7 @@
     NSString *error = nil;
     NSString *suberror = nil;
 	
-    [self validateAttributeParameters:tagName withUri:theURI reason:&error subreason:&suberror];
+    [TiDOMNodeProxy validateAttributeParameters:tagName withUri:theURI reason:&error subreason:&suberror];
     if (error != nil) {
         [self throwException:error subreason:suberror location:CODELOCATION];
     }
@@ -225,7 +225,7 @@
     
     NSString *error = nil;
     NSString *suberror = nil;
-    [self validateElementParameters:tagName withUri:theURI reason:&error subreason:&suberror];
+    [TiDOMNodeProxy validateElementParameters:tagName withUri:theURI reason:&error subreason:&suberror];
     if (error != nil) {
         [self throwException:error subreason:suberror location:CODELOCATION];
     }

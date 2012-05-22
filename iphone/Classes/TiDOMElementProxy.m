@@ -194,7 +194,7 @@
     NSString *error = nil;
     NSString *suberror = nil;
 	
-    [self validateAttributeParameters:name withUri:theURI reason:&error subreason:&suberror];
+    [TiDOMNodeProxy validateAttributeParameters:name withUri:theURI reason:&error subreason:&suberror];
     if (error != nil) {
         [self throwException:error subreason:suberror location:CODELOCATION];
     }
