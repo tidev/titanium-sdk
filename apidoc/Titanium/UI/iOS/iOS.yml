@@ -326,7 +326,7 @@ properties:
     since: "1.8.1"
 
   - name: COLOR_GROUP_TABLEVIEW_BACKGROUND
-    summary: Returns the iOS system text used to render the background on a group table view. 
+    summary: Returns the iOS system texture used to render the background on a group table view. 
     description: |
         Corresponds to iOS `UIColor` groupTableViewBackgroundColor`.
 
