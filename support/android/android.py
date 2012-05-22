@@ -244,7 +244,8 @@ class Android(object):
 						'proxy_name': module_proxy_class_name,
 						'class_name': module_class,
 						'manifest': module.manifest,
-						'on_app_create': module_onAppCreate
+						'on_app_create': module_onAppCreate,
+						'is_native_js_module': (hasattr(module.manifest, 'commonjs') and module.manifest.commonjs)
 					})
 
 		
