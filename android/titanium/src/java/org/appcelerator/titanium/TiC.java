@@ -562,6 +562,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_BACKGROUND_GRADIENT = "backgroundGradient";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BACKGROUND_IMAGE = "backgroundImage";
 
 	/**

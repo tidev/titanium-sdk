@@ -48,7 +48,7 @@ import android.view.View;
 	"backgroundImage", "backgroundRepeat", "backgroundSelectedImage", 
 	"backgroundFocusedImage", "backgroundDisabledImage", "backgroundColor", 
 	"backgroundSelectedColor", "backgroundFocusedColor", "backgroundDisabledColor", 
-	"backgroundPadding",
+	"backgroundPadding", "backgroundGradient",
 
 	// border properties
 	"borderColor", "borderRadius", "borderWidth",
