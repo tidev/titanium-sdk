@@ -70,12 +70,14 @@ events:
         
       - name: cancel
         summary: |
-            On Android and Mobile Web, indicates whether the cancel button was clicked, in which 
+            Boolean type on Android; Number on iOS and Mobile Web. 
+            
+            On Android, indicates whether the cancel button was clicked, in which 
             case returns `true`. 
             
             On iOS and Mobile Web, the value of the [cancel](Titanium.UI.OptionDialog.cancel) 
             property is returned, if defined, or `-1` otherwise. 
-        type: Boolean (Android), Number (iOS, Mobile Web)
+        type: [Boolean, Number]
         
       - name: destructive
         summary: Index of the destructive option if defined or `-1` otherwise.
