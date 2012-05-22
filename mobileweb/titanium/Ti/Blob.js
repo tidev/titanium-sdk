@@ -37,7 +37,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/Evented"], function(_, declare, Evented) {
 			height: 0,
 			length: 0,
 			mimeType: "",
-			nativePath: "",
+			nativePath: null,
 			size: 0,
 			text: function() {
 				return this._isBinary ? null : this._data || "";
