@@ -369,6 +369,11 @@
 {
 	ENSURE_SINGLE_ARG(args, TiDOMAttrProxy);
 	TiDOMAttrProxy* attProxy = (TiDOMAttrProxy*)args;
+    
+	if ([[attProxy node] URI] != nil) {
+		return [self setAttributeNodeNS:args];
+	}
+    
 	NSString* name = [[attProxy node]name];
 
 	TiDOMAttrProxy* result = nil;
