@@ -601,36 +601,35 @@ define(
 
 		animate: function(anim, callback) {
 			if (UI._layoutInProgress || !this._isAttachedToActiveWin()) {
-				on.once(UI,"postlayout", lang.hitch(this,function(){
-					this._doAnimation(anim,callback);
+				on.once(UI,"postlayout", lang.hitch(this, function(){
+					this._doAnimation(anim, callback);
 				}));
 			} else {
-				this._doAnimation(anim,callback);
+				this._doAnimation(anim, callback);
 			}
 		},
-		
+
 		_doAnimation: function(anim, callback) {
-			
 			anim = anim || {};
 			var curve = curves[anim.curve] || "ease",
 				self = this,
 				fn = function() {
-					
+
 					// It is possible for the asynchronicity of animations to leave us in a state where the element was removed from its parent mid-animation
 					if (!self._parent) {
 						return;
 					}
-					
+
 					var transformCss = "";
 
 					// Set the color and opacity properties
 					anim.backgroundColor !== void 0 && (self.backgroundColor = anim.backgroundColor);
 					anim.opacity !== void 0 && setStyle(self.domNode, "opacity", anim.opacity);
 					setStyle(self.domNode, "display", anim.visible !== void 0 && !anim.visible ? "none" : "");
-					
+
 					// Set the position and size properties
 					if (!["left", "top", "right", "bottom", "center", "width", "height", "borderWidth"].every(function(v) { return !isDef(anim[v]); })) {
-						self._parent._layout.calculateAnimation(self,anim); // Guaranteed a parent because of the _isAttachedToActiveWin check in animate()
+						self._parent._layout.calculateAnimation(self, anim); // Guaranteed a parent because of the _isAttachedToActiveWin check in animate()
 					}
 
 					// Set the z-order
@@ -651,13 +650,12 @@ define(
 			anim.start && anim.start();
 
 			if (anim.duration > 0) {
-				
 				function completeAnimation(){
 					if (!self._destroyed) {
 						// Clear the transform so future modifications in these areas are not animated
 						setStyle(self.domNode, "transition", "");
 						is(anim.complete, "Function") && anim.complete();
-						is(callback, "Function") && callback();
+						is(callback, "Function") && callback.call(self);
 					}
 				}
 				
@@ -674,7 +672,7 @@ define(
 			} else {
 				fn();
 				is(anim.complete, "Function") && anim.complete();
-				is(callback, "Function") && callback();
+				is(callback, "Function") && callback.call(self);
 			}
 		},
 

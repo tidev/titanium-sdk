@@ -61,7 +61,16 @@ var statusBtn = Ti.UI.createButton({
 	top: 45, left: 10, right: 10, height: 40
 });
 statusBtn.addEventListener('click', function() {
-	Titanium.Facebook.requestWithGraphPath('me/feed', {message: statusText.value}, "POST", showRequestResult);
+    var text = statusText.value;
+    Ti.API.info('text value::'+text+';');
+    if( (text === '')){
+    	Ti.UI.createAlertDialog({ tile:'ERROR', message:'No text to Publish !! '}).show(); 	
+    }
+	else
+	{
+		Titanium.Facebook.requestWithGraphPath('me/feed', {message: text}, "POST", showRequestResult);
+	}
+	
 });
 actionsView.add(statusBtn);
 

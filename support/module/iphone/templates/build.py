@@ -78,15 +78,13 @@ def compile_js(manifest,config):
 	
 	path = os.path.basename(js_file)
 	compiler = Compiler(cwd, manifest['moduleid'], manifest['name'], 'commonjs')
-	metadata = compiler.make_function_from_file(path,js_file)
+	method = compiler.compile_commonjs_file(path,js_file)
 	
 	exports = open('metadata.json','w')
 	json.dump({'exports':compiler.exports }, exports)
 	exports.close()
 
-	method = metadata['method']
-	eq = path.replace('.','_')
-	method = '  return filterData(%s, @"%s");' % (method, manifest['moduleid'])
+	method += '\treturn filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[0]);'
 	
 	f = os.path.join(cwd,'Classes','___PROJECTNAMEASIDENTIFIER___ModuleAssets.m')
 	c = open(f).read()

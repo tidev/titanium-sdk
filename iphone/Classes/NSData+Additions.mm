@@ -9,18 +9,6 @@
 #import "Base64Transcoder.h"
 #import <CommonCrypto/CommonCryptor.h>
 
-#pragma mark Base64 
-
-NSData * decode64 (NSData * thedata) 
-{
-	const char *str = (const char*)[thedata bytes];
-	size_t decodedLength = EstimateBas64DecodedDataSize([thedata length]);
-	char* decoded = (char*)malloc(sizeof(char) * decodedLength);
-	Base64DecodeData(str,[thedata length],decoded,&decodedLength);
-	NSData *result = [NSData dataWithBytesNoCopy:decoded length:decodedLength freeWhenDone:YES];
-	return result;
-}
-
 #pragma mark Hex
 
 /* HEX specific routines are copyright:
@@ -115,7 +103,9 @@ NSData * AES128EncryptWithKey (NSData * thedata, NSString * key)
 	//That's why we need to add the size of one block here
 	size_t bufferSize = dataLength + kCCBlockSizeAES128;
 	void *buffer = malloc(bufferSize);
-	
+	if (buffer == NULL) {
+		return nil;
+	}
 	size_t numBytesEncrypted = 0;
 	CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt, kCCAlgorithmAES128, kCCOptionPKCS7Padding,
 										  keyPtr, kCCKeySizeAES128,
@@ -132,37 +122,3 @@ NSData * AES128EncryptWithKey (NSData * thedata, NSString * key)
 	return nil;
 }
 #endif
-
-NSData * decodeDataWithKey(NSData * thedata, NSString * key) 
-{
-	// 'key' should be 16 bytes for AES128, will be null-padded otherwise
-	char keyPtr[kCCKeySizeAES128+1]; // room for terminator (unused)
-	bzero(keyPtr, sizeof(keyPtr)); // fill with zeroes (for padding)
-	
-	// fetch key data
-	[key getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
-	
-	NSUInteger dataLength = [thedata length];
-	
-	//See the doc: For block ciphers, the output size will always be less than or 
-	//equal to the input size plus the size of one block.
-	//That's why we need to add the size of one block here
-	size_t bufferSize = dataLength + kCCBlockSizeAES128;
-	void *buffer = malloc(bufferSize);
-	
-	size_t numBytesDecrypted = 0;
-	CCCryptorStatus cryptStatus = CCCrypt(kCCDecrypt, kCCAlgorithmAES128, kCCOptionPKCS7Padding,
-										  keyPtr, kCCKeySizeAES128,
-										  NULL /* initialization vector (optional) */,
-										  [thedata bytes], dataLength, /* input */
-										  buffer, bufferSize, /* output */
-										  &numBytesDecrypted);
-	
-	if (cryptStatus == kCCSuccess) {
-		//the returned NSData takes ownership of the buffer and will free it on deallocation
-		return [NSData dataWithBytesNoCopy:buffer length:numBytesDecrypted];
-	}
-	
-	free(buffer); //free the buffer;
-	return nil;
-}
