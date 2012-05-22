@@ -86,7 +86,7 @@ properties:
         If this blob represents a [File](Titanium.Filesystem.File), this is the file URL
         that represents it.
     description: |
-        If this blob doesn't represent a file, the value of `nativePath` is not defined. 
+        If this blob doesn't represent a file, the value of `nativePath` is `null`. 
 
         Currently attempting to refer to `nativePath` on a non-file blob throws an
         exception on iOS. This is a known issue 
