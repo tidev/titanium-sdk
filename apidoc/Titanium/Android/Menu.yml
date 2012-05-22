@@ -30,13 +30,9 @@ methods:
     summary: Clears all items from this menu. 
     description: |
         You should release all references you have retained to <Titanium.Android.MenuItem> previously created.
-    returns: 
-        type: void
 
   - name: close
     summary: Closes the menu, if visible.
-    returns: 
-        type: void
 
   - name: findItem
     summary: Locates a [MenuItem](Titanium.Android.MenuItem) in this menu, by item ID or reference.
@@ -73,8 +69,6 @@ methods:
       - name: groupId
         summary: Group ID of items to remove.
         type: Number
-    returns: 
-        type: void
 
   - name: removeItem
     summary: |

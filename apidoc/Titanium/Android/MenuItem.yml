@@ -107,7 +107,7 @@ properties:
     summary: Group ID for this item.
     description: |
         Items that share a group ID may be operated on as a group using
-        the menu's [setGroupClickable](Titanium.Android.Menu.setGroupClickable),
+        the menu's 
         [setGroupEnabled](Titanium.Android.Menu.setGroupEnabled), and
         [setGroupVisible](Titanium.Android.Menu.setGroupVisible) methods.
     type: Number
