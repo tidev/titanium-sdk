@@ -20,6 +20,8 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
 import android.graphics.Path.FillType;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
@@ -53,27 +55,61 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 	}
 
+	private void drawBorder(Canvas canvas)
+	{
+		paint.setColor(border.color);
+
+		if (border.alpha > NOT_SET) {
+			paint.setAlpha(border.alpha);
+		}
+
+		Bitmap borderBitmap = Bitmap
+			.createBitmap((int) outerRect.width(), (int) outerRect.height(), Bitmap.Config.ARGB_8888);
+		Canvas borderCanvas = new Canvas(borderBitmap);
+
+		if (border.radius > 0) {
+			borderCanvas.drawRoundRect(outerRect, border.radius, border.radius, paint);
+		} else {
+			borderCanvas.drawPaint(paint);
+		}
+
+		borderCanvas.save();
+
+		if (border.radius > 0) {
+			try {
+				borderCanvas.clipPath(path);
+			} catch (Exception e) {
+				Log.w(TAG, "clipPath failed on canvas: " + e.getMessage());
+			}
+		} else {
+			borderCanvas.clipRect(innerRect);
+		}
+
+		// To prevent the border from blending with the child view being framed, we need to create a transparent
+		// region. This region will fill the inner rectangle with the child view being drawn on top.
+		paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OUT));
+		borderCanvas.drawRect(innerRect, paint);
+		paint.setXfermode(null);
+
+		borderCanvas.restore();
+
+		canvas.drawBitmap(borderBitmap, 0, 0, paint);
+	}
+
 	@Override
-	public void draw(Canvas canvas) {
+	public void draw(Canvas canvas)
+	{
 		if (border != null) {
-			paint.setColor(border.color);
-
-			if (border.alpha > NOT_SET) {
-				paint.setAlpha(border.alpha);
-			}
-
-			if (border.radius > 0) {
-				canvas.drawRoundRect(outerRect, border.radius, border.radius, paint);
-			} else {
-				canvas.drawRect(outerRect, paint);
-			}
+			drawBorder(canvas);
 		}
 
-		//paint.setColor(backgroundColor);
+		// paint.setColor(backgroundColor);
 		if (background != null) {
-			background.setBounds((int)innerRect.left, (int)innerRect.top, (int)innerRect.right, (int)innerRect.bottom);
+			background.setBounds((int) innerRect.left, (int) innerRect.top, (int) innerRect.right, (int) innerRect.bottom);
 		}
+
 		canvas.save();
+
 		if (border != null && border.radius > 0) {
 			// This still happens sometimes when hw accelerated so, catch and warn
 			try {
