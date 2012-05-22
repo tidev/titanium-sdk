@@ -211,7 +211,6 @@ public class TiUIActivityWindow extends TiUIView
 
 		if (windowActivity != null && windowActivity instanceof TiBaseActivity) {
 			layout.requestFocus();
-			((TiBaseActivity) windowActivity).fireInitialFocus(); 
 		}
 	}
 

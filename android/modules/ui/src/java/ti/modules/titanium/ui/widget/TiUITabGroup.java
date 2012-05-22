@@ -149,6 +149,7 @@ public class TiUITabGroup extends TiUIView
 		// we can simply fire focus/blur from onTabChanged (to avoid chicken/egg event problems)
 	}
 
+	@SuppressWarnings("unused")
 	private TiViewProxy getTabWindow(TabProxy tab)
 	{
 		TiViewProxy viewProxy = tab.getWindow();
@@ -166,7 +167,6 @@ public class TiUITabGroup extends TiUIView
 	public void onTabChanged(String id)
 	{
 		TabGroupProxy tabGroupProxy = ((TabGroupProxy) proxy);
-		TabProxy previousTab = null;
 
 		currentTabID = tabHost.getCurrentTab();
 		
@@ -177,24 +177,7 @@ public class TiUITabGroup extends TiUIView
 		TabProxy currentTab = tabGroupProxy.getTabList().get(currentTabID);
 		proxy.setProperty(TiC.PROPERTY_ACTIVE_TAB, currentTab);
 
-		if (previousTabID != -1) {
-			previousTab = tabGroupProxy.getTabList().get(previousTabID);
-		}
-
-		if (tabChangeEventData != null) {
-			if (previousTab != null) {
-				TiViewProxy previousTabWindow = getTabWindow(previousTab);
-				if (previousTabWindow != null) {
-					previousTabWindow.fireEvent(TiC.EVENT_BLUR, null);
-				}
-			}
-		}
-
 		tabChangeEventData = tabGroupProxy.buildFocusEvent(currentTabID, previousTabID);
-		TiViewProxy currentTabWindow = getTabWindow(currentTab);
-		if (currentTabWindow != null) {
-			currentTabWindow.fireEvent(TiC.EVENT_FOCUS, null);
-		}
 		previousTabID = currentTabID;
 
 	}
