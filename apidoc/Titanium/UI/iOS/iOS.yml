@@ -325,21 +325,42 @@ properties:
     permission: read-only
     since: "1.8.1"
 
+  - name: COLOR_GROUP_TABLEVIEW_BACKGROUND
+    summary: Returns the iOS system text used to render the background on a group table view. 
+    description: |
+        Corresponds to iOS `UIColor` groupTableViewBackgroundColor`.
+
+        Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
+    type: String
+    permission: read-only
+    since: "2.1.0"
     
   - name: COLOR_SCROLLVIEW_BACKGROUND
-    summary: Returns the iOS system pattern color used to render the area behind scrollable content.
+    summary: Returns the iOS system texture used to render the area behind scrollable content.
+    description: |
+        Corresponds to iOS `UIColor` `scrollViewTexturedBackgroundColor`.
+
+        Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
     type: String
     permission: read-only
     since: "2.1.0"
     
   - name: COLOR_VIEW_FLIPSIDE_BACKGROUND
-    summary: Returns the iOS system color used for the back side of a view while it is being flipped.
+    summary: Returns the iOS system texture used for the back side of a view while it is being flipped.
+    description: |
+        Corresponds to iOS `UIColor` `viewFlipsideBackgroundColor`.
+
+        Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
     type: String
     permission: read-only
     since: "2.1.0"
 
-  - name: COLOR_UNDER_PAGE_BACKROUND
-    summary: Returns the iOS system pattern color used to render the background of a page.
+  - name: COLOR_UNDER_PAGE_BACKGROUND
+    summary: Returns the iOS system texture used to render the background of a page.
+    description: |
+        Corresponds to iOS `UIColor` `underPageBackgroundColor`.
+
+        Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
     type: String
     permission: read-only
     since: "2.1.0"
