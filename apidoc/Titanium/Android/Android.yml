@@ -1304,6 +1304,8 @@ properties:
     summary: Accessor for Android system resources.
     type: Titanium.Android.R
     permission: read-only
+    accessors: false
+
   - name: RESULT_CANCELED
     summary: |
         Used with [setResult](Titanium.Android.Activity.setResult) to specify that
@@ -1397,8 +1399,53 @@ properties:
     type: Number
     permission: read-only
 
+  - name: STREAM_ALARM
+    summary: |
+        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to
+        request that the alarm stream type for notifications be used.
+    type: Number
+    permission: read-only
+
   - name: STREAM_DEFAULT
-    summary: Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the default stream type for notifications be used.
+    summary: |
+        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the 
+        default stream type for notifications be used.
+    type: Number
+    permission: read-only
+
+
+  - name: STREAM_MUSIC
+    summary: |
+        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to
+        request that the music stream type for notifications be used.
+    type: Number
+    permission: read-only
+
+  - name: STREAM_NOTIFICATION
+    summary: |
+        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the 
+        notification stream type for notifications be used.
+    type: Number
+    permission: read-only
+
+  - name: STREAM_RING
+    summary: |
+        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the 
+        ring stream type for notifications be used.
+    type: Number
+    permission: read-only
+
+  - name: STREAM_SYSTEM
+    summary: |
+        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the 
+        system stream type for notifications be used.
+    type: Number
+    permission: read-only
+
+  - name: STREAM_VOICE_CALL
+    summary: |
+        Use with [audioStreamType](Titanium.Android.Notification.audioStreamType) to request that the 
+        voice call stream type for notifications be used.
     type: Number
     permission: read-only
 
