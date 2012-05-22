@@ -698,6 +698,10 @@
 {
     ENSURE_SINGLE_ARG(args, TiDOMNodeProxy);
     TiDOMNodeProxy * newChild = (TiDOMNodeProxy*)args;
+    if ([newChild document] != [self document]) {
+        [self throwException:@"mismatched documents" subreason:nil location:CODELOCATION];
+        return [NSNull null];
+    }    
     BOOL needsReconciliateNS = [newChild isKindOfClass:[TiDOMElementProxy class]];
     xmlNodePtr oldNodePtr = [[newChild node] XMLNode];
     xmlNodePtr parent = [element XMLNode];
