@@ -411,23 +411,24 @@ methods:
     summary: Adds a child to this view's hierarchy.
     description: |
         There are certain top-level containers that are not intended to be added as the children of 
-        other views. These top-level containers include [Window](Titanium.UI.Window), 
+        other views. These include [Window](Titanium.UI.Window), 
         [SplitWindow](Titanium.UI.iPad.SplitWindow), and [TabGroup](Titanium.UI.TabGroup). 
         Other types of views should be added to a top-level container in order to be displayed on 
         screen.
         
-        The special containers [NavigationGroup](Titanium.UI.iPhone.NavigationGroup), 
-        [SplitWindow](Titanium.UI.iPad.SplitWindow), [Tab](Titanium.UI.Tab), and 
-        [TabGroup](Titanium.UI.TabGroup) manage windows. These managed windows may be referred to 
-        as *children* of the container, but they have their own methods for adding them instead of 
-        the `add` method.
+        The special containers [NavigationGroup](Titanium.UI.iPhone.NavigationGroup for iPhone, 
+        [NavigationGroup](Titanium.UI.MobileWeb.NavigationGroup) for Mobile Web, 
+        [SplitWindow](Titanium.UI.iPad.SplitWindow) for iPad, [TabGroup](Titanium.UI.TabGroup), 
+        and [Tab](Titanium.UI.Tab) manage windows that are referred to as *children* of the 
+        container. These containers have their own methods for adding children instead of their `add` 
+        methods.
         
         Note that although a `NavigationGroup` manages windows, it is not itself a top-level 
         container. It should be added to a `Window` in order to be displayed. 
         
-        A `Tab` is another kind of special container; it is also not a top-level container, 
-        and may only be used within a `TabGroup`. Thus, an `add` method may not be used to add a 
-        `Tab` to an arbitrary container.
+        A `Tab` is another kind of special container that is not a top-level container, and may only 
+        be used within a `TabGroup`. Thus, the [addTab](Titanium.UI.TabGroup.addTab) rather than the 
+        `add` method should be used to add it to a `TabGroup`.
     parameters:
       - name: view
         summary: View to add to this view's hierarchy.
@@ -1122,7 +1123,7 @@ properties:
 ---
 name: Gradient
 summary: A simple object defining a color gradient.
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, mobileweb]
 since: "1.8.0"
 properties:
   - name: type
@@ -1154,18 +1155,16 @@ properties:
     type: [ Array<String>, Array<GradientColorRef> ]
     
   - name: backfillStart
-    summary: |
-        Set to `true` to continue filling with the starting color beyond the `startPoint`. 
-        (Android, iOS only.)
+    summary: Set to `true` to continue filling with the starting color beyond the `startPoint`.
     type: Boolean
     default: false
+    platforms: [iphone, ipad]
     
   - name: backfillEnd
-    summary: |
-        Set to `true` to continue filling with the final color beyond the `endPoint`. 
-        (Android, iOS only.)
+    summary: Set to `true` to continue filling with the final color beyond the `endPoint`.
     type: Boolean
     default: false
+    platforms: [iphone, ipad]
 
 ---
 name: GradientColorRef
