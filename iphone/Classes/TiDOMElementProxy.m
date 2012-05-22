@@ -240,6 +240,7 @@
         xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
                                      href, pre);
         xmlNewNsProp(curNode, theNewNs, (xmlChar*)[localName UTF8String], (xmlChar*)[val UTF8String]);
+        [GDataXMLElement fixUpNamespacesForNode:curNode graftingToTreeNode:curNode];
     }
 }
 
@@ -491,6 +492,7 @@
 		NSString* val = [[attProxy node] stringValue];
         
 		xmlNewNsProp(curNode, theNewNs, (xmlChar*)[localName UTF8String], (xmlChar*)[val UTF8String]);
+		[GDataXMLElement fixUpNamespacesForNode:curNode graftingToTreeNode:curNode];
 		attributeNode = [element attributeForLocalName:localName URI:theURI];
 		[attProxy setNode:attributeNode];
 		[attProxy setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
