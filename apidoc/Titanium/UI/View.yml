@@ -253,12 +253,12 @@ events:
         This event is fired when the view and its ancestors have been laid out.
         The [rect](Titanium.UI.View.rect) and [size](Titanium.UI.View.size) values 
         should be usable when this event is fired.
-
+        
         This event is typically triggered by either changing layout
         properties or by changing the orientation of the device. Note that changing the 
         layout of child views or ancestors can also trigger a relayout of this view.
         On Mobile Web, this event can also be triggered by resizing the browser window.
-
+        
         Note that altering any properties that affect layout from the `postlayout` callback 
         may result in an endless loop.
     since: "2.0.0"
@@ -410,25 +410,24 @@ methods:
   - name: add
     summary: Adds a child to this view's hierarchy.
     description: |
-        There are certain top-level containers that are not intended to be added 
-        as the children of other views. These top-level containers include 
-        [Window](Titanium.UI.Window), [SplitWindow](Titanium.UI.iPad.SplitWindow),
-        and [TabGroup](Titanium.UI.TabGroup).  Other types of views must be added 
-        to a top-level container in order to be displayed on screen.
+        There are certain top-level containers that are not intended to be added as the children of 
+        other views. These top-level containers include [Window](Titanium.UI.Window), 
+        [SplitWindow](Titanium.UI.iPad.SplitWindow), and [TabGroup](Titanium.UI.TabGroup). 
+        Other types of views should be added to a top-level container in order to be displayed on 
+        screen.
         
         The special containers [NavigationGroup](Titanium.UI.iPhone.NavigationGroup), 
         [SplitWindow](Titanium.UI.iPad.SplitWindow), [Tab](Titanium.UI.Tab), and 
-        [TabGroup](Titanium.UI.TabGroup)
-        manage windows. These managed windows may be referred to as *children* of the 
-        container, but they are not added using the `add` method.
+        [TabGroup](Titanium.UI.TabGroup) manage windows. These managed windows may be referred to 
+        as *children* of the container, but they have their own methods for adding them instead of 
+        the `add` method.
         
-        Note that although a `NavigationGroup`
-        manages windows, it is not itself top-level container.  It must be added to a 
-        `Window` in order to be displayed. 
+        Note that although a `NavigationGroup` manages windows, it is not itself a top-level 
+        container. It should be added to a `Window` in order to be displayed. 
         
-        `Tab` is another kind of special container: it is not itself a top-level container, 
-        but can only be used within a `TabGroup`. You cannot `add` a `Tab` to an arbitrary
-        container.
+        A `Tab` is another kind of special container; it is also not a top-level container, 
+        and may only be used within a `TabGroup`. Thus, an `add` method may not be used to add a 
+        `Tab` to an arbitrary container.
     parameters:
       - name: view
         summary: View to add to this view's hierarchy.
@@ -472,6 +471,8 @@ methods:
         To be notified when the layout pass completes, add a listener for the
         [postlayout](Titanium.UI.View.postlayout) event.
         
+        On Mobile Web, this method has no effect, but is included for parity.
+        
   - name: hide
     summary: Hides this view.
     
@@ -509,6 +510,8 @@ methods:
         See also: [updateLayout](Titanium.UI.View.updateLayout), 
         [finishLayout](Titanium.UI.View.finishLayout), 
         [postlayout](Titanium.UI.View.postlayout) event.
+        
+        On Mobile Web, this method is included for parity only, and thus has no effect.
     since: "2.0.0"
 
   - name: toImage
@@ -556,6 +559,8 @@ methods:
         See also: [startLayout](Titanium.UI.View.startLayout), 
         [finishLayout](Titanium.UI.View.finishLayout), 
         [postlayout](Titanium.UI.View.postlayout) event.
+        
+        On Mobile Web, this method is included for parity only, and thus has no effect.
     since: "2.0.0"
     parameters:
       - name: params
