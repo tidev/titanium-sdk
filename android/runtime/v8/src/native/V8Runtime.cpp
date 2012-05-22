@@ -266,8 +266,19 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeAd
 {
 	const char* mName = env->GetStringUTFChars(moduleName, NULL);
 	jclass cls = env->GetObjectClass(sourceProvider);
+
+	if (!cls) {
+		LOGE(TAG, "Could not find source code provider class for module: %s", mName);
+		return;
+	}
+
 	jmethodID method = env->GetMethodID(cls, "getSourceCode", "()Ljava/lang/String;");
-	KrollBindings::addExternalCommonJsModule(mName, sourceProvider, method);
+	if (!method) {
+		LOGE(TAG, "Could not find getSourceCode method in source code provider class for module: %s", mName);
+		return;
+	}
+
+	KrollBindings::addExternalCommonJsModule(mName, env->NewGlobalRef(sourceProvider), method);
 }
 
 // This method disposes of all native resources used by V8 when

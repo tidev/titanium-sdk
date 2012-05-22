@@ -197,6 +197,13 @@ void KrollBindings::dispose()
 {
 	HandleScope scope;
 
+	JNIEnv *env = JNIScope::getEnv();
+	std::map<std::string, jobject>::iterator iterMods;
+	for (iterMods = externalCommonJsModules.begin(); iterMods != externalCommonJsModules.end(); ++iterMods) {
+		jobject obj = iterMods->second;
+		env->DeleteGlobalRef(obj);
+	}
+
 	externalCommonJsModules.clear();
 	commonJsSourceRetrievalMethods.clear();
 
