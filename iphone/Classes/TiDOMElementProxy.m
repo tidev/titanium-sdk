@@ -691,12 +691,16 @@
 {
     ENSURE_SINGLE_ARG(args, TiDOMNodeProxy);
     TiDOMNodeProxy * newChild = (TiDOMNodeProxy*)args;
+    BOOL needsReconciliateNS = [newChild isKindOfClass:[TiDOMElementProxy class]];
     xmlNodePtr oldNodePtr = [[newChild node] XMLNode];
     xmlNodePtr parent = [element XMLNode];
     xmlNodePtr resultPtr = xmlAddChild(parent, oldNodePtr);
     
     if (resultPtr != NULL) {
         [[self node] releaseCachedValues];
+        if (needsReconciliateNS) {
+            [GDataXMLElement fixUpNamespacesForNode:resultPtr graftingToTreeNode:parent];
+        }
         //Child added successfully
         if (resultPtr == oldNodePtr) {
             //Child pointer not modified
