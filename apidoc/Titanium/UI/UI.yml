@@ -129,12 +129,14 @@ description:  |
     If a color value is not valid on iOS, the default color is applied, whereas, on Android, the 
     color yellow is applied.
     
-    Besides the above mentioned colors, iOS also supports the following native system background colors.
+    Besides the above mentioned colors, the following constants can be used to specify iOS
+    system textures. These constants can be used wherever a color value is required:
     
     * **[COLOR_SCROLLVIEW_BACKGROUND](Titanium.UI.iOS.COLOR_SCROLLVIEW_BACKGROUND)** 
     * **[COLOR_VIEW_FLIPSIDE_BACKGROUND](Titanium.UI.iOS.COLOR_VIEW_FLIPSIDE_BACKGROUND)** 
-    * **[COLOR_UNDER_PAGE_BACKROUND](Titanium.UI.iOS.COLOR_UNDER_PAGE_BACKROUND)** - only 
-    available on `iOS SDK 5.0 and above`.
+    * **[COLOR_GROUP_TABLEVIEW_BACKGROUND](Titanium.UI.iOS.COLOR_GROUP_TABLEVIEW_BACKGROUND)** 
+    * **[COLOR_UNDER_PAGE_BACKGROUND](Titanium.UI.iOS.COLOR_UNDER_PAGE_BACKGROUND)** (Only 
+    available on iOS SDK 5.0 and above.)
 
 extends: Titanium.Module
 since: "0.4"
