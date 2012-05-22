@@ -2487,7 +2487,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 			for (TiUIView * thisView in [ourView subviews])
 			{
-				if ( (!optimizeInsertion) && (![thisView isKindOfClass:[TiUIView class]]) )
+				if (![thisView isKindOfClass:[TiUIView class]])
 				{
 					insertPosition ++;
 					continue;
