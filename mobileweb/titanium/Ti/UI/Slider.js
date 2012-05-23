@@ -55,6 +55,13 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 			setStyle(this._thumb, "pointerEvents", cssVal);
 		},
 
+		_getContentSize: function() {
+			return {
+				width: this._defaultWidth,
+				height: this._defaultHeight
+			};
+		},
+
 		properties: {
 			
 			enabled: {
