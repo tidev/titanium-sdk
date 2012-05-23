@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -74,6 +74,34 @@ public class KrollGlobal extends IdScriptableObject
 		return KrollBindings.getExternalBinding(context, scope, args[0].toString());
 	}
 
+	/**
+	 * Whether requested path is a CommonJS module loaded from an external
+	 * native module.
+	 * @param args Where args[0] is the requested module name
+	 * @return
+	 */
+	private boolean isExternalCommonJsModule(Object[] args)
+	{
+		if (args == null || args.length < 1) {
+			throw new IllegalArgumentException("kroll.isExternalCommonJsModule requires a module name");
+		}
+		return KrollBindings.isExternalCommonJsModule(args[0].toString());
+	}
+
+	/**
+	 * Get the JavaScript source code for a CommonJS module loaded from an
+	 * external native module.
+	 * @param args Where args[0] is the requested module name
+	 * @return JavaScript source code
+	 */
+	private String getExternalCommonJsModule(Object[] args)
+	{
+		if (args == null || args.length < 1) {
+			throw new IllegalArgumentException("kroll.getExternalCommonJsModule requires a module name");
+		}
+		return KrollBindings.getExternalCommonJsModule(args[0].toString());
+	}
+
 	private void requireNative(Context context, Scriptable scope, Object[] args)
 	{
 		if (args.length < 1) {
@@ -100,13 +128,15 @@ public class KrollGlobal extends IdScriptableObject
 		Id_binding = 3,
 		Id_externalBinding = 4,
 		Id_requireNative = 5,
-		MAX_PROTOTYPE_ID = Id_requireNative;
+		Id_isExternalCommonJsModule = 6,
+		Id_getExternalCommonJsModule = 7,
+		MAX_PROTOTYPE_ID = Id_getExternalCommonJsModule;
 
 	@Override
 	protected int findPrototypeId(String s)
 	{
 		int id = 0;
-// #generated# Last update: 2011-11-17 23:44:15 CST
+// #generated# Last update: 2012-05-21 01:34:33 CEST
         L0: { id = 0; String X = null;
             L: switch (s.length()) {
             case 3: X="log";id=Id_log; break L;
@@ -114,6 +144,8 @@ public class KrollGlobal extends IdScriptableObject
             case 11: X="constructor";id=Id_constructor; break L;
             case 13: X="requireNative";id=Id_requireNative; break L;
             case 15: X="externalBinding";id=Id_externalBinding; break L;
+            case 24: X="isExternalCommonJsModule";id=Id_isExternalCommonJsModule; break L;
+            case 25: X="getExternalCommonJsModule";id=Id_getExternalCommonJsModule; break L;
             }
             if (X!=null && X!=s && !X.equals(s)) id = 0;
             break L0;
@@ -144,6 +176,12 @@ public class KrollGlobal extends IdScriptableObject
 			case Id_requireNative:
 				arity = 2; name = "requireNative";
 				break;
+			case Id_isExternalCommonJsModule:
+				arity = 1; name = "isExternalCommonJsModule";
+				break;
+			case Id_getExternalCommonJsModule:
+				arity = 1; name = "getExternalCommonJsModule";
+				break;
 			default:
 				super.initPrototypeId(id);
 				return;
@@ -173,6 +211,10 @@ public class KrollGlobal extends IdScriptableObject
 			case Id_requireNative:
 				requireNative(cx, scope, args);
 				return Undefined.instance;
+			case Id_isExternalCommonJsModule:
+				return isExternalCommonJsModule(args);
+			case Id_getExternalCommonJsModule:
+				return getExternalCommonJsModule(args);
 			default:
 				throw new IllegalArgumentException(String.valueOf(id));
 		}
