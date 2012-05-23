@@ -1,11 +1,7 @@
 ---
 name: Titanium.UI.TextArea
 summary: A multiline text field that supports editing and scrolling. 
-description: |
-    Use the <Titanium.UI.createTextArea> method to create a text area. 
-
-    On iOS, the `color` property is required for the text area to work
-    properly. This is a known issue.
+description: Use the <Titanium.UI.createTextArea> method to create a text area. 
 extends: Titanium.UI.View
 since: "0.8"
 
