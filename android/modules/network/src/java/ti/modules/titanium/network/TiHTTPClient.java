@@ -568,6 +568,8 @@ public class TiHTTPClient
 				responseText = b.toString();
 			} catch (Exception e) {
 				Log.e(LCAT, "Unable to decode using charset: " + charset);
+			} catch (OutOfMemoryError e) {
+				 Log.e(LCAT, "Unable to get response text: out of memory");
 			}
 
 		}
