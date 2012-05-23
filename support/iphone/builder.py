@@ -801,7 +801,7 @@ def main(args):
 			if len(missing_modules) != 0:
 				print '[ERROR] Could not find the following required iOS modules:'
 				for module in missing_modules:
-					print "[ERROR]\tid: %s\tversion: %s"
+					print "[ERROR]\tid: %s\tversion: %s" % (module['id'], module['version'])
 				exit(1)
 
 			# search for modules that the project is using
