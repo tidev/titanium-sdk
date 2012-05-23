@@ -296,7 +296,7 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 			{
 				if (![context isKJSThread])
 				{
-					NSLog(@"[WARN] Creating %@ in a different context than the calling function.",obj);
+					DebugLog(@"[WARN] Creating %@ in a different context than the calling function.",obj);
 					ourBridge = [KrollBridge krollBridgeForThreadName:[[NSThread currentThread] name]];
 				}
 				return [[ourBridge registerProxy:obj] jsobject];
@@ -305,7 +305,7 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 			return [objKrollObject jsobject];
 		}
 		
-		NSLog(@"[WARN] Generating a new TiObject for KrollObject %@ because the contexts %@ and its context %@ differed.",obj,context,ourBridge);
+		DebugLog(@"[WARN] Generating a new TiObject for KrollObject %@ because the contexts %@ and its context %@ differed.",obj,context,ourBridge);
 #ifdef KROLL_COVERAGE
 		KrollObject *o = [[[KrollCoverageObject alloc] initWithTarget:obj context:context] autorelease];
 #else
@@ -330,11 +330,11 @@ void KrollFinalizer(TiObjectRef ref)
 	}
 	if (![o isKindOfClass:[KrollObject class]])
 	{
-		NSLog(@"[WARN] object: %@ was not of the right class: %@",o,[o class]);
+		DeveloperLog(@"[WARN] Object %@ was not a KrollObject during finalization, was: %@",o,[o class]);
 		return;
 	}
 #if KOBJECT_MEMORY_DEBUG == 1
-	NSLog(@"KROLL FINALIZER: %@, retain:%d",o,[o retainCount]);
+	NSLog(@"[KROLL DEBUG] KROLL FINALIZER: %@, retain:%d",o,[o retainCount]);
 #endif
 
 	[(KrollObject *)o setFinalized:YES];
@@ -382,7 +382,7 @@ void KrollInitializer(TiContextRef ctx, TiObjectRef object)
 		return;
 	}
 #if KOBJECT_MEMORY_DEBUG == 1
-	NSLog(@"KROLL RETAINER: %@ (%@), retain:%d",o,[o class],[o retainCount]);
+	NSLog(@"[KROLL DEBUG] KROLL RETAINER: %@ (%@), retain:%d",o,[o class],[o retainCount]);
 #endif
  
 	if ([o isKindOfClass:[KrollObject class]])
@@ -393,7 +393,7 @@ void KrollInitializer(TiContextRef ctx, TiObjectRef object)
 		[o setPropsObject:propsObject];
 	}
 	else {
-		NSLog(@"[DEBUG] initializer for %@",[o class]);
+		DeveloperLog(@"[DEBUG] Initializer for %@",[o class]);
 	}
 
 }
@@ -457,7 +457,7 @@ TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiString
 		}
 
 #if KOBJECT_DEBUG == 1
-		NSLog(@"KROLL GET PROPERTY: %@=%@",name,result);
+		NSLog(@"[KROLL DEBUG] KROLL GET PROPERTY: %@=%@",name,result);
 #endif
 		return jsResult;
 	}
@@ -486,7 +486,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 
 		id v = TiValueToId([o context], value);
 #if KOBJECT_DEBUG == 1
-		NSLog(@"KROLL SET PROPERTY: %@=%@ against %@",name,v,o);
+		NSLog(@"[KROLL DEBUG] KROLL SET PROPERTY: %@=%@ against %@",name,v,o);
 #endif
 		if ([v isKindOfClass:[TiProxy class]])
 		{
@@ -633,15 +633,13 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 		//TODO: See if this actually happens, and if not, remove this extra check.
 		if ([(KrollBridge *)[context_ delegate] usesProxy:target_] && [self isMemberOfClass:[KrollObject class]])
 		{
-			NSLog(@"[WARN] %@ already has %@!",[context_ delegate],target_);
+			DeveloperLog(@"[WARN] Bridge %@ already has target %@!",[context_ delegate],target_);
 		}
 
 		if (![context_ isKJSThread])
 		{
-			NSLog(@"[WARN] %@->%@ is being made in a thread not owned by %@",self,target_,context_);
+			DeveloperLog(@"[WARN] %@->%@ is being made in a thread not owned by %@.",self,target_,context_);
 		}
-
-
 #endif
 		target = [target_ retain];
 		context = context_; // don't retain
@@ -678,7 +676,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 -(void)dealloc
 {
 #if KOBJECT_MEMORY_DEBUG == 1
-	NSLog(@"DEALLOC KROLLOBJECT: %@",[self description]);
+	NSLog(@"[KROLL DEBUG] DEALLOC KROLLOBJECT: %@",[self description]);
 #endif
 	RELEASE_TO_NIL(properties);
 	RELEASE_TO_NIL(target);
@@ -690,7 +688,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 #if KOBJECT_MEMORY_DEBUG == 1
 -(id)description
 {
-	return [NSString stringWithFormat:@"KrollObject[%@] held:%d",target,[target retainCount]];
+	return [NSString stringWithFormat:@"[KROLL DEBUG] KrollObject[%@] held:%d",target,[target retainCount]];
 }
 #endif
 
@@ -1016,7 +1014,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 				else 
 				{
 					// let it fall through and return undefined
-					NSLog(@"[WARN] unsupported property: %@ for %@, attributes = %@",key,target,attributes);
+					DeveloperLog(@"[WARN] Unsupported property: %@ for %@, attributes = %@",key,target,attributes);
 				}
 			}
 		}
@@ -1258,7 +1256,7 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 {
 	if (![context isKJSThread])
 	{
-		NSLog(@"[WARN] %@ tried to note the callback for %@ in the wrong thead.",target,key);
+		DeveloperLog(@"[WARN] %@ tried to protect callback for %@ in the wrong thead.",target,key);
 		NSOperation * safeInvoke = [[ExpandedInvocationOperation alloc]
 				initWithTarget:self selector:_cmd object:eventCallback object:key];
 		[context enqueue:safeInvoke];
@@ -1341,7 +1339,7 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 
 	if (![context isKJSThread])
 	{
-		NSLog(@"[WARN] %@ tried to note the callback for %@ in the wrong thead.",target,key);
+		DeveloperLog(@"[WARN] %@ tried to note the callback for %@ in the wrong thead.",target,key);
 		NSOperation * safeInvoke = [[ExpandedInvocationOperation alloc]
 				initWithTarget:self selector:_cmd object:value object:key];
 		[context enqueue:safeInvoke];
@@ -1565,7 +1563,7 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 		TiObjectCallAsFunction(jsContext, (TiObjectRef)currentCallback, [thisObject jsobject], 1, &jsEventData,&exception);
 		if (exception!=NULL)
 		{
-			NSLog(@"[WARN] Exception in event callback. %@",[KrollObject toID:context value:exception]);
+			DebugLog(@"[WARN] Exception in event callback. %@",[KrollObject toID:context value:exception]);
 		}
 	}
 }

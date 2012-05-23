@@ -233,7 +233,7 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
         dispatch_time_t oneSecond = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC);
         BOOL waiting = dispatch_semaphore_wait(waitSemaphore, oneSecond);
         if (waiting) {
-            NSLog(@"[WARN] Timing out waiting on main thread. Possibly a deadlock? %@",CODELOCATION);
+            DeveloperLog(@"[WARN] Timing out waiting on main thread. Possibly a deadlock? %@",CODELOCATION);
             dispatch_semaphore_wait(waitSemaphore, DISPATCH_TIME_FOREVER);
         }
         dispatch_release(waitSemaphore);

@@ -368,13 +368,13 @@ return map;\
 }\
 
 #define DEPRECATED_REMOVED(api,in,removed) \
-NSLog(@"[WARN] Ti%@.%@ DEPRECATED in %@: REMOVED in %@",@"tanium",api,in,removed);
+DebugLog(@"[WARN] Ti%@.%@ DEPRECATED in %@: REMOVED in %@",@"tanium",api,in,removed);
     
 #define DEPRECATED_REPLACED_REMOVED(api,in,removed,newapi) \
-NSLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@: REMOVED in %@",@"tanium",api,in,newapi,removed);
+DebugLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@: REMOVED in %@",@"tanium",api,in,newapi,removed);
 
 #define DEPRECATED_REPLACED(api,in,newapi) \
-NSLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@.",@"tanium",api,in,newapi);
+DebugLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@.",@"tanium",api,in,newapi);
     
 #define NUMBOOL(x) \
 [NSNumber numberWithBool:x]\
@@ -480,15 +480,23 @@ return value;\
 //#define VERBOSE
 
 #ifdef VERBOSE
-
 #define VerboseLog(...)	{NSLog(__VA_ARGS__);}
-
 #else
-
 #define VerboseLog(...)	{}
-
 #endif
 
+#ifdef DEVELOPER
+#define DeveloperLog(...) { NSLog(__VA_ARGS__); }
+#else
+#define DeveloperLog(...) {}
+#endif
+    
+#if defined(DEBUG) || defined(DEVELOPER)
+#define DebugLog(...) { NSLog(__VA_ARGS__); }
+#else
+#define DebugLog(...) {}
+#endif
+    
 #define VAL_OR_NSNULL(foo)	(((foo) != nil)?((id)foo):[NSNull null])
 
 

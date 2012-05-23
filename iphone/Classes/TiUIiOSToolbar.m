@@ -94,7 +94,7 @@
 			if (![thisProxy supportsNavBarPositioning])
 			{
 				//TODO: This is an exception that should have been raised long ago.
-				NSLog(@"[ERROR] %@ does not support being in a toolbar!",thisProxy);
+				DebugLog(@"[ERROR] %@ does not support being in a toolbar!",thisProxy);
 				//continue;
 			}
 			if ([thisProxy conformsToProtocol:@protocol(TiToolbarButton)])
