@@ -308,14 +308,23 @@ timodule.xml.
 			
 			<property name="mobilesdk.dir" location="${titanium.platform}/.."/>
 			<property name="ndk.verbose" value="0"/>
-	
-			<exec executable="${ndk.build}" dir="@{gendir}" failonerror="true">
+			<property name="tmpdir" value="${java.io.tmpdir}/${user.name}/${ant.project.name}-generated" />
+
+			<mkdir dir="${tmpdir}" />
+			<copy todir="${tmpdir}" preservelastmodified="true" overwrite="true" force="true" includeEmptyDirs="true">
+				<fileset dir="@{gendir}"/>
+			</copy>
+			<exec executable="${ndk.build}" dir="${tmpdir}" failonerror="true">
 				<arg value="TI_MOBILE_SDK=${mobilesdk.dir}"/>
-				<arg value="NDK_PROJECT_PATH=@{gendir}"/>
-				<arg value="NDK_APPLICATION_MK=@{gendir}/Application.mk"/>
+				<arg value="NDK_PROJECT_PATH=${tmpdir}"/>
+				<arg value="NDK_APPLICATION_MK=${tmpdir}/Application.mk"/>
 				<arg value="PYTHON=${python.exec}"/>
 				<arg value="V=${ndk.verbose}"/>
 			</exec>
+
+			<move todir="@{gendir}" preservelastmodified="true" overwrite="true" force="true" includeEmptyDirs="true">
+				<fileset dir="${tmpdir}"/>
+			</move>
 		</sequential>
 	</macrodef>
 	
