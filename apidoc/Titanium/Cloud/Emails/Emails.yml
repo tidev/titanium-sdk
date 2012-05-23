@@ -9,25 +9,23 @@ methods:
     description: |
         See [Emails: Send Emails](http://cloud.appcelerator.com/docs/api/v1/emails/send)
         for the request parameters supported by this method.
-
-        If you haven't configured your SMTP setting yet, please goto your App Settings
-        and configure and test your SMTP setting. You also need to create at least one email template.
-
+        
+        If you haven't configured your SMTP setting yet, go to your App Settings and configure and 
+        test your SMTP setting. You also need to create at least one email template.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass. 
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+      
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudEmailsResponse>
 
 examples:
-  - title: Send Email Example
+  - title: Send Email
     example: |
         This example sends an Email and checks the response.
-
+        
             Cloud.Emails.send({
                 template: 'welcome',
                 recipients: 'joe@company.com'
