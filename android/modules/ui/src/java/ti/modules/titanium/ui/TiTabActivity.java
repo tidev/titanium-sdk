@@ -218,12 +218,7 @@ public class TiTabActivity extends TabActivity
 		tiApp.setCurrentActivity(this, null);
 	}
 
-	protected void onRestart()
-	{
-		super.onRestart();
-		proxy.getActiveTab().getWindow().fireEvent("focus", null);
-		
-	}
+
 	@Override
 	protected void onResume()
 	{

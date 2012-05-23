@@ -2,6 +2,8 @@ package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -25,6 +27,26 @@ public class TiBaseWindowProxy extends TiWindowProxy
 		TiUIView view = viewProxy.peekView();
 		setView(view);
 		setModelListener(view);
+	}
+	
+	@Kroll.method
+	public void addSelfToStack() 
+	{
+		// adding window to stack
+		Activity topActivity = TiApplication.getAppCurrentActivity();
+		if (topActivity instanceof TiBaseActivity) {
+			((TiBaseActivity)topActivity).addWindowToStack(this);
+		}
+	}
+	
+	@Kroll.method
+	public void removeSelfFromStack() 
+	{
+		// removing window from stack
+		Activity topActivity = TiApplication.getAppCurrentActivity();
+		if (topActivity instanceof TiBaseActivity) {
+			((TiBaseActivity)topActivity).removeWindowFromStack(this);
+		}
 	}
 
 	/**
