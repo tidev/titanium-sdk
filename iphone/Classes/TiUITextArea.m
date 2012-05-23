@@ -32,6 +32,7 @@
 		[self addSubview:textWidgetView];
 		[(UITextView *)textWidgetView setContentInset:UIEdgeInsetsZero];
 		self.clipsToBounds = YES;
+        ((UITextView *)textWidgetView).text = @""; //Setting TextArea text to empty string 
 		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 	}
 	return textWidgetView;

@@ -1,5 +1,5 @@
 name: Titanium.Cloud.Statuses
-summary: Provides methods for accessing ACS Statuses
+summary: Provides methods for accessing ACS Statuses.
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 
@@ -7,60 +7,59 @@ methods:
   - name: create
     summary: Creates a status for the currently logged in user.
     description: |
+        Requires user login. 
+        
         See [Users: Create a Status](http://cloud.appcelerator.com/docs/api/v1/statuses/create)
         for the request parameters supported by this method.
-
+        
         Data is returned in the `statuses` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass. 
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudStatusesResponse>
-
-  - name: search
-    summary: Retrieve the statuses for a user.
-    description: |
-        See [Users: Show Statuses for a User](http://cloud.appcelerator.com/docs/api/v1/statuses/show)
-        for the request parameters supported by this method.
-
-        Data is returned in the `statuses` property of the parameter passed to the callback.
-    parameters:
-
-      - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
-      - name: callback
-        summary: Callback function to execute when the method completes.
-        type: Callback<CloudStatusesResponse>
-
+  
   - name: query
     summary: Retrieve a list of statuses with sorting and pagination.
     description: |
         See [Statuses: Custom Query Status](http://cloud.appcelerator.com/docs/api/v1/statuses/query)
         for the request parameters supported by this method.
-
+        
         Data is returned in the `statuses` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
+        summary: Parameters to send in the request.
+        type: Dictionary
         optional: true
-
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudStatusesResponse>
+  
+  - name: search
+    summary: Retrieve the statuses for a user.
+    description: |
+        See [Users: Show Statuses for a User](http://cloud.appcelerator.com/docs/api/v1/statuses/show)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `statuses` property of the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudStatusesResponse>
 
 examples:
-  - title: Create a Status Example
+  - title: Create a Status
     example: |
         This example creates a status and checks the response.
-
+        
             Cloud.Statuses.create({
                 place_id: myPlaceId,
                 message: 'What a great view!',
@@ -76,11 +75,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Search Status Example
+  
+  - title: Search Status
     example: |
         This example requests information about a user's status and checks the response.
-
+        
             Cloud.Statuses.search({
                 user_id: someUserId
             }, function (e) {
@@ -98,11 +97,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Query Status Example
+  
+  - title: Query Status
     example: |
         This example requests information about statuses and checks the response.
-
+        
             Cloud.Statuses.query({
                 page: 1,
                 per_page: 20,
@@ -128,6 +127,6 @@ summary: Argument passed to the callback when a request finishes successfully or
 extends: CloudResponse
 properties:
   - name: statuses
-    summary: Array of `statuses` objects, if any
+    summary: Set of `statuses` objects, if any exist.
     description: Only included if `success` is `true`.
-    type: Array<Object>
+    type: Array<Dictionary>

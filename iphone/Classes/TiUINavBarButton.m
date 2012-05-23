@@ -25,13 +25,13 @@ DEFINE_EXCEPTIONS
 #if NAVBAR_MEMORY_DEBUG==1
 -(id)retain
 {
-	NSLog(@"Retaining %X (%d)",self,[self retainCount]);
+	NSLog(@"[DEBUG] Retaining %X (%d)",self,[self retainCount]);
 	return [super retain];
 }
 
 -(void)release
 {
-	NSLog(@"Releasing %X (%d)",self,[self retainCount]);
+	NSLog(@"[DEBUG] Releasing %X (%d)",self,[self retainCount]);
 	[super release];
 }
 #endif
@@ -39,7 +39,7 @@ DEFINE_EXCEPTIONS
 -(void)dealloc
 {
 #if NAVBAR_MEMORY_DEBUG==1
-	NSLog(@"Deallocing %X (%d)",self,[self retainCount]);
+	NSLog(@"[DEBUG] Deallocing %X (%d)",self,[self retainCount]);
 #endif
 	RELEASE_TO_NIL(activityDelegate);
 	[super dealloc];

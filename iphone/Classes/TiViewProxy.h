@@ -552,7 +552,6 @@ enum
  */
 -(void)relayout;
 
--(void)insertIntoView:(UIView*)view bounds:(CGRect)bounds;
 -(void)reposition;	//Todo: Replace
 
 -(BOOL)willBeRelaying;	//Todo: Replace

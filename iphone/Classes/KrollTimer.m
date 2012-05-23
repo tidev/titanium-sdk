@@ -67,7 +67,7 @@
 	if (exception!=NULL)
 	{
 		id excm = [KrollObject toID:kroll value:exception];
-		NSLog(@"[ERROR] While executing Timer, received script error. '%@'",[TiUtils exceptionMessage:excm]);
+		DebugLog(@"[ERROR] While executing Timer, received script error. '%@'",[TiUtils exceptionMessage:excm]);
 	}
 	[invokeCond unlockWithCondition:1];
 }

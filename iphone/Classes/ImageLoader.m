@@ -232,7 +232,7 @@
             [fm removeItemAtPath:path error:nil];
         }
         if (![fm createFileAtPath:path contents:imageData  attributes:nil]) {
-            NSLog(@"[WARN] Unknown error serializing image %@ to path %@", remoteURL, path);
+            NSLog(@"[ERROR] Unknown error serializing image %@ to path %@", remoteURL, path);
         }
     }
 }
@@ -257,7 +257,7 @@
                                     create:YES 
                                      error:&error];
     if (error != nil) {
-        NSLog(@"[WARN] Error finding cache directory: %@", [error localizedDescription]);
+        NSLog(@"[ERROR] Error finding cache directory: %@", [error localizedDescription]);
         return nil;
     }
     
@@ -359,14 +359,14 @@ DEFINE_EXCEPTIONS
 	vm_statistics_data_t vmStats;
 	mach_msg_type_number_t infoCount = HOST_VM_INFO_COUNT;
 	kern_return_t kernReturn = host_statistics(mach_host_self(), HOST_VM_INFO, (host_info_t)&vmStats, &infoCount);
-	NSLog(@"[INFO] %d pages free before clearing image cache.",vmStats.free_count);
+	NSLog(@"[CACHE DEBUG] %d pages free before clearing image cache.",vmStats.free_count);
 #endif
     
     [cache removeAllObjects];
     
 #ifdef DEBUG_IMAGE_CACHE
 	kernReturn = host_statistics(mach_host_self(), HOST_VM_INFO, (host_info_t)&vmStats, &infoCount);
-	NSLog(@"[INFO] %d pages free after clearing image cache.",vmStats.free_count);
+	NSLog(@"[CACHE DEBUG] %d pages free after clearing image cache.",vmStats.free_count);
 #endif
 
 
@@ -411,12 +411,12 @@ DEFINE_EXCEPTIONS
         [newEntry setData:image];
     }
     else {
-        NSLog(@"[WARN] Unexpected image data type %@; not caching", [image class]);
+        DebugLog(@"[DEBUG] Unexpected image data type %@; not caching", [image class]);
         return nil;
     }
 	
 #ifdef DEBUG_IMAGE_CACHE
-    NSLog(@"Caching: %@",newEntry);
+    NSLog(@"[CACHE DEBUG] Caching: %@",newEntry);
 #endif
     
     [cache setObject:newEntry forKey:urlString];
@@ -806,7 +806,7 @@ DEFINE_EXCEPTIONS
 -(void)cache:(NSCache *)cache willEvictObject:(id)obj
 {
 #ifdef DEBUG_IMAGE_CACHE
-    NSLog(@"Purging image cache object %@", obj);
+    NSLog(@"[CACHE DEBUG] Purging image cache object %@", obj);
 #endif
 }
 
