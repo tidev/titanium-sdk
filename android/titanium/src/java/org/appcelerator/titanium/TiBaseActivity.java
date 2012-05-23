@@ -8,6 +8,7 @@ package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Stack;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollRuntime;
@@ -17,6 +18,7 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
+import org.appcelerator.titanium.proxy.TiBaseWindowProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -66,7 +68,6 @@ public abstract class TiBaseActivity extends Activity
 	protected TiWindowProxy window;
 	protected TiViewProxy view;
 	protected ActivityProxy activityProxy;
-	protected boolean mustFireInitialFocus;
 	protected TiWeakList<ConfigurationChangedListener> configChangedListeners = new TiWeakList<ConfigurationChangedListener>();
 	protected int orientationDegrees;
 	protected TiMenuSupport menuHelper;
@@ -75,10 +76,39 @@ public abstract class TiBaseActivity extends Activity
 	protected int msgId = -1;
 	protected static int previousOrientation = -1;
 	private ArrayList<Dialog> dialogs = new ArrayList<Dialog>();
+	private Stack<TiBaseWindowProxy> windowStack = new Stack<TiBaseWindowProxy>();
 
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
 
+
+	public void addWindowToStack(TiBaseWindowProxy proxy)
+	{
+		if (windowStack.contains(proxy)) {
+			Log.e(TAG, "Error 37! Window already exists in stack");
+			return;
+		}
+		boolean isEmpty = windowStack.empty();
+		if (!isEmpty) {
+			windowStack.peek().fireEvent(TiC.EVENT_BLUR, null);
+		}
+		windowStack.add(proxy);
+		if (!isEmpty) { 
+			proxy.fireEvent(TiC.EVENT_FOCUS, null);
+		}
+
+		
+	}
+	
+	public void removeWindowFromStack(TiBaseWindowProxy proxy)
+	{
+		proxy.fireEvent(TiC.EVENT_BLUR, null);
+		windowStack.remove(proxy);
+		if (!windowStack.empty()) {
+			TiBaseWindowProxy nextWindow = windowStack.peek();
+			nextWindow.fireEvent(TiC.EVENT_FOCUS, null);
+		}
+	}
 
 	// could use a normal ConfigurationChangedListener but since only orientation changes are
 	// forwarded, create a separate interface in order to limit scope and maintain clarity 
@@ -224,13 +254,6 @@ public abstract class TiBaseActivity extends Activity
 		return defaultValue;
 	}
 
-	public void fireInitialFocus()
-	{
-		if (mustFireInitialFocus && window != null) {
-			mustFireInitialFocus = false;
-			window.fireEvent(TiC.EVENT_FOCUS, null);
-		}
-	}
 
 	protected void updateTitle()
 	{
@@ -684,6 +707,10 @@ public abstract class TiBaseActivity extends Activity
 			return;
 		}
 
+		if (!windowStack.empty()) {
+			windowStack.peek().fireEvent(TiC.EVENT_BLUR, null);
+		}
+	
 		TiApplication.updateActivityTransitionState(true);
 		tiApp.setCurrentActivity(this, null);
 
@@ -728,6 +755,10 @@ public abstract class TiBaseActivity extends Activity
 			return;
 		}
 
+		if (!windowStack.empty()) {
+			windowStack.peek().fireEvent(TiC.EVENT_FOCUS, null);
+		} 
+		
 		tiApp.setCurrentActivity(this, this);
 		TiApplication.updateActivityTransitionState(false);
 		
@@ -773,17 +804,6 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		updateTitle();
-		
-		if (window != null) {
-			//we don't need to fire focus event for Tab activities as this is being done in TiUITabGroup.onTabChanged()
-			if (!(this instanceof TiActivity && ((TiActivity)this).isTab())) {
-				window.fireEvent(TiC.EVENT_FOCUS, null);
-			}
-			
-
-		} else {
-			mustFireInitialFocus = true;
-		}
 
 		if (activityProxy != null) {
 			// we only want to set the current activity for good in the resume state but we need it right now.
@@ -833,13 +853,6 @@ public abstract class TiBaseActivity extends Activity
 			return;
 		}
 
-		if (window != null) {
-			//we don't need to fire blur for tabs b/c we're not firing focus when we re-enter the app
-			if (!(this instanceof TiActivity && ((TiActivity)this).isTab())) {
-				window.fireEvent(TiC.EVENT_BLUR, null);
-			}
-		}
-
 		if (activityProxy != null) {
 			activityProxy.fireSyncEvent(TiC.EVENT_STOP, null);
 		}
@@ -870,6 +883,7 @@ public abstract class TiBaseActivity extends Activity
 			Log.d(TAG, "Activity " + this + " onRestart");
 		}
 
+		
 		TiApplication tiApp = getTiApp();
 		if (tiApp.isRestartPending()) {
 			if (!isFinishing()) {
