@@ -561,8 +561,8 @@ public class TiHTTPClient
 				charset = HTTP.UTF_8;
 			}
 
-			CharsetDecoder decoder = Charset.forName(charset).newDecoder();
 			try {
+				CharsetDecoder decoder = Charset.forName(charset).newDecoder();
 				ByteBuffer data = ByteBuffer.wrap(responseData.getBytes());
 				CharBuffer b = decoder.decode(data);
 				responseText = b.toString();
