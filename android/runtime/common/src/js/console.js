@@ -4,23 +4,45 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+ 
+function join(args) {
+	// Handle null / undefined args up front since we can't slice them
+	if (typeof args === "undefined") {
+		return "undefined";
+	}
+	else if (args === null) {
+		return "null";
+	}
+	
+	return [].concat(Array.prototype.slice.call(args)).map(function (arg) {
+		if (typeof arg === "undefined") {
+			return "undefined";
+		}
+		
+		return (arg === null) ? 
+			"null" : 
+			( (typeof arg === "object") ? 
+				( arg.hasOwnProperty('toString') ? arg.toString() : JSON.stringify(arg) ) :
+				arg );
+	}).join(' ');
+}
 
-exports.log = function(msg) {
- 	Titanium.API.info(msg);
+exports.log = function() {
+ 	Titanium.API.info(join(arguments));
  }
  
- exports.info = function(msg) {
- 	Titanium.API.info(msg);
+ exports.info = function() {
+ 	Titanium.API.info(join(arguments));
  }
  
- exports.warn = function(msg) {
- 	Titanium.API.warn(msg);
+ exports.warn = function() {
+ 	Titanium.API.warn(join(arguments));
  }
  
- exports.error = function(msg) {
- 	Titanium.API.error(msg);
+ exports.error = function() {
+ 	Titanium.API.error(join(arguments));
  }
  
- exports.debug = function(msg) {
- 	Titanium.API.debug(msg);
+ exports.debug = function() {
+ 	Titanium.API.debug(join(arguments));
  }

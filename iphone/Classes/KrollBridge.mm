@@ -16,6 +16,7 @@
 #import <libkern/OSAtomic.h>
 #import "KrollContext.h"
 #import "TiDebugger.h"
+#import "TiConsole.h"
 
 #ifdef KROLL_COVERAGE
 # include "KrollCoverage.h"
@@ -568,8 +569,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	TiStringRelease(prop);
 	TiStringRelease(prop2);	
     
-    // Load the "console" object into the global scope, as an alias to "Ti.API"
-    console = [[KrollObject alloc] initWithTarget:[titanium valueForKey:@"API"] context:kroll];
+    // Load the "console" object into the global scope
+    console = [[KrollObject alloc] initWithTarget:[[[TiConsole alloc] _initWithPageContext:self] autorelease] context:kroll];
     prop = TiStringCreateWithCFString((CFStringRef)@"console");
     TiObjectSetProperty(jsContext, globalRef, prop, [KrollObject toValue:kroll value:console], kTiPropertyAttributeNone, NULL);
 	
