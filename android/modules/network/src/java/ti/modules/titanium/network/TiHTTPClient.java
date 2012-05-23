@@ -566,7 +566,7 @@ public class TiHTTPClient
 				ByteBuffer data = ByteBuffer.wrap(responseData.getBytes());
 				CharBuffer b = decoder.decode(data);
 				responseText = b.toString();
-			} catch (CharacterCodingException e) {
+			} catch (Exception e) {
 				Log.e(LCAT, "Unable to decode using charset: " + charset);
 			}
 
