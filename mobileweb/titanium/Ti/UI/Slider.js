@@ -46,7 +46,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 
 		_defaultWidth: UI.FILL,
 
-		_defaultHeight: 40,
+		_defaultHeight: UI.SIZE,
 
 		_setTouchEnabled: function(value) {
 			var cssVal = value ? "auto" : "none";
@@ -57,8 +57,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 
 		_getContentSize: function() {
 			return {
-				width: this._defaultWidth,
-				height: this._defaultHeight
+				width: 200,
+				height: 40
 			};
 		},
 
