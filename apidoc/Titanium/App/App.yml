@@ -75,7 +75,7 @@ events:
         This event fires when the application presents the soft keyboard on/off the screen . The 
         event returns the dictionary containing `keyboardFrame.x`, `keyboardFrame.y`, 
         `keyboardFrame.height` and `keyboardFrame.width` variables, corresponding to the frame of 
-        the keyboard.
+        the keyboard with respect to the screen coordinates.
         
         Note that the keyboard `height` and `width` properties will not be accurate when the keyboard 
         is being dissmissed.

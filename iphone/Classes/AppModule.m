@@ -223,6 +223,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 //To fire the keyboard frame change event.
 -(void)keyboardFrameChanged:(NSNotification*) notification
 {
+    if (![self _hasListeners:@"keyboardFrameChanged"])
+    {
+        return;
+    }
+    
     NSDictionary *userInfo = [notification userInfo];
     
     CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
@@ -235,10 +240,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
                                 [TiUtils rectToDictionary:keyboardEndFrame], @"keyboardFrame",
                                 nil];
     
-    if ([self _hasListeners:@"keyboardFrameChanged"])
-    {
-        [self fireEvent:@"keyboardFrameChanged" withObject:event]; 
-    }
+    [self fireEvent:@"keyboardFrameChanged" withObject:event]; 
+    
 }
 
 
