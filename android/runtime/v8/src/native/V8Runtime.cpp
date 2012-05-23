@@ -255,6 +255,32 @@ JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nati
 	return v8::V8::IdleNotification();
 }
 
+/*
+ * Called by V8Runtime.java, this passes a KrollSourceCodeProvider java class instance
+ * to KrollBindings, where it's stored and later used to retrieve an external CommonJS module's
+ * Javascript code when require(moduleName) occurs in Javascript.
+ * "External" CommonJS modules are CommonJS modules stored in external modules.
+ */
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeAddExternalCommonJsModule
+	(JNIEnv *env, jobject self, jstring moduleName, jobject sourceProvider)
+{
+	const char* mName = env->GetStringUTFChars(moduleName, NULL);
+	jclass cls = env->GetObjectClass(sourceProvider);
+
+	if (!cls) {
+		LOGE(TAG, "Could not find source code provider class for module: %s", mName);
+		return;
+	}
+
+	jmethodID method = env->GetMethodID(cls, "getSourceCode", "()Ljava/lang/String;");
+	if (!method) {
+		LOGE(TAG, "Could not find getSourceCode method in source code provider class for module: %s", mName);
+		return;
+	}
+
+	KrollBindings::addExternalCommonJsModule(mName, env->NewGlobalRef(sourceProvider), method);
+}
+
 // This method disposes of all native resources used by V8 when
 // all activities have been destroyed by the application.
 //

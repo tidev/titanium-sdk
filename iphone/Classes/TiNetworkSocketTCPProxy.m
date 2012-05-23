@@ -529,7 +529,6 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
             [operationInfo setObject:asynchInfo forKey:NUMINT(tag)];
             asynchTagCount = (asynchTagCount + 1) % INT_MAX;
         }
-        NSLog(@"Queuing up my write!");
         [socket writeData:subdata withTimeout:-1 tag:tag];
         
         // TODO: Actually need the amount of data written - similar to readDataLength, for writes

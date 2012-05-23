@@ -1,6 +1,10 @@
 ---
 name: Titanium.Android.Intent
-summary: The Titanium binding of an [Android Intent](http://developer.android.com/reference/android/content/Intent.html).
+summary: The Titanium binding of an Android `Intent`.
+description: |
+    See also: 
+    [Intent](http://developer.android.com/reference/android/content/Intent.html) in the
+    Android Developer Reference.
 extends: Titanium.Proxy
 platforms: [android]
 since: "1.5"
@@ -13,7 +17,7 @@ methods:
         type: String
 
   - name: addFlags
-    summary: Adds to the existing flags on the Intent.
+    summary: Adds to the existing flags on the `Intent`.
     description: |
         The specified flag are combined with the existing flags using a bitwise OR.
     parameters:
@@ -23,7 +27,7 @@ methods:
 
   - name: getBlobExtra
     since: "2.1.0"
-    summary: Get a <Titanium.Blob> property from this Intent
+    summary: Get a <Titanium.Blob> property from this `Intent`.
     returns:
         type: Titanium.Blob
     parameters:
@@ -41,12 +45,12 @@ methods:
         type: String
 
   - name: getData
-    summary: Get the Data URI from this Intent.
+    summary: Get the Data URI from this `Intent`.
     returns: 
         type: String
 
   - name: getDoubleExtra
-    summary: Get a double property from this Intent.
+    summary: Get a double property from this `Intent`.
     returns:
         type: Number
     parameters:
@@ -55,7 +59,7 @@ methods:
         type: String
 
   - name: getIntExtra
-    summary: Get an int property from this Intent.
+    summary: Get an int property from this `Intent`.
     returns:
         type: Number
     parameters:
@@ -64,7 +68,7 @@ methods:
         type: String
 
   - name: getLongExtra
-    summary: Get a long property from this Intent.
+    summary: Get a long property from this `Intent`.
     returns:
         type: Number
     parameters:
@@ -73,8 +77,17 @@ methods:
         type: String
 
   - name: getStringExtra
-    summary: Get a string property from this Intent.
-    description: Can also be used to get the string representation of a [parcelable extra](http://developer.android.com/reference/android/content/Intent.html#getParcelableExtra(java.lang.String)), which is useful since we do not support `getParcelableExtra` due to the inability to translate all of its possible return types to Javascript.
+    summary: Get a string property from this `Intent`.
+    description: |
+        Can also be used to get the string representation of a property that's stored
+        as an Android `Parcel`, such as a URI.
+
+        Titanium does not support `getParcelableExtra` due to the inability to translate 
+        all of its possible return types to JavaScript. 
+
+        See also:
+        [getParcelableExtra](http://developer.android.com/reference/android/content/Intent.html#getParcelableExtra(java.lang.String)
+        in the Android Developer Reference.
     returns:
         type: String
     parameters:
@@ -83,7 +96,7 @@ methods:
         type: String
 
   - name: hasExtra
-    summary: Returns `true` if this Intent has the specified property.
+    summary: Returns `true` if this `Intent` has the specified property.
     returns:
         type: Boolean
     parameters:
@@ -92,7 +105,7 @@ methods:
         type: String
 
   - name: putExtra
-    summary: Puts an extra property on this Intent.
+    summary: Puts an extra property on this `Intent`.
     parameters:
 
       - name: name
@@ -105,7 +118,7 @@ methods:
 
   - name: putExtraUri
     summary: 
-        Put a URI property on this Intent (useful for <Titanium.Android.EXTRA_STREAM>).  
+        Put a URI property on this `Intent` (useful for <Titanium.Android.EXTRA_STREAM>).  
     parameters: 
 
       - name: name
@@ -113,7 +126,7 @@ methods:
         type: String
 
       - name: value
-        summary: The URI string.
+        summary: The URI, as a string.
         type: String
 
 properties:
@@ -127,7 +140,9 @@ properties:
     availability: creation
 
   - name: className
-    summary: The Java class name of the activity associated with this intent (`packageName` must also be set).
+    summary: |
+        The Java class name of the activity associated with this intent
+        ([packageName](Titanium.Android.Intent.packageName) must also be set).
     type: String
     availability: creation
 
@@ -159,7 +174,7 @@ properties:
         intent is created.
 
         For information on MIME types and intents, see: 
-        [Intent.setType in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#setType(java.lang.String))
+        [Intent.setType in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#setType(java.lang.String)).
     type: String
     availability: creation
     permission: read-only
@@ -172,7 +187,8 @@ properties:
 examples:
   - title: Create an Intent for Launching an Activity
     example: |
-        
+        This example creates an intent and uses it to launch a new activity.
+
             var intent = Ti.Android.createIntent({
                 action: Ti.Android.ACTION_MAIN,
                 url: 'activity1.js'
@@ -180,9 +196,11 @@ examples:
             intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
             Ti.Android.currentActivity.startActivity(intent);
         
-  - title: Create an Intent to get a Contact URI from the user's contacts
+  - title: Create an Intent to get a Contact URI 
     example: |
-        
+        This example creates an intent to retrieve contact information from the user's
+        contacts. 
+
             var intent = Ti.Android.createIntent({
                 action: Ti.Android.ACTION_GET_CONTENT,
                 type: "vnd.android.cursor.item/phone"
@@ -190,47 +208,52 @@ examples:
     
   - title: Pick a Photo from the Photo Gallery
     example: |
-        
+        This example creates an intent to pick an image from the photo gallery.
             var intent = Ti.Android.createIntent({
                 action: Ti.Android.ACTION_PICK,
                 type: "image/*"
             });
             intent.addCategory(Ti.Android.CATEGORY_DEFAULT);
 
-  - title: Create an ImageView from an image SEND Intent 
+  - title: Create an ImageView from an Image Send Intent 
     example: |
         This example requires that an intent filter be set up in a
         custom AndroidManifest.xml. The following intent filter should
         be added to your app's main activity. You can trigger this 
         intent filter by long pressing on an image in the Android gallery
         and selecting "share".
+
         AndroidManifest.xml
-            &lt;intent-filter&gt;
-                &lt;action android:name="android.intent.action.SEND" /&gt;
-                &lt;category android:name="android.intent.category.DEFAULT" /&gt;
-                &lt;data android:mimeType="image/*" /&gt;
-            &lt;/intent-filter&gt;
+
+             <intent-filter>
+                 <action android:name="android.intent.action.SEND" />
+                 <category android:name="android.intent.category.DEFAULT" />
+                 <data android:mimeType="image/*" />
+             </intent-filter>
+
         Sample code
-            var win = Ti.UI.createWindow({
-                backgroundColor: '#fff',
-                fullscreen: false,
-                exitOnClose: true
-            });
-            win.addEventListener('open', function(e) {
-                var intent = Ti.Android.currentActivity.getIntent();
-                var iname = Ti.Android.EXTRA_STREAM;
-                if (intent && intent.hasExtra(iname)) {
-                    // Create ImageView from TiBlob
-                    var blob = intent.getBlobExtra(iname);
-                    win.add(Ti.UI.createImageView({
-                        image: blob,
-                        height: 300,
-                        width: 300,
-                        left: 0,
-                        top: 0
-                    }));
-                } else {
-                    Ti.API.info('No extra named "' + iname + '" found in Intent');
-                }
-            });        
-            win.open();
+
+             var win = Ti.UI.createWindow({
+                 backgroundColor: '#fff',
+                 fullscreen: false,
+                 exitOnClose: true
+             });
+             win.addEventListener('open', function(e) {
+                 var intent = Ti.Android.currentActivity.getIntent();
+                 var iname = Ti.Android.EXTRA_STREAM;
+                 if (intent && intent.hasExtra(iname)) {
+                     // Create ImageView from TiBlob
+                     var blob = intent.getBlobExtra(iname);
+                     win.add(Ti.UI.createImageView({
+                         image: blob,
+                         height: 300,
+                         width: 300,
+                         left: 0,
+                         top: 0
+                     }));
+                 } else {
+                     Ti.API.info('No extra named "' + iname + '" found in Intent');
+                 }
+             });        
+             win.open();
+

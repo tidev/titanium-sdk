@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,7 +14,6 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
-import org.appcelerator.titanium.TiRootActivity;
 
 import android.app.Activity;
 
@@ -25,13 +24,10 @@ import android.app.Activity;
 public class KrollModule extends KrollProxy
 	implements KrollProxyListener, OnLifecycleEvent
 {
-	private static final String TAG = "KrollModule";
-
 	@Deprecated
 	protected TiContext tiContext;
 
 	protected static ArrayList<KrollModuleInfo> customModuleInfoList = new ArrayList<KrollModuleInfo>();
-
 
 	public static void addCustomModuleInfo(KrollModuleInfo customModuleInfo)
 	{
@@ -175,4 +171,5 @@ public class KrollModule extends KrollProxy
 			propertyChanged(change.getName(), change.getOldValue(), change.getNewValue(), proxy);
 		}
 	}
+
 }

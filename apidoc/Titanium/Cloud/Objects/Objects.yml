@@ -7,94 +7,94 @@ methods:
   - name: create
     summary: Create a custom object of type `classname`.
     description: |
+        Requires user login. 
+        
         See [Custom Objects: Create Custom Object](http://cloud.appcelerator.com/docs/api/v1/custom_objects/create)
         for the request parameters supported by this method.
-
+        
         Data is returned in the `classname` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass. A `classname` property is required.
-        type: Object
-
+        summary: Parameters to send in the request. A `classname` property is required.
+        type: Dictionary
+      
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudObjectsResponse>
-
-  - name: show
-    summary: Retrieve a list of custom objects of type `classname`.
-    description: |
-        See [Custom Objects: Show Custom Object(s)](http://cloud.appcelerator.com/docs/api/v1/custom_objects/show)
-        for the request parameters supported by this method.
-
-        Data is returned in the `classname` property of the parameter passed to the callback.
-    parameters:
-
-      - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass. A `classname` property is required.
-        type: Object
-        optional: true
-
-      - name: callback
-        summary: Callback function to execute when the method completes.
-        type: Callback<CloudObjectsResponse>
-
-  - name: update
-    summary: Update the fields of a custom object of type `classname`.
-    description: |
-        See [Custom Objects: Update Custom Object](http://cloud.appcelerator.com/docs/api/v1/custom_objects/update)
-        for the request parameters supported by this method.
-
-        Data is returned in the `classname` property of the parameter passed to the callback.
-    parameters:
-
-      - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass. A `classname` property is required.
-        type: Object
-
-      - name: callback
-        summary: Callback function to execute when the method completes.
-        type: Callback<CloudObjectsResponse>
-
-  - name: remove
-    summary: Delete a custom object of type `classname`.
-    description: |
-        See [Custom Objects: Delete Custom Object](http://cloud.appcelerator.com/docs/api/v1/custom_objects/delete)
-        for the request parameters supported by this method.
-
-    parameters:
-
-      - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass. A `classname` property is required.
-        type: Object
-
-      - name: callback
-        summary: Callback function to execute when the method completes.
-        type: Callback<CloudObjectsResponse>
-
+  
   - name: query
     summary: Retrieve a list of custom objects of type `classname`.
     description: |
         See [Custom Objects: Query Custom Objects](http://cloud.appcelerator.com/docs/api/v1/custom_objects/query)
         for the request parameters supported by this method.
-
+        
         Data is returned in the `classname` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass. A `classname` property is required.
-        type: Object
+        summary: Parameters to send in the request. A `classname` property is required.
+        type: Dictionary
         optional: true
-
+      
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudObjectsResponse>
+  
+  - name: remove
+    summary: Delete a custom object of type `classname`.
+    description: |
+        Requires user login. 
+        
+        See [Custom Objects: Delete Custom Object](http://cloud.appcelerator.com/docs/api/v1/custom_objects/delete)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request. A `classname` property is required.
+        type: Dictionary
+      
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudObjectsResponse>
+  
+  - name: show
+    summary: Retrieve a list of custom objects of type `classname`.
+    description: |
+        See [Custom Objects: Show Custom Object(s)](http://cloud.appcelerator.com/docs/api/v1/custom_objects/show)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `classname` property of the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request. A `classname` property is required.
+        type: Dictionary
+        optional: true
+      
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudObjectsResponse>
+  
+  - name: update
+    summary: Update the fields of a custom object of type `classname`.
+    description: |
+        Requires user login. 
+        
+        See [Custom Objects: Update Custom Object](http://cloud.appcelerator.com/docs/api/v1/custom_objects/update)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `classname` property of the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request. A `classname` property is required.
+        type: Dictionary
+      
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudObjectsResponse>
 
 examples:
-  - title: Create Custom Object Example
+  - title: Create Custom Object
     example: |
         This example creates a new custom object and checks the response.
-
+        
             Cloud.Objects.create({
                 classname: 'cars',
                 fields: {
@@ -116,11 +116,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Show Custom Objects Example
+  
+  - title: Show Custom Objects
     example: |
         This example requests information about custom objects and checks the response.
-
+        
             Cloud.Objects.show({
                 classname: 'cars',
                 ids: [ savedCar1.id, savedCar2.id ]
@@ -141,11 +141,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Update Custom Object Example
+  
+  - title: Update Custom Object
     example: |
         This example updates a custom object and checks the response.
-
+        
             Cloud.Objects.update({
                 classname: 'cars',
                 id: savedCar1.id,
@@ -168,11 +168,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Remove Custom Object Example
+  
+  - title: Remove Custom Object
     example: |
         This example deletes a custom object and checks the response.
-
+        
             Cloud.Objects.remove({
                 classname: 'cars',
                 id: savedCar1.id
@@ -184,11 +184,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Query for Custom Objects Example
+  
+  - title: Query for Custom Objects
     example: |
         This example requests information about custom objects and checks the response.
-
+        
             Cloud.Objects.query({
                 classname: 'cars',
                 page: 1,
@@ -220,6 +220,6 @@ summary: Argument passed to the callback when a request finishes successfully or
 extends: CloudResponse
 properties:
   - name: classname
-    summary: Array of `classname` objects, if any
+    summary: Set of `classname` objects, if any exist.
     description: Only included if `success` is `true`.
-    type: Array<Object>
+    type: Array<Dictionary>

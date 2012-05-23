@@ -44,10 +44,13 @@ methods:
         summary: Intent to launch when the user clicks on the notification.
         type: Titanium.Android.PendingIntent
 
+
 properties:
 
   - name: audioStreamType
     summary: The audio stream type to use when playing the sound.
+    description: |
+        Specify one of the `STREAM` constants from <Titanium.Android>.
     type: Number
 
   - name: contentIntent
@@ -61,6 +64,20 @@ properties:
   - name: contentTitle
     summary: Title of the notification.
     type: String
+
+  - name: contentView
+    summary: Custom layout to display in the notification.
+    description: |
+        Calling [setLatestEventInfo](Titanium.Android.Notification.setLatestEventInfo) or
+        setting the `contentText` or `contentTitle` properties causes the notification to use
+        the default notification layout, overriding any custom layout set through
+        `contentView`.
+
+        If you use a custom layout, you can use the
+        [RemoteViews](Titanium.Android.RemoteViews) methods to update the displayed
+        notification.
+    type: Titanium.Android.RemoteViews
+    permission: write-only
 
   - name: defaults
     summary: Specifies which values should be taken from the defaults.

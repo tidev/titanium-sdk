@@ -375,7 +375,7 @@
         newCacheSize = 3;
     }
     if (newCacheSize % 2 == 0) {
-        NSLog(@"[WARN] Even scrollable cache size %d; setting to %d", newCacheSize, newCacheSize-1);
+        DebugLog(@"[WARN] Even scrollable cache size %d; setting to %d", newCacheSize, newCacheSize-1);
         newCacheSize -= 1;
     }
     cacheSize = newCacheSize;

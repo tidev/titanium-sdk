@@ -9,24 +9,23 @@ methods:
     description: |
         See [Clients: Geolocate a Client](http://cloud.appcelerator.com/docs/api/v1/clients/geolocate)
         for the request parameters supported by this method.
-
+        
         Data is returned in the properties of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass. 
-        type: Object
+        summary: Parameters to send in the request.
+        type: Dictionary
         optional: true
-
+      
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudClientsResponse>
 
 examples:
-  - title: Geolocate a Client Example
+  - title: Geolocate a Client
     example: |
         This example locates a client and checks the response.
-
+        
             Cloud.Clients.geolocate({
                 ip_address: clientIPAddress
             }, function (e) {
@@ -40,16 +39,18 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
+
 ---
 name: CloudClientsResponse
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
 extends: CloudResponse
 properties:
   - name: ip_address
-    summary: IP address of client
+    summary: IP address of client.
     description: Only included if `success` is `true`.
     type: String
+    
   - name: location
-    summary: Location of client
+    summary: Location of client.
     description: Only included if `success` is `true`.
-    type: Object
+    type: Dictionary

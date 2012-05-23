@@ -76,7 +76,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 								isNaN(imageRatio) && (imageRatio = this.domNode.width === 0 ? 1 : Infinity);
 								this._imageRatio = imageRatio;
 								
-								this.container._triggerLayout();
+								this._triggerLayout();
 								this.onload && this.onload();
 							});
 							on(node, "error", onerror);
@@ -103,8 +103,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 			return new InternalImageView({
 				onload: onload,
 				onerror: onerror,
-				src: src,
-				container: this
+				src: src
 			});
 		},
 

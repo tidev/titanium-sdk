@@ -9,170 +9,166 @@ methods:
     description: |
         See [Users: Create User](http://cloud.appcelerator.com/docs/api/v1/users/create)
         for the request parameters supported by this method.
-
+        
         Data is returned in the `users` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass. 
-        type: Object
+        summary: Parameters to send in the request.
+        type: Dictionary
 
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudUsersResponse>
-
+    
   - name: login
     summary: Log in a user.
     description: |
         See [Users: Login User](http://cloud.appcelerator.com/docs/api/v1/users/login)
         for the request parameters supported by this method.
-
-        Data is returned in the `users` property of the parameter passed to the callback
+        
+        Data is returned in the `users` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudUsersResponse>
-
-  - name: show
-    summary: Show public user information.
+    
+  - name: logout
+    summary: Log out the current user.
     description: |
-        See [Users: Show User Profile](http://cloud.appcelerator.com/docs/api/v1/users/show)
+        Requires user login. 
+        
+        See [Users: Logout User](http://cloud.appcelerator.com/docs/api/v1/users/logout)
         for the request parameters supported by this method.
-
-        Data is returned in the `users` property of the parameter passed to the callback
+        
+        Data is returned in the `users` property of the parameter passed to the callback.
     parameters:
-
-      - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudUsersResponse>
-
-  - name: showMe
-    summary: Show both public and private information about the user currently logged in.
-    description: |
-        See [Users: Show Current User Profile](http://cloud.appcelerator.com/docs/api/v1/users/showme)
-        for the request parameters supported by this method.
-
-        Data is returned in the `users` property of the parameter passed to the callback
-    parameters:
-
-      - name: callback
-        summary: Callback function to execute when the method completes.
-        type: Callback<CloudUsersResponse>
-
-  - name: search
-    summary: Retrieve a list of users based on the specified search criteria.
-    description: |
-        See [Users: Search Users](http://cloud.appcelerator.com/docs/api/v1/users/search)
-        for the request parameters supported by this method.
-
-        Data is returned in the `users` property of the parameter passed to the callback
-    parameters:
-
-      - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-        optional: true
-
-      - name: callback
-        summary: Callback function to execute when the method completes.
-        type: Callback<CloudUsersResponse>
-
+    
   - name: query
     summary: Retrieve a list of users with sorting and pagination.
     description: |
         See [Users: Custom Query of Users](http://cloud.appcelerator.com/docs/api/v1/users/query)
         for the request parameters supported by this method.
-
-        Data is returned in the `users` property of the parameter passed to the callback
+        
+        Data is returned in the `users` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
+        summary: Parameters to send in the request.
+        type: Dictionary
         optional: true
-
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudUsersResponse>
-
+    
+  - name: search
+    summary: Retrieve a list of users based on the specified search criteria.
+    description: |
+        See [Users: Search Users](http://cloud.appcelerator.com/docs/api/v1/users/search)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `users` property of the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        optional: true
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudUsersResponse>
+    
+  - name: show
+    summary: Show public user information.
+    description: |
+        See [Users: Show User Profile](http://cloud.appcelerator.com/docs/api/v1/users/show)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `users` property of the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudUsersResponse>
+    
+  - name: showMe
+    summary: Show both public and private information about the user currently logged in.
+    description: |
+        Requires user login. 
+        
+        See [Users: Show Current User Profile](http://cloud.appcelerator.com/docs/api/v1/users/showme)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `users` property of the parameter passed to the callback.
+    parameters:
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudUsersResponse>
+    
   - name: update
     summary: Update the current user.
     description: |
+        Requires user login. 
+        
         See [Users: Update Current User](http://cloud.appcelerator.com/docs/api/v1/users/update)
         for the request parameters supported by this method.
-
-        Data is returned in the `users` property of the parameter passed to the callback
+        
+        Data is returned in the `users` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudUsersResponse>
-
-  - name: logout
-    summary: Log out the current user.
-    description: |
-        See [Users: Logout User](http://cloud.appcelerator.com/docs/api/v1/users/logout)
-        for the request parameters supported by this method.
-
-        Data is returned in the `users` property of the parameter passed to the callback
-    parameters:
-
-      - name: callback
-        summary: Callback function to execute when the method completes.
-        type: Callback<CloudUsersResponse>
-
+    
   - name: remove
     summary: Delete the current user.
     description: |
+        Requires user login. 
+        
         See [Users: Delete User](http://cloud.appcelerator.com/docs/api/v1/users/delete)
         for the request parameters supported by this method.
-
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudUsersResponse>
-
+    
   - name: requestResetPassword
     summary: Send an email to user to recover lost password.
     description: |
         See [Users: Send a reset password email to User](http://cloud.appcelerator.com/docs/api/v1/users/reset_password)
         for the request parameters supported by this method.
-
-        Data is returned in the `users` property of the parameter passed to the callback
+        
+        Data is returned in the `users` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudUsersResponse>
 
-
 examples:
-  - title: Create User Example
+  - title: Create User
     example: |
         This example creates a new user and checks the response.
-
+        
             Cloud.Users.create({
                 email: 'test@mycompany.com',
                 first_name: 'test_firstname',
@@ -191,11 +187,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Log in User Example
+  
+  - title: Log in User
     example: |
         This example logs a user in and checks the response.
-
+        
             Cloud.Users.login({
                 login: 'test@mycompany.com',
                 password: 'test_password'
@@ -211,11 +207,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Show User Example
+  
+  - title: Show User
     example: |
         This example requests information about a user and checks the response.
-
+        
             Cloud.Users.show({
                 user_id: savedUserInfo.id
             }, function (e) {
@@ -230,11 +226,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Show Current User Example
+  
+  - title: Show Current User
     example: |
         This example requests information about the currently logged in user and checks the response.
-
+        
             Cloud.Users.showMe(function (e) {
                 if (e.success) {
                     var user = e.users[0];
@@ -247,11 +243,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Search for Users Example
+  
+  - title: Search for Users
     example: |
         This example requests information about particular users and checks the response.
-
+        
             Cloud.Users.search({
                 q: 'test'
             }, function (e) {
@@ -269,11 +265,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Query for Users Example
+  
+  - title: Query for Users
     example: |
         This example requests information about specific users and checks the response.
-
+        
             Cloud.Users.query({
                 page: 1,
                 per_page: 10,
@@ -297,11 +293,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Update User Example
+  
+  - title: Update User
     example: |
         This example updates information about the currently logged in user and checks the response.
-
+        
             Cloud.Users.update({
                 email: 'joeuser@mycompany.com',
                 first_name: 'joe',
@@ -322,11 +318,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Logout User Example
+  
+  - title: Logout User
     example: |
         This example logs out the current user and checks the response.
-
+        
             Cloud.Users.logout(function (e) {
                 if (e.success) {
                     alert('Success: Logged out');
@@ -335,11 +331,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Remove User Example
+  
+  - title: Remove User
     example: |
         This example deletes the current user and checks the response.
-
+        
             Cloud.Users.remove(function (e) {
                 if (e.success) {
                     alert('Success: Removed');
@@ -348,11 +344,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Request Reset Password User Example
+  
+  - title: Request Reset Password User
     example: |
         This example requests a password reset for a user and checks the response.
-
+        
             Cloud.Users.requestResetPassword({
                 email: 'joeuser@mycompany.com'
             }, function (e) {
@@ -370,6 +366,6 @@ summary: Argument passed to the callback when a request finishes successfully or
 extends: CloudResponse
 properties:
   - name: users
-    summary: Array of `user` objects, if any
+    summary: Set of `user` objects, if any exist.
     description: Only included if `success` is `true`.
-    type: Array<Object>
+    type: Array<Dictionary>

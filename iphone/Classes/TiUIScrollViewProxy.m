@@ -128,10 +128,6 @@
             result = [self verifyHeight:result];
         }
         
-        if (result == 0)
-        {
-            NSLog(@"[WARN] %@ has an auto height value of 0, meaning this view may not be visible.",self);
-        }
         return result;
     }
     else {
