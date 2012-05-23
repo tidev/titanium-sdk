@@ -738,7 +738,7 @@ DEFINE_EXCEPTIONS
 // trouble in tableview repaints
 -(void)setUrl_:(id)img
 {
-	NSLog(@"[WARN] the 'url' property on ImageView has been deprecated. Please use 'image' instead");
+    DEPRECATED_REPLACED(@"UI.ImageView.url", @"1.5.0", @"Ti.UI.ImageView.image");
 	// setImage_ does the property replacement for us; no need to do it twice.
 	[self setImage_:img];
 	return;

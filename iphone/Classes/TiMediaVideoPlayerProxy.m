@@ -389,7 +389,7 @@ NSArray* moviePlayerKeys = nil;
 		}
 		else
 		{
-			NSLog(@"[ERROR] unsupported blob for video player. %@",media_);
+			NSLog(@"[ERROR] Unsupported blob for video player: %@",media_);
 		}
 	}
 	else 

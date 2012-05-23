@@ -89,7 +89,7 @@
     // Sanity check for mutable data (just in case...)
     if (![data isKindOfClass:[NSMutableData class]]) {
         NSString* errorStr = [NSString stringWithFormat:@"[ERROR] Attempt to write to unwritable stream"];
-        NSLog(errorStr);
+        DebugLog(errorStr);
         if (callback != nil) {
             NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:self,@"source",NUMINT(-1),@"bytesProcessed",errorStr,@"errorDescription",NUMINT(-1),@"errorState", nil];
             [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];

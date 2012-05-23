@@ -211,7 +211,7 @@
 		}
 		else 
 		{
-			NSLog(@"[ERROR] url not supported in a window. %@",url);
+			DebugLog(@"[ERROR] Url not supported in a window. %@",url);
 		}
 	}
 	

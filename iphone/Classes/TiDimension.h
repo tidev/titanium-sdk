@@ -164,12 +164,12 @@ TI_INLINE TiDimension TiDimensionFromObject(id object)
                 return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
             }
             else {
-                NSLog(@"Property ti.ui.defaultunit is not valid value. Defaulting to system");
+                DebugLog(@"[WARN] Property ti.ui.defaultunit is not valid value. Defaulting to system");
                 return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
             }
         }
         else {
-            NSLog(@"Property ti.ui.defaultunit is not of type string. Defaulting to system");
+            DebugLog(@"[WARN] Property ti.ui.defaultunit is not of type string. Defaulting to system");
             return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
         }
 	}

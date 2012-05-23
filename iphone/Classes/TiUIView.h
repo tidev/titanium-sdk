@@ -246,7 +246,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 #define USE_PROXY_FOR_METHOD(resultType,methodname,inputType)	\
 -(resultType)methodname:(inputType)value	\
 {	\
-	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);	\
+	DeveloperLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);	\
 	return [(TiViewProxy *)[self proxy] methodname:value];	\
 }
 

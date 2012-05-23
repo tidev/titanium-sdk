@@ -274,13 +274,6 @@
     });
 }
 
-// For backwards compatibility
--(void)setSound:(id)sound
-{
-	NSLog(@"[WARN] Deprecated; use 'url'");
-	[self setUrl:sound];
-}
-
 -(NSURL*)url
 {
 	return url;
@@ -290,16 +283,16 @@
 {
     UInt32 newMode = [mode unsignedIntegerValue]; // Close as we can get to UInt32
     if (newMode == kAudioSessionCategory_RecordAudio) {
-        NSLog(@"[WARN] Invalid mode for audio player... setting to default.");
+        DebugLog(@"[WARN] Invalid mode for audio player... setting to default.");
         newMode = kAudioSessionCategory_SoloAmbientSound;
     }
-	NSLog(@"[WARN] 'Titanium.Media.Sound.audioSessionMode' is deprecated; use 'Titanium.Media.audioSessionMode'");
+	DebugLog(@"[WARN] 'Titanium.Media.Sound.audioSessionMode' is deprecated; use 'Titanium.Media.audioSessionMode'");
 	[[TiMediaAudioSession sharedSession] setSessionMode:newMode];
 }
 
 -(NSNumber*)audioSessionMode
 {
-	NSLog(@"[WARN] 'Titanium.Media.Sound.audioSessionMode' is deprecated; use 'Titanium.Media.audioSessionMode'");
+	DebugLog(@"[WARN] 'Titanium.Media.Sound.audioSessionMode' is deprecated; use 'Titanium.Media.audioSessionMode'");
     return [NSNumber numberWithUnsignedInteger:[[TiMediaAudioSession sharedSession] sessionMode]];
 }
 

@@ -202,7 +202,7 @@
 	else
 	{
 		pthread_rwlock_unlock(&childrenLock);
-		NSLog(@"[WARN] called remove for %@ on %@, but %@ isn't a child or has already been removed",arg,self,arg);
+		DebugLog(@"[WARN] Called remove for %@ on %@, but %@ isn't a child or has already been removed.",arg,self,arg);
 		return;
 	}
 
@@ -308,7 +308,7 @@ if (ENFORCE_BATCH_UPDATE) { \
     }\
     else {\
         if (!TiDimensionIsUndefined(result)) {\
-            NSLog(@"[WARN] Invalid value %@ specified for property %@",[TiUtils stringValue:value],@#layoutName); \
+            DebugLog(@"[WARN] Invalid value %@ specified for property %@",[TiUtils stringValue:value],@#layoutName); \
         } \
         layoutProperties.layoutName = TiDimensionUndefined;\
     }\
@@ -687,11 +687,6 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	{
 		result = [self verifyWidth:result];
 	}
-
-	if (result == 0)
-	{
-		NSLog(@"[WARN] %@ has an auto width value of 0, meaning this view may not be visible.",self);
-	}
     
     return result;
 }
@@ -750,11 +745,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	{
 		result = [self verifyHeight:result];
 	}
-	
-	if (result == 0)
-	{
-		NSLog(@"[WARN] %@ has an auto height value of 0, meaning this view may not be visible.",self);
-	}
+
 	return result;
 }
 
@@ -1362,7 +1353,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	}
 	else
 	{
-		NSLog(@"[WARN] No TiView for Proxy: %@, couldn't find class: %@",self,proxyName);
+		DeveloperLog(@"[WARN] No TiView for Proxy: %@, couldn't find class: %@",self,proxyName);
 	}
 	return [[TiUIView alloc] initWithFrame:[self appFrame]];
 }
@@ -2027,24 +2018,10 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 #ifdef VERBOSE
 	else
 	{
-		NSLog(@"[INFO] %@ Calling Relayout from within relayout.",self);
+		DeveloperLog(@"[INFO] %@ Calling Relayout from within relayout.",self);
 	}
 #endif
 
-}
-
--(void)insertIntoView:(UIView*)newSuperview bounds:(CGRect)bounds
-{
-	if (newSuperview==view)
-	{
-		NSLog(@"[ERROR] invalid call to insertIntoView, new super view is same as myself");
-		return;
-	}
-	ApplyConstraintToViewWithBounds(&layoutProperties, [self view], bounds);
-	if([view superview]!=newSuperview)	//TODO: Refactor out.
-	{
-		[newSuperview addSubview:view];
-	}
 }
 
 -(void)layoutChildrenIfNeeded
@@ -2521,10 +2498,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	[child setSandboxBounds:bounds];
 	if ([[child view] animating])
 	{
-#ifdef DEBUG
-	// changing the layout while animating is bad, ignore for now
-		NSLog(@"[DEBUG] ignoring new layout while animating in layout Child..");
-#endif
+        // changing the layout while animating is bad, ignore for now
+        DebugLog(@"[WARN] New layout set while view %@ animating: Will relayout after animation.", child);
 	}
 	else
 	{
