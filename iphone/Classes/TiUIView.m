@@ -190,6 +190,8 @@ DEFINE_EXCEPTIONS
 	[pinchRecognizer release];
 	[leftSwipeRecognizer release];
 	[rightSwipeRecognizer release];
+	[upSwipeRecognizer release];
+	[downSwipeRecognizer release];
 	[longPressRecognizer release];
 	proxy = nil;
 	touchDelegate = nil;
