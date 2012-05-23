@@ -10,7 +10,7 @@ if platform.system() == "Windows":
 elif platform.system() == "Darwin":
     titanium_prep = 'titanium_prep.macos'
 elif platform.system() == "Linux":
-    if platform.architecture() == '64bit':
+    if platform.architecture()[0] == '64bit':
 	titanium_prep = 'titanium_prep.linux64'
     else:
 	titanium_prep = 'titanium_prep.linux32'
