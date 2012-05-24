@@ -60,7 +60,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 		_refreshRows: function() {
 			if (this._tableView) {
 				// Update the row information
-				var rows = this._rows.children,
+				var rows = this._rows._children,
 					tableView = this._tableView,
 					rowsData = this.constants.rows = [];
 				for (var i = 1; i < rows.length; i += 2) {
@@ -98,7 +98,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 		
 		add: function(value, index) {
 			
-			var rows = this._rows.children,
+			var rows = this._rows._children,
 				rowCount = this.rowCount;
 			if (!lang.isDef(index)) {
 				index = rowCount;
@@ -124,19 +124,19 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			if (index < 0 || index >= this.rowCount) {
 				return;
 			}
-			this._rows.children[2 * index + 1]._tableViewSection = null;
-			this._rows.remove(this._rows.children[2 * index + 1]); // Remove the separator
-			this._rows.remove(this._rows.children[2 * index + 1]); // Remove the row
+			this._rows._children[2 * index + 1]._tableViewSection = null;
+			this._rows.remove(this._rows._children[2 * index + 1]); // Remove the separator
+			this._rows.remove(this._rows._children[2 * index + 1]); // Remove the row
 			
 			// Remove the last separator, if there are no rows left
-			if (this._rows.children.length === 1) {
-				this._rows.remove(this._rows.children[0]);
+			if (this._rows._children.length === 1) {
+				this._rows.remove(this._rows._children[0]);
 			}
 			this._refreshRows();
 		},
 		
 		remove: function(view) {
-			var index = this._rows.children.indexOf(view);
+			var index = this._rows._children.indexOf(view);
 			if (index === -1) {
 				return;
 			}
@@ -189,7 +189,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			},
 			
 			rowCount: function(value) {
-				return Math.floor(this._rows.children.length / 2);
+				return Math.floor(this._rows._children.length / 2);
 			}
 		}
 

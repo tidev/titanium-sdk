@@ -118,7 +118,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			var firstVisibleItem,
 				visibleItemCount = 0,
 				scrollTop = this._contentContainer.scrollTop,
-				sections = this._sections.children;
+				sections = this._sections._children;
 			for(var i = 0; i < sections.length; i+= 2) {
 				
 				// Check if the section is visible
@@ -127,7 +127,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 					sectionOffsetBottom = section._measuredTop + section._measuredHeight - scrollTop;
 				if (sectionOffsetBottom > 0 && sectionOffsetTop < this._contentContainer._measuredHeight) {
 					
-					var rows = section._rows.children
+					var rows = section._rows._children
 					for (var j = 1; j < rows.length; j += 2) {
 						var row = rows[j],
 							rowOffsetTop = row._measuredTop + section._measuredTop - scrollTop,
@@ -167,14 +167,14 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			var i = 0,
 				index = 0,
 				localIndex,
-				sections = this._sections.children,
+				sections = this._sections._children,
 				row = this._tableViewRowClicked,
 				section = this._tableViewSectionClicked;
 			if (type === "click" || type === "singletap") {
 				if (row && section) {
 					
 					for (; i < sections.length; i += 2) {
-						localIndex = sections[i]._rows.children.indexOf(row);
+						localIndex = sections[i]._rows._children.indexOf(row);
 						if (localIndex !== -1) {
 							index += Math.floor(localIndex / 2);
 							break;
@@ -220,8 +220,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		},
 		
 		_refreshSections: function() {
-			for (var i = 0; i < this._sections.children.length; i += 2) {
-				this._sections.children[i]._refreshRows();
+			for (var i = 0; i < this._sections._children.length; i += 2) {
+				this._sections._children[i]._refreshRows();
 			}
 			this._triggerLayout();
 		},
@@ -229,8 +229,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		_calculateLocation: function(index) {
 			var currentOffset = 0,
 				section;
-			for(var i = 0; i < this._sections.children.length; i += 2) {
-				section = this._sections.children[i];
+			for(var i = 0; i < this._sections._children.length; i += 2) {
+				section = this._sections._children[i];
 				currentOffset += section.rowCount;
 				if (index < currentOffset) {
 					return {
@@ -294,7 +294,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		scrollToIndex: function(index) {
 			var location = this._calculateLocation(index);
 			if (location) {
-				this._contentContainer.domNode.scrollTop = location.section._measuredTop + location.section._rows.children[2 * location.localIndex + 1]._measuredTop;
+				this._contentContainer.domNode.scrollTop = location.section._measuredTop + location.section._rows._children[2 * location.localIndex + 1]._measuredTop;
 			}
 		},
 		

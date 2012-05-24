@@ -16,22 +16,23 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 		},
 
 		add: function(view) {
+
+			// Call the parent ot handle the underlying infrastructure add
 			this._add(view);
+
+			// Update the children list
+			this.children.push(view);
 		},
 
 		remove: function(view) {
-			this._remove(view);
-		},
 
-		destroy: function() {
-			if (this.children) {
-				var c;
-				while (this.children.length) {
-					c = this.children.splice(0, 1);
-					c[0].destroy();
-				}
-			}
-			Element.prototype.destroy.apply(this, arguments);
+			// Call the parent ot handle the underlying infrastructure remove
+			this._remove(view);
+
+			// Clean up the children list
+			var children = this.children,
+				viewIdx = children.indexOf(view);
+			!~viewIdx && children.splice(viewIdx,1);
 		},
 
 		_getScrollableContentWidth: function() {
@@ -76,12 +77,12 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 				}
 			}, this.domNode);
 		},
-		
+
 		_destroyVerticalScrollBar: function() {
 			this._cancelPreviousAnimation();
 			dom.destroy(this._verticalScrollBar);
 		},
-		
+
 		_cancelPreviousAnimation: function() {
 			if (this._isScrollBarActive) {
 				set(this._horizontalScrollBar,"transition","");
@@ -90,11 +91,11 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 				clearTimeout(this._verticalScrollBarTimer);
 			}
 		},
-		
+
 		_startScrollBars: function(normalizedScrollPosition, visibleAreaRatio) {
-			
+
 			this._cancelPreviousAnimation();
-			
+
 			if (this._horizontalScrollBar && visibleAreaRatio.x < 1 && visibleAreaRatio.x > 0) {
 				var startingX = normalizedScrollPosition.x,
 					measuredWidth = this._measuredWidth;
@@ -109,7 +110,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 				});
 				this._isScrollBarActive = true;
 			}
-			
+
 			if (this._verticalScrollBar && visibleAreaRatio.y < 1 && visibleAreaRatio.y > 0) {
 				var startingY = normalizedScrollPosition.y,
 					measuredHeight = this._measuredHeight;
@@ -125,7 +126,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 				this._isScrollBarActive = true;
 			}
 		},
-		
+
 		_updateScrollBars: function(normalizedScrollPosition) {
 			if (!this._isScrollBarActive) {
 				return;
@@ -147,12 +148,12 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 				set(this._verticalScrollBar,"top",unitize(newY * (measuredHeight - this._verticalScrollBarHeight - 6)));
 			}
 		},
-		
+
 		_endScrollBars: function() {
 			if (!this._isScrollBarActive) {
 				return;
 			}
-			
+
 			var self = this;
 			if (this._horizontalScrollBar) {
 				var horizontalScrollBar = this._horizontalScrollBar;
@@ -167,7 +168,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 					},0);
 				}
 			}
-			
+
 			if (this._verticalScrollBar) {
 				var verticalScrollBar = this._verticalScrollBar;
 				if (verticalScrollBar) {
@@ -202,7 +203,8 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 
 					return value;
 				}
-			}
+			},
+			children: void 0
 		}
 
 	});

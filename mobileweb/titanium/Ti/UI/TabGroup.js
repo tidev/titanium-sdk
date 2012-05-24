@@ -170,7 +170,7 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 		},
 
 		_updateDividers: function(){
-			var tabs = this._tabBarContainer.children,
+			var tabs = this._tabBarContainer._children,
 				i = 1;
 			for(; i < tabs.length; i += 2) {
 				var tab = tabs[i];

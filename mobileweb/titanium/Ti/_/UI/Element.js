@@ -107,6 +107,8 @@ define(
 
 			this._touching = false;
 
+			this._children = [];
+
 			on(this.domNode, useTouch ? "touchstart" : "mousedown", function(evt){
 				var handles = [
 					on(window, useTouch ? "touchmove" : "mousemove", function(evt){
@@ -184,27 +186,28 @@ define(
 		_add: function(view) {
 			view._setParent(this);
 			
-			this.children.push(view);
+			this._children.push(view);
 			this.containerNode.appendChild(view.domNode);
 			
 			view._triggerLayout();
 		},
 
 		_insertAt: function(view,index) {
-			if (index > this.children.length || index < 0) {
+				var children = this._children;
+			if (index > children.length || index < 0) {
 				return;
-			} else if (index === this.children.length) {
-				this.add(view);
+			} else if (index === children.length) {
+				this._add(view);
 			} else {
 				view._parent = this;
-				this.containerNode.insertBefore(view.domNode,this.children[index].domNode);
-				this.children.splice(index,0,view);
+				this.containerNode.insertBefore(view.domNode, children[index].domNode);
+				children.splice(index,0,view);
 				this._triggerLayout();
 			}
 		},
 
 		_remove: function(view) {
-			var children = this.children,
+			var children = this._children,
 				p = children.indexOf(view);
 			if (p !== -1) {
 				children.splice(p, 1);
@@ -215,7 +218,7 @@ define(
 		},
 
 		_removeAllChildren: function(view) {
-			var children = this.children;
+			var children = this._children;
 			while (children.length) {
 				this.remove(children[0]);
 			}
@@ -224,6 +227,10 @@ define(
 
 		destroy: function() {
 			if (this._alive) {
+				var children = this._children;
+				while (children.length) {
+					children.splice(0, 1)[0].destroy();
+				}
 				this._parent && this._parent._remove(this);
 				if (this.domNode) {
 					dom.destroy(this.domNode);
@@ -677,10 +684,13 @@ define(
 		},
 
 		_setTouchEnabled: function(value) {
+			var children = this._children,
+				i = 0,
+				len = children.length;
 			setStyle(this.domNode, "pointerEvents", value ? "auto" : "none");
 			if (!value) {
-				for (var i in this.children) {
-					this.children[i]._setTouchEnabled(value);
+				for (; i < len; i++) {
+					children[i]._setTouchEnabled(value);
 				}
 			}
 		},
