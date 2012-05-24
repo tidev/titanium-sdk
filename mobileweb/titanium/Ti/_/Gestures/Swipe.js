@@ -72,20 +72,17 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 							if (xDiff > yDiff) {
 								direction =  this._touchStartLocation.x - x > 0 ? "left" : "right";
 							} else {
-								direction =  this._touchStartLocation.y - y > 0 ? "down" : "up";
+								direction =  this._touchStartLocation.y - y < 0 ? "down" : "up";
 							}
 							
-							// Right now only left and right are supported
-							if (direction === "left" || direction === "right") {
-								lang.hitch(element,element._handleTouchEvent(this.name,{
-									x: x,
-									y: y,
-									direction: direction,
-									_distance: x - this._touchStartLocation.x,
-									_finishedSwiping: finishedSwiping,
-									source: this.getSourceNode(e,element)
-								}));
-							}
+							lang.hitch(element,element._handleTouchEvent(this.name,{
+								x: x,
+								y: y,
+								direction: direction,
+								_distance: x - this._touchStartLocation.x,
+								_finishedSwiping: finishedSwiping,
+								source: this.getSourceNode(e,element)
+							}));
 						}
 					}
 				}
