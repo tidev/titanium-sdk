@@ -287,7 +287,6 @@ define(
 	Object.defineProperty(global, "Ti", { value: Ti, writable: false });
 	Object.defineProperty(global, "Titanium", { value: Ti, writable: false });
 
-	// print the Titanium version *after* the console shim
 	API.info("Appcelerator Titanium " + ver + " Mobile Web");
 
 	// make sure we have some vendor prefixes defined
