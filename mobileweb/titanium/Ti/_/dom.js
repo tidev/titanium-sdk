@@ -7,7 +7,7 @@
  * <http://dojotoolkit.org>
  */
 
-define(["Ti/_", "Ti/_/style"], function(_, style) {
+define(["Ti/_", "Ti/API", "Ti/_/style"], function(_, API, style) {
 	var is = require.is,
 		forcePropNames = {
 			innerHTML:	1,
@@ -121,7 +121,7 @@ define(["Ti/_", "Ti/_/style"], function(_, style) {
 							if(totalLength == UI.SIZE) {
 								convertSizeToUndef ? void 0 : UI.SIZE;
 							} else if (!require.is(totalLength,"Number")) {
-								console.error("Could not compute percentage size/position of element.");
+								API.error("Could not compute percentage size/position of element.");
 								return;
 							} 
 							return value / 100 * totalLength;
