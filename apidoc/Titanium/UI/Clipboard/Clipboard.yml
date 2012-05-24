@@ -49,7 +49,9 @@ methods:
     
   - name: getData
     summary: Gets data of the specified MIME type stored in the clipboard.
-    description: Return type depends on type specified.
+    returns:
+        - type: String
+        - type: Blob
     parameters:
       - name: type
         summary: MIME type. Must be text type on Android.
