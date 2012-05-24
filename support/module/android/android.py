@@ -79,8 +79,9 @@ def prepare_commonjs(module_dir):
 		print >> sys.stderr, "Manifest %s does not exist"
 		sys.exit(1)
 
-	with open(manifest_file, "r") as f:
-		lines = f.readlines()
+	f = open(manifest_file, "r")
+	lines = f.readlines()
+	f.close()
 	id_lines = [l for l in lines if l.strip().startswith("moduleid:")]
 	if not id_lines:
 		print >> sys.stderr, "[ERROR] Manifest %s does not contain moduleid key." % manifest_file
@@ -103,33 +104,38 @@ def prepare_commonjs(module_dir):
 		for l in commonjs_lines:
 			lines.remove(l)
 		lines.append("commonjs: %s\n" % ("true" if is_commonjs else "false")) # Trying to avoid locale-specific true/false
-		with open(manifest_file, "w") as f:
-			f.writelines(lines)
+		f = open(manifest_file, "w")
+		f.writelines(lines)
+		f.close()
 		print "[DEBUG] manifest re-written to set commonjs value"
 
 	if is_commonjs:
-		with open(os.path.join(module_android_dir, "generated", "CommonJsSourceProvider.java"), "r") as f:
-			source_provider_template = Template(f.read())
+		f = open(os.path.join(module_android_dir, "generated", "CommonJsSourceProvider.java"), "r")
+		source_provider_template = Template(f.read())
+		f.close()
 		source_provider_class = source_provider_template.substitute(moduleid=moduleid)
 		output_folder = os.path.join(module_dir, "build", "generated", "java")
 		if not os.path.exists(output_folder):
 			os.makedirs(output_folder)
-		with open(os.path.join(output_folder, "CommonJsSourceProvider.java"), "w") as f:
-			f.write(source_provider_class)
+		f = open(os.path.join(output_folder, "CommonJsSourceProvider.java"), "w")
+		f.write(source_provider_class)
+		f.close()
 
 		# Determine which Titanium modules are used within the CommonJS code.
 		# We piggy-back on the functionality in compiler.py for this.
 		from compiler import Compiler
 		c = Compiler(None, None, None, None, None, None)
-		with open(commonjs_filename, "r") as f:
-			c.extract_modules(f.read())
+		f = open(commonjs_filename, "r")
+		c.extract_modules(f.read())
+		f.close()
 		if c.modules:
 			import simplejson
 			output_folder = os.path.join(module_dir, "build", "generated", "json")
 			if not os.path.exists(output_folder):
 				os.makedirs(output_folder)
-			with open(os.path.join(output_folder, "metadata.json"), "w") as f:
-				simplejson.dump({"exports": list(c.modules)}, f)
+			f = open(os.path.join(output_folder, "metadata.json"), "w")
+			simplejson.dump({"exports": list(c.modules)}, f)
+			f.close()
 
 if __name__ == "__main__":
 	usage = "Usage: %s [module_directory]" % os.path.basename(__file__)
