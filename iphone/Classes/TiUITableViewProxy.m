@@ -631,12 +631,15 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     {
         id header = [row valueForKey:@"header"];
         TiUITableViewActionType actionType = TiUITableViewActionAppendRow;
-        TiUITableViewSectionProxy* section = [sections lastObject];
+        __block TiUITableViewSectionProxy* section = nil;
+        TiThreadPerformOnMainThread(^{
+            section = [sections lastObject];
+        }, YES);
+        
         if (header != nil) {
+            NSInteger newSectionIndex = section.section + 1;
             section = [self sectionWithHeader:header table:table];		
-            TiThreadPerformOnMainThread(^{
-                section.section = [sections count];
-            }, YES);
+            section.section = newSectionIndex;
             actionType = TiUITableViewActionAppendRowWithSection;
         }
         row.section = section;
