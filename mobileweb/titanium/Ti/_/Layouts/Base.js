@@ -1,5 +1,6 @@
-define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/lang", "Ti/UI", "Ti/_"], function(css, declare, style, dom, lang, UI, _) {
-	
+define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/lang", "Ti/API", "Ti/UI", "Ti/_"],
+	function(css, declare, style, lang, API, UI, _) {
+
 	var isDef = lang.isDef,
 		val = lang.val;
 
@@ -17,7 +18,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/dom", "Ti/_/lang", "Ti/U
 		},
 		
 		handleInvalidState: function(child, parent) {
-			console.debug("WARNING: Attempting to layout element that has been destroyed.\n\t Removing the element from the parent.\n\t The parent has a widget ID of " + parent.widgetId + ".");
+			API.debug("WARNING: Attempting to layout element that has been destroyed.\n\t Removing the element from the parent.\n\t The parent has a widget ID of " + parent.widgetId + ".");
 			var children = parent.children;
 			children.splice(children.indexOf(child),1);
 		},

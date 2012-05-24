@@ -264,7 +264,7 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 			[[self popoverController] presentPopoverFromBarButtonItem: ourButtonItem permittedArrowDirections:directions animated:animated];
 		}
 		@catch (NSException *exception) {
-			NSLog(@"[WARN] Popover requested on view not attached to current window.");
+			DebugLog(@"[WARN] Popover requested on view not attached to current window.");
 		}
 	}
 	else
@@ -272,7 +272,7 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 		UIView *view_ = [popoverView view];
 		if ([view_ window] == nil) {
 			// No window, so we can't display the popover...
-			NSLog(@"[WARN] Unable to display popover; view is not attached to the current window");
+			DebugLog(@"[WARN] Unable to display popover; view is not attached to the current window");
             return;
 		}
 		

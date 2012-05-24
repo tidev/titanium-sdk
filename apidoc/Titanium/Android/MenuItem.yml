@@ -1,94 +1,168 @@
 ---
 name: Titanium.Android.MenuItem
-summary: The Titanium binding of an [Android MenuItem](http://developer.android.com/reference/android/view/MenuItem.html)
+summary: The Titanium binding of an Android menu item.
+description: |
+    A menu item for an Android [Menu](Titanium.Android.Menu). Use
+    [Menu.add](Titanium.Android.Menu.add) to create a new menu item.
+
+    See also:
+    [MenuItem](http://developer.android.com/reference/android/view/MenuItem.html) in the
+    Android Developer Reference.
 extends: Titanium.Proxy
 platforms: [android]
 createable: false
 since: "1.5"
 methods:
-  - name: getTitleCondensed
-    summary: retrieve the condensed title of the item
+
+    # hasSubMenu exists but is not useful at present, because we don't support submenus.
+
+  - name: isCheckable
+    summary: |
+        Returns the [checkable](Titanium.Android.MenuItem.checkable) state of the menu item.
     returns:
-        type: String
-  - name: getGroupId
-    summary: retrieve the groupId for this item
+        type: Boolean
+
+
+  - name: isChecked
+    summary: Returns the [checked](Titanium.Android.MenuItem.checked) state of the menu item.
     returns:
-        type: Number
-  - name: getItemId
-    summary: retrieve the itemId for this item
-    returns:
-        type: Number
-  - name: getOrder
-    summary: retrieve the sort order
-    returns:
-        type: Number
-  - name: getTitle
-    summary: retrieve the title of the item
-    returns:
-        type: String
+        type: Boolean
+
   - name: isEnabled
-    summary: retrieve the enabled state of the menu
+    summary: Returns the [enabled](Titanium.Android.MenuItem.enabled) state of the menu item.
     returns:
         type: Boolean
+
   - name: isVisible
-    summary: retrieve the visible state of the menu
+    summary: Returns the [visible](Titanium.Android.MenuItem.visible) state of the menu item.
     returns:
         type: Boolean
-  - name: setTitleCondensed
-    summary: set the condensed title for the item
+
+  - name: setCheckable
+    summary: Sets the [checkable](Titanium.Android.MenuItem.checkable) state of the menu item.
     parameters:
-      - name: condensedTitle
-        summary: new condensed title
-        type: String
-  - name: setEnabled
-    summary: set the enabled state of the item
+      - name: checkable
+        summary: True enable checking and unchecking this item, false to disable it.
+        type: Boolean
+
+  - name: setChecked
+    summary: Sets the [checked](Titanium.Android.MenuItem.checked) state of the menu item.
     parameters:
       - name: enabled
-        summary: true to enable item, false to disable
+        summary: True to check the item, false to uncheck it.
         type: Boolean
-  - name: setIcon
-    summary: set the icon for the item
+
+  - name: setEnabled
+    summary: Sets the [enabled](Titanium.Android.MenuItem.enabled) state of the menu item.
     parameters:
-      - name: icon
-        summary: icon to use with the item
-        type: Object
-  - name: setTitle
-    summary: set the title for the item
-    parameters:
-      - name: title
-        summary: new title
-        type: String
+      - name: enabled
+        summary: True to enable item, false to disable it.
+        type: Boolean
+
   - name: setVisible
-    summary: set the visible state of the item
+    summary: Sets the [visible](Titanium.Android.MenuItem.visible) state of the menu item.
     parameters:
       - name: visible
-        summary: true to show the item, false to hide
+        summary: True to show the item, false to hide it.
         type: Boolean
+
 events:
   - name: click
-    summary: fired when the user presses the button
+    summary: Fired when the user clicks the menu item.
+
 properties:
+
+  - name: checkable
+    summary: Determines if the item can be checked.
+    description: |
+        Note that check marks are not supported in the icon menus (main
+        options menu shown when fewer than six options are included).
+        Check marks are discouraged in expanded menus (available when 
+        six or more options menu items are defined).
+    type: Boolean
+    default: false
+    # this property uses non-standard accessors, listed in the "methods" section.
+    accessors: false
+
+  - name: checked
+    summary: Determines if the item is checked.
+    description: |
+        Note that check marks are not supported in the icon menus (main
+        options menu shown when fewer than six options are included).
+        Check marks are discouraged in expanded menus (available when 
+        six or more options menu items are defined).
+    type: Boolean
+    default: false
+    # this property uses non-standard accessors, listed in the "methods" section.
+    accessors: false
+
   - name: enabled
-    summary: set the enabled state of the item
+    summary: Determines if the item is enabled.
     type: Boolean
+    default: true
+    # this property uses non-standard accessors, listed in the "methods" section.
+    accessors: false
+
   - name: groupId
-    summary: groupId for this item
+    summary: Group ID for this item.
+    description: |
+        Items that share a group ID may be operated on as a group using
+        the menu's [setGroupEnabled](Titanium.Android.Menu.setGroupEnabled) and
+        [setGroupVisible](Titanium.Android.Menu.setGroupVisible) methods.
     type: Number
     permission: read-only
+    availability: creation
+
+  - name: icon
+    summary: Icon to display for the this menu item.
+    description: |
+        Icons are not displayed in expanded menus.
+
+        Icons can be specified as a local image URI or an Android resource ID.
+    type: [Number, String]
+
   - name: itemId
-    summary: itemId for this item
+    summary: Item ID for this item.
     type: Number
     permission: read-only
+    availability: creation
+
   - name: order
-    summary: integer used for controlling sort order
+    summary: Integer used for controlling the category and sort order for menu items.
+    description: |
+        The lower bits of this value control the order of the menu item related to other
+        menu items within its category. A menu item with a given value will be displayed
+        before any items with higher values.
+
+        The upper bits of the value control the category. These can be set to the values
+        defined by the `CATEGORY` constants in the Android `Menu` class, 
+        These values are not exposed as constants in Titanium.
+
+        See also:
+        
+        *   [getOrder](http://developer.android.com/reference/android/view/MenuItem.html#getOrder())
+            in the Android Developer Reference.
+
+        *   [Menu](http://developer.android.com/reference/android/view/Menu.html) in the
+            Android Developer Reference for definitions of the `CATEGORY` values.
     type: Number
     permission: read-only
+    availability: creation
+
   - name: title
-    summary: item title
+    summary: Title of the item.
     type: String
+
   - name: titleCondensed
-    summary: condensed item title
+    summary: Shortened version of the item's title.
+    description: |
+        If both `title` and `titleCondensed` are specified, `titleCondensed` is used in the 
+        icon menus, and the `title` is used in the extended menus.
     type: String
+
   - name: visible
-    summary: set the visible state of the item
+    summary: Determines whether the menu item is visible.
     type: Boolean
+    default: true
+    # this property uses non-standard accessors, listed in the "methods" section.
+    accessors: false

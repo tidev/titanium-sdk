@@ -643,7 +643,6 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 	if(![relativeString isKindOfClass:[NSString class]])
 	{
-		//NSLog(@"[WARN] <%@> was an %@, not an NSString. Converting.",relativeString,[relativeString class]);
 		relativeString = [TiUtils stringValue:relativeString];
 	}
 
@@ -1287,9 +1286,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 			{
 				appurlstr = [appurlstr substringFromIndex:1];
 			}
-#ifdef DEBUG			
-			NSLog(@"[DEBUG] loading: %@, resource: %@",urlstring,appurlstr);
-#endif			
+			DebugLog(@"[DEBUG] Loading: %@, Resource: %@",urlstring,appurlstr);
 			return [AppRouter performSelector:@selector(resolveAppAsset:) withObject:appurlstr];
 		}
 	}

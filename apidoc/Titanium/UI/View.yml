@@ -466,7 +466,7 @@ events:
     platforms: [android,iphone,ipad,mobileweb]
     properties:
       - name: direction
-        summary: Direction of the swipe--either 'left' or 'right'. Android also supports 'up' and 'down'.
+        summary: Direction of the swipe--either 'left', 'right', 'up', or 'down'.
         type: String
       - name: y
         summary: Y coordinate of the event's endpoint from the `source` view's coordinate system.

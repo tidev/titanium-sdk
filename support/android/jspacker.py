@@ -1,10 +1,20 @@
 #!/usr/bin/env python
 
 import run
-import sys, string, os
+import sys, string, platform, os
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-titanium_prep = os.path.abspath(os.path.join(template_dir,'titanium_prep.jar'))
+
+if platform.system() == "Windows":
+    titanium_prep = 'titanium_prep.win.exe'
+elif platform.system() == "Darwin":
+    titanium_prep = 'titanium_prep.macos'
+elif platform.system() == "Linux":
+    if platform.architecture()[0] == '64bit':
+	titanium_prep = 'titanium_prep.linux64'
+    else:
+	titanium_prep = 'titanium_prep.linux32'
+titanium_prep = os.path.abspath(os.path.join(template_dir,titanium_prep))
 
 JAVA_TEMPLATE = """\
 package ${package_name};
@@ -72,7 +82,7 @@ class Crypt(object):
 
     asset_dir = The assets base directory
     package - The Java package name for this class.
-    taget_file - Path to output generate Java source file.
+    target_file - Path to output generate Java source file.
     """
     package_dir = os.path.join(*package.split('.'))
     target_dir = os.path.join(target_file, package_dir)
@@ -84,7 +94,7 @@ class Crypt(object):
     output = open(os.path.join(target_dir, 'AssetCryptImpl.java'), 'w')
 
     sys.stdout.flush()
-    cmdargs = ['java', '-jar', titanium_prep, package, asset_dir]
+    cmdargs = [titanium_prep, package, asset_dir]
     cmdargs.extend(self.files)
     so = run.run(cmdargs)
 
@@ -95,14 +105,18 @@ class Crypt(object):
 
     output.close()
 
-"""
+usage_text="""
+usage: %s asset_dir sources package target
+
 Package a set of JavaScript assets into a generated AssetCrypt Java class.
 
 asset_dir - absolute path to assets folder that contains the sources.
 sources - list of paths for each JavaScript asset.
+          (When passed as command-line arg, separate with colon.)
 package - The Java package name for the generated class.
 target - path to where the java class will be written.
-"""
+""" % os.path.basename(__file__)
+
 def pack(asset_dir, sources, package, target):
   asset_dir_len = len(asset_dir)
   def rel_asset_path(path):
@@ -118,3 +132,9 @@ def pack(asset_dir, sources, package, target):
   # Generate Java code and output to target file.
   crypt.generate_code(asset_dir, package, str(target))
 
+if __name__ == '__main__':
+	args = sys.argv[1:]
+	if len(args) != 4:
+		print >> sys.stderr, usage_text
+		sys.exit(1)
+	pack(args[0], args[1].split(":"), args[2], args[3])

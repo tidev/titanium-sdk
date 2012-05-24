@@ -416,7 +416,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 		
 	if ([sections count]==0)
 	{
-		NSLog(@"[WARN] no rows found in table, ignoring delete");
+		DebugLog(@"[WARN] No rows found in table, ignoring delete");
 		return;
 	}
 	
@@ -425,7 +425,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 	
 	if (section==nil || row == nil)
 	{
-		NSLog(@"[WARN] no row found for index: %d",index);
+		DebugLog(@"[WARN] No row found for index: %d",index);
 		return;
 	}
 	
@@ -522,7 +522,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 	{
 		//No table, we have to do the data update ourselves.
 		//TODO: Implement. Better yet, refactor.
-		NSLog(@"[WARN] Table view was not in place before insertRowBefore was called. (Tell Blain or Steve to fix it!)");
+		DebugLog(@"[WARN] Table view was not in place before insertRowBefore was called.");
 	}
 
 }
@@ -599,7 +599,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 	{
 		//No table, we have to do the data update ourselves.
 		//TODO: Implement. Better yet, refactor.
-		NSLog(@"[WARN] Table view was not in place before insertRowAfter was called. (Tell Blain or Steve to fix it!)");
+		DebugLog(@"[WARN] Table view was not in place before insertRowAfter was called.");
 	}
 
 }
