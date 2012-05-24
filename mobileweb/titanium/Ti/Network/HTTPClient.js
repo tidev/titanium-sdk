@@ -120,7 +120,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network", "Ti/B
 						!this._completed && this._onError("Request timed out");
 					}
 				}, timeout)));
-			} catch (ex) {console.debug(ex)}
+			} catch (ex) {}
 		},
 
 		setRequestHeader: function(name, value) {
