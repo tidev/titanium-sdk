@@ -500,6 +500,26 @@ NSArray* moviePlayerKeys = nil;
 	}
 }
 
+-(NSNumber *)volume
+{
+	__block double volume = 1.0;
+	TiThreadPerformOnMainThread(^{
+		volume = (double)[[MPMusicPlayerController applicationMusicPlayer] volume];
+	}, YES);
+	
+	return NUMDOUBLE(volume);
+}
+
+-(void)setVolume:(NSNumber *)newVolume
+{
+	double volume = [TiUtils doubleValue:newVolume def:-1.0];
+	ENSURE_VALUE_RANGE(volume, 0.0, 1.0);
+
+	TiThreadPerformOnMainThread(^{
+		[[MPMusicPlayerController applicationMusicPlayer] setVolume:volume];
+	}, NO);
+}
+
 -(void)cancelAllThumbnailImageRequests:(id)value
 {
 	TiThreadPerformOnMainThread(^{[movie cancelAllThumbnailImageRequests];}, NO);
