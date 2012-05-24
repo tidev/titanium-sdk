@@ -108,7 +108,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			}
 			
 			if (rows.length === 0) {
-				this._rows.add(this._createSeparator());
+				this._rows._add(this._createSeparator());
 			}
 			
 			if (is(value,"Array")) {
@@ -153,8 +153,8 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 				set: function(value, oldValue) {
 					if (oldValue != value) {
 						this._footer._removeAllChildren();
-						this._footer.add(this._createDecorationLabel(value));
-						this._footer.add(this._createSeparator());
+						this._footer._add(this._createDecorationLabel(value));
+						this._footer._add(this._createSeparator());
 					}
 					return value;
 				}
@@ -163,7 +163,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 				set: function(value, oldValue) {
 					if (oldValue != value) {
 						this._footer._removeAllChildren();
-						this._footer.add(value);
+						this._footer._add(value);
 					}
 					return value;
 				}
@@ -172,8 +172,8 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 				set: function(value, oldValue) {
 					if (oldValue != value) {
 						this._header._removeAllChildren();
-						this._header.add(this._createDecorationLabel(value));
-						this._header.add(this._createSeparator());
+						this._header._add(this._createDecorationLabel(value));
+						this._header._add(this._createSeparator());
 					}
 					return value;
 				}
@@ -182,7 +182,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 				set: function(value, oldValue) {
 					if (oldValue != value) {
 						this._header._removeAllChildren();
-						this._header.add(value);
+						this._header._add(value);
 					}
 					return value;
 				}

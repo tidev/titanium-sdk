@@ -15,7 +15,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
 			this._add(contentContainer);
 			style.set(contentContainer.domNode,"overflow","hidden");
 			
-			contentContainer.add(this._contentMeasurer = UI.createView({
+			contentContainer._add(this._contentMeasurer = UI.createView({
 				width: UI.SIZE,
 				height: UI.SIZE,
 				left: 0,
@@ -123,7 +123,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
 		},
 		
 		add: function(view) {
-			this._contentMeasurer.add(view);
+			this._contentMeasurer._add(view);
 		},
 		
 		remove: function(view) {

@@ -47,11 +47,11 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 			if (tabs.length === 1) {
 				this.activeTab = tab;
 			} else {
-				this._tabBarContainer.add(this._createTabDivider());
+				this._tabBarContainer._add(this._createTabDivider());
 			}
 
 			// Add the tab to the UI
-			this._tabBarContainer.add(tab);
+			this._tabBarContainer._add(tab);
 
 			// Update the background on the tab
 			this._updateTabBackground(tab);
@@ -210,10 +210,10 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 						if (value.length) {
 							this._activateTab(value[0]);
 							for (i = 0; i < value.length - 1; i++) {
-								tabBarContainer.add(value[i]);
-								tabBarContainer.add(this._createTabDivider());
+								tabBarContainer._add(value[i]);
+								tabBarContainer._add(this._createTabDivider());
 							}
-							tabBarContainer.add(value[value.length - 1]); // No trailing divider
+							tabBarContainer._add(value[value.length - 1]); // No trailing divider
 						}
 
 						return value;

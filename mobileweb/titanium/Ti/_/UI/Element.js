@@ -183,21 +183,24 @@ define(
 			this._parent = view;
 		},
 		
-		_add: function(view) {
+		_add: function(view, hidden) {
+
+			view._hidden = hidden;
+
 			view._setParent(this);
-			
+
 			this._children.push(view);
 			this.containerNode.appendChild(view.domNode);
-			
+
 			view._triggerLayout();
 		},
 
-		_insertAt: function(view,index) {
+		_insertAt: function(view,index, hidden) {
 				var children = this._children;
 			if (index > children.length || index < 0) {
 				return;
 			} else if (index === children.length) {
-				this._add(view);
+				this._add(view, hidden);
 			} else {
 				view._parent = this;
 				this.containerNode.insertBefore(view.domNode, children[index].domNode);

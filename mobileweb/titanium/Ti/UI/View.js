@@ -15,24 +15,41 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 			this.containerNode = this.domNode;
 		},
 
-		add: function(view) {
-
-			// Call the parent ot handle the underlying infrastructure add
-			this._add(view);
-
-			// Update the children list
+		/**
+		 * Marks a view as "published," meaning it will show up in {@link Ti#UI#View#children} and can be the source of
+		 * UI events.
+		 *
+		 * @private
+		 * @name Ti#UI#View#_markPublished
+		 * @param {Ti.UI.View} view The view to mark as published.
+		 */
+		_publish: function(view) {
 			this.children.push(view);
+			view._isPublished = 1;
 		},
 
-		remove: function(view) {
-
-			// Call the parent ot handle the underlying infrastructure remove
-			this._remove(view);
-
-			// Clean up the children list
+		/**
+		 * Marks a view as "unpublished," meaning it will <em>not</em> show up in {@link Ti#UI#View#children} and can
+		 * <em>not</em> be the source of UI events.
+		 *
+		 * @private
+		 * @name Ti#UI#View#_markPublished
+		 * @param {Ti.UI.View} view The view to mark as unpublished.
+		 */
+		_unpublish: function(view) {
 			var children = this.children,
 				viewIdx = children.indexOf(view);
 			!~viewIdx && children.splice(viewIdx,1);
+		},
+
+		add: function(view) {
+			this._add(view);
+			this._publish(view);
+		},
+
+		remove: function(view) {
+			this._remove(view);
+			this._unpublish(view);
 		},
 
 		_getScrollableContentWidth: function() {

@@ -26,10 +26,10 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 				height: "100%"
 			});
 			setStyle(this._contentContainer.domNode, "overflow", "hidden");
-			this.add(this._contentContainer);
+			this._add(this._contentContainer);
 
 			// Create the paging control container
-			this.add(this._pagingControlContainer = UI.createView({
+			this._add(this._pagingControlContainer = UI.createView({
 				width: "100%",
 				height: 20,
 				bottom: 0,
@@ -38,7 +38,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 				touchEnabled: false
 			}));
 
-			this._pagingControlContainer.add(this._pagingControlContentContainer = UI.createView({
+			this._pagingControlContainer._add(this._pagingControlContentContainer = UI.createView({
 				width: UI.SIZE,
 				height: "100%",
 				top: 0,
@@ -67,7 +67,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 						curve: UI.ANIMATION_CURVE_EASE_OUT
 					},lang.hitch(this,function(){
 						this._contentContainer._removeAllChildren();
-						this._contentContainer.add(this.views[this.currentPage]);
+						this._contentContainer._add(this.views[this.currentPage]);
 					}));
 				}
 			})
@@ -112,13 +112,13 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 						viewContainer._layout._defaultHorizontalPosition = "start";
 						viewContainer._layout._defaultVerticalPosition = "start";
 						setStyle(viewContainer.domNode,"overflow","hidden");
-						viewContainer.add(viewsToScroll[i]);
-						animationView.add(viewContainer);
+						viewContainer._add(viewsToScroll[i]);
+						animationView._add(viewContainer);
 					}
 					
 					// Set the initial position
 					animationView.left = unitize(initialPosition);
-					this._contentContainer.add(animationView);
+					this._contentContainer._add(animationView);
 					this._triggerLayout(true);
 				}
 				
@@ -155,7 +155,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 					var self = this;
 					function finalizeSwipe() {
 						self._contentContainer._removeAllChildren();
-						self._contentContainer.add(self.views[destinationIndex]);
+						self._contentContainer._add(self.views[destinationIndex]);
 						self._triggerLayout(true);
 						
 						self.currentPage !== destinationIndex && self.fireEvent("scroll",{
@@ -194,7 +194,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 				if (this.views.length == 1) {
 					this.properties.__values__.currentPage = 0;
 					this._contentContainer._removeAllChildren();
-					this._contentContainer.add(view);
+					this._contentContainer._add(view);
 				}
 				this._updatePagingControl(this.currentPage);
 			}
@@ -247,7 +247,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 			// element and don't show the transition animation.
 			if (!this._contentContainer.domNode.offsetWidth) {
 				this._contentContainer._removeAllChildren();
-				this._contentContainer.add(this.views[viewIndex]);
+				this._contentContainer._add(this.views[viewIndex]);
 			} else {
 				
 				// Calculate the views to be scrolled
@@ -287,13 +287,13 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 					viewContainer._layout._defaultHorizontalPosition = "start";
 					viewContainer._layout._defaultVerticalPosition = "start";
 					setStyle(viewContainer.domNode,"overflow","hidden");
-					viewContainer.add(viewsToScroll[i]);
-					animationView.add(viewContainer);
+					viewContainer._add(viewsToScroll[i]);
+					animationView._add(viewContainer);
 				}
 				
 				// Set the initial position
 				animationView.left = unitize(initialPosition);
-				this._contentContainer.add(animationView);
+				this._contentContainer._add(animationView);
 				this._triggerLayout(true);
 	
 				// Set the start time
@@ -307,7 +307,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 					curve: UI.ANIMATION_CURVE_EASE_IN_OUT
 				},lang.hitch(this,function(){
 					this._contentContainer._removeAllChildren();
-					this._contentContainer.add(this.views[viewIndex]);
+					this._contentContainer._add(this.views[viewIndex]);
 					this._triggerLayout(true);
 					this.properties.__values__.currentPage = viewIndex;
 					if (this._viewToRemoveAfterScroll != -1) {
@@ -356,7 +356,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 					backgroundColor: i === newIndex ? "white" : "grey",
 					borderRadius: unitize(diameter / 2)
 				});
-				this._pagingControlContentContainer.add(indicator);
+				this._pagingControlContentContainer._add(indicator);
 			}
 			!hidePagingControl && this._showPagingControl();
 		},
@@ -411,7 +411,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 					}
 					if (oldValue.length == 0 && value.length > 0) {
 						this._contentContainer._removeAllChildren();
-						this._contentContainer.add(value[0]);
+						this._contentContainer._add(value[0]);
 					}
 					this.properties.__values__.currentPage = 0;
 					return value;

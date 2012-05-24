@@ -65,7 +65,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					right: 0,
 					bottom: 0
 				});
-				listWindow.add(dimmingView);
+				listWindow._add(dimmingView);
 				
 				// Create the list dialog itself
 				var listDialog = UI.createView({
@@ -76,7 +76,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					borderRadius: 3,
 					opacity: 0
 				});
-				listWindow.add(listDialog);
+				listWindow._add(listDialog);
 				
 				// Create the table rows
 				var rows = self._rows,
@@ -100,7 +100,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					height: data.length < 10 ? UI.SIZE : "70%",
 					data: data
 				});
-				listDialog.add(listTable);
+				listDialog._add(listTable);
 				listTable.addEventListener("singletap", function(e) {
 					e.index in self._rows && (self.selectedRow = self._rows[e.index]);
 					listWindow.close();
@@ -113,13 +113,13 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					right: 5,
 					title: "Cancel"
 				});
-				listDialog.add(cancelButton);
+				listDialog._add(cancelButton);
 				cancelButton.addEventListener("singletap", function() {
 					listWindow.close();
 				});
 				
 				// Add a view to handle padding since there is no TI API to do it
-				listDialog.add(UI.createView({ height: "5px" }));
+				listDialog._add(UI.createView({ height: "5px" }));
 				
 				// Show the options dialog
 				listWindow.open();

@@ -18,40 +18,40 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				top: 0,
 				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			});
-			this.add(contentContainer);
+			this._add(contentContainer);
 			setStyle(contentContainer.domNode,"overflow","hidden");
-			
+
 			// Use horizontal layouts so that the default location is always (0,0)
-			contentContainer.add(this._header = UI.createView({
+			contentContainer._add(this._header = UI.createView({
 				height: UI.SIZE, 
 				width: UI.INHERIT, 
 				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
-			contentContainer.add(this._sections = UI.createView({
+			contentContainer._add(this._sections = UI.createView({
 				height: UI.SIZE, 
 				width: UI.INHERIT, 
 				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
-			contentContainer.add(this._footer = UI.createView({
+			contentContainer._add(this._footer = UI.createView({
 				height: UI.SIZE, 
 				width: UI.INHERIT, 
 				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
-			
+
 			this.data = [];
-			
+
 			this._createVerticalScrollBar();
-			
+
 			var self = this;
 			function getContentHeight() {
 				return self._header._measuredHeight + self._sections._measuredHeight + self._footer._measuredHeight;
 			}
-			
+
 			// Handle scrolling
 			var previousTouchLocation;
 			this.addEventListener("touchstart",function(e) {
 				previousTouchLocation = e.y;
-				
+
 				this._startScrollBars({
 					y: contentContainer.domNode.scrollTop / (getContentHeight() - this._measuredHeight)
 				},
@@ -252,7 +252,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		_insertRow: function(value, index) {
 			var location = this._calculateLocation(index);
 			if (location) {
-				location.section.add(value,location.localIndex);
+				location.section.add(value,location.localIndex); // We call the normal .add() method to hook into the sections proper add mechanism
 			}
 			this._refreshSections();
 		},
@@ -266,31 +266,31 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 
 		appendRow: function(value) {
 			if (!this._currentSection) {
-				this._sections.add(this._currentSection = UI.createTableViewSection({_tableView: this}));
-				this._sections.add(this._createSeparator());
+				this._sections._add(this._currentSection = UI.createTableViewSection({_tableView: this}));
+				this._sections._add(this._createSeparator());
 				this.data.push(this._currentSection);
 			}
-			this._currentSection.add(value);
+			this._currentSection.add(value); // We call the normal .add() method to hook into the sections proper add mechanism
 			this._refreshSections();
 		},
-		
+
 		deleteRow: function(index) {
 			this._removeRow(index);
 		},
-		
+
 		insertRowAfter: function(index, value) {
 			this._insertRow(value, index + 1);
 		},
-		
+
 		insertRowBefore: function(index, value) {
 			this._insertRow(value, index);
 		},
-		
+
 		updateRow: function(index, row) {
 			this._removeRow(index);
 			this._insertRow(row, index);
 		},
-		
+
 		scrollToIndex: function(index) {
 			var location = this._calculateLocation(index);
 			if (location) {
@@ -325,15 +325,15 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 							if (value[i].declaredClass === "Ti.UI.TableViewRow") {
 								// Check if we need a default section
 								if (!this._currentSection) {
-									this._sections.add(this._currentSection = UI.createTableViewSection({_tableView: this}));
-									this._sections.add(this._createSeparator());
+									this._sections._add(this._currentSection = UI.createTableViewSection({_tableView: this}));
+									this._sections._add(this._createSeparator());
 									retval.push(this._currentSection);
 								}
-								this._currentSection.add(value[i]);
+								this._currentSection.add(value[i]); // We call the normal .add() method to hook into the sections proper add mechanism
 							} else if (value[i].declaredClass === "Ti.UI.TableViewSection") {
 								value[i]._tableView = this;
-								this._sections.add(this._currentSection = value[i]);
-								this._sections.add(this._createSeparator());
+								this._sections._add(this._currentSection = value[i]);
+								this._sections._add(this._createSeparator());
 								retval.push(this._currentSection);
 							}
 						}
@@ -350,7 +350,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				set: function(value, oldValue) {
 					if (oldValue != value) {
 						this._footer._removeAllChildren();
-						this._footer.add(this._createDecorationLabel(value));
+						this._footer._add(this._createDecorationLabel(value));
 					}
 					return value;
 				}
@@ -359,7 +359,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				set: function(value, oldValue) {
 					if (oldValue != value) {
 						this._footer._removeAllChildren();
-						this._footer.add(value);
+						this._footer._add(value);
 					}
 					return value;
 				}
@@ -368,8 +368,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				set: function(value, oldValue) {
 					if (oldValue != value) {
 						this._header._removeAllChildren();
-						this._header.add(this._createDecorationLabel(value));
-						this._header.add(this._createSeparator());
+						this._header._add(this._createDecorationLabel(value));
+						this._header._add(this._createSeparator());
 					}
 					return value;
 				}
@@ -378,7 +378,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				set: function(value, oldValue) {
 					if (oldValue != value) {
 						this._header._removeAllChildren();
-						this._header.add(value);
+						this._header._add(value);
 					}
 					return value;
 				}
