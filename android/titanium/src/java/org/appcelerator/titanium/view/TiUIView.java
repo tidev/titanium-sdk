@@ -1041,7 +1041,7 @@ public abstract class TiUIView
 					// is to call performClick() which leads to invoking the click
 					// listener.  If we return true, that won't run, so we're doing it
 					// here instead.
-					if (handled && proxy.hasListeners(TiC.EVENT_CLICK)) {
+					if (handled && proxy.hierarchyHasListener(TiC.EVENT_CLICK)) {
 						touchable.onTouchEvent(event);
 					}
 				}
