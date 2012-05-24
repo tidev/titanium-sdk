@@ -43,7 +43,8 @@ public class TiBackgroundDrawable extends StateListDrawable {
 	private RectF outerRect, innerRect;
 	private static final int NOT_SET = -1;
 	private int alpha = NOT_SET;
-	private Path path;
+	private Path innerPath;
+	private Path borderPath;
 	private Paint paint;
 
 	public TiBackgroundDrawable()
@@ -63,37 +64,7 @@ public class TiBackgroundDrawable extends StateListDrawable {
 			paint.setAlpha(border.alpha);
 		}
 
-		Bitmap borderBitmap = Bitmap
-			.createBitmap((int) outerRect.width(), (int) outerRect.height(), Bitmap.Config.ARGB_8888);
-		Canvas borderCanvas = new Canvas(borderBitmap);
-
-		if (border.radius > 0) {
-			borderCanvas.drawRoundRect(outerRect, border.radius, border.radius, paint);
-		} else {
-			borderCanvas.drawPaint(paint);
-		}
-
-		borderCanvas.save();
-
-		if (border.radius > 0) {
-			try {
-				borderCanvas.clipPath(path);
-			} catch (Exception e) {
-				Log.w(TAG, "clipPath failed on canvas: " + e.getMessage());
-			}
-		} else {
-			borderCanvas.clipRect(innerRect);
-		}
-
-		// To prevent the border from blending with the child view being framed, we need to create a transparent
-		// region. This region will fill the inner rectangle with the child view being drawn on top.
-		paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OUT));
-		borderCanvas.drawRect(innerRect, paint);
-		paint.setXfermode(null);
-
-		borderCanvas.restore();
-
-		canvas.drawBitmap(borderBitmap, 0, 0, paint);
+		canvas.drawPath(borderPath, paint);
 	}
 
 	@Override
@@ -103,7 +74,6 @@ public class TiBackgroundDrawable extends StateListDrawable {
 			drawBorder(canvas);
 		}
 
-		// paint.setColor(backgroundColor);
 		if (background != null) {
 			background.setBounds((int) innerRect.left, (int) innerRect.top, (int) innerRect.right, (int) innerRect.bottom);
 		}
@@ -113,13 +83,11 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		if (border != null && border.radius > 0) {
 			// This still happens sometimes when hw accelerated so, catch and warn
 			try {
-				canvas.clipPath(path);
+				canvas.clipPath(innerPath);
 			} catch (Exception e) {
 				Log.w(TAG, "clipPath failed on canvas: " + e.getMessage());
 			}
 		} else {
-			// innerRect == outerRect if there is no border
-			//canvas.drawRect(innerRect, paint);
 			canvas.clipRect(innerRect);
 		}
 
@@ -129,37 +97,50 @@ public class TiBackgroundDrawable extends StateListDrawable {
 			}
 			background.draw(canvas);
 		}
-		
-		canvas.restore();
 
-		/*if (backgroundImage != null && !backgroundImage.isRecycled()) {
-			canvas.drawBitmap(backgroundImage, null, innerRect, paint);
-		}*/
+		canvas.restore();
 	}
 
 	@Override
-	protected void onBoundsChange(Rect bounds) {
+	protected void onBoundsChange(Rect bounds)
+	{
 		super.onBoundsChange(bounds);
 
 		outerRect.set(bounds);
+
 		int padding = 0;
 		int maxPadding = 0;
 		if (border != null) {
-			//cap padding to current bounds
-			maxPadding = (int) Math.min(outerRect.right/2, outerRect.bottom/2);
-			padding = (int) Math.min((int)border.width, maxPadding);
+			// cap padding to current bounds
+			maxPadding = (int) Math.min(outerRect.right / 2, outerRect.bottom / 2);
+			padding = (int) Math.min((int) border.width, maxPadding);
 		}
-		innerRect.set(bounds.left+padding, bounds.top+padding, bounds.right-padding, bounds.bottom-padding);
+		innerRect.set(bounds.left + padding, bounds.top + padding, bounds.right - padding, bounds.bottom - padding);
+
 		if (background != null) {
-			background.setBounds((int)innerRect.left, (int)innerRect.top, (int)innerRect.right, (int)innerRect.bottom);
+			background.setBounds((int) innerRect.left, (int) innerRect.top, (int) innerRect.right, (int) innerRect.bottom);
 		}
 
-		if (border != null && border.radius > 0) {
-			path = new Path();
-			float radii[] = new float[8];
-			Arrays.fill(radii, border.radius);
-			path.addRoundRect(innerRect, radii, Direction.CW);
-			path.setFillType(FillType.EVEN_ODD);
+		if (border != null) {
+			if (border.radius > 0) {
+				float radii[] = new float[8];
+				Arrays.fill(radii, border.radius);
+				borderPath = new Path();
+				borderPath.addRoundRect(outerRect, radii, Direction.CW);
+				borderPath.addRoundRect(innerRect, radii, Direction.CW);
+				borderPath.setFillType(FillType.EVEN_ODD);
+				innerPath = new Path();
+				innerPath.addRoundRect(innerRect, radii, Direction.CW);
+				innerPath.setFillType(FillType.EVEN_ODD);
+			} else {
+				borderPath = new Path();
+				borderPath.addRect(outerRect, Direction.CW);
+				borderPath.addRect(innerRect, Direction.CW);
+				borderPath.setFillType(FillType.EVEN_ODD);
+				innerPath = new Path();
+				innerPath.addRect(innerRect, Direction.CW);
+				innerPath.setFillType(FillType.EVEN_ODD);
+			}
 		}
 	}
 
