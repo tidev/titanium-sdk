@@ -31,21 +31,17 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 			case UIDeviceOrientationLandscapeRight:
 				TI_ORIENTATION_SET(result,orientation);
 				break;
-#if DEBUG
 			case UIDeviceOrientationUnknown:
-				NSLog(@"[WARN] Ti.Gesture.UNKNOWN / Ti.UI.UNKNOWN is an invalid orientation mode.");
+				DebugLog(@"[WARN] Ti.Gesture.UNKNOWN / Ti.UI.UNKNOWN is an invalid orientation mode.");
 				break;
 			case UIDeviceOrientationFaceDown:
-				NSLog(@"[WARN] Ti.Gesture.FACE_DOWN / Ti.UI.FACE_DOWN is an invalid orientation mode.");
+				DebugLog(@"[WARN] Ti.Gesture.FACE_DOWN / Ti.UI.FACE_DOWN is an invalid orientation mode.");
 				break;
 			case UIDeviceOrientationFaceUp:
-				NSLog(@"[WARN] Ti.Gesture.FACE_UP / Ti.UI.FACE_UP is an invalid orientation mode.");
+				DebugLog(@"[WARN] Ti.Gesture.FACE_UP / Ti.UI.FACE_UP is an invalid orientation mode.");
 				break;
-#endif
 			default:
-#if DEBUG
-				NSLog(@"[WARN] An invalid orientation was requested. Ignoring.");
-#endif
+				DebugLog(@"[WARN] An invalid orientation was requested. Ignoring.");
 				break;
 		}
 	}
@@ -754,12 +750,10 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	{
 		[self fireFocus:YES];
 	}
-#ifdef VERBOSE
 	else
 	{
-		NSLog(@"[DEBUG] Focused was already set while in viewDidAppear.");
+		DeveloperLog(@"[DEBUG] Focused was already set while in viewDidAppear.");
 	}
-#endif	
 }
 
 -(void)viewWillDisappear:(BOOL)animated
@@ -768,12 +762,10 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	{
 		[self fireFocus:NO];
 	}
-#ifdef VERBOSE
 	else
 	{
-		NSLog(@"[DEBUG] Focused was already cleared while in viewWillDisappear.");
+		DeveloperLog(@"[DEBUG] Focused was already cleared while in viewWillDisappear.");
 	}
-#endif
 }
 
 -(void)viewWillAppear:(BOOL)animated

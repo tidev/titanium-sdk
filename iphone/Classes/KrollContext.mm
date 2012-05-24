@@ -145,7 +145,8 @@ static TiValueRef MakeTimer(TiContextRef context, TiObjectRef jsFunction, TiValu
 	double duration = TiValueToNumber(context, durationRef, &exception);
 	if (exception!=NULL)
 	{
-		NSLog(@"[ERROR] timer duration conversion failed");
+		DebugLog(@"[ERROR] Conversion of timer duration to number failed.");
+        return TiValueMakeUndefined(context);
 	}
 	KrollTimer *timer = [[KrollTimer alloc] initWithContext:globalContext function:fnRef jsThis:jsThis duration:duration onetime:onetime kroll:ctx timerId:timerID];
 	[ctx registerTimer:timer timerId:timerID];
@@ -597,7 +598,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	if (exception!=NULL)
 	{
 		id excm = [KrollObject toID:context value:exception];
-		NSLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
+		DebugLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
 		fflush(stderr);
 	}
     pthread_mutex_unlock(&KrollEntryLock);
@@ -612,7 +613,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	if (exception!=NULL)
 	{
 		id excm = [KrollObject toID:context value:exception];
-		NSLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
+		DebugLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
 		fflush(stderr);
         
         pthread_mutex_unlock(&KrollEntryLock);
@@ -702,7 +703,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	if (self = [super init])
 	{
 #if CONTEXT_MEMORY_DEBUG==1
-		NSLog(@"INIT: %@",self);
+		NSLog(@"[DEBUG] INIT: %@",self);
 #endif
 		contextId = [[NSString stringWithFormat:@"kroll$%d",++KrollContextIdCounter] copy];
 		condition = [[NSCondition alloc] init];
@@ -725,7 +726,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 -(void)destroy
 {
 #if CONTEXT_MEMORY_DEBUG==1
-	NSLog(@"DESTROY: %@",self);
+	NSLog(@"[DEBUG] DESTROY: %@",self);
 #endif
 	[self stop];
 	RELEASE_TO_NIL(condition);
@@ -752,12 +753,12 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 #if CONTEXT_MEMORY_DEBUG==1
 -(id)retain
 {
-	NSLog(@"RETAIN: %@ (%d)",self,[self retainCount]+1);
+	NSLog(@"[DEBUG] RETAIN: %@ (%d)",self,[self retainCount]+1);
 	return [super retain];
 }
 -(oneway void)release 
 {
-	NSLog(@"RELEASE: %@ (%d)",self,[self retainCount]-1);
+	NSLog(@"[DEBUG] RELEASE: %@ (%d)",self,[self retainCount]-1);
 	[super release]; 
 }
 #endif
@@ -771,7 +772,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 -(void)dealloc
 {
 #if CONTEXT_MEMORY_DEBUG==1
-	NSLog(@"DEALLOC: %@",self);
+	NSLog(@"[DEBUG] DEALLOC: %@",self);
 #endif
 	assert(!destroyed);
 	destroyed = YES;
@@ -946,7 +947,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 {
 	if (![self isKJSThread])
 	{
-		NSLog(@"[ERROR] attempted to evaluate JS and not on correct Thread! Aborting!");
+		DeveloperLog(@"[ERROR] attempted to evaluate JS and not on correct Thread! Aborting!");
 		@throw @"Invalid Thread Access";
 	}
 	KrollEval *eval = [[[KrollEval alloc] initWithCode:code] autorelease];
@@ -1021,7 +1022,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 {
 	NSAutoreleasePool * garbagePool = [[NSAutoreleasePool alloc] init];
 #if CONTEXT_DEBUG == 1	
-	NSLog(@"CONTEXT<%@>: forced garbage collection requested",self);
+	NSLog(@"[DEBUG] CONTEXT<%@>: forced garbage collection requested",self);
 #endif
 	pthread_mutex_lock(&KrollEntryLock);
 	TiGarbageCollect(context);
@@ -1186,7 +1187,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 			[lock unlock];
 
 #if CONTEXT_DEBUG == 1	
-			NSLog(@"CONTEXT<%@>: shutdown, queue_count = %d",self,queue_count);
+			NSLog(@"[DEBUG] CONTEXT<%@>: shutdown, queue_count = %d",self,queue_count);
 #endif
 			
 			// we're stopped, nothing in the queue, time to bail
@@ -1244,18 +1245,18 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 				@try 
 				{
 #if CONTEXT_DEBUG == 1	
-					NSLog(@"CONTEXT<%@>: before action event invoke: %@, queue size: %d",self,entry,queueSize-1);
+					NSLog(@"[DEBUG] CONTEXT<%@>: before action event invoke: %@, queue size: %d",self,entry,queueSize-1);
 #endif
 					[self invoke:entry];
 #if CONTEXT_DEBUG == 1	
-					NSLog(@"CONTEXT<%@>: after action event invoke: %@",self,entry);
+					NSLog(@"[DEBUG] CONTEXT<%@>: after action event invoke: %@",self,entry);
 #endif
 				}
 				@catch (NSException * e) 
 				{
 					// this should never happen as we raise a JS exception inside the 
 					// method above but this is a guard anyway
-					NSLog(@"[ERROR] application raised an exception. %@",e);
+					DebugLog(@"[ERROR] Application raised an exception: %@",e);
 				}
 				@finally 
 				{
@@ -1282,7 +1283,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		
 		
 #if CONTEXT_DEBUG == 1	
-		NSLog(@"CONTEXT<%@>: waiting for new event (count=%d)",self,KrollContextCount);
+		NSLog(@"[DEBUG] CONTEXT<%@>: waiting for new event (count=%d)",self,KrollContextCount);
 #endif
 		
 		[condition lock];
@@ -1300,14 +1301,14 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		[condition unlock]; 
 		
 #if CONTEXT_DEBUG == 1	
-		NSLog(@"CONTEXT<%@>: woke up for new event (count=%d)",self,KrollContextCount);
+		NSLog(@"[DEBUG] CONTEXT<%@>: woke up for new event (count=%d)",self,KrollContextCount);
 #endif
 		
 		RELEASE_TO_NIL(innerpool);
 	}
 
 #if CONTEXT_DEBUG == 1	
-	NSLog(@"CONTEXT<%@>: is shutting down",self);
+	NSLog(@"[DEBUG] CONTEXT<%@>: is shutting down",self);
 #endif
 	
 	// call before we start the shutdown while context and timers are alive
@@ -1338,8 +1339,8 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	}
 
 #if CONTEXT_MEMORY_DEBUG==1
-	NSLog(@"SHUTDOWN: %@",self);
-	NSLog(@"KROLL RETAIN COUNT: %d",[kroll retainCount]);
+	NSLog(@"[DEBUG] SHUTDOWN: %@",self);
+	NSLog(@"[DEBUG] KROLL RETAIN COUNT: %d",[kroll retainCount]);
 #endif
 	[self destroy];
 

@@ -56,7 +56,7 @@ NSString * const TI_DB_VERSION = @"1";
 		}
 		@catch (NSException * e) 
 		{
-			NSLog(@"[WARN] database error on shutdown: %@",e);
+			NSLog(@"[ERROR] Analytics: database error on shutdown: %@",e);
 		}
 	}
 	RELEASE_TO_NIL(database);
@@ -102,7 +102,7 @@ NSString * const TI_DB_VERSION = @"1";
 	
 	if (count == TI_DB_WARN_ON_ATTEMPT_COUNT)
 	{
-		NSLog(@"[ERROR] %d analytics events attempted with no luck",count);
+		DebugLog(@"[WARN] Analytics: %d transmission attempts failed.",count);
 	}
 	
 	NSString *sql = count == 0 ? @"insert into last_attempt VALUES (?,?)" : @"update last_attempt set date = ?, attempts = ?";
@@ -116,7 +116,7 @@ NSString * const TI_DB_VERSION = @"1";
 	if (retryTimer==nil)
 	{
 		// start our re-attempt timer
-		NSLog(@"[DEBUG] attempt to send analytics event but no network. will try again in %d seconds",TI_DB_RETRY_INTERVAL_IN_SEC);
+		DeveloperLog(@"[DEBUG] Attempted to send analytics event. No network; will try again in %d seconds.",TI_DB_RETRY_INTERVAL_IN_SEC);
 		retryTimer = [[NSTimer timerWithTimeInterval:TI_DB_RETRY_INTERVAL_IN_SEC target:self selector:@selector(backgroundFlushEventQueue) userInfo:nil repeats:YES] retain];
 		[[NSRunLoop mainRunLoop] addTimer:retryTimer forMode:NSDefaultRunLoopMode];
 	}
@@ -229,7 +229,6 @@ NSString * const TI_DB_VERSION = @"1";
 		NSError* error = [request error];
 		if (error != nil) {
 			NSLog(@"[ERROR] Analytics error sending request: %@", [error localizedDescription]);
-			NSLog(@"[ERROR] Will re-queue analytics");
 			[database rollbackTransaction];
 			[self requeueEventsOnTimer];
 			[lock unlock];
@@ -259,7 +258,7 @@ NSString * const TI_DB_VERSION = @"1";
 	}
 	@catch (NSException * e) 
 	{
-		NSLog(@"[ERROR] error sending analytics. %@",e);
+		NSLog(@"[ERROR] Error sending analytics: %@",e);
 		[database rollbackTransaction];
 	}
 	[lock unlock];
@@ -398,7 +397,7 @@ NSString * const TI_DB_VERSION = @"1";
 	database = [[PLSqliteDatabase alloc] initWithPath:filepath];
 	if (![database open])
 	{
-		NSLog(@"[ERROR] couldn't open analytics database");
+		NSLog(@"[ERROR] Couldn't open analytics database");
 		RELEASE_TO_NIL(database);
 		[lock unlock];
 		return;
@@ -447,7 +446,6 @@ NSString * const TI_DB_VERSION = @"1";
 		id online = [[self network] valueForKey:@"online"];
 		if ([TiUtils boolValue:online]==NO)
 		{
-			NSLog(@"[DEBUG] attempted to enroll, but we're offline. will try again in 10s");
 			[self performSelector:@selector(enroll) withObject:nil afterDelay:10];
 			return;
 		}
@@ -469,7 +467,7 @@ NSString * const TI_DB_VERSION = @"1";
 	}
 	@catch (NSException * e) 
 	{
-		NSLog(@"[ERROR] Error sending analytics event. %@",e);
+		NSLog(@"[ERROR] Error sending analytics event: %@",e);
 	}
     @finally {
         [pool release];
@@ -523,7 +521,7 @@ NSString * const TI_DB_VERSION = @"1";
 {
 	static bool AnalyticsStarted = NO;
 	
-	NSLog(@"[DEBUG] Analytics is enabled = %@", (TI_APPLICATION_ANALYTICS==NO ? @"NO":@"YES"));
+	DebugLog(@"[DEBUG] Analytics is enabled = %@", (TI_APPLICATION_ANALYTICS==NO ? @"NO":@"YES"));
 	
 	if (AnalyticsStarted || TI_APPLICATION_ANALYTICS==NO)
 	{
@@ -572,7 +570,7 @@ NSString * const TI_DB_VERSION = @"1";
 	}
 	else
 	{
-		NSLog(@"[ERROR] invalid analytics event received. excepted dictionary. was: %@",[userInfo class]);
+		DebugLog(@"[ERROR] Invalid analytics event received. Expected dictionary, got: %@",[userInfo class]);
 	}
 }
 
@@ -624,7 +622,7 @@ NSString * const TI_DB_VERSION = @"1";
 	NSString *name = [args objectAtIndex:1];
 	id data = [args count] > 2 ? [args objectAtIndex:2] : [NSDictionary dictionary];
 	
-	NSLog(@"[INFO] Analytics->addEvent with type: %@, name: %@, data: %@",type,name,data);
+	DeveloperLog(@"[INFO] Analytics->addEvent with type: %@, name: %@, data: %@",type,name,data);
 	
 	[self queueEvent:type name:name data:[self dataToDictionary:data] immediate:NO];
 }
@@ -644,7 +642,7 @@ NSString * const TI_DB_VERSION = @"1";
 	NSDictionary *payload = [NSDictionary dictionaryWithObjectsAndKeys:from,@"from",
 						   to,@"to",[self dataToDictionary:data],@"data",nil];
 	
-	NSLog(@"[INFO] Analytics->navEvent with from: %@, to: %@, event: %@, data: %@",from,to,event,data);
+	DeveloperLog(@"[INFO] Analytics->navEvent with from: %@, to: %@, event: %@, data: %@",from,to,event,data);
 
 	[self queueEvent:@"app.nav" name:event data:payload immediate:NO];
 }
@@ -672,7 +670,7 @@ NSString * const TI_DB_VERSION = @"1";
 							 duration,@"duration",
 							 [self dataToDictionary:data],@"data",nil];
 	
-	NSLog(@"[INFO] Analytics->timedEvent with event: %@, start: %@, stop: %@, duration: %@, data: %@",event,start,stop,duration,data);
+	DeveloperLog(@"[INFO] Analytics->timedEvent with event: %@, start: %@, stop: %@, duration: %@, data: %@",event,start,stop,duration,data);
 
 	[self queueEvent:@"app.timed_event" name:event data:payload immediate:NO];
 }
@@ -680,7 +678,7 @@ NSString * const TI_DB_VERSION = @"1";
 #define PRINT_EVENT_DETAILS(name,args) \
   id event = [args objectAtIndex:0];\
   id data = [args count] > 1 ? [args objectAtIndex:1] : nil;\
-  NSLog(@"[INFO] Analytics->%s with event: %@, data: %@",#name,event,data);\
+  DeveloperLog(@"[INFO] Analytics->%s with event: %@, data: %@",#name,event,data);\
 
 
 -(void)featureEvent:(id)args

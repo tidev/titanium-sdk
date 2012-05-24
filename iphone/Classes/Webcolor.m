@@ -11,6 +11,7 @@
 
 NSString * const IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND = @"scrollview_textured";
 NSString * const IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND = @"view_flipside";
+NSString * const IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND = @"group_tableview";
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
 NSString * const IOS_COLOR_UNDER_PAGE_BACKGROUND = @"under_page";
@@ -61,6 +62,7 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 					   [UIColor brownColor],@"brown",
 					   [UIColor clearColor],@"transparent",
 					   [UIColor groupTableViewBackgroundColor],@"stripped",
+					   [UIColor groupTableViewBackgroundColor],IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND,
 					   [UIColor scrollViewTexturedBackgroundColor],IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND,
 					   [UIColor viewFlipsideBackgroundColor],IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND,
                        
@@ -185,7 +187,7 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 	float alpha = 1.0;
     if ((length != 3) && (length != 4) && (length != 6) && (length!=7) && (length != 8))
 	{
-		NSLog(@"[WARN] Hex color passed looks invalid: %@",hexCode);
+		DebugLog(@"[WARN] Hex color passed looks invalid: %@",hexCode);
         return nil;
 	}
     unsigned value = 0;

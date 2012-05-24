@@ -25,12 +25,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 	// A collection of windows we need to keep alive.
 	var windows = [];
-	//TODO: to be removed after LW window stack is implemented
-	Window.prototype.lastFocusedWindow = null;
 	Window.prototype.isActivity = false;
-	//TODO: to be removed after LW window stack is implemented
-	Window.prototype.isFocus = false;
-
 	// set constants for representing states for the window
 	Window.prototype.state = {closed: 0, opening: 1, opened: 2, closing: 3};
 
@@ -188,18 +183,6 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 	}
 	
-	//TODO: to be removed after LW window stack is implemented
-	var switchFocus = function(window) {
-		window.isFocus = true;
-		for (var i = 0; i < windows.length; i++) {
-			var win = windows[i];
-			if (win.isFocus && win != window) {
-				window.lastFocusedWindow = win;
-				win.isFocus = false;
-				break;
-			}
-		}
-	}
 
 	Window.prototype.open = function(options) {
 		var self = this;
@@ -262,8 +245,7 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 
 		this.setWindowView(this.view);
-		//TODO: to be removed after LW window stack is implemented
-		switchFocus(this);
+
 
 		if (needsOpen) {
 			this.window.on("windowCreated", function () {
@@ -279,7 +261,7 @@ exports.bootstrapWindow = function(Titanium) {
 		} else {
 			this.postOpen();
 			this.fireEvent("open");
-			this.fireEvent("focus");
+
 		}
 	}
 
@@ -306,7 +288,8 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.postOpen = function() {
 		// Set view and model listener after the window opens
 		this.setWindowView(this.view);
-		
+		this.addSelfToStack();
+
 		if ("url" in this._properties) {
 			this.loadUrl();
 		}
@@ -381,16 +364,6 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 		this.currentState = this.state.closing;
-		//TODO: to be removed after LW window stack is implemented
-		if (this.isFocus && this.lastFocusedWindow) {
-			this.lastFocusedWindow.isFocus = true;
-			if (!this.isActivity) {
-				this.view.fireEvent("blur");
-				this.lastFocusedWindow.window.fireEvent("focus");
-			}
-			this.isFocus = false;
-
-		}
 
 		if (this.isActivity) {
 			var self = this;
@@ -405,6 +378,7 @@ exports.bootstrapWindow = function(Titanium) {
 				this.window.remove(this.view);
 				this.window = null;
 			}
+			this.removeSelfFromStack();
 			this.currentState = this.state.closed;
 			this.fireEvent("close");
 		}
@@ -549,11 +523,6 @@ exports.bootstrapWindow = function(Titanium) {
 		window._children = [];
 		window._postOpenChildren = [];
 		var self = window;
-		//TODO: to be removed after LW window stack is implemented
-		window.on('focus', function () {
-			switchFocus(self);
-		});
-
 		window.on('addedToTab', function () {
 			rememberWindowAndAddCloseListener(self);
 		});

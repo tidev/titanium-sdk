@@ -4,95 +4,96 @@ extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 
 methods:
-  - name: set
-    summary: Sets a string or binary value referenced by the key name.
+  - name: append
+    summary: Add the given value to the end of an existing value.
     description: |
-        See [Key-Value Storage: Set a string or binary value](http://cloud.appcelerator.com/docs/api/v1/keyvalues/set)
+        Requires user login. 
+        
+        See [Key-Values: Append to a Key-Value](http://cloud.appcelerator.com/docs/api/v1/keyvalues/append)
         for the request parameters supported by this method.
-
+        
+        Not allowed on keyvalues with binary data.
+        
+        Data is returned in the `keyvalues` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass. 
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudKeyValuesResponse>
-
+  
   - name: get
     summary: Retrieve a string or binary value.
     description: |
         See [Key-Value Store: Get a Value](http://cloud.appcelerator.com/docs/api/v1/keyvalues/get)
         for the request parameters supported by this method.
-
+        
         Data is returned in the `keyvalues` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudKeyValuesResponse>
-
-  - name: append
-    summary: Add the given value to the end of an existing value.
-    description: |
-        See [Key-Values: Append to a Key-Value](http://cloud.appcelerator.com/docs/api/v1/keyvalues/append)
-        for the request parameters supported by this method.
-
-        Not allowed on keyvalues with binary data.
-
-        Data is returned in the `keyvalues` property of the parameter passed to the callback.
-    parameters:
-
-      - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
-      - name: callback
-        summary: Callback function to execute when the method completes.
-        type: Callback<CloudKeyValuesResponse>
-
+  
   - name: increment
     summary: Increment the value by the given value.
     description: |
+        Requires user login. 
+        
         See [Key-Values: Increment a Key-Value](http://cloud.appcelerator.com/docs/api/v1/keyvalues/incrby)
         for the request parameters supported by this method.
-
+        
         Not allowed on keyvalues with binary data.
-
+        
         Data is returned in the `keyvalues` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
+        summary: Parameters to send in the request.
+        type: Dictionary
 
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudKeyValuesResponse>
-
+  
   - name: remove
     summary: Delete a value.
     description: |
+        Requires user login. 
+        
         See [Key-Values: Delete a Key-Value](http://cloud.appcelerator.com/docs/api/v1/keyvalues/delete)
         for the request parameters supported by this method.
-
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudKeyValuesResponse>
+  
+  - name: set
+    summary: Sets a string or binary value referenced by the key name.
+    description: |
+        Requires user login. 
+        
+        See [Key-Value Storage: Set a string or binary value](http://cloud.appcelerator.com/docs/api/v1/keyvalues/set)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudKeyValuesResponse>
 
 examples:
-  - title: Set a Key-Value Example
+  - title: Set a Key-Value
     example: |
         This example sets a key-value and checks the response.
 
@@ -108,7 +109,7 @@ examples:
                 }
             });
 
-  - title: Get a Key-Value Example
+  - title: Get a Key-Value
     example: |
         This example gets a key-value and checks the response.
 
@@ -126,7 +127,7 @@ examples:
                 }
             });
 
-  - title: Append a Key-Value Example
+  - title: Append a Key-Value
     example: |
         This example appends a value to a key-value and checks the response.
 
@@ -146,7 +147,7 @@ examples:
 
             });
 
-  - title: Increment a Key-Value Example
+  - title: Increment a Key-Value
     example: |
         This example increments a key-value and checks the response.
 
@@ -166,7 +167,7 @@ examples:
 
             });
 
-  - title: Remove a Key-Value Example
+  - title: Remove a Key-Value
     example: |
         This example deletes a key-value and checks the response.
 
@@ -188,6 +189,6 @@ summary: Argument passed to the callback when a request finishes successfully or
 extends: CloudResponse
 properties:
   - name: keyvalues
-    summary: Array of `keyvalues` objects, if any
+    summary: Set of `keyvalues` objects, if any exist.
     description: Only included if `success` is `true`.
-    type: Array<Object>
+    type: Array<Dictionary>
