@@ -726,7 +726,7 @@ properties:
     summary: Determines whether to tile a background across a view.
     description: |
         Setting this to `true` makes the set `backgroundImage` repeat across the view as a series 
-        of tiles. The tiling is begins in the upper-left corner, where the upper-left corner of the 
+        of tiles. The tiling begins in the upper-left corner, where the upper-left corner of the 
         background image is rendered. The image is then tiled to fill the available space of the 
         view.
         
