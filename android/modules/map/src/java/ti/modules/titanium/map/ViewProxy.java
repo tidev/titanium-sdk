@@ -226,10 +226,6 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 
 	public TiMapView getMapView()
 	{
-		if (this.mapView == null) {
-			return null;
-		}
-
 		return this.mapView;
 	}
 
