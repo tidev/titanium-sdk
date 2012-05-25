@@ -668,6 +668,7 @@ public class TiMapView extends TiUIView
 		AnnotationProxy annProxy = null;
 		if (ann instanceof AnnotationProxy) {
 			annProxy = (AnnotationProxy) ann;
+			annProxy.setViewProxy((ViewProxy)proxy);
 		}
 		else {
 			KrollDict annotationDict = null;
@@ -682,6 +683,7 @@ public class TiMapView extends TiUIView
 				annProxy.setCreationUrl(proxy.getCreationUrl().getNormalizedUrl());
 				annProxy.handleCreationDict(annotationDict);
 				annProxy.setActivity(proxy.getActivity());
+				annProxy.setViewProxy((ViewProxy)proxy);
 			}
 		}
 		
