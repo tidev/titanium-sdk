@@ -254,6 +254,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			if (location) {
 				location.section.add(value,location.localIndex); // We call the normal .add() method to hook into the sections proper add mechanism
 			}
+			this._publish(value);
 			this._refreshSections();
 		},
 		
@@ -262,6 +263,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			if (location) {
 				location.section._removeAt(location.localIndex);
 			}
+			this._unpublish(value);
 		},
 
 		appendRow: function(value) {
@@ -271,6 +273,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				this.data.push(this._currentSection);
 			}
 			this._currentSection.add(value); // We call the normal .add() method to hook into the sections proper add mechanism
+			this._publish(value);
 			this._refreshSections();
 		},
 
@@ -336,6 +339,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 								this._sections._add(this._createSeparator());
 								retval.push(this._currentSection);
 							}
+							this._publish(value[i]);
 						}
 						this._refreshSections();
 						

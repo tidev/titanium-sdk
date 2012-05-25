@@ -197,6 +197,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 					this._contentContainer._add(view);
 				}
 				this._updatePagingControl(this.currentPage);
+				this._publish(view);
 			}
 		},
 
@@ -232,6 +233,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 			}
 			
 			this._updatePagingControl(this.currentPage);
+			this._unpublish(view);
 		},
 
 		scrollToView: function(view) {
@@ -405,11 +407,24 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 			},
 			views: {
 				set: function(value, oldValue) {
+					
 					// Value must be an array
 					if (!is(value,"Array")) {
 						return;
 					}
-					if (oldValue.length == 0 && value.length > 0) {
+					
+					// Mark all views as added
+					var i = 0,
+						len = oldValue.length;
+					for(; i < len; i++) {
+						this._unpublish(oldValue[i]);
+					}
+					for(i = 0, len = value.length; i < len; i++) {
+						this._publish(value[i]);
+					}
+					
+					// Add the default page
+					if (value.length > 0) {
 						this._contentContainer._removeAllChildren();
 						this._contentContainer._add(value[0]);
 					}

@@ -55,6 +55,9 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 
 			// Update the background on the tab
 			this._updateTabBackground(tab);
+
+			// Publish the tab
+			this._publish(tab);
 		},
 
 		_addTabContents: function(contents) {
@@ -78,6 +81,9 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 
 				// Update the active tab, if necessary
 				tab === this._activeTab && this._activateTab(tabs[0]);
+
+				// Unpublish the tab
+				this._unpublish(tab);
 			}
 		},
 
@@ -210,6 +216,7 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 						if (value.length) {
 							this._activateTab(value[0]);
 							for (i = 0; i < value.length - 1; i++) {
+								this._publish(value[i]);
 								tabBarContainer._add(value[i]);
 								tabBarContainer._add(this._createTabDivider());
 							}

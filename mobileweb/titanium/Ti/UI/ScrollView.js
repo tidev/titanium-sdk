@@ -124,10 +124,12 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
 		
 		add: function(view) {
 			this._contentMeasurer._add(view);
+			this._publish(view);
 		},
 		
 		remove: function(view) {
 			this._contentMeasurer.remove(view);
+			this._unpublish(view);
 		},
 
 		properties: {

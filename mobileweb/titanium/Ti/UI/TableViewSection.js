@@ -10,7 +10,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			this._indexedContent = [];
 
 			require.each(["_header", "_rows", "_footer"], lang.hitch(this, function(v) {
-				Widget.prototype.add.call(this, this[v] = UI.createView({ 
+				this._add(this[v] = UI.createView({ 
 					height: UI.SIZE, 
 					width: UI.INHERIT, 
 					layout: UI._LAYOUT_CONSTRAINING_VERTICAL

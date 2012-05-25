@@ -237,6 +237,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 			if (!this.selectedRow) {
 				this.selectedRow = row;
 			}
+			this._publish(row);
 		},
 		
 		removeRow: function(row) {
@@ -250,6 +251,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					this.selectedRow = this._rows[0];
 				}
 			}
+			this._unpublish(row);
 		},
 		
 		constants: {
