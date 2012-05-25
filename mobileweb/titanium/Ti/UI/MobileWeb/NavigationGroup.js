@@ -73,6 +73,16 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 			return len ? windows[windows.length - 1] : null;
 		},
 
+		add: function(view) {
+			this._navBarContainer._add(view);
+			this._publish(view);
+		},
+
+		remove: function(view) {
+			this._navBarContainer._remove(view);
+			this._unpublish(view);
+		},
+
 		open: function(win) {
 			if (!win._opened) {
 				var backButton = this._backButton;
