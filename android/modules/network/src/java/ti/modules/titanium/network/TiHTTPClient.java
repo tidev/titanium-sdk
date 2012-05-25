@@ -18,7 +18,11 @@ import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -551,18 +555,23 @@ public class TiHTTPClient
 
 	public String getResponseText()
 	{
+		
 		if (responseData != null && responseText == null) {
 			if (charset == null) {
 				charset = HTTP.UTF_8;
 			}
 
 			try {
-				responseText = new String(responseData.getBytes(), charset);
-			} catch (UnsupportedEncodingException e) {
-				Log.e(LCAT, "Unable to convert to String using charset: " + charset);
+				CharsetDecoder decoder = Charset.forName(charset).newDecoder();
+				ByteBuffer data = ByteBuffer.wrap(responseData.getBytes());
+				CharBuffer b = decoder.decode(data);
+				responseText = b.toString();
+			} catch (Exception e) {
+				Log.e(LCAT, "Unable to decode using charset: " + charset);
 			} catch (OutOfMemoryError e) {
-				Log.e(LCAT, "Unable to get response text: out of memory");
+				 Log.e(LCAT, "Unable to get response text: out of memory");
 			}
+
 		}
 
 		return responseText;
