@@ -65,7 +65,7 @@ methods:
 
       - name: name
         type: String
-        summary: Name for the new attribute.
+        summary: Qualified name for the new attribute (can include a prefix).
 
   - name: createCDATASection
     summary: Creates and returns a [CDATASection](Titanium.XML.CDATASection).
@@ -126,7 +126,7 @@ methods:
 
       - name: name
         type: String
-        summary: Name for the new element.
+        summary: Qualified for the new element (can include a prefix).
 
 
   - name: createEntityReference
@@ -214,7 +214,7 @@ methods:
     description: |
         This method creates a new copy of the source node, ready to be inserted into
         this document.  The returned node has an [ownerDocument](Titanium.XML.Node.ownerDocument) 
-        property points to this document, but its [parentNode](Titanium.XML.Node.parentNode) 
+        property that points to this document, but its [parentNode](Titanium.XML.Node.parentNode) 
         property is `null`, since it has not been inserted into the current document.
 
         For more on node ownership, see [ownerDocument issues](http://www.w3.org/DOM/faq.html#ownerdoc) 
@@ -222,7 +222,7 @@ methods:
 
     returns:
         type: Titanium.XML.Node
-        summary: imported Node that belongs now to this document.
+        summary: Imported node that belongs now to this document.
 
     parameters:
 

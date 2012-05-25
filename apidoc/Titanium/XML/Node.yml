@@ -1,12 +1,18 @@
 ---
 name: Titanium.XML.Node
 extends: Titanium.Proxy
-summary: A single node in the [Document|Titanium.XML.Document] tree. 
+summary: A single node in the [Document](Titanium.XML.Document) tree. 
 description: |
     Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1950641247) 
     on Android and iOS. Exposes the 
     [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-1950641247) 
     implementation on Mobile Web. For full property and method description, see the W3C specifications.
+
+    Note that on iOS, only [Element](Titanium.XML.Element) nodes are mutable. This means
+    that the methods `appendChild`, `insertBefore`, `removeChild`, and
+    `replaceChild` only work on `Element` objects. If one of these methods is called on
+    another type of node, it throws an exception.
+
 createable: false
 platforms: [android, iphone, ipad, mobileweb]
 
@@ -116,12 +122,12 @@ properties:
   - name: nodeValue
     summary: Content (value) of this node.
     type: String
-    permission: read-only
 
   - name: textContent
     summary: Content (value) of all text nodes within this node.
     type: String
     permission: read-only
+    platforms: [mobileweb]
 
   - name: text
     summary: |
@@ -132,6 +138,7 @@ properties:
     permission: read-only
     deprecated:
         since: "2.0.0"
+    platforms: [mobileweb]
 
   - name: nodeType
     type: Number
@@ -194,8 +201,9 @@ properties:
 
   - name: prefix
     summary: Namespace prefix of this node.
+    description: |
+        Read-only on iOS, read-write on other platforms.
     type: String
-    permission: read-only
 
   - name: localName
     summary: Local part of the qualified name of this node.
@@ -208,6 +216,9 @@ methods:
 
   - name: appendChild
     summary: Appends the node `newChild` as a child of this node.
+    description: |
+        On iOS, `appcendChild` is supported on [Element](Titanium.XML.Element)
+        nodes **only**.
     returns:
         type: Titanium.XML.Node
         summary: Newly-appended node.
@@ -237,16 +248,19 @@ methods:
         summary: True if this node has attributes, false if it does not.
 
   - name: hasChildNodes
-    summary: Returns `true` this node has child nodes.
+    summary: Returns `true` if this node has child nodes.
     returns:
         type: Boolean
         summary: True if this node has children, false if it does not.
 
   - name: insertBefore
     summary: Inserts the node `newChild` before the node `refChild`.
+    description: |
+        On iOS, `appcendChild` is supported on [Element](Titanium.XML.Element)
+        nodes **only**.
     returns:
         type: Titanium.XML.Node
-        summary: The inserted node
+        summary: The inserted node.
 
     parameters:
       - name: newChild
@@ -255,7 +269,7 @@ methods:
 
       - name : refChild
         type: Titanium.XML.Node
-        summary: The node to insert `newChild` before.
+        summary: Node to insert `newChild` before.
 
   - name: isSupported
     summary: Tests whether the DOM implementation supports a specific feature.
@@ -275,9 +289,13 @@ methods:
 
   - name: normalize
     summary: Normalizes text and attribute nodes in this node's child hierarchy.
+    platforms: [android, mobileweb]
 
   - name: removeChild
     summary: Removes a child node from this node.
+    description: |
+        On iOS, `appcendChild` is supported on [Element](Titanium.XML.Element)
+        nodes **only**.
     returns:
         type: Titanium.XML.Node
         summary: Node that was removed.
@@ -290,6 +308,12 @@ methods:
 
   - name: replaceChild
     summary: Replaces the node `oldChild` with the node `newChild`.
+    description: |
+        On iOS, `appcendChild` is supported on [Element](Titanium.XML.Element)
+        nodes **only**.
+    returns:
+        type: Titanium.XML.Node
+        summary: Node that was replaced.
     parameters:
 
       - name: newChild
