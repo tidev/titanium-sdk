@@ -20,8 +20,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
 import android.graphics.Path.FillType;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
@@ -123,15 +121,22 @@ public class TiBackgroundDrawable extends StateListDrawable {
 
 		if (border != null) {
 			if (border.radius > 0) {
-				float radii[] = new float[8];
-				Arrays.fill(radii, border.radius);
+				float outerRadii[] = new float[8];
+				Arrays.fill(outerRadii, border.radius);
 				borderPath = new Path();
-				borderPath.addRoundRect(outerRect, radii, Direction.CW);
-				borderPath.addRoundRect(innerRect, radii, Direction.CW);
+				borderPath.addRoundRect(outerRect, outerRadii, Direction.CW);
 				borderPath.setFillType(FillType.EVEN_ODD);
 				innerPath = new Path();
-				innerPath.addRoundRect(innerRect, radii, Direction.CW);
 				innerPath.setFillType(FillType.EVEN_ODD);
+				if (border.radius - padding > 0) {
+					float innerRadii[] = new float[8];
+					Arrays.fill(innerRadii, border.radius - padding);
+					borderPath.addRoundRect(innerRect, innerRadii, Direction.CW);
+					innerPath.addRoundRect(innerRect, innerRadii, Direction.CW);
+				} else {
+					borderPath.addRect(innerRect, Direction.CW);
+					innerPath.addRect(innerRect, Direction.CW);
+				}
 			} else {
 				borderPath = new Path();
 				borderPath.addRect(outerRect, Direction.CW);
