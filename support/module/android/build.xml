@@ -311,7 +311,7 @@ timodule.xml.
 			<property name="tmpdir" value="${java.io.tmpdir}/${user.name}/${ant.project.name}-generated" />
 
 			<mkdir dir="${tmpdir}" />
-			<copy todir="${tmpdir}" preservelastmodified="true" overwrite="true" force="true" includeEmptyDirs="true">
+			<copy todir="${tmpdir}" preservelastmodified="true" overwrite="true" includeEmptyDirs="true">
 				<fileset dir="@{gendir}"/>
 			</copy>
 			<exec executable="${ndk.build}" dir="${tmpdir}" failonerror="true">
@@ -322,7 +322,7 @@ timodule.xml.
 				<arg value="V=${ndk.verbose}"/>
 			</exec>
 
-			<move todir="@{gendir}" preservelastmodified="true" overwrite="true" force="true" includeEmptyDirs="true">
+			<move todir="@{gendir}" preservelastmodified="true" overwrite="true" includeEmptyDirs="true">
 				<fileset dir="${tmpdir}"/>
 			</move>
 		</sequential>
