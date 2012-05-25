@@ -2,29 +2,31 @@
 name: Titanium.UI.Clipboard
 summary: A module used for accessing clipboard data.
 description: |
-    The Clipboard is a temporary, system-wide data store that is accessible by the user via 
-    copy and paste UI interactions. 
+    The Clipboard is a temporary data store, used to save a single item of data that may then 
+    be accessed by the user using UI copy and paste interactions within an app or between apps.
     
-    #### Clipboard Data Types (iOS and Mobile Web)
+    On iOS and Mobile Web, the module's `*Data()` methods enable multiple representations of the 
+    same data item to be stored together with their respective 
+    [MIME type](http://en.wikipedia.org/wiki/Internet_media_type) to describe their format. For 
+    example, `'text'` and `'text/plain'` for text, and `'image/jpg'` and `'image/png'` for an image.
     
-    On iOS and Mobile Web, any type of data that is recognized by the underlying system is supported 
-    by specifying its [MIME type](http://en.wikipedia.org/wiki/Internet_media_type). 
+    When working with text, either the `*Data()` methods may be used with a `'text/plain'` type, or 
+    the `*Text()` methods without the need to specify the type.
     
-    The `*Text()` methods are equivalent to calling `*Data()` with a `'text'` or `'text/plain'` type. 
-    These work with plain Unicode strings. 
+    Android currently only supports text type of data to be stored. 
     
-    An image is returned as a <Titanium.Blob> (binary) type when the special type `'image'` or an 
-    explicit image MIME type is specified. 
+    #### Clipboard Data Types
     
-    A URL is stored with the special `'url'` or `'text/uri-list'` type, and is returned as a string. 
+    The `*Text()` methods are equivalent to calling `*Data()` with a `'text'` or `'text/plain'` 
+    type. These work with plain Unicode strings. 
+    
+    An image is stored using the `'image'` type, or an explicit image MIME type, and is returned as 
+    a <Titanium.Blob> (binary) type. 
+    
+    A URL is stored with the `'url'` or `'text/uri-list'` type, and is returned as a string. 
     
     Any data type that is specified but not correctly mapped to a clipboard type by the system is 
     retrieved as a <Titanium.Blob> type. 
-    
-    #### Clipboard Data Types (Android)
-    
-    On Android, only text type is supported. The `*Data()` methods may be used, but only if a text 
-    type, such as `'text'` or `'text/plain'`, is specified. 
 extends: Titanium.Module
 since: "1.5"
 platforms: [android, iphone, ipad, mobileweb]
@@ -32,8 +34,8 @@ platforms: [android, iphone, ipad, mobileweb]
 methods:
   - name: clearData
     summary: |
-        Deletes all data of the specified MIME type stored in the clipboard, or deletes all data 
-        of all MIME types if no type specified.
+        Deletes data of the specified MIME type stored in the clipboard. If omitted, all data is 
+        deleted.
     description: On Android, identical to `clearText` method.
     parameters:
       - name: type
@@ -49,6 +51,10 @@ methods:
     
   - name: getData
     summary: Gets data of the specified MIME type stored in the clipboard.
+    description: |
+        This method does not work correctly due to the following issues:
+        * Android: [TIMOB-9263](https://jira.appcelerator.org/browse/TIMOB-9263)
+        * iOS: [TIMOB-9222](https://jira.appcelerator.org/browse/TIMOB-9222)
     returns:
         - type: String
         - type: Blob
@@ -64,6 +70,10 @@ methods:
     
   - name: hasData
     summary: Indicates whether any data of the specified MIME type is stored in the clipboard.
+    description: |
+        This method does not work correctly due to the following issues:
+        * Android: [TIMOB-9263](https://jira.appcelerator.org/browse/TIMOB-9263)
+        * iOS: [TIMOB-9222](https://jira.appcelerator.org/browse/TIMOB-9222)
     returns:
         type: Boolean
     parameters:
@@ -84,9 +94,13 @@ methods:
   - name: setData
     summary: Stores data of the specified MIME type in the clipboard.
     description: |
+        This method does not work correctly due to the following issues:
+        * Android: [TIMOB-9263](https://jira.appcelerator.org/browse/TIMOB-9263)
+        
         This method will overwrite any existing data for the specified MIME type. 
         
-        Only a single item of data per MIME type may be stored.
+        Note that the clipboard is intended to store only one item of data at a time. This method 
+        enables different representations/formats of a data item to be saved.
     parameters:
       - name: type
         summary: MIME type. Must be text type on Android.
