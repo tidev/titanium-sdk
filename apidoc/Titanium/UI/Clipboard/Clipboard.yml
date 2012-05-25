@@ -84,7 +84,7 @@ methods:
   - name: hasText
     summary: Indicates whether any text data is stored in the clipboard.
     description: |
-        On Android, returns Boolean. 
+        On Android and Mobile Web, returns Boolean. 
         
         On iOS, returns `1` or `0` for `true` or `false`, respectively.
     returns:
