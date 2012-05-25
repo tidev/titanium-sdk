@@ -866,8 +866,6 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	TiUIView * barButtonView = [self view];
 	//TODO: This logic should have a good place in case that refreshLayout is used.
 	LayoutConstraint barButtonLayout = layoutProperties;
-    //Since we are only sizing and not positioning, ensure that the pins are undefined
-    barButtonLayout.left = barButtonLayout.right = barButtonLayout.top = barButtonLayout.bottom = TiDimensionUndefined;
 	if (TiDimensionIsUndefined(barButtonLayout.width))
 	{
 		barButtonLayout.width = TiDimensionAutoSize;
@@ -879,9 +877,11 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	}
     if ( (bounds.width == 0) && !(TiDimensionIsDip(barButtonLayout.width) ) ) {
         bounds.width = [self autoWidthForSize:CGSizeMake(1000, 1000)];
+        barButtonLayout.width = TiDimensionDip(bounds.width);
     }
     if ( (bounds.height == 0) && !(TiDimensionIsDip(barButtonLayout.height) ) ) {
         bounds.height = [self autoHeightForSize:CGSizeMake(bounds.width, 1000)];
+        barButtonLayout.height = TiDimensionDip(bounds.height);
     }
 	CGRect barBounds;
 	barBounds.origin = CGPointZero;
