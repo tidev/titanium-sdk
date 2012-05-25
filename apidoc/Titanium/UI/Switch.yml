@@ -12,6 +12,7 @@ description: |
     
     Use the <Titanium.UI.createSwitch> method to create a switch.
 extends: Titanium.UI.View
+excludes: { methods: [ add ] }
 since: "0.8"
 
 events:
