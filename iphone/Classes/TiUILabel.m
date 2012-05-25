@@ -263,6 +263,30 @@
 	[[self label] setShadowOffset:size];
 }
 
+// lineBreakMode property
+-(void)setLineBreakMode_:(id)lineBreakMode
+{
+    NSString* value = [TiUtils stringValue:lineBreakMode];
+    if([value isEqualToString:@"wordWrap"]) {
+        [[self label] setLineBreakMode:(UILineBreakModeWordWrap)];
+    }
+    else if([value isEqualToString:@"characterWrap"]) {
+        [[self label] setLineBreakMode:(UILineBreakModeCharacterWrap)];
+    }
+    else if([value isEqualToString:@"clip"]) {
+        [[self label] setLineBreakMode:(UILineBreakModeClip)];
+    }
+    else if([value isEqualToString:@"headTruncation"]) {
+        [[self label] setLineBreakMode:(UILineBreakModeHeadTruncation)];
+    }
+    else if([value isEqualToString:@"middleTruncation"]) {
+        [[self label] setLineBreakMode:(UILineBreakModeMiddleTruncation)];
+    }
+    else {
+        [[self label] setLineBreakMode:(UILineBreakModeTailTruncation)];
+    }
+}
+
 @end
 
 #endif
