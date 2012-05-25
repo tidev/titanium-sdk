@@ -243,8 +243,9 @@ class Compiler(object):
 		for mod in external_modules:
 			metadata_file = os.path.join(mod.path, "metadata.json")
 			if os.path.exists(metadata_file):
-				with open(metadata_file, "r") as f:
-					metadata = simplejson.load(f)
+				f = open(metadata_file, "r")
+				metadata = simplejson.load(f)
+				f.close()
 				if not isinstance(metadata, dict):
 					continue
 				if metadata.has_key("exports"):

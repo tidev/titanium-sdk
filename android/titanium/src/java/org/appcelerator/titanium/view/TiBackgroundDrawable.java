@@ -41,7 +41,8 @@ public class TiBackgroundDrawable extends StateListDrawable {
 	private RectF outerRect, innerRect;
 	private static final int NOT_SET = -1;
 	private int alpha = NOT_SET;
-	private Path path;
+	private Path innerPath;
+	private Path borderPath;
 	private Paint paint;
 
 	public TiBackgroundDrawable()
@@ -53,37 +54,38 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 	}
 
+	private void drawBorder(Canvas canvas)
+	{
+		paint.setColor(border.color);
+
+		if (border.alpha > NOT_SET) {
+			paint.setAlpha(border.alpha);
+		}
+
+		canvas.drawPath(borderPath, paint);
+	}
+
 	@Override
-	public void draw(Canvas canvas) {
+	public void draw(Canvas canvas)
+	{
 		if (border != null) {
-			paint.setColor(border.color);
-
-			if (border.alpha > NOT_SET) {
-				paint.setAlpha(border.alpha);
-			}
-
-			if (border.radius > 0) {
-				canvas.drawRoundRect(outerRect, border.radius, border.radius, paint);
-			} else {
-				canvas.drawRect(outerRect, paint);
-			}
+			drawBorder(canvas);
 		}
 
-		//paint.setColor(backgroundColor);
 		if (background != null) {
-			background.setBounds((int)innerRect.left, (int)innerRect.top, (int)innerRect.right, (int)innerRect.bottom);
+			background.setBounds((int) innerRect.left, (int) innerRect.top, (int) innerRect.right, (int) innerRect.bottom);
 		}
+
 		canvas.save();
+
 		if (border != null && border.radius > 0) {
 			// This still happens sometimes when hw accelerated so, catch and warn
 			try {
-				canvas.clipPath(path);
+				canvas.clipPath(innerPath);
 			} catch (Exception e) {
 				Log.w(TAG, "clipPath failed on canvas: " + e.getMessage());
 			}
 		} else {
-			// innerRect == outerRect if there is no border
-			//canvas.drawRect(innerRect, paint);
 			canvas.clipRect(innerRect);
 		}
 
@@ -93,37 +95,57 @@ public class TiBackgroundDrawable extends StateListDrawable {
 			}
 			background.draw(canvas);
 		}
-		
-		canvas.restore();
 
-		/*if (backgroundImage != null && !backgroundImage.isRecycled()) {
-			canvas.drawBitmap(backgroundImage, null, innerRect, paint);
-		}*/
+		canvas.restore();
 	}
 
 	@Override
-	protected void onBoundsChange(Rect bounds) {
+	protected void onBoundsChange(Rect bounds)
+	{
 		super.onBoundsChange(bounds);
 
 		outerRect.set(bounds);
+
 		int padding = 0;
 		int maxPadding = 0;
 		if (border != null) {
-			//cap padding to current bounds
-			maxPadding = (int) Math.min(outerRect.right/2, outerRect.bottom/2);
-			padding = (int) Math.min((int)border.width, maxPadding);
+			// cap padding to current bounds
+			maxPadding = (int) Math.min(outerRect.right / 2, outerRect.bottom / 2);
+			padding = (int) Math.min((int) border.width, maxPadding);
 		}
-		innerRect.set(bounds.left+padding, bounds.top+padding, bounds.right-padding, bounds.bottom-padding);
+		innerRect.set(bounds.left + padding, bounds.top + padding, bounds.right - padding, bounds.bottom - padding);
+
 		if (background != null) {
-			background.setBounds((int)innerRect.left, (int)innerRect.top, (int)innerRect.right, (int)innerRect.bottom);
+			background.setBounds((int) innerRect.left, (int) innerRect.top, (int) innerRect.right, (int) innerRect.bottom);
 		}
 
-		if (border != null && border.radius > 0) {
-			path = new Path();
-			float radii[] = new float[8];
-			Arrays.fill(radii, border.radius);
-			path.addRoundRect(innerRect, radii, Direction.CW);
-			path.setFillType(FillType.EVEN_ODD);
+		if (border != null) {
+			if (border.radius > 0) {
+				float outerRadii[] = new float[8];
+				Arrays.fill(outerRadii, border.radius);
+				borderPath = new Path();
+				borderPath.addRoundRect(outerRect, outerRadii, Direction.CW);
+				borderPath.setFillType(FillType.EVEN_ODD);
+				innerPath = new Path();
+				innerPath.setFillType(FillType.EVEN_ODD);
+				if (border.radius - padding > 0) {
+					float innerRadii[] = new float[8];
+					Arrays.fill(innerRadii, border.radius - padding);
+					borderPath.addRoundRect(innerRect, innerRadii, Direction.CW);
+					innerPath.addRoundRect(innerRect, innerRadii, Direction.CW);
+				} else {
+					borderPath.addRect(innerRect, Direction.CW);
+					innerPath.addRect(innerRect, Direction.CW);
+				}
+			} else {
+				borderPath = new Path();
+				borderPath.addRect(outerRect, Direction.CW);
+				borderPath.addRect(innerRect, Direction.CW);
+				borderPath.setFillType(FillType.EVEN_ODD);
+				innerPath = new Path();
+				innerPath.addRect(innerRect, Direction.CW);
+				innerPath.setFillType(FillType.EVEN_ODD);
+			}
 		}
 	}
 
