@@ -79,30 +79,38 @@ define(
 				bg = lang.hitch(this, "_doBackground");
 
 			require.has("devmode") && args && args._debug && dom.attr.set(node, "data-debug", args._debug);
+			var processingInProgress = {};
 			function processTouchEvent(eventType, evt) {
-				has("ti-instrumentation") && (this._gestureInstrumentationTest = instrumentation.startTest("Gesture Processing"));
-				var i,
-					gestureRecognizers = touchRecognizers[eventType],
-					touches = evt.changedTouches;
-				eventType = "Touch" + eventType + "Event";
-				if (this._preventDefaultTouchEvent) {
-					this._preventDefaultTouchEvent && evt.preventDefault && evt.preventDefault();
-					for (i in touches) {
-						touches[i].preventDefault && touches[i].preventDefault();
-					}
+				if (!processingInProgress[eventType]) {
+					processingInProgress[eventType] = true;
+					// Limit the processing rate to 33 FPS
+					setTimeout(function(){
+						processingInProgress[eventType] = false;
+						has("ti-instrumentation") && (this._gestureInstrumentationTest = instrumentation.startTest("Gesture Processing"));
+						var i,
+							gestureRecognizers = touchRecognizers[eventType],
+							touches = evt.changedTouches;
+						eventType = "Touch" + eventType + "Event";
+						if (this._preventDefaultTouchEvent) {
+							this._preventDefaultTouchEvent && evt.preventDefault && evt.preventDefault();
+							for (i in touches) {
+								touches[i].preventDefault && touches[i].preventDefault();
+							}
+						}
+						useTouch || require.mix(evt, {
+							touches: evt.type === "mouseup" ? [] : [evt],
+							targetTouches: [],
+							changedTouches: [evt]
+						});
+						for (i in gestureRecognizers) {
+							gestureRecognizers[i]["process" + eventType](evt, self);
+						}
+						for (i in gestureRecognizers) {
+							gestureRecognizers[i]["finalize" + eventType]();
+						}
+						has("ti-instrumentation") && instrumentation.stopTest(this._gestureInstrumentationTest, "Processing widget " + self.widgetId);
+					}, 30);
 				}
-				useTouch || require.mix(evt, {
-					touches: evt.type === "mouseup" ? [] : [evt],
-					targetTouches: [],
-					changedTouches: [evt]
-				});
-				for (i in gestureRecognizers) {
-					gestureRecognizers[i]["process" + eventType](evt, self);
-				}
-				for (i in gestureRecognizers) {
-					gestureRecognizers[i]["finalize" + eventType]();
-				}
-				has("ti-instrumentation") && instrumentation.stopTest(this._gestureInstrumentationTest, "Processing widget " + self.widgetId);
 			}
 
 			this._touching = false;
