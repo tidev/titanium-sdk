@@ -31,7 +31,7 @@ methods:
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
 
   - name: hide
     summary: Hides the activity indicator and stops the animation.

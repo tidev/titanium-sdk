@@ -158,7 +158,8 @@ methods:
         *    [WebView](Titanium.UI.WebView)
 
         Adding children to the these views _may_ be supported on some platforms,
-        but is not guaranteed to work across platforms. 
+        but is not guaranteed to work across platforms. Where it is supported, it may not
+        work as expected.
         
         For maximum portability, these views should be treated as if they do not support children.  
         Instead of adding children to these views, applications can positon other views as
