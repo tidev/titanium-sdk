@@ -7,92 +7,92 @@ methods:
   - name: create
     summary: Add a review, comment, rating, or like.
     description: |
+        Requires user login. 
+        
         See [Reviews: Create Review/Comment/Rating/Like](http://cloud.appcelerator.com/docs/api/v1/reviews/create)
         for the request parameters supported by this method.
-
+        
         Data is returned in the `reviews` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass. 
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudReviewsResponse>
-
-  - name: show
-    summary: Retrieve details of a review.
-    description: |
-        See [Reviews: Show a review](http://cloud.appcelerator.com/docs/api/v1/reviews/show)
-        for the request parameters supported by this method.
-
-        Data is returned in the `reviews` property of the parameter passed to the callback.
-    parameters:
-
-      - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
-      - name: callback
-        summary: Callback function to execute when the method completes.
-        type: Callback<CloudReviewsResponse>
-
+  
   - name: query
     summary: Retrieve a list of reviews with sorting and pagination.
     description: |
         See [Reviews: Custom Query Reviews/Comments/Ratings/Likes](http://cloud.appcelerator.com/docs/api/v1/reviews/query)
         for the request parameters supported by this method.
-
+        
         Data is returned in the `reviews` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudReviewsResponse>
-
-  - name: update
-    summary: Update a review.
-    description: |
-        See [Reviews: Update a Review/Comment/Rating/Like](http://cloud.appcelerator.com/docs/api/v1/reviews/update)
-        for the request parameters supported by this method.
-
-        Data is returned in the `reviews` property of the parameter passed to the callback.
-    parameters:
-
-      - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
-      - name: callback
-        summary: Callback function to execute when the method completes.
-        type: Callback<CloudReviewsResponse>
-
+  
   - name: remove
     summary: Delete a review.
     description: |
+        Requires user login. 
+        
         See [Reviews: Delete a Review/Comment/Rating/Like](http://cloud.appcelerator.com/docs/api/v1/reviews/delete)
         for the request parameters supported by this method.
-
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudReviewsResponse>
+  
+  - name: show
+    summary: Retrieve details of a review.
+    description: |
+        See [Reviews: Show a review](http://cloud.appcelerator.com/docs/api/v1/reviews/show)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `reviews` property of the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudReviewsResponse>
+  
+  - name: update
+    summary: Update a review.
+    description: |
+        Requires user login. 
+        
+        See [Reviews: Update a Review/Comment/Rating/Like](http://cloud.appcelerator.com/docs/api/v1/reviews/update)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `reviews` property of the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudReviewsResponse>
 
 examples:
-  - title: Create Review Example
+  - title: Create Review
     example: |
         This example creates a new review and checks the response.
-
+        
             Cloud.Reviews.create({
                 post_id: savedPostId,
                 rating: 1,
@@ -110,11 +110,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Show a Review Example
+  
+  - title: Show a Review
     example: |
         This example retrieves information about a review and checks the response.
-
+        
             Cloud.Reviews.show({
                 post_id: savedPostId,
                 review_id: savedReviewId
@@ -131,11 +131,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Query for Reviews Example
+  
+  - title: Query for Reviews
     example: |
         This example requests a list of reviews and checks the response.
-
+        
             Cloud.Reviews.query({
                 page: 1,
                 per_page: 20,
@@ -159,11 +159,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Update a Review Example
+  
+  - title: Update a Review
     example: |
         This example updates a review and checks the response.
-
+        
             Cloud.Reviews.update({
                 post_id: savedPostId,
                 review_id: savedReviewId,
@@ -182,11 +182,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Remove a Review Example
+  
+  - title: Remove a Review
     example: |
         This example deletes a review and checks the response.
-
+        
             Cloud.Reviews.remove({
                 post_id: savedPostId,
                 review_id: savedReviewId
@@ -205,6 +205,6 @@ summary: Argument passed to the callback when a request finishes successfully or
 extends: CloudResponse
 properties:
   - name: reviews
-    summary: Array of `reviews` objects, if any
+    summary: Set of `reviews` objects, if any exist.
     description: Only included if `success` is `true`.
-    type: Array<Object>
+    type: Array<Dictionary>

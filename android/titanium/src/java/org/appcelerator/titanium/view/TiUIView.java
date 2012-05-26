@@ -1024,24 +1024,25 @@ public abstract class TiUIView
 							? MotionEvent.ACTION_UP : MotionEvent.ACTION_CANCEL;
 
 						String actualEvent = motionEvents.get(actualAction);
-						if (!proxy.hasListeners(actualEvent)) {
-							return handled;
+						if (proxy.hasListeners(actualEvent)) {
+							handled = proxy.fireEvent(actualEvent, dictFromEvent(event));
 						}
 
-						handled = proxy.fireEvent(actualEvent, dictFromEvent(event));
-						if (handled && actualAction == MotionEvent.ACTION_UP) {
-							// If this listener returns true, a click event does not occur,
-							// because part of the Android View's default ACTION_UP handling
-							// is to call performClick() which leads to invoking the click
-							// listener.  If we return true, that won't run, so we're doing it
-							// here instead.
-							touchable.onTouchEvent(event);
+						if (actualAction != MotionEvent.ACTION_UP) {
+							return handled;
 						}
-						return handled;
 					} else {
 						if (proxy.hasListeners(motionEvent)) {
 							handled = proxy.fireEvent(motionEvent, dictFromEvent(event));
 						}
+					}
+					// If this listener returns true, a click event does not occur,
+					// because part of the Android View's default ACTION_UP handling
+					// is to call performClick() which leads to invoking the click
+					// listener.  If we return true, that won't run, so we're doing it
+					// here instead.
+					if (handled && proxy.hierarchyHasListener(TiC.EVENT_CLICK)) {
+						touchable.onTouchEvent(event);
 					}
 				}
 				return handled;
