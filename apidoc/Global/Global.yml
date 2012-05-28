@@ -13,6 +13,11 @@ description: |
     Titanium includes several extra utility functions for formatting text, attached to the
     global [String](Global.String) object.
     
+    #### console
+    
+    Titanium provides [console](Global.console) support familiar to many javascript developers
+    for logging at the toplevel, in addition to the <Titanium.API> logging facilities.
+    
     #### Timers
     
     Titanium has built-in support for one-off and repeating timers:
