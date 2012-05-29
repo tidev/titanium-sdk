@@ -10,7 +10,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 		_parent: null,
 
 		constructor: function() {
-			this.children = [];
+			this.constants.__values__.children = [];
 			this.layout = "composite";
 			this.containerNode = this.domNode;
 		},
@@ -205,6 +205,10 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 
 		_defaultHeight: UI.FILL,
 
+		constants: {
+			children: void 0
+		},
+
 		properties: {
 			layout: {
 				set: function(value) {
@@ -220,8 +224,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 
 					return value;
 				}
-			},
-			children: void 0
+			}
 		}
 
 	});
