@@ -600,13 +600,12 @@ define(
 		},
 
 		animate: function(anim, callback) {
-			if (UI._layoutInProgress || !this._isAttachedToActiveWin()) {
-				on.once(UI,"postlayout", lang.hitch(this, function(){
-					this._doAnimation(anim, callback);
-				}));
-			} else {
-				this._doAnimation(anim, callback);
-			}
+			var self = this,
+				f = function() {
+					self._doAnimation(anim, callback);
+				};
+
+			UI._layoutInProgress || !self._isAttachedToActiveWin() ? on.once(UI, "postlayout", f) : f();
 		},
 
 		_doAnimation: function(anim, callback) {
