@@ -59,6 +59,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	private AlarmManager restartAlarmManager = null;
 	private int restartDelay = 0;
 	protected boolean invalidKindleFireRelaunch = false;
+	private boolean finishing = false;
 
 	/**
 	 * @return The Javascript URL that this Activity should run
@@ -427,10 +428,23 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		if (tiApp != null) {
 			tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppEndEvent());
 		}
-		
+
 		// Create a new session ID for next session
 		TiPlatformHelper.resetSid();
-		
+
 		super.onDestroy();
+	}
+
+	@Override
+	public void finish()
+	{
+		// Ensure we only run the finish logic once. We want to avoid an infinite loop since this method can be called
+		// from the finish method inside TiBaseActivity ( which can be triggered by terminateActivityStack() )
+		if (!finishing) {
+			finishing = true;
+			TiApplication.removeFromActivityStack(this);
+			TiApplication.terminateActivityStack();
+			super.finish();
+		}
 	}
 }

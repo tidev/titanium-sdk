@@ -37,7 +37,6 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.OpenableColumns;
 import android.view.View;
 
 /**
