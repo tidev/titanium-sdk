@@ -8,7 +8,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 
 		_doLayout: function(element, width, height, isWidthSize, isHeightSize) {
 			var computedSize = {width: 0, height: 0},
-				children = element.children,
+				children = element._children,
 				child,
 				i = 0,
 				layoutCoefficients, 
@@ -30,7 +30,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			// Calculate size for the non-FILL children
 			for(i = 0; i < len; i++) {
 				
-				child = element.children[i];
+				child = element._children[i];
 				if (!child._alive || !child.domNode) {
 					this.handleInvalidState(child,element);
 				} else {
@@ -80,7 +80,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			runningWidth = Math.floor(remainingSpace / fillCount); // Temporary repurposing of runningHeight
 			for(i = 0; i < len; i++) {
 				
-				child = element.children[i];
+				child = element._children[i];
 				if (child._markedForLayout) {
 									
 					layoutCoefficients = child._layoutCoefficients;
@@ -118,7 +118,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 			runningWidth = 0;
 			for(i = 0; i < len; i++) {
 				
-				child = element.children[i];
+				child = element._children[i];
 				child._measuredRunningWidth = runningWidth;
 				if (child._markedForLayout) {
 					layoutCoefficients = child._layoutCoefficients;

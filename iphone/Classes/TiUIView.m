@@ -551,13 +551,13 @@ DEFINE_EXCEPTIONS
 
 -(void)setVisible_:(id)visible
 {
-	self.hidden = ![TiUtils boolValue:visible];
-    
-//	Redraw ourselves if changing from invisible to visible, to handle any changes made
-	if (!self.hidden) {
-		TiViewProxy* viewProxy = (TiViewProxy*)[self proxy];
+    BOOL oldVal = self.hidden;
+    self.hidden = ![TiUtils boolValue:visible];
+    //Redraw ourselves if changing from invisible to visible, to handle any changes made
+	if (!self.hidden && oldVal) {
+        TiViewProxy* viewProxy = (TiViewProxy*)[self proxy];
         [viewProxy willEnqueue];
-	}
+    }
 }
 
 -(void)setTouchEnabled_:(id)arg

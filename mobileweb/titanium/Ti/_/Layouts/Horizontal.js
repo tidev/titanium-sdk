@@ -11,7 +11,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/API", "Ti/UI", "Ti/_/lang", "Ti
 
 		_doLayout: function(element, width, height, isWidthSize, isHeightSize) {
 			var computedSize = {width: 0, height: 0},
-				children = element.children,
+				children = element._children,
 				child,
 				i = 0, j,
 				layoutCoefficients, 
@@ -35,7 +35,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/API", "Ti/UI", "Ti/_/lang", "Ti
 			// Calculate horizontal size and position for the children
 			for(i = 0; i < len; i++) {
 				
-				child = element.children[i];
+				child = element._children[i];
 				if (!child._alive || !child.domNode) {
 					this.handleInvalidState(child,element);
 				} else {
