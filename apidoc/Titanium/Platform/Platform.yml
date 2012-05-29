@@ -111,17 +111,27 @@ properties:
     type: Titanium.Platform.DisplayCaps
     permission: read-only
   - name: id
-    summary: The system's globally-unique ID (UUID).
+    summary: The applications's globally-unique ID (UUID).
+    description: |
+        On Android, this may be the UDID (unique device ID). For iOS, this
+        is a unique identifier for this install of the application.
+        
+        Previously on iOS this may have been a UDID, but access to
+        this has been restricted by Apple. For more information, see
+        [Apple's uniqueIdentifier](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIDevice_Class/DeprecationAppendix/AppendixADeprecatedAPI.html#//apple_ref/occ/instp/UIDevice/uniqueIdentifier)
+        documentation.
     type: String
     permission: read-only
-    deprecated:
-        since: "1.8.0"
   - name: locale
     summary: The system's default language.
     type: String
     permission: read-only
   - name: macaddress
-    summary: The system's network interface mac address.
+    summary: The system's network interface mac address, or app UUID.
+    description: |
+        On iOS, this value is the app's UUID. Apple does not allow
+        access to any hardware identifier information as it can be used for
+        unique device identification, which they have prohibited.
     type: String
     permission: read-only
   - name: model
