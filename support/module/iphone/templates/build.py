@@ -88,7 +88,8 @@ def compile_js(manifest,config):
 	
 	f = os.path.join(cwd,'Classes','___PROJECTNAMEASIDENTIFIER___ModuleAssets.m')
 	c = open(f).read()
-	idx = c.find('return ')
+	templ_search = ' moduleAsset\n{\n'
+	idx = c.find(templ_search) + len(templ_search)
 	before = c[0:idx]
 	after = """
 }
