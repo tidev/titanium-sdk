@@ -1,21 +1,22 @@
 ---
 name: Titanium.UI.ScrollableView
 summary: |
-    A view that encapsulates a horizontally-scrolling set of child views, navigable using its built-in 
-    horizontal swipe gestures.
+    A view that encapsulates a horizontally-scrolling set of child views, navigable using its 
+    built-in horizontal swipe gestures.
 description: |
     Use the <Titanium.UI.createScrollableView> method to create a scrollable view.
     
-    ScrollableView supports an on-screen visual paging control that appears on the left and right 
-    of the view to indicate whether a previous or next child view exists. 
+    ScrollableView supports an on-screen paging control to indicate whether a previous or next child 
+    view exists. When the paging control is enabled on iOS, it appears as small dots on the bottom 
+    of the screen, whereas Android displays arrows on the left and right-hand sides. 
     
     Only the `scroll` event exists on Android. To support those that are missing, event listeners 
     may be added to its child views.
     
     In a previous Titanium version for iOS, the `maxZoomScale` and `minZoomScale` properties were 
     removed for performance and parity reasons. As they still remain in <Titanium.UI.ScrollView>, 
-    the equivalent functionality may be obtained by adding a ScrollView to ScrollableView. See the 
-    "Simple Scrollable View with 2 Zoomable Images" example for a demonstration.
+    the equivalent functionality may be obtained by adding a `ScrollView` to `ScrollableView`. See 
+    the "Simple Scrollable View with 2 Zoomable Images" example for a demonstration.
 excludes: { 
     events: [ 'click', 'longclick', 'pinch', 'scrollEnd', 'swipe', 'touchend', 'touchmove' ]
 }
@@ -319,7 +320,7 @@ properties:
   - name: clipViews
     summary: |
         Determines whether the previous and next child views are clipped, so that they are not 
-        visible, adjacent to the current view.
+        visible adjacent to the current view.
     description: |
         Set to `false` to allow the previous or next child views to be seen. Note that 
         ScrollableView's [width](Titanium.UI.ScrollableView.width) must be smaller than its parent 
@@ -331,11 +332,13 @@ properties:
 
   - name: hitRect
     summary: |
-        Sets a rect to perform hit testing on, to determine if touches have occurred on this
-        view.
+        Sets the region where this view responds to gestures.
     description: |
-        By setting this to some rect, one can override the normal hit testing.  Note that the
-        `x` and `y` specified are relative to the position of the view.
+        This property is particularly useful when [clipViews](Titanium.UI.ScrollableView.clipViews) 
+        is set to `false` and the dimension of this `ScrollableView` is small, to create a larger 
+        area for the user to perform swipe gestures against. 
+        
+        Note that the `x` and `y` values specified are relative to the position of the view.
     type: Dimension
     default: undefined (hit against size of view)
     platforms: [iphone, ipad]
