@@ -30,12 +30,10 @@ methods:
         type: String
 
   - name: serializeToString
-    summary: Serializes a [Node](Titanium.XML.Node) or [Document](Titanium.XML.Document) object into a string.
+    summary: Serializes a [Node](Titanium.XML.Node) object into a string.
     returns:
         type: String
     parameters:
       - name: node
-        summary: |
-            XML [Node](Titanium.XML.Node) or [Document](Titanium.XML.Document) to
-            serialize.
+        summary: XML [Node](Titanium.XML.Node) to serialize.
         type: Titanium.XML.Node

@@ -116,11 +116,24 @@ properties:
 
   - name: nodeName
     summary: Name of this node.
+    description: |
+        Certain node types have constant values defined by the DOM specification:
+
+        * Text node: `#text`
+        * Comment node: `#comment`
+        * CDATA section node: `#cdata-section`
+        * Document node: `#document`
+        * Document fragment node: `#document-fragment`
+
     type: String
     permission: read-only
 
   - name: nodeValue
     summary: Content (value) of this node.
+    description: |
+        As defined in the DOM specification, the node value is always `null` for 
+        Document, DocumentFragment, DocumentType, Element, Entity, EntityReference, and
+        Notation nodes.
     type: String
 
   - name: textContent
@@ -180,6 +193,9 @@ properties:
 
   - name: attributes
     summary: A map of this node's attributes.
+    description: |
+        As defined by the DOM specification, only [Element](Titanium.XML.Element) nodes have attributes. 
+        For all other node types, this property is always `null`.
     type: Titanium.XML.NamedNodeMap
     permission: read-only
 
@@ -217,7 +233,7 @@ methods:
   - name: appendChild
     summary: Appends the node `newChild` as a child of this node.
     description: |
-        On iOS, `appcendChild` is supported on [Element](Titanium.XML.Element)
+        On iOS, `appendChild` is supported on [Element](Titanium.XML.Element)
         nodes **only**.
     returns:
         type: Titanium.XML.Node
@@ -256,7 +272,7 @@ methods:
   - name: insertBefore
     summary: Inserts the node `newChild` before the node `refChild`.
     description: |
-        On iOS, `appcendChild` is supported on [Element](Titanium.XML.Element)
+        On iOS, `insertBefore` is supported on [Element](Titanium.XML.Element)
         nodes **only**.
     returns:
         type: Titanium.XML.Node
@@ -294,7 +310,7 @@ methods:
   - name: removeChild
     summary: Removes a child node from this node.
     description: |
-        On iOS, `appcendChild` is supported on [Element](Titanium.XML.Element)
+        On iOS, `removeChild` is supported on [Element](Titanium.XML.Element)
         nodes **only**.
     returns:
         type: Titanium.XML.Node
@@ -309,7 +325,7 @@ methods:
   - name: replaceChild
     summary: Replaces the node `oldChild` with the node `newChild`.
     description: |
-        On iOS, `appcendChild` is supported on [Element](Titanium.XML.Element)
+        On iOS, `replaceChild` is supported on [Element](Titanium.XML.Element)
         nodes **only**.
     returns:
         type: Titanium.XML.Node
