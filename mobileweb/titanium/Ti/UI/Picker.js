@@ -133,7 +133,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 				this.fireEvent("change", eventInfo);
 			});
 			column.addEventListener("change", column._pickerChangeEventListener);
-			View.prototype.add.call(this,column);
+			this._add(column);
+			this._publish(column);
 		},
 		
 		_updateColumnHeights: function() {
@@ -231,7 +232,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 							});
 							dateTimeInput.min = self.min;
 							dateTimeInput.max = self.max;
-							View.prototype.add.call(self,dateTimeInput);
+							this._add(dateTimeInput);
 						}
 						switch(value) {
 							case UI.PICKER_TYPE_DATE:
