@@ -46,6 +46,7 @@ define(
 
 		constructor: function(args) {
 			var self = this,
+				touchMoveBlocked = false,
 
 				node = this.domNode = this._setFocusNode(dom.create(this.domType || "div", {
 					className: "TiUIElement " + css.clean(this.declaredClass),
@@ -80,7 +81,6 @@ define(
 
 			require.has("devmode") && args && args._debug && dom.attr.set(node, "data-debug", args._debug);
 			function processTouchEvent(eventType, evt) {
-				has("ti-instrumentation") && (this._gestureInstrumentationTest = instrumentation.startTest("Gesture Processing"));
 				var i,
 					gestureRecognizers = touchRecognizers[eventType],
 					touches = evt.changedTouches;
@@ -102,7 +102,6 @@ define(
 				for (i in gestureRecognizers) {
 					gestureRecognizers[i]["finalize" + eventType]();
 				}
-				has("ti-instrumentation") && instrumentation.stopTest(this._gestureInstrumentationTest, "Processing widget " + self.widgetId);
 			}
 
 			this._touching = false;
@@ -112,7 +111,13 @@ define(
 			on(this.domNode, useTouch ? "touchstart" : "mousedown", function(evt){
 				var handles = [
 					on(window, useTouch ? "touchmove" : "mousemove", function(evt){
-						(useTouch || self._touching) && processTouchEvent("Move", evt);
+						if (!touchMoveBlocked) {
+							touchMoveBlocked = true;
+							(useTouch || self._touching) && processTouchEvent("Move", evt);
+							setTimeout(function(){
+								touchMoveBlocked = false;
+							}, 30);
+						}
 					}),
 					on(window, useTouch ? "touchend" : "mouseup", function(evt){
 						self._touching = false;
