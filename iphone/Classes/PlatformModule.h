@@ -15,7 +15,6 @@
 	NSString *model;
 	NSString *version;
 	NSString *architecture;
-	NSString *macaddress;
 	NSNumber *processorCount;
 	NSString *username;
 	NSString *address;
