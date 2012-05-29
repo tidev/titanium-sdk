@@ -196,7 +196,10 @@ def validateMarkdown(tracker, mdData, name):
 		tracker.trackError('Error parsing markdown block "%s": %s' % (name, e))
 
 def findType(tracker, typeName, name):
-	if typeName in ['Dictionary', 'Boolean', 'Number', 'String', 'Date', 'Object', 'Callback']: return
+	base_types = ('Void', 'Dictionary', 'Boolean', 'Number', 'String', 'Date', 'Object', 'Callback')
+
+	if typeName in base_types:
+		return
 
 	containerRegex = r'(Dictionary|Callback|Array)\<([^\>]+)\>'
 	match = re.match(containerRegex, typeName)
@@ -218,7 +221,11 @@ def findType(tracker, typeName, name):
 				found = True
 				break
 	if not found:
-		tracker.trackError('"%s" type "%s" could not be found' % (name, typeName))
+		properCase = "%s%s" % (typeName[0].upper(), typeName[1:])
+		if properCase in base_types:
+			tracker.trackError('"%s" type "%s" could not be found, perhaps "%s" was meant' % (name, typeName, properCase))
+		else:
+			tracker.trackError('"%s" type "%s" could not be found' % (name, typeName))
 
 
 def validateCommon(tracker, map):
