@@ -50,7 +50,7 @@ public class ClipboardModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void clearData(String type)
+	public void clearData(@Kroll.argument(optional=true) String type)
 	{
 		clearText();
 	}
