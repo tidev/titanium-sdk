@@ -43,8 +43,6 @@ define(["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
 					}
 				}
 			}
-			
-			return;
 		},
 		
 		processTouchStartEvent: function(e, element){
