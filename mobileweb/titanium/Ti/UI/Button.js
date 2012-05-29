@@ -20,7 +20,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			});
 			this._add(contentContainer);
 			contentContainer._add(this._buttonImage = UI.createImageView());
-			contentContainer.add(this._buttonTitle = UI.createLabel());
+			contentContainer._add(this._buttonTitle = UI.createLabel());
 			this._addStyleableDomNode(this._buttonTitle.domNode);
 			
 			this._setDefaultLook();

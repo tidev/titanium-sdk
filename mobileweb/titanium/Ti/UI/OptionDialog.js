@@ -23,11 +23,11 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Locale", "Ti/UI", "Ti/_
 					opacity: 0
 				});
 
-			optionsWindow.add(dimmingView);
-			optionsWindow.add(optionsDialog);
+			optionsWindow._add(dimmingView);
+			optionsWindow._add(optionsDialog);
 
 			// Add the title
-			optionsDialog.add(UI.createLabel({
+			optionsDialog._add(UI.createLabel({
 				text: Locale._getString(this.titleid, this.title),
 				font: {fontWeight: "bold"},
 				left: 5,
@@ -53,7 +53,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Locale", "Ti/UI", "Ti/_
 				} else if (i === this.cancel) {
 					css.add(button.domNode, "TiUIElementGradientCancel");
 				}
-				optionsDialog.add(button);
+				optionsDialog._add(button);
 				button.addEventListener("singletap", lang.hitch(this, function(){
 					optionsWindow.close();
 					this._optionsWindow = void 0;
