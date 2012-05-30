@@ -100,8 +100,20 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 	board.strings = nil;
 }
 	 
--(id)getData:(id)arg
+-(id)getData:(id)args
 {
+    id arg = nil;
+    if ([args isKindOfClass:[NSArray class]])
+    {
+        if ([args count] > 0)
+        {
+            arg = [args objectAtIndex:0];
+        }
+    }
+    else 
+    {
+        arg = args;
+    }
 	ENSURE_STRING(arg);
 	NSString *mimeType = arg;
 	__block id result;
@@ -153,8 +165,20 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 	return [self getData: @"text/plain"];
 }
 	 
--(BOOL)hasData:(id)arg
+-(id)hasData:(id)args
 {
+    id arg = nil;
+    if ([args isKindOfClass:[NSArray class]])
+    {
+        if ([args count] > 0)
+        {
+            arg = [args objectAtIndex:0];
+        }
+    }
+    else 
+    {
+        arg = args;
+    }
 	ENSURE_STRING_OR_NIL(arg);
 	NSString *mimeType = arg;
 	__block BOOL result=NO;
@@ -187,10 +211,10 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 			}
 		}
 	}, YES);
-	return result;
+	return NUMBOOL(result);
 }
 	 
--(BOOL)hasText:(id)args
+-(id)hasText:(id)args
 {
 	return [self hasData: @"text/plain"];
 }
@@ -202,6 +226,10 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 	
 	NSString *mimeType = [TiUtils stringValue: [args objectAtIndex: 0]];
 	id data = [args objectAtIndex: 1];
+    if (data == nil) {
+        DebugLog(@"[WARN] setData: data object was nil.");
+        return;
+    }
 	UIPasteboard *board = [UIPasteboard generalPasteboard];
 	ClipboardType dataType = mimeTypeToDataType(mimeType);
 	

@@ -449,7 +449,7 @@ class Builder(object):
 			'-sdcard',
 			self.get_sdcard_path(),
 			'-logcat',
-			'*:d,*',
+			'*:d,*,TiAPI:V',
 			'-no-boot-anim',
 			'-partition-size',
 			'128' # in between nexusone and droid

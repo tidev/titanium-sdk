@@ -13,6 +13,7 @@ define(["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
 				sourceWidgetId = currentNode.getAttribute("data-widget-id"),
 				nodeStack = [node],
 				i,
+				len,
 				children;
 				
 			// Find the first fully fledged Ti component
@@ -29,10 +30,15 @@ define(["Ti/_/declare", "Ti/_/lang"], function(declare,lang) {
 				currentNode = nodeStack.pop();
 				if (currentNode._alive) {
 					if (currentNode.widgetId === sourceWidgetId) {
+						
+						// Find the top most published node
+						while(currentNode && !currentNode._isPublished) {
+							currentNode = currentNode._parent;
+						}
 						return currentNode;
 					}
-					children = currentNode.children;
-					for (i in children) {
+					children = currentNode._children;
+					for (i = 0, len = children.length; i < len; i++) {
 						nodeStack.push(children[i]);
 					}
 				}

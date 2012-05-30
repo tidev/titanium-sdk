@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.clipboard;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 
@@ -18,6 +19,8 @@ import android.text.ClipboardManager;
 @Kroll.module(parentModule=UIModule.class)
 public class ClipboardModule extends KrollModule
 {
+	private String TAG = "Clipboard";
+	
 	public ClipboardModule()
 	{
 		super();
@@ -47,7 +50,7 @@ public class ClipboardModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void clearData(String type)
+	public void clearData(@Kroll.argument(optional=true) String type)
 	{
 		clearText();
 	}
@@ -100,13 +103,10 @@ public class ClipboardModule extends KrollModule
 	@Kroll.method
 	public void setData(String type, Object data)
 	{
-		if (isTextType(type))
-		{
-			data.toString();
-		}
-		else
-		{
-			// Android clipboard is text-only... :(
+		if (isTextType(type) && data != null) {
+			board().setText(data.toString());
+		} else {
+			Log.w(TAG, "Android clipboard only supports text data");
 		}
 	}
 

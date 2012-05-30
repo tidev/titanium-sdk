@@ -203,7 +203,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 				set: function(value) {
 					this._removeAllChildren();
 					this._images = void 0;
-					this.add(this._createImage(value, function() {
+					this._add(this._createImage(value, function() {
 						this.fireEvent("load", {
 							state: "image"
 						});
@@ -232,7 +232,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 							});
 							setStyle(img.domNode, "display", "none");
 							imgs.push(img);
-							this.add(img);
+							this._add(img);
 						}, this);
 					}
 					this._images = imgs;

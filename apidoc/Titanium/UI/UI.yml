@@ -980,7 +980,6 @@ properties:
         The default background color may also show through if you use semi-transparent 
         windows.
     type: String
-    permission: read-only
     
   - name: backgroundImage
     summary: |
