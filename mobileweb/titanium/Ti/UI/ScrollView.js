@@ -103,9 +103,10 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
 			});
 		},
 		
-		scrollTo: function(x,y) {
-			x !== null && (this._contentContainer.scrollLeft = parseInt(x));
-			y !== null && (this._contentContainer.scrollTop = parseInt(y));
+		scrollTo: function(x, y) {
+			var n = this._contentContainer.domNode;
+			x !== null && (n.scrollLeft = parseInt(x));
+			y !== null && (n.scrollTop = parseInt(y));
 		},
 
 		_defaultWidth: UI.FILL,
