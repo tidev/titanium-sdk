@@ -368,22 +368,22 @@ enum
  */
 -(void)viewDidDetach;
 /**
- Tells the view proxy that paret will appear 
+ Tells the view proxy that parent will appear 
  @see UIViewController viewWillAppear.
  */
 -(void)parentWillAppear:(id)args;
 /**
- Tells the view proxy that paret did appear 
+ Tells the view proxy that parent did appear 
  @see UIViewController viewDidAppear.
  */
 -(void)parentDidAppear:(id)args;
 /**
- Tells the view proxy that paret will disappear 
+ Tells the view proxy that parent will disappear 
  @see UIViewController viewWillDisappear.
  */
 -(void)parentWillDisappear:(id)args;
 /**
- Tells the view proxy that paret did appear 
+ Tells the view proxy that parent did appear 
  @see UIViewController viewDidDisappear.
  */
 -(void)parentDidDisappear:(id)args;
