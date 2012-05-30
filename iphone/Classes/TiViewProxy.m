@@ -1162,6 +1162,34 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	// for subclasses
 }
 
+-(void)parentWillAppear:(id)args
+{
+    pthread_rwlock_rdlock(&childrenLock);
+	[children makeObjectsPerformSelector:@selector(parentWillAppear:) withObject:args];
+	pthread_rwlock_unlock(&childrenLock);
+
+}
+-(void)parentDidAppear:(id)args
+{
+    pthread_rwlock_rdlock(&childrenLock);
+	[children makeObjectsPerformSelector:@selector(parentDidAppear:) withObject:args];
+	pthread_rwlock_unlock(&childrenLock);
+
+}
+-(void)parentWillDisappear:(id)args
+{
+    pthread_rwlock_rdlock(&childrenLock);
+	[children makeObjectsPerformSelector:@selector(parentWillDisappear:) withObject:args];
+	pthread_rwlock_unlock(&childrenLock);
+
+}
+-(void)parentDidDisappear:(id)args
+{
+    pthread_rwlock_rdlock(&childrenLock);
+	[children makeObjectsPerformSelector:@selector(parentDidDisappear:) withObject:args];
+	pthread_rwlock_unlock(&childrenLock);
+}
+
 
 #pragma mark Housecleaning state accessors
 
