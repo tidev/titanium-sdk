@@ -982,7 +982,12 @@
 {
 	if ([searchString length]==0) {
         RELEASE_TO_NIL(searchResultIndexes);
-		return;
+        
+        //Need to reload the tableview, as some of the cells might be reused as part
+        //of a previous search and as a result may not be visible on screen.
+        [tableview reloadData];
+        
+        return;
 	}
 	NSEnumerator * searchResultIndexEnumerator;
 	if(searchResultIndexes == nil)
