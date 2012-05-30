@@ -36,7 +36,6 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<property name="kroll.common.project.dir" location="${ti.android.root}/runtime/common"/>
 	<property name="kroll.v8.project.dir" location="${ti.android.root}/runtime/v8"/>
 	<property name="kroll.rhino.project.dir" location="${ti.android.root}/runtime/rhino"/>
-	<property name="kroll.v8.build.x86" value="true"/>
 	<property name="kroll.runtime" value="all"/>
 
 	<condition property="ndk.build" value="${kroll.v8.project.dir}/ndk-build.cmd" else="${kroll.v8.project.dir}/ndk-build.sh">
@@ -389,6 +388,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 
 	<target name="build.kroll.v8.so" depends="generate.kroll.v8.bindings">
 		<property name="ndk.build.args" value=""/>
+		<property name="kroll.v8.build.x86" value=""/>
 		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
 			<env key="ANDROID_NDK" file="${android.ndk}"/>
 			<env key="ANDROID_PLATFORM" file="${android.platform}"/>
