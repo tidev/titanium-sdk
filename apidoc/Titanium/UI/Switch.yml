@@ -13,11 +13,12 @@ description: |
     Use the <Titanium.UI.createSwitch> method to create a switch.
 extends: Titanium.UI.View
 since: "0.8"
+methods:
 
     # main doc inherited from Ti.UI.View.add
   - name: add
     description: |
-        Adding children to an `ImageView` is not supported on all platforms.
+        Adding children to a `Switch` is not supported on all platforms.
 
         If you need to display something on top of this object, consider using 
         another view as a container for both this object and views you want 
