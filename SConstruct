@@ -93,8 +93,6 @@ if ARGUMENTS.get('force_iphone',0):
 if ARGUMENTS.get('COMPILER_FLAGS', 0):
 	flags = ARGUMENTS.get('COMPILER_FLAGS')
 	
-build_x86 = bool(ARGUMENTS.get('build_x86', 1))
-
 env = Environment()
 Export("env cwd version")
 if build_type in ['full', 'android'] and not only_package:
@@ -102,6 +100,8 @@ if build_type in ['full', 'android'] and not only_package:
 	os.chdir('android')
 	try:
 		sdk = AndroidSDK(ARGUMENTS.get("android_sdk", None), 8)
+		build_x86 = int(ARGUMENTS.get('build_x86', 1))
+		
 		# TODO re-enable javadoc targets = ["full.build", "build.titanium.javadoc"]
 		targets = ["full.build"]
 		if clean: targets = ["clean"]
