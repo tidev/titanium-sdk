@@ -34,8 +34,8 @@ platforms: [android, iphone, ipad, mobileweb]
 methods:
   - name: clearData
     summary: |
-        Deletes data of the specified MIME type stored in the clipboard. If omitted, all data is 
-        deleted.
+        Deletes data of the specified MIME type stored in the clipboard. If MIME type omitted, all 
+        data is deleted.
     description: On Android, identical to `clearText` method.
     parameters:
       - name: type
