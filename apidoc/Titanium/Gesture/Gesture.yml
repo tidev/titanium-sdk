@@ -7,6 +7,18 @@ extends: Titanium.Module
 since: "0.8"
 
 methods:
+  - name: getLandscape
+    summary: Gets the value of the [landscape](Titanium.Gesture.landscape) property.
+    returns:
+        type: Boolean
+    platforms: [mobileweb]
+
+  - name: getPortrait
+    summary: Gets the value of the [portrait](Titanium.Gesture.portrait) property.
+    returns:
+        type: Boolean
+    platforms: [mobileweb]
+
   - name: isLandscape
     summary: Returns whether current window is considered landscape by the device.
     description: Value returns `true` if in landscape, and `false` otherwise.         
@@ -80,7 +92,7 @@ events:
         in order to receive the `orientationchange` event. It is not necessary for the  heavyweight
         window to be the topmost window.
         
-        Almost all real-world applications will have a heavyweight windows or a tab group. This is 
+        Almost all real-world applications will have a heavyweight window or a tab group. This is 
         only likely to be an issue if you create a test case or test application that adds an 
         orientation change listener from `app.js` without opening a heavyweight window. 
         
