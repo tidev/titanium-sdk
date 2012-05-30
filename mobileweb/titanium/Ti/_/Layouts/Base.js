@@ -19,7 +19,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/lang", "Ti/API", "Ti/UI"
 		
 		handleInvalidState: function(child, parent) {
 			API.debug("WARNING: Attempting to layout element that has been destroyed.\n\t Removing the element from the parent.\n\t The parent has a widget ID of " + parent.widgetId + ".");
-			var children = parent.children;
+			var children = parent._children;
 			children.splice(children.indexOf(child),1);
 		},
 		

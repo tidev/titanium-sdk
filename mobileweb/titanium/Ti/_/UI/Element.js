@@ -46,6 +46,7 @@ define(
 
 		constructor: function(args) {
 			var self = this,
+				touchMoveBlocked = false,
 
 				node = this.domNode = this._setFocusNode(dom.create(this.domType || "div", {
 					className: "TiUIElement " + css.clean(this.declaredClass),
@@ -80,7 +81,6 @@ define(
 
 			require.has("devmode") && args && args._debug && dom.attr.set(node, "data-debug", args._debug);
 			function processTouchEvent(eventType, evt) {
-				has("ti-instrumentation") && (this._gestureInstrumentationTest = instrumentation.startTest("Gesture Processing"));
 				var i,
 					gestureRecognizers = touchRecognizers[eventType],
 					touches = evt.changedTouches;
@@ -102,15 +102,22 @@ define(
 				for (i in gestureRecognizers) {
 					gestureRecognizers[i]["finalize" + eventType]();
 				}
-				has("ti-instrumentation") && instrumentation.stopTest(this._gestureInstrumentationTest, "Processing widget " + self.widgetId);
 			}
 
 			this._touching = false;
 
+			this._children = [];
+
 			on(this.domNode, useTouch ? "touchstart" : "mousedown", function(evt){
 				var handles = [
 					on(window, useTouch ? "touchmove" : "mousemove", function(evt){
-						(useTouch || self._touching) && processTouchEvent("Move", evt);
+						if (!touchMoveBlocked) {
+							touchMoveBlocked = true;
+							(useTouch || self._touching) && processTouchEvent("Move", evt);
+							setTimeout(function(){
+								touchMoveBlocked = false;
+							}, 30);
+						}
 					}),
 					on(window, useTouch ? "touchend" : "mouseup", function(evt){
 						self._touching = false;
@@ -181,30 +188,34 @@ define(
 			this._parent = view;
 		},
 		
-		_add: function(view) {
+		_add: function(view, hidden) {
+
+			view._hidden = hidden;
+
 			view._setParent(this);
-			
-			this.children.push(view);
+
+			this._children.push(view);
 			this.containerNode.appendChild(view.domNode);
-			
+
 			view._triggerLayout();
 		},
 
-		_insertAt: function(view,index) {
-			if (index > this.children.length || index < 0) {
+		_insertAt: function(view,index, hidden) {
+			var children = this._children;
+			if (index > children.length || index < 0) {
 				return;
-			} else if (index === this.children.length) {
-				this.add(view);
+			} else if (index === children.length) {
+				this._add(view, hidden);
 			} else {
 				view._parent = this;
-				this.containerNode.insertBefore(view.domNode,this.children[index].domNode);
-				this.children.splice(index,0,view);
+				this.containerNode.insertBefore(view.domNode, children[index].domNode);
+				children.splice(index,0,view);
 				this._triggerLayout();
 			}
 		},
 
 		_remove: function(view) {
-			var children = this.children,
+			var children = this._children,
 				p = children.indexOf(view);
 			if (p !== -1) {
 				children.splice(p, 1);
@@ -215,7 +226,7 @@ define(
 		},
 
 		_removeAllChildren: function(view) {
-			var children = this.children;
+			var children = this._children;
 			while (children.length) {
 				this.remove(children[0]);
 			}
@@ -224,6 +235,10 @@ define(
 
 		destroy: function() {
 			if (this._alive) {
+				var children = this._children;
+				while (children.length) {
+					children.splice(0, 1)[0].destroy();
+				}
 				this._parent && this._parent._remove(this);
 				if (this.domNode) {
 					dom.destroy(this.domNode);
@@ -677,10 +692,13 @@ define(
 		},
 
 		_setTouchEnabled: function(value) {
+			var children = this._children,
+				i = 0,
+				len = children.length;
 			setStyle(this.domNode, "pointerEvents", value ? "auto" : "none");
 			if (!value) {
-				for (var i in this.children) {
-					this.children[i]._setTouchEnabled(value);
+				for (; i < len; i++) {
+					children[i]._setTouchEnabled(value);
 				}
 			}
 		},
