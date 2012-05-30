@@ -156,28 +156,28 @@
 -(void)parentWillAppear:(id)args
 {
     TiUIiPhoneNavigationGroup * ourView = (id)[self view];
-	UINavigationController * ourNC = [ourView controller];
+    UINavigationController * ourNC = [ourView controller];
     [ourNC viewWillAppear:[TiUtils boolValue:args def:NO]];
     [super parentWillAppear:args];
 }
 -(void)parentDidAppear:(id)args
 {
     TiUIiPhoneNavigationGroup * ourView = (id)[self view];
-	UINavigationController * ourNC = [ourView controller];
+    UINavigationController * ourNC = [ourView controller];
     [ourNC viewDidAppear:[TiUtils boolValue:args def:NO]];
     [super parentDidAppear:args];
 }
 -(void)parentWillDisappear:(id)args
 {
     TiUIiPhoneNavigationGroup * ourView = (id)[self view];
-	UINavigationController * ourNC = [ourView controller];
+    UINavigationController * ourNC = [ourView controller];
     [ourNC viewWillDisappear:[TiUtils boolValue:args def:NO]];
     [super parentWillDisappear:args];
 }
 -(void)parentDidDisappear:(id)args
 {
     TiUIiPhoneNavigationGroup * ourView = (id)[self view];
-	UINavigationController * ourNC = [ourView controller];
+    UINavigationController * ourNC = [ourView controller];
     [ourNC viewDidDisappear:[TiUtils boolValue:args def:NO]];
     [super parentDidDisappear:args];
 }

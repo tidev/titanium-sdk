@@ -336,7 +336,7 @@ DEFINE_EXCEPTIONS
 			active = [[self tabController].viewControllers objectAtIndex:index];
 		}
 	}
-	if (active != nil) {
+    if (active != nil) {
         [self tabController].selectedViewController = active;
         [self tabBarController:[self tabController] didSelectViewController:active];
     }
