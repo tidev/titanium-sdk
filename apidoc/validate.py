@@ -196,7 +196,7 @@ def validateMarkdown(tracker, mdData, name):
 		tracker.trackError('Error parsing markdown block "%s": %s' % (name, e))
 
 def findType(tracker, typeName, name):
-	base_types = ('Void', 'Dictionary', 'Boolean', 'Number', 'String', 'Date', 'Object', 'Callback')
+	base_types = ('void', 'Dictionary', 'Boolean', 'Number', 'String', 'Date', 'Object', 'Callback')
 
 	if typeName in base_types:
 		return
@@ -220,10 +220,15 @@ def findType(tracker, typeName, name):
 			if 'name' in t and t['name'] == typeName:
 				found = True
 				break
+
 	if not found:
 		properCase = "%s%s" % (typeName[0].upper(), typeName[1:])
 		if properCase in base_types:
 			tracker.trackError('"%s" type "%s" could not be found, perhaps "%s" was meant' % (name, typeName, properCase))
+		elif typeName.lower() == 'void':
+			# "void" is an exception to the proper casing
+			tracker.trackError('"%s" type "%s" could not be found, perhaps "void" was meant' % (name, typeName))
+
 		else:
 			tracker.trackError('"%s" type "%s" could not be found' % (name, typeName))
 
