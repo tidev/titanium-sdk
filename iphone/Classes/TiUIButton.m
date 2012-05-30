@@ -81,8 +81,8 @@
         UIImageView* theView = [[UIImageView alloc] initWithFrame:bounds];
         [theView setImage:backgroundImageCache];
         UIGraphicsBeginImageContextWithOptions(bounds.size, [theView.layer isOpaque], 0.0);
-		[theView.layer renderInContext:UIGraphicsGetCurrentContext()];
-		UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+        [theView.layer renderInContext:UIGraphicsGetCurrentContext()];
+        UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
         RELEASE_TO_NIL(backgroundImageUnstretchedCache);
         backgroundImageUnstretchedCache = [image retain];
