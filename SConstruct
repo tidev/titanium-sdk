@@ -92,6 +92,8 @@ if ARGUMENTS.get('force_iphone',0):
 
 if ARGUMENTS.get('COMPILER_FLAGS', 0):
 	flags = ARGUMENTS.get('COMPILER_FLAGS')
+	
+build_x86 = bool(ARGUMENTS.get('build_x86', 1))
 
 env = Environment()
 Export("env cwd version")
@@ -109,7 +111,7 @@ if build_type in ['full', 'android'] and not only_package:
 
 		ant.build(targets=targets, properties={"build.version": version, "build.githash": githash,
 			"android.sdk": sdk.get_android_sdk(), "android.platform": sdk.get_platform_dir(), "google.apis": sdk.get_google_apis_dir(),
-			"ndk.build.args": "JAVAH=%s" % javah_path })
+			"ndk.build.args": "JAVAH=%s" % javah_path, "kroll.v8.build.x86": build_x86 })
 	finally:
 		os.chdir(d)
 
