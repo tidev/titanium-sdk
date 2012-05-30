@@ -58,6 +58,12 @@
 	}
 }
 
+-(void)popToRootController:(id)arg
+{
+    ENSURE_UI_THREAD(popToRootController,arg);	   
+    [[self view] performSelector:@selector(popToRootController)];
+}
+
 -(UINavigationController*)controller
 {
 	return [(TiUIiPhoneNavigationGroup*)[self view] controller];

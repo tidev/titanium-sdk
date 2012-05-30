@@ -105,6 +105,15 @@
 	[self release];
 }
 
+-(void)popToRootController
+{
+	if (controller!=nil)
+	{
+        [controller popToRootViewControllerAnimated:YES];
+	}
+}
+
+
 -(void)open:(TiWindowProxy*)window withObject:(NSDictionary*)properties
 {
 	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
