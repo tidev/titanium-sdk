@@ -100,6 +100,7 @@
     
     //Create the doc node with root element
     xmlNodePtr rootPtr = xmlNewNode(theNewNs, (xmlChar*)[localName UTF8String]);
+    rootPtr->nsDef = theNewNs;
     xmlDocPtr doc = xmlNewDoc(NULL);
     xmlDocSetRootElement(doc, rootPtr);
 
@@ -111,7 +112,7 @@
             [docTypeNode setShouldFreeXMLNode:NO];
         }
     }
-    xmlReconciliateNs(doc, rootPtr);
+    
     GDataXMLDocument * theDocument = [[[GDataXMLDocument alloc]initWithDocument:doc]autorelease];
     id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
     TiDOMDocumentProxy * result = [[[TiDOMDocumentProxy alloc] _initWithPageContext:context] autorelease];
