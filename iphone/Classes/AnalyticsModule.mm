@@ -42,6 +42,7 @@ NSString * const TI_DB_VERSION = @"1";
 	if ((self = [super init]))
 	{
 		lock = [[NSRecursiveLock alloc] init];
+		eventQueue = [[NSOperationQueue alloc] init];
 	}
 	return self;
 }
@@ -59,6 +60,7 @@ NSString * const TI_DB_VERSION = @"1";
 			NSLog(@"[ERROR] Analytics: database error on shutdown: %@",e);
 		}
 	}
+	[eventQueue release];
 	RELEASE_TO_NIL(database);
 	RELEASE_TO_NIL(retryTimer);
 	RELEASE_TO_NIL(flushTimer);
@@ -81,10 +83,8 @@ NSString * const TI_DB_VERSION = @"1";
 
 -(void)backgroundFlushEventQueue
 {
-	// place the flush on a background thread so it doesn't need to block the main UI thread
-	// flushEventQueueWrapper is only defined when compiling for 4.0 and greater - otherwise we get hella crashes.
-	SEL queueFlusher = @selector(flushEventQueueWrapper);
-	[NSThread detachNewThreadSelector:queueFlusher toTarget:self withObject:nil];
+	NSOperation * flushEventOperation = [NSBlockOperation blockOperationWithBlock:^{[self flushEventQueueWrapper];}];
+	[eventQueue addOperation:flushEventOperation];
 }
 
 -(void)requeueEventsOnTimer
@@ -300,73 +300,76 @@ NSString * const TI_DB_VERSION = @"1";
 
 -(void)queueEvent:(NSString*)type name:(NSString*)name data:(NSDictionary*)data immediate:(BOOL)immediate
 {
-	static int sequence = 0;
-	
-	NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-	
-	[dict setObject:@"2" forKey:@"ver"];
-	[dict setObject:[TiUtils UTCDate] forKey:@"ts"];
-	[dict setObject:[TiUtils createUUID] forKey:@"id"];
-	[dict setObject:NUMINT(sequence++) forKey:@"seq"];
-	[dict setObject:[TiUtils appIdentifier] forKey:@"mid"];
+	NSOperation * eventOperation = [NSBlockOperation blockOperationWithBlock:^{
+		static int sequence = 0;
+		
+		NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+		
+		[dict setObject:@"2" forKey:@"ver"];
+		[dict setObject:[TiUtils UTCDate] forKey:@"ts"];
+		[dict setObject:[TiUtils createUUID] forKey:@"id"];
+		[dict setObject:NUMINT(sequence++) forKey:@"seq"];
+		[dict setObject:[TiUtils appIdentifier] forKey:@"mid"];
 
-	[dict setObject:TI_APPLICATION_GUID forKey:@"aguid"];
-	[dict setObject:TI_APPLICATION_DEPLOYTYPE forKey:@"deploytype"];
-	[dict setObject:name forKey:@"event"];
-	[dict setObject:type forKey:@"type"];
-	[dict setObject:[[TiApp app] sessionId] forKey:@"sid"];
-	if (data==nil)
-	{
-		[dict setObject:[NSNull null] forKey:@"data"];
-	}
-	else 
-	{
-		[dict setObject:data forKey:@"data"];
-	}
-	NSString *remoteDeviceUUID = [[TiApp app] remoteDeviceUUID];
-	if (remoteDeviceUUID==nil)
-	{
-		[dict setObject:[NSNull null] forKey:@"rdu"];
-	}
-	else 
-	{
-		[dict setObject:remoteDeviceUUID forKey:@"rdu"];
-	}
+		[dict setObject:TI_APPLICATION_GUID forKey:@"aguid"];
+		[dict setObject:TI_APPLICATION_DEPLOYTYPE forKey:@"deploytype"];
+		[dict setObject:name forKey:@"event"];
+		[dict setObject:type forKey:@"type"];
+		[dict setObject:[[TiApp app] sessionId] forKey:@"sid"];
+		if (data==nil)
+		{
+			[dict setObject:[NSNull null] forKey:@"data"];
+		}
+		else 
+		{
+			[dict setObject:data forKey:@"data"];
+		}
+		NSString *remoteDeviceUUID = [[TiApp app] remoteDeviceUUID];
+		if (remoteDeviceUUID==nil)
+		{
+			[dict setObject:[NSNull null] forKey:@"rdu"];
+		}
+		else 
+		{
+			[dict setObject:remoteDeviceUUID forKey:@"rdu"];
+		}
 
-	id value = [SBJSON stringify:dict];
-	
-	NSString *sql = [NSString stringWithFormat:@"INSERT INTO pending_events VALUES (?)"];
-	NSError *error = nil;
-	PLSqlitePreparedStatement * statement = (PLSqlitePreparedStatement *) [database prepareStatement:sql error:&error];
-	[statement bindParameters:[NSArray arrayWithObjects:value,nil]];
-    
-    // Don't lock until we need to
-    [lock lock];
-    if (database==nil)
-	{
-		// doh, no database???
+		id value = [SBJSON stringify:dict];
+		
+		NSString *sql = [NSString stringWithFormat:@"INSERT INTO pending_events VALUES (?)"];
+		NSError *error = nil;
+		PLSqlitePreparedStatement * statement = (PLSqlitePreparedStatement *) [database prepareStatement:sql error:&error];
+		[statement bindParameters:[NSArray arrayWithObjects:value,nil]];
+		
+		// Don't lock until we need to
+		[lock lock];
+		if (database==nil)
+		{
+			// doh, no database???
+			[lock unlock];
+			return;
+		}
+		
+		[database beginTransaction];
+		[statement executeUpdate];
+		[database commitTransaction];
 		[lock unlock];
-		return;
-	}
-    
-	[database beginTransaction];
-	[statement executeUpdate];
-	[database commitTransaction];
-	[lock unlock];
-	
-	[statement close];
+		
+		[statement close];
 
-	
-	if (immediate)
-	{	
-		// if immediate we send right now
-		[self flushEventQueueWrapper];
-	}
-	else
-	{
-		// otherwise, we start our flush timer to send later
-		[self startFlushTimer];
-	}
+		
+		if (immediate)
+		{	
+			// if immediate we send right now
+			[self flushEventQueueWrapper];
+		}
+		else
+		{
+			// otherwise, we start our flush timer to send later
+			[self startFlushTimer];
+		}
+	}];
+	[eventQueue addOperation:eventOperation];
 }
 
 -(NSString*)checkForEnrollment:(BOOL*)enrolled
@@ -554,24 +557,22 @@ NSString * const TI_DB_VERSION = @"1";
 -(void)analyticsEvent:(NSNotification*)note
 {
 	id userInfo = [note userInfo];
-	if (userInfo!=nil && [userInfo isKindOfClass:[NSDictionary class]])
-	{
-		NSDictionary *event = (NSDictionary*)userInfo;
-		NSString *name = [event objectForKey:@"name"];
-		NSString *type = [event objectForKey:@"type"];
-		NSDictionary *data = [event objectForKey:@"data"];
-		
-		if (IS_NULL_OR_NIL(data) && [type isEqualToString:@"ti.foreground"]) {
-			//Do we want to open this up to other events? On one hand, more data
-			//is good. On the other, sending unneeded data is expensive.
-			data = [self startupDataPayload];
-		}
-		[self queueEvent:type name:name data:data immediate:NO];
-	}
-	else
+	if (![userInfo isKindOfClass:[NSDictionary class]])
 	{
 		DebugLog(@"[ERROR] Invalid analytics event received. Expected dictionary, got: %@",[userInfo class]);
+		return;
 	}
+	NSDictionary *event = (NSDictionary*)userInfo;
+	NSString *name = [event objectForKey:@"name"];
+	NSString *type = [event objectForKey:@"type"];
+	NSDictionary *data = [event objectForKey:@"data"];
+	
+	if (IS_NULL_OR_NIL(data) && [type isEqualToString:@"ti.foreground"]) {
+		//Do we want to open this up to other events? On one hand, more data
+		//is good. On the other, sending unneeded data is expensive.
+		data = [self startupDataPayload];
+	}
+	[self queueEvent:type name:name data:data immediate:NO];
 }
 
 -(void)remoteDeviceUUIDChanged:(NSNotification*)note
