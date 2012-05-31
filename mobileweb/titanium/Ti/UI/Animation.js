@@ -1,13 +1,31 @@
 define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
 
+	var activeList = [];
+
+	// animator
+	// - animates all scheduled animations
+	// - fires start/complete events
+		// question: what is fired first? start() or start event
+		// anim.start()
+		// anim.fireEvent("start");
+		// anim.complete()
+		// anim.fireEvent("complete");
+debugger;
 	return declare("Ti.UI.Animation", Evented, {
 
-		start: function() {
-			this.fireEvent("start");
+		_play: function(elem) {
+			this._elem = elem;
+			
+			// TODO:
+			// - check if this element is already being animated
+			//   - if so, override animated properties
+			
+			// TODO: check if this element is already
+			
+			// TODO: notify the animator we need to do work!
 		},
 
-		complete: function() {
-			this.fireEvent("complete");
+		_pause: function() {
 		},
 
 		properties: {
@@ -16,7 +34,7 @@ define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
 			bottom: void 0,
 			center: void 0,
 			color: void 0,
-			curve: void 0,
+			curve: void 0, // "ease", "ease-in", "ease-in-out", "ease-out", "linear"
 			delay: void 0,
 			duration: void 0,
 			height: void 0,
