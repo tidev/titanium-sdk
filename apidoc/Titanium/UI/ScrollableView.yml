@@ -7,7 +7,7 @@ description: |
     Use the <Titanium.UI.createScrollableView> method to create a scrollable view.
     
     The `ScrollableView` supports an on-screen paging control to indicate whether a previous or next 
-    page exists. When the paging control is enabled on iOS on Mobile Web, it appears by default as 
+    page exists. When the paging control is enabled on iOS or Mobile Web, by default it appears as 
     small dots on the bottom of the screen, whereas Android displays arrows on the left and 
     right-hand sides. 
     
