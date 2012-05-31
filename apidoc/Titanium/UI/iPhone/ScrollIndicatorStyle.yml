@@ -1,6 +1,6 @@
 ---
 name: Titanium.UI.iPhone.ScrollIndicatorStyle
-summary: A set of constants for the styles available for <Titanium.UI.ActivityIndicator> objects.
+summary: A set of constants for the styles available for scrollbars on <Titanium.UI.ScrollView> and <Titanium.UI.TableView> objects.
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]
