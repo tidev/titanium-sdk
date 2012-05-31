@@ -24,11 +24,11 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Locale", "T
 				}),
 				buttons = this.buttonNames || [];
 
-			alertWindow.add(dimmingView);
-			alertWindow.add(alertDialog);
+			alertWindow._add(dimmingView);
+			alertWindow._add(alertDialog);
 
 			// Add the title
-			alertDialog.add(UI.createLabel({
+			alertDialog._add(UI.createLabel({
 				text: Locale._getString(this.titleid, this.title),
 				font: {fontWeight: "bold"},
 				left: 5,
@@ -39,7 +39,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Locale", "T
 			}));
 
 			// Add the message
-			alertDialog.add(UI.createLabel({
+			alertDialog._add(UI.createLabel({
 				text: Locale._getString(this.messageid, this.message),
 				left: 5,
 				right: 5,
@@ -61,7 +61,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Locale", "T
 					index: i
 				});
 				i === this.cancel && css.add(button.domNode, "TiUIElementGradientCancel");
-				alertDialog.add(button);
+				alertDialog._add(button);
 				button.addEventListener("singletap", lang.hitch(this, function(){
 					alertWindow.close();
 					this._alertWindow = void 0;
