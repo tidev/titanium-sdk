@@ -88,9 +88,9 @@
 
     //Create the new NS pointer
     xmlChar *pre = NULL;
-	xmlChar *href = NULL;
-	if(theURI != nil) {
-		href = (xmlChar*)[theURI UTF8String];
+    xmlChar *href = NULL;
+    if(theURI != nil) {
+        href = (xmlChar*)[theURI UTF8String];
     }
     if ([prefix length] > 0) {
         pre = (xmlChar*) [prefix UTF8String];
