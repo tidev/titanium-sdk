@@ -6,6 +6,7 @@
  */
 #ifdef USE_TI_UILABEL
 
+#import "TiColor.h"
 #import "TiUILabel.h"
 #import "TiUILabelProxy.h"
 #import "TiUtils.h"
@@ -173,6 +174,15 @@
         [[self label] setMinimumFontSize:newSize];
     }
     
+}
+
+-(void)setBackgroundColor_:(id)value
+{
+	if (value!=nil)
+	{
+		TiColor *color = [TiUtils colorValue:value];
+		[[self label] setBackgroundColor:[color _color]];
+	}
 }
 
 -(void)setBackgroundImage_:(id)url
