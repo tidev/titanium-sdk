@@ -40,10 +40,11 @@
 +(void)flushCache;
 +(BOOL)isDarkColor:(UIColor*)color;
 
-//constants for iOS backgrond texture colors.
+//constants for iOS background texture colors.
 
 extern NSString * const IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND;
 extern NSString * const IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND;
+extern NSString * const IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND;
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
 extern NSString * const IOS_COLOR_UNDER_PAGE_BACKGROUND;
 #endif

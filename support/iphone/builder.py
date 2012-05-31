@@ -797,6 +797,12 @@ def main(args):
 			missing_modules, modules = detector.find_app_modules(ti, 'iphone')
 			module_lib_search_path, module_asset_dirs = locate_modules(modules, project_dir, app_dir, log)
 			common_js_modules = []
+			
+			if len(missing_modules) != 0:
+				print '[ERROR] Could not find the following required iOS modules:'
+				for module in missing_modules:
+					print "[ERROR]\tid: %s\tversion: %s" % (module['id'], module['version'])
+				exit(1)
 
 			# search for modules that the project is using
 			# and make sure we add them to the compile

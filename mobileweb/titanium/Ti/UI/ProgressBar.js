@@ -43,7 +43,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 	return declare("Ti.UI.ProgressBar", Widget, {
 		
 		constructor: function() {
-			this.add(this._contentContainer = UI.createView({
+			this._add(this._contentContainer = UI.createView({
 				width: UI.INHERIT,
 				height: UI.INHERIT,
 				left: 0,
@@ -51,8 +51,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
 			this._contentContainer._layout._defaultHorizontalLayout = "start";
-			this._contentContainer.add(this._message = UI.createLabel());
-			this._contentContainer.add(this._progressBar = new InternalProgressBar({
+			this._contentContainer._add(this._message = UI.createLabel());
+			this._contentContainer._add(this._progressBar = new InternalProgressBar({
 				width: UI.INHERIT,
 				height: UI.INHERIT
 			}));

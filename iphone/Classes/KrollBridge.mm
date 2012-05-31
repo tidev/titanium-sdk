@@ -16,6 +16,7 @@
 #import <libkern/OSAtomic.h>
 #import "KrollContext.h"
 #import "TiDebugger.h"
+#import "TiConsole.h"
 
 #ifdef KROLL_COVERAGE
 # include "KrollCoverage.h"
@@ -68,12 +69,12 @@ NSString * TitaniumModuleRequireFormat = @"(function(exports){"
 #if KROLLBRIDGE_MEMORY_DEBUG==1
 -(id)retain
 {
-	NSLog(@"RETAIN: %@ (%d)",self,[self retainCount]+1);
+	NSLog(@"[MEMRORY DEBUG] RETAIN: %@ (%d)",self,[self retainCount]+1);
 	return [super retain];
 }
 -(oneway void)release 
 {
-	NSLog(@"RELEASE: %@ (%d)",self,[self retainCount]-1);
+	NSLog(@"[MEMORY DEBUG] RELEASE: %@ (%d)",self,[self retainCount]-1);
 	[super release];
 }
 #endif
@@ -210,7 +211,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	if (self = [super init])
 	{
 #if KROLLBRIDGE_MEMORY_DEBUG==1
-		NSLog(@"INIT: %@",self);
+		NSLog(@"[DEBUG] INIT: %@",self);
 #endif		
 		modules = [[NSMutableDictionary alloc] init];
 		proxyLock = OS_SPINLOCK_INIT;
@@ -269,12 +270,12 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 #if KROLLBRIDGE_MEMORY_DEBUG==1
 -(id)retain
 {
-	NSLog(@"RETAIN: %@ (%d)",self,[self retainCount]+1);
+	NSLog(@"[MEMORY DEBUG] RETAIN: %@ (%d)",self,[self retainCount]+1);
 	return [super retain];
 }
 -(oneway void)release 
 {
-	NSLog(@"RELEASE: %@ (%d)",self,[self retainCount]-1);
+	NSLog(@"[MEMORY DEBUG] RELEASE: %@ (%d)",self,[self retainCount]-1);
 	[super release];
 }
 #endif
@@ -310,7 +311,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 -(void)dealloc
 {
 #if KROLLBRIDGE_MEMORY_DEBUG==1
-	NSLog(@"DEALLOC: %@",self);
+	NSLog(@"[MEMORY DEBUG] DEALLOC: %@",self);
 #endif
 		
 	[self removeProxies];
@@ -414,7 +415,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	
 	if (error!=nil)
 	{
-		NSLog(@"[ERROR] error loading path: %@, %@",path,error);
+		NSLog(@"[ERROR] Error loading path: %@, %@",path,error);
 		
 		// check for file not found a give a friendlier message
 		if ([error code]==260 && [error domain]==NSCocoaErrorDomain)
@@ -438,7 +439,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	if (!TiCheckScriptSyntax(jsContext,jsCode,jsURL,1,&exception))
 	{
 		id excm = [KrollObject toID:context value:exception];
-		NSLog(@"[ERROR] Syntax Error = %@",[TiUtils exceptionMessage:excm]);
+		DebugLog(@"[ERROR] Syntax Error = %@",[TiUtils exceptionMessage:excm]);
 		[self scriptError:[TiUtils exceptionMessage:excm]];
 	}
 	
@@ -458,7 +459,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		if (exception!=NULL)
 		{
 			id excm = [KrollObject toID:context value:exception];
-			NSLog(@"[ERROR] Script Error = %@.",[TiUtils exceptionMessage:excm]);
+			DebugLog(@"[ERROR] Script Error = %@.",[TiUtils exceptionMessage:excm]);
 			[self scriptError:[TiUtils exceptionMessage:excm]];
 		}
         else {
@@ -486,7 +487,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 {
 	if (![listener isKindOfClass:[KrollCallback class]])
 	{
-		NSLog(@"[ERROR] listener callback is of a non-supported type: %@",[listener class]);
+		DebugLog(@"[ERROR] Listener callback is of a non-supported type: %@",[listener class]);
 		return;
 	}
 
@@ -512,7 +513,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 -(void)shutdown:(NSCondition*)condition
 {
 #if KROLLBRIDGE_MEMORY_DEBUG==1
-	NSLog(@"DESTROY: %@",self);
+	NSLog(@"[MEMORY DEBUG] DESTROY: %@",self);
 #endif
 	
 	if (shutdown==NO)
@@ -552,6 +553,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	// create Titanium global object
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     
+    // Load the "Titanium" object into the global scope
 	NSString *basePath = (url==nil) ? [TiHost resourcePath] : [[[url path] stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"."];
 	titanium = [[TitaniumObject alloc] initWithContext:kroll host:host context:self baseURL:[NSURL fileURLWithPath:basePath]];
 	
@@ -566,6 +568,11 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	TiObjectSetProperty(jsContext, globalRef, prop2, tiRef, NULL, NULL);
 	TiStringRelease(prop);
 	TiStringRelease(prop2);	
+    
+    // Load the "console" object into the global scope
+    console = [[KrollObject alloc] initWithTarget:[[[TiConsole alloc] _initWithPageContext:self] autorelease] context:kroll];
+    prop = TiStringCreateWithCFString((CFStringRef)@"console");
+    TiObjectSetProperty(jsContext, globalRef, prop, [KrollObject toValue:kroll value:console], kTiPropertyAttributeNone, NULL);
 	
 	//if we have a preload dictionary, register those static key/values into our namespace
 	if (preload!=nil)
@@ -624,6 +631,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	TiThreadPerformOnMainThread(^{[self unregisterForMemoryWarning];}, NO);
 	[self removeProxies];
 	RELEASE_TO_NIL(titanium);
+    RELEASE_TO_NIL(console);
 	RELEASE_TO_NIL(context);
 	RELEASE_TO_NIL(preload);
 	[self autorelease]; // Safe to release now that the context is done
@@ -725,7 +733,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	
 	if (exception != NULL) {
 		id excm = [KrollObject toID:context value:exception];
-		NSLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
+		DebugLog(@"[ERROR] Script Error = %@",[TiUtils exceptionMessage:excm]);
 		fflush(stderr);
 		@throw excm;
 	}

@@ -5,109 +5,108 @@ excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  
 
 methods:
   - name: create
-    summary: Create, or upload, a new photo.
+    summary: Create or upload a new photo.
     description: |
+        Requires user login. 
+        
         See [Photos: Create (Upload) a Photo](http://cloud.appcelerator.com/docs/api/v1/photos/create)
         for the request parameters supported by this method.
-
+        
         Data is returned in the `photos` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass. 
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+      
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudPhotosResponse>
-
-  - name: show
-    summary: Retrieve information about a photo.
-    description: |
-        See [Photos: Show Photo Info](http://cloud.appcelerator.com/docs/api/v1/photos/show)
-        for the request parameters supported by this method.
-
-        Data is returned in the `photos` property of the parameter passed to the callback.
-    parameters:
-
-      - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
-      - name: callback
-        summary: Callback function to execute when the method completes.
-        type: Callback<CloudPhotosResponse>
-
-  - name: search
-    summary: Retrieve a list of photos.
-    description: |
-        See [Photos: Search for Photos](http://cloud.appcelerator.com/docs/api/v1/photos/search)
-        for the request parameters supported by this method.
-
-        Data is returned in the `photos` property of the parameter passed to the callback.
-    parameters:
-
-      - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
-      - name: callback
-        summary: Callback function to execute when the method completes.
-        type: Callback<CloudPhotosResponse>
-
+  
   - name: query
     summary: Retrieve a list of photos with sorting and pagination.
     description: |
         See [Photos: Custom Query Photos](http://cloud.appcelerator.com/docs/api/v1/photos/query)
         for the request parameters supported by this method.
-
+        
         Data is returned in the `photos` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
+        summary: Parameters to send in the request.
+        type: Dictionary
         optional: true
-
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudPhotosResponse>
-
-  - name: update
-    summary: Update a photo.
-    description: |
-        See [Photos: Update a Photo](http://cloud.appcelerator.com/docs/api/v1/photos/update)
-        for the request parameters supported by this method.
-
-        Data is returned in the `photos` property of the parameter passed to the callback.
-    parameters:
-
-      - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
-      - name: callback
-        summary: Callback function to execute when the method completes.
-        type: Callback<CloudPhotosResponse>
-
+  
   - name: remove
     summary: Delete a photo.
     description: |
+        Requires user login. 
+        
         See [Photos: Delete a Photo](http://cloud.appcelerator.com/docs/api/v1/photos/delete)
         for the request parameters supported by this method.
-
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPhotosResponse>
+  
+  - name: search
+    summary: Retrieve a list of photos.
+    description: |
+        See [Photos: Search for Photos](http://cloud.appcelerator.com/docs/api/v1/photos/search)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `photos` property of the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPhotosResponse>
+  
+  - name: show
+    summary: Retrieve information about a photo.
+    description: |
+        See [Photos: Show Photo Info](http://cloud.appcelerator.com/docs/api/v1/photos/show)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `photos` property of the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+      
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPhotosResponse>
+  
+  - name: update
+    summary: Update a photo.
+    description: |
+        Requires user login. 
+        
+        See [Photos: Update a Photo](http://cloud.appcelerator.com/docs/api/v1/photos/update)
+        for the request parameters supported by this method.
+        
+        Data is returned in the `photos` property of the parameter passed to the callback.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudPhotosResponse>
 
 examples:
-  - title: Create Photo Example
+  - title: Create Photo
     example: |
         This example creates a new photo and checks the response.
 
@@ -127,7 +126,7 @@ examples:
                 }
             });
 
-  - title: Show a Photo Example
+  - title: Show a Photo
     example: |
         This example retrieves information about a photo and checks the response.
 
@@ -146,7 +145,7 @@ examples:
                 }
             });
 
-  - title: Search for Photos Example
+  - title: Search for Photos
     example: |
         This example searches for photos and checks the response.
 
@@ -169,7 +168,7 @@ examples:
                 }
             });
 
-  - title: Query for Photos Example
+  - title: Query for Photos
     example: |
         This example requests a list of photos and checks the response.
 
@@ -199,7 +198,7 @@ examples:
                 }
             });
 
-  - title: Update a Photo Example
+  - title: Update a Photo
     example: |
         This example updates a photo and checks the response.
 
@@ -220,7 +219,7 @@ examples:
                 }
             });
 
-  - title: Remove a Photo Example
+  - title: Remove a Photo
     example: |
         This example deletes a photo and checks the response.
 
@@ -241,6 +240,6 @@ summary: Argument passed to the callback when a request finishes successfully or
 extends: CloudResponse
 properties:
   - name: photos
-    summary: Array of `photos` objects, if any
+    summary: Set of `photos` objects, if any exist.
     description: Only included if `success` is `true`.
-    type: Array<Object>
+    type: Array<Dictionary>

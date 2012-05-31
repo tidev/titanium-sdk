@@ -1,4 +1,5 @@
-define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"], function(Base, declare, UI, lang, style) {
+define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/API", "Ti/UI", "Ti/_/lang", "Ti/_/style"],
+	function(Base, declare, API, UI, lang, style) {
 
 	var isDef = lang.isDef,
 		setStyle = style.set,
@@ -10,7 +11,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 
 		_doLayout: function(element, width, height, isWidthSize, isHeightSize) {
 			var computedSize = {width: 0, height: 0},
-				children = element.children,
+				children = element._children,
 				child,
 				i = 0, j,
 				layoutCoefficients, 
@@ -29,12 +30,12 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				verifyChild = this.verifyChild,
 				updateBorder = this.updateBorder,
 				measureNode = this._measureNode,
-				style;
-				
+				nodeStyle;
+
 			// Calculate horizontal size and position for the children
 			for(i = 0; i < len; i++) {
 				
-				child = element.children[i];
+				child = element._children[i];
 				if (!child._alive || !child.domNode) {
 					this.handleInvalidState(child,element);
 				} else {
@@ -69,7 +70,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 							
 							child._childrenLaidOut = true;
 							if (heightLayoutCoefficients.x2 !== 0 && !isNaN(heightLayoutCoefficients.x2)) {
-								console.warn("Child of width SIZE and height FILL detected in a horizontal layout. Performance degradation may occur.");
+								API.warn("Child of width SIZE and height FILL detected in a horizontal layout. Performance degradation may occur.");
 								child._childrenLaidOut = false;
 							}
 						} else {
@@ -175,12 +176,12 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 				if (child._markedForLayout) {
 					UI._elementLayoutCount++;
 					child = children[i];
-					style = child.domNode.style;
-					style.zIndex = child.zIndex;
-					style.left = round(child._measuredLeft) + pixelUnits;
-					style.top = round(child._measuredTop) + pixelUnits;
-					style.width = round(child._measuredWidth - child._borderLeftWidth - child._borderRightWidth) + pixelUnits;
-					style.height = round(child._measuredHeight - child._borderTopWidth - child._borderBottomWidth) + pixelUnits;
+					nodeStyle = child.domNode.style;
+					nodeStyle.zIndex = child.zIndex;
+					nodeStyle.left = round(child._measuredLeft) + pixelUnits;
+					nodeStyle.top = round(child._measuredTop) + pixelUnits;
+					nodeStyle.width = round(child._measuredWidth - child._borderLeftWidth - child._borderRightWidth) + pixelUnits;
+					nodeStyle.height = round(child._measuredHeight - child._borderTopWidth - child._borderBottomWidth) + pixelUnits;
 					child._markedForLayout = false;
 					child.fireEvent("postlayout");
 				}

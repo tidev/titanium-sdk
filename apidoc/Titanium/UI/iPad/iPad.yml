@@ -2,36 +2,40 @@
 name: Titanium.UI.iPad
 summary: iPad specific UI capabilities.  
 description: |
-    All properties, methods and events in this namespace will only work on the Apple iPad 
-    related devices.  To develop for iPad, you will need the Apple iPhone SDK 3.2 or later 
-    and Titanium Mobile SDK 1.2 or later. 
+    All properties, methods and events in this namespace will only work on the Apple iPad devices. 
     
     For iPad UI programming guidelines, please review the [iPad Human Interface Guidelines]
     (http://developer.apple.com/iphone/library/documentation/General/Conceptual/iPadHIG/Introduction/Introduction.html).
 extends: Titanium.Module
+platforms: [ipad]
 since: "1.2"
-platforms: ['ipad']
+
 properties:
   - name: POPOVER_ARROW_DIRECTION_ANY
     summary: An arrow that points in any direction.
     type: Number
     permission: read-only
+    
   - name: POPOVER_ARROW_DIRECTION_DOWN
     summary: An arrow that points downward.
     type: Number
     permission: read-only
+    
   - name: POPOVER_ARROW_DIRECTION_LEFT
     summary: An arrow that points toward the left.
     type: Number
     permission: read-only
+    
   - name: POPOVER_ARROW_DIRECTION_RIGHT
     summary: An arrow that points toward the right.
     type: Number
     permission: read-only
+    
   - name: POPOVER_ARROW_DIRECTION_UNKNOWN
     summary: The status of the arrow is currently unknown.
     type: Number
     permission: read-only
+    
   - name: POPOVER_ARROW_DIRECTION_UP
     summary: An arrow that points upward.
     type: Number

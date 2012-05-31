@@ -43,6 +43,7 @@ extern NSString * TitaniumModuleRequireFormat;
 	NSDictionary *preload;
 	NSMutableDictionary *modules;
 	TitaniumObject *titanium;
+    KrollObject* console;
 	BOOL shutdown;
     BOOL evaluationError;
 	//NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,

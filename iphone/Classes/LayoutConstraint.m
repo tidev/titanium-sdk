@@ -331,7 +331,7 @@ void ApplyConstraintToViewWithBounds(LayoutConstraint * constraint, TiUIView * s
 {
 	if(constraint == NULL)
 	{
-		NSLog(@"[ERROR] Trying to constraint a view without a proxy's layout.");
+		DebugLog(@"[ERROR] No constraints available for view %@.", subView);
 		return;
 	}
 

@@ -73,9 +73,22 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 			return len ? windows[windows.length - 1] : null;
 		},
 
+		add: function(view) {
+			this._navBarContainer._add(view);
+			this._publish(view);
+		},
+
+		remove: function(view) {
+			this._navBarContainer._remove(view);
+			this._unpublish(view);
+		},
+
 		open: function(win) {
 			if (!win._opened) {
 				var backButton = this._backButton;
+
+				// Publish the window
+				this._publish(win);
 
 				// Show the back button, if need be
 				backButton.animate({opacity: 1, duration: 250}, function() {
@@ -100,6 +113,9 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 		close: function(win) {
 			var windows = this._windows,
 				windowIdx = windows.indexOf(win);
+
+				// Unpublish the window
+				this._unpublish(win);
 
 			// make sure the window exists and it's not the root
 			if (windowIdx > 0) {
