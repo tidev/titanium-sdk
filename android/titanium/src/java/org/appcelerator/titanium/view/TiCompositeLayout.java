@@ -532,7 +532,7 @@ public class TiCompositeLayout extends ViewGroup
 				}
 
 				if (!TiApplication.getInstance().isRootActivityAvailable()) {
-					Log.e(TAG, "The root activity is no longer available.  Skipping layout pass.");
+					Log.w(TAG, "The root activity is no longer available.  Skipping layout pass.");
 					return;
 				}
 
