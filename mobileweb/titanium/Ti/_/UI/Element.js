@@ -172,28 +172,28 @@ define(
 			};
 		},
 
-		addEventListener: function(eventName) {
-			if (eventName in gestureMapping) {
+		addEventListener: function(name, handler) {
+			if (name in gestureMapping) {
 				var gestureRecognizers = this._gestureRecognizers,
 					gestureRecognizer;
 				
-				if (!(eventName in gestureRecognizers)) {
-					gestureRecognizers[eventName] = {
+				if (!(name in gestureRecognizers)) {
+					gestureRecognizers[name] = {
 						count: 0,
-						recognizer: new (require("Ti/_/Gestures/" + gestureMapping[eventName]))()
+						recognizer: new (require("Ti/_/Gestures/" + gestureMapping[name]))
 					};
 				}
 				
-				gestureRecognizers[eventName].count++;
+				gestureRecognizers[name].count++;
 			}
-			Evented.addEventListener.apply(this, arguments);
+			handler && Evented.addEventListener.apply(this, arguments);
 		},
 
-		removeEventListener: function(eventName) {
-			if (eventName in gestureMapping) {
+		removeEventListener: function(name) {
+			if (name in gestureMapping) {
 				var gestureRecognizers = this._gestureRecognizers;
-				if (eventName in gestureRecognizers && !(--gestureRecognizers[eventName].count)) {
-					delete gestureRecognizers[eventName];
+				if (name in gestureRecognizers && !(--gestureRecognizers[name].count)) {
+					delete gestureRecognizers[name];
 				}
 			}
 			Evented.removeEventListener.apply(this, arguments);

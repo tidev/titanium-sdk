@@ -19,7 +19,7 @@ define(function() {
 					var i = 0,
 						events = this.listeners[name],
 						l = events && events.length || 0;
-	
+
 					for (; i < l; i++) {
 						events[i] === handler && events.splice(i, 1);
 					}
