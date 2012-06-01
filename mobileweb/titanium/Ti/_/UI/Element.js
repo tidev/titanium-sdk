@@ -173,30 +173,30 @@ define(
 		},
 
 		addEventListener: function(name, handler) {
-			if (eventName in gestureMapping) {
+			if (name in gestureMapping) {
 				var gestureRecognizers = this._gestureRecognizers,
 					gestureRecognizer;
 				
-				if (!(eventName in gestureRecognizers)) {
-					gestureRecognizers[eventName] = {
+				if (!(name in gestureRecognizers)) {
+					gestureRecognizers[name] = {
 						count: 0,
-						recognizer: new (require("Ti/_/Gestures/" + gestureMapping[eventName]))
+						recognizer: new (require("Ti/_/Gestures/" + gestureMapping[name]))
 					};
 				}
 				
-				gestureRecognizers[eventName].count++;
+				gestureRecognizers[name].count++;
 			}
 			handler && Evented.addEventListener.apply(this, arguments);
 		},
 
-		removeEventListener: function(name, handler) {
-			if (eventName in gestureMapping) {
+		removeEventListener: function(name) {
+			if (name in gestureMapping) {
 				var gestureRecognizers = this._gestureRecognizers;
-				if (eventName in gestureRecognizers && !(--gestureRecognizers[eventName].count)) {
-					delete gestureRecognizers[eventName];
+				if (name in gestureRecognizers && !(--gestureRecognizers[name].count)) {
+					delete gestureRecognizers[name];
 				}
 			}
-			handler && Evented.removeEventListener.apply(this, arguments);
+			Evented.removeEventListener.apply(this, arguments);
 		},
 
 		_setParent: function(view) {
