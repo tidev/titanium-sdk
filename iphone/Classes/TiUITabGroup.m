@@ -336,9 +336,10 @@ DEFINE_EXCEPTIONS
 			active = [[self tabController].viewControllers objectAtIndex:index];
 		}
 	}
-	
-	[self tabController].selectedViewController = active;
-	[self tabBarController:[self tabController] didSelectViewController:active];
+    if (active != nil) {
+        [self tabController].selectedViewController = active;
+        [self tabBarController:[self tabController] didSelectViewController:active];
+    }
 }
 
 -(void)setAllowUserCustomization_:(id)value
