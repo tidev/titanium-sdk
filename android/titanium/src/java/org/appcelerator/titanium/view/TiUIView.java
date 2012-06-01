@@ -30,6 +30,7 @@ import org.appcelerator.titanium.util.TiAnimationBuilder.TiMatrixAnimation;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
+import org.appcelerator.titanium.view.TiGradientDrawable.GradientType;
 
 import android.content.Context;
 import android.graphics.Paint;
@@ -266,7 +267,7 @@ public abstract class TiUIView
 
 	private boolean hasGradient(KrollDict d)
 	{
-		return d.containsKey(TiC.PROPERTY_BACKGROUND_GRADIENT);
+		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_GRADIENT);
 	}
 
 	private boolean hasBorder(KrollDict d)
@@ -781,17 +782,22 @@ public abstract class TiUIView
 			bgDisabled = resolveImageUrl(bgDisabled);
 		}
 
+		TiGradientDrawable gradientDrawable = null;
+		KrollDict gradientProperties = d.getKrollDict(TiC.PROPERTY_BACKGROUND_GRADIENT);
+		if (gradientProperties != null) {
+			gradientDrawable = new TiGradientDrawable(nativeView, gradientProperties);
+			if (gradientDrawable.getGradientType() == GradientType.RADIAL_GRADIENT) {
+				// TODO: Remove this once we support radial gradients.
+				Log.w(LCAT, "Android does not support radial gradients.");
+				gradientDrawable = null;
+			}
+		}
+
 		if (bg != null || bgSelected != null || bgFocused != null || bgDisabled != null ||
-				bgColor != null || bgSelectedColor != null || bgFocusedColor != null || bgDisabledColor != null) 
+				bgColor != null || bgSelectedColor != null || bgFocusedColor != null || bgDisabledColor != null || gradientDrawable != null) 
 		{
 			if (background == null) {
 				applyCustomBackground(false);
-			}
-
-			Drawable gradientDrawable = null;
-			Object gradientProperties = d.getKrollDict(TiC.PROPERTY_BACKGROUND_GRADIENT);
-			if (gradientProperties instanceof KrollDict) {
-				gradientDrawable = new TiGradientDrawable(nativeView, (KrollDict)gradientProperties);
 			}
 
 			Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(
