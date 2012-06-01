@@ -37,6 +37,9 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 				width: UI.SIZE,
 				height: UI.SIZE
 			}));
+
+			// Force single tap to be processed.
+			this.addEventListener("singletap", function(){});
 		},
 
 		_defaultWidth: UI.INHERIT,
