@@ -15,40 +15,28 @@ define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
 				return n;
 			}
 		],
-		animations = [],
-		ignoreRegExp = /autoreverse|curve|delay|duration|repeat|visible/;
+		global = window,
+		lastTime = 0,
+		prefixes = ["ms", "moz", "webkit", "o"],
+		i = prefixes.length,
+		ignoreRegExp = /autoreverse|curve|delay|duration|repeat|visible/,
+		animations = [];
 
-
-(function() {
-	var lastTime = 0,
-		vendors = ['ms', 'moz', 'webkit', 'o'];
-
-	for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-		window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-		window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+	while (--i >= 0 && !global.requestAnimationFrame) {
+		global.requestAnimationFrame = global[prefixes[i] + "RequestAnimationFrame"];
 	}
 
-	if (!window.requestAnimationFrame) {
-		window.requestAnimationFrame = function(callback) {
-			var currTime = new Date().getTime(),
-				timeToCall = Math.max(0, 16 - (currTime - lastTime)),
-				id = window.setTimeout(function() { callback(currTime + timeToCall); }, timeToCall);
-			lastTime = currTime + timeToCall;
-			return id;
-		};
-	}
+	global.requestAnimationFrame || (global.requestAnimationFrame = function(callback) {
+		var currTime = (new Date).getTime(),
+			timeToCall = Math.max(0, 16 - (currTime - lastTime)),
+			timer = window.setTimeout(function() { callback(currTime + timeToCall); }, timeToCall);
+		lastTime = currTime + timeToCall;
+		return timer;
+	});
 
-	if (!window.cancelAnimationFrame) {
-		window.cancelAnimationFrame = function(id) {
-			clearTimeout(id);
-		};
-	}
-}());
-
-
-
-	function schedule(element, prop, value, autoreverse, curve, delay, duration, repeat, visible) {
+	function schedule(params) {
 		// check if we're already animating this property on this element
+		console.debug(params);
 	}
 
 	// http://developer.appcelerator.com/question/137700/mobileweb-tableviewrow-and-tableviewsection-tostring-changed
@@ -77,12 +65,12 @@ define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
 			var prop,
 				value,
 				props = this.properties.__values__,
-				curve = curves[props.curve | 0] || curves[0],
+				curve = Math.max(0, Math.min(curves.length, props.curve | 0)),
 				handles = [];
 
 			for (prop in props) {
 				value = props[prop];
-				ignoreRegExp.test(prop) || value !== void 0 && handles.push(schedule(elem, prop, value, !!props.autoreverse, curve, props.delay | 0, props.duration | 0, !!props.repeat, !!props.visible));
+				ignoreRegExp.test(prop) || value !== void 0 && handles.push(schedule([elem, prop, value, !!props.autoreverse, curve, props.delay | 0, props.duration | 0, !!props.repeat, !!props.visible]));
 			}
 
  			return {
