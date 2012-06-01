@@ -909,7 +909,7 @@ public abstract class TiUIView
 
 	protected void registerTouchEvents(final View touchable)
 	{
-		
+
 		touchView = new WeakReference<View>(touchable);
 
 		final ScaleGestureDetector scaleDetector = new ScaleGestureDetector(touchable.getContext(),
@@ -999,13 +999,15 @@ public abstract class TiUIView
 				}
 			});
 		
-		touchable.setOnTouchListener(new OnTouchListener() {
-			public boolean onTouch(View view, MotionEvent event) {
+		touchable.setOnTouchListener(new OnTouchListener()
+		{
+			public boolean onTouch(View view, MotionEvent event)
+			{
 				if (event.getAction() == MotionEvent.ACTION_UP) {
-					lastUpEvent.put(TiC.EVENT_PROPERTY_X, (double)event.getX());
-					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, (double)event.getY());
+					lastUpEvent.put(TiC.EVENT_PROPERTY_X, (double) event.getX());
+					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, (double) event.getY());
 				}
-				
+
 				scaleDetector.onTouchEvent(event);
 				if (scaleDetector.isInProgress()) {
 					return true;
@@ -1020,32 +1022,24 @@ public abstract class TiUIView
 				if (motionEvent != null) {
 					if (event.getAction() == MotionEvent.ACTION_UP) {
 						Rect r = new Rect(0, 0, view.getWidth(), view.getHeight());
-						int actualAction = r.contains((int)event.getX(), (int)event.getY())
-							? MotionEvent.ACTION_UP : MotionEvent.ACTION_CANCEL;
+						int actualAction = r.contains((int) event.getX(), (int) event.getY()) ? MotionEvent.ACTION_UP
+							: MotionEvent.ACTION_CANCEL;
 
 						String actualEvent = motionEvents.get(actualAction);
-						if (proxy.hasListeners(actualEvent)) {
-							handled = proxy.fireEvent(actualEvent, dictFromEvent(event));
-						}
-
-						if (actualAction != MotionEvent.ACTION_UP) {
-							return handled;
+						if (proxy.hierarchyHasListener(actualEvent)) {
+							proxy.fireEvent(actualEvent, dictFromEvent(event));
 						}
 					} else {
-						if (proxy.hasListeners(motionEvent)) {
-							handled = proxy.fireEvent(motionEvent, dictFromEvent(event));
+						if (proxy.hierarchyHasListener(motionEvent)) {
+							proxy.fireEvent(motionEvent, dictFromEvent(event));
 						}
 					}
-					// If this listener returns true, a click event does not occur,
-					// because part of the Android View's default ACTION_UP handling
-					// is to call performClick() which leads to invoking the click
-					// listener.  If we return true, that won't run, so we're doing it
-					// here instead.
-					if (handled && proxy.hierarchyHasListener(TiC.EVENT_CLICK)) {
-						touchable.onTouchEvent(event);
-					}
 				}
-				return handled;
+
+				// Inside View.java, dispatchTouchEvent() does not call onTouchEvent() if this listener returns true. As
+				// a result, click and other motion events do not occur on the native Android side. To prevent this, we
+				// always return false and let Android generate click and other motion events.
+				return false;
 			}
 		});
 		
