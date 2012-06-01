@@ -38,10 +38,10 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.ScaleGestureDetector;
-import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
+import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
@@ -264,6 +264,11 @@ public abstract class TiUIView
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_REPEAT);
 	}
 
+	private boolean hasGradient(KrollDict d)
+	{
+		return d.containsKey(TiC.PROPERTY_BACKGROUND_GRADIENT);
+	}
+
 	private boolean hasBorder(KrollDict d)
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR) 
@@ -449,9 +454,10 @@ public abstract class TiUIView
 			boolean hasRepeat = hasRepeat(d);
 			boolean hasColorState = hasColorState(d);
 			boolean hasBorder = hasBorder(d);
+			boolean hasGradient = hasGradient(d);
 			boolean nativeViewNull = (nativeView == null);
 
-			boolean requiresCustomBackground = hasImage || hasRepeat || hasColorState || hasBorder;
+			boolean requiresCustomBackground = hasImage || hasRepeat || hasColorState || hasBorder || hasGradient;
 
 			if (!requiresCustomBackground) {
 				if (background != null) {
@@ -483,7 +489,7 @@ public abstract class TiUIView
 
 				Integer bgColor = null;
 
-				if (!hasColorState) {
+				if (!hasColorState && !hasGradient) {
 					if (d.get(TiC.PROPERTY_BACKGROUND_COLOR) != null) {
 						bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
 						if (newBackground || (key.equals(TiC.PROPERTY_OPACITY) || key.equals(TiC.PROPERTY_BACKGROUND_COLOR))) {
@@ -492,7 +498,7 @@ public abstract class TiUIView
 					}
 				}
 
-				if (hasImage || hasRepeat || hasColorState) {
+				if (hasImage || hasRepeat || hasColorState || hasGradient) {
 					if (newBackground || key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX)) {
 						handleBackgroundImage(d);
 					}
@@ -560,7 +566,7 @@ public abstract class TiUIView
 
 		// Default background processing.
 		// Prefer image to color.
-		if (hasImage(d) || hasColorState(d) || hasBorder(d)) {
+		if (hasImage(d) || hasColorState(d) || hasBorder(d) || hasGradient(d)) {
 			handleBackgroundImage(d);
 		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) && !nativeViewNull) {
 			bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
@@ -782,6 +788,12 @@ public abstract class TiUIView
 				applyCustomBackground(false);
 			}
 
+			Drawable gradientDrawable = null;
+			Object gradientProperties = d.getKrollDict(TiC.PROPERTY_BACKGROUND_GRADIENT);
+			if (gradientProperties instanceof KrollDict) {
+				gradientDrawable = new TiGradientDrawable(nativeView, (KrollDict)gradientProperties);
+			}
+
 			Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(
 					bg,
 					d.getBoolean(TiC.PROPERTY_BACKGROUND_REPEAT),
@@ -791,7 +803,8 @@ public abstract class TiUIView
 					bgDisabled,
 					bgDisabledColor,
 					bgFocused,
-					bgFocusedColor);
+					bgFocusedColor,
+					gradientDrawable);
 
 			background.setBackgroundDrawable(bgDrawable);
 		}
