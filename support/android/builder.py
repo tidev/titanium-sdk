@@ -2151,14 +2151,35 @@ if __name__ == "__main__":
 			if avd_id.isdigit():
 				avd_name = None
 				avd_skin = dequote(sys.argv[7])
-				avd_abi = dequote(sys.argv[8])
-				add_args = sys.argv[9:]
+				
+				# TODO: This is for studio compatibility only. We will
+				# need to rip it out once they support ABI selection.
+				# Note that this will ALSO possibly break existing external
+				# build scripts in a bad way.
+				
+				if len(sys.argv) > 9:
+					avd_abi = dequote(sys.argv[8])
+					add_args = sys.argv[9:]
+				else:
+					avd_abi = None
+					add_args = sys.argv[8:]
 			else:
 				avd_name = sys.argv[6]
 				avd_id = None
 				avd_skin = None
-				avd_abi = dequote(sys.argv[7])
-				add_args = sys.argv[8:]
+				
+				# TODO: This is for studio compatibility only. We will
+				# need to rip it out once they support ABI selection.
+				# Note that this will ALSO possibly break existing external
+				# build scripts in a bad way.
+				
+				if len(sys.argv) > 8:
+					avd_abi = dequote(sys.argv[7])
+					add_args = sys.argv[8:]
+				else:
+					avd_abi = None
+					add_args = sys.argv[7:]
+					
 			s.run_emulator(avd_id, avd_skin, avd_name, avd_abi, add_args)
 		elif command == 'simulator':
 			info("Building %s for Android ... one moment" % project_name)
