@@ -11,7 +11,8 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 	var is = require.is,
 		mix = require.mix,
 		counter = 0,
-		classCounters = {};
+		classCounters = {},
+		objProto = Object.prototype;
 
 	// C3 Method Resolution Order (see http://www.python.org/download/releases/2.3/mro/)
 	function c3mro(bases, className) {
@@ -105,7 +106,7 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 
 			classCounters[dc] || (classCounters[dc] = 0);
 			this.widgetId = dc + ":" + (classCounters[dc]++);
-			this.toString || (this.toString = function() {
+			this.toString === objProto.toString && (this.toString = function() {
 				return "[object " + dc.replace(/\./g, '') + "]";
 			});
 
@@ -244,7 +245,7 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 
 		// if the definition is not an object, then we want to use its constructor
 		t = definition.constructor;
-		if (t !== Object.prototype.constructor) {
+		if (t !== objProto.constructor) {
 			t.nom = "constructor";
 			proto.constructor = t;
 		}
@@ -267,11 +268,6 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 		// add "standard" methods to the prototype
 		mix(proto, {
 			constructor: ctor,
-			// TODO: need a nice way of accessing the super method without using arguments.callee
-			// getInherited: function(name, args) {
-			//	return is(name, "String") ? this.inherited(name, args, true) : this.inherited(name, true);
-			// },
-			// inherited: inherited,
 			isInstanceOf: function(cls) {
 				var bases = this.constructor._meta.bases,
 					i = 0,

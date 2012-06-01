@@ -2,14 +2,11 @@ define(
 	["Ti/_/browser", "Ti/_/css", "Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/Evented",
 	"Ti/UI", "Ti/_/Gestures/DoubleTap", "Ti/_/Gestures/LongPress", "Ti/_/Gestures/Pinch", "Ti/_/Gestures/SingleTap",
 	"Ti/_/Gestures/Swipe", "Ti/_/Gestures/TouchCancel", "Ti/_/Gestures/TouchEnd", "Ti/_/Gestures/TouchMove",
-	"Ti/_/Gestures/TouchStart", "Ti/_/Gestures/TwoFingerTap"],
+	"Ti/_/Gestures/TouchStart", "Ti/_/Gestures/TwoFingerTap", "Ti/UI/Animation"],
 	function(browser, css, declare, dom, event, lang, style, Evented,
 		UI, DoubleTap, LongPress, Pinch, SingleTap,
 		Swipe, TouchCancel, TouchEnd, TouchMove,
-		TouchStart, TwoFingerTap) {
-
-	 //, "Ti/UI/Animation"]
-	  //, Animation) {
+		TouchStart, TwoFingerTap, Animation) {
 
 	var unitize = dom.unitize,
 		computeSize = dom.computeSize,
@@ -19,6 +16,7 @@ define(
 		val = lang.val,
 		is = require.is,
 		has = require.has,
+		/*
 		transitionEvents = {
 			webkit: "webkitTransitionEnd",
 			trident: "msTransitionEnd",
@@ -27,6 +25,7 @@ define(
 		},
 		transitionEnd = transitionEvents[browser.runtime] || "transitionEnd",
 		curves = ["ease", "ease-in", "ease-in-out", "ease-out", "linear"],
+		*/
 		postDoBackground = {
 			post: "_doBackground"
 		},
@@ -619,9 +618,7 @@ define(
 		},
 
 		animate: function(anim) {
-			anim = anim || {};
-//			if (!is(anim, "Animation")
-//			Animation.
+			(anim && anim.declaredClass === "Ti.UI.Animation" ? anim : new Animation(anim))._play(this);
 		},
 /*
 		animate: function(anim, callback) {
