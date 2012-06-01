@@ -21,7 +21,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 			this.layout = UI._LAYOUT_CONSTRAINING_VERTICAL;
 
 			// Force single tap to be processed.
-			this.addEventListener("singletap", function(){});
+			this.addEventListener("singletap");
 		},
 
 		_defaultWidth: UI.INHERIT,
