@@ -2179,7 +2179,7 @@ if __name__ == "__main__":
 				else:
 					avd_abi = None
 					add_args = sys.argv[7:]
-					
+
 			s.run_emulator(avd_id, avd_skin, avd_name, avd_abi, add_args)
 		elif command == 'simulator':
 			info("Building %s for Android ... one moment" % project_name)
