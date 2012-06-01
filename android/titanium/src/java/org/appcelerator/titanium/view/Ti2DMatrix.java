@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -19,6 +20,8 @@ import android.graphics.Matrix;
 @Kroll.proxy
 public class Ti2DMatrix extends KrollProxy
 {
+	private static final String TAG = "Ti2DMatrix";
+
 	public static final float DEFAULT_ANCHOR_VALUE = -1;
 	protected Ti2DMatrix next, prev;
 
@@ -201,5 +204,28 @@ public class Ti2DMatrix extends KrollProxy
 			op.apply(interpolatedTime, matrix, childWidth, childHeight, anchorX, anchorY);
 		}
 		return matrix;
+	}
+
+	public boolean isScaleOperation()
+	{
+		if (this.op == null) {
+			return false;
+		}
+		return (this.op.type == Operation.TYPE_SCALE);
+	}
+
+	public float[] getScaleOperationParameters()
+	{
+		if (!isScaleOperation()) {
+			Log.w(TAG, "getScaleOperationParameters called though matrix is not for a scale operation.");
+			return new float[6];
+		}
+		return new float[] {this.op.scaleFromX,
+			this.op.scaleToX,
+			this.op.scaleFromY,
+			this.op.scaleToY,
+			this.op.anchorX,
+			this.op.anchorY
+		};
 	}
 }

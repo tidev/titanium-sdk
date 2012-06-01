@@ -32,6 +32,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.LinearInterpolator;
+import android.view.animation.ScaleAnimation;
 import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 
@@ -58,6 +59,7 @@ public class TiAnimationBuilder
 	protected TiAnimation animationProxy;
 	protected KrollFunction callback;
 	protected boolean relayoutChild = false, applyOpacity = false;
+	@SuppressWarnings("rawtypes")
 	protected HashMap options;
 	protected View view;
 	protected TiViewProxy viewProxy;
@@ -210,7 +212,7 @@ public class TiAnimationBuilder
 			applyOpacity = true;
 			addAnimation(as, animation);
 			animation.setAnimationListener(animationListener);
-			
+
 			TiUIView uiView = viewProxy.peekView();
 			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY) && fromOpacity != null && toOpacity != null
 				&& uiView != null) {
@@ -234,16 +236,31 @@ public class TiAnimationBuilder
 			addAnimation(as, a);
 		}
 
-		if (tdm != null) { 
+		if (tdm != null) {
 			as.setFillAfter(true);
 			as.setFillEnabled(true);
-			TiMatrixAnimation matrixAnimation = new TiMatrixAnimation(tdm, anchorX, anchorY);
 
-			if (duration != null) {
-				matrixAnimation.setDuration(duration.longValue());
+			// For scale animations, rely on the Android-provided ScaleAnimation rather than our
+			// TiMatrixAnimation and Operation.
+			Animation anim;
+			if (tdm.isScaleOperation()) {
+				// fromX, toX, fromY, toY, anchorX, anchorY
+				float[] params = tdm.getScaleOperationParameters();
+				anim = new ScaleAnimation(params[0], params[1], params[2], params[3],
+					Animation.RELATIVE_TO_SELF, params[4],
+					Animation.RELATIVE_TO_SELF, params[5]);
+			} else {
+				anim = new TiMatrixAnimation(tdm, anchorX, anchorY);
 			}
 
-			addAnimation(as, matrixAnimation);
+			anim.setFillAfter(true);
+
+			if (duration != null) {
+				anim.setDuration(duration.longValue());
+			}
+
+			addAnimation(as, anim);
+
 		}
 
 		// Set duration after adding children.
