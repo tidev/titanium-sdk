@@ -1500,6 +1500,13 @@ class Builder(object):
 			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libstlport_shared.so'), 'lib/armeabi/libstlport_shared.so')
 			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libkroll-v8.so'), 'lib/armeabi-v7a/libkroll-v8.so')
 			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libstlport_shared.so'), 'lib/armeabi-v7a/libstlport_shared.so')
+			# Only include x86 in non-production builds for now, since there are
+			# no x86 devices on the market
+			if self.deploy_type != 'production':
+				apk_zip.write(os.path.join(sdk_native_libs, 'x86', 'libkroll-v8.so'), 'lib/x86/libkroll-v8.so')
+				apk_zip.write(os.path.join(sdk_native_libs, 'x86', 'libstlport_shared.so'), 'lib/x86/libstlport_shared.so')
+
+				
 		self.apk_updated = True
 
 		apk_zip.close()
