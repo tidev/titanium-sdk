@@ -172,7 +172,7 @@ define(
 			};
 		},
 
-		addEventListener: function(eventName) {
+		addEventListener: function(name, handler) {
 			if (eventName in gestureMapping) {
 				var gestureRecognizers = this._gestureRecognizers,
 					gestureRecognizer;
@@ -180,23 +180,23 @@ define(
 				if (!(eventName in gestureRecognizers)) {
 					gestureRecognizers[eventName] = {
 						count: 0,
-						recognizer: new (require("Ti/_/Gestures/" + gestureMapping[eventName]))()
+						recognizer: new (require("Ti/_/Gestures/" + gestureMapping[eventName]))
 					};
 				}
 				
 				gestureRecognizers[eventName].count++;
 			}
-			Evented.addEventListener.apply(this, arguments);
+			handler && Evented.addEventListener.apply(this, arguments);
 		},
 
-		removeEventListener: function(eventName) {
+		removeEventListener: function(name, handler) {
 			if (eventName in gestureMapping) {
 				var gestureRecognizers = this._gestureRecognizers;
 				if (eventName in gestureRecognizers && !(--gestureRecognizers[eventName].count)) {
 					delete gestureRecognizers[eventName];
 				}
 			}
-			Evented.removeEventListener.apply(this, arguments);
+			handler && Evented.removeEventListener.apply(this, arguments);
 		},
 
 		_setParent: function(view) {
