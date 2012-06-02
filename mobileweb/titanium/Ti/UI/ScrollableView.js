@@ -6,6 +6,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 		isDef = lang.isDef,
 		unitize = dom.unitize,
 		on = require.on,
+		win = window,
 
 		// This specifies the minimum distance that a finger must travel before it is considered a swipe
 		distanceThreshold = 50,
@@ -69,7 +70,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 				self = this,
 				width,
 				mouseIsDown,
-				handles;
+				handles,
+				i;
 
 			function touchify(e, finalize) {
 				return require.mix(e, {
@@ -140,7 +142,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 
 					// Attach the child views, each contained in their own div so we can mess with positioning w/o touching the views
 					self._contentContainer._removeAllChildren();
-					for (var i = 0; i < viewsToScroll.length; i++) {
+					for (i = 0; i < viewsToScroll.length; i++) {
 						var viewContainer = UI.createView({
 							left: unitize(i * width),
 							top: 0,
@@ -161,17 +163,17 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 
 					handles = [
 						// Register for move type events
-						on(window, "touchmove", touchMove),
-						on(window, "mousemove", function(e) {
+						on(win, "touchmove", touchMove),
+						on(win, "mousemove", function(e) {
 							mouseIsDown && touchMove(touchify(e));
 						}),
 
 						// Register for cancel type events
-						on(window, "touchcancel", touchCancel),
+						on(win, "touchcancel", touchCancel),
 
 						// Register for end type events
-						on(window, "touchend", touchEnd),
-						on(window, "mouseup", function(e) {
+						on(win, "touchend", touchEnd),
+						on(win, "mouseup", function(e) {
 							mouseIsDown = 0;
 							touchEnd(touchify(e, 1));
 						})

@@ -1,8 +1,7 @@
 define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function(declare,lang,GestureRecognizer) {
 
-	var
 		// This specifies the minimum distance that a finger must travel before it is considered a swipe
-		distanceThreshold = 50,
+	var distanceThreshold = 50,
 
 		// The maximum angle, in radians, from the axis a swipe is allowed to travel before it is no longer considered a swipe
 		angleThreshold = Math.PI/6, // 30 degrees
@@ -23,7 +22,7 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 					x: e.changedTouches[0].clientX,
 					y: e.changedTouches[0].clientY
 				};
-				this._startTime = (new Date()).getTime();
+				this._startTime = (new Date).getTime();
 			} else {
 				this._touchStartLocation = null;
 			}
@@ -55,7 +54,7 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 							direction = xDiff > yDiff ?
 								this._touchStartLocation.x - x > 0 ? "left" : "right" :
 								this._touchStartLocation.y - y < 0 ? "down" : "up";
-							velocity = Math.abs(distance / ((new Date()).getTime() - this._startTime));
+							velocity = Math.abs(distance / ((new Date).getTime() - this._startTime));
 							if (velocity > velocityThreshold) {
 								lang.hitch(element,element._handleTouchEvent(this.name,{
 									x: x,
