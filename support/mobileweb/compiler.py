@@ -721,6 +721,7 @@ class Compiler(object):
 			'Ti/Filesystem/FileStream',
 			'Ti/Gesture',
 			'Ti/_/Gestures/GestureRecognizer',
+			'Ti/_/Gestures/Drag',
 			'Ti/_/Gestures/DoubleTap',
 			'Ti/_/Gestures/LongPress',
 			'Ti/_/Gestures/Pinch',
