@@ -28,17 +28,19 @@ define(["Ti/_/declare", "Ti/UI", "Ti/UI/View"], function(declare, UI, View) {
 				this.tab.close(this);
 			} else if (this._opened) {
 				var i = windows.indexOf(this),
-					len = windows.length - 1;
+					same = i === windows.length - 1;
 
 				UI._removeWindow(this);
 
-				i !== -1 && i === len && this._handleBlurEvent(1); // blur all tabs
+				if (~i) {
+					same && this._handleBlurEvent(1); // blur all tabs
+					windows.splice(i, 1);
+				}
+
 				this.fireEvent("close");
 
-				~i && windows.splice(i, 1);
-
 				// if we just closed the active window, focus the next top-most window
-				if (i === len) {
+				if (same) {
 					for (i = windows.length - 1; i >= 0 && !windows[i]._opened; i--) {}
 					i >= 0 && windows[i]._handleFocusEvent();
 				}
