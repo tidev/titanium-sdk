@@ -25,6 +25,11 @@
 	[node setStringValue:data];
 }
 
+-(void)setNodeValue:(NSString *)data
+{
+	[self setData:data];
+}
+
 -(NSNumber *)length
 {
 	xmlNodePtr realNode = [node XMLNode];

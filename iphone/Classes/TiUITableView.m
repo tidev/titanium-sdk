@@ -1455,6 +1455,11 @@
 	}
 }
 
+-(void)setScrollIndicatorStyle_:(id)value
+{
+	[[self tableView] setIndicatorStyle:[TiUtils intValue:value def:UIScrollViewIndicatorStyleDefault]];
+}
+
 -(void)setShowVerticalScrollIndicator_:(id)value
 {
 	[[self tableView] setShowsVerticalScrollIndicator:[TiUtils boolValue:value]];
