@@ -123,7 +123,7 @@ CFHashCode	simpleHash(const void *value)
 	
 }
 
--(void)validateAttributeParameters:(NSString*)tagName withUri:(NSString*)theURI reason:(NSString**)error subreason:(NSString**)suberror
++(void)validateAttributeParameters:(NSString*)tagName withUri:(NSString*)theURI reason:(NSString**)error subreason:(NSString**)suberror
 {
 	NSString* prefix = [GDataXMLNode prefixForName:tagName];
 	NSString* localName = [GDataXMLNode localNameForName:tagName];
@@ -179,7 +179,7 @@ CFHashCode	simpleHash(const void *value)
 	}
 }
 
--(void)validateElementParameters:(NSString*)tagName withUri:(NSString*)theURI reason:(NSString**)error subreason:(NSString**)suberror
++(void)validateElementParameters:(NSString*)tagName withUri:(NSString*)theURI reason:(NSString**)error subreason:(NSString**)suberror
 {
 	NSString* prefix = [GDataXMLNode prefixForName:tagName];
 	NSString* localName = [GDataXMLNode localNameForName:tagName];
@@ -372,8 +372,7 @@ CFHashCode	simpleHash(const void *value)
 
 -(void)setNodeValue:(NSString *)data
 {
-	ENSURE_TYPE(data, NSString);
-    [node setStringValue:data];
+	[self throwException:[NSString stringWithFormat:@"Setting NodeValue not supported for %d type of Node",[self nodeType]] subreason:nil location:CODELOCATION];
 }
 
 - (id)textContent

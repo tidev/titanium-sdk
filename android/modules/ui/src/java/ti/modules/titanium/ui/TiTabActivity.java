@@ -176,7 +176,6 @@ public class TiTabActivity extends TabActivity
 				}
 			}
 		});
-		
 	}
 
 	public TiApplication getTiApp()
