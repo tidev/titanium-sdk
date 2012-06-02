@@ -65,7 +65,7 @@ define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
 			var prop,
 				value,
 				props = this.properties.__values__,
-				curve = Math.max(0, Math.min(curves.length, props.curve | 0)),
+				curve = Math.max(0, Math.min(curves.length - 1, props.curve | 0)),
 				handles = [];
 
 			for (prop in props) {
