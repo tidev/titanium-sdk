@@ -94,11 +94,9 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 
 			function cancelScroll() {
 				if (startX) {
-					console.log("CANCELLING SCROLL");
-	
 					// Update paging control
 					self._updatePagingControl(self.currentPage);
-	
+
 					// Animate the view and set the final view
 					animationView.animate({
 						duration: 400,
@@ -107,7 +105,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 					},function() {
 						finalizeSwipe(self.currentPage);
 					});
-	
+
 					startX = null;
 				}
 			}
