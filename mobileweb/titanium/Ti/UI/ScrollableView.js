@@ -6,7 +6,6 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 		isDef = lang.isDef,
 		unitize = dom.unitize,
 		on = require.on,
-		win = window,
 
 		// This specifies the minimum distance that a finger must travel before it is considered a swipe
 		distanceThreshold = 50,
@@ -70,8 +69,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 				self = this,
 				width,
 				mouseIsDown,
-				handles,
-				i;
+				handles;
 
 			function touchify(e, finalize) {
 				return require.mix(e, {
@@ -116,6 +114,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 
 			function touchStart(e) {
 				if (e.touches.length == 1 && e.changedTouches.length == 1) {
+					var i = 0,
+						win = window;
 					width = self._measuredWidth,
 					startTime = (new Date).getTime();
 					startX = e.changedTouches[0].clientX;
@@ -142,7 +142,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 
 					// Attach the child views, each contained in their own div so we can mess with positioning w/o touching the views
 					self._contentContainer._removeAllChildren();
-					for (i = 0; i < viewsToScroll.length; i++) {
+					for (; i < viewsToScroll.length; i++) {
 						var viewContainer = UI.createView({
 							left: unitize(i * width),
 							top: 0,
