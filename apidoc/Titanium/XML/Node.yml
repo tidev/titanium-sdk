@@ -138,9 +138,12 @@ properties:
 
   - name: textContent
     summary: Content (value) of all text nodes within this node.
+    description: |
+        On Android, `textContent` is supported on [Element](Titanium.XML.Element) and
+        [Text](Titanium.XML.Text) nodes only.
     type: String
     permission: read-only
-    platforms: [mobileweb]
+    platforms: [iphone, ipad, mobileweb]
 
   - name: text
     summary: |
@@ -151,7 +154,7 @@ properties:
     permission: read-only
     deprecated:
         since: "2.0.0"
-    platforms: [mobileweb]
+    platforms: [iphone, ipad]
 
   - name: nodeType
     type: Number
