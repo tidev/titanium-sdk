@@ -983,6 +983,15 @@ properties:
     default: true
     platforms: [iphone,ipad]
     
+  - name: scrollIndicatorStyle
+    summary: |
+        Style of the scrollbar, specified using one of the constants from 
+        <Titanium.UI.iPhone.ScrollIndicatorStyle>.
+    type: Number
+    default: <Titanium.UI.iPhone.ScrollIndicatorStyle.DEFAULT>
+    since: 2.1.0
+    platforms: [iphone, ipad]
+
   - name: search
     summary: Search field to use for the table view.
     type: Titanium.UI.SearchBar

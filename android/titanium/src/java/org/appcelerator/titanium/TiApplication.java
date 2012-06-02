@@ -184,6 +184,29 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		activityStack.remove(activity);
 	}
 
+	// Calls finish on the list of activities in the stack. This should only be called when we want to terminate the
+	// application (typically when the root activity is destroyed)
+	public static void terminateActivityStack()
+	{
+		if (activityStack == null || activityStack.size() == 0) {
+			return;
+		}
+
+		WeakReference<Activity> activityRef;
+		Activity currentActivity;
+
+		for (int i = activityStack.size() - 1; i >= 0; i--) {
+			activityRef = activityStack.get(i);
+			if (activityRef != null) {
+				currentActivity = activityRef.get();
+				if (currentActivity != null) {
+					currentActivity.finish();
+				}
+			}
+		}
+		activityStack.clear();
+	}
+
 	public boolean activityStackHasLaunchActivity()
 	{
 		if (activityStack == null || activityStack.size() == 0) {
@@ -438,6 +461,21 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		}
 
 		return rootActivity.get();
+	}
+
+	/**
+	 * @return whether the root activity is available
+	 */
+	public boolean isRootActivityAvailable()
+	{
+		if (rootActivity != null) {
+			Activity activity = rootActivity.get();
+			if (activity != null) {
+				return !activity.isFinishing();
+			}
+		}
+
+		return false;
 	}
 
 	public void setCurrentActivity(Activity callingActivity, Activity newValue)

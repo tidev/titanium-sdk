@@ -1112,6 +1112,12 @@ public class TiHTTPClient
 					Log.d(LCAT, "Preparing to execute request");
 				}
 
+				//Remove Content-Length header if entity is set since setEntity implicitly sets Content-Length
+				HttpEntityEnclosingRequest enclosingEntity = (HttpEntityEnclosingRequest) request;
+				if (enclosingEntity.getEntity() != null) {
+					request.removeHeaders("Content-Length");
+				}
+
 				String result = null;
 				try {
 					result = client.execute(host, request, handler);

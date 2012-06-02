@@ -130,7 +130,8 @@ public class TiUIActivityIndicator extends TiUIView
 
 	public void show(KrollDict options)
 	{
-		if (visible) {
+		// Don't try to show indicator if the root activity is not available
+		if (visible || !TiApplication.getInstance().isRootActivityAvailable()) {
 			return;
 		}
 		handleShow();

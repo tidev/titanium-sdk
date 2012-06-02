@@ -9,6 +9,7 @@
 #import "TIDOMDOMImplementationProxy.h"
 #import "TIDOMDocumentTypeProxy.h"
 #import "TiDOMDocumentProxy.h"
+#import "TiDOMValidator.h"
 #import "TiUtils.h"
 
 
@@ -63,77 +64,62 @@
 
 -(id)createDocument:(id)args
 {
-	ENSURE_ARG_COUNT(args, 3);
-    NSObject* obj1;
-    NSObject* obj2;
-    NSObject* obj3;
-    NSString* theNsURI;
-    NSString* qualifiedName;
-    TIDOMDocumentTypeProxy* docType;
+    ENSURE_ARG_COUNT(args, 3);
+    NSString* theURI = [args objectAtIndex:0];
+    NSString* qualifiedName = [args objectAtIndex:1];
+    TIDOMDocumentTypeProxy* docType = [args objectAtIndex:2];
     
-    ENSURE_ARG_OR_NIL_AT_INDEX(obj1,args,0,NSObject);
-    ENSURE_ARG_OR_NIL_AT_INDEX(obj2,args,1,NSObject);
-    ENSURE_ARG_OR_NIL_AT_INDEX(obj3,args,2,NSObject);
-	
-	theNsURI = [TiUtils stringValue:obj1];
-	qualifiedName = [TiUtils stringValue:obj2];
-	
-	if (qualifiedName == nil)
-	{
-		[self throwException:@"Could not create root element with null qualified name" subreason:nil location:CODELOCATION];
-		return [NSNull null];
-	}
+    ENSURE_STRING_OR_NIL(theURI);
+    ENSURE_STRING(qualifiedName);
+    ENSURE_TYPE_OR_NIL(docType, TIDOMDocumentTypeProxy);
     
+    //Validate the parameters
+    NSString *error = nil;
+    NSString *suberror = nil;
     
-    if ([obj3 isKindOfClass:[NSNull class]])
-    {
-        docType = nil;
+    [TiDOMNodeProxy validateElementParameters:qualifiedName withUri:theURI reason:&error subreason:&suberror];
+
+    if (error != nil) {
+        [self throwException:error subreason:suberror location:CODELOCATION];
     }
-    else if ( [obj3 isKindOfClass:[TIDOMDocumentTypeProxy class]] )
-    {
-        docType = (TIDOMDocumentTypeProxy*)obj3;
-    }
-	else
-	{
-		[self throwException:@"Invalid argument passed for docType" subreason:nil location:CODELOCATION];
-		return [NSNull null];
-	}
     
-	xmlChar *pre = NULL;
-	xmlChar *href = NULL;
-	if(theNsURI != nil)
-		href = (xmlChar*)[theNsURI UTF8String];
 	NSString* prefix = [GDataXMLNode prefixForName:qualifiedName];
 	NSString* localName = [GDataXMLNode localNameForName:qualifiedName];
-    
-	if ([prefix length] > 0)
-	{
-		pre = (xmlChar*)[prefix UTF8String];
-	}
-	xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
+
+    //Create the new NS pointer
+    xmlChar *pre = NULL;
+    xmlChar *href = NULL;
+    if(theURI != nil) {
+        href = (xmlChar*)[theURI UTF8String];
+    }
+    if ([prefix length] > 0) {
+        pre = (xmlChar*) [prefix UTF8String];
+    }
+    xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
                                  href, pre);
+    
+    //Create the doc node with root element
     xmlNodePtr rootPtr = xmlNewNode(theNewNs, (xmlChar*)[localName UTF8String]);
-	xmlDocPtr doc = xmlNewDoc(NULL);
-	xmlDocSetRootElement(doc, rootPtr);
-	GDataXMLDocument * theDocument = [[[GDataXMLDocument alloc]initWithDocument:doc]autorelease];
+    rootPtr->nsDef = theNewNs;
+    xmlDocPtr doc = xmlNewDoc(NULL);
+    xmlDocSetRootElement(doc, rootPtr);
+
+    if (docType != nil) {
+        GDataXMLNode *docTypeNode = [docType node];
+        xmlNodePtr ret = xmlAddChild((xmlNodePtr)doc, [docTypeNode XMLNode]);
+        if (ret != NULL) {
+            //Now it is part of the tree so switch flag to ensur it gets freed when doc is released
+            [docTypeNode setShouldFreeXMLNode:NO];
+        }
+    }
     
-	if (docType != nil)
-	{
-		GDataXMLNode *docTypeNode = [docType node];
-		xmlNodePtr ret = xmlAddChild((xmlNodePtr)doc, [docTypeNode XMLNode]);
-		if (ret != NULL)
-		{
-			//Now it is part of the tree so switch flag to ensur it gets freed when doc is released
-			[docTypeNode setShouldFreeXMLNode:NO];
-		}
-	}
-	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-	TiDOMDocumentProxy * result = [[[TiDOMDocumentProxy alloc] _initWithPageContext:context] autorelease];
-	[result setNode:[theDocument rootElement]];
-	[result setDocument:theDocument];
-	[TiDOMNodeProxy setNode:result forXMLNode:(xmlNodePtr)doc];
-	return result;
-    
+    GDataXMLDocument * theDocument = [[[GDataXMLDocument alloc]initWithDocument:doc]autorelease];
+    id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+    TiDOMDocumentProxy * result = [[[TiDOMDocumentProxy alloc] _initWithPageContext:context] autorelease];
+    [result setNode:[theDocument rootElement]];
+    [result setDocument:theDocument];
+    [TiDOMNodeProxy setNode:result forXMLNode:(xmlNodePtr)doc];
+    return result;    
 }
 
 @end
