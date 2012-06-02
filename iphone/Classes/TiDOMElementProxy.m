@@ -194,7 +194,7 @@
     NSString *error = nil;
     NSString *suberror = nil;
 	
-    [self validateAttributeParameters:name withUri:theURI reason:&error subreason:&suberror];
+    [TiDOMNodeProxy validateAttributeParameters:name withUri:theURI reason:&error subreason:&suberror];
     if (error != nil) {
         [self throwException:error subreason:suberror location:CODELOCATION];
     }
@@ -240,6 +240,7 @@
         xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
                                      href, pre);
         xmlNewNsProp(curNode, theNewNs, (xmlChar*)[localName UTF8String], (xmlChar*)[val UTF8String]);
+        [GDataXMLElement fixUpNamespacesForNode:curNode graftingToTreeNode:curNode];
     }
 }
 
@@ -369,6 +370,11 @@
 {
 	ENSURE_SINGLE_ARG(args, TiDOMAttrProxy);
 	TiDOMAttrProxy* attProxy = (TiDOMAttrProxy*)args;
+    
+	if ([[attProxy node] URI] != nil) {
+		return [self setAttributeNodeNS:args];
+	}
+    
 	NSString* name = [[attProxy node]name];
 
 	TiDOMAttrProxy* result = nil;
@@ -486,6 +492,7 @@
 		NSString* val = [[attProxy node] stringValue];
         
 		xmlNewNsProp(curNode, theNewNs, (xmlChar*)[localName UTF8String], (xmlChar*)[val UTF8String]);
+		[GDataXMLElement fixUpNamespacesForNode:curNode graftingToTreeNode:curNode];
 		attributeNode = [element attributeForLocalName:localName URI:theURI];
 		[attProxy setNode:attributeNode];
 		[attProxy setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
@@ -691,12 +698,20 @@
 {
     ENSURE_SINGLE_ARG(args, TiDOMNodeProxy);
     TiDOMNodeProxy * newChild = (TiDOMNodeProxy*)args;
+    if ([newChild document] != [self document]) {
+        [self throwException:@"mismatched documents" subreason:nil location:CODELOCATION];
+        return [NSNull null];
+    }    
+    BOOL needsReconciliateNS = [newChild isKindOfClass:[TiDOMElementProxy class]];
     xmlNodePtr oldNodePtr = [[newChild node] XMLNode];
     xmlNodePtr parent = [element XMLNode];
     xmlNodePtr resultPtr = xmlAddChild(parent, oldNodePtr);
     
     if (resultPtr != NULL) {
         [[self node] releaseCachedValues];
+        if (needsReconciliateNS) {
+            [GDataXMLElement fixUpNamespacesForNode:resultPtr graftingToTreeNode:parent];
+        }
         //Child added successfully
         if (resultPtr == oldNodePtr) {
             //Child pointer not modified
