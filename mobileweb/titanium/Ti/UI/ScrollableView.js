@@ -71,14 +71,6 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 				mouseIsDown,
 				handles;
 
-			function touchify(e, finalize) {
-				return require.mix(e, {
-					touches: finalize ? [] : [e],
-					targetTouches: [],
-					changedTouches: [e]
-				});
-			}
-
 			function finalizeSwipe(destinationIndex, x, y) {
 				self._contentContainer._removeAllChildren();
 				self._contentContainer._add(self.views[destinationIndex]);
@@ -110,147 +102,121 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 				}
 			}
 
-			function touchStart(e) {
-				if (e.touches.length == 1 && e.changedTouches.length == 1) {
-					var i = 0,
-						win = window;
-					width = self._measuredWidth,
-					startTime = (new Date).getTime();
-					startX = e.changedTouches[0].clientX;
+			on(this, "dragstart", function(e) {
+				var i = 0,
+					win = window;
+				width = self._measuredWidth,
+				startTime = (new Date).getTime();
+				startX = e.x;
 
-					// Create the list of views that can be scrolled, the ones immediately to the left and right of the current view
-					initialPosition = 0;
-					viewsToScroll = [];
-					if (self.currentPage > 0) {
-						viewsToScroll.push(self.views[self.currentPage - 1]);
-						initialPosition = -width;
-					}
-					viewsToScroll.push(self.views[self.currentPage]);
-					if (self.currentPage < self.views.length - 1) {
-						viewsToScroll.push(self.views[self.currentPage + 1]);
-					}
-
-					// Create the animation div
-					animationView = UI.createView({
-						width: unitize(viewsToScroll.length * width),
-						height: "100%",
-						left: initialPosition,
-						top: 0
-					});
-
-					// Attach the child views, each contained in their own div so we can mess with positioning w/o touching the views
-					self._contentContainer._removeAllChildren();
-					for (; i < viewsToScroll.length; i++) {
-						var viewContainer = UI.createView({
-							left: unitize(i * width),
-							top: 0,
-							width: unitize(width),
-							height: "100%"
-						});
-						viewContainer._layout._defaultHorizontalPosition = "start";
-						viewContainer._layout._defaultVerticalPosition = "start";
-						setStyle(viewContainer.domNode,"overflow","hidden");
-						viewContainer._add(viewsToScroll[i]);
-						animationView._add(viewContainer);
-					}
-
-					// Set the initial position
-					animationView.left = unitize(initialPosition);
-					self._contentContainer._add(animationView);
-					self._triggerLayout(true);
-
-					handles = [
-						// Register for move type events
-						on(win, "touchmove", touchMove),
-						on(win, "mousemove", function(e) {
-							mouseIsDown && touchMove(touchify(e));
-						}),
-
-						// Register for cancel type events
-						on(win, "touchcancel", touchCancel),
-
-						// Register for end type events
-						on(win, "touchend", touchEnd),
-						on(win, "mouseup", function(e) {
-							mouseIsDown = 0;
-							touchEnd(touchify(e, 1));
-						})
-					];
+				// Create the list of views that can be scrolled, the ones immediately to the left and right of the current view
+				initialPosition = 0;
+				viewsToScroll = [];
+				if (self.currentPage > 0) {
+					viewsToScroll.push(self.views[self.currentPage - 1]);
+					initialPosition = -width;
 				}
-			};
-			on(this.domNode, "touchstart", touchStart);
-			on(this.domNode, "mousedown", function(e) {
-				mouseIsDown = 1;
-				touchStart(touchify(e));
+				viewsToScroll.push(self.views[self.currentPage]);
+				if (self.currentPage < self.views.length - 1) {
+					viewsToScroll.push(self.views[self.currentPage + 1]);
+				}
+
+				// Create the animation div
+				animationView = UI.createView({
+					width: unitize(viewsToScroll.length * width),
+					height: "100%",
+					left: initialPosition,
+					top: 0
+				});
+
+				// Attach the child views, each contained in their own div so we can mess with positioning w/o touching the views
+				self._contentContainer._removeAllChildren();
+				for (; i < viewsToScroll.length; i++) {
+					var viewContainer = UI.createView({
+						left: unitize(i * width),
+						top: 0,
+						width: unitize(width),
+						height: "100%"
+					});
+					viewContainer._layout._defaultHorizontalPosition = "start";
+					viewContainer._layout._defaultVerticalPosition = "start";
+					setStyle(viewContainer.domNode,"overflow","hidden");
+					viewContainer._add(viewsToScroll[i]);
+					animationView._add(viewContainer);
+				}
+
+				// Set the initial position
+				animationView.left = unitize(initialPosition);
+				self._contentContainer._add(animationView);
+				self._triggerLayout(true);
 			});
 
-			function touchMove(e) {
-				if (e.touches.length == 1 && e.changedTouches.length == 1 && isDef(startX)) {
-					width = self._measuredWidth;
-					
-					// Update the position of the animation div
-					var newPosition = initialPosition + e.changedTouches[0].clientX - startX;
-					newPosition = newPosition < 0 ? newPosition > -animationView._measuredWidth + width ? newPosition :-animationView._measuredWidth + width : 0;
-					animationView.domNode.style.left = unitize(newPosition);
-				} else {
-					cancelScroll();
-				}
-			}
+			on(this, "drag", function(e) {
+				width = self._measuredWidth;
+				
+				// Update the position of the animation div
+				var newPosition = initialPosition + e.distanceX;
+				newPosition = newPosition < 0 ?
+					newPosition > -animationView._measuredWidth + width ?
+						newPosition :
+						-animationView._measuredWidth + width :
+					0;
+				setStyle(animationView.domNode, "left", unitize(newPosition));
+			});
 
-			function touchCancel() {
+			on(this, "dragcancel", function() {
 				event.off(handles);
 				cancelScroll();
-			}
+			});
 
-			function touchEnd(e) {
+			on(this, "dragend", function(e) {
 				event.off(handles);
-				if (e.touches.length == 0 && e.changedTouches.length == 1 && isDef(startX)) {
-					width = self._measuredWidth;
+				width = self._measuredWidth;
 
-					var x = e.changedTouches[0].clientX,
-						y = e.changedTouches[0].clientX,
-						distance = x - startX,
-						destinationIndex = self.currentPage,
-						animationLeft = initialPosition,
-						velocity = Math.abs(distance / ((new Date).getTime() - startTime)),
-						scaleFactor = velocity > velocityThreshold ? 
-							minimumFlickDistanceScaleFactor : minimumDragDistanceScaleFactor,
-						newPosition = initialPosition + e.changedTouches[0].clientX - startX;
-					newPosition = newPosition < 0 ? newPosition > -animationView._measuredWidth + width ? newPosition :-animationView._measuredWidth + width : 0;
-					animationView.domNode.style.left = unitize(newPosition);
+				var distance = e.distanceX,
+					destinationIndex = self.currentPage,
+					animationLeft = initialPosition,
+					velocity = Math.abs(distance / ((new Date).getTime() - startTime)),
+					scaleFactor = velocity > velocityThreshold ? 
+						minimumFlickDistanceScaleFactor :
+						minimumDragDistanceScaleFactor,
+					newPosition = initialPosition + distance;
+				newPosition = newPosition < 0 ?
+					newPosition > -animationView._measuredWidth + width ?
+						newPosition :
+						-animationView._measuredWidth + width :
+					0;
+				setStyle(animationView.domNode, "left", unitize(newPosition));
 
-					// Find out which view we are animating to
-					if (distance > width / scaleFactor && self.currentPage > 0) {
-						destinationIndex = self.currentPage - 1;
-						animationLeft = 0;
-					} else if (distance < -width / scaleFactor && self.currentPage < self.views.length - 1) {
-						destinationIndex = self.currentPage + 1;
-						if (viewsToScroll.length === 3) {
-							animationLeft = -2 * width;
-						} else {
-							animationLeft = -width;
-						}
-					}
-
-					// Check if the user attempted to scroll past the edge, in which case we directly reset the view instead of animation
-					self._updatePagingControl(destinationIndex);
-					if (newPosition == 0 || newPosition == -animationView._measuredWidth + width) {
-						finalizeSwipe(destinationIndex, x, y);
+				// Find out which view we are animating to
+				if (distance > width / scaleFactor && self.currentPage > 0) {
+					destinationIndex = self.currentPage - 1;
+					animationLeft = 0;
+				} else if (distance < -width / scaleFactor && self.currentPage < self.views.length - 1) {
+					destinationIndex = self.currentPage + 1;
+					if (viewsToScroll.length === 3) {
+						animationLeft = -2 * width;
 					} else {
-						// Animate the view and set the final view
-						animationView.animate({
-							duration: 200 + (0.2 * width) / (width - Math.abs(distance)) * 10,
-							left: animationLeft,
-							curve: UI.ANIMATION_CURVE_EASE_OUT
-						},function() {
-							finalizeSwipe(destinationIndex, x, y);
-						});
+						animationLeft = -width;
 					}
-					startX = null;
-				} else {
-					cancelScroll();
 				}
-			}
+
+				// Check if the user attempted to scroll past the edge, in which case we directly reset the view instead of animation
+				self._updatePagingControl(destinationIndex);
+				if (newPosition == 0 || newPosition == -animationView._measuredWidth + width) {
+					finalizeSwipe(destinationIndex, e.x, e.y);
+				} else {
+					// Animate the view and set the final view
+					animationView.animate({
+						duration: 200 + (0.2 * width) / (width - Math.abs(distance)) * 10,
+						left: animationLeft,
+						curve: UI.ANIMATION_CURVE_EASE_OUT
+					},function() {
+						finalizeSwipe(destinationIndex, e.x, e.y);
+					});
+				}
+				startX = null;
+			});
 		},
 
 		addView: function(view){

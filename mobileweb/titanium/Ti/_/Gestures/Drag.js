@@ -18,8 +18,8 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 		_createEvent: function(e, element) {
 			var x = e.changedTouches[0].clientX,
 				y = e.changedTouches[0].clientY,
-				distanceX = this._touchStartLocation.x - x,
-				distanceY = this._touchStartLocation.y - y;
+				distanceX = x - this._touchStartLocation.x,
+				distanceY = y - this._touchStartLocation.y;
 			return {
 				x: x,
 				y: y,
