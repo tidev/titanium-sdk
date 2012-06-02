@@ -595,6 +595,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_BASE_URL_WEBVIEW = "baseURL";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_BIRTHDAY = "birthday";
 
 	/**
 	 * @module.api
@@ -860,6 +865,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FILTER_CASE_INSENSITIVE = "filterCaseInsensitive";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FIRSTNAME = "firstName";
 
 	/**
 	 * @module.api
@@ -921,6 +931,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_FULLNAME = "fullname";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FULLSCREEN = "fullscreen";
 
 	/**
@@ -977,6 +992,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HINT_TEXT = "hintText";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HOME = "home";
 
 	/**
 	 * @module.api
@@ -1032,6 +1052,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_KEYBOARD_TYPE = "keyboardType";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LASTNAME = "lastName";
 
 	/**
 	 * @module.api
@@ -1159,6 +1184,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MIMETYPE = "mimeType";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MIDDLENAME = "middleName";
 
 	public static final String PROPERTY_MIN_AGE = "minAge";
 	public static final String PROPERTY_MIN_UPDATE_DISTANCE = "minUpdateDistance";
@@ -1173,6 +1203,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MINUTE_INTERVAL = "minuteInterval";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MOBILE = "mobile";
 
 	/**
 	 * @module.api
@@ -1233,6 +1268,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ORDER = "order";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_OTHER = "other";
 
 	/**
 	 * @module.api
@@ -1253,6 +1293,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PASSWORD_MASK = "passwordMask";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PHONE = "phone";
 
 	/**
 	 * @module.api
@@ -1720,6 +1765,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_WORD_WRAP = "wordWrap";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_WORK = "work";
 
 	/**
 	 * @module.api

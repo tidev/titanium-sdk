@@ -81,6 +81,12 @@ public class ContactsModule extends KrollModule
 	}
 	
 	@Kroll.method
+	public void createPerson(KrollDict options)
+	{
+		contactsApi.addContact(options);
+	}
+	
+	@Kroll.method
 	public Object[] getPeopleWithName(String name)
 	{
 		return contactsApi.getPeopleWithName(name);

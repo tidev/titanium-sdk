@@ -3,19 +3,35 @@ package ti.modules.titanium.contacts;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.util.TiConvert;
 
 import android.app.Activity;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.RemoteException;
+import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.Event;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.provider.ContactsContract.CommonDataKinds.StructuredName;
+import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
+import android.provider.ContactsContract.Data;
+import android.provider.ContactsContract.RawContacts;
 import android.util.Log;
 
 public class ContactsApiLevel5 extends CommonContactsApi
@@ -196,6 +212,172 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		return getPeople(Integer.MAX_VALUE, "display_name like ? or display_name like ?" , new String[]{name + '%', "% " + name + '%'});
 	}
 
+	protected void updateContactField (ArrayList<ContentProviderOperation> ops, int insertIndex, String mimeType, String idKey,
+			String idValue, String typeKey, int typeValue) 
+	{
+		if (typeKey == null) {
+			ops.add(ContentProviderOperation
+					.newInsert(Data.CONTENT_URI)
+					.withValueBackReference(Data.RAW_CONTACT_ID, insertIndex)
+					.withValue(Data.MIMETYPE, mimeType)
+					.withValue(idKey, idValue) 
+					.build());
+		} else {
+			ops.add(ContentProviderOperation
+					.newInsert(Data.CONTENT_URI)
+					.withValueBackReference(Data.RAW_CONTACT_ID, insertIndex)
+					.withValue(Data.MIMETYPE, mimeType)
+					.withValue(idKey, idValue) 
+					.withValue(typeKey, typeValue)
+					.build());
+		}
+	}
+	
+	protected void processAddress(HashMap addressHashMap, String addressType, ArrayList<ContentProviderOperation> ops, int insertIndex, int aType)
+	{
+		Object type = addressHashMap.get(addressType);
+		if (type instanceof Object[]) {
+			Object[] typeArray = (Object[]) type;
+			for (int i = 0; i < typeArray.length; i++) {
+				Object typeAddress = typeArray[i];
+				if (typeAddress instanceof HashMap) {
+					HashMap typeHashMap = (HashMap) typeAddress;
+					if (typeHashMap.containsKey("CountryCode")) {
+						String countryCode = TiConvert.toString(typeHashMap, "CountryCode");
+						updateContactField(ops, insertIndex, StructuredPostal.CONTENT_ITEM_TYPE, StructuredPostal.COUNTRY, countryCode, StructuredPostal.TYPE, aType);
+					}
+
+					if (typeHashMap.containsKey("Street")) {
+						String street = TiConvert.toString(typeHashMap, "Street");
+						updateContactField(ops, insertIndex, StructuredPostal.CONTENT_ITEM_TYPE, StructuredPostal.STREET, street, StructuredPostal.TYPE, aType);
+					}
+
+					if (typeHashMap.containsKey("City")) {
+						String city = TiConvert.toString(typeHashMap, "City");
+						updateContactField(ops, insertIndex, StructuredPostal.CONTENT_ITEM_TYPE, StructuredPostal.CITY, city, StructuredPostal.TYPE, aType);
+					}
+					
+					if (typeHashMap.containsKey("ZIP")) {
+						String zip = TiConvert.toString(typeHashMap, "ZIP");
+						updateContactField(ops, insertIndex, StructuredPostal.CONTENT_ITEM_TYPE, StructuredPostal.POSTCODE, zip, StructuredPostal.TYPE, aType);
+					}
+					
+					if (typeHashMap.containsKey("State")) {
+						String state = TiConvert.toString(typeHashMap, "State");
+						updateContactField(ops, insertIndex, StructuredPostal.CONTENT_ITEM_TYPE, StructuredPostal.REGION, state, StructuredPostal.TYPE, aType);
+					}
+				}
+			}
+		}
+	}
+	
+	protected void addContact(KrollDict options) {
+		
+		String firstName = "", lastName = "", fullName = "", middleName = "", displayName = "";
+		String mobilePhone = "", workPhone = "";
+		String birthday = "";
+		PersonProxy newContact = new PersonProxy();
+		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+		int insertIndex = ops.size();
+		
+		ops.add(ContentProviderOperation.newInsert(RawContacts.CONTENT_URI)
+				.withValue(RawContacts.ACCOUNT_TYPE, null)
+				.withValue(RawContacts.ACCOUNT_NAME, null).build());
+		
+		if (options.containsKey(TiC.PROPERTY_FIRSTNAME)) {
+			firstName = TiConvert.toString(options, TiC.PROPERTY_FIRSTNAME);
+			newContact.setProperty(TiC.PROPERTY_FIRSTNAME, firstName);
+		}
+		
+		if (options.containsKey(TiC.PROPERTY_LASTNAME)) {
+			lastName = TiConvert.toString(options, TiC.PROPERTY_LASTNAME);
+			newContact.setProperty(TiC.PROPERTY_LASTNAME, lastName);
+		}
+		
+		if (options.containsKey(TiC.PROPERTY_MIDDLENAME)) {
+			middleName = TiConvert.toString(options, TiC.PROPERTY_MIDDLENAME);
+			newContact.setProperty(TiC.PROPERTY_MIDDLENAME, middleName);
+		}
+		
+		if (options.containsKey(TiC.PROPERTY_FULLNAME)) {
+			fullName = TiConvert.toString(options, TiC.PROPERTY_FULLNAME);
+			displayName = fullName;
+		} else {
+			displayName = firstName + " " + middleName + " " + lastName;
+		}
+
+		updateContactField(ops, insertIndex, StructuredName.CONTENT_ITEM_TYPE, StructuredName.DISPLAY_NAME, displayName, null, 0);
+		newContact.setProperty(TiC.PROPERTY_FULLNAME, fullName);
+		
+		if (options.containsKey(TiC.PROPERTY_PHONE)) {
+			Object phoneNumbers = options.get(TiC.PROPERTY_PHONE);
+			if (phoneNumbers instanceof HashMap) {
+				HashMap phones = (HashMap)phoneNumbers;
+				newContact.setProperty(TiC.PROPERTY_PHONE, phones);
+				
+				if (phones.containsKey(TiC.PROPERTY_MOBILE)) {
+					Object mobileArray = phones.get(TiC.PROPERTY_MOBILE);
+					if (mobileArray instanceof Object[]) {
+						Object[] tempArray = (Object[]) mobileArray;
+						for (int i = 0; i < tempArray.length; i++) {
+							mobilePhone = tempArray[i].toString();
+							updateContactField(ops, insertIndex, Phone.CONTENT_ITEM_TYPE, Phone.NUMBER, mobilePhone, Phone.TYPE, Phone.TYPE_MOBILE);
+						}
+					}
+				}
+				
+				if (phones.containsKey(TiC.PROPERTY_WORK)) {
+					Object workArray = phones.get(TiC.PROPERTY_WORK);
+					if (workArray instanceof Object[]) {
+						Object[] tempArray = (Object[]) workArray;
+						for (int i = 0; i < tempArray.length; i++) {
+							workPhone = tempArray[i].toString();
+							updateContactField(ops, insertIndex, Phone.CONTENT_ITEM_TYPE, Phone.NUMBER, workPhone, Phone.TYPE, Phone.TYPE_WORK);
+						}
+					}
+				}
+			}
+		}
+		
+		if (options.containsKey(TiC.PROPERTY_BIRTHDAY)) {
+			birthday = TiConvert.toString(options, TiC.PROPERTY_BIRTHDAY);
+			newContact.setProperty(TiC.PROPERTY_BIRTHDAY, birthday);
+			updateContactField(ops, insertIndex, Event.CONTENT_ITEM_TYPE, Event.START_DATE, birthday, Event.TYPE, Event.TYPE_BIRTHDAY);
+		}
+		
+		if (options.containsKey(TiC.PROPERTY_ADDRESS)) {
+			Object address = options.get(TiC.PROPERTY_ADDRESS);
+			if (address instanceof HashMap) {
+				HashMap addressHashMap = (HashMap) address;
+				newContact.setProperty(TiC.PROPERTY_ADDRESS, addressHashMap);
+				if (addressHashMap.containsKey(TiC.PROPERTY_WORK)) {
+					processAddress(addressHashMap, TiC.PROPERTY_WORK, ops, insertIndex, StructuredPostal.TYPE_WORK);
+				}
+				
+				if (addressHashMap.containsKey(TiC.PROPERTY_HOME)) {
+					processAddress(addressHashMap, TiC.PROPERTY_HOME, ops, insertIndex, StructuredPostal.TYPE_HOME);
+				}
+			}
+		}
+		
+		
+		
+		
+		                 
+		try
+		{
+			ContentProviderResult[] res = TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+		}
+		catch (RemoteException e)
+		{ 
+			// error
+		}
+		catch (OperationApplicationException e) 
+		{
+			// error
+		}       
+	}
+	
 	@Override
 	protected PersonProxy getPersonById(long id)
 	{

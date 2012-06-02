@@ -3,6 +3,7 @@ package ti.modules.titanium.contacts;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 
@@ -283,5 +284,14 @@ public class ContactsApiLevel4 extends CommonContactsApi
 		return Contacts.People.loadContactPhoto(TiApplication.getInstance().getCurrentActivity(), 
 				ContentUris.withAppendedId(Contacts.People.CONTENT_URI, id), NO_PLACEHOLDER_IMAGE, null);
 	}
+
+	@Override
+	protected void addContact(KrollDict options) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
 
 }
