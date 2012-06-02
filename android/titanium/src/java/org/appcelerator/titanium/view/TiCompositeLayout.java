@@ -13,6 +13,7 @@ import java.util.TreeSet;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -529,6 +530,12 @@ public class TiCompositeLayout extends ViewGroup
 					int newHeightSpec = MeasureSpec.makeMeasureSpec(newHeight, MeasureSpec.EXACTLY);
 					child.measure(newWidthSpec, newHeightSpec);
 				}
+
+				if (!TiApplication.getInstance().isRootActivityAvailable()) {
+					Log.w(TAG, "The root activity is no longer available.  Skipping layout pass.");
+					return;
+				}
+
 				child.layout(horizontal[0], vertical[0], horizontal[1], vertical[1]);
 
 				currentHeight += newHeight;

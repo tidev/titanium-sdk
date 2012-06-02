@@ -57,7 +57,7 @@ define(function() {
 			var d, i, p, v, special = { properties: 1, constants: 0 };
 			for (p in src) {
 				if (src.hasOwnProperty(p) && !/^(constructor|__values__)$/.test(p)) {
-					if (p in special) {
+					if (special.hasOwnProperty(p)) {
 						d = dest[p] || (dest[p] = {});
 						d.__values__ || (d.__values__ = {});
 						for (i in src[p]) {

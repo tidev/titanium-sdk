@@ -53,7 +53,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 						var i = Math.max(isSameDomain | 0, 0),
 							cw = iframe.contentWindow,
 							prop,
-							url;
+							url,
+							html;
 
 						if (i !== -1) {
 							// we can always guarantee that the first load we'll know if it's the same domain
@@ -69,7 +70,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 						if (i > 0) {
 							url = cw.location.href;
 							this.evalJS(bridge.replace("WEBVIEW_ID", this.widgetId + ":unload"));
-							this.html && this._setContent(this.html);
+							(html = this.properties.__values__.html) && this._setContent(html);
 						} else {
 							API.warn("Unable to inject WebView bridge into cross-domain URL, ignore browser security message");
 						}

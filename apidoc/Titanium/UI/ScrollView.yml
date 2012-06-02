@@ -188,6 +188,14 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     
+  - name: scrollIndicatorStyle
+    summary: |
+        Style of the scrollbar, specified using one of the constants from 
+        <Titanium.UI.iPhone.ScrollIndicatorStyle>.
+    type: Number
+    default: <Titanium.UI.iPhone.ScrollIndicatorStyle.DEFAULT>
+    platforms: [iphone, ipad]
+
   - name: scrollType
     summary: |
         Limits the direction of the scrollable region, overriding the deduced setting. Set to 
