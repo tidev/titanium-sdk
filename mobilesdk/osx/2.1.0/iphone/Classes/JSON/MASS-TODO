@@ -1,8 +1,0 @@
-It's unusual to have a top-level TODO like this, but:
-
-We currently have two versions of SBJSON in Titanium (one for FB support, one for our internals).  Because we've modified
-SBJSON so heavily on our side, porting the new SBJSON to our framework is NONTRIVIAL.
-
-This file indicates a massive TODO for porting relevant changes from old SBJSON to the new SBJSON
-architecture so that we can remove oldschool SBJSON once and for all.  This could also potentially
-resolve innumerable symbol conflicts when compiling modules.

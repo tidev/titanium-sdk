@@ -1,4 +1,0 @@
-version=2.1.0
-module_apiversion=2
-timestamp=05/19/12 15:46
-githash=9e61007
