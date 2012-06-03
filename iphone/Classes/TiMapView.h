@@ -18,8 +18,23 @@
 -(NSString *)lastHitName;
 @end
 
+typedef void (^TouchesEventBlock)(NSSet * touches, UIEvent * event);
 
-@interface TiMapView : TiUIView<MKMapViewDelegate> {
+@interface MapGestureRecognizer : UIGestureRecognizer {
+    TouchesEventBlock touchesBeganCallback;
+    TouchesEventBlock touchesMovedCallback;
+    TouchesEventBlock touchesEndedCallback;
+    TouchesEventBlock touchesCancelledCallback;
+}
+
+@property(copy) TouchesEventBlock touchesBeganCallback;
+@property(copy) TouchesEventBlock touchesMovedCallback;
+@property(copy) TouchesEventBlock touchesEndedCallback;
+@property(copy) TouchesEventBlock touchesCancelledCallback;
+
+@end
+
+@interface TiMapView : TiUIView<MKMapViewDelegate, UIGestureRecognizerDelegate> {
 @private
 	MKMapView *map;
 	BOOL regionFits;
@@ -37,6 +52,14 @@
 	id<MKAnnotation> hitAnnotation;
 	BOOL hitSelect;
 	BOOL manualSelect;
+    
+	UITapGestureRecognizer*			mapSingleTapRecognizer;
+	UITapGestureRecognizer*			mapDoubleTapRecognizer;
+	UITapGestureRecognizer*			mapTwoFingerTapRecognizer;
+	UIPinchGestureRecognizer*		mapPinchRecognizer;
+	UISwipeGestureRecognizer*		mapLeftSwipeRecognizer;
+	UISwipeGestureRecognizer*		mapRightSwipeRecognizer;
+	UILongPressGestureRecognizer*	mapLongPressRecognizer;
 }
 
 @property (nonatomic, readonly) CLLocationDegrees longitudeDelta;
@@ -46,6 +69,10 @@
 #pragma mark Private APIs
 -(TiMapAnnotationProxy*)annotationFromArg:(id)arg;
 -(NSArray*)annotationsFromArgs:(id)value;
+-(void)mapTouchesBegan:(NSSet*)touches withEvent:(UIEvent*)event;
+-(void)mapTouchesEnded:(NSSet*)touches withEvent:(UIEvent*)event;
+-(void)mapTouchesCancelled:(NSSet*)touches withEvent:(UIEvent*)event;
+-(void)mapTouchesMoved:(NSSet*)touches withEvent:(UIEvent*)event;
 
 #pragma mark Public APIs
 -(void)addAnnotation:(id)args;
