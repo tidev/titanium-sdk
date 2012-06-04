@@ -12,10 +12,10 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
 				left: 0,
 				top: 0
 			});
-			View.prototype.add.call(this,contentContainer);
+			this._add(contentContainer);
 			style.set(contentContainer.domNode,"overflow","hidden");
 			
-			contentContainer.add(this._contentMeasurer = UI.createView({
+			contentContainer._add(this._contentMeasurer = UI.createView({
 				width: UI.SIZE,
 				height: UI.SIZE,
 				left: 0,
@@ -72,6 +72,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
 			}));
 			var self = this;
 			this.domNode.addEventListener("mousewheel",function(e) {
+				
+				// Start the scrollbar
 				self._startScrollBars({
 					x: contentContainer.domNode.scrollLeft / (self._contentMeasurer._measuredWidth - self._measuredWidth),
 					y: contentContainer.domNode.scrollTop / (self._contentMeasurer._measuredHeight - self._measuredHeight)
@@ -80,30 +82,31 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
 					x: contentContainer._measuredWidth / (self._contentMeasurer._measuredWidth),
 					y: contentContainer._measuredHeight / (self._contentMeasurer._measuredHeight)
 				});
+				
+				// Set the scroll position
+				contentContainer.domNode.scrollLeft -= e.wheelDeltaX;
+				contentContainer.domNode.scrollTop -= e.wheelDeltaY;
+				
+				// Create the scroll event and immediately update the position
+				self._isScrollBarActive && self.fireEvent("scroll",{
+					x: contentContainer.domNode.scrollLeft,
+					y: contentContainer.domNode.scrollTop,
+					dragging: false
+				});
+				self._updateScrollBars({
+					x: (contentContainer.domNode.scrollLeft - e.wheelDeltaX) / (self._contentMeasurer._measuredWidth - self._measuredWidth),
+					y: (contentContainer.domNode.scrollTop - e.wheelDeltaY) / (self._contentMeasurer._measuredHeight - self._measuredHeight)
+				});
 				setTimeout(function(){
-					contentContainer.domNode.scrollLeft -= e.wheelDeltaX;
-					contentContainer.domNode.scrollTop -= e.wheelDeltaY;
-					
-					// Create the scroll event
-					self._isScrollBarActive && self.fireEvent("scroll",{
-						x: contentContainer.domNode.scrollLeft,
-						y: contentContainer.domNode.scrollTop,
-						dragging: false
-					});
-					self._updateScrollBars({
-						x: (contentContainer.domNode.scrollLeft - e.wheelDeltaX) / (self._contentMeasurer._measuredWidth - self._measuredWidth),
-						y: (contentContainer.domNode.scrollTop - e.wheelDeltaY) / (self._contentMeasurer._measuredHeight - self._measuredHeight)
-					});
-					setTimeout(function(){
-						self._endScrollBars();
-					},10);
-				},10);
+					self._endScrollBars();
+				},200);
 			});
 		},
 		
-		scrollTo: function(x,y) {
-			x !== null && (this._contentContainer.scrollLeft = parseInt(x));
-			y !== null && (this._contentContainer.scrollTop = parseInt(y));
+		scrollTo: function(x, y) {
+			var n = this._contentContainer.domNode;
+			x !== null && (n.scrollLeft = parseInt(x));
+			y !== null && (n.scrollTop = parseInt(y));
 		},
 
 		_defaultWidth: UI.FILL,
@@ -114,17 +117,20 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
 			return this.contentOffset;
 		},
 		
-		_doLayout: function() {
+		_preLayout: function() {
+			var needsRecalculation = this._contentMeasurer.layout === this.layout
 			this._contentMeasurer.layout = this.layout;
-			return View.prototype._doLayout.apply(this,arguments);
+			return needsRecalculation;
 		},
 		
 		add: function(view) {
-			this._contentMeasurer.add(view);
+			this._contentMeasurer._add(view);
+			this._publish(view);
 		},
 		
 		remove: function(view) {
 			this._contentMeasurer.remove(view);
+			this._unpublish(view);
 		},
 
 		properties: {

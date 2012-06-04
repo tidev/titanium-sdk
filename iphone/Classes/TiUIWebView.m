@@ -480,7 +480,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 				{
 					//step 3: try an appropriate legacy encoding (if one) -- what's that? Latin-1?
 					//at this point we're just going to fail
-					NSLog(@"[ERROR] Couldn't determine the proper encoding. Make sure this file: %@ is UTF-8 encoded.",[path lastPathComponent]);
+					DebugLog(@"[ERROR] Couldn't determine the proper encoding. Make sure this file: %@ is UTF-8 encoded.",[path lastPathComponent]);
 				}
 				else
 				{
@@ -518,7 +518,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 				}
 				else 
 				{
-					NSLog(@"[WARN] I have no idea what the appropriate text encoding is for: %@. Please report this to Appcelerator support.",url);
+					DebugLog(@"[WARN] Could not determine correct text encoding for content: %@.",url);
 				}
 			}
 			if ((error!=nil && [error code]==261) || [mimeType isEqualToString:(NSString*)svgMimeType])
@@ -535,7 +535,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 			}
 			else if (error!=nil)
 			{
-				NSLog(@"[ERROR] error loading file: %@. Message was: %@",path,error);
+				NSLog(@"[ERROR] Error loading file: %@. Message was: %@",path,error);
 				RELEASE_TO_NIL(url);
 			}
 		}
@@ -582,12 +582,10 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	NSString *toEncode = [NSString stringWithFormat:@"%@:%@",username,password];
 	const char *data = [toEncode UTF8String];
 	size_t len = [toEncode length];
-	
-	size_t outsize = EstimateBas64EncodedDataSize(len);
-	char *base64Result = malloc(sizeof(char)*outsize);
-    size_t theResultLength = outsize;
-	
-    bool result = Base64EncodeData(data, len, base64Result, &theResultLength);
+
+	char *base64Result;
+    size_t theResultLength;
+	bool result = Base64AllocAndEncodeData(data, len, &base64Result, &theResultLength);
 	if (result)
 	{
 		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
@@ -599,9 +597,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 		{
 			[self setUrl_:[NSArray arrayWithObject:[url absoluteString]]];
 		}
-		return;
 	}    
-	free(base64Result);
 }
 
 -(NSString*)stringByEvaluatingJavaScriptFromString:(NSString *)code
@@ -640,14 +636,14 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 
 	if ([self.proxy _hasListeners:@"beforeload"])
 	{
-		NSDictionary *event = newUrl == nil ? nil : [NSDictionary dictionaryWithObject:[newUrl absoluteString] forKey:@"url"];
+		NSDictionary *event = newUrl == nil ? nil : [NSDictionary dictionaryWithObjectsAndKeys:[newUrl absoluteString], @"url", NUMINT(navigationType), @"navigationType", nil];
 		[self.proxy fireEvent:@"beforeload" withObject:event];
 	}
 
 	NSString * scheme = [[newUrl scheme] lowercaseString];
 	if ([scheme hasPrefix:@"http"] || [scheme hasPrefix:@"app"] || [scheme hasPrefix:@"file"] || [scheme hasPrefix:@"ftp"])
 	{
-		NSLog(@"New scheme: %@",request);
+		DebugLog(@"[DEBUG] New scheme: %@",request);
 		if (ignoreNextRequest)
 		{
 			ignoreNextRequest = NO;

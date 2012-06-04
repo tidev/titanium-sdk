@@ -177,7 +177,7 @@ public class TiUrl
 				throw new IllegalArgumentException("Scheme not implemented for " + url);
 			}
 		} catch (URISyntaxException e) {
-			Log.w(TAG, "Error parsing url: " + e.getMessage(), e);
+			Log.w(TAG, "Error parsing url: " + e.getMessage());
 		}
 		return new TiUrl(baseUrl, url);
 	}
@@ -286,7 +286,7 @@ public class TiUrl
 				return uri.toString();
 			}
 		} catch (URISyntaxException e) {
-			Log.w(TAG, "Error parsing url: " + e.getMessage(), e);
+			Log.w(TAG, "Error parsing url: " + e.getMessage());
 			return url;
 		}
 	}
@@ -319,7 +319,7 @@ public class TiUrl
 			builder.encodedPath(Uri.encode(Uri.decode(base.getPath()), "/"));
 			return builder.build();
 		} catch (Exception e) {
-			Log.e(TAG, "Exception in getCleanUri argString= " + argString, e);
+			Log.e(TAG, "Exception in getCleanUri argString= " + argString);
 			return null;
 		}
 	}

@@ -12,6 +12,7 @@ html {
 }
 
 body {
+	background-color: #000;
 	display: block;
 	margin: 0;
 	overflow: hidden;
@@ -331,6 +332,10 @@ textarea {
 		#666);
 }
 
+.TiUIButton {
+	-webkit-tap-highlight-color: transparent;
+}
+
 .TiUIButtonDefault {
 	border: 1px solid #666; 
 	border-radius: 6px;
@@ -339,30 +344,14 @@ textarea {
 .TiUISliderTrack {
 	left: 0;
 	right: 0;
-	top: 6px;
-	bottom: 6px;
-	min-height: 6px;
 	position: absolute;
-	background-color: #aaa;
-	border-radius: 3px;
-	border: 1px solid #888;
-	box-shadow: inset 1px 1px 1px 0px #666;
 }
 
 .TiUISliderThumb {
 	left: 0;
 	top: 0;
 	bottom: 0;
-	width: 30px;
 	position: absolute;
-	background-color: #fff;
-	border-radius: 3px;
-	border: 1px solid #666;
-	padding: 0px 0px;
-}
-
-.TiUISliderThumb:active {
-	background-color: #ccc;
 }
 
 .TiUIProgressBarContainer {

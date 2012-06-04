@@ -16,42 +16,42 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				height: UI.INHERIT,
 				left: 0,
 				top: 0,
-				layout: 'vertical'
+				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			});
-			this.add(contentContainer);
+			this._add(contentContainer);
 			setStyle(contentContainer.domNode,"overflow","hidden");
-			
+
 			// Use horizontal layouts so that the default location is always (0,0)
-			contentContainer.add(this._header = UI.createView({
+			contentContainer._add(this._header = UI.createView({
 				height: UI.SIZE, 
 				width: UI.INHERIT, 
-				layout: "vertical"
+				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
-			contentContainer.add(this._sections = UI.createView({
+			contentContainer._add(this._sections = UI.createView({
 				height: UI.SIZE, 
 				width: UI.INHERIT, 
-				layout: "vertical"
+				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
-			contentContainer.add(this._footer = UI.createView({
+			contentContainer._add(this._footer = UI.createView({
 				height: UI.SIZE, 
 				width: UI.INHERIT, 
-				layout: "vertical"
+				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
-			
+
 			this.data = [];
-			
+
 			this._createVerticalScrollBar();
-			
+
 			var self = this;
 			function getContentHeight() {
 				return self._header._measuredHeight + self._sections._measuredHeight + self._footer._measuredHeight;
 			}
-			
+
 			// Handle scrolling
 			var previousTouchLocation;
 			this.addEventListener("touchstart",function(e) {
 				previousTouchLocation = e.y;
-				
+
 				this._startScrollBars({
 					y: contentContainer.domNode.scrollTop / (getContentHeight() - this._measuredHeight)
 				},
@@ -84,22 +84,26 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				this._fireScrollEvent(e.x,e.y);
 			}));
 			this.domNode.addEventListener("mousewheel",function(e) {
+				
+				// Start the scroll bar
 				self._startScrollBars({
 					y: contentContainer.domNode.scrollTop / (getContentHeight() - self._measuredHeight)
 				},
 				{
 					y: contentContainer._measuredHeight / (getContentHeight())
 				});
+				
+				// Set the scroll position
+				contentContainer.domNode.scrollLeft -= e.wheelDeltaX;
+				contentContainer.domNode.scrollTop -= e.wheelDeltaY;
+				
+				// Immediately update the position
+				self._updateScrollBars({
+					y: (contentContainer.domNode.scrollTop - e.wheelDeltaY) / (getContentHeight() - self._measuredHeight)
+				});
 				setTimeout(function(){
-					contentContainer.domNode.scrollLeft -= e.wheelDeltaX;
-					contentContainer.domNode.scrollTop -= e.wheelDeltaY;
-					self._updateScrollBars({
-						y: (contentContainer.domNode.scrollTop - e.wheelDeltaY) / (getContentHeight() - self._measuredHeight)
-					});
-					setTimeout(function(){
-						self._endScrollBars();
-					},10);
-				},10);
+					self._endScrollBars();
+				},200);
 			});
 			
 			require.on(contentContainer.domNode,"scroll",lang.hitch(this,function(e){
@@ -114,7 +118,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			var firstVisibleItem,
 				visibleItemCount = 0,
 				scrollTop = this._contentContainer.scrollTop,
-				sections = this._sections.children;
+				sections = this._sections._children;
 			for(var i = 0; i < sections.length; i+= 2) {
 				
 				// Check if the section is visible
@@ -123,7 +127,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 					sectionOffsetBottom = section._measuredTop + section._measuredHeight - scrollTop;
 				if (sectionOffsetBottom > 0 && sectionOffsetTop < this._contentContainer._measuredHeight) {
 					
-					var rows = section._rows.children
+					var rows = section._rows._children
 					for (var j = 1; j < rows.length; j += 2) {
 						var row = rows[j],
 							rowOffsetTop = row._measuredTop + section._measuredTop - scrollTop,
@@ -163,14 +167,14 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			var i = 0,
 				index = 0,
 				localIndex,
-				sections = this._sections.children,
+				sections = this._sections._children,
 				row = this._tableViewRowClicked,
 				section = this._tableViewSectionClicked;
-
-			if (row && section) {
-				if (regexpClickTap.test(type)) {
+			if (type === "click" || type === "singletap") {
+				if (row && section) {
+					
 					for (; i < sections.length; i += 2) {
-						localIndex = sections[i]._rows.children.indexOf(row);
+						localIndex = sections[i]._rows._children.indexOf(row);
 						if (localIndex !== -1) {
 							index += Math.floor(localIndex / 2);
 							break;
@@ -182,12 +186,14 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 					e.index = index;
 					e.section = section;
 					e.searchMode = false; 
+	
+					View.prototype._handleTouchEvent.apply(this, arguments);
+	
+					this._tableViewRowClicked = null;
+					this._tableViewSectionClicked = null;
 				}
-
+			} else {
 				View.prototype._handleTouchEvent.apply(this, arguments);
-
-				this._tableViewRowClicked = null;
-				this._tableViewSectionClicked = null;
 			}
 		},
 
@@ -214,8 +220,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		},
 		
 		_refreshSections: function() {
-			for (var i = 0; i < this._sections.children.length; i += 2) {
-				this._sections.children[i]._refreshRows();
+			for (var i = 0; i < this._sections._children.length; i += 2) {
+				this._sections._children[i]._refreshRows();
 			}
 			this._triggerLayout();
 		},
@@ -223,8 +229,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		_calculateLocation: function(index) {
 			var currentOffset = 0,
 				section;
-			for(var i = 0; i < this._sections.children.length; i += 2) {
-				section = this._sections.children[i];
+			for(var i = 0; i < this._sections._children.length; i += 2) {
+				section = this._sections._children[i];
 				currentOffset += section.rowCount;
 				if (index < currentOffset) {
 					return {
@@ -246,8 +252,9 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 		_insertRow: function(value, index) {
 			var location = this._calculateLocation(index);
 			if (location) {
-				location.section.add(value,location.localIndex);
+				location.section.add(value,location.localIndex); // We call the normal .add() method to hook into the sections proper add mechanism
 			}
+			this._publish(value);
 			this._refreshSections();
 		},
 		
@@ -256,39 +263,41 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 			if (location) {
 				location.section._removeAt(location.localIndex);
 			}
+			this._unpublish(value);
 		},
 
 		appendRow: function(value) {
 			if (!this._currentSection) {
-				this._sections.add(this._currentSection = UI.createTableViewSection({_tableView: this}));
-				this._sections.add(this._createSeparator());
+				this._sections._add(this._currentSection = UI.createTableViewSection({_tableView: this}));
+				this._sections._add(this._createSeparator());
 				this.data.push(this._currentSection);
 			}
-			this._currentSection.add(value);
+			this._currentSection.add(value); // We call the normal .add() method to hook into the sections proper add mechanism
+			this._publish(value);
 			this._refreshSections();
 		},
-		
+
 		deleteRow: function(index) {
 			this._removeRow(index);
 		},
-		
+
 		insertRowAfter: function(index, value) {
 			this._insertRow(value, index + 1);
 		},
-		
+
 		insertRowBefore: function(index, value) {
 			this._insertRow(value, index);
 		},
-		
+
 		updateRow: function(index, row) {
 			this._removeRow(index);
 			this._insertRow(row, index);
 		},
-		
+
 		scrollToIndex: function(index) {
 			var location = this._calculateLocation(index);
 			if (location) {
-				this._contentContainer.domNode.scrollTop = location.section._measuredTop + location.section._rows.children[2 * location.localIndex + 1]._measuredTop;
+				this._contentContainer.domNode.scrollTop = location.section._measuredTop + location.section._rows._children[2 * location.localIndex + 1]._measuredTop;
 			}
 		},
 		
@@ -319,17 +328,18 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 							if (value[i].declaredClass === "Ti.UI.TableViewRow") {
 								// Check if we need a default section
 								if (!this._currentSection) {
-									this._sections.add(this._currentSection = UI.createTableViewSection({_tableView: this}));
-									this._sections.add(this._createSeparator());
+									this._sections._add(this._currentSection = UI.createTableViewSection({_tableView: this}));
+									this._sections._add(this._createSeparator());
 									retval.push(this._currentSection);
 								}
-								this._currentSection.add(value[i]);
+								this._currentSection.add(value[i]); // We call the normal .add() method to hook into the sections proper add mechanism
 							} else if (value[i].declaredClass === "Ti.UI.TableViewSection") {
 								value[i]._tableView = this;
-								this._sections.add(this._currentSection = value[i]);
-								this._sections.add(this._createSeparator());
+								this._sections._add(this._currentSection = value[i]);
+								this._sections._add(this._createSeparator());
 								retval.push(this._currentSection);
 							}
+							this._publish(value[i]);
 						}
 						this._refreshSections();
 						
@@ -344,7 +354,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				set: function(value, oldValue) {
 					if (oldValue != value) {
 						this._footer._removeAllChildren();
-						this._footer.add(this._createDecorationLabel(value));
+						this._footer._add(this._createDecorationLabel(value));
 					}
 					return value;
 				}
@@ -353,7 +363,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				set: function(value, oldValue) {
 					if (oldValue != value) {
 						this._footer._removeAllChildren();
-						this._footer.add(value);
+						this._footer._add(value);
 					}
 					return value;
 				}
@@ -362,8 +372,8 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				set: function(value, oldValue) {
 					if (oldValue != value) {
 						this._header._removeAllChildren();
-						this._header.add(this._createDecorationLabel(value));
-						this._header.add(this._createSeparator());
+						this._header._add(this._createDecorationLabel(value));
+						this._header._add(this._createSeparator());
 					}
 					return value;
 				}
@@ -372,7 +382,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang","Ti/UI/MobileWeb
 				set: function(value, oldValue) {
 					if (oldValue != value) {
 						this._header._removeAllChildren();
-						this._header.add(value);
+						this._header._add(value);
 					}
 					return value;
 				}

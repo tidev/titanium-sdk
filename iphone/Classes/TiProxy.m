@@ -34,6 +34,7 @@ NSString * const TiExceptionInternalInconsistency = @"Value was not the value ex
 //Rare exceptions to indicate a bug in the titanium code (Eg, method that a subclass should have implemented)
 NSString * const TiExceptionUnimplementedFunction = @"Subclass did not implement required method";
 
+NSString * const TiExceptionMemoryFailure = @"Memory allocation failed";
 
 
 SEL SetterForKrollProperty(NSString * key)
@@ -198,7 +199,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	if (self = [super init])
 	{
 #if PROXY_MEMORY_TRACK == 1
-		NSLog(@"INIT: %@ (%d)",self,[self hash]);
+		NSLog(@"[DEBUG] INIT: %@ (%d)",self,[self hash]);
 #endif
 		pthread_rwlock_init(&listenerLock, NULL);
 		pthread_rwlock_init(&dynpropsLock, NULL);
@@ -276,7 +277,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 {
 	if(OSAtomicDecrement32(&bridgeCount)<0)
 	{
-		NSLog(@"[WARN] BridgeCount for %@ is now at %d",self,bridgeCount);
+		DeveloperLog(@"[WARN] BridgeCount for %@ is now at %d",self,bridgeCount);
 	}
 	if(oldBridge == pageContext) {
 		pageKrollObject = nil;
@@ -375,7 +376,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	destroyed = YES;
 	
 #if PROXY_MEMORY_TRACK == 1
-	NSLog(@"DESTROY: %@ (%d)",self,[self hash]);
+	NSLog(@"[DEBUG] DESTROY: %@ (%d)",self,[self hash]);
 #endif
 
 	if ((bridgeCount == 1) && (pageKrollObject != nil) && (pageContext != nil))
@@ -423,7 +424,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)dealloc
 {
 #if PROXY_MEMORY_TRACK == 1
-	NSLog(@"DEALLOC: %@ (%d)",self,[self hash]);
+	NSLog(@"[DEBUG] DEALLOC: %@ (%d)",self,[self hash]);
 #endif
 	[self _destroy];
 	pthread_rwlock_destroy(&listenerLock);
@@ -582,7 +583,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		
 	if(![bridge usesProxy:self])
 	{
-		NSLog(@"[DEBUG] Proxy may be missing its javascript representation.");
+		DeveloperLog(@"[DEBUG] Proxy %@ may be missing its javascript representation.", self);
 	}
 	
 	return [bridge krollObjectForProxy:self];
@@ -599,7 +600,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	
 	if(![ourBridge usesProxy:self])
 	{
-		NSLog(@"[DEBUG] Proxy may be missing its javascript representation.");
+		DeveloperLog(@"[DEBUG] Proxy %@ may be missing its javascript representation.", self);
 	}
 
 	return [ourBridge krollObjectForProxy:self];
@@ -627,7 +628,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	}
 	if (bridgeCount < 1)
 	{
-		NSLog(@"[DEBUG] Proxy %@ is missing its javascript representation needed to remember %@.",self,rememberedProxy);
+		DeveloperLog(@"[DEBUG] Proxy %@ is missing its javascript representation needed to remember %@.",self,rememberedProxy);
 		return;
 	}
 	

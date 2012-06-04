@@ -32,7 +32,7 @@ HEADER = """/**
 
 def compare_versions(version1, version2):
 	def normalize(v):
-		v = '.'.join(v.split('.')[:3])
+		v = '.'.join(map((lambda s:re.sub(r'[^\d]+(.*)$','',s)), v.split('.')[:3]))
 		return [int(x) for x in re.sub(r'(\.0+)*$','', v).split(".")]
 	return cmp(normalize(version1), normalize(version2))
 
@@ -147,20 +147,26 @@ class Compiler(object):
 		if len(tiapp_xml['modules']):
 			print '[INFO] Locating Ti+ modules...'
 			for module in tiapp_xml['modules']:
-				if module['platform'] == '' or module['platform'] == 'mobileweb':
+				if module['platform'] in ['', 'mobileweb', 'commonjs']:
+					is_commonjs = False
+					
 					if 'version' in module and module['version']:
 						# search <project dir>/modules/mobileweb/<module>/<version>/
 						module_dir = os.path.join(self.project_path, 'modules', 'mobileweb', module['id'], module['version'])
 						if not os.path.exists(module_dir):
 							# search <project dir>/modules/commonjs/<module>/<version>/
 							module_dir = os.path.join(self.project_path, 'modules', 'commonjs', module['id'], module['version'])
-							if not os.path.exists(module_dir):
+							if os.path.exists(module_dir):
+								is_commonjs = True
+							else:
 								# search <global module dir>/<module>/<version>/
 								module_dir = os.path.join(self.modules_path, 'mobileweb', module['id'], module['version'])
 								if not os.path.exists(module_dir):
 									# search <global commonjs dir>/<module>/<version>/
 									module_dir = os.path.join(self.modules_path, 'commonjs', module['id'], module['version'])
-									if not os.path.exists(module_dir):
+									if os.path.exists(module_dir):
+										is_commonjs = True
+									else:
 										print '[ERROR] Unable to find Ti+ module "%s", v%s' % (module['id'], module['version'])
 										sys.exit(1)
 					else:
@@ -170,13 +176,17 @@ class Compiler(object):
 						if module_dir is None:
 							# search <project dir>/modules/commonjs/<module>/<version>/
 							module_dir = self.locate_module(os.path.join(self.project_path, 'modules', 'commonjs', module['id']))
-							if module_dir is None:
+							if module_dir is not None:
+								is_commonjs = True
+							else:
 								# search <global module dir>/<module>/<version>/
 								module_dir = self.locate_module(os.path.join(self.modules_path, 'mobileweb', module['id']))
 								if module_dir is None:
 									# search <global commonjs dir>/<module>/<version>/
 									module_dir = self.locate_module(os.path.join(self.modules_path, 'commonjs', module['id']))
-									if module_dir is None:
+									if module_dir is not None:
+										is_commonjs = True
+									else:
 										print '[ERROR] Unable to find Ti+ module "%s"' % module['id']
 										sys.exit(1)
 					
@@ -198,7 +208,7 @@ class Compiler(object):
 						key,value = line.split(':')
 						manifest[key.strip()] = value.strip()
 					
-					if 'minsdk' in manifest and compare_versions(manifest['minsdk'], sdk_version):
+					if 'minsdk' in manifest and compare_versions(manifest['minsdk'], sdk_version) == 1:
 						print '[ERROR] Ti+ module "%s" requires a minimum SDK version of %s: current version %s' % (module['id'], manifest['minsdk'], sdk_version)
 						sys.exit(1)
 					
@@ -222,7 +232,15 @@ class Compiler(object):
 					print '[INFO] Bundling Ti+ module "%s"' % module['id']
 					
 					self.project_dependencies.append(main_file)
-					self.modules_to_cache.append(module['id'] + '/' + main_file)
+					
+					module_name = module['id']
+					if module['id'] != main_file:
+						module_name += '/' + main_file
+					if is_commonjs:
+						self.modules_to_cache.append('commonjs:' + module_name)
+					else:
+						self.modules_to_cache.append(module_name)
+
 					self.tiplus_modules_to_load.append(module['id'])
 					
 					if len(lib):
@@ -286,6 +304,7 @@ class Compiler(object):
 		ti_js.write(HEADER + '\n')
 		
 		# 1) read in the config.js and fill in the template
+		enableInstrumentation = tiapp_xml['mobileweb']['instrumentation'] == 'true' if 'instrumentation' in tiapp_xml['mobileweb'] else False
 		ti_js.write(AppcTemplate(codecs.open(os.path.join(self.sdk_src_path, 'config.js'), 'r', 'utf-8').read(), input_encoding='utf-8', output_encoding='utf-8').render(
 			app_analytics         = tiapp_xml['analytics'],
 			app_copyright         = tiapp_xml['copyright'],
@@ -309,13 +328,18 @@ class Compiler(object):
 			ti_version            = sdk_version,
 			has_analytics_use_xhr = tiapp_xml['mobileweb']['analytics']['use-xhr'],
 			has_show_errors       = 'false' if deploytype == 'production' or tiapp_xml['mobileweb']['disable-error-screen'] == 'true' else 'true',
+			has_instrumentation   = 'true' if enableInstrumentation else 'false',
 			jsQuoteEscapeFilter   = lambda str: str.replace("\\\"","\\\\\\\"")
 		))
 		
-		# 2) copy in the loader
+		# 2) copy in instrumentation if it's enabled
+		if enableInstrumentation:
+			ti_js.write(codecs.open(os.path.join(self.sdk_src_path, 'instrumentation.js'), 'r', 'utf-8').read())
+		
+		# 3) copy in the loader
 		ti_js.write(codecs.open(os.path.join(self.sdk_src_path, 'loader.js'), 'r', 'utf-8').read())
 		
-		# 3) cache the dependencies
+		# 4) cache the dependencies
 		ti_js.write('require.cache({\n');
 		first = True
 		for x in self.modules_to_cache:
@@ -444,6 +468,8 @@ class Compiler(object):
 		ti_css = HEADER + '\n' + splash_css + '\n' + codecs.open(os.path.join(self.themes_path, 'common.css'), 'r', 'utf-8').read()
 		
 		# TODO: need to rewrite absolute paths for urls
+		
+		# TODO: code below does NOT inline imports, nor remove them... do NOT use imports until themes are fleshed out
 		
 		if len(theme):
 			theme_path = os.path.join(self.resources_path, 'themes', theme)
@@ -693,6 +719,19 @@ class Compiler(object):
 			'Ti/Filesystem',
 			'Ti/Filesystem/File',
 			'Ti/Filesystem/FileStream',
+			'Ti/Gesture',
+			'Ti/_/Gestures/GestureRecognizer',
+			'Ti/_/Gestures/DoubleTap',
+			'Ti/_/Gestures/LongPress',
+			'Ti/_/Gestures/Pinch',
+			'Ti/_/Gestures/SingleTap',
+			'Ti/_/Gestures/Swipe',
+			'Ti/_/Gestures/TouchCancel',
+			'Ti/_/Gestures/TouchEnd',
+			'Ti/_/Gestures/TouchMove',
+			'Ti/_/Gestures/TouchStart',
+			'Ti/_/Gestures/TwoFingerTap',
+			'Ti/Geolocation',
 			'Ti/IOStream',
 			'Ti/Locale',
 			'Ti/Media',
@@ -701,29 +740,21 @@ class Compiler(object):
 			'Ti/Network/HTTPClient',
 			'Ti/Platform',
 			'Ti/Platform/DisplayCaps',
-			'Ti/Gesture',
-			'Ti/Geolocation',
-			'Ti/XML',
-			'Ti/UI/View',
 			'Ti/Map',
 			'Ti/Map/View',
 			'Ti/Map/Annotation',
-			'Ti/Media/VideoPlayer',
 			'Ti/UI',
-			'Ti/UI/Clipboard',
-			'Ti/UI/MobileWeb',
-			'Ti/UI/TableViewRow',
-			'Ti/UI/Tab',
-			'Ti/UI/TabGroup',
-			'Ti/UI/Window',
 			'Ti/UI/2DMatrix',
 			'Ti/UI/ActivityIndicator',
 			'Ti/UI/AlertDialog',
 			'Ti/UI/Animation',
 			'Ti/UI/Button',
+			'Ti/UI/Clipboard',
 			'Ti/UI/EmailDialog',
 			'Ti/UI/ImageView',
 			'Ti/UI/Label',
+			'Ti/UI/MobileWeb',
+			'Ti/UI/MobileWeb/NavigationGroup',
 			'Ti/UI/OptionDialog',
 			'Ti/UI/Picker',
 			'Ti/UI/PickerColumn',
@@ -733,13 +764,18 @@ class Compiler(object):
 			'Ti/UI/ScrollView',
 			'Ti/UI/Slider',
 			'Ti/UI/Switch',
-			'Ti/UI/TableViewSection',
+			'Ti/UI/Tab',
+			'Ti/UI/TabGroup',
 			'Ti/UI/TableView',
+			'Ti/UI/TableViewRow',
+			'Ti/UI/TableViewSection',
 			'Ti/UI/TextArea',
 			'Ti/UI/TextField',
+			'Ti/UI/View',
 			'Ti/UI/WebView',
-			'Ti/UI/MobileWeb/NavigationGroup',
+			'Ti/UI/Window',
 			'Ti/Utils',
+			'Ti/XML',
 			'Ti/Yahoo'
 		]
 	

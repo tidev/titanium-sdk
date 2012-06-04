@@ -1,0 +1,41 @@
+.TiUITabBarContainer {
+	background-color: #aaa;
+}
+
+.TiUINavigationGroup {
+	background-color: #888;
+}
+
+.TiUINavigationGroupTop {
+	border-top: 1px solid #555;
+}
+
+.TiUINavigationGroupBottom {
+	border-bottom: 1px solid #555;
+}
+
+.TiUISliderTrack {
+	background-color: #aaa;
+	border-radius: 3px;
+	border: 1px solid #888;
+	box-shadow: inset 1px 1px 1px 0px #666;
+	top: 6px;
+	bottom: 6px;
+	min-height: 6px;
+}
+
+.TiUISliderThumb {
+	background-color: #fff;
+	border-radius: 3px;
+	border: 1px solid #666;
+	padding: 0px 0px;
+	width: 30px;
+}
+
+.TiUISliderThumb:active {
+	background-color: #ccc;
+}
+
+.TiUISliderThumbDisabled {
+	background-color: #aaa;
+}

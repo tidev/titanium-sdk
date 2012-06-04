@@ -29,7 +29,7 @@ describe("Ti.UI tests", {
 			wv.addEventListener('load', listener);
 			w.add(wv);
 		},
-		timeout: 10000,
+		timeout: 15000,
 		timeoutError: 'Timed out waiting for page to load and JS to eval'
 	}),
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2153

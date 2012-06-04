@@ -477,7 +477,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	// HACK: We are never actually in the "OPENED" state.  Needs to be fixed with XHR refactor.
 	if (readyState != NetworkClientStateHeaders && readyState != NetworkClientStateOpened) {
 		// TODO: Throw an exception here as per XHR standard
-		NSLog(@"[ERROR] Must set a connection to OPENED before send()");
+		DebugLog(@"[ERROR] Must set a connection to OPENED before send()");
 		return;
 	}
 	

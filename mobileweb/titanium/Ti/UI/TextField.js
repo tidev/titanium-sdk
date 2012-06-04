@@ -10,8 +10,10 @@ define(["Ti/_/declare", "Ti/_/UI/TextBox", "Ti/_/css", "Ti/_/dom", "Ti/_/lang", 
 				autocomplete: "off",
 				style: {
 					position: "absolute",
-					width: "100%",
-					height: "100%"
+					left: 0,
+					right: 0,
+					top: 0,
+					bottom: 0
 				}
 			}, this._fieldWrapper = dom.create("span", {
 				style: {

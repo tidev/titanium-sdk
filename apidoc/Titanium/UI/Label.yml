@@ -89,7 +89,8 @@ properties:
     summary: Label text.
     description: |
         Use the backslash and letter `n` line feed character combination, ie `\n`, to force a new 
-        line.  
+        line. 
+        
         Use unicode characters, such as those included in (but not limited to) the 
         [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols) 
         section of wikipedia, to insert special characters and symbols.
@@ -149,8 +150,7 @@ examples:
               text: 'A simple label',
               textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
               top: 30,
-              height: 'auto',
-              width: 'auto'
+              width: 'auto', height: 'auto'
             });
             
             var label2 = Ti.UI.createLabel({
@@ -158,8 +158,7 @@ examples:
               text: 'A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n',
               textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
               top: 30,
-              height: 200,
-              width: 300
+              width: 300, height: 200
             });
             
             win.add(label1);

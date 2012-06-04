@@ -108,7 +108,15 @@
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-	[TiLayoutQueue addViewProxy:self];
+    //Update the barImage here as well. Might have the wrong bounds but that will be corrected 
+    //in the call from frameSizeChanged in TiUIWindow. Avoids the visual glitch
+    if ( (!animating) && (controller != nil) && ([controller navigationController] != nil) ) {
+        id barImageValue = [self valueForKey:@"barImage"];
+        if ((barImageValue != nil) && (barImageValue != [NSNull null])) {
+            [self updateBarImage];
+        }
+    }
+    [TiLayoutQueue addViewProxy:self];
 }
 
 -(void)_destroy
@@ -203,7 +211,7 @@
 		}
 		else 
 		{
-			NSLog(@"[ERROR] url not supported in a window. %@",url);
+			DebugLog(@"[ERROR] Url not supported in a window. %@",url);
 		}
 	}
 	
@@ -523,9 +531,18 @@
 -(void)_updateTitleView
 {
     //Called from the view when the screen rotates. 
-    //Resize titleControl based on navbar bounds
+    //Resize titleControl and barImage based on navbar bounds
+    if (animating || controller == nil || [controller navigationController] == nil) {
+        return; // No need to update the title if not in a nav controller
+    }
     TiThreadPerformOnMainThread(^{
-        [self updateTitleView];
+        if ([[self valueForKey:@"titleControl"] isKindOfClass:[TiViewProxy class]]) {
+            [self updateTitleView];
+        }
+        id barImageValue = [self valueForKey:@"barImage"];
+        if ((barImageValue != nil) && (barImageValue != [NSNull null])) {
+            [self updateBarImage];
+        }
     }, NO);
 }
 
@@ -550,12 +567,12 @@
     if ([oldView isKindOfClass:[TiUIView class]]) {
         TiViewProxy * oldProxy = (TiViewProxy *)[(TiUIView *)oldView proxy];
         if (oldProxy == titleControl) {
-            //relayout titleControl
+            //resize titleControl
             CGRect barBounds;
             barBounds.origin = CGPointZero;
             barBounds.size = SizeConstraintViewWithSizeAddingResizing(titleControl.layoutProperties, titleControl, availableTitleSize, NULL);
             
-            [TiUtils setView:oldView positionRect:barBounds];
+            [oldView setBounds:barBounds];
             [oldView setAutoresizingMask:UIViewAutoresizingNone];
             
             //layout the titleControl children

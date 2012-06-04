@@ -19,15 +19,15 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Locale", "Ti/UI", "Ti/_
 					height: UI.SIZE,
 					bottom: 0,
 					backgroundColor: "white",
-					layout: "vertical",
+					layout: UI._LAYOUT_CONSTRAINING_VERTICAL,
 					opacity: 0
 				});
 
-			optionsWindow.add(dimmingView);
-			optionsWindow.add(optionsDialog);
+			optionsWindow._add(dimmingView);
+			optionsWindow._add(optionsDialog);
 
 			// Add the title
-			optionsDialog.add(UI.createLabel({
+			optionsDialog._add(UI.createLabel({
 				text: Locale._getString(this.titleid, this.title),
 				font: {fontWeight: "bold"},
 				left: 5,
@@ -53,7 +53,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Locale", "Ti/UI", "Ti/_
 				} else if (i === this.cancel) {
 					css.add(button.domNode, "TiUIElementGradientCancel");
 				}
-				optionsDialog.add(button);
+				optionsDialog._add(button);
 				button.addEventListener("singletap", lang.hitch(this, function(){
 					optionsWindow.close();
 					this._optionsWindow = void 0;
@@ -66,21 +66,23 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Locale", "Ti/UI", "Ti/_
 			}, this);
 
 			// Animate the background after waiting for the first layout to occur
-			optionsWindow.addEventListener("postlayout", function() {
-				optionsDialog.animate({
-					bottom: -optionsDialog._measuredHeight,
-					opacity: 1,
-					duration: 0
-				});
-				dimmingView.animate({
-					opacity: 0.5,
-					duration: 150
-				}, function(){
+			optionsDialog.addEventListener("postlayout", function() {
+				setTimeout(function(){ // We have to wait for the entire layout pass to complete and the CSS rules to be applied.
 					optionsDialog.animate({
-						bottom: 0,
-						duration: 150
+						bottom: -optionsDialog._measuredHeight,
+						opacity: 1,
+						duration: 0
 					});
-				});
+					dimmingView.animate({
+						opacity: 0.5,
+						duration: 200
+					}, function(){
+						optionsDialog.animate({
+							bottom: 0,
+							duration: 200
+						});
+					});
+				}, 0);
 			});
 
 			// Show the options dialog

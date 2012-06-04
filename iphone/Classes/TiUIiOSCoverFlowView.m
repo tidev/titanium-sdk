@@ -126,7 +126,7 @@
 		[flow centerOnSelectedCover:YES];
 	}
 	else {
-		NSLog(@"[ERROR] attempt to select index: %d that is out of bounds. Number of images: %d",index,[flow numberOfImages]);
+		DebugLog(@"[ERROR] attempt to select index: %d that is out of bounds. Number of images: %d",index,[flow numberOfImages]);
 	}
 }
 
@@ -184,7 +184,7 @@
 	}
 	else
 	{
-		NSLog(@"[ERROR] attempt to set index: %d that is out of bounds. number of images: %d",index,[flow numberOfImages]);
+		DebugLog(@"[ERROR] Attempted to set index: %d that is out of bounds. Number of images: %d",index,[flow numberOfImages]);
 	}
 }
 

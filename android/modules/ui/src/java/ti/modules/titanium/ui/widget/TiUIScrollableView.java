@@ -47,6 +47,7 @@ public class TiUIScrollableView extends TiUIView
 	private final RelativeLayout mPagingControl;
 
 	private int mCurIndex = -1;
+	private boolean mEnabled = true;
 
 	public TiUIScrollableView(ScrollableViewProxy proxy)
 	{
@@ -67,7 +68,27 @@ public class TiUIScrollableView extends TiUIView
 
 	private ViewPager buildViewPager(Context context, ViewPagerAdapter adapter)
 	{
-		ViewPager pager = new ViewPager(context);
+		ViewPager pager = (new ViewPager(context)
+		{
+			@Override
+			public boolean onTouchEvent(MotionEvent event) {
+				if (mEnabled) {
+					return super.onTouchEvent(event);
+				}
+
+				return false;
+			}
+
+			@Override
+			public boolean onInterceptTouchEvent(MotionEvent event) {
+				if (mEnabled) {
+					return super.onInterceptTouchEvent(event);
+				}
+
+				return false;
+			}
+		});
+
 		pager.setAdapter(adapter);
 		pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener()
 		{
@@ -203,7 +224,9 @@ public class TiUIScrollableView extends TiUIView
 		left.setOnClickListener(new OnClickListener(){
 			public void onClick(View v)
 			{
-				movePrevious();
+				if (mEnabled) {
+					movePrevious();
+				}
 			}});
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
@@ -219,7 +242,9 @@ public class TiUIScrollableView extends TiUIView
 		right.setOnClickListener(new OnClickListener(){
 			public void onClick(View v)
 			{
-				moveNext();
+				if (mEnabled) {
+					moveNext();
+				}
 			}});
 		params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
 				LayoutParams.WRAP_CONTENT);
@@ -256,6 +281,10 @@ public class TiUIScrollableView extends TiUIView
 			}
 		}
 
+		if (d.containsKey(TiC.PROPERTY_SCROLLINGENABLED)) {
+			mEnabled = TiConvert.toBoolean(d, TiC.PROPERTY_SCROLLINGENABLED);
+		}
+
 		super.processProperties(d);
 
 	}
@@ -273,6 +302,8 @@ public class TiUIScrollableView extends TiUIView
 			} else {
 				hidePager();
 			}
+		} else if (TiC.PROPERTY_SCROLLINGENABLED.equals(key)) {
+			mEnabled = TiConvert.toBoolean(newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -350,6 +381,16 @@ public class TiUIScrollableView extends TiUIView
 	public void setCurrentPage(Object view)
 	{
 		scrollTo(view);
+	}
+
+	public void setEnabled(Object value)
+	{
+		mEnabled = TiConvert.toBoolean(value);
+	}
+
+	public boolean getEnabled()
+	{
+		return mEnabled;
 	}
 
 	private void clearViewsList()

@@ -36,6 +36,16 @@
     return [contentOffset autorelease];
 }
 
+-(void)windowWillOpen
+{
+    [super windowWillOpen];
+    //Since layout children is overridden in scrollview need to make sure that 
+    //a full layout occurs atleast once if view is attached
+    if ([self viewAttached]) {
+        [self contentsWillChange];
+    }
+}
+
 -(void)contentsWillChange
 {
 	if ([self viewAttached])
@@ -118,10 +128,6 @@
             result = [self verifyHeight:result];
         }
         
-        if (result == 0)
-        {
-            NSLog(@"[WARN] %@ has an auto height value of 0, meaning this view may not be visible.",self);
-        }
         return result;
     }
     else {
@@ -254,6 +260,14 @@
 	[self setContentOffset:offset withObject:Nil];
 	[offset release];
 }
+
+-(void)scrollToBottom:(id)args
+{
+    TiThreadPerformOnMainThread(^{
+        [(TiUIScrollView *)[self view] scrollToBottom];
+    }, YES);
+}
+
 -(void) setContentOffset:(id)value withObject:(id)animated
 {
     TiThreadPerformOnMainThread(^{

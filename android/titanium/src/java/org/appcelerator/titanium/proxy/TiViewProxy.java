@@ -37,7 +37,6 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.OpenableColumns;
 import android.view.View;
 
 /**
@@ -889,14 +888,14 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			}
 		}
 	}
-	
-	/** 
+
+	/**
 	 * Return true if any view in the hierarchy has the event listener.
 	 */
 	public boolean hierarchyHasListener(String eventName)
 	{
 		boolean hasListener = hasListeners(eventName);
-		
+
 		// Check whether the parent has the listener or not
 		if (!hasListener) {
 			TiViewProxy parent = getParent();
@@ -908,7 +907,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				}
 			}
 		}
-		
+
 		return hasListener;
 	}
 

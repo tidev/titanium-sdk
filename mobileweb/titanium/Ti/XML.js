@@ -49,11 +49,6 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 		f && lang.generateAccessors(f, e[1], e[2]);
 	});
 
-	Object.defineProperty(Element.prototype, "text", { 
-		get: function() { return this.textContent; },
-		enumerable: true
-	});
-
 	return lang.setObject("Ti.XML", Evented, {
 		
 		parseString: function(xml) {

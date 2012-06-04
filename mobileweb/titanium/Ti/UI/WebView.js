@@ -30,8 +30,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 				this._destroy();
 				this._loading(1);
 
-				var url = this.url,
-					match = this.url.match(/(https?)\:\/\/([^\:\/]*)(:?\d*)(.*)/),
+				var url = this.url || "",
+					match = url.match(/(https?)\:\/\/([^\:\/]*)(:?\d*)(.*)/),
 					loc = window.location,
 					isSameDomain = !match || (match[0] + ":" === loc.protocol && match[1] + match[2] === window.location.host),
 					iframe = this._iframe = dom.create("iframe", {
@@ -49,11 +49,12 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 					}, this.domNode);
 
 				this._iframeHandles = [
-					require.on(iframe, "load", this, function(evt) {
+					on(iframe, "load", this, function(evt) {
 						var i = Math.max(isSameDomain | 0, 0),
 							cw = iframe.contentWindow,
 							prop,
-							url;
+							url,
+							html;
 
 						if (i !== -1) {
 							// we can always guarantee that the first load we'll know if it's the same domain
@@ -69,7 +70,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 						if (i > 0) {
 							url = cw.location.href;
 							this.evalJS(bridge.replace("WEBVIEW_ID", this.widgetId + ":unload"));
-							this.html && this._setContent(this.html);
+							(html = this.properties.__values__.html) && this._setContent(html);
 						} else {
 							API.warn("Unable to inject WebView bridge into cross-domain URL, ignore browser security message");
 						}
@@ -79,7 +80,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 							url: url ? (this.properties.__values__.url = url) : this.url
 						});
 					}),
-					require.on(iframe, "error", this, function() {
+					on(iframe, "error", this, function() {
 						this._loading();
 						this.fireEvent("error", {
 							message: "Page failed to load",
@@ -207,14 +208,13 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/event", "Ti/_/lang",
 			html: {
 				get: function(value) {
 					var doc = this._iframe && this._getDoc();
-					if (doc) {
-						return doc.documentElement.innerHTML;
-					}
+					return value === void 0 && doc ? doc.documentElement.innerHTML : value;
 				},
-				set: function(value) {
-					this.properties.__values__.url = "";
+				post: function(value) {
+					var values = this.properties.__values__;
+					values.data = void 0;
+					values.url = void 0;
 					this._createIFrame() && this._setContent(value);
-					return value;
 				}
 			},
 
