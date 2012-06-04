@@ -56,6 +56,8 @@ public class KrollDict
 					values[i] = fromJSON(array.get(i));
 				}
 				return values;
+			} else if (value == JSONObject.NULL) {
+				return null;
 			}
 		} catch (JSONException e) {
 			Log.e(TAG, "Error parsing JSON", e);
