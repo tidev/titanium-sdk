@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget;
 
 import java.util.ArrayList;
+import java.lang.Math;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -70,8 +71,8 @@ public class TiUIScrollableView extends TiUIView
 		pager.setAdapter(adapter);
 		pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener()
 		{
-			private int mCurIndex;
 			private boolean isValidScroll = false;
+			private boolean justFiredDragEnd = false;
 
 			@Override
 			public void onPageScrollStateChanged(int scrollState)
@@ -96,6 +97,10 @@ public class TiUIScrollableView extends TiUIView
 							// don't want a scrollEnd to fire.
 							((ScrollableViewProxy)proxy).fireScrollEnd(mCurIndex, mViews.get(mCurIndex));
 						}
+
+						if (shouldShowPager()) {
+							showPager();
+						}
 					}
 
 					// If we don't use this state variable to check if it's a valid
@@ -103,25 +108,64 @@ public class TiUIScrollableView extends TiUIView
 					// because on creation, the scroll state is initialized to 
 					// `idle` and this handler is called.
 					isValidScroll = false;
+				} else if (scrollState == ViewPager.SCROLL_STATE_SETTLING) {
+					((ScrollableViewProxy)proxy).fireDragEnd(mCurIndex, mViews.get(mCurIndex));
+
+					// Note that we just fired a dragEnd so the `onPageSelected`
+					// handler below doesn't fire a `scrollEnd`.  Read below comment.
+					justFiredDragEnd = true;
 				}
 			}
 
 			@Override
-			public void onPageSelected(int position)
+			public void onPageSelected(int page)
 			{
-				super.onPageSelected(position);
-				((ScrollableViewProxy)proxy).fireDragEnd(mCurIndex, mViews.get(mCurIndex));
-				if (shouldShowPager()) {
-					showPager();
+
+				// If we didn't just fire a `dragEnd` event then this is the case
+				// where a user drags the view and settles it on a different view.
+				// Since the OS settling logic is never run, the
+				// `onPageScrollStateChanged` handler is never run, and therefore
+				// we forgot to inform the Javascripters that the user just scrolled
+				// their thing.
+
+				if (!justFiredDragEnd && mCurIndex != -1) {
+					((ScrollableViewProxy)proxy).fireScrollEnd(mCurIndex, mViews.get(mCurIndex));
+
+					if (shouldShowPager()) {
+						showPager();
+					}
 				}
 			}
 
 			@Override
-			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
+			public void onPageScrolled(int positionRoundedDown, float positionOffset, int positionOffsetPixels)
 			{
 				isValidScroll = true;
-				mCurIndex = position;
-				((ScrollableViewProxy)proxy).fireScroll(position, positionOffset, mViews.get(mCurIndex));
+
+				// When we touch and drag the view and hold it inbetween the second
+				// and third sub-view, this function will have been called with values
+				// similar to:
+				//		positionRoundedDown:	1
+				//		positionOffset:			 0.5
+				// ie, the first parameter is always rounded down; the second parameter
+				// is always just an offset between the current and next view, it does
+				// not take into account the current view.
+
+				// If we add positionRoundedDown to positionOffset, positionOffset will
+				// have the 'correct' value; ie, will be a natural number when we're on
+				// one particular view, something.5 when inbetween views, etc.
+				float positionFloat = positionOffset + positionRoundedDown;
+
+				// `positionFloat` can now be used to calculate the correct value for
+				// the current index. We add 0.5 so that positionFloat will be rounded
+				// half up; ie, if it has a value of 1.5, it will be rounded up to 2; if
+				// it has a value of 1.4, it will be rounded down to 1.
+				mCurIndex = (int) Math.floor(positionFloat + 0.5);
+				((ScrollableViewProxy)proxy).fireScroll(mCurIndex, positionFloat, mViews.get(mCurIndex));
+
+				// Note that we didn't just fire a dragEnd.  See the above comment
+				// in `onPageSelected`.
+				justFiredDragEnd = false;
 			}
 		});
 		return pager;
