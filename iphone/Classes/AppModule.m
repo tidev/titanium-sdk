@@ -336,6 +336,14 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	[super shutdown:sender];
 }
 
+-(void)paused:(id)sender
+{
+	if ([self _hasListeners:@"paused"])
+	{
+		[self fireEvent:@"paused" withObject:nil];
+	}
+}
+
 -(void)suspend:(id)sender
 {
 	// make sure we force any changes made on suspend in case we don't come back
