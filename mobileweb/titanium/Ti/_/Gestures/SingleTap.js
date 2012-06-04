@@ -26,14 +26,20 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 				if (Math.abs(this._touchStartLocation.x - x) < this._driftThreshold && 
 						Math.abs(this._touchStartLocation.y - y) < this._driftThreshold && !this._driftedOutsideThreshold) {
 					this._touchStartLocation = null;
-					var result = {
-						x: x,
-						y: y,
-						source: this.getSourceNode(e,element)
-					};
+					var source = this.getSourceNode(e,element);
+					// We don't reuse the same results object because the values are modified before the event is fired.
+					// If we reused the object, they would be modified twice, which is incorrect.
 					if (!element._isGestureBlocked(this.name)) {
-						lang.hitch(element,element._handleTouchEvent("click",result));
-						lang.hitch(element,element._handleTouchEvent(this.name,result));
+						lang.hitch(element,element._handleTouchEvent("click", {
+							x: x,
+							y: y,
+							source: source
+						}));
+						lang.hitch(element,element._handleTouchEvent(this.name, {
+							x: x,
+							y: y,
+							source: source
+						}));
 					}
 				}
 			}

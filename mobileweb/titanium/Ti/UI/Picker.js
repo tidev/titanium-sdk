@@ -253,7 +253,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/UI/Widget", "Ti/UI", "Ti/_/lang", "T
 			
 			value: {
 				set: function(value) {
-					this._dateTimeInput.value = value;
+					this._dateTimeInput && (this._dateTimeInput.value = value);
 					return value;
 				}
 			}
