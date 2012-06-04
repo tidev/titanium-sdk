@@ -1,4 +1,4 @@
-define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
+define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style"], function(declare, Evented, style) {
 
 	var curves = [
 			function easeInOut(n) {
@@ -20,23 +20,95 @@ define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
 		prefixes = ["ms", "moz", "webkit", "o"],
 		i = prefixes.length,
 		ignoreRegExp = /autoreverse|curve|delay|duration|repeat|visible/,
-		animations = [];
+		needsRender,
+		animations = {},
+		colors = require(require.config.colorsModule);
+
+	function now() {
+		return (new Date).getTime();
+	}
 
 	while (--i >= 0 && !global.requestAnimationFrame) {
 		global.requestAnimationFrame = global[prefixes[i] + "RequestAnimationFrame"];
 	}
 
 	global.requestAnimationFrame || (global.requestAnimationFrame = function(callback) {
-		var currTime = (new Date).getTime(),
+		var currTime = now(),
 			timeToCall = Math.max(0, 16 - (currTime - lastTime)),
 			timer = window.setTimeout(function() { callback(currTime + timeToCall); }, timeToCall);
 		lastTime = currTime + timeToCall;
 		return timer;
 	});
 
-	function schedule(params) {
-		// check if we're already animating this property on this element
-		console.debug(params);
+	function render(ts) {
+		var a,
+			prop,
+			itemsStillAnimating = 0,
+			elementPropsAmimating;
+
+		for (a in animations) {
+			for (prop in animations[a]) {
+				//params[9]
+			}
+		}
+
+		itemsStillAnimating && requestAnimationFrame(render);
+	}
+
+	/*
+	params array spec
+		0	element
+		1	property name
+		2	destination value
+		3	autoreverse
+		4	curve array index
+		5	delay
+		6	duration
+		7	repeat flag
+		8	visible flag
+	---------------------------
+		9	start timestamp
+		10	start value
+		11	current value
+		12	unit
+
+	units
+		color
+			backgroundColor
+			color
+
+		number		none, px, em, dip, in, mm, cm, pt, %
+			bottom
+			center[x,y]
+			height
+			left
+			right
+			top
+			width
+			zindex
+
+		matrix
+			transform
+	*/
+
+	function schedule(elem, prop, value, params) {
+		var a,
+			currentValue = style.get(elem.domNode, prop);
+
+		if (currentValue !== void 0) {
+			animations[elem.widgetId + '/' + prop] = a = [elem, prop, value];
+
+			a.push(now());
+			a.push(currentValue);
+			a.push(currentValue);
+
+			// TODO: determine units
+			params.push("px");
+
+			// TODO: fire start
+
+			// needsRender || needsRender = true, requestAnimationFrame(render);
+		}
 	}
 
 	// http://developer.appcelerator.com/question/137700/mobileweb-tableviewrow-and-tableviewsection-tostring-changed
@@ -70,7 +142,7 @@ define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
 
 			for (prop in props) {
 				value = props[prop];
-				ignoreRegExp.test(prop) || value !== void 0 && handles.push(schedule([elem, prop, value, !!props.autoreverse, curve, props.delay | 0, props.duration | 0, !!props.repeat, !!props.visible]));
+				ignoreRegExp.test(prop) || value !== void 0 && handles.push(schedule(elem, prop, value, [!!props.autoreverse, curve, props.delay | 0, props.duration | 0, !!props.repeat, !!props.visible]));
 			}
 
  			return {

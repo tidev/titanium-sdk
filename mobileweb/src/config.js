@@ -47,6 +47,7 @@ var require = {
 	ti: {
 		buildHash: "${ti_githash | jsQuoteEscapeFilter}",
 		buildDate: "${ti_timestamp | jsQuoteEscapeFilter}",
+		colorsModule: "Ti/_/colors",
 		filesystem: {
 			registry: "${ti_fs_registry}"
 		},
