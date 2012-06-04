@@ -1,11 +1,7 @@
 define(
 	["Ti/_/browser", "Ti/_/css", "Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/Evented",
-	"Ti/UI", "Ti/_/Gestures/DoubleTap","Ti/_/Gestures/LongPress","Ti/_/Gestures/Pinch","Ti/_/Gestures/SingleTap",
-	"Ti/_/Gestures/Swipe","Ti/_/Gestures/TouchCancel","Ti/_/Gestures/TouchEnd","Ti/_/Gestures/TouchMove",
-	"Ti/_/Gestures/TouchStart","Ti/_/Gestures/TwoFingerTap", "Ti/_/Promise"],
-	function(browser, css, declare, dom, event, lang, style, Evented, UI,
-		DoubleTap, LongPress, Pinch, SingleTap, Swipe, TouchCancel, TouchEnd,
-		TouchMove, TouchStart, TwoFingerTap, Promise) {
+	"Ti/UI", "Ti/_/Promise", "Ti/_/string"],
+	function(browser, css, declare, dom, event, lang, style, Evented, UI, Promise, string) {
 
 	var unitize = dom.unitize,
 		computeSize = dom.computeSize,
@@ -36,7 +32,21 @@ define(
 		postLayoutProp = {
 			set: postLayoutPropFunction
 		},
-		pixelUnits = "px";
+		pixelUnits = "px",
+		gestureMapping = {
+			pinch: "Pinch",
+			swipe: "Swipe",
+			twofingertap: "TwoFingerTap",
+			doubletap: "DoubleTap",
+			longpress: "LongPress",
+			singletap: "SingleTap",
+			click: "SingleTap",
+			doubleclick: "DoubleTap",
+			touchstart: "TouchStart",
+			touchend: "TouchEnd",
+			touchmove: "TouchMove",
+			touchcancel: "TouchCancel"
+		};
 
 	return declare("Ti._.UI.Element", Evented, {
 
@@ -46,6 +56,7 @@ define(
 
 		constructor: function(args) {
 			var self = this,
+				touchMoveBlocked = false,
 
 				node = this.domNode = this._setFocusNode(dom.create(this.domType || "div", {
 					className: "TiUIElement " + css.clean(this.declaredClass),
@@ -53,38 +64,15 @@ define(
 				})),
 
 				// Handle click/touch/gestures
-				recognizers = this._gestureRecognizers = {
-					Pinch: new Pinch,
-					Swipe: new Swipe,
-					TwoFingerTap: new TwoFingerTap,
-					DoubleTap: new DoubleTap,
-					LongPress: new LongPress,
-					SingleTap: new SingleTap,
-					TouchStart: new TouchStart,
-					TouchEnd: new TouchEnd,
-					TouchMove: new TouchMove,
-					TouchCancel: new TouchCancel
-				},
-
-				// Each event could require a slightly different precedence of execution, which is why we have these separate lists.
-				// For now they are the same, but I suspect they will be different once the android-iphone parity is determined.
-				touchRecognizers = {
-					Start: recognizers,
-					Move: recognizers,
-					End: recognizers,
-					Cancel: recognizers
-				},
+				recognizers = this._gestureRecognizers = {},
 
 				useTouch = "ontouchstart" in window,
 				bg = lang.hitch(this, "_doBackground");
 
 			require.has("devmode") && args && args._debug && dom.attr.set(node, "data-debug", args._debug);
 			function processTouchEvent(eventType, evt) {
-				has("ti-instrumentation") && (this._gestureInstrumentationTest = instrumentation.startTest("Gesture Processing"));
 				var i,
-					gestureRecognizers = touchRecognizers[eventType],
 					touches = evt.changedTouches;
-				eventType = "Touch" + eventType + "Event";
 				if (this._preventDefaultTouchEvent) {
 					this._preventDefaultTouchEvent && evt.preventDefault && evt.preventDefault();
 					for (i in touches) {
@@ -96,34 +84,41 @@ define(
 					targetTouches: [],
 					changedTouches: [evt]
 				});
-				for (i in gestureRecognizers) {
-					gestureRecognizers[i]["process" + eventType](evt, self);
+				for (i in recognizers) {
+					recognizers[i].recognizer["process" + eventType](evt, self);
 				}
-				for (i in gestureRecognizers) {
-					gestureRecognizers[i]["finalize" + eventType]();
+				for (i in recognizers) {
+					recognizers[i].recognizer["finalize" + eventType]();
 				}
-				has("ti-instrumentation") && instrumentation.stopTest(this._gestureInstrumentationTest, "Processing widget " + self.widgetId);
 			}
 
 			this._touching = false;
 
+			this._children = [];
+
 			on(this.domNode, useTouch ? "touchstart" : "mousedown", function(evt){
 				var handles = [
 					on(window, useTouch ? "touchmove" : "mousemove", function(evt){
-						(useTouch || self._touching) && processTouchEvent("Move", evt);
+						if (!touchMoveBlocked) {
+							touchMoveBlocked = true;
+							(useTouch || self._touching) && processTouchEvent("TouchMoveEvent", evt);
+							setTimeout(function(){
+								touchMoveBlocked = false;
+							}, 30);
+						}
 					}),
 					on(window, useTouch ? "touchend" : "mouseup", function(evt){
 						self._touching = false;
-						processTouchEvent("End", evt);
+						processTouchEvent("TouchEndEvent", evt);
 						event.off(handles);
 					}),
 					useTouch && on(window, "touchcancel", function(evt){
-						processTouchEvent("Cancel", evt);
+						processTouchEvent("TouchCancelEvent", evt);
 						event.off(handles);
 					})
 				];
 				self._touching = true;
-				processTouchEvent("Start", evt);
+				processTouchEvent("TouchStartEvent", evt);
 			});
 
 			this.addEventListener("touchstart", bg);
@@ -177,34 +172,65 @@ define(
 			};
 		},
 
+		addEventListener: function(name, handler) {
+			if (name in gestureMapping) {
+				var gestureRecognizers = this._gestureRecognizers,
+					gestureRecognizer;
+				
+				if (!(name in gestureRecognizers)) {
+					gestureRecognizers[name] = {
+						count: 0,
+						recognizer: new (require("Ti/_/Gestures/" + gestureMapping[name]))
+					};
+				}
+				
+				gestureRecognizers[name].count++;
+			}
+			handler && Evented.addEventListener.apply(this, arguments);
+		},
+
+		removeEventListener: function(name) {
+			if (name in gestureMapping) {
+				var gestureRecognizers = this._gestureRecognizers;
+				if (name in gestureRecognizers && !(--gestureRecognizers[name].count)) {
+					delete gestureRecognizers[name];
+				}
+			}
+			Evented.removeEventListener.apply(this, arguments);
+		},
+
 		_setParent: function(view) {
 			this._parent = view;
 		},
-		
-		_add: function(view) {
+
+		_add: function(view, hidden) {
+
+			view._hidden = hidden;
+
 			view._setParent(this);
-			
-			this.children.push(view);
+
+			this._children.push(view);
 			this.containerNode.appendChild(view.domNode);
-			
+
 			view._triggerLayout();
 		},
 
-		_insertAt: function(view,index) {
-			if (index > this.children.length || index < 0) {
+		_insertAt: function(view,index, hidden) {
+			var children = this._children;
+			if (index > children.length || index < 0) {
 				return;
-			} else if (index === this.children.length) {
-				this.add(view);
+			} else if (index === children.length) {
+				this._add(view, hidden);
 			} else {
 				view._parent = this;
-				this.containerNode.insertBefore(view.domNode,this.children[index].domNode);
-				this.children.splice(index,0,view);
+				this.containerNode.insertBefore(view.domNode, children[index].domNode);
+				children.splice(index,0,view);
 				this._triggerLayout();
 			}
 		},
 
 		_remove: function(view) {
-			var children = this.children,
+			var children = this._children,
 				p = children.indexOf(view);
 			if (p !== -1) {
 				children.splice(p, 1);
@@ -215,7 +241,7 @@ define(
 		},
 
 		_removeAllChildren: function(view) {
-			var children = this.children;
+			var children = this._children;
 			while (children.length) {
 				this.remove(children[0]);
 			}
@@ -224,6 +250,10 @@ define(
 
 		destroy: function() {
 			if (this._alive) {
+				var children = this._children;
+				while (children.length) {
+					children.splice(0, 1)[0].destroy();
+				}
 				this._parent && this._parent._remove(this);
 				if (this.domNode) {
 					dom.destroy(this.domNode);
@@ -677,10 +707,13 @@ define(
 		},
 
 		_setTouchEnabled: function(value) {
+			var children = this._children,
+				i = 0,
+				len = children.length;
 			setStyle(this.domNode, "pointerEvents", value ? "auto" : "none");
 			if (!value) {
-				for (var i in this.children) {
-					this.children[i]._setTouchEnabled(value);
+				for (; i < len; i++) {
+					children[i]._setTouchEnabled(value);
 				}
 			}
 		},

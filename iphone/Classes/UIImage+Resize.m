@@ -24,44 +24,48 @@
     CGImageRef imageRef = image.CGImage;
 	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     
-	CGFloat scale = 1.0;
-
-	scale = [image scale];
+	CGFloat scale = [image scale];
 	// Force scaling to 2.0
 	if ([TiUtils isRetinaDisplay] && hires) {
 		scale = 2.0;
 	}
 
-
     CGRect newRect = CGRectIntegral(CGRectMake(0, 0, newSize.width*scale, newSize.height*scale));
-    CGRect transposedRect = CGRectMake(0, 0, newRect.size.height, newRect.size.width);
-	
-    // Build a context that's the same dimensions as the new size
-    CGContextRef bitmap = CGBitmapContextCreate(NULL,
-                                                newRect.size.width,
-                                                newRect.size.height,
-                                                8,
-                                                0,
-                                                colorSpace,
-                                                kCGImageAlphaPremultipliedLast);
-    
-    // Rotate and/or flip the image if required by its orientation
-    CGContextConcatCTM(bitmap, transform);
-    
-    // Set the quality level to use when rescaling
-    CGContextSetInterpolationQuality(bitmap, quality);
-    
-    // Draw into the context; this scales the image
-    CGContextDrawImage(bitmap, transpose ? transposedRect : newRect, imageRef);
-    
-    // Get the resized image from the context and a UIImage
-    CGImageRef newImageRef = CGBitmapContextCreateImage(bitmap);
-    UIImage* newImage = [UIImage imageWithCGImage:newImageRef scale:scale orientation:UIImageOrientationUp];
-    
-    // Clean up
-    CGContextRelease(bitmap);
-    CGImageRelease(newImageRef);
-	CGColorSpaceRelease(colorSpace);
+	UIImage * newImage = nil;
+	if ((newRect.size.width == CGImageGetWidth(imageRef)) &&
+			(newRect.size.height == CGImageGetHeight(imageRef)) &&
+			CGAffineTransformIsIdentity(transform)) {
+		newImage = [UIImage imageWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
+	} else {
+		CGRect transposedRect = CGRectMake(0, 0, newRect.size.height, newRect.size.width);
+		
+		// Build a context that's the same dimensions as the new size
+		CGContextRef bitmap = CGBitmapContextCreate(NULL,
+													newRect.size.width,
+													newRect.size.height,
+													8,
+													0,
+													colorSpace,
+													kCGImageAlphaPremultipliedLast);
+		
+		// Rotate and/or flip the image if required by its orientation
+		CGContextConcatCTM(bitmap, transform);
+		
+		// Set the quality level to use when rescaling
+		CGContextSetInterpolationQuality(bitmap, quality);
+		
+		// Draw into the context; this scales the image
+		CGContextDrawImage(bitmap, transpose ? transposedRect : newRect, imageRef);
+		
+		// Get the resized image from the context and a UIImage
+		CGImageRef newImageRef = CGBitmapContextCreateImage(bitmap);
+		newImage = [UIImage imageWithCGImage:newImageRef scale:scale orientation:UIImageOrientationUp];
+		
+		// Clean up
+		CGContextRelease(bitmap);
+		CGImageRelease(newImageRef);
+		CGColorSpaceRelease(colorSpace);
+	}
     
     return newImage;
 }

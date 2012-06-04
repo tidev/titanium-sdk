@@ -1,10 +1,20 @@
 #!/usr/bin/env python
 
 import run
-import sys, string, os
+import sys, string, platform, os
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-titanium_prep = os.path.abspath(os.path.join(template_dir,'titanium_prep.jar'))
+
+if platform.system() == "Windows":
+    titanium_prep = 'titanium_prep.win.exe'
+elif platform.system() == "Darwin":
+    titanium_prep = 'titanium_prep.macos'
+elif platform.system() == "Linux":
+    if platform.architecture()[0] == '64bit':
+	titanium_prep = 'titanium_prep.linux64'
+    else:
+	titanium_prep = 'titanium_prep.linux32'
+titanium_prep = os.path.abspath(os.path.join(template_dir,titanium_prep))
 
 JAVA_TEMPLATE = """\
 package ${package_name};
@@ -84,7 +94,7 @@ class Crypt(object):
     output = open(os.path.join(target_dir, 'AssetCryptImpl.java'), 'w')
 
     sys.stdout.flush()
-    cmdargs = ['java', '-jar', titanium_prep, package, asset_dir]
+    cmdargs = [titanium_prep, package, asset_dir]
     cmdargs.extend(self.files)
     so = run.run(cmdargs)
 

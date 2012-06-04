@@ -3,10 +3,10 @@ var a, b,
 	p = w.parent,
 	u = w.onunload;
 
-if(p && p.Ti){
+if (!Ti && !Titanium && p && p.Ti) {
 	a = p.Ti.API;
 	b = p.Ti.App;
-	Ti = {
+	Ti = Titanium = {
 		API: {
 			log: a.log,
 			debug: a.debug,

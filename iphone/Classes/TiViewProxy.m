@@ -877,9 +877,11 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	}
     if ( (bounds.width == 0) && !(TiDimensionIsDip(barButtonLayout.width) ) ) {
         bounds.width = [self autoWidthForSize:CGSizeMake(1000, 1000)];
+        barButtonLayout.width = TiDimensionDip(bounds.width);
     }
     if ( (bounds.height == 0) && !(TiDimensionIsDip(barButtonLayout.height) ) ) {
         bounds.height = [self autoHeightForSize:CGSizeMake(bounds.width, 1000)];
+        barButtonLayout.height = TiDimensionDip(bounds.height);
     }
 	CGRect barBounds;
 	barBounds.origin = CGPointZero;
@@ -1158,6 +1160,39 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 -(void)viewDidDetach
 {
 	// for subclasses
+}
+
+-(void)parentWillAppear:(id)args
+{
+    if ([self viewAttached]) {
+        pthread_rwlock_rdlock(&childrenLock);
+        [children makeObjectsPerformSelector:@selector(parentWillAppear:) withObject:args];
+        pthread_rwlock_unlock(&childrenLock);
+    }
+}
+-(void)parentDidAppear:(id)args
+{
+    if ([self viewAttached]) {
+        pthread_rwlock_rdlock(&childrenLock);
+        [children makeObjectsPerformSelector:@selector(parentDidAppear:) withObject:args];
+        pthread_rwlock_unlock(&childrenLock);
+    }
+}
+-(void)parentWillDisappear:(id)args
+{
+    if ([self viewAttached]) {
+        pthread_rwlock_rdlock(&childrenLock);
+        [children makeObjectsPerformSelector:@selector(parentWillDisappear:) withObject:args];
+        pthread_rwlock_unlock(&childrenLock);
+    }
+}
+-(void)parentDidDisappear:(id)args
+{
+    if ([self viewAttached]) {
+        pthread_rwlock_rdlock(&childrenLock);
+        [children makeObjectsPerformSelector:@selector(parentDidDisappear:) withObject:args];
+        pthread_rwlock_unlock(&childrenLock);
+    }
 }
 
 

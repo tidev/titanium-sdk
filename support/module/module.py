@@ -249,6 +249,7 @@ class ModuleDetector(object):
 			print '[DEBUG] Looking for Titanium Module id: %s, version: %s, platform: %s' % (module_dep['id'], version_desc, platform_desc)
 			module = self.find_module(id=module_dep['id'], version=module_dep['version'], platform=module_dep['platform'])
 			if module == None:
+				print '[WARN] Could not find Titanium Module id: %s, version: %s, platform: %s' % (module_dep['id'], version_desc, platform_desc)
 				missing.append(module_dep)
 			else:
 				modules.append(module)

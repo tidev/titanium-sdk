@@ -47,14 +47,17 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 			if (tabs.length === 1) {
 				this.activeTab = tab;
 			} else {
-				this._tabBarContainer.add(this._createTabDivider());
+				this._tabBarContainer._add(this._createTabDivider());
 			}
 
 			// Add the tab to the UI
-			this._tabBarContainer.add(tab);
+			this._tabBarContainer._add(tab);
 
 			// Update the background on the tab
 			this._updateTabBackground(tab);
+
+			// Publish the tab
+			this._publish(tab);
 		},
 
 		_addTabContents: function(contents) {
@@ -78,6 +81,9 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 
 				// Update the active tab, if necessary
 				tab === this._activeTab && this._activateTab(tabs[0]);
+
+				// Unpublish the tab
+				this._unpublish(tab);
 			}
 		},
 
@@ -115,18 +121,29 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 
 			previousTab && previousTab._blur();
 
-			this._focused || this._opened && this.fireEvent("focus", this._getEventData());
+			if (!this._focused && this._opened) {
+				this.fireEvent("focus", this._getEventData());
+				activeTab && activeTab._focus();
+			}
 			this._focused = 1;
-
-			this._opened && activeTab && activeTab._focus();
 		},
 
-		_handleBlurEvent: function(closing) {
+		_handleBlurEvent: function(blurTabs) {
 			// TabGroup is about to be closed or a window was opened
 
-			closing && this.tabs.forEach(function(tab) {
-				tab._blur();
-			});
+			// blurTabs: 1) blur all tabs, 2) blur active tab only
+			if (blurTabs) {
+				var i = 0,
+					len = this.tabs.length,
+					tab;
+
+				while (i < len) {
+					tab = this.tabs[i++];
+					(blurTabs !== 2 || tab === this._activeTab) && tab._blur();
+				}
+
+				this._previousTab = void 0;
+			}
 
 			this._focused && this._opened && this.fireEvent("blur", this._getEventData());
 			this._focused = 0;
@@ -170,7 +187,7 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 		},
 
 		_updateDividers: function(){
-			var tabs = this._tabBarContainer.children,
+			var tabs = this._tabBarContainer._children,
 				i = 1;
 			for(; i < tabs.length; i += 2) {
 				var tab = tabs[i];
@@ -210,10 +227,11 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 						if (value.length) {
 							this._activateTab(value[0]);
 							for (i = 0; i < value.length - 1; i++) {
-								tabBarContainer.add(value[i]);
-								tabBarContainer.add(this._createTabDivider());
+								this._publish(value[i]);
+								tabBarContainer._add(value[i]);
+								tabBarContainer._add(this._createTabDivider());
 							}
-							tabBarContainer.add(value[value.length - 1]); // No trailing divider
+							tabBarContainer._add(value[value.length - 1]); // No trailing divider
 						}
 
 						return value;

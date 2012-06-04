@@ -19,24 +19,27 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 				height: UI.INHERIT,
 				layout: "constrainingHorizontal"
 			});
-			this.add(this._contentAligner);
+			this._add(this._contentAligner);
 			
-			this._contentAligner.add(this._leftImageView = UI.createImageView({
+			this._contentAligner._add(this._leftImageView = UI.createImageView({
 				width: UI.SIZE,
 				height: UI.SIZE
 			})); 
 
-			this._contentAligner.add(this._titleLabel = UI.createLabel({
+			this._contentAligner._add(this._titleLabel = UI.createLabel({
 				width: UI.INHERIT,
 				height: UI.SIZE,
 				wordWrap: false
 			}));
 
-			this._contentAligner.add(this._rightImageView = UI.createImageView({
+			this._contentAligner._add(this._rightImageView = UI.createImageView({
 				right: 0,
 				width: UI.SIZE,
 				height: UI.SIZE
 			}));
+
+			// Force single tap to be processed.
+			this.addEventListener("singletap");
 		},
 
 		_defaultWidth: UI.INHERIT,

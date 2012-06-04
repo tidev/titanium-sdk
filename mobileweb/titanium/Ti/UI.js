@@ -185,7 +185,7 @@ define(
 						while (recursionStack.length > 0) {
 							node = recursionStack.pop();
 							node._markedForLayout = true;
-							children = node.children;
+							children = node._children;
 							for (j in children) {
 								child = children[j];
 								if (node.layout !== "composite" || child._needsMeasuring || node._layout._isDependentOnParent(child)) {
@@ -203,7 +203,7 @@ define(
 								parent._markedForLayout = true;
 								previousParent = parent;
 								parent = parent._parent;
-								
+
 								// Check if this parent is the stopping point
 								breakAfterChildrenCalculations = false;
 								if (!parent || parent === container) {
@@ -213,12 +213,12 @@ define(
 									!parent._markedForLayout && !~rootNodesToLayout.indexOf(parent) && rootNodesToLayout.push(parent);
 									breakAfterChildrenCalculations = true;
 								}
-								
+
 								// Recurse through the children of the parent
 								recursionStack = [parent];
 								while (recursionStack.length > 0) {
 									node = recursionStack.pop();
-									children = node.children;
+									children = node._children;
 									for (j in children) {
 										child = children[j];
 										if (child !== previousParent && (node.layout !== "composite" || child._needsMeasuring || node._layout._isDependentOnParent(child))) {
@@ -227,7 +227,7 @@ define(
 										}
 									}
 								}
-								
+
 								if (breakAfterChildrenCalculations) {
 									break;
 								}
@@ -235,7 +235,7 @@ define(
 						}
 					}
 				}
-				
+
 				// Layout all nodes that need it
 				if (layoutRootNode) {
 					var container = self._container,

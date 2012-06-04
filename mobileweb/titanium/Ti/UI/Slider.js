@@ -1,136 +1,111 @@
 define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/UI"], 
 	function(declare, Widget, dom, css, style, lang, UI) {
 
-	var setStyle = style.set,
-		unitize = dom.unitize;
+	var on = require.on,
+		setStyle = style.set;
 
 	return declare("Ti.UI.Slider", Widget, {
 
 		constructor: function(args) {
-			var initialPosition,
+			var self = this,
+				initialPosition,
 				initialValue,
-				self = this;
-			
-			self._track = dom.create("div", {
-				className: "TiUISliderTrack"
-			}, self.domNode);
-			
-			self._thumb = dom.create("div", {
-				className: "TiUIElementGradient TiUISliderThumb"
-			}, self.domNode);
-			
-			require.on(self, "touchstart", function(e) {
+				track = self._track = dom.create("div", {
+					className: "TiUISliderTrack"
+				}, self.domNode),
+				thumb = self._thumb = dom.create("div", {
+					className: "TiUIElementGradient TiUISliderThumb"
+				}, self.domNode);
+
+			on(self, "touchstart", function(e) {
 				initialPosition = e.x;
 				initialValue = self.value;
 			});
-			require.on(self, "touchmove", function(e) {
-				self.value = Math.round((e.x - initialPosition) * (self.max - self.min) / (self.domNode.clientWidth - 32) + initialValue);
+
+			on(self, "touchmove", function(e) {
+				self.value = (e.x - initialPosition) * (self.max - self.min) / (track.offsetWidth - thumb.offsetWidth) + initialValue;
 			});
-			
-			require.on(self, "postlayout", function() {
-				self._updateSize();
-			});
-			
+
+			on(self, "postlayout", self, "_updatePosition");
 		},
-		
-		_updateSize: function() {
-			this._thumbLocation = Math.round((this.domNode.clientWidth - 32) * ((this.value - this.min) / (this.max - this.min)))
-			setStyle(this._thumb, "transform", "translateX(" + this._thumbLocation + "px)");
+
+		_constrainedUpdate: function() {
+			this.value = this._constrainValue(this.value);
+			this._updatePosition();
 		},
-		
+
 		_constrainValue: function(value) {
-			var minVal = lang.val(this.minRange, this.min),
-				maxVal = lang.val(this.maxRange, this.max);
-			value < minVal && (value = minVal);
-			value > maxVal && (value = maxVal);
-			return value;
+			return Math.min(lang.val(this.maxRange, this.max), Math.max(lang.val(this.minRange, this.min), value));
 		},
-		
+
+		_updatePosition: function() {
+			var thumb = this._thumb;
+			this._thumbLocation = Math.round((this._track.offsetWidth - thumb.offsetWidth) * ((this.value - this.min) / (this.max - this.min)))
+			setStyle(thumb, "transform", "translateX(" + this._thumbLocation + "px)");
+		},
+
 		_defaultWidth: UI.FILL,
-		
+
 		_defaultHeight: UI.SIZE,
-		
-		_getContentSize: function(width, height) {
-			// There is nothing to measure, or that has "dimensions" to return, so we just return sensible yet arbitrary defaults.
-			return {
-				width: 200,
-				height: 40
-			}
-		},
-		
+
 		_setTouchEnabled: function(value) {
-			Widget.prototype._setTouchEnabled.apply(this, arguments);
 			var cssVal = value ? "auto" : "none";
+			Widget.prototype._setTouchEnabled.call(this, value);
 			setStyle(this._track, "pointerEvents", cssVal);
 			setStyle(this._thumb, "pointerEvents", cssVal);
 		},
 
+		_getContentSize: function() {
+			return {
+				width: 200,
+				height: 40
+			};
+		},
+
 		properties: {
-						
+			
 			enabled: {
 				set: function(value, oldValue) {
-					
 					if (value !== oldValue) {
-						if (!value) {
-							css.remove(this._thumb,"TiUIElementGradient");
-							setStyle(this._thumb,"backgroundColor","#aaa");
-						} else {
-							css.add(this._thumb,"TiUIElementGradient");
-							setStyle(this._thumb,"backgroundColor","");
-						}
+						css.remove(this._thumb, ["TiUIElementGradient", "TiUISliderThumbDisabled"]);
+						css.add(this._thumb, value ? "TiUIElementGradient" : "TiUISliderThumbDisabled");
 						this._setTouchEnabled(value);
 					}
 					return value;
 				},
 				value: true
 			},
-			
+
 			max: {
 				set: function(value) {
-					value < this.min && (value = this.min);
-					return value;
+					return Math.max(this.min, value);
 				},
-				post: function() {
-					this.value = this._constrainValue(this.value);
-					this._updateSize();
-				},
-				value: 100
+				post: "_constrainedUpdate",
+				value: 1
 			},
-			
+
 			maxRange: {
 				set: function(value) {
-					value > this.max && (value = this.max);
-					return value;
+					return Math.min(this.max, value);
 				},
-				post: function() {
-					this.value = this._constrainValue(this.value);
-					this._updateSize();
-				}
+				post: "_constrainedUpdate"
 			},
-			
+
 			min: {
 				set: function(value) {
-					value > this.max && (value = this.max);
-					return value;
+					return Math.min(this.max, value);
 				},
-				post: function() {
-					this.value = this._constrainValue(this.value);
-					this._updateSize();
-				},
+				post: "_constrainedUpdate",
 				value: 0
 			},
-			
+
 			minRange: {
 				set: function(value) {
-					value < this.min && (value = this.min);
-					return value;
+					return Math.max(this.min, value);
 				},
-				post: function() {
-					this.value = this._constrainValue(this.value);
-					this._updateSize();
-				}
+				post: "_constrainedUpdate"
 			},
-			
+
 			value: {
 				set: function(value, oldValue) {
 					return this._constrainValue(value);
@@ -139,14 +114,21 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 					if (value !== oldValue) {
 						this.fireEvent("change", {
 							value: value,
-							x: -1,
-							y: -1
+							thumbOffset: {
+								x: 0,
+								y: 0
+							},
+							thumbSize: {
+								height: 0,
+								width: 0
+							}
 						});
 					}
-					this._updateSize();
+					this._updatePosition();
 				},
 				value: 0
 			}
+
 		}
 
 	});

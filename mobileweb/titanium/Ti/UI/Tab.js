@@ -22,12 +22,12 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI", "Ti/UI/M
 
 			this._add(container);
 
-			container.add(this._tabIcon = UI.createImageView({
+			container._add(this._tabIcon = UI.createImageView({
 				height: UI_SIZE,
 				width: UI_SIZE
 			}));
 
-			container.add(this._tabTitle = UI.createLabel({
+			container._add(this._tabTitle = UI.createLabel({
 				width: "100%",
 				wordWrap: true,
 				textAlign: UI.TEXT_ALIGNMENT_CENTER
@@ -96,15 +96,16 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI", "Ti/UI/M
 				},
 				post: function(value) {
 					var tabGroup = this._tabGroup,
-						navGroup = this._tabNavigationGroup;
+						navGroup = this._tabNavigationGroup,
+						doEvents = tabGroup._focused && tabGroup._opened;
 					if (value) {
 						navGroup.navBarAtTop = tabGroup.tabsAtBottom;
 						navGroup._updateTitle();
 						tabGroup._addTabContents(navGroup);
-						tabGroup._opened && this._focus();
+						doEvents && this._focus();
 					} else {
 						tabGroup._removeTabContents(navGroup);
-						tabGroup._opened && this._blur();
+						doEvents && this._blur();
 					}
 				}
 			},

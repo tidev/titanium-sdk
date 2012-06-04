@@ -73,6 +73,8 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 	UIPinchGestureRecognizer*		pinchRecognizer;
 	UISwipeGestureRecognizer*		leftSwipeRecognizer;
 	UISwipeGestureRecognizer*		rightSwipeRecognizer;
+	UISwipeGestureRecognizer*		upSwipeRecognizer;
+	UISwipeGestureRecognizer*		downSwipeRecognizer;
 	UILongPressGestureRecognizer*	longPressRecognizer;
 	
 	//Resizing handling
