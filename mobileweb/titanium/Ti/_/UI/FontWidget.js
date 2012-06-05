@@ -24,7 +24,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti
 		_setFont: function(font,domNode) {
 			if (font) {
 				var fontSize = parseInt(font.fontSize);
-				 !isNaN(fontSize) && (font.fontSize = dom.unitize(fontSize));
+				 isNaN(fontSize) || (font.fontSize = dom.unitize(fontSize));
 				style.set(domNode, font);
 			} else {
 				style.set(domNode,{
