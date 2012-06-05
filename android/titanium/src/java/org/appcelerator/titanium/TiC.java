@@ -493,6 +493,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ANIMATED = "animated";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ANNIVERSARY = "anniversary";
 
 	/**
 	 * @module.api
@@ -780,6 +785,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_DATA = "data";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DATE = "date";
 
 	/**
 	 * @module.api
@@ -1373,11 +1383,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PHONE = "phone";
-	
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_PHOTO = "photo";
 
 	/**
 	 * @module.api
