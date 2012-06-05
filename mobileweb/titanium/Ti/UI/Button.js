@@ -3,10 +3,21 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 	var setStyle = style.set,
 		postDoBackground = {
-			post: "_updateLook"
+			post: function() {
+				if (this.backgroundColor || this.backgroundDisabledColor || this.backgroundDisabledImage || this.backgroundFocusedColor || 
+					this.backgroundFocusedImage || this.backgroundImage || this.backgroundSelectedColor || this.backgroundSelectedImage) {
+					this._clearDefaultLook();
+				} else {
+					this._setDefaultLook();
+				}
+				this._doBackground();
+			}
 		},
 		titlePost = {
-			post: "_updateTitle"
+			post: function() {
+				this._buttonTitle.text = Locale._getString(this.titleid, this.title);
+				this._hasSizeDimensions() && this._triggerLayout();
+			}
 		};
 
 	return declare("Ti.UI.Button", FontWidget, {
@@ -46,16 +57,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 		_defaultHeight: UI.SIZE,
 		
-		_updateLook: function() {
-			if (this.backgroundColor || this.backgroundDisabledColor || this.backgroundDisabledImage || this.backgroundFocusedColor || 
-				this.backgroundFocusedImage || this.backgroundImage || this.backgroundSelectedColor || this.backgroundSelectedImage) {
-				this._clearDefaultLook();
-			} else {
-				this._setDefaultLook();
-			}
-			this._doBackground();
-		},
-		
 		_setDefaultLook: function() {
 			if (!this._hasDefaultLook) {
 				this._hasDefaultLook = true;
@@ -77,11 +78,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				css.remove(this.domNode, "TiUIButtonDefault");
 				this._contentContainer.borderWidth = 0;
 			}
-		},
-
-		_updateTitle: function() {
-			this._buttonTitle.text = Locale._getString(this.titleid, this.title);
-			this._hasSizeDimensions() && this._triggerLayout();
 		},
 
 		properties: {
