@@ -21,7 +21,7 @@ import android.graphics.Bitmap;
 @Kroll.proxy(parentModule=ContactsModule.class, propertyAccessors={
 	"lastName", "firstName", "fullName", "middleName", "firstPhonetic", "lastPhonetic", "middlePhonetic", "department",
 	"jobTitle", "nickname", "note", "organization", "prefix", "suffix", "birthday", "created", "modified", "kind", "email", 
-	"phone", "address", "id"
+	"phone", "address", "id", "url", "instantMessage"
 })
 public class PersonProxy extends KrollProxy
 {

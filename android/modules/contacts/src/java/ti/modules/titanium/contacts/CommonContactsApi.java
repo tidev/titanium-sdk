@@ -72,7 +72,7 @@ public abstract class CommonContactsApi
 	}
 
 	protected abstract PersonProxy getPersonById(long id);
-	protected abstract void addContact(KrollDict options);
+	protected abstract PersonProxy addContact(KrollDict options);
 	protected abstract PersonProxy getPersonByUri(Uri uri);
 	protected abstract PersonProxy[] getAllPeople(int limit);
 	protected abstract PersonProxy[] getPeopleWithName(String name);

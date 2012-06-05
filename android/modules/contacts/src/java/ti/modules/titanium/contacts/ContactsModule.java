@@ -81,9 +81,9 @@ public class ContactsModule extends KrollModule
 	}
 	
 	@Kroll.method
-	public void createPerson(KrollDict options)
+	public PersonProxy createPerson(KrollDict options)
 	{
-		contactsApi.addContact(options);
+		return contactsApi.addContact(options);
 	}
 	
 	@Kroll.method

@@ -820,6 +820,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ELLIPSIZE = "ellipsize";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_EMAIL = "email";
 
 	/**
 	 * @module.api
@@ -997,6 +1002,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HOME = "home";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HOMEPAGE = "homepage";
 
 	/**
 	 * @module.api
@@ -1032,6 +1042,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_INITIAL_PLAYBACK_TIME = "initialPlaybackTime";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_INSTANTMSG = "instantMessage";
 
 	/**
 	 * @module.api
@@ -1223,6 +1238,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_NAV_BAR_HIDDEN = "navBarHidden";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_NICKNAME = "nickname";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_NOTE = "note";
 
 	/**
 	 * @module.api
@@ -1272,6 +1297,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ORGANIZATION = "organization";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_OTHER = "other";
 
 	/**
@@ -1298,6 +1328,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PHONE = "phone";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PHOTO = "photo";
 
 	/**
 	 * @module.api
