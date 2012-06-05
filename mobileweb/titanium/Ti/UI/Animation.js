@@ -92,11 +92,12 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style"], function(declare, Evented
 	*/
 
 	function schedule(elem, prop, value, params) {
-		var a,
-			currentValue = style.get(elem.domNode, prop);
+		var currentValue = style.get(elem.domNode, prop);
 
 		if (currentValue !== void 0) {
-			animations[elem.widgetId + '/' + prop] = a = [elem, prop, value];
+			params.unshift(value);
+			params.unshift(prop);
+			params.unshift(elem);
 
 			a.push(now());
 			a.push(currentValue);
@@ -104,6 +105,8 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style"], function(declare, Evented
 
 			// TODO: determine units
 			params.push("px");
+
+			animations[elem.widgetId + '/' + prop] = params;
 
 			// TODO: fire start
 
