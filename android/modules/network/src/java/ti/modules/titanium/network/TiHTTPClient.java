@@ -1100,6 +1100,12 @@ public class TiHTTPClient
 					} else {
 						handleURLEncodedData(form);
 					}
+
+					//Remove Content-Length header if entity is set since setEntity implicitly sets Content-Length
+					HttpEntityEnclosingRequest enclosingEntity = (HttpEntityEnclosingRequest) request;
+					if (enclosingEntity.getEntity() != null) {
+						request.removeHeaders("Content-Length");
+					}
 				}
 
 				// set request specific parameters
@@ -1110,12 +1116,6 @@ public class TiHTTPClient
 
 				if (DBG) {
 					Log.d(LCAT, "Preparing to execute request");
-				}
-
-				//Remove Content-Length header if entity is set since setEntity implicitly sets Content-Length
-				HttpEntityEnclosingRequest enclosingEntity = (HttpEntityEnclosingRequest) request;
-				if (enclosingEntity.getEntity() != null) {
-					request.removeHeaders("Content-Length");
 				}
 
 				String result = null;
