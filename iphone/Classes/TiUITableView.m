@@ -1135,6 +1135,7 @@
     
     if ([searchController isActive]) {
         [searchController setActive:NO animated:YES];
+        searchActivated = NO;
         return;
     }
 
@@ -2253,7 +2254,6 @@ return result;	\
     animateHide = YES;
     [self hideSearchScreen:nil];
 }
-
 @end
 
 #endif
