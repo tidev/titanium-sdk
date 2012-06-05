@@ -16,21 +16,35 @@ since: "0.1"
 
 events:
   - name: pause
-    summary: Fired when the application transitions to the background on a multitasked system.
+    summary: Fired when the application transitions from active to inactive state on a multitasked system.
     description: |
         Available on iOS 4.0 and later.
         
-        This event fires when the user leaves the application or it is paused due to a notification 
-        or incoming phone call.  
+        This event fires when the user leaves the application or for certain types of temporary interruptions 
+        such as a notification or incoming phone call.  
         
         See the `applicationWillResignActive` section of the official Apple documentation about 
         [Monitoring Application State Changes](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW5) 
         for the exact behavior that triggers this event.
         
         Note that calls to functions that modify the UI during this event may be partially executed, 
-        **up to** the UI call before the suspension. If this happens, the remainder of the code will 
+        **up to** the UI call before the suspension. See [paused](Titanium.App.paused) event. If this happens, the remainder of the code will 
         be executed after the application is resumed, but before the `resume` event is triggered.
     platforms: [iphone, ipad]
+    
+  - name: paused
+    summary: Fired when the application transitions to the background on a multitasked system.
+    description: |
+        Available on iOS 4.0 and later.
+        
+        This event fires when the user leaves the application.
+        
+        See the `applicationDidEnterBackground` section of the official Apple documentation about 
+        [Monitoring Application State Changes](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW5) 
+        for the exact behavior that triggers this event.
+        
+    platforms: [iphone, ipad]
+    since: '2.1.0'
     
   - name: proximity
     summary: Fired when the proximity sensor changes state.
