@@ -74,7 +74,7 @@ define(
 				var i,
 					touches = evt.changedTouches;
 				if (this._preventDefaultTouchEvent) {
-					this._preventDefaultTouchEvent && evt.preventDefault && evt.preventDefault();
+					evt.preventDefault && evt.preventDefault();
 					for (i in touches) {
 						touches[i].preventDefault && touches[i].preventDefault();
 					}
