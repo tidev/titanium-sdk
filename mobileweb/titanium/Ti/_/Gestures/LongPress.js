@@ -24,11 +24,11 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 					if (!element._isGestureBlocked(this.name)) {
 						this.blocking.push("singletap");
 						this.blocking.push("doubletap");
-						lang.hitch(element,element._handleTouchEvent("longpress",{
+						element._handleTouchEvent("longpress",{
 							x: e.changedTouches[0].clientX,
 							y: e.changedTouches[0].clientY,
 							source: this.getSourceNode(e,element)
-						}));
+						});
 					}
 				}),this._timeThreshold);
 			}

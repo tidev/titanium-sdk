@@ -7,11 +7,11 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 		processTouchCancelEvent: function(e, element){
 			if (!element._isGestureBlocked(this.name)) {
 				for (var i = 0; i < e.changedTouches.length; i++) {
-					lang.hitch(element,element._handleTouchEvent(this.name,{
+					element,element._handleTouchEvent(this.name,{
 						x: e.changedTouches[i].clientX,
 						y: e.changedTouches[i].clientY,
 						source: this.getSourceNode(e,element)
-					}));
+					});
 				}
 			}
 		}
