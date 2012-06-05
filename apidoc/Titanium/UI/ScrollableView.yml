@@ -123,27 +123,21 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-    
-  - name: scroll
-    summary: Fired when the current page is changed.
+
+  - name: scrollEnd
+    summary: Fired when the view has stopped moving completely.
+    platforms: [iphone, ipad, android]
+    since: "2.1.0"
+
     properties:
       - name: currentPage
-        summary: Index of the current page of <Titanium.UI.ScrollableView.views>.
+        summary: Index of the currently visible view of <Titanium.UI.ScrollableView.views>.
         type: Number
         
-      - name: globalPoint
-        summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        platforms: [iphone, ipad]
-        
       - name: view
-        summary: The current page.
+        summary: The currently visible view.
         type: Titanium.UI.View
-    
+
   - name: singletap
     summary: Fired when the device detects a single tap against this view.
     platforms: [iphone, ipad]
@@ -230,6 +224,41 @@ events:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
+
+  - name: scroll
+    summary: Fired repeatedly as the view is being scrolled.
+    platforms: [iphone, ipad, android]
+    since: "2.1.0"
+    properties:
+
+      - name: currentPage
+        summary: Index of the currently visible view of <Titanium.UI.ScrollableView.views>.
+        type: Number
+
+      - name: currentPageAsFloat
+        type: Number
+        summary: |
+           Current page index that the view is scrolled to as a float. For
+           example, if the user is holding the `ScrollableView` in between
+           the first and second page, this will have a value of 0.5.
+
+      - name: view
+        summary: The currently visible view.
+        type: Titanium.UI.View
+
+  - name: dragEnd
+    summary: Fired when the scrolling drag gesture on the view has been completed.
+    platforms: [android]
+    since: "2.1.0"
+    properties:
+
+      - name: currentPage
+        summary: Index of the currently visible view of <Titanium.UI.ScrollableView.views>.
+        type: Number
+ 
+      - name: view
+        summary: The currently visible view.
+        type: Titanium.UI.View
 
 properties:
   - name: cacheSize

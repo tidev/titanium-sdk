@@ -20,10 +20,11 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			var self = this,
 				textContainerDomNode = this._textContainerDomNode = this._textContainer.domNode;
 			self._textContainer._getContentSize = function(width, height) {
-				var text = self._textContainerDomNode.innerHTML;
+				var text = self._textContainerDomNode.innerHTML,
+					measuredSize = self._measureText(text, textContainerDomNode, self._hasSizeWidth() ? void 0 : width);
 				return {
-					width: self._measureText(text, textContainerDomNode, width).width,
-					height: self._measureText(text, textContainerDomNode, width).height
+					width: measuredSize.width,
+					height: measuredSize.height
 				};
 			};
 			
