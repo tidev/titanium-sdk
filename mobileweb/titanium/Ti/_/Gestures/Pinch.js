@@ -83,11 +83,11 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 				this._previousDistance = currentDistance;
 				this._previousTime = currentTime;
 				if (!element._isGestureBlocked(this.name)) {
-					lang.hitch(element,element._handleTouchEvent(this.name,{
+					element._handleTouchEvent(this.name,{
 						scale: currentDistance / this._startDistance,
 						velocity: velocity,
 						source: this.getSourceNode(e,element)
-					}));
+					});
 				}
 			}
 		},
