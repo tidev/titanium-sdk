@@ -479,11 +479,29 @@ properties:
     
   - name: FACE_DOWN
     summary: Constant value for face-down orientation.
+    description: |
+        One of the group of orientation constants for the <Titanium.Gesture> module,
+        <Titanium.UI.PORTRAIT>, 
+        <Titanium.UI.UPSIDE_PORTRAIT>, 
+        <Titanium.UI.LANDSCAPE_LEFT>, 
+        <Titanium.UI.LANDSCAPE_RIGHT>, 
+        <Titanium.UI.FACE_UP>, 
+        <Titanium.UI.FACE_DOWN>, 
+        and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
     
   - name: FACE_UP
     summary: Constant value for face-up orientation.
+    description: |
+        One of the group of orientation constants for the <Titanium.Gesture> module,
+        <Titanium.UI.PORTRAIT>, 
+        <Titanium.UI.UPSIDE_PORTRAIT>, 
+        <Titanium.UI.LANDSCAPE_LEFT>, 
+        <Titanium.UI.LANDSCAPE_RIGHT>, 
+        <Titanium.UI.FACE_UP>, 
+        <Titanium.UI.FACE_DOWN>, 
+        and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
     
@@ -674,11 +692,29 @@ properties:
     
   - name: LANDSCAPE_LEFT
     summary: Standard landscape orientation (home button on left).
+    description: |
+        One of the group of orientation constants for the <Titanium.Gesture> module,
+        <Titanium.UI.PORTRAIT>, 
+        <Titanium.UI.UPSIDE_PORTRAIT>, 
+        <Titanium.UI.LANDSCAPE_LEFT>, 
+        <Titanium.UI.LANDSCAPE_RIGHT>, 
+        <Titanium.UI.FACE_UP>, 
+        <Titanium.UI.FACE_DOWN>, 
+        and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
     
   - name: LANDSCAPE_RIGHT
     summary: Reverse landscape orientation (home button on right).
+    description: |
+        One of the group of orientation constants for the <Titanium.Gesture> module,
+        <Titanium.UI.PORTRAIT>, 
+        <Titanium.UI.UPSIDE_PORTRAIT>, 
+        <Titanium.UI.LANDSCAPE_LEFT>, 
+        <Titanium.UI.LANDSCAPE_RIGHT>, 
+        <Titanium.UI.FACE_UP>, 
+        <Titanium.UI.FACE_DOWN>, 
+        and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
@@ -726,6 +762,15 @@ properties:
     
   - name: PORTRAIT
     summary: Orientation constant for portrait mode orientation.
+    description: |
+        One of the group of orientation constants for the <Titanium.Gesture> module,
+        <Titanium.UI.PORTRAIT>, 
+        <Titanium.UI.UPSIDE_PORTRAIT>, 
+        <Titanium.UI.LANDSCAPE_LEFT>, 
+        <Titanium.UI.LANDSCAPE_RIGHT>, 
+        <Titanium.UI.FACE_UP>, 
+        <Titanium.UI.FACE_DOWN>, 
+        and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
     
@@ -963,11 +1008,29 @@ properties:
     
   - name: UNKNOWN
     summary: Orientation constant representing an unknown orientation.
+    description: |
+        One of the group of orientation constants for the <Titanium.Gesture> module,
+        <Titanium.UI.PORTRAIT>, 
+        <Titanium.UI.UPSIDE_PORTRAIT>, 
+        <Titanium.UI.LANDSCAPE_LEFT>, 
+        <Titanium.UI.LANDSCAPE_RIGHT>, 
+        <Titanium.UI.FACE_UP>, 
+        <Titanium.UI.FACE_DOWN>, 
+        and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
     
   - name: UPSIDE_PORTRAIT
     summary: Orientation constant for inverted portait orientation.
+    description: |
+        One of the group of orientation constants for the <Titanium.Gesture> module,
+        <Titanium.UI.PORTRAIT>, 
+        <Titanium.UI.UPSIDE_PORTRAIT>, 
+        <Titanium.UI.LANDSCAPE_LEFT>, 
+        <Titanium.UI.LANDSCAPE_RIGHT>, 
+        <Titanium.UI.FACE_UP>, 
+        <Titanium.UI.FACE_DOWN>, 
+        and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
