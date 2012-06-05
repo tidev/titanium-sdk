@@ -22,7 +22,9 @@ public class Ti2DMatrix extends KrollProxy
 {
 	private static final String TAG = "Ti2DMatrix";
 
-	public static final float DEFAULT_ANCHOR_VALUE = -1;
+	public static final float DEFAULT_ANCHOR_VALUE = -1f;
+	public static final float SCALE_UNSPECIFIED = -1f;
+
 	protected Ti2DMatrix next, prev;
 
 	protected static class Operation
@@ -125,7 +127,7 @@ public class Ti2DMatrix extends KrollProxy
 	public Ti2DMatrix scale(Object args[])
 	{
 		Ti2DMatrix newMatrix = new Ti2DMatrix(this, Operation.TYPE_SCALE);
-		newMatrix.op.scaleFromX = newMatrix.op.scaleFromY = 1.0f;
+		newMatrix.op.scaleFromX = newMatrix.op.scaleFromY = SCALE_UNSPECIFIED;
 		newMatrix.op.scaleToX = newMatrix.op.scaleToY = 1.0f;
 		// varargs for API backwards compatibility
 		if (args.length == 4) {
@@ -224,7 +226,9 @@ public class Ti2DMatrix extends KrollProxy
 			Log.w(TAG, "getScaleOperationParameters called though matrix is not for a scale operation.");
 			return new float[6];
 		}
-		return new float[] {this.op.scaleFromX,
+
+		return new float[] {
+			this.op.scaleFromX,
 			this.op.scaleToX,
 			this.op.scaleFromY,
 			this.op.scaleToY,

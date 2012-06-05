@@ -246,9 +246,35 @@ public class TiAnimationBuilder
 			if (tdm.isScaleOperation()) {
 				// fromX, toX, fromY, toY, anchorX, anchorY
 				float[] params = tdm.getScaleOperationParameters();
-				anim = new ScaleAnimation(params[0], params[1], params[2], params[3],
+				float fromX = params[0];
+				float fromY = params[2];
+				TiUIView tiView = viewProxy.peekView();
+
+				if (fromX == Ti2DMatrix.SCALE_UNSPECIFIED) {
+					if (tiView != null) {
+						fromX = tiView.getAnimatedXScale();
+					} else {
+						fromX = 1.0f; // i.e., regular size.
+					}
+				}
+
+				if (fromY == Ti2DMatrix.SCALE_UNSPECIFIED) {
+					if (tiView != null) {
+						fromY = tiView.getAnimatedYScale();
+					} else {
+						fromY = 1.0f; // i.e., regular size.
+					}
+				}
+
+				anim = new ScaleAnimation(fromX, params[1], fromY, params[3],
 					Animation.RELATIVE_TO_SELF, params[4],
 					Animation.RELATIVE_TO_SELF, params[5]);
+
+				// Remember the toX, toY
+				if (tiView != null) {
+					tiView.setAnimatedXScale(params[1]);
+					tiView.setAnimatedYScale(params[3]);
+				}
 			} else {
 				anim = new TiMatrixAnimation(tdm, anchorX, anchorY);
 			}
