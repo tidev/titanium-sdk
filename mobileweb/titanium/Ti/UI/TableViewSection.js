@@ -19,6 +19,9 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/style","Ti/UI/Mobil
 
 			// Create the parts out of Ti controls so we can make use of the layout system
 			this.layout = UI._LAYOUT_CONSTRAINING_VERTICAL;
+
+			// Force single tap to be processed.
+			this.addEventListener("singletap");
 		},
 
 		_defaultWidth: UI.INHERIT,
