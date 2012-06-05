@@ -6,3 +6,4 @@
 ./drillbit/drillbit.py --platforms=iphone --tests=json --results-dir=/work/temp0521f --iphone-version=5.0 --autorun
 ./drillbit/drillbit.py --platforms=iphone --tests=jss --results-dir=/work/temp0521f --iphone-version=5.0 --autorun
 Sunday June 3 2012 21:41
+Tuesday June 5 2012 16:51
