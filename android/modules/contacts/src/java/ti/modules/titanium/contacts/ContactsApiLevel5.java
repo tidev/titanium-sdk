@@ -36,6 +36,7 @@ import android.provider.ContactsContract.CommonDataKinds.Note;
 import android.provider.ContactsContract.CommonDataKinds.Organization;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds.Photo;
+import android.provider.ContactsContract.CommonDataKinds.Relation;
 import android.provider.ContactsContract.CommonDataKinds.StructuredName;
 import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
 import android.provider.ContactsContract.CommonDataKinds.Website;
@@ -331,6 +332,18 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 	}
 	
+	protected void processRelation(HashMap relHashMap, String relType, ArrayList<ContentProviderOperation> ops, int insertIndex, int rType) 
+	{
+		Object relObject = relHashMap.get(relType);
+		if (relObject instanceof Object[]) {
+			Object[] relArray = (Object[]) relObject;
+			for (int i = 0; i < relArray.length; i++) {
+				String rel = relArray[i].toString();
+				updateContactField(ops, insertIndex, Relation.CONTENT_ITEM_TYPE, Relation.DATA, rel, Relation.TYPE, rType);
+			}
+		}
+	}
+	
 	protected void processEmail (HashMap emailHashMap, String emailType, ArrayList<ContentProviderOperation> ops, int insertIndex, int eType)
 	{
 		Object emailObject = emailHashMap.get(emailType);
@@ -400,6 +413,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	protected PersonProxy addContact(KrollDict options) {
 
 		String firstName = "", lastName = "", fullName = "", middleName = "", displayName = "";
@@ -442,7 +456,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			if (phoneNumbers instanceof HashMap) {
 				HashMap phones = (HashMap)phoneNumbers;
 				newContact.setProperty(TiC.PROPERTY_PHONE, phones);
-				
+		
 				if (phones.containsKey(TiC.PROPERTY_MOBILE)) {
 					processPhone(phones, TiC.PROPERTY_MOBILE, ops, insertIndex, Phone.TYPE_MOBILE);
 				} 
@@ -549,6 +563,23 @@ public class ContactsApiLevel5 extends CommonContactsApi
 				}
 			}
 		}
+		
+		if (options.containsKey(TiC.PROPERTY_RELATED_NAMES)) {
+			Object namesObject = options.get(TiC.PROPERTY_RELATED_NAMES);
+			String[] types = {TiC.PROPERTY_ASSISTANT, TiC.PROPERTY_BROTHER, TiC.PROPERTY_CHILD, TiC.PROPERTY_DOMESTIC_PARTNER,
+					TiC.PROPERTY_FATHER, TiC.PROPERTY_FRIEND, TiC.PROPERTY_MANAGER, TiC.PROPERTY_MOTHER, TiC.PROPERTY_PARENT,
+					TiC.PROPERTY_PARTNER, TiC.PROPERTY_REFERRED_BY, TiC.PROPERTY_OTHER, TiC.PROPERTY_SISTER};
+
+			if (namesObject instanceof HashMap) {
+				HashMap namesHashMap = (HashMap) namesObject;
+				newContact.setProperty(TiC.PROPERTY_RELATED_NAMES, namesHashMap);
+				for (int i = 0; i < types.length; i++) {
+					if (namesHashMap.containsKey(types[i])) {
+						processRelation(namesHashMap, types[i], ops, insertIndex, i+1);
+					}
+				}
+			}
+		}
 
 		if (options.containsKey(TiC.PROPERTY_NOTE)) {
 			String note = TiConvert.toString(options, TiC.PROPERTY_NOTE);
@@ -574,15 +605,17 @@ public class ContactsApiLevel5 extends CommonContactsApi
 
 		try
 		{
-			ContentProviderResult[] res = TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+			TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
 		}
 		catch (RemoteException e)
 		{ 
-			// error
+			Log.e(LCAT, "RemoteException - Failed to add new contact into database");
+			return null;
 		}
 		catch (OperationApplicationException e) 
 		{
-			// error
+			Log.e(LCAT, "OperationApplicationException - Failed to add new contact into database");
+			return null;
 		}   
 		
 		return newContact;

@@ -503,6 +503,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ANNOTATIONS = "annotations";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ASSISTANT = "assistant";
 
 	/**
 	 * @module.api
@@ -625,6 +630,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_BOTTOM = "bottom";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_BROTHER = "bottom";
 
 	/**
 	 * @module.api
@@ -665,6 +675,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CHARSET = "charset";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CHILD = "child";
 
 	/**
 	 * @module.api
@@ -805,6 +820,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_DISPLAY_ADDRESS = "displayAddress";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DOMESTIC_PARTNER = "domesticPartner";
 
 	/**
 	 * @module.api
@@ -856,6 +876,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_EXIT_ON_CLOSE = "exitOnClose";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FATHER = "father";
+	
 	/**
 	 * @module.api
 	 */
@@ -927,6 +952,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FREQUENCY = "frequency";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FRIEND = "friend";
 
 	/**
 	 * @module.api
@@ -1157,6 +1187,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MAGNETIC_HEADING = "magneticHeading";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MANAGER = "manager";
 
 	/**
 	 * @module.api
@@ -1228,6 +1263,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MODAL = "modal";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MOTHER = "mother";
 
 	/**
 	 * @module.api
@@ -1318,6 +1358,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PARENT = "parent";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PARTNER = "partner";
 
 	/**
 	 * @module.api
@@ -1392,6 +1437,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_REFERRED_BY = "referredBy";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_REGION = "region";
 
 	/**
@@ -1408,6 +1458,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_REGION_FIT = "regionFit";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_RELATED_NAMES = "relatedNames";
 
 	/**
 	 * @module.api
@@ -1534,6 +1589,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SISTER = "sister";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SIZE = "size";
 
 	/**
@@ -1565,6 +1625,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SOURCE_POSITION = "sourcePosition";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SPOUSE = "spouse";
 
 	/**
 	 * @module.api
