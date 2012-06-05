@@ -608,7 +608,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			Object imageObject = options.get(TiC.PROPERTY_IMAGE);
 			if (imageObject instanceof TiBlob) {
 				TiBlob imageBlob = (TiBlob) imageObject;
-				newContact.setProperty(TiC.PROPERTY_IMAGE, imageBlob);
+				newContact.setImage(imageBlob);
 				updateContactField(ops, Photo.CONTENT_ITEM_TYPE, Photo.PHOTO, imageBlob.getData(), null, 0);
 			}
 		}
