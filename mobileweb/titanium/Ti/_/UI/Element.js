@@ -533,8 +533,8 @@ define(
 						x: e.x,
 						y: e.y
 					}, e.source);
-					e.x = pt.x;
-					e.y = pt.y;
+					e.x = pt ? pt.x : void 0;
+					e.y = pt ? pt.y : void 0;
 				} else {
 					e.x = void 0;
 					e.y = void 0;
