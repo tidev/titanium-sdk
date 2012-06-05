@@ -1495,6 +1495,10 @@ class Builder(object):
 		sdk_native_libs = os.path.join(template_dir, 'native', 'libs')
 		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libtiverify.so'), 'lib/armeabi/libtiverify.so')
 		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libtiverify.so'), 'lib/armeabi-v7a/libtiverify.so')
+		# See below about x86 and production
+		if self.deploy_type != 'production':
+			apk_zip.write(os.path.join(sdk_native_libs, 'x86', 'libtiverify.so'), 'lib/x86/libtiverify.so')
+
 		if self.runtime == 'v8':
 			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libkroll-v8.so'), 'lib/armeabi/libkroll-v8.so')
 			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libstlport_shared.so'), 'lib/armeabi/libstlport_shared.so')
