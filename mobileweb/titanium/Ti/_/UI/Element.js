@@ -289,11 +289,11 @@ define(
 		},
 		
 		_hasSizeHeight: function() {
-			return isNaN(this._layoutCoefficients.width.x1) || isNaN(this._layoutCoefficients.height.x1);
+			return isNaN(this._layoutCoefficients.height.x1);
 		},
 		
 		_hasSizeWidth: function() {
-			return isNaN(this._layoutCoefficients.width.x1) || isNaN(this._layoutCoefficients.height.x1);
+			return isNaN(this._layoutCoefficients.width.x1);
 		},
 		
 		startLayout: function() {
