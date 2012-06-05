@@ -285,6 +285,14 @@ define(
 		},
 		
 		_hasSizeDimensions: function() {
+			return this._hasSizeWidth() || this._hasSizeHeight();
+		},
+		
+		_hasSizeHeight: function() {
+			return isNaN(this._layoutCoefficients.width.x1) || isNaN(this._layoutCoefficients.height.x1);
+		},
+		
+		_hasSizeWidth: function() {
 			return isNaN(this._layoutCoefficients.width.x1) || isNaN(this._layoutCoefficients.height.x1);
 		},
 		
