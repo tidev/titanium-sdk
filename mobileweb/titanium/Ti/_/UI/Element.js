@@ -518,7 +518,21 @@ define(
 		},
 
 		_handleTouchEvent: function(type, e) {
-			this.enabled && this.fireEvent(type, e);
+			if (this.enabled) {
+				// Normalize the location of the event.
+				if (is(e.x, "Number") && is(e.y, "Number") && e.source) {
+					var pt = UI._container.convertPointToView({
+						x: e.x,
+						y: e.y
+					}, e.source);
+					e.x = pt.x;
+					e.y = pt.y;
+				} else {
+					e.x = void 0;
+					e.y = void 0;
+				}
+				this.fireEvent(type, e);
+			}
 		},
 		
 		_defaultBackgroundColor: void 0,
