@@ -79,6 +79,7 @@ NSString * const kTiContextShutdownNotification = @"TiContextShutdown";
 NSString * const kTiWillShutdownNotification = @"TiWillShutdown";
 NSString * const kTiShutdownNotification = @"TiShutdown";
 NSString * const kTiSuspendNotification = @"TiSuspend";
+NSString * const kTiPausedNotification = @"TiPaused";
 NSString * const kTiResumeNotification = @"TiResume";
 NSString * const kTiResumedNotification = @"TiResumed";
 NSString * const kTiAnalyticsNotification = @"TiAnalytics";

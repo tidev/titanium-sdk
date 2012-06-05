@@ -76,7 +76,7 @@ define(
 				var i,
 					touches = evt.changedTouches;
 				if (this._preventDefaultTouchEvent) {
-					this._preventDefaultTouchEvent && evt.preventDefault && evt.preventDefault();
+					evt.preventDefault && evt.preventDefault();
 					for (i in touches) {
 						touches[i].preventDefault && touches[i].preventDefault();
 					}
@@ -287,7 +287,15 @@ define(
 		},
 		
 		_hasSizeDimensions: function() {
-			return isNaN(this._layoutCoefficients.width.x1) || isNaN(this._layoutCoefficients.height.x1);
+			return this._hasSizeWidth() || this._hasSizeHeight();
+		},
+		
+		_hasSizeHeight: function() {
+			return isNaN(this._layoutCoefficients.height.x1);
+		},
+		
+		_hasSizeWidth: function() {
+			return isNaN(this._layoutCoefficients.width.x1);
 		},
 		
 		startLayout: function() {
@@ -520,7 +528,21 @@ define(
 		},
 
 		_handleTouchEvent: function(type, e) {
-			this.enabled && this.fireEvent(type, e);
+			if (this.enabled) {
+				// Normalize the location of the event.
+				if (is(e.x, "Number") && is(e.y, "Number") && e.source) {
+					var pt = UI._container.convertPointToView({
+						x: e.x,
+						y: e.y
+					}, e.source);
+					e.x = pt ? pt.x : void 0;
+					e.y = pt ? pt.y : void 0;
+				} else {
+					e.x = void 0;
+					e.y = void 0;
+				}
+				this.fireEvent(type, e);
+			}
 		},
 		
 		_defaultBackgroundColor: void 0,

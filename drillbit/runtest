@@ -5,7 +5,4 @@
 ./drillbit/drillbit.py --platforms=iphone --tests=filesystem --results-dir=/work/temp0521f --iphone-version=5.0 --autorun
 ./drillbit/drillbit.py --platforms=iphone --tests=json --results-dir=/work/temp0521f --iphone-version=5.0 --autorun
 ./drillbit/drillbit.py --platforms=iphone --tests=jss --results-dir=/work/temp0521f --iphone-version=5.0 --autorun
-
-Mon May 21 23:00:35 PDT 2012
-Friday June 1
-
+Sunday June 3 2012 21:41
