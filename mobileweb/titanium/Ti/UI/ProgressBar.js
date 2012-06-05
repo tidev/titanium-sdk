@@ -90,42 +90,25 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/UI/FontWidget", "Ti/_/lang", "Ti
 			
 			min: {
 				set: function(value) {
-					if (value > this.max) {
-						value = this.max;
-					}
-					return value;
+					return Math.min(value, this.max);
 				},
-				post: function() {
-					this._updateSize();
-				},
+				post: "_updateSize",
 				value: 0
 			},
 			
 			max: {
 				set: function(value) {
-					if (value < this.min) {
-						value = this.min;
-					}
-					return value;
+					return Math.max(value, this.min);
 				},
-				post: function() {
-					this._updateSize();
-				},
+				post: "_updateSize",
 				value: 100
 			},
 			
 			value: {
 				set: function(value) {
-					if (value < this.min) {
-						value = this.min;
-					} else if (value > this.max) {
-						value = this.max;
-					}
-					return value;
+					return Math.min(Math.max(value, this.min), this.max);
 				},
-				post: function() {
-					this._updateSize();
-				},
+				post: "_updateSize",
 				value: 0
 			}
 		}

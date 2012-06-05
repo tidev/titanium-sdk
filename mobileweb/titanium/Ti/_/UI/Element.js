@@ -24,9 +24,7 @@ define(
 		},
 		postLayoutPropFunction = function(value, oldValue) {
 			(value === null || (!is(value,"String") && !is(value,"Number"))) && (value = void 0);
-			if (value !== oldValue) {
-				!this._batchUpdateInProgress && this._triggerLayout();
-			}
+			value !== oldValue && !this._batchUpdateInProgress && this._triggerLayout();
 			return value;
 		},
 		postLayoutProp = {
@@ -69,7 +67,6 @@ define(
 				useTouch = "ontouchstart" in window,
 				bg = lang.hitch(this, "_doBackground");
 
-			require.has("devmode") && args && args._debug && dom.attr.set(node, "data-debug", args._debug);
 			function processTouchEvent(eventType, evt) {
 				var i,
 					touches = evt.changedTouches;
