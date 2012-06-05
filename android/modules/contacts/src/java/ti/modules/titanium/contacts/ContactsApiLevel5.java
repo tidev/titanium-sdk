@@ -222,7 +222,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		return getPeople(Integer.MAX_VALUE, "display_name like ? or display_name like ?" , new String[]{name + '%', "% " + name + '%'});
 	}
 
-	protected void updateContactField (ArrayList<ContentProviderOperation> ops, String mimeType, String idKey,
+	protected void updateContactField(ArrayList<ContentProviderOperation> ops, String mimeType, String idKey,
 			Object idValue, String typeKey, int typeValue) 
 	{
 		if (typeKey == null) {
@@ -320,7 +320,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 	}
 
-	protected void processURL (HashMap urlHashMap, String urlType, ArrayList<ContentProviderOperation> ops, int uType) 
+	protected void processURL(HashMap urlHashMap, String urlType, ArrayList<ContentProviderOperation> ops, int uType) 
 	{
 		Object urlObject = urlHashMap.get(urlType);
 		if (urlObject instanceof Object[]) {
@@ -344,7 +344,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 	}
 	
-	protected void processDate (HashMap dateHashMap, String dateType, ArrayList<ContentProviderOperation> ops, int dType)
+	protected void processDate(HashMap dateHashMap, String dateType, ArrayList<ContentProviderOperation> ops, int dType)
 	{
 		Object dateObject = dateHashMap.get(dateType);
 		if (dateObject instanceof Object[]) {
@@ -356,7 +356,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 	}
 	
-	protected void processEmail (HashMap emailHashMap, String emailType, ArrayList<ContentProviderOperation> ops, int eType)
+	protected void processEmail(HashMap emailHashMap, String emailType, ArrayList<ContentProviderOperation> ops, int eType)
 	{
 		Object emailObject = emailHashMap.get(emailType);
 		if (emailObject instanceof Object[]) {
@@ -368,7 +368,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 	}
 	
-	protected void processPhone (HashMap phoneHashMap, String phoneType, ArrayList<ContentProviderOperation> ops, int pType) 
+	protected void processPhone(HashMap phoneHashMap, String phoneType, ArrayList<ContentProviderOperation> ops, int pType) 
 	{
 		Object phoneArray = phoneHashMap.get(phoneType);
 		if (phoneArray instanceof Object[]) {
@@ -628,17 +628,17 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			}
 		}
 
-		try
-		{
+		try {
+
 			TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
-		}
-		catch (RemoteException e)
-		{ 
+
+		} catch (RemoteException e) { 
+
 			Log.e(LCAT, "RemoteException - Failed to add new contact into database");
 			return null;
-		}
-		catch (OperationApplicationException e) 
-		{
+
+		} catch (OperationApplicationException e) {
+
 			Log.e(LCAT, "OperationApplicationException - Failed to add new contact into database");
 			return null;
 		}   

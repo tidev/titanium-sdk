@@ -292,7 +292,4 @@ public class ContactsApiLevel4 extends CommonContactsApi
 		
 	}
 
-
-
-
 }
