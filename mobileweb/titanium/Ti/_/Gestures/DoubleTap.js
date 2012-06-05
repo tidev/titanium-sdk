@@ -37,16 +37,16 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 							this.blocking.push("singletap");
 							// We don't reuse the same results object because the values are modified before the event is fired.
 							// If we reused the object, they would be modified twice, which is incorrect.
-							lang.hitch(element,element._handleTouchEvent("dblclick", {
+							element._handleTouchEvent("dblclick", {
 								x: x,
 								y: y,
 								source: source
-							}));
-							lang.hitch(element,element._handleTouchEvent(this.name, {
+							});
+							element._handleTouchEvent(this.name, {
 								x: x,
 								y: y,
 								source: source
-							}));
+							});
 						}
 					} else {
 						this.initTracker(x,y);

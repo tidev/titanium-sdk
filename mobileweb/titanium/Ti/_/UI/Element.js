@@ -285,7 +285,15 @@ define(
 		},
 		
 		_hasSizeDimensions: function() {
-			return isNaN(this._layoutCoefficients.width.x1) || isNaN(this._layoutCoefficients.height.x1);
+			return this._hasSizeWidth() || this._hasSizeHeight();
+		},
+		
+		_hasSizeHeight: function() {
+			return isNaN(this._layoutCoefficients.height.x1);
+		},
+		
+		_hasSizeWidth: function() {
+			return isNaN(this._layoutCoefficients.width.x1);
 		},
 		
 		startLayout: function() {
@@ -525,8 +533,8 @@ define(
 						x: e.x,
 						y: e.y
 					}, e.source);
-					e.x = pt.x;
-					e.y = pt.y;
+					e.x = pt ? pt.x : void 0;
+					e.y = pt ? pt.y : void 0;
 				} else {
 					e.x = void 0;
 					e.y = void 0;

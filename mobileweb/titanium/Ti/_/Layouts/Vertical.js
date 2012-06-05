@@ -49,7 +49,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						measuredHeight = heightLayoutCoefficients.x1 * height + heightLayoutCoefficients.x2 * (height - runningHeight) + heightLayoutCoefficients.x3;
 						
 						if (child._getContentSize) {
-							childSize = child._getContentSize();
+							childSize = child._getContentSize(measuredWidth, measuredHeight);
 						} else {
 							childSize = child._layout._doLayout(
 								child, 
