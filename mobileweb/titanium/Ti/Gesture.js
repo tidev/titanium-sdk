@@ -21,7 +21,7 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI", "Ti/_/ready"], function(Evented, l
 				return api.portrait;
 			},
 
-			properties: {
+			constants: {
 				portrait: false,
 				landscape: false,
 				orientation: UI.UNKNOWN
@@ -30,9 +30,9 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/UI", "Ti/_/ready"], function(Evented, l
 
 	function getWindowOrientation() {
 		var landscape = !!(window.innerWidth && (window.innerWidth > window.innerHeight));
-		api.orientation = landscape ? UI.LANDSCAPE_LEFT : UI.PORTRAIT;
-		api.landscape = landscape;
-		api.portrait = !landscape;
+		api.constants.__values__.orientation = landscape ? UI.LANDSCAPE_LEFT : UI.PORTRAIT;
+		api.constants.__values__.landscape = landscape;
+		api.constants.__values__.portrait = !landscape;
 		return api.orientation;
 	}
 	ready(function() {
