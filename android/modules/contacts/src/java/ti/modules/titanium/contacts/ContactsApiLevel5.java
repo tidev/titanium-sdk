@@ -604,11 +604,11 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			updateContactField(ops, Nickname.CONTENT_ITEM_TYPE, Nickname.NAME, nickname, Nickname.TYPE, Nickname.TYPE_DEFAULT);
 		}
 
-		if (options.containsKey(TiC.PROPERTY_PHOTO)) {
-			Object imageObject = options.get(TiC.PROPERTY_PHOTO);
+		if (options.containsKey(TiC.PROPERTY_IMAGE)) {
+			Object imageObject = options.get(TiC.PROPERTY_IMAGE);
 			if (imageObject instanceof TiBlob) {
 				TiBlob imageBlob = (TiBlob) imageObject;
-				newContact.setProperty(TiC.PROPERTY_PHOTO, imageBlob);
+				newContact.setProperty(TiC.PROPERTY_IMAGE, imageBlob);
 				updateContactField(ops, Photo.CONTENT_ITEM_TYPE, Photo.PHOTO, imageBlob.getData(), null, 0);
 			}
 		}
