@@ -42,8 +42,12 @@ properties:
         The format of the dictionary accepted by this property is as follows:
         
         * Keys: any of `home`, `work`, and/or `other`.
-        * Values: arrays of dictionary types with six keys, `CountryCode`, `Street`, `City`, 
-        `County`, `Country` and `ZIP`, each with a `string` type value.
+        * Values: arrays of dictionary types with seven keys, `CountryCode`, `Street`, `City`, 
+        `County`, 'State', `Country` and `ZIP`, each with a `string` type value.
+
+        On Android:
+
+        'CountryCode' and 'County' are currently not supported.
         
         On iOS:
         
@@ -61,7 +65,7 @@ properties:
     summary: Date of birth of the person. Single value.
     description: Date format is "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     
   - name: created
     summary: Date and time that the person record was created. Single value.
@@ -82,7 +86,7 @@ properties:
         
         Date format is "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
     type: Dictionary
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     
   - name: department
     summary: Department of the person. Single value.
@@ -101,7 +105,7 @@ properties:
   - name: firstName
     summary: First name of the person. Single value.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     
   - name: firstPhonetic
     summary: Phonetic first name of the person.  Single value.
@@ -122,7 +126,7 @@ properties:
     summary: Image for the person. Single value.
     description: Set to `null` to remove the image. 
     type: Titanium.Blob
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     
   - name: instantMessage
     summary: |
@@ -137,7 +141,7 @@ properties:
         The `service` key value may be one of `AIM`, `Facebook`, `GaduGadu`, `GoogleTalk`, `ICQ`, 
         `MSN`, `QQ`, `Skype`, or `Yahoo`.
     type: Dictionary
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     
   - name: jobTitle
     summary: Job title of the person. Single value.
@@ -156,7 +160,7 @@ properties:
   - name: lastName
     summary: Last name of the person. Single value.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     
   - name: lastPhonetic
     summary: Phonetic last name of the person. Single value.
@@ -166,7 +170,7 @@ properties:
   - name: middleName
     summary: Middle name of the person. Single value.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     
   - name: middlePhonetic
     summary: Phonetic middle name of the person. Single value.
@@ -183,7 +187,7 @@ properties:
   - name: nickname
     summary: Nickname of the person. Single value.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     
   - name: note
     summary: Notes for the person. Single value.
@@ -193,7 +197,7 @@ properties:
   - name: organization
     summary: Organization to which the person belongs. Single value.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     
   - name: phone
     summary: Phone numbers for the person. Multi-value. Read-only on Android.
@@ -225,7 +229,7 @@ properties:
         `partner`, `assistant`, `manager`, and/or `other`.
         * Values: array of `string` type.
     type: Dictionary
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     
   - name: suffix
     summary: Suffix for the person. Single value. Read-only on Android.
@@ -239,4 +243,4 @@ properties:
         * Keys: any of `homepage`, `home`, `work`, and/or `other`.
         * Values: array of `string` type.
     type: Dictionary
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
