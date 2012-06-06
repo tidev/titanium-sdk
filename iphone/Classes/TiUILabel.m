@@ -178,13 +178,7 @@
 -(void)setBackgroundImage_:(id)url
 {
     if (url != nil) {
-        UIImage* bgImage = [UIImageResize resizedImage:self.frame.size 
-                                  interpolationQuality:kCGInterpolationDefault
-                                                 image:[self loadImage:url]
-												 hires:NO];
-        
-        // Resizing doesn't preserve stretchability.  Should we maybe fix this?
-        bgImage = [self loadImage:url];
+        UIImage* bgImage = [self loadImage:url];
         if (backgroundView == nil) {
             backgroundView = [[UIImageView alloc] initWithImage:bgImage];
             backgroundView.userInteractionEnabled = NO;

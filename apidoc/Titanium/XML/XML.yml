@@ -6,29 +6,34 @@ description: |
     
     Android and iOS implement the [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html) specification
     with some non-standard extensions, which are documented in the appropriate places.
-    
-    Mobile Web directly exposes the [DOM Level 3](http://www.w3.org/TR/DOM-Level-3-Core/core.html) implementation 
-    in the browser. New features introduced in DOM Level 3 are not documented here for brevity. For information on
-    these features, please use the W3C documentation.
+
+    Both iOS and Android lack DTD support.
+
+    Mobile Web directly exposes the [DOM Level 3](http://www.w3.org/TR/DOM-Level-3-Core/core.html) 
+    implementation in the browser. New features introduced in DOM Level 3 are not documented here 
+    for brevity. For information on these features, please use the W3C documentation.
 extends: Titanium.Module
 since: "0.9"
 methods:
+
   - name: parseString
     summary: | 
         Parses an XML string into a <Titanium.XML.Document> object.
-        Throws an exception if the string is unable to be parsed into a valid
+    description:
+        Throws an exception if the string can't be parsed into a valid
         document.
     returns:
         type: Titanium.XML.Document
     parameters:
       - name: xml
-        summary: the XML content as a string
+        summary: XML content as a string.
         type: String
+
   - name: serializeToString
-    summary: Serializes a <Titanium.XML.Document> object into a string.
+    summary: Serializes a [Node](Titanium.XML.Node) object into a string.
     returns:
         type: String
     parameters:
       - name: node
-        summary: The XML DOMNode or DOMDocument to serialize
+        summary: XML [Node](Titanium.XML.Node) to serialize.
         type: Titanium.XML.Node

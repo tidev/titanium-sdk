@@ -131,6 +131,14 @@ events:
             been released by the touch. If `false`, scrolling will stop immediately.
         type: Boolean
 properties:
+  - name: canCancelEvents
+    summary: |
+        Determines whether this scroll view can cancel subview touches in order to scroll instead.
+    description: Set to `false` to ensure that subview touches always take effect.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad]
+
   - name: contentHeight
     summary: Height of the scrollable region.
     description: |

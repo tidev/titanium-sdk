@@ -56,7 +56,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/API", "Ti/UI", "Ti/_/lang", "Ti
 						
 						if (isNaN(measuredWidth) || isNaN(heightLayoutCoefficients.x1)) {
 							if (child._getContentSize) {
-								childSize = child._getContentSize();
+								childSize = child._getContentSize(measuredWidth, measuredHeight);
 							} else {
 								childSize = child._layout._doLayout(
 									child, 
