@@ -70,7 +70,7 @@ public class TiUIScrollView extends TiUIView
 		@Override
 		public boolean dispatchTouchEvent(MotionEvent ev)
 		{
-			// If we the canCancelEvents is false, then we want to prevent the scroll view from canceling the touch
+			// If canCancelEvents is false, then we want to prevent the scroll view from canceling the touch
 			// events of the child view
 			if (!canCancelEvents) {
 				requestDisallowInterceptTouchEvent(true);
