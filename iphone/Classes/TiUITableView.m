@@ -358,6 +358,11 @@
 		tableview.delegate = self;
 		tableview.dataSource = self;
 		tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+		
+		UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressGesture:)];
+		[tableview addGestureRecognizer:longPress];
+		[longPress release];
+		
 		if (TiDimensionIsDip(rowHeight))
 		{
 			[tableview setRowHeight:rowHeight.value];
@@ -913,6 +918,27 @@
         }
         
     }
+}
+
+-(void)longPressGesture:(UILongPressGestureRecognizer *)recognizer
+{
+	if([[self proxy] _hasListeners:@"longpress"] && [recognizer state] == UIGestureRecognizerStateBegan)
+	{
+		UITableView *ourTableView = [self tableView];
+		CGPoint point = [recognizer locationInView:ourTableView];
+		NSIndexPath *indexPath = [ourTableView indexPathForRowAtPoint:point];
+		
+		BOOL search = NO;
+		if (allowsSelectionSet==NO || [ourTableView allowsSelection]==NO)
+		{
+			[ourTableView deselectRowAtIndexPath:indexPath animated:YES];
+		}
+		if(ourTableView != tableview)
+		{
+			search = YES;
+		}
+		[self triggerActionForIndexPath:indexPath fromPath:nil tableView:ourTableView wasAccessory:NO search:search name:@"longpress"];
+	}
 }
 
 #pragma mark Overloaded view handling
