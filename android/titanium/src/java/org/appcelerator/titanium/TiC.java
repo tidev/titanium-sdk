@@ -654,6 +654,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CAN_CANCEL_EVENTS = "canCancelEvents";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CANCEL = "cancel";
 
 	/**
@@ -1450,6 +1455,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SEPARATOR_COLOR = "separatorColor";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR = "showHorizontalScrollIndicator";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR = "showVerticalScrollIndicator";
 
 	/**
 	 * @module.api
