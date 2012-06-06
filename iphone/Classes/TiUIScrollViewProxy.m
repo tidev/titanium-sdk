@@ -188,7 +188,7 @@
         }
         else if (TiDimensionIsAutoSize(constraint))
         {
-            bounds.size.width = [child autoWidthForSize:CGSizeMake(boundingValue,bounds.size.height - offset2)] + offset;
+            bounds.size.width = [child autoWidthForSize:CGSizeMake(-1,bounds.size.height - offset2)] + offset;
             horizontalLayoutBoundary += bounds.size.width;
         }
         else if (TiDimensionIsAuto(constraint) )
