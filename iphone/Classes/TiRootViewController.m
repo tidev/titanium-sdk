@@ -1077,12 +1077,12 @@
 			}
 			possibleScrollView = [possibleScrollView superview];
 		}
-
-		[(UIView<TiScrolling> *)[confirmedScrollViews objectAtIndex:0] keyboardDidShowAtHeight:keyboardHeight];
-		for (UIView<TiScrolling> * confirmedScrollView in confirmedScrollViews)
-		{
-			[confirmedScrollView scrollToShowView:scrolledView withKeyboardHeight:keyboardHeight];
-		}
+        
+        UIView<TiScrolling> *confirmedScrollViewsLastObject = (UIView<TiScrolling> *)[confirmedScrollViews lastObject];
+        
+        [confirmedScrollViewsLastObject keyboardDidShowAtHeight:keyboardHeight];
+        [confirmedScrollViewsLastObject scrollToShowView:scrolledView withKeyboardHeight:keyboardHeight];
+		
 	}
 
 	//This is if the keyboard is hiding or showing due to hardware.
@@ -1185,6 +1185,7 @@
 {
 	startFrame = endFrame;
     [self performSelector:@selector(adjustKeyboardHeight:) withObject:[NSNumber numberWithBool:NO] afterDelay:leaveDuration];
+    RELEASE_TO_NIL_AUTORELEASE(keyboardFocusedProxy);
 }
 
 - (void)keyboardDidShow:(NSNotification*)notification
@@ -1232,8 +1233,7 @@
 		DeveloperLog(@"[WARN] Blurred for %@<%X>, despite %@<%X> being the focus.",blurredProxy,blurredProxy,keyboardFocusedProxy,keyboardFocusedProxy);
 		return;
 	}
-	RELEASE_TO_NIL_AUTORELEASE(keyboardFocusedProxy);
-
+	
 	//Question: Ideally (IE, shouldn't happen differently) the keyboardToolbar of the focusedProxy IS the accessoryView. Should we assume this?
 	//TODO: This can probably be optimized, but since how rarely this happens....
 	
