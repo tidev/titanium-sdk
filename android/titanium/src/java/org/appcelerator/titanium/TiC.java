@@ -503,6 +503,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ANIMATED = "animated";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ANNIVERSARY = "anniversary";
 
 	/**
 	 * @module.api
@@ -513,6 +518,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ANNOTATIONS = "annotations";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ASSISTANT = "assistant";
 
 	/**
 	 * @module.api
@@ -605,6 +615,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_BASE_URL_WEBVIEW = "baseURL";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_BIRTHDAY = "birthday";
 
 	/**
 	 * @module.api
@@ -630,6 +645,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_BOTTOM = "bottom";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_BROTHER = "bottom";
 
 	/**
 	 * @module.api
@@ -670,6 +690,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CHARSET = "charset";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CHILD = "child";
 
 	/**
 	 * @module.api
@@ -770,6 +795,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_DATA = "data";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DATE = "date";
 
 	/**
 	 * @module.api
@@ -810,6 +840,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_DISPLAY_ADDRESS = "displayAddress";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DOMESTIC_PARTNER = "domesticPartner";
 
 	/**
 	 * @module.api
@@ -825,6 +860,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ELLIPSIZE = "ellipsize";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_EMAIL = "email";
 
 	/**
 	 * @module.api
@@ -859,6 +899,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_FATHER = "father";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FILE = "file";
 
 	/**
@@ -870,6 +915,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FILTER_CASE_INSENSITIVE = "filterCaseInsensitive";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FIRSTNAME = "firstName";
 
 	/**
 	 * @module.api
@@ -922,11 +972,21 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FREQUENCY = "frequency";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FRIEND = "friend";
 
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_FROM = "from";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FULLNAME = "fullname";
 
 	/**
 	 * @module.api
@@ -987,6 +1047,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HINT_TEXT = "hintText";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HOME = "home";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HOMEPAGE = "homepage";
 
 	/**
 	 * @module.api
@@ -1022,6 +1092,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_INITIAL_PLAYBACK_TIME = "initialPlaybackTime";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_INSTANTMSG = "instantMessage";
 
 	/**
 	 * @module.api
@@ -1042,6 +1117,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_KEYBOARD_TYPE = "keyboardType";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LASTNAME = "lastName";
 
 	/**
 	 * @module.api
@@ -1127,6 +1207,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MAGNETIC_HEADING = "magneticHeading";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MANAGER = "manager";
 
 	/**
 	 * @module.api
@@ -1169,6 +1254,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MIMETYPE = "mimeType";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MIDDLENAME = "middleName";
 
 	public static final String PROPERTY_MIN_AGE = "minAge";
 	public static final String PROPERTY_MIN_UPDATE_DISTANCE = "minUpdateDistance";
@@ -1187,7 +1277,17 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_MOBILE = "mobile";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MODAL = "modal";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MOTHER = "mother";
 
 	/**
 	 * @module.api
@@ -1198,6 +1298,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_NAV_BAR_HIDDEN = "navBarHidden";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_NICKNAME = "nickname";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_NOTE = "note";
 
 	/**
 	 * @module.api
@@ -1243,6 +1353,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ORDER = "order";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ORGANIZATION = "organization";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_OTHER = "other";
 
 	/**
 	 * @module.api
@@ -1258,11 +1378,21 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PARENT = "parent";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PARTNER = "partner";
 
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_PASSWORD_MASK = "passwordMask";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PHONE = "phone";
 
 	/**
 	 * @module.api
@@ -1322,6 +1452,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_REFERRED_BY = "referredBy";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_REGION = "region";
 
 	/**
@@ -1338,6 +1473,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_REGION_FIT = "regionFit";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_RELATED_NAMES = "relatedNames";
 
 	/**
 	 * @module.api
@@ -1464,6 +1604,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SISTER = "sister";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SIZE = "size";
 
 	/**
@@ -1495,6 +1640,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SOURCE_POSITION = "sourcePosition";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SPOUSE = "spouse";
 
 	/**
 	 * @module.api
@@ -1730,6 +1880,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_WORD_WRAP = "wordWrap";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_WORK = "work";
 
 	/**
 	 * @module.api

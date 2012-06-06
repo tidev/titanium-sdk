@@ -32,7 +32,7 @@ methods:
         changes to the underlying contacts database.
     returns:
         type: Titanium.Contacts.Person
-    platforms: [ipad, iphone]
+    platforms: [android, ipad, iphone]
     parameters:
       - name: parameters
         summary: |
