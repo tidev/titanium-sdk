@@ -70,139 +70,33 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 			this._viewToRemoveAfterScroll = -1;
 
 			// Listen for postlayouts and update the translation
-			var self = this;
 			on(this, "postlayout", lang.hitch(this, this._updateTranslation));
 
-			/*var initialPosition,
-				startX,
-				animationView,
-				viewsToScroll,
-				startTime,
-				previousPosition,
-				self = this,
-				width,
-				mouseIsDown,
-				handles;
-
-			function finalizeSwipe(destinationIndex, x, y) {
-				self._contentContainer._removeAllChildren();
-				self._contentContainer._add(self.views[destinationIndex]);
-				self._triggerLayout(true);
-				self.currentPage !== destinationIndex && self.fireEvent("scroll",{
-					currentPage: destinationIndex,
-					view: self.views[destinationIndex],
-					x: x,
-					y: y
-				});
-				self.properties.__values__.currentPage = destinationIndex;
-			}
-
-			function cancelScroll() {
-				if (startX) {
-					// Update paging control
-					self._updatePagingControl(self.currentPage);
-
-					// Animate the view and set the final view
-					animationView.animate({
-						duration: 400,
-						left: -width,
-						curve: UI.ANIMATION_CURVE_EASE_OUT
-					},function() {
-						finalizeSwipe(self.currentPage);
-					});
-
-					startX = null;
-				}
-			}
-
+			var self = this,
+				base,
+				velocity = 0,
+				previousTime,
+				previousDistance;
 			on(this, "dragstart", function(e) {
-				var i = 0,
-					win = window;
-				width = self._measuredWidth,
-				startTime = (new Date).getTime();
-				startX = e.x;
-
-				// Create the list of views that can be scrolled, the ones immediately to the left and right of the current view
-				initialPosition = 0;
-				viewsToScroll = [];
-				if (self.currentPage > 0) {
-					viewsToScroll.push(self.views[self.currentPage - 1]);
-					initialPosition = -width;
-				}
-				viewsToScroll.push(self.views[self.currentPage]);
-				if (self.currentPage < self.views.length - 1) {
-					viewsToScroll.push(self.views[self.currentPage + 1]);
-				}
-
-				// Create the animation div
-				animationView = UI.createView({
-					width: unitize(viewsToScroll.length * width),
-					height: "100%",
-					left: initialPosition,
-					top: 0
-				});
-
-				// Attach the child views, each contained in their own div so we can mess with positioning w/o touching the views
-				self._contentContainer._removeAllChildren();
-				for (; i < viewsToScroll.length; i++) {
-					var viewContainer = UI.createView({
-						left: unitize(i * width),
-						top: 0,
-						width: unitize(width),
-						height: "100%"
-					});
-					viewContainer._layout._defaultHorizontalPosition = "start";
-					viewContainer._layout._defaultVerticalPosition = "start";
-					setStyle(viewContainer.domNode,"overflow","hidden");
-					viewContainer._add(viewsToScroll[i]);
-					animationView._add(viewContainer);
-				}
-
-				// Set the initial position
-				animationView.left = unitize(initialPosition);
-				self._contentContainer._add(animationView);
-				self._triggerLayout(true);
+				base = -self.views[self.currentPage]._measuredLeft;
 			});
 
 			on(this, "drag", function(e) {
-				width = self._measuredWidth;
-				
-				// Update the position of the animation div
-				var newPosition = initialPosition + e.distanceX;
-				newPosition = newPosition < 0 ?
-					newPosition > -animationView._measuredWidth + width ?
-						newPosition :
-						-animationView._measuredWidth + width :
-					0;
-				setStyle(animationView.domNode, "left", unitize(newPosition));
-			});
-
-			on(this, "dragcancel", function() {
-				event.off(handles);
-				cancelScroll();
+				var currentTime = (new Date).getTime(),
+					currentDistance = e.distanceX;
+				previousTime && (velocity = (previousDistance - currentDistance) / (previousTime - currentTime));
+				previousTime = currentTime;
+				previousDistance = currentDistance;
+				console.log(velocity);
+				setStyle(this._contentContainer.domNode, "transform",
+					"translate(" + (base + previousDistance) + "px, 0) translateZ(0)");
 			});
 
 			on(this, "dragend", function(e) {
-				event.off(handles);
-				width = self._measuredWidth;
-
-				var distance = e.distanceX,
-					destinationIndex = self.currentPage,
-					animationLeft = initialPosition,
-					velocity = Math.abs(distance / ((new Date).getTime() - startTime)),
-					scaleFactor = velocity > velocityThreshold ? 
+				var scaleFactor = velocity > velocityThreshold ? 
 						minimumFlickDistanceScaleFactor :
-						minimumDragDistanceScaleFactor,
-					newPosition = initialPosition + distance;
-				newPosition = newPosition < 0 ?
-					newPosition > -animationView._measuredWidth + width ?
-						newPosition :
-						-animationView._measuredWidth + width :
-					0;
-				setStyle(animationView.domNode, "left", unitize(newPosition));
-
-				// Find out which view we are animating to
-				if (distance > width / scaleFactor && self.currentPage > 0) {
+						minimumDragDistanceScaleFactor;
+				/*if (distance > width / scaleFactor && self.currentPage > 0) {
 					destinationIndex = self.currentPage - 1;
 					animationLeft = 0;
 				} else if (distance < -width / scaleFactor && self.currentPage < self.views.length - 1) {
@@ -212,24 +106,12 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 					} else {
 						animationLeft = -width;
 					}
-				}
+				}*/
+			});
 
-				// Check if the user attempted to scroll past the edge, in which case we directly reset the view instead of animation
-				self._updatePagingControl(destinationIndex);
-				if (newPosition == 0 || newPosition == -animationView._measuredWidth + width) {
-					finalizeSwipe(destinationIndex, e.x, e.y);
-				} else {
-					// Animate the view and set the final view
-					animationView.animate({
-						duration: 200 + (0.2 * width) / (width - Math.abs(distance)) * 10,
-						left: animationLeft,
-						curve: UI.ANIMATION_CURVE_EASE_OUT
-					},function() {
-						finalizeSwipe(destinationIndex, e.x, e.y);
-					});
-				}
-				startX = null;
-			});*/
+			on(this, "dragcancel", function(e) {
+				
+			});
 		},
 
 		addView: function(view){
@@ -237,7 +119,6 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 				this.views.push(view);
 				this._contentContainer._add(view);
 				this.views.length == 1 && (this.properties.__values__.currentPage = 0);
-				this._updatePagingControl(this.currentPage);
 			}
 		},
 
