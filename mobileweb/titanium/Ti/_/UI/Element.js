@@ -3,7 +3,8 @@ define(
 	"Ti/UI", "Ti/_/Promise", "Ti/_/string"],
 	function(browser, css, declare, dom, event, lang, style, Evented, UI, Promise, string) {
 
-	var unitize = dom.unitize,
+	var global = window,
+		unitize = dom.unitize,
 		computeSize = dom.computeSize,
 		on = require.on,
 		setStyle = style.set,
@@ -64,7 +65,7 @@ define(
 				// Handle click/touch/gestures
 				recognizers = this._gestureRecognizers = {},
 
-				useTouch = "ontouchstart" in window,
+				useTouch = "ontouchstart" in global,
 				bg = lang.hitch(this, "_doBackground");
 
 			function processTouchEvent(eventType, evt) {
@@ -95,7 +96,7 @@ define(
 
 			on(this.domNode, useTouch ? "touchstart" : "mousedown", function(evt){
 				var handles = [
-					on(window, useTouch ? "touchmove" : "mousemove", function(evt){
+					on(global, useTouch ? "touchmove" : "mousemove", function(evt){
 						if (!touchMoveBlocked) {
 							touchMoveBlocked = true;
 							(useTouch || self._touching) && processTouchEvent("TouchMoveEvent", evt);
@@ -104,12 +105,12 @@ define(
 							}, 30);
 						}
 					}),
-					on(window, useTouch ? "touchend" : "mouseup", function(evt){
+					on(global, useTouch ? "touchend" : "mouseup", function(evt){
 						self._touching = false;
 						processTouchEvent("TouchEndEvent", evt);
 						event.off(handles);
 					}),
-					useTouch && on(window, "touchcancel", function(evt){
+					useTouch && on(global, "touchcancel", function(evt){
 						processTouchEvent("TouchCancelEvent", evt);
 						event.off(handles);
 					})
@@ -177,7 +178,7 @@ define(
 				if (!(name in gestureRecognizers)) {
 					gestureRecognizers[name] = {
 						count: 0,
-						recognizer: new (require("Ti/_/Gestures/" + gestureMapping[name]))
+						recognizer: new (require("Ti/_/Gestures/" + gestureMapping[name]))(name)
 					};
 				}
 				
@@ -296,12 +297,12 @@ define(
 		startLayout: function() {
 			this._batchUpdateInProgress = true;
 		},
-		
+
 		finishLayout: function() {
 			this._batchUpdateInProgress = false;
 			UI._triggerLayout(this, true);
 		},
-		
+
 		updateLayout: function(params) {
 			this.startLayout();
 			var i = 0,
@@ -311,22 +312,21 @@ define(
 			}
 			this.finishLayout();
 		},
-		
+
 		convertPointToView: function(point, destinationView) {
-			
 			// Make sure that both nodes are connected to the root
 			if (!this._isAttachedToActiveWin() || !destinationView._isAttachedToActiveWin()) {
 				return null;
 			}
-			
+
 			if (!point || !is(point.x,"Number") || !is(point.y,"Number")) {
 				throw new Error("Invalid point");
 			}
-			
+
 			if (!destinationView.domNode) {
 				throw new Error("Invalid destination view");
 			}
-			
+
 			function getAbsolutePosition(node, point, additive) {
 				var x = point.x,
 					y = point.y,
@@ -340,19 +340,18 @@ define(
 					
 				return {x: x, y: y};
 			}
-			
+
 			// Find this node's location relative to the root
-			return getAbsolutePosition(destinationView,getAbsolutePosition(this,point,true),false);
+			return getAbsolutePosition(destinationView, getAbsolutePosition(this,point,true),false);
 		},
 
 		// This method returns the offset of the content relative to the parent's location. 
 		// This is useful for controls like ScrollView that can move the children around relative to itself.
-		_getContentOffset: function(){
+		_getContentOffset: function() {
 			return {x: 0, y: 0};
 		},
-		
+
 		_computeGradient: function() {
-			
 			var backgroundGradient = this.backgroundGradient;
 				colors = backgroundGradient.colors,
 				type = backgroundGradient.type,
@@ -501,19 +500,20 @@ define(
 				}
 			}
 
-			cssVal += ")";
-
 			require.each(require.config.vendorPrefixes.css, lang.hitch(this,function(vendorPrefix) {
-				setStyle(this.domNode, "backgroundImage", vendorPrefix + cssVal);
+				setStyle(this.domNode, "backgroundImage", vendorPrefix + cssVal + ")");
 			}));
 		},
-		
+
 		_preventDefaultTouchEvent: true,
 
 		_isGestureBlocked: function(gesture) {
-			for (var recognizer in this._gestureRecognizers) {
-				var blockedGestures = this._gestureRecognizers[recognizer].blocking;
-				for (var blockedGesture in blockedGestures) {
+			var recognizer,
+				blockedGestures,
+				blockedGesture;
+			for (recognizer in this._gestureRecognizers) {
+				blockedGestures = this._gestureRecognizers[recognizer].blocking;
+				for (blockedGesture in blockedGestures) {
 					if (gesture === blockedGestures[blockedGesture]) {
 						return true;
 					}
@@ -525,17 +525,17 @@ define(
 		_handleTouchEvent: function(type, e) {
 			if (this.enabled) {
 				// Normalize the location of the event.
-				if (is(e.x, "Number") && is(e.y, "Number") && e.source) {
-					var pt = UI._container.convertPointToView({
+				var pt, x, y;
+				if (is(e.x, "Number") && is(e.y, "Number")) {
+					pt = UI._container.convertPointToView({
 						x: e.x,
 						y: e.y
-					}, e.source);
-					e.x = pt ? pt.x : void 0;
-					e.y = pt ? pt.y : void 0;
-				} else {
-					e.x = void 0;
-					e.y = void 0;
+					}, e.source || this) || {};
+					x = pt.x;
+					y = pt.y;
 				}
+				e.x = x;
+				e.y = y;
 				this.fireEvent(type, e);
 			}
 		},
@@ -566,7 +566,7 @@ define(
 		
 		_getBorderFromCSS: function() {
 			setTimeout(lang.hitch(this, function () {
-				var computedStyle = window.getComputedStyle(this.domNode),
+				var computedStyle = global.getComputedStyle(this.domNode),
 					left = parseInt(computedStyle["border-left-width"]),
 					right = parseInt(computedStyle["border-right-width"]),
 					top = parseInt(computedStyle["border-top-width"]),
@@ -715,7 +715,7 @@ define(
 				// Create the transition, must be set before setting the other properties
 				if (style.supports("transition", self.domNode)) {
 					setStyle(self.domNode, "transition", "all " + anim.duration + "ms " + curve + (anim.delay ? " " + anim.delay + "ms" : ""));
-					on.once(window, transitionEnd, function(e) {
+					on.once(global, transitionEnd, function(e) {
 						completeAnimation();
 					});
 				} else {
