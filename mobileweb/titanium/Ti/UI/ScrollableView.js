@@ -1,11 +1,18 @@
-define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style", "Ti/UI", "Ti/_/event"],
-	function(declare, Widget, lang, dom, style, UI, event) {
+define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style", "Ti/UI", "Ti/_/event"],
+	function(browser, declare, Widget, lang, dom, style, UI, event) {
 
 	var setStyle = style.set,
 		is = require.is,
 		isDef = lang.isDef,
 		unitize = dom.unitize,
 		on = require.on,
+		transitionEvents = {
+			webkit: "webkitTransitionEnd",
+			trident: "msTransitionEnd",
+			gecko: "transitionend",
+			presto: "oTransitionEnd"
+		},
+		transitionEnd = transitionEvents[browser.runtime] || "transitionEnd",
 
 		// This specifies the minimum distance that a finger must travel before it is considered a swipe
 		distanceThreshold = 50,
@@ -30,14 +37,14 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 		constructor: function(args){
 
 			// Create the content container
-			this._contentContainer = UI.createView({
+			this._add(this._contentContainer = UI.createView({
 				left: 0,
 				top: 0,
-				width: "100%",
-				height: "100%"
-			});
-			setStyle(this._contentContainer.domNode, "overflow", "hidden");
-			this._add(this._contentContainer);
+				width: UI.SIZE,
+				height: "100%",
+				layout: "constrainingHorizontal"
+			}));
+			this.domNode.style.overflow = "visible";
 
 			// Create the paging control container
 			this._add(this._pagingControlContainer = UI.createView({
@@ -57,10 +64,16 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 				layout: "constrainingHorizontal"
 			}));
 
+			this.views = [];
+
 			// State variables
 			this._viewToRemoveAfterScroll = -1;
 
-			var initialPosition,
+			// Listen for postlayouts and update the translation
+			var self = this;
+			on(this, "postlayout", lang.hitch(this, this._updateTranslation));
+
+			/*var initialPosition,
 				startX,
 				animationView,
 				viewsToScroll,
@@ -216,144 +229,101 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 					});
 				}
 				startX = null;
-			});
+			});*/
 		},
 
 		addView: function(view){
 			if (view) {
 				this.views.push(view);
-	
-				// Check if any children have been added yet, and if not load this view
-				if (this.views.length == 1) {
-					this.properties.__values__.currentPage = 0;
-					this._contentContainer._removeAllChildren();
-					this._contentContainer._add(view);
-				}
+				this._contentContainer._add(view);
+				this.views.length == 1 && (this.properties.__values__.currentPage = 0);
 				this._updatePagingControl(this.currentPage);
-				this._publish(view);
 			}
 		},
 
 		removeView: function(view) {
-			
+
 			// Get and validate the location of the view
 			var viewIndex = is(view,"Number") ? view : this.views.indexOf(view);
 			if (viewIndex < 0 || viewIndex >= this.views.length) {
 				return;
 			}
-	
+
 			// Update the view if this view was currently visible
-			if (viewIndex == this.currentPage) {
-				if (this.views.length == 1) {
-					this._contentContainer._removeAllChildren();
-					this._removeViewFromList(viewIndex);
-				} else {
-					this._viewToRemoveAfterScroll = viewIndex;
-				    this.scrollToView(viewIndex == this.views.length - 1 ? --viewIndex : ++viewIndex);
-				}
+			if (viewIndex == this.currentPage && this.views.length !== 1) {
+				this._viewToRemoveAfterScroll = viewIndex;
+				this.scrollToView(viewIndex == this.views.length - 1 ? --viewIndex : ++viewIndex);
 			} else {
 				this._removeViewFromList(viewIndex);
 			}
 		},
 
 		_removeViewFromList: function(viewIndex) {
-			// Remove the view
-			this.views.splice(viewIndex,1);
-	
-			// Update the current view if necessary
-			if (viewIndex < this.currentPage){
-				this.properties.__values__.currentPage--;
+
+			var contentContainer = this._contentContainer,
+				self = this;
+
+			// Update the current view if necessary once everything has been re-laid out.
+			if (viewIndex < this.currentPage) {
+				self.properties.__values__.currentPage--;
+				on.once(contentContainer, "postlayout", lang.hitch(this, this._updateTranslation));
 			}
-			
-			this._updatePagingControl(this.currentPage);
-			this._unpublish(view);
+
+			// Remove the view and update the paging control
+			contentContainer._remove(self.views.splice(viewIndex,1)[0]);
+			self._updatePagingControl(self.currentPage);
+		},
+
+		_updateTranslation: function() {
+			setStyle(this._contentContainer.domNode, "transform",
+				"translate(" + (-this.views[this.currentPage]._measuredLeft) + "px, 0) translateZ(0)");
 		},
 
 		scrollToView: function(view) {
-			var viewIndex = is(view,"Number") ? view : this.views.indexOf(view)
+			var viewIndex = is(view,"Number") ? view : this.views.indexOf(view),
+				self = this;
 			
 			// Sanity check
 			if (viewIndex < 0 || viewIndex >= this.views.length || viewIndex == this.currentPage) {
 				return;
 			}
-	
-			// If the scrollableView hasn't been laid out yet, we can't do much since the scroll distance is unknown.
-			// At the same time, it doesn't matter since the user won't see it anyways. So we just append the new
-			// element and don't show the transition animation.
-			if (!this._contentContainer.domNode.offsetWidth) {
-				this._contentContainer._removeAllChildren();
-				this._contentContainer._add(this.views[viewIndex]);
-			} else {
-				
+
+			function scroll(){
+
 				// Calculate the views to be scrolled
-				var width = this._measuredWidth,
-					viewsToScroll = [],
-					scrollingDirection = -1,
-					initialPosition = 0;
-				if (viewIndex > this.currentPage) {
-					for (var i = this.currentPage; i <= viewIndex; i++) {
-						viewsToScroll.push(this.views[i]);
-					}
-				} else {
-					for (var i = viewIndex; i <= this.currentPage; i++) {
-						viewsToScroll.push(this.views[i]);
-					}
-					initialPosition = -(viewsToScroll.length - 1) * width;
-					scrollingDirection = 1;
-				}
-	
-				// Create the animation div
-				var animationView = UI.createView({
-					width: unitize(viewsToScroll.length * width),
-					height: "100%",
-					left: initialPosition,
-					top: 0
+				var contentContainer = self._contentContainer,
+					destinationPosition = self.views[viewIndex]._measuredLeft,
+
+					// Calculate a weighted duration so that larger views take longer to scroll.
+					duration = 300 + 0.2 * (Math.abs(viewIndex - self.currentPage) * contentContainer._measuredWidth);
+
+				console.log(duration);
+				self._updatePagingControl(viewIndex);
+				setStyle(contentContainer.domNode, "transition", "all " + duration + "ms ease-in-out");
+				setTimeout(function(){
+					setStyle(contentContainer.domNode, "transform", "translate(" + (-destinationPosition) + "px, 0) translateZ(0)");
+				},1);
+				on(contentContainer.domNode, transitionEnd, function(){
+					self.properties.__values__.currentPage = viewIndex;
+					setStyle(contentContainer.domNode, "transition", "");
+					setTimeout(function(){
+						if (self._viewToRemoveAfterScroll !== -1) {
+							self._removeViewFromList(self._viewToRemoveAfterScroll);
+							self._viewToRemoveAfterScroll = -1;
+						}
+						self.fireEvent("scroll",{
+							currentPage: viewIndex,
+							view: self.views[viewIndex]
+						});
+					}, 1);
 				});
-	
-				// Attach the child views, each contained in their own div so we can mess with positioning w/o touching the views
-				this._contentContainer._removeAllChildren();
-				for (var i = 0; i < viewsToScroll.length; i++) {
-					var viewContainer = UI.createView({
-						left: unitize(i * width),
-						top: 0,
-						width: unitize(width),
-						height: "100%"
-					});
-					viewContainer._layout._defaultHorizontalPosition = "start";
-					viewContainer._layout._defaultVerticalPosition = "start";
-					setStyle(viewContainer.domNode,"overflow","hidden");
-					viewContainer._add(viewsToScroll[i]);
-					animationView._add(viewContainer);
-				}
-				
-				// Set the initial position
-				animationView.left = unitize(initialPosition);
-				this._contentContainer._add(animationView);
-				this._triggerLayout(true);
-	
-				// Set the start time
-				var duration = 300 + 0.2 * (width), // Calculate a weighted duration so that larger views take longer to scroll.
-					distance = (viewsToScroll.length - 1) * width;
-					
-				this._updatePagingControl(viewIndex);
-				animationView.animate({
-					duration: duration,
-					left: initialPosition + scrollingDirection * distance,
-					curve: UI.ANIMATION_CURVE_EASE_IN_OUT
-				},lang.hitch(this,function(){
-					this._contentContainer._removeAllChildren();
-					this._contentContainer._add(this.views[viewIndex]);
-					this._triggerLayout(true);
-					this.properties.__values__.currentPage = viewIndex;
-					if (this._viewToRemoveAfterScroll != -1) {
-						this._removeViewFromList(this._viewToRemoveAfterScroll);
-						this._viewToRemoveAfterScroll = -1;
-					}
-					this.fireEvent("scroll",{
-						currentPage: viewIndex,
-						view: this.views[viewIndex]
-					});
-				}));
+			}
+
+			// If the scrollableView hasn't been laid out yet, we must wait until it is
+			if (self._contentContainer.domNode.offsetWidth) {
+				scroll();
+			} else {
+				on.once("postlayout", scroll);
 			}
 		},
 
@@ -380,20 +350,22 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 		},
 
 		_updatePagingControl: function(newIndex, hidePagingControl) {
-			this._pagingControlContentContainer._removeAllChildren();
-			var diameter = this.pagingControlHeight / 2;
-			for (var i = 0; i < this.views.length; i++) {
-				var indicator = UI.createView({
-					width: diameter,
-					height: diameter,
-					left: 5,
-					right: 5,
-					backgroundColor: i === newIndex ? "white" : "grey",
-					borderRadius: unitize(diameter / 2)
-				});
-				this._pagingControlContentContainer._add(indicator);
+			if (this.showPagingControl) {
+				this._pagingControlContentContainer._removeAllChildren();
+				var diameter = this.pagingControlHeight / 2;
+				for (var i = 0; i < this.views.length; i++) {
+					var indicator = UI.createView({
+						width: diameter,
+						height: diameter,
+						left: 5,
+						right: 5,
+						backgroundColor: i === newIndex ? "white" : "grey",
+						borderRadius: unitize(diameter / 2)
+					});
+					this._pagingControlContentContainer._add(indicator);
+				}
+				!hidePagingControl && this._showPagingControl();
 			}
-			!hidePagingControl && this._showPagingControl();
 		},
 
 		_defaultWidth: UI.FILL,
@@ -426,48 +398,43 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 			},
 			pagingControlTimeout: {
 				set: function(value) {
-					this.pagingControlTimeout == 0 && this._hidePagingControl();
+					this.pagingControlTimeout == 0 && this._updatePagingControl();
 					return value;
 				},
 				value: 1250
 			},
 			showPagingControl: {
 				set: function(value) {
-					this.pagingControlTimeout == 0 && this._hidePagingControl();
+					this.pagingControlTimeout == 0 && this._updatePagingControl();
 					return value;
 				},
 				value: false
 			},
 			views: {
-				set: function(value, oldValue) {
-					
+				set: function(value) {
+
 					// Value must be an array
 					if (!is(value,"Array")) {
 						return;
 					}
-					
-					// Mark all views as added
+
+					// Add the views to the content container
 					var i = 0,
-						len = oldValue.length;
+						len = value.length,
+						contentContainer = this._contentContainer,
+						view;
+					contentContainer._removeAllChildren();
 					for(; i < len; i++) {
-						this._unpublish(oldValue[i]);
+						(view = value[i]).width = "100%";
+						view.height = "100%";
+						contentContainer._add(view);
 					}
-					for(i = 0, len = value.length; i < len; i++) {
-						this._publish(value[i]);
-					}
-					
-					// Add the default page
-					if (value.length > 0) {
-						this._contentContainer._removeAllChildren();
-						this._contentContainer._add(value[0]);
-					}
-					this.properties.__values__.currentPage = 0;
+
 					return value;
 				},
 				post: function() {
 					this._updatePagingControl(this.currentPage,true);
-				},
-				value: []
+				}
 			}
 		}
 
