@@ -1078,7 +1078,7 @@
 			possibleScrollView = [possibleScrollView superview];
 		}
         
-        UIView<TiScrolling> *confirmedScrollViewsLastObject = (UIView<TiScrolling> *)[confirmedScrollViews lastObject];
+        UIView<TiScrolling> *confirmedScrollViewsLastObject = (UIView<TiScrolling> *)[confirmedScrollViews objectAtIndex:0];
         
         [confirmedScrollViewsLastObject keyboardDidShowAtHeight:keyboardHeight];
         [confirmedScrollViewsLastObject scrollToShowView:scrolledView withKeyboardHeight:keyboardHeight];
