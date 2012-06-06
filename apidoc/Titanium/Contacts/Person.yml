@@ -47,7 +47,7 @@ properties:
 
         On Android:
 
-        'CountryCode' is currently not supported.
+        'CountryCode' and 'County' are currently not supported.
         
         On iOS:
         

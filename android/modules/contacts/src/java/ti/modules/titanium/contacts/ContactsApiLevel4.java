@@ -287,7 +287,6 @@ public class ContactsApiLevel4 extends CommonContactsApi
 
 	@Override
 	protected PersonProxy addContact(KrollDict options) {
-		// TODO Auto-generated method stub
 		return null;
 		
 	}
