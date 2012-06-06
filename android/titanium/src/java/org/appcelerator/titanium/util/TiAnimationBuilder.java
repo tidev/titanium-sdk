@@ -25,6 +25,12 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
+import android.os.Build;
+import android.os.Looper;
+import android.os.MessageQueue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -500,44 +506,31 @@ public class TiAnimationBuilder
 	public static class TiColorAnimation extends Animation
 	{
 		protected View view;
-		int fromRed, fromGreen, fromBlue, fromAlpha;
-		int toRed, toGreen, toBlue, toAlpha;
-		int deltaRed, deltaGreen, deltaBlue, deltaAlpha;
+		TransitionDrawable transitionDrawable;
+		boolean started = false;
 		
 		public TiColorAnimation(View view, int fromColor, int toColor) 
 		{
 			this.view = view;
 
-			fromRed = Color.red(fromColor);
-			fromGreen = Color.green(fromColor);
-			fromBlue = Color.blue(fromColor);
-			fromAlpha = Color.alpha(fromColor);
-			
-			toRed = Color.red(toColor);
-			toGreen = Color.green(toColor);
-			toBlue = Color.blue(toColor);
-			toAlpha = Color.alpha(toColor);
-			
-			deltaRed = toRed - fromRed;
-			deltaGreen = toGreen - fromGreen;
-			deltaBlue = toBlue - fromBlue;
-			deltaAlpha = toAlpha - fromAlpha;
-			
-			view.setDrawingCacheEnabled(true);
+			ColorDrawable fromColorDrawable = new ColorDrawable(fromColor);
+			ColorDrawable toColorDrawable = new ColorDrawable(toColor);
+			transitionDrawable = new TransitionDrawable(new Drawable[]{fromColorDrawable, toColorDrawable});
 		}
 
 		@Override
 		protected void applyTransformation(float interpolatedTime, Transformation t) 
 		{
 			super.applyTransformation(interpolatedTime, t);
-				
-			int c = Color.argb(
-						fromAlpha + (int) (deltaAlpha * interpolatedTime),
-						fromRed + (int) (deltaRed * interpolatedTime),
-						fromGreen + (int) (deltaGreen * interpolatedTime),
-						fromBlue + (int) (deltaBlue * interpolatedTime)
-					);
-			view.setBackgroundColor(c);
+			if (!started) {
+				// Kick off a TransitionDrawable to do this for us. All
+				// subsequent calls to applyTransformation will just be ignored.
+				started = true;
+				view.setBackgroundDrawable(transitionDrawable);
+				long duration = this.getDuration();
+				int durationInt = (new Long(duration)).intValue();
+				transitionDrawable.startTransition(durationInt);
+			}
 		}
 	}
 
@@ -583,7 +576,20 @@ public class TiAnimationBuilder
 				}
 
 				if (animationProxy != null) {
-					animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
+					// In versions prior to Honeycomb, don't fire the event until the message queue
+					// is empty.  There appears to be a bug in versions before Honeycomb where this
+					// onAnimationEnd listener can be called even before the animation is really complete.
+					if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
+						animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
+					} else {
+						Looper.myQueue().addIdleHandler(new MessageQueue.IdleHandler() {
+							public boolean queueIdle()
+							{
+								animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
+								return false;
+							}
+						});
+					}
 				}
 			}
 		}
