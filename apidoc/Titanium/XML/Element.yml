@@ -213,17 +213,26 @@ methods:
     returns:
         type: Boolean
 properties:
+
   - name: tagName
     summary: The name of the element, as defined by its tag.
     type: String
     permission: read-only
+
   - name: text
-    summary: <em>Non-standard</em>. Retrieves all child text nodes as one String
+    summary: Use [textContent](Titanium.XML.Element.textContent) instead.
+    description: Content (value) of all text nodes within this node.
     type: String
     permission: read-only
     platforms: [android, iphone, ipad]
+    deprecated: 
+        since: "2.0.0"
+
   - name: textContent
-    summary: Retrieves all child text nodes as one String
+    summary: Content (value) of all text nodes within this node.
+    description: |
+        On Android, `textContent` is supported on [Element](Titanium.XML.Element) and
+        [Text](Titanium.XML.Text) nodes only.
     type: String
     permission: read-only
-    platforms: [mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]

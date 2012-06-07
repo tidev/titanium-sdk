@@ -266,7 +266,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 
 		if (props.containsKey(TiC.PROPERTY_HEIGHT)) {
-			if (!props.get(TiC.PROPERTY_HEIGHT).equals(TiC.SIZE_AUTO)) {
+			if (!props.get(TiC.PROPERTY_HEIGHT).equals(TiC.SIZE_AUTO)
+				&& !props.get(TiC.PROPERTY_HEIGHT).equals(TiC.LAYOUT_SIZE)) {
 				height = TiConvert.toTiDimension(TiConvert.toString(props, TiC.PROPERTY_HEIGHT), TiDimension.TYPE_HEIGHT);
 			}
 		}

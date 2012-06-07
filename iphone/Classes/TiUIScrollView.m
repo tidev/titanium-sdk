@@ -304,7 +304,7 @@
 	[[self scrollView] setMinimumZoomScale:[TiUtils floatValue:args]];
 }
 
--(void)canCancelEvents_:(id)args
+-(void)setCanCancelEvents_:(id)args
 {
 	[[self scrollView] setCanCancelContentTouches:[TiUtils boolValue:args def:YES]];
 }
