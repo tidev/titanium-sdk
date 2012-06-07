@@ -117,31 +117,6 @@
 }
 
 /*
- *	NavigationGroup was not made as a subclass of TiWindowProxy, which is our
- *	analog/delegate/wrapper to native UIViewControllers (See TabGroup, etc).
- *	A refactor along these lines should be done in the far future, as it will
- *	help with window orientation, blur/focus, etc. However, it also would/should
- *	depricate adding a navGroup to a window, preferring to open the navGroup
- *	directly.
- *
- *	navGroup's willShow is the first step of this transition, to restore the
- *	UIViewControllers' viewWill/DidAppear/Disappear event chain so that the root
- *	view controller (And thus the root TiWindow) gets the proper focus event.
- *	TODO: Make NavigationGroupProxy a full-fledged TiWindowProxy.
- */
-
--(void)willShow
-{
-	TiUIiPhoneNavigationGroup * ourView = (id)[self view];
-	UINavigationController * ourNC = [ourView controller];
-	UIViewController * ourVC = [ourNC topViewController];
-	
-	[ourView navigationController:ourNC willShowViewController:ourVC animated:NO];
-	[super willShow];
-	[ourView navigationController:ourNC didShowViewController:ourVC animated:NO];
-}
-
-/*
  if you add a UINavigationController as a subview of a UIViewController subclass, you must explicitly 
  call its viewWillAppear method from its container; otherwise, they won’t be called, and when moving 
  back and forth in the navigation tree, your UIViewControllers’ viewWillAppear: methods may not be called.
