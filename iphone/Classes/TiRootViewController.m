@@ -1156,6 +1156,7 @@
 		updatingAccessoryView = YES;
 		[self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
 	}
+    RELEASE_TO_NIL_AUTORELEASE(keyboardFocusedProxy);
 }
 
 - (void)keyboardWillShow:(NSNotification*)notification 
@@ -1185,7 +1186,6 @@
 {
 	startFrame = endFrame;
     [self performSelector:@selector(adjustKeyboardHeight:) withObject:[NSNumber numberWithBool:NO] afterDelay:leaveDuration];
-    RELEASE_TO_NIL_AUTORELEASE(keyboardFocusedProxy);
 }
 
 - (void)keyboardDidShow:(NSNotification*)notification
