@@ -839,7 +839,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
             TiDebuggerEndScript([self krollContext]);
         }
         
-		if (![module respondsToSelector:@selector(replaceValue:forKey:notification:)]) {
+		if (![wrapper respondsToSelector:@selector(replaceValue:forKey:notification:)]) {
 			@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"Module \"%@\" failed to leave a valid exports object",path] userInfo:nil];
 		}
 		
