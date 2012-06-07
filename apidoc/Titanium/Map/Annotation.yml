@@ -54,6 +54,16 @@ properties:
         Must be set before the annotation is added to the map view.
     type: Boolean
 
+  - name: centerOffset
+    summary: |
+        Dictionary with the x and y values to offset the position of the custom image.
+        Relative to center of the image. This x and y offset values are measured in pixels.
+        Positive offset values move the annotation view down and to the right,
+        while negative values move it up and to the left.
+    type: Dictionary
+    platforms: [iphone, ipad]
+    since: "2.1.0" 
+
   - name: draggable
     summary: Determines whether the pin can be dragged by the user.
     description: |
