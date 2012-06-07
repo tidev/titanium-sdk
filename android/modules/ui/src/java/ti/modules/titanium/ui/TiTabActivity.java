@@ -176,7 +176,6 @@ public class TiTabActivity extends TabActivity
 				}
 			}
 		});
-		
 	}
 
 	public TiApplication getTiApp()
@@ -217,6 +216,7 @@ public class TiTabActivity extends TabActivity
 
 		tiApp.setCurrentActivity(this, null);
 	}
+
 
 	@Override
 	protected void onResume()

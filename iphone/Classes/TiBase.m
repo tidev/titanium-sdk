@@ -79,6 +79,7 @@ NSString * const kTiContextShutdownNotification = @"TiContextShutdown";
 NSString * const kTiWillShutdownNotification = @"TiWillShutdown";
 NSString * const kTiShutdownNotification = @"TiShutdown";
 NSString * const kTiSuspendNotification = @"TiSuspend";
+NSString * const kTiPausedNotification = @"TiPaused";
 NSString * const kTiResumeNotification = @"TiResume";
 NSString * const kTiResumedNotification = @"TiResumed";
 NSString * const kTiAnalyticsNotification = @"TiAnalytics";
@@ -233,7 +234,7 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
         dispatch_time_t oneSecond = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC);
         BOOL waiting = dispatch_semaphore_wait(waitSemaphore, oneSecond);
         if (waiting) {
-            NSLog(@"[WARN] Timing out waiting on main thread. Possibly a deadlock? %@",CODELOCATION);
+            DeveloperLog(@"[WARN] Timing out waiting on main thread. Possibly a deadlock? %@",CODELOCATION);
             dispatch_semaphore_wait(waitSemaphore, DISPATCH_TIME_FOREVER);
         }
         dispatch_release(waitSemaphore);

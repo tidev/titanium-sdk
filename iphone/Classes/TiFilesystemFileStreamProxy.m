@@ -216,6 +216,10 @@ if(fileHandle == nil) {\
 			NSData *data = [fileHandle readDataOfLength:subdataRange.length];
 			if([data length] > 0) {
 				void* bytes = malloc(subdataRange.length);
+				if (bytes == NULL) {
+					[self throwException:TiExceptionMemoryFailure subreason:@"Failed to allocate for stream" location:CODELOCATION];
+				}
+
 				[data getBytes:bytes length:subdataRange.length];
 				[tempBuffer setData:[NSMutableData dataWithBytesNoCopy:bytes length:subdataRange.length freeWhenDone:YES]];
 				bytesWritten = [output writeFromBuffer:tempBuffer offset:0 length:subdataRange.length callback:nil];

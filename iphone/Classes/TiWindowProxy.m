@@ -31,21 +31,17 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 			case UIDeviceOrientationLandscapeRight:
 				TI_ORIENTATION_SET(result,orientation);
 				break;
-#if DEBUG
 			case UIDeviceOrientationUnknown:
-				NSLog(@"[WARN] Orientation modes cannot use Ti.Gesture.UNKNOWN. Ignoring.");
+				DebugLog(@"[WARN] Ti.Gesture.UNKNOWN / Ti.UI.UNKNOWN is an invalid orientation mode.");
 				break;
 			case UIDeviceOrientationFaceDown:
-				NSLog(@"[WARN] Orientation modes cannot use Ti.Gesture.FACE_DOWN. Ignoring.");
+				DebugLog(@"[WARN] Ti.Gesture.FACE_DOWN / Ti.UI.FACE_DOWN is an invalid orientation mode.");
 				break;
 			case UIDeviceOrientationFaceUp:
-				NSLog(@"[WARN] Orientation modes cannot use Ti.Gesture.FACE_UP. Ignoring.");
+				DebugLog(@"[WARN] Ti.Gesture.FACE_UP / Ti.UI.FACE_UP is an invalid orientation mode.");
 				break;
-#endif
 			default:
-#if DEBUG
-				NSLog(@"[WARN] An invalid orientation was requested. Ignoring.");
-#endif
+				DebugLog(@"[WARN] An invalid orientation was requested. Ignoring.");
 				break;
 		}
 	}
@@ -62,7 +58,8 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
-	for (TiViewProxy * thisProxy in [self children])
+    NSArray* childProxies = [self children];
+	for (TiViewProxy * thisProxy in childProxies)
 	{
 		if ([thisProxy respondsToSelector:@selector(willAnimateRotationToInterfaceOrientation:duration:)])
 		{
@@ -236,7 +233,8 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	//TODO: Since windowDidClose also calls detachView, is this necessary?
 	[self detachView];
 	// notify our child that his window is closing
-	for (TiViewProxy *child in self.children)
+    NSArray* childProxies = [self children];
+	for (TiViewProxy *child in childProxies)
 	{
 		[child windowDidClose];
 	}
@@ -289,7 +287,9 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 
 -(void)_tabFocus
 {
-	focused = YES;
+    if (![self opening]) {
+        focused = YES;
+    }
 	[self willShow];
 	if (!navWindow) {
 		[[[TiApp app] controller] windowFocused:[self controller]];
@@ -747,17 +747,21 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 {
 	[[self parentOrientationController]
 			childOrientationControllerChangedFlags:self];
-
+    
 	if (!focused)
 	{
-		[self fireFocus:YES];
+        //Do not fire focus until context is ready
+        if (![self opening]) {
+            [self fireFocus:YES];
+        }
 	}
-#ifdef VERBOSE
 	else
 	{
-		NSLog(@"[DEBUG] Focused was already set while in viewDidAppear.");
+		DeveloperLog(@"[DEBUG] Focused was already set while in viewDidAppear.");
 	}
-#endif	
+    
+    //Propagate this state to children
+    [self parentDidAppear:[NSNumber numberWithBool:animated]];
 }
 
 -(void)viewWillDisappear:(BOOL)animated
@@ -766,23 +770,27 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	{
 		[self fireFocus:NO];
 	}
-#ifdef VERBOSE
 	else
 	{
-		NSLog(@"[DEBUG] Focused was already cleared while in viewWillDisappear.");
+		DeveloperLog(@"[DEBUG] Focused was already cleared while in viewWillDisappear.");
 	}
-#endif
+    //Propagate this state to children
+    [self parentWillDisappear:[NSNumber numberWithBool:animated]];
 }
 
 -(void)viewWillAppear:(BOOL)animated
 {
 	[self parentWillShow];
 	TiThreadProcessPendingMainThreadBlocks(0.1, YES, nil);
+    //Propagate this state to children
+    [self parentWillAppear:[NSNumber numberWithBool:animated]];
 }
 
 - (void)viewDidDisappear:(BOOL)animated
 {
 	[self parentWillHide];
+    //Propagate this state to children
+    [self parentDidDisappear:[NSNumber numberWithBool:animated]];
 }
 
 #pragma mark Animation Delegates

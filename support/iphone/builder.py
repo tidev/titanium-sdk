@@ -797,6 +797,12 @@ def main(args):
 			missing_modules, modules = detector.find_app_modules(ti, 'iphone')
 			module_lib_search_path, module_asset_dirs = locate_modules(modules, project_dir, app_dir, log)
 			common_js_modules = []
+			
+			if len(missing_modules) != 0:
+				print '[ERROR] Could not find the following required iOS modules:'
+				for module in missing_modules:
+					print "[ERROR]\tid: %s\tversion: %s" % (module['id'], module['version'])
+				exit(1)
 
 			# search for modules that the project is using
 			# and make sure we add them to the compile
@@ -906,7 +912,7 @@ def main(args):
 
 			# this code simply tries and detect if we're building a different
 			# version of the project (or same version but built from different git hash)
-			# and if so, make sure we force rebuild so to propograte any code changes in
+			# and if so, make sure we force rebuild so to propagate any code changes in
 			# source code (either upgrade or downgrade)
 			if os.path.exists(app_dir):
 				if os.path.exists(version_file):
@@ -1141,7 +1147,14 @@ def main(args):
 					#if os.path.exists(module_dir) is False:
 					#	os.makedirs(module_dir)
 					shutil.copy(module.js, app_dir)
-
+				
+				# copy artworks, if appropriate
+				if command in ['adhoc', 'install', 'distribute']:
+					artworks = ['iTunesArtwork', 'iTunesArtwork@2x']
+					for artwork in artworks:
+						if os.path.exists(os.path.join(project_dir, artwork)):
+							shutil.copy(os.path.join(project_dir, artwork), app_dir)
+				
 				# copy any custom fonts in (only runs in simulator)
 				# since we need to make them live in the bundle in simulator
 				if len(custom_fonts)>0:

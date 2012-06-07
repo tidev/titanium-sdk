@@ -24,6 +24,7 @@ public class TiRootActivity extends TiLaunchActivity
 {
 	private static final String LCAT = "TiRootActivity";
 	private static final boolean DBG = TiConfig.LOGD;
+	private boolean finishing = false;
 
 	private Drawable[] backgroundLayers = {null, null};
 
@@ -150,6 +151,19 @@ public class TiRootActivity extends TiLaunchActivity
 			Log.d(LCAT, "root activity onDestroy, activity = " + this);
 		}
 		TiFastDev.onDestroy();
+	}
+
+	@Override
+	public void finish()
+	{
+		// Ensure we only run the finish logic once. We want to avoid an infinite loop since this method can be called
+		// from the finish method inside TiBaseActivity ( which can be triggered by terminateActivityStack() )
+		if (!finishing) {
+			finishing = true;
+			TiApplication.removeFromActivityStack(this);
+			TiApplication.terminateActivityStack();
+			super.finish();
+		}
 	}
 
 }

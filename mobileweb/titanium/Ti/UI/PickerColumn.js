@@ -15,9 +15,10 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					style: {
 						textAlign: "center",
 						position: "absolute",
-						top: "0px",
+						top: 0,
 						height: "40px",
-						width: "100%",
+						left: 0,
+						right: 0,
 						borderBottom: "1px solid #666",
 						fontSize: "28px",
 						cursor: "pointer"
@@ -64,18 +65,18 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					right: 0,
 					bottom: 0
 				});
-				listWindow.add(dimmingView);
+				listWindow._add(dimmingView);
 				
 				// Create the list dialog itself
 				var listDialog = UI.createView({
 					width: "75%",
 					height: UI.SIZE,
 					backgroundColor: "white",
-					layout: "vertical",
+					layout: UI._LAYOUT_CONSTRAINING_VERTICAL,
 					borderRadius: 3,
 					opacity: 0
 				});
-				listWindow.add(listDialog);
+				listWindow._add(listDialog);
 				
 				// Create the table rows
 				var rows = self._rows,
@@ -99,7 +100,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					height: data.length < 10 ? UI.SIZE : "70%",
 					data: data
 				});
-				listDialog.add(listTable);
+				listDialog._add(listTable);
 				listTable.addEventListener("singletap", function(e) {
 					e.index in self._rows && (self.selectedRow = self._rows[e.index]);
 					listWindow.close();
@@ -112,13 +113,13 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					right: 5,
 					title: "Cancel"
 				});
-				listDialog.add(cancelButton);
+				listDialog._add(cancelButton);
 				cancelButton.addEventListener("singletap", function() {
 					listWindow.close();
 				});
 				
 				// Add a view to handle padding since there is no TI API to do it
-				listDialog.add(UI.createView({ height: "5px" }));
+				listDialog._add(UI.createView({ height: "5px" }));
 				
 				// Show the options dialog
 				listWindow.open();
@@ -169,18 +170,18 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 			setStyle(this._downArrow, "borderBottomLeftRadius", left ? radius : "0px");
 			setStyle(this._upArrow, "borderTopRightRadius", right ? radius : "0px");
 			setStyle(this._downArrow, "borderBottomRightRadius", right ? radius : "0px");
-			setStyle(this.domNode,"borderRight", right ? "" : "1px solid #666");
+			this.borderWidth = [0, right ? 0 : 1, 0, 0];
+			this.borderColor = "#666";
 		},
 
 		_defaultWidth: UI.SIZE,
 
 		_defaultHeight: UI.SIZE,
 		
-		_doLayout: function() {
+		_preLayout: function() {
 			this._updateContentWidth();
 			this._parentPicker && this._parentPicker._updateColumnHeights();
-			
-			return FontWidget.prototype._doLayout.apply(this,arguments);
+			return true;
 		},
 		
 		_getContentSize: function(width, height) {
@@ -197,29 +198,28 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 		_tallestRowHeight: 0,
 		
 		_updateContentWidth: function() {
-			if (this._hasSizeDimensions()) {
-				var widestRowWidth = 0;
-				for(var i in this._rows) {
-					var row = this._rows[i];
-					widestRowWidth = Math.max(widestRowWidth, row._measureText(row.title, row.domNode).width);
-				}
-				if (this._widestRowWidth !== widestRowWidth) {
-					this._widestRowWidth = widestRowWidth;
-					this._triggerLayout();
-				}
+			var widestRowWidth = 0,
+				i = 0,
+				len = this._rows.length;
+			for(; i < len; i++) {
+				var row = this._rows[i];
+				widestRowWidth = Math.max(widestRowWidth, row._measureText(row.title, row.domNode).width);
+			}
+			if (this._widestRowWidth !== widestRowWidth) {
+				this._widestRowWidth = widestRowWidth;
 			}
 		},
 		
 		_getTallestRowHeight: function() {
-			if (this._hasSizeDimensions()) {
-				var widestRowWidth = 0,
-					tallestRowHeight = 0;
-				for(var i in this._rows) {
-					var row = this._rows[i];
-					tallestRowHeight = Math.max(tallestRowHeight, row._measureText(row.title, row.domNode).height);
-				}
-				return tallestRowHeight;
+			var widestRowWidth = 0,
+				tallestRowHeight = 0,
+				i = 0,
+				len = this._rows.length;
+			for(; i < len; i++) {
+				var row = this._rows[i];
+				tallestRowHeight = Math.max(tallestRowHeight, row._measureText(row.title, row.domNode).height);
 			}
+			return tallestRowHeight;
 		},
 		
 		_setTallestRowHeight: function(height) {
@@ -237,6 +237,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 			if (!this.selectedRow) {
 				this.selectedRow = row;
 			}
+			this._publish(row);
 		},
 		
 		removeRow: function(row) {
@@ -250,6 +251,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 					this.selectedRow = this._rows[0];
 				}
 			}
+			this._unpublish(row);
 		},
 		
 		constants: {

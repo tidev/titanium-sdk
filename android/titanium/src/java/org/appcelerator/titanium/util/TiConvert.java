@@ -382,6 +382,23 @@ public class TiConvert
 	}
 
 	/**
+	 * If value is a Double, Integer, Long or String, converts it to Integer. Otherwise
+	 * returns default value.
+	 * @param value the value to convert.
+	 * @param def the default value to return
+	 * @return an int value.
+	 * @module.api
+	 */
+	public static int toInt(Object value, int def)
+	{
+		try {
+			return toInt(value);
+		} catch (NumberFormatException e) {
+			return def;
+		}
+	}
+
+	/**
 	 * Takes a value out of a hash table then attempts to convert it using {@link #toInt(Object)}.
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
@@ -417,6 +434,23 @@ public class TiConvert
 	}
 
 	/**
+	 * If value is a Double, Integer, Long or String, converts it to Float. Otherwise
+	 * returns default value.
+	 * @param value the value to convert.
+	 * @param def the default value to return
+	 * @return an float value.
+	 * @module.api
+	 */
+	public static float toFloat(Object value, float def)
+	{
+		try {
+			return toFloat(value);
+		} catch (NumberFormatException e) {
+			return def;
+		}
+	}
+
+	/**
 	 * Takes a value out of a hash table then attempts to convert it using {@link #toFloat(Object)} for more details.
 	 * @param hashMap the hash map to search.
 	 * @param key the lookup key.
@@ -426,6 +460,19 @@ public class TiConvert
 	public static float toFloat(HashMap<String, Object> hashMap, String key)
 	{
 		return toFloat(hashMap.get(key));
+	}
+
+	/**
+	 * Takes a value out of a hash table then attempts to convert it using {@link #toFloat(Object)} for more details.
+	 * @param hashMap the hash map to search.
+	 * @param key the lookup key.
+	 * @param def the default value to return.
+	 * @return a float value.
+	 * @module.api
+	 */
+	public static float toFloat(HashMap<String, Object> hashMap, String key, float def)
+	{
+		return toFloat(hashMap.get(key), def);
 	}
 
 	/**
@@ -546,8 +593,10 @@ public class TiConvert
 		if (value instanceof Number) {
 			value = value.toString() + TiApplication.getInstance().getDefaultUnit();
 		}
-
-		return toTiDimension((String) value, valueType);
+		if (value instanceof String) {
+			return toTiDimension((String) value, valueType);
+		}
+		return null;
 	}
 	/**
 	 * Takes a value out of a hash table then attempts to convert it using {@link #toTiDimension(Object, int)} for more details.
@@ -584,18 +633,6 @@ public class TiConvert
 		}
 
 		return url;
-	}
-
-	//Error
-	public static HashMap<String, Object> toErrorObject(int code, String msg)
-	{
-		HashMap<String, Object> d = new HashMap<String, Object>(1);
-		HashMap<String, Object> e = new HashMap<String, Object>();
-		e.put(TiC.ERROR_PROPERTY_CODE, code);
-		e.put(TiC.ERROR_PROPERTY_MESSAGE, msg);
-		d.put(TiC.EVENT_PROPERTY_ERROR, e);
-
-		return d;
 	}
 
 	/**

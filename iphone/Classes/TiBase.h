@@ -26,6 +26,18 @@ extern "C" {
 #define __IPHONE_4_2 40200
 #endif
 
+#ifndef __IPHONE_4_3
+#define __IPHONE_4_3 40300
+#endif
+    
+#ifndef __IPHONE_5_0
+#define __IPHONE_5_0 50000
+#endif
+    
+#ifndef __IPHONE_5_1
+#define __IPHONE_5_1 50100
+#endif
+    
 #ifdef DEBUG
 	// Kroll memory debugging
 	#define KROLLBRIDGE_MEMORY_DEBUG MEMORY_DEBUG
@@ -264,7 +276,7 @@ __typeof__(minX) __minX = (minX);	\
 __typeof__(maxX) __maxX = (maxX);	\
 if ((__x<__minX) || (__x>__maxX)) \
 { \
-[self throwException:TiExceptionRangeError subreason:[NSString stringWithFormat:@"%d was not > %d and < %d",__x,__maxX,__minX] location:CODELOCATION]; \
+[self throwException:TiExceptionRangeError subreason:[NSString stringWithFormat:@"%d was not >= %d and <= %d",__x,__maxX,__minX] location:CODELOCATION]; \
 }\
 }
 
@@ -356,13 +368,13 @@ return map;\
 }\
 
 #define DEPRECATED_REMOVED(api,in,removed) \
-NSLog(@"[WARN] Ti%@.%@ DEPRECATED in %@: REMOVED in %@",@"tanium",api,in,removed);
+DebugLog(@"[WARN] Ti%@.%@ DEPRECATED in %@: REMOVED in %@",@"tanium",api,in,removed);
     
 #define DEPRECATED_REPLACED_REMOVED(api,in,removed,newapi) \
-NSLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@: REMOVED in %@",@"tanium",api,in,newapi,removed);
+DebugLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@: REMOVED in %@",@"tanium",api,in,newapi,removed);
 
 #define DEPRECATED_REPLACED(api,in,newapi) \
-NSLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@.",@"tanium",api,in,newapi);
+DebugLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@.",@"tanium",api,in,newapi);
     
 #define NUMBOOL(x) \
 [NSNumber numberWithBool:x]\
@@ -468,15 +480,23 @@ return value;\
 //#define VERBOSE
 
 #ifdef VERBOSE
-
 #define VerboseLog(...)	{NSLog(__VA_ARGS__);}
-
 #else
-
 #define VerboseLog(...)	{}
-
 #endif
 
+#ifdef DEVELOPER
+#define DeveloperLog(...) { NSLog(__VA_ARGS__); }
+#else
+#define DeveloperLog(...) {}
+#endif
+    
+#if defined(DEBUG) || defined(DEVELOPER)
+#define DebugLog(...) { NSLog(__VA_ARGS__); }
+#else
+#define DebugLog(...) {}
+#endif
+    
 #define VAL_OR_NSNULL(foo)	(((foo) != nil)?((id)foo):[NSNull null])
 
 
@@ -525,6 +545,7 @@ extern NSString * const kTiContextShutdownNotification;
 extern NSString * const kTiWillShutdownNotification;
 extern NSString * const kTiShutdownNotification;
 extern NSString * const kTiSuspendNotification;
+extern NSString * const kTiPausedNotification;
 extern NSString * const kTiResumeNotification;
 extern NSString * const kTiResumedNotification;
 extern NSString * const kTiAnalyticsNotification;

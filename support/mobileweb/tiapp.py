@@ -59,7 +59,7 @@ class TiAppXML(dict):
 					for module in child.childNodes:
 						if module.nodeType == 1:
 							platform = module.getAttribute('platform')
-							if platform == '' or platform == 'mobileweb':
+							if platform in ['', 'mobileweb', 'commonjs']:
 								self['modules'].append({
 									'id': getText(module.childNodes),
 									'version': module.getAttribute('version'),

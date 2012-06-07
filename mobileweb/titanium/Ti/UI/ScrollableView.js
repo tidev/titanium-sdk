@@ -1,20 +1,31 @@
-define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style", "Ti/UI"],
-	function(declare, Widget, lang, dom, style, UI) {
+define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style", "Ti/UI", "Ti/_/event"],
+	function(declare, Widget, lang, dom, style, UI, event) {
 
 	var setStyle = style.set,
 		is = require.is,
-		unitize = dom.unitize;
+		isDef = lang.isDef,
+		unitize = dom.unitize,
+		on = require.on,
 
-	return declare("Ti.UI.ScrollableView", Widget, {
+		// This specifies the minimum distance that a finger must travel before it is considered a swipe
+		distanceThreshold = 50,
+
+		// The maximum angle, in radians, from the axis a swipe is allowed to travel before it is no longer considered a swipe
+		angleThreshold = Math.PI/6, // 30 degrees
 
 		// This sets the minimum velocity that determines whether a swipe was a flick or a drag
-		_velocityThreshold: 0.4,
+		velocityThreshold = 0.5,
 
 		// This determines the minimum distance scale (i.e. width divided by this value) before a flick requests a page turn
-		_minimumFlickDistanceScaleFactor: 15,
+		minimumFlickDistanceScaleFactor = 15,
 
 		// This determines the minimum distance scale (i.e. width divided by this value) before a drag requests a page turn
-		_minimumDragDistanceScaleFactor: 2,
+		minimumDragDistanceScaleFactor = 2;
+
+		// This is the velocity used to animate to the end when there is no available velocity
+		defaultVelocity = 0.2;
+
+	return declare("Ti.UI.ScrollableView", Widget, {
 
 		constructor: function(args){
 
@@ -26,10 +37,10 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 				height: "100%"
 			});
 			setStyle(this._contentContainer.domNode, "overflow", "hidden");
-			this.add(this._contentContainer);
+			this._add(this._contentContainer);
 
 			// Create the paging control container
-			this.add(this._pagingControlContainer = UI.createView({
+			this._add(this._pagingControlContainer = UI.createView({
 				width: "100%",
 				height: 20,
 				bottom: 0,
@@ -38,59 +49,87 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 				touchEnabled: false
 			}));
 
-			this._pagingControlContainer.add(this._pagingControlContentContainer = UI.createView({
+			this._pagingControlContainer._add(this._pagingControlContentContainer = UI.createView({
 				width: UI.SIZE,
 				height: "100%",
 				top: 0,
-				touchEnabled: false
+				touchEnabled: false,
+				layout: "constrainingHorizontal"
 			}));
 
 			// State variables
 			this._viewToRemoveAfterScroll = -1;
 
 			var initialPosition,
+				startX,
 				animationView,
-				swipeInitialized = false,
 				viewsToScroll,
-				touchEndHandled,
-				startTime;
+				startTime,
+				previousPosition,
+				self = this,
+				width,
+				mouseIsDown,
+				handles;
 
-			// This touch end handles the case where a swipe was started, but turned out not to be a swipe
-			this.addEventListener("touchend", function(e) {
-				if (!touchEndHandled && swipeInitialized) {
-					var width = this._measuredWidth,
-						destinationLeft = viewsToScroll.indexOf(this.views[this.currentPage]) * -width;
+			function touchify(e, finalize) {
+				return require.mix(e, {
+					touches: finalize ? [] : [e],
+					targetTouches: [],
+					changedTouches: [e]
+				});
+			}
+
+			function finalizeSwipe(destinationIndex, x, y) {
+				self._contentContainer._removeAllChildren();
+				self._contentContainer._add(self.views[destinationIndex]);
+				self._triggerLayout(true);
+				self.currentPage !== destinationIndex && self.fireEvent("scroll",{
+					currentPage: destinationIndex,
+					view: self.views[destinationIndex],
+					x: x,
+					y: y
+				});
+				self.properties.__values__.currentPage = destinationIndex;
+			}
+
+			function cancelScroll() {
+				if (startX) {
+					// Update paging control
+					self._updatePagingControl(self.currentPage);
+
+					// Animate the view and set the final view
 					animationView.animate({
-						duration: (300 + 0.2 * width) / (width - Math.abs(e._distance)) * 10,
-						left: destinationLeft,
+						duration: 400,
+						left: -width,
 						curve: UI.ANIMATION_CURVE_EASE_OUT
-					},lang.hitch(this,function(){
-						this._contentContainer._removeAllChildren();
-						this._contentContainer.add(this.views[this.currentPage]);
-					}));
-				}
-			})
+					},function() {
+						finalizeSwipe(self.currentPage);
+					});
 
-			this.addEventListener("swipe", function(e){
-				// If we haven't started swiping yet, start swiping,
-				var width = this._measuredWidth;
-				if (!swipeInitialized) {
-					swipeInitialized = true;
-					touchEndHandled = false;
-					startTime = (new Date()).getTime();
-					
+					startX = null;
+				}
+			}
+
+			function touchStart(e) {
+				if (e.touches.length == 1 && e.changedTouches.length == 1) {
+					var i = 0,
+						win = window;
+					width = self._measuredWidth,
+					startTime = (new Date).getTime();
+					startX = e.changedTouches[0].clientX;
+
 					// Create the list of views that can be scrolled, the ones immediately to the left and right of the current view
 					initialPosition = 0;
 					viewsToScroll = [];
-					if (this.currentPage > 0) {
-						viewsToScroll.push(this.views[this.currentPage - 1]);
+					if (self.currentPage > 0) {
+						viewsToScroll.push(self.views[self.currentPage - 1]);
 						initialPosition = -width;
 					}
-					viewsToScroll.push(this.views[this.currentPage]);
-					if (this.currentPage < this.views.length - 1) {
-						viewsToScroll.push(this.views[this.currentPage + 1]);
+					viewsToScroll.push(self.views[self.currentPage]);
+					if (self.currentPage < self.views.length - 1) {
+						viewsToScroll.push(self.views[self.currentPage + 1]);
 					}
-					
+
 					// Create the animation div
 					animationView = UI.createView({
 						width: unitize(viewsToScroll.length * width),
@@ -98,90 +137,120 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 						left: initialPosition,
 						top: 0
 					});
-		
+
 					// Attach the child views, each contained in their own div so we can mess with positioning w/o touching the views
-					this._contentContainer._removeAllChildren();
-					for (var i = 0; i < viewsToScroll.length; i++) {
+					self._contentContainer._removeAllChildren();
+					for (; i < viewsToScroll.length; i++) {
 						var viewContainer = UI.createView({
 							left: unitize(i * width),
 							top: 0,
 							width: unitize(width),
-							height: "100%",
-							layout: "horizontal" // Do a horizontal to force the child to (0,0) without overwriting the original position values
+							height: "100%"
 						});
+						viewContainer._layout._defaultHorizontalPosition = "start";
+						viewContainer._layout._defaultVerticalPosition = "start";
 						setStyle(viewContainer.domNode,"overflow","hidden");
-						viewContainer.add(viewsToScroll[i]);
-						animationView.add(viewContainer);
+						viewContainer._add(viewsToScroll[i]);
+						animationView._add(viewContainer);
 					}
-					
+
 					// Set the initial position
 					animationView.left = unitize(initialPosition);
-					this._contentContainer.add(animationView);
-					this._triggerLayout(true);
+					self._contentContainer._add(animationView);
+					self._triggerLayout(true);
+
+					handles = [
+						// Register for move type events
+						on(win, "touchmove", touchMove),
+						on(win, "mousemove", function(e) {
+							mouseIsDown && touchMove(touchify(e));
+						}),
+
+						// Register for cancel type events
+						on(win, "touchcancel", touchCancel),
+
+						// Register for end type events
+						on(win, "touchend", touchEnd),
+						on(win, "mouseup", function(e) {
+							mouseIsDown = 0;
+							touchEnd(touchify(e, 1));
+						})
+					];
 				}
-				
-				// Update the position of the animation div
-				var newPosition = initialPosition + e._distance;
-				newPosition = newPosition < 0 ? newPosition > -animationView._measuredWidth + width ? newPosition :-animationView._measuredWidth + width : 0;
-				animationView.domNode.style.left = unitize(newPosition);
-				
-				// If the swipe is finished, we animate to the final position
-				if (e._finishedSwiping) {
-					swipeInitialized = false;
-					touchEndHandled = true;
+			};
+			on(this.domNode, "touchstart", touchStart);
+			on(this.domNode, "mousedown", function(e) {
+				mouseIsDown = 1;
+				touchStart(touchify(e));
+			});
+
+			function touchMove(e) {
+				if (e.touches.length == 1 && e.changedTouches.length == 1 && isDef(startX)) {
+					width = self._measuredWidth;
 					
-					// Determine whether this was a flick or a drag
-					var velocity = Math.abs((e._distance) / ((new Date()).getTime() - startTime));
-					var scaleFactor = velocity > this._velocityThreshold ? 
-						this._minimumFlickDistanceScaleFactor : this._minimumDragDistanceScaleFactor
-					
+					// Update the position of the animation div
+					var newPosition = initialPosition + e.changedTouches[0].clientX - startX;
+					newPosition = newPosition < 0 ? newPosition > -animationView._measuredWidth + width ? newPosition :-animationView._measuredWidth + width : 0;
+					animationView.domNode.style.left = unitize(newPosition);
+				} else {
+					cancelScroll();
+				}
+			}
+
+			function touchCancel() {
+				event.off(handles);
+				cancelScroll();
+			}
+
+			function touchEnd(e) {
+				event.off(handles);
+				if (e.touches.length == 0 && e.changedTouches.length == 1 && isDef(startX)) {
+					width = self._measuredWidth;
+
+					var x = e.changedTouches[0].clientX,
+						y = e.changedTouches[0].clientX,
+						distance = x - startX,
+						destinationIndex = self.currentPage,
+						animationLeft = initialPosition,
+						velocity = Math.abs(distance / ((new Date).getTime() - startTime)),
+						scaleFactor = velocity > velocityThreshold ? 
+							minimumFlickDistanceScaleFactor : minimumDragDistanceScaleFactor,
+						newPosition = initialPosition + e.changedTouches[0].clientX - startX;
+					newPosition = newPosition < 0 ? newPosition > -animationView._measuredWidth + width ? newPosition :-animationView._measuredWidth + width : 0;
+					animationView.domNode.style.left = unitize(newPosition);
+
 					// Find out which view we are animating to
-					var destinationIndex = this.currentPage,
-						animationLeft = initialPosition;
-					if (e._distance > width / scaleFactor && this.currentPage > 0) {
-						destinationIndex = this.currentPage - 1;
+					if (distance > width / scaleFactor && self.currentPage > 0) {
+						destinationIndex = self.currentPage - 1;
 						animationLeft = 0;
-					} else if (e._distance < -width / scaleFactor && this.currentPage < this.views.length - 1) {
-						destinationIndex = this.currentPage + 1;
+					} else if (distance < -width / scaleFactor && self.currentPage < self.views.length - 1) {
+						destinationIndex = self.currentPage + 1;
 						if (viewsToScroll.length === 3) {
 							animationLeft = -2 * width;
 						} else {
 							animationLeft = -width;
 						}
 					}
-					
-					var self = this;
-					function finalizeSwipe() {
-						self._contentContainer._removeAllChildren();
-						self._contentContainer.add(self.views[destinationIndex]);
-						self._triggerLayout(true);
-						
-						self.currentPage !== destinationIndex && self.fireEvent("scroll",{
-							currentPage: destinationIndex,
-							view: self.views[destinationIndex],
-							x: e.x,
-							y: e.y
-						});
-						
-						self.properties.__values__.currentPage = destinationIndex;
-					}
-					
+
 					// Check if the user attempted to scroll past the edge, in which case we directly reset the view instead of animation
-					this._updatePagingControl(destinationIndex);
+					self._updatePagingControl(destinationIndex);
 					if (newPosition == 0 || newPosition == -animationView._measuredWidth + width) {
-						finalizeSwipe();
+						finalizeSwipe(destinationIndex, x, y);
 					} else {
 						// Animate the view and set the final view
 						animationView.animate({
-							duration: 200 + (0.2 * width) / (width - Math.abs(e._distance)) * 10,
+							duration: 200 + (0.2 * width) / (width - Math.abs(distance)) * 10,
 							left: animationLeft,
 							curve: UI.ANIMATION_CURVE_EASE_OUT
-						},lang.hitch(this,function(){
-							finalizeSwipe();
-						}));
+						},function() {
+							finalizeSwipe(destinationIndex, x, y);
+						});
 					}
+					startX = null;
+				} else {
+					cancelScroll();
 				}
-			});
+			}
 		},
 
 		addView: function(view){
@@ -192,9 +261,10 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 				if (this.views.length == 1) {
 					this.properties.__values__.currentPage = 0;
 					this._contentContainer._removeAllChildren();
-					this._contentContainer.add(view);
+					this._contentContainer._add(view);
 				}
 				this._updatePagingControl(this.currentPage);
+				this._publish(view);
 			}
 		},
 
@@ -230,6 +300,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 			}
 			
 			this._updatePagingControl(this.currentPage);
+			this._unpublish(view);
 		},
 
 		scrollToView: function(view) {
@@ -245,7 +316,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 			// element and don't show the transition animation.
 			if (!this._contentContainer.domNode.offsetWidth) {
 				this._contentContainer._removeAllChildren();
-				this._contentContainer.add(this.views[viewIndex]);
+				this._contentContainer._add(this.views[viewIndex]);
 			} else {
 				
 				// Calculate the views to be scrolled
@@ -280,17 +351,18 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 						left: unitize(i * width),
 						top: 0,
 						width: unitize(width),
-						height: "100%",
-						layout: "horizontal" // Do a horizontal to force the child to (0,0) without overwriting the original position values
+						height: "100%"
 					});
+					viewContainer._layout._defaultHorizontalPosition = "start";
+					viewContainer._layout._defaultVerticalPosition = "start";
 					setStyle(viewContainer.domNode,"overflow","hidden");
-					viewContainer.add(viewsToScroll[i]);
-					animationView.add(viewContainer);
+					viewContainer._add(viewsToScroll[i]);
+					animationView._add(viewContainer);
 				}
 				
 				// Set the initial position
 				animationView.left = unitize(initialPosition);
-				this._contentContainer.add(animationView);
+				this._contentContainer._add(animationView);
 				this._triggerLayout(true);
 	
 				// Set the start time
@@ -304,7 +376,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 					curve: UI.ANIMATION_CURVE_EASE_IN_OUT
 				},lang.hitch(this,function(){
 					this._contentContainer._removeAllChildren();
-					this._contentContainer.add(this.views[viewIndex]);
+					this._contentContainer._add(this.views[viewIndex]);
 					this._triggerLayout(true);
 					this.properties.__values__.currentPage = viewIndex;
 					if (this._viewToRemoveAfterScroll != -1) {
@@ -348,12 +420,12 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 				var indicator = UI.createView({
 					width: diameter,
 					height: diameter,
-					top: diameter / 2,
-					left: i * 2 * diameter,
-					backgroundColor: i === newIndex ? "white" : "grey"
+					left: 5,
+					right: 5,
+					backgroundColor: i === newIndex ? "white" : "grey",
+					borderRadius: unitize(diameter / 2)
 				});
-				setStyle(indicator.domNode,"borderRadius",unitize(diameter / 2));
-				this._pagingControlContentContainer.add(indicator);
+				this._pagingControlContentContainer._add(indicator);
 			}
 			!hidePagingControl && this._showPagingControl();
 		},
@@ -402,13 +474,26 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style",
 			},
 			views: {
 				set: function(value, oldValue) {
+					
 					// Value must be an array
 					if (!is(value,"Array")) {
 						return;
 					}
-					if (oldValue.length == 0 && value.length > 0) {
+					
+					// Mark all views as added
+					var i = 0,
+						len = oldValue.length;
+					for(; i < len; i++) {
+						this._unpublish(oldValue[i]);
+					}
+					for(i = 0, len = value.length; i < len; i++) {
+						this._publish(value[i]);
+					}
+					
+					// Add the default page
+					if (value.length > 0) {
 						this._contentContainer._removeAllChildren();
-						this._contentContainer.add(value[0]);
+						this._contentContainer._add(value[0]);
 					}
 					this.properties.__values__.currentPage = 0;
 					return value;

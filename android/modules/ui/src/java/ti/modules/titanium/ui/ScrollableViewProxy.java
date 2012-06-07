@@ -39,6 +39,7 @@ public class ScrollableViewProxy extends TiViewProxy
 	public static final int MSG_ADD_VIEW = MSG_FIRST_ID + 106;
 	public static final int MSG_SET_CURRENT = MSG_FIRST_ID + 107;
 	public static final int MSG_REMOVE_VIEW = MSG_FIRST_ID + 108;
+	public static final int MSG_SET_ENABLED = MSG_FIRST_ID + 109;
 	public static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	
 	private static final int DEFAULT_PAGING_CONTROL_TIMEOUT = 3000;
@@ -131,6 +132,11 @@ public class ScrollableViewProxy extends TiViewProxy
 				holder.setResult(null);
 				break;
 			}
+			case MSG_SET_ENABLED: {
+				getView().setEnabled(msg.obj);
+				handled = true;
+				break;
+			}
 			default:
 				handled = super.handleMessage(msg);
 		}
@@ -204,15 +210,46 @@ public class ScrollableViewProxy extends TiViewProxy
 		}
 	}
 
-	public void fireScroll(int to)
+	public void fireDragEnd(int currentPage, TiViewProxy currentView) {
+		if (hasListeners(TiC.EVENT_DRAGEND)) {
+			KrollDict options = new KrollDict();
+			options.put("view", currentView);
+			options.put("currentPage", currentPage);
+			fireEvent(TiC.EVENT_DRAGEND, options);
+		} 
+	}
+
+	public void fireScrollEnd(int currentPage, TiViewProxy currentView)
+	{
+		if (hasListeners(TiC.EVENT_SCROLLEND)) {
+			KrollDict options = new KrollDict();
+			options.put("view", currentView);
+			options.put("currentPage", currentPage);
+			fireEvent(TiC.EVENT_SCROLLEND, options);
+		} 
+	}
+
+	public void fireScroll(int currentPage, float currentPageAsFloat, TiViewProxy currentView)
 	{
 		if (hasListeners(TiC.EVENT_SCROLL)) {
 			KrollDict options = new KrollDict();
-			options.put("index", to);
-			options.put("view", this);
-			options.put("currentPage", getView().getCurrentPage());
+			options.put("view", currentView);
+			options.put("currentPage", currentPage);
+			options.put("currentPageAsFloat", currentPageAsFloat);
 			fireEvent(TiC.EVENT_SCROLL, options);
 		}
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setScrollingEnabled(Object enabled)
+	{
+		getMainHandler().obtainMessage(MSG_SET_ENABLED, enabled).sendToTarget();
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public boolean getScrollingEnabled()
+	{
+		return getView().getEnabled();
 	}
 
 	@Kroll.getProperty @Kroll.method

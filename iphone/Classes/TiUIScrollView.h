@@ -33,13 +33,15 @@
 
 @property(nonatomic,retain,readonly) TiUIScrollViewImpl * scrollView;
 
+@property(nonatomic,readonly) TiDimension contentWidth;
+
 -(void)setNeedsHandleContentSize;
 -(void)setNeedsHandleContentSizeIfAutosizing;
 -(BOOL)handleContentSizeIfNeeded;
 -(void)handleContentSize;
 -(void)setContentOffset_:(id)value withObject:(id)property;
 -(UIView *)wrapperView;
-
+-(void)scrollToBottom;
 
 @end
 

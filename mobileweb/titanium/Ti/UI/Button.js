@@ -3,10 +3,21 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 	var setStyle = style.set,
 		postDoBackground = {
-			post: "_updateLook"
+			post: function() {
+				if (this.backgroundColor || this.backgroundDisabledColor || this.backgroundDisabledImage || this.backgroundFocusedColor || 
+					this.backgroundFocusedImage || this.backgroundImage || this.backgroundSelectedColor || this.backgroundSelectedImage) {
+					this._clearDefaultLook();
+				} else {
+					this._setDefaultLook();
+				}
+				this._doBackground();
+			}
 		},
 		titlePost = {
-			post: "_updateTitle"
+			post: function() {
+				this._buttonTitle.text = Locale._getString(this.titleid, this.title);
+				this._hasSizeDimensions() && this._triggerLayout();
+			}
 		};
 
 	return declare("Ti.UI.Button", FontWidget, {
@@ -15,13 +26,12 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			var contentContainer = this._contentContainer = UI.createView({
 				width: UI.SIZE,
 				height: UI.SIZE,
-				layout: "horizontal",
+				layout: UI._LAYOUT_CONSTRAINING_HORIZONTAL,
 				borderColor: "transparent"
 			});
-			contentContainer._layout._defaultVerticalAlignment = "center";
 			this._add(contentContainer);
 			contentContainer._add(this._buttonImage = UI.createImageView());
-			contentContainer.add(this._buttonTitle = UI.createLabel());
+			contentContainer._add(this._buttonTitle = UI.createLabel());
 			this._addStyleableDomNode(this._buttonTitle.domNode);
 			
 			this._setDefaultLook();
@@ -47,16 +57,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 
 		_defaultHeight: UI.SIZE,
 		
-		_updateLook: function() {
-			if (this.backgroundColor || this.backgroundDisabledColor || this.backgroundDisabledImage || this.backgroundFocusedColor || 
-				this.backgroundFocusedImage || this.backgroundImage || this.backgroundSelectedColor || this.backgroundSelectedImage) {
-				this._clearDefaultLook();
-			} else {
-				this._setDefaultLook();
-			}
-			this._doBackground();
-		},
-		
 		_setDefaultLook: function() {
 			if (!this._hasDefaultLook) {
 				this._hasDefaultLook = true;
@@ -65,6 +65,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				css.add(this.domNode, "TiUIElementGradient");
 				css.add(this.domNode, "TiUIButtonDefault");
 				this._contentContainer.borderWidth = 6;
+				this._getBorderFromCSS();
 			}
 		},
 		
@@ -77,11 +78,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				css.remove(this.domNode, "TiUIButtonDefault");
 				this._contentContainer.borderWidth = 0;
 			}
-		},
-
-		_updateTitle: function() {
-			this._buttonTitle.text = Locale._getString(this.titleid, this.title);
-			this._hasSizeDimensions() && this._triggerLayout();
 		},
 
 		properties: {

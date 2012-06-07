@@ -427,10 +427,11 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		if (tiApp != null) {
 			tiApp.postAnalyticsEvent(TiAnalyticsEventFactory.createAppEndEvent());
 		}
-		
+
 		// Create a new session ID for next session
 		TiPlatformHelper.resetSid();
-		
+
 		super.onDestroy();
 	}
+
 }

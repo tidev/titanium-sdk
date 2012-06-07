@@ -18,17 +18,17 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Locale", "T
 					backgroundColor: "white",
 					borderRadius: 3,
 					height: UI.SIZE,
-					layout: "vertical",
+					layout: UI._LAYOUT_CONSTRAINING_VERTICAL,
 					opacity: 0,
 					width: "50%"
 				}),
 				buttons = this.buttonNames || [];
 
-			alertWindow.add(dimmingView);
-			alertWindow.add(alertDialog);
+			alertWindow._add(dimmingView);
+			alertWindow._add(alertDialog);
 
 			// Add the title
-			alertDialog.add(UI.createLabel({
+			alertDialog._add(UI.createLabel({
 				text: Locale._getString(this.titleid, this.title),
 				font: {fontWeight: "bold"},
 				left: 5,
@@ -39,7 +39,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Locale", "T
 			}));
 
 			// Add the message
-			alertDialog.add(UI.createLabel({
+			alertDialog._add(UI.createLabel({
 				text: Locale._getString(this.messageid, this.message),
 				left: 5,
 				right: 5,
@@ -61,7 +61,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Locale", "T
 					index: i
 				});
 				i === this.cancel && css.add(button.domNode, "TiUIElementGradientCancel");
-				alertDialog.add(button);
+				alertDialog._add(button);
 				button.addEventListener("singletap", lang.hitch(this, function(){
 					alertWindow.close();
 					this._alertWindow = void 0;
@@ -73,16 +73,18 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Locale", "T
 			}, this);
 
 			// Animate the background after waiting for the first layout to occur
-			alertWindow.addEventListener("postlayout", function() {
-				dimmingView.animate({
-					opacity: 0.5,
-					duration: 200
-				}, function(){
-					alertDialog.animate({
-						opacity: 1,
+			dimmingView.addEventListener("postlayout", function() {
+				setTimeout(function(){ // We have to wait for the entire layout pass to complete and the CSS rules to be applied.
+					dimmingView.animate({
+						opacity: 0.5,
 						duration: 200
-					});
-				});
+					}, function(){
+						alertDialog.animate({
+							opacity: 1,
+							duration: 200
+						});
+					});	
+				}, 0);
 			});
 
 			// Show the alert dialog

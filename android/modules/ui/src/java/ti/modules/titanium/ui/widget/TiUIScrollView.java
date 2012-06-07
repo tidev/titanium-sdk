@@ -22,9 +22,9 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.MeasureSpec;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ScrollView;
@@ -35,8 +35,6 @@ public class TiUIScrollView extends TiUIView
 	public static final int TYPE_VERTICAL = 0;
 	public static final int TYPE_HORIZONTAL = 1;
 
-	private static final String SHOW_VERTICAL_SCROLL_INDICATOR = "showVerticalScrollIndicator";
-	private static final String SHOW_HORIZONTAL_SCROLL_INDICATOR = "showHorizontalScrollIndicator";
 	private static final String LCAT = "TiUIScrollView";
 	private static final boolean DBG = TiConfig.LOGD;
 	private int offsetX = 0, offsetY = 0;
@@ -45,7 +43,9 @@ public class TiUIScrollView extends TiUIView
 	private class TiScrollViewLayout extends TiCompositeLayout
 	{
 		private static final int AUTO = Integer.MAX_VALUE;
-		private int parentWidth = 0, parentHeight = 0;
+		private int parentWidth = 0;
+		private int parentHeight = 0;
+		private boolean canCancelEvents = true;
 
 		public TiScrollViewLayout(Context context, LayoutArrangement arrangement)
 		{
@@ -60,6 +60,23 @@ public class TiUIScrollView extends TiUIView
 		public void setParentHeight(int height)
 		{
 			parentHeight = height;
+		}
+
+		public void setCanCancelEvents(boolean value)
+		{
+			canCancelEvents = value;
+		}
+
+		@Override
+		public boolean dispatchTouchEvent(MotionEvent ev)
+		{
+			// If canCancelEvents is false, then we want to prevent the scroll view from canceling the touch
+			// events of the child view
+			if (!canCancelEvents) {
+				requestDisallowInterceptTouchEvent(true);
+			}
+
+			return super.dispatchTouchEvent(ev);
 		}
 
 		private int getContentProperty(String property)
@@ -83,27 +100,6 @@ public class TiUIScrollView extends TiUIView
 				}
 			}
 			return AUTO;
-		}
-
-		@Override
-		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
-		{
-			int wFromSpec = MeasureSpec.getSize(widthMeasureSpec);
-			int hFromSpec = MeasureSpec.getSize(heightMeasureSpec);
-
-			int measuredHeight = getMeasuredHeight(hFromSpec, 0);
-			int measuredWidth = getMeasuredWidth(wFromSpec, 0);
-
-			// If the content dimensions are greater than the parent dimensions, use the content dimensions
-			// instead to ensure the child views get measured correctly
-			if (wFromSpec == parentWidth && measuredWidth > wFromSpec) {
-				widthMeasureSpec = MeasureSpec.makeMeasureSpec(measuredWidth, MeasureSpec.EXACTLY);
-			}
-			if (hFromSpec == parentHeight && measuredHeight > hFromSpec) {
-				heightMeasureSpec = MeasureSpec.makeMeasureSpec(measuredHeight, MeasureSpec.EXACTLY);
-			}
-
-			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		}
 
 		@Override
@@ -134,10 +130,14 @@ public class TiUIScrollView extends TiUIView
 			int contentWidth = getContentProperty(TiC.PROPERTY_CONTENT_WIDTH);
 			if (contentWidth == AUTO) {
 				contentWidth = maxWidth; // measuredWidth;
-			}
+			}		
 
-			// Force the minimum width of the content view to be the size of its parent (scroll view)
-			return Math.max(contentWidth, parentWidth);
+			// Returns the content's width when it's greater than the scrollview's width
+			if (contentWidth > parentWidth) {
+				return contentWidth;
+			} else {
+				return resolveSize(maxWidth, widthSpec);
+			}
 		}
 
 		@Override
@@ -148,9 +148,13 @@ public class TiUIScrollView extends TiUIView
 				contentHeight = maxHeight; // measuredHeight;
 			}
 
-			// Force the minimum height of the content view to be the size of its parent (scroll view)
-			return Math.max(contentHeight, parentHeight);
-		}
+			// Returns the content's height when it's greater than the scrollview's height
+			if (contentHeight > parentHeight) {
+				return contentHeight;
+			} else {
+				return resolveSize(maxHeight, heightSpec);
+			}
+		} 
 	}
 
 	// same code, different super-classes
@@ -168,6 +172,11 @@ public class TiUIScrollView extends TiUIView
 				ViewGroup.LayoutParams.FILL_PARENT);
 			layout.setLayoutParams(params);
 			super.addView(layout, params);
+		}
+
+		public TiScrollViewLayout getLayout()
+		{
+			return layout;
 		}
 
 		@Override
@@ -219,6 +228,10 @@ public class TiUIScrollView extends TiUIView
 					lp.width);
 				height -= getPaddingTop();
 				height -= getPaddingBottom();
+
+				// If we measure the child height to be greater than the parent height, use it in subsequent
+				// calculations to make sure the children are measured correctly the second time around.
+				height = Math.max(child.getMeasuredHeight(), height);
 				int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
 				child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
 
@@ -242,6 +255,11 @@ public class TiUIScrollView extends TiUIView
 			layout.setLayoutParams(params);
 			super.addView(layout, params);
 
+		}
+
+		public TiScrollViewLayout getLayout()
+		{
+			return layout;
 		}
 
 		@Override
@@ -293,6 +311,10 @@ public class TiUIScrollView extends TiUIView
 					lp.height);
 				width -= getPaddingLeft();
 				width -= getPaddingRight();
+
+				// If we measure the child width to be greater than the parent width, use it in subsequent
+				// calculations to make sure the children are measured correctly the second time around.
+				width = Math.max(child.getMeasuredWidth(), width);
 				int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
 
 				child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
@@ -340,6 +362,15 @@ public class TiUIScrollView extends TiUIView
 			setContentOffset(newValue);
 			scrollTo(offsetX, offsetY);
 		}
+		if (key.equals(TiC.PROPERTY_CAN_CANCEL_EVENTS)) {
+			View view = getNativeView();
+			boolean canCancelEvents = TiConvert.toBoolean(newValue);
+			if (view instanceof TiHorizontalScrollView) {
+				((TiHorizontalScrollView) view).getLayout().setCanCancelEvents(canCancelEvents);
+			} else if (view instanceof TiVerticalScrollView) {
+				((TiVerticalScrollView) view).getLayout().setCanCancelEvents(canCancelEvents);
+			}
+		}
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
 
@@ -349,11 +380,11 @@ public class TiUIScrollView extends TiUIView
 		boolean showHorizontalScrollBar = false;
 		boolean showVerticalScrollBar = false;
 
-		if (d.containsKey(SHOW_HORIZONTAL_SCROLL_INDICATOR)) {
-			showHorizontalScrollBar = TiConvert.toBoolean(d, SHOW_HORIZONTAL_SCROLL_INDICATOR);
+		if (d.containsKey(TiC.PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR)) {
+			showHorizontalScrollBar = TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR);
 		}
-		if (d.containsKey(SHOW_VERTICAL_SCROLL_INDICATOR)) {
-			showVerticalScrollBar = TiConvert.toBoolean(d, SHOW_VERTICAL_SCROLL_INDICATOR);
+		if (d.containsKey(TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR)) {
+			showVerticalScrollBar = TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR);
 		}
 
 		if (showHorizontalScrollBar && showVerticalScrollBar) {
@@ -406,18 +437,25 @@ public class TiUIScrollView extends TiUIView
 
 		// we create the view here since we now know the potential widget type
 		View view = null;
+		boolean canCancelEvents = true;
 		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
 		if (d.containsKey(TiC.PROPERTY_LAYOUT) && d.getString(TiC.PROPERTY_LAYOUT).equals(TiC.LAYOUT_VERTICAL)) {
 			arrangement = LayoutArrangement.VERTICAL;
 		} else if (d.containsKey(TiC.PROPERTY_LAYOUT) && d.getString(TiC.PROPERTY_LAYOUT).equals(TiC.LAYOUT_HORIZONTAL)) {
 			arrangement = LayoutArrangement.HORIZONTAL;
 		}
+
+		if (d.containsKey(TiC.PROPERTY_CAN_CANCEL_EVENTS)) {
+			canCancelEvents = TiConvert.toBoolean(d, TiC.PROPERTY_CAN_CANCEL_EVENTS);
+		}
+
 		switch (type) {
 			case TYPE_HORIZONTAL:
 				if (DBG) {
 					Log.d(LCAT, "creating horizontal scroll view");
 				}
 				view = new TiHorizontalScrollView(getProxy().getActivity(), arrangement);
+				((TiHorizontalScrollView) view).getLayout().setCanCancelEvents(canCancelEvents);
 				break;
 			case TYPE_VERTICAL:
 			default:
@@ -425,6 +463,7 @@ public class TiUIScrollView extends TiUIView
 					Log.d(LCAT, "creating vertical scroll view");
 				}
 				view = new TiVerticalScrollView(getProxy().getActivity(), arrangement);
+				((TiVerticalScrollView) view).getLayout().setCanCancelEvents(canCancelEvents);
 		}
 		setNativeView(view);
 

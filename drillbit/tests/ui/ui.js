@@ -29,7 +29,7 @@ describe("Ti.UI tests", {
 			wv.addEventListener('load', listener);
 			w.add(wv);
 		},
-		timeout: 10000,
+		timeout: 15000,
 		timeoutError: 'Timed out waiting for page to load and JS to eval'
 	}),
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2153
@@ -459,6 +459,17 @@ describe("Ti.UI tests", {
 		setTimeout(function() {
 			callback.failed("Test timeout");
 		}, 3000);
+	},
+	
+	// https://jira.appcelerator.org/browse/TIMOB-8909
+	childrenArrayEmpty: function() {
+		var view = Ti.UI.createView();
+		valueOf(view).shouldNotBeNull();
+		valueOf(view).shouldBeObject();
+		
+		valueOf(view.children).shouldNotBeNull();
+		valueOf(view.children).shouldNotBeUndefined();
+		valueOf(view.children).shouldBeObject();
+		valueOf(view.children).shouldBe(0);
 	}
-
 });

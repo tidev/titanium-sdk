@@ -94,55 +94,59 @@
 
 -(id)createAttributeNS:(id)args
 {
-	ENSURE_ARG_COUNT(args, 2);
-
-	NSString * theURI;
-	NSString * tagName;
+    ENSURE_ARG_COUNT(args, 2);
+    NSString * theURI = [args objectAtIndex:0];
+    NSString * tagName = [args objectAtIndex:1];
     
-	ENSURE_ARG_OR_NIL_AT_INDEX(theURI, args, 0, NSString);
-	ENSURE_ARG_AT_INDEX(tagName, args, 1, NSString);
-	
-	NSString *error = nil;
-	NSString *suberror = nil;
-	
-	[self validateAttributeParameters:tagName withUri:theURI reason:&error subreason:&suberror];
-	if (error != nil) {
-		[self throwException:error subreason:suberror location:CODELOCATION];
-	}
+    ENSURE_STRING_OR_NIL(theURI);
+    ENSURE_STRING(tagName);
     
-	//THIS WILL NOT WORK UNTIL ADD CHILD IS CALLED SO CREATE A NAMESPACE POINTER AND SET IT EXPLICITLY
-	//GDataXMLNode* resultNode = (GDataXMLNode*)[GDataXMLElement attributeWithName:tagName URI:theURI stringValue:@""];
-	NSString* prefix = [GDataXMLNode prefixForName:tagName];
-	NSString* localName = [GDataXMLNode localNameForName:tagName];
-	
-	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+    NSString* prefix = [GDataXMLNode prefixForName:tagName];
     
-	TiDOMAttrProxy *result = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
-	GDataXMLNode* resultNode = (GDataXMLNode*)[GDataXMLElement attributeWithName:localName stringValue:@""];
-	xmlChar *href;
-	xmlChar *pre;
+    if (prefix == nil && theURI == nil) {
+        return [self createAttribute:[NSArray arrayWithObject:tagName]];
+    }
     
-	if (theURI != nil)
-		href = (xmlChar*)[theURI UTF8String];
-	else
-		href = NULL;
+    NSString *error = nil;
+    NSString *suberror = nil;
 	
-	if ([prefix length] > 0) {
-		pre = (xmlChar*)[prefix UTF8String];
-	} else {
-		// default namespace is represented by a nil prefix
-		pre = NULL;
-	}
+    [TiDOMNodeProxy validateAttributeParameters:tagName withUri:theURI reason:&error subreason:&suberror];
+    if (error != nil) {
+        [self throwException:error subreason:suberror location:CODELOCATION];
+    }
+    
+    //THIS WILL NOT WORK UNTIL ADD CHILD IS CALLED SO CREATE A NAMESPACE POINTER AND SET IT EXPLICITLY
+    //GDataXMLNode* resultNode = (GDataXMLNode*)[GDataXMLElement attributeWithName:tagName URI:theURI stringValue:@""];
+    NSString* localName = [GDataXMLNode localNameForName:tagName];
 	
-	xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
-								 href, pre);
-	[resultNode XMLNode]->ns = theNewNs;
-	[result setDocument:[self document]];
-	[result setNode:resultNode];
-	[result setAttribute:tagName value:@"" owner:nil];
-	[result setIsSpecified:NO];
-	[TiDOMNodeProxy setNode:result forXMLNode:[resultNode XMLNode]];
-	return result;
+    id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+    
+    TiDOMAttrProxy *result = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
+    GDataXMLNode* resultNode = (GDataXMLNode*)[GDataXMLElement attributeWithName:localName stringValue:@""];
+    xmlChar *href;
+    xmlChar *pre;
+    
+    if (theURI != nil)
+        href = (xmlChar*)[theURI UTF8String];
+    else
+        href = NULL;
+    
+    if ([prefix length] > 0) {
+        pre = (xmlChar*)[prefix UTF8String];
+    } else {
+        // default namespace is represented by a nil prefix
+        pre = NULL;
+    }
+	
+    xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
+                                 href, pre);
+    [resultNode XMLNode]->ns = theNewNs;
+    [result setDocument:[self document]];
+    [result setNode:resultNode];
+    [result setAttribute:tagName value:@"" owner:nil];
+    [result setIsSpecified:NO];
+    [TiDOMNodeProxy setNode:result forXMLNode:[resultNode XMLNode]];
+    return result;
 }
 
 -(TiDOMCDATANodeProxy *)createCDATASection:(id)args
@@ -205,51 +209,58 @@
 
 -(id)createElementNS:(id)args
 {
-	ENSURE_ARG_COUNT(args, 2);
+    ENSURE_ARG_COUNT(args, 2);
 
-	NSString * theURI;
-	NSString * tagName;
-
-	ENSURE_ARG_OR_NIL_AT_INDEX(theURI, args, 0, NSString);
-	ENSURE_ARG_AT_INDEX(tagName, args, 1, NSString);
+    NSString * theURI = [args objectAtIndex:0];
+    NSString * tagName = [args objectAtIndex:1];
     
-	NSString *error = nil;
-	NSString *suberror = nil;
-	[self validateElementParameters:tagName withUri:theURI reason:&error subreason:&suberror];
-	if (error != nil) {
-		[self throwException:error subreason:suberror location:CODELOCATION];
-	}
-
-	//THIS WILL NOT WORK UNTIL ADD CHILD IS CALLED SO CREATE A NAMESPACE POINTER AND SET IT EXPLICITLY
-	//GDataXMLElement * resultElement = [GDataXMLElement elementWithName:tagName URI:theURI];
-	NSString* prefix = [GDataXMLNode prefixForName:tagName];
-	NSString* localName = [GDataXMLNode localNameForName:tagName];
-
-	id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-	TiDOMElementProxy * result = [[[TiDOMElementProxy alloc] _initWithPageContext:context] autorelease];
-	GDataXMLElement * resultElement = [GDataXMLElement elementWithName:localName];
-	xmlChar *href;
-	xmlChar *pre;
+    ENSURE_STRING_OR_NIL(theURI);
+    ENSURE_STRING(tagName);
     
-	if (theURI != nil)
-		href = (xmlChar*)[theURI UTF8String];
-	else
-		href = NULL;
+    NSString* prefix = [GDataXMLNode prefixForName:tagName];
+    
+    if (prefix == nil && theURI == nil) {
+        return [self createElement:[NSArray arrayWithObject:tagName]];
+    }
+    
+    NSString *error = nil;
+    NSString *suberror = nil;
+    [TiDOMNodeProxy validateElementParameters:tagName withUri:theURI reason:&error subreason:&suberror];
+    if (error != nil) {
+        [self throwException:error subreason:suberror location:CODELOCATION];
+    }
+
+    //THIS WILL NOT WORK UNTIL ADD CHILD IS CALLED SO CREATE A NAMESPACE POINTER AND SET IT EXPLICITLY
+    //GDataXMLElement * resultElement = [GDataXMLElement elementWithName:tagName URI:theURI];
+    NSString* localName = [GDataXMLNode localNameForName:tagName];
+
+    id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
+    TiDOMElementProxy * result = [[[TiDOMElementProxy alloc] _initWithPageContext:context] autorelease];
+    GDataXMLElement * resultElement = [GDataXMLElement elementWithName:localName];
+    xmlChar *href;
+    xmlChar *pre;
+    
+    if (theURI != nil)
+        href = (xmlChar*)[theURI UTF8String];
+    else
+        href = NULL;
 	
-	if ([prefix length] > 0) {
-		pre = (xmlChar*)[prefix UTF8String];
-	} else {
-		// default namespace is represented by a nil prefix
-		pre = NULL;
-	}
+    if ([prefix length] > 0) {
+        pre = (xmlChar*)[prefix UTF8String];
+    } else {
+        // default namespace is represented by a nil prefix
+        pre = NULL;
+    }
 	
-	xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
-								 href, pre);
-	[resultElement XMLNode]->ns = theNewNs;
-	[result setDocument:[self document]];
-	[result setElement:resultElement];
-	[TiDOMNodeProxy setNode:result forXMLNode:[resultElement XMLNode]];
-	return result;
+    xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
+                                 href, pre);
+    [resultElement XMLNode]->ns = theNewNs;
+    //Assume that this NS is defined on this node. Will be fixed later when added to tree
+    [resultElement XMLNode]->nsDef = theNewNs;
+    [result setDocument:[self document]];
+    [result setElement:resultElement];
+    [TiDOMNodeProxy setNode:result forXMLNode:[resultElement XMLNode]];
+    return result;
 }
 
 -(TiDOMEntityRefProxy*)createEntityReference:(id)args
@@ -372,28 +383,29 @@
 -(id)getElementsByTagNameNS:(id)args
 {
     ENSURE_ARG_COUNT(args, 2);
-    NSString * theURI;
-	NSString * localName;
-	ENSURE_ARG_AT_INDEX(theURI, args, 0, NSString);
-	ENSURE_ARG_AT_INDEX(localName, args, 1, NSString);
+    NSString * theURI = [args objectAtIndex:0];
+    NSString * localName = [args objectAtIndex:1];
+    ENSURE_STRING_OR_NIL(theURI);
+    ENSURE_STRING(localName);
+    
+    if (theURI == nil) {
+        return [self getElementsByTagName:localName];
+    }
 
-	NSError *error = nil;
+    NSError *error = nil;
     //PARAMETER IS SPECIFIED AS LOCAL NAME
-	NSString *xpath = [NSString stringWithFormat:@"//*[local-name()='%@' and namespace-uri()='%@']",localName, theURI];
+    NSString *xpath = [NSString stringWithFormat:@"//*[local-name()='%@' and namespace-uri()='%@']",localName, theURI];
 
 
     NSArray *nodes = [document nodesForXPath:xpath error:&error];
-	if(error == nil)
-    {
+    if(error == nil) {
         id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
         return [self makeNodeListProxyFromArray:nodes context:context];
     }
-    else
-    {
+    else {
         [self throwException:[error description] subreason:nil location:CODELOCATION];
         return nil;
     } 
-
 }
 
 -(id)importNode:(id)args

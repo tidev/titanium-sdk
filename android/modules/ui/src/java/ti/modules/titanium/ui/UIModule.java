@@ -18,19 +18,16 @@ import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
-import android.view.Window;
 import android.widget.Toast;
 
 @Kroll.module

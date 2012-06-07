@@ -449,7 +449,7 @@ class Builder(object):
 			'-sdcard',
 			self.get_sdcard_path(),
 			'-logcat',
-			'*:d,*',
+			'*:d,*,TiAPI:V',
 			'-no-boot-anim',
 			'-partition-size',
 			'128' # in between nexusone and droid
@@ -1328,16 +1328,15 @@ class Builder(object):
 			# kroll-apt.jar is needed for modules
 			classpath = os.pathsep.join([classpath, self.kroll_apt_jar])
 
+		classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-verify.jar')])
 		if self.deploy_type != 'production':
-			classpath = os.pathsep.join([classpath,
-				os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'),
-				os.path.join(self.support_dir, 'lib', 'titanium-debug.jar')])
+			classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-debug.jar')])
 
 		debug("Building Java Sources: " + " ".join(src_list))
 		javac_command = [self.javac, '-encoding', 'utf8',
 			'-classpath', classpath, '-d', self.classes_dir, '-proc:none',
 			'-sourcepath', self.project_src_dir,
-			'-sourcepath', self.project_gen_dir]
+			'-sourcepath', self.project_gen_dir, '-target', '1.6', '-source', '1.6']
 		(src_list_osfile, src_list_filename) = tempfile.mkstemp()
 		src_list_file = os.fdopen(src_list_osfile, 'w')
 		src_list_file.write("\n".join(src_list))
@@ -1437,13 +1436,13 @@ class Builder(object):
 		for jar_file in self.android_jars:
 			add_resource_jar(jar_file)
 
-		def add_native_libs(libs_dir):
+		def add_native_libs(libs_dir, exclude=[]):
 			if os.path.exists(libs_dir):
 				for abi_dir in os.listdir(libs_dir):
 					libs_abi_dir = os.path.join(libs_dir, abi_dir)
 					if not os.path.isdir(libs_abi_dir): continue
 					for file in os.listdir(libs_abi_dir):
-						if file.endswith('.so'):
+						if file.endswith('.so') and file not in exclude:
 							native_lib = os.path.join(libs_abi_dir, file)
 							path_in_zip = '/'.join(['lib', abi_dir, file])
 							if is_modified(native_lib) or not zip_contains(apk_zip, path_in_zip):
@@ -1451,22 +1450,30 @@ class Builder(object):
 								debug("installing native lib: %s" % native_lib)
 								apk_zip.write(native_lib, path_in_zip)
 
+		# add module native libraries
+		for module in self.modules:
+			exclude_libs = []
+			if self.runtime != 'v8':
+				# Don't need the v8 version of the module itself.
+				# (But of course we do want any other native libraries
+				# that the module developer may have packaged.)
+				exclude_libs.append('lib%s.so' % module.manifest.moduleid)
+			add_native_libs(module.get_resource('libs'), exclude_libs)
+
+		# add any native libraries : libs/**/*.so -> lib/**/*.so
+		add_native_libs(os.path.join(self.project_dir, 'libs'))
+
+		# add sdk runtime native libraries
+		debug("installing native SDK libs")
+		sdk_native_libs = os.path.join(template_dir, 'native', 'libs')
+		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libtiverify.so'), 'lib/armeabi/libtiverify.so')
+		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libtiverify.so'), 'lib/armeabi-v7a/libtiverify.so')
 		if self.runtime == 'v8':
-			# add any native libraries : libs/**/*.so -> lib/**/*.so
-			add_native_libs(os.path.join(self.project_dir, 'libs'))
-
-			# add module native libraries
-			for module in self.modules:
-				add_native_libs(module.get_resource('libs'))
-
-			# add sdk runtime native libraries
-			debug("installing native SDK libs")
-			sdk_native_libs = os.path.join(template_dir, 'native', 'libs')
 			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libkroll-v8.so'), 'lib/armeabi/libkroll-v8.so')
 			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libstlport_shared.so'), 'lib/armeabi/libstlport_shared.so')
 			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libkroll-v8.so'), 'lib/armeabi-v7a/libkroll-v8.so')
 			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libstlport_shared.so'), 'lib/armeabi-v7a/libstlport_shared.so')
-			self.apk_updated = True
+		self.apk_updated = True
 
 		apk_zip.close()
 		return unsigned_apk
@@ -1503,7 +1510,14 @@ class Builder(object):
 		else:
 			app_apk = os.path.join(self.project_dir, 'bin', 'app.apk')	
 
-		output = run.run([self.jarsigner, '-storepass', self.keystore_pass, '-keystore', self.keystore, '-signedjar', app_apk, unsigned_apk, self.keystore_alias])
+		output = run.run([self.jarsigner,
+			'-sigalg', 'MD5withRSA',
+			'-digestalg', 'SHA1',
+			'-storepass', self.keystore_pass,
+			'-keystore', self.keystore,
+			'-signedjar', app_apk,
+			unsigned_apk,
+			self.keystore_alias])
 		run.check_output_for_error(output, r'RuntimeException: (.*)', True)
 		run.check_output_for_error(output, r'^jarsigner: (.*)', True)
 
@@ -1880,7 +1894,7 @@ class Builder(object):
 								self.project_gen_dir,
 								self.project_dir, 
 								include_all_modules=include_all_ti_modules)
-			compiler.compile(compile_bytecode=self.compile_js)
+			compiler.compile(compile_bytecode=self.compile_js, external_modules=self.modules)
 			self.compiled_files = compiler.compiled_files
 			self.android_jars = compiler.jar_libraries
 			self.merge_internal_module_resources()
@@ -1945,8 +1959,8 @@ class Builder(object):
 				dex_args += self.android_jars
 				dex_args += self.module_jars
 
+				dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'))
 				if self.deploy_type != 'production':
-					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'))
 					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-debug.jar'))
 					# the verifier depends on Ti.Network classes, so we may need to inject it
 					has_network_jar = False

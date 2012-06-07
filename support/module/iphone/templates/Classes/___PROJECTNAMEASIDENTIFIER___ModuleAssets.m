@@ -3,7 +3,7 @@
  */
 #import "___PROJECTNAMEASIDENTIFIER___ModuleAssets.h"
 
-extern NSData* filterData(NSString* thedata, NSString* identifier);
+extern NSData* filterDataInRange(NSData* thedata, NSRange range);
 
 @implementation ___PROJECTNAMEASIDENTIFIER___ModuleAssets
 

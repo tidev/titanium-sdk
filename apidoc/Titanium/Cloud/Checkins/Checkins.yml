@@ -5,78 +5,77 @@ excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  
 
 methods:
   - name: create
-    summary: Check in to a place or event
+    summary: Check in to a place or event.
     description: |
+        Requires user login. 
+        
         See [Checkins: Checkin to a Place or Event](http://cloud.appcelerator.com/docs/api/v1/checkins/create)
         for the request parameters supported by this method.
-
+        
         Data is returned in the `checkins` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass. 
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+      
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudCheckinsResponse>
-
+  
   - name: query
     summary: Retrieve a list of checkins with sorting and pagination.
     description: |
         See [Checkins: Custom Query Checkins](http://cloud.appcelerator.com/docs/api/v1/checkins/query)
         for the request parameters supported by this method.
-
+        
         Data is returned in the `checkins` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
+        summary: Parameters to send in the request.
+        type: Dictionary
         optional: true
-
+      
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudCheckinsResponse>
-
+  
+  - name: remove
+    summary: Delete a checkin.
+    description: |
+        Requires user login. 
+        
+        See [Checkins: Delete a checkin](http://cloud.appcelerator.com/docs/api/v1/checkins/delete)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+      
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudCheckinsResponse>
+  
   - name: show
     summary: Retrieve a checkin.
     description: |
         See [Checkins: Show a Checkin](http://cloud.appcelerator.com/docs/api/v1/checkins/show)
         for the request parameters supported by this method.
-
+        
         Data is returned in the `checkins` property of the parameter passed to the callback.
     parameters:
-
       - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
-      - name: callback
-        summary: Callback function to execute when the method completes.
-        type: Callback<CloudCheckinsResponse>
-
-  - name: remove
-    summary: Delete a checkin.
-    description: |
-        See [Checkins: Delete a checkin](http://cloud.appcelerator.com/docs/api/v1/checkins/delete)
-        for the request parameters supported by this method.
-
-    parameters:
-
-      - name: parameters
-        summary: An ordinary JavaScript object which contains parameters to pass.
-        type: Object
-
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
       - name: callback
         summary: Callback function to execute when the method completes.
         type: Callback<CloudCheckinsResponse>
 
 examples:
-  - title: Create a Checkin Example
+  - title: Create a Checkin
     example: |
         This example creates a checkin and checks the response.
-
+        
             Cloud.Checkins.create({
                 place_id: myPlaceId,
                 message: 'What a great view!',
@@ -92,11 +91,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Query for Checkins Example
+  
+  - title: Query for Checkins
     example: |
         This example requests information about checkins and checks the response.
-
+        
             Cloud.Checkins.query({
                 page: 1,
                 per_page: 20,
@@ -116,11 +115,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Show Checkin Example
+  
+  - title: Show Checkin
     example: |
         This example requests information about a checkin and checks the response.
-
+        
             Cloud.Checkins.show({
                 checkin_id: myCheckinId
             }, function (e) {
@@ -135,11 +134,11 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
-
-  - title: Remove Checkin Example
+  
+  - title: Remove Checkin
     example: |
         This example deletes a checkin and checks the response.
-
+        
             Cloud.Checkins.remove({
                 checkin_id: myCheckinId
             }, function (e) {
@@ -150,12 +149,13 @@ examples:
                         ((e.error && e.message) || JSON.stringify(e)));
                 }
             });
+
 ---
 name: CloudCheckinsResponse
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
 extends: CloudResponse
 properties:
   - name: checkins
-    summary: Array of `checkins` objects, if any
+    summary: Set of `checkins` objects, if any exist.
     description: Only included if `success` is `true`.
-    type: Array<Object>
+    type: Array<Dictionary>

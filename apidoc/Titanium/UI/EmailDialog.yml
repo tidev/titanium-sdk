@@ -91,8 +91,9 @@ properties:
     
   - name: barColor
     summary: |
-        Bar color of the email dialog window as a 
-        [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name or hex triplet.
+        Bar color of the email dialog window, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
     platforms: [iphone, ipad]
     

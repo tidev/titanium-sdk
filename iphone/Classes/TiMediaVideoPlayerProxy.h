@@ -45,6 +45,7 @@
 @property(nonatomic,readwrite,assign) id url;
 @property(nonatomic,readwrite,assign) TiColor* backgroundColor;
 @property(nonatomic,readonly) NSNumber* playing;
+@property(nonatomic,copy)	NSNumber *volume;
 
 -(void)add:(id)proxy;
 -(void)remove:(id)proxy;

@@ -23,6 +23,12 @@
 - (void)focus:(id)args;
 
 /**
+ Tells the view to stop generating focus/blur events. This should not be
+ JS-accessable, and is meant to handle tableview and layout issues.
+ */
+@property(nonatomic,readwrite,assign)	BOOL suppressFocusEvents;
+
+/**
  Tells the view to blur.
  @param args Unused.
  */
@@ -251,6 +257,14 @@ enum
 #pragma mark Methods subclasses should override for behavior changes
 
 /**
+ Whether or not the view proxy can have non Ti-Views which have to be pushed to the bottom when adding children.
+ **This method is only meant for legacy classes. New classes must implement the proper wrapperView code**
+ Subclasses may override.
+ @return _NO_ if the view proxy can have non Ti-Views in its view heirarchy
+ */
+-(BOOL)optimizeSubviewInsertion;
+
+/**
  Whether or not the view proxy needs to suppress relayout.
  
  Subclasses may override.
@@ -353,10 +367,29 @@ enum
  @see viewWillDetach
  */
 -(void)viewDidDetach;
+/**
+ Tells the view proxy that parent will appear 
+ @see UIViewController viewWillAppear.
+ */
+-(void)parentWillAppear:(id)args;
+/**
+ Tells the view proxy that parent did appear 
+ @see UIViewController viewDidAppear.
+ */
+-(void)parentDidAppear:(id)args;
+/**
+ Tells the view proxy that parent will disappear 
+ @see UIViewController viewWillDisappear.
+ */
+-(void)parentWillDisappear:(id)args;
+/**
+ Tells the view proxy that parent did appear 
+ @see UIViewController viewDidDisappear.
+ */
+-(void)parentDidDisappear:(id)args;
 
 #pragma mark Housecleaning state accessors
 //TODO: Sounds like the redundancy department of redundancy was here.
-
 /**
  Whether or not a view is attached to the view proxy.
  @return _YES_ if the view proxy has a view attached to it, _NO_ otherwise.
@@ -538,7 +571,6 @@ enum
  */
 -(void)relayout;
 
--(void)insertIntoView:(UIView*)view bounds:(CGRect)bounds;
 -(void)reposition;	//Todo: Replace
 
 -(BOOL)willBeRelaying;	//Todo: Replace

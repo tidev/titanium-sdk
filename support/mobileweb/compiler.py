@@ -10,6 +10,7 @@ this_dir = os.path.dirname(os.path.abspath(__file__))
 common_dir = os.path.join(os.path.dirname(this_dir), "common")
 sys.path.append(common_dir)
 import mako.template
+from mako import runtime
 import simplejson
 from csspacker import CSSPacker
 
@@ -31,9 +32,13 @@ HEADER = """/**
 
 def compare_versions(version1, version2):
 	def normalize(v):
-		v = '.'.join(v.split('.')[:3])
+		v = '.'.join(map((lambda s:re.sub(r'[^\d]+(.*)$','',s)), v.split('.')[:3]))
 		return [int(x) for x in re.sub(r'(\.0+)*$','', v).split(".")]
 	return cmp(normalize(version1), normalize(version2))
+
+class AppcTemplate(mako.template.Template):
+	def render(self, *args, **data):
+		return runtime._render(self, self.callable_, args, data, as_unicode=True)
 
 class Compiler(object):
 
@@ -142,20 +147,26 @@ class Compiler(object):
 		if len(tiapp_xml['modules']):
 			print '[INFO] Locating Ti+ modules...'
 			for module in tiapp_xml['modules']:
-				if module['platform'] == '' or module['platform'] == 'mobileweb':
+				if module['platform'] in ['', 'mobileweb', 'commonjs']:
+					is_commonjs = False
+					
 					if 'version' in module and module['version']:
 						# search <project dir>/modules/mobileweb/<module>/<version>/
 						module_dir = os.path.join(self.project_path, 'modules', 'mobileweb', module['id'], module['version'])
 						if not os.path.exists(module_dir):
 							# search <project dir>/modules/commonjs/<module>/<version>/
 							module_dir = os.path.join(self.project_path, 'modules', 'commonjs', module['id'], module['version'])
-							if not os.path.exists(module_dir):
+							if os.path.exists(module_dir):
+								is_commonjs = True
+							else:
 								# search <global module dir>/<module>/<version>/
 								module_dir = os.path.join(self.modules_path, 'mobileweb', module['id'], module['version'])
 								if not os.path.exists(module_dir):
 									# search <global commonjs dir>/<module>/<version>/
 									module_dir = os.path.join(self.modules_path, 'commonjs', module['id'], module['version'])
-									if not os.path.exists(module_dir):
+									if os.path.exists(module_dir):
+										is_commonjs = True
+									else:
 										print '[ERROR] Unable to find Ti+ module "%s", v%s' % (module['id'], module['version'])
 										sys.exit(1)
 					else:
@@ -165,13 +176,17 @@ class Compiler(object):
 						if module_dir is None:
 							# search <project dir>/modules/commonjs/<module>/<version>/
 							module_dir = self.locate_module(os.path.join(self.project_path, 'modules', 'commonjs', module['id']))
-							if module_dir is None:
+							if module_dir is not None:
+								is_commonjs = True
+							else:
 								# search <global module dir>/<module>/<version>/
 								module_dir = self.locate_module(os.path.join(self.modules_path, 'mobileweb', module['id']))
 								if module_dir is None:
 									# search <global commonjs dir>/<module>/<version>/
 									module_dir = self.locate_module(os.path.join(self.modules_path, 'commonjs', module['id']))
-									if module_dir is None:
+									if module_dir is not None:
+										is_commonjs = True
+									else:
 										print '[ERROR] Unable to find Ti+ module "%s"' % module['id']
 										sys.exit(1)
 					
@@ -193,7 +208,7 @@ class Compiler(object):
 						key,value = line.split(':')
 						manifest[key.strip()] = value.strip()
 					
-					if 'minsdk' in manifest and compare_versions(manifest['minsdk'], sdk_version):
+					if 'minsdk' in manifest and compare_versions(manifest['minsdk'], sdk_version) == 1:
 						print '[ERROR] Ti+ module "%s" requires a minimum SDK version of %s: current version %s' % (module['id'], manifest['minsdk'], sdk_version)
 						sys.exit(1)
 					
@@ -217,7 +232,15 @@ class Compiler(object):
 					print '[INFO] Bundling Ti+ module "%s"' % module['id']
 					
 					self.project_dependencies.append(main_file)
-					self.modules_to_cache.append(module['id'] + '/' + main_file)
+					
+					module_name = module['id']
+					if module['id'] != main_file:
+						module_name += '/' + main_file
+					if is_commonjs:
+						self.modules_to_cache.append('commonjs:' + module_name)
+					else:
+						self.modules_to_cache.append(module_name)
+
 					self.tiplus_modules_to_load.append(module['id'])
 					
 					if len(lib):
@@ -269,7 +292,7 @@ class Compiler(object):
 						os.makedirs(locale_path)
 					except:
 						pass
-					i18n_file = codecs.open(os.path.join(locale_path, 'i18n.js'), 'w', encoding='utf-8')
+					i18n_file = codecs.open(os.path.join(locale_path, 'i18n.js'), 'w', 'utf-8')
 					i18n_file.write('define(%s);' % simplejson.dumps(strings))
 					i18n_file.close()
 					if dir in tiapp_xml['precache']['locales']:
@@ -277,11 +300,12 @@ class Compiler(object):
 		
 		# build the titanium.js
 		print '[INFO] Assembling titanium.js...'
-		ti_js = codecs.open(self.ti_js_file, 'w', encoding='utf-8')
+		ti_js = codecs.open(self.ti_js_file, 'w', 'utf-8')
 		ti_js.write(HEADER + '\n')
 		
 		# 1) read in the config.js and fill in the template
-		ti_js.write(mako.template.Template(codecs.open(os.path.join(self.sdk_src_path, 'config.js'), 'r', 'utf-8').read()).render(
+		enableInstrumentation = tiapp_xml['mobileweb']['instrumentation'] == 'true' if 'instrumentation' in tiapp_xml['mobileweb'] else False
+		ti_js.write(AppcTemplate(codecs.open(os.path.join(self.sdk_src_path, 'config.js'), 'r', 'utf-8').read(), input_encoding='utf-8', output_encoding='utf-8').render(
 			app_analytics         = tiapp_xml['analytics'],
 			app_copyright         = tiapp_xml['copyright'],
 			app_description       = tiapp_xml['description'],
@@ -304,13 +328,18 @@ class Compiler(object):
 			ti_version            = sdk_version,
 			has_analytics_use_xhr = tiapp_xml['mobileweb']['analytics']['use-xhr'],
 			has_show_errors       = 'false' if deploytype == 'production' or tiapp_xml['mobileweb']['disable-error-screen'] == 'true' else 'true',
+			has_instrumentation   = 'true' if enableInstrumentation else 'false',
 			jsQuoteEscapeFilter   = lambda str: str.replace("\\\"","\\\\\\\"")
 		))
 		
-		# 2) copy in the loader
+		# 2) copy in instrumentation if it's enabled
+		if enableInstrumentation:
+			ti_js.write(codecs.open(os.path.join(self.sdk_src_path, 'instrumentation.js'), 'r', 'utf-8').read())
+		
+		# 3) copy in the loader
 		ti_js.write(codecs.open(os.path.join(self.sdk_src_path, 'loader.js'), 'r', 'utf-8').read())
 		
-		# 3) cache the dependencies
+		# 4) cache the dependencies
 		ti_js.write('require.cache({\n');
 		first = True
 		
@@ -447,6 +476,8 @@ class Compiler(object):
 		
 		# TODO: need to rewrite absolute paths for urls
 		
+		# TODO: code below does NOT inline imports, nor remove them... do NOT use imports until themes are fleshed out
+		
 		if len(theme):
 			theme_path = os.path.join(self.resources_path, 'themes', theme)
 			if not os.path.exists(theme_path):
@@ -479,7 +510,7 @@ class Compiler(object):
 			ti_css = CSSPacker(ti_css).pack()
 		
 		# write the titanium.css
-		ti_css_file = codecs.open(os.path.join(self.build_path, 'titanium.css'), 'w', encoding='utf-8')
+		ti_css_file = codecs.open(os.path.join(self.build_path, 'titanium.css'), 'w', 'utf-8')
 		ti_css_file.write(ti_css)
 		ti_css_file.close()
 		
@@ -507,13 +538,13 @@ class Compiler(object):
 		# create the filesystem registry
 		print '[INFO] Building filesystem registry...'
 		filesystem_registry = 'ts\t' + str(int(os.path.getctime(self.build_path)) * 1000) + '\n' + self.walk_fs(self.build_path, 0)
-		filesystem_registry_file = codecs.open(os.path.join(self.build_path, 'titanium', 'filesystem.registry'), 'w', encoding='utf-8')
+		filesystem_registry_file = codecs.open(os.path.join(self.build_path, 'titanium', 'filesystem.registry'), 'w', 'utf-8')
 		filesystem_registry_file.write(filesystem_registry)
 		filesystem_registry_file.close()
 		
 		# if we're preloading the filesystem registry, write it to the require cache
 		if tiapp_xml['mobileweb']['filesystem']['registry'] == 'preload':
-			ti_js = codecs.open(self.ti_js_file, 'a', encoding='utf-8')
+			ti_js = codecs.open(self.ti_js_file, 'a', 'utf-8')
 			ti_js.write('require.cache({"url:/titanium/filesystem.registry":"' + filesystem_registry.strip().replace('\n', '|') + '"});')
 			ti_js.close()
 		
@@ -529,8 +560,8 @@ class Compiler(object):
 				status_bar_style = 'default'
 		
 		# populate index.html
-		index_html_file = codecs.open(os.path.join(self.build_path, 'index.html'), 'w', encoding='utf-8')
-		index_html_file.write(mako.template.Template(codecs.open(os.path.join(self.sdk_src_path, 'index.html'), 'r', 'utf-8').read().strip()).render(
+		index_html_file = codecs.open(os.path.join(self.build_path, 'index.html'), 'w', 'utf-8')
+		index_html_file.write(AppcTemplate(codecs.open(os.path.join(self.sdk_src_path, 'index.html'), 'r', 'utf-8').read().strip(), input_encoding='utf-8', output_encoding='utf-8').render(
 			ti_header          = HTML_HEADER,
 			project_name       = tiapp_xml['name'] or '',
 			app_description    = tiapp_xml['description'] or '',
@@ -556,7 +587,7 @@ class Compiler(object):
 			return None
 		
 		strings = {}
-		dom = parseString(codecs.open(xml_file,'r','utf-8','replace').read().encode('utf-8'))
+		dom = parseString(codecs.open(xml_file, 'r', 'utf-8', 'replace').read().encode('utf-8'))
 		root = dom.documentElement
 		
 		for node in root.childNodes:
@@ -695,6 +726,19 @@ class Compiler(object):
 			'Ti/Filesystem',
 			'Ti/Filesystem/File',
 			'Ti/Filesystem/FileStream',
+			'Ti/Gesture',
+			'Ti/_/Gestures/GestureRecognizer',
+			'Ti/_/Gestures/DoubleTap',
+			'Ti/_/Gestures/LongPress',
+			'Ti/_/Gestures/Pinch',
+			'Ti/_/Gestures/SingleTap',
+			'Ti/_/Gestures/Swipe',
+			'Ti/_/Gestures/TouchCancel',
+			'Ti/_/Gestures/TouchEnd',
+			'Ti/_/Gestures/TouchMove',
+			'Ti/_/Gestures/TouchStart',
+			'Ti/_/Gestures/TwoFingerTap',
+			'Ti/Geolocation',
 			'Ti/IOStream',
 			'Ti/Locale',
 			'Ti/Media',
@@ -703,29 +747,21 @@ class Compiler(object):
 			'Ti/Network/HTTPClient',
 			'Ti/Platform',
 			'Ti/Platform/DisplayCaps',
-			'Ti/Gesture',
-			'Ti/Geolocation',
-			'Ti/XML',
-			'Ti/UI/View',
 			'Ti/Map',
 			'Ti/Map/View',
 			'Ti/Map/Annotation',
-			'Ti/Media/VideoPlayer',
 			'Ti/UI',
-			'Ti/UI/Clipboard',
-			'Ti/UI/MobileWeb',
-			'Ti/UI/TableViewRow',
-			'Ti/UI/Tab',
-			'Ti/UI/TabGroup',
-			'Ti/UI/Window',
 			'Ti/UI/2DMatrix',
 			'Ti/UI/ActivityIndicator',
 			'Ti/UI/AlertDialog',
 			'Ti/UI/Animation',
 			'Ti/UI/Button',
+			'Ti/UI/Clipboard',
 			'Ti/UI/EmailDialog',
 			'Ti/UI/ImageView',
 			'Ti/UI/Label',
+			'Ti/UI/MobileWeb',
+			'Ti/UI/MobileWeb/NavigationGroup',
 			'Ti/UI/OptionDialog',
 			'Ti/UI/Picker',
 			'Ti/UI/PickerColumn',
@@ -735,13 +771,18 @@ class Compiler(object):
 			'Ti/UI/ScrollView',
 			'Ti/UI/Slider',
 			'Ti/UI/Switch',
-			'Ti/UI/TableViewSection',
+			'Ti/UI/Tab',
+			'Ti/UI/TabGroup',
 			'Ti/UI/TableView',
+			'Ti/UI/TableViewRow',
+			'Ti/UI/TableViewSection',
 			'Ti/UI/TextArea',
 			'Ti/UI/TextField',
+			'Ti/UI/View',
 			'Ti/UI/WebView',
-			'Ti/UI/MobileWeb/NavigationGroup',
+			'Ti/UI/Window',
 			'Ti/Utils',
+			'Ti/XML',
 			'Ti/Yahoo'
 		]
 	

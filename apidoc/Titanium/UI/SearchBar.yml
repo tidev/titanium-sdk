@@ -81,6 +81,9 @@ events:
   - name: blur
     summary: Fired when the search bar loses focus.
 
+  - name: bookmark
+    summary: Fired when the bookmark button is pressed.
+      
   - name: cancel
     summary: Fired when the cancel button is pressed.
 
@@ -115,8 +118,10 @@ properties:
     default: false
 
   - name: barColor
-    summary: Bar color of the search bar view.
+    summary: Bar color of the search bar view, as a color name or hex triplet.
     description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        
         On iOS, `barColor` specifies the color of the "frame" around the search text field.
     type: String
     platforms: [iphone, ipad]
@@ -152,6 +157,12 @@ properties:
         [prompt](Titanium.UI.SearchBar.prompt) property.
     type: String
     platforms: [iphone, ipad]
+
+  - name: showBookmark
+    summary: Determines whether the bookmark button is displayed.
+    type: Boolean
+    platforms: [iphone, ipad]
+    default: false
 
   - name: showCancel
     summary: Determines whether the cancel button is displayed.

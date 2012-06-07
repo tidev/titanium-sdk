@@ -7,7 +7,15 @@
 
 #import "Webcolor.h"
 #import "TiBase.h"
+#import "TiUtils.h"
 
+NSString * const IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND = @"scrollview_textured";
+NSString * const IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND = @"view_flipside";
+NSString * const IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND = @"group_tableview";
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
+NSString * const IOS_COLOR_UNDER_PAGE_BACKGROUND = @"under_page";
+#endif
 
 UIColor * checkmarkColor = nil;
 NSMutableDictionary * colorLookup = nil;
@@ -54,17 +62,20 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 					   [UIColor brownColor],@"brown",
 					   [UIColor clearColor],@"transparent",
 					   [UIColor groupTableViewBackgroundColor],@"stripped",
-					   
+					   [UIColor groupTableViewBackgroundColor],IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND,
+					   [UIColor scrollViewTexturedBackgroundColor],IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND,
+					   [UIColor viewFlipsideBackgroundColor],IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND,
+                       
 					   // these are also defined by the W3C HTML spec so we support them
-					   [Webcolor colorForHex:@"#0ff"],@"aqua",
-					   [Webcolor colorForHex:@"#f0f"],@"fuchsia",
-					   [Webcolor colorForHex:@"#0f0"],@"lime",
-					   [Webcolor colorForHex:@"#800"],@"maroon",
-					   [Webcolor colorForHex:@"#FFC0CB"],@"pink",
-					   [Webcolor colorForHex:@"#000080"],@"navy",
-					   [Webcolor colorForHex:@"#c0c0c0"],@"silver",
-					   [Webcolor colorForHex:@"#808000"],@"olive",
-					   [Webcolor colorForHex:@"#008080"],@"teal",
+					   [Webcolor colorForHex:@"0ff"],@"aqua",
+					   [Webcolor colorForHex:@"f0f"],@"fuchsia",
+					   [Webcolor colorForHex:@"0f0"],@"lime",
+					   [Webcolor colorForHex:@"800"],@"maroon",
+					   [Webcolor colorForHex:@"FFC0CB"],@"pink",
+					   [Webcolor colorForHex:@"000080"],@"navy",
+					   [Webcolor colorForHex:@"c0c0c0"],@"silver",
+					   [Webcolor colorForHex:@"808000"],@"olive",
+					   [Webcolor colorForHex:@"008080"],@"teal",
 					   
 					   white,@"fff",
 					   white,@"ffff",
@@ -76,6 +87,12 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 					   black,@"ff000000",
 					   nil];
 	}
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
+	if ([TiUtils isIOS5OrGreater])
+	{
+		[colorLookup setObject:[UIColor underPageBackgroundColor] forKey:IOS_COLOR_UNDER_PAGE_BACKGROUND];
+	}
+#endif
 	if ([colorName hasPrefix:@"#"]) 
 	{
 		colorName = [colorName substringFromIndex:1];
@@ -170,7 +187,7 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 	float alpha = 1.0;
     if ((length != 3) && (length != 4) && (length != 6) && (length!=7) && (length != 8))
 	{
-		NSLog(@"[WARN] Hex color passed looks invalid: %@",hexCode);
+		DebugLog(@"[WARN] Hex color passed looks invalid: %@",hexCode);
         return nil;
 	}
     unsigned value = 0;

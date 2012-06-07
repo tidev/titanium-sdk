@@ -1,65 +1,69 @@
 ---
 name: Titanium.UI.ScrollableView
 summary: |
-    A view that encapsulates a horizontally-scrolling set of sub-views, navigable using its built-in 
-    horizontal swipe gestures.
+    A view that encapsulates a horizontally-scrolling set of child views, known as pages, navigable 
+    using its built-in horizontal swipe gestures.
 description: |
     Use the <Titanium.UI.createScrollableView> method to create a scrollable view.
-
-    ScrollableView supports a visual paging control that may be enabled to indicate on-screen that 
-    a view is visible.
     
-    Only the `scroll` event exists on Android. To support those that are missing, event listeners 
-    may be added to its child views.
+    The `ScrollableView` supports an on-screen paging control to indicate whether a previous or next 
+    page exists. When the paging control is enabled on iOS or Mobile Web, by default it appears as 
+    small dots on the bottom of the screen, whereas Android displays arrows on the left and 
+    right-hand sides. 
+    
+    Only the `scroll` event exists for the `ScrollableView` on Android. To support others, child 
+    views may be added to pages, and event listeners added to these views instead of the pages 
+    themselves. 
     
     In a previous Titanium version for iOS, the `maxZoomScale` and `minZoomScale` properties were 
     removed for performance and parity reasons. As they still remain in <Titanium.UI.ScrollView>, 
-    the equivalent functionality may be obtained by adding a ScrollView to ScrollableView. See the 
-    "Simple Scrollable View with 2 Zoomable Images" example for a demonstration.
-
+    the equivalent functionality may be obtained by adding a `ScrollView` to `ScrollableView`. See 
+    the "Simple Scrollable View with 2 Zoomable Images" example for a demonstration.
+excludes: { 
+    events: [ 'click', 'longclick', 'pinch', 'scrollEnd', 'swipe', 'touchend', 'touchmove' ]
+}
 extends: Titanium.UI.View
+platforms: [android, iphone, ipad, mobileweb]
 since: "0.8"
-platforms: [android, iphone, ipad]
-excludes: { events: [ 'click', 'longclick', 'pinch', 'scrollEnd', 'swipe', 'touchend', 'touchmove' ] }
 
 methods:
   - name: addView
-    summary: Adds a new view to this Scrollable View.
+    summary: Adds a new page to this Scrollable View.
     parameters:
       - name: view
-        summary: The view to add.
-        type: Object
+        summary: The page to add.
+        type: Titanium.UI.View
 
   - name: moveNext
     summary: |
-        Sets the current page to the next consecutive view in <Titanium.UI.ScrollableView.views>.
+        Sets the current page to the next consecutive page in <Titanium.UI.ScrollableView.views>.
     platforms: [android]
     
   - name: movePrevious
     summary: |
-        Sets the current page to the previous consecutive view in <Titanium.UI.ScrollableView.views>.
+        Sets the current page to the previous consecutive page in <Titanium.UI.ScrollableView.views>.
     platforms: [android]
     
   - name: removeView
-    summary: |
-        Removes an existing view from this Scrollable View.
+    summary: Removes an existing page from this Scrollable View.
     description: |
-        On Android, does nothing if the view does not exist in <Titanium.UI.ScrollableView.views>.  
-        On iOS, throws an exception if the view does not exist in <Titanium.UI.ScrollableView.views> 
+        On Android and Mobile Web, does nothing if the page does not exist in 
+        <Titanium.UI.ScrollableView.views>. 
+        
+        On iOS, throws an exception if the page does not exist in <Titanium.UI.ScrollableView.views> 
         or the index is invalid.
     parameters:
       - name: view
         summary: |
             A <Titanium.UI.View> object (all platforms) or integer index (iPhone, iPad only) of 
-            a view to remove.
+            a page to remove.
         type: [Number, Titanium.UI.View]
     
   - name: scrollToView
-    summary: Scrolls to the specified view in <Titanium.UI.ScrollableView.views>.
+    summary: Scrolls to the specified page in <Titanium.UI.ScrollableView.views>.
     parameters:
       - name: view
-        summary: |
-          An integer index or a <Titanium.UI.View> object of the view to set as the current page.
+        summary: An integer index or <Titanium.UI.View> object to set as the current page.
         type: [Number, Titanium.UI.View]
 
 events:
@@ -71,10 +75,10 @@ events:
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -85,17 +89,17 @@ events:
         type: Number
 
   - name: doubletap
-    summary: Fired when the device detects a double tap against this view.
+    summary: Fired when the device detects a double tap against this page.
     platforms: [iphone, ipad]
     properties:
       - name: globalPoint
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -119,27 +123,21 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-    
-  - name: scroll
-    summary: Fired when the current view is changed.
+
+  - name: scrollEnd
+    summary: Fired when the view has stopped moving completely.
+    platforms: [iphone, ipad, android]
+    since: "2.1.0"
+
     properties:
       - name: currentPage
-        summary: Index of the current view of <Titanium.UI.ScrollableView.views>.
+        summary: Index of the currently visible view of <Titanium.UI.ScrollableView.views>.
         type: Number
         
-      - name: globalPoint
-        summary: |
-            Coordinates `x` and `y` describing the location of the event in terms of screen 
-            coordinates.
-        platforms: [iphone, ipad]
-        type: Dictionary
-        deprecated:
-            since: "1.8.0"
-        
       - name: view
-        summary: The current view.
-        type: Object
-    
+        summary: The currently visible view.
+        type: Titanium.UI.View
+
   - name: singletap
     summary: Fired when the device detects a single tap against this view.
     platforms: [iphone, ipad]
@@ -148,10 +146,10 @@ events:
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -172,10 +170,10 @@ events:
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -193,10 +191,10 @@ events:
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -214,10 +212,10 @@ events:
         summary: |
             Coordinates `x` and `y` describing the location of the event in terms of screen 
             coordinates.
-        platforms: [iphone, ipad]
         type: Dictionary
         deprecated:
             since: "1.8.0"
+        platforms: [iphone, ipad]
         
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
@@ -227,13 +225,47 @@ events:
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
 
+  - name: scroll
+    summary: Fired repeatedly as the view is being scrolled.
+    platforms: [iphone, ipad, android]
+    since: "2.1.0"
+    properties:
+
+      - name: currentPage
+        summary: Index of the currently visible view of <Titanium.UI.ScrollableView.views>.
+        type: Number
+
+      - name: currentPageAsFloat
+        type: Number
+        summary: |
+           Current page index that the view is scrolled to as a float. For
+           example, if the user is holding the `ScrollableView` in between
+           the first and second page, this will have a value of 0.5.
+
+      - name: view
+        summary: The currently visible view.
+        type: Titanium.UI.View
+
+  - name: dragEnd
+    summary: Fired when the scrolling drag gesture on the view has been completed.
+    platforms: [android]
+    since: "2.1.0"
+    properties:
+
+      - name: currentPage
+        summary: Index of the currently visible view of <Titanium.UI.ScrollableView.views>.
+        type: Number
+ 
+      - name: view
+        summary: The currently visible view.
+        type: Titanium.UI.View
+
 properties:
   - name: cacheSize
-    summary: |
-        Number of views to cache (pre-render).
+    summary: Number of pages to cache (pre-render).
     description: |
-        Views are rendered in the range (currentPage +/- (cacheSize - 1)/2), ROUNDED DOWN for even 
-        values (i.e. cacheSize=4 renders 3 views into the cache.) Keep in mind that improved 
+        Pages are rendered in the range (currentPage +/- (cacheSize - 1)/2), *rounded down* for even 
+        values (i.e. cacheSize=4 renders 3 pages into the cache.) Keep in mind that improved 
         performance (larger cache) will lead to faster performance, but greater memory usage.
     type: Number
     platforms: [iphone,ipad]
@@ -243,16 +275,16 @@ properties:
     type: Number
     
   - name: disableBounce
-    summary: Determines whether view bouncing effect is disabled.
+    summary: Determines whether page bouncing effect is disabled.
     type: Boolean
     default: false
     platforms: [iphone, ipad]
 
     
   - name: pagingControlColor
-    summary: |
-        Color of the paging control, in 
-        [web color](http://en.wikipedia.org/wiki/Web_colors#HTML_color_names) name or hex format.
+    summary: Color of the paging control, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     default: black
     platforms: [iphone,ipad]
@@ -265,54 +297,107 @@ properties:
     
   - name: showPagingControl
     summary: Determines whether the paging control is visible.
+    description: Set to `true` to show paging control.
     type: Boolean
     default: false
     
   - name: pagingControlTimeout
-    summary: |
-        Number of milliseconds to wait before hiding the paging control. Less than or equal to 
-        0 disables timeout, keeping controls displayed.
+    summary: Number of milliseconds to wait before hiding the paging control.
+    description: Set to less than or equal to `0` to disable timeout, to keep controls displayed.
     type: Number
+    availability: creation
     default: 3000
     platforms: [android, mobileweb]
-    availability: creation
+    
+  - name: pagingControlAlpha
+    summary: Alpha value of the paging control.
+    type: Number
+    default: 1.0
+    platforms: [iphone,ipad]
+    since: "2.1.0"
+    
+  - name: pagingControlOnTop
+    summary: Determines whether the paging control is displayed at the top or bottom of the view.
+    description: Set to `true` for the paging control at the top.
+    type: Boolean
+    default: false
+    platforms: [iphone,ipad]
+    since: "2.1.0"
+    
+  - name: overlayEnabled
+    summary: Determines whether the paging control is added as an overlay to the view.
+    description: |
+        If this property is set to `true`, the view takes up the entire height available in the 
+        parent view and the paging control is placed over the view. It is advisable to set an 
+        appropriate value for [pagingControlAlpha](Titanium.UI.ScrollableView.pagingControlAlpha) 
+        along with this property, so that the underlying view content may be seen properly.
+    type: Boolean
+    default: false
+    platforms: [iphone,ipad]
+    since: "2.1.0"
     
   - name: scrollingEnabled
-    summary: |
-        Determines whether scrolling is enabled on the Scrollable view.
-        If this property is not set, scrolling is enabled.
+    summary: Determines whether scrolling is enabled for the view.
+    description: If this property is unset or `true`, scrolling is enabled.
     type: Boolean
-    platforms: [iphone,ipad]
     default: undefined (scrolling enabled)
-    since: "2.0"
-    
+    platforms: [iphone, ipad, android]
+    since: { android: "2.1", iphone: "2.0", ipad: "2.0" }
+
   - name: views
-    summary: Sets the views within this Scrollable View.
+    summary: Sets the pages within this Scrollable View.
     type: Array<Titanium.UI.View>
+
+  - name: clipViews
+    summary: |
+        Determines whether the previous and next pages are clipped, so that they are not visible 
+        adjacent to the current page.
+    description: |
+        Set to `false` to allow the previous or next pages to be seen. Note that 
+        ScrollableView's [width](Titanium.UI.ScrollableView.width) must be smaller than its parent 
+        view in order to make this property effective.
+    type: Boolean
+    availability: creation
+    default: true
+    platforms: [iphone, ipad]
+
+  - name: hitRect
+    summary: Sets the region where this view responds to gestures.
+    description: |
+        This property is particularly useful when [clipViews](Titanium.UI.ScrollableView.clipViews) 
+        is set to `false` and the dimension of this view is small, to create a larger area for the 
+        user to perform swipe gestures against. 
+        
+        Note that the `x` and `y` values specified are relative to the position of the view.
+    type: Dimension
+    default: undefined (hit against size of view)
+    platforms: [iphone, ipad]
+    since: "2.1"
 
 examples:
   - title: Simple Scrollable View with 3 Views
     example: |
-        Create three views and place each into a scrollable view.
+        Create three views and assign them as pages to a scrollable view.
         
             var win = Ti.UI.createWindow();
-
+            
             var view1 = Ti.UI.createView({ backgroundColor:'#123' });
             var view2 = Ti.UI.createView({ backgroundColor:'#246' });
             var view3 = Ti.UI.createView({ backgroundColor:'#48b' });
-
+            
             var scrollableView = Ti.UI.createScrollableView({
               views:[view1,view2,view3],
               showPagingControl:true
             });
-
+            
             win.add(scrollableView);
             win.open();
             
   - title: Simple Scrollable View with 2 Zoomable Images
     example: |
-        Create two scroll views, each containing an image view, and place them in a scrollable view.
-
+        Create two scroll views, each containing an image view, and assign them as pages to a 
+        scrollable view.
+        
             var img1 = Ti.UI.createImageView({
                 image:'http://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/' +
                 'Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/' +
@@ -322,7 +407,7 @@ examples:
                 maxZoomScale:4.0,
             });
             img1Wrapper.add(img1);
-
+            
             var img2 = Ti.UI.createImageView({
                 image:'http://www.nasa.gov/images/content/' + 
                 '616903main_rover_comparison1600_1600-1200.jpg'
@@ -333,6 +418,6 @@ examples:
             img2Wrapper.add(img2);
             var photosView = Ti.UI.createScrollableView({
                 showPagingControl:true,
-                views:[img1Wrapper,img2Wrapper]
+                views:[img1Wrapper, img2Wrapper]
             });
             win.add(photosView);

@@ -1,11 +1,14 @@
 define(["Ti/_/declare", "Ti/Gesture", "Ti/Locale", "Ti/_/UI/SuperView", "Ti/UI"],
 	function(declare, Gesture, Locale, SuperView, UI) {
 
+	var UI_FILL = UI.FILL,
+		UI_SIZE = UI.SIZE;
+
 	return declare("Ti.UI.Window", SuperView, {
 	
-		_defaultWidth: UI.FILL,
+		_defaultWidth: UI_FILL,
 
-		_defaultHeight: UI.FILL,
+		_defaultHeight: UI_FILL,
 
 		postscript: function() {
 			if (this.url) {
@@ -30,15 +33,15 @@ define(["Ti/_/declare", "Ti/Gesture", "Ti/Locale", "Ti/_/UI/SuperView", "Ti/UI"]
 					if (value !== oldValue) {
 						if (value) {
 							var parentContainer = this._modalParentContainer = UI.createView();
-							parentContainer.add(UI.createView({
+							parentContainer._add(UI.createView({
 								backgroundColor: "#000",
 								opacity: 0.5
 							}));
-							parentContainer.add(this._modalContentContainer = UI.createView({
-								width: UI.SIZE,
-								height: UI.SIZE
+							parentContainer._add(this._modalContentContainer = UI.createView({
+								width: UI_SIZE,
+								height: UI_SIZE
 							}));
-							this._modalContentContainer.add(this);
+							this._modalContentContainer.add(this); // We call the normal .add() method to hook into the views proper add mechanism
 						} else if (this._modalParentContainer) {
 							this._modalParentContainer._opened && this._modalParentContainer.close();
 							this._modalContentContainer.remove(this);

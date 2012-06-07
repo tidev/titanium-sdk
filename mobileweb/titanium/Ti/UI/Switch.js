@@ -1,11 +1,18 @@
-define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
-	function(declare, FontWidget, dom, css, style, lang, UI) {
+define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/css", "Ti/_/style", "Ti/UI"],
+	function(declare, FontWidget, css, style, UI) {
 
 	var setStyle = style.set,
 		postDoBackground = {
-			post: "_updateLook"
-		},
-        unitize = dom.unitize;
+			post: function() {
+				if (this.backgroundColor || this.backgroundDisabledColor || this.backgroundDisabledImage || this.backgroundFocusedColor || 
+					this.backgroundFocusedImage || this.backgroundImage || this.backgroundSelectedColor || this.backgroundSelectedImage) {
+					this._clearDefaultLook();
+				} else {
+					this._setDefaultLook();
+				}
+				this._doBackground();
+			}
+		};
 
 	return declare("Ti.UI.Switch", FontWidget, {
 
@@ -14,10 +21,9 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			var contentContainer = this._contentContainer = UI.createView({
 				width: UI.INHERIT,
 				height: UI.INHERIT,
-				layout: "vertical",
+				layout: UI._LAYOUT_CONSTRAINING_VERTICAL,
 				borderColor: "transparent"
 			});
-			contentContainer._forceInheritenceToFillOrSize = true;
 			this._add(contentContainer);
 			
 			contentContainer._add(this._switchTitle = UI.createLabel({
@@ -26,7 +32,6 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				verticalAlign: UI.TEXT_VERTICAL_ALIGNMENT_CENTER,
 				textAlign: UI.TEXT_ALIGNMENT_CENTER
 			}));
-			this._switchTitle._forceInheritenceToFillOrSize = true;
 			
 			contentContainer._add(this._switchIndicator = UI.createView({
 				width: 40,
@@ -45,17 +50,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			
 			this.value = false;
 		},
-		
-		_updateLook: function() {
-			if (this.backgroundColor || this.backgroundDisabledColor || this.backgroundDisabledImage || this.backgroundFocusedColor || 
-				this.backgroundFocusedImage || this.backgroundImage || this.backgroundSelectedColor || this.backgroundSelectedImage) {
-				this._clearDefaultLook();
-			} else {
-				this._setDefaultLook();
-			}
-			this._doBackground();
-		},
-		
+
 		_setDefaultLook: function() {
 			if (!this._hasDefaultLook) {
 				this._hasDefaultLook = true;

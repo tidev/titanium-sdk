@@ -259,7 +259,7 @@ public class GeolocationModule extends KrollModule
 				if (DBG) {
 					Log.i(TAG, message);
 				}
-				fireEvent(TiC.EVENT_LOCATION, TiConvert.toErrorObject(state, message));
+				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
 
 				break;
 
@@ -276,7 +276,7 @@ public class GeolocationModule extends KrollModule
 				if (DBG) {
 					Log.d(TAG, message);
 				}
-				fireEvent(TiC.EVENT_LOCATION, TiConvert.toErrorObject(state, message));
+				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
 
 				break;
 
@@ -285,7 +285,7 @@ public class GeolocationModule extends KrollModule
 				if (DBG) {
 					Log.d(TAG, message);
 				}
-				fireEvent(TiC.EVENT_LOCATION, TiConvert.toErrorObject(state, message));
+				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
 
 				break;
 
@@ -302,7 +302,7 @@ public class GeolocationModule extends KrollModule
 				if (DBG) {
 					Log.d(TAG, message);
 				}
-				fireEvent(TiC.EVENT_LOCATION, TiConvert.toErrorObject(state, message));
+				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
 
 				break;
 
@@ -311,7 +311,7 @@ public class GeolocationModule extends KrollModule
 				if (DBG) {
 					Log.d(TAG, message);
 				}
-				fireEvent(TiC.EVENT_LOCATION, TiConvert.toErrorObject(state, message));
+				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
 
 				break;
 		}
@@ -726,7 +726,7 @@ public class GeolocationModule extends KrollModule
 			} else {
 				Log.e(TAG, "unable to get current position, location is null");
 				callback.call(this.getKrollObject(), new Object[] {
-					TiConvert.toErrorObject(TiLocation.ERR_POSITION_UNAVAILABLE, "location is currently unavailable.")
+					buildLocationErrorEvent(TiLocation.ERR_POSITION_UNAVAILABLE, "location is currently unavailable.")
 				});
 			}
 		}
@@ -866,6 +866,28 @@ public class GeolocationModule extends KrollModule
 
 		return event;
 	}
+	
+	
+	/**
+	 * Convenience method used to package a error into a consumable form 
+	 * for the Titanium developer before it is fired back to Javascript.
+	 * 
+	 * @param code					Error code identifying the error
+	 * @param msg					Error message describing the event
+	 * @return						map of property names and values that contain information 
+	 * 								regarding the error
+	 */
+	private HashMap<String, Object> buildLocationErrorEvent(int code, String msg)
+	{
+		HashMap<String, Object> d = new HashMap<String, Object>(3);
+		d.put(TiC.ERROR_PROPERTY_CODE, code);
+		d.put(TiC.EVENT_PROPERTY_ERROR, msg);
+		d.put(TiC.PROPERTY_SUCCESS, false);
+
+		return d;
+	}
+
+
 }
 
 

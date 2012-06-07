@@ -1,6 +1,8 @@
 ---
 name: Titanium.UI.iOS
-summary: Apple iOS specific UI capabilities.  All properties, methods and events in this namespace will only work on Apple iOS devices.
+summary: |
+    Apple iOS specific UI capabilities.  All properties, methods and events in this namespace will 
+    only work on Apple iOS devices.
 extends: Titanium.Module
 since: "1.4"
 platforms: [iphone, ipad]
@@ -8,31 +10,29 @@ properties:
 
   - name: ANIMATION_CURVE_EASE_IN
     summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an
-        animation that starts slowly and speeds up.
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
+        slowly and speeds up.
     type: Number
     permission: read-only
 
   - name: ANIMATION_CURVE_EASE_IN_OUT
     summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an
-        animation that starts slowly, and speeds up, then slows down at the end
-        of the animation.
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
+        slowly, and speeds up, then slows down at the end of the animation.
     type: Number
     permission: read-only
 
   - name: ANIMATION_CURVE_EASE_OUT
     summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an
-        animation that starts quickly, then slows down at the end
-        of the animation.
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
+        quickly, then slows down at the end of the animation.
     type: Number
     permission: read-only
 
   - name: ANIMATION_CURVE_LINEAR
     summary: |
-        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an
-        animation that proceeds at a constant rate.
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that proceeds 
+        at a constant rate.
     type: Number
     permission: read-only
 
@@ -325,3 +325,43 @@ properties:
     permission: read-only
     since: "1.8.1"
 
+  - name: COLOR_GROUP_TABLEVIEW_BACKGROUND
+    summary: Returns the iOS system texture used to render the background on a group table view. 
+    description: |
+        Corresponds to iOS `UIColor` groupTableViewBackgroundColor`.
+
+        Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
+    type: String
+    permission: read-only
+    since: "2.1.0"
+    
+  - name: COLOR_SCROLLVIEW_BACKGROUND
+    summary: Returns the iOS system texture used to render the area behind scrollable content.
+    description: |
+        Corresponds to iOS `UIColor` `scrollViewTexturedBackgroundColor`.
+
+        Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
+    type: String
+    permission: read-only
+    since: "2.1.0"
+    
+  - name: COLOR_VIEW_FLIPSIDE_BACKGROUND
+    summary: Returns the iOS system texture used for the back side of a view while it is being flipped.
+    description: |
+        Corresponds to iOS `UIColor` `viewFlipsideBackgroundColor`.
+
+        Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
+    type: String
+    permission: read-only
+    since: "2.1.0"
+
+  - name: COLOR_UNDER_PAGE_BACKGROUND
+    summary: Returns the iOS system texture used to render the background of a page.
+    description: |
+        Corresponds to iOS `UIColor` `underPageBackgroundColor`.
+
+        Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
+    type: String
+    permission: read-only
+    since: "2.1.0"
+    osver: {iOS: {min: "5.0"}}

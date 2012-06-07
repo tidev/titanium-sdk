@@ -3,6 +3,12 @@ name: Titanium.Geolocation.Android
 summary: Module for Android-specific geolocation functionality.
 description: |
     This module is used for manually configuring geolocation settings on Android. 
+
+    Manual configuration is recommended for applications that have more demanding 
+    geolocation needs (for example, driving directions). However, for basic geolocation
+    information, *simple mode* geolocation may be sufficient. For information on simple 
+    mode, see <Titanium.Geolocation>.
+
     Manual configuration involves managing *providers* and *rules*:
 
     *   *Location providers*, such as GPS, provide location updates.
@@ -75,7 +81,7 @@ description: |
             minUpdateTime: 60, 
             minUpdateDistance: 100
         });
-        Ti.Geolocation.Android.addProvider(gpsProvider);
+        Ti.Geolocation.Android.addLocationProvider(gpsProvider);
 
     As shown above, when you create a location provider, you can specify two
     properties to limit update frequency:
@@ -119,7 +125,7 @@ description: |
             // But  no more frequent than once per 10 seconds
             minAge: 10000
         });
-        Ti.Geolocation.Android.addRule(gpsRule);
+        Ti.Geolocation.Android.addLocationRule(gpsRule);
     
     Each rule can specify any combination of the following criteria:
 

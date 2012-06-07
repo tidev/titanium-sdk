@@ -68,6 +68,15 @@ NSArray* moviePlayerKeys = nil;
 	[super _initWithProperties:properties];
 }
 
+/**
+ Legacy class that needs to do the subView insertion checks.
+ TODO: Implement wrapperView code.
+*/
+-(BOOL)optimizeSubviewInsertion
+{
+    return NO;
+}
+
 -(void)_destroy
 {
 	if (playing) {
@@ -380,7 +389,7 @@ NSArray* moviePlayerKeys = nil;
 		}
 		else
 		{
-			NSLog(@"[ERROR] unsupported blob for video player. %@",media_);
+			NSLog(@"[ERROR] Unsupported blob for video player: %@",media_);
 		}
 	}
 	else 
@@ -489,6 +498,26 @@ NSArray* moviePlayerKeys = nil;
 	else {
 		[loadProperties setValue:value forKey:@"useApplicationAudioSession"];
 	}
+}
+
+-(NSNumber *)volume
+{
+	__block double volume = 1.0;
+	TiThreadPerformOnMainThread(^{
+		volume = (double)[[MPMusicPlayerController applicationMusicPlayer] volume];
+	}, YES);
+	
+	return NUMDOUBLE(volume);
+}
+
+-(void)setVolume:(NSNumber *)newVolume
+{
+	double volume = [TiUtils doubleValue:newVolume def:-1.0];
+	ENSURE_VALUE_RANGE(volume, 0.0, 1.0);
+
+	TiThreadPerformOnMainThread(^{
+		[[MPMusicPlayerController applicationMusicPlayer] setVolume:volume];
+	}, NO);
 }
 
 -(void)cancelAllThumbnailImageRequests:(id)value

@@ -1,4 +1,4 @@
-define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
+define(["Ti/_", "Ti/_/declare", "Ti/_/Evented"], function(_, declare, Evented) {
 
 	return declare("Ti.Blob", Evented, {
 
@@ -12,7 +12,7 @@ define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
 				img,
 				v = this.constants.__values__;
 
-			(this._isBinary = /^(application|image|audio|video)\//.test(type)) && (v.size = v.length);
+			(this._isBinary = _.isBinaryMimeType(type)) && (v.size = v.length);
 
 			if (!type.indexOf("image/")) {
 				img = new Image;
@@ -37,7 +37,7 @@ define(["Ti/_/declare", "Ti/_/Evented"], function(declare, Evented) {
 			height: 0,
 			length: 0,
 			mimeType: "",
-			nativePath: "",
+			nativePath: null,
 			size: 0,
 			text: function() {
 				return this._isBinary ? null : this._data || "";

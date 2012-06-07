@@ -169,8 +169,6 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/App/Propertie
 						shown;
 
 					function onShow() {
-						var i = theInfoWindow.idx;
-						i !== void 0 && ~i && i !== idx && _t._hide(_t.annotations[i]);
 						shown || (shown = 1) && _t._dispatchEvents(annotation, clicksource);
 					}
 

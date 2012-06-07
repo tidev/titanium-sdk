@@ -19,8 +19,9 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 					height: this.domNode.height
 				}
 			},
-
-			_doLayout: function(params) {
+			
+			_preLayout: function(boundingWidth, boundingHeight, isParentWidthSize, isParentHeightSize) {
+								
 				// We have to remove the old style to get the image to scale to its default size,
 				// otherwise we are just reading in whatever we set in the last doLayout(), which is
 				// 0 if the image was not loaded...thus always clamping it to 0.
@@ -28,39 +29,33 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 				this.domNode.style.height = "";
 				
 				var imageRatio = this.domNode.width / this.domNode.height,
-					boundingHeight = params.boundingSize.height,
-					boundingWidth = params.boundingSize.width,
 					values = this.properties.__values__,
-					isParentWidthSize = params.isParentSize.width,
-					isParentHeightSize = params.isParentSize.height;
-
-				function setByHeight() {
-					values.width = boundingHeight * imageRatio;
-					values.height = boundingHeight;
-				}
-
-				function setByWidth() {
-					values.width = boundingWidth;
-					values.height = boundingWidth / imageRatio;
-				}
+					oldWidth = values.width,
+					oldHeight = values.height;
 
 				if (!isParentWidthSize && !isParentHeightSize) {
 					if (boundingWidth / boundingHeight > imageRatio) {
-						setByHeight();
+						values.width = boundingHeight * imageRatio;
+						values.height = boundingHeight;
 					} else {
-						setByWidth();
+						values.width = boundingWidth;
+						values.height = boundingWidth / imageRatio;
 					}
 				} else if (!isParentWidthSize) {
-					setByWidth();
+					values.width = boundingWidth;
+					values.height = boundingWidth / imageRatio;
 				} else if (!isParentHeightSize) {
-					setByHeight();
+					values.width = boundingHeight * imageRatio;
+					values.height = boundingHeight;
 				} else {
 					values.width = UI.SIZE;
 					values.height = UI.SIZE;
 				}
-
-				return Widget.prototype._doLayout.call(this,params);
+				
+				return oldWidth !== values.width || oldHeight !== values.height;
 			},
+			
+			_imageRatio: 1,
 
 			properties: {
 				src: {
@@ -75,7 +70,13 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 						if (value) {
 							disp = "inherit";
 							on(node, "load", this, function() {
-								this.container._triggerLayout();
+								this.domNode.style.width = "";
+								this.domNode.style.height = "";
+								var imageRatio = this.domNode.width / this.domNode.height;
+								isNaN(imageRatio) && (imageRatio = this.domNode.width === 0 ? 1 : Infinity);
+								this._imageRatio = imageRatio;
+								
+								this._triggerLayout();
 								this.onload && this.onload();
 							});
 							on(node, "error", onerror);
@@ -102,8 +103,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 			return new InternalImageView({
 				onload: onload,
 				onerror: onerror,
-				src: src,
-				container: this
+				src: src
 			});
 		},
 
@@ -203,7 +203,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 				set: function(value) {
 					this._removeAllChildren();
 					this._images = void 0;
-					this.add(this._createImage(value, function() {
+					this._add(this._createImage(value, function() {
 						this.fireEvent("load", {
 							state: "image"
 						});
@@ -232,7 +232,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 							});
 							setStyle(img.domNode, "display", "none");
 							imgs.push(img);
-							this.add(img);
+							this._add(img);
 						}, this);
 					}
 					this._images = imgs;

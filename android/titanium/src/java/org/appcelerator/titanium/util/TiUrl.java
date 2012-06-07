@@ -31,6 +31,7 @@ public class TiUrl
 	public static final String CURRENT_PATH = ".";
 	public static final String PARENT_PATH_WITH_SEPARATOR = "../";
 	public static final String CURRENT_PATH_WITH_SEPARATOR = "./";
+    
 
 	public String baseUrl;
 	public String url;
@@ -176,7 +177,7 @@ public class TiUrl
 				throw new IllegalArgumentException("Scheme not implemented for " + url);
 			}
 		} catch (URISyntaxException e) {
-			Log.w(TAG, "Error parsing url: " + e.getMessage(), e);
+			Log.w(TAG, "Error parsing url: " + e.getMessage());
 		}
 		return new TiUrl(baseUrl, url);
 	}
@@ -285,8 +286,41 @@ public class TiUrl
 				return uri.toString();
 			}
 		} catch (URISyntaxException e) {
-			Log.w(TAG, "Error parsing url: " + e.getMessage(), e);
+			Log.w(TAG, "Error parsing url: " + e.getMessage());
 			return url;
+		}
+	}
+	
+	public static Uri getCleanUri(String argString) 
+	{
+		try {
+			if (argString == null) {
+				return null;
+			}
+			
+			Uri base = Uri.parse(argString);
+	
+			Uri.Builder builder = base.buildUpon();
+			builder.encodedQuery(Uri.encode(Uri.decode(base.getQuery()), "&="));
+			String encodedAuthority = Uri.encode(Uri.decode(base.getAuthority()),"/:@");
+			int firstAt = encodedAuthority.indexOf('@');
+			if (firstAt >= 0) {
+				int lastAt = encodedAuthority.lastIndexOf('@');
+				if (lastAt > firstAt) {
+					// We have a situation that might be like this:
+					// http://user@domain.com:password@api.mickey.com
+					// i.e., the user name is user@domain.com, and the host
+					// is api.mickey.com.  We need all at-signs prior to the final one (which
+					// indicates the host) to be encoded.
+					encodedAuthority = Uri.encode(encodedAuthority.substring(0, lastAt), "/:") + encodedAuthority.substring(lastAt);
+				}
+			}
+			builder.encodedAuthority(encodedAuthority);
+			builder.encodedPath(Uri.encode(Uri.decode(base.getPath()), "/"));
+			return builder.build();
+		} catch (Exception e) {
+			Log.e(TAG, "Exception in getCleanUri argString= " + argString);
+			return null;
 		}
 	}
 }

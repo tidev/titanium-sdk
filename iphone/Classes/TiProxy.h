@@ -29,6 +29,9 @@ extern NSString * const TiExceptionInternalInconsistency;
 //Rare exceptions to indicate a bug in the titanium code (Eg, function that a subclass should have implemented)
 extern NSString * const TiExceptionUnimplementedFunction;
 
+//Rare exception in the case of malloc failure
+extern NSString * const TiExceptionMemoryFailure;
+
 @class TiHost;
 @class TiProxy;
 

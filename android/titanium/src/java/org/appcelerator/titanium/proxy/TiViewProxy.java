@@ -37,7 +37,6 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.OpenableColumns;
 import android.view.View;
 
 /**
@@ -48,7 +47,7 @@ import android.view.View;
 	"backgroundImage", "backgroundRepeat", "backgroundSelectedImage", 
 	"backgroundFocusedImage", "backgroundDisabledImage", "backgroundColor", 
 	"backgroundSelectedColor", "backgroundFocusedColor", "backgroundDisabledColor", 
-	"backgroundPadding",
+	"backgroundPadding", "backgroundGradient",
 
 	// border properties
 	"borderColor", "borderRadius", "borderWidth",
@@ -128,7 +127,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			if (idPropertyName.equals(thisIdPropertyName)) {
 				try {
 					String localText = getLocalizedText(idPropertyValue);
-					setPropertyAndFire(propertyName, localText);
+					//If key exists, overwrite the text.
+					if (localText != null) {
+						setPropertyAndFire(propertyName, localText);
+					}
 				} catch (ResourceNotFoundException e) {
 					Log.w(LCAT, "Localized text key '" + idPropertyValue + "' is invalid.");
 				}
@@ -886,14 +888,14 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			}
 		}
 	}
-	
-	/** 
+
+	/**
 	 * Return true if any view in the hierarchy has the event listener.
 	 */
 	public boolean hierarchyHasListener(String eventName)
 	{
 		boolean hasListener = hasListeners(eventName);
-		
+
 		// Check whether the parent has the listener or not
 		if (!hasListener) {
 			TiViewProxy parent = getParent();
@@ -905,7 +907,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				}
 			}
 		}
-		
+
 		return hasListener;
 	}
 

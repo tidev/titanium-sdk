@@ -25,9 +25,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 	// A collection of windows we need to keep alive.
 	var windows = [];
-		
 	Window.prototype.isActivity = false;
-
 	// set constants for representing states for the window
 	Window.prototype.state = {closed: 0, opening: 1, opened: 2, closing: 3};
 
@@ -184,6 +182,7 @@ exports.bootstrapWindow = function(Titanium) {
 			});
 		}
 	}
+	
 
 	Window.prototype.open = function(options) {
 		var self = this;
@@ -197,9 +196,7 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 		this.currentState = this.state.opening;
-
 		rememberWindowAndAddCloseListener(this);
-		
 		
 		if (!options) {
 			options = {};
@@ -218,6 +215,7 @@ exports.bootstrapWindow = function(Titanium) {
 		if (!this.isActivity && "tabOpen" in this._properties && options.tabOpen) {
 			this.isActivity = true;
 		}
+        
 
 		// Set any cached properties on the properties given to the "true" view
 		if (this.propertyCache) {
@@ -248,6 +246,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 		this.setWindowView(this.view);
 
+
 		if (needsOpen) {
 			this.window.on("windowCreated", function () {
 				// Add children before the view is set
@@ -262,7 +261,7 @@ exports.bootstrapWindow = function(Titanium) {
 		} else {
 			this.postOpen();
 			this.fireEvent("open");
-			this.fireEvent("focus");
+
 		}
 	}
 
@@ -289,7 +288,8 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.postOpen = function() {
 		// Set view and model listener after the window opens
 		this.setWindowView(this.view);
-		
+		this.addSelfToStack();
+
 		if ("url" in this._properties) {
 			this.loadUrl();
 		}
@@ -375,11 +375,10 @@ exports.bootstrapWindow = function(Titanium) {
 				// make sure to remove the children otherwise when the window is opened a second time
 				// the children views wont be added again to the native view
 				this.removeChildren();
-
 				this.window.remove(this.view);
 				this.window = null;
 			}
-
+			this.removeSelfFromStack();
 			this.currentState = this.state.closed;
 			this.fireEvent("close");
 		}
