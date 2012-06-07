@@ -122,6 +122,35 @@ description: |
 extends: Titanium.Module
 since: "0.1"
 platforms: [android, iphone, ipad, mobileweb]
+examples: 
+  - title: Using the Compass
+    example: |
+        Both iOS and Android support a receiving heading updates from a hardware compass, if available.
+        Not all devices support a compass, so applications should test whether the
+        compass is supported. On Android, `hasCompass` is a property. On iOS, `hasCompass` is a method. 
+        The following sample shows how to test for compass support and register for
+        compass updates.
+
+            var hasCompass = false;
+            if (typeof (Ti.Geolocation.hasCompass) === 'function') {
+                hasCompass = Ti.Geolocation.hasCompass();
+            } else if (typeof (Ti.Geolocation.hasCompass) === 'boolean') {
+                hasCompass = Ti.Geolocation.hasCompass;
+            }
+            var compassHandler = function(e) {
+                if (e.success === undefined || e.success) {
+                    Ti.API.info("Heading: " + e.heading.magneticHeading);
+                }
+            }
+            if (hasCompass) {
+                Ti.Geolocation.addEventListener("heading", compassHandler);
+            }
+
+        As with location updates, the application should unregister for heading updates
+        when it is no longer being used, or when it goes into the background. Use
+        `removeEventListener` to stop heading updates:
+
+            Ti.Geolocation.removeEventListener('heading', compassHandler);
 methods:
   - name: forwardGeocoder
     summary: Resolves an address to a location.
@@ -154,6 +183,15 @@ methods:
         summary: Function to invoke on success or failure of obtaining the current location. 
         type: Callback<Object>
     platforms: [android, iphone, ipad, mobileweb]
+
+  - name: hasCompass
+    summary: Indicates whether the current device supports a compass.
+    description: |
+        On Android, `hasCompass` is a property. See the Examples section for an example of
+        using the compass cross-platform.
+    returns: 
+        type: Boolean
+    platforms: [iphone, ipad]
 
   - name: reverseGeocoder
     summary: Tries to resolve a location to an address.
@@ -195,9 +233,12 @@ events:
       - name: success
         summary: Indicate if the heading event was successfully received.
         type: Boolean
+        platforms: [iphone, ipad]
 
       - name: error
         summary: If `success` is false, a string describing the error.
+        type: String
+        platforms: [iphone, ipad]
 
       - name: heading
         summary: Dictionary object containing the heading data.
@@ -485,7 +526,7 @@ properties:
   - name: frequency
     summary: Requested frequency for location updates, in milliseconds.
     description: |
-        Setting a frequency valuep enables legacy location mode on Android.
+        Setting a frequency value enables legacy location mode on Android.
         Note that only a single provider can be active at one time in legacy mode.
 
         Android legacy mode operation is deprecated. For new development, use
@@ -497,6 +538,15 @@ properties:
         A lower frequency value generally increases power consumption. 
         A value of 0 means that updates should be generated as quickly as possible.
     type: Number
+
+  - name: hasCompass
+    summary: Indicates whether the current device supports a compass.
+    description: |
+        On iOS, `hasCompass` is a method. See the Examples section for an example of
+        using the compass cross-platform.
+    type: Boolean
+    permission: read-only
+    platforms: [android]
 
   - name: headingFilter
     summary: Minimum heading change (in degrees) before a `heading` event is fired. 
@@ -734,10 +784,12 @@ properties:
   - name: success
     summary: Indicates whether the request succeeded.
     type: Boolean
+    platforms: [iphone, ipad]
 
   - name: error
     summary: If `success` is false, includes a text description of the error.
     type: String
+    platforms: [iphone, ipad]
 
   - name: code
     summary: If `success` is false, an error code, if available.
@@ -774,8 +826,13 @@ properties:
 
   - name: trueHeading
     summary: Declination in degrees from true North.
+    description: |
+        On Android, `trueHeading` is only available if the device has a location fix
+        **before** registering for heading updates or calling 
+        [getCurrentHeading](Titanium.Geolocation.getCurrentHeading). If the device doesn't 
+        have a location fix, `trueHeading` is undefined.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
 
   - name: timestamp
     summary: Timestamp for the heading data, in milliseconds.
