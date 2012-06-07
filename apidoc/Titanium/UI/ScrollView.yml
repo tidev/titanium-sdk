@@ -137,7 +137,7 @@ properties:
     description: Set to `false` to ensure that subview touches always take effect.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
 
   - name: contentHeight
     summary: Height of the scrollable region.
