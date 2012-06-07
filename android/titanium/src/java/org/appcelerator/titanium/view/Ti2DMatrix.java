@@ -23,7 +23,7 @@ public class Ti2DMatrix extends KrollProxy
 	private static final String TAG = "Ti2DMatrix";
 
 	public static final float DEFAULT_ANCHOR_VALUE = -1f;
-	public static final float SCALE_UNSPECIFIED = -1f;
+	public static final float VALUE_UNSPECIFIED = Float.MIN_VALUE;
 
 	protected Ti2DMatrix next, prev;
 
@@ -127,7 +127,7 @@ public class Ti2DMatrix extends KrollProxy
 	public Ti2DMatrix scale(Object args[])
 	{
 		Ti2DMatrix newMatrix = new Ti2DMatrix(this, Operation.TYPE_SCALE);
-		newMatrix.op.scaleFromX = newMatrix.op.scaleFromY = SCALE_UNSPECIFIED;
+		newMatrix.op.scaleFromX = newMatrix.op.scaleFromY = VALUE_UNSPECIFIED;
 		newMatrix.op.scaleToX = newMatrix.op.scaleToY = 1.0f;
 		// varargs for API backwards compatibility
 		if (args.length == 4) {
@@ -153,8 +153,9 @@ public class Ti2DMatrix extends KrollProxy
 	public Ti2DMatrix rotate(Object[] args)
 	{
 		Ti2DMatrix newMatrix = new Ti2DMatrix(this, Operation.TYPE_ROTATE);
+
 		if (args.length == 1) {
-			newMatrix.op.rotateFrom = 0;
+			newMatrix.op.rotateFrom = VALUE_UNSPECIFIED;
 			newMatrix.op.rotateTo = TiConvert.toFloat(args[0]);
 		} else if (args.length == 2) {
 			newMatrix.op.rotateFrom = TiConvert.toFloat(args[0]);
@@ -220,6 +221,14 @@ public class Ti2DMatrix extends KrollProxy
 		return (this.op.type == Operation.TYPE_SCALE);
 	}
 
+	public boolean isRotateOperation()
+	{
+		if (this.op == null) {
+			return false;
+		}
+		return (this.op.type == Operation.TYPE_ROTATE);
+	}
+
 	public float[] getScaleOperationParameters()
 	{
 		if (!isScaleOperation()) {
@@ -235,5 +244,27 @@ public class Ti2DMatrix extends KrollProxy
 			this.op.anchorX,
 			this.op.anchorY
 		};
+	}
+
+	public float[] getRotateOperationParameters()
+	{
+		if (!isRotateOperation()) {
+			Log.w(TAG, "getRotateOperationParameters called though matrix is not for a scale operation.");
+			return new float[4];
+		}
+
+		return new float[] {
+			this.op.rotateFrom,
+			this.op.rotateTo,
+			this.op.anchorX,
+			this.op.anchorY
+		};
+	}
+
+	public void setRotationFromDegrees(float degrees)
+	{
+		if (this.op != null) {
+			this.op.rotateFrom = degrees;
+		}
 	}
 }

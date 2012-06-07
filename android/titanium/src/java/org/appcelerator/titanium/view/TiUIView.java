@@ -91,6 +91,9 @@ public abstract class TiUIView
 	private float animatedXScale = 1f;
 	private float animatedYScale = 1f; // 1 = regular size.
 
+	// Same for rotation animation.
+	private float animatedRotationDegrees = 0f; // i.e., no rotation.
+
 	private KrollDict lastUpEvent = new KrollDict(2);
 	// In the case of heavy-weight windows, the "nativeView" is null,
 	// so this holds a reference to the view which is used for touching,
@@ -1270,5 +1273,22 @@ public abstract class TiUIView
 	public float getAnimatedYScale()
 	{
 		return animatedYScale;
+	}
+
+	/**
+	 * Set the animated rotation degrees, since Android provides no property for looking it up.
+	 */
+	public void setAnimatedRotationDegrees(float degrees)
+	{
+		animatedRotationDegrees = degrees;
+	}
+
+	/**
+	 * Retrieve the animated rotation degrees, which we store here since Android provides no property
+	 * for looking it up.
+	 */
+	public float getAnimatedRotationDegrees()
+	{
+		return animatedRotationDegrees;
 	}
 }

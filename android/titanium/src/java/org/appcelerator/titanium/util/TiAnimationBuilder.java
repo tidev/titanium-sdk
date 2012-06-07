@@ -246,6 +246,8 @@ public class TiAnimationBuilder
 			as.setFillAfter(true);
 			as.setFillEnabled(true);
 
+			TiUIView tiView = viewProxy.peekView();
+
 			// For scale animations, rely on the Android-provided ScaleAnimation rather than our
 			// TiMatrixAnimation and Operation.
 			Animation anim;
@@ -254,9 +256,8 @@ public class TiAnimationBuilder
 				float[] params = tdm.getScaleOperationParameters();
 				float fromX = params[0];
 				float fromY = params[2];
-				TiUIView tiView = viewProxy.peekView();
 
-				if (fromX == Ti2DMatrix.SCALE_UNSPECIFIED) {
+				if (fromX == Ti2DMatrix.VALUE_UNSPECIFIED) {
 					if (tiView != null) {
 						fromX = tiView.getAnimatedXScale();
 					} else {
@@ -264,7 +265,7 @@ public class TiAnimationBuilder
 					}
 				}
 
-				if (fromY == Ti2DMatrix.SCALE_UNSPECIFIED) {
+				if (fromY == Ti2DMatrix.VALUE_UNSPECIFIED) {
 					if (tiView != null) {
 						fromY = tiView.getAnimatedYScale();
 					} else {
@@ -281,8 +282,28 @@ public class TiAnimationBuilder
 					tiView.setAnimatedXScale(params[1]);
 					tiView.setAnimatedYScale(params[3]);
 				}
+
 			} else {
+
+				if (tdm.isRotateOperation()) {
+					// Make sure we rotate from the right starting position,
+					// in case a rotation has already occurred.
+					float[] params = tdm.getRotateOperationParameters();
+					float fromDegrees = params[0];
+					float toDegrees = params[1];
+
+					if (fromDegrees == Ti2DMatrix.VALUE_UNSPECIFIED) {
+						fromDegrees = tiView.getAnimatedRotationDegrees();
+						tdm.setRotationFromDegrees(fromDegrees);
+					}
+
+					// And remember for next time.
+					tiView.setAnimatedRotationDegrees(toDegrees);
+
+				}
+
 				anim = new TiMatrixAnimation(tdm, anchorX, anchorY);
+
 			}
 
 			anim.setFillAfter(true);
@@ -302,7 +323,7 @@ public class TiAnimationBuilder
 		if (delay != null) {
 			as.setStartOffset(delay.longValue());
 		}
-		
+
 		// ignore translate/resize if we have a matrix.. we need to eventually collect to/from properly
 		if (top != null || bottom != null || left != null || right != null || centerX != null || centerY != null) {
 			TiDimension optionTop = null, optionBottom = null;
