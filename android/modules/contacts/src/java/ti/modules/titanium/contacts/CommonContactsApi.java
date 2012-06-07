@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiContext;
 
@@ -71,6 +72,7 @@ public abstract class CommonContactsApi
 	}
 
 	protected abstract PersonProxy getPersonById(long id);
+	protected abstract PersonProxy addContact(KrollDict options);
 	protected abstract PersonProxy getPersonByUri(Uri uri);
 	protected abstract PersonProxy[] getAllPeople(int limit);
 	protected abstract PersonProxy[] getPeopleWithName(String name);
