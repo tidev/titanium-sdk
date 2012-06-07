@@ -38,10 +38,10 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.ScaleGestureDetector;
-import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
+import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
@@ -527,13 +527,8 @@ public abstract class TiUIView
 				nativeView.setKeepScreenOn(TiConvert.toBoolean(newValue));
 			}
 		} else {
-			TiViewProxy viewProxy = getProxy();
-			if (viewProxy != null && viewProxy.isLocalizedTextId(key)) {
-				viewProxy.setLocalizedText(key, TiConvert.toString(newValue));
-			} else {
-				if (DBG) {
-					Log.d(LCAT, "Unhandled property key: " + key);
-				}
+			if (DBG) {
+				Log.d(LCAT, "Unhandled property key: " + key);
 			}
 		}
 	}
