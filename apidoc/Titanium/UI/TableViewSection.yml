@@ -23,16 +23,12 @@ description: |
     
     See the description and examples sections of [TableView](Titanium.UI.TableView) for more details 
     about how to use `TableViewSection`.
-extends: Titanium.UI.View
-excludes: {
-  methods: [ animate ],
-  properties: [ anchorPoint, animatedCenterPoint, backgroundDisabledColor, backgroundDisabledImage, 
-                backgroundFocusedColor, backgroundFocusedImage, backgroundGradient, backgroundLeftCap, 
-                backgroundSelectedColor, backgroundSelectedImage, backgroundTopCap, borderColor, 
-                borderRadius, borderWidth, bottom, focusable, height, layout, left, right, rect, 
-                size, top, touchEnabled, transform, visible, width, zIndex
-              ]
-}
+    
+    **Note**: On some platforms, `TableViewSection` may be implemented as a type of view
+    (that is, an object that inherits from [View](Titanium.UI.View)). However, this is an
+    implementation detail. For portability, you should only use the documented APIs on 
+    table view sections.
+extends: Titanium.Proxy
 since: "0.9"
 
 methods:
