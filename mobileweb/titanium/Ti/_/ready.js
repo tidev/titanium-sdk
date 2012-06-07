@@ -9,6 +9,7 @@
 
 define(function() {
 	var doc = document,
+		on = require.on,
 		readyStates = { "loaded": 1, "complete": 1 },
 		isReady = !!readyStates[doc.readyState],
 		readyQ = [];
@@ -25,8 +26,8 @@ define(function() {
 		}
 
 		readyQ.concat([
-			require.on(doc, "DOMContentLoaded", detectReady),
-			require.on(window, "load", detectReady)
+			on(doc, "DOMContentLoaded", detectReady),
+			on(window, "load", detectReady)
 		]);
 
 		if ("onreadystatechange" in doc) {

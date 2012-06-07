@@ -654,8 +654,8 @@ define(
 			this.visible = false;
 		},
 
-		animate: function(anim) {
-			(anim && anim.declaredClass === "Ti.UI.Animation" ? anim : new Animation(anim))._play(this);
+		animate: function(anim, callback) {
+			(anim && anim.declaredClass === "Ti.UI.Animation" ? anim : new Animation(anim))._play(this).then(callback);
 		},
 /*
 		animate: function(anim, callback) {

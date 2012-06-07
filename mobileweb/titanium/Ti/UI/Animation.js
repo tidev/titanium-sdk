@@ -68,9 +68,8 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style"], function(declare, Evented
 		8	visible flag
 	---------------------------
 		9	start timestamp
-		10	start value
-		11	current value
-		12	unit
+		10	current value
+		11	unit?
 
 	units
 		color
@@ -91,27 +90,29 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style"], function(declare, Evented
 			transform
 	*/
 
-	function schedule(elem, prop, value, params) {
-		var currentValue = style.get(elem.domNode, prop);
+	function schedule(elem, prop, value, anim) {
+		var id = elem.widgetId + '/' + prop,
+			ani = animations[id];
 
-		if (currentValue !== void 0) {
-			params.unshift(value);
-			params.unshift(prop);
-			params.unshift(elem);
+		animations[id] = [
+			elem,
+			prop,
+			value,
+			!!props.autoreverse,
+			curve,
+			props.delay | 0,
+			props.duration | 0,
+			!!props.repeat,
+			!!props.visible,
+			this.start,
+			this.complete,
+			now(),
+			ani ? ani[11] : style.get(elem.domNode, prop)
+		];
 
-			a.push(now());
-			a.push(currentValue);
-			a.push(currentValue);
+		// TODO: fire start
 
-			// TODO: determine units
-			params.push("px");
-
-			animations[elem.widgetId + '/' + prop] = params;
-
-			// TODO: fire start
-
-			// needsRender || needsRender = true, requestAnimationFrame(render);
-		}
+		// needsRender || needsRender = true, requestAnimationFrame(render);
 	}
 
 	// http://developer.appcelerator.com/question/137700/mobileweb-tableviewrow-and-tableviewsection-tostring-changed
@@ -141,13 +142,14 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style"], function(declare, Evented
 				value,
 				props = this.properties.__values__,
 				curve = Math.max(0, Math.min(curves.length - 1, props.curve | 0)),
-				handles = [];
+				handles = {};
 
 			for (prop in props) {
 				value = props[prop];
-				ignoreRegExp.test(prop) || value !== void 0 && handles.push(schedule(elem, prop, value, [!!props.autoreverse, curve, props.delay | 0, props.duration | 0, !!props.repeat, !!props.visible]));
+				ignoreRegExp.test(prop) || value !== void 0 && (handles[prop] = schedule(elem, prop, value, this));
 			}
 
+			// TODO: this MUST return a promise!!!
  			return {
 				pause: function() {
 					// use the handles to unschedule
