@@ -8,6 +8,7 @@ package ti.modules.titanium.map;
 
 import java.lang.ref.WeakReference;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -26,7 +27,9 @@ import org.appcelerator.titanium.TiContext;
 	TiC.PROPERTY_RIGHT_VIEW,
 	TiC.PROPERTY_RIGHT_BUTTON,
 	TiC.PROPERTY_SUBTITLE,
-	TiC.PROPERTY_TITLE
+	TiC.PROPERTY_SUBTITLEID,
+	TiC.PROPERTY_TITLE,
+	TiC.PROPERTY_TITLEID
 })
 public class AnnotationProxy extends KrollProxy
 {
@@ -52,6 +55,14 @@ public class AnnotationProxy extends KrollProxy
 	public void setViewProxy(ViewProxy viewProxy)
 	{
 		this.viewProxy = new WeakReference<ViewProxy>(viewProxy);
+	}
+
+	@Override
+	protected KrollDict getLangConversionTable() {
+		KrollDict table = new KrollDict();
+		table.put(TiC.PROPERTY_SUBTITLE, TiC.PROPERTY_SUBTITLEID);
+		table.put(TiC.PROPERTY_TITLE, TiC.PROPERTY_TITLEID);
+		return table;
 	}
 
 	@Override
