@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -19,7 +20,11 @@ import android.graphics.Matrix;
 @Kroll.proxy
 public class Ti2DMatrix extends KrollProxy
 {
-	public static final float DEFAULT_ANCHOR_VALUE = -1;
+	private static final String TAG = "Ti2DMatrix";
+
+	public static final float DEFAULT_ANCHOR_VALUE = -1f;
+	public static final float VALUE_UNSPECIFIED = Float.MIN_VALUE;
+
 	protected Ti2DMatrix next, prev;
 
 	protected static class Operation
@@ -122,7 +127,7 @@ public class Ti2DMatrix extends KrollProxy
 	public Ti2DMatrix scale(Object args[])
 	{
 		Ti2DMatrix newMatrix = new Ti2DMatrix(this, Operation.TYPE_SCALE);
-		newMatrix.op.scaleFromX = newMatrix.op.scaleFromY = 1.0f;
+		newMatrix.op.scaleFromX = newMatrix.op.scaleFromY = VALUE_UNSPECIFIED;
 		newMatrix.op.scaleToX = newMatrix.op.scaleToY = 1.0f;
 		// varargs for API backwards compatibility
 		if (args.length == 4) {
@@ -148,8 +153,9 @@ public class Ti2DMatrix extends KrollProxy
 	public Ti2DMatrix rotate(Object[] args)
 	{
 		Ti2DMatrix newMatrix = new Ti2DMatrix(this, Operation.TYPE_ROTATE);
+
 		if (args.length == 1) {
-			newMatrix.op.rotateFrom = 0;
+			newMatrix.op.rotateFrom = VALUE_UNSPECIFIED;
 			newMatrix.op.rotateTo = TiConvert.toFloat(args[0]);
 		} else if (args.length == 2) {
 			newMatrix.op.rotateFrom = TiConvert.toFloat(args[0]);
@@ -205,5 +211,60 @@ public class Ti2DMatrix extends KrollProxy
 			op.apply(interpolatedTime, matrix, childWidth, childHeight, anchorX, anchorY);
 		}
 		return matrix;
+	}
+
+	public boolean isScaleOperation()
+	{
+		if (this.op == null) {
+			return false;
+		}
+		return (this.op.type == Operation.TYPE_SCALE);
+	}
+
+	public boolean isRotateOperation()
+	{
+		if (this.op == null) {
+			return false;
+		}
+		return (this.op.type == Operation.TYPE_ROTATE);
+	}
+
+	public float[] getScaleOperationParameters()
+	{
+		if (!isScaleOperation()) {
+			Log.w(TAG, "getScaleOperationParameters called though matrix is not for a scale operation.");
+			return new float[6];
+		}
+
+		return new float[] {
+			this.op.scaleFromX,
+			this.op.scaleToX,
+			this.op.scaleFromY,
+			this.op.scaleToY,
+			this.op.anchorX,
+			this.op.anchorY
+		};
+	}
+
+	public float[] getRotateOperationParameters()
+	{
+		if (!isRotateOperation()) {
+			Log.w(TAG, "getRotateOperationParameters called though matrix is not for a scale operation.");
+			return new float[4];
+		}
+
+		return new float[] {
+			this.op.rotateFrom,
+			this.op.rotateTo,
+			this.op.anchorX,
+			this.op.anchorY
+		};
+	}
+
+	public void setRotationFromDegrees(float degrees)
+	{
+		if (this.op != null) {
+			this.op.rotateFrom = degrees;
+		}
 	}
 }

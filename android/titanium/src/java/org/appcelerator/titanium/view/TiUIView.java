@@ -68,7 +68,6 @@ public abstract class TiUIView
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private static AtomicInteger idGenerator;
-	private static Method setLayerTypeMethod = null; // Honeycomb, for turning off hw acceleration.
 
 	public static final int SOFT_KEYBOARD_DEFAULT_ON_FOCUS = 0;
 	public static final int SOFT_KEYBOARD_HIDE_ON_FOCUS = 1;
@@ -83,6 +82,18 @@ public abstract class TiUIView
 	protected LayoutParams layoutParams;
 	protected TiAnimationBuilder animBuilder;
 	protected TiBackgroundDrawable background;
+
+	// Since Android doesn't have a property to check to indicate
+	// the current animated x/y scale (from ScaleAnimation), we track it here
+	// so if another scale animation is done we can gleen the fromX and fromY values
+	// rather than starting the next animation always from scale 1.0f (i.e., normal scale).
+	// This gives us parity with iPhone for scale animations that use the 2-argument variant
+	// of Ti2DMatrix.scale().
+	private float animatedXScale = 1f;
+	private float animatedYScale = 1f; // 1 = regular size.
+
+	// Same for rotation animation.
+	private float animatedRotationDegrees = 0f; // i.e., no rotation.
 
 	private KrollDict lastUpEvent = new KrollDict(2);
 	// In the case of heavy-weight windows, the "nativeView" is null,
@@ -539,13 +550,8 @@ public abstract class TiUIView
 				nativeView.setKeepScreenOn(TiConvert.toBoolean(newValue));
 			}
 		} else {
-			TiViewProxy viewProxy = getProxy();
-			if (viewProxy != null && viewProxy.isLocalizedTextId(key)) {
-				viewProxy.setLocalizedText(key, TiConvert.toString(newValue));
-			} else {
-				if (DBG) {
-					Log.d(LCAT, "Unhandled property key: " + key);
-				}
+			if (DBG) {
+				Log.d(LCAT, "Unhandled property key: " + key);
 			}
 		}
 	}
@@ -1257,4 +1263,56 @@ public abstract class TiUIView
 		}
 	}
 
+	/**
+	 * Store the animated x scale (from a ScaleAnimation) since Android provides no property for
+	 * looking it up.
+	 */
+	public void setAnimatedXScale(float scale)
+	{
+		animatedXScale = scale;
+	}
+
+	/**
+	 * Retrieve the animated x scale, which we store here since Android provides no property
+	 * for looking it up.
+	 */
+	public float getAnimatedXScale()
+	{
+		return animatedXScale;
+	}
+
+	/**
+	 * Store the animated y scale (from a ScaleAnimation) since Android provides no property for
+	 * looking it up.
+	 */
+	public void setAnimatedYScale(float scale)
+	{
+		animatedYScale = scale;
+	}
+
+	/**
+	 * Retrieve the animated y scale, which we store here since Android provides no property
+	 * for looking it up.
+	 */
+	public float getAnimatedYScale()
+	{
+		return animatedYScale;
+	}
+
+	/**
+	 * Set the animated rotation degrees, since Android provides no property for looking it up.
+	 */
+	public void setAnimatedRotationDegrees(float degrees)
+	{
+		animatedRotationDegrees = degrees;
+	}
+
+	/**
+	 * Retrieve the animated rotation degrees, which we store here since Android provides no property
+	 * for looking it up.
+	 */
+	public float getAnimatedRotationDegrees()
+	{
+		return animatedRotationDegrees;
+	}
 }

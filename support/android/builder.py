@@ -383,8 +383,28 @@ class Builder(object):
 			#time.sleep(20) # give it a little more time to get installed
 		return True
 	
-	def create_avd(self,avd_id,avd_skin):
-		name = "titanium_%s_%s" % (avd_id,avd_skin)
+	def create_avd(self, avd_id, avd_skin, avd_abi):
+		# Sanity check the AVD to see if the ABI is available, or
+		# necessary.
+		
+		available_avds = avd.get_avds(self.sdk)
+		multiple_abis = False
+		for device in available_avds:
+			if device['id'] == avd_id:
+				default_abi = device['abis'][0]
+				multiple_abis = ( len(device['abis']) != 1 )
+				if avd_abi is None:
+					avd_abi = default_abi
+				elif avd_abi not in device['abis']:
+					warn("ABI %s not supported for AVD ID %s: Using default ABI %s" % (avd_abi, avd_id, default_abi))
+					avd_abi = default_abi
+				break
+			
+		if multiple_abis:
+			name = "titanium_%s_%s_%s" % (avd_id, avd_skin, avd_abi)
+		else:
+			name = "titanium_%s_%s" % (avd_id, avd_skin)
+
 		name = name.replace(' ', '_')
 		if not os.path.exists(self.home_dir):
 			os.makedirs(self.home_dir)
@@ -401,7 +421,10 @@ class Builder(object):
 		if not os.path.exists(my_avd):
 			info("Creating new Android Virtual Device (%s %s)" % (avd_id,avd_skin))
 			inputgen = os.path.join(template_dir,'input.py')
-			pipe([sys.executable, inputgen], [self.sdk.get_android(), '--verbose', 'create', 'avd', '--name', name, '--target', avd_id, '-s', avd_skin, '--force', '--sdcard', self.sdcard])
+			abi_args = []
+			if multiple_abis:
+				abi_args = ['-b', avd_abi]
+			pipe([sys.executable, inputgen], [self.sdk.get_android(), '--verbose', 'create', 'avd', '--name', name, '--target', avd_id, '-s', avd_skin, '--force', '--sdcard', self.sdcard] + abi_args)
 			inifile = os.path.join(my_avd,'config.ini')
 			inifilec = open(inifile,'r').read()
 			inifiledata = open(inifile,'w')
@@ -413,15 +436,19 @@ class Builder(object):
 			
 		return name
 	
-	def run_emulator(self,avd_id,avd_skin,avd_name,add_args):
+	def run_emulator(self, avd_id, avd_skin, avd_name, avd_abi, add_args):
 		info("Launching Android emulator...one moment")
 		debug("From: " + self.sdk.get_emulator())
 		debug("SDCard: " + self.sdcard)
-		if avd_name == None:
+		if avd_name is None:
 			debug("AVD ID: " + avd_id)
 			debug("AVD Skin: " + avd_skin)
 		else:
 			debug("AVD Name: " + avd_name)
+			
+		if avd_abi is not None:
+			debug("AVD ABI: " + avd_abi)
+
 		debug("SDK: " + sdk_dir)
 		
 		# make sure adb is running on windows, else XP can lockup the python
@@ -437,7 +464,7 @@ class Builder(object):
 		
 		# this will create an AVD on demand or re-use existing one if already created
 		if avd_name == None:
-			avd_name = self.create_avd(avd_id,avd_skin)
+			avd_name = self.create_avd(avd_id, avd_skin, avd_abi)
 
 		# start the emulator
 		emulator_cmd = [
@@ -1468,11 +1495,22 @@ class Builder(object):
 		sdk_native_libs = os.path.join(template_dir, 'native', 'libs')
 		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libtiverify.so'), 'lib/armeabi/libtiverify.so')
 		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libtiverify.so'), 'lib/armeabi-v7a/libtiverify.so')
+		# See below about x86 and production
+		if self.deploy_type != 'production':
+			apk_zip.write(os.path.join(sdk_native_libs, 'x86', 'libtiverify.so'), 'lib/x86/libtiverify.so')
+
 		if self.runtime == 'v8':
 			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libkroll-v8.so'), 'lib/armeabi/libkroll-v8.so')
 			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libstlport_shared.so'), 'lib/armeabi/libstlport_shared.so')
 			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libkroll-v8.so'), 'lib/armeabi-v7a/libkroll-v8.so')
 			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libstlport_shared.so'), 'lib/armeabi-v7a/libstlport_shared.so')
+			# Only include x86 in non-production builds for now, since there are
+			# no x86 devices on the market
+			if self.deploy_type != 'production':
+				apk_zip.write(os.path.join(sdk_native_libs, 'x86', 'libkroll-v8.so'), 'lib/x86/libkroll-v8.so')
+				apk_zip.write(os.path.join(sdk_native_libs, 'x86', 'libstlport_shared.so'), 'lib/x86/libstlport_shared.so')
+
+				
 		self.apk_updated = True
 
 		apk_zip.close()
@@ -2045,7 +2083,7 @@ class Builder(object):
 
 if __name__ == "__main__":
 	def usage():
-		print "%s <command> <project_name> <sdk_dir> <project_dir> <app_id> [key] [password] [alias] [dir] [avdid] [avdsdk] [emulator options]" % os.path.basename(sys.argv[0])
+		print "%s <command> <project_name> <sdk_dir> <project_dir> <app_id> [key] [password] [alias] [dir] [avdid] [avdsdk] [avdabi] [emulator options]" % os.path.basename(sys.argv[0])
 		print
 		print "available commands: "
 		print
@@ -2109,7 +2147,7 @@ if __name__ == "__main__":
 
 	try:
 		if command == 'run-emulator':
-			s.run_emulator(avd_id, avd_skin, None, [])
+			s.run_emulator(avd_id, avd_skin, None, None, [])
 		elif command == 'run':
 			s.build_and_run(False, avd_id)
 		elif command == 'emulator':
@@ -2117,13 +2155,36 @@ if __name__ == "__main__":
 			if avd_id.isdigit():
 				avd_name = None
 				avd_skin = dequote(sys.argv[7])
-				add_args = sys.argv[8:]
+				
+				# TODO: This is for studio compatibility only. We will
+				# need to rip it out once they support ABI selection.
+				# Note that this will ALSO possibly break existing external
+				# build scripts in a bad way.
+				
+				if len(sys.argv) > 9:
+					avd_abi = dequote(sys.argv[8])
+					add_args = sys.argv[9:]
+				else:
+					avd_abi = None
+					add_args = sys.argv[8:]
 			else:
 				avd_name = sys.argv[6]
 				avd_id = None
 				avd_skin = None
-				add_args = sys.argv[7:]
-			s.run_emulator(avd_id, avd_skin, avd_name, add_args)
+				
+				# TODO: This is for studio compatibility only. We will
+				# need to rip it out once they support ABI selection.
+				# Note that this will ALSO possibly break existing external
+				# build scripts in a bad way.
+				
+				if len(sys.argv) > 8:
+					avd_abi = dequote(sys.argv[7])
+					add_args = sys.argv[8:]
+				else:
+					avd_abi = None
+					add_args = sys.argv[7:]
+
+			s.run_emulator(avd_id, avd_skin, avd_name, avd_abi, add_args)
 		elif command == 'simulator':
 			info("Building %s for Android ... one moment" % project_name)
 			avd_id = dequote(sys.argv[6])
