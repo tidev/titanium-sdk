@@ -1,11 +1,11 @@
 
-import os, sys, codecs, shutil, filecmp
+import os, sys, codecs, shutil, filecmp, subprocess
 
 # the template_dir is the path where this file lives on disk
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
 def ensure_dev_path(debug=True):
-	rc = os.system("xcode-select -print-path >/dev/null 2>/dev/null")
+	rc = subprocess.call(["xcode-select", "-print-path"], stdout=open(os.devnull, 'w'), stderr=open(os.devnull, 'w'))
 	if rc == 0 :
 		return
 	if debug:
