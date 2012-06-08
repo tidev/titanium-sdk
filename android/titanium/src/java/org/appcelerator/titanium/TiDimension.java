@@ -230,31 +230,31 @@ public class TiDimension
 		return (int) Math.round(getPixels(parent));
 	}
 
-	public int getAsMillimeters(View parent)
+	public double getAsMillimeters(View parent)
 	{
 		if (units == TypedValue.COMPLEX_UNIT_MM) {
-			return (int) this.value;
+			return this.value;
 		}
 
-		return (int) Math.round(((getPixels(parent) / getDisplayMetrics(parent).densityDpi) * MM_INCH));
+		return ((getPixels(parent) / getDisplayMetrics(parent).densityDpi) * MM_INCH);
 	}
 
-	public int getAsCentimeters(View parent)
+	public double getAsCentimeters(View parent)
 	{
 		if (units == COMPLEX_UNIT_CM) {
-			return (int) this.value;
+			return this.value;
 		}
 
-		return (int) Math.round(((getPixels(parent) / getDisplayMetrics(parent).densityDpi) * CM_INCH));
+		return ((getPixels(parent) / getDisplayMetrics(parent).densityDpi) * CM_INCH);
 	}
 
-	public int getAsInches(View parent)
+	public double getAsInches(View parent)
 	{
 		if (units == TypedValue.COMPLEX_UNIT_IN) {
-			return (int) this.value;
+			return this.value;
 		}
 
-		return (int) Math.round((getPixels(parent) / getDisplayMetrics(parent).densityDpi));
+		return (getPixels(parent) / getDisplayMetrics(parent).densityDpi);
 	}
 
 	public int getAsDIP(View parent)
@@ -272,14 +272,11 @@ public class TiDimension
 	 * @param parent the parent of the view used for calculation
 	 * @return the dimension in the system unit
 	 */
-	public int getAsDefault(View parent)
+	public double getAsDefault(View parent)
 	{
 		String defaultUnit = TiApplication.getInstance().getDefaultUnit();
-		if (UNIT_PX.equals(defaultUnit) || UNIT_SYSTEM.equals(defaultUnit)) {
-			return getAsPixels(parent);
-		}
-		else if (UNIT_DP.equals(defaultUnit) || UNIT_DIP.equals(defaultUnit)) {
-			return getAsDIP(parent);
+		if (UNIT_DP.equals(defaultUnit) || UNIT_DIP.equals(defaultUnit)) {
+			return (double) getAsDIP(parent);
 		}
 		else if (UNIT_MM.equals(defaultUnit)) {
 			return getAsMillimeters(parent);
@@ -291,7 +288,8 @@ public class TiDimension
 			return getAsInches(parent);
 		}
 
-		return getAsPixels(parent);
+		// Returned for PX, SYSTEM, and unknown values
+		return (double) getAsPixels(parent);
 	}
 
 	protected double getPercentPixels(View parent)

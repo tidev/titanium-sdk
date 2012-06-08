@@ -198,9 +198,9 @@ public class UIModule extends KrollModule implements Handler.Callback
 	}
 
 	@Kroll.method
-	public int convertUnits(String convertFromValue, String convertToUnits)
+	public double convertUnits(String convertFromValue, String convertToUnits)
 	{
-		int result = 0;
+		double result = 0;
 		TiDimension dimension = new TiDimension(convertFromValue, TiDimension.TYPE_UNDEFINED);
 
 		// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
@@ -208,7 +208,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 
 		if (view != null) {
 			if (convertToUnits.equals(UNIT_PX)) {
-				result = dimension.getAsPixels(view);
+				result = (double) dimension.getAsPixels(view);
 			} else if (convertToUnits.equals(UNIT_MM)) {
 				result = dimension.getAsMillimeters(view);
 			} else if (convertToUnits.equals(UNIT_CM)) {
@@ -216,7 +216,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 			} else if (convertToUnits.equals(UNIT_IN)) {
 				result = dimension.getAsInches(view);
 			} else if (convertToUnits.equals(UNIT_DIP)) {
-				result = dimension.getAsDIP(view);
+				result = (double) dimension.getAsDIP(view);
 			}
 		}
 
