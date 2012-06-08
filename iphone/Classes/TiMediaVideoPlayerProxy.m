@@ -64,6 +64,11 @@ NSArray* moviePlayerKeys = nil;
 -(void)_initWithProperties:(NSDictionary *)properties
 {	
 	loadProperties = [[NSMutableDictionary alloc] init];
+    
+    //FIXME: The notifications from the MPmoviecontroller does not seem 
+    //to fire properly so as a temporary fix we set mediaControlStyle to default.
+    [loadProperties setValue:NUMINT(1) forKey:@"mediaControlStyle"];
+    
 	playerLock = [[NSRecursiveLock alloc] init];
 	[super _initWithProperties:properties];
 }
