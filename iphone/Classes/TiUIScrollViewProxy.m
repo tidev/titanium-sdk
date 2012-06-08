@@ -245,6 +245,11 @@
 	[(TiUIScrollView *)[self view] setNeedsHandleContentSizeIfAutosizing];
 }
 
+-(BOOL)optimizeSubviewInsertion
+{
+    return YES;
+}
+
 -(UIView *)parentViewForChild:(TiViewProxy *)child
 {
 	return [(TiUIScrollView *)[self view] wrapperView];

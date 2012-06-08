@@ -66,11 +66,6 @@ USE_VIEW_FOR_CONTENT_WIDTH
     return TiDimensionAutoSize;
 }
 
-// TiUILabel has non-TiUIView subviews and is not intended for use as a viewgroup, either
--(BOOL)optimizeSubviewInsertion
-{
-    return NO;
-}
 
 @end
 
