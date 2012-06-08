@@ -17,6 +17,8 @@ def get_avds(sdk):
 	
 	name = None
 	theid = None
+	skins = None
+	abis = None
 	
 	for line in run.run([sdk.get_android(),'list','target'],debug=False).split("\n"):
 		line = line.strip()
@@ -31,8 +33,10 @@ def get_avds(sdk):
 			name = "%s %s" % (name,version)
 		elif line.find("Skins: ")!=-1:
 			skins = line[7:].replace(' (default)','').strip().split(", ")
-			avds.append({'name':name,'id':theid,'skins':skins})
-			
+		elif line.find("ABIs : ") != -1:
+			abis = line[7:].strip().split(", ")
+			avds.append({'name':name,'id':theid,'skins':skins,'abis':abis})
+	
 	return avds
 		
 
