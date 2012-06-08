@@ -368,10 +368,15 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	TiRect *rect = [[TiRect alloc] init];
     if ([self viewAttached]) {
         [self makeViewPerformSelector:@selector(fillBoundsToRect:) withObject:rect createIfNeeded:YES waitUntilDone:YES];
+        id defaultUnit = [[NSUserDefaults standardUserDefaults] objectForKey:@"ti.ui.defaultunit"];
+        if ([defaultUnit isKindOfClass:[NSString class]]) {
+            [rect convertToUnit:defaultUnit];
+        }
     }
     else {
         [rect setRect:CGRectZero];
     }
+    
     return [rect autorelease];
 }
 
@@ -395,6 +400,11 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
         viewRect.origin.x += viewPosition.x;
         viewRect.origin.y += viewPosition.y;
         [rect setRect:viewRect];
+        
+        id defaultUnit = [[NSUserDefaults standardUserDefaults] objectForKey:@"ti.ui.defaultunit"];
+        if ([defaultUnit isKindOfClass:[NSString class]]) {
+            [rect convertToUnit:defaultUnit];
+        }       
     }
     else {
         [rect setRect:CGRectZero];

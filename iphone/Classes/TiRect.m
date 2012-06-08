@@ -6,7 +6,7 @@
  */
 
 #import "TiRect.h"
-
+#import "TiDimension.h"
 
 @implementation TiRect
 
@@ -82,6 +82,34 @@
 -(id)bottom
 {
 	return [NSNumber numberWithFloat:(rect.origin.y + rect.size.height)];
+}
+
+-(void)convertToUnit:(NSString *)unit
+{    
+    if ([unit caseInsensitiveCompare:kTiUnitCm] == NSOrderedSame) {
+        rect.origin.x = convertDipToInch(rect.origin.x) * INCH_IN_CM;
+        rect.origin.y = convertDipToInch(rect.origin.y) * INCH_IN_CM;
+        rect.size.width = convertDipToInch(rect.size.width) * INCH_IN_CM;
+        rect.size.height = convertDipToInch(rect.size.width) * INCH_IN_CM;
+    }
+    else if ([unit caseInsensitiveCompare:kTiUnitInch] == NSOrderedSame) {
+        rect.origin.x = convertDipToInch(rect.origin.x);
+        rect.origin.y = convertDipToInch(rect.origin.y);
+        rect.size.width = convertDipToInch(rect.size.width);
+        rect.size.height = convertDipToInch(rect.size.height);
+    }
+    else if ([unit caseInsensitiveCompare:kTiUnitMm] == NSOrderedSame) {
+        rect.origin.x = convertDipToInch(rect.origin.x) * INCH_IN_MM;
+        rect.origin.y = convertDipToInch(rect.origin.y) * INCH_IN_MM;
+        rect.size.width = convertDipToInch(rect.size.width) * INCH_IN_MM;
+        rect.size.height = convertDipToInch(rect.size.height) * INCH_IN_MM;
+    }
+    else if ([unit caseInsensitiveCompare:kTiUnitPixel] == NSOrderedSame) {
+        rect.origin.x = convertDipToPixels(rect.origin.x);
+        rect.origin.y = convertDipToPixels(rect.origin.y);
+        rect.size.width = convertDipToPixels(rect.size.width);
+        rect.size.height = convertDipToPixels(rect.size.height);
+    }
 }
 
 @end

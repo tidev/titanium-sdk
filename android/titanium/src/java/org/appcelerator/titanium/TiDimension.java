@@ -6,11 +6,13 @@
  */
 package org.appcelerator.titanium;
 
+import java.lang.ref.WeakReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 
 import android.content.Context;
 import android.util.DisplayMetrics;
@@ -177,6 +179,7 @@ public class TiDimension
 	 * <li> TypedValue.COMPLEX_UNIT_SP </li>
 	 * <li> TypedValue.COMPLEX_UNIT_MM </li>
 	 * <li> TypedValue.COMPLEX_UNIT_IN </li>
+	 * <li> TypedValue.COMPLEX_UNIT_CM </li>
 	 * <li> TiDimension.COMPLEX_UNIT_PERCENT </li>
 	 * <li> TiDimension.COMPLEX_UNIT_AUTO </li>
 	 * <li> TiDimension.COMPLEX_UNIT_UNDEFINED </li>
@@ -262,6 +265,34 @@ public class TiDimension
 
 		return (int) Math.round((getPixels(parent) / getDisplayMetrics(parent).density));
 	}
+	
+	/**
+	 * Calculates and returns the dimension in the default units. If the default
+	 * unit is not valid, returns in PX.
+	 * @param parent the parent of the view used for calculation
+	 * @return the dimension in the system unit
+	 */
+	public int getAsDefault(View parent)
+	{
+		String defaultUnit = TiApplication.getInstance().getDefaultUnit();
+		if (UNIT_PX.equals(defaultUnit) || UNIT_SYSTEM.equals(defaultUnit)) {
+			return getAsPixels(parent);
+		}
+		else if (UNIT_DP.equals(defaultUnit) || UNIT_DIP.equals(defaultUnit)) {
+			return getAsDIP(parent);
+		}
+		else if (UNIT_MM.equals(defaultUnit)) {
+			return getAsMillimeters(parent);
+		}
+		else if (UNIT_CM.equals(defaultUnit)) {
+			return getAsCentimeters(parent);
+		}
+		else if (UNIT_IN.equals(defaultUnit)) {
+			return getAsInches(parent);
+		}
+
+		return getAsPixels(parent);
+	}
 
 	protected double getPercentPixels(View parent)
 	{
@@ -307,7 +338,7 @@ public class TiDimension
 		}
 		return -1;
 	}
-
+	
 	protected double getSizePixels(View parent)
 	{
 		DisplayMetrics metrics = getDisplayMetrics(parent);
@@ -328,6 +359,7 @@ public class TiDimension
 			default:
 				dpi = metrics.densityDpi;
 		}
+		
 		if (units == TypedValue.COMPLEX_UNIT_PT) {
 			return (this.value * (dpi / POINT_DPI));
 		} else if (units == TypedValue.COMPLEX_UNIT_MM) {
