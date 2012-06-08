@@ -185,7 +185,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			condition += " AND " + additionalCondition;
 		}
 
-		Cursor cursor = activity.managedQuery(
+		Cursor cursor = activity.getContentResolver().query(
 				DataUri, 
 				DATA_PROJECTION, 
 				condition, 
@@ -679,7 +679,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		CommonContactsApi.LightPerson person = null;
 
 		// Basic person data.
-		Cursor cursor = activity.managedQuery(
+		Cursor cursor = activity.getContentResolver().query(
 				ContentUris.withAppendedId(ContactsUri, id),
 				PEOPLE_PROJECTION, null, null, null);
 
@@ -698,7 +698,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		String condition = "mimetype IN " + INConditionForKinds +
 				" AND contact_id = ?";
 
-		cursor = activity.managedQuery(
+		cursor = activity.getContentResolver().query(
 				DataUri, 
 				DATA_PROJECTION, 
 				condition, 
