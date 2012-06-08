@@ -26,6 +26,7 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUrl;
@@ -244,8 +245,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				if (view != null) {
 					View v = view.getNativeView();
 					if (v != null) {
-						d.put(TiC.PROPERTY_WIDTH, v.getWidth());
-						d.put(TiC.PROPERTY_HEIGHT, v.getHeight());
+						TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
+						TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
+						
+						d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(parent.get().peekView().getNativeView()));
+						d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(parent.get().peekView().getNativeView()));
 					}
 				}
 				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
@@ -263,10 +267,15 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				if (view != null) {
 					View v = view.getNativeView();
 					if (v != null) {
-						d.put(TiC.PROPERTY_WIDTH, v.getWidth());
-						d.put(TiC.PROPERTY_HEIGHT, v.getHeight());
-						d.put(TiC.PROPERTY_X, v.getLeft());
-						d.put(TiC.PROPERTY_Y, v.getTop());
+						TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
+						TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
+						TiDimension nativeLeft = new TiDimension(v.getLeft(), TiDimension.TYPE_LEFT);
+						TiDimension nativeRight = new TiDimension(v.getRight(), TiDimension.TYPE_RIGHT);
+						
+						d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(parent.get().peekView().getNativeView()));
+						d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(parent.get().peekView().getNativeView()));
+						d.put(TiC.PROPERTY_X, nativeLeft.getAsDefault(parent.get().peekView().getNativeView()));
+						d.put(TiC.PROPERTY_Y, nativeRight.getAsDefault(parent.get().peekView().getNativeView()));
 					}
 				}
 				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
