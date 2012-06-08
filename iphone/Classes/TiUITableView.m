@@ -1095,6 +1095,23 @@
 			[proxy layoutChildren:NO];
 		}
 	}
+    
+    //When table view is part of popover and the popover is represented the tableView will deselect the selected row.
+    //Setting allowsmultiple selection seems to fix the issue.
+    //See TIMOB-9301 for fail case. Set a breakpoint in selSelected:animated in TiUITableViewCell to track messaging
+    if ([tableview respondsToSelector:@selector(setAllowsMultipleSelection:)] && [tableview allowsSelection] && [tableview indexPathForSelectedRow] != nil) {
+        [tableview setAllowsMultipleSelection:YES];
+        [self performSelector:@selector(clearMultipleSelectionFlag) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+    }
+}
+
+-(void)clearMultipleSelectionFlag
+{
+    NSIndexPath* selectedPath = [tableview indexPathForSelectedRow];
+    [tableview setAllowsMultipleSelection:NO];
+    if (selectedPath != nil) {
+        [tableview selectRowAtIndexPath:selectedPath animated:NO scrollPosition:UITableViewScrollPositionNone];
+    }
 }
 
 -(CGFloat)contentHeightForWidth:(CGFloat)suggestedWidth
