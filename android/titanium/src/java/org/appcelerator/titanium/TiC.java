@@ -1909,6 +1909,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_WRAP = "wrap";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_X = "x";
 
 	/**

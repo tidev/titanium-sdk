@@ -33,7 +33,7 @@ public class TiUISpinner extends TiUIPicker
 	{
 		this(proxy);
 		TiCompositeLayout layout = new TiCompositeLayout(activity, LayoutArrangement.HORIZONTAL, proxy);
-		layout.setDisableHorizontalWrap(true);
+		layout.setEnableHorizontalWrap(true);
 		setNativeView(layout);
 	}
 

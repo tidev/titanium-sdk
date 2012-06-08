@@ -65,7 +65,9 @@ public class TiCompositeLayout extends ViewGroup
 	private int horizontalLayoutTopBuffer = 0;
 	private int horizontalLayoutCurrentLeft = 0;
 	private int horizontalLayoutLineHeight = 0;
-	private boolean disableHorizontalWrap = false;
+	private boolean enableHorizontalWrap = true;
+	private int horizontalLayoutLastIndexBeforeWrap = 0;
+	private int horizontalLayoutMaxRowHeight = 0;
 
 	private float alpha = 1.0f;
 	private Method setAlphaMethod;
@@ -431,7 +433,7 @@ public class TiCompositeLayout extends ViewGroup
 			if (centerY != null) {
 				height = (centerY.getAsPixels(this) - parentTop - top.getAsPixels(this)) * 2;
 			} else if (bottom != null) {
-				height = parentBottom - top.getAsPixels(this) - bottom.getAsPixels(this);
+				height = parentHeight - top.getAsPixels(this) - bottom.getAsPixels(this);
 			}
 		} else if (centerY != null && bottom != null) {
 			height = (parentBottom - bottom.getAsPixels(this) - centerY.getAsPixels(this)) * 2;
@@ -505,8 +507,11 @@ public class TiCompositeLayout extends ViewGroup
 						horizontalLayoutCurrentLeft = left;
 						horizontalLayoutLineHeight = 0;
 						horizontalLayoutTopBuffer = 0;
+						horizontalLayoutLastIndexBeforeWrap = 0;
+						horizontalLayoutMaxRowHeight = 0;
 					}
-					computeHorizontalLayoutPosition(params, childMeasuredWidth, childMeasuredHeight, right, top, bottom, horizontal, vertical);
+					computeHorizontalLayoutPosition(params, childMeasuredWidth, childMeasuredHeight, right, top, bottom, horizontal, vertical, i);
+
 				} else {
 					computePosition(this, params.optionLeft, params.optionCenterX, params.optionRight, childMeasuredWidth, left, right, horizontal);
 					if (isVerticalArrangement()) {
@@ -682,16 +687,42 @@ public class TiCompositeLayout extends ViewGroup
 		pos[1] = bottom;
 	}
 
-	private void computeHorizontalLayoutPosition(TiCompositeLayout.LayoutParams params, int measuredWidth, int measuredHeight, int layoutRight, int layoutTop, int layoutBottom, int[] hpos, int[] vpos)
+	private void computeHorizontalLayoutPosition(TiCompositeLayout.LayoutParams params, int measuredWidth,
+		int measuredHeight, int layoutRight, int layoutTop, int layoutBottom, int[] hpos, int[] vpos, int currentIndex)
 	{
+		// Loop through to calculate the max row height, and the last index before we start wrapping
+		if (enableHorizontalWrap && (currentIndex == 0 || currentIndex > horizontalLayoutLastIndexBeforeWrap)) {
+			horizontalLayoutMaxRowHeight = 0;
+			int rowWidth = 0;
+			int childHeight = 0;
+			int i = 0;
+			for (i = currentIndex; i < getChildCount(); i++) {
+				View child = getChildAt(i);
+				rowWidth += child.getMeasuredWidth();
+				if (rowWidth > layoutRight) {
+					horizontalLayoutLastIndexBeforeWrap = i - 1;
+					break;
+				}
+				childHeight = child.getMeasuredHeight();
+				if (horizontalLayoutMaxRowHeight < childHeight) {
+					horizontalLayoutMaxRowHeight = childHeight;
+				}
+			}
+
+			// If we reach the last child, just set it as the lastIndexBeforeWrap
+			if (i == getChildCount()) {
+				horizontalLayoutLastIndexBeforeWrap = i - 1;
+			}
+		}
+
 		TiDimension optionLeft = params.optionLeft;
 		int left = horizontalLayoutCurrentLeft;
 		if (optionLeft != null) {
 			left += optionLeft.getAsPixels(this);
 		}
 		int right = left + measuredWidth;
-		if (right > layoutRight && !disableHorizontalWrap) {
-			// Too long for the current "line" that it's on.  Need to move it down.
+		if (right > layoutRight && enableHorizontalWrap) {
+			// Too long for the current "line" that it's on. Need to move it down.
 			left = 0;
 			right = measuredWidth;
 			horizontalLayoutTopBuffer = horizontalLayoutTopBuffer + horizontalLayoutLineHeight;
@@ -700,8 +731,14 @@ public class TiCompositeLayout extends ViewGroup
 		hpos[0] = left;
 		hpos[1] = right;
 		horizontalLayoutCurrentLeft = right;
+
+		if (enableHorizontalWrap) {
+			layoutBottom = horizontalLayoutMaxRowHeight;
+		}
+
 		// Get vertical position into vpos
-		computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, measuredHeight, layoutTop, layoutBottom, vpos);
+		computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, measuredHeight, layoutTop,
+			layoutBottom, vpos);
 		horizontalLayoutLineHeight = Math.max(horizontalLayoutLineHeight, vpos[1] - vpos[0]);
 		// account for moving the item "down" to later line(s) if there has been wrapping.
 		vpos[0] = vpos[0] + horizontalLayoutTopBuffer;
@@ -839,9 +876,9 @@ public class TiCompositeLayout extends ViewGroup
 		}
 	}
 
-	public void setDisableHorizontalWrap(boolean disable)
+	public void setEnableHorizontalWrap(boolean enable)
 	{
-		disableHorizontalWrap = disable;
+		enableHorizontalWrap = enable;
 	}
 
 	public void setProxy(TiViewProxy proxy)
