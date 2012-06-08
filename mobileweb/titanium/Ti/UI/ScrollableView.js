@@ -53,18 +53,29 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 
 		constructor: function(args){
 
+			var contentContainer,
+				contentContainerDomNode,
+				self = this,
+				views = self.properties.__values__.views = [],
+				velocity = 0,
+				sourcePosition,
+				minTranslation,
+				positionData;
+			self._currentTranslation = 0;
+
 			// Create the content container
-			this._add(this._contentContainer = UI.createView({
+			self._add(contentContainer = self._contentContainer = UI.createView({
 				left: 0,
 				top: 0,
 				width: UI.SIZE,
 				height: "100%",
 				layout: "constrainingHorizontal"
 			}));
-			this.domNode.style.overflow = "visible";
+			contentContainerDomNode = contentContainer.domNode;
+			self.domNode.style.overflow = "visible";
 
 			// Create the paging control container
-			this._add(this._pagingControlContainer = UI.createView({
+			self._add(self._pagingControlContainer = UI.createView({
 				width: "100%",
 				height: 20,
 				bottom: 0,
@@ -73,7 +84,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 				touchEnabled: false
 			}));
 
-			this._pagingControlContainer._add(this._pagingControlContentContainer = UI.createView({
+			self._pagingControlContainer._add(self._pagingControlContentContainer = UI.createView({
 				width: UI.SIZE,
 				height: "100%",
 				top: 0,
@@ -81,45 +92,58 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 				layout: "constrainingHorizontal"
 			}));
 
-			this.views = [];
-
 			// State variables
-			this._viewToRemoveAfterScroll = -1;
+			self._viewToRemoveAfterScroll = -1;
 
 			// Listen for postlayouts and update the translation
-			on(this, "postlayout", lang.hitch(this, this._updateTranslation));
+			on(self, "postlayout", lang.hitch(self, self._updateTranslation));
 
-			var self = this,
-				velocity = 0,
-				sourcePosition,
-				minTranslation,
-				positionData;
+			on(self, "dragstart", function(e) {
+				if (~self.currentPage) {
+					var currentPage = self.currentPage;
+					sourcePosition = views[currentPage]._measuredLeft;
+					minTranslation = -self._contentContainer._measuredWidth + views[views.length - 1]._measuredWidth;
+					positionData = [];
+					self._showView(currentPage - 1);
+					self._showView(currentPage + 1);
+				}
+			});
 
-			on(this, "dragstart", function(e) {
-				var views = self.views,
+			on(self, "drag", function(e) {
+				if (~self.currentPage) {
+					var position = -sourcePosition + e.distanceX;
+					positionData.push({
+						time: (new Date).getTime(),
+						position: position
+					});
+					self._setTranslation(Math.min(0,Math.max(position, minTranslation)));
+				}
+			});
+
+			on(self, "dragcancel", function(e) {
+				var translation = -views[self.currentPage]._measuredLeft,
 					currentPage = self.currentPage;
-				sourcePosition = views[currentPage]._measuredLeft;
-				minTranslation = -self._contentContainer._measuredWidth + self.views[self.views.length - 1]._measuredWidth;
-				positionData = [];
-				self._showView(currentPage - 1);
-				self._showView(currentPage + 1);
+				if (Math.abs(self._currentTranslation - translation) < 10) {
+					self._setTranslation(translation);
+					self._hideView(currentPage - 1);
+					self._hideView(currentPage + 1);
+				} else {
+					setStyle(contentContainerDomNode, "transition", "all " + (400 + 0.3 * contentContainer._measuredWidth) + "ms ease-in-out");
+					setTimeout(function(){
+						self._setTranslation(translation);
+					},1);
+					on.once(contentContainerDomNode, transitionEnd, function(){
+						setStyle(contentContainerDomNode, "transition", "");
+						self._hideView(currentPage - 1);
+						self._hideView(currentPage + 1);
+					});
+				}
 			});
 
-			on(this, "drag", function(e) {
-				var position = -sourcePosition + e.distanceX;
-				positionData.push({
-					time: (new Date).getTime(),
-					position: position
-				});
-				self._setTranslation(Math.min(0,Math.max(position, minTranslation)));
-			});
-
-			on(this, "dragend", function(e) {
-				if (positionData.length > 1) {
+			on(self, "dragend", function(e) {
+				if (~self.currentPage) {
 					var distance = e.distanceX,
 						velocity = (positionData[1].position - positionData[0].position) / (positionData[1].time - positionData[0].time),
-						contentContainer = self._contentContainer,
-						views = self.views,
 						currentPage = self.currentPage,
 						destinationIndex = currentPage,
 						destination = views[destinationIndex],
@@ -129,7 +153,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 						i = 1,
 						len = positionData.length,
 						curve = "ease-out";
-	
+
 					// Calculate the velocity by calculating a weighted slope average, favoring more recent movement
 					for(; i < len - 1; i++) {
 						velocity = (velocity * i + (i * (positionData[i + 1].position - positionData[i].position) / (positionData[i + 1].time - positionData[i].time))) / (2 * i);
@@ -137,7 +161,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 					velocity = Math.abs(velocity);
 					velocity < minVelocity && (curve = "ease-in-out");
 					velocity = Math.max(minVelocity, Math.min(maxVelocity, velocity));
-	
+
 					// Determine the animation characteristics
 					normalizedWidth = views[currentPage]._measuredWidth / (velocity > velocityThreshold ? 
 						minimumFlickDistanceScaleFactor :
@@ -152,16 +176,16 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 						distance = sourcePosition + distance - (destination = views[destinationIndex])._measuredLeft;
 					}
 					destinationPosition = destination._measuredLeft;
-	
+
 					// Animate the view
 					self._updatePagingControl(destinationIndex);
 					duration = 1.724 * Math.abs(distance) / velocity;
-					setStyle(contentContainer.domNode, "transition", "all " + duration + "ms " + curve);
+					setStyle(contentContainerDomNode, "transition", "all " + duration + "ms " + curve);
 					setTimeout(function(){
 						self._setTranslation(-destinationPosition);
 					},1);
-					on.once(contentContainer.domNode, transitionEnd, function(){
-						setStyle(contentContainer.domNode, "transition", "");
+					on.once(contentContainerDomNode, transitionEnd, function(){
+						setStyle(contentContainerDomNode, "transition", "");
 						destinationIndex !== currentPage - 1 && self._hideView(currentPage - 1);
 						destinationIndex !== currentPage && self._hideView(currentPage);
 						destinationIndex !== currentPage + 1 && self._hideView(currentPage + 1);
@@ -233,11 +257,11 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 		},
 
 		_updateTranslation: function() {
-			this._setTranslation(-this.views[this.currentPage]._measuredLeft);
+			~this.currentPage && this._setTranslation(-this.views[this.currentPage]._measuredLeft);
 		},
 
 		_setTranslation: function(distance) {
-			setStyle(this._contentContainer.domNode, "transform", "translate(" + distance + "px, 0)" + transformPostfix);
+			setStyle(this._contentContainer.domNode, "transform", "translate(" + (this._currentTranslation = distance) + "px, 0)" + transformPostfix);
 		},
 
 		scrollToView: function(view) {
@@ -291,6 +315,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 							}
 						}
 						if (self._viewToRemoveAfterScroll !== -1) {
+							self._updateTranslation(-destinationPosition + self.views[self._viewToRemoveAfterScroll]._measuredWidth);
 							self._removeViewFromList(self._viewToRemoveAfterScroll);
 							self._viewToRemoveAfterScroll = -1;
 						}
