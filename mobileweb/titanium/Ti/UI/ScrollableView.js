@@ -2,6 +2,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 	function(browser, declare, Widget, lang, dom, style, UI, event) {
 
 	var setStyle = style.set,
+		getStyle = style.get,
 		is = require.is,
 		isDef = lang.isDef,
 		unitize = dom.unitize,
@@ -21,16 +22,32 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 		angleThreshold = Math.PI/6, // 30 degrees
 
 		// This sets the minimum velocity that determines whether a swipe was a flick or a drag
-		velocityThreshold = 0.5,
+		velocityThreshold = 0.8,
 
 		// This determines the minimum distance scale (i.e. width divided by this value) before a flick requests a page turn
 		minimumFlickDistanceScaleFactor = 15,
 
 		// This determines the minimum distance scale (i.e. width divided by this value) before a drag requests a page turn
-		minimumDragDistanceScaleFactor = 2;
+		minimumDragDistanceScaleFactor = 2,
 
-		// This is the velocity used to animate to the end when there is no available velocity
-		defaultVelocity = 0.2;
+		// Velocity bounds, used to make sure that animations don't become super long or super short
+		minVelocity = 0.35,
+		maxVelocity = 3,
+
+		transformPostfix = "translateZ(0)";
+
+	// Make sure that translateZ is supported
+	(function(){
+		var testDiv = dom.create("div", {
+			id: "foo",
+			position: "absolute"
+		}, document.body);
+		setTimeout(function(){
+			setStyle(testDiv, "transform", transformPostfix);
+			!getStyle(testDiv, "transform") && (transformPostfix = "");
+			dom.detach(testDiv);
+		},1);
+	})();
 
 	return declare("Ti.UI.ScrollableView", Widget, {
 
@@ -73,44 +90,87 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 			on(this, "postlayout", lang.hitch(this, this._updateTranslation));
 
 			var self = this,
-				base,
 				velocity = 0,
-				previousTime,
-				previousDistance;
+				sourcePosition,
+				minTranslation,
+				positionData;
+
 			on(this, "dragstart", function(e) {
-				base = -self.views[self.currentPage]._measuredLeft;
+				sourcePosition = self.views[self.currentPage]._measuredLeft;
+				minTranslation = -self._contentContainer._measuredWidth + self.views[self.views.length - 1]._measuredWidth;
+				positionData = [];
 			});
 
 			on(this, "drag", function(e) {
-				var currentTime = (new Date).getTime(),
-					currentDistance = e.distanceX;
-				previousTime && (velocity = (previousDistance - currentDistance) / (previousTime - currentTime));
-				previousTime = currentTime;
-				previousDistance = currentDistance;
-				console.log(velocity);
-				setStyle(this._contentContainer.domNode, "transform",
-					"translate(" + (base + previousDistance) + "px, 0) translateZ(0)");
+				var position = -sourcePosition + e.distanceX;
+				positionData.push({
+					time: (new Date).getTime(),
+					position: position
+				});
+				self._setTranslation(Math.min(0,Math.max(position, minTranslation)));
 			});
 
 			on(this, "dragend", function(e) {
-				var scaleFactor = velocity > velocityThreshold ? 
+				if (positionData.length > 1) {
+					var distance = e.distanceX,
+						velocity = (positionData[1].position - positionData[0].position) / (positionData[1].time - positionData[0].time),
+						contentContainer = self._contentContainer,
+						views = self.views,
+						currentPage = self.currentPage,
+						destination,
+						destinationIndex,
+						destinationPosition,
+						duration,
+						normalizedWidth,
+						i = 1,
+						len = positionData.length,
+						curve = "ease-out";
+	
+					// Calculate the velocity by calculating a weighted slope average, favoring more recent movement
+					for(; i < len - 1; i++) {
+						velocity = (velocity * i + (i * (positionData[i + 1].position - positionData[i].position) / (positionData[i + 1].time - positionData[i].time))) / (2 * i);
+					}
+					velocity = Math.abs(velocity);
+					velocity < minVelocity && (curve = "ease-in-out");
+					velocity = Math.max(minVelocity, Math.min(maxVelocity, velocity));
+	
+					// Determine the animation characteristics
+					normalizedWidth = contentContainer._measuredWidth / Math.abs(velocity) > velocityThreshold ? 
 						minimumFlickDistanceScaleFactor :
 						minimumDragDistanceScaleFactor;
-				/*if (distance > width / scaleFactor && self.currentPage > 0) {
-					destinationIndex = self.currentPage - 1;
-					animationLeft = 0;
-				} else if (distance < -width / scaleFactor && self.currentPage < self.views.length - 1) {
-					destinationIndex = self.currentPage + 1;
-					if (viewsToScroll.length === 3) {
-						animationLeft = -2 * width;
+					if (distance > normalizedWidth && currentPage > 0) {
+						// Previous page
+						destinationIndex = self.currentPage - 1;
+						distance = (destination = views[destinationIndex])._measuredLeft - sourcePosition - distance;
+					} else if (distance < -normalizedWidth && currentPage < views.length - 1) {
+						// Next page
+						destinationIndex = currentPage + 1;
+						distance = sourcePosition + distance - (destination = views[destinationIndex])._measuredLeft;
 					} else {
-						animationLeft = -width;
+						// Same page
+						destinationIndex = currentPage;
+						destination = views[destinationIndex];
 					}
-				}*/
-			});
-
-			on(this, "dragcancel", function(e) {
-				
+					destinationPosition = destination._measuredLeft;
+	
+					// Animate the view
+					self._updatePagingControl(destinationIndex);
+					duration = 1.724 * Math.abs(distance) / velocity;
+					setStyle(contentContainer.domNode, "transition", "all " + duration + "ms " + curve);
+					setTimeout(function(){
+						self._setTranslation(-destinationPosition);
+					},1);
+					on(contentContainer.domNode, transitionEnd, function(){
+						self.properties.__values__.currentPage = destinationIndex;
+						setStyle(contentContainer.domNode, "transition", "");
+						setTimeout(function(){
+							self.fireEvent("scroll",{
+								currentPage: destinationIndex,
+								view: destination
+							});
+						}, 1);
+					});
+				}
 			});
 		},
 
@@ -156,8 +216,11 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 		},
 
 		_updateTranslation: function() {
-			setStyle(this._contentContainer.domNode, "transform",
-				"translate(" + (-this.views[this.currentPage]._measuredLeft) + "px, 0) translateZ(0)");
+			this._setTranslation(-this.views[this.currentPage]._measuredLeft);
+		},
+
+		_setTranslation: function(distance) {
+			setStyle(this._contentContainer.domNode, "transform", "translate(" + distance + "px, 0)" + transformPostfix);
 		},
 
 		scrollToView: function(view) {
@@ -178,11 +241,10 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 					// Calculate a weighted duration so that larger views take longer to scroll.
 					duration = 300 + 0.2 * (Math.abs(viewIndex - self.currentPage) * contentContainer._measuredWidth);
 
-				console.log(duration);
 				self._updatePagingControl(viewIndex);
 				setStyle(contentContainer.domNode, "transition", "all " + duration + "ms ease-in-out");
 				setTimeout(function(){
-					setStyle(contentContainer.domNode, "transform", "translate(" + (-destinationPosition) + "px, 0) translateZ(0)");
+					self._setTranslation(-destinationPosition);
 				},1);
 				on(contentContainer.domNode, transitionEnd, function(){
 					self.properties.__values__.currentPage = viewIndex;
@@ -254,6 +316,9 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 		_defaultHeight: UI.FILL,
 
 		properties: {
+			clipViews: {
+				
+			},
 			currentPage: {
 				set: function(value, oldValue) {
 					if (value >= 0 && value < this.views.length) {
