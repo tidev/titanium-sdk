@@ -22,7 +22,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 		angleThreshold = Math.PI/6, // 30 degrees
 
 		// This sets the minimum velocity that determines whether a swipe was a flick or a drag
-		velocityThreshold = 0.8,
+		velocityThreshold = 0.5,
 
 		// This determines the minimum distance scale (i.e. width divided by this value) before a flick requests a page turn
 		minimumFlickDistanceScaleFactor = 15,
@@ -31,7 +31,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 		minimumDragDistanceScaleFactor = 2,
 
 		// Velocity bounds, used to make sure that animations don't become super long or super short
-		minVelocity = 0.35,
+		minVelocity = 0.3,
 		maxVelocity = 3,
 
 		transformPostfix = "translateZ(0)";
@@ -96,9 +96,13 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 				positionData;
 
 			on(this, "dragstart", function(e) {
-				sourcePosition = self.views[self.currentPage]._measuredLeft;
+				var views = self.views,
+					currentPage = self.currentPage;
+				sourcePosition = views[currentPage]._measuredLeft;
 				minTranslation = -self._contentContainer._measuredWidth + self.views[self.views.length - 1]._measuredWidth;
 				positionData = [];
+				self._showView(currentPage - 1);
+				self._showView(currentPage + 1);
 			});
 
 			on(this, "drag", function(e) {
@@ -117,8 +121,8 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 						contentContainer = self._contentContainer,
 						views = self.views,
 						currentPage = self.currentPage,
-						destination,
-						destinationIndex,
+						destinationIndex = currentPage,
+						destination = views[destinationIndex],
 						destinationPosition,
 						duration,
 						normalizedWidth,
@@ -135,9 +139,9 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 					velocity = Math.max(minVelocity, Math.min(maxVelocity, velocity));
 	
 					// Determine the animation characteristics
-					normalizedWidth = contentContainer._measuredWidth / Math.abs(velocity) > velocityThreshold ? 
+					normalizedWidth = views[currentPage]._measuredWidth / (velocity > velocityThreshold ? 
 						minimumFlickDistanceScaleFactor :
-						minimumDragDistanceScaleFactor;
+						minimumDragDistanceScaleFactor);
 					if (distance > normalizedWidth && currentPage > 0) {
 						// Previous page
 						destinationIndex = self.currentPage - 1;
@@ -146,10 +150,6 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 						// Next page
 						destinationIndex = currentPage + 1;
 						distance = sourcePosition + distance - (destination = views[destinationIndex])._measuredLeft;
-					} else {
-						// Same page
-						destinationIndex = currentPage;
-						destination = views[destinationIndex];
 					}
 					destinationPosition = destination._measuredLeft;
 	
@@ -160,9 +160,12 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 					setTimeout(function(){
 						self._setTranslation(-destinationPosition);
 					},1);
-					on(contentContainer.domNode, transitionEnd, function(){
-						self.properties.__values__.currentPage = destinationIndex;
+					on.once(contentContainer.domNode, transitionEnd, function(){
 						setStyle(contentContainer.domNode, "transition", "");
+						destinationIndex !== currentPage - 1 && self._hideView(currentPage - 1);
+						destinationIndex !== currentPage && self._hideView(currentPage);
+						destinationIndex !== currentPage + 1 && self._hideView(currentPage + 1);
+						self.properties.__values__.currentPage = destinationIndex;
 						setTimeout(function(){
 							self.fireEvent("scroll",{
 								currentPage: destinationIndex,
@@ -174,11 +177,25 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 			});
 		},
 
+		_hideView: function(index) {
+			var views = this.views;
+			index >= 0 && index < views.length && setStyle(views[index].domNode, "display", "none");
+		},
+
+		_showView: function(index) {
+			var views = this.views;
+			index >= 0 && index < views.length && setStyle(views[index].domNode, "display", "inherit");
+		},
+
 		addView: function(view){
 			if (view) {
 				this.views.push(view);
 				this._contentContainer._add(view);
-				this.views.length == 1 && (this.properties.__values__.currentPage = 0);
+				if (this.views.length == 1) {
+					this.properties.__values__.currentPage = 0;
+				} else {
+					setStyle(view.domNode, "display", "none");
+				}
 			}
 		},
 
@@ -237,19 +254,42 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 				// Calculate the views to be scrolled
 				var contentContainer = self._contentContainer,
 					destinationPosition = self.views[viewIndex]._measuredLeft,
+					currentPage = self.currentPage,
+					i;
 
 					// Calculate a weighted duration so that larger views take longer to scroll.
-					duration = 300 + 0.2 * (Math.abs(viewIndex - self.currentPage) * contentContainer._measuredWidth);
+					duration = 400 + 0.3 * (Math.abs(viewIndex - self.currentPage) * contentContainer._measuredWidth);
 
+				// Make the views that will be seen visible
+				if (currentPage < viewIndex) {
+					for(i = currentPage + 1; i <= viewIndex; i++) {
+						self._showView(i);
+					}
+				} else {
+					for(i = viewIndex; i < currentPage; i++) {
+						self._showView(i);
+					}
+				}
+
+				// Animate the views
 				self._updatePagingControl(viewIndex);
 				setStyle(contentContainer.domNode, "transition", "all " + duration + "ms ease-in-out");
 				setTimeout(function(){
 					self._setTranslation(-destinationPosition);
 				},1);
-				on(contentContainer.domNode, transitionEnd, function(){
+				on.once(contentContainer.domNode, transitionEnd, function(){
 					self.properties.__values__.currentPage = viewIndex;
 					setStyle(contentContainer.domNode, "transition", "");
 					setTimeout(function(){
+						if (currentPage < viewIndex) {
+							for(i = currentPage; i < viewIndex; i++) {
+								self._hideView(i);
+							}
+						} else {
+							for(i = viewIndex + 1; i <= currentPage; i++) {
+								self._hideView(i);
+							}
+						}
 						if (self._viewToRemoveAfterScroll !== -1) {
 							self._removeViewFromList(self._viewToRemoveAfterScroll);
 							self._viewToRemoveAfterScroll = -1;
