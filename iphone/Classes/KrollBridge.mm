@@ -791,19 +791,19 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		if (moduleClass!=nil)
 		{
 			module = [[moduleClass alloc] _initWithPageContext:self];
-			// we might have a module that's simply a JS native module wrapper
-			// in which case we simply load it and don't register our native module
+            
+            // Load any JS associated with the module if there, so that it
+            // can be exported
 			if ([module isJSModule])
 			{
 				data = [module moduleJS];
 			}
-			else
-			{
-				[module setHost:host];
-				[module _setName:moduleClassName];
-				// register it
-				[modules setObject:module forKey:path];
-			}
+            
+            [module setHost:host];
+            [module _setName:moduleClassName];
+            // register it
+            [modules setObject:module forKey:path];
+            
 			[module autorelease];
 		}
 	}
@@ -825,29 +825,57 @@ CFMutableSetRef	krollBridgeRegistry = nil;
         NSString* urlPath = (filepath != nil) ? filepath : path;
 		NSURL *url_ = [TiHost resourceBasedURL:urlPath baseURL:NULL];
        	const char *urlCString = [[url_ absoluteString] UTF8String];
-        if ([[self host] debugMode]) {
+        KrollWrapper* wrapper = nil;
+        
+        if ([[self host] debugMode] && ![module isJSModule]) {
             TiDebuggerBeginScript([self krollContext],urlCString);
         }
         
 		NSString * dataContents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-		module = [self loadCommonJSModule:dataContents withPath:path];
+		wrapper = [self loadCommonJSModule:dataContents withPath:path];
         [dataContents release];
 		
-        if ([[self host] debugMode]) {
+        if ([[self host] debugMode] && ![module isJSModule]) {
             TiDebuggerEndScript([self krollContext]);
         }
         
-		if (![module respondsToSelector:@selector(replaceValue:forKey:notification:)]) {
+		if (![wrapper respondsToSelector:@selector(replaceValue:forKey:notification:)]) {
 			@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"Module \"%@\" failed to leave a valid exports object",path] userInfo:nil];
 		}
 		
-		// register it
-		[modules setObject:module forKey:path];
-		if (filepath!=nil && module!=nil)
-		{
-			// uri is optional but we point it to where we loaded it
-			[module replaceValue:[NSString stringWithFormat:@"app://%@",filepath] forKey:@"uri" notification:NO];
-		}
+		// register the module if it's pure JS
+        if (module == nil) {
+            module = (id)wrapper;
+            
+            [modules setObject:module forKey:path];
+            if (filepath!=nil && module!=nil)
+            {
+                // uri is optional but we point it to where we loaded it
+                [module replaceValue:[NSString stringWithFormat:@"app://%@",filepath] forKey:@"uri" notification:NO];
+            }
+        }
+        else {
+            // For right now, we need to mix any compiled JS on top of a compiled module, so that both components
+            // are accessible. We store the exports object and then put references to its properties on the toplevel
+            // object.
+            
+            TiContextRef jsContext = [[self krollContext] context];
+            TiObjectRef jsObject = [wrapper jsobject];
+            KrollObject* moduleObject = [module krollObjectForContext:[self krollContext]];
+            [moduleObject noteObject:jsObject forTiString:kTiStringExportsKey context:jsContext];
+            
+            TiPropertyNameArrayRef properties = TiObjectCopyPropertyNames(jsContext, jsObject);
+            size_t count = TiPropertyNameArrayGetCount(properties);
+            for (size_t i=0; i < count; i++) {
+                // Mixin the property onto the module JS object if it's not already there
+                TiStringRef propertyName = TiPropertyNameArrayGetNameAtIndex(properties, i);
+                if (!TiObjectHasProperty(jsContext, [moduleObject jsobject], propertyName)) {
+                    TiValueRef property = TiObjectGetProperty(jsContext, jsObject, propertyName, NULL);
+                    TiObjectSetProperty([[self krollContext] context], [moduleObject jsobject], propertyName, property, kTiPropertyAttributeReadOnly, NULL);
+                }
+            }
+            TiPropertyNameArrayRelease(properties);
+        }
 	}
 	
 	if (module!=nil)
