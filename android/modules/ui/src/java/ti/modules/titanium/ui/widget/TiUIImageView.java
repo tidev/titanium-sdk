@@ -69,6 +69,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private Loader loader;
 	private Thread loaderThread;
 	private AtomicBoolean animating = new AtomicBoolean(false);
+	private AtomicBoolean isLoading = new AtomicBoolean(false);
 	private AtomicBoolean isStopping = new AtomicBoolean(false);
 	private boolean reverse = false;
 	private boolean paused = false;
@@ -363,7 +364,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				return;
 			}
 			repeatIndex = 0;
-			animating.set(true);
+			isLoading.set(true);
 			firedLoad = false;
 			topLoop: while (isRepeating()) {
 
@@ -397,9 +398,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 							Log.w(LCAT, "Interrupted from paused state.");
 						}
 					}
-					if (!animating.get()) {
+
+					if (!isLoading.get() || isStopping.get()) {
 						break topLoop;
 					}
+
 					waitTime = 0;
 					synchronized (releasedLock) {
 						if (imageSources == null || j >= imageSources.size()) {
@@ -434,7 +437,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				}
 
 			}
-			animating.set(false);
+			isLoading.set(false);
 		}
 
 		public ArrayBlockingQueue<BitmapWithIndex> getBitmapQueue()
@@ -569,16 +572,15 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				}
 			}
 
-
 			animator = new Animator(loader);
 			if (!animating.get() && !loaderThread.isAlive()) {
 				isStopping.set(false);
 				loaderThread.start();
 			}
 
-
 			int duration = (int) getDuration();
 
+			animating.set(true);
 			fireStart();
 			timer.schedule(animator, duration, duration);
 		} else {
