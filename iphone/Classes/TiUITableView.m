@@ -140,13 +140,6 @@
     [super touchesCancelled:touches withEvent:event];
 }
 
-
--(void)setHighlighted:(BOOL)yn animated:(BOOL)animated
-{
-	[super setHighlighted:yn animated:animated];
-	[self updateGradientLayer:yn|[self isSelected]];
-}
-
 -(void)handleEvent:(NSString*)type
 {
 	if ([type isEqual:@"touchstart"]) {
@@ -208,16 +201,28 @@
 	[gradientLayer setNeedsDisplay];
 }
 
+-(void)setSelected:(BOOL)yn animated:(BOOL)animated
+{
+    [super setSelected:yn animated:animated];
+    [self updateGradientLayer:yn|[self isHighlighted]];
+}
+
+-(void)setHighlighted:(BOOL)yn animated:(BOOL)animated
+{
+    [super setHighlighted:yn animated:animated];
+    [self updateGradientLayer:yn|[self isSelected]];
+}
+
 -(void)setHighlighted:(BOOL)yn
 {
-	[self setHighlighted:yn animated:NO];
+    [super setHighlighted:yn];
+    [self updateGradientLayer:yn|[self isHighlighted]];
 }
 
 -(void)setSelected:(BOOL)yn
 {
     [super setSelected:yn];
-	[super setHighlighted:yn];
-	[self updateGradientLayer:yn|[self isHighlighted]];
+    [self updateGradientLayer:yn|[self isHighlighted]];
 }
 
 -(void) setBackgroundGradient_:(TiGradient *)newGradient
