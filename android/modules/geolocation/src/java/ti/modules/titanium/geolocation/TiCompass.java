@@ -128,10 +128,7 @@ public class TiCompass
 		}
 
 		if (geomagneticField != null) {
-			float trueHeading = x - geomagneticField.getDeclination();
-			if (trueHeading < 0) {
-				trueHeading = (360 - trueHeading) % 360;
-			}
+			float trueHeading = (x + geomagneticField.getDeclination() + 360) % 360;
 
 			heading.put(TiC.PROPERTY_TRUE_HEADING, trueHeading);
 		}
