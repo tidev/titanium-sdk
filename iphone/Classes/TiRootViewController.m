@@ -1150,13 +1150,13 @@
 	leaveDuration = [[userInfo valueForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
 	[self extractKeyboardInfo:userInfo];
 	keyboardVisible = NO;
-
+    
 	if(!updatingAccessoryView)
 	{
 		updatingAccessoryView = YES;
 		[self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
 	}
-    RELEASE_TO_NIL_AUTORELEASE(keyboardFocusedProxy);
+    
 }
 
 - (void)keyboardWillShow:(NSNotification*)notification 
@@ -1265,7 +1265,7 @@
             [confirmedScrollView keyboardDidShowAtHeight:keyboardHeight];
         }
 	}
-
+    RELEASE_TO_NIL_AUTORELEASE(keyboardFocusedProxy);
 	if((doomedView == nil) || (leavingAccessoryView == doomedView)){
 		//Nothing to worry about. No toolbar or it's on its way out.
 		return;
