@@ -32,6 +32,7 @@ public class TiCompass
 {
 	private static final String LCAT = "TiCompass";
 	private static final boolean DBG = TiConfig.LOGD;
+    private static final int DECLINATION_CHECK_INTERVAL = 60000;
 
 	private GeolocationModule geolocationModule;
 	private TiLocation tiLocation;
@@ -40,6 +41,9 @@ public class TiCompass
 	private long lastEventInUpdate;
 	private float lastHeading = 0.0f;
 	private GeomagneticField geomagneticField;
+    private Criteria locationCriteria = new Criteria();
+    private Location geomagneticFieldLocation;
+    private long lastDeclinationCheck;
 
 
 	public TiCompass(GeolocationModule geolocationModule, TiLocation tiLocation)
@@ -50,6 +54,7 @@ public class TiCompass
 
 	public void registerListener()
 	{
+        updateDeclination();
 		TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, this, SensorManager.SENSOR_DELAY_UI);
 	}
 
@@ -136,6 +141,25 @@ public class TiCompass
 		return data;
 	}
 
+    private void updateDeclination()
+    {
+		long currentTime = System.currentTimeMillis();
+
+        if (currentTime - lastDeclinationCheck > DECLINATION_CHECK_INTERVAL) {
+			String provider = tiLocation.locationManager.getBestProvider(locationCriteria, true);
+			if (provider != null) {
+				Location location = tiLocation.locationManager.getLastKnownLocation(provider);
+				if (location != null) {
+					if (geomagneticField == null || location.getTime() > geomagneticFieldLocation.getTime()) {
+						geomagneticField = new GeomagneticField((float)location.getLatitude(), (float)location.getLongitude(), (float)(location.getAltitude()), currentTime);
+						geomagneticFieldLocation = location;
+					}
+				}
+			}
+			lastDeclinationCheck = currentTime;
+		}
+    }
+
 	public boolean getHasCompass()
 	{
 		boolean compass = false;
@@ -170,16 +194,7 @@ public class TiCompass
 				}
 			};
 
-			Criteria criteria = new Criteria();
-			
-			String provider = tiLocation.locationManager.getBestProvider(criteria, true);
-			if (provider != null) {
-				Location location = tiLocation.locationManager.getLastKnownLocation(provider);
-				if (location != null) {
-					geomagneticField = new GeomagneticField((float)location.getLatitude(), (float)location.getLongitude(), (float)(location.getAltitude()), System.currentTimeMillis());
-				}
-			}
-
+            updateDeclination();
 			TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, oneShotHeadingListener, SensorManager.SENSOR_DELAY_UI);
 		}
 	}
