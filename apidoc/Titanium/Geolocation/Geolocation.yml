@@ -119,38 +119,45 @@ description: |
     In addition to the accuracy setting, there are several Mobile Web-specific settings.
     See <Titanium.Geolocation.MobileWeb> for details.
 
-extends: Titanium.Module
-since: "0.1"
-platforms: [android, iphone, ipad, mobileweb]
-examples: 
-  - title: Using the Compass
-    example: |
-        Both iOS and Android support a receiving heading updates from a hardware compass, if available.
-        Not all devices support a compass, so applications should test whether the
-        compass is supported. On Android, `hasCompass` is a property. On iOS, `hasCompass` is a method. 
-        The following sample shows how to test for compass support and register for
-        compass updates.
+    #### Using the Compass
 
-            var hasCompass = false;
-            if (typeof (Ti.Geolocation.hasCompass) === 'function') {
-                hasCompass = Ti.Geolocation.hasCompass();
-            } else if (typeof (Ti.Geolocation.hasCompass) === 'boolean') {
-                hasCompass = Ti.Geolocation.hasCompass;
-            }
+        Both iOS and Android support a receiving heading updates from a hardware compass, if available.
+        On Mobile Web, heading updates are supported if the browser supports this feature.
+        Currently, this support is only available on Mobile Safari.
+
+        On Android and iOS, you can test whether the current device supports a compass. On
+        Android, `hasCompass` is a property. On iOS and Mobile Web, `hasCompass` is a method. 
+        (Prior to 2.1, there was no direct method to determine whether the current platform
+        supported a compass on Mobile Web.)
+
+        To retrieve compass readings, you can either use 
+        [getCurrentHeading](Titanium.Geolocation.getCurrentHeading) as shown in the
+        previous example, or add a listener for the
+        [heading](Titanium.Geolocation.heading) event, as shown below:
+
             var compassHandler = function(e) {
                 if (e.success === undefined || e.success) {
                     Ti.API.info("Heading: " + e.heading.magneticHeading);
                 }
             }
-            if (hasCompass) {
-                Ti.Geolocation.addEventListener("heading", compassHandler);
-            }
+            Ti.Geolocation.addEventListener("heading", compassHandler);
+
+        Note that Android does not include a `success` property in the `heading` event.
+        Heading events are only generated on Android when heading data is available. So if 
+        `success` is undefined, we assume that the event contains valid compass data.
 
         As with location updates, the application should unregister for heading updates
         when it is no longer being used, or when it goes into the background. Use
         `removeEventListener` to stop heading updates:
 
             Ti.Geolocation.removeEventListener('heading', compassHandler);
+
+        Finally, note that neither the Android emulator nor the iOS simulator provide
+        compass support. Compass code must be tested on physical devices.
+
+extends: Titanium.Module
+since: "0.1"
+platforms: [android, iphone, ipad, mobileweb]
 methods:
   - name: forwardGeocoder
     summary: Resolves an address to a location.
@@ -827,10 +834,16 @@ properties:
   - name: trueHeading
     summary: Declination in degrees from true North.
     description: |
-        On Android, `trueHeading` is only available if the device has a location fix
-        **before** registering for heading updates or calling 
-        [getCurrentHeading](Titanium.Geolocation.getCurrentHeading). If the device doesn't 
-        have a location fix, `trueHeading` is undefined.
+        On Android, `trueHeading` is `undefined` unless the current declination correction for 
+        true North is available.  To receive the `trueHeading` value, you must ensure that the device
+        has a location fix, and then call [getCurrentHeading](Titanium.Geolocation.getCurrentHeading).
+        After calling `getCurrentHeading` once, subsequent `heading` events should include 
+        `trueHeading` values. 
+
+        The declination correction for true North is calculated when `getCurrentHeading`
+        is called, and stored until the application exits or the device is restarted,
+        which means that the true heading value may become less accurate as the device
+        moves. This is a known issue ([TIMOB-9434](https://jira.appcelerator.org/browse/TIMOB-9434)).
     type: Number
     platforms: [android, iphone, ipad]
 
