@@ -33,6 +33,7 @@ methods:
     returns:
         type: Titanium.Contacts.Person
     platforms: [android, ipad, iphone]
+    since: {android: "2.1.0"}
     parameters:
       - name: parameters
         summary: |
@@ -98,12 +99,21 @@ methods:
   - name: removePerson
     summary: Removes a contact from the address book.
     description: |
+    
+        On iOS:
+          
         This method must be followed by a save action to commit the data to the underlying database, 
         which can be done explicitly using <Titanium.Contacts.save> or implicitly using 
         <Titanium.Contacts.createPerson>. Although the <Titanium.Contacts.Person> object will still 
         exist once committed, it will no longer be valid. Continuing to use it will result in 
         unpredictable behavior, including crashes.
-    platforms: [iphone, ipad]
+        
+        On Android:
+        
+        This method will remove the person from the Contacts book automatically. 
+        
+    platforms: [android, iphone, ipad]
+    since: {android: "2.1.0"}
     parameters:
       - name: person
         summary: Contact.
