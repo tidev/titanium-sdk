@@ -1,22 +1,10 @@
-define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom", "Ti/_/style", "Ti/UI", "Ti/_/event"],
-	function(browser, declare, Widget, lang, dom, style, UI, event) {
+define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang", "Ti/_/dom", "Ti/_/style", "Ti/UI", "Ti/_/event"],
+	function(browser, declare, KineticScrollView, lang, dom, style, UI, event) {
 
 	var setStyle = style.set,
-		getStyle = style.get,
 		is = require.is,
 		isDef = lang.isDef,
 		unitize = dom.unitize,
-		on = require.on,
-		transitionEvents = {
-			webkit: "webkitTransitionEnd",
-			trident: "msTransitionEnd",
-			gecko: "transitionend",
-			presto: "oTransitionEnd"
-		},
-		transitionEnd = transitionEvents[browser.runtime] || "transitionEnd",
-
-		// This specifies the minimum distance that a finger must travel before it is considered a swipe
-		distanceThreshold = 50,
 
 		// The maximum angle, in radians, from the axis a swipe is allowed to travel before it is no longer considered a swipe
 		angleThreshold = Math.PI/6, // 30 degrees
@@ -28,54 +16,24 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 		minimumFlickDistanceScaleFactor = 15,
 
 		// This determines the minimum distance scale (i.e. width divided by this value) before a drag requests a page turn
-		minimumDragDistanceScaleFactor = 2,
+		minimumDragDistanceScaleFactor = 2;
 
-		// Velocity bounds, used to make sure that animations don't become super long or super short
-		minVelocity = 0.3,
-		maxVelocity = 3,
-
-		transformPostfix = "translateZ(0)";
-
-	// Make sure that translateZ is supported
-	(function(){
-		var testDiv = dom.create("div", {
-			id: "foo",
-			position: "absolute"
-		}, document.body);
-		setTimeout(function(){
-			setStyle(testDiv, "transform", transformPostfix);
-			!getStyle(testDiv, "transform") && (transformPostfix = "");
-			dom.detach(testDiv);
-		},1);
-	})();
-
-	return declare("Ti.UI.ScrollableView", Widget, {
+	return declare("Ti.UI.ScrollableView", KineticScrollView, {
 
 		constructor: function(args){
 
-			var contentContainer,
-				contentContainerDomNode,
-				self = this,
-				views = self.properties.__values__.views = [],
-				velocity = 0,
-				sourcePosition,
-				minTranslation,
-				positionData;
-			self._currentTranslation = 0;
-
 			// Create the content container
-			self._add(contentContainer = self._contentContainer = UI.createView({
+			this._initKineticScrollView(this._contentContainer = UI.createView({
 				left: 0,
 				top: 0,
 				width: UI.SIZE,
 				height: "100%",
 				layout: "constrainingHorizontal"
-			}));
-			contentContainerDomNode = contentContainer.domNode;
-			self.domNode.style.overflow = "visible";
+			}), "horizontal");
+			this.domNode.style.overflow = "visible";
 
 			// Create the paging control container
-			self._add(self._pagingControlContainer = UI.createView({
+			this._add(this._pagingControlContainer = UI.createView({
 				width: "100%",
 				height: 20,
 				bottom: 0,
@@ -84,7 +42,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 				touchEnabled: false
 			}));
 
-			self._pagingControlContainer._add(self._pagingControlContentContainer = UI.createView({
+			this._pagingControlContainer._add(this._pagingControlContentContainer = UI.createView({
 				width: UI.SIZE,
 				height: "100%",
 				top: 0,
@@ -93,112 +51,69 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 			}));
 
 			// State variables
-			self._viewToRemoveAfterScroll = -1;
+			this.properties.__values__.views = [];
+			this._viewToRemoveAfterScroll = -1;
 
-			// Listen for postlayouts and update the translation
-			on(self, "postlayout", lang.hitch(self, self._updateTranslation));
+			require.on(self, "postlayout", self._updateTranslation);
+		},
 
-			on(self, "dragstart", function(e) {
-				if (~self.currentPage) {
-					var currentPage = self.currentPage;
-					sourcePosition = views[currentPage]._measuredLeft;
-					minTranslation = -self._contentContainer._measuredWidth + views[views.length - 1]._measuredWidth;
-					positionData = [];
-					self._showView(currentPage - 1);
-					self._showView(currentPage + 1);
-				}
-			});
+		_handleDragStart: function() {
+			var currentPage = this.currentPage;
+			if (~currentPage) {
+				this._showView(currentPage - 1);
+				this._showView(currentPage + 1);
+			}
+		},
 
-			on(self, "drag", function(e) {
-				if (~self.currentPage) {
-					var position = -sourcePosition + e.distanceX;
-					positionData.push({
-						time: (new Date).getTime(),
-						position: position
-					});
-					self._setTranslation(Math.min(0,Math.max(position, minTranslation)));
-				}
-			});
+		_handleDragCancel: function() {
+			var currentPage = this.currentPage;
+			if (~currentPage) {
+				this._hideView(currentPage - 1);
+				this._hideView(currentPage + 1);
+			}
+		},
 
-			on(self, "dragcancel", function(e) {
-				var translation = -views[self.currentPage]._measuredLeft,
-					currentPage = self.currentPage;
-				if (Math.abs(self._currentTranslation - translation) < 10) {
-					self._setTranslation(translation);
-					self._hideView(currentPage - 1);
-					self._hideView(currentPage + 1);
-				} else {
-					setStyle(contentContainerDomNode, "transition", "all " + (400 + 0.3 * contentContainer._measuredWidth) + "ms ease-in-out");
-					setTimeout(function(){
-						self._setTranslation(translation);
-					},1);
-					on.once(contentContainerDomNode, transitionEnd, function(){
-						setStyle(contentContainerDomNode, "transition", "");
-						self._hideView(currentPage - 1);
-						self._hideView(currentPage + 1);
-					});
-				}
-			});
-
-			on(self, "dragend", function(e) {
-				if (~self.currentPage) {
-					var distance = e.distanceX,
-						velocity = (positionData[1].position - positionData[0].position) / (positionData[1].time - positionData[0].time),
-						currentPage = self.currentPage,
-						destinationIndex = currentPage,
-						destination = views[destinationIndex],
-						destinationPosition,
-						duration,
-						normalizedWidth,
-						i = 1,
-						len = positionData.length,
-						curve = "ease-out";
-
-					// Calculate the velocity by calculating a weighted slope average, favoring more recent movement
-					for(; i < len - 1; i++) {
-						velocity = (velocity * i + (i * (positionData[i + 1].position - positionData[i].position) / (positionData[i + 1].time - positionData[i].time))) / (2 * i);
-					}
-					velocity = Math.abs(velocity);
-					velocity < minVelocity && (curve = "ease-in-out");
-					velocity = Math.max(minVelocity, Math.min(maxVelocity, velocity));
-
-					// Determine the animation characteristics
-					normalizedWidth = views[currentPage]._measuredWidth / (velocity > velocityThreshold ? 
+		_handleDragEnd: function(e, velocityX) {
+			if (~this.currentPage && isDef(velocityX)) {
+				var self = this,
+					views = self.views,
+					contentContainer = self._contentContainer,
+					currentPage = self.currentPage,
+					distance = e.distanceX,
+					normalizedWidth = views[currentPage]._measuredWidth / (Math.abs(velocityX) > velocityThreshold ? 
 						minimumFlickDistanceScaleFactor :
-						minimumDragDistanceScaleFactor);
-					if (distance > normalizedWidth && currentPage > 0) {
-						// Previous page
-						destinationIndex = self.currentPage - 1;
-						distance = (destination = views[destinationIndex])._measuredLeft - sourcePosition - distance;
-					} else if (distance < -normalizedWidth && currentPage < views.length - 1) {
-						// Next page
-						destinationIndex = currentPage + 1;
-						distance = sourcePosition + distance - (destination = views[destinationIndex])._measuredLeft;
-					}
-					destinationPosition = destination._measuredLeft;
+						minimumDragDistanceScaleFactor),
+					destinationPosition,
+					destination = views[currentPage],
+					destinationIndex = currentPage;
 
-					// Animate the view
-					self._updatePagingControl(destinationIndex);
-					duration = 1.724 * Math.abs(distance) / velocity;
-					setStyle(contentContainerDomNode, "transition", "all " + duration + "ms " + curve);
-					setTimeout(function(){
-						self._setTranslation(-destinationPosition);
-					},1);
-					on.once(contentContainerDomNode, transitionEnd, function(){
-						setStyle(contentContainerDomNode, "transition", "");
-						destinationIndex !== currentPage - 1 && self._hideView(currentPage - 1);
-						destinationIndex !== currentPage && self._hideView(currentPage);
-						destinationIndex !== currentPage + 1 && self._hideView(currentPage + 1);
-						self.properties.__values__.currentPage = destinationIndex;
-						setTimeout(function(){
-							self.fireEvent("scroll",{
-								currentPage: destinationIndex,
-								view: destination
-							});
-						}, 1);
-					});
+				// Determine the animation characteristics
+				if (distance > normalizedWidth && currentPage > 0) {
+					// Previous page
+					destinationIndex = currentPage - 1;
+					distance = (destination = views[destinationIndex])._measuredLeft - self._currentTranslationX;
+				} else if (distance < -normalizedWidth && currentPage < views.length - 1) {
+					// Next page
+					destinationIndex = currentPage + 1;
+					distance = self._currentTranslationX - (destination = views[destinationIndex])._measuredLeft;
 				}
-			});
+				destinationPosition = -destination._measuredLeft;
+
+				// Animate the view. Note: the 1.724 constance was calculated, not estimated. It is NOT for tweaking.
+				// If tweaking is needed, tweak the velocity algorithm in KineticScrollView.
+				self._animateToPosition(destinationPosition, 0, Math.abs(1.724 * distance / velocityX), "ease-out", function(){
+					destinationIndex !== currentPage - 1 && self._hideView(currentPage - 1);
+					destinationIndex !== currentPage && self._hideView(currentPage);
+					destinationIndex !== currentPage + 1 && self._hideView(currentPage + 1);
+					self.properties.__values__.currentPage = destinationIndex;
+					setTimeout(function(){
+						self.fireEvent("scroll",{
+							currentPage: destinationIndex,
+							view: destination
+						});
+					}, 1);
+				});
+			}
 		},
 
 		_hideView: function(index) {
@@ -248,20 +163,20 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 			// Update the current view if necessary once everything has been re-laid out.
 			if (viewIndex < this.currentPage) {
 				self.properties.__values__.currentPage--;
-				on.once(contentContainer, "postlayout", lang.hitch(this, this._updateTranslation));
 			}
 
 			// Remove the view and update the paging control
 			contentContainer._remove(self.views.splice(viewIndex,1)[0]);
+			on.once(UI, "postlayout", function() {
+				setTimeout(function(){
+					self._updateTranslation();
+				}, 1);
+			});
 			self._updatePagingControl(self.currentPage);
 		},
 
 		_updateTranslation: function() {
-			~this.currentPage && this._setTranslation(-this.views[this.currentPage]._measuredLeft);
-		},
-
-		_setTranslation: function(distance) {
-			setStyle(this._contentContainer.domNode, "transform", "translate(" + (this._currentTranslation = distance) + "px, 0)" + transformPostfix);
+			~this.currentPage && this._setTranslation(-this.views[this.currentPage]._measuredLeft, 0);
 		},
 
 		scrollToView: function(view) {
@@ -277,8 +192,8 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 
 				// Calculate the views to be scrolled
 				var contentContainer = self._contentContainer,
-					destinationPosition = self.views[viewIndex]._measuredLeft,
 					currentPage = self.currentPage,
+					destination = -self.views[viewIndex]._measuredLeft,
 					i;
 
 					// Calculate a weighted duration so that larger views take longer to scroll.
@@ -297,33 +212,26 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/lang", "Ti/_/dom
 
 				// Animate the views
 				self._updatePagingControl(viewIndex);
-				setStyle(contentContainer.domNode, "transition", "all " + duration + "ms ease-in-out");
-				setTimeout(function(){
-					self._setTranslation(-destinationPosition);
-				},1);
-				on.once(contentContainer.domNode, transitionEnd, function(){
+				self._animateToPosition(destination, 0, duration, "ease-in-out", function(){
 					self.properties.__values__.currentPage = viewIndex;
-					setStyle(contentContainer.domNode, "transition", "");
-					setTimeout(function(){
-						if (currentPage < viewIndex) {
-							for(i = currentPage; i < viewIndex; i++) {
-								self._hideView(i);
-							}
-						} else {
-							for(i = viewIndex + 1; i <= currentPage; i++) {
-								self._hideView(i);
-							}
+					if (currentPage < viewIndex) {
+						for(i = currentPage; i < viewIndex; i++) {
+							self._hideView(i);
 						}
-						if (self._viewToRemoveAfterScroll !== -1) {
-							self._updateTranslation(-destinationPosition + self.views[self._viewToRemoveAfterScroll]._measuredWidth);
-							self._removeViewFromList(self._viewToRemoveAfterScroll);
-							self._viewToRemoveAfterScroll = -1;
+					} else {
+						for(i = viewIndex + 1; i <= currentPage; i++) {
+							self._hideView(i);
 						}
-						self.fireEvent("scroll",{
-							currentPage: viewIndex,
-							view: self.views[viewIndex]
-						});
-					}, 1);
+					}
+					if (self._viewToRemoveAfterScroll !== -1) {
+						destination += self.views[self._viewToRemoveAfterScroll]._measuredWidth;
+						self._removeViewFromList(self._viewToRemoveAfterScroll);
+						self._viewToRemoveAfterScroll = -1;
+					}
+					self.fireEvent("scroll",{
+						currentPage: viewIndex,
+						view: self.views[viewIndex]
+					});
 				});
 			}
 

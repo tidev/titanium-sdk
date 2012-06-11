@@ -98,10 +98,14 @@ define(["Ti/_", "Ti/API", "Ti/_/style"], function(_, API, style) {
 			}
 		},
 
+		calculateDistance: function(ax, ay, bx, by) {
+			return Math.sqrt(Math.pow(ax - bx,2) + Math.pow(ay - by, 2));
+		},
+
 		unitize: function(x) {
 			return isNaN(x-0) || x-0 != x ? x : x + "px"; // note: must be != and not !==
 		},
-		
+
 		computeSize: function(x, totalLength, convertSizeToUndef) {
 			if (is(x,"Number") && isNaN(x)) {
 				return 0;
