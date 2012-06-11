@@ -248,7 +248,7 @@ class Compiler(object):
 					
 					self.packages.append({
 						'name': module['id'],
-						'location': './modules/' + module['id'] + lib,
+						'location': './' + self.compact_path('modules/' + module['id'] + lib),
 						'main': main_file
 					})
 					
@@ -340,15 +340,10 @@ class Compiler(object):
 		ti_js.write(codecs.open(os.path.join(self.sdk_src_path, 'loader.js'), 'r', 'utf-8').read())
 		
 		# 4) cache the dependencies
-		ti_js.write('require.cache({\n');
 		first = True
-		
-		
-		
-		self.modules_to_cache = {}
-		
-		
-		
+		require_cache_written = False
+		module_counter = 0
+		self.modules_to_cache = {} # TEMPORARY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		for x in self.modules_to_cache:
 			is_cjs = False
 			if x.startswith('commonjs:'):
@@ -357,9 +352,13 @@ class Compiler(object):
 			dep = self.resolve(x, None)
 			if not len(dep):
 				continue
+			if not require_cache_written:
+				ti_js.write('require.cache({\n');
+				require_cache_written = True;
 			if not first:
 				ti_js.write(',\n')
 			first = False
+			module_counter += 1
 			filename = dep[1]
 			if not filename.endswith('.js'):
 				filename += '.js'
@@ -400,12 +399,17 @@ class Compiler(object):
 			if os.path.exists(img):
 				fname, ext = os.path.splitext(img.lower())
 				if ext in image_mime_types:
+					if not require_cache_written:
+						ti_js.write('require.cache({\n');
+						require_cache_written = True;
 					if not first:
 						ti_js.write(',\n')
 					first = False
+					module_counter += 1
 					ti_js.write('"url:%s":"data:%s;base64,%s"' % (x, image_mime_types[ext], base64.b64encode(open(img,'rb').read())))
 		
-		ti_js.write('});\n')
+		if require_cache_written:
+			ti_js.write('});\n')
 		
 		# 4) write the ti.app.properties
 		def addProp(prop, val):
@@ -432,7 +436,7 @@ class Compiler(object):
 		# 5) write require() to load all Ti modules
 		self.modules_to_load.sort()
 		self.modules_to_load += self.tiplus_modules_to_load
-		ti_js.write('require(["Ti"], function(blah){console.debug(blah);});\nrequire(%s);' % simplejson.dumps(self.modules_to_load))
+		ti_js.write('require(["Ti"], function(blah){console.debug(blah);});'); #\nrequire(%s);' % simplejson.dumps(self.modules_to_load))
 		
 		# 6) close the titanium.js
 		ti_js.close()

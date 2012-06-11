@@ -1,12 +1,13 @@
 define(
-	["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/_/dom"],
-	function(_, Evented, lang, ready, style, dom) {
+	["Ti/_", "Ti/_/Evented", "Ti/_/has", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/_/dom"],
+	function(_, Evented, has, lang, ready, style, dom) {
 
 	var global = window,
 		doc = document,
 		body = doc.body,
 		on = require.on,
 		modules = "2DMatrix,ActivityIndicator,AlertDialog,Animation,Button,EmailDialog,ImageView,Label,OptionDialog,Picker,PickerColumn,PickerRow,ProgressBar,ScrollableView,ScrollView,Slider,Switch,Tab,TabGroup,TableView,TableViewRow,TableViewSection,TextArea,TextField,View,WebView,Window",
+		numModules = modules.length,
 		creators = {},
 		setStyle = style.set,
 		handheld = navigator.userAgent.toLowerCase().match(/(iphone|android)/),
@@ -18,14 +19,13 @@ define(
 			hidingAddressBar = 0;
 		},
 		splashScreen,
-		unitize = dom.unitize,
-		has = require.has;
+		unitize = dom.unitize;
 
 	on(body, "touchmove", function(e) {
 		e.preventDefault();
 	});
 
-	require.each(modules.split(','), function(name) {
+	modules.split(',').forEach(function(name) {
 		creators['create' + name] = function(args) {
 			return new (require("Ti/UI/" + name))(args);
 		};
