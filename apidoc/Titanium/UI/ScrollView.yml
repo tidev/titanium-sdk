@@ -193,7 +193,7 @@ properties:
         It must be greater than the [minimum zoom scale](Titanium.UI.ScrollView.minZoomScale) for zooming to be enabled. 
         The default value is 1.0 unless otherwise specified.
         
-        Note that specifying a value less than or equal to 0 will hide all contents of the scroll view
+        Note that specifying a value less than or equal to 0 will hide all contents of the scroll view.
     type: Number
     default: 1.0
     platforms: [iphone, ipad]
@@ -257,7 +257,7 @@ properties:
   - name: zoomScale
     summary: Scaling factor of the scrollable region and its content.
     description: |
-        This value is bound by the [minZoomScale](Titanium.UI.ScrollView.minZoomScale) and [maxZoomScale](Titanium.UI.ScrollView.maxZoomScale) properties
+        This value is bound by the [minZoomScale](Titanium.UI.ScrollView.minZoomScale) and [maxZoomScale](Titanium.UI.ScrollView.maxZoomScale) properties.
     type: Number
     default: 1
     platforms: [iphone, ipad]
