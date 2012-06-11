@@ -59,7 +59,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 				clearTimeout(scrollbarTimeout);
 				scrollbarTimeout = setTimeout(function(){
 					self._endScrollBars();
-				},1000);
+				},500);
 			});
 		},
 
@@ -89,6 +89,9 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 			this._updateScrollBars({
 				x: x / (contentContainer._measuredWidth - this._measuredWidth),
 				y: y / (contentContainer._measuredHeight - this._measuredHeight)
+			},{
+				x: width / contentWidth,
+				y: height / contentHeight
 			});
 			this.fireEvent("scroll",{
 				x: x,
