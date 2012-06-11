@@ -4,7 +4,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 	var isDef = lang.isDef,
 
 		// The amount of deceleration (in pixels/ms^2)
-		deceleration = 0.0015;
+		deceleration = 0.00175;
 
 	return declare("Ti.UI.ScrollView", KineticScrollView, {
 

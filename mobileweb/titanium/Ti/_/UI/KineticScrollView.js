@@ -154,17 +154,15 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 						}
 
 						// Output the data for visualization
-						/*var data = "",
-							offsetX = positionData[len - 1].translationX - velocityX * (positionData[len - 1].time - positionData[0].time),
-							offsetY = positionData[len - 1].translationY - velocityY * (positionData[len - 1].time - positionData[0].time);
+						/*var data = "";
 						for(i = 0; i < len; i++) {
 							position1 = positionData[i];
 							period = position1.time - positionData[0].time;
 							data += period + " " +
 								Math.round(position1.translationX - startTranslationX) + " " +
 								Math.round(position1.translationY - startTranslationY) + " " +
-								Math.round(velocityX * period + offsetX) + " " +
-								Math.round(velocityY * period + offsetY) + "\n";
+								Math.round(velocityX * period) + " " +
+								Math.round(velocityY * period) + "\n";
 						}
 						console.log(data);*/
 

@@ -10,14 +10,14 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 		angleThreshold = Math.PI/6, // 30 degrees
 
 		// Velocity bounds, used to make sure that animations don't become super long or super short
-		minVelocity = 0.3,
+		minVelocity = 0.4,
 		maxVelocity = 3,
 
 		// This sets the minimum velocity that determines whether a swipe was a flick or a drag
-		velocityThreshold = 0.5,
+		velocityThreshold = 0.4,
 
 		// This determines the minimum distance scale (i.e. width divided by this value) before a flick requests a page turn
-		minimumFlickDistanceScaleFactor = 15,
+		minimumFlickDistanceScaleFactor = 20,
 
 		// This determines the minimum distance scale (i.e. width divided by this value) before a drag requests a page turn
 		minimumDragDistanceScaleFactor = 2;
