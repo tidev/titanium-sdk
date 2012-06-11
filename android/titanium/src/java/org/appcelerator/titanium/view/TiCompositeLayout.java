@@ -696,7 +696,7 @@ public class TiCompositeLayout extends ViewGroup
 		if (enableHorizontalWrap && ((right + horiztonalLayoutPreviousRight) > layoutRight)) {
 			// Too long for the current "line" that it's on. Need to move it down.
 			left = optionLeftValue;
-			right = measuredWidth;
+			right = measuredWidth + left;
 			horizontalLayoutTopBuffer = horizontalLayoutTopBuffer + horizontalLayoutLineHeight;
 			horizontalLayoutLineHeight = 0;
 		}
