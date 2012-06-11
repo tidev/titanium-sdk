@@ -35,6 +35,7 @@ TiStringRef kTiStringNewObject;
 TiStringRef kTiStringTiPropertyKey;
 TiStringRef kTiStringPropertyKey;
 TiStringRef kTiStringEventKey;
+TiStringRef kTiStringExportsKey;
 
 
 id TiValueToId(KrollContext* context, TiValueRef v);
@@ -413,6 +414,14 @@ TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiString
 		{
 			return NULL;
 		}
+        
+        // Attempt to retrieve the property from the exports, before going through
+        // the routing
+        TiObjectRef exports = [o objectForTiString:kTiStringExportsKey context:jsContext];
+        if ((exports != NULL) && TiObjectHasProperty(jsContext, exports, prop)) {
+            return TiObjectGetProperty(jsContext, exports, prop, NULL);
+        }
+        
 		
 		NSString* name = (NSString*)TiStringCopyCFString(kCFAllocatorDefault, prop);
 		[name autorelease];		
@@ -617,6 +626,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 		kTiStringTiPropertyKey = TiStringCreateWithUTF8CString("__TI");
 		kTiStringPropertyKey = TiStringCreateWithUTF8CString("__PR");
 		kTiStringEventKey = TiStringCreateWithUTF8CString("__EV");
+        kTiStringExportsKey = TiStringCreateWithUTF8CString("__EX");
 	}
 }
 

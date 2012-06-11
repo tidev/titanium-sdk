@@ -408,10 +408,14 @@ def is_indexing_enabled(tiapp, simulator_dir, **kwargs):
 	mount_point_status = {}
 	for i in range(0, len(lines), 2):
 		mount_point = lines[i].rstrip(':')
-		status = lines[i+1].strip('\t.')
-		# Only add mount points that the simulator_dir starts with
-		if simulator_dir.startswith(mount_point):
-			mount_point_status[mount_point] = status
+		if len(lines) > (i+1):
+			status = lines[i+1].strip('\t.')
+			# Only add mount points that the simulator_dir starts with
+			if simulator_dir.startswith(mount_point):
+				mount_point_status[mount_point] = status
+		# mdutil must be disabled if we don't get the right amount of output
+		else:
+			return False
 
 	if len(mount_point_status) > 0:
 		# There may be multiple volumes that have a mount point that the

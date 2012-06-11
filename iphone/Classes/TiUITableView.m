@@ -1605,16 +1605,19 @@
 	}
 	else 
 	{
+        if (self.tableView.frame.size.width==0)
+        {
+            [self performSelector:@selector(setHeaderPullView_:) withObject:value afterDelay:0.1];
+            return;
+        }
 		tableHeaderPullView = [[UIView alloc] initWithFrame:CGRectMake(0.0f, 0.0f - self.tableView.bounds.size.height, self.tableView.bounds.size.width, self.tableView.bounds.size.height)];
 		tableHeaderPullView.backgroundColor = [UIColor lightGrayColor];
 		UIView *view = [value view];
 		[[self tableView] addSubview:tableHeaderPullView];
 		[tableHeaderPullView addSubview:view];
 		[TiUtils setView:view positionRect:[tableHeaderPullView bounds]];
-		CGRect bounds = view.bounds;
-		bounds.origin.x = 0;
-		bounds.origin.y = self.tableView.bounds.size.height - view.bounds.size.height;
-		view.bounds = bounds;
+		[value windowWillOpen];
+		[value layoutChildren:NO];
 	}
 }
 
