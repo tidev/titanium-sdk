@@ -35,24 +35,26 @@ public abstract class CommonContactsApi
 				useNew = true;
 
 			} catch (ClassNotFoundException e) {
-				Log.d(LCAT, "Unable to load newer contacts api: " + e.getMessage(), e);
+				Log.e(LCAT, "Unable to load contacts api: " + e.getMessage(), e);
 				useNew = false;
 			}
-		} 
-		Log.d(LCAT, "Using " + (useNew ? "newer " : "older ") + "contacts api.  Android SDK level: " + android.os.Build.VERSION.SDK_INT);
+		} else {
+			Log.e(LCAT, "Contacts API 4 is not supported");
+		}
+		
 		if (useNew) {
 			ContactsApiLevel5 c = new ContactsApiLevel5();
 			if (!c.loadedOk) {
-				Log.d(LCAT, "ContactsApiLevel5 did not load successfully.  Falling back to L4.");
-				return new ContactsApiLevel4();
+				Log.e(LCAT, "ContactsApiLevel5 did not load successfully.");
+				return null;
 
 			} else {
 				return c;
 			}
 
-		} else {
-			return new ContactsApiLevel4();
 		}
+
+		return null;
 	}
 
 	protected static CommonContactsApi getInstance(TiContext tiContext)
@@ -78,6 +80,7 @@ public abstract class CommonContactsApi
 	protected abstract PersonProxy[] getPeopleWithName(String name);
 	protected abstract Intent getIntentForContactsPicker();
 	protected abstract Bitmap getInternalContactImage(long id);
+	protected abstract void removePerson(PersonProxy person);
 	
 	protected PersonProxy[] getAllPeople()
 	{
@@ -157,13 +160,6 @@ public abstract class CommonContactsApi
 		Map<String, ArrayList<String>> emails = new HashMap<String, ArrayList<String>>();
 		Map<String, ArrayList<String>> phones = new HashMap<String, ArrayList<String>>();
 		Map<String, ArrayList<String>> addresses = new HashMap<String, ArrayList<String>>();
-		
-		void addPersonInfoFromL4Cursor(Cursor cursor)
-		{
-			this.id = cursor.getLong(ContactsApiLevel4.PEOPLE_COL_ID);
-			this.name = cursor.getString(ContactsApiLevel4.PEOPLE_COL_NAME);
-			this.notes = cursor.getString(ContactsApiLevel4.PEOPLE_COL_NOTES);
-		}
 		
 		void addPersonInfoFromL5DataRow(Cursor cursor)
 		{
@@ -245,57 +241,6 @@ public abstract class CommonContactsApi
 				addresses.put(key, collection);
 			}
 			collection.add(fullAddress);
-		}
-		
-		void addEmailFromL4Cursor(Cursor emailsCursor)
-		{
-			String emailAddress = emailsCursor.getString(ContactsApiLevel4.CONTACT_METHOD_COL_DATA);
-			int type = emailsCursor.getInt(ContactsApiLevel4.CONTACT_METHOD_COL_TYPE);
-			String key = ContactsApiLevel4.getEmailTextType(type);
-			
-			ArrayList<String> collection;
-			if (emails.containsKey(key)) {
-				collection = emails.get(key);
-			} else {
-				collection = new ArrayList<String>();
-				emails.put(key, collection);
-			}
-			collection.add(emailAddress);
-		}
-		
-		void addPhoneFromL4Cursor(Cursor phonesCursor)
-		{
-			String phoneNumber = phonesCursor.getString(ContactsApiLevel4.PHONE_COL_NUMBER);
-			int type = phonesCursor.getInt(ContactsApiLevel4.PHONE_COL_TYPE);
-			String key = getPhoneTextType(type);
-			ArrayList<String> collection;
-			if (phones.containsKey(key)) {
-				collection = phones.get(key);
-			} else {
-				collection = new ArrayList<String>();
-				phones.put(key, collection);
-			}
-			collection.add(phoneNumber);
-		}
-		
-		void addAddressFromL4Cursor(Cursor addressesCursor)
-		{
-			String fullAddress = addressesCursor.getString(ContactsApiLevel4.CONTACT_METHOD_COL_DATA);
-			int type = addressesCursor.getInt(ContactsApiLevel4.CONTACT_METHOD_COL_TYPE);
-			String key = getPostalAddressTextType(type);
-			ArrayList<String> collection;
-			if (addresses.containsKey(key)) {
-				collection = addresses.get(key);
-			} else {
-				collection = new ArrayList<String>();
-				addresses.put(key, collection);
-			}
-			collection.add(fullAddress);
-		}
-		
-		void addPhotoInfoFromL4Cursor(Cursor photosCursor)
-		{
-			hasImage = true;
 		}
 		
 		PersonProxy proxify()
