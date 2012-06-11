@@ -790,10 +790,8 @@ class Builder(object):
 			'Media.showCamera' : CAMERA_PERMISSION,
 			
 			# CONTACTS
-			'Contacts.createContact' : CONTACTS_PERMISSION,
-			'Contacts.saveContact' : CONTACTS_PERMISSION,
-			'Contacts.removeContact' : CONTACTS_PERMISSION,
-			'Contacts.addContact' : CONTACTS_PERMISSION,
+			'Contacts.createPerson' : CONTACTS_PERMISSION,
+			'Contacts.removePerson' : CONTACTS_PERMISSION,
 			'Contacts.getAllContacts' : CONTACTS_READ_PERMISSION,
 			'Contacts.showContactPicker' : CONTACTS_READ_PERMISSION,
 			'Contacts.showContacts' : CONTACTS_READ_PERMISSION,
