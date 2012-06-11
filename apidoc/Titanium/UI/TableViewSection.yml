@@ -3,45 +3,84 @@ name: Titanium.UI.TableViewSection
 summary: |
     A table view section is a container within a table used to organize table view rows.
 description: |
-    Use the <Titanium.UI.createTableViewSection> method to create a `TableViewSection`, and add 
-    [TableViewRow](Titanium.UI.TableViewRow) objects to it using its 
-    [add](Titanium.UI.TableViewSection.add) method. Then apply it to a 
-    [TableView](Titanium.UI.TableView) using its [data](Titanium.UI.TableView.data) property. 
+    Use the <Titanium.UI.createTableViewSection> method to create a `TableViewSection`.
     
-    See the description and examples sections of [TableView](Titanium.UI.TableView) for details of 
-    how to use `TableViewSection`.
-extends: Titanium.UI.View
+    Before the table is rendered, the `TableViewSection` [add](Titanium.UI.TableViewSection.add) 
+    method may be used to add [TableViewRow](Titanium.UI.TableViewRow) objects to a section. After 
+    it is rendered, one of the `TableView` [insertRowBefore](Titanium.UI.TableView.insertRowBefore), 
+    [insertRowAfter](Titanium.UI.TableView.insertRowAfter), or 
+    [appendRow](Titanium.UI.TableView.appendRow) methods must be used instead. 
+    
+    To remove a row from a section after the table is rendered, use the `TableView` 
+    [deleteRow](Titanium.UI.TableView.deleteRow) method. 
+    
+    In order for a section to be visible, either its `headerTitle` or `headerView` property must be 
+    configured. 
+    
+    Be aware that adding or removing sections individually is not supported. Instead, use the 
+    `TableView` [setData](Titanium.UI.TableView.setData) method to refresh the whole table with a 
+    new section layout. 
+    
+    See the description and examples sections of [TableView](Titanium.UI.TableView) for more details 
+    about how to use `TableViewSection`.
+    
+    **Note**: On some platforms, `TableViewSection` may be implemented as a type of view
+    (that is, an object that inherits from [View](Titanium.UI.View)). However, this is an
+    implementation detail. For portability, you should only use the documented APIs on 
+    table view sections.
+extends: Titanium.Proxy
 since: "0.9"
+
+methods:
+  - name: rowAtIndex
+    summary: Returns a row in this section.
+    platforms: [android]
+    returns:
+      type: Titanium.UI.TableViewRow
+    parameters:
+      - name: index
+        summary: Section index of a row.
+        type: Number
 
 properties:
   - name: footerTitle
-    summary: Title of the section footer.
-    description: On Android, must be set at creation.
+    summary: Title of this section footer.
+    description: |
+        Using this property and `footerView` together is not supported. Use one or the other. 
+        
+        On Android, must be set at creation.
     type: String
     
   - name: footerView
-    summary: View to use instead of the default label when rendering the section footer.
+    summary: View to use for this section footer.
+    description: |
+        Using this property and `footerTitle` together is not supported. Use one or the other. 
+        
+        On Android, must be set at creation. 
     type: Titanium.UI.View
     
   - name: headerTitle
-    summary: Title of the section header.
-    description: On Android, must be set at creation.
+    summary: Title of this section header.
+    description: |
+        Using this property and `headerView` together is not supported. Use one or the other. 
+        
+        On Android, must be set at creation.
     type: String
     
   - name: headerView
-    summary: View to use instead of the default label when rendering the section header.
+    summary: View to use for this section header.
+    description: |
+        Using this property and `headerTitle` together is not supported. Use one or the other. 
+        
+        On Android, must be set at creation.
     type: Titanium.UI.View
-    availability: creation
     
   - name: rowCount
-    summary: Number of rows in the section.
+    summary: Number of rows in this section.
     type: Number
     permission: read-only
     
   - name: rows
-    summary: Rows in the section.
+    summary: Rows in this section.
     type: Array<Titanium.UI.TableViewRow>
     permission: read-only
-
-        
-        

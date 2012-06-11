@@ -1,11 +1,18 @@
-define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
-	function(declare, FontWidget, dom, css, style, lang, UI) {
+define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/css", "Ti/_/style", "Ti/UI"],
+	function(declare, FontWidget, css, style, UI) {
 
 	var setStyle = style.set,
 		postDoBackground = {
-			post: "_updateLook"
-		},
-        unitize = dom.unitize;
+			post: function() {
+				if (this.backgroundColor || this.backgroundDisabledColor || this.backgroundDisabledImage || this.backgroundFocusedColor || 
+					this.backgroundFocusedImage || this.backgroundImage || this.backgroundSelectedColor || this.backgroundSelectedImage) {
+					this._clearDefaultLook();
+				} else {
+					this._setDefaultLook();
+				}
+				this._doBackground();
+			}
+		};
 
 	return declare("Ti.UI.Switch", FontWidget, {
 
@@ -43,17 +50,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			
 			this.value = false;
 		},
-		
-		_updateLook: function() {
-			if (this.backgroundColor || this.backgroundDisabledColor || this.backgroundDisabledImage || this.backgroundFocusedColor || 
-				this.backgroundFocusedImage || this.backgroundImage || this.backgroundSelectedColor || this.backgroundSelectedImage) {
-				this._clearDefaultLook();
-			} else {
-				this._setDefaultLook();
-			}
-			this._doBackground();
-		},
-		
+
 		_setDefaultLook: function() {
 			if (!this._hasDefaultLook) {
 				this._hasDefaultLook = true;

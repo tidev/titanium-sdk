@@ -3,7 +3,7 @@ var win = Titanium.UI.currentWindow;
 var file = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory,'cricket.wav');
 
 // load from file object
-var sound = Titanium.Media.createSound({sound:file});
+var sound = Titanium.Media.createSound({url:file});
 
 //
 // PLAY

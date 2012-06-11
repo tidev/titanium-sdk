@@ -44,7 +44,10 @@ def run(args, ignore_error=False, debug=True, ignore_output=False, warning_regex
 				pass
 			else:
 				if (check_and_print_err(err, warning_regex)):
-					return None
+					if return_process:
+						return (None, process)
+					else:
+						return None
 
 	if return_error:
 		if return_process:

@@ -21,7 +21,7 @@ except:
 	import simplejson as json
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
-ignoreDirs = ['.git','.svn','_svn','CVS','android','iphone','mobileweb'];
+ignoreDirs = ['.git','.svn','_svn','CVS','android','mobileweb'];
 
 HEADER = """/**
  * Appcelerator Titanium Mobile

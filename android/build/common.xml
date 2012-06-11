@@ -388,14 +388,16 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 
 	<target name="build.kroll.v8.so" depends="generate.kroll.v8.bindings">
 		<property name="ndk.build.args" value=""/>
+		<property name="kroll.v8.build.x86" value=""/>
 		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
 			<env key="ANDROID_NDK" file="${android.ndk}"/>
 			<env key="ANDROID_PLATFORM" file="${android.platform}"/>
+			<env key="BUILD_X86" value="${kroll.v8.build.x86}"/>
 			<arg value="TI_DEBUG=${ti.debug}"/>
 			<arg line="${ndk.build.args}"/>
 		</exec>
 		<copy todir="${dist.dir}">
-			<fileset dir="${kroll.v8.project.dir}" includes="libs/armeabi*/lib*.so"/>
+			<fileset dir="${kroll.v8.project.dir}" includes="libs/**/lib*.so"/>
 		</copy>
 	</target>
 

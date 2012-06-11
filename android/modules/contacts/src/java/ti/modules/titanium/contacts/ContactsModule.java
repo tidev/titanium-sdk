@@ -81,6 +81,12 @@ public class ContactsModule extends KrollModule
 	}
 	
 	@Kroll.method
+	public PersonProxy createPerson(KrollDict options)
+	{
+		return contactsApi.addContact(options);
+	}
+	
+	@Kroll.method
 	public Object[] getPeopleWithName(String name)
 	{
 		return contactsApi.getPeopleWithName(name);
@@ -90,6 +96,12 @@ public class ContactsModule extends KrollModule
 	public PersonProxy getPersonByID(long id)
 	{
 		return contactsApi.getPersonById(id);
+	}
+	
+	@Kroll.method
+	public void removePerson(PersonProxy person)
+	{
+		contactsApi.removePerson(person);
 	}
 	
 	@Kroll.method
