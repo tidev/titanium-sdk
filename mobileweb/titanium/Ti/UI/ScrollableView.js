@@ -9,6 +9,10 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 		// The maximum angle, in radians, from the axis a swipe is allowed to travel before it is no longer considered a swipe
 		angleThreshold = Math.PI/6, // 30 degrees
 
+		// Velocity bounds, used to make sure that animations don't become super long or super short
+		minVelocity = 0.3,
+		maxVelocity = 3,
+
 		// This sets the minimum velocity that determines whether a swipe was a flick or a drag
 		velocityThreshold = 0.5,
 
@@ -75,6 +79,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 
 		_handleDragEnd: function(e, velocityX) {
 			if (~this.currentPage && isDef(velocityX)) {
+				velocityX = Math.max(minVelocity, Math.min(maxVelocity, velocityX));
 				var self = this,
 					views = self.views,
 					contentContainer = self._contentContainer,

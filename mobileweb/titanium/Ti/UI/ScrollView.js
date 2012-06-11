@@ -1,6 +1,11 @@
 define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", "Ti/UI"],
 	function(declare, KineticScrollView, style, lang, UI) {
 
+	var isDef = lang.isDef,
+
+		// The amount of deceleration (in pixels/ms^2)
+		deceleration = 0.0015;
+
 	return declare("Ti.UI.ScrollView", KineticScrollView, {
 
 		constructor: function(args) {
@@ -59,41 +64,62 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 
 		_handleDragStart: function() {
 			var contentContainer = this._contentContainer,
-				contentWidth = contentContainer._measuredWidth,
-				contentHeight = contentContainer._measuredHeight,
+				x = -this._currentTranslationX,
+				y = -this._currentTranslationY,
 				width = this._measuredWidth,
-				height = this._measuredHeight;
+				height = this._measuredHeight,
+				contentWidth = contentContainer._measuredWidth,
+				contentHeight = contentContainer._measuredHeight;
 			this._startScrollBars({
-				x: -self._currentTranslationX / (contentWidth - width),
-				y: -self._currentTranslationY / (contentHeight - height)
+				x: x / (contentWidth - width),
+				y: y / (contentHeight - height)
 			},
 			{
-				x: width / (contentWidth),
-				y: height / (contentHeight)
+				x: width / contentWidth,
+				y: height / contentHeight
 			});
-			this._isScrollBarActive && this.fireEvent("dragStart",{});
+			this.fireEvent("dragStart",{});
 		},
 
 		_handleDrag: function() {
-			var scrollLeft = -this._currentTranslationX,
-				scrollTop = -this._currentTranslationY,
+			var x = -this._currentTranslationX,
+				y = -this._currentTranslationY,
 				contentContainer = this._contentContainer;
-			this._isScrollBarActive && this.fireEvent("scroll",{
-				x: scrollLeft,
-				y: scrollTop,
-				dragging: true
-			});
 			this._updateScrollBars({
-				x: scrollLeft / (contentContainer._measuredWidth - this._measuredWidth),
-				y: scrollTop / (contentContainer._measuredHeight - this._measuredHeight)
+				x: x / (contentContainer._measuredWidth - this._measuredWidth),
+				y: y / (contentContainer._measuredHeight - this._measuredHeight)
+			});
+			this.fireEvent("scroll",{
+				x: x,
+				y: y,
+				dragging: true
 			});
 		},
 
 		_handleDragEnd: function(e, velocityX, velocityY) {
-			this._endScrollBars();
-			this._isScrollBarActive && this.fireEvent("dragEnd",{
-				decelerate: false
-			});
+			if (isDef(velocityX)) {
+				var self = this,
+					velocity = Math.sqrt(velocityX * velocityX + velocityY * velocityY),
+					distance = velocity * velocity / (1.724 * deceleration),
+					duration = velocity / deceleration,
+					theta = Math.atan(Math.abs(velocityY / velocityX)),
+					distanceX = distance * Math.cos(theta) * (velocityX < 0 ? -1 : 1),
+					distanceY = distance * Math.sin(theta) * (velocityY < 0 ? -1 : 1),
+					translationX = self._currentTranslationX + distanceX,
+					translationY = self._currentTranslationY + distanceY;
+				if (translationX > 0 || translationX < self._minTranslationX || translationY > 0 || translationY < self._minTranslationY) {
+					translationX = Math.min(0, Math.max(self._minTranslationX, translationX));
+					translationY = Math.min(0, Math.max(self._minTranslationY, translationY));
+					duration *= Math.sqrt(distanceX * distanceX + distanceY + distanceY) / distance
+				}
+				self._endScrollBars();
+				self._isScrollBarActive && self.fireEvent("dragEnd",{
+					decelerate: true
+				});
+				self._animateToPosition(translationX, translationY, duration, "ease-out", function() {
+					self._setTranslation(translationX, translationY);
+				});
+			}
 		},
 
 		_handleDragCancel: function() {
