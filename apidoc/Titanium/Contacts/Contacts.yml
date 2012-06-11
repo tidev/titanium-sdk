@@ -3,8 +3,7 @@ name: Titanium.Contacts
 summary: |
     The top-level Contacts module, used for accessing and modifying the system contacts address book.
 description: |
-    On Android, contacts are currently read-only, and so methods such as `createPerson` and` 
-    removePerson` are not supported.
+    On Android, modification of contacts is currently not supported.
     
     See examples for more information.
 extends: Titanium.Module

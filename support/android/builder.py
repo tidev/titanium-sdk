@@ -767,7 +767,8 @@ class Builder(object):
 		permissions_required = ['INTERNET','ACCESS_WIFI_STATE','ACCESS_NETWORK_STATE', 'WRITE_EXTERNAL_STORAGE']
 		
 		GEO_PERMISSION = [ 'ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION']
-		CONTACTS_PERMISSION = ['READ_CONTACTS']
+		CONTACTS_READ_PERMISSION = ['READ_CONTACTS']
+		CONTACTS_PERMISSION = ['READ_CONTACTS', 'WRITE_CONTACTS']
 		VIBRATE_PERMISSION = ['VIBRATE']
 		CAMERA_PERMISSION = ['CAMERA']
 		WALLPAPER_PERMISSION = ['SET_WALLPAPER']
@@ -793,14 +794,14 @@ class Builder(object):
 			'Contacts.saveContact' : CONTACTS_PERMISSION,
 			'Contacts.removeContact' : CONTACTS_PERMISSION,
 			'Contacts.addContact' : CONTACTS_PERMISSION,
-			'Contacts.getAllContacts' : CONTACTS_PERMISSION,
-			'Contacts.showContactPicker' : CONTACTS_PERMISSION,
-			'Contacts.showContacts' : CONTACTS_PERMISSION,
-			'Contacts.getPersonByID' : CONTACTS_PERMISSION,
-			'Contacts.getPeopleWithName' : CONTACTS_PERMISSION,
-			'Contacts.getAllPeople' : CONTACTS_PERMISSION,
-			'Contacts.getAllGroups' : CONTACTS_PERMISSION,
-			'Contacts.getGroupByID' : CONTACTS_PERMISSION,
+			'Contacts.getAllContacts' : CONTACTS_READ_PERMISSION,
+			'Contacts.showContactPicker' : CONTACTS_READ_PERMISSION,
+			'Contacts.showContacts' : CONTACTS_READ_PERMISSION,
+			'Contacts.getPersonByID' : CONTACTS_READ_PERMISSION,
+			'Contacts.getPeopleWithName' : CONTACTS_READ_PERMISSION,
+			'Contacts.getAllPeople' : CONTACTS_READ_PERMISSION,
+			'Contacts.getAllGroups' : CONTACTS_READ_PERMISSION,
+			'Contacts.getGroupByID' : CONTACTS_READ_PERMISSION,
 
 			# WALLPAPER
 			'Media.Android.setSystemWallpaper' : WALLPAPER_PERMISSION,
