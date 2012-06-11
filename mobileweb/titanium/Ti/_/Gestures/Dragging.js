@@ -6,14 +6,14 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 
 	return declare("Ti._.Gestures.Drag", GestureRecognizer, {
 
-		name: "drag",
+		name: "dragging",
 
 		_touchStartLocation: null,
 
 		_cancelDrag: function(e, element) {
 			if (this._touchStartLocation) {
 				this._touchStartLocation = null;
-				!element._isGestureBlocked(this.name) && lang.hitch(element,element._handleTouchEvent("dragcancel",{
+				!element._isGestureBlocked(this.name) && lang.hitch(element,element._handleTouchEvent("draggingcancel",{
 					source: this.getSourceNode(e,element)
 				}));
 			}
@@ -41,7 +41,7 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 					y: e.changedTouches[0].clientY
 				}
 				this._numMoveEvents = 0;
-				!element._isGestureBlocked(this.name) && lang.hitch(element,element._handleTouchEvent("dragstart",this._createEvent(e, element)));
+				!element._isGestureBlocked(this.name) && lang.hitch(element,element._handleTouchEvent("draggingstart",this._createEvent(e, element)));
 			} else if (this._touchStartLocation) {
 				this._cancelDrag(e, element);
 			}
@@ -53,7 +53,7 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 				var distance = Math.sqrt(Math.pow(e.changedTouches[0].clientX - touchStartLocation.x, 2) +
 					Math.pow(e.changedTouches[0].clientY - touchStartLocation.y, 2));
 				if (e.touches.length == 0 && e.changedTouches.length == 1 && distance > driftThreshold && this._numMoveEvents > 1) {
-					!element._isGestureBlocked(this.name) && lang.hitch(element,element._handleTouchEvent("dragend",this._createEvent(e, element)));
+					!element._isGestureBlocked(this.name) && lang.hitch(element,element._handleTouchEvent("draggingend",this._createEvent(e, element)));
 					this._touchStartLocation = null;
 				} else {
 					this._cancelDrag(e, element);
@@ -66,7 +66,7 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 				if (e.touches.length == 1 && e.changedTouches.length == 1) {
 					if (!element._isGestureBlocked(this.name)) {
 						this._numMoveEvents++;
-						lang.hitch(element,element._handleTouchEvent("drag",this._createEvent(e, element)));
+						lang.hitch(element,element._handleTouchEvent("dragging",this._createEvent(e, element)));
 					}
 				} else {
 					this._cancelDrag(e, element);

@@ -80,14 +80,14 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 					self._borderTopWidth - self._borderBottomWidth;
 			});
 
-			on(self, "dragstart", function(e) {
+			on(self, "draggingstart", function(e) {
 				startTranslationX = self._currentTranslationX;
 				startTranslationY = self._currentTranslationY;
 				positionData = [];
 				self._handleDragStart && self._handleDragStart(e);
 			});
 
-			on(self, "drag", function(e) {
+			on(self, "dragging", function(e) {
 				translationX = startTranslationX + e.distanceX;
 				translationY = startTranslationY + e.distanceY;
 				positionData.push({
@@ -99,7 +99,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 				self._handleDrag && self._handleDrag(e);
 			});
 
-			on(self, "dragcancel", function(e) {
+			on(self, "draggingcancel", function(e) {
 				self._animateToPosition(startTranslationX, startTranslationY, 400 + 0.3 * calculateDistance(
 						startTranslationX, startTranslationY, self._currentTranslationX, self._currentTranslationY),
 					"ease-in-out", function(){
@@ -108,7 +108,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 				self._handleDragCancel && self._handleDragCancel(e);
 			});
 
-			on(self, "dragend", function(e) {
+			on(self, "draggingend", function(e) {
 				var velocityX = defaultVelocity,
 					velocityY = defaultVelocity,
 					position1 = self._currentTranslationX,

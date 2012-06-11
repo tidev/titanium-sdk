@@ -27,14 +27,13 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 		constructor: function(args){
 
 			// Create the content container
-			this._initKineticScrollView(this._contentContainer = UI.createView({
+			this._initKineticScrollView(UI.createView({
 				left: 0,
 				top: 0,
 				width: UI.SIZE,
 				height: "100%",
 				layout: "constrainingHorizontal"
 			}), "horizontal");
-			this.domNode.style.overflow = "visible";
 
 			// Create the paging control container
 			this._add(this._pagingControlContainer = UI.createView({

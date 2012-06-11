@@ -41,7 +41,7 @@ define(
 			longpress: "LongPress",
 			singletap: "SingleTap",
 			click: "SingleTap",
-			drag: "Drag",
+			dragging: "Dragging",
 			doubleclick: "DoubleTap",
 			touchstart: "TouchStart",
 			touchend: "TouchEnd",

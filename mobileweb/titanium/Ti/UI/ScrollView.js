@@ -12,14 +12,14 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 	
 			// Content must go in a separate container so the scrollbar can exist outside of it
 			var self = this,
-				contentContainer;
-			this._initKineticScrollView(contentContainer = this._contentContainer = UI.createView({
+				contentContainer,
+				scrollbarTimeout;
+			this._initKineticScrollView(contentContainer = UI.createView({
 				width: UI.SIZE,
 				height: UI.SIZE,
 				left: 0,
 				top: 0
 			}), "both");
-			this.domNode.style.overflow = "visible";
 
 			this._createHorizontalScrollBar();
 			this._createVerticalScrollBar();
@@ -43,8 +43,8 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 				});
 
 				// Set the scroll position
-				self._setTranslation(-currentPositionX + e.wheelDeltaX,
-					-currentPositionY + e.wheelDeltaY);
+				self._setTranslation(Math.min(0, Math.max(self._minTranslationX,-currentPositionX + e.wheelDeltaX)),
+					Math.min(0, Math.max(self._minTranslationY,-currentPositionY + e.wheelDeltaY)));
 
 				// Create the scroll event and immediately update the position
 				self._isScrollBarActive && self.fireEvent("scroll",{
@@ -56,9 +56,10 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 					x: currentPositionX / distanceX,
 					y: currentPositionY / distanceY
 				});
-				setTimeout(function(){
+				clearTimeout(scrollbarTimeout);
+				scrollbarTimeout = setTimeout(function(){
 					self._endScrollBars();
-				},200);
+				},1000);
 			});
 		},
 
@@ -97,6 +98,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		},
 
 		_handleDragEnd: function(e, velocityX, velocityY) {
+			this._endScrollBars();
 			if (isDef(velocityX)) {
 				var self = this,
 					velocity = Math.sqrt(velocityX * velocityX + velocityY * velocityY),
@@ -105,14 +107,8 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 					theta = Math.atan(Math.abs(velocityY / velocityX)),
 					distanceX = distance * Math.cos(theta) * (velocityX < 0 ? -1 : 1),
 					distanceY = distance * Math.sin(theta) * (velocityY < 0 ? -1 : 1),
-					translationX = self._currentTranslationX + distanceX,
-					translationY = self._currentTranslationY + distanceY;
-				if (translationX > 0 || translationX < self._minTranslationX || translationY > 0 || translationY < self._minTranslationY) {
-					translationX = Math.min(0, Math.max(self._minTranslationX, translationX));
-					translationY = Math.min(0, Math.max(self._minTranslationY, translationY));
-					duration *= Math.sqrt(distanceX * distanceX + distanceY + distanceY) / distance
-				}
-				self._endScrollBars();
+					translationX = Math.min(0, Math.max(self._minTranslationX, self._currentTranslationX + distanceX)),
+					translationY = Math.min(0, Math.max(self._currentTranslationY + distanceY));
 				self._isScrollBarActive && self.fireEvent("dragEnd",{
 					decelerate: true
 				});
