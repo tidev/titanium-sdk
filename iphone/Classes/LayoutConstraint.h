@@ -39,6 +39,11 @@ typedef enum {
 	TiLayoutRuleHorizontal,
 } TiLayoutRule;
 
+typedef enum {
+	TiLayoutFlagsNone = 0,
+	TiLayoutFlagsWrap = 1 << 0,
+} TiLayoutFlags;
+
 TI_INLINE CGFloat TiFixedValueRuleFromObject(id object)
 {
 	return [TiUtils floatValue:object def:0];
@@ -75,6 +80,11 @@ TI_INLINE BOOL TiLayoutRuleIsHorizontal(TiLayoutRule rule)
 	return rule==TiLayoutRuleHorizontal;
 }
 
+TI_INLINE BOOL TiLayoutFlagsHasWrap(TiLayoutFlags flags)
+{
+	return (flags & TiLayoutFlagsWrap) != 0;
+}
+
 
 typedef struct LayoutConstraint {
 
@@ -89,6 +99,7 @@ typedef struct LayoutConstraint {
 	TiDimension height;
 
 	TiLayoutRule layoutStyle;
+	TiLayoutFlags layoutFlags;
 	
 	CGFloat minimumHeight;
 	CGFloat minimumWidth;
