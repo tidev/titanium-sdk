@@ -67,7 +67,7 @@ public class TiCompositeLayout extends ViewGroup
 	private int horizontalLayoutLineHeight = 0;
 	private boolean enableHorizontalWrap = true;
 	private int horizontalLayoutLastIndexBeforeWrap = 0;
-	private int horizontalLayoutMaxRowHeight = 0;
+	private int horiztonalLayoutPreviousRight = 0;
 
 	private float alpha = 1.0f;
 	private Method setAlphaMethod;
@@ -489,7 +489,7 @@ public class TiCompositeLayout extends ViewGroup
 		int[] vertical = new int[2];
 
 		int currentHeight = 0; // Used by vertical arrangement calcs
-		
+
 		for (int i = 0; i < count; i++) {
 			View child = getChildAt(i);
 			TiCompositeLayout.LayoutParams params =
@@ -499,8 +499,8 @@ public class TiCompositeLayout extends ViewGroup
 
 				// Try to calculate width/height from pins, and default to measured width/height. We have to do this in
 				// onLayout since we can't get the correct top, bottom, left, and right values inside constrainChild().
-				int childMeasuredHeight = calculateHeightFromPins(params, top, bottom, getHeight(), child.getMeasuredHeight());
-				int childMeasuredWidth = calculateWidthFromPins(params, left, right, getWidth(), child.getMeasuredWidth());
+				int childMeasuredHeight = child.getMeasuredHeight();
+				int childMeasuredWidth = child.getMeasuredWidth();
 
 				if (isHorizontalArrangement()) {
 					if (i == 0)  {
@@ -508,11 +508,17 @@ public class TiCompositeLayout extends ViewGroup
 						horizontalLayoutLineHeight = 0;
 						horizontalLayoutTopBuffer = 0;
 						horizontalLayoutLastIndexBeforeWrap = 0;
-						horizontalLayoutMaxRowHeight = 0;
+						horiztonalLayoutPreviousRight = 0;
+						updateRowForHorizontalWrap(right, i);
 					}
 					computeHorizontalLayoutPosition(params, childMeasuredWidth, childMeasuredHeight, right, top, bottom, horizontal, vertical, i);
 
 				} else {
+					// Try to calculate width/height from pins, and default to measured width/height. We have to do this in
+					// onLayout since we can't get the correct top, bottom, left, and right values inside constrainChild().
+					childMeasuredHeight = calculateHeightFromPins(params, top, bottom, getHeight(), childMeasuredHeight);
+					childMeasuredWidth = calculateWidthFromPins(params, left, right, getWidth(), childMeasuredWidth);
+
 					computePosition(this, params.optionLeft, params.optionCenterX, params.optionRight, childMeasuredWidth, left, right, horizontal);
 					if (isVerticalArrangement()) {
 						computeVerticalLayoutPosition(currentHeight, params.optionTop, params.optionBottom, childMeasuredHeight, top, bottom, vertical, bottom);
@@ -675,40 +681,21 @@ public class TiCompositeLayout extends ViewGroup
 	private void computeHorizontalLayoutPosition(TiCompositeLayout.LayoutParams params, int measuredWidth,
 		int measuredHeight, int layoutRight, int layoutTop, int layoutBottom, int[] hpos, int[] vpos, int currentIndex)
 	{
-		// Loop through to calculate the max row height, and the last index before we start wrapping
-		if (enableHorizontalWrap && (currentIndex == 0 || currentIndex > horizontalLayoutLastIndexBeforeWrap)) {
-			horizontalLayoutMaxRowHeight = 0;
-			int rowWidth = 0;
-			int childHeight = 0;
-			int i = 0;
-			for (i = currentIndex; i < getChildCount(); i++) {
-				View child = getChildAt(i);
-				rowWidth += child.getMeasuredWidth();
-				if (rowWidth > layoutRight) {
-					horizontalLayoutLastIndexBeforeWrap = i - 1;
-					break;
-				}
-				childHeight = child.getMeasuredHeight();
-				if (horizontalLayoutMaxRowHeight < childHeight) {
-					horizontalLayoutMaxRowHeight = childHeight;
-				}
-			}
-
-			// If we reach the last child, just set it as the lastIndexBeforeWrap
-			if (i == getChildCount()) {
-				horizontalLayoutLastIndexBeforeWrap = i - 1;
-			}
-		}
 
 		TiDimension optionLeft = params.optionLeft;
-		int left = horizontalLayoutCurrentLeft;
+		TiDimension optionRight = params.optionRight;
+		int left = horizontalLayoutCurrentLeft + horiztonalLayoutPreviousRight;
+		int optionLeftValue = 0;
 		if (optionLeft != null) {
-			left += optionLeft.getAsPixels(this);
+			optionLeftValue = optionLeft.getAsPixels(this);
+			left += optionLeftValue;
 		}
+		horiztonalLayoutPreviousRight = (optionRight == null) ? 0 : optionRight.getAsPixels(this);
+
 		int right = left + measuredWidth;
-		if (right > layoutRight && enableHorizontalWrap) {
+		if (enableHorizontalWrap && ((right + horiztonalLayoutPreviousRight) > layoutRight)) {
 			// Too long for the current "line" that it's on. Need to move it down.
-			left = 0;
+			left = optionLeftValue;
 			right = measuredWidth;
 			horizontalLayoutTopBuffer = horizontalLayoutTopBuffer + horizontalLayoutLineHeight;
 			horizontalLayoutLineHeight = 0;
@@ -718,16 +705,53 @@ public class TiCompositeLayout extends ViewGroup
 		horizontalLayoutCurrentLeft = right;
 
 		if (enableHorizontalWrap) {
-			layoutBottom = horizontalLayoutMaxRowHeight;
+			// Don't update row on the first iteration since we already do it beforehand
+			if (currentIndex != 0 && currentIndex > horizontalLayoutLastIndexBeforeWrap) {
+				updateRowForHorizontalWrap(layoutRight, currentIndex);
+			}
+			measuredHeight = calculateHeightFromPins(params, horizontalLayoutTopBuffer, horizontalLayoutTopBuffer
+				+ horizontalLayoutLineHeight, horizontalLayoutLineHeight, measuredHeight);
+			layoutBottom = horizontalLayoutLineHeight;
 		}
 
 		// Get vertical position into vpos
 		computePosition(this, params.optionTop, params.optionCenterY, params.optionBottom, measuredHeight, layoutTop,
 			layoutBottom, vpos);
-		horizontalLayoutLineHeight = Math.max(horizontalLayoutLineHeight, vpos[1] - vpos[0]);
 		// account for moving the item "down" to later line(s) if there has been wrapping.
 		vpos[0] = vpos[0] + horizontalLayoutTopBuffer;
 		vpos[1] = vpos[1] + horizontalLayoutTopBuffer;
+	}
+
+	private void updateRowForHorizontalWrap(int maxRight, int currentIndex)
+	{
+		int rowWidth = 0;
+		int rowHeight = 0;
+		int i = 0;
+		int parentHeight = getHeight();
+		horizontalLayoutLineHeight = 0;
+
+		for (i = currentIndex; i < getChildCount(); i++) {
+			View child = getChildAt(i);
+			// Calculate row width/height with padding
+			rowWidth += child.getMeasuredWidth() + getViewWidthPadding(child, getWidth());
+			rowHeight = child.getMeasuredHeight() + getViewHeightPadding(child, parentHeight);
+			if (rowWidth > maxRight) {
+				horizontalLayoutLastIndexBeforeWrap = i - 1;
+				return;
+
+			} else if (rowWidth == maxRight) {
+				// If we couldn't determine a height from the children, just use the parent height as the max height
+				if (horizontalLayoutLineHeight == 0) {
+					horizontalLayoutLineHeight = (rowHeight == 0) ? parentHeight : rowHeight;
+				}
+				break;
+			}
+
+			if (horizontalLayoutLineHeight < rowHeight && rowHeight != parentHeight) {
+				horizontalLayoutLineHeight = rowHeight;
+			}
+		}
+		horizontalLayoutLastIndexBeforeWrap = i;
 	}
 
 	// Determine whether we have a conflict where a parent has size behavior, and child has fill behavior.
