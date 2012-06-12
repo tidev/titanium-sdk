@@ -213,8 +213,11 @@ events:
 
   - name: scroll
     summary: Fired repeatedly as the view is being scrolled.
+    description: |
+        Prior to 2.1, the scroll event did not fire consistently on all platforms. On iOS and Mobile
+        Web, it fired when scrolling ended, and on Android, it fired when drag ended. You can restore
+        the pre-2.1 behavior by listening for the `scrollEnd` or `dragEnd` events instead.
     platforms: [iphone, ipad, android, mobileweb]
-    since: "2.1.0"
     properties:
 
       - name: currentPage
