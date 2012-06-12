@@ -191,6 +191,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 
 			// Remove the view and update the paging control
 			contentContainer._remove(self.views.splice(viewIndex,1)[0]);
+			!self.views.length && (self.properties.__values__.currentPage = -1);
 			once(UI, "postlayout", function() {
 				setTimeout(function(){
 					self._updateTranslation();
@@ -252,7 +253,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 						self._removeViewFromList(self._viewToRemoveAfterScroll);
 						self._viewToRemoveAfterScroll = -1;
 					}
-					self.fireEvent("scroll",{
+					self.fireEvent("scrollEnd",{
 						currentPage: viewIndex,
 						view: self.views[viewIndex]
 					});
