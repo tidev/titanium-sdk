@@ -54,7 +54,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 
 	return declare("Ti._.UI.KineticScrollView", View, {
 
-		_initKineticScrollView: function(contentContainer, elasticity, scrollbars){
+		_initKineticScrollView: function(contentContainer, elasticity, scrollbars, enableMouseWheel){
 
 			var contentContainerDomNode,
 				self = this,
@@ -200,11 +200,9 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 					self._handleDragEnd && self._handleDragEnd(e, velocityX, velocityY);
 				}
 			});
-			
-			
 
 			// Handle mouse wheel scrolling
-			on(self.domNode, "mousewheel",function(e) {
+			enableMouseWheel && on(self.domNode, "mousewheel",function(e) {
 
 				var distanceX = contentContainer._measuredWidth - self._measuredWidth,
 					distanceY = contentContainer._measuredHeight - self._measuredHeight,

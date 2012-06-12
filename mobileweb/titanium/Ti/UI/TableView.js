@@ -22,7 +22,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang","
 				left: 0,
 				top: 0,
 				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
-			}), "vertical", "vertical");
+			}), "vertical", "vertical", 1);
 
 			contentContainer._add(self._header = UI.createView({
 				height: UI.SIZE, 
@@ -44,14 +44,15 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang","
 		},
 
 		_handleMouseWheel: function() {
-			this._fireScrollEvent({
-				x: -self._currentTranslationX,
-				y: -self._currentTranslationY
-			});
+			this._fireScrollEvent("scroll");
+		},
+
+		_handleDragStart: function(e) {
+			this.fireEvent("dragStart");
 		},
 
 		_handleDrag: function(e) {
-			this._fireScrollEvent(e);
+			this._fireScrollEvent("scroll", e);
 		},
 
 		_handleDragEnd: function(e, velocityX, velocityY) {
@@ -67,20 +68,13 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang","
 				self._animateToPosition(self._currentTranslationX, translation, duration, "ease-out", function() {
 					self._setTranslation(self._currentTranslationX, translation);
 					self._endScrollBars();
-				});
-				// Create the scroll event
-				self.fireEvent("scrollEnd",{
-					contentOffset: {x: -self._currentTranslationY, y: y + self._header._measuredHeight},
-					contentSize: {width: self._sections._measuredWidth, height: self._sections._measuredHeight},
-					size: {width: self._measuredWidth, height: self._measuredHeight},
-					x: e.x,
-					y: e.y
+					self._fireScrollEvent("scrollEnd", e);
 				});
 			}
 			
 		},
 
-		_fireScrollEvent: function(e) {
+		_fireScrollEvent: function(type, e) {
 			// Calculate the visible items
 			var firstVisibleItem,
 				visibleItemCount = 0,
@@ -110,15 +104,24 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang","
 			}
 
 			// Create the scroll event
-			this.fireEvent("scroll",{
-				contentOffset: {x: 0, y: y},
-				contentSize: {width: sections._measuredWidth, height: sections._measuredHeight},
+			this.fireEvent(type, {
+				contentOffset: {
+					x: 0,
+					y: y
+				},
+				contentSize: {
+					width: sections._measuredWidth,
+					height: sections._measuredHeight
+				},
 				firstVisibleItem: firstVisibleItem,
-				size: {width: contentContainer._measuredWidth, height: contentContainer._measuredHeight},
+				size: {
+					width: contentContainer._measuredWidth,
+					height: contentContainer._measuredHeight
+				},
 				totalItemCount: this.data.length,
 				visibleItemCount: visibleItemCount,
-				x: e.x,
-				y: e.y
+				x: e && e.x,
+				y: e && e.y
 			});
 		},
 

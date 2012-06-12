@@ -17,26 +17,28 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 				height: UI.SIZE,
 				left: 0,
 				top: 0
-			}), "both", "both");
+			}), "both", "both", 1);
 		},
 
 		_handleMouseWheel: function() {
-			self._isScrollBarActive && self.fireEvent("scroll",{
-				x: -self._currentTranslationX,
-				y: -self._currentTranslationY,
-				dragging: false
+			this._isScrollBarActive && this.fireEvent("scroll",{
+				x: -this._currentTranslationX,
+				y: -this._currentTranslationY,
+				dragging: false,
+				decelerating: false
 			});
 		},
 
 		_handleDragStart: function() {
-			this.fireEvent("dragStart",{});
+			this.fireEvent("dragStart");
 		},
 
 		_handleDrag: function() {
 			this.fireEvent("scroll",{
 				x: -this._currentTranslationX,
 				y: -this._currentTranslationY,
-				dragging: true
+				dragging: true,
+				decelerating: false
 			});
 		},
 
@@ -57,6 +59,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 				self._animateToPosition(translationX, translationY, duration, "ease-out", function() {
 					self._setTranslation(translationX, translationY);
 					self._endScrollBars();
+					self.fireEvent("scrollEnd");
 				});
 			}
 		},

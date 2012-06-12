@@ -582,14 +582,14 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
 
   - name: dragEnd
     summary: Fired when the scrollable region stops being dragged.
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     properties:
       - name: decelerate
         summary: |
