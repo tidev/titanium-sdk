@@ -62,7 +62,17 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 				startTranslationY,
 				translationX,
 				translationY,
-				positionData;
+				minTranslationX,
+				minTranslationY,
+				positionData,
+				previousTime,
+				currentTime,
+				period,
+				previousTranslationX,
+				previousTranslationY,
+				numSamples,
+				velocityX,
+				velocityY;
 			self._currentTranslationX = 0;
 			self._currentTranslationY = 0;
 			self._horizontalElastic = elasticity === "horizontal" || elasticity === "both";
@@ -72,32 +82,41 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 			self._add(self._contentContainer = contentContainer);
 			contentContainerDomNode = contentContainer.domNode;
 
+			function calculateVelocity() {
+				// Calculate the velocity by calculating a weighted slope average, favoring more recent movement
+				currentTime = (new Date).getTime();
+				period = currentTime - previousTime;
+				previousTime = currentTime;
+				if (numSamples++) {
+					velocityX = (velocityX * (numSamples - 1) + numSamples * (translationX - previousTranslationX) / period) / 2 / numSamples;
+					velocityY = (velocityY * (numSamples - 1) + numSamples * (translationY - previousTranslationY) / period) / 2 / numSamples;
+				} else {
+					velocityX = (translationX - startTranslationX) / period;
+					velocityY = (translationY - startTranslationY) / period;
+				}
+			}
+
 			// Listen for postlayouts and update the translation
 			on(self, "postlayout", function() {
-				self._minTranslationX = Math.min(0, self._measuredWidth - self._borderLeftWidth - self._borderRightWidth - self._contentContainer._measuredWidth);
-				self._minTranslationY = Math.min(0, self._measuredHeight - self._borderTopWidth - self._borderBottomWidth - self._contentContainer._measuredHeight);
+				minTranslationX = self._minTranslationX = Math.min(0, self._measuredWidth - self._borderLeftWidth - self._borderRightWidth - self._contentContainer._measuredWidth);
+				minTranslationY = self._minTranslationY = Math.min(0, self._measuredHeight - self._borderTopWidth - self._borderBottomWidth - self._contentContainer._measuredHeight);
 			});
 
 			on(self, "draggingstart", function(e) {
+				velocityX = void 0;
+				velocityY = void 0;
 				startTranslationX = self._currentTranslationX;
 				startTranslationY = self._currentTranslationY;
-				positionData = [{
-					time: (new Date).getTime(),
-					translationX: startTranslationX,
-					translationY: startTranslationY
-				}];
+				numSamples = 0;
+				previousTime = (new Date).getTime();
 				self._handleDragStart && self._handleDragStart(e);
 			});
 
 			on(self, "dragging", function(e) {
 				translationX = startTranslationX + e.distanceX;
 				translationY = startTranslationY + e.distanceY;
-				positionData.push({
-					time: (new Date).getTime(),
-					translationX: translationX,
-					translationY: translationY
-				});
-				self._setTranslation(translationX, translationY);
+				calculateVelocity();
+				self._setTranslation(previousTranslationX = translationX, previousTranslationY = translationY);
 				self._handleDrag && self._handleDrag(e);
 			});
 
@@ -111,37 +130,26 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 			});
 
 			on(self, "draggingend", function(e) {
-				positionData.push({
-					time: (new Date).getTime(),
-					translationX: startTranslationX + e.distanceX,
-					translationY: startTranslationY + e.distanceY
-				});
-				var velocityX = defaultVelocity,
-					velocityY = defaultVelocity,
-					position1 = self._currentTranslationX,
-					position2 = self._currentTranslationY,
-					period,
-					i = 1,
-					len = positionData.length,
-					minTranslationX = self._minTranslationX,
-					minTranslationY = self._minTranslationY,
-					horizontalElastic = self._horizontalElastic,
-					verticalElastic = self._verticalElastic,
+				translationX = startTranslationX + e.distanceX;
+				translationY = startTranslationY + e.distanceY;
+				calculateVelocity();
+				var x = self._currentTranslationX,
+					y = self._currentTranslationY,
 					springBack;
 
 				// Spring back if need be
-				if (position1 > 0) {
-					position1 = 0;
+				if (x > 0) {
+					x = 0;
 					springBack = 1;
-				} else if(position1 < minTranslationX) {
-					position1 = minTranslationX;
+				} else if(x < minTranslationX) {
+					x = minTranslationX;
 					springBack = 1;
 				}
-				if (position2 > 0) {
-					position2 = 0;
+				if (y > 0) {
+					y = 0;
 					springBack = 1;
-				} else if(position2 < minTranslationY) {
-					position2 = minTranslationY;
+				} else if(y < minTranslationY) {
+					y = minTranslationY;
 					springBack = 1;
 				}
 
@@ -150,32 +158,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 						self._handleDragEnd && self._handleDragEnd(e);
 					});
 				} else {
-					// Calculate the velocity by calculating a weighted slope average, favoring more recent movement
-					if (len > 1) {
-						for(; i < len; i++) {
-							position1 = positionData[i - 1];
-							position2 = positionData[i];
-							period = position2.time - position1.time;
-							velocityX = (velocityX * (i - 1) + i * (position2.translationX - position1.translationX) / period) / 2 / i;
-							velocityY = (velocityY * (i - 1) + i * (position2.translationY - position1.translationY) / period) / 2 / i;
-						}
-
-						// Output the data for visualization
-						/*var data = "";
-						for(i = 0; i < len; i++) {
-							position1 = positionData[i];
-							period = position1.time - positionData[0].time;
-							data += period + " " +
-								Math.round(position1.translationX - startTranslationX) + " " +
-								Math.round(position1.translationY - startTranslationY) + " " +
-								Math.round(velocityX * period) + " " +
-								Math.round(velocityY * period) + "\n";
-						}
-						console.log(data);*/
-
-						// Clamp the velocity and call the callback
-						self._handleDragEnd && self._handleDragEnd(e, velocityX, velocityY);
-					}
+					self._handleDragEnd && self._handleDragEnd(e, velocityX, velocityY);
 				}
 			});
 		},

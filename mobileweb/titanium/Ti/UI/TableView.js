@@ -104,7 +104,6 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang","
 			var self = this,
 				y = -self._currentTranslationY;
 			this._endScrollBars();
-			
 			if (isDef(velocityY)) {
 				var distance = velocityY * velocityY / (1.724 * deceleration) * (velocityY < 0 ? -1 : 1),
 					duration = Math.abs(velocityY) / deceleration,

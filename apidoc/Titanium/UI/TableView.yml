@@ -172,7 +172,7 @@ events:
         
   - name: delete
     summary: Fired when a table row is deleted by the user.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     properties:
       - name: detail
         summary: Indicates whether the delete button was clicked. Always `false` for this event.
@@ -261,7 +261,7 @@ events:
 
   - name: move
     summary: Fired when a table row is moved by the user.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     properties:
       - name: globalPoint
         summary: |
