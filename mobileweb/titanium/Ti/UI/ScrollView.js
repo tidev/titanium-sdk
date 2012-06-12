@@ -85,10 +85,14 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		_handleDrag: function() {
 			var x = -this._currentTranslationX,
 				y = -this._currentTranslationY,
-				contentContainer = this._contentContainer;
+				contentContainer = this._contentContainer,
+				width = this._measuredWidth,
+				height = this._measuredHeight,
+				contentWidth = contentContainer._measuredWidth,
+				contentHeight = contentContainer._measuredHeight;
 			this._updateScrollBars({
-				x: x / (contentContainer._measuredWidth - this._measuredWidth),
-				y: y / (contentContainer._measuredHeight - this._measuredHeight)
+				x: x / (contentWidth - width),
+				y: y / (contentHeight - height)
 			},{
 				x: width / contentWidth,
 				y: height / contentHeight
@@ -168,11 +172,14 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 
 			contentOffset: {
 				get: function(value) {
-					return {x: this._contentContainer.domNode.scrollLeft, y: this._contentContainer.domNode.scrollTop}
+					return {
+						x: -this._currentTranslationX,
+						y: -this._currentTranslationX
+					};
 				},
 				set: function(value) {
-					this._contentContainer.domNode.scrollLeft = value.x;
-					this._contentContainer.domNode.scrollTop = value.y;
+					this._setTranslation(isDef(value.x) ? -value.x : this._currentTranslationX,
+						isDef(value.y) ? -value.y : this._currentTranslationY);
 					return value;
 				}
 			},

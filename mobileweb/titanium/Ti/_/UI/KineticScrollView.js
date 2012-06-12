@@ -74,10 +74,8 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 
 			// Listen for postlayouts and update the translation
 			on(self, "postlayout", function() {
-				self._minTranslationX = self._measuredWidth - self._contentContainer._measuredWidth -
-					self._borderLeftWidth - self._borderRightWidth;
-				self._minTranslationY = self._measuredHeight - self._contentContainer._measuredHeight -
-					self._borderTopWidth - self._borderBottomWidth;
+				self._minTranslationX = Math.min(0, self._measuredWidth - self._borderLeftWidth - self._borderRightWidth - self._contentContainer._measuredWidth);
+				self._minTranslationY = Math.min(0, self._measuredHeight - self._borderTopWidth - self._borderBottomWidth - self._contentContainer._measuredHeight);
 			});
 
 			on(self, "draggingstart", function(e) {
