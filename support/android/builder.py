@@ -269,11 +269,16 @@ class Builder(object):
 		self.jarsigner = "jarsigner"
 		self.javac = "javac"
 		self.java = "java"
+		java_home = None
+
+		if os.environ.has_key("JAVA_HOME") and os.path.exists(os.environ["JAVA_HOME"]):
+			java_home = os.environ["JAVA_HOME"]
+
 		if platform.system() == "Windows":
-			if os.environ.has_key("JAVA_HOME"):
-				home_jarsigner = os.path.join(os.environ["JAVA_HOME"], "bin", "jarsigner.exe")
-				home_javac = os.path.join(os.environ["JAVA_HOME"], "bin", "javac.exe")
-				home_java = os.path.join(os.environ["JAVA_HOME"], "bin", "java.exe")
+			if java_home:
+				home_jarsigner = os.path.join(java_home, "bin", "jarsigner.exe")
+				home_javac = os.path.join(java_home, "bin", "javac.exe")
+				home_java = os.path.join(java_home, "bin", "java.exe")
 				found = True
 				# TODO Document this path and test properly under windows
 				if os.path.exists(home_jarsigner):
@@ -305,11 +310,15 @@ class Builder(object):
 						self.jarsigner = os.path.join(path, 'jarsigner.exe')
 						self.javac = os.path.join(path, 'javac.exe')
 						self.java = os.path.join(path, 'java.exe')
+						java_home = os.path.dirname(os.path.dirname(self.javac))
 						found = True
 						break
 				if not found:
 					error("Error locating JDK: set $JAVA_HOME or put javac and jarsigner on your $PATH")
 					sys.exit(1)
+
+		if not os.environ.has_key("JAVA_HOME") and java_home:
+			os.environ["JAVA_HOME"] = java_home
 
 	def wait_for_home(self, type):
 		max_wait = 20
