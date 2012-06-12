@@ -2363,7 +2363,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                 if (!childIsFixedHeight)
                 {
                     desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
-                    bounds.size.height = desiredHeight + offsetV;
+                    bounds.size.height = desiredHeight;
                 }
                 verticalLayoutBoundary += bounds.size.height;
                 horizontalLayoutRowHeight = 0.0;
@@ -2384,7 +2384,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                         if (!childIsFixedHeight)
                         {
                             desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
-                            bounds.size.height = desiredHeight + offsetV;
+                            bounds.size.height = desiredHeight;
                         }                    
                         horizontalLayoutBoundary += desiredWidth;
                         bounds.size.width = desiredWidth;
@@ -2395,7 +2395,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                         if (!childIsFixedHeight)
                         {
                             desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth,boundingHeight)];
-                            bounds.size.height = desiredHeight + offsetV;
+                            bounds.size.height = desiredHeight;
                         }                    
                         verticalLayoutBoundary += bounds.size.height;
                     }
@@ -2405,7 +2405,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                     if (!childIsFixedHeight)
                     {
                         desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth,boundingHeight)];
-                        bounds.size.height = desiredHeight + offsetV;
+                        bounds.size.height = desiredHeight;
                     }                    
                     verticalLayoutBoundary += bounds.size.height;
                 }
@@ -2415,7 +2415,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                         if (!childIsFixedHeight)
                         {
                             desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
-                            bounds.size.height = desiredHeight + offsetV;
+                            bounds.size.height = desiredHeight;
                         }                    
                         bounds.size.width = desiredWidth + offsetH;
                         horizontalLayoutBoundary = bounds.size.width;
@@ -2426,7 +2426,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                         if (!childIsFixedHeight)
                         {
                             desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth,boundingHeight)];
-                            bounds.size.height = desiredHeight + offsetV;
+                            bounds.size.height = desiredHeight;
                         }
                         verticalLayoutBoundary += bounds.size.height;
                     }
@@ -2439,7 +2439,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             if (!childIsFixedHeight)
             {
                 desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
-                bounds.size.height = desiredHeight + offsetV;
+                bounds.size.height = desiredHeight;
             }
             bounds.origin.x = horizontalLayoutBoundary;
             bounds.origin.y = verticalLayoutBoundary;
