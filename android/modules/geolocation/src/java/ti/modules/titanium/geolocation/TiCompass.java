@@ -32,7 +32,7 @@ public class TiCompass
 {
 	private static final String LCAT = "TiCompass";
 	private static final boolean DBG = TiConfig.LOGD;
-    private static final int DECLINATION_CHECK_INTERVAL = 60000;
+	private static final int DECLINATION_CHECK_INTERVAL = 60000;
 
 	private GeolocationModule geolocationModule;
 	private TiLocation tiLocation;
@@ -41,9 +41,9 @@ public class TiCompass
 	private long lastEventInUpdate;
 	private float lastHeading = 0.0f;
 	private GeomagneticField geomagneticField;
-    private Criteria locationCriteria = new Criteria();
-    private Location geomagneticFieldLocation;
-    private long lastDeclinationCheck;
+	private Criteria locationCriteria = new Criteria();
+	private Location geomagneticFieldLocation;
+	private long lastDeclinationCheck;
 
 
 	public TiCompass(GeolocationModule geolocationModule, TiLocation tiLocation)
@@ -54,7 +54,7 @@ public class TiCompass
 
 	public void registerListener()
 	{
-        updateDeclination();
+		updateDeclination();
 		TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, this, SensorManager.SENSOR_DELAY_UI);
 	}
 
@@ -138,11 +138,11 @@ public class TiCompass
 		return data;
 	}
 
-    private void updateDeclination()
-    {
+	private void updateDeclination()
+	{
 		long currentTime = System.currentTimeMillis();
 
-        if (currentTime - lastDeclinationCheck > DECLINATION_CHECK_INTERVAL) {
+		if (currentTime - lastDeclinationCheck > DECLINATION_CHECK_INTERVAL) {
 			String provider = tiLocation.locationManager.getBestProvider(locationCriteria, true);
 			if (provider != null) {
 				Location location = tiLocation.locationManager.getLastKnownLocation(provider);
@@ -155,7 +155,7 @@ public class TiCompass
 			}
 			lastDeclinationCheck = currentTime;
 		}
-    }
+	}
 
 	public boolean getHasCompass()
 	{
@@ -191,7 +191,7 @@ public class TiCompass
 				}
 			};
 
-            updateDeclination();
+			updateDeclination();
 			TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, oneShotHeadingListener, SensorManager.SENSOR_DELAY_UI);
 		}
 	}
