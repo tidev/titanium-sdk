@@ -582,7 +582,7 @@ public abstract class TiUIView
 				}
 				background.setBackgroundColor(bgColor);
 
-			} else {
+			} else if(!nativeViewNull) {
 				nativeView.setBackgroundColor(bgColor);
 			}
 		}
