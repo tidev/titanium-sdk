@@ -62,9 +62,12 @@ public class SoundProxy extends KrollProxy
 		} else if (url instanceof String) {
 			path = resolveUrl(null, (String) url);
 		} else if (url instanceof TiBlob) {
-			if (((TiBlob) url).getType() == TiBlob.TYPE_FILE) {
-				path = ((TiBlob) url).getFile().getNativePath();
+			TiBlob blob = (TiBlob) url;
+			if (blob.getType() == TiBlob.TYPE_FILE) {
+				path = blob.getFile().getNativePath();
 			}
+		} else {
+			Log.e(LCAT, "Invalid type for url.");
 		}
 		return path;
 	}
