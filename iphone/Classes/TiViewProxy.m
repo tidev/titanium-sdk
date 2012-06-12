@@ -2362,7 +2362,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                 bounds.origin.y = verticalLayoutBoundary;
                 if (!childIsFixedHeight)
                 {
-                    desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offsetH,boundingHeight)];
+                    desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
                     bounds.size.height = desiredHeight + offsetV;
                 }
                 verticalLayoutBoundary += bounds.size.height;
@@ -2383,7 +2383,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                     if (desiredWidth < boundingWidth) {
                         if (!childIsFixedHeight)
                         {
-                            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offsetH,boundingHeight)];
+                            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
                             bounds.size.height = desiredHeight + offsetV;
                         }                    
                         horizontalLayoutBoundary += desiredWidth;
@@ -2394,7 +2394,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                         //Will take up whole row
                         if (!childIsFixedHeight)
                         {
-                            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth - offsetH,boundingHeight)];
+                            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth,boundingHeight)];
                             bounds.size.height = desiredHeight + offsetV;
                         }                    
                         verticalLayoutBoundary += bounds.size.height;
@@ -2404,7 +2404,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                     //Will take up whole row
                     if (!childIsFixedHeight)
                     {
-                        desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth - offsetH,boundingHeight)];
+                        desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth,boundingHeight)];
                         bounds.size.height = desiredHeight + offsetV;
                     }                    
                     verticalLayoutBoundary += bounds.size.height;
@@ -2414,7 +2414,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                     if (desiredWidth < boundingWidth) {
                         if (!childIsFixedHeight)
                         {
-                            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offsetH,boundingHeight)];
+                            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
                             bounds.size.height = desiredHeight + offsetV;
                         }                    
                         bounds.size.width = desiredWidth + offsetH;
@@ -2425,7 +2425,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                         //Will take up whole row
                         if (!childIsFixedHeight)
                         {
-                            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth - offsetH,boundingHeight)];
+                            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth,boundingHeight)];
                             bounds.size.height = desiredHeight + offsetV;
                         }
                         verticalLayoutBoundary += bounds.size.height;
@@ -2438,7 +2438,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             //If it fits update the horizontal layout row height
             if (!childIsFixedHeight)
             {
-                desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offsetH,boundingHeight)];
+                desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
                 bounds.size.height = desiredHeight + offsetV;
             }
             bounds.origin.x = horizontalLayoutBoundary;
