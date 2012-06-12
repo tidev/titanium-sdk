@@ -5,6 +5,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 		is = require.is,
 		isDef = lang.isDef,
 		unitize = dom.unitize,
+		once = require.on.once,
 
 		// The maximum angle, in radians, from the axis a swipe is allowed to travel before it is no longer considered a swipe
 		angleThreshold = Math.PI/6, // 30 degrees
@@ -57,7 +58,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 			this.properties.__values__.views = [];
 			this._viewToRemoveAfterScroll = -1;
 
-			require.on(self, "postlayout", self._updateTranslation);
+			require.on(this, "postlayout", this._updateTranslation);
 		},
 
 		_handleDragStart: function() {
@@ -171,7 +172,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 
 			// Remove the view and update the paging control
 			contentContainer._remove(self.views.splice(viewIndex,1)[0]);
-			on.once(UI, "postlayout", function() {
+			once(UI, "postlayout", function() {
 				setTimeout(function(){
 					self._updateTranslation();
 				}, 1);
@@ -243,7 +244,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 			if (self._contentContainer.domNode.offsetWidth) {
 				scroll();
 			} else {
-				on.once("postlayout", scroll);
+				once("postlayout", scroll);
 			}
 		},
 
