@@ -154,7 +154,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 				}
 
 				if (springBack) {
-					self._animateToPosition(position1, position2, 200, "ease-out", function(){
+					self._animateToPosition(x, y, 200, "ease-out", function(){
 						self._handleDragEnd && self._handleDragEnd(e);
 					});
 				} else {
