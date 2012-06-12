@@ -22,7 +22,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang","
 				left: 0,
 				top: 0,
 				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
-			}), "vertical");
+			}), "vertical", "vertical");
 
 			contentContainer._add(self._header = UI.createView({
 				height: UI.SIZE, 
@@ -41,8 +41,6 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang","
 			}));
 
 			self.data = [];
-
-			self._createVerticalScrollBar();
 
 			self.domNode.addEventListener("mousewheel",function(e) {
 
@@ -80,40 +78,23 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang","
 			});
 		},
 
-		_handleDragStart: function() {
-			var contentContainer = this._contentContainer,
-				y = -this._currentTranslationY,
-				height = this._measuredHeight,
-				contentHeight = contentContainer._measuredHeight;
-			this._startScrollBars({
-				y: y / (contentHeight - height)
-			},
-			{
-				y: height / contentHeight
-			});
-		},
-
 		_handleDrag: function(e) {
-			this._updateScrollBars({
-				y: -this._currentTranslationY / (this._contentContainer._measuredHeight - this._measuredHeight)
-			});
 			this._fireScrollEvent(e);
 		},
 
 		_handleDragEnd: function(e, velocityX, velocityY) {
 			var self = this,
 				y = -self._currentTranslationY;
-			this._endScrollBars();
 			if (isDef(velocityY)) {
 				var distance = velocityY * velocityY / (1.724 * deceleration) * (velocityY < 0 ? -1 : 1),
 					duration = Math.abs(velocityY) / deceleration,
 					translation = Math.min(0, Math.max(self._minTranslationY, self._currentTranslationY + distance));
-				self._endScrollBars();
-				self._isScrollBarActive && self.fireEvent("dragEnd",{
+				self.fireEvent("dragEnd",{
 					decelerate: true
 				});
 				self._animateToPosition(self._currentTranslationX, translation, duration, "ease-out", function() {
 					self._setTranslation(self._currentTranslationX, translation);
+					self._endScrollBars();
 				});
 				// Create the scroll event
 				self.fireEvent("scrollEnd",{
@@ -125,10 +106,6 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang","
 				});
 			}
 			
-		},
-
-		_handleDragCancel: function() {
-			this._endScrollBars();
 		},
 
 		_fireScrollEvent: function(e) {
@@ -161,7 +138,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang","
 			}
 
 			// Create the scroll event
-			this._isScrollBarActive && this.fireEvent("scroll",{
+			this.fireEvent("scroll",{
 				contentOffset: {x: 0, y: y},
 				contentSize: {width: sections._measuredWidth, height: sections._measuredHeight},
 				firstVisibleItem: firstVisibleItem,
@@ -178,7 +155,10 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang","
 		_defaultHeight: UI.FILL,
 		
 		_getContentOffset: function(){
-			return {x: this._contentContainer.scrollLeft, y: this._contentContainer.scrollTop};
+			return {
+				x: -this._currentTranslationX,
+				y: -this._currentTranslationY
+			};
 		},
 		
 		_handleTouchEvent: function(type, e) {
@@ -314,13 +294,12 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang","
 
 		scrollToIndex: function(index) {
 			var location = this._calculateLocation(index);
-			if (location) {
-				this._contentContainer.domNode.scrollTop = location.section._measuredTop + location.section._rows._children[2 * location.localIndex + 1]._measuredTop;
-			}
+			location && this._setTranslation(0,-location.section._measuredTop -
+				location.section._rows._children[2 * location.localIndex + 1]._measuredTop);
 		},
 		
 		scrollToTop: function(top) {
-			this._contentContainer.scrollTop = top;
+			this._setTranslation(0,-top);
 		},
 		
 		properties: {

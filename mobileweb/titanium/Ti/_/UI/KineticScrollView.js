@@ -2,6 +2,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 	function(browser, declare, View, lang, dom, style, UI, event) {
 
 	var setStyle = style.set,
+		unitize = dom.unitize,
 		calculateDistance = dom.calculateDistance,
 		on = require.on,
 		transitionEvents = {
@@ -53,7 +54,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 
 	return declare("Ti._.UI.KineticScrollView", View, {
 
-		_initKineticScrollView: function(contentContainer, elasticity){
+		_initKineticScrollView: function(contentContainer, elasticity, scrollbars){
 
 			var contentContainerDomNode,
 				self = this,
@@ -77,13 +78,16 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 			self._currentTranslationY = 0;
 			self._horizontalElastic = elasticity === "horizontal" || elasticity === "both";
 			self._verticalElastic = elasticity === "vertical" || elasticity === "both";
+			
+			(scrollbars === "horizontal" || scrollbars === "both") && this._createHorizontalScrollBar();
+			(scrollbars === "vertical" || scrollbars === "both") && this._createVerticalScrollBar();
 
 			// Create the content container
 			self._add(self._contentContainer = contentContainer);
 			contentContainerDomNode = contentContainer.domNode;
 
+			// Calculate the velocity by calculating a weighted slope average, favoring more recent movement
 			function calculateVelocity() {
-				// Calculate the velocity by calculating a weighted slope average, favoring more recent movement
 				currentTime = (new Date).getTime();
 				period = currentTime - previousTime;
 				previousTime = currentTime;
@@ -103,20 +107,53 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 			});
 
 			on(self, "draggingstart", function(e) {
+
+				// Initialize the velocity calculations
 				velocityX = void 0;
 				velocityY = void 0;
 				startTranslationX = self._currentTranslationX;
 				startTranslationY = self._currentTranslationY;
 				numSamples = 0;
 				previousTime = (new Date).getTime();
+
+				// Start the scroll bars
+				var width = self._measuredWidth,
+					height = self._measuredHeight,
+					contentWidth = contentContainer._measuredWidth,
+					contentHeight = contentContainer._measuredHeight;
+				self._startScrollBars({
+					x: -self._currentTranslationX / (contentWidth - width),
+					y: -self._currentTranslationY / (contentHeight - height)
+				},
+				{
+					x: width / contentWidth,
+					y: height / contentHeight
+				});
+
+				// Call the callback
 				self._handleDragStart && self._handleDragStart(e);
 			});
 
 			on(self, "dragging", function(e) {
+
+				// Update the velocity calculations
 				translationX = startTranslationX + e.distanceX;
 				translationY = startTranslationY + e.distanceY;
 				calculateVelocity();
+
+				// Update the translation
 				self._setTranslation(previousTranslationX = translationX, previousTranslationY = translationY);
+
+				// Update the scroll bars
+				var width = self._measuredWidth,
+					height = self._measuredHeight,
+					contentWidth = contentContainer._measuredWidth,
+					contentHeight = contentContainer._measuredHeight;
+				this._updateScrollBars({
+					x: -self._currentTranslationX / (contentWidth - width),
+					y: -self._currentTranslationY / (contentHeight - height)
+				});
+				
 				self._handleDrag && self._handleDrag(e);
 			});
 
@@ -126,6 +163,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 					"ease-in-out", function(){
 						self._handleDragCancel && self._handleDragCancel(e);
 					});
+				self._endScrollBars();
 				self._handleDragCancel && self._handleDragCancel(e);
 			});
 
@@ -165,7 +203,8 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 
 		_animateToPosition: function(destinationTranslationX, destinationTranslationY, duration, curve, callback) {
 			var self = this,
-				contentContainerDomNode = self._contentContainer.domNode;
+				contentContainer = self._contentContainer,
+				contentContainerDomNode = contentContainer.domNode;
 			if (calculateDistance(self._currentTranslationX, self._currentTranslationY, destinationTranslationX, destinationTranslationY) < 1) {
 				self._setTranslation(destinationTranslationX, destinationTranslationY);
 				callback();
@@ -173,6 +212,10 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 				setStyle(contentContainerDomNode, "transition", "all " + duration + "ms " + curve);
 				setTimeout(function(){
 					self._setTranslation(destinationTranslationX, destinationTranslationY);
+					self._animateScrollBars({
+						x: -self._currentTranslationX / (contentContainer._measuredWidth - self._measuredWidth),
+						y: -self._currentTranslationY / (contentContainer._measuredHeight - self._measuredHeight)
+					}, duration, curve);
 				},1);
 				on.once(contentContainerDomNode, transitionEnd, function(){
 					setStyle(contentContainerDomNode, "transition", "");
@@ -205,6 +248,157 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 			// Apply the translation
 			setStyle(this._contentContainer.domNode, "transform", "translate(" + (this._currentTranslationX = translationX) + "px, " +
 					(this._currentTranslationY = translationY) + "px)" + transformPostfix);
+		},
+
+		_createHorizontalScrollBar: function() {
+			this._horizontalScrollBar = dom.create("div", {
+				className: "TiUIScrollBar",
+				style: {
+					position: 'absolute',
+					zIndex: 0x7FFFFFFF, // Max (32-bit) z-index
+					border: "3px solid #555",
+					borderRadius: "3px",
+					height: "0px",
+					bottom: "0px",
+					opacity: 0
+				}
+			}, this.domNode);
+		},
+
+		_destroyHorizontalScrollBar: function() {
+			this._cancelPreviousAnimation();
+			dom.destroy(this._horizontalScrollBar);
+		},
+
+		_createVerticalScrollBar: function() {
+			var scrollBar = this._verticalScrollBar = dom.create("div", {
+				className: "TiUIScrollBar",
+				style: {
+					position: 'absolute',
+					zIndex: 0x7FFFFFFF, // Max (32-bit) z-index
+					border: "3px solid #555",
+					borderRadius: "3px",
+					width: "0px",
+					right: "0px",
+					opacity: 0
+				}
+			}, this.domNode);
+		},
+
+		_destroyVerticalScrollBar: function() {
+			this._cancelPreviousAnimation();
+			dom.destroy(this._verticalScrollBar);
+		},
+
+		_cancelPreviousAnimation: function() {
+			if (this._isScrollBarActive) {
+				setStyle(this._horizontalScrollBar,"transition","");
+				setStyle(this._verticalScrollBar,"transition","");
+				clearTimeout(this._horizontalScrollBarTimer);
+				clearTimeout(this._verticalScrollBarTimer);
+			}
+		},
+
+		_startScrollBars: function(normalizedScrollPosition, visibleAreaRatio) {
+
+			this._cancelPreviousAnimation();
+
+			if (this._horizontalScrollBar && visibleAreaRatio.x < 1 && visibleAreaRatio.x > 0) {
+				var startingX = normalizedScrollPosition.x,
+					measuredWidth = this._measuredWidth;
+				startingX < 0 && (startingX = 0);
+				startingX > 1 && (startingX = 1);
+				this._horizontalScrollBarWidth = (measuredWidth - 6) * visibleAreaRatio.x;
+				this._horizontalScrollBarWidth < 10 && (this._horizontalScrollBarWidth = 10);
+				setStyle(this._horizontalScrollBar, {
+					opacity: 0.5,
+					left: unitize(startingX * (measuredWidth - this._horizontalScrollBarWidth - 6)),
+					width: unitize(this._horizontalScrollBarWidth)
+				});
+				this._isScrollBarActive = true;
+			}
+
+			if (this._verticalScrollBar && visibleAreaRatio.y < 1 && visibleAreaRatio.y > 0) {
+				var startingY = normalizedScrollPosition.y,
+					measuredHeight = this._measuredHeight;
+				startingY < 0 && (startingY = 0);
+				startingY > 1 && (startingY = 1);
+				this._verticalScrollBarHeight = (measuredHeight - 6) * visibleAreaRatio.y;
+				this._verticalScrollBarHeight < 10 && (this._verticalScrollBarHeight = 10);
+				setStyle(this._verticalScrollBar, {
+					opacity: 0.5,
+					top: unitize(startingY * (measuredHeight - this._verticalScrollBarHeight - 6)),
+					height: unitize(this._verticalScrollBarHeight)
+				});
+				this._isScrollBarActive = true;
+			}
+		},
+
+		_updateScrollBars: function(normalizedScrollPosition) {
+			if (this._isScrollBarActive) {
+				this._horizontalScrollBar && setStyle(this._horizontalScrollBar,"left",unitize(Math.max(0,Math.min(1,normalizedScrollPosition.x)) *
+					(this._measuredWidth - this._horizontalScrollBarWidth - 6)));
+				this._verticalScrollBar && setStyle(this._verticalScrollBar,"top",unitize(Math.max(0,Math.min(1,normalizedScrollPosition.y)) *
+					(this._measuredHeight - this._verticalScrollBarHeight - 6)));
+			}
+		},
+
+		_animateScrollBars: function(normalizedScrollPosition, duration, curve) {
+			var self = this,
+				horizontalScrollBar = self._horizontalScrollBar,
+				verticalScrollBar = self._verticalScrollBar;
+			if (self._isScrollBarActive) {
+				if (horizontalScrollBar) {
+					setStyle(horizontalScrollBar, "transition", "all " + duration + "ms " + curve);
+					on.once(horizontalScrollBar, transitionEnd, function(){
+						setStyle(horizontalScrollBar, "transition", "");
+					});
+				}
+				if (verticalScrollBar) {
+					setStyle(verticalScrollBar, "transition", "all " + duration + "ms " + curve);
+					on.once(verticalScrollBar, transitionEnd, function(){
+						setStyle(verticalScrollBar, "transition", "");
+					});
+				}
+				setTimeout(function() {
+					self._updateScrollBars(normalizedScrollPosition);
+				}, 1);
+			}
+		},
+
+		_endScrollBars: function() {
+			var self = this;
+			setTimeout(function(){
+				if (self._isScrollBarActive) {
+					if (self._horizontalScrollBar) {
+						var horizontalScrollBar = self._horizontalScrollBar;
+						if (horizontalScrollBar) {
+							setStyle(horizontalScrollBar,"transition","all 1s ease-in-out");
+							setTimeout(function(){
+								setStyle(horizontalScrollBar,"opacity",0);
+								self._horizontalScrollBarTimer = setTimeout(function(){
+									self._isScrollBarActive = false;
+									setStyle(horizontalScrollBar,"transition","");
+								},500);
+							},0);
+						}
+					}
+		
+					if (self._verticalScrollBar) {
+						var verticalScrollBar = self._verticalScrollBar;
+						if (verticalScrollBar) {
+							setStyle(verticalScrollBar,"transition","all 1s ease-in-out");
+							setTimeout(function(){
+								setStyle(verticalScrollBar,"opacity",0);
+								self._verticalScrollBarTimer = setTimeout(function(){
+									self._isScrollBarActive = false;
+									setStyle(verticalScrollBar,"transition","");
+								},500);
+							},0);
+						}
+					}
+				}
+			}, 10);
 		}
 	});
 });

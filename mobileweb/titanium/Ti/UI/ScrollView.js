@@ -9,8 +9,6 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 	return declare("Ti.UI.ScrollView", KineticScrollView, {
 
 		constructor: function(args) {
-	
-			// Content must go in a separate container so the scrollbar can exist outside of it
 			var self = this,
 				contentContainer,
 				scrollbarTimeout;
@@ -19,10 +17,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 				height: UI.SIZE,
 				left: 0,
 				top: 0
-			}), "both");
-
-			this._createHorizontalScrollBar();
-			this._createVerticalScrollBar();
+			}), "both", "both");
 
 			// Handle mouse wheel scrolling
 			this.domNode.addEventListener("mousewheel",function(e) {
@@ -64,48 +59,18 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		},
 
 		_handleDragStart: function() {
-			var contentContainer = this._contentContainer,
-				x = -this._currentTranslationX,
-				y = -this._currentTranslationY,
-				width = this._measuredWidth,
-				height = this._measuredHeight,
-				contentWidth = contentContainer._measuredWidth,
-				contentHeight = contentContainer._measuredHeight;
-			this._startScrollBars({
-				x: x / (contentWidth - width),
-				y: y / (contentHeight - height)
-			},
-			{
-				x: width / contentWidth,
-				y: height / contentHeight
-			});
 			this.fireEvent("dragStart",{});
 		},
 
 		_handleDrag: function() {
-			var x = -this._currentTranslationX,
-				y = -this._currentTranslationY,
-				contentContainer = this._contentContainer,
-				width = this._measuredWidth,
-				height = this._measuredHeight,
-				contentWidth = contentContainer._measuredWidth,
-				contentHeight = contentContainer._measuredHeight;
-			this._updateScrollBars({
-				x: x / (contentWidth - width),
-				y: y / (contentHeight - height)
-			},{
-				x: width / contentWidth,
-				y: height / contentHeight
-			});
 			this.fireEvent("scroll",{
-				x: x,
-				y: y,
+				x: -this._currentTranslationX,
+				y: -this._currentTranslationY,
 				dragging: true
 			});
 		},
 
 		_handleDragEnd: function(e, velocityX, velocityY) {
-			this._endScrollBars();
 			if (isDef(velocityX)) {
 				var self = this,
 					velocity = Math.sqrt(velocityX * velocityX + velocityY * velocityY),
@@ -116,23 +81,18 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 					distanceY = distance * Math.sin(theta) * (velocityY < 0 ? -1 : 1),
 					translationX = Math.min(0, Math.max(self._minTranslationX, self._currentTranslationX + distanceX)),
 					translationY = Math.min(0, Math.max(self._currentTranslationY + distanceY));
-				self._isScrollBarActive && self.fireEvent("dragEnd",{
+				self.fireEvent("dragEnd",{
 					decelerate: true
 				});
 				self._animateToPosition(translationX, translationY, duration, "ease-out", function() {
 					self._setTranslation(translationX, translationY);
+					self._endScrollBars();
 				});
 			}
 		},
 
-		_handleDragCancel: function() {
-			this._endScrollBars();
-		},
-
 		scrollTo: function(x, y) {
-			var n = this._contentContainer.domNode;
-			x !== null && (n.scrollLeft = parseInt(x));
-			y !== null && (n.scrollTop = parseInt(y));
+			self._setTranslation(x !== null ? -x : this._currentTranslationX, y !== null ? -y : this._currentTranslationX);
 		},
 
 		_defaultWidth: UI.FILL,
