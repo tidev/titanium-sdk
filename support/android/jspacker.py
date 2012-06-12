@@ -96,7 +96,11 @@ class Crypt(object):
     sys.stdout.flush()
     cmdargs = [titanium_prep, package, asset_dir]
     cmdargs.extend(self.files)
-    so = run.run(cmdargs)
+    so, process = run.run(cmdargs, return_process=True)
+    retcode = process.returncode
+    if retcode != 0:
+      print >> sys.stderr, "[ERROR] Unabled to prepare JavaScript for packaging. Error code %s." % retcode
+      sys.exit(retcode)
 
     output.write(string.Template(JAVA_TEMPLATE).substitute(
       package_name = package,
