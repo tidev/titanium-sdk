@@ -40,7 +40,6 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 					x: e.changedTouches[0].clientX,
 					y: e.changedTouches[0].clientY
 				}
-				this._numMoveEvents = 0;
 				!element._isGestureBlocked(this.name) && lang.hitch(element,element._handleTouchEvent("draggingstart",this._createEvent(e, element)));
 			} else if (this._touchStartLocation) {
 				this._cancelDrag(e, element);
@@ -52,7 +51,7 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 			if (touchStartLocation) {
 				var distance = Math.sqrt(Math.pow(e.changedTouches[0].clientX - touchStartLocation.x, 2) +
 					Math.pow(e.changedTouches[0].clientY - touchStartLocation.y, 2));
-				if (e.touches.length == 0 && e.changedTouches.length == 1 && distance > driftThreshold && this._numMoveEvents > 1) {
+				if (e.touches.length == 0 && e.changedTouches.length == 1 && distance > driftThreshold) {
 					!element._isGestureBlocked(this.name) && lang.hitch(element,element._handleTouchEvent("draggingend",this._createEvent(e, element)));
 					this._touchStartLocation = null;
 				} else {
@@ -65,7 +64,6 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 			if (this._touchStartLocation) {
 				if (e.touches.length == 1 && e.changedTouches.length == 1) {
 					if (!element._isGestureBlocked(this.name)) {
-						this._numMoveEvents++;
 						lang.hitch(element,element._handleTouchEvent("dragging",this._createEvent(e, element)));
 					}
 				} else {

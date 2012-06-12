@@ -81,7 +81,11 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 			on(self, "draggingstart", function(e) {
 				startTranslationX = self._currentTranslationX;
 				startTranslationY = self._currentTranslationY;
-				positionData = [];
+				positionData = [{
+					time: (new Date).getTime(),
+					translationX: startTranslationX,
+					translationY: startTranslationY
+				}];
 				self._handleDragStart && self._handleDragStart(e);
 			});
 
@@ -107,6 +111,11 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 			});
 
 			on(self, "draggingend", function(e) {
+				positionData.push({
+					time: (new Date).getTime(),
+					translationX: startTranslationX + e.distanceX,
+					translationY: startTranslationY + e.distanceY
+				});
 				var velocityX = defaultVelocity,
 					velocityY = defaultVelocity,
 					position1 = self._currentTranslationX,
