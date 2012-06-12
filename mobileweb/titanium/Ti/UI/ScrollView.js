@@ -18,43 +18,13 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 				left: 0,
 				top: 0
 			}), "both", "both");
+		},
 
-			// Handle mouse wheel scrolling
-			this.domNode.addEventListener("mousewheel",function(e) {
-
-				var distanceX = contentContainer._measuredWidth - self._measuredWidth,
-					distanceY = contentContainer._measuredHeight - self._measuredHeight,
-					currentPositionX = -self._currentTranslationX,
-					currentPositionY = -self._currentTranslationY;
-
-				// Start the scrollbar
-				self._startScrollBars({
-					x: currentPositionX / distanceX,
-					y: currentPositionY / distanceY
-				},
-				{
-					x: self._measuredWidth / contentContainer._measuredWidth,
-					y: self._measuredHeight / contentContainer._measuredHeight
-				});
-
-				// Set the scroll position
-				self._setTranslation(Math.min(0, Math.max(self._minTranslationX,-currentPositionX + e.wheelDeltaX)),
-					Math.min(0, Math.max(self._minTranslationY,-currentPositionY + e.wheelDeltaY)));
-
-				// Create the scroll event and immediately update the position
-				self._isScrollBarActive && self.fireEvent("scroll",{
-					x: currentPositionX,
-					y: currentPositionY,
-					dragging: false
-				});
-				self._updateScrollBars({
-					x: currentPositionX / distanceX,
-					y: currentPositionY / distanceY
-				});
-				clearTimeout(scrollbarTimeout);
-				scrollbarTimeout = setTimeout(function(){
-					self._endScrollBars();
-				},500);
+		_handleMouseWheel: function() {
+			self._isScrollBarActive && self.fireEvent("scroll",{
+				x: -self._currentTranslationX,
+				y: -self._currentTranslationY,
+				dragging: false
 			});
 		},
 

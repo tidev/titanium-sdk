@@ -41,40 +41,12 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang","
 			}));
 
 			self.data = [];
+		},
 
-			self.domNode.addEventListener("mousewheel",function(e) {
-
-				var oldY = -self._currentTranslationY,
-					newY = oldY - e.wheelDeltaY,
-					contentHeight = self._contentContainer._measuredHeight,
-					height = self._measuredHeight;
-
-				// Start the scroll bar
-				self._startScrollBars({
-					y: oldY / (contentHeight - height)
-				},
-				{
-					y: height / contentHeight
-				});
-
-				// Immediately update the position
-				self._updateScrollBars({
-					y: newY / (contentHeight - height)
-				},
-				{
-					y: height / contentHeight
-				});
-
-				// Wait a while and then hide the scroll bar
-				clearTimeout(scrollbarTimeout);
-				scrollbarTimeout = setTimeout(function(){
-					self._endScrollBars();
-				},500);
-
-				// Update the position
-				self._setTranslation(self._currentTranslationX, Math.min(0, Math.max(self._minTranslationY, -newY)));
-
-				self._fireScrollEvent({x: self._currentTranslationX, y: self._currentTranslationY});
+		_handleMouseWheel: function() {
+			this._fireScrollEvent({
+				x: -self._currentTranslationX,
+				y: -self._currentTranslationY
 			});
 		},
 
