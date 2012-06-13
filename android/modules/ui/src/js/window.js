@@ -15,6 +15,9 @@ var TAG = "Window";
 exports.bootstrapWindow = function(Titanium) {
 	// flags to indicate if an activity should be created for the window
 	var newActivityRequiredKeys = ["fullscreen", "navBarHidden", "modal", "windowSoftInputMode"];
+	
+	//list of TiBaseWindow event listeners
+	var windowEventListeners = ["open", "close", "focus", "blur"];
 
 	// Backward compatibility for lightweight windows
 	var UI = Titanium.UI;
@@ -186,7 +189,6 @@ exports.bootstrapWindow = function(Titanium) {
 
 	Window.prototype.open = function(options) {
 		var self = this;
-
 		// if the window is not closed, do not open
 		if (this.currentState != this.state.closed) {
 			if (kroll.DBG) {
@@ -476,7 +478,7 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.addEventListener = function(event, listener) {
-		if (["open", "close"].indexOf(event) >= 0 || this.view == null) {
+		if (windowEventListeners.indexOf(event) >= 0 || this.view == null) {
 			EventEmitter.prototype.addEventListener.call(this, event, listener);
 
 		} else {
@@ -485,7 +487,7 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 	
 	Window.prototype.removeEventListener = function(event, listener) {
-		if (["open", "close"].indexOf(event) >= 0 || this.window == null) {
+		if (windowEventListeners.indexOf(event) >= 0 || this.window == null) {
 			EventEmitter.prototype.removeEventListener.call(this, event, listener);
 
 		} else {
@@ -494,7 +496,7 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.fireEvent = function(event, data) {
-		if (["open", "close"].indexOf(event) >= 0 || this.window == null) {
+		if (windowEventListeners.indexOf(event) >= 0 || this.window == null) {
 			EventEmitter.prototype.fireEvent.call(this, event, data);
 
 		} else {
