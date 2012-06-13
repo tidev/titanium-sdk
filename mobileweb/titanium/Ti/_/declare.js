@@ -105,7 +105,7 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 
 			classCounters[dc] || (classCounters[dc] = 0);
 			this.widgetId = dc + ":" + (classCounters[dc]++);
-			this.toString || (this.toString = function() {
+			this.hasOwnProperty("toString") || (this.toString = function() {
 				return "[object " + dc.replace(/\./g, '') + "]";
 			});
 

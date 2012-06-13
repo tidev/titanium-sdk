@@ -241,7 +241,8 @@ class Compiler(object):
 					else:
 						self.modules_to_cache.append(module_name)
 
-					self.tiplus_modules_to_load.append(module['id'])
+					if not is_commonjs:
+						self.tiplus_modules_to_load.append(module['id'])
 					
 					if len(lib):
 						lib = '/' + lib
@@ -337,13 +338,16 @@ class Compiler(object):
 			ti_js.write(codecs.open(os.path.join(self.sdk_src_path, 'instrumentation.js'), 'r', 'utf-8').read())
 		
 		# 3) copy in the loader
-		ti_js.write(codecs.open(os.path.join(self.sdk_src_path, 'loader.js'), 'r', 'utf-8').read())
+		ti_js.write(codecs.open(os.path.join(self.sdk_src_path, 'loader.js'), 'r', 'utf-8').read() + '\n')
 		
 		# 4) cache the dependencies
 		first = True
 		require_cache_written = False
 		module_counter = 0
-		self.modules_to_cache = {} # TEMPORARY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		
+		# uncomment next line to bypass module caching (which is ill advised):
+		# self.modules_to_cache = {}
+		
 		for x in self.modules_to_cache:
 			is_cjs = False
 			if x.startswith('commonjs:'):
@@ -436,7 +440,7 @@ class Compiler(object):
 		# 5) write require() to load all Ti modules
 		self.modules_to_load.sort()
 		self.modules_to_load += self.tiplus_modules_to_load
-		ti_js.write('require(["Ti"], function(blah){console.debug(blah);});'); #\nrequire(%s);' % simplejson.dumps(self.modules_to_load))
+		ti_js.write('require(%s);\n' % simplejson.dumps(self.modules_to_load))
 		
 		# 6) close the titanium.js
 		ti_js.close()

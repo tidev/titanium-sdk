@@ -24,8 +24,6 @@
 	var w, x, y, z,
 
 		// cached useful regexes
-		commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
-		cjsRequireRegExp = /[^.]require\(\s*["']([^'"\s]+)["']\s*\)/g,
 		reservedModuleIdsRegExp = /exports|module/,
 		pluginRegExp = /^(.+?)\!(.*)$/,
 		notModuleRegExp = /\:|^\/\/|\.js$/,
@@ -46,7 +44,7 @@
 		// a base url to be prepended to all urls
 		baseUrl = cfg.baseUrl || "./",
 
-		// a timeout to fetch a remote resource
+		// a timeout to fetch a remote resource, defaults to 2 seconds
 		timeout = cfg.timeout || 2000,
 
 		// CommonJS paths
@@ -64,6 +62,14 @@
 
 		// map of package names to package resource definitions
 		packages = {},
+
+		// module states
+		// default state unloaded = 0
+		requested = 1, // module is being downloaded
+		loaded    = 2, // module is downloaded, but not executing/executed
+		executing = 3, // module is resolving dependencies and being evaluated
+		executed  = 4, // module is fully executed
+		badmodule = 5, // module errored out
 
 		// map of module ids to module resource definitions that are being loaded and processed
 		waiting = {},
@@ -377,7 +383,7 @@
 		_t.deps = deps || [];
 		_t.plugin = null;
 		_t.rawDef = rawDef;
-		_t.loaded = !!rawDef;
+		_t.state = rawDef ? loaded : 0;
 		_t.refModule = refModule;
 
 		if (!match && (notModule || (isRelative && !refModule))) {
@@ -401,10 +407,14 @@
 				if (m) {
 					(p = packages[m]) || pkg === null && refModule && (p = packages[m = refModule.pkg]);
 					if (p) {
+						// module is a package
 						pkg = m;
 						endingSlashRegExp.test(i = p.location) || (i += '/');
-						url += collapsePath(i + (match[2] ? name : p.main));
-					} else if (p = cfg.paths[m]) {
+						m = match[2];
+						url += collapsePath(i + (m ? (isRelative ? m : name) : p.main));
+						m || (name = pkg + '/' + p.main);
+					} else if (p = paths[m]) {
+						// module is a path
 						pkg = '';
 						// currently we only support a single path
 						url = is(p, "Array") ? p[0] : p;
@@ -471,12 +481,25 @@
 			_t = this,
 			name = _t.name,
 			cached = defCache[name],
-			promise = _t._loadPromise = _t._loadPromise || new Promise,
-			timer;
+			promise = _t.promise = (_t.promise || new Promise),
+			timer,
+			parentNode;
 
-		function loaded(rawDef) {
+		function cleanup() {
 			clearTimeout(timer);
-			_t.loaded = 1;
+			if (xhr) {
+				xhr.abort();
+			}
+			if (scriptTag) {
+				scriptTagLoadEvent();
+				scriptTagErrorEvent();
+				parentNode.removeChild(scriptTag);
+			}
+		}
+
+		function onload(rawDef) {
+			cleanup();
+			_t.state = executing;
 
 			// if rawDef is undefined, then we're loading async
 			if (_t.rawDef = rawDef) {
@@ -489,7 +512,7 @@
 						_t.def === null && (_t.rawDef = rawDef);
 					} else {
 						_t.def = rawDef;
-						_t.executed = 1;
+						_t.state = executed;
 					}
 				} else if (is(rawDef, "Function")) {
 					// if rawDef is a function, then it's a cached module definition
@@ -502,78 +525,72 @@
 			processDefQ(_t) || _t.execute();
 		}
 
-		function failed(msg) {
+		function onfail(msg) {
+			cleanup();
 			modules[name] = 0;
 			delete waiting[name];
-			clearTimeout(timer);
-			if (xhr) {
-				xhr.abort();
-			} else {
-				scriptTagLoadEvent();
-				scriptTagErrorEvent();
-				scriptTag.parentNode.removeChild(scriptTag);
-			}
-
+			_t.state = badmodule;
 			promise.reject('Failed to load module "'+ name + '"' + (msg ? ': ' + msg : ''));
 		}
 
 		// if we don't have a url, then I suppose we're loaded
-		if (_t.executed || !_t.url) {
-			_t.loaded = 1;
+		if (_t.state === executed || !_t.url) {
 			_t.execute();
 
-		// if we're already waiting, then we can skip trying to fetch the file again
-		} else if (!waiting[name]) {
+		// if we're not executing and not already waiting, then fetch the module
+		} else if (_t.state !== executing && !waiting[name]) {
 
-			// if we're already loaded or the definition has been cached, then just return now
-			if (_t.loaded || cached) {
+			// if the definition has been cached, no need to load it
+			if (_t.state === loaded || cached) {
 				delete defCache[name];
-				loaded(cached);
-			}
+				onload(cached);
 
-			// mark this module as waiting to be loaded so that anonymous modules can be identified
-			waiting[name] = _t;
-
-			timeout && (timer = setTimeout(function() {
-				failed("request timed out");
-			}, timeout));
-
-			if (_t.sync = sync) {
-				xhr = new XMLHttpRequest;
-				xhr.open("GET", _t.url, false);
-				xhr.send(null);
-
-				if (xhr.status === 200) {
-					loaded(xhr.responseText);
-				} else {
-					failed(xhr.status);
-				}
 			} else {
-				// insert the script tag, attach onload, wait
-				scriptTag = _t.node = doc.createElement("script");
-				scriptTag.type = "text/javascript";
-				scriptTag.charset = "utf-8";
-				scriptTag.async = true;
+				// mark this module as waiting to be loaded so that anonymous modules can be identified
+				waiting[name] = _t;
+				_t.state = requested;
 
-				scriptTagLoadEvent = on(scriptTag, "load", function onScriptTagLoad(e) {
-					e = e || global.event;
-					var node = e.target || e.srcElement;
-					if (e.type === "load" || /complete|loaded/.test(node.readyState)) {
-						scriptTagLoadEvent();
-						scriptTagErrorEvent();
-						loaded();
+				timeout && (timer = setTimeout(function() {
+					onfail("request timed out");
+				}, timeout));
+
+				if (_t.sync = sync) {
+					xhr = new XMLHttpRequest;
+					xhr.open("GET", _t.url, false);
+					xhr.send(null);
+
+					if (xhr.status === 200) {
+						onload(xhr.responseText);
+					} else {
+						onfail(xhr.status);
 					}
-				});
+				} else {
+					// insert the script tag, attach onload, wait
+					scriptTag = _t.node = doc.createElement("script");
+					scriptTag.type = "text/javascript";
+					scriptTag.charset = "utf-8";
+					scriptTag.async = true;
 
-				scriptTagErrorEvent = on(scriptTag, "error", function() {
-					failed();
-				});
+					scriptTagLoadEvent = on(scriptTag, "load", function onScriptTagLoad(e) {
+						e = e || global.event;
+						var node = e.target || e.srcElement;
+						if (e.type === "load" || /complete|loaded/.test(node.readyState)) {
+							scriptTagLoadEvent();
+							scriptTagErrorEvent();
+							onload();
+						}
+					});
 
-				// set the source url last
-				scriptTag.src = _t.url;
+					scriptTagErrorEvent = on(scriptTag, "error", function() {
+						onfail();
+					});
 
-				s = doc.getElementsByTagName("script")[0];
-				s.parentNode.insertBefore(scriptTag, s);
+					// set the source url last
+					scriptTag.src = _t.url;
+
+					parentNode = doc.getElementsByTagName("script")[0].parentNode;
+					parentNode.insertBefore(scriptTag, s);
+				}
 			}
 		}
 
@@ -585,10 +602,10 @@
 		//		Executes the resource's rawDef which defines the module.
 
 		var _t = this,
-			promise = _t._loadPromise,
+			promise = _t.promise = (_t.promise || new Promise),
 			resolve = promise.resolve;
 
-		if (_t.executed) {
+		if (_t.state === executed) {
 			resolve.call(promise, _t);
 			return;
 		}
@@ -601,7 +618,9 @@
 				q = defQ.slice(0); // backup the defQ
 
 			function finish() {
-				_t.executed = 1;
+				_t.state = executed;
+				delete _t.deps;
+				delete _t.rawDef;
 				resolve.call(promise, _t);
 			}
 
@@ -625,15 +644,13 @@
 					)
 				|| _t.cjs.module.exports || _t.cjs.exports;
 
-			// we might have just executed code above that could have caused a couple
-			// define()'s to queue up
+			// we might have just executed code above that could have caused a couple define()'s to queue up
 			processDefQ(_t);
 
 			// restore the defQ
 			defQ = q;
 
-			// if plugin is not null, then it's the index in the deps array of the plugin
-			// to invoke
+			// if plugin is not null, then it's the index in the deps array of the plugin to invoke
 			if (_t.plugin !== null) {
 				p = arguments[_t.plugin];
 
@@ -655,17 +672,6 @@
 		}, _t.refModule, _t.sync);
 	};
 
-	/**
-	 * Describe the global function.
-	 * @function getResourceDef(3)
-	 * @param {string} name - The name of the module
-	 * @param {object} refModule - ?
-	 * @param {array<string>} deps - ?
-	 * @param {function} rawDef - ?
-	 * @param {boolean} dontCache - ?
-	 * @param {boolean} overrideCache - ?
-	 * @returns {ResourceDef}
-	 */
 	function getResourceDef(name, refModule, deps, rawDef, dontCache, overrideCache) {
 		// summary:
 		//		Creates a new resource definition or returns an existing one from cache.
@@ -675,11 +681,11 @@
 
 		if (refModule && refModule.cjs && name in refModule.cjs) {
 			module.def = refModule.cjs[name];
-			module.loaded = module.executed = 1;
-			return module;
+			module.state = executed;
+			dontCache = 1;
 		}
 
-		return dontCache || !moduleName ? module : (!modules[moduleName] || !modules[moduleName].executed || overrideCache ? (modules[moduleName] = module) : modules[moduleName]);
+		return dontCache || !moduleName ? module : (!modules[moduleName] || !modules[moduleName].state || overrideCache ? (modules[moduleName] = module) : modules[moduleName]);
 	}
 
 	function processDefQ(module) {
@@ -864,16 +870,6 @@
 			throw new Error('Not allowed to define reserved module id "' + name + '"');
 		}
 
-		if (is(rawDef, "Function") && arguments.length === 1) {
-			// treat rawDef as CommonJS definition and scan for any requires and add
-			// them to the dependencies so that they can be loaded and passed in.
-			rawDef.toString()
-				.replace(commentRegExp, '')
-				.replace(cjsRequireRegExp, function(match, dep) {
-					deps.push(dep);
-				});
-		}
-
 		module = getResourceDef(name, 0, deps, rawDef, 0, 1);
 
 		// if not waiting for this module to be loaded, then the define() call was
@@ -978,8 +974,7 @@
 		for (l = counter = deps.length; i < l;) {
 			(function requireDepClosure(j) {
 				function finish(m) {
-					var e = m instanceof Error;
-					deps[j] = e && ++errorCount ? void 0 : m.def;
+					deps[j] = m instanceof Error && ++errorCount ? void 0 : m.def;
 					if (--counter === 0) {
 						errorCount ? promise.reject(m) : promise.resolve.apply(promise, deps);
 						counter = -1; // prevent success from being called the 2nd time below
@@ -990,7 +985,6 @@
 			}(i++));
 		}
 
-		// TODO: Should we check for errors and call reject? Are errors even possible if counter is zero?
 		counter === 0 && promise.resolve.apply(promise, deps);
 
 		return s ? deps[0] : promise;
