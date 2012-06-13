@@ -1017,7 +1017,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 -(BOOL)optimizeSubviewInsertion
 {
     //Return YES for any view that implements a wrapperView that is a TiUIView (Button and ScrollView currently) and a basic view
-    return ( (view != nil) && ([view isMemberOfClass:[TiUIView class]]) ) ;
+    return ( [view isMemberOfClass:[TiUIView class]] ) ;
 }
 
 -(BOOL)suppressesRelayout
