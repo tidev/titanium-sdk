@@ -479,6 +479,7 @@
 		var s,
 			xhr,
 			scriptTag,
+			scriptTagParent,
 			scriptTagLoadEvent,
 			scriptTagErrorEvent,
 			doc = global.document,
@@ -486,8 +487,7 @@
 			name = _t.name,
 			cached = defCache[name],
 			promise = _t.promise = (_t.promise || new Promise),
-			timer,
-			parentNode;
+			timer;
 
 		function cleanup() {
 			clearTimeout(timer);
@@ -497,7 +497,7 @@
 			if (scriptTag) {
 				scriptTagLoadEvent();
 				scriptTagErrorEvent();
-				parentNode.removeChild(scriptTag);
+				scriptTagParent.removeChild(scriptTag);
 			}
 		}
 
@@ -592,8 +592,8 @@
 					// set the source url last
 					scriptTag.src = _t.url;
 
-					parentNode = doc.getElementsByTagName("script")[0].parentNode;
-					parentNode.insertBefore(scriptTag, s);
+					scriptTagParent = doc.getElementsByTagName("script")[0].parentNode;
+					scriptTagParent.insertBefore(scriptTag, s);
 				}
 			}
 		}
