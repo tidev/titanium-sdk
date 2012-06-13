@@ -415,7 +415,7 @@
 						pkg = m;
 						endingSlashRegExp.test(i = p.location) || (i += '/');
 						m = match[2];
-						url += collapsePath(i + (m ? (isRelative ? m : name) : p.main));
+						url += collapsePath(i + (m ? (p.root ? m : name) : p.main));
 						m || (name = pkg + '/' + p.main);
 					} else if (p = paths[m]) {
 						// module is a path

@@ -250,7 +250,8 @@ class Compiler(object):
 					self.packages.append({
 						'name': module['id'],
 						'location': './' + self.compact_path('modules/' + module['id'] + lib),
-						'main': main_file
+						'main': main_file,
+						'root': 1
 					})
 					
 					# TODO: need to combine ALL Ti+ module .js files into the titanium.js, not just the main file
