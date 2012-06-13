@@ -140,20 +140,20 @@
 
 -(void)boot:(BOOL)timeout args:args
 {
-	RELEASE_TO_NIL(latch);
-	contextReady = YES;
+    RELEASE_TO_NIL(latch);
+    contextReady = YES;
 
-	if (navWindow) 
-	{
-		[self prepareForNavView:[self navController]];
-	}
-	else 
-	{
-		if (timeout && ![context evaluationError])
-		{
-			[self open:args];
-		}
-	}
+    if (navWindow) {
+        [self prepareForNavView:[self navController]];
+        if (timeout) {
+            [self windowDidOpen];
+        }
+    }
+    else {
+        if (timeout && ![context evaluationError]) {
+            [self open:args];
+        }
+    }
 }
 
 -(NSMutableDictionary*)langConversionTable
@@ -162,6 +162,21 @@
 }
 
 #pragma mark Public
+
+-(void)windowDidOpen
+{
+    if (context != nil) {
+        if (contextReady) {
+            [super windowDidOpen];
+        }
+        else {
+            VerboseLog(@"Ignoring windowDidOpen since context is not ready");
+        }
+    }
+    else {
+        [super windowDidOpen];
+    }
+}
 
 -(BOOL)_handleOpen:(id)args
 {
