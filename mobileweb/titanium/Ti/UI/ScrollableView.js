@@ -65,6 +65,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 			var currentPage = this.currentPage;
 			if (~currentPage) {
 				this._showView(currentPage - 1);
+				this._showView(currentPage);
 				this._showView(currentPage + 1);
 				this.fireEvent("dragStart");
 			}
@@ -86,6 +87,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 			var currentPage = this.currentPage;
 			if (~currentPage) {
 				this._hideView(currentPage - 1);
+				this._showView(currentPage);
 				this._hideView(currentPage + 1);
 			}
 		},
@@ -125,11 +127,13 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 
 				// Animate the view. Note: the 1.724 constance was calculated, not estimated. It is NOT for tweaking.
 				// If tweaking is needed, tweak the velocity algorithm in KineticScrollView.
-				self._animateToPosition(destinationPosition, 0, Math.abs(1.724 * (destinationPosition - self._currentTranslationX) / velocityX), "ease-out", function(){
+				self._animateToPosition(destinationPosition, 0, Math.abs(1.724 * 
+						(destinationPosition - self._currentTranslationX) / velocityX), "ease-out", function(){
 					destinationIndex !== currentPage - 1 && self._hideView(currentPage - 1);
 					destinationIndex !== currentPage && self._hideView(currentPage);
 					destinationIndex !== currentPage + 1 && self._hideView(currentPage + 1);
 					self.properties.__values__.currentPage = destinationIndex;
+					self._showView(destinationIndex);
 					setTimeout(function(){
 						self.fireEvent("scrollEnd",{
 							currentPage: destinationIndex,
