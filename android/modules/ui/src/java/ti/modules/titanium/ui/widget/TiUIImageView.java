@@ -806,15 +806,27 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	public void processProperties(KrollDict d)
 	{
 		TiImageView view = getView();
+		View parentView = getParentView();
+
 		if (view == null) {
 			return;
 		}
 
 		if (d.containsKey(TiC.PROPERTY_WIDTH)) {
-			requestedWidth = TiConvert.toTiDimension(d, TiC.PROPERTY_WIDTH, TiDimension.TYPE_WIDTH);
+			if (TiC.LAYOUT_FILL.equals(d.getString(TiC.PROPERTY_WIDTH)) && parentView != null) {
+				// Use the parent's width when it's fill
+				requestedWidth = TiConvert.toTiDimension(parentView.getMeasuredWidth(), TiDimension.TYPE_WIDTH);
+			} else {
+				requestedWidth = TiConvert.toTiDimension(d, TiC.PROPERTY_WIDTH, TiDimension.TYPE_WIDTH);
+			}
 		}
 		if (d.containsKey(TiC.PROPERTY_HEIGHT)) {
-			requestedHeight = TiConvert.toTiDimension(d, TiC.PROPERTY_HEIGHT, TiDimension.TYPE_HEIGHT);
+			// Use the parent's height when it's fill
+			if (TiC.LAYOUT_FILL.equals(d.getString(TiC.PROPERTY_HEIGHT)) && parentView != null) {
+				requestedHeight = TiConvert.toTiDimension(parentView.getMeasuredHeight(), TiDimension.TYPE_HEIGHT);
+			} else {
+				requestedHeight = TiConvert.toTiDimension(d, TiC.PROPERTY_HEIGHT, TiDimension.TYPE_HEIGHT);
+			}
 		}
 
 		if (d.containsKey(TiC.PROPERTY_IMAGES)) {
