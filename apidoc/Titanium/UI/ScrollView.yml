@@ -86,7 +86,7 @@ events:
       - name: decelerating
         summary: Indicates whether the scroll is decelerating.
         type: Boolean
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, mobileweb]
 
       - name: dragging
         summary: |
@@ -110,6 +110,11 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+
+  - name: scrollEnd
+    summary: Fired when the view has stopped moving completely.
+    platforms: [mobileweb]
+    since: "2.1.0"
 
   - name: dragStart
     summary: Fired when the scrollable region starts being dragged.
