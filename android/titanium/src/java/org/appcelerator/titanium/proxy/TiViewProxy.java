@@ -247,9 +247,12 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 					if (v != null) {
 						TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
 						TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
+
+						// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
+						View decorView = TiApplication.getAppCurrentActivity().getWindow().getDecorView();
 						
-						d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(parent.get().peekView().getNativeView()));
-						d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(parent.get().peekView().getNativeView()));
+						d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
+						d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
 					}
 				}
 				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
@@ -272,10 +275,13 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 						TiDimension nativeLeft = new TiDimension(v.getLeft(), TiDimension.TYPE_LEFT);
 						TiDimension nativeRight = new TiDimension(v.getRight(), TiDimension.TYPE_RIGHT);
 						
-						d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(parent.get().peekView().getNativeView()));
-						d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(parent.get().peekView().getNativeView()));
-						d.put(TiC.PROPERTY_X, nativeLeft.getAsDefault(parent.get().peekView().getNativeView()));
-						d.put(TiC.PROPERTY_Y, nativeRight.getAsDefault(parent.get().peekView().getNativeView()));
+						// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
+						View decorView = TiApplication.getAppCurrentActivity().getWindow().getDecorView();
+						
+						d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
+						d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
+						d.put(TiC.PROPERTY_X, nativeLeft.getAsDefault(decorView));
+						d.put(TiC.PROPERTY_Y, nativeRight.getAsDefault(decorView));
 					}
 				}
 				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
