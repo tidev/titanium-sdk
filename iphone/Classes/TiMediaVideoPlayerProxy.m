@@ -181,6 +181,7 @@ NSArray* moviePlayerKeys = nil;
 			return nil;
 		}
 		movie = [[MPMoviePlayerController alloc] initWithContentURL:url];
+        [movie prepareToPlay];
 		[self configurePlayer];
 	}
 	[playerLock unlock];
