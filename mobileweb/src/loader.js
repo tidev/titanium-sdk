@@ -467,7 +467,7 @@
 		};
 	}
 
-	ResourceDef.prototype.loadThenExecute = function loadThenExecute(sync) {
+	ResourceDef.prototype.load = function load(sync) {
 		// summary:
 		//		Retreives a remote script and inject it either by XHR (sync) or attaching
 		//		a script tag to the DOM (async). Once the resource is loaded, it will be
@@ -985,7 +985,7 @@
 					}
 				}
 
-				deps[j] && getResourceDef(deps[j], refModule).loadThenExecute(sync).then(finish, finish);
+				deps[j] && getResourceDef(deps[j], refModule).load(sync).then(finish, finish);
 			}(i++));
 		}
 
