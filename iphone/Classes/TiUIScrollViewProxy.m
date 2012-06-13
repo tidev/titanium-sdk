@@ -188,6 +188,7 @@
         }
         else if (TiDimensionIsAutoSize(constraint))
         {
+			// allow child to take as much horizontal space as scroll view width
             bounds.size.width = [child autoWidthForSize:CGSizeMake(bounds.size.width,bounds.size.height - offset2)] + offset;
             horizontalLayoutBoundary += bounds.size.width;
         }
@@ -200,7 +201,8 @@
             }
             else {
                 //SIZE behavior
-                bounds.size.width = [child autoWidthForSize:CGSizeMake(boundingValue,bounds.size.height - offset2)] + offset;
+				// allow child to take as much horizontal space as scroll view width
+                bounds.size.width = [child autoWidthForSize:CGSizeMake(bounds.size.width,bounds.size.height - offset2)] + offset;
                 horizontalLayoutBoundary += bounds.size.width;
             }
         }
@@ -227,7 +229,8 @@
             }
             else {
                 //SIZE behavior
-                bounds.size.width = [child autoWidthForSize:CGSizeMake(boundingValue,bounds.size.height - offset2)] + offset;
+				// allow child to take as much horizontal space as scroll view width
+                bounds.size.width = [child autoWidthForSize:CGSizeMake(bounds.size.width,bounds.size.height - offset2)] + offset;
                 horizontalLayoutBoundary += bounds.size.width;
             }
         }
