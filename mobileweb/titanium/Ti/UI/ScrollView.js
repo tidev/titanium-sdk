@@ -107,7 +107,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 				get: function(value) {
 					return {
 						x: -this._currentTranslationX,
-						y: -this._currentTranslationX
+						y: -this._currentTranslationY
 					};
 				},
 				set: function(value) {
