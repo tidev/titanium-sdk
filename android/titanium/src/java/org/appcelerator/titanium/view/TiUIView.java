@@ -570,7 +570,7 @@ public abstract class TiUIView
 		if (hasImage(d) || hasColorState(d) || hasGradient(d)) {
 			handleBackgroundImage(d);
 
-		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
+		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) && !nativeViewNull) {
 			bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
 
 			// Set the background color on the view directly only
@@ -582,7 +582,7 @@ public abstract class TiUIView
 				}
 				background.setBackgroundColor(bgColor);
 
-			} else if(!nativeViewNull) {
+			} else {
 				nativeView.setBackgroundColor(bgColor);
 			}
 		}
