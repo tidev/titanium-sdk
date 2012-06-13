@@ -18,6 +18,10 @@ description: |
     including a title, an optional subtitle, and one or more images.
     
     #### Android Platform Notes
+
+    Android supports only a **single** map view per application. This limitation is
+    imposed by Android, not by Titanium. Attempting to add a second map view results in
+    an exception being thrown.
     
     For Android, you must obtain an Android Maps API key from Google before using maps in a production
     application. You can sign up for the Maps API key on the Google Code web site:
