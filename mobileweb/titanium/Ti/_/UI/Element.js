@@ -501,9 +501,9 @@ define(
 				}
 			}
 
-			require.each(require.config.vendorPrefixes.css, lang.hitch(this,function(vendorPrefix) {
+			require.config.vendorPrefixes.css.forEach(function(vendorPrefix) {
 				setStyle(this.domNode, "backgroundImage", vendorPrefix + cssVal + ")");
-			}));
+			}, this);
 		},
 
 		_preventDefaultTouchEvent: true,

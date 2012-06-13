@@ -122,6 +122,8 @@ methods:
     
   - name: setTimeout
     summary: Sets the request timeout.
+    description: |
+        On Mobile Web, the timeout only works when making asynchronous requests.
     parameters:
       - name: timeout
         summary: Timeout in milliseconds.
@@ -314,6 +316,8 @@ properties:
     
   - name: timeout
     summary: Timeout in milliseconds when the connection should be aborted.
+    description: |
+        On Mobile Web, the timeout only works when making asynchronous requests.
     type: Number
     
   - name: validatesSecureCertificate
