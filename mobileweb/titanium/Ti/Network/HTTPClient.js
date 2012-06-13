@@ -1,9 +1,8 @@
-define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network", "Ti/Blob", "Ti/_/event"],
-	function(_, declare, lang, Evented, Network, Blob, event) {
+define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Network", "Ti/Blob", "Ti/_/event"],
+	function(_, declare, has, lang, Evented, Network, Blob, event) {
 
 	var is = require.is,
-		on = require.on,
-		has = require.has;
+		on = require.on;
 
 	return declare("Ti.Network.HTTPClient", Evented, {
 
