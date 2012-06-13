@@ -65,11 +65,11 @@
 
 		// module states
 		// default state unloaded = 0
-		requested = 1, // module is being downloaded
-		loaded    = 2, // module is downloaded, but not executing/executed
-		executing = 3, // module is resolving dependencies and being evaluated
-		executed  = 4, // module is fully executed
-		badmodule = 5, // module errored out
+		REQUESTED = 1, // module is being downloaded
+		LOADED    = 2, // module is downloaded, but not executing/executed
+		EXECUTING = 3, // module is resolving dependencies and being evaluated
+		EXECUTED  = 4, // module is fully executed
+		BADMODULE = 5, // module errored out
 
 		// map of module ids to module resource definitions that are being loaded and processed
 		waiting = {},
@@ -383,7 +383,7 @@
 		_t.deps = deps || [];
 		_t.plugin = null;
 		_t.rawDef = rawDef;
-		_t.state = rawDef ? loaded : 0;
+		_t.state = rawDef ? LOADED : 0;
 		_t.refModule = refModule;
 
 		if (!match && (notModule || (isRelative && !refModule))) {
@@ -503,7 +503,7 @@
 
 		function onload(rawDef) {
 			cleanup();
-			_t.state = executing;
+			_t.state = EXECUTING;
 
 			// if rawDef is undefined, then we're loading async
 			if (_t.rawDef = rawDef) {
@@ -516,7 +516,7 @@
 						_t.def === null && (_t.rawDef = rawDef);
 					} else {
 						_t.def = rawDef;
-						_t.state = executed;
+						_t.state = EXECUTED;
 					}
 				} else if (is(rawDef, "Function")) {
 					// if rawDef is a function, then it's a cached module definition
@@ -533,26 +533,26 @@
 			cleanup();
 			modules[name] = 0;
 			delete waiting[name];
-			_t.state = badmodule;
+			_t.state = BADMODULE;
 			promise.reject('Failed to load module "'+ name + '"' + (msg ? ': ' + msg : ''));
 		}
 
 		// if we don't have a url, then I suppose we're loaded
-		if (_t.state === executed || !_t.url) {
+		if (_t.state === EXECUTED || !_t.url) {
 			_t.execute();
 
 		// if we're not executing and not already waiting, then fetch the module
-		} else if (_t.state !== executing && !waiting[name]) {
+		} else if (_t.state !== EXECUTING && !waiting[name]) {
 
 			// if the definition has been cached, no need to load it
-			if (_t.state === loaded || cached) {
+			if (_t.state === LOADED || cached) {
 				delete defCache[name];
 				onload(cached);
 
 			} else {
 				// mark this module as waiting to be loaded so that anonymous modules can be identified
 				waiting[name] = _t;
-				_t.state = requested;
+				_t.state = REQUESTED;
 
 				timeout && (timer = setTimeout(function() {
 					onfail("request timed out");
@@ -609,7 +609,7 @@
 			promise = _t.promise = (_t.promise || new Promise),
 			resolve = promise.resolve;
 
-		if (_t.state === executed) {
+		if (_t.state === EXECUTED) {
 			resolve.call(promise, _t);
 			return;
 		}
@@ -622,7 +622,7 @@
 				q = defQ.slice(0); // backup the defQ
 
 			function finish() {
-				_t.state = executed;
+				_t.state = EXECUTED;
 				delete _t.deps;
 				delete _t.rawDef;
 				resolve.call(promise, _t);
@@ -685,7 +685,7 @@
 
 		if (refModule && refModule.cjs && name in refModule.cjs) {
 			module.def = refModule.cjs[name];
-			module.state = executed;
+			module.state = EXECUTED;
 			dontCache = 1;
 		}
 
