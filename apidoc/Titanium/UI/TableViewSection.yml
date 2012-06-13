@@ -32,6 +32,21 @@ extends: Titanium.Proxy
 since: "0.9"
 
 methods:
+
+  - name: add
+    summary: Adds a table view row to this section.
+    parameters:
+      - name: row
+        summary: Row to add.
+        type: Titanium.UI.TableViewRow
+
+  - name: remove
+    summary: Removes a table view row from this section.
+    parameters:
+      - name: row
+        summary: Row to remove.
+        type: Titanium.UI.TableViewRow
+
   - name: rowAtIndex
     summary: Returns a row in this section.
     platforms: [android]
