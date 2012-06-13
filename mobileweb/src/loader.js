@@ -405,7 +405,11 @@
 				m = match && match[1];
 
 				if (m) {
-					(p = packages[m]) || pkg === null && refModule && (p = packages[m = refModule.pkg]);
+					p = packages[m];
+					if (!p && pkg === null && refModule) {
+						p = packages[m = refModule.pkg];
+						isRelative || (match[2] = name);
+					}
 					if (p) {
 						// module is a package
 						pkg = m;
