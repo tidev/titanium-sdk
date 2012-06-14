@@ -85,8 +85,9 @@ public class ActivityWindowProxy extends TiWindowProxy
 				}
 
 				opened = true;
+				fireEvent("finishOpen", null);
 				handlePostOpen();
-
+				
 				return true;
 			}
 			default : {

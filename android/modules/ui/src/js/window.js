@@ -253,6 +253,9 @@ exports.bootstrapWindow = function(Titanium) {
 				self.addChildren();
 				
 				self.postOpen();
+			});
+			
+			this.window.on("finishOpen", function() {
 				self.fireEvent("open");
 			});
 			
