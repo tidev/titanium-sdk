@@ -329,12 +329,17 @@
 
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView_ withView:(UIView *)view atScale:(float)scale 
 {
+	// scale between minimum and maximum. called after any 'bounce' animations
+	[(id<UIScrollViewDelegate>)[self proxy] scrollViewDidEndZooming:scrollView withView:(UIView*)view atScale:scale];
+}
+
+- (void)scrollViewDidZoom:(UIScrollView *)scrollView_
+{
 	CGSize boundsSize = scrollView.bounds.size;
     CGRect frameToCenter = wrapperView.frame;
 	if (TiDimensionIsAuto(contentWidth)) {
 		if (frameToCenter.size.width < boundsSize.width) {
 			frameToCenter.origin.x = (boundsSize.width - frameToCenter.size.width) / 2;
-			scrollView.contentOffset = CGPointZero;
 		} else {
 			frameToCenter.origin.x = 0;
 		}
@@ -342,15 +347,11 @@
 	if (TiDimensionIsAuto(contentHeight)) {
 		if (frameToCenter.size.height < boundsSize.height) {
 			frameToCenter.origin.y = (boundsSize.height - frameToCenter.size.height) / 2;
-			scrollView.contentOffset = CGPointZero;
 		} else {
 			frameToCenter.origin.y = 0;
 		}
 	}
-    wrapperView.frame = frameToCenter;
-	
-	// scale between minimum and maximum. called after any 'bounce' animations
-	[(id<UIScrollViewDelegate>)[self proxy] scrollViewDidEndZooming:scrollView withView:(UIView*)view atScale:scale];
+    wrapperView.frame = frameToCenter;	
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView_  
