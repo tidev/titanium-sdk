@@ -18,7 +18,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 		velocityThreshold = 0.4,
 
 		// This determines the minimum distance scale (i.e. width divided by this value) before a flick requests a page turn
-		minimumFlickDistanceScaleFactor = 20,
+		minimumFlickDistanceScaleFactor = 200,
 
 		// This determines the minimum distance scale (i.e. width divided by this value) before a drag requests a page turn
 		minimumDragDistanceScaleFactor = 2;
@@ -268,7 +268,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 			if (self._contentContainer.domNode.offsetWidth) {
 				scroll();
 			} else {
-				once("postlayout", scroll);
+				once(self, "postlayout", scroll);
 			}
 		},
 
@@ -318,9 +318,6 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 		_defaultHeight: UI.FILL,
 
 		properties: {
-			clipViews: {
-				
-			},
 			currentPage: {
 				set: function(value, oldValue) {
 					if (value >= 0 && value < this.views.length) {

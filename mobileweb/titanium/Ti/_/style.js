@@ -26,19 +26,6 @@ define(["Ti/_", "Ti/_/string", "Ti/Filesystem"], function(_, string, Filesystem)
 		return node;
 	}
 
-	function get(node, name) {
-		var i = 0,
-			x,
-			uc;
-		while (i < vp.length) {
-			x = vp[i++];
-			x += x ? uc || (uc = string.capitalize(name)) : name;
-			if (x in node.style) {
-				return node.style[x];
-			}
-		}
-	}
-
 	return {
 		url: function(/*String|Blob*/url) {
 			if (url && url.declaredClass === "Ti.Blob") {
@@ -55,7 +42,18 @@ define(["Ti/_", "Ti/_/string", "Ti/Filesystem"], function(_, string, Filesystem)
 						: "url(" + (require.cache(url) || _.getAbsolutePath(url)) + ")";
 		},
 
-		get: get,
+		get: function get(node, name) {
+			var i = 0,
+				x,
+				uc;
+			while (i < vp.length) {
+				x = vp[i++];
+				x += x ? uc || (uc = string.capitalize(name)) : name;
+				if (x in node.style) {
+					return node.style[x];
+				}
+			}
+		},
 
 		set: set,
 		

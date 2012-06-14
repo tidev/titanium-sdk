@@ -7,7 +7,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang","
 		regexpClickTap = /^(click|singletap)$/,
 
 		// The amount of deceleration (in pixels/ms^2)
-		deceleration = 0.00175;
+		deceleration = 0.001;
 
 	return declare("Ti.UI.TableView", KineticScrollView, {
 

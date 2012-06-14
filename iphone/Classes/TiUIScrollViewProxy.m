@@ -199,7 +199,8 @@ static NSArray* scrollViewKeySequence;
         }
         else if (TiDimensionIsAutoSize(constraint))
         {
-            bounds.size.width = [child autoWidthForSize:CGSizeMake(boundingValue,bounds.size.height - offset2)] + offset;
+			// allow child to take as much horizontal space as scroll view width
+            bounds.size.width = [child autoWidthForSize:CGSizeMake(bounds.size.width,bounds.size.height - offset2)] + offset;
             horizontalLayoutBoundary += bounds.size.width;
         }
         else if (TiDimensionIsAuto(constraint) )
@@ -211,7 +212,8 @@ static NSArray* scrollViewKeySequence;
             }
             else {
                 //SIZE behavior
-                bounds.size.width = [child autoWidthForSize:CGSizeMake(boundingValue,bounds.size.height - offset2)] + offset;
+				// allow child to take as much horizontal space as scroll view width
+                bounds.size.width = [child autoWidthForSize:CGSizeMake(bounds.size.width,bounds.size.height - offset2)] + offset;
                 horizontalLayoutBoundary += bounds.size.width;
             }
         }
@@ -238,7 +240,8 @@ static NSArray* scrollViewKeySequence;
             }
             else {
                 //SIZE behavior
-                bounds.size.width = [child autoWidthForSize:CGSizeMake(boundingValue,bounds.size.height - offset2)] + offset;
+				// allow child to take as much horizontal space as scroll view width
+                bounds.size.width = [child autoWidthForSize:CGSizeMake(bounds.size.width,bounds.size.height - offset2)] + offset;
                 horizontalLayoutBoundary += bounds.size.width;
             }
         }
@@ -254,6 +257,11 @@ static NSArray* scrollViewKeySequence;
 {
 	[super childWillResize:child];
 	[(TiUIScrollView *)[self view] setNeedsHandleContentSizeIfAutosizing];
+}
+
+-(BOOL)optimizeSubviewInsertion
+{
+    return YES;
 }
 
 -(UIView *)parentViewForChild:(TiViewProxy *)child
