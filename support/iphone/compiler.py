@@ -435,6 +435,10 @@ class Compiler(object):
 		cmdargs.extend(js_files)
 		module_assets = run.run(cmdargs)
 
+		# Clean up the generated assets
+		for file in js_files:
+			os.remove(os.path.join(self.assets_dir, file))
+
 		return (root_asset, module_assets)
 
 	def load_metadata(self, file):
