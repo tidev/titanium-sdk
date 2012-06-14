@@ -128,6 +128,7 @@ public class TiCompass
 			}
 		}
 
+		updateDeclination();
 		if (geomagneticField != null) {
 			float trueHeading = (x + geomagneticField.getDeclination() + 360) % 360;
 
@@ -142,17 +143,17 @@ public class TiCompass
 	private void updateDeclination()
 	{
 		long currentTime = System.currentTimeMillis();
-        long freshLocationTime = currentTime - STALE_LOCATION_THRESHOLD;
+		long freshLocationTime = currentTime - STALE_LOCATION_THRESHOLD;
 
 		if (currentTime - lastDeclinationCheck > DECLINATION_CHECK_INTERVAL) {
-            if (geomagneticFieldLocation != null && geomagneticFieldLocation.getTime() < freshLocationTime) {
-                geomagneticFieldLocation = null;
-                geomagneticField = null;
-            }
+			if (geomagneticFieldLocation != null && geomagneticFieldLocation.getTime() < freshLocationTime) {
+				geomagneticFieldLocation = null;
+				geomagneticField = null;
+			}
 			String provider = tiLocation.locationManager.getBestProvider(locationCriteria, true);
 			if (provider != null) {
 				Location location = tiLocation.locationManager.getLastKnownLocation(provider);
-				if (location != null && location.getTime() >= freshLocationTime) {
+				if (location != null && (location.getTime() >= freshLocationTime)) {
 					if (geomagneticFieldLocation == null || location.getTime() > geomagneticFieldLocation.getTime()) {
 						geomagneticField = new GeomagneticField((float)location.getLatitude(), (float)location.getLongitude(), (float)(location.getAltitude()), currentTime);
 						geomagneticFieldLocation = location;
