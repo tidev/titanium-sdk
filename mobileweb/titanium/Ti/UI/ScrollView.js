@@ -4,7 +4,7 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 	var isDef = lang.isDef,
 
 		// The amount of deceleration (in pixels/ms^2)
-		deceleration = 0.00175;
+		deceleration = 0.001;
 
 	return declare("Ti.UI.ScrollView", KineticScrollView, {
 
@@ -126,6 +126,15 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 					return value;
 				}
 			},
+			
+			disableBounce: false,
+			
+			horizontalBounce: {
+				set: function(value) {
+					return this._horizontalElastic = value;
+				},
+				value: true
+			},
 
 			showHorizontalScrollIndicator: {
 				set: function(value, oldValue) {
@@ -151,6 +160,13 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 						}
 					}
 					return value;
+				},
+				value: true
+			},
+			
+			verticalBounce: {
+				set: function(value) {
+					return this._verticalElastic = value;
 				},
 				value: true
 			}

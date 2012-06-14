@@ -32,7 +32,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 		defaultVelocity = 0.5,
 
 		// This is the limit that elastic drags will go towards (i.e. limit as x->infinity = elasticityLimit)
-		elasticityLimit = 25,
+		elasticityLimit = 100,
 
 		// Controls the friction curve for elastic dragging. The higher the value, the sooner drag starts to kick in.
 		elasticityDrag = 30;
@@ -251,10 +251,13 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 			function elastize(value) {
 				return elasticityLimit * (-1 / (value / elasticityDrag + 1) + 1);
 			}
-			var minTranslationX = this._minTranslationX,
+			var contentContainer = this._contentContainer,
+				minTranslationX = this._minTranslationX,
 				minTranslationY = this._minTranslationY,
-				horizontalElastic = this._horizontalElastic,
-				verticalElastic = this._verticalElastic;
+				horizontalElastic = this._horizontalElastic && !this.disableBounce && 
+					this._measuredWidth < contentContainer._measuredWidth,
+				verticalElastic = this._verticalElastic && !this.disableBounce && 
+					this._measuredHeight < contentContainer._measuredHeight;
 			if (translationX > 0) {
 				translationX = horizontalElastic ? elastize(translationX) : 0;
 			} else if(translationX < minTranslationX) {
@@ -267,8 +270,8 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 			}
 
 			// Apply the translation
-			setStyle(this._contentContainer.domNode, "transform", "translate(" + (this._currentTranslationX = translationX) + "px, " +
-					(this._currentTranslationY = translationY) + "px)");
+			setStyle(this._contentContainer.domNode, "transform", "translate(" + 
+				(this._currentTranslationX = translationX) + "px, " + (this._currentTranslationY = translationY) + "px)");
 		},
 
 		_createHorizontalScrollBar: function() {

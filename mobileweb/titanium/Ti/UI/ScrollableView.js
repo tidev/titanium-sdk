@@ -268,7 +268,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 			if (self._contentContainer.domNode.offsetWidth) {
 				scroll();
 			} else {
-				once("postlayout", scroll);
+				once(self, "postlayout", scroll);
 			}
 		},
 
