@@ -318,9 +318,6 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 		_defaultHeight: UI.FILL,
 
 		properties: {
-			clipViews: {
-				
-			},
 			currentPage: {
 				set: function(value, oldValue) {
 					if (value >= 0 && value < this.views.length) {
