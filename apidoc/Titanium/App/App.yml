@@ -11,6 +11,33 @@ description: |
     
     While most values may be changed by editing the `tiapp.xml` file after creating the project, 
     the GUID is automatically generated and should not be changed.
+
+    #### Application Level Events
+
+    Application-level events are custom events that are defined globally for your
+    application. By convention, application-level events are set on the `Titanium.App`
+    module, like this:
+
+        Ti.App.addEventListener('app:myCustomEvent', myHandlerFunction);
+
+    Adding a prefix (like 'app:' in this example) is optional, but can help ensure that
+    your custom event names don't conflict with any future Titanium events.
+
+    Application-level event listeners can be added and fired from any context, including from inside
+    a web view, so they are ideal for communicating between separate parts of your
+    application.
+
+    When you add an event listener on a Titanium module (such as `Ti.App` or
+    [Ti.Geolocation](Titanium.Geolocation)), the event listener function is referenced from
+    the global context. This means the event listener function and any objecst it references
+    can't be garbage collected until the event listener is removed.
+
+    This can lead to memory leaks if application-level event listeners are added and not
+    removed.
+
+    See also: [Event Handling](http://docs.appcelerator.com/titanium/2.0/index.html#!/guide/Event_Handling)
+    in the Titanium Mobile Guides.
+
 extends: Titanium.Module
 since: "0.1"
 
