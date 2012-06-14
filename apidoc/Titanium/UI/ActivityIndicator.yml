@@ -98,10 +98,10 @@ properties:
         <Titanium.UI.iPhone.ActivityIndicatorStyle.DARK>, 
         <Titanium.UI.iPhone.ActivityIndicatorStyle.BIG>, 
         or <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN>. On Mobile Web: 
-        <Titanium.UI.MobileWeb.ActivityIndicatorStyle.DARK>, 
-        <Titanium.UI.MobileWeb.ActivityIndicatorStyle.BIG>, 
-        <Titanium.UI.MobileWeb.ActivityIndicatorStyle.BIG_DARK>, 
-        or <Titanium.UI.MobileWeb.ActivityIndicatorStyle.PLAIN>.
+        <Titanium.UI.ActivityIndicatorStyle.DARK>, 
+        <Titanium.UI.ActivityIndicatorStyle.BIG>, 
+        <Titanium.UI.ActivityIndicatorStyle.BIG_DARK>, 
+        or <Titanium.UI.ActivityIndicatorStyle.PLAIN>.
     type: Number
     default: <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN> (iOS), <Titanium.UI.MobileWeb.ActivityIndicatorStyle.PLAIN> (Mobile Web)
     platforms: [iphone, ipad, mobileweb]
