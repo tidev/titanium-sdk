@@ -35,22 +35,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 		elasticityLimit = 25,
 
 		// Controls the friction curve for elastic dragging. The higher the value, the sooner drag starts to kick in.
-		elasticityDrag = 30,
-
-		transformPostfix = "translateZ(0)";
-
-	// Make sure that translateZ is supported
-	(function(){
-		var testDiv = dom.create("div", {
-			id: "foo",
-			position: "absolute"
-		}, document.body);
-		setTimeout(function(){
-			setStyle(testDiv, "transform", transformPostfix);
-			!style.get(testDiv, "transform") && (transformPostfix = "");
-			dom.detach(testDiv);
-		},1);
-	})();
+		elasticityDrag = 30;
 
 	return declare("Ti._.UI.KineticScrollView", View, {
 
@@ -283,7 +268,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 
 			// Apply the translation
 			setStyle(this._contentContainer.domNode, "transform", "translate(" + (this._currentTranslationX = translationX) + "px, " +
-					(this._currentTranslationY = translationY) + "px)" + transformPostfix);
+					(this._currentTranslationY = translationY) + "px)");
 		},
 
 		_createHorizontalScrollBar: function() {

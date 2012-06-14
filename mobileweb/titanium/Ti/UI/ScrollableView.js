@@ -18,7 +18,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 		velocityThreshold = 0.4,
 
 		// This determines the minimum distance scale (i.e. width divided by this value) before a flick requests a page turn
-		minimumFlickDistanceScaleFactor = 20,
+		minimumFlickDistanceScaleFactor = 200,
 
 		// This determines the minimum distance scale (i.e. width divided by this value) before a drag requests a page turn
 		minimumDragDistanceScaleFactor = 2;
