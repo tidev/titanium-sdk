@@ -114,7 +114,7 @@
 		//		Boolean if type is passed in
 		//		String of type if type is not passed in
 		var t = Object.prototype.toString.call(it),
-			v = t.substring(8, t.length - 1);
+			v = it === void 0 ? "Undefined" : t.substring(8, t.length - 1);
 		return type ? type === v : v;
 	}
 
