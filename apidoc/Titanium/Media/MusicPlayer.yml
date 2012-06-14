@@ -24,16 +24,17 @@ methods:
   - name: seekBackward
     summary: Begins seeking backward in the currently playing media.
     description: |
+        Seeking speed increases as seeking continues.
+
         Call [stopSeeking](Titanium.Media.MusicPlayer.stopSeeking) to
         return to normal play.
-
-        Seeking speed increases as seeking continues.
 
   - name: seekForward
     summary: Begins seeking forward in the currently playing media item.
     description: |
         While seeking forward audio plays faster than usual. The speed increases as
         seeking continues.
+
         Call [stopSeeking](Titanium.Media.MusicPlayer.stopSeeking) to
         return to normal play.
 
@@ -51,9 +52,13 @@ methods:
 
   - name: skipToNext
     summary: Skips to the next media item in the queue.
+    description: |
+        If there are no more media items in the queue, ends playback.
 
   - name: skipToPrevious
     summary: Skips to the previous media item in the queue.
+    description: |
+        If there are no previous media items in the queue, ends playback.
 
   - name: stop
     summary: Stops playback of the current media queue.
