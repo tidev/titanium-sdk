@@ -32,7 +32,8 @@ public class TiCompass
 {
 	private static final String LCAT = "TiCompass";
 	private static final boolean DBG = TiConfig.LOGD;
-	private static final int DECLINATION_CHECK_INTERVAL = 60000;
+	private static final int DECLINATION_CHECK_INTERVAL = 60 * 1000;
+	private static final int STALE_LOCATION_THRESHOLD = 60 * 60 * 1000;
 
 	private GeolocationModule geolocationModule;
 	private TiLocation tiLocation;
@@ -141,13 +142,18 @@ public class TiCompass
 	private void updateDeclination()
 	{
 		long currentTime = System.currentTimeMillis();
+        long freshLocationTime = currentTime - STALE_LOCATION_THRESHOLD;
 
 		if (currentTime - lastDeclinationCheck > DECLINATION_CHECK_INTERVAL) {
+            if (geomagneticFieldLocation != null && geomagneticFieldLocation.getTime() < freshLocationTime) {
+                geomagneticFieldLocation = null;
+                geomagneticField = null;
+            }
 			String provider = tiLocation.locationManager.getBestProvider(locationCriteria, true);
 			if (provider != null) {
 				Location location = tiLocation.locationManager.getLastKnownLocation(provider);
-				if (location != null) {
-					if (geomagneticField == null || location.getTime() > geomagneticFieldLocation.getTime()) {
+				if (location != null && location.getTime() >= freshLocationTime) {
+					if (geomagneticFieldLocation == null || location.getTime() > geomagneticFieldLocation.getTime()) {
 						geomagneticField = new GeomagneticField((float)location.getLatitude(), (float)location.getLongitude(), (float)(location.getAltitude()), currentTime);
 						geomagneticFieldLocation = location;
 					}
