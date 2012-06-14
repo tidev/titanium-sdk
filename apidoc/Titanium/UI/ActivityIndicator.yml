@@ -119,7 +119,7 @@ properties:
         The diameter is measured from the right-most edge of the right-most prong to the left-most edge of the left-most prong.
     since: "2.1.0"
     type: String
-    default: "#fff"
+    default: 36
     platforms: [mobileweb]
 
   - name: top

@@ -1,7 +1,7 @@
 ---
 name: Titanium.UI.ActivityIndicatorStyle
 summary: A set of constants for the styles available for <Titanium.UI.ActivityIndicator> objects.
-extends: Titanium.Proxy
+extends: Titanium.Module
 since: "2.1.0"
 platforms: [mobileweb]
 createable: false
