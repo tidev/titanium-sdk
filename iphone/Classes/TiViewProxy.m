@@ -2417,7 +2417,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                             desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
                             bounds.size.height = desiredHeight;
                         }                    
-                        bounds.size.width = desiredWidth + offsetH;
+                        bounds.size.width = desiredWidth;
                         horizontalLayoutBoundary = bounds.size.width;
                         horizontalLayoutRowHeight = bounds.size.height;
                     }
