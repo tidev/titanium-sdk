@@ -33,7 +33,7 @@ public class TiCompass
 	private static final String LCAT = "TiCompass";
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final int DECLINATION_CHECK_INTERVAL = 60 * 1000;
-	private static final int STALE_LOCATION_THRESHOLD = 60 * 60 * 1000;
+	private static final int STALE_LOCATION_THRESHOLD = 10 * 60 * 1000;
 
 	private GeolocationModule geolocationModule;
 	private TiLocation tiLocation;
