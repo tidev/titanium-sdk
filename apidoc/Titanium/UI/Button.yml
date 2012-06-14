@@ -70,8 +70,8 @@ description: |
 
 extends: Titanium.UI.View
 since: "0.8"
-properties:
-    # main doc inherited from Ti.UI.View.add
+methods: 
+
   - name: add
     description: |
         Adding children to a `Button` is not supported on all platforms.
@@ -82,6 +82,13 @@ properties:
 
         See also: <Titanium.UI.View.add>.
     platforms: [iphone, ipad, mobileweb]
+
+  - name: remove
+    description: |
+        See also: [add](Titanium.UI.Button.add), <Titanium.UI.View.add>.
+    platforms: [iphone, ipad, mobileweb]
+
+properties:
   - name: backgroundImage
     summary: |
         Background image for the button in its normal state, specified as a local file path or URL. 

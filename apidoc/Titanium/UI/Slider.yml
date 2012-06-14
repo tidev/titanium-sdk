@@ -57,6 +57,11 @@ methods:
         See also: <Titanium.UI.View.add>.
     platforms: [iphone, ipad]
 
+  - name: remove
+    description: |
+        See also: [add](Titanium.UI.Label.add), <Titanium.UI.View.add>.
+    platforms: [iphone, ipad]
+
   - name: setValue
     summary: Sets the [value](Titanium.UI.Slider.value) property.
     description: |

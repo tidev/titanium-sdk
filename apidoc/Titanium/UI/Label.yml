@@ -5,7 +5,7 @@ description: Use the <Titanium.UI.createLabel> method to create a label.
 extends: Titanium.UI.View
 since: "0.8"
 
-properties:
+methods: 
     # main doc inherited from Ti.UI.View.add
   - name: add
     description: |
@@ -17,6 +17,13 @@ properties:
 
         See also: <Titanium.UI.View.add>.
     platforms: [iphone, ipad, mobileweb]
+
+  - name: remove
+    description: |
+        See also: [add](Titanium.UI.Label.add), <Titanium.UI.View.add>.
+    platforms: [iphone, ipad, mobileweb]
+
+properties:
 
   - name: autoLink
     summary: Automatically convert certain text items in the label to clickable links. 

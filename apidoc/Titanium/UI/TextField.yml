@@ -26,6 +26,11 @@ methods:
   - name: focus
     summary: Forces the field to gain focus.
 
+  - name: remove
+    description: |
+        See also: [add](Titanium.UI.TextField.add), <Titanium.UI.View.add>.
+    platforms: [iphone, ipad]
+
 properties:
   - name: appearance
     summary: Determines the appearance of the keyboard displayed when this field is focused.

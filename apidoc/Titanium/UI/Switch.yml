@@ -27,6 +27,11 @@ methods:
         See also: <Titanium.UI.View.add>.
     platforms: [mobileweb]
 
+  - name: remove
+    description: |
+        See also: [add](Titanium.UI.Switch.add), <Titanium.UI.View.add>.
+    platforms: [mobileweb]
+
 properties:
   - name: color
     summary: Color to use for switch text, as a color name or hex triplet.

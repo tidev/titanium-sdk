@@ -49,6 +49,11 @@ methods:
     summary: Pauses a running animation. Use `resume` method to continue.
     description:  This method only works if multiple images are specified.
     platforms: [android, iphone, ipad, mobileweb]
+
+  - name: remove
+    description: |
+        See also: [add](Titanium.UI.ImageView.add), <Titanium.UI.View.add>.
+    platforms: [iphone, ipad, mobileweb]
     
   - name: resume
     summary: Resumes an animation from a `pause` state.
