@@ -255,7 +255,11 @@ define(
 				}
 				for (var i in rootNodesToLayout) {
 					node = rootNodesToLayout[i];
-					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node._parent._layout._getWidth(node, node.width) === Ti.UI.SIZE, node._parent._layout._getHeight(node, node.height) === Ti.UI.SIZE);
+					node._layout._doLayout(node,
+						node._measuredWidth - node._borderLeftWidth - node._borderRightWidth,
+						node._measuredHeight - node._borderTopWidth - node._borderBottomWidth,
+						node._parent._layout._getWidth(node, node.width) === Ti.UI.SIZE,
+						node._parent._layout._getHeight(node, node.height) === Ti.UI.SIZE);
 				}
 
 				has("ti-instrumentation") && instrumentation.stopTest(self._layoutInstrumentationTest, 

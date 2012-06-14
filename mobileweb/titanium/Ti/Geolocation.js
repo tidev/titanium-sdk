@@ -77,6 +77,10 @@ define(["Ti/_/Evented", "Ti/_/lang", "Ti/Network"], function(Evented, lang, Netw
 			}
 		},
 		
+		hasCompass: function() {
+			return compassSupport;
+		},
+		
 		forwardGeocoder: function(address, callback) {
 			if (!require.is(address,"String")) {
 				return;

@@ -60,8 +60,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/API", "Ti/UI", "Ti/_/lang", "Ti
 							} else {
 								childSize = child._layout._doLayout(
 									child, 
-									isNaN(measuredWidth) ? width : measuredWidth, 
-									isNaN(measuredHeight) ? height : measuredHeight, 
+									isNaN(measuredWidth) ? width : measuredWidth - child._borderLeftWidth - child._borderRightWidth, 
+									isNaN(measuredHeight) ? height : measuredHeight - child._borderTopWidth - child._borderBottomWidth, 
 									isNaN(measuredWidth), 
 									isNaN(measuredHeight));
 							}
@@ -117,8 +117,8 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/API", "Ti/UI", "Ti/_/lang", "Ti
 							child._childrenLaidOut = true;
 							child._layout._doLayout(
 								child, 
-								isNaN(measuredWidth) ? width : measuredWidth, 
-								isNaN(measuredHeight) ? height : measuredHeight, 
+								isNaN(measuredWidth) ? width : measuredWidth - child._borderLeftWidth - child._borderRightWidth, 
+								isNaN(measuredHeight) ? height : measuredHeight - child._borderTopWidth - child._borderBottomWidth, 
 								isNaN(measuredWidth), 
 								isNaN(measuredHeight));
 						}
