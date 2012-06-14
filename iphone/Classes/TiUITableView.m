@@ -1095,24 +1095,8 @@
 			[proxy layoutChildren:NO];
 		}
 	}
-    
-    //When table view is part of popover and the popover is represented the tableView will deselect the selected row.
-    //Setting allowsmultiple selection seems to fix the issue.
-    //See TIMOB-9301 for fail case. Set a breakpoint in selSelected:animated in TiUITableViewCell to track messaging
-    if ([tableview respondsToSelector:@selector(setAllowsMultipleSelection:)] && [tableview allowsSelection] && [tableview indexPathForSelectedRow] != nil) {
-        [tableview setAllowsMultipleSelection:YES];
-        [self performSelector:@selector(clearMultipleSelectionFlag) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
-    }
 }
 
--(void)clearMultipleSelectionFlag
-{
-    NSIndexPath* selectedPath = [tableview indexPathForSelectedRow];
-    [tableview setAllowsMultipleSelection:NO];
-    if (selectedPath != nil) {
-        [tableview selectRowAtIndexPath:selectedPath animated:NO scrollPosition:UITableViewScrollPositionNone];
-    }
-}
 
 -(CGFloat)contentHeightForWidth:(CGFloat)suggestedWidth
 {
@@ -1325,8 +1309,9 @@
 
 -(void)setAllowsSelection_:(id)arg
 {
-	allowsSelectionSet = [TiUtils boolValue:arg];
-	[[self tableView] setAllowsSelection:allowsSelectionSet];
+    allowsSelectionSet = [TiUtils boolValue:arg];
+    [[self tableView] setAllowsSelection:allowsSelectionSet];
+    [tableController setClearsSelectionOnViewWillAppear:!allowsSelectionSet];
 }
 
 -(void)setAllowsSelectionDuringEditing_:(id)arg
@@ -1456,6 +1441,7 @@
 		[searchField setDelegate:self];
 		tableController = [[UITableViewController alloc] init];
 		tableController.tableView = [self tableView];
+		[tableController setClearsSelectionOnViewWillAppear:!allowsSelectionSet];
 		searchController = [[UISearchDisplayController alloc] initWithSearchBar:[search searchBar] contentsController:tableController];
 		searchController.searchResultsDataSource = self;
 		searchController.searchResultsDelegate = self;
