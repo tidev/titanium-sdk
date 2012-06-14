@@ -120,7 +120,7 @@ properties:
   - name: indicatorDiameter
     summary: The diameter of the indicator
     description: |
-        The diameter of the animated indicator, excusive of any message text.
+        The diameter of the animated indicator, exclusive of any message text.
     since: "2.1.0"
     type: String
     default: 36
