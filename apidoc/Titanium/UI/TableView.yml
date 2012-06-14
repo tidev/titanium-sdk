@@ -378,7 +378,7 @@ events:
         
   - name: scrollEnd
     summary: fired when the table view stops scrolling
-    platforms: [android, iphone,ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
     properties:
       - name: contentSize
         summary: |
