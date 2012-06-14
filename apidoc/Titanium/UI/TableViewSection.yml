@@ -35,6 +35,13 @@ methods:
 
   - name: add
     summary: Adds a table view row to this section.
+    description: |
+        Must be called before adding the section to a table.
+
+        To add a row to a section after it's been added to a table, call one of the
+        `TableView` methods, [insertRowBefore](Titanium.UI.TableView.insertRowBefore),
+        [insertRowAfter](Titanium.UI.TableView.insertRowAfter), or
+        [appendRow](Titanium.UI.TableView.appendRow).
     parameters:
       - name: row
         summary: Row to add.
@@ -42,6 +49,12 @@ methods:
 
   - name: remove
     summary: Removes a table view row from this section.
+    description: |
+        Must be called before a section is added to a table. Calling `remove` on
+        a section that's already been added to a table may throw an exception.
+
+        To delete a row once the section is added to a table, use the `TableView`
+        [deleteRow](Titanium.UI.TableView.deleteRow) method.
     parameters:
       - name: row
         summary: Row to remove.
