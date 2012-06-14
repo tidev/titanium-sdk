@@ -121,39 +121,56 @@ description: |
 
     #### Using the Compass
 
-        Both iOS and Android support a receiving heading updates from a hardware compass, if available.
-        On Mobile Web, heading updates are supported if the browser supports this feature.
-        Currently, this support is only available on Mobile Safari.
+    Both iOS and Android support a receiving heading updates from a hardware compass, if available.
+    On Mobile Web, heading updates are supported if the browser supports this feature.
+    Currently, this support is only available on Mobile Safari.
 
-        On Android and iOS, you can test whether the current device supports a compass. On
-        Android, `hasCompass` is a property. On iOS and Mobile Web, `hasCompass` is a method. 
-        (Prior to 2.1, there was no direct method to determine whether the current platform
-        supported a compass on Mobile Web.)
+    iOS and Mobile Web provide a `hasCompass` method to determine if the current
+    device supports a compass.  On Android, `hasCompass` is a property. In a future
+    release, Android will replace the property with the `hasCompass` method.
 
-        To retrieve compass readings, you can either use 
-        [getCurrentHeading](Titanium.Geolocation.getCurrentHeading) as shown in the
-        previous example, or add a listener for the
-        [heading](Titanium.Geolocation.heading) event, as shown below:
+    The following code excerpt tests for compass support in a portable fashion:
 
-            var compassHandler = function(e) {
-                if (e.success === undefined || e.success) {
-                    Ti.API.info("Heading: " + e.heading.magneticHeading);
-                }
-            }
-            Ti.Geolocation.addEventListener("heading", compassHandler);
+        var hasCompass = false;
+        if (Ti.Geolocation.hasCompass.call) {
+          hasCompass = Ti.Geolocation.hasCompass();
+        } else {
+          hasCompass = Ti.Geolocation.hasCompass;
+        }
 
-        Note that Android does not include a `success` property in the `heading` event.
-        Heading events are only generated on Android when heading data is available. So if 
-        `success` is undefined, we assume that the event contains valid compass data.
+    This code excerpt should work on all versions of Android and iOS, and continue to
+    work if Android replaces the `hasCompass` property with a method. This code also
+    works with Mobile Web in Release 2.1 and newer (prior to 2.1, there was no direct method to
+    determine compass support on Mobile Web).
 
-        As with location updates, the application should unregister for heading updates
-        when it is no longer being used, or when it goes into the background. Use
-        `removeEventListener` to stop heading updates:
+    To retrieve compass readings, you can either use
+    [getCurrentHeading](Titanium.Geolocation.getCurrentHeading) as shown in the
+    previous example, or add a listener for the
+    [heading](Titanium.Geolocation.heading) event, as shown below:
 
-            Ti.Geolocation.removeEventListener('heading', compassHandler);
+        var compassHandler = function(e) {
+          if (e.success === undefined || e.success) {
+            Ti.API.info("Heading: " + e.heading.magneticHeading);
+          }
+        }
+        Ti.Geolocation.addEventListener("heading", compassHandler);
 
-        Finally, note that neither the Android emulator nor the iOS simulator provide
-        compass support. Compass code must be tested on physical devices.
+    Note that Android does not include a `success` property in the `heading` event.
+    Heading events are only generated on Android when heading data is available. So if
+    `success` is undefined, we assume that the event contains valid compass data.
+
+    To obtain true heading data for the compass (as opposed to magnetic heading data),
+    a current location fix is required. See the notes on
+    [trueHeading](HeadingData.trueHeading) for more information.
+
+    As with location updates, the application should unregister for heading updates
+    when it is no longer being used, or when it goes into the background. Use
+    `removeEventListener` to stop heading updates:
+
+        Ti.Geolocation.removeEventListener('heading', compassHandler);
+
+    Finally, note that neither the Android emulator nor the iOS simulator provide
+    compass support. Compass code must be tested on physical devices.
 
 extends: Titanium.Module
 since: "0.1"
@@ -834,16 +851,14 @@ properties:
   - name: trueHeading
     summary: Declination in degrees from true North.
     description: |
-        On Android, `trueHeading` is `undefined` unless the current declination correction for 
-        true North is available.  To receive the `trueHeading` value, you must ensure that the device
-        has a location fix, and then call [getCurrentHeading](Titanium.Geolocation.getCurrentHeading).
-        After calling `getCurrentHeading` once, subsequent `heading` events should include 
-        `trueHeading` values. 
+        Calculating the true heading requires correcting the magnetic declination based on
+        the device's current location. So `trueHeading` can only be calculated if the device
+        has a fairly recent location fix. If you want to obtain the true heading, you
+        should register for location updates as well as compass updates. The location fix
+        does not need to be very accurate.
 
-        The declination correction for true North is calculated when `getCurrentHeading`
-        is called, and stored until the application exits or the device is restarted,
-        which means that the true heading value may become less accurate as the device
-        moves. This is a known issue ([TIMOB-9434](https://jira.appcelerator.org/browse/TIMOB-9434)).
+        On Android, `trueHeading` is `undefined` if a recent location fix is not available.
+
     type: Number
     platforms: [android, iphone, ipad]
 
