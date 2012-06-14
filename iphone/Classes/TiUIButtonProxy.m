@@ -105,6 +105,11 @@
 	return suggestedResizing;
 }
 
+-(BOOL)optimizeSubviewInsertion
+{
+    return YES;
+}
+
 -(UIView *) parentViewForChild:(TiViewProxy *)child
 {
 	return [(TiUIButton *)[self view] viewGroupWrapper];
