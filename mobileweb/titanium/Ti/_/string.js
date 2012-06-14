@@ -7,12 +7,12 @@
  * <http://dojotoolkit.org>
  */
 
-define(["Ti/_", "Ti/_/lang"], function(_, lang) {
+define(["Ti/_", "Ti/_/has", "Ti/_/lang"], function(_, has, lang) {
 
 	var assert = _.assert,
-		has = require.has,
 		is = require.is,
 		mix = require.mix,
+		isOpera = has("opera"),
 		zeros10 = "0000000000",
 		spaces10 = "          ",
 		specifiers = {
@@ -187,7 +187,7 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 
 		// Ensure a '0' before the period.
 		// Opera implements (0.001).toString() as '0.001', but (0.001).toFixed(1) is '.001'
-		has("opera") && (token.arg = token.arg.replace(/^\./, '0.'));
+		isOpera && (token.arg = token.arg.replace(/^\./, '0.'));
 
 		// if alt, ensure a decimal point
 		if (token.alternative) {
@@ -217,7 +217,7 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 		while (match = re.exec(format)) {
 			content = format.slice(lastIndex, re.lastIndex - match[0].length);
 			content.length && tokens.push(content);
-			if (has("opera")) {
+			if (isOpera) {
 				copy = match.slice(0);
 				while (copy.length < match.length) {
 					copy.push(null);
@@ -239,7 +239,7 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 		args.shift();
 		assert(!mapped || args.length, "Format has no mapped arguments");
 
-		require.each(tokens, function(token) {
+		tokens.forEach(function(token) {
 			var tf,
 				flags = {},
 				fi,
