@@ -27,7 +27,7 @@ USE_VIEW_FOR_CONTENT_WIDTH
 	{
 		font = [UIFont systemFontOfSize:[UIFont labelFontSize]];
 	}
-	CGSize maxSize = CGSizeMake(suggestedWidth, 1E100);
+	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 10000);
 	CGSize size = [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
 	return [self verifyHeight:size.height]; //Todo: We need to verifyHeight elsewhere as well.
 }
@@ -66,11 +66,6 @@ USE_VIEW_FOR_CONTENT_WIDTH
     return TiDimensionAutoSize;
 }
 
-// TiUILabel has non-TiUIView subviews and is not intended for use as a viewgroup, either
--(BOOL)optimizeSubviewInsertion
-{
-    return NO;
-}
 
 @end
 

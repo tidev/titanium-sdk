@@ -108,7 +108,7 @@ properties:
     default: <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN> (iOS), <Titanium.UI.MobileWeb.ActivityIndicatorStyle.PLAIN> (Mobile Web)
     platforms: [iphone, ipad, mobileweb]
 	See also: [indicatorColor](Titanium.UI.ActivityIndicator.indicatorColor),
-		[indicatorDiamter](Titanium.UI.ActivityIndicator.indicatorDiameter)
+		[indicatorDiameter](Titanium.UI.ActivityIndicator.indicatorDiameter)
 
   - name: indicatorColor
     summary: The color of the animated indicator.

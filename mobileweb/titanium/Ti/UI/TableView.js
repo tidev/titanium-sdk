@@ -1,157 +1,127 @@
-define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI/MobileWeb/TableViewSeparatorStyle", "Ti/UI"], 
-	function(declare, View, style, lang, TableViewSeparatorStyle, UI) {
+define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", "Ti/UI/MobileWeb/TableViewSeparatorStyle", "Ti/UI"], 
+	function(declare, KineticScrollView, style, lang, TableViewSeparatorStyle, UI) {
 
 	var setStyle = style.set,
 		is = require.is,
 		isDef = lang.isDef,
-		regexpClickTap = /^(click|singletap)$/;
+		regexpClickTap = /^(click|singletap)$/,
 
-	return declare("Ti.UI.TableView", View, {
-		
+		// The amount of deceleration (in pixels/ms^2)
+		deceleration = 0.001;
+
+	return declare("Ti.UI.TableView", KineticScrollView, {
+
 		constructor: function(args) {
-			
-			// Content must go in a separate container so the scrollbar can exist outside of it
-			var contentContainer = this._contentContainer = UI.createView({
+
+			var self = this,
+				scrollbarTimeout,
+				contentContainer;
+			self._initKineticScrollView(contentContainer = UI.createView({
 				width: UI.INHERIT,
-				height: UI.INHERIT,
+				height: UI.SIZE,
 				left: 0,
 				top: 0,
 				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
-			});
-			this._add(contentContainer);
-			setStyle(contentContainer.domNode,"overflow","hidden");
+			}), "vertical", "vertical", 1);
 
-			// Use horizontal layouts so that the default location is always (0,0)
-			contentContainer._add(this._header = UI.createView({
+			contentContainer._add(self._header = UI.createView({
 				height: UI.SIZE, 
 				width: UI.INHERIT, 
 				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
-			contentContainer._add(this._sections = UI.createView({
+			contentContainer._add(self._sections = UI.createView({
 				height: UI.SIZE, 
 				width: UI.INHERIT, 
 				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
-			contentContainer._add(this._footer = UI.createView({
+			contentContainer._add(self._footer = UI.createView({
 				height: UI.SIZE, 
 				width: UI.INHERIT, 
 				layout: UI._LAYOUT_CONSTRAINING_VERTICAL
 			}));
 
-			this.data = [];
-
-			this._createVerticalScrollBar();
-
-			var self = this;
-			function getContentHeight() {
-				return self._header._measuredHeight + self._sections._measuredHeight + self._footer._measuredHeight;
-			}
-
-			// Handle scrolling
-			var previousTouchLocation;
-			this.addEventListener("touchstart",function(e) {
-				previousTouchLocation = e.y;
-
-				this._startScrollBars({
-					y: contentContainer.domNode.scrollTop / (getContentHeight() - this._measuredHeight)
-				},
-				{
-					y: contentContainer._measuredHeight / (getContentHeight())
-				});
-			});
-			this.addEventListener("touchend",function(e) {
-				previousTouchLocation = null;
-				
-				this._endScrollBars();
-				
-				// Create the scroll event
-				this._isScrollBarActive && this.fireEvent("scrollEnd",{
-					contentOffset: {x: 0, y: contentContainer.domNode.scrollTop + this._header._measuredHeight},
-					contentSize: {width: this._sections._measuredWidth, height: this._sections._measuredHeight},
-					size: {width: this._measuredWidth, height: this._measuredHeight},
-					x: e.x,
-					y: e.y
-				});
-			});
-			this.addEventListener("touchmove",lang.hitch(this,function(e) {
-				contentContainer.domNode.scrollTop += previousTouchLocation - e.y;
-				previousTouchLocation = e.y;
-				
-				this._updateScrollBars({
-					y: contentContainer.domNode.scrollTop / (getContentHeight() - this._measuredHeight)
-				});
-				
-				this._fireScrollEvent(e.x,e.y);
-			}));
-			this.domNode.addEventListener("mousewheel",function(e) {
-				
-				// Start the scroll bar
-				self._startScrollBars({
-					y: contentContainer.domNode.scrollTop / (getContentHeight() - self._measuredHeight)
-				},
-				{
-					y: contentContainer._measuredHeight / (getContentHeight())
-				});
-				
-				// Set the scroll position
-				contentContainer.domNode.scrollLeft -= e.wheelDeltaX;
-				contentContainer.domNode.scrollTop -= e.wheelDeltaY;
-				
-				// Immediately update the position
-				self._updateScrollBars({
-					y: (contentContainer.domNode.scrollTop - e.wheelDeltaY) / (getContentHeight() - self._measuredHeight)
-				});
-				setTimeout(function(){
-					self._endScrollBars();
-				},200);
-			});
-			
-			require.on(contentContainer.domNode,"scroll",lang.hitch(this,function(e){
-				if (!this._touching) {
-					this._fireScrollEvent();
-				}
-			}));
+			self.data = [];
 		},
-		
-		_fireScrollEvent: function(x,y) {
+
+		_handleMouseWheel: function() {
+			this._fireScrollEvent("scroll");
+		},
+
+		_handleDragStart: function(e) {
+			this.fireEvent("dragStart");
+		},
+
+		_handleDrag: function(e) {
+			this._fireScrollEvent("scroll", e);
+		},
+
+		_handleDragEnd: function(e, velocityX, velocityY) {
+			var self = this,
+				y = -self._currentTranslationY;
+			if (isDef(velocityY)) {
+				var distance = velocityY * velocityY / (1.724 * deceleration) * (velocityY < 0 ? -1 : 1),
+					duration = Math.abs(velocityY) / deceleration,
+					translation = Math.min(0, Math.max(self._minTranslationY, self._currentTranslationY + distance));
+				self.fireEvent("dragEnd",{
+					decelerate: true
+				});
+				self._animateToPosition(self._currentTranslationX, translation, duration, "ease-out", function() {
+					self._setTranslation(self._currentTranslationX, translation);
+					self._endScrollBars();
+					self._fireScrollEvent("scrollEnd", e);
+				});
+			}
+			
+		},
+
+		_fireScrollEvent: function(type, e) {
 			// Calculate the visible items
 			var firstVisibleItem,
 				visibleItemCount = 0,
-				scrollTop = this._contentContainer.scrollTop,
-				sections = this._sections._children;
-			for(var i = 0; i < sections.length; i+= 2) {
-				
+				contentContainer = this._contentContainer,
+				y = -this._currentTranslationY,
+				sections = this._sections,
+				sectionsList = sections._children,
+				len = sectionsList.length;
+			for(var i = 0; i < len; i+= 2) {
+
 				// Check if the section is visible
-				var section = sections[i],
-					sectionOffsetTop = section._measuredTop - scrollTop,
-					sectionOffsetBottom = section._measuredTop + section._measuredHeight - scrollTop;
-				if (sectionOffsetBottom > 0 && sectionOffsetTop < this._contentContainer._measuredHeight) {
-					
+				var section = sectionsList[i],
+					sectionOffsetTop = y - section._measuredTop,
+					sectionOffsetBottom = section._measuredHeight - sectionOffsetTop;
+				if (sectionOffsetTop > 0 && sectionOffsetBottom > 0) {
 					var rows = section._rows._children
 					for (var j = 1; j < rows.length; j += 2) {
 						var row = rows[j],
-							rowOffsetTop = row._measuredTop + section._measuredTop - scrollTop,
-							rowOffsetBottom = row._measuredTop + row._measuredHeight + section._measuredTop - scrollTop;
-						if (rowOffsetBottom > 0 && rowOffsetTop < this._contentContainer._measuredHeight) {
+							rowOffsetTop = sectionOffsetTop - row._measuredTop,
+							rowOffsetBottom = row._measuredHeight - rowOffsetTop;
+						if (rowOffsetTop > 0 && rowOffsetBottom > 0) {
 							visibleItemCount++;
-							if (!firstVisibleItem) {
-								firstVisibleItem = row;
-							}
+							!firstVisibleItem && (firstVisibleItem = row);
 						}
 					}
 				}
 			}
-			
+
 			// Create the scroll event
-			this._isScrollBarActive && this.fireEvent("scroll",{
-				contentOffset: {x: 0, y: this._contentContainer.scrollTop},
-				contentSize: {width: this._sections._measuredWidth, height: this._sections._measuredHeight},
+			this.fireEvent(type, {
+				contentOffset: {
+					x: 0,
+					y: y
+				},
+				contentSize: {
+					width: sections._measuredWidth,
+					height: sections._measuredHeight
+				},
 				firstVisibleItem: firstVisibleItem,
-				size: {width: this._contentContainer._measuredWidth, height: this._contentContainer._measuredHeight},
+				size: {
+					width: contentContainer._measuredWidth,
+					height: contentContainer._measuredHeight
+				},
 				totalItemCount: this.data.length,
 				visibleItemCount: visibleItemCount,
-				x: x,
-				y: y
+				x: e && e.x,
+				y: e && e.y
 			});
 		},
 
@@ -160,7 +130,10 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI/MobileWe
 		_defaultHeight: UI.FILL,
 		
 		_getContentOffset: function(){
-			return {x: this._contentContainer.scrollLeft, y: this._contentContainer.scrollTop};
+			return {
+				x: -this._currentTranslationX,
+				y: -this._currentTranslationY
+			};
 		},
 		
 		_handleTouchEvent: function(type, e) {
@@ -187,13 +160,13 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI/MobileWe
 					e.section = section;
 					e.searchMode = false; 
 	
-					View.prototype._handleTouchEvent.apply(this, arguments);
+					KineticScrollView.prototype._handleTouchEvent.apply(this, arguments);
 	
 					this._tableViewRowClicked = null;
 					this._tableViewSectionClicked = null;
 				}
 			} else {
-				View.prototype._handleTouchEvent.apply(this, arguments);
+				KineticScrollView.prototype._handleTouchEvent.apply(this, arguments);
 			}
 		},
 
@@ -296,13 +269,12 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/style", "Ti/_/lang", "Ti/UI/MobileWe
 
 		scrollToIndex: function(index) {
 			var location = this._calculateLocation(index);
-			if (location) {
-				this._contentContainer.domNode.scrollTop = location.section._measuredTop + location.section._rows._children[2 * location.localIndex + 1]._measuredTop;
-			}
+			location && this._setTranslation(0,-location.section._measuredTop -
+				location.section._rows._children[2 * location.localIndex + 1]._measuredTop);
 		},
 		
 		scrollToTop: function(top) {
-			this._contentContainer.scrollTop = top;
+			this._setTranslation(0,-top);
 		},
 		
 		properties: {

@@ -13,10 +13,11 @@ define(
 		iphone = handheld && handheld[0] === "iphone",
 		targetHeight = {},
 		hidingAddressBar,
-		hideAddressBar = finishAddressBar = function() {
+		finishAddressBar = function() {
 			Ti.UI._recalculateLayout();
 			hidingAddressBar = 0;
 		},
+		hideAddressBar = finishAddressBar,
 		splashScreen,
 		unitize = dom.unitize;
 
@@ -175,7 +176,7 @@ define(
 					j,
 					len = nodes.length;
 
-				has("ti-instrumentation") && (this._layoutInstrumentationTest = instrumentation.startTest("Layout"));
+				has("ti-instrumentation") && (self._layoutInstrumentationTest = instrumentation.startTest("Layout"));
 
 				// Determine which nodes need to be re-layed out
 				for (i = 0; i < len; i++) {
@@ -254,10 +255,14 @@ define(
 				}
 				for (var i in rootNodesToLayout) {
 					node = rootNodesToLayout[i];
-					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node._parent._layout._getWidth(node, node.width) === Ti.UI.SIZE, node._parent._layout._getHeight(node, node.height) === Ti.UI.SIZE);
+					node._layout._doLayout(node,
+						node._measuredWidth - node._borderLeftWidth - node._borderRightWidth,
+						node._measuredHeight - node._borderTopWidth - node._borderBottomWidth,
+						node._parent._layout._getWidth(node, node.width) === Ti.UI.SIZE,
+						node._parent._layout._getHeight(node, node.height) === Ti.UI.SIZE);
 				}
 
-				has("ti-instrumentation") && instrumentation.stopTest(this._layoutInstrumentationTest, 
+				has("ti-instrumentation") && instrumentation.stopTest(self._layoutInstrumentationTest, 
 					self._elementLayoutCount + " out of approximately " + document.getElementById("TiUIContainer").getElementsByTagName("*").length + " elements laid out.");
 
 				self._layoutInProgress = false;

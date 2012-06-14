@@ -86,7 +86,7 @@ events:
       - name: decelerating
         summary: Indicates whether the scroll is decelerating.
         type: Boolean
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, mobileweb]
 
       - name: dragging
         summary: |
@@ -110,6 +110,11 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+
+  - name: scrollEnd
+    summary: Fired when the view has stopped moving completely.
+    platforms: [mobileweb]
+    since: "2.1.0"
 
   - name: dragStart
     summary: Fired when the scrollable region starts being dragged.
@@ -169,7 +174,7 @@ properties:
         This property takes precedence over the `horizontalBounce` and `verticalBounce` properties.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: horizontalBounce
     summary: Determines whether horizontal scroll bounce of the scrollable region is enabled.
@@ -184,7 +189,7 @@ properties:
         `verticalBounce` properties.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: maxZoomScale
     summary: Maximum scaling factor of the scrollable region and its content.
@@ -252,7 +257,7 @@ properties:
         `verticalBounce` properties.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
     
   - name: zoomScale
     summary: Scaling factor of the scrollable region and its content.
