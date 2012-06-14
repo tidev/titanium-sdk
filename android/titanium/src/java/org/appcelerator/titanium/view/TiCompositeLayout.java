@@ -497,8 +497,6 @@ public class TiCompositeLayout extends ViewGroup
 			if (child.getVisibility() != View.GONE) {
 				// Dimension is required from Measure. Positioning is determined here.
 
-				// Try to calculate width/height from pins, and default to measured width/height. We have to do this in
-				// onLayout since we can't get the correct top, bottom, left, and right values inside constrainChild().
 				int childMeasuredHeight = child.getMeasuredHeight();
 				int childMeasuredWidth = child.getMeasuredWidth();
 
