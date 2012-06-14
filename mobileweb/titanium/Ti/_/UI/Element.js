@@ -130,12 +130,22 @@ define(
 					x2: 0,
 					x3: 0
 				},
+				minWidth: {
+					x1: 0,
+					x2: 0,
+					x3: 0
+				},
 				sandboxWidth: {
 					x1: 0,
 					x2: 0,
 					x3: 0
 				},
 				height: {
+					x1: 0,
+					x2: 0,
+					x3: 0
+				},
+				minHeight: {
 					x1: 0,
 					x2: 0,
 					x3: 0

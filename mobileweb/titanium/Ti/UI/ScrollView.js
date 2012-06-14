@@ -15,6 +15,8 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 			this._initKineticScrollView(contentContainer = UI.createView({
 				width: UI.SIZE,
 				height: UI.SIZE,
+				_minWidth: "100%",
+				_minHeight: "100%",
 				left: 0,
 				top: 0
 			}), "both", "both", 1);
