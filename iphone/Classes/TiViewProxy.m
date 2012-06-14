@@ -2232,8 +2232,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         CGFloat desiredWidth = MIN([child minimumParentWidthForSize:bounds.size],bounds.size.width);
 
         //TOP + BOTTOM
-        CGFloat offsetV = TiDimensionCalculateValue([child layoutProperties]->top, boundingValue)
-        + TiDimensionCalculateValue([child layoutProperties]->bottom, boundingValue);
+        CGFloat offsetV = TiDimensionCalculateValue([child layoutProperties]->top, bounds.size.height)
+        + TiDimensionCalculateValue([child layoutProperties]->bottom, bounds.size.height);
         //LEFT + RIGHT
         CGFloat offsetH = TiDimensionCalculateValue([child layoutProperties]->left, bounds.size.width)
         + TiDimensionCalculateValue([child layoutProperties]->right, bounds.size.width);
