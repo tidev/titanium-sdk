@@ -102,12 +102,16 @@ properties:
         <Titanium.UI.ActivityIndicatorStyle.BIG>, 
         <Titanium.UI.ActivityIndicatorStyle.BIG_DARK>, 
         or <Titanium.UI.ActivityIndicatorStyle.PLAIN>.
+		
+		On Mobile Web, setting the style automatically sets the indicator color and diameter.
     type: Number
     default: <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN> (iOS), <Titanium.UI.MobileWeb.ActivityIndicatorStyle.PLAIN> (Mobile Web)
     platforms: [iphone, ipad, mobileweb]
+	See also: [indicatorColor](Titanium.UI.ActivityIndicator.indicatorColor),
+		[indicatorDiamter](Titanium.UI.ActivityIndicator.indicatorDiameter)
 
   - name: indicatorColor
-    summary: The color of the indicator prongs.
+    summary: The color of the animated indicator.
     since: "2.1.0"
     type: String
     default: "#fff"
@@ -116,7 +120,7 @@ properties:
   - name: indicatorDiameter
     summary: The diameter of the indicator
     description: |
-        The diameter is measured from the right-most edge of the right-most prong to the left-most edge of the left-most prong.
+        The diameter of the animated indicator, excusive of any message text.
     since: "2.1.0"
     type: String
     default: 36
