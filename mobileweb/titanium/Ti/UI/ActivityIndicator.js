@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/style", "Ti/Locale", "Ti/UI"],
-	function(declare, lang, Widget, dom, style, Locale, UI) {
+define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/style", "Ti/Locale", "Ti/UI", "Ti/UI/ActivityIndicatorStyle"],
+	function(declare, lang, Widget, dom, style, Locale, UI, ActivityIndicatorStyle) {
 
 	var opacity = 0.3,
 		setStyle = style.set;
@@ -7,32 +7,59 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/style",
 	return declare("Ti.UI.ActivityIndicator", Widget, {
 
 		constructor: function() {
-			var prongs = this._prongs = [],
-				i = 0,
-				contentContainer = this._contentContainer = UI.createView({
+			var contentContainer = this._contentContainer = UI.createView({
 					layout: UI._LAYOUT_CONSTRAINING_HORIZONTAL,
 					width: UI.SIZE,
 					height: UI.SIZE
 				});
 			this._add(contentContainer);
 			contentContainer.hide();
-				
-			contentContainer._add(this._indicatorIndicator = UI.createView({
-				width: 36,
-				height: 36
-			}));
-				
+
+			contentContainer._add(this._indicatorIndicator = UI.createView());
 			contentContainer._add(this._indicatorMessage = UI.createLabel());
 
+			this._createProngs();
+		},
+
+		_createProngs: function() {
+
+			var i = 0,
+				prongs = this._prongs = [],
+				indicator = this._indicatorIndicator,
+				indicatorDomNode = indicator.domNode,
+				backgroundColor = this.indicatorColor,
+				diameter = this.indicatorDiameter,
+				scale = diameter / 36,
+				prongContainer;
+
+			// Set the container size
+			indicator.width = indicator.height = diameter;
+			
+			// Remove any old children
+			while (indicatorDomNode.firstChild) {
+				indicatorDomNode.removeChild(indicatorDomNode.firstChild);
+			}
+			
+			// Add the prong container
+			prongContainer = dom.create("div", {
+				className: "TiUIActivityIndicatorProngContainer",
+				style: {
+					transformOrigin: "0px 0px",
+					transform: "scale(" + scale + ")"
+				}
+			}, indicatorDomNode)
+
+			// Add the new prongs
 			for (; i < 12; i++) {
 				prongs.push(dom.create("div", {
 					className: "TiUIActivityIndicatorProng",
 					style: {
 						transform: "translate(16px,0px) rotate(" + i * 30 + "deg)",
 						transformOrigin: "2px 18px",
-						opacity: opacity
+						opacity: opacity,
+						backgroundColor: backgroundColor
 					}
-				}, this._indicatorIndicator.domNode));
+				}, prongContainer));
 			}
 		},
 
@@ -86,6 +113,14 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/style",
 					return this._indicatorMessage.font = value;
 				}
 			},
+			indicatorColor: {
+				post: "_createProngs",
+				value: "#fff"
+			},
+			indicatorDiameter: {
+				post: "_createProngs",
+				value: 36
+			},
 			message: {
 				set: function(value) {
 					var indicatorMessage = this._indicatorMessage;
@@ -98,6 +133,20 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/style",
 					var indicatorMessage = this._indicatorMessage;
 					indicatorMessage.left = value ? 5 : 0;
 					return indicatorMessage.textid = value;
+				}
+			},
+			style: {
+				set: function(value) {
+					if (~[ActivityIndicatorStyle.DARK, ActivityIndicatorStyle.BIG_DARK].indexOf(value)) {
+						this.indicatorColor = "#444";
+					} else {
+						this.indicatorColor = "#fff";
+					}
+					if (~[ActivityIndicatorStyle.BIG, ActivityIndicatorStyle.BIG_DARK].indexOf(value)) {
+						this.indicatorDiameter = 72;
+					} else {
+						this.indicatorDiameter = 36;
+					}
 				}
 			}
 		}

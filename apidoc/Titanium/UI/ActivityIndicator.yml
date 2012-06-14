@@ -94,13 +94,33 @@ properties:
   - name: style
     summary: The style for the activity indicator.
     description: |
-        One of the activity indicator style constants 
+        One of the activity indicator style constants. On iOS: 
         <Titanium.UI.iPhone.ActivityIndicatorStyle.DARK>, 
         <Titanium.UI.iPhone.ActivityIndicatorStyle.BIG>, 
-        or <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN>.
+        or <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN>. On Mobile Web: 
+        <Titanium.UI.MobileWeb.ActivityIndicatorStyle.DARK>, 
+        <Titanium.UI.MobileWeb.ActivityIndicatorStyle.BIG>, 
+        <Titanium.UI.MobileWeb.ActivityIndicatorStyle.BIG_DARK>, 
+        or <Titanium.UI.MobileWeb.ActivityIndicatorStyle.PLAIN>.
     type: Number
-    default: <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN>
-    platforms: [iphone, ipad]
+    default: <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN> (iOS), <Titanium.UI.MobileWeb.ActivityIndicatorStyle.PLAIN> (Mobile Web)
+    platforms: [iphone, ipad, mobileweb]
+
+  - name: indicatorColor
+    summary: The color of the indicator prongs.
+    since: "2.1.0"
+    type: String
+    default: "#fff"
+    platforms: [mobileweb]
+    
+  - name: indicatorDiameter
+    summary: The diameter of the indicator
+    description: |
+        The diameter is measured from the right-most edge of the right-most prong to the left-most edge of the left-most prong.
+    since: "2.1.0"
+    type: String
+    default: "#fff"
+    platforms: [mobileweb]
 
   - name: top
     summary: Top position of the view.
