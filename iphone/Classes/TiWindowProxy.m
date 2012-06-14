@@ -287,7 +287,9 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 
 -(void)_tabFocus
 {
-	focused = YES;
+    if (![self opening]) {
+        focused = YES;
+    }
 	[self willShow];
 	if (!navWindow) {
 		[[[TiApp app] controller] windowFocused:[self controller]];
@@ -748,7 +750,10 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
     
 	if (!focused)
 	{
-		[self fireFocus:YES];
+        //Do not fire focus until context is ready
+        if (![self opening]) {
+            [self fireFocus:YES];
+        }
 	}
 	else
 	{

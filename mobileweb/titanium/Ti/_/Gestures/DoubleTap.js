@@ -32,15 +32,21 @@ define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function
 					this._firstTapTime = null;
 					if (elapsedTime < this._timeThreshold && Math.abs(this._firstTapLocation.x - x) < this._driftThreshold && 
 							Math.abs(this._firstTapLocation.y - y) < this._driftThreshold) {
-						var result = {
-							x: x,
-							y: y,
-							source: this.getSourceNode(e,element)
-						};
+						var source = this.getSourceNode(e,element);
 						if (!element._isGestureBlocked(this.name)) {
 							this.blocking.push("singletap");
-							lang.hitch(element,element._handleTouchEvent("dblclick",result));
-							lang.hitch(element,element._handleTouchEvent(this.name,result));
+							// We don't reuse the same results object because the values are modified before the event is fired.
+							// If we reused the object, they would be modified twice, which is incorrect.
+							element._handleTouchEvent("dblclick", {
+								x: x,
+								y: y,
+								source: source
+							});
+							element._handleTouchEvent(this.name, {
+								x: x,
+								y: y,
+								source: source
+							});
 						}
 					} else {
 						this.initTracker(x,y);

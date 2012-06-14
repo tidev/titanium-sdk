@@ -647,7 +647,7 @@ methods:
         dictionary specifying the properties for a table row, in which case this `TableView` will 
         create `TableViewRow` objects as needed. 
         
-        On iOS, the row(s) can be inserted with animation by specifying a `properties` parameter.
+        On iOS, the row(s) may be inserted with animation by setting the `animation` parameter.
     parameters:
       - name: index
         summary: Index of the row to insert after.
@@ -669,7 +669,7 @@ methods:
         dictionary specifying the properties for a table row, in which case this `TableView` will 
         create `TableViewRow` objects as needed. 
         
-        On iOS, the row(s) can be inserted with animation by specifying a `properties` parameter.
+        On iOS, the row(s) may be inserted with animation by setting the `animation` parameter.
     parameters:
       - name: index
         summary: Index of the row to insert before.
@@ -695,7 +695,7 @@ methods:
         type: Number
         
       - name: animation
-        summary: Animation properties. Only used on iOS.
+        summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
         optional: true
         
@@ -801,7 +801,7 @@ methods:
         type: Titanium.UI.TableViewRow
         
       - name: animation
-        summary: Animation properties. Only used on iOS.
+        summary: Animation properties. (iOS only.)
         type: TableViewAnimationProperties
 
 properties:
@@ -1003,7 +1003,12 @@ properties:
     type: Boolean
     default: false (search field visible)
     platforms: [iphone, ipad]
-    
+
+  - name: section
+    summary: Sections of this table.
+    type: Array<Titanium.UI.TableViewSection>
+    platforms: [iphone, ipad]
+
   - name: separatorColor
     summary: Separator line color between rows, as a color name or hex triplet.
     description: |
@@ -1042,7 +1047,7 @@ properties:
 examples:
   - title: Simple Table View
     example: |
-        A basic table view.
+        Create a basic table view.
         
             Ti.UI.backgroundColor = 'white';
             var win = Ti.UI.createWindow();
@@ -1057,32 +1062,36 @@ examples:
         
   - title: Table View Sections
     example: |
-        A table containing two sections with header titles, each with two rows.
+        Create a table with three sections, each with two rows. Add two sections to the table 
+        before and one after it is rendered. 
         
             Ti.UI.backgroundColor = 'white';
             var win = Ti.UI.createWindow();
             
             var sectionFruit = Ti.UI.createTableViewSection({ headerTitle: 'Fruit' });
-            var row1 = Ti.UI.createTableViewRow({ title: 'Apples' });
-            var row2 = Ti.UI.createTableViewRow({ title: 'Bananas' });
-            sectionFruit.add(row1);
-            sectionFruit.add(row2);
+            sectionFruit.add(Ti.UI.createTableViewRow({ title: 'Apples' }));
+            sectionFruit.add(Ti.UI.createTableViewRow({ title: 'Bananas' }));
             
             var sectionVeg = Ti.UI.createTableViewSection({ headerTitle: 'Vegetables' });
-            var row3 = Ti.UI.createTableViewRow({ title: 'Carrots' });
-            var row4 = Ti.UI.createTableViewRow({ title: 'Potatoes' });
-            sectionVeg.add(row3);
-            sectionVeg.add(row4);
+            sectionVeg.add(Ti.UI.createTableViewRow({ title: 'Carrots' }));
+            sectionVeg.add(Ti.UI.createTableViewRow({ title: 'Potatoes' }));
             
             var table = Ti.UI.createTableView({
               data: [sectionFruit, sectionVeg]
             });
+            
             win.add(table);
             win.open();
+            
+            var sectionFish = Ti.UI.createTableViewSection({ headerTitle: 'Fish' });
+            sectionFish.add(Ti.UI.createTableViewRow({ title: 'Cod' }));
+            sectionFish.add(Ti.UI.createTableViewRow({ title: 'Haddock' }));
+            
+            table.setData([ sectionFish, sectionFruit, sectionVeg ]);
         
   - title: Table View with Composite Layout
     example: |
-        A table created using rows that contain a custom child-view layout.
+        Create a table of rows that contain a custom child-view layout.
         
             Ti.UI.setBackgroundColor('#000');
             var win = Ti.UI.createWindow({

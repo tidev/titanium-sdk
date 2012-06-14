@@ -131,6 +131,14 @@ events:
             been released by the touch. If `false`, scrolling will stop immediately.
         type: Boolean
 properties:
+  - name: canCancelEvents
+    summary: |
+        Determines whether this scroll view can cancel subview touches in order to scroll instead.
+    description: Set to `false` to ensure that subview touches always take effect.
+    type: Boolean
+    default: true
+    platforms: [android, iphone, ipad]
+
   - name: contentHeight
     summary: Height of the scrollable region.
     description: |
@@ -180,12 +188,24 @@ properties:
     
   - name: maxZoomScale
     summary: Maximum scaling factor of the scrollable region and its content.
+    description: |
+        This value determines how large the content can be scaled. 
+        It must be greater than the [minimum zoom scale](Titanium.UI.ScrollView.minZoomScale) for zooming to be enabled. 
+        The default value is 1.0 unless otherwise specified.
+        
+        Note that specifying a value less than or equal to 0 will hide all contents of the scroll view.
     type: Number
+    default: 1.0
     platforms: [iphone, ipad]
     
   - name: minZoomScale
     summary: Minimum scaling factor of the scrollable region and its content.
+    description: |
+        This value determines how small the content can be scaled. 
+        It must be less than the [maximum zoom scale](Titanium.UI.ScrollView.maxZoomScale) for zooming to be enabled. 
+        The default value is 1.0 unless otherwise specified.
     type: Number
+    default: 1.0
     platforms: [iphone, ipad]
     
   - name: scrollIndicatorStyle
@@ -236,6 +256,8 @@ properties:
     
   - name: zoomScale
     summary: Scaling factor of the scrollable region and its content.
+    description: |
+        This value is bound by the [minZoomScale](Titanium.UI.ScrollView.minZoomScale) and [maxZoomScale](Titanium.UI.ScrollView.maxZoomScale) properties.
     type: Number
     default: 1
     platforms: [iphone, ipad]

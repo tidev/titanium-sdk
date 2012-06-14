@@ -50,7 +50,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 							measuredWidth = widthLayoutCoefficients.x1 * width + widthLayoutCoefficients.x2 * (width - runningWidth) + widthLayoutCoefficients.x3;
 							
 							if (child._getContentSize) {
-								childSize = child._getContentSize();
+								childSize = child._getContentSize(measuredWidth, measuredHeight);
 							} else {
 								childSize = child._layout._doLayout(
 									child, 
@@ -95,7 +95,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						measuredWidth = widthLayoutCoefficients.x1 * width + widthLayoutCoefficients.x2 * (i < len - 1 ? runningWidth : remainingSpace - runningWidth * (fillCount - 1)) + widthLayoutCoefficients.x3;
 						
 						if (child._getContentSize) {
-							childSize = child._getContentSize();
+							childSize = child._getContentSize(measuredWidth, measuredHeight);
 						} else {
 							childSize = child._layout._doLayout(
 								child, 

@@ -12,6 +12,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
@@ -53,16 +54,33 @@ public class SoundProxy extends KrollProxy
 		((TiBaseActivity)activity).addOnLifecycleEventListener(this);
 	}
 
+	private String parseURL(Object url)
+	{
+		String path = null;
+		if (url instanceof FileProxy) {
+			path = ((FileProxy) url).getNativePath();
+		} else if (url instanceof String) {
+			path = resolveUrl(null, (String) url);
+		} else if (url instanceof TiBlob) {
+			TiBlob blob = (TiBlob) url;
+			if (blob.getType() == TiBlob.TYPE_FILE) {
+				path = blob.getFile().getNativePath();
+			}
+		} else {
+			Log.e(LCAT, "Invalid type for url.");
+		}
+		return path;
+	}
+
 	@Override
-	public void handleCreationDict(KrollDict options) {
+	public void handleCreationDict(KrollDict options)
+	{
 		super.handleCreationDict(options);
 		if (options.containsKey(TiC.PROPERTY_URL)) {
-			setProperty(TiC.PROPERTY_URL, resolveUrl(null, TiConvert.toString(options, TiC.PROPERTY_URL)));
-		} else if (options.containsKey(TiC.PROPERTY_SOUND)) {
-			FileProxy fp = (FileProxy) options.get(TiC.PROPERTY_SOUND);
-			if (fp != null) {
-				String url = fp.getNativePath();
-				setProperty(TiC.PROPERTY_URL, url);
+			Object url = options.get(TiC.PROPERTY_URL);
+			String path = parseURL(url);
+			if (path != null) {
+				setProperty(TiC.PROPERTY_URL, path);
 			}
 		}
 		if (options.containsKey(TiC.PROPERTY_ALLOW_BACKGROUND)) {
@@ -79,9 +97,10 @@ public class SoundProxy extends KrollProxy
 	}
 
 	@Kroll.setProperty
-	public void setUrl(String url) {
-		if (url != null) {
-			setProperty(TiC.PROPERTY_URL, resolveUrl(null, TiConvert.toString(url)));
+	public void setUrl(Object url) {
+		String path = parseURL(url);
+		if (path != null) {
+			setProperty(TiC.PROPERTY_URL, path);
 		}
 	}
 

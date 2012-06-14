@@ -129,7 +129,12 @@ public class TiUITabGroup extends TiUIView
 	}
 
 	public KrollDict getTabChangeEvent() {
-		return tabChangeEventData;
+		if (tabChangeEventData != null) {
+			// Return a copy since this may get modified by the caller.
+			return new KrollDict(tabChangeEventData);
+		}
+
+		return null;
 	}
 
 	@Override

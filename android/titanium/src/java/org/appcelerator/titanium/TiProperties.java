@@ -94,7 +94,17 @@ public class TiProperties
 		if (DBG) {
 			Log.d(LCAT,"getInt called with key:"+key+", def:"+def);
 		}
-		return preferences.getInt(key,def);
+		try {
+			return preferences.getInt(key,def);
+		} catch(ClassCastException cce) {
+			//Value stored as something other than int. Try and convert to int
+			String val = getString(key,"");
+			try {
+				return Integer.parseInt(val);
+			} catch (NumberFormatException nfe) {
+				return def;
+			}
+		}
 	}
 	
 	/**
@@ -129,13 +139,18 @@ public class TiProperties
 		if (!hasProperty(key)) {
 			return def;
 		}
-
-		String stringValue = preferences.getString(key, "");
+		String stringValue = null;
+		try {
+			stringValue = preferences.getString(key, "");
+		} catch (ClassCastException cce) {
+			//Value stored as something other than String. Try and convert to String
+			stringValue = getString(key,"");
+		}
 		try {
 			return Double.parseDouble(stringValue);
 		} catch (NumberFormatException e) {
 			return def;
-		}
+		} 
 	}
 	
 	/**
@@ -168,7 +183,17 @@ public class TiProperties
 		if (DBG) {
 			Log.d(LCAT,"getBool called with key:"+key+", def:"+def);
 		}
-		return preferences.getBoolean(key,def);
+		try {
+			return preferences.getBoolean(key,def);
+		} catch(ClassCastException cce) {
+			//Value stored as something other than boolean. Try and convert to boolean
+			String val = getString(key,"");
+			try {
+				return Boolean.valueOf(val).booleanValue();
+			} catch (Exception e) {
+				return def;
+			}
+		}
 	}
 	
 	/**

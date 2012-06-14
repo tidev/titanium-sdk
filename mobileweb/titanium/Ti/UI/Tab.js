@@ -91,7 +91,7 @@ define(["Ti/_/declare", "Ti/UI/View", "Ti/_/dom", "Ti/Locale", "Ti/UI", "Ti/UI/M
 
 		properties: {
 			active: {
-				get: function(value) {
+				get: function() {
 					return this._tabGroup && this._tabGroup.activeTab === this;
 				},
 				post: function(value) {

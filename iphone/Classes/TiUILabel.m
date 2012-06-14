@@ -45,6 +45,11 @@
 	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 1000);
 	CGSize shadowOffset = [label shadowOffset];
 	requiresLayout = YES;
+	if ((suggestedWidth > 0) && [value characterAtIndex:value.length-1] == ' ') {
+		// (CGSize)sizeWithFont:(UIFont *)font constrainedToSize:(CGSize)size lineBreakMode:(UILineBreakMode)lineBreakMode method truncates
+		// the string having trailing spaces when given size parameter width is equal to the expected return width, so we adjust it here.
+		maxSize.width += 0.00001;
+	}
 	CGSize size = [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
 	if (shadowOffset.width > 0)
 	{
@@ -178,13 +183,7 @@
 -(void)setBackgroundImage_:(id)url
 {
     if (url != nil) {
-        UIImage* bgImage = [UIImageResize resizedImage:self.frame.size 
-                                  interpolationQuality:kCGInterpolationDefault
-                                                 image:[self loadImage:url]
-												 hires:NO];
-        
-        // Resizing doesn't preserve stretchability.  Should we maybe fix this?
-        bgImage = [self loadImage:url];
+        UIImage* bgImage = [self loadImage:url];
         if (backgroundView == nil) {
             backgroundView = [[UIImageView alloc] initWithImage:bgImage];
             backgroundView.userInteractionEnabled = NO;

@@ -64,6 +64,12 @@
 -(void)suspend:(id)sender;
 
 /**
+ Titanium Platform calls this method on entering background.
+ @param sender The sender of the event.
+ */
+-(void)paused:(id)sender;
+
+/**
  Titanium Platform calls this method on resume.
  @param sender The sender of the event.
  */

@@ -298,7 +298,7 @@ void ${className}::setter_${name}(Local<String> property, Local<Value> value, co
 	<@Proxy.verifyAndConvertArgument expr="value" index=0 info=typeInfo logOnly=true isOptional=false/>
 
 	jobject javaProxy = proxy->getJavaObject();
-	<@Proxy.callJNIMethod [], property.setHasInvocation, property.setReturnType, "methodID", "javaProxy", "jArguments", false ;
+	<@Proxy.callJNIMethod property.setMethodArgs, property.setHasInvocation, property.setReturnType, "methodID", "javaProxy", "jArguments", false ;
 		hasResult, resultVar>
 	</@Proxy.callJNIMethod>
 

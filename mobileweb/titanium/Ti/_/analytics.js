@@ -1,5 +1,5 @@
-define(["Ti/_", "Ti/_/dom", "Ti/_/lang", "Ti/App", "Ti/Platform"],
-	function(_, dom, lang, App, Platform) {
+define(["Ti/_", "Ti/_/dom", "Ti/_/has", "Ti/_/lang", "Ti/App", "Ti/Platform"],
+	function(_, dom, has, lang, App, Platform) {
 
 	var global = window,
 		is = require.is,
@@ -15,19 +15,12 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 				if (analyticsEnabled) {
 					// store event
 					var storage = getStorage();
-						now = new Date(),
-						tz = now.getTimezoneOffset(),
-						atz = Math.abs(tz),
-						formatZeros = function(v, n){
-							var d = (v+'').length;
-							return (d < n ? (new Array(++n - d)).join("0") : "") + v;
-						};
 
 					storage.push({
 						id: _.uuid(),
 						type: type,
 						evt: event,
-						ts: now.toISOString().replace('Z', (tz < 0 ? '-' : '+') + (atz < 100 ? "00" : (atz < 1000 ? "0" : "")) + atz),
+						ts: (new Date).toISOString().replace('Z', "+0000"),
 						data: data
 					});
 
@@ -39,7 +32,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 			send: function(isUrgent) {
 				if (analyticsEnabled) {
 					var rand = Math.floor(Math.random() * 1e6),
-						now = (new Date()).getTime(),
+						now = (new Date).getTime(),
 						ids = [],
 						jsonStrs = [],
 						sessionId = sessionStorage.getItem("ti:sessionId"),
@@ -86,7 +79,7 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 						pending[rand] = ids;
 						analyticsLastSent = now;
 
-						if (require.has("analytics-use-xhr")) {
+						if (has("analytics-use-xhr")) {
 							var xhr = new XmlHttpRequest;
 							xhr.onreadystatechange = function() {
 								if (xhr.readyState === 4 && xhr.status === 200) {

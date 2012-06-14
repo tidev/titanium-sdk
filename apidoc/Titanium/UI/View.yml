@@ -728,7 +728,7 @@ properties:
   - name: backgroundGradient
     summary: A background gradient for the view.
     type: Gradient
-    platforms: [iphone,ipad,mobileweb]
+    platforms: [iphone,ipad,mobileweb,android]
     description: |
         A gradient can be defined as either linear or radial. A linear gradient varies continuously 
         along a line between the `startPoint` and `endPoint`.
@@ -752,6 +752,9 @@ properties:
         
         Mobile Web has two limitations: backfillStart and backfillEnd are ignored and the system 
         behaves as if they are true, and endPoint is not supported for radial gradients. 
+
+        Android currently only supports linear gradients. It also ignores backfillStart and backfillEnd
+        treating them as if they are true.
     examples:
       - title: Linear and Radial Gradients
         example: |
@@ -1209,10 +1212,12 @@ properties:
   - name: startPoint
     summary: Start point for the gradient.
     type: Point
+    default: {x: 0.0, y: 0.0}
     
   - name: endPoint
     summary: End point for the gradient.
     type: Point
+    default: {x: 0.0, y: 1.0}
     
   - name: startRadius
     summary: For a radial gradient, the radius at the `startPoint`.

@@ -1,6 +1,6 @@
 define(
-	["Ti/_", "Ti/_/Evented", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/_/dom"],
-	function(_, Evented, lang, ready, style, dom) {
+	["Ti/_", "Ti/_/Evented", "Ti/_/has", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti/_/dom"],
+	function(_, Evented, has, lang, ready, style, dom) {
 
 	var global = window,
 		doc = document,
@@ -13,19 +13,19 @@ define(
 		iphone = handheld && handheld[0] === "iphone",
 		targetHeight = {},
 		hidingAddressBar,
-		hideAddressBar = finishAddressBar = function() {
+		finishAddressBar = function() {
 			Ti.UI._recalculateLayout();
 			hidingAddressBar = 0;
 		},
+		hideAddressBar = finishAddressBar,
 		splashScreen,
-		unitize = dom.unitize,
-		has = require.has;
+		unitize = dom.unitize;
 
 	on(body, "touchmove", function(e) {
 		e.preventDefault();
 	});
 
-	require.each(modules.split(','), function(name) {
+	modules.split(',').forEach(function(name) {
 		creators['create' + name] = function(args) {
 			return new (require("Ti/UI/" + name))(args);
 		};
@@ -73,35 +73,37 @@ define(
 	}
 
 	ready(10, function() {
-		var container = (Ti.UI._container = Ti.UI.createView({
-				left: 0,
-				top: 0
-			})),
-			node = container.domNode,
-			coefficients = container._layoutCoefficients; 
-
-		coefficients.width.x1 = 1;
-		coefficients.height.x1 = 1;
-		container._measuredTop = 0;
-		container._measuredLeft = 0;
-		node.id = "TiUIContainer";
-		setStyle(node, "overflow", "hidden");
-		body.appendChild(node);
-
-		(splashScreen = doc.getElementById("splash")) && container.addEventListener("postlayout", function(){
-			setTimeout(function(){
-				setStyle(splashScreen,{
-					position: "absolute",
-					width: unitize(container._measuredWidth),
-					height: unitize(container._measuredHeight),
+		setTimeout(function() {
+			var container = (Ti.UI._container = Ti.UI.createView({
 					left: 0,
-					top: 0,
-					right: '',
-					bottom: ''
-				});
-			}, 10);
-		});
-		hideAddressBar();
+					top: 0
+				})),
+				node = container.domNode,
+				coefficients = container._layoutCoefficients;
+
+			coefficients.width.x1 = 1;
+			coefficients.height.x1 = 1;
+			container._measuredTop = 0;
+			container._measuredLeft = 0;
+			node.id = "TiUIContainer";
+			setStyle(node, "overflow", "hidden");
+			body.appendChild(node);
+
+			(splashScreen = doc.getElementById("splash")) && container.addEventListener("postlayout", function(){
+				setTimeout(function(){
+					setStyle(splashScreen,{
+						position: "absolute",
+						width: unitize(container._measuredWidth),
+						height: unitize(container._measuredHeight),
+						left: 0,
+						top: 0,
+						right: '',
+						bottom: ''
+					});
+				}, 10);
+			});
+			hideAddressBar();
+		}, 1);
 	});
 
 	function updateOrientation() {
@@ -174,7 +176,7 @@ define(
 					j,
 					len = nodes.length;
 
-				has("ti-instrumentation") && (this._layoutInstrumentationTest = instrumentation.startTest("Layout"));
+				has("ti-instrumentation") && (self._layoutInstrumentationTest = instrumentation.startTest("Layout"));
 
 				// Determine which nodes need to be re-layed out
 				for (i = 0; i < len; i++) {
@@ -256,7 +258,7 @@ define(
 					node._layout._doLayout(node, node._measuredWidth, node._measuredHeight, node._parent._layout._getWidth(node, node.width) === Ti.UI.SIZE, node._parent._layout._getHeight(node, node.height) === Ti.UI.SIZE);
 				}
 
-				has("ti-instrumentation") && instrumentation.stopTest(this._layoutInstrumentationTest, 
+				has("ti-instrumentation") && instrumentation.stopTest(self._layoutInstrumentationTest, 
 					self._elementLayoutCount + " out of approximately " + document.getElementById("TiUIContainer").getElementsByTagName("*").length + " elements laid out.");
 
 				self._layoutInProgress = false;

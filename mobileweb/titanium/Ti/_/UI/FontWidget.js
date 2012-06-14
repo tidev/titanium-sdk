@@ -23,7 +23,8 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/lang", "Ti/_/ready", "Ti/_/style", "Ti
 
 		_setFont: function(font,domNode) {
 			if (font) {
-				require.is(font.fontSize, "Number") && (font.fontSize = dom.unitize(font.fontSize));
+				var fontSize = parseInt(font.fontSize);
+				font.fontSize = isNaN(fontSize) ? void 0 : (fontSize + "px");
 				style.set(domNode, font);
 			} else {
 				style.set(domNode,{
