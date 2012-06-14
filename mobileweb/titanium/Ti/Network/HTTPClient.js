@@ -94,12 +94,11 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Net
 			var httpURLFormatter = Ti.Network.httpURLFormatter,
 				c = this.constants,
 				wc = this.withCredentials;
-			async = wc ? true : !!async;
 			this.abort();
 			this._xhr.open(
 				c.connectionType = method,
 				c.location = _.getAbsolutePath(httpURLFormatter ? httpURLFormatter(url) : url),
-				async
+				wc || async === void 0 ? true : !!async
 			);
 			wc && (this._xhr.withCredentials = wc);
 		},

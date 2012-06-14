@@ -17,7 +17,7 @@ define(["Ti/_/has"], function(has) {
 	}
 
 	function hitchArgs(scope, method) {
-		var pre = toArray(arguments, 2);
+		var pre = toArray(arguments, 2),
 			named = is(method, "String");
 		return function() {
 			var s = scope || global,
