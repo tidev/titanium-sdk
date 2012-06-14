@@ -109,6 +109,13 @@ public class TiAnimationBuilder
 		}
 		if (options.containsKey(TiC.PROPERTY_REPEAT)) {
 			repeat = TiConvert.toDouble(options, TiC.PROPERTY_REPEAT);
+			if (repeat == 0d) {
+				// A repeat of 0 is probably non-sensical. Titanium iOS
+				// treats it as 1 and so should we.
+				repeat = 1d;
+			}
+		} else {
+			repeat = 1d; // Default as indicated in our documentation.
 		}
 		if (options.containsKey(TiC.PROPERTY_AUTOREVERSE)) {
 			autoreverse = TiConvert.toBoolean(options, TiC.PROPERTY_AUTOREVERSE);
@@ -177,18 +184,20 @@ public class TiAnimationBuilder
 
 	private void addAnimation(AnimationSet animationSet, Animation animation)
 	{
-		if (repeat != null) {
-			animation.setRepeatCount(repeat.intValue());
+		boolean reverse = (autoreverse != null && autoreverse.booleanValue());
+		animation.setRepeatMode(reverse ? Animation.REVERSE : Animation.RESTART);
+
+		// We need to reduce the repeat count by 1, since for native Android
+		// 1 would mean repeating it once.
+		int repeatCount = (repeat == null ? 0 : repeat.intValue() - 1);
+
+		// In Android (native), the repeat count includes reverses. So we
+		// need to double-up and add one to the repeat count if we're reversing.
+		if (reverse) {
+			repeatCount = repeatCount * 2 + 1;
 		}
 
-		if (autoreverse != null) {
-			if (autoreverse) {
-				animation.setRepeatMode(Animation.REVERSE);
-
-			} else {
-				animation.setRepeatMode(Animation.RESTART);
-			}
-		}
+		animation.setRepeatCount(repeatCount);
 
 		animationSet.addAnimation(animation);
 	}

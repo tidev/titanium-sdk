@@ -269,11 +269,16 @@ class Builder(object):
 		self.jarsigner = "jarsigner"
 		self.javac = "javac"
 		self.java = "java"
+		java_home = None
+
+		if os.environ.has_key("JAVA_HOME") and os.path.exists(os.environ["JAVA_HOME"]):
+			java_home = os.environ["JAVA_HOME"]
+
 		if platform.system() == "Windows":
-			if os.environ.has_key("JAVA_HOME"):
-				home_jarsigner = os.path.join(os.environ["JAVA_HOME"], "bin", "jarsigner.exe")
-				home_javac = os.path.join(os.environ["JAVA_HOME"], "bin", "javac.exe")
-				home_java = os.path.join(os.environ["JAVA_HOME"], "bin", "java.exe")
+			if java_home:
+				home_jarsigner = os.path.join(java_home, "bin", "jarsigner.exe")
+				home_javac = os.path.join(java_home, "bin", "javac.exe")
+				home_java = os.path.join(java_home, "bin", "java.exe")
 				found = True
 				# TODO Document this path and test properly under windows
 				if os.path.exists(home_jarsigner):
@@ -305,11 +310,15 @@ class Builder(object):
 						self.jarsigner = os.path.join(path, 'jarsigner.exe')
 						self.javac = os.path.join(path, 'javac.exe')
 						self.java = os.path.join(path, 'java.exe')
+						java_home = os.path.dirname(os.path.dirname(self.javac))
 						found = True
 						break
 				if not found:
 					error("Error locating JDK: set $JAVA_HOME or put javac and jarsigner on your $PATH")
 					sys.exit(1)
+
+		if not os.environ.has_key("JAVA_HOME") and java_home:
+			os.environ["JAVA_HOME"] = java_home
 
 	def wait_for_home(self, type):
 		max_wait = 20
@@ -767,7 +776,8 @@ class Builder(object):
 		permissions_required = ['INTERNET','ACCESS_WIFI_STATE','ACCESS_NETWORK_STATE', 'WRITE_EXTERNAL_STORAGE']
 		
 		GEO_PERMISSION = [ 'ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION']
-		CONTACTS_PERMISSION = ['READ_CONTACTS']
+		CONTACTS_READ_PERMISSION = ['READ_CONTACTS']
+		CONTACTS_PERMISSION = ['READ_CONTACTS', 'WRITE_CONTACTS']
 		VIBRATE_PERMISSION = ['VIBRATE']
 		CAMERA_PERMISSION = ['CAMERA']
 		WALLPAPER_PERMISSION = ['SET_WALLPAPER']
@@ -779,28 +789,28 @@ class Builder(object):
 		# this is our module to permission(s) trigger - for each module on the left, require the permission(s) on the right
 		permissions_module_mapping = {
 			# GEO
-			'geolocation' : GEO_PERMISSION,
+			'geolocation' : GEO_PERMISSION
 		}
 
 		# this is our module method to permission(s) trigger - for each method on the left, require the permission(s) on the right
 		permissions_method_mapping = {
+			# MAP
+			'Map.createView' : GEO_PERMISSION,
 			# MEDIA
 			'Media.vibrate' : VIBRATE_PERMISSION,
 			'Media.showCamera' : CAMERA_PERMISSION,
 			
 			# CONTACTS
-			'Contacts.createContact' : CONTACTS_PERMISSION,
-			'Contacts.saveContact' : CONTACTS_PERMISSION,
-			'Contacts.removeContact' : CONTACTS_PERMISSION,
-			'Contacts.addContact' : CONTACTS_PERMISSION,
-			'Contacts.getAllContacts' : CONTACTS_PERMISSION,
-			'Contacts.showContactPicker' : CONTACTS_PERMISSION,
-			'Contacts.showContacts' : CONTACTS_PERMISSION,
-			'Contacts.getPersonByID' : CONTACTS_PERMISSION,
-			'Contacts.getPeopleWithName' : CONTACTS_PERMISSION,
-			'Contacts.getAllPeople' : CONTACTS_PERMISSION,
-			'Contacts.getAllGroups' : CONTACTS_PERMISSION,
-			'Contacts.getGroupByID' : CONTACTS_PERMISSION,
+			'Contacts.createPerson' : CONTACTS_PERMISSION,
+			'Contacts.removePerson' : CONTACTS_PERMISSION,
+			'Contacts.getAllContacts' : CONTACTS_READ_PERMISSION,
+			'Contacts.showContactPicker' : CONTACTS_READ_PERMISSION,
+			'Contacts.showContacts' : CONTACTS_READ_PERMISSION,
+			'Contacts.getPersonByID' : CONTACTS_READ_PERMISSION,
+			'Contacts.getPeopleWithName' : CONTACTS_READ_PERMISSION,
+			'Contacts.getAllPeople' : CONTACTS_READ_PERMISSION,
+			'Contacts.getAllGroups' : CONTACTS_READ_PERMISSION,
+			'Contacts.getGroupByID' : CONTACTS_READ_PERMISSION,
 
 			# WALLPAPER
 			'Media.Android.setSystemWallpaper' : WALLPAPER_PERMISSION,

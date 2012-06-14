@@ -157,15 +157,6 @@ USE_VIEW_FOR_CONTENT_WIDTH
 	[self contentsWillChange];
 }
 
--(void)windowDidClose
-{
-	[self _destroy];
-	NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:self];
-	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-	[[NSNotificationCenter defaultCenter] postNotification:notification];
-	[super windowDidClose];
-}
-
 -(void)_destroy
 {
 	if (pageToken!=nil)

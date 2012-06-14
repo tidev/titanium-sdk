@@ -1,7 +1,7 @@
 {
 	"name": "Ti",
 	"description": "The mobile web platform for rapidly developing applications",
-	"version": "1.9.0",
+	"version": "__VERSION__",
 	"keywords": ["Titanium", "Ti", "mobile", "JavaScript"],
 	"licenses": [
 		 {

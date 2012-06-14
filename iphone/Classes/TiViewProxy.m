@@ -1016,8 +1016,10 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 #pragma mark Methods subclasses should override for behavior changes
 -(BOOL)optimizeSubviewInsertion
 {
-    return YES;
+    //Return YES for any view that implements a wrapperView that is a TiUIView (Button and ScrollView currently) and a basic view
+    return ( [view isMemberOfClass:[TiUIView class]] ) ;
 }
+
 -(BOOL)suppressesRelayout
 {
 	return NO;
@@ -2499,7 +2501,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 			for (TiUIView * thisView in [ourView subviews])
 			{
-				if (![thisView isKindOfClass:[TiUIView class]])
+				if ( (!optimizeInsertion) && (![thisView isKindOfClass:[TiUIView class]]) )
 				{
 					insertPosition ++;
 					continue;

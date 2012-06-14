@@ -13,13 +13,24 @@
 
 @implementation TiUIScrollViewProxy
 
+static NSArray* scrollViewKeySequence;
+-(NSArray *)keySequence
+{
+    if (scrollViewKeySequence == nil)
+    {
+        //URL has to be processed first since the spinner depends on URL being remote
+        scrollViewKeySequence = [[NSArray arrayWithObjects:@"minZoomScale",@"maxZoomScale",@"zoomScale",nil] retain];
+    }
+    return scrollViewKeySequence;
+}
+
 -(void)_initWithProperties:(NSDictionary *)properties
 {
-	// set the initial scale to 1.0 which is the default
-	// FIXME: Not going to do this right before release because it might break some things, but we should rename this property to zoomScale and tie it to the scroll view's value.
-	[self replaceValue:NUMFLOAT(1.0) forKey:@"scale" notification:NO];
-	[self replaceValue:NUMBOOL(YES) forKey:@"canCancelEvents" notification:NO];
-	[super _initWithProperties:properties];
+    [self initializeProperty:@"minZoomScale" defaultValue:NUMFLOAT(1.0)];
+    [self initializeProperty:@"maxZoomScale" defaultValue:NUMFLOAT(1.0)];
+    [self initializeProperty:@"zoomScale" defaultValue:NUMFLOAT(1.0)];
+    [self initializeProperty:@"canCancelEvents" defaultValue:NUMBOOL(YES)];
+    [super _initWithProperties:properties];
 }
 
 -(TiPoint *) contentOffset{
@@ -188,7 +199,8 @@
         }
         else if (TiDimensionIsAutoSize(constraint))
         {
-            bounds.size.width = [child autoWidthForSize:CGSizeMake(boundingValue,bounds.size.height - offset2)] + offset;
+			// allow child to take as much horizontal space as scroll view width
+            bounds.size.width = [child autoWidthForSize:CGSizeMake(bounds.size.width,bounds.size.height - offset2)] + offset;
             horizontalLayoutBoundary += bounds.size.width;
         }
         else if (TiDimensionIsAuto(constraint) )
@@ -200,7 +212,8 @@
             }
             else {
                 //SIZE behavior
-                bounds.size.width = [child autoWidthForSize:CGSizeMake(boundingValue,bounds.size.height - offset2)] + offset;
+				// allow child to take as much horizontal space as scroll view width
+                bounds.size.width = [child autoWidthForSize:CGSizeMake(bounds.size.width,bounds.size.height - offset2)] + offset;
                 horizontalLayoutBoundary += bounds.size.width;
             }
         }
@@ -227,7 +240,8 @@
             }
             else {
                 //SIZE behavior
-                bounds.size.width = [child autoWidthForSize:CGSizeMake(boundingValue,bounds.size.height - offset2)] + offset;
+				// allow child to take as much horizontal space as scroll view width
+                bounds.size.width = [child autoWidthForSize:CGSizeMake(bounds.size.width,bounds.size.height - offset2)] + offset;
                 horizontalLayoutBoundary += bounds.size.width;
             }
         }
@@ -243,6 +257,11 @@
 {
 	[super childWillResize:child];
 	[(TiUIScrollView *)[self view] setNeedsHandleContentSizeIfAutosizing];
+}
+
+-(BOOL)optimizeSubviewInsertion
+{
+    return YES;
 }
 
 -(UIView *)parentViewForChild:(TiViewProxy *)child
@@ -299,7 +318,7 @@
 
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(float)scale
 {
-	[self replaceValue:NUMFLOAT(scale) forKey:@"scale" notification:NO];
+	[self replaceValue:NUMFLOAT(scale) forKey:@"zoomScale" notification:NO];
 	
 	if ([self _hasListeners:@"scale"])
 	{
