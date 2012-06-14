@@ -124,20 +124,6 @@ events:
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
 
-  - name: scrollEnd
-    summary: Fired when the view has stopped moving completely.
-    platforms: [iphone, ipad, android]
-    since: "2.1.0"
-
-    properties:
-      - name: currentPage
-        summary: Index of the currently visible view of <Titanium.UI.ScrollableView.views>.
-        type: Number
-        
-      - name: view
-        summary: The currently visible view.
-        type: Titanium.UI.View
-
   - name: singletap
     summary: Fired when the device detects a single tap against this view.
     platforms: [iphone, ipad]
@@ -227,8 +213,11 @@ events:
 
   - name: scroll
     summary: Fired repeatedly as the view is being scrolled.
-    platforms: [iphone, ipad, android]
-    since: "2.1.0"
+    description: |
+        Prior to 2.1, the scroll event did not fire consistently on all platforms. On iOS and Mobile
+        Web, it fired when scrolling ended, and on Android, it fired when drag ended. You can restore
+        the pre-2.1 behavior by listening for the `scrollEnd` or `dragEnd` events instead.
+    platforms: [iphone, ipad, android, mobileweb]
     properties:
 
       - name: currentPage
@@ -246,9 +235,31 @@ events:
         summary: The currently visible view.
         type: Titanium.UI.View
 
+  - name: scrollEnd
+    summary: Fired when the view has stopped moving completely.
+    platforms: [iphone, ipad, android, mobileweb]
+    since: "2.1.0"
+
+    properties:
+      - name: currentPage
+        summary: Index of the currently visible view of <Titanium.UI.ScrollableView.views>.
+        type: Number
+        
+      - name: view
+        summary: The currently visible view.
+        type: Titanium.UI.View
+
+  - name: dragStart
+    summary: Fired when the scrollable region starts being dragged.
+    description: |
+        A dragging gesture is when a touch remains in contact with the display to physically drag 
+        the view, as opposed to it being the result of scrolling momentum.
+    since: "2.1.0"
+    platforms: [mobileweb]
+
   - name: dragEnd
     summary: Fired when the scrolling drag gesture on the view has been completed.
-    platforms: [android]
+    platforms: [android, mobileweb]
     since: "2.1.0"
     properties:
 
