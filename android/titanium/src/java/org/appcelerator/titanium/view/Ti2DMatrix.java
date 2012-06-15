@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -20,12 +19,11 @@ import android.graphics.Matrix;
 @Kroll.proxy
 public class Ti2DMatrix extends KrollProxy
 {
-	private static final String TAG = "Ti2DMatrix";
-
 	public static final float DEFAULT_ANCHOR_VALUE = -1f;
 	public static final float VALUE_UNSPECIFIED = Float.MIN_VALUE;
 
 	protected Ti2DMatrix next, prev;
+	private boolean scaleFromValuesSpecified = false;
 
 	protected static class Operation
 	{
@@ -132,6 +130,7 @@ public class Ti2DMatrix extends KrollProxy
 		// varargs for API backwards compatibility
 		if (args.length == 4) {
 			// scale(fromX, fromY, toX, toY)
+			this.scaleFromValuesSpecified = true;
 			newMatrix.op.scaleFromX = TiConvert.toFloat(args[0]);
 			newMatrix.op.scaleFromY = TiConvert.toFloat(args[1]);
 			newMatrix.op.scaleToX = TiConvert.toFloat(args[2]);
@@ -139,10 +138,12 @@ public class Ti2DMatrix extends KrollProxy
 		}
 		if (args.length == 2) {
 			// scale(toX, toY)
+			this.scaleFromValuesSpecified = false;
 			newMatrix.op.scaleToX = TiConvert.toFloat(args[0]);
 			newMatrix.op.scaleToY = TiConvert.toFloat(args[1]);
 		} else if (args.length == 1) {
 			// scale(scaleFactor)
+			this.scaleFromValuesSpecified = false;
 			newMatrix.op.scaleToX = newMatrix.op.scaleToY = TiConvert.toFloat(args[0]);
 		}
 		// TODO newMatrix.handleAnchorPoint(newMatrix.getProperties());
@@ -229,27 +230,46 @@ public class Ti2DMatrix extends KrollProxy
 		return (this.op.type == Operation.TYPE_ROTATE);
 	}
 
-	public float[] getScaleOperationParameters()
+	/**
+	 * Whether the "from" values were specified.  This is the case if
+	 * the four-argument variable of scale() is called.  If the two-argument
+	 * variant is called, then only the "to" values were specified.
+	 * @return true if from values were specified, false otherwise.
+	 */
+	public boolean getScaleFromValuesSpecified()
 	{
-		if (!isScaleOperation()) {
-			Log.w(TAG, "getScaleOperationParameters called though matrix is not for a scale operation.");
-			return new float[6];
-		}
+		return this.scaleFromValuesSpecified;
+	}
 
-		return new float[] {
-			this.op.scaleFromX,
-			this.op.scaleToX,
-			this.op.scaleFromY,
-			this.op.scaleToY,
-			this.op.anchorX,
-			this.op.anchorY
-		};
+	public void setScaleFromValues(float fromX, float fromY)
+	{
+		if (this.op != null) {
+			this.op.scaleFromX = fromX;
+			this.op.scaleFromY = fromY;
+		}
+	}
+
+	public float getScaleToX()
+	{
+		if (op != null) {
+			return op.scaleToX;
+		} else {
+			return VALUE_UNSPECIFIED;
+		}
+	}
+
+	public float getScaleToY()
+	{
+		if (op != null) {
+			return op.scaleToY;
+		} else {
+			return VALUE_UNSPECIFIED;
+		}
 	}
 
 	public float[] getRotateOperationParameters()
 	{
-		if (!isRotateOperation()) {
-			Log.w(TAG, "getRotateOperationParameters called though matrix is not for a scale operation.");
+		if (this.op == null) {
 			return new float[4];
 		}
 

@@ -38,7 +38,6 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.LinearInterpolator;
-import android.view.animation.ScaleAnimation;
 import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 
@@ -261,35 +260,24 @@ public class TiAnimationBuilder
 			// TiMatrixAnimation and Operation.
 			Animation anim;
 			if (tdm.isScaleOperation()) {
-				// fromX, toX, fromY, toY, anchorX, anchorY
-				float[] params = tdm.getScaleOperationParameters();
-				float fromX = params[0];
-				float fromY = params[2];
 
-				if (fromX == Ti2DMatrix.VALUE_UNSPECIFIED) {
+				if (!tdm.getScaleFromValuesSpecified()) {
+
+					// fromX and fromY values were not specified, so set them to the values
+					// of the last animation (if any.)
 					if (tiView != null) {
-						fromX = tiView.getAnimatedXScale();
+						tdm.setScaleFromValues(tiView.getAnimatedXScale(), tiView.getAnimatedYScale());
 					} else {
-						fromX = 1.0f; // i.e., regular size.
+						tdm.setScaleFromValues(1f, 1f); // defaults to scaling from the view's actual size.
 					}
 				}
 
-				if (fromY == Ti2DMatrix.VALUE_UNSPECIFIED) {
-					if (tiView != null) {
-						fromY = tiView.getAnimatedYScale();
-					} else {
-						fromY = 1.0f; // i.e., regular size.
-					}
-				}
-
-				anim = new ScaleAnimation(fromX, params[1], fromY, params[3],
-					Animation.RELATIVE_TO_SELF, params[4],
-					Animation.RELATIVE_TO_SELF, params[5]);
+				anim = new TiMatrixAnimation(tdm, anchorX, anchorY);
 
 				// Remember the toX, toY
 				if (tiView != null) {
-					tiView.setAnimatedXScale(params[1]);
-					tiView.setAnimatedYScale(params[3]);
+					tiView.setAnimatedXScale(tdm.getScaleToX());
+					tiView.setAnimatedYScale(tdm.getScaleToY());
 				}
 
 			} else {
