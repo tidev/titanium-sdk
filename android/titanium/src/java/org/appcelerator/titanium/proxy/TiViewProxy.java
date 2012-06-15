@@ -273,7 +273,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 						TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
 						TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
 						TiDimension nativeLeft = new TiDimension(v.getLeft(), TiDimension.TYPE_LEFT);
-						TiDimension nativeRight = new TiDimension(v.getRight(), TiDimension.TYPE_RIGHT);
+						TiDimension nativeTop = new TiDimension(v.getTop(), TiDimension.TYPE_RIGHT);
 						
 						// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
 						View decorView = TiApplication.getAppCurrentActivity().getWindow().getDecorView();
@@ -281,7 +281,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 						d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
 						d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
 						d.put(TiC.PROPERTY_X, nativeLeft.getAsDefault(decorView));
-						d.put(TiC.PROPERTY_Y, nativeRight.getAsDefault(decorView));
+						d.put(TiC.PROPERTY_Y, nativeTop.getAsDefault(decorView));
 					}
 				}
 				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
