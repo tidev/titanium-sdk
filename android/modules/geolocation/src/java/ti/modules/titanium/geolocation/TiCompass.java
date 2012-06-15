@@ -140,25 +140,30 @@ public class TiCompass
 		return data;
 	}
 
+    /*
+     * Check whether a fresher location is available and update the GeomagneticField 
+     * that we use for correcting the magnetic heading. If the location is stale,
+     * use it anyway but log a warning.
+     */
 	private void updateDeclination()
 	{
 		long currentTime = System.currentTimeMillis();
-		long freshLocationTime = currentTime - STALE_LOCATION_THRESHOLD;
 
 		if (currentTime - lastDeclinationCheck > DECLINATION_CHECK_INTERVAL) {
-			if (geomagneticFieldLocation != null && geomagneticFieldLocation.getTime() < freshLocationTime) {
-				geomagneticFieldLocation = null;
-				geomagneticField = null;
-			}
 			String provider = tiLocation.locationManager.getBestProvider(locationCriteria, true);
 			if (provider != null) {
 				Location location = tiLocation.locationManager.getLastKnownLocation(provider);
-				if (location != null && (location.getTime() >= freshLocationTime)) {
-					if (geomagneticFieldLocation == null || location.getTime() > geomagneticFieldLocation.getTime()) {
+				if (location != null) {
+					if (geomagneticFieldLocation == null || (location.getTime() > geomagneticFieldLocation.getTime())) {
 						geomagneticField = new GeomagneticField((float)location.getLatitude(), (float)location.getLongitude(), (float)(location.getAltitude()), currentTime);
 						geomagneticFieldLocation = location;
 					}
 				}
+			}
+			if (geomagneticFieldLocation == null) {
+				Log.w(LCAT, "No location fix available, can't determine compass trueHeading.");
+			} else if (currentTime - geomagneticFieldLocation.getTime() > STALE_LOCATION_THRESHOLD) {
+				Log.w(LCAT, "Location fix is stale, compass trueHeading may be incorrect.");
 			}
 			lastDeclinationCheck = currentTime;
 		}
