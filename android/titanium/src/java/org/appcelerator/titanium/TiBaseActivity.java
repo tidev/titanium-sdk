@@ -94,7 +94,7 @@ public abstract class TiBaseActivity extends Activity
 		}
 		windowStack.add(proxy);
 		if (!isEmpty) { 
-			proxy.fireEvent(TiC.EVENT_FOCUS, null);
+			proxy.fireEvent(TiC.EVENT_FOCUS, null, false);
 		}
 
 		
@@ -106,7 +106,7 @@ public abstract class TiBaseActivity extends Activity
 		windowStack.remove(proxy);
 		if (!windowStack.empty()) {
 			TiBaseWindowProxy nextWindow = windowStack.peek();
-			nextWindow.fireEvent(TiC.EVENT_FOCUS, null);
+			nextWindow.fireEvent(TiC.EVENT_FOCUS, null, false);
 		}
 	}
 
@@ -755,7 +755,7 @@ public abstract class TiBaseActivity extends Activity
 		}
 
 		if (!windowStack.empty()) {
-			windowStack.peek().fireEvent(TiC.EVENT_FOCUS, null);
+			windowStack.peek().fireEvent(TiC.EVENT_FOCUS, null, false);
 		} 
 		
 		tiApp.setCurrentActivity(this, this);
