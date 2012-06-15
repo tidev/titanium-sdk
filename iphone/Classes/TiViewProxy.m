@@ -330,7 +330,7 @@ if (ENFORCE_BATCH_UPDATE) { \
 {	\
 	CHECK_LAYOUT_UPDATE(layoutName,value) \
 	layoutProperties.layoutFlags.flagName = [TiUtils boolValue:value];	\
-	[self replaceValue:value forKey:@#layoutName notification:YES];	\
+	[self replaceValue:value forKey:@#layoutName notification:NO];	\
 	postaction; \
 }
 
@@ -1287,6 +1287,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 {
     [self startLayout:nil];
 	// Set horizontal layout wrap:true as default 
+	layoutProperties.layoutFlags.horizontalWrap = YES;
 	[self initializeProperty:@"horizontalWrap" defaultValue:NUMBOOL(YES)];
 	
 	if (properties!=nil)
