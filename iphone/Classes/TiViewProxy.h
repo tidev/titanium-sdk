@@ -204,8 +204,6 @@ enum
 -(void)setHeight:(id)value;
 -(void)setZIndex:(id)value;
 -(id)zIndex;
--(void)setWrap:(id)value;
--(id)wrap;
 
 // See the code for setValue:forUndefinedKey: for why we can't have this
 //-(void)setLayout:(id)value;

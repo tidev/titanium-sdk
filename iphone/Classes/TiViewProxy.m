@@ -329,20 +329,9 @@ if (ENFORCE_BATCH_UPDATE) { \
 -(void)methodName:(id)value	\
 {	\
 	CHECK_LAYOUT_UPDATE(layoutName,value) \
-	if ([TiUtils boolValue:value]) { \
-		layoutProperties.layoutFlags |= flagName;	\
-	}\
-	else {\
-		layoutProperties.layoutFlags &= ~flagName;	\
-	}\
+	layoutProperties.layoutFlags.flagName = [TiUtils boolValue:value];	\
 	[self replaceValue:value forKey:@#layoutName notification:YES];	\
 	postaction; \
-}
-
-#define LAYOUTFLAGS_GETTER(methodName,layoutName)	\
--(id)methodName	\
-{	\
-	return [self valueForUndefinedKey:@#layoutName];	\
 }
 
 LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(setTop,top,TiDimensionFromObject,[self willChangePosition])
@@ -360,8 +349,7 @@ LAYOUTPROPERTIES_SETTER(setHeight,height,TiDimensionFromObject,[self willChangeS
 LAYOUTPROPERTIES_SETTER(setMinWidth,minimumWidth,TiFixedValueRuleFromObject,[self willChangeSize])
 LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[self willChangeSize])
 
-LAYOUTFLAGS_SETTER(setWrap,wrap,TiLayoutFlagsWrap,[self willChangeLayout])
-LAYOUTFLAGS_GETTER(wrap,wrap)
+LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willChangeLayout])
 
 // Special handling to try and avoid Apple's detection of private API 'layout'
 -(void)setValue:(id)value forUndefinedKey:(NSString *)key
@@ -1299,7 +1287,7 @@ LAYOUTFLAGS_GETTER(wrap,wrap)
 {
     [self startLayout:nil];
 	// Set horizontal layout wrap:true as default 
-	layoutProperties.layoutFlags = TiLayoutFlagsWrap;
+	[self initializeProperty:@"horizontalWrap" defaultValue:NUMBOOL(YES)];
 	
 	if (properties!=nil)
 	{
@@ -2167,7 +2155,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         return nil;
     }
     
-	BOOL horizontalNoWrap = TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle) && !TiLayoutFlagsHasWrap(layoutProperties.layoutFlags);
+	BOOL horizontalNoWrap = TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle) && !TiLayoutFlagsHasHorizontalWrap(&layoutProperties);
     NSMutableArray * measuredBounds = [NSMutableArray arrayWithCapacity:[childArray count]];
     NSUInteger i, count = [childArray count];
 	int maxHeight = 0;
@@ -2337,7 +2325,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
     }
     else if(TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle))
     {
-		BOOL horizontalWrap = TiLayoutFlagsHasWrap(layoutProperties.layoutFlags);
+		BOOL horizontalWrap = TiLayoutFlagsHasHorizontalWrap(&layoutProperties);
         BOOL followsFillBehavior = TiDimensionIsAutoFill([child defaultAutoWidthBehavior:nil]);
         CGFloat boundingWidth = bounds.size.width-horizontalLayoutBoundary;
         CGFloat boundingHeight = bounds.size.height-verticalLayoutBoundary;
