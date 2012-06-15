@@ -13,6 +13,7 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 				i = 0,
 				layoutCoefficients, 
 				widthLayoutCoefficients, heightLayoutCoefficients, sandboxWidthLayoutCoefficients, sandboxHeightLayoutCoefficients, topLayoutCoefficients, leftLayoutCoefficients, 
+				minWidthLayoutCoefficients, minHeightLayoutCoefficients,
 				childSize,
 				measuredWidth, measuredHeight, measuredSandboxHeight, measuredSandboxWidth, measuredLeft, measuredTop,
 				deferredLeftCalculations = [],
@@ -36,27 +37,43 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 						
 						layoutCoefficients = child._layoutCoefficients;
 						widthLayoutCoefficients = layoutCoefficients.width;
+						minWidthLayoutCoefficients = layoutCoefficients.minWidth;
 						heightLayoutCoefficients = layoutCoefficients.height;
+						minHeightLayoutCoefficients = layoutCoefficients.minHeight;
 						sandboxWidthLayoutCoefficients = layoutCoefficients.sandboxWidth;
 						sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
 						leftLayoutCoefficients = layoutCoefficients.left;
 						topLayoutCoefficients = layoutCoefficients.top;
 						
 						measuredWidth = widthLayoutCoefficients.x1 * width + widthLayoutCoefficients.x2;
+						minWidthLayoutCoefficients.x1 !== void 0 && (measuredWidth = Math.max(measuredWidth, 
+							minWidthLayoutCoefficients.x1 * width + minWidthLayoutCoefficients.x2));
+						
 						measuredHeight = heightLayoutCoefficients.x1 * height + heightLayoutCoefficients.x2;
+						minHeightLayoutCoefficients.x1 !== void 0 && (measuredHeight = Math.max(measuredHeight, 
+							minHeightLayoutCoefficients.x1 * height + minHeightLayoutCoefficients.x2));
 						
 						if (child._getContentSize) {
 							childSize = child._getContentSize(measuredWidth, measuredHeight);
 						} else {
 							childSize = child._layout._doLayout(
 								child, 
-								isNaN(measuredWidth) ? width : measuredWidth, 
-								isNaN(measuredHeight) ? height : measuredHeight, 
+								isNaN(measuredWidth) ? width : measuredWidth - child._borderLeftWidth - child._borderRightWidth, 
+								isNaN(measuredHeight) ? height : measuredHeight - child._borderTopWidth - child._borderBottomWidth, 
 								isNaN(measuredWidth), 
 								isNaN(measuredHeight));
 						}
-						isNaN(measuredWidth) && (measuredWidth = childSize.width + child._borderLeftWidth + child._borderRightWidth);
-						isNaN(measuredHeight) && (measuredHeight = childSize.height + child._borderTopWidth + child._borderBottomWidth);
+						
+						if (isNaN(measuredWidth)) {
+							measuredWidth = childSize.width + child._borderLeftWidth + child._borderRightWidth;
+							minWidthLayoutCoefficients.x1 !== void 0 && (measuredWidth = Math.max(measuredWidth, 
+								minWidthLayoutCoefficients.x1 * width + minWidthLayoutCoefficients.x2));
+						}
+						if (isNaN(measuredHeight)) {
+							measuredHeight = childSize.height + child._borderTopWidth + child._borderBottomWidth;
+							minHeightLayoutCoefficients.x1 !== void 0 && (measuredHeight = Math.max(measuredHeight, 
+								minHeightLayoutCoefficients.x1 * height + minHeightLayoutCoefficients.x2));
+						}
 						
 						if (isWidthSize && leftLayoutCoefficients.x1 !== 0) {
 							deferredLeftCalculations.push(child);
@@ -198,11 +215,19 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 				width = self._getWidth(node, layoutProperties.width),
 				widthType = getValueType(width),
 				widthValue = computeValue(width, widthType),
-				
+			
+				minWidth = layoutProperties._minWidth,
+				minWidthType = getValueType(minWidth),
+				minWidthValue = computeValue(minWidth, minWidthType),
+			
 				height = self._getHeight(node, layoutProperties.height),
 				heightType = getValueType(height),
 				heightValue = computeValue(height, heightType),
-				
+			
+				minHeight = layoutProperties._minHeight,
+				minHeightType = getValueType(minHeight),
+				minHeightValue = computeValue(minHeight, minHeightType),
+			
 				left = layoutProperties.left,
 				leftType = getValueType(left),
 				leftValue = computeValue(left, leftType),
@@ -312,6 +337,49 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 				}
 				layoutCoefficients[type = i === 0 ? "width" : "height"].x1 = x1;
 				layoutCoefficients[type].x2 = x2;
+			}
+			
+			// Min width/height rule evaluation
+			paramsSet = {
+				minWidth: [minWidthType, minWidthValue, leftType, leftValue, centerXType, centerXValue, rightType, rightValue],
+				minHeight: [minHeightType, minHeightValue, topType, topValue, centerYType, centerYValue, bottomType, bottomValue]
+			};
+			for (i in paramsSet) {
+				
+				params = paramsSet[i];
+				sizeType = params[0];
+				sizeValue = params[1];
+				startType = params[2];
+				startValue = params[3];
+				centerType = params[4];
+				centerValue = params[5];
+				endType = params[6];
+				endValue = params[7];
+				
+				x1 = x2 = x3 = 0;
+				if (sizeType === UI.SIZE) {
+					x1 = x2 = NaN;
+				} else if (sizeType === UI.FILL) {
+					x1 = 1;
+					if (startType === "%") {
+						x1 -= startValue;
+					} else if (startType === "#") {
+						x2 = -startValue;
+					} else if (endType === "%") {
+						x1 -= endValue;
+					} else if (endType === "#") {
+						x2 = -endValue;
+					}
+				} else if (sizeType === "%") {
+					x1 = sizeValue;
+				} else if (sizeType === "#") {
+					x2 = sizeValue;
+				} else {
+					x1 = x2 = x3 = void 0;
+				}
+				layoutCoefficients[i].x1 = x1;
+				layoutCoefficients[i].x2 = x2;
+				layoutCoefficients[i].x3 = x3;
 			}
 			
 			// Left/top rule evaluation

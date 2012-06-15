@@ -414,8 +414,13 @@ textarea {
 	border-radius: 5px;
 }
 
+.TiUIActivityIndicatorProngContainer {
+	width: 36px;
+	height: 36px;
+	position: absolute;
+}
+
 .TiUIActivityIndicatorProng {
-	background-color: #fff;
 	border-radius: 1px;
 	height: 10px;
 	position: absolute;

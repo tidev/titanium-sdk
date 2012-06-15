@@ -8,6 +8,7 @@ var button1 = Titanium.UI.createButton({
   enabled:true,
   focusable:true,
   title:'B1',
+  backgroundColor: 'white',
   backgroundImage:'../images/slightlylargerimage.png'
 });
 
@@ -19,6 +20,7 @@ var button2 = Titanium.UI.createButton({
   focusable:true,
   enabled:true,
   title:'B2',
+  backgroundColor: 'white',
   backgroundDisabledImage:'../images/slightlylargerimage.png'
 });
 
@@ -30,6 +32,7 @@ var button3 = Titanium.UI.createButton({
   enabled:true,
   focusable:true,
   title:'B3',
+  backgroundColor: 'white',
   backgroundFocusedImage:'../images/slightlylargerimage.png'
 });
 
@@ -41,6 +44,7 @@ var button4 = Titanium.UI.createButton({
   focusable:true,
   enabled:true,
   title:'B4',
+  backgroundColor: 'white',
   backgroundSelectedImage:'../images/slightlylargerimage.png'
 });
 

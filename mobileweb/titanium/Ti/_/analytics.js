@@ -15,10 +15,6 @@ define(["Ti/_", "Ti/_/dom", "Ti/_/has", "Ti/_/lang", "Ti/App", "Ti/Platform"],
 				if (analyticsEnabled) {
 					// store event
 					var storage = getStorage();
-						formatZeros = function(v, n){
-							var d = (v+'').length;
-							return (d < n ? (new Array(++n - d)).join("0") : "") + v;
-						};
 
 					storage.push({
 						id: _.uuid(),
