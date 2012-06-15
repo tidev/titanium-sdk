@@ -46,8 +46,10 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/lang", "Ti/API", "Ti/UI"
 			
 			!animationCoefficients && (animationCoefficients = node._animationCoefficients = {
 				width: {},
+				minWidth: {},
 				sandboxWidth: {},
 				height: {},
+				minHeight: {},
 				sandboxHeight: {},
 				left: {},
 				top: {}
@@ -60,6 +62,8 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/lang", "Ti/API", "Ti/UI"
 				bottom: val(animation.bottom,node.bottom),
 				center: center,
 				width: val(animation.width,node.width),
+				minWidth: node.minWidth,
+				minHeight: node.minHeight,
 				height: val(animation.height,node.height)
 			},animationCoefficients, this);
 			
