@@ -1,7 +1,8 @@
-define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"], 
-	function(declare, lang, style, Widget, UI) {
+define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI", "Ti/Filesystem"], 
+	function(declare, lang, style, Widget, UI, Filesystem) {
 
 	var setStyle = style.set,
+		is = require.is,
 		on = require.on,
 		InternalImageView = declare(Widget, {
 
@@ -19,15 +20,14 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 					height: this.domNode.height
 				}
 			},
-			
+
 			_preLayout: function(boundingWidth, boundingHeight, isParentWidthSize, isParentHeightSize) {
-								
 				// We have to remove the old style to get the image to scale to its default size,
 				// otherwise we are just reading in whatever we set in the last doLayout(), which is
 				// 0 if the image was not loaded...thus always clamping it to 0.
 				this.domNode.style.width = "";
 				this.domNode.style.height = "";
-				
+
 				var imageRatio = this.domNode.width / this.domNode.height,
 					values = this.properties.__values__,
 					oldWidth = values.width,
@@ -51,10 +51,10 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 					values.width = UI.SIZE;
 					values.height = UI.SIZE;
 				}
-				
+
 				return oldWidth !== values.width || oldHeight !== values.height;
 			},
-			
+
 			_imageRatio: 1,
 
 			properties: {
@@ -75,7 +75,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 								var imageRatio = this.domNode.width / this.domNode.height;
 								isNaN(imageRatio) && (imageRatio = this.domNode.width === 0 ? 1 : Infinity);
 								this._imageRatio = imageRatio;
-								
+
 								this._triggerLayout();
 								this.onload && this.onload();
 							});
@@ -94,6 +94,8 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 	return declare("Ti.UI.ImageView", Widget, {
 
 		_createImage: function(src, onload, onerror) {
+			var m = is(src, "String") && src.match(/^(.+)\:\/\//);
+			m && ~Filesystem.protocols.indexOf(m[1]) && (src = Filesystem.getFile(src));
 			switch (src && src.declaredClass) {
 				case "Ti.Filesystem.File":
 					src = src.read();
@@ -220,7 +222,7 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI"],
 						counter = 0,
 						errored = 0;
 					this._removeAllChildren();
-					if (require.is(value, "Array")) {
+					if (is(value, "Array")) {
 						imgs = [];
 						value.forEach(function(val) {
 							var img = this._createImage(val, function() {

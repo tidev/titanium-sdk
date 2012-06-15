@@ -157,6 +157,19 @@ USE_VIEW_FOR_CONTENT_WIDTH
 	[self contentsWillChange];
 }
 
+-(void)windowDidClose
+{
+    if (pageToken!=nil)
+    {
+        [[self host] unregisterContext:(id<TiEvaluator>)self forToken:pageToken];
+        RELEASE_TO_NIL(pageToken);
+    }
+    NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:self];
+    WARN_IF_BACKGROUND_THREAD_OBJ;
+    [[NSNotificationCenter defaultCenter] postNotification:notification];
+    [super windowDidClose];
+}
+
 -(void)_destroy
 {
 	if (pageToken!=nil)
