@@ -742,13 +742,13 @@ define(
 
 		_setTouchEnabled: function(value) {
 			var children = this._children,
+				child,
 				i = 0,
 				len = children.length;
 			setStyle(this.domNode, "pointerEvents", value ? "auto" : "none");
-			if (!value) {
-				for (; i < len; i++) {
-					children[i]._setTouchEnabled(value);
-				}
+			for (; i < len; i++) {
+				child = children[i];
+				child._setTouchEnabled(value && child.touchEnabled);
 			}
 		},
 		
