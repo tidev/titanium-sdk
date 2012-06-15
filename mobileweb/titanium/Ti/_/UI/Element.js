@@ -95,7 +95,7 @@ define(
 
 			this._children = [];
 
-			on(this.domNode, useTouch ? "touchstart" : "mousedown", function(evt){
+			this._disconnectTouchEvent = on(this.domNode, useTouch ? "touchstart" : "mousedown", function(evt){
 				var handles = [
 					on(global, useTouch ? "touchmove" : "mousemove", function(evt){
 						if (!touchMoveBlocked) {
@@ -260,6 +260,7 @@ define(
 		destroy: function() {
 			if (this._alive) {
 				var children = this._children;
+				this._disconnectTouchEvent();
 				while (children.length) {
 					children.splice(0, 1)[0].destroy();
 				}
@@ -637,18 +638,7 @@ define(
 				f.node = node;
 				f.evts = [
 					on(node, "focus", this, "_doBackground"),
-					on(node, "blur", this, "_doBackground") /*,
-					on(node, "mouseover", this, function() {
-						this._doBackground();
-						f.evtsMore = [
-							on(node, "mousemove", this, "_doBackground"),
-							on(node, "mouseout", this, function() {
-								this._doBackground();
-								event.off(f.evtsMore);
-								f.evtsMore = [];
-							})
-						];
-					})*/
+					on(node, "blur", this, "_doBackground")
 				];
 			}
 
