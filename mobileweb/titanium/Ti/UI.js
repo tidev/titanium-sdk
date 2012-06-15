@@ -19,7 +19,8 @@ define(
 		},
 		hideAddressBar = finishAddressBar,
 		splashScreen,
-		unitize = dom.unitize;
+		unitize = dom.unitize,
+		Gesture;
 
 	on(body, "touchmove", function(e) {
 		e.preventDefault();
@@ -106,11 +107,9 @@ define(
 		}, 1);
 	});
 
-	function updateOrientation() {
+	on(global, "resize", function() {
 		Ti.UI._recalculateLayout();
-		require("Ti/Gesture")._updateOrientation();
-	}
-	on(global, "resize", updateOrientation);
+	});
 
 	return lang.setObject("Ti.UI", Evented, creators, {
 
@@ -283,6 +282,8 @@ define(
 		},
 
 		_recalculateLayout: function() {
+			Gesture || (Gesture = require("Ti/Gesture"));
+			Gesture._updateOrientation();
 			var container = this._container;
 			if (container) {
 				container.width = global.innerWidth;
