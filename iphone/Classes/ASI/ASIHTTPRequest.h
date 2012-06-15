@@ -548,6 +548,10 @@ typedef void (^ASIDataBlock)(NSData *data);
     
     // SPT - TLS versioning for SSL compatibility
     ASITLSVersion tlsVersion;
+	
+	// BTH - In the event of a server unable to handle the latest TLS version.
+	BOOL useLegacyTls;
+	BOOL serverInlegacyTlsServers;
 }
 
 #pragma mark init / dealloc
@@ -882,6 +886,11 @@ typedef void (^ASIDataBlock)(NSData *data);
 // Used for generating Authorization header when using basic authentication when shouldPresentCredentialsBeforeChallenge is true
 // And also by ASIS3Request
 + (NSString *)base64forData:(NSData *)theData;
+
+// Returns the expiration date for the request.
+// Calculated from the Expires response header property, unless maxAge is non-zero or
+// there exists a non-zero max-age property in the Cache-Control response header.
++ (NSDate *)expiryDateForRequest:(ASIHTTPRequest *)request maxAge:(NSTimeInterval)maxAge;
 
 // Returns a date from a string in RFC1123 format
 + (NSDate *)dateFromRFC1123String:(NSString *)string;
