@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI", "Ti/Filesystem"], 
-	function(declare, lang, style, Widget, UI, Filesystem) {
+define(["Ti/_/declare", "Ti/_/event", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI", "Ti/Filesystem"], 
+	function(declare, event, lang, style, Widget, UI, Filesystem) {
 
 	var setStyle = style.set,
 		is = require.is,
@@ -61,26 +61,29 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/_/style", "Ti/_/UI/Widget", "Ti/UI", "T
 				src: {
 					set: function(value) {
 						var node = this.domNode,
-							disp = "none";
+							disp = "none",
+							handles,
 							onerror = lang.hitch(this, function(e) {
+								event.off(handles);
 								this._triggerLayout();
 								this.onerror && this.onerror(e);
 							});
 
 						if (value) {
 							disp = "inherit";
-							on(node, "load", this, function() {
-								this.domNode.style.width = "";
-								this.domNode.style.height = "";
-								var imageRatio = this.domNode.width / this.domNode.height;
-								isNaN(imageRatio) && (imageRatio = this.domNode.width === 0 ? 1 : Infinity);
-								this._imageRatio = imageRatio;
-
-								this._triggerLayout();
-								this.onload && this.onload();
-							});
-							on(node, "error", onerror);
-							on(node, "abort", onerror);
+							handles = [
+								on(node, "load", this, function() {
+									node.style.width = "";
+									node.style.height = "";
+									var imageRatio = node.width / node.height;
+									isNaN(imageRatio) && (imageRatio = node.width === 0 ? 1 : Infinity);
+									this._imageRatio = imageRatio;
+									this._triggerLayout();
+									this.onload && this.onload();
+								}),
+								on(node, "error", onerror),
+								on(node, "abort", onerror)
+							];
 							node.src = require.cache(value) || value;
 						}
 

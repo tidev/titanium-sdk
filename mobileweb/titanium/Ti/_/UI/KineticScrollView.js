@@ -187,8 +187,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 			});
 
 			// Handle mouse wheel scrolling
-			enableMouseWheel && on(self.domNode, "mousewheel",function(e) {
-
+			enableMouseWheel && (this._disconnectMouseWheelEvent = on(self.domNode, "mousewheel",function(e) {
 				var distanceX = contentContainer._measuredWidth - self._measuredWidth,
 					distanceY = contentContainer._measuredHeight - self._measuredHeight,
 					currentPositionX = -self._currentTranslationX,
@@ -219,7 +218,12 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 				},500);
 
 				self._handleMouseWheel && self._handleMouseWheel();
-			});
+			}));
+		},
+
+		destroy: function() {
+			this._disconnectMouseWheelEvent && this._disconnectMouseWheelEvent();
+			View.prototype.destroy.apply(this, arguments);
 		},
 
 		_animateToPosition: function(destinationTranslationX, destinationTranslationY, duration, curve, callback) {

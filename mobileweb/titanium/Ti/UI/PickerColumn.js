@@ -10,7 +10,9 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 		constructor: function() {
 			var self = this,
 				clickEventName = "ontouchstart" in window ? "touchend" : "click",
-				upArrow = this._upArrow = dom.create("div", {
+				node = self.domNode,
+				rows = self.constants.__values__.rows = [],
+				upArrow = self._upArrow = dom.create("div", {
 					className: "TiUIElementGradient",
 					style: {
 						textAlign: "center",
@@ -24,152 +26,155 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 						cursor: "pointer"
 					},
 					innerHTML: "\u2227"
-				}, this.domNode);
-			on(upArrow, clickEventName, function(){
-				var nextRow = self._rows.indexOf(self.selectedRow);
-				if (nextRow > 0) {
-					self.selectedRow = self._rows[nextRow - 1];
-				} else {
-					self.selectedRow = self._rows[self._rows.length - 1];
-				}
-			});
-			
-			var titleContainer = this._titleContainer = dom.create("div", {
-				style: {
-					position: "absolute",
-					top: "50%",
-					height: "1em",
-					width: "100%",
-					marginTop: "-0.5em",
-					textAlign: "center"
-				}
-			}, this.domNode);
-			this._addStyleableDomNode(titleContainer);
-			
-			var titleClickArea = dom.create("div", {
-				style: {
-					position: "absolute",
-					top: "40px",
-					bottom: "40px",
-					width: "100%"
-				}
-			}, this.domNode);
-			on(titleClickArea, clickEventName, function() {
-				// Create the window and a background to dim the current view
-				var listWindow = UI.createWindow();
-				var dimmingView = UI.createView({
-					backgroundColor: "black",
-					opacity: 0,
-					left: 0,
-					top: 0,
-					right: 0,
-					bottom: 0
-				});
-				listWindow._add(dimmingView);
-				
-				// Create the list dialog itself
-				var listDialog = UI.createView({
-					width: "75%",
-					height: UI.SIZE,
-					backgroundColor: "white",
-					layout: UI._LAYOUT_CONSTRAINING_VERTICAL,
-					borderRadius: 3,
-					opacity: 0
-				});
-				listWindow._add(listDialog);
-				
-				// Create the table rows
-				var rows = self._rows,
-					data = [],
-					selectedRowIndex = 0;
-				for(var i in rows) {
-					var row = rows[i],
-						isSelectedRow = row === self.selectedRow;
-					data.push({
-						title: row.title,
-						hasCheck: isSelectedRow
+				}, node),
+				titleContainer = self._titleContainer = dom.create("div", {
+					style: {
+						position: "absolute",
+						top: "50%",
+						height: "1em",
+						width: "100%",
+						marginTop: "-0.5em",
+						textAlign: "center"
+					}
+				}, node),
+				titleClickArea = dom.create("div", {
+					style: {
+						position: "absolute",
+						top: "40px",
+						bottom: "40px",
+						width: "100%"
+					}
+				}, node),
+				downArrow = self._downArrow = dom.create("div", {
+					className: "TiUIElementGradient",
+					innerHTML: "\u2228",
+					style: {
+						textAlign: "center",
+						position: "absolute",
+						bottom: "0px",
+						height: "40px",
+						width: "100%",
+						borderTop: "1px solid #666",
+						fontSize: "28px",
+						cursor: "pointer"
+					}
+				}, node);
+
+			self._addStyleableDomNode(titleContainer);
+
+			this._handles = [
+				on(upArrow, clickEventName, function() {
+					var nextRow = rows.indexOf(self.selectedRow);
+					if (nextRow > 0) {
+						self.selectedRow = rows[nextRow - 1];
+					} else {
+						self.selectedRow = rows[rows.length - 1];
+					}
+				}),
+				on(titleClickArea, clickEventName, function() {
+					// Create the window and a background to dim the current view
+					var listWindow = UI.createWindow(),
+						dimmingView = UI.createView({
+							backgroundColor: "#000",
+							opacity: 0,
+							left: 0,
+							top: 0,
+							right: 0,
+							bottom: 0
+						}),
+						listDialog = UI.createView({
+							width: "75%",
+							height: UI.SIZE,
+							backgroundColor: "#fff",
+							layout: UI._LAYOUT_CONSTRAINING_VERTICAL,
+							borderRadius: 3,
+							opacity: 0
+						}),
+						selectedRowIndex = 0,
+						tmp = 0,
+						data = rows.map(function(row) {
+							var isSelectedRow = row === self.selectedRow;
+							isSelectedRow && (selectedRowIndex = parseInt(tmp++));
+							return {
+								title: row.title,
+								hasCheck: isSelectedRow
+							};
+						}),
+						listTable = UI.createTableView({
+							left: 5,
+							right: 5,
+							top: 5,
+							height: data.length < 10 ? UI.SIZE : "70%",
+							data: data
+						}),
+						cancelButton = UI.createButton({
+							left: 5,
+							top: 5,
+							right: 5,
+							title: "Cancel"
+						});
+
+					listTable.addEventListener("singletap", function(e) {
+						e.index in rows && (self.selectedRow = rows[e.index]);
+						listWindow.close();
 					});
-					isSelectedRow && (selectedRowIndex = parseInt(i));
-				}
-				
-				// Add the table to the dialog
-				var listTable = UI.createTableView({
-					left: 5,
-					right: 5,
-					top: 5,
-					height: data.length < 10 ? UI.SIZE : "70%",
-					data: data
-				});
-				listDialog._add(listTable);
-				listTable.addEventListener("singletap", function(e) {
-					e.index in self._rows && (self.selectedRow = self._rows[e.index]);
-					listWindow.close();
-				});
-				
-				// Add a cancel button
-				var cancelButton = UI.createButton({
-					left: 5,
-					top: 5,
-					right: 5,
-					title: "Cancel"
-				});
-				listDialog._add(cancelButton);
-				cancelButton.addEventListener("singletap", function() {
-					listWindow.close();
-				});
-				
-				// Add a view to handle padding since there is no TI API to do it
-				listDialog._add(UI.createView({ height: "5px" }));
-				
-				// Show the options dialog
-				listWindow.open();
-				
-				// Animate the background after waiting for the first layout to occur
-				setTimeout(function(){
-					dimmingView.animate({
-						opacity: 0.5,
-						duration: 200
-					}, function(){
-						listDialog.animate({
-							opacity: 1,
+
+					cancelButton.addEventListener("singletap", function() {
+						listWindow.close();
+					});
+
+					listWindow._add(dimmingView);
+					listWindow._add(listDialog);
+
+					listDialog._add(listTable);
+					listDialog._add(cancelButton);
+
+					// Add a view to handle padding since there is no TI API to do it
+					listDialog._add(UI.createView({ height: "5px" }));
+
+					// Show the options dialog
+					listWindow.open();
+
+					// Animate the background after waiting for the first layout to occur
+					setTimeout(function() {
+						dimmingView.animate({
+							opacity: 0.5,
 							duration: 200
 						}, function() {
-							listTable.scrollToIndex(selectedRowIndex);
+							listDialog.animate({
+								opacity: 1,
+								duration: 200
+							}, function() {
+								listTable.scrollToIndex(selectedRowIndex);
+							});
 						});
-					});
-				},30);
-			});
-			
-			var downArrow = this._downArrow = dom.create("div", {
-				className: "TiUIElementGradient",
-				style: {
-					textAlign: "center",
-					position: "absolute",
-					bottom: "0px",
-					height: "40px",
-					width: "100%",
-					borderTop: "1px solid #666",
-					fontSize: "28px",
-						cursor: "pointer"
-				}
-			}, this.domNode);
-			downArrow.innerHTML = "\u2228";
-			on(downArrow, clickEventName, function() {
-				var nextRow = self._rows.indexOf(self.selectedRow);
-				if (nextRow < self._rows.length - 1) {
-					self.selectedRow = self._rows[nextRow + 1];
-				} else {
-					self.selectedRow = self._rows[0];
-				}
-			});
-			this._rows = [];
+					}, 30);
+				}),
+				on(downArrow, clickEventName, function() {
+					var nextRow = rows.indexOf(self.selectedRow);
+					if (nextRow < rows.length - 1) {
+						self.selectedRow = rows[nextRow + 1];
+					} else {
+						self.selectedRow = rows[0];
+					}
+				})
+			];
 		},
-		
+
+		destroy: function() {
+			event.off(this._handles);
+			FontWidget.prototype.destroy.apply(this, arguments);
+		},
+
 		_setCorners: function(left, right, radius) {
-			setStyle(this._upArrow, "borderTopLeftRadius", left ? radius : "0px");
-			setStyle(this._downArrow, "borderBottomLeftRadius", left ? radius : "0px");
-			setStyle(this._upArrow, "borderTopRightRadius", right ? radius : "0px");
-			setStyle(this._downArrow, "borderBottomRightRadius", right ? radius : "0px");
+			setStyle(this._upArrow, {
+				borderTopLeftRadius: left ? radius : "0px",
+				borderTopRightRadius: right ? radius : "0px"
+			});
+			setStyle(this._downArrow, {
+				borderBottomLeftRadius: left ? radius : "0px",
+				borderBottomRightRadius: right ? radius : "0px"
+			});
 			this.borderWidth = [0, right ? 0 : 1, 0, 0];
 			this.borderColor = "#666";
 		},
@@ -177,14 +182,14 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 		_defaultWidth: UI.SIZE,
 
 		_defaultHeight: UI.SIZE,
-		
+
 		_preLayout: function() {
 			this._updateContentWidth();
 			this._parentPicker && this._parentPicker._updateColumnHeights();
 			return true;
 		},
-		
-		_getContentSize: function(width, height) {
+
+		_getContentSize: function() {
 			var titleContainer = this._titleContainer;
 				text = titleContainer.innerHTML;
 			return {
@@ -192,45 +197,46 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 				height: this._tallestRowHeight + contentPadding + this._upArrow.clientHeight + this._downArrow.clientHeight
 			};
 		},
-		
+
 		_widestRowWidth: 0,
-		
+
 		_tallestRowHeight: 0,
-		
+
 		_updateContentWidth: function() {
 			var widestRowWidth = 0,
 				i = 0,
-				len = this._rows.length;
-			for(; i < len; i++) {
-				var row = this._rows[i];
+				len = this.rows.length,
+				row;
+			while (i < len) {
+				row = this.rows[i++];
 				widestRowWidth = Math.max(widestRowWidth, row._measureText(row.title, row.domNode).width);
 			}
 			if (this._widestRowWidth !== widestRowWidth) {
 				this._widestRowWidth = widestRowWidth;
 			}
 		},
-		
+
 		_getTallestRowHeight: function() {
 			var widestRowWidth = 0,
 				tallestRowHeight = 0,
 				i = 0,
-				len = this._rows.length;
+				len = this.rows.length;
 			for(; i < len; i++) {
-				var row = this._rows[i];
+				var row = this.rows[i];
 				tallestRowHeight = Math.max(tallestRowHeight, row._measureText(row.title, row.domNode).height);
 			}
 			return tallestRowHeight;
 		},
-		
+
 		_setTallestRowHeight: function(height) {
 			if (this._tallestRowHeight !== height) {
 				this._tallestRowHeight = height;
 				this._triggerLayout();
 			}
 		},
-		
+
 		addRow: function(row) {
-			this._rows.push(row);
+			this.rows.push(row);
 			row._parentColumn = this;
 			this._updateContentWidth();
 			this._parentPicker && this._parentPicker._updateColumnHeights();
@@ -239,39 +245,31 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 			}
 			this._publish(row);
 		},
-		
+
 		removeRow: function(row) {
-			var rowIndex = this._rows.indexOf(row);
+			var rowIndex = this.rows.indexOf(row);
 			if (rowIndex !== -1) {
-				this._rows.splice(rowIndex,1);
+				this.rows.splice(rowIndex, 1);
 				row._parentColumn = void 0;
 				this._updateContentWidth();
 				this._parentPicker && this._parentPicker._updateColumnHeights();
 				if (this.selectedRow === row) {
-					this.selectedRow = this._rows[0];
+					this.selectedRow = this.rows[0];
 				}
 			}
 			this._unpublish(row);
 		},
-		
+
 		constants: {
-			
 			rowCount: {
 				get: function() {
-					return this._rows.length;
+					return this.rows.length;
 				}
 			},
-			
-			rows: {
-				get: function() {
-					return this._rows;
-				}
-			}
-			
+			rows: void 0
 		},
-		
+
 		properties: {
-			
 			selectedRow: {
 				set: function(value) {
 					if (!value) {
@@ -280,7 +278,7 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 						this._titleContainer.innerHTML = "";
 						this._hasSizeDimensions() && this._triggerLayout();
 					} else {
-						var rowIndex = this._rows.indexOf(value);
+						var rowIndex = this.rows.indexOf(value);
 						if (rowIndex === -1) {
 							return;
 						}
@@ -294,15 +292,14 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/UI", "Ti/_/style",
 				post: function(value) {
 					this.fireEvent("change", {
 						column: this,
-						rowIndex: this._rows.indexOf(value),
+						rowIndex: this.rows.indexOf(value),
 						row: value,
 						value: value && value.title
 					});
 				}
 			}
-			
 		}
-	
+
 	});
-	
+
 });
