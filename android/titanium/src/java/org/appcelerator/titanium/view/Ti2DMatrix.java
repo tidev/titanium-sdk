@@ -267,6 +267,24 @@ public class Ti2DMatrix extends KrollProxy
 		}
 	}
 
+	public float getScaleFromX()
+	{
+		if (op != null) {
+			return op.scaleFromX;
+		} else {
+			return VALUE_UNSPECIFIED;
+		}
+	}
+
+	public float getScaleFromY()
+	{
+		if (op != null) {
+			return op.scaleFromY;
+		} else {
+			return VALUE_UNSPECIFIED;
+		}
+	}
+
 	public float[] getRotateOperationParameters()
 	{
 		if (this.op == null) {

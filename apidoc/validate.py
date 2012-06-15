@@ -41,6 +41,7 @@ VALID_KEYS = {
 		}
 
 types = {}
+typesFromDocgen = None
 errorTrackers = {}
 options = None
 
@@ -117,8 +118,17 @@ class SimplePrinter(Printer):
 		self.error_count += 1
 	
 class ErrorTracker(object):
-	def __init__(self, name, parent=None):
+	TRACKER_FOR_TYPE = 0
+	TRACKER_FOR_METHOD = 1
+	TRACKER_FOR_PROPERTY = 2
+	TRACKER_FOR_EVENT = 3
+	TRACKER_FOR_METHOD_PARAMETER = 4
+	TRACKER_FOR_EVENT_PROPERTY = 5
+	TRACKER_FOR_REF = 5
+
+	def __init__(self, name, trackerFor, parent=None):
 		self.name = name
+		self.trackerFor = trackerFor
 		self.errors = []
 		self.children = []
 		self.parent = parent
@@ -154,9 +164,51 @@ def validateKeys(tracker, obj, objType):
 	if invalid:
 		tracker.trackError("Invalid key(s) in %s: %s" % (objName, invalid))
 
+# A missing piece of documentation could be inherited, since we
+# support that as-of TIMOB-7419. This checks to see if its there
+# after all inherited documentation has been resolved.
+def propertyIsGenerated(tracker, propertyName):
+	parent = tracker.parent
+	if not parent:
+		return False
+
+	while parent.parent:
+		parent = parent.parent
+
+	if parent.trackerFor != ErrorTracker.TRACKER_FOR_TYPE:
+		return False
+
+	typeName = parent.name
+
+	if typeName not in typesFromDocgen:
+		return False
+
+	generatedType = typesFromDocgen[typeName]
+
+	memberToCheck = None
+	listType = None
+
+	if tracker.trackerFor == ErrorTracker.TRACKER_FOR_METHOD:
+		listType = "methods"
+	elif tracker.trackerFor == ErrorTracker.TRACKER_FOR_PROPERTY:
+		listType = "properties"
+	elif tracker.trackerFor == ErrorTracker.TRACKER_FOR_EVENT:
+		listType = "events"
+
+	if not memberToCheck and listType:
+		the_list = generatedType[listType]
+		matching_members = [m for m in the_list if m["name"] == tracker.name]
+		if matching_members:
+			memberToCheck = matching_members[0]
+
+	if not memberToCheck:
+		return False
+	else:
+		return propertyName in memberToCheck
+
 def validateRequired(tracker, map, required):
 	for r in required:
-		if r not in map:
+		if r not in map and not propertyIsGenerated(tracker, r):
 			tracker.trackError('Required property "%s" not found' % r)
 
 def validatePlatforms(tracker, platforms):
@@ -278,7 +330,7 @@ def validateCommon(tracker, map):
 		
 
 def validateMethod(typeTracker, method):
-	tracker = ErrorTracker(method['name'], typeTracker)
+	tracker = ErrorTracker(method['name'], ErrorTracker.TRACKER_FOR_METHOD, typeTracker)
 	validateKeys(tracker, method, "method")
 	validateRequired(tracker, method, ['name', 'summary'])
 	validateCommon(tracker, method)
@@ -304,7 +356,7 @@ def validateMethod(typeTracker, method):
 		if type(method['parameters']) != list:
 			tracker.trackError('"parameters" must be a list')
 		for param in method['parameters']:
-			pTracker = ErrorTracker(param['name'], tracker)
+			pTracker = ErrorTracker(param['name'], ErrorTracker.TRACKER_FOR_METHOD_PARAMETER, tracker)
 			validateKeys(pTracker, param, "parameter")
 			validateRequired(pTracker, param, ['name', 'summary', 'type'])
 			validateCommon(pTracker, param)
@@ -313,7 +365,7 @@ def validateMethod(typeTracker, method):
 		validateExamples(tracker, method['examples'])
 
 def validateProperty(typeTracker, property):
-	tracker = ErrorTracker(property['name'], typeTracker)
+	tracker = ErrorTracker(property['name'], ErrorTracker.TRACKER_FOR_PROPERTY, typeTracker)
 	validateKeys(tracker, property, "property")
 
 	validateRequired(tracker, property, ['name', 'summary', 'type'])
@@ -332,7 +384,7 @@ def validateProperty(typeTracker, property):
 				tracker.trackError("Constant should have 'read-only' permission.")
 
 def validateEvent(typeTracker, event):
-	tracker = ErrorTracker(event['name'], typeTracker)
+	tracker = ErrorTracker(event['name'], ErrorTracker.TRACKER_FOR_EVENT, typeTracker)
 	validateKeys(tracker, event, "event")
 	validateRequired(tracker, event, ['name', 'summary'])
 	validateCommon(tracker, event)
@@ -341,7 +393,7 @@ def validateEvent(typeTracker, event):
 			tracker.trackError('"properties" specified, but isn\'t a list')
 			return
 		for p in event['properties']:
-			pTracker = ErrorTracker(p['name'], tracker)
+			pTracker = ErrorTracker(p['name'], ErrorTracker.TRACKER_FOR_EVENT_PROPERTY, tracker)
 			validateKeys(pTracker, p, "eventprop")
 			validateRequired(pTracker, p, ['name', 'summary'])
 			validateCommon(pTracker, p)
@@ -370,7 +422,7 @@ def validateExcludes(tracker, excludes):
 
 def validateType(typeDoc):
 	typeName = typeDoc['name']
-	errorTrackers[typeName] = ErrorTracker(typeName)
+	errorTrackers[typeName] = ErrorTracker(typeName, ErrorTracker.TRACKER_FOR_TYPE)
 	tracker = errorTrackers[typeName]
 
 	validateRequired(tracker, typeDoc, ['name', 'summary'])
@@ -406,7 +458,19 @@ def validateType(typeDoc):
 				validateEvent(tracker, event)
 
 
+def loadTypesFromDocgen():
+	global typesFromDocgen
+	import docgen
+	docgen.log.level = 2 # INFO
+	docgen.process_yaml()
+	docgen.finish_partial_overrides()
+	typesFromDocgen = docgen.apis
+
 def validateTDoc(tdocPath):
+	global typesFromDocgen
+	if not typesFromDocgen:
+		loadTypesFromDocgen()
+
 	tdocTypes = [type for type in yaml.load_all(codecs.open(tdocPath, 'r', 'utf8').read())]
 	if options.parseOnly:
 		return
@@ -434,7 +498,7 @@ def validateMethodRefs(typeTracker, method):
 			validateRef(tracker, method['returns'], 'returns')
 		elif type(method['returns']) == dict:
 			returnObj = method['returns']
-			rTracker = ErrorTracker(returnObj, tracker)
+			rTracker = ErrorTracker(returnObj, ErrorTracker.TRACKER_FOR_REF, tracker)
 			if 'type' in returnObj:
 				validateRef(rTracker, returnObj['type'], 'type')
 	if 'parameters' in method:
@@ -514,6 +578,11 @@ def main(args):
 
 	dir=None
 	if options.file is not None:
+		# NOTE: because of the introduction of inherited documentation
+		# fields via TIMOB-7419, using the -f option is not really that
+		# fast anymore because even if we're just validating one file we need
+		# to parse all of them in order to see the "final" set of documentation
+		# for a type.
 		print "Validating %s:" % options.file
 		validateTDoc(options.file)
 	else:

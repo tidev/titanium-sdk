@@ -261,23 +261,43 @@ public class TiAnimationBuilder
 			Animation anim;
 			if (tdm.isScaleOperation()) {
 
-				if (!tdm.getScaleFromValuesSpecified()) {
+				float scaleFromX, scaleFromY;
+				scaleFromX = scaleFromY = 1f; // I.e., start the scale operation from the view's stated size.
 
+				if (tdm.getScaleFromValuesSpecified()) {
+					scaleFromX = tdm.getScaleFromX();
+					scaleFromY = tdm.getScaleFromY();
+
+				} else {
 					// fromX and fromY values were not specified, so set them to the values
 					// of the last animation (if any.)
 					if (tiView != null) {
-						tdm.setScaleFromValues(tiView.getAnimatedXScale(), tiView.getAnimatedYScale());
-					} else {
-						tdm.setScaleFromValues(1f, 1f); // defaults to scaling from the view's actual size.
+						scaleFromX = tiView.getAnimatedXScale();
+						scaleFromY = tiView.getAnimatedYScale();
 					}
+					tdm.setScaleFromValues(scaleFromX, scaleFromY);
 				}
 
 				anim = new TiMatrixAnimation(tdm, anchorX, anchorY);
 
 				// Remember the toX, toY
 				if (tiView != null) {
-					tiView.setAnimatedXScale(tdm.getScaleToX());
-					tiView.setAnimatedYScale(tdm.getScaleToY());
+
+					float rememberX = tdm.getScaleToX();
+					float rememberY = tdm.getScaleToY();
+
+					// But if autoreverse is in effect, then
+					// set back to the fromX, fromY
+					if (autoreverse != null && autoreverse.booleanValue()) {
+						rememberX = scaleFromX;
+						rememberY = scaleFromY;
+					}
+
+					// We do this so that any subsequent scale animations created with the
+					// 2-argument variant of scale() (which specifies only the "to" values)
+					// will start from the last animated-to scale.
+					tiView.setAnimatedXScale(rememberX);
+					tiView.setAnimatedYScale(rememberY);
 				}
 
 			} else {
@@ -295,7 +315,13 @@ public class TiAnimationBuilder
 					}
 
 					// And remember for next time.
-					tiView.setAnimatedRotationDegrees(toDegrees);
+					if (autoreverse == null || !autoreverse.booleanValue()) {
+						tiView.setAnimatedRotationDegrees(toDegrees);
+					} else {
+						// Because the animation will autoreverse, we
+						// want to save the original degrees.
+						tiView.setAnimatedRotationDegrees(fromDegrees);
+					}
 
 				}
 

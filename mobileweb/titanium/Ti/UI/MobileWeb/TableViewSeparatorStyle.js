@@ -1,4 +1,4 @@
-define("Ti/UI/MobileWeb/TableViewSeparatorStyle", ["Ti/_/lang"], function(lang) {
+define(["Ti/_/lang"], function(lang) {
 
 	return lang.setObject("Ti.UI.MobileWeb.TableViewSeparatorStyle", {}, {
 		constants: {
