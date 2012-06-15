@@ -700,22 +700,43 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return view.toImage();
 	}
 
-	@Override
-	public boolean fireEvent(String eventName, Object data)
+	/**
+	 * Fires an event that can optionally be "bubbled" to the parent view.
+	 * @param eventName event to get dispatched to listeners
+	 * @param data data to include in the event
+	 * @param bubbles if true will send the event to the parent view after it has been dispatched to this view's listeners.
+	 * @return true if the event was handled
+	 */
+	public boolean fireEvent(String eventName, Object data, boolean bubbles)
 	{
 		if (data == null) {
 			data = new KrollDict();
 		}
 
+		// Dispatch the event to JavaScript first before we "bubble" it to the parent view.
 		boolean handled = super.fireEvent(eventName, data);
+		if (!bubbles) {
+			return handled;
+		}
 
 		TiViewProxy parentView = getParent();
 		if (parentView != null) {
-			boolean parentHandled = parentView.fireEvent(eventName, data);
-			handled = handled || parentHandled;
+			handled = parentView.fireEvent(eventName, data, bubbles) || handled;
 		}
 
 		return handled;
+	}
+
+	/**
+	 * Fires an event that will be bubbled to the parent view.
+	 */
+	@Override
+	public boolean fireEvent(String eventName, Object data)
+	{
+		// To remain compatible this override of fireEvent will always
+		// bubble the event to the parent view. It should eventually be deprecated
+		// in favor of using the fireEvent(String, Object, boolean) method.
+		return fireEvent(eventName, data, true);
 	}
 
 	/**
