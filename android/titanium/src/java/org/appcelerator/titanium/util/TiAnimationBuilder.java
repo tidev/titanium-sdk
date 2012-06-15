@@ -288,8 +288,18 @@ public class TiAnimationBuilder
 
 				// Remember the toX, toY
 				if (tiView != null) {
-					tiView.setAnimatedXScale(params[1]);
-					tiView.setAnimatedYScale(params[3]);
+					float rememberX = params[1];
+					float rememberY = params[3];
+
+					// But if autoreverse is in effect, then
+					// set back to the fromX, fromY
+					if (autoreverse != null && autoreverse.booleanValue()) {
+						rememberX = fromX;
+						rememberY = fromY;
+					}
+
+					tiView.setAnimatedXScale(rememberX);
+					tiView.setAnimatedYScale(rememberY);
 				}
 
 			} else {
@@ -307,7 +317,13 @@ public class TiAnimationBuilder
 					}
 
 					// And remember for next time.
-					tiView.setAnimatedRotationDegrees(toDegrees);
+					if (autoreverse == null || !autoreverse.booleanValue()) {
+						tiView.setAnimatedRotationDegrees(toDegrees);
+					} else {
+						// Because the animation will autoreverse, we
+						// want to save the original degrees.
+						tiView.setAnimatedRotationDegrees(fromDegrees);
+					}
 
 				}
 

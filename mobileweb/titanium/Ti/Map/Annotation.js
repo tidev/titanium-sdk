@@ -4,7 +4,8 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/Locale"], function(declare, Evented,
 		post: function(newValue, oldValue, prop) {
 			this.fireEvent("update", {
 				property: prop,
-				value: newValue
+				value: newValue,
+				oldValue: oldValue
 			});
 		}
 	};
