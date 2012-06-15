@@ -89,7 +89,7 @@ typedef struct LayoutConstraint {
 
 	TiLayoutRule layoutStyle;
 	struct {
-		unsigned int horizontalWrap;
+		unsigned int horizontalWrap:1;
 	} layoutFlags;
 	
 	CGFloat minimumHeight;

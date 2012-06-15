@@ -2474,7 +2474,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             if (bounds.size.height > horizontalLayoutRowHeight) {
                 horizontalLayoutRowHeight = bounds.size.height;
             }
-            if (!recalculateWidth) {
+            if (!horizontalWrap || !recalculateWidth) {
                 //DIP,PERCENT,UNDEFINED WITH ATLEAST 2 PINS one of them being centerX
                 bounds.size.width = desiredWidth;
                 horizontalLayoutBoundary += bounds.size.width;
