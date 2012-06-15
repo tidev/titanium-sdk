@@ -2375,7 +2375,9 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offsetH,boundingHeight - offsetV)] + offsetH;
             if (TiDimensionIsAutoSize(constraint)) {
                 followsFillBehavior = NO;
-            }
+            } else if(TiDimensionIsAutoFill(constraint)) {
+				followsFillBehavior = YES;
+			}
         }
         CGFloat desiredHeight;
         BOOL childIsFixedHeight = TiDimensionIsPercent([child layoutProperties]->height) || TiDimensionIsDip([child layoutProperties]->height);
@@ -2477,7 +2479,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             if (bounds.size.height > horizontalLayoutRowHeight) {
                 horizontalLayoutRowHeight = bounds.size.height;
             }
-            if (!horizontalWrap || !recalculateWidth) {
+            if (!recalculateWidth) {
                 //DIP,PERCENT,UNDEFINED WITH ATLEAST 2 PINS one of them being centerX
                 bounds.size.width = desiredWidth;
                 horizontalLayoutBoundary += bounds.size.width;
@@ -2486,9 +2488,13 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             {
                 //FILL that fits in left over space. Move to next row
                 bounds.size.width = boundingWidth;
-                horizontalLayoutBoundary = 0.0;
-                verticalLayoutBoundary += horizontalLayoutRowHeight;
-                horizontalLayoutRowHeight = 0.0;
+				if (horizontalWrap) {
+					horizontalLayoutBoundary = 0.0;
+                	verticalLayoutBoundary += horizontalLayoutRowHeight;
+					horizontalLayoutRowHeight = 0.0;
+				} else {
+					horizontalLayoutBoundary += bounds.size.width;
+				}
             }
             else
             {
