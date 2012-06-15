@@ -40,6 +40,7 @@ define(
 			longpress: "LongPress",
 			singletap: "SingleTap",
 			click: "SingleTap",
+			dragging: "Dragging",
 			doubleclick: "DoubleTap",
 			touchstart: "TouchStart",
 			touchend: "TouchEnd",
@@ -129,12 +130,22 @@ define(
 					x2: 0,
 					x3: 0
 				},
+				minWidth: {
+					x1: 0,
+					x2: 0,
+					x3: 0
+				},
 				sandboxWidth: {
 					x1: 0,
 					x2: 0,
 					x3: 0
 				},
 				height: {
+					x1: 0,
+					x2: 0,
+					x3: 0
+				},
+				minHeight: {
 					x1: 0,
 					x2: 0,
 					x3: 0
@@ -500,9 +511,9 @@ define(
 				}
 			}
 
-			require.each(require.config.vendorPrefixes.css, lang.hitch(this,function(vendorPrefix) {
+			require.config.vendorPrefixes.css.forEach(function(vendorPrefix) {
 				setStyle(this.domNode, "backgroundImage", vendorPrefix + cssVal + ")");
-			}));
+			}, this);
 		},
 
 		_preventDefaultTouchEvent: true,
@@ -731,13 +742,13 @@ define(
 
 		_setTouchEnabled: function(value) {
 			var children = this._children,
+				child,
 				i = 0,
 				len = children.length;
 			setStyle(this.domNode, "pointerEvents", value ? "auto" : "none");
-			if (!value) {
-				for (; i < len; i++) {
-					children[i]._setTouchEnabled(value);
-				}
+			for (; i < len; i++) {
+				child = children[i];
+				child._setTouchEnabled(value && child.touchEnabled);
 			}
 		},
 		

@@ -42,12 +42,12 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 				currentIndex = 0,
 				currentTabIndex,
 				text = Locale._getString(this.textid, this.text);
-			
-			
+
 			// Handle null, undefined, etc edge case
-			if (!text) {
+			if (text === void 0) {
 				return "";
 			}
+			text += "";
 
 			// Convert \t and \n to &nbsp;'s and <br/>'s
 			while (currentIndex < text.length) {

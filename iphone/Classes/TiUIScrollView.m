@@ -282,10 +282,10 @@
 
 -(void)setZoomScale_:(id)args
 {
-	CGFloat scale = [TiUtils floatValue:args];
+	CGFloat scale = [TiUtils floatValue:args def:1.0];
 	[[self scrollView] setZoomScale:scale];
 	scale = [[self scrollView] zoomScale]; //Why are we doing this? Because of minZoomScale or maxZoomScale.
-	[[self proxy] replaceValue:NUMFLOAT(scale) forKey:@"scale" notification:NO];
+	[[self proxy] replaceValue:NUMFLOAT(scale) forKey:@"zoomScale" notification:NO];
 	if ([self.proxy _hasListeners:@"scale"])
 	{
 		[self.proxy fireEvent:@"scale" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
@@ -296,12 +296,23 @@
 
 -(void)setMaxZoomScale_:(id)args
 {
-	[[self scrollView] setMaximumZoomScale:[TiUtils floatValue:args]];
+    CGFloat val = [TiUtils floatValue:args def:1.0];
+    [[self scrollView] setMaximumZoomScale:val];
+    if ([[self scrollView] zoomScale] > val) {
+        [self setZoomScale_:args];
+    }
+    else if ([[self scrollView] zoomScale] < [[self scrollView] minimumZoomScale]){
+        [self setZoomScale_:[NSNumber numberWithFloat:[[self scrollView] minimumZoomScale]]];
+    }
 }
 
 -(void)setMinZoomScale_:(id)args
 {
-	[[self scrollView] setMinimumZoomScale:[TiUtils floatValue:args]];
+    CGFloat val = [TiUtils floatValue:args def:1.0];
+    [[self scrollView] setMinimumZoomScale:val];
+    if ([[self scrollView] zoomScale] < val) {
+        [self setZoomScale_:args];
+    }
 }
 
 -(void)setCanCancelEvents_:(id)args

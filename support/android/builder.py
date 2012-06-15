@@ -789,11 +789,13 @@ class Builder(object):
 		# this is our module to permission(s) trigger - for each module on the left, require the permission(s) on the right
 		permissions_module_mapping = {
 			# GEO
-			'geolocation' : GEO_PERMISSION,
+			'geolocation' : GEO_PERMISSION
 		}
 
 		# this is our module method to permission(s) trigger - for each method on the left, require the permission(s) on the right
 		permissions_method_mapping = {
+			# MAP
+			'Map.createView' : GEO_PERMISSION,
 			# MEDIA
 			'Media.vibrate' : VIBRATE_PERMISSION,
 			'Media.showCamera' : CAMERA_PERMISSION,

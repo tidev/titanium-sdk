@@ -21,38 +21,34 @@
 
 	"use strict";
 
-	var // misc variables
-		x,
-		odp,
-		doc = global.document,
-		el = doc.createElement("div"),
+	var w, x, y, z,
 
 		// cached useful regexes
-		commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
-		cjsRequireRegExp = /[^.]require\(\s*["']([^'"\s]+)["']\s*\)/g,
 		reservedModuleIdsRegExp = /exports|module/,
 		pluginRegExp = /^(.+?)\!(.*)$/,
-		notModuleRegExp = /(^\/)|(\:)|(\.js$)/,
+		notModuleRegExp = /\:|^\/\/|\.js$/,
 		relativeRegExp = /^\./,
+		absoluteRegExp = /^\.\./,
+		startingSlashRegExp = /^\//,
+		endingSlashRegExp = /\/$/,
 		packageNameRegExp = /([^\/]+)\/?(.*)/,
 		urlRegExp = /^url\:(.+)/,
+		jsFileRegExp = /\.js$/,
 
 		// the global config settings
 		cfg = global.require || {},
 
-		// shortened packagePaths variable
-		pp = cfg.packagePaths || {},
-
 		// the number of seconds to wait for a script to load before timing out
 		waitSeconds = (cfg.waitSeconds || 7) * 1000,
 
+		// a base url to be prepended to all urls
 		baseUrl = cfg.baseUrl || "./",
+
+		// a timeout to fetch a remote resource, defaults to 2 seconds
+		timeout = cfg.timeout || 2000,
 
 		// CommonJS paths
 		paths = cfg.paths || {},
-
-		// feature detection results initialize by pre-calculated tests
-		hasCache = cfg.hasCache || {},
 
 		// a queue of module definitions to evaluate once a module has loaded
 		defQ = [],
@@ -67,6 +63,14 @@
 		// map of package names to package resource definitions
 		packages = {},
 
+		// module states
+		// default state unloaded = 0
+		REQUESTED = 1, // module is being downloaded
+		LOADED    = 2, // module is downloaded, but not executing/executed
+		EXECUTING = 3, // module is resolving dependencies and being evaluated
+		EXECUTED  = 4, // module is fully executed
+		BADMODULE = 5, // module errored out
+
 		// map of module ids to module resource definitions that are being loaded and processed
 		waiting = {},
 
@@ -80,38 +84,25 @@
 	 * Utility functions
 	 *****************************************************************************/
 
-	function _mix(dest, src) {
-		for (var p in src) {
-			src.hasOwnProperty(p) && (dest[p] = src[p]);
-		}
-		return dest;
-	}
+	function noop() {}
 
 	function mix(dest) {
 		// summary:
 		//		Copies properties by reference from a source object to a destination
 		//		object, then returns the destination object. To be clear, this will
 		//		modify the dest being passed in.
-		var i = 1;
+		var i = 1,
+			l = arguments.length,
+			p,
+			src;
 		dest || (dest = {});
-		while (i < arguments.length) {
-			_mix(dest, arguments[i++]);
+		while (i < l) {
+			src = arguments[i++];
+			for (p in src) {
+				src.hasOwnProperty(p) && (dest[p] = src[p]);
+			}
 		}
 		return dest;
-	}
-
-	function each(a, fn) {
-		// summary:
-		//		Loops through each element of an array and passes it to a callback
-		//		function.
-		var i = 0,
-			l = (a && a.length) || 0,
-			args = Array.prototype.slice.call(arguments, 0);
-		args.shift();
-		while (i < l) {
-			args[0] = a[i++];
-			fn.apply(null, args);
-		}
 	}
 
 	function is(it, type) {
@@ -122,12 +113,11 @@
 		// returns:
 		//		Boolean if type is passed in
 		//		String of type if type is not passed in
-		var t = it === void 0 ? "" : ({}).toString.call(it),
-			m = t.match(/^\[object (.+)\]$/),
-			v = m ? m[1] : "Undefined";
+		var t = Object.prototype.toString.call(it),
+			v = it === void 0 ? "Undefined" : t.substring(8, t.length - 1);
 		return type ? type === v : v;
 	}
-	
+
 	function isEmpty(it) {
 		// summary:
 		//		Checks if an object is empty.
@@ -165,7 +155,7 @@
 				vars.push(i + "=__vars." + i);
 				vals.push(i + ":" + i);
 			}
-			r = (new Function("__vars", (vars.length ? "var " + vars.join(',') + ";\n" : "") + code + "\n;return {" + vals.join(',') + "};"))(sandboxVariables);
+			r = (new Function("__vars", (vars.length ? "var " + vars.join(',') + ";\n" : '') + code + "\n;return {" + vals.join(',') + "};"))(sandboxVariables);
 		}
 
 		// if the last line of a module is a console.*() call, Firebug for some reason
@@ -173,7 +163,7 @@
 		return r === "_firebugIgnore" ? null : r;
 	}
 
-	function compactPath(path) {
+	function collapsePath(path) {
 		var result = [],
 			segment,
 			lastSegment;
@@ -189,48 +179,6 @@
 		}
 		return result.join("/");
 	}
-
-	/******************************************************************************
-	 * has() feature detection
-	 *****************************************************************************/
-
-	function has(name) {
-		// summary:
-		//		Determines of a specific feature is supported.
-		//
-		// name: String
-		//		The name of the test.
-		//
-		// returns: Boolean (truthy/falsey)
-		//		Whether or not the feature has been detected.
-
-		if (is(hasCache[name], "Function")) {
-			hasCache[name] = hasCache[name](global, doc, el);
-		}
-		return hasCache[name];
-	}
-
-	has.add = function(name, test, now, force){
-		// summary:
-		//		Adds a feature test.
-		//
-		// name: String
-		//		The name of the test.
-		//
-		// test: Function
-		//		The function that tests for a feature.
-		//
-		// now: Boolean?
-		//		If true, runs the test immediately.
-		//
-		// force: Boolean?
-		//		If true, forces the test to override an existing test.
-
-		if (hasCache[name] === void 0 || force) {
-			hasCache[name] = test;
-		}
-		return now && has(name);
-	};
 
 	/******************************************************************************
 	 * Event handling
@@ -301,11 +249,49 @@
 	};
 
 	/******************************************************************************
+	 * Promise
+	 *****************************************************************************/
+
+	function Promise() {
+		this.thens = arguments.length ? [arguments] : [];
+	}
+
+	mix(Promise.prototype, {
+
+		then: function promiseThen() {
+			this.thens.push(arguments);
+			return this;
+		},
+
+		resolve: function promiseResolve() {
+			this._complete(0, arguments);
+		},
+
+		reject: function promiseReject(ex) {
+			this._complete(1, ex instanceof Error ? ex : new Error(ex));
+		},
+
+		_complete: function promiseComplete(fnIdx, result) {
+			this.then = fnIdx ? function promiseCompleteReject(resolved, rejected) { rejected && rejected(result); }
+			                   : function promiseCompleteResolve(resolved) { resolved && resolved.apply(null, result); };
+			this._complete = noop;
+
+			for (var i = 0, thens = this.thens, len = thens.length, fn; i < len;) {
+				fn = thens[i++][fnIdx];
+				fn && fn[fnIdx ? "call" : "apply"](null, result);
+			}
+
+			delete this.thens;
+		}
+
+	});
+
+	/******************************************************************************
 	 * Configuration processing
 	 *****************************************************************************/
 
 	// make sure baseUrl ends with a slash
-	if (!/\/$/.test(baseUrl)) {
+	if (!endingSlashRegExp.test(baseUrl)) {
 		baseUrl += "/";
 	}
 
@@ -323,23 +309,26 @@
 		//		Optional. A base URL to prepend to the package location
 
 		pkg = pkg.name ? pkg : { name: pkg };
-		pkg.location = (/(^\/)|(\:)/.test(dir) ? dir : "") + (pkg.location || pkg.name);
-		pkg.main = (pkg.main || "main").replace(/(^\.\/)|(\.js$)/, "");
+		pkg.location = (/^\/\/|\:/.test(dir) ? dir : '') + (pkg.location || pkg.name);
+		pkg.main = (pkg.main || "main").replace(/^\.\/|\.js$/g, '');
 		packages[pkg.name] = pkg;
 	}
 
 	// first init all packages from the config
-	each(cfg.packages, configPackage);
+	if (y = cfg.packages) {
+		for (x = y.length - 1; x >= 0;) {
+			configPackage(y[x--]);
+		}
+		delete cfg.packages;
+	}
 
 	// second init all package paths and their packages from the config
-	for (x in pp) {
-		each(pp[x], configPackage, x + "/");
+	for (x in w = cfg.packagePaths) {
+		for (y = w[x], z = y.length - 1; z >= 0;) {
+			configPackage(y[z--], x + '/');
+		}
 	}
-
-	// run all feature detection tests
-	for (x in cfg.has) {
-		has.add(x, cfg.has[x], 0, true);
-	}
+	delete cfg.packagePaths;
 
 	/******************************************************************************
 	 * Module functionality
@@ -371,29 +360,31 @@
 		// refModule: Object?
 		//		A reference map used for resolving module URLs.
 
-		var match = name && name.match(pluginRegExp),
+		var _t = this,
+			match = name && name.match(pluginRegExp),
 			isRelative = relativeRegExp.test(name),
 			notModule = notModuleRegExp.test(name),
 			exports = {},
 			pkg = null,
 			cjs,
 			i,
-			len,
 			m,
 			p,
 			url = baseUrl,
-			_t = this;
+			slice = Array.prototype.slice;
 
 		// name could be:
 		//  - a plugin		text!/some/file.html or include!/some/file.js
-		//  - a module		some/module, ../some/module
+		//  - a module		some/module, /some/module, ./some/module, ../some/module
 		//  - a js file		/some/file.js
-		//  - a url			http://www.google.com/
+		//  - a url			http://www.google.com/some/file, //google.com/some/file
 
 		_t.name = name;
 		_t.deps = deps || [];
 		_t.plugin = null;
-		_t.callbacks = [];
+		_t.rawDef = rawDef;
+		_t.state = rawDef ? LOADED : 0;
+		_t.refModule = refModule;
 
 		if (!match && (notModule || (isRelative && !refModule))) {
 			_t.url = name;
@@ -404,27 +395,41 @@
 				_t.pluginCfg = cfg[match[1]];
 				_t.deps.push(match[1]);
 			} else if (name) {
-				name = _t.name = compactPath((isRelative ? refModule.name + "/../" : "") + name);
+				name = (isRelative ? refModule.name + "/../" : '') + name.replace(startingSlashRegExp, '');
 
-				if (relativeRegExp.test(name)) {
-					throw new Error("Irrational path \"" + name + "\"");
+				if (absoluteRegExp.test(name)) {
+					throw new Error('Irrational path "' + name + '"');
 				}
 
-				if (match = name.match(packageNameRegExp)) {
-					for (i = 0, len = cfg.packages.length, m = match[1]; i < len; i++) {
-						p = cfg.packages[i];
-						if (p.name === m) {
-							pkg = m;
-							/\/$/.test(i = p.location) || (i += '/');
-							url += compactPath(i + (match[2] ? name : p.main));
-							break;
-						}
+				match = name.match(packageNameRegExp);
+				m = match && match[1];
+
+				if (m) {
+					p = packages[m];
+					if (!p && pkg === null && refModule) {
+						p = packages[m = refModule.pkg];
+						isRelative || (match[2] = name);
+					}
+					if (p) {
+						// module is a package
+						pkg = m;
+						endingSlashRegExp.test(i = p.location) || (i += '/');
+						m = match[2];
+						url += collapsePath(i + (m ? (p.root ? m : name) : p.main));
+						m || (name = pkg + '/' + p.main);
+					} else if (p = paths[m]) {
+						// module is a path
+						pkg = '';
+						// currently we only support a single path
+						url = is(p, "Array") ? p[0] : p;
 					}
 				}
 
+				_t.name = name = collapsePath(name);
+
 				// MUST set pkg to anything other than null, even if this module isn't in a package
-				if (!pkg || (!match && notModule)) {
-					pkg = "";
+				if (pkg === null || (!match && notModule)) {
+					pkg = '';
 					url += name;
 				}
 
@@ -433,19 +438,19 @@
 		}
 
 		_t.pkg = pkg;
-		_t.rawDef = rawDef;
-		_t.loaded = !!rawDef;
-		_t.refModule = refModule;
 
 		// our scoped require()
 		function scopedRequire() {
-			var args = Array.prototype.slice.call(arguments, 0);
-			args.length > 1 || (args[1] = 0);
-			args[2] = _t;
-			return req.apply(null, args);
+			var args = slice.call(arguments, 0);
+			return req.apply(null, [
+				args[0],
+				args[1] || 0,
+				args[2] || 0,
+				_t
+			]);
 		}
-		scopedRequire.toUrl = function() {
-			var args = Array.prototype.slice.call(arguments, 0);
+		scopedRequire.toUrl = function scopedToUrl() {
+			var args = slice.call(arguments, 0);
 			_t.plugin === null && (args[1] = _t);
 			return toUrl.apply(null, args);
 		};
@@ -462,42 +467,56 @@
 		};
 	}
 
-	ResourceDef.prototype.load = function(sync, callback) {
+	ResourceDef.prototype.load = function load(sync) {
 		// summary:
 		//		Retreives a remote script and inject it either by XHR (sync) or attaching
-		//		a script tag to the DOM (async).
+		//		a script tag to the DOM (async). Once the resource is loaded, it will be
+		//		executed.
 		//
 		// sync: Boolean
 		//		If true, uses XHR, otherwise uses a script tag.
-		//
-		// callback: Function?
-		//		A function to call when sync is false and the script tag loads.
 
 		var s,
-			x,
+			xhr,
+			scriptTag,
+			scriptTagParent,
 			scriptTagLoadEvent,
 			scriptTagErrorEvent,
+			doc = global.document,
 			_t = this,
 			name = _t.name,
-			cached = defCache[name];
+			cached = defCache[name],
+			promise = _t.promise = (_t.promise || new Promise),
+			timer;
 
-		function fireCallbacks() {
-			each(_t.callbacks, function(c) { c(_t); });
-			_t.callbacks = [];
+		function cleanup() {
+			clearTimeout(timer);
+			if (xhr) {
+				xhr.abort();
+			}
+			if (scriptTag) {
+				scriptTagLoadEvent();
+				scriptTagErrorEvent();
+				scriptTagParent.removeChild(scriptTag);
+			}
 		}
 
-		function onLoad(rawDef) {
-			_t.loaded = 1;
+		function onload(rawDef) {
+			cleanup();
+			_t.state = EXECUTING;
+
+			// if rawDef is undefined, then we're loading async
 			if (_t.rawDef = rawDef) {
 				if (is(rawDef, "String")) {
-					// if rawDef is a string, then it's either a cached string or xhr response
-					if (/\.js$/.test(_t.url)) {
+					// if rawDef is a string, then it's either a cached string or xhr response.
+					// the string could contain an AMD module or CommonJS module
+					if (jsFileRegExp.test(_t.url)) {
 						rawDef = evaluate(rawDef, _t.cjs);
 						_t.def = _t.rawDef = !isEmpty(rawDef.exports) ? rawDef.exports : (rawDef.module && !isEmpty(rawDef.module.exports) ? rawDef.module.exports : null);
 						_t.def === null && (_t.rawDef = rawDef);
 					} else {
 						_t.def = rawDef;
-						_t.executed = 1;
+						_t.state = EXECUTED;
 					}
 				} else if (is(rawDef, "Function")) {
 					// if rawDef is a function, then it's a cached module definition
@@ -505,108 +524,109 @@
 					rawDef();
 				}
 			}
-			processDefQ(_t);
-			fireCallbacks();
-			return 1;
+
+			// we need to process the definition queue just in case the rawDef fired define()
+			processDefQ(_t) || _t.execute();
 		}
 
-		_t.sync = sync;
-		callback && _t.callbacks.push(callback);
-
-		// if we don't have a url, then I suppose we're loaded
-		if (_t.executed || !_t.url) {
-			_t.loaded = 1;
-			fireCallbacks();
-			return;
-		}
-
-		// if we're already waiting, then we can just return and our callback will be fired
-		if (waiting[name]) {
-			return;
-		}
-
-		// if we're already loaded or the definition has been cached, then just return now
-		if (_t.loaded || cached) {
-			delete defCache[name];
-			return onLoad(cached);
-		}
-
-		// mark this module as waiting to be loaded so that anonymous modules can be
-		// identified
-		waiting[name] = _t;
-
-		function disconnect() {
-			scriptTagLoadEvent && scriptTagLoadEvent();
-			scriptTagErrorEvent && scriptTagErrorEvent();
-		}
-
-		function failed() {
+		function onfail(msg) {
+			cleanup();
 			modules[name] = 0;
 			delete waiting[name];
-			disconnect();
+			_t.state = BADMODULE;
+			promise.reject('Failed to load module "'+ name + '"' + (msg ? ': ' + msg : ''));
 		}
 
-		if (sync) {
-			x = new XMLHttpRequest();
-			x.open("GET", _t.url, false);
-			x.send(null);
+		// if we don't have a url, then I suppose we're loaded
+		if (_t.state === EXECUTED || !_t.url) {
+			_t.execute();
 
-			if (x.status === 200) {
-				return onLoad(x.responseText);
+		// if we're not executing and not already waiting, then fetch the module
+		} else if (_t.state !== EXECUTING && !waiting[name]) {
+
+			// if the definition has been cached, no need to load it
+			if (_t.state === LOADED || cached) {
+				delete defCache[name];
+				onload(cached);
+
 			} else {
-				failed();
-				throw new Error("Failed to load module \"" + name + "\": " + x.status);
-			}
-		} else {
-			// insert the script tag, attach onload, wait
-			x = _t.node = doc.createElement("script");
-			x.type = "text/javascript";
-			x.charset = "utf-8";
-			x.async = true;
+				// mark this module as waiting to be loaded so that anonymous modules can be identified
+				waiting[name] = _t;
+				_t.state = REQUESTED;
 
-			scriptTagLoadEvent = on(x, "load", function(e) {
-				e = e || global.event;
-				var node = e.target || e.srcElement;
-				if (e.type === "load" || /complete|loaded/.test(node.readyState)) {
-					disconnect();
-					onLoad();
+				timeout && (timer = setTimeout(function() {
+					onfail("request timed out");
+				}, timeout));
+
+				if (_t.sync = sync) {
+					xhr = new XMLHttpRequest;
+					xhr.open("GET", _t.url, false);
+					xhr.send(null);
+
+					if (xhr.status === 200) {
+						onload(xhr.responseText);
+					} else {
+						onfail(xhr.status);
+					}
+				} else {
+					// insert the script tag, attach onload, wait
+					scriptTag = _t.node = doc.createElement("script");
+					scriptTag.type = "text/javascript";
+					scriptTag.charset = "utf-8";
+					scriptTag.async = true;
+
+					scriptTagLoadEvent = on(scriptTag, "load", function onScriptTagLoad(e) {
+						e = e || global.event;
+						var node = e.target || e.srcElement;
+						if (e.type === "load" || /complete|loaded/.test(node.readyState)) {
+							scriptTagLoadEvent();
+							scriptTagErrorEvent();
+							onload();
+						}
+					});
+
+					scriptTagErrorEvent = on(scriptTag, "error", function() {
+						onfail();
+					});
+
+					// set the source url last
+					scriptTag.src = _t.url;
+
+					scriptTagParent = doc.getElementsByTagName("script")[0].parentNode;
+					scriptTagParent.insertBefore(scriptTag, s);
 				}
-			});
-
-			scriptTagErrorEvent = on(x, "error", failed);
-
-			// set the source url last
-			x.src = _t.url;
-
-			s = doc.getElementsByTagName("script")[0];
-			s.parentNode.insertBefore(x, s);
+			}
 		}
+
+		return promise;
 	};
 
-	ResourceDef.prototype.execute = function(callback) {
+	ResourceDef.prototype.execute = function execute() {
 		// summary:
 		//		Executes the resource's rawDef which defines the module.
-		//
-		// callback: Function?
-		//		A function to call after the module has been executed.
 
-		var _t = this;
+		var _t = this,
+			promise = _t.promise = (_t.promise || new Promise),
+			resolve = promise.resolve;
 
-		if (_t.executed) {
-			callback && callback();
+		if (_t.state === EXECUTED) {
+			resolve.call(promise, _t);
 			return;
 		}
 
 		// first need to make sure we have all the deps loaded
-		fetch(_t, function(deps) {
+		req(_t, function onExecuteDepsLoaded() {
 			var i,
 				p,
 				r = _t.rawDef,
-				q = defQ.slice(0), // backup the defQ
-				finish = function() {
-					_t.executed = 1;
-					callback && callback();
-				};
+				q = defQ.slice(0); // backup the defQ
+
+			function finish() {
+				_t.state = EXECUTED;
+				delete _t.deps;
+				delete _t.rawDef;
+				resolve.call(promise, _t);
+			}
 
 			// need to wipe out the defQ
 			defQ = [];
@@ -615,7 +635,7 @@
 				||	(r && (is(r, "String")
 						? evaluate(r, _t.cjs)
 						: is(r, "Function")
-							? r.apply(null, deps)
+							? r.apply(null, arguments)
 							: is(r, "Object")
 								?	(function(obj, vars) {
 										for (var i in vars) {
@@ -628,17 +648,15 @@
 					)
 				|| _t.cjs.module.exports || _t.cjs.exports;
 
-			// we might have just executed code above that could have caused a couple
-			// define()'s to queue up
+			// we might have just executed code above that could have caused a couple define()'s to queue up
 			processDefQ(_t);
 
 			// restore the defQ
 			defQ = q;
 
-			// if plugin is not null, then it's the index in the deps array of the plugin
-			// to invoke
+			// if plugin is not null, then it's the index in the deps array of the plugin to invoke
 			if (_t.plugin !== null) {
-				p = deps[_t.plugin];
+				p = arguments[_t.plugin];
 
 				// the plugin's content is dynamic, so just remove from the module cache
 				if (p.dynamic) {
@@ -646,13 +664,15 @@
 				}
 
 				// if the plugin has a load function, then invoke it!
-				p.load && p.load(_t.pluginArgs, _t.cjs.require, function(v) {
+				p.load && p.load(_t.pluginArgs, _t.cjs.require, function onPluginRun(v) {
 					_t.def = v;
 					finish();
 				}, _t.pluginCfg);
 			}
 
 			(p && p.load) || finish();
+		}, function(ex) {
+			promise.reject(ex);
 		}, _t.refModule, _t.sync);
 	};
 
@@ -665,11 +685,11 @@
 
 		if (refModule && refModule.cjs && name in refModule.cjs) {
 			module.def = refModule.cjs[name];
-			module.loaded = module.executed = 1;
-			return module;
+			module.state = EXECUTED;
+			dontCache = 1;
 		}
 
-		return dontCache || !moduleName ? module : (!modules[moduleName] || !modules[moduleName].executed || overrideCache ? (modules[moduleName] = module) : modules[moduleName]);
+		return dontCache || !moduleName ? module : (!modules[moduleName] || !modules[moduleName].state || overrideCache ? (modules[moduleName] = module) : modules[moduleName]);
 	}
 
 	function processDefQ(module) {
@@ -682,7 +702,8 @@
 		//		be sitting in the defQ waiting to be executed.
 
 		var m,
-			q = defQ.slice(0);
+			q = defQ.slice(0),
+			r = 0;
 		defQ = [];
 
 		while (q.length) {
@@ -698,6 +719,7 @@
 				module.rawDef = m.rawDef;
 				module.refModule = m.refModule;
 				module.execute();
+				r = 1;
 			} else {
 				modules[m.name] = m;
 				m.execute();
@@ -705,66 +727,7 @@
 		}
 
 		delete waiting[module.name];
-	}
-
-	function fetch(deps, callback, refModule, sync) {
-		// summary:
-		//		Fetches all dependents and fires callback when finished or on error.
-		//
-		// description:
-		//		The fetch() function will fetch each of the dependents either
-		//		synchronously or asynchronously (default).
-		//
-		// deps: String | Array | Object
-		//		A string or array of module ids to load or a resource definition.
-		//
-		// callback: Function?
-		//		A callback function fired once the loader successfully loads and evaluates
-		//		all dependent modules. The function is passed an ordered array of
-		//		dependent module definitions.
-		//
-		// refModule: Object?
-		//		A reference map used for resolving module URLs.
-		//
-		// sync: Boolean?
-		//		Forces the async path to be sync.
-		//
-		// returns: Object | Function
-		//		If deps is a string, then it returns the corresponding module definition,
-		//		otherwise the require() function.
-
-		var i,
-			l,
-			count,
-			type = is(deps),
-			s = type === "String";
-
-		if (type === "Object") {
-			refModule = deps;
-			deps = refModule.deps;
-		}
-
-		if (s) {
-			deps = [deps];
-			sync = 1;
-		}
-
-		for (i = 0, l = count = deps.length; i < l; i++) {
-			deps[i] && (function(idx) {
-				getResourceDef(deps[idx], refModule).load(!!sync, function(m) {
-					m.execute(function() {
-						deps[idx] = m.def;
-						if (--count === 0) {
-							callback(deps);
-							count = -1; // prevent success from being called the 2nd time below
-						}
-					});
-				});
-			}(i));
-		}
-
-		count === 0 && callback(deps);
-		return s ? deps[0] : deps;
+		return r;
 	}
 
 	function def(name, deps, rawDef) {
@@ -894,12 +857,11 @@
 		//		|		};
 		//		|	});
 
-		var i = ["require"],
+		var i = ["require", "exports", "module"],
 			module;
 
 		if (!rawDef) {
 			rawDef = deps || name;
-			rawDef.length === 1 || (i = i.concat(["exports", "module"]));
 			if (typeof name !== "string") {
 				deps = deps ? name : i;
 				name = 0;
@@ -909,17 +871,7 @@
 		}
 
 		if (reservedModuleIdsRegExp.test(name)) {
-			throw new Error("Not allowed to define reserved module id \"" + name + "\"");
-		}
-
-		if (is(rawDef, "Function") && arguments.length === 1) {
-			// treat rawDef as CommonJS definition and scan for any requires and add
-			// them to the dependencies so that they can be loaded and passed in.
-			rawDef.toString()
-				.replace(commentRegExp, "")
-				.replace(cjsRequireRegExp, function(match, dep) {
-					deps.push(dep);
-				});
+			throw new Error('Not allowed to define reserved module id "' + name + '"');
 		}
 
 		module = getResourceDef(name, 0, deps, rawDef, 0, 1);
@@ -969,16 +921,16 @@
 			url = module.url;
 
 		module.pkg !== null && (url = url.substring(0, url.length - 3));
-		return url + ((match && match[2]) || "");
+		return url + ((match && match[2]) || '');
 	}
 
-	function req(deps, callback, refModule) {
+	function req(deps, callback, errback, refModule, sync) {
 		// summary:
 		//		Fetches a module, caches its definition, and returns the module. If an
 		//		array of modules is specified, then after all of them have been
 		//		asynchronously loaded, an optional callback is fired.
 		//
-		// deps: String | Array
+		// deps: String | Array | Object
 		//		A string or array of strings containing valid module identifiers.
 		//
 		// callback: Function?
@@ -988,12 +940,12 @@
 		// refModule: Object?
 		//		A reference map used for resolving module URLs.
 		//
-		// returns: Object | Function
-		//		If calling with a string, it will return the corresponding module
-		//		definition.
+		// sync: Boolean?
+		//		Forces the async path to be sync.
 		//
-		//		If calling with an array of dependencies and a callback function, the
-		//		require() function returns itself.
+		// returns: Object | Promise
+		//		If calling with a string, it will return the corresponding module
+		//		definition, otherwise it returns a Promise for the async loading.
 		//
 		// example:
 		//		Synchronous call.
@@ -1005,23 +957,54 @@
 		//		|		convert(arithmetic.sq(10), "fahrenheit", "celsius"); // returns 37.777
 		//		|	});
 
-		return fetch(deps, function(deps) {
-			callback && callback.apply(null, deps);
-		}, refModule) || req;
+		var i = 0,
+			l,
+			counter,
+			errorCount = 0,
+			type = is(deps),
+			s = type === "String",
+			promise = new Promise(callback, errback);
+
+		if (type === "Object") {
+			refModule = deps;
+			deps = refModule.deps || [];
+		}
+
+		if (s) {
+			deps = [deps];
+			sync = 1;
+		}
+
+		for (l = counter = deps.length; i < l;) {
+			(function requireDepClosure(j) {
+				function finish(m) {
+					deps[j] = m instanceof Error && ++errorCount ? void 0 : m.def;
+					if (--counter === 0) {
+						errorCount ? promise.reject(m) : promise.resolve.apply(promise, deps);
+						counter = -1; // prevent success from being called the 2nd time below
+					}
+				}
+
+				deps[j] && getResourceDef(deps[j], refModule).load(sync).then(finish, finish);
+			}(i++));
+		}
+
+		counter === 0 && promise.resolve.apply(promise, deps);
+
+		return s ? deps[0] : promise;
 	}
 
 	req.toUrl = toUrl;
 	mix(req, fnMixin = {
 		config: cfg,
-		each: each,
 		evaluate: evaluate,
-		has: has,
 		is: is,
 		mix: mix,
-		on: on
+		on: on,
+		Promise: Promise
 	});
 
-	req.cache = function(subject) {
+	req.cache = function requireCache(subject) {
 		// summary:
 		//		Copies module definitions into the definition cache.
 		//
