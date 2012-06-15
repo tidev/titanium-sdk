@@ -1,5 +1,5 @@
-define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/lang", "Ti/API", "Ti/UI", "Ti/_"],
-	function(css, declare, style, lang, API, UI, _) {
+define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/lang", "Ti/API", "Ti/UI", "Ti/_", "Ti/_/dom"],
+	function(css, declare, style, lang, API, UI, _, dom) {
 
 	var isDef = lang.isDef,
 		val = lang.val;
@@ -24,8 +24,12 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/lang", "Ti/API", "Ti/UI"
 		},
 		
 		getValueType: function(value) {
-			var match = isDef(value) && (value + "").match(/^([+-]?(((\d+(\.)?)|(\d*\.\d+))([eE][+-]?\d+)?))?(.*)$/);
-			return match && (match[8] !== UI.SIZE && match[8] !== UI.FILL && match[8] !== "%" ? "#" : match[8]);
+			if (isDef(value)) {
+				if (value === UI.SIZE || value === UI.FILL) {
+					return value;
+				}
+				return ~(value + "").indexOf("%") ? "%" : "#";
+			}
 		},
 		
 		calculateAnimation: function(node, animation) {
@@ -42,8 +46,10 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/lang", "Ti/API", "Ti/UI"
 			
 			!animationCoefficients && (animationCoefficients = node._animationCoefficients = {
 				width: {},
+				minWidth: {},
 				sandboxWidth: {},
 				height: {},
+				minHeight: {},
 				sandboxHeight: {},
 				left: {},
 				top: {}
@@ -56,6 +62,8 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/lang", "Ti/API", "Ti/UI"
 				bottom: val(animation.bottom,node.bottom),
 				center: center,
 				width: val(animation.width,node.width),
+				minWidth: node.minWidth,
+				minHeight: node.minHeight,
 				height: val(animation.height,node.height)
 			},animationCoefficients, this);
 			
@@ -77,21 +85,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/_/style", "Ti/_/lang", "Ti/API", "Ti/UI"
 					return value / 100;
 					
 				case "#": 
-					var units = (dimension + "").match(/^([+-]?(((\d+(\.)?)|(\d*\.\d+))([eE][+-]?\d+)?))?(.*)$/)[8];
-					!units && (units = "px");
-
-					switch(units) {
-						case "mm":
-							value *= 10;
-						case "cm":
-							return value * 0.0393700787 * _.dpi;
-						case "in":
-							return value * _.dpi;
-						case "dp":
-							return value * _.dpi / 96;
-						default:
-							return value;
-					}
+					return dom.computeSize(dimension);
 			}
 		}
 

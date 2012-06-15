@@ -282,10 +282,10 @@
 
 -(void)setZoomScale_:(id)args
 {
-	CGFloat scale = [TiUtils floatValue:args];
+	CGFloat scale = [TiUtils floatValue:args def:1.0];
 	[[self scrollView] setZoomScale:scale];
 	scale = [[self scrollView] zoomScale]; //Why are we doing this? Because of minZoomScale or maxZoomScale.
-	[[self proxy] replaceValue:NUMFLOAT(scale) forKey:@"scale" notification:NO];
+	[[self proxy] replaceValue:NUMFLOAT(scale) forKey:@"zoomScale" notification:NO];
 	if ([self.proxy _hasListeners:@"scale"])
 	{
 		[self.proxy fireEvent:@"scale" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
@@ -296,15 +296,26 @@
 
 -(void)setMaxZoomScale_:(id)args
 {
-	[[self scrollView] setMaximumZoomScale:[TiUtils floatValue:args]];
+    CGFloat val = [TiUtils floatValue:args def:1.0];
+    [[self scrollView] setMaximumZoomScale:val];
+    if ([[self scrollView] zoomScale] > val) {
+        [self setZoomScale_:args];
+    }
+    else if ([[self scrollView] zoomScale] < [[self scrollView] minimumZoomScale]){
+        [self setZoomScale_:[NSNumber numberWithFloat:[[self scrollView] minimumZoomScale]]];
+    }
 }
 
 -(void)setMinZoomScale_:(id)args
 {
-	[[self scrollView] setMinimumZoomScale:[TiUtils floatValue:args]];
+    CGFloat val = [TiUtils floatValue:args def:1.0];
+    [[self scrollView] setMinimumZoomScale:val];
+    if ([[self scrollView] zoomScale] < val) {
+        [self setZoomScale_:args];
+    }
 }
 
--(void)canCancelEvents_:(id)args
+-(void)setCanCancelEvents_:(id)args
 {
 	[[self scrollView] setCanCancelContentTouches:[TiUtils boolValue:args def:YES]];
 }
@@ -331,6 +342,27 @@
 {
 	// scale between minimum and maximum. called after any 'bounce' animations
 	[(id<UIScrollViewDelegate>)[self proxy] scrollViewDidEndZooming:scrollView withView:(UIView*)view atScale:scale];
+}
+
+- (void)scrollViewDidZoom:(UIScrollView *)scrollView_
+{
+	CGSize boundsSize = scrollView.bounds.size;
+    CGRect frameToCenter = wrapperView.frame;
+	if (TiDimensionIsAuto(contentWidth)) {
+		if (frameToCenter.size.width < boundsSize.width) {
+			frameToCenter.origin.x = (boundsSize.width - frameToCenter.size.width) / 2;
+		} else {
+			frameToCenter.origin.x = 0;
+		}
+	}
+	if (TiDimensionIsAuto(contentHeight)) {
+		if (frameToCenter.size.height < boundsSize.height) {
+			frameToCenter.origin.y = (boundsSize.height - frameToCenter.size.height) / 2;
+		} else {
+			frameToCenter.origin.y = 0;
+		}
+	}
+    wrapperView.frame = frameToCenter;	
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView_  

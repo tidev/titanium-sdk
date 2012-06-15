@@ -76,7 +76,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/lang", "Ti/Platform"],
 		},
 
 		translate: function(x, y) {
-			return new api(mult(this, 0, 0, 0, 0, x, y));
+			return new api(mult(this, 1, 0, 0, 1, x, y));
 		},
 
 		toCSS: function() {

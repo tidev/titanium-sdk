@@ -86,6 +86,16 @@ public abstract class TiWindowProxy extends TiViewProxy
 	}
 
 	@Override
+	public boolean fireEvent(String eventName, Object data) {
+		// Notify tab of any focus or blur events.
+		if (tab != null && (eventName.equals(TiC.EVENT_FOCUS) || eventName.equals(TiC.EVENT_BLUR))) {
+			tab.fireEvent(eventName, data);
+		}
+
+		return super.fireEvent(eventName, data);
+	}
+
+	@Override
 	public TiUIView createView(Activity activity)
 	{
 		throw new IllegalStateException("Windows are created during open");

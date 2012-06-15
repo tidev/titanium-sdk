@@ -3,7 +3,7 @@ define(["require", "Ti/_/lang", "Ti/_/Evented", "Ti/API"],
 
 	var locale = lang.val(navigator.language,navigator.browserLanguage).replace(/^([^\-\_]+)[\-\_](.+)?$/, function(o, l, c){ return l.toLowerCase() + (c && "-" + c.toUpperCase()); }),
 		languageParts = locale.split("-"),
-		language = languageParts[0];
+		language = languageParts[0],
 		strings = {},
 		cfg = require.config,
 		app = cfg.app;

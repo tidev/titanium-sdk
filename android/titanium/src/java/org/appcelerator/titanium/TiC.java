@@ -582,6 +582,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_BACKGROUND_GRADIENT = "backgroundGradient";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BACKGROUND_IMAGE = "backgroundImage";
 
 	/**
@@ -670,6 +675,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CAN_SCALE = "canScale";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CAN_CANCEL_EVENTS = "canCancelEvents";
 
 	/**
 	 * @module.api
@@ -1594,6 +1604,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR = "showHorizontalScrollIndicator";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR = "showVerticalScrollIndicator";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SHOW_PAGING_CONTROL = "showPagingControl";
 
 	/**
@@ -1685,6 +1705,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SUBTITLE = "subtitle";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SUBTITLEID = "subtitleid";
 
 	/**
 	 * @module.api

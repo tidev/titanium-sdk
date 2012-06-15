@@ -106,9 +106,6 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 
 			classCounters[dc] || (classCounters[dc] = 0);
 			this.widgetId = dc + ":" + (classCounters[dc]++);
-			this.toString === objProto.toString && (this.toString = function() {
-				return "[object " + dc.replace(/\./g, '') + "]";
-			});
 
 			// 1) call two types of the preamble
 			if (ctorSpecial && (a0 && a0.preamble || this.preamble)) {
@@ -148,6 +145,11 @@ define(["Ti/_", "Ti/_/lang"], function(_, lang) {
 					a0.hasOwnProperty(i) && ((f && i in f ? f.__values__ : this)[i] = a0[i]);
 				}
 			}
+
+			// add the toString() function for all our objects
+			this.toString === objProto.toString && (this.toString = function() {
+				return "[object " + dc.replace(/\./g, '') + "]";
+			});
 
 			// 4) continue the original ritual: call the postscript
 			f = this.postscript;
