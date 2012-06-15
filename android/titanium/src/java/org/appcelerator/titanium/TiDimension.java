@@ -236,7 +236,7 @@ public class TiDimension
 			return this.value;
 		}
 
-		return ((getPixels(parent) / getDisplayMetrics(parent).densityDpi) * MM_INCH);
+		return ((getPixels(parent) / getDPIForType(parent)) * MM_INCH);
 	}
 
 	public double getAsCentimeters(View parent)
@@ -245,7 +245,7 @@ public class TiDimension
 			return this.value;
 		}
 
-		return ((getPixels(parent) / getDisplayMetrics(parent).densityDpi) * CM_INCH);
+		return ((getPixels(parent) / getDPIForType(parent)) * CM_INCH);
 	}
 
 	public double getAsInches(View parent)
@@ -254,7 +254,7 @@ public class TiDimension
 			return this.value;
 		}
 
-		return (getPixels(parent) / getDisplayMetrics(parent).densityDpi);
+		return (getPixels(parent) / getDPIForType(parent));
 	}
 
 	public int getAsDIP(View parent)
@@ -337,9 +337,9 @@ public class TiDimension
 		return -1;
 	}
 	
-	protected double getSizePixels(View parent)
+	protected double getDPIForType(View parent)
 	{
-		DisplayMetrics metrics = getDisplayMetrics(parent);
+		DisplayMetrics metrics = getDisplayMetrics(parent);		
 		float dpi = -1;
 		switch (valueType) {
 			case TYPE_TOP:
@@ -357,6 +357,13 @@ public class TiDimension
 			default:
 				dpi = metrics.densityDpi;
 		}
+		
+		return dpi;
+	}
+	
+	protected double getSizePixels(View parent)
+	{
+		double dpi = getDPIForType(parent);
 		
 		if (units == TypedValue.COMPLEX_UNIT_PT) {
 			return (this.value * (dpi / POINT_DPI));
