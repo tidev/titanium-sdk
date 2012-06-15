@@ -67,10 +67,16 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/UI/Element", "Ti/_/lang", "Ti/_/string
 						this._layout = null;
 					}
 
-					this._layout = new Layouts[string.capitalize(value)](this);
+					this._layout = new Layouts[string.capitalize(value === "horizontal" && !this.wrap ? "constrainingHorizontal" : value)](this);
 
 					return value;
 				}
+			},
+			wrap: {
+				post: function(value) {
+					this.layout = this.layout; // Force a new layout to be created.
+				},
+				value: true
 			}
 		}
 
