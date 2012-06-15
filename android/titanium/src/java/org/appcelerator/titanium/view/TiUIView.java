@@ -673,9 +673,9 @@ public abstract class TiUIView
 	{
 		if (hasFocus) {
 			TiUIHelper.requestSoftInputChange(proxy, v);
-			proxy.fireEvent(TiC.EVENT_FOCUS, getFocusEventObject(hasFocus));
+			proxy.fireEvent(TiC.EVENT_FOCUS, getFocusEventObject(hasFocus), false);
 		} else {
-			proxy.fireEvent(TiC.EVENT_BLUR, getFocusEventObject(hasFocus));
+			proxy.fireEvent(TiC.EVENT_BLUR, getFocusEventObject(hasFocus), false);
 		}
 	}
 
