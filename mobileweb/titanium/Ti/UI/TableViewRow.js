@@ -24,19 +24,19 @@ define(["Ti/_/declare", "Ti/_/lang", "Ti/UI/View", "Ti/_/dom", "Ti/_/css", "Ti/_
 
 			var centerContainer = UI.createView({
 				width: UI.INHERIT,
-				height: UI.SIZE
+				height: UI.INHERIT
 			});
 			this._add(centerContainer);
 
 			centerContainer._add(this._titleLabel = UI.createLabel({
 				width: UI.INHERIT,
-				height: UI.SIZE,
+				height: UI.INHERIT,
 				wordWrap: false
 			}));
 
 			centerContainer._add(this._contentContainer = UI.createView({
 				width: UI.INHERIT,
-				height: UI.SIZE
+				height: UI.INHERIT
 			}));
 
 			this._add(this._rightImageView = UI.createImageView({
