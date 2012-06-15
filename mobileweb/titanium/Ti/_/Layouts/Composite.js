@@ -63,8 +63,17 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang"], function(Bas
 								isNaN(measuredWidth), 
 								isNaN(measuredHeight));
 						}
-						isNaN(measuredWidth) && (measuredWidth = childSize.width + child._borderLeftWidth + child._borderRightWidth);
-						isNaN(measuredHeight) && (measuredHeight = childSize.height + child._borderTopWidth + child._borderBottomWidth);
+						
+						if (isNaN(measuredWidth)) {
+							measuredWidth = childSize.width + child._borderLeftWidth + child._borderRightWidth;
+							minWidthLayoutCoefficients.x1 !== void 0 && (measuredWidth = Math.max(measuredWidth, 
+								minWidthLayoutCoefficients.x1 * width + minWidthLayoutCoefficients.x2));
+						}
+						if (isNaN(measuredHeight)) {
+							measuredHeight = childSize.height + child._borderTopWidth + child._borderBottomWidth;
+							minHeightLayoutCoefficients.x1 !== void 0 && (measuredHeight = Math.max(measuredHeight, 
+								minHeightLayoutCoefficients.x1 * height + minHeightLayoutCoefficients.x2));
+						}
 						
 						if (isWidthSize && leftLayoutCoefficients.x1 !== 0) {
 							deferredLeftCalculations.push(child);
