@@ -781,32 +781,53 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		}
 	}
 	
-	//If it's a relative path or has folder path bits, it cannot
-	//be a class name.
-	if (![path hasPrefix:@"."] && ([path rangeOfString:@"/"].location == NSNotFound)) {
-		// now see if this is a plus module that we need to dynamically
-		// load and create
-		NSString *moduleClassName = [self pathToModuleClassName:path];
-		id moduleClass = NSClassFromString(moduleClassName);
-		if (moduleClass!=nil)
-		{
-			module = [[moduleClass alloc] _initWithPageContext:self];
-            
-            // Load any JS associated with the module if there, so that it
-            // can be exported
-			if ([module isJSModule])
-			{
-				data = [module moduleJS];
-			}
-            
+    // Grab the path up to the first '/' (or whole path if no separator), and
+    // check to see if it's a module which can be loaded.
+    NSRange separatorLocation = [path rangeOfString:@"/"];
+    NSString* basePath = (separatorLocation.location == NSNotFound) ? path : [path substringToIndex:separatorLocation.location];
+    NSString* moduleClassName = [self pathToModuleClassName:basePath];
+    Class moduleClass = NSClassFromString(moduleClassName);
+    
+    if (moduleClass != nil) {
+        // We have a module to load resources from! Now we need to determine if
+        // it's a base module (which should be cached) or a pure JS resource
+        // stored on the module.
+        
+        module = [modules objectForKey:basePath];
+        
+        if (module == nil) {
+            module = [[moduleClass alloc] _initWithPageContext:self];
             [module setHost:host];
             [module _setName:moduleClassName];
-            // register it
-            [modules setObject:module forKey:path];
+            [modules setObject:module forKey:basePath];
+            [module autorelease];
+        }
+        
+        // TODO: Support package.json 'main' file identifier which will load instead
+        // of module JS. Currently neither iOS nor Android support package information.
+        if (separatorLocation.location == NSNotFound) { // Indicates toplevel module
+loadNativeJS:
+            if ([module isJSModule]) {
+                data = [module moduleJS];
+            }
+        }
+        else {
+            NSString* assetPath = [path substringFromIndex:separatorLocation.location+1];
+            // Handle the degenerate case (supported by MW) where we're loading
+            // module.id/module.id, which should resolve to module.id and mixin.
+            // Rather than create a utility method for this we use a goto to jump
+            // into the if block above.
             
-			[module autorelease];
-		}
-	}
+            if ([assetPath isEqualToString:basePath]) {
+                goto loadNativeJS;
+            }
+            
+            NSString* filepath = [assetPath stringByAppendingString:@".js"];
+            data = [module loadModuleAsset:filepath];
+            // Have to reset module so that this code doesn't get mixed in and is loaded as pure JS            
+            module = nil; 
+        }
+    }
 	
 	if (data==nil)
 	{
@@ -840,7 +861,9 @@ CFMutableSetRef	krollBridgeRegistry = nil;
         }
         
 		if (![wrapper respondsToSelector:@selector(replaceValue:forKey:notification:)]) {
-			@throw [NSException exceptionWithName:@"org.appcelerator.kroll" reason:[NSString stringWithFormat:@"Module \"%@\" failed to leave a valid exports object",path] userInfo:nil];
+			@throw [NSException exceptionWithName:@"org.appcelerator.kroll" 
+                                           reason:[NSString stringWithFormat:@"Module \"%@\" failed to leave a valid exports object",path] 
+                                         userInfo:nil];
 		}
 		
 		// register the module if it's pure JS
