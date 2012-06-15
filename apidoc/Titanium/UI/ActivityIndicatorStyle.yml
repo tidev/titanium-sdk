@@ -50,7 +50,7 @@ properties:
     platforms: [mobileweb]
     
   - name: PLAIN
-    summary: Small white spinning indicator (default.)
+    summary: Small white spinning indicator (default).
     description: |
         Used with the <Titanium.UI.ActivityIndicator.style> property.
         
