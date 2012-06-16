@@ -357,6 +357,7 @@ public class TiUIScrollableView extends TiUIView
 			Log.w(TAG, "Request to move to index " + index+ " ignored, as it is out-of-bounds.");
 			return;
 		}
+		mCurIndex = index;
 		mPager.setCurrentItem(index);
 	}
 

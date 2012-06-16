@@ -40,6 +40,7 @@ define(
 			longpress: "LongPress",
 			singletap: "SingleTap",
 			click: "SingleTap",
+			dragging: "Dragging",
 			doubleclick: "DoubleTap",
 			touchstart: "TouchStart",
 			touchend: "TouchEnd",
@@ -94,7 +95,7 @@ define(
 
 			this._children = [];
 
-			on(this.domNode, useTouch ? "touchstart" : "mousedown", function(evt){
+			this._disconnectTouchEvent = on(this.domNode, useTouch ? "touchstart" : "mousedown", function(evt){
 				var handles = [
 					on(global, useTouch ? "touchmove" : "mousemove", function(evt){
 						if (!touchMoveBlocked) {
@@ -129,12 +130,22 @@ define(
 					x2: 0,
 					x3: 0
 				},
+				minWidth: {
+					x1: 0,
+					x2: 0,
+					x3: 0
+				},
 				sandboxWidth: {
 					x1: 0,
 					x2: 0,
 					x3: 0
 				},
 				height: {
+					x1: 0,
+					x2: 0,
+					x3: 0
+				},
+				minHeight: {
 					x1: 0,
 					x2: 0,
 					x3: 0
@@ -249,6 +260,7 @@ define(
 		destroy: function() {
 			if (this._alive) {
 				var children = this._children;
+				this._disconnectTouchEvent();
 				while (children.length) {
 					children.splice(0, 1)[0].destroy();
 				}
@@ -626,18 +638,7 @@ define(
 				f.node = node;
 				f.evts = [
 					on(node, "focus", this, "_doBackground"),
-					on(node, "blur", this, "_doBackground") /*,
-					on(node, "mouseover", this, function() {
-						this._doBackground();
-						f.evtsMore = [
-							on(node, "mousemove", this, "_doBackground"),
-							on(node, "mouseout", this, function() {
-								this._doBackground();
-								event.off(f.evtsMore);
-								f.evtsMore = [];
-							})
-						];
-					})*/
+					on(node, "blur", this, "_doBackground")
 				];
 			}
 
@@ -731,13 +732,13 @@ define(
 
 		_setTouchEnabled: function(value) {
 			var children = this._children,
+				child,
 				i = 0,
 				len = children.length;
 			setStyle(this.domNode, "pointerEvents", value ? "auto" : "none");
-			if (!value) {
-				for (; i < len; i++) {
-					children[i]._setTouchEnabled(value);
-				}
+			for (; i < len; i++) {
+				child = children[i];
+				child._setTouchEnabled(value && child.touchEnabled);
 			}
 		},
 		

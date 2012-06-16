@@ -42,7 +42,7 @@
 {
 	NSString *value = [label text];
 	UIFont *font = [label font];
-	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 1000);
+	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 10000);
 	CGSize shadowOffset = [label shadowOffset];
 	requiresLayout = YES;
 	if ((suggestedWidth > 0) && [value characterAtIndex:value.length-1] == ' ') {

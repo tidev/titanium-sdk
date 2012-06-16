@@ -1,5 +1,5 @@
-define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/Locale", "Ti/UI"],
-	function(declare, FontWidget, dom, css, style, lang, Locale, UI) {
+define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", "Ti/_/lang", "Ti/Locale", "Ti/UI"],
+	function(declare, Widget, dom, css, style, lang, Locale, UI) {
 
 	var setStyle = style.set,
 		postDoBackground = {
@@ -20,36 +20,34 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			}
 		};
 
-	return declare("Ti.UI.Button", FontWidget, {
+	return declare("Ti.UI.Button", Widget, {
 
 		constructor: function() {
 			var contentContainer = this._contentContainer = UI.createView({
-				width: UI.SIZE,
-				height: UI.SIZE,
+				width: UI.INHERIT,
+				height: UI.INHERIT,
 				layout: UI._LAYOUT_CONSTRAINING_HORIZONTAL,
 				borderColor: "transparent"
 			});
 			this._add(contentContainer);
 			contentContainer._add(this._buttonImage = UI.createImageView());
-			contentContainer._add(this._buttonTitle = UI.createLabel());
-			this._addStyleableDomNode(this._buttonTitle.domNode);
+			contentContainer._add(this._buttonTitle = UI.createLabel({
+				textAlign: UI.TEXT_ALIGNMENT_CENTER,
+				verticalAlign: UI.TEXT_VERTICAL_ALIGNMENT_CENTER,
+				width: UI.INHERIT,
+				height: UI.INHERIT
+			}));
 			
 			this._setDefaultLook();
 			
 			this.addEventListener("touchstart",function(){
-				if (this.selectedColor) {
-					this._buttonTitle.color = this.selectedColor;
-				}
+				this.selectedColor && (this._buttonTitle.color = this.selectedColor);
 			});
 			this.addEventListener("touchend",function(){
-				if (this.selectedColor) {
-					this._buttonTitle.color = this.color || "black";
-				}
+				this.selectedColor && (this._buttonTitle.color = this.color || "black");
 			});
 			this.domNode.addEventListener("mouseout",lang.hitch(this,function(){
-				if (this.selectedColor) {
-					this._buttonTitle.color = this.color || "black";
-				}
+				this.selectedColor && (this._buttonTitle.color = this.color || "black");
 			}));
 		},
 
@@ -128,40 +126,15 @@ define(["Ti/_/declare", "Ti/_/UI/FontWidget", "Ti/_/dom", "Ti/_/css", "Ti/_/styl
 			selectedColor: void 0,
 			textAlign: {
 				set: function(value) {
-					var left,
-						right,
-						center = this.center || {},
-						contentContainer = this._contentContainer;
-					switch(value) {
-						case UI.TEXT_ALIGNMENT_LEFT: left = 0; break;
-						case UI.TEXT_ALIGNMENT_CENTER: center.x = "50%"; break;
-						case UI.TEXT_ALIGNMENT_RIGHT: right = 0; break;
-					}
-					contentContainer.left = left;
-					contentContainer.center = center;
-					contentContainer.right = right;
-					return value;
+					return this._buttonTitle.textAlign = value;
 				}
 			},
 			title: titlePost,
 			titleid: titlePost,
 			verticalAlign: {
 				set: function(value) {
-					var top,
-						bottom,
-						center = this.center || {},
-						contentContainer = this._contentContainer;
-					switch(value) {
-						case UI.TEXT_VERTICAL_ALIGNMENT_TOP: top = 0; break;
-						case UI.TEXT_VERTICAL_ALIGNMENT_CENTER: center.y = "50%"; break;
-						case UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM: bottom = 0; break;
-					}
-					contentContainer.top = top;
-					contentContainer.center = center;
-					contentContainer.bottom = bottom;
-					return value;
-				},
-				value: UI.TEXT_VERTICAL_ALIGNMENT_CENTER
+					return this._buttonTitle.verticalAlign = value;
+				}
 			}
 		}
 
