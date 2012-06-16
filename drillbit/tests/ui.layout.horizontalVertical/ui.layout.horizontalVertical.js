@@ -18,14 +18,14 @@ describe("Horizontal/Veritcal Layout tests", {
 			valueOf(child1.rect.y).shouldBe(10);
 			valueOf(child1.rect.x).shouldBe(0);
 
-			valueOf(child2.rect.height).shouldBe(90);
+			valueOf(child2.rect.height).shouldBe(270);
 			valueOf(child2.rect.width).shouldBe(55);
 			valueOf(child2.rect.y).shouldBe(20);
 			valueOf(child2.rect.x).shouldBe(45);
 
 			valueOf(child3.rect.height).shouldBe(120);
 			valueOf(child3.rect.width).shouldBe(50);
-			valueOf(child3.rect.y).shouldBe(0);
+			valueOf(child3.rect.y).shouldBe(90);
 			valueOf(child3.rect.x).shouldBe(120);
 		}));
 
@@ -53,7 +53,8 @@ describe("Horizontal/Veritcal Layout tests", {
 			valueOf(child2.rect.height).shouldBe(90);
 			valueOf(child2.rect.width).shouldBe(55);
 			// ((120 - 90) / 2) + 50
-			// child3 determines the maximum height of that row, so we have to calculate accordingly
+			// child3 determines the maximum height of that row, so we have to calculate accordingly. 
+			// We have to add 50 since the previous row just fills and this is in the second row
 			valueOf(child2.rect.y).shouldBe(65);
 			valueOf(child2.rect.x).shouldBe(5);
 

@@ -952,18 +952,19 @@ properties:
             
             Each child is positioned horizontally as in the composite layout mode. 
             
-         *  `horizontal`. Horizontal layouts have different behavior depending on whether
-            the wrap property is enabled. Horizontal layouts with wrapping behavior are
-            somewhat like vertical layouts, except the children are laid out horizontally
-            from left to right, _in rows_. If a child requires more horizontal space than
-            exists in the current row, it is wrapped to a new row. The height of each row
-            is equal to the maximum height of the children in that row. The wrapping behavior
-            is enabled by default.
+         *  `horizontal`. Horizontal layouts have different behavior depending on whether wrapping 
+            is enabled. Wrapping is enabled by default (the `wrap` property is `true`).
             
-            On iOS, Android and Mobile Web (Release 2.1.0 and later), the first row is placed 
-            at the top of the parent view, and successive rows are placed below the first
-            row. Each child is positioned vertically _within its row_ somewhat like
-            composite layout mode. In particular: 
+            With wrapping behavior, the children are laid out horizontally from left to right,
+            _in rows_. If a child requires more horizontal space than exists in the current row,
+            it is wrapped to a new row. The height of each row is equal to the maximum height of
+            the children in that row.
+            
+            Wrapping behavior is available on iOS, Android and Mobile Web (Release 2.1.0 and later).
+            When the wrap property is set to true, the first row is placed at the top of the 
+            parent view, and successive rows are placed below the first row. Each child is 
+            positioned vertically _within its row_ somewhat like composite layout mode. 
+            In particular: 
             
             *   If neither `top` or `bottom` is specified, the child is centered in the
                 row.
@@ -971,10 +972,11 @@ properties:
                 the top or bottom of the row, with the specified amount of padding.
             *   If *both* `top` and `bottom` is specified for a given child, the properties
                 are both treated as padding.
-            *   The `center` property is ignored in this mode.
             
-            When the wrap property is disabled, the behavior is identical to a vertical layout,
-            except children are laid out horizontally from left to right, _in rows_.
+            If the `wrap` property is false, the behavior is more equivalent to a vertical layout. 
+            Children are laid or horizontally from left to right in a single row. The `left` and 
+            `right` properties are used as padding between the children, and the `top` and `bottom` 
+            properties are used to position the children vertically.
             
             On Mobile Web _prior to_ Release 2.1.0, the horizontal layout does not wrap by default, 
             and does not support the wrap property.
@@ -1085,10 +1087,12 @@ properties:
 
   - name: wrap
     summary: Determines whether the layout has wrapping behavior.
-    description: This is only available when the layout mode is set to 'horizontal'.
+    description: |
+        For more information, see the discussion of horizontal layout mode in the description of 
+        the [layout](Titanium.UI.View.layout) property.
     type: Boolean
     default: true
-    platforms: [android, iphone, ipad]
+    since: "2.1.0"
 
   - name: zIndex
     summary: Z-index stack order position, relative to other sibling views.

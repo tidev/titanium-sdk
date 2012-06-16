@@ -735,10 +735,6 @@ public class TiCompositeLayout extends ViewGroup
 			rowHeight = child.getMeasuredHeight() + getViewHeightPadding(child, parentHeight);
 
 			if (rowWidth > maxRight) {
-				// If we couldn't determine a height from the children, just use the parent height as the max height
-				if (horizontalLayoutLineHeight == 0) {
-					horizontalLayoutLineHeight = parentHeight;
-				}
 				horizontalLayoutLastIndexBeforeWrap = i - 1;
 				return;
 
@@ -746,17 +742,12 @@ public class TiCompositeLayout extends ViewGroup
 				break;
 			}
 
-			// If we need to make fill behavior relative to the max row height, add '&& rowHeight != parentHeight' to
-			// the if statement below
 			if (horizontalLayoutLineHeight < rowHeight) {
 				horizontalLayoutLineHeight = rowHeight;
 			}
 		}
 
-		// Update the line height accordingly when it's the last child in the row before wrapping
-		if (horizontalLayoutLineHeight == 0) {
-			horizontalLayoutLineHeight = (rowHeight == 0) ? parentHeight : rowHeight;
-		} else if (horizontalLayoutLineHeight < rowHeight) {
+		if (horizontalLayoutLineHeight < rowHeight) {
 			horizontalLayoutLineHeight = rowHeight;
 		}
 		horizontalLayoutLastIndexBeforeWrap = i;
