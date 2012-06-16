@@ -733,21 +733,29 @@ public class TiCompositeLayout extends ViewGroup
 			// Calculate row width/height with padding
 			rowWidth += child.getMeasuredWidth() + getViewWidthPadding(child, getWidth());
 			rowHeight = child.getMeasuredHeight() + getViewHeightPadding(child, parentHeight);
+
 			if (rowWidth > maxRight) {
+				// If we couldn't determine a height from the children, just use the parent height as the max height
+				if (horizontalLayoutLineHeight == 0) {
+					horizontalLayoutLineHeight = parentHeight;
+				}
 				horizontalLayoutLastIndexBeforeWrap = i - 1;
 				return;
 
 			} else if (rowWidth == maxRight) {
-				// If we couldn't determine a height from the children, just use the parent height as the max height
-				if (horizontalLayoutLineHeight == 0) {
-					horizontalLayoutLineHeight = (rowHeight == 0) ? parentHeight : rowHeight;
-				}
 				break;
 			}
 
 			if (horizontalLayoutLineHeight < rowHeight && rowHeight != parentHeight) {
 				horizontalLayoutLineHeight = rowHeight;
 			}
+		}
+
+		// Update the line height accordingly when it's the last child in the row before wrapping
+		if (horizontalLayoutLineHeight == 0) {
+			horizontalLayoutLineHeight = (rowHeight == 0) ? parentHeight : rowHeight;
+		} else if (horizontalLayoutLineHeight < rowHeight) {
+			horizontalLayoutLineHeight = rowHeight;
 		}
 		horizontalLayoutLastIndexBeforeWrap = i;
 	}

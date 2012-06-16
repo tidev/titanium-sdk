@@ -413,7 +413,7 @@ public abstract class TiUIView
 				layoutParams.optionHeight = null;
 			}
 			layoutNativeView();
-		} else if (key.equals(TiC.PROPERTY_WRAP)) {
+		} else if (key.equals(TiC.PROPERTY_HORIZONTAL_WRAP)) {
 			if (nativeView instanceof TiCompositeLayout) {
 				((TiCompositeLayout) nativeView).setEnableHorizontalWrap(TiConvert.toBoolean(newValue));
 			}
@@ -573,9 +573,9 @@ public abstract class TiUIView
 			nativeView.requestLayout();
 		}
 
-		if (d.containsKey(TiC.PROPERTY_WRAP)) {
+		if (d.containsKey(TiC.PROPERTY_HORIZONTAL_WRAP)) {
 			if (nativeView instanceof TiCompositeLayout) {
-				((TiCompositeLayout) nativeView).setEnableHorizontalWrap(TiConvert.toBoolean(d, TiC.PROPERTY_WRAP));
+				((TiCompositeLayout) nativeView).setEnableHorizontalWrap(TiConvert.toBoolean(d, TiC.PROPERTY_HORIZONTAL_WRAP));
 			}
 		}
 

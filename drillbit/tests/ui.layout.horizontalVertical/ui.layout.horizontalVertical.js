@@ -2,7 +2,7 @@ describe("Horizontal/Veritcal Layout tests", {
 
 	horizontalTopBottomUndefinedHeight: asyncTest(function() {
 		var win = Ti.UI.createWindow({ backgroundColor: 'white'});
-		var parent = Ti.UI.createView({backgroundColor:'red',layout:'horizontal', wrap: true, width:200, height:300});
+		var parent = Ti.UI.createView({backgroundColor:'red',layout:'horizontal', horizontalWrap: true, width:200, height:300});
 
 		var child1 =Ti.UI.createView({backgroundColor:'green', width: 40, top: 10,bottom:10, height: 50});
 		var child2 =Ti.UI.createView({backgroundColor:'blue', left: 5, right:20, top: 20, bottom: 10,width:55});
@@ -34,7 +34,7 @@ describe("Horizontal/Veritcal Layout tests", {
 	}),
 	horizontalLeftRightUndefinedWidth: asyncTest(function() {
 		var win = Ti.UI.createWindow({ backgroundColor: 'white'});
-		var parent = Ti.UI.createView({backgroundColor:'red',layout:'horizontal', wrap: true, width:200, height:300});
+		var parent = Ti.UI.createView({backgroundColor:'red',layout:'horizontal', horizontalWrap: true, width:200, height:300});
 
 		var child1 =Ti.UI.createView({backgroundColor:'green', left: 10, right:10, height: 50});
 		var child2 =Ti.UI.createView({backgroundColor:'blue', left: 5, right:20, height: 90,width:55});
@@ -68,7 +68,7 @@ describe("Horizontal/Veritcal Layout tests", {
 	}),
 	horizontalLeftRightUndefinedWidthNoWrap: asyncTest(function() {
 		var win = Ti.UI.createWindow({ backgroundColor: 'white'});
-		var parent = Ti.UI.createView({backgroundColor:'red',layout:'horizontal', wrap: false, width:200, height:300});
+		var parent = Ti.UI.createView({backgroundColor:'red',layout:'horizontal', horizontalWrap: false, width:200, height:300});
 
 		var child1 =Ti.UI.createView({backgroundColor:'green', left: 10, right:10, height: 50});
 		var child2 =Ti.UI.createView({backgroundColor:'blue', left: 5, right:20, height: 90,width:55});
@@ -101,7 +101,7 @@ describe("Horizontal/Veritcal Layout tests", {
 	
 	horizontalTopBottomUndefinedHeightNoWrap: asyncTest(function() {
 		var win = Ti.UI.createWindow({ backgroundColor: 'white'});
-		var parent = Ti.UI.createView({backgroundColor:'red',layout:'horizontal', wrap: false, width:200, height:300});
+		var parent = Ti.UI.createView({backgroundColor:'red',layout:'horizontal', horizontalWrap: false, width:200, height:300});
 
 		var child1 =Ti.UI.createView({backgroundColor:'green', width: 40, top: 10,bottom:10, height: 50});
 		var child2 =Ti.UI.createView({backgroundColor:'blue', left: 5, right:20, top: 20, bottom: 10,width:55});
