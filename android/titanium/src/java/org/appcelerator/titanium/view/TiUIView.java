@@ -37,6 +37,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
@@ -84,13 +85,12 @@ public abstract class TiUIView
 	protected TiBackgroundDrawable background;
 
 	// Since Android doesn't have a property to check to indicate
-	// the current animated x/y scale (from ScaleAnimation), we track it here
+	// the current animated x/y scale (from a scale animation), we track it here
 	// so if another scale animation is done we can gleen the fromX and fromY values
 	// rather than starting the next animation always from scale 1.0f (i.e., normal scale).
 	// This gives us parity with iPhone for scale animations that use the 2-argument variant
 	// of Ti2DMatrix.scale().
-	private float animatedXScale = 1f;
-	private float animatedYScale = 1f; // 1 = regular size.
+	private Pair<Float, Float> animatedScaleValues = Pair.create(new Float(1f), new Float(1f)); // default = full size (1f)
 
 	// Same for rotation animation.
 	private float animatedRotationDegrees = 0f; // i.e., no rotation.
@@ -401,6 +401,7 @@ public abstract class TiUIView
 				Log.w(LCAT, "Unsupported property type ("+(newValue.getClass().getSimpleName())+") for key: " + key+". Must be an object/dictionary");
 			}
 		} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
+			resetPostAnimationValues();
 			if (newValue != null) {
 				if (!newValue.equals(TiC.SIZE_AUTO)) {
 					layoutParams.optionHeight = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_HEIGHT);
@@ -414,6 +415,7 @@ public abstract class TiUIView
 			}
 			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_WIDTH)) {
+			resetPostAnimationValues();
 			if (newValue != null) {
 				if (!newValue.equals(TiC.SIZE_AUTO)) {
 					layoutParams.optionWidth = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_WIDTH);
@@ -1267,39 +1269,22 @@ public abstract class TiUIView
 	}
 
 	/**
-	 * Store the animated x scale (from a ScaleAnimation) since Android provides no property for
+	 * Retrieve the saved animated scale values, which we store here since Android provides no property
+	 * for looking them up.
+	 */
+	public Pair<Float, Float> getAnimatedScaleValues()
+	{
+		return animatedScaleValues;
+	}
+
+	/**
+	 * Store the animated x and y scale values (i.e., the scale after an animation)
+	 * since Android provides no property for looking them up.
 	 * looking it up.
 	 */
-	public void setAnimatedXScale(float scale)
+	public void setAnimatedScaleValues(Pair<Float, Float> newValues)
 	{
-		animatedXScale = scale;
-	}
-
-	/**
-	 * Retrieve the animated x scale, which we store here since Android provides no property
-	 * for looking it up.
-	 */
-	public float getAnimatedXScale()
-	{
-		return animatedXScale;
-	}
-
-	/**
-	 * Store the animated y scale (from a ScaleAnimation) since Android provides no property for
-	 * looking it up.
-	 */
-	public void setAnimatedYScale(float scale)
-	{
-		animatedYScale = scale;
-	}
-
-	/**
-	 * Retrieve the animated y scale, which we store here since Android provides no property
-	 * for looking it up.
-	 */
-	public float getAnimatedYScale()
-	{
-		return animatedYScale;
+		animatedScaleValues = newValues;
 	}
 
 	/**
@@ -1317,5 +1302,14 @@ public abstract class TiUIView
 	public float getAnimatedRotationDegrees()
 	{
 		return animatedRotationDegrees;
+	}
+
+	/**
+	 * "Forget" the values we save after scale and rotation animations.
+	 */
+	private void resetPostAnimationValues()
+	{
+		animatedRotationDegrees = 0f; // i.e., no rotation.
+		animatedScaleValues = Pair.create(Float.valueOf(1f), Float.valueOf(1f)); // 1 means no scaling
 	}
 }

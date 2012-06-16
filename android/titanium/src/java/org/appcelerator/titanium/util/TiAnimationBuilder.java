@@ -256,78 +256,16 @@ public class TiAnimationBuilder
 
 			TiUIView tiView = viewProxy.peekView();
 
-			// For scale animations, rely on the Android-provided ScaleAnimation rather than our
-			// TiMatrixAnimation and Operation.
 			Animation anim;
-			if (tdm.isScaleOperation()) {
-
-				float scaleFromX, scaleFromY;
-				scaleFromX = scaleFromY = 1f; // I.e., start the scale operation from the view's stated size.
-
-				if (tdm.getScaleFromValuesSpecified()) {
-					scaleFromX = tdm.getScaleFromX();
-					scaleFromY = tdm.getScaleFromY();
-
-				} else {
-					// fromX and fromY values were not specified, so set them to the values
-					// of the last animation (if any.)
-					if (tiView != null) {
-						scaleFromX = tiView.getAnimatedXScale();
-						scaleFromY = tiView.getAnimatedYScale();
-					}
-					tdm.setScaleFromValues(scaleFromX, scaleFromY);
-				}
-
-				anim = new TiMatrixAnimation(tdm, anchorX, anchorY);
-
-				// Remember the toX, toY
-				if (tiView != null) {
-
-					float rememberX = tdm.getScaleToX();
-					float rememberY = tdm.getScaleToY();
-
-					// But if autoreverse is in effect, then
-					// set back to the fromX, fromY
-					if (autoreverse != null && autoreverse.booleanValue()) {
-						rememberX = scaleFromX;
-						rememberY = scaleFromY;
-					}
-
-					// We do this so that any subsequent scale animations created with the
-					// 2-argument variant of scale() (which specifies only the "to" values)
-					// will start from the last animated-to scale.
-					tiView.setAnimatedXScale(rememberX);
-					tiView.setAnimatedYScale(rememberY);
-				}
-
-			} else {
-
-				if (tdm.isRotateOperation()) {
-					// Make sure we rotate from the right starting position,
-					// in case a rotation has already occurred.
-					float[] params = tdm.getRotateOperationParameters();
-					float fromDegrees = params[0];
-					float toDegrees = params[1];
-
-					if (fromDegrees == Ti2DMatrix.VALUE_UNSPECIFIED) {
-						fromDegrees = tiView.getAnimatedRotationDegrees();
-						tdm.setRotationFromDegrees(fromDegrees);
-					}
-
-					// And remember for next time.
-					if (autoreverse == null || !autoreverse.booleanValue()) {
-						tiView.setAnimatedRotationDegrees(toDegrees);
-					} else {
-						// Because the animation will autoreverse, we
-						// want to save the original degrees.
-						tiView.setAnimatedRotationDegrees(fromDegrees);
-					}
-
-				}
-
-				anim = new TiMatrixAnimation(tdm, anchorX, anchorY);
-
+			if (tdm.hasScaleOperation() && tiView != null) {
+				tiView.setAnimatedScaleValues(tdm.verifyScaleValues(tiView, (autoreverse != null && autoreverse.booleanValue())));
 			}
+
+			if (tdm.hasRotateOperation() && tiView != null) {
+				tiView.setAnimatedRotationDegrees(tdm.verifyRotationValues(tiView, (autoreverse != null && autoreverse.booleanValue())));
+			}
+
+			anim = new TiMatrixAnimation(tdm, anchorX, anchorY);
 
 			anim.setFillAfter(true);
 
