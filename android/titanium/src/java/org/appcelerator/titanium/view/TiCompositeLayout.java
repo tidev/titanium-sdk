@@ -746,7 +746,9 @@ public class TiCompositeLayout extends ViewGroup
 				break;
 			}
 
-			if (horizontalLayoutLineHeight < rowHeight && rowHeight != parentHeight) {
+			// If we need to make fill behavior relative to the max row height, add '&& rowHeight != parentHeight' to
+			// the if statement below
+			if (horizontalLayoutLineHeight < rowHeight) {
 				horizontalLayoutLineHeight = rowHeight;
 			}
 		}
