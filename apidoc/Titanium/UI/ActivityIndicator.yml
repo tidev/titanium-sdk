@@ -21,8 +21,28 @@ description:  |
 extends: Titanium.Proxy
 since: "0.8"
 methods:
+  - name: add
+    summary: Adds a child to this activity indicator's hierarchy.
+    description: |
+        Adding children to an `ActivityIndicator` is not supported on all platforms.
+
+        If you need to display views on top of this object, consider using 
+        another view as a container for both this object and the views you want 
+        to appear on top of it.
+
+        See also: <Titanium.UI.View.add>.
+    platforms: [iphone, ipad, mobileweb]
+
   - name: hide
     summary: Hides the activity indicator and stops the animation.
+
+  - name: remove
+    summary: Removes a child from this activity indicator's hierarchy.
+    description: |
+        Adding children to an `ActivityIndicator` is not supported on all platforms.
+
+        See also: [add](Titanium.UI.ActivityIndicator.add), <Titanium.UI.View.add>.
+    platforms: [iphone, ipad, mobileweb]
     
   - name: show
     summary: Shows the activity indicator and starts the animation.
