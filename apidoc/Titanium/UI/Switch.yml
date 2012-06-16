@@ -13,14 +13,24 @@ description: |
     Use the <Titanium.UI.createSwitch> method to create a switch.
 extends: Titanium.UI.View
 since: "0.8"
+methods:
 
-events:
-  - name: change
-    summary: Fired when the switch value changes.
-    properties:
-      - name: value
-        summary: New value of the switch.
-        type: Boolean
+    # main doc inherited from Ti.UI.View.add
+  - name: add
+    description: |
+        Adding children to a `Switch` is not supported on all platforms.
+
+        If you need to display something on top of this object, consider using 
+        another view as a container for both this object and views you want 
+        to appear on top of it.
+
+        See also: <Titanium.UI.View.add>.
+    platforms: [mobileweb]
+
+  - name: remove
+    description: |
+        See also: [add](Titanium.UI.Switch.add), <Titanium.UI.View.add>.
+    platforms: [mobileweb]
 
 properties:
   - name: color
@@ -132,6 +142,14 @@ properties:
     type: [Number,String]
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
     platforms: [android, mobileweb]
+
+events:
+  - name: change
+    summary: Fired when the switch value changes.
+    properties:
+      - name: value
+        summary: New value of the switch.
+        type: Boolean
 
 examples:
   - title: Simple Switch Example
