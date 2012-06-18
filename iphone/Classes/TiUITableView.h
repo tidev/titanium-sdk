@@ -39,7 +39,7 @@
 
 @end
 
-@interface TiUITableView : TiUIView<UISearchDisplayDelegate,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiUIScrollView> {
+@interface TiUITableView : TiUIView<UISearchDisplayDelegate,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiScrolling,TiProxyObserver> {
 @private
 	UITableView *tableview;
 	BOOL moving;
@@ -49,8 +49,6 @@
     BOOL animateHide;
 	BOOL editable;
 	BOOL moveable;
-	BOOL initiallyDisplayed;
-	NSIndexPath *initialSelection;
 	NSMutableArray * sectionIndex;
 	NSMutableDictionary * sectionIndexMap;
 	TiDimension rowHeight;
@@ -63,12 +61,15 @@
 	NSString * filterAttribute;
 	NSString * searchString;
 	NSMutableArray * searchResultIndexes;
+    BOOL searchActivated;
 	BOOL filterCaseInsensitive;
 	BOOL allowsSelectionSet;
 	id	lastFocusedView; //DOES NOT RETAIN.	
 	UITableViewController *tableController;
 	UISearchDisplayController *searchController;
 	NSInteger frameChanges;
+    TiViewProxy* headerViewProxy;
+    TiViewProxy* footerViewProxy;
 }
 
 #pragma mark Framework
@@ -85,6 +86,11 @@
 -(IBAction)hideSearchScreen:(id)sender;
 -(UITableView*)tableView;
 -(CGFloat)tableRowHeight:(CGFloat)height;
+
+#pragma Private
+-(void)selectRow:(id)args;
+-(void)deselectRow:(id)args;
+
 
 @end
 

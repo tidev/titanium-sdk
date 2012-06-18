@@ -21,33 +21,34 @@
 
 	"use strict";
 
-	var // misc variables
-		x,
-		odp,
-		doc = global.document,
-		el = doc.createElement("div"),
+	var w, x, y, z,
 
 		// cached useful regexes
-		commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
-		cjsRequireRegExp = /[^.]require\(\s*["']([^'"\s]+)["']\s*\)/g,
 		reservedModuleIdsRegExp = /exports|module/,
+		pluginRegExp = /^(.+?)\!(.*)$/,
+		notModuleRegExp = /\:|^\/\/|\.js$/,
+		relativeRegExp = /^\./,
+		absoluteRegExp = /^\.\./,
+		startingSlashRegExp = /^\//,
+		endingSlashRegExp = /\/$/,
+		packageNameRegExp = /([^\/]+)\/?(.*)/,
+		urlRegExp = /^url\:(.+)/,
+		jsFileRegExp = /\.js$/,
 
 		// the global config settings
 		cfg = global.require || {},
 
-		// shortened packagePaths variable
-		pp = cfg.packagePaths || {},
-
 		// the number of seconds to wait for a script to load before timing out
 		waitSeconds = (cfg.waitSeconds || 7) * 1000,
 
+		// a base url to be prepended to all urls
 		baseUrl = cfg.baseUrl || "./",
+
+		// a timeout to fetch a remote resource, defaults to 2 seconds
+		timeout = cfg.timeout || 2000,
 
 		// CommonJS paths
 		paths = cfg.paths || {},
-
-		// feature detection results initialize by pre-calculated tests
-		hasCache = cfg.hasCache || {},
 
 		// a queue of module definitions to evaluate once a module has loaded
 		defQ = [],
@@ -62,6 +63,14 @@
 		// map of package names to package resource definitions
 		packages = {},
 
+		// module states
+		// default state unloaded = 0
+		REQUESTED = 1, // module is being downloaded
+		LOADED    = 2, // module is downloaded, but not executing/executed
+		EXECUTING = 3, // module is resolving dependencies and being evaluated
+		EXECUTED  = 4, // module is fully executed
+		BADMODULE = 5, // module errored out
+
 		// map of module ids to module resource definitions that are being loaded and processed
 		waiting = {},
 
@@ -75,38 +84,25 @@
 	 * Utility functions
 	 *****************************************************************************/
 
-	function _mix(dest, src) {
-		for (var p in src) {
-			src.hasOwnProperty(p) && (dest[p] = src[p]);
-		}
-		return dest;
-	}
+	function noop() {}
 
 	function mix(dest) {
 		// summary:
 		//		Copies properties by reference from a source object to a destination
 		//		object, then returns the destination object. To be clear, this will
 		//		modify the dest being passed in.
-		var i = 1;
+		var i = 1,
+			l = arguments.length,
+			p,
+			src;
 		dest || (dest = {});
-		while (i < arguments.length) {
-			_mix(dest, arguments[i++]);
+		while (i < l) {
+			src = arguments[i++];
+			for (p in src) {
+				src.hasOwnProperty(p) && (dest[p] = src[p]);
+			}
 		}
 		return dest;
-	}
-
-	function each(a, fn) {
-		// summary:
-		//		Loops through each element of an array and passes it to a callback
-		//		function.
-		var i = 0,
-			l = (a && a.length) || 0,
-			args = Array.prototype.slice.call(arguments, 0);
-		args.shift();
-		while (i < l) {
-			args[0] = a[i++];
-			fn.apply(null, args);
-		}
 	}
 
 	function is(it, type) {
@@ -117,19 +113,9 @@
 		// returns:
 		//		Boolean if type is passed in
 		//		String of type if type is not passed in
-		var t = it === undefined ? "" : ({}).toString.call(it),
-			m = t.match(/^\[object (.+)\]$/),
-			v = m ? m[1] : "Undefined";
+		var t = Object.prototype.toString.call(it),
+			v = it === void 0 ? "Undefined" : t.substring(8, t.length - 1);
 		return type ? type === v : v;
-	}
-	
-	function isDef(it) {
-		// summary:
-		//		Helper function that tests if "it" is defined
-		//
-		// returns:
-		//		Boolean
-		return !is(it, "Undefined");
 	}
 
 	function isEmpty(it) {
@@ -169,7 +155,7 @@
 				vars.push(i + "=__vars." + i);
 				vals.push(i + ":" + i);
 			}
-			r = (new Function("__vars", (vars.length ? "var " + vars.join(',') + ";\n" : "") + code + "\n;return {" + vals.join(',') + "};"))(sandboxVariables);
+			r = (new Function("__vars", (vars.length ? "var " + vars.join(',') + ";\n" : '') + code + "\n;return {" + vals.join(',') + "};"))(sandboxVariables);
 		}
 
 		// if the last line of a module is a console.*() call, Firebug for some reason
@@ -177,7 +163,7 @@
 		return r === "_firebugIgnore" ? null : r;
 	}
 
-	function compactPath(path) {
+	function collapsePath(path) {
 		var result = [],
 			segment,
 			lastSegment;
@@ -193,48 +179,6 @@
 		}
 		return result.join("/");
 	}
-
-	/******************************************************************************
-	 * has() feature detection
-	 *****************************************************************************/
-
-	function has(name) {
-		// summary:
-		//		Determines of a specific feature is supported.
-		//
-		// name: String
-		//		The name of the test.
-		//
-		// returns: Boolean (truthy/falsey)
-		//		Whether or not the feature has been detected.
-
-		if (is(hasCache[name], "Function")) {
-			hasCache[name] = hasCache[name](global, doc, el);
-		}
-		return hasCache[name];
-	}
-
-	has.add = function(name, test, now, force){
-		// summary:
-		//		Adds a feature test.
-		//
-		// name: String
-		//		The name of the test.
-		//
-		// test: Function
-		//		The function that tests for a feature.
-		//
-		// now: Boolean?
-		//		If true, runs the test immediately.
-		//
-		// force: Boolean?
-		//		If true, forces the test to override an existing test.
-
-		if (hasCache[name] === undefined || force) {
-			hasCache[name] = test;
-		}
-		return now && has(name);
-	};
 
 	/******************************************************************************
 	 * Event handling
@@ -305,11 +249,49 @@
 	};
 
 	/******************************************************************************
+	 * Promise
+	 *****************************************************************************/
+
+	function Promise() {
+		this.thens = arguments.length ? [arguments] : [];
+	}
+
+	mix(Promise.prototype, {
+
+		then: function promiseThen() {
+			this.thens.push(arguments);
+			return this;
+		},
+
+		resolve: function promiseResolve() {
+			this._complete(0, arguments);
+		},
+
+		reject: function promiseReject(ex) {
+			this._complete(1, ex instanceof Error ? ex : new Error(ex));
+		},
+
+		_complete: function promiseComplete(fnIdx, result) {
+			this.then = fnIdx ? function promiseCompleteReject(resolved, rejected) { rejected && rejected(result); }
+			                   : function promiseCompleteResolve(resolved) { resolved && resolved.apply(null, result); };
+			this._complete = noop;
+
+			for (var i = 0, thens = this.thens, len = thens.length, fn; i < len;) {
+				fn = thens[i++][fnIdx];
+				fn && fn[fnIdx ? "call" : "apply"](null, result);
+			}
+
+			delete this.thens;
+		}
+
+	});
+
+	/******************************************************************************
 	 * Configuration processing
 	 *****************************************************************************/
 
 	// make sure baseUrl ends with a slash
-	if (!/\/$/.test(baseUrl)) {
+	if (!endingSlashRegExp.test(baseUrl)) {
 		baseUrl += "/";
 	}
 
@@ -327,23 +309,26 @@
 		//		Optional. A base URL to prepend to the package location
 
 		pkg = pkg.name ? pkg : { name: pkg };
-		pkg.location = (/(^\/)|(\:)/.test(dir) ? dir : "") + (pkg.location || pkg.name);
-		pkg.main = (pkg.main || "main").replace(/(^\.\/)|(\.js$)/, "");
+		pkg.location = (/^\/\/|\:/.test(dir) ? dir : '') + (pkg.location || pkg.name);
+		pkg.main = (pkg.main || "main").replace(/^\.\/|\.js$/g, '');
 		packages[pkg.name] = pkg;
 	}
 
 	// first init all packages from the config
-	each(cfg.packages, configPackage);
+	if (y = cfg.packages) {
+		for (x = y.length - 1; x >= 0;) {
+			configPackage(y[x--]);
+		}
+		delete cfg.packages;
+	}
 
 	// second init all package paths and their packages from the config
-	for (x in pp) {
-		each(pp[x], configPackage, x + "/");
+	for (x in w = cfg.packagePaths) {
+		for (y = w[x], z = y.length - 1; z >= 0;) {
+			configPackage(y[z--], x + '/');
+		}
 	}
-
-	// run all feature detection tests
-	for (x in cfg.has) {
-		has.add(x, cfg.has[x], 0, true);
-	}
+	delete cfg.packagePaths;
 
 	/******************************************************************************
 	 * Module functionality
@@ -375,25 +360,33 @@
 		// refModule: Object?
 		//		A reference map used for resolving module URLs.
 
-		var match = name && name.match(/^(.+?)\!(.*)$/),
-			isRelative = /^\./.test(name),
+		var _t = this,
+			match = name && name.match(pluginRegExp),
+			isRelative = relativeRegExp.test(name),
+			notModule = notModuleRegExp.test(name),
 			exports = {},
 			pkg = null,
 			cjs,
-			_t = this;
+			i,
+			m,
+			p,
+			url = baseUrl,
+			slice = Array.prototype.slice;
 
 		// name could be:
 		//  - a plugin		text!/some/file.html or include!/some/file.js
-		//  - a module		some/module, ../some/module
+		//  - a module		some/module, /some/module, ./some/module, ../some/module
 		//  - a js file		/some/file.js
-		//  - a url			http://www.google.com/
+		//  - a url			http://www.google.com/some/file, //google.com/some/file
 
 		_t.name = name;
 		_t.deps = deps || [];
 		_t.plugin = null;
-		_t.callbacks = [];
+		_t.rawDef = rawDef;
+		_t.state = rawDef ? LOADED : 0;
+		_t.refModule = refModule;
 
-		if (!match && (/(^\/)|(\:)|(\.js$)/.test(name) || (isRelative && !refModule))) {
+		if (!match && (notModule || (isRelative && !refModule))) {
 			_t.url = name;
 		} else {
 			if (match) {
@@ -402,36 +395,62 @@
 				_t.pluginCfg = cfg[match[1]];
 				_t.deps.push(match[1]);
 			} else if (name) {
-				name = _t.name = compactPath((isRelative ? refModule.name + "/../" : "") + name);
+				name = (isRelative ? refModule.name + "/../" : '') + name.replace(startingSlashRegExp, '');
 
-				if (/^\./.test(name)) {
-					throw new Error("Irrational path \"" + name + "\"");
+				if (absoluteRegExp.test(name)) {
+					throw new Error('Irrational path "' + name + '"');
 				}
 
-				// TODO: if this is a package, then we need to transform the URL into the module's path
+				match = name.match(packageNameRegExp);
+				m = match && match[1];
+
+				if (m) {
+					p = packages[m];
+					if (!p && pkg === null && refModule) {
+						p = packages[m = refModule.pkg];
+						isRelative || (match[2] = name);
+					}
+					if (p) {
+						// module is a package
+						pkg = m;
+						endingSlashRegExp.test(i = p.location) || (i += '/');
+						m = match[2];
+						url += collapsePath(i + (m ? (p.root ? m : name) : p.main));
+						m || (name = pkg + '/' + p.main);
+					} else if (p = paths[m]) {
+						// module is a path
+						pkg = '';
+						// currently we only support a single path
+						url = is(p, "Array") ? p[0] : p;
+					}
+				}
+
+				_t.name = name = collapsePath(name);
+
 				// MUST set pkg to anything other than null, even if this module isn't in a package
-				pkg = "";
+				if (pkg === null || (!match && notModule)) {
+					pkg = '';
+					url += name;
+				}
 
-				/(^\/)|(\:)/.test(name) || (name = baseUrl + name);
-
-				_t.url = name + ".js";
+				_t.url = url + ".js";
 			}
 		}
 
 		_t.pkg = pkg;
-		_t.rawDef = rawDef;
-		_t.loaded = !!rawDef;
-		_t.refModule = refModule;
 
 		// our scoped require()
 		function scopedRequire() {
-			var args = Array.prototype.slice.call(arguments, 0);
-			args.length > 1 || (args[1] = 0);
-			args[2] = _t;
-			return req.apply(null, args);
+			var args = slice.call(arguments, 0);
+			return req.apply(null, [
+				args[0],
+				args[1] || 0,
+				args[2] || 0,
+				_t
+			]);
 		}
-		scopedRequire.toUrl = function() {
-			var args = Array.prototype.slice.call(arguments, 0);
+		scopedRequire.toUrl = function scopedToUrl() {
+			var args = slice.call(arguments, 0);
 			_t.plugin === null && (args[1] = _t);
 			return toUrl.apply(null, args);
 		};
@@ -448,147 +467,178 @@
 		};
 	}
 
-	ResourceDef.prototype.load = function(sync, callback) {
+	ResourceDef.prototype.load = function load(sync) {
 		// summary:
 		//		Retreives a remote script and inject it either by XHR (sync) or attaching
-		//		a script tag to the DOM (async).
+		//		a script tag to the DOM (async). Once the resource is loaded, it will be
+		//		executed.
 		//
 		// sync: Boolean
 		//		If true, uses XHR, otherwise uses a script tag.
-		//
-		// callback: Function?
-		//		A function to call when sync is false and the script tag loads.
 
 		var s,
-			x,
-			disconnector,
+			xhr,
+			scriptTag,
+			scriptTagParent,
+			scriptTagLoadEvent,
+			scriptTagErrorEvent,
+			doc = global.document,
 			_t = this,
-			cached = defCache[_t.name],
-			fireCallbacks = function() {
-				each(_t.callbacks, function(c) { c(_t); });
-				_t.callbacks = [];
-			},
-			onLoad = function(rawDef) {
-				_t.loaded = 1;
-				if (_t.rawDef = rawDef) {
-					if (is(rawDef, "String")) {
-						// if rawDef is a string, then it's either a cached string or xhr response
-						if (/\.js$/.test(_t.url)) {
-							rawDef = evaluate(rawDef, _t.cjs);
-							_t.def = _t.rawDef = !isEmpty(rawDef.exports) ? rawDef.exports : (rawDef.module && !isEmpty(rawDef.module.exports) ? rawDef.module.exports : null);
-							_t.def === null && (_t.rawDef = rawDef);
-						} else {
-							_t.def = rawDef;
-							_t.executed = 1;
-						}
-					} else if (is(rawDef, "Function")) {
-						// if rawDef is a function, then it's a cached module definition
-						waiting[_t.name] = _t;
-						rawDef();
-					}
-				}
-				processDefQ(_t);
-				fireCallbacks();
-				return 1;
-			};
+			name = _t.name,
+			cached = defCache[name],
+			promise = _t.promise = (_t.promise || new Promise),
+			timer;
 
-		_t.sync = sync;
-		callback && _t.callbacks.push(callback);
+		function cleanup() {
+			clearTimeout(timer);
+			if (xhr) {
+				xhr.abort();
+			}
+			if (scriptTag) {
+				scriptTagLoadEvent();
+				scriptTagErrorEvent();
+				scriptTagParent.removeChild(scriptTag);
+			}
+		}
+
+		function onload(rawDef) {
+			cleanup();
+			_t.state = EXECUTING;
+
+			// if rawDef is undefined, then we're loading async
+			if (_t.rawDef = rawDef) {
+				if (is(rawDef, "String")) {
+					// if rawDef is a string, then it's either a cached string or xhr response.
+					// the string could contain an AMD module or CommonJS module
+					if (jsFileRegExp.test(_t.url)) {
+						rawDef = evaluate(rawDef, _t.cjs);
+						_t.def = _t.rawDef = !isEmpty(rawDef.exports) ? rawDef.exports : (rawDef.module && !isEmpty(rawDef.module.exports) ? rawDef.module.exports : null);
+						_t.def === null && (_t.rawDef = rawDef);
+					} else {
+						_t.def = rawDef;
+						_t.state = EXECUTED;
+					}
+				} else if (is(rawDef, "Function")) {
+					// if rawDef is a function, then it's a cached module definition
+					waiting[name] = _t;
+					rawDef();
+				}
+			}
+
+			// we need to process the definition queue just in case the rawDef fired define()
+			processDefQ(_t) || _t.execute();
+		}
+
+		function onfail(msg) {
+			cleanup();
+			modules[name] = 0;
+			delete waiting[name];
+			_t.state = BADMODULE;
+			promise.reject('Failed to load module "'+ name + '"' + (msg ? ': ' + msg : ''));
+		}
 
 		// if we don't have a url, then I suppose we're loaded
-		if (_t.executed || !_t.url) {
-			_t.loaded = 1;
-			fireCallbacks();
-			return;
-		}
+		if (_t.state === EXECUTED || !_t.url) {
+			_t.execute();
 
-		// if we're already waiting, then we can just return and our callback will be fired
-		if (waiting[_t.name]) {
-			return;
-		}
+		// if we're not executing and not already waiting, then fetch the module
+		} else if (_t.state !== EXECUTING && !waiting[name]) {
 
-		// if we're already loaded or the definition has been cached, then just return now
-		if (_t.loaded || cached) {
-			return onLoad(cached);
-		}
+			// if the definition has been cached, no need to load it
+			if (_t.state === LOADED || cached) {
+				delete defCache[name];
+				onload(cached);
 
-		// mark this module as waiting to be loaded so that anonymous modules can be
-		// identified
-		waiting[_t.name] = _t;
-
-		if (sync) {
-			x = new XMLHttpRequest();
-			x.open("GET", _t.url, false);
-			x.send(null);
-
-			if (x.status === 200) {
-				return onLoad(x.responseText);
 			} else {
-				throw new Error("Failed to load module \"" + _t.name + "\": " + x.status);
-			}
-		} else {
-			// insert the script tag, attach onload, wait
-			x = _t.node = doc.createElement("script");
-			x.type = "text/javascript";
-			x.charset = "utf-8";
-			x.async = true;
+				// mark this module as waiting to be loaded so that anonymous modules can be identified
+				waiting[name] = _t;
+				_t.state = REQUESTED;
 
-			disconnector = on(x, "load", function(e) {
-				e = e || global.event;
-				var node = e.target || e.srcElement;
-				if (e.type === "load" || /complete|loaded/.test(node.readyState)) {
-					disconnector();
-					onLoad();
+				timeout && (timer = setTimeout(function() {
+					onfail("request timed out");
+				}, timeout));
+
+				if (_t.sync = sync) {
+					xhr = new XMLHttpRequest;
+					xhr.open("GET", _t.url, false);
+					xhr.send(null);
+
+					if (xhr.status === 200) {
+						onload(xhr.responseText);
+					} else {
+						onfail(xhr.status);
+					}
+				} else {
+					// insert the script tag, attach onload, wait
+					scriptTag = _t.node = doc.createElement("script");
+					scriptTag.type = "text/javascript";
+					scriptTag.charset = "utf-8";
+					scriptTag.async = true;
+
+					scriptTagLoadEvent = on(scriptTag, "load", function onScriptTagLoad(e) {
+						e = e || global.event;
+						var node = e.target || e.srcElement;
+						if (e.type === "load" || /complete|loaded/.test(node.readyState)) {
+							scriptTagLoadEvent();
+							scriptTagErrorEvent();
+							onload();
+						}
+					});
+
+					scriptTagErrorEvent = on(scriptTag, "error", function() {
+						onfail();
+					});
+
+					// set the source url last
+					scriptTag.src = _t.url;
+
+					scriptTagParent = doc.getElementsByTagName("script")[0].parentNode;
+					scriptTagParent.insertBefore(scriptTag, s);
 				}
-			});
-
-			// set the source url last
-			x.src = _t.url;
-
-			s = doc.getElementsByTagName("script")[0];
-			s.parentNode.insertBefore(x, s);
+			}
 		}
+
+		return promise;
 	};
 
-	ResourceDef.prototype.execute = function(callback) {
+	ResourceDef.prototype.execute = function execute() {
 		// summary:
 		//		Executes the resource's rawDef which defines the module.
-		//
-		// callback: Function?
-		//		A function to call after the module has been executed.
 
-		var _t = this;
+		var _t = this,
+			promise = _t.promise = (_t.promise || new Promise),
+			resolve = promise.resolve;
 
-		if (_t.executed) {
-			callback && callback();
+		if (_t.state === EXECUTED) {
+			resolve.call(promise, _t);
 			return;
 		}
 
 		// first need to make sure we have all the deps loaded
-		fetch(_t.deps, function(deps) {
+		req(_t, function onExecuteDepsLoaded() {
 			var i,
 				p,
 				r = _t.rawDef,
-				q = defQ.slice(0), // backup the defQ
-				finish = function() {
-					_t.executed = 1;
-					callback && callback();
-				};
+				q = defQ.slice(0); // backup the defQ
+
+			function finish() {
+				_t.state = EXECUTED;
+				delete _t.deps;
+				delete _t.rawDef;
+				resolve.call(promise, _t);
+			}
 
 			// need to wipe out the defQ
 			defQ = [];
-
-			// make sure we have ourself in the waiting queue
-			//waiting[_t.name] = _t;
 
 			_t.def = _t.def
 				||	(r && (is(r, "String")
 						? evaluate(r, _t.cjs)
 						: is(r, "Function")
-							? r.apply(null, deps)
+							? r.apply(null, arguments)
 							: is(r, "Object")
-								? (function(obj, vars) {
-										for (var i in vars){
+								?	(function(obj, vars) {
+										for (var i in vars) {
 											this[i] = vars[i];
 										}
 										return obj;
@@ -596,19 +646,17 @@
 								: null
 						)
 					)
-				||	_t.cjs.exports;
+				|| _t.cjs.module.exports || _t.cjs.exports;
 
-			// we might have just executed code above that could have caused a couple
-			// define()'s to queue up
+			// we might have just executed code above that could have caused a couple define()'s to queue up
 			processDefQ(_t);
 
 			// restore the defQ
 			defQ = q;
 
-			// if plugin is not null, then it's the index in the deps array of the plugin
-			// to invoke
+			// if plugin is not null, then it's the index in the deps array of the plugin to invoke
 			if (_t.plugin !== null) {
-				p = deps[_t.plugin];
+				p = arguments[_t.plugin];
 
 				// the plugin's content is dynamic, so just remove from the module cache
 				if (p.dynamic) {
@@ -616,15 +664,15 @@
 				}
 
 				// if the plugin has a load function, then invoke it!
-				p.load && p.load(_t.pluginArgs, _t.cjs.require, function(v) {
+				p.load && p.load(_t.pluginArgs, _t.cjs.require, function onPluginRun(v) {
 					_t.def = v;
 					finish();
 				}, _t.pluginCfg);
 			}
 
-			finish();
+			(p && p.load) || finish();
 		}, function(ex) {
-			throw ex;
+			promise.reject(ex);
 		}, _t.refModule, _t.sync);
 	};
 
@@ -635,13 +683,13 @@
 		var module = new ResourceDef(name, refModule, deps, rawDef),
 			moduleName = module.name;
 
-		if (name in module.cjs) {
-			module.def = module.cjs[name];
-			module.loaded = module.executed = 1;
-			return module;
+		if (refModule && refModule.cjs && name in refModule.cjs) {
+			module.def = refModule.cjs[name];
+			module.state = EXECUTED;
+			dontCache = 1;
 		}
 
-		return dontCache || !moduleName ? module : (!modules[moduleName] || !modules[moduleName].executed || overrideCache ? (modules[moduleName] = module) : modules[moduleName]);
+		return dontCache || !moduleName ? module : (!modules[moduleName] || !modules[moduleName].state || overrideCache ? (modules[moduleName] = module) : modules[moduleName]);
 	}
 
 	function processDefQ(module) {
@@ -654,7 +702,8 @@
 		//		be sitting in the defQ waiting to be executed.
 
 		var m,
-			q = defQ.slice(0);
+			q = defQ.slice(0),
+			r = 0;
 		defQ = [];
 
 		while (q.length) {
@@ -668,7 +717,9 @@
 				modules[m.name] = module;
 				module.deps = m.deps;
 				module.rawDef = m.rawDef;
+				module.refModule = m.refModule;
 				module.execute();
+				r = 1;
 			} else {
 				modules[m.name] = m;
 				m.execute();
@@ -676,62 +727,7 @@
 		}
 
 		delete waiting[module.name];
-	}
-
-	function fetch(deps, success, failure, refModule, sync) {
-		// summary:
-		//		Fetches all dependents and fires callback when finished or on error.
-		//
-		// description:
-		//		The fetch() function will fetch each of the dependents either
-		//		synchronously or asynchronously (default).
-		//
-		// deps: String | Array
-		//		A string or array of module ids to load. If deps is a string, load()
-		//		returns the module's definition.
-		//
-		// success: Function?
-		//		A callback function fired once the loader successfully loads and evaluates
-		//		all dependent modules. The function is passed an ordered array of
-		//		dependent module definitions.
-		//
-		// failure: Function?
-		//		A callback function fired when the loader is unable to load a module. The
-		//		function is passed the exception.
-		//
-		// refModule: Object?
-		//		A reference map used for resolving module URLs.
-		//
-		// sync: Boolean?
-		//		Forces the async path to be sync.
-		//
-		// returns: Object | Function
-		//		If deps is a string, then it returns the corresponding module definition,
-		//		otherwise the require() function.
-
-		var i, l, count, s = is(deps, "String");
-
-		if (s) {
-			deps = [deps];
-			sync = 1;
-		}
-
-		for (i = 0, l = count = deps.length; i < l; i++) {
-			deps[i] && (function(idx) {
-				getResourceDef(deps[idx], refModule).load(!!sync, function(m) {
-					m.execute(function() {
-						deps[idx] = m.def;
-						if (--count === 0) {
-							success && success(deps);
-							count = -1; // prevent success from being called the 2nd time below
-						}
-					});
-				});
-			}(i));
-		}
-
-		count === 0 && success && success(deps);
-		return s ? deps[0] : deps;
+		return r;
 	}
 
 	function def(name, deps, rawDef) {
@@ -861,12 +857,11 @@
 		//		|		};
 		//		|	});
 
-		var i = ["require"],
+		var i = ["require", "exports", "module"],
 			module;
 
 		if (!rawDef) {
 			rawDef = deps || name;
-			rawDef.length === 1 || i.concat(["exports", "module"]);
 			if (typeof name !== "string") {
 				deps = deps ? name : i;
 				name = 0;
@@ -876,17 +871,7 @@
 		}
 
 		if (reservedModuleIdsRegExp.test(name)) {
-			throw new Error("Not allowed to define reserved module id \"" + name + "\"");
-		}
-
-		if (is(rawDef, "Function") && arguments.length === 1) {
-			// treat rawDef as CommonJS definition and scan for any requires and add
-			// them to the dependencies so that they can be loaded and passed in.
-			rawDef.toString()
-				.replace(commentRegExp, "")
-				.replace(cjsRequireRegExp, function(match, dep) {
-					deps.push(dep);
-				});
+			throw new Error('Not allowed to define reserved module id "' + name + '"');
 		}
 
 		module = getResourceDef(name, 0, deps, rawDef, 0, 1);
@@ -936,16 +921,16 @@
 			url = module.url;
 
 		module.pkg !== null && (url = url.substring(0, url.length - 3));
-		return url + ((match && match[2]) || "");
+		return url + ((match && match[2]) || '');
 	}
 
-	function req(deps, callback, refModule) {
+	function req(deps, callback, errback, refModule, sync) {
 		// summary:
 		//		Fetches a module, caches its definition, and returns the module. If an
 		//		array of modules is specified, then after all of them have been
 		//		asynchronously loaded, an optional callback is fired.
 		//
-		// deps: String | Array
+		// deps: String | Array | Object
 		//		A string or array of strings containing valid module identifiers.
 		//
 		// callback: Function?
@@ -955,12 +940,12 @@
 		// refModule: Object?
 		//		A reference map used for resolving module URLs.
 		//
-		// returns: Object | Function
-		//		If calling with a string, it will return the corresponding module
-		//		definition.
+		// sync: Boolean?
+		//		Forces the async path to be sync.
 		//
-		//		If calling with an array of dependencies and a callback function, the
-		//		require() function returns itself.
+		// returns: Object | Promise
+		//		If calling with a string, it will return the corresponding module
+		//		definition, otherwise it returns a Promise for the async loading.
 		//
 		// example:
 		//		Synchronous call.
@@ -972,26 +957,54 @@
 		//		|		convert(arithmetic.sq(10), "fahrenheit", "celsius"); // returns 37.777
 		//		|	});
 
-		return fetch(deps, function(deps) {
-			callback && callback.apply(null, deps);
-		}, function(ex) {
-			throw ex;
-		}, refModule) || req;
+		var i = 0,
+			l,
+			counter,
+			errorCount = 0,
+			type = is(deps),
+			s = type === "String",
+			promise = new Promise(callback, errback);
+
+		if (type === "Object") {
+			refModule = deps;
+			deps = refModule.deps || [];
+		}
+
+		if (s) {
+			deps = [deps];
+			sync = 1;
+		}
+
+		for (l = counter = deps.length; i < l;) {
+			(function requireDepClosure(j) {
+				function finish(m) {
+					deps[j] = m instanceof Error && ++errorCount ? void 0 : m.def;
+					if (--counter === 0) {
+						errorCount ? promise.reject(m) : promise.resolve.apply(promise, deps);
+						counter = -1; // prevent success from being called the 2nd time below
+					}
+				}
+
+				deps[j] && getResourceDef(deps[j], refModule).load(sync).then(finish, finish);
+			}(i++));
+		}
+
+		counter === 0 && promise.resolve.apply(promise, deps);
+
+		return s ? deps[0] : promise;
 	}
 
 	req.toUrl = toUrl;
-	req.config = cfg;
 	mix(req, fnMixin = {
-		each: each,
+		config: cfg,
 		evaluate: evaluate,
-		has: has,
 		is: is,
-		isDef: isDef,
 		mix: mix,
-		on: on
+		on: on,
+		Promise: Promise
 	});
 
-	req.cache = function(subject) {
+	req.cache = function requireCache(subject) {
 		// summary:
 		//		Copies module definitions into the definition cache.
 		//
@@ -1024,12 +1037,12 @@
 		//		|			});
 		//		|		}
 		//		|	});
-		var p, m, re = /^url\:(.+)/;
+		var p, m;
 		if (is(subject, "String")) {
 			return defCache[subject];
 		} else {
 			for (p in subject) {
-				m = p.match(re);
+				m = p.match(urlRegExp);
 				if (m) {
 					defCache[toUrl(m[1])] = subject[p];
 				} else {
@@ -1045,837 +1058,3 @@
 	global.define = def;
 
 }(window));
-
-require.cache({
-	"Ti/_": function() {
-		define(function() {
-			// Pre-calculate the screen DPI
-			var body = document.body,
-				measureDiv = document.createElement('div'),
-				dpi;
-			measureDiv.style.width = "1in";
-			measureDiv.style.visibility = "hidden";
-			body.appendChild(measureDiv);
-			dpi = parseInt(measureDiv.clientWidth);
-			body.removeChild(measureDiv);
-
-			return {
-				assert: function(test, msg) {
-					if (!test) {
-						throw new Error(msg);
-					}
-				},
-				dpi: dpi,
-				getAbsolutePath: function(path) {
-					/^app\:\/\//.test(path) && (path = path.substring(6));
-					/^\//.test(path) && (path = path.substring(1));
-					return /^\/\//.test(path) || path.indexOf("://") > 0 ? path : location.pathname.replace(/(.*)\/.*/, "$1") + "/" + path;
-				},
-				uuid: function() {
-					/**
-					 * Math.uuid.js (v1.4)
-					 * Copyright (c) 2010 Robert Kieffer
-					 * Dual licensed under the MIT and GPL licenses.
-					 * <http://www.broofa.com>
-					 * mailto:robert@broofa.com
-					 */
-					// RFC4122v4 solution:
-					return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-						var r = Math.random() * 16 | 0,
-							v = c == 'x' ? r : (r & 0x3 | 0x8);
-						return v.toString(16);
-					}).toUpperCase();
-				}
-			};
-		});
-	},
-	"Ti/_/browser": function() {
-		define(function() {
-			var match = navigator.userAgent.toLowerCase().match(/(webkit|gecko|trident|presto)/);
-			return {
-				runtime: match ? match[0] : "unknown"
-			};
-		});
-	},
-	"Ti/_/css": function() {
-		define(["Ti/_/string"], function(string) {
-			function processClass(node, cls, adding) {
-				var i = 0, p,
-					cn = " " + node.className + " ",
-					cls = require.is(cls, "Array") ? cls : cls.split(" ");
-
-				for (; i < cls.length; i++) {
-					p = cn.indexOf(" " + cls[i] + " ");
-					if (adding && p === -1) {
-						cn += cls[i] + " ";
-					} else if (!adding && p !== -1) {
-						cn = cn.substring(0, p) + cn.substring(p + cls[i].length + 1);
-					}
-				}
-
-				node.className = string.trim(cn);
-			}
-
-			return {
-				add: function(node, cls) {
-					processClass(node, cls, 1);
-				},
-
-				remove: function(node, cls) {
-					processClass(node, cls);
-				},
-
-				clean: function(cls) {
-					return cls.replace(/[^A-Za-z0-9\-]/g, "");
-				}
-			};
-		});
-	},
-	"Ti/_/declare": function() {
-		define(["Ti/_/lang"], function(lang) {
-			/**
-			 * declare() functionality based on code from Dojo Toolkit.
-			 *
-			 * Dojo Toolkit
-			 * Copyright (c) 2005-2011, The Dojo Foundation
-			 * New BSD License
-			 * <http://dojotoolkit.org>
-			 */
-
-			var is = require.is,
-				mix = require.mix,
-				classCounters = {};
-
-			// C3 Method Resolution Order (see http://www.python.org/download/releases/2.3/mro/)
-			function c3mro(bases, className) {
-				var result = [],
-					roots = [ {cls: 0, refs: []} ],
-					nameMap = {},
-					clsCount = 1,
-					l = bases.length,
-					i = 0,
-					j, lin, base, top, proto, rec, name, refs;
-
-				// build a list of bases naming them if needed
-				for (; i < l; ++i) {
-					base = bases[i];
-					if (!base) {
-						throw new Error('Unknown base class for "' + className + '" [' + i + ']');
-					} else if(!is(base, "Function")) {
-						throw new Error('Base class not a function for "' + className + '" [' + i + ']');
-					}
-					lin = base._meta ? base._meta.bases : [base];
-					top = 0;
-					// add bases to the name map
-					for (j = lin.length - 1; j >= 0; --j) {
-						proto = lin[j].prototype;
-						proto.hasOwnProperty("declaredClass") || (proto.declaredClass = "uniqName_" + (counter++));
-						name = proto.declaredClass;
-						if (!nameMap.hasOwnProperty(name)) {
-							nameMap[name] = {count: 0, refs: [], cls: lin[j]};
-							++clsCount;
-						}
-						rec = nameMap[name];
-						if (top && top !== rec) {
-							rec.refs.push(top);
-							++top.count;
-						}
-						top = rec;
-					}
-					++top.count;
-					roots[0].refs.push(top);
-				}
-
-				// remove classes without external references recursively
-				while (roots.length) {
-					top = roots.pop();
-					result.push(top.cls);
-					--clsCount;
-					// optimization: follow a single-linked chain
-					while (refs = top.refs, refs.length == 1) {
-						top = refs[0];
-						if (!top || --top.count) {
-							// branch or end of chain => do not end to roots
-							top = 0;
-							break;
-						}
-						result.push(top.cls);
-						--clsCount;
-					}
-					if (top) {
-						// branch
-						for (i = 0, l = refs.length; i < l; ++i) {
-							top = refs[i];
-							--top.count || roots.push(top);
-						}
-					}
-				}
-
-				if (clsCount) {
-					throw new Error('Can\'t build consistent linearization for ' + className + '"');
-				}
-
-				// calculate the superclass offset
-				base = bases[0];
-				result[0] = base ?
-					base._meta && base === result[result.length - base._meta.bases.length] ?
-						base._meta.bases.length : 1 : 0;
-
-				return result;
-			}
-
-			function makeConstructor(bases, ctorSpecial) {
-				return function() {
-					var a = arguments,
-						args = a,
-						a0 = a[0],
-						f, i, m, p,
-						l = bases.length,
-						preArgs,
-						dc = this.declaredClass;
-
-					classCounters[dc] || (classCounters[dc] = 0);
-					this.widgetId = dc + ":" + (classCounters[dc]++);
-
-					// 1) call two types of the preamble
-					if (ctorSpecial && (a0 && a0.preamble || this.preamble)) {
-						// full blown ritual
-						preArgs = new Array(bases.length);
-						// prepare parameters
-						preArgs[0] = a;
-						for (i = 0;;) {
-							// process the preamble of the 1st argument
-							(a0 = a[0]) && (f = a0.preamble) && (a = f.apply(this, a) || a);
-							// process the preamble of this class
-							f = bases[i].prototype;
-							f = f.hasOwnProperty("preamble") && f.preamble;
-							f && (a = f.apply(this, a) || a);
-							if (++i === l) {
-								break;
-							}
-							preArgs[i] = a;
-						}
-					}
-
-					// 2) call all non-trivial constructors using prepared arguments
-					for (i = l - 1; i >= 0; --i) {
-						f = bases[i];
-						m = f._meta;
-						if (m) {
-							f = m.ctor;
-							lang.mixProps(this, m.hidden);
-						}
-						is(f, "Function") && f.apply(this, preArgs ? preArgs[i] : a);
-					}
-
-					// 3) mixin args if any
-					if (is(a0, "Object")) {
-						f = this.constants;
-						for (i in a0) {
-							a0.hasOwnProperty(i) && ((f && i in f ? f.__values__ : this)[i] = a0[i]);
-						}
-					}
-
-					// 4) continue the original ritual: call the postscript
-					f = this.postscript;
-					f && f.apply(this, args);
-				};
-			}
-
-			function mixClass(dest, src) {
-				for (var p in src) {
-					if (src.hasOwnProperty(p) && !/^(constructor|properties|constants|__values__)$/.test(p)) {
-						is(src[p], "Function") && (src[p].nom = name);
-						dest[p] = src[p];
-					}
-				}
-				return dest;
-			}
-
-			function declare(className, superclass, definition) {
-				// summary:
-				//		Creates an instantiable class object.
-				//
-				// className: String?
-				//		Optional. The name of the class.
-				//
-				// superclass: null | Object | Array
-				//		The base class or classes to extend.
-				//
-				// definition: Object
-				//		The definition of the class.
-
-				if (!is(className, "String")) {
-					definition = superclass;
-					superclass = className;
-					className = "";
-				}
-				definition = definition || {};
-
-				var bases = [definition.constructor],
-					ctor,
-					i,
-					mixins = 1,
-					proto = {},
-					superclassType = is(superclass),
-					t;
-
-				// build the array of bases
-				if (superclassType === "Array") {
-					bases = c3mro(superclass, className);
-					superclass = bases[mixins = bases.length - bases[0]];
-				} else if (superclassType === "Function") {
-					t = superclass._meta;
-					bases = bases.concat(t ? t.bases : superclass);
-				} else if (superclassType === "Object") {
-					ctor = new Function;
-					mix(ctor.prototype, superclass);
-					bases[0] = superclass = ctor;
-				} else {
-					superclass = 0;
-				}
-
-				// build the prototype chain
-				if (superclass) {
-					for (i = mixins - 1;; --i) {
-						ctor = new Function;
-						ctor.prototype = superclass.prototype;
-						proto = new ctor;
-
-						// stop if nothing to add (the last base)
-						if (!i) {
-							break;
-						}
-
-						// mix in properties
-						t = bases[i];
-						(t._meta ? mixClass : mix)(proto, t.prototype);
-
-						// chain in new constructor
-						ctor = new Function;
-						ctor.superclass = superclass;
-						ctor.prototype = proto;
-						superclass = proto.constructor = ctor;
-					}
-				}
-
-				// add all properties except constructor, properties, and constants
-				mixClass(proto, definition);
-
-				// if the definition is not an object, then we want to use its constructor
-				t = definition.constructor;
-				if (t !== Object.prototype.constructor) {
-					t.nom = "constructor";
-					proto.constructor = t;
-				}
-
-				// build the constructor and add meta information to the constructor
-				mix(bases[0] = ctor = makeConstructor(bases, t), {
-					_meta: {
-						bases: bases,
-						hidden: definition,
-						ctor: definition.constructor
-					},
-					superclass: superclass && superclass.prototype,
-					extend: function(src) {
-						mixClass(this.prototype, src);
-						return this;
-					},
-					prototype: proto
-				});
-
-				// now mix in just the properties and constants
-				//lang.mixProps(proto, definition);
-
-				// add "standard" methods to the prototype
-				mix(proto, {
-					constructor: ctor,
-					// TODO: need a nice way of accessing the super method without using arguments.callee
-					// getInherited: function(name, args) {
-					//	return is(name, "String") ? this.inherited(name, args, true) : this.inherited(name, true);
-					// },
-					// inherited: inherited,
-					isInstanceOf: function(cls) {
-						var bases = this.constructor._meta.bases,
-							i = 0,
-							l = bases.length;
-						for (; i < l; ++i) {
-							if (bases[i] === cls) {
-								return true;
-							}
-						}
-						return this instanceof cls;
-					}
-				});
-
-				// add name if specified
-				if (className) {
-					proto.declaredClass = className;
-					lang.setObject(className, ctor);
-				}
-
-				return ctor;
-			}
-
-			return declare;
-		});
-	},
-	"Ti/_/dom": function() {
-		define(["Ti/_", "Ti/_/style"], function(_, style) {
-			/**
-			 * create(), attr(), place(), & remove() functionality based on code from Dojo Toolkit.
-			 *
-			 * Dojo Toolkit
-			 * Copyright (c) 2005-2011, The Dojo Foundation
-			 * New BSD License
-			 * <http://dojotoolkit.org>
-			 */
-
-			var is = require.is,
-				forcePropNames = {
-					innerHTML:	1,
-					className:	1,
-					value:		1
-				},
-				attrNames = {
-					// original attribute names
-					classname: "class",
-					htmlfor: "for",
-					// for IE
-					tabindex: "tabIndex",
-					readonly: "readOnly"
-				},
-				names = {
-					// properties renamed to avoid clashes with reserved words
-					"class": "className",
-					"for": "htmlFor",
-					// properties written as camelCase
-					tabindex: "tabIndex",
-					readonly: "readOnly",
-					colspan: "colSpan",
-					frameborder: "frameBorder",
-					rowspan: "rowSpan",
-					valuetype: "valueType"
-				},
-				attr = {
-					set: function(node, name, value) {
-						if (arguments.length === 2) {
-							// the object form of setter: the 2nd argument is a dictionary
-							for (var x in name) {
-								attr.set(node, x, name[x]);
-							}
-							return node;
-						}
-
-						var lc = name.toLowerCase(),
-							propName = names[lc] || name,
-							forceProp = forcePropNames[propName],
-							attrId, h;
-
-						if (propName === "style" && !require.is(value, "String")) {
-							return style.set(node, value);
-						}
-
-						if (forceProp || is(value, "Boolean") || is(value, "Function")) {
-							node[name] = value;
-							return node;
-						}
-
-						// node's attribute
-						node.setAttribute(attrNames[lc] || name, value);
-						return node;
-					},
-					remove: function(node, name) {
-						node.removeAttribute(name);
-						return node;
-					}
-				};
-
-			return {
-				create: function(tag, attrs, refNode, pos) {
-					var doc = refNode ? refNode.ownerDocument : document;
-					is(tag, "String") && (tag = doc.createElement(tag));
-					attrs && attr.set(tag, attrs);
-					refNode && this.place(tag, refNode, pos);
-					return tag;
-				},
-
-				attr: attr,
-
-				place: function(node, refNode, pos) {
-					refNode.appendChild(node);
-					return node;
-				},
-
-				detach: function(node) {
-					return node.parentNode && node.parentNode.removeChild(node);
-				},
-
-				destroy: function(node) {
-					try {
-						var destroyContainer = node.ownerDocument.createElement("div");
-						destroyContainer.appendChild(this.detach(node) || node);
-						destroyContainer.innerHTML = "";
-					} catch(e) {
-						/* squelch */
-					}
-				},
-
-				unitize: function(x) {
-					return isNaN(x-0) || x-0 != x ? x : x + "px"; // note: must be != and not !==
-				},
-
-				computeSize: function(x, totalLength, convertAutoToUndef) {
-					var undef,
-						type = require.is(x);
-
-					if (type === "String") {
-						if (x === "auto") {
-							convertAutoToUndef && (x = undef);
-						} else {
-							var value = parseFloat(x),
-								units = x.substring((value + "").length);
-
-							switch(units) {
-								case "%":
-									if(totalLength == "auto") {
-										convertAutoToUndef ? undef : "auto";
-									} else if (!require.is(totalLength,"Number")) {
-										console.error("Could not compute percentage size/position of element.");
-										return;
-									} 
-									return value / 100 * totalLength;
-								case "mm":
-									value *= 10;
-								case "cm":
-									return value * 0.0393700787 * _.dpi;
-								case "pc":
-									dpi /= 12;
-								case "pt":
-									dpi /= 72;
-								case "in":
-									return value * _.dpi;
-								case "px":
-								case "dp":
-									return value;
-							}
-						}
-					} else if (type !== "Number") {
-						x = undef;
-					}
-
-					return x;
-				}
-			};
-		});
-	},
-	"Ti/_/event": function() {
-		define({
-			stop: function(e) {
-				if (e) {
-					e.preventDefault && e.preventDefault();
-					e.stopPropagation && e.stopPropagation();
-				}
-			},
-			off: function(handles) {
-				require.each(require.is(handles, "Array") ? handles : [handles], function(h) {
-					h && h();
-				});
-			}
-		});
-	},
-	"Ti/_/lang": function() {
-		define(["Ti/_/string"], function(string) {
-			/**
-			 * hitch() and setObject() functionality based on code from Dojo Toolkit.
-			 *
-			 * Dojo Toolkit
-			 * Copyright (c) 2005-2011, The Dojo Foundation
-			 * New BSD License
-			 * <http://dojotoolkit.org>
-			 */
-
-			var global = this,
-				hitch,
-				is = require.is;
-
-			function toArray(obj, offset) {
-				return [].concat(Array.prototype.slice.call(obj, offset||0));
-			}
-
-			function hitchArgs(scope, method) {
-				var pre = toArray(arguments, 2);
-					named = is(method, "String");
-				return function() {
-					var s = scope || global,
-						f = named ? s[method] : method;
-					return f && f.apply(s, pre.concat(toArray(arguments)));
-				};
-			}
-
-			return {
-				hitch: hitch = function(scope, method) {
-					if (arguments.length > 2) {
-						return hitchArgs.apply(global, arguments);
-					}
-					if (!method) {
-						method = scope;
-						scope = null;
-					}
-					if (is(method, "String")) {
-						scope = scope || global;
-						if (!scope[method]) {
-							throw(['hitch: scope["', method, '"] is null (scope="', scope, '")'].join(''));
-						}
-						return function() {
-							return scope[method].apply(scope, arguments || []);
-						};
-					}
-					return !scope ? method : function() {
-						return method.apply(scope, arguments || []);
-					};
-				},
-
-				mixProps: function(dest, src, everything) {
-					var d, i, p, v, special = { properties: 1, constants: 0 };
-					for (p in src) {
-						if (src.hasOwnProperty(p) && !/^(constructor|__values__)$/.test(p)) {
-							if (p in special) {
-								d = dest[p] || (dest[p] = {});
-								d.__values__ || (d.__values__ = {});
-								for (i in src[p]) {
-									(function(property, externalDest, internalDest, valueDest, /* setter/getter, getter, or value */ descriptor, capitalizedName, writable) {
-										var o = is(descriptor, "Object"),
-											getter = o && is(descriptor.get, "Function") && descriptor.get,
-											setter = o && is(descriptor.set, "Function") && descriptor.set,
-											pt = o && is(descriptor.post),
-											post = pt === "Function" ? descriptor.post : pt === "String" ? hitch(externalDest, descriptor.post) : 0;
-
-										if (o && (getter || setter || post)) {
-											valueDest[property] = descriptor.value;
-										} else if (is(descriptor, "Function")) {
-											getter = descriptor;
-										} else {
-											valueDest[property] = descriptor;
-										}
-
-										// first set the internal private interface
-										Object.defineProperty(internalDest, property, {
-											get: function() {
-												return getter ? getter.call(externalDest, valueDest[property]) : valueDest[property];
-											},
-											set: function(v) {
-												var args = [v, valueDest[property]];
-												args[0] = valueDest[property] = setter ? setter.apply(externalDest, args) : v;
-												post && post.apply(externalDest, args);
-											},
-											configurable: true,
-											enumerable: true
-										});
-
-										// this is the public interface
-										Object.defineProperty(dest, property, {
-											get: function() {
-												return internalDest[property];
-											},
-											set: function(v) {
-												if (!writable) {
-													throw new Error('Property "' + property + '" is read only');
-												}
-												internalDest[property] = v;
-											},
-											configurable: true,
-											enumerable: true
-										});
-
-										if (require.has("declare-property-methods") && (writable || property.toUpperCase() !== property)) {
-											externalDest["get" + capitalizedName] = function() { return internalDest[property]; };
-											writable && (externalDest["set" + capitalizedName] = function(v) { return internalDest[property] = v; });
-										}
-									}(i, dest, d, d.__values__, src[p][i], string.capitalize(i), special[p]));
-								}
-							} else if (everything) {
-								dest[p] = src[p];
-							}
-						}
-					}
-					return dest;
-				},
-
-				setObject: function(name) {
-					var parts = name.split("."),
-						q = parts.pop(),
-						obj = window,
-						i = 0,
-						p = parts[i++],
-						value = {};
-
-					if (p) {
-						do {
-							obj = p in obj ? obj[p] : (obj[p] = {});
-						} while (obj && (p = parts[i++]));
-					}
-
-					if (!obj || !q) {
-						return undefined;
-					}
-
-					// need to mix args into values
-					for (i = 1; i < arguments.length; i++) {
-						is(arguments[i], "Object") ? this.mixProps(value, arguments[i], 1) : (value = arguments[i]);
-					}
-
-					return obj[q] = value;
-				},
-
-				toArray: toArray,
-
-				urlEncode: function(obj) {
-					var pairs = [],
-						prop,
-						value;
-
-					for (prop in obj) {
-						if (obj.hasOwnProperty(prop)) {
-							is(value = obj[prop], "Array") || (value = [value]);
-							prop = enc(prop) + "=";
-							require.each(value, function(v) {
-								pairs.push(prop + enc(v));
-							});
-						}
-					}
-
-					return pairs.join("&");
-				},
-
-				val: function(originalValue, defaultValue) {
-					return is(originalValue, "Undefined") ? defaultValue : originalValue;
-				}
-			};
-		});
-	},
-	"Ti/_/ready": function() {
-		define(["Ti/_/lang"], function(lang) {
-			/**
-			 * ready() functionality based on code from Dojo Toolkit.
-			 *
-			 * Dojo Toolkit
-			 * Copyright (c) 2005-2011, The Dojo Foundation
-			 * New BSD License
-			 * <http://dojotoolkit.org>
-			 */
-
-			var doc = document,
-				readyStates = { "loaded": 1, "complete": 1 },
-				isReady = !!readyStates[doc.readyState],
-				readyQ = [];
-
-			if (!isReady) {
-				function detectReady(evt) {
-					if (isReady || (evt && evt.type == "readystatechange" && !readyStates[doc.readyState])) {
-						return;
-					}
-					while (readyQ.length) {
-						(readyQ.shift())();
-					}
-					isReady = 1;
-				}
-
-				readyQ.concat([
-					require.on(doc, "DOMContentLoaded", detectReady),
-					require.on(window, "load", detectReady)
-				]);
-
-				if ("onreadystatechange" in doc) {
-					readyQ.push(require.on(doc, "readystatechange", detectReady));
-				} else {
-					function poller() {
-						readyStates[doc.readyState] ? detectReady() : setTimeout(poller, 30);
-					}
-					poller();
-				}
-			}
-
-			function ready(priority, context, callback) {
-				var fn, i, l;
-				if (!require.is(priority, "Number")) {
-					callback = context;
-					context = priority;
-					priority = 1000;
-				}
-				fn = callback ? function(){ callback.call(context); } : context;
-				if (isReady) {
-					fn();
-				} else {
-					fn.priority = priority;
-					for (i = 0, l = readyQ.length; i < l && priority >= readyQ[i].priority; i++) {}
-					readyQ.splice(i, 0, fn);
-				}
-			}
-
-			ready.load = function(name, require, onLoad) {
-				ready(onLoad);
-			};
-
-			return ready;
-		});
-	},
-	"Ti/_/string": function() {
-		define({
-			capitalize: function(s) {
-				s = s || "";
-				return s.substring(0, 1).toUpperCase() + s.substring(1);
-			},
-
-			trim: String.prototype.trim ?
-				function(str){ return str.trim(); } :
-				function(str){ return str.replace(/^\s\s*/, '').replace(/\s\s*$/, ''); }
-		});
-	},
-	"Ti/_/style": function() {
-		define(["Ti/_", "Ti/_/string"], function(_, string) {
-			var vp = require.config.vendorPrefixes.dom;
-
-			function set(node, name, value) {
-				var i = 0,
-					x,
-					uc;
-				if (node) {
-					if (arguments.length > 2) {
-						while (i < vp.length) {
-							x = vp[i++];
-							x += x ? uc || (uc = string.capitalize(name)) : name;
-							if (x in node.style) {
-								require.each(require.is(value, "Array") ? value : [value], function(v) { node.style[x] = v; });
-								return value;
-							}
-						}
-					} else {
-						for (x in name) {
-							set(node, x, name[x]);
-						}
-					}
-				}
-				return node;
-			}
-
-			return {
-				url: function(url) {
-					return !url || url === "none" ? "" : /^url\(/.test(url) ? url : "url(" + _.getAbsolutePath(url) + ")";
-				},
-
-				get: function(node, name) {
-					if (require.is(name, "Array")) {
-						for (var i = 0; i < name.length; i++) {
-							name[i] = node.style[name[i]];
-						}
-						return name;
-					}
-					return node.style[name];
-				},
-
-				set: set
-			};
-		});
-	}
-});

@@ -1,13 +1,15 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiActivityWindows;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -47,6 +49,24 @@ public class TiTabActivity extends TabActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			super.onCreate(savedInstanceState);
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
+		if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
+			Log.w(LCAT, "Unsupported, out-of-order activity creation. Finishing.");
+			super.onCreate(savedInstanceState);
+			tiApp.scheduleRestart(250);
+			finish();
+			return;
+		}
+
 		TiApplication.addToActivityStack(this);
 		KrollRuntime.incrementActivityRefCount();
 
@@ -67,7 +87,7 @@ public class TiTabActivity extends TabActivity
 		TiCompositeLayout.LayoutParams tabHostLayout = new TiCompositeLayout.LayoutParams();
 		tabHostLayout.autoFillsHeight = true;
 		tabHostLayout.autoFillsWidth = true;
-		TiCompositeLayout layout = new TiCompositeLayout(this, LayoutArrangement.DEFAULT);
+		TiCompositeLayout layout = new TiCompositeLayout(this, LayoutArrangement.DEFAULT, proxy);
 		layout.addView(tabHost, tabHostLayout);
 
 		boolean fullscreen = false;
@@ -156,7 +176,6 @@ public class TiTabActivity extends TabActivity
 				}
 			}
 		});
-		
 	}
 
 	public TiApplication getTiApp()
@@ -185,22 +204,65 @@ public class TiTabActivity extends TabActivity
 	protected void onPause()
 	{
 		super.onPause();
-		((TiApplication) getApplication()).setCurrentActivity(this, null);
+
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
+		tiApp.setCurrentActivity(this, null);
 	}
+
 
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
-		((TiApplication) getApplication()).setCurrentActivity(this, this);
+
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+
+		tiApp.setCurrentActivity(this, this);
+	}
+
+	@Override
+	protected void onStop()
+	{
+		super.onStop();
+		KrollRuntime.suggestGC();
 	}
 
 	@Override
 	protected void onDestroy()
 	{
 		TiApplication.removeFromActivityStack(this);
-
 		super.onDestroy();
+
+		TiApplication tiApp = getTiApp();
+
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
+		
+		if (proxy != null) {
+			KrollDict data = new KrollDict();
+			data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+			proxy.fireSyncEvent(TiC.EVENT_CLOSE, data);		
+			
+		}
 
 		if (!isFinishing())
 		{
@@ -217,12 +279,22 @@ public class TiTabActivity extends TabActivity
 			finish();
 			return;
 		}
+		
+		//Remove activityWindows reference from tabs. ActivityWindow reference is only removed when a tab is created (but is added when a tab is added to a tabGroup).
+		//Furthermore, when a tabGroup opens, only the current tab is created (the rest won't create until clicked on). This introduces a memory leak when we have multiple tabs,
+		//and attempt to open/close tabGroup without navigating through all the tabs.
+		TabProxy[] tabs = proxy.getTabs();
+		for (int i = 0; i < tabs.length; ++i) {
+			TiActivityWindows.removeWindow(tabs[i].getWindowId());
+		}
+		
 		if (proxy != null) {
 			proxy.closeFromActivity();
 			proxy = null;
 		}
 
 		KrollRuntime.decrementActivityRefCount();
+		KrollRuntime.suggestGC();
 		handler = null;
 	}
 

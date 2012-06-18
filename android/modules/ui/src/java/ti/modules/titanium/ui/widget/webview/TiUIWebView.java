@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -32,8 +32,10 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.WebViewProxy;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -76,6 +78,28 @@ public class TiUIWebView extends TiUIView
 			}
 			super.destroy();
 		}
+
+		@Override
+		public boolean onTouchEvent(MotionEvent ev)
+		{
+			boolean handled = false;
+
+			// In Android WebView, all the click events are directly sent to WebKit. As a result, OnClickListener() is
+			// never called. Therefore, we have to manually call performClick() when a click event is detected.
+			if (ev.getAction() == MotionEvent.ACTION_UP) {
+				Rect r = new Rect(0, 0, getWidth(), getHeight());
+				if (r.contains((int) ev.getX(), (int) ev.getY())) {
+					handled = proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(ev));
+				}
+			}
+
+			if (handled) {
+				return true;
+			}
+
+			// If performClick() can not handle the event, we pass it to WebKit.
+			return super.onTouchEvent(ev);
+		}
 	}
 
 	public TiUIWebView(TiViewProxy proxy)
@@ -92,6 +116,7 @@ public class TiUIWebView extends TiUIView
 		settings.setJavaScriptCanOpenWindowsAutomatically(true);
 		settings.setLoadsImagesAutomatically(true);
 		settings.setLightTouchEnabled(true);
+		settings.setDomStorageEnabled(true); // Required by some sites such as Twitter. Is on in our iOS WebView too.
 
 		// enable zoom controls by default
 		boolean enableZoom = true;
@@ -283,9 +308,9 @@ public class TiUIWebView extends TiUIView
 						out.append("\n");
 						line = breader.readLine();
 					}
-					setHtml(out.toString(), (originalUrlHasScheme ? url : finalUrl)); // keep app:// etc. intact in case
-																						// html in file contains links
-																						// to JS that use app:// etc.
+					setHtmlInternal(out.toString(), (originalUrlHasScheme ? url : finalUrl), "text/html"); // keep app:// etc. intact in case
+																								   	       // html in file contains links
+																						 				   // to JS that use app:// etc.
 					return;
 				} catch (IOException ioe) {
 					Log.e(LCAT, "Problem reading from " + url + ": " + ioe.getMessage()
@@ -341,49 +366,55 @@ public class TiUIWebView extends TiUIView
 		}
 		return content;
 	}
-
+	
 	public void setHtml(String html)
 	{
-		// getWebView().loadData(escapeContent(html), "text/html", "utf-8");
-		// Commented out the loadData solution. You can't access local assets without
-		// providing an acceptable base url to loadDataWithBaseURL. Using the contentEscaping
-		// breaks the document and munges the quotes causing images to fail. Images in local
-		// html should be absolute or relative to app:// if you want to use app url's, they
-		// need to be translated before setting html or setting a document change trigger.
-		// I've enclosed the code used in the old 0.X codebase for reference
-		//
-		// Use this code to post process your document to adjust URLs. May need updating it comes
-		// from ti.js in the old 0.X method.
-		//
-		// var imgs = document.getElementsByTagName('img');
-		// for(i=0; i < imgs.length;i++) {
-		// var s = imgs[i].src;
-		// //alert('BEFORE: ' + s);
-		// if (s.indexOf('file:///') === 0) {
-		// if (s.indexOf('file:///sdcard/') == -1 && s.indexOf('file:///android_asset') == -1) {
-		// imgs[i].src = s.substring(8);
-		// }
-		// } else if (s.indexOf('app://') === 0) {
-		// imgs[i].src = s.substring(6);
-		// }
-		//
-		// //alert('AFTER: ' + imgs[i].src);
-		// }
-
-		setHtml(html, TiC.URL_ANDROID_ASSET_RESOURCES);
+		setHtmlInternal(html, TiC.URL_ANDROID_ASSET_RESOURCES, "text/html");
 	}
 
-	private void setHtml(String html, String baseUrl)
+	public void setHtml(String html, KrollDict d)
+	{
+		if (d == null) {
+			setHtml(html);
+			return;
+		}
+		
+		String baseUrl = TiC.URL_ANDROID_ASSET_RESOURCES;
+		String mimeType = "text/html";
+		if (d.containsKey(TiC.PROPERTY_BASE_URL_WEBVIEW)) {
+			baseUrl = TiConvert.toString(d.get(TiC.PROPERTY_BASE_URL_WEBVIEW));
+		} 
+		if (d.containsKey(TiC.PROPERTY_MIMETYPE)) {
+			mimeType = TiConvert.toString(d.get(TiC.PROPERTY_MIMETYPE));
+		}
+		
+		setHtmlInternal(html, baseUrl, mimeType);
+	}
+
+	/**
+	 * Loads HTML content into the web view.  Note that the "historyUrl" property 
+	 * must be set to non null in order for the web view history to work correctly 
+	 * when working with local files (IE:  goBack() and goForward() will not work if 
+	 * null is used)
+	 * 
+	 * @param html					HTML data to load into the web view
+	 * @param baseUrl				url to associate with the data being loaded
+	 * @param mimeType				mime type of the data being loaded
+	 */
+	private void setHtmlInternal(String html, String baseUrl, String mimeType)
 	{
 		// iOS parity: for whatever reason, when html is set directly, the iOS implementation
 		// explicitly sets the native webview's setScalesPageToFit to NO if the
 		// Ti scalesPageToFit property has _not_ been set.
+
+		WebView webView = getWebView();
 		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
-			getWebView().getSettings().setLoadWithOverviewMode(false);
+			webView.getSettings().setLoadWithOverviewMode(false);
 		}
+
 		if (html.contains(TiWebViewBinding.SCRIPT_INJECTION_ID)) {
 			// Our injection code is in there already, go ahead and show.
-			getWebView().loadDataWithBaseURL(baseUrl, html, "text/html", "utf-8", null);
+			webView.loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
 			return;
 		}
 
@@ -391,16 +422,18 @@ public class TiUIWebView extends TiUIView
 		int tagEnd = -1;
 		if (tagStart >= 0) {
 			tagEnd = html.indexOf(">", tagStart + 1);
+
 			if (tagEnd > tagStart) {
 				StringBuilder sb = new StringBuilder(html.length() + 2500);
 				sb.append(html.substring(0, tagEnd + 1));
 				sb.append(TiWebViewBinding.INJECTION_CODE);
 				sb.append(html.substring(tagEnd + 1));
-				getWebView().loadDataWithBaseURL(baseUrl, sb.toString(), "text/html", "utf-8", null);
+				webView.loadDataWithBaseURL(baseUrl, sb.toString(), mimeType, "utf-8", baseUrl);
 				return;
 			}
 		}
-		getWebView().loadDataWithBaseURL(baseUrl, html, "text/html", "utf-8", null);
+
+		webView.loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
 	}
 
 	public void setData(TiBlob blob)

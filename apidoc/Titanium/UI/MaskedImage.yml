@@ -35,7 +35,7 @@ description: |
     Note that this legacy control lacks many of the features associated with a standard
     [ImageView](Titanium.UI.ImageView) control.
 
-    Use the <Titanium.UI.createMaskedImageView> method to create a masked image view.
+    Use the <Titanium.UI.createMaskedImage> method to create a masked image view.
 extends: Titanium.UI.View
 platforms: [iphone,ipad]
 examples: 
@@ -73,5 +73,7 @@ properties:
     type: Number
     default: Titanium.UI.iOS.BLEND_MODE_SOURCE_IN
   - name: tint
-    summary: Color to combine with the image.
+    summary: Color to combine with the image, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String

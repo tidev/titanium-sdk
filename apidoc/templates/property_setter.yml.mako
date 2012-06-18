@@ -7,6 +7,13 @@ platforms: ${data.api_obj["platforms"]}
 % if "since" in data.api_obj:
 since: ${data.api_obj["since_for_setter_template"]}
 % endif 
+% if "deprecated" in data.api_obj:
+deprecated:
+    since: ${data.api_obj["deprecated"]["since"]}
+    % if "removed" in data.api_obj["deprecated"]:
+    removed: ${data.api_obj["deprecated"]["removed"]}
+    % endif
+% endif
 parameters:
   - name: ${data.name}
     type: ${data.api_obj["type"]}

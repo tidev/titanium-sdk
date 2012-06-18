@@ -175,7 +175,10 @@
 		}
 		case TiBlobTypeImage:
 		{
-			return UIImageJPEGRepresentation(image,1.0);
+            if ([@"image/png" isEqualToString:mimetype]) {
+                return UIImagePNGRepresentation(image);
+            }
+            return UIImageJPEGRepresentation(image,1.0);
 		}
 		default: {
 			break;
@@ -246,7 +249,10 @@
 
 -(NSString*)nativePath
 {
-	return [[NSURL fileURLWithPath:path] absoluteString];
+    if (path != nil) {
+	    return [[NSURL fileURLWithPath:path] absoluteString];
+    }
+    return [NSNull null];
 }
 
 -(NSNumber*)length

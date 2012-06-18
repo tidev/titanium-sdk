@@ -28,13 +28,13 @@ describe("Ti.Network.HTTPClient tests", {
 			var xhr = Ti.Network.createHTTPClient();
 			xhr.setTimeout(60000);
 			xhr.onload = this.async(function(e) {
-				valueOf(this.responseData.length).shouldBeGreaterThan(0);
+				valueOf(xhr.responseData.length).shouldBeGreaterThan(0);
 			});
 			xhr.onerror = this.async(function(e) {
 				throw e.error;
 			});
 
-			xhr.open('GET','http://www.appcelerator.com/download-win32');
+			xhr.open('GET','http://timobile.appcelerator.com.s3.amazonaws.com/drillbit/moon%20background%203.png');
 			xhr.send();
 		},
 		timeout: 60000,

@@ -317,7 +317,7 @@ static NSDictionary* TI_filterableItemProperties;
 	}
 	
 	RELEASE_TO_NIL(popover);
-	[self destroyPicker];
+	[self sendPickerCancel];
 	//Unregister for interface change notification 
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
@@ -530,7 +530,7 @@ MAKE_SYSTEM_PROP(VIDEO_CONTROL_DEFAULT, MPMovieControlStyleDefault);
 // Deprecated old-school video control modes, mapped to the new values
 -(NSNumber*)VIDEO_CONTROL_VOLUME_ONLY
 {
-    DEPRECATED_REPLACED(@"Ti.Media.VIDEO_CONTROL_VOLUME_ONLY", @"1.8.0", @"1.9.0", @"Ti.Media.VIDEO_CONTROL_EMBEDDED");
+    DEPRECATED_REPLACED(@"Media.VIDEO_CONTROL_VOLUME_ONLY", @"1.8.0", @"Ti.Media.VIDEO_CONTROL_EMBEDDED");
     return [self VIDEO_CONTROL_EMBEDDED];
 }
 
@@ -830,7 +830,7 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 	else 
 	{
 		RELEASE_TO_NIL(editor);
-		NSLog(@"[ERROR] unsupported video media. %@",[media class]);
+		NSLog(@"[ERROR] Unsupported video media: %@",[media class]);
 		return;
 	}
 	
@@ -1229,8 +1229,9 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 {
 	if (systemMusicPlayer == nil) {
 		if (![NSThread isMainThread]) {
-			[self performSelectorOnMainThread:@selector(systemMusicPlayer) withObject:nil waitUntilDone:YES];
-			return systemMusicPlayer;
+			__block id result;
+			TiThreadPerformOnMainThread(^{result = [self systemMusicPlayer];}, YES);
+			return result;
 		}
 		systemMusicPlayer = [[TiMediaMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController iPodMusicPlayer]];
 	}
@@ -1241,7 +1242,8 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 {
 	if (appMusicPlayer == nil) {
 		if (![NSThread isMainThread]) {
-			[self performSelectorOnMainThread:@selector(appMusicPlayer) withObject:nil waitUntilDone:YES];
+			__block id result;
+			TiThreadPerformOnMainThread(^{result = [self appMusicPlayer];}, YES);
 			return appMusicPlayer;
 		}
 		appMusicPlayer = [[TiMediaMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController applicationMusicPlayer]];
@@ -1251,13 +1253,13 @@ MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED,MPMovieFinishReasonUserExited);
 
 -(void)setDefaultAudioSessionMode:(NSNumber*)mode
 {
-	NSLog(@"[WARN] Deprecated; use 'audioSessionMode'");
+	DebugLog(@"[WARN] Deprecated; use 'audioSessionMode'");
     [[TiMediaAudioSession sharedSession] setSessionMode:[mode unsignedIntValue]];
 } 
 
 -(NSNumber*)defaultAudioSessionMode
 {
-	NSLog(@"[WARN] Deprecated; use 'audioSessionMode'");	
+	DebugLog(@"[WARN] Deprecated; use 'audioSessionMode'");	
     return [NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]];
 }
 

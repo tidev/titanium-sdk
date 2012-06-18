@@ -5,17 +5,16 @@ summary: Each <Titanium.XML.Document> has a `doctype` attribute whose value
     is either 'null' or a <Titanium.XML.DocumentType> object.
     
 description: |
-    This provides an
-    interface to the list of entities that are defined for the document. This
-    conforms to the [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
-    defintion of a DOM DocumentType.
+    This provides an interface to the list of entities that are defined for the document. Implements the 
+    [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-412266927) on Android and iOS. Exposes the 
+    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-412266927) implementation on Mobile Web.
 
     As of version 3.1, Android still does not truly support DTDs.  A document with a DTD can be
     parsed, however it is not validated, none of its default attributes will automatically be put
     into the tree, etc.  [Google is aware of the issue](http://code.google.com/p/android/issues/detail?id=7395).
 since: "0.9"
 createable: false
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 properties:
   - name: entities
     summary: >

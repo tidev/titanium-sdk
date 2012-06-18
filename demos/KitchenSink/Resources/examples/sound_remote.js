@@ -1,7 +1,7 @@
 var win = Titanium.UI.currentWindow;
 
 var url = Titanium.UI.createTextField({
-	value:'http://watoo.net:8000/INTRODUCTION.mp3',
+	value:'http://sc1.abacast.com:8240',
 	color:'#336699',
 	returnKeyType:Titanium.UI.RETURNKEY_GO,
 	keyboardType:Titanium.UI.KEYBOARD_URL,
@@ -69,6 +69,11 @@ var streamSize3 = Ti.UI.createButton({
 	height:40	
 });
 
+var volumeSlider = Ti.UI.createSlider({
+	left:10, right:10, bottom:10,
+	value: 100, min: 0, max: 100,
+});
+
 Ti.UI.currentWindow.add(url);
 Ti.UI.currentWindow.add(streamButton);
 Ti.UI.currentWindow.add(pauseButton);
@@ -79,7 +84,13 @@ if (Ti.Platform.name != 'android') {
 	Ti.UI.currentWindow.add(streamSize2);
 	Ti.UI.currentWindow.add(streamSize3);
 }
+Ti.UI.currentWindow.add(volumeSlider);
+
 var streamer = Ti.Media.createAudioPlayer();
+
+volumeSlider.addEventListener('change', function(e) {
+	streamer.volume = e.value/100
+});
 
 streamButton.addEventListener('click',function()
 {

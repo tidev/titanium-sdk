@@ -86,7 +86,6 @@ public class ActivityWindowProxy extends TiWindowProxy
 
 				opened = true;
 				handlePostOpen();
-				fireEvent(TiC.EVENT_OPEN, null);
 
 				return true;
 			}
@@ -116,7 +115,7 @@ public class ActivityWindowProxy extends TiWindowProxy
 		}
 	}
 
-	public void fillIntentForTab(Intent intent)
+	public void fillIntentForTab(Intent intent, TabProxy tab)
 	{
 		intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
 
@@ -137,6 +136,7 @@ public class ActivityWindowProxy extends TiWindowProxy
 			}
 		});
 
+		tab.setWindowId(windowId);
 		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
 		intent.putExtra(TiC.INTENT_PROPERTY_IS_TAB, true);
 	}

@@ -57,4 +57,14 @@ public class TextFieldProxy extends TiViewProxy
 	{
 		return new TiUIText(this, true);
 	}
+	
+	@Kroll.method
+	public Boolean hasText()
+	{
+		Object text = getProperty(TiC.PROPERTY_VALUE);
+		if (text != null && text instanceof String) {
+			return (((String)text).length() > 0);
+		}
+		return false;
+	}
 }

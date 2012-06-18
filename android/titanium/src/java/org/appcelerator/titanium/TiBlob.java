@@ -26,15 +26,37 @@ import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 
+/** 
+ * A Titanium Blob object. A Blob can represent any opaque data or input stream.
+ */
 @Kroll.proxy
 public class TiBlob extends KrollProxy
 {
 	private static final String LCAT = "TiBlob";
 	private static final boolean DBG = TiConfig.LOGD;
 
+	/**
+	 * Represents a Blob that contains image data.
+	 * @module.api
+	 */
 	public static final int TYPE_IMAGE = 0;
+	
+	/**
+	 * Represents a Blob that contains file data.
+	 * @module.api
+	 */
 	public static final int TYPE_FILE = 1;
+	
+	/**
+	 * Represents a Blob that contains data.
+	 * @module.api
+	 */
 	public static final int TYPE_DATA = 2;
+	
+	/**
+	 * Represents a Blob that contains String data.
+	 * @module.api
+	 */
 	public static final int TYPE_STRING = 3;
 
 	private int type;
@@ -52,16 +74,36 @@ public class TiBlob extends KrollProxy
 		this.height = 0;
 	}
 
+	/**
+	 * Creates a new TiBlob object from String data.
+	 * @param data the data used to create blob.
+	 * @return new instance of TiBlob.
+	 * @module.api
+	 */
 	public static TiBlob blobFromString(String data)
 	{
 		return new TiBlob(TYPE_STRING, data, "text/plain");
 	}
 
+	/**
+	 * Creates a blob from a file and sets a mimeType based on the file name.
+	 * @param file the file used to create blob.
+	 * @return new instane of TiBlob.
+	 * @module.api
+	 */
 	public static TiBlob blobFromFile(TiBaseFile file)
 	{
 		return blobFromFile(file, TiMimeTypeHelper.getMimeType(file.nativePath()));
 	}
 
+	/**
+	 * Creates a blob from a file with the specified mimeType. If the passed mimeType is null, 
+	 * the mimeType will be determined using the file name.
+	 * @param file the file used to create blob.
+	 * @param mimeType the mimeType used to create blob.
+	 * @return new instance of TiBlob.
+	 * @module.api
+	 */
 	public static TiBlob blobFromFile(TiBaseFile file, String mimeType)
 	{
 		if (mimeType == null) {
@@ -70,6 +112,12 @@ public class TiBlob extends KrollProxy
 		return new TiBlob(TYPE_FILE, file, mimeType);
 	}
 
+	/**
+	 * Creates a blob from a bitmap.
+	 * @param image the image used to create blob.
+	 * @return new instance of TiBlob.
+	 * @module.api
+	 */
 	public static TiBlob blobFromImage(Bitmap image)
 	{
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -84,11 +132,25 @@ public class TiBlob extends KrollProxy
 		return blob;
 	}
 
+	/**
+	 * Creates a blob from binary data, with mimeType as "application/octet-stream".
+	 * @param data data used to create blob.
+	 * @return new instance of TiBlob.
+	 * @module.api
+	 */
 	public static TiBlob blobFromData(byte[] data)
 	{
 		return blobFromData(data, "application/octet-stream");
 	}
-
+	
+	/**
+	 * Creates a blob from binary data with the specified mimetype.
+	 * If the passed mimetype is null, "application/octet-stream" will be used instead.
+	 * @param data  binary data used to create blob.
+	 * @param mimetype mimetype used to create blob.
+	 * @return a new instance of TiBlob.
+	 * @module.api
+	 */
 	public static TiBlob blobFromData(byte[] data, String mimetype)
 	{
 		if (mimetype == null || mimetype.length() == 0) {
@@ -97,6 +159,12 @@ public class TiBlob extends KrollProxy
 		return new TiBlob(TYPE_DATA, data, mimetype);
 	}
 
+	/**
+	 * Returns the content of blob in form of binary data. Exception will be thrown
+	 * if blob's type is unknown.
+	 * @return binary data.
+	 * @module.api
+	 */
 	public byte[] getBytes()
 	{
 		byte[] bytes = new byte[0];
@@ -156,6 +224,10 @@ public class TiBlob extends KrollProxy
 		}
 	}
 
+	/**
+	 * @return An InputStream for reading the data of this blob.
+	 * @module.api
+	 */
 	public InputStream getInputStream()
 	{
 		switch (type) {
@@ -236,11 +308,23 @@ public class TiBlob extends KrollProxy
 		return mimetype;
 	}
 
+	/**
+	 * @return the blob's data.
+	 * @module.api
+	 */
 	public Object getData()
 	{
 		return data;
 	}
-	
+
+	/**
+	 * @return The type of this Blob.
+	 * @see TiBlob#TYPE_DATA
+	 * @see TiBlob#TYPE_FILE
+	 * @see TiBlob#TYPE_IMAGE
+	 * @see TiBlob#TYPE_STRING
+	 * @module.api
+	 */
 	@Kroll.getProperty @Kroll.method
 	public int getType()
 	{

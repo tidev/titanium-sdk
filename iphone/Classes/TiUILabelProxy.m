@@ -12,9 +12,9 @@
 
 @implementation TiUILabelProxy
 
-USE_VIEW_FOR_AUTO_WIDTH
+USE_VIEW_FOR_CONTENT_WIDTH
 
--(CGFloat)autoHeightForWidth:(CGFloat)suggestedWidth
+-(CGFloat)contentHeightForWidth:(CGFloat)suggestedWidth
 {
 	NSString *value = [TiUtils stringValue:[self valueForKey:@"text"]];
 	id fontValue = [self valueForKey:@"font"];
@@ -27,7 +27,7 @@ USE_VIEW_FOR_AUTO_WIDTH
 	{
 		font = [UIFont systemFontOfSize:[UIFont labelFontSize]];
 	}
-	CGSize maxSize = CGSizeMake(suggestedWidth, 1E100);
+	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 10000);
 	CGSize size = [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
 	return [self verifyHeight:size.height]; //Todo: We need to verifyHeight elsewhere as well.
 }
@@ -56,6 +56,16 @@ USE_VIEW_FOR_AUTO_WIDTH
 {
     return [NSMutableDictionary dictionaryWithObject:@"text" forKey:@"textid"];
 }
+
+-(TiDimension)defaultAutoWidthBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+-(TiDimension)defaultAutoHeightBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+
 
 @end
 

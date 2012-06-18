@@ -1,92 +1,213 @@
 ---
 name: Titanium.UI.AlertDialog
-summary: The Alert Dialog is created by <Titanium.UI.createAlertDialog> and allows you to show a modal application dialog.
+summary: |
+    An alert dialog is a modal view that includes an optional title, a message and buttons, 
+    positioned in the middle of the display.
+description: |
+    An alert dialog is created using <Titanium.UI.createAlertDialog>.
+    
+    Although this dialog always appears in the middle of the display (not touching the edges), 
+    other aspects of its aesthetics and the way the user interacts with it are different for each 
+    platform, as described below.
+    
+    #### Android
+    
+    On Android, the default alert dialog displays text information, via a title and message, without 
+    any buttons. As the user can use the system hardware `back` button to dismiss it, a button is 
+    optional.
+    
+    Buttons are shown if the `buttonNames` property is defined, and are rendered horizontally below 
+    the message.
+    
+    To create a custom layout, a view may be added and, in turn, a hierarchy of views added to that 
+    child view.
+    
+    #### iOS
+    
+    On iOS, the default alert dialog displays text information, via a title and message, with 
+    a single button to allow it to be dismissed.
+    
+    Buttons are defined using the `buttonNames` property and are rendered vertically below 
+    the message.
+    
+    On iOS 4.0 and later, alert dialogs are automatically cancelled when the application is 
+    paused/suspended.
+    
+    #### Global Alias
+    
+    A global method `alert()` is aliased to this object, and can be invoked with a single message. 
+    For example
+    
+        alert('this is a message');
+    
+    This will generate an alert with a title of "Alert" and an "OK" button.
+    
+    #### Caveats
+    
+    Multiple alerts should not be shown at once.
+    
+    The `title` and `ok` properties cannot be changed while the alert dialog is being displayed. On
+    Android only, you can change the `message` property while the alert dialog is being displayed.
 extends: Titanium.Proxy
 since: "0.8"
 
 events:
   - name: click
-    summary: fired when a button in the dialog is clicked
+    summary: Fired when a button in the dialog is clicked.
     properties:
       - name: cancel
-        type: Boolean
-        summary: boolean to indicate if the cancel button was pressed
+        summary: |
+            Boolean type on Android and Mobile Web; Number on iOS. 
+            
+            On Android and Mobile Web, indicates whether the cancel button was clicked, in which 
+            case returns `true`. 
+            
+            On iOS, the value of the [cancel](Titanium.UI.AlertDialog.cancel) property is 
+            returned, if defined, or `-1` otherwise. 
+            
+            See the `Three-button Alert Dialog` example for a cross-platform workaround for this 
+            parity issue.
+        type: [Boolean, Number]
+        
       - name: index
+        summary: Index of the button that was clicked.
         type: Number
-        summary: the button index that was pressed
 
 methods:
   - name: show
-    summary: shows the alert dialog and blocks the background view like a modal window
+    summary: Shows this dialog.
 
   - name: hide
-    summary: hides the alert dialog and unblocks the background view
+    summary: Hides this dialog.
 
 properties:
+  - name: androidView
+    summary: View to load inside the message area, to create a custom layout.
+    type: Titanium.UI.View
+    platforms: [android]
+    
   - name: buttonNames
-    summary: array of button names as strings
-    type: Array<Object>
+    summary: Name of each button to create.
+    description: |
+        On iOS, a button will automatically be created if none are explicitly defined, because 
+        without it users would be unable to dismiss the dialog. Conversely, a dialog with no 
+        buttons may be created on Android, as the hardware `back` button may be used instead.
+        
+        A maximum of 3 buttons is supported on Android.
+    type: Array<String>
+    default: null (Android), ['OK'] (iOS)
+    availability: creation
 
   - name: cancel
-    summary: an index to indicate which button should be the cancel button
+    summary: Index to define the cancel button.
+    description: |
+        On iOS and Mobile Web, set to `-1` to disable the cancel option.
     type: Number
-
+    default: undefined (Android), -1 (iOS, Mobile Web)
+    
   - name: message
-    summary: the message of the dialog
+    summary: Dialog message.
     type: String
 
   - name: messageid
-    summary: the key in the locale file to use for the message property
+    summary: Key identifying a string in the locale file to use for the message text.
     type: String
     accessors: false
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: title
-    summary: the title of the dialog
+    summary: Title of the dialog.
+    description: If not set, a dialog with no title bar will be created.
     type: String
 
   - name: titleid
-    summary: the key in the locale file to use for the title property
+    summary: Key identifying a string in the locale file to use for the title text. 
     type: String
     accessors: false
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
 
   - name: ok
-    summary: Text for the OK button.  Useful for when you only want one button and therefore don't want to
-        use the `buttonNames` property.  If you do use `buttonNames`, this property will be ignored.
+    summary: Text for the `OK` button.
+    description: |
+        This property is useful when only one button is required, as it negates the need to define 
+        the `buttonNames` property. If `buttonNames` is defined, this property is ignored.
     type: String
-    platforms: [android, iphone, ipad]
 
   - name: okid
-    summary: the key in the locale file to use for the `ok` property.  Note that if you use the `buttonNames`
-        property to set the button titles, this will be ignored.
+    summary: Key identifying a string in the locale file to use for the `ok` text.
+    description: |
+        If `buttonNames` is defined, this property is ignored.
     type: String
     accessors: false
-    platforms: [android, iphone, ipad]
-
-  - name: androidView
-    summary: Titanium view that should be loaded inside the alert dialog
-    type: Titanium.UI.View
-    platforms: [android, iphone, ipad]
-
-description: |
-    the global method `alert` is aliased to this object and can be invoked with a single message. For example:
-    
-        alert("this is a message");
-    
-    Note: you should be careful not to call alert more than once while a pending alert is visible.
-    
-    On iOS 4, alert dialogs will automatically be cancelled upon application suspend.
+    platforms: [iphone, ipad, mobileweb]
 
 examples:
-  - title: Simple Alert Dialog
+  - title: Single-button Alert Dialog (using alias)
     example: |
-        In this example, we show a simple alert dialog.
+        Create a single-button alert dialog using the global `alert()` alias.
         
-            var alertDialog = Titanium.UI.createAlertDialog({
-            	title: 'Hello',
-            	message: 'You got mail',
-            	buttonNames: ['OK','Doh!']
+            Ti.UI.setBackgroundColor('white');
+            var win = Ti.UI.createWindow({  
+              title: 'Click window to test',
+              backgroundColor: 'white',
+              exitOnClose: true,
+              fullscreen: false
             });
-            alertDialog.show();
+
+            win.addEventListener('click', function(e){
+              alert('The file has been deleted');
+            });
+            win.open();
+
+  - title: Single-button Alert Dialog (standard)
+    example: |
+        Create a single-button alert dialog, without explicitly defining it using the `buttonNames` 
+        property, which is invoked when the app window is clicked.
         
+            Ti.UI.setBackgroundColor('white');
+            var win = Ti.UI.createWindow({  
+              title: 'Click window to test',
+              backgroundColor: 'white',
+            exitOnClose: true,
+            fullscreen: false
+            });
+
+            win.addEventListener('click', function(e){
+              var dialog = Ti.UI.createAlertDialog({
+                message: 'The file has been deleted',
+                ok: 'Okay',
+                title: 'File Deleted'
+              }).show();
+            });
+            win.open();
         
+  - title: Three-button Alert Dialog
+    example: |
+        Create a three-button alert dialog, which is invoked when the app window is clicked. 
+        Output a message to the log when the cancel button is clicked.
+        
+            Ti.UI.setBackgroundColor('white');
+            var win = Ti.UI.createWindow({  
+              title: 'Click window to test',
+              backgroundColor: 'white',
+              exitOnClose: true,
+              fullscreen: false
+            });
+            win.addEventListener('click', function(e){
+              var dialog = Ti.UI.createAlertDialog({
+                cancel: 1,
+                buttonNames: ['Confirm', 'Cancel', 'Help'],
+                message: 'Would you like to delete the file?',
+                title: 'Delete'
+              });
+              dialog.addEventListener('click', function(e){
+                if (e.index === e.source.cancel){
+                  Ti.API.info('The cancel button was clicked');
+                }
+                Ti.API.info('e.cancel: ' + e.cancel);
+                Ti.API.info('e.source.cancel: ' + e.source.cancel);
+                Ti.API.info('e.index: ' + e.index);
+              });
+              dialog.show();
+            });
+            win.open();

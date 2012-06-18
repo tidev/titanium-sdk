@@ -3,7 +3,7 @@
  */
 #import "___PROJECTNAMEASIDENTIFIER___ModuleAssets.h"
 
-extern NSData * dataWithHexString (NSString * hexString);
+extern NSData* filterDataInRange(NSData* thedata, NSRange range);
 
 @implementation ___PROJECTNAMEASIDENTIFIER___ModuleAssets
 

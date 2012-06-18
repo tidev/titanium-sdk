@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,6 +9,8 @@ package org.appcelerator.kroll.runtime.rhino;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollLogging;
+import org.appcelerator.kroll.common.KrollSourceCodeProvider;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.runtime.rhino.KrollScriptRunner.KrollScript;
 import org.appcelerator.kroll.runtime.rhino.js.bootstrap;
 import org.appcelerator.kroll.runtime.rhino.js.events;
@@ -21,9 +23,11 @@ import org.appcelerator.kroll.runtime.rhino.js.rhino;
 import org.appcelerator.kroll.runtime.rhino.js.sha1;
 import org.appcelerator.kroll.runtime.rhino.js.tab;
 import org.appcelerator.kroll.runtime.rhino.js.titanium;
+import org.appcelerator.kroll.runtime.rhino.js.console;
 import org.appcelerator.kroll.runtime.rhino.js.ui;
 import org.appcelerator.kroll.runtime.rhino.js.url;
 import org.appcelerator.kroll.runtime.rhino.js.vm;
+import org.appcelerator.kroll.runtime.rhino.js.webview;
 import org.appcelerator.kroll.runtime.rhino.js.window;
 import org.appcelerator.kroll.runtime.rhino.js.yahoo;
 import org.appcelerator.kroll.runtime.rhino.modules.AssetsModule;
@@ -40,6 +44,7 @@ import org.mozilla.javascript.ScriptableObject;
 public class KrollBindings
 {
 	private static final String TAG = "KrollBindings";
+
 	private static final String BINDING_NATIVES = "natives";
 	private static final String BINDING_EVALS = "evals";
 	private static final String BINDING_ASSETS = "assets";
@@ -49,6 +54,10 @@ public class KrollBindings
 	private static HashMap<String, Scriptable> bindingCache = new HashMap<String, Scriptable>();
 	private static HashMap<String, Script> jsBindings = new HashMap<String, Script>();
 	private static HashMap<String, Class<? extends Proxy>> externalBindings = new HashMap<String, Class<? extends Proxy>>();
+	private static HashMap<String, Class<? extends KrollSourceCodeProvider>>
+		externalCommonJsModules = new HashMap<String, Class<? extends KrollSourceCodeProvider>>();
+	private static HashMap<String, KrollSourceCodeProvider> loadedCommonJsSourceProviders =
+		new HashMap<String, KrollSourceCodeProvider>();
 
 	private static void addJsBinding(String name, Class<?> jsBinding)
 	{
@@ -75,10 +84,12 @@ public class KrollBindings
 		addJsBinding("sha1", sha1.class);
 		addJsBinding("tab", tab.class);
 		addJsBinding("titanium", titanium.class);
+		addJsBinding("console", console.class);
 		addJsBinding("ui", ui.class);
 		addJsBinding("url", url.class);
 		addJsBinding("vm", vm.class);
 		addJsBinding("window", window.class);
+		addJsBinding("webview", webview.class);
 		addJsBinding("yahoo", yahoo.class);
 	}
 
@@ -209,5 +220,42 @@ public class KrollBindings
 			return jsBinding.exec(context, scope);
 		}
 		return null;
+	}
+
+	public static boolean isExternalCommonJsModule(String request)
+	{
+		return externalCommonJsModules.containsKey(request);
+	}
+
+	public static String getExternalCommonJsModule(String request)
+	{
+		if (!isExternalCommonJsModule(request)) {
+			return null;
+		}
+
+		if (loadedCommonJsSourceProviders.containsKey(request)) {
+			return loadedCommonJsSourceProviders.get(request).getSourceCode();
+		}
+
+		Class<? extends KrollSourceCodeProvider> providerClass = externalCommonJsModules.get(request);
+		KrollSourceCodeProvider providerInstance = null;
+		try {
+			providerInstance = providerClass.newInstance();
+			loadedCommonJsSourceProviders.put(request, providerInstance);
+		} catch (Exception e) {
+			Log.e(TAG, "Cannot instantiate KrollSourceCodeProvider for module " + request, e);
+			return null;
+		}
+
+		if (providerInstance != null) {
+			return providerInstance.getSourceCode();
+		}
+
+		return null;
+	}
+
+	public static void addExternalCommonJsModule(String id, Class<? extends KrollSourceCodeProvider> jsSourceProvider)
+	{
+		externalCommonJsModules.put(id, jsSourceProvider);
 	}
 }

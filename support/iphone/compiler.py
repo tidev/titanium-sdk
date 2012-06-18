@@ -7,7 +7,8 @@
 import os, sys, re, shutil, time, run, sgmllib, codecs, tempfile
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-sys.path.append(os.path.join(template_dir,'../'))
+sys.path.append(os.path.abspath(os.path.join(template_dir,'..')))
+sys.path.append(os.path.abspath(os.path.join(template_dir,'..', 'common')))
 
 from tiapp import *
 import jspacker 
@@ -20,12 +21,12 @@ except:
 	import simplejson as json
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
-ignoreDirs = ['.git','.svn','_svn','CVS','android','iphone'];
+ignoreDirs = ['.git','.svn','_svn','CVS','android','mobileweb'];
 
 HEADER = """/**
  * Appcelerator Titanium Mobile
  * This is generated code. Do not modify. Your changes *will* be lost.
- * Generated code is Copyright (c) 2009-2011 by Appcelerator, Inc.
+ * Generated code is Copyright (c) 2009-2012 by Appcelerator, Inc.
  * All Rights Reserved.
  */
 #import <Foundation/Foundation.h>
@@ -39,7 +40,7 @@ INTERFACE_HEADER= """
 
 IMPL_HEADER= """#import "ApplicationRouting.h"
 
-extern NSData* filterData(NSString* thedata);
+extern NSData* filterDataInRange(NSData* thedata, NSRange range);
 
 @implementation ApplicationRouting
 
@@ -208,6 +209,7 @@ class Compiler(object):
 			self.iphone_dir = project_dir
 			
 		self.classes_dir = os.path.join(self.iphone_dir,'Classes')
+		self.assets_dir = os.path.join(self.iphone_dir,'assets')
 		self.modules = []
 		self.modules_metadata = []
 		self.exports = []
@@ -304,6 +306,9 @@ class Compiler(object):
 				variables = {}
 				mods.write(MODULE_IMPL_HEADER)
 				for module in modules:
+					if module.js:
+						# CommonJS module
+						module_js.append({'from': module.js, 'path': 'modules/' + os.path.basename(module.js)})
 					module_id = module.manifest.moduleid.lower()
 					module_name = module.manifest.name.lower()
 					module_version = module.manifest.version
@@ -506,34 +511,31 @@ class Compiler(object):
 								break
 		return compile
 				
-	def make_function_from_file(self,path,file):
+	def compile_js_asset_file(self,path,file):
 		file_contents = open(os.path.expanduser(file)).read()
 		if self.deploytype == 'production' or self.deploytype == 'commonjs':
 			file_contents = jspacker.jsmin(file_contents)
 		file_contents = file_contents.replace('Titanium.','Ti.')
 		self.compile_js(file_contents)
 		
-		# TODO: employ advanced encoding with titanium_prep
-		if self.deploytype == 'commonjs':
-			data = str(file_contents).encode("hex")
-			method = "dataWithHexString(@\"%s\")" % data
-		else:
-			tfile = tempfile.NamedTemporaryFile(mode="r+b", delete=False)
-			tfilename = tfile.name
-			tfile.write(file_contents)
-			tfile.close()
-			template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-	
-	
-			titanium_prep = os.path.abspath(os.path.join(template_dir,'titanium_prep'))
-			
-			data = os.popen("\"%s\" \"%s\" \"%s\"" % (titanium_prep, tfilename, self.appid)).read()
-			os.remove(tfilename)
-	
-			data = data.translate(None, '\r\n')
-			method = "@\"%s\"" % data
-			
-		return {'method':method,'path':path}
+		path = os.path.join(self.assets_dir,path)
+		dir = os.path.dirname(path)
+		if not os.path.exists(dir):
+		    os.makedirs(dir)
+		tfile = open(path,'w+')
+		tfile.write(file_contents)
+		tfile.close()
+		
+	def compile_commonjs_file(self,path,from_):
+		path = path.replace('.','_')
+		self.compile_js_asset_file(path,from_)
+		js_files = [path];
+		template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+		titanium_prep = os.path.abspath(os.path.join(template_dir,'titanium_prep'))
+		cmdargs = [titanium_prep, self.appid, self.assets_dir]
+		cmdargs.extend(js_files)
+		so = run.run(cmdargs)
+		return so
 		
 	def copy_resources(self,sources,target,write_routing=True,module_js=[]):
 		
@@ -546,23 +548,29 @@ class Compiler(object):
 
 			impf.write(HEADER)
 			impf.write(IMPL_HEADER)
-
 			impf.write("+ (NSData*) resolveAppAsset:(NSString*)path;\n{\n")
-			impf.write("     static NSMutableDictionary *map = nil;\n")
-			impf.write("     if (!map) {\n")
-			impf.write("         map = [[NSMutableDictionary alloc] init];\n")
-
-			impf_buffer = ''
+			js_files = []
 		
 		if not os.path.exists(os.path.expanduser(target)):
 			os.makedirs(os.path.expanduser(target))
+		
+		if not os.path.exists(self.assets_dir):
+			os.makedirs(self.assets_dir)
 			
 		def compile_js_file(path,from_):
 			print "[DEBUG] compiling: %s" % from_
-			metadata = self.make_function_from_file(path,from_)
-			method = metadata['method']
-			eq = path.replace('.','_')
-			impf.write('         [map setObject:%s forKey:@"%s"];\n' % (method,eq))
+			path = path.replace('.','_')
+			self.compile_js_asset_file(path,from_)
+			js_files.append(path);
+			
+		def compile_js_files():
+			print "[DEBUG] packaging javascript"
+			template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+			titanium_prep = os.path.abspath(os.path.join(template_dir,'titanium_prep'))
+			cmdargs = [titanium_prep, self.appid, self.assets_dir]
+			cmdargs.extend(js_files)
+			so = run.run(cmdargs)
+			impf.write(so)
 			
 		def add_compiled_resources(source,target):
 			print "[DEBUG] copy resources from %s to %s" % (source,target)
@@ -649,10 +657,11 @@ class Compiler(object):
 			for js_file in module_js:
 				compile_js_file(js_file['path'],js_file['from'])
 			
-			impf.write("     }\n")
-			impf.write("     return filterData([map objectForKey:path]);\n")
+			compile_js_files();
+			impf.write("\tNSNumber *index = [map objectForKey:path];\n")
+			impf.write("\tif (index == nil) { return nil; }\n")
+			impf.write("\treturn filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[index.integerValue]);\n")
 			impf.write('}\n')
-			impf.write(impf_buffer)
 
 			intf.write(FOOTER)
 			impf.write(FOOTER)

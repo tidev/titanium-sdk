@@ -23,7 +23,7 @@ var data = [];
 
 for (var c=0;c<count;c++)
 {
-	var row = Ti.UI.createTableViewRow({title:"Row "+(c+1)});
+	var row = Ti.UI.createTableViewRow({title:"Row "+(c+1), className: "row"});
 	data[c] = row;
 }
 

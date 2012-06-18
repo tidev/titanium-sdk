@@ -8,6 +8,7 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -17,7 +18,8 @@ import android.app.Activity;
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	"message", "value",
 	"location", "min", "max",
-	"messageid", "type"
+	"messageid", "type",
+	TiC.PROPERTY_CANCELABLE
 })
 @Kroll.dynamicApis(methods = {
 	"hide", "show"

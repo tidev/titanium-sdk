@@ -74,6 +74,7 @@
 	UInt64 processedPacketsCount;		// number of packets accumulated for bitrate estimation
 	UInt64 processedPacketsSizeTotal;	// byte size of accumulated estimation packets
 
+	double volume;
 	double seekTime;
 	BOOL seekWasRequested;
 	double requestedSeekTime;

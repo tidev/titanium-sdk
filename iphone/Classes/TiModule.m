@@ -21,7 +21,14 @@
 
 -(void)dealloc
 {	
-	[self performSelectorOnMainThread:@selector(unregisterForNotifications) withObject:nil waitUntilDone:YES];
+    // Have to jump through a hoop here to keep the dealloc block from
+    // retaining 'self' by creating a __block access ref. Note that
+    // this is only safe as long as the block until completion is YES.
+    __block id bself = self;
+	TiThreadPerformOnMainThread(^{
+        [bself unregisterForNotifications];
+    }, YES);
+    
 	RELEASE_TO_NIL(host);
 	if (classNameLookup != NULL)
 	{
@@ -65,6 +72,10 @@
 {
 }
 
+-(void)paused:(id)sender
+{
+}
+
 -(void)suspend:(id)sender
 {
 }
@@ -83,6 +94,7 @@
 	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTiShutdownNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspend:) name:kTiSuspendNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(paused:) name:kTiPausedNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resume:) name:kTiResumeNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resumed:) name:kTiResumedNotification object:nil];
 }
@@ -94,7 +106,7 @@
 		classNameLookup = CFDictionaryCreateMutable(kCFAllocatorDefault, 1, &kCFTypeDictionaryKeyCallBacks, NULL);
 		//We do not retain the Class, but simply assign them.
 	}
-	[self performSelectorOnMainThread:@selector(registerForNotifications) withObject:nil waitUntilDone:NO];
+	TiThreadPerformOnMainThread(^{[self registerForNotifications];}, NO);
 }
 
 -(void)_configure
@@ -142,7 +154,7 @@
 		resultClass = NSClassFromString(className);
 		if (resultClass==nil)
 		{
-			NSLog(@"[WARN] attempted to load: %@",className);
+			DebugLog(@"[WARN] Attempted to load %@: Could not find class definition.",className);
 			@throw [NSException exceptionWithName:@"org.appcelerator.module" 
 										   reason:[NSString stringWithFormat:@"invalid method (%@) passed to %@",name,[self class]] 
 										 userInfo:nil];

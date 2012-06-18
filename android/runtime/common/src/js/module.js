@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -65,16 +65,9 @@ Module.runModule = function (source, filename, activityOrService) {
 	return module;
 }
 
-// Run a module as the main entry point.
-Module.runMainModule = function (source, filename) {
-	var mainModule = Module.main = new Module('.');
-	mainModule.load(filename, source);
-	return true;
-}
-
 // Attempts to load the module. If no file is found
 // with the provided name an exception will be thrown.
-// Once the contents of the file are read, it is ran
+// Once the contents of the file are read, it is run
 // in the current context. A sandbox is created by
 // executing the code inside a wrapper function.
 // This provides a speed boost vs creating a new context.
@@ -139,11 +132,25 @@ Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 	return wrapper;
 }
 
+function extendModuleWithCommonJs(externalModule, id, thiss, context) {
+	if (kroll.isExternalCommonJsModule(id)) {
+		var jsModule = new Module(id + ".commonjs", thiss, context);
+		jsModule.load(id, kroll.getExternalCommonJsModule(id));
+		if (jsModule.exports) {
+			if (kroll.DBG) {
+				kroll.log(TAG, "Extending native module '" + id + "' with the CommonJS module that was packaged with it.");
+			}
+			kroll.extend(externalModule, jsModule.exports);
+		}
+	}
+}
+
 // Loads a native / external (3rd party) module
 Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 
 	var sourceUrl = context === undefined ? "app://app.js" : context.sourceUrl;
 	var externalModule;
+	var returnObj;
 
 	if (kroll.runtime === "rhino") {
 		// TODO -- add support for context specific invokers in Rhino
@@ -151,6 +158,8 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 		if (bindingKey) {
 			externalModule = externalBinding[bindingKey];
 		}
+
+		extendModuleWithCommonJs(externalModule, id, this, context);
 
 		return externalModule;
 
@@ -181,6 +190,9 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 			}
 	
 			wrapper = this.createModuleWrapper(externalModule, sourceUrl);
+
+			extendModuleWithCommonJs(wrapper, id, this, context);
+
 			this.wrapperCache[id] = wrapper;
 	
 			return wrapper;
@@ -200,6 +212,7 @@ Module.prototype.require = function (request, context, useCache) {
 
 	// get external binding (for external / 3rd party modules)
 	var externalBinding = kroll.externalBinding(request);
+	var isExternalCommonJs = false;
 
 	if (externalBinding) {
 		return this.loadExternalModule(request, externalBinding, context);
@@ -207,8 +220,7 @@ Module.prototype.require = function (request, context, useCache) {
 
 	var resolved = resolveFilename(request, this);
 	var id = resolved[0];
-	var filename = resolved[1];
-
+	filename = resolved[1];
 	if (kroll.DBG) {
 		kroll.log(TAG, 'Loading module: ' + request + ' -> ' + filename);
 	}
@@ -222,6 +234,7 @@ Module.prototype.require = function (request, context, useCache) {
 
 	// Create and attempt to load the module.
 	var module = new Module(id, this, context);
+
 	module.load(filename);
 
 	if (useCache) {
@@ -243,7 +256,10 @@ Module.prototype._runScript = function (source, filename) {
 	}
 	require.main = Module.main;
 
-	if (self.id == '.') {
+	// This "first time" run is really only for app.js, AFAICT, and needs
+	// an activity. If app was restarted for Service only, we don't want
+	// to go this route. So added currentActivity check. (bill)
+	if (self.id == '.' && self.context.currentActivity) {
 		global.require = require;
 		Titanium.Android.currentActivity = self.context.currentActivity;
 

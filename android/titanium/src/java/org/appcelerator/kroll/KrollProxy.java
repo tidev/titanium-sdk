@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,7 +8,6 @@ package org.appcelerator.kroll;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,13 +24,21 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Pair;
 
 
+/**
+ * This is the parent class of all proxies. A proxy is a dynamic object that can be created or 
+ * queried by the user through a module or another proxy's API. When you create a native view with 
+ * <a href="http://developer.appcelerator.com/apidoc/mobile/latest/Titanium.UI.createView-method.html">Titanium.UI.createView </a>, 
+ * the view object is a proxy itself.
+ */
 @Kroll.proxy(name = "KrollProxy", propertyAccessors = { KrollProxy.PROPERTY_HAS_JAVA_LISTENER })
 public class KrollProxy implements Handler.Callback, KrollProxySupport
 {
@@ -72,6 +79,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	protected Handler mainHandler = null;
 	protected Handler runtimeHandler = null;
 
+	private KrollDict langConversionTable = null;
+
 	public static final String PROXY_ID_PREFIX = "proxy$";
 
 
@@ -80,16 +89,26 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		this();
 	}
 
+	/**
+	 * The default KrollProxy constructor. Equivalent to <code>KrollProxy("")</code>
+	 * @module.api
+	 */
 	public KrollProxy()
 	{
 		this("");
 	}
 
+	/**
+	 * Constructs a KrollProxy, using the passed in creation URL.
+	 * @param baseCreationUrl the creation URL for this proxy, which can be used to resolve relative paths
+	 * @module.api
+	 */
 	public KrollProxy(String baseCreationUrl)
 	{
 		creationUrl = new TiUrl(baseCreationUrl);
 		this.listenerIdGenerator = new AtomicInteger(0);
 		this.eventListeners = Collections.synchronizedMap(new HashMap<String, HashMap<Integer, KrollEventCallback>>());
+		this.langConversionTable = getLangConversionTable();
 	}
 
 	private void setupProxy(KrollObject object, Object[] creationArguments, TiUrl creationUrl)
@@ -159,6 +178,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		this.activity = new WeakReference<Activity>(activity);
 	}
 
+	/**
+	 * @return the activity associated with this proxy. It can be null.
+	 * @module.api
+	 */
 	public Activity getActivity()
 	{
 		if (activity == null) {
@@ -168,9 +191,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Handle the arguments passed into the "create" method for this proxy.
+	 * Handles the arguments passed into the "create" method for this proxy.
 	 * If your proxy simply needs to handle a KrollDict, see {@link KrollProxy#handleCreationDict(KrollDict)}
 	 * @param args
+	 * @module.api
 	 */
 	public void handleCreationArgs(KrollModule createdInModule, Object[] args)
 	{
@@ -191,7 +215,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Handles initialization of the proxy's default property values
+	 * Handles initialization of the proxy's default property values.
+	 * @module.api
 	 */
 	protected void handleDefaultValues()
 	{
@@ -203,11 +228,141 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * Handle the creation {@link KrollDict} passed into the create method for this proxy.
+	 * @return the language conversion table used to load localized values for certain properties from the locale files.
+	 *	For each localizable property, such as "title," the proxy should define a second property, such as "titleid", used to specify a
+	 *	localization key for that property. If the user specifies a localization key in "titleid", the corresponding localized text from the locale file 
+	 *	is used for "title."
+	 *
+	 *	Subclasses should override this method to return a table mapping localizable properties to the corresponding localization key properties.
+	 *
+	 *	For example, if the proxy has two properties, "title" and "text", and the corresponding localization key properties are "titleid" and "textid", this might look like:
+	 *	</br>
+	 *
+	 *	<pre><code>protected KrollDict getLangConversionTable()
+	 *{
+	 *	KrollDict table = new KrollDict();
+	 *	table.put("title", "titleid");
+	 *	table.put("text", "textid");
+	 *	return table;
+	 *} </pre> </code>
+	 *
+	 * @module.api
+	 *
+	 */
+	protected KrollDict getLangConversionTable()
+	{
+		return null;
+	}
+
+	/**
+	 * Handles initialization of the proxy's locale string properties.
+	 *
+	 * @see #getLangConversionTable()
+	 */
+	private void handleLocaleProperties()
+	{
+		if (langConversionTable == null) {
+			return;
+		}
+
+		/*
+		 * Iterate through the language conversion table.
+		 * This table maps target properties to their locale lookup property.
+		 * Example: title -> titleid
+		 *
+		 * The lookup identifier stored in the locale property (titleid) will be used
+		 * to query the locale strings file to get the localized value.
+		 * This localized value will be set to the targeted property (title).
+		 */
+		for (Map.Entry<String, Object> entry : langConversionTable.entrySet()) {
+			// Get the lookup identifier stored in the locale property.
+			String localeProperty = entry.getValue().toString();
+			String lookupId = properties.getString(localeProperty);
+			if (lookupId == null) {
+				// If no locale lookup identifier is provided, skip this entry.
+				continue;
+			}
+
+			// Lookup the localized string from the locale file.
+			String localizedValue = getLocalizedText(lookupId);
+			if (localizedValue == null) {
+				// If there is no localized value for this identifier,
+				// log a warning and skip over the entry.
+				Log.w(TAG, "No localized string found for identifier: " + lookupId);
+				continue;
+			}
+
+			// Set the localized value to the targeted property.
+			String targetProperty = entry.getKey();
+			setProperty(targetProperty, localizedValue);
+		}
+	}
+
+	/**
+	 * Updates the lookup identifier value of a locale property.
+	 * This will also update the targeted value with the string found
+	 * using the new lookup identifier.
+	 *
+	 * @param localeProperty name of the locale property (example: titleid)
+	 * @param newLookupId the new lookup identifier
+	 * @return a pair containing the name of the target property which was updated and the new value set on it.
+	 */
+	private Pair<String, String> updateLocaleProperty(String localeProperty, String newLookupId)
+	{
+		if (langConversionTable == null) {
+			return null;
+		}
+
+		properties.put(localeProperty, newLookupId);
+
+		// Determine which localized property this locale property updates.
+		for (Map.Entry<String, Object> entry : langConversionTable.entrySet()) {
+			if (entry.getValue().toString().equals(localeProperty)) {
+				String targetProperty = entry.getKey();
+				String localizedValue = getLocalizedText(newLookupId);
+				setProperty(targetProperty, localizedValue);
+
+				return Pair.create(targetProperty, localizedValue);
+			}
+		}
+
+		// If we reach this point, the provided locale property is not valid.
+		return null;
+	}
+
+	/**
+	 * Return true if the given property is a locale property.
+	 * @param propertyName name of the property to check (ex: titleid)
+	 * @return true if this property is a locale property
+	 */
+	private boolean isLocaleProperty(String propertyName)
+	{
+		return propertyName.endsWith("id");
+	}
+
+	/**
+	 * Looks up a localized string given an identifier.
+	 *
+	 * @param lookupId the identifier of the localized value to look up.
+	 * @return the localized string if found, otherwise null.
+	 */
+	private String getLocalizedText(String lookupId)
+	{
+		try {
+			int resid = TiRHelper.getResource("string." + lookupId);
+			return getActivity().getString(resid);
+		} catch (TiRHelper.ResourceNotFoundException e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Handles the creation {@link KrollDict} passed into the create method for this proxy.
 	 * This is usually the first (and sometimes only) argument to the proxy's create method.
 	 * 
 	 * To set default property values, add them to the {@link KrollProxy#defaultValues map}
 	 * @param dict
+	 * @module.api
 	 */
 	public void handleCreationDict(KrollDict dict)
 	{
@@ -217,6 +372,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 		properties.putAll(dict);
 		handleDefaultValues();
+		handleLocaleProperties();
 
 		if (modelListener != null) {
 			modelListener.processProperties(properties);
@@ -246,6 +402,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		this.krollObject = object;
 	}
 
+	/**
+	 * @return the KrollObject associated with this proxy if it exists. Otherwise create it in the KrollRuntime thread.
+	 * @module.api
+	 */
 	public KrollObject getKrollObject()
 	{
 		if (krollObject == null) {
@@ -265,6 +425,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		KrollRuntime.getInstance().initObject(this);
 	}
 
+	/** 
+	 * @return the absolute URL of the location in code where the proxy was created in Javascript.
+	 * @module.api
+	 */
 	public TiUrl getCreationUrl()
 	{
 		return creationUrl;
@@ -347,13 +511,22 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		// no-op
 	}
 
+	/**
+	 * @param name  the lookup key.
+	 * @return  true if the proxy contains this property, false otherwise.
+	 * @module.api
+	 */
 	public boolean hasProperty(String name)
 	{
 		return properties.containsKey(name);
 	}
 
 	/**
+	 * Returns the property value given its key.
 	 * Properties are cached on the Proxy and updated from JS for relevant annotated APIs
+	 * @param name  the lookup key.
+	 * @return the property object or null if a property for the given key does not exist.
+	 * @module.api
 	 */
 	public Object getProperty(String name)
 	{
@@ -375,7 +548,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * This internally sets the named property as well as updating the actual JS object
+	 * This sets the named property as well as updating the actual JS object.
+	 * @module.api
 	 */
 	public void setProperty(String name, Object value)
 	{
@@ -396,6 +570,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		getKrollObject().setProperty(name, value);
 	}
 
+	/**
+	 * Fires an event asynchronously via KrollRuntime thread, which can be intercepted on JS side.
+	 * @param event the event to be fired.
+	 * @param data  the data to be sent.
+	 * @return whether this proxy has an eventListener for this event.
+	 * @module.api
+	 */
 	public boolean fireEvent(String event, Object data)
 	{
 		Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_EVENT, data);
@@ -405,6 +586,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		return hasListeners(event);
 	}
 
+	/**
+	 * Fires an event synchronously via KrollRuntime thread, which can be intercepted on JS side.
+	 * @param event the event to be fired.
+	 * @param data  the data to be sent.
+	 * @return whether this proxy has an eventListener for this event.
+	 * @module.api
+	 */
 	public boolean fireSyncEvent(String event, Object data)
 	{
 		if (KrollRuntime.getInstance().isRuntimeThread()) {
@@ -461,6 +649,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		TiMessenger.getMainMessenger().sendMessage(msg);
 	}
 
+	/**
+	 * @param event the event to check
+	 * @return whether the associated KrollObject has an event listener for the passed in event.
+	 * @module.api
+	 */
 	public boolean hasListeners(String event)
 	{
 		return getKrollObject().hasListeners(event);
@@ -477,6 +670,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		return false;
 	}
 
+	/**
+	 * Same behavior as {@link #setProperty(String, Object)}, but also invokes
+	 * {@link KrollProxyListener#propertyChanged(String, Object, Object, KrollProxy)}.
+	 * @param name the property name.
+	 * @param value the property value.
+	 * @module.api
+	 */
 	public void setPropertyAndFire(String name, Object value)
 	{
 		Object current = getProperty(name);
@@ -489,9 +689,21 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 	public void onPropertyChanged(String name, Object value)
 	{
-		Object oldValue = properties.get(name);
-		properties.put(name, value);
-		firePropertyChanged(name, oldValue, value);
+		String propertyName = name;
+		Object newValue = value;
+
+		if (isLocaleProperty(name)) {
+			Log.i(TAG, "Updating locale: " + name);
+			Pair<String, String> update = updateLocaleProperty(name, value.toString());
+			if (update != null) {
+				propertyName = update.first;
+				newValue = update.second;
+			}
+		}
+
+		Object oldValue = properties.get(propertyName);
+		properties.put(propertyName, newValue);
+		firePropertyChanged(propertyName, oldValue, newValue);
 	}
 
 	public void onPropertiesChanged(Object[][] changes)
@@ -537,11 +749,19 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		return null;
 	}
 
+	/**
+	 * Returns a KrollDict object that contains all current properties associated with this proxy.
+	 * @return KrollDict properties object.
+	 * @module.api
+	 */
 	public KrollDict getProperties()
 	{
 		return properties;
 	}
 
+	/**
+	 * @return the KrollModule that this proxy was created in.
+	 */
 	public KrollModule getCreatedInModule()
 	{
 		return createdInModule;
@@ -618,16 +838,39 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	// TODO: count should be removed since we no longer report it.
 	//       These methods only gets called now when the first listener
 	//       is added or the last one has been removed.
+	/**
+	 * Called when a event listener is added to the proxy
+	 * 
+	 * @param event			the event that the listener has been added for
+	 * @param count			the number of listeners for this event.  should not be used as this value 
+	 * 						is not reported correctly
+	 * @param proxy			the proxy that the event was added to.  otherwise known as "this"
+	 * @return				<code>void</code>
+	 */
 	protected void eventListenerAdded(String event, int count, KrollProxy proxy)
 	{
 		modelListener.listenerAdded(event, count, this);
 	}
 
+	/**
+	 * Called when a event listener is removed from the proxy
+	 * 
+	 * @param event			the event that the listener has been removed for
+	 * @param count			the number of listeners for this event.  should not be used as this value 
+	 * 						is not reported correctly
+	 * @param proxy			the proxy that the event was removed from.  otherwise known as "this"
+	 * @return				<code>void</code>
+	 */
 	protected void eventListenerRemoved(String event, int count, KrollProxy proxy)
 	{
 		modelListener.listenerRemoved(event, count, this);
 	}
 
+	/**
+	 * Associates this proxy with the passed in {@link KrollProxyListener}.
+	 * @param modelListener the passed in KrollProxyListener.
+	 * @module.api
+	 */
 	public void setModelListener(KrollProxyListener modelListener)
 	{
 		// Double-setting the same modelListener can potentially have weird side-effects.
@@ -715,6 +958,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		}
 	}
 
+	/**
+	 * Resolves the passed in scheme / path, and uses the Proxy's creationUrl if the path is relative.
+	 * @param scheme the scheme of Url.
+	 * @param path   the path of Url.
+	 * @return a string representation of URL given its components.
+	 * @module.api
+	 */
 	public String resolveUrl(String scheme, String path)
 	{
 		return TiUrl.resolve(creationUrl.baseUrl, path, scheme);
@@ -734,6 +984,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		return error;
 	}
 
+	/**
+	 * Releases the KrollObject, freeing memory.
+	 * @module.api
+	 */
 	public void release()
 	{
 		if (krollObject != null) {

@@ -35,6 +35,7 @@ TiStringRef kTiStringNewObject;
 TiStringRef kTiStringTiPropertyKey;
 TiStringRef kTiStringPropertyKey;
 TiStringRef kTiStringEventKey;
+TiStringRef kTiStringExportsKey;
 
 
 id TiValueToId(KrollContext* context, TiValueRef v);
@@ -296,7 +297,7 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 			{
 				if (![context isKJSThread])
 				{
-					NSLog(@"[WARN] Creating %@ in a different context than the calling function.",obj);
+					DebugLog(@"[WARN] Creating %@ in a different context than the calling function.",obj);
 					ourBridge = [KrollBridge krollBridgeForThreadName:[[NSThread currentThread] name]];
 				}
 				return [[ourBridge registerProxy:obj] jsobject];
@@ -305,7 +306,7 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 			return [objKrollObject jsobject];
 		}
 		
-		NSLog(@"[WARN] Generating a new TiObject for KrollObject %@ because the contexts %@ and its context %@ differed.",obj,context,ourBridge);
+		DebugLog(@"[WARN] Generating a new TiObject for KrollObject %@ because the contexts %@ and its context %@ differed.",obj,context,ourBridge);
 #ifdef KROLL_COVERAGE
 		KrollObject *o = [[[KrollCoverageObject alloc] initWithTarget:obj context:context] autorelease];
 #else
@@ -330,11 +331,11 @@ void KrollFinalizer(TiObjectRef ref)
 	}
 	if (![o isKindOfClass:[KrollObject class]])
 	{
-		NSLog(@"[WARN] object: %@ was not of the right class: %@",o,[o class]);
+		DeveloperLog(@"[WARN] Object %@ was not a KrollObject during finalization, was: %@",o,[o class]);
 		return;
 	}
 #if KOBJECT_MEMORY_DEBUG == 1
-	NSLog(@"KROLL FINALIZER: %@, retain:%d",o,[o retainCount]);
+	NSLog(@"[KROLL DEBUG] KROLL FINALIZER: %@, retain:%d",o,[o retainCount]);
 #endif
 
 	[(KrollObject *)o setFinalized:YES];
@@ -382,7 +383,7 @@ void KrollInitializer(TiContextRef ctx, TiObjectRef object)
 		return;
 	}
 #if KOBJECT_MEMORY_DEBUG == 1
-	NSLog(@"KROLL RETAINER: %@ (%@), retain:%d",o,[o class],[o retainCount]);
+	NSLog(@"[KROLL DEBUG] KROLL RETAINER: %@ (%@), retain:%d",o,[o class],[o retainCount]);
 #endif
  
 	if ([o isKindOfClass:[KrollObject class]])
@@ -393,7 +394,7 @@ void KrollInitializer(TiContextRef ctx, TiObjectRef object)
 		[o setPropsObject:propsObject];
 	}
 	else {
-		NSLog(@"[DEBUG] initializer for %@",[o class]);
+		DeveloperLog(@"[DEBUG] Initializer for %@",[o class]);
 	}
 
 }
@@ -413,6 +414,14 @@ TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiString
 		{
 			return NULL;
 		}
+        
+        // Attempt to retrieve the property from the exports, before going through
+        // the routing
+        TiObjectRef exports = [o objectForTiString:kTiStringExportsKey context:jsContext];
+        if ((exports != NULL) && TiObjectHasProperty(jsContext, exports, prop)) {
+            return TiObjectGetProperty(jsContext, exports, prop, NULL);
+        }
+        
 		
 		NSString* name = (NSString*)TiStringCopyCFString(kCFAllocatorDefault, prop);
 		[name autorelease];		
@@ -457,7 +466,7 @@ TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiString
 		}
 
 #if KOBJECT_DEBUG == 1
-		NSLog(@"KROLL GET PROPERTY: %@=%@",name,result);
+		NSLog(@"[KROLL DEBUG] KROLL GET PROPERTY: %@=%@",name,result);
 #endif
 		return jsResult;
 	}
@@ -486,7 +495,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 
 		id v = TiValueToId([o context], value);
 #if KOBJECT_DEBUG == 1
-		NSLog(@"KROLL SET PROPERTY: %@=%@ against %@",name,v,o);
+		NSLog(@"[KROLL DEBUG] KROLL SET PROPERTY: %@=%@ against %@",name,v,o);
 #endif
 		if ([v isKindOfClass:[TiProxy class]])
 		{
@@ -617,6 +626,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 		kTiStringTiPropertyKey = TiStringCreateWithUTF8CString("__TI");
 		kTiStringPropertyKey = TiStringCreateWithUTF8CString("__PR");
 		kTiStringEventKey = TiStringCreateWithUTF8CString("__EV");
+        kTiStringExportsKey = TiStringCreateWithUTF8CString("__EX");
 	}
 }
 
@@ -633,15 +643,13 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 		//TODO: See if this actually happens, and if not, remove this extra check.
 		if ([(KrollBridge *)[context_ delegate] usesProxy:target_] && [self isMemberOfClass:[KrollObject class]])
 		{
-			NSLog(@"[WARN] %@ already has %@!",[context_ delegate],target_);
+			DeveloperLog(@"[WARN] Bridge %@ already has target %@!",[context_ delegate],target_);
 		}
 
 		if (![context_ isKJSThread])
 		{
-			NSLog(@"[WARN] %@->%@ is being made in a thread not owned by %@",self,target_,context_);
+			DeveloperLog(@"[WARN] %@->%@ is being made in a thread not owned by %@.",self,target_,context_);
 		}
-
-
 #endif
 		target = [target_ retain];
 		context = context_; // don't retain
@@ -678,7 +686,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 -(void)dealloc
 {
 #if KOBJECT_MEMORY_DEBUG == 1
-	NSLog(@"DEALLOC KROLLOBJECT: %@",[self description]);
+	NSLog(@"[KROLL DEBUG] DEALLOC KROLLOBJECT: %@",[self description]);
 #endif
 	RELEASE_TO_NIL(properties);
 	RELEASE_TO_NIL(target);
@@ -690,7 +698,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 #if KOBJECT_MEMORY_DEBUG == 1
 -(id)description
 {
-	return [NSString stringWithFormat:@"KrollObject[%@] held:%d",target,[target retainCount]];
+	return [NSString stringWithFormat:@"[KROLL DEBUG] KrollObject[%@] held:%d",target,[target retainCount]];
 }
 #endif
 
@@ -762,20 +770,46 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 	return [NSString stringWithFormat:@"%@%@",[[newkey substringToIndex:1] lowercaseString], [newkey length]>1 ? [newkey substringFromIndex:1]: @""];
 }
 
+-(id)convertValueToDelegate:(id)result forKey:(NSString*)key
+{
+    if ([result isKindOfClass:[KrollMethodDelegate class]])
+    {
+        int argcount = [result args] ? 1 : 0;
+#ifdef KROLL_COVERAGE
+        return [[[KrollCoverageMethod alloc] initWithTarget:[result target] selector:[result selector]
+                                                   argcount:argcount type:KrollMethodInvoke name:key context:[self context] parent:self] autorelease];
+#else
+        return [[[KrollMethod alloc] initWithTarget:[result target] selector:[result selector]
+                                           argcount:argcount type:KrollMethodInvoke name:key context:[self context]] autorelease];
+#endif
+    }
+    else if ([result isKindOfClass:[KrollPropertyDelegate class]])
+    {
+        KrollPropertyDelegate *d = (KrollPropertyDelegate*)result;
+        return [[d target] performSelector:[d selector]];
+    }
+    return result;
+}
+
 -(id)_valueForKey:(NSString *)key
 {
 	//TODO: need to consult property_getAttributes to make sure we're not hitting readonly, etc. but do this
 	//only for non-production builds
 	
+    // TODO: We do a significant amount of magic here (set/get routing, and additionally "automatic"
+    // get/set based on what we assume the user is doing) that may need to be removed.
+    
 	if ([key hasPrefix:@"set"] && ([key length]>=4) &&
 			[[NSCharacterSet uppercaseLetterCharacterSet] characterIsMember:[key characterAtIndex:3]])
 	{
-		// this is a request for a setter method
-		// a.setFoo('bar')
+        // This is PROBABLY a request for an internal setter (either setX('a') or setX('a','b')). But
+        // it could also be:
+        // * Pulling a user-defined property prefixed with 'get'
+        // * Autogenerating a getter/setter
+        // In the event of the former, we actually have to actually pull a jump to
+        // returning the property's appropriate type, as below in the general case.
+        
 		SEL selector;
-		// setter can also have a special 2nd parameter, let's check that
-		// right now we only support 2 but easy to add more
-		// form is foo.setFoo('bar','foo')
 		
 		NSString * propertyKey = [self _propertyGetterSetterKey:key];
 #ifdef KROLL_COVERAGE
@@ -803,8 +837,16 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 			}
 			else
 			{
-				[result setType:KrollMethodPropertySetter];
-				[result setName:propertyKey];
+                // Either a custom property, OR a request for an autogenerated setter
+                id value = [target valueForKey:key];
+                if (value!=nil) {
+                    [result release];
+                    return [self convertValueToDelegate:value forKey:key];
+                }
+                else {
+                    [result setType:KrollMethodPropertySetter];
+                    [result setName:propertyKey];
+                }
 			}
 
 		}
@@ -851,6 +893,14 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 			[result setType:KrollMethodGetter];
 			return [result autorelease];
 		}
+        
+        // Check for custom property before returning the autogenerated getter
+        id value = [target valueForKey:key];
+        if (value!=nil) {
+            [result release];
+            return [self convertValueToDelegate:value forKey:key];
+        }        
+        
 		[result setName:propertyKey];
 		[result setArgcount:0];
 		[result setType:KrollMethodPropertyGetter];
@@ -891,24 +941,8 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 			id result = [target valueForKey:key];
 			if (result!=nil)
 			{
-				if ([result isKindOfClass:[KrollMethodDelegate class]])
-				{
-					int argcount = [result args] ? 1 : 0;
-#ifdef KROLL_COVERAGE
-					return [[[KrollCoverageMethod alloc] initWithTarget:[result target] selector:[result selector]
-						argcount:argcount type:KrollMethodInvoke name:key context:[self context] parent:self] autorelease];
-#else
-					return [[[KrollMethod alloc] initWithTarget:[result target] selector:[result selector]
-						argcount:argcount type:KrollMethodInvoke name:key context:[self context]] autorelease];
-#endif
-				}
-				else if ([result isKindOfClass:[KrollPropertyDelegate class]])
-				{
-					KrollPropertyDelegate *d = (KrollPropertyDelegate*)result;
-					return [[d target] performSelector:[d selector]];
-				}
-				return result;
-			}
+                return [self convertValueToDelegate:result forKey:key];
+            }
 			// see if this is a create factory which we can do dynamically
 			if ([key hasPrefix:@"create"])
 			{
@@ -990,7 +1024,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 				else 
 				{
 					// let it fall through and return undefined
-					NSLog(@"[WARN] unsupported property: %@ for %@, attributes = %@",key,target,attributes);
+					DeveloperLog(@"[WARN] Unsupported property: %@ for %@, attributes = %@",key,target,attributes);
 				}
 			}
 		}
@@ -1193,6 +1227,11 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 		return;
 	}
 
+    // TODO: Enquing safeProtect here may not be enough to guarantee that the object is actually
+    // safely protected "in time" (i.e. it may be GC'd before the safe protect is evaluated
+    // by the queue processor). We need to seriously re-evaluate the memory model and thread
+    // interactions during such.
+    
 	if (![context isKJSThread])
 	{
 		NSOperation * safeProtect = [[NSInvocationOperation alloc] initWithTarget:self
@@ -1227,7 +1266,7 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 {
 	if (![context isKJSThread])
 	{
-		NSLog(@"[WARN] %@ tried to note the callback for %@ in the wrong thead.",target,key);
+		DeveloperLog(@"[WARN] %@ tried to protect callback for %@ in the wrong thead.",target,key);
 		NSOperation * safeInvoke = [[ExpandedInvocationOperation alloc]
 				initWithTarget:self selector:_cmd object:eventCallback object:key];
 		[context enqueue:safeInvoke];
@@ -1310,7 +1349,7 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 
 	if (![context isKJSThread])
 	{
-		NSLog(@"[WARN] %@ tried to note the callback for %@ in the wrong thead.",target,key);
+		DeveloperLog(@"[WARN] %@ tried to note the callback for %@ in the wrong thead.",target,key);
 		NSOperation * safeInvoke = [[ExpandedInvocationOperation alloc]
 				initWithTarget:self selector:_cmd object:value object:key];
 		[context enqueue:safeInvoke];
@@ -1534,7 +1573,7 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 		TiObjectCallAsFunction(jsContext, (TiObjectRef)currentCallback, [thisObject jsobject], 1, &jsEventData,&exception);
 		if (exception!=NULL)
 		{
-			NSLog(@"[WARN] Exception in event callback. %@",[KrollObject toID:context value:exception]);
+			DebugLog(@"[WARN] Exception in event callback. %@",[KrollObject toID:context value:exception]);
 		}
 	}
 }

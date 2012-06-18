@@ -88,7 +88,7 @@ static BOOL alertShowing = NO;
 		alertShowing = YES;
 		[alertCondition unlock];
 		// alert show should block the JS thread like the browser
-		[self performSelectorOnMainThread:@selector(show:) withObject:args waitUntilDone:YES];
+		TiThreadPerformOnMainThread(^{[self show:args];}, YES);
 	}
 	else
 	{

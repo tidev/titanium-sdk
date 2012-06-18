@@ -144,7 +144,7 @@ static NSLock *callbackLock;
 	TiValueRef retVal = TiObjectCallAsFunction(jsContext,function,tp,[args count],_args,&exception);
 	if (exception!=NULL)
 	{
-		NSLog(@"[WARN] Exception in event callback. %@",[KrollObject toID:context value:exception]);
+		DebugLog(@"[ERROR] Exception in event callback: %@",[KrollObject toID:context value:exception]);
 	}
 	if (top!=NULL)
 	{
@@ -208,7 +208,7 @@ static NSLock *callbackLock;
 
 	if (![[bridge krollContext] isKJSThread])
 	{
-		NSLog(@"[WARN] KrollWrapper trying to protect in the wrong thread.%@",CODELOCATION);
+		DeveloperLog(@"[WARN] KrollWrapper trying to protect in the wrong thread.%@",CODELOCATION);
 		return;
 	}
 	protecting = YES;
@@ -224,7 +224,7 @@ static NSLock *callbackLock;
 	
 	if (![[bridge krollContext] isKJSThread])
 	{
-		NSLog(@"[WARN] KrollWrapper trying to unprotect in the wrong thread.%@",CODELOCATION);
+		DeveloperLog(@"[WARN] KrollWrapper trying to unprotect in the wrong thread.%@",CODELOCATION);
 		return;
 	}
 	protecting = NO;

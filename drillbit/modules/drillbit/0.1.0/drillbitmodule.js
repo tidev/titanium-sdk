@@ -126,8 +126,8 @@ Drillbit.prototype.initPlatforms = function() {
 	
 	if (ti.Platform.isOSX()) {
 		if (platformsArg == null || platformsArg.indexOf('iphone') != -1) {
-			// Default to 4.0 iPhone SDK
-			var iphoneVersion = 'iphoneVersion' in this.argv ? this.argv.iphoneVersion : "4.0";
+			// Default to 5.0 iPhone SDK
+			var iphoneVersion = 'iphoneVersion' in this.argv ? this.argv.iphoneVersion : "5.0";
 			ti.api.info('Adding iPhone SDK to list of drillbit target platforms: ' + iphoneVersion);
 			
 			ti.include(ti.path.join(this.module.getPath(), 'iphone.js'));

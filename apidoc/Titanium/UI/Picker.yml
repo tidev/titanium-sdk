@@ -10,14 +10,17 @@ description: |
     Adding views to picker rows is only supported on iOS.
 extends: Titanium.Proxy
 since: "0.8"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 methods:
   - name: add
     summary: Adds rows or columns to the picker.
     parameters:
       - name: data
-        summary: An array of rows, a single row, an array of columns or a single column.
+        summary: |
+            A row, set of rows, a column of rows or a set of columns of rows. When this method is 
+            used to add a row or set of rows, a single-column picker is created.
         type: [Array<Titanium.UI.PickerRow>, Titanium.UI.PickerRow, Array<Titanium.UI.PickerColumn>, Titanium.UI.PickerColumn]
+    platforms: [iphone, ipad]
 
   - name: getSelectedRow
     summary: Gets the selected row for a column, or `null` if none exists.
@@ -50,8 +53,7 @@ methods:
         
       - name: animated
         summary: |
-            Determines whether the selection should be animated. On iOS, only effective if the 
-            picker is already rendered. (iPhone, iPad-only)
+            Determines whether the selection should be animated. (iPhone, iPad-only)
         type: Boolean
         default: true
         optional: true
@@ -111,19 +113,19 @@ events:
     properties:
       - name: columnIndex
         summary: |
-            Selected column index. On iOS, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
+            Selected column index. On iOS and Mobile Web, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
             picker types.
         type: Number
         
       - name: rowIndex
         summary: |
-            Selected row index. On iOS, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
+            Selected row index. On iOS and Mobile Web, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
             picker types.
         type: Number
         
       - name: column
         summary: |
-            The column object. On iOS, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
+            The column object. On iOS and Mobile Web, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> 
             picker types.
         type: Titanium.UI.PickerColumn
         
@@ -135,7 +137,7 @@ events:
         
       - name: row
         summary: |
-            The row object. On iOS, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> picker types.
+            The row object. On iOS and Mobile Web, only applicable to <Titanium.UI.PICKER_TYPE_PLAIN> picker types.
         type: Titanium.UI.PickerRow
         
       - name: selectedValue
@@ -146,7 +148,7 @@ events:
 properties:
   - name: columns
     summary: Columns used for this picker, as an array of <Titanium.UI.PickerColumn> objects.
-    type: Array<Object>
+    type: Array<Titanium.UI.PickerColumn>
     
   - name: countDownDuration
     summary: Duration in milliseconds used for a Countdown Timer picker.
@@ -175,7 +177,7 @@ properties:
         The value of this property may be modified even after a picker is rendered and the UI will be 
         updated accordingly.
     type: Boolean
-    default: true (Android native spinner enabled), false (otherwise)
+    default: true (spinner enabled), false (otherwise)
     platforms: [android]
     
   - name: locale
@@ -183,6 +185,12 @@ properties:
     description: |
         Applicable to <Titanium.UI.PICKER_TYPE_DATE>, <Titanium.UI.PICKER_TYPE_TIME> and 
         <Titanium.UI.PICKER_TYPE_DATE_AND_TIME> picker types.
+        
+        Locale must be represented as a combination of ISO 2-letter language and country codes. 
+        For example, `en-US` or `en-GB`. See the 
+        [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and 
+        [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
+        sections of wikipedia for reference.
         
         On iOS, the system locale is always used.
     type: String
@@ -222,26 +230,35 @@ properties:
     
   - name: selectionIndicator
     summary: |
-        Determines whether the visual selection style is shown. On iPhone, this is a blue bar.
+        Determines whether the visual selection indicator is shown. On iPhone, this is a blue bar.
+    description: If `true`, selection indicator is enabled.
     type: Boolean
-    default: false
+    default: true (Android), false (iPhone, iPad),
+    platforms: [android, iphone, ipad]
     
   - name: type
-    summary: |
-        Determines the type of picker displayed. One of <Titanium.UI.PICKER_TYPE_PLAIN>, 
+    summary: Determines the type of picker displayed
+    description: |
+        One of <Titanium.UI.PICKER_TYPE_PLAIN>, 
         <Titanium.UI.PICKER_TYPE_DATE>, <Titanium.UI.PICKER_TYPE_TIME>, 
-        <Titanium.UI.PICKER_TYPE_DATE_AND_TIME> (iPhone, iPad-only) 
-        and <Titanium.UI.PICKER_TYPE_COUNT_DOWN_TIMER> (iPhone, iPad-only.)
+        <Titanium.UI.PICKER_TYPE_DATE_AND_TIME> (Mobile Web, iPhone, iPad-only) 
+        and <Titanium.UI.PICKER_TYPE_COUNT_DOWN_TIMER> (iPhone, iPad-only.). 
+        
+        Mobile Web relies on input types for date and time types, but as of Q1 2012 these input types 
+        are not supported on most browsers, those that do support it support it poorly, and no fall-back 
+        exists. It is recommended not to use these types on Mobile Web until browser support improves.
     type: Number
     default: <Titanium.UI.PICKER_TYPE_PLAIN>
     
   - name: useSpinner
     summary: |
-        Enables the non-native Android control, with a spinning wheel that looks 
-        and behaves like the iOS picker, rather than the default native "dropdown" style.
+        Determines whether the non-native Android control, with a spinning wheel that looks and 
+        behaves like the iOS picker, is invoked rather than the default native "dropdown" style.
     description: |
+        If `true`, the spinner is enabled.
+        
         This property should be set either at picker creation, i.e. 
-        <Titanium.UI.createPicker({useSpinner:true});> or before adding the picker to its parent.  
+        `Titanium.UI.createPicker({ useSpinner:true });`, or before the picker is added to its parent.  
         
         This property must be enabled for multi-column pickers.
     type: Boolean

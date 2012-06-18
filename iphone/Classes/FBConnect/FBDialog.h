@@ -135,7 +135,7 @@
 - (void)dialogCompleteWithUrl:(NSURL *)url;
 
 /**
- * Called when the dialog get canceled by the user.
+ * Called when the dialog get cancelled by the user.
  */
 - (void)dialogDidNotCompleteWithUrl:(NSURL *)url;
 

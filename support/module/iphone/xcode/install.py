@@ -7,10 +7,7 @@ import os, sys, shutil
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
-#TODO: need to run xcode-select to get the true path to xcode
-
-xcodedir = os.path.join("/Developer","Platforms","iPhoneOS.platform","Developer","Library","Xcode")
-file_dir = os.path.join(xcodedir,"Templates","File Templates","Appcelerator")
+file_dir = os.path.expanduser("~/Library/Developer/Xcode/Templates/Application/File Templates/Appcelerator")
 
 if os.path.exists(file_dir):
 	shutil.rmtree(file_dir)

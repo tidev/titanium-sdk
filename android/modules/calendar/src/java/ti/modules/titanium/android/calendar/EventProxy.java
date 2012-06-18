@@ -16,6 +16,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 
 // Columns and value constants taken from android.provider.Calendar in the android source base
 @Kroll.proxy(parentModule=CalendarModule.class)
@@ -77,11 +78,17 @@ public class EventProxy extends KrollProxy {
 		Uri.Builder builder = Uri.parse(getInstancesWhenUri()).buildUpon();
 		ContentUris.appendId(builder, date1);
 		ContentUris.appendId(builder, date2);
-		
+
 		Cursor eventCursor = contentResolver.query(builder.build(),
 			new String[] { "event_id", "title", "description", "eventLocation", "begin", "end", "allDay", "hasAlarm", "eventStatus", "visibility"},
 			query, queryArgs, "startDay ASC, startMinute ASC");
-		
+
+		if(eventCursor == null) {
+			Log.w(TAG, "unable to get any results when pulling events by date range");
+
+			return events;
+		}
+
 		while (eventCursor.moveToNext()) {
 			EventProxy event = new EventProxy();
 			event.id = eventCursor.getString(0);
@@ -204,7 +211,14 @@ public class EventProxy extends KrollProxy {
 	}
 
 	public static ArrayList<EventProxy> queryEventsBetweenDates(long date1, long date2, CalendarProxy calendar) {
-		return queryEventsBetweenDates(date1, date2, "Calendars._id="+calendar.getId(), null);
+		if (Build.VERSION.SDK_INT >= 11)
+		{
+			return queryEventsBetweenDates(date1, date2, null, null);
+		}
+		else
+		{
+			return queryEventsBetweenDates(date1, date2, "Calendars._id="+calendar.getId(), null);
+		}
 	}
 
 	public static ArrayList<EventProxy> queryEventsBetweenDates(TiContext context, long date1, long date2, CalendarProxy calendar)

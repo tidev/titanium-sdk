@@ -14,7 +14,8 @@ Titanium.Network.registerForPushNotifications({
 	types: [
 		Titanium.Network.NOTIFICATION_TYPE_BADGE,
 		Titanium.Network.NOTIFICATION_TYPE_ALERT,
-		Titanium.Network.NOTIFICATION_TYPE_SOUND
+		Titanium.Network.NOTIFICATION_TYPE_SOUND,
+		Titanium.Network.NOTIFICATION_TYPE_NEWSSTAND
 	],
 	success:function(e)
 	{

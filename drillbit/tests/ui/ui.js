@@ -29,7 +29,7 @@ describe("Ti.UI tests", {
 			wv.addEventListener('load', listener);
 			w.add(wv);
 		},
-		timeout: 10000,
+		timeout: 15000,
 		timeoutError: 'Timed out waiting for page to load and JS to eval'
 	}),
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2153
@@ -391,18 +391,30 @@ describe("Ti.UI tests", {
 	}),
 	
 	// http://jira.appcelerator.org/browse/TIMOB-1333
-	imageLoadEvent: asyncTest(function(callback) {
-		var w = Ti.UI.createWindow();
-		var btn = Ti.UI.createImageView({
-			image: 'KS_nav_ui.png',
-			top: 1, width: 50, left: 1, height: 40
-		});
-		var listener = this.async(function() {
-		 	Ti.API.debug("load event fired.");
-		});
-		btn.addEventListener("load", listener)
-		w.add( btn );
-		w.open();
+	imageLoadEvent: asyncTest( {
+		start: function(callback) {
+			//TODO: Genericize this test for all platforms,
+			//and check to see what proper behavior/parity is.
+			if (Ti.Platform.osname === 'android') {
+				var w = Ti.UI.createWindow();
+				var btn = Ti.UI.createImageView({
+					image: 'KS_nav_ui.png',
+					top: 1, width: 50, left: 1, height: 40
+				});
+				var listener = this.async(function() {
+					Ti.API.debug("load event fired.");
+					valueOf(true).shouldBe(true);
+				});
+				btn.addEventListener("load", listener)
+				w.add( btn );
+				w.open();
+			} else {
+				Ti.API.info("Only testing load events on local resources in Android");
+				callback.passed();
+			}
+		},
+		timeout: 10000,
+		timeoutError: 'Timed out waiting for imageview to load an image'
 	}),
 
 	// http://jira.appcelerator.org/browse/TIMOB-6891
@@ -447,6 +459,17 @@ describe("Ti.UI tests", {
 		setTimeout(function() {
 			callback.failed("Test timeout");
 		}, 3000);
+	},
+	
+	// https://jira.appcelerator.org/browse/TIMOB-8909
+	childrenArrayEmpty: function() {
+		var view = Ti.UI.createView();
+		valueOf(view).shouldNotBeNull();
+		valueOf(view).shouldBeObject();
+		
+		valueOf(view.children).shouldNotBeNull();
+		valueOf(view.children).shouldNotBeUndefined();
+		valueOf(view.children).shouldBeObject();
+		valueOf(view.children).shouldBe(0);
 	}
-
 });

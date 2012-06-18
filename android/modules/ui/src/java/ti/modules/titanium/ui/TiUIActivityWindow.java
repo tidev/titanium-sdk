@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -45,12 +46,11 @@ import android.view.Window;
 
 
 public class TiUIActivityWindow extends TiUIView
-	implements Handler.Callback, TiActivityWindow
+	implements TiActivityWindow
 {
 	private static final String LCAT = "TiUIActivityWindow";
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final int MSG_ACTIVITY_CREATED = 1000;
-	private static final int MSG_ANIMATE = 100;
 	private static final String WINDOW_ID_PREFIX = "window$";
 
 	private static AtomicInteger idGenerator;
@@ -77,7 +77,7 @@ public class TiUIActivityWindow extends TiUIView
 
 		this.messenger = messenger;
 		this.messageId = messageId;
-		this.handler = new Handler(Looper.getMainLooper(), this);
+		this.handler = new Handler(Looper.getMainLooper(), new MessageHandler(this));
 		this.lastWidth = LayoutParams.FILL_PARENT;
 		this.lastHeight = LayoutParams.FILL_PARENT;
 
@@ -101,7 +101,7 @@ public class TiUIActivityWindow extends TiUIView
 
 		this.messenger = messenger;
 		this.messageId = messageId;
-		this.handler = new Handler(Looper.getMainLooper(), this);
+		this.handler = new Handler(Looper.getMainLooper(), new MessageHandler(this));
 		this.lastWidth = LayoutParams.FILL_PARENT;
 		this.lastHeight = LayoutParams.FILL_PARENT;
 
@@ -211,7 +211,6 @@ public class TiUIActivityWindow extends TiUIView
 
 		if (windowActivity != null && windowActivity instanceof TiBaseActivity) {
 			layout.requestFocus();
-			((TiBaseActivity) windowActivity).fireInitialFocus(); 
 		}
 	}
 
@@ -243,32 +242,46 @@ public class TiUIActivityWindow extends TiUIView
 		}
 	}
 
-	@Override
-	public boolean handleMessage(Message msg)
+	// There is a bug in Android that prevents Messengers from getting
+	// released when they are passed to another Activity via an Intent.
+	// To avoid leaking large amounts of memory we implement the
+	// Handler callback in a nested, static class
+	// This allows the TiUIActivityWindow to get released once the window has closed.
+	private static class MessageHandler implements Handler.Callback
 	{
-		switch (msg.what) {
+		private WeakReference<TiUIActivityWindow> activityWindow;
+
+		public MessageHandler(TiUIActivityWindow activityWindow)
+		{
+			this.activityWindow = new WeakReference<TiUIActivityWindow>(activityWindow);
+		}
+
+		@Override
+		public boolean handleMessage(Message msg)
+		{
+			TiUIActivityWindow activityWindow = this.activityWindow.get();
+			if (activityWindow == null) {
+				return false;
+			}
+
+			switch (msg.what) {
 			case MSG_ACTIVITY_CREATED :
 				if (DBG) {
 					Log.d(LCAT, "Received Activity creation message");
 				}
 
-				if (windowActivity == null) {
-					windowActivity = (Activity) msg.obj;
+				if (activityWindow.windowActivity == null) {
+					activityWindow.windowActivity = (Activity) msg.obj;
 				}
 
-				proxy.setModelListener(this);
-				handleBooted();
-
-				return true;
-
-			case MSG_ANIMATE : {
-				animate();
+				activityWindow.proxy.setModelListener(activityWindow);
+				activityWindow.handleBooted();
 
 				return true;
 			}
-		}
 
-		return false;
+			return false;
+		}
 	}
 
 	@Override
@@ -292,7 +305,16 @@ public class TiUIActivityWindow extends TiUIView
 		if (post) {
 			proxy.getMainHandler().post(new Runnable() {
 				public void run() {
-					windowActivity.getWindow().setBackgroundDrawable(drawable);
+					/*
+					 *This is a check to prevent a race condition- when user execute open, open, close on the window.
+					 *setActivityBackground is being called in KrollRuntime thread, which may cause a race condition: windowActivity
+					 *is set to null in the middle of closing process, while the 2nd call of open gets here. In the case of
+					 *"open, open, close, open", this would work b/c the assigning of windowActivity and setting it to null are both being done 
+					 *on the same thread.
+					 */
+					if (windowActivity != null) {
+						windowActivity.getWindow().setBackgroundDrawable(drawable);
+					}
 				}
 			});
 

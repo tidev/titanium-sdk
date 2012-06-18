@@ -1,64 +1,162 @@
 ---
 name: Titanium.Android.Notification
-summary: The Titanium binding of an [Android Notification](http://developer.android.com/reference/android/app/Notification.html).
+summary: | 
+    The Titanium binding of an 
+    [Android Notification](http://developer.android.com/reference/android/app/Notification.html).
+description: |
+    This object is used for status bar notifications.
+
+    See the official Android documentation on 
+    [Status Bar Notifications](http://developer.android.com/guide/topics/ui/notifiers/notifications.html)
+    for an overview of how status bar notifications are used.
+
+    If you pass `contentTitle` and/or `contentText` into <Titanium.Android.createNotification>, 
+    then `setLatestEventInfo` will automatically be called with those properties.  There's no need 
+    to call it separately unless you want to update the notification at a later time. You can also 
+    use a custom `layout.xml` wrapped in 
+    a <Titanium.Android.RemoteViews> object in the `contentView` property, which gives more 
+    fine grained control and customization to how the notification actually behaves.
+
+    Use the [NotificationManager](Titanium.Android.NotificationManager) module to send
+    and cancel notifications.
+    
+    For Android "toast" (pop-up) notifications, see <Titanium.UI.Notification>.
 extends: Titanium.Proxy
 since: "1.5"
 platforms: [android]
 methods:
   - name: setLatestEventInfo
-    summary: Sets the latest event info using the builtin Notification View for this notification. See Android's documentation for [setLatestEventInfo](http://developer.android.com/reference/android/app/Notification.html#setLatestEventInfo(android.content.Context, java.lang.CharSequence, java.lang.CharSequence, android.app.PendingIntent))
+    summary: Sets the latest event info using the built-in Notification View for this notification. 
+    description: |
+        See the official Android documentation for 
+        [Notification.setLatestEventInfo](http://developer.android.com/reference/android/app/Notification.html#setLatestEventInfo(android.content.Context, java.lang.CharSequence, java.lang.CharSequence, android.app.PendingIntent)).
+    parameters: 
+
+      - name: contentTitle
+        summary: Title to display when the notification is expanded.
+        type: String
+
+      - name: contentText
+        summary: Text to display when the notification is expanded.
+        type: String
+
+      - name: contentIntent
+        summary: Intent to launch when the user clicks on the notification.
+        type: Titanium.Android.PendingIntent
+
+
 properties:
+
   - name: audioStreamType
     summary: The audio stream type to use when playing the sound.
+    description: |
+        Specify one of the `STREAM` constants from <Titanium.Android>.
     type: Number
+
   - name: contentIntent
-    summary: The <Titanium.Android.PendingIntent> to execute when the expanded status entry is clicked.
-    type: Object
+    summary: The `PendingIntent` to execute when the expanded status entry is clicked.
+    type: Titanium.Android.PendingIntent
+
   - name: contentText
     summary: Description text of the notification.
     type: String
+
   - name: contentTitle
     summary: Title of the notification.
     type: String
+
+  - name: contentView
+    summary: Custom layout to display in the notification.
+    description: |
+        Calling [setLatestEventInfo](Titanium.Android.Notification.setLatestEventInfo) or
+        setting the `contentText` or `contentTitle` properties causes the notification to use
+        the default notification layout, overriding any custom layout set through
+        `contentView`.
+
+        If you use a custom layout, you can use the
+        [RemoteViews](Titanium.Android.RemoteViews) methods to update the displayed
+        notification.
+    type: Titanium.Android.RemoteViews
+    permission: write-only
+
   - name: defaults
     summary: Specifies which values should be taken from the defaults.
+    description: |
+        Specify the bitwise OR of the desired values: 
+        <Titanium.Android.DEFAULT_LIGHTS>, <Titanium.Android.DEFAULT_SOUND>, and
+        <Titanium.Android.DEFAULT_VIBRATE>. Use <Titanium.Android.DEFAULT_ALL> to specify
+        that all values should be taken from the defaults.
     type: Number
+
   - name: deleteIntent
-    summary: The <Titanium.Android.PendingIntent> to execute when the status entry is deleted by the user with the "Clear All Notifications" button.
-    type: Object
+    summary: The `PendingIntent` to execute when the status entry is deleted by the user with the "Clear All Notifications" button.
+    type: Titanium.Android.PendingIntent
+
   - name: flags
-    summary: |
-        Set of flags for the notification, defaults to <Titanium.Android.FLAG_AUTO_CANCEL>. Possible values: <Titanium.Android.FLAG_AUTO_CANCEL>, <Titanium.Android.FLAG_INSISTENT>, <Titanium.Android.FLAG_NO_CLEAR>, <Titanium.Android.FLAG_ONGOING_EVENT>, <Titanium.Android.FLAG_ONLY_ALERT_ONCE>, <Titanium.Android.FLAG_SHOW_LIGHTS>
+    summary: Set of flags for the notification.
+    description: |
+        Possible values: <Titanium.Android.FLAG_AUTO_CANCEL>, <Titanium.Android.FLAG_INSISTENT>, 
+        <Titanium.Android.FLAG_NO_CLEAR>, <Titanium.Android.FLAG_ONGOING_EVENT>, 
+        <Titanium.Android.FLAG_ONLY_ALERT_ONCE>, <Titanium.Android.FLAG_SHOW_LIGHTS>
     type: Number
+    default: <Titanium.Android.FLAG_AUTO_CANCEL>. 
+
   - name: icon
-    summary: A resource id or URL to an icon (the URL must be an image located in Resources/android/images/<density> or an Android content URI)
+    summary: 
+        Notification icon, specified as an Android resource ID, or a local URL to a
+        density-specific image.
+    description: |
+        If specified as a URL, the icon must be placed in one of the density-specific
+        folders under `Resources/android/images`. For example, if your icon is called
+        `my_icon.png`, you would create high- and medium-density versions of the icons
+        with the following paths:
+
+            Resources/android/images/res-hdpi/my_icon.png
+            Resources/android/images/res-mdpi/my_icon.png
+        
+        To access this icon, you'd use the URL '/images/my_icon.png'.
+
+        To access the same icon using an Android resource ID, place the icon in:
+
+            platform/android/res/drawable/my_icon.png
+         
+        This icon's resource ID can be referenced through the <Titanium.App.Android.R>
+        object:
+
+            icon: Ti.App.Android.R.drawable.my_icon,
+
+        See <Titanium.App.Android.R> for more information on accessing 
+        Android resources by ID.
     type: [Number,String]
+
   - name: ledARGB
-    summary: The color for the LED to blink
+    summary: The color for the LED to blink.
     type: Number
+
   - name: ledOffMS
     summary: The number of milliseconds for the LED to be off while it's flashing.
     type: Number
+
   - name: ledOnMS
     summary: The number of milliseconds for the LED to be on while it's flashing.
     type: Number
+
   - name: number
     summary: The number of events that this notification represents.
     type: Number
+
   - name: sound
-    summary: A URL to the sound to play (supports Android + Titanium URLs)
+    summary: A URL to the sound to play (supports both Android and Titanium URLs).
     type: String
+
   - name: tickerText
     summary: Text to scroll across the screen when this item is added to the status bar.
     type: String
+
   - name: when
-    summary: The timestamp for the notification (defaults to the current time)
+    summary: The timestamp for the notification (defaults to the current time).
+    description: |
+        If the timestamp is set to 0, no time is displayed in the notification
+        window for this notification.
     type: [Date,Number]
-description: |
-    If you pass contentTitle and/or contentText into <Titanium.Android.createNotification>, 
-    then setLatestEventInfo will automatically be called with those properties (there's no need 
-    to call it separately unless you want to). You can also use a custom layout.xml wrapped in 
-    a <Titanium.Android.RemoteViews> object in the contentView property, which gives more 
-    fine grained control and customization to how the notification actually behaves.
-    
-    Also see [Android's developer guide for Notifications](http://developer.android.com/guide/topics/ui/notifiers/notifications.html)
+

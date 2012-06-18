@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -41,15 +41,16 @@ public class TiJSService extends TiBaseService
 	}
 
 	@Override
-	public void onStart(Intent intent, int startId)
+	public int onStartCommand(Intent intent, int flags, int startId)
 	{
-		super.onStart(intent, startId);
 		if (DBG) {
-			Log.d(LCAT, "onStart");
+			Log.d(LCAT, "onStartCommand");
 		}
 		finalizeUrl(intent);
 		ServiceProxy proxy = createProxy(intent);
 		start(proxy);
+
+		return intent.getIntExtra(TiC.INTENT_PROPERTY_START_MODE, AndroidModule.START_REDELIVER_INTENT);
 	}
 
 	protected void executeServiceCode(ServiceProxy proxy)

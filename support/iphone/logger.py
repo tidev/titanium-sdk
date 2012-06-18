@@ -22,62 +22,15 @@ def main(args):
 	logname = args[1]
 	iphone_version = args[2]
 	
-	# starting in SDK 3.2 they changed the directory on us where logs 
-	# go so we have to compensate for that by looking at the version
-	# of xcode the user has
-	try:
-		xoutput = run.run(["xcodebuild","-version"])
-		idx = xoutput.find("Xcode ")
-		version = xoutput[idx+6:]
-		idx = version.find("\n")
-		version = version[0:idx].strip()
-		version_split = version.split('.')
-		major = int(version_split[0])
-		minor = int(version_split[1])
-		build = 0
-		# some versions are simply 3.1 (2 digits)
-		if len(version_split) > 2:
-			build = int(version_split[2])
-	except:
-		sys.exit(0)
-	
-	
-	# this was the default up until 3.2.2 release
-	path = "~/Library/Application Support/iPhone Simulator/User/Applications"
-	
-	# check for >= Xcode 3.2.2 which is when the new log directory started for the simulator
-	if major > 3 or major == 3 and minor > 2 or major == 3 and minor == 2 and build >= 2:
-		path = "~/Library/Application Support/iPhone Simulator/%s/Applications" % iphone_version
-
-	if iphone_version == '4.0':
-	    # i dunno, how many of these will they do?
-	    for v in ('4.0.3','4.0.2','4.0.1'):
-	        if os.path.exists(os.path.expanduser("~/Library/Application Support/iPhone Simulator/%s"%v)):
-        		# Apple broke version in 4.0.x where they return 4.0 instead so we need to try and see if they 
-        		# have the patch installed
-        		print "[INFO] Found %s patch installed" % v
-        		path = "~/Library/Application Support/iPhone Simulator/%s" % v
-        		break
-
-	if iphone_version == '4.3':
-	    # i dunno, how many of these will they do?
-	    for v in ('4.3.9','4.3.8','4.3.7','4.3.6','4.3.5','4.3.4','4.3.3','4.3.2','4.3.1'):
-	        if os.path.exists(os.path.expanduser("~/Library/Application Support/iPhone Simulator/%s"%v)):
-        		# Apple broke version in 4.0.x where they return 4.0 instead so we need to try and see if they 
-        		# have the patch installed
-        		print "[INFO] Found %s patch installed" % v
-        		path = "~/Library/Application Support/iPhone Simulator/%s" % v
-        		break
-
-	if iphone_version == '5.0':
-	    # i dunno, how many of these will they do?
-	    for v in ('5.0.9','5.0.8','5.0.7','5.0.6','5.0.5','5.0.4','5.0.3','5.0.2','5.0.1','5.0'):
-	        if os.path.exists(os.path.expanduser("~/Library/Application Support/iPhone Simulator/%s"%v)):
-        		# Apple broke version in 4.0.x where they return 4.0 instead so we need to try and see if they 
-        		# have the patch installed
-        		print "[INFO] Found %s patch installed" % v
-        		path = "~/Library/Application Support/iPhone Simulator/%s" % v
-        		break
+	path = os.path.expanduser("~/Library/Application Support/iPhone Simulator/%s") % iphone_version
+	# i dunno, how many of these will they do?
+	for v in ('9','8','7','6','5','4','3','2','1'):
+		full_version = "%s.%s"%(iphone_version,v)
+		possible_path = os.path.expanduser("~/Library/Application Support/iPhone Simulator/%s"%full_version)
+		if os.path.exists(possible_path):
+			print "[INFO] Found %s patch installed" % full_version
+			path = possible_path
+			break
 
 	logfile_dir = os.path.expanduser(path)
 
@@ -106,7 +59,7 @@ def main(args):
 	try:
 	  	for line in t:
 	  		print line
-			sys.stdout.flush()
+	  		sys.stdout.flush()
 	except:
 		sys.stdout.flush()
 		sys.exit(0)

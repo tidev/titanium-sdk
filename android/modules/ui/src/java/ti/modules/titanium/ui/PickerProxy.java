@@ -582,11 +582,11 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	@Kroll.method
 	public void showTimePickerDialog(Object[] args)
 	{
-		KrollDict settings = new KrollDict();
+		HashMap settings = new HashMap();
 		boolean is24HourView = false;
 		final AtomicInteger callbackCount = new AtomicInteger(0); // just a flag to be sure dismiss doesn't fire callback if ondateset did already.
 		if (args.length > 0) {
-			settings = (KrollDict) args[0];
+			settings = (HashMap) args[0];
 		}
 		if (settings.containsKey("format24")) {
 			is24HourView = TiConvert.toBoolean(settings, "format24");

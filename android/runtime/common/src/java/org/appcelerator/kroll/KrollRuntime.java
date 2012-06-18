@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -37,6 +37,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	private static final int MSG_INIT = 100;
 	private static final int MSG_DISPOSE = 101;
 	private static final int MSG_RUN_MODULE = 102;
+	private static final int MSG_EVAL_STRING = 103;
 
 	private static final String PROPERTY_FILENAME = "filename";
 	private static final String PROPERTY_SOURCE = "source";
@@ -64,6 +65,7 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	public static final int DONT_INTERCEPT = Integer.MIN_VALUE + 1;
 	public static final int DEFAULT_THREAD_STACK_SIZE = 16 * 1024;
+	public static final String SOURCE_ANONYMOUS = "<anonymous>";
 
 	public static class KrollRuntimeThread extends Thread
 	{
@@ -120,6 +122,21 @@ public abstract class KrollRuntime implements Handler.Callback
 	public static KrollRuntime getInstance()
 	{
 		return instance;
+	}
+
+	public static void suggestGC()
+	{
+		if (instance != null) {
+			instance.setGCFlag();
+		}
+	}
+
+	public static boolean isInitialized()
+	{
+		if (instance != null) {
+			return instance.initialized.get();
+		}
+		return false;
 	}
 
 	public KrollApplication getKrollApplication()
@@ -179,6 +196,47 @@ public abstract class KrollRuntime implements Handler.Callback
 		}
 	}
 
+	/**
+	 * Equivalent to <pre>evalString(source, SOURCE_ANONYMOUS)</pre>
+	 * @see #evalString(String, String)
+	 * @param source A string containing Javascript source
+	 * @return The Java representation of the return value of {@link source}, as long as Kroll supports the return value
+	 */
+	public Object evalString(String source)
+	{
+		return evalString(source, SOURCE_ANONYMOUS);
+	}
+
+	/**
+	 * Evaluates a String of Javascript code, returning the result of the execution
+	 * when this method is called on the KrollRuntime thread. If this method is called
+	 * ony any other thread, then the code is executed asynchronous, and this method returns null.
+	 * 
+	 * Currently, Kroll supports converting the following Javascript return types:
+	 * <ul>
+	 * <li>Primitives (String, Number, Boolean, etc)</li>
+	 * <li>Javascript object literals as {@link org.appcelerator.kroll.KrollDict}</li>
+	 * <li>Arrays</li>
+	 * <li>Any Proxy type that extends {@link org.appcelerator.kroll.KrollProxy}</li>
+	 * </ul>
+	 * @param source A string containing Javascript source
+	 * @param filename The name of the filename represented by {@link source}
+	 * @return The Java representation of the return value of {@link source}, as long as Kroll supports the return value
+	 */
+	public Object evalString(String source, String filename)
+	{
+		if (isRuntimeThread()) {
+			return doEvalString(source, filename);
+
+		} else {
+			Message message = handler.obtainMessage(MSG_EVAL_STRING);
+			message.getData().putString(PROPERTY_SOURCE, source);
+			message.getData().putString(PROPERTY_FILENAME, filename);
+			message.sendToTarget();
+			return null;
+		}
+	}
+
 	public int getThreadStackSize(Context context)
 	{
 		if (context instanceof KrollApplication) {
@@ -191,21 +249,32 @@ public abstract class KrollRuntime implements Handler.Callback
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
-			case MSG_INIT:
+			case MSG_INIT: {
 				doInit();
 				return true;
+			}
 
-			case MSG_DISPOSE:
+			case MSG_DISPOSE: {
 				internalDispose();
 				return true;
+			}
 
-			case MSG_RUN_MODULE:
+			case MSG_RUN_MODULE: {
 				String source = msg.getData().getString(PROPERTY_SOURCE);
 				String filename = msg.getData().getString(PROPERTY_FILENAME);
 				KrollProxySupport activityProxy = (KrollProxySupport) msg.obj;
 
 				doRunModule(source, filename, activityProxy);
 				return true;
+			}
+
+			case MSG_EVAL_STRING: {
+				String source = msg.getData().getString(PROPERTY_SOURCE);
+				String filename = msg.getData().getString(PROPERTY_FILENAME);
+
+				doEvalString(source, filename);
+				return true;
+			}
 		}
 
 		return false;
@@ -250,6 +319,11 @@ public abstract class KrollRuntime implements Handler.Callback
 		instance.dispose();
 	}
 
+	public static int getActivityRefCount()
+	{
+		return activityRefCount;
+	}
+
 	private void internalDispose()
 	{
 		doDispose();
@@ -272,8 +346,15 @@ public abstract class KrollRuntime implements Handler.Callback
 		evaluator = eval;
 	}
 
+	public void setGCFlag()
+	{
+		// No-op in Rhino, V8 should override.
+	}
+
 	public abstract void doDispose();
 	public abstract void doRunModule(String source, String filename, KrollProxySupport activityProxy);
+	public abstract Object doEvalString(String source, String filename);
+
 	public abstract String getRuntimeName();
 	public abstract void initRuntime();
 	public abstract void initObject(KrollProxySupport proxy);

@@ -209,6 +209,7 @@ def main(args):
 		iphone_script_dir = os.path.join(titanium_local,'iphone')
 		os.mkdir(iphone_script_dir)
 		shutil.copy(os.path.join(sdk_dir,'iphone','compiler.py'),iphone_script_dir)
+		shutil.copy(os.path.join(sdk_dir,'iphone','tools.py'),iphone_script_dir)
 		shutil.copy(os.path.join(sdk_dir,'iphone','run.py'),iphone_script_dir)
 		shutil.copy(os.path.join(sdk_dir,'iphone','csspacker.py'),iphone_script_dir)
 		shutil.copy(os.path.join(sdk_dir,'iphone','jspacker.py'),iphone_script_dir)

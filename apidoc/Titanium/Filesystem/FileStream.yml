@@ -4,7 +4,7 @@ summary: Wrapper around `Titanium.Filesystem.File` that implements the `Titanium
 extends: Titanium.IOStream
 since: "1.7"
 createable: false
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 methods:
   - name: close
     summary: closes file stream, exception is thrown on error

@@ -10,7 +10,6 @@
 #import "TiUITextFieldProxy.h"
 
 #import "TiUtils.h"
-#import "TiRange.h"
 #import "TiViewProxy.h"
 #import "TiApp.h"
 #import "TiUITextWidget.h"
@@ -268,6 +267,7 @@
 		((TiTextField *)textWidgetView).contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
 		[(TiTextField *)textWidgetView configure];
 		[self addSubview:textWidgetView];
+		self.clipsToBounds = YES;
 		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 		NSNotificationCenter * theNC = [NSNotificationCenter defaultCenter];
 		[theNC addObserver:self selector:@selector(textFieldDidChange:) name:UITextFieldTextDidChangeNotification object:textWidgetView];
@@ -523,6 +523,18 @@
 
 	return YES;
 }
+
+-(CGFloat)contentWidthForWidth:(CGFloat)value
+{
+	return [[self textWidgetView] sizeThatFits:CGSizeMake(value, 0)].width;
+}
+
+-(CGFloat)contentHeightForWidth:(CGFloat)value
+{
+	return [[self textWidgetView] sizeThatFits:CGSizeMake(value, 0)].height;
+}
+
+
 	
 @end
 

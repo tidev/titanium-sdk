@@ -1,199 +1,346 @@
 ---
 name: Titanium.XML.Node
 extends: Titanium.Proxy
-summary: >
-    A single node in the [Document|Titanium.XML.Document] tree. For full property and method description,
-    see the [DOM Level 2 API|http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-1950641247].
+summary: A single node in the [Document](Titanium.XML.Document) tree. 
+description: |
+    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1950641247) 
+    on Android and iOS. Exposes the 
+    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-1950641247) 
+    implementation on Mobile Web. For full property and method description, see the W3C specifications.
+
+    Note that on iOS, only [Element](Titanium.XML.Element) nodes are mutable. This means
+    that the methods `appendChild`, `insertBefore`, `removeChild`, and
+    `replaceChild` only work on `Element` objects. If one of these methods is called on
+    another type of node, it throws an exception.
+
 createable: false
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
+
 properties:
+
   - name: ELEMENT_NODE
+    summary: |
+        Used with [nodeType](Titanium.XML.Node.nodeType) to identify an
+        [Element](Titanium.XML.Element) node.  
     type: Number
-    summary: The value of <nodeType> when this node is a <Titanium.XML.Element>
     permission: read-only
     value: 1
+
   - name: ATTRIBUTE_NODE
+    summary: |
+        Used with [nodeType](Titanium.XML.Node.nodeType) to identify an
+        [Attr](Titanium.XML.Attr) node.  
     type: Number
-    summary: The value of <nodeType> when this node is a <Titanium.XML.Attr>
     permission: read-only
     value: 2
+
   - name: TEXT_NODE
+    summary: |
+        Used with [nodeType](Titanium.XML.Node.nodeType) to identify a
+        [Text](Titanium.XML.Text) node.  
     type: Number
-    summary: The value of <nodeType> when this node is a <Titanium.XML.Text>
     permission: read-only
     value: 3
+
   - name: CDATA_SECTION_NODE
+    summary: |
+        Used with [nodeType](Titanium.XML.Node.nodeType) to identify a
+        [CDATASection](Titanium.XML.CDATASection) node.  
     type: Number
-    summary: The value of <nodeType> when this node is a CData section (a type of <Titanium.XML.Text>)
     permission: read-only
     value: 4
+
   - name: ENTITY_REFERENCE_NODE
+    summary: |
+        Used with [nodeType](Titanium.XML.Node.nodeType) to identify an
+        [EntityReference](Titanium.XML.EntityReference) node.  
     type: Number
-    summary: The value of <nodeType> when this node is an [Entity reference](http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html#ID-11C98490) (a type of <Titanium.XML.Node>)
     permission: read-only
     value: 5
+
   - name: ENTITY_NODE
+    summary: |
+        Used with [nodeType](Titanium.XML.Node.nodeType) to identify an
+        [Entity](Titanium.XML.Entity) node.  
     type: Number
-    summary: The value of <nodeType> when this node is a <Titanium.XML.Entity>
     permission: read-only
     value: 6
+
   - name: PROCESSING_INSTRUCTION_NODE
+    summary: |
+        Used with [nodeType](Titanium.XML.Node.nodeType) to identify a
+        [ProcessingInstruction](Titanium.XML.ProcessingInstruction) node.  
     type: Number
-    summary: The value of <nodeType> when this node is a <Titanium.XML.ProcessingInstruction>
     permission: read-only
     value: 7
+
   - name: COMMENT_NODE
+    summary: |
+        Used with [nodeType](Titanium.XML.Node.nodeType) to identify a
+        [Comment](Titanium.XML.Comment) node.  
     type: Number
-    summary: The value of <nodeType> when this node is a <Titanium.XML.Comment>
     permission: read-only
     value: 8
+
   - name: DOCUMENT_NODE
+    summary: |
+        Used with [nodeType](Titanium.XML.Node.nodeType) to identify a
+        [Document](Titanium.XML.Document) node.  
     type: Number
-    summary: The value of <nodeType> when this node is a <Titanium.XML.Document>
     permission: read-only
     value: 9
+
   - name: DOCUMENT_TYPE_NODE
+    summary: |
+        Used with [nodeType](Titanium.XML.Node.nodeType) to identify a
+        [DocumentType](Titanium.XML.DocumentType) node.  
     type: Number
-    summary: The value of <nodeType> when this node is a <Titanium.XML.DocumentType>
     permission: read-only
     value: 10
+
   - name: DOCUMENT_FRAGMENT_NODE
+    summary: |
+        Used with [nodeType](Titanium.XML.Node.nodeType) to identify a
+        [DocumentFragment](Titanium.XML.DocumentFragment) node.  
     type: Number
-    summary: The value of <nodeType> when this node is a <Titanium.XML.DocumentFragment>
     permission: read-only
     value: 11
+
   - name: NOTATION_NODE
+    summary: |
+        Used with [nodeType](Titanium.XML.Node.nodeType) to identify a
+        [Notation](Titanium.XML.Notation) node.  
     type: Number
-    summary: The value of <nodeType> when this node is a <Titanium.XML.Notation>
     permission: read-only
     value: 12
+
   - name: nodeName
+    summary: Name of this node.
+    description: |
+        Certain node types have constant values defined by the DOM specification:
+
+        * Text node: `#text`
+        * Comment node: `#comment`
+        * CDATA section node: `#cdata-section`
+        * Document node: `#document`
+        * Document fragment node: `#document-fragment`
+
     type: String
-    summary: The name of this node
     permission: read-only
+
   - name: nodeValue
+    summary: Content (value) of this node.
+    description: |
+        As defined in the DOM specification, the node value is always `null` for 
+        Document, DocumentFragment, DocumentType, Element, Entity, EntityReference, and
+        Notation nodes.
     type: String
-    summary: The content (value) of this node
+
+  - name: textContent
+    summary: Content (value) of all text nodes within this node.
+    description: |
+        On Android, `textContent` is supported on [Element](Titanium.XML.Element) and
+        [Text](Titanium.XML.Text) nodes only.
+    type: String
     permission: read-only
+    platforms: [iphone, ipad, mobileweb]
+
+  - name: text
+    summary: |
+        Use [textContent](Titanium.XML.Node.textContent) instead.
+    description: |
+        Content (value) of all text nodes within this node.
+    type: String
+    permission: read-only
+    deprecated:
+        since: "2.0.0"
+    platforms: [iphone, ipad]
+
   - name: nodeType
     type: Number
-    summary: >
-        This node's type. One of <ELEMENT_NODE>, <ATTRIBUTE_NODE>, <TEXT_NODE>, <CDATA_SECTION_NODE>,
-        <ENTITY_REFERENCE_NODE>, <ENTITY_NODE>, <PROCESSING_INSTRUCTION_NODE>, <COMMENT_NODE>,
-        <DOCUMENT_NODE>, <DOCUMENT_TYPE_NODE>, <DOCUMENT_FRAGMENT_NODE>, <NOTATION_NODE>
+    summary: |
+        This node's type. One of `ELEMENT_NODE`, `ATTRIBUTE_NODE`, `TEXT_NODE`, `CDATA_SECTION_NODE`,
+        `ENTITY_REFERENCE_NODE`, `ENTITY_NODE`, `PROCESSING_INSTRUCTION_NODE`, `COMMENT_NODE`,
+        `DOCUMENT_NODE`, `DOCUMENT_TYPE_NODE`, `DOCUMENT_FRAGMENT_NODE`, `NOTATION_NODE`.
     permission: read-only
+
   - name: parentNode
+    summary: This node's parent node.
     type:  Titanium.XML.Node
-    summary: This node's parent node
     permission: read-only
+
   - name: childNodes
+    summary: A <Titanium.XML.NodeList> of this node's children.
     type: Titanium.XML.NodeList
-    summary: A <Titanium.XML.NodeList> of this node's children
     permission: read-only
+
   - name: firstChild
+    summary: This node's first child.
     type: Titanium.XML.Node
-    summary: This node's first child
     permission: read-only
+
   - name: lastChild
+    summary: This node's last child.
     type: Titanium.XML.Node
-    summary: This node's last child
     permission: read-only
+
   - name: previousSibling
+    summary: This node's previous sibling.
     type: Titanium.XML.Node
-    summary: This node's previous sibling
     permission: read-only
+
   - name: nextSibling
+    summary: This node's next sibling.
     type: Titanium.XML.Node
-    summary: This node's next sibling
     permission: read-only
+
   - name: attributes
+    summary: A map of this node's attributes.
+    description: |
+        As defined by the DOM specification, only [Element](Titanium.XML.Element) nodes have attributes. 
+        For all other node types, this property is always `null`.
     type: Titanium.XML.NamedNodeMap
-    summary: A map of this node's attributes
     permission: read-only
+
   - name: ownerDocument
+    summary: This node's owning document.
+    description: |
+        Note that a node always has an owning document, even if it is not part of the
+        document tree. 
+
+        For more on node ownership, see [ownerDocument issues](http://www.w3.org/DOM/faq.html#ownerdoc) 
+        in the W3C DOM FAQ.
     type: Titanium.XML.Document
-    summary: This node's owning Document
     permission: read-only
+
   - name: namespaceURI
+    summary: Namespace URI of this node.
     type: String
-    summary: The namespace URI of this node
     permission: read-only
+
   - name: prefix
+    summary: Namespace prefix of this node.
+    description: |
+        Read-only on iOS, read-write on other platforms.
     type: String
-    summary: The namespace prefix of this node
-    permission: read-only
+
   - name: localName
+    summary: Local part of the qualified name of this node.
+    description: |
+        The local part of the qualified name that comes after the colon. That is,
+        the name without the namespace prefix.
     type: String
-    summary: The local part of the qualified name of this node
+
 methods:
+
   - name: appendChild
-    summary: Appends the node `newChild` as a child of this node
-    parameters:
-      - name: newChild
-        type: Titanium.XML.Node
-        summary: The new node to append
+    summary: Appends the node `newChild` as a child of this node.
+    description: |
+        On iOS, `appendChild` is supported on [Element](Titanium.XML.Element)
+        nodes **only**.
     returns:
         type: Titanium.XML.Node
-        summary: The appended node
-  - name: cloneNode
-    summary: Returns a duplicate of this node
+        summary: Newly-appended node.
+
     parameters:
+
+      - name: newChild
+        type: Titanium.XML.Node
+        summary: New node to append.
+
+  - name: cloneNode
+    summary: Returns a duplicate of this node.
+    returns:
+        type: Titanium.XML.Node
+        summary: Cloned node.
+
+    parameters:
+
       - name: deep
         type: Boolean
-        summary: Whether or not to perform a deep copy of this node
+        summary: Whether or not to perform a deep copy of this node.
+
+  - name: hasAttributes
+    summary: Returns `true` if this node has attributes.
+    returns:
+        type: Boolean
+        summary: True if this node has attributes, false if it does not.
+
+  - name: hasChildNodes
+    summary: Returns `true` if this node has child nodes.
+    returns:
+        type: Boolean
+        summary: True if this node has children, false if it does not.
+
+  - name: insertBefore
+    summary: Inserts the node `newChild` before the node `refChild`.
+    description: |
+        On iOS, `insertBefore` is supported on [Element](Titanium.XML.Element)
+        nodes **only**.
     returns:
         type: Titanium.XML.Node
-        summary: The appended node
-  - name: hasAttributes
-    summary: Whether or not this node has attributes
-    returns:
-        type: Boolean
-  - name: hasChildNodes
-    summary: Whether or not this node has child nodes
-    returns:
-        type: Boolean
-  - name: insertBefore
+        summary: The inserted node.
+
     parameters:
       - name: newChild
         type: Titanium.XML.Node
-        summary: The node to insert
+        summary: Node to insert.
+
       - name : refChild
         type: Titanium.XML.Node
-        summary: The node to insert `newChild` before
-    returns:
-        type: Titanium.XML.Node
-        summary: The inserted node
+        summary: Node to insert `newChild` before.
+
   - name: isSupported
-    summary: Tests whether the DOM implementation supports a specific feature
-    parameters:
-      - name: feature
-        type: String
-        summary: The name of the feature
-      - name: version
-        type: String
-        summary: The version number of the feature
+    summary: Tests whether the DOM implementation supports a specific feature.
     returns:
         type: Boolean
-        summary: Whether or not the feature is supported
-  - name: normalize
-    summary: Normalizes text and attribute nodes in this node's child hierarchy
-  - name: removeChild
-    summary: Removes a child node from this node
+        summary: True if the feature is supported, false if it is not.
+
     parameters:
-      - name: oldChild
-        type: Titanium.XML.Node
-        summary: The node to remove
+
+      - name: feature
+        type: String
+        summary: Name of the feature.
+
+      - name: version
+        type: String
+        summary: Version number of the feature.
+
+  - name: normalize
+    summary: Normalizes text and attribute nodes in this node's child hierarchy.
+    platforms: [android, mobileweb]
+
+  - name: removeChild
+    summary: Removes a child node from this node.
+    description: |
+        On iOS, `removeChild` is supported on [Element](Titanium.XML.Element)
+        nodes **only**.
     returns:
         type: Titanium.XML.Node
-        summary: The node that was removed
-  - name: replaceChild
-    summary: Replaces the node `oldChild` with the node `newChild`
+        summary: Node that was removed.
+
     parameters:
-      - name: newChild
-        type: Titanium.XML.Node
-        summary: The new node
+
       - name: oldChild
         type: Titanium.XML.Node
-        summary: The node being replaced
+        summary: Node to remove.
+
+  - name: replaceChild
+    summary: Replaces the node `oldChild` with the node `newChild`.
+    description: |
+        On iOS, `replaceChild` is supported on [Element](Titanium.XML.Element)
+        nodes **only**.
+    returns:
+        type: Titanium.XML.Node
+        summary: Node that was replaced.
+    parameters:
+
+      - name: newChild
+        type: Titanium.XML.Node
+        summary: New node.
+
+      - name: oldChild
+        type: Titanium.XML.Node
+        summary: Node being replaced.
 
 

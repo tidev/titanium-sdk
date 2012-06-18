@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,6 +9,9 @@ package ti.modules.titanium.geolocation;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.http.client.HttpClient;
@@ -20,208 +23,185 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.analytics.TiAnalyticsEvent;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
-import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiLocationHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.os.AsyncTask;
-import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 
 
-public class TiLocation
-	implements LocationListener
+public class TiLocation implements Handler.Callback
 {
-	private static final String LCAT = "TiLocation";
+	public static final int ERR_POSITION_UNAVAILABLE = 6;
+	public static final int MSG_FIRST_ID = 100;
+	public static final int MSG_LOOKUP = MSG_FIRST_ID + 1;
+	public static final int MSG_LAST_ID = MSG_FIRST_ID + 2;
+
+	public LocationManager locationManager;
+
+	private static final String TAG = "TiLocation";
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final String BASE_GEO_URL = "http://api.appcelerator.net/p/v1/geo?";
-	private static final String DIRECTION_R = "r";
-	private static final String DIRECTION_F = "f";
 
-	private long lastEventTimestamp = 0;
-	private GeolocationModule geolocationModule;
-	private Integer accuracy = null;
-	private Integer frequency = null;
-	private String preferredProvider;
+	private String mobileId;
+	private String appGuid;
+	private String sessionId;
+	private String countryCode;
+	private long lastAnalyticsTimestamp = 0;
+	private List<String> knownProviders;
+	private Handler runtimeHandler;
 
-	public TiLocation(GeolocationModule geolocationModule)
+
+	public interface GeocodeResponseHandler
 	{
-		this.geolocationModule = geolocationModule;
+		public abstract void handleGeocodeResponse(HashMap<String, Object> geocodeResponse);
 	}
 
-	private void refreshProperties()
+
+	public TiLocation()
 	{
-		Object frequencyProp = geolocationModule.getProperty(TiC.PROPERTY_FREQUENCY);
-		Object accuracyProp = geolocationModule.getProperty(TiC.PROPERTY_ACCURACY);
-
-		preferredProvider = TiConvert.toString(geolocationModule.getProperty(TiC.PROPERTY_PREFERRED_PROVIDER));
-		Log.d(LCAT, "preferredProvider property found [" + preferredProvider + "]");
-
-		if (frequencyProp != null)
-		{
-			frequency = new Integer(TiConvert.toInt(frequencyProp));
-			Log.d(LCAT, "frequency property found [" + frequency.intValue() + "]");
-		}
-		if (accuracyProp != null)
-		{
-			accuracy = new Integer(TiConvert.toInt(accuracyProp));
-			Log.d(LCAT, "accuracy property found [" + accuracy.intValue() + "]");
-		}
+		locationManager = (LocationManager) TiApplication.getInstance().getSystemService(Context.LOCATION_SERVICE);
+		knownProviders = locationManager.getAllProviders();
+		mobileId = TiPlatformHelper.getMobileId();
+		appGuid = TiApplication.getInstance().getAppInfo().getGUID();
+		sessionId = TiPlatformHelper.getSessionId();
+		countryCode = Locale.getDefault().getCountry();
+		runtimeHandler = new Handler(TiMessenger.getRuntimeMessenger().getLooper(), this);
 	}
 
-	public void registerListener()
+	public boolean handleMessage(Message msg)
 	{
-		refreshProperties();
-		TiLocationHelper.registerListener(preferredProvider, accuracy, frequency, this);
-	}
+		if (msg.what == MSG_LOOKUP) {
+			String urlValue = msg.getData().getString(TiC.PROPERTY_URL);
+			String directionValue = msg.getData().getString(TiC.PROPERTY_DIRECTION);
 
-	public void unregisterListener()
-	{
-		TiLocationHelper.unregisterListener(this);
-	}
+			AsyncTask<Object, Void, Integer> task = getLookUpTask();
+			task.execute(urlValue, directionValue, msg.obj);
 
-	private void updateProvider(String provider)
-	{
-		refreshProperties();
-		TiLocationHelper.updateProvider(preferredProvider, accuracy, provider, frequency, this);
-	}
-
-	public void onLocationChanged(Location location)
-	{
-		LocationProvider provider = TiLocationHelper.getLocationManager().getProvider(location.getProvider());
-		geolocationModule.fireEvent(TiC.EVENT_LOCATION, locationToKrollDict(location, provider));
-		doAnalytics(location);
-		updateProvider(provider.getName());
-	}
-
-	public void onProviderDisabled(String provider)
-	{
-		Log.i(LCAT, "Provider disabled:" + provider);
-		geolocationModule.fireEvent(TiC.EVENT_LOCATION, TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, provider + " disabled."));
-		updateProvider(provider);
-	}
-
-	public void onProviderEnabled(String provider)
-	{
-		Log.d(LCAT, "Provider enabled:" + provider);
-	}
-
-	public void onStatusChanged(String provider, int status, Bundle extras)
-	{
-		Log.d(LCAT, "Status changed, provider:" + provider + " status:" + status);
-		switch (status) {
-			case LocationProvider.OUT_OF_SERVICE :
-				geolocationModule.fireEvent(TiC.EVENT_LOCATION, TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, provider + " is out of service."));
-				updateProvider(provider);
-				break;
-			case LocationProvider.TEMPORARILY_UNAVAILABLE:
-				geolocationModule.fireEvent(TiC.EVENT_LOCATION, TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, provider + " is currently unavailable."));
-				updateProvider(provider);
-				break;
-			case LocationProvider.AVAILABLE :
-				if (DBG) {
-					Log.i(LCAT, "[" + provider + "] is available");
-				}
-				break;
-			default:
-				Log.w(LCAT, "Unknown status update from [" + provider + "], passed code [" + status + "]");
-				break;
-		}
-	}
-
-	private KrollDict locationToKrollDict(Location location, LocationProvider locationProvider)
-	{
-		KrollDict coordinates = new KrollDict();
-		coordinates.put(TiC.PROPERTY_LATITUDE, location.getLatitude());
-		coordinates.put(TiC.PROPERTY_LONGITUDE, location.getLongitude());
-		coordinates.put(TiC.PROPERTY_ALTITUDE, location.getAltitude());
-		coordinates.put(TiC.PROPERTY_ACCURACY, location.getAccuracy());
-		coordinates.put(TiC.PROPERTY_ALTITUDE_ACCURACY, null); // Not provided
-		coordinates.put(TiC.PROPERTY_HEADING, location.getBearing());
-		coordinates.put(TiC.PROPERTY_SPEED, location.getSpeed());
-		coordinates.put(TiC.PROPERTY_TIMESTAMP, location.getTime());
-
-		KrollDict position = new KrollDict();
-		position.put(TiC.PROPERTY_SUCCESS, true);
-		position.put(TiC.PROPERTY_COORDS, coordinates);
-
-		if (locationProvider != null) {
-			KrollDict provider = new KrollDict();
-
-			provider.put(TiC.PROPERTY_NAME, locationProvider.getName());
-			provider.put(TiC.PROPERTY_ACCURACY, locationProvider.getAccuracy());
-			provider.put(TiC.PROPERTY_POWER, locationProvider.getPowerRequirement());
-
-			position.put(TiC.PROPERTY_PROVIDER, provider);
+			return true;
 		}
 
-		return position;
+		return false;
 	}
 
-	private void doAnalytics(Location location)
+	public boolean isProvider(String name)
 	{
-		if (location.getTime() - lastEventTimestamp > GeolocationModule.MAX_GEO_ANALYTICS_FREQUENCY) {
-			TiAnalyticsEvent event = TiAnalyticsEventFactory.createAppGeoEvent(location);
-			if (event != null) {
-				TiApplication.getInstance().postAnalyticsEvent(event);
-				lastEventTimestamp = location.getTime();
-			}
-		}
+		return knownProviders.contains(name);
 	}
 
 	public boolean getLocationServicesEnabled()
 	{
-		return TiLocationHelper.isLocationEnabled();
+		List<String> providerNames = locationManager.getProviders(true);
+
+		if (DBG) {
+			Log.i(TAG, "Enabled location provider count: " + providerNames.size());
+
+			for (String providerName : providerNames) {
+				Log.i(TAG, providerName + " service available");
+			}
+		}
+
+		// don't count the passive provider
+		for(String name : providerNames) {
+			if (name.equals(LocationManager.NETWORK_PROVIDER) || name.equals(LocationManager.GPS_PROVIDER)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
-	public void getCurrentPosition(final KrollFunction listener)
+	public Location getLastKnownLocation()
 	{
-		if (listener != null) {
-			String provider = TiLocationHelper.fetchProvider(preferredProvider, accuracy);
-			
-			if (provider != null) {
-				LocationManager locationManager = TiLocationHelper.getLocationManager();
-				Location location = locationManager.getLastKnownLocation(provider);
+		Location latestKnownLocation = null;
 
-				if (location != null) {
-					listener.call(geolocationModule.getKrollObject(), new Object[] {
-						locationToKrollDict(location, locationManager.getProvider(provider))
-					});
-					doAnalytics(location);
+		for (String provider : knownProviders) {
+			Location lastKnownLocation = null;
+			try {
+				lastKnownLocation = locationManager.getLastKnownLocation(provider);
 
-				} else {
-					Log.i(LCAT, "unable to get current position, location is null");
-					listener.call(geolocationModule.getKrollObject(), new Object[] {
-						TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, "location is currently unavailable.")
-					});
-				}
+			} catch (IllegalArgumentException e) {
+				Log.e(TAG, "unable to get last know location for [" + provider + "], provider is null");
 
-			} else {
-				Log.i(LCAT, "unable to get current position, no providers are available");
-				listener.call(geolocationModule.getKrollObject(), new Object[] {
-					TiConvert.toErrorObject(TiLocationHelper.ERR_POSITION_UNAVAILABLE, "no providers are available.")
-				});
+			} catch (SecurityException e) {
+				Log.e(TAG, "unable to get last know location for [" + provider + "], permission denied");
+			}
+
+			if (lastKnownLocation == null) {
+				continue;
+			}
+
+			if ((latestKnownLocation == null) || (lastKnownLocation.getTime() > latestKnownLocation.getTime())) {
+				latestKnownLocation = lastKnownLocation;
+			}
+		}
+
+		return latestKnownLocation;
+	}
+
+	public void doAnalytics(Location location)
+	{
+		long locationTime = location.getTime();
+		if (locationTime - lastAnalyticsTimestamp > TiAnalyticsEventFactory.MAX_GEO_ANALYTICS_FREQUENCY) {
+			TiAnalyticsEvent event = TiAnalyticsEventFactory.createAppGeoEvent(location);
+			if (event != null) {
+				TiApplication.getInstance().postAnalyticsEvent(event);
+				lastAnalyticsTimestamp = locationTime;
 			}
 		}
 	}
 
-	private String buildGeoURL(String direction, String mid, String aguid, String sid, String query, String countryCode)
+	public void forwardGeocode(String address, GeocodeResponseHandler responseHandler)
+	{
+		if (address != null) {
+			String geocoderUrl = buildGeocoderURL(TiC.PROPERTY_FORWARD, mobileId, appGuid, sessionId, address, countryCode);
+			if (geocoderUrl != null) {
+				Message message = runtimeHandler.obtainMessage(MSG_LOOKUP);
+				message.getData().putString(TiC.PROPERTY_DIRECTION, TiC.PROPERTY_FORWARD);
+				message.getData().putString(TiC.PROPERTY_URL, geocoderUrl);
+
+				message.obj = responseHandler;
+				message.sendToTarget();
+			}
+
+		} else {
+			Log.e(TAG, "unable to forward geocode, address is null");
+		}
+	}
+
+	public void reverseGeocode(double latitude, double longitude, GeocodeResponseHandler responseHandler)
+	{
+		String geocoderUrl = buildGeocoderURL(TiC.PROPERTY_REVERSE, mobileId, appGuid, sessionId, latitude + "," + longitude, countryCode);
+		if (geocoderUrl != null) {
+			Message message = runtimeHandler.obtainMessage(MSG_LOOKUP);
+			message.getData().putString(TiC.PROPERTY_DIRECTION, TiC.PROPERTY_REVERSE);
+			message.getData().putString(TiC.PROPERTY_URL, geocoderUrl);
+
+			message.obj = responseHandler;
+			message.sendToTarget();
+
+		} else {
+			Log.e(TAG, "unable to reverse geocode, geocoder url is null");
+		}
+	}
+
+	private String buildGeocoderURL(String direction, String mid, String aguid, String sid, String query, String countryCode)
 	{
 		String url = null;
+
 		try {
 			StringBuilder sb = new StringBuilder();
 			sb.append(BASE_GEO_URL)
@@ -236,14 +216,15 @@ public class TiLocation
 				.append(URLEncoder.encode(query, "utf-8"));
 
 			url = sb.toString();
+
 		} catch (UnsupportedEncodingException e) {
-			Log.w(LCAT, "unable to encode query to utf-8 [" + e.getMessage() + "]");
+			Log.e(TAG, "unable to encode query to utf-8: " + e.getMessage());
 		}
 
 		return url;
 	}
 
-	public AsyncTask<Object, Void, Integer> getLookUpTask()
+	private AsyncTask<Object, Void, Integer> getLookUpTask()
 	{
 		AsyncTask<Object, Void, Integer> task = new AsyncTask<Object, Void, Integer>() {
 			@Override
@@ -251,10 +232,10 @@ public class TiLocation
 				try {
 					String url = (String) args[0];
 					String direction = (String) args[1];
-					KrollFunction callback = (KrollFunction) args[2];
+					GeocodeResponseHandler geocodeResponseHandler = (GeocodeResponseHandler) args[2];
 
 					if (DBG) {
-						Log.d(LCAT, "GEO URL [" + url + "]");
+						Log.d(TAG, "GEO URL [" + url + "]");
 					}
 					HttpGet httpGet = new HttpGet(url);
 
@@ -267,19 +248,19 @@ public class TiLocation
 					String response = client.execute(httpGet, responseHandler);
 
 					if (DBG) {
-						Log.i(LCAT, "received Geo [" + response + "]");
+						Log.i(TAG, "received Geo [" + response + "]");
 					}
 
-					KrollDict event = null;
+					HashMap<String, Object> event = null;
 					if (response != null) {
 						try {
 							JSONObject jsonObject = new JSONObject(response);
 							if (jsonObject.getBoolean(TiC.PROPERTY_SUCCESS)) {
-								if (direction.equals(DIRECTION_R)) {
-									event = buildReverseResponse(jsonObject);
+								if (direction.equals("forward")) {
+									event = buildForwardGeocodeResponse(jsonObject);
 
 								} else {
-									event = buildForwardResponse(jsonObject);
+									event = buildReverseGeocodeResponse(jsonObject);
 								}
 
 							} else {
@@ -292,70 +273,59 @@ public class TiLocation
 							}
 
 						} catch (JSONException e) {
-							Log.e(LCAT, "error converting geo response to JSONObject [" + e.getMessage() + "]", e);
+							Log.e(TAG, "error converting geo response to JSONObject [" + e.getMessage() + "]", e);
 						}
 					}
 
 					if (event != null) {
-						event.put(TiC.EVENT_PROPERTY_SOURCE, geolocationModule);
-						callback.call(geolocationModule.getKrollObject(), new Object[] { event });
+						geocodeResponseHandler.handleGeocodeResponse(event);
 					}
 
 				} catch (Throwable t) {
-					Log.e(LCAT, "error retrieving geocode information [" + t.getMessage() + "]", t);
+					Log.e(TAG, "error retrieving geocode information [" + t.getMessage() + "]", t);
 				}
 
 				return -1;
 			}
-
 		};
 
 		return task;
 	}
 
-	public void forwardGeocoder(String address, KrollFunction listener)
+	private HashMap<String, Object> buildForwardGeocodeResponse(JSONObject jsonResponse)
+		throws JSONException
 	{
-		if (address != null) {
-			String mid = TiPlatformHelper.getMobileId();
-			String aguid = TiApplication.getInstance().getAppInfo().getGUID();
-			String sid = TiPlatformHelper.getSessionId();
-			String countryCode = Locale.getDefault().getCountry();
-			String url = buildGeoURL(DIRECTION_F, mid, aguid, sid, address, countryCode);
+		HashMap<String, Object> address = new HashMap<String, Object>();
 
-			if (url != null) {
-				Message message = geolocationModule.getMainHandler().obtainMessage(GeolocationModule.MSG_LOOKUP);
-				//Message msg = geolocationModule.getUIHandler().obtainMessage(GeolocationModule.MSG_LOOKUP);
-				message.getData().putString(TiC.PROPERTY_DIRECTION, DIRECTION_F);
-				message.getData().putString(TiC.PROPERTY_URL, url);
-				message.obj = listener;
-				message.sendToTarget();
-			}
-		} else {
-			Log.w(LCAT, "address should not be null");
+		JSONArray places = jsonResponse.getJSONArray(TiC.PROPERTY_PLACES);
+		if (places.length() > 0) {
+			address = buildAddress(places.getJSONObject(0));
 		}
+
+		return address;
 	}
 
-	public void reverseGeocoder(double latitude, double longitude, KrollFunction callback)
+	private HashMap<String, Object> buildReverseGeocodeResponse(JSONObject jsonResponse)
+		throws JSONException
 	{
-		String mid = TiPlatformHelper.getMobileId();
-		String aguid = TiApplication.getInstance().getAppInfo().getGUID();
-		String sid = TiPlatformHelper.getSessionId();
-		String countryCode = Locale.getDefault().getCountry();
-		String url = buildGeoURL(DIRECTION_R, mid, aguid, sid, latitude + "," + longitude, countryCode);
+		JSONArray places = jsonResponse.getJSONArray(TiC.PROPERTY_PLACES);
+		ArrayList<HashMap<String, Object>> addresses = new ArrayList<HashMap<String, Object>>();
 
-		if (url != null) {
-			Message message = geolocationModule.getMainHandler().obtainMessage(GeolocationModule.MSG_LOOKUP);
-			//Message msg = geolocationModule.getUIHandler().obtainMessage(GeolocationModule.MSG_LOOKUP);
-			message.getData().putString(TiC.PROPERTY_DIRECTION, DIRECTION_R);
-			message.getData().putString(TiC.PROPERTY_URL, url);
-			message.obj = callback;
-			message.sendToTarget();
+		int count = places.length();
+		for (int i = 0; i < count; i++) {
+			addresses.add(buildAddress(places.getJSONObject(i)));
 		}
+
+		HashMap<String, Object> response = new HashMap<String, Object>();
+		response.put(TiC.PROPERTY_SUCCESS, true);
+		response.put(TiC.PROPERTY_PLACES, addresses.toArray());
+
+		return response;
 	}
 
-	private KrollDict placeToAddress(JSONObject place)
+	private HashMap<String, Object> buildAddress(JSONObject place)
 	{
-		KrollDict address = new KrollDict();
+		HashMap<String, Object> address = new HashMap<String, Object>();
 		address.put(TiC.PROPERTY_STREET1, place.optString(TiC.PROPERTY_STREET, ""));
 		address.put(TiC.PROPERTY_STREET, place.optString(TiC.PROPERTY_STREET, ""));
 		address.put(TiC.PROPERTY_CITY, place.optString(TiC.PROPERTY_CITY, ""));
@@ -372,34 +342,6 @@ public class TiLocation
 
 		return address;
 	}
-
-	public KrollDict buildReverseResponse(JSONObject jsonObject)
-		throws JSONException
-	{
-		KrollDict response = new KrollDict();
-		response.put(TiC.PROPERTY_SUCCESS, true);
-
-		JSONArray places = jsonObject.getJSONArray(TiC.PROPERTY_PLACES);
-		int count = places.length();
-		KrollDict[] newPlaces = new KrollDict[count];
-		for (int i = 0; i < count; i++) {
-			newPlaces[i] = placeToAddress(places.getJSONObject(i));
-		}
-		response.put(TiC.PROPERTY_PLACES, newPlaces);
-
-		return response;
-	}
-
-	public KrollDict buildForwardResponse(JSONObject jsonObject)
-		throws JSONException
-	{
-		KrollDict response = new KrollDict();
-		JSONArray places = jsonObject.getJSONArray(TiC.PROPERTY_PLACES);
-		if (places.length() > 0) {
-			response = placeToAddress(places.getJSONObject(0));
-		}
-
-		return response;
-	}
 }
+
 

@@ -1,0 +1,134 @@
+name: Titanium.Cloud.PushNotifications
+summary: Provides methods for accessing ACS push notification channels.
+description: |
+    Please refer to [configure push notifications for iOS](http://cloud.appcelerator.com/docs/ios#pushn)
+    and [configure push notifications for Android](http://cloud.appcelerator.com/docs/android#pushn) 
+    to set up your app for push notifications. To receive push notifications on Android, please 
+    refer to the <Titanium.CloudPush> module.
+    
+    The methods in this module are used to subscribe and unsubscribe from ACS push notification 
+    channels, and to generate ACS push notifications. Push notifications are received using 
+    platform-specific mechanisms:
+    
+    *   On iOS, push notifications are received through the standard iOS push notification
+        mechanism. When you register for push notifications, incoming push notifications
+        are passed to the `callback` callback. See
+        [Network.registerForPushNotifications](Titanium.Network.registerForPushNotifications)
+        for details.
+    *   On Android, push notifications are received through the <Titanium.CloudPush> module.
+        Add a listener for the [callback](Titanium.CloudPush.callback) event to receive push notifications.
+    
+    To register for push notifications, you need to obtain an application-specific _device
+    token_. To obtain a device token:
+    
+    *   On iOS, when you successfully register for push notifications, the device token is 
+        passed to the `success` callback.
+    *   On Android, use
+        [CloudPush.retrieveDeviceToken](Titanium.CloudPush.retrieveDeviceToken) to request
+        a device token. The device token is passed to the `success` callback.
+extends: Titanium.Module
+excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
+platforms: [android, iphone, ipad]
+
+methods:
+  - name: notify
+    summary: Send a push notification to a channel.
+    description: |
+        Requires user login. 
+        
+        See [Push Notifications: Notify](http://cloud.appcelerator.com/docs/api/v1/push_notifications/notify)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsResponse>
+  
+  - name: subscribe
+    summary: Subscribe a mobile device to a push notification channel.
+    description: |
+        Requires user login. 
+        
+        See [Push Notifications: Subscribe](http://cloud.appcelerator.com/docs/api/v1/push_notifications/subscribe)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsResponse>
+  
+  - name: unsubscribe
+    summary: Unsubscribe a mobile device from a push notification channel.
+    description: |
+        Requires user login. 
+        
+        See [Push Notifications: Unsubscribe](http://cloud.appcelerator.com/docs/api/v1/push_notifications/unsubscribe)
+        for the request parameters supported by this method.
+    parameters:
+      - name: parameters
+        summary: Parameters to send in the request.
+        type: Dictionary
+        
+      - name: callback
+        summary: Callback function to execute when the method completes.
+        type: Callback<CloudPushNotificationsResponse>
+
+examples:
+  - title: Subscribe to Channel
+    example: |
+        This example subscribes to a push notification channel and checks the response.
+        
+            Cloud.PushNotifications.subscribe({
+                channel: 'friend_request',
+                device_token: myPushDeviceToken
+            }, function (e) {
+                if (e.success) {
+                    alert('Success');
+                } else {
+                    alert('Error:\\n' +
+                        ((e.error && e.message) || JSON.stringify(e)));
+                }
+            });
+  
+  - title: Unsubscribe to Channel
+    example: |
+        This example unsubscribes from a push notification channel and checks the response.
+        
+            Cloud.PushNotifications.unsubscribe({
+                channel: 'friend_request',
+                device_token: myPushDeviceToken
+            }, function (e) {
+                if (e.success) {
+                    alert('Success');
+                } else {
+                    alert('Error:\\n' +
+                        ((e.error && e.message) || JSON.stringify(e)));
+                }
+            });
+  
+  - title: Notify Channel
+    example: |
+        This example sends a push notification to a channel and checks the response.
+        
+            Cloud.PushNotifications.notify({
+                channel: 'friend_request',
+                payload: 'Welcome to push notifications'
+            }, function (e) {
+                if (e.success) {
+                    alert('Success');
+                } else {
+                    alert('Error:\\n' +
+                        ((e.error && e.message) || JSON.stringify(e)));
+                }
+            });
+
+---
+name: CloudPushNotificationsResponse
+summary: Argument passed to the callback when a request finishes successfully or erroneously.
+extends: CloudResponse

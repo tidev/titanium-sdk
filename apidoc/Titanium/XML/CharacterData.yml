@@ -2,13 +2,15 @@
 name: Titanium.XML.CharacterData
 extends: Titanium.XML.Node
 summary: An interface extending <Titanium.XML.Node> with a set of
-    attributes and methods for accessing character data in the DOM. This
-    conforms to the [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
-    defintion of a DOM CharacterData. Unlike the DOM, for reasons of compatibility 
-    with the javascript engine, text is represented by UTF-8 instead of UTF-16.
+    attributes and methods for accessing character data in the DOM. 
+    
+    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-FF21A306) on
+    Android and iOS. For reasons of compatibility with the javascript engine, text is represented by 
+    UTF-8 instead of UTF-16 on Android and iOS. Exposes the 
+    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-FF21A306) implementation on Mobile Web.
 since: "0.9"
 createable: false
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 methods:
   - name: appendData
     summary: Append the string to the end of the character data of the node. 

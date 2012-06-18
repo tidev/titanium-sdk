@@ -32,20 +32,24 @@ var isArray = Array.isArray;
 Object.defineProperty(EventEmitter.prototype, "callHandler", {
 	value: function(handler, type, data) {
 		//kroll.log(TAG, "calling event handler: type:" + type + ", data: " + data + ", handler: " + handler);
-		if (!handler || !(handler.call)) {
+		if (!handler.listener || !(handler.listener.call)) {
 			if (kroll.DBG) {
-				kroll.log(TAG, "handler for event '" + type + "' is " + (typeof handler) + " and cannot be called.");
+				kroll.log(TAG, "handler for event '" + type + "' is " + (typeof handler.listener) + " and cannot be called.");
 			}
 			return;
 		}
 
-		if (data instanceof Object) {
-			data.type = type;
-		} else if (!data) {
-			data = { type: type };
+		// Create event object, copy any custom event data,
+		// and setting the "type" and "source" properties.
+		var event = { type: type, source: this };
+		if (Object.prototype.toString.call(data) === "[object Object]") {
+			kroll.extend(event, data);
 		}
 
-		handler.call(this, data);
+		if (handler.self && (event.source == handler.self.view)) {
+			event.source = handler.self;
+		}
+		handler.listener.call(this, event);
 	},
 	enumerable: false
 });
@@ -67,9 +71,9 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 			}
 		}*/
 
-        if (this._hasJavaListener) {
-            this._onEventFired( type,  arguments[1] || {});
-        }
+		if (this._hasJavaListener) {
+			this._onEventFired( type,  arguments[1] || {});
+		}
 
 		if (!this._events) {
 			//kroll.log(TAG, "no events for " + type + ", not emitting");
@@ -89,7 +93,7 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 			return false;
 		}
 
-		if (typeof handler == 'function') {
+		if (typeof handler.listener == 'function') {
 			switch (arguments.length) {
 			case 1:
 				this.callHandler(handler, type);
@@ -102,8 +106,8 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 
 		} else if (isArray(handler)) {
 			var args = Array.prototype.slice.call(arguments, 1);
-
 			var listeners = handler.slice();
+
 			for (var i = 0, l = listeners.length; i < l; i++) {
 				this.callHandler(listeners[i], type, args[0]);
 			}
@@ -119,7 +123,8 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 // Titanium compatibility
 Object.defineProperty(EventEmitter.prototype, "fireEvent", {
 	value: EventEmitter.prototype.emit,
-	enumerable: false
+	enumerable: false,
+	writable: true
 });
 
 Object.defineProperty(EventEmitter.prototype, "fireSyncEvent", {
@@ -130,7 +135,7 @@ Object.defineProperty(EventEmitter.prototype, "fireSyncEvent", {
 //EventEmitter is defined in src/node_events.cc
 //EventEmitter.prototype.emit() is also defined there.
 Object.defineProperty(EventEmitter.prototype, "addListener", {
-	value: function(type, listener) {
+	value: function(type, listener, view) {
 		if ('function' !== typeof listener) {
 			throw new Error('addListener only takes instances of Function. The listener for event "' + type + '" is "' + (typeof listener) + '"');
 		}
@@ -150,16 +155,19 @@ Object.defineProperty(EventEmitter.prototype, "addListener", {
 			id = 1;
 		}
 
+		var listenerWrapper = {};
+		listenerWrapper.listener = listener;
+		listenerWrapper.self = view;
+
 		if (!this._events[type]) {
 			// Optimize the case of one listener. Don't need the extra array object.
-			this._events[type] = listener;
+			this._events[type] = listenerWrapper;
 		} else if (isArray(this._events[type])) {
-
 			// If we've already got an array, just append.
-			this._events[type].push(listener);
+			this._events[type].push(listenerWrapper);
 		} else {
 			// Adding the second element, need to change to array.
-			this._events[type] = [this._events[type], listener];
+			this._events[type] = [this._events[type], listenerWrapper];
 		}
 
 		// Notify the Java proxy if this is the first listener added.
@@ -189,7 +197,8 @@ Object.defineProperty(EventEmitter.prototype, "on", {
 // Titanium compatibility
 Object.defineProperty(EventEmitter.prototype, "addEventListener", {
 	value: EventEmitter.prototype.addListener,
-	enumerable: false
+	enumerable: false,
+	writable: true
 });
 
 Object.defineProperty(EventEmitter.prototype, "once", {
@@ -219,7 +228,7 @@ Object.defineProperty(EventEmitter.prototype, "removeListener", {
 
 		var list = this._events[type];
 		var count = 0;
-
+		
 		if (isArray(list)) {
 			var position = -1;
 			// Also support listener indexes / ids
@@ -230,8 +239,7 @@ Object.defineProperty(EventEmitter.prototype, "removeListener", {
 				}
 			} else {
 				for (var i = 0, length = list.length; i < length; i++) {
-					if (list[i] === listener ||
-						(list[i].listener && list[i].listener === listener))
+					if (list[i].listener === listener)
 					{
 						position = i;
 						break;
@@ -239,18 +247,25 @@ Object.defineProperty(EventEmitter.prototype, "removeListener", {
 				}
 			}
 
-			if (position < 0) return this;
+			if (position < 0) {
+				return this;
+			}
+			
 			list.splice(position, 1);
-			if (list.length == 0)
+			
+			if (list.length == 0) {
 				delete this._events[type];
+			}
+			
 			count = list.length;
-		} else if (list === listener ||
-			(list.listener && list.listener === listener) ||
-			listener == 0)
-		{
+			
+		} else if (list.listener === listener || listener == 0) {
 			delete this._events[type];
+			
+		} else {
+			return this;
 		}
-
+		
 		if (count == 0) {
 			this._hasListenersForEventType(type, false);
 		}
@@ -262,7 +277,8 @@ Object.defineProperty(EventEmitter.prototype, "removeListener", {
 
 Object.defineProperty(EventEmitter.prototype, "removeEventListener", {
 	value: EventEmitter.prototype.removeListener,
-	enumerable: false
+	enumerable: false,
+	writable: true
 });
 
 Object.defineProperty(EventEmitter.prototype, "removeAllListeners", {

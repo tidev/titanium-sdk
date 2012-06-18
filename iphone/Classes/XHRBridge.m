@@ -112,7 +112,7 @@ static XHRBridge *xhrBridge = nil;
 	}
 	else 
 	{
-		NSLog(@"[ERROR] Error loading %@",url);
+		DebugLog(@"[ERROR] Error loading %@",url);
 		[client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorResourceUnavailable userInfo:nil]];
 		[client URLProtocolDidFinishLoading:self];
 	}
@@ -131,9 +131,7 @@ static XHRBridge *xhrBridge = nil;
 		return;
 	}
 
-#ifdef DEBUG	
-	NSLog(@"[DEBUG] app protocol, loading: %@",url);
-#endif
+	DebugLog(@"[DEBUG] Requested resource via app protocol, loading: %@",url);
 		
 	// see if it's a compiled resource
 	NSData *data = [TiUtils loadAppResource:url];

@@ -11,7 +11,6 @@
 #import "Base64Transcoder.h"
 #import "TiBlob.h"
 #import "TiFile.h"
-#import "TiUtils.h"
 #import <CommonCrypto/CommonDigest.h>
 #import <CommonCrypto/CommonHMAC.h>
 
@@ -50,18 +49,15 @@
 		len = [str length];
 	}
 
-	size_t outsize = EstimateBas64EncodedDataSize(len);
-	char *base64Result = malloc(sizeof(char)*outsize);
-    size_t theResultLength = outsize;
-	
-    bool result = Base64EncodeData(data, len, base64Result, &theResultLength);
+	char *base64Result;
+    size_t theResultLength;
+	bool result = Base64AllocAndEncodeData(data, len, &base64Result, &theResultLength);
 	if (result)
 	{
 		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
 		free(base64Result);
 		return [[[TiBlob alloc] initWithData:theData mimetype:@"application/octet-stream"] autorelease];
 	}    
-	free(base64Result);
 	return nil;
 }
 
@@ -75,16 +71,23 @@
 	size_t len = [str length];
 	
 	size_t outsize = EstimateBas64DecodedDataSize(len);
-	char *base64Result = malloc(sizeof(char)*outsize);
-    size_t theResultLength = outsize;
-	
-    bool result = Base64DecodeData(data, len, base64Result, &theResultLength);
+	char *base64Result = NULL;
+	if(len>0){
+		base64Result = malloc(sizeof(char)*outsize);
+	}
+
+	if (base64Result==NULL) {
+		return nil;
+	}
+
+	size_t theResultLength = outsize;	
+	bool result = Base64DecodeData(data, len, base64Result, &theResultLength);
 	if (result)
 	{
 		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
 		free(base64Result);
 		return [[[TiBlob alloc] initWithData:theData mimetype:@"application/octet-stream"] autorelease];
-	}    
+	}
 	free(base64Result);
 	return nil;
 }

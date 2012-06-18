@@ -40,9 +40,16 @@ description: |
     or [rename](Titanium.Filesystem.File.rename), you can no longer access it with the 
     original `File` object. You must use `getFile` to get a handle to the new path.
 
+    #### Resource Files
+
+    The `Resources` directory and all the files in it are read-only. On Android, resource
+    files are stored in the resource bundle and do not have all of the properties of
+    normal files. In particular, they do not have creation or modification timestamps.
+
 extends: Titanium.Proxy
 since: "0.1"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
+createable: false
 examples: 
   - title: Reading a File
     example: |
@@ -99,7 +106,7 @@ methods:
         type: [String,Titanium.Blob,Titanium.Filesystem.File]
     returns:
         type: Boolean
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: copy
     summary: Copies the file identified by this file object to a new path.
     description: Returns `true` if the copy succeeds.
@@ -109,7 +116,7 @@ methods:
         type: String
     returns:
         type: Boolean
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: createDirectory
     summary: Creates a directory at the path identified by this file object.
     description: |
@@ -127,9 +134,11 @@ methods:
         file already exists, or if the file couldn't be created for some other reason.
     returns:
         type: Boolean
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad, mobileweb]
   - name: createTimestamp
     summary: Returns the creation timestamp for the file identified by this file object.
+    description: |
+        On Android, returns 0 for resource files.
     returns:
         type: Number
   - name: deleteDirectory
@@ -182,14 +191,16 @@ methods:
     summary: Returns `true` if this file object represents a directory. 
     returns:
         type: Boolean
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: isFile
     summary: Returns `true` if this file object represents an ordinary file.
     returns: 
         type: Boolean
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: modificationTimestamp
     summary: Returns the last modification time for this file.
+    description: |
+        On Android, returns 0 for resource files.
     returns:
         type: Number
   - name: move
@@ -244,6 +255,16 @@ methods:
       - name: newname
         summary: New name for the file.
         type: String
+  - name: resolve
+    summary: Returns the fully-resolved native path associated with this file object.
+    description: |
+        On iOS, the path returned by this method is a plain file path, not a URL. It is suitable
+        for use in native modules that need to access the file using native APIs.
+
+        On Android, the return value of `resolve` is a `file://` URL, identical to the
+        [nativePath](Titanium.Filesystem.File.nativePath) property.
+    returns:
+        type: String
   - name: spaceAvailable
     summary: Returns the amount of free space available on the device where the file
         identified by this file object is stored.
@@ -274,41 +295,47 @@ properties:
     summary: |
         `true` if the file is executable.
     description: |
-        On iOS, this property exists but is always `false`.
+        On iOS and Mobile Web, this property exists but is always `false`.
     type: Boolean
-    platforms: [android,iphone,ipad]
+    platforms: [android, iphone, ipad, mobileweb]
     permission: read-only
   - name: hidden
     summary:
         Set to `true` if the file is hidden.
     description: |
-        On iOS, this property exists but is always `false`.
+        On iOS and Mobile Web, this property exists but is always `false`.
     type: Boolean
-    platforms: [android,iphone,ipad]
+    platforms: [android, iphone, ipad, mobileweb]
   - name: name
     summary: Name of the file.
     type: String
     permission: read-only
   - name: nativePath
-    summary: Returns the fully resolved native path.
+    summary: Native path associated with this file object, as a file URL.
+    description: |
+        On iOS, use the [resolve](Titanium.Filesystem.File.resolve) 
+        method to obtain a plain file path for use with native modules.
     type: String
     permission: read-only
   - name: parent
     summary: A `File` object representing the parent directory of the file identified by this object.
     type: Titanium.Filesystem.File
     permission: read-only
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: readonly
     summary: |
         `true` if the file identified by this object is read-only.
+    description: |
+        On Mobile Web, this property exists but is always `true` for files in the resources directory
+        and `false` for application data and temporary files.
     type: Boolean
     permission: read-only
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: size
     summary: Size, in bytes, of the file identified by this object.
     type: Number
     permission: read-only
-    platforms: [android]
+    platforms: [android, mobileweb]
   - name: remoteBackup
     summary: Value indicating whether or not to back up to a cloud service.
     description: |
@@ -328,15 +355,13 @@ properties:
   - name: symbolicLink
     summary: |
         `true` if the file identified by this object is a symbolic link.
+    description: |
+        On Mobile Web, this property exists but is always `false`.
     type: Boolean
     permission: read-only
   - name: writable
     summary: |
         `true` if the file identified by this object is writable.
-    description: |
-        In Titanium Mobile 1.8.0.1 and earlier, a deprecation warning may be printed for 
-        this property on iOS. This is incorrect; `writeable` should be deprecated and the
-        `writable` property, which is supported on iOS and Android, should be used instead.
     type: Boolean
     permission: read-only
   - name: writeable
@@ -344,6 +369,6 @@ properties:
         Use [writable](Titanium.Filesystem.File.writable) instead.
     type: Boolean
     permission: read-only
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad]
     deprecated: 
         since: "1.8.1"

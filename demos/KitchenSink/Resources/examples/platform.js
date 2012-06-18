@@ -80,7 +80,7 @@ var l4 = Titanium.UI.createLabel({
 win.add(l4);
 
 var l5 = Titanium.UI.createLabel({
-	text:'macaddress:' + Titanium.Platform.macaddress,
+	text:'platform id:' + Titanium.Platform.id,
 	top:90,
 	left:10,
 	width:'auto',

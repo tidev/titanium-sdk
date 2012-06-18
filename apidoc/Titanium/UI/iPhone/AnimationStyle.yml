@@ -1,28 +1,78 @@
 ---
 name: Titanium.UI.iPhone.AnimationStyle
-summary: A set of constants for the Animation Styles used for transitions.
+summary: A set of constants for the animation styles used for view transitions.
 extends: Titanium.Proxy
 platforms: [iphone, ipad]
 since: "0.9"
 createable: false
+
 properties:
   - name: CURL_DOWN
-    summary: Curl downwards during a transition animation
+    summary: Curl downwards during a transition animation.
+    description: |
+        Used with the <Titanium.UI.Animation.transition> property.
+        
+        One of the group of animation style constants 
+        [CURL_DOWN](Titanium.UI.iPhone.AnimationStyle.CURL_DOWN), 
+        [CURL_UP](Titanium.UI.iPhone.AnimationStyle.CURL_UP), 
+        [FLIP_FROM_LEFT](Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT), 
+        [FLIP_FROM_RIGHT](Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT), 
+        and [NONE](Titanium.UI.iPhone.AnimationStyle.NONE).
     type: Number
     permission: read-only
+    
   - name: CURL_UP
-    summary: Curl upwards during a transition animation
+    summary: Curl upwards during a transition animation.
+    description: |
+        Used with the <Titanium.UI.Animation.transition> property.
+        
+        One of the group of animation style constants 
+        [CURL_DOWN](Titanium.UI.iPhone.AnimationStyle.CURL_DOWN), 
+        [CURL_UP](Titanium.UI.iPhone.AnimationStyle.CURL_UP), 
+        [FLIP_FROM_LEFT](Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT), 
+        [FLIP_FROM_RIGHT](Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT), 
+        and [NONE](Titanium.UI.iPhone.AnimationStyle.NONE).
     type: Number
     permission: read-only
+    
   - name: FLIP_FROM_LEFT
-    summary: Flip from left to right during a transition animation
+    summary: Flip from left to right during a transition animation.
+    description: |
+        Used with the <Titanium.UI.Animation.transition> property.
+        
+        One of the group of animation style constants 
+        [CURL_DOWN](Titanium.UI.iPhone.AnimationStyle.CURL_DOWN), 
+        [CURL_UP](Titanium.UI.iPhone.AnimationStyle.CURL_UP), 
+        [FLIP_FROM_LEFT](Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT), 
+        [FLIP_FROM_RIGHT](Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT), 
+        and [NONE](Titanium.UI.iPhone.AnimationStyle.NONE).
     type: Number
     permission: read-only
+    
   - name: FLIP_FROM_RIGHT
-    summary: Flip from right to left during a transition animation
+    summary: Flip from right to left during a transition animation.
+    description: |
+        Used with the <Titanium.UI.Animation.transition> property.
+        
+        One of the group of animation style constants 
+        [CURL_DOWN](Titanium.UI.iPhone.AnimationStyle.CURL_DOWN), 
+        [CURL_UP](Titanium.UI.iPhone.AnimationStyle.CURL_UP), 
+        [FLIP_FROM_LEFT](Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT), 
+        [FLIP_FROM_RIGHT](Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT), 
+        and [NONE](Titanium.UI.iPhone.AnimationStyle.NONE).
     type: Number
     permission: read-only
+    
   - name: NONE
-    summary: No animation
+    summary: No animation.
+    description: |
+        Used with the <Titanium.UI.Animation.transition> property.
+        
+        One of the group of animation style constants 
+        [CURL_DOWN](Titanium.UI.iPhone.AnimationStyle.CURL_DOWN), 
+        [CURL_UP](Titanium.UI.iPhone.AnimationStyle.CURL_UP), 
+        [FLIP_FROM_LEFT](Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT), 
+        [FLIP_FROM_RIGHT](Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT), 
+        and [NONE](Titanium.UI.iPhone.AnimationStyle.NONE).
     type: Number
     permission: read-only

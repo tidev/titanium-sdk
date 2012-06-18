@@ -29,6 +29,7 @@ import ti.modules.titanium.ui.widget.TiUITabGroup;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.widget.TabHost.TabSpec;
@@ -85,13 +86,6 @@ public class TabGroupProxy extends TiWindowProxy
 				AsyncResult result = (AsyncResult) msg.obj;
 				handleRemoveTab((TabProxy) result.getArg());
 				result.setResult(null); // signal added
-				return true;
-			}
-			case MSG_FINISH_OPEN: {
-				TiTabActivity activity = (TiTabActivity) msg.obj;
-				view = new TiUITabGroup(this, activity);
-				modelListener = view;
-				handlePostOpen(activity);
 				return true;
 			}
 			case MSG_SET_ACTIVE_TAB: {
@@ -186,14 +180,12 @@ public class TabGroupProxy extends TiWindowProxy
 		TiBaseWindowProxy baseWindow = (TiBaseWindowProxy) tab.getProperty(TiC.PROPERTY_WINDOW);
 		if (baseWindow != null) {
 			windowProxy.handleCreationDict(baseWindow.getProperties());
+			tab.setWindow(baseWindow);  // hooks up the tab and the JS window wrapper
 			baseWindow.getKrollObject().setWindow(windowProxy);
 
 		} else {
 			Log.w(LCAT, "window property was not set on tab");
 		}
-
-		baseWindow.setTabGroupProxy(this);
-		baseWindow.setTabProxy(tab);
 
 		if (tag != null && windowProxy != null) {
 			TabSpec tspec = tg.newTab(tag);
@@ -204,8 +196,9 @@ public class TabGroupProxy extends TiWindowProxy
 			}
 
 			Intent intent = new Intent(tta, TiActivity.class);
-			windowProxy.fillIntentForTab(intent);
-
+			windowProxy.setParent(tab);
+			windowProxy.fillIntentForTab(intent, tab);
+			
 			tspec.setContent(intent);
 
 			tg.addTab(tspec, tab);
@@ -305,11 +298,17 @@ public class TabGroupProxy extends TiWindowProxy
 				addTabToGroup(tg, tab);
 			}
 		}
+		
 		tg.changeActiveTab(initialActiveTab);
+		// Make sure the tab indicator is selected. We need to force it to be selected due to TIMOB-7832.
+		tg.setTabIndicatorSelected(initialActiveTab);
 
 		opened = true;
 		super.handlePostOpen();
 		fireEvent(TiC.EVENT_OPEN, null);
+
+		// open event's for a tab window should be fired as part of the windowCreated callback that 
+		// is set as part of the fillIntentForTab call
 	}
 
 	@Override
@@ -356,7 +355,6 @@ public class TabGroupProxy extends TiWindowProxy
 		return e;
 	}
 
-
 	private void fillIntent(Activity activity, Intent intent)
 	{
 		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
@@ -375,12 +373,43 @@ public class TabGroupProxy extends TiWindowProxy
 			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, activity.isTaskRoot());
 		}
 
-		Messenger messenger = new Messenger(getMainHandler());
+		Handler handler = new Handler(TiMessenger.getMainMessenger().getLooper(), new MessageHandler(this));
+		Messenger messenger = new Messenger(handler);
 		//Messenger messenger = new Messenger(getUIHandler());
 		intent.putExtra(TiC.INTENT_PROPERTY_MESSENGER, messenger);
 		intent.putExtra(TiC.INTENT_PROPERTY_MSG_ID, MSG_FINISH_OPEN);
 	}
 
+	private static class MessageHandler implements Handler.Callback
+	{
+
+		private WeakReference<TabGroupProxy> tabGroupProxy;
+		
+		public MessageHandler(TabGroupProxy proxy) 
+		{
+			this.tabGroupProxy = new WeakReference<TabGroupProxy>(proxy);
+		}
+		
+		@Override
+		public boolean handleMessage(Message msg) 
+		{
+			TabGroupProxy tabGroupProxy = this.tabGroupProxy.get();
+			if (tabGroupProxy == null) {
+				return false;
+			}
+			
+			switch(msg.what) {
+				case MSG_FINISH_OPEN:
+					TiTabActivity activity = (TiTabActivity) msg.obj;
+					tabGroupProxy.view = new TiUITabGroup(tabGroupProxy, activity);
+					tabGroupProxy.modelListener = tabGroupProxy.view;
+					tabGroupProxy.handlePostOpen(activity);
+					return true;
+			}
+			return false;
+		}
+		
+	}
 	@Override
 	public KrollDict handleToImage()
 	{

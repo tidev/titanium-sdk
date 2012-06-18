@@ -17,6 +17,7 @@
 
 -(void)cancelPendingImageLoads;
 -(void)startImageLoad:(NSURL *)url;
+-(void)propagateLoadEvent:(NSString *)stateString;
 
 @end
 

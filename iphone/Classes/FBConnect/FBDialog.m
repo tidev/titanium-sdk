@@ -18,6 +18,8 @@
 #import "FBDialog.h"
 #import "Facebook.h"
 
+#import "TiApp.h"
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // global
 
@@ -584,10 +586,7 @@ BOOL FBIsDeviceIPad() {
   [_spinner startAnimating];
   _spinner.center = _webView.center;
 
-  UIWindow* window = [UIApplication sharedApplication].keyWindow;
-  if (!window) {
-    window = [[UIApplication sharedApplication].windows objectAtIndex:0];
-  }
+  UIWindow* window = [[TiApp app] window];
   [window addSubview:self];
 
   [self dialogWillAppear];

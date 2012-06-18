@@ -7,10 +7,13 @@
 # per file 
 #
 
-import simplejson as json
 import os, sys, uuid, subprocess, shutil, re 
 from os.path import join, splitext, split, exists
 
+this_dir = os.path.dirname(os.path.abspath(__file__))
+common_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "common"))
+sys.path.append(common_support_dir)
+import simplejson as json
 
 ignoreFiles = ['.gitignore', '.cvsignore','.DS_Store'];
 ignoreDirs = ['.git','.svn', 'CVS'];

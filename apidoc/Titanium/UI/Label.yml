@@ -4,92 +4,182 @@ summary: A text label, with optional background image.
 description: Use the <Titanium.UI.createLabel> method to create a label. 
 extends: Titanium.UI.View
 since: "0.8"
+
+methods: 
+    # main doc inherited from Ti.UI.View.add
+  - name: add
+    description: |
+        Adding children to a `Label` is not supported on all platforms.
+
+        If you need to add views on top of this object, consider using 
+        another view as a container for both this object and the views you want 
+        to appear on top of it.
+
+        See also: <Titanium.UI.View.add>.
+    platforms: [iphone, ipad, mobileweb]
+
+  - name: remove
+    description: |
+        See also: [add](Titanium.UI.Label.add), <Titanium.UI.View.add>.
+    platforms: [iphone, ipad, mobileweb]
+
 properties:
+
   - name: autoLink
     summary: Automatically convert certain text items in the label to clickable links. 
-    description: Specify which types of items are converted by setting `autoLink` to one 
-        of the <Titanium.UI.Android> `LINKIFY` constants.
+    description: |
+        Specify which types of items are converted by setting `autoLink` to one of the 
+        <Titanium.UI.Android> `LINKIFY` constants.
     type: Number
     platforms: [android]
+    
   - name: backgroundPaddingBottom
     summary: Number of pixels to extend the background image past the label on the bottom.
     type: Number
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad]
+    
   - name: backgroundPaddingLeft
     summary: Number of pixels to extend the background image past the label on the left.
     type: Number
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad]
+    
   - name: backgroundPaddingRight
     summary: Number of pixels to extend the background image past the label on the right.
     type: Number
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad]
+    
   - name: backgroundPaddingTop
     summary: Number of pixels to extend the background image past the label on the top.
     type: Number
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad]
+    
   - name: color
-    summary: Color of the label text.
+    summary: Color of the label text, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
+    
   - name: ellipsize
-    summary: Turn on/off the addition of ellipses at the end of the label if the text is too large to fit.
+    summary: |
+        Turn on/off the addition of ellipses at the end of the label if the text is too large to fit.
     type: Boolean
     default: false
     platforms: [android, mobileweb]
+    
   - name: font
     summary: Font to use for the label text.
     type: Font
+    
   - name: highlightedColor
-    summary: Color of the label when in the highlighted state. 
-    description: Used when the label is part of a view that can be highlighted, such as a <Titanium.UI.TableViewRow>.
+    summary: Color of the label when in the highlighted state, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        
+        Used when the label is part of a view that can be highlighted, such as a 
+        <Titanium.UI.TableViewRow>.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    
   - name: html
     summary: Simple HTML formatting.
     platforms: [android, mobileweb]
     type: String
+    
   - name: minimumFontSize
     summary: Minimum font size when the font is sized based on the contents. 
-    description: Enables font scaling to fit and forces the label content to be limited to a single line.
+    description: |
+        Enables font scaling to fit and forces the label content to be limited to a single line.
     type: Number
     platforms: [iphone, ipad]
+    
   - name: shadowColor
-    summary: Text shadow color.
+    summary: Text shadow color, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    platforms: [iphone,ipad,mobileweb]
+    platforms: [iphone, ipad, mobileweb]
+    
   - name: shadowOffset
     summary: Shadow offset as a dictionary with the properties `x` and `y`.
     type: Object
-    platforms: [iphone,ipad,mobileweb]
+    platforms: [iphone, ipad, mobileweb]
+    
   - name: text
     summary: Label text.
+    description: |
+        Use the backslash and letter `n` line feed character combination, ie `\n`, to force a new 
+        line. 
+        
+        Use unicode characters, such as those included in (but not limited to) the 
+        [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols) 
+        section of wikipedia, to insert special characters and symbols.
+        
+        See the example in [label](Titanium.UI.Label) for a demonstration.
     type: String
+    
   - name: textAlign
     summary: |
-        Text alignment, specified using one of the <Titanium.UI> text alignment constants: [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
-    type: [String,Number]
+        Text alignment. One of <Titanium.UI> text alignment constants, 
+        [TEXT_ALIGNMENT_LEFT](Titanium.UI.TEXT_ALIGNMENT_LEFT), 
+        [TEXT_ALIGNMENT_CENTER](Titanium.UI.TEXT_ALIGNMENT_CENTER), 
+        or [TEXT_ALIGNMENT_RIGHT](Titanium.UI.TEXT_ALIGNMENT_RIGHT).
+    type: [String, Number]
+    
   - name: textid
     summary: Key identifying a string from the locale file to use for the label text. 
     description: Only one of `text` or `textid` should be specified.
     type: String
+    
   - name: wordWrap
     summary: Enable or disable word wrapping in the label.
     type: Boolean
-    platforms: [android, mobileweb]
     default: true
+    platforms: [android, mobileweb]
+    
+  - name: verticalAlign
+    summary: |
+        Vertical text alignment, specified using one of the 
+        vertical alignment constants from <Titanium.UI>: 
+        [TEXT_VERTICAL_ALIGNMENT_BOTTOM](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM), 
+        [TEXT_VERTICAL_ALIGNMENT_CENTER](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER), or 
+        [TEXT_VERTICAL_ALIGNMENT_TOP](Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP).
+    type: [Number,String]
+    default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
+    platforms: [mobileweb]
+
 examples:
   - title: Basic Label
     example: |
-        Create a label with a nice text shadow, 48px font that's aligned `center` and height `auto`.
+        Create a center-aligned label with a text shadow and specified-size font, and another 
+        containing forced line breaks and unicode symbols.
         
-            var l2 = Titanium.UI.createLabel({
-            	text:'Appcelerator',
-            	height:'auto',
-            	width:'auto',
-            	shadowColor:'#aaa',
-            	shadowOffset:{x:5,y:5},
-            	color:'#900',
-            	font:{fontSize:48},
-            	textAlign:'center'
+            var win = Ti.UI.createWindow({
+              backgroundColor: 'white',
+              exitOnClose: true,
+              fullscreen: false,
+              layout: 'vertical',
+              title: 'Label Demo'
             });
-        
-        
+            
+            var label1 = Ti.UI.createLabel({
+              color: '#900',
+              font: { fontSize:48 },
+              shadowColor: '#aaa',
+              shadowOffset: {x:5, y:5},
+              text: 'A simple label',
+              textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
+              top: 30,
+              width: 'auto', height: 'auto'
+            });
+            
+            var label2 = Ti.UI.createLabel({
+              color:'blue',
+              text: 'A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n',
+              textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
+              top: 30,
+              width: 300, height: 200
+            });
+            
+            win.add(label1);
+            win.add(label2);
+            win.open();

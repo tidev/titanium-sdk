@@ -32,7 +32,7 @@ p = subprocess.Popen([gitCmd,"show","--abbrev-commit"],stderr=subprocess.PIPE, s
 githash = p.communicate()[0][7:].split('\n')[0].strip()
 
 ignoreExtensions = ['.pbxuser','.perspectivev3','.pyc']
-ignoreDirs = ['.DS_Store','.git','.gitignore','libTitanium.a','titanium.jar','build','bridge.txt']
+ignoreDirs = ['.DS_Store','.git','.gitignore','libTitanium.a','titanium.jar','build','bridge.txt', 'packaged']
 
 def ignore(file):
 	 for f in ignoreDirs:
@@ -79,9 +79,36 @@ def zip_dir(zf,dir,basepath,subs=None,cb=None):
 			else:		
 				zf.write(from_, to_)
 
+def zip2zip(src_zip, dest_zip, prepend_path=None):
+	for zinfo in src_zip.infolist():
+		f = src_zip.open(zinfo)
+		new_name = zinfo.filename
+		if prepend_path and not prepend_path.endswith("/"):
+			prepend_path = "%s/" % prepend_path
+		if prepend_path:
+			new_name = "%s%s" % (prepend_path, new_name)
+		zinfo.filename = new_name
+		dest_zip.writestr(zinfo, f.read())
+
+def zip_packaged_modules(zf, source_dir):
+	for root, dirs, files in os.walk(source_dir):
+		for name in ignoreDirs:
+			if name in dirs:
+				dirs.remove(name)
+		for fname in files:
+			if not fname.lower().endswith(".zip"):
+				continue
+			source_zip = zipfile.ZipFile(os.path.join(root, fname), "r")
+			rel_path = root.replace(source_dir, "").replace("\\", "/")
+			if rel_path.startswith("/"):
+				rel_path = rel_path[1:]
+			try:
+				zip2zip(source_zip, zf, rel_path)
+			finally:
+				source_zip.close()
+
 def zip_android(zf, basepath):
 	android_dist_dir = os.path.join(top_dir, 'dist', 'android')
-	zip_dir(zf, os.path.join(cur_dir,'simplejson'), os.path.join(basepath, 'android', 'simplejson'))
 
 	for jar in ['titanium.jar', 'kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar', 'kroll-rhino.jar']:
 		jar_path = os.path.join(android_dist_dir, jar)
@@ -220,6 +247,7 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 	zip_dir(zf,os.path.join(top_dir,'iphone','Classes'),basepath+'/iphone/Classes',subs)
 	zip_dir(zf,os.path.join(top_dir,'iphone','headers'),basepath+'/iphone/headers',subs)
 	zip_dir(zf,os.path.join(top_dir,'iphone','iphone'),basepath+'/iphone/iphone',subs)
+	zf.write(os.path.join(top_dir, 'iphone', 'AppledocSettings.plist'),'%s/iphone/AppledocSettings.plist'%(basepath))
 	
 	ticore_lib = os.path.join(top_dir,'iphone','lib')
 	
@@ -261,7 +289,25 @@ def zip_mobileweb(zf,basepath,version):
 		"__TIMESTAMP__":ts,
 		"__GITHASH__": githash
 	}
-	zip_dir(zf,os.path.join(top_dir,'mobileweb'),os.path.join(basepath,'mobileweb'),subs)
+	dir = os.path.join(top_dir, 'mobileweb')
+	
+	# for speed, mobileweb has its own zip logic
+	for root, dirs, files in os.walk(dir):
+		for name in ignoreDirs:
+			if name in dirs:
+				dirs.remove(name)
+		for file in files:
+			e = os.path.splitext(file)
+			if len(e)==2 and e[1] in ignoreExtensions: continue
+			from_ = os.path.join(root, file)
+			to_ = from_.replace(dir, os.path.join(basepath,'mobileweb'), 1)
+			if file == 'package.json':
+				c = open(from_).read()
+				for key in subs:
+					c = c.replace(key, subs[key])
+				zf.writestr(to_, c)
+			else:
+				zf.write(from_, to_)
 
 def create_platform_zip(platform,dist_dir,osname,version,version_tag):
 	if not os.path.exists(dist_dir):
@@ -285,6 +331,7 @@ githash=%s
 		jsca = generate_jsca()
 		zf.writestr('%s/api.jsca' % basepath, jsca)
 	
+	zip_packaged_modules(zf, os.path.join(template_dir, "module", "packaged"))
 	zip_dir(zf,all_dir,basepath)
 	zip_dir(zf,template_dir,basepath)
 	if android: zip_android(zf,basepath)

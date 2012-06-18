@@ -1,1 +1,0 @@
-var myLastName = 'Gump';

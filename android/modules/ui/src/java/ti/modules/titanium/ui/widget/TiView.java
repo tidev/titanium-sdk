@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,6 +13,8 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUIView;
+
+import android.view.View;
 
 public class TiView extends TiUIView
 {
@@ -29,7 +31,15 @@ public class TiView extends TiUIView
 				arrangement = LayoutArrangement.VERTICAL;
 			}
 		}
-		setNativeView(new TiCompositeLayout(proxy.getActivity(), arrangement));
+		setNativeView(new TiCompositeLayout(proxy.getActivity(), arrangement, proxy));
+	}
+
+	@Override
+	protected void setOpacity(View view, float opacity)
+	{
+		super.setOpacity(view, opacity);
+		TiCompositeLayout layout = (TiCompositeLayout) nativeView;
+		layout.setAlphaCompat(opacity);
 	}
 
 	@Override

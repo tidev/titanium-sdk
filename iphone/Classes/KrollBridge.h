@@ -29,7 +29,7 @@
 }
 
 -(id)initWithContext:(KrollContext*)context_ host:(TiHost*)host_ context:(id<TiEvaluator>)context baseURL:(NSURL*)baseURL_;
--(KrollObject*)addModule:(NSString*)name module:(TiModule*)module;
+-(id)addModule:(NSString*)name module:(TiModule*)module;
 -(TiModule*)moduleNamed:(NSString*)name context:(id<TiEvaluator>)context;
 @end
 
@@ -43,6 +43,7 @@ extern NSString * TitaniumModuleRequireFormat;
 	NSDictionary *preload;
 	NSMutableDictionary *modules;
 	TitaniumObject *titanium;
+    KrollObject* console;
 	BOOL shutdown;
     BOOL evaluationError;
 	//NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,

@@ -109,7 +109,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 	return JNI_FALSE;
 }
 
-JNIEXPORT void JNICALL
+JNIEXPORT jboolean JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeRelease
 	(JNIEnv *env, jclass clazz, jlong refPointer)
 {
@@ -121,8 +121,11 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeRelease
 		JavaObject *javaObject = NativeObject::Unwrap<JavaObject>(handle);
 		if (javaObject && javaObject->isDetached()) {
 			delete javaObject;
+			return true;
 		}
 	}
+
+	return false;
 }
 
 JNIEXPORT void JNICALL

@@ -1,180 +1,375 @@
 ---
 name: Titanium.UI.iOS
-summary: The Apple iOS specific UI capabilities.  All properties, methods and events in this namespace will only work on the Apple iOS related devices.
+summary: |
+    Apple iOS specific UI capabilities.  All properties, methods and events in this namespace will 
+    only work on Apple iOS devices.
 extends: Titanium.Module
 since: "1.4"
 platforms: [iphone, ipad]
 properties:
+
   - name: ANIMATION_CURVE_EASE_IN
-    summary: animation curve constant
+    summary: |
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
+        slowly and speeds up.
     type: Number
+    deprecated:
+        since: "2.1.0"
     permission: read-only
+
   - name: ANIMATION_CURVE_EASE_IN_OUT
-    summary: animation curve constant
+    summary: |
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
+        slowly, and speeds up, then slows down at the end of the animation.
     type: Number
+    deprecated:
+        since: "2.1.0"
     permission: read-only
+
   - name: ANIMATION_CURVE_EASE_OUT
-    summary: animation curve constant
+    summary: |
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that starts 
+        quickly, then slows down at the end of the animation.
     type: Number
+    deprecated:
+        since: "2.1.0"
     permission: read-only
+
   - name: ANIMATION_CURVE_LINEAR
-    summary: animation curve constant
+    summary: |
+        Use with [Animation.curve](Titanium.UI.Animation.curve) to specify an animation that proceeds 
+        at a constant rate.
     type: Number
+    deprecated:
+        since: "2.1.0"
     permission: read-only
+
   - name: AUTODETECT_ADDRESS
-    summary: text autodetection constant (iOS 4.0+)
-    platforms: [iphone, ipad]
+    summary: Convert strings formatted as addresses into clickable links.
+    description: Use with the <Titanium.UI.TextArea.autoLink> property.
+    type: Number
     osver: {ios: {min: "4.0"}}
     permission: read-only
-    type: Number
+    platforms: [iphone, ipad]
+
   - name: AUTODETECT_ALL
-    summary: text autodetection constant (iOS)
-    platforms: [iphone, ipad]
+    summary: Convert all detectable types of data into clickable links.
+    description: Use with the <Titanium.UI.TextArea.autoLink> property.
     type: Number
     permission: read-only
+    platforms: [iphone, ipad]
+
   - name: AUTODETECT_CALENDAR
-    summary: text autodetection constant (iOS 4.0+)
-    platforms: [iphone, ipad]
+    summary: Convert strings formatted as calendar events into clickable links.
+    description: Use with the <Titanium.UI.TextArea.autoLink> property.
+    type: Number
     osver: {ios: {min: "4.0"}}
-    type: Number
     permission: read-only
+    platforms: [iphone, ipad]
+
   - name: AUTODETECT_LINK
-    summary: text autodetection constant (iOS)
-    platforms: [iphone, ipad]
+    summary: Convert strings formatted as URLs into clickable links.
+    description: Use with the <Titanium.UI.TextArea.autoLink> property.
     type: Number
     permission: read-only
+    platforms: [iphone, ipad]
+
   - name: AUTODETECT_NONE
-    summary: text autodetection constant (iOS)
-    platforms: [iphone, ipad]
+    summary: Disable converting strings into clickable links.
+    description: Use with the <Titanium.UI.TextArea.autoLink> property.
     type: Number
     permission: read-only
+    platforms: [iphone, ipad]
+
   - name: AUTODETECT_PHONE
-    summary: text autodetection constant (iOS)
+    summary: Convert strings formatted as phone numbers into clickable links.
+    description: Use with the <Titanium.UI.TextArea.autoLink> property.
+    type: Number
+    permission: read-only
     platforms: [iphone, ipad]
-    type: Number
-    permission: read-only
+
   - name: BLEND_MODE_CLEAR
-    summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_COLOR
-    summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_COLOR_BURN
     summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_COLOR_DODGE
-    summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_COPY
-    summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_DARKEN
-    summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_DESTINATION_ATOP
-    summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_DESTINATION_IN
-    summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_DESTINATION_OUT
-    summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_DESTINATION_OVER
-    summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_DIFFERENCE
-    summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_EXCLUSION
     summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_HARD_LIGHT
-    summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_HUE
-    summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_LIGHTEN
-    summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_LUMINOSITY
-    summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_MULTIPLY
-    summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_NORMAL
-    summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_OVERLAY
-    summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_PLUS_DARKER
-    summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_PLUS_LIGHTER
-    summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_SATURATION
-    summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
+
   - name: BLEND_MODE_SCREEN
     summary: image mode constant
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
     type: Number
     permission: read-only
-  - name: BLEND_MODE_SOFT_LIGHT
-    summary: image mode constant
-    type: Number
-    permission: read-only
-  - name: BLEND_MODE_SOURCE_ATOP
-    summary: image mode constant
-    type: Number
-    permission: read-only
-  - name: BLEND_MODE_SOURCE_IN
-    summary: image mode constant
-    type: Number
-    permission: read-only
-  - name: BLEND_MODE_SOURCE_OUT
-    summary: image mode constant
-    type: Number
-    permission: read-only
-  - name: BLEND_MODE_XOR
-    summary: image mode constant
-    type: Number
-    permission: read-only
-  - name: AD_SIZE_PORTRAIT
-    summary: Constant for ad size appropriate for "portrait" orientations.
-    description: Note that the fullscreen ad itself may display only as a portrait.
-    type: String
-    permission: read-only
-    since: "1.9.0"
-  - name: AD_SIZE_LANDSCAPE
-    summary: Constant for ad size appropriate for "landscape" orientations.
-    description: Note that the fullscreen ad itself may display only as a portrait.
-    type: String
-    permission: read-only
-    since: "1.9.0"
 
+  - name: BLEND_MODE_SOFT_LIGHT
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
+    type: Number
+    permission: read-only
+
+  - name: BLEND_MODE_SOURCE_ATOP
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
+    type: Number
+    permission: read-only
+
+  - name: BLEND_MODE_SOURCE_IN
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
+    type: Number
+    permission: read-only
+
+  - name: BLEND_MODE_SOURCE_OUT
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
+    type: Number
+    permission: read-only
+
+  - name: BLEND_MODE_XOR
+    summary: |
+        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+    description: |
+        See <Titanium.UI.MaskedImage> for more information on blend modes.
+    type: Number
+    permission: read-only
+
+  - name: AD_SIZE_PORTRAIT
+    summary: |
+        Use with [AdView.adSize](Titanium.UI.iOS.AdView.adSize) to specify a banner ad size
+        appropriate for portrait orientations.
+    description: Note that fullscreen ads always display in portrait orientation.
+    type: String
+    permission: read-only
+    since: "1.8.1"
+
+  - name: AD_SIZE_LANDSCAPE
+    summary: |
+        Use with [AdView.adSize](Titanium.UI.iOS.AdView.adSize) to specify a banner ad size
+        appropriate for landscape orientations.
+    description: Note that fullscreen ads always display in portrait orientation.
+    type: String
+    permission: read-only
+    since: "1.8.1"
+
+  - name: COLOR_GROUP_TABLEVIEW_BACKGROUND
+    summary: Returns the iOS system texture used to render the background on a group table view. 
+    description: |
+        Corresponds to iOS `UIColor` groupTableViewBackgroundColor`.
+
+        Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
+    type: String
+    permission: read-only
+    since: "2.1.0"
+    
+  - name: COLOR_SCROLLVIEW_BACKGROUND
+    summary: Returns the iOS system texture used to render the area behind scrollable content.
+    description: |
+        Corresponds to iOS `UIColor` `scrollViewTexturedBackgroundColor`.
+
+        Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
+    type: String
+    permission: read-only
+    since: "2.1.0"
+    
+  - name: COLOR_VIEW_FLIPSIDE_BACKGROUND
+    summary: Returns the iOS system texture used for the back side of a view while it is being flipped.
+    description: |
+        Corresponds to iOS `UIColor` `viewFlipsideBackgroundColor`.
+
+        Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
+    type: String
+    permission: read-only
+    since: "2.1.0"
+
+  - name: COLOR_UNDER_PAGE_BACKGROUND
+    summary: Returns the iOS system texture used to render the background of a page.
+    description: |
+        Corresponds to iOS `UIColor` `underPageBackgroundColor`.
+
+        Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
+    type: String
+    permission: read-only
+    since: "2.1.0"
+    osver: {iOS: {min: "5.0"}}

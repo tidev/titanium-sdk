@@ -6,7 +6,7 @@ description: |
     as playing audio or recording video.
 extends: Titanium.Module
 since: "0.1"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 methods:
   - name: beep
     summary: Plays a device beep notification.
@@ -20,8 +20,8 @@ methods:
   - name: hideMusicLibrary
     summary: Hides the music library.  
     description: |
-        Must be called after calling `showMusicLibrary` and only when `autohide` is 
-        set to `false`.
+        Must be called after calling [openMusicLibrary](Titanium.Media.openMusicLibrary) 
+        and only when `autohide` is set to `false`.
     platforms: [iphone, ipad]
   - name: isMediaTypeSupported
     summary: Returns `true` if the source supports the specified media type.
@@ -46,6 +46,16 @@ methods:
         summary: Media type to check, either `MEDIA_TYPE_PHOTO` or `MEDIA_TYPE_VIDEO`.
         type: String
     platforms: [iphone, ipad]
+  - name: openMusicLibrary
+    summary: Shows the music library and allows the user to select one or more tracks.
+    description: |
+        If `autohide` is set to `false`, you must hide the library explicitly using 
+        [hideMusicLibrary](Titanium.Media.hideMusicLibrary).
+    platforms: [iphone, ipad]
+    parameters:
+      - name: options
+        summary: A dictionary of options as described in <MusicLibraryOptionsType>.
+        type: MusicLibraryOptionsType
   - name: openPhotoGallery
     summary: Opens the photo gallery image picker.
     platforms: [iphone, ipad, android]
@@ -95,23 +105,13 @@ methods:
         To suppress the default controls, set `showControls` and `autohide` to `false`.
 
         If the `showControls` option is `false`, you must control the camera explicitly, using
-        the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.UI.hideCamera) 
+        the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera) 
         methods.
     platforms: [iphone, ipad, android]
     parameters:
       - name: options
         summary: A dictionary of camera options as described in <CameraOptionsType>.
         type: CameraOptionsType
-  - name: showMusicLibrary
-    summary: Shows the music library and allows the user to select one or more tracks.
-    description: |
-        If `autohide` is set to `false`, you must hide the library explicitly using 
-        [hideMusicLibrary](Titanium.Media.hideMusicLibrary).
-    platforms: [iphone, ipad]
-    parameters:
-      - name: options
-        summary: A dictionary of options as described in <MusicLibraryOptionsType>.
-        type: MusicLibraryOptionsType
   - name: queryMusicLibrary
     summary: Searches the music library for items matching the specified search predicates.
     platforms: [iphone, ipad]
@@ -120,7 +120,7 @@ methods:
         summary: The query object to extract information from.
         type: MediaQueryType
     returns:
-        type: Array<MediaItemType>
+        type: Array<Titanium.Media.Item>
   - name: startMicrophoneMonitor
     summary: Starts monitoring the microphone sound level.
     platforms: [iphone, ipad]
@@ -136,7 +136,7 @@ methods:
         `success` callback.
     platforms: [iphone, ipad, android]
   - name: takeScreenshot
-    summary: Takes a screen shot of the visible UI on the device
+    summary: Takes a screen shot of the visible UI on the device.
     description: |
        This method is asynchronous. The screenshot is returned in the callback argument.
        The callback argument's `media` property contains the screenshot image as a 
@@ -149,7 +149,8 @@ methods:
   - name: vibrate
     summary: Makes the device vibrate.
     description: |
-        On Android, a `pattern` argument can be provided to specify a vibration pattern.
+        On Android and Mobile Web, a `pattern` argument can be provided to specify a
+        vibration pattern.
 
         The `pattern` is an array of Number values.  Each number in the array is 
         interpreted as a duration in milliseconds. The first number is the *delay* 
@@ -159,13 +160,15 @@ methods:
         [ 0, 500, 100, 500, 100, 500 ] 
 
         Would cause the vibration to start immediately (delay = 0), and perform three
-        long vibrations (500 ms) separated by short pauses (100ms). 
+        long vibrations (500 ms) separated by short pauses (100ms).
+        
+        On Mobile Web, calling `vibrate` without a `pattern` will stop the vibration.
     parameters: 
       - name: pattern
         summary: Array of values identifying a vibrate pattern (only used on Android).
         optional: true
         type: Array<Number>
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, mobileweb]
 events:
   - name: linechange
     summary: Fired when an audio line type change is detected.
@@ -206,7 +209,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FILEFORMAT_CAF
-    summary: Audio file format Apple Compressed Audio Format (CAF)
+    summary: Audio file format Apple Compressed Audio Format (CAF).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -509,7 +512,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-  - name: MUSIC_PLAYER_STATE_SKEEK_FORWARD
+  - name: MUSIC_PLAYER_STATE_SEEK_FORWARD
     summary: Constant for forward seek state.
     type: Number
     permission: read-only
@@ -575,7 +578,7 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad]
   - name: VIDEO_CONTROL_HIDDEN
-    summary: constant for video controls hidden
+    summary: Constant for video controls hidden.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
@@ -815,12 +818,12 @@ properties:
 # Pseudo-type for showMusicLibrary argument
 ---
 name: MusicLibraryOptionsType
-summary: Simple object for specifying options to [showMusicLibrary](Titanium.Media.showMusicLibrary).
+summary: Simple object for specifying options to [openMusicLibrary](Titanium.Media.openMusicLibrary).
 platforms: [iphone, ipad]
 properties:
   - name: success
     summary: Function to call when the music library selection is made.
-    type: Callback<Object>
+    type: Callback<MusicLibraryResponseType>
   - name:  error 
     summary: Function to call upon receiving an error. 
     type: Callback<Object>
@@ -832,7 +835,7 @@ properties:
     type: Boolean
     default: true
   - name: animated 
-    summary: boolean if the dialog should be animated (defaults to true) upon showing and hiding
+    summary: Boolean if the dialog should be animated when showing and hiding.
     type: Boolean
     default: true
   - name: mediaTypes
@@ -854,6 +857,25 @@ properties:
     summary: Set to `true` to allow the user to select multiple items from the library.
     type: Boolean
     default: false
+
+---
+name: MusicLibraryResponseType
+summary: |
+    Simple object passed to the [openMusicLibrary](Titanium.Media.openMusicLibrary)
+    `success` callback function.
+properties:
+  - name: representative
+    summary: A single representative of the selected items.
+    type: Titanium.Media.Item
+  - name: items
+    summary: A list of all the items chosen by the user.
+    type: Array<Titanium.Media.Item>
+  - name: types
+    summary: |
+        Media types in this collection, represented as the bitwise OR of the media type
+        values for all media types represented in `items`.
+    type: Number
+   
 # Pseudo-type for queryMediaLibrary argument
 ---
 name: MediaQueryType
@@ -911,69 +933,6 @@ properties:
         default is `true`.
     type: Boolean
     
-# Pseudo-type for media library results
----
-name: MediaItemType
-summary: An object representing an entry in the iPod's music library.
-platforms: [iphone, ipad]
-since: "1.5"
-properties:
-  - name: mediaType
-    summary: The type of the media. One of the `MUSIC_MEDIA_TYPE_*`
-        constants on <Titanium.Media>.
-    type: Number
-  - name: title
-    summary: The title ID3 tag contents.
-    type: String
-  - name: albumTitle
-    summary: The album title ID3 tag contents.
-    type: String
-  - name: artist
-    summary: The artist ID3 tag contents.
-    type: String
-  - name: albumArtist
-    summary: The album artist ID3 tag contents.
-    type: String
-  - name: genre
-    summary: The genre ID3 tag contents.
-    type: String
-  - name: composer
-    summary: The composer ID3 tag contents.
-    type: String
-  - name: isCompilation
-    summary: Whether or not the media is part of a compilation album.
-    type: Boolean
-  - name: playbackDuration
-    summary: The playback length.
-    type: Number
-  - name: albumTrackNumber
-    summary: The track number of the album.
-    type: Number
-  - name: albumTrackCount
-    summary: The total number of tracks on the album.
-    type: Number
-  - name: discNumber
-    summary: The disc number of the album.
-    type: Number
-  - name: discCount
-    summary: The total number of discs comprising the album.
-    type: Number
-  - name: lyrics
-    summary: The lyrics ID3 tag contents.
-    type: String
-  - name: podcastTitle
-    summary: The podcast title. Only valid for media of type
-        `MUSIC_MEDIA_TYPE_PODCAST`.
-    type: String
-  - name: playCount
-    summary: The total number of plays.
-    type: Number
-  - name: skipCount
-    summary: The total number of skips.
-    type: Number
-  - name: rating
-    summary: The user rating.
-    type: Number
 # Camera options pseudo-type
 ---
 name: CameraOptionsType

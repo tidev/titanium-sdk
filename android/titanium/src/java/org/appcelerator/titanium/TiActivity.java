@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -39,6 +39,9 @@ public class TiActivity extends TiBaseActivity
 	protected void onResume()
 	{
 		super.onResume();
+		if (getTiApp().isRestartPending()) {
+			return;
+		}
 
 		if (isTab()) {
 			TiApplication.addToActivityStack(this);
@@ -49,6 +52,10 @@ public class TiActivity extends TiBaseActivity
 	protected void onPause()
 	{
 		super.onPause();
+
+		if (getTiApp().isRestartPending()) {
+			return;
+		}
 
 		if (isTab()) {
 			TiApplication.removeFromActivityStack(this);

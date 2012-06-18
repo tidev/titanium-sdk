@@ -5,51 +5,63 @@ extends: Titanium.Proxy
 platforms: [iphone, ipad]
 since: "0.8"
 createable: false
+
 properties:
   - name: BOOKMARKS
     summary: Bookmark style icon
     type: Number
     permission: read-only
+    
   - name: CONTACTS
     summary: Contacts style icon
     type: Number
     permission: read-only
+    
   - name: DOWNLOADS
     summary: Downloads style icon
     type: Number
     permission: read-only
+    
   - name: FAVORITES
     summary: Favorites style icon
     type: Number
     permission: read-only
+    
   - name: FEATURED
     summary: Featured style icon
     type: Number
     permission: read-only
+    
   - name: HISTORY
     summary: History style icon
     type: Number
     permission: read-only
+    
   - name: MORE
     summary: More style icon
     type: Number
     permission: read-only
+    
   - name: MOST_RECENT
     summary: Most recent style icon
     type: Number
     permission: read-only
+    
   - name: MOST_VIEWED
     summary: Most viewed style icon
     type: Number
     permission: read-only
+    
   - name: RECENTS
     summary: Recents style icon
     type: Number
     permission: read-only
+    
   - name: SEARCH
     summary: Search style icon
     type: Number
     permission: read-only
+    
   - name: TOP_RATED
     summary: Top rated style icon
     type: Number

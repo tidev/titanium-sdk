@@ -85,6 +85,9 @@ public class KrollStreamHelper
 
 	public static String toString(InputStream in)
 	{
+		if (in == null) {
+			return null;
+		}
 		return new String(toByteArray(in));
 	}
 }

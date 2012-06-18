@@ -1,84 +1,125 @@
 ---
 name: Titanium.IOStream
-summary: IOStream is the interface that all stream types implement
+summary: IOStream is the interface that all stream types implement.
+description: |
+    See the <Titanium.Stream> module for related utility methods that support asynchronous
+    I/O.
 since: "1.7"
 extends: Titanium.Proxy
 createable: false
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 
 methods:
+
   - name: read
+    summary: Reads data from this stream into a buffer.
+    description: |
+        If `offset` and `length` are specified, data is written into the buffer starting at 
+        position `offset`. Data is read from this stream until one of the following occurs:
+
+        *   the end of this stream is reached
+        *   the end of the buffer is reached
+        *   a total of `length` bytes have been read from the stream
+
+        If `offset` and `length` are omitted, data is written starting at the beginning
+        of the buffer.
+        
+        Returns the number of bytes read, or -1 if the end of stream was reached before
+        any data was read.
+
+        Throws an exception on error. For example, if the `offset` value is past
+        the last byte of `buffer`. 
+
+        This method is synchronous. To perform an asynchronous read on an `IOStream`, use
+        <Titanium.Stream.read>.
+    
     returns:
         type: Number
         summary: Number of bytes read.
-    summary: reads data from stream into a buffer
     parameters:
       - name: buffer
-        summary: buffer to read stream data into
+        summary: Buffer to read stream data into.
         type: Titanium.Buffer
 
-  - name: read
-    returns:
-        type: Number
-        summary: Number of bytes read.
-    summary: reads data from stream into a buffer
-    parameters:
-      - name: buffer
-        summary: buffer to read stream data into
-        type: Titanium.Buffer
       - name: offset
-        summary: offset to start reading buffer data from
+        summary: |
+            Offset into the buffer to start writing stream data.
+            If specified, `length` must also be specified.
         type: Number
+        optional: true
+        default: 0
+
       - name: length
-        summary: length of data to read from buffer
+        summary: |
+            Maximum number of bytes to read.
+            If specified, `offset` must also be specified.
         type: Number
+        optional: true
+        default: Length of the supplied buffer.
 
   - name: write
+    summary: Writes data from a buffer to this stream.
+    description: |
+        If `offset` and `length` are specified, data is read from the buffer starting at
+        `offset`. Bytes are read from the buffer and written to the stream until:
+
+        * the end of the buffer is reached
+        * `length` bytes have been written
+        * the stream returns an error
+
+        If `offset` and `length` are omitted, all of the data in the buffer is written to
+        this stream.
+        
+        Returns the number of bytes actually written.
+        
+        Throws an exception if an error is encountered.
     returns:
         type: Number
         summary: Number of bytes written.
-    summary: writes data from buffer to stream
     parameters:
       - name: buffer
-        summary: buffer to write to stream
+        summary: Buffer to write to this stream.
         type: Titanium.Buffer
 
-  - name: write
-    returns:
-        type: Number
-        summary: Number of bytes written.
-    summary: reads data from stream into a buffer
-    parameters:
-      - name: buffer
-        summary: buffer to write to stream
-        type: Titanium.Buffer
       - name: offset
-        summary: offset to start writing buffer data from
+        summary: |
+            Offset in the buffer of the first byte to write to the stream.
+            If specified, `length` must also be specified.
         type: Number
+        optional: true
+        default: 0
+
       - name: length
-        summary: length of data to write from buffer
+        summary: |
+            Maximum number of bytes to write to the stream.
+            If specified, `offset` must also be specified.
         type: Number
+        optional: true
+        default: Length of the supplied buffer.
 
   - name: isWriteable
+    summary: Indicates whether this stream is writeable.
     returns:
         type: Boolean
-        summary: true if stream is writeable, false otherwise
-    summary: Whether stream is writeable.
+        summary: True if stream is writeable, false otherwise.
 
   - name: isReadable
-    summary: Whether stream is readable.
+    summary: Indicates whether this stream is readable.
     returns:
         type: Boolean
-        summary: true if stream is readable, false otherwise
+        summary: True if stream is readable, false otherwise.
 
   - name: close
-    summary: closes stream and throws exception on error
+    summary: Closes this stream.
+    description: |
+        Throws an exception on error.
 
 
 examples:
-  - title: write data to stream
+  - title: Write Data to a Stream
     example: |
-        
+        This example demonstrates writing data to a stream.
+
             var outBuffer = Ti.createBuffer({data: "write me"});
             var outStream = // stream object could be socket, file, buffer or blob
             
@@ -88,17 +129,43 @@ examples:
             bytesWritten = outStream.write(outBuffer, 2, 5);  // only writes "ite m" to stream
             Ti.API.info("Bytes written:" + bytesWritten);  // should be 5
 
-  - title: read data from stream
+  - title: Read Data From a Stream 
     example: |
+        This shows a simple example of reading data from a stream, one buffer full at a
+        time. 
         
-            var inBuffer = Ti.createBuffer({length: 1024});
+            var size = 0;
+            // read data one buffer full at a time
+            while ((size = instream.read(buffer)) > -1) {
+                // do something with the data here ...
+                Ti.API.info("Read " + size + " bytes.");
+            }
             
-            // assume the inStream contains the string "hello world"
-            var inStream = // stream object could be socket, file, buffer or blob
-            
-            var bytesRead = inStream.read(inBuffer);  // reads "hello world" from stream
-            Ti.API.info("Bytes read:" + bytesRead);  // should be 11
-            
-            bytesRead = inStream.read(inBuffer, 2, 5);  // only reads "llo w" from stream
-            Ti.API.info("Bytes read:" + bytesRead);  // should be 5
+  - title: Read Data With Offset and Length
+    example: |
+        This example shows how to read data from a stream into a buffer. We assume that
+        the `inStream` variable holds a previously initialized stream that contains the 
+        string, "World Titanium".
+
+            var inBuffer = Ti.createBuffer({ value: "Hello [           ]" });
+
+            // Read the first 6 bytes from the stream to the buffer, starting at position 10.
+            var bytesRead = inStream.read(inBuffer, 10, 6);  
+
+            Ti.API.info("Bytes read: " + bytesRead);
+            Ti.API.info(inBuffer.toString());
+
+            // Read the next 8  bytes from the stream to the buffer, starting at position 8.
+            bytesRead = inStream.read(inBuffer, 8, 8);
+
+            Ti.API.info("Bytes read: " + bytesRead);
+            Ti.API.info(inBuffer.toString());
+
+        The second `read` overwrites the data from the first `read`, so the output looks
+        like this:
+
+            [INFO] Bytes read: 6
+            [INFO] Hello [   World   ]
+            [INFO] Bytes read: 8
+            [INFO] Hello [ Titanium  ]
 

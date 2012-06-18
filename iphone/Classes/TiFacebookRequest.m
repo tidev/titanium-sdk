@@ -52,6 +52,8 @@
 - (void)request:(FBRequest2*)request didFailWithError:(NSError*)error
 {
 	VerboseLog(@"[DEBUG] facebook didFailWithError = %@",error);
+    VerboseLog(@"[DEBUG] Facebook Error description : %@ ", [error userInfo]);
+    
 	NSMutableDictionary *event = [self eventParameters:NO];
 	[event setObject:[error localizedDescription] forKey:@"error"];
 	[module _fireEventToListener:@"result" withObject:event listener:callback thisObject:nil];

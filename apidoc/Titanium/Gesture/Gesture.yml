@@ -1,48 +1,147 @@
 ---
 name: Titanium.Gesture
-summary: The top level Gestures module.  The Gesture module is responsible for high level device gestures that are device-wide.
+summary: |
+    The Gesture module is responsible for high-level device gestures such as orientation changes 
+    and shake gestures.
 extends: Titanium.Module
 since: "0.8"
 
+methods:
+  - name: getLandscape
+    summary: Gets the value of the [landscape](Titanium.Gesture.landscape) property.
+    returns:
+        type: Boolean
+    platforms: [mobileweb]
+
+  - name: getPortrait
+    summary: Gets the value of the [portrait](Titanium.Gesture.portrait) property.
+    returns:
+        type: Boolean
+    platforms: [mobileweb]
+
+  - name: isLandscape
+    summary: Returns whether current window is considered landscape by the device.
+    description: Value returns `true` if in landscape, and `false` otherwise.         
+    returns:
+        type: Boolean
+    platforms: [android, iphone, ipad, mobileweb]
+
+  - name: isPortrait
+    summary: Returns whether current window is considered portrait by the device.
+    description: Value returns `true` if in portrait, and `false` otherwise.         
+    returns:
+        type: Boolean
+    platforms: [android, iphone, ipad, mobileweb]
+
 properties:
   - name: portrait
+    summary: Indicates whether current window is considered portrait by the device.
+    description: |
+        Value is `true` if in portrait, and `false` otherwise. 
+        
+        On iOS, use [isPortrait](Titanium.Gesture.isPortrait).
     type: Boolean
-    summary: True if current window is considered portrait by the device, false otherwise
+    accessors: false
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, mobileweb]
 
   - name: landscape
+    summary: Indicates whether current window is considered landscape by the device.
+    description: |
+        Value is `true` if in landscape, and `false` otherwise. 
+        
+        On iOS, use [isLandscape](Titanium.Gesture.isLandscape).
     type: Boolean
-    summary: True if current window is considered landscape by the device, false otherwise
+    accessors: false
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, mobileweb]
 
   - name: orientation
+    summary: Orientation of the current window.  
+    description: |
+        Value may be one of the group of <Titanium.UI> orientation constants, 
+        <Titanium.UI.PORTRAIT>, 
+        <Titanium.UI.UPSIDE_PORTRAIT>, 
+        <Titanium.UI.LANDSCAPE_LEFT>, 
+        <Titanium.UI.LANDSCAPE_RIGHT>, 
+        <Titanium.UI.FACE_UP>, 
+        <Titanium.UI.FACE_DOWN>, 
+        or <Titanium.UI.UNKNOWN>. 
+        
+        On iOS, returns the current orientation of the *device*, regardless of the screen
+        orientation. To determine the current screen orientation on iOS, use 
+        <Titanium.UI.orientation>. 
+        
+        On Android and Mobile Web, returns the orientation of the current window, and never reports 
+        the "reverse" orientations (`LANDSCAPE_RIGHT` and `UPSIDE_PORTRAIT`). 
+        
+        For Mobile Web, the orientation reported by `Gesture.orientation` and 
+        [Window.orientation](Titanium.UI.Window.orientation) is always the same, and corresponds to 
+        the orientation of the browser window. 
+        
+        To set the *allowable* orientations for a window, see <Titanium.UI.Window.orientationModes>.
     type: Number
-    summary: Orientation of the current window.  Value will be one of the following - <Titanium.UI.PORTRAIT>, <Titanium.UI.UPSIDE_PORTRAIT>, <Titanium.UI.LANDSCAPE_LEFT>, <Titanium.UI.LANDSCAPE_RIGHT> or <Titanium.UI.UNKNOWN>
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
 
 events:
   - name: orientationchange
-    summary: fired when the device orientation changes
+    summary: Fired when the device orientation changes.
+    description: |
+        On Android, note that the application must have a heavyweight window or tab group open 
+        in order to receive the `orientationchange` event. It is not necessary for the  heavyweight
+        window to be the topmost window.
+        
+        Almost all real-world applications will have a heavyweight window or a tab group. This is 
+        only likely to be an issue if you create a test case or test application that adds an 
+        orientation change listener from `app.js` without opening a heavyweight window. 
+        
+        Android and Mobile Web do not report the "reverse" orientations,
+        `UPSIDE_PORTRAIT` and `LANDSCAPE_RIGHT`. These are reported as 
+        `PORTRAIT` and `LANDSCAPE_LEFT`, respectively. 
     properties:
       - name: orientation
+        summary: |
+            Orientation of the current window.  
+            Value will be one of the group of <Titanium.UI> orientation constants, 
+            <Titanium.UI.PORTRAIT>, 
+            <Titanium.UI.UPSIDE_PORTRAIT>, 
+            <Titanium.UI.LANDSCAPE_LEFT>, 
+            <Titanium.UI.LANDSCAPE_RIGHT>, 
+            <Titanium.UI.FACE_UP>, 
+            <Titanium.UI.FACE_DOWN>, 
+            or <Titanium.UI.UNKNOWN>.
         type: Number
-        summary: Orientation of the current window.  Value will be one of the following - <Titanium.UI.PORTRAIT>, <Titanium.UI.UPSIDE_PORTRAIT>, <Titanium.UI.LANDSCAPE_LEFT>, <Titanium.UI.LANDSCAPE_RIGHT> or <Titanium.UI.UNKNOWN>
 
   - name: shake
-    summary: fired when the device is shaken
+    summary: Fired when the device is shaken.
+    description: |
+        A shake gesture consists of a series of quick accelerations, and is represented by a series
+        of shake events. 
+        
+        The `timestamp` property represents the interval between shake events. It is measured in 
+        milliseconds on Android and Mobile Web, and in seconds on iOS. 
+        
+        Note that Mobile Web detects shake gestures using the device accelerometer, if the device 
+        and browser support this. This event cannot be generated on Mobile Web in the iOS simulator. 
+        The simulator's **Shake Gesture** menu item generates a native shake event, but does not 
+        generate accelerometer events to the browser.
     properties:
+
       - name: timestamp
+        summary: |
+            Time interval since previous shake event. On iOS, this value is 0 for the first shake 
+            event in a series.
         type: Number
-        summary: timestamp reference since previous shake
+
       - name: x
+        summary: Acceleration along the X axis, in Gs.
         type: Number
-        summary: x coordinate of the shake event
+        
       - name: y
+        summary: Acceleration along the Y axis, in Gs.
         type: Number
-        summary: y coordinate of the shake event
+
       - name: z
+        summary: Acceleration along the Z axis, in Gs.
         type: Number
-        summary: z coordinate of the shake event

@@ -145,27 +145,12 @@ methods:
         summary: Pass `true` to pause the current playback temporarily, `false` to unpause it.
         type: Boolean
     platforms: [iphone, ipad]
-  - name: getUrl
-    summary: Returns the value of the [url](Titanium.Media.AudioPlayer.url) property.
-    description: |
-        This method is not exposed on Android. Access the `url` property directly instead:
-
-            currentURL = myAudioPlayer.url;
-    returns:
-        type: String
-    platforms: [iphone, ipad]
   - name: release
     summary: Stops buffering audio data and releases audio resources.
     description: |
         On Android, this method should be called when you are done streaming a given
         audio object, to release underlying resources, including buffered data.
     platforms: [android]
-  - name: setUrl
-    summary: Sets the value of the [url](Titanium.Media.AudioPlayer.url) property.
-    parameters:
-      - name: url
-        summary: URL to stream audio from.
-        type: String
   - name: start
     summary: Starts or resumes audio playback.
   - name: stateDescription
@@ -283,6 +268,12 @@ properties:
   - name: url
     summary: URL for the audio stream.
     type: String
+  - name: volume
+    summary: Volume of the audio, from 0.0 (muted) to 1.0 (loudest).
+    description: |
+        This volume setting only affects this media, it does not set the device's overall volume level.
+    type: Number
+    since: "2.1.0"
   - name: waiting
     summary: Boolean indicating if the playback is waiting for audio data from the network.
     description: |

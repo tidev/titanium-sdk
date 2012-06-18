@@ -66,6 +66,12 @@ if (![self propertyExists:key]) return defaultValue; \
 	return [defaultsObject arrayForKey:key];
 }
 
+-(id)getObject:(id)args
+{
+	GETPROP
+	return [defaultsObject dictionaryForKey:key];
+}
+
 #define SETPROP \
 ENSURE_TYPE(args,NSArray);\
 NSString *key = [args objectAtIndex:0];\
@@ -106,6 +112,13 @@ if (value==nil || value==[NSNull null]) {\
 }
 
 -(void)setList:(id)args
+{
+	SETPROP
+	[defaultsObject setObject:value forKey:key];
+	[defaultsObject synchronize];
+}
+
+-(void)setObject:(id)args
 {
 	SETPROP
 	[defaultsObject setObject:value forKey:key];

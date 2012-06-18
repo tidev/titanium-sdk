@@ -1,12 +1,13 @@
 ---
 name: Titanium.XML.NodeList
 extends: Titanium.Proxy
-summary: A list of <Titanium.XML.Node> objects. This conforms to the 
-    [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html) 
-    definition of a DOM NodeList.
+summary: A list of <Titanium.XML.Node> objects. Implements the 
+    [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-536297177) 
+    on Android and iOS. Exposes the 
+    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-536297177) implementation on Mobile Web.
 since: "0.9"
 createable: false
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 methods:
   - name: item
     summary: Returns the <Titanium.XML.Node> object at the specified index.

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -94,7 +94,10 @@ public class TiUITableView extends TiUIView
 	@Override
 	public void processProperties(KrollDict d)
 	{
-		tableView = new TiTableView((TableViewProxy) proxy);
+		// Don't create a new table view if one already exists
+		if (tableView == null) {
+			tableView = new TiTableView((TableViewProxy) proxy);
+		}
 		Activity activity = proxy.getActivity();
 		if (activity instanceof TiBaseActivity) {
 			((TiBaseActivity) activity).addOnLifecycleEventListener(this);
@@ -196,5 +199,10 @@ public class TiUITableView extends TiUIView
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
+	}
+
+	@Override
+	public void registerForTouch() {
+		registerForTouch(tableView.getListView());
 	}
 }

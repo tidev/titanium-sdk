@@ -8,6 +8,9 @@ package org.appcelerator.titanium.bridge;
 
 import org.appcelerator.kroll.KrollProxy;
 
+/**
+ * @deprecated
+ */
 public interface OnEventListenerChange
 {
 	void eventListenerAdded(String eventName, int count, KrollProxy proxy);

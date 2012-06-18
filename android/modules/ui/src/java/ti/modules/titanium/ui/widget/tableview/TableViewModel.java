@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -118,12 +119,23 @@ public class TableViewModel
 					if (headerTitle != null) {
 						viewModel.add(itemForHeader(index, section, headerTitle, null));
 					}
+					if (section.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
+						Object headerView = section.getProperty(TiC.PROPERTY_HEADER_VIEW);
+						if (headerView instanceof TiViewProxy) {
+							Item item = new Item(index);
+							item.proxy = (TiViewProxy) headerView;
+							item.className = TableViewProxy.CLASSNAME_HEADERVIEW;
+							viewModel.add(item);
+						} else {
+							Log.e(LCAT, "headerView must be of type TiViewProxy");
+						}
+					}
 					for (TableViewRowProxy row : section.getRows()) {
 						Item item = new Item(index);
 						item.sectionIndex = sectionIndex;
 						item.indexInSection = indexInSection;
 						item.proxy = row;
-						item.rowData = row.getProperties().get("rowData");
+						item.rowData = row.getProperties().get(TiC.PROPERTY_ROW_DATA);
 						item.className = classNameForRow(row);
 
 						viewModel.add(item);

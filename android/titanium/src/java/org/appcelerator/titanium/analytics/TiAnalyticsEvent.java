@@ -29,6 +29,9 @@ import org.json.JSONObject;
 //- name     	-- the name of the event (string)
 //- data		-- the event data (NULL value if none provided) (object)
 
+/**
+ * This is the parent class of all Titanium analytics events.
+ */
 public class TiAnalyticsEvent
 {
 	private static final String LCAT = "TitaniumAnalyticsEvent";
@@ -52,6 +55,12 @@ public class TiAnalyticsEvent
 
 	private boolean expandPayload;
 
+	/**
+	 * Constructs an analytics event.
+	 * @param eventType the analytics event type.
+	 * @param eventEvent the analytics event.
+	 * @param eventPayload the analytics payload.
+	 */
 	TiAnalyticsEvent(String eventType, String eventEvent, String eventPayload) {
 		try {
 			JSONObject o = new JSONObject();

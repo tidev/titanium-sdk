@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollDict;
@@ -53,10 +55,11 @@ import android.os.Message;
 import android.util.DisplayMetrics;
 
 /**
- * The main application entry point for all Titanium applications and services
+ * The main application entry point for all Titanium applications and services.
  */
 public abstract class TiApplication extends Application implements Handler.Callback, KrollApplication
 {
+	private static final String SYSTEM_UNIT = "system";
 	private static final String LCAT = "TiApplication";
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final long STATS_WAIT = 300000;
@@ -66,6 +69,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	private static final String PROPERTY_THREAD_STACK_SIZE = "ti.android.threadstacksize";
 	private static final String PROPERTY_COMPILE_JS = "ti.android.compilejs";
 	private static final String PROPERTY_ENABLE_COVERAGE = "ti.android.enablecoverage";
+	private static final String PROPERTY_DEFAULT_UNIT = "ti.ui.defaultunit";
 	private static long lastAnalyticsTriggered = 0;
 	private static long mainThreadId = 0;
 
@@ -78,6 +82,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public static final String APPLICATION_PREFERENCES_NAME = "titanium";
 	public static final String PROPERTY_FASTDEV = "ti.android.fastdev";
 
+	private boolean restartPending = false;
 	private String baseUrl;
 	private String startUrl;
 	private HashMap<String, SoftReference<KrollProxy>> proxyMap;
@@ -90,6 +95,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	private boolean needsStartEvent;
 	private boolean needsEnrollEvent;
 	private String buildVersion = "", buildTimestamp = "", buildHash = "";
+	private String defaultUnit;
 	private TiResponseCache responseCache;
 	private BroadcastReceiver externalStorageReceiver;
 
@@ -150,6 +156,11 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		Log.i(LCAT, "Titanium " + buildVersion + " (" + buildTimestamp + " " + buildHash + ")");
 	}
 
+	/**
+	 * Retrieves the instance of TiApplication. There is one instance per Android application.
+	 * @return the instance of TiApplication.
+	 * @module.api
+	 */
 	public static TiApplication getInstance()
 	{
 		if (tiApp != null) {
@@ -173,8 +184,49 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		activityStack.remove(activity);
 	}
 
-	// This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
-	// time we need to grab the current activity
+	// Calls finish on the list of activities in the stack. This should only be called when we want to terminate the
+	// application (typically when the root activity is destroyed)
+	public static void terminateActivityStack()
+	{
+		if (activityStack == null || activityStack.size() == 0) {
+			return;
+		}
+
+		WeakReference<Activity> activityRef;
+		Activity currentActivity;
+
+		for (int i = activityStack.size() - 1; i >= 0; i--) {
+			activityRef = activityStack.get(i);
+			if (activityRef != null) {
+				currentActivity = activityRef.get();
+				if (currentActivity != null) {
+					currentActivity.finish();
+				}
+			}
+		}
+		activityStack.clear();
+	}
+
+	public boolean activityStackHasLaunchActivity()
+	{
+		if (activityStack == null || activityStack.size() == 0) {
+			return false;
+		}
+		for (WeakReference<Activity> activityRef : activityStack) {
+			if (activityRef != null && activityRef.get() instanceof TiLaunchActivity) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	
+	/**
+	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
+	 * time we need to grab the current activity.
+	 * @return the current activity
+	 * @module.api
+	 */
 	public static Activity getAppCurrentActivity()
 	{
 		TiApplication tiApp = getInstance();
@@ -185,8 +237,12 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return tiApp.getCurrentActivity();
 	}
 
-	// This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
-	// time we need to grab the root or current activity
+	/**
+	 * This is a convenience method to avoid having to check TiApplication.getInstance() is not null every 
+	 * time we need to grab the root or current activity.
+	 * @return root activity if exists. If root activity doesn't exist, returns current activity if exists. Otherwise returns null.
+	 * @module.api
+	 */
 	public static Activity getAppRootOrCurrentActivity()
 	{
 		TiApplication tiApp = getInstance();
@@ -197,16 +253,20 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return tiApp.getRootOrCurrentActivity();
 	}
 
+	/**
+	 * @return the current activity if exists. Otherwise, the thread will wait for a valid activity to be visible.
+	 * @module.api
+	 */
 	public Activity getCurrentActivity()
 	{
 		int activityStackSize;
 
 		while ((activityStackSize = activityStack.size()) > 0) {
 			Activity activity = (activityStack.get(activityStackSize - 1)).get();
-			if (activity == null) {
-				Log.i(LCAT, "activity reference is invalid, removing from activity stack");
-				activityStack.remove(activityStackSize -1);
 
+			// Skip and remove any activities which are dead or in the process of finishing.
+			if (activity == null || activity.isFinishing()) {
+				activityStack.remove(activityStackSize -1);
 				continue;
 			}
 
@@ -219,6 +279,9 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return null;
 	}
 	
+	/**
+	 * @return root activity if exists. If root activity doesn't exist, returns current activity if exists. Otherwise returns null.
+	 */
 	public Activity getRootOrCurrentActivity()
 	{
 		Activity activity;
@@ -289,7 +352,7 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		proxyMap = new HashMap<String, SoftReference<KrollProxy>>(5);
 
 		appProperties = new TiProperties(getApplicationContext(), APPLICATION_PREFERENCES_NAME, false);
-		systemProperties = new TiProperties(getApplicationContext(), "system", true);
+		systemProperties = new TiProperties(getApplicationContext(), SYSTEM_UNIT, true);
 
 		if (getDeployType().equals(DEPLOY_TYPE_DEVELOPMENT)) {
 			deployData = new TiDeployData(this);
@@ -388,6 +451,9 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		tempFileHelper.scheduleCleanTempDir();
 	}
 
+	/**
+	 * @return the app's root activity if exists, null otherwise.
+	 */
 	public TiRootActivity getRootActivity()
 	{
 		if (rootActivity == null) {
@@ -395,6 +461,21 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		}
 
 		return rootActivity.get();
+	}
+
+	/**
+	 * @return whether the root activity is available
+	 */
+	public boolean isRootActivityAvailable()
+	{
+		if (rootActivity != null) {
+			Activity activity = rootActivity.get();
+			if (activity != null) {
+				return !activity.isFinishing();
+			}
+		}
+
+		return false;
 	}
 
 	public void setCurrentActivity(Activity callingActivity, Activity newValue)
@@ -463,6 +544,11 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return handled;
 	}
 
+	/**
+	 * @return the app's properties, which are listed in tiapp.xml.
+	 * App properties can also be set at runtime by the application in Javascript.
+	 * @module.api
+	 */
 	public TiProperties getAppProperties()
 	{
 		return appProperties;
@@ -478,6 +564,9 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return appInfo;
 	}
 
+	/**
+	 * @return the app's GUID. Each application has a unique GUID.
+	 */
 	public String getAppGUID()
 	{
 		return getAppInfo().getGUID();
@@ -526,6 +615,10 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return getAppInfo().isAnalyticsEnabled();
 	}
 
+	/**
+	 * Posts analytic event to the server if the application is collecting analytic information.
+	 * @param event the analytic event to be posted.
+	 */
 	public synchronized void postAnalyticsEvent(TiAnalyticsEvent event)
 	{
 		if (!collectAnalytics()) {
@@ -607,6 +700,9 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return getSystemProperties().getString(PROPERTY_DEPLOY_TYPE, DEPLOY_TYPE_DEVELOPMENT);
 	}
 
+	/**
+	 * @return the build version, which is built in as part of the SDK.
+	 */
 	public String getTiBuildVersion()
 	{
 		return buildVersion;
@@ -620,6 +716,20 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public String getTiBuildHash()
 	{
 		return buildHash;
+	}
+
+	public String getDefaultUnit()
+	{
+		if (defaultUnit == null) {
+			defaultUnit = getSystemProperties().getString(PROPERTY_DEFAULT_UNIT, SYSTEM_UNIT);
+			// Check to make sure default unit is valid, otherwise use system
+			Pattern unitPattern = Pattern.compile("system|px|dp|dip|mm|cm|in");
+			Matcher m = unitPattern.matcher(defaultUnit);
+			if (!m.matches()) {
+				defaultUnit = SYSTEM_UNIT;
+			}
+		}
+		return defaultUnit;
 	}
 
 	public int getThreadStackSize()
@@ -661,9 +771,16 @@ public abstract class TiApplication extends Application implements Handler.Callb
 			Log.d(LCAT, "Here is call stack leading to restart. (NOTE: this is not a real exception, just a stack trace.) :");
 			(new Exception()).printStackTrace();
 		}
-		if (getRootActivity() != null) {
-			getRootActivity().restartActivity(delay);
+		this.restartPending = true;
+		TiRootActivity rootActivity = getRootActivity();
+		if (rootActivity != null) {
+			rootActivity.restartActivity(delay);
 		}
+	}
+
+	public boolean isRestartPending()
+	{
+		return restartPending;
 	}
 
 	public TiTempFileHelper getTempFileHelper()
@@ -671,6 +788,10 @@ public abstract class TiApplication extends Application implements Handler.Callb
 		return tempFileHelper;
 	}
 
+	/**
+	 * @return true if the current thread is the main thread, false otherwise.
+	 * @module.api
+	 */
 	public static boolean isUIThread()
 	{
 		if (mainThreadId == Thread.currentThread().getId()) {
@@ -748,6 +869,24 @@ public abstract class TiApplication extends Application implements Handler.Callb
 	public void dispose()
 	{
 		TiActivityWindows.dispose();
+	}
+
+	/**
+	 * Our forced restarts (for conditions such as android bug 2373, TIMOB-1911 and TIMOB-7293)
+	 * don't create new processes or pass through TiApplication() (the ctor). We need to reset
+	 * some state to better mimic a complete application restart.
+	 */
+	public void beforeForcedRestart()
+	{
+		restartPending = false;
+		currentActivity = null;
+		TiApplication.isActivityTransition.set(false);
+		if (TiApplication.activityTransitionListeners != null) {
+			TiApplication.activityTransitionListeners.clear();
+		}
+		if (TiApplication.activityStack != null) {
+			TiApplication.activityTransitionListeners.clear();
+		}
 	}
 
 	public abstract void verifyCustomModules(TiRootActivity rootActivity);

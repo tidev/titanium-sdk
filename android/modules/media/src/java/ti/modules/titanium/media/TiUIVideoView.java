@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -37,6 +37,9 @@ public class TiUIVideoView extends TiUIView
 	public TiUIVideoView(TiViewProxy proxy)
 	{
 		super(proxy);
+		TiCompositeLayout.LayoutParams params = getLayoutParams();
+		params.autoFillsHeight = true;
+		params.autoFillsWidth = true;
 	}
 
 	/**
@@ -60,7 +63,7 @@ public class TiUIVideoView extends TiUIView
 	private void initView()
 	{
 		if (nativeView == null) {
-			TiCompositeLayout layout = new TiCompositeLayout(videoView.getContext());
+			TiCompositeLayout layout = new TiCompositeLayout(videoView.getContext(), proxy);
 			layout.addView(videoView, new TiCompositeLayout.LayoutParams());
 			setNativeView(layout);
 		}
@@ -132,6 +135,10 @@ public class TiUIVideoView extends TiUIView
 
 		// Proxy holds the media control style directly.
 		setMediaControlStyle(getPlayerProxy().getMediaControlStyle());
+
+		if (d.containsKey(TiC.PROPERTY_VOLUME)) {
+			videoView.setVolume(TiConvert.toFloat(d, TiC.PROPERTY_VOLUME, 1.0f));
+		}
 	}
 
 	@Override
@@ -149,8 +156,12 @@ public class TiUIVideoView extends TiUIView
 				Log.w(TAG, "contentURL is deprecated, use url instead");
 				proxy.setProperty(TiC.PROPERTY_URL, newValue);
 			}
+
 		} else if (key.equals(TiC.PROPERTY_SCALING_MODE)) {
 			videoView.setScalingMode(TiConvert.toInt(newValue));
+		} else if (key.equals(TiC.PROPERTY_VOLUME)) {
+			videoView.setVolume(TiConvert.toFloat(newValue));
+
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

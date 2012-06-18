@@ -15,6 +15,7 @@
 @property(nonatomic,readonly) NSString *resourcesDirectory;
 @property(nonatomic,readonly) NSString *applicationDirectory;
 @property(nonatomic,readonly) NSString *applicationDataDirectory;
+@property(nonatomic,readonly) NSString *applicationCacheDirectory;
 @property(nonatomic,readonly) NSString *tempDirectory;
 @property(nonatomic,readonly) NSString *separator;
 @property(nonatomic,readonly) NSString *lineEnding;

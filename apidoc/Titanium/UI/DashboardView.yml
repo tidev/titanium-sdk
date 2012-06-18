@@ -1,73 +1,287 @@
 ---
 name: Titanium.UI.DashboardView
-summary: The Dashboard View provides a view that supports the ability to have Springboard-like view of icons which can be reordered by dragging and can contain multiple pages of icons in a scrollable view. The Dashboard View is created by the method <Titanium.UI.createDashboardView>.
+summary: |
+    A dashboard view is an iOS Springboard-like view of <Titanium.UI.DashboardItem> items that may 
+    be deleted and reordered by the user using its built-in edit mode.
+description: |
+    The DashboardView is created using the <Titanium.UI.createDashboardView> method.
+    
+    Dashboard view's edit mode may be activated by a longpress of a <Titanium.UI.DashboardItem> item, 
+    unless this behavior has been disabled by the [editable](Titanium.UI.DashboardView.editable) 
+    property. As a dashboard view does not inherently provide a way to exit edit mode, this must be 
+    explicitly defined.
+    
+    When edit mode has been activated, the item icons wobble by default to act as a visual cue. 
+    This behavior may be disabled using the [wobble](Titanium.UI.DashboardView.wobble) property.
+    
+    If a dashboard contains more than 9 items, it will be paged into screens in a 3 x 3 formation 
+    using its built-in scrollable view. A paging control is added to the bottom of the view to 
+    indicate the active page.
+    
+    Note that a dashboard is only intended to be used in [PORTRAIT](Titanium.UI.PORTRAIT) 
+    orientation mode.
 extends: Titanium.UI.View
 since: "1.2"
 platforms: [iphone, ipad]
-methods:
-  - name: startEditing
-    summary: put the dashboard in edit mode
-  - name: stopEditing
-    summary: cancel editing
+
 events:
   - name: commit
-    summary: fired when editing ends
+    summary: Fired when edit mode ends.
+    description: |
+        This event is invoked by the <Titanium.UI.DashboardView.stopEditing> method.
     properties:
-      - name: y
-        summary: the y point of the event, in receiving view coordinates
       - name: globalPoint
-        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: Coordinates `x` and `y` of the event from the `source` view's coordinate system.
+        type: Dictionary
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
+            
       - name: x
-        summary: the x point of the event in receiving view coordiantes
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
   - name: delete
-    summary: fired when a  <Titanium.UI.DashboardItem> is deleted during editings
+    summary: Fired when an item is deleted in edit mode.
     properties:
-      - name: item
-        summary: the <Titanium.UI.DashboardItem> that was deleted
-      - name: y
-        summary: the y point of the event, in receiving view coordinates
-      - name: x
-        summary: the x point of the event in receiving view coordiantes
       - name: globalPoint
-        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: Coordinates `x` and `y` of the event from the `source` view's coordinate system.
+        type: Dictionary
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
+            
+      - name: item
+        summary: Item that was deleted.
+        type: Titanium.UI.DashboardItem
+        
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+  - name: dragEnd
+    summary: Fired when an item finishes being dragged in edit mode.
+    properties:
+      - name: globalPoint
+        summary: Coordinates `x` and `y` of the event from the `source` view's coordinate system.
+        type: Dictionary
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
+            
+      - name: item
+        summary: Item that was dragged.
+        type: Titanium.UI.DashboardItem
+        
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+  - name: dragStart
+    summary: Fired when an item starts being dragged in edit mode.
+    properties:
+      - name: globalPoint
+        summary: Coordinates `x` and `y` of the event from the `source` view's coordinate system.
+        type: Dictionary
+        platforms: [iphone, ipad]
+        deprecated:
+            since: "1.8.0"
+            
+      - name: item
+        summary: Item that was dragged.
+        type: Titanium.UI.DashboardItem
+        
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
   - name: edit
-    summary: fired when editing begins
+    summary: Fired when edit mode starts.
+    description: |
+        This event is invoked by a longpress of a <Titanium.UI.DashboardItem> item or the 
+        <Titanium.UI.DashboardView.startEditing> method.
     properties:
-      - name: y
-        summary: the y point of the event, in receiving view coordinates
       - name: globalPoint
-        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: Coordinates `x` and `y` of the event from the `source` view's coordinate system.
+        type: Dictionary
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
+            
       - name: x
-        summary: the x point of the event in receiving view coordiantes
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
   - name: move
-    summary: fired when a  <Titanium.UI.DashboardItem> is moved during editing
+    summary: Fired when an item is moved in edit mode.
     properties:
-      - name: item
-        summary: the <Titanium.UI.DashboardItem> that was moved
-      - name: items
-        summary: the pending data array in the new order (uncommitted)
-      - name: y
-        summary: the y point of the event, in receiving view coordinates
-      - name: x
-        summary: the x point of the event in receiving view coordiantes
       - name: globalPoint
-        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
+        summary: Coordinates `x` and `y` of the event from the `source` view's coordinate system.
+        type: Dictionary
         platforms: [iphone, ipad]
         deprecated:
             since: "1.8.0"
+
+      - name: item
+        summary: Item that was moved.
+        type: Titanium.UI.DashboardItem
+        
+      - name: items
+        summary: List of items to be committed, possibly in new order, when edit mode ends.
+        type: Array<Titanium.UI.DashboardItem>
+        
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+        
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+
+methods:
+  - name: startEditing
+    summary: Enable edit mode.
+    description: This method causes the <Titanium.UI.DashboardView.edit> event to fire.
+    
+  - name: stopEditing
+    summary: Disable edit mode.
+    description: This method causes the <Titanium.UI.DashboardView.commit> event to fire.
+
 properties:
   - name: data
-    summary: an array of <Titanium.UI.DashboardItem> objects to display in the view
-    type: Array<Object>
-  - name: wobble
-    summary: true (default) to wobble during edit, false to disable wobble effect
+    summary: Items to display in this view.
+    type: Array<Titanium.UI.DashboardItem>
+
+  - name: editable
+    summary: Determines whether edit mode is activated by a longpress of an item.
+    description: |
+        Set to `false` to prevent a longpress from activating edit mode.
     type: Boolean
+    default: true
+    
+  - name: wobble
+    summary: Determines whether the wobble visual editing cue is enabled in edit mode.
+    description: |
+        Set to `false` to disable wobble effect.
+        
+        Must be defined before edit mode is activated in order to take effect.
+    default: true
+    type: Boolean
+
+examples:
+  - title: Dashboard Demo
+    example: |
+        Create a toolbar with an edit/done button and a dashboard of items on a single screen. 
+        Set the badge value for some items, and allow them to be reset with a click. Enter edit mode 
+        with a longpress of a dashboard item (default behavior). Toggle edit mode with a click to 
+        the toolbar button.
+        
+        Copy the files in the KitchenSink 
+        [dashboard](https://github.com/appcelerator/titanium_mobile/tree/master/demos/KitchenSink/Resources/images/dashboard) 
+        directory to the local project `/images/dashboard` directory.
+        
+                
+            var win = Ti.UI.createWindow({
+                backgroundColor: '#13386c'
+            });
+            
+            var button = Ti.UI.createButton({
+                title: 'Edit',
+                style: Ti.UI.iPhone.SystemButtonStyle.DONE,
+            });
+            
+            var toolbar = Ti.UI.iOS.createToolbar({
+                items:[button],
+                top: 0
+            });
+            win.add(toolbar);
+            
+            var label = Ti.UI.createLabel({
+              color: 'white',
+              font: { fontSize: 14 },
+              text: 'Click an item to reset badge\nPress and hold an item to enable edit mode',
+              textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
+              top: 55,
+              height: 40,
+              width: 300
+            });
+            win.add(label);
+            
+            var dashboardData = [];
+            var itemData = [
+              { name: 'account', badge: 10 },
+              { name: 'cases', badge: 2 },
+              { name: 'calls', badge: 2 },
+              { name: 'contacts', badge: 5},
+              { name: 'emps' }, 
+              { name: 'leads' },
+              { name: 'meetings', badge: 3 },
+              { name: 'opps',  badge:  126 }, // badge will be displayed as "99+"
+              { name: 'tasks' }
+            ];
+            
+            for (var i=0, ilen=itemData.length; i<ilen; i++){
+              var item = Ti.UI.createDashboardItem({
+                badge: itemData[i].badge,
+                image: '/images/dashboard/' + itemData[i].name + '_off.png',
+                selectedImage: '/images/dashboard/' + itemData[i].name + '_on.png',
+                label: itemData[i].name
+              });
+              dashboardData.push(item);
+            }
+            
+            var dashboard = Ti.UI.createDashboardView({
+              data: dashboardData,
+              wobble: true,
+              top: 100
+            });
+            win.add(dashboard);
+            
+            var isEditable = false;
+            
+            button.addEventListener('click', function(e){
+              if(isEditable){
+                dashboard.stopEditing();
+              } else {
+                dashboard.startEditing();
+              }
+            });
+            
+            dashboard.addEventListener('edit',function(e){
+              button.title = 'Done';
+              button.style = Ti.UI.iPhone.SystemButtonStyle.DONE;
+              isEditable = true;
+            });
+            
+            dashboard.addEventListener('commit',function(e){
+              button.title = 'Edit';
+              button.style = Ti.UI.iPhone.SystemButtonStyle.PLAIN;
+              isEditable = false;
+            });
+            
+            dashboard.addEventListener('click', function(e){
+              e.item.badge = 0;
+            });
+            
+            win.open();
+

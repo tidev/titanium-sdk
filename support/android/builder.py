@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Appcelerator Titanium Mobile
-# Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
 # Licensed under the terms of the Apache Public License
 # Please see the LICENSE included with this distribution for details.
 #
@@ -10,8 +10,7 @@
 # and debugging Titanium Mobile applications on Android
 #
 import os, sys, subprocess, shutil, time, signal, string, platform, re, glob, hashlib, imp, inspect
-import run, avd, prereq, zipfile, tempfile, fnmatch, codecs, traceback, simplejson
-from mako.template import Template
+import run, avd, prereq, zipfile, tempfile, fnmatch, codecs, traceback
 from os.path import splitext
 from compiler import Compiler
 from os.path import join, splitext, split, exists
@@ -26,6 +25,8 @@ sys.path.append(top_support_dir)
 sys.path.append(os.path.join(top_support_dir, 'common'))
 sys.path.append(os.path.join(top_support_dir, 'module'))
 
+import simplejson
+from mako.template import Template
 from tiapp import *
 from android import Android
 from androidsdk import AndroidSDK
@@ -50,6 +51,21 @@ uncompressed_types = [
 	".rtttl", ".imy", ".xmf", ".mp4", ".m4a",
 	".m4v", ".3gp", ".3gpp", ".3g2", ".3gpp2",
 	".amr", ".awb", ".wma", ".wmv"
+]
+
+# Java keywords to reference in case app id contains java keyword
+java_keywords = [
+	"abstract",	"continue",	"for", "new", "switch",
+	"assert", "default", "goto", "package", "synchronized",
+	"boolean", "do", "if", "private", "this",
+	"break", "double", "implements", "protected", "throw",
+	"byte", "else", "import", "public", "throws",
+	"case", "enum", "instanceof", "return", "transient",
+	"catch", "extends", "int", "short", "try",
+	"char", "final", "interface", "static", "void",
+	"class", "finally", "long",	"strictfp", "volatile",
+	"const", "float", "native",	"super", "while",
+	"true", "false", "null"
 ]
 
 
@@ -141,10 +157,12 @@ def copy_all(source_folder, dest_folder, ignore_dirs=[], ignore_files=[], ignore
 				os.makedirs(to_directory)
 			shutil.copyfile(from_, to_)
 
-def remove_orphaned_files(source_folder, target_folder):
+def remove_orphaned_files(source_folder, target_folder, ignore=[]):
 	is_res = source_folder.endswith('Resources') or source_folder.endswith('Resources' + os.sep)
 	for root, dirs, files in os.walk(target_folder):
 		for f in files:
+			if f in ignore:
+				continue
 			full = os.path.join(root, f)
 			rel = full.replace(target_folder, '')
 			if rel[0] == os.sep:
@@ -199,6 +217,14 @@ class Builder(object):
 		self.debugger_port = -1
 		self.fastdev_port = -1
 		self.fastdev = False
+		self.compile_js = False
+		
+		# don't build if a java keyword in the app id would cause the build to fail
+		tok = self.app_id.split('.')
+		for token in tok:
+			if token in java_keywords:
+				error("Do not use java keywords for project app id, such as " + token)
+				sys.exit(1)
 
 		temp_tiapp = TiAppXML(self.project_tiappxml)
 		if temp_tiapp and temp_tiapp.android and 'tool-api-level' in temp_tiapp.android:
@@ -243,11 +269,16 @@ class Builder(object):
 		self.jarsigner = "jarsigner"
 		self.javac = "javac"
 		self.java = "java"
+		java_home = None
+
+		if os.environ.has_key("JAVA_HOME") and os.path.exists(os.environ["JAVA_HOME"]):
+			java_home = os.environ["JAVA_HOME"]
+
 		if platform.system() == "Windows":
-			if os.environ.has_key("JAVA_HOME"):
-				home_jarsigner = os.path.join(os.environ["JAVA_HOME"], "bin", "jarsigner.exe")
-				home_javac = os.path.join(os.environ["JAVA_HOME"], "bin", "javac.exe")
-				home_java = os.path.join(os.environ["JAVA_HOME"], "bin", "java.exe")
+			if java_home:
+				home_jarsigner = os.path.join(java_home, "bin", "jarsigner.exe")
+				home_javac = os.path.join(java_home, "bin", "javac.exe")
+				home_java = os.path.join(java_home, "bin", "java.exe")
 				found = True
 				# TODO Document this path and test properly under windows
 				if os.path.exists(home_jarsigner):
@@ -279,11 +310,15 @@ class Builder(object):
 						self.jarsigner = os.path.join(path, 'jarsigner.exe')
 						self.javac = os.path.join(path, 'javac.exe')
 						self.java = os.path.join(path, 'java.exe')
+						java_home = os.path.dirname(os.path.dirname(self.javac))
 						found = True
 						break
 				if not found:
 					error("Error locating JDK: set $JAVA_HOME or put javac and jarsigner on your $PATH")
 					sys.exit(1)
+
+		if not os.environ.has_key("JAVA_HOME") and java_home:
+			os.environ["JAVA_HOME"] = java_home
 
 	def wait_for_home(self, type):
 		max_wait = 20
@@ -357,8 +392,28 @@ class Builder(object):
 			#time.sleep(20) # give it a little more time to get installed
 		return True
 	
-	def create_avd(self,avd_id,avd_skin):
-		name = "titanium_%s_%s" % (avd_id,avd_skin)
+	def create_avd(self, avd_id, avd_skin, avd_abi):
+		# Sanity check the AVD to see if the ABI is available, or
+		# necessary.
+		
+		available_avds = avd.get_avds(self.sdk)
+		multiple_abis = False
+		for device in available_avds:
+			if device['id'] == avd_id:
+				default_abi = device['abis'][0]
+				multiple_abis = ( len(device['abis']) != 1 )
+				if avd_abi is None:
+					avd_abi = default_abi
+				elif avd_abi not in device['abis']:
+					warn("ABI %s not supported for AVD ID %s: Using default ABI %s" % (avd_abi, avd_id, default_abi))
+					avd_abi = default_abi
+				break
+			
+		if multiple_abis:
+			name = "titanium_%s_%s_%s" % (avd_id, avd_skin, avd_abi)
+		else:
+			name = "titanium_%s_%s" % (avd_id, avd_skin)
+
 		name = name.replace(' ', '_')
 		if not os.path.exists(self.home_dir):
 			os.makedirs(self.home_dir)
@@ -375,7 +430,10 @@ class Builder(object):
 		if not os.path.exists(my_avd):
 			info("Creating new Android Virtual Device (%s %s)" % (avd_id,avd_skin))
 			inputgen = os.path.join(template_dir,'input.py')
-			pipe([sys.executable, inputgen], [self.sdk.get_android(), '--verbose', 'create', 'avd', '--name', name, '--target', avd_id, '-s', avd_skin, '--force', '--sdcard', self.sdcard])
+			abi_args = []
+			if multiple_abis:
+				abi_args = ['-b', avd_abi]
+			pipe([sys.executable, inputgen], [self.sdk.get_android(), '--verbose', 'create', 'avd', '--name', name, '--target', avd_id, '-s', avd_skin, '--force', '--sdcard', self.sdcard] + abi_args)
 			inifile = os.path.join(my_avd,'config.ini')
 			inifilec = open(inifile,'r').read()
 			inifiledata = open(inifile,'w')
@@ -387,12 +445,19 @@ class Builder(object):
 			
 		return name
 	
-	def run_emulator(self,avd_id,avd_skin):
+	def run_emulator(self, avd_id, avd_skin, avd_name, avd_abi, add_args):
 		info("Launching Android emulator...one moment")
 		debug("From: " + self.sdk.get_emulator())
 		debug("SDCard: " + self.sdcard)
-		debug("AVD ID: " + avd_id)
-		debug("AVD Skin: " + avd_skin)
+		if avd_name is None:
+			debug("AVD ID: " + avd_id)
+			debug("AVD Skin: " + avd_skin)
+		else:
+			debug("AVD Name: " + avd_name)
+			
+		if avd_abi is not None:
+			debug("AVD ABI: " + avd_abi)
+
 		debug("SDK: " + sdk_dir)
 		
 		# make sure adb is running on windows, else XP can lockup the python
@@ -407,7 +472,8 @@ class Builder(object):
 				sys.exit()
 		
 		# this will create an AVD on demand or re-use existing one if already created
-		avd_name = self.create_avd(avd_id,avd_skin)
+		if avd_name == None:
+			avd_name = self.create_avd(avd_id, avd_skin, avd_abi)
 
 		# start the emulator
 		emulator_cmd = [
@@ -419,11 +485,12 @@ class Builder(object):
 			'-sdcard',
 			self.get_sdcard_path(),
 			'-logcat',
-			'*:d,*',
+			'*:d,*,TiAPI:V',
 			'-no-boot-anim',
 			'-partition-size',
 			'128' # in between nexusone and droid
 		]
+		emulator_cmd.extend(add_args);
 		debug(' '.join(emulator_cmd))
 		
 		p = subprocess.Popen(emulator_cmd)
@@ -500,6 +567,15 @@ class Builder(object):
 			if os.path.exists(platform_folder):
 				copy_all(platform_folder, self.project_dir, one_time_msg="Copying platform-specific files for '%s' module" % module.manifest.name)
 
+	def copy_commonjs_modules(self):
+		info('Copying CommonJS modules...')
+		for module in self.modules:
+			if module.js is None:
+				continue
+			module_name = os.path.basename(module.js)
+			self.non_orphans.append(module_name)
+			shutil.copy(module.js, self.assets_resources_dir)
+
 	def copy_project_platform_folder(self, ignore_dirs=[], ignore_files=[]):
 		if not os.path.exists(self.platform_dir):
 			return
@@ -561,7 +637,6 @@ class Builder(object):
 			shutil.copy(orig, dest)
 		
 		fileset = []
-
 		if self.force_rebuild or self.deploy_type == 'production' or \
 			(self.js_changed and not self.fastdev):
 			for root, dirs, files in os.walk(os.path.join(self.top_dir, "Resources")):
@@ -596,7 +671,7 @@ class Builder(object):
 			for root, dirs, files in os.walk(topdir):
 				remove_ignored_dirs(dirs)
 				for d in dirs:
-					if d == "iphone":
+					if d == "iphone" or d == "mobileweb":
 						dirs.remove(d)
 				for filename in files:
 					if filename.startswith("_"):
@@ -614,12 +689,19 @@ class Builder(object):
 		full_copy = not os.path.exists(self.assets_resources_dir)
 
 		if self.tiapp_changed or self.force_rebuild or full_copy:
-			info("Detected tiapp.xml change (or assets deleted), forcing full re-build...")
+			info("Detected change in tiapp.xml, or assets deleted. Forcing full re-build...")
 			# force a clean scan/copy when the tiapp.xml has changed
 			self.project_deltafy.clear_state()
 			self.project_deltas = self.project_deltafy.scan()
 			# rescan tiapp.xml so it doesn't show up as created next time around 
 			self.project_deltafy.scan_single_file(self.project_tiappxml)
+			
+		if self.tiapp_changed:
+			for root, dirs, files in os.walk(self.project_gen_dir, topdown=False):
+				for name in files:
+					os.remove(os.path.join(root, name))
+				for name in dirs:
+					os.rmdir(os.path.join(root, name))
 			
 		def strip_slash(s):
 			if s[0:1]=='/' or s[0:1]=='\\': return s[1:]
@@ -651,9 +733,7 @@ class Builder(object):
 					if os.path.exists(path.replace(resources_dir, android_resources_dir, 1)):
 						continue
 					dest = make_relative(path, resources_dir, self.assets_resources_dir)
-				# check to see if this is a compiled file and if so, don't copy
-				if dest in self.compiled_files: continue
-				if path.startswith(os.path.join(resources_dir, "iphone")) or path.startswith(os.path.join(resources_dir, "blackberry")):
+				if path.startswith(os.path.join(resources_dir, "iphone")) or path.startswith(os.path.join(resources_dir, "mobileweb")) or path.startswith(os.path.join(resources_dir, "blackberry")):
 					continue
 				parent = os.path.dirname(dest)
 				if not os.path.exists(parent):
@@ -675,6 +755,19 @@ class Builder(object):
 		if len(self.project_deltas) > 0 or not os.path.exists(index_json_path):
 			requireIndex.generateJSON(self.assets_dir, index_json_path)
 
+	def check_permissions_mapping(self, key, permissions_mapping, permissions_list):
+		try:
+			perms = permissions_mapping[key]
+			if perms:
+				for perm in perms: 
+					try:
+						permissions_list.index(perm)
+
+					except:
+						permissions_list.append(perm)
+		except:
+			pass
+
 	def generate_android_manifest(self,compiler):
 
 		self.generate_localizations()
@@ -683,7 +776,8 @@ class Builder(object):
 		permissions_required = ['INTERNET','ACCESS_WIFI_STATE','ACCESS_NETWORK_STATE', 'WRITE_EXTERNAL_STORAGE']
 		
 		GEO_PERMISSION = [ 'ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION']
-		CONTACTS_PERMISSION = ['READ_CONTACTS']
+		CONTACTS_READ_PERMISSION = ['READ_CONTACTS']
+		CONTACTS_PERMISSION = ['READ_CONTACTS', 'WRITE_CONTACTS']
 		VIBRATE_PERMISSION = ['VIBRATE']
 		CAMERA_PERMISSION = ['CAMERA']
 		WALLPAPER_PERMISSION = ['SET_WALLPAPER']
@@ -691,32 +785,32 @@ class Builder(object):
 		# Enable mock location if in development or test mode.
 		if self.deploy_type == 'development' or self.deploy_type == 'test':
 			GEO_PERMISSION.append('ACCESS_MOCK_LOCATION')
-		
-		# this is our module method to permission(s) trigger - for each method on the left, require the permission(s) on the right
-		permission_mapping = {
+
+		# this is our module to permission(s) trigger - for each module on the left, require the permission(s) on the right
+		permissions_module_mapping = {
 			# GEO
-			'Geolocation.watchPosition' : GEO_PERMISSION,
-			'Geolocation.getCurrentPosition' : GEO_PERMISSION,
-			'Geolocation.watchHeading' : GEO_PERMISSION,
-			'Geolocation.getCurrentHeading' : GEO_PERMISSION,
-			
+			'geolocation' : GEO_PERMISSION
+		}
+
+		# this is our module method to permission(s) trigger - for each method on the left, require the permission(s) on the right
+		permissions_method_mapping = {
+			# MAP
+			'Map.createView' : GEO_PERMISSION,
 			# MEDIA
 			'Media.vibrate' : VIBRATE_PERMISSION,
 			'Media.showCamera' : CAMERA_PERMISSION,
 			
 			# CONTACTS
-			'Contacts.createContact' : CONTACTS_PERMISSION,
-			'Contacts.saveContact' : CONTACTS_PERMISSION,
-			'Contacts.removeContact' : CONTACTS_PERMISSION,
-			'Contacts.addContact' : CONTACTS_PERMISSION,
-			'Contacts.getAllContacts' : CONTACTS_PERMISSION,
-			'Contacts.showContactPicker' : CONTACTS_PERMISSION,
-			'Contacts.showContacts' : CONTACTS_PERMISSION,
-			'Contacts.getPersonByID' : CONTACTS_PERMISSION,
-			'Contacts.getPeopleWithName' : CONTACTS_PERMISSION,
-			'Contacts.getAllPeople' : CONTACTS_PERMISSION,
-			'Contacts.getAllGroups' : CONTACTS_PERMISSION,
-			'Contacts.getGroupByID' : CONTACTS_PERMISSION,
+			'Contacts.createPerson' : CONTACTS_PERMISSION,
+			'Contacts.removePerson' : CONTACTS_PERMISSION,
+			'Contacts.getAllContacts' : CONTACTS_READ_PERMISSION,
+			'Contacts.showContactPicker' : CONTACTS_READ_PERMISSION,
+			'Contacts.showContacts' : CONTACTS_READ_PERMISSION,
+			'Contacts.getPersonByID' : CONTACTS_READ_PERMISSION,
+			'Contacts.getPeopleWithName' : CONTACTS_READ_PERMISSION,
+			'Contacts.getAllPeople' : CONTACTS_READ_PERMISSION,
+			'Contacts.getAllGroups' : CONTACTS_READ_PERMISSION,
+			'Contacts.getGroupByID' : CONTACTS_READ_PERMISSION,
 
 			# WALLPAPER
 			'Media.Android.setSystemWallpaper' : WALLPAPER_PERMISSION,
@@ -768,19 +862,15 @@ class Builder(object):
 		}
 		
 		activities = []
-		
+
+		# figure out which permissions we need based on the used module
+		for mod in compiler.modules:
+			self.check_permissions_mapping(mod, permissions_module_mapping, permissions_required)
+
 		# figure out which permissions we need based on the used module methods
 		for mn in compiler.module_methods:
-			try:
-				perms = permission_mapping[mn]
-				if perms:
-					for perm in perms: 
-						try:
-							permissions_required.index(perm)
-						except:
-							permissions_required.append(perm)
-			except:
-				pass
+			self.check_permissions_mapping(mn, permissions_method_mapping, permissions_required)
+
 			try:
 				mappings = activity_mapping[mn]
 				try:
@@ -1275,16 +1365,15 @@ class Builder(object):
 			# kroll-apt.jar is needed for modules
 			classpath = os.pathsep.join([classpath, self.kroll_apt_jar])
 
+		classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-verify.jar')])
 		if self.deploy_type != 'production':
-			classpath = os.pathsep.join([classpath,
-				os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'),
-				os.path.join(self.support_dir, 'lib', 'titanium-debug.jar')])
+			classpath = os.pathsep.join([classpath, os.path.join(self.support_dir, 'lib', 'titanium-debug.jar')])
 
 		debug("Building Java Sources: " + " ".join(src_list))
 		javac_command = [self.javac, '-encoding', 'utf8',
 			'-classpath', classpath, '-d', self.classes_dir, '-proc:none',
 			'-sourcepath', self.project_src_dir,
-			'-sourcepath', self.project_gen_dir]
+			'-sourcepath', self.project_gen_dir, '-target', '1.6', '-source', '1.6']
 		(src_list_osfile, src_list_filename) = tempfile.mkstemp()
 		src_list_file = os.fdopen(src_list_osfile, 'w')
 		src_list_file.write("\n".join(src_list))
@@ -1319,6 +1408,10 @@ class Builder(object):
 			if ext == '.class': return True
 			if 'org/appcelerator/titanium/bindings' in path and ext == '.json': return True
 
+		def skip_js_file(path):
+			return self.compile_js is True and \
+				os.path.splitext(path)[1] == '.js'
+
 		def compression_type(path):
 			ext = os.path.splitext(path)[1]
 			if ext in uncompressed_types:
@@ -1344,7 +1437,7 @@ class Builder(object):
 			self.apk_updated = True
 			resources_zip = zipfile.ZipFile(resources_zip_file)
 			for path in resources_zip.namelist():
-				if skip_jar_path(path): continue
+				if skip_jar_path(path) or skip_js_file(path): continue
 				debug("from resource zip => " + path)
 				apk_zip.writestr(zipinfo(path), resources_zip.read(path))
 			resources_zip.close()
@@ -1380,13 +1473,13 @@ class Builder(object):
 		for jar_file in self.android_jars:
 			add_resource_jar(jar_file)
 
-		def add_native_libs(libs_dir):
+		def add_native_libs(libs_dir, exclude=[]):
 			if os.path.exists(libs_dir):
 				for abi_dir in os.listdir(libs_dir):
 					libs_abi_dir = os.path.join(libs_dir, abi_dir)
 					if not os.path.isdir(libs_abi_dir): continue
 					for file in os.listdir(libs_abi_dir):
-						if file.endswith('.so'):
+						if file.endswith('.so') and file not in exclude:
 							native_lib = os.path.join(libs_abi_dir, file)
 							path_in_zip = '/'.join(['lib', abi_dir, file])
 							if is_modified(native_lib) or not zip_contains(apk_zip, path_in_zip):
@@ -1394,19 +1487,41 @@ class Builder(object):
 								debug("installing native lib: %s" % native_lib)
 								apk_zip.write(native_lib, path_in_zip)
 
+		# add module native libraries
+		for module in self.modules:
+			exclude_libs = []
+			if self.runtime != 'v8':
+				# Don't need the v8 version of the module itself.
+				# (But of course we do want any other native libraries
+				# that the module developer may have packaged.)
+				exclude_libs.append('lib%s.so' % module.manifest.moduleid)
+			add_native_libs(module.get_resource('libs'), exclude_libs)
+
 		# add any native libraries : libs/**/*.so -> lib/**/*.so
 		add_native_libs(os.path.join(self.project_dir, 'libs'))
 
-		# add module native libraries
-		for module in self.modules:
-			add_native_libs(module.get_resource('libs'))
-
 		# add sdk runtime native libraries
+		debug("installing native SDK libs")
 		sdk_native_libs = os.path.join(template_dir, 'native', 'libs')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libkroll-v8.so'), 'lib/armeabi/libkroll-v8.so')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libstlport_shared.so'), 'lib/armeabi/libstlport_shared.so')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libkroll-v8.so'), 'lib/armeabi-v7a/libkroll-v8.so')
-		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libstlport_shared.so'), 'lib/armeabi-v7a/libstlport_shared.so')
+		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libtiverify.so'), 'lib/armeabi/libtiverify.so')
+		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libtiverify.so'), 'lib/armeabi-v7a/libtiverify.so')
+		# See below about x86 and production
+		x86_dir = os.path.join(sdk_native_libs, 'x86')
+		if self.deploy_type != 'production' and os.path.exists(x86_dir):
+			apk_zip.write(os.path.join(x86_dir, 'libtiverify.so'), 'lib/x86/libtiverify.so')
+
+		if self.runtime == 'v8':
+			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libkroll-v8.so'), 'lib/armeabi/libkroll-v8.so')
+			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libstlport_shared.so'), 'lib/armeabi/libstlport_shared.so')
+			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libkroll-v8.so'), 'lib/armeabi-v7a/libkroll-v8.so')
+			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libstlport_shared.so'), 'lib/armeabi-v7a/libstlport_shared.so')
+			# Only include x86 in non-production builds for now, since there are
+			# no x86 devices on the market
+			if self.deploy_type != 'production' and os.path.exists(x86_dir):
+				apk_zip.write(os.path.join(x86_dir, 'libkroll-v8.so'), 'lib/x86/libkroll-v8.so')
+				apk_zip.write(os.path.join(x86_dir, 'libstlport_shared.so'), 'lib/x86/libstlport_shared.so')
+
+				
 		self.apk_updated = True
 
 		apk_zip.close()
@@ -1431,9 +1546,7 @@ class Builder(object):
 			non_js_assets = os.path.join(self.project_dir, 'bin', 'non-js-assets')
 			if not os.path.exists(non_js_assets):
 				os.mkdir(non_js_assets)
-			#TODO: Decide whether we need to add 'ignore_exts=[".js"]' back to the copy_all() method once we are able to package with rhino
-			# For now, we leave the js files in for v8 packaging
-			copy_all(self.assets_dir, non_js_assets)
+			copy_all(self.assets_dir, non_js_assets, ignore_exts=['.js'])
 			pkg_assets_dir = non_js_assets
 
 		run.run([self.aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', pkg_assets_dir,
@@ -1446,7 +1559,14 @@ class Builder(object):
 		else:
 			app_apk = os.path.join(self.project_dir, 'bin', 'app.apk')	
 
-		output = run.run([self.jarsigner, '-storepass', self.keystore_pass, '-keystore', self.keystore, '-signedjar', app_apk, unsigned_apk, self.keystore_alias])
+		output = run.run([self.jarsigner,
+			'-sigalg', 'MD5withRSA',
+			'-digestalg', 'SHA1',
+			'-storepass', self.keystore_pass,
+			'-keystore', self.keystore,
+			'-signedjar', app_apk,
+			unsigned_apk,
+			self.keystore_alias])
 		run.check_output_for_error(output, r'RuntimeException: (.*)', True)
 		run.check_output_for_error(output, r'^jarsigner: (.*)', True)
 
@@ -1602,6 +1722,7 @@ class Builder(object):
 		self.build_only = build_only
 		self.device_args = device_args
 		self.postbuild_modules = []
+		self.non_orphans = []
 		if install:
 			if self.device_args == None:
 				self.device_args = ['-d']
@@ -1738,8 +1859,8 @@ class Builder(object):
 			self.assets_dir = os.path.join(self.project_dir,'bin','assets')
 			self.assets_resources_dir = os.path.join(self.assets_dir,'Resources')
 			
-			if not os.path.exists(self.assets_dir):
-				os.makedirs(self.assets_dir)
+			if not os.path.exists(self.assets_resources_dir):
+				os.makedirs(self.assets_resources_dir)
 			
 			shutil.copy(self.project_tiappxml, self.assets_dir)
 			finalxml = os.path.join(self.assets_dir,'tiapp.xml')
@@ -1772,6 +1893,13 @@ class Builder(object):
 				self.debugger_port = int(hostport[1])
 			debugger_enabled = self.debugger_host != None and len(self.debugger_host) > 0
 
+			# Detect which modules are being used.
+			# We need to know this info in a few places, so the info is saved
+			# in self.missing_modules and self.modules
+			detector = ModuleDetector(self.top_dir)
+			self.missing_modules, self.modules = detector.find_app_modules(self.tiapp, 'android')
+
+			self.copy_commonjs_modules()
 			self.copy_project_resources()
 
 			last_build_info = None
@@ -1781,14 +1909,22 @@ class Builder(object):
 				last_build_info = simplejson.loads(open(build_info_path, 'r').read())
 				built_all_modules = last_build_info["include_all_modules"]
 
+			if self.tiapp.has_app_property("ti.android.compilejs"):
+				if self.tiapp.to_bool(self.tiapp.get_app_property('ti.android.compilejs')):
+					self.compile_js = True
+			elif self.tiapp.has_app_property('ti.deploytype'):
+				if self.tiapp.get_app_property('ti.deploytype') == 'production':
+					self.compile_js = True
+
 			include_all_ti_modules = self.fastdev 
 			if (self.tiapp.has_app_property('ti.android.include_all_modules')):
 				if self.tiapp.to_bool(self.tiapp.get_app_property('ti.android.include_all_modules')):
 					include_all_ti_modules = True
 			if self.tiapp_changed or (self.js_changed and not self.fastdev) or \
 					self.force_rebuild or self.deploy_type == "production" or \
-					(self.fastdev and (not self.app_installed or not built_all_modules)) or \
+					(self.fastdev and not built_all_modules) or \
 					(not self.fastdev and built_all_modules):
+				self.android.config['compile_js'] = self.compile_js
 				trace("Generating Java Classes")
 				self.android.create(os.path.abspath(os.path.join(self.top_dir,'..')),
 					True, project_dir = self.top_dir, include_all_ti_modules=include_all_ti_modules)
@@ -1800,9 +1936,14 @@ class Builder(object):
 
 			# compile resources
 			full_resource_dir = os.path.join(self.project_dir, self.assets_resources_dir)
-			compiler = Compiler(self.tiapp, full_resource_dir, self.java, self.classes_dir, self.project_dir, 
-					include_all_modules=include_all_ti_modules)
-			compiler.compile()
+			compiler = Compiler(self.tiapp,
+								full_resource_dir,
+								self.java,
+								self.classes_dir,
+								self.project_gen_dir,
+								self.project_dir, 
+								include_all_modules=include_all_ti_modules)
+			compiler.compile(compile_bytecode=self.compile_js, external_modules=self.modules)
 			self.compiled_files = compiler.compiled_files
 			self.android_jars = compiler.jar_libraries
 			self.merge_internal_module_resources()
@@ -1813,12 +1954,6 @@ class Builder(object):
 			self.resource_drawables_changed = self.copy_resource_drawables()
 
 			self.warn_dupe_drawable_folders()
-
-			# Detect which modules are being used.
-			# We need to know this info in a few places, so the info is saved
-			# in self.missing_modules and self.modules
-			detector = ModuleDetector(self.top_dir)
-			self.missing_modules, self.modules = detector.find_app_modules(self.tiapp, 'android')
 
 			self.copy_module_platform_folders()
 
@@ -1846,7 +1981,7 @@ class Builder(object):
 			if build_only:
 				self.google_apis_supported = True
 
-			remove_orphaned_files(resources_dir, os.path.join(self.project_dir, 'bin', 'assets', 'Resources'))
+			remove_orphaned_files(resources_dir, self.assets_resources_dir, self.non_orphans)
 
 			generated_classes_built = self.build_generated_classes()
 
@@ -1873,8 +2008,8 @@ class Builder(object):
 				dex_args += self.android_jars
 				dex_args += self.module_jars
 
+				dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'))
 				if self.deploy_type != 'production':
-					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-verify.jar'))
 					dex_args.append(os.path.join(self.support_dir, 'lib', 'titanium-debug.jar'))
 					# the verifier depends on Ti.Network classes, so we may need to inject it
 					has_network_jar = False
@@ -1959,7 +2094,7 @@ class Builder(object):
 
 if __name__ == "__main__":
 	def usage():
-		print "%s <command> <project_name> <sdk_dir> <project_dir> <app_id> [key] [password] [alias] [dir] [avdid] [avdsdk]" % os.path.basename(sys.argv[0])
+		print "%s <command> <project_name> <sdk_dir> <project_dir> <app_id> [key] [password] [alias] [dir] [avdid] [avdsdk] [avdabi] [emulator options]" % os.path.basename(sys.argv[0])
 		print
 		print "available commands: "
 		print
@@ -2023,13 +2158,44 @@ if __name__ == "__main__":
 
 	try:
 		if command == 'run-emulator':
-			s.run_emulator(avd_id, avd_skin)
+			s.run_emulator(avd_id, avd_skin, None, None, [])
 		elif command == 'run':
 			s.build_and_run(False, avd_id)
 		elif command == 'emulator':
 			avd_id = dequote(sys.argv[6])
-			avd_skin = dequote(sys.argv[7])
-			s.run_emulator(avd_id, avd_skin)
+			if avd_id.isdigit():
+				avd_name = None
+				avd_skin = dequote(sys.argv[7])
+				
+				# TODO: This is for studio compatibility only. We will
+				# need to rip it out once they support ABI selection.
+				# Note that this will ALSO possibly break existing external
+				# build scripts in a bad way.
+				
+				if len(sys.argv) > 9:
+					avd_abi = dequote(sys.argv[8])
+					add_args = sys.argv[9:]
+				else:
+					avd_abi = None
+					add_args = sys.argv[8:]
+			else:
+				avd_name = sys.argv[6]
+				avd_id = None
+				avd_skin = None
+				
+				# TODO: This is for studio compatibility only. We will
+				# need to rip it out once they support ABI selection.
+				# Note that this will ALSO possibly break existing external
+				# build scripts in a bad way.
+				
+				if len(sys.argv) > 8:
+					avd_abi = dequote(sys.argv[7])
+					add_args = sys.argv[8:]
+				else:
+					avd_abi = None
+					add_args = sys.argv[7:]
+
+			s.run_emulator(avd_id, avd_skin, avd_name, avd_abi, add_args)
 		elif command == 'simulator':
 			info("Building %s for Android ... one moment" % project_name)
 			avd_id = dequote(sys.argv[6])

@@ -1,89 +1,263 @@
 ---
 name: Titanium.UI.Slider
-summary: A Slider is created by the method <Titanium.UI.createSlider>.
+summary: A slider component with a draggable thumb.
+description: |
+    A slider lets the user select from a range of values by dragging the slider thumb. 
+    
+    Use the <Titanium.UI.createSlider> method to create a slider.
+    
+    #### Android Platform Implementation Notes
+
+    On Android, the user can also maniuplate the slider using the arrow keys. For this
+    reason, placing other focusable UI elements to the left or right of
+    the slider is not recommended.
+
+    On Android, both `min` and `max` must be specified for the slider to work properly.
+
 extends: Titanium.UI.View
+excludes: { events: [ 'pinch' ] }
 since: "0.8"
-events:
-  - name: change
-    summary: fired when the value of the slider changes
-    properties:
+examples: 
+  - title: Simple Slider
+    example: |
+        The following sample demonstrates creating a slider and adding a listener to 
+        handle the change events.
+
+            var slider = Titanium.UI.createSlider({
+                top: 50,
+                min: 0,
+                max: 100,
+                width: '100%',
+                value: 50
+                });
+                
+            var label = Ti.UI.createLabel({
+                text: slider.value,
+                width: '100%',
+                height: 'auto',
+                top: 30,
+                left: 0,
+                textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
+                });
+            
+            slider.addEventListener('change', function(e) {
+                label.text = String.format("%3.1f", e.value);
+            });
+            
+methods: 
+    # main doc inherited from Ti.UI.View.add
+  - name: add
+    description: |
+        Adding children to a `Slider` is not supported on all platforms.
+
+        If you need to display views on top of this object, consider using 
+        another view as a container for both this object and the views you want 
+        to appear on top of it.
+
+        See also: <Titanium.UI.View.add>.
+    platforms: [iphone, ipad]
+
+  - name: remove
+    description: |
+        See also: [add](Titanium.UI.Label.add), <Titanium.UI.View.add>.
+    platforms: [iphone, ipad]
+
+  - name: setValue
+    summary: Sets the [value](Titanium.UI.Slider.value) property.
+    description: |
+        On iOS, you can specify that the value change should be animated by passing the 
+        optional `options` parameter. 
+    parameters:
+
       - name: value
-        summary: the new value of the slider
+        summary: New value for the [value](Titanium.UI.Slider.value) property.
+        type: Number
+
+      - name: options
+        summary: |
+            Specifies animation options. The only supported property
+            for this dictionary is the `animated` flag, which specifies whether
+            the value change should be animated. `animated` is false by default. Only used
+            on iOS.
+        type: Dictionary
+        optional: true
+
+
+events:
+
+  - name: change
+    summary: Fired when the value of the slider changes.
+    properties:
+
+      - name: value
+        summary: New value of the slider.
+        type: Number
+
       - name: thumbSize
-        summary: a dictionary with properties width and height of the size of the thumb. Available with custom thumb image.  (Android)
-      - name: y
-        summary: the y point of the event, in receiving view coordinates
-      - name: x
-        summary: the x point of the event in receiving view coordiantes
+        summary: |
+            Dictionary with properties `width` and `height` of the size of the thumb. 
+            Available with custom thumb image.
+        platforms: [android]
+
       - name: thumbOffset
-        summary: a dictionary with properties x and y of the thumbs left-top corner in the control Available with custom thumb image. (Android)
-      - name: globalPoint
-        summary: a dictionary with properties x and y describing the point of the event in screen coordinates
-        platforms: [iphone, ipad]
-        deprecated:
-            since: "1.8.0"
+        summary: |
+            Dictionary with properties `x` and `y` of the thumb's left-top corner in
+            the control. Available with custom thumb image.
+        type: Dictionary
+        platforms: [android]
+
+  - name: click
+    summary: Fired when the device detects a click against the view.
+    description: |
+        There is a subtle difference between singletap and click events.
+
+        A singletap event is generated when the user taps the screen briefly
+        without moving their finger. This gesture will also generate a click event.
+
+        However, a click event can also be generated when the user touches, 
+        moves their finger, and then removes it from the screen.
+
+        For sliders on Android, the click event is **only** generated by a trackball click 
+        on the slider thumb.
+    platforms: [android, mobileweb]
+    properties:
+
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+
+      - name: x
+        summary: X coordinate of the event from the `source` view's coordinate system.
+        type: Number
+
 properties:
+
   - name: disabledLeftTrackImage
-    summary: the image url of the slider left track when in the disabled state
+    summary: Image URL of the slider left track when in the disabled state.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
+
   - name: disabledRightTrackImage
-    summary: the image url of the slider right track when in the disabled state
+    summary: Image URL of the slider right track when in the disabled state.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
+
   - name: disabledThumbImage
-    summary: the image url of the slider thumb when in the disabled state
+    summary: Image URL of the slider thumb when in the disabled state.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
+
   - name: enabled
-    summary: boolean to indicate the enabled state of the slider
+    summary: Boolean to indicate the enabled state of the slider.
     type: Boolean
+    default: Slider is enabled by default (property value may be `undefined`).
+
   - name: highlightedLeftTrackImage
-    summary: the image url of the slider left track when in the highlighted state
+    summary: Image URL of the slider left track when in the highlighted state.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
+
   - name: highlightedRightTrackImage
-    summary: the image url of the slider right track when in the highlighted state
+    summary: Image URL of the slider right track when in the highlighted state.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
+
   - name: highlightedThumbImage
-    summary: the image url of the slider thumb when in the highlighted state
+    summary: Image URL of the slider thumb when in the highlighted state.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [iphone, ipad]
+
   - name: leftTrackImage
-    summary: the image url of the slider left track
+    summary: Image URL of the slider left track.
     type: String
     platforms: [android, iphone, ipad]
+
   - name: max
-    summary: the maximum slider value
+    summary: Maximum value of the slider.
+    description: |
+        Specifies the value of the slider when the thumb is all the way to the right. This
+        value is inclusive.
+
+        On Android and Mobile Web, the selectable values can be limited using the
+        [minRange](Titanium.UI.Slider.minRange) and [maxRange](Titanium.UI.Slider.maxRange)
+        properties.
+        
+        On Android this must be an integer value.
     type: Number
+    default: 1. (property value might be undefined)
+    
   - name: maxRange
-    summary: value can't be moved higher than maxRange. maxRange equals max by default. (Android)
+    summary: Upper limit on the slider value that can be selected.
+    description: |
+        If `maxRange` is specified, value of the slider can't be increased above `maxRange`.
+
+        The total displayed range of the slider is still from `min` to `max`.
+
+        If `undefined`, the slider can go all the way to `max`.
+        
+        On Android this must be an integer value.
     type: Number
-    platforms: [android]
+    platforms: [android, mobileweb]
+    default: undefined
+
   - name: min
-    summary: the minimum slider value
+    summary: Minimum value of the slider.
+    description: |
+        Specifies the value of the slider when the thumb is all the way to the left. This
+        value is inclusive.
+
+        On Android, the selectable values can be limited using the
+        [minRange](Titanium.UI.Slider.minRange) and [maxRange](Titanium.UI.Slider.maxRange)
+        properties.
+
+        On Android this must be an integer value.
     type: Number
+    default: 0. (property value might be undefined)
+
   - name: minRange
-    summary: value can't be moved lower than minRange. minRange equals min by default. (Android)
-    platforms: [android]
+    summary: Lower limit on the slider value that can be selected. 
+    description: |
+        If `minRange` is specified, value of the slider can't be decreased below `minRange`.
+
+        The total displayed range of the slider is still from `min` to `max`.
+
+        If `undefined`, the slider can go all the way to `min`.
+        
+        On Android this must be an integer value.
+    platforms: [android, mobileweb]
     type: Number
+    default: undefined
+
   - name: rightTrackImage
-    summary: the image url of the slider right track
+    summary: Image URL of the slider right track.
     type: String
+    platforms: [android, iphone, ipad]
+
   - name: selectedLeftTrackImage
-    summary: the image url of the slider left track when in the selected state
+    summary: Image URL of the slider left track when in the selected state.
     type: String
+    platforms: [iphone, ipad]
+
   - name: selectedRightTrackImage
-    summary: the image url of the slider right track when in the selected state
+    summary: Image URL of the slider right track when in the selected state.
     type: String
+    platforms: [iphone, ipad]
+
   - name: selectedThumbImage
-    summary: the image url of the slider thumb when in the selected state
+    summary: Image URL of the slider thumb when in the selected state.
     type: String
+    platforms: [iphone, ipad]
+
   - name: thumbImage
-    summary: The image for the slider thumb.
-    description: Support for using <Titanium.Blob> for this property is only available on iOS.
+    summary: Image for the slider thumb.
+    description: |
+        The thumb image can be specified as a URL.
+
+        Support for using <Titanium.Blob> for this property is only available on iOS.
     type: [String, Titanium.Blob]
+    platforms: [android, iphone, ipad]
+
   - name: value
-    summary: the value of the slider
+    summary: Current value of the slider.
     type: String
+    platforms: [android, iphone, ipad, mobileweb]

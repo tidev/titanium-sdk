@@ -188,7 +188,7 @@ public class TiOverlayItemView extends FrameLayout
 				}
 
 			} else if (rightView != null) {
-				rightPane.addView(rightView.peekView().getNativeView());
+				rightPane.addView(rightView.getOrCreateView().getNativeView());
 			}
 
 			rightPane.setVisibility(VISIBLE);

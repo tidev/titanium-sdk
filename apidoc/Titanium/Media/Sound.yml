@@ -1,93 +1,160 @@
 ---
 name: Titanium.Media.Sound
-summary: The Sound object is returned by <Titanium.Media.createSound> and is useful for playing basic sounds. The Sound object loads the entire media resource in memory before playing.  If you need to support streaming, use the <Titanium.Media.createAudioPlayer> API.
+summary: An object for playing basic audio resources.
+description: |
+    The `Sound` object loads the entire media resource in memory before playing.  If you need to 
+    support streaming, use the [AudioPlayer](Titanium.Media.AudioPlayer) API.
+
+    Use the <Titanium.Media.createSound> method to create a `Sound` object.
 extends: Titanium.Proxy
 since: "0.8"
 platforms: [android, iphone, ipad]
 methods:
-  - name: getTime
-    summary: return the current time position of the audio
-    returns:
-        type: Number
-  - name: getVolume
-    summary: return the value of the audio
-    returns:
-        type: Number
+
   - name: isLooping
-    summary: returns true if the audio will loop
+    summary: Returns the value of the [looping](Titanium.Media.Sound.looping) property.
     returns:
         type: Boolean
+
   - name: isPaused
-    summary: returns true if the audio is paused
+    summary: Returns the value of the [paused](Titanium.Media.Sound.paused) property.
     returns:
         type: Boolean
+
   - name: isPlaying
-    summary: returns true if the audio is playing
+    summary: Returns the value of the [playing](Titanium.Media.Sound.playing) property.
     returns:
         type: Boolean
+
   - name: pause
-    summary: temporarily pause the audio. to resume, invoke `play`.
+    summary: Pauses the audio.
+    description: |
+        To restart the audio, call [play](Titanium.Media.Sound.play).
+
   - name: play
-    summary: starting playing the source. if paused, will resume.
+    summary: Starting playing the sound, or resume playing a paused sound.
+
   - name: release
-    summary: release all internal resources. this is typically unnecessary but can be useful if you load a large audio file in `app.js` and play it only once and you would like to release all releases after your final play to reduce memory.
+    summary: Releases all internal resources. 
+    description: |
+        This is typically unnecessary but can be useful if you load a large audio file in `app.js`, and 
+        play it only once and you would like to release all resources after your final play to reduce memory.
+
   - name: reset
-    summary: reset the audio to the beginning.
+    summary: Resets the audio playback position to the beginning.
+
   - name: setLooping
-    summary: control whether the audio should loop
+    summary: Sets the value of the [looping](Titanium.Media.Sound.looping) property.
+    parameters: 
+      - name: looping
+        summary: New value for the `looping` property.
+        type: Boolean
+
   - name: setPaused
-    summary: control whether the audio is paused
-  - name: setTime
-    summary: set the time position of the audio
-  - name: setVolume
-    summary: set the volume of the audio
+    summary: Sets the value of the [paused](Titanium.Media.Sound.paused) property.
+    description: |
+        On iOS, this method can be used to pause and unpause playback. For portability,
+        it is preferable to use the [pause](Titanium.Media.Sound.pause) and
+        [play](Titanium.Media.Sound.play) methods instead.
+    parameters:
+      - name: paused
+        summary: Pass `true` to pause the current playback temporarily, `false` to unpause it.
+        type: Boolean
+    platforms: [iphone, ipad]
+
   - name: stop
-    summary: stop playing the audio and reset it to the beginning.
+    summary: Stops playing the audio and resets the playback position to the beginning of the clip.
+
 events:
   - name: complete
-    summary: fired when the audio has completed
+    summary: Fired when the audio has finished playing.
     properties:
       - name: success
-        summary: boolean to indicate if the sound was successfully played
+        summary: Indicates if the sound was played successfully.
+        type: Boolean
+        platforms: [iphone, ipad]
+
   - name: error
-    summary: called when an error is received playing the audio.
+    summary: Fired when an error occurs while playing the audio.
     properties:
       - name: message
-        summary: error message
+        summary: Error message.
+        type: String
+
   - name: interrupted
-    summary: called when the audio is interrupted by the device. this is typically called during an interruption due to an incoming phone call.
+    summary: Fired  when audio playback is interrupted by the device. 
+    description: |
+        Typically called during an interruption due to an incoming phone call.
+    platforms: [iphone, ipad]
+
   - name: resume
-    summary: called when the audio is resumed after an interruption.
+    summary: Fired when audio playback is resumed after an interruption.
     properties:
       - name: interruption
-        summary: boolean to indicate if the resume was from an interruption
+        summary: Indicates if the resume was from an interruption.
+        type: Boolean
+    platforms: [iphone, ipad]
+
 properties:
   - name: allowBackground
-    summary: boolean to indicate if audio should continue playing even if Activity is paused
+    summary: Determines whether the audio should continue playing even when its activity is paused.
     since: "1.3.0"
     platforms: [android]
     type: Boolean
+    default: false
+    availability: creation
+    accessors: false
+
   - name: duration
-    summary: the duration of the audio.
+    summary: Duration of the audio resource.
+    description: |
+        On iOS, playback time is reported in seconds.
+
+        On Android, time is reported in milliseconds.
     type: Number
+    permission: read-only
+
   - name: looping
-    summary: boolean to indicate if the audio should loop upon completion
+    summary: Determines whether the audio should loop upon completion.
     type: Boolean
+    default: false
+    accessors: false
+
   - name: paused
-    summary: boolean to indicate if the audio is paused
+    summary: Indicates if the audio is paused.
+    description: |
+        On iOS, this property is read-write, and you can pause and resume playback by setting this 
+        property to `true` or `false`.
+        
+        On Android, this property is read-only. For portability, use [pause](Titanium.Media.Sound.pause)
+        to pause audio, and [play](Titanium.Media.Sound.play) to resume.
     type: Boolean
+    accessors: false
+
   - name: playing
-    summary: boolean to indicate if the audio is playing
+    summary: Indicates if the audio is playing.
     type: Boolean
+    permission: read-only
+    accessors: false
+
   - name: time
-    summary: the time position of the audio.
+    summary: Current playback position of the audio.
+    description: |
+        On iOS, playback time is reported in seconds.
+
+        On Android, time is reported in milliseconds.
     type: Number
+
   - name: url
-    summary: url to the audio
+    summary: URL identifying the audio resource.
     type: String
+
   - name: volume
-    summary: the volume of the audio. this volume only affects the media, not the device audio.
+    summary: Volume of the audio, from 0.0 (muted) to 1.0 (loudest).
+    description: |
+        This volume setting only affects this media, it does not set the device's overall volume level.
     type: Number
+
 examples:
   - title: Simple Example
     example: |

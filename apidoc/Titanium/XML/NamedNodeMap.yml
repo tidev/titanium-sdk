@@ -3,12 +3,14 @@ name: Titanium.XML.NamedNodeMap
 extends: Titanium.Proxy
 summary: >
     A key-value paired map that maps String objects to 
-    <Titanium.XML.Node> objects. This conforms to the 
-    [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html)
-    defintion of a DOM NamedNodeMap.
+    <Titanium.XML.Node> objects. 
+    
+    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1780488922) 
+    on Android and iOS. Exposes the 
+    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-1780488922) implementation on Mobile Web.
 since: "0.9"
 createable: false
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 methods:
   - name: getNamedItem
     summary: Retrieves a node specified by name. 

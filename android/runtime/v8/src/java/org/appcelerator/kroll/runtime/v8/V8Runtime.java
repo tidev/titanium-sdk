@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,10 +8,12 @@ package org.appcelerator.kroll.runtime.v8;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollExternalModule;
 import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.common.KrollSourceCodeProvider;
 import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiDeployData;
 
@@ -28,11 +30,17 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final String NAME = "v8";
 	private static final int MSG_PROCESS_DEBUG_MESSAGES = KrollRuntime.MSG_LAST_ID + 100;
+	private static final int MAX_V8_IDLE_INTERVAL = 30 * 1000; // ms
 
 	private boolean libLoaded = false;
 
 	private HashMap<String, Class<? extends KrollExternalModule>> externalModules = new HashMap<String, Class<? extends KrollExternalModule>>();
+	private static HashMap<String, KrollSourceCodeProvider>
+		externalCommonJsModules = new HashMap<String, KrollSourceCodeProvider>();
+
 	private ArrayList<String> loadedLibs = new ArrayList<String>();
+	private AtomicBoolean shouldGC = new AtomicBoolean(false);
+	private long lastV8Idle;
 
 	@Override
 	public void initRuntime()
@@ -64,14 +72,29 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		if (deployData.isDebuggerEnabled()) {
 			dispatchDebugMessages();
 		}
-		
+
 		loadExternalModules();
+		loadExternalCommonJsModules();
 
 		Looper.myQueue().addIdleHandler(new IdleHandler() {
 			@Override
 			public boolean queueIdle()
 			{
-				nativeIdle();
+				boolean willGC = shouldGC.getAndSet(false);
+				if (!willGC) {
+					// This means we haven't specifically been told to do
+					// a V8 GC (which is just a call to nativeIdle()), but nevertheless
+					// if more than the recommended time has passed since the last
+					// call to nativeIdle(), we'll want to do it anyways.
+					willGC = ((System.currentTimeMillis() - lastV8Idle) > MAX_V8_IDLE_INTERVAL);
+				}
+				if (willGC) {
+					boolean gcWantsMore = !nativeIdle();
+					lastV8Idle = System.currentTimeMillis();
+					if (gcWantsMore) {
+						shouldGC.set(true);
+					}
+				}
 				return true;
 			}
 		});
@@ -104,6 +127,13 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		}
 	}
 
+	private void loadExternalCommonJsModules()
+	{
+		for (String moduleName : externalCommonJsModules.keySet()) {
+			nativeAddExternalCommonJsModule(moduleName,externalCommonJsModules.get(moduleName));
+		}
+	}
+
 	@Override
 	public void doDispose()
 	{
@@ -114,6 +144,12 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	public void doRunModule(String source, String filename, KrollProxySupport activityProxy)
 	{
 		nativeRunModule(source, filename, activityProxy);
+	}
+
+	@Override
+	public Object doEvalString(String source, String filename)
+	{
+		return nativeEvalString(source, filename);
 	}
 
 	@Override
@@ -152,11 +188,30 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		externalModules.put(libName, moduleClass);
 	}
 
+	public static void addExternalCommonJsModule(String id, Class<? extends KrollSourceCodeProvider> jsSourceProvider)
+	{
+		KrollSourceCodeProvider providerInstance;
+		try {
+			providerInstance = jsSourceProvider.newInstance();
+			externalCommonJsModules.put(id, providerInstance);
+		} catch (Exception e) {
+			Log.e(TAG, "Cannot load external CommonJS module " + id, e);
+		}
+	}
+
+	@Override
+	public void setGCFlag()
+	{
+		shouldGC.set(true);
+	}
+
 	// JNI method prototypes
 	private native void nativeInit(boolean useGlobalRefs, int debuggerPort, boolean DBG);
 	private native void nativeRunModule(String source, String filename, KrollProxySupport activityProxy);
+	private native Object nativeEvalString(String source, String filename);
 	private native void nativeProcessDebugMessages();
-	private native void nativeIdle();
+	private native boolean nativeIdle();
 	private native void nativeDispose();
+	private native void nativeAddExternalCommonJsModule(String moduleName, KrollSourceCodeProvider sourceProvider);
 }
 

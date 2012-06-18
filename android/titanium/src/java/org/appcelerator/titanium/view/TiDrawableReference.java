@@ -33,6 +33,7 @@ import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiDownloadManager;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
 import android.content.pm.ApplicationInfo;
@@ -45,6 +46,9 @@ import android.util.DisplayMetrics;
 import android.view.View;
 import android.webkit.URLUtil;
 
+/**
+ * Helper class for loading, scaling, and caching images if necessary.
+ */
 public class TiDrawableReference
 {
 	private static Map<Integer, Bounds> boundsCache;
@@ -127,6 +131,13 @@ public class TiDrawableReference
 		return ref;
 	}
 
+	/**
+	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.BLOB.
+	 * @param activity the referenced activity.
+	 * @param blob the referenced blob.
+	 * @return A ready instance of TiDrawableReference.
+	 * @module.api
+	 */
 	public static TiDrawableReference fromBlob(Activity activity, TiBlob blob)
 	{
 		TiDrawableReference ref = new TiDrawableReference(activity, DrawableReferenceType.BLOB);
@@ -134,11 +145,25 @@ public class TiDrawableReference
 		return ref;
 	}
 
+	/**
+	 * Resolves the url, then creates and returns a TiDrawableReference instance.
+	 * @param proxy the activity proxy.
+	 * @param url the url to resolve.
+	 * @return A ready instance of TiDrawableReference.
+	 * @module.api
+	 */
 	public static TiDrawableReference fromUrl(KrollProxy proxy, String url)
 	{
 		return fromUrl(proxy.getActivity(), proxy.resolveUrl(null, url));
 	}
 
+	/**
+	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.URL.
+	 * @param activity the referenced activity.
+	 * @param url the resource's url.
+	 * @return A ready instance of TiDrawableReference.
+	 * @module.api
+	 */
 	public static TiDrawableReference fromUrl(Activity activity, String url)
 	{
 		TiDrawableReference ref = new TiDrawableReference(activity, DrawableReferenceType.URL);
@@ -156,6 +181,12 @@ public class TiDrawableReference
 		return ref;
 	}
 
+	/**
+	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.FILE.
+	 * @param activity the referenced activity.
+	 * @param file the referenced file.
+	 * @return A ready instance of TiDrawableReference.
+	 */
 	public static TiDrawableReference fromFile(Activity activity, TiBaseFile file)
 	{
 		TiDrawableReference ref = new TiDrawableReference(activity, DrawableReferenceType.FILE);
@@ -174,9 +205,10 @@ public class TiDrawableReference
 	}
 	/**
 	 * Does its best to determine the type of reference (url, blob, etc) based on object parameter.
-	 * @param context
-	 * @param object
-	 * @return A ready instance of TiDrawableReference
+	 * @param activity the referenced activity.
+	 * @param object the referenced object.
+	 * @return A ready instance of TiDrawableReference.
+	 * @module.api
 	 */
 	public static TiDrawableReference fromObject(Activity activity, Object object)
 	{
@@ -230,8 +262,9 @@ public class TiDrawableReference
 	}
 
 	/**
-	 * Get the bitmap from the resource without respect to sampling/scaling.
-	 * @return Bitmap, or null if any problem getting it.  Check logcat if null.
+	 * Gets the bitmap from the resource without respect to sampling/scaling.
+	 * @return Bitmap, or null if errors occurred while trying to load or fetch it.
+	 * @module.api
 	 */
 	public Bitmap getBitmap()
 	{
@@ -593,9 +626,11 @@ public class TiDrawableReference
 		}
 		
 		try {
-			TiDownloadManager.getInstance().download(new URI(url), listener);
+			TiDownloadManager.getInstance().download(new URI(TiUrl.getCleanUri(url).toString()), listener);
 		} catch (URISyntaxException e) {
 			Log.e(LCAT, "URI Invalid: " + url, e);
+		} catch (NullPointerException e) {
+			Log.e(LCAT, "NullPointerException: " + url, e);
 		}
 	}
 

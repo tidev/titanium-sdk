@@ -183,7 +183,6 @@ public class TiSound
 					if (DBG) {
 						Log.d(LCAT,"audio is not playing, starting.");
 					}
-					setVolume(volume);
 					if (DBG) {
 						Log.d(LCAT, "Play: Volume set to " + volume);
 					}
@@ -265,7 +264,7 @@ public class TiSound
 				Log.w(LCAT, "Attempt to set volume less than 0.0. Volume set to 0.0");
 			} else if (volume > 1.0) {
 				this.volume = 1.0f;
-				proxy.setProperty(SoundProxy.PROPERTY_VOLUME, volume);
+				proxy.setProperty(TiC.PROPERTY_VOLUME, volume);
 				Log.w(LCAT, "Attempt to set volume greater than 1.0. Volume set to 1.0");
 			} else {
 				this.volume = volume; // Store in 0.0 to 1.0, scale when setting hw
@@ -533,18 +532,16 @@ public class TiSound
 	@Override
 	public void processProperties(KrollDict d)
 	{
-		if (d.containsKey(SoundProxy.PROPERTY_VOLUME)) {
-			setVolume(TiConvert.toFloat(d, SoundProxy.PROPERTY_VOLUME));
-		} else {
-			setVolume(0.5f);
+		if (d.containsKey(TiC.PROPERTY_VOLUME)) {
+			setVolume(TiConvert.toFloat(d, TiC.PROPERTY_VOLUME, 1.0f));
 		}
 	}
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
-		if (SoundProxy.PROPERTY_VOLUME.equals(key)) {
-			setVolume(TiConvert.toFloat(newValue));
+		if (TiC.PROPERTY_VOLUME.equals(key)) {
+			setVolume(TiConvert.toFloat(newValue, 1.0f));
 		} else if (TiC.PROPERTY_TIME.equals(key)) {
 			setTime(TiConvert.toInt(newValue));
 		}

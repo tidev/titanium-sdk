@@ -5,14 +5,14 @@ def getSafeWord(str):
 	return safeWord.get(str,str)
 
 def getReturnType(str, defaultValue):
-	needle = 'create and return an instance of '
+	needle = 'Creates and returns an instance of '
 	if needle in str:
 		return re.split(needle,str)[-1]
 	else:
 		return defaultValue
 		
 def getTypeInstance(str, defaultValue):
-	needle = 'create and return an instance of '
+	needle = 'Creates and returns an instance of '
 	if needle in str:
 		return 'new ' + re.split(needle,str)[-1] + '()'
 	else:

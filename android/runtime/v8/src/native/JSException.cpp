@@ -23,6 +23,8 @@ Handle<Value> JSException::fromJavaException(jthrowable javaException)
 		return GetJNIEnvironmentError();
 	}
 
+	env->ExceptionDescribe();
+
 	bool deleteRef = false;
 	if (!javaException) {
 		javaException = env->ExceptionOccurred();

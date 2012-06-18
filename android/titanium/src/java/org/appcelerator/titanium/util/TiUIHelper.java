@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +42,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -57,10 +57,12 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -74,6 +76,9 @@ import android.view.View.MeasureSpec;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
+/**
+ * A set of utility methods focused on UI and View operations.
+ */
 public class TiUIHelper
 {
 	private static final String LCAT = "TiUIHelper";
@@ -131,6 +136,11 @@ public class TiUIHelper
 			.setCancelable(false).create().show();
 	}
 
+	/**
+	 * Waits for the current activity to be ready, then invokes
+	 * {@link CurrentActivityListener#onCurrentActivityReady(Activity)}.
+	 * @param l the CurrentActivityListener.
+	 */
 	public static void waitForCurrentActivity(final CurrentActivityListener l)
 	{
 		// Some window opens are async, so we need to make sure we don't
@@ -158,6 +168,13 @@ public class TiUIHelper
 		}
 	}
 
+	/**
+	 * Creates and shows a dialog with an OK button given title and message.
+	 * The dialog's creation context is the current activity.
+	 * @param title  the title of dialog.
+	 * @param message  the dialog's message.
+	 * @param listener the click listener for click events.
+	 */
 	public static void doOkDialog(final String title, final String message, OnClickListener listener) {
 		if (listener == null) {
 			listener = new OnClickListener() {
@@ -210,19 +227,19 @@ public class TiUIHelper
 			if (m.matches()) {
 				if (m.groupCount() == 2) {
 					String unit = m.group(2);
-					if ("px".equals(unit)) {
+					if (TiDimension.UNIT_PX.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_PX;
-					} else if ("pt".equals(unit)) {
+					} else if (TiDimension.UNIT_PT.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_PT;
-					} else if ("dp".equals(unit) || "dip".equals(unit)) {
+					} else if (TiDimension.UNIT_DP.equals(unit) || TiDimension.UNIT_DIP.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_DIP;
-					} else if ("sp".equals(unit) || "sip".equals(unit)) {
+					} else if (TiDimension.UNIT_SP.equals(unit) || TiDimension.UNIT_SIP.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_SP;
-					} else if ("pt".equals(unit)) {
-						units = TypedValue.COMPLEX_UNIT_PT;
-					} else if ("mm".equals(unit)) {
+					} else if (TiDimension.UNIT_MM.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_MM;
-					} else if ("in".equals(unit)) {
+					} else if (TiDimension.UNIT_CM.equals(unit)) {
+						units = TiDimension.COMPLEX_UNIT_CM;
+					} else if (TiDimension.UNIT_IN.equals(unit)) {
 						units = TypedValue.COMPLEX_UNIT_IN;
 					} else {
 						if (DBG) {
@@ -436,117 +453,109 @@ public class TiUIHelper
 		textView.setPadding(rawHPadding, rawVPadding, rawHPadding, rawVPadding);
 	}
 
+	private static Drawable buildBackgroundDrawable(String color, String image, boolean tileImage, Drawable gradientDrawable)
+	{
+		// Create an array of the layers that will compose this background.
+		// Note that the order in which the layers is important to get the
+		// correct rendering behavior.
+		ArrayList<Drawable> layers = new ArrayList<Drawable>(3);
+
+		if (color != null) {
+			Drawable colorDrawable = new ColorDrawable(TiColorHelper.parseColor(color));
+			layers.add(colorDrawable);
+		}
+
+		if (gradientDrawable != null) {
+			layers.add(gradientDrawable);
+		}
+
+		Drawable imageDrawable = null;
+		if (image != null) {
+			TiFileHelper tfh = TiFileHelper.getInstance();
+			Context appContext = TiApplication.getInstance();
+
+			if (tileImage) {
+				InputStream inputStream;
+				try {
+					inputStream = tfh.openInputStream(image, false);
+					if (inputStream != null) {
+						BitmapDrawable tiledBackground = new BitmapDrawable(appContext.getResources(), inputStream);
+						tiledBackground.setTileModeX(Shader.TileMode.REPEAT);
+						tiledBackground.setTileModeY(Shader.TileMode.REPEAT);
+
+						imageDrawable = tiledBackground;
+					}
+
+				} catch (IOException e) {
+					Log.e(LCAT, "Exception occured when trying to open stream to specified background image: ", e);
+				}
+
+			} else {
+				imageDrawable = tfh.loadDrawable(image, false, true);
+			}
+
+			if (imageDrawable != null) {
+				layers.add(imageDrawable);
+			}
+		}
+
+		return new LayerDrawable(layers.toArray(new Drawable[layers.size()]));
+	}
+
+	private static final int[] BACKGROUND_DEFAULT_STATE_1 = {
+		android.R.attr.state_window_focused,
+		android.R.attr.state_enabled
+	};
+	private static final int[] BACKGROUND_DEFAULT_STATE_2 = {
+		android.R.attr.state_enabled
+	};
+	private static final int[] BACKGROUND_SELECTED_STATE = {
+		android.R.attr.state_window_focused,
+		android.R.attr.state_enabled,
+		android.R.attr.state_pressed
+	};
+	private static final int[] BACKGROUND_FOCUSED_STATE = {
+		android.R.attr.state_focused,
+		android.R.attr.state_window_focused,
+		android.R.attr.state_enabled
+	};
+	private static final int[] BACKGROUND_DISABLED_STATE = {
+		-android.R.attr.state_enabled
+	};
+
 	public static StateListDrawable buildBackgroundDrawable(
 		String image,
+		boolean tileImage,
 		String color,
 		String selectedImage,
 		String selectedColor,
 		String disabledImage,
 		String disabledColor,
 		String focusedImage,
-		String focusedColor)
+		String focusedColor,
+		Drawable gradientDrawable)
 	{
-		StateListDrawable sld = null;
+		StateListDrawable sld = new StateListDrawable();
 
-		Drawable bgDrawable = null;
-		Drawable bgSelectedDrawable = null;
-		Drawable bgFocusedDrawable = null;
-		Drawable bgDisabledDrawable = null;
-
-		Context appContext = TiApplication.getInstance();
-		TiFileHelper tfh = new TiFileHelper(appContext);
-
-		if (image != null) {
-			bgDrawable = tfh.loadDrawable(image, false, true);
-		} else if (color != null) {
-			bgDrawable = new ColorDrawable(TiConvert.toColor(color));
+		Drawable bgSelectedDrawable = buildBackgroundDrawable(selectedColor, selectedImage, false, gradientDrawable);
+		if (bgSelectedDrawable != null) {
+			sld.addState(BACKGROUND_SELECTED_STATE, bgSelectedDrawable);
 		}
 
-		if (selectedImage != null) {
-			bgSelectedDrawable = tfh.loadDrawable(selectedImage, false, true);
-		} else if (selectedColor != null) {
-			bgSelectedDrawable = new ColorDrawable(TiConvert.toColor(selectedColor));
-		} else {
-			if (image != null) {
-				bgSelectedDrawable = tfh.loadDrawable(image, false, true);
-			} else if (color != null) {
-				bgSelectedDrawable = new ColorDrawable(TiConvert.toColor(color));
-			}			
+		Drawable bgFocusedDrawable = buildBackgroundDrawable(focusedColor, focusedImage, false, gradientDrawable);
+		if (bgFocusedDrawable != null) {
+			sld.addState(BACKGROUND_FOCUSED_STATE, bgFocusedDrawable);
 		}
 
-		if (focusedImage != null) {
-			bgFocusedDrawable = tfh.loadDrawable(focusedImage, false, true);
-		} else if (focusedColor != null) {
-			bgFocusedDrawable = new ColorDrawable(TiConvert.toColor(focusedColor));
-		} else {
-			if (image != null) {
-				bgFocusedDrawable = tfh.loadDrawable(image, false, true);
-			} else if (color != null) {
-				bgFocusedDrawable = new ColorDrawable(TiConvert.toColor(color));
-			}
+		Drawable bgDisabledDrawable = buildBackgroundDrawable(disabledColor, disabledImage, false, gradientDrawable);
+		if (bgDisabledDrawable != null) {
+			sld.addState(BACKGROUND_DISABLED_STATE, bgDisabledDrawable);
 		}
 
-		if (disabledImage != null) {
-			bgDisabledDrawable = tfh.loadDrawable(disabledImage, false, true);
-		} else if (disabledColor != null) {
-			bgDisabledDrawable = new ColorDrawable(TiConvert.toColor(disabledColor));
-		} else {
-			if (image != null) {
-				bgDisabledDrawable = tfh.loadDrawable(image, false, true);
-			} else if (color != null) {
-				bgDisabledDrawable = new ColorDrawable(TiConvert.toColor(color));
-			}
-		}
-
-		if (bgDrawable != null || bgSelectedDrawable != null || bgFocusedDrawable != null || bgDisabledDrawable != null) {
-			sld = new StateListDrawable();
-
-			if (bgDisabledDrawable != null) {
-				int[] stateSet = {
-					-android.R.attr.state_enabled
-				};
-				sld.addState(stateSet, bgDisabledDrawable);
-			}
-
-			if (bgFocusedDrawable != null) {
-				int[] ss = {
-					android.R.attr.state_focused,
-					android.R.attr.state_window_focused,
-					android.R.attr.state_enabled
-				};
-				sld.addState(ss, bgFocusedDrawable);
-			}
-
-			if (bgSelectedDrawable != null) {
-				int[] ss = {
-						android.R.attr.state_window_focused,
-						android.R.attr.state_enabled,
-						android.R.attr.state_pressed
-					};
-				sld.addState(ss, bgSelectedDrawable);
-
-
-				int[] ss1 = {
-					android.R.attr.state_focused,
-					android.R.attr.state_window_focused,
-					android.R.attr.state_enabled,
-					android.R.attr.state_pressed
-				};
-				sld.addState(ss1, bgSelectedDrawable);
-				
-//				int[] ss2 = { android.R.attr.state_selected };
-//				sld.addState(ss2, bgSelectedDrawable);
-			}
-
-			if (bgDrawable != null) {
-				int[] ss1 = {
-					android.R.attr.state_window_focused,
-					android.R.attr.state_enabled
-				};
-				sld.addState(ss1, bgDrawable);
-				int[] ss2 = { android.R.attr.state_enabled };
-				sld.addState(ss2, bgDrawable);
-			}
+		Drawable bgDrawable = buildBackgroundDrawable(color, image, tileImage, gradientDrawable);
+		if (bgDrawable != null) {
+			sld.addState(BACKGROUND_DEFAULT_STATE_1, bgDrawable);
+			sld.addState(BACKGROUND_DEFAULT_STATE_2, bgDrawable);
 		}
 
 		return sld;
@@ -646,6 +655,12 @@ public class TiUIHelper
 		return image;
 	}
 
+	/**
+	 * Creates and returns a Bitmap from an InputStream.
+	 * @param stream an InputStream to read bitmap data.
+	 * @return a new bitmap instance.
+	 * @module.api
+	 */
 	public static Bitmap createBitmap(InputStream stream)
 	{
 		Rect pad = new Rect();
@@ -722,6 +737,12 @@ public class TiUIHelper
 		}
 	}
 	
+	/**
+	 * Creates and returns a bitmap from its url.
+	 * @param url the bitmap url.
+	 * @return a new bitmap instance
+	 * @module.api
+	 */
 	public static Bitmap getResourceBitmap(String url)
 	{
 		int id = getResourceId(url);
@@ -732,6 +753,12 @@ public class TiUIHelper
 		}
 	}
 	
+	/**
+	 * Creates and returns a bitmap for the specified resource ID.
+	 * @param res_id the bitmap id.
+	 * @return a new bitmap instance.
+	 * @module.api
+	 */
 	public static Bitmap getResourceBitmap(int res_id)
 	{
 		BitmapFactory.Options opts = new BitmapFactory.Options();
@@ -866,6 +893,11 @@ public class TiUIHelper
 		}
 	}
 	
+	/**
+	 * Shows/hides the soft keyboard.
+	 * @param view the current focused view.
+	 * @param show whether to show soft keyboard.
+	 */
 	public static void showSoftKeyboard(View view, boolean show) 
 	{
 		InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);

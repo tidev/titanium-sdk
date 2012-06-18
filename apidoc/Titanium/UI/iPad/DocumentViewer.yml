@@ -1,36 +1,42 @@
 ---
 name: Titanium.UI.iPad.DocumentViewer
-summary: A DocumentViewer provides in-app support for managing user interactions with files in the local system. 
+summary: |
+    A DocumentViewer provides in-app support for managing user interactions with files on the 
+    local system. 
 description: | 
-    For example, an email program might use this class to allow the user to preview 
-    attachments and open them in other apps. Use this class to present an appropriate 
-    user interface for previewing or printing a specified file. The DocumentViewer is 
-    created by the method <Titanium.UI.iPad.createDocumentViewer>.
+    The DocumentViewer is created by the method <Titanium.UI.iPad.createDocumentViewer>. 
+    
+    For example, an email program might use this class to allow the user to preview attachments and 
+    open them in other apps. Use this class to present an appropriate user interface for previewing 
+    or printing a specified file. 
 extends: Titanium.UI.View
 platforms: [ipad]
 since: "1.8"
+
 methods:
   - name: show
-    summary: to display the document viewer over the current view.
+    summary: Displays the document viewer over the current view.
     parameters:
       - name: animated
-        summary: is a boolean indicating if the showing of the viewer should be animated.
+        summary: Indicates whether the show transition should be animated.
         type: Boolean
+        
       - name: view
         summary: The view property would specify the view relative to where the viewer should display.
         type: Object
+  
   - name: setUrl
-    summary: change the url of the document viewer
+    summary: Sets the url of the document viewer.
     parameters:
       - name: url
-        summary: the new url
+        summary: The new url
         type: String
+
 examples:
   - title: Document Viewer Example
     example: |
         In this example, we create a document viewer with a window button and right navigation button.
         
-           //-----------example--------
            	Titanium.UI.setBackgroundColor('#000');
            	//creating the window
            	var win1 = Titanium.UI.createWindow({

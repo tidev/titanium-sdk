@@ -11,12 +11,12 @@
 #import "TiViewProxy.h"
 #import <MapKit/MapKit.h>
 
-@class TiMapView;
+@class TiMapViewProxy;
 
 @interface TiMapAnnotationProxy : TiViewProxy<MKAnnotation> {
 @private
 	int tag;
-	TiMapView *delegate;
+	TiMapViewProxy *delegate;
 	BOOL needsRefreshing;
 	BOOL needsRefreshingWithSelection;
 	BOOL placed;
@@ -24,7 +24,7 @@
 
 // Center latitude and longitude of the annotion view.
 @property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
-@property (nonatomic, readwrite, assign) TiMapView *delegate;
+@property (nonatomic, readwrite, assign) TiMapViewProxy *delegate;
 @property (nonatomic,readonly)	BOOL needsRefreshingWithSelection;
 @property (nonatomic, readwrite, assign) BOOL placed;
 

@@ -115,7 +115,7 @@ def usage():
 
 
     iPhone Specific Arguments
-    --iphone-version=DIR            The iPhone SDK version to build against (default: 4.0)
+    --iphone-version=DIR            The iPhone SDK version to build against (default: 5.0)
     
     Android Specific Arguments
     --android-sdk=DIR               Android SDK is loaded from DIR

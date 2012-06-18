@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2011 Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2012 Appcelerator, Inc. All Rights Reserved.
 # Licensed under the Apache Public License (version 2)
 import os, sys, re, codecs
 
@@ -9,20 +9,18 @@ sys.path.append(os.path.abspath(os.path.join(this_dir, "..")))
 
 from common import dict_has_non_empty_member, strip_tags, not_real_titanium_types
 
-# We package mako already in support/android/mako.
-android_support_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "support", "android"))
-sys.path.append(android_support_dir)
+# We package simplejson, markdown and mako in support/common.
+common_support_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "support", "common"))
+sys.path.append(common_support_dir)
+import markdown
 from mako.template import Template
 from mako.lookup import TemplateLookup
 
-# TiLogger is also in support/android
+# TiLogger is in support/android
+android_support_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "support", "android"))
+sys.path.append(android_support_dir)
 from tilogger import *
 log = None
-
-# We package the python markdown module already in /support/module/support/markdown.
-module_support_dir = os.path.abspath(os.path.join(this_dir, "..", "..", "support", "module", "support"))
-sys.path.append(module_support_dir)
-import markdown
 
 try:
 	from pygments import highlight
@@ -46,12 +44,14 @@ files_written = []
 template_cache = {} # cache templates so we don't need to load them each time
 template_dir = os.path.abspath(os.path.join(this_dir, "..", "templates", "html"))
 template_lookup = TemplateLookup(directories=[template_dir])
+current_api = None # The api currently being annotated; useful for appending to log statements.
+current_annotation_pass = -1 # during generate() will be in range of 0 to 1 (we have 2 passes for annotation.)
 
 def generate(raw_apis, annotated_apis, options):
 	log_level = TiLogger.INFO
 	if not options is None and options.verbose:
 		log_level = TiLogger.TRACE
-	global all_annotated_apis, log
+	global all_annotated_apis, log, current_api, current_annotation_pass
 	all_annotated_apis = annotated_apis
 	log = TiLogger(None, level=log_level, output_stream=sys.stderr)
 	if options is not None and (not hasattr(options, "output") or options.output is None or len(options.output) == 0):
@@ -66,16 +66,22 @@ def generate(raw_apis, annotated_apis, options):
 	# Add html-specific annotations. Do it twice because the
 	# api objects can cross-reference each other.
 	log.info("Annotating api objects with html-specific attributes")
-	for x in range(2):
+
+	current_api = None
+	for current_annotation_pass in range(2):
 		for api in annotated_apis.values():
 			if api.typestr in ("method", "property", "event"):
-				log.trace ("html-annotating %s.%s" % (api.parent.name, api.name))
+				current_api = "%s.%s" % (api.parent.name, api.name)
 			elif api.typestr == "parameter":
-				log.trace ("html-annotating %s.%s.%s" % (api.parent.parent.name,
-					api.parent.name, api.name))
+				current_api = "%s.%s.%s" % (api.parent.parent.name,
+					api.parent.name, api.name)
 			else:
-				log.trace("html-annotating %s" % api.name)
+				current_api = api.name
+			log.trace("html-annotating %s" % current_api)
 			annotate(api)
+
+	current_annotation_pass = -1
+	current_api = None
 
 	# Write the output files
 	if options is not None:
@@ -168,18 +174,22 @@ def annotate(annotated_obj):
 	annotated_obj.description_html = ""
 	annotated_obj.examples_html = []
 	annotated_obj.inherited_from_obj = None
+	if hasattr(annotated_obj, "inherited_from") and len(annotated_obj.inherited_from) > 0:
+		if annotated_obj.inherited_from in all_annotated_apis:
+			annotated_obj.inherited_from_obj = all_annotated_apis[annotated_obj.inherited_from]
+	is_inherited = (annotated_obj.inherited_from_obj is not None)
 	if dict_has_non_empty_member(annotated_obj.api_obj, "summary"):
 		summary = annotated_obj.api_obj["summary"]
-		annotated_obj.summary_html = markdown_to_html(summary, obj=annotated_obj)
+		annotated_obj.summary_html = markdown_to_html(summary, obj=annotated_obj, suppress_link_warnings=is_inherited)
 	if dict_has_non_empty_member(annotated_obj.api_obj, "description"):
-		annotated_obj.description_html = markdown_to_html(annotated_obj.api_obj["description"], obj=annotated_obj)
+		annotated_obj.description_html = markdown_to_html(annotated_obj.api_obj["description"], obj=annotated_obj, suppress_link_warnings=is_inherited)
 	if dict_has_non_empty_member(annotated_obj.api_obj, "examples"):
 		for example in annotated_obj.api_obj["examples"]:
 			one_example = {"title": "", "example": ""}
 			if dict_has_non_empty_member(example, "title"):
 				one_example["title"] = example["title"]
 			if dict_has_non_empty_member(example, "example"):
-				html_example = markdown_to_html(example["example"], obj=annotated_obj)
+				html_example = markdown_to_html(example["example"], obj=annotated_obj, suppress_link_warnings=is_inherited)
 				# Suspicious if the example has content (beyond the <p></p>) but not <code>.
 				# This can happen if in the .yml the example starts off immediately with code,
 				# because the yaml parser interprets the leading four spaces (which the programmer
@@ -208,7 +218,7 @@ def annotate(annotated_obj):
 		annotated_obj.filename_html = clean_for_filename("%s.%s-%s" % (annotated_obj.parent.name, annotated_obj.name, "property"))
 		annotated_obj.template_html = "property"
 		if annotated_obj.default is not None:
-			annotated_obj.default_html = markdown_to_html(str(annotated_obj.default))
+			annotated_obj.default_html = markdown_to_html(str(annotated_obj.default), suppress_link_warnings=is_inherited)
 	# Override for "property" that is an event callback property
 	if annotated_obj.typestr == "property" and annotated_obj.parent.typestr == "event":
 		annotated_obj.filename_html = clean_for_filename("%s.%s.%s-%s" % (annotated_obj.parent.parent.name, annotated_obj.parent.name, annotated_obj.name, "callback-property"))
@@ -217,13 +227,10 @@ def annotate(annotated_obj):
 		annotated_obj.filename_html = clean_for_filename("%s.%s-param" % (annotated_obj.parent.filename_html, annotated_obj.name))
 		annotated_obj.template_html = "property"
 		if annotated_obj.default is not None:
-			annotated_obj.default_html = markdown_to_html(str(annotated_obj.default))
+			annotated_obj.default_html = markdown_to_html(str(annotated_obj.default), suppress_link_warnings=is_inherited)
 	if annotated_obj.typestr == "event":
 		annotated_obj.filename_html = clean_for_filename("%s.%s-%s" % (annotated_obj.parent.name, annotated_obj.name, "event"))
 		annotated_obj.template_html = "event"
-	if hasattr(annotated_obj, "inherited_from") and len(annotated_obj.inherited_from) > 0:
-		if annotated_obj.inherited_from in all_annotated_apis:
-			annotated_obj.inherited_from_obj = all_annotated_apis[annotated_obj.inherited_from]
 	for list_type in ("methods", "properties", "events", "parameters"):
 		annotate_member_list(annotated_obj, list_type)
 
@@ -303,25 +310,40 @@ def load_file_markdown(file_specifier, obj):
 		return open(filename, "r").read()
 
 def anchor_for_object_or_member(obj_specifier, text=None, language="markdown", suppress_code_formatting=False):
+	fragment = ""
+	obj_specifier_base = obj_specifier
+	fragment_start = obj_specifier.rfind("#")
+	if fragment_start >= 0:
+		fragment = obj_specifier[fragment_start:]
+		if fragment_start > 0:
+			obj_specifier_base = obj_specifier[0:fragment_start]
+		elif fragment_start == 0:
+			obj_specifier_base = ""
+
 	if language == "markdown":
 		if not suppress_code_formatting:
 			label = text or ("`%s`" % obj_specifier)
 		else:
 			label = text or obj_specifier
-		template = "[%s](#)" % label
+		template = "[%s](<address_here>)" % label
 	else:
 		if not suppress_code_formatting:
 			label = text or ("<code>%s</code>" % obj_specifier)
 		else:
 			label = text or (obj_specifier)
-		template = '<a href="#">%s</a>' % label
-	if obj_specifier in all_annotated_apis:
-		obj = all_annotated_apis[obj_specifier]
+		template = '<a href="<address_here>">%s</a>' % label
+
+	identifier_exists = (obj_specifier_base in all_annotated_apis)
+	if identifier_exists:
+		obj = all_annotated_apis[obj_specifier_base]
 		if hasattr(obj, "filename_html"):
-			return (template.replace("#", "%s.html" % obj.filename_html), True)
+			url = "%s.html" % obj.filename_html
+			if fragment:
+				url += fragment
+			return (template.replace("<address_here>", url), True)
 	else:
 		# Maybe a method, property or event
-		parts = obj_specifier.split(".")
+		parts = obj_specifier_base.split(".")
 		if len(parts) > 0:
 			parent = ".".join(parts[:-1])
 			member_name = parts[-1]
@@ -331,21 +353,47 @@ def anchor_for_object_or_member(obj_specifier, text=None, language="markdown", s
 				for list_name in list_names:
 					if hasattr(obj, list_name) and type(getattr(obj, list_name)) == list:
 						for m in getattr(obj, list_name):
-							if m.name == member_name and hasattr(m, "filename_html"):
-								return (template.replace("#", "%s.html" % m.filename_html), True)
-	# Didn't find it. At least send it back styled like code (unless that's suppressed).
+							if m.name == member_name:
+								identifier_exists = True
+								if hasattr(m, "filename_html"):
+									url = "%s.html" % m.filename_html
+									if fragment:
+										url += fragment
+									return (template.replace("<address_here>", url), True)
+
+	# Didn't find it (or its filename_html isn't ready yet because we're in the first annotation pass.
+	# At least send it back styled like code (unless that's suppressed).
 	if language == "markdown":
 		if not suppress_code_formatting:
-			return "`%s`" % obj_specifier, False
+			return "`%s`" % obj_specifier, identifier_exists
 		else:
-			return obj_specifier, False
+			return obj_specifier, identifier_exists
 	else:
 		if not suppress_code_formatting:
-			return "<code>%s</code>" % obj_specifier, False
+			return "<code>%s</code>" % obj_specifier, identifier_exists
 		else:
-			return obj_specifier, False
+			return obj_specifier, identifier_exists
 
-def replace_with_link(full_string, link_info):
+def replace_with_link(full_string, link_info, suppress_warnings=False):
+	def should_warn(anchor):
+		# strip out any backticks we threw in their already
+		test = anchor.replace("`", "")
+		if suppress_warnings or current_annotation_pass == 0:
+			return False
+		if "http://" in test or "https://" in test:
+			return False
+
+		# If it "looks like" an html tag -- all lower case, no spaces, starts with < ends with > -- then
+		# don't warn.
+		closing_tag = r"/\w+"
+		if re.match(closing_tag, test):
+			return False
+		# Now for a weak check of a start tag. If characters, then only lower-case.
+		start_tag = r"[a-z]+"
+		if re.match(start_tag, test):
+			return False
+		return True
+
 	s = full_string
 	obj_specifier = link_info
 	if obj_specifier.startswith("<"):
@@ -354,6 +402,8 @@ def replace_with_link(full_string, link_info):
 		if found_type:
 			return s.replace(link_info, anchor)
 		else:
+			if should_warn(anchor):
+				log.warn("While processing %s: link %s could not be resolved" % (current_api, link_info))
 			# if it at least looks like a Titanium type (but perhaps one
 			# that is not documented), return the styled result from anchor_for_object_or_member.
 			if obj_specifier.startswith("Ti") and "." in obj_specifier and not " " in obj_specifier:
@@ -366,10 +416,13 @@ def replace_with_link(full_string, link_info):
 		anchor, found_type = anchor_for_object_or_member(match.groups()[1], text=match.groups()[0])
 		if found_type:
 			return s.replace(link_info, anchor)
+		else:
+			if should_warn(anchor):
+				log.warn("While processing %s: link %s could not be resolved" % (current_api, link_info))
 	# fallback
 	return s
 
-def process_markdown_links(s):
+def process_markdown_links(s, suppress_link_warnings=False):
 	new_string = s
 	patterns = (r"(\[[^\]]+\]\([^\)\s]+\))", r"(\<[^\>\s]+\>)")
 	for pattern in patterns:
@@ -377,16 +430,16 @@ def process_markdown_links(s):
 		results = prog.findall(new_string)
 		if results is not None and len(results) > 0:
 			for r in results:
-				new_string = replace_with_link(new_string, r)
+				new_string = replace_with_link(new_string, r, suppress_warnings=suppress_link_warnings)
 	return new_string
 
-def markdown_to_html(s, obj=None):
+def markdown_to_html(s, obj=None, suppress_link_warnings=False):
 	if s is None or len(s) == 0:
 		return ""
 	if s.startswith("file:") and obj is not None:
 		return markdown_to_html(load_file_markdown(s, obj))
 	if "<" in s or "[" in s:
-		s = process_markdown_links(s)
+		s = process_markdown_links(s, suppress_link_warnings=suppress_link_warnings)
 	return markdown.markdown(s)
 
 def data_type_to_html(type_spec):

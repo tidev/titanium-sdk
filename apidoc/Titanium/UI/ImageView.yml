@@ -3,37 +3,75 @@ name: Titanium.UI.ImageView
 summary: |
     A view to display a single image or series of animated images. 
 description: |
-
+    
     Use the <Titanium.UI.createImageView> method to create an `ImageView`.
     
     Specifying either a `width` or `height` property for this view will scale its image(s) with 
     the aspect ratio maintained, up to a maximum size that does not exceed its parent view.
+    
+    #### Android 9-Patch Scaled Images
+    
+    A nine-patch (9-patch) image is simply a standard `png` image with a transparent border of a 
+    single pixel, containing "guides" defined by solid black (`#000`) color fills. Guides added to the 
+    top and left edges determine that the image may be stretched in horizontal and vertical planes 
+    respectively. Optionally, the content area may be defined by guides added to the bottom and 
+    right edges.
+    
+    Although any image editor may be used to create the guides, certain settings can cause the edges 
+    of the graphic to "bleed" into the transparent border, consequently making it non-transparent. 
+    Thus, the `draw9patch` utility provided in the Android SDK tools directory is recommended for 
+    this purpose.
+    
+    For further information about nine-patch images and the Android utility, see the 
+    [Nine-patch](http://developer.android.com/guide/topics/graphics/2d-graphics.html#nine-patch) 
+    and [Draw 9-patch](http://developer.android.com/guide/developing/tools/draw9patch.html) sections 
+    of the Android Developer website.
+    
+    The nine-patch technique may be used with any of Titanium's static image properties. See the 
+    "Button with Nine-patch Background Image" example for a demonstration.
 extends: Titanium.UI.View
 since: "0.9"
 
 methods:
+    # main doc inherited from Ti.UI.View.add
+  - name: add
+    description: |
+        Adding children to an `ImageView` is not supported on all platforms.
+
+        If you need to add views on top of this object, consider using 
+        another view as a container for both this object and the views you want 
+        to appear on top of it.
+
+        See also: <Titanium.UI.View.add>.
+    platforms: [iphone, ipad, mobileweb]
+
   - name: pause
-    summary: |
-        Pauses a running animation. Use `resume` method on Android and `start` method on iOS 
-        to continue.
-    descrption:  This method only works if multiple images are specified.
+    summary: Pauses a running animation. Use `resume` method to continue.
+    description:  This method only works if multiple images are specified.
+    platforms: [android, iphone, ipad, mobileweb]
+
+  - name: remove
+    description: |
+        See also: [add](Titanium.UI.ImageView.add), <Titanium.UI.View.add>.
+    platforms: [iphone, ipad, mobileweb]
     
   - name: resume
     summary: Resumes an animation from a `pause` state.
-    descrption:  This method only works if multiple images are specified.
-    platforms: [android]
+    description:  This method only works if multiple images are specified.
+    platforms: [android, iphone, ipad, mobileweb]
     
   - name: start
     summary: |
-        Starts the image animation. On Android, also resets `index` to the first image.
-    descrption:  This method only works if multiple images are specified.
+        Starts the image animation. On Android and Mobile Web, also resets `index` to the first image.
+    description:  This method only works if multiple images are specified.
     
   - name: stop
-    summary: Stops a running animation. On iOS, also resets `index` to the first image.
-    descrption:  This method only works if multiple images are specified.
+    summary: Stops a running animation. On iOS and Mobile Web, also resets `index` to the first image.
+    description:  This method only works if multiple images are specified.
     
   - name: toBlob
     summary: Returns the image as a Blob object.
+    platforms: [android, iphone, ipad]
 
 events:
   - name: change
@@ -48,7 +86,7 @@ events:
     properties:
       - name: state
         summary: |
-            Set to `image` on Android and `url` on iOS when the image defined in the 
+            Set to `image` on Android and Mobile Web and `url` on iOS when the image defined in the 
             [image](Titanium.UI.ImageView.image) property is loaded. Set to `images`, when the series 
             of images defined in the [images](Titanium.UI.ImageView.images) property are loaded.
         type: String
@@ -67,13 +105,13 @@ events:
 
   - name: pause
     summary: Fired when the animation pauses.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, mobileweb]
 properties:
   - name: animating
     summary: |
         Indicates whether animation is running.
     type: Boolean
-    default: false on creation, true on load (Android), false (iPhone, iPad)
+    default: false on creation, true on load (Android), false (iPhone, iPad, Mobile Web)
     permission: read-only
     
   - name: canScale
@@ -95,6 +133,7 @@ properties:
   - name: defaultImage
     summary: Local path to the default image to display while loading a remote image.
     type: String
+    platforms: [android, iphone, ipad]
     
   - name: duration
     summary: Amount of time in milliseconds to animate one cycle.
@@ -103,9 +142,9 @@ properties:
         started, duration will be set to the number of images multiplied by 33ms. If no images 
         are assigned, duration will be set to 100ms.
         
-        On iOS, the default is 30ms.
+        On iOS and Mobile Web, the default is 30ms.
     type: Number
-    default: See description (Android), 30 (iPhone, iPad)
+    default: See description (Android), 30 (iPhone, iPad, Mobile Web)
     
   - name: enableZoomControls
     summary: Show zoom controls when the user touches the image view.
@@ -126,18 +165,21 @@ properties:
         filenames, and thus this property is only applicable to remote images.
     type: Boolean
     default: false
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     
   - name: image
-    summary: | 
+    summary: Image to display.
+    description: |
         Image to display, defined using a local filesystem path, a `File` object, a remote URL, 
-        or a `Blob` object containing image data.
+        or a `Blob` object containing image data. `Blob` and `File` objects are not supported on 
+        Mobile Web.
     type: [ String, Titanium.Blob, Titanium.Filesystem.File ]
 
   - name: images
     summary: | 
         Array of images to animate, defined using local filesystem paths, `File` objects, 
-        remote URLs (Android only), or `Blob` objects containing image data.
+        remote URLs (Android only), or `Blob` objects containing image data. `Blob` and `File` 
+        objects are not supported on Mobile Web.
     type: [ Array<String>, Array<Titanium.Blob>, Array<Titanium.Filesystem.File> ]
     
   - name: paused
@@ -181,4 +223,37 @@ examples:
               image:'/images/myimage.png'
             });
             win.add(image);
+            win.open();
+  - title: Button with Nine-patch Background Image
+    example: |
+        To prepare, copy the images 
+        [custom-slider-right.9.png](https://github.com/appcelerator/titanium_mobile/raw/master/demos/KitchenSink/Resources/images/custom-slider-right.9.png) 
+        and [custom-slider-left.9.png](https://github.com/appcelerator/titanium_mobile/raw/master/demos/KitchenSink/Resources/images/custom-slider-left.9.png) 
+        into the project `/images/` directory/.
+        
+        Create a button with a nine-patch image background, that swaps with another image when 
+        selected, and generates a message in the console when clicked.
+        
+        Note that images are referenced in the code without the `.9` part of the filename, and that 
+        the project should be cleaned to ensure that the files are correctly copied to the project.
+        
+            var win = Ti.UI.createWindow({
+                backgroundColor: 'white',
+                exitOnClose: true,
+                fullscreen: false,
+                title: 'Click button to test'
+            });
+             
+            var button = Ti.UI.createButton({
+                backgroundImage: '/images/custom-slider-right.png',
+                backgroundSelectedImage:'/images/custom-slider-left.png',
+                title: 'Click me!',
+                top: 10,
+                width: 300,
+                height: 200
+            });
+            button.addEventListener('click',function(e){
+                Ti.API.info("You clicked the button");
+            });
+            win.add(button);
             win.open();

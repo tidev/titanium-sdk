@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,16 +12,19 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.RProxy;
 import org.appcelerator.titanium.proxy.ServiceProxy;
+import org.appcelerator.titanium.util.TiConvert;
 
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -217,6 +220,9 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int FLAG_SHOW_LIGHTS = Notification.FLAG_SHOW_LIGHTS;
 	@Kroll.constant public static final int STREAM_DEFAULT = Notification.STREAM_DEFAULT;
 
+	@Kroll.constant public static final int START_NOT_STICKY = Service.START_NOT_STICKY;
+	@Kroll.constant public static final int START_REDELIVER_INTENT = Service.START_REDELIVER_INTENT;
+
 	@Kroll.constant public static final int STREAM_ALARM = AudioManager.STREAM_ALARM;
 	@Kroll.constant public static final int STREAM_MUSIC = AudioManager.STREAM_MUSIC;
 	@Kroll.constant public static final int STREAM_NOTIFICATION = AudioManager.STREAM_NOTIFICATION;
@@ -248,15 +254,19 @@ public class AndroidModule extends KrollModule
 	public IntentProxy createServiceIntent(Object[] args)
 	{
 		IntentProxy intent = new IntentProxy();
-		intent.setType(IntentProxy.TYPE_SERVICE);
+		intent.setInternalType(IntentProxy.TYPE_SERVICE);
 		intent.handleCreationArgs(this, args);
+		Object startMode = intent.getProperty(TiC.INTENT_PROPERTY_START_MODE);
+		if (startMode != null) {
+			intent.putExtra(TiC.INTENT_PROPERTY_START_MODE, TiConvert.toInt(startMode));
+		}
 		return intent;
 	}
 
 	public IntentProxy createBroadcastIntent(Object[] args)
 	{
 		IntentProxy intent = new IntentProxy();
-		intent.setType(IntentProxy.TYPE_BROADCAST);
+		intent.setInternalType(IntentProxy.TYPE_BROADCAST);
 		intent.handleCreationArgs(this, args);
 		return intent;
 	}

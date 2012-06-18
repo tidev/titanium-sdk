@@ -34,6 +34,7 @@
     RELEASE_TO_NIL(controllerStack);
 	RELEASE_TO_NIL(tabGroup);
 	RELEASE_TO_NIL(rootController);
+    RELEASE_TO_NIL(controller);
 	RELEASE_TO_NIL(current);
 	[super _destroy];
 }
@@ -96,10 +97,15 @@
 
 -(void)removeFromTabGroup
 {
+    [self closeWindow:[current window] animated:YES removeTab:YES];
+}
+
+-(void)closeTab
+{
 	if (current!=nil)
 	{
 		TiWindowProxy *currentWindow = [current window];
-		[self close:currentWindow];
+		[self closeWindow:currentWindow animated:YES removeTab:NO];
 	}
 }
 
@@ -188,7 +194,7 @@
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
     id activeTab = [tabGroup valueForKey:@"activeTab"];
-    if (activeTab == nil) {
+    if (activeTab == nil || activeTab == [NSNull null]) {
         //Make sure that the activeTab property is set
         [self setActive:[NSNumber numberWithBool:YES]];
     }
@@ -293,19 +299,36 @@
 								([[args objectAtIndex:1] isKindOfClass:[NSDictionary class]])) ? [args objectAtIndex:1] : nil;
 
 	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-	if ([current window] == window)
+    [self closeWindow:window animated:animated removeTab:NO];
+}
+
+- (void)closeWindow:(TiWindowProxy *)window animated:(BOOL)animated removeTab:(BOOL)removeTab
+{
+    BOOL closingCurrentWindow = ([current window] == window);
+	if (closingCurrentWindow)
 	{
-		[[rootController navigationController] popViewControllerAnimated:animated];
-		return;
+        [[rootController navigationController] popViewControllerAnimated:animated];
+		if (!removeTab) {
+            return;
+        }
 	}
-	
+    UIViewController *windowController = [[window controller] retain];
+    if (closingCurrentWindow) {
+        [self setTabGroup:nil];
+        if ((windowController == nil) && (window == nil)) {
+            // tab was never focused so its controller was never added to the stack
+            windowController = [rootController retain];
+        }
+    }
+
 	// Manage the navigation controller stack
 	UINavigationController* navController = [rootController navigationController];
 	NSMutableArray* newControllerStack = [NSMutableArray arrayWithArray:[navController viewControllers]];
-	[newControllerStack removeObject:[window controller]];
+	[newControllerStack removeObject:windowController];
 	[navController setViewControllers:newControllerStack animated:animated];
     RELEASE_TO_NIL(controllerStack);
     controllerStack = [newControllerStack retain];
+    [windowController release];
 	
 	[window retain];
 	[window _tabBlur];
@@ -315,10 +338,11 @@
 	// and not let the window simply close by itself. this will ensure that we tell the 
 	// tab that we're doing that
 	[window close:[NSArray arrayWithObjects:[NSDictionary dictionaryWithObject:NUMBOOL(YES) forKey:@"closeByTab"],nil]];
-	if ([current window]==window)
-	{
+    if (closingCurrentWindow) {
 		RELEASE_TO_NIL(current);
-	}
+        // this TiUITabController is retaining a reference to self which leads to a cycle, so release to nil
+        RELEASE_TO_NIL(rootController);
+    }
 	[window autorelease];
 }
 

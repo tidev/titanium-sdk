@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,6 +32,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -69,6 +69,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private Loader loader;
 	private Thread loaderThread;
 	private AtomicBoolean animating = new AtomicBoolean(false);
+	private AtomicBoolean isLoading = new AtomicBoolean(false);
 	private AtomicBoolean isStopping = new AtomicBoolean(false);
 	private boolean reverse = false;
 	private boolean paused = false;
@@ -99,9 +100,20 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		protected void onPostExecute(Drawable d)
 		{
 			super.onPostExecute(d);
-
+			
 			if (d != null) {
-				setImageDrawable(d, token);
+				final Drawable fDrawable = d;
+				
+				// setImageDrawable has to run in the UI thread since it updates the UI
+				TiMessenger.getMainMessenger().post(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						setImageDrawable(fDrawable, token);
+					}
+				});
+				
 			} else {
 				if (DBG) {
 					String traceMsg = "Background image load returned null";
@@ -352,7 +364,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				return;
 			}
 			repeatIndex = 0;
-			animating.set(true);
+			isLoading.set(true);
 			firedLoad = false;
 			topLoop: while (isRepeating()) {
 
@@ -386,9 +398,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 							Log.w(LCAT, "Interrupted from paused state.");
 						}
 					}
-					if (!animating.get()) {
+
+					if (!isLoading.get() || isStopping.get()) {
 						break topLoop;
 					}
+
 					waitTime = 0;
 					synchronized (releasedLock) {
 						if (imageSources == null || j >= imageSources.size()) {
@@ -423,7 +437,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				}
 
 			}
-			animating.set(false);
+			isLoading.set(false);
 		}
 
 		public ArrayBlockingQueue<BitmapWithIndex> getBitmapQueue()
@@ -558,16 +572,15 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				}
 			}
 
-
 			animator = new Animator(loader);
 			if (!animating.get() && !loaderThread.isAlive()) {
 				isStopping.set(false);
 				loaderThread.start();
 			}
 
-
 			int duration = (int) getDuration();
 
+			animating.set(true);
 			fireStart();
 			timer.schedule(animator, duration, duration);
 		} else {
@@ -714,10 +727,15 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				}
 				boolean getAsync = true;
 				try {
-					URI uri = new URI(imageref.getUrl());
+					String imageUrl = TiUrl.getCleanUri(imageref.getUrl()).toString();
+					
+					URI uri = new URI(imageUrl);
 					getAsync = !TiResponseCache.peek(uri);
 				} catch (URISyntaxException e) {
 					Log.e(LCAT, "URISyntaxException for url " + imageref.getUrl(), e);
+					getAsync = false;
+				} catch (NullPointerException e) {
+					Log.e(LCAT, "NullPointerException for url " + imageref.getUrl(), e);
 					getAsync = false;
 				}
 				if (getAsync) {
@@ -788,15 +806,27 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	public void processProperties(KrollDict d)
 	{
 		TiImageView view = getView();
+		View parentView = getParentView();
+
 		if (view == null) {
 			return;
 		}
 
 		if (d.containsKey(TiC.PROPERTY_WIDTH)) {
-			requestedWidth = TiConvert.toTiDimension(d, TiC.PROPERTY_WIDTH, TiDimension.TYPE_WIDTH);
+			if (TiC.LAYOUT_FILL.equals(d.getString(TiC.PROPERTY_WIDTH)) && parentView != null) {
+				// Use the parent's width when it's fill
+				requestedWidth = TiConvert.toTiDimension(parentView.getMeasuredWidth(), TiDimension.TYPE_WIDTH);
+			} else {
+				requestedWidth = TiConvert.toTiDimension(d, TiC.PROPERTY_WIDTH, TiDimension.TYPE_WIDTH);
+			}
 		}
 		if (d.containsKey(TiC.PROPERTY_HEIGHT)) {
-			requestedHeight = TiConvert.toTiDimension(d, TiC.PROPERTY_HEIGHT, TiDimension.TYPE_HEIGHT);
+			// Use the parent's height when it's fill
+			if (TiC.LAYOUT_FILL.equals(d.getString(TiC.PROPERTY_HEIGHT)) && parentView != null) {
+				requestedHeight = TiConvert.toTiDimension(parentView.getMeasuredHeight(), TiDimension.TYPE_HEIGHT);
+			} else {
+				requestedHeight = TiConvert.toTiDimension(d, TiC.PROPERTY_HEIGHT, TiDimension.TYPE_HEIGHT);
+			}
 		}
 
 		if (d.containsKey(TiC.PROPERTY_IMAGES)) {
@@ -820,7 +850,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				Object image = d.get(TiC.PROPERTY_IMAGE);
 
 				if (image instanceof String) {
-					String imageUrl = (String) image;
+					String imageUrl = TiUrl.getCleanUri((String)image).toString();
 					URI imageUri = new URI(imageUrl);
 					if (URLUtil.isNetworkUrl(imageUrl) && !TiResponseCache.peek(imageUri)) {
 						setDefaultImageSource(defaultImage);
@@ -831,6 +861,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				}
 
 			} catch (URISyntaxException e) {
+				setDefaultImageSource(defaultImage);
+			} catch (NullPointerException e) {
 				setDefaultImageSource(defaultImage);
 			}
 		}
@@ -919,6 +951,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	public boolean isAnimating()
 	{
 		return animating.get() && !paused;
+	}
+	
+	public boolean isPaused()
+	{
+		return paused;
 	}
 
 	public boolean isReverse()

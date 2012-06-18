@@ -5,6 +5,7 @@ summary: |
   in-application SQLite database.
 extends: Titanium.Module
 since: "0.1"
+platforms: [android, iphone, ipad]
 methods:
   - name: install
     summary: Installs an SQLite database to device's internal storage.

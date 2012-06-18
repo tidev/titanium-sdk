@@ -15,6 +15,9 @@ var TAG = "Window";
 exports.bootstrapWindow = function(Titanium) {
 	// flags to indicate if an activity should be created for the window
 	var newActivityRequiredKeys = ["fullscreen", "navBarHidden", "modal", "windowSoftInputMode"];
+	
+	//list of TiBaseWindow event listeners
+	var windowEventListeners = ["open", "close", "focus", "blur"];
 
 	// Backward compatibility for lightweight windows
 	var UI = Titanium.UI;
@@ -25,9 +28,7 @@ exports.bootstrapWindow = function(Titanium) {
 
 	// A collection of windows we need to keep alive.
 	var windows = [];
-		
 	Window.prototype.isActivity = false;
-
 	// set constants for representing states for the window
 	Window.prototype.state = {closed: 0, opening: 1, opened: 2, closing: 3};
 
@@ -164,10 +165,30 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.getWindowPixelFormat = windowPixelFormatGetter;
 	Window.prototype.setWindowPixelFormat = windowPixelFormatSetter;
 	Object.defineProperty(Window.prototype, "windowPixelFormat", { get: windowPixelFormatGetter, set: windowPixelFormatSetter});
+	
+	// Helper method to keep the window alive until it gets closed.
+	var rememberWindowAndAddCloseListener = function(value){
+		if (value == null){
+			return;
+		}
+		var index = windows.indexOf(value);
+		if(index < 0){
+			windows.push(value);
+			var self = value;
+			value.on('close', function () {
+				var index = windows.indexOf(self);
+				if (index >= 0) {
+					windows.splice(index, index);
+				} else {
+					kroll.log(TAG, "Unable to release window reference.");
+				}
+			});
+		}
+	}
+	
 
 	Window.prototype.open = function(options) {
 		var self = this;
-
 		// if the window is not closed, do not open
 		if (this.currentState != this.state.closed) {
 			if (kroll.DBG) {
@@ -177,17 +198,7 @@ exports.bootstrapWindow = function(Titanium) {
 			return;
 		}
 		this.currentState = this.state.opening;
-
-		// Keep the window alive until it gets closed.
-		windows.push(this);
-		this.on('close', function () {
-			var index = windows.indexOf(self);
-			if (index >= 0) {
-				windows.splice(index, index);
-			} else {
-				kroll.log(TAG, "Unable to release window reference.");
-			}
-		});
+		rememberWindowAndAddCloseListener(this);
 		
 		if (!options) {
 			options = {};
@@ -206,6 +217,7 @@ exports.bootstrapWindow = function(Titanium) {
 		if (!this.isActivity && "tabOpen" in this._properties && options.tabOpen) {
 			this.isActivity = true;
 		}
+        
 
 		// Set any cached properties on the properties given to the "true" view
 		if (this.propertyCache) {
@@ -221,7 +233,10 @@ exports.bootstrapWindow = function(Titanium) {
 		} else {
 			this.window = this.getActivityDecorView();
 			this.view = new UI.View(this._properties);
-			this.view.zIndex = Math.MAX_INT - 2;
+			
+			// Add children before the view is added
+			this.addChildren();
+			
 			this.window.add(this.view);
 		}
 
@@ -232,19 +247,23 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 
 		this.setWindowView(this.view);
-		this.addChildren();
+
 
 		if (needsOpen) {
 			this.window.on("windowCreated", function () {
+				// Add children before the view is set
+				self.addChildren();
+				
 				self.postOpen();
+				self.fireEvent("open");
 			});
-
+			
 			this.window.open(options);
-
+			
 		} else {
 			this.postOpen();
 			this.fireEvent("open");
-			this.fireEvent("focus");
+
 		}
 	}
 
@@ -255,7 +274,6 @@ exports.bootstrapWindow = function(Titanium) {
 		if (this.propertyCache) {
 			kroll.extend(this._properties, this.propertyCache);
 		}
-
 		this.window = existingWindow;
 		this.view = this.window;
 		this.setWindowView(this.view);
@@ -265,13 +283,15 @@ exports.bootstrapWindow = function(Titanium) {
 		var self = this;
 		this.window.on("open", function () {
 			self.postOpen();
+			self.fireEvent("open");
 		});
 	}
 
 	Window.prototype.postOpen = function() {
 		// Set view and model listener after the window opens
 		this.setWindowView(this.view);
-		
+		this.addSelfToStack();
+
 		if ("url" in this._properties) {
 			this.loadUrl();
 		}
@@ -280,15 +300,15 @@ exports.bootstrapWindow = function(Titanium) {
 		for (var event in this._events) { 
 			var listeners = this.listeners(event); 
 		 	for (var i = 0; i < listeners.length; i++) { 
-		 		this.addWrappedListener(event, listeners[i]); 
+		 		this.view.addEventListener(event, listeners[i].listener, this); 
 		 	} 
 		}
 		var self = this;
-		this.addWrappedListener("closeFromActivity", function(e) {
+		this.view.addEventListener("closeFromActivity", function(e) {
 			self.window = null;
 			self.view = null;
 			self.currentState = self.state.closed;
-		});
+		}, this);
 		
 		if (this.cachedActivityProxy) {
 			this.window._internalActivity.extend(this.cachedActivityProxy);
@@ -357,11 +377,10 @@ exports.bootstrapWindow = function(Titanium) {
 				// make sure to remove the children otherwise when the window is opened a second time
 				// the children views wont be added again to the native view
 				this.removeChildren();
-
 				this.window.remove(this.view);
 				this.window = null;
 			}
-
+			this.removeSelfFromStack();
 			this.currentState = this.state.closed;
 			this.fireEvent("close");
 		}
@@ -459,27 +478,16 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.addEventListener = function(event, listener) {
-		if (["open", "close"].indexOf(event) >= 0 || this.view == null) {
+		if (windowEventListeners.indexOf(event) >= 0 || this.view == null) {
 			EventEmitter.prototype.addEventListener.call(this, event, listener);
 
 		} else {
-			this.addWrappedListener(event, listener); 
+			this.view.addEventListener(event, listener, this); 
 		}
 	}
 	
-	// Add event listener to this.window and update the source of event to this.
-	Window.prototype.addWrappedListener = function(event, listener) {
-		var self = this;
-		self.view.addEventListener(event, function(e) {
-			if (e.source == self.view) {
-				e.source = self;
-			}
-			listener(e);
-		});
-	}
-
 	Window.prototype.removeEventListener = function(event, listener) {
-		if (["open", "close"].indexOf(event) >= 0 || this.window == null) {
+		if (windowEventListeners.indexOf(event) >= 0 || this.window == null) {
 			EventEmitter.prototype.removeEventListener.call(this, event, listener);
 
 		} else {
@@ -488,7 +496,7 @@ exports.bootstrapWindow = function(Titanium) {
 	}
 
 	Window.prototype.fireEvent = function(event, data) {
-		if (["open", "close"].indexOf(event) >= 0 || this.window == null) {
+		if (windowEventListeners.indexOf(event) >= 0 || this.window == null) {
 			EventEmitter.prototype.fireEvent.call(this, event, data);
 
 		} else {
@@ -516,8 +524,13 @@ exports.bootstrapWindow = function(Titanium) {
 		window._module = scopeVars.module;
 		window._children = [];
 		window._postOpenChildren = [];
+		var self = window;
+		window.on('addedToTab', function () {
+			rememberWindowAndAddCloseListener(self);
+		});
 
 		return window;
+		
 	}
 
 	return Window;

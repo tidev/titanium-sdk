@@ -50,12 +50,26 @@ methods:
       - name: t2
         summary: The second matrix. 
         type: Titanium.UI.2DMatrix
+
   - name: rotate
     summary: Returns a matrix constructed by rotating this matrix.
     description: |
-        A positive value specifies clockwise rotation and a negative value 
+        There are two distinct versions of this method, depending on whether one argument
+        or two are specified. 
+
+        *   `rotate(angle)`. The standard `rotate` method.
+        *   `rotate(fromAngle, toAngle)`. Android only. Used for specifying rotation
+            animations.
+           
+        In both cases, a positive value specifies clockwise rotation and a negative value 
         specifies counter-clockwise rotation.  
+
+        Details for each version are discussed below.
         
+        #### rotate(angle)
+
+        Returns a matrix constructed by rotating this matrix.
+
         Note that the resulting  matrix only expresses the final transformation, not the 
         direction of the rotation. For example, the matrix produced by `m1.rotate(-10)`
         is identical to the matrix produced by `m1.rotate(350)` and `m1.rotate(710)`.
@@ -72,20 +86,10 @@ methods:
         except when determining which direction an animation rotates. 179 degrees rotates
         rotate clockwise, but 180 degrees is normalized to -180, so rotates counter-clockwise.
 
-        On Android, there is a second `rotate` method that takes two arguments, which can
-        be used to specify rotations for animation.
-    returns:
-        type: Titanium.UI.2DMatrix
-    parameters:
-      - name: angle
-        summary: Angle, in degrees, by which to rotate the matrix. 
-        type: Number
-  - name: rotate
-    summary: |
-        Returns a `2DMatrix` object that specifies a rotation animation from one angle to
-        another.
-    description: |
+        #### rotate(angle, toAngle) -- Android Only
+
         This is an Android-specific method used for creating rotation animations.
+        Returns a `2DMatrix` object that represents a rotation from `angle` to `toAngle`. 
 
         Angles are specified in degrees. Positive values represent clockwise rotation, and negative values
         represent counter-clockwise rotation. Values are not normalized, so for example an 
@@ -93,33 +97,40 @@ methods:
         
         The resulting object cannot be expressed as an affine transform, but can be used with the 
         <Titanium.UI.Animation.transform> property to specify a rotation animation.
+
     returns:
         type: Titanium.UI.2DMatrix
     parameters:
-      - name: fromAngle
-        summary: Starting angle for rotation, in degrees.
+
+      - name: angle
+        summary: |
+            Angle to rotate to, in degrees. On Android, if `angleTo` is specified, this specifies
+            the starting angle for a rotation animation.
         type: Number
+
       - name: toAngle
-        summary: Ending angle for rotation, in degrees.
-        type: Number
-    platforms: [android]
-  - name: scale
-    summary: Returns a matrix constructed by applying a scale transform to this matrix.
-    returns:
-        type: Titanium.UI.2DMatrix
-    parameters:
-      - name: sx
-        summary: Horizontal scaling factor.
-        type: Number
-      - name: sy
-        summary: Vertical scaling factor. If not supplied, scale by `sx` in both directions.
+        summary: Ending angle for a rotation animation, in degrees. Android only.
         type: Number
         optional: true
-        default: Same as horizontal scaling factor.
+
   - name: scale
     summary: |
         Returns a `2DMatrix` object that specifies a scaling animation from one scale to another.
     description: |
+        There are two distinct versions of this method, depending on whether two arguments
+        or four are specified. 
+
+        *   `scale(sx, sy)`. The standard `scale` method.
+        *   `scale(fromSx, fromSy, toSx, toSy)`. Android only. Used for specifying a 
+            scaling animation from one size to another.
+
+        #### scale(sx, sy) 
+
+        Returns a matrix constructed by applying a scale transform to this matrix.
+        Scaling the current matrix by `sx` along the X axis and by `sy` along the Y axis.
+
+        #### scale(sx, sy, toSx, toSy) -- Android Only
+
         This Android-specific method returns a `2DMatrix` object that can be used to
         create a scaling animation from one scale factor to another scale factor. 
 
@@ -128,19 +139,37 @@ methods:
     returns:
         type: Titanium.UI.2DMatrix
     parameters:
-      - name: fromX
-        summary: Starting horizontal scaling factor, at the beginning of an animation.
+
+      - name: sx
+        summary: |
+            Horizontal scaling factor. If `toSx` and `toSy` are specified, 
+            this specifies the starting horizontal scaling factor, at the beginning 
+            of an animation.
         type: Number
-      - name: fromY
-        summary: Starting vertical scaling factor, at the beginning of an animation.
+
+      - name: sy
+        summary: |
+            Vertical scaling factor. If `toSx` and `toSy` are specified, 
+            this specifies the starting vertical scaling factor, at the beginning of 
+            an animation.
         type: Number
-      - name: toX
-        summary: Ending horizontal scaling factor, at the end of an animation.
+
+      - name: toSx
+        summary: |
+            Ending horizontal scaling factor, at the end of an animation.
+            If specified, `toSy` must be specified as well. Android only.
         type: Number
-      - name: toY
-        summary: Ending vertical scaling factor, at the end of an animation.
+        optional: true
+
+      - name: toSy
+        summary: |
+            Ending vertical scaling factor, at the end of an animation.
+            If specified, `toSx` must be specified as well. Android only.
         type: Number
+        optional: true
+
     platforms: [android]
+
   - name: translate
     summary: Returns a matrix constructed by applying a translation transform to this matrix.
     returns:

@@ -22,19 +22,17 @@ except:
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
-# We package mako already in support/android/mako.
-android_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "android"))
-sys.path.append(android_support_dir)
+# We package markdown and mako in support/common.
+common_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "common"))
+sys.path.append(common_support_dir)
+import markdown
 from mako.template import Template
 
-# TiLogger is also in support/android
+# TiLogger is in support/android
+android_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "android"))
+sys.path.append(android_support_dir)
 from tilogger import *
 log = TiLogger(None)
-
-# We package the python markdown module already in /support/module/support/markdown.
-module_support_dir = os.path.abspath(os.path.join(this_dir, "..", "support", "module", "support"))
-sys.path.append(module_support_dir)
-import markdown
 
 DEFAULT_PLATFORMS = ["android", "iphone", "ipad", "mobileweb"]
 DEFAULT_SINCE = "0.8"
@@ -44,6 +42,7 @@ annotated_apis = {} # made friendlier for templates, etc.
 current_api = None
 ignore_dirs = (".git", ".svn", "CVS")
 ignore_files = ("template.yml",)
+warn_inherited = False # see optparse option with same name in main()
 
 def has_ancestor(one_type, ancestor_name):
 	if one_type["name"] == ancestor_name:
@@ -186,6 +185,43 @@ def process_yaml():
 					if one_type["name"] in apis:
 						log.warn("%s has a duplicate" % one_type["name"])
 					apis[one_type["name"]] = one_type
+
+# If documentation for a method/event/property only "partially overrides"
+# the documentation for the super type, this will fill in the rest of
+# the documentation by inheriting it from the super type.
+def finish_partial_overrides():
+	global apis
+	log.trace("Finishing partial overrides")
+	for name in apis:
+		one_api = apis[name]
+		if "extends" not in one_api or not one_api["extends"]:
+			continue
+		super_name = one_api["extends"]
+		if super_name not in apis:
+			continue
+		log.trace("Checking partial overrides in %s by looking at %s" % (name, super_name))
+		super_api = apis[super_name]
+		for list_name in ("events", "properties", "methods"):
+			if list_name not in one_api or list_name not in super_api:
+				continue
+			api_list = one_api[list_name]
+			super_list = super_api[list_name]
+			for api_list_member in api_list:
+				member_name = api_list_member["name"]
+				super_list_member = None
+				super_member_set = [m for m in super_list if m["name"] == member_name]
+				if not super_member_set:
+					continue
+				super_list_member = super_member_set[0]
+				for key in super_list_member.keys():
+					if super_list_member[key] and (key not in api_list_member.keys() or not api_list_member[key]):
+						api_list_member[key] = super_list_member[key]
+						message = "%s.%s auto-inheriting '%s' documentation attribute from %s.%s" % (
+								one_api["name"], member_name, key, super_name, member_name)
+						if warn_inherited:
+							log.warn(message)
+						else:
+							log.trace(message)
 
 def annotate_apis():
 	global apis, annotated_apis
@@ -505,7 +541,7 @@ class AnnotatedEvent(AnnotatedApi):
 		return sorted(properties, key=lambda item: item.name)
 
 def main():
-	global this_dir, log
+	global this_dir, log, warn_inherited
 	titanium_dir = os.path.dirname(this_dir)
 	dist_apidoc_dir = os.path.join(titanium_dir, "dist", "apidoc")
 	sys.path.append(os.path.join(titanium_dir, "build"))
@@ -543,7 +579,13 @@ def main():
 			action="store_true",
 			help="Useful only for json/jsca. Writes the result to stdout. If you specify both --stdout and --output you'll get both an output file and the result will be written to stdout.",
 			default=False)
+	parser.add_option("--warn-inherited",
+			dest="warn_inherited",
+			action="store_true",
+			help="Show a warning if the documentation for a method/property/event only partially overrides its super type's documentation, in which case the missing information is inherited from the super type documentation.",
+			default=False)
 	(options, args) = parser.parse_args()
+	warn_inherited = options.warn_inherited
 	log_level = TiLogger.INFO
 	if options.verbose:
 		log_level = TiLogger.TRACE
@@ -551,8 +593,11 @@ def main():
 	if options.output is None and "html" in options.formats:
 		log.trace("Setting output folder to %s because html files will be generated and now --output folder was specified" % dist_apidoc_dir)
 		options.output = dist_apidoc_dir
+
 	process_yaml()
+	finish_partial_overrides()
 	generate_output(options)
+
 	titanium_apis = [ta for ta in apis.values() if ta["name"].startswith("Ti")]
 	log.info("%s Titanium types processed" % len(titanium_apis))
 

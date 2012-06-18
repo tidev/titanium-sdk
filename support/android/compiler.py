@@ -7,7 +7,7 @@
 # Handles JS, CSS and HTML files only
 #
 import os, sys, re, shutil, tempfile, run, codecs, traceback, types
-import jspacker, simplejson
+import jspacker
 from xml.sax.saxutils import escape
 from sgmllib import SGMLParser
 from csspacker import CSSPacker
@@ -18,6 +18,9 @@ ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store']
 ignoreDirs = ['.git','.svn','_svn', 'CVS']
 ignoreSymbols = ['version','userAgent','name','_JSON','include','fireEvent','addEventListener','removeEventListener','buildhash','builddate']
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+sys.path.append(os.path.abspath(os.path.join(template_dir, "..", "common")))
+
+import simplejson
 
 # class for extracting javascripts
 class ScriptProcessor(SGMLParser):
@@ -32,34 +35,41 @@ class ScriptProcessor(SGMLParser):
 					self.scripts.append(attr[1])
 
 class Compiler(object):
-	def __init__(self, tiapp, project_dir, java, classes_dir, root_dir, include_all_modules=False):
+	def __init__(self, tiapp, project_dir, java, classes_dir, gen_dir, root_dir,
+			include_all_modules=False):
 		self.tiapp = tiapp
 		self.java = java
-		self.appname = tiapp.properties['name']
 		self.classes_dir = classes_dir
+		self.gen_dir = gen_dir
 		self.template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-		self.appid = tiapp.properties['id']
 		self.root_dir = root_dir
 		self.use_bytecode = False
-		self.project_dir = os.path.abspath(os.path.expanduser(project_dir))
+		if project_dir:
+			self.project_dir = os.path.abspath(os.path.expanduser(project_dir))
 		self.modules = set()
 		self.jar_libraries = set()
 		
 		json_contents = open(os.path.join(self.template_dir,'dependency.json')).read()
 		self.depends_map = simplejson.loads(json_contents)
-		
+
+		runtime = self.depends_map["runtimes"]["defaultRuntime"]
+		if self.tiapp:
+			self.appid = self.tiapp.properties['id']
+			self.appname = self.tiapp.properties['name']
+			runtime = self.tiapp.app_properties.get('ti.android.runtime',
+					runtime)
+
+		for runtime_jar in self.depends_map['runtimes'][runtime]:
+			self.jar_libraries.add(os.path.join(template_dir, runtime_jar))
+
 		# go ahead and slurp in any required modules
 		for required in self.depends_map['required']:
 			self.add_required_module(required)
 
-		# TODO switch default runtime to Rhino
-		runtime = tiapp.app_properties.get('ti.android.runtime', self.depends_map['runtimes']['defaultRuntime'])
-		for runtime_jar in self.depends_map['runtimes'][runtime]:
-			self.jar_libraries.add(os.path.join(template_dir, runtime_jar))
-
-		if (tiapp.has_app_property('ti.android.include_all_modules')):
-			if tiapp.to_bool(tiapp.get_app_property('ti.android.include_all_modules')):
+		if self.tiapp and self.tiapp.has_app_property('ti.android.include_all_modules'):
+			if self.tiapp.to_bool(self.tiapp.get_app_property('ti.android.include_all_modules')):
 				include_all_modules = True
+
 		if include_all_modules:
 			print '[INFO] Force including all modules...'
 			sys.stdout.flush()
@@ -106,7 +116,7 @@ class Compiler(object):
 	def extract_from_namespace(self, name, line):
 		modules = set()
 		methods = set()
-		symbols = re.findall(r'%s\.(\w+)' % name, line)
+		symbols = sorted(set(re.findall(r'%s\.(\w+)' % name, line)))
 		if len(symbols) == 0:
 			return modules, methods
 
@@ -186,37 +196,23 @@ class Compiler(object):
 		os.rename(fullpath+'-compiled',fullpath)
 
 	def compile_into_bytecode(self, paths):
-		compile_js = False
-		# we only optimize for production deploy type or if it's forcefully overridden with ti.android.compilejs
-		if self.tiapp.has_app_property("ti.android.compilejs"):
-			if self.tiapp.to_bool(self.tiapp.get_app_property('ti.android.compilejs')):
-				print "[DEBUG] Found ti.android.compilejs=true, overriding default (this may take some time)"
-				sys.stdout.flush()
-				compile_js = True
-		elif self.tiapp.has_app_property('ti.deploytype'):
-			if self.tiapp.get_app_property('ti.deploytype') == 'production':
-				print "[DEBUG] Deploy type is production, turning on JS compilation"
-				sys.stdout.flush()
-				compile_js = True
-		
-		if not compile_js: return
-
 		for fullpath in paths:
 			# skip any JS found inside HTML <script>
 			if fullpath in self.html_scripts: continue
 			self.compile_javascript(fullpath)
+			self.compiled_files.append(fullpath)
+
+		# Pack JavaScript sources into an asset crypt.
+		jspacker.pack(self.project_dir, self.compiled_files, self.appid, self.gen_dir)
 		
 	def get_ext(self, path):
 		fp = os.path.splitext(path)
 		return fp[1][1:]
-		
-	def make_function_from_file(self, path, pack=True):
+
+	def make_function_from_file(self, path):
 		ext = self.get_ext(path)
 		path = os.path.expanduser(path)
 		file_contents = codecs.open(path,'r',encoding='utf-8').read()
-			
-		if pack: 
-			file_contents = self.pack(path, ext, file_contents)
 			
 		if ext == 'js':
 			# determine which modules this file is using
@@ -224,18 +220,6 @@ class Compiler(object):
 			
 		return file_contents
 		
-	def pack(self, path, ext, file_contents):
-		def jspack(c): return jspacker.jsmin(c)
-		def csspack(c): return CSSPacker(c).pack()
-		
-		packers = {'js': jspack, 'css': csspack }
-		if ext in packers:
-			file_contents = packers[ext](file_contents)
-			of = codecs.open(path,'w',encoding='utf-8')
-			of.write(file_contents)
-			of.close()
-		return file_contents
-	
 	def extra_source_inclusions(self,path):
 		content = codecs.open(path,'r',encoding='utf-8').read()
 		p = ScriptProcessor()
@@ -248,7 +232,30 @@ class Compiler(object):
 			p = os.path.abspath(os.path.join(os.path.join(path,'..'),script))
 			self.html_scripts.append(p)
 			
-	def compile(self, compile_bytecode=True, info_message="Compiling Javascript Resources ..."):
+	# For any external modules found by builder.py: if the external module
+	# has a metadata.json file (which CommonJS external modules will)
+	# then any Titanium module names in the "exports" key in the metadata
+	# refer to Titanium modules referred to in the CommonJS source. We need
+	# be sure to include those modules in an application build.
+	def merge_external_module_dependencies(self, external_modules):
+		if not external_modules:
+			return
+		for mod in external_modules:
+			metadata_file = os.path.join(mod.path, "metadata.json")
+			if os.path.exists(metadata_file):
+				f = open(metadata_file, "r")
+				metadata = simplejson.load(f)
+				f.close()
+				if not isinstance(metadata, dict):
+					continue
+				if metadata.has_key("exports"):
+					dependencies = metadata["exports"]
+					if dependencies:
+						for d in dependencies:
+							self.add_required_module(d)
+
+	def compile(self, compile_bytecode=True, info_message="Compiling Javascript Resources ...",
+			external_modules=None):
 		if info_message:
 			print "[INFO] %s" % info_message
 		sys.stdout.flush()
@@ -269,7 +276,7 @@ class Compiler(object):
 						self.extra_source_inclusions(fullpath)
 					if fp[1] == '.js':
 						relative = prefix[1:]
-						js_contents = self.make_function_from_file(fullpath, pack=False)
+						js_contents = self.make_function_from_file(fullpath)
 						if relative!='':
 							key = "%s_%s" % (relative,f)
 						else:
@@ -278,6 +285,10 @@ class Compiler(object):
 						self.js_files[fullpath] = (key, js_contents)
 		if compile_bytecode:
 			self.compile_into_bytecode(self.js_files)
+
+		# Add dependencies from packaged external CommonJS modules, if any.
+		if external_modules:
+			self.merge_external_module_dependencies(external_modules)
 
 if __name__ == "__main__":
 	if len(sys.argv) != 2:

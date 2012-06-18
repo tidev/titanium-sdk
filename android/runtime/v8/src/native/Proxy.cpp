@@ -89,11 +89,19 @@ Handle<Value> Proxy::getProperty(Local<String> property, const AccessorInfo& inf
 
 Handle<Value> Proxy::getProperty(const Arguments& args)
 {
-	if (args.Length() < 1) {
-		return JSException::Error("Requires property name as first argument.");
+	// The name of the property can be passed either as
+	// an argument or a data parameter.
+	Local<String> name;
+	if (args.Length() >= 1) {
+		name = args[0]->ToString();
+
+	} else if (args.Data()->IsString()) {
+		name = args.Data()->ToString();
+
+	} else {
+		return JSException::Error("Requires property name.");
 	}
 
-	Local<String> name = args[0]->ToString();
 	return getPropertyForProxy(name, args.Holder());
 }
 

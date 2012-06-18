@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,6 +9,7 @@
 #include <string.h>
 #include <vector>
 #include <v8.h>
+#include <jni.h>
 
 #include "AndroidUtil.h"
 #include "EventEmitter.h"
@@ -18,6 +19,7 @@
 #include "ProxyFactory.h"
 #include "V8Runtime.h"
 #include "V8Util.h"
+#include "TypeConverter.h"
 
 #include "KrollBindings.h"
 
@@ -36,12 +38,16 @@ namespace titanium {
 using namespace v8;
 
 std::map<std::string, bindings::BindEntry*> KrollBindings::externalBindings;
+std::map<std::string, jobject> KrollBindings::externalCommonJsModules;
+std::map<std::string, jmethodID> KrollBindings::commonJsSourceRetrievalMethods;
 std::vector<LookupFunction> KrollBindings::externalLookups;
 
 void KrollBindings::initFunctions(Handle<Object> exports)
 {
 	DEFINE_METHOD(exports, "binding", KrollBindings::getBinding);
 	DEFINE_METHOD(exports, "externalBinding", KrollBindings::getExternalBinding);
+	DEFINE_METHOD(exports, "isExternalCommonJsModule", KrollBindings::isExternalCommonJsModule);
+	DEFINE_METHOD(exports, "getExternalCommonJsModule", KrollBindings::getExternalCommonJsModule);
 }
 
 void KrollBindings::initNatives(Handle<Object> exports)
@@ -191,6 +197,16 @@ void KrollBindings::dispose()
 {
 	HandleScope scope;
 
+	JNIEnv *env = JNIScope::getEnv();
+	std::map<std::string, jobject>::iterator iterMods;
+	for (iterMods = externalCommonJsModules.begin(); iterMods != externalCommonJsModules.end(); ++iterMods) {
+		jobject obj = iterMods->second;
+		env->DeleteGlobalRef(obj);
+	}
+
+	externalCommonJsModules.clear();
+	commonJsSourceRetrievalMethods.clear();
+
 	// Dispose all external bindings
 	std::map<std::string, bindings::BindEntry *>::iterator iter;
 	for (iter = externalBindings.begin(); iter != externalBindings.end(); ++iter) {
@@ -226,6 +242,61 @@ void KrollBindings::dispose()
 
 	bindingCache.Dispose();
 	bindingCache = Persistent<Object>();
+}
+
+/*
+ * Stores a java KrollSourceCodeProvider instance and the id of its getSourceCode method
+ * for an external CommonJS module that is stored in a java external module.
+ */
+void KrollBindings::addExternalCommonJsModule(const char *name, jobject sourceProvider, jmethodID sourceRetrievalMethod)
+{
+	std::string stringName(name);
+	externalCommonJsModules[stringName] = sourceProvider;
+	commonJsSourceRetrievalMethods[stringName] = sourceRetrievalMethod;
+}
+
+/*
+ * Checks if an external CommonJS module with given name has been registered
+ * here.
+ */
+v8::Handle<v8::Value> KrollBindings::isExternalCommonJsModule(const Arguments& args)
+{
+	HandleScope scope;
+
+	if (args.Length() == 0 || !args[0]->IsString()) {
+		return JSException::Error("Invalid arguments to isExternalCommonJsModule, expected String");
+	}
+
+	v8::Handle<v8::String> name = args[0]->ToString();
+	v8::String::Utf8Value nameVal(name);
+	std::string nameKey(*nameVal);
+	bool exists = (externalCommonJsModules.count(nameKey) > 0);
+	v8::Handle<v8::Boolean> existsV8 = v8::Boolean::New(exists);
+	return scope.Close(existsV8);
+}
+
+/*
+ * Makes the KrollSourceCodeProvider's getSourceCode method call to grab
+ * the source code of a CommonJS module stored in a native (java) external module.
+ */
+v8::Handle<v8::Value> KrollBindings::getExternalCommonJsModule(const Arguments& args)
+{
+	HandleScope scope;
+
+	if (args.Length() == 0 || !args[0]->IsString()) {
+		return JSException::Error("Invalid arguments to getExternalCommonJsBinding, expected String");
+	}
+
+	v8::Handle<v8::String> name = args[0]->ToString();
+	v8::String::Utf8Value nameVal(name);
+	std::string nameKey(*nameVal);
+
+	JNIEnv *env = JNIScope::getEnv();
+	jobject sourceProvider = externalCommonJsModules[nameKey];
+	jmethodID sourceRetrievalMethod = commonJsSourceRetrievalMethods[nameKey];
+	jstring sourceJavaString = (jstring) env->CallObjectMethod(sourceProvider, sourceRetrievalMethod);
+	v8::Handle<v8::Value> sourceCode = TypeConverter::javaStringToJsString(sourceJavaString);
+	return scope.Close(sourceCode);
 }
 
 Handle<String> KrollBindings::getMainSource()

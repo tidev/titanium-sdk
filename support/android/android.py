@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Appcelerator Titanium Mobile
-# Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
 # Licensed under the terms of the Apache Public License
 # Please see the LICENSE included with this distribution for details.
 #
@@ -11,7 +11,6 @@
 
 import os, sys, shutil, platform, zipfile
 import string, subprocess, re
-from mako.template import Template
 from xml.etree.ElementTree import ElementTree
 from StringIO import StringIO
 from os.path import join, splitext, split, exists
@@ -22,7 +21,9 @@ import bindings
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 module_dir = os.path.join(os.path.dirname(template_dir), 'module')
-sys.path.extend([os.path.dirname(template_dir), module_dir])
+common_dir = os.path.join(os.path.dirname(template_dir), 'common')
+sys.path.extend([os.path.dirname(template_dir), module_dir, common_dir])
+from mako.template import Template
 from tiapp import TiAppXML, touch_tiapp_xml
 from manifest import Manifest
 from module import ModuleDetector
@@ -74,7 +75,8 @@ class Android(object):
 			'appname' : self.name,
 			'appversion' : '1',
 			'apiversion' : '7', #Android 2.1
-			'deploy_type': deploy_type
+			'deploy_type': deploy_type,
+			'compile_js': False
 		}
 		self.config['classname'] = Android.strip_classname(self.name)
 		self.deploy_type = deploy_type
@@ -162,7 +164,8 @@ class Android(object):
 		self.app_modules = []
 		(modules, external_child_modules) = bindings.get_all_module_bindings()
 		
-		compiler = Compiler(self.tiapp, resources_dir, self.java, app_bin_dir, os.path.dirname(app_bin_dir),
+		compiler = Compiler(self.tiapp, resources_dir, self.java, app_bin_dir,
+				None, os.path.dirname(app_bin_dir),
 				include_all_modules=include_all_ti_modules)
 		compiler.compile(compile_bytecode=False, info_message=None)
 		for module in compiler.modules:
@@ -241,7 +244,8 @@ class Android(object):
 						'proxy_name': module_proxy_class_name,
 						'class_name': module_class,
 						'manifest': module.manifest,
-						'on_app_create': module_onAppCreate
+						'on_app_create': module_onAppCreate,
+						'is_native_js_module': (hasattr(module.manifest, 'commonjs') and module.manifest.commonjs)
 					})
 
 		
@@ -300,7 +304,7 @@ class Android(object):
 		# Create android source
 		self.render(template_dir, 'AppInfo.java', app_package_dir, self.config['classname'] + 'AppInfo.java',
 			app_properties = self.app_properties, app_info = self.app_info)
-		
+
 		self.render(template_dir, 'AndroidManifest.xml', app_dir, 'AndroidManifest.xml')
 		self.render(template_dir, 'App.java', app_package_dir, self.config['classname'] + 'Application.java',
 			app_modules = self.app_modules, custom_modules = self.custom_modules, runtime = runtime)

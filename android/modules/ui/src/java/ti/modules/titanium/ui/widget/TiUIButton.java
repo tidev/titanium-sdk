@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -49,23 +49,25 @@ public class TiUIButton extends TiUIView
 	{
 		super.processProperties(d);
 
-		Button btn = (Button)getNativeView();
+		Button btn = (Button) getNativeView();
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
 			Object value = d.get(TiC.PROPERTY_IMAGE);
-			Bitmap bitmap;
+			Bitmap bitmap = null;
 			if (value instanceof String) {
 				try {
 					String url = getProxy().resolveUrl(null, (String) value);
 					TiBaseFile file = TiFileFactory.createTitaniumFile(new String[] { url }, false);
 					bitmap = TiUIHelper.createBitmap(file.getInputStream());
-
-					btn.setBackgroundDrawable(new BitmapDrawable(btn.getResources(), bitmap));
 				} catch (IOException e) {
 					Log.e(LCAT, "Error setting button image", e);
 				}
 			} else if (value instanceof TiBlob) {
 				bitmap = TiUIHelper.createBitmap(((TiBlob) value).getInputStream());
-				btn.setBackgroundDrawable(new BitmapDrawable(btn.getResources(), bitmap));
+			}
+
+			if (bitmap != null) {
+				BitmapDrawable image = new BitmapDrawable(btn.getResources(), bitmap);
+				btn.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {

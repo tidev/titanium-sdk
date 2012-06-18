@@ -80,7 +80,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	 */
 
 	UIView *view = [super hitTest:point withEvent:event];
-	if ([self hasTouchableListener])
+	if ( ([self hasTouchableListener]) && willHandleTouches )
 	{
 		UIView *superview = [view superview];
 		UIView *superduperview = [superview superview];
@@ -91,6 +91,11 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	}
 	
 	return view;
+}
+
+-(void)setWillHandleTouches_:(id)args
+{
+    willHandleTouches = [TiUtils boolValue:args def:YES];
 }
 
 
@@ -147,15 +152,51 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
     [super frameSizeChanged:frame bounds:bounds];
 	if (webview!=nil)
 	{
+		[self setViewportWidth:@"'device-width'"];
 		[TiUtils setView:webview positionRect:bounds];
 		
 		if (spinner!=nil)
 		{
 			spinner.center = self.center;
-		}
-		
-		[[self webview] stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.body.style.minWidth='%fpx';document.body.style.minHeight='%fpx';",bounds.size.width-8,bounds.size.height-16]];
+		}		
 	}
+}
+
+-(void) setViewportWidth:(NSString *)aWidth
+{
+    [webview stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:
+				@"(function ( inWidth ) { "
+				"var result = ''; "
+				"var viewport = null; "
+				"var content = 'width=' + inWidth + ';'; "
+				"var document_head = document.getElementsByTagName('head')[0]; "
+				"var child = document_head.firstChild; "
+				"while ( child ) { "
+				"if ( null == viewport && child.nodeType == 1 && child.nodeName == 'meta' && child.getAttribute( 'name' ) == 'viewport' ) { "
+				"viewport = child; "
+				"content = child.getAttribute( 'content' ); "
+				"if ( content.search( /width\\s=\\s[^,]+/ ) < 0 ) { "
+				"content = 'width = ' + inWidth + ';' + content; "
+				"} else { "
+				"content = content.replace( /width\\s=\\s[^,]+/ , 'width = ' + inWidth ); "
+				"} "
+				"} "
+				"child = child.nextSibling; "
+				"} "
+				"if ( null != content ) { "
+				"child = document.createElement( 'meta' ); "
+				"child.setAttribute( 'name' , 'viewport' ); "
+				"child.setAttribute( 'content' , content ); "
+				"if ( null == viewport ) { "
+				"document_head.appendChild( child ); "
+				"result = 'append viewport ' + content; "
+				"} else { "
+				"document_head.replaceChild( child , viewport ); "
+				"result = 'replace viewport ' + content; "
+				"} "
+				"} "
+				"return result; "
+				"})( %@ )" , aWidth]];
 }
 
 -(NSURL*)fileURLToAppURL:(NSURL*)url_
@@ -245,6 +286,23 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	}
 }
 
+-(UIScrollView*)scrollview
+{
+	UIWebView* webView = [self webview];
+	if ([webView respondsToSelector:@selector(scrollView)]) {
+		// as of iOS 5.0, we can return the scroll view
+		return [webView scrollView];
+	} else {
+		// in earlier versions, we need to find the scroll view
+		for (id subview in [webView subviews]) {
+			if ([subview isKindOfClass:[UIScrollView class]]) {
+				return (UIScrollView*)subview;
+			}
+		}
+	}
+	return nil;
+}
+
 
 #pragma mark Public APIs
 
@@ -258,7 +316,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	return url;
 }
 
-- (void)reload:(id)args
+- (void)reload
 {
 	if (webview == nil)
 	{
@@ -272,47 +330,34 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	[webview reload];
 }
 
-- (void)stopLoading:(id)args
+- (void)stopLoading
 {
-	if (webview!=nil)
-	{
-		[webview stopLoading];
-	}
+	[webview stopLoading];
 }
 
-- (void)goBack:(id)args
+- (void)goBack
 {
-	if (webview!=nil)
-	{
-		[webview goBack];
-	}
+	[webview goBack];
 }
 
-- (void)goForward:(id)args
+- (void)goForward
 {
-	if (webview!=nil)
-	{
-		[webview goForward];
-	}
+	[webview goForward];
 }
 
--(id)loading
+-(BOOL)isLoading
 {
-	if (webview!=nil)
-	{
-		return NUMBOOL([webview isLoading]);
-	}
-	return NUMBOOL(NO);
+	return [webview isLoading];
 }
 
--(void)canGoBack:(NSMutableArray*)arg
+-(BOOL)canGoBack
 {
-	[arg addObject:NUMBOOL([webview canGoBack])];
+	return [webview canGoBack];
 }
 
--(void)canGoForward:(NSMutableArray*)arg
+-(BOOL)canGoForward
 {
-	[arg addObject:NUMBOOL([webview canGoForward])];
+	return [webview canGoForward];
 }
 
 -(void)setBackgroundColor_:(id)color
@@ -404,6 +449,18 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	[[self webview] setScalesPageToFit:scaling];
 }
 
+-(void)setDisableBounce_:(id)value
+{
+	BOOL bounces = ![TiUtils boolValue:value];
+	[[self scrollview] setBounces:bounces];
+}
+
+-(void)setScrollsToTop_:(id)value
+{
+	BOOL scrollsToTop = [TiUtils boolValue:value];
+	[[self scrollview] setScrollsToTop:scrollsToTop];
+}
+
 #ifndef USE_BASE_URL
 #define USE_BASE_URL	1
 #endif
@@ -420,10 +477,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	
 	url = [[TiUtils toURL:args proxy:(TiProxy*)self.proxy] retain];
 
-	if (webview!=nil)
-	{
-		[self stopLoading:nil];
-	}
+	[self stopLoading];
 	
 	if ([self isURLRemote])
 	{
@@ -463,7 +517,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 				{
 					//step 3: try an appropriate legacy encoding (if one) -- what's that? Latin-1?
 					//at this point we're just going to fail
-					NSLog(@"[ERROR] Couldn't determine the proper encoding. Make sure this file: %@ is UTF-8 encoded.",[path lastPathComponent]);
+					DebugLog(@"[ERROR] Couldn't determine the proper encoding. Make sure this file: %@ is UTF-8 encoded.",[path lastPathComponent]);
 				}
 				else
 				{
@@ -501,7 +555,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 				}
 				else 
 				{
-					NSLog(@"[WARN] I have no idea what the appropriate text encoding is for: %@. Please report this to Appcelerator support.",url);
+					DebugLog(@"[WARN] Could not determine correct text encoding for content: %@.",url);
 				}
 			}
 			if ((error!=nil && [error code]==261) || [mimeType isEqualToString:(NSString*)svgMimeType])
@@ -518,7 +572,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 			}
 			else if (error!=nil)
 			{
-				NSLog(@"[ERROR] error loading file: %@. Message was: %@",path,error);
+				NSLog(@"[ERROR] Error loading file: %@. Message was: %@",path,error);
 				RELEASE_TO_NIL(url);
 			}
 		}
@@ -565,12 +619,10 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	NSString *toEncode = [NSString stringWithFormat:@"%@:%@",username,password];
 	const char *data = [toEncode UTF8String];
 	size_t len = [toEncode length];
-	
-	size_t outsize = EstimateBas64EncodedDataSize(len);
-	char *base64Result = malloc(sizeof(char)*outsize);
-    size_t theResultLength = outsize;
-	
-    bool result = Base64EncodeData(data, len, base64Result, &theResultLength);
+
+	char *base64Result;
+    size_t theResultLength;
+	bool result = Base64AllocAndEncodeData(data, len, &base64Result, &theResultLength);
 	if (result)
 	{
 		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
@@ -582,47 +634,19 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 		{
 			[self setUrl_:[NSArray arrayWithObject:[url absoluteString]]];
 		}
-		return;
 	}    
-	free(base64Result);
 }
 
-
-
--(void)evalJS:(NSArray*)args
+-(NSString*)stringByEvaluatingJavaScriptFromString:(NSString *)code
 {
-	NSString *code = [args objectAtIndex:0];
-	NSString* result = [[self webview] stringByEvaluatingJavaScriptFromString:code];
-	// write the result into our blob
-	if ([args count] > 1 && result!=nil)
-	{
-		TiBlob *blob = [args objectAtIndex:1];
-		[blob setData:[result dataUsingEncoding:NSUTF8StringEncoding]];
-	}
-}
-
--(void)_evalJSOnThread:(NSArray*)args
-{
-	// this happens from evalJSAndWait to put us on the main thread
-	NSString *code = [args objectAtIndex:0];
-	NSMutableString *result = [args objectAtIndex:1];
-	NSString *r = [[self webview] stringByEvaluatingJavaScriptFromString:code];
-	[result appendString:r];
-}
-
--(id)evalJSAndWait:(NSString *)code
-{
-	NSMutableString *result = [NSMutableString string];
-	NSArray *args = [NSArray arrayWithObjects:code,result,nil];
-	[self performSelectorOnMainThread:@selector(_evalJSOnThread:) withObject:args waitUntilDone:YES];
-	return result;
+	return [[self webview] stringByEvaluatingJavaScriptFromString:code];
 }
 
 // Webview appears to have an interesting quirk where the web content is always scaled/sized to just barely
 // not fit within the bounds of its specialized scroll box, UNLESS you are sizing the view to 320px (full width).
 // 'auto' width setting for web views is NOT RECOMMENDED as a result.  'auto' height is OK, and necessary
 // when placing webviews with other elements.
--(CGFloat)autoHeightForWidth:(CGFloat)value
+-(CGFloat)contentHeightForWidth:(CGFloat)value
 {
 	CGRect oldBounds = [[self webview] bounds];
 	[webview setBounds:CGRectMake(0, 0, MAX(value,10), 1)];
@@ -631,7 +655,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	return result;
 }
 
--(CGFloat)autoWidthForWidth:(CGFloat)value
+-(CGFloat)contentWidthForWidth:(CGFloat)value
 {
     CGRect oldBounds = [[self webview] bounds];
     CGFloat currentHeight = [[webview stringByEvaluatingJavaScriptFromString:@"document.height"] floatValue];
@@ -646,10 +670,17 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
 	NSURL * newUrl = [request URL];
+
+	if ([self.proxy _hasListeners:@"beforeload"])
+	{
+		NSDictionary *event = newUrl == nil ? nil : [NSDictionary dictionaryWithObjectsAndKeys:[newUrl absoluteString], @"url", NUMINT(navigationType), @"navigationType", nil];
+		[self.proxy fireEvent:@"beforeload" withObject:event];
+	}
+
 	NSString * scheme = [[newUrl scheme] lowercaseString];
 	if ([scheme hasPrefix:@"http"] || [scheme hasPrefix:@"app"] || [scheme hasPrefix:@"file"] || [scheme hasPrefix:@"ftp"])
 	{
-		NSLog(@"New scheme: %@",request);
+		DebugLog(@"[DEBUG] New scheme: %@",request);
 		if (ignoreNextRequest)
 		{
 			ignoreNextRequest = NO;
@@ -677,11 +708,6 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
-	if ([self.proxy _hasListeners:@"beforeload"])
-	{
-		NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[url absoluteString] forKey:@"url"];
-		[self.proxy fireEvent:@"beforeload" withObject:event];
-	}
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
@@ -741,8 +767,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 	}
 	
 	NSString *code = [NSString stringWithContentsOfURL:url_ encoding:NSUTF8StringEncoding error:nil];
-	
-	[self evalJS:[NSArray arrayWithObject:code]];
+	[self stringByEvaluatingJavaScriptFromString:code];
 }
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_
@@ -753,7 +778,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 		NSDictionary *event = (NSDictionary*)obj;
 		NSString *name = [event objectForKey:@"type"];
 		NSString *js = [NSString stringWithFormat:@"Ti.App._dispatchEvent('%@',%@,%@);",name,listener,[SBJSON stringify:event]];
-		[webview performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:js waitUntilDone:NO];
+		[webview stringByEvaluatingJavaScriptFromString:js];
 	}
 }
 

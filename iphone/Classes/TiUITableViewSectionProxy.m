@@ -140,6 +140,14 @@
 	}
 }
 
+-(TiDimension)defaultAutoWidthBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
+-(TiDimension)defaultAutoHeightBehavior:(id)unused
+{
+    return TiDimensionAutoSize;
+}
 @end
 
 #endif

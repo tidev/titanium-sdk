@@ -1,89 +1,167 @@
 ---
 name: Titanium.Analytics
-summary: The top level Analytics module.  
-description: The Analytics module is used for transmitting developer-defined 
-    Analytics event for your application to the Appcelerator Analytics product. It can be used to 
-    augment additional context or application-specific information which can then be accessed during 
-    analysis using Analytics.
+summary: |
+    Used for transmitting developer-defined Analytics events to the Appcelerator Analytics product. 
+description: |
+    The analytics module can be used to supply additional context or application-specific 
+    information which can then be accessed during analysis using Analytics.
+
+    Use the [featureEvent](Titanium.Analytics.featureEvent) method to generate custom
+    events that you can view through the Analytics product. You can specify a name for 
+    the feature event which is visible through Analytics.
+
+    **NOTE** Although the analytics module allows you to transmit other types of 
+    events, such as navigation events and timed events, *data regarding these events 
+    is **not** accessible through the Analytics UI.* 
+    
+    Navigation events will be supported in a future version of the Analytics product. 
+    There is no plan to support the other event types, and they and should not be used.
+
 extends: Titanium.Module
+# technically these methods exist, but they serve no purpose and confuse the doc.
+excludes: { methods: [ addEventListener, fireEvent, removeEventListener ] }
 since: "0.1"
 methods:
+
   - name: addEvent
-    summary: send a generic event for the application session
+    summary: |
+        Sends a generic event for this application session.
+        **Not displayed in Analytics UI**.
+    deprecated: 
+        since: "2.0.0"
     parameters:
+
       - name: type
-        summary: the event type
+        summary: Event type.
         type: String
+
       - name: name
-        summary: the event name
+        summary: Event name.
         type: String
+
       - name: data
-        summary: event data or null if not specified. the object must be serializable as JSON
+        summary: |
+            Extra data related to the event. Must be serializable as JSON.
         type: Object
+        optional: true
+        default: null
+
   - name: featureEvent
-    summary: send an analytics feature event for the application session
+    summary: Sends a feature event for this application session.
     parameters:
+
       - name: name
-        summary: the event name
+        summary: Event name, displayed in Analytics UI.
         type: String
+
       - name: data
-        summary: event data or null if not specified. the object must be serializable as JSON
+        summary: |
+            Extra data related to the event, **not displayed in Analytics UI**. 
+            The object must be serializable as JSON.
         type: Object
+        optional: true
+        default: null
+
   - name: navEvent
-    summary: send an analytics nav event for the application session
+    summary: |
+        Sends a navigation event for this application session. 
+        **Not displayed in Analytics UI**.
     parameters:
+
       - name: from
-        summary: the `from` location in the nav event
+        summary: String describing the location the user navigated from.
         type: String
+
       - name: to
-        summary: the `to` location in the nav event
+        summary: String describing the location the user navigated to.
         type: String
+
       - name: name
-        summary: the event name
+        summary: Event name.
         type: String
+        optional: true
+        default: ""
+
       - name: data
-        summary: event data or null if not specified. the object must be serializable as JSON
+        summary: Extra data related to the event. The object must be serializable as JSON.
         type: Object
+        optional: true
+        default: null
+
   - name: settingsEvent
-    summary: send a analytics settings event for the application session
+    summary: |
+        Sends a settings event for this application session.
+        **Not displayed in Analytics UI**.
+    deprecated: 
+        since: "2.0.0"
     parameters:
+
       - name: name
-        summary: the event name
+        summary: Event name.
         type: String
+
       - name: data
-        summary: event data or null if not specified. the object must be serializable as JSON
+        summary: Extra data related to the event. Must be serializable as JSON.
         type: Object
+        optional: true
+        default: null
+
   - name: timedEvent
-    summary: send an analytics timed event for the application session
+    summary: |
+        Send a timed event for this application session.
+        **Not displayed in Analytics UI**.
+    deprecated: 
+        since: "2.0.0"
     parameters:
+
       - name: name
-        summary: the event name
+        summary: Event name.
         type: String
+
       - name: start
-        summary: the event start as a Date object
+        summary: Event start as a Date object.
         type: Date
+
       - name: stop
-        summary: the event end as a Date object
+        summary: Event end as a Date object.
         type: Date
+
       - name: duration
-        summary: the event duration
+        summary: Event duration.
         type: Number
+
       - name: data
-        summary: event data or null if not specified. the object must be serializable as JSON
+        summary: Extra data related to the event. Must be serializable as JSON.
         type: Object
+        optional: true
+        default: null
+
   - name: userEvent
-    summary: send an analytics user event for the application session
+    summary: 
+        Sends a user event for this application session.
+        **Not displayed in Analytics UI**.
+    deprecated: 
+        since: "2.0.0"
     parameters:
+
       - name: name
-        summary: the event name
+        summary: Event name.
         type: String
+
       - name: data
-        summary: event data or null if not specified. the object must be serializable as JSON
+        summary: Extra data related to the event. Must be serializable as JSON.
         type: Object
+        optional: true
+        default: null
+
 examples:
   - title: Custom Feature Event
     example: |
-        This examples shows how to send a featureEvent during an application session to indicate some feature was triggered/used by the user that you would like to track.
+        This example shows how to send a feature event during an application session to indicate 
+        some feature that you would like to track was used.
         
-            Titanium.Analytics.featureEvent('app.feature.blah',{product:'killer'});
+            Titanium.Analytics.featureEvent('app.feature.blah');
         
+        In this case, the Analytics product would show statistics about how many times the
+        'app.feature.blah' event was generated. 
+

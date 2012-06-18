@@ -47,7 +47,7 @@ public class TiUICameraPreview extends TiUIView implements SurfaceHolder.Callbac
 		//tv.setText("My overlay");
 		//previewLayout.addView(tv, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 
-		overlayLayout = new TiCompositeLayout(proxy.getActivity());
+		overlayLayout = new TiCompositeLayout(proxy.getActivity(), proxy);
 		previewLayout.addView(overlayLayout);
 
 		setNativeView(previewLayout);

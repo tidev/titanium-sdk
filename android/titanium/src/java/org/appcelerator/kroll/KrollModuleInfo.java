@@ -9,10 +9,13 @@ package org.appcelerator.kroll;
 /**
  * Holds info about a Kroll module
  */
-public class KrollModuleInfo {
+public class KrollModuleInfo
+{
 	protected String name, id, guid, version, description, author, license, copyright, licenseKey;
+	protected boolean isJSModule = false;
 
-	public KrollModuleInfo(String name, String id, String guid, String version, String description, String author, String license, String copyright)
+	public KrollModuleInfo(String name, String id, String guid, String version, String description, String author,
+		String license, String copyright)
 	{
 		this.name = name;
 		this.id = id;
@@ -23,45 +26,66 @@ public class KrollModuleInfo {
 		this.license = license;
 		this.copyright = copyright;
 		this.licenseKey = null;
+		this.isJSModule = false;
 	}
 
-	public String getName() {
+	public String getName()
+	{
 		return name;
 	}
 
-	public String getId() {
+	public String getId()
+	{
 		return id;
 	}
 
-	public String getGuid() {
+	public String getGuid()
+	{
 		return guid;
 	}
 
-	public String getVersion() {
+	public String getVersion()
+	{
 		return version;
 	}
 
-	public String getDescription() {
+	public String getDescription()
+	{
 		return description;
 	}
 
-	public String getAuthor() {
+	public String getAuthor()
+	{
 		return author;
 	}
 
-	public String getLicense() {
+	public String getLicense()
+	{
 		return license;
 	}
 
-	public String getCopyright() {
+	public String getCopyright()
+	{
 		return copyright;
 	}
 
-	public String getLicenseKey() {
+	public String getLicenseKey()
+	{
 		return licenseKey;
 	}
 
-	public void setLicenseKey(String licenseKey) {
+	public void setLicenseKey(String licenseKey)
+	{
 		this.licenseKey = licenseKey;
+	}
+
+	public boolean getIsJSModule()
+	{
+		return this.isJSModule;
+	}
+
+	public void setIsJSModule(boolean value)
+	{
+		this.isJSModule = value;
 	}
 }

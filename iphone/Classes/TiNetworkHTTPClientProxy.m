@@ -57,11 +57,14 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 			TRYENCODING("iso-8859-1",10,NSISOLatin1StringEncoding);
 			TRYENCODING("utf-8",5,NSUTF8StringEncoding);
 			TRYENCODING("shift-jis",9,NSShiftJISStringEncoding);
+			TRYENCODING("shift_jis",9,NSShiftJISStringEncoding);
 			TRYENCODING("x-euc",5,NSJapaneseEUCStringEncoding);
+			TRYENCODING("euc-jp",6,NSJapaneseEUCStringEncoding);
 			TRYENCODING("windows-1250",12,NSWindowsCP1251StringEncoding);
 			TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding);
 			TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding);
 			TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding);
+			TRYENCODING("windows-1255",12,CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingWindowsHebrew));
 			return NSUTF8StringEncoding;
 		}
 	}
@@ -82,11 +85,14 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 		TRYENCODING("iso-8859-1",10,NSISOLatin1StringEncoding);
 		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
 		TRYENCODING("shift-jis",9,NSShiftJISStringEncoding);
+		TRYENCODING("shift_jis",9,NSShiftJISStringEncoding);
 		TRYENCODING("x-euc",5,NSJapaneseEUCStringEncoding);
+		TRYENCODING("euc-jp",6,NSJapaneseEUCStringEncoding);
 		TRYENCODING("windows-1250",12,NSWindowsCP1251StringEncoding);
 		TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding);
 		TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding);
 		TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding);
+		TRYENCODING("windows-1255",12,CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingWindowsHebrew));
 	}	
 	return NSUTF8StringEncoding;
 }
@@ -106,6 +112,11 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		validatesSecureCertificate = [[NSNumber alloc] initWithBool:NO];
 	}
 	return self;
+}
+
+-(void)_configure
+{
+    [self initializeProperty:@"cache" defaultValue:NUMBOOL(NO)];
 }
 
 -(void)setOnload:(KrollCallback *)callback
@@ -356,7 +367,12 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	}
 	
 	request = [[ASIFormDataRequest requestWithURL:url] retain];	
-    [request setDownloadCache:[ASIDownloadCache sharedCache]];
+    if ([TiUtils boolValue:[self valueForUndefinedKey:@"cache"] def:NO]) {
+        [request setDownloadCache:[ASIDownloadCache sharedCache]];
+    }
+    else {
+        [request setDownloadCache:nil];
+    }
 	[request setDelegate:self];
     if (timeout) {
         NSTimeInterval timeoutVal = [timeout doubleValue] / 1000;
@@ -390,7 +406,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	[request setUseCookiePersistence:YES];
 	[request setShowAccurateProgress:YES];
 	[request setShouldUseRFC2616RedirectBehaviour:YES];
-	BOOL keepAlive = [TiUtils boolValue:[self valueForKey:@"enableKeepAlive"] def:YES];
+	BOOL keepAlive = [TiUtils boolValue:[self valueForKey:@"enableKeepAlive"] def:NO];
 	[request setShouldAttemptPersistentConnection:keepAlive];
 	//handled in send, as now optional
 	//[request setShouldRedirect:YES];
@@ -461,7 +477,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	// HACK: We are never actually in the "OPENED" state.  Needs to be fixed with XHR refactor.
 	if (readyState != NetworkClientStateHeaders && readyState != NetworkClientStateOpened) {
 		// TODO: Throw an exception here as per XHR standard
-		NSLog(@"[ERROR] Must set a connection to OPENED before send()");
+		DebugLog(@"[ERROR] Must set a connection to OPENED before send()");
 		return;
 	}
 	

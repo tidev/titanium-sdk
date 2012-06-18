@@ -51,6 +51,10 @@ public class FacebookModule extends KrollModule
 {
 	protected static final String LCAT = "FacebookModule";
 	protected static final boolean DBG = TiConfig.LOGD;
+
+    @Kroll.constant public static final int BUTTON_STYLE_NORMAL = 0;
+    @Kroll.constant public static final int BUTTON_STYLE_WIDE = 1;
+
 	protected Facebook facebook = null;
 	protected String uid = null;
 	protected WeakReference<Context> loginContext = null; // Facebook authorize and logout should use same context.

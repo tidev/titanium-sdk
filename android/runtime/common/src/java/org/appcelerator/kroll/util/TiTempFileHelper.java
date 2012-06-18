@@ -23,7 +23,7 @@ import android.os.Environment;
 
 /**
  * This class helps create and delete temporary files in the app's external cache directory.
- * Temporary files will be automatically deleted the next time the application starts, or whenever {@link #cleanTempDir}
+ * Temporary files will be automatically deleted the next time the application starts, or whenever {@link #scheduleCleanTempDir()}
  * is called
  */
 public class TiTempFileHelper

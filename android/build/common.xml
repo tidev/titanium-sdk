@@ -1,7 +1,7 @@
 <!-- 
 Appcelerator Titanium Mobile
 
-Copyright (c) 2010, 2011 by Appcelerator, Inc. All Rights Reserved.
+Copyright (c) 2010-2012 by Appcelerator, Inc. All Rights Reserved.
 Licensed under the terms of the Apache Public License
 Please see the LICENSE included with this distribution for details.
 
@@ -36,8 +36,11 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<property name="kroll.common.project.dir" location="${ti.android.root}/runtime/common"/>
 	<property name="kroll.v8.project.dir" location="${ti.android.root}/runtime/v8"/>
 	<property name="kroll.rhino.project.dir" location="${ti.android.root}/runtime/rhino"/>
-	<property name="ndk.build" location="${kroll.v8.project.dir}/ndk-build.sh"/>
 	<property name="kroll.runtime" value="all"/>
+
+	<condition property="ndk.build" value="${kroll.v8.project.dir}/ndk-build.cmd" else="${kroll.v8.project.dir}/ndk-build.sh">
+		<os family="windows"/>
+	</condition>
 
 	<property name="modules.dir" location="${ti.android.root}/modules"/>
 	<property name="ui.module.dir" location="${modules.dir}/ui"/>
@@ -118,8 +121,10 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		</else>
 	</if>
 
+	<property name="android.jar" location="${android.platform}/android.jar"/>
+
 	<path id="android">
-		<pathelement path="${android.platform}/android.jar"/>
+		<pathelement path="${android.jar}"/>
 		<pathelement path="${google.apis}/libs/maps.jar"/>
 	</path>
 
@@ -164,6 +169,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<javac destdir="@{build.dir}"
 				includes="@{includes}"
 				excludes="@{excludes}"
+				target="1.6"
 				source="1.6"
 				debug="@{debug}"
 				includeantruntime="false">
@@ -366,7 +372,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 				<!-- moduleId (Titanium for platform) -->
 				<arg value="titanium"/>
 				<!-- bindingsClassName (empty for platform) -->
-				<arg value=""/>
+				<arg value=" "/>
 				<fileset dir="${dist.json.dir}" includes="**/*.json"/>
 			</apply>
 		</sequential>
@@ -382,20 +388,26 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 
 	<target name="build.kroll.v8.so" depends="generate.kroll.v8.bindings">
 		<property name="ndk.build.args" value=""/>
+		<property name="kroll.v8.build.x86" value=""/>
 		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
 			<env key="ANDROID_NDK" file="${android.ndk}"/>
+			<env key="ANDROID_PLATFORM" file="${android.platform}"/>
+			<env key="BUILD_X86" value="${kroll.v8.build.x86}"/>
 			<arg value="TI_DEBUG=${ti.debug}"/>
 			<arg line="${ndk.build.args}"/>
 		</exec>
 		<copy todir="${dist.dir}">
-			<fileset dir="${kroll.v8.project.dir}" includes="libs/armeabi*/lib*.so"/>
+			<fileset dir="${kroll.v8.project.dir}" includes="libs/**/lib*.so"/>
 		</copy>
 	</target>
 
 	<target name="build.kroll.common.jar">
 		<property name="kroll.common.classes.dir" location="${dist.classes.dir}/kroll-common"/>
 		<mkdir dir="${kroll.common.classes.dir}"/>
-		<javac srcdir="${kroll.common.project.dir}/src/java" destdir="${kroll.common.classes.dir}" debug="true">
+		<javac srcdir="${kroll.common.project.dir}/src/java"
+			destdir="${kroll.common.classes.dir}" debug="true"
+			source="1.6" target="1.6"
+			includeantruntime="false">
 			<classpath refid="android"/>
 		</javac>
 
@@ -406,7 +418,9 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<import file="${kroll.rhino.project.dir}/build.xml"/>
 	<macrodef name="compile.kroll.rhino.bindings">
 		<sequential>
-			<javac destdir="${kroll.rhino.gen.classes.dir}" debug="true">
+			<javac destdir="${kroll.rhino.gen.classes.dir}"
+				debug="true" target="1.6" source="1.6"
+				includeantruntime="false">
 				<classpath refid="android"/>
 				<classpath refid="rhino"/>
 				<classpath>
@@ -431,7 +445,8 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<mkdir dir="${kroll.rhino.classes.dir}"/>
 		<mkdir dir="${kroll.rhino.gen.classes.dir}"/>
 
-		<javac destdir="${kroll.rhino.classes.dir}" debug="true">
+		<javac destdir="${kroll.rhino.classes.dir}" debug="true"
+			target="1.6" source="1.6" includeantruntime="false">
 			<classpath refid="android"/>
 			<classpath refid="rhino"/>
 			<classpath>
@@ -474,7 +489,8 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<target name="build.kroll.v8.jar" depends="build.kroll.common.jar">
 		<property name="kroll.v8.classes.dir" location="${dist.classes.dir}/kroll-v8"/>
 		<mkdir dir="${kroll.v8.classes.dir}"/>
-		<javac srcdir="${kroll.v8.project.dir}/src/java" destdir="${kroll.v8.classes.dir}" debug="true">
+		<javac srcdir="${kroll.v8.project.dir}/src/java" destdir="${kroll.v8.classes.dir}" debug="true"
+			target="1.6" source="1.6" includeantruntime="false">
 			<classpath refid="android"/>
 			<classpath>
 				<fileset file="${dist.dir}/kroll-common.jar"/>
@@ -497,22 +513,80 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	</target>
 
 	<target name="build.titanium.javadoc">
+		<path id="published.doclet.path">
+			<fileset file="${ti.build.dir}/lib/publishedApiDoclet1.5-0.4.jar"/>
+		</path>
 		<mkdir dir="${dist.dir}/javadoc"/>
-		<property file="${ti.build.dir}/javadoc.properties" prefix="javadoc"/>
-		
+		<property file="${ti.build.dir}/javadoc.properties" prefix="javadoc" prefixValues="true"/>
+
+		<property name="kroll.package" value="org/appcelerator/kroll"/>
+		<property name="ti.package" value="org/appcelerator/titanium"/>
+
 		<javadoc
-			packagenames="org.appcelerator.*"
-			sourcepath="${titanium.project.dir}/src"
-			excludepackagenames="ti.*"
-			defaultexcludes="yes"
 			destdir="${dist.dir}/javadoc"
 			version="true"
 			use="true"
 			windowtitle="${javadoc.windowTitle}">
-			
+
+			<doclet name="de.kruis.padoclet.PublishedApiDoclet">
+				<path refid="published.doclet.path"/>
+				<param name="-padIncludeTag" value="module.api"/>
+				<param name="-padDefaultIsExclude"/>
+			</doclet>
+
+			<link href="http://java.sun.com/javase/6/docs/api/"/>
+			<link href="http://developer.android.com/reference/" offline="true"
+				packagelistLoc="${ti.build.dir}/android-reference/"/>
+
+			<sourcefiles>
+				<fileset dir="${titanium.project.dir}/src/java" defaultexcludes="yes">
+					<include name="**/*.java"/>
+					<!-- These don't work in external properties for some reason -->
+					<exclude name="${kroll.package}/KrollConvertable.java"/>
+					<exclude name="${kroll.package}/KrollModuleInfo.java"/>
+					<exclude name="${kroll.package}/KrollNativeConverter.java"/>
+					<exclude name="${kroll.package}/KrollProperty.java"/>
+					<exclude name="${kroll.package}/util/KrollReflectionUtils.java"/>
+					<exclude name="${ti.package}/ContextSpecific.java"/>
+					<exclude name="${ti.package}/TiContext.java"/>
+					<exclude name="${ti.package}/TiModalActivity.java"/>
+					<exclude name="${ti.package}/TiStylesheet.java"/>
+					<exclude name="${ti.package}/TiTranslucentActivity.java"/>
+					<exclude name="${ti.package}/analytics/**"/>
+					<exclude name="${ti.package}/bridge/**"/>
+					<exclude name="${ti.package}/kroll/**"/>
+					<exclude name="${ti.package}/proxy/DecorViewProxy.java"/>
+					<exclude name="${ti.package}/proxy/RProxy.java"/>
+					<exclude name="${ti.package}/util/Log.java"/>
+					<exclude name="${ti.package}/util/TiAnimationBuilder.java"/>
+					<exclude name="${ti.package}/util/TiAnimationPair.java"/>
+					<exclude name="${ti.package}/util/TiBindingHelper.java"/>
+					<exclude name="${ti.package}/util/TiConfig.java"/>
+					<exclude name="${ti.package}/util/TiIntentWrapper.java"/>
+					<exclude name="${ti.package}/util/TiResponseCache.java"/>
+					<exclude name="${ti.package}/view/ITiWindowHandler.java"/>
+					<exclude name="${ti.package}/view/TiUIDecorView.java"/>
+				</fileset>
+
+				<fileset dir="${kroll.apt.project.dir}/src/java" defaultexcludes="yes">
+					<include name="${kroll.package}/annotations/*"/>
+				</fileset>
+
+				<fileset dir="${kroll.common.project.dir}/src/java" defaultexcludes="yes">
+					<include name="**/*.java"/>
+					<exclude name="${kroll.package}/KrollEvaluator.java"/>
+					<exclude name="${kroll.package}/KrollExternalModule.java"/>
+					<exclude name="${kroll.package}/KrollLogging.java"/>
+					<exclude name="${kroll.package}/common/TiDeployData.java"/>
+					<exclude name="${kroll.package}/common/TiFastDev.java"/>
+					<exclude name="${kroll.package}/common/TiJSErrorDialog.java"/>
+				</fileset>
+			</sourcefiles>
+
 			<classpath refid="android"/>
 			<classpath refid="titanium.path"/>
 			<classpath refid="kroll.apt.path"/>
+			<classpath refid="kroll.common.path"/>
 			
 			<doctitle>${javadoc.docTitle}</doctitle>
 			<bottom>${javadoc.bottom}</bottom>
@@ -620,6 +694,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 
 		<exec executable="${ndk.build}" dir="${kroll.v8.project.dir}" failonerror="true">
 			<env key="ANDROID_NDK" file="${android.ndk}"/>
+			<env key="ANDROID_PLATFORM" file="${android.platform}"/>
 			<env key="NUM_CPUS" value="1"/>
 			<arg value="clean"/>
 		</exec>
@@ -638,7 +713,14 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<macrodef name="build.ti.ant.tasks">
 		<sequential>
 			<mkdir dir="${dist.classes.dir}/ant-tasks"/>
-			<javac srcdir="${ti.build.dir}/src" destdir="${dist.classes.dir}/ant-tasks" includes="**/*.java" classpathref="ti.build.lib.path" includeantruntime="false" debug="true"/>
+			<javac srcdir="${ti.build.dir}/src"
+				destdir="${dist.classes.dir}/ant-tasks"
+				includes="**/*.java"
+				classpathref="ti.build.lib.path"
+				includeantruntime="false"
+				debug="true"
+				target="1.6"
+				source="1.6"/>
 			<jar basedir="${dist.classes.dir}/ant-tasks" destfile="${dist.dir}/ant-tasks.jar"/>
 		</sequential>
 	</macrodef>

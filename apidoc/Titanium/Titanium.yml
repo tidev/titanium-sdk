@@ -39,6 +39,9 @@ properties:
   - name: userAgent
     type: String
     summary: User-agent string used by Titanium.
+    description: |
+        On Mobile Web, the browser's user agent cannot be overridden. Writing to this property has no 
+        effect and reading the property will always return the browser's user agent.
   - name: version
     type: Number
     summary: Version of Titanium that is executing.
@@ -94,7 +97,7 @@ methods:
     returns:
         type: Titanium.Buffer
         summary: The new buffer.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, mobileweb]
     examples:
       - title: Create a buffer with 1K bytes
         example: |
@@ -117,7 +120,7 @@ methods:
 name: CreateBufferArgs
 summary: Arguments to be passed to createBuffer
 since: "1.7"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
 
 properties:
   - name: value

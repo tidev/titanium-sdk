@@ -1,72 +1,126 @@
 ---
 name: Titanium.Android.R
-summary: The Titanium binding of [android.R](http://developer.android.com/reference/android/R.html).  Note that this accesses Android system-wide resources, not your application's resources.  To access your application's resources, you want <Titanium.App.Android.R>.
+summary: The Titanium binding of the Android system-wide resources class.
+description: |
+    To access your application's resources, use <Titanium.App.Android.R>.
+
+    These properties and sub-properties correspond directly to the properties of the the `android.R` 
+    class, and should have the same syntax. For example, to retrieve the "OK" string in Android:
+    
+        Ti.Android.currentActivity.getString(Ti.Android.R.string.ok);
+
+    See also: [android.R](http://developer.android.com/reference/android/R.html) in the
+    Android Developer Reference.
+
 extends: Titanium.Proxy
 platforms: [android]
 createable: false
 since: "1.5"
 properties:
+
   - name: anim
-    summary: Animation resources, see [http://developer.android.com/reference/android/R.anim.html](http://developer.android.com/reference/android/R.anim.html)
+    summary: |
+        Animation resources. See 
+        [R.anim](http://developer.android.com/reference/android/R.anim.html) 
+        in the Android Developer Reference.
     type: Object
     accessors: false
     permission: read-only
+
   - name: array
-    summary: Array resources, see [http://developer.android.com/reference/android/R.array.html](http://developer.android.com/reference/android/R.array.html)
+    summary: |
+        Array resources. See [R.array](http://developer.android.com/reference/android/R.array.html)
+        in the Android Developer Reference.
     type: Object
     accessors: false
     permission: read-only
+
   - name: attr
-    summary: Attribute resources, see [http://developer.android.com/reference/android/R.attr.html](http://developer.android.com/reference/android/R.attr.html)
+    summary: |
+        Attribute resources. See 
+        [R.attr](http://developer.android.com/reference/android/R.attr.html)
+        in the Android Developer Reference.
     type: Object
     accessors: false
     permission: read-only
+
   - name: color
-    summary: Color resources, see [http://developer.android.com/reference/android/R.color.html](http://developer.android.com/reference/android/R.color.html)
+    summary: |
+        Color resources. See 
+        [R.color](http://developer.android.com/reference/android/R.color.html)
+        in the Android Developer Reference.
     type: Object
     accessors: false
     permission: read-only
+
   - name: dimen
-    summary: Dimension resources, see [http://developer.android.com/reference/android/R.dimen.html](http://developer.android.com/reference/android/R.dimen.html)
+    summary: |
+        Dimension resources.  See 
+        [http://developer.android.com/reference/android/R.dimen.html](http://developer.android.com/reference/android/R.dimen.html)
+        in the Android Developer Reference.
     type: Object
     accessors: false
     permission: read-only
+
   - name: drawable
-    summary: Drawable resources, see [http://developer.android.com/reference/android/R.drawable.html](http://developer.android.com/reference/android/R.drawable.html)
+    summary: |
+        Drawable resources. See 
+        [R.drawable](http://developer.android.com/reference/android/R.drawable.html)
+        in the Android Developer Reference.
     type: Object
     accessors: false
     permission: read-only
+
   - name: id
-    summary: ID resources, see [http://developer.android.com/reference/android/R.id.html](http://developer.android.com/reference/android/R.id.html)
+    summary: |
+        ID resources.  See 
+        [R.id](http://developer.android.com/reference/android/R.id.html)
+        in the Android Developer Reference.
     type: Object
     accessors: false
     permission: read-only
+
   - name: integer
-    summary: Integer resources, see [http://developer.android.com/reference/android/R.integer.html](http://developer.android.com/reference/android/R.integer.html)
+    summary: |
+        Integer resources. See 
+        [R.integer](http://developer.android.com/reference/android/R.integer.html)
+        in the Android Developer Reference.
     type: Object
     accessors: false
     permission: read-only
+
   - name: layout
-    summary: Layout resources, see [http://developer.android.com/reference/android/R.layout.html](http://developer.android.com/reference/android/R.layout.html)
+    summary: |
+        Layout resources. See 
+        [R.layout](http://developer.android.com/reference/android/R.layout.html)
+        in the Android Developer Reference.
     type: Object
     accessors: false
     permission: read-only
+
   - name: string
-    summary: String resources, see [http://developer.android.com/reference/android/R.string.html](http://developer.android.com/reference/android/R.string.html)
+    summary: |
+        String resources. See 
+        [R.string](http://developer.android.com/reference/android/R.string.html)
+        in the Android Developer Reference.
     type: Object
     accessors: false
     permission: read-only
+
   - name: style
-    summary: Style resources, see [http://developer.android.com/reference/android/R.style.html](http://developer.android.com/reference/android/R.style.html)
+    summary: |
+        Style resources. See 
+        [R.style](http://developer.android.com/reference/android/R.style.html)
+        in the Android Developer Reference.
     type: Object
     accessors: false
     permission: read-only
+
   - name: styleable
-    summary: Styleable reosurces, see [http://developer.android.com/reference/android/R.styleable.html](http://developer.android.com/reference/android/R.styleable.html)
+    summary: |
+        Styleable reosurces. See 
+        [R.styleable](http://developer.android.com/reference/android/R.styleable.html)
+        in the Android Developer Reference.
     type: Object
     accessors: false
     permission: read-only
-description: |
-    These properties and sub-properties are queried directly against the `android.R` class, and should have the same syntax. For example, to retrieve the "OK" string in Android:
-    
-    <Ti.Android.currentActivity.getString(Ti.Android.R.string.ok);>

@@ -65,11 +65,17 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public void surfaceCreated(SurfaceHolder previewHolder) {
 		camera = Camera.open();
 
-		// using default preview size may be causing problem on some devices, setting dimensions manually
+		/*
+		 * Disabling this since it can end up picking a bad preview
+		 * size which can create stretching issues (TIMOB-8151).
+		 * Original words of wisdom left by some unknown person:
+		 * "using default preview size may be causing problem on some devices, setting dimensions manually"
+		 * We may want to expose camera parameters to the developer for extra control.
 		Parameters cameraParams = camera.getParameters();
 		Camera.Size previewSize = cameraParams.getSupportedPreviewSizes().get((cameraParams.getSupportedPreviewSizes().size()) - 1);
 		cameraParams.setPreviewSize(previewSize.width, previewSize.height );
 		camera.setParameters(cameraParams);
+		*/
 
 		try {
 			Log.i(LCAT, "setting preview display");

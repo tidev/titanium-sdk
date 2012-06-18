@@ -30,6 +30,10 @@ import org.appcelerator.titanium.TiBlob;
 import android.net.Uri;
 import android.os.StatFs;
 
+/**
+ * An extension of {@link TiBaseFile}, used for representing a file on the device's true file system. 
+ * This differentiates it from TiResourceFile, which represents a file inside the application's resource bundle.
+ */
 public class TiFile extends TiBaseFile
 {
 	private static final String LCAT = "TiFile";
@@ -38,6 +42,7 @@ public class TiFile extends TiBaseFile
 	private final File file;
 	private final String path;
 
+	
 	public TiFile(File file, String path, boolean stream)
 	{
 		super(TiBaseFile.TYPE_FILE);
@@ -46,36 +51,57 @@ public class TiFile extends TiBaseFile
 		this.stream = stream;
 	}
 
+	
+	/**
+	 * @return true if the file is a plain file, false otherwise.
+	 */
 	@Override
 	public boolean isFile()
 	{
 		return file.isFile();
 	}
 
+	/**
+	 * @return true if the file is a directory, false otherwise.
+	 */
 	@Override
 	public boolean isDirectory()
 	{
 		return file.isDirectory();
 	}
 
+	/**
+	 * @return true if the file is hidden, false otherwise.
+	 */
 	@Override
 	public boolean isHidden()
 	{
 		return file.isHidden();
 	}
 
+	/**
+	 * @return true if the file is read-only, false otherwise.
+	 */
 	@Override
 	public boolean isReadonly()
 	{
 		return file.canRead() && !file.canWrite();
 	}
 
+	/**
+	 * @return true if the file is writable, false otherwise.
+	 */
 	@Override
 	public boolean isWriteable()
 	{
 		return file.canWrite();
 	}
 
+	/**
+	 * Attempts to create a directory named by the trailing filename of this file.
+	 * @param recursive  whether to recursively create any missing parent directories in the path.
+	 * @return  true if directory was sucessfully created, false otherwise.
+	 */
 	@Override
 	public boolean createDirectory(boolean recursive)
 	{
@@ -93,7 +119,10 @@ public class TiFile extends TiBaseFile
 		boolean deleted = true;
 
 		File[] files = d.listFiles();
-		
+		if (files == null) {
+			return false;
+		}
+
 		for (File f : files) {
 			if (f.isFile()) {
 				deleted = f.delete();
@@ -112,6 +141,11 @@ public class TiFile extends TiBaseFile
 		return deleted;
 	}
 
+	/**
+	 * Attempts to delete a directory in the file system.
+	 * @param recursive whether to recursively delete any parent directories in the path.
+	 * @return true if the directory was successfully deleted, false otherwise.
+	 */
 	@Override
 	public boolean deleteDirectory(boolean recursive) {
 		boolean deleted = false;
@@ -127,12 +161,20 @@ public class TiFile extends TiBaseFile
 
 		return deleted;
 	}
+	
+	/**
+	 * Deletes this file.
+	 * @return true if the file was successfully deleted, false otherwise.
+	 */
 	@Override
 	public boolean deleteFile()
 	{
 		return file.delete();
 	}
 
+	/**
+	 * @return true if the file exists, false otherwise.
+	 */
 	@Override
 	public boolean exists()
 	{
@@ -197,6 +239,10 @@ public class TiFile extends TiBaseFile
 		return (double)stat.getAvailableBlocks() * (double)stat.getBlockSize();
 	}
 
+	/**
+	 * Sets the file to read-only.
+	 * @return true if the file is verified as read-only, false otherwise.
+	 */
 	@Override
 	public boolean setReadonly()
 	{
@@ -266,6 +312,13 @@ public class TiFile extends TiBaseFile
 		return parentFile;
 	}
 
+	/**
+	 * Instantiates and opens a file with the appropriate read/write buffer.
+	 * For instance, if MODE_READ and true are passed in, respectively, then
+	 * {@link TiBaseFile#getExistingInputStream()} will now be the {@link java.io.BufferedInputStream BufferedInputStream} for this file.
+	 * @param mode MODE_READ. MODE_WRITE, or MODE_APPEND.
+	 * @param binary whether the content of the file is binary or characters/lines.
+	 */
 	@Override
 	public void open(int mode, boolean binary) throws IOException
 	{

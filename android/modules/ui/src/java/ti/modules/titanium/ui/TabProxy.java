@@ -8,13 +8,17 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.widget.TiUITabGroup;
+
 import android.app.Activity;
+import android.content.Intent;
 
 @Kroll.proxy(creatableInModule=UIModule.class,
 propertyAccessors = {
@@ -24,8 +28,11 @@ propertyAccessors = {
 })
 public class TabProxy extends TiViewProxy
 {
+	private static final String TAG = "TabProxy";
+
 	private TiWindowProxy win;
 	private TabGroupProxy tabGroupProxy;
+	private int windowId;
 
 	public TabProxy()
 	{
@@ -61,6 +68,22 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
+	@Override
+	public boolean fireEvent(String eventName, Object data)
+	{
+		if (eventName == TiC.EVENT_BLUR || eventName == TiC.EVENT_FOCUS) {
+			TiUIView tabGroupView = tabGroupProxy.peekView();
+			if (tabGroupView instanceof TiUITabGroup) {
+				data = ((TiUITabGroup) tabGroupView).getTabChangeEvent();
+
+			} else {
+				Log.e(TAG, "unable to populate <" + eventName + "> event, view is incorrect type!");
+			}
+		}
+
+		return super.fireEvent(eventName, data);
+	}
+
 	@Kroll.method @Kroll.setProperty
 	public void setWindow(TiWindowProxy window)
 	{
@@ -77,6 +100,8 @@ public class TabProxy extends TiViewProxy
 
 		this.win.setTabProxy(this);
 		this.win.setTabGroupProxy(tabGroupProxy);
+		//Send out a sync event to indicate window is added to tab
+		this.win.fireSyncEvent(TiC.EVENT_ADDED_TO_TAB, null);
 	}
 
 	@Kroll.method @Kroll.getProperty
@@ -97,11 +122,21 @@ public class TabProxy extends TiViewProxy
 		this.tabGroupProxy = tabGroupProxy;
 	}
 
+	public void setWindowId(int id)
+	{
+		windowId = id;
+	}
+	
+	public int getWindowId() 
+	{
+		return windowId;
+	}
 	@Override
 	public void releaseViews()
 	{
 		super.releaseViews();
 		if (win != null) {
+			win.setTabProxy(null);
 			win.setTabGroupProxy(null);
 			win.releaseViews();
 		}

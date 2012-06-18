@@ -7,7 +7,7 @@
 #if defined(USE_TI_UITEXTWIDGET) || defined(USE_TI_UITEXTAREA) || defined(USE_TI_UITEXTFIELD)
 
 #import "TiUITextWidget.h"
-
+#import "TiUITextWidgetProxy.h"
 #import "TiViewProxy.h"
 #import "TiApp.h"
 #import "TiUtils.h"
@@ -33,8 +33,8 @@
 
 - (void) dealloc
 {
-	[textWidgetView performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:YES];
-	[textWidgetView	performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
+	TiThreadRemoveFromSuperviewOnMainThread(textWidgetView, YES);
+	TiThreadReleaseOnMainThread(textWidgetView, NO);
 	//Because text fields MUST be played with on main thread, we cannot release if there's the chance we're on a BG thread
 	textWidgetView = nil;	//Wasted action, yes.
 	[super dealloc];
@@ -155,7 +155,12 @@
 
 -(void)textWidget:(UIView<UITextInputTraits>*)tw didFocusWithText:(NSString *)value
 {
-	TiViewProxy * ourProxy = (TiViewProxy *)[self proxy];
+	TiUITextWidgetProxy * ourProxy = (TiUITextWidgetProxy *)[self proxy];
+
+	if ([ourProxy suppressFocusEvents]) {
+		return;
+	}
+
 	[[TiApp controller] didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
 
 	if ([ourProxy _hasListeners:@"focus"])
@@ -166,7 +171,11 @@
 
 -(void)textWidget:(UIView<UITextInputTraits>*)tw didBlurWithText:(NSString *)value
 {
-	TiViewProxy * ourProxy = (TiViewProxy *)[self proxy];
+	TiUITextWidgetProxy * ourProxy = (TiUITextWidgetProxy *)[self proxy];
+
+	if ([ourProxy suppressFocusEvents]) {
+		return;
+	}
 
 	[[TiApp controller] didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
 

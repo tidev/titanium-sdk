@@ -1,10 +1,30 @@
 
-import os, sys, codecs, shutil, filecmp
+import os, sys, codecs, shutil, filecmp, subprocess
 
 # the template_dir is the path where this file lives on disk
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
-from pbxproj import PBXProj
+def ensure_dev_path(debug=True):
+	rc = subprocess.call(["xcode-select", "-print-path"], stdout=open(os.devnull, 'w'), stderr=open(os.devnull, 'w'))
+	if rc == 0 :
+		return
+	if debug:
+		print '[INFO] XCode 4.3+ likely. Searching for developer folders.'
+	trypath = '/Developer'
+	if os.path.isdir(trypath):
+		os.putenv('DEVELOPER_DIR',trypath)
+		return
+	trypath = '/Applications/Xcode.app/Contents/Developer'
+	if os.path.isdir(trypath):
+		os.putenv('DEVELOPER_DIR',trypath)
+		return
+	spotlight_args = ['mdfind','kMDItemDisplayName==Xcode&&kMDItemKind==Application']
+	spotlight = subprocess.Popen(spotlight_args, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+	for line in spotlight.stdout.readlines():
+		trypath = line.rstrip()+'/Contents/Developer'
+		if os.path.isdir(trypath):
+			os.putenv('DEVELOPER_DIR',trypath)
+			return
 
 def read_config(f):
 	props = {}
@@ -21,6 +41,9 @@ def locate_modules(modules, project_dir, assets_dest_dir, log):
 	module_asset_dirs = []
 	
 	for module in modules:
+		if module.js:
+			# Skip CommonJS modules. These will be processed in a later pass.
+			continue
 		module_id = module.manifest.moduleid.lower()
 		module_version = module.manifest.version
 		module_lib_name = ('lib%s.a' % module_id).lower()
@@ -58,6 +81,7 @@ def locate_modules(modules, project_dir, assets_dest_dir, log):
 	
 def link_modules(modules, name, proj_dir, relative=False):
 	if len(modules)>0:
+		from pbxproj import PBXProj
 		proj = PBXProj()
 		xcode_proj = os.path.join(proj_dir,'%s.xcodeproj'%name,'project.pbxproj')
 		current_xcode = open(xcode_proj).read()

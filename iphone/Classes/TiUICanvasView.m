@@ -66,7 +66,7 @@ enum
 {
 	if (operations!=nil)
 	{
-		[self performSelectorOnMainThread:@selector(setNeedsDisplay) withObject:nil waitUntilDone:NO];
+		TiThreadPerformOnMainThread(^{[self setNeedsDisplay];}, NO);
 	}
 }
 

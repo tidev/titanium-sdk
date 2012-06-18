@@ -1,58 +1,150 @@
 ---
 name: Titanium.Media.MusicPlayer
-summary: The MusicPlayer instance returned from <Titanium.Media.createMusicPlayer>.  This object represents a music controller.
+summary:
+     This object represents a music controller.
+description: |
+    A `MusicPlayer` lets you manage and playback a queue of media [Item](Titanium.Media.Item) objects.
+
+    Use the <Titanium.Media.createMusicPlayer> method to create a music palyer.
+
+    Use the [Media](Titanium.Media) module's [openMusicLibrary](Titanium.Media.openMusicLibrary) and
+    [queryMusicLibrary](Titanium.Media.queryMusicLibrary) methods to access the media items in the
+    device's media library.
 extends: Titanium.Proxy
 since: "1.4.0"
 platforms: [iphone, ipad]
 methods:
+
   - name: pause
-    summary: pause playback
+    summary: Pauses playback of the current media item.
+
   - name: play
-    summary: begin playback
+    summary: Begins playback of the current media item.
+
   - name: seekBackward
-    summary: seek backward in the currently playing media
+    summary: Begins seeking backward in the currently playing media.
+    description: |
+        Seeking speed increases as seeking continues.
+
+        Call [stopSeeking](Titanium.Media.MusicPlayer.stopSeeking) to
+        return to normal play.
+
   - name: seekForward
-    summary: seek forward in the currently playing media
+    summary: Begins seeking forward in the currently playing media item.
+    description: |
+        While seeking forward audio plays faster than usual. The speed increases as
+        seeking continues.
+
+        Call [stopSeeking](Titanium.Media.MusicPlayer.stopSeeking) to
+        return to normal play.
+
   - name: setQueue
-    summary: set the media queue
+    summary: Sets the media queue.
+    description: |
+        Sets the media queue to a single media item or a list of items.
     parameters:
       - name: queue
-        summary: |
-            a queue representation to set the player queue to.  Can be any of: A dictionary with an `items` key that is an array of <Titanium.Media.Item> objects, an array of <Titanium.Media.Item> objects, or a single <Titanium.Media.Item> object.
-        type: Object
+        summary: One or more media items.
+        type: [Titanium.Media.Item, Array<Titanium.Media.Item>, PlayerQueue]
+
   - name: skipToBeginning
-    summary: skip to the beginning of the currently playing media
+    summary: Skips to the beginning of the currently playing media item.
+
   - name: skipToNext
-    summary: skip to the next media in the queue
+    summary: Skips to the next media item in the queue.
+    description: |
+        If there are no more media items in the queue, ends playback.
+
   - name: skipToPrevious
-    summary: skip to the previous media in the queue
+    summary: Skips to the previous media item in the queue.
+    description: |
+        If there are no previous media items in the queue, ends playback.
+
   - name: stop
-    summary: stop playback
+    summary: Stops playback of the current media queue.
+
   - name: stopSeeking
-    summary: end a seek operation
+    summary: |
+        Ends a seek operation and returns to the previous playback state.
+
+        See also: [seekForward](Titanium.Media.MusicPlayer.seekForward) and
+        [seekBackward](Titanium.Media.MusicPlayer.seekBackward).
+
 events:
   - name: playingChange
-    summary: the currently playing media changed
+    summary: Fired when the currently playing media item changes.
+    description: |
+        See [nowPlaying](Titanium.Media.MusicPlayer.nowPlaying) to identify the current
+        media item.
+
   - name: stateChange
-    summary: the playback state changed
+    summary: Fired when the music player's playback state changes.
+    description: |
+        See [playbackState](Titanium.Media.MusicPlayer.playbackState) to identify the current
+        playback state.
+
   - name: volumeChange
-    summary: the volume changed
+    summary: Fired when the volume changes.
+    description: |
+        Use the [volume](Titanium.Media.MusicPlayer.volume) property to set or determine
+        the current volume level for this player.
+
 properties:
+
   - name: currentPlaybackTime
-    summary: the current point in song playback
+    summary: Current point in song playback, in seconds.
+    description: |
+        This property is read/write, so you can update the music player's current position
+        by setting this property.
     type: Number
+
   - name: nowPlaying
-    summary: an Item object which indicates the currently playing media
-    type: Object
+    summary: An `Item` object representing the currently playing media item.
+    type: Titanium.Media.Item
+    permission: read-only
+
   - name: playbackState
-    summary: the playback state; one of <Titanium.Media.MUSIC_PLAYER_STATE_STOPPED>, <Titanium.Media.MUSIC_PLAYER_STATE_PLAYING>, <Titanium.Media.MUSIC_PLAYER_STATE_PAUSED>, <Titanium.Media.MUSIC_PLAYER_STATE_INTERRUPTED>, <Titanium.Media.MUSIC_PLAYER_STATE_SKEEK_FORWARD>, <Titanium.Media.MUSIC_PLAYER_STATE_SEEK_BACKWARD>
+    summary: |
+        Playback state: one of
+        [MUSIC_PLAYER_STATE_STOPPED](Titanium.Media.MUSIC_PLAYER_STATE_STOPPED),
+        [MUSIC_PLAYER_STATE_PLAYING](Titanium.Media.MUSIC_PLAYER_STATE_PLAYING),
+        [MUSIC_PLAYER_STATE_PAUSED](Titanium.Media.MUSIC_PLAYER_STATE_PAUSED),
+        [MUSIC_PLAYER_STATE_INTERRUPTED](Titanium.Media.MUSIC_PLAYER_STATE_INTERRUPTED),
+        [MUSIC_PLAYER_STATE_SEEK_FORWARD](Titanium.Media.MUSIC_PLAYER_STATE_SEEK_FORWARD),
+        or
+        [MUSIC_PLAYER_STATE_SEEK_BACKWARD](Titanium.Media.MUSIC_PLAYER_STATE_SEEK_BACKWARD).
     type: Number
+    permission: read-only
+
   - name: repeatMode
-    summary: the repeat setting; one of <Titanium.Media.MUSIC_PLAYER_REPEAT_DEFAULT>, <Titanium.Media.MUSIC_PLAYER_REPEAT_NONE>, <Titanium.Media.MUSIC_PLAYER_REPEAT_ONE>, <Titanium.Media.MUSIC_PLAYER_REPEAT_ALL>
+    summary: |
+        Repeat setting: one of
+        [MUSIC_PLAYER_REPEAT_DEFAULT](Titanium.Media.MUSIC_PLAYER_REPEAT_DEFAULT),
+        [MUSIC_PLAYER_REPEAT_NONE](Titanium.Media.MUSIC_PLAYER_REPEAT_NONE),
+        [MUSIC_PLAYER_REPEAT_ONE](Titanium.Media.MUSIC_PLAYER_REPEAT_ONE), or
+        [MUSIC_PLAYER_REPEAT_ALL](Titanium.Media.MUSIC_PLAYER_REPEAT_ALL).
     type: Number
+
   - name: shuffleMode
-    summary: the shuffle setting; one of <Titanium.Media.MUSIC_PLAYER_SHUFFLE_DEFAULT>, <Titanium.Media.MUSIC_PLAYER_SHUFFLE_NONE>, <Titanium.Media.MUSIC_PLAYER_SHUFFLE_SONGS>, <Titanium.Media.MUSIC_PLAYER_SHUFFLE_ALBUMS>
+    summary: |
+        Shuffle setting: one of
+        [MUSIC_PLAYER_SHUFFLE_DEFAULT](Titanium.Media.MUSIC_PLAYER_SHUFFLE_DEFAULT),
+        [MUSIC_PLAYER_SHUFFLE_NONE](Titanium.Media.MUSIC_PLAYER_SHUFFLE_NONE),
+        [MUSIC_PLAYER_SHUFFLE_SONGS](Titanium.Media.MUSIC_PLAYER_SHUFFLE_SONGS), or
+        [MUSIC_PLAYER_SHUFFLE_ALBUMS](Titanium.Media.MUSIC_PLAYER_SHUFFLE_ALBUMS).
     type: Number
+
   - name: volume
-    summary: a value between 0.0 and 1.0 indicating the volume level for the music player
+    summary: Volume level for the music player, from 0.0 (muted) to 1.0 (loudest).
+    description: |
+        This setting controls the volume of the music player relative to the overall volume
+        setting for the device.
     type: Number
+
+---
+name: PlayerQueue
+summary: A simple object for specifying a queue of media items.
+properties:
+  - name: items
+    summary: An array of media items.
+    type: Array<Titanium.Media.Item>

@@ -135,7 +135,13 @@
 @property(nonatomic,readonly) NSNumber *AUTODETECT_ADDRESS;
 @property(nonatomic,readonly) NSNumber *AUTODETECT_CALENDAR;
 
-
+@property(nonatomic,readonly) NSString *SIZE;
+@property(nonatomic,readonly) NSString *FILL;
+@property(nonatomic,readonly) NSString *UNIT_PX;
+@property(nonatomic,readonly) NSString *UNIT_CM;
+@property(nonatomic,readonly) NSString *UNIT_MM;
+@property(nonatomic,readonly) NSString *UNIT_IN;
+@property(nonatomic,readonly) NSString *UNIT_DIP;
 
 #ifdef USE_TI_UI2DMATRIX
 -(id)create2DMatrix:(id)args;

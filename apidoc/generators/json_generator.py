@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (c) 2011 Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2011-2012 Appcelerator, Inc. All Rights Reserved.
 # Licensed under the Apache Public License (version 2)
 
 import sys, json, os

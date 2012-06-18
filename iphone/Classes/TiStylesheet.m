@@ -17,7 +17,7 @@
 	{
 		NSString *mainBundlePath = [[NSBundle mainBundle] bundlePath];
 		NSString *plistPath = [mainBundlePath stringByAppendingPathComponent:@"stylesheet.plist"];
-		NSLog(@"[DEBUG] reading stylesheet from: %@",plistPath);
+		DebugLog(@"[DEBUG] Reading stylesheet from: %@",plistPath);
 		NSDictionary *dictionary = [[NSDictionary alloc] initWithContentsOfFile:plistPath];
 		classesDict = [[dictionary objectForKey:@"classes"] retain];
 		classesDictByDensity = [[dictionary objectForKey:@"classes_density"] retain];
@@ -27,10 +27,10 @@
 		tagsDictByDensity = [[dictionary objectForKey:@"tags_density"] retain];
 	   
 #if defined(DEBUG) && DEBUG_STYLESHEETS==1
-		NSLog(@"[DEBUG] classesDict = %@",classesDict);
-		NSLog(@"[DEBUG] classesDictByDensity = %@",classesDictByDensity);
-		NSLog(@"[DEBUG] idsDict = %@",idsDict);
-		NSLog(@"[DEBUG] idsDictByDensity = %@",idsDictByDensity);
+		NSLog(@"[STYLESHEET DEBUG] ClassesDict = %@",classesDict);
+		NSLog(@"[STYLESHEET DEBUG] ClassesDictByDensity = %@",classesDictByDensity);
+		NSLog(@"[STYLESHEET DEBUG] IdsDict = %@",idsDict);
+		NSLog(@"[STYLESHEET DEBUG] IdsDictByDensity = %@",idsDictByDensity);
 #endif
 		[dictionary release];
 	}
@@ -51,13 +51,13 @@
 -(id)stylesheet:(NSString*)objectId density:(NSString*)density basename:(NSString*)basename classes:(NSArray*)classes tags:(NSArray*) tags
 {
 #if DEBUG_STYLESHEETS==1
-	NSLog(@"[DEBUG] stylesheet -> objectId: %@, density: %@, basename: %@",objectId,density,basename);
+	NSLog(@"[STYLESHEET DEBUG] stylesheet -> objectId: %@, density: %@, basename: %@",objectId,density,basename);
 	for (int i = 0; i < [classes count]; i++) {
-		NSLog(@"[DEBUG] -> class: %@",[classes objectAtIndex:i]);
+		NSLog(@"[STYLESHEET DEBUG] -> class: %@",[classes objectAtIndex:i]);
 	}
 
 	for(int i = 0; i < [tags count]; i++) {
-		NSLog(@"[DEBUG] -> tag: %@", [tags objectAtIndex:i]);
+		NSLog(@"[STYLESHEET DEBUG] -> tag: %@", [tags objectAtIndex:i]);
 	}
 #endif
 	
@@ -114,7 +114,7 @@
 	}
 
 #if DEBUG_STYLESHEETS==1
-	NSLog(@"[DEBUG] stylesheet -> %@",result);
+	NSLog(@"[STYLESHEET DEBUG] stylesheet -> %@",result);
 #endif
 	return result;
 }

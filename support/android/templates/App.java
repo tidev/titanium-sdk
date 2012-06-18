@@ -15,6 +15,7 @@ import org.appcelerator.kroll.runtime.rhino.KrollBindings;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollModuleInfo;
 import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiRootActivity;
 
@@ -37,6 +38,10 @@ public final class ${config['classname']}Application extends TiApplication
 		appInfo = new ${config['classname']}AppInfo(this);
 		postAppInfo();
 
+		% if config['compile_js']:
+		    KrollAssetHelper.setAssetCrypt(new AssetCryptImpl());
+		% endif
+
 		% if config['deploy_type'] != 'production' and runtime == "rhino":
 			ti.modules.titanium.debug.DebugModule debugger = new ti.modules.titanium.debug.DebugModule();
 			registerModuleInstance("debug", debugger);
@@ -54,8 +59,12 @@ public final class ${config['classname']}Application extends TiApplication
 		<%
 		manifest = module['manifest']
 		className = module['module_apiName']
+		isJSMod = (module.has_key('is_native_js_module') and module['is_native_js_module'])
 		%>
 		runtime.addExternalModule("${manifest.moduleid}", ${manifest.moduleid}.${className}Bootstrap.class);
+		% if isJSMod:
+		runtime.addExternalCommonJsModule("${manifest.moduleid}", ${manifest.moduleid}.CommonJsSourceProvider.class);
+		% endif
 		% endfor
 
 		% endif
@@ -97,10 +106,17 @@ public final class ${config['classname']}Application extends TiApplication
 		% for module in custom_modules:
 		${onAppCreate(module)} \
 
-		<% manifest = module['manifest'] %>
+		<%
+		manifest = module['manifest']
+		isJSMod = (module.has_key('is_native_js_module') and module['is_native_js_module'])
+		%>
+
 		% if runtime == "rhino":
 		KrollBindings.addExternalBinding("${manifest.moduleid}", ${module['class_name']}Prototype.class);
 		${manifest.moduleid}.${manifest.name}GeneratedBindings.init();
+		% endif
+		% if runtime == "rhino" and isJSMod:
+		KrollBindings.addExternalCommonJsModule("${manifest.moduleid}", ${manifest.moduleid}.CommonJsSourceProvider.class);
 		% endif
 
 		moduleInfo = new KrollModuleInfo(
@@ -110,6 +126,10 @@ public final class ${config['classname']}Application extends TiApplication
 
 		% if manifest.has_property("licensekey"):
 		moduleInfo.setLicenseKey("${manifest.licensekey}");
+		% endif
+
+		% if isJSMod:
+		moduleInfo.setIsJSModule(true);
 		% endif
 
 		KrollModule.addCustomModuleInfo(moduleInfo);

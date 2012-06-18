@@ -18,7 +18,11 @@ import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -84,6 +88,7 @@ import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiResourceFile;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
+import org.appcelerator.titanium.util.TiUrl;
 
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
@@ -93,7 +98,6 @@ public class TiHTTPClient
 {
 	private static final String LCAT = "TiHttpClient";
 	private static final boolean DBG = TiConfig.LOGD;
-	private static final int IS_BINARY_THRESHOLD = 30;
 	private static final int DEFAULT_MAX_BUFFER_SIZE = 512 * 1024;
 	private static final String PROPERTY_MAX_BUFFER_SIZE = "ti.android.httpclient.maxbuffersize";
 	private static final int PROTOCOL_DEFAULT_PORT = -1;
@@ -551,38 +555,23 @@ public class TiHTTPClient
 
 	public String getResponseText()
 	{
-		if (responseData != null && responseText == null)
-		{
-			byte[] data = responseData.getBytes();
+		
+		if (responseData != null && responseText == null) {
 			if (charset == null) {
-				// Detect binary
-				int binaryCount = 0;
-				int len = data.length;
-
-				if (len > 0) {
-					for (int i = 0; i < len; i++) {
-						byte b = data[i];
-						if (b < 32 || b > 127 ) {
-							if (b != '\n' && b != '\r' && b != '\t' && b != '\b') {
-								binaryCount++;
-							}
-						}
-					}
-
-					if ((binaryCount * 100)/len >= IS_BINARY_THRESHOLD) {
-						return null;
-					}
-				}
-
-				charset = HTTP.DEFAULT_CONTENT_CHARSET;
+				charset = HTTP.UTF_8;
 			}
 
 			try {
-				responseText = new String(data, charset);
-
-			} catch (UnsupportedEncodingException e) {
-				Log.e(LCAT, "Unable to convert to String using charset: " + charset);
+				CharsetDecoder decoder = Charset.forName(charset).newDecoder();
+				ByteBuffer data = ByteBuffer.wrap(responseData.getBytes());
+				CharBuffer b = decoder.decode(data);
+				responseText = b.toString();
+			} catch (Exception e) {
+				Log.e(LCAT, "Unable to decode using charset: " + charset);
+			} catch (OutOfMemoryError e) {
+				 Log.e(LCAT, "Unable to get response text: out of memory");
 			}
+
 		}
 
 		return responseText;
@@ -741,30 +730,6 @@ public class TiHTTPClient
 		return result;
 	}
 
-	private static Uri getCleanUri(String uri)
-	{
-		Uri base = Uri.parse(uri);
-
-		Uri.Builder builder = base.buildUpon();
-		builder.encodedQuery(Uri.encode(Uri.decode(base.getQuery()), "&="));
-		String encodedAuthority = Uri.encode(Uri.decode(base.getAuthority()),"/:@");
-		int firstAt = encodedAuthority.indexOf('@');
-		if (firstAt >= 0) {
-			int lastAt = encodedAuthority.lastIndexOf('@');
-			if (lastAt > firstAt) {
-				// We have a situation that might be like this:
-				// http://user@domain.com:password@api.mickey.com
-				// i.e., the user name is user@domain.com, and the host
-				// is api.mickey.com.  We need all at-signs prior to the final one (which
-				// indicates the host) to be encoded.
-				encodedAuthority = Uri.encode(encodedAuthority.substring(0, lastAt), "/:") + encodedAuthority.substring(lastAt);
-			}
-		}
-		builder.encodedAuthority(encodedAuthority);
-		builder.encodedPath(Uri.encode(Uri.decode(base.getPath()), "/"));
-		return builder.build();
-	}
-
 	public void open(String method, String url)
 	{
 		if (DBG) {
@@ -785,7 +750,7 @@ public class TiHTTPClient
 		}
 
 		if (autoEncodeUrl) {
-			this.uri = getCleanUri(url);
+			this.uri = TiUrl.getCleanUri(url);
 
 		} else {
 			this.uri = Uri.parse(url);
@@ -1001,7 +966,6 @@ public class TiHTTPClient
 				boolean queryStringAltered = false;
 				for (String key : data.keySet()) {
 					Object value = data.get(key);
-
 					if (isPostOrPut && (value != null)) {
 						// if the value is a proxy, we need to get the actual file object
 						if (value instanceof TiFileProxy) {
@@ -1135,6 +1099,12 @@ public class TiHTTPClient
 
 					} else {
 						handleURLEncodedData(form);
+					}
+
+					//Remove Content-Length header if entity is set since setEntity implicitly sets Content-Length
+					HttpEntityEnclosingRequest enclosingEntity = (HttpEntityEnclosingRequest) request;
+					if (enclosingEntity.getEntity() != null) {
+						request.removeHeaders("Content-Length");
 					}
 				}
 

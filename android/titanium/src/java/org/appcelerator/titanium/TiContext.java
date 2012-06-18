@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,8 +9,10 @@ package org.appcelerator.titanium;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUrl;
@@ -45,10 +47,8 @@ public class TiContext// implements ErrorReporter
 	private WeakReference<Activity> weakActivity;
 	private TiApplication tiApp;
 	protected KrollContext krollContext;
-	//protected KrollBridge krollBridge;
 
 	private TiWeakList<OnLifecycleEvent> lifecycleListeners;
-
 
 	public static interface OnLifecycleEvent {
 		void onStart(Activity activity);
@@ -75,10 +75,6 @@ public class TiContext// implements ErrorReporter
 		}
 		this.baseUrl = new TiUrl(baseUrl, null);
 
-		if (activity instanceof TiActivity) {
-			//((TiActivity)activity).addTiContext(this);
-		}
-
 		if (DBG) {
 			Log.e(LCAT, "BaseURL for context is " + baseUrl);
 		}
@@ -88,17 +84,7 @@ public class TiContext// implements ErrorReporter
 	{
 		return Thread.currentThread().getId() == mainThreadId;
 	}
-/*
-	public KrollBridge getKrollBridge()
-	{
-		//return krollBridge;
-	}
 
-	public void setKrollBridge(KrollBridge bridge)
-	{
-		//this.krollBridge = bridge;
-	}
-*/
 	public Activity getActivity()
 	{
 		if (weakActivity == null) return null;
@@ -108,9 +94,6 @@ public class TiContext// implements ErrorReporter
 
 	public void setActivity(Activity activity)
 	{
-		if (activity instanceof TiActivity) {
-			//((TiActivity)activity).addTiContext(this);
-		}
 		weakActivity = new WeakReference<Activity>(activity);
 	}
 
@@ -136,13 +119,11 @@ public class TiContext// implements ErrorReporter
 
 	public String resolveUrl(String scheme, String path)
 	{
-		//return baseUrl.resolve(this, baseUrl.baseUrl, path, scheme);
 		return "";
 	}
 
 	public String resolveUrl(String scheme, String path, String relativeTo)
 	{
-		//return baseUrl.resolve(this, relativeTo, path, scheme);
 		return "";
 	}
 
@@ -158,6 +139,10 @@ public class TiContext// implements ErrorReporter
 
 	// Javascript Support
 
+	/**
+	 * @deprecated
+	 * @see KrollRuntime#evalString(String)
+	 */
 	public Object evalFile(String filename, Messenger messenger, int messageId)
 		throws IOException
 	{
@@ -169,16 +154,10 @@ public class TiContext// implements ErrorReporter
 			setUrlBackTo = this.currentUrl;
 		}
 		this.currentUrl = filename;
-/*		if (krollBridge == null) {
-			if (DBG) {
-				Log.w(LCAT, "Cannot eval file '" + filename + "'. Context has been released already.");
-			}
-			if (setUrlBackTo != null) { this.currentUrl = setUrlBackTo; }
-			return null;
-		}
-*/
 
-		//result = krollBridge.evalFile(filename);
+		String code = KrollAssetHelper.readAsset(filename);
+		result = KrollRuntime.getInstance().evalString(code, filename);
+
 		if (messenger != null) {
 			try {
 				Message msg = Message.obtain();
@@ -195,33 +174,26 @@ public class TiContext// implements ErrorReporter
 		return result;
 	}
 
+	/**
+	 * @deprecated
+	 * @see KrollRuntime#evalString(String)
+	 */
 	public Object evalFile(String filename)
 		throws IOException
 	{
 		return evalFile(filename, null, -1);
 	}
 
+	/**
+	 * @deprecated
+	 * @see KrollRuntime#evalString(String)
+	 * @param src Javascript code
+	 * @return the return value of the passed in {@link code}
+	 */
 	public Object evalJS(String src)
 	{
-/*
-		if (krollBridge == null)
-		{
-			Log.e(LCAT,"on evalJS, evaluator is null and shouldn't be");
-		}
-		return krollBridge.evalJS(src);
-*/
-		return null;
+		return KrollRuntime.getInstance().evalString(src);
 	}
-
-/*
-	public Scriptable getScope()
-	{
-		if (krollBridge != null) {
-			return krollBridge.getScope();
-		}
-		return null;
-	}
-*/
 
 	public void addOnLifecycleEventListener(OnLifecycleEvent listener)
 	{
@@ -257,24 +229,16 @@ public class TiContext// implements ErrorReporter
 		}
 	}
 
-	//@Override
 	public void error(String message, String sourceName, int line, String lineSource, int lineOffset)
 	{
-		//TiJSErrorDialog.openErrorDialog(this, getActivity(), "Error", message, sourceName, line, lineSource, lineOffset);
 	}
 
-	//@Override
 	public void runtimeError(String message, String sourceName, int line, String lineSource, int lineOffset)
-	//public EvaluatorException runtimeError(String message, String sourceName, int line, String lineSource, int lineOffset)
 	{
-		//TiJSErrorDialog.openErrorDialog(this, getActivity(), "Runtime Error", message, sourceName, line, lineSource, lineOffset);
-		//return new EvaluatorException(message, sourceName, line, lineSource, lineOffset);
 	}
 
-	//@Override
 	public void warning(String message, String sourceName, int line, String lineSource, int lineOffset)
 	{
-		//TiJSErrorDialog.openErrorDialog(this, getActivity(), "Warning", message, sourceName, line, lineSource, lineOffset);
 	}
 
 	public static TiContext createTiContext(Activity activity, String baseUrl)
@@ -284,14 +248,7 @@ public class TiContext// implements ErrorReporter
 
 	public static TiContext createTiContext(Activity activity, String baseUrl, String loadFile)
 	{
-		TiContext tic = new TiContext(activity, baseUrl);
-/*
-		KrollContext kroll = KrollContext.createContext(tic, loadFile);
-		tic.setKrollContext(kroll);
-		KrollBridge krollBridge = new KrollBridge(kroll);
-		tic.setKrollBridge(krollBridge);
-*/
-		return tic;
+		return new TiContext(activity, baseUrl);
 	}
 
 	public KrollContext getKrollContext()
@@ -306,24 +263,11 @@ public class TiContext// implements ErrorReporter
 
 	public static TiContext getCurrentTiContext()
 	{
-		/*
-		KrollContext currentCtx = KrollContext.getCurrentKrollContext();
-		if (currentCtx == null) {
-			return null;
-		}
-		return currentCtx.getTiContext();
-		*/
 		return new TiContext(null, "");
 	}
 
 	public void release()
 	{
-		/*
-		if (krollBridge != null) {
-			krollBridge.release();
-			krollBridge = null;
-		}
-		*/
 		if (lifecycleListeners != null) {
 			lifecycleListeners.clear();
 		}

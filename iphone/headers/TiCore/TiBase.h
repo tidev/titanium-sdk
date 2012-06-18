@@ -2,7 +2,7 @@
  * Appcelerator Titanium License
  * This source code and all modifications done by Appcelerator
  * are licensed under the Apache Public License (version 2) and
- * are Copyright (c) 2009 by Appcelerator, Inc.
+ * are Copyright (c) 2009-2012 by Appcelerator, Inc.
  */
 
 /*
@@ -70,20 +70,26 @@ typedef const struct OpaqueTiValue* TiValueRef;
 typedef struct OpaqueTiValue* TiObjectRef;
 
 /* Ti symbol exports */
+/* These rules should stay the same as in WebKit2/Shared/API/c/WKBase.h */
 
 #undef JS_EXPORT
 #if defined(JS_NO_EXPORT)
-    #define JS_EXPORT
+#define JS_EXPORT
 #elif defined(__GNUC__) && !defined(__CC_ARM) && !defined(__ARMCC__)
-    #define JS_EXPORT __attribute__((visibility("default")))
-#elif defined(WIN32) || defined(_WIN32) || defined(_WIN32_WCE)
-    #if defined(BUILDING_TiCore) || defined(BUILDING_WTF)
-        #define JS_EXPORT __declspec(dllexport)
-    #else
-        #define JS_EXPORT __declspec(dllimport)
-    #endif
+#define JS_EXPORT __attribute__((visibility("default")))
+#elif defined(WIN32) || defined(_WIN32) || defined(_WIN32_WCE) || defined(__CC_ARM) || defined(__ARMCC__)
+#if defined(BUILDING_TiCore) || defined(BUILDING_WTF)
+#define JS_EXPORT __declspec(dllexport)
 #else
-    #define JS_EXPORT
+#define JS_EXPORT __declspec(dllimport)
+#endif
+#else /* !defined(JS_NO_EXPORT) */
+#define JS_EXPORT
+#endif /* defined(JS_NO_EXPORT) */
+
+/* JS tests uses WTF but has no config.h, so we need to set the export defines here. */
+#ifndef WTF_EXPORT_PRIVATE
+#define WTF_EXPORT_PRIVATE JS_EXPORT
 #endif
 
 #ifdef __cplusplus

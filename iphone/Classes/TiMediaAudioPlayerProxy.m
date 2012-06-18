@@ -17,6 +17,7 @@
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
+	volume = [TiUtils doubleValue:@"volume" properties:properties def:1.0];
 	url = [[TiUtils toURL:[properties objectForKey:@"url"] proxy:self] retain];
     int initialMode = [TiUtils intValue:@"audioSessionMode" 
                              properties:properties
@@ -73,6 +74,7 @@
 		player = [[AudioStreamer alloc] initWithURL:url];
 		[player setDelegate:self];
         [player setBufferSize:bufferSize];
+		[player setVolume:volume];
 		
 		if (progress)
 		{
@@ -166,6 +168,22 @@ PLAYER_PROP_DOUBLE(bitRate,bitRate);
 PLAYER_PROP_DOUBLE(progress,progress);
 PLAYER_PROP_DOUBLE(state,state);
 
+-(NSNumber *)volume
+{
+	if (player != nil){
+		volume = [player volume];
+	}
+	return NUMDOUBLE(volume);
+}
+
+-(void)setVolume:(NSNumber *)newVolume
+{
+	volume = [TiUtils doubleValue:newVolume def:volume];
+	if (player != nil) {
+		[player setVolume:volume];
+	}
+}
+
 -(void)setBufferSize:(NSNumber*)bufferSize_
 {
     bufferSize = [bufferSize_ unsignedIntegerValue];
@@ -182,7 +200,7 @@ PLAYER_PROP_DOUBLE(state,state);
 -(void)setUrl:(id)args
 {
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(setUrl:) withObject:args waitUntilDone:YES];
+		TiThreadPerformOnMainThread(^{[self setUrl:args];}, YES);
 		return;
 	}
 	RELEASE_TO_NIL(url);
@@ -199,12 +217,17 @@ PLAYER_PROP_DOUBLE(state,state);
 	return url;
 }
 
+-(void)play:(id)args
+{
+	[self start:args];
+}
+
 // Only need to ensure the UI thread when starting; and we should actually wait until it's finished so
 // that execution flow is correct (if we stop/pause immediately after)
 -(void)start:(id)args
 {
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(start:) withObject:args waitUntilDone:YES];
+		TiThreadPerformOnMainThread(^{[self start:args];}, YES);
 		return;
 	}
 	// indicate we're going to start playing
@@ -223,7 +246,7 @@ PLAYER_PROP_DOUBLE(state,state);
 -(void)stop:(id)args
 {
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(stop:) withObject:args waitUntilDone:YES];
+		TiThreadPerformOnMainThread(^{[self stop:args];}, YES);
 		return;
 	}
 	if (player!=nil)
@@ -239,7 +262,7 @@ PLAYER_PROP_DOUBLE(state,state);
 -(void)pause:(id)args
 {
 	if (![NSThread isMainThread]) {
-		[self performSelectorOnMainThread:@selector(pause:) withObject:args waitUntilDone:YES];
+		TiThreadPerformOnMainThread(^{[self pause:args];}, YES);
 		return;
 	}
 	if (player!=nil)
@@ -262,16 +285,16 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,AS_PAUSED);
 {
     UInt32 newMode = [mode unsignedIntegerValue]; // Close as we can get to UInt32
     if (newMode == kAudioSessionCategory_RecordAudio) {
-        NSLog(@"[WARN] Invalid mode for audio player... setting to default.");
+        DebugLog(@"[WARN] Invalid mode for audio player... setting to default.");
         newMode = kAudioSessionCategory_SoloAmbientSound;
     }
-	NSLog(@"[WARN] 'Titanium.Media.AudioPlayer.audioSessionMode' is deprecated; use 'Titanium.Media.audioSessionMode'");
+	DebugLog(@"[WARN] 'Titanium.Media.AudioPlayer.audioSessionMode' is deprecated; use 'Titanium.Media.audioSessionMode'");
 	[[TiMediaAudioSession sharedSession] setSessionMode:newMode];
 }
 
 -(NSNumber*)audioSessionMode
 {
-	NSLog(@"[WARN] 'Titanium.Media.AudioPlayer.audioSessionMode' is deprecated; use 'Titanium.Media.audioSessionMode'");	
+	DebugLog(@"[WARN] 'Titanium.Media.AudioPlayer.audioSessionMode' is deprecated; use 'Titanium.Media.audioSessionMode'");	
     return [NSNumber numberWithUnsignedInteger:[[TiMediaAudioSession sharedSession] sessionMode]];
 }
 

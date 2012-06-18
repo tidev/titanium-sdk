@@ -25,7 +25,7 @@ describe("Ti.UI.2DMatrix tests", {
 			var values = matrix3.finalValuesAfterInterpolation(50,100);
 			valueOf(values[0]).shouldBe(0.0);
 			valueOf(values[1]).shouldBe(-2.0);
-			valueOf(values[2]).shouldBe(150.0);
+			valueOf(values[2]).shouldBe(125.0);
 			valueOf(values[3]).shouldBe(1.0);
 			valueOf(values[4]).shouldBe(0.0);
 			valueOf(values[5]).shouldBe(25.0);

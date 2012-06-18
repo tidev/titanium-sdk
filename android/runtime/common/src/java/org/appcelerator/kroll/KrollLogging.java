@@ -88,6 +88,11 @@ public class KrollLogging
 	{
 		internalLog(FATAL, msg);
 	}
+	
+	public void log(String msg)
+	{
+		internalLog(INFO, msg);
+	}
 
 	public void log(String level, String msg)
 	{

@@ -17,6 +17,9 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
+/**
+ * An extension of HashMap, used to access and store data.
+ */
 public class KrollDict
 	extends HashMap<String, Object>
 {
@@ -24,6 +27,10 @@ public class KrollDict
 	private static final long serialVersionUID = 1L;
 	private static final int INITIAL_SIZE = 5;
 
+	/**
+	 * Constructs a KrollDict with a default capacity.
+	 * @module.api
+	 */
 	public KrollDict() {
 		this(INITIAL_SIZE);
 	}
@@ -55,11 +62,21 @@ public class KrollDict
 		}
 		return value;
 	}
-	
+
+	/**
+	 * Constructs a KrollDict by copying an existing Map
+	 * @param map the existing map to copy
+	 * @module.api
+	 */
 	public KrollDict(Map<? extends String, ? extends Object> map) {
 		super(map);
 	}
 
+	/**
+	 * Constructs a KrollDict with the specified capacity.
+	 * @param size the specified capacity.
+	 * @module.api
+	 */
 	public KrollDict(int size) {
 		super(size);
 	}

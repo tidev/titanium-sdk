@@ -12,6 +12,7 @@ from projector import Projector
 from xml.dom.minidom import parseString
 from xml.etree.ElementTree import ElementTree
 from os.path import join, splitext, split, exists
+from tools import ensure_dev_path
 
 # the template_dir is the path where this file lives on disk
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
@@ -190,7 +191,7 @@ def dump_resources_listing(rootdir,out):
 			total+=s
 			s = "[%.0f]" % s
 			p = p[len(rootdir)+1:]
-			if p.startswith('build/android'): continue
+			if p.startswith('build/android') or p.startswith('build/mobileweb'): continue
 			out.write("  %s %s\n" % (string.ljust(p,120),string.ljust(s,8)))
 	out.write("-" * 130)
 	out.write("\nTotal files: %.1f MB\n" % ((total/1024)/1024))
@@ -407,10 +408,14 @@ def is_indexing_enabled(tiapp, simulator_dir, **kwargs):
 	mount_point_status = {}
 	for i in range(0, len(lines), 2):
 		mount_point = lines[i].rstrip(':')
-		status = lines[i+1].strip('\t.')
-		# Only add mount points that the simulator_dir starts with
-		if simulator_dir.startswith(mount_point):
-			mount_point_status[mount_point] = status
+		if len(lines) > (i+1):
+			status = lines[i+1].strip('\t.')
+			# Only add mount points that the simulator_dir starts with
+			if simulator_dir.startswith(mount_point):
+				mount_point_status[mount_point] = status
+		# mdutil must be disabled if we don't get the right amount of output
+		else:
+			return False
 
 	if len(mount_point_status) > 0:
 		# There may be multiple volumes that have a mount point that the
@@ -551,6 +556,7 @@ def main(args):
 		print
 		print "  install       install the app to itunes for testing on iphone"
 		print "  simulator     build and run on the iphone simulator"
+		print "  adhoc         build for adhoc distribution"
 		print "  distribute    build final distribution bundle"
 		print "  xcode         build from within xcode"
 		print "  run           build and run app from project folder"
@@ -561,7 +567,8 @@ def main(args):
 	sys.stdout.flush()
 	start_time = time.time()
 	command = args[1].decode("utf-8")
-	
+	ensure_dev_path()
+
 	target = 'Debug'
 	deploytype = 'development'
 	devicefamily = 'iphone'
@@ -706,7 +713,7 @@ def main(args):
 					debugport = None
 				else:
 					debughost,debugport = debughost.split(":")
-		elif command == 'install':
+		elif command in ['install', 'adhoc']:
 			iphone_version = check_iphone_sdk(iphone_version)
 			link_version = iphone_version
 			appuuid = dequote(args[6].decode("utf-8"))
@@ -721,8 +728,12 @@ def main(args):
 					debugport=None
 				else:
 					debughost,debugport = debughost.split(":")
-			target = 'Debug'
-			deploytype = 'test'
+			if command == 'install':
+				target = 'Debug'
+				deploytype = 'test'
+			elif command == 'adhoc':
+				target = 'Release'
+				deploytype = 'production'
 		
 		# setup up the useful directories we need in the script
 		build_out_dir = os.path.abspath(os.path.join(iphone_dir,'build'))
@@ -789,10 +800,20 @@ def main(args):
 			detector = ModuleDetector(project_dir)
 			missing_modules, modules = detector.find_app_modules(ti, 'iphone')
 			module_lib_search_path, module_asset_dirs = locate_modules(modules, project_dir, app_dir, log)
+			common_js_modules = []
+			
+			if len(missing_modules) != 0:
+				print '[ERROR] Could not find the following required iOS modules:'
+				for module in missing_modules:
+					print "[ERROR]\tid: %s\tversion: %s" % (module['id'], module['version'])
+				exit(1)
 
 			# search for modules that the project is using
 			# and make sure we add them to the compile
 			for module in modules:
+				if module.js:
+					common_js_modules.append(module)
+					continue
 				module_id = module.manifest.moduleid.lower()
 				module_version = module.manifest.version
 				module_lib_name = ('lib%s.a' % module_id).lower()
@@ -895,7 +916,7 @@ def main(args):
 
 			# this code simply tries and detect if we're building a different
 			# version of the project (or same version but built from different git hash)
-			# and if so, make sure we force rebuild so to propograte any code changes in
+			# and if so, make sure we force rebuild so to propagate any code changes in
 			# source code (either upgrade or downgrade)
 			if os.path.exists(app_dir):
 				if os.path.exists(version_file):
@@ -1122,6 +1143,21 @@ def main(args):
 				if len(module_asset_dirs)>0:
 					for e in module_asset_dirs:
 						copy_module_resources(e[0],e[1],True)
+
+				# copy CommonJS modules
+				for module in common_js_modules:
+					#module_id = module.manifest.moduleid.lower()
+					#module_dir = os.path.join(app_dir, 'modules', module_id)
+					#if os.path.exists(module_dir) is False:
+					#	os.makedirs(module_dir)
+					shutil.copy(module.js, app_dir)
+				
+				# copy artworks, if appropriate
+				if command in ['adhoc', 'install', 'distribute']:
+					artworks = ['iTunesArtwork', 'iTunesArtwork@2x']
+					for artwork in artworks:
+						if os.path.exists(os.path.join(project_dir, artwork)):
+							shutil.copy(os.path.join(project_dir, artwork), app_dir)
 				
 				# copy any custom fonts in (only runs in simulator)
 				# since we need to make them live in the bundle in simulator
@@ -1197,6 +1233,11 @@ def main(args):
 						print "[INFO] Executing XCode build..."
 						print "[BEGIN_VERBOSE] Executing XCode Compiler  <span>[toggle output]</span>"
 
+					# h/t cbarber for this; occasionally the PCH header info gets out of sync
+					# with the PCH file if you do the "wrong thing" and xcode isn't
+					# smart enough to pick up these changes (since the PCH file hasn't 'changed').
+					run.run(['touch', '%s_Prefix.pch' % ti.properties['name']], debug=False)
+					
 					output = run.run(args,False,False,o)
 
 					if print_output:
@@ -1214,7 +1255,7 @@ def main(args):
 						endidx = output.find("\n",idx)
 						if endidx > 0:
 							target_build_dir = dequote(output[idx+17:endidx].strip())
-							if target_build_dir!=build_dir:
+							if not os.path.samefile(target_build_dir,build_dir):
 								o.write("+ TARGET_BUILD_DIR = %s\n" % target_build_dir)
 								print "[ERROR] Your TARGET_BUILD_DIR is incorrectly set. Most likely you have configured in Xcode a customized build location. Titanium does not currently support this configuration."
 								print "[ERROR] Expected dir %s, was: %s" % (build_dir,target_build_dir)
@@ -1367,12 +1408,9 @@ def main(args):
 					else:
 						sim = subprocess.Popen("\"%s\" launch \"%s\" --sdk %s --family %s" % (iphonesim,app_dir,iphone_version,simtype),shell=True,cwd=template_dir)
 
-					# activate the simulator window - we use a OSA script to 
-					# cause the simulator window to come into the foreground (otherwise
-					# it will be behind Titanium Developer window)
-					ass = os.path.join(template_dir,'iphone_sim_activate.scpt')
-					cmd = "osascript \"%s\" 2>/dev/null" % ass
-					os.system(cmd)
+					# activate the simulator window
+					command = 'osascript -e "tell application \\\"%s/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone Simulator.app\\\" to activate"'
+					os.system(command%xcodeselectpath)
 
 					end_time = time.time()-start_time
 
@@ -1419,13 +1457,12 @@ def main(args):
 					
 				###########################################################################	
 				# END OF SIMULATOR COMMAND	
-				###########################################################################	
-				
+				###########################################################################			
 				
 				#
-				# this command is run for installing an app on device
+				# this command is run for installing an app on device or packaging for adhoc distribution
 				#
-				elif command == 'install':
+				elif command in ['install', 'adhoc']:
 
 					debugstr = ''
 					if debughost:
@@ -1433,19 +1470,28 @@ def main(args):
 						
 					args += [
 						"GCC_PREPROCESSOR_DEFINITIONS=DEPLOYTYPE=test TI_TEST=1 %s %s" % (debugstr, kroll_coverage),
-						"PROVISIONING_PROFILE=%s" % appuuid,
-						"CODE_SIGN_IDENTITY=iPhone Developer: %s" % dist_name,
-						"DEPLOYMENT_POSTPROCESSING=YES"
+						"PROVISIONING_PROFILE=%s" % appuuid
 					]
+
+					if command == 'install':
+						args += ["CODE_SIGN_IDENTITY=iPhone Developer: %s" % dist_name]
+					elif command == 'adhoc':
+						args += ["CODE_SIGN_IDENTITY=iPhone Distribution: %s" % dist_name]
+					args += ["DEPLOYMENT_POSTPROCESSING=YES"]
+
 					execute_xcode("iphoneos%s" % iphone_version,args,False)
+					
+					if command == 'install':
+						print "[INFO] Installing application in iTunes ... one moment"
+						sys.stdout.flush()
 
-					print "[INFO] Installing application in iTunes ... one moment"
-					sys.stdout.flush()
+					dev_path = run.run(['xcode-select','-print-path'],True,False).rstrip()
+					package_path = os.path.join(dev_path,'Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication')
 
-					if os.path.exists("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication"):
-						o.write("+ Preparing to run /Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication\n")
-						output = run.run(["/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication",app_dir],True)
-						o.write("+ Finished running /Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/PackageApplication\n")
+					if os.path.exists(package_path):
+						o.write("+ Preparing to run %s\n"%package_path)
+						output = run.run([package_path,app_dir],True)
+						o.write("+ Finished running %s\n"%package_path)
 						if output: o.write(output)
 
 					# for install, launch itunes with the app
@@ -1460,32 +1506,34 @@ def main(args):
 						o.write("+ IPA didn't exist at %s\n" % ipa)
 						o.write("+ Will try and open %s\n" % app_dir)
 						ipa = app_dir
+					
+					if command == 'install':
+						# to force iTunes to install our app, we simply open the IPA
+						# file in itunes
+						cmd = "open -b com.apple.itunes \"%s\"" % ipa
+						o.write("+ Executing the command: %s\n" % cmd)
+						os.system(cmd)
+						o.write("+ After executing the command: %s\n" % cmd)
 
-					# to force iTunes to install our app, we simply open the IPA
-					# file in itunes
-					cmd = "open -b com.apple.itunes \"%s\"" % ipa
-					o.write("+ Executing the command: %s\n" % cmd)
-					os.system(cmd)
-					o.write("+ After executing the command: %s\n" % cmd)
+						# now run our applescript to tell itunes to sync to get
+						# the application on the phone
+						ass = os.path.join(template_dir,'itunes_sync.scpt')
+						cmd = "osascript \"%s\"" % ass
+						o.write("+ Executing the command: %s\n" % cmd)
+						os.system(cmd)
+						o.write("+ After executing the command: %s\n" % cmd)
 
-					# now run our applescript to tell itunes to sync to get
-					# the application on the phone
-					ass = os.path.join(template_dir,'itunes_sync.scpt')
-					cmd = "osascript \"%s\"" % ass
-					o.write("+ Executing the command: %s\n" % cmd)
-					os.system(cmd)
-					o.write("+ After executing the command: %s\n" % cmd)
+						print "[INFO] iTunes sync initiated"
 
-					print "[INFO] iTunes sync initiated"
-
-					o.write("Finishing build\n")
+						o.write("Finishing build\n")
+					
 					sys.stdout.flush()
 					script_ok = True
 					
 					run_postbuild()
 					
 				###########################################################################	
-				# END OF INSTALL COMMAND	
+				# END OF INSTALL/ADHOC COMMAND	
 				###########################################################################	
 
 				#
@@ -1512,7 +1560,12 @@ def main(args):
 
 					# open xcode + organizer after packaging
 					# Have to force the right xcode open...
-					xc_path = os.path.join(run.run(['xcode-select','-print-path'],True,False).rstrip(),'Applications','Xcode.app')
+					xc_path = run.run(['xcode-select','-print-path'],True,False).rstrip()
+					xc_app_index = xc_path.find('/Xcode.app/')
+					if (xc_app_index >= 0):
+						xc_path = xc_path[0:xc_app_index+10]
+					else:
+						xc_path = os.path.join(xc_path,'Applications','Xcode.app')
 					o.write("Launching xcode: %s\n" % xc_path)
 					os.system('open -a %s' % xc_path)
 					

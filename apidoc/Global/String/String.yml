@@ -2,74 +2,104 @@
 name: Global.String
 summary: The JavaScript built-in String type. 
 description: |
-    The following are built-in functions available on the [String](Global.String) class.
-    These are Titanium-specific extensions for formatting data into locale-specific strings. 
-
-    Both iOS and Android use the locale configured by the user for locale-specific formatting.
-    The locale is set in device's system Settings. 
-
+    This module contains Titanium-only extensions for formatting data into locale-specific strings. 
+    The target locale is configured by the user in the device's system Settings.
 platforms: [android, iphone, ipad]
+
 methods:
   - name: format
-    summary: Formats a string using a `printf`-style format string.
+    summary: Formats a string using `printf`-style substitution.
     description: | 
-        The format string follows the IEEE printf specification:
-
-        http://www.opengroup.org/onlinepubs/009695399/functions/printf.html
-
-        One value parameter should be passed for each conversion specification in the
-        format string. For example:
-
-            message = String.formatString("Hello, %s, you are visitor number %d", name, number);
-    parameters:
-      - name: formatString
-        summary: An IEEE `printf` format string.
-        type: String
-      - name: value
-        summary: A value to substitute into the format string. An arbitrary number of value parameters may be specified.
-        type: [ String, Number ]
-        optional: true
+        The format string follows the 
+        [IEEE printf specification](http://www.opengroup.org/onlinepubs/009695399/functions/printf.html).
+        
+        For each "conversion specification" (ie. `%s` for a string or `%d` for a number) used inside 
+        the string, `formatString` argument, the respective value is substituted from the second 
+        argument list. For example:
+        
+            var forename = 'Paul';
+            var number = 21;
+            var message = String.format('Welcome, %s! You are visitor number %d', forename, number);
+            Ti.API.info(message);
     returns:
         type: String
         summary: Formatted string.
-  - name: formatCurrency
-    summary: Formats a number into a locale-specific currency format.
     parameters:
+      - name: formatString
+        summary: An IEEE `printf`-style string, containing zero or more conversion specifications.
+        type: String
+        
       - name: value
-        summary: Currency value to format.
-        type: Number
+        summary: |
+            Comma-separated list of one or more values to substitute into the `formatString`. 
+            Optional on Android.
+        type: [ String, Number ]
+        
+  - name: formatCurrency
+    summary: |
+        Formats a number into the currency format, including currency symbol, of the locale 
+        configured for the system.
     returns:
         type: String
-        summary: The specified value, with a locale-specific currency symbol.
+        summary: Formatted, localized string.
+    parameters:
+      - name: value
+        summary: Currency value.
+        type: Number
+        
   - name: formatDate
-    summary: Formats a `Date` object in a localized string format.
+    summary: Formats a date into the date format of the locale configured for the system.
+    returns:
+        type: String
+        summary: Formatted, localized string.
     parameters:
       - name: date
-        summary: Date object to format.
+        summary: Date to format.
         type: Date
+        
       - name: format
-        summary: Date format to use, specified as 'short', 'medium', or 'long'.
+        summary: Date format to use. One of 'short', 'medium', or 'long'.
         type: String
         optional: true
         default: 'short'
+        
+  - name: formatDecimal
+    summary: |
+        Formats a number into the decimal format, including decimal symbol, of the locale 
+        configured for the system.
     returns:
         type: String
-        summary: String representation of the specified date.
-  - name: formatDecimal
-    summary: Formats a number using the locale-specific decimal symbol.
+        summary: |
+            String representation of the specified number, using a locale-specific decimal symbol, 
+            if required.
     parameters:
       - name: value
         summary: Value to format.
         type: Number
-    returns: 
+
+      - name: locale
+        summary: Locale string. For example, `en-US` for US English.
         type: String
-        summary: String representation of the specified number, using a locale-specific decimal symbol, if required.
+        optional: true
+
+      - name: pattern
+        summary: Format pattern.
+        type: String
+        optional: true
+
   - name: formatTime
-    summary: Formats a `Date` object into a locale-specific time format.
-    parameters:
-      - name: date
-        summary: Date object to format.
-        type: Date
+    summary: Formats a date into the time format of the locale configured for the system.
+    description: On Android, this method returns the short format.
     returns:
         type: String
-        summary: String representation of the specified time.
+        summary: Formatted, localized string.
+    parameters:
+      - name: date
+        summary: Date to format.
+        type: Date
+
+      - name: format
+        summary: Date format to use. One of 'short', 'medium', or 'long' (iOS only.)
+        type: String
+        optional: true
+        default: 'short'

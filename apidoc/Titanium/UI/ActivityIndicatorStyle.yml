@@ -1,0 +1,64 @@
+---
+name: Titanium.UI.ActivityIndicatorStyle
+summary: A set of constants for the styles available for <Titanium.UI.ActivityIndicator> objects.
+extends: Titanium.Module
+since: "2.1.0"
+platforms: [mobileweb]
+createable: false
+
+properties:
+  - name: BIG
+    summary: Large white spinning indicator.
+    description: |
+        Used with the <Titanium.UI.ActivityIndicator.style> property.
+        
+        One of the group of activity indicator style constants 
+        [DARK](Titanium.UI.ActivityIndicatorStyle.DARK), 
+        [BIG](Titanium.UI.ActivityIndicatorStyle.BIG), 
+        [BIG](Titanium.UI.ActivityIndicatorStyle.BIG_DARK), 
+        and [PLAIN](Titanium.UI.ActivityIndicatorStyle.PLAIN).
+    type: Number
+    permission: read-only
+    platforms: [mobileweb]
+    
+  - name: DARK
+    summary: Small gray spinning indicator.
+    description: |
+        Used with the <Titanium.UI.ActivityIndicator.style> property.
+        
+        One of the group of activity indicator style constants 
+        [DARK](Titanium.UI.ActivityIndicatorStyle.DARK), 
+        [BIG](Titanium.UI.ActivityIndicatorStyle.BIG), 
+        [BIG](Titanium.UI.ActivityIndicatorStyle.BIG_DARK), 
+        and [PLAIN](Titanium.UI.ActivityIndicatorStyle.PLAIN).
+    type: Number
+    permission: read-only
+    platforms: [mobileweb]
+    
+  - name: BIG_DARK
+    summary: Large gray spinning indicator.
+    description: |
+        Used with the <Titanium.UI.ActivityIndicator.style> property.
+        
+        One of the group of activity indicator style constants 
+        [DARK](Titanium.UI.ActivityIndicatorStyle.DARK), 
+        [BIG](Titanium.UI.ActivityIndicatorStyle.BIG), 
+        [BIG](Titanium.UI.ActivityIndicatorStyle.BIG_DARK), 
+        and [PLAIN](Titanium.UI.ActivityIndicatorStyle.PLAIN).
+    type: Number
+    permission: read-only
+    platforms: [mobileweb]
+    
+  - name: PLAIN
+    summary: Small white spinning indicator (default).
+    description: |
+        Used with the <Titanium.UI.ActivityIndicator.style> property.
+        
+        One of the group of activity indicator style constants 
+        [DARK](Titanium.UI.ActivityIndicatorStyle.DARK), 
+        [BIG](Titanium.UI.ActivityIndicatorStyle.BIG), 
+        [BIG](Titanium.UI.ActivityIndicatorStyle.BIG_DARK), 
+        and [PLAIN](Titanium.UI.ActivityIndicatorStyle.PLAIN).
+    type: Number
+    permission: read-only
+    platforms: [mobileweb]

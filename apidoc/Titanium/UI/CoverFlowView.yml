@@ -31,7 +31,7 @@ methods:
         type: Number
       - name: image
         summary: Image to add at this index.
-        type: [String,Titanium.Blob,Titanium.File,CoverFlowImageType]
+        type: [String, Titanium.Blob, Titanium.Filesystem.File, CoverFlowImageType]
 events:
   - name: change
     summary: Fired when the user changes the image using a gesture.
@@ -54,7 +54,7 @@ events:
 properties:
   - name: images
     summary: Array of images to display in the view.
-    type: [Array<String>,Array<Titanium.Blob>,Array<Titanium.File>,Array<CoverFlowImageType>]
+    type: [Array<String>, Array<Titanium.Blob>, Array<Titanium.Filesystem.File>, Array<CoverFlowImageType>]
   - name: selected
     summary: Index to make selected.
     type: Number

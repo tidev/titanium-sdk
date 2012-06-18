@@ -11,6 +11,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -136,11 +137,20 @@ public class LoginButton extends TiUIView implements TiFacebookStateListener
 
 		facebook.addListener(this);
 
-		if (d.containsKey("style")) {
-			String style = TiConvert.toString(d, "style");
-			if (style.equals("wide")) {
-				wide = true;
-				updateButtonImage(false);
+		if (d.containsKey(TiC.PROPERTY_STYLE)) {
+			Object style = d.get(TiC.PROPERTY_STYLE);
+			if (style instanceof Number) {
+				int styleValue = TiConvert.toInt(style);
+				if (styleValue == facebook.BUTTON_STYLE_WIDE) {
+					wide = true;
+					updateButtonImage(false);
+				}
+			} else {
+				String styleName = TiConvert.toString(style);
+				if (styleName.equals("wide")) {
+					wide = true;
+					updateButtonImage(false);
+				}
 			}
 		}
 	}

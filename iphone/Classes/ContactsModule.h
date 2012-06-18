@@ -23,10 +23,6 @@
 	KrollCallback* cancelCallback;
 	KrollCallback* selectedPersonCallback;
 	KrollCallback* selectedPropertyCallback;
-	
-	// Everything has to happen on the main thread for memory access reasons, so
-	// for functions which return a value we need a cache.
-	NSMutableDictionary* returnCache;
 }
 
 -(ABAddressBookRef)addressBook;

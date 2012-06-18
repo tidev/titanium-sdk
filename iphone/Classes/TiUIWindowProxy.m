@@ -108,17 +108,26 @@
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-	[TiLayoutQueue addViewProxy:self];
+    //Update the barImage here as well. Might have the wrong bounds but that will be corrected 
+    //in the call from frameSizeChanged in TiUIWindow. Avoids the visual glitch
+    if ( (!animating) && (controller != nil) && ([controller navigationController] != nil) ) {
+        id barImageValue = [self valueForKey:@"barImage"];
+        if ((barImageValue != nil) && (barImageValue != [NSNull null])) {
+            [self updateBarImage];
+        }
+    }
+    [TiLayoutQueue addViewProxy:self];
 }
 
 -(void)_destroy
 {
     if (![self closing] && [[self opened] boolValue]) {
-        [self performSelectorOnMainThread:@selector(close:) withObject:nil waitUntilDone:YES];
+        TiThreadPerformOnMainThread(^{[self close:nil];}, YES);
     }
     
-	[barImageView performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:NO];
-	RELEASE_TO_NIL(barImageView);
+	TiThreadRemoveFromSuperviewOnMainThread(barImageView, NO);
+	TiThreadReleaseOnMainThread(barImageView, NO);
+	barImageView = nil;
 	if (context!=nil)
 	{
 		[context shutdown:nil];
@@ -131,20 +140,20 @@
 
 -(void)boot:(BOOL)timeout args:args
 {
-	RELEASE_TO_NIL(latch);
-	contextReady = YES;
+    RELEASE_TO_NIL(latch);
+    contextReady = YES;
 
-	if (navWindow) 
-	{
-		[self prepareForNavView:[self navController]];
-	}
-	else 
-	{
-		if (timeout && ![context evaluationError])
-		{
-			[self open:args];
-		}
-	}
+    if (navWindow) {
+        [self prepareForNavView:[self navController]];
+        if (timeout) {
+            [self windowDidOpen];
+        }
+    }
+    else {
+        if (timeout && ![context evaluationError]) {
+            [self open:args];
+        }
+    }
 }
 
 -(NSMutableDictionary*)langConversionTable
@@ -154,13 +163,27 @@
 
 #pragma mark Public
 
+-(void)windowDidOpen
+{
+    if (context != nil) {
+        if (contextReady) {
+            [super windowDidOpen];
+        }
+        else {
+            VerboseLog(@"Ignoring windowDidOpen since context is not ready");
+        }
+    }
+    else {
+        [super windowDidOpen];
+    }
+}
+
 -(BOOL)_handleOpen:(id)args
 {
 	// this is a special case that calls open again above to cause the event lifecycle to
 	// happen after the JS context is fully up and ready
 	if (contextReady && context!=nil)
 	{
-		[self fireFocus:YES];
 		return YES;
 	}
 	
@@ -203,7 +226,7 @@
 		}
 		else 
 		{
-			NSLog(@"[ERROR] url not supported in a window. %@",url);
+			DebugLog(@"[ERROR] Url not supported in a window. %@",url);
 		}
 	}
 	
@@ -327,7 +350,7 @@
 	[self replaceValue:[self sanitizeURL:value] forKey:@"barImage" notification:NO];
 	if (controller!=nil)
 	{
-		[self performSelectorOnMainThread:@selector(updateBarImage) withObject:nil waitUntilDone:[NSThread isMainThread]];
+		TiThreadPerformOnMainThread(^{[self updateBarImage];}, NO);
 	}
 }
 
@@ -520,6 +543,24 @@
 	}
 }
 
+-(void)_updateTitleView
+{
+    //Called from the view when the screen rotates. 
+    //Resize titleControl and barImage based on navbar bounds
+    if (animating || controller == nil || [controller navigationController] == nil) {
+        return; // No need to update the title if not in a nav controller
+    }
+    TiThreadPerformOnMainThread(^{
+        if ([[self valueForKey:@"titleControl"] isKindOfClass:[TiViewProxy class]]) {
+            [self updateTitleView];
+        }
+        id barImageValue = [self valueForKey:@"barImage"];
+        if ((barImageValue != nil) && (barImageValue != [NSNull null])) {
+            [self updateBarImage];
+        }
+    }, NO);
+}
+
 -(void)updateTitleView
 {
 	UIView * newTitleView = nil;
@@ -528,24 +569,38 @@
 		return; // No need to update the title if not in a nav controller
 	}
 	
-	UINavigationItem * ourNavItem = [controller navigationItem];
+    UINavigationItem * ourNavItem = [controller navigationItem];
+    UINavigationBar * ourNB = [[controller navigationController] navigationBar];
+    CGRect barFrame = [ourNB bounds];
+    CGSize availableTitleSize = CGSizeZero;
+    availableTitleSize.width = barFrame.size.width - (2*TI_NAVBAR_BUTTON_WIDTH);
+    availableTitleSize.height = barFrame.size.height;
 
-	TiViewProxy * titleControl = [self valueForKey:@"titleControl"];
+    TiViewProxy * titleControl = [self valueForKey:@"titleControl"];
 
-	UIView * oldView = [ourNavItem titleView];
-	if ([oldView isKindOfClass:[TiUIView class]])
-	{
-		TiViewProxy * oldProxy = (TiViewProxy *)[(TiUIView *)oldView proxy];
-		if (oldProxy == titleControl)
-		{
-			return;	//No need to update?
-		}
-		[oldProxy removeBarButtonView];
-	}
+    UIView * oldView = [ourNavItem titleView];
+    if ([oldView isKindOfClass:[TiUIView class]]) {
+        TiViewProxy * oldProxy = (TiViewProxy *)[(TiUIView *)oldView proxy];
+        if (oldProxy == titleControl) {
+            //resize titleControl
+            CGRect barBounds;
+            barBounds.origin = CGPointZero;
+            barBounds.size = SizeConstraintViewWithSizeAddingResizing(titleControl.layoutProperties, titleControl, availableTitleSize, NULL);
+            
+            [oldView setBounds:barBounds];
+            [oldView setAutoresizingMask:UIViewAutoresizingNone];
+            
+            //layout the titleControl children
+            [titleControl layoutChildren:NO];
+            
+            return;
+        }
+        [oldProxy removeBarButtonView];
+    }
 
 	if ([titleControl isKindOfClass:[TiViewProxy class]])
 	{
-		newTitleView = [titleControl barButtonViewForSize:[TiUtils navBarTitleViewSize]];
+		newTitleView = [titleControl barButtonViewForSize:availableTitleSize];
 	}
 	else
 	{
@@ -558,8 +613,10 @@
 		}
 	}
 
-	[ourNavItem setTitleView:newTitleView];
-    [self updateBarImage];
+    if (oldView != newTitleView) {
+        [ourNavItem setTitleView:newTitleView];
+    }
+	[self updateBarImage];
 }
 
 
@@ -737,7 +794,6 @@ else{\
 - (void)viewDidDisappear:(BOOL)animated;  // Called after the view was dismissed, covered or otherwise hidden. Default does nothing
 {
 	animating = NO;
-	[self updateTitleView];
 	[super viewDidDisappear:animated];
 }
 

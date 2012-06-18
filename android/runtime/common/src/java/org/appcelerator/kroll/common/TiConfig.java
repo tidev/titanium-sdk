@@ -18,6 +18,14 @@ import android.util.Config;
  */
 public class TiConfig
 {
+	/**
+	* Whether or not debug logging has been enabled by the Titanium application. This is normally set in the application's <code>tiapp.xml</code> with the 
+	* <code>ti.android.debug</code> property:
+	* <pre>
+	* &lt;property name="ti.android.debug" type="bool"&gt;true&lt;/property&gt;
+	* </pre>
+	* @module.api
+	*/
 	public static boolean LOGD = Config.DEBUG;
 	public static boolean LOGV = Config.DEBUG;
 	public static boolean DEBUG = Config.DEBUG;

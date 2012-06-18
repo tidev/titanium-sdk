@@ -68,7 +68,6 @@ run_drillbit = "drillbit" in COMMAND_LINE_TARGETS or ARGUMENTS.get("drillbit",0)
 if clean and os.path.exists('iphone/iphone/build'):
 	shutil.rmtree('iphone/iphone/build')
 
-# TEMP until android is merged
 build_type = 'full'
 build_dirs = ['iphone', 'android', 'mobileweb']
 force_iphone = False
@@ -93,7 +92,7 @@ if ARGUMENTS.get('force_iphone',0):
 
 if ARGUMENTS.get('COMPILER_FLAGS', 0):
 	flags = ARGUMENTS.get('COMPILER_FLAGS')
-
+	
 env = Environment()
 Export("env cwd version")
 if build_type in ['full', 'android'] and not only_package:
@@ -101,6 +100,8 @@ if build_type in ['full', 'android'] and not only_package:
 	os.chdir('android')
 	try:
 		sdk = AndroidSDK(ARGUMENTS.get("android_sdk", None), 8)
+		build_x86 = int(ARGUMENTS.get('build_x86', 1))
+		
 		# TODO re-enable javadoc targets = ["full.build", "build.titanium.javadoc"]
 		targets = ["full.build"]
 		if clean: targets = ["clean"]
@@ -110,7 +111,7 @@ if build_type in ['full', 'android'] and not only_package:
 
 		ant.build(targets=targets, properties={"build.version": version, "build.githash": githash,
 			"android.sdk": sdk.get_android_sdk(), "android.platform": sdk.get_platform_dir(), "google.apis": sdk.get_google_apis_dir(),
-			"ndk.build.args": "JAVAH=%s" % javah_path })
+			"ndk.build.args": "JAVAH=%s" % javah_path, "kroll.v8.build.x86": build_x86 })
 	finally:
 		os.chdir(d)
 

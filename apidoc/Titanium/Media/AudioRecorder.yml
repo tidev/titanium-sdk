@@ -1,31 +1,54 @@
 ---
 name: Titanium.Media.AudioRecorder
-summary: The AudioRecorder object is returned by <Titanium.Media.createAudioRecorder> and is used for recording audio from the device microphone.
+summary: An audio recorder object used for recording audio from the device microphone.
+description: |
+    Use the <Titanium.Media.createAudioRecorder> method to create an audio recorder. 
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]
 methods:
+
   - name: pause
-    summary: called to temporarily pause recording
+    summary: Pauses the current audio recording.
+
   - name: resume
-    summary: called to resume audio recording
+    summary: Resumes a paused recording.
+
   - name: start
-    summary: called to start recording audio
+    summary: Starts an audio recording.
+
   - name: stop
-    summary: called to stop recording audio
+    summary: Stops the current audio recording and returns the recorded audio file.
+    returns:
+        type: Titanium.Filesystem.File
+
 properties:
+
   - name: compression
-    summary: audio compression constant to be used for the recording
+    summary: Audio compression to be used for the recording.
+    description: |
+        Specify one of the `AUDIO_FORMAT_` constants from <Titanium.Media>.
     type: Number
+    default: <Titanium.Media.AUDIO_FORMAT_LINEAR_PCM>
+
   - name: format
-    summary: audio format constant for used for the recording
+    summary: Audio format to be used for the recording.
+    description: |
+        Specify one of the `AUDIO_FILEFORMAT_` constants from <Titanium.Media>.
     type: Number
+    default: <Titanium.Media.AUDIO_FILEFORMAT_CAF>
+
   - name: paused
-    summary: readonly property to indicate if paused
+    summary: Indicates if the audio recorder is paused.
     type: Boolean
+    permission: read-only
+
   - name: recording
-    summary: readonly property to indicate if recording
+    summary: Indicates if the audio recorder is recording.
     type: Boolean
+    permission: read-only
+
   - name: stopped
-    summary: readonly property to indicate if stopped
+    summary: Indicates if the audio recorder is stopped.
     type: Boolean
+    permission: read-only

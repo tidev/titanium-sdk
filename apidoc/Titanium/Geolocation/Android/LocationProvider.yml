@@ -1,0 +1,26 @@
+---
+name: Titanium.Geolocation.Android.LocationProvider
+summary: Represents a source of location information, such as GPS.
+description: |
+    See <Titanium.Geolocation.Android> for details on using `LocationProviders` to 
+    manually configure location updates.
+extends: Titanium.Proxy
+since: "2.0.0"
+properties:
+  - name: name
+    summary: |
+        Type of location provider: [PROVIDER_GPS](Titanium.Geolocation.PROVIDER_GPS), 
+        [PROVIDER_NETWORK](Titanium.Geolocation.PROVIDER_NETWORK), or 
+        [PROVIDER_PASSIVE](Titanium.Geolocation.PROVIDER_PASSIVE).
+    type: String
+    optional: false
+        
+  - name: minUpdateTime
+    summary: Limits the frequency of location updates to no more than one per `minUpdateTime` seconds.
+    type: Number
+    
+  - name: minUpdateDistance
+    summary: |
+        Don't send a location update unless the location has changed at least `minUpdateDistance` 
+        meters since the previous update.
+    type: Number

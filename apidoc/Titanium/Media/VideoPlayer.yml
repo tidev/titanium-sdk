@@ -1,225 +1,677 @@
 ---
 name: Titanium.Media.VideoPlayer
-summary: The VideoPlayer object is returned by <Titanium.Media.createVideoPlayer> and is useful for playing videos.
+summary: A native control for playing videos.
+description: | 
+    The video player is a native view that can be used to play videos, either stored
+    locally or streamed from a web server. The player can occupy the full screen, or can
+    be used as a view that can be added to other views.
+
+    Use the <Titanium.Media.createVideoPlayer> method to create a video player.
+
+    #### Platform Implementation Notes
+
+    All platforms support specifying the video content as a URL, either to a local file or
+    a remote stream. This is done by setting the [url](Titanium.Media.VideoPlayer.url) property.
+
+    On iOS, video content can also be specified as a [Blob](Titanium.Blob) or
+    [File](Titanium.Filesystem.File) object using the
+    [media](Titanium.Media.VideoPlayer.media) property.
+
+    On iOS, a video player can dynamically switch back and forth between fullscreen mode
+    and standard mode. If the native video controls are displayed, the user can use them
+    to switch between standard and fullscreen mode. 
+
+    On Android, the video player cannot switch modes. To create a fullscreen player, you
+    must specify `fullscreen: true` when you create the player. This fullscreen player
+    creates its own Android [Activity](Titanium.Android.Activity) on top of the activity stack.
+    Unlike a normal view, this fullscreen video player appears as soon as it is created. 
+    The user can close the player by pressing the **Back** button. See the code examples for 
+    a sample using the fullscreen player on Android.
+
+    There are several known issues with clipping on the Android video player. 
+
+    * When used with `scalingMode` set to VIDEO_SCALING_ASPECT_FILL or VIDEO_SCALING_NONE,
+      the video content is not correctly clipped to the boundaries of the view.  
+      ([TIMOB-7628](https://jira.appcelerator.org/browse/TIMOB-7628))
+
+    * When a border is set on the view, the video content does not take the border width
+      into account, so the video content covers the border.
+      ([TIMOB-7628](https://jira.appcelerator.org/browse/TIMOB-7628))
+
+    * If a borderRadius is specified, the video content is not clipped to the rounded
+      corners. ([TIMOB-7629](https://jira.appcelerator.org/browse/TIMOB-7629))
+      
+
 extends: Titanium.UI.View
+excludes: { events: ['pinch', 'longclick', 'twofingertap'] }
 since: "0.9"
+examples: 
+  - title: Simple Video Player Example
+    example: |
+        The following code creates a simple video player to play a local video file.
+
+            var vidWin = Titanium.UI.createWindow({
+                title : 'Video View Demo',
+                backgroundColor : '#fff'
+            });
+            
+            var videoPlayer = Titanium.Media.createVideoPlayer({
+                top : 2,
+                autoplay : true,
+                backgroundColor : 'blue',
+                height : 300,
+                width : 300,
+                mediaControlStyle : Titanium.Media.VIDEO_CONTROL_DEFAULT,
+                scalingMode : Titanium.Media.VIDEO_SCALING_ASPECT_FIT
+            });
+            
+            videoPlayer.url = 'movie.mp4';
+            vidWin.add(videoPlayer);
+            vidWin.open();
+
+  - title: Android Fullscreen Video Player
+    example: |
+        The Android fullscreen video player operates differently from other video players.
+        The following example shows how to create, show, and close a fullscreen video
+        player. 
+        
+        Note that in this example, a button is included to close the player, to
+        demonstrate a method for dismissing the player programmatically. In practice, the user
+        can always dismiss the player by using the **Back** button, so an on-screen
+        control would not be required.
+        
+            Titanium.UI.setBackgroundColor('#000');
+            var win = Titanium.UI.createWindow({
+                title : 'Test',
+                backgroundColor : '#fff',
+                exitOnClose : true
+            });
+            
+            // Change to a valid URL
+            var contentURL = "http://www.example.com/stream.mp4";
+            
+            var openButton = Ti.UI.createButton({
+                title : "Start Video",
+                top : "0dp",
+                height : "40dp",
+                left : "10dp",
+                right : "10dp"
+            });
+            
+            openButton.addEventListener('click', function() {
+                var activeMovie = Titanium.Media.createVideoPlayer({
+                    url : contentURL,
+                    backgroundColor : 'blue',
+                    movieControlMode : Titanium.Media.VIDEO_CONTROL_DEFAULT,
+                    scalingMode : Titanium.Media.VIDEO_SCALING_ASPECT_FILL,
+                    fullscreen : true,
+                    autoplay : true
+                });
+            
+                var closeButton = Ti.UI.createButton({
+                    title : "Exit Video",
+                    top : "0dp",
+                    height : "40dp",
+                    left : "10dp",
+                    right : "10dp"
+                });
+            
+                closeButton.addEventListener('click', function() {
+                    activeMovie.hide();
+                    activeMovie.release();
+                    activeMovie = null;
+                });
+                
+                activeMovie.add(closeButton);
+            });
+            win.add(openButton);
+            win.open();
+
+
 methods:
+
   - name: cancelAllThumbnailImageRequests
     summary: Cancels all pending asynchronous thumbnail requests.
+    description: |
+        Asynchronous thumbnail requests initiated with 
+        [requestThumbnailImagesAtTimes](Titanium.Media.VideoPlayer.requestThumbnailImagesAtTimes).
     platforms: [iphone, ipad]
+
   - name: pause
-    summary: pause playing the video.
+    summary: Pauses playing the video.
+
   - name: play
-    summary: start playing the video
+    summary: Starts playing the video.
+
   - name: release
-    summary: release the internal video resources immediately.  this is not usually necessary but can help if you no longer need to use the player after it is used to help converse memory.
+    summary: Releases the internal video resources immediately.  
+    description: |
+        This is not usually necessary but can help if you no longer need to use the player after 
+        it is used to help converse memory.
+
   - name: requestThumbnailImagesAtTimes
-    summary: Asynchronously request thumbnails for one or more times, provided as an array of numbers (double). Fires a `thumbnail` event on completion. Optionally invokes the callback function passed in the method.
+    summary: Asynchronously request thumbnail images for one or more points in time in the video.
+    description: |
+        The `times` parameter specifies an array of time values, in
+        **seconds**. For each time value, the platform generates an image 
+        representing the video at that point in time.
+        
+        The callback function is invoked when a thumbnail is available.
+        
+        Calling this method will cancel all pending asynchronous thumbnail requests.
+
     platforms: [iphone, ipad]
     parameters:
       - name: times
-        summary: array of doubles for each time to request
-        type: Array<Object>
+        summary: Array of time values, representing offsets into the video, in seconds.
+        type: Array<Number>
       - name: option
-        summary: either <Titanium.Media.VIDEO_TIME_OPTION_NEAREST_KEYFRAME> or <Titanium.Media.VIDEO_TIME_OPTION_EXACT>.
+        summary: |
+            Either <Titanium.Media.VIDEO_TIME_OPTION_NEAREST_KEYFRAME> or 
+            <Titanium.Media.VIDEO_TIME_OPTION_EXACT>.
         type: Number
+      - name: callback
+        summary: Callback to invoke when a thumbnail is available.
+        type: Callback<ThumbnailResponse>
+
   - name: setBackgroundView
-    summary: A view for customization which is always displayed behind movie content.
+    summary: Sets the background view for customization which is always displayed behind movie content.
+    description: |
+        To create a background behind the movie content on iOS, you can specify a 
+        background view. On iOS, you can set the `backgroundColor` property directly on
+        the video player, but not a background image or background gradient. For this kind
+        of effect, specify a background view. 
+        
+        Note that the background view must be sized explicitly: percentage sizes do not work properly.
+
+        The following code sample creates a video player with a background image:
+
+            var videoPlayer = Titanium.Media.createVideoPlayer({
+                height : 300,
+                width : 300,
+                backgroundView : Ti.UI.createView({
+                    backgroundImage: 'videoPlayerBG.png
+                    width : 300,
+                    height : 300
+                })
+                borderRadius : 20,
+                borderWidth : 2,
+                borderColor : 'blue',
+            });
+
+        Note that if [scalingMode](Titanium.Media.VideoPlayer.scalingMode) is set to 
+        [VIDEO_SCALING_MODE_FILL](Titanium.Media.VIDEO_SCALING_MODE_FILL) or 
+        [VIDEO_SCALING_ASPECT_FILL](Titanium.Media.VIDEO_SCALING_ASPECT_FILL),
+        the playing video will fill the entire video player area, obscuring any background
+        view.
     platforms: [iphone, ipad]
     parameters:
+
       - name: view
-        summary: view to set
-        type: Object
-  - name: setMedia
-    summary: the a non-url based media to play, either a File or Blob.
-    platforms: [iphone, ipad]
-    parameters:
-      - name: media
-        summary: media to play
-        type: Object
+        summary: View to set.
+        type: Titanium.UI.View
+
   - name: stop
-    summary: stop playing the video
+    summary: Stops playing the video.
+
   - name: thumbnailImageAtTime
-    summary: Returns a thumbnail at the given time as a blob.
+    summary: Returns a thumbnail image for the video at the specified time.
     platforms: [iphone, ipad]
     returns:
-        type: Object
+        type: Titanium.Blob
     parameters:
+
       - name: time
-        summary: playback time
+        summary: Playback time, in **seconds**.
         type: Number
+
       - name: option
-        summary: either <Titanium.Media.VIDEO_TIME_OPTION_NEAREST_KEYFRAME> or <Titanium.Media.VIDEO_TIME_OPTION_EXACT>
+        summary: |
+            Either <Titanium.Media.VIDEO_TIME_OPTION_NEAREST_KEYFRAME> or
+            <Titanium.Media.VIDEO_TIME_OPTION_EXACT>.
         type: Number
+
 events:
+
   - name: complete
-    summary: fired when movie playback ends or a user exits playback
+    summary: Fired when movie playback ends or a user exits playback.
+    description: |
+        On iOS, the `reason` property is only included if this information is available.
     properties:
       - name: reason
-        summary: the completion reason. One of <Titanium.Media.VIDEO_FINISH_REASON_PLAYBACK_ENDED>, <Titanium.Media.VIDEO_FINISH_REASON_PLAYBACK_ERROR> or <Titanium.Media.VIDEO_FINISH_REASON_USER_EXITED>.
+        summary: |
+            Reason that playback ended, one of:
+            [VIDEO_FINISH_REASON_PLAYBACK_ENDED](Titanium.Media.VIDEO_FINISH_REASON_PLAYBACK_ENDED),
+            [VIDEO_FINISH_REASON_PLAYBACK_ERROR](Titanium.Media.VIDEO_FINISH_REASON_PLAYBACK_ERROR), or 
+            [VIDEO_FINISH_REASON_USER_EXITED](Titanium.Media.VIDEO_FINISH_REASON_USER_EXITED).
+        type: Number
+
   - name: durationAvailable
-    summary: fired when the duration is available
+    summary: Fired when the video duration is available.
     properties:
       - name: duration
-        summary: duration
+        summary: Video duration, in milliseconds.
+        type: Number
+
   - name: error
-    summary: fired when movie playback encounters an error
+    summary: Fired when movie playback encounters an error.
     properties:
       - name: message
-        summary: reason for error as string
+        summary: Reason for error as a string.
+        type: String
+    platforms: [android, mobileweb]
+
   - name: fullscreen
-    summary: fired when a movie changes from fullscreen view
+    summary: Fired when a movie changes to or from fullscreen view.
+    description: |
+        On iOS, this event is fired at the beginning of the transition to 
+        fullscreen mode. A `duration` property is provided, indicating the duration
+        of the animated transition to or from fullscreen mode.
     platforms: [iphone, ipad, mobileweb]
     properties:
+
       - name: entering
-        summary: true to indicate entering fullscreen, false to indicate leaving fullscreen
+        summary: |
+            `true` if the player is entering fullscreen mode, `false` if it is leaving
+            fullscreen mode.
+        type: Boolean
+
+      - name: duration
+        summary: Duration of the animated transition to or from fullscreen mode, in seconds.
+        type: Number
+        platforms: [iphone, ipad]
+        
+
   - name: load
-    summary: fired when the movie play loads
+    summary: Fired when the movie play loads.
+
   - name: loadstate
-    summary: fired when the network loadState changes
+    summary: |
+        Fired when the network [loadState](Titanium.Media.VideoPlayer.loadState) changes.
     properties:
       - name: loadState
-        summary: loadState
+        summary: Current value of the [loadState](Titanium.Media.VideoPlayer.loadState) property.
         type: Number
+
   - name: mediaTypesAvailable
-    summary: fired when the media types is available
+    summary: Fired when the media types in the current movie are determined.
     platforms: [iphone, ipad]
     properties:
       - name: mediaTypes
-        summary: media types
+        summary: Current value of the [mediaTypes](Titanium.Media.VideoPlayer.mediaTypes) property.
+        type: Number
+
   - name: naturalSizeAvailable
-    summary: fired when the natural size is available
+    summary: Fired when the natural size of the current movie is determined.
     platforms: [iphone, ipad]
     properties:
       - name: naturalSize
-        summary: natural size as a dictionary. see `naturalSize` property.
+        summary: Current value of the [naturalSize](Titanium.Media.VideoPlayer.naturalSize) property.
+        type: Number
+
   - name: playbackState
-    summary: fired when the playbackState changes
+    summary: Fired when the [playbackState](Titanium.Media.VideoPlayer.playbackState) changes.
     properties:
       - name: playbackState
-        summary: playback state, such as <Titanium.Media.VIDEO_PLAYBACK_STATE_PLAYING>.
+        summary: |
+            Current value of the [playbackState](Titanium.Media.VideoPlayer.playbackState) property, 
+            such as <Titanium.Media.VIDEO_PLAYBACK_STATE_PLAYING>.
         type: Number
+
   - name: playing
-    summary: fired when the currently playing movie changes
+    summary: Fired when the currently playing movie changes.
     platforms: [iphone, ipad, mobileweb]
     properties:
       - name: url
-        summary: url of the media
+        summary: URL of the media.
         type: String
+
   - name: preload
-    summary: fired when the movie has preloaded and is ready to play
+    summary: Fired when the movie has preloaded and is ready to play.
+    platforms: [android, mobileweb]
+
   - name: resize
-    summary: fired when the movie player is resized
+    summary: Fired when the movie player is resized.
     platforms: [iphone, ipad]
+
   - name: sourceChange
-    summary: fired when the movieSourceType is <Titanium.Media.VIDEO_SOURCE_TYPE_UNKNOWN> when preparing for playback.
+    summary: |
+        Fired when the [sourceType](Titanium.Media.VideoPlayer.sourceType) property
+        changes.
     platforms: [iphone, ipad]
     properties:
-      - name: sourceChange
-        summary: the new sourceType
-  - name: thumbnail
-    summary: fired when a movie thumbnail is available from `requestThumbnailImagesAtTimes`
-    platforms: [iphone, ipad]
+      - name: sourceType
+        summary: New `sourceType` value.
+
+  - name: click
+    summary: Fired when the device detects a click against the view.
+    description: |
+        There is a subtle difference between singletap and click events.
+
+        A singletap event is generated when the user taps the screen briefly
+        without moving their finger. This gesture will also generate a click event.
+
+        However, a click event can also be generated when the user touches, 
+        moves their finger, and then removes it from the screen.
+
+        On Android, a click event can also be generated by a trackball click.
     properties:
-      - name: success
-        summary: boolean to indicate success or failure
-      - name: image
-        summary: blob of the thumbnail image
-      - name: time
-        summary: time
-      - name: error
-        summary: if success is `false`, error message as string for reason
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+      - name: x
+        type: Number
+        summary: X coordinate of the event from the `source` view's coordinate system.
+    platforms: [android, mobileweb]
+
+  - name: singletap
+    summary: Fired when the device detects a single tap against the view.
+    properties:
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+      - name: x
+        type: Number
+        summary: X coordinate of the event from the `source` view's coordinate system.
+    platforms: [android, mobileweb]
+
+  - name: touchcancel
+    summary: Fired when a touch event is interrupted by the device.
+    description: |
+        A touchcancel can happen in circumstances such as an incoming call to allow the 
+        UI to clean up state.
+    properties:
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+      - name: x
+        type: Number
+        summary: X coordinate of the event from the `source` view's coordinate system.
+    platforms: [android, mobileweb]
+    
+  - name: touchend
+    summary: Fired when a touch event is completed.
+    properties:
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+      - name: x
+        type: Number
+        summary: X coordinate of the event from the `source` view's coordinate system.
+    platforms: [android, mobileweb]
+    
+  - name: touchmove
+    summary: Fired as soon as the device detects movement of a touch.
+    description: |
+        Event coordinates are always relative to the view in which the initial touch occurred
+    properties:
+      - name: y
+        summary: Y coordinate of the event from the `source` view's coordinate system.
+        type: Number
+      - name: x
+        type: Number
+        summary: X coordinate of the event from the `source` view's coordinate system.
+    platforms: [android, mobileweb]
 
 properties:
+
   - name: allowsAirPlay
-    summary: Whether or not the movie can be played on a remote device.
+    summary: Whether or not the current movie can be played on a remote device.
     type: Boolean
     platforms: [iphone, ipad]
     osver:
         ios:
             min: "4.3"
+
   - name: autoplay
-    summary: indicates if a movie should automatically start playback when it is likely to finish uninterrupted based on e.g. network conditions. Defaults to true.
+    summary: Indicates if a movie should automatically start playback.
+    description: |
+        On iOS, playback starts automatically if `autoplay` is `true` *and* the movie is likely to 
+        finish uninterrupted. The OS determines whether the movie is likely to finish
+        uninterrupted based on factors including the bit rate of the movie and network
+        conditions (if the movie is being streamed from a remote source).
     type: Boolean
+    default: true
+
   - name: contentURL
-    summary: use url property instead.
+    summary: Use the [url](Titanium.Media.VideoPlayer.url) property instead.
     type: String
     deprecated:
         since: "1.4.0"
+
   - name: currentPlaybackTime
-    summary: the current playback time of the now playing item in seconds.
+    summary: Current playback time of the current movie in milliseconds.
     type: Number
+    permission: read-only
+
   - name: duration
-    summary: The duration of the movie, or 0.0 if not known.
+    summary: The duration of the current movie in milliseconds, or 0.0 if not known.
+    description: |
+        The duration of the movie may not be available when playback is started. The
+        [durationAvailable](Titanium.Media.VideoPlayer.durationAvailable) event is 
+        fired when the duration is known.
     type: Number
+
   - name: endPlaybackTime
-    summary: The end time of movie playback. Defaults to NaN in iOS, which indicates natural end time of the movie. On Android, this is always the same as `duration` (the natural end time) and there is no effect if you change the value.
+    summary: The end time of movie playback, in milliseconds.
+    description: |
+        On iOS, defaults to NaN, which indicates natural end time of the movie.
+        Changing the value to a value less than `duration` causes the movie to 
+        stop playing at the specified point. On iOS, this value is not applicable to
+        streaming media, so NaN is returned if the current media is being streamed.
+        
+        On Android, this is always the same as `duration` (the natural end time),
+        and changing the value has no effect.
     type: Number
+
   - name: fullscreen
     summary: |
-        Determines if the movie is presented in the entire screen (obscuring all other application content). Default is false. In iOS, setting this property to true before the movie player's view is visible will have no effect.  In Android, setting this value to true means that the video will have its own Android Activity rather than being embedded as a view.  In Android, this property is only relevant at creation time (e.g., `createVideoPlayer({fullscreen: true})`).
+        Determines if the movie is presented in the entire screen (obscuring all other application content). 
+    description: |
+        Note that this must be set at different times on different platforms:
+
+        On iOS, setting this property to `true` before the movie player's view is visible
+        has no effect. 
+        
+        On Android, this property must be set at creation time. For example:
+
+            var player = Ti.Media.createVideoPlayer({fullscreen: true});
+
+        On Android, setting this value to `true` means that the video will have its own Android Activity 
+        rather than being embedded as a view. 
     type: Boolean
+    default: false
+
   - name: initialPlaybackTime
-    summary: The start time of movie playback. Defaults to NaN in iOS and 0 in Android, indicating the natural start time of the movie.
+    summary: The start time of movie playback, in milliseconds.
+    description: |
+        Defaults to NaN in iOS and 0 in Android, indicating the natural start time of the movie.
     type: Number
+
   - name: loadState
     summary: Returns the network load state of the movie player.
     type: Number
     permission: read-only
+
   - name: media
-    summary: the media object, either a File or Blob.
+    summary: Media object to play, as either a `File`,  a `Blob`, or a URL.
     platforms: [iphone, ipad]
-    type: Object
+    type: [Titanium.Blob, Titanium.Filesystem.File, String]
+    permission: write-only
+
   - name: mediaControlStyle
     summary: The style of the playback controls.
     description: |
-        Defaults to <Titanium.Media.VIDEO_CONTROL_DEFAULT>. Mobile web only supports <Titanium.Media.VIDEO_CONTROL_NONE> and <Titanium.Media.VIDEO_CONTROL_DEFAULT>.
+        Specify one of the `VIDEO_CONTROL` constants from <Titanium.Media>.
+
+        Mobile web only supports <Titanium.Media.VIDEO_CONTROL_NONE> and 
+        <Titanium.Media.VIDEO_CONTROL_DEFAULT>.
     type: Number
+    default: System default video controls (<Titanium.Media.VIDEO_CONTROL_DEFAULT>).
+
   - name: mediaTypes
     summary: The types of media in the movie, or <Titanium.Media.VIDEO_MEDIA_TYPE_NONE> if not known.
+    description: |
+        A movie can contain video
+        ([VIDEO_MEDIA_TYPE_VIDEO](Titanium.Media.VIDEO_MEDIA_TYPE_VIDEO)), 
+        audio, ([VIDEO_MEDIA_TYPE_AUDIO](Titanium.Media.VIDEO_MEDIA_TYPE_AUDIO)), or both.
+
+        A movie with both audio and video media is represented by a bitwise OR of the two
+        constants:
+
+            Titanium.Media.VIDEO_MEDIA_TYPE_VIDEO|Titanium.Media.VIDEO_MEDIA_TYPE_AUDIO
     platforms: [iphone, ipad]
     type: Number
+
   - name: movieControlMode
-    summary: deprecated in 3.2+ of the iPhone SDK - use `mediaControlStyle`. Provides the ability to set the control mode of the movie player. Defaults to <Titanium.Media.VIDEO_CONTROL_DEFAULT>.
+    summary: Use `mediaControlStyle` instead.
+    description: |
+        Provides the ability to set the control mode of the movie player. 
     platforms: [iphone, ipad]
     type: Number
+    default: <Titanium.Media.VIDEO_CONTROL_DEFAULT>
     osver:
         ios:
             max: "3.1"
     deprecated: {since: "1.8.0", removed: "1.9.0"}
+
   - name: naturalSize
-    summary: returns a dictionary with properties `width` and `height`. Returns the natural size of the movie or 0 for both properties if not known or applicable.
+    summary: Returns the natural size of the movie.
+    description: |
+        Returns a dictionary with properties `width` and `height`. Returns 0 for both properties if not 
+        known or applicable. 
+
+        The [naturalSizeAvailable](Titanium.Media.VideoPlayer.naturalSizeAvailable) event is
+        fired when the natural size is known.
     platforms: [iphone, ipad]
-    type: Object
+    type: MovieSize
+
   - name: playableDuration
-    summary: The currently playable duration of the movie, for progressively downloaded network content. On Android, this is always the same as `duration`.
+    summary: The currently playable duration of the movie, for progressively downloaded network content. 
+    description: |
+        On Android, this is always the same as `duration`.
     type: Number
     permission: read-only
+
   - name: playbackState
-    summary: Returns the current playback state of the music player
+    summary: Current playback state of the video player.
+    description: |
+        One of the `VIDEO_PLAYBACK_STATE` constants defined in <Titanium.Media>.
     type: Number
     permission: read-only
+
   - name: playing
     summary: Boolean to indicate if the player has started playing.
     type: Boolean
     permission: read-only
+
   - name: repeatMode
-    summary: Determines how the movie player repeats when reaching the end of playback. Defaults to <Titanium.Media.VIDEO_REPEAT_MODE_NONE>.
+    summary: Determines how the movie player repeats when reaching the end of playback. 
+    description: |
+        Specify [VIDEO_REPEAT_MODE_NONE](Titanium.Media.VIDEO_REPEAT_MODE_NONE) to disable
+        repeat, or [VIDEO_REPEAT_MODE_ONE](Titanium.Media.VIDEO_REPEAT_MODE_ONE) to repeat
+        a single video continuously.
     platforms: [iphone, ipad, mobileweb]
     type: Number
+    default: Titanium.Media.VIDEO_REPEAT_MODE_NONE
+
   - name: scalingMode
     summary: Determines how the content scales to fit the view.
     description: |
-        Defaults to <Titanium.Media.VIDEO_SCALING_ASPECT_FIT>. Mobile web only supports <Titanium.Media.VIDEO_SCALING_NONE> and <Titanium.Media.VIDEO_SCALING_ASPECT_FIT>.
+        Mobile web only supports 
+        <Titanium.Media.VIDEO_SCALING_NONE> and <Titanium.Media.VIDEO_SCALING_ASPECT_FIT>.
     type: Number
+    default: <Titanium.Media.VIDEO_SCALING_ASPECT_FIT>
+
   - name: sourceType
-    summary: The playback type of the movie. Defaults to <Titanium.Media.VIDEO_SOURCE_TYPE_UNKNOWN>. Specifying a playback type before playing the movie can result in faster load times.
+    summary: The playback type of the movie. 
+    description: |
+        One of: [VIDEO_SOURCE_TYPE_FILE](Titanium.Media.VIDEO_SOURCE_TYPE_FILE), 
+        [VIDEO_SOURCE_TYPE_STREAMING](Titanium.Media.VIDEO_SOURCE_TYPE_STREAMING), or
+        [VIDEO_SOURCE_TYPE_UNKNOWN](Titanium.Media.VIDEO_SOURCE_TYPE_UNKNOWN).
+
+        Specifying a playback type before playing the movie can result in faster load times.
+
+        The [sourceChange](Titanium.Media.VideoPlayer.sourceChange) event is fired when
+        movie's source type is determined.
     platforms: [iphone, ipad]
     type: Number
+    default: Titanium.Media.VIDEO_SOURCE_TYPE_UNKNOWN
+
   - name: url
-    summary: url of the media to play.
-    type: String
+    summary: URL of the media to play.
+    description: |
+        URL identifying a local or remote video to play.
+        
+        On Mobile Web, video format support depends on the web browser. You can specify an
+        array of URLs to videos of different formats. The web browser will select the first
+        video URL in the array that it is able to play. This is not supported on iOS and Android.
+    type: [String, Array<String>]
+
   - name: useApplicationAudioSession
-    summary: Indicates if the movie player should inherit the application's audio session instead of creating a new session (which would interrupt the application's session). Defaults to true. Setting this property during playback will not take effect until playback is stopped and started again.
+    summary: |
+        Indicates if the movie player should inherit the application's audio session
+        instead of creating a new session. 
+    description: |
+        Creating a new session interrupts the application's session.
+
+        Setting this property during playback will not take effect until playback is stopped 
+        and started again.
     platforms: [iphone, ipad]
     type: Boolean
+    default: true
+
+  - name: volume
+    summary: |
+        Volume of the audio portion of the video. 
+    description: |
+        On iOS, this adjusts the volume of the application's session as well, and will
+        not work if useApplicationAudioSession has been set false. On the iOS device,
+        setting this will be accompanied by an OS-provided indicator. However, the iOS
+        simulator does not honor this volume setting, and is a known issue with Apple's
+        simulator.
+    platforms: [iphone, ipad]
+    type: Number
+    default: 1.0
+    since: "2.1"
+
+---
+name: ThumbnailResponse
+summary: |
+    Simple object passed to the thumbnail callback in response to the
+    [requestThumbnailImagesAtTimes](Titanium.Media.VideoPlayer.requestThumbnailImagesAtTimes)
+    method.
+description: |
+    The callback is invoked when a movie thumbnail is available.
+platforms: [iphone, ipad]
+properties:
+  - name: success
+    summary: Boolean to indicate success or failure.
+    type: Boolean
+
+  - name: image
+    summary: Thumbnail image, as a `Blob`.
+    type: Titanium.Blob
+
+  - name: time
+    summary: Time offset for the thumbnail, in seconds.
+    type: Number
+
+  - name: error
+    summary: If `success` is `false`, provides an error message.
+    type: String
+
+
+---
+name: MovieSize
+summary: Simple object used to describe the size of a movie.
+platforms: [iphone, ipad]
+properties:
+
+  - name: width
+    summary: Width of the movie.
+    type: Number
+
+  - name: height
+    summary: Height of the movie.
+    type: Number

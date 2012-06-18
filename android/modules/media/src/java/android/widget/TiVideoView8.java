@@ -119,6 +119,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 
 	// TITANIUM
 	private TiPlaybackListener mPlaybackListener;
+	private float mVolume = 1.0f;
 
 	public TiVideoView8(Context context)
 	{
@@ -321,6 +322,17 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 		invalidate();
 	}
 
+	/*
+	 * TITANIUM: Allow setting player volume level.
+	 */
+	public void setVolume(float volume)
+	{
+		mVolume = Math.min(Math.max(volume, 0.0f), 1.0f);
+		if (mMediaPlayer != null) {
+			mMediaPlayer.setVolume(mVolume, mVolume);
+		}
+	}
+
 	public void stopPlayback()
 	{
 		if (mMediaPlayer != null) {
@@ -424,6 +436,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 			mMediaPlayer.setScreenOnWhilePlaying(true);
 			mMediaPlayer.prepareAsync();
+			mMediaPlayer.setVolume(mVolume, mVolume);
 			// we don't set the target state here either, but preserve the
 			// target state that was there before.
 			mCurrentState = STATE_PREPARING;

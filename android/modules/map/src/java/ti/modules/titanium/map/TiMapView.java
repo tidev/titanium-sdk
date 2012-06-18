@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -28,6 +28,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.map.MapRoute.RouteOverlay;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -95,6 +96,7 @@ public class TiMapView extends TiUIView
 	private MyLocationOverlay myLocation;
 	private TiOverlayItemView itemView;
 	private ArrayList<AnnotationProxy> annotations;
+	private ArrayList<MapRoute> routes;
 	private ArrayList<SelectedAnnotation> selectedAnnotations;
 	private Handler handler;
 
@@ -159,15 +161,23 @@ public class TiMapView extends TiUIView
 		}
 	}
 
+	
 	class TitaniumOverlay extends ItemizedOverlay<TiOverlayItem>
 	{
 		ArrayList<AnnotationProxy> annotations;
 		TitaniumOverlayListener listener;
+		Drawable defaultMarker;
 
 		public TitaniumOverlay(Drawable defaultDrawable, TitaniumOverlayListener listener)
 		{
 			super(defaultDrawable);
+			this.defaultMarker = defaultDrawable;
 			this.listener = listener;
+		}
+
+		public Drawable getDefaultMarker()
+		{
+			return defaultMarker;
 		}
 
 		public void setAnnotations(ArrayList<AnnotationProxy> annotations)
@@ -297,7 +307,7 @@ public class TiMapView extends TiUIView
 			return handled;
 		}
 	}
-
+	
 	public static class SelectedAnnotation
 	{
 		String title;
@@ -312,13 +322,14 @@ public class TiMapView extends TiUIView
 		}
 	}
 	
-	public TiMapView(TiViewProxy proxy, Window mapWindow, ArrayList<AnnotationProxy> annotations, ArrayList<SelectedAnnotation>selectedAnnotations)
+	public TiMapView(TiViewProxy proxy, Window mapWindow, ArrayList<AnnotationProxy> annotations, ArrayList<MapRoute> routes, ArrayList<SelectedAnnotation>selectedAnnotations)
 	{
 		super(proxy);
 
 		this.mapWindow = mapWindow;
 		this.handler = new Handler(Looper.getMainLooper(), this);
 		this.annotations = annotations;
+		this.routes = routes;
 		this.selectedAnnotations = selectedAnnotations;
 
 		TiApplication app = TiApplication.getInstance();
@@ -492,7 +503,11 @@ public class TiMapView extends TiUIView
 		if (view != null && itemView != null && item != null) {
 			itemView.setItem(index, item);
 			//Make sure the annotation is always on top of the marker
-			int y = -1*item.getMarker(TiOverlayItem.ITEM_STATE_FOCUSED_MASK).getIntrinsicHeight();
+			Drawable marker = item.getMarker(TiOverlayItem.ITEM_STATE_FOCUSED_MASK);
+			if (marker == null) {
+				marker = overlay.getDefaultMarker();
+			}
+			int y = -1 * marker.getIntrinsicHeight();
 			MapView.LayoutParams params = new MapView.LayoutParams(LayoutParams.WRAP_CONTENT,
 					LayoutParams.WRAP_CONTENT, item.getPoint(), 0, y, MapView.LayoutParams.BOTTOM_CENTER);
 			params.mode = MapView.LayoutParams.MODE_MAP;
@@ -506,6 +521,70 @@ public class TiMapView extends TiUIView
 		handler.obtainMessage(MSG_UPDATE_ANNOTATIONS).sendToTarget();
 	}
 
+	public ArrayList<MapRoute> getRoutes() 
+	{
+		return routes;
+	}
+	
+	public void addRoute(MapRoute mr) 
+	{
+		//check if route exists - by name
+		String rname = mr.getName();
+		for (int i = 0; i < routes.size(); i++) {
+
+			if (rname.equals(routes.get(i).getName())) {
+				return;
+			}
+		}
+		routes.add(mr);
+		ArrayList<RouteOverlay> o = mr.getRoutes();
+		List<Overlay> overlaysList = view.getOverlays();
+		for (int j = 0; j < o.size(); j++) {
+			RouteOverlay ro = o.get(j);
+			if (!overlaysList.contains(ro)) {
+				overlaysList.add(ro);
+			}
+		}
+	}
+
+	public void removeRoute(MapRoute mr)
+	{
+		String rname = mr.getName();
+		for (int i = 0; i < routes.size(); i++) {
+			MapRoute maproute = routes.get(i);
+			if (rname.equals(maproute.getName())) {
+				routes.remove(maproute);
+				ArrayList<RouteOverlay> o = maproute.getRoutes();
+				List<Overlay> overlaysList = view.getOverlays();
+				for (int j = 0; j < o.size(); j++) {
+					RouteOverlay ro = o.get(j);
+					if (overlaysList.contains(ro)) {
+						overlaysList.remove(ro);
+					}
+				}
+				return;
+			}
+		}
+	}
+	
+	public void updateRoute() 
+	{
+		int i = 0;
+		
+		while (i < routes.size()) {
+			MapRoute mr = routes.get(i);
+			ArrayList<RouteOverlay> o = mr.getRoutes();			
+			List<Overlay> overlaysList = view.getOverlays();
+			for (int j = 0; j < o.size(); j++) {
+				RouteOverlay ro = o.get(j);
+				if (!overlaysList.contains(ro)) {
+					overlaysList.add(ro);
+				}
+			}
+			i++;
+		}
+	}
+	
 	public void doUpdateAnnotations()
 	{
 		if (itemView != null && view != null && view.indexOfChild(itemView) != -1 ) {
@@ -570,12 +649,49 @@ public class TiMapView extends TiUIView
 			proxy.setProperty(TiC.PROPERTY_ANNOTATIONS, d.get(TiC.PROPERTY_ANNOTATIONS));
 			Object [] annotations = (Object[]) d.get(TiC.PROPERTY_ANNOTATIONS);
 			for(int i = 0; i < annotations.length; i++) {
-				AnnotationProxy ap = (AnnotationProxy) annotations[i];
-				this.annotations.add(ap);
+				AnnotationProxy ap = annotationProxyForObject(annotations[i]);
+				if (ap != null) {
+					this.annotations.add(ap);
+				}
 			}
 			doSetAnnotations(this.annotations);
 		}
 		super.processProperties(d);
+	}
+	
+	private AnnotationProxy annotationProxyForObject(Object ann)
+	{
+		if (ann == null) {
+			Log.e(LCAT, "unable to create annotation proxy for null object passed in.");
+			return null;
+		}
+		AnnotationProxy annProxy = null;
+		if (ann instanceof AnnotationProxy) {
+			annProxy = (AnnotationProxy) ann;
+			annProxy.setViewProxy((ViewProxy)proxy);
+		}
+		else {
+			KrollDict annotationDict = null;
+			if (ann instanceof KrollDict) {
+				annotationDict = (KrollDict) ann;
+			} else if (ann instanceof HashMap) {
+				annotationDict = new KrollDict((HashMap) ann);
+			}
+			
+			if (annotationDict != null) {
+				annProxy = new AnnotationProxy();
+				annProxy.setCreationUrl(proxy.getCreationUrl().getNormalizedUrl());
+				annProxy.handleCreationDict(annotationDict);
+				annProxy.setActivity(proxy.getActivity());
+				annProxy.setViewProxy((ViewProxy)proxy);
+			}
+		}
+		
+		if (annProxy == null) {
+			Log.e(LCAT, "unable to create annotation proxy for object, likely an error in the type of the object passed in...");
+		}
+		
+		return annProxy;
 	}
 
 	@Override
@@ -737,6 +853,8 @@ public class TiMapView extends TiUIView
 
 	public void doUserLocation(boolean userLocation)
 	{
+		this.userLocation = userLocation;
+
 		if (view != null) {
 			if (userLocation) {
 				if (myLocation == null) {

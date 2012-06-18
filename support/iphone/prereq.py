@@ -4,15 +4,17 @@
 # Check the prerequisites for iPhone development
 #
 
+import os, sys, subprocess, re, types
+import run, tempfile, codecs
+
+template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+sys.path.append(os.path.abspath(os.path.join(template_dir, "..", "common")))
+
 try:
 	import json
 except:
 	import simplejson as json
 
-import os, sys, subprocess, re, types
-import run, tempfile, codecs
-
-template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
 # sort by the latest version first
 def version_sort(a,b):

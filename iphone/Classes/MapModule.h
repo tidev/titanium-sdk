@@ -19,6 +19,11 @@
 @property(nonatomic,readonly) NSNumber *ANNOTATION_GREEN;
 @property(nonatomic,readonly) NSNumber *ANNOTATION_PURPLE;
 
+@property(nonatomic,readonly) NSNumber *ANNOTATION_DRAG_STATE_NONE;
+@property(nonatomic,readonly) NSNumber *ANNOTATION_DRAG_STATE_START;
+@property(nonatomic,readonly) NSNumber *ANNOTATION_DRAG_STATE_DRAG;
+@property(nonatomic,readonly) NSNumber *ANNOTATION_DRAG_STATE_CANCEL;
+@property(nonatomic,readonly) NSNumber *ANNOTATION_DRAG_STATE_END;
 
 @end
 

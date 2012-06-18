@@ -99,10 +99,6 @@ var tableview3 = Titanium.UI.createTableView({
 
 });
 
-win.add(tableview);
-win.add(tableview2);
-win.add(tableview3);
-
 var image1 = tableview.toImage();
 var image2 = tableview2.toImage();
 var image3 = tableview3.toImage();
@@ -114,6 +110,10 @@ var iv3 = Ti.UI.createImageView({image:image3,height:290, width:240});
 tableview.visible = false;
 tableview2.visible = false;
 tableview3.visible = false;
+
+win.add(tableview);
+win.add(tableview2);
+win.add(tableview3);
 
 var scrollView = Titanium.UI.createScrollableView({
 	views:[iv1,iv2,iv3],
