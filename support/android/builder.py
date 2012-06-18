@@ -490,7 +490,7 @@ class Builder(object):
 			'-partition-size',
 			'128' # in between nexusone and droid
 		]
-		emulator_cmd.extend(add_args);
+		emulator_cmd.extend([arg.strip() for arg in add_args if len(arg.strip()) > 0])
 		debug(' '.join(emulator_cmd))
 		
 		p = subprocess.Popen(emulator_cmd)
