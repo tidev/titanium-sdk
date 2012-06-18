@@ -4,7 +4,7 @@
 # Project Compiler
 #
 
-import os, sys, re, shutil, time, run, sgmllib, codecs, tempfile
+import os, sys, re, shutil, time, run, sgmllib, codecs, tempfile, subprocess
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.abspath(os.path.join(template_dir,'..')))
@@ -571,7 +571,8 @@ class Compiler(object):
 			titanium_prep = os.path.abspath(os.path.join(template_dir,'titanium_prep'))
 			cmdargs = [titanium_prep, self.appid, self.assets_dir]
 			cmdargs.extend(js_files)
-			so = run.run(cmdargs, False, False)
+			cmdargs = ' '.join(cmdargs)
+			so = subprocess.check_output(cmdargs, shell=True)
 			impf.write(so)
 			year, month, day, hour, minute, second, weekday, yearday, daylight = time.localtime(time.time())
 			print "[DEBUG] (%02d:%02d:%02d) packaging finished" % (hour, minute, second)
