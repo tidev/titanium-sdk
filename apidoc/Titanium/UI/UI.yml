@@ -174,32 +174,24 @@ properties:
   - name: ANIMATION_CURVE_EASE_IN
     summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
     type: Number
-    deprecated:
-        since: "1.8.0"
     permission: read-only
     platforms: [iphone, ipad, mobileweb]
     
   - name: ANIMATION_CURVE_EASE_IN_OUT
     summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
     type: Number
-    deprecated:
-        since: "1.8.0"
     permission: read-only
     platforms: [iphone, ipad, mobileweb]
     
   - name: ANIMATION_CURVE_EASE_OUT
     summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
     type: Number
-    deprecated:
-        since: "1.8.0"
     permission: read-only
     platforms: [iphone, ipad, mobileweb]
     
   - name: ANIMATION_CURVE_LINEAR
     summary: Use the animation curve constants in <Titanium.UI.iOS> instead.
     type: Number
-    deprecated:
-        since: "1.8.0"
     permission: read-only
     platforms: [iphone, ipad, mobileweb]
     
