@@ -117,7 +117,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Net
 						this.abort();
 						!this._completed && this._onError("Request timed out");
 					}
-				}, timeout)));
+				}), timeout));
 			} catch (ex) {}
 		},
 
