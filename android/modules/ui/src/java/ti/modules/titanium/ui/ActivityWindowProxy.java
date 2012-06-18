@@ -132,7 +132,7 @@ public class ActivityWindowProxy extends TiWindowProxy
 
 				realizeViews(view);
 				opened = true;
-				fireEvent(TiC.EVENT_OPEN, null);
+				fireEvent(TiC.EVENT_OPEN, null, false);
 			}
 		});
 
