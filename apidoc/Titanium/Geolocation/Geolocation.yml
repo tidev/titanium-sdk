@@ -125,23 +125,8 @@ description: |
     On Mobile Web, heading updates are supported if the browser supports this feature.
     Currently, this support is only available on Mobile Safari.
 
-    iOS and Mobile Web provide a `hasCompass` method to determine if the current
-    device supports a compass.  On Android, `hasCompass` is a property. In a future
-    release, Android will replace the property with the `hasCompass` method.
-
-    The following code excerpt tests for compass support in a portable fashion:
-
-        var hasCompass = false;
-        if (Ti.Geolocation.hasCompass.call) {
-          hasCompass = Ti.Geolocation.hasCompass();
-        } else {
-          hasCompass = Ti.Geolocation.hasCompass;
-        }
-
-    This code excerpt should work on all versions of Android and iOS, and continue to
-    work if Android replaces the `hasCompass` property with a method. This code also
-    works with Mobile Web in Release 2.1 and newer (prior to 2.1, there was no direct method to
-    determine compass support on Mobile Web).
+    Check the [hasCompass](Titanium.Geolocation.hasCompass) property to see if the current
+    device supports a compass.
 
     To retrieve compass readings, you can either use
     [getCurrentHeading](Titanium.Geolocation.getCurrentHeading) as shown in the
@@ -207,15 +192,6 @@ methods:
         summary: Function to invoke on success or failure of obtaining the current location. 
         type: Callback<Object>
     platforms: [android, iphone, ipad, mobileweb]
-
-  - name: hasCompass
-    summary: Indicates whether the current device supports a compass.
-    description: |
-        On Android, `hasCompass` is a property. See the Examples section for an example of
-        using the compass cross-platform.
-    returns: 
-        type: Boolean
-    platforms: [iphone, ipad]
 
   - name: reverseGeocoder
     summary: Tries to resolve a location to an address.
@@ -565,12 +541,10 @@ properties:
 
   - name: hasCompass
     summary: Indicates whether the current device supports a compass.
-    description: |
-        On iOS, `hasCompass` is a method. See the Examples section for an example of
-        using the compass cross-platform.
     type: Boolean
     permission: read-only
-    platforms: [android]
+    platforms: [android, iphone, ipad, mobileweb]
+    since: { mobileweb: "2.1.0" }
 
   - name: headingFilter
     summary: Minimum heading change (in degrees) before a `heading` event is fired. 
