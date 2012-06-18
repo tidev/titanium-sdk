@@ -1087,7 +1087,7 @@ properties:
         [size](Titanium.UI.View.size) properties.
     type: [Number,String]
 
-  - name: wrap
+  - name: horizontalWrap
     summary: Determines whether the layout has wrapping behavior.
     description: |
         For more information, see the discussion of horizontal layout mode in the description of 
