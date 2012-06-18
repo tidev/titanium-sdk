@@ -1,1 +1,0 @@
-In order to use the Anvil driver, node.js must first be install.  Example usage: "node driver.js --mode=local --platform=android"
