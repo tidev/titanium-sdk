@@ -163,7 +163,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method
 	public void close(@Kroll.argument(optional = true) Object arg)
 	{
-		if (!opened) { return; }
 
 		KrollDict options = null;
 		TiAnimation animation = null;
