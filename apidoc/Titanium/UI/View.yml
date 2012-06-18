@@ -953,7 +953,7 @@ properties:
             Each child is positioned horizontally as in the composite layout mode. 
             
          *  `horizontal`. Horizontal layouts have different behavior depending on whether wrapping 
-            is enabled. Wrapping is enabled by default (the `wrap` property is `true`).
+            is enabled. Wrapping is enabled by default (the `horizontalWrap` property is `true`).
             
             With wrapping behavior, the children are laid out horizontally from left to right,
             _in rows_. If a child requires more horizontal space than exists in the current row,
@@ -961,7 +961,7 @@ properties:
             the children in that row.
             
             Wrapping behavior is available on iOS, Android and Mobile Web (Release 2.1.0 and later).
-            When the wrap property is set to true, the first row is placed at the top of the 
+            When the `horizontalWrap` property is set to true, the first row is placed at the top of the 
             parent view, and successive rows are placed below the first row. Each child is 
             positioned vertically _within its row_ somewhat like composite layout mode. 
             In particular: 
@@ -973,13 +973,15 @@ properties:
             *   If *both* `top` and `bottom` is specified for a given child, the properties
                 are both treated as padding.
             
-            If the `wrap` property is false, the behavior is more equivalent to a vertical layout. 
+            If the `horizontalWrap` property is false, the behavior is more equivalent to a vertical layout. 
             Children are laid or horizontally from left to right in a single row. The `left` and 
             `right` properties are used as padding between the children, and the `top` and `bottom` 
             properties are used to position the children vertically.
             
             On Mobile Web _prior to_ Release 2.1.0, the horizontal layout does not wrap by default, 
-            and does not support the wrap property.
+            and does not support the `horizontalWrap` property. On Android and iOS _prior to_ Release 
+            2.1.0, the horizontal layout always wraps and the `horizontalWrap` property is not supported.
+            
     default: Composite layout
 
   - name: opacity
