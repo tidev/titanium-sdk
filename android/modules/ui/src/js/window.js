@@ -256,8 +256,6 @@ exports.bootstrapWindow = function(Titanium) {
 				self.fireEvent("open");
 			});
 			
-			
-			
 			this.window.open(options);
 			
 		} else {

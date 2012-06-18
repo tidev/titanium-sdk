@@ -86,7 +86,7 @@ public class ActivityWindowProxy extends TiWindowProxy
 
 				opened = true;
 				handlePostOpen();
-				
+
 				return true;
 			}
 			default : {
