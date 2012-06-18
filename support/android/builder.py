@@ -1506,8 +1506,9 @@ class Builder(object):
 		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libtiverify.so'), 'lib/armeabi/libtiverify.so')
 		apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libtiverify.so'), 'lib/armeabi-v7a/libtiverify.so')
 		# See below about x86 and production
-		if self.deploy_type != 'production':
-			apk_zip.write(os.path.join(sdk_native_libs, 'x86', 'libtiverify.so'), 'lib/x86/libtiverify.so')
+		x86_dir = os.path.join(sdk_native_libs, 'x86')
+		if self.deploy_type != 'production' and os.path.exists(x86_dir):
+			apk_zip.write(os.path.join(x86_dir, 'libtiverify.so'), 'lib/x86/libtiverify.so')
 
 		if self.runtime == 'v8':
 			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi', 'libkroll-v8.so'), 'lib/armeabi/libkroll-v8.so')
@@ -1516,9 +1517,9 @@ class Builder(object):
 			apk_zip.write(os.path.join(sdk_native_libs, 'armeabi-v7a', 'libstlport_shared.so'), 'lib/armeabi-v7a/libstlport_shared.so')
 			# Only include x86 in non-production builds for now, since there are
 			# no x86 devices on the market
-			if self.deploy_type != 'production':
-				apk_zip.write(os.path.join(sdk_native_libs, 'x86', 'libkroll-v8.so'), 'lib/x86/libkroll-v8.so')
-				apk_zip.write(os.path.join(sdk_native_libs, 'x86', 'libstlport_shared.so'), 'lib/x86/libstlport_shared.so')
+			if self.deploy_type != 'production' and os.path.exists(x86_dir):
+				apk_zip.write(os.path.join(x86_dir, 'libkroll-v8.so'), 'lib/x86/libkroll-v8.so')
+				apk_zip.write(os.path.join(x86_dir, 'libstlport_shared.so'), 'lib/x86/libstlport_shared.so')
 
 				
 		self.apk_updated = True
