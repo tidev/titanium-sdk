@@ -45,6 +45,8 @@ CGFloat convertInchToPixels(CGFloat value);
 CGFloat convertPixelsToDip(CGFloat value);
 CGFloat convertDipToInch(CGFloat value);
 
+CGFloat convertDipToPixels(CGFloat value);
+
 TI_INLINE TiDimension TiDimensionDip(CGFloat value)
 {
 	return TiDimensionMake(TiDimensionTypeDip,value);
