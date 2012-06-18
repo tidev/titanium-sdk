@@ -56,7 +56,17 @@ function genInvoker(wrapperAPI, realAPI, apiName, invocationAPI, scopeVars) {
 			api = apiNamespace[name];
 
 		} else {
-			function SandboxAPI() {}
+			function SandboxAPI() {
+				var proto = this.__proto__;
+				Object.defineProperty(this, '_events', {
+					get: function() {
+						return proto._events;
+					},
+					set: function(value) {
+						proto._events = value;
+					}
+				});
+			}
 			SandboxAPI.prototype = apiNamespace[name];
 
 			api = new SandboxAPI();
