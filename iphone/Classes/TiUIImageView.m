@@ -471,7 +471,7 @@ DEFINE_EXCEPTIONS
                 autoWidth = fullSize.width;
                 autoHeight = fullSize.height;
                 [self imageView].image = image;
-                [self fireLoadEventWithState:@"url"];
+                [self fireLoadEventWithState:@"image"];
             }
             else {
                 [self loadDefaultImage:imageSize];
