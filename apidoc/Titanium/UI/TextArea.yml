@@ -5,49 +5,27 @@ description: Use the <Titanium.UI.createTextArea> method to create a text area.
 extends: Titanium.UI.View
 since: "0.8"
 
-events:
-  - name: blur
-    summary: Fired when this text area loses focus.
-    properties:
-      - name: value
-        summary: Value of this text area.
-        type: String
-        
-  - name: change
-    summary: Fired when this text area value changes.
-    properties:
-      - name: value
-        summary: New value of this text area.
-        type: String
-    
-  - name: focus
-    summary: Fired when this text area gains focus.
-    properties:
-      - name: value
-        summary: Value of this text area.
-        type: String
-        
-  - name: return
-    summary: Fired when the return key is pressed on the keyboard.
-    properties:
-      - name: value
-        summary: Value of this text area.
-        type: String
-        
-  - name: selected
-    summary: Fired when text in this text area is selected.
-    properties:
-      - name: range
-        summary: Dictionary that describes the position and length of the selected text.
-        type: textAreaSelectedParams
+methods:
+    # main doc inherited from Ti.UI.View.add
+  - name: add
+    description: |
+        Adding children to a `TextArea` is not supported on all platforms.
+
+        If you need to display views on top of this object, consider using 
+        another view as a container for both this object and the views you want 
+        to appear on top of it.
     platforms: [iphone, ipad]
 
-methods:
   - name: blur
     summary: Forces this text area to lose focus.
     
   - name: focus
     summary: Forces this text area to gain focus.
+
+  - name: remove
+    description: |
+        See also: [add](Titanium.UI.TextArea.add), <Titanium.UI.View.add>.
+    platforms: [iphone, ipad]
 
 properties:
   - name: appearance
@@ -255,6 +233,43 @@ properties:
     type: [Number, String]
     default: <Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP>
     platforms: [android]
+
+events:
+  - name: blur
+    summary: Fired when this text area loses focus.
+    properties:
+      - name: value
+        summary: Value of this text area.
+        type: String
+        
+  - name: change
+    summary: Fired when this text area value changes.
+    properties:
+      - name: value
+        summary: New value of this text area.
+        type: String
+    
+  - name: focus
+    summary: Fired when this text area gains focus.
+    properties:
+      - name: value
+        summary: Value of this text area.
+        type: String
+        
+  - name: return
+    summary: Fired when the return key is pressed on the keyboard.
+    properties:
+      - name: value
+        summary: Value of this text area.
+        type: String
+        
+  - name: selected
+    summary: Fired when text in this text area is selected.
+    properties:
+      - name: range
+        summary: Dictionary that describes the position and length of the selected text.
+        type: textAreaSelectedParams
+    platforms: [iphone, ipad]
 
 examples:
   - title: Basic Text Area with Customizations
