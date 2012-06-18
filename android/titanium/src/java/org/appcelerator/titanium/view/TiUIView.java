@@ -362,6 +362,7 @@ public abstract class TiUIView
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (key.equals(TiC.PROPERTY_LEFT)) {
+			resetPostAnimationValues();
 			if (newValue != null) {
 				layoutParams.optionLeft = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_LEFT);
 			} else {
@@ -369,6 +370,7 @@ public abstract class TiUIView
 			}
 			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_TOP)) {
+			resetPostAnimationValues();
 			if (newValue != null) {
 				layoutParams.optionTop = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_TOP);
 			} else {
@@ -376,9 +378,11 @@ public abstract class TiUIView
 			}
 			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_CENTER)) {
+			resetPostAnimationValues();
 			TiConvert.updateLayoutCenter(newValue, layoutParams);
 			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_RIGHT)) {
+			resetPostAnimationValues();
 			if (newValue != null) {
 				layoutParams.optionRight = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_RIGHT);
 			} else {
@@ -386,6 +390,7 @@ public abstract class TiUIView
 			}
 			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_BOTTOM)) {
+			resetPostAnimationValues();
 			if (newValue != null) {
 				layoutParams.optionBottom = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_BOTTOM);
 			} else {
