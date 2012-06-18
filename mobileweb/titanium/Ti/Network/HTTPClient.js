@@ -1,9 +1,8 @@
-define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network", "Ti/Blob", "Ti/_/event"],
-	function(_, declare, lang, Evented, Network, Blob, event) {
+define(["Ti/_", "Ti/_/declare", "Ti/_/has", "Ti/_/lang", "Ti/_/Evented", "Ti/Network", "Ti/Blob", "Ti/_/event"],
+	function(_, declare, has, lang, Evented, Network, Blob, event) {
 
 	var is = require.is,
-		on = require.on,
-		has = require.has;
+		on = require.on;
 
 	return declare("Ti.Network.HTTPClient", Evented, {
 
@@ -95,12 +94,11 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network", "Ti/B
 			var httpURLFormatter = Ti.Network.httpURLFormatter,
 				c = this.constants,
 				wc = this.withCredentials;
-			async = wc ? true : !!async;
 			this.abort();
 			this._xhr.open(
 				c.connectionType = method,
 				c.location = _.getAbsolutePath(httpURLFormatter ? httpURLFormatter(url) : url),
-				async
+				wc || async === void 0 ? true : !!async
 			);
 			wc && (this._xhr.withCredentials = wc);
 		},
@@ -119,7 +117,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/lang", "Ti/_/Evented", "Ti/Network", "Ti/B
 						this.abort();
 						!this._completed && this._onError("Request timed out");
 					}
-				}, timeout)));
+				}), timeout));
 			} catch (ex) {}
 		},
 

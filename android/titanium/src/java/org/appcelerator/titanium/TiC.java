@@ -582,6 +582,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_BACKGROUND_GRADIENT = "backgroundGradient";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BACKGROUND_IMAGE = "backgroundImage";
 
 	/**
@@ -1704,6 +1709,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SUBTITLEID = "subtitleid";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SUCCESS = "success";
 
 	/**
@@ -1900,6 +1910,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_WORK = "work";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HORIZONTAL_WRAP = "horizontalWrap";
 
 	/**
 	 * @module.api

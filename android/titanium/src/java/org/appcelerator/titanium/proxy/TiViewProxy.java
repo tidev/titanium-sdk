@@ -26,10 +26,9 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiRHelper;
-import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
@@ -44,10 +43,10 @@ import android.view.View;
  */
 @Kroll.proxy(propertyAccessors={
 	// background properties
-	"backgroundImage", "backgroundRepeat", "backgroundSelectedImage", 
-	"backgroundFocusedImage", "backgroundDisabledImage", "backgroundColor", 
-	"backgroundSelectedColor", "backgroundFocusedColor", "backgroundDisabledColor", 
-	"backgroundPadding",
+	"backgroundImage", "backgroundRepeat", "backgroundSelectedImage",
+	"backgroundFocusedImage", "backgroundDisabledImage", "backgroundColor",
+	"backgroundSelectedColor", "backgroundFocusedColor", "backgroundDisabledColor",
+	"backgroundPadding", "backgroundGradient",
 
 	// border properties
 	"borderColor", "borderRadius", "borderWidth",
@@ -88,102 +87,26 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	protected TiUIView view;
 	protected Object pendingAnimationLock;
 	protected TiAnimationBuilder pendingAnimation;
-	private KrollDict langConversionTable;
 	private boolean isDecorView = false;
 	private AtomicBoolean layoutStarted = new AtomicBoolean();
-	
+
 	/**
 	 * Constructs a new TiViewProxy instance.
 	 * @module.api
 	 */
 	public TiViewProxy()
 	{
-		langConversionTable = getLangConversionTable();
 		pendingAnimationLock = new Object();
 
 		defaultValues.put(TiC.PROPERTY_BACKGROUND_REPEAT, false);
-	}
-
-	/**
-	 * Returns true if idPropertyName is an id field for a localized
-	 * text lookup (i.e., the right/value side of an entry in
-	 * langConversionTable).
-	 */
-	public boolean isLocalizedTextId(String idPropertyName)
-	{
-		if (langConversionTable != null && langConversionTable.containsValue(idPropertyName)) {
-			return true;
-		}
-		return false;
-	}
-
-	public void setLocalizedText(String idPropertyName, String idPropertyValue)
-	{
-		if (langConversionTable == null) {
-			return;
-		}
-		for (String propertyName : langConversionTable.keySet()) {
-			String thisIdPropertyName = langConversionTable.getString(propertyName);
-			if (idPropertyName.equals(thisIdPropertyName)) {
-				try {
-					String localText = getLocalizedText(idPropertyValue);
-					//If key exists, overwrite the text.
-					if (localText != null) {
-						setPropertyAndFire(propertyName, localText);
-					}
-				} catch (ResourceNotFoundException e) {
-					Log.w(LCAT, "Localized text key '" + idPropertyValue + "' is invalid.");
-				}
-				break;
-			}
-		}
-	}
-
-	private String getLocalizedText(String lookupId)
-		throws TiRHelper.ResourceNotFoundException
-	{
-		int resid = TiRHelper.getResource("string." + lookupId);
-		if (resid != 0) {
-			return getActivity().getString(resid);
-		} else {
-			// Actually won't get here because getResource will throw
-			// if invalid key.
-			Log.w(LCAT, "Localized text key '" + lookupId + "' is invalid.");
-			return null;
-		}
 	}
 
 	@Override
 	public void handleCreationDict(KrollDict options)
 	{
 		options = handleStyleOptions(options);
-		if (langConversionTable != null) {
-			KrollDict foundStrings = new KrollDict();
-			for (String key : langConversionTable.keySet()) {
-				// if we have it already, ignore
-				if (!options.containsKey(key)) {
-					String convertKey = (String) langConversionTable.get(key);
-					String langKey = (String) options.get(convertKey);
-					if (langKey != null) {
-						try {
-							String localText = getLocalizedText(langKey);
-							foundStrings.put(key, localText);
-						}
-						catch (TiRHelper.ResourceNotFoundException e) {
-							Log.w(LCAT, "Localized text key '" + langKey + "' is invalid.");
-						}
-					}
-				}
-			}
-
-			if (!(foundStrings.isEmpty())) {
-				extend(foundStrings);
-				options.putAll(foundStrings);
-			}
-		}
-		options = handleStyleOptions(options);
 		super.handleCreationDict(options);
-		
+
 		//TODO eventManager.addOnEventChangeListener(this);
 	}
 
@@ -196,7 +119,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		} else {
 			baseUrl = creationUrl.resolve();
 		}
-		
+
 		int idx = baseUrl.lastIndexOf("/");
 		if (idx != -1) {
 			baseUrl = baseUrl.substring(idx + 1).replace(".js", "");
@@ -210,7 +133,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		String viewId = getProxyId();
 		TreeSet<String> styleClasses = new TreeSet<String>();
 		// TODO styleClasses.add(getShortAPIName().toLowerCase());
-		
+
 		if (options.containsKey(TiC.PROPERTY_ID)) {
 			viewId = TiConvert.toString(options, TiC.PROPERTY_ID);
 		}
@@ -232,7 +155,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				}
 			}
 		}
-		
+
 		String baseUrl = getBaseUrlForStylesheet();
 		KrollDict dict = TiApplication.getInstance().getStylesheet(baseUrl, styleClasses, viewId);
 		if (dict.size() > 0) {
@@ -249,34 +172,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			return dict;
 		}
 		return options;
-	}
-
-	/**
-	 * @return the language conversion table used to load localized values for certain properties from the locale files.
-	 *	For each localizable property, such as "title," the proxy should define a second property, such as "titleid", used to specify a 
-	 *	localization key for that property. If the user specifies a localization key in "titleid", the corresponding localized text from the locale file 
-	 *	is used for "title."
-	 *
-	 *	Subclasses should override this method to return a table mapping localizable properties to the corresponding localization key properties.
-	 *
-	 *	For example, if the proxy has two properties, "title" and "text", and the corresponding localization key properties are "titleid" and "textid", this might look like:
-	 *	</br>
-	 * 
-	 *	<pre><code>protected KrollDict getLangConversionTable() 
-	 *{	
-	 *	KrollDict table = new KrollDict();
-	 *	table.put("title", "titleid"); 
-	 *	table.put("text", "textid"); 
-	 *	return table; 
-	 *} </pre> </code>
-	 * @module.api
-	 *
-	 */
-	protected KrollDict getLangConversionTable()
-	{
-		// subclasses override to return a table mapping of langid keys to actual keys
-		// used for specifying things like titleid vs. title so that you can localize them
-		return null;
 	}
 
 	public TiAnimationBuilder getPendingAnimation()
@@ -350,8 +245,14 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				if (view != null) {
 					View v = view.getNativeView();
 					if (v != null) {
-						d.put(TiC.PROPERTY_WIDTH, v.getWidth());
-						d.put(TiC.PROPERTY_HEIGHT, v.getHeight());
+						TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
+						TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
+
+						// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
+						View decorView = TiApplication.getAppCurrentActivity().getWindow().getDecorView();
+
+						d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
+						d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
 					}
 				}
 				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
@@ -369,10 +270,18 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				if (view != null) {
 					View v = view.getNativeView();
 					if (v != null) {
-						d.put(TiC.PROPERTY_WIDTH, v.getWidth());
-						d.put(TiC.PROPERTY_HEIGHT, v.getHeight());
-						d.put(TiC.PROPERTY_X, v.getLeft());
-						d.put(TiC.PROPERTY_Y, v.getTop());
+						TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
+						TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
+						TiDimension nativeLeft = new TiDimension(v.getLeft(), TiDimension.TYPE_LEFT);
+						TiDimension nativeTop = new TiDimension(v.getTop(), TiDimension.TYPE_TOP);
+
+						// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
+						View decorView = TiApplication.getAppCurrentActivity().getWindow().getDecorView();
+
+						d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
+						d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
+						d.put(TiC.PROPERTY_X, nativeLeft.getAsDefault(decorView));
+						d.put(TiC.PROPERTY_Y, nativeTop.getAsDefault(decorView));
 					}
 				}
 				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
@@ -504,7 +413,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 		return (TiUIView) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEW), 0);
 	}
-	
+
 	protected TiUIView handleGetView()
 	{
 		if (view == null) {
@@ -543,7 +452,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				Log.e(LCAT, e.getMessage(), e);
 			}
 		}
-		
+
 		synchronized(pendingAnimationLock) {
 			if (pendingAnimation != null) {
 				handlePendingAnimation(true);
@@ -616,7 +525,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				child.isDecorView = true;
 			}
 			TiUIView cv = child.getOrCreateView();
-			
+
 			view.add(cv);
 		}
 	}
@@ -806,22 +715,43 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return view.toImage();
 	}
 
-	@Override
-	public boolean fireEvent(String eventName, Object data)
+	/**
+	 * Fires an event that can optionally be "bubbled" to the parent view.
+	 * @param eventName event to get dispatched to listeners
+	 * @param data data to include in the event
+	 * @param bubbles if true will send the event to the parent view after it has been dispatched to this view's listeners.
+	 * @return true if the event was handled
+	 */
+	public boolean fireEvent(String eventName, Object data, boolean bubbles)
 	{
 		if (data == null) {
 			data = new KrollDict();
 		}
 
+		// Dispatch the event to JavaScript first before we "bubble" it to the parent view.
 		boolean handled = super.fireEvent(eventName, data);
+		if (!bubbles) {
+			return handled;
+		}
 
 		TiViewProxy parentView = getParent();
 		if (parentView != null) {
-			boolean parentHandled = parentView.fireEvent(eventName, data);
-			handled = handled || parentHandled;
+			handled = parentView.fireEvent(eventName, data, bubbles) || handled;
 		}
 
 		return handled;
+	}
+
+	/**
+	 * Fires an event that will be bubbled to the parent view.
+	 */
+	@Override
+	public boolean fireEvent(String eventName, Object data)
+	{
+		// To remain compatible this override of fireEvent will always
+		// bubble the event to the parent view. It should eventually be deprecated
+		// in favor of using the fireEvent(String, Object, boolean) method.
+		return fireEvent(eventName, data, true);
 	}
 
 	/**
@@ -947,7 +877,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				keepScreenOn = nv.getKeepScreenOn();
 			}
 		}
-		
+
 		//Keep the proxy in the correct state
 		Object current = getProperty(TiC.PROPERTY_KEEP_SCREEN_ON);
 		if (current != null) {
@@ -968,16 +898,16 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 			setProperty(TiC.PROPERTY_KEEP_SCREEN_ON, keepScreenOn);
 		}
-	
+
 		return keepScreenOn;
 	}
-	
+
 	@Kroll.method @Kroll.setProperty(retain=false)
 	public void setKeepScreenOn(boolean keepScreenOn)
 	{
 		setPropertyAndFire(TiC.PROPERTY_KEEP_SCREEN_ON, keepScreenOn);
 	}
-	
+
 	@Kroll.method
 	public KrollDict convertPointToView(KrollDict point, TiViewProxy dest)
 	{

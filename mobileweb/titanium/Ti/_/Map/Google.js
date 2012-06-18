@@ -31,7 +31,8 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/App/Propertie
 		MapView = declare("Ti.Map.View", View, {
 
 			constructor: function() {
-				this.properties.annotations = [];
+				this.properties.__values__.annotations = [];
+				this._annotationMap = {};
 				this._routes = [];
 				this.fireEvent("loading");
 			},
@@ -65,7 +66,8 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/App/Propertie
 			addAnnotation: function(/*Object|Ti.Map.Annotation*/a) {
 				if (a) {
 					a.declaredClass === "Ti.Map.Annotation" || (a = new Annotation(a));
-					~this.annotations.indexOf(a) || this._createMarker(a, this.annotations.length);
+					~this.annotations.indexOf(a) || this._createMarker(a);
+					a.title && (this._annotationMap[a.title] = a);
 				}
 			},
 
@@ -88,27 +90,28 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/App/Propertie
 			},
 
 			deselectAnnotation: function(/*String|Ti.Map.Annotation*/a) {
-				var idx = this._indexOfAnnotation(a);
-				theInfoWindow && theInfoWindow.idx === idx && this._hide(this.annotations[idx]);
+				require.is(a, "String") && (a = this._annotationMap[a]);
+				a && theInfoWindow && theInfoWindow.widgetId === a.widgetId && this._hide(a);
 			},
 
 			removeAllAnnotations: function() {
 				theInfoWindow && theInfoWindow.close();
-				this.removeAnnotations(this.annotations);
+				while (this.annotations.length) {
+					this.removeAnnotation(this.annotations[0]);
+				}
 			},
 
 			removeAnnotation: function(/*String|Ti.Map.Annotation*/a) {
-				var anno = this.properties.annotations,
-					i = 0,
-					idx = this._indexOfAnnotation(a);
-
-				if (a = anno[idx]) {
+				require.is(a, "String") && (a = this._annotationMap[a]);
+				if (a) {
+					var annotations = this.properties.__values__.annotations,
+						p = annotations.indexOf(a);
 					theInfoWindow && this._hide(a);
 					gevent.removeListener(a.evt);
 					a.marker.setMap(null);
 					delete a.marker;
 					a.destroy();
-					anno[idx] = null;
+					~p && annotations.splice(p, 1);
 				}
 			},
 
@@ -133,8 +136,8 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/App/Propertie
 			},
 
 			selectAnnotation: function(/*String|Ti.Map.Annotation*/a) {
-				var idx = this._indexOfAnnotation(a);
-				~idx && this._show(this.annotations[idx]);
+				require.is(a, "String") && (a = this._annotationMap[a]);
+				a && this._show(a);
 			},
 
 			setLocation: function(location) {
@@ -151,9 +154,9 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/App/Propertie
 			},
 
 			_show: function(annotation, clicksource) {
-				if (annotation && (!theInfoWindow || theInfoWindow.idx !== annotation.idx)) {
+				if (annotation && (!theInfoWindow || theInfoWindow.widgetId !== annotation.widgetId)) {
 					var _t = this,
-						idx = annotation.idx,
+						widgetId = annotation.widgetId,
 						cls = "TiMapAnnotation",
 						type,
 						p = dom.create("div", { className: cls }),
@@ -184,18 +187,22 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/App/Propertie
 					}
 
 					// listen for updates to the annotation object
-					_t._annotationEvents.push(on(annotation, "update", function(args) {
-						if (theInfoWindow.idx === idx) {
+					_t._annotationEvents.push(on(annotation, "update", this, function(args) {
+						if (theInfoWindow.widgetId === widgetId) {
 							var p = args.property,
-								markerImg;
+								v = args.value,
+								markerImg,
+								amap = this._annotationMap;
 							switch (p) {
 								case "title":
 								case "subtitle":
-									nodes[p].innerHTML = args.value;
+									nodes[p].innerHTML = v;
+									delete amap[args.oldValue];
+									v && (amap[v] = annotation);
 									break;
 								case "leftButton":
 								case "rightButton":
-									nodes[p].src = args.value;
+									nodes[p].src = v;
 									break;
 								case "image":
 								case "pincolor":
@@ -218,20 +225,20 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/App/Propertie
 					}
 
 					theInfoWindow.open(_t._gmap, annotation.marker);
-					theInfoWindow.idx = idx;
+					theInfoWindow.widgetId = annotation.widgetId;
 				}
 			},
 
 			_hide: function(annotation, clicksource) {
 				if (!clicksource || !~clicksource.indexOf("Button")) {
 					theInfoWindow.close();
-					theInfoWindow.idx = -1;
+					theInfoWindow.widgetId = 0;
 				}
 				this._dispatchEvents(annotation, clicksource);
 			},
 
 			_dispatchEvents: function(annotation, clicksource) {
-				var idx = annotation.idx,
+				var idx = this.annotations.indexOf(annotation),
 					props = {
 						annotation: annotation,
 						clicksource: clicksource = clicksource || "pin",
@@ -268,7 +275,6 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/App/Propertie
 
 			_createMarker: function(a, i) {
 				var markerImg = this._getMarkerImage(a);
-				a.idx = i;
 				a.evt = gevent.addListener(a.marker = new gmaps.Marker({
 					map: this._gmap,
 					icon: markerImg[0],
@@ -278,25 +284,10 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/App/Propertie
 					title: a._getTitle(),
 					animation: a.animate && gmaps.Animation.DROP
 				}), "click", lang.hitch(this, function() {
-					this[theInfoWindow && theInfoWindow.idx === i ? "_hide" : "_show"](a);
+					this[theInfoWindow && theInfoWindow.widgetId === a.widgetId ? "_hide" : "_show"](a);
 				}));
-				this.properties.__values__.annotations[i] = a;
-			},
 
-			_indexOfAnnotation: function(/*String|Ti.Map.Annotation*/a) {
-				var anno = this.properties.annotations,
-					i = 0;
-
-				if (a && a.declaredClass === "Ti.Map.Annotation") {
-					return a.idx;
-				}
-
-				for (; i < anno.length; i++) {
-					if (anno[i].title === a) {
-						return i;
-					}
-				}
-				return -1;
+				this.properties.__values__.annotations.push(a);
 			},
 
 			_fitRegion: function() {
@@ -444,7 +435,7 @@ define(["Ti/_/declare", "Ti/_/dom", "Ti/_/event", "Ti/_/lang", "Ti/App/Propertie
 		onload();
 	};
 
-	require(["http://maps.googleapis.com/maps/api/js?key=" + Properties.getString("ti.map.apikey", "") + "&sensor=true&callback=TiMapViewInit"]);
+	require(["//maps.googleapis.com/maps/api/js?key=" + Properties.getString("ti.map.apikey", "") + "&sensor=true&callback=TiMapViewInit"], 0, onload);
 
 	return MapView;
 

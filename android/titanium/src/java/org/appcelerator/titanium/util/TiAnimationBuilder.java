@@ -25,6 +25,12 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
+import android.os.Build;
+import android.os.Looper;
+import android.os.MessageQueue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -58,6 +64,7 @@ public class TiAnimationBuilder
 	protected TiAnimation animationProxy;
 	protected KrollFunction callback;
 	protected boolean relayoutChild = false, applyOpacity = false;
+	@SuppressWarnings("rawtypes")
 	protected HashMap options;
 	protected View view;
 	protected TiViewProxy viewProxy;
@@ -101,6 +108,13 @@ public class TiAnimationBuilder
 		}
 		if (options.containsKey(TiC.PROPERTY_REPEAT)) {
 			repeat = TiConvert.toDouble(options, TiC.PROPERTY_REPEAT);
+			if (repeat == 0d) {
+				// A repeat of 0 is probably non-sensical. Titanium iOS
+				// treats it as 1 and so should we.
+				repeat = 1d;
+			}
+		} else {
+			repeat = 1d; // Default as indicated in our documentation.
 		}
 		if (options.containsKey(TiC.PROPERTY_AUTOREVERSE)) {
 			autoreverse = TiConvert.toBoolean(options, TiC.PROPERTY_AUTOREVERSE);
@@ -169,18 +183,20 @@ public class TiAnimationBuilder
 
 	private void addAnimation(AnimationSet animationSet, Animation animation)
 	{
-		if (repeat != null) {
-			animation.setRepeatCount(repeat.intValue());
+		boolean reverse = (autoreverse != null && autoreverse.booleanValue());
+		animation.setRepeatMode(reverse ? Animation.REVERSE : Animation.RESTART);
+
+		// We need to reduce the repeat count by 1, since for native Android
+		// 1 would mean repeating it once.
+		int repeatCount = (repeat == null ? 0 : repeat.intValue() - 1);
+
+		// In Android (native), the repeat count includes reverses. So we
+		// need to double-up and add one to the repeat count if we're reversing.
+		if (reverse) {
+			repeatCount = repeatCount * 2 + 1;
 		}
 
-		if (autoreverse != null) {
-			if (autoreverse) {
-				animation.setRepeatMode(Animation.REVERSE);
-
-			} else {
-				animation.setRepeatMode(Animation.RESTART);
-			}
-		}
+		animation.setRepeatCount(repeatCount);
 
 		animationSet.addAnimation(animation);
 	}
@@ -210,7 +226,7 @@ public class TiAnimationBuilder
 			applyOpacity = true;
 			addAnimation(as, animation);
 			animation.setAnimationListener(animationListener);
-			
+
 			TiUIView uiView = viewProxy.peekView();
 			if (viewProxy.hasProperty(TiC.PROPERTY_OPACITY) && fromOpacity != null && toOpacity != null
 				&& uiView != null) {
@@ -234,16 +250,31 @@ public class TiAnimationBuilder
 			addAnimation(as, a);
 		}
 
-		if (tdm != null) { 
+		if (tdm != null) {
 			as.setFillAfter(true);
 			as.setFillEnabled(true);
-			TiMatrixAnimation matrixAnimation = new TiMatrixAnimation(tdm, anchorX, anchorY);
 
-			if (duration != null) {
-				matrixAnimation.setDuration(duration.longValue());
+			TiUIView tiView = viewProxy.peekView();
+
+			Animation anim;
+			if (tdm.hasScaleOperation() && tiView != null) {
+				tiView.setAnimatedScaleValues(tdm.verifyScaleValues(tiView, (autoreverse != null && autoreverse.booleanValue())));
 			}
 
-			addAnimation(as, matrixAnimation);
+			if (tdm.hasRotateOperation() && tiView != null) {
+				tiView.setAnimatedRotationDegrees(tdm.verifyRotationValues(tiView, (autoreverse != null && autoreverse.booleanValue())));
+			}
+
+			anim = new TiMatrixAnimation(tdm, anchorX, anchorY);
+
+			anim.setFillAfter(true);
+
+			if (duration != null) {
+				anim.setDuration(duration.longValue());
+			}
+
+			addAnimation(as, anim);
+
 		}
 
 		// Set duration after adding children.
@@ -253,7 +284,7 @@ public class TiAnimationBuilder
 		if (delay != null) {
 			as.setStartOffset(delay.longValue());
 		}
-		
+
 		// ignore translate/resize if we have a matrix.. we need to eventually collect to/from properly
 		if (top != null || bottom != null || left != null || right != null || centerX != null || centerY != null) {
 			TiDimension optionTop = null, optionBottom = null;
@@ -457,44 +488,31 @@ public class TiAnimationBuilder
 	public static class TiColorAnimation extends Animation
 	{
 		protected View view;
-		int fromRed, fromGreen, fromBlue, fromAlpha;
-		int toRed, toGreen, toBlue, toAlpha;
-		int deltaRed, deltaGreen, deltaBlue, deltaAlpha;
+		TransitionDrawable transitionDrawable;
+		boolean started = false;
 		
 		public TiColorAnimation(View view, int fromColor, int toColor) 
 		{
 			this.view = view;
 
-			fromRed = Color.red(fromColor);
-			fromGreen = Color.green(fromColor);
-			fromBlue = Color.blue(fromColor);
-			fromAlpha = Color.alpha(fromColor);
-			
-			toRed = Color.red(toColor);
-			toGreen = Color.green(toColor);
-			toBlue = Color.blue(toColor);
-			toAlpha = Color.alpha(toColor);
-			
-			deltaRed = toRed - fromRed;
-			deltaGreen = toGreen - fromGreen;
-			deltaBlue = toBlue - fromBlue;
-			deltaAlpha = toAlpha - fromAlpha;
-			
-			view.setDrawingCacheEnabled(true);
+			ColorDrawable fromColorDrawable = new ColorDrawable(fromColor);
+			ColorDrawable toColorDrawable = new ColorDrawable(toColor);
+			transitionDrawable = new TransitionDrawable(new Drawable[]{fromColorDrawable, toColorDrawable});
 		}
 
 		@Override
 		protected void applyTransformation(float interpolatedTime, Transformation t) 
 		{
 			super.applyTransformation(interpolatedTime, t);
-				
-			int c = Color.argb(
-						fromAlpha + (int) (deltaAlpha * interpolatedTime),
-						fromRed + (int) (deltaRed * interpolatedTime),
-						fromGreen + (int) (deltaGreen * interpolatedTime),
-						fromBlue + (int) (deltaBlue * interpolatedTime)
-					);
-			view.setBackgroundColor(c);
+			if (!started) {
+				// Kick off a TransitionDrawable to do this for us. All
+				// subsequent calls to applyTransformation will just be ignored.
+				started = true;
+				view.setBackgroundDrawable(transitionDrawable);
+				long duration = this.getDuration();
+				int durationInt = (new Long(duration)).intValue();
+				transitionDrawable.startTransition(durationInt);
+			}
 		}
 	}
 
@@ -540,7 +558,20 @@ public class TiAnimationBuilder
 				}
 
 				if (animationProxy != null) {
-					animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
+					// In versions prior to Honeycomb, don't fire the event until the message queue
+					// is empty.  There appears to be a bug in versions before Honeycomb where this
+					// onAnimationEnd listener can be called even before the animation is really complete.
+					if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
+						animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
+					} else {
+						Looper.myQueue().addIdleHandler(new MessageQueue.IdleHandler() {
+							public boolean queueIdle()
+							{
+								animationProxy.fireEvent(TiC.EVENT_COMPLETE, null);
+								return false;
+							}
+						});
+					}
 				}
 			}
 		}

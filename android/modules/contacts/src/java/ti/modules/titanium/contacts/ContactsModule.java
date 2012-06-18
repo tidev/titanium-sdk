@@ -99,6 +99,12 @@ public class ContactsModule extends KrollModule
 	}
 	
 	@Kroll.method
+	public void removePerson(PersonProxy person)
+	{
+		contactsApi.removePerson(person);
+	}
+	
+	@Kroll.method
 	public void showContacts(@Kroll.argument(optional=true) KrollDict d)
 	{
 		if (TiApplication.getInstance() == null) {

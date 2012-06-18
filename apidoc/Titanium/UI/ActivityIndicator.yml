@@ -21,8 +21,28 @@ description:  |
 extends: Titanium.Proxy
 since: "0.8"
 methods:
+  - name: add
+    summary: Adds a child to this activity indicator's hierarchy.
+    description: |
+        Adding children to an `ActivityIndicator` is not supported on all platforms.
+
+        If you need to display views on top of this object, consider using 
+        another view as a container for both this object and the views you want 
+        to appear on top of it.
+
+        See also: <Titanium.UI.View.add>.
+    platforms: [iphone, ipad, mobileweb]
+
   - name: hide
     summary: Hides the activity indicator and stops the animation.
+
+  - name: remove
+    summary: Removes a child from this activity indicator's hierarchy.
+    description: |
+        Adding children to an `ActivityIndicator` is not supported on all platforms.
+
+        See also: [add](Titanium.UI.ActivityIndicator.add), <Titanium.UI.View.add>.
+    platforms: [iphone, ipad, mobileweb]
     
   - name: show
     summary: Shows the activity indicator and starts the animation.
@@ -94,13 +114,38 @@ properties:
   - name: style
     summary: The style for the activity indicator.
     description: |
-        One of the activity indicator style constants 
+        One of the activity indicator style constants. On iOS: 
         <Titanium.UI.iPhone.ActivityIndicatorStyle.DARK>, 
         <Titanium.UI.iPhone.ActivityIndicatorStyle.BIG>, 
-        or <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN>.
+        or <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN>. On Mobile Web: 
+        <Titanium.UI.ActivityIndicatorStyle.DARK>, 
+        <Titanium.UI.ActivityIndicatorStyle.BIG>, 
+        <Titanium.UI.ActivityIndicatorStyle.BIG_DARK>, 
+        or <Titanium.UI.ActivityIndicatorStyle.PLAIN>.
+
+        On Mobile Web, setting the style automatically sets the indicator color and diameter.
+
+        See also: [indicatorColor](Titanium.UI.ActivityIndicator.indicatorColor),
+        [indicatorDiameter](Titanium.UI.ActivityIndicator.indicatorDiameter)
     type: Number
-    default: <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN>
-    platforms: [iphone, ipad]
+    default: <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN> (iOS), <Titanium.UI.MobileWeb.ActivityIndicatorStyle.PLAIN> (Mobile Web)
+    platforms: [iphone, ipad, mobileweb]
+
+  - name: indicatorColor
+    summary: Color of the animated indicator.
+    since: "2.1.0"
+    type: String
+    default: "#fff"
+    platforms: [mobileweb]
+    
+  - name: indicatorDiameter
+    summary: Diameter of the indicator.
+    description: |
+        The diameter of the animated indicator, exclusive of any message text.
+    since: "2.1.0"
+    type: String
+    default: 36
+    platforms: [mobileweb]
 
   - name: top
     summary: Top position of the view.

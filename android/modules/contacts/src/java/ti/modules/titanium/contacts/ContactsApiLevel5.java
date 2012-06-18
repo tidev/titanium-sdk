@@ -185,7 +185,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			condition += " AND " + additionalCondition;
 		}
 
-		Cursor cursor = activity.managedQuery(
+		Cursor cursor = activity.getContentResolver().query(
 				DataUri, 
 				DATA_PROJECTION, 
 				condition, 
@@ -638,7 +638,9 @@ public class ContactsApiLevel5 extends CommonContactsApi
 
 		try {
 
-			TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+			ContentProviderResult[] providerResult = TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+			long id = ContentUris.parseId(providerResult[0].uri);
+			newContact.setProperty("id", id);
 
 		} catch (RemoteException e) { 
 
@@ -652,6 +654,28 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}   
 		
 		return newContact;
+	}
+	
+	protected void removePerson(PersonProxy person) 
+	{
+		if (!(person instanceof PersonProxy)) {
+			Log.e(LCAT, "Invalid argument type. Expected [PersonProxy], but was: " + person);
+			return;
+		}
+
+		Object idObj = person.getProperty("id");
+		if (idObj instanceof Long) {
+			Long id = (Long) idObj;
+			ContentResolver cr = TiApplication.getAppRootOrCurrentActivity().getContentResolver();
+			Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
+				null, Data._ID + "=?", new String[] {String.valueOf(id)}, null);
+			if (cur.moveToNext()) {
+				String lookupKey = cur.getString(cur.getColumnIndex(Data.LOOKUP_KEY));
+				Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_LOOKUP_URI, lookupKey);
+				cr.delete(uri, null, null);
+			}
+			cur.close();
+		}
 	}
 
 	@Override
@@ -679,7 +703,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		CommonContactsApi.LightPerson person = null;
 
 		// Basic person data.
-		Cursor cursor = activity.managedQuery(
+		Cursor cursor = activity.getContentResolver().query(
 				ContentUris.withAppendedId(ContactsUri, id),
 				PEOPLE_PROJECTION, null, null, null);
 
@@ -698,7 +722,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		String condition = "mimetype IN " + INConditionForKinds +
 				" AND contact_id = ?";
 
-		cursor = activity.managedQuery(
+		cursor = activity.getContentResolver().query(
 				DataUri, 
 				DATA_PROJECTION, 
 				condition, 

@@ -61,10 +61,8 @@ public final class ${config['classname']}Application extends TiApplication
 		className = module['module_apiName']
 		isJSMod = (module.has_key('is_native_js_module') and module['is_native_js_module'])
 		%>
-		## Don't do binding/bootstrap stuff if it's just a module carrying CommonJS
-		% if not isJSMod:
 		runtime.addExternalModule("${manifest.moduleid}", ${manifest.moduleid}.${className}Bootstrap.class);
-		% else:
+		% if isJSMod:
 		runtime.addExternalCommonJsModule("${manifest.moduleid}", ${manifest.moduleid}.CommonJsSourceProvider.class);
 		% endif
 		% endfor
@@ -113,7 +111,7 @@ public final class ${config['classname']}Application extends TiApplication
 		isJSMod = (module.has_key('is_native_js_module') and module['is_native_js_module'])
 		%>
 
-		% if runtime == "rhino" and not isJSMod:
+		% if runtime == "rhino":
 		KrollBindings.addExternalBinding("${manifest.moduleid}", ${module['class_name']}Prototype.class);
 		${manifest.moduleid}.${manifest.name}GeneratedBindings.init();
 		% endif

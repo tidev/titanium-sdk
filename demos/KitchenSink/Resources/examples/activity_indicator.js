@@ -1,13 +1,13 @@
 var win = Titanium.UI.currentWindow;
 win.backgroundColor = '#13386c';
-
+var indicatorAdded = false
 //
 // BASE INDICATOR
 //
 var actInd = Titanium.UI.createActivityIndicator({
 	bottom:10, 
-	height:50,
-	width:50,
+	height:30,
+	width:30,
 	style:Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN
 });
 
@@ -21,8 +21,14 @@ var button0 = Titanium.UI.createButton({
 
 button0.addEventListener('click', function()
 {
-	actInd.message = null;
-	actInd.hide();
+	if(indicatorAdded)
+	{
+		actInd.message = null;
+		actInd.width = 30;
+		actInd.hide();
+		win.remove(actInd);
+		indicatorAdded = false
+	}
 });
 
 
@@ -39,7 +45,13 @@ var button1 = Titanium.UI.createButton({
 
 button1.addEventListener('click', function()
 {
-	actInd.show();
+	actInd.style = Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN;
+	if(!indicatorAdded)
+	{
+		win.add(actInd);
+		actInd.show();
+		indicatorAdded = true;
+	}
 });
 
 
@@ -56,7 +68,12 @@ var button2 = Titanium.UI.createButton({
 button2.addEventListener('click', function()
 {
 	actInd.style = Titanium.UI.iPhone.ActivityIndicatorStyle.BIG;
-	actInd.show();
+	if(!indicatorAdded)
+	{
+		win.add(actInd);
+		actInd.show();
+		indicatorAdded = true;
+	}
 });
 
 //
@@ -72,7 +89,12 @@ var button3 = Titanium.UI.createButton({
 button3.addEventListener('click', function()
 {
 	actInd.style = Titanium.UI.iPhone.ActivityIndicatorStyle.DARK;
-	actInd.show();
+	if(!indicatorAdded)
+	{
+		win.add(actInd);
+		actInd.show();
+		indicatorAdded = true;
+	}
 });
 
 //
@@ -92,7 +114,12 @@ button4.addEventListener('click', function()
 	actInd.color = 'white';
 	actInd.message = 'Loading...';
 	actInd.width = 210;
-	actInd.show();
+	if(!indicatorAdded)
+	{
+		win.add(actInd);
+		actInd.show();
+		indicatorAdded = true;
+	}
 });
 
 //
@@ -117,7 +144,6 @@ button5.addEventListener('click', function()
 	toolActInd.show();
 	setTimeout(function()
 	{
-		toolActInd.hide();
 		win.setToolbar(null,{animated:true});
 	},3000);
 
@@ -142,9 +168,7 @@ button6.addEventListener('click', function()
 	navActInd.show();
 	setTimeout(function()
 	{
-		navActInd.hide();
 		win.setRightNavButton(null);
-	
 	},3000);
 
 });
@@ -161,19 +185,29 @@ var button7 = Titanium.UI.createButton({
 
 button7.addEventListener('click', function()
 {
+	if(indicatorAdded)
+	{
+		actInd.message = null;
+		actInd.width = 30;
+		actInd.hide();
+		win.remove(actInd);
+	}
 	win.setTitleControl(actInd);
 	actInd.show();
-
+	indicatorAdded = true;
+	button0.enabled = false;
+	button4.enabled = false;
 	setTimeout(function()
 	{
 		actInd.hide();
 		win.setTitleControl(null);
+		indicatorAdded = false;
+		button0.enabled = true;
+		button4.enabled = true;
 		win.title = 'Activity Indicator';
 
 	},3000);
 });
-
-win.add(actInd);
 
 // add iphone elements
 if (Titanium.Platform.name == 'iPhone OS')
@@ -189,6 +223,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 }
 else
 {
+	win.add(actInd);
 	actInd.show();
 	actInd.message = 'Loading...';
 	setTimeout(function()

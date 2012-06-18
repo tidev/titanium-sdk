@@ -382,7 +382,7 @@ class Compiler(object):
 			return None
 		documentation = []
 		for file in os.listdir(docdir):
-			if file in ignoreFiles or os.path.isdir(os.path.join(docdir, file)):
+			if file in ignoreFiles or file.startswith('._') or os.path.isdir(os.path.join(docdir, file)):
 				continue
 			md = open(os.path.join(docdir, file)).read()
 			html = markdown.markdown(md)
@@ -395,7 +395,7 @@ class Compiler(object):
 				if name in dirs:
 					dirs.remove(name)
 			for file in files:
-				if file in ignoreFiles or file.endswith('.uncompressed.js'):
+				if file in ignoreFiles or file.startswith('._') or file.endswith('.uncompressed.js'):
 					continue
 				e = os.path.splitext(file)
 				if len(e) == 2 and e[1] == '.pyc':

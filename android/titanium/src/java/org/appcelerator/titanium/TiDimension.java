@@ -6,11 +6,13 @@
  */
 package org.appcelerator.titanium;
 
+import java.lang.ref.WeakReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 
 import android.content.Context;
 import android.util.DisplayMetrics;
@@ -177,6 +179,7 @@ public class TiDimension
 	 * <li> TypedValue.COMPLEX_UNIT_SP </li>
 	 * <li> TypedValue.COMPLEX_UNIT_MM </li>
 	 * <li> TypedValue.COMPLEX_UNIT_IN </li>
+	 * <li> TypedValue.COMPLEX_UNIT_CM </li>
 	 * <li> TiDimension.COMPLEX_UNIT_PERCENT </li>
 	 * <li> TiDimension.COMPLEX_UNIT_AUTO </li>
 	 * <li> TiDimension.COMPLEX_UNIT_UNDEFINED </li>
@@ -227,31 +230,31 @@ public class TiDimension
 		return (int) Math.round(getPixels(parent));
 	}
 
-	public int getAsMillimeters(View parent)
+	public double getAsMillimeters(View parent)
 	{
 		if (units == TypedValue.COMPLEX_UNIT_MM) {
-			return (int) this.value;
+			return this.value;
 		}
 
-		return (int) Math.round(((getPixels(parent) / getDisplayMetrics(parent).densityDpi) * MM_INCH));
+		return ((getPixels(parent) / getDPIForType(parent)) * MM_INCH);
 	}
 
-	public int getAsCentimeters(View parent)
+	public double getAsCentimeters(View parent)
 	{
 		if (units == COMPLEX_UNIT_CM) {
-			return (int) this.value;
+			return this.value;
 		}
 
-		return (int) Math.round(((getPixels(parent) / getDisplayMetrics(parent).densityDpi) * CM_INCH));
+		return ((getPixels(parent) / getDPIForType(parent)) * CM_INCH);
 	}
 
-	public int getAsInches(View parent)
+	public double getAsInches(View parent)
 	{
 		if (units == TypedValue.COMPLEX_UNIT_IN) {
-			return (int) this.value;
+			return this.value;
 		}
 
-		return (int) Math.round((getPixels(parent) / getDisplayMetrics(parent).densityDpi));
+		return (getPixels(parent) / getDPIForType(parent));
 	}
 
 	public int getAsDIP(View parent)
@@ -261,6 +264,32 @@ public class TiDimension
 		}
 
 		return (int) Math.round((getPixels(parent) / getDisplayMetrics(parent).density));
+	}
+	
+	/**
+	 * Calculates and returns the dimension in the default units. If the default
+	 * unit is not valid, returns in PX.
+	 * @param parent the parent of the view used for calculation
+	 * @return the dimension in the system unit
+	 */
+	public double getAsDefault(View parent)
+	{
+		String defaultUnit = TiApplication.getInstance().getDefaultUnit();
+		if (UNIT_DP.equals(defaultUnit) || UNIT_DIP.equals(defaultUnit)) {
+			return (double) getAsDIP(parent);
+		}
+		else if (UNIT_MM.equals(defaultUnit)) {
+			return getAsMillimeters(parent);
+		}
+		else if (UNIT_CM.equals(defaultUnit)) {
+			return getAsCentimeters(parent);
+		}
+		else if (UNIT_IN.equals(defaultUnit)) {
+			return getAsInches(parent);
+		}
+
+		// Returned for PX, SYSTEM, and unknown values
+		return (double) getAsPixels(parent);
 	}
 
 	protected double getPercentPixels(View parent)
@@ -307,10 +336,10 @@ public class TiDimension
 		}
 		return -1;
 	}
-
-	protected double getSizePixels(View parent)
+	
+	protected double getDPIForType(View parent)
 	{
-		DisplayMetrics metrics = getDisplayMetrics(parent);
+		DisplayMetrics metrics = getDisplayMetrics(parent);		
 		float dpi = -1;
 		switch (valueType) {
 			case TYPE_TOP:
@@ -328,6 +357,14 @@ public class TiDimension
 			default:
 				dpi = metrics.densityDpi;
 		}
+		
+		return dpi;
+	}
+	
+	protected double getSizePixels(View parent)
+	{
+		double dpi = getDPIForType(parent);
+		
 		if (units == TypedValue.COMPLEX_UNIT_PT) {
 			return (this.value * (dpi / POINT_DPI));
 		} else if (units == TypedValue.COMPLEX_UNIT_MM) {

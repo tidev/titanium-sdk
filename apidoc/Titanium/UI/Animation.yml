@@ -25,8 +25,8 @@ description: |
     
     In iOS, you can also specify an animation curve or *easing function* to control the pace of the 
     animation. To use an easing function, set the animation's `curve` property to one of the 
-    `ANIMATION_CURVE` constants defined in <Titanium.UI.iOS>. For example, 
-    [ANIMATION_CURVE_EASE_IN](Titanium.UI.iOS.ANIMATION_CURVE_EASE_IN) specifies an animation that 
+    `ANIMATION_CURVE` constants defined in <Titanium.UI>. For example, 
+    [ANIMATION_CURVE_EASE_IN](Titanium.UI.ANIMATION_CURVE_EASE_IN) specifies an animation that 
     starts slowly and then speeds up.
     
     Finally, iOS also supports *transitions* between windows or views. You can create a transition 

@@ -46,7 +46,7 @@ public class TiUIScrollableView extends TiUIView
 	private final TiCompositeLayout mContainer;
 	private final RelativeLayout mPagingControl;
 
-	private int mCurIndex = -1;
+	private int mCurIndex = 0;
 	private boolean mEnabled = true;
 
 	public TiUIScrollableView(ScrollableViewProxy proxy)
@@ -268,11 +268,7 @@ public class TiUIScrollableView extends TiUIView
 			int page = TiConvert.toInt(d, TiC.PROPERTY_CURRENT_PAGE);
 			if (page > 0) {
 				setCurrentPage(page);
-			} else {
-				mCurIndex = 0;
 			}
-		} else {
-			mCurIndex = 0;
 		}
 
 		if (d.containsKey(TiC.PROPERTY_SHOW_PAGING_CONTROL)) {
@@ -361,6 +357,7 @@ public class TiUIScrollableView extends TiUIView
 			Log.w(TAG, "Request to move to index " + index+ " ignored, as it is out-of-bounds.");
 			return;
 		}
+		mCurIndex = index;
 		mPager.setCurrentItem(index);
 	}
 

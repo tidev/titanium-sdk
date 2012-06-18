@@ -410,25 +410,100 @@ methods:
   - name: add
     summary: Adds a child to this view's hierarchy.
     description: |
-        There are certain top-level containers that are not intended to be added as the children of 
-        other views. These include [Window](Titanium.UI.Window), 
-        [SplitWindow](Titanium.UI.iPad.SplitWindow), and [TabGroup](Titanium.UI.TabGroup). 
-        Other types of views should be added to a top-level container in order to be displayed on 
-        screen.
+        The child view is added as the last child in this view's hierarchy. 
+
+        Although all views inherit from <Titanium.UI.View>, not all views are capable of
+        containing other views. In particular:
         
-        The special containers [NavigationGroup](Titanium.UI.iPhone.NavigationGroup) for iPhone, 
-        [NavigationGroup](Titanium.UI.MobileWeb.NavigationGroup) for Mobile Web, 
-        [SplitWindow](Titanium.UI.iPad.SplitWindow) for iPad, [TabGroup](Titanium.UI.TabGroup), 
-        and [Tab](Titanium.UI.Tab) manage windows that are referred to as *children* of the 
-        container. These containers have their own methods for adding children instead of their `add` 
-        methods.
+        *    Some views are not designed to be containers at all.
+        *    Some views are special-purpose containers that can only contain certain other
+             views.
+        *    Some views are top-level containers that cannot (or should not) be added to other views.
+
+        #### Non-Container Views
+
+        The following views are not intended to act as containers that can hold other
+        views:
+
+        *    [ActivityIndicator](Titanium.UI.ActivityIndicator)
+        *    [Button](Titanium.UI.Button)
+        *    [ImageView](Titanium.UI.ImageView)
+        *    [Label](Titanium.UI.Label)
+        *    [ProgressBar](Titanium.UI.ProgressBar)
+        *    [SearchBar](Titanium.UI.SearchBar)
+        *    [Slider](Titanium.UI.Slider)
+        *    [Switch](Titanium.UI.Switch)
+        *    [TableView](Titanium.UI.TableView)
+        *    [TextArea](Titanium.UI.TextArea)
+        *    [TextField](Titanium.UI.TextField)
+        *    [WebView](Titanium.UI.WebView)
+
+        Adding children to the these views _may_ be supported on some platforms,
+        but is not guaranteed to work across platforms. Where it is supported, it may not
+        work as expected.
         
-        Note that although a `NavigationGroup` manages windows, it is not itself a top-level 
-        container. It should be added to a `Window` in order to be displayed. 
+        For maximum portability, these views should be treated as if they do not support children.  
+        Instead of adding children to these views, applications can positon other views as
+        siblings. For example, instead of adding a button as a child of a `WebView`, you can add
+        the button to the web view's parent such that it appears on top of the web view. 
+
+        #### Special-Purpose  Containers
+
+        A few view objects act as special-purpose containers--that is, they only manage
+        certain types of children, and many of them support a special means of adding
+        these children, instead of the general `add` method. These containers include:
         
-        A `Tab` is another kind of special container that is not a top-level container, and may only 
-        be used within a `TabGroup`. Thus, the [addTab](Titanium.UI.TabGroup.addTab) rather than the 
-        `add` method should be used to add it to a `TabGroup`.
+        *   [ButtonBar](Titanium.UI.ButtonBar) and [TabbedBar](Titanium.UI.iOS.TabbedBar) are designed 
+            to hold their own internally-created buttons, assigned by adding strings to the "labels" array.
+            Views added using the `add` method are displayed on top of these buttons.
+
+        *   [Picker](Titanium.UI.Picker). Can only hold `PickerRows` and `PickerColumns`, which
+            are added using the `add` method. Adding other types of views to a `Picker` is not
+            supported.
+
+        *   [TableView](Titanium.UI.TableView) is a specialized container for
+            `TableViewSection` and `TableViewRow` objects. These objects must be
+            added using the properties and methods that `TableView` provides 
+            for adding and removing sectons and rows.
+
+            On some platforms, it is possible to add arbitrary child views to a table view 
+            using the `add` method. However, this is not guaranteed to work on all platforms, 
+            and in general, should be avoided.
+
+        *   [TableViewSection](Titanium.UI.TableViewSection) is a specialized container
+            for `TableViewRow` objects, which _are_ added using the `add` method. The `add` method
+            on `TableViewSection` can only be used to add `TableViewRow` objects.
+
+        *   [Toolbar](Titanium.UI.iOS.Toolbar) is designed to hold buttons and certain
+            other controls, added to its `items` array. Views added using the `add` method are
+            displayed on top of the controls in the `items` array.
+
+        *   The `Tab`, `TabGroup`, `NavigationGroup` and `SplitWindow` objects are 
+            special containers that manage windows. These are discussed in the 
+            "Top-Level Containers" section.
+
+
+        #### Top-Level Containers
+         
+        There are certain top-level containers that are not intended to be added 
+        as the children of other views. These top-level containers include 
+        [Window](Titanium.UI.Window), [SplitWindow](Titanium.UI.iPad.SplitWindow),
+        and [TabGroup](Titanium.UI.TabGroup).  Other types of views must be added 
+        to a top-level container in order to be displayed on screen.
+
+        The special containers [NavigationGroup](Titanium.UI.iPhone.NavigationGroup), 
+        [SplitWindow](Titanium.UI.iPad.SplitWindow), [Tab](Titanium.UI.Tab), and 
+        [TabGroup](Titanium.UI.TabGroup)
+        manage windows. These managed windows may be referred to as *children* of the 
+        container, but they are not added using the `add` method.
+        
+        Note that although a `NavigationGroup`
+        manages windows, it is not itself top-level container.  It must be added to a 
+        `Window` in order to be displayed. 
+        
+        `Tab` is another kind of special container: it is not itself a top-level container, 
+        but can only be used within a `TabGroup`. You cannot `add` a `Tab` to an arbitrary
+        container.
     parameters:
       - name: view
         summary: View to add to this view's hierarchy.
@@ -653,7 +728,7 @@ properties:
   - name: backgroundGradient
     summary: A background gradient for the view.
     type: Gradient
-    platforms: [iphone,ipad,mobileweb]
+    platforms: [iphone,ipad,mobileweb,android]
     description: |
         A gradient can be defined as either linear or radial. A linear gradient varies continuously 
         along a line between the `startPoint` and `endPoint`.
@@ -677,6 +752,9 @@ properties:
         
         Mobile Web has two limitations: backfillStart and backfillEnd are ignored and the system 
         behaves as if they are true, and endPoint is not supported for radial gradients. 
+
+        Android currently only supports linear gradients. It also ignores backfillStart and backfillEnd
+        treating them as if they are true.
     examples:
       - title: Linear and Radial Gradients
         example: |
@@ -949,29 +1027,36 @@ properties:
             
             Each child is positioned horizontally as in the composite layout mode. 
             
-         *  `horizontal`. Somewhat like the vertical layout, except children are laid out horizontally
-            from left to right, _in rows_. If a child requires more horizontal space than
-            exists in the current row, it is wrapped to a new row. The height of each row
-            is equal to the maximum height of the children in that row. 
+         *  `horizontal`. Horizontal layouts have different behavior depending on whether wrapping 
+            is enabled. Wrapping is enabled by default (the `horizontalWrap` property is `true`).
             
-            On iOS and Mobile Web (Release 2.1.0 and later), the first row is placed 
-            at the top of the parent view, and successive rows are placed below the first
-            row. Each child is positioned vertically _within its row_ somewhat like
-            composite layout mode. In particular: 
+            With wrapping behavior, the children are laid out horizontally from left to right,
+            _in rows_. If a child requires more horizontal space than exists in the current row,
+            it is wrapped to a new row. The height of each row is equal to the maximum height of
+            the children in that row.
+            
+            Wrapping behavior is available on iOS, Android and Mobile Web (Release 2.1.0 and later).
+            When the `horizontalWrap` property is set to true, the first row is placed at the top of the 
+            parent view, and successive rows are placed below the first row. Each child is 
+            positioned vertically _within its row_ somewhat like composite layout mode. 
+            In particular: 
             
             *   If neither `top` or `bottom` is specified, the child is centered in the
                 row.
             *   If either `top` or `bottom` is specified, the child is aligned to either
                 the top or bottom of the row, with the specified amount of padding.
-            *   If *both* `top` and `bottom` is specified for a given child, the behavior 
-                is undefined.
-            *   The `center` property is ignored in this mode.
+            *   If *both* `top` and `bottom` is specified for a given child, the properties
+                are both treated as padding.
             
-            On Android, the first row is centered vertically in the parent view, and
-            successive rows are placed below the first row as on iOS. However, the `top` 
-            and `bottom` values are interpreted relative to the parent view. 
+            If the `horizontalWrap` property is false, the behavior is more equivalent to a vertical layout. 
+            Children are laid or horizontally from left to right in a single row. The `left` and 
+            `right` properties are used as padding between the children, and the `top` and `bottom` 
+            properties are used to position the children vertically.
             
-            On Mobile Web _prior to_ Release 2.1.0, the horizontal layout does not wrap. 
+            On Mobile Web _prior to_ Release 2.1.0, the horizontal layout does not wrap by default, 
+            and does not support the `horizontalWrap` property. On Android and iOS _prior to_ Release 
+            2.1.0, the horizontal layout always wraps and the `horizontalWrap` property is not supported.
+            
     default: Composite layout
 
   - name: opacity
@@ -1076,7 +1161,16 @@ properties:
         the view's size once rendered, use the [rect](Titanium.UI.View.rect) or
         [size](Titanium.UI.View.size) properties.
     type: [Number,String]
-    
+
+  - name: horizontalWrap
+    summary: Determines whether the layout has wrapping behavior.
+    description: |
+        For more information, see the discussion of horizontal layout mode in the description of 
+        the [layout](Titanium.UI.View.layout) property.
+    type: Boolean
+    default: true
+    since: "2.1.0"
+
   - name: zIndex
     summary: Z-index stack order position, relative to other sibling views.
     description: |
@@ -1134,10 +1228,12 @@ properties:
   - name: startPoint
     summary: Start point for the gradient.
     type: Point
+    default: {x: 0.0, y: 0.0}
     
   - name: endPoint
     summary: End point for the gradient.
     type: Point
+    default: {x: 0.0, y: 1.0}
     
   - name: startRadius
     summary: For a radial gradient, the radius at the `startPoint`.
