@@ -1914,6 +1914,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_HORIZONTAL_WRAP = "horizontalWrap";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_X = "x";
 
 	/**

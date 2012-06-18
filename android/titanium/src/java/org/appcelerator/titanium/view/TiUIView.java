@@ -419,6 +419,11 @@ public abstract class TiUIView
 				layoutParams.optionHeight = null;
 			}
 			layoutNativeView();
+		} else if (key.equals(TiC.PROPERTY_HORIZONTAL_WRAP)) {
+			if (nativeView instanceof TiCompositeLayout) {
+				((TiCompositeLayout) nativeView).setEnableHorizontalWrap(TiConvert.toBoolean(newValue));
+			}
+			layoutNativeView();
 		} else if (key.equals(TiC.PROPERTY_WIDTH)) {
 			resetPostAnimationValues();
 			if (newValue != null) {
@@ -573,7 +578,12 @@ public abstract class TiUIView
 		}
 		if (TiConvert.fillLayout(d, layoutParams) && !nativeViewNull) {
 			nativeView.requestLayout();
+		}
 
+		if (d.containsKey(TiC.PROPERTY_HORIZONTAL_WRAP)) {
+			if (nativeView instanceof TiCompositeLayout) {
+				((TiCompositeLayout) nativeView).setEnableHorizontalWrap(TiConvert.toBoolean(d, TiC.PROPERTY_HORIZONTAL_WRAP));
+			}
 		}
 
 		Integer bgColor = null;
