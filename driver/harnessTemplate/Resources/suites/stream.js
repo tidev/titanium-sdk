@@ -14,8 +14,8 @@ module.exports = new function() {
 		{name: "asyncRead", timeout: 10000},
 		{name: "asyncWrite", timeout: 10000},
 		{name: "readAll", timeout: 10000},
-		{name: "writeStream", timeout: 10000}
-		//{name: "pump", timeout: 10000} buggy, needs work
+		{name: "writeStream", timeout: 10000},
+		{name: "pump", timeout: 10000}
 	]
 
 	this.before_all = function() {

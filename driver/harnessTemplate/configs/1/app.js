@@ -20,7 +20,7 @@ harnessGlobal.suites = [
 	//{name: "jss/jss"},
 	{name: "kroll"},
 	{name: "locale"},
-	{name: "network_httpclient"},
+	//{name: "network_httpclient"},
 	//{name: "network"},
 	//{name: "network_socket"},
 	//{name: "network_socket_tcp"},

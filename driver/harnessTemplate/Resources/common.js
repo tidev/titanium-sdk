@@ -12,26 +12,31 @@ module.exports = new function() {
 	var currentSuite;
 	var currentTest;
 	var testStartTime;
+	var testResult;
 
-	var resultCallback = function(result, description) {
+	var setResult = function(result, description) {
 		if(result == undefined) {
 			result = "success";
 		}
 
-		harnessGlobal.util.sendData({
+		testResult = {
 			type: "result",
 			suite: currentSuite.name,
 			test: currentSuite.tests[currentTest].name,
 			result: result,
 			description: description,
 			duration: (new Date().getTime()) - testStartTime
-		});
+		};
+	}
+
+	var sendResult = function() {
+		harnessGlobal.util.sendData(testResult);
 	}
 
 	var setActiveSuite = function(suiteName) {
 		currentSuite = require("suites/" + suiteName);
 
-		testUtil.callback = resultCallback;
+		testUtil.callback = setResult;
 		currentSuite.init(testUtil);
 	}
 
@@ -104,8 +109,14 @@ module.exports = new function() {
 							exceptionDetails = "unable to get exception details";
 						}
 
-						resultCallback("exception", "<" + exceptionDetails + ">");
+						setResult("exception", "<" + exceptionDetails + ">");
 					}
+
+					/*
+					the test results might get set halfway through a test but don't send them 
+					until the test has finished so we don't run into timining issues
+					*/
+					sendResult();
 				}
 			}
 		}
