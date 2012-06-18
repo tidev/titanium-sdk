@@ -16,13 +16,36 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style"], function(declare, Evented
 			}
 		],
 		global = window,
+		is = require.is,
 		lastTime = 0,
 		prefixes = ["ms", "moz", "webkit", "o"],
 		i = prefixes.length,
 		ignoreRegExp = /autoreverse|curve|delay|duration|repeat|visible/,
 		needsRender,
 		animations = {},
-		colors = require(require.config.colorsModule);
+		colors = require(require.config.ti.colorsModule),
+		api = declare("Ti.UI.Animation", Evented, {
+			properties: {
+				autoreverse: void 0,
+				backgroundColor: void 0,
+				bottom: void 0,
+				center: void 0,
+				color: void 0,
+				curve: void 0,
+				delay: void 0,
+				duration: void 0,
+				height: void 0,
+				left: void 0,
+				opacity: void 0,
+				repeat: void 0,
+				right: void 0,
+				top: void 0,
+				transform: void 0,
+				visible: void 0,
+				width: void 0,
+				zIndex: void 0
+			}
+		});
 
 	function now() {
 		return (new Date).getTime();
@@ -41,36 +64,28 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style"], function(declare, Evented
 	});
 
 	function render(ts) {
-		var a,
-			prop,
+		var wid,
+			elem,
 			itemsStillAnimating = 0,
 			elementPropsAmimating;
 
-		for (a in animations) {
+		for (wid in animations) {
+			elem = animations[wid];
 			for (prop in animations[a]) {
-				//params[9]
+				//
 			}
 		}
+
+		// TODO: only play animations that are NOT PAUSED
+
+		// TODO: fire complete
+		// anim.fireEvent("complete");
+		// anim.complete()
 
 		itemsStillAnimating && requestAnimationFrame(render);
 	}
 
 	/*
-	params array spec
-		0	element
-		1	property name
-		2	destination value
-		3	autoreverse
-		4	curve array index
-		5	delay
-		6	duration
-		7	repeat flag
-		8	visible flag
-	---------------------------
-		9	start timestamp
-		10	current value
-		11	unit?
-
 	units
 		color
 			backgroundColor
@@ -90,8 +105,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style"], function(declare, Evented
 			transform
 	*/
 
-	function schedule(elem, prop, value, anim) {
-		var id = elem.widgetId + '/' + prop,
+		/*	id = elem.widgetId + '/' + prop,
 			ani = animations[id];
 
 		animations[id] = [
@@ -109,22 +123,7 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style"], function(declare, Evented
 			now(),
 			ani ? ani[11] : style.get(elem.domNode, prop)
 		];
-
-		// TODO: fire start
-
-		// needsRender || needsRender = true, requestAnimationFrame(render);
-	}
-
-	// http://developer.appcelerator.com/question/137700/mobileweb-tableviewrow-and-tableviewsection-tostring-changed
-
-	// animator
-	// - animates all scheduled animations
-	// - fires start/complete events
-		// question: what is fired first? start() or start event
-		// anim.start()
-		// anim.fireEvent("start");
-		// anim.complete()
-		// anim.fireEvent("complete");
+		*/
 
 /*
 			var self = this,
@@ -135,49 +134,88 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style"], function(declare, Evented
 			UI._layoutInProgress || !self._isAttachedToActiveWin() ? on.once(UI, "postlayout", f) : f();
 */
 
-	return declare("Ti.UI.Animation", Evented, {
+	api.play = function animationPlay(elem, anim) {
+		var promise = new require.Promise,
+			wid = elem.widgetId,
+			id = Math.random() * 1e9 | 0,
+			elemAnis = animations[wid] = (animations[wid] || []),
+			i,
+			value,
+			props = {},
+			prop,
+			properties = anim.properties.__values__,
+			delay = properties.delay | 0,
+			visible = !!properties.visible;
 
-		_play: function(elem) {
-			var prop,
-				value,
-				props = this.properties.__values__,
-				curve = Math.max(0, Math.min(curves.length - 1, props.curve | 0)),
-				handles = {};
-
-			for (prop in props) {
-				value = props[prop];
-				ignoreRegExp.test(prop) || value !== void 0 && (handles[prop] = schedule(elem, prop, value, this));
-			}
-
-			// TODO: this MUST return a promise!!!
- 			return {
-				pause: function() {
-					// use the handles to unschedule
+		// get all animatable properties that are defined
+		for (prop in properties) {
+			value = properties[prop];
+			if (!ignoreRegExp.test(prop) && value !== void 0) {
+				// see if we are already animating this element's property
+				for (i = 0; i < elemAnis.length; i++) {
+					delete elemAnis[i].props[prop];
+					if (require.isEmpty(elemAnis[i].props)) {
+						elemAnis.splice(i--, 1);
+					}
 				}
-			};
-		},
-
-		properties: {
-			autoreverse: void 0,
-			backgroundColor: void 0,
-			bottom: void 0,
-			center: void 0,
-			color: void 0,
-			curve: void 0,
-			delay: void 0,
-			duration: void 0,
-			height: void 0,
-			left: void 0,
-			opacity: void 0,
-			repeat: void 0,
-			right: void 0,
-			top: void 0,
-			transform: void 0,
-			visible: void 0,
-			width: void 0,
-			zIndex: void 0
+				props[prop] = [
+					/* from */ style.get(elem.domNode, prop),
+					/* to */   value
+				];
+			}
 		}
 
-	});
+		function go() {
+			debugger;
+
+			animations[wid].push({
+				id: id,
+				elem: elem,
+				promise: promise,
+				props: props,
+				ts: now(),
+				autoreverse: !!props.autoreverse,
+				curve: Math.max(0, Math.min(curves.length - 1, properties.curve | 0)),
+				duration: props.duration | 0,
+				repeat: !!props.repeat
+			});
+
+			anim.fireEvent("start");
+			is(anim.start, "Function") && anim.start()
+
+			needsRender || needsRender = true, requestAnimationFrame(render);
+		}
+
+		delay ? setTimeout(go, delay) : go();
+
+		function findAnimation() {
+			var elemAnis = animations[wid],
+				i = 0,
+				len = elemAnis && elemAnis.length;
+			while (i < len) {
+				if (elemAnis[i].id === id) {
+					return elemAnis[i];
+				}
+			}
+		}
+
+		promise.pause = function() {
+			var a = findAnimation();
+			return !!a && (a.paused = true);
+		};
+
+		promise.resume = function() {
+			var a = findAnimation();
+			return !!a && !(a.paused = false);
+		};
+
+		return promise.then(function() {
+			anim.fireEvent("complete");
+			is(anim.complete, "Function") && anim.complete();
+			elem.visible = visible;
+		});
+	};
+
+	return api;
 
 });

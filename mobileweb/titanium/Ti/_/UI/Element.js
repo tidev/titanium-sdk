@@ -656,7 +656,8 @@ define(
 		},
 
 		animate: function(anim, callback) {
-			(anim && anim.declaredClass === "Ti.UI.Animation" ? anim : new Animation(anim))._play(this).then(callback);
+			debugger;
+			return Animation.play(this, anim && anim.declaredClass === "Ti.UI.Animation" ? anim : new Animation(anim)).then(callback);
 		},
 /*
 		animate: function(anim, callback) {

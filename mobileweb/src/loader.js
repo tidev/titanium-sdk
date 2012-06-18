@@ -999,6 +999,7 @@
 		config: cfg,
 		evaluate: evaluate,
 		is: is,
+		isEmpty: isEmpty,
 		mix: mix,
 		on: on,
 		Promise: Promise
