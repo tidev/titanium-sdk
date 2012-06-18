@@ -15,7 +15,25 @@ description: |
     for example), but the iOS Human Interface Guidelines have specific requirements for placing 
     toolbars: on iPhone, a toolbar should be at the bottom of the window. On the iPad, a toolbar 
     should appear at the top or bottom of a window.
+
+    You can specify that a border be drawn on the top or bottom of the toolbar, using the
+    [borderTop](Titanium.UI.iOS.Toolbar.borderTop) and
+    [borderBottom](Titanium.UI.iOS.Toolbar.borderBottom) properties. While the standard
+    `borderColor`, `borderWidth`, and `borderRadius` properties are supported on toolbars,
+    using these properties adds a border on all four sides of the control, which may be
+    undesirable.
+
+    See also:
+
+    *  [Toolbar in the iOS Human Interface Guidelines.](http://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/UIElementGuidelines/UIElementGuidelines.html#//apple_ref/doc/uid/TP40006556-CH13-SW10)
+
 extends: Titanium.UI.View
+excludes: { properties: [ backgroundColor, backgroundDisabledColor, backgroundDisabledImage,         
+            backgroundFocusedColor, backgroundFocusedImage,
+            backgroundLeftCap, backgroundTopCap, backgroundRepeat,
+            backgroundSelectedColor, backgroundSelectedImage, layout,
+            softKeyboardOnFocus ],
+            events: [ longclick, twofingertap ] }
 since: "0.8"
 platforms: [iphone, ipad]
 
@@ -23,6 +41,13 @@ properties:
   - name: barColor
     summary: Background color for the toolbar, as a color name or hex triplet.
     description: |
+        To use a background image on the toolbar, either `barColor` must be a fully or
+        partially transparent color, 
+        or the [translucent](Titanium.UI.iOS.Toolbar.translucent) property must be `true`.
+
+        To use a background gradient on a toolbar, `barColor` must be `'transparent'`
+        *and* the the [translucent](Titanium.UI.iOS.Toolbar.translucent) property must be `true`.
+
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
     
@@ -42,6 +67,10 @@ properties:
     
   - name: translucent
     summary: If `true`, a translucent background color is used for the toolbar.
+    description: |
+        Note that if `translucent` is `false`, views under the toolbar are hidden, even
+        if [barColor](Titanium.UI.iOS.Toolbar.barColor) is set to a semi-transparent or 
+        transparent color.
     type: Boolean
     default: false
 
@@ -67,7 +96,7 @@ examples:
                 systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
             });
             
-            var toolbar = Titanium.UI.createToolbar({
+            var toolbar = Titanium.UI.iOS.createToolbar({
                 items:[send, flexSpace, camera, flexSpace, cancel],
                 bottom:0,
                 borderTop:true,

@@ -6,10 +6,13 @@ define({
 		}
 	},
 	off: function(handles) {
-		handles = require.is(handles, "Array") ? handles : [handles];
-		handles.forEach(function(h) {
-			h && h();
-		});
+		var handles = require.is(handles, "Array") ? handles : [handles],
+			h,
+			i = 0,
+			l = handles.length;
+		while (i < l) {
+			(h = handles[i++]) && h();
+		}
 		handles.splice(0);
 	}
 });

@@ -1,17 +1,21 @@
-define(["Ti/_/declare", "Ti/_/lang","Ti/_/Gestures/GestureRecognizer"], function(declare,lang,GestureRecognizer) {
+define(["Ti/_/declare", "Ti/_/lang", "Ti/_/Gestures/GestureRecognizer"], function(declare,lang,GestureRecognizer) {
 
 	return declare("Ti._.Gestures.TouchStart", GestureRecognizer, {
-		
+
 		name: "touchstart",
-		
+
 		processTouchStartEvent: function(e, element){
 			if (!element._isGestureBlocked(this.name)) {
-				for (var i = 0; i < e.changedTouches.length; i++) {
-					lang.hitch(element,element._handleTouchEvent(this.name,{
-						x: e.changedTouches[i].clientX,
-						y: e.changedTouches[i].clientY,
-						source: this.getSourceNode(e,element)
-					}));
+				var changed = e.changedTouches,
+					i = 0,
+					l = changed.length,
+					src = this.getSourceNode(e, element);
+				for (; i < l; i++) {
+					element._handleTouchEvent(this.name, {
+						x: changed[i].clientX,
+						y: changed[i].clientY,
+						source: src
+					});
 				}
 			}
 		}

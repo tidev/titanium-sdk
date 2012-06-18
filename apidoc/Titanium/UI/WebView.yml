@@ -52,6 +52,7 @@ description: |
     and [Activity.resume](Titanium.Android.Activity.resume) events.
 
 extends: Titanium.UI.View
+excludes: { methods: [ add ] }
 since: "0.8"
 methods:
 

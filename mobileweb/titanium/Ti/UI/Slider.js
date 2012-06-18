@@ -29,8 +29,8 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 			on(self, "postlayout", self, "_updatePosition");
 		},
 
-		_constrainedUpdate: function() {
-			this.value = this._constrainValue(this.value);
+		_constrainedUpdate: function(value) {
+			this.properties.__values__.value = this._constrainValue(value);
 			this._updatePosition();
 		},
 
@@ -53,6 +53,11 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 			Widget.prototype._setTouchEnabled.call(this, value);
 			setStyle(this._track, "pointerEvents", cssVal);
 			setStyle(this._thumb, "pointerEvents", cssVal);
+		},
+
+		_handleTouchEvent: function(type, e) {
+			e.value = this.value;
+			Widget.prototype._handleTouchEvent.call(this, type, e);
 		},
 
 		_getContentSize: function() {
@@ -107,7 +112,7 @@ define(["Ti/_/declare", "Ti/_/UI/Widget", "Ti/_/dom", "Ti/_/css", "Ti/_/style", 
 			},
 
 			value: {
-				set: function(value, oldValue) {
+				set: function(value) {
 					return this._constrainValue(value);
 				},
 				post: function(value, oldValue) {

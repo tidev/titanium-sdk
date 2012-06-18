@@ -10,6 +10,7 @@
 
 @class KrollContext, KrollCallback;
 extern TiClassRef KrollObjectClassRef;
+extern TiStringRef kTiStringExportsKey;
 
 void KrollFinalizer(TiObjectRef ref);
 void KrollInitializer(TiContextRef ctx, TiObjectRef object);

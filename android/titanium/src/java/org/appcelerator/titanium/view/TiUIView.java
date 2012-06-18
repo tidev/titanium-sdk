@@ -30,6 +30,7 @@ import org.appcelerator.titanium.util.TiAnimationBuilder.TiMatrixAnimation;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
+import org.appcelerator.titanium.view.TiGradientDrawable.GradientType;
 
 import android.content.Context;
 import android.graphics.Paint;
@@ -38,10 +39,10 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.ScaleGestureDetector;
-import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
+import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
@@ -67,7 +68,6 @@ public abstract class TiUIView
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private static AtomicInteger idGenerator;
-	private static Method setLayerTypeMethod = null; // Honeycomb, for turning off hw acceleration.
 
 	public static final int SOFT_KEYBOARD_DEFAULT_ON_FOCUS = 0;
 	public static final int SOFT_KEYBOARD_HIDE_ON_FOCUS = 1;
@@ -82,6 +82,18 @@ public abstract class TiUIView
 	protected LayoutParams layoutParams;
 	protected TiAnimationBuilder animBuilder;
 	protected TiBackgroundDrawable background;
+
+	// Since Android doesn't have a property to check to indicate
+	// the current animated x/y scale (from ScaleAnimation), we track it here
+	// so if another scale animation is done we can gleen the fromX and fromY values
+	// rather than starting the next animation always from scale 1.0f (i.e., normal scale).
+	// This gives us parity with iPhone for scale animations that use the 2-argument variant
+	// of Ti2DMatrix.scale().
+	private float animatedXScale = 1f;
+	private float animatedYScale = 1f; // 1 = regular size.
+
+	// Same for rotation animation.
+	private float animatedRotationDegrees = 0f; // i.e., no rotation.
 
 	private KrollDict lastUpEvent = new KrollDict(2);
 	// In the case of heavy-weight windows, the "nativeView" is null,
@@ -262,6 +274,11 @@ public abstract class TiUIView
 	private boolean hasRepeat(KrollDict d)
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_REPEAT);
+	}
+
+	private boolean hasGradient(KrollDict d)
+	{
+		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_GRADIENT);
 	}
 
 	private boolean hasBorder(KrollDict d)
@@ -449,9 +466,10 @@ public abstract class TiUIView
 			boolean hasRepeat = hasRepeat(d);
 			boolean hasColorState = hasColorState(d);
 			boolean hasBorder = hasBorder(d);
+			boolean hasGradient = hasGradient(d);
 			boolean nativeViewNull = (nativeView == null);
 
-			boolean requiresCustomBackground = hasImage || hasRepeat || hasColorState || hasBorder;
+			boolean requiresCustomBackground = hasImage || hasRepeat || hasColorState || hasBorder || hasGradient;
 
 			if (!requiresCustomBackground) {
 				if (background != null) {
@@ -483,7 +501,7 @@ public abstract class TiUIView
 
 				Integer bgColor = null;
 
-				if (!hasColorState) {
+				if (!hasColorState && !hasGradient) {
 					if (d.get(TiC.PROPERTY_BACKGROUND_COLOR) != null) {
 						bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
 						if (newBackground || (key.equals(TiC.PROPERTY_OPACITY) || key.equals(TiC.PROPERTY_BACKGROUND_COLOR))) {
@@ -492,7 +510,7 @@ public abstract class TiUIView
 					}
 				}
 
-				if (hasImage || hasRepeat || hasColorState) {
+				if (hasImage || hasRepeat || hasColorState || hasGradient) {
 					if (newBackground || key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX)) {
 						handleBackgroundImage(d);
 					}
@@ -527,13 +545,8 @@ public abstract class TiUIView
 				nativeView.setKeepScreenOn(TiConvert.toBoolean(newValue));
 			}
 		} else {
-			TiViewProxy viewProxy = getProxy();
-			if (viewProxy != null && viewProxy.isLocalizedTextId(key)) {
-				viewProxy.setLocalizedText(key, TiConvert.toString(newValue));
-			} else {
-				if (DBG) {
-					Log.d(LCAT, "Unhandled property key: " + key);
-				}
+			if (DBG) {
+				Log.d(LCAT, "Unhandled property key: " + key);
 			}
 		}
 	}
@@ -560,13 +573,26 @@ public abstract class TiUIView
 
 		// Default background processing.
 		// Prefer image to color.
-		if (hasImage(d) || hasColorState(d) || hasBorder(d)) {
+		if (hasImage(d) || hasColorState(d) || hasGradient(d)) {
 			handleBackgroundImage(d);
+
 		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) && !nativeViewNull) {
 			bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
-			nativeView.setBackgroundColor(bgColor);
+
+			// Set the background color on the view directly only
+			// if there is no border. If a border is present we must
+			// use the TiBackgroundDrawable.
+			if (hasBorder(d)) {
+				if (background == null) {
+					applyCustomBackground(false);
+				}
+				background.setBackgroundColor(bgColor);
+
+			} else {
+				nativeView.setBackgroundColor(bgColor);
+			}
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_VISIBLE) && !nativeViewNull) {
 			nativeView.setVisibility(TiConvert.toBoolean(d, TiC.PROPERTY_VISIBLE) ? View.VISIBLE : View.INVISIBLE);
 			
@@ -753,14 +779,14 @@ public abstract class TiUIView
 	private void handleBackgroundImage(KrollDict d)
 	{
 		String bg = d.getString(TiC.PROPERTY_BACKGROUND_IMAGE);
-		String bgSelected = d.getString(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE);
-		String bgFocused = d.getString(TiC.PROPERTY_BACKGROUND_FOCUSED_IMAGE);
-		String bgDisabled = d.getString(TiC.PROPERTY_BACKGROUND_DISABLED_IMAGE);
+		String bgSelected = d.optString(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, bg);
+		String bgFocused = d.optString(TiC.PROPERTY_BACKGROUND_FOCUSED_IMAGE, bg);
+		String bgDisabled = d.optString(TiC.PROPERTY_BACKGROUND_DISABLED_IMAGE, bg);
 		
 		String bgColor = d.getString(TiC.PROPERTY_BACKGROUND_COLOR);
-		String bgSelectedColor = d.getString(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR);
-		String bgFocusedColor = d.getString(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR);
-		String bgDisabledColor = d.getString(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR);
+		String bgSelectedColor = d.optString(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, bgColor);
+		String bgFocusedColor = d.optString(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR, bgColor);
+		String bgDisabledColor = d.optString(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR, bgColor);
 
 		if (bg != null) {
 			bg = resolveImageUrl(bg);
@@ -775,8 +801,19 @@ public abstract class TiUIView
 			bgDisabled = resolveImageUrl(bgDisabled);
 		}
 
+		TiGradientDrawable gradientDrawable = null;
+		KrollDict gradientProperties = d.getKrollDict(TiC.PROPERTY_BACKGROUND_GRADIENT);
+		if (gradientProperties != null) {
+			gradientDrawable = new TiGradientDrawable(nativeView, gradientProperties);
+			if (gradientDrawable.getGradientType() == GradientType.RADIAL_GRADIENT) {
+				// TODO: Remove this once we support radial gradients.
+				Log.w(LCAT, "Android does not support radial gradients.");
+				gradientDrawable = null;
+			}
+		}
+
 		if (bg != null || bgSelected != null || bgFocused != null || bgDisabled != null ||
-				bgColor != null || bgSelectedColor != null || bgFocusedColor != null || bgDisabledColor != null) 
+				bgColor != null || bgSelectedColor != null || bgFocusedColor != null || bgDisabledColor != null || gradientDrawable != null) 
 		{
 			if (background == null) {
 				applyCustomBackground(false);
@@ -791,7 +828,8 @@ public abstract class TiUIView
 					bgDisabled,
 					bgDisabledColor,
 					bgFocused,
-					bgFocusedColor);
+					bgFocusedColor,
+					gradientDrawable);
 
 			background.setBackgroundDrawable(bgDrawable);
 		}
@@ -1228,4 +1266,56 @@ public abstract class TiUIView
 		}
 	}
 
+	/**
+	 * Store the animated x scale (from a ScaleAnimation) since Android provides no property for
+	 * looking it up.
+	 */
+	public void setAnimatedXScale(float scale)
+	{
+		animatedXScale = scale;
+	}
+
+	/**
+	 * Retrieve the animated x scale, which we store here since Android provides no property
+	 * for looking it up.
+	 */
+	public float getAnimatedXScale()
+	{
+		return animatedXScale;
+	}
+
+	/**
+	 * Store the animated y scale (from a ScaleAnimation) since Android provides no property for
+	 * looking it up.
+	 */
+	public void setAnimatedYScale(float scale)
+	{
+		animatedYScale = scale;
+	}
+
+	/**
+	 * Retrieve the animated y scale, which we store here since Android provides no property
+	 * for looking it up.
+	 */
+	public float getAnimatedYScale()
+	{
+		return animatedYScale;
+	}
+
+	/**
+	 * Set the animated rotation degrees, since Android provides no property for looking it up.
+	 */
+	public void setAnimatedRotationDegrees(float degrees)
+	{
+		animatedRotationDegrees = degrees;
+	}
+
+	/**
+	 * Retrieve the animated rotation degrees, which we store here since Android provides no property
+	 * for looking it up.
+	 */
+	public float getAnimatedRotationDegrees()
+	{
+		return animatedRotationDegrees;
+	}
 }

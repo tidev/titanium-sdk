@@ -56,12 +56,12 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/API", "Ti/UI", "Ti/_/lang", "Ti
 						
 						if (isNaN(measuredWidth) || isNaN(heightLayoutCoefficients.x1)) {
 							if (child._getContentSize) {
-								childSize = child._getContentSize();
+								childSize = child._getContentSize(measuredWidth, measuredHeight);
 							} else {
 								childSize = child._layout._doLayout(
 									child, 
-									isNaN(measuredWidth) ? width : measuredWidth, 
-									isNaN(measuredHeight) ? height : measuredHeight, 
+									isNaN(measuredWidth) ? width : measuredWidth - child._borderLeftWidth - child._borderRightWidth, 
+									isNaN(measuredHeight) ? height : measuredHeight - child._borderTopWidth - child._borderBottomWidth, 
 									isNaN(measuredWidth), 
 									isNaN(measuredHeight));
 							}
@@ -110,24 +110,26 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/API", "Ti/UI", "Ti/_/lang", "Ti
 						heightLayoutCoefficients = layoutCoefficients.height;
 						sandboxHeightLayoutCoefficients = layoutCoefficients.sandboxHeight;
 						measuredHeight = child._measuredHeight;
-						isNaN(measuredHeight) && (child._measuredHeight = measuredHeight = heightLayoutCoefficients.x1 * height + heightLayoutCoefficients.x2 * (height - runningHeight) + heightLayoutCoefficients.x3);
+						isNaN(measuredHeight) && (child._measuredHeight = measuredHeight = heightLayoutCoefficients.x1 * 
+							height + heightLayoutCoefficients.x2 * (height - runningHeight) + heightLayoutCoefficients.x3);
 						
 						if (!child._childrenLaidOut) {
 							measuredWidth = child._measuredWidth;
 							child._childrenLaidOut = true;
 							child._layout._doLayout(
 								child, 
-								isNaN(measuredWidth) ? width : measuredWidth, 
-								isNaN(measuredHeight) ? height : measuredHeight, 
+								isNaN(measuredWidth) ? width : measuredWidth - child._borderLeftWidth - child._borderRightWidth, 
+								isNaN(measuredHeight) ? height : measuredHeight - child._borderTopWidth - child._borderBottomWidth, 
 								isNaN(measuredWidth), 
 								isNaN(measuredHeight));
 						}
 						
 						if (topLayoutCoefficients.x2 !== 0) {
 							deferredTopCalculations.push(child);
-							measuredTop = 0; // Temporary for use in calculating row height
+							measuredTop = runningHeight; // Temporary for use in calculating row height
 						} else {
-							child._measuredTop = measuredTop = topLayoutCoefficients.x1 * height + topLayoutCoefficients.x3 * measuredHeight + topLayoutCoefficients.x4 + runningHeight;
+							child._measuredTop = measuredTop = topLayoutCoefficients.x1 * height + 
+								topLayoutCoefficients.x3 * measuredHeight + topLayoutCoefficients.x4 + runningHeight;
 						}
 						
 						child._measuredSandboxHeight = measuredSandboxHeight = sandboxHeightLayoutCoefficients.x1 * height + sandboxHeightLayoutCoefficients.x2 + measuredHeight + measuredTop - runningHeight;

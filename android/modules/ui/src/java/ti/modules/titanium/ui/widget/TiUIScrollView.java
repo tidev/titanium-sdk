@@ -22,6 +22,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -34,8 +35,6 @@ public class TiUIScrollView extends TiUIView
 	public static final int TYPE_VERTICAL = 0;
 	public static final int TYPE_HORIZONTAL = 1;
 
-	private static final String SHOW_VERTICAL_SCROLL_INDICATOR = "showVerticalScrollIndicator";
-	private static final String SHOW_HORIZONTAL_SCROLL_INDICATOR = "showHorizontalScrollIndicator";
 	private static final String LCAT = "TiUIScrollView";
 	private static final boolean DBG = TiConfig.LOGD;
 	private int offsetX = 0, offsetY = 0;
@@ -44,7 +43,9 @@ public class TiUIScrollView extends TiUIView
 	private class TiScrollViewLayout extends TiCompositeLayout
 	{
 		private static final int AUTO = Integer.MAX_VALUE;
-		private int parentWidth = 0, parentHeight = 0;
+		private int parentWidth = 0;
+		private int parentHeight = 0;
+		private boolean canCancelEvents = true;
 
 		public TiScrollViewLayout(Context context, LayoutArrangement arrangement)
 		{
@@ -59,6 +60,23 @@ public class TiUIScrollView extends TiUIView
 		public void setParentHeight(int height)
 		{
 			parentHeight = height;
+		}
+
+		public void setCanCancelEvents(boolean value)
+		{
+			canCancelEvents = value;
+		}
+
+		@Override
+		public boolean dispatchTouchEvent(MotionEvent ev)
+		{
+			// If canCancelEvents is false, then we want to prevent the scroll view from canceling the touch
+			// events of the child view
+			if (!canCancelEvents) {
+				requestDisallowInterceptTouchEvent(true);
+			}
+
+			return super.dispatchTouchEvent(ev);
 		}
 
 		private int getContentProperty(String property)
@@ -156,6 +174,11 @@ public class TiUIScrollView extends TiUIView
 			super.addView(layout, params);
 		}
 
+		public TiScrollViewLayout getLayout()
+		{
+			return layout;
+		}
+
 		@Override
 		public void addView(View child, android.view.ViewGroup.LayoutParams params)
 		{
@@ -232,6 +255,11 @@ public class TiUIScrollView extends TiUIView
 			layout.setLayoutParams(params);
 			super.addView(layout, params);
 
+		}
+
+		public TiScrollViewLayout getLayout()
+		{
+			return layout;
 		}
 
 		@Override
@@ -334,6 +362,15 @@ public class TiUIScrollView extends TiUIView
 			setContentOffset(newValue);
 			scrollTo(offsetX, offsetY);
 		}
+		if (key.equals(TiC.PROPERTY_CAN_CANCEL_EVENTS)) {
+			View view = getNativeView();
+			boolean canCancelEvents = TiConvert.toBoolean(newValue);
+			if (view instanceof TiHorizontalScrollView) {
+				((TiHorizontalScrollView) view).getLayout().setCanCancelEvents(canCancelEvents);
+			} else if (view instanceof TiVerticalScrollView) {
+				((TiVerticalScrollView) view).getLayout().setCanCancelEvents(canCancelEvents);
+			}
+		}
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
 
@@ -343,11 +380,11 @@ public class TiUIScrollView extends TiUIView
 		boolean showHorizontalScrollBar = false;
 		boolean showVerticalScrollBar = false;
 
-		if (d.containsKey(SHOW_HORIZONTAL_SCROLL_INDICATOR)) {
-			showHorizontalScrollBar = TiConvert.toBoolean(d, SHOW_HORIZONTAL_SCROLL_INDICATOR);
+		if (d.containsKey(TiC.PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR)) {
+			showHorizontalScrollBar = TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR);
 		}
-		if (d.containsKey(SHOW_VERTICAL_SCROLL_INDICATOR)) {
-			showVerticalScrollBar = TiConvert.toBoolean(d, SHOW_VERTICAL_SCROLL_INDICATOR);
+		if (d.containsKey(TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR)) {
+			showVerticalScrollBar = TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR);
 		}
 
 		if (showHorizontalScrollBar && showVerticalScrollBar) {
@@ -400,18 +437,25 @@ public class TiUIScrollView extends TiUIView
 
 		// we create the view here since we now know the potential widget type
 		View view = null;
+		boolean canCancelEvents = true;
 		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
 		if (d.containsKey(TiC.PROPERTY_LAYOUT) && d.getString(TiC.PROPERTY_LAYOUT).equals(TiC.LAYOUT_VERTICAL)) {
 			arrangement = LayoutArrangement.VERTICAL;
 		} else if (d.containsKey(TiC.PROPERTY_LAYOUT) && d.getString(TiC.PROPERTY_LAYOUT).equals(TiC.LAYOUT_HORIZONTAL)) {
 			arrangement = LayoutArrangement.HORIZONTAL;
 		}
+
+		if (d.containsKey(TiC.PROPERTY_CAN_CANCEL_EVENTS)) {
+			canCancelEvents = TiConvert.toBoolean(d, TiC.PROPERTY_CAN_CANCEL_EVENTS);
+		}
+
 		switch (type) {
 			case TYPE_HORIZONTAL:
 				if (DBG) {
 					Log.d(LCAT, "creating horizontal scroll view");
 				}
 				view = new TiHorizontalScrollView(getProxy().getActivity(), arrangement);
+				((TiHorizontalScrollView) view).getLayout().setCanCancelEvents(canCancelEvents);
 				break;
 			case TYPE_VERTICAL:
 			default:
@@ -419,6 +463,7 @@ public class TiUIScrollView extends TiUIView
 					Log.d(LCAT, "creating vertical scroll view");
 				}
 				view = new TiVerticalScrollView(getProxy().getActivity(), arrangement);
+				((TiVerticalScrollView) view).getLayout().setCanCancelEvents(canCancelEvents);
 		}
 		setNativeView(view);
 

@@ -287,7 +287,9 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 
 -(void)_tabFocus
 {
-	focused = YES;
+    if (![self opening]) {
+        focused = YES;
+    }
 	[self willShow];
 	if (!navWindow) {
 		[[[TiApp app] controller] windowFocused:[self controller]];
@@ -723,14 +725,13 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 -(void)fireFocus:(BOOL)newFocused;
 {
 #ifdef VERBOSE
-	if (newFocused == focused)
-	{
-		VerboseLog(@"[DEBUG] Setting focus to %d when it's already set to that.",focused);
-	}
+    if (newFocused == focused)
+    {
+        VerboseLog(@"[DEBUG] Setting focus to %d when it's already set to that.",focused);
+    }
 #endif
-
-	[self fireEvent:newFocused?@"focus":@"blur" withObject:nil propagate:NO];
-	focused = newFocused;
+    focused = newFocused;
+    [self fireEvent:newFocused?@"focus":@"blur" withObject:nil propagate:NO];
 }
 
 #pragma mark TIUIViewController methods
@@ -748,7 +749,10 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
     
 	if (!focused)
 	{
-		[self fireFocus:YES];
+        //Do not fire focus until context is ready
+        if (![self opening]) {
+            [self fireFocus:YES];
+        }
 	}
 	else
 	{

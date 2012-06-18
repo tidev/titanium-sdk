@@ -140,13 +140,6 @@
     [super touchesCancelled:touches withEvent:event];
 }
 
-
--(void)setHighlighted:(BOOL)yn animated:(BOOL)animated
-{
-	[super setHighlighted:yn animated:animated];
-	[self updateGradientLayer:yn|[self isSelected]];
-}
-
 -(void)handleEvent:(NSString*)type
 {
 	if ([type isEqual:@"touchstart"]) {
@@ -208,16 +201,28 @@
 	[gradientLayer setNeedsDisplay];
 }
 
+-(void)setSelected:(BOOL)yn animated:(BOOL)animated
+{
+    [super setSelected:yn animated:animated];
+    [self updateGradientLayer:yn|[self isHighlighted]];
+}
+
+-(void)setHighlighted:(BOOL)yn animated:(BOOL)animated
+{
+    [super setHighlighted:yn animated:animated];
+    [self updateGradientLayer:yn|[self isSelected]];
+}
+
 -(void)setHighlighted:(BOOL)yn
 {
-	[self setHighlighted:yn animated:NO];
+    [super setHighlighted:yn];
+    [self updateGradientLayer:yn|[self isHighlighted]];
 }
 
 -(void)setSelected:(BOOL)yn
 {
     [super setSelected:yn];
-	[super setHighlighted:yn];
-	[self updateGradientLayer:yn|[self isHighlighted]];
+    [self updateGradientLayer:yn|[self isHighlighted]];
 }
 
 -(void) setBackgroundGradient_:(TiGradient *)newGradient
@@ -1092,6 +1097,7 @@
 	}
 }
 
+
 -(CGFloat)contentHeightForWidth:(CGFloat)suggestedWidth
 {
     CGFloat height = 0.0;
@@ -1135,6 +1141,7 @@
     
     if ([searchController isActive]) {
         [searchController setActive:NO animated:YES];
+        searchActivated = NO;
         return;
     }
 
@@ -1302,8 +1309,9 @@
 
 -(void)setAllowsSelection_:(id)arg
 {
-	allowsSelectionSet = [TiUtils boolValue:arg];
-	[[self tableView] setAllowsSelection:allowsSelectionSet];
+    allowsSelectionSet = [TiUtils boolValue:arg];
+    [[self tableView] setAllowsSelection:allowsSelectionSet];
+    [tableController setClearsSelectionOnViewWillAppear:!allowsSelectionSet];
 }
 
 -(void)setAllowsSelectionDuringEditing_:(id)arg
@@ -1433,6 +1441,7 @@
 		[searchField setDelegate:self];
 		tableController = [[UITableViewController alloc] init];
 		tableController.tableView = [self tableView];
+		[tableController setClearsSelectionOnViewWillAppear:!allowsSelectionSet];
 		searchController = [[UISearchDisplayController alloc] initWithSearchBar:[search searchBar] contentsController:tableController];
 		searchController.searchResultsDataSource = self;
 		searchController.searchResultsDelegate = self;
@@ -1604,16 +1613,19 @@
 	}
 	else 
 	{
+        if (self.tableView.frame.size.width==0)
+        {
+            [self performSelector:@selector(setHeaderPullView_:) withObject:value afterDelay:0.1];
+            return;
+        }
 		tableHeaderPullView = [[UIView alloc] initWithFrame:CGRectMake(0.0f, 0.0f - self.tableView.bounds.size.height, self.tableView.bounds.size.width, self.tableView.bounds.size.height)];
 		tableHeaderPullView.backgroundColor = [UIColor lightGrayColor];
 		UIView *view = [value view];
 		[[self tableView] addSubview:tableHeaderPullView];
 		[tableHeaderPullView addSubview:view];
 		[TiUtils setView:view positionRect:[tableHeaderPullView bounds]];
-		CGRect bounds = view.bounds;
-		bounds.origin.x = 0;
-		bounds.origin.y = self.tableView.bounds.size.height - view.bounds.size.height;
-		view.bounds = bounds;
+		[value windowWillOpen];
+		[value layoutChildren:NO];
 	}
 }
 
@@ -2253,7 +2265,6 @@ return result;	\
     animateHide = YES;
     [self hideSearchScreen:nil];
 }
-
 @end
 
 #endif

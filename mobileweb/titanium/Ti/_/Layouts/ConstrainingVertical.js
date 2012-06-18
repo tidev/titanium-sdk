@@ -50,12 +50,12 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 							measuredHeight = heightLayoutCoefficients.x1 * height + heightLayoutCoefficients.x2 * (height - runningHeight) + heightLayoutCoefficients.x3;
 							
 							if (child._getContentSize) {
-								childSize = child._getContentSize();
+								childSize = child._getContentSize(measuredWidth, measuredHeight);
 							} else {
 								childSize = child._layout._doLayout(
 									child, 
-									isNaN(measuredWidth) ? width : measuredWidth, 
-									isNaN(measuredHeight) ? height : measuredHeight, 
+									isNaN(measuredWidth) ? width : measuredWidth - child._borderLeftWidth - child._borderRightWidth, 
+									isNaN(measuredHeight) ? height : measuredHeight - child._borderTopWidth - child._borderBottomWidth, 
 									isNaN(measuredWidth), 
 									isNaN(measuredHeight));
 							}
@@ -96,12 +96,12 @@ define(["Ti/_/Layouts/Base", "Ti/_/declare", "Ti/UI", "Ti/_/lang", "Ti/_/style"]
 						measuredHeight = heightLayoutCoefficients.x1 * height + heightLayoutCoefficients.x2 * (i < len - 1 ? runningHeight : remainingSpace - runningHeight * (fillCount - 1)) + heightLayoutCoefficients.x3;
 						
 						if (child._getContentSize) {
-							childSize = child._getContentSize();
+							childSize = child._getContentSize(measuredWidth, measuredHeight);
 						} else {
 							childSize = child._layout._doLayout(
 								child, 
-								isNaN(measuredWidth) ? width : measuredWidth, 
-								isNaN(measuredHeight) ? height : measuredHeight, 
+								isNaN(measuredWidth) ? width : measuredWidth - child._borderLeftWidth - child._borderRightWidth, 
+								isNaN(measuredHeight) ? height : measuredHeight - child._borderTopWidth - child._borderBottomWidth, 
 								isNaN(measuredWidth), 
 								isNaN(measuredHeight));
 						}

@@ -132,11 +132,25 @@ Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 	return wrapper;
 }
 
+function extendModuleWithCommonJs(externalModule, id, thiss, context) {
+	if (kroll.isExternalCommonJsModule(id)) {
+		var jsModule = new Module(id + ".commonjs", thiss, context);
+		jsModule.load(id, kroll.getExternalCommonJsModule(id));
+		if (jsModule.exports) {
+			if (kroll.DBG) {
+				kroll.log(TAG, "Extending native module '" + id + "' with the CommonJS module that was packaged with it.");
+			}
+			kroll.extend(externalModule, jsModule.exports);
+		}
+	}
+}
+
 // Loads a native / external (3rd party) module
 Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 
 	var sourceUrl = context === undefined ? "app://app.js" : context.sourceUrl;
 	var externalModule;
+	var returnObj;
 
 	if (kroll.runtime === "rhino") {
 		// TODO -- add support for context specific invokers in Rhino
@@ -144,6 +158,9 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 		if (bindingKey) {
 			externalModule = externalBinding[bindingKey];
 		}
+
+		extendModuleWithCommonJs(externalModule, id, this, context);
+
 		return externalModule;
 
 	} else {
@@ -173,6 +190,9 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 			}
 	
 			wrapper = this.createModuleWrapper(externalModule, sourceUrl);
+
+			extendModuleWithCommonJs(wrapper, id, this, context);
+
 			this.wrapperCache[id] = wrapper;
 	
 			return wrapper;
@@ -192,22 +212,17 @@ Module.prototype.require = function (request, context, useCache) {
 
 	// get external binding (for external / 3rd party modules)
 	var externalBinding = kroll.externalBinding(request);
+	var isExternalCommonJs = false;
 
 	if (externalBinding) {
 		return this.loadExternalModule(request, externalBinding, context);
 	}
 
-	var isExternalCommonJs = kroll.isExternalCommonJsModule(request)
-
-	var filename = request;
-
-	if (!isExternalCommonJs) {
-		var resolved = resolveFilename(request, this);
-		var id = resolved[0];
-		filename = resolved[1];
-		if (kroll.DBG) {
-			kroll.log(TAG, 'Loading module: ' + request + ' -> ' + filename);
-		}
+	var resolved = resolveFilename(request, this);
+	var id = resolved[0];
+	filename = resolved[1];
+	if (kroll.DBG) {
+		kroll.log(TAG, 'Loading module: ' + request + ' -> ' + filename);
 	}
 
 	if (useCache) {
@@ -220,11 +235,7 @@ Module.prototype.require = function (request, context, useCache) {
 	// Create and attempt to load the module.
 	var module = new Module(id, this, context);
 
-	if (isExternalCommonJs) {
-		module.load(filename, kroll.getExternalCommonJsModule(filename));
-	} else {
-		module.load(filename);
-	}
+	module.load(filename);
 
 	if (useCache) {
 		// Cache the module for future requests.

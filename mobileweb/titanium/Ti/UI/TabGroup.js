@@ -180,9 +180,10 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 
 		_updateTabsBackground: function() {
 			var tabs = this.tabs,
-				i = 0;
-			for (; i < tabs.length; i++) {
-				this._updateTabBackground(tabs[i]);
+				i = 0,
+				l = tabs.length;
+			while (i < l) {
+				this._updateTabBackground(tabs[i++]);
 			}
 		},
 
@@ -320,16 +321,12 @@ define(["Ti/_/declare", "Ti/_/UI/SuperView", "Ti/UI/View", "Ti/UI", "Ti/_/lang"]
 			tabsBackgroundSelectedImage: postUpdateTabsBackground,
 			
 			tabDividerColor: {
-				post: function() {
-					this._updateDividers();
-				},
+				post: "_updateDividers",
 				value: "#555"
 			},
 			
 			tabDividerWidth: {
-				post: function() {
-					this._updateDividers();
-				},
+				post: "_updateDividers",
 				value: 1
 			},
 			

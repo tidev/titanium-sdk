@@ -20,3 +20,14 @@ methods:
       - name: offset
         summary: The offset at which to split, starting from 0.
         type: Number 
+
+properties:
+
+  - name: textContent
+    summary: Content (value) of all text nodes within this node.
+    description: |
+        On Android, `textContent` is supported on [Element](Titanium.XML.Element) and
+        [Text](Titanium.XML.Text) nodes only.
+    type: String
+    permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
