@@ -771,7 +771,9 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	NSString *filepath = nil;
     NSString* fullPath = nil;
     NSURL* oldURL = [self currentURL];
-	    
+    
+    
+    
     // Check the position of the first '/', which will give some information
     // about resource resolution and if the path is absolute.
     NSRange separatorLocation = [path rangeOfString:@"/"];
@@ -801,7 +803,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
         }
     }
     else {
-        fullPath = (workingPath != nil) ? [workingPath stringByAppendingPathComponent:path] : path;
+        fullPath = (workingPath != nil) ? [workingPath stringByAppendingPathComponent:[path stringByStandardizingPath]] : [path stringByStandardizingPath];
         moduleID = [[fullPath pathComponents] objectAtIndex:0];
     }
     
