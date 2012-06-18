@@ -75,7 +75,6 @@ TI_INLINE BOOL TiLayoutRuleIsHorizontal(TiLayoutRule rule)
 	return rule==TiLayoutRuleHorizontal;
 }
 
-
 typedef struct LayoutConstraint {
 
 	TiDimension centerX;
@@ -89,11 +88,19 @@ typedef struct LayoutConstraint {
 	TiDimension height;
 
 	TiLayoutRule layoutStyle;
+	struct {
+		unsigned int horizontalWrap:1;
+	} layoutFlags;
 	
 	CGFloat minimumHeight;
 	CGFloat minimumWidth;
 	
 } LayoutConstraint;
+
+TI_INLINE BOOL TiLayoutFlagsHasHorizontalWrap(LayoutConstraint *constraint)
+{
+	return constraint->layoutFlags.horizontalWrap;
+}
 
 @class TiUIView;
 @class TiViewProxy;
