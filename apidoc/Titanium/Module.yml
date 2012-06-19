@@ -1,6 +1,16 @@
 ---
 name: Titanium.Module
-summary: The base for all module types
+summary: Base type for all Titanium modules.
+description: |
+    A Titanium module is a Titanium object, or _proxy_, that can be accessed using a static
+    identifier, such as `Titanium.API` or `Titanium.Map`. Titanium modules are singletons
+    that provide access to properties, constants, and methods that must be accessed in a static 
+    context. 
+
+    For example, the <Titanium.UI> module provides constants and factory methods related
+    to UI objects, as well as a few UI-related properties that are not related to a
+    specific object.
+
 extends: Titanium.Proxy
 since: "0.1"
 platforms: [android, iphone, ipad]

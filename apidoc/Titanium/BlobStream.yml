@@ -1,7 +1,10 @@
 ---
 name: Titanium.BlobStream
 extends: Titanium.IOStream
-summary: Wrapper around `Titanium.Blob` that implements the `Titanium.IOStream` interface
+summary: Wrapper around <Titanium.Blob> that implements the <Titanium.IOStream> interface.
+description: |
+    Use the <Titanium.Stream.createStream> method to create a `BlobStream` instance from a
+    `Blob`.
 since: "1.7"
 createable: false
 platforms: [android, iphone, ipad, mobileweb]
