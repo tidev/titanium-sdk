@@ -115,29 +115,31 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 
 		close: function(win) {
 			var windows = this._windows,
-				windowIdx = windows.indexOf(win);
+				windowIdx = windows.indexOf(win),
+				self = this,
+				backButton = self._backButton;
 
 				// Unpublish the window
-				this._unpublish(win);
+				self._unpublish(win);
 
 			// make sure the window exists and it's not the root
 			if (windowIdx > 0) {
 				windows.splice(windowIdx, 1);
 				win.fireEvent("blur");
-				this._contentContainer.remove(win);
+				self._contentContainer.remove(win);
 				win.fireEvent("close");
 				win._opened = 0;
 
 				if (windowIdx > 0) {
 					// hide the back button if we're back at the root
-					windows.length <= 1 && this._backButton.animate({ opacity: 0, duration: 250 }, function() {
-						this._backButtonVisible = 0;
-						this.opacity = 0;
-						this.enabled = false;
+					windows.length <= 1 && backButton.animate({ opacity: 0, duration: 250 }, function() {
+						self._backButtonVisible = 0;
+						backButton.opacity = 0;
+						backButton.enabled = false;
 					});
 
 					win = windows[windows.length - 1];
-					this._title.text = win._getTitle();
+					self._title.text = win._getTitle();
 					win.fireEvent("focus");
 				}
 			}
