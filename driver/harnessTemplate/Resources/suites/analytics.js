@@ -18,84 +18,84 @@ module.exports = new function() {
 
 	//iOS: TIMOB-5014
 	//Android: TIMOB-5020
-	this.addEvent = function() {
-		valueOf(function() {
+	this.addEvent = function(testRun) {
+		valueOf(testRun, function() {
 			Ti.Analytics.addEvent();
 		}).shouldThrowException();
-		valueOf(function() {
+		valueOf(testRun, function() {
 			Ti.Analytics.addEvent('type');
 		}).shouldThrowException();
-		valueOf(Ti.Analytics.addEvent('adding', 'featureEvent.testButton')).shouldBeUndefined();
-		valueOf(Ti.Analytics.addEvent('adding', 'featureEvent.testButton', {'events':'adding'})).shouldBeUndefined();
+		valueOf(testRun, Ti.Analytics.addEvent('adding', 'featureEvent.testButton')).shouldBeUndefined();
+		valueOf(testRun, Ti.Analytics.addEvent('adding', 'featureEvent.testButton', {'events':'adding'})).shouldBeUndefined();
 
-		finish();
+		finish(testRun);
 	}
 
-	this.featureEvent = function() {
-		valueOf(function() {
+	this.featureEvent = function(testRun) {
+		valueOf(testRun, function() {
 			Ti.Analytics.featureEvent();
 		}).shouldThrowException();
-		valueOf(Ti.Analytics.featureEvent('featureEvent.testButton')).shouldBeUndefined();
-		valueOf(Ti.Analytics.featureEvent('featureEvent.testButton', {'events':'feature'})).shouldBeUndefined();
+		valueOf(testRun, Ti.Analytics.featureEvent('featureEvent.testButton')).shouldBeUndefined();
+		valueOf(testRun, Ti.Analytics.featureEvent('featureEvent.testButton', {'events':'feature'})).shouldBeUndefined();
 
-		finish();
+		finish(testRun);
 	}
 
-	this.navEvent = function() {
-		valueOf(function() {
+	this.navEvent = function(testRun) {
+		valueOf(testRun, function() {
 			Ti.Analytics.navEvent();
 		}).shouldThrowException();
-		valueOf(function() {
+		valueOf(testRun, function() {
 			Ti.Analytics.navEvent('here');
 		}).shouldThrowException();
-		valueOf(Ti.Analytics.navEvent('here', 'there')).shouldBeUndefined();
-		valueOf(Ti.Analytics.navEvent('here', 'there', 'navEvent.testButton')).shouldBeUndefined();
-		valueOf(Ti.Analytics.navEvent('here', 'there', 'navEvent.testButton', {'events':'nav'})).shouldBeUndefined();
+		valueOf(testRun, Ti.Analytics.navEvent('here', 'there')).shouldBeUndefined();
+		valueOf(testRun, Ti.Analytics.navEvent('here', 'there', 'navEvent.testButton')).shouldBeUndefined();
+		valueOf(testRun, Ti.Analytics.navEvent('here', 'there', 'navEvent.testButton', {'events':'nav'})).shouldBeUndefined();
 
-		finish();
+		finish(testRun);
 	}
 
 	//iOS: TIMOB-4697
-	this.settingsEvent = function() {
-		valueOf(function() {
+	this.settingsEvent = function(testRun) {
+		valueOf(testRun, function() {
 			Ti.Analytics.settingsEvent();
 		}).shouldThrowException();
-		valueOf(Ti.Analytics.settingsEvent('settingsEvent.testButton')).shouldBeUndefined();
-		valueOf(Ti.Analytics.settingsEvent('settingsEvent.testButton', {'events':'settings'})).shouldBeUndefined();
+		valueOf(testRun, Ti.Analytics.settingsEvent('settingsEvent.testButton')).shouldBeUndefined();
+		valueOf(testRun, Ti.Analytics.settingsEvent('settingsEvent.testButton', {'events':'settings'})).shouldBeUndefined();
 
-		finish();
+		finish(testRun);
 	}
 
 	//Android: TIMOB-4642
-	this.timedEvent = function() {
+	this.timedEvent = function(testRun) {
 		var startDate = new Date();
 		var stopDate = new Date();
 		var duration = stopDate - startDate;
-		valueOf(function() {
+		valueOf(testRun, function() {
 			Ti.Analytics.timedEvent();
 		}).shouldThrowException();
-		valueOf(function() {
+		valueOf(testRun, function() {
 			Ti.Analytics.timedEvent('timedEvent.testButton');
 		}).shouldThrowException();
-		valueOf(function() {
+		valueOf(testRun, function() {
 			Ti.Analytics.timedEvent('timedEvent.testButton', startDate);
 		}).shouldThrowException();
-		valueOf(function() {
+		valueOf(testRun, function() {
 			Ti.Analytics.timedEvent('timedEvent.testButton', startDate, stopDate);
 		}).shouldThrowException();
-		valueOf(Ti.Analytics.timedEvent('timedEvent.testButton', startDate, stopDate, duration)).shouldBeUndefined();
-		valueOf(Ti.Analytics.timedEvent('timedEvent.testButton', startDate, stopDate, duration, {'events':'timed'})).shouldBeUndefined();
+		valueOf(testRun, Ti.Analytics.timedEvent('timedEvent.testButton', startDate, stopDate, duration)).shouldBeUndefined();
+		valueOf(testRun, Ti.Analytics.timedEvent('timedEvent.testButton', startDate, stopDate, duration, {'events':'timed'})).shouldBeUndefined();
 
-		finish();
+		finish(testRun);
 	}
 
-	this.userEvent = function() {
-		valueOf(function() {
+	this.userEvent = function(testRun) {
+		valueOf(testRun, function() {
 			Ti.Analytics.userEvent();
 		}).shouldThrowException();
-		valueOf(Ti.Analytics.userEvent('userEvent.testButton')).shouldBeUndefined();
-		valueOf(Ti.Analytics.userEvent('userEvent.testButton', {'events':'user'})).shouldBeUndefined();
+		valueOf(testRun, Ti.Analytics.userEvent('userEvent.testButton')).shouldBeUndefined();
+		valueOf(testRun, Ti.Analytics.userEvent('userEvent.testButton', {'events':'user'})).shouldBeUndefined();
 
-		finish();
+		finish(testRun);
 	}
 }

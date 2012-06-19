@@ -11,15 +11,15 @@ module.exports = new function() {
 		{name: "testBlob"}
 	]
 
-	this.testBlob = function() {
+	this.testBlob = function(testRun) {
 		// TIMOB-9175 -- nativePath should be null for non-file Blobs.
 		// The inverse case is tested in filesystem.js.
-		valueOf(function() {
+		valueOf(testRun, function() {
             var myBlob = Ti.createBuffer({
                 value: "Use a string to build a buffer to make a blob."}).toBlob();
-            valueOf(myBlob.nativePath).shouldBeNull();
+            valueOf(testRun, myBlob.nativePath).shouldBeNull();
         }).shouldNotThrowException();
 
-		finish();
+		finish(testRun);
 	}
 }

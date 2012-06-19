@@ -219,7 +219,13 @@ module.exports = new function() {
 				}
 
 			} else {
-				responseData = startSuite();
+				if(suites.length == 0) {
+					util.log("no suites found for configuration");
+					driverGlobal.platform.finishTestPass();
+
+				} else {
+					responseData = startSuite();
+				}
 			}
 
 		} else if(message.type == "tests") {

@@ -11,14 +11,14 @@ module.exports = new function() {
 		{name: "consoleAPI"}
 	]
 
-	this.consoleAPI = function() {
-		valueOf(console).shouldBeObject();
-		valueOf(console.log).shouldBeFunction();
-		valueOf(console.warn).shouldBeFunction();
-		valueOf(console.error).shouldBeFunction();
-		valueOf(console.info).shouldBeFunction();
-		valueOf(console.debug).shouldBeFunction();
+	this.consoleAPI = function(testRun) {
+		valueOf(testRun, console).shouldBeObject();
+		valueOf(testRun, console.log).shouldBeFunction();
+		valueOf(testRun, console.warn).shouldBeFunction();
+		valueOf(testRun, console.error).shouldBeFunction();
+		valueOf(testRun, console.info).shouldBeFunction();
+		valueOf(testRun, console.debug).shouldBeFunction();
 
-		finish();
+		finish(testRun);
 	}
 }

@@ -11,16 +11,16 @@ module.exports = new function() {
 		{name: "platform_jss_dirs"}
 	]
 
-	this.platform_jss_dirs = function() {
+	this.platform_jss_dirs = function(testRun) {
 		var test = Ti.UI.createView({ id: "test" });
-		valueOf(test).shouldNotBeNull();
+		valueOf(testRun, test).shouldNotBeNull();
 
 		if (Ti.Platform.name == "android") {
-			valueOf(test.backgroundColor).shouldBe("red");
+			valueOf(testRun, test.backgroundColor).shouldBe("red");
 		} else {
-			valueOf(test.backgroundColor).shouldBe("blue");
+			valueOf(testRun, test.backgroundColor).shouldBe("blue");
 		}
 
-		finish();
+		finish(testRun);
 	}
 }

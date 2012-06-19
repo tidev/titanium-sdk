@@ -11,10 +11,10 @@ module.exports = new function() {
 		{name: "yqlFlickrCats", timeout: 10000}
 	]
 
-	this.yqlFlickrCats = function() {
+	this.yqlFlickrCats = function(testRun) {
 		var callback_error = function(e){
 			Ti.API.debug(e);
-			valueOf(true).shouldBeFalse();
+			valueOf(testRun, true).shouldBeFalse();
 		};
 		Ti.Yahoo.yql('select * from geo.places where text="san francisco, ca"', function(e) {
 			if (e.error) {
@@ -22,10 +22,10 @@ module.exports = new function() {
 			}
 
 			var data = e.data;
-			valueOf(data).shouldNotBeNull();
-			valueOf(data.place).shouldNotBeNull();
-			valueOf(data.place.name).shouldBe("San Francisco");
-			finish();
+			valueOf(testRun, data).shouldNotBeNull();
+			valueOf(testRun, data.place).shouldNotBeNull();
+			valueOf(testRun, data.place.name).shouldBe("San Francisco");
+			finish(testRun);
 		});
 	}
 }

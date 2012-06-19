@@ -16,117 +16,117 @@ module.exports = new function() {
 		{name: "screenshot", timeout: 2000}
 	]
 
-	this.constants = function() {
-		valueOf(Ti.Media).shouldNotBeNull();
+	this.constants = function(testRun) {
+		valueOf(testRun, Ti.Media).shouldNotBeNull();
 		
 		// Video Scaling
-		valueOf(Ti.Media.VIDEO_SCALING_NONE).shouldNotBeNull();
-		valueOf(Ti.Media.VIDEO_SCALING_ASPECT_FILL).shouldNotBeNull();
-		valueOf(Ti.Media.VIDEO_SCALING_ASPECT_FIT).shouldNotBeNull();
-		valueOf(Ti.Media.VIDEO_SCALING_MODE_FILL).shouldNotBeNull();
+		valueOf(testRun, Ti.Media.VIDEO_SCALING_NONE).shouldNotBeNull();
+		valueOf(testRun, Ti.Media.VIDEO_SCALING_ASPECT_FILL).shouldNotBeNull();
+		valueOf(testRun, Ti.Media.VIDEO_SCALING_ASPECT_FIT).shouldNotBeNull();
+		valueOf(testRun, Ti.Media.VIDEO_SCALING_MODE_FILL).shouldNotBeNull();
 
-		finish();
+		finish(testRun);
 	}
 
-	this.soundAPIs = function() {
-		valueOf(Ti.Media.createSound).shouldBeFunction();
+	this.soundAPIs = function(testRun) {
+		valueOf(testRun, Ti.Media.createSound).shouldBeFunction();
 		
 		var sound = Ti.Media.createSound({ url : "sound.wav" });
-		valueOf(sound).shouldNotBeNull();
-		valueOf(sound.getTime).shouldBeFunction();
-		valueOf(sound.setTime).shouldBeFunction();
-		valueOf(sound.time).shouldBeNumber();
+		valueOf(testRun, sound).shouldNotBeNull();
+		valueOf(testRun, sound.getTime).shouldBeFunction();
+		valueOf(testRun, sound.setTime).shouldBeFunction();
+		valueOf(testRun, sound.time).shouldBeNumber();
 		
-		valueOf(sound.isLooping).shouldBeFunction();
-		valueOf(sound.setLooping).shouldBeFunction();
-		valueOf(sound.looping).shouldBeBoolean();
+		valueOf(testRun, sound.isLooping).shouldBeFunction();
+		valueOf(testRun, sound.setLooping).shouldBeFunction();
+		valueOf(testRun, sound.looping).shouldBeBoolean();
 		
-		valueOf(sound.isPaused).shouldBeFunction();
-		valueOf(sound.paused).shouldBeBoolean();
+		valueOf(testRun, sound.isPaused).shouldBeFunction();
+		valueOf(testRun, sound.paused).shouldBeBoolean();
 		
-		valueOf(sound.isPlaying).shouldBeFunction();
-		valueOf(sound.playing).shouldBeBoolean();
+		valueOf(testRun, sound.isPlaying).shouldBeFunction();
+		valueOf(testRun, sound.playing).shouldBeBoolean();
 		
-		valueOf(sound.pause).shouldBeFunction();
-		valueOf(sound.play).shouldBeFunction();
-		valueOf(sound.release).shouldBeFunction();
-		valueOf(sound.reset).shouldBeFunction();
-		valueOf(sound.stop).shouldBeFunction();
+		valueOf(testRun, sound.pause).shouldBeFunction();
+		valueOf(testRun, sound.play).shouldBeFunction();
+		valueOf(testRun, sound.release).shouldBeFunction();
+		valueOf(testRun, sound.reset).shouldBeFunction();
+		valueOf(testRun, sound.stop).shouldBeFunction();
 
-		finish();
+		finish(testRun);
 	}
 
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2586
-	this.audioPlayerAPIs = function() {
+	this.audioPlayerAPIs = function(testRun) {
 		var isAndroid = (Ti.Platform.osname === 'android');
-		valueOf(Ti.Media.createAudioPlayer).shouldBeFunction();
+		valueOf(testRun, Ti.Media.createAudioPlayer).shouldBeFunction();
 		var player = Ti.Media.createAudioPlayer();
-		valueOf(player).shouldNotBeNull();
-		valueOf(player.pause).shouldBeFunction();
-		valueOf(player.start).shouldBeFunction();
-		valueOf(player.setUrl).shouldBeFunction();
-		if (!isAndroid) valueOf(player.stateDescription).shouldBeFunction();
-		valueOf(player.stop).shouldBeFunction();
-		if (!isAndroid) valueOf(player.idle).shouldBeBoolean();
-		if (!isAndroid) valueOf(player.state).shouldBeNumber();
-		valueOf(player.paused).shouldBeBoolean();
-		if (!isAndroid) valueOf(player.waiting).shouldBeBoolean();
-		if (!isAndroid) valueOf(player.bufferSize).shouldBeNumber();
+		valueOf(testRun, player).shouldNotBeNull();
+		valueOf(testRun, player.pause).shouldBeFunction();
+		valueOf(testRun, player.start).shouldBeFunction();
+		valueOf(testRun, player.setUrl).shouldBeFunction();
+		if (!isAndroid) valueOf(testRun, player.stateDescription).shouldBeFunction();
+		valueOf(testRun, player.stop).shouldBeFunction();
+		if (!isAndroid) valueOf(testRun, player.idle).shouldBeBoolean();
+		if (!isAndroid) valueOf(testRun, player.state).shouldBeNumber();
+		valueOf(testRun, player.paused).shouldBeBoolean();
+		if (!isAndroid) valueOf(testRun, player.waiting).shouldBeBoolean();
+		if (!isAndroid) valueOf(testRun, player.bufferSize).shouldBeNumber();
 
-		finish();
+		finish(testRun);
 	}
 
-	this.videoPlayerAPIs = function() {
+	this.videoPlayerAPIs = function(testRun) {
 		var isAndroid = (Ti.Platform.osname === 'android');
 		
-		valueOf(Ti.Media.createVideoPlayer).shouldBeFunction();
+		valueOf(testRun, Ti.Media.createVideoPlayer).shouldBeFunction();
 		var player = Ti.Media.createVideoPlayer();
-		valueOf(player).shouldNotBeNull();
-		valueOf(player.add).shouldBeFunction();
-		valueOf(player.pause).shouldBeFunction();
-		valueOf(player.play).shouldBeFunction(); // this is the documented way to start playback.
-		valueOf(player.start).shouldBeFunction(); // backwards compat.
-		valueOf(player.stop).shouldBeFunction();
-		if (!isAndroid) valueOf(player.setUrl).shouldBeFunction();
-		valueOf(player.hide).shouldBeFunction();
-		valueOf(player.setMediaControlStyle).shouldBeFunction();
-		valueOf(player.getMediaControlStyle).shouldBeFunction();
-		valueOf(player.getScalingMode).shouldBeFunction();
-		valueOf(player.setScalingMode).shouldBeFunction();
+		valueOf(testRun, player).shouldNotBeNull();
+		valueOf(testRun, player.add).shouldBeFunction();
+		valueOf(testRun, player.pause).shouldBeFunction();
+		valueOf(testRun, player.play).shouldBeFunction(); // this is the documented way to start playback.
+		valueOf(testRun, player.start).shouldBeFunction(); // backwards compat.
+		valueOf(testRun, player.stop).shouldBeFunction();
+		if (!isAndroid) valueOf(testRun, player.setUrl).shouldBeFunction();
+		valueOf(testRun, player.hide).shouldBeFunction();
+		valueOf(testRun, player.setMediaControlStyle).shouldBeFunction();
+		valueOf(testRun, player.getMediaControlStyle).shouldBeFunction();
+		valueOf(testRun, player.getScalingMode).shouldBeFunction();
+		valueOf(testRun, player.setScalingMode).shouldBeFunction();
 
-		finish();
+		finish(testRun);
 	}
 
-	this.audioTimeValidation = function() {
+	this.audioTimeValidation = function(testRun) {
 		var sound = Ti.Media.createSound({ url : "sound.wav" });
 		var initial_pos = 3000;
 		sound.time = initial_pos;
 		sound.setTime(initial_pos);
-		valueOf(sound.getTime()).shouldBe(initial_pos);
-		valueOf(sound.time).shouldBe(initial_pos);
+		valueOf(testRun, sound.getTime()).shouldBe(initial_pos);
+		valueOf(testRun, sound.time).shouldBe(initial_pos);
 		sound.play();
 		setTimeout(function(e) {
 			var time = sound.getTime();
 			Ti.API.info("PROGRESS: " + time);
-			valueOf(time).shouldBeGreaterThan(initial_pos);
+			valueOf(testRun, time).shouldBeGreaterThan(initial_pos);
 			// assume we get an event in < 2 seconds.
-			valueOf(time).shouldBeLessThan(initial_pos + 3000); 
+			valueOf(testRun, time).shouldBeLessThan(initial_pos + 3000); 
 			sound.stop();
 			sound = null;
-			finish();
+			finish(testRun);
 		}, 1000);
 	}
 
-	this.screenshot = function() {
+	this.screenshot = function(testRun) {
 		callback = function(e) {
-			valueOf(e).shouldBeObject();
-			valueOf(e.media).shouldBeObject();
-			valueOf(e.media.mimeType).shouldBeString();
-			valueOf(e.media.mimeType.substr(0, 5)).shouldBe("image");
+			valueOf(testRun, e).shouldBeObject();
+			valueOf(testRun, e.media).shouldBeObject();
+			valueOf(testRun, e.media.mimeType).shouldBeString();
+			valueOf(testRun, e.media.mimeType.substr(0, 5)).shouldBe("image");
 
-			finish();
+			finish(testRun);
 		};
-		valueOf(function() {
+		valueOf(testRun, function() {
 			Titanium.Media.takeScreenshot(callback);
 		}).shouldNotThrowException();
 	}

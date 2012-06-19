@@ -11,50 +11,50 @@ module.exports = new function() {
 		{name: "setAndGetText"},
 		{name: "clearText"},
 		{name: "setAndGetHTML"},
-		{name: "setAndGetText"}
+		{name: "urlData"}
 	]
 
-	this.setAndGetText = function() {
+	this.setAndGetText = function(testRun) {
 		Ti.UI.Clipboard.setText('hello');
-        valueOf(Ti.UI.Clipboard.hasText()).shouldBeTrue();
-        valueOf(Ti.UI.Clipboard.getText()).shouldBe('hello');
+        valueOf(testRun, Ti.UI.Clipboard.hasText()).shouldBeTrue();
+        valueOf(testRun, Ti.UI.Clipboard.getText()).shouldBe('hello');
 
-		finish();
+		finish(testRun);
 	}
 
-	this.clearText = function() {
-		 valueOf(function() {
+	this.clearText = function(testRun) {
+		 valueOf(testRun, function() {
             Ti.UI.Clipboard.clearText();
         }).shouldNotThrowException();
-            valueOf(Ti.UI.Clipboard.hasText()).shouldBeFalse();
+            valueOf(testRun, Ti.UI.Clipboard.hasText()).shouldBeFalse();
             // Return value of getText() varies by platform: TIMOB-9224
             // So we can't test it, but at least it shouldn't throw an exception.
-        valueOf(function() {
+        valueOf(testRun, function() {
             Ti.UI.Clipboard.getText();
         }).shouldNotThrowException();
 
-		finish();
+		finish(testRun);
 	}
 
     // Using setData to store text with a mime type.
-	this.setAndGetHTML = function() {
+	this.setAndGetHTML = function(testRun) {
 		// Clear all data first.
         Ti.UI.Clipboard.clearData();
         Ti.UI.Clipboard.setData('text/html', "<p>How is <em>this</em> for data?</p>");
-        valueOf(Ti.UI.Clipboard.hasData('text/html')).shouldBeTrue();
-        valueOf(Ti.UI.Clipboard.getData('text/html'))
+        valueOf(testRun, Ti.UI.Clipboard.hasData('text/html')).shouldBeTrue();
+        valueOf(testRun, Ti.UI.Clipboard.getData('text/html'))
             .shouldBe("<p>How is <em>this</em> for data?</p>");
 
-		finish();
+		finish(testRun);
 	}
 
     // Data with mimeType 'text/url-list' or 'url' is treated as a URL on iOS, so 
     // follows a different code path than plain text or images.
-	this.setAndGetText = function() {
+	this.urlData = function(testRun) {
 		Ti.UI.Clipboard.clearData();
         Ti.UI.Clipboard.setData('text/url-list', "http://www.appcelerator.com");
-        valueOf(Ti.UI.Clipboard.getData('text/url-list')).shouldBe("http://www.appcelerator.com");
+        valueOf(testRun, Ti.UI.Clipboard.getData('text/url-list')).shouldBe("http://www.appcelerator.com");
 
-		finish();
+		finish(testRun);
 	}
 }

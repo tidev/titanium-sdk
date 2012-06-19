@@ -13,65 +13,65 @@ module.exports = new function() {
 		{name: "scrollableViewScrollEvents"}
 	]
 
-	this.textControlsTextValueInitialValue = function() {
+	this.textControlsTextValueInitialValue = function(testRun) {
 		var f = Ti.UI.createLabel();
-		valueOf(f.text).shouldBe('');
+		valueOf(testRun, f.text).shouldBe('');
 		
 		f = Ti.UI.createTextField();
-		valueOf(f.value).shouldBe('');
+		valueOf(testRun, f.value).shouldBe('');
 
 		f = Ti.UI.createTextArea();
-		valueOf(f.value).shouldBe('');
+		valueOf(testRun, f.value).shouldBe('');
 		
 		f = Ti.UI.createSearchBar();
-		valueOf(f.value).shouldBe('');
+		valueOf(testRun, f.value).shouldBe('');
 		
 		f = Ti.UI.createButton();
-		valueOf(f.title).shouldBe('');
+		valueOf(testRun, f.title).shouldBe('');
 
-		finish();
+		finish(testRun);
 	}
 
-	this.textAreaFieldsHasText = function() {
+	this.textAreaFieldsHasText = function(testRun) {
 		var textArea1 = Ti.UI.createTextArea();
 		var hasText = textArea1.hasText();
-		valueOf(hasText).shouldBe(false);
+		valueOf(testRun, hasText).shouldBe(false);
 		
 		var textArea2 = Ti.UI.createTextArea({
 			value : 'I am a textarea'   
 		});
 		hasText = textArea2.hasText();
-		valueOf(hasText).shouldBe(true);
+		valueOf(testRun, hasText).shouldBe(true);
 		
 		var textArea3 = Ti.UI.createTextArea({
 			value : '',
 		});
 		hasText = textArea3.hasText();
-		valueOf(hasText).shouldBe(false);
+		valueOf(testRun, hasText).shouldBe(false);
 		
 		var	textField1 = Ti.UI.createTextField();
 		hasText = textField1.hasText();
-		valueOf(hasText).shouldBe(false);
+		valueOf(testRun, hasText).shouldBe(false);
 		
 		var textField2 = Ti.UI.createTextField({
 			value: "I am a textfield"
 		});
 		hasText = textField2.hasText();
-		valueOf(hasText).shouldBe(true);
+		valueOf(testRun, hasText).shouldBe(true);
 		
 		var textField3 = Ti.UI.createTextField({
 			value : '',
 		});
 		hasText = textField3.hasText();
-		valueOf(hasText).shouldBe(false);
+		valueOf(testRun, hasText).shouldBe(false);
 
-		finish();
+		finish(testRun);
 	}
 
-	this.scrollableViewScrollEvents = function() {
+	this.scrollableViewScrollEvents = function(testRun) {
 		var callback_error = function(e){
 			Ti.API.debug(e);
-			valueOf(true).shouldBeFalse();
+			valueOf(testRun, true).shouldBeFalse();
 		};
 		
 		// functional test for TIMOB-8933, TIMOB-9061: `scroll` event and `scrollEnd` event
@@ -114,30 +114,30 @@ module.exports = new function() {
       		var numEvents = scrollingEvents.length;
 
       		try {
-        		valueOf(endEvent.currentPage).shouldBe(1);
+        		valueOf(testRun, endEvent.currentPage).shouldBe(1);
 
         		// On Android, sometimes, we don't collect enough events to have some that 
         		// are within these checks.  If that appears to be the case, don't run these
         		// checks.
         		if (numEvents > 5) {
-          			valueOf(scrollingEvents[0].currentPage).shouldBe(0);
-          			valueOf(scrollingEvents[0].view).shouldBe(view1);
+          			valueOf(testRun, scrollingEvents[0].currentPage).shouldBe(0);
+          			valueOf(testRun, scrollingEvents[0].view).shouldBe(view1);
 
-          			valueOf(scrollingEvents[0].currentPageAsFloat).shouldBeLessThan(0.8);
-          			valueOf(scrollingEvents[numEvents - 1].currentPageAsFloat).shouldBeGreaterThan(0.2);
+          			valueOf(testRun, scrollingEvents[0].currentPageAsFloat).shouldBeLessThan(0.8);
+          			valueOf(testRun, scrollingEvents[numEvents - 1].currentPageAsFloat).shouldBeGreaterThan(0.2);
 				}
 
-        		valueOf(scrollingEvents[numEvents - 1].currentPage).shouldBe(1);
-        		valueOf(scrollingEvents[numEvents - 1].view).shouldBe(view2);
+        		valueOf(testRun, scrollingEvents[numEvents - 1].currentPage).shouldBe(1);
+        		valueOf(testRun, scrollingEvents[numEvents - 1].view).shouldBe(view2);
 
         		Ti.API.debug('passed');
-        		finish();
+        		finish(testRun);
       		} catch (exception) {
         		callback_error(exception);
       		}
     	});
 
-		finish();
+		finish(testRun);
 	}
 }
 

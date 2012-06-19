@@ -13,23 +13,23 @@ module.exports = new function() {
 		{name: "testSocketIO", timeout: 10000}
 	]
 
-	this.testAPI = function() {
+	this.testAPI = function(testRun) {
 		var socket = Ti.Network.Socket.createTCP();
-		valueOf(socket).shouldBeObject();
+		valueOf(testRun, socket).shouldBeObject();
 
 		var functions = ['connect','listen','accept','close'];
 
 		for (var i=0; i < functions.length; i++) {
-			valueOf(socket[functions[i]]).shouldBeFunction();
+			valueOf(testRun, socket[functions[i]]).shouldBeFunction();
 		}
 
-		finish();
+		finish(testRun);
 	}
 
-	this.testConnectAccept = function() {
+	this.testConnectAccept = function(testRun) {
 		var callback_error = function(e){
 			Ti.API.debug(e);
-			valueOf(true).shouldBeFalse();
+			valueOf(testRun, true).shouldBeFalse();
 		};
 		var listener = Ti.Network.Socket.createTCP({
 			host:'localhost',
@@ -39,18 +39,18 @@ module.exports = new function() {
 		var connectPassed = false;
 		listener.accepted = function (e) {
 			try {
-				valueOf(e.socket).shouldBeObject();
-				valueOf(e.socket.state).shouldBe(Ti.Network.Socket.LISTENING);
-				valueOf(e.inbound).shouldBeObject();
-				valueOf(e.inbound.state).shouldBe(Ti.Network.Socket.CONNECTED);
+				valueOf(testRun, e.socket).shouldBeObject();
+				valueOf(testRun, e.socket.state).shouldBe(Ti.Network.Socket.LISTENING);
+				valueOf(testRun, e.inbound).shouldBeObject();
+				valueOf(testRun, e.inbound.state).shouldBe(Ti.Network.Socket.CONNECTED);
 
-				valueOf(e.inbound.error).shouldBeFunction();
+				valueOf(testRun, e.inbound.error).shouldBeFunction();
 
-				valueOf(function() { e.inbound.close(); }).shouldNotThrowException();
-				valueOf(function() { e.socket.close(); }).shouldNotThrowException();
+				valueOf(testRun, function() { e.inbound.close(); }).shouldNotThrowException();
+				valueOf(testRun, function() { e.socket.close(); }).shouldNotThrowException();
 				acceptPassed = true;
 				if (connectPassed) {
-					finish();
+					finish(testRun);
 				}
 			} catch (e) {
 				callback_error(e);
@@ -62,26 +62,26 @@ module.exports = new function() {
 		});
 		connector.connected = function (e) {
 			try {
-				valueOf(e.socket).shouldBeObject();
-				valueOf(e.socket.state).shouldBe(Ti.Network.Socket.CONNECTED);
-				valueOf(function() {e.socket.close()}).shouldNotThrowException();
+				valueOf(testRun, e.socket).shouldBeObject();
+				valueOf(testRun, e.socket.state).shouldBe(Ti.Network.Socket.CONNECTED);
+				valueOf(testRun, function() {e.socket.close()}).shouldNotThrowException();
 				connectPassed = true;
 				if (acceptPassed) {
-					finish();
+					finish(testRun);
 				}
 			} catch (e) {
 				callback_error(e);
 			}
 		};
 		var x = function(e) {};
-		valueOf(function() { listener.listen() }).shouldNotThrowException();
-		valueOf(function() { listener.accept({
+		valueOf(testRun, function() { listener.listen() }).shouldNotThrowException();
+		valueOf(testRun, function() { listener.accept({
 			error:x
 		}) }).shouldNotThrowException();
-		valueOf(function() { connector.connect() }).shouldNotThrowException();
+		valueOf(testRun, function() { connector.connect() }).shouldNotThrowException();
 	}
 
-	this.testSocketIO = function() {
+	this.testSocketIO = function(testRun) {
 		var readPassed = false;
 		var writePassed = false;
 		var sourceBuffer = Ti.createBuffer({
@@ -92,33 +92,33 @@ module.exports = new function() {
 		});
 
 		var readCallback = function(e) {
-			valueOf(e.errorState).shouldBeUndefined();
-			valueOf(e.errorDescription).shouldBeUndefined();
-			valueOf(e.bytesProcessed).shouldBe(sourceBuffer.length);
-			valueOf(e.bytesProcessed).shouldBe(readBuffer.length);
+			valueOf(testRun, e.errorState).shouldBeUndefined();
+			valueOf(testRun, e.errorDescription).shouldBeUndefined();
+			valueOf(testRun, e.bytesProcessed).shouldBe(sourceBuffer.length);
+			valueOf(testRun, e.bytesProcessed).shouldBe(readBuffer.length);
 				
 			for (var i=0; i< readBuffer.length; i++) {
-				valueOf(sourceBuffer[i]).shouldBe(readBuffer[i]);
+				valueOf(testRun, sourceBuffer[i]).shouldBe(readBuffer[i]);
 			}
 
-			valueOf(function() { listener.close(); }).shouldNotThrowException();
-			valueOf(function() { connector.close(); }).shouldNotThrowException();
+			valueOf(testRun, function() { listener.close(); }).shouldNotThrowException();
+			valueOf(testRun, function() { connector.close(); }).shouldNotThrowException();
 
 			readPassed = true;
 			if (writePassed) {
-				finish();
+				finish(testRun);
 			}
 		};
 		var writeCallback = function(e) {
-			valueOf(e.errorState).shouldBeUndefined();
-			valueOf(e.errorDescription).shouldBeUndefined();
-			valueOf(e.bytesProcessed).shouldBe(sourceBuffer.length);
+			valueOf(testRun, e.errorState).shouldBeUndefined();
+			valueOf(testRun, e.errorDescription).shouldBeUndefined();
+			valueOf(testRun, e.bytesProcessed).shouldBe(sourceBuffer.length);
 
 			Ti.Stream.read(connector, readBuffer, readCallback);
 
 			writePassed = true;
 			if (readPassed) {
-				finish();
+				finish(testRun);
 			}
 		};
 
@@ -135,8 +135,8 @@ module.exports = new function() {
 			port:40406
 		});
 
-		valueOf(function() { listener.listen(); }).shouldNotThrowException();
-		valueOf(function() { listener.accept({}); }).shouldNotThrowException();
-		valueOf(function() { connector.connect(); }).shouldNotThrowException();
+		valueOf(testRun, function() { listener.listen(); }).shouldNotThrowException();
+		valueOf(testRun, function() { listener.accept({}); }).shouldNotThrowException();
+		valueOf(testRun, function() { connector.connect(); }).shouldNotThrowException();
 	}
 }

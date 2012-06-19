@@ -12,16 +12,16 @@ module.exports = new function() {
 		{name: "userAgent"}
 	]
 
-	this.buildHash = function() {
-		valueOf(Titanium.buildHash.length).shouldBe(7);
+	this.buildHash = function(testRun) {
+		valueOf(testRun, Titanium.buildHash.length).shouldBe(7);
 
-		finish();
+		finish(testRun);
 	}
 
-	this.userAgent = function() {
-		valueOf(Titanium.userAgent).shouldBeString();
-		valueOf(Titanium.userAgent.indexOf("Titanium")).shouldBeNumber();
+	this.userAgent = function(testRun) {
+		valueOf(testRun, Titanium.userAgent).shouldBeString();
+		valueOf(testRun, Titanium.userAgent.indexOf("Titanium")).shouldBeNumber();
 
-		finish();
+		finish(testRun);
 	}
 }

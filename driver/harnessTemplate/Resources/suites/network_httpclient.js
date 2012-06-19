@@ -19,43 +19,43 @@ module.exports = new function() {
 		{name: "setCookieClearCookieWithMultipleHTTPClients", timeout: 30000}
 	]
 
-	this.apiTest = function() {
-		valueOf(Ti.Network.createHTTPClient).shouldNotBeNull();
+	this.apiTest = function(testRun) {
+		valueOf(testRun, Ti.Network.createHTTPClient).shouldNotBeNull();
 
-		finish();
+		finish(testRun);
 	}
 
 	// Test for TIMOB-4513
-	this.secureValidateProperty = function() {
+	this.secureValidateProperty = function(testRun) {
 		var xhr = Ti.Network.createHTTPClient();
-		valueOf(xhr).shouldBeObject();
-		valueOf(xhr.validatesSecureCertificate).shouldBeFalse();
+		valueOf(testRun, xhr).shouldBeObject();
+		valueOf(testRun, xhr.validatesSecureCertificate).shouldBeFalse();
 
 		xhr.validatesSecureCertificate = true;
-		valueOf(xhr.validatesSecureCertificate).shouldBeTrue();
+		valueOf(testRun, xhr.validatesSecureCertificate).shouldBeTrue();
 		xhr.validatesSecureCertificate = false;
-		valueOf(xhr.validatesSecureCertificate).shouldBeFalse();
+		valueOf(testRun, xhr.validatesSecureCertificate).shouldBeFalse();
 
 		xhr.setValidatesSecureCertificate(true);
-		valueOf(xhr.getValidatesSecureCertificate()).shouldBeTrue();
+		valueOf(testRun, xhr.getValidatesSecureCertificate()).shouldBeTrue();
 		xhr.setValidatesSecureCertificate(false);
-		valueOf(xhr.getValidatesSecureCertificate()).shouldBeFalse();
+		valueOf(testRun, xhr.getValidatesSecureCertificate()).shouldBeFalse();
 
-		finish();
+		finish(testRun);
 	}
 
 	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2156-android-invalid-redirect-alert-on-xhr-file-download
 	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/1381-android-buffer-large-xhr-downloads
-	this.largeFileWithRedirect = function() {
+	this.largeFileWithRedirect = function(testRun) {
 		var callback_error = function(e){
 			Ti.API.debug(e);
-			valueOf(true).shouldBeFalse();
+			valueOf(testRun, true).shouldBeFalse();
 		};
 		var xhr = Ti.Network.createHTTPClient();
 		xhr.setTimeout(60000);
 		xhr.onload = function(e) {
-			valueOf(xhr.responseData.length).shouldBeGreaterThan(0);
-			finish();
+			valueOf(testRun, xhr.responseData.length).shouldBeGreaterThan(0);
+			finish(testRun);
 		};
 		xhr.onerror = function(e) {
 			callback_error(e);
@@ -66,16 +66,16 @@ module.exports = new function() {
 	}
 
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/1649-android-httpclientsend-with-no-argument-causes-npe
-	this.emptyPOSTSend = function() {
+	this.emptyPOSTSend = function(testRun) {
 		var callback_error = function(e){
 			Ti.API.debug(e);
-			valueOf(true).shouldBeFalse();
+			valueOf(testRun, true).shouldBeFalse();
 		};
 		var xhr = Ti.Network.createHTTPClient();
 		xhr.setTimeout(30000);
 		xhr.onload = function(e) {
-			valueOf(1).shouldBe(1);
-			finish();
+			valueOf(testRun, 1).shouldBe(1);
+			finish(testRun);
 		};
 		xhr.onerror = function(e) {
 			callback_error(e);
@@ -86,10 +86,10 @@ module.exports = new function() {
 	}
 
 	//https://appcelerator.lighthouseapp.com/projects/32238/tickets/2339
-	this.responseHeadersBug = function() {
+	this.responseHeadersBug = function(testRun) {
 		var callback_error = function(e){
 			Ti.API.debug(e);
-			valueOf(true).shouldBeFalse();
+			valueOf(testRun, true).shouldBeFalse();
 		};
 		var xhr = Ti.Network.createHTTPClient();
 		xhr.setTimeout(30000);
@@ -97,14 +97,14 @@ module.exports = new function() {
 			if (Ti.Platform.osname !== 'iphone') {
 				// not implemented yet for iOS, see https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2535
 				var allHeaders = xhr.getAllResponseHeaders();
-				valueOf(allHeaders.indexOf('Server:')).shouldBeGreaterThanEqual(0);
+				valueOf(testRun, allHeaders.indexOf('Server:')).shouldBeGreaterThanEqual(0);
 				var header = xhr.getResponseHeader('Server');
-				valueOf(header.length).shouldBeGreaterThan(0);
+				valueOf(testRun, header.length).shouldBeGreaterThan(0);
 			}
 			else {
-				valueOf(1).shouldBe(1);
+				valueOf(testRun, 1).shouldBe(1);
 			}
-			finish();
+			finish(testRun);
 		};
 		xhr.onerror = function(e) {
 			callback_error(e);
@@ -114,18 +114,18 @@ module.exports = new function() {
 		xhr.send();
 	}
 
-	this.requestHeaderMethods = function() {
+	this.requestHeaderMethods = function(testRun) {
 		var callback_error = function(e){
 			Ti.API.debug(e);
-			valueOf(true).shouldBeFalse();
+			valueOf(testRun, true).shouldBeFalse();
 		};
 		var xhr = Ti.Network.createHTTPClient();
 		xhr.setTimeout(30000);
 		xhr.onload = function(e) {
 			//TODO: set up a server that parrots back the request headers so
 			//that we can verfiy what we actually send.
-			valueOf(1).shouldBe(1);
-			finish();
+			valueOf(testRun, 1).shouldBe(1);
+			finish(testRun);
 		};
 		xhr.onerror = function(e) {
 			callback_error(e);
@@ -133,17 +133,17 @@ module.exports = new function() {
 		xhr.open('GET','http://www.appcelerator.com');
 		xhr.setRequestHeader('adhocHeader','notcleared');
 		xhr.setRequestHeader('clearedHeader','notcleared');
-		valueOf(function() {
+		valueOf(testRun, function() {
 			xhr.setRequestHeader('clearedHeader',null);
 		}).shouldNotThrowException();
 		xhr.send();
 	}
 
 	// Confirms that only the selected cookie is deleted
-	this.clearCookiePositiveTest = function() {
+	this.clearCookiePositiveTest = function(testRun) {
 		var callback_error = function(e){
 			Ti.API.debug(e);
-			valueOf(true).shouldBeFalse();
+			valueOf(testRun, true).shouldBeFalse();
 		};
 		var timer = 0;
 		var second_cookie_fn = function(e) {
@@ -153,8 +153,8 @@ module.exports = new function() {
 				clearTimeout(timer);
 
 				// New Cookie should be different.
-				valueOf(cookie_string).shouldNotBe(second_cookie_string);
-				finish();
+				valueOf(testRun, cookie_string).shouldNotBe(second_cookie_string);
+				finish(testRun);
 			} catch (e) {
 				callback_error(e);
 			}
@@ -180,10 +180,10 @@ module.exports = new function() {
 	}
 
 	// Confirms that only the selected cookie is deleted
-	this.clearCookieUnaffectedCheck = function() {
+	this.clearCookieUnaffectedCheck = function(testRun) {
 		var callback_error = function(e){
 			Ti.API.debug(e);
-			valueOf(true).shouldBeFalse();
+			valueOf(testRun, true).shouldBeFalse();
 		};
 		var timer = 0;
 		var second_cookie_fn = function(e) {
@@ -193,8 +193,8 @@ module.exports = new function() {
 				clearTimeout(timer);
 
 				// Cookie should be the same
-				valueOf(cookie_string).shouldBe(second_cookie_string);
-				finish();
+				valueOf(testRun, cookie_string).shouldBe(second_cookie_string);
+				finish(testRun);
 			} catch (e) {
 				callback_error(e);
 			}
@@ -220,10 +220,10 @@ module.exports = new function() {
 	}
 
 	// http://jira.appcelerator.org/browse/TIMOB-2849
-	this.setCookieClearCookieWithMultipleHTTPClients = function() {
+	this.setCookieClearCookieWithMultipleHTTPClients = function(testRun) {
 		var callback_error = function(e){
 			Ti.API.debug(e);
-			valueOf(true).shouldBeFalse();
+			valueOf(testRun, true).shouldBeFalse();
 		};
 		var testServer = 'http://appc.me/Test/Cookies/';
 
@@ -231,14 +231,14 @@ module.exports = new function() {
 		xhr.setTimeout(30000);
 		xhr.onload = function(e) {
 			try {
-				valueOf(this.responseText).shouldBe('Set 2 cookies');
+				valueOf(testRun, this.responseText).shouldBe('Set 2 cookies');
 				var xhr2 = Ti.Network.createHTTPClient();
 				xhr2.setTimeout(30000);
 				xhr2.onload = function(e) {
 					Ti.API.info("Clear Cookie");
 					try {
-						valueOf(this.responseText).shouldBe('Set 2 cookies to expire a year ago.');
-						finish();
+						valueOf(testRun, this.responseText).shouldBe('Set 2 cookies to expire a year ago.');
+						finish(testRun);
 					} catch (e) {
 						callback_error(e);
 					}

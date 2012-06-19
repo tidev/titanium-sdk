@@ -11,18 +11,18 @@ module.exports = new function() {
 		{name: "buttonStyleConstants"}
 	]
 
-	this.buttonStyleConstants = function() {
-		valueOf(Ti.Facebook.BUTTON_STYLE_NORMAL).shouldBeNumber();
-        valueOf(Ti.Facebook.BUTTON_STYLE_WIDE).shouldBeNumber();
+	this.buttonStyleConstants = function(testRun) {
+		valueOf(testRun, Ti.Facebook.BUTTON_STYLE_NORMAL).shouldBeNumber();
+        valueOf(testRun, Ti.Facebook.BUTTON_STYLE_WIDE).shouldBeNumber();
 
-        valueOf(function() {
+        valueOf(testRun, function() {
             var button = Ti.Facebook.createLoginButton({ style: Ti.Facebook.BUTTON_STYLE_NORMAL });
         }).shouldNotThrowException();
 
-        valueOf(function() {
+        valueOf(testRun, function() {
             var button = Ti.Facebook.createLoginButton({ style: Ti.Facebook.BUTTON_STYLE_WIDE })
         }).shouldNotThrowException();
 
-		finish();
+		finish(testRun);
 	}
 }

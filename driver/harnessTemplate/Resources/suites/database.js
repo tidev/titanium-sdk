@@ -20,65 +20,65 @@ module.exports = new function() {
 		{name: "testDatabaseExceptions"}
 	]
 
-	this.testModuleMethodsAndConstants = function() {
-		valueOf(Ti.Database).shouldNotBeNull();
-		valueOf(Ti.Database).shouldBeObject();
-		valueOf(Ti.Database.open).shouldBeFunction();
-		valueOf(Ti.Database.install).shouldBeFunction();
+	this.testModuleMethodsAndConstants = function(testRun) {
+		valueOf(testRun, Ti.Database).shouldNotBeNull();
+		valueOf(testRun, Ti.Database).shouldBeObject();
+		valueOf(testRun, Ti.Database.open).shouldBeFunction();
+		valueOf(testRun, Ti.Database.install).shouldBeFunction();
 		
-		valueOf(Ti.Database.FIELD_TYPE_STRING).shouldNotBeNull();
-		valueOf(Ti.Database.FIELD_TYPE_INT).shouldNotBeNull();
-		valueOf(Ti.Database.FIELD_TYPE_FLOAT).shouldNotBeNull();
-		valueOf(Ti.Database.FIELD_TYPE_DOUBLE).shouldNotBeNull();
+		valueOf(testRun, Ti.Database.FIELD_TYPE_STRING).shouldNotBeNull();
+		valueOf(testRun, Ti.Database.FIELD_TYPE_INT).shouldNotBeNull();
+		valueOf(testRun, Ti.Database.FIELD_TYPE_FLOAT).shouldNotBeNull();
+		valueOf(testRun, Ti.Database.FIELD_TYPE_DOUBLE).shouldNotBeNull();
 
-		finish();
+		finish(testRun);
 	}
 
-	this.testDatabaseMethods = function() {
+	this.testDatabaseMethods = function(testRun) {
 		var db = Ti.Database.open("Test");
 		try {
-			valueOf(db).shouldNotBeNull();
-			valueOf(db).shouldBeObject();
-			valueOf(db.close).shouldBeFunction();
-			valueOf(db.execute).shouldBeFunction();
-			valueOf(db.getLastInsertRowId).shouldBeFunction();
-			valueOf(db.getName).shouldBeFunction();
-			valueOf(db.getRowsAffected).shouldBeFunction();
-			valueOf(db.remove).shouldBeFunction();
+			valueOf(testRun, db).shouldNotBeNull();
+			valueOf(testRun, db).shouldBeObject();
+			valueOf(testRun, db.close).shouldBeFunction();
+			valueOf(testRun, db.execute).shouldBeFunction();
+			valueOf(testRun, db.getLastInsertRowId).shouldBeFunction();
+			valueOf(testRun, db.getName).shouldBeFunction();
+			valueOf(testRun, db.getRowsAffected).shouldBeFunction();
+			valueOf(testRun, db.remove).shouldBeFunction();
 		
 			// Properties
-			valueOf(db.lastInsertRowId).shouldBeNumber();
-			valueOf(db.name).shouldBeString();
-			valueOf(db.name).shouldBe("Test");
-			valueOf(db.rowsAffected).shouldBeNumber();
+			valueOf(testRun, db.lastInsertRowId).shouldBeNumber();
+			valueOf(testRun, db.name).shouldBeString();
+			valueOf(testRun, db.name).shouldBe("Test");
+			valueOf(testRun, db.rowsAffected).shouldBeNumber();
 		} finally {
 			db.close();
 		}
 
-		finish();
+		finish(testRun);
 	}
 
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2147-android-pragma-and-non-select-statements-return-null-from-tidatabasedbexecute-instead-of-resultset
-	this.testDatabaseLH2147 = function() {
+	this.testDatabaseLH2147 = function(testRun) {
 		var db = Ti.Database.open("Test");
 		try {
-			valueOf(db).shouldNotBeNull();
+			valueOf(testRun, db).shouldNotBeNull();
 		
 			var rs = db.execute("drop table if exists Test");
-			valueOf(rs).shouldBeNull();
+			valueOf(testRun, rs).shouldBeNull();
 
 			rs = db.execute("create table if not exists Test(row text)");
-			valueOf(rs).shouldBeNull();
+			valueOf(testRun, rs).shouldBeNull();
 		
 			rs = db.execute("pragma table_info(Test)");
-			valueOf(rs).shouldNotBeNull();
-			valueOf(rs.fieldCount).shouldBeGreaterThan(0);
+			valueOf(testRun, rs).shouldNotBeNull();
+			valueOf(testRun, rs.fieldCount).shouldBeGreaterThan(0);
 			rs.close();
 		
 			rs = db.execute("select * from Test");
-			valueOf(rs).shouldNotBeNull();
-			valueOf(rs.getFieldCount()).shouldBe(1);
-			valueOf(rs.rowCount).shouldBe(0);
+			valueOf(testRun, rs).shouldNotBeNull();
+			valueOf(testRun, rs.getFieldCount()).shouldBe(1);
+			valueOf(testRun, rs.rowCount).shouldBe(0);
 			rs.close();
 		} finally {
 			db.close();
@@ -86,30 +86,30 @@ module.exports = new function() {
 		}
 		
 		var f = Ti.Filesystem.getFile("file:///data/data/org.appcelerator.titanium.testharness/databases/Test");
-		valueOf(f.exists()).shouldBeFalse();
+		valueOf(testRun, f.exists()).shouldBeFalse();
 
-		finish();
+		finish(testRun);
 	}
 
-	this.testDatabaseInsert = function() {
+	this.testDatabaseInsert = function(testRun) {
 		var db = Ti.Database.open("Test");
 		try {
-			valueOf(db).shouldNotBeNull();
+			valueOf(testRun, db).shouldNotBeNull();
 		
 			var rs = db.execute("drop table if exists Test");
-			valueOf(rs).shouldBeNull();
+			valueOf(testRun, rs).shouldBeNull();
 
 			rs = db.execute("create table if not exists Test(row text)");
-			valueOf(rs).shouldBeNull();
+			valueOf(testRun, rs).shouldBeNull();
 
 			db.execute("insert into Test(row) values(?)", "My TestRow");
 		
 			rs = db.execute("select * from Test");
-			valueOf(rs).shouldNotBeNull();
-			valueOf(rs.isValidRow()).shouldBe(true);
-			valueOf(rs.getFieldCount()).shouldBe(1);
-			valueOf(rs.rowCount).shouldBe(1);
-			valueOf(rs.getField(0)).shouldBe("My TestRow");
+			valueOf(testRun, rs).shouldNotBeNull();
+			valueOf(testRun, rs.isValidRow()).shouldBe(true);
+			valueOf(testRun, rs.getFieldCount()).shouldBe(1);
+			valueOf(testRun, rs.rowCount).shouldBe(1);
+			valueOf(testRun, rs.getField(0)).shouldBe("My TestRow");
 			rs.close();
 		} finally {
 			db.close();
@@ -117,19 +117,19 @@ module.exports = new function() {
 		}
 		
 		var f = Ti.Filesystem.getFile("file:///data/data/org.appcelerator.titanium.testharness/databases/Test");
-		valueOf(f.exists()).shouldBeFalse();
+		valueOf(testRun, f.exists()).shouldBeFalse();
 
-		finish();
+		finish(testRun);
 	}
 
-	this.testDatabaseCount = function() {
+	this.testDatabaseCount = function(testRun) {
 		var testRowCount = 100;
 		var db = Ti.Database.open('Test');
 		try {
-			valueOf(db).shouldNotBeNull();
+			valueOf(testRun, db).shouldNotBeNull();
 			
 			var rs = db.execute("drop table if exists data");
-			valueOf(rs).shouldBeNull();
+			valueOf(testRun, rs).shouldBeNull();
 			
 			db.execute('CREATE TABLE IF NOT EXISTS data (id INTEGER PRIMARY KEY, val TEXT)');
 			for (var i = 1; i <= testRowCount; i++) {
@@ -145,25 +145,25 @@ module.exports = new function() {
 		    }
 			rs.close();
 			
-		    valueOf(realCount).shouldBe(testRowCount);
-		    valueOf(rowCount).shouldBe(testRowCount);
-		    valueOf(rowCount).shouldBe(realCount);
+		    valueOf(testRun, realCount).shouldBe(testRowCount);
+		    valueOf(testRun, rowCount).shouldBe(testRowCount);
+		    valueOf(testRun, rowCount).shouldBe(realCount);
 		} finally {
 			db.close();
 			db.remove();
 		}
 
-		finish();
+		finish(testRun);
 	}
 
-	this.testDatabaseRollback = function() {
+	this.testDatabaseRollback = function(testRun) {
 		var db = Ti.Database.open('Test');
 		var testRowCount = 30;
 		try {
-			valueOf(db).shouldNotBeNull();
+			valueOf(testRun, db).shouldNotBeNull();
 			
 			var rs = db.execute("drop table if exists data");
-			valueOf(rs).shouldBeNull();
+			valueOf(testRun, rs).shouldBeNull();
 			
 			db.execute('CREATE TABLE IF NOT EXISTS data (id INTEGER PRIMARY KEY, val TEXT)');
 			
@@ -172,13 +172,13 @@ module.exports = new function() {
 			    db.execute('INSERT INTO data (val) VALUES(?)','our value:' + i);
 			}
 			rs = db.execute("SELECT * FROM data");
-		    valueOf(rs.rowCount).shouldBe(testRowCount);
+		    valueOf(testRun, rs.rowCount).shouldBe(testRowCount);
 			rs.close();
 			
 			db.execute('ROLLBACK TRANSACTION');
 		
 			rs = db.execute("SELECT * FROM data");
-			valueOf(rs.rowCount).shouldBe(0);
+			valueOf(testRun, rs.rowCount).shouldBe(0);
 			rs.close();
 		
 			db.execute('drop table if exists data');
@@ -187,17 +187,17 @@ module.exports = new function() {
 			db.remove();
 		}
 
-		finish();
+		finish(testRun);
 	}
 
-	this.testDatabaseSavepointRollback = function() {
+	this.testDatabaseSavepointRollback = function(testRun) {
 		var db = Ti.Database.open('Test');
 		var testRowCount = 30;
 		try {
-			valueOf(db).shouldNotBeNull();
+			valueOf(testRun, db).shouldNotBeNull();
 			
 			var rs = db.execute("drop table if exists data");
-			valueOf(rs).shouldBeNull();
+			valueOf(testRun, rs).shouldBeNull();
 			
 			// Devices with Android API Levels before 8 don't support savepoints causing
 			// a false failure on those devices. Try and detect and only do
@@ -221,7 +221,7 @@ module.exports = new function() {
 				db.execute('COMMIT TRANSACTION');
 			
 				rs = db.execute("SELECT * FROM data");
-				valueOf(rs.rowCount).shouldBe(0);
+				valueOf(testRun, rs.rowCount).shouldBe(0);
 				rs.close();
 			
 				db.execute('BEGIN TRANSACTION');
@@ -229,7 +229,7 @@ module.exports = new function() {
 				db.execute('ROLLBACK TRANSACTION');
 			
 				rs = db.execute("SELECT * FROM data");
-				valueOf(rs).shouldNotBeNull();
+				valueOf(testRun, rs).shouldNotBeNull();
 				rs.close();
 			}
 		} finally {
@@ -237,20 +237,20 @@ module.exports = new function() {
 			db.remove();
 		}
 
-		finish();
+		finish(testRun);
 	}
 
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/2917-api-doc-dbexecute
-	this.testDatabaseLH2917 = function() {
+	this.testDatabaseLH2917 = function(testRun) {
 		var db = Titanium.Database.open('Test'),
 		    rowCount = 10,
 				resultSet, i, counter;
 
 		
-		valueOf(db).shouldBeObject();
-		valueOf(resultSet).shouldBeUndefined();
-		valueOf(i).shouldBeUndefined();
-		valueOf(counter).shouldBeUndefined();
+		valueOf(testRun, db).shouldBeObject();
+		valueOf(testRun, resultSet).shouldBeUndefined();
+		valueOf(testRun, i).shouldBeUndefined();
+		valueOf(testRun, counter).shouldBeUndefined();
 
 		try {
 			db.execute('CREATE TABLE IF NOT EXISTS stuff (id INTEGER, val TEXT)');
@@ -269,14 +269,14 @@ module.exports = new function() {
 
 			resultSet = db.execute('SELECT * FROM stuff');
 			
-			valueOf(resultSet).shouldNotBeNull();
-			valueOf(resultSet).shouldBeObject();
-			valueOf(resultSet.rowCount).shouldBe(rowCount);
+			valueOf(testRun, resultSet).shouldNotBeNull();
+			valueOf(testRun, resultSet).shouldBeObject();
+			valueOf(testRun, resultSet.rowCount).shouldBe(rowCount);
 
 			counter = 1;
 			while(resultSet.isValidRow()) {
-				valueOf(resultSet.fieldByName('id')).shouldBe(counter);
-			  valueOf(resultSet.fieldByName('val')).shouldBe('our value' + counter);
+				valueOf(testRun, resultSet.fieldByName('id')).shouldBe(counter);
+			  valueOf(testRun, resultSet.fieldByName('val')).shouldBe('our value' + counter);
 			  ++counter;
 
 				resultSet.next();
@@ -289,18 +289,18 @@ module.exports = new function() {
 			db.remove();
 	 	}
 
-		finish();
+		finish(testRun);
 	}
 
 	//https://appcelerator.lighthouseapp.com/projects/32238/tickets/3393-db-get-api-extended-to-support-typed-return-value
-	this.testTypedGettersAndSetters = function() {
+	this.testTypedGettersAndSetters = function(testRun) {
 		var db   = Ti.Database.open('Test'),
 		rowCount = 10,
 		resultSet = null,
 		i, counter, current_float, float_factor = 0.5555;
 
 		var isAndroid = (Ti.Platform.osname === 'android');
-		valueOf(db).shouldBeObject();
+		valueOf(testRun, db).shouldBeObject();
 
 		try {
 			counter = 1;
@@ -318,55 +318,55 @@ module.exports = new function() {
 			
 			resultSet = db.execute('SELECT * FROM stuff');
 			
-			valueOf(resultSet).shouldNotBeNull();
-			valueOf(resultSet).shouldBeObject();
-			valueOf(resultSet.rowCount).shouldBe(rowCount);
+			valueOf(testRun, resultSet).shouldNotBeNull();
+			valueOf(testRun, resultSet).shouldBeObject();
+			valueOf(testRun, resultSet.rowCount).shouldBe(rowCount);
 
 			while(resultSet.isValidRow()) {
 				
 				current_float = counter * float_factor;
 				
-				valueOf(resultSet.fieldByName('id', Ti.Database.FIELD_TYPE_INT)).shouldBe(resultSet.field(0, Ti.Database.FIELD_TYPE_INT));
-				valueOf(resultSet.fieldByName('id', Ti.Database.FIELD_TYPE_INT)).shouldBe(counter);
+				valueOf(testRun, resultSet.fieldByName('id', Ti.Database.FIELD_TYPE_INT)).shouldBe(resultSet.field(0, Ti.Database.FIELD_TYPE_INT));
+				valueOf(testRun, resultSet.fieldByName('id', Ti.Database.FIELD_TYPE_INT)).shouldBe(counter);
 				
-			  	valueOf(resultSet.fieldByName('id', Ti.Database.FIELD_TYPE_INT)).shouldBe(counter);
-				valueOf(resultSet.fieldByName('id', Ti.Database.FIELD_TYPE_INT)).shouldBe(counter);
+			  	valueOf(testRun, resultSet.fieldByName('id', Ti.Database.FIELD_TYPE_INT)).shouldBe(counter);
+				valueOf(testRun, resultSet.fieldByName('id', Ti.Database.FIELD_TYPE_INT)).shouldBe(counter);
 
-				valueOf(resultSet.fieldByName('f', Ti.Database.FIELD_TYPE_INT)).shouldBe(resultSet.field(1, Ti.Database.FIELD_TYPE_INT));
-				valueOf(resultSet.fieldByName('f', Ti.Database.FIELD_TYPE_INT)).shouldBe(parseInt(counter * float_factor));
+				valueOf(testRun, resultSet.fieldByName('f', Ti.Database.FIELD_TYPE_INT)).shouldBe(resultSet.field(1, Ti.Database.FIELD_TYPE_INT));
+				valueOf(testRun, resultSet.fieldByName('f', Ti.Database.FIELD_TYPE_INT)).shouldBe(parseInt(counter * float_factor));
 				
 				var f_val = resultSet.fieldByName('f', Ti.Database.FIELD_TYPE_FLOAT);
- 	  			valueOf(Math.floor(Math.round(f_val * 10000))/10000).shouldBe(current_float);
-				valueOf(resultSet.fieldByName('f', Ti.Database.FIELD_TYPE_DOUBLE)).shouldBe(current_float);
+ 	  			valueOf(testRun, Math.floor(Math.round(f_val * 10000))/10000).shouldBe(current_float);
+				valueOf(testRun, resultSet.fieldByName('f', Ti.Database.FIELD_TYPE_DOUBLE)).shouldBe(current_float);
 				
-				valueOf(resultSet.fieldByName('val', Ti.Database.FIELD_TYPE_STRING)).shouldBe('our value' + counter);
-				valueOf(resultSet.fieldByName('id', Ti.Database.FIELD_TYPE_STRING)).shouldBe(counter.toString());
-				valueOf(resultSet.fieldByName('f', Ti.Database.FIELD_TYPE_STRING)).shouldBe(current_float.toString());
+				valueOf(testRun, resultSet.fieldByName('val', Ti.Database.FIELD_TYPE_STRING)).shouldBe('our value' + counter);
+				valueOf(testRun, resultSet.fieldByName('id', Ti.Database.FIELD_TYPE_STRING)).shouldBe(counter.toString());
+				valueOf(testRun, resultSet.fieldByName('f', Ti.Database.FIELD_TYPE_STRING)).shouldBe(current_float.toString());
 				
 				
 				// WARNING: On iOS, the following functions throw an uncaught exception - 
 				
-					valueOf(function() {
+					valueOf(testRun, function() {
 						resultSet.fieldByName('val', Ti.Database.FIELD_TYPE_INT);
 					}).shouldThrowException();
 				
-					valueOf(function() {
+					valueOf(testRun, function() {
 						resultSet.fieldByName('val', Ti.Database.FIELD_TYPE_DOUBLE);
 					}).shouldThrowException();
 				
-					valueOf(function() {
+					valueOf(testRun, function() {
 						resultSet.fieldByName('val', Ti.Database.FIELD_TYPE_FLOAT);
 					}).shouldThrowException();
 				
-					valueOf(function() {
+					valueOf(testRun, function() {
 						resultSet.field(2, Ti.Database.FIELD_TYPE_DOUBLE);
 					}).shouldThrowException();
 				
-					valueOf(function() {
+					valueOf(testRun, function() {
 						resultSet.field(2, Ti.Database.FIELD_TYPE_FLOAT);
 					}).shouldThrowException();
 				
-					valueOf(function() {
+					valueOf(testRun, function() {
 						resultSet.field(2, Ti.Database.FIELD_TYPE_INT);
 					}).shouldThrowException();
 
@@ -385,38 +385,38 @@ module.exports = new function() {
 			}
 		}
 
-		finish();
+		finish(testRun);
 	}
 
-	this.testDatabaseExceptions = function() {
+	this.testDatabaseExceptions = function(testRun) {
 		var isAndroid = (Ti.Platform.osname === 'android');
-			valueOf( function() { Ti.Database.open("fred://\\"); }).shouldThrowException();
+			valueOf(testRun,  function() { Ti.Database.open("fred://\\"); }).shouldThrowException();
 			var db = null;
 			try {
 				db = Titanium.Database.open('Test');
 			
-				valueOf( function() { 
+				valueOf(testRun,  function() { 
 					Ti.Database.execute("select * from notATable"); 
 				}).shouldThrowException();
 			
 				db.execute('CREATE TABLE IF NOT EXISTS stuff (id INTEGER, val TEXT)');
 				db.execute('INSERT INTO stuff (id, val) values (1, "One")');
 				
-				valueOf( function() {
+				valueOf(testRun,  function() {
 					db.execute('SELECT * FROM idontexist');
 				}).shouldThrowException();
 				
 				var rs = db.execute("SELECT id FROM stuff WHERE id = 1");
 				
-				valueOf( function() {
+				valueOf(testRun,  function() {
 					rs.field(2);
 				}).shouldThrowException();
 	
-				valueOf( function() {
+				valueOf(testRun,  function() {
 					rs.field(2);
 				}).shouldThrowException();
 			
-				valueOf( function() {
+				valueOf(testRun,  function() {
 					rs.fieldName(2);
 				}).shouldThrowException();
 			
@@ -430,6 +430,6 @@ module.exports = new function() {
 				}
 			}
 
-		finish();
+		finish(testRun);
 	}
 }

@@ -13,8 +13,20 @@ module.exports = new function() {
 	var currentTest;
 	var testStartTime;
 	var testResult;
+	var testReturned;
+	var testFinished;
+	var resultSent;
 
-	var setResult = function(result, description) {
+	var setResult = function(testRun, result, description) {
+		// make sure that the result being set is not obsolete
+		var test = currentSuite.tests[currentTest];
+		if(!test) {
+			return;
+		}
+		if((testRun.suiteName != currentSuite.name) || (testRun.testName != test.name)) {
+			return;
+		}
+
 		if(result == undefined) {
 			result = "success";
 		}
@@ -26,10 +38,26 @@ module.exports = new function() {
 			result: result,
 			description: description,
 			duration: (new Date().getTime()) - testStartTime
-		};
+		}
+
+		testFinished = true;
+
+		if(testReturned) {
+			sendResult();
+		}
 	}
 
 	var sendResult = function() {
+		/*
+		due to timing issues, it is possble that we may try and send more than one result back 
+		to the driver for a test - this is bad.  check here as a brute force means to catch any 
+		timing issues that slip through in this regard
+		*/
+		if(resultSent) {
+			return;
+		}
+		resultSent = true;
+
 		harnessGlobal.util.sendData(testResult);
 	}
 
@@ -81,11 +109,30 @@ module.exports = new function() {
 				if(currentSuite.tests[i].name == elements[2]) {
 					currentTest = i;
 					testStartTime = new Date().getTime();
+					testReturned = false;
+					testFinished = false;
+					resultSent = false;
+
+					/*
+					keep a unique scope for the test that can be shared among the utility 
+					functions and passed back with the result as a state check to guard against 
+					processing obsolete results
+					*/
+					var testRun = {
+						suiteName: currentSuite.name,
+						testName: currentSuite.tests[currentTest].name,
+						resultSet: false
+					}
 
 					Ti.API.info("running suite<" + elements[1] + "> test<" + elements[2] + ">...");
 					try {
-						testUtil.errorState = false;
-						currentSuite[currentSuite.tests[currentTest].name]();
+						currentSuite[currentSuite.tests[currentTest].name](testRun);
+
+						testReturned = true;
+
+						if(testFinished) {
+							sendResult();
+						}
 
 					} catch(e) {
 						var exceptionDetails;
@@ -109,14 +156,9 @@ module.exports = new function() {
 							exceptionDetails = "unable to get exception details";
 						}
 
-						setResult("exception", "<" + exceptionDetails + ">");
+						setResult(testRun, "exception", "<" + exceptionDetails + ">");
+						sendResult();
 					}
-
-					/*
-					the test results might get set halfway through a test but don't send them 
-					until the test has finished so we don't run into timining issues
-					*/
-					sendResult();
 				}
 			}
 		}

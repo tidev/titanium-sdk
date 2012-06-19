@@ -21,72 +21,72 @@ module.exports = new function() {
 
 	var testval = false;
 
-	this.relativeDown = function() {
+	this.relativeDown = function(testRun) {
 		testval = false;
-		valueOf(function(){
+		valueOf(testRun, function(){
 			Ti.include('relative_down.js');
 		}).shouldNotThrowException();
-		valueOf(testval).shouldBeTrue();
+		valueOf(testRun, testval).shouldBeTrue();
 
-		finish();
+		finish(testRun);
 	}
 
-	this.slashToRoot = function() {
+	this.slashToRoot = function(testRun) {
 		testval = false;
-		valueOf(function(){
+		valueOf(testRun, function(){
 			Ti.include('l2/l3/slash_to_root.js');
 		}).shouldNotThrowException();
-		valueOf(testval).shouldBeTrue();
+		valueOf(testRun, testval).shouldBeTrue();
 
-		finish();
+		finish(testRun);
 	}
 
-	this.dotdotSlash = function() {
+	this.dotdotSlash = function(testRun) {
 		testval = false;
-		valueOf(function(){
+		valueOf(testRun, function(){
 			Ti.include('l2/l3/dotdotslash.js');
 		}).shouldNotThrowException();
-		valueOf(testval).shouldBeTrue();
+		valueOf(testRun, testval).shouldBeTrue();
 
-		finish();
+		finish(testRun);
 	}
 
-	this.dotSlash = function() {
+	this.dotSlash = function(testRun) {
 		testval = false;
-		valueOf(function(){
+		valueOf(testRun, function(){
 			Ti.include('./dotslash.js');
 		}).shouldNotThrowException();
-		valueOf(testval).shouldBeTrue();
+		valueOf(testRun, testval).shouldBeTrue();
 
-		finish();
+		finish(testRun);
 	}
 
-	this.lotsOfDots = function() {
+	this.lotsOfDots = function(testRun) {
 		testval = false;
-		valueOf(function(){
+		valueOf(testRun, function(){
 			Ti.include('l2/../l2/./l3/lotsofdots.js');
 		}).shouldNotThrowException();
-		valueOf(testval).shouldBeTrue();
+		valueOf(testRun, testval).shouldBeTrue();
 
-		finish();
+		finish(testRun);
 	}
 
-	this.simpleRequire = function() {
-		valueOf(require).shouldBeFunction();
+	this.simpleRequire = function(testRun) {
+		valueOf(testRun, require).shouldBeFunction();
 
 		var module = require("./module");
-		valueOf(module).shouldBeObject();
-		valueOf(module.message).shouldBe("test required module");
+		valueOf(testRun, module).shouldBeObject();
+		valueOf(testRun, module.message).shouldBe("test required module");
 
-		finish();
+		finish(testRun);
 	}
 
-	this.secondContextRequire = function() {
+	this.secondContextRequire = function(testRun) {
 		var callback = new Object();
 		callback.passed = finish;
 		callback.failed = function(e){
 			Ti.API.debug(e);
-			valueOf(true).shouldBeFalse();
+			valueOf(testRun, true).shouldBeFalse();
 		};
 		if(Ti.Platform.osname === 'android'){
 			Ti.UI.createWindow({
@@ -101,39 +101,39 @@ module.exports = new function() {
 		//As such, is it even a proper test? Conditioning out
 		//iOS in the meantime.
 			Ti.API.warn("Cross-context tests aren't currently being tested in iOS");
-			finish();
+			finish(testRun);
 		}
 	}
 
-	this.multipleRequire = function() {
-		valueOf(require).shouldBeFunction();
+	this.multipleRequire = function(testRun) {
+		valueOf(testRun, require).shouldBeFunction();
 
 		var module1 = require("counter");
-		valueOf(module1).shouldBeObject();
-		valueOf(module1.increment).shouldBeFunction();
-		valueOf(module1.increment()).shouldBe(1);
-		valueOf(module1.increment()).shouldBe(2);
+		valueOf(testRun, module1).shouldBeObject();
+		valueOf(testRun, module1.increment).shouldBeFunction();
+		valueOf(testRun, module1.increment()).shouldBe(1);
+		valueOf(testRun, module1.increment()).shouldBe(2);
 
 		var module2 = require("counter");
-		valueOf(module2).shouldBeObject();
-		valueOf(module2.increment).shouldBeFunction();
-		valueOf(module2.increment()).shouldBe(3);
+		valueOf(testRun, module2).shouldBeObject();
+		valueOf(testRun, module2.increment).shouldBeFunction();
+		valueOf(testRun, module2.increment()).shouldBe(3);
 
-		finish();
+		finish(testRun);
 	}
 
-	this.includeFromUrlWindow = function() {
+	this.includeFromUrlWindow = function(testRun) {
 		// Another cross-context test, will need to enable for iOS later
 		if (Ti.Platform.osname === 'android') {
 			var win = Ti.UI.createWindow({ url: "window_include.js", passed: false });
 			win.addEventListener("open", function(e) {
-				valueOf(win.passed).shouldBeTrue();
-				finish();
+				valueOf(testRun, win.passed).shouldBeTrue();
+				finish(testRun);
 			});
 			win.open();
 		} else {
 			Ti.API.warn("Cross-context tests aren't currently being tested in iOS");
-			finish();
+			finish(testRun);
 		}
 	}
 }
