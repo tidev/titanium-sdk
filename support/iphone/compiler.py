@@ -532,9 +532,11 @@ class Compiler(object):
 		js_files = [path];
 		template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 		titanium_prep = os.path.abspath(os.path.join(template_dir,'titanium_prep'))
-		cmdargs = [titanium_prep, self.appid, self.assets_dir]
-		cmdargs.extend(js_files)
-		so = run.run(cmdargs)
+		cmdinputfile = tempfile.TemporaryFile()
+		cmdinputfile.write('\n'.join(js_files))
+		cmdinputfile.seek(0)
+		so = subprocess.check_output([titanium_prep, self.appid, self.assets_dir], stdin=cmdinputfile)
+		cmdinputfile.close()
 		return so
 		
 	def copy_resources(self,sources,target,write_routing=True,module_js=[]):
