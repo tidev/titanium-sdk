@@ -91,10 +91,13 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 				this._publish(win);
 
 				// Show the back button, if need be
-				backButton.animate({opacity: 1, duration: 250}, function() {
-					backButton.opacity = 1;
-					backButton.enabled = true;
-				});
+				if (!this._backButtonVisible) {
+					this._backButtonVisible = 1;
+					backButton.animate({opacity: 1, duration: 250}, function() {
+						backButton.opacity = 1;
+						backButton.enabled = true;
+					});
+				}
 
 				// Set a default background
 				!isDef(win.backgroundColor) && !isDef(win.backgroundImage) && (win.backgroundColor = "#fff");
@@ -128,6 +131,7 @@ define(["Ti/_/css", "Ti/_/declare", "Ti/UI/View", "Ti/UI", "Ti/_/lang"],
 				if (windowIdx > 0) {
 					// hide the back button if we're back at the root
 					windows.length <= 1 && this._backButton.animate({ opacity: 0, duration: 250 }, function() {
+						this._backButtonVisible = 0;
 						this.opacity = 0;
 						this.enabled = false;
 					});
