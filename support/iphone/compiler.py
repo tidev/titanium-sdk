@@ -4,7 +4,7 @@
 # Project Compiler
 #
 
-import os, sys, re, shutil, time, run, sgmllib, codecs, tempfile
+import os, sys, re, shutil, time, run, sgmllib, codecs, tempfile, subprocess
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.abspath(os.path.join(template_dir,'..')))
@@ -472,7 +472,7 @@ class Compiler(object):
 				c = i + x + 1
 				continue
 			break
-		return tokens	
+		return sorted(set(tokens))
 	
 	def compile_js(self,file_contents):
 		for line in file_contents.split(';'):
@@ -558,19 +558,25 @@ class Compiler(object):
 			os.makedirs(self.assets_dir)
 			
 		def compile_js_file(path,from_):
-			print "[DEBUG] compiling: %s" % from_
+			year, month, day, hour, minute, second, weekday, yearday, daylight = time.localtime(time.time())
+			print "[DEBUG] (%02d:%02d:%02d) compiling: %s" % (hour, minute, second, from_)
 			path = path.replace('.','_')
 			self.compile_js_asset_file(path,from_)
 			js_files.append(path);
 			
 		def compile_js_files():
-			print "[DEBUG] packaging javascript"
+			year, month, day, hour, minute, second, weekday, yearday, daylight = time.localtime(time.time())
+			print "[DEBUG] (%02d:%02d:%02d) packaging javascript" % (hour, minute, second)
 			template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 			titanium_prep = os.path.abspath(os.path.join(template_dir,'titanium_prep'))
-			cmdargs = [titanium_prep, self.appid, self.assets_dir]
-			cmdargs.extend(js_files)
-			so = run.run(cmdargs)
+			cmdinputfile = tempfile.TemporaryFile()
+			cmdinputfile.write('\n'.join(js_files))
+			cmdinputfile.seek(0)
+			so = subprocess.check_output([titanium_prep, self.appid, self.assets_dir], stdin=cmdinputfile)
+			cmdinputfile.close()
 			impf.write(so)
+			year, month, day, hour, minute, second, weekday, yearday, daylight = time.localtime(time.time())
+			print "[DEBUG] (%02d:%02d:%02d) packaging finished" % (hour, minute, second)
 			
 		def add_compiled_resources(source,target):
 			print "[DEBUG] copy resources from %s to %s" % (source,target)
