@@ -20,7 +20,6 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
@@ -555,9 +554,11 @@ public class TiHTTPClient
 
 	public String getResponseText()
 	{
-		
 		if (responseData != null && responseText == null) {
+			boolean unknownCharset = false;
+			boolean shouldRetry = false;
 			if (charset == null) {
+				unknownCharset = true;
 				charset = HTTP.UTF_8;
 			}
 
@@ -568,8 +569,26 @@ public class TiHTTPClient
 				responseText = b.toString();
 			} catch (Exception e) {
 				Log.e(LCAT, "Unable to decode using charset: " + charset);
+				shouldRetry = true;
 			} catch (OutOfMemoryError e) {
 				 Log.e(LCAT, "Unable to get response text: out of memory");
+			}
+			
+			if (shouldRetry && unknownCharset) {
+				if (DBG) {
+					Log.d(LCAT, "Decoding as UTF-8 failed. Retrying decoding of response data with ISO-8859-1");
+				}
+				charset = HTTP.ISO_8859_1;
+				try {
+					CharsetDecoder decoder = Charset.forName(charset).newDecoder();
+					ByteBuffer data = ByteBuffer.wrap(responseData.getBytes());
+					CharBuffer b = decoder.decode(data);
+					responseText = b.toString();
+				} catch (Exception e) {
+					Log.e(LCAT, "Unable to decode using charset: " + charset);
+				} catch (OutOfMemoryError e) {
+					 Log.e(LCAT, "Unable to get response text: out of memory");
+				}
 			}
 
 		}
