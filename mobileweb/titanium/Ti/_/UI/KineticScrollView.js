@@ -74,7 +74,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 
 			// Calculate the velocity by calculating a weighted slope average, favoring more recent movement
 			function calculateVelocity() {
-				currentTime = (new Date).getTime();
+				currentTime = Date.now();
 				period = currentTime - previousTime;
 				previousTime = currentTime;
 				if (numSamples++) {
@@ -100,7 +100,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/UI/View", "Ti/_/lang", "Ti/_/dom", "
 				startTranslationX = self._currentTranslationX;
 				startTranslationY = self._currentTranslationY;
 				numSamples = 0;
-				previousTime = (new Date).getTime();
+				previousTime = Date.now();
 
 				// Start the scroll bars
 				var width = self._measuredWidth,

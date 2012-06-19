@@ -2,7 +2,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob
 	function(_, declare, encoding, lang, API, Blob) {
 
 	var reg,
-		regDate = (new Date()).getTime(),
+		regDate = Date.now(),
 		File,
 		Filesystem,
 		ls = localStorage,
@@ -165,7 +165,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob
 		"appdata://": 0,
 		"/": 1,
 		"tmp://": 0
-	}, (new Date()).getTime()));
+	}, Date.now()));
 
 	return File = declare("Ti._.Filesystem.Local", null, {
 
@@ -483,7 +483,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob
 						data = data._data || "";
 				}
 				this._exists = true;
-				this._modified = (new Date()).getTime();
+				this._modified = Date.now();
 				this._created || (this._created = this._modified);
 				this.constants.__values__.size = setLocal(path, append ? this.read() + data : data);
 				return this._save();
@@ -493,7 +493,7 @@ define(["Ti/_", "Ti/_/declare", "Ti/_/encoding", "Ti/_/lang", "Ti/API", "Ti/Blob
 
 		_create: function(type) {
 			if (!this.exists() && this.parent && !this.parent.readonly && mkdirs(this.parent.nativePath)) {
-				this._created = this._modified = (new Date()).getTime();
+				this._created = this._modified = Date.now();
 				this._exists = true;
 				this._type = type;
 				return this._save();

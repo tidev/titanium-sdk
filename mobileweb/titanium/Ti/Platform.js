@@ -15,9 +15,8 @@ define(["Ti/_", "Ti/_/browser", "Ti/_/Evented", "Ti/_/lang", "Ti/Locale", "Ti/_/
 	function saveMid() {
 		if (!unloaded) {
 			unloaded = 1;
-			var d = new Date();
-			d.setTime(d.getTime() + 63072e7); // forever in mobile terms
-			doc.cookie = midName + "=" + encodeURIComponent(mid) + "; expires=" + d.toUTCString();
+			// expire cookie in 20 years... forever in mobile terms
+			doc.cookie = midName + "=" + encodeURIComponent(mid) + "; expires=" + (new Date(Date.now() + 63072e7)).toUTCString();
 			localStorage.setItem(midName, mid);
 		}
 	}

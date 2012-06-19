@@ -8,10 +8,9 @@ define(
 		computeSize = dom.computeSize,
 		on = require.on,
 		setStyle = style.set,
-		isDef = lang.isDef,
-		val = lang.val,
+		//isDef = lang.isDef,
+		//val = lang.val,
 		is = require.is,
-		has = require.has,
 		/*
 		transitionEvents = {
 			webkit: "webkitTransitionEnd",
@@ -656,8 +655,7 @@ define(
 		},
 
 		animate: function(anim, callback) {
-			debugger;
-			return Animation.play(this, anim && anim.declaredClass === "Ti.UI.Animation" ? anim : new Animation(anim)).then(callback);
+			return Animation._play(this, anim && anim.declaredClass === "Ti.UI.Animation" ? anim : new Animation(anim)).then(callback);
 		},
 /*
 		animate: function(anim, callback) {
@@ -668,7 +666,7 @@ define(
 
 			UI._layoutInProgress || !self._isAttachedToActiveWin() ? on.once(UI, "postlayout", f) : f();
 		},
-
+*/
 		_doAnimation: function(anim, callback) {
 			anim = anim || {};
 			var curve = curves[anim.curve] || "ease",
@@ -694,7 +692,7 @@ define(
 
 					// Set the z-order
 					!isDef(anim.zIndex) && setStyle(self.domNode, "zIndex", anim.zIndex);
-
+ 
 					// Set the transform properties
 					if (anim.transform) {
 						self._curTransform = self._curTransform ? self._curTransform.multiply(anim.transform) : anim.transform;
@@ -735,7 +733,7 @@ define(
 				is(callback, "Function") && callback.call(self);
 			}
 		},
-*/
+
 		_setTouchEnabled: function(value) {
 			var children = this._children,
 				child,
@@ -932,10 +930,11 @@ define(
 
 			visible: {
 				set: function(value, orig) {
+					value = !!value;
 					if (value !== orig) {
 						!value && (this._lastDisplay = style.get(this.domNode, "display"));
 						setStyle(this.domNode, "display", !!value ? this._lastDisplay || "" : "none");
-						!!value && this._triggerLayout();
+						value && orig !== void 0 && this._triggerLayout();
 					}
 					return value;
 				}

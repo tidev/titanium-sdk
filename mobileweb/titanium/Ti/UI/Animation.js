@@ -1,4 +1,4 @@
-define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style"], function(declare, Evented, style) {
+define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style", "Ti/UI"], function(declare, Evented, style, UI) {
 
 	var curves = [
 			function easeInOut(n) {
@@ -16,11 +16,36 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style"], function(declare, Evented
 			}
 		],
 		global = window,
+		now = Date.now,
 		is = require.is,
+		on = require.on,
 		lastTime = 0,
 		prefixes = ["ms", "moz", "webkit", "o"],
 		i = prefixes.length,
-		ignoreRegExp = /autoreverse|curve|delay|duration|repeat|visible/,
+		ignoreOptions = {
+			autoreverse: 1,
+			bottom: 1,
+			center: 1,
+			curve: 1,
+			delay: 1,
+			duration: 1,
+			repeat: 1,
+			right: 1,
+			visible: 1,
+			zIndex: 1
+		},
+		colorOptions = {
+			backgroundColor: 1,
+			color: 1
+		},
+		positionOptions = {
+			height: 1,
+			left: 1,
+			opacity: 1,
+			top: 1,
+			width: 1
+		},
+		unitRegExp = /(\d+)(.*)/,
 		needsRender,
 		animations = {},
 		colors = require(require.config.ti.colorsModule),
@@ -47,10 +72,6 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style"], function(declare, Evented
 			}
 		});
 
-	function now() {
-		return (new Date).getTime();
-	}
-
 	while (--i >= 0 && !global.requestAnimationFrame) {
 		global.requestAnimationFrame = global[prefixes[i] + "RequestAnimationFrame"];
 	}
@@ -63,26 +84,69 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style"], function(declare, Evented
 		return timer;
 	});
 
+	function pump() {
+		UI._layoutInProgress ? on.once(UI, "postlayout", function() {
+			requestAnimationFrame(render)
+		}) : requestAnimationFrame(render);
+	}
+
 	function render(ts) {
 		var wid,
+			anis,
+			ani,
 			elem,
-			itemsStillAnimating = 0,
-			elementPropsAmimating;
+			i,
+			from,
+			to,
+			pct,
+			val,
+			vals;
+
+		needsRender = 0;
 
 		for (wid in animations) {
-			elem = animations[wid];
-			for (prop in animations[a]) {
-				//
+			for (anis = animations[wid], i = 0; i < anis.length; i++) {
+				ani = anis[i];
+				if (!ani.paused) {
+					pct = ani.duration ? Math.min(1, (ts - ani.ts) / ani.duration) : 1;
+					elem = ani.elem;
+
+					if (elem._isAttachedToActiveWin()) {
+						for (prop in ani.props) {
+							vals = ani.props[prop];
+							from = vals[0];
+							to = vals[1];
+
+							if (colorOptions[prop]) {
+								//
+
+							} else if (positionOptions[prop]) {
+								if (pct === 1) {
+									val = to;
+								} else {
+									val = ((to - from) * curves[ani.curve](pct)) + from;
+									needsRender = 1;
+								}
+
+console.log("animating " + prop + " from " + from + " to " + to + " val = " + val + " " + (pct*100) + "% done [" + ts + "]");
+
+								elem.domNode.style[prop] = val + "px";
+							}
+						}
+					}
+
+					if (pct === 1) {
+						ani.promise.resolve();
+						anis.splice(i--, 1);
+						if (!anis.length) {
+							delete animations[wid];
+						}
+					}
+				}
 			}
 		}
 
-		// TODO: only play animations that are NOT PAUSED
-
-		// TODO: fire complete
-		// anim.fireEvent("complete");
-		// anim.complete()
-
-		itemsStillAnimating && requestAnimationFrame(render);
+		needsRender && pump();
 	}
 
 	/*
@@ -96,77 +160,52 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style"], function(declare, Evented
 			center[x,y]
 			height
 			left
+			opacity
 			right
 			top
 			width
-			zindex
 
 		matrix
 			transform
 	*/
 
-		/*	id = elem.widgetId + '/' + prop,
-			ani = animations[id];
-
-		animations[id] = [
-			elem,
-			prop,
-			value,
-			!!props.autoreverse,
-			curve,
-			props.delay | 0,
-			props.duration | 0,
-			!!props.repeat,
-			!!props.visible,
-			this.start,
-			this.complete,
-			now(),
-			ani ? ani[11] : style.get(elem.domNode, prop)
-		];
-		*/
-
-/*
-			var self = this,
-				f = function() {
-					self._doAnimation(anim, callback);
-				};
-
-			UI._layoutInProgress || !self._isAttachedToActiveWin() ? on.once(UI, "postlayout", f) : f();
-*/
-
-	api.play = function animationPlay(elem, anim) {
+	api._play = function animationPlay(elem, anim) {
 		var promise = new require.Promise,
 			wid = elem.widgetId,
 			id = Math.random() * 1e9 | 0,
 			elemAnis = animations[wid] = (animations[wid] || []),
-			i,
-			value,
-			props = {},
-			prop,
 			properties = anim.properties.__values__,
 			delay = properties.delay | 0,
 			visible = !!properties.visible;
 
-		// get all animatable properties that are defined
-		for (prop in properties) {
-			value = properties[prop];
-			if (!ignoreRegExp.test(prop) && value !== void 0) {
-				// see if we are already animating this element's property
-				for (i = 0; i < elemAnis.length; i++) {
-					delete elemAnis[i].props[prop];
-					if (require.isEmpty(elemAnis[i].props)) {
-						elemAnis.splice(i--, 1);
+		function go() {
+			var i,
+				value,
+				props = {},
+				prop,
+				from,
+				to = elem._parent._layout.calculateAnimation(elem, anim);
+
+			// get all animatable properties that are defined
+			for (prop in properties) {
+				value = properties[prop];
+				if (!ignoreOptions[prop] && value !== void 0) {
+					// see if we are already animating this element's property
+					for (i = 0; i < elemAnis.length; i++) {
+						delete elemAnis[i].props[prop];
+						if (require.isEmpty(elemAnis[i].props)) {
+							elemAnis.splice(i--, 1);
+						}
+					}
+					from = style.get(elem.domNode, prop);
+					if (!(prop in to) || (from = parseFloat(from)) !== to) {
+						props[prop] = [
+							/* from */ from,
+							/* to */   prop in to ? to[prop] : value
+						];
 					}
 				}
-				props[prop] = [
-					/* from */ style.get(elem.domNode, prop),
-					/* to */   value
-				];
 			}
-		}
-
-		function go() {
-			debugger;
 
 			animations[wid].push({
 				id: id,
@@ -174,16 +213,19 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style"], function(declare, Evented
 				promise: promise,
 				props: props,
 				ts: now(),
-				autoreverse: !!props.autoreverse,
+				autoreverse: !!properties.autoreverse,
 				curve: Math.max(0, Math.min(curves.length - 1, properties.curve | 0)),
-				duration: props.duration | 0,
-				repeat: !!props.repeat
+				duration: properties.duration | 0,
+				repeat: !!properties.repeat
 			});
 
 			anim.fireEvent("start");
 			is(anim.start, "Function") && anim.start()
 
-			needsRender || needsRender = true, requestAnimationFrame(render);
+			if (!needsRender) {
+				needsRender = 1;
+				pump();
+			}
 		}
 
 		delay ? setTimeout(go, delay) : go();
@@ -201,18 +243,33 @@ define(["Ti/_/declare", "Ti/_/Evented", "Ti/_/style"], function(declare, Evented
 
 		promise.pause = function() {
 			var a = findAnimation();
-			return !!a && (a.paused = true);
+			return !!a && (a.paused = now());
 		};
 
 		promise.resume = function() {
-			var a = findAnimation();
-			return !!a && !(a.paused = false);
+			var a = findAnimation(),
+				prop;
+				//elem._parent._layout.calculateAnimation(elem, anim)
+
+			a.paused && (a.ts += (now() - a.paused));
+
+			for (prop in a.props) {
+				//
+			}
+
+			if (!needsRender) {
+				needsRender = 1;
+				pump();
+			}
+
+			return !!a && !(a.paused = 0);
 		};
 
 		return promise.then(function() {
+			properties.visible !== void 0 && (elem.visible = visible);
+			properties.zIndex !== void 0 && (elem.zIndex = zIndex);
 			anim.fireEvent("complete");
 			is(anim.complete, "Function") && anim.complete();
-			elem.visible = visible;
 		});
 	};
 
