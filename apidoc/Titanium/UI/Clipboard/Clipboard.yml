@@ -53,7 +53,7 @@ methods:
     summary: Gets data of the specified MIME type stored in the clipboard.
     returns:
         - type: String
-        - type: Blob
+        - type: Titanium.Blob
     parameters:
       - name: type
         summary: MIME type. Must be text type on Android.
