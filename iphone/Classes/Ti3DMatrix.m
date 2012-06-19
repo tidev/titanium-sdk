@@ -4,11 +4,11 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiUIiOS3DMatrix.h"
+#import "Ti3DMatrix.h"
 
 #if defined(USE_TI_UIIOS3DMATRIX) || defined(USE_TI_UI3DMATRIX)
 
-@implementation TiUIiOS3DMatrix
+@implementation Ti3DMatrix
 
 -(id)init
 {
@@ -46,17 +46,17 @@
 	return matrix;
 }
 
--(TiUIiOS3DMatrix*)translate:(id)args
+-(Ti3DMatrix*)translate:(id)args
 {
 	ENSURE_ARG_COUNT(args,3);
 	CGFloat tx = [[args objectAtIndex:0] floatValue];
 	CGFloat ty = [[args objectAtIndex:1] floatValue];
 	CGFloat tz = [[args objectAtIndex:2] floatValue];
 	CATransform3D newtransform = CATransform3DTranslate(matrix,tx,ty,tz);
-	return [[[TiUIiOS3DMatrix alloc] initWithMatrix:newtransform] autorelease];
+	return [[[Ti3DMatrix alloc] initWithMatrix:newtransform] autorelease];
 }
 
--(TiUIiOS3DMatrix*)scale:(id)args
+-(Ti3DMatrix*)scale:(id)args
 {
 	CGFloat sx = [[args objectAtIndex:0] floatValue];
 	CGFloat sy = [args count] > 1 ? [[args objectAtIndex:1] floatValue] : sx;
@@ -66,10 +66,10 @@
 	if (sy==0) sy = 0.0001;
 	if (sz==0) sz = 0.0001;
 	CATransform3D newtransform = CATransform3DScale(matrix,sx,sy,sz);
-	return [[[TiUIiOS3DMatrix alloc] initWithMatrix:newtransform] autorelease];
+	return [[[Ti3DMatrix alloc] initWithMatrix:newtransform] autorelease];
 }
 
--(TiUIiOS3DMatrix*)rotate:(id)args
+-(Ti3DMatrix*)rotate:(id)args
 {
 	ENSURE_ARG_COUNT(args,4);
 	
@@ -78,21 +78,21 @@
 	CGFloat y = [[args objectAtIndex:2] floatValue];
 	CGFloat z = [[args objectAtIndex:3] floatValue];
 	CATransform3D newtransform = CATransform3DRotate(matrix,degreesToRadians(angle),x,y,z);
-	return [[[TiUIiOS3DMatrix alloc] initWithMatrix:newtransform] autorelease];
+	return [[[Ti3DMatrix alloc] initWithMatrix:newtransform] autorelease];
 }
 
--(TiUIiOS3DMatrix*)invert:(id)args
+-(Ti3DMatrix*)invert:(id)args
 {
-	return [[[TiUIiOS3DMatrix alloc] initWithMatrix:CATransform3DInvert(matrix)] autorelease];
+	return [[[Ti3DMatrix alloc] initWithMatrix:CATransform3DInvert(matrix)] autorelease];
 }
 
--(TiUIiOS3DMatrix*)multiply:(id)args
+-(Ti3DMatrix*)multiply:(id)args
 {
 	ENSURE_ARG_COUNT(args,1);
-	TiUIiOS3DMatrix *othermatrix = [args objectAtIndex:0];
-	ENSURE_TYPE(othermatrix,TiUIiOS3DMatrix);
+	Ti3DMatrix *othermatrix = [args objectAtIndex:0];
+	ENSURE_TYPE(othermatrix,Ti3DMatrix);
 	CATransform3D newtransform = CATransform3DConcat(matrix,[othermatrix matrix]);
-	return [[[TiUIiOS3DMatrix alloc] initWithMatrix:newtransform] autorelease];
+	return [[[Ti3DMatrix alloc] initWithMatrix:newtransform] autorelease];
 }
 
 #define MAKE_PROP(x) \
@@ -127,7 +127,7 @@ MAKE_PROP(44)
 
 -(id)description
 {
-	return @"[object TiUIiOS3DMatrix]";
+	return @"[object Ti3DMatrix]";
 }
 
 @end
