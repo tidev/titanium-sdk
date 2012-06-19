@@ -17,7 +17,7 @@
 #endif
 
 #ifdef USE_TI_UIIOS3DMATRIX
-	#import "TiUIiOS3DMatrix.h"
+	#import "Ti3DMatrix.h"
 #endif
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
 	#import "TiUIiOSCoverFlowViewProxy.h"
@@ -53,12 +53,13 @@
 #ifdef USE_TI_UIIOS3DMATRIX
 -(id)create3DMatrix:(id)args
 {
-	if (args==nil || [args count] == 0)
+	DEPRECATED_REPLACED(@"UI.iOS.create3DMatrix()", @"2.1.0", @"Ti.UI.create3DMatrix()");
+    if (args==nil || [args count] == 0)
 	{
-		return [[[TiUIiOS3DMatrix alloc] init] autorelease];
+		return [[[Ti3DMatrix alloc] init] autorelease];
 	}
 	ENSURE_SINGLE_ARG(args,NSDictionary);
-	TiUIiOS3DMatrix *matrix = [[TiUIiOS3DMatrix alloc] initWithProperties:args];
+	Ti3DMatrix *matrix = [[Ti3DMatrix alloc] initWithProperties:args];
 	return [matrix autorelease];
 }
 #endif

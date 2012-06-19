@@ -1,8 +1,10 @@
 ---
 name: Titanium.UI.iOS.3DMatrix
-summary: The 3D Matrix is an object for holding values for an affine transformation matrix. 
+summary: Use <Titanium.UI.3DMatrix> instead.
 description: |
-    The 3DMatrix is created by the <Titanium.UI.iOS.create3DMatrix> method. 
+	The 3D Matrix is an object for holding values for an affine transformation matrix.
+	
+    The 3DMatrix is created by the <Titanium.UI.create3DMatrix> method. 
     
     A 3D matrix, represented by a 4 by 4 matrix, is used to rotate, scale, translate, or skew 
     objects in a three-dimensional space.
@@ -11,7 +13,9 @@ description: |
 extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]
-
+deprecated: 
+    since: 2.1.0
+    
 methods:
   - name: invert
     summary: Returns a matrix constructed by inverting an existing matrix.
@@ -19,7 +23,7 @@ methods:
   - name: multiply
     summary: Returns a matrix constructed by combining two existing matrices.
     returns:
-        type: Titanium.UI.iOS.3DMatrix
+        type: Titanium.UI.3DMatrix
     parameters:
       - name: t2
         summary: |
@@ -31,12 +35,12 @@ methods:
             Note that matrix operations are not commutative - the order in which you concatenate 
             matrices is important. That is, the result of multiplying matrix t1 by matrix t2 does 
             not necessarily equal the result of multiplying matrix t2 by matrix t1.
-        type: Titanium.UI.iOS.3DMatrix
+        type: Titanium.UI.3DMatrix
         
   - name: rotate
     summary: Returns a matrix constructed by rotating an existing matrix.
     returns:
-        type: Titanium.UI.iOS.3DMatrix
+        type: Titanium.UI.3DMatrix
     parameters:
       - name: angle
         summary: |
@@ -59,7 +63,7 @@ methods:
   - name: scale
     summary: Returns a matrix constructed by scaling an existing matrix.
     returns:
-        type: Titanium.UI.iOS.3DMatrix
+        type: Titanium.UI.3DMatrix
     parameters:
       - name: sx
         summary: The value by which to scale x values of the matrix.
@@ -76,7 +80,7 @@ methods:
   - name: translate
     summary: Returns a matrix constructed by translating an existing matrix.
     returns:
-        type: Titanium.UI.iOS.3DMatrix
+        type: Titanium.UI.3DMatrix
     parameters:
       - name: tx
         summary: The value by which to move x values with the matrix.
@@ -185,7 +189,7 @@ examples:
             win.add(button);
             
             button.addEventListener('click', function(){
-              var t1 = Ti.UI.iOS.create3DMatrix();
+              var t1 = Ti.UI.create3DMatrix();
               t1 = t1.translate(0, 100, 200);
               t1.m34 = 1.0/-90;
               var a1 = Ti.UI.createAnimation();
