@@ -569,12 +569,12 @@ public class TiHTTPClient
 				responseText = b.toString();
 			} catch (Exception e) {
 				Log.e(LCAT, "Unable to decode using charset: " + charset);
-				shouldRetry = true;
+				shouldRetry = unknownCharset;
 			} catch (OutOfMemoryError e) {
 				 Log.e(LCAT, "Unable to get response text: out of memory");
 			}
 			
-			if (shouldRetry && unknownCharset) {
+			if (shouldRetry) {
 				if (DBG) {
 					Log.d(LCAT, "Decoding as UTF-8 failed. Retrying decoding of response data with ISO-8859-1");
 				}
