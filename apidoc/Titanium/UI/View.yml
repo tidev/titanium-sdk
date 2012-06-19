@@ -1027,29 +1027,36 @@ properties:
             
             Each child is positioned horizontally as in the composite layout mode. 
             
-         *  `horizontal`. Somewhat like the vertical layout, except children are laid out horizontally
-            from left to right, _in rows_. If a child requires more horizontal space than
-            exists in the current row, it is wrapped to a new row. The height of each row
-            is equal to the maximum height of the children in that row. 
+         *  `horizontal`. Horizontal layouts have different behavior depending on whether wrapping 
+            is enabled. Wrapping is enabled by default (the `horizontalWrap` property is `true`).
             
-            On iOS and Mobile Web (Release 2.1.0 and later), the first row is placed 
-            at the top of the parent view, and successive rows are placed below the first
-            row. Each child is positioned vertically _within its row_ somewhat like
-            composite layout mode. In particular: 
+            With wrapping behavior, the children are laid out horizontally from left to right,
+            _in rows_. If a child requires more horizontal space than exists in the current row,
+            it is wrapped to a new row. The height of each row is equal to the maximum height of
+            the children in that row.
+            
+            Wrapping behavior is available on iOS, Android and Mobile Web (Release 2.1.0 and later).
+            When the `horizontalWrap` property is set to true, the first row is placed at the top of the 
+            parent view, and successive rows are placed below the first row. Each child is 
+            positioned vertically _within its row_ somewhat like composite layout mode. 
+            In particular: 
             
             *   If neither `top` or `bottom` is specified, the child is centered in the
                 row.
             *   If either `top` or `bottom` is specified, the child is aligned to either
                 the top or bottom of the row, with the specified amount of padding.
-            *   If *both* `top` and `bottom` is specified for a given child, the behavior 
-                is undefined.
-            *   The `center` property is ignored in this mode.
+            *   If *both* `top` and `bottom` is specified for a given child, the properties
+                are both treated as padding.
             
-            On Android, the first row is centered vertically in the parent view, and
-            successive rows are placed below the first row as on iOS. However, the `top` 
-            and `bottom` values are interpreted relative to the parent view. 
+            If the `horizontalWrap` property is false, the behavior is more equivalent to a vertical layout. 
+            Children are laid or horizontally from left to right in a single row. The `left` and 
+            `right` properties are used as padding between the children, and the `top` and `bottom` 
+            properties are used to position the children vertically.
             
-            On Mobile Web _prior to_ Release 2.1.0, the horizontal layout does not wrap. 
+            On Mobile Web _prior to_ Release 2.1.0, the horizontal layout does not wrap by default, 
+            and does not support the `horizontalWrap` property. On Android and iOS _prior to_ Release 
+            2.1.0, the horizontal layout always wraps and the `horizontalWrap` property is not supported.
+            
     default: Composite layout
 
   - name: opacity
@@ -1154,7 +1161,16 @@ properties:
         the view's size once rendered, use the [rect](Titanium.UI.View.rect) or
         [size](Titanium.UI.View.size) properties.
     type: [Number,String]
-    
+
+  - name: horizontalWrap
+    summary: Determines whether the layout has wrapping behavior.
+    description: |
+        For more information, see the discussion of horizontal layout mode in the description of 
+        the [layout](Titanium.UI.View.layout) property.
+    type: Boolean
+    default: true
+    since: "2.1.0"
+
   - name: zIndex
     summary: Z-index stack order position, relative to other sibling views.
     description: |
