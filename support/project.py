@@ -17,6 +17,9 @@ parser.add_option('-u', '--update-platforms', dest='update_platforms',
 def run(args):
 	return subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
 
+def is_iphone(platform):
+	return ((platform == 'iphone') or (platform == 'ios') or (platform == 'ipad'))
+
 def main(args, update_platforms=False):
 	argc = len(args)
 	if argc < 5 or args[1]=='--help':
@@ -32,7 +35,7 @@ def main(args, update_platforms=False):
 	sdk = None
 	mobileweb = False
 
-	if args[4] == 'iphone' or (argc > 5 and args[5] == 'iphone') or (argc > 6 and args[6] == 'iphone'):
+	if is_iphone(args[4]) or (argc > 5 and is_iphone(args[5])) or (argc > 6 and is_iphone(args[6])):
 		iphone = True
 	if args[4] == 'android' or (argc > 5 and args[5] == 'android') or (argc > 6 and args[6] == 'android'):
 		android = True
