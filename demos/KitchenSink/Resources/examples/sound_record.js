@@ -186,7 +186,7 @@ b2.addEventListener('click', function()
 	else
 	{
 		Ti.API.info("recording file size: "+file.size);
-		sound = Titanium.Media.createSound({sound:file});
+		sound = Titanium.Media.createSound({url:file});
 		sound.addEventListener('complete', function()
 		{
 			b2.title = 'Playback Recording';
