@@ -360,7 +360,7 @@ DEFINE_EXCEPTIONS
 		return;
 	}
 #endif
-#ifdef USE_TI_UIIOS3DMATRIX	
+#ifdef USE_TI_UI3DMATRIX	
 	if ([transformMatrix isKindOfClass:[Ti3DMatrix class]])
 	{
 		self.layer.transform = CATransform3DConcat(CATransform3DMakeAffineTransform(virtualParentTransform),[(Ti3DMatrix*)transformMatrix matrix]);
