@@ -186,6 +186,12 @@ public class TiTabActivity extends TabActivity
 	@Override
 	public void finish()
 	{
+		if (proxy != null) {
+			KrollDict data = new KrollDict();
+			data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+			proxy.fireSyncEvent(TiC.EVENT_CLOSE, data);
+		}
+
 		if (shouldFinishRootActivity()) {
 			if (getApplication() != null) {
 				TiApplication tiApp = getTiApp();
@@ -257,12 +263,6 @@ public class TiTabActivity extends TabActivity
 			return;
 		}
 		
-		if (proxy != null) {
-			KrollDict data = new KrollDict();
-			data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
-			proxy.fireSyncEvent(TiC.EVENT_CLOSE, data);		
-			
-		}
 
 		if (!isFinishing())
 		{
