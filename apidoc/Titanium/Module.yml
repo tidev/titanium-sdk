@@ -13,4 +13,4 @@ description: |
 
 extends: Titanium.Proxy
 since: "0.1"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, mobileweb]
