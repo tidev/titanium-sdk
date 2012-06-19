@@ -67,7 +67,7 @@ button.addEventListener('click', function()
 					a3.repeat = 1;
 					a3.addEventListener('complete',function()
 					{
-						view.animate({transform:Ti.UI.iOS.create3DMatrix(),duration:500});
+						view.animate({transform:Ti.UI.create3DMatrix(),duration:500});
 					});
 					view.animate(a3);
 			});

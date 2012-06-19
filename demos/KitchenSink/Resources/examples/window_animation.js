@@ -70,7 +70,7 @@ var button3 = Titanium.UI.createButton({
 
 button3.addEventListener('click', function()
 {
-	var t1 = Ti.UI.iOS.create3DMatrix();
+	var t1 = Ti.UI.create3DMatrix();
 	t1 = t1.scale(0.00001);
 	t1 = t1.rotate(180,0,0,1);
 	var a1 = Titanium.UI.createAnimation();
@@ -81,7 +81,7 @@ button3.addEventListener('click', function()
 	a1.addEventListener('complete', function()
 	{
 		// simply reset animation
-		var t2 = Ti.UI.iOS.create3DMatrix();
+		var t2 = Ti.UI.create3DMatrix();
 		var a2 = Titanium.UI.createAnimation();
 		a2.transform = t2;
 		a2.duration = 500;

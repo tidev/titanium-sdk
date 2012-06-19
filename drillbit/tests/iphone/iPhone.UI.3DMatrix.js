@@ -1,8 +1,8 @@
-describe("Ti.UI.iOS.3DMatrix Tests", {
+describe("Ti.UI.3DMatrix Tests", {
 
     testInvert: function() {
-	    var matrix1 = Ti.UI.iOS.create3DMatrix();
-	    var matrix2 = Ti.UI.iOS.create3DMatrix();
+	    var matrix1 = Ti.UI.create3DMatrix();
+	    var matrix2 = Ti.UI.create3DMatrix();
 	    valueOf(matrix1.invert()).shouldBeObject();
 	    matrix1 = matrix1.scale(2, 2, 2);
 	    valueOf(matrix1.invert()).shouldBeObject();
@@ -15,14 +15,14 @@ describe("Ti.UI.iOS.3DMatrix Tests", {
     },
     
     testMultiply: function() {
-	    var matrix1 = Ti.UI.iOS.create3DMatrix();
-	    var matrix2 = Ti.UI.iOS.create3DMatrix();
+	    var matrix1 = Ti.UI.create3DMatrix();
+	    var matrix2 = Ti.UI.create3DMatrix();
 	    valueOf(matrix1.multiply(matrix2)).shouldBeObject();
 	    valueOf(matrix1.multiply(matrix1)).shouldBeObject();
     },
 
     testRotate: function() {
-	    var matrix1 = Ti.UI.iOS.create3DMatrix();
+	    var matrix1 = Ti.UI.create3DMatrix();
 	    valueOf(matrix1.rotate(0, 0, 0, 0)).shouldBeObject();
 	    valueOf(matrix1.rotate(90, 1, 0, 0)).shouldBeObject();
 	    valueOf(matrix1.rotate(90, 0, 1, 0)).shouldBeObject();
@@ -38,7 +38,7 @@ describe("Ti.UI.iOS.3DMatrix Tests", {
     },
 
     testTranslate: function() {
-	    var matrix1 = Ti.UI.iOS.create3DMatrix();
+	    var matrix1 = Ti.UI.create3DMatrix();
 	    valueOf(matrix1.translate(-1.0, 0, 0)).shouldBeObject();
 	    valueOf(matrix1.translate(0, -1.0, 0)).shouldBeObject();
 	    valueOf(matrix1.translate(0, 0, -1.0)).shouldBeObject();
@@ -52,7 +52,7 @@ describe("Ti.UI.iOS.3DMatrix Tests", {
     },
     
     testScale: function() {
-	    var matrix1 = Ti.UI.iOS.create3DMatrix();
+	    var matrix1 = Ti.UI.create3DMatrix();
 	    valueOf(matrix1.scale()).shouldBeObject();
 	    valueOf(matrix1.scale(1.0)).shouldBeObject();
 	    valueOf(matrix1.scale(-1.0)).shouldBeObject();
@@ -67,7 +67,7 @@ describe("Ti.UI.iOS.3DMatrix Tests", {
     },
     
     testCreate3DMatrixValue: function() {
-	    var matrix1 = Ti.UI.iOS.create3DMatrix();
+	    var matrix1 = Ti.UI.create3DMatrix();
 	    valueOf(matrix1.m11).shouldBe(1);
 	    valueOf(matrix1.m12).shouldBe(0);
 	    valueOf(matrix1.m13).shouldBe(0);
@@ -87,7 +87,7 @@ describe("Ti.UI.iOS.3DMatrix Tests", {
     },
     
     testInvertValue: function() {
-	    var matrix1 = Ti.UI.iOS.create3DMatrix();
+	    var matrix1 = Ti.UI.create3DMatrix();
 	    matrix1.invert();
 	    valueOf(matrix1.m11).shouldBe(1);
 	    valueOf(matrix1.m12).shouldBe(0);
@@ -108,7 +108,7 @@ describe("Ti.UI.iOS.3DMatrix Tests", {
     },
 
     testRotateValue: function() {
-	    var matrix1 = Ti.UI.iOS.create3DMatrix();
+	    var matrix1 = Ti.UI.create3DMatrix();
 	    matrix1 = matrix1.rotate(-180, 50, 0, 0);
 	    valueOf(matrix1.m11).shouldBe(1);
 	    valueOf(matrix1.m12).shouldBe(0);
@@ -129,7 +129,7 @@ describe("Ti.UI.iOS.3DMatrix Tests", {
     },
 
     testScaleValue: function() {
-	    var matrix1 = Ti.UI.iOS.create3DMatrix();
+	    var matrix1 = Ti.UI.create3DMatrix();
 	    matrix1 = matrix1.scale(5, -5, 0);
 	    valueOf(matrix1.m11).shouldBe(5);
 	    valueOf(matrix1.m12).shouldBe(0);
@@ -150,7 +150,7 @@ describe("Ti.UI.iOS.3DMatrix Tests", {
     },
 
     testTranslateValue: function() {
-	    var matrix1 = Ti.UI.iOS.create3DMatrix();
+	    var matrix1 = Ti.UI.create3DMatrix();
 	    matrix1 = matrix1.translate(5, -10, 5);
 	    valueOf(matrix1.m11).shouldBe(1);
 	    valueOf(matrix1.m12).shouldBe(0);
@@ -171,8 +171,8 @@ describe("Ti.UI.iOS.3DMatrix Tests", {
    },
     
    testMultiplyValue: function() {
-	    var matrix1 = Ti.UI.iOS.create3DMatrix();
-	    var matrix2 = Ti.UI.iOS.create3DMatrix();
+	    var matrix1 = Ti.UI.create3DMatrix();
+	    var matrix2 = Ti.UI.create3DMatrix();
 	    matrix1 = matrix1.multiply(matrix1);
 	    valueOf(matrix1.m11).shouldBe(1);
 	    valueOf(matrix1.m12).shouldBe(0);
