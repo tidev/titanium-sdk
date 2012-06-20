@@ -2,8 +2,8 @@
  * Purpose: common file across platforms for driver tasks
  *
  * Description: contains common logic used by all platforms when executing driver tasks.
- * most of the logic defined here represents only partial pieces of an overall task and most
- * of these functions are invoked by the platform specific task handlers.  as the test format
+ * Most of the logic defined here represents only partial pieces of an overall task and most
+ * of these functions are invoked by the platform specific task handlers.  As the test format
  * between driver and harness is not platform specific, the handling mechanism is defined in
  * this file.
  */
@@ -185,7 +185,15 @@ module.exports = new function() {
 	}
 
 	this.processHarnessMessage = function(rawMessage) {
-		var message = eval("(" + rawMessage + ")");
+		var message;
+		try {
+			message = eval("(" + rawMessage + ")");
+		} catch(e) {
+			// this means something has gone waaaaaay wrong 
+			console.log("exception <" + e + "> occured when trying to evaluate message from Driver");
+			exit(1);
+		}
+
 		var responseData = "";
 
 		if((typeof message) != "object") {
@@ -310,6 +318,10 @@ module.exports = new function() {
 		} else {
 			timeout = driverGlobal.defaultTestTimeout;
 		}
+		/*
+		add this so that we give a little overhead for network latency.  The goal here is that is 
+		that general network overhead doesn't eat up time out of a specific test timeout
+		*/
 		timeout += 500;
 
 		timer = setTimeout(function() {

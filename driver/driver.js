@@ -6,6 +6,7 @@
  */
 
 var fs = require("fs");
+var path = require("path");
 
 var util = require("./util");
 
@@ -39,9 +40,9 @@ global.driverGlobal = new function() {
 }
 
 var printHelp = function() {
-	util.log("Usage: \"node driver.js --mode<mode> --platform=<platform> [--logLevel=<log level>] [--command=<command>]\"\n"
+	util.log("Usage: \"node driver.js --platform=<platform> [--mode=<mode>] [--log-level=<log level>] [--command=<command>]\"\n"
 		+ "Modes:\n"
-		+ "    local - run Driver locally via manual commands\n"
+		+ "    local - run Driver locally via manual commands (default)\n"
 		+ "    remote - run Driver remotely (this should never be selected by hand)\n"
 		+ "\n"
 		+ "Platforms:\n"
@@ -82,14 +83,20 @@ if(driverGlobal.harnessConfigs.length < 1) {
  * such as would be the case for CI integration(remote)
  */
 var mode = util.getArgument(process.argv, "--mode");
-if(mode == "local") {
-	mode = require("./localMode.js");
-
-} else if(mode == "remote") {
+if(mode == "remote") {
 	mode = require("./remoteMode.js");
 
-} else {
+} else if(mode != undefined && mode != "local") {
+	/*
+	don't just use the default - if they set an incorrect mode they should be notified there is 
+	a problem
+	*/
+	console.log("unrecognized mode");
 	printHelp();
+
+} else {
+	// default
+	mode = require("./localMode.js");
 }
 
 var platform = util.getArgument(process.argv, "--platform");
@@ -110,34 +117,49 @@ if(platform == "android") {
  * logLevel represents the level of logging that will be printed out to the console.
  * NOTE: this does not change what gets written to the log file
  */
-var logLevel = util.getArgument(process.argv, "--logLevel");
+var logLevel = util.getArgument(process.argv, "--log-level");
 if(logLevel) {
 	driverGlobal.logLevel = logLevel;
 }
 
 // make sure the require temp directories exist
-try {
-	fs.mkdirSync(driverGlobal.tempDir, 0777);
+if(!(path.existsSync(driverGlobal.tempDir))) {
+	try {
+		fs.mkdirSync(driverGlobal.tempDir, 0777);
 
-} catch(e) {
+	} catch(e) {
+		console.log("exception <" + e + "> occurred when creating " + driverGlobal.tempDir);
+	}
 }
 
-try {
-	fs.mkdirSync(driverGlobal.tempDir + "/harness", 0777);
+var tmpHarnessDir = driverGlobal.tempDir + "/harness";
+if(!(path.existsSync(tmpHarnessDir))) {
+	try {
+		fs.mkdirSync(tmpHarnessDir, 0777);
 
-} catch(e) {
+	} catch(e) {
+		console.log("exception <" + e + "> occurred when creating " + tmpHarnessDir);
+	}
 }
 
-try {
-	fs.mkdirSync(driverGlobal.tempDir + "/logs", 0777);
+var tmpLogsDir = driverGlobal.tempDir + "/logs";
+if(!(path.existsSync(tmpLogsDir))) {
+	try {
+		fs.mkdirSync(tmpLogsDir, 0777);
 
-} catch(e) {
+	} catch(e) {
+		console.log("exception <" + e + "> occurred when creating " + tmpLogsDir);
+	}
 }
 
-try {
-	fs.mkdirSync(driverGlobal.tempDir + "/logs/" + driverGlobal.platform.name, 0777);
+var tmpPlatformLogsDir = driverGlobal.tempDir + "/logs/" + driverGlobal.platform.name;
+if(!(path.existsSync(tmpPlatformLogsDir))) {
+	try {
+		fs.mkdirSync(tmpPlatformLogsDir, 0777);
 
-} catch(e) {
+	} catch(e) {
+		console.log("exception <" + e + "> occurred when creating " + tmpPlatformLogsDir);
+	}
 }
 
 mode.start();

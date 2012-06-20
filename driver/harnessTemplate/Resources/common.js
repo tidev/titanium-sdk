@@ -24,6 +24,11 @@ module.exports = new function() {
 			return;
 		}
 		if((testRun.suiteName != currentSuite.name) || (testRun.testName != test.name)) {
+			/*
+			we ignore this as it is a possible a known timing issue that can occur sometimes 
+			but we have mechanisms in place to deal with this case
+			*/
+			Ti.API.warn("received out of date test result, ignoring");
 			return;
 		}
 

@@ -7,7 +7,7 @@ Javascript using titanium and node.js.
 
 Anvil is made up of the following subcomponents:
 1) Hub - web service that provides reporting, CI integration and remote control of overall test 
-process.  It will be possible for the hub to kick off a test run by notifing the drivers to start 
+process.  It will be possible for the hub to kick off a test run by notifying the drivers to start 
 off a test.
 2) Driver - a node.js process that builds, deploys and manages a harness that runs on device or 
 simulator
@@ -70,7 +70,7 @@ this to take effect)
 
 ** it should be noted that driver testing for Mobile Web occurs only on Android devices currently
 
-2) remote mode - when the driver is started in local mode, the driver will run in the background 
+2) remote mode - when the driver is started in remote mode, the driver will run in the background 
 and maintain a socket connection with the hub.  Once this connection is established, the hub will 
 be able to send the Driver commands the same as if a user was interacting with the Driver in 
 local mode.
@@ -115,7 +115,8 @@ directory.
 
 
 SETUP NOTES:
-- In order to run the driver, node.js must be installed on the system where it is being run
+- In order to run the driver, node.js must be installed on the system where it is being run.  Last 
+validated node.js version is v0.6.17
 - testing for mobile web and Android require adb to be present.  If you are unable to plug in a 
 android device via usb and type "adb logcat" there is likely an environment issue
 -driver testing for mobile web requires that your driver instance listen for http connections on
@@ -130,7 +131,7 @@ and replugged in so that the connection is "reset"
 
 USAGE:
 	Driver:
-		"node driver.js --mode<mode> --platform=<platform> [--logLevel=<level>][--command=<command>]"
+		"node driver.js --mode=<mode> --platform=<platform> [--logLevel=<level>][--command=<command>]"
 
 		- mode argument can be: "local" or "remote"
 		- platform argument can be: "android", "ios" or "mw" (mobile web)
