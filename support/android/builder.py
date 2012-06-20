@@ -1972,13 +1972,14 @@ class Builder(object):
 			self.google_apis_supported = False
 				
 			# find the AVD we've selected and determine if we support Google APIs
-			for avd_props in avd.get_avds(self.sdk):
-				if avd_props['id'] == avd_id:
-					my_avd = avd_props
-					self.google_apis_supported = (my_avd['name'].find('Google')!=-1 or my_avd['name'].find('APIs')!=-1)
-					break
+			if avd_id is not None:
+				for avd_props in avd.get_avds(self.sdk):
+					if avd_props['id'] == avd_id:
+						my_avd = avd_props
+						self.google_apis_supported = (my_avd['name'].find('Google')!=-1 or my_avd['name'].find('APIs')!=-1)
+						break
 			
-			if build_only:
+			if build_only or avd_id is None:
 				self.google_apis_supported = True
 
 			remove_orphaned_files(resources_dir, self.assets_resources_dir, self.non_orphans)
@@ -2214,8 +2215,7 @@ if __name__ == "__main__":
 			password = dequote(sys.argv[7])
 			alias = dequote(sys.argv[8])
 			output_dir = dequote(sys.argv[9])
-			avd_id = dequote(sys.argv[10])
-			s.build_and_run(True, avd_id, key, password, alias, output_dir)
+			s.build_and_run(True, None, key, password, alias, output_dir)
 		elif command == 'build':
 			s.build_and_run(False, 1, build_only=True)
 		else:
