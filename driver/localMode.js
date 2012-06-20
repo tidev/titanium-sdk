@@ -1,4 +1,9 @@
 /*
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ *
  * Purpose: contains specific logic for handling running the driver via command line
  *
  * Description: implements simple CLI and handles result reporting once a test pass via

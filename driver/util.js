@@ -1,4 +1,9 @@
 /*
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ *
  * Purpose: general utility file for common tasks that are not specific to running tests
  *
  * Description: provides general utility functions for streamlining invoking commands, string
