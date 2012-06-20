@@ -479,7 +479,6 @@
 		var s,
 			xhr,
 			scriptTag,
-			scriptTagParent,
 			scriptTagLoadEvent,
 			scriptTagErrorEvent,
 			doc = global.document,
@@ -497,7 +496,7 @@
 			if (scriptTag) {
 				scriptTagLoadEvent();
 				scriptTagErrorEvent();
-				scriptTagParent.removeChild(scriptTag);
+				scriptTag.parentNode.removeChild(scriptTag);
 			}
 		}
 
@@ -592,8 +591,8 @@
 					// set the source url last
 					scriptTag.src = _t.url;
 
-					scriptTagParent = doc.getElementsByTagName("script")[0].parentNode;
-					scriptTagParent.insertBefore(scriptTag, s);
+					s = doc.getElementsByTagName("script")[0];
+					s.parentNode.insertBefore(scriptTag, s);
 				}
 			}
 		}
