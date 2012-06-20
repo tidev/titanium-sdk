@@ -1,16 +1,17 @@
 ---
 name: Titanium.UI.Button
-summary: A button widget.
+summary: |
+    A button widget that has four states: normal, disabled, focused and selected.
 description: |
-    A button widget that has four states, normal, disabled, focused and selected. (Note
-    that the focused state is only used on Android devices that have navigation keys or a
-    keyboard.)
+    A button displays its  selected state while it is being pressed. The focused state is
+    only used on Android devices that have navigation keys or a keyboard, to indicate
+    which button has input focus.
     
-    You can specify background images for each state, as well as button text and a button 
-    icon. On iOS, there are button styles which define appearance for each 
-    state, even if no button images are set.
+    You can specify background images for each state, as well as button text and a button
+    icon. On iOS, there are button styles which define appearance for each state, even if
+    no button images are set.
 
-    Use the <Titanium.UI.createButton> method to create a button. 
+    Use the <Titanium.UI.createButton> method to create a button.
 
     #### Android and Mobile Web Platform Notes
 
@@ -67,6 +68,17 @@ description: |
     example, to bring up the camera when the user presses the **Camera** button, you must 
     add an event listener to the button and call <Titanium.Media.showCamera> when the 
     button is clicked.
+
+    ##### iOS Pressed Button Effects
+
+    If you do not supply separate background images for the normal and selected states,
+    iOS supplies a built-in effect for pressed buttons. For most iOS buttons, the effect
+    dims the entire button (except for the text) while the button is being pressed.
+
+    For toolbar buttons that use the [PLAIN](Titanium.UI.iPhone.SystemButtonStyle.PLAIN) style
+    or use system icons such as [CAMERA](Titanium.UI.iPhone.SystemButton.CAMERA), a glow effect is
+    used. The glow effect shows as a white circular glow or highlight at the center of the button
+    when the button is pressed. 
 
 extends: Titanium.UI.View
 since: "0.8"

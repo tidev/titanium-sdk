@@ -82,7 +82,7 @@ define(
 		},
 
 		hasText: function() {
-			return !this._field.value.length;
+			return !!this._field.value.length;
 		},
 
 		properties: {
