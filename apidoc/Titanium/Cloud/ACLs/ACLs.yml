@@ -1,15 +1,15 @@
 name: Titanium.Cloud.ACLs
-summary: Provides methods for accessing ACS access control lists(ACL).
+summary: Provides methods for accessing ACS access control lists (ACLs).
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 
 methods:
   - name: create
-    summary: Create an ACL object.
+    summary: Creates an ACL object.
     description: |
         Requires user login. 
 
-        See [Access Control List(ACL): Create an access control list](http://cloud.appcelerator.com/docs/api/v1/acls/create)
+        See [Access Control List (ACL): Create an access control list](http://cloud.appcelerator.com/docs/api/v1/acls/create)
         for the request parameters supported by this method.
 
         Data is returned in the `acls` property of the parameter passed to the callback.
@@ -23,11 +23,11 @@ methods:
         type: Callback<CloudACLsResponse>
 
   - name: update
-    summary: Update an ACL object.
+    summary: Updates an ACL object.
     description: |
         Requires user login. 
 
-        See [Access Control List(ACL): Update an ACL](http://cloud.appcelerator.com/docs/api/v1/acls/update)
+        See [Access Control List (ACL): Update an ACL](http://cloud.appcelerator.com/docs/api/v1/acls/update)
         for the request parameters supported by this method.
 
         Data is returned in the `acls` property of the parameter passed to the callback.
@@ -42,11 +42,11 @@ methods:
         type: Callback<CloudACLsResponse>
 
   - name: show
-    summary: Show an ACL object.
+    summary: Shows an ACL object.
     description: |
         Requires user login. 
 
-        See [Access Control List(ACL): Show an ACL](http://cloud.appcelerator.com/docs/api/v1/acls/show)
+        See [Access Control List (ACL): Show an ACL](http://cloud.appcelerator.com/docs/api/v1/acls/show)
         for the request parameters supported by this method.
 
         Data is returned in the `acls` property of the parameter passed to the callback.
@@ -60,11 +60,11 @@ methods:
         type: Callback<CloudACLsResponse>
 
   - name: remove
-    summary: Delete an ACL object.
+    summary: Deletes an ACL object.
     description: |
         Requires user login.
 
-        See [Access Control List(ACL): Delete an ACL](http://cloud.appcelerator.com/docs/api/v1/acls/delete)
+        See [Access Control List (ACL): Delete an ACL](http://cloud.appcelerator.com/docs/api/v1/acls/delete)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -76,11 +76,11 @@ methods:
         type: Callback<CloudACLsResponse>
 
   - name: addUser
-    summary: Add a user(s) to an ACL object.
+    summary: Adds one or more users to an ACL object.
     description: |
         Requires user login.
 
-        See [Access Control List(ACL): Add user(s) to an ACL](http://cloud.appcelerator.com/docs/api/v1/acls/add)
+        See [Access Control List (ACL): Add user(s) to an ACL](http://cloud.appcelerator.com/docs/api/v1/acls/add)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -92,11 +92,11 @@ methods:
         type: Callback<CloudACLsResponse>
 
   - name: removeUser
-    summary: Remove a user(s) from an ACL object.
+    summary: Removes one or more users from an ACL object.
     description: |
         Requires user login.
 
-        See [Access Control List(ACL): Remove user(s) from an ACL](http://cloud.appcelerator.com/docs/api/v1/acls/remove)
+        See [Access Control List (ACL): Remove user(s) from an ACL](http://cloud.appcelerator.com/docs/api/v1/acls/remove)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -108,11 +108,11 @@ methods:
         type: Callback<CloudACLsResponse>
 
   - name: checkUser
-    summary: Check a user's permission in an ACL object.
+    summary: Checks a user's permission in an ACL object.
     description: |
         Requires user login.
 
-        See [Access Control List(ACL): Check a user's permission in an ACL](http://cloud.appcelerator.com/docs/api/v1/acls/check)
+        See [Access Control List (ACL): Check a user's permission in an ACL](http://cloud.appcelerator.com/docs/api/v1/acls/check)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -249,7 +249,7 @@ summary: Argument passed to the callback when a request finishes successfully or
 extends: CloudResponse
 properties:
   - name: acls
-    summary: Set of `acls` objects, if any exist.
+    summary: Set of ACL objects, if any exist.
     description: Only included if `success` is `true`.
     type: Array<Dictionary>
 
