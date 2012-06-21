@@ -66,13 +66,12 @@ define(
 				// Handle click/touch/gestures
 				recognizers = this._gestureRecognizers = {},
 
-				useTouch = "ontouchstart" in global,
-				bg = lang.hitch(this, "_doBackground");
+				useTouch = "ontouchstart" in global;
 
 			function processTouchEvent(eventType, evt) {
 				var i,
 					touches = evt.changedTouches;
-				if (this._preventDefaultTouchEvent) {
+				if (self._preventDefaultTouchEvent) {
 					evt.preventDefault && evt.preventDefault();
 					for (i in touches) {
 						touches[i].preventDefault && touches[i].preventDefault();
@@ -120,8 +119,8 @@ define(
 				processTouchEvent("TouchStartEvent", evt);
 			});
 
-			this.addEventListener("touchstart", bg);
-			this.addEventListener("touchend", bg);
+			on(this, "touchstart", this, "_doBackground");
+			on(this, "touchend", this, "_doBackground");
 
 			var values = this.constants.__values__;
 			this._layoutCoefficients = {
@@ -600,7 +599,9 @@ define(
 					m = (evt.type || "").match(/mouse(over|out)/),
 					bi = this.backgroundImage || this._defaultBackgroundImage || "none",
 					bc = this.backgroundColor || this._defaultBackgroundColor,
-					repeat = this.backgroundRepeat;
+					repeat = this.backgroundRepeat,
+					nodeStyle = this.domNode.style,
+					tmp;
 
 				if (this._touching) {
 					bc = this.backgroundSelectedColor || this._defaultBackgroundSelectedColor || bc;
@@ -618,12 +619,18 @@ define(
 					bi = this.backgroundDisabledImage || this._defaultBackgroundDisabledImage || bi;
 				}
 
-				setStyle(this.domNode, {
-					backgroundColor: bc || (bi && bi !== "none" ? "transparent" : ""),
-					backgroundImage: style.url(bi),
-					backgroundRepeat: repeat ? "repeat" : "no-repeat",
-					backgroundSize: repeat ? "auto" : "100% 100%"
-				});
+				bc = bc || (bi && bi !== "none" ? "transparent" : "");
+				nodeStyle.backgroundColor.toLowerCase() !== bc.toLowerCase() && (nodeStyle.backgroundColor = bc);
+
+				bi = style.url(bi);
+				nodeStyle.backgroundImage.replace(/'|"/g, '').toLowerCase() !== bi.toLowerCase() && (nodeStyle.backgroundImage = bi);
+
+				if (bi) {
+					tmp = repeat ? "repeat" : "no-repeat";
+					nodeStyle.backgroundRepeat !== tmp && (nodeStyle.backgroundRepeat = tmp);
+					tmp = repeat ? "auto" : "100% 100%";
+					nodeStyle.backgroundSize !== tmp && (nodeStyle.backgroundSize = tmp);
+				}
 			}
 		},
 

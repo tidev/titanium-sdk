@@ -5,7 +5,7 @@ define(["Ti/_/lang"], function(lang) {
 			BIG: 0,
 			BIG_DARK: 1,
 			DARK: 2,
-			PLAIN: 3,
+			PLAIN: 3
 		}
 	});
 	
