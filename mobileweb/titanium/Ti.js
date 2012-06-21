@@ -411,7 +411,7 @@ define(
 		}
 
 		// load app.js when ti and dom is ready
-		ready(loadAppjs);
+		setTimeout(loadAppjs, 1);
 	});
 
 	return Ti;
