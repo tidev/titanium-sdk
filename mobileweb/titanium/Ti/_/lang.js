@@ -196,7 +196,7 @@ define(["Ti/_/has"], function(has) {
 		},
 
 		val: function(originalValue, defaultValue) {
-			return is(originalValue, "Undefined") ? defaultValue : originalValue;
+			return originalValue === void 0 ? defaultValue : originalValue;
 		}
 	};
 });
