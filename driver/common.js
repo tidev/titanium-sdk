@@ -85,6 +85,7 @@ module.exports = new function() {
 			driverGlobal.platform.startTestPass();
 
 		} else {
+			util.closeLog();
 			passFinishedCallback();
 
 			var numConfigs = driverGlobal.results.length;

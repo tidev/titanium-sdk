@@ -1,4 +1,9 @@
 /*
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ *
  * Purpose: utility file for harness
  *
  * Description: contains general utility functions that are not specific to running tests such as 

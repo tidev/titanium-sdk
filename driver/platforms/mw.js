@@ -46,6 +46,9 @@ module.exports = new function() {
 		} else if(commandElements[0] == "start") {
 			self.startTestPass(commandElements);
 
+		} else if(commandElements[0] == "exit") {
+			process.exit(1);
+
 		} else {
 			util.log("invalid command\n"
 				+ "Commands:\n"
@@ -56,8 +59,9 @@ module.exports = new function() {
 				+ "        Arguments:\n"
 				+ "            --config=<config ID> - runs the specified configuration only\n"
 				+ "            --suite=<suite name> - runs the specified suite only\n"
-				+ "            --test=<test name> - runs the specified test only (--suite must be specified)\n"
-			);
+				+ "            --test=<test name> - runs the specified test only (--suite must be specified)\n\n"
+				+ "    exit - exit driver\n",
+				0, true);
 
 			commandFinishedCallback();
 		}

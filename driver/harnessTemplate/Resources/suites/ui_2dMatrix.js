@@ -1,3 +1,10 @@
+/*
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+ 
 module.exports = new function() {
 	var finish;
 	var valueOf;
@@ -43,7 +50,7 @@ module.exports = new function() {
 			var values = matrix3.finalValuesAfterInterpolation(50,100);
 			valueOf(testRun, values[0]).shouldBe(0.0);
 			valueOf(testRun, values[1]).shouldBe(-2.0);
-			valueOf(testRun, values[2]).shouldBe(150.0);
+			valueOf(testRun, values[2]).shouldBe(125.0);
 			valueOf(testRun, values[3]).shouldBe(1.0);
 			valueOf(testRun, values[4]).shouldBe(0.0);
 			valueOf(testRun, values[5]).shouldBe(25.0);

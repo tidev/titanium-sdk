@@ -47,6 +47,9 @@ module.exports = new function() {
 		} else if(commandElements[0] == "uninstall") {
 			uninstallHarness(commandFinishedCallback, commandFinishedCallback);
 
+		} else if(commandElements[0] == "exit") {
+			process.exit(1);
+
 		} else {
 			util.log("invalid command\n"
 				+ "Commands:\n"
@@ -59,7 +62,8 @@ module.exports = new function() {
 				+ "            --suite=<suite name> - runs the specified suite only\n"
 				+ "            --test=<test name> - runs the specified test only (--suite must be specified)\n\n"
 				+ "    uninstall - removes harness from device\n"
-			);
+				+ "    exit - exit driver\n",
+				driverGlobal.logLevels.quiet, true);
 
 			commandFinishedCallback();
 		}

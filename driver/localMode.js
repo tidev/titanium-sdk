@@ -87,20 +87,20 @@ module.exports = new function() {
 		var passedCount = 0;
 		var failedCount = 0;
 
-		util.log("\nRESULTS SUMMARY:", 0);
+		util.log("\nRESULTS SUMMARY:", driverGlobal.logLevels.quiet);
 
 		var numConfigs = driverGlobal.results.length;
 		for(var i = 0; i < numConfigs; i++) {
 			var numSuites = driverGlobal.results[i].configSuites.length;
 
 			if(numSuites > 0) {
-				util.log("    Config ID <" + driverGlobal.results[i].configName + ">:", 0);
+				util.log("    Config ID <" + driverGlobal.results[i].configName + ">:", driverGlobal.logLevels.quiet);
 
 				for(var j = 0; j < numSuites; j++) {
 					if(j > 0) {
-						util.log("", 0);
+						util.log("", driverGlobal.logLevels.quiet);
 					}
-					util.log("        Suite name <" + driverGlobal.results[i].configSuites[j].suiteName + ">:", 0);
+					util.log("        Suite name <" + driverGlobal.results[i].configSuites[j].suiteName + ">:", driverGlobal.logLevels.quiet);
 
 					var numTests = driverGlobal.results[i].configSuites[j].suiteTests.length;
 					for(var k = 0; k < numTests; k++) {
@@ -116,7 +116,7 @@ module.exports = new function() {
 						} else {
 							testDescription = "";
 						}
-						util.log("            " + testName + " - " + testDuration + "ms - " + testResult + testDescription, 0);
+						util.log("            " + testName + " - " + testDuration + "ms - " + testResult + testDescription, driverGlobal.logLevels.quiet);
 
 						if(testResult == "success") {
 							passedCount++;
@@ -127,13 +127,13 @@ module.exports = new function() {
 					}
 				}
 
-				util.log("", 0);
+				util.log("", driverGlobal.logLevels.quiet);
 			}
 		}
 
-		util.log("    Results count:", 0);
-		util.log("        PASSED - " + passedCount, 0);
-		util.log("        FAILED - " + failedCount, 0);
+		util.log("    Results count:", driverGlobal.logLevels.quiet);
+		util.log("        PASSED - " + passedCount, driverGlobal.logLevels.quiet);
+		util.log("        FAILED - " + failedCount, driverGlobal.logLevels.quiet);
 		util.log("", 0);
 
 		callback();

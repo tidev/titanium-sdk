@@ -15,6 +15,7 @@ var child_process = require('child_process');
 
 module.exports = new function() {
 	var self = this;
+	var logFile = undefined;
 
 	this.runCommand = function(command, logLevel, callback) {
 		child_process.exec(command, function(error, stdout, stderr) {
@@ -102,10 +103,14 @@ module.exports = new function() {
 	 * above the specified max number of logs if needed
 	 */
 	this.rotateLogs = function(callback) {
+		// close the old log file if it has been opened
+		self.closeLog();
+
 		var date = new Date();
-		driverGlobal.logFilename = driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/log_" + 
+		logFile = fs.openSync(driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/log_" + 
 			(date.getMonth() + 1) + "-" + date.getDate() + "-" + date.getFullYear() + "_" + 
-			(date.getHours() + 1) + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + date.getMilliseconds();
+			(date.getHours() + 1) + "-" + date.getMinutes() + "-" + date.getSeconds() + "-" + date.getMilliseconds(),
+			'a+');
 
 		var files = fs.readdirSync(driverGlobal.logsDir + "/" + driverGlobal.platform.name);
 		if(files.length >= driverGlobal.maxLogs) {
@@ -139,8 +144,23 @@ module.exports = new function() {
 		}
 	}
 
-	this.log = function(message, level) {
-		message = self.rightStringTrim(message);
+	this.closeLog = function() {
+		if(logFile) {
+			fs.closeSync(logFile);
+
+			/*
+			there doesn't seem to be an exposed API for checking if the file is open so just set 
+			to undefined so we have something to test against
+			*/
+			logFile = undefined;
+		}
+	}
+
+	this.log = function(message, level, noTrim) {
+		// because sometimes we need to print the message without modification
+		if(noTrim !== true) {
+			message = self.rightStringTrim(message);
+		}
 
 		if(level == undefined) {
 			level = driverGlobal.defaultLogLevel;
@@ -150,10 +170,15 @@ module.exports = new function() {
 			console.log(message);
 		}
 
-		if(driverGlobal.logFilename) {
-			var log = fs.openSync(driverGlobal.logFilename, 'a+');
-			fs.writeSync(log, message + "\n");
-			fs.closeSync(log);
+		if(driverGlobal.logFilename == undefined) {
+			return;
 		}
+
+		if(logFile == undefined) {
+			// not inside a test run currently so only print to console
+			return;
+		}
+
+		fs.writeSync(logFile, message + "\n");
 	}
 }
