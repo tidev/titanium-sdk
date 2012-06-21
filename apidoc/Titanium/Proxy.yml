@@ -1,6 +1,19 @@
 ---
 name: Titanium.Proxy
-summary: The base for all proxy types.
+summary: The base for all Titanium objects.
+description: |
+    On platforms that use native code (Android, iOS, and BlackBerry), the `Proxy` type represents a
+    JavaScript wrapper or _proxy_ around a native object. Setting or getting a property
+    on a proxy object results in a method invokation on the native object. Likewise,
+    calling a method on the proxy object results in a method invokation on the native
+    object.
+
+    In Mobile Web, there is no true `Proxy` type -- all Titanium objects are ordinary JavaScript
+    objects.
+
+    In general, developers should avoid modifying the prototype of a Titanium object, or
+    adding methods to a Titanium object. (Adding a simple property such as an ID value is
+    generally OK.)
 since: "0.1"
 methods:
   - name: addEventListener
