@@ -26,6 +26,13 @@ methods:
   - name: focus
     summary: Forces the field to gain focus.
 
+  - name: hasText
+    summary: Returns `true` if this text field contains text.
+    returns:
+        type: Boolean
+        summary: True if this text field contains text.
+    since: "2.1.0"
+
   - name: remove
     description: |
         See also: [add](Titanium.UI.TextField.add), <Titanium.UI.View.add>.
