@@ -74,18 +74,25 @@ properties:
     
   - name: HYBRID_TYPE
     summary: Used with [mapType](Titanium.Map.View.mapType) to display a satellite image of the area with road and road name information layered on top.
+    description: |
+        On Android, `HYBRID_TYPE` produces a road map that looks like 
+        [STANDARD_TYPE](Titanium.Map.STANDARD_TYPE), and does not include a satellite
+        image. This is a known issue
+        ([TIMOB-9673](https://jira.appcelerator.org/browse/TIMOB-9673)).
+
+        Use [SATELLITE_TYPE](Titanium.Map.SATELLITE_TYPE) to specify a hybrid-type map on
+        Android.
     type: Number
     permission: read-only
     
   - name: SATELLITE_TYPE
     summary: Used with [mapType](Titanium.Map.View.mapType) to display satellite imagery of the area.
     description: |
-        Android only supports the standard and hybrid views. For backwards compatibility,
-        `SATELLITE_TYPE` can be specified on Android, but it is treated identically to
-        [HYBRID_TYPE](Titanium.Map.HYBRID_TYPE).
+        The Android Google Maps API does not support displaying satellite imagery
+        _without_ roads and names, so specifying `SATELLITE_TYPE` on Android produces 
+        the same results as [HYBRID_TYPE](Titanium.Map.HYBRID_TYPE) on other platforms.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
     
   - name: STANDARD_TYPE
     summary: Used with [mapType](Titanium.Map.View.mapType) to display a street map that shows the position of all roads and some road names.
