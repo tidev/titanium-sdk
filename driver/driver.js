@@ -92,7 +92,7 @@ var loadDriverConfig = function() {
 	}
 }
 
-var processArguments = function() {
+var processArguments = function(callback) {
 	/*
 	 * mode represents whether the driver is being run via command line(local) or remotely
 	 * such as would be the case for CI integration(remote)
@@ -114,15 +114,6 @@ var processArguments = function() {
 		mode = require("./localMode.js");
 	}
 
-	var platform = util.getArgument(process.argv, "--platform");
-	try {
-		driverGlobal.platform = require(__dirname + "/platforms/" + platform);
-
-	} catch(e) {
-		console.log("unable to load platform module for " + platform + ":" + e);
-		printHelp();
-	}
-
 	/*
 	 * logLevel represents the level of logging that will be printed out to the console.
 	 * NOTE: this does not change what gets written to the log file
@@ -131,9 +122,36 @@ var processArguments = function() {
 	if(driverGlobal.logLevels[logLevel] !== undefined) {
 		driverGlobal.logLevel = driverGlobal.logLevels[logLevel];
 
-	} else {
+	} else if(logLevel !== undefined) {
 		console.log("unrecognized log level, ignoring");
 	}
+
+	var platform = util.getArgument(process.argv, "--platform");
+	try {
+		driverGlobal.platform = require(__dirname + "/platforms/" + platform);
+
+		/*
+		if the platform is not android or mobile web then we need to stop adb in order to make sure 
+		port forwarding for adb has been stopped and thus freed up for new connections on that port 
+		outside of adb
+		*/
+		if((platform != "android") && (platform != "mw")) {
+			require(__dirname +"/platforms/android").stopPortForwarding(callback);
+
+		} else {
+			callback();
+		}
+
+	} catch(e) {
+		console.log("unable to load platform module for " + platform + ": " + e);
+		printHelp();
+	}
+}
+
+var postProcessArgs = function() {
+	setupDirs();
+	buildHarnessConfigs();
+	mode.start();
 }
 
 var setupDirs = function() {
@@ -202,8 +220,5 @@ var buildHarnessConfigs = function() {
 var mode; // set by processArguments()
 
 loadDriverConfig();
-processArguments();
-setupDirs();
-buildHarnessConfigs();
-mode.start();
+processArguments(postProcessArgs);
 

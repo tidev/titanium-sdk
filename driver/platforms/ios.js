@@ -14,7 +14,6 @@ var path = require("path");
 
 var common = require(driverGlobal.driverDir + "/common");
 var util = require(driverGlobal.driverDir + "/util");
-var android = require(driverGlobal.driverDir + "/platforms/android");
 
 module.exports = new function() {
 	var self = this;
@@ -22,6 +21,13 @@ module.exports = new function() {
 	var testPassFinishedCallback;
 	var connection;
 	var stoppingHarness = false;
+
+	/*
+	not sure this needs to be configurable beyond command line argument for the time being so
+	leaving it as a hard coded default
+	*/
+	var defaultSimVersion = "5.0";
+	var simVersion;
 
 	this.name = "ios";
 
@@ -76,10 +82,6 @@ module.exports = new function() {
 	}
 
 	this.startTestPass = function(commandElements) {
-		var startCallback = function() {
-			common.startTestPass(commandElements, deleteCallback);
-		}
-
 		var deleteCallback = function() {
 			deleteHarness(runCallback);
 		}
@@ -92,7 +94,13 @@ module.exports = new function() {
 			connectToHarness(commandFinishedCallback);
 		}
 
-		android.stopPortForwarding(startCallback);
+		// pull out ios specific start arguments
+		simVersion = util.getArgument(commandElements, "--sim-version");
+		if(!simVersion) {
+			simVersion = defaultSimVersion;
+		}
+
+		common.startTestPass(commandElements, deleteCallback);
 	}
 
 	var runHarness = function(successCallback, errorCallback) {
@@ -104,7 +112,9 @@ module.exports = new function() {
 				}
 			}
 
-			var args = ["simulator", "5.0", driverGlobal.harnessDir + "/ios/harness", "com.appcelerator.harness", "harness"];
+			util.log("running iOS simulator version " + simVersion);
+
+			var args = ["simulator", simVersion, driverGlobal.harnessDir + "/ios/harness", "com.appcelerator.harness", "harness"];
 			util.runProcess(driverGlobal.tiSdkDir + "/iphone/builder.py", args, stdoutCallback, 0, function(code) {
 				if(code != 0) {
 					util.log("error encountered when running harness: " + code);
