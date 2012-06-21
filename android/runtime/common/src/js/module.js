@@ -212,7 +212,6 @@ Module.prototype.require = function (request, context, useCache) {
 
 	// get external binding (for external / 3rd party modules)
 	var externalBinding = kroll.externalBinding(request);
-	var isExternalCommonJs = false;
 
 	if (externalBinding) {
 		return this.loadExternalModule(request, externalBinding, context);
@@ -220,7 +219,7 @@ Module.prototype.require = function (request, context, useCache) {
 
 	var resolved = resolveFilename(request, this);
 	var id = resolved[0];
-	filename = resolved[1];
+	var filename = resolved[1];
 	if (kroll.DBG) {
 		kroll.log(TAG, 'Loading module: ' + request + ' -> ' + filename);
 	}
