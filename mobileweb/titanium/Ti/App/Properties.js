@@ -60,7 +60,7 @@ define(["Ti/_/Evented", "Ti/_/lang"], function(Evented, lang) {
 	function setProp(prop, type, value) {
 		if (prop) {
 			getStorage();
-			if (value === void 0) {
+			if (value === void 0 || value === null) {
 				delete storage[prop];
 			} else {
 				storage[prop] = types[type] ? types[type](value) : value;
