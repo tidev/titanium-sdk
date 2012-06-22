@@ -233,10 +233,10 @@ define(["Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/style", "Ti/_/lang", 
 		
 		_removeRow: function(index) {
 			var location = this._calculateLocation(index);
+			this._unpublish(location.section._rows._children[2 * location.localIndex + 1]);
 			if (location) {
 				location.section._removeAt(location.localIndex);
 			}
-			this._unpublish(value);
 		},
 
 		appendRow: function(value) {
