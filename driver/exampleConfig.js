@@ -1,5 +1,4 @@
-new function() {
-
+module.exports = new function() {
 	/*
 	local values used for defining the required properties (IE: you can change this section to 
 	taste by adding or removing values if desired)
@@ -22,20 +21,11 @@ new function() {
 	this.tiSdkDir = ""; // location of titanium SDK;
 
 	/*
-	Example: this.harnessConfigsDir = __dirname + "/harnessTemplate/configs";
-	refer to README file for more info on configurations
-	NOTE: please refer to node.js documentation for info on "__dirname"
-	*/
-	this.harnessConfigsDir = ""; // location of the harness configurations;
-
-	/*
 	this can be changed but shouldn't need to be. This is the location where the harness instances 
 	and log output is stored under
 	*/
 	this.tempDir = "/tmp/driver";
 
-	this.harnessDir = this.tempDir + "/harness"; // like tempDir, shouldn't need to be changed
-	this.logsDir = this.tempDir + "/logs"; // like tempDir, shouldn't need to be changed
 	this.maxLogs = 20; // change this to control how many log files are kept per platform
 
 	/*
@@ -58,5 +48,4 @@ new function() {
 	a timeout value for the test
 	*/
 	this.defaultTestTimeout = 10000;
-
 }

@@ -34,21 +34,21 @@ module.exports = new function() {
 	this.init = function(commandCallback, testPassCallback) {
 		commandFinishedCallback = commandCallback;
 		testPassFinishedCallback = testPassCallback;
-	}
+	};
 
 	this.processCommand = function(command) {
 		var commandElements = command.split(" ");
 
-		if(commandElements[0] == "create") {
+		if (commandElements[0] == "create") {
 			createHarness(commandFinishedCallback, commandFinishedCallback);
 
-		} else if(commandElements[0] == "delete") {
+		} else if (commandElements[0] == "delete") {
 			deleteHarness(commandFinishedCallback);
 
-		} else if(commandElements[0] == "start") {
+		} else if (commandElements[0] == "start") {
 			self.startTestPass(commandElements);
 
-		} else if(commandElements[0] == "exit") {
+		} else if (commandElements[0] == "exit") {
 			process.exit(1);
 
 		} else {
@@ -60,13 +60,14 @@ module.exports = new function() {
 				+ "        Arguments:\n"
 				+ "            --config=<config ID> - runs the specified configuration only\n"
 				+ "            --suite=<suite name> - runs the specified suite only\n"
-				+ "            --test=<test name> - runs the specified test only (--suite must be specified)\n\n"
+				+ "            --test=<test name> - runs the specified test only (--suite must be specified)\n"
+				+ "            --sim-version=<version> - sets the desired iOS simulator version to run\n\n"
 				+ "    exit - exit driver\n",
 				0, true);
 
 			commandFinishedCallback();
 		}
-	}
+	};
 
 	var createHarness = function(successCallback, errorCallback) {
 		common.createHarness(
@@ -75,11 +76,11 @@ module.exports = new function() {
 			successCallback,
 			errorCallback
 			);
-	}
+	};
 
 	var deleteHarness = function(callback) {
 		common.deleteHarness("ios", callback);
-	}
+	};
 
 	this.startTestPass = function(commandElements) {
 		var deleteCallback = function() {
@@ -96,18 +97,18 @@ module.exports = new function() {
 
 		// pull out ios specific start arguments
 		simVersion = util.getArgument(commandElements, "--sim-version");
-		if(!simVersion) {
+		if (!simVersion) {
 			simVersion = defaultSimVersion;
 		}
 
 		common.startTestPass(commandElements, deleteCallback);
-	}
+	};
 
 	var runHarness = function(successCallback, errorCallback) {
 		var runCallback = function() {
 			var stdoutCallback = function(message) {
 				util.log(message, driverGlobal.logLevels.verbose);
-				if(message.indexOf("[INFO] Application started") > -1) {
+				if (message.indexOf("[INFO] Application started") > -1) {
 					successCallback();
 				}
 			}
@@ -116,7 +117,7 @@ module.exports = new function() {
 
 			var args = ["simulator", simVersion, driverGlobal.harnessDir + "/ios/harness", "com.appcelerator.harness", "harness"];
 			util.runProcess(driverGlobal.tiSdkDir + "/iphone/builder.py", args, stdoutCallback, 0, function(code) {
-				if(code != 0) {
+				if (code != 0) {
 					util.log("error encountered when running harness: " + code);
 					errorCallback();
 				}
@@ -130,7 +131,7 @@ module.exports = new function() {
 			util.log("harness does not exist, creating");
 			createHarness(runCallback, errorCallback);
 		}
-	}
+	};
 
 	var connectToHarness = function(errorCallback) {
 		var retryCount = 0;
@@ -140,19 +141,19 @@ module.exports = new function() {
 
 			connection.on('data', function(data) {
 				var responseData = common.processHarnessMessage(data);
-				if(responseData) {
+				if (responseData) {
 					connection.write(responseData);
 				}
 			});
 			connection.on('close', function() {
 				this.destroy();
 
-				if(stoppingHarness == true) {
+				if (stoppingHarness == true) {
 					stoppingHarness = false;
 					return;
 				}
 
-				if(retryCount < driverGlobal.maxSocketConnectAttempts) {
+				if (retryCount < driverGlobal.maxSocketConnectAttempts) {
 					util.log("unable to connect, retry attempt " + (retryCount + 1) + "...");
 					retryCount += 1;
 
@@ -174,7 +175,7 @@ module.exports = new function() {
 		}
 
 		connectCallback();
-	}
+	};
 
 	// handles restarting the test pass (usually when an error is encountered)
 	this.resumeTestPass = function() {
@@ -184,7 +185,7 @@ module.exports = new function() {
 
 		stopHarness();
 		runHarness(connectCallback, commandFinishedCallback);
-	}
+	};
 
 	// called when a config is finished running
 	this.finishTestPass = function() {
@@ -194,17 +195,17 @@ module.exports = new function() {
 			common.finishTestPass(testPassFinishedCallback);
 		}
 		closeSimulator(finishCallback);
-	}
+	};
 
 	var stopHarness = function() {
 		stoppingHarness = true;
 		connection.destroy();
-	}
+	};
 
 	var closeSimulator = function(callback) {
 		var closeIphoneCallback = function() {
 			util.runCommand("/usr/bin/killall 'iPhone Simulator'", 2, function(error) {
-				if(error != null) {
+				if (error != null) {
 					util.log("error encountered when closing iPhone simulator: " + error);
 
 				} else {
@@ -216,7 +217,7 @@ module.exports = new function() {
 		}
 
 		util.runCommand("/usr/bin/killall 'ios-sim'", 2, function(error) {
-			if(error != null) {
+			if (error != null) {
 				util.log("error encountered when closing ios-sim: " + error);
 
 			} else {
@@ -225,5 +226,5 @@ module.exports = new function() {
 
 			closeIphoneCallback();
 		});
-	}
-}
+	};
+};

@@ -29,24 +29,24 @@ module.exports = new function() {
 	this.init = function(commandCallback, testPassCallback) {
 		commandFinishedCallback = commandCallback;
 		testPassFinishedCallback = testPassCallback;
-	}
+	};
 
 	this.processCommand = function(command) {
 		var commandElements = command.split(" ");
 
-		if(commandElements[0] == "create") {
+		if (commandElements[0] == "create") {
 			createHarness(commandFinishedCallback, commandFinishedCallback);
 
-		} else if(commandElements[0] == "delete") {
+		} else if (commandElements[0] == "delete") {
 			deleteHarness(commandFinishedCallback);
 
-		} else if(commandElements[0] == "build") {
+		} else if (commandElements[0] == "build") {
 			buildHarness(commandFinishedCallback, commandFinishedCallback);
 
-		} else if(commandElements[0] == "start") {
+		} else if (commandElements[0] == "start") {
 			self.startTestPass(commandElements);
 
-		} else if(commandElements[0] == "exit") {
+		} else if (commandElements[0] == "exit") {
 			process.exit(1);
 
 		} else {
@@ -65,7 +65,7 @@ module.exports = new function() {
 
 			commandFinishedCallback();
 		}
-	}
+	};
 
 	var createHarness = function(successCallback, errorCallback) {
 		common.createHarness(
@@ -74,17 +74,17 @@ module.exports = new function() {
 			successCallback,
 			errorCallback
 			);
-	}
+	};
 
 	var deleteHarness = function(callback) {
 		common.deleteHarness("mw", callback);
-	}
+	};
 
 	var buildHarness = function(successCallback, errorCallback) {
 		var buildCallback = function() {
 			var args = [driverGlobal.harnessDir + "/mw/harness", "development"];
 			util.runProcess(driverGlobal.tiSdkDir + "/mobileweb/builder.py", args, 0, 0, function(code) {
-				if(code != 0) {
+				if (code != 0) {
 					util.log("error encountered when building harness: " + code);
 					errorCallback();
 
@@ -93,7 +93,7 @@ module.exports = new function() {
 					successCallback();
 				}
 			});
-		}
+		};
 
 		if (path.existsSync(driverGlobal.harnessDir + "/mw/harness/tiapp.xml")) {
 			buildCallback();
@@ -102,27 +102,27 @@ module.exports = new function() {
 			util.log("harness does not exist, creating");
 			createHarness(buildCallback, errorCallback);
 		}
-	}
+	};
 
 	this.startTestPass = function(commandElements) {
 		var deleteCallback = function() {
 			deleteHarness(buildCallback);
-		}
+		};
 
 		var buildCallback = function() {
 			buildHarness(serverCallback, commandFinishedCallback);
-		}
+		};
 
 		var serverCallback = function() {
 			startServer(runCallback, commandFinishedCallback);
-		}
+		};
 
 		var runCallback = function() {
 			runHarness();
-		}
+		};
 
 		common.startTestPass(commandElements, deleteCallback);
-	}
+	};
 
 	var startServer = function(successCallback, errorCallback) {
 		server = http.createServer(function (request, response) {
@@ -144,9 +144,9 @@ module.exports = new function() {
 					break;
 			}
 
-			if(extname != ".anvil") {
+			if (extname != ".anvil") {
 				path.exists(filePath, function(exists) {
-					if(exists) {
+					if (exists) {
 						fs.readFile(filePath, function(error, content) {
 							if (error) {
 								response.writeHead(500);
@@ -189,7 +189,7 @@ module.exports = new function() {
 			if ((e.code == 'EADDRINUSE') && (serverRunning == false)) {
 				util.log('Address in use, retrying...');
 				setTimeout(function() {
-					if(serverListening == true) {
+					if (serverListening == true) {
 						server.close();
 					}
 					serverListening = true;
@@ -209,40 +209,40 @@ module.exports = new function() {
 
 		serverListening = true;
 		server.listen(driverGlobal.httpPort);
-	}
+	};
 
 	var runHarness = function(errorCallback) {
 		util.runCommand("adb shell am start -a android.intent.action.VIEW -n com.android.browser/.BrowserActivity -d " + driverGlobal.httpHost + ":" + driverGlobal.httpPort + "/index.html", 2, function(error) {
-			if(error != null) {
+			if (error != null) {
 				util.log("error encountered when running harness: " + error);
-				if(errorCallback) {
+				if (errorCallback) {
 					errorCallback();
 				}
 			}
 		});
-	}
+	};
 
 	// handles restarting the test pass (usually when an error is encountered)
 	this.resumeTestPass = function() {
 		var runCallback = function() {
 			runHarness(commandFinishedCallback);
-		}
+		};
 
 		stopHarness();
 		startServer(runCallback, commandFinishedCallback);
-	}
+	};
 
 	// called when a config is finished running
 	this.finishTestPass = function() {
 		stopHarness();
 		common.finishTestPass(testPassFinishedCallback);
-	}
+	};
 
 	var stopHarness = function() {
-		if(serverRunning) {
+		if (serverRunning) {
 			serverRunning = false;
 			serverListening = false;
 			server.close();
 		}
-	}
-}
+	};
+};

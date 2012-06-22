@@ -19,28 +19,28 @@ module.exports = new function() {
 
 	this.runCommand = function(command, logLevel, callback) {
 		child_process.exec(command, function(error, stdout, stderr) {
-			if((logLevel > 1) && (stdout != "")) {
+			if ((logLevel > 1) && (stdout != "")) {
 				self.log(stdout, 2);
 			}
 
-			if((logLevel > 0) && (stderr != "")) {
+			if ((logLevel > 0) && (stderr != "")) {
 				self.log(stderr, 0);
 			}
 
-			if(callback != null) {
+			if (callback != null) {
 				callback(error);
 			}
 		});
-	}
+	};
 
 	this.runProcess = function(filename, args, stdoutCallback, stderrCallback, exitCallback) {
 		var newProcess = child_process.spawn(filename, args);
 
-		if(stdoutCallback != null) {
+		if (stdoutCallback != null) {
 			newProcess.stdout.on('data', function(data) {
 				var stdoutString = data.toString();
 
-				if((stdoutCallback == 0) && (stdoutString != "")) {
+				if ((stdoutCallback == 0) && (stdoutString != "")) {
 					self.log(stdoutString, 2);
 
 				} else {
@@ -49,11 +49,11 @@ module.exports = new function() {
 			});
 		}
 
-		if(stderrCallback != null) {
+		if (stderrCallback != null) {
 			newProcess.stderr.on('data', function(data) {
 				var stderrString = data.toString();
 
-				if((stderrCallback == 0) && (stderrString != "")) {
+				if ((stderrCallback == 0) && (stderrString != "")) {
 					self.log(stderrString, 0);
 
 				} else {
@@ -62,9 +62,9 @@ module.exports = new function() {
 			});
 		}
 
-		if(exitCallback != null) {
+		if (exitCallback != null) {
 			newProcess.on('exit', function(code) {
-				if((exitCallback == 0) && (code != "")) {
+				if ((exitCallback == 0) && (code != "")) {
 					self.log(code, 0);
 
 				} else {
@@ -74,15 +74,15 @@ module.exports = new function() {
 		}
 
 		return newProcess;
-	}
+	};
 
 	this.getArgument = function(args, name) {
 		var value;
 
-		for(var i in args) {
-			if(args[i].indexOf(name) == 0) {
+		for (var i in args) {
+			if (args[i].indexOf(name) == 0) {
 				var splitPos = args[i].indexOf("=");
-				if(splitPos == -1) {
+				if (splitPos == -1) {
 					continue;
 				}
 
@@ -92,11 +92,11 @@ module.exports = new function() {
 		}
 
 		return value;
-	}
+	};
 
 	this.rightStringTrim = function(targetString) {
 		return targetString.replace(/\s+$/,"");
-	}
+	};
 
 	/*
 	 * sets active log file based on driver command line arguments and deletes any old logs
@@ -113,15 +113,15 @@ module.exports = new function() {
 			'a+');
 
 		var files = fs.readdirSync(driverGlobal.logsDir + "/" + driverGlobal.platform.name);
-		if(files.length >= driverGlobal.maxLogs) {
+		if (files.length >= driverGlobal.maxLogs) {
 			var oldestTime = 0;
 			var oldestFileIndex;
 
-			for(var i = 0; i < files.length; i++) {
+			for (var i = 0; i < files.length; i++) {
 				var stat = fs.statSync(driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + files[i]);
 
 				var modifiedTime = stat.mtime.getTime();
-				if((modifiedTime < oldestTime) || (oldestTime == 0)) {
+				if ((modifiedTime < oldestTime) || (oldestTime == 0)) {
 					oldestTime = modifiedTime;
 					oldestFileIndex = i;
 					break;
@@ -129,7 +129,7 @@ module.exports = new function() {
 			}
 
 			self.runCommand("rm -r " + driverGlobal.logsDir + "/" + driverGlobal.platform.name + "/" + files[oldestFileIndex], 0, function(error) {
-				if(error != null) {
+				if (error != null) {
 					self.log("error encountered when deleting oldest log file: " + error);
 
 				} else {
@@ -142,10 +142,10 @@ module.exports = new function() {
 		} else {
 			callback();
 		}
-	}
+	};
 
 	this.closeLog = function() {
-		if(logFile) {
+		if (logFile) {
 			fs.closeSync(logFile);
 
 			/*
@@ -154,31 +154,31 @@ module.exports = new function() {
 			*/
 			logFile = undefined;
 		}
-	}
+	};
 
 	this.log = function(message, level, noTrim) {
 		// because sometimes we need to print the message without modification
-		if(noTrim !== true) {
+		if (noTrim !== true) {
 			message = self.rightStringTrim(message);
 		}
 
-		if(level == undefined) {
+		if (level == undefined) {
 			level = driverGlobal.defaultLogLevel;
 		}
 
-		if(driverGlobal.logLevel >= level) {
+		if (driverGlobal.logLevel >= level) {
 			console.log(message);
 		}
 
-		if(driverGlobal.logFilename == undefined) {
+		if (driverGlobal.logFilename == undefined) {
 			return;
 		}
 
-		if(logFile == undefined) {
+		if (logFile == undefined) {
 			// not inside a test run currently so only print to console
 			return;
 		}
 
 		fs.writeSync(logFile, message + "\n");
-	}
-}
+	};
+};

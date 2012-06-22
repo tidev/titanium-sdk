@@ -30,7 +30,7 @@
 	</iphone>
 	<android xmlns:android="http://schemas.android.com/apk/res/android">
 		<activities>
-			<activity url="jsActivity.js"/>
+			<activity url="suites/android/android/jsActivity.js"/>
 		</activities>
 	</android>
 	<mobileweb>

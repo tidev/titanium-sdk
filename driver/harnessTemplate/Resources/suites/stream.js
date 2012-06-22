@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
- 
+
 module.exports = new function() {
 	var finish;
 	var valueOf;
@@ -410,6 +410,6 @@ module.exports = new function() {
 
 		// Asynch pump
 		totalsize = 0;
-		Ti.Stream.pump(blobStream, this.async(handler), chunksize, true);
+		Ti.Stream.pump(blobStream, handler, chunksize, true);
 	}
 }

@@ -105,8 +105,8 @@ module.exports = new function() {
 			return;
 		}
 
-		if (this.obj === undefined) {
-			self.reportError(this.testRun, "should not be undefined, was: " + this.obj);
+		if ((typeof this.obj) === "undefined") {
+			self.reportError(this.testRun, "should not be undefined, was: " + (typeof this.obj));
 		}
 	}
 
@@ -145,8 +145,8 @@ module.exports = new function() {
 			return;
 		}
 
-		if (typeof this.obj !== "string") {
-			self.reportError(this.testRun, "should be string, was: " + typeof(this.obj));
+		if ((typeof this.obj) !== "string") {
+			self.reportError(this.testRun, "should be string, was: " + (typeof this.obj));
 		}
 	}
 
@@ -155,8 +155,8 @@ module.exports = new function() {
 			return;
 		}
 
-		if (this.obj !== undefined) {
-			self.reportError(this.testRun, "should be undefined, was: " + this.obj);
+		if ((typeof this.obj) !== "undefined") {
+			self.reportError(this.testRun, "should be undefined, was: " + (typeof this.obj));
 		}
 	}
 
@@ -165,8 +165,8 @@ module.exports = new function() {
 			return;
 		}
 
-		if ((typeof(this.obj) != "function") && !(this.obj instanceof Function)) {
-			self.reportError(this.testRun, "should be a function, was: " + typeof(this.obj));
+		if (((typeof this.obj) != "function") && !(this.obj instanceof Function)) {
+			self.reportError(this.testRun, "should be a function, was: " + (typeof this.obj));
 		}
 	}
 
@@ -175,8 +175,8 @@ module.exports = new function() {
 			return;
 		}
 
-		if ((typeof(this.obj) != "object") && !(this.obj instanceof Object)) {
-			self.reportError(this.testRun, "should be a object, was: " + this.obj);
+		if (((typeof this.obj) != "object") && !(this.obj instanceof Object)) {
+			self.reportError(this.testRun, "should be a object, was: " + (typeof this.obj));
 		}
 	}
 
@@ -185,8 +185,8 @@ module.exports = new function() {
 			return;
 		}
 
-		if (typeof(this.obj) != "number") {
-			self.reportError(this.testRun, "should be a number, was: " + typeof(this.obj));
+		if ((typeof this.obj) != "number") {
+			self.reportError(this.testRun, "should be a number, was: " + (typeof this.obj));
 		}
 	}
 
@@ -195,8 +195,8 @@ module.exports = new function() {
 			return;
 		}
 
-		if (typeof(this.obj) != "boolean") {
-			self.reportError(this.testRun, "should be a boolean, was: " + typeof(this.obj));
+		if ((typeof this.obj) != "boolean") {
+			self.reportError(this.testRun, "should be a boolean, was: " + (typeof this.obj));
 		}
 	}
 
@@ -235,9 +235,9 @@ module.exports = new function() {
 			return;
 		}
 
-		// better way to check? we need to support our duck-typing too..
-		if (this.obj.constructor != Array) {
-			self.reportError(this.testRun, "should be an array, was: " + this.obj);
+		var typeDescription = Object.prototype.toString.call(this.obj);
+		if (typeDescription != "[object Array]") {
+			self.reportError(this.testRun, "should be an array, was: " + typeDescription);
 		}
 	}
 
@@ -323,7 +323,7 @@ module.exports = new function() {
 			return;
 		}
 
-		if (typeof(this.obj) == "function") {
+		if ((typeof this.obj) == "function") {
 			try {
 				this.obj();
 
@@ -343,7 +343,7 @@ module.exports = new function() {
 			return;
 		}
 
-		if (typeof(this.obj) == "function") {
+		if ((typeof this.obj) == "function") {
 			try {
 				this.obj();
 

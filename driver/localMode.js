@@ -20,22 +20,22 @@ module.exports = new function() {
 
 	this.start = function() {
 		var command = util.getArgument(process.argv, "--command");
-		if(command) {
+		if (command) {
 			var startCallback = function() {
 				driverGlobal.platform.init(exitCallback, printAndPackageCallback);
 				driverGlobal.platform.processCommand(command);
-			}
+			};
 
 			var exitCallback = function() {
 				process.exit(1);
-			}
+			};
 
 			var printAndPackageCallback = function() {
 				printAndPackageResults(exitCallback);
-			}
+			};
 
 			util.runCommand("rm -r " + driverGlobal.logsDir + "/json_results", 0, function(error) {
-				if(error != null) {
+				if (error != null) {
 					util.log("error encountered when deleting json results file: " + error);
 
 				} else {
@@ -48,7 +48,7 @@ module.exports = new function() {
 		} else {
 			var printResultsCallback = function() {
 				printResults(resumeReadingCommands);
-			}
+			};
 			driverGlobal.platform.init(resumeReadingCommands, printResultsCallback);
 
 			readlineInterface = readline.createInterface(process.stdin, process.stdout);
@@ -59,17 +59,17 @@ module.exports = new function() {
 
 			showPrompt();
 		}
-	}
+	};
 
 	var showPrompt = function() {
-		readlineInterface.setPrompt("CLI>", 4);
+		readlineInterface.setPrompt("CLI> ", 5);
 		readlineInterface.prompt();
-	}
+	};
 
 	var resumeReadingCommands = function() {
 		showPrompt();
 		readlineInterface.resume();
-	}
+	};
 
 	var printAndPackageResults = function(callback) {
 		var packageCallback = function() {
@@ -81,7 +81,7 @@ module.exports = new function() {
 		}
 
 		printResults(packageCallback);
-	}
+	};
 
 	var printResults = function(callback) {
 		var passedCount = 0;
@@ -90,27 +90,27 @@ module.exports = new function() {
 		util.log("\nRESULTS SUMMARY:", driverGlobal.logLevels.quiet);
 
 		var numConfigs = driverGlobal.results.length;
-		for(var i = 0; i < numConfigs; i++) {
+		for (var i = 0; i < numConfigs; i++) {
 			var numSuites = driverGlobal.results[i].configSuites.length;
 
-			if(numSuites > 0) {
+			if (numSuites > 0) {
 				util.log("    Config ID <" + driverGlobal.results[i].configName + ">:", driverGlobal.logLevels.quiet);
 
-				for(var j = 0; j < numSuites; j++) {
-					if(j > 0) {
+				for (var j = 0; j < numSuites; j++) {
+					if (j > 0) {
 						util.log("", driverGlobal.logLevels.quiet);
 					}
 					util.log("        Suite name <" + driverGlobal.results[i].configSuites[j].suiteName + ">:", driverGlobal.logLevels.quiet);
 
 					var numTests = driverGlobal.results[i].configSuites[j].suiteTests.length;
-					for(var k = 0; k < numTests; k++) {
+					for (var k = 0; k < numTests; k++) {
 						var testInfo = driverGlobal.results[i].configSuites[j].suiteTests[k];
 						var testName = driverGlobal.results[i].configSuites[j].suiteTests[k].testName;
 						var testDuration = driverGlobal.results[i].configSuites[j].suiteTests[k].testResult.duration;
 						var testResult = driverGlobal.results[i].configSuites[j].suiteTests[k].testResult.result;
 
 						var testDescription = driverGlobal.results[i].configSuites[j].suiteTests[k].testResult.description;
-						if(testDescription) {
+						if (testDescription) {
 							testDescription = " - " + testDescription;
 
 						} else {
@@ -118,10 +118,10 @@ module.exports = new function() {
 						}
 						util.log("            " + testName + " - " + testDuration + "ms - " + testResult + testDescription, driverGlobal.logLevels.quiet);
 
-						if(testResult == "success") {
+						if (testResult == "success") {
 							passedCount++;
 
-						} else if((testResult == "error") || (testResult == "exception") || (testResult == "timeout")) {
+						} else if ((testResult == "error") || (testResult == "exception") || (testResult == "timeout")) {
 							failedCount++;
 						}
 					}
@@ -137,5 +137,5 @@ module.exports = new function() {
 		util.log("", 0);
 
 		callback();
-	}
-}
+	};
+};

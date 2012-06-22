@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
- 
+
 module.exports = new function() {
 	var finish;
 	var valueOf;
@@ -99,8 +99,8 @@ module.exports = new function() {
 		});
 
 		var readCallback = function(e) {
-			valueOf(testRun, e.errorState).shouldBeUndefined();
-			valueOf(testRun, e.errorDescription).shouldBeUndefined();
+			valueOf(testRun, e.errorState).shouldBeZero();
+			valueOf(testRun, e.errorDescription).shouldBe('');
 			valueOf(testRun, e.bytesProcessed).shouldBe(sourceBuffer.length);
 			valueOf(testRun, e.bytesProcessed).shouldBe(readBuffer.length);
 				
@@ -117,8 +117,8 @@ module.exports = new function() {
 			}
 		};
 		var writeCallback = function(e) {
-			valueOf(testRun, e.errorState).shouldBeUndefined();
-			valueOf(testRun, e.errorDescription).shouldBeUndefined();
+			valueOf(testRun, e.errorState).shouldBeZero();
+			valueOf(testRun, e.errorDescription).shouldBe('');
 			valueOf(testRun, e.bytesProcessed).shouldBe(sourceBuffer.length);
 
 			Ti.Stream.read(connector, readBuffer, readCallback);

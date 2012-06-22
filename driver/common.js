@@ -40,22 +40,22 @@ module.exports = new function() {
 			currentSuite = 0;
 			currentTest = 0;
 			callback();
-		}
+		};
 
-		if(commandElements) {
+		if (commandElements) {
 			var commandCallback = function() {
 				var selectedConfigArg = util.getArgument(commandElements, "--config");
-				if(selectedConfigArg) {
+				if (selectedConfigArg) {
 					var numConfigs = driverGlobal.harnessConfigs.length;
-					for(var i = 0; i < numConfigs; i++) {
-						if(selectedConfigArg == driverGlobal.harnessConfigs[i]) {
+					for (var i = 0; i < numConfigs; i++) {
+						if (selectedConfigArg == driverGlobal.harnessConfigs[i]) {
 							currentConfig = i;
 							selectedConfig = i;
 							break;
 						}
 					}
 
-					if(selectedConfig == undefined) {
+					if (selectedConfig == undefined) {
 						util.log("specified config is not recognized, ignoring");
 					}
 				}
@@ -64,7 +64,7 @@ module.exports = new function() {
 				selectedTest = util.getArgument(commandElements, "--test");
 
 				postCommandCallback();
-			}
+			};
 
 			currentConfig = 0;
 			selectedConfig = undefined;
@@ -73,14 +73,14 @@ module.exports = new function() {
 		} else {
 			postCommandCallback();
 		}
-	}
+	};
 
 	/*
 	 * basically this function handles picking between starting a new config pass and finishing
 	 * the test pass
 	 */
 	this.finishTestPass = function(passFinishedCallback) {
-		if((currentConfig < (driverGlobal.harnessConfigs.length - 1)) && (selectedConfig == undefined)) {
+		if ((currentConfig < (driverGlobal.harnessConfigs.length - 1)) && (selectedConfig == undefined)) {
 			currentConfig++;
 			driverGlobal.platform.startTestPass();
 
@@ -89,11 +89,11 @@ module.exports = new function() {
 			passFinishedCallback();
 
 			var numConfigs = driverGlobal.results.length;
-			for(var i = 0; i < numConfigs; i++) {
+			for (var i = 0; i < numConfigs; i++) {
 				driverGlobal.results[i].configSuites = [];
 			}
 		}
-	}
+	};
 
 	this.createHarness = function(platform, command, successCallback, errorCallback) {
 		var createCallback = function() {
@@ -105,9 +105,9 @@ module.exports = new function() {
 			}
 
 			util.runCommand(command, 2, function(error) {
-				if(error != null) {
+				if (error != null) {
 					util.log("error encountered when created harness: " + error);
-					if(errorCallback) {
+					if (errorCallback) {
 						errorCallback();
 					}
 
@@ -118,13 +118,13 @@ module.exports = new function() {
 			});
 		}
 
-		if(path.existsSync(driverGlobal.harnessDir + "/" + platform + "/harness/tiapp.xml")) {
+		if (path.existsSync(driverGlobal.harnessDir + "/" + platform + "/harness/tiapp.xml")) {
 			this.deleteHarness(platform, createCallback);
 
 		} else {
 			createCallback();
 		}
-	}
+	};
 
 	/*
 	 * makes sure that the newly created harness contains the correct tiapp.xml and resources
@@ -133,9 +133,9 @@ module.exports = new function() {
 	var updateHarness = function(platform, successCallback, errorCallback) {
 		var updateResourcesCallback = function() {
 			util.runCommand("cp -r " + driverGlobal.driverDir + "/harnessTemplate/Resources/* " + driverGlobal.harnessDir + "/" + platform + "/harness/Resources", 2, function(error) {
-				if(error != null) {
+				if (error != null) {
 					util.log("unable to update resources for harness: " + error);
-					if(errorCallback) {
+					if (errorCallback) {
 						errorCallback();
 					}
 
@@ -144,29 +144,29 @@ module.exports = new function() {
 					updateAppjsCallback();
 				}
 			});
-		}
+		};
 
 		var updateAppjsCallback = function() {
 			util.runCommand("cp -r " + driverGlobal.driverDir + "/harnessTemplate/configs/" + driverGlobal.harnessConfigs[currentConfig] + "/app.js " + driverGlobal.harnessDir + "/" + platform + "/harness/Resources", 2, function(error) {
-				if(error != null) {
+				if (error != null) {
 					util.log("unable to update app.js for harness: " + error);
-					if(errorCallback) {
+					if (errorCallback) {
 						errorCallback();
 					}
 
 				} else {
 					util.log("app.js updated for harness");
-					if(successCallback) {
+					if (successCallback) {
 						successCallback();
 					}
 				}
 			});
-		}
+		};
 
 		util.runCommand("cp -r " + driverGlobal.driverDir + "/harnessTemplate/configs/" + driverGlobal.harnessConfigs[currentConfig] + "/tiapp.xml " + driverGlobal.harnessDir + "/" + platform + "/harness", 2, function(error) {
-			if(error != null) {
+			if (error != null) {
 				util.log("unable to update tiapp.xml for harness: " + error);
-				if(errorCallback) {
+				if (errorCallback) {
 					errorCallback();
 				}
 
@@ -175,21 +175,30 @@ module.exports = new function() {
 				updateResourcesCallback();
 			}
 		});
-	}
+	};
 
 	this.deleteHarness = function(platform, callback) {
-		util.runCommand("rm -r " + driverGlobal.harnessDir + "/" + platform + "/harness", 0, function(error) {
-			if(error != null) {
-				util.log("error encountered when deleting harness: " + error);
+		if (path.existsSync(driverGlobal.harnessDir + "/" + platform + "/harness")) {
+			util.runCommand("rm -r " + driverGlobal.harnessDir + "/" + platform + "/harness", 0, function(error) {
+				if (error != null) {
+					util.log("error encountered when deleting harness: " + error);
 
-			} else {
-				util.log("harness deleted");
-			}
+				} else {
+					util.log("harness deleted");
+				}
 
+				callback();
+			});
+
+		} else {
 			callback();
-		});
-	}
+		}
+	};
 
+	/*
+	this function handles messages from the driver and implements the communication protocol 
+	outlined in the driver.js comment section
+	*/
 	this.processHarnessMessage = function(rawMessage) {
 		var message;
 		try {
@@ -202,38 +211,38 @@ module.exports = new function() {
 
 		var responseData = "";
 
-		if((typeof message) != "object") {
+		if ((typeof message) != "object") {
 			util.log("invalid message, expecting object");
 			return responseData;
 		}
 
-		if(message.type == "connect") {
+		if (message.type == "connect") {
 			responseData = "connect|" + driverGlobal.httpHost + "|" + driverGlobal.httpPort;
 
-		} else if(message.type == "ready") {
+		} else if (message.type == "ready") {
 			responseData = "getSuites";
 
-		} else if(message.type == "suites") {
+		} else if (message.type == "suites") {
 			suites = message.suites;
 
-			if(selectedSuite) {
+			if (selectedSuite) {
 				var found = false;
 
-				for(var i = 0; i < suites.length; i++) {
-					if(selectedSuite == suites[i].name) {
+				for (var i = 0; i < suites.length; i++) {
+					if (selectedSuite == suites[i].name) {
 						currentSuite = i;
 						responseData = startSuite();
 						found = true;
 					}
 				}
 
-				if(!found) {
+				if (!found) {
 					util.log("specified suite not found");
 					driverGlobal.platform.finishTestPass();
 				}
 
 			} else {
-				if(suites.length == 0) {
+				if (suites.length == 0) {
 					util.log("no suites found for configuration");
 					driverGlobal.platform.finishTestPass();
 
@@ -242,45 +251,48 @@ module.exports = new function() {
 				}
 			}
 
-		} else if(message.type == "tests") {
+		} else if (message.type == "tests") {
 			tests[currentSuite] = message.tests;
 
 			var numSuites = driverGlobal.results[currentConfig].configSuites.length;
 			var found = false;
-			for(var i = 0; i < numSuites; i++) {
-				if(suites[currentSuite].name == driverGlobal.results[currentConfig].configSuites[i].suiteName) {
+			for (var i = 0; i < numSuites; i++) {
+				if (suites[currentSuite].name == driverGlobal.results[currentConfig].configSuites[i].suiteName) {
 					found = true;
 				}
 			}
 
-			if(!found) {
+			if (!found) {
 				driverGlobal.results[currentConfig].configSuites.push({
 					suiteName: suites[currentSuite].name,
 					suiteTests: []
 				});
 			}
 
-			if(selectedSuite && selectedTest) {
+			if (selectedSuite && selectedTest) {
 				var found = false;
 
-				for(var i = 0; i < tests[currentSuite].length; i++) {
-					if(selectedTest == tests[currentSuite][i].name) {
+				for (var i = 0; i < tests[currentSuite].length; i++) {
+					if (selectedTest == tests[currentSuite][i].name) {
 						currentTest = i;
 						found = true;
 						break;
 					}
 				}
 
-				if(!found) {
+				if (found) {
+					responseData = startTest();
+
+				} else {
 					util.log("specified test not found");
+					driverGlobal.platform.finishTestPass();
 				}
-				responseData = startTest();
 
 			} else {
 				responseData = startTest();
 			}
 
-		} else if(message.type == "result") {
+		} else if (message.type == "result") {
 			clearTimeout(timer);
 
 			var numSuites = driverGlobal.results[currentConfig].configSuites.length;
@@ -295,30 +307,30 @@ module.exports = new function() {
 
 			util.log("suite<" + message.suite + "> test<" + message.test + "> result<" + message.result + ">");
 
-			if(selectedSuite && selectedTest) {
+			if (selectedSuite && selectedTest) {
 				driverGlobal.platform.finishTestPass();
 
 			} else {
 				var next = incrementTest();
-				if(next == "suite") {
+				if (next == "suite") {
 					responseData = startSuite();
 
-				} else if(next == "test") {
+				} else if (next == "test") {
 					responseData = startTest();
 				}
 			}
 		}
 
 		return responseData;
-	}
+	};
 
 	var startSuite = function() {
 		return "getTests|" + suites[currentSuite].name;
-	}
+	};
 
 	var startTest = function() {
 		var timeout = tests[currentSuite][currentTest].timeout;
-		if(timeout) {
+		if (timeout) {
 			timeout = parseInt(timeout);
 
 		} else {
@@ -343,7 +355,7 @@ module.exports = new function() {
 
 			util.log("suite<" + suites[currentSuite].name + "> test<" + tests[currentSuite][currentTest].name + "> result<timeout>");
 
-			if(selectedSuite && selectedTest) {
+			if (selectedSuite && selectedTest) {
 				driverGlobal.platform.finishTestPass();
 
 			} else {
@@ -353,22 +365,22 @@ module.exports = new function() {
 		}, timeout);
 
 		return "run|" + suites[currentSuite].name + "|" + tests[currentSuite][currentTest].name;
-	}
+	};
 
 	/*
 	 * when a test is finished, update the current test and if need be, roll over into the
 	 * next suite.  returns value indicating what the next test position is
 	 */
 	var incrementTest = function() {
-		if(currentTest < (tests[currentSuite].length - 1)) {
+		if (currentTest < (tests[currentSuite].length - 1)) {
 			currentTest++;
 			return "test";
 
 		} else {
 			util.log("test run finished for suite<" + suites[currentSuite].name + ">");
 
-			if(currentSuite < (suites.length - 1)) {
-				if(selectedSuite) {
+			if (currentSuite < (suites.length - 1)) {
+				if (selectedSuite) {
 					driverGlobal.platform.finishTestPass();
 
 				} else {
@@ -384,5 +396,5 @@ module.exports = new function() {
 		}
 
 		return "";
-	}
+	};
 }

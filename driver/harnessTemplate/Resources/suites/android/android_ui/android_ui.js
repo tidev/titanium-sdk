@@ -199,8 +199,8 @@ module.exports = new function() {
 
 	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/937
 	this.removeMethodsAddRemoveView = function(testRun) {
-		valueOf (Ti.UI.addView).shouldBeUndefined();
-		valueOf (Ti.UI.removeView).shouldBeUndefined();
+		valueOf (testRun, Ti.UI.addView).shouldBeUndefined();
+		valueOf (testRun, Ti.UI.removeView).shouldBeUndefined();
 
 		finish(testRun);
 	}

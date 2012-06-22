@@ -25,13 +25,14 @@ end, the driver is capable of creating a test harness from a template, building 
 to device or simulator, running specified suites or tests and getting results back.
 
 When running the driver, a logging level can be set that will control the level of detail printed 
-to stdout.  The --logLevel property can take 0, 1 (default) or 2.  Log level 0 tells the driver 
-to only print test results summary and error output.  Log level 1 tells the driver to print level 0 
-content along with normal operation output (creating directory, etc).  Log level 2 tells the driver 
-to print level 0 and 1 content along with all debug info such as output seen when calling the 
-platform specific build scripts.
+to stdout.  The --logLevel property can take "quiet", "normal" (default) or "verbose".  Log level 
+"quiet" tells the driver to only print test results summary and error output.  Log level "normal" 
+tells the driver to print "quiet" content along with normal operation output (creating directory, 
+etc).  Log level "verbose" tells the driver to print "quiet" and "normal" content along with all 
+debug info such as output seen when calling the platform specific build scripts.
 
-For each test run, the driver creates log files that in a configurable location usually:
+For each test run, the driver creates log files that live in a logs directory under a configurable 
+temp location that is usually:
 "/tmp/driver/logs/<platform>/log_<month>-<day>-<year>_<hour>-<minute>-<second>-<millisecond>"
 
 Logs are rotated (oldest deleted) as needed per platform based on a configuration property set in 
@@ -102,12 +103,12 @@ In a normal test run (no specific configuration selected) for each configuration
 device or simulator.  Each of these harness apps will contain the "harnessTemplate/Resources" 
 directory along with the app.js and tiapp.xml file found in "harnessTemplate/configs/<config>".
 
-Harness apps based on the configurations are create in a temp directory such as:
+Harness apps based on the configurations are create in a configurable temp directory such as:
 "/tmp/driver/harness/<platform>/harness"
 
 In order to add new suites to the harness, a new javascript file representing the suite should be
-added to the "harnessTemplate/Resources/suites" directory.  An example/template for a suite exists at the top
-level driver directory.
+added to the "harnessTemplate/Resources/suites" directory.  An example/template for a suite exists 
+at the top level driver directory.
 
 In order to add new tests to a suite, the test should be added to the "tests" array within the 
 desired suite.  An example of this can be seen in the example suite file a the top level driver 
@@ -120,8 +121,10 @@ validated node.js version is v0.6.17
 - testing for mobile web and Android require adb to be present.  If you are unable to plug in a 
 android device via usb and type "adb logcat" there is likely an environment issue
 -driver testing for mobile web requires that your driver instance listen for http connections on
-a address that can be hit via a android test device on the same wifi network.  these configuration 
-properties currently can be set in the driver.js file and the app.js file for the harness
+a address that can be hit via a android test device on the same wifi network.  these driver 
+configuration properties (not to be confused with harness configurations) currently can be set in 
+the config.js file (creation instructions provided on launch if it does not exist) and the app.js 
+file for the harness
 -driver testing for ios uses the simulator only currently so no special dependency exists
 -often times when running android/mw tests, switching to ios testing and then back to android/mw 
 problems can be encountered in terms of adb and device connection.  when switching back from ios 
@@ -165,7 +168,7 @@ USAGE:
 			"start --config=1 --suite=y --test=z"
 
 		- attempt to start a test run for all configurations and suites but only run the test "z" 
-		in each.  this DOES NOT WORK.  a --test argument is ignored unless a valid --suite argument is also 
-		specified
+		in each.  this DOES NOT WORK.  a --test argument is ignored unless a valid --suite argument 
+		is also specified
 			"start --test=z"
 

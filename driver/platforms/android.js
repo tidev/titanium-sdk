@@ -27,27 +27,27 @@ module.exports = new function() {
 	this.init = function(commandCallback, testPassCallback) {
 		commandFinishedCallback = commandCallback;
 		testPassFinishedCallback = testPassCallback;
-	}
+	};
 
 	this.processCommand = function(command) {
 		var commandElements = command.split(" ");
 
-		if(commandElements[0] == "create") {
+		if (commandElements[0] == "create") {
 			createHarness(commandFinishedCallback, commandFinishedCallback);
 
-		} else if(commandElements[0] == "delete") {
+		} else if (commandElements[0] == "delete") {
 			deleteHarness(commandFinishedCallback);
 
-		} else if(commandElements[0] == "build") {
+		} else if (commandElements[0] == "build") {
 			buildHarness(commandFinishedCallback, commandFinishedCallback);
 
-		} else if(commandElements[0] == "start") {
+		} else if (commandElements[0] == "start") {
 			self.startTestPass(commandElements);
 
-		} else if(commandElements[0] == "uninstall") {
+		} else if (commandElements[0] == "uninstall") {
 			uninstallHarness(commandFinishedCallback, commandFinishedCallback);
 
-		} else if(commandElements[0] == "exit") {
+		} else if (commandElements[0] == "exit") {
 			process.exit(1);
 
 		} else {
@@ -67,7 +67,7 @@ module.exports = new function() {
 
 			commandFinishedCallback();
 		}
-	}
+	};
 
 	var createHarness = function(successCallback, errorCallback) {
 		common.createHarness(
@@ -76,17 +76,17 @@ module.exports = new function() {
 			successCallback,
 			errorCallback
 			);
-	}
+	};
 
 	var deleteHarness = function(callback) {
 		common.deleteHarness("android", callback);
-	}
+	};
 
 	var buildHarness = function(successCallback, errorCallback) {
 		var buildCallback = function() {
 			var args = ["build", "harness", driverGlobal.androidSdkDir, driverGlobal.harnessDir + "/android/harness", "com.appcelerator.harness", 8];
 			util.runProcess(driverGlobal.tiSdkDir + "/android/builder.py", args, 0, 0, function(code) {
-				if(code != 0) {
+				if (code != 0) {
 					util.log("error encountered when building harness: " + code);
 					errorCallback();
 
@@ -104,7 +104,7 @@ module.exports = new function() {
 			util.log("harness does not exist, creating");
 			createHarness(buildCallback, errorCallback);
 		}
-	}
+	};
 
 	this.startTestPass = function(commandElements) {
 		var deleteCallback = function() {
@@ -124,21 +124,21 @@ module.exports = new function() {
 		}
 
 		common.startTestPass(commandElements, deleteCallback);
-	}
+	};
 
 	var installHarness = function(successCallback, errorCallback) {
 		var installCallback = function() {
 			if (path.existsSync(driverGlobal.harnessDir + "/android/harness/build/android/bin/app.apk")) {
 				util.runCommand("adb install " + driverGlobal.harnessDir + "/android/harness/build/android/bin/app.apk", 2, function(error) {
-					if(error != null) {
+					if (error != null) {
 						util.log("error encountered when installing harness: " + error);
-						if(errorCallback) {
+						if (errorCallback) {
 							errorCallback();
 						}
 
 					} else {
 						util.log("harness installed");
-						if(successCallback) {
+						if (successCallback) {
 							successCallback();
 						}
 					}
@@ -151,41 +151,41 @@ module.exports = new function() {
 		}
 
 		uninstallHarness(installCallback, errorCallback);
-	}
+	};
 
 	var uninstallHarness = function(successCallback, errorCallback) {
 		util.runCommand("adb uninstall com.appcelerator.harness", 2, function(error) {
-			if(error != null) {
+			if (error != null) {
 				util.log("error encountered when uninstalling harness: " + error);
-				if(errorCallback) {
+				if (errorCallback) {
 					errorCallback();
 				}
 
 			} else {
 				util.log("harness uninstalled");
-				if(successCallback) {
+				if (successCallback) {
 					successCallback();
 				}
 			}
 		});
-	}
+	};
 
 	var runHarness = function(successCallback, errorCallback) {
 		util.runCommand("adb shell am start -n com.appcelerator.harness/.HarnessActivity", 2, function(error) {
-			if(error != null) {
+			if (error != null) {
 				util.log("error encountered when running harness: " + error);
-				if(errorCallback) {
+				if (errorCallback) {
 					errorCallback();
 				}
 
 			} else {
 				util.log("running harness");
-				if(successCallback) {
+				if (successCallback) {
 					successCallback();
 				}
 			}
 		});
-	}
+	};
 
 	var connectToHarness = function(errorCallback) {
 		var retryCount = 0;
@@ -195,19 +195,19 @@ module.exports = new function() {
 
 			connection.on('data', function(data) {
 				var responseData = common.processHarnessMessage(data);
-				if(responseData) {
+				if (responseData) {
 					connection.write(responseData);
 				}
 			});
 			connection.on('close', function() {
 				this.destroy();
 
-				if(stoppingHarness == true) {
+				if (stoppingHarness == true) {
 					stoppingHarness = false;
 					return;
 				}
 
-				if(retryCount < driverGlobal.maxSocketConnectAttempts) {
+				if (retryCount < driverGlobal.maxSocketConnectAttempts) {
 					util.log("unable to connect, retry attempt " + (retryCount + 1) + "...");
 					retryCount += 1;
 
@@ -226,10 +226,10 @@ module.exports = new function() {
 			connection.on('timeout', function() {
 				this.destroy();
 			});
-		}
+		};
 
 		util.runCommand("adb forward tcp:" + driverGlobal.socketPort + " tcp:" + driverGlobal.socketPort, 2, function(error) {
-			if(error != null) {
+			if (error != null) {
 				util.log("error encountered when setting up port forwarding for <" + driverGlobal.socketPort + ">");
 				errorCallback();
 
@@ -238,7 +238,7 @@ module.exports = new function() {
 				connectCallback();
 			}
 		});
-	}
+	};
 
 	// handles restarting the test pass (usually when an error is encountered)
 	this.resumeTestPass = function() {
@@ -252,7 +252,7 @@ module.exports = new function() {
 
 		stopHarness();
 		installHarness(runCallback, commandFinishedCallback);
-	}
+	};
 
 	// called when a config is finished running
 	this.finishTestPass = function() {
@@ -262,20 +262,20 @@ module.exports = new function() {
 			common.finishTestPass(testPassFinishedCallback);
 		}
 		uninstallHarness(finishCallback, commandFinishedCallback);
-	}
+	};
 
 	var stopHarness = function() {
 		stoppingHarness = true;
 		connection.destroy();
-	}
+	};
 
 	this.stopPortForwarding = function(callback) {
 		util.runCommand("adb kill-server", 2, function(error) {
-			if(error != null) {
+			if (error != null) {
 				util.log("error encountered when killing adb");
 			}
 
 			callback();
 		});
-	}
-}
+	};
+};
