@@ -4,11 +4,11 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UIIPADDOCUMENTVIEWER
+#if defined(USE_TI_UIIPADDOCUMENTVIEWER) || defined(USE_TI_UIIOSDOCUMENTVIEWER)
 
 #import "TiProxy.h"
 
-@interface TiUIiPadDocumentViewerProxy : TiProxy<UIDocumentInteractionControllerDelegate> {
+@interface TiUIiOSDocumentViewerProxy : TiProxy<UIDocumentInteractionControllerDelegate> {
 @private
 	UIDocumentInteractionController *controller;
 }
