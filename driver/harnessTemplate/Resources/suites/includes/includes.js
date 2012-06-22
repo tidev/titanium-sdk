@@ -90,8 +90,10 @@ module.exports = new function() {
 
 	this.secondContextRequire = function(testRun) {
 		var callback = new Object();
-		callback.passed = finish;
-		callback.failed = function(e){
+		callback.passed = function() {
+			finish(testRun);
+		};
+		callback.failed = function(e) {
 			Ti.API.debug(e);
 			valueOf(testRun, true).shouldBeFalse();
 		};
