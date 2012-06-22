@@ -88,7 +88,7 @@
 }
 #endif
 
-#ifdef USE_TI_UIIPADDOCUMENTVIEWER
+#ifdef USE_TI_UIIOSDOCUMENTVIEWER
 -(id)createDocumentViewer:(id)args
 {
 	return [[[TiUIiOSDocumentViewerProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
