@@ -19,7 +19,7 @@ module.exports = new function() {
 		{name: "numberTypes"},
 		{name: "booleanType"},
 		{name: "wrappedObjects"},
-		{name: "nativePrototypes"},
+		{name: "nativePrototypes"}
 	]
 
 	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/1600-android-jsonstringify-incorrectly-handles-dates-including-silently-faiing
