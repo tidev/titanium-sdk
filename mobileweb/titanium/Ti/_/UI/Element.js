@@ -71,7 +71,9 @@ define(
 			function processTouchEvent(eventType, evt) {
 				var i,
 					touches = evt.changedTouches;
-				if (self._preventDefaultTouchEvent) {
+				if (!self._preventDefaultTouchEvent) {
+					evt.skipPreventDefault = 1;
+				} else if (!evt.skipPreventDefault) {
 					evt.preventDefault && evt.preventDefault();
 					for (i in touches) {
 						touches[i].preventDefault && touches[i].preventDefault();
