@@ -87,12 +87,12 @@ module.exports = new function() {
 		} else {
 			util.closeLog();
 
+			passFinishedCallback();
+
 			var numConfigs = driverGlobal.results.length;
 			for (var i = 0; i < numConfigs; i++) {
 				driverGlobal.results[i].configSuites = [];
 			}
-
-			passFinishedCallback();
 		}
 	};
 

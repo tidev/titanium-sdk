@@ -131,7 +131,6 @@ module.exports = new function() {
 				commandFinishedCallback();
 			}
 		});
-		//common.startTestPass(commandElements, deleteCallback);
 	};
 
 	var startServer = function(successCallback, errorCallback) {
