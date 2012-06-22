@@ -57,6 +57,12 @@ imageView.addEventListener('stop', function()
 	Titanium.API.info('ImageView animation stopped');
 });
 
+// listen for pause event (when animation is paused)
+imageView.addEventListener('pause', function()
+{
+	Titanium.API.info('ImageView animation paused');
+});
+
 // listen for change event (when animation is changed)
 imageView.addEventListener('change', function(e)
 {
