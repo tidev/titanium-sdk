@@ -456,7 +456,8 @@
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField;        // return NO to disallow editing.
 {
-	return YES;
+    id editable = [[self proxy] valueForUndefinedKey:@"editable"];
+    return [TiUtils boolValue:editable def:YES];
 }
 
 - (BOOL)textField:(UITextField *)tf shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
