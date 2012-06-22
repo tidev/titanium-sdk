@@ -22,6 +22,13 @@ methods:
   - name: focus
     summary: Forces this text area to gain focus.
 
+  - name: hasText
+    summary: Returns `true` if this text area contains text.
+    returns:
+        type: Boolean
+        summary: True if this text area contains text.
+    since: "2.1.0"
+
   - name: remove
     description: |
         See also: [add](Titanium.UI.TextArea.add), <Titanium.UI.View.add>.
