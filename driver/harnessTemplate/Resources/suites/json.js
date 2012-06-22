@@ -138,6 +138,7 @@ module.exports = new function() {
 		valueOf(testRun, z.boolFunction).shouldBeFunction();
 		valueOf(testRun, z.boolFunction()).shouldBe(true);
 
+		delete Object.prototype.objFunction;
 		finish(testRun);
 	}
 }

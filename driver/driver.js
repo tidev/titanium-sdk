@@ -115,6 +115,77 @@ var printHelp = function() {
 	process.exit(1);
 };
 
+// basic validation on the contents of the config module
+function validateConfigModule() {
+	function printFailure(errorMessage) {
+		console.log(errorMessage);
+		process.exit(1);
+	}
+
+	if((typeof driverGlobal.androidSdkDir) === "undefined") {
+		printFailure("androidSdkDir property in the config module cannot be undefined");
+
+	} else if((typeof driverGlobal.androidSdkDir) !== "string") {
+		printFailure("androidSdkDir property in the config module needs to be a string value");
+	}
+
+	if((typeof driverGlobal.tiSdkDir) === "undefined") {
+		printFailure("tiSdkDir property in the config module cannot be undefined");
+
+	} else if((typeof driverGlobal.tiSdkDir) !== "string") {
+		printFailure("tiSdkDir property in the config module needs to be a string value");
+	}
+
+	if((typeof driverGlobal.tempDir) === "undefined") {
+		printFailure("tempDir property in the config module cannot be undefined");
+
+	} else if((typeof driverGlobal.tempDir) !== "string") {
+		printFailure("tempDir property in the config module needs to be a string value");
+	}
+
+	if((typeof driverGlobal.maxLogs) === "undefined") {
+		printFailure("maxLogs property in the config module cannot be undefined");
+
+	} else if((typeof driverGlobal.maxLogs) !== "number") {
+		printFailure("maxLogs property in the config module needs to be a numeric value");
+	}
+
+	if((typeof driverGlobal.defaultLogLevel) === "undefined") {
+		printFailure("defaultLogLevel property in the config module cannot be undefined");
+
+	} else if((typeof driverGlobal.defaultLogLevel) !== "string") {
+		printFailure("defaultLogLevel property in the config module needs to be a string value");
+	}
+
+	if((typeof driverGlobal.socketPort) === "undefined") {
+		printFailure("socketPort) property in the config module cannot be undefined");
+
+	} else if((typeof driverGlobal.socketPort) !== "number") {
+		printFailure("socketPort property in the config module needs to be a numeric value");
+	}
+
+	if((typeof driverGlobal.maxSocketConnectAttempts) === "undefined") {
+		printFailure("maxSocketConnectAttempts property in the config module cannot be undefined");
+
+	} else if((typeof driverGlobal.maxSocketConnectAttempts) !== "number") {
+		printFailure("maxSocketConnectAttempts property in the config module needs to be a numeric value");
+	}
+
+	if((typeof driverGlobal.httpPort) === "undefined") {
+		printFailure("httpPort property in the config module cannot be undefined");
+
+	} else if((typeof driverGlobal.httpPort) !== "number") {
+		printFailure("httpPort property in the config module needs to be a numeric value");
+	}
+
+	if((typeof driverGlobal.defaultTestTimeout) === "undefined") {
+		printFailure("defaultTestTimeout property in the config module cannot be undefined");
+
+	} else if((typeof driverGlobal.defaultTestTimeout) !== "number") {
+		printFailure("defaultTestTimeout property in the config module needs to be a numeric value");
+	}
+}
+
 var loadDriverConfig = function() {
 	var configModulePath = __dirname + "/config.js";
 	if (!(path.existsSync(configModulePath))) {
@@ -132,7 +203,10 @@ var loadDriverConfig = function() {
 
 	} catch(e) {
 		console.log("exception occurred when loading config module: " + e);
+		process.exit(1);
 	}
+
+	validateConfigModule();
 
 	// populate the driverGlobal with non config file properties
 	driverGlobal.logLevels = {

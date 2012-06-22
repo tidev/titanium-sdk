@@ -25,7 +25,7 @@ end, the driver is capable of creating a test harness from a template, building 
 to device or simulator, running specified suites or tests and getting results back.
 
 When running the driver, a logging level can be set that will control the level of detail printed 
-to stdout.  The --logLevel property can take "quiet", "normal" (default) or "verbose".  Log level 
+to stdout.  The --log-level property can take "quiet", "normal" (default) or "verbose".  Log level 
 "quiet" tells the driver to only print test results summary and error output.  Log level "normal" 
 tells the driver to print "quiet" content along with normal operation output (creating directory, 
 etc).  Log level "verbose" tells the driver to print "quiet" and "normal" content along with all 
@@ -36,7 +36,7 @@ temp location that is usually:
 "/tmp/driver/logs/<platform>/log_<month>-<day>-<year>_<hour>-<minute>-<second>-<millisecond>"
 
 Logs are rotated (oldest deleted) as needed per platform based on a configuration property set in 
-driver.js.  Logs contain all driver output regardless of the --logLevel property specified when 
+driver.js.  Logs contain all driver output regardless of the --log-level property specified when 
 running the driver.
 
 A normal driver run follows this general flow:
@@ -121,7 +121,7 @@ validated node.js version is v0.6.17
 - testing for mobile web and Android require adb to be present.  If you are unable to plug in a 
 android device via usb and type "adb logcat" there is likely an environment issue
 -driver testing for mobile web requires that your driver instance listen for http connections on
-a address that can be hit via a android test device on the same wifi network.  these driver 
+an address that can be hit via a android test device on the same wifi network.  These driver 
 configuration properties (not to be confused with harness configurations) currently can be set in 
 the config.js file (creation instructions provided on launch if it does not exist) and the app.js 
 file for the harness
@@ -134,7 +134,7 @@ and replugged in so that the connection is "reset"
 
 USAGE:
 	Driver:
-		"node driver.js --mode=<mode> --platform=<platform> [--logLevel=<level>][--command=<command>]"
+		"node driver.js --mode=<mode> --platform=<platform> [--log-level=<level>][--command=<command>]"
 
 		- mode argument can be: "local" or "remote"
 		- platform argument can be: "android", "ios" or "mw" (mobile web)
@@ -145,7 +145,7 @@ USAGE:
 			"node driver.js --mode=local --platform=android"
 
 		- start driver in local mode for the mobile web platform with result summary only logging
-			"node driver.js --mode=local --platform=mw --logLevel=0"
+			"node driver.js --mode=local --platform=mw --log-level=quiet"
 
 		- start driver with one shot command for ios platform that will only run the suite "x" 
 		for configuration "1"

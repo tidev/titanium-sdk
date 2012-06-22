@@ -27,13 +27,19 @@ module.exports = new function() {
 	leaving it as a hard coded default
 	*/
 	var defaultSimVersion = "5.0";
-	var simVersion;
+	var customSimVersion = null;
+	var simVersion = null;
 
 	this.name = "ios";
 
 	this.init = function(commandCallback, testPassCallback) {
 		commandFinishedCallback = commandCallback;
-		testPassFinishedCallback = testPassCallback;
+
+		testPassFinishedCallback = function() {
+			customSimVersion = null;
+			simVersion = null;
+			testPassCallback();
+		}
 	};
 
 	this.processCommand = function(command) {
@@ -95,10 +101,20 @@ module.exports = new function() {
 			connectToHarness(commandFinishedCallback);
 		}
 
-		// pull out ios specific start arguments
-		simVersion = util.getArgument(commandElements, "--sim-version");
-		if (!simVersion) {
-			simVersion = defaultSimVersion;
+		/*
+		don't bother trying to load the sim version unless it has never been loaded (IE: don't wipe 
+		out the simVersion when restarting for multiple configs
+		*/
+		if(customSimVersion === null) {
+			// pull out ios specific start arguments
+			var simVersionArg = util.getArgument(commandElements, "--sim-version");
+			if (simVersionArg) {
+				customSimVersion = simVersionArg;
+				simVersion = customSimVersion;
+
+			} else {
+				simVersion = defaultSimVersion;
+			}
 		}
 
 		common.startTestPass(commandElements, deleteCallback);

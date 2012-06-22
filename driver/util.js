@@ -28,7 +28,7 @@ module.exports = new function() {
 			}
 
 			if (callback != null) {
-				callback(error);
+				callback(error, stdout, stderr);
 			}
 		});
 	};
@@ -168,10 +168,6 @@ module.exports = new function() {
 
 		if (driverGlobal.logLevel >= level) {
 			console.log(message);
-		}
-
-		if (driverGlobal.logFilename == undefined) {
-			return;
 		}
 
 		if (logFile == undefined) {

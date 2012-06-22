@@ -123,7 +123,15 @@ module.exports = new function() {
 			connectToHarness(commandFinishedCallback);
 		}
 
-		common.startTestPass(commandElements, deleteCallback);
+		self.deviceIsConnected(function(connected) {
+			if(connected) {
+				common.startTestPass(commandElements, deleteCallback);
+
+			} else {
+				util.log("no attached device found, unable to start test pass", driverGlobal.logLevels.quiet);
+				commandFinishedCallback();
+			}
+		});
 	};
 
 	var installHarness = function(successCallback, errorCallback) {
@@ -276,6 +284,26 @@ module.exports = new function() {
 			}
 
 			callback();
+		});
+	};
+
+	this.deviceIsConnected = function(callback) {
+		util.runCommand("adb devices", driverGlobal.logLevels.quiet, function(error, stdout, stderr) {
+			var searchString = "List of devices attached";
+			var deviceListString = "";
+
+			var startPos = stdout.indexOf(searchString);
+			if (startPos > -1) {
+				var deviceListString = stdout.substring(startPos + searchString.length, stdout.length);
+				deviceListString = deviceListString.replace(/\s/g,"");
+			}
+
+			if(deviceListString.length < 1) {
+				callback(false);
+
+			} else {
+				callback(true);
+			}
 		});
 	};
 };

@@ -15,6 +15,7 @@ var fs = require('fs');
 
 var common = require(driverGlobal.driverDir + "/common");
 var util = require(driverGlobal.driverDir + "/util");
+var android = require(driverGlobal.driverDir + "/platforms/android");
 
 module.exports = new function() {
 	var self = this;
@@ -121,7 +122,16 @@ module.exports = new function() {
 			runHarness();
 		};
 
-		common.startTestPass(commandElements, deleteCallback);
+		android.deviceIsConnected(function(connected) {
+			if(connected) {
+				common.startTestPass(commandElements, deleteCallback);
+
+			} else {
+				util.log("no attached device found, unable to start test pass", driverGlobal.logLevels.quiet);
+				commandFinishedCallback();
+			}
+		});
+		//common.startTestPass(commandElements, deleteCallback);
 	};
 
 	var startServer = function(successCallback, errorCallback) {
