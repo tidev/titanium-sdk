@@ -103,7 +103,7 @@ var printHelp = function() {
 		+ "Platforms:\n"
 		+ "    android - starts driver for Android\n"
 		+ "    ios - starts driver for iOS\n"
-		+ "    mw - starts driver for Mobile Web\n"
+		+ "    mobileweb - starts driver for Mobile Web\n"
 		+ "\n"
 		+ "Log level:\n"
 		+ "    quiet - only print test results summary and error output\n"
@@ -303,7 +303,7 @@ var processArguments = function(callback) {
 	if we can't find a valid address to host a http server then there isn't much point in 
 	running the Driver for Mobile Web
 	*/
-	if ((platform == "mw") && ((typeof driverGlobal.httpHost) == "undefined")) {
+	if ((platform == "mobileweb") && ((typeof driverGlobal.httpHost) == "undefined")) {
 		console.log("unable to find valid network address to host server on for Mobile Web, exiting");
 		printHelp();
 	}
@@ -321,7 +321,7 @@ var processArguments = function(callback) {
 	port forwarding for adb has been stopped and thus freed up for new connections on that port 
 	outside of adb
 	*/
-	if ((platform != "android") && (platform != "mw")) {
+	if ((platform != "android") && (platform != "mobileweb")) {
 		require(driverGlobal.driverDir +"/platforms/android").stopPortForwarding(callback);
 
 	} else {

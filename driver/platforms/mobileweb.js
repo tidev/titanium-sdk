@@ -25,7 +25,7 @@ module.exports = new function() {
 	var serverRunning = false;
 	var serverListening = true;
 
-	this.name = "mw";
+	this.name = "mobileweb";
 
 	this.init = function(commandCallback, testPassCallback) {
 		commandFinishedCallback = commandCallback;
@@ -70,20 +70,20 @@ module.exports = new function() {
 
 	var createHarness = function(successCallback, errorCallback) {
 		common.createHarness(
-			"mw",
-			driverGlobal.tiSdkDir + "/project.py harness com.appcelerator.harness " + driverGlobal.harnessDir + "/mw mobileweb " + driverGlobal.tiSdkDir,
+			"mobileweb",
+			driverGlobal.tiSdkDir + "/project.py harness com.appcelerator.harness " + driverGlobal.harnessDir + "/mobileweb mobileweb " + driverGlobal.tiSdkDir,
 			successCallback,
 			errorCallback
 			);
 	};
 
 	var deleteHarness = function(callback) {
-		common.deleteHarness("mw", callback);
+		common.deleteHarness("mobileweb", callback);
 	};
 
 	var buildHarness = function(successCallback, errorCallback) {
 		var buildCallback = function() {
-			var args = [driverGlobal.harnessDir + "/mw/harness", "development"];
+			var args = [driverGlobal.harnessDir + "/mobileweb/harness", "development"];
 			util.runProcess(driverGlobal.tiSdkDir + "/mobileweb/builder.py", args, 0, 0, function(code) {
 				if (code != 0) {
 					util.log("error encountered when building harness: " + code);
@@ -96,7 +96,7 @@ module.exports = new function() {
 			});
 		};
 
-		if (path.existsSync(driverGlobal.harnessDir + "/mw/harness/tiapp.xml")) {
+		if (path.existsSync(driverGlobal.harnessDir + "/mobileweb/harness/tiapp.xml")) {
 			buildCallback();
 
 		} else {
@@ -135,7 +135,7 @@ module.exports = new function() {
 
 	var startServer = function(successCallback, errorCallback) {
 		server = http.createServer(function (request, response) {
-			var prefix = driverGlobal.harnessDir + "/mw/harness/build/mobileweb"
+			var prefix = driverGlobal.harnessDir + "/mobileweb/harness/build/mobileweb"
 			var filePath = prefix + request.url;
 			if (filePath == prefix + '/') {
 				filePath = prefix + '/index.html';
