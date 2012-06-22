@@ -49,54 +49,55 @@ public class KrollLogging
 		this.listener = listener;
 	}
 	
-	public void debug(String msg)
+	public void debug(String... args)
 	{
-		internalLog(DEBUG, msg);
+		internalLog(DEBUG, condenseMessage(args));
 	}
 
-	public void info(String msg)
+	public void info(String... args)
 	{
-		internalLog(INFO, msg);
+		internalLog(INFO, condenseMessage(args));
 	}
 
-	public void warn(String msg)
+	public void warn(String... args)
 	{
-		internalLog(WARN, msg);
+		internalLog(WARN, condenseMessage(args));
 	}
 
-	public void error(String msg)
+	public void error(String... args)
 	{
-		internalLog(ERROR, msg);
+		internalLog(ERROR, condenseMessage(args));
 	}
 
-	public void trace(String msg)
+	public void trace(String... args)
 	{
-		internalLog(TRACE, msg);
+		internalLog(TRACE, condenseMessage(args));
 	}
 
-	public void notice(String msg)
+	public void notice(String... args)
 	{
-		internalLog(NOTICE, msg);
+		internalLog(NOTICE, condenseMessage(args));
 	}
 
-	public void critical(String msg)
+	public void critical(String... args)
 	{
-		internalLog(CRITICAL, msg);
+		internalLog(CRITICAL, condenseMessage(args));
 	}
 
-	public void fatal(String msg)
+	public void fatal(String... args)
 	{
-		internalLog(FATAL, msg);
+		internalLog(FATAL, condenseMessage(args));
 	}
 	
-	public void log(String msg)
+	public void log(String... args)
 	{
-		internalLog(INFO, msg);
+		internalLog(INFO, condenseMessage(args));
 	}
 
-	public void log(String level, String msg)
+	public void log(String level, String... args)
 	{
 		String ulevel = level.toUpperCase();
+		String msg = condenseMessage(args);
 		int severity = INFO;
 
 		if ("TRACE".equals(ulevel)) {
@@ -120,6 +121,21 @@ public class KrollLogging
 		}
 
 		internalLog(severity, msg);
+	}
+	
+	private String condenseMessage(String... args)
+	{
+		String msg;
+		if (args.length > 0) {
+			msg = args[0];
+		}
+		else {
+			msg = new String();
+		}
+		for (int i=1; i < args.length; i++ ) {
+			msg = msg.concat(String.format(" %s", args[i]));
+		}
+		return msg;
 	}
 
 	private void internalLog(int severity, String msg)
