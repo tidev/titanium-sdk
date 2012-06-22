@@ -119,6 +119,44 @@ description: |
     In addition to the accuracy setting, there are several Mobile Web-specific settings.
     See <Titanium.Geolocation.MobileWeb> for details.
 
+    #### Using the Compass
+
+    Both iOS and Android support a receiving heading updates from a hardware compass, if available.
+    On Mobile Web, heading updates are supported if the browser supports this feature.
+    Currently, this support is only available on Mobile Safari.
+
+    Check the [hasCompass](Titanium.Geolocation.hasCompass) property to see if the current
+    device supports a compass.
+
+    To retrieve compass readings, you can either use
+    [getCurrentHeading](Titanium.Geolocation.getCurrentHeading) as shown in the
+    previous example, or add a listener for the
+    [heading](Titanium.Geolocation.heading) event, as shown below:
+
+        var compassHandler = function(e) {
+          if (e.success === undefined || e.success) {
+            Ti.API.info("Heading: " + e.heading.magneticHeading);
+          }
+        }
+        Ti.Geolocation.addEventListener("heading", compassHandler);
+
+    Note that Android does not include a `success` property in the `heading` event.
+    Heading events are only generated on Android when heading data is available. So if
+    `success` is undefined, we assume that the event contains valid compass data.
+
+    To obtain true heading data for the compass (as opposed to magnetic heading data),
+    a current location fix is required. See the notes on
+    [trueHeading](HeadingData.trueHeading) for more information.
+
+    As with location updates, the application should unregister for heading updates
+    when it is no longer being used, or when it goes into the background. Use
+    `removeEventListener` to stop heading updates:
+
+        Ti.Geolocation.removeEventListener('heading', compassHandler);
+
+    Finally, note that neither the Android emulator nor the iOS simulator provide
+    compass support. Compass code must be tested on physical devices.
+
 extends: Titanium.Module
 since: "0.1"
 platforms: [android, iphone, ipad, mobileweb]
@@ -195,9 +233,12 @@ events:
       - name: success
         summary: Indicate if the heading event was successfully received.
         type: Boolean
+        platforms: [iphone, ipad]
 
       - name: error
         summary: If `success` is false, a string describing the error.
+        type: String
+        platforms: [iphone, ipad]
 
       - name: heading
         summary: Dictionary object containing the heading data.
@@ -485,7 +526,7 @@ properties:
   - name: frequency
     summary: Requested frequency for location updates, in milliseconds.
     description: |
-        Setting a frequency valuep enables legacy location mode on Android.
+        Setting a frequency value enables legacy location mode on Android.
         Note that only a single provider can be active at one time in legacy mode.
 
         Android legacy mode operation is deprecated. For new development, use
@@ -497,6 +538,13 @@ properties:
         A lower frequency value generally increases power consumption. 
         A value of 0 means that updates should be generated as quickly as possible.
     type: Number
+
+  - name: hasCompass
+    summary: Indicates whether the current device supports a compass.
+    type: Boolean
+    permission: read-only
+    platforms: [android, iphone, ipad, mobileweb]
+    since: { mobileweb: "2.1.0" }
 
   - name: headingFilter
     summary: Minimum heading change (in degrees) before a `heading` event is fired. 
@@ -734,10 +782,12 @@ properties:
   - name: success
     summary: Indicates whether the request succeeded.
     type: Boolean
+    platforms: [iphone, ipad]
 
   - name: error
     summary: If `success` is false, includes a text description of the error.
     type: String
+    platforms: [iphone, ipad]
 
   - name: code
     summary: If `success` is false, an error code, if available.
@@ -774,8 +824,17 @@ properties:
 
   - name: trueHeading
     summary: Declination in degrees from true North.
+    description: |
+        Calculating the true heading requires correcting the magnetic declination based on
+        the device's current location. So `trueHeading` can only be calculated if the device
+        has a fairly recent location fix. If you want to obtain the true heading, you
+        should register for location updates as well as compass updates. The location fix
+        does not need to be very accurate.
+
+        On Android, `trueHeading` is `undefined` if a recent location fix is not available.
+
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
 
   - name: timestamp
     summary: Timestamp for the heading data, in milliseconds.

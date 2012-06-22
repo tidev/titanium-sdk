@@ -33,7 +33,7 @@
 			label.color = 'red';
 			label.text = name + ' fired -- x ' + Math.round(e.x) + ' y ' + Math.round(e.y);
 			if (name === 'swipe') {
-				label.text += ' direction ' + each.direction;		
+				label.text += ' direction ' + e.direction;
 			}
 			setTimeout(function() { label.color = '#555'; }, 200);
 		});

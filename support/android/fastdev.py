@@ -221,12 +221,18 @@ class FastDevHandler(SocketServer.BaseRequestHandler):
 
 	def handle_get(self, relative_path):
 		path = self.get_resource_path(relative_path)
-		if path != None:
-			logging.info("get %s: %s" % (relative_path, path))
-			self.send_file(path)
-		else:
+
+		if path is None:
 			logging.warn("get %s: path not found" % relative_path)
 			self.send_tokens("NOT_FOUND")
+			return
+		if os.path.isfile(path) is False:
+			logging.warn("get %s: path is a directory" % relative_path)
+			self.send_tokens("NOT_FOUND")
+			return
+
+		logging.info("get %s: %s" % (relative_path, path))
+		self.send_file(path)
 
 	def send_tokens(self, *tokens):
 		send_tokens(self.request, *tokens)
