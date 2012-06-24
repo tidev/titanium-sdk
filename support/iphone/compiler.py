@@ -535,7 +535,7 @@ class Compiler(object):
 		cmdinputfile = tempfile.TemporaryFile()
 		cmdinputfile.write('\n'.join(js_files))
 		cmdinputfile.seek(0)
-		so = subprocess.check_output([titanium_prep, self.appid, self.assets_dir], stdin=cmdinputfile)
+		so = subprocess.Popen([titanium_prep, self.appid, self.assets_dir], stdin=cmdinputfile,stderr=subprocess.STDOUT,stdout=subprocess.PIPE).communicate()[0]
 		cmdinputfile.close()
 		return so
 		
@@ -574,7 +574,7 @@ class Compiler(object):
 			cmdinputfile = tempfile.TemporaryFile()
 			cmdinputfile.write('\n'.join(js_files))
 			cmdinputfile.seek(0)
-			so = subprocess.check_output([titanium_prep, self.appid, self.assets_dir], stdin=cmdinputfile)
+			so = subprocess.Popen([titanium_prep, self.appid, self.assets_dir], stdin=cmdinputfile,stderr=subprocess.STDOUT,stdout=subprocess.PIPE).communicate()[0]
 			cmdinputfile.close()
 			impf.write(so)
 			year, month, day, hour, minute, second, weekday, yearday, daylight = time.localtime(time.time())
