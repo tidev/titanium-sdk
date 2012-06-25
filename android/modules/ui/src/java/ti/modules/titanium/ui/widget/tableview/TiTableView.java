@@ -531,6 +531,11 @@ public class TiTableView extends FrameLayout
 
 		super.onLayout(changed, left, top, right, bottom);
 
+		TiViewProxy viewProxy = proxy;
+		if (viewProxy != null && viewProxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
+			viewProxy.fireEvent(TiC.EVENT_POST_LAYOUT, null);
+		}
+
 		// Layout is finished, re-enable focus events.
 		if (focusListener != null) {
 			focusedView.setOnFocusChangeListener(focusListener);
