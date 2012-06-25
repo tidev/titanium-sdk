@@ -51,53 +51,53 @@ public class KrollLogging
 	
 	public void debug(String... args)
 	{
-		internalLog(DEBUG, condenseMessage(args));
+		internalLog(DEBUG, combineLogMessages(args));
 	}
 
 	public void info(String... args)
 	{
-		internalLog(INFO, condenseMessage(args));
+		internalLog(INFO, combineLogMessages(args));
 	}
 
 	public void warn(String... args)
 	{
-		internalLog(WARN, condenseMessage(args));
+		internalLog(WARN, combineLogMessages(args));
 	}
 
 	public void error(String... args)
 	{
-		internalLog(ERROR, condenseMessage(args));
+		internalLog(ERROR, combineLogMessages(args));
 	}
 
 	public void trace(String... args)
 	{
-		internalLog(TRACE, condenseMessage(args));
+		internalLog(TRACE, combineLogMessages(args));
 	}
 
 	public void notice(String... args)
 	{
-		internalLog(NOTICE, condenseMessage(args));
+		internalLog(NOTICE, combineLogMessages(args));
 	}
 
 	public void critical(String... args)
 	{
-		internalLog(CRITICAL, condenseMessage(args));
+		internalLog(CRITICAL, combineLogMessages(args));
 	}
 
 	public void fatal(String... args)
 	{
-		internalLog(FATAL, condenseMessage(args));
+		internalLog(FATAL, combineLogMessages(args));
 	}
 	
 	public void log(String... args)
 	{
-		internalLog(INFO, condenseMessage(args));
+		internalLog(INFO, combineLogMessages(args));
 	}
 
 	public void log(String level, String... args)
 	{
 		String ulevel = level.toUpperCase();
-		String msg = condenseMessage(args);
+		String msg = combineLogMessages(args);
 		int severity = INFO;
 
 		if ("TRACE".equals(ulevel)) {
@@ -123,7 +123,7 @@ public class KrollLogging
 		internalLog(severity, msg);
 	}
 	
-	private String condenseMessage(String... args)
+	private String combineLogMessages(String... args)
 	{
 		String msg;
 		if (args.length > 0) {
