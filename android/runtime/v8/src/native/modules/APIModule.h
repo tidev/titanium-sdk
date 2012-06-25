@@ -38,6 +38,7 @@ public:
 private:
 	static void logInternal(int logLevel, const char *messageTag, const char *message);
 	static Persistent<FunctionTemplate> constructorTemplate;
+    static Handle<Value> combineLogMessages(const Arguments& args, int startIndex=0);
 };
 }
 

@@ -68,67 +68,76 @@ void APIModule::Initialize(Handle<Object> target)
 
 Handle<Value> APIModule::logDebug(const Arguments& args)
 {
-	String::Utf8Value message(args[0]);
+    HandleScope scope;
+	String::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_DEBUG, LCAT, *message);
-	return Undefined();
+	return scope.Close(Undefined());
 }
 
 
 Handle<Value> APIModule::logInfo(const Arguments& args)
 {
-	String::Utf8Value message(args[0]);
+    HandleScope scope;
+	String::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_INFO, LCAT, *message);
-	return Undefined();
+	return scope.Close(Undefined());
 }
 
 
 Handle<Value> APIModule::logWarn(const Arguments& args)
 {
-	String::Utf8Value message(args[0]);
+    HandleScope scope;
+	String::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_WARN, LCAT, *message);
-	return Undefined();
+	return scope.Close(Undefined());
 }
 
 
 Handle<Value> APIModule::logError(const Arguments& args)
 {
-	String::Utf8Value message(args[0]);
+    HandleScope scope;
+	String::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_ERROR, LCAT, *message);
-	return Undefined();
+	return scope.Close(Undefined());
 }
 
 
 Handle<Value> APIModule::logTrace(const Arguments& args)
 {
-	String::Utf8Value message(args[0]);
+    HandleScope scope;
+	String::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_TRACE, LCAT, *message);
-	return Undefined();
+	return scope.Close(Undefined());
 }
 
 
 Handle<Value> APIModule::logNotice(const Arguments& args)
 {
-	String::Utf8Value message(args[0]);
+    HandleScope scope;
+	String::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_NOTICE, LCAT, *message);
-	return Undefined();
+	return scope.Close(Undefined());
 }
 
 
 Handle<Value> APIModule::logCritical(const Arguments& args)
 {
-	String::Utf8Value message(args[0]);
+    HandleScope scope;
+	String::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_CRITICAL, LCAT, *message);
-	return Undefined();
+	return scope.Close(Undefined());
 }
 
 
 Handle<Value> APIModule::logFatal(const Arguments& args)
 {
+    HandleScope scope;
 	String::Utf8Value message(args[0]);
 	APIModule::logInternal(LOG_LEVEL_FATAL, LCAT, *message);
-	return Undefined();
+	return scope.Close(Undefined());
 }
 
+// Seems to be for internal use only, should be OK.
 static void debugLog(int logLevel, const char* message)
 {
 	JNIEnv* env = JNIScope::getEnv();
@@ -168,12 +177,13 @@ void APIModule::logInternal(int logLevel, const char *messageTag, const char *me
 
 Handle<Value> APIModule::log(const Arguments& args)
 {
+    HandleScope scope;
 	if (args.Length()  == 1) {
 		String::Utf8Value message(args[0]);
 		APIModule::logInternal(LOG_LEVEL_INFO, LCAT, *message);
 	} else {
 		String::Utf8Value level(args[0]);
-		String::Utf8Value message(args[1]);
+		String::Utf8Value message(APIModule::combineLogMessages(args, 1));
 
 		if (strcasecmp(*level, "TRACE") == 0) {
 			APIModule::logInternal(LOG_LEVEL_TRACE, LCAT, *message);
@@ -202,7 +212,23 @@ Handle<Value> APIModule::log(const Arguments& args)
 		}
 	}
 	
-	return Undefined();
+	return scope.Close(Undefined());
+}
+                              
+Handle<Value> APIModule::combineLogMessages(const Arguments& args, int startIndex)
+{
+    // Unfortunately there is no really reasonable way to do this in a memory
+    // and speed-efficient manner. Instead what we have is a series of string
+    // object concatenations, which is a rough emulation of what the + op would
+    // do in JS. Requiring the whitespace between arguments complicates matters
+    // by introducing the " " token.
+    static Persistent<String> space = Persistent<String>::New(String::New(" ")); // Cache for efficiency
+    Local<String> message = String::Empty();
+    for (int i=startIndex; i < args.Length(); i++) {
+        message = String::Concat(message, String::Concat(space, args[i]->ToString()));
+    }
+    
+    return message;
 }
 
 Handle<Value> APIModule::terminate(const Arguments& args)
