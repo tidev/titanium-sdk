@@ -60,6 +60,8 @@ public class TiFileHelper
 
 	private SoftReference<Context> softContext;
 	private TiNinePatchHelper nph;
+
+	private ArrayList<File> tempFiles = new ArrayList<File>();
 	
 	private static HashSet<String> resourcePathCache;
 	private static HashSet<String> foundResourcePathCache;
@@ -563,19 +565,19 @@ public class TiFileHelper
 		}
 	}
 
-	public File getTempFile(String suffix)
+	public File getTempFile(String suffix, boolean destroyOnExit)
 		throws IOException
 	{
 		File result = null;
 		Context context = softContext.get();
 
 		if(context != null) {
-			result = getTempFile(context.getCacheDir(), suffix);
+			result = getTempFile(context.getCacheDir(), suffix, destroyOnExit);
 		}
 		return result;
 	}
 
-	public File getTempFile(File dir, String suffix)
+	public File getTempFile(File dir, String suffix, boolean destroyOnExit)
 		throws IOException
 	{
 		File result = null;
@@ -585,8 +587,23 @@ public class TiFileHelper
 				Log.w(LCAT, "getTempFile: Directory '" + dir.getAbsolutePath() + "' does not exist. Call to File.createTempFile() will fail." );
 			}
 			result = File.createTempFile("tia", suffix, dir);
+
+			if (destroyOnExit) {
+				tempFiles.add(result);
+			}
 		}
 		return result;
+	}
+
+	// Destroys all temporary files that have been created.
+	// This is called when the application is exited/destroyed.
+	public void destroyTempFiles()
+	{
+		for (File tempFile : tempFiles) {
+			tempFile.delete();
+		}
+
+		tempFiles.clear();
 	}
 
 	/**
