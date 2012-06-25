@@ -69,6 +69,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
+import android.text.util.Linkify;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -134,6 +135,13 @@ public class TiUIHelper
 			.setPositiveButton("Continue", positiveListener)
 			.setNegativeButton("Kill", negativeListener)
 			.setCancelable(false).create().show();
+	}
+	
+	public static void linkifyIfEnabled(TextView tv, Object autoLink)
+	{ 
+		if (autoLink != null) {
+			Linkify.addLinks(tv, TiConvert.toInt(autoLink));
+		}
 	}
 
 	/**
