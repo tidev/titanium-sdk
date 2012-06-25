@@ -317,8 +317,8 @@
  */
 -(void)setAppid:(id)arg
 {
-	RELEASE_TO_NIL(appid);
-	appid = [arg copy];
+	[appid autorelease];
+	appid = [[TiUtils stringValue:arg] copy];
 	[facebook setAppId:appid];
 }
 
