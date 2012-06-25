@@ -152,7 +152,7 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
     [super frameSizeChanged:frame bounds:bounds];
 	if (webview!=nil)
 	{
-		[self setViewportWidth:@"'device-width'"];
+		[webview stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.body.style.minWidth='%fpx';document.body.style.minHeight='%fpx';",bounds.size.width-8,bounds.size.height-16]];
 		[TiUtils setView:webview positionRect:bounds];
 		
 		if (spinner!=nil)
@@ -160,43 +160,6 @@ static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._list
 			spinner.center = self.center;
 		}		
 	}
-}
-
--(void) setViewportWidth:(NSString *)aWidth
-{
-    [webview stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:
-				@"(function ( inWidth ) { "
-				"var result = ''; "
-				"var viewport = null; "
-				"var content = 'width=' + inWidth + ';'; "
-				"var document_head = document.getElementsByTagName('head')[0]; "
-				"var child = document_head.firstChild; "
-				"while ( child ) { "
-				"if ( null == viewport && child.nodeType == 1 && child.nodeName == 'meta' && child.getAttribute( 'name' ) == 'viewport' ) { "
-				"viewport = child; "
-				"content = child.getAttribute( 'content' ); "
-				"if ( content.search( /width\\s=\\s[^,]+/ ) < 0 ) { "
-				"content = 'width = ' + inWidth + ';' + content; "
-				"} else { "
-				"content = content.replace( /width\\s=\\s[^,]+/ , 'width = ' + inWidth ); "
-				"} "
-				"} "
-				"child = child.nextSibling; "
-				"} "
-				"if ( null != content ) { "
-				"child = document.createElement( 'meta' ); "
-				"child.setAttribute( 'name' , 'viewport' ); "
-				"child.setAttribute( 'content' , content ); "
-				"if ( null == viewport ) { "
-				"document_head.appendChild( child ); "
-				"result = 'append viewport ' + content; "
-				"} else { "
-				"document_head.replaceChild( child , viewport ); "
-				"result = 'replace viewport ' + content; "
-				"} "
-				"} "
-				"return result; "
-				"})( %@ )" , aWidth]];
 }
 
 -(NSURL*)fileURLToAppURL:(NSURL*)url_

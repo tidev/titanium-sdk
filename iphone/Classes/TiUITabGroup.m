@@ -69,8 +69,10 @@ DEFINE_EXCEPTIONS
 
 - (void)handleWillShowTab:(TiUITabProxy *)newFocus
 {
-	[focused handleWillBlur];
-	[newFocus handleWillFocus];
+    if (focused != newFocus) {
+        [focused handleWillBlur];
+        [newFocus handleWillFocus];
+    }
 }
 
 - (void)handleDidShowTab:(TiUITabProxy *)newFocus

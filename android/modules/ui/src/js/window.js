@@ -165,6 +165,12 @@ exports.bootstrapWindow = function(Titanium) {
 	Window.prototype.getWindowPixelFormat = windowPixelFormatGetter;
 	Window.prototype.setWindowPixelFormat = windowPixelFormatSetter;
 	Object.defineProperty(Window.prototype, "windowPixelFormat", { get: windowPixelFormatGetter, set: windowPixelFormatSetter});
+	
+	var childrenGetter = function() {
+		return this._children;
+	}
+
+	Window.prototype.getChildren = childrenGetter;
 
 	Window.prototype.open = function(options) {
 		var self = this;
@@ -243,6 +249,7 @@ exports.bootstrapWindow = function(Titanium) {
 			this.fireEvent("open");
 
 		}
+
 	}
 
 	Window.prototype.setWindow = function(existingWindow) {
@@ -503,6 +510,8 @@ exports.bootstrapWindow = function(Titanium) {
 		window._children = [];
 		window._postOpenChildren = [];
 		var self = window;
+
+		Object.defineProperty(window, "children", { get: childrenGetter});
 
 		return window;
 		
