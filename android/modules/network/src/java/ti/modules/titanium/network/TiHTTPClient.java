@@ -94,6 +94,10 @@ import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
 import android.net.Uri;
 
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
+
 public class TiHTTPClient
 {
 	private static final String LCAT = "TiHttpClient";
@@ -558,7 +562,15 @@ public class TiHTTPClient
 		
 		if (responseData != null && responseText == null) {
 			if (charset == null) {
-				charset = HTTP.UTF_8;
+				//find charset from meta tag
+				String text = responseData.toString();
+				Pattern pattern = Pattern.compile("<meta[^>]*charset=\"*([\\p{Alnum}-.:_]+)\"*");
+				Matcher matcher = pattern.matcher(text);
+				if (matcher.find()) {
+					charset = matcher.group(1);
+				} else {
+					charset = HTTP.UTF_8;
+				}
 			}
 
 			try {
