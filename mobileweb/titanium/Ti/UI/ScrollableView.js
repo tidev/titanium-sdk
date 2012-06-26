@@ -325,7 +325,8 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 						return value;
 					}
 					return oldValue;
-				}
+				},
+				value: -1
 			},
 			pagingControlColor: {
 				set: function(value) {
@@ -374,6 +375,7 @@ define(["Ti/_/browser", "Ti/_/declare", "Ti/_/UI/KineticScrollView", "Ti/_/lang"
 						view.height = "100%";
 						contentContainer._add(view);
 					}
+					this.properties.__values__.currentPage = len ? 0 : -1;
 
 					return value;
 				},
