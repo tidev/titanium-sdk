@@ -37,6 +37,12 @@ static struct {
 #define UPDATE_STATS(total, detached)
 #endif
 
+static void DetachCallback(v8::Persistent<v8::Value> value, void *data)
+{
+	JavaObject *javaObject = static_cast<JavaObject*>(data);
+	javaObject->detach();
+}
+
 JavaObject::JavaObject(jobject javaObject)
 	: EventEmitter()
 	, javaObject_(NULL)
@@ -86,11 +92,13 @@ jobject JavaObject::getJavaObject()
 		return javaObject_;
 	} else {
 		if (isWeakRef_) {
+			UPDATE_STATS(0, -1);
 			jobject javaObject = ReferenceTable::clearWeakReference(refTableKey_);
 			if (javaObject == NULL) {
 				LOGE(TAG, "Java object reference has been invalidated.");
 			}
 			isWeakRef_ = false;
+			handle_.MakeWeak(this, DetachCallback);
 			return javaObject;
 		}
 		return ReferenceTable::getReference(refTableKey_);
@@ -140,12 +148,6 @@ JavaObject::~JavaObject()
 	if (javaObject_ || refTableKey_ > 0) {
 		deleteGlobalRef();
 	}
-}
-
-static void DetachCallback(v8::Persistent<v8::Value> value, void *data)
-{
-	JavaObject *javaObject = static_cast<JavaObject*>(data);
-	javaObject->detach();
 }
 
 void JavaObject::wrap(Handle<Object> jsObject)
