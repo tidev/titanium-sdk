@@ -108,8 +108,10 @@
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         if (player != nil) {
-            [player pause];
-            paused = YES;
+            if ([player isPlaying]) {
+                [player pause];
+                paused = YES;
+            }
         }
     });
 }
