@@ -32,10 +32,10 @@ int CaselessCompare(const char * firstString, const char * secondString, int siz
 }
 
 
-#define TRYENCODING( encodingName, nameSize, returnValue )	\
-if((remainingSize > nameSize) && (0==CaselessCompare(data, encodingName, nameSize))) return returnValue;
+#define TRYENCODING( encodingName, nameSize, returnValue, value )	\
+if((remainingSize > nameSize) && (0==CaselessCompare(data, encodingName, nameSize))) {*value = returnValue; return YES;}
 
-NSStringEncoding ExtractEncodingFromData(NSData * inputData)
+BOOL ExtractEncodingFromData(NSData * inputData, NSStringEncoding* result)
 {
 	int remainingSize = [inputData length];
 	int unsearchableSize;
@@ -53,19 +53,19 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 		{
 			enc += 10;
 			data = enc;
-			TRYENCODING("windows-1252",12,NSWindowsCP1252StringEncoding);
-			TRYENCODING("iso-8859-1",10,NSISOLatin1StringEncoding);
-			TRYENCODING("utf-8",5,NSUTF8StringEncoding);
-			TRYENCODING("shift-jis",9,NSShiftJISStringEncoding);
-			TRYENCODING("shift_jis",9,NSShiftJISStringEncoding);
-			TRYENCODING("x-euc",5,NSJapaneseEUCStringEncoding);
-			TRYENCODING("euc-jp",6,NSJapaneseEUCStringEncoding);
-			TRYENCODING("windows-1250",12,NSWindowsCP1251StringEncoding);
-			TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding);
-			TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding);
-			TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding);
-			TRYENCODING("windows-1255",12,CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingWindowsHebrew));
-			return NSUTF8StringEncoding;
+			TRYENCODING("windows-1252",12,NSWindowsCP1252StringEncoding,result);
+			TRYENCODING("iso-8859-1",10,NSISOLatin1StringEncoding,result);
+			TRYENCODING("utf-8",5,NSUTF8StringEncoding,result);
+			TRYENCODING("shift-jis",9,NSShiftJISStringEncoding,result);
+			TRYENCODING("shift_jis",9,NSShiftJISStringEncoding,result);
+			TRYENCODING("x-euc",5,NSJapaneseEUCStringEncoding,result);
+			TRYENCODING("euc-jp",6,NSJapaneseEUCStringEncoding,result);
+			TRYENCODING("windows-1250",12,NSWindowsCP1251StringEncoding,result);
+			TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding,result);
+			TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding,result);
+			TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding,result);
+			TRYENCODING("windows-1255",12,CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingWindowsHebrew),result);
+			return NO;
 		}
 	}
 	
@@ -81,20 +81,20 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 		data += 8;
 		remainingSize -= 8;
 		
-		TRYENCODING("windows-1252",12,NSWindowsCP1252StringEncoding);
-		TRYENCODING("iso-8859-1",10,NSISOLatin1StringEncoding);
-		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
-		TRYENCODING("shift-jis",9,NSShiftJISStringEncoding);
-		TRYENCODING("shift_jis",9,NSShiftJISStringEncoding);
-		TRYENCODING("x-euc",5,NSJapaneseEUCStringEncoding);
-		TRYENCODING("euc-jp",6,NSJapaneseEUCStringEncoding);
-		TRYENCODING("windows-1250",12,NSWindowsCP1251StringEncoding);
-		TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding);
-		TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding);
-		TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding);
-		TRYENCODING("windows-1255",12,CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingWindowsHebrew));
+		TRYENCODING("windows-1252",12,NSWindowsCP1252StringEncoding,result);
+		TRYENCODING("iso-8859-1",10,NSISOLatin1StringEncoding,result);
+		TRYENCODING("utf-8",5,NSUTF8StringEncoding,result);
+		TRYENCODING("shift-jis",9,NSShiftJISStringEncoding,result);
+		TRYENCODING("shift_jis",9,NSShiftJISStringEncoding,result);
+		TRYENCODING("x-euc",5,NSJapaneseEUCStringEncoding,result);
+		TRYENCODING("euc-jp",6,NSJapaneseEUCStringEncoding,result);
+		TRYENCODING("windows-1250",12,NSWindowsCP1251StringEncoding,result);
+		TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding,result);
+		TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding,result);
+		TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding,result);
+		TRYENCODING("windows-1255",12,CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingWindowsHebrew),result);
 	}	
-	return NSUTF8StringEncoding;
+	return NO;
 }
 
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
@@ -209,8 +209,19 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 		{
 			// encoding failed, probably a bad webserver or content we have to deal
 			// with in a _special_ way
-			NSStringEncoding encoding = ExtractEncodingFromData(data);
-			result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:encoding] autorelease];
+            NSStringEncoding encoding = NSUTF8StringEncoding;
+            BOOL didExtractEncoding = ExtractEncodingFromData(data, &encoding);
+            if (didExtractEncoding) {
+                //If I did extract encoding use that
+                result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:encoding] autorelease];
+            }
+            else {
+                //If the encoding was not extracted correctly, try UTF 8. If it fails try ISO-8859-1 (HTTP.DEFAULT_CONTENT_CHARSET)
+                result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:NSUTF8StringEncoding] autorelease];
+                if (result == nil) {
+                    result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:NSISOLatin1StringEncoding] autorelease];
+                }
+            }
 			
 		}
 		if (result!=nil)
