@@ -105,7 +105,8 @@ events:
 
   - name: pause
     summary: Fired when the animation pauses.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
+    since: { android: "2.1.1" }
 properties:
   - name: animating
     summary: |
@@ -146,7 +147,7 @@ properties:
         
         On iOS and Mobile Web, prior to release 2.1.1, the default is 30 ms.
     type: Number
-    default: See description
+    default: 200 ms in Release 2.1.1 and later. Platform-specific default in earlier releases.
     
   - name: enableZoomControls
     summary: Show zoom controls when the user touches the image view.
