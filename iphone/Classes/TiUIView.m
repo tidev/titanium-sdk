@@ -24,7 +24,7 @@ void InsetScrollViewForKeyboard(UIScrollView * scrollView,CGFloat keyboardTop,CG
 {
 	VerboseLog(@"ScrollView:%@, keyboardTop:%f minimumContentHeight:%f",scrollView,keyboardTop,minimumContentHeight);
 
-	CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp controller] view]];
+	CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
 	//First, find out how much we have to compensate.
 
 	CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;	
@@ -57,7 +57,7 @@ void OffsetScrollViewForRect(UIScrollView * scrollView,CGFloat keyboardTop,CGFlo
 			scrollView,keyboardTop,minimumContentHeight,
 			responderRect.origin.x,responderRect.origin.y,responderRect.size.width,responderRect.size.height);
 
-	CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp controller] view]];
+	CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
 	//First, find out how much we have to compensate.
 
 	CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;	
@@ -102,7 +102,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 			scrollView,keyboardTop,minimumContentHeight,
 			responderRect.origin.x,responderRect.origin.y,responderRect.size.width,responderRect.size.height);
 
-	CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp controller] view]];
+	CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
 	//First, find out how much we have to compensate.
 
 	CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;	
