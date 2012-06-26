@@ -88,6 +88,7 @@
 
 -(void)prepareForReuse
 {
+	[proxy prepareTableRowForReuse];
 	[self setProxy:nil];
 	[super prepareForReuse];
 	
@@ -1701,11 +1702,6 @@ return result;	\
 	}
 	else
 	{
-		// TODO: Right now, reproxying, redrawing, reloading, etc. is SLOWER than simply drawing in the new cell contents!
-		// So what we're going to do with this cell is clear its contents out, then redraw it as if it were a new cell.
-		// Keeps the cell pool small and reusable.
-		[TiUITableViewRowProxy clearTableRowCell:cell];
-        
         // Have to reset the proxy on the cell, and the row's callback cell, as it may have been cleared in reuse operations (or reassigned)
         [(TiUITableViewCell*)cell setProxy:row];
         [row setCallbackCell:(TiUITableViewCell*)cell];
