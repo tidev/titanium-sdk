@@ -306,7 +306,7 @@ DEFINE_EXCEPTIONS
 		[UIView commitAnimations];
 		
 		placeholderLoading = NO;
-		[self fireLoadEventWithState:@"url"];
+		[self fireLoadEventWithState:@"image"];
 	}
 }
 
@@ -471,7 +471,7 @@ DEFINE_EXCEPTIONS
                 autoWidth = fullSize.width;
                 autoHeight = fullSize.height;
                 [self imageView].image = image;
-                [self fireLoadEventWithState:@"url"];
+                [self fireLoadEventWithState:@"image"];
             }
             else {
                 [self loadDefaultImage:imageSize];
@@ -497,7 +497,7 @@ DEFINE_EXCEPTIONS
 			autoHeight = fullSize.height;
 			
 			[self imageView].image = image;
-			[self fireLoadEventWithState:@"url"];
+			[self fireLoadEventWithState:@"image"];
 		}
 	}
 }
@@ -691,7 +691,7 @@ DEFINE_EXCEPTIONS
 	
 	if (currentImage!=image)
 	{
-		[self fireLoadEventWithState:@"url"];
+		[self fireLoadEventWithState:@"image"];
 	}
 }
 
