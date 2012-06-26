@@ -65,6 +65,20 @@ properties:
     type: Boolean
     default: false
     
+  - name: autoLink
+    summary: Automatically convert text to clickable links. 
+    description: |     
+        Use one of the <Titanium.UI.Android> linkify constants:
+        [LINKIFY_ALL](Titanium.UI.Android.LINKIFY_ALL),
+        [LINKIFY_EMAIL_ADDRESSES](Titanium.UI.Android.LINKIFY_EMAIL_ADDRESSES),
+        [LINKIFY_MAP_ADDRESSES](Titanium.UI.Android.LINKIFY_MAP_ADDRESSES),
+        [LINKIFY_PHONE_NUMBERS](Titanium.UI.Android.LINKIFY_PHONE_NUMBERS),
+        or [LINKIFY_WEB_URLS](Titanium.UI.Android.LINKIFY_WEB_URLS).
+    type: Number
+    default: undefined
+    since: 2.2.0
+    platforms: [android]
+    
   - name: borderStyle
     summary: Border style for the field. 
     description: |
