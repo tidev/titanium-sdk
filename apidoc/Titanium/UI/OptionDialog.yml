@@ -34,6 +34,9 @@ description: |
     
     On iPad, this dialog is shown in the middle of the display, or as a popover-like dialog if 
     another view or control is specified via an argument.
+
+    Note that on iPad, the cancel button is not displayed -- users can cancel the dialog
+    by clicking outside of the dialog.
     
     #### Caveats
     
@@ -116,9 +119,14 @@ properties:
     description: |
         On iOS, set to `-1` to disable the cancel option.
         
-        On iPad, when the cancel option is enabled by having a valid option index, it must be 
-        the last option, otherwise the last entry in [options](Titanium.UI.OptionDialog.options) 
-        will not be displayed.
+        On iPad, the `cancel` option must be set to either `-1` or the index of the last 
+        option. For example, if there are 3 options and one of them is a cancel button,
+        the cancel button must be the last option (index 2).  If `cancel` is set to a 
+        different value, _the last entry in the [options](Titanium.UI.OptionDialog.options) 
+        array **is not displayed**._
+
+        Note that the cancel button is never shown on iPad, since the user can cancel the 
+        dialog by clicking outside of the dialog. 
     type: Number
     default: undefined (Android), -1 (iOS, Mobile Web)
 
@@ -161,9 +169,9 @@ examples:
         });
         
         var opts = {
-          cancel: 1,
-          options: ['Confirm', 'Cancel', 'Help'],
-          selectedIndex: 1,
+          cancel: 2,
+          options: ['Confirm', 'Help', 'Cancel'],
+          selectedIndex: 2,
           destructive: 0,
           title: 'Delete File?'
         };
@@ -194,7 +202,7 @@ examples:
           opts.options = ['Confirm', 'Cancel'];
           opts.buttonNames = ['Confirm'];
         } else {
-          opts.options = ['Confirm', 'Cancel', 'Help'];
+          opts.options = ['Confirm', 'Help', 'Cancel'];
         }
         
         win.addEventListener('click', function(e){
