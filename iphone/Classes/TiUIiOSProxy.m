@@ -30,7 +30,7 @@
 	#import "TiUIiOSTabbedBarProxy.h"
 #endif
 
-#ifdef USE_TI_UIIOSDOCUMENTVIEWER
+#if defined(USE_TI_UIIPADDOCUMENTVIEWER) || defined(USE_TI_UIIOSDOCUMENTVIEWER)
     #import "TiUIiOSDocumentViewerProxy.h"
 #endif
 
@@ -88,7 +88,7 @@
 }
 #endif
 
-#ifdef USE_TI_UIIOSDOCUMENTVIEWER
+#if defined(USE_TI_UIIPADDOCUMENTVIEWER) || defined(USE_TI_UIIOSDOCUMENTVIEWER)
 -(id)createDocumentViewer:(id)args
 {
 	return [[[TiUIiOSDocumentViewerProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];

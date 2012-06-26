@@ -10,6 +10,9 @@ description: |
     For example, an email program might use this class to allow the user to preview attachments and 
     open them in other apps. Use this class to present an appropriate user interface for previewing 
     or printing a specified file. 
+    
+    For a code sample, see <Titanium.UI.iOS.DocumentViewer>.
+
 extends: Titanium.UI.View
 platforms: [ipad]
 since: "1.8"
@@ -34,3 +37,4 @@ methods:
       - name: url
         summary: The new url
         type: String
+

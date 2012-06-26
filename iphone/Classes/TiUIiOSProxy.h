@@ -38,7 +38,7 @@
 #ifdef USE_TI_UIIOSTABBEDBAR
 -(id)createTabbedBar:(id)args;
 #endif
-#ifdef USE_TI_UIIOSDOCUMENTVIEWER
+#if defined(USE_TI_UIIPADDOCUMENTVIEWER) || defined(USE_TI_UIIOSDOCUMENTVIEWER)
 -(id)createDocumentViewer:(id)args;
 #endif
 
