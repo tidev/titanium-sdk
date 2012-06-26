@@ -419,7 +419,10 @@ public class TiConvert
 	 */
 	public static float toFloat(Object value)
 	{
-		if (value instanceof Double) {
+		if (value instanceof Float) {
+			return (Float) value;
+
+		} else if (value instanceof Double) {
 			return ((Double) value).floatValue();
 
 		} else if (value instanceof Integer) {
