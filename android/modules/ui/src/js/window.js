@@ -26,8 +26,6 @@ exports.bootstrapWindow = function(Titanium) {
 	var Proxy = Titanium.Proxy;
 	var TiWindow = Titanium.TiWindow;
 
-	// A collection of windows we need to keep alive.
-	var windows = [];
 	Window.prototype.isActivity = false;
 	// set constants for representing states for the window
 	Window.prototype.state = {closed: 0, opening: 1, opened: 2, closing: 3};
