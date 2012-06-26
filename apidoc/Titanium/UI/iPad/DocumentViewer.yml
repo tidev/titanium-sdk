@@ -1,6 +1,6 @@
 ---
 name: Titanium.UI.iPad.DocumentViewer
-summary: Use <Ti.UI.iOS.DocumentViewer> instead.
+summary: Use <Titanium.UI.iOS.DocumentViewer> instead.
 description: |
     A DocumentViewer provides in-app support for managing user interactions with files on the 
     local system.
