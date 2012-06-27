@@ -167,7 +167,9 @@ public class TiUITabGroup extends TiUIView
 
 		KrollDict tabChangeEventData = tabGroupProxy.buildFocusEvent(currentTabID, previousTabID);
 		if (prevTab != null) {
-			prevTab.fireEvent(TiC.EVENT_BLUR, tabChangeEventData, true);
+			// Create a clone of the event data since the 'source' needs to be
+			// correctly set for the proxy firing the event.
+			prevTab.fireEvent(TiC.EVENT_BLUR, tabChangeEventData.clone(), true);
 		}
 		currentTab.fireEvent(TiC.EVENT_FOCUS, tabChangeEventData, true);
 
