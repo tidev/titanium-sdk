@@ -128,7 +128,7 @@ properties:
         See also: [indicatorColor](Titanium.UI.ActivityIndicator.indicatorColor),
         [indicatorDiameter](Titanium.UI.ActivityIndicator.indicatorDiameter)
     type: Number
-    default: <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN> (iOS), <Titanium.UI.MobileWeb.ActivityIndicatorStyle.PLAIN> (Mobile Web)
+    default: <Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN> (iOS), <Titanium.UI.ActivityIndicatorStyle.PLAIN> (Mobile Web)
     platforms: [iphone, ipad, mobileweb]
 
   - name: indicatorColor
