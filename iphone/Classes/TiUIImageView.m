@@ -751,7 +751,7 @@ DEFINE_EXCEPTIONS
 -(void)setDuration_:(id)duration
 {
     float dur = [TiUtils floatValue:duration];
-    dur = dur < 30 ?IMAGEVIEW_MIN_INTERVAL : dur; 
+    dur =  MAX(IMAGEVIEW_MIN_INTERVAL,dur); 
     
     interval = dur/1000;
     [self.proxy replaceValue:NUMINT(dur) forKey:@"duration" notification:NO];
