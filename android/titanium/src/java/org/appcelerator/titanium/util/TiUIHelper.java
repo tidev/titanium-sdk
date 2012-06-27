@@ -537,17 +537,17 @@ public class TiUIHelper
 	{
 		StateListDrawable sld = new StateListDrawable();
 
-		Drawable bgSelectedDrawable = buildBackgroundDrawable(selectedColor, selectedImage, false, gradientDrawable);
+		Drawable bgSelectedDrawable = buildBackgroundDrawable(selectedColor, selectedImage, tileImage, gradientDrawable);
 		if (bgSelectedDrawable != null) {
 			sld.addState(BACKGROUND_SELECTED_STATE, bgSelectedDrawable);
 		}
 
-		Drawable bgFocusedDrawable = buildBackgroundDrawable(focusedColor, focusedImage, false, gradientDrawable);
+		Drawable bgFocusedDrawable = buildBackgroundDrawable(focusedColor, focusedImage, tileImage, gradientDrawable);
 		if (bgFocusedDrawable != null) {
 			sld.addState(BACKGROUND_FOCUSED_STATE, bgFocusedDrawable);
 		}
 
-		Drawable bgDisabledDrawable = buildBackgroundDrawable(disabledColor, disabledImage, false, gradientDrawable);
+		Drawable bgDisabledDrawable = buildBackgroundDrawable(disabledColor, disabledImage, tileImage, gradientDrawable);
 		if (bgDisabledDrawable != null) {
 			sld.addState(BACKGROUND_DISABLED_STATE, bgDisabledDrawable);
 		}
