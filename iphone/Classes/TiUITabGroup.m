@@ -339,14 +339,10 @@ DEFINE_EXCEPTIONS
 		}
 	}
 	if (active == nil)  {
-		active = [self tabController].selectedViewController;
-	}
-	if (active != nil)  {
-		[self tabController].selectedViewController = active;
-		[self tabBarController:[self tabController] didSelectViewController:active];
-	} else {
 		DebugLog(@"setActiveTab called but active view controller could not be determined");
 	}
+	[self tabController].selectedViewController = active;
+	[self tabBarController:[self tabController] didSelectViewController:active];
 }
 
 -(void)setAllowUserCustomization_:(id)value
